@@ -1,0 +1,3170 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    def
+    print
+
+Grammar
+
+Rule 0     S' -> program
+Rule 1     program -> class_list
+Rule 2     epsilon -> <empty>
+Rule 3     class_list -> def_class class_list
+Rule 4     class_list -> def_class
+Rule 5     def_class -> class id ocur feature_list ccur semi
+Rule 6     def_class -> class id inherits id ocur feature_list ccur semi
+Rule 7     feature_list -> epsilon
+Rule 8     feature_list -> def_attr semi feature_list
+Rule 9     feature_list -> def_func semi feature_list
+Rule 10    def_attr -> id colon id
+Rule 11    def_attr -> id colon id larrow expr
+Rule 12    def_func -> id opar param_list cpar colon id ocur expr ccur
+Rule 13    param_list -> param
+Rule 14    param_list -> param comma param_list
+Rule 15    param_list -> epsilon
+Rule 16    param -> id colon id
+Rule 17    expr -> let let_list in expr
+Rule 18    expr -> case expr of cases_list esac
+Rule 19    expr -> if expr then expr else expr fi
+Rule 20    expr -> while expr loop expr pool
+Rule 21    expr -> arith
+Rule 22    let_list -> let_assign
+Rule 23    let_list -> let_assign comma let_list
+Rule 24    let_assign -> param larrow expr
+Rule 25    let_assign -> param
+Rule 26    cases_list -> casep semi
+Rule 27    cases_list -> casep semi cases_list
+Rule 28    casep -> id colon id rarrow expr
+Rule 29    arith -> id larrow expr
+Rule 30    arith -> not comp
+Rule 31    arith -> comp
+Rule 32    comp -> comp less op
+Rule 33    comp -> comp lesseq op
+Rule 34    comp -> comp equal op
+Rule 35    comp -> op
+Rule 36    op -> op plus term
+Rule 37    op -> op minus term
+Rule 38    op -> term
+Rule 39    term -> term star base_call
+Rule 40    term -> term div base_call
+Rule 41    term -> isvoid base_call
+Rule 42    term -> nox base_call
+Rule 43    term -> base_call
+Rule 44    base_call -> factor arroba id dot func_call
+Rule 45    base_call -> factor
+Rule 46    factor -> atom
+Rule 47    factor -> opar expr cpar
+Rule 48    factor -> factor dot func_call
+Rule 49    factor -> func_call
+Rule 50    atom -> num
+Rule 51    atom -> id
+Rule 52    atom -> new id
+Rule 53    atom -> ocur block ccur
+Rule 54    atom -> true
+Rule 55    atom -> false
+Rule 56    atom -> string
+Rule 57    block -> expr semi
+Rule 58    block -> expr semi block
+Rule 59    func_call -> id opar arg_list cpar
+Rule 60    arg_list -> expr
+Rule 61    arg_list -> expr comma arg_list
+Rule 62    arg_list -> epsilon
+
+Terminals, with rules where they appear
+
+arroba               : 44
+case                 : 18
+ccur                 : 5 6 12 53
+class                : 5 6
+colon                : 10 11 12 16 28
+comma                : 14 23 61
+cpar                 : 12 47 59
+def                  : 
+div                  : 40
+dot                  : 44 48
+else                 : 19
+equal                : 34
+error                : 
+esac                 : 18
+false                : 55
+fi                   : 19
+id                   : 5 6 6 10 10 11 11 12 12 16 16 28 28 29 44 51 52 59
+if                   : 19
+in                   : 17
+inherits             : 6
+isvoid               : 41
+larrow               : 11 24 29
+less                 : 32
+lesseq               : 33
+let                  : 17
+loop                 : 20
+minus                : 37
+new                  : 52
+not                  : 30
+nox                  : 42
+num                  : 50
+ocur                 : 5 6 12 53
+of                   : 18
+opar                 : 12 47 59
+plus                 : 36
+pool                 : 20
+print                : 
+rarrow               : 28
+semi                 : 5 6 8 9 26 27 57 58
+star                 : 39
+string               : 56
+then                 : 19
+true                 : 54
+while                : 20
+
+Nonterminals, with rules where they appear
+
+arg_list             : 59 61
+arith                : 21
+atom                 : 46
+base_call            : 39 40 41 42 43
+block                : 53 58
+casep                : 26 27
+cases_list           : 18 27
+class_list           : 1 3
+comp                 : 30 31 32 33 34
+def_attr             : 8
+def_class            : 3 4
+def_func             : 9
+epsilon              : 7 15 62
+expr                 : 11 12 17 18 19 19 19 20 20 24 28 29 47 57 58 60 61
+factor               : 44 45 48
+feature_list         : 5 6 8 9
+func_call            : 44 48 49
+let_assign           : 22 23
+let_list             : 17 23
+op                   : 32 33 34 35 36 37
+param                : 13 14 24 25
+param_list           : 12 14
+program              : 0
+term                 : 36 37 38 39 40
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . program
+    (1) program -> . class_list
+    (3) class_list -> . def_class class_list
+    (4) class_list -> . def_class
+    (5) def_class -> . class id ocur feature_list ccur semi
+    (6) def_class -> . class id inherits id ocur feature_list ccur semi
+
+    class           shift and go to state 4
+
+    program                        shift and go to state 1
+    class_list                     shift and go to state 2
+    def_class                      shift and go to state 3
+
+state 1
+
+    (0) S' -> program .
+
+
+
+state 2
+
+    (1) program -> class_list .
+
+    $end            reduce using rule 1 (program -> class_list .)
+
+
+state 3
+
+    (3) class_list -> def_class . class_list
+    (4) class_list -> def_class .
+    (3) class_list -> . def_class class_list
+    (4) class_list -> . def_class
+    (5) def_class -> . class id ocur feature_list ccur semi
+    (6) def_class -> . class id inherits id ocur feature_list ccur semi
+
+    $end            reduce using rule 4 (class_list -> def_class .)
+    class           shift and go to state 4
+
+    def_class                      shift and go to state 3
+    class_list                     shift and go to state 5
+
+state 4
+
+    (5) def_class -> class . id ocur feature_list ccur semi
+    (6) def_class -> class . id inherits id ocur feature_list ccur semi
+
+    id              shift and go to state 6
+
+
+state 5
+
+    (3) class_list -> def_class class_list .
+
+    $end            reduce using rule 3 (class_list -> def_class class_list .)
+
+
+state 6
+
+    (5) def_class -> class id . ocur feature_list ccur semi
+    (6) def_class -> class id . inherits id ocur feature_list ccur semi
+
+    ocur            shift and go to state 7
+    inherits        shift and go to state 8
+
+
+state 7
+
+    (5) def_class -> class id ocur . feature_list ccur semi
+    (7) feature_list -> . epsilon
+    (8) feature_list -> . def_attr semi feature_list
+    (9) feature_list -> . def_func semi feature_list
+    (2) epsilon -> .
+    (10) def_attr -> . id colon id
+    (11) def_attr -> . id colon id larrow expr
+    (12) def_func -> . id opar param_list cpar colon id ocur expr ccur
+
+    ccur            reduce using rule 2 (epsilon -> .)
+    id              shift and go to state 9
+
+    feature_list                   shift and go to state 10
+    epsilon                        shift and go to state 11
+    def_attr                       shift and go to state 12
+    def_func                       shift and go to state 13
+
+state 8
+
+    (6) def_class -> class id inherits . id ocur feature_list ccur semi
+
+    id              shift and go to state 14
+
+
+state 9
+
+    (10) def_attr -> id . colon id
+    (11) def_attr -> id . colon id larrow expr
+    (12) def_func -> id . opar param_list cpar colon id ocur expr ccur
+
+    colon           shift and go to state 15
+    opar            shift and go to state 16
+
+
+state 10
+
+    (5) def_class -> class id ocur feature_list . ccur semi
+
+    ccur            shift and go to state 17
+
+
+state 11
+
+    (7) feature_list -> epsilon .
+
+    ccur            reduce using rule 7 (feature_list -> epsilon .)
+
+
+state 12
+
+    (8) feature_list -> def_attr . semi feature_list
+
+    semi            shift and go to state 18
+
+
+state 13
+
+    (9) feature_list -> def_func . semi feature_list
+
+    semi            shift and go to state 19
+
+
+state 14
+
+    (6) def_class -> class id inherits id . ocur feature_list ccur semi
+
+    ocur            shift and go to state 20
+
+
+state 15
+
+    (10) def_attr -> id colon . id
+    (11) def_attr -> id colon . id larrow expr
+
+    id              shift and go to state 21
+
+
+state 16
+
+    (12) def_func -> id opar . param_list cpar colon id ocur expr ccur
+    (13) param_list -> . param
+    (14) param_list -> . param comma param_list
+    (15) param_list -> . epsilon
+    (16) param -> . id colon id
+    (2) epsilon -> .
+
+    id              shift and go to state 22
+    cpar            reduce using rule 2 (epsilon -> .)
+
+    param_list                     shift and go to state 23
+    param                          shift and go to state 24
+    epsilon                        shift and go to state 25
+
+state 17
+
+    (5) def_class -> class id ocur feature_list ccur . semi
+
+    semi            shift and go to state 26
+
+
+state 18
+
+    (8) feature_list -> def_attr semi . feature_list
+    (7) feature_list -> . epsilon
+    (8) feature_list -> . def_attr semi feature_list
+    (9) feature_list -> . def_func semi feature_list
+    (2) epsilon -> .
+    (10) def_attr -> . id colon id
+    (11) def_attr -> . id colon id larrow expr
+    (12) def_func -> . id opar param_list cpar colon id ocur expr ccur
+
+    ccur            reduce using rule 2 (epsilon -> .)
+    id              shift and go to state 9
+
+    def_attr                       shift and go to state 12
+    feature_list                   shift and go to state 27
+    epsilon                        shift and go to state 11
+    def_func                       shift and go to state 13
+
+state 19
+
+    (9) feature_list -> def_func semi . feature_list
+    (7) feature_list -> . epsilon
+    (8) feature_list -> . def_attr semi feature_list
+    (9) feature_list -> . def_func semi feature_list
+    (2) epsilon -> .
+    (10) def_attr -> . id colon id
+    (11) def_attr -> . id colon id larrow expr
+    (12) def_func -> . id opar param_list cpar colon id ocur expr ccur
+
+    ccur            reduce using rule 2 (epsilon -> .)
+    id              shift and go to state 9
+
+    def_func                       shift and go to state 13
+    feature_list                   shift and go to state 28
+    epsilon                        shift and go to state 11
+    def_attr                       shift and go to state 12
+
+state 20
+
+    (6) def_class -> class id inherits id ocur . feature_list ccur semi
+    (7) feature_list -> . epsilon
+    (8) feature_list -> . def_attr semi feature_list
+    (9) feature_list -> . def_func semi feature_list
+    (2) epsilon -> .
+    (10) def_attr -> . id colon id
+    (11) def_attr -> . id colon id larrow expr
+    (12) def_func -> . id opar param_list cpar colon id ocur expr ccur
+
+    ccur            reduce using rule 2 (epsilon -> .)
+    id              shift and go to state 9
+
+    feature_list                   shift and go to state 29
+    epsilon                        shift and go to state 11
+    def_attr                       shift and go to state 12
+    def_func                       shift and go to state 13
+
+state 21
+
+    (10) def_attr -> id colon id .
+    (11) def_attr -> id colon id . larrow expr
+
+    semi            reduce using rule 10 (def_attr -> id colon id .)
+    larrow          shift and go to state 30
+
+
+state 22
+
+    (16) param -> id . colon id
+
+    colon           shift and go to state 31
+
+
+state 23
+
+    (12) def_func -> id opar param_list . cpar colon id ocur expr ccur
+
+    cpar            shift and go to state 32
+
+
+state 24
+
+    (13) param_list -> param .
+    (14) param_list -> param . comma param_list
+
+    cpar            reduce using rule 13 (param_list -> param .)
+    comma           shift and go to state 33
+
+
+state 25
+
+    (15) param_list -> epsilon .
+
+    cpar            reduce using rule 15 (param_list -> epsilon .)
+
+
+state 26
+
+    (5) def_class -> class id ocur feature_list ccur semi .
+
+    class           reduce using rule 5 (def_class -> class id ocur feature_list ccur semi .)
+    $end            reduce using rule 5 (def_class -> class id ocur feature_list ccur semi .)
+
+
+state 27
+
+    (8) feature_list -> def_attr semi feature_list .
+
+    ccur            reduce using rule 8 (feature_list -> def_attr semi feature_list .)
+
+
+state 28
+
+    (9) feature_list -> def_func semi feature_list .
+
+    ccur            reduce using rule 9 (feature_list -> def_func semi feature_list .)
+
+
+state 29
+
+    (6) def_class -> class id inherits id ocur feature_list . ccur semi
+
+    ccur            shift and go to state 34
+
+
+state 30
+
+    (11) def_attr -> id colon id larrow . expr
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 36
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 31
+
+    (16) param -> id colon . id
+
+    id              shift and go to state 59
+
+
+state 32
+
+    (12) def_func -> id opar param_list cpar . colon id ocur expr ccur
+
+    colon           shift and go to state 60
+
+
+state 33
+
+    (14) param_list -> param comma . param_list
+    (13) param_list -> . param
+    (14) param_list -> . param comma param_list
+    (15) param_list -> . epsilon
+    (16) param -> . id colon id
+    (2) epsilon -> .
+
+    id              shift and go to state 22
+    cpar            reduce using rule 2 (epsilon -> .)
+
+    param                          shift and go to state 24
+    param_list                     shift and go to state 61
+    epsilon                        shift and go to state 25
+
+state 34
+
+    (6) def_class -> class id inherits id ocur feature_list ccur . semi
+
+    semi            shift and go to state 62
+
+
+state 35
+
+    (29) arith -> id . larrow expr
+    (51) atom -> id .
+    (59) func_call -> id . opar arg_list cpar
+
+    larrow          shift and go to state 63
+    arroba          reduce using rule 51 (atom -> id .)
+    dot             reduce using rule 51 (atom -> id .)
+    star            reduce using rule 51 (atom -> id .)
+    div             reduce using rule 51 (atom -> id .)
+    plus            reduce using rule 51 (atom -> id .)
+    minus           reduce using rule 51 (atom -> id .)
+    less            reduce using rule 51 (atom -> id .)
+    lesseq          reduce using rule 51 (atom -> id .)
+    equal           reduce using rule 51 (atom -> id .)
+    semi            reduce using rule 51 (atom -> id .)
+    of              reduce using rule 51 (atom -> id .)
+    then            reduce using rule 51 (atom -> id .)
+    loop            reduce using rule 51 (atom -> id .)
+    cpar            reduce using rule 51 (atom -> id .)
+    comma           reduce using rule 51 (atom -> id .)
+    in              reduce using rule 51 (atom -> id .)
+    else            reduce using rule 51 (atom -> id .)
+    pool            reduce using rule 51 (atom -> id .)
+    ccur            reduce using rule 51 (atom -> id .)
+    fi              reduce using rule 51 (atom -> id .)
+    opar            shift and go to state 64
+
+
+state 36
+
+    (11) def_attr -> id colon id larrow expr .
+
+    semi            reduce using rule 11 (def_attr -> id colon id larrow expr .)
+
+
+state 37
+
+    (17) expr -> let . let_list in expr
+    (22) let_list -> . let_assign
+    (23) let_list -> . let_assign comma let_list
+    (24) let_assign -> . param larrow expr
+    (25) let_assign -> . param
+    (16) param -> . id colon id
+
+    id              shift and go to state 22
+
+    let_list                       shift and go to state 65
+    let_assign                     shift and go to state 66
+    param                          shift and go to state 67
+
+state 38
+
+    (18) expr -> case . expr of cases_list esac
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 68
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 39
+
+    (19) expr -> if . expr then expr else expr fi
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 69
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 40
+
+    (20) expr -> while . expr loop expr pool
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 70
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 41
+
+    (21) expr -> arith .
+
+    semi            reduce using rule 21 (expr -> arith .)
+    of              reduce using rule 21 (expr -> arith .)
+    then            reduce using rule 21 (expr -> arith .)
+    loop            reduce using rule 21 (expr -> arith .)
+    cpar            reduce using rule 21 (expr -> arith .)
+    comma           reduce using rule 21 (expr -> arith .)
+    in              reduce using rule 21 (expr -> arith .)
+    else            reduce using rule 21 (expr -> arith .)
+    pool            reduce using rule 21 (expr -> arith .)
+    ccur            reduce using rule 21 (expr -> arith .)
+    fi              reduce using rule 21 (expr -> arith .)
+
+
+state 42
+
+    (30) arith -> not . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    id              shift and go to state 72
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    comp                           shift and go to state 71
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 43
+
+    (31) arith -> comp .
+    (32) comp -> comp . less op
+    (33) comp -> comp . lesseq op
+    (34) comp -> comp . equal op
+
+    semi            reduce using rule 31 (arith -> comp .)
+    of              reduce using rule 31 (arith -> comp .)
+    then            reduce using rule 31 (arith -> comp .)
+    loop            reduce using rule 31 (arith -> comp .)
+    cpar            reduce using rule 31 (arith -> comp .)
+    comma           reduce using rule 31 (arith -> comp .)
+    in              reduce using rule 31 (arith -> comp .)
+    else            reduce using rule 31 (arith -> comp .)
+    pool            reduce using rule 31 (arith -> comp .)
+    ccur            reduce using rule 31 (arith -> comp .)
+    fi              reduce using rule 31 (arith -> comp .)
+    less            shift and go to state 73
+    lesseq          shift and go to state 74
+    equal           shift and go to state 75
+
+
+state 44
+
+    (35) comp -> op .
+    (36) op -> op . plus term
+    (37) op -> op . minus term
+
+    less            reduce using rule 35 (comp -> op .)
+    lesseq          reduce using rule 35 (comp -> op .)
+    equal           reduce using rule 35 (comp -> op .)
+    semi            reduce using rule 35 (comp -> op .)
+    of              reduce using rule 35 (comp -> op .)
+    then            reduce using rule 35 (comp -> op .)
+    loop            reduce using rule 35 (comp -> op .)
+    cpar            reduce using rule 35 (comp -> op .)
+    comma           reduce using rule 35 (comp -> op .)
+    in              reduce using rule 35 (comp -> op .)
+    else            reduce using rule 35 (comp -> op .)
+    pool            reduce using rule 35 (comp -> op .)
+    ccur            reduce using rule 35 (comp -> op .)
+    fi              reduce using rule 35 (comp -> op .)
+    plus            shift and go to state 76
+    minus           shift and go to state 77
+
+
+state 45
+
+    (38) op -> term .
+    (39) term -> term . star base_call
+    (40) term -> term . div base_call
+
+    plus            reduce using rule 38 (op -> term .)
+    minus           reduce using rule 38 (op -> term .)
+    less            reduce using rule 38 (op -> term .)
+    lesseq          reduce using rule 38 (op -> term .)
+    equal           reduce using rule 38 (op -> term .)
+    semi            reduce using rule 38 (op -> term .)
+    of              reduce using rule 38 (op -> term .)
+    then            reduce using rule 38 (op -> term .)
+    loop            reduce using rule 38 (op -> term .)
+    cpar            reduce using rule 38 (op -> term .)
+    comma           reduce using rule 38 (op -> term .)
+    in              reduce using rule 38 (op -> term .)
+    else            reduce using rule 38 (op -> term .)
+    pool            reduce using rule 38 (op -> term .)
+    ccur            reduce using rule 38 (op -> term .)
+    fi              reduce using rule 38 (op -> term .)
+    star            shift and go to state 78
+    div             shift and go to state 79
+
+
+state 46
+
+    (43) term -> base_call .
+
+    star            reduce using rule 43 (term -> base_call .)
+    div             reduce using rule 43 (term -> base_call .)
+    plus            reduce using rule 43 (term -> base_call .)
+    minus           reduce using rule 43 (term -> base_call .)
+    less            reduce using rule 43 (term -> base_call .)
+    lesseq          reduce using rule 43 (term -> base_call .)
+    equal           reduce using rule 43 (term -> base_call .)
+    semi            reduce using rule 43 (term -> base_call .)
+    of              reduce using rule 43 (term -> base_call .)
+    then            reduce using rule 43 (term -> base_call .)
+    loop            reduce using rule 43 (term -> base_call .)
+    cpar            reduce using rule 43 (term -> base_call .)
+    comma           reduce using rule 43 (term -> base_call .)
+    in              reduce using rule 43 (term -> base_call .)
+    else            reduce using rule 43 (term -> base_call .)
+    pool            reduce using rule 43 (term -> base_call .)
+    ccur            reduce using rule 43 (term -> base_call .)
+    fi              reduce using rule 43 (term -> base_call .)
+
+
+state 47
+
+    (41) term -> isvoid . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    id              shift and go to state 72
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    base_call                      shift and go to state 80
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 48
+
+    (42) term -> nox . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    id              shift and go to state 72
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    base_call                      shift and go to state 81
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 49
+
+    (44) base_call -> factor . arroba id dot func_call
+    (45) base_call -> factor .
+    (48) factor -> factor . dot func_call
+
+    arroba          shift and go to state 82
+    star            reduce using rule 45 (base_call -> factor .)
+    div             reduce using rule 45 (base_call -> factor .)
+    plus            reduce using rule 45 (base_call -> factor .)
+    minus           reduce using rule 45 (base_call -> factor .)
+    less            reduce using rule 45 (base_call -> factor .)
+    lesseq          reduce using rule 45 (base_call -> factor .)
+    equal           reduce using rule 45 (base_call -> factor .)
+    semi            reduce using rule 45 (base_call -> factor .)
+    of              reduce using rule 45 (base_call -> factor .)
+    then            reduce using rule 45 (base_call -> factor .)
+    loop            reduce using rule 45 (base_call -> factor .)
+    cpar            reduce using rule 45 (base_call -> factor .)
+    comma           reduce using rule 45 (base_call -> factor .)
+    in              reduce using rule 45 (base_call -> factor .)
+    else            reduce using rule 45 (base_call -> factor .)
+    pool            reduce using rule 45 (base_call -> factor .)
+    ccur            reduce using rule 45 (base_call -> factor .)
+    fi              reduce using rule 45 (base_call -> factor .)
+    dot             shift and go to state 83
+
+
+state 50
+
+    (49) factor -> func_call .
+
+    arroba          reduce using rule 49 (factor -> func_call .)
+    dot             reduce using rule 49 (factor -> func_call .)
+    star            reduce using rule 49 (factor -> func_call .)
+    div             reduce using rule 49 (factor -> func_call .)
+    plus            reduce using rule 49 (factor -> func_call .)
+    minus           reduce using rule 49 (factor -> func_call .)
+    less            reduce using rule 49 (factor -> func_call .)
+    lesseq          reduce using rule 49 (factor -> func_call .)
+    equal           reduce using rule 49 (factor -> func_call .)
+    semi            reduce using rule 49 (factor -> func_call .)
+    of              reduce using rule 49 (factor -> func_call .)
+    then            reduce using rule 49 (factor -> func_call .)
+    loop            reduce using rule 49 (factor -> func_call .)
+    cpar            reduce using rule 49 (factor -> func_call .)
+    comma           reduce using rule 49 (factor -> func_call .)
+    in              reduce using rule 49 (factor -> func_call .)
+    else            reduce using rule 49 (factor -> func_call .)
+    pool            reduce using rule 49 (factor -> func_call .)
+    ccur            reduce using rule 49 (factor -> func_call .)
+    fi              reduce using rule 49 (factor -> func_call .)
+
+
+state 51
+
+    (46) factor -> atom .
+
+    arroba          reduce using rule 46 (factor -> atom .)
+    dot             reduce using rule 46 (factor -> atom .)
+    star            reduce using rule 46 (factor -> atom .)
+    div             reduce using rule 46 (factor -> atom .)
+    plus            reduce using rule 46 (factor -> atom .)
+    minus           reduce using rule 46 (factor -> atom .)
+    less            reduce using rule 46 (factor -> atom .)
+    lesseq          reduce using rule 46 (factor -> atom .)
+    equal           reduce using rule 46 (factor -> atom .)
+    semi            reduce using rule 46 (factor -> atom .)
+    of              reduce using rule 46 (factor -> atom .)
+    then            reduce using rule 46 (factor -> atom .)
+    loop            reduce using rule 46 (factor -> atom .)
+    cpar            reduce using rule 46 (factor -> atom .)
+    comma           reduce using rule 46 (factor -> atom .)
+    in              reduce using rule 46 (factor -> atom .)
+    else            reduce using rule 46 (factor -> atom .)
+    pool            reduce using rule 46 (factor -> atom .)
+    ccur            reduce using rule 46 (factor -> atom .)
+    fi              reduce using rule 46 (factor -> atom .)
+
+
+state 52
+
+    (47) factor -> opar . expr cpar
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 84
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 53
+
+    (50) atom -> num .
+
+    arroba          reduce using rule 50 (atom -> num .)
+    dot             reduce using rule 50 (atom -> num .)
+    star            reduce using rule 50 (atom -> num .)
+    div             reduce using rule 50 (atom -> num .)
+    plus            reduce using rule 50 (atom -> num .)
+    minus           reduce using rule 50 (atom -> num .)
+    less            reduce using rule 50 (atom -> num .)
+    lesseq          reduce using rule 50 (atom -> num .)
+    equal           reduce using rule 50 (atom -> num .)
+    semi            reduce using rule 50 (atom -> num .)
+    of              reduce using rule 50 (atom -> num .)
+    then            reduce using rule 50 (atom -> num .)
+    loop            reduce using rule 50 (atom -> num .)
+    cpar            reduce using rule 50 (atom -> num .)
+    comma           reduce using rule 50 (atom -> num .)
+    in              reduce using rule 50 (atom -> num .)
+    else            reduce using rule 50 (atom -> num .)
+    pool            reduce using rule 50 (atom -> num .)
+    ccur            reduce using rule 50 (atom -> num .)
+    fi              reduce using rule 50 (atom -> num .)
+
+
+state 54
+
+    (52) atom -> new . id
+
+    id              shift and go to state 85
+
+
+state 55
+
+    (53) atom -> ocur . block ccur
+    (57) block -> . expr semi
+    (58) block -> . expr semi block
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    block                          shift and go to state 86
+    expr                           shift and go to state 87
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 56
+
+    (54) atom -> true .
+
+    arroba          reduce using rule 54 (atom -> true .)
+    dot             reduce using rule 54 (atom -> true .)
+    star            reduce using rule 54 (atom -> true .)
+    div             reduce using rule 54 (atom -> true .)
+    plus            reduce using rule 54 (atom -> true .)
+    minus           reduce using rule 54 (atom -> true .)
+    less            reduce using rule 54 (atom -> true .)
+    lesseq          reduce using rule 54 (atom -> true .)
+    equal           reduce using rule 54 (atom -> true .)
+    semi            reduce using rule 54 (atom -> true .)
+    of              reduce using rule 54 (atom -> true .)
+    then            reduce using rule 54 (atom -> true .)
+    loop            reduce using rule 54 (atom -> true .)
+    cpar            reduce using rule 54 (atom -> true .)
+    comma           reduce using rule 54 (atom -> true .)
+    in              reduce using rule 54 (atom -> true .)
+    else            reduce using rule 54 (atom -> true .)
+    pool            reduce using rule 54 (atom -> true .)
+    ccur            reduce using rule 54 (atom -> true .)
+    fi              reduce using rule 54 (atom -> true .)
+
+
+state 57
+
+    (55) atom -> false .
+
+    arroba          reduce using rule 55 (atom -> false .)
+    dot             reduce using rule 55 (atom -> false .)
+    star            reduce using rule 55 (atom -> false .)
+    div             reduce using rule 55 (atom -> false .)
+    plus            reduce using rule 55 (atom -> false .)
+    minus           reduce using rule 55 (atom -> false .)
+    less            reduce using rule 55 (atom -> false .)
+    lesseq          reduce using rule 55 (atom -> false .)
+    equal           reduce using rule 55 (atom -> false .)
+    semi            reduce using rule 55 (atom -> false .)
+    of              reduce using rule 55 (atom -> false .)
+    then            reduce using rule 55 (atom -> false .)
+    loop            reduce using rule 55 (atom -> false .)
+    cpar            reduce using rule 55 (atom -> false .)
+    comma           reduce using rule 55 (atom -> false .)
+    in              reduce using rule 55 (atom -> false .)
+    else            reduce using rule 55 (atom -> false .)
+    pool            reduce using rule 55 (atom -> false .)
+    ccur            reduce using rule 55 (atom -> false .)
+    fi              reduce using rule 55 (atom -> false .)
+
+
+state 58
+
+    (56) atom -> string .
+
+    arroba          reduce using rule 56 (atom -> string .)
+    dot             reduce using rule 56 (atom -> string .)
+    star            reduce using rule 56 (atom -> string .)
+    div             reduce using rule 56 (atom -> string .)
+    plus            reduce using rule 56 (atom -> string .)
+    minus           reduce using rule 56 (atom -> string .)
+    less            reduce using rule 56 (atom -> string .)
+    lesseq          reduce using rule 56 (atom -> string .)
+    equal           reduce using rule 56 (atom -> string .)
+    semi            reduce using rule 56 (atom -> string .)
+    of              reduce using rule 56 (atom -> string .)
+    then            reduce using rule 56 (atom -> string .)
+    loop            reduce using rule 56 (atom -> string .)
+    cpar            reduce using rule 56 (atom -> string .)
+    comma           reduce using rule 56 (atom -> string .)
+    in              reduce using rule 56 (atom -> string .)
+    else            reduce using rule 56 (atom -> string .)
+    pool            reduce using rule 56 (atom -> string .)
+    ccur            reduce using rule 56 (atom -> string .)
+    fi              reduce using rule 56 (atom -> string .)
+
+
+state 59
+
+    (16) param -> id colon id .
+
+    comma           reduce using rule 16 (param -> id colon id .)
+    cpar            reduce using rule 16 (param -> id colon id .)
+    larrow          reduce using rule 16 (param -> id colon id .)
+    in              reduce using rule 16 (param -> id colon id .)
+
+
+state 60
+
+    (12) def_func -> id opar param_list cpar colon . id ocur expr ccur
+
+    id              shift and go to state 88
+
+
+state 61
+
+    (14) param_list -> param comma param_list .
+
+    cpar            reduce using rule 14 (param_list -> param comma param_list .)
+
+
+state 62
+
+    (6) def_class -> class id inherits id ocur feature_list ccur semi .
+
+    class           reduce using rule 6 (def_class -> class id inherits id ocur feature_list ccur semi .)
+    $end            reduce using rule 6 (def_class -> class id inherits id ocur feature_list ccur semi .)
+
+
+state 63
+
+    (29) arith -> id larrow . expr
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 89
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 64
+
+    (59) func_call -> id opar . arg_list cpar
+    (60) arg_list -> . expr
+    (61) arg_list -> . expr comma arg_list
+    (62) arg_list -> . epsilon
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (2) epsilon -> .
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    cpar            reduce using rule 2 (epsilon -> .)
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    arg_list                       shift and go to state 90
+    expr                           shift and go to state 91
+    epsilon                        shift and go to state 92
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 65
+
+    (17) expr -> let let_list . in expr
+
+    in              shift and go to state 93
+
+
+state 66
+
+    (22) let_list -> let_assign .
+    (23) let_list -> let_assign . comma let_list
+
+    in              reduce using rule 22 (let_list -> let_assign .)
+    comma           shift and go to state 94
+
+
+state 67
+
+    (24) let_assign -> param . larrow expr
+    (25) let_assign -> param .
+
+    larrow          shift and go to state 95
+    comma           reduce using rule 25 (let_assign -> param .)
+    in              reduce using rule 25 (let_assign -> param .)
+
+
+state 68
+
+    (18) expr -> case expr . of cases_list esac
+
+    of              shift and go to state 96
+
+
+state 69
+
+    (19) expr -> if expr . then expr else expr fi
+
+    then            shift and go to state 97
+
+
+state 70
+
+    (20) expr -> while expr . loop expr pool
+
+    loop            shift and go to state 98
+
+
+state 71
+
+    (30) arith -> not comp .
+    (32) comp -> comp . less op
+    (33) comp -> comp . lesseq op
+    (34) comp -> comp . equal op
+
+    semi            reduce using rule 30 (arith -> not comp .)
+    of              reduce using rule 30 (arith -> not comp .)
+    then            reduce using rule 30 (arith -> not comp .)
+    loop            reduce using rule 30 (arith -> not comp .)
+    cpar            reduce using rule 30 (arith -> not comp .)
+    comma           reduce using rule 30 (arith -> not comp .)
+    in              reduce using rule 30 (arith -> not comp .)
+    else            reduce using rule 30 (arith -> not comp .)
+    pool            reduce using rule 30 (arith -> not comp .)
+    ccur            reduce using rule 30 (arith -> not comp .)
+    fi              reduce using rule 30 (arith -> not comp .)
+    less            shift and go to state 73
+    lesseq          shift and go to state 74
+    equal           shift and go to state 75
+
+
+state 72
+
+    (51) atom -> id .
+    (59) func_call -> id . opar arg_list cpar
+
+    arroba          reduce using rule 51 (atom -> id .)
+    dot             reduce using rule 51 (atom -> id .)
+    star            reduce using rule 51 (atom -> id .)
+    div             reduce using rule 51 (atom -> id .)
+    plus            reduce using rule 51 (atom -> id .)
+    minus           reduce using rule 51 (atom -> id .)
+    less            reduce using rule 51 (atom -> id .)
+    lesseq          reduce using rule 51 (atom -> id .)
+    equal           reduce using rule 51 (atom -> id .)
+    semi            reduce using rule 51 (atom -> id .)
+    of              reduce using rule 51 (atom -> id .)
+    then            reduce using rule 51 (atom -> id .)
+    loop            reduce using rule 51 (atom -> id .)
+    cpar            reduce using rule 51 (atom -> id .)
+    comma           reduce using rule 51 (atom -> id .)
+    in              reduce using rule 51 (atom -> id .)
+    else            reduce using rule 51 (atom -> id .)
+    pool            reduce using rule 51 (atom -> id .)
+    ccur            reduce using rule 51 (atom -> id .)
+    fi              reduce using rule 51 (atom -> id .)
+    opar            shift and go to state 64
+
+
+state 73
+
+    (32) comp -> comp less . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    id              shift and go to state 72
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    op                             shift and go to state 99
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 74
+
+    (33) comp -> comp lesseq . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    id              shift and go to state 72
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    op                             shift and go to state 100
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 75
+
+    (34) comp -> comp equal . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    id              shift and go to state 72
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    op                             shift and go to state 101
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 76
+
+    (36) op -> op plus . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    id              shift and go to state 72
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    term                           shift and go to state 102
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 77
+
+    (37) op -> op minus . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    id              shift and go to state 72
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    term                           shift and go to state 103
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 78
+
+    (39) term -> term star . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    id              shift and go to state 72
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    base_call                      shift and go to state 104
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 79
+
+    (40) term -> term div . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    id              shift and go to state 72
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    base_call                      shift and go to state 105
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 80
+
+    (41) term -> isvoid base_call .
+
+    star            reduce using rule 41 (term -> isvoid base_call .)
+    div             reduce using rule 41 (term -> isvoid base_call .)
+    plus            reduce using rule 41 (term -> isvoid base_call .)
+    minus           reduce using rule 41 (term -> isvoid base_call .)
+    less            reduce using rule 41 (term -> isvoid base_call .)
+    lesseq          reduce using rule 41 (term -> isvoid base_call .)
+    equal           reduce using rule 41 (term -> isvoid base_call .)
+    semi            reduce using rule 41 (term -> isvoid base_call .)
+    of              reduce using rule 41 (term -> isvoid base_call .)
+    then            reduce using rule 41 (term -> isvoid base_call .)
+    loop            reduce using rule 41 (term -> isvoid base_call .)
+    cpar            reduce using rule 41 (term -> isvoid base_call .)
+    comma           reduce using rule 41 (term -> isvoid base_call .)
+    in              reduce using rule 41 (term -> isvoid base_call .)
+    else            reduce using rule 41 (term -> isvoid base_call .)
+    pool            reduce using rule 41 (term -> isvoid base_call .)
+    ccur            reduce using rule 41 (term -> isvoid base_call .)
+    fi              reduce using rule 41 (term -> isvoid base_call .)
+
+
+state 81
+
+    (42) term -> nox base_call .
+
+    star            reduce using rule 42 (term -> nox base_call .)
+    div             reduce using rule 42 (term -> nox base_call .)
+    plus            reduce using rule 42 (term -> nox base_call .)
+    minus           reduce using rule 42 (term -> nox base_call .)
+    less            reduce using rule 42 (term -> nox base_call .)
+    lesseq          reduce using rule 42 (term -> nox base_call .)
+    equal           reduce using rule 42 (term -> nox base_call .)
+    semi            reduce using rule 42 (term -> nox base_call .)
+    of              reduce using rule 42 (term -> nox base_call .)
+    then            reduce using rule 42 (term -> nox base_call .)
+    loop            reduce using rule 42 (term -> nox base_call .)
+    cpar            reduce using rule 42 (term -> nox base_call .)
+    comma           reduce using rule 42 (term -> nox base_call .)
+    in              reduce using rule 42 (term -> nox base_call .)
+    else            reduce using rule 42 (term -> nox base_call .)
+    pool            reduce using rule 42 (term -> nox base_call .)
+    ccur            reduce using rule 42 (term -> nox base_call .)
+    fi              reduce using rule 42 (term -> nox base_call .)
+
+
+state 82
+
+    (44) base_call -> factor arroba . id dot func_call
+
+    id              shift and go to state 106
+
+
+state 83
+
+    (48) factor -> factor dot . func_call
+    (59) func_call -> . id opar arg_list cpar
+
+    id              shift and go to state 108
+
+    func_call                      shift and go to state 107
+
+state 84
+
+    (47) factor -> opar expr . cpar
+
+    cpar            shift and go to state 109
+
+
+state 85
+
+    (52) atom -> new id .
+
+    arroba          reduce using rule 52 (atom -> new id .)
+    dot             reduce using rule 52 (atom -> new id .)
+    star            reduce using rule 52 (atom -> new id .)
+    div             reduce using rule 52 (atom -> new id .)
+    plus            reduce using rule 52 (atom -> new id .)
+    minus           reduce using rule 52 (atom -> new id .)
+    less            reduce using rule 52 (atom -> new id .)
+    lesseq          reduce using rule 52 (atom -> new id .)
+    equal           reduce using rule 52 (atom -> new id .)
+    semi            reduce using rule 52 (atom -> new id .)
+    of              reduce using rule 52 (atom -> new id .)
+    then            reduce using rule 52 (atom -> new id .)
+    loop            reduce using rule 52 (atom -> new id .)
+    cpar            reduce using rule 52 (atom -> new id .)
+    comma           reduce using rule 52 (atom -> new id .)
+    in              reduce using rule 52 (atom -> new id .)
+    else            reduce using rule 52 (atom -> new id .)
+    pool            reduce using rule 52 (atom -> new id .)
+    ccur            reduce using rule 52 (atom -> new id .)
+    fi              reduce using rule 52 (atom -> new id .)
+
+
+state 86
+
+    (53) atom -> ocur block . ccur
+
+    ccur            shift and go to state 110
+
+
+state 87
+
+    (57) block -> expr . semi
+    (58) block -> expr . semi block
+
+    semi            shift and go to state 111
+
+
+state 88
+
+    (12) def_func -> id opar param_list cpar colon id . ocur expr ccur
+
+    ocur            shift and go to state 112
+
+
+state 89
+
+    (29) arith -> id larrow expr .
+
+    semi            reduce using rule 29 (arith -> id larrow expr .)
+    of              reduce using rule 29 (arith -> id larrow expr .)
+    then            reduce using rule 29 (arith -> id larrow expr .)
+    loop            reduce using rule 29 (arith -> id larrow expr .)
+    cpar            reduce using rule 29 (arith -> id larrow expr .)
+    comma           reduce using rule 29 (arith -> id larrow expr .)
+    in              reduce using rule 29 (arith -> id larrow expr .)
+    else            reduce using rule 29 (arith -> id larrow expr .)
+    pool            reduce using rule 29 (arith -> id larrow expr .)
+    ccur            reduce using rule 29 (arith -> id larrow expr .)
+    fi              reduce using rule 29 (arith -> id larrow expr .)
+
+
+state 90
+
+    (59) func_call -> id opar arg_list . cpar
+
+    cpar            shift and go to state 113
+
+
+state 91
+
+    (60) arg_list -> expr .
+    (61) arg_list -> expr . comma arg_list
+
+    cpar            reduce using rule 60 (arg_list -> expr .)
+    comma           shift and go to state 114
+
+
+state 92
+
+    (62) arg_list -> epsilon .
+
+    cpar            reduce using rule 62 (arg_list -> epsilon .)
+
+
+state 93
+
+    (17) expr -> let let_list in . expr
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 115
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 94
+
+    (23) let_list -> let_assign comma . let_list
+    (22) let_list -> . let_assign
+    (23) let_list -> . let_assign comma let_list
+    (24) let_assign -> . param larrow expr
+    (25) let_assign -> . param
+    (16) param -> . id colon id
+
+    id              shift and go to state 22
+
+    let_assign                     shift and go to state 66
+    let_list                       shift and go to state 116
+    param                          shift and go to state 67
+
+state 95
+
+    (24) let_assign -> param larrow . expr
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 117
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 96
+
+    (18) expr -> case expr of . cases_list esac
+    (26) cases_list -> . casep semi
+    (27) cases_list -> . casep semi cases_list
+    (28) casep -> . id colon id rarrow expr
+
+    id              shift and go to state 120
+
+    cases_list                     shift and go to state 118
+    casep                          shift and go to state 119
+
+state 97
+
+    (19) expr -> if expr then . expr else expr fi
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 121
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 98
+
+    (20) expr -> while expr loop . expr pool
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 122
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 99
+
+    (32) comp -> comp less op .
+    (36) op -> op . plus term
+    (37) op -> op . minus term
+
+    less            reduce using rule 32 (comp -> comp less op .)
+    lesseq          reduce using rule 32 (comp -> comp less op .)
+    equal           reduce using rule 32 (comp -> comp less op .)
+    semi            reduce using rule 32 (comp -> comp less op .)
+    of              reduce using rule 32 (comp -> comp less op .)
+    then            reduce using rule 32 (comp -> comp less op .)
+    loop            reduce using rule 32 (comp -> comp less op .)
+    cpar            reduce using rule 32 (comp -> comp less op .)
+    comma           reduce using rule 32 (comp -> comp less op .)
+    in              reduce using rule 32 (comp -> comp less op .)
+    else            reduce using rule 32 (comp -> comp less op .)
+    pool            reduce using rule 32 (comp -> comp less op .)
+    ccur            reduce using rule 32 (comp -> comp less op .)
+    fi              reduce using rule 32 (comp -> comp less op .)
+    plus            shift and go to state 76
+    minus           shift and go to state 77
+
+
+state 100
+
+    (33) comp -> comp lesseq op .
+    (36) op -> op . plus term
+    (37) op -> op . minus term
+
+    less            reduce using rule 33 (comp -> comp lesseq op .)
+    lesseq          reduce using rule 33 (comp -> comp lesseq op .)
+    equal           reduce using rule 33 (comp -> comp lesseq op .)
+    semi            reduce using rule 33 (comp -> comp lesseq op .)
+    of              reduce using rule 33 (comp -> comp lesseq op .)
+    then            reduce using rule 33 (comp -> comp lesseq op .)
+    loop            reduce using rule 33 (comp -> comp lesseq op .)
+    cpar            reduce using rule 33 (comp -> comp lesseq op .)
+    comma           reduce using rule 33 (comp -> comp lesseq op .)
+    in              reduce using rule 33 (comp -> comp lesseq op .)
+    else            reduce using rule 33 (comp -> comp lesseq op .)
+    pool            reduce using rule 33 (comp -> comp lesseq op .)
+    ccur            reduce using rule 33 (comp -> comp lesseq op .)
+    fi              reduce using rule 33 (comp -> comp lesseq op .)
+    plus            shift and go to state 76
+    minus           shift and go to state 77
+
+
+state 101
+
+    (34) comp -> comp equal op .
+    (36) op -> op . plus term
+    (37) op -> op . minus term
+
+    less            reduce using rule 34 (comp -> comp equal op .)
+    lesseq          reduce using rule 34 (comp -> comp equal op .)
+    equal           reduce using rule 34 (comp -> comp equal op .)
+    semi            reduce using rule 34 (comp -> comp equal op .)
+    of              reduce using rule 34 (comp -> comp equal op .)
+    then            reduce using rule 34 (comp -> comp equal op .)
+    loop            reduce using rule 34 (comp -> comp equal op .)
+    cpar            reduce using rule 34 (comp -> comp equal op .)
+    comma           reduce using rule 34 (comp -> comp equal op .)
+    in              reduce using rule 34 (comp -> comp equal op .)
+    else            reduce using rule 34 (comp -> comp equal op .)
+    pool            reduce using rule 34 (comp -> comp equal op .)
+    ccur            reduce using rule 34 (comp -> comp equal op .)
+    fi              reduce using rule 34 (comp -> comp equal op .)
+    plus            shift and go to state 76
+    minus           shift and go to state 77
+
+
+state 102
+
+    (36) op -> op plus term .
+    (39) term -> term . star base_call
+    (40) term -> term . div base_call
+
+    plus            reduce using rule 36 (op -> op plus term .)
+    minus           reduce using rule 36 (op -> op plus term .)
+    less            reduce using rule 36 (op -> op plus term .)
+    lesseq          reduce using rule 36 (op -> op plus term .)
+    equal           reduce using rule 36 (op -> op plus term .)
+    semi            reduce using rule 36 (op -> op plus term .)
+    of              reduce using rule 36 (op -> op plus term .)
+    then            reduce using rule 36 (op -> op plus term .)
+    loop            reduce using rule 36 (op -> op plus term .)
+    cpar            reduce using rule 36 (op -> op plus term .)
+    comma           reduce using rule 36 (op -> op plus term .)
+    in              reduce using rule 36 (op -> op plus term .)
+    else            reduce using rule 36 (op -> op plus term .)
+    pool            reduce using rule 36 (op -> op plus term .)
+    ccur            reduce using rule 36 (op -> op plus term .)
+    fi              reduce using rule 36 (op -> op plus term .)
+    star            shift and go to state 78
+    div             shift and go to state 79
+
+
+state 103
+
+    (37) op -> op minus term .
+    (39) term -> term . star base_call
+    (40) term -> term . div base_call
+
+    plus            reduce using rule 37 (op -> op minus term .)
+    minus           reduce using rule 37 (op -> op minus term .)
+    less            reduce using rule 37 (op -> op minus term .)
+    lesseq          reduce using rule 37 (op -> op minus term .)
+    equal           reduce using rule 37 (op -> op minus term .)
+    semi            reduce using rule 37 (op -> op minus term .)
+    of              reduce using rule 37 (op -> op minus term .)
+    then            reduce using rule 37 (op -> op minus term .)
+    loop            reduce using rule 37 (op -> op minus term .)
+    cpar            reduce using rule 37 (op -> op minus term .)
+    comma           reduce using rule 37 (op -> op minus term .)
+    in              reduce using rule 37 (op -> op minus term .)
+    else            reduce using rule 37 (op -> op minus term .)
+    pool            reduce using rule 37 (op -> op minus term .)
+    ccur            reduce using rule 37 (op -> op minus term .)
+    fi              reduce using rule 37 (op -> op minus term .)
+    star            shift and go to state 78
+    div             shift and go to state 79
+
+
+state 104
+
+    (39) term -> term star base_call .
+
+    star            reduce using rule 39 (term -> term star base_call .)
+    div             reduce using rule 39 (term -> term star base_call .)
+    plus            reduce using rule 39 (term -> term star base_call .)
+    minus           reduce using rule 39 (term -> term star base_call .)
+    less            reduce using rule 39 (term -> term star base_call .)
+    lesseq          reduce using rule 39 (term -> term star base_call .)
+    equal           reduce using rule 39 (term -> term star base_call .)
+    semi            reduce using rule 39 (term -> term star base_call .)
+    of              reduce using rule 39 (term -> term star base_call .)
+    then            reduce using rule 39 (term -> term star base_call .)
+    loop            reduce using rule 39 (term -> term star base_call .)
+    cpar            reduce using rule 39 (term -> term star base_call .)
+    comma           reduce using rule 39 (term -> term star base_call .)
+    in              reduce using rule 39 (term -> term star base_call .)
+    else            reduce using rule 39 (term -> term star base_call .)
+    pool            reduce using rule 39 (term -> term star base_call .)
+    ccur            reduce using rule 39 (term -> term star base_call .)
+    fi              reduce using rule 39 (term -> term star base_call .)
+
+
+state 105
+
+    (40) term -> term div base_call .
+
+    star            reduce using rule 40 (term -> term div base_call .)
+    div             reduce using rule 40 (term -> term div base_call .)
+    plus            reduce using rule 40 (term -> term div base_call .)
+    minus           reduce using rule 40 (term -> term div base_call .)
+    less            reduce using rule 40 (term -> term div base_call .)
+    lesseq          reduce using rule 40 (term -> term div base_call .)
+    equal           reduce using rule 40 (term -> term div base_call .)
+    semi            reduce using rule 40 (term -> term div base_call .)
+    of              reduce using rule 40 (term -> term div base_call .)
+    then            reduce using rule 40 (term -> term div base_call .)
+    loop            reduce using rule 40 (term -> term div base_call .)
+    cpar            reduce using rule 40 (term -> term div base_call .)
+    comma           reduce using rule 40 (term -> term div base_call .)
+    in              reduce using rule 40 (term -> term div base_call .)
+    else            reduce using rule 40 (term -> term div base_call .)
+    pool            reduce using rule 40 (term -> term div base_call .)
+    ccur            reduce using rule 40 (term -> term div base_call .)
+    fi              reduce using rule 40 (term -> term div base_call .)
+
+
+state 106
+
+    (44) base_call -> factor arroba id . dot func_call
+
+    dot             shift and go to state 123
+
+
+state 107
+
+    (48) factor -> factor dot func_call .
+
+    arroba          reduce using rule 48 (factor -> factor dot func_call .)
+    dot             reduce using rule 48 (factor -> factor dot func_call .)
+    star            reduce using rule 48 (factor -> factor dot func_call .)
+    div             reduce using rule 48 (factor -> factor dot func_call .)
+    plus            reduce using rule 48 (factor -> factor dot func_call .)
+    minus           reduce using rule 48 (factor -> factor dot func_call .)
+    less            reduce using rule 48 (factor -> factor dot func_call .)
+    lesseq          reduce using rule 48 (factor -> factor dot func_call .)
+    equal           reduce using rule 48 (factor -> factor dot func_call .)
+    semi            reduce using rule 48 (factor -> factor dot func_call .)
+    of              reduce using rule 48 (factor -> factor dot func_call .)
+    then            reduce using rule 48 (factor -> factor dot func_call .)
+    loop            reduce using rule 48 (factor -> factor dot func_call .)
+    cpar            reduce using rule 48 (factor -> factor dot func_call .)
+    comma           reduce using rule 48 (factor -> factor dot func_call .)
+    in              reduce using rule 48 (factor -> factor dot func_call .)
+    else            reduce using rule 48 (factor -> factor dot func_call .)
+    pool            reduce using rule 48 (factor -> factor dot func_call .)
+    ccur            reduce using rule 48 (factor -> factor dot func_call .)
+    fi              reduce using rule 48 (factor -> factor dot func_call .)
+
+
+state 108
+
+    (59) func_call -> id . opar arg_list cpar
+
+    opar            shift and go to state 64
+
+
+state 109
+
+    (47) factor -> opar expr cpar .
+
+    arroba          reduce using rule 47 (factor -> opar expr cpar .)
+    dot             reduce using rule 47 (factor -> opar expr cpar .)
+    star            reduce using rule 47 (factor -> opar expr cpar .)
+    div             reduce using rule 47 (factor -> opar expr cpar .)
+    plus            reduce using rule 47 (factor -> opar expr cpar .)
+    minus           reduce using rule 47 (factor -> opar expr cpar .)
+    less            reduce using rule 47 (factor -> opar expr cpar .)
+    lesseq          reduce using rule 47 (factor -> opar expr cpar .)
+    equal           reduce using rule 47 (factor -> opar expr cpar .)
+    semi            reduce using rule 47 (factor -> opar expr cpar .)
+    of              reduce using rule 47 (factor -> opar expr cpar .)
+    then            reduce using rule 47 (factor -> opar expr cpar .)
+    loop            reduce using rule 47 (factor -> opar expr cpar .)
+    cpar            reduce using rule 47 (factor -> opar expr cpar .)
+    comma           reduce using rule 47 (factor -> opar expr cpar .)
+    in              reduce using rule 47 (factor -> opar expr cpar .)
+    else            reduce using rule 47 (factor -> opar expr cpar .)
+    pool            reduce using rule 47 (factor -> opar expr cpar .)
+    ccur            reduce using rule 47 (factor -> opar expr cpar .)
+    fi              reduce using rule 47 (factor -> opar expr cpar .)
+
+
+state 110
+
+    (53) atom -> ocur block ccur .
+
+    arroba          reduce using rule 53 (atom -> ocur block ccur .)
+    dot             reduce using rule 53 (atom -> ocur block ccur .)
+    star            reduce using rule 53 (atom -> ocur block ccur .)
+    div             reduce using rule 53 (atom -> ocur block ccur .)
+    plus            reduce using rule 53 (atom -> ocur block ccur .)
+    minus           reduce using rule 53 (atom -> ocur block ccur .)
+    less            reduce using rule 53 (atom -> ocur block ccur .)
+    lesseq          reduce using rule 53 (atom -> ocur block ccur .)
+    equal           reduce using rule 53 (atom -> ocur block ccur .)
+    semi            reduce using rule 53 (atom -> ocur block ccur .)
+    of              reduce using rule 53 (atom -> ocur block ccur .)
+    then            reduce using rule 53 (atom -> ocur block ccur .)
+    loop            reduce using rule 53 (atom -> ocur block ccur .)
+    cpar            reduce using rule 53 (atom -> ocur block ccur .)
+    comma           reduce using rule 53 (atom -> ocur block ccur .)
+    in              reduce using rule 53 (atom -> ocur block ccur .)
+    else            reduce using rule 53 (atom -> ocur block ccur .)
+    pool            reduce using rule 53 (atom -> ocur block ccur .)
+    ccur            reduce using rule 53 (atom -> ocur block ccur .)
+    fi              reduce using rule 53 (atom -> ocur block ccur .)
+
+
+state 111
+
+    (57) block -> expr semi .
+    (58) block -> expr semi . block
+    (57) block -> . expr semi
+    (58) block -> . expr semi block
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    ccur            reduce using rule 57 (block -> expr semi .)
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 87
+    block                          shift and go to state 124
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 112
+
+    (12) def_func -> id opar param_list cpar colon id ocur . expr ccur
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 125
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 113
+
+    (59) func_call -> id opar arg_list cpar .
+
+    arroba          reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    dot             reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    star            reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    div             reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    plus            reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    minus           reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    less            reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    lesseq          reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    equal           reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    semi            reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    of              reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    then            reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    loop            reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    cpar            reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    comma           reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    in              reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    else            reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    pool            reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    ccur            reduce using rule 59 (func_call -> id opar arg_list cpar .)
+    fi              reduce using rule 59 (func_call -> id opar arg_list cpar .)
+
+
+state 114
+
+    (61) arg_list -> expr comma . arg_list
+    (60) arg_list -> . expr
+    (61) arg_list -> . expr comma arg_list
+    (62) arg_list -> . epsilon
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (2) epsilon -> .
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    cpar            reduce using rule 2 (epsilon -> .)
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 91
+    arg_list                       shift and go to state 126
+    epsilon                        shift and go to state 92
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 115
+
+    (17) expr -> let let_list in expr .
+
+    semi            reduce using rule 17 (expr -> let let_list in expr .)
+    of              reduce using rule 17 (expr -> let let_list in expr .)
+    then            reduce using rule 17 (expr -> let let_list in expr .)
+    loop            reduce using rule 17 (expr -> let let_list in expr .)
+    cpar            reduce using rule 17 (expr -> let let_list in expr .)
+    comma           reduce using rule 17 (expr -> let let_list in expr .)
+    in              reduce using rule 17 (expr -> let let_list in expr .)
+    else            reduce using rule 17 (expr -> let let_list in expr .)
+    pool            reduce using rule 17 (expr -> let let_list in expr .)
+    ccur            reduce using rule 17 (expr -> let let_list in expr .)
+    fi              reduce using rule 17 (expr -> let let_list in expr .)
+
+
+state 116
+
+    (23) let_list -> let_assign comma let_list .
+
+    in              reduce using rule 23 (let_list -> let_assign comma let_list .)
+
+
+state 117
+
+    (24) let_assign -> param larrow expr .
+
+    comma           reduce using rule 24 (let_assign -> param larrow expr .)
+    in              reduce using rule 24 (let_assign -> param larrow expr .)
+
+
+state 118
+
+    (18) expr -> case expr of cases_list . esac
+
+    esac            shift and go to state 127
+
+
+state 119
+
+    (26) cases_list -> casep . semi
+    (27) cases_list -> casep . semi cases_list
+
+    semi            shift and go to state 128
+
+
+state 120
+
+    (28) casep -> id . colon id rarrow expr
+
+    colon           shift and go to state 129
+
+
+state 121
+
+    (19) expr -> if expr then expr . else expr fi
+
+    else            shift and go to state 130
+
+
+state 122
+
+    (20) expr -> while expr loop expr . pool
+
+    pool            shift and go to state 131
+
+
+state 123
+
+    (44) base_call -> factor arroba id dot . func_call
+    (59) func_call -> . id opar arg_list cpar
+
+    id              shift and go to state 108
+
+    func_call                      shift and go to state 132
+
+state 124
+
+    (58) block -> expr semi block .
+
+    ccur            reduce using rule 58 (block -> expr semi block .)
+
+
+state 125
+
+    (12) def_func -> id opar param_list cpar colon id ocur expr . ccur
+
+    ccur            shift and go to state 133
+
+
+state 126
+
+    (61) arg_list -> expr comma arg_list .
+
+    cpar            reduce using rule 61 (arg_list -> expr comma arg_list .)
+
+
+state 127
+
+    (18) expr -> case expr of cases_list esac .
+
+    semi            reduce using rule 18 (expr -> case expr of cases_list esac .)
+    of              reduce using rule 18 (expr -> case expr of cases_list esac .)
+    then            reduce using rule 18 (expr -> case expr of cases_list esac .)
+    loop            reduce using rule 18 (expr -> case expr of cases_list esac .)
+    cpar            reduce using rule 18 (expr -> case expr of cases_list esac .)
+    comma           reduce using rule 18 (expr -> case expr of cases_list esac .)
+    in              reduce using rule 18 (expr -> case expr of cases_list esac .)
+    else            reduce using rule 18 (expr -> case expr of cases_list esac .)
+    pool            reduce using rule 18 (expr -> case expr of cases_list esac .)
+    ccur            reduce using rule 18 (expr -> case expr of cases_list esac .)
+    fi              reduce using rule 18 (expr -> case expr of cases_list esac .)
+
+
+state 128
+
+    (26) cases_list -> casep semi .
+    (27) cases_list -> casep semi . cases_list
+    (26) cases_list -> . casep semi
+    (27) cases_list -> . casep semi cases_list
+    (28) casep -> . id colon id rarrow expr
+
+    esac            reduce using rule 26 (cases_list -> casep semi .)
+    id              shift and go to state 120
+
+    casep                          shift and go to state 119
+    cases_list                     shift and go to state 134
+
+state 129
+
+    (28) casep -> id colon . id rarrow expr
+
+    id              shift and go to state 135
+
+
+state 130
+
+    (19) expr -> if expr then expr else . expr fi
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 136
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 131
+
+    (20) expr -> while expr loop expr pool .
+
+    semi            reduce using rule 20 (expr -> while expr loop expr pool .)
+    of              reduce using rule 20 (expr -> while expr loop expr pool .)
+    then            reduce using rule 20 (expr -> while expr loop expr pool .)
+    loop            reduce using rule 20 (expr -> while expr loop expr pool .)
+    cpar            reduce using rule 20 (expr -> while expr loop expr pool .)
+    comma           reduce using rule 20 (expr -> while expr loop expr pool .)
+    in              reduce using rule 20 (expr -> while expr loop expr pool .)
+    else            reduce using rule 20 (expr -> while expr loop expr pool .)
+    pool            reduce using rule 20 (expr -> while expr loop expr pool .)
+    ccur            reduce using rule 20 (expr -> while expr loop expr pool .)
+    fi              reduce using rule 20 (expr -> while expr loop expr pool .)
+
+
+state 132
+
+    (44) base_call -> factor arroba id dot func_call .
+
+    star            reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    div             reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    plus            reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    minus           reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    less            reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    lesseq          reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    equal           reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    semi            reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    of              reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    then            reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    loop            reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    cpar            reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    comma           reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    in              reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    else            reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    pool            reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    ccur            reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+    fi              reduce using rule 44 (base_call -> factor arroba id dot func_call .)
+
+
+state 133
+
+    (12) def_func -> id opar param_list cpar colon id ocur expr ccur .
+
+    semi            reduce using rule 12 (def_func -> id opar param_list cpar colon id ocur expr ccur .)
+
+
+state 134
+
+    (27) cases_list -> casep semi cases_list .
+
+    esac            reduce using rule 27 (cases_list -> casep semi cases_list .)
+
+
+state 135
+
+    (28) casep -> id colon id . rarrow expr
+
+    rarrow          shift and go to state 137
+
+
+state 136
+
+    (19) expr -> if expr then expr else expr . fi
+
+    fi              shift and go to state 138
+
+
+state 137
+
+    (28) casep -> id colon id rarrow . expr
+    (17) expr -> . let let_list in expr
+    (18) expr -> . case expr of cases_list esac
+    (19) expr -> . if expr then expr else expr fi
+    (20) expr -> . while expr loop expr pool
+    (21) expr -> . arith
+    (29) arith -> . id larrow expr
+    (30) arith -> . not comp
+    (31) arith -> . comp
+    (32) comp -> . comp less op
+    (33) comp -> . comp lesseq op
+    (34) comp -> . comp equal op
+    (35) comp -> . op
+    (36) op -> . op plus term
+    (37) op -> . op minus term
+    (38) op -> . term
+    (39) term -> . term star base_call
+    (40) term -> . term div base_call
+    (41) term -> . isvoid base_call
+    (42) term -> . nox base_call
+    (43) term -> . base_call
+    (44) base_call -> . factor arroba id dot func_call
+    (45) base_call -> . factor
+    (46) factor -> . atom
+    (47) factor -> . opar expr cpar
+    (48) factor -> . factor dot func_call
+    (49) factor -> . func_call
+    (50) atom -> . num
+    (51) atom -> . id
+    (52) atom -> . new id
+    (53) atom -> . ocur block ccur
+    (54) atom -> . true
+    (55) atom -> . false
+    (56) atom -> . string
+    (59) func_call -> . id opar arg_list cpar
+
+    let             shift and go to state 37
+    case            shift and go to state 38
+    if              shift and go to state 39
+    while           shift and go to state 40
+    id              shift and go to state 35
+    not             shift and go to state 42
+    isvoid          shift and go to state 47
+    nox             shift and go to state 48
+    opar            shift and go to state 52
+    num             shift and go to state 53
+    new             shift and go to state 54
+    ocur            shift and go to state 55
+    true            shift and go to state 56
+    false           shift and go to state 57
+    string          shift and go to state 58
+
+    expr                           shift and go to state 139
+    arith                          shift and go to state 41
+    comp                           shift and go to state 43
+    op                             shift and go to state 44
+    term                           shift and go to state 45
+    base_call                      shift and go to state 46
+    factor                         shift and go to state 49
+    func_call                      shift and go to state 50
+    atom                           shift and go to state 51
+
+state 138
+
+    (19) expr -> if expr then expr else expr fi .
+
+    semi            reduce using rule 19 (expr -> if expr then expr else expr fi .)
+    of              reduce using rule 19 (expr -> if expr then expr else expr fi .)
+    then            reduce using rule 19 (expr -> if expr then expr else expr fi .)
+    loop            reduce using rule 19 (expr -> if expr then expr else expr fi .)
+    cpar            reduce using rule 19 (expr -> if expr then expr else expr fi .)
+    comma           reduce using rule 19 (expr -> if expr then expr else expr fi .)
+    in              reduce using rule 19 (expr -> if expr then expr else expr fi .)
+    else            reduce using rule 19 (expr -> if expr then expr else expr fi .)
+    pool            reduce using rule 19 (expr -> if expr then expr else expr fi .)
+    ccur            reduce using rule 19 (expr -> if expr then expr else expr fi .)
+    fi              reduce using rule 19 (expr -> if expr then expr else expr fi .)
+
+
+state 139
+
+    (28) casep -> id colon id rarrow expr .
+
+    semi            reduce using rule 28 (casep -> id colon id rarrow expr .)
+
