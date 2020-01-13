@@ -148,6 +148,8 @@ Haciendo click en el título de su _pull request_ (ej. **PR #1**) podrá ver los
 
 Para cualquier modificación que haga a su proyecto, haga _commit_ y _push_ para **su repositorio personal** y automáticamente se actualizará el estado del _pull request_ y se volverán a ejecutar las pruebas. **No es necesario** abrir un _pull request_ nuevo por cada entrega, sino actualizar el anterior.
 
+> **Por favor asegúrese de mantener un solo _pull request_ activo por equipo**. En caso de abrir uno nuevo, cerrar el anterior.
+
 ## Sobre la implementación
 
 Ponga todo su código e instrucciones necesarias en la carpeta `src`. Más información en [`src/Readme.md`](src/Readme.md).
