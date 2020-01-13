@@ -1,7 +1,7 @@
-<!-- Update the repository URL to your own -->
-[![Build Status](https://travis-ci.org/matcom/cool-compiler-base.svg?branch=master)](https://travis-ci.org/matcom/cool-compiler-base)
-
 # COOL: Proyecto de Compilación
+
+<!-- Update the repository URL to your own -->
+[![Build Status](https://travis-ci.org/matcom/cool-compiler-2020.svg?branch=master)](https://travis-ci.org/matcom/cool-compiler-2020)
 
 > Proyecto base para el compilador de 4to año en Ciencia de la Computación.
 
@@ -97,7 +97,48 @@ $ git push origin master
 
 ## Entregas
 
-En este proyecto se realizarán entregas parciales a lo largo del curso. Para realizar una entrega, siga los siguientes pasos:
+En este proyecto se realizarán entregas parciales a lo largo del curso. Para realizar una entrega, siga los siguientes pasos.
+
+### 1. Cree un pull request al proyecto original desde su copia.
+
+![](img/img5.png)
+
+### 2. Asegúrese de tener la siguiente configuración antes de hacer click en **Create pull request**.
+
+- **base repository**: `matcom/cool-compiler-2020` (repositorio original)
+- **head repository**: `<usuario>/cool-compiler-2020` (repositorio propio)
+
+> Asegúrese que se indica **Able to merge**. De lo contrario, existen cambios en el repositorio original que usted no tiene, y debe actualizarlos.
+
+![](img/img6.png)
+
+### 3. Introduzca un título y descripción adecuados, y haga click en **Create pull request**.
+
+![](img/img7.png)
+
+### 4. Espere mientras se ejecutan las pruebas.
+
+Verá la indicación **Some checks haven't completed yet**.
+
+![](img/img8.png)
+
+### 5. Verifique que no hubo errores en las pruebas.
+
+Si ve el mensaje **All checks have failed**, significa que su código no pasó las pruebas.
+
+![](img/img9.png)
+
+Para ver los resultados de las pruebas haga click en el link **Details** junto al ícono de `continuous-integration/travis-ci/pr`, o visite [este link](https://travis-ci.org/matcom/cool-compiler-2020/pull_requests) y busque su _pull request_.
+
+![](img/img11.png)
+
+Haciendo click en el título de su _pull request_ (ej. **PR #1**) podrá ver los detalles de ejecución de todas las pruebas, así como las excepciones lanzadas.
+
+![](img/img10.png)
+
+### 6. Arregle los errores y repita el paso 5 hasta que todas las pruebas pasen.
+
+Para cualquier modificación que haga a su proyecto, haga _commit_ y _push_ para **su repositorio personal** y automáticamente se actualizará el estado del _pull request_ y se volverán a ejecutar las pruebas. **No es necesario** abrir un _pull request_ nuevo por cada entrega, sino actualizar el anterior.
 
 ## Sobre la implementación
 
@@ -107,6 +148,22 @@ Ponga todo su código e instrucciones necesarias en la carpeta `src`. Más infor
 
 Usted debe presentar un reporte escrito documentando el proceso de construcción de su compilador y los detalles más importantes de su funcionamiento. Más información en [`doc/Readme.md`](doc/Readme.md).
 
-## Sobre los Equipos de Desarrollo
+## Sobre los equipos de desarrollo
 
 Para desarrollar el compilador del lenguaje COOL se trabajará en equipos de 2 o 3 integrantes.
+
+## Sobre los casos de prueba
+
+La carpeta `tests` contiene todos los casos de prueba que son obligatorios de pasar para que su proyecto tenga derecho a ser evaluado.
+
+Estos tests se ejecutan automáticamente cada vez que hace un _pull request_ al repositorio `matcom/cool-compiler-2020`. Solo aquellos proyectos que pasen todas las pruebas con éxito serán evaluados.
+
+Para ejecutar las pruebas localmente, debe tener instalado `Python 3.7`, `pip` y `make` (normalmente viene con Linux). Ejecute:
+
+```bash
+$ pip install -r requirements.txt
+$ cd src
+$ make test
+```
+
+Si desea configurar su repositorio en Github para que ejecute automáticamente las pruebas en cada commit, siga las instrucciones en [travis-ci.org](https://travis-ci.org) para registrarse y activar su repositorio. El archivo `.travis.yml` que se encuentra en este repositorio ya contiene todas las instrucciones necesarias para que funcione la integracion con Travis-CI.

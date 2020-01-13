@@ -17,13 +17,13 @@ $ make
 
 ## Ejecutando su proyecto
 
-Incluya en el archivo [`/src/coolc.sh`](/src/compile.sh) todas las instrucciones que hacen falta para lanzar su compilador. Recibirá como entrada un archivo con extensión `.cl` y debe generar como salida un archivo `.mips` cuyo nombre será el mismo que la entrada.
+Incluya en el archivo [`/src/coolc.sh`](/src/coolc.sh) todas las instrucciones que hacen falta para lanzar su compilador. Recibirá como entrada un archivo con extensión `.cl` y debe generar como salida un archivo `.mips` cuyo nombre será el mismo que la entrada.
 
 Para lanzar el compilador, se ejecutará la siguiente instrucción:
 
 ```bash
 $ cd source
-$ ./compile.sh <input_file.cl>
+$ ./coolc.sh <input_file.cl>
 ```
 
 > **NOTA:** Su proyecto será ejecutado y evaluado en un entorno **Linux**. Si usted desarrolló en un entorno diferente, asegúrese de que es posible ejecutar su proyecto en Linux. En el caso de **.NET**, vea las instrucciones para portar su proyecto a **.NET Core** (la versión Open Source) [aquí](https://dotnet.microsoft.com/) y asegúrese de probar que funciona en Linux. **NO es posible** entregar su proyecto en forma de una solución que necesite abrirse con Visual Studio para funcionar.
