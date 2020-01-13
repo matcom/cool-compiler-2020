@@ -1,12 +1,20 @@
-# Código Fuente
+# COOL: Proyecto de Compilación
 
-Incluya en esta carpeta **todo** el código fuente que es necesario para compilar y/o ejecutar su compilador desde cero.
+La evaluación de la asignatura Complementos de Compilación, inscrita en el programa del 4to año de la Licenciatura en Ciencia de la Computación de la Facultad de Matemática y Computación de la
+Universidad de La Habana, consiste este curso en la implementación de un compilador completamente
+funcional para el lenguaje _COOL_.
 
-**No incluya** archivos generados automáticamente, tales como binarios (e.g, `.exe`, `.pyc`), archivos auxiliares o archivos de logs, reportes, etc.
+_COOL (Classroom Object-Oriented Language)_ es un pequeño lenguaje que puede ser implementado con un esfuerzo razonable en un semestre del curso. Aun así, _COOL_ mantiene muchas de las características de los lenguajes de programación modernos, incluyendo orientación a objetos, tipado estático y manejo automático de memoria.
 
-## Compilando su proyecto
+### Sobre el Lenguaje COOL
 
-Si es necesario compilar su proyecto, incluya todas las instrucciones necesarias en el archivo [`/src/makefile`](/src/makefile) que está en esta misma carpeta.
+Ud. podrá encontrar la especificación formal del lenguaje COOL en el documento _"COOL Language Reference Manual"_, que se distribuye junto con el presente texto.
+
+## Código Fuente
+
+### Compilando su proyecto
+
+Si es necesario compilar su proyecto, incluya todas las instrucciones necesarias en un archivo [`/src/makefile`](/src/makefile).
 Durante la evaluación su proyecto se compilará ejecutando la siguiente secuencia:
 
 ```bash
@@ -15,9 +23,9 @@ $ make clean
 $ make
 ```
 
-## Ejecutando su proyecto
+### Ejecutando su proyecto
 
-Incluya en el archivo [`/src/coolc.sh`](/src/coolc.sh) todas las instrucciones que hacen falta para lanzar su compilador. Recibirá como entrada un archivo con extensión `.cl` y debe generar como salida un archivo `.mips` cuyo nombre será el mismo que la entrada.
+Incluya en un archivo [`/src/coolc.sh`](/src/coolc.sh) todas las instrucciones que hacen falta para lanzar su compilador. Recibirá como entrada un archivo con extensión `.cl` y debe generar como salida un archivo `.mips` cuyo nombre será el mismo que la entrada.
 
 Para lanzar el compilador, se ejecutará la siguiente instrucción:
 
@@ -26,13 +34,7 @@ $ cd source
 $ ./coolc.sh <input_file.cl>
 ```
 
-> **NOTA:** Su proyecto será ejecutado y evaluado en un entorno **Linux**. Si usted desarrolló en un entorno diferente, asegúrese de que es posible ejecutar su proyecto en Linux. En el caso de **.NET**, vea las instrucciones para portar su proyecto a **.NET Core** (la versión Open Source) [aquí](https://dotnet.microsoft.com/) y asegúrese de probar que funciona en Linux. **NO es posible** entregar su proyecto en forma de una solución que necesite abrirse con Visual Studio para funcionar.
-
-## Sobre el lenguaje COOL
-
-Ud. podrá encontrar la especificación formal del lenguaje COOL en el documento [_COOL Language Reference Manual_](../doc/cool-manual.pdf), que se distribuye junto con el presente texto.
-
-## Sobre el funcionamiento del compilador
+### Sobre el Compilador de COOL
 
 El compilador de COOL se ejecutará como se ha definido anteriormente.
 En caso de que no ocurran errores durante la operación del compilador, **coolc.sh** deberá terminar con código de salida 0, generar (o sobrescribir si ya existe) en la misma carpeta del archivo **.cl** procesado, y con el mismo nombre que éste, un archivo con extension **.mips** que pueda ser ejecutado con **spim**. Además, reportar a la salida estándar solamente lo siguiente:
@@ -70,7 +72,7 @@ El campo `<tipo_de_error>` será alguno entre:
 - `AttributeError`: se reporta cuando un atributo o método se referencia pero no está definido.
 - `SemanticError`: cualquier otro error semántico.
 
-## Sobre la Implementación del Compilador de COOL
+### Sobre la Implementación del Compilador de COOL
 
-Para la implementación del compilador Ud. debe utilizar una herramienta generadora de analizadores
+El compilador debe estar implementado en `python`. Usted debe utilizar una herramienta generadora de analizadores
 lexicográficos y sintácticos. Puede utilizar la que sea de su preferencia.
