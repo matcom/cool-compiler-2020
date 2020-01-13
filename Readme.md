@@ -122,6 +122,14 @@ Verá la indicación **Some checks haven't completed yet**.
 
 ![](img/img8.png)
 
+Es posible que tenga que actualizar los cambios que se hayan hecho en el repositorio original, por ejemplo, si se han agregado nuevos tests. En este caso obtendrá el siguiente mensaje:
+
+> **This branch is out-of-date with base branch**
+
+Haga click en **Update branch** y siga las instrucciones.
+
+![](img/img12.png)
+
 ### 5. Verifique que no hubo errores en las pruebas.
 
 Si ve el mensaje **All checks have failed**, significa que su código no pasó las pruebas.
