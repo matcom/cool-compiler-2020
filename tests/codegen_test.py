@@ -3,7 +3,7 @@ import os
 from utils import compare_errors
 
 tests_dir = __file__.rpartition('/')[0] + '/codegen/'
-tests = [(tests_dir + file) for file in os.listdir(tests_dir) if file.endswith('.cl')]
+tests = [(file) for file in os.listdir(tests_dir) if file.endswith('.cl')]
 
 @pytest.mark.run(order=4)
 @pytest.mark.lexer
@@ -12,4 +12,4 @@ tests = [(tests_dir + file) for file in os.listdir(tests_dir) if file.endswith('
 @pytest.mark.ok
 @pytest.mark.parametrize("cool_file", tests)
 def test_codegen(compiler_path, cool_file):
-    compare_errors(compiler_path, cool_file, None)
+    compare_errors(compiler_path, tests_dir + cool_file, None)
