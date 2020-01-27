@@ -311,8 +311,11 @@ parts/
 sdist/
 var/
 wheels/
+<<<<<<< HEAD
 pip-wheel-metadata/
 share/python-wheels/
+=======
+>>>>>>> 2eefd51c34480eaec5213d7fee27ab7678cde99e
 *.egg-info/
 .installed.cfg
 *.egg
@@ -331,7 +334,10 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+<<<<<<< HEAD
 .nox/
+=======
+>>>>>>> 2eefd51c34480eaec5213d7fee27ab7678cde99e
 .coverage
 .coverage.*
 .cache
@@ -345,6 +351,18 @@ coverage.xml
 *.mo
 *.pot
 
+<<<<<<< HEAD
+=======
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+>>>>>>> 2eefd51c34480eaec5213d7fee27ab7678cde99e
 # Scrapy stuff:
 .scrapy
 
@@ -354,6 +372,7 @@ docs/_build/
 # PyBuilder
 target/
 
+<<<<<<< HEAD
 # pyenv
 .python-version
 
@@ -364,12 +383,32 @@ target/
 #   install all needed dependencies.
 #Pipfile.lock
 
+=======
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+>>>>>>> 2eefd51c34480eaec5213d7fee27ab7678cde99e
 # celery beat schedule file
 celerybeat-schedule
 
 # SageMath parsed files
 *.sage.py
 
+<<<<<<< HEAD
+=======
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+>>>>>>> 2eefd51c34480eaec5213d7fee27ab7678cde99e
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -377,15 +416,19 @@ celerybeat-schedule
 # Rope project settings
 .ropeproject
 
+<<<<<<< HEAD
 # Mr Developer
 .mr.developer.cfg
 .project
 .pydevproject
 
+=======
+>>>>>>> 2eefd51c34480eaec5213d7fee27ab7678cde99e
 # mkdocs documentation
 /site
 
 # mypy
+<<<<<<< HEAD
 .mypy_cache/
 .dmypy.json
 dmypy.json
@@ -408,3 +451,6 @@ dmypy.json
 
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
 
+=======
+.mypy_cache/
+>>>>>>> 2eefd51c34480eaec5213d7fee27ab7678cde99e
