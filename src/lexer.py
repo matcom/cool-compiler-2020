@@ -39,11 +39,17 @@ class CoolLexer:
     t_lesseq = r'<='
     t_inherits = r'inherits'
 
+    def t_type(self, t):
+        r'[A-Z][a-zA-Z_0-9]*'
+        t.type = self.reserved.get(t.value.lower(), 'type')
+        return t
+
     # Check for reserved words:
     def t_id(self, t):
-        r'[a-zA-Z_][a-zA-Z_0-9]*'
+        r'[a-z][a-zA-Z_0-9]*'
         t.type = self.reserved.get(t.value.lower(), 'id')
         return t
+
 
     # Get Numbers
     def t_num(self, t):

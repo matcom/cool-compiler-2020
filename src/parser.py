@@ -9,7 +9,7 @@ class CoolParser:
             self.lexer = CoolLexer()
         else:
             self.lexer = lexer
-        self.parser = yacc.yacc(start='program', outputdir='src/output_parser', debugfile='src/output_parser/debug.txt' )
+        self.parser = yacc.yacc(start='program', outputdir='src/output_parser')
 
     def parse(self, program, debug=False):
         tokens = self.lexer.tokenize_text(program)

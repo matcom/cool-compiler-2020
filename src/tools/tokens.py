@@ -41,6 +41,7 @@ tokens = [
     'less',     # '<'
     'lesseq',   # '<='
     'id',
+    'type',
     'num', 
     'string'
 ] + list(reserved.values())

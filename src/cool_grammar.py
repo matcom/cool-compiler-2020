@@ -1,6 +1,6 @@
 from tools.tokens import tokens
 from tools.ast import *
-from utils.utils import find_column
+from errors import SyntaticError
 
 #? TODO: If siempre tiene else
 
@@ -21,8 +21,8 @@ def p_class_list(p):
         p[0] = [p[1]] + p[2]
 
 def p_def_class(p):
-    '''def_class : class id ocur feature_list ccur semi 
-                 | class id inherits id ocur feature_list ccur semi'''
+    '''def_class : class type ocur feature_list ccur semi 
+                 | class type inherits type ocur feature_list ccur semi'''
     if len(p) == 7:
         p[0] = ClassDeclarationNode(p[2], p[4])
     else:
@@ -40,15 +40,15 @@ def p_feature_list(p):
 
 
 def p_def_attr(p):
-    '''def_attr : id colon id
-                | id colon id larrow expr'''
+    '''def_attr : id colon type
+                | id colon type larrow expr'''
     if len(p) == 4:
         p[0] = AttrDeclarationNode(p[1], p[3])
     else:
         p[0] = AttrDeclarationNode(p[1], p[3], p[5])
 
 def p_def_func(p):
-    'def_func : id opar param_list cpar colon id ocur expr ccur' 
+    'def_func : id opar param_list cpar colon type ocur expr ccur' 
     p[0] = FuncDeclarationNode(p[1], p[3], p[6], p[8])
 
 def p_param_list(p):
@@ -64,7 +64,7 @@ def p_param_list_empty(p):
     p[0] = []
 
 def p_param(p):
-    'param : id colon id'
+    'param : id colon type'
     p[0] = (p[1], p[3])
 
 def p_expr_let(p):
@@ -114,7 +114,7 @@ def p_cases_list(p):
         p[0] = [p[1]] + p[3]
 
 def p_case(p):
-    'casep : id colon id rarrow expr'
+    'casep : id colon type rarrow expr'
     p[0] = OptionNode(p[1], p[3], p[5])
 
 
@@ -174,7 +174,7 @@ def p_term(p):
         p[0] = DivNode(p[1], p[3])
 
 def p_base_call(p):
-    '''base_call : factor arroba id dot func_call
+    '''base_call : factor arroba type dot func_call
                  | factor'''
     if len(p) == 2:
         p[0] = p[1]
@@ -206,7 +206,7 @@ def p_atom_id(p):
     p[0] = VariableNode(p[1])
 
 def p_atom_new(p):
-    'atom : new id'
+    'atom : new type'
     p[0] = InstantiateNode(p[2])
 
 def p_atom_block(p):
