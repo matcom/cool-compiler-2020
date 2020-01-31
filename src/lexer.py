@@ -1,21 +1,18 @@
 import ply.lex as lex
 from tools.tokens import tokens, reserved, Token
 from pprint import pprint 
-# from src.errors import LexicographicErrors
-
-# TODO: las palabras reservadas, excepto true y false son case insensitive
-# TODO: Poner la regla para los strings de q no puede contener \n
-# TODO: Arreglar los comentarios
+from tools.errors import LexicographicError
 
 class CoolLexer:
     def __init__(self, **kwargs):
-        self.reserved = reserved
+        # TODO: las palabras reservadas, excepto true y false son case insensitive
+        self.reserved = reserved 
         self.tokens = tokens
         self.errors = []
         self.lexer = lex.lex(module=self, **kwargs)
 
     # Regular expressions for simple tokens
-    t_ignore_COMMENT = r'--.* | \*(.)*\*'
+    # t_ignore_COMMENT = r'--.* | \*(.)*\*'
     # A string containing ignored characters 
     t_ignore = '  \t\f\r\t\v'
     
@@ -55,11 +52,16 @@ class CoolLexer:
         t.value = float(t.value)
         return t
     
-    def t_string(self, t):
+    # TODO: Los strings no pueden contener \n, \0, strings anidados, eof en strings
+    def t_string(self, t): 
         r'".*"'
-        #r'\"([^\\\n]|(\\.))*?\"'
         t.value = t.value[1:-1]
         return t
+
+    # TODO: Comentarios anidados, eof en los comentarios
+    def t_comment(self, t):
+        r'--.* | \*(.)*\*'
+        pass
 
     # Define a rule so we can track line numbers
     def t_newline(self, t):
@@ -68,7 +70,11 @@ class CoolLexer:
 
     # Error handling rule
     def t_error(self, t):
-        self.errors.append(LexicographicError(LexicographicError.UNKNOWN_TOKEN % t.value))
+        error_text = LexicographicError.UNKNOWN_TOKEN % t.value
+        line = t.lineno
+        column = self.find_column(t)
+        
+        self.errors.append(LexicographicError(error_text, line, column))
         t.lexer.skip(len(t.value))
     
 
@@ -76,8 +82,9 @@ class CoolLexer:
         line_start = self.lexer.lexdata.rfind('\n', 0, token.lexpos) + 1
         return (token.lexpos - line_start) + 1
 
+
     def tokenize_text(self, text):
-        self.lexer.input(data)
+        self.lexer.input(text)
         tokens = []
         for tok in self.lexer:
             tokens.append(Token(tok.type, tok.value, tok.lineno, self.find_column(tok)))
@@ -85,7 +92,7 @@ class CoolLexer:
 
 
 if __name__ == "__main__":
-    m = CoolLexer()
+    lexer = CoolLexer()
 
     data = '''
     CLASS Cons inherits List {
@@ -96,11 +103,13 @@ if __name__ == "__main__":
             {
                 xcar <- hd;
                 xcdr <- 2;
+                "" testing ""
+                ** testing **
                 self;
                 p . translate ( 1 , 1 ) ;
             }
         }
     '''
 
-    res = m.tokenize_text(data)
+    res = lexer.tokenize_text(data)
     pprint(res)

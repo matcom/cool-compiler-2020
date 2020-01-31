@@ -18,8 +18,8 @@ reserved = {
     'of': 'of',
     'not': 'not',
     'true': 'true',
-    'def': 'def',
-    'print': 'print'
+    'print': 'print',
+    'inherits' : 'inherits' 
 }
 
 tokens = [
@@ -43,6 +43,7 @@ tokens = [
     'less',     # '<'
     'lesseq',   # '<='
     'id',
+    'of',
     'num', 
     'string'
 ] + list(reserved.values())

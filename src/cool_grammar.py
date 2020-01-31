@@ -1,9 +1,6 @@
-import ply.yacc as yacc
 from tools.tokens import tokens
 from tools.ast import *
-from lexer import CoolLexer
 
-# TODO: juntar las producciones 
 #? TODO: If siempre tiene else
 
 def p_program(p):
@@ -29,6 +26,7 @@ def p_def_class(p):
         p[0] = ClassDeclarationNode(p[2], p[4])
     else:
         p[0] = ClassDeclarationNode(p[2], p[6], p[4])
+
 
 def p_feature_list(p):
     '''feature_list : epsilon
@@ -250,21 +248,3 @@ def p_arg_list_empty(p):
  # Error rule for syntax errors
 def p_error(p):
     print("Syntax error in input!")
-
-if __name__ == "__main__":
-    parser = yacc.yacc(start='program')
-    lexer = CoolLexer()
-
-    s = '''
-    class A {
-        ackermann ( m : AUTO_TYPE , n : AUTO_TYPE ) : AUTO_TYPE {
-            if ( m = 0 ) then n + 1 else
-                if ( n = 0 ) then ackermann ( m - 1 , 1 ) else
-                ackermann ( m - 1 , ackermann ( m , n - 1 ) )
-                fi
-            fi
-        } ;
-    } ;
-    '''
-    result = parser.parse(s, lexer.lexer, debug=True)
-    print(result)

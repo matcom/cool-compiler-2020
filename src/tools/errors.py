@@ -1,6 +1,9 @@
-
-
 class CoolError(Exception):
+    def __init__(self, text, line, column):
+        super().__init__(text)
+        self.line = line
+        self.column = column
+
     @property
     def error_type(self):
         return 'CoolError'
@@ -8,6 +11,12 @@ class CoolError(Exception):
     @property
     def text(self):
         return self.args[0]
+
+    def __str__(self):
+        return f'({self.line}, {self.column}) - {self.error_type}: {self.text}'
+
+    def __repr__(self):
+        return str(self)
 
 class CompilerError(CoolError):
     'Se reporta al presentar alguna anomalia con la entrada del compilador'
@@ -21,18 +30,23 @@ class CompilerError(CoolError):
 class LexicographicError(CoolError):
     'Errores detectados por el lexer'
 
-    UNKNOWN_TOKEN = 'Invalid token "%s"'
-    
+    UNKNOWN_TOKEN = 'ERROR "%s"'
+    UNDETERMINATED_STRING = 'Undeterminated string constant'
+    EOF_COMMENT = 'EOF in comment'
+    EOF_STRING = 'EOF in string constant'
+
     @property
     def error_type(self):
-        return 'CompilerError'
+        return 'LexicographicError'
     
 class SyntaticError(CoolError):
     'Errores detectados en el parser'
 
+    ERROR = 'ERROR at or near "%s"'
+
     @property
     def error_type(self):
-        return 'CompilerError'
+        return 'SyntaticError'
     
 class NameError(CoolError):
     'Se reporta al referenciar a un identificador en un ambito en el que no es visible'
@@ -41,7 +55,7 @@ class NameError(CoolError):
     
     @property
     def error_type(self):
-        return 'CompilerError'
+        return 'NameError'
     
 
 class TypeError(CoolError):
@@ -55,7 +69,7 @@ class TypeError(CoolError):
     
     @property
     def error_type(self):
-        return 'CompilerError'
+        return 'TypeError'
     
 
 class AttributeError(CoolError):
@@ -66,7 +80,7 @@ class AttributeError(CoolError):
     
     @property
     def error_type(self):
-        return 'CompilerError'
+        return 'AttributeError'
     
 class SemanticError(CoolError):
     'Otros errores semanticos'
@@ -79,5 +93,5 @@ class SemanticError(CoolError):
    
     @property
     def error_type(self):
-        return 'CompilerError'
+        return 'SemanticError'
     
