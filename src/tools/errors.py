@@ -18,6 +18,7 @@ class CoolError(Exception):
     def __repr__(self):
         return str(self)
 
+
 class CompilerError(CoolError):
     'Se reporta al presentar alguna anomalia con la entrada del compilador'
 
@@ -27,6 +28,7 @@ class CompilerError(CoolError):
     def error_type(self):
         return 'CompilerError'
     
+
 class LexicographicError(CoolError):
     'Errores detectados por el lexer'
 
@@ -39,6 +41,7 @@ class LexicographicError(CoolError):
     def error_type(self):
         return 'LexicographicError'
     
+
 class SyntaticError(CoolError):
     'Errores detectados en el parser'
 
@@ -48,6 +51,7 @@ class SyntaticError(CoolError):
     def error_type(self):
         return 'SyntaticError'
     
+
 class NameError(CoolError):
     'Se reporta al referenciar a un identificador en un ambito en el que no es visible'
 
@@ -81,6 +85,7 @@ class AttributeError(CoolError):
     @property
     def error_type(self):
         return 'AttributeError'
+    
     
 class SemanticError(CoolError):
     'Otros errores semanticos'

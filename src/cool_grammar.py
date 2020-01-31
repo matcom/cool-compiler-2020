@@ -1,5 +1,6 @@
 from tools.tokens import tokens
 from tools.ast import *
+from utils.utils import find_column
 
 #? TODO: If siempre tiene else
 
@@ -247,4 +248,5 @@ def p_arg_list_empty(p):
 
  # Error rule for syntax errors
 def p_error(p):
-    print("Syntax error in input!")
+    if p:
+        print(f"Syntax error in input! {p}")

@@ -17,9 +17,7 @@ reserved = {
     'new': 'new',
     'of': 'of',
     'not': 'not',
-    'true': 'true',
-    'def': 'def',
-    'print': 'print'
+    'true': 'true'
 }
 
 tokens = [

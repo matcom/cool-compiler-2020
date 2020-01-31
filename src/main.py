@@ -3,15 +3,15 @@ from pprint import pprint
 from lexer import CoolLexer
 from parser import CoolParser
 
-arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument('input')
-arg_parser.add_argument('output')
-args = arg_parser.parse_args()
+# arg_parser = argparse.ArgumentParser()
+# arg_parser.add_argument('input')
+# arg_parser.add_argument('output')
+# args = arg_parser.parse_args()
 
-input_ = args.input
-output_ = args.output
+# input_ = args.input
+# output_ = args.output
 
-# input_ = './tests/lexer/test3.cl' 
+input_ = './tests/parser/err2.cl' 
 
 try:
     with open(input_) as f:

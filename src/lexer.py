@@ -2,6 +2,7 @@ import ply.lex as lex
 from tools.tokens import tokens, reserved, Token
 from pprint import pprint 
 from tools.errors import LexicographicError
+from utils.utils import find_column
 
 class CoolLexer:
     def __init__(self, **kwargs):
@@ -16,8 +17,6 @@ class CoolLexer:
     # A string containing ignored characters 
     t_ignore = '  \t\f\r\t\v'
     
-    t_def = r'def'
-    t_print = r'print'
     t_semi = r';'
     t_colon = r':'
     t_comma = r','
@@ -72,22 +71,18 @@ class CoolLexer:
     def t_error(self, t):
         error_text = LexicographicError.UNKNOWN_TOKEN % t.value
         line = t.lineno
-        column = self.find_column(t)
+        column = find_column(self.lexer, t)
         
         self.errors.append(LexicographicError(error_text, line, column))
         t.lexer.skip(len(t.value))
     
 
-    def find_column(self, token):
-        line_start = self.lexer.lexdata.rfind('\n', 0, token.lexpos) + 1
-        return (token.lexpos - line_start) + 1
-
-
     def tokenize_text(self, text):
         self.lexer.input(text)
         tokens = []
         for tok in self.lexer:
-            tokens.append(Token(tok.type, tok.value, tok.lineno, self.find_column(tok)))
+            col = find_column(self.lexer, tok)
+            tokens.append(Token(tok.type, tok.value, tok.lineno, col))
         return tokens
 
 
