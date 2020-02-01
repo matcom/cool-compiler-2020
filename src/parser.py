@@ -1,7 +1,7 @@
 import ply.yacc as yacc
 from cool_grammar import *
 from lexer import CoolLexer
-from utils.utils import find_column
+
 
 class CoolParser:
     def __init__(self, lexer=None):
@@ -12,25 +12,16 @@ class CoolParser:
         self.parser = yacc.yacc(start='program', outputdir='src/output_parser')
 
     def parse(self, program, debug=False):
-        tokens = self.lexer.tokenize_text(program)
+        # tokens = self.lexer.tokenize_text(program)
         return self.parser.parse(program, self.lexer.lexer, debug=debug)
 
 
 if __name__ == "__main__":   
-    s = '''
-    class Main {
-            main(): Object {
-                    (new alpha).print()
-            };
-
-    };
-
-    (* Class names must begin with uppercase letters *)
-    class alpha inherits IO {
-        print() : Object {
-                out_string("reached!!\n");
-        };
-    }; 
+    s = '''class Main inherits IO {
+	mod(i : Int, ) : Int {	-- Formal list must be comma separated. A comma does not terminate a list of formals.
+	  i - (i/k)*k
+	};
+};
     '''
     parser = CoolParser()
     result = parser.parse(s)

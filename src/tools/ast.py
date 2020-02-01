@@ -140,6 +140,9 @@ class ConstantStrNode(AtomicNode):
 class VariableNode(AtomicNode):
     pass
  
+class TypeNode(AtomicNode):
+    pass
+
 class InstantiateNode(AtomicNode):
     pass
 

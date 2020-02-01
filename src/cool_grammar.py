@@ -1,12 +1,14 @@
 from tools.tokens import tokens
 from tools.ast import *
-from errors import SyntaticError
+from tools.errors import SyntaticError
+from utils.utils import find_column
 
 #? TODO: If siempre tiene else
 
 def p_program(p):
     'program : class_list'
     p[0] = p[1]
+    return p[0]
 
 def p_epsilon(p):
     'epsilon :'
@@ -20,6 +22,14 @@ def p_class_list(p):
     else:
         p[0] = [p[1]] + p[2]
 
+def p_empty_parenthesis(p):
+    '''class_list : opar cpar
+                  | ocur ccur
+       feature_list : opar cpar
+                    | ocur ccur
+    '''
+    p[0] = []
+
 def p_def_class(p):
     '''def_class : class type ocur feature_list ccur semi 
                  | class type inherits type ocur feature_list ccur semi'''
@@ -27,6 +37,16 @@ def p_def_class(p):
         p[0] = ClassDeclarationNode(p[2], p[4])
     else:
         p[0] = ClassDeclarationNode(p[2], p[6], p[4])
+
+
+def p_def_class_error(p):
+    '''def_class : class error ocur feature_list ccur semi 
+                 | class error inherits type ocur feature_list ccur semi
+                 | class error inherits error ocur feature_list ccur semi
+                 | class type inherits error ocur feature_list ccur semi'''
+    print('Here')
+    if p[3].type == 'error':
+        print_error(p[3])
 
 
 def p_feature_list(p):
@@ -205,9 +225,19 @@ def p_atom_id(p):
     'atom : id'
     p[0] = VariableNode(p[1])
 
+def p_atom_type(p):
+    'atom : type'
+    p[0] = TypeNode(p[1])
+
 def p_atom_new(p):
     'atom : new type'
     p[0] = InstantiateNode(p[2])
+
+def p_atom_new_error(p):
+    'atom : new error'
+    pass
+    # print_error(p[2])
+
 
 def p_atom_block(p):
     'atom : ocur block ccur'
@@ -249,4 +279,11 @@ def p_arg_list_empty(p):
  # Error rule for syntax errors
 def p_error(p):
     if p:
-        print(f"Syntax error in input! {p}")
+        print_error(p)
+
+
+def print_error(tok):    
+    error_text = SyntaticError.ERROR % tok.value
+    column = find_column(tok.lexer, tok)
+    print(SyntaticError(error_text, tok.lineno, column))
+

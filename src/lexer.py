@@ -82,7 +82,6 @@ class CoolLexer:
         self.errors.append(LexicographicError(error_text, line, column))
         t.lexer.skip(len(t.value))
     
-
     def tokenize_text(self, text):
         self.lexer.input(text)
         tokens = []
