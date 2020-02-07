@@ -1,0 +1,71 @@
+	Program ::= Class;
+	|	Program
+	
+	Inherits := inherits TYPE
+	|	Epsilon
+
+	Class ::= class TYPE Inherits { Class_feature }	
+	
+	Class_feature ::= Feature; Class_feature	
+	|	Epsilon
+
+	Feature ::= ID( Formal_list ) : TYPE { expr }
+	|	Initialization
+	
+	Formal_list ::= ID : TYPE
+	|	, Formal_list	
+	
+	Expr_list0 ::= expr;
+	|	Expr_list0
+	
+	Params ::= Expr_list1
+	|	Epsilon
+
+	Expr_list1 ::= expr
+	|	, Expr_list1
+
+	Cast ::= @Type
+	|	Epsilon
+
+	Initialization ::= ID : TYPE Assign
+	|	, Initialization
+	
+	Assign := <- expr
+	|	Epsilon
+
+	Case_list := ID : TYPE => expr;
+	|	Case_list
+
+	expr ::= ID <- expr
+	| 	exprCast.ID( Params )
+	| 	ID( Params )
+	| 	if expr then expr else expr fi
+	| 	while expr loop expr pool
+	| 	{ Expr_list0 }
+	| 	let Initialization in expr
+	| 	case expr of Case_list esac
+	| 	new TYPE
+	| 	isvoid expr
+	| 	expr + expr
+	| 	expr − expr
+	|	 expr ∗ expr
+	| 	expr / expr
+	| 	 ̃expr
+	| 	expr < expr
+	| 	expr <= expr
+	| 	expr = expr
+	| 	not expr
+	| 	(expr)
+	| 	ID
+	| 	integer
+	| 	string
+	| 	true
+	| 	false
+	| 	expr = expr
+	| 	not expr
+	| 	(expr)
+	| 	ID
+	| 	integer
+	| 	string
+	| 	true
+	| 	false
