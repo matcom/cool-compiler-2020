@@ -1,16 +1,16 @@
-#%%
 from automatons.state import State
 from lexer.regexgenerator import Regex
 from lexer.tokens import Token
-#%%
 
 
 class TokenLine(Token):
     '''
     Clase para representar el token constante de cambio de Linea
     '''
+
     def __init__(self):
         super().__init__('\n', 'Line')
+
 
 class Lexer:
 
@@ -31,6 +31,7 @@ class Lexer:
       estado final.
     - Al finalizar de consumir toda la cadena, se reporta el token de fin de cadena.
     """
+
     def __init__(self, table, eof, ignore_white_space=False):
         self.eof = eof
         self.regexs = self._build_regexs(table, ignore_white_space)
@@ -77,7 +78,6 @@ class Lexer:
             start.add_epsilon_transition(regex)
         return start.to_deterministic()
 
-
     def _walk(self, string):
         state = self.automaton
         final = state if state.final else None
@@ -104,7 +104,8 @@ class Lexer:
             final, lex = self._walk(string)
             if lex == '':
                 print(text)
-                raise SyntaxError(f'Invalid token in line: {self.line} column: {self.column}')
+                raise SyntaxError(
+                    f'Invalid token in line: {self.line} column: {self.column}')
             if final:
                 n = 2**64
                 token_type = None
@@ -119,7 +120,8 @@ class Lexer:
                 yield lex, token_type
                 text = string[len(lex):]
             else:
-                raise SyntaxError(f'Invalid token in line: {self.line} column: {self.column}')
+                raise SyntaxError(
+                    f'Invalid token in line: {self.line} column: {self.column}')
 
         yield '$', self.eof
 
