@@ -1,0 +1,1 @@
+(45, 30) - SyntacticError: ERROR at or near "int"
