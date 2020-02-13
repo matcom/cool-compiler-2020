@@ -2,9 +2,11 @@ class Node:
     def evaluate(self):
         raise NotImplementedError()
 
+
 class AtomicNode(Node):
     def __init__(self, lex):
         self.lex = lex
+
 
 class UnaryNode(Node):
     def __init__(self, node):
@@ -17,6 +19,7 @@ class UnaryNode(Node):
     @staticmethod
     def operate(value):
         raise NotImplementedError()
+
 
 class BinaryNode(Node):
     def __init__(self, left, right):

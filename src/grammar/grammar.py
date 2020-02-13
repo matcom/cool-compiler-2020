@@ -1,5 +1,5 @@
 from grammar.symbols import (NonTerminal, Terminal, Sentence,
-                     Epsilon, EOF, AttributeProduction)
+                             Epsilon, EOF, AttributeProduction)
 import json
 
 
@@ -109,7 +109,7 @@ class Grammar():
             productions.append({'Head': head, 'Body': body})
 
         d = {'NonTerminals': [symb.Name for symb in self.nonTerminals if symb != self.startSymbol], 'Terminals':
-        [symb.Name for symb in self.terminals],
+             [symb.Name for symb in self.terminals],
              'Productions': productions}
         d['StartSymbol'] = self.startSymbol.Name
 
@@ -121,7 +121,7 @@ class Grammar():
 
         G = Grammar()
         dic = {'epsilon': G.Epsilon}
-        dic[data['StartSymbol']] = G.NonTerminal(data['StartSymbol'],True)
+        dic[data['StartSymbol']] = G.NonTerminal(data['StartSymbol'], True)
 
         for term in data['Terminals']:
             dic[term] = G.Terminal(term)

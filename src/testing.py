@@ -2,6 +2,7 @@ from coolgrammar import grammar
 from lexer import tokenizer
 from parserr.lr import LALRParser
 from parserr.shiftreduce import ShiftReduceParser
+import cloudpickle
 
 GRAMMAR, LEXER = grammar.build_cool_grammar()
 PARSER = LALRParser(GRAMMAR, verbose=True)
@@ -51,17 +52,16 @@ class A inherits IO
 };
 """
 # First Round of tests
-import cloudpickle
 TOKS = None
 try:
-    TOKS = LEXER(SIMPLE_PROGRAM)
-    parse = PARSER(TOKS)
-    # Try to save the parser and then reuse it
-    #with open('.parser.dmp','wb') as file:
-     #   cloudpickle.dump(PARSER, file)
+  TOKS = LEXER(SIMPLE_PROGRAM)
+  parse = PARSER(TOKS)
+  # Try to save the parser and then reuse it
+  # with open('.parser.dmp','wb') as file:
+  #   cloudpickle.dump(PARSER, file)
 
-    with open('.parser.dmp','rb') as file:
-        parser = cloudpickle.load(file)
-        print(parser(TOKS))
+  with open('.parser.dmp', 'rb') as file:
+    parser = cloudpickle.load(file)
+    print(parser(TOKS))
 except Exception as e:
-    print(e)
+  print(e)

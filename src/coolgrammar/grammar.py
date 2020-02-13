@@ -10,37 +10,48 @@ from abstract.tree import NotNode, WhileBlockNode, EqualToNode, InstantiateClass
 from abstract.tree import ActionNode, CaseNode, ParentFuncCall, BlockNode, IsVoidNode
 from lexer.tokenizer import Lexer
 
+
 def build_cool_grammar():
     G = Grammar()
     program = G.NonTerminal('<program>', True)
 
     class_list, class_def, empty_feature_list, feature_list, meod_def = \
-        G.NonTerminals('<class_list> <class_def> <empty_feature_list> <feature_list> <meod_def>')
+        G.NonTerminals(
+            '<class_list> <class_def> <empty_feature_list> <feature_list> <meod_def>')
 
-    attr_def, param_list, param, statement_list = G.NonTerminals('<attr_def> <param_list> <param> <statement_list>')
+    attr_def, param_list, param, statement_list = G.NonTerminals(
+        '<attr_def> <param_list> <param> <statement_list>')
 
-    var_dec, args_list, instantiation = G.NonTerminals('<var_dec> <args_list> <instantiation>')
+    var_dec, args_list, instantiation = G.NonTerminals(
+        '<var_dec> <args_list> <instantiation>')
 
-    exp, typex, term, factor, nested_lets = G.NonTerminals('<exp> <type> <term> <factor> <nested_lets>')
+    exp, typex, term, factor, nested_lets = G.NonTerminals(
+        '<exp> <type> <term> <factor> <nested_lets>')
 
-    arith, atom, actions, action, block= G.NonTerminals('<arith> <atom> <actions> <action> <block>')
+    arith, atom, actions, action, block = G.NonTerminals(
+        '<arith> <atom> <actions> <action> <block>')
 
-    args_list_empty, param_list_empty, case_statement = G.NonTerminals('<args_list_empty> <param_list_empty> <case>')
+    args_list_empty, param_list_empty, case_statement = G.NonTerminals(
+        '<args_list_empty> <param_list_empty> <case>')
 
     class_keyword, def_keyword, in_keyword = G.Terminals('class def in')
 
-    coma, period, dot_comma, opar, cpar, obrack, cbrack, plus, minus, star, div, dd = G.Terminals(', . ; ( ) { } + - * / :')
+    coma, period, dot_comma, opar, cpar, obrack, cbrack, plus, minus, star, div, dd = G.Terminals(
+        ', . ; ( ) { } + - * / :')
 
     idx, let, intx, string, num, equal, true, false, boolean, objectx =\
-                                    G.Terminals('id let int string num = true false bool object')
+        G.Terminals('id let int string num = true false bool object')
 
     string_const, void, auto = G.Terminals('string_const void AUTO_TYPE')
 
-    if_, then, else_, assign, new, case, of, esac = G.Terminals('if then else assign new case of esac')
+    if_, then, else_, assign, new, case, of, esac = G.Terminals(
+        'if then else assign new case of esac')
 
-    gt, lt , ge, le, eq, not_, implies, isvoid = G.Terminals('> < >= <= == ! => isvoid')
+    gt, lt, ge, le, eq, not_, implies, isvoid = G.Terminals(
+        '> < >= <= == ! => isvoid')
 
-    while_, do, inherits, arroba, fi, pool, loop = G.Terminals('while do inherits @ fi pool loop')
+    while_, do, inherits, arroba, fi, pool, loop = G.Terminals(
+        'while do inherits @ fi pool loop')
 
     # Definir un programa como un conjunto de clases.
     program %= class_list, lambda s: ProgramNode(s[1])
@@ -52,11 +63,11 @@ def build_cool_grammar():
     # Definir la estructura de la declaracion de una clase.
     # Una clase no es mas que un conjunto de features.
     class_def %= class_keyword + idx + obrack + feature_list + cbrack + dot_comma, \
-                 lambda s: ClassDef(s[2], s[4])
+        lambda s: ClassDef(s[2], s[4])
 
     # Definir la estructura de la declaracion de una clase con herencia.
     class_def %= class_keyword + idx + inherits + typex + obrack + feature_list + \
-                 cbrack + dot_comma, lambda s: ClassDef(s[2], s[6], s[4])
+        cbrack + dot_comma, lambda s: ClassDef(s[2], s[6], s[4])
 
     # Definir un conjunto de features como un metodo unico.
     feature_list %= meod_def + dot_comma, lambda s: [s[1]]
@@ -66,21 +77,24 @@ def build_cool_grammar():
 
     # Definir una lista de features como la declaracion de un metodo
     # mas una lista de features.
-    feature_list %= meod_def + dot_comma + feature_list, lambda s: [s[1]] + s[3]
+    feature_list %= meod_def + dot_comma + \
+        feature_list, lambda s: [s[1]] + s[3]
 
     # Definir una lista de features como la declaracion de un atributo
     # mas una lista de features.
-    feature_list %= attr_def + dot_comma +feature_list, lambda s: [s[1]] + s[3]
+    feature_list %= attr_def + dot_comma + \
+        feature_list, lambda s: [s[1]] + s[3]
 
     # Definir la estructura de la declaracion de un metodo.
     meod_def %= idx + opar + param_list_empty + cpar + dd + typex + obrack +\
-                statement_list + cbrack, lambda s: MethodDef(s[1], s[3], s[6], s[8])
+        statement_list + cbrack, lambda s: MethodDef(s[1], s[3], s[6], s[8])
 
     # Definir la estructura de la declaracion de un atributo.
-    attr_def %= idx + dd + typex, lambda s: AttributeDef(s[1],s[3])
+    attr_def %= idx + dd + typex, lambda s: AttributeDef(s[1], s[3])
 
     # Definir la estructura de la declaracion de un atributo con valor por defecto.
-    attr_def %= idx + dd + typex + assign + exp, lambda s: AttributeDef(s[1], s[3], s[5])
+    attr_def %= idx + dd + typex + assign + \
+        exp, lambda s: AttributeDef(s[1], s[3], s[5])
 
     # Definir la lista de parametros como una lista de parametros o una lista vacia
     param_list_empty %= param_list, lambda s: s[1]
@@ -100,16 +114,19 @@ def build_cool_grammar():
 
     statement_list %= exp + dot_comma + statement_list, lambda s: [s[1]] + s[3]
 
-    var_dec %= let + nested_lets + in_keyword + exp, lambda s: VariableDeclaration(s[2], s[4])
+    var_dec %= let + nested_lets + in_keyword + \
+        exp, lambda s: VariableDeclaration(s[2], s[4])
 
     nested_lets %= idx + dd + typex, lambda s: [(s[1], s[3], None)]
 
-    nested_lets %= idx + dd + typex + coma + nested_lets, lambda s: [(s[1], s[3], None)] + s[5]
+    nested_lets %= idx + dd + typex + coma + \
+        nested_lets, lambda s: [(s[1], s[3], None)] + s[5]
 
-    nested_lets %= idx + dd + typex + assign + exp, lambda s: [(s[1], s[3], s[5])]
+    nested_lets %= idx + dd + typex + assign + \
+        exp, lambda s: [(s[1], s[3], s[5])]
 
     nested_lets %= idx + dd + typex + assign + exp + coma + \
-                   nested_lets, lambda s: [(s[1], s[3], s[5])] + s[7]
+        nested_lets, lambda s: [(s[1], s[3], s[5])] + s[7]
 
     # Una expresion puede ser una declaracion de una variable
     exp %= var_dec, lambda s: s[1]
@@ -125,7 +142,8 @@ def build_cool_grammar():
     exp %= atom, lambda s: s[1]
 
     # Una expresion puede ser un bloque IfThenElse
-    exp %= if_ +  exp +  then +  exp + else_ + exp + fi, lambda s: IfThenElseNode(s[2], s[4], s[6])
+    exp %= if_ + exp + then + exp + else_ + exp + \
+        fi, lambda s: IfThenElseNode(s[2], s[4], s[6])
 
     # Una expresion puede ser una asignacion
     exp %= idx + assign + exp, lambda s: AssignNode(s[1], s[3])
@@ -133,10 +151,12 @@ def build_cool_grammar():
     # Una expresion puede ser una instanciacion de una clase
     exp %= instantiation, lambda s: s[1]
 
-    instantiation %= new + idx + opar + args_list_empty + cpar, lambda s: InstantiateClassNode(s[2], s[4])
+    instantiation %= new + idx + opar + args_list_empty + \
+        cpar, lambda s: InstantiateClassNode(s[2], s[4])
 
     # Una expresion puede ser un bloque while
-    exp %= while_ + exp + loop + statement_list + pool, lambda s: WhileBlockNode(s[3], s[7])
+    exp %= while_ + exp + loop + statement_list + \
+        pool, lambda s: WhileBlockNode(s[3], s[7])
 
     exp %= arith, lambda s: s[1]
 
@@ -170,10 +190,11 @@ def build_cool_grammar():
                                                                                        s[3],
                                                                                        s[5])
 
-    factor %= idx + opar + args_list_empty + cpar, lambda s: FunCall('self', s[1], s[3])
+    factor %= idx + opar + args_list_empty + \
+        cpar, lambda s: FunCall('self', s[1], s[3])
 
     factor %= factor + arroba + typex + period + idx + opar + args_list_empty + cpar, lambda s: \
-              ParentFuncCall(s[1], s[3], s[5], s[7])
+        ParentFuncCall(s[1], s[3], s[5], s[7])
 
     atom %= factor + gt + factor, lambda s: GreaterThanNode(s[1], s[3])
 
@@ -186,7 +207,6 @@ def build_cool_grammar():
     atom %= factor + le + factor, lambda s: LowerEqual(s[1], s[3])
 
     atom %= not_ + factor, lambda s: NotNode(s[2])
-
 
     typex %= intx, lambda s: 'int'
 
@@ -214,9 +234,11 @@ def build_cool_grammar():
 
     actions %= action + actions, lambda s: [s[1]] + s[2]
 
-    action %= idx + dd + typex + implies + exp + dot_comma, lambda s: ActionNode(s[1], s[3], s[5])
+    action %= idx + dd + typex + implies + exp + \
+        dot_comma, lambda s: ActionNode(s[1], s[3], s[5])
 
-    case_statement %= case + exp + of + actions + esac, lambda s: CaseNode(s[2], s[4])
+    case_statement %= case + exp + of + actions + \
+        esac, lambda s: CaseNode(s[2], s[4])
 
     table = [(class_keyword, 'class'),
              (def_keyword, 'def'),
@@ -245,7 +267,7 @@ def build_cool_grammar():
              (arroba, '@'),
              (assign, r'<\-'),
              (lt, r'\<'),
-             (gt,  r'\>'),
+             (gt, r'\>'),
              (ge, '>='),
              (le, '<='),
              (eq, '=='),
@@ -265,10 +287,10 @@ def build_cool_grammar():
              (pool, 'pool'),
              (loop, 'loop'),
              (isvoid, 'isvoid'),
-             (idx, '(A|a|B|b|C|c|D|d|E|e|F|f|G|g|H|h|I|i|J|j|K|k|L|l|M|m|N|n|O|o|P|p|'+
+             (idx, '(A|a|B|b|C|c|D|d|E|e|F|f|G|g|H|h|I|i|J|j|K|k|L|l|M|m|N|n|O|o|P|p|' +
               'Q|q|R|r|S|s|T|t|u|U|V|v|W|w|X|x|Y|y|Z|z|_)+'),
              (num, '0|(1|2|3|4|5|6|7|8|9)(1|2|3|4|5|6|7|8|9|0)*'),
-             (string_const, r"\"(A|a|B|b|C|c|D|d|E|e|F|f|G|g|H|h|I|i|J|j|K|k|L|l|M|m|N"+
+             (string_const, r"\"(A|a|B|b|C|c|D|d|E|e|F|f|G|g|H|h|I|i|J|j|K|k|L|l|M|m|N" +
               r"|n|O|o|P|p|Q|q|R|r|S|s|T|t|u|U|V|v|W|w|X|x|Y|y|Z|z|\ )+\"")]
 
     lexer = Lexer(table, G.EOF, ignore_white_space=False)

@@ -1,4 +1,5 @@
-from  automatons.nondeterministic import NFA
+from automatons.nondeterministic import NFA
+
 
 class DFA(NFA):
     """
@@ -6,14 +7,14 @@ class DFA(NFA):
     - Usar la función de transición propia de los autómatas finitos deterministas.
     - Implementar un algoritmo de reconocimiento de cadenas.
     """
+
     def __init__(self, states, finals, transitions, start=0):
         assert all(isinstance(value, int) for value in transitions.values())
         assert all(len(symbol) > 0 for origin, symbol in transitions)
 
-        transitions = { key: [value] for key, value in transitions.items() }
+        transitions = {key: [value] for key, value in transitions.items()}
         NFA.__init__(self, states, finals, transitions, start)
         self.current = start
-
 
     def epsilon_transitions(self):
         raise TypeError()

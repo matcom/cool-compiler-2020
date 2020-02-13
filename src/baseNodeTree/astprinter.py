@@ -1,5 +1,6 @@
 import tools.visitor as visitor
 
+
 def get_printer(AtomicNode=(), UnaryNode=(), BinaryNode=(), ):
 
     class PrintVisitor(object):
