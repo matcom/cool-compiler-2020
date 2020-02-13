@@ -1,0 +1,1 @@
+(2, 9) - SyntacticError: ERROR at or near ASSIGN
