@@ -2,4 +2,4 @@ true false tRue fALSE
 
 if then else BOOL STRING HELLO Rs
 isvoid + - /
-4 else { } HELLO POOL 
+4 else { } HELLO POOL <= => == <-

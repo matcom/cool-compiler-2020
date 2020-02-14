@@ -7,7 +7,7 @@ class Cool_Lexer(object):
         self.lexer = lex.lex(module=self, **kwargs)
 
 
-    literals = {'+', '-', '*', '/', '~', '<', '(', ')', '{', '}', ',', ';', ':', '.', '@'}
+    literals = {'+', '-', '*', '/', '~', '<', '(', ')', '{', '}', ',', ';', ':', '.', '@'}  
 
 
     keywords = {
@@ -32,7 +32,10 @@ class Cool_Lexer(object):
 
     tokens = ['TYPE', 'ID', 'INT', 'STRING', 'BOOL', 'LESS_EQ', 'EQ', 'ASSIGN', 'ARROW'] + list(keywords.values())
 
-
+    t_LESS_EQ = r'\<\='
+    t_EQ = r'\=\='
+    t_ASSIGN = r'\<\-'
+    t_ARROW = r'\=\>'
 
     @TOKEN(r'[a-z_][A-Za-z_0-9]*')
     def t_ID(self, t):
