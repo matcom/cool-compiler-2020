@@ -114,20 +114,14 @@ class Cool_Lexer(object):
     def t_COMMENT_nest(self, t):
         t.lexer.nesting_level_of_comment += 1
 
-
     @TOKEN(r'\*\)')
     def t_COMMENT_end(self, t):
         t.lexer.nesting_level_of_comment -= 1
         if t.lexer.nesting_level_of_comment == 0:
             t.lexer.pop_state()
 
-
-
     def t_COMMENT_error(self, t):
         t.lexer.skip(1)
-
-
-
 
 if __name__ == "__main__":
     cool_lexer = Cool_Lexer()
