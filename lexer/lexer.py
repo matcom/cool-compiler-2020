@@ -37,6 +37,11 @@ class Cool_Lexer(object):
         t.type = self.keywords.get(t.value, 'ID')
         return t
 
+    @TOKEN(r'[A-Z][A-Za-z_0-9]*')
+    def t_TYPE(self, t):
+        t.type = self.keywords.get(t.value.lower(), 'TYPE')
+        return t
+
     @TOKEN(r'\n+')
     def t_newline(self, t):
         t.lexer.lineno += len(t.value)

@@ -1,3 +1,3 @@
-if then else
+if then else BOOL STRING HELLO Rs
 isvoid + - /
-4 else { } HELLO
+4 else { } HELLO POOL
