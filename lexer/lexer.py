@@ -93,6 +93,7 @@ class Cool_Lexer(object):
         t.lexer.lineno += len(t.value)
 
     t_ignore = ' \t\f\r'
+    t_ignore_line_comment = r'\-\-[^\n]*'
 
     def find_column(self, t):
         line_start = t.lexer.lexdata.rfind('\n', 0, t.lexpos) + 1

@@ -4,6 +4,8 @@ if then else BOOL STRING HELLO Rs
 isvoid + - /
 4 else { } HELLO POOL <= => == <-
 
-(* Hello, (*this is (*a (* *) comment*) - + * / @s # *)
+(* Hello, (*this is (*a *) comment*) - + * / @s # *)
 
-@ . , : ; ( ) { } + / * - < <= == ~ not <- =>
+@ . , : ; ( ) { } + / * - < <= == ~ not <- => --A
+
+@
