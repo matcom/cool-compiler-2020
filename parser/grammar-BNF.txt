@@ -6,44 +6,55 @@
 
 	Class ::= class TYPE Inherits { Class_feature }	
 	
-	Class_feature ::= Feature; Class_feature	
+	Class_feature ::= Feature; Class_feature
 	|	Epsilon
 
-	Feature ::= ID( Formal_list ) : TYPE { expr }
-	|	Initialization
+	Feature ::= ID( Formal_Params ) : TYPE { expr }
+	|	Simple_Init
+
+	Formal_Params ::= Formal_List
+	| Epsilon
 	
-	Formal_list ::= ID : TYPE
-	|	, Formal_list
+	Formal_List ::= ID : TYPE Formal_List_Helper
+
+	Formal_List_Helper ::= , ID : TYPE Formal_List_Helper
+	|	Epsilon
 	
-	Expr_list0 ::= expr;
-	|	Expr_list0
+	Expr_List_Semicolon ::= expr;
+	|	Expr_List_Semicolon
 	
-	Params ::= Expr_list1
+	Expr_Params ::= Expr_List_Comma
 	|	Epsilon
 
-	Expr_list1 ::= expr
-	|	, Expr_list1
+	Expr_List_Comma ::= expr Expr_List_Comma_Helper
 
-	Cast ::= @Type
+	Expr_List_Comma_Helper ::= , expr Expr_List_Comma_Helper
 	|	Epsilon
 
-	Initialization ::= ID : TYPE Assign
-	|	, Initialization
+	Cast ::= @TYPE
+	|	Epsilon
+
+	Simple_Init ::= ID : TYPE Assignation
+
+	Compound_Init ::= Simple_Init Compound_Init_Helper
+
+	Compound_Init_Helper ::= , Simple_Init Compound_Init_Helper
+	|	Epsilon
 	
-	Assign := <- expr
+	Assignation := <- expr
 	|	Epsilon
 
-	Case_list := ID : TYPE => expr;
-	|	Case_list
+	Case_List := ID : TYPE => expr;
+	|	Case_List
 
 	expr ::= ID <- expr
-	| 	exprCast.ID( Params )
-	| 	ID( Params )
+	| 	expr Cast . ID ( Expr_Params )
+	| 	ID ( Expr_Params )
 	| 	if expr then expr else expr fi
 	| 	while expr loop expr pool
 	| 	{ Expr_list0 }
-	| 	let Initialization in expr
-	| 	case expr of Case_list esac
+	| 	let Compound_Init in expr
+	| 	case expr of Case_List esac
 	| 	new TYPE
 	| 	isvoid expr
 	| 	expr + expr
@@ -53,14 +64,6 @@
 	| 	~expr
 	| 	expr < expr
 	| 	expr <= expr
-	| 	expr = expr
-	| 	not expr
-	| 	(expr)
-	| 	ID
-	| 	integer
-	| 	string
-	| 	true
-	| 	false
 	| 	expr = expr
 	| 	not expr
 	| 	(expr)
