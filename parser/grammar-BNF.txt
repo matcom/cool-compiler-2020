@@ -1,0 +1,74 @@
+	Program ::= Class;
+	|	Program
+	
+	Inherits := inherits TYPE
+	|	Epsilon
+
+	Class ::= class TYPE Inherits { Class_feature }	
+	
+	Class_feature ::= Feature; Class_feature
+	|	Epsilon
+
+	Feature ::= ID( Formal_Params ) : TYPE { expr }
+	|	Simple_Init
+
+	Formal_Params ::= Formal_List
+	| Epsilon
+	
+	Formal_List ::= ID : TYPE Formal_List_Helper
+
+	Formal_List_Helper ::= , ID : TYPE Formal_List_Helper
+	|	Epsilon
+	
+	Expr_List_Semicolon ::= expr;
+	|	Expr_List_Semicolon
+	
+	Expr_Params ::= Expr_List_Comma
+	|	Epsilon
+
+	Expr_List_Comma ::= expr Expr_List_Comma_Helper
+
+	Expr_List_Comma_Helper ::= , expr Expr_List_Comma_Helper
+	|	Epsilon
+
+	Cast ::= @TYPE
+	|	Epsilon
+
+	Simple_Init ::= ID : TYPE Assignation
+
+	Compound_Init ::= Simple_Init Compound_Init_Helper
+
+	Compound_Init_Helper ::= , Simple_Init Compound_Init_Helper
+	|	Epsilon
+	
+	Assignation := <- expr
+	|	Epsilon
+
+	Case_List := ID : TYPE => expr;
+	|	Case_List
+
+	expr ::= ID <- expr
+	| 	expr Cast . ID ( Expr_Params )
+	| 	ID ( Expr_Params )
+	| 	if expr then expr else expr fi
+	| 	while expr loop expr pool
+	| 	{ Expr_list0 }
+	| 	let Compound_Init in expr
+	| 	case expr of Case_List esac
+	| 	new TYPE
+	| 	isvoid expr
+	| 	expr + expr
+	| 	expr − expr
+	|	expr ∗ expr
+	| 	expr / expr
+	| 	~expr
+	| 	expr < expr
+	| 	expr <= expr
+	| 	expr = expr
+	| 	not expr
+	| 	(expr)
+	| 	ID
+	| 	integer
+	| 	string
+	| 	true
+	| 	false
