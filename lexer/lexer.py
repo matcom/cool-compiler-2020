@@ -6,10 +6,6 @@ class Cool_Lexer(object):
     def build(self, **kwargs):
         self.lexer = lex.lex(module=self, **kwargs)
 
-
-    literals = {'+', '-', '*', '/', '~', '<', '(', ')', '{', '}', ',', ';', ':', '.', '@'}  
-
-
     keywords = {
         'not': 'NOT',
         'class': 'CLASS',
@@ -27,14 +23,47 @@ class Cool_Lexer(object):
         'of': 'OF',
         'new': 'NEW',
         'esac': 'ESAC',
-        'isvoid': 'ISVOID',
+        'isvoid': 'ISVOID'
     }
 
-    tokens = ['TYPE', 'ID', 'INT', 'STRING', 'BOOL', 'LESS_EQ', 'EQ', 'ASSIGN', 'ARROW'] + list(keywords.values())
+    tokens = [
+        # Identifiers
+        'TYPE', 'ID',
 
+        # Built-in types
+        'INT', 'STRING', 'BOOL',
+
+        # Operators
+        'PLUS', 'MUL', 'DIV', 'MINUS', 'LESS', 'LESS_EQ', 'EQ', 'INT_COMP', 'NOT', 'ASSIGN',
+
+        # Literals
+        'LPAREN', 'RPAREN', 'LBRACE', 'RBRACE', 'COLON', 'SEMICOLON', 'DOT', 'COMMA', 'CAST',
+
+        # Others
+        'ARROW'] + list(keywords.values())
+
+    # Simple rules
+    t_PLUS = r'\+'
+    t_MUL = r'\*'
+    t_DIV = r'\/'
+    t_MINUS = r'\-'
+    t_LESS = r'\<'
     t_LESS_EQ = r'\<\='
     t_EQ = r'\=\='
+    t_INT_COMP = r'\~'
+
     t_ASSIGN = r'\<\-'
+
+    t_LPAREN = r'\('
+    t_RPAREN = r'\)'
+    t_LBRACE = r'\{'
+    t_RBRACE = r'\}'
+    t_COLON = r'\:'
+    t_SEMICOLON = r'\;'
+    t_DOT = r'\.'
+    t_COMMA = r'\,'
+    t_CAST = r'\@'
+
     t_ARROW = r'\=\>'
 
     @TOKEN(r'[a-z_][A-Za-z_0-9]*')
@@ -59,8 +88,6 @@ class Cool_Lexer(object):
         t.value = int(t.value)
         return t
 
-
-
     @TOKEN(r'\n+')
     def t_newline(self, t):
         t.lexer.lineno += len(t.value)
@@ -71,9 +98,32 @@ class Cool_Lexer(object):
         line_start = t.lexer.lexdata.rfind('\n', 0, t.lexpos) + 1
         return t.lexpos - line_start + 1
 
-
     def t_error(self, t):
-        print(f"({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: Illegal character")
+        print(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: "{t.value}"')
+        t.lexer.skip(1)
+
+
+    states = (('COMMENT','exclusive'),)
+
+    @TOKEN(r'\(\*')
+    def t_begin_COMMENT(self, t):
+        t.lexer.push_state('COMMENT')
+        t.lexer.nesting_level_of_comment = 1
+
+    @TOKEN(r'\(\*')
+    def t_COMMENT_nest(self, t):
+        t.lexer.nesting_level_of_comment += 1
+
+
+    @TOKEN(r'\*\)')
+    def t_COMMENT_end(self, t):
+        t.lexer.nesting_level_of_comment -= 1
+        if t.lexer.nesting_level_of_comment == 0:
+            t.lexer.pop_state()
+
+
+
+    def t_COMMENT_error(self, t):
         t.lexer.skip(1)
 
 
