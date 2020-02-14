@@ -27,25 +27,36 @@ class Cool_Lexer(object):
         'of': 'OF',
         'new': 'NEW',
         'esac': 'ESAC',
-        'isvoid': 'ISVOID'
+        'isvoid': 'ISVOID',
     }
 
     tokens = ['TYPE', 'ID', 'INT', 'STRING', 'BOOL', 'LESS_EQ', 'EQ', 'ASSIGN', 'ARROW'] + list(keywords.values())
 
+
+
     @TOKEN(r'[a-z_][A-Za-z_0-9]*')
     def t_ID(self, t):
-        t.type = self.keywords.get(t.value, 'ID')
+        if t.value.lower() == 'true':
+            t.value = True
+            t.type = 'BOOL'
+        elif t.value.lower() == 'false':
+            t.value = False
+            t.type = 'BOOL'
+        else:
+            t.type = self.keywords.get(t.value.lower(), 'ID')
         return t
 
     @TOKEN(r'[A-Z][A-Za-z_0-9]*')
     def t_TYPE(self, t):
         t.type = self.keywords.get(t.value.lower(), 'TYPE')
         return t
-    
+
     @TOKEN(r'\d+')
     def t_INT(self, t):
         t.value = int(t.value)
         return t
+
+
 
     @TOKEN(r'\n+')
     def t_newline(self, t):
