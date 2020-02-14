@@ -1,111 +1,73 @@
-from sly import Lexer
+import ply.lex as lex
+from ply.lex import TOKEN
 
-class CommentState(Lexer):
-    pass
+class Cool_Lexer(object):
 
-class Cool_Lexer(Lexer):
-
-    literals = {'+', '-', '*', '/', '~', '<', '(', ')', '{', '}', ',', ';', ':', '.'}
-
-    #A set wich contains all the posible token type names
-    tokens = {
-        TYPE, ID, INT, STRING, BOOL, LESS_EQ, EQ, CLASS, INHERITS, IF,
-        THEN, ELSE, FI, WHILE, LOOP, POOL, LET, IN, CASE, OF, ESAC, NEW,
-        ISVOID, ASSIGN, CAST, ARROW, NOT
-        }
-
-    #Match rules
-
-    EQ = r'\=\='
-    LESS_EQ = r'\<\='
-    ASSIGN = r'\<\-'
-    ARROW = r'\=\>'
-    TYPE = r'[A-Z][a-z_A-Z0-9]*'
-
-    #Identifiers
-    ID = r'[a-z_][A-Za-z_0-9]*'
-
-    #Keywords
-    ID['not'] =  NOT
-    ID['class'] =  CLASS
-    ID['inherits'] = INHERITS
-    ID['if'] = IF
-    ID['then'] = THEN
-    ID['else'] = ELSE
-    ID['fi'] = FI
-    ID['while'] = WHILE
-    ID['loop'] = LOOP
-    ID['pool'] = POOL
-    ID['let'] = LET
-    ID['in'] = IN
-    ID['case'] = CASE
-    ID['of'] = OF
-    ID['new'] = NEW
-    ID['esac'] = ESAC
-    ID['isvoid'] = ISVOID
+    def build(self, **kwargs):
+        self.lexer = lex.lex(module=self, **kwargs)
 
 
-    @_(r'\d+')
-    def INT(self, t):
-        t.value = int(t.value)
+    literals = {'+', '-', '*', '/', '~', '<', '(', ')', '{', '}', ',', ';', ':', '.', '@'}
+
+
+    keywords = {
+        'not': 'NOT',
+        'class': 'CLASS',
+        'inherits': 'INHERITS',
+        'if': 'IF',
+        'then': 'THEN',
+        'else': 'ELSE',
+        'fi': 'FI',
+        'while': 'WHILE',
+        'loop': 'LOOP',
+        'pool': 'POOL',
+        'let': 'LET',
+        'in': 'IN',
+        'case': 'CASE',
+        'of': 'OF',
+        'new': 'NEW',
+        'esac': 'ESAC',
+        'isvoid': 'ISVOID'
+    }
+
+    tokens = ['TYPE', 'ID', 'INT', 'STRING', 'BOOL', 'LESS_EQ', 'EQ', 'ASSIGN', 'ARROW'] + list(keywords.values())
+
+    @TOKEN(r'[a-z_][A-Za-z_0-9]*')
+    def t_ID(self, t):
+        t.type = self.keywords.get(t.value, 'ID')
         return t
 
-    @_(r'(false|true)')
-    def BOOL(self, t):
-        t.value = True if t.value == 'true' else False
-        return t
+    @TOKEN(r'\n+')
+    def t_newline(self, t):
+        t.lexer.lineno += len(t.value)
 
-    ignore_linecomment = r'\-\-[^\n]*'
+    t_ignore = ' \t\f\r'
 
-    #The COMMENT state
-    @_(r'\(\*')
-    def COMMENT_start(self, t):
-        self.push_state(CommentState)
-        self.comment_count = 0
+    def find_column(self, t):
+        line_start = t.lexer.lexdata.rfind('\n', 0, t.lexpos) + 1
+        return t.lexpos - line_start + 1
 
-    @_(r'\(\*')
-    def COMMENT_start_another(self, t):
-        self.comment_count += 1
 
-    @_(r'\*\)')
-    def COMMENT_end(self, t):
-        if self.comment_count == 0:
-            self.pop_state()
-        self.comment_count -= 1
-
-    #ignore_comment = ''
-
-    def COMMENT_error(self, t):
-        self.index += 1
-
-    ignore = ' \t\f\r'
-
-    @_(r'\n+')
-    def ignore_newline(self, t):
-        self.lineno += len(t.value)
-
-    def find_column(self, token):
-        last_nl = self.text.rfind('\n', 0, token.index)
-        if last_nl < 0:
-            last_nl = 0
-        column = (token.index - last_nl) + 1
-        return column
-
-    def error(self, t):
-        print(f'{(self.lineno, self.find_column(t))} - LexicographicError - Bad character: {t.value[0]}')
-        self.index += 1
+    def t_error(self, t):
+        print(f"({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: Illegal character")
+        t.lexer.skip(1)
 
 
 
 
 if __name__ == "__main__":
-    lexer = Cool_Lexer()
-    program_file = open('test.txt')
-    program_code = ""
+    cool_lexer = Cool_Lexer()
+    data = ''
+    input_file = open('input.txt')
     while True:
-        data = program_file.read(1024)
-        if not data:
+        data_readed = input_file.read(1024)
+        if not data_readed:
             break
-        program_code += data
-    for token in lexer.tokenize(program_code):
+        data += data_readed
+    cool_lexer.build()
+
+    cool_lexer.lexer.input(data)
+
+    for token in cool_lexer.lexer:
         print(token)
+
