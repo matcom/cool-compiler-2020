@@ -41,6 +41,11 @@ class Cool_Lexer(object):
     def t_TYPE(self, t):
         t.type = self.keywords.get(t.value.lower(), 'TYPE')
         return t
+    
+    @TOKEN(r'\d+')
+    def t_INT(self, t):
+        t.value = int(t.value)
+        return t
 
     @TOKEN(r'\n+')
     def t_newline(self, t):
