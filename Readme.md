@@ -106,9 +106,13 @@ En este proyecto se realizarán entregas parciales a lo largo del curso. Para re
 ### 2. Asegúrese de tener la siguiente configuración antes de hacer click en **Create pull request**.
 
 - **base repository**: `matcom/cool-compiler-2020` (repositorio original)
+  - **branch**: `entrega-parser`
 - **head repository**: `<usuario>/cool-compiler-2020` (repositorio propio)
+  - **branch**: `master` (o la que corresponda)
 
 > Asegúrese que se indica **Able to merge**. De lo contrario, existen cambios en el repositorio original que usted no tiene, y debe actualizarlos.
+
+> **NOTA**: Asegúrese que el _pull request_ se hace a la rama `entrega-parser`.
 
 ![](img/img6.png)
 
