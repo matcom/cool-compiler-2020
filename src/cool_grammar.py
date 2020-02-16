@@ -68,8 +68,16 @@ def p_def_attr(p):
         p[0] = AttrDeclarationNode(p[1], p[3], p[5])
 
 def p_def_func(p):
-    'def_func : id opar param_list cpar colon type ocur expr ccur' 
+    'def_func : id opar formals cpar colon type ocur expr ccur' 
     p[0] = FuncDeclarationNode(p[1], p[3], p[6], p[8])
+
+
+def p_formals(p):
+    '''formals  : param_list
+                | param_list_empty
+    '''
+    p[0] = p[1]
+
 
 def p_param_list(p):
     '''param_list : param
@@ -80,7 +88,7 @@ def p_param_list(p):
         p[0] = [p[1]] + p[3]
 
 def p_param_list_empty(p):
-    'param_list : epsilon'
+    'param_list_empty : epsilon'
     p[0] = []
 
 def p_param(p):
@@ -236,8 +244,6 @@ def p_atom_new(p):
 def p_atom_new_error(p):
     'atom : new error'
     pass
-    # print_error(p[2])
-
 
 def p_atom_block(p):
     'atom : ocur block ccur'
@@ -261,8 +267,16 @@ def p_block(p):
         p[0] = [p[1]] + p[3]
 
 def p_func_call(p):
-    'func_call : id opar arg_list cpar'
+    'func_call : id opar args cpar'
     p[0] = (p[1], p[3])
+
+
+def p_args(p):
+    '''args : arg_list
+            | arg_list_empty
+    '''
+    p[0] = p[1]
+
 
 def p_arg_list(p):
     '''arg_list : expr  
@@ -272,8 +286,9 @@ def p_arg_list(p):
     else:
         p[0] = [p[1]] + p[3]
 
+
 def p_arg_list_empty(p):
-    'arg_list : epsilon'
+    'arg_list_empty : epsilon'
     p[0] = []
 
  # Error rule for syntax errors
