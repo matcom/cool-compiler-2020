@@ -1,6 +1,26 @@
 import ply.lex as lex
-from ply.lex import TOKEN
+from ply.lex import TOKEN, LexToken
 
+class ErrorToken(LexToken):
+    def __init__(self, message, line, column):
+        super().__init__()
+        self.type = 'LexicographicError'
+        self.value = message
+        self.line = line
+        self.column = column
+
+    def __str__(self):
+        return f'({self.line}, {self.column}) - {self.type}: {self.value}'
+
+    def __repr__(self):
+        return str(self)
+
+ # Compute column.
+ #     input is the input text string
+ #     token is a token instance
+def find_column(input, token):
+    line_start = input.rfind('\n', 0, token.lexpos) + 1
+    return (token.lexpos - line_start) + 1
 
 class Lexer():
     def __init__(self,
@@ -31,10 +51,12 @@ class Lexer():
             "LPAREN", "RPAREN", "LBRACE", "RBRACE", "COLON", "COMMA", "DOT", "SEMICOLON", "AT",
 
             # Operators
-            "PLUS", "MINUS", "MULTIPLY", "DIVIDE", "EQ", "LT", "LTEQ", "ASSIGN", "INT_COMP", "NOT",
+            "PLUS", "MINUS", "MULTIPLY", "DIVIDE", "EQ", "LT", "LTEQ", "ASSIGN", "INT_COMP",
 
             # Special Operators
-            "ARROW"
+            "ARROW",
+
+            "LexicographicError"
         )
 
     @property
@@ -60,7 +82,10 @@ class Lexer():
             "pool": "POOL",
             "self": "SELF",
             "then": "THEN",
-            "while": "WHILE"
+            "while": "WHILE",
+            "false": "FALSE",
+            "true": "TRUE",
+            "not": "NOT"
         }
 
     @property
@@ -101,16 +126,7 @@ class Lexer():
     t_EQ = r'\='            # =
     t_LTEQ = r'\<\='        # <=
     t_ASSIGN = r'\<\-'      # <-
-    t_NOT = r'not'          # not
     t_ARROW = r'\=\>'       # =>
-
-    @TOKEN(r"(true|false)")
-    def t_BOOLEAN(self, token):
-        """
-        The Bool Primitive Type Token Rule.
-        """
-        token.value = True if token.value == "true" else False
-        return token
 
     @TOKEN(r"\d+")
     def t_INTEGER(self, token):
@@ -125,16 +141,28 @@ class Lexer():
         """
         The Type Token Rule.
         """
-        token.type = self.builtin_types.get(token.value, 'TYPE')
+        # token.type = self.builtin_types.get(token.value, 'TYPE')
+        if self.builtin_types.__contains__(token.value):
+            token.type = self.builtin_types[token.value]
+        elif self.keywords.__contains__(str.lower(token.value)):
+            token.type = self.keywords[str.lower(token.value)]
+            token.value = str.lower(token.value)
+        else:
+            token.type = 'TYPE'
         return token
 
-    @TOKEN(r"[a-z_][a-zA-Z_0-9]*")
+    @TOKEN(r"[a-z][a-zA-Z_0-9]*")
     def t_ID(self, token):
         """
         The Identifier Token Rule.
         """
         # Check for reserved words
-        token.type = self.keywords.get(token.value, 'ID')
+        value_lower = str.lower(token.value)
+        if self.keywords.__contains__(value_lower):    
+            token.type = self.keywords[value_lower]
+            token.value = value_lower
+        else:
+            token.type = 'ID'
         return token
 
     @TOKEN(r"\n+")
@@ -170,12 +198,25 @@ class Lexer():
 
     @TOKEN(r"\n")
     def t_STRING_newline(self, token):
-        token.lineno += 1
+        token.lexer.lineno += 1
         if not token.lexer.backslashed:
-            print("Newline not escaped inside a string")
-            token.lexer.skip(1)
+            # print("Newline not escaped inside a string")
+            # token.lexer.skip(1)
+            message = 'Unterminated string constant'
+            column = find_column(token.lexer.lexdata,token)
+            error = ErrorToken(message, token.lineno, column)
+            self.errors.append(error)
+            token.lexer.pop_state()
+            return error
         else:
             token.lexer.backslashed = False
+
+    @TOKEN(r"\0")
+    def t_STRING_null(self, token):
+        message = 'String contains null character'
+        column = find_column(token.lexer.lexdata,token)
+        error = ErrorToken(message, token.lineno, column)
+        self.errors.append(error)
 
     @TOKEN(r"\"")
     def t_STRING_end(self, token):
@@ -218,15 +259,33 @@ class Lexer():
 
     # STRING error handler
     def t_STRING_error(self, token):
-        print("Illegal character! Line: {0}, character: {1}".format(
-            token.lineno, token.value[0]))
-        token.lexer.skip(1)
+        message = f'{token.value[0]} in String'
+        column = find_column(token.lexer.lexdata,token)
+        error = ErrorToken(message, token.lineno, column)
+        self.errors.append(error)
+        return error
+
+    def t_STRING_eof(self, token):
+        message = f'EOF in string constant'
+        column = find_column(token.lexer.lexdata,token)
+        error = ErrorToken(message, token.lineno, column)
+        token.lexer.pop_state()
+        self.errors.append(error)
+        
+        return error
 
     # STATE OF MULTIPLE LINE COMMENT RECOGNITION
     @TOKEN(r'\(\*')
     def t_start_comment_state(self, token):
         token.lexer.push_state("COMMENT")
         token.lexer.comment_count = 0
+
+    @TOKEN(r"\n+")
+    def t_COMMENT_newline(self, token):
+        """
+        The Newline Token Rule.
+        """
+        token.lexer.lineno += len(token.value)
 
     @TOKEN(r'\(\*')
     def t_COMMENT_begin_another_comment(self, token):
@@ -239,25 +298,39 @@ class Lexer():
             token.lexer.pop_state()
         else:
             token.lexer.comment_count -= 1
-
+   
     # COMMENT ignored characters
     t_COMMENT_ignore = ''
 
     # COMMENT error handler
     def t_COMMENT_error(self, token):
-        token.lexer.skip(1)
+        token.lexer.skip(1)    
+
+    def t_COMMENT_eof(self, token):
+        message = f'EOF in comment'
+        column = find_column(token.lexer.lexdata,token)
+        error = ErrorToken(message, token.lineno, column)
+        self.errors.append(error)
+        token.lexer.pop_state()
+        return error
+
 
     def t_error(self, token):
         """
         Error Handling and Reporting Rule.
         """
-        print("Illegal character! Line: {0}, character: {1}".format(token.lineno, token.value[0]))
+        message = f'ERROR "{token.value[0]}"'
+        column = find_column(token.lexer.lexdata,token)
+        error = ErrorToken(message, token.lineno, column)
+        self.errors.append(error)
         token.lexer.skip(1)
+        return error
 
     def build(self,**kwargs):
+        self.errors = []
         self.last_token = None
-        self.reserved = self.keywords.keys()
-        self.tokens = self.syntax_tokens + tuple(self.keywords.values())
+        self.reserved = tuple(self.keywords.keys()) + tuple(self.builtin_types.keys())
+        self.tokens = self.syntax_tokens + tuple(self.keywords.values()) + tuple(self.builtin_types.values()) 
         self.lexer = lex.lex(module=self, **kwargs)
 
     def input(self,source_code):
@@ -302,3 +375,6 @@ if __name__ == "__main__":
     lexer.input(cool_program_code)
     for token in lexer:
         print(token)
+    print('-------------------------------------')
+    for error in lexer.errors:
+        print(error)
