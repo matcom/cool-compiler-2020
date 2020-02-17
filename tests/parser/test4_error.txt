@@ -1,1 +1,1 @@
-(1, 1) - SyntacticError: ERROR at or near "classs"
+(1, 1) - SyntacticError: ERROR at or near "classs" 

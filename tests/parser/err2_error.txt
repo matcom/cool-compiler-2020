@@ -1,2 +1,2 @@
 (3, 10) - SyntacticError: ERROR at or near "alpha"
-(9, 7) - SyntacticError: ERROR at or near "alpha"
+(9, 7) - SyntacticError: ERROR at or near "alpha" 
