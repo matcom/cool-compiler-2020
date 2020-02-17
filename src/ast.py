@@ -12,21 +12,15 @@ class Program(AST):
 
 # <class> ::= class TYPE <inheritance> { <features_list_opt> } ;
 class Class(AST):
-    def __init__(self, TYPE, parentClass, features):
+    def __init__(self, name, parent, features):
         super(Class, self).__init__()
-        self.TYPE = TYPE
-        self.inherparentClassitance = parentClass
+        self.name = name
+        self.parent = parent
         self.features = features
 
 
-# A class Feature is either a ClassMethod or ClassAttribute
-class Feature(AST):
-    def __init__(self):
-        super(Feature, self).__init__()
-
-
 # <feature> ::= ID ( <formal_params_list_opt> ) : TYPE { <expression> }
-class ClassMethod(Feature):
+class ClassMethod(AST):
     def __init__(self, name, params, return_type, expr):
         super(ClassMethod, self).__init__()
         self.name = name
@@ -35,33 +29,41 @@ class ClassMethod(Feature):
         self.expr = expr
 
 
-# <formal> ::= ID : TYPE <- <expression> |  ID : TYPE
-class ClassAttribute(Feature):
+# <formal> ::= ID : TYPE <- <expression> | <formal_param>
+class Formal(AST):
     def __init__(self, name, Type, expr):
-        super(ClassAttribute, self).__init__()
+        super(Formal, self).__init__()
         self.name = name
         self.type = Type
         self.expr = expr
 
 
 # <formal_param> ::= ID : TYPE
+class FormalParameter(AST):
+    def __init__(self, name, param_type):
+        super(FormalParameter, self).__init__()
+        self.name = name
+        self.param_type = param_type
+
+
+# <formal_param> ::= ID : TYPE | ID : TYPE <- <expression> 
 class Parameter(AST):
-    def __init__(self, ID, TYPE, expr):
+    def __init__(self, name, TYPE, expr):
         super(Parameter, self).__init__()
-        self.ID = ID
+        self.name = name
         self.TYPE = TYPE
         self.expr = expr
 
 # <expression>
 class Expr(AST):
     def __init__(self):
-        super(Expression, self).__init__()
+        super(Expr, self).__init__()
 
 # <expression> ::= ID <- <expr>
 class AssingExpr(Expr):
-    def __init__(self, name, expr):
+    def __init__(self, instance, expr):
         super(AssingExpr, self).__init__()
-        self.name = name
+        self.instance = instance
         self.expr = expr
 
 # <expression> ::= <expression>.ID( <arguments_list_opt> )
@@ -100,11 +102,12 @@ class Case(Expr):
 # <actions> ::= <action>
 #            |   <action> <actions>
 # <action> ::= ID : TYPE => <expr>
-class Action(Expr):
-    def __init__(self, Type, expr):
+class Action(AST):
+    def __init__(self, name, action_type, body):
         super(Action, self).__init__()
-        self.type = Type
-        self.expr = expr
+        self.name = name
+        self.action_type = action_type
+        self.body = body
 
 # <expression> ::= <if_then_else>
 # <if_then_else> ::= if <expression> then <expression> else <expression> fi
@@ -133,16 +136,13 @@ class Block(Expr):
         self.exprs = exprs
 
 # <expression> ::= <let_expression>
-# <let_expression> ::= let <formal> in <expression>
-#                   |   <nested_lets> , <formal>
-#  <nested_lets> ::= <formal> IN <expression>
-#                 |   <nested_lets> , <formal>
+# <let_expression> ::= let <nested_formals> in <expression>
+# <nested_formals> ::= <formal>
+#                  |   <nested_formals> , <formal>
 class Let(Expr):
-    def __init__(self, instance, return_type, init_expr, body):
+    def __init__(self, formal_list, body):
         super(Let, self).__init__()
-        self.instance = instance
-        self.return_type = return_type
-        self.init_expr = init_expr
+        self.formal_list = formal_list
         self.body = body
 
 # <expression> ::= new TYPE
@@ -226,7 +226,7 @@ class Not(Expr):
         self.expr = expr
 
 
-# DUDA: Object debe existir? y debería heradar de Expr o de AST?
+# <expression> ::= ID
 class Object(Expr):
     def __init__(self, name):
         super(Object, self).__init__()
@@ -236,24 +236,24 @@ class Object(Expr):
 # <expression> ::= SELF
 class SELF(Object):
     def __init__(self):
-        super(Self, self).__init__("SELF")
+        super(SELF, self).__init__("SELF")
 
 
 # <expression> ::= INTEGER
 class INTEGER(Expr):
     def __init__(self, value):
-        super(Integer, self).__init__()
+        super(INTEGER, self).__init__()
         self.value = value
 
 
 # <expression> ::= INTEGER
 class STRING(Expr):
     def __init__(self, value):
-        super(Integer, self).__init__()
+        super(STRING, self).__init__()
         self.value = value
 
 # <expression> ::= TRUE | FALSE
-class Boolean(Constant):
+class Boolean(Expr):
     def __init__(self, value):
         super(Boolean, self).__init__()
         self.value = value
