@@ -7,13 +7,11 @@ class TokenLine(Token):
     '''
     Clase para representar el token constante de cambio de Linea
     '''
-
     def __init__(self):
         super().__init__('\n', 'Line')
 
 
 class Lexer:
-
     """
     El generador de lexer se basa en un conjunto de expresiones regulares.
     Cada una de ellas está asociada a un tipo de token.
@@ -31,7 +29,6 @@ class Lexer:
       estado final.
     - Al finalizar de consumir toda la cadena, se reporta el token de fin de cadena.
     """
-
     def __init__(self, table, eof, ignore_white_space=False):
         self.eof = eof
         self.regexs = self._build_regexs(table, ignore_white_space)
@@ -103,9 +100,9 @@ class Lexer:
             string = text
             final, lex = self._walk(string)
             if lex == '':
-                print(text)
                 raise SyntaxError(
-                    f'Invalid token in line: {self.line} column: {self.column}')
+                    f'({self.line},{self.column}) LexicographicError: ERROR "{string[0]}"'
+                )
             if final:
                 n = 2**64
                 token_type = None
@@ -121,7 +118,8 @@ class Lexer:
                 text = string[len(lex):]
             else:
                 raise SyntaxError(
-                    f'Invalid token in line: {self.line} column: {self.column}')
+                    f'({self.line},{self.column}) LexicographicError: ERROR "{string[:len(lex)]}"'
+                )
 
         yield '$', self.eof
 
