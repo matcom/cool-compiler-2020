@@ -12,3 +12,4 @@ echo "Copyright (c) 2020 School of Math and Computer Science, University of Hava
 echo "Authors: Eliane Puerta, Adrian Gonzalez, Liset Alfaro"
 # Llamar al compilador
 echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
+python3 pycoolc.py $INPUT_FILE

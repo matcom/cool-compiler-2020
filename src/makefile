@@ -23,10 +23,11 @@ COMPSTRUCTFILE=compiler_struct.py
 PIPREQUIREMENTS=cloudpickle pyinstaller
 
 main:
-	@# Compiling the compiler :)
-	$(PIP) install --user $(PIPREQUIREMENTS)
-	$(PYTHON) install.py build/$(COMPSTRUCTFILE)
-	@# account the numbers of builds
+	@echo "[*] Installing python dependencies"
+	@$(PIP) install --user $(PIPREQUIREMENTS)
+	@echo "[*] Compiling Cool Lexical structures"
+	@$(PYTHON) install.py build/$(COMPSTRUCTFILE)
+	@touch build/__init__.py
 	@echo 1 >> .builds
 
 clean:

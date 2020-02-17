@@ -1,4 +1,3 @@
-#%%
 from grammar.items import Item
 from tools.firsts import ContainerSet
 from automatons.state import State
@@ -19,8 +18,10 @@ def expand(item, firsts):
             lookaheads.update(ContainerSet(lookahead))
 
     assert not lookaheads.contains_epsilon
-    expanded = [Item(production, 0, lookaheads)
-                for production in next_symbol.productions]
+    expanded = [
+        Item(production, 0, lookaheads)
+        for production in next_symbol.productions
+    ]
     return expanded
 
 
@@ -35,7 +36,10 @@ def compress(items):
             centers[center] = lookaheads = set()
         lookaheads.update(item.lookaheads)
 
-    return {Item(x.production, x.pos, set(lookahead)) for x, lookahead in centers.items()}
+    return {
+        Item(x.production, x.pos, set(lookahead))
+        for x, lookahead in centers.items()
+    }
 
 
 def closure_lr1(items, firsts):
@@ -57,8 +61,8 @@ def closure_lr1(items, firsts):
 
 def goto_lr1(items, symbol, firsts=None, just_kernel=False):
     assert just_kernel or firsts is not None, '`firsts` must be provided if `just_kernel=False`'
-    items = frozenset(item.next_item()
-                      for item in items if item.NextSymbol == symbol)
+    items = frozenset(item.next_item() for item in items
+                      if item.NextSymbol == symbol)
     return items if just_kernel else closure_lr1(items, firsts)
 
 
@@ -69,7 +73,7 @@ def build_LR1_automaton(G):
     firsts[G.EOF] = ContainerSet(G.EOF)
 
     start_production = G.startSymbol.productions[0]
-    start_item = Item(start_production, 0, lookaheads=(G.EOF,))
+    start_item = Item(start_production, 0, lookaheads=(G.EOF, ))
     start = frozenset([start_item])
 
     closure = closure_lr1(start, firsts)
@@ -99,7 +103,6 @@ def build_LR1_automaton(G):
 
 
 def build_lalr_automaton(G):
-
     def centers(items: [Item]):
         return frozenset(item.Center() for item in items)
 
@@ -114,7 +117,7 @@ def build_lalr_automaton(G):
     firsts[G.EOF] = ContainerSet(G.EOF)
 
     start_production = G.startSymbol.productions[0]
-    start_item = Item(start_production, 0, (G.EOF,))
+    start_item = Item(start_production, 0, (G.EOF, ))
 
     start = State((closure_lr1(start_item, firsts)), True)
 
@@ -127,14 +130,15 @@ def build_lalr_automaton(G):
         #     print('ss')
         current_state = visited[pending.pop()]
         for symbol in G.terminals + G.nonTerminals:
-            next_item = frozenset(
-                goto_lr1(current_state.state, symbol, firsts))
+            next_item = frozenset(goto_lr1(current_state.state, symbol,
+                                           firsts))
 
             if next_item:
                 # Caso en que pueda mezclar el nuevo item
                 try:
                     next_state = visisted_centers[centers(next_item)]
-                    if not subset(lookaheads(next_item), lookaheads(next_state.state)):
+                    if not subset(lookaheads(next_item),
+                                  lookaheads(next_state.state)):
                         next_state.state = compress(
                             list(next_state.state) + list(next_item))
                         pending.append(frozenset(next_state.state))
@@ -162,23 +166,23 @@ class LR1Parser(ShiftReduceParser):
             for item in node.state:
                 if item.IsReduceItem:
                     if item.production.Left == self.G.startSymbol:
-                        self._register(
-                            self.action, (idx, self.G.EOF), ('OK', item.production))
+                        self._register(self.action, (idx, self.G.EOF),
+                                       ('OK', item.production))
                     else:
                         for lookahead in item.lookaheads:
-                            self._register(
-                                self.action, (idx, lookahead), ('REDUCE', item.production))
+                            self._register(self.action, (idx, lookahead),
+                                           ('REDUCE', item.production))
                 else:
                     next_symbol = item.NextSymbol
                     try:
                         if next_symbol.IsNonTerminal:
                             next_state = node.transitions[next_symbol.Name][0]
-                            self._register(
-                                self.goto, (idx, next_symbol), next_state.idx)
+                            self._register(self.goto, (idx, next_symbol),
+                                           next_state.idx)
                         else:
                             next_state = node.transitions[next_symbol.Name][0]
-                            self._register(
-                                self.action, (idx, next_symbol), ('SHIFT', next_state.idx))
+                            self._register(self.action, (idx, next_symbol),
+                                           ('SHIFT', next_state.idx))
                     except KeyError:
                         pass
 
@@ -187,7 +191,8 @@ class LR1Parser(ShiftReduceParser):
         # assert key not in table or table[key] == value, f'Shift-Reduce or Reduce-Reduce conflict!!!\n tried to put {value} in {key} already exist with value  {table[key]}'
         if not (key not in table or table[key] == value):
             print(
-                f'Shift-Reduce or Reduce-Reduce conflict!!!\n tried to put {value} in {key} already exist with value  {table[key]}')
+                f'Shift-Reduce or Reduce-Reduce conflict!!!\n tried to put {value} in {key} already exist with value  {table[key]}'
+            )
             print(table)
             assert False
         table[key] = value

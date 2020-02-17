@@ -9,15 +9,13 @@ def generate_py(f):
     parser = LALRParser(gram, verbose=True)
     lexer_str = cloudpickle.dumps(lexer)
     parser_str = cloudpickle.dumps(parser)
-    f.write(
-"""
+    f.write("""
 import cloudpickle
 import sys
 sys.path.append('..')
 PARSER = cloudpickle.loads(%s)
 LEXER = cloudpickle.loads(%s)
-"""
-        % (parser_str, lexer_str))
+""" % (parser_str, lexer_str))
 
 
 if __name__ == '__main__':
