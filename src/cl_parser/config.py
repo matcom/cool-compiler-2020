@@ -156,14 +156,14 @@ precedence = (
 
 # Binary Operations Rules
 
-def p_arith_binary(p): #TODO: Change switch-case :(
-    '''arith : arith PLUS arith
-             | arith MINUS arith
-             | arith STAR arith
-             | arith DIVIDE arith
-             | arith LESS arith
-             | arith LESSQ arith
-             | arith EQUALS arith'''
+def p_expr_binary(p): #TODO: Change switch-case :(
+    '''expr : expr PLUS expr
+            | expr MINUS expr
+            | expr STAR expr
+            | expr DIVIDE expr
+            | expr LESS expr
+            | expr LESSQ expr
+            | expr EQUALS expr'''
     if p[2] == '+':
         p[0] = SumNode(p[1], p[3])
     elif p[2] == '-':
@@ -181,10 +181,10 @@ def p_arith_binary(p): #TODO: Change switch-case :(
 
 # Unary Operations Rules
 
-def p_arith_unary(p):
-    '''arith : BITNOT arith
-             | ISVOID arith
-             | NOT arith'''
+def p_expr_unary(p):
+    '''expr : BITNOT expr
+            | ISVOID expr
+            | NOT expr'''
     if p[1] == '~':
         p[0] = BitNotNode(p[2])
     elif p[1].lower() == 'isvoid':
