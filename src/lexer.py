@@ -34,7 +34,7 @@ class Cool_Lexer(object):
         'INT', 'STRING', 'BOOL',
 
         # Operators
-        'PLUS', 'MUL', 'DIV', 'MINUS', 'LESS', 'LESS_EQ', 'EQ', 'INT_COMP', 'NOT', 'ASSIGN',
+        'PLUS', 'MUL', 'DIV', 'MINUS', 'LESS', 'LESS_EQ', 'EQ', 'INT_COMP', 'ASSIGN',
 
         # Literals
         'LPAREN', 'RPAREN', 'LBRACE', 'RBRACE', 'COLON', 'SEMICOLON', 'DOT', 'COMMA', 'CAST',
@@ -100,7 +100,7 @@ class Cool_Lexer(object):
         return t.lexpos - line_start + 1
 
     def t_error(self, t):
-        print(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: "{t.value}"')
+        print(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: "{t.value[0]}"')
         t.lexer.skip(1)
 
 
@@ -120,6 +120,10 @@ class Cool_Lexer(object):
         t.lexer.nesting_level_of_comment -= 1
         if t.lexer.nesting_level_of_comment == 0:
             t.lexer.pop_state()
+
+    def t_COMMENT_eof(self, t):
+        t.value = f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: EOF in comment'
+        return t
 
     def t_COMMENT_error(self, t):
         t.lexer.skip(1)
@@ -180,15 +184,19 @@ class Cool_Lexer(object):
             else:
                 t.lexer.stringbuf += t.value
 
+    def t_STRING_eof(self, t):
+        print(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: EOF in string')
+
+
     def t_STRING_error(self, t):
-        print(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: "{t.value}"')
+        print(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: "{t.value[0]}"')
         t.lexer.skip(1)
 
 
 if __name__ == "__main__":
     cool_lexer = Cool_Lexer()
     data = ''
-    input_file = open('input.txt')
+    input_file = open('src/comment1.cl')
     while True:
         data_readed = input_file.read(1024)
         if not data_readed:
@@ -199,4 +207,6 @@ if __name__ == "__main__":
     cool_lexer.lexer.input(data)
 
     for token in cool_lexer.lexer:
-        print(token)
+        if token.type == 'error' or token.type == 'eof':
+            print(token.value)
+            break
