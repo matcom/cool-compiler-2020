@@ -59,7 +59,7 @@ class Test {
 
     testing7(): Object {
         case test2 of
-            x: Int -> new IO.out_string("Es un entero!"); -- Must be '=>' not '->'
+            x: Int <- new IO.out_string("Es un entero!"); -- Must be '=>' not '<-'
             y: String => new IO.out_string("Es una cadena!"); 
             z: Bool => new IO.out_string("Es un booleano!");
         esac
