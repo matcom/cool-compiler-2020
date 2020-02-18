@@ -1,4 +1,4 @@
-(* A loop has the form while <expr> loop <expr> pool *)
+(* A let expression has the form let <id1> : <type1> [ <- <expr1> ], ..., <idn> : <typen> [ <- <exprn> ] in <expr> *)
 
 class Main {
     main(): Object {
@@ -41,13 +41,9 @@ class Test {
         Fi
     };
 
-    count: Int <- 1;
-
-    testing6(): Object {
-        while count => 1024*1024 -- Condition must be an expression
-        loop 
-            count <- count * 2 
-        pool
+    testing6(a: Int): IO {
+        let count: Int <- 0, pow: Int <- 1 
+        in false++ -- Let body must be an expression
     };
 };
 

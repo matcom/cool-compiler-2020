@@ -1,4 +1,4 @@
-(* A loop has the form while <expr> loop <expr> pool *)
+(* Case expressions provide runtime type tests on objects *)
 
 class Main {
     main(): Object {
@@ -41,13 +41,26 @@ class Test {
         Fi
     };
 
-    count: Int <- 1;
+    testing6(a: Int): IO {
+        let count: Int <- 0, pow: Int 
+        in {
+            -- count <- 0;
+            pow <- 1;
+            while pow < a 
+            loop 
+                {
+                    count <- count + 1;
+                    pow <- pow * 2;
+                } 
+            pool;
+            new IO.out_string("El logaritmo en base 2 de ").out_int(a).out_string(" es ").out_int(count);
+        }
+    };
 
-    testing6(): Object {
-        while count => 1024*1024 -- Condition must be an expression
-        loop 
-            count <- count * 2 
-        pool
+    testing7(): Object {
+        case 2 + 2 of
+            --  Every case expression must have at least one branch
+        esac
     };
 };
 

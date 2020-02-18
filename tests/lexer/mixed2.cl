@@ -16,5 +16,5 @@
 #3 '*'
 #3 '@'
 #4 STR_CONST "alkjfldajf"
-#4 ERROR "EOF in string constant"
+#4 ERROR "Unterminated string constant"
 *)

@@ -26,7 +26,7 @@ class Test {
     };
 
     testing4(): String {
-        Test1 <- 'Hello World' -- Identifiers begin with a lower case letter
+        Test1 <- "Hello World" -- Identifiers begin with a lower case letter
     };
 };
 

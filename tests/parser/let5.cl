@@ -1,4 +1,4 @@
-(* A loop has the form while <expr> loop <expr> pool *)
+(* A let expression has the form let <id1> : <type1> [ <- <expr1> ], ..., <idn> : <typen> [ <- <exprn> ] in <expr> *)
 
 class Main {
     main(): Object {
@@ -41,13 +41,20 @@ class Test {
         Fi
     };
 
-    count: Int <- 1;
-
-    testing6(): Object {
-        while count => 1024*1024 -- Condition must be an expression
-        loop 
-            count <- count * 2 
-        pool
+    testing6(a: Int): IO {
+        let count: Int = 0, pow: Int -- Must be '<-' not '=' 
+        in {
+            -- count <- 0;
+            pow <- 1;
+            while pow < a 
+            loop 
+                {
+                    count <- count + 1;
+                    pow <- pow * 2;
+                } 
+            pool;
+            new IO.out_string("El logaritmo en base 2 de ").out_int(a).out_string(" es ").out_int(count);
+        }
     };
 };
 
