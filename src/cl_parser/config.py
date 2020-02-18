@@ -26,8 +26,8 @@ def p_class_list(p):
 
 # Class Definition Rules
 def p_def_class(p):
-    '''def_class : CLASS ID LBRACE feature_list RBRACE SEMI
-                 | CLASS ID INHERITS ID LBRACE feature_list RBRACE SEMI'''
+    '''def_class : CLASS TYPEID LBRACE feature_list RBRACE SEMI
+                 | CLASS TYPEID INHERITS TYPEID LBRACE feature_list RBRACE SEMI'''
     if p[3].lower() == 'inherits':
         p[0] = ClassDeclarationNode(p[2], p[6], p[4])
     else:
@@ -45,8 +45,8 @@ def p_feature_list(p):
 
 # Attr Definition Rules
 def p_def_attr(p):
-    '''def_attr : ID COLON ID
-                | ID COLON ID ASSIGN expr'''
+    '''def_attr : ID COLON TYPEID
+                | ID COLON TYPEID ASSIGN expr'''
     try:
         p[0] = AttrDeclarationNode(p[1], p[3], p[5])
     except:
@@ -54,7 +54,7 @@ def p_def_attr(p):
 
 # Func Definition Rules
 def p_def_func(p):
-    '''def_func : ID LPAREN param_list RPAREN COLON ID LBRACE expr RBRACE'''
+    '''def_func : ID LPAREN param_list RPAREN COLON TYPEID LBRACE expr RBRACE'''
     p[0] = FuncDeclarationNode(p[1], p[3], p[6], p[8])
 
 # Func Parameters List Rules
@@ -72,7 +72,7 @@ def p_param_list(p):
 
 # Parameter Rule
 def p_param(p):
-    '''param : ID COLON ID'''
+    '''param : ID COLON TYPEID'''
     p[0] = (p[1], p[3]) # (ID, TYPE)
 
 #    Expression Rules
@@ -132,7 +132,7 @@ def p_cases_list(p):
         p[0] = [ p[1] ]
 
 def p_case(p):
-    '''case : ID COLON ID WITH expr'''
+    '''case : ID COLON TYPEID WITH expr'''
     p[0] = OptionNode(p[1], p[3], p[5])
 
 #   Arith Operations
@@ -193,7 +193,7 @@ def p_arith_basecall(p):
 # Function Call Rules
 
 def p_basecall(p): # Parent Call (Review)
-    '''base_call : fact ARROBA ID DOT func_call
+    '''base_call : fact ARROBA TYPEID DOT func_call
                  | fact'''
     try:
         p[0] = ParentCallNode(p[1], p[3], p[5][0], p[5][1])
@@ -243,7 +243,7 @@ def p_atom_id(p):
     p[0] = VariableNode(p[1])
 
 def p_atom_new(p):
-    '''atom : NEW ID'''
+    '''atom : NEW TYPEID'''
     p[0] = NewNode(p[2])
 
 def p_atom_block(p):
