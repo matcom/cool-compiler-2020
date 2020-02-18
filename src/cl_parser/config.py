@@ -2,6 +2,8 @@
 from cl_ast import *
 from cl_lexer.config import tokens
 
+from utils import ERROR_FORMAT
+
 # Set the grammar start symbol
 start = 'program'
 
@@ -265,3 +267,18 @@ def p_atom_bool(p):
 def p_atom_string(p):
     '''atom : STRING'''
     p[0] = StringNode(p[1])
+
+def p_error(p):
+    if p:
+       line = p.lexer.lineno
+       col = find_column(p.lexer.lexdata, p)  
+       print(ERROR_FORMAT % (line, col, "SyntacticError", f"ERROR at or near {p.value}"))
+    else:
+       print(ERROR_FORMAT % (line, col, "SyntacticError", "ERROR at or near EOF"))
+
+# Compute column.
+#     input is the input text string
+#     token is a token instance
+def find_column(input, token):
+    line_start = input.rfind('\n', 0, token.lexpos) + 1
+    return (token.lexpos - line_start) + 1
