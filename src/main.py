@@ -7,11 +7,12 @@ def main():
     program = open(sys.argv[1]).read()
     lex = CoolLexer()
     parser = CoolParser()
-    # lex.input(program)
-    # while True:
-        # tok = lex.token()
-        # if not tok:
-            # break
+    #lex.input(program)
+    #while True:
+    #    tok = lex.token()
+    #    if not tok:
+    #        break
+    #    print(tok)
     ast = parser.parse(program, lexer=lex.lexer)
 
 if __name__ == "__main__":
