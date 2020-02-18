@@ -1,4 +1,4 @@
-(* A loop has the form while <expr> loop <expr> pool *)
+(* Cool has four binary arithmetic operations: +, -, *, /. *)
 
 class Main {
     main(): Object {
@@ -41,13 +41,36 @@ class Test {
         Fi
     };
 
-    count: Int <- 1;
+    testing6(a: Int): IO {
+        let count: Int <- 0, pow: Int 
+        in {
+            -- count <- 0;
+            pow <- 1;
+            while pow < a 
+            loop 
+                {
+                    count <- count + 1;
+                    pow <- pow * 2;
+                } 
+            pool;
+            new IO.out_string("El logaritmo en base 2 de ").out_int(a).out_string(" es ").out_int(count);
+        }
+    };
 
-    testing6(): Object {
-        while count => 1024*1024 -- Condition must be an expression
-        loop 
-            count <- count * 2 
-        pool
+    testing7(): Object {
+        case 2 + 2 of
+            x: Int => new IO.out_string("Es un entero!");
+            y: String => new IO.out_string("Es una cadena!"); 
+            z: Bool => new IO.out_string("Es un booleano!");
+        esac
+    };
+
+    a: Int <- 1;
+
+    testing8(x: Int, y: Int): Bool {
+        let z: Int <- 3, w: Int <- 4
+        -- Missing ')'
+        in isvoid (3 + a * (x / w + new Int) - y - (((if tRue = not faLSe then ~z else 3 <= 4 + "hey".length() fi + a)/(0)*(((4 * 4)))))
     };
 };
 
