@@ -60,17 +60,21 @@ def p_def_func(p):
     p[0] = FuncDeclarationNode(p[1], p[3], p[6], p[8])
 
 # Func Parameters List Rules
-def p_param_list(p):
-    '''param_list : empty
-                  | param
-                  | param COMMA param_list'''
+def p_param_list_ept(p):
+    '''param_list : empty'''
+    p[0] = []
+
+def p_param_list_prm(p):
+    '''param_list : param_build'''
+    p[0] = p[1]
+
+def p_param_build(p):
+    '''param_build : param empty
+                   | param COMMA param_build'''
     try:
         p[0] = [ p[1] ] + p[3]
     except:
-        try:
-            p[0] = [ p[1] ]
-        except:
-            p[0] = []
+        p[0] = [ p[1] ]
 
 # Parameter Rule
 def p_param(p):
@@ -214,17 +218,21 @@ def p_func_call(p):
     '''func_call : ID LPAREN arg_list RPAREN'''
     p[0] = (p[1], p[3])
 
-def p_arglist(p):
-    '''arg_list : empty
-                | expr
-                | expr COMMA arg_list'''
+def p_arglist_ept(p):
+    '''arg_list : empty'''
+    p[0] = []
+
+def p_arglist_prm(p):
+    '''arg_list : arg_build'''
+    p[0] = p[1]
+
+def p_arg_build(p):
+    '''arg_build : expr empty
+                 | expr COMMA arg_build'''
     try:
         p[0] = [ p[1] ] + p[3]
     except:
-        if p[1]:
-            p[0] = [ p[1] ]
-        else:
-            p[0] = []
+        p[0] = [ p[1] ]
 
 # Atomic Operations
 
@@ -274,7 +282,7 @@ def p_error(p):
        col = find_column(p.lexer.lexdata, p)  
        print(ERROR_FORMAT % (line, col, "SyntacticError", f"ERROR at or near {p.value}"))
     else:
-       print(ERROR_FORMAT % (line, col, "SyntacticError", "ERROR at or near EOF"))
+       print(ERROR_FORMAT % (0, 0, "SyntacticError", "ERROR at or near EOF"))
 
 # Compute column.
 #     input is the input text string
