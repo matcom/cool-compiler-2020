@@ -8,3 +8,4 @@ class CoolParser(object):
 
     def parse(self, data, lexer=CoolLexer()):
         return self.parser.parse(data, lexer=lexer)
+        

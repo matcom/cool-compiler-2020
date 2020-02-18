@@ -24,11 +24,11 @@ def p_class_list(p):
     except:
         p[0] = [ p[1] ]
 
-# Class Definition Rules (TODO: Try include TYPE tokens)
+# Class Definition Rules
 def p_def_class(p):
     '''def_class : CLASS ID LBRACE feature_list RBRACE SEMI
                  | CLASS ID INHERITS ID LBRACE feature_list RBRACE SEMI'''
-    if p[3] == 'inherits':
+    if p[3].lower() == 'inherits':
         p[0] = ClassDeclarationNode(p[2], p[6], p[4])
     else:
         p[0] = ClassDeclarationNode(p[2], p[4])
@@ -43,7 +43,7 @@ def p_feature_list(p):
     except:
         p[0] = []
 
-# Attr Definition Rules (TODO: Try include TYPE tokens)
+# Attr Definition Rules
 def p_def_attr(p):
     '''def_attr : ID COLON ID
                 | ID COLON ID ASSIGN expr'''
@@ -52,12 +52,12 @@ def p_def_attr(p):
     except:
         p[0] = AttrDeclarationNode(p[1], p[3])
 
-# Func Definition Rules (TODO: Try include TYPE tokens)
+# Func Definition Rules
 def p_def_func(p):
     '''def_func : ID LPAREN param_list RPAREN COLON ID LBRACE expr RBRACE'''
     p[0] = FuncDeclarationNode(p[1], p[3], p[6], p[8])
 
-# Func Parameters List Rules (TODO: Try include TYPE tokens)
+# Func Parameters List Rules
 def p_param_list(p):
     '''param_list : empty
                   | param
@@ -70,7 +70,7 @@ def p_param_list(p):
         except:
             p[0] = []
 
-# Parameter Rule (TODO: Try include TYPE )
+# Parameter Rule
 def p_param(p):
     '''param : ID COLON ID'''
     p[0] = (p[1], p[3]) # (ID, TYPE)
@@ -82,20 +82,26 @@ def p_expr(p):
     '''expr : LET let_list IN expr
             | CASE expr OF cases_list ESAC
             | IF expr THEN expr ELSE expr FI
-            | WHILE expr LOOP expr POOL
-            | ID ASSIGN expr
-            | arith'''
+            | WHILE expr LOOP expr POOL'''
     
-    if p[1] == 'let':
+    if p[1].lower() == 'let':
         p[0] = LetNode(p[2], p[4])
-    elif p[1] == 'case':
+    elif p[1].lower() == 'case':
         p[0] = CaseNode(p[2], p[4])
-    elif p[1] == 'if':
+    elif p[1].lower() == 'if':
         p[0] = ConditionalNode(p[2], p[4], p[6])
-    elif p[1] == 'while':
+    elif p[1].lower() == 'while':
         p[0] = WhileNode(p[2], p[4])
-    else:
-        p[0] = p[1]
+
+# Assign Production
+def p_expr_assign(p):
+    '''expr : ID ASSIGN expr'''
+    p[0] = AssignNode(p[1], p[3])
+
+# Precedence Production
+def p_expr_arith(p):
+    '''expr : arith'''
+    p[0] = p[1]
 
 # Let Rules
 
@@ -132,6 +138,7 @@ def p_case(p):
 #   Arith Operations
 # -------------------
 
+# Operators Precedence
 precedence = (
     ('right', 'BITNOT'),
     ('right', 'ISVOID'),
@@ -140,6 +147,8 @@ precedence = (
     ('nonassoc', 'LESS', 'LESSQ', 'EQUALS'),
     ('right', 'NOT')
 )
+
+# Binary Operations Rules
 
 def p_arith_binary(p): #TODO: Change switch-case :(
     '''arith : arith PLUS arith
@@ -164,15 +173,17 @@ def p_arith_binary(p): #TODO: Change switch-case :(
     elif p[2] == '=':
         p[0] = EqualNode(p[1], p[3])
 
+# Unary Operations Rules
+
 def p_arith_unary(p):
     '''arith : BITNOT arith
              | ISVOID arith
              | NOT arith'''
     if p[1] == '~':
         p[0] = BitNotNode(p[2])
-    elif p[1] == 'isvoid':
+    elif p[1].lower() == 'isvoid':
         p[0] = IsVoidNode(p[2])
-    elif p[1] == 'not':
+    elif p[1].lower() == 'not':
         p[0] = NotNode(p[2])
 
 def p_arith_basecall(p): 
@@ -216,12 +227,12 @@ def p_arglist(p):
 # Atomic Operations
 
 def p_factatom(p):
-    '''fact : LPAREN expr RPAREN
-            | atom'''
-    try:
-        p[0] = p[2]
-    except:
-        p[0] = p[1]
+    '''fact : atom'''
+    p[0] = p[1]
+
+def p_fact_group(p):
+    '''fact : LPAREN expr RPAREN'''
+    p[0] = p[2]
 
 def p_atom_int(p):
     '''atom : INTEGER'''
