@@ -1,6 +1,6 @@
 """ PLY Lexer configuration module for COOL Language """
 
-from utils import ERROR_FORMAT
+from utils import ERROR_FORMAT, find_column, LEX_ERRORS
 
 states = (
     ('comments', 'exclusive'),
@@ -34,7 +34,7 @@ def t_comments_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
-t_comments_ignore = r'  '
+t_comments_ignore = ' \t\v\f\r'
 
 # Skip tokens inside comments using error method
 def t_comments_error(t):
@@ -43,7 +43,7 @@ def t_comments_error(t):
 def t_comments_eof(t):
     global balance
     if balance > 0:
-        print(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t), "LexicographicError", "EOF in comment"))
+        LEX_ERRORS.append(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t.lexpos), "LexicographicError", "EOF in comment"))
 
 #        String Matching State 
 # ---------------------------------------
@@ -72,19 +72,19 @@ def t_str_consume(t):
     r'([^\n\"\\]|\\.)+'
     fnil = t.value.rfind('\0')
     if  fnil != -1:
-        print(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t) + fnil, "LexicographicError", "String contains null character"))
+        LEX_ERRORS.append(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t.lexpos) + fnil, "LexicographicError", "String contains null character"))
 
 def t_str_error(t):
     if t.value[0] == '\n':
-        print(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t), "LexicographicError", "Unterminated string constant"))
+        LEX_ERRORS.append(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t.lexpos), "LexicographicError", "Unterminated string constant"))
         t.lexer.lineno += 1
         t.lexer.skip(1)
         t.lexer.begin('INITIAL')
     else:
-        print('??Error??')
+        pass
 
 def t_str_eof(t):
-    print(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t), "LexicographicError", "EOF in string constant")) 
+    LEX_ERRORS.append(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t.lexpos), "LexicographicError", "EOF in string constant")) 
 
 #           Initial State
 # ---------------------------------------
@@ -135,7 +135,8 @@ tokens = [
     'DOT',                 # .
     'ARROBA',              # @
     'TYPEID',
-    'ID'
+    'ID',
+    'ERROR'
 ] + list(reserved.values())
 
 #Regular Expressions for Tokens
@@ -192,27 +193,19 @@ def t_COMMENT(t): # add more comments syntax
     t.lexer.lineno += 1
     pass
 
-# Compute column.
-#     input is the input text string
-#     token is a token instance
-def find_column(input, token):
-    line_start = input.rfind('\n', 0, token.lexpos) + 1
-    return (token.lexpos - line_start) + 1
-
 # Track line numbers
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
-# Special Ignore
-def t_special_ign(t):
-    r'(\ |\t)'
-    t.lexer.skip(1)
-
 # Ignored characters
-t_ignore = '    '
+t_ignore = ' \t\r\v\f'
 
 #Error handling rule
 def t_error(t):
-    print(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t), "LexicographicError", f"ERROR {t.value[0]}"))
+    LEX_ERRORS.append(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t.lexpos), "LexicographicError", f"ERROR {t.value[0]}"))
+    # Generate a Error Token
+    t.value = t.value[0]
+    t.type = 'ERROR'
     t.lexer.skip(1)
+    return t

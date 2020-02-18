@@ -2,7 +2,7 @@
 from cl_ast import *
 from cl_lexer.config import tokens
 
-from utils import ERROR_FORMAT
+from utils import ERROR_FORMAT, find_column, PARSER_ERRORS
 
 # Set the grammar start symbol
 start = 'program'
@@ -98,7 +98,7 @@ def p_expr(p):
         p[0] = ConditionalNode(p[2], p[4], p[6])
     elif p[1].lower() == 'while':
         p[0] = WhileNode(p[2], p[4])
-
+        
 # Assign Production
 def p_expr_assign(p):
     '''expr : ID ASSIGN expr'''
@@ -279,14 +279,7 @@ def p_atom_string(p):
 def p_error(p):
     if p:
        line = p.lexer.lineno
-       col = find_column(p.lexer.lexdata, p)  
-       print(ERROR_FORMAT % (line, col, "SyntacticError", f"ERROR at or near {p.value}"))
+       col = find_column(p.lexer.lexdata, p.lexpos)  
+       PARSER_ERRORS.append(ERROR_FORMAT % (line, col, "SyntacticError", f"ERROR at or near {p.value}"))
     else:
-       print(ERROR_FORMAT % (0, 0, "SyntacticError", "ERROR at or near EOF"))
-
-# Compute column.
-#     input is the input text string
-#     token is a token instance
-def find_column(input, token):
-    line_start = input.rfind('\n', 0, token.lexpos) + 1
-    return (token.lexpos - line_start) + 1
+       PARSER_ERRORS.append(ERROR_FORMAT % (0, 0, "SyntacticError", "ERROR at or near EOF"))
