@@ -4,8 +4,7 @@ import ply.lex as lex
 tokens = [
     'ASSIGN',
     'ARROW',
-    'GREATHER',
-    'GREATHEREQ',
+    'GREATEREQ',
     'LOWEREQ',
     'INT',
     'STRING',
