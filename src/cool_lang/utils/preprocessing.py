@@ -1,7 +1,5 @@
-try:
-    from attribute_dict import AttributeDict
-except:
-    from .attribute_dict import AttributeDict
+from .attribute_dict import AttributeDict
+from ..errors import LexicographicError
 
 
 def process(file_path):
@@ -76,11 +74,7 @@ def process(file_path):
                                 column = 0
                             comment.append(char)
                     if balance != 0:
-                        errors.append(AttributeDict({
-                            'line': sline,
-                            'column': scolumn,
-                            'message': 'invalid comment'
-                        }))
+                        errors.append(LexicographicError(sline, scolumn))
                     comments.append(AttributeDict({
                         'line': sline,
                         'column': scolumn,
