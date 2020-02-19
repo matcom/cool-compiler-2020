@@ -119,5 +119,11 @@ class UnaryNode(ExpressionNode):
 class NegationNode(UnaryNode):
     pass
 
+class LogicNegationNode(UnaryNode):
+    pass
+
 class AtomNode(UnaryNode):
+    pass
+
+class IsVoidNode(UnaryNode):
     pass

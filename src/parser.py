@@ -55,7 +55,10 @@ def p_param_list(p):
     '''param_list : param , param_list
                   | param
                   | empty'''
-    #:( aqui no se como manejar la diferencia entre las ultimas dos producciones#
+    if len(p)==4:
+        p[0]=[p[1]]+p[3]
+    else:
+        #problemita aun, las empty se cuentan como que tienen len=2??
 
 
 def p_param(p):
@@ -93,8 +96,10 @@ def p_arg_list(p):
     '''arg_list : expr , arg_list
                 | expr
                 | empty'''
-    # aqui me pasa lo mismo que con el de arriba#
-    pass
+     if len(p)==4:
+        p[0]=[p[1]]+p[3]
+    else:
+        #problemita aun, las empty se cuentan como que tienen len=2??
 
 
 def p_if_expr(p):
@@ -177,7 +182,10 @@ def p_expr(p):
     '''expr : NOT expr
             | cmp
             | e'''
-    # no se separar#
+    if len(p)==3:
+       p[0]=ast.LogicNegationNode(p[2])
+    else:
+        p[0]=p[1]
 
 
 def p_cmp(p):
@@ -209,14 +217,19 @@ def p_e(p):
             p[0]=ast.PlusNode(p[1], p[3])
         elif p[2]=='-':
             p[0]=ast.MinusNOde(p[1], p[3])
-    pass
 
 
 def p_t(p):
     '''t : t * f
          | t / f
          | f'''
-    # no se separar#
+    if len(p)==2:
+        p[0]=p[1]
+    else:
+        if p[2]=='*':
+            p[0]=ast.StarNode(p[1], p[3])
+        elif p[2]=='/':
+            p[0]=ast.DivNode(p[1], p[3])
     pass
 
 
@@ -225,7 +238,15 @@ def p_f(p):
          | ( expr )
          | atom
          | ISVOID f'''
-    # no se separar#
+    if len(p)==4:
+        p[0]=p[2]
+    if len(p)==3:
+        if p[1]=='~':
+            p[0]=ast.NegationNode(p[2])
+        if p[1]=='ISVOID':
+            p[0]=ast.IsVoidNode(p[2])
+    else:
+        p[0]=p[1]
     pass
 
 
@@ -242,7 +263,5 @@ def p_atom(p):
             | block
             | let_expr
             | case_expr
-            | init_expr
-            | is_void_expr'''
-    # no se separar en la vida#
-    pass
+            | init_expr'''
+    p[0]=ast.AtomNode(p[1])
