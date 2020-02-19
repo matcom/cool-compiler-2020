@@ -48,7 +48,10 @@ t_TYPE = r'[A-Z]+([a-z]|[A-Z]|[0-9]|_)*'
 
 t_ignore = ' \t'
 
-states = (('commentLine', 'exclusive'),)
+states = (
+    ('commentLine', 'exclusive'),
+    ('commentText', 'exclusive'),
+)
 
 
 def t_INT(t):
@@ -78,10 +81,50 @@ def t_commentLine_ALL(t):
 
 
 def t_commentLine_newline(t):
-    r'\n'
+    r'\n+'
     t.lexer.begin('INITIAL')
-    t.lexer.lineno = + 1
+    t.lexer.lineno += len(t.value)
     return None
+
+
+def t_TEXTCOMMENT(t):
+    r'\(\*'
+    t.lexer.comment_start = t.lexer.lexpos
+    t.lexer.level = 1
+    t.lexer.begin('commentText')
+
+
+t_commentText_ignore = ' \t'
+
+
+def t_commentText_error(t):
+    t_error(t)
+
+
+def t_commentText_OPENTEXT(t):
+    r'\(\*'
+    t.lexer.level += 1
+
+
+def t_commentText_CLOSETEXT(t):
+    r'\*\)'
+    t.lexer.level -= 1
+    if t.lexer.level == 0:
+        t.lexer.begin('INITIAL')
+
+
+def t_commentText_ALL(t):
+    r'.'
+    return None
+
+
+def t_commentText_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+
+
+def t_commentText_eof(t):
+    print(f'({t.lexer.lineno}:{find_column(t)}) LexicographicError: EOF in comment')
 
 
 def t_ID(t):
@@ -91,7 +134,7 @@ def t_ID(t):
 
 
 def t_error(t):
-    print(f'({t.lexer.lineno}:{find_column(t)}) LexicographicError: ERROR \"{t.value[0]}\"')
+    print(f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: ERROR \"{t.value[0]}\"')
     t.lexer.skip(1)
 
 
