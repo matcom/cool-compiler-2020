@@ -87,7 +87,7 @@ class MinusNode(ArithNode):
 class StarNode(ArithNode):
     pass
 
-class DivNOde(ArithNode):
+class DivNode(ArithNode):
     pass
 
 class UnaryNode(ExpressionNode):
