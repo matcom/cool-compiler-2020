@@ -43,7 +43,6 @@ t_ASSIGN = r'<-'
 t_ARROW = r'=>'
 t_GREATEREQ = r'>='
 t_LOWEREQ = r'<='
-t_STRING = r'".*"'
 t_TYPE = r'[A-Z]+([a-z]|[A-Z]|[0-9]|_)*'
 
 t_ignore = ' \t'
@@ -51,6 +50,7 @@ t_ignore = ' \t'
 states = (
     ('commentLine', 'exclusive'),
     ('commentText', 'exclusive'),
+    ('string', 'exclusive'),
 )
 
 
@@ -124,7 +124,76 @@ def t_commentText_newline(t):
 
 
 def t_commentText_eof(t):
-    print(f'({t.lexer.lineno}:{find_column(t)}) LexicographicError: EOF in comment')
+    print(f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: EOF in comment')
+
+
+def t_STRING(t):
+    r'"'
+    t.lexer.stringValue = ""
+    t.lexer.escape = False
+    t.lexer.begin('string')
+
+
+t_string_ignore = ''
+
+
+def t_string_ESCAPE(t):
+    r'\\'
+    if t.lexer.escape:
+        t.lexer.stringValue += "\\"
+    else:
+        t.lexer.escape = True
+
+
+def t_string_CLOSESTRING(t):
+    r'"'
+    if t.lexer.escape:
+        t.lexer.stringValue += "\""
+    else:
+        t.value = t.lexer.stringValue
+        t.lexer.stringValue = None
+        t.type = 'STRING'
+        t.lexer.begin('INITIAL')
+        return t
+
+
+def t_string_eof(t):
+    print(f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: EOF in string constant')
+
+
+def t_string_newline(t):
+    r'\n+'
+    if t.lexer.escape:
+        t.lexer.escape = False
+    else:
+        print(f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: Unterminated string constant')
+        t.lexer.begin('INITIAL')
+    t.lexer.lineno += len(t.value)
+
+
+def t_string_ALL(t):
+    r'.'
+    if t.lexer.escape:
+        x = {
+            "b": "\b",
+            "t": "\t",
+            "n": "\n",
+            "f": "\f"
+        }
+        if t.value in x.keys():
+            t.lexer.stringValue += x[t.value]
+        elif t.value == "0":
+            print(f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: String contains null character')
+            t.lexer.begin('INITIAL')
+        else:
+            t.lexer.stringValue += t.value
+        t.lexer.escape = False
+    else:
+        t.lexer.stringValue += t.value
+
+
+def t_string_error(t):
+    t_error(t)
 
 
 def t_ID(t):
