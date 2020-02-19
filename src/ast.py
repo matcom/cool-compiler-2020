@@ -32,11 +32,11 @@ class AssignNode:
         
     
 class FuncCallNode:
-    def __init__(self, object, type, id, expressions):
+    def __init__(self, object, type, id, args):
         self.object=object
         self.type=type
         self.id=id
-        self.expressions=expressions
+        self.args=args
 
 class IfNode:
     def __init__(self, if_expr, then_expr, else_expr):
@@ -59,11 +59,18 @@ class LetNode:
     def __init__(self, assign_nodes, expr):
         self.assign_nodes =assign_nodes
         self.expr=expr
-        
+  
 class CaseNode:
-    def __init__(self, expr, ids):
+    def __init__(self, expr, case_list):
         self.expr=expr
-        self.ids=ids
+        self.case_list=case_list
+        
+class CaseElemNode:
+    def __init__(self, expr, id, type):
+        self.expr=expr
+        self.id=id
+        self.type=type
+  
         
 class InitNode:
     def __init__(self, type):
