@@ -48,12 +48,29 @@ t_TYPE = r'[A-Z]+([a-z]|[A-Z]|[0-9]|_)*'
 
 t_ignore = ' \t'
 
+states = (('commentLine','exclusive'),)
 
 def t_INT(t):
     r'[0-9]+[0-9]*'
     t.value = int(t.value)
     return t
 
+def t_LINECOMMENT(t):
+    r'--'
+    if t.lexpos == 0 or t.lexer.lexdata[t.lexpos - 1] == '\n':
+        t.lexer.begin('commentLine')
+    else:
+        t_error(t)
+
+def t_commentLine_ALL(t):
+    r'.'
+    return None
+
+def t_commentLine_newline(t):
+    r'\n'
+    t.lexer.begin('INITIAL')
+    t.lexer.lineno =+ 1
+    return None 
 
 def t_ID(t):
     r'[a-z]+([a-z]|[A-Z]|[0-9]|_)*'
