@@ -79,22 +79,37 @@ class InitNode:
 class ExpressionNode:
     pass
 
-class ArithNode(ExpressionNode):
+class BinaryNode(ExpressionNode):
     def __init__(self, lvalue, rvalue):
         self.lvalue=lvalue
         self.rvalue=rvalue
     
         
-class PlusNode(ArithNode):
+class PlusNode(BinaryNode):
     pass
 
-class MinusNode(ArithNode):
+class MinusNode(BinaryNode):
     pass
 
-class StarNode(ArithNode):
+class StarNode(BinaryNode):
     pass
 
-class DivNode(ArithNode):
+class DivNode(BinaryNode):
+    pass
+
+class GreaterThanNode(BinaryNode):
+    pass
+
+class LessThanNode(BinaryNode):
+    pass
+
+class GreaterEqNode(BinaryNode):
+    pass
+
+class LessEqNode(BinaryNode):
+    pass
+
+class EqNode(BinaryNode):
     pass
 
 class UnaryNode(ExpressionNode):
