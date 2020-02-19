@@ -42,7 +42,7 @@ tokens += list(reserved.values())
 # Regular expression rules for simple tokens
 t_ASSIGN = r'<-'
 t_ARROW = r'=>'
-t_GREATHEREQ = r'>='
+t_GREATEREQ = r'>='
 t_LOWEREQ = r'<='
 t_STRING = r'".*"'
 t_TYPE = r'[A-Z]+([a-z]|[A-Z]|[0-9]|_)*'
