@@ -1,5 +1,5 @@
 import ply.yacc as yacc
-from src.lexer import tokens
+import src.lexer
 import src.ast as ast
 
 
@@ -16,18 +16,18 @@ def p_empty(p):
 def p_class_list(p):
     '''class_list : def_class ; class_list
                   | def_class ;'''
-    try:
+    if len(p)==4:
         p[0] = [p[1]] + p[3]
-    except:
+    else:
         p[0] = [p[1]]
 
 
 def p_def_class(p):
     '''dedf_class : CLASS TYPE { feature_list }
                   | CLASS TYPE INHERITS TYPE { feature_list }'''
-    try:
+    if len(p)==7:
         p[0] = ast.DefClassNode(p[2], p[6], p[4])
-    except:
+    else:
         p[0] = ast.DefClassNode(p[2], p[4])
 
 
@@ -35,9 +35,9 @@ def p_feature_list(p):
     '''feature_list : def_attr ; feature_list
                     | def_function ; feature_list
                     | empty'''
-    try:
+    if len(p)==4:
         p[0] = [p[1]] + p[3]
-    except:
+    else:
         p[0] = []
 
 
@@ -55,7 +55,10 @@ def p_param_list(p):
     '''param_list : param , param_list
                   | param
                   | empty'''
-    #:( aqui no se como manejar la diferencia entre las ultimas dos producciones#
+    if len(p)==4:
+        p[0]=[p[1]]+p[3]
+    else:
+        #problemita aun, las empty se cuentan como que tienen len=2??
 
 
 def p_param(p):
@@ -66,9 +69,9 @@ def p_param(p):
 def p_expr_list(p):
     '''expr_list : expr expr_list
                  | expr'''
-    try:
+    if len(p)==3:
         p[0] = [p[1]] + p[2]
-    except:
+    else:
         p[0] = [p[1]]
 
 
@@ -81,21 +84,22 @@ def p_func_call(p):
     '''func_call : expr @  TYPE . ID ( arg_list )
                  | expr . ID ( arg_list )
                  | ID ( arg_list )'''
-    try:
+    if len(p)==9:
         p[0] = ast.FuncCallNode(p[1], p[3], p[5], p[7])
-    except:
-        try:
-            p[0] = ast.FuncCallNode(p[1], null, p[3], p[5])
-        except:
-            p[0] = ast.FuncCallNode(null, null, p[1], p[3])
+    elif len(p)==7:
+        p[0] = ast.FuncCallNode(p[1], null, p[3], p[5])
+    else:
+        p[0] = ast.FuncCallNode(null, null, p[1], p[3])
 
 
 def p_arg_list(p):
     '''arg_list : expr , arg_list
                 | expr
                 | empty'''
-    # aqui me pasa lo mismo que con el de arriba#
-    pass
+     if len(p)==4:
+        p[0]=[p[1]]+p[3]
+    else:
+        #problemita aun, las empty se cuentan como que tienen len=2??
 
 
 def p_if_expr(p):
@@ -116,9 +120,9 @@ def p_block(p):
 def p_block_list(p):
     '''block_list : expr ; block_list
                   | expr ;'''
-    try:
+    if len(p)==4:
         p[0] = [p[1]] + p[3]
-    except:
+    else:
         p[0] = [p[1]]
 
 
@@ -130,9 +134,9 @@ def p_let_expr(p):
 def p_assign_list(p):
     '''assign_list : assign_elem , assign_list
                    | assign_elem'''
-    try:
+    if len(p)==4:
         p[0] = [p[1]] + p[3]
-    except:
+    else:
         p[0] = [p[1]]
 
 
@@ -144,9 +148,9 @@ def p_assign_elem(p):
 def p_assign_oper(p):
     '''assign_oper : <- expr
                     | empty'''
-    try:
+    if len(p)==3:
         p[0] = p[2]
-    except:
+    else:
         p[0] = null
 
 
@@ -158,9 +162,9 @@ def p_case_expr(p):
 def p_case_list(p):
     '''case_list : case_elem ; case_list
                  | case_elem ;'''
-    try:
+    if len(p)==4:
         p[0] = [p[1]] + p[3]
-    except:
+    else:
         p[0] = [p[1]]
 
 
@@ -178,7 +182,10 @@ def p_expr(p):
     '''expr : NOT expr
             | cmp
             | e'''
-    # no se separar#
+    if len(p)==3:
+       p[0]=ast.LogicNegationNode(p[2])
+    else:
+        p[0]=p[1]
 
 
 def p_cmp(p):
@@ -187,23 +194,42 @@ def p_cmp(p):
            | e = e
            | e >= e
            | e <= e'''
-    # no se separar#
-    pass
+    if p[2]=='>':
+        p[0]=ast.GreaterThanNode(p[1], p[3])
+    elif p[2]=='<':
+        p[0]=ast.LessThanNode(p[1], p[3])
+    elif p[2]== t_GREATEREQ:
+        p[0]=ast.GreaterEqNode(p[1], p[3])
+    elif p[2]==t_LOWEREQ:
+        p[0]=ast.LessEqNode(p[1], p[3])
+    elif p[2]=='=':
+        p[0]=ast.EqNode(p[1], p[3])
 
 
 def p_e(p):
     '''e : e + t
          | e - t
          | t'''
-    # no se separar#
-    pass
+    if len(p)==2:
+        p[0]=p[1]
+    else:
+        if p[2]=='+':
+            p[0]=ast.PlusNode(p[1], p[3])
+        elif p[2]=='-':
+            p[0]=ast.MinusNOde(p[1], p[3])
 
 
 def p_t(p):
     '''t : t * f
          | t / f
          | f'''
-    # no se separar#
+    if len(p)==2:
+        p[0]=p[1]
+    else:
+        if p[2]=='*':
+            p[0]=ast.StarNode(p[1], p[3])
+        elif p[2]=='/':
+            p[0]=ast.DivNode(p[1], p[3])
     pass
 
 
@@ -212,7 +238,15 @@ def p_f(p):
          | ( expr )
          | atom
          | ISVOID f'''
-    # no se separar#
+    if len(p)==4:
+        p[0]=p[2]
+    if len(p)==3:
+        if p[1]=='~':
+            p[0]=ast.NegationNode(p[2])
+        if p[1]=='ISVOID':
+            p[0]=ast.IsVoidNode(p[2])
+    else:
+        p[0]=p[1]
     pass
 
 
@@ -229,7 +263,5 @@ def p_atom(p):
             | block
             | let_expr
             | case_expr
-            | init_expr
-            | is_void_expr'''
-    # no se separar en la vida#
-    pass
+            | init_expr'''
+    p[0]=ast.AtomNode(p[1])
