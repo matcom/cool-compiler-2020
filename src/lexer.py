@@ -35,7 +35,7 @@ reserved = {
     'not': 'LNOT'
 }
 
-literals = [';', '{', '}', '(', ')', ':', '@', '.', '>', '<', '=', '+', '-', '*', '/', '~']
+literals = [';', '{', '}', '(', ')', ':', '@', '.', '>', '<', '=', '+', '-', '*', '/', '~', ',']
 
 tokens += list(reserved.values())
 
@@ -51,7 +51,7 @@ t_ignore = ' \t'
 
 
 def t_INT(t):
-    r'[1-9]+[0-9]*'
+    r'[0-9]+[0-9]*'
     t.value = int(t.value)
     return t
 
@@ -63,7 +63,7 @@ def t_ID(t):
 
 
 def t_error(t):
-    print(f'({t.lexer.lineno}:{find_column(t)}) LexicographicError: illegal token {t.value[0]}')
+    print(f'({t.lexer.lineno}:{find_column(t)}) LexicographicError: ERROR \"{t.value[0]}\"')
     t.lexer.skip(1)
 
 
@@ -83,7 +83,7 @@ def test(data):
         tok = lexer.token()
         if not tok:
             break
-        print(tok)
+        print(f'#{tok.lineno} {tok.type} {tok.value}')
 
 
 lexer = lex.lex()
