@@ -59,12 +59,11 @@ def t_INT(t):
 def t_ID(t):
     r'[a-z]+([a-z]|[A-Z]|[0-9]|_)*'
     t.type = reserved.get(t.value, 'ID')
-    t.type = reserved.get(t.value, 'ID')
     return t
 
 
 def t_error(t):
-    print(f'({lex.lexpos}:{find_column(t)}) LexicographicError: illegal token {t.value[0]}')
+    print(f'({t.lexer.lineno}:{find_column(t)}) LexicographicError: illegal token {t.value[0]}')
     t.lexer.skip(1)
 
 
