@@ -1,5 +1,10 @@
 import ply.lex as lex
 
+
+def printLexicograficError(error, token):
+    print(f'({token.lexer.lineno}, {find_column(token)}) - LexicographicError: {error}')
+
+
 # List of token names.   This is always required
 tokens = [
     'ASSIGN',
@@ -158,7 +163,7 @@ def t_string_CLOSESTRING(t):
 
 
 def t_string_eof(t):
-    print(f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: EOF in string constant')
+    printLexicograficError("EOF in string constant", t)
 
 
 def t_string_newline(t):
@@ -203,7 +208,7 @@ def t_ID(t):
 
 
 def t_error(t):
-    print(f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: ERROR \"{t.value[0]}\"')
+    printLexicograficError(f'ERROR \"{t.value[0]}\"', t)
     t.lexer.skip(1)
 
 
