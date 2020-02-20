@@ -3,6 +3,18 @@ import src.lexer
 import src.ast as ast
 
 
+precedence=(
+    ('left','.'),
+    ('left','@'),
+    ('left','~'),
+    ('left','isvoid'),
+    ('left', '*', '/'),
+    ('left', '+', '-'),
+    ('left',t_GREATREQ,t_LOWEREQ,'<', '>', '='),
+    ('left', 'not'),
+    ('right', t_ASSIGN),
+)
+
 def p_program(p):
     'program : class_list'
     p[0] = ast.ProgramNode(p[1])
@@ -10,7 +22,7 @@ def p_program(p):
 
 def p_empty(p):
     'empty :'
-    pass
+    p[0]=null
 
 
 def p_class_list(p):
@@ -58,7 +70,7 @@ def p_param_list(p):
     if len(p)==4:
         p[0]=[p[1]]+p[3]
     else:
-        #problemita aun, las empty se cuentan como que tienen len=2??
+        p[0]=[p[1]]
 
 
 def p_param(p):
@@ -96,12 +108,11 @@ def p_arg_list(p):
     '''arg_list : expr , arg_list
                 | expr
                 | empty'''
-     if len(p)==4:
+    if len(p)==4:
         p[0]=[p[1]]+p[3]
     else:
-        #problemita aun, las empty se cuentan como que tienen len=2??
-
-
+        p[0]=[p[1]]
+        
 def p_if_expr(p):
     '''if_expr : IF expr THEN expr ELSE expr FI'''
     p[0] = ast.IfNode(p[2], p[4], p[6])
@@ -265,3 +276,17 @@ def p_atom(p):
             | case_expr
             | init_expr'''
     p[0]=ast.AtomNode(p[1])
+    
+def p_error(p):
+    if p:
+        line=p.lineno(0)
+        pos=p.lexpos(0)
+        print(f'({line}, {pos}) - SyntacticError: ERROR at or near \"{p.value[0]}\"')
+    else:
+        print('EOF')
+        
+        
+def test(input_data):
+    parser.parse(input_data)
+    
+parser=yacc.yacc()
