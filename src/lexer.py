@@ -142,9 +142,10 @@ class Lexer():
         The Type Token Rule.
         """
         # token.type = self.builtin_types.get(token.value, 'TYPE')
-        if self.builtin_types.__contains__(token.value):
-            token.type = self.builtin_types[token.value]
-        elif self.keywords.__contains__(str.lower(token.value)):
+        # if self.builtin_types.__contains__(token.value):
+        #     token.type = self.builtin_types[token.value]
+        # elif self.keywords.__contains__(str.lower(token.value)):
+        if self.keywords.__contains__(str.lower(token.value)):
             token.type = self.keywords[str.lower(token.value)]
             token.value = str.lower(token.value)
         else:
@@ -374,7 +375,12 @@ if __name__ == "__main__":
     lexer = Lexer()
     lexer.input(cool_program_code)
     for token in lexer:
-        print(token)
-    print('-------------------------------------')
-    for error in lexer.errors:
-        print(error)
+        pass
+    
+    if lexer.errors:
+        print(lexer.errors[0])
+        exit(1)
+    #     print(token)
+    # print('-------------------------------------')
+    # for error in lexer.errors:
+    #     print(error)
