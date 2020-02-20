@@ -22,7 +22,7 @@ def p_program(p):
 
 def p_empty(p):
     'empty :'
-    p[0]=null
+    p[0]=None
 
 
 def p_class_list(p):
@@ -99,9 +99,9 @@ def p_func_call(p):
     if len(p)==9:
         p[0] = ast.FuncCallNode(p[1], p[3], p[5], p[7])
     elif len(p)==7:
-        p[0] = ast.FuncCallNode(p[1], null, p[3], p[5])
+        p[0] = ast.FuncCallNode(p[3], p[5], p[1])
     else:
-        p[0] = ast.FuncCallNode(null, null, p[1], p[3])
+        p[0] = ast.FuncCallNode(p[1], p[3])
 
 
 def p_arg_list(p):
@@ -162,7 +162,7 @@ def p_assign_oper(p):
     if len(p)==3:
         p[0] = p[2]
     else:
-        p[0] = null
+        p[0] = None
 
 
 def p_case_expr(p):

@@ -32,7 +32,7 @@ class AssignNode:
         
     
 class FuncCallNode:
-    def __init__(self, object, type, id, args):
+    def __init__(self, id, args,object=None, type=None):
         self.object=object
         self.type=type
         self.id=id
