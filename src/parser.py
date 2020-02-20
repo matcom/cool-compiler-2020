@@ -1,18 +1,18 @@
 import ply.yacc as yacc
-import src.lexer
-import src.ast as ast
+from lexer import *
+import ast
 
 
 precedence=(
     ('left','.'),
     ('left','@'),
     ('left','~'),
-    ('left','isvoid'),
+    ('left','ISVOID'),
     ('left', '*', '/'),
     ('left', '+', '-'),
-    ('left',t_GREATREQ,t_LOWEREQ,'<', '>', '='),
+    ('left','GREATREQ', 'LOWEREQ','<', '>', '='),
     ('left', 'not'),
-    ('right', t_ASSIGN),
+    ('right', 'ASSIGN'),
 )
 
 def p_program(p):
@@ -209,9 +209,9 @@ def p_cmp(p):
         p[0]=ast.GreaterThanNode(p[1], p[3])
     elif p[2]=='<':
         p[0]=ast.LessThanNode(p[1], p[3])
-    elif p[2]== t_GREATEREQ:
+    elif p[2]== 'GREATEREQ':
         p[0]=ast.GreaterEqNode(p[1], p[3])
-    elif p[2]==t_LOWEREQ:
+    elif p[2]=='LOWEREQ':
         p[0]=ast.LessEqNode(p[1], p[3])
     elif p[2]=='=':
         p[0]=ast.EqNode(p[1], p[3])
