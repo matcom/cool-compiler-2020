@@ -65,7 +65,7 @@ class CoolLexer:
 
     # TODO: Comentarios anidados, eof en los comentarios
     def t_comment(self, t):
-        r'--.* | \*(.)*\*'
+        r'--.* | \(\*(.)*\*\)'
         pass
 
     # Define a rule so we can track line numbers

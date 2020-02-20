@@ -330,7 +330,7 @@ class CoolParser(Parser):
 
     def p_arg_list_error(self, p):
         'arg_list : error arg_list'
-        p[0] = ErrorNode()
+        p[0] = [ErrorNode()]
 
     def p_arg_list_empty(self, p):
         'arg_list_empty : epsilon'
@@ -356,29 +356,32 @@ class CoolParser(Parser):
 
 
 if __name__ == "__main__":   
-    s = '''class Main inherits IO {
-	str <- "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-	main() : Object {
-			{
-					out_string("Enter number of numbers to multiply\n");
-					out_int(prod(in_int()));
-					out_string("\n");
-			}
-	};
-	prod(i : Int) : Int {
-		let y : Int <- 1 in {
-			while (not (i = 0) ) loop {
-				out_string("Enter Number: ");
-				y <- y * in_int();
-				i <- i - 1;
-			}
-			y;
-		}
-	};
-} 
- 
+    s = '''(* Cool programs are sets of classes *)
+
+class Main {
+    main(): Object {
+        (new Alpha).print()
+    };
+};
+
+class Test {
+    testing(): Int {
+        2 + 2
+    };
+};
+
+-- Only classes
+suma(a: Int, b: Int) int {
+    a + b
+};
+
+class Alpha inherits IO {
+    print() : Object {
+        out_string("reached!!\n")
+    };
+};
 '''
     # Parser()
     parser = CoolParser()
     result = parser.parse(s)
-    print(result)
+    # print(result)

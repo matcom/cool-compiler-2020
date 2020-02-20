@@ -13,7 +13,7 @@ class CoolError(Exception):
         return self.args[0]
 
     def __str__(self):
-        return f'({self.line}, {self.column}) - {self.error_type}: {self.text}'
+        return f'({self.line},{self.column}) - {self.error_type}: {self.text}'
 
     def __repr__(self):
         return str(self)
