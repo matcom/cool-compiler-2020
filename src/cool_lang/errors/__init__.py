@@ -9,7 +9,7 @@ class Error:
 
 class LocalizedError(Error):
     def __init__(self, error_name, row, column, description):
-        Error.__init__(self, 'SyntacticError', description)
+        Error.__init__(self, error_name, description)
         self.row = row
         self.column = column
 
