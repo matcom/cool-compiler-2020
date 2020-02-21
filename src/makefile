@@ -20,7 +20,7 @@ endif
 
 #define some macros
 COMPSTRUCTFILE=compiler_struct.py
-PIPREQUIREMENTS=cloudpickle pyinstaller
+# PIPREQUIREMENTS=cloudpickle pyinstaller
 
 # pyinstaller modules
 COOLCIMPORTS= ~/.pycoocl
@@ -29,8 +29,6 @@ $MODULES= abstract automatons baseNodeTree coolgrammar grammar lexer parserr too
 
 # This is intended for setting a local compiler for testing.
 main:
-	@echo "[*] Installing python dependencies"
-	@$(PIP) install --user $(PIPREQUIREMENTS)
 	@echo "[*] Compiling Cool Lexical structures"
 	@$(PYTHON) install.py build/$(COMPSTRUCTFILE)
 	@touch build/__init__.py
