@@ -8,4 +8,6 @@ echo "LINEA_CON_NOMBRE_Y_VERSION_DEL_COMPILADOR"        # TODO: Recuerde cambiar
 echo "Copyright (c) 2019: Nombre1, Nombre2, Nombre3"    # TODO: líneas a los valores correctos
 
 # Llamar al compilador
-echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
+#echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
+python3 lexer.py $INPUT_FILE
+python3 parser.py $INPUT_FILE

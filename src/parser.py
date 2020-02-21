@@ -422,6 +422,9 @@ class Parser():
         """
         Error rule for Syntax Errors handling and reporting.
         """
+        if not parse:
+            return
+
         message = f'"{parse.value}"'
         # column = find_column(token.lexer.lexdata,token)
         # column = parse.lexpos
@@ -526,7 +529,7 @@ if __name__ == '__main__':
         #     exit()
 
         input_file = sys.argv[1]
-        # input_file = 'assignment1.cl'
+        # input_file = 'assignment3.cl'
         with open(input_file, encoding="utf-8") as file:
             cool_program_code = file.read()
 
