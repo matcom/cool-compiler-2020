@@ -1,7 +1,19 @@
 import ply.yacc as yacc
-import src.lexer
-import src.ast as ast
+from lexer import *
+import ast
 
+
+precedence=(
+    ('left','.'),
+    ('left','@'),
+    ('left','~'),
+    ('left','ISVOID'),
+    ('left', '*', '/'),
+    ('left', '+', '-'),
+    ('left','GREATREQ', 'LOWEREQ','<', '>', '='),
+    ('left', 'not'),
+    ('right', 'ASSIGN'),
+)
 
 def p_program(p):
     'program : class_list'
@@ -10,7 +22,7 @@ def p_program(p):
 
 def p_empty(p):
     'empty :'
-    pass
+    p[0]=None
 
 
 def p_class_list(p):
@@ -58,7 +70,7 @@ def p_param_list(p):
     if len(p)==4:
         p[0]=[p[1]]+p[3]
     else:
-        #problemita aun, las empty se cuentan como que tienen len=2??
+        p[0]=[p[1]]
 
 
 def p_param(p):
@@ -87,21 +99,20 @@ def p_func_call(p):
     if len(p)==9:
         p[0] = ast.FuncCallNode(p[1], p[3], p[5], p[7])
     elif len(p)==7:
-        p[0] = ast.FuncCallNode(p[1], null, p[3], p[5])
+        p[0] = ast.FuncCallNode(p[3], p[5], p[1])
     else:
-        p[0] = ast.FuncCallNode(null, null, p[1], p[3])
+        p[0] = ast.FuncCallNode(p[1], p[3])
 
 
 def p_arg_list(p):
     '''arg_list : expr , arg_list
                 | expr
                 | empty'''
-     if len(p)==4:
+    if len(p)==4:
         p[0]=[p[1]]+p[3]
     else:
-        #problemita aun, las empty se cuentan como que tienen len=2??
-
-
+        p[0]=[p[1]]
+        
 def p_if_expr(p):
     '''if_expr : IF expr THEN expr ELSE expr FI'''
     p[0] = ast.IfNode(p[2], p[4], p[6])
@@ -151,7 +162,7 @@ def p_assign_oper(p):
     if len(p)==3:
         p[0] = p[2]
     else:
-        p[0] = null
+        p[0] = None
 
 
 def p_case_expr(p):
@@ -198,9 +209,9 @@ def p_cmp(p):
         p[0]=ast.GreaterThanNode(p[1], p[3])
     elif p[2]=='<':
         p[0]=ast.LessThanNode(p[1], p[3])
-    elif p[2]== t_GREATEREQ:
+    elif p[2]== 'GREATEREQ':
         p[0]=ast.GreaterEqNode(p[1], p[3])
-    elif p[2]==t_LOWEREQ:
+    elif p[2]=='LOWEREQ':
         p[0]=ast.LessEqNode(p[1], p[3])
     elif p[2]=='=':
         p[0]=ast.EqNode(p[1], p[3])
@@ -265,3 +276,17 @@ def p_atom(p):
             | case_expr
             | init_expr'''
     p[0]=ast.AtomNode(p[1])
+    
+def p_error(p):
+    if p:
+        line=p.lineno(0)
+        pos=p.lexpos(0)
+        print(f'({line}, {pos}) - SyntacticError: ERROR at or near \"{p.value[0]}\"')
+    else:
+        print('EOF')
+        
+        
+def test(input_data):
+    parser.parse(input_data)
+    
+parser=yacc.yacc()
