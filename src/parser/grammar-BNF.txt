@@ -10,7 +10,7 @@
 	|	Epsilon
 
 	Feature ::= ID ( Formal_Params ) : TYPE { expr }
-	|	Simple_Init
+	|	Simple_Attribute
 
 	Formal_Params ::= Formal_List
 	|   Epsilon
@@ -33,11 +33,11 @@
 	Cast ::= @TYPE
 	|	Epsilon
 
-	Simple_Init ::= ID : TYPE Assignation
+	Simple_Attribute ::= ID : TYPE Assignation
 
-	Compound_Init ::= Simple_Init Compound_Init_Helper
+	Compound_Attribute ::= Simple_Attribute Compound_Attribute_Helper
 
-	Compound_Init_Helper ::= , Simple_Init Compound_Init_Helper
+	Compound_Attribute_Helper ::= , Simple_Attribute Compound_Attribute_Helper
 	|	Epsilon
 	
 	Assignation ::= <- expr
@@ -51,7 +51,7 @@
 	| 	if expr then expr else expr fi
 	| 	while expr loop expr pool
 	| 	{ Expr_List_Semicolon }
-	| 	let Compound_Init in expr
+	| 	let Compound_Attribute in expr
 	| 	case expr of Case_List esac
 	| 	new TYPE
 	| 	isvoid expr
