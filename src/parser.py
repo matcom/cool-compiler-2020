@@ -355,7 +355,7 @@ class Parser():
                         | nested_formals COMMA formal
         """
         if len(parse) == 2:
-            parse[0] = parse[1]
+            parse[0] = (parse[1],)
         else:
             parse[0] = parse[1] + (parse[3],)
 
@@ -375,7 +375,7 @@ class Parser():
         if len(parse) == 2:
             parse[0] = (parse[1],)
         else:
-            parse[0] = parse[1] + (parse[2],)
+            parse[0] = tuple(parse[1]) + (parse[2],)
 
     def p_action_expr(self, parse):
         """
@@ -422,6 +422,11 @@ class Parser():
         """
         Error rule for Syntax Errors handling and reporting.
         """
+        if not parse:
+            error = ErrorParser('"EOF"', 0, 0)
+            self.errors.append(error)
+            return
+
         message = f'"{parse.value}"'
         # column = find_column(token.lexer.lexdata,token)
         # column = parse.lexpos
@@ -519,14 +524,13 @@ if __name__ == '__main__':
 
     parser = Parser()
 
-    if len(sys.argv) > 1:
+    if True or len(sys.argv) > 1:
         # if not str(sys.argv[1]).endswith(".cl"):
         #     print("Cool program source code files must end with .cl extension.")
         #     print("Usage: ./parser.py program.cl")
         #     exit()
 
         input_file = sys.argv[1]
-        # input_file = 'assignment1.cl'
         with open(input_file, encoding="utf-8") as file:
             cool_program_code = file.read()
 
