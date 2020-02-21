@@ -239,6 +239,10 @@ def build_cool_grammar():
     case_statement %= case + exp + of + actions + \
         esac, lambda s: CaseNode(s[2], s[4])
 
+    scaped_chars = r"(\a)|(\b)|(\c)|(\d)|(\e)|(\f)|(\g)|(\h)|(\i)|(\j)" +\
+        r"|(\k)|(\l)|(\m)|(\n)|(\o)|(\p)|(\q)|(\r)|(\s)|(\t)|(\u)|(\v)|(\x)|(\y)|(\z)" +\
+        r'|(!\")' + r"|(!\')"
+
     table = [
         (class_keyword, 'class'), (def_keyword, 'def'), (in_keyword, 'in'),
         (intx, 'int'), (boolean, 'bool'), (objectx, 'object'),
@@ -247,18 +251,19 @@ def build_cool_grammar():
         (new, 'new'), (while_, 'while'), (do, 'do'), (esac, 'esac'),
         (case, 'case'), (of, 'of'), (inherits, 'inherits'), (coma, ','),
         (period, '.'), (dd, ':'), (dot_comma, ';'), (arroba, '@'),
-        (assign, r'<\-'), (lt, r'\<'), (gt, r'\>'), (ge, '>='), (le, '<='),
-        (eq, '=='), (not_, r'\~'), (equal, '='), (opar, r'\('), (cpar, r'\)'),
-        (obrack, r'\{'), (cbrack, r'\}'), (plus, r'\+'), (minus, r'\-'),
-        (implies, r'=>'), (div, '/'), (star, r'\*'), (let, 'let'), (fi, 'fi'),
+        (assign, r'<!-'), (lt, r'!<'), (gt, r'!>'), (ge, '>='), (le, '<='),
+        (eq, '=='), (not_, r'!~'), (equal, '='), (opar, r'!('), (cpar, r'!)'),
+        (obrack, r'!{'), (cbrack, r'!}'), (plus, r'!+'), (minus, r'!-'),
+        (implies, r'=>'), (div, '/'), (star, r'!*'), (let, 'let'), (fi, 'fi'),
         (pool, 'pool'), (loop, 'loop'), (isvoid, 'isvoid'),
         (idx,
          '(A|a|B|b|C|c|D|d|E|e|F|f|G|g|H|h|I|i|J|j|K|k|L|l|M|m|N|n|O|o|P|p|' +
-         'Q|q|R|r|S|s|T|t|u|U|V|v|W|w|X|x|Y|y|Z|z|_)+'),
+         'Q|q|R|r|S|s|T|t|u|U|V|v|W|w|X|x|Y|y|Z|z)(A|a|B|b|C|c|D|d|E|e|F|f|G|g|H|h|I|i|J|j|K|k|L|l|M|m|N|n|O|o|P|p|' +
+         'Q|q|R|r|S|s|T|t|u|U|V|v|W|w|X|x|Y|y|Z|z|_)*'),
         (num, '(1|2|3|4|5|6|7|8|9|0)+'),
         (string_const,
-         r"\"(A|a|B|b|C|c|D|d|E|e|F|f|G|g|H|h|I|i|J|j|K|k|L|l|M|m|N" +
-         r"|n|O|o|P|p|Q|q|R|r|S|s|T|t|u|U|V|v|W|w|X|x|Y|y|Z|z|\ )+\"")
+         r'"(1|2|3|4|5|6|7|8|9|0|A|a|B|b|C|c|D|d|E|e|F|f|G|g|H|h|I|i|J|j|K|k|L|l|M|m|N' +
+         r'|n|O|o|P|p|Q|q|R|r|S|s|T|t|u|U|V|v|W|w|X|x|Y|y|Z|z|! |' + scaped_chars + ')*"')
     ]
 
     lexer = Lexer(table, G.EOF, ignore_white_space=False)

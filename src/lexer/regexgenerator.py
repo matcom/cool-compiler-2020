@@ -1,11 +1,8 @@
 #%%
 from baseNodeTree.base import Node, AtomicNode, UnaryNode, BinaryNode
 from automatons.nondeterministic import NFA
-from automatons.operations import (
-    automata_union,
-    automata_concatenation,
-    automata_closure
-)
+from automatons.operations import (automata_union, automata_concatenation,
+                                   automata_closure)
 from automatons.transformation import nfa_to_deterministic
 from grammar.grammar import Grammar
 from lexer.tokens import Token
@@ -84,11 +81,12 @@ class QuestionNode(UnaryNode):
     @staticmethod
     def operate(value):
         return automata_union(value, EpsilonNode('').evaluate())
+
+
 #%%
 
 
 class Regex(object):
-
     def __init__(self, regex, ignore_white_space=True):
         self.regex = regex
         self.G = Grammar()
@@ -115,26 +113,27 @@ class Regex(object):
         self.automaton = self._build_automaton(regex, ignore_white_space)
 
     def _build_automaton(self, regex, ignore_white_space):
-
         def regex_tokenizer(regex, ignore_white_space):
             d = {term.Name: term for term in self.G.terminals}
             tokens = []
             symbol_term = [
-                term for term in self.G.terminals if term.Name == 'symbol'][0]
-            fixed_tokens = {tok.Name: Token(tok.Name, tok)
-                            for tok in [d['|'], d['*'],
-                                        d['+'], d['?'],
-                                        d['('], d[')'],
-                                        d['['], d[']'],
-                                        d['-'], d['ε']]}
+                term for term in self.G.terminals if term.Name == 'symbol'
+            ][0]
+            fixed_tokens = {
+                tok.Name: Token(tok.Name, tok)
+                for tok in [
+                    d['|'], d['*'], d['+'], d['?'], d['('], d[')'], d['['],
+                    d[']'], d['-'], d['ε']
+                ]
+            }
 
             for i, c in enumerate(regex):
-                if c == "\\" or \
+                if c == "!" or \
                    (ignore_white_space and c.isspace()):
                     continue
                 try:
                     token = fixed_tokens[c]
-                    if regex[i - 1] == '\\':
+                    if regex[i - 1] == '!':
                         raise KeyError
                 except KeyError:
                     token = Token(c, symbol_term)

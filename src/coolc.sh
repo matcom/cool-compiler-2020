@@ -8,9 +8,8 @@ BUILD=$(wc -l .builds | awk '{ print $1 }')
 
 # Si su compilador no lo hace ya, aquí puede imprimir la información de contacto
 echo "pycoolc: version $VERSION"        # TODO: Recuerde cambiar estas
-echo "Build: $BUILD"
+# echo "Build: $BUILD"
 echo "Copyright (c) 2020 School of Math and Computer Science, University of Havana" # TODO: líneas a los valores correctos
-echo "Authors: Eliane Puerta, Adrian Gonzalez, Liset Alfaro"
+#echo "Authors: Eliane Puerta, Adrian Gonzalez, Liset Alfaro"
 # Llamar al compilador
-echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 python3 pycoolc.py $INPUT_FILE

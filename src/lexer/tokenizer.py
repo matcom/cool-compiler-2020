@@ -1,6 +1,7 @@
 from automatons.state import State
 from lexer.regexgenerator import Regex
 from lexer.tokens import Token
+from grammar.grammar import Terminal
 
 
 class TokenLine(Token):
@@ -39,6 +40,7 @@ class Lexer:
 
     def _build_regexs(self, table, ignore_white_space):
         regexs = []
+        # fixed blank tokens
         fixed_line_token = Regex('\n', ignore_white_space=False)
         fixed_space_token = Regex(' ', ignore_white_space=False)
 
@@ -80,11 +82,31 @@ class Lexer:
         final = state if state.final else None
         lex = ''
         suffix = ''
+        continues = 0
 
-        for symbol in string:
+        for i, symbol in enumerate(string):
+            # handle special character for regex !:
+            if symbol == '!' and suffix and suffix[0] == '"':
+                suffix += symbol
+                self.column += 1
+                continue
+            if symbol == '\\':
+                if suffix and suffix[0] == '"' and i < len(
+                        string) - 1 and string[i + 1] not in ('n', '"'):
+                    self.column += 1
+                    continues += 1
+                    continue
+            # Handle spcial case with a newline in a string
+            if symbol == '\n' and suffix and suffix[0] == '"':
+                if string[i - 1] == '\\':
+                    self.column = 1
+                    self.line += 1
+                    continues += 1
+                    continue
             next_state = state.transitions.get(symbol, None)
             if next_state:
                 suffix += symbol
+                self.column += 1
                 state = next_state[0]
                 if state.final:
                     lex += suffix
@@ -93,16 +115,12 @@ class Lexer:
             else:
                 break
 
-        return final, lex
+        return final, lex, suffix, continues
 
     def _tokenize(self, text):
         while text:
             string = text
-            final, lex = self._walk(string)
-            if lex == '':
-                raise SyntaxError(
-                    f'({self.line},{self.column}) LexicographicError: ERROR "{string[0]}"'
-                )
+            final, lex, suffix, continues = self._walk(string)
             if final:
                 n = 2**64
                 token_type = None
@@ -114,12 +132,21 @@ class Lexer:
                             token_type = tt
                     except TypeError:
                         pass
+                # suffix contains characters that didnt match
+                # so they would be count twice. We must substract
+                # them from column
+                self.column -= (len(suffix) + continues)
                 yield lex, token_type
-                text = string[len(lex):]
+                text = string[len(lex) + continues:]
             else:
+                if len(text) == len(suffix) + continues and suffix[0] == '"':
+                    raise SyntaxError(
+                        f'({self.line},{self.column}) - LexicographicError: String contains EOF'
+                    )
+                #self.column += len(suffix)
                 raise SyntaxError(
-                    f'({self.line},{self.column}) LexicographicError: ERROR "{string[:len(lex)]}"'
-                )
+                    f'({self.line},{self.column}) - LexicographicError: ERROR "%r"'
+                    % text[len(suffix) + continues])
 
         yield '$', self.eof
 
@@ -130,10 +157,11 @@ class Lexer:
                 self.line += 1
                 self.column = 1
             elif isinstance(ttype, str) and ttype == 'Space':
-                self.column += 1
+                #self.column += 1
+                pass
             else:
                 tok = Token(lex, ttype, self.column, self.line)
                 tokens.append(tok)
-                self.column += len(lex)
+                #self.column += len(lex)
 
         return tokens

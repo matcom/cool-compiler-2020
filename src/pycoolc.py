@@ -13,7 +13,7 @@ def pipeline(program: str) -> None:
 
     # Right now, program has no comments, so is safe to pass it to the LEXER
     try:
-        tokens = LEXER(program)
+        tokens = LEXER(r"%s" % program)
     except Exception as e:
         print(e)
         sys.exit(1)
