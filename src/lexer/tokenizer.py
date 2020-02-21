@@ -143,7 +143,7 @@ class Lexer:
                     raise SyntaxError(
                         f'({self.line},{self.column}) - LexicographicError: String contains EOF'
                     )
-                #self.column += len(suffix)
+                # self.column += len(suffix)
                 raise SyntaxError(
                     f'({self.line},{self.column}) - LexicographicError: ERROR "%r"'
                     % text[len(suffix) + continues])
@@ -157,11 +157,10 @@ class Lexer:
                 self.line += 1
                 self.column = 1
             elif isinstance(ttype, str) and ttype == 'Space':
-                #self.column += 1
+                # IGNORE WHITE SPACE
                 pass
             else:
                 tok = Token(lex, ttype, self.column, self.line)
                 tokens.append(tok)
-                #self.column += len(lex)
 
         return tokens

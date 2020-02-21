@@ -2,9 +2,6 @@ import cloudpickle
 from coolgrammar.grammar import build_cool_grammar
 from parserr.lr import LALRParser
 from argparse import ArgumentParser
-from setuptools import setup
-from distutils.extension import Extension
-from Cython.Distutils import build_ext
 
 
 def generate_py(f):
