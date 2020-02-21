@@ -1,5 +1,5 @@
 import lexer as lex
-import parser
+from parser import parser
 import sys
 import errors as err
 
@@ -20,9 +20,10 @@ def main():
     except FileNotFoundError:
         exit_with_error(f'file {sys.argv[1]} not found')
 
-    parser.test(input_data)
+    parser.parse(input_data, lex.lexer)
     for e in err.LEXER_ERRORS:
         print(e)
+
 
 if __name__ == "__main__":
     main()
