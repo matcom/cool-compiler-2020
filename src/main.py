@@ -1,5 +1,6 @@
 import lexer as lex
 import sys
+import errors as err
 
 
 def exit_with_error(error):
@@ -19,6 +20,8 @@ def main():
         exit_with_error(f'file {sys.argv[1]} not found')
 
     lex.test(input_data)
+    for e in err.LEXER_ERRORS:
+        print(e)
 
 
 if __name__ == "__main__":

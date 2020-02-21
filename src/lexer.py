@@ -1,31 +1,20 @@
 import ply.lex as lex
+from utils import *
+from errors import add_lexer_error
 
-
-def printLexicograficError(error, token):
-    print(f'({token.lexer.lineno}, {find_column(token)}) - LexicographicError: {error}')
-
-
-# List of token names.   This is always required
-tokens = [
-    'ASSIGN',
-    'ARROW',
-    'GREATEREQ',
-    'LOWEREQ',
-    'INT',
-    'STRING',
-    'TYPE',
-    'ID'
-]
+states = (
+    ('commentLine', 'exclusive'),
+    ('commentText', 'exclusive'),
+    ('string', 'exclusive'),
+)
 
 reserved = {
     'if': 'IF',
-    'fi': 'FI',
+    'then': 'THEN',
     'else': 'ELSE',
-    'true': 'TRUE',
-    'false': 'FALSE',
+    'fi': 'FI',
     'class': 'CLASS',
     'inherits': 'INHERITS',
-    'then': 'THEN',
     'while': 'WHILE',
     'loop': 'LOOP',
     'pool': 'POOL',
@@ -39,29 +28,74 @@ reserved = {
     'not': 'LNOT'
 }
 
-literals = [';', '{', '}', '(', ')', ':', '@', '.', '>', '<', '=', '+', '-', '*', '/', '~', ',']
+tokens = [
+    'ASSIGN',
+    'ARROW',
+    'GREATEREQ',
+    'LOWEREQ',
+    'INT',
+    'STRING',
+    'TYPE',
+    'ID',
+    'SEMICOLON',
+    'OBRACKET',
+    'CBRACKET',
+    'OPAREN',
+    'CPAREN',
+    'COLON',
+    'AT',
+    'DOT',
+    'LOWER',
+    'GREATER',
+    'EQUAL',
+    'PLUS',
+    'MINUS',
+    'STAR',
+    'DIV',
+    'NOT',
+    'COMMA',
+    'BOOL'
+]
 
-tokens += list(reserved.values())
-
-# Regular expression rules for simple tokens
-t_ASSIGN = r'<-'
-t_ARROW = r'=>'
+t_SEMICOLON = r';'
+t_OBRACKET = r'{'
+t_CBRACKET = r'}'
+t_OPAREN = r'\('
+t_CPAREN = r'\)'
+t_COLON = r':'
+t_AT = r'@'
+t_DOT = r'\.'
+t_LOWER = r'<'
+t_GREATER = r'>'
+t_EQUAL = r'='
 t_GREATEREQ = r'>='
 t_LOWEREQ = r'<='
+t_ASSIGN = r'<-'
+t_ARROW = r'=>'
+t_PLUS = r'\+'
+t_MINUS = r'-'
+t_STAR = r'\*'
+t_DIV = r'/'
+t_NOT = r'~'
+t_COMMA = r','
 t_TYPE = r'[A-Z]+([a-z]|[A-Z]|[0-9]|_)*'
-
-t_ignore = ' \t'
-
-states = (
-    ('commentLine', 'exclusive'),
-    ('commentText', 'exclusive'),
-    ('string', 'exclusive'),
-)
 
 
 def t_INT(t):
-    r'[0-9]+[0-9]*'
+    r'\d+'
     t.value = int(t.value)
+    return t
+
+
+def t_ID(t):
+    r'[a-z][a-zA-Z_0-9]*'
+    t.type = reserved.get(t.value, 'ID')
+    return t
+
+
+def t_BOOL(t):
+    r'f[Aa][Ll][Ss][Ee]|t[Rr][Uu][Ee]'
+    t.value = (t.value.lower == 'true')
     return t
 
 
@@ -70,26 +104,7 @@ def t_LINECOMMENT(t):
     if t.lexpos == 0 or t.lexer.lexdata[t.lexpos - 1] == '\n':
         t.lexer.begin('commentLine')
     else:
-        t_error(t)
-
-
-t_commentLine_ignore = ' \t'
-
-
-def t_commentLine_error(t):
-    t_error(t)
-
-
-def t_commentLine_ALL(t):
-    r'.'
-    return None
-
-
-def t_commentLine_newline(t):
-    r'\n+'
-    t.lexer.begin('INITIAL')
-    t.lexer.lineno += len(t.value)
-    return None
+        add_lexer_error(t.lexer.lineno, find_column(t.lexer.lexdata, t.lexer.lexpos), f'ERROR {t.value}')
 
 
 def t_TEXTCOMMENT(t):
@@ -99,11 +114,34 @@ def t_TEXTCOMMENT(t):
     t.lexer.begin('commentText')
 
 
+def t_STRING(t):
+    r'"'
+    t.lexer.string_start = t.lexer.lexpos
+    t.lexer.begin('string')
+
+
+tokens += list(reserved.values())
+
+t_ignore = ' \t'
+
+t_commentLine_ignore = ' \t'
+
+
+def t_commentLine_error(t):
+    t.lexer.skip(1)
+
+
+def t_commentLine_newline(t):
+    r'\n+'
+    t.lexer.begin('INITIAL')
+    t.lexer.lineno += len(t.value)
+
+
 t_commentText_ignore = ' \t'
 
 
 def t_commentText_error(t):
-    t_error(t)
+    t.lexer.skip(1)
 
 
 def t_commentText_OPENTEXT(t):
@@ -118,97 +156,51 @@ def t_commentText_CLOSETEXT(t):
         t.lexer.begin('INITIAL')
 
 
-def t_commentText_ALL(t):
-    r'.'
-    return None
-
-
 def t_commentText_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
 
 def t_commentText_eof(t):
-    print(f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: EOF in comment')
-
-
-def t_STRING(t):
-    r'"'
-    t.lexer.stringValue = ""
-    t.lexer.escape = False
-    t.lexer.begin('string')
+    add_lexer_error(t.lexer.lineno, find_column(t.lexer.lexdata, t.lexer.lexpos), "EOF in comment")
 
 
 t_string_ignore = ''
 
 
-def t_string_ESCAPE(t):
-    r'\\'
-    if t.lexer.escape:
-        t.lexer.stringValue += "\\"
-    else:
-        t.lexer.escape = True
-
-
 def t_string_CLOSESTRING(t):
     r'"'
-    if t.lexer.escape:
-        t.lexer.stringValue += "\""
-    else:
-        t.value = t.lexer.stringValue
-        t.lexer.stringValue = None
-        t.type = 'STRING'
-        t.lexer.begin('INITIAL')
-        return t
-
-
-def t_string_eof(t):
-    printLexicograficError("EOF in string constant", t)
-
-
-def t_string_newline(t):
-    r'\n+'
-    if t.lexer.escape:
-        t.lexer.escape = False
-    else:
-        print(f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: Unterminated string constant')
-        t.lexer.begin('INITIAL')
-    t.lexer.lineno += len(t.value)
-
-
-def t_string_ALL(t):
-    r'.'
-    if t.lexer.escape:
-        x = {
-            "b": "\b",
-            "t": "\t",
-            "n": "\n",
-            "f": "\f"
-        }
-        if t.value in x.keys():
-            t.lexer.stringValue += x[t.value]
-        elif t.value == "0":
-            print(f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: String contains null character')
-            t.lexer.begin('INITIAL')
-        else:
-            t.lexer.stringValue += t.value
-        t.lexer.escape = False
-    else:
-        t.lexer.stringValue += t.value
-
-
-def t_string_error(t):
-    t_error(t)
-
-
-def t_ID(t):
-    r'[a-z]+([a-z]|[A-Z]|[0-9]|_)*'
-    t.type = reserved.get(t.value, 'ID')
+    t.value = t.lexer.lexdata[t.lexer.string_start:t.lexer.lexpos - 1]
+    t.type = 'STRING'
+    t.lexer.begin('INITIAL')
     return t
 
 
+def t_string_newline(t):
+    r'\\\n'
+    t.lexer.lineno += 1
+
+
+def t_string_body(t):
+    r'([^\n\"\\]|\\.)+'
+    if t.value.rfind('\0') != -1:
+        add_lexer_error(t.lineno, find_column(t.lexer.lexdata, t.lexpos), "String contains null character")
+
+
+def t_string_error(t):
+    if t.value[0] == '\n':
+        add_lexer_error(t.lineno, find_column(t.lexer.lexdata, t.lexpos), "Unterminated string constant")
+        t.lexer.lineno += 1
+        t.lexer.skip(1)
+        t.lexer.begin('INITIAL')
+
+
+def t_string_eof(t):
+    add_lexer_error(t.lineno, find_column(t.lexer.lexdata, t.lexpos), "EOF in string constant")
+
+
 def t_error(t):
-    printLexicograficError(f'ERROR \"{t.value[0]}\"', t)
+    add_lexer_error(t.lineno, find_column(t.lexer.lexdata, t.lexpos), f'ERROR \"{t.value[0]}\"')
     t.lexer.skip(1)
 
 
@@ -217,18 +209,13 @@ def t_newline(t):
     t.lexer.lineno += len(t.value)
 
 
-def find_column(token):
-    line_start = lexer.lexdata.rfind('\n', 0, token.lexpos) + 1
-    return (token.lexpos - line_start) + 1
-
-
 def test(data):
     lexer.input(data)
     while True:
         tok = lexer.token()
         if not tok:
             break
-        print(f'#{tok.lineno} {tok.type} {tok.value}')
+        # print(f'#{tok.lineno} {tok.type} {tok.value}')
 
 
 lexer = lex.lex()
