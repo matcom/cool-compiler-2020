@@ -1,29 +1,29 @@
-import argparse
 from pprint import pprint
 from lexer import CoolLexer
 from parser import CoolParser
+import os
 
-arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument('input')
-arg_parser.add_argument('output')
-args = arg_parser.parse_args()
+cwd = os.getcwd()
 
-input_ = args.input
-output_ = args.output
+# input_ = sys.argv[1]
+input_ = f'{cwd}/tests/parser/program3.cl' 
+# output_ = args.output
 
-# input_ = './tests/parser/err2.cl' 
 
 try:
     with open(input_) as f:
         data = f.read()
 
     lexer = CoolLexer()
-    # lexer.tokenize_text(data)
 
     parser = CoolParser(lexer)
     if lexer.errors:
         print(lexer.errors)
+        # raise Exception()
+
     ast = parser.parse(data)
+    # if parser.errors:
+    #     raise Exception()
     # print(ast)
 
 except FileNotFoundError:

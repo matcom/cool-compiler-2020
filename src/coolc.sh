@@ -8,5 +8,8 @@ OUTPUT_FILE=$INPUT_FILE
 echo "LINEA_CON_NOMBRE_Y_VERSION_DEL_COMPILADOR"    # TODO: Recuerde cambiar estas lineas
 echo "Copyright (c) 2019: Loraine Monteagudo, Amanda Marrero, Manuel Fernandez"
 
+FILE="../src/main.py" 
+echo $FILE
+
 echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
-python main.py $INPUT_FILE $OUTPUT_FILE
+python ${FILE} $INPUT_FILE 

@@ -252,6 +252,11 @@ class CoolParser(Parser):
         else:
             p[0] = BaseCallNode(p[1], p[3], *p[5])
 
+    def p_base_call_error(self, p):
+        '''base_call : error arroba type dot func_call
+                     | factor arroba error dot func_call
+        '''
+        p[0] = ErrorNode()
 
     def p_factor1(self, p):
         '''factor : atom
@@ -312,6 +317,11 @@ class CoolParser(Parser):
         'func_call : id opar args cpar'
         p[0] = (p[1], p[3])
 
+    def p_func_call_error(self, p):
+        '''func_call : id opar error cpar
+                     | error opar args cpar'''
+        p[0] = (ErrorNode(), ErrorNode())
+
 
     def p_args(self, p):
         '''args : arg_list
@@ -338,6 +348,7 @@ class CoolParser(Parser):
 
     # Error rule for syntax errors
     def p_error(self, p):
+        self.errors = True
         if p:
             self.print_error(p)
         else:
@@ -356,30 +367,28 @@ class CoolParser(Parser):
 
 
 if __name__ == "__main__":   
-    s = '''(* Cool programs are sets of classes *)
+    s = '''class Main inherits IO {
+    main() : Object {
+            {
+                    out_string("Enter number of numbers to multiply\n");
+                    out_int(prod(in_int()));
+                    out_string("\n");
+            }
+    };
 
-class Main {
-    main(): Object {
-        (new Alpha).print()
+    prod(i : Int) : Int {
+        let y : Int <- 1 in {
+                while (not (i = 0) ) loop {
+                        out_string("Enter Number: ");
+                        y <- y * in_int(Main : Int);    -- the parser correctly catches the error here
+                        i <- i - 1;
+                }
+                    pool;
+                y;
+        }
     };
 };
 
-class Test {
-    testing(): Int {
-        2 + 2
-    };
-};
-
--- Only classes
-suma(a: Int, b: Int) int {
-    a + b
-};
-
-class Alpha inherits IO {
-    print() : Object {
-        out_string("reached!!\n")
-    };
-};
 '''
     # Parser()
     parser = CoolParser()

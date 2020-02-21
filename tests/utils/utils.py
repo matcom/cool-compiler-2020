@@ -12,8 +12,8 @@ UNEXPECTED_ERROR = 'Se esperaba un %s en (%d, %d). Su error fue un %s en (%d, %d
 ERROR_FORMAT = r'^\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*-\s*(\w+)\s*:(.*)$'
 
 def parse_error(error: str):
-    merror = re.fullmatch(ERROR_FORMAT, error)
     print(error)
+    merror = re.fullmatch(ERROR_FORMAT, error)
     assert merror, BAD_ERROR_FORMAT
 
     return (t(x) for t, x in zip([int, int, str, str], merror.groups()))
@@ -35,13 +35,22 @@ def get_file_name(path: str):
         return path
 
 def compare_errors(compiler_path: str, cool_file_path: str, error_file_path: str, cmp=first_error, timeout=100):
+    print(compiler_path)
+    print(cool_file_path)
     try:
         sp = subprocess.run(['bash', compiler_path, cool_file_path], capture_output=True, timeout=timeout)
         return_code, output = sp.returncode, sp.stdout.decode()
     except TimeoutError:
         assert False, COMPILER_TIMEOUT
 
+
+    print(return_code)
+    if return_code != 0:
+        print(sp.stderr.decode())
+    
     compiler_output = output.split('\n')
+    print(compiler_output)
+    # print(return_code)
 
     if error_file_path:
         assert return_code == 1, TEST_MUST_FAIL % get_file_name(cool_file_path)
@@ -55,3 +64,10 @@ def compare_errors(compiler_path: str, cool_file_path: str, error_file_path: str
     else:
         print(return_code, output)
         assert return_code == 0, TEST_MUST_COMPILE % get_file_name(cool_file_path)
+
+
+if __name__ == "__main__":
+    compiler_path = '/media/loly/02485E43485E359F/_Escuela/__UH/4to Año/Complementos de Compilación/Compiler/cool-compiler-2020/src/coolc.sh'
+    cool_file_path = '/media/loly/02485E43485E359F/_Escuela/__UH/4to Año/Complementos de Compilación/Compiler/cool-compiler-2020/tests/parser/program3.cl'
+    sp = subprocess.run(['bash', compiler_path, cool_file_path], capture_output=True, timeout=1000)
+    return_code, output = sp.returncode, sp.stdout.decode()

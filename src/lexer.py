@@ -88,6 +88,7 @@ class CoolLexer:
         for tok in self.lexer:
             col = find_column(self.lexer, tok)
             tokens.append(Token(tok.type, tok.value, tok.lineno, col))
+        self.lexer.lineno = 0
         return tokens
 
 
