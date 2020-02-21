@@ -32,7 +32,6 @@ The following BNF grammar is based on the *COOL-2012* language specification (se
 <formal_param>            ::= ID : TYPE
 
 <formal>                  ::= ID : TYPE <- <expression>
-                          |   ID : TYPE
 
 <expression>              ::= ID <- <expr>
                           |   <expression>.ID( <arguments_list_opt> )
@@ -86,7 +85,7 @@ The following BNF grammar is based on the *COOL-2012* language specification (se
 <let_expression>          ::= let <formal> in <expression>
                           |   <nested_lets> , <formal>
 
- <nested_lets>            ::= <formal> IN <expression>
+<nested_lets>             ::= <formal> IN <expression>
                           |   <nested_lets> , <formal>
 
 <empty>                   ::=

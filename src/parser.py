@@ -12,20 +12,22 @@
 import ply.yacc as yacc
 import AST
 import lexer
+from lexer import Lexer
 
-class PyCoolParser(object):
-    """
-    PyCoolParser class.
+class ErrorParser():
+    def __init__(self, message, line, column):
+        self.type = 'SyntacticError'
+        self.value = message
+        self.line = line
+        self.column = column
 
-    Responsible for Syntax Analysis of COOL Programs. Implements the LALR(1) parsing algorithm.
+    def __str__(self):
+        return f'({self.line}, {self.column}) - {self.type}: ERROR at or near {self.value}'
 
-    To use the parser, create an object from it and then call the parse() method passing in COOL Program(s) code as a
-    string.
+    def __repr__(self):
+        return str(self)
 
-    PyCoolParser provides the following public APIs:
-     * build(): Builds the parser.
-     * parse(): Parses a COOL program source code passed as a string.
-    """
+class Parser():
     def __init__(self,
                  build_parser=True,
                  debug=False,
@@ -59,7 +61,7 @@ class PyCoolParser(object):
         self.tokens = None
         self.lexer = None
         self.parser = None
-        self.error_list = []
+        self.errors = []
 
         # Save Flags - PRIVATE PROPERTIES
         self._debug = debug
@@ -94,12 +96,6 @@ class PyCoolParser(object):
 
     # ################### START OF FORMAL GRAMMAR RULES DECLARATION ####################
 
-    def p_empty(self, parse):
-        """
-        empty :
-        """
-        parse[0] = tuple()
-
     def p_program(self, parse):
         """
         program : class_list
@@ -131,8 +127,10 @@ class PyCoolParser(object):
     def p_feature_list_opt(self, parse):
         """
         features_list_opt : features_list
+                          | empty
         """
-        parse[0] = parse[1]
+        # parse[0] = parse[1]
+        parse[0] = tuple() if parse.slice[1].type == "empty" else parse[1]
 
     def p_feature_list(self, parse):
         """
@@ -160,7 +158,18 @@ class PyCoolParser(object):
         """
         feature : formal
         """
-        parse[0] = AST.Formal(name=parse[1], Type=parse[3], expr=parse[5])
+        # parse[0] = AST.Formal(name=parse[1], Type=parse[3], expr=parse[5])
+        parse[0] = parse[1]
+    
+    def p_formal(self, parse):
+        """
+        formal : ID COLON TYPE ASSIGN expression 
+               | formal_param
+        """ 
+        if len(parse) == 2:
+            parse[0] = parse[1]
+        else:
+            parse[0] = AST.Formal(name=parse[1], Type=parse[3], expr=parse[5])
 
     def p_feature_attr(self, parse):
         """
@@ -177,15 +186,6 @@ class PyCoolParser(object):
             parse[0] = (parse[1],)
         else:
             parse[0] = parse[1] + (parse[3],)
-
-    def p_formal(self, parse):
-        """
-        formal : ID COLON TYPE ASSIGN expression | formal_param
-        """ 
-        if len(parse) == 2:
-            parse[0] = parse[1]
-        else:
-            parse[0] = AST.Formal(name=parse[1], Type=parse[3], expr=parse[5])
 
     def p_formal_param(self, parse):
         """
@@ -207,7 +207,8 @@ class PyCoolParser(object):
 
     def p_expression_boolean_constant(self, parse):
         """
-        expression : TRUE | FALSE
+        expression : TRUE 
+                   | FALSE
         """
         parse[0] = AST.Boolean(value=parse[1])
 
@@ -256,8 +257,10 @@ class PyCoolParser(object):
     def p_arguments_list_opt(self, parse):
         """
         arguments_list_opt : arguments_list
+                           | empty
         """
-        parse[0] = parse[1]
+        # parse[0] = parse[1]
+        parse[0] = tuple() if parse.slice[1].type == "empty" else parse[1]
 
     def p_arguments_list(self, parse):
         """
@@ -349,10 +352,10 @@ class PyCoolParser(object):
     def p_inner_formals_initialized(self, parse):
         """
         nested_formals  : formal
-                          | nested_formals COMMA formal
+                        | nested_formals COMMA formal
         """
         if len(parse) == 2:
-            parse[0] = parse[1]
+            parse[0] = (parse[1],)
         else:
             parse[0] = parse[1] + (parse[3],)
 
@@ -372,13 +375,14 @@ class PyCoolParser(object):
         if len(parse) == 2:
             parse[0] = (parse[1],)
         else:
-            parse[0] = parse[1] + (parse[2],)
+            parse[0] = tuple(parse[1]) + (parse[2],)
 
     def p_action_expr(self, parse):
         """
         action : ID COLON TYPE ARROW expression SEMICOLON
         """
         parse[0] = AST.Action(name=parse[1], action_type=parse[3], body=parse[5])
+        # parse[0] = (parse[1], parse[3], parse[5])
 
     # ######################### UNARY OPERATIONS #######################################
 
@@ -405,6 +409,12 @@ class PyCoolParser(object):
         expression : NOT expression
         """
         parse[0] = AST.Not(parse[2])
+    
+    def p_empty(self, parse):
+        """
+        empty :
+        """
+        parse[0] = None
 
     # ######################### PARSE ERROR HANDLER ####################################
 
@@ -412,13 +422,32 @@ class PyCoolParser(object):
         """
         Error rule for Syntax Errors handling and reporting.
         """
-        if parse is None:
-            print("Error! Unexpected end of input!")
-        else:
-            error = "Syntax error! Line: {}, position: {}, character: {}, type: {}".format(
-                parse.lineno, parse.lexpos, parse.value, parse.type)
-            self.error_list.append(error)
-            self.parser.errok()
+        if not parse:
+            error = ErrorParser('"EOF"', 0, 0)
+            self.errors.append(error)
+            return
+
+        message = f'"{parse.value}"'
+        # column = find_column(token.lexer.lexdata,token)
+        # column = parse.lexpos
+        error = ErrorParser(message, parse.lineno, lexer.find_column(parse.lexer.lexdata, parse))
+        self.errors.append(error)
+        self.parser.errok()
+
+        # token.lexer.skip(1)
+        # return error
+
+    # def p_error(self, parse):
+    #     """
+    #     Error rule for Syntax Errors handling and reporting.
+    #     """
+    #     if parse is None:
+    #         print("Error! Unexpected end of input!")
+    #     else:
+    #         error = "Syntax error! Line: {}, position: {}, character: {}, type: {}".format(
+    #             parse.lineno, parse.lexpos, parse.value, parse.type)
+    #         self.error_list.append(error)
+    #         self.parser.errok()
 
     # ################### END OF FORMAL GRAMMAR RULES SPECIFICATION ####################
 
@@ -450,17 +479,27 @@ class PyCoolParser(object):
             debuglog = kwargs.get("debuglog", self._debuglog)
             errorlog = kwargs.get("errorlog", self._errorlog)
 
-        # Build PyCoolLexer
-        self.lexer = make_lexer(debug=debug, optimize=optimize, outputdir=outputdir, debuglog=debuglog,
+        self.lexer = Lexer(debug=debug, optimize=optimize, outputdir=outputdir, debuglog=debuglog,
                                 errorlog=errorlog)
 
         # Expose tokens collections to this instance scope
         self.tokens = self.lexer.tokens
 
+        # EYE
+        # Changing output to parsing_log.txt to do not have the WARNING: tokens related messages on sdout
+        # import sys
+        # stdout = sys.stdout
+        # sys.stdout = open('.parsing_log', 'w') 
+
         # Build yacc parser
         self.parser = yacc.yacc(module=self, write_tables=write_tables, debug=debug, optimize=optimize,
-                                outputdir=outputdir, tabmodule=yacctab, debuglog=debuglog, errorlog=errorlog)
+                                # outputdir=outputdir, tabmodule=yacctab, debuglog=debuglog, errorlog=errorlog)
+                                outputdir=outputdir, tabmodule=yacctab, debuglog=debuglog, errorlog=yacc.NullLogger())
 
+        # Setting output to stdout again
+        # sys.stdout.close()
+        # sys.stdout = stdout
+        
     def parse(self, program_source_code: str) -> AST.Program:
         """
         Parses a COOL program source code passed as a string.
@@ -480,36 +519,34 @@ class PyCoolParser(object):
 #
 # -----------------------------------------------------------------------------
 
-
-def make_parser(**kwargs) -> PyCoolParser:
-    """
-    Utility function.
-    :return: PyCoolParser object.
-    """
-    a_parser = PyCoolParser(**kwargs)
-    a_parser.build()
-    return a_parser
-
-
 if __name__ == '__main__':
     import sys
 
-    parser = make_parser()
+    parser = Parser()
 
-    if len(sys.argv) > 1:
-        if not str(sys.argv[1]).endswith(".cl"):
-            print("Cool program source code files must end with .cl extension.")
-            print("Usage: ./parser.py program.cl")
-            exit()
+    if True or len(sys.argv) > 1:
+        # if not str(sys.argv[1]).endswith(".cl"):
+        #     print("Cool program source code files must end with .cl extension.")
+        #     print("Usage: ./parser.py program.cl")
+        #     exit()
 
         input_file = sys.argv[1]
         with open(input_file, encoding="utf-8") as file:
             cool_program_code = file.read()
 
         parse_result = parser.parse(cool_program_code)
-        print(parse_result)
+
+        # for error in parser.errors:
+        #     print(error)
+    
+        if parser.errors:
+            print(parser.errors[0])
+            exit(1)
+
+        # print('PRINTING parse_result')
+        # print(parse_result)
     else:
-        print("PyCOOLC Parser: Interactive Mode.\r\n")
+        print("cool-compiler-2020 Parser: Interactive Mode.\r\n")
         while True:
             try:
                 s = input('COOL >>> ')
@@ -518,6 +555,6 @@ if __name__ == '__main__':
             if not s:
                 continue
             result = parser.parse(s)
+            print('\nPRINTING result\n')
             if result is not None:
                 print(result)
-
