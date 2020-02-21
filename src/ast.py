@@ -3,7 +3,7 @@ class ProgramNode:
         self.def_class_nodes=def_class_nodes
     
 class DefClassNode:
-    def __init__(self, type, feature_nodes, parent_type): #poner null#
+    def __init__(self, type, feature_nodes, parent_type=None): #poner null#
         self.type=type
         self.parent_type=parent_type
         self.feature_nodes=feature_nodes
