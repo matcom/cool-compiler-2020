@@ -525,8 +525,8 @@ if __name__ == '__main__':
         #     print("Usage: ./parser.py program.cl")
         #     exit()
 
-        # input_file = sys.argv[1]
-        input_file = 'assignment1.cl'
+        input_file = sys.argv[1]
+        # input_file = 'assignment1.cl'
         with open(input_file, encoding="utf-8") as file:
             cool_program_code = file.read()
 
