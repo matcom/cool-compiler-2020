@@ -1,16 +1,5 @@
-#!/usr/bin/env python3
-
-# -----------------------------------------------------------------------------
-# parser.py
-#
-# Author:       Ahmad Alhour (aalhour.com).
-# Date:         July 13th, 2016.
-# Description:  The Parser module. Implements syntax analysis and parsing rules
-#               of the COOL CFG.
-# -----------------------------------------------------------------------------
-
 import ply.yacc as yacc
-import AST
+import ast_nodes as AST
 import lexer
 from lexer import Lexer
 
@@ -524,7 +513,7 @@ if __name__ == '__main__':
 
     parser = Parser()
 
-    if True or len(sys.argv) > 1:
+    if len(sys.argv) > 1:
         # if not str(sys.argv[1]).endswith(".cl"):
         #     print("Cool program source code files must end with .cl extension.")
         #     print("Usage: ./parser.py program.cl")
