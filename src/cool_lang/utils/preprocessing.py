@@ -74,7 +74,7 @@ def process(file_path):
                                 column = 0
                             comment.append(char)
                     if balance != 0:
-                        errors.append(LexicographicError(sline, scolumn))
+                        errors.append(LexicographicError(line, column - 1, 'EOF in comment'))
                     comments.append(AttributeDict({
                         'line': sline,
                         'column': scolumn,
