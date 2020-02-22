@@ -9,12 +9,12 @@ class Error:
 
 class LocalizedError(Error):
     def __init__(self, error_name, row, column, description):
-        Error.__init__(self, 'SyntacticError', description)
+        Error.__init__(self, error_name, description)
         self.row = row
         self.column = column
 
     def __str__(self):
-        return f'({self.row},{self.column}) - {self.error_name}: {self.description}'
+        return f'({self.row}, {self.column}) - {self.error_name}: {self.description}'
 
 
 class LexicographicError(LocalizedError):

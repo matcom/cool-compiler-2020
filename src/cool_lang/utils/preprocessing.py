@@ -72,9 +72,10 @@ def process(file_path):
                             if char == '\n':
                                 line += 1
                                 column = 0
+                                data.append('\n')
                             comment.append(char)
                     if balance != 0:
-                        errors.append(LexicographicError(line, column - 1, 'EOF in comment'))
+                        errors.append(LexicographicError(line, column, 'EOF in comment'))
                     comments.append(AttributeDict({
                         'line': sline,
                         'column': scolumn,
