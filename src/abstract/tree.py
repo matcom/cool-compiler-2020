@@ -217,6 +217,11 @@ class NotNode(AtomicNode):
         super().__init__(lex)
 
 
+class NegNode(AtomicNode):
+    def __init__(self, lex):
+        super().__init__(lex)
+
+
 class InstantiateClassNode(ExpressionNode):
     def __init__(self, type_, args=None):
         self.type_ = type_

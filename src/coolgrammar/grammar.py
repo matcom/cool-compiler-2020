@@ -8,6 +8,7 @@ from abstract.tree import VariableCall, FalseConstant, StringConstant, GreaterTh
 from abstract.tree import GreaterEqualNode, LowerThanNode, LowerEqual, AssignNode, IfThenElseNode
 from abstract.tree import NotNode, WhileBlockNode, EqualToNode, InstantiateClassNode
 from abstract.tree import ActionNode, CaseNode, ParentFuncCall, BlockNode, IsVoidNode
+from abstract.tree import NegNode
 from lexer.tokenizer import Lexer
 
 
@@ -48,72 +49,52 @@ def build_cool_grammar():
     if_, then, else_, assign, new, case, of, esac = G.Terminals(
         'if then else assign new case of esac')
 
-    gt, lt, ge, le, eq, not_, implies, isvoid = G.Terminals(
-        '> < >= <= = ~ => isvoid')
+    gt, lt, ge, le, eq, not_, implies, isvoid, not_operator = G.Terminals(
+        '> < >= <= = ~ => isvoid not')
 
     while_, do, inherits, arroba, fi, pool, loop = G.Terminals(
         'while do inherits @ fi pool loop')
 
-    # Definir un programa como un conjunto de clases.
     program %= class_list, lambda s: ProgramNode(s[1])
 
-    # Definir un conjunto de clases como una clase o una clase mas una lista de clases.
     class_list %= class_def + dot_comma, lambda s: [s[1]]
     class_list %= class_def + dot_comma + class_list, lambda s: [s[1]] + s[2]
 
-    # Definir la estructura de la declaracion de una clase.
-    # Una clase no es mas que un conjunto de features.
     class_def %= class_keyword + classid + obrack + feature_list + cbrack, lambda s: ClassDef(
         s[2], s[4])
 
-    # Definir la estructura de la declaracion de una clase con herencia.
     class_def %= class_keyword + classid + inherits + typex + obrack + feature_list + \
         cbrack, lambda s: ClassDef(s[2], s[6], s[4])
 
-    # Definir un conjunto de features como un metodo unico.
     feature_list %= meod_def + dot_comma, lambda s: [s[1]]
 
-    # Definir un conjunto de features como un unico atributo.
     feature_list %= attr_def + dot_comma, lambda s: [s[1]]
 
-    # Definir una lista de features como la declaracion de un metodo
-    # mas una lista de features.
     feature_list %= meod_def + dot_comma + \
         feature_list, lambda s: [s[1]] + s[3]
 
-    # Definir una lista de features como la declaracion de un atributo
-    # mas una lista de features.
     feature_list %= attr_def + dot_comma + \
         feature_list, lambda s: [s[1]] + s[3]
 
-    # Definir la estructura de la declaracion de un metodo.
     meod_def %= idx + opar + param_list_empty + cpar + dd + typex + obrack +\
         statement_list + cbrack , lambda s: MethodDef(s[1], s[3], s[6], s[8])
 
-    # Definir la estructura de la declaracion de un atributo.
     attr_def %= idx + dd + typex, lambda s: AttributeDef(s[1], s[3])
 
-    # Definir la estructura de la declaracion de un atributo con valor por defecto.
     attr_def %= idx + dd + typex + assign + \
         exp, lambda s: AttributeDef(s[1], s[3], s[5])
 
-    # Definir la lista de parametros como una lista de parametros o una lista vacia
     param_list_empty %= param_list, lambda s: s[1]
     param_list_empty %= G.Epsilon, lambda s: []
 
-    # Definir una lista de parametros como un parametro separado por coma con una lista
-    # de parametros o simplemente un parametro
     param_list %= param, lambda s: [s[1]]
     param_list %= param + coma + param_list, lambda s: [s[1]] + s[3]
 
-    # Definir un la estructura de un parametro como un identificador : Tipo
     param %= idx + dd + typex, lambda s: Param(s[1], s[3])
 
-    # Definir una lista de sentencias como una expresion terminada en punto y coma o
-    # una expresion y una lista de sentencias separadas por punto y coma.
-    statement_list %= exp, lambda s: [s[1]]
+    statement_list %= exp, lambda s: s[1]
 
-    statement_list %= exp + dot_comma + statement_list, lambda s: [s[1]] + s[3]
+    # statement_list %= exp + dot_comma + statement_list, lambda s: [s[1]] + s[3]
 
     var_dec %= let + nested_lets + in_keyword + \
         exp, lambda s: VariableDeclaration(s[2], s[4])
@@ -129,43 +110,26 @@ def build_cool_grammar():
     nested_lets %= idx + dd + typex + assign + exp + coma + \
         nested_lets, lambda s: [(s[1], s[3], s[5])] + s[7]
 
-    # Una expresion puede ser una declaracion de una variable
     exp %= var_dec, lambda s: s[1]
-
-    factor %= true, lambda s: TrueConstant()
 
     string_const %= quoted_string_const, lambda s: StringConstant(s[1])
 
     string_const %= tilde_string_const, lambda s: StringConstant(s[1])
 
-    factor %= false, lambda s: FalseConstant()
-
-    # Una expresion puede ser una sentencia de comparacion
-    exp %= atom, lambda s: s[1]
-
-    # Una expresion puede ser un bloque IfThenElse
-    exp %= if_ + exp + then + exp + else_ + exp + \
-        fi, lambda s: IfThenElseNode(s[2], s[4], s[6])
-
-    # Una expresion puede ser una asignacion
-    exp %= idx + assign + exp, lambda s: AssignNode(s[1], s[3])
-
-    # Una expresion puede ser una instanciacion de una clase
-    #exp %= instantiation, lambda s: s[1]
-    factor %= instantiation, lambda s: s[1]
-
-    instantiation %= new + classid + opar + args_list_empty + \
-        cpar, lambda s: InstantiateClassNode(s[2], s[4])
-
-    instantiation %= new + classid, lambda s: InstantiateClassNode(s[2], [])
+    instantiation %= new + typex, lambda s: InstantiateClassNode(s[2], [])
 
     loop_statements %= exp + dot_comma, lambda s: [s[1]]
     loop_statements %= exp + dot_comma + loop_statements, lambda s: [s[1]] + s[
         3]
 
-    # Una expresion puede ser un bloque while
-    exp %= while_ + exp + loop + obrack + loop_statements + cbrack + \
+    exp %= idx + assign + exp, lambda s: AssignNode(s[1], s[3])
+
+    exp %= while_ + exp + loop + statement_list + \
         pool, lambda s: WhileBlockNode(s[2], s[5])
+
+    exp %= atom, lambda s: s[1]
+
+    exp %= opar + atom + cpar, lambda s: s[2]
 
     exp %= arith, lambda s: s[1]
 
@@ -189,11 +153,20 @@ def build_cool_grammar():
 
     term %= factor, lambda s: s[1]
 
+    term %= not_ + factor, lambda s: NotNode(s[2])
+
+    term %= not_operator + factor, lambda s: NegNode(s[2])
+
+    factor %= if_ + exp + then + exp + else_ + exp + fi, lambda s: IfThenElseNode(
+        s[2], s[4], s[6])
+
     factor %= opar + arith + cpar, lambda s: s[2]
 
     factor %= num, lambda s: IntegerConstant(s[1])
 
     factor %= idx, lambda s: VariableCall(s[1])
+
+    factor %= true, lambda s: TrueConstant()
 
     factor %= factor + period + idx + opar + args_list_empty + cpar, lambda s: FunCall(
         s[1], s[3], s[5])
@@ -206,17 +179,17 @@ def build_cool_grammar():
     factor %= factor + arroba + typex + period + idx + opar + args_list_empty + cpar, lambda s: \
         ParentFuncCall(s[1], s[3], s[5], s[7])
 
-    atom %= factor + gt + factor, lambda s: GreaterThanNode(s[1], s[3])
+    factor %= false, lambda s: FalseConstant()
 
-    atom %= factor + lt + factor, lambda s: LowerThanNode(s[1], s[3])
+    factor %= instantiation, lambda s: s[1]
 
-    atom %= factor + eq + factor, lambda s: EqualToNode(s[1], s[3])
+    atom %= arith + lt + arith, lambda s: LowerThanNode(s[1], s[3])
 
-    atom %= factor + ge + factor, lambda s: GreaterEqualNode(s[1], s[3])
+    atom %= arith + eq + arith, lambda s: EqualToNode(s[1], s[3])
 
-    atom %= factor + le + factor, lambda s: LowerEqual(s[1], s[3])
+    atom %= arith + ge + arith, lambda s: GreaterEqualNode(s[1], s[3])
 
-    atom %= not_ + factor, lambda s: NotNode(s[2])
+    atom %= arith + le + arith, lambda s: LowerEqual(s[1], s[3])
 
     typex %= intx, lambda s: 'int'
 
@@ -254,7 +227,7 @@ def build_cool_grammar():
         r"|(\k)|(\l)|(\m)|(\n)|(\o)|(\p)|(\q)|(\r)|(\s)|(\t)|(\u)|(\v)|(\x)|(\y)|(\z)" +\
         r'|(!\")' + r"|(!\')"
 
-    operators = r"!+|!*|!-|!/|!(|!)|!=|!.|!>|!<|!||!?|!#|!,"
+    operators = r"!+|!*|!-|!/|!(|!)|!=|!.|!>|!<|!:|!?|!#|!,"
     quoted_string = r'"(1|2|3|4|5|6|7|8|9|0|A|a|B|b|C|c|D|d|E|e|F|f|G|g|H|h|I|i|J|j|K|k|L|l|M|m|N' + r'|n|O|o|P|p|Q|q|R|r|S|s|T|t|u|U|V|v|W|w|X|x|Y|y|Z|z|! |' + scaped_chars + "|" + operators + ')*"'
 
     tilde_string = r"'(1|2|3|4|5|6|7|8|9|0|A|a|B|b|C|c|D|d|E|e|F|f|G|g|H|h|I|i|J|j|K|k|L|l|M|m|N' + r'|n|O|o|P|p|Q|q|R|r|S|s|T|t|u|U|V|v|W|w|X|x|Y|y|Z|z|! |" + scaped_chars + ")*'"
@@ -286,6 +259,7 @@ def build_cool_grammar():
         (dot_comma, ';'),
         (arroba, '@'),
         (assign, r'<!-'),
+        (not_operator, r'(N|n)(o|O)(T|t)'),
         (lt, r'!<'),
         (gt, r'!>'),
         (ge, '>='),
