@@ -9,7 +9,7 @@ def process(file_path):
     line = 1
     column = 0
     count = 0
-    with open(file_path) as file:
+    with open(file_path, encoding="utf8") as file:
         while True:
             char = file.read(1)
             count += 1
