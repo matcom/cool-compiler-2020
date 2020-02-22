@@ -1,5 +1,6 @@
 import ply.yacc as yacc
-from src.lexer import Cool_Lexer
+from lexer import Cool_Lexer
+import sys
 
 
 class Parser:
@@ -140,11 +141,23 @@ class Parser:
         """
 
     def build(self):
-        lexer = Cool_Lexer()
-        lexer.build()
+        self.lexer = Cool_Lexer()
+        self.lexer.build()
 
-        self.tokens = lexer.tokens
+        self.tokens = self.lexer.tokens
         self.parser = yacc.yacc(module=self)
+
+    def find_column(self, t):
+        line_start = t.lexer.lexdata.rfind('\n', 0, t.lexpos) + 1
+        return t.lexpos - line_start + 1
+
+    def p_error(self, p):
+        line_number = p.lineno
+        column = self.find_column(p)
+
+        # (<línea>,<columna>) - <tipo_de_error>: <texto_del_error>
+        print(f"({line_number}, {column}) - SyntacticError: ERROR at or near \"{p.value}\"")
+        exit(-1)
 
     precedence = (
         ("right", "ASSIGN"),
@@ -159,5 +172,14 @@ class Parser:
     )
 
 
-a = Parser()
-a.build()
+if __name__ == "__main__":
+    parser_obj = Parser()
+    parser_obj.build()
+
+    with open(sys.argv[1]) as f:
+        inp = ""
+
+        for line in f:
+            inp += line
+
+        parser_obj.parser.parse(inp)
