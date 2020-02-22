@@ -81,5 +81,5 @@ with open("grammar-BNF.txt", "r") as grammar_file:
         production += spl_line
 
 
-with open("output_file.py", "w") as f:
+with open("output_file.py.old", "w") as f:
     print(output, file=f)

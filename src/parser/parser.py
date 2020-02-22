@@ -146,6 +146,18 @@ class Parser:
         self.tokens = lexer.tokens
         self.parser = yacc.yacc(module=self)
 
+    precedence = (
+        ("right", "ASSIGN"),
+        ("left", "NOT"),
+        ("nonassoc", "LESS", "LESS_EQ", "EQ"),
+        ("left", "PLUS", "MINUS"),
+        ("left", "MUL", "DIV"),
+        ("left", "ISVOID"),
+        ("left", "INT_COMP"),
+        ("left", "CAST"),
+        ("left", "DOT")
+    )
+
 
 a = Parser()
 a.build()
