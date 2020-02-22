@@ -6,13 +6,7 @@ import cool_lang.utils as clutils
 INPUT_FILE = argv[1]
 OUTPUT_FILE = argv[2]
 
-result = clutils.preprocessing.process(INPUT_FILE)
-code, comments, errors = result.data, result.comments, result.errors
-
-if errors: # Exiting if errors in the comments
-    for error in errors:
-        print(error)
-    exit(1)
+code = open(INPUT_FILE, encoding="utf8").read()
 
 clexer = COOL_LEXER()
 if not clexer.tokenize(code):
