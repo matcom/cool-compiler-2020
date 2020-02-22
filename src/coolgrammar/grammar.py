@@ -25,8 +25,8 @@ def build_cool_grammar():
     var_dec, args_list, instantiation = G.NonTerminals(
         '<var_dec> <args_list> <instantiation>')
 
-    exp, typex, term, factor, nested_lets = G.NonTerminals(
-        '<exp> <type> <term> <factor> <nested_lets>')
+    exp, typex, term, factor, nested_lets, loop_statements = G.NonTerminals(
+        '<exp> <type> <term> <factor> <nested_lets> <loop_statements>')
 
     arith, atom, actions, action, block = G.NonTerminals(
         '<arith> <atom> <actions> <action> <block>')
@@ -39,8 +39,8 @@ def build_cool_grammar():
     coma, period, dot_comma, opar, cpar, obrack, cbrack, plus, minus, star, div, dd = G.Terminals(
         ', . ; ( ) { } + - * / :')
 
-    idx, let, intx, string, num, equal, true, false, boolean, objectx, classid =\
-        G.Terminals('id let int string num = true false bool object classid')
+    idx, let, intx, string, num, true, false, boolean, objectx, classid =\
+        G.Terminals('id let int string num true false bool object classid')
 
     tilde_string_const, quoted_string_const, void, auto = G.Terminals(
         'tilde_string_const quoted_string_const void AUTO_TYPE')
@@ -49,7 +49,7 @@ def build_cool_grammar():
         'if then else assign new case of esac')
 
     gt, lt, ge, le, eq, not_, implies, isvoid = G.Terminals(
-        '> < >= <= == ~ => isvoid')
+        '> < >= <= = ~ => isvoid')
 
     while_, do, inherits, arroba, fi, pool, loop = G.Terminals(
         'while do inherits @ fi pool loop')
@@ -68,7 +68,7 @@ def build_cool_grammar():
 
     # Definir la estructura de la declaracion de una clase con herencia.
     class_def %= class_keyword + classid + inherits + typex + obrack + feature_list + \
-        cbrack + dot_comma, lambda s: ClassDef(s[2], s[6], s[4])
+        cbrack, lambda s: ClassDef(s[2], s[6], s[4])
 
     # Definir un conjunto de features como un metodo unico.
     feature_list %= meod_def + dot_comma, lambda s: [s[1]]
@@ -132,16 +132,13 @@ def build_cool_grammar():
     # Una expresion puede ser una declaracion de una variable
     exp %= var_dec, lambda s: s[1]
 
-    # Una expresion puede ser una constante (True, False, un string, un entero, etc)
-    exp %= true, lambda s: TrueConstant()
-
-    exp %= string_const, lambda s: s[1]
+    factor %= true, lambda s: TrueConstant()
 
     string_const %= quoted_string_const, lambda s: StringConstant(s[1])
 
     string_const %= tilde_string_const, lambda s: StringConstant(s[1])
 
-    exp %= false, lambda s: FalseConstant()
+    factor %= false, lambda s: FalseConstant()
 
     # Una expresion puede ser una sentencia de comparacion
     exp %= atom, lambda s: s[1]
@@ -162,9 +159,13 @@ def build_cool_grammar():
 
     instantiation %= new + classid, lambda s: InstantiateClassNode(s[2], [])
 
+    loop_statements %= exp + dot_comma, lambda s: [s[1]]
+    loop_statements %= exp + dot_comma + loop_statements, lambda s: [s[1]] + s[
+        3]
+
     # Una expresion puede ser un bloque while
-    exp %= while_ + exp + loop + statement_list + \
-        pool, lambda s: WhileBlockNode(s[3], s[7])
+    exp %= while_ + exp + loop + obrack + loop_statements + cbrack + \
+        pool, lambda s: WhileBlockNode(s[2], s[5])
 
     exp %= arith, lambda s: s[1]
 
@@ -174,7 +175,7 @@ def build_cool_grammar():
 
     exp %= isvoid + exp, lambda s: IsVoidNode(s[2])
 
-    block %= obrack + statement_list + cbrack, lambda s: BlockNode(s[2])
+    block %= obrack + loop_statements + cbrack, lambda s: BlockNode(s[2])
 
     arith %= arith + plus + term, lambda s: PlusNode(s[1], s[3])
 
@@ -196,6 +197,8 @@ def build_cool_grammar():
 
     factor %= factor + period + idx + opar + args_list_empty + cpar, lambda s: FunCall(
         s[1], s[3], s[5])
+
+    factor %= string_const, lambda s: s[1]
 
     factor %= idx + opar + args_list_empty + \
         cpar, lambda s: FunCall('self', s[1], s[3])
@@ -251,32 +254,32 @@ def build_cool_grammar():
         r"|(\k)|(\l)|(\m)|(\n)|(\o)|(\p)|(\q)|(\r)|(\s)|(\t)|(\u)|(\v)|(\x)|(\y)|(\z)" +\
         r'|(!\")' + r"|(!\')"
 
-    operators = r"!+|!*|!-|!/|!(|!)|!=|!:|!>|!<|!||!?|!#|!,"
+    operators = r"!+|!*|!-|!/|!(|!)|!=|!.|!>|!<|!||!?|!#|!,"
     quoted_string = r'"(1|2|3|4|5|6|7|8|9|0|A|a|B|b|C|c|D|d|E|e|F|f|G|g|H|h|I|i|J|j|K|k|L|l|M|m|N' + r'|n|O|o|P|p|Q|q|R|r|S|s|T|t|u|U|V|v|W|w|X|x|Y|y|Z|z|! |' + scaped_chars + "|" + operators + ')*"'
 
     tilde_string = r"'(1|2|3|4|5|6|7|8|9|0|A|a|B|b|C|c|D|d|E|e|F|f|G|g|H|h|I|i|J|j|K|k|L|l|M|m|N' + r'|n|O|o|P|p|Q|q|R|r|S|s|T|t|u|U|V|v|W|w|X|x|Y|y|Z|z|! |" + scaped_chars + ")*'"
 
     table = [
-        (class_keyword, 'class'),
-        (def_keyword, 'def'),
-        (in_keyword, 'in'),
-        (intx, 'int'),
-        (boolean, 'bool'),
-        (objectx, 'object'),
-        (string, 'string'),
+        (class_keyword, '(c|C)(l|L)(a|A)(s|S)(s|S)'),
+        (def_keyword, '(d|D)(e|E)(f|F)'),
+        (in_keyword, '(i|I)(n|N)'),
+        (intx, 'Int'),
+        (boolean, 'Bool'),
+        (objectx, 'Object'),
+        (string, 'String'),
         (true, ' true'),
         (false, 'false'),
         (auto, 'AUTO_TYPE'),
-        (if_, 'if'),
-        (then, 'then'),
-        (else_, 'else'),
-        (new, 'new'),
-        (while_, 'while'),
-        (do, 'do'),
-        (esac, 'esac'),
-        (case, 'case'),
-        (of, 'of'),
-        (inherits, 'inherits'),
+        (if_, '(i|I)(f|F)'),
+        (then, '(t|T)(h|H)(e|E)(n|N)'),
+        (else_, '(e|E)(l|L)(s|S)(e|E)'),
+        (new, '(n|N)(e|E)(w|W)'),
+        (while_, '(w|W)(h|H)(i|I)(l|L)(e|E)'),
+        (do, '(d|D)(o|O)'),
+        (esac, '(e|E)(s|S)(a|A)(c|C)'),
+        (case, '(c|C)(a|A)(s|S)(e|E)'),
+        (of, '(o|O)(f|F)'),
+        (inherits, '(i|I)(n|N)(h|H)(e|E)(r|R)(i|I)(t|T)(s|S)'),
         (coma, ','),
         (period, '.'),
         (dd, ':'),
@@ -287,9 +290,8 @@ def build_cool_grammar():
         (gt, r'!>'),
         (ge, '>='),
         (le, '<='),
-        (eq, '=='),
+        (eq, '='),
         (not_, r'!~'),
-        (equal, '='),
         (opar, r'!('),
         (cpar, r'!)'),
         (obrack, r'!{'),
@@ -299,11 +301,11 @@ def build_cool_grammar():
         (implies, r'=>'),
         (div, '/'),
         (star, r'!*'),
-        (let, 'let'),
-        (fi, 'fi'),
-        (pool, 'pool'),
-        (loop, 'loop'),
-        (isvoid, 'isvoid'),
+        (let, '(l|L)(e|E)(t|T)'),
+        (fi, '(f|F)(i|I)'),
+        (pool, '(p|P)(o|O)(o|O)(l|L)'),
+        (loop, '(l|L)(o|O)(o|O)(p|P)'),
+        (isvoid, '(i|I)(s|S)(v|V)(o|O)(i|I)(d|D)'),
         (idx, '(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|' +
          'q|r|s|t|u|v|w|x|y|z)(A|a|B|b|C|c|D|d|E|e|F|f|G|g|H|h|I|i|J|j|K|k|L|l|M|m|N|n|O|o|P|p|'
          + 'Q|q|R|r|S|s|T|t|u|U|V|v|W|w|X|x|Y|y|Z|z|_|1|2|3|4|5|6|7|8|9|0)*'),
