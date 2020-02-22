@@ -3,75 +3,76 @@
 # Non Terminals are all lower case
 # epsilon is empty production
 
-    program ::= class ; program
-    |   class ;
+program ::= class ; program
+|   class ;
 
-    class ::= CLASS TYPE inherits { class_feature }
+class ::= CLASS TYPE inherits { class_feature }
 
-    inherits ::= INHERITS TYPE
-	|   epsilon
-	
-    class_feature ::= feature ; class_feature
-	|   epsilon
+inherits ::= INHERITS TYPE
+|   epsilon
 
-	feature ::= ID ( formal_params ) : TYPE { expr }
-	|	simple_attribute
+class_feature ::= feature ; class_feature
+|   epsilon
 
-	formal_params ::= formal_list
-	|   epsilon
-	
-	formal_list ::= ID : TYPE formal_list_helper
+feature ::= ID ( formal_params ) : TYPE { expr }
+|	simple_attribute
 
-	formal_list_helper ::= , ID : TYPE formal_list_helper
-	|	epsilon
-	
-	expr_list_semicolon ::= expr ; expr_list_semicolon
-	| expr ;
-	
-	expr_params ::= expr_list_comma
-	|	epsilon
+formal_params ::= formal_list
+|   epsilon
 
-	expr_list_comma ::= expr expr_list_comma_helper
+formal_list ::= ID : TYPE formal_list_helper
 
-	expr_list_comma_helper ::= , expr expr_list_comma_helper
-	|	epsilon
+formal_list_helper ::= , ID : TYPE formal_list_helper
+|	epsilon
 
-	cast ::= @TYPE
-	|	epsilon
+expr_list_semicolon ::= expr ; expr_list_semicolon
+| expr ;
 
-	simple_attribute ::= ID : TYPE assignation
+expr_params ::= expr_list_comma
+|	epsilon
 
-	compound_attribute ::= simple_attribute compound_attribute_helper
+expr_list_comma ::= expr expr_list_comma_helper
 
-	compound_attribute_helper ::= , simple_attribute compound_attribute_helper
-	|	epsilon
-	
-	assignation ::= <- expr
-	|	epsilon
+expr_list_comma_helper ::= , expr expr_list_comma_helper
+|	epsilon
 
-	case_list ::= ID : TYPE => expr ; case_list
+cast ::= @TYPE
+|	epsilon
 
-	expr ::= ID <- expr
-	| 	expr cast . ID ( expr_params )
-	| 	ID ( expr_params )
-	| 	IF expr THEN expr ELSE expr FI
-	| 	WHILE expr LOOP expr POOL
-	| 	{ expr_list_semicolon }
-	| 	LET compound_attribute IN expr
-	| 	CASE expr OF case_list ESAC
-	| 	NEW TYPE
-	| 	ISVOID expr
-	| 	expr + expr
-	| 	expr − expr
-	|	expr ∗ expr
-	| 	expr / expr
-	| 	~ expr
-	| 	expr < expr
-	| 	expr <= expr
-	| 	expr = expr
-	| 	NOT expr
-	| 	( expr )
-	| 	ID
-	| 	INT
-	| 	STRING
-	| 	BOOL
+simple_attribute ::= ID : TYPE assignation
+
+compound_attribute ::= simple_attribute compound_attribute_helper
+
+compound_attribute_helper ::= , simple_attribute compound_attribute_helper
+|	epsilon
+
+assignation ::= <- expr
+|	epsilon
+
+case_list ::= ID : TYPE => expr ; case_list
+
+expr ::= ID <- expr
+| 	expr cast . ID ( expr_params )
+| 	ID ( expr_params )
+| 	IF expr THEN expr ELSE expr FI
+| 	WHILE expr LOOP expr POOL
+| 	{ expr_list_semicolon }
+| 	LET compound_attribute IN expr
+| 	CASE expr OF case_list ESAC
+| 	NEW TYPE
+| 	ISVOID expr
+| 	expr + expr
+| 	expr - expr
+|	expr * expr
+| 	expr / expr
+| 	~ expr
+| 	expr < expr
+| 	expr <= expr
+| 	expr = expr
+| 	NOT expr
+| 	( expr )
+| 	ID
+| 	INT
+| 	STRING
+| 	BOOL
+
