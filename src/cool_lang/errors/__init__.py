@@ -14,7 +14,7 @@ class LocalizedError(Error):
         self.column = column
 
     def __str__(self):
-        return f'({self.row},{self.column}) - {self.error_name}: {self.description}'
+        return f'({self.row}, {self.column}) - {self.error_name}: {self.description}'
 
 
 class LexicographicError(LocalizedError):
