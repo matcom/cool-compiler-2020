@@ -1,10 +1,12 @@
 import ply.lex as lex
 from ply.lex import TOKEN
+import ply.yacc as yacc
 
 class Cool_Lexer(object):
 
     def build(self, **kwargs):
-        self.lexer = lex.lex(module=self, **kwargs)
+        self.lexer = lex.lex(module=self, errorlog=yacc.NullLogger(), **kwargs)
+        self.lexer.errors = []
 
     keywords = {
         'not': 'NOT',
@@ -34,7 +36,7 @@ class Cool_Lexer(object):
         'INT', 'STRING', 'BOOL',
 
         # Operators
-        'PLUS', 'MUL', 'DIV', 'MINUS', 'LESS', 'LESS_EQ', 'EQ', 'INT_COMP', 'NOT', 'ASSIGN',
+        'PLUS', 'MUL', 'DIV', 'MINUS', 'LESS', 'LESS_EQ', 'EQ', 'INT_COMP', 'ASSIGN',
 
         # Literals
         'LPAREN', 'RPAREN', 'LBRACE', 'RBRACE', 'COLON', 'SEMICOLON', 'DOT', 'COMMA', 'CAST',
@@ -49,7 +51,7 @@ class Cool_Lexer(object):
     t_MINUS = r'\-'
     t_LESS = r'\<'
     t_LESS_EQ = r'\<\='
-    t_EQ = r'\=\='
+    t_EQ = r'\='
     t_INT_COMP = r'\~'
 
     t_ASSIGN = r'\<\-'
@@ -66,7 +68,7 @@ class Cool_Lexer(object):
 
     t_ARROW = r'\=\>'
 
-    @TOKEN(r'[a-z_][A-Za-z_0-9]*')
+    @TOKEN(r'[a-z][A-Za-z_0-9]*')
     def t_ID(self, t):
         if t.value.lower() == 'true':
             t.value = True
@@ -100,7 +102,7 @@ class Cool_Lexer(object):
         return t.lexpos - line_start + 1
 
     def t_error(self, t):
-        print(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: "{t.value}"')
+        self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: ERROR \"{t.value[0]}\"' + "\n")
         t.lexer.skip(1)
 
 
@@ -121,6 +123,13 @@ class Cool_Lexer(object):
         if t.lexer.nesting_level_of_comment == 0:
             t.lexer.pop_state()
 
+    @TOKEN(r'\n+')
+    def t_COMMENT_newline(self, t):
+        t.lexer.lineno += len(t.value)
+
+    def t_COMMENT_eof(self, t):
+        self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: EOF in comment' + "\n")
+
     def t_COMMENT_error(self, t):
         t.lexer.skip(1)
 
@@ -129,18 +138,17 @@ class Cool_Lexer(object):
         t.lexer.push_state('STRING')
         t.lexer.string_backslashed = False
         t.lexer.stringbuf = ''
-        t.lexer.newline_escaped = True
 
     @TOKEN(r'\n')
     def t_STRING_newline(self, t):
         t.lexer.lineno += 1
-        if not t.lexer.newline_escaped:
-            t.lexer.skip(1)
-        elif not t.lexer.string_backslashed:
-            print(f"({t.lexer.lineno - 1}, {self.find_column(t)}) - Lexicographic Error - Newline character not escaped")
-            t.lexer.newline_escaped = False
-            t.lexer.skip(1)
+
+        if not t.lexer.string_backslashed:
+            self.lexer.errors.append(f"({t.lexer.lineno - 1}, {self.find_column(t)}) - LexicographicError: Unterminated string constant" + "\n")
+            t.lexer.pop_state()
+            #t.lexer.skip(1)
         else:
+            t.lexer.stringbuf += "\n"
             t.lexer.string_backslashed = False
 
     @TOKEN(r'\"')
@@ -150,18 +158,18 @@ class Cool_Lexer(object):
             t.lexer.string_backslashed = False
         else:
             t.lexer.pop_state()
-            if not t.lexer.newline_escaped:
-                t.lexer.skip(1)
-            else:
-                t.type = "STRING"
-                t.value = t.lexer.stringbuf
-                return t
+            t.type = "STRING"
+            t.value = t.lexer.stringbuf
+            return t
+
+    @TOKEN('\0')
+    def t_STRING_null(self, t):
+        self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: String contains null character' + "\n")
+
 
     @TOKEN(r'[^\n]')
     def t_STRING_line(self, t):
-        if not t.lexer.newline_escaped:
-            t.lexer.skip(1)
-        elif t.lexer.string_backslashed:
+        if t.lexer.string_backslashed:
             if t.value == 'b':
                 t.lexer.stringbuf += '\b'
             elif t.value == 't':
@@ -174,29 +182,41 @@ class Cool_Lexer(object):
                 t.lexer.stringbuf += '\\'
             else:
                 t.lexer.stringbuf += t.value
+            t.lexer.string_backslashed = False
         else:
             if t.value == '\\':
                 t.lexer.string_backslashed = True
             else:
                 t.lexer.stringbuf += t.value
 
-    def t_STRING_error(self, t):
-        print(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: "{t.value}"')
-        t.lexer.skip(1)
+    def t_STRING_eof(self, t):
+        self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: EOF in string constant' + "\n")
+
+
+    # def t_STRING_error(self, t):
+    #     self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: \"{t.value[0]}\"' + "\n")
+    #     t.lexer.skip(1)
 
 
 if __name__ == "__main__":
+    import sys
     cool_lexer = Cool_Lexer()
-    data = ''
-    input_file = open('input.txt')
-    while True:
-        data_readed = input_file.read(1024)
-        if not data_readed:
-            break
-        data += data_readed
     cool_lexer.build()
+    lexer = cool_lexer.lexer
 
-    cool_lexer.lexer.input(data)
 
-    for token in cool_lexer.lexer:
-        print(token)
+
+    with open(sys.argv[1]) as f:
+    #with open('./tests/iis5.cl') as f:
+        data = f.read()
+        lexer.input(data)
+
+        for t in lexer:
+            pass
+
+        for error in lexer.errors:
+            print(error)
+
+
+        if lexer.errors:
+            exit(1)
