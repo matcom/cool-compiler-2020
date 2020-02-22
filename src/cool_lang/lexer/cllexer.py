@@ -48,6 +48,9 @@ class COOL_LEXER(object):
         self.code = None
         self.lexer = None
         self.tokens = tokens
+        self.states = (
+            ('string', 'exclusive'),
+        )
         self.result = []
 
         # Lexer regular expressions
@@ -80,8 +83,26 @@ class COOL_LEXER(object):
         t.lexer.lineno += len(t.value)
 
     def t_error(self, t):
-        
         self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Invalid character "{t.value[0]}".'))
+
+    # Lexer string state methods
+
+    def t_string(self, t):
+        r'\"'
+        t.lexer.string_start = t.lexpos
+        t.lexer.begin('string')
+
+    def t_string_end(self, t):
+        r'\"'
+        if t.lexer.lexdata[t.lexer.lexpos - 2] != '\\':
+            t.value = t.lexer.lexdata[t.lexer.string_start: t.lexer.lexpos]
+            t.type = 'STRING'
+            t.lexer.begin('INITIAL')
+            return t
+        t.lexer.skip(1)
+
+    def t_string_error(self, t):
+        t.lexer.skip(1)
 
     # Non lexer methods
     def build(self, **kwargs):
