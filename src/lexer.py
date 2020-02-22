@@ -198,27 +198,25 @@ class Cool_Lexer(object):
     #     t.lexer.skip(1)
 
 
+if __name__ == "__main__":
+    import sys
+    cool_lexer = Cool_Lexer()
+    cool_lexer.build()
+    lexer = cool_lexer.lexer
 
 
-# if __name__ == "__main__":
-#     import sys
-#     cool_lexer = Cool_Lexer()
-#     cool_lexer.build()
 
-#     #input_file = sys.argv[1]
-#     input_file = 'comment1.cl'
-#     input_file = open(input_file)
-#     data = ''
+    with open(sys.argv[1]) as f:
+    #with open('./tests/iis5.cl') as f:
+        data = f.read()
+        lexer.input(data)
 
-#     while True:
-#         data_readed = input_file.read(1024)
-#         if not data_readed:
-#             break
-#         data += data_readed
+        for t in lexer:
+            pass
 
-#     cool_lexer.lexer.input(data)
+        for error in lexer.errors:
+            print(error)
 
-#     for token in cool_lexer.lexer:
-#         if token.type == 'error' or token.type == 'eof':
-#             print(token.value)
-#             exit(1)
+
+        if lexer.errors:
+            exit(1)
