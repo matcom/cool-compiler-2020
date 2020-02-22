@@ -29,9 +29,24 @@ def check_keyword(token):
     if upper in keywords:
         token.type = upper
 
-tokens = [
+literals = [
     # Literals
-    'LIT',
+    'PLUS',
+    'MINUS',
+    'STAR',
+    'DIV',
+    'COLON',
+    'SEMICOLON',
+    'OPAR',
+    'CPAR',
+    'OBRA',
+    'CBRA',
+    'ARROB',
+    'DOT',
+    'COMMA',
+]
+
+tokens = [
 	# Identifiers
 	'TYPE', 'ID',
 	# Primitive data types
@@ -40,7 +55,7 @@ tokens = [
 	'ACTION',
 	# Operators
 	'ASSIGN', 'LESS', 'LESSEQUAL', 'EQUAL', 'INT_COMPLEMENT', 'NOT',
-] + keywords
+] + literals + keywords
 
 class COOL_LEXER(object):
     def __init__(self):
@@ -54,7 +69,19 @@ class COOL_LEXER(object):
         self.result = []
 
         # Lexer regular expressions
-        self.t_LIT = r'[\+\-\*\/\:\;\(\)\{\}\@\.\,]'
+        self.t_PLUS = r'\+'
+        self.t_MINUS = r'\-'
+        self.t_STAR = r'\*'
+        self.t_DIV = r'\/'
+        self.t_COLON = r'\:'
+        self.t_SEMICOLON = r'\;'
+        self.t_OPAR = r'\('
+        self.t_CPAR = r'\)'
+        self.t_OBRA = r'\{'
+        self.t_CBRA = r'\}'
+        self.t_ARROB = r'\@'
+        self.t_DOT = r'\.'
+        self.t_COMMA = r'\,'
         self.t_NUMBER = r'[0-9]+'        
         self.t_BOOL = r't[rR][uU][eE]|f[aA][lL][sS][eE]'
         self.t_ACTION = r'=>'
