@@ -40,6 +40,8 @@ tokens = [
 	'ACTION',
 	# Operators
 	'ASSIGN', 'LESS', 'LESSEQUAL', 'EQUAL', 'INT_COMPLEMENT', 'NOT',
+    # Comments
+    'COMMENT',
 ] + keywords
 
 class COOL_LEXER(object):
