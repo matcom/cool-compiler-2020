@@ -2,6 +2,7 @@
 Este modulo contiene la declaracion de la clase ShiftReduceParser, la cual
 sirve de base para los parsers SLR, LALR y LR
 '''
+from grammar.grammar import EOF
 
 
 class ShiftReduceParser:
@@ -30,17 +31,20 @@ class ShiftReduceParser:
         cursor = 0
         output = []
 
+        if isinstance(tokens[0].token_type, EOF):
+            raise SyntaxError(
+                "(0,0) - SyntacticError: Cool program must not be empty.")
+
         while True:
             state = stack[-1]
             lookahead = tokens[cursor].token_type
             try:
                 action, tag = self.action[state, lookahead]
             except KeyError:
-                print(lookahead.__class__)
-                raise SyntaxError(f'Bad {tokens[cursor]} in line {tokens[cursor].token_line}' +
-                                  f' column {tokens[cursor].token_column}.\n' +
-                                  f'Expected: ' +
-                                  ' or '.join([str(y) for x, y in self.action if x == state]))
+                col = tokens[cursor].token_column - len(tokens[cursor].lex)
+                raise SyntaxError(f'({tokens[cursor].token_line},{col}) - ' +
+                                  f' SyntacticError: ERROR "%s"' %
+                                  tokens[cursor].lex)
 
             if action == self.SHIFT:
                 cursor += 1

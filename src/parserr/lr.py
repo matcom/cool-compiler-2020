@@ -160,8 +160,7 @@ class LR1Parser(ShiftReduceParser):
         automaton = build_LR1_automaton(self.G)
         for i, node in enumerate(automaton):
             node.idx = i
-        progress = ProgressBar(term_width=30)
-        for node in progress(automaton):
+        for node in automaton:
             idx = node.idx
             for item in node.state:
                 if item.IsReduceItem:

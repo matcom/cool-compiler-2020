@@ -143,7 +143,6 @@ class Lexer:
                     raise SyntaxError(
                         f'({self.line},{self.column}) - LexicographicError: String contains EOF'
                     )
-                # self.column += len(suffix)
                 raise SyntaxError(
                     f'({self.line},{self.column}) - LexicographicError: ERROR "%r"'
                     % text[len(suffix) + continues])

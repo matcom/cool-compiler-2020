@@ -58,7 +58,7 @@ def find_comments(program: str) -> str:
         try:
             i, char = next(iter_char)
             column += 1
-            if char == '-':
+            if char == '-' and i > 0 and program[i-1] != '<':
                 i, char = next(iter_char)
                 column += 1
                 if char == '-':
