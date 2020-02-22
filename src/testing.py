@@ -1,56 +1,54 @@
 from coolgrammar import grammar
 from lexer import tokenizer
-from parserr.lr import LALRParser
+from parserr.lr import LALRParser, LR1Parser
 from parserr.shiftreduce import ShiftReduceParser
 import cloudpickle
 from comments import find_comments
 
 GRAMMAR, LEXER = grammar.build_cool_grammar()
-#PARSER = LALRParser(GRAMMAR, verbose=True)
-TEST = r"""
+PARSER = LALRParser(GRAMMAR, verbose=True)
 
-"This \
-is OK"
-"This is not
-OK"
+test_String = r"""
+'Hello World'
 """
 
-string2 = r"""
-"               May the Triforce              \
-                      0                       \
-                     0v0                      \
-                    0vvv0                     \
-                   0vvvvv0                    \
-                  0vvvvvvv0                   \
-                 0vvvvvvvvv0                  \
-                0vvvvvvvvvvv0                 \
-               000000000000000                \
-              0v0           0v0               \
-             0vvv0         0vvv0              \
-            0vvvvv0       0vvvvv0             \
-           0vvvvvvv0     0vvvvvvv0            \
-          0vvvvvvvvv0   0vvvvvvvvv0           \
-         0vvvvvvvvvvv0 0vvvvvvvvvvv0          \
-        00000000000000000000000000000         \
-                be with you!"""
+test_program = r"""
+class Main {
+    main(): Object {
+        (new Alpha).print()
+    };
+};
 
-TEST_PROGRAM = r"""
-"lkjdsafkljdsalfj\u0000dsafdsaf\u0000djafslkjdsalf\nsdajf\" lkjfdsasdkjfl"123
-adsfasklj#
-LKldsajf iNhERITS
-"lkdsajf"
+class Test {
+    test1: Object;
+    
+    testing1(): Int {
+        2 + 2
+    };
 
-(*
-#1 STR_CONST "lkjdsafkljdsalfju0000dsafdsafu0000djafslkjdsalf\nsdajf\" lkjfdsasdkjfl"
-#1 INT_CONST 123
-#2 OBJECTID adsfasklj
-#2 ERROR "#"
-#3 TYPEID LKldsajf
-#3 INHERITS
-#4 STR_CONST "lkdsajf"
-*)
+    test2: Int <- 1;
+
+    test3: String <- "1";
+
+    testing2(a: Alpha, b: Int): Int {
+        2 + 2
+    };
+
+    testing3(): String {
+        "2 + 2"
+    };
+
+    testing4(): String {
+        Test1 <- 'Hello World' -- Identifiers begin with a lower case letter
+    };
+};
+
+class Alpha inherits IO {
+    print() : Object {
+        out_string("reached!!\n")
+    };
+};
 """
-
 SIMPLE_PROGRAM = r"""
 "kjsafkljd\saa\aa"
 "helloworld"
@@ -98,19 +96,18 @@ class A inherits IO
 };
 """
 
-space_test = r"t t t t ?"
 # First Round of tests
 TOKS = None
 try:
-    program = find_comments(space_test)
+    program = find_comments(test_program)
     TOKS = LEXER(program)
-    # parse = PARSER(TOKS)
+    parse = PARSER(TOKS)
     # Try to save the parser and then reuse it
     # with open('.parser.dmp','wb') as file:
     # cloudpickle.dump(PARSER, file)
 
     #with open('.parser.dmp', 'rb') as file:
     # parser = cloudpickle.load(file)
-    print(TOKS)
+    print(parse)
 except Exception as e:
     print(e)

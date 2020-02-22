@@ -36,11 +36,10 @@ class ShiftReduceParser:
             try:
                 action, tag = self.action[state, lookahead]
             except KeyError:
-                print(lookahead.__class__)
-                raise SyntaxError(f'Bad {tokens[cursor]} in line {tokens[cursor].token_line}' +
-                                  f' column {tokens[cursor].token_column}.\n' +
-                                  f'Expected: ' +
-                                  ' or '.join([str(y) for x, y in self.action if x == state]))
+                col = tokens[cursor].token_column - len(tokens[cursor].lex)
+                raise SyntaxError(
+                    f'({tokens[cursor].token_line},{col}) - '
+                    + f' SyntaxError: ERROR "%s"' % tokens[cursor].lex)
 
             if action == self.SHIFT:
                 cursor += 1

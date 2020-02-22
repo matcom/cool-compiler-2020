@@ -143,7 +143,6 @@ class Lexer:
                     raise SyntaxError(
                         f'({self.line},{self.column}) - LexicographicError: String contains EOF'
                     )
-                # self.column += len(suffix)
                 raise SyntaxError(
                     f'({self.line},{self.column}) - LexicographicError: ERROR "%r"'
                     % text[len(suffix) + continues])
@@ -161,6 +160,7 @@ class Lexer:
                 pass
             else:
                 tok = Token(lex, ttype, self.column, self.line)
+                print(tok)
                 tokens.append(tok)
 
         return tokens
