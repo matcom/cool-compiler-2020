@@ -18,8 +18,8 @@ class LocalizedError(Error):
 
 
 class LexicographicError(LocalizedError):
-    def __init__(self, row, column):
-        LocalizedError.__init__(self, 'LexicographicError', row, column, 'Invalid character')
+    def __init__(self, row, column, description):
+        LocalizedError.__init__(self, 'LexicographicError', row, column, description)
 
 
 class SyntacticError(LocalizedError):
