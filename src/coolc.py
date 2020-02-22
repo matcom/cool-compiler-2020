@@ -1,6 +1,5 @@
 from sys import argv
 from cool_lang.lexer import COOL_LEXER
-import cool_lang.utils as clutils
 
 
 INPUT_FILE = argv[1]
