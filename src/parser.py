@@ -280,8 +280,8 @@ def p_atom(p):
 
 def p_error(p):
     if p:
-        line = p.lineno(0)
-        pos = p.lexpos(0)
+        line = p.lineno
+        pos = p.lexpos
         print(f'({line}, {pos}) - SyntacticError: ERROR at or near \"{p.value[0]}\"')
     else:
         print('EOF')
