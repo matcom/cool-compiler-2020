@@ -1,5 +1,6 @@
 from sys import argv
 from cool_lang.lexer import COOL_LEXER
+from cool_lang.parser import COOL_PARSER
 
 
 INPUT_FILE = argv[1]
@@ -13,5 +14,8 @@ if not clexer.tokenize(code):
         print(error)
     exit(1)
 
-for token in clexer.result:
-    print(token)
+cparser = COOL_PARSER()
+if not cparser.parse(clexer.result):
+    for error in cparser.errors:
+        print(error)
+    exit(1)
