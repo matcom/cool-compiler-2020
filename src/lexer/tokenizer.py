@@ -160,7 +160,6 @@ class Lexer:
                 pass
             else:
                 tok = Token(lex, ttype, self.column, self.line)
-                print(tok)
                 tokens.append(tok)
 
         return tokens

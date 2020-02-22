@@ -39,7 +39,7 @@ class ShiftReduceParser:
                 col = tokens[cursor].token_column - len(tokens[cursor].lex)
                 raise SyntaxError(
                     f'({tokens[cursor].token_line},{col}) - '
-                    + f' SyntaxError: ERROR "%s"' % tokens[cursor].lex)
+                    + f' SyntacticError: ERROR "%s"' % tokens[cursor].lex)
 
             if action == self.SHIFT:
                 cursor += 1
