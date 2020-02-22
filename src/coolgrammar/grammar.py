@@ -129,9 +129,9 @@ def build_cool_grammar():
 
     exp %= atom, lambda s: s[1]
 
-    exp %= opar + atom + cpar, lambda s: s[2]
+    #exp %= opar + atom + cpar, lambda s: s[2]
 
-    exp %= arith, lambda s: s[1]
+    #exp %= arith, lambda s: s[1]
 
     exp %= block, lambda s: s[1]
 
@@ -160,7 +160,7 @@ def build_cool_grammar():
     factor %= if_ + exp + then + exp + else_ + exp + fi, lambda s: IfThenElseNode(
         s[2], s[4], s[6])
 
-    factor %= opar + arith + cpar, lambda s: s[2]
+    factor %= opar + atom + cpar, lambda s: s[2]
 
     factor %= num, lambda s: IntegerConstant(s[1])
 
@@ -190,6 +190,8 @@ def build_cool_grammar():
     atom %= arith + ge + arith, lambda s: GreaterEqualNode(s[1], s[3])
 
     atom %= arith + le + arith, lambda s: LowerEqual(s[1], s[3])
+
+    atom %= arith, lambda s: s[1]
 
     typex %= intx, lambda s: 'int'
 

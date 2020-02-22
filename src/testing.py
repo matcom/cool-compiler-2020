@@ -5,25 +5,15 @@ from comments import find_comments
 GRAMMAR, LEXER = grammar.build_cool_grammar()
 PARSER = LALRParser(GRAMMAR, verbose=True)
 prog = r"""
-class Main inherits IO {
-    main() : Object {
-            {
-                    out_string("Enter number of numbers to multiply\n");
-                    out_int(prod(in_int()));
-                    out_string("\n");
-            }
+class Test {
+    testing4(): Int {
+        test1 <-- ~(1 + 2 + 3 + 4 + 5) -- The left side must be an expression
     };
+};
 
-    prod(i : Int) : Int {
-        let y : Int <- 1 in {
-                while (not (i = 0) ) loop {
-                        out_string("Enter Number: ");
-                        y <- y * in_int(Main : Int);    -- the parser correctly catches the error here
-                        i <- i - 1;
-                }
-                    pool;
-                y;
-        }
+class Alpha inherits IO {
+    print() : Object {
+        out_string("reached!!\n")
     };
 };
 """
