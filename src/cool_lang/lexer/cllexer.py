@@ -100,8 +100,20 @@ class COOL_LEXER(object):
             t.lexer.begin('INITIAL')
             return t
         t.lexer.skip(1)
+    
+    def t_string_eof(self, t):
+        self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Unexpected EOF.'))
 
     def t_string_error(self, t):
+        val = t.value[0]
+        if val in '\b\t\0\f':
+            char = '\\f' if val == '\f' else '\\b' if val == '\b' else '\\t' if val == '\t' else 'null'
+            self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Invalid character "{char}" in a string.'))
+        elif val == '\n':
+            if t.lexer.lexdata[t.lexer.lexpos - 1] != '\\':
+                self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Invalid character "\\n" in a string.'))
+            else:
+                t.lexer.lineno += 1
         t.lexer.skip(1)
 
     # Non lexer methods
@@ -116,6 +128,10 @@ class COOL_LEXER(object):
         while True:
             try:
                 token = self.lexer.token()
+                if self.errors:
+                    return False
+                if not token:
+                    break
             except lex.LexError:
                 return False
             self.result.append(token)
