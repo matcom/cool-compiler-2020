@@ -55,6 +55,8 @@ tokens = [
 	'ACTION',
 	# Operators
 	'ASSIGN', 'LESS', 'LESSEQUAL', 'EQUAL', 'INT_COMPLEMENT', 'NOT',
+    # Comments
+    'COMMENT',
 ] + literals + keywords
 
 class COOL_LEXER(object):
@@ -65,6 +67,8 @@ class COOL_LEXER(object):
         self.tokens = tokens
         self.states = (
             ('string', 'exclusive'),
+            ('simpleComment', 'exclusive'),
+            ('multiComment', 'exclusive'),
         )
         self.result = []
 
@@ -93,7 +97,10 @@ class COOL_LEXER(object):
         self.t_NOT = r'[nN][oO][tT]'
 
         self.t_ignore = ' \t'
-    
+        self.t_string_ignore = ''
+        self.t_simpleComment_ignore = ''
+        self.t_multiComment_ignore = ''
+
     # Lexer methods
     def t_TYPE(self, t):
         r'[A-Z][A-Za-z0-9_]*'
@@ -112,6 +119,61 @@ class COOL_LEXER(object):
     def t_error(self, t):
         self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Invalid character "{t.value[0]}".'))
 
+    # Lexer simple comment state methods
+
+    def t_simpleComment(self, t):
+        r'--'
+        t.lexer.simpleComment_first = t.lexer.lexpos
+        t.lexer.begin('simpleComment')
+
+    def t_simpleComment_end(self, t):
+        r'\n'
+        t.value = t.lexer.lexdata[t.lexer.simpleComment_first: t.lexer.lexpos - 1]
+        t.type = 'COMMENT'
+        t.lexer.lineno += 1
+        t.lexer.begin('INITIAL')
+        return t
+
+    def t_simpleComment_eof(self, t):
+        t.value = t.lexer.lexdata[t.lexer.simpleComment_first: t.lexer.lexpos - 1]
+        t.type = 'COMMENT'
+        t.lexer.begin('INITIAL')
+        return t
+
+    def t_simpleComment_error(self, t):
+        t.lexer.skip(1)
+
+    # Lexer multi comment state methods
+
+    def t_multiComment(self, t):
+        r'\(\*'
+        t.lexer.multuComment_start = t.lexer.lexpos
+        t.lexer.level = 1
+        t.lexer.begin('multiComment')
+
+    def t_multiComment_lbrace(self, t):
+        r'\(\*'
+        t.lexer.level += 1
+
+    def t_multiComment_rbrace(self, t):
+        r'\*\)'
+        t.lexer.level -= 1 
+        if t.lexer.level == 0:
+            t.value = t.lexer.lexdata[t.lexer.multuComment_start: t.lexer.lexpos - 2]
+            t.type = "COMMENT"
+            t.lexer.begin('INITIAL')
+            return t
+
+    def t_multiComment_newline(self, t):
+        r'\n+'
+        t.lexer.lineno += len(t.value)
+
+    def t_multiComment_error(self, t):
+        t.lexer.skip(1)
+
+    def t_multiComment_eof(self, t):
+        self.errors.append(LexicographicError(t.lexer.lineno, find_column(self.code, t), f'EOF in comment.'))
+
     # Lexer string state methods
 
     def t_string(self, t):
@@ -127,7 +189,7 @@ class COOL_LEXER(object):
             t.lexer.begin('INITIAL')
             return t
         t.lexer.skip(1)
-    
+
     def t_string_eof(self, t):
         self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Unexpected EOF.'))
 
