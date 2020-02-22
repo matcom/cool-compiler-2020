@@ -58,7 +58,7 @@ def get_method_docstring(token_list):
 
 
 def print_method(name, docstring):
-    s = "def p_" + name + "(p):\n" + docstring + "\n\n"
+    s = "def p_" + name + "(self, p):\n" + docstring + "\n\n"
 
     global output
     output += s

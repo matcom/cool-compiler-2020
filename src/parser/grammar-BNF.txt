@@ -36,7 +36,7 @@ expr_list_comma ::= expr expr_list_comma_helper
 expr_list_comma_helper ::= , expr expr_list_comma_helper
 |	epsilon
 
-cast ::= @TYPE
+cast ::= @ TYPE
 |	epsilon
 
 simple_attribute ::= ID : TYPE assignation
@@ -50,6 +50,7 @@ assignation ::= <- expr
 |	epsilon
 
 case_list ::= ID : TYPE => expr ; case_list
+|   ID : TYPE => expr ;
 
 expr ::= ID <- expr
 | 	expr cast . ID ( expr_params )
