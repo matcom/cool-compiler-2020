@@ -47,3 +47,55 @@ tokens = [
     'SEMICOLON',
     
 ] + list(reserved.values())
+
+t_EQUALS    = r'=' 
+t_PLUS      = r'\+'
+t_MINUS     = r'-'
+t_TIMES     = r'\*'
+t_DIVIDE    = r'/'
+t_LPAREN    = r'\('
+t_RPAREN    = r'\)'
+t_LESS      = r'<'
+t_LESSEQ    = r'<='
+t_LCBRA      = r'{'
+t_RCBRA      = r'}'
+t_COLON     = r':'
+t_SEMICOLON = r';'
+t_ignore = ' \t\f\r\t\v'
+
+
+
+def t_TYPEIDENTIFIER(t):
+    r'[A-Z][a-zA-Z0-9|_]*'
+    l_value = t.value.lower()
+    if l_value == "false" or l_value == "true":
+        if t.value[0] != "f" and t.value[0] != 't':
+            return t
+    t.type = reserved.get(l_value, "TYPEIDENTIFIER")
+    return t
+
+def t_OBJECTIDENTIFIER(t):
+    r'[a-z][a-zA-Z0-9|_]*'
+    l_value = t.value.lower()
+    if l_value == "false" or l_value == "true":
+        if t.value[0] != "f" and t.value[0] != 't':
+            return t
+    t.type = reserved.get(l_value, "OBJECTIDENTIFIER")
+    return t
+
+def t_NUMBER(t):
+    r'\d+'
+    t.value = int(t.value)
+    return t
+
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+
+def t_LINECOMMENT(t):
+    r'--.*\n'
+def t_COMMENT(t):
+    r'\*.*\*'
+
+def t_eof(t):
+    return None
