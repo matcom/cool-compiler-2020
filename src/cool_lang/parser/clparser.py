@@ -92,46 +92,6 @@ class COOL_PARSER:
         'param : ID COLON TYPE'
         p[0] = (p[1], p[3])
     
-    def p_expr_if_else(self, p):
-        'expr : IF expr THEN expr ELSE expr FI'
-        line = p.lineno(1)
-        column = find_column(self.code, p.lexpos(1))
-        p[0] = IfThenElseNode(p[2], p[4], p[6], line, column)
-
-    def p_expr_while(self, p):
-        'expr : WHILE expr LOOP expr POOL'
-        line = p.lineno(1)
-        column = find_column(self.code, p.lexpos(1))
-        p[0] = WhileLoopNode(p[2], p[4], line, column)
-
-    def p_expr_multi(self, p):
-        'expr : OBRA expr_list CBRA'
-        line = p.lineno(1)
-        column = find_column(self.code, p.lexpos(1))
-        p[0] = BlockNode(p[2], line, column)
-
-    def p_expr_let_in(self, p):
-        'expr : LET let_list IN expr'
-        line = p.lineno(1)
-        column = find_column(self.code, p.lexpos(1))
-        p[0] = LetInNode(p[2], p[4], line, column)
-
-    def p_expr_case(self, p):
-        'expr : CASE expr OF case_list ESAC'
-        line = p.lineno(1)
-        column = find_column(self.code, p.lexpos(1))
-        p[0] = CaseOfNode(p[2], p[4], line, column)
-
-    def p_expr_assign(self, p):
-        'expr : ID ASSIGN expr'
-        line = p.lineno(1)
-        column = find_column(self.code, p.lexpos(1))
-        p[0] = AssignNode(p[1], p[3], line, column)
-
-    def p_expr_truth(self, p):
-        'expr : truth_expr'
-        p[0] = p[1]
-
     def p_expr_list_simple(self, p):
         'expr_list : expr SEMICOLON'
         p[0] = [p[1]]
@@ -164,36 +124,40 @@ class COOL_PARSER:
         'case_list : ID COLON TYPE ACTION expr SEMICOLON case_list'
         p[0] = [(p[1], p[3], p[5])] + p[7]
 
-    def p_truth_expr_not(self, p):
-        'truth_expr : NOT truth_expr'
-        p[0] = NotNode(p[2])
-
-    def p_truth_expr_cmp(self, p):
-        'truth_expr : comp_expr'
+    def p_expr(self, p):
+        'expr : comp_expr'
         p[0] = p[1]
 
     def p_comp_expr_le(self, p):
-        'comp_expr : comp_expr LESSEQUAL arith'
+        'comp_expr : comp_expr LESSEQUAL not_arith'
         line = p.lineno(2)
         column = find_column(self.code, p.lexpos(2))
         p[0] = LessEqualNode(p[1], p[3], line, column)
 
     def p_comp_expr_e(self, p):
-        'comp_expr : comp_expr EQUAL arith'
+        'comp_expr : comp_expr EQUAL not_arith'
         line = p.lineno(2)
         column = find_column(self.code, p.lexpos(2))
         p[0] = EqualNode(p[1], p[3], line, column)
 
     def p_comp_expr_l(self, p):
-        'comp_expr : comp_expr LESS arith'
+        'comp_expr : comp_expr LESS not_arith'
         line = p.lineno(2)
         column = find_column(self.code, p.lexpos(2))
         p[0] = LessNode(p[1], p[3], line, column)
 
     def p_comp_expr_s(self, p):
-        'comp_expr : arith'
+        'comp_expr : not_arith'
         p[0] = p[1]
-    
+
+    def p_not_arith_not(self, p):
+        'not_arith : NOT arith'
+        p[0] = NotNode(p[2])
+
+    def p_not_arith(self, p):
+        'not_arith : arith'
+        p[0] = p[1]
+
     def p_arith_plus(self, p):
         'arith : arith PLUS term'
         line = p.lineno(2)
@@ -241,6 +205,42 @@ class COOL_PARSER:
     def p_factor_atom(self, p):
         'factor : atom'
         p[0] = p[1]
+
+    def p_atom_if_else(self, p):
+        'atom : IF expr THEN expr ELSE expr FI'
+        line = p.lineno(1)
+        column = find_column(self.code, p.lexpos(1))
+        p[0] = IfThenElseNode(p[2], p[4], p[6], line, column)
+
+    def p_atom_while(self, p):
+        'atom : WHILE expr LOOP expr POOL'
+        line = p.lineno(1)
+        column = find_column(self.code, p.lexpos(1))
+        p[0] = WhileLoopNode(p[2], p[4], line, column)
+
+    def p_atom_multi(self, p):
+        'atom : OBRA expr_list CBRA'
+        line = p.lineno(1)
+        column = find_column(self.code, p.lexpos(1))
+        p[0] = BlockNode(p[2], line, column)
+
+    def p_atom_let_in(self, p):
+        'atom : LET let_list IN expr'
+        line = p.lineno(1)
+        column = find_column(self.code, p.lexpos(1))
+        p[0] = LetInNode(p[2], p[4], line, column)
+
+    def p_atom_case(self, p):
+        'atom : CASE expr OF case_list ESAC'
+        line = p.lineno(1)
+        column = find_column(self.code, p.lexpos(1))
+        p[0] = CaseOfNode(p[2], p[4], line, column)
+
+    def p_atom_assign(self, p):
+        'atom : ID ASSIGN expr'
+        line = p.lineno(1)
+        column = find_column(self.code, p.lexpos(1))
+        p[0] = AssignNode(p[1], p[3], line, column)
 
     def p_atom_func_call(self, p):
         'atom : atom func_call'
