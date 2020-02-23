@@ -177,18 +177,17 @@ class COOL_LEXER(object):
     # Lexer string state methods
 
     def t_string(self, t):
-        r'\"'
+        r'"'
         t.lexer.string_start = t.lexpos
         t.lexer.begin('string')
 
     def t_string_end(self, t):
-        r'\"'
+        r'"'
         if t.lexer.lexdata[t.lexer.lexpos - 2] != '\\':
             t.value = t.lexer.lexdata[t.lexer.string_start: t.lexer.lexpos]
             t.type = 'STRING'
             t.lexer.begin('INITIAL')
             return t
-        t.lexer.skip(1)
 
     def t_string_eof(self, t):
         self.errors.append(LexicographicError(t.lineno, find_column(self.code, t.lexpos), f'Unexpected EOF.'))
