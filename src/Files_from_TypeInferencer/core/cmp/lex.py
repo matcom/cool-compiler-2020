@@ -3,6 +3,8 @@ import re
 from .utils import Token
 from .CoolUtils import *
 
+__lexer__ = None
+__text__ = None
 
 reserved = {
     "class":               "CLASS",          
@@ -99,3 +101,15 @@ def t_COMMENT(t):
 
 def t_eof(t):
     return None
+
+def tokenize(text):
+    global __text__
+    global __lexer__
+    __text__ = text
+    if __lexer__ is None:
+        __lexer__ = lex.lex()
+    __lexer__.input(text)
+    original_tokens = [token for token in __lexer__]
+    tokens =  [ Token(token.value, tokenType[token.type]) for token in original_tokens]
+    EOF = Token('$', eof)
+    return tokens + [EOF]
