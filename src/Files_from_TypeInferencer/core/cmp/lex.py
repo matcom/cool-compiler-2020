@@ -5,6 +5,7 @@ from .CoolUtils import *
 
 __lexer__ = None
 __text__ = None
+__errors__ = None
 
 reserved = {
     "class":               "CLASS",          
@@ -102,9 +103,24 @@ def t_COMMENT(t):
 def t_eof(t):
     return None
 
+def compute_column(token):
+    line_start = __lexer__.rfind('\n', 0, token.lexpos) + 1
+    return (token.lexpos - line_start) + 1
+
+def t_error(t):
+    global __errors__
+    line = t.lexer.lineno
+    column = compute_column(t)
+    error_text = t.value[0]
+    __errors__.append(f"({line},{column}) - LexicographicError: \"{error_text}\"")
+    t.lexer.skip(1)
+
+
 def tokenize(text):
     global __text__
     global __lexer__
+    global __errors__
+    __errors__ = []
     __text__ = text
     if __lexer__ is None:
         __lexer__ = lex.lex()
@@ -112,4 +128,4 @@ def tokenize(text):
     original_tokens = [token for token in __lexer__]
     tokens =  [ Token(token.value, tokenType[token.type]) for token in original_tokens]
     EOF = Token('$', eof)
-    return tokens + [EOF]
+    return (tokens + [EOF], __errors__)
