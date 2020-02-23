@@ -18,6 +18,18 @@ class COOL_PARSER:
         self.result = None
         self.errors = []
 
+        self.precedence = (
+            ('right', 'ASSIGN'),
+            ('right', 'NOT'),
+            ('nonassoc', 'LESSEQUAL', 'EQUAL', 'LESS'),
+            ('left', 'PLUS', 'MINUS'),
+            ('left', 'STAR', 'DIV'),
+            ('right', 'ISVOID'),
+            ('right', 'INT_COMPLEMENT'),
+            ('left', 'ARROB'),
+            ('left', 'DOT'),
+        )
+
     # Parser related methods
 
     def p_empty(self, p):
