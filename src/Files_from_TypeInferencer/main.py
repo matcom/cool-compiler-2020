@@ -111,11 +111,64 @@ def main():
 
 if __name__ == '__main__':
     # main()
-    test_data = '''0007 123 +1 -1 +90 -09 +11113 -4r *a *self* c++ 
-class Class if then else fi testing Testing ~007agent_bond james_007bones___
+    test_data = '''--Any characters between two dashes “--” and the next newline
+--(or EOF, if there is no next newline) are treated as comments
 
+(*(*(*
+Comments may also be written by enclosing
+text in (∗ . . . ∗). The latter form of comment may be nested.
+Comments cannot cross file boundaries.
+*)*)*)
 
-new / <- <<==> {( Int: Objet, Bool; String.string SELF_TYPE isvoid })
-loop pool while tRuE or noT faLsE let in case of ESAC'''
-    tokens, errors = tokenize(test_data)
+class Error() {
+
+        (* There was once a comment,
+         that was quite long.
+         But, the reader soon discovered that
+         the comment was indeed longer than
+         previously assumed. Now, the reader
+         was in a real dilemma; is the comment
+         ever gonna end? If I stop reading, will
+         it end?
+         He started imagining all sorts of things.
+         He thought about heisenberg's cat and how
+         how that relates to the end of the sentence.
+         He thought to himself "I'm gonna stop reading".
+         "If I keep reading this comment, I'm gonna know
+         the fate of this sentence; That will be disastorous."
+         He knew that such a comment was gonna extend to
+         another file. It was too awesome to be contained in
+         a single file. And he would have kept reading too...
+         if only...
+         cool wasn't a super-duper-fab-awesomest language;
+         but cool is that language;
+         "This comment shall go not cross this file" said cool.
+         Alas! The reader could read no more.
+         There was once a comment,
+         that was quite long.
+         But, the reader soon discovered that
+         the comment was indeed longer than
+         previously assumed. Now, the reader
+         was in a real dilemma; is the comment
+         ever gonna end? If I stop reading, will
+         it end?
+         He started imagining all sorts of things.
+         He thought about heisenberg's cat and how
+         how that relates to the end of the sentence.
+         He thought to himself "I'm gonna stop reading".
+         "If I keep reading this comment, I'm gonna know
+         the fate of this sentence; That will be disastorous."
+         He knew that such a comment was gonna extend to
+         another file. It was too awesome to be contained in
+         a single file. And he would have kept reading too...
+         if only...
+         cool wasn't a super-duper-fab-awesomest language;
+         but cool is that language;
+         "This comment shall go not cross this file" said cool.
+         Alas! The reader could read no more.'''
+    test_data2 = '''(*(*sdfaerlkj
+    asdf*)'''
+    tok, errors = tokenize(test_data)
     print(errors)
+    print(tok)
+   

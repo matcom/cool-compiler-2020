@@ -60,11 +60,18 @@ tokenType = {
     "PLUS":         plus,
     "MINUS":        minus,
     "DIVIDE":       div,
+    "TIMES":        star,
     "LESS":         less,
     "LESSEQ":       leq,
     "EQUALS":       equal,
-    #"TRUE":         
-    #"FALSE",   
+    "TRUE":         boolx,
+    "FALSE":        boolx,  
+    "COMPLEMENT":   compl,
+    "RARROW":       rarrow,
+    "LARROW":       larrow,
+    "COMMA":        comma,
+    "DOT":          dot,
+    "AT":           at,
 }
 
 
@@ -86,22 +93,35 @@ tokens = [
     'RCBRA',
     'COLON',
     'SEMICOLON',
+    'COMPLEMENT',
+    'RARROW',
+    'LARROW',
+    'COMMA',
+    'DOT',
+    'AT'
     
 ] + list(reserved.values())
 
-t_EQUALS    = r'=' 
-t_PLUS      = r'\+'
-t_MINUS     = r'-'
-t_TIMES     = r'\*'
-t_DIVIDE    = r'/'
-t_LPAREN    = r'\('
-t_RPAREN    = r'\)'
-t_LESS      = r'<'
-t_LESSEQ    = r'<='
-t_LCBRA      = r'{'
-t_RCBRA      = r'}'
-t_COLON     = r':'
-t_SEMICOLON = r';'
+t_EQUALS        = r'=' 
+t_PLUS          = r'\+'
+t_MINUS         = r'-'
+t_TIMES         = r'\*'
+t_DIVIDE        = r'/'
+t_LPAREN        = r'\('
+t_RPAREN        = r'\)'
+t_LESS          = r'<'
+t_LESSEQ        = r'<='
+t_LCBRA         = r'{'
+t_RCBRA         = r'}'
+t_COLON         = r':'
+t_SEMICOLON     = r';'
+t_COMPLEMENT    = r'~'
+t_RARROW        = r'=>'
+t_LARROW        = r'<-'
+t_COMMA         = r','
+t_DOT           = r'\.'
+t_AT            = r'@'
+
 t_ignore = ' \t\f\r\t\v'
 
 
@@ -136,11 +156,21 @@ def t_newline(t):
 def t_LINECOMMENT(t):
     r'--.*\n'
 def t_COMMENT(t):
-    r'\*.*\*'
+    r'\(\*(.|\n)*\*\)'
 
 def t_eof(t):
+    print("HERE")
+    print(t.lexer.lineno)
+    t.lexer.eof =(t.lexer.lineno, compute_column(t))
     return None
 
+def t_ERROREOFCOMMENTS(t):
+    r'\(\*(.|\n)*$'
+    global __errors__
+    line = t.lexer.lineno
+    column = compute_column(t)
+    __errors__.append(f"({t.lexer.eof[0]},{t.lexer.eof[1]}) - LexicographicError: EOF IN COMMENTS")
+    
 def compute_column(token):
     line_start = __text__.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
@@ -162,6 +192,7 @@ def tokenize(text):
     __text__ = text
     if __lexer__ is None:
         __lexer__ = lex.lex()
+        __lexer__.eof = (1,1)
     __lexer__.input(text)
     original_tokens = [token for token in __lexer__]
     tokens =  [ Token(token.value, tokenType[token.type]) for token in original_tokens]
