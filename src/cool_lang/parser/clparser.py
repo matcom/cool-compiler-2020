@@ -137,7 +137,7 @@ class COOL_PARSER:
         p[0] = [p[1]]
 
     def p_expr_list_multi(self, p):
-        'expr : expr SEMICOLON expr_list'
+        'expr_list : expr SEMICOLON expr_list'
         p[0] = [p[1]] + p[3]
 
     def p_let_list_declaration_simple(self, p):
@@ -331,7 +331,7 @@ class COOL_PARSER:
     # Non parser related methods
 
     def build(self, **kwargs):
-        self.parser = yacc.yacc(module=self)
+        self.parser = yacc.yacc(module=self, write_tables=False)
 
     def parse(self, lexer):
         self.code = lexer.code
