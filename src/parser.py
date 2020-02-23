@@ -152,12 +152,17 @@ class Parser:
         return t.lexpos - line_start + 1
 
     def p_error(self, p):
-        line_number = p.lineno
-        column = self.find_column(p)
+        if not p:
+            print(f"(0, 0) - SyntacticError: ERROR at or near EOF")
 
-        # (<línea>,<columna>) - <tipo_de_error>: <texto_del_error>
-        print(f"({line_number}, {column}) - SyntacticError: ERROR at or near \"{p.value}\"")
-        exit(-1)
+        else:
+            line_number = p.lineno
+            column = self.find_column(p)
+
+            # (<línea>,<columna>) - <tipo_de_error>: <texto_del_error>
+            print(f"({line_number}, {column}) - SyntacticError: ERROR at or near \"{p.value}\"")
+
+        exit(1)
 
     precedence = (
         ("right", "ASSIGN"),
