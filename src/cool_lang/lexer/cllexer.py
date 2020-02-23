@@ -229,6 +229,10 @@ class COOL_LEXER(object):
     def token(self):
         if self.index >= len(self.result):
             return None
-        result = self.result[self.index]
-        self.index += 1
+        result = None
+        while True:
+            result = self.result[self.index]
+            self.index += 1
+            if result.type != 'COMMENT':
+                break
         return result
