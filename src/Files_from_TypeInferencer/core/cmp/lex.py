@@ -29,6 +29,38 @@ reserved = {
     "false":               "FALSE",        
 }
 
+tokenType = {
+    "CLASS":        classx,
+    "ELSE":         elsex,
+    "FI":           fi,
+    "IF":           ifx,
+    "IN":           inx,
+    "INHERITS":     inherits,
+    "ISVOID":       isvoid,
+    "LET":          let,
+    "LOOP":         loop,
+    "POOL":         pool,    
+    "THEN":         then,    
+    "WHILE":        whilex,
+    "CASE":         case,    
+    "ESAC":         esac,    
+    "NEW":          new,     
+    "OF":           of,      
+    "NOT":          notx,
+    "OBJECTIDENTIFIER":   idx,
+    "TYPEIDENTIFIER": typex,
+    "LCBRA":        ocur,
+    "RCBRA":        ccur,
+    "LPAREN":       opar,
+    "RPAREN":       cpar,
+    "COLON":        colon,
+    "SEMICOLON":    semi, 
+    "NUMBER":       integer,    
+    "eof":          eof,
+    #"TRUE":         
+    #"FALSE",   
+}
+
 
 tokens = [
     'NUMBER',
