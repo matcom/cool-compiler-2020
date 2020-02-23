@@ -53,7 +53,7 @@ tokens = [
 	# Special keywords
 	'ACTION',
 	# Operators
-	'ASSIGN', 'LESS', 'LESSEQUAL', 'EQUAL', 'INT_COMPLEMENT', 'NOT',
+	'ASSIGN', 'LESS', 'LESSEQUAL', 'EQUAL', 'INT_COMPLEMENT',
     # Comments
     'COMMENT',
 ] + literals + keywords
