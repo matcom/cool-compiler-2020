@@ -1,7 +1,7 @@
 # COOL: Proyecto de Compilación
 
 <!-- Update the repository URL to your own -->
-[![Build Status](https://travis-ci.org/matcom/cool-compiler-2020.svg?branch=master)](https://travis-ci.org/matcom/cool-compiler-2020)
+[![Build Status](https://travis-ci.com/codestrange/cool-compiler-2020.svg?branch=master)](https://travis-ci.com/codestrange/cool-compiler-2020)
 
 > Proyecto base para el compilador de 4to año en Ciencia de la Computación.
 
