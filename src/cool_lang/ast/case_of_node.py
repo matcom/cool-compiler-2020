@@ -2,8 +2,8 @@ from .expresion_node import ExpressionNode
 
 
 class CaseOfNode(ExpressionNode):
-    def __init__(self, expression, branches):
+    def __init__(self, expression, branches, line, column):
         self.expression = expression
         self.branches = branches
-        self.line = expression.line
-        self.column = expression.column
+        self.line = line
+        self.column = column

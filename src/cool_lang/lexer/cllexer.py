@@ -1,9 +1,7 @@
 import ply.lex as lex
 from ..errors import LexicographicError
+from ..utils import find_column
 
-def find_column(input, token):
-    line_start = input.rfind('\n', 0, token.lexpos) + 1
-    return (token.lexpos - line_start) + 1    
 
 keywords = [
 	'CLASS',
@@ -22,6 +20,7 @@ keywords = [
 	'ESAC',
 	'NEW',
 	'ISVOID',
+    'NOT',
 ]
 
 def check_keyword(token):
@@ -54,7 +53,7 @@ tokens = [
 	# Special keywords
 	'ACTION',
 	# Operators
-	'ASSIGN', 'LESS', 'LESSEQUAL', 'EQUAL', 'INT_COMPLEMENT', 'NOT',
+	'ASSIGN', 'LESS', 'LESSEQUAL', 'EQUAL', 'INT_COMPLEMENT',
     # Comments
     'COMMENT',
 ] + literals + keywords
@@ -87,14 +86,13 @@ class COOL_LEXER(object):
         self.t_DOT = r'\.'
         self.t_COMMA = r'\,'
         self.t_NUMBER = r'[0-9]+'        
-        self.t_BOOL = r't[rR][uU][eE]|f[aA][lL][sS][eE]'
+        # self.t_BOOL = r't[rR][uU][eE]|f[aA][lL][sS][eE]'
         self.t_ACTION = r'=>'
         self.t_ASSIGN = r'<-'
         self.t_LESS = r'<'
         self.t_LESSEQUAL = r'<='
         self.t_EQUAL = r'='
         self.t_INT_COMPLEMENT = r'~'
-        self.t_NOT = r'[nN][oO][tT]'
 
         self.t_ignore = ' \t'
         self.t_string_ignore = ''
@@ -112,6 +110,10 @@ class COOL_LEXER(object):
     def t_ID(self, t):
         r'[a-z][A-Za-z0-9_]*'
         check_keyword(t)
+        if t.type == 'ID':
+            upper = t.value.upper()
+            if upper == 'FALSE' or upper == 'TRUE':
+                t.type = 'BOOL'
         return t
 
     def t_newline(self, t):
@@ -119,7 +121,7 @@ class COOL_LEXER(object):
         t.lexer.lineno += len(t.value)
 
     def t_error(self, t):
-        self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Invalid character "{t.value[0]}".'))
+        self.errors.append(LexicographicError(t.lineno, find_column(self.code, t.lexpos), f'Invalid character "{t.value[0]}".'))
 
     # Lexer simple comment state methods
 
@@ -174,35 +176,34 @@ class COOL_LEXER(object):
         t.lexer.skip(1)
 
     def t_multiComment_eof(self, t):
-        self.errors.append(LexicographicError(t.lexer.lineno, find_column(self.code, t), f'EOF in comment.'))
+        self.errors.append(LexicographicError(t.lexer.lineno, find_column(self.code, t.lexpos), f'EOF in comment.'))
 
     # Lexer string state methods
 
     def t_string(self, t):
-        r'\"'
+        r'"'
         t.lexer.string_start = t.lexpos
         t.lexer.begin('string')
 
     def t_string_end(self, t):
-        r'\"'
+        r'"'
         if t.lexer.lexdata[t.lexer.lexpos - 2] != '\\':
             t.value = t.lexer.lexdata[t.lexer.string_start: t.lexer.lexpos]
             t.type = 'STRING'
             t.lexer.begin('INITIAL')
             return t
-        t.lexer.skip(1)
 
     def t_string_eof(self, t):
-        self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Unexpected EOF.'))
+        self.errors.append(LexicographicError(t.lineno, find_column(self.code, t.lexpos), f'Unexpected EOF.'))
 
     def t_string_error(self, t):
         val = t.value[0]
         if val in '\b\t\0\f':
             char = '\\f' if val == '\f' else '\\b' if val == '\b' else '\\t' if val == '\t' else 'null'
-            self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Invalid character "{char}" in a string.'))
+            self.errors.append(LexicographicError(t.lineno, find_column(self.code, t.lexpos), f'Invalid character "{char}" in a string.'))
         elif val == '\n':
             if t.lexer.lexdata[t.lexer.lexpos - 1] != '\\':
-                self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Invalid character "\\n" in a string.'))
+                self.errors.append(LexicographicError(t.lineno, find_column(self.code, t.lexpos), f'Invalid character "\\n" in a string.'))
             else:
                 t.lexer.lineno += 1
         t.lexer.skip(1)
@@ -231,6 +232,12 @@ class COOL_LEXER(object):
     def token(self):
         if self.index >= len(self.result):
             return None
-        result = self.result[self.index]
-        self.index += 1
+        result = None
+        while True:
+            if self.index >= len(self.result):
+                return None
+            result = self.result[self.index]
+            self.index += 1
+            if result.type != 'COMMENT':
+                break
         return result

@@ -2,8 +2,8 @@ from .expresion_node import ExpressionNode
 
 
 class WhileLoopNode(ExpressionNode):
-    def __init__(self, condition, body):
+    def __init__(self, condition, body, line, column):
         self.condition = condition
         self.body = body
-        self.line = condition.line
-        self.column = condition.column
+        self.line = line
+        self.column = column

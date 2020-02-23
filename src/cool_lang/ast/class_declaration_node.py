@@ -2,9 +2,9 @@ from .declaration_node import DeclarationNode
 
 
 class ClassDeclarationNode(DeclarationNode):
-    def __init__(self, idx, features, parent=None):
+    def __init__(self, idx, features, parent, line, column):
         self.id = idx
         self.parent = parent
         self.features = features
-        self.line = idx.line
-        self.column = idx.column
+        self.line = line
+        self.column = column
