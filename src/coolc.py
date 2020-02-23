@@ -15,7 +15,7 @@ if not clexer.tokenize(code):
     exit(1)
 
 cparser = COOL_PARSER()
-if not cparser.parse(clexer.result):
+if not cparser.parse(clexer):
     for error in cparser.errors:
         print(error)
     exit(1)
