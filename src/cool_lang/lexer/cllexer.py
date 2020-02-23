@@ -20,6 +20,7 @@ keywords = [
 	'ESAC',
 	'NEW',
 	'ISVOID',
+    'NOT',
 ]
 
 def check_keyword(token):
@@ -85,14 +86,13 @@ class COOL_LEXER(object):
         self.t_DOT = r'\.'
         self.t_COMMA = r'\,'
         self.t_NUMBER = r'[0-9]+'        
-        self.t_BOOL = r't[rR][uU][eE]|f[aA][lL][sS][eE]'
+        # self.t_BOOL = r't[rR][uU][eE]|f[aA][lL][sS][eE]'
         self.t_ACTION = r'=>'
         self.t_ASSIGN = r'<-'
         self.t_LESS = r'<'
         self.t_LESSEQUAL = r'<='
         self.t_EQUAL = r'='
         self.t_INT_COMPLEMENT = r'~'
-        self.t_NOT = r'[nN][oO][tT]'
 
         self.t_ignore = ' \t'
         self.t_string_ignore = ''
@@ -110,6 +110,10 @@ class COOL_LEXER(object):
     def t_ID(self, t):
         r'[a-z][A-Za-z0-9_]*'
         check_keyword(t)
+        if t.type == 'ID':
+            upper = t.value.upper()
+            if upper == 'FALSE' or upper == 'TRUE':
+                t.type = 'BOOL'
         return t
 
     def t_newline(self, t):
