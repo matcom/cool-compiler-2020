@@ -101,6 +101,8 @@ class COOL_LEXER(object):
         self.t_simpleComment_ignore = ''
         self.t_multiComment_ignore = ''
 
+        self.index = 0
+
     # Lexer methods
     def t_TYPE(self, t):
         r'[A-Z][A-Za-z0-9_]*'
@@ -225,3 +227,10 @@ class COOL_LEXER(object):
                 return False
             self.result.append(token)
         return True
+
+    def token(self):
+        if self.index >= len(self.result):
+            return None
+        result = self.result[self.index]
+        self.index += 1
+        return result
