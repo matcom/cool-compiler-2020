@@ -1,9 +1,7 @@
 import ply.lex as lex
 from ..errors import LexicographicError
+from ..utils import find_column
 
-def find_column(input, token):
-    line_start = input.rfind('\n', 0, token.lexpos) + 1
-    return (token.lexpos - line_start) + 1    
 
 keywords = [
 	'CLASS',
@@ -119,7 +117,7 @@ class COOL_LEXER(object):
         t.lexer.lineno += len(t.value)
 
     def t_error(self, t):
-        self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Invalid character "{t.value[0]}".'))
+        self.errors.append(LexicographicError(t.lineno, find_column(self.code, t.lexpos), f'Invalid character "{t.value[0]}".'))
 
     # Lexer simple comment state methods
 
@@ -174,7 +172,7 @@ class COOL_LEXER(object):
         t.lexer.skip(1)
 
     def t_multiComment_eof(self, t):
-        self.errors.append(LexicographicError(t.lexer.lineno, find_column(self.code, t), f'EOF in comment.'))
+        self.errors.append(LexicographicError(t.lexer.lineno, find_column(self.code, t.lexpos), f'EOF in comment.'))
 
     # Lexer string state methods
 
@@ -193,16 +191,16 @@ class COOL_LEXER(object):
         t.lexer.skip(1)
 
     def t_string_eof(self, t):
-        self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Unexpected EOF.'))
+        self.errors.append(LexicographicError(t.lineno, find_column(self.code, t.lexpos), f'Unexpected EOF.'))
 
     def t_string_error(self, t):
         val = t.value[0]
         if val in '\b\t\0\f':
             char = '\\f' if val == '\f' else '\\b' if val == '\b' else '\\t' if val == '\t' else 'null'
-            self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Invalid character "{char}" in a string.'))
+            self.errors.append(LexicographicError(t.lineno, find_column(self.code, t.lexpos), f'Invalid character "{char}" in a string.'))
         elif val == '\n':
             if t.lexer.lexdata[t.lexer.lexpos - 1] != '\\':
-                self.errors.append(LexicographicError(t.lineno, find_column(self.code, t), f'Invalid character "\\n" in a string.'))
+                self.errors.append(LexicographicError(t.lineno, find_column(self.code, t.lexpos), f'Invalid character "\\n" in a string.'))
             else:
                 t.lexer.lineno += 1
         t.lexer.skip(1)
