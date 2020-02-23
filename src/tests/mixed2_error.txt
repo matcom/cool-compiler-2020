@@ -1,3 +1,0 @@
-(2, 3) - LexicographicError: ERROR "$"
-(3, 3) - LexicographicError: ERROR "%"
-(4, 22) - LexicographicError: Unterminated string constant

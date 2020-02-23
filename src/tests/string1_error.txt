@@ -1,2 +1,0 @@
-(5, 13) - LexicographicError: Unterminated string constant
-(6, 4) - LexicographicError: EOF in string constant

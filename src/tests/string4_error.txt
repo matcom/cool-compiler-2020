@@ -1,3 +1,0 @@
-(2, 30) - LexicographicError: Unterminated string constant
-(3, 36) - LexicographicError: Unterminated string constant
-(6, 58) - LexicographicError: Unterminated string constant
