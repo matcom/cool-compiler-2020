@@ -270,11 +270,11 @@ class COOL_PARSER:
     def build(self, **kwargs):
         self.parser = yacc.yacc(module=self)
 
-    def parse(self, tokens):
+    def parse(self, lexer):
         if self.parser is None:
             self.build()
         try:
-            result = self.parser.parse(tokens)
+            result = self.parser.parse(lexer=lexer)
         except Exception as e:
             print(f"The result is {result}.")
             print(e)
