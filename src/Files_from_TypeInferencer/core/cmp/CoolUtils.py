@@ -170,7 +170,7 @@ semi, colon, comma, dot, at, opar, cpar, ocur, ccur, larrow, rarrow = CoolGramma
 plus, minus, star, div, isvoid, compl = CoolGrammar.Terminals('+ - * / isvoid ~')
 notx, less, leq, equal = CoolGrammar.Terminals('not < <= =')
 new, idx, typex, integer, string, boolx = CoolGrammar.Terminals('new id type integer string bool')
-
+eof = CoolGrammar.EOF
 # productions
 program %= class_list, lambda h, s: ProgramNode(s[1])
 
