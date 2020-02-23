@@ -101,10 +101,8 @@ def t_BOOL(t):
 
 def t_LINECOMMENT(t):
     r'--'
-    if t.lexpos == 0 or t.lexer.lexdata[t.lexpos - 1] == '\n':
-        t.lexer.begin('commentLine')
-    else:
-        add_lexer_error(t.lexer.lineno, find_column(t.lexer.lexdata, t.lexer.lexpos), f'ERROR {t.value}')
+    t.lexer.begin('commentLine')
+
 
 
 def t_TEXTCOMMENT(t):

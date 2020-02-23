@@ -1,6 +1,7 @@
 import ply.yacc as yacc
 from lexer import *
-import ast
+from errors import add_parser_error
+from ast import *
 
 precedence = (
     ('left', 'DOT'),
@@ -17,7 +18,7 @@ precedence = (
 
 def p_program(p):
     'program : class_list'
-    p[0] = ast.ProgramNode(p[1])
+    p[0] = ProgramNode(p[1])
 
 
 def p_empty(p):
@@ -26,21 +27,22 @@ def p_empty(p):
 
 
 def p_class_list(p):
-    '''class_list : def_class SEMICOLON class_list
-                  | def_class SEMICOLON'''
-    if len(p) == 4:
+    '''class_list : def_class class_list
+                  | def_class'''
+
+    if len(p) == 3:
         p[0] = [p[1]] + p[3]
     else:
         p[0] = [p[1]]
 
 
 def p_def_class(p):
-    '''def_class : CLASS TYPE OBRACKET feature_list CBRACKET
-                  | CLASS TYPE INHERITS TYPE OBRACKET feature_list CBRACKET'''
-    if len(p) == 7:
-        p[0] = ast.DefClassNode(p[2], p[6], p[4])
+    '''def_class : CLASS TYPE OBRACKET feature_list CBRACKET SEMICOLON
+                  | CLASS TYPE INHERITS TYPE OBRACKET feature_list CBRACKET SEMICOLON'''
+    if len(p) == 8:
+        p[0] = DefClassNode(p[2], p[6], p[4])
     else:
-        p[0] = ast.DefClassNode(p[2], p[4])
+        p[0] = DefClassNode(p[2], p[4])
 
 
 def p_feature_list(p):
@@ -55,12 +57,12 @@ def p_feature_list(p):
 
 def p_def_attr(p):
     '''def_attr : assign_elem'''
-    p[0] = ast.DefAttrNode(p[1])
+    p[0] = DefAttrNode(*p[1])
 
 
 def p_def_func(p):
     '''def_func : ID OPAREN param_list CPAREN COLON TYPE OBRACKET expr_list CBRACKET'''
-    p[0] = ast.DefFuncNode(p[1], p[3], p[6], p[8])
+    p[0] = DefFuncNode(p[1], p[3], p[6], p[8])
 
 
 def p_param_list(p):
@@ -89,7 +91,7 @@ def p_expr_list(p):
 
 def p_assign(p):
     '''assign : ID ASSIGN expr'''
-    p[0] = ast.AssignNode(p[1], p[3])
+    p[0] = AssignNode(p[1], p[3])
 
 
 def p_func_call(p):
@@ -97,11 +99,11 @@ def p_func_call(p):
                  | expr DOT ID OPAREN arg_list CPAREN
                  | ID OPAREN arg_list CPAREN'''
     if len(p) == 9:
-        p[0] = ast.FuncCallNode(p[1], p[3], p[5], p[7])
+        p[0] = FuncCallNode(p[1], p[3], p[5], p[7])
     elif len(p) == 7:
-        p[0] = ast.FuncCallNode(p[3], p[5], p[1])
+        p[0] = FuncCallNode(p[3], p[5], p[1])
     else:
-        p[0] = ast.FuncCallNode(p[1], p[3])
+        p[0] = FuncCallNode(p[1], p[3])
 
 
 def p_arg_list(p):
@@ -116,12 +118,12 @@ def p_arg_list(p):
 
 def p_if_expr(p):
     '''if_expr : IF expr THEN expr ELSE expr FI'''
-    p[0] = ast.IfNode(p[2], p[4], p[6])
+    p[0] = IfNode(p[2], p[4], p[6])
 
 
 def p_loop_expr(p):
     '''loop_expr : WHILE expr LOOP expr POOL'''
-    p[0] = ast.LoopNode(p[2], p[4])
+    p[0] = LoopNode(p[2], p[4])
 
 
 def p_block(p):
@@ -140,7 +142,7 @@ def p_block_list(p):
 
 def p_let_expr(p):
     '''let_expr : LET assign_list IN expr'''
-    p[0] = ast.LetNode(p[2], p[4])
+    p[0] = LetNode(p[2], p[4])
 
 
 def p_assign_list(p):
@@ -168,7 +170,7 @@ def p_assign_oper(p):
 
 def p_case_expr(p):
     '''case_expr : CASE expr  OF case_list ESAC'''
-    p[0] = ast.CaseNode(p[2], p[4])
+    p[0] = CaseNode(p[2], p[4])
 
 
 def p_case_list(p):
@@ -182,12 +184,12 @@ def p_case_list(p):
 
 def p_case_elem(p):
     '''case_elem : ID COLON TYPE ARROW expr'''
-    p[0] = ast.CaseElemNode(p[5], p[1], p[3])
+    p[0] = CaseElemNode(p[5], p[1], p[3])
 
 
 def p_init_expr(p):
     '''init_expr : NEW TYPE'''
-    p[0] = ast.InitNode(p[2])
+    p[0] = InitNode(p[2])
 
 
 def p_expr(p):
@@ -195,7 +197,7 @@ def p_expr(p):
             | cmp
             | e'''
     if len(p) == 3:
-        p[0] = ast.LogicNegationNode(p[2])
+        p[0] = LogicNegationNode(p[2])
     else:
         p[0] = p[1]
 
@@ -207,15 +209,15 @@ def p_cmp(p):
            | e GREATEREQ e
            | e LOWEREQ e'''
     if p[2] == '>':
-        p[0] = ast.GreaterThanNode(p[1], p[3])
+        p[0] = GreaterThanNode(p[1], p[3])
     elif p[2] == '<':
-        p[0] = ast.LessThanNode(p[1], p[3])
+        p[0] = LessThanNode(p[1], p[3])
     elif p[2] == 'GREATEREQ':
-        p[0] = ast.GreaterEqNode(p[1], p[3])
+        p[0] = GreaterEqNode(p[1], p[3])
     elif p[2] == 'LOWEREQ':
-        p[0] = ast.LessEqNode(p[1], p[3])
+        p[0] = LessEqNode(p[1], p[3])
     elif p[2] == '=':
-        p[0] = ast.EqNode(p[1], p[3])
+        p[0] = EqNode(p[1], p[3])
 
 
 def p_e(p):
@@ -226,9 +228,9 @@ def p_e(p):
         p[0] = p[1]
     else:
         if p[2] == '+':
-            p[0] = ast.PlusNode(p[1], p[3])
+            p[0] = PlusNode(p[1], p[3])
         elif p[2] == '-':
-            p[0] = ast.MinusNOde(p[1], p[3])
+            p[0] = MinusNode(p[1], p[3])
 
 
 def p_t(p):
@@ -239,9 +241,9 @@ def p_t(p):
         p[0] = p[1]
     else:
         if p[2] == '*':
-            p[0] = ast.StarNode(p[1], p[3])
+            p[0] = StarNode(p[1], p[3])
         elif p[2] == '/':
-            p[0] = ast.DivNode(p[1], p[3])
+            p[0] = DivNode(p[1], p[3])
     pass
 
 
@@ -254,9 +256,9 @@ def p_f(p):
         p[0] = p[2]
     if len(p) == 3:
         if p[1] == '~':
-            p[0] = ast.NegationNode(p[2])
+            p[0] = NegationNode(p[2])
         if p[1] == 'ISVOID':
-            p[0] = ast.IsVoidNode(p[2])
+            p[0] = IsVoidNode(p[2])
     else:
         p[0] = p[1]
     pass
@@ -275,16 +277,11 @@ def p_atom(p):
             | let_expr
             | case_expr
             | init_expr'''
-    p[0] = ast.AtomNode(p[1])
+    p[0] = AtomNode(p[1])
 
 
 def p_error(p):
-    if p:
-        line = p.lineno
-        pos = p.lexpos
-        print(f'({line}, {pos}) - SyntacticError: ERROR at or near \"{p.value[0]}\"')
-    else:
-        print('EOF')
+    add_parser_error(p.lineno, find_column(p.lexer.lexdata, p.lexpos), f'ERROR at or near \"{p.value[0]}\"')
 
 
 parser = yacc.yacc()
