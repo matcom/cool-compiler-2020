@@ -57,6 +57,8 @@ tokenType = {
     "SEMICOLON":    semi, 
     "NUMBER":       integer,    
     "eof":          eof,
+    "PLUS":         plus,
+    "MINUS":        minus,
     #"TRUE":         
     #"FALSE",   
 }
