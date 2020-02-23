@@ -1,0 +1,14 @@
+from .utils import ERROR_FORMAT
+from pipeline import State
+
+class Reader(State):
+    def __init__(self, name):
+        super().__init__(name)
+
+    def run(self, path):
+        try:
+            raw = open(path).read()
+            return raw
+        except:
+            self.errors.append(ERROR_FORMAT % (0, 0, 'CompilerError', 'Missing input file'))
+            self.stop = True # stop pipeline

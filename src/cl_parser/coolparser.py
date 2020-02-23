@@ -2,7 +2,7 @@
 from cl_ast import *
 from cl_lexer.coollexer import CoolLexer
 from pipeline import State
-from utils import ERROR_FORMAT, find_column
+from tools.utils import ERROR_FORMAT, find_column
 import ply.yacc as yacc
 
 class CoolParser(State):
@@ -12,8 +12,8 @@ class CoolParser(State):
         self.tokens = self.lexer.tokens
         self.parser = yacc.yacc(module=self)
 
-    def run(self, inputx):
-        ast = self.parser.parse(inputx, lexer=self.lexer)
+    def run(self, raw):
+        ast = self.parser.parse(raw, lexer=self.lexer)
         self.errors = self.lexer.errors + self.errors
         return ast
 

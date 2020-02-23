@@ -6,12 +6,14 @@ class Pipeline(object):
     def submit_state(self, state):
         self.states.append(state)
 
-    def run_pipeline(self, raw):
+    def run_pipeline(self, inputx):
         self.pipeline_errors.clear() # clean old errors
 
-        res = raw
+        res = inputx
         for state in self.states:
             res = state.run(res)
+            if state.stop:
+                break
 
         # collect errors from current state
         self.pipeline_errors += state.errors

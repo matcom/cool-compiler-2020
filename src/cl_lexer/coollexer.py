@@ -2,7 +2,7 @@
 
 import ply.lex as lex
 from pipeline import State
-from utils import ERROR_FORMAT, find_column
+from tools.utils import ERROR_FORMAT, find_column
 
 class CoolLexer(State):
     def __init__(self, name, **kwargs):
@@ -10,16 +10,11 @@ class CoolLexer(State):
         self.lexer = lex.lex(module=self, **kwargs)
         self.balance = 0
 
-    # TODO: Change to Dispatch
-    # -------------------------------
-
     def input(self, raw):
         return self.lexer.input(raw)
 
     def token(self):
         return self.lexer.token()
-
-    # -------------------------------
 
     def run(self, inputx):
         self.lexer.input(inputx)
