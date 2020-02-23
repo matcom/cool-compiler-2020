@@ -59,6 +59,10 @@ tokenType = {
     "eof":          eof,
     "PLUS":         plus,
     "MINUS":        minus,
+    "DIVIDE":       div,
+    "LESS":         less,
+    "LESSEQ":       leq,
+    "EQUALS":       equal,
     #"TRUE":         
     #"FALSE",   
 }

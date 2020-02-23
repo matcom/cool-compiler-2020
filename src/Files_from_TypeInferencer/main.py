@@ -3,6 +3,7 @@ import logging
 from time import sleep
 from core.cmp.visitors import *
 from core.cmp.evaluation import *
+from core.cmp.lex import tokenize
 
 
 def build_AST(G, text):
@@ -109,4 +110,12 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    test_data = '''0007 123 +1 -1 +90 -09 +11113 -4r *a *self* c++ 
+class Class if then else fi testing Testing ~007agent_bond james_007bones___
+
+
+new / <- <<==> {( Int: Objet, Bool; String.string SELF_TYPE isvoid })
+loop pool while tRuE or noT faLsE let in case of ESAC'''
+    tokens, errors = tokenize(test_data)
+    print(errors)
