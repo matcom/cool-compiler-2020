@@ -136,7 +136,7 @@ def t_eof(t):
     return None
 
 def compute_column(token):
-    line_start = __lexer__.rfind('\n', 0, token.lexpos) + 1
+    line_start = __text__.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
 def t_error(t):
