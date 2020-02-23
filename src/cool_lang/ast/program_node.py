@@ -2,7 +2,7 @@ from .node import Node
 
 
 class ProgramNode(Node):
-    def __init__(self, declarations):
+    def __init__(self, declarations, line, column):
         self.declarations = declarations
-        self.line = declarations[0].line
-        self.column = declarations[0].column
+        self.line = line
+        self.column = column

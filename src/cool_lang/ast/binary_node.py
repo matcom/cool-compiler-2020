@@ -2,8 +2,8 @@ from .expresion_node import ExpressionNode
 
 
 class BinaryNode(ExpressionNode):
-    def __init__(self, left, right):
+    def __init__(self, left, right, line, column):
         self.left = left
         self.right = right
-        self.line = left.line
-        self.column = left.column
+        self.line = line
+        self.column = column
