@@ -14,6 +14,10 @@ if not clexer.tokenize(code):
         print(error)
     exit(1)
 
+if not list(filter(lambda x: x.type != 'COMMENT', clexer.result)):
+    print('(0, 0) - SyntacticError: ERROR at or near EOF')
+    exit(1)
+
 cparser = COOL_PARSER()
 if not cparser.parse(clexer):
     for error in cparser.errors:

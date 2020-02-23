@@ -231,6 +231,8 @@ class COOL_LEXER(object):
             return None
         result = None
         while True:
+            if self.index >= len(self.result):
+                return None
             result = self.result[self.index]
             self.index += 1
             if result.type != 'COMMENT':
