@@ -194,7 +194,7 @@ def t_string_error(t):
 
 
 def t_string_eof(t):
-    add_lexer_error(t.lineno, find_column(t.lexer.lexdata, t.lexpos), "EOF in string constant")
+    add_lexer_error(t.lineno, find_column(t.lexer.lexdata, t.lexpos), "Unterminated string constant")
 
 
 def t_error(t):
