@@ -281,7 +281,10 @@ def p_atom(p):
 
 
 def p_error(p):
-    add_parser_error(p.lineno, find_column(p.lexer.lexdata, p.lexpos), f'ERROR at or near \"{p.value[0]}\"')
+    if p:
+        add_parser_error(p.lineno, find_column(p.lexer.lexdata, p.lexpos), f'ERROR at or near \"{p.value}\"')
+    else:
+        add_parser_error(0, 0, "ERROR at or near EOF")
 
 
 parser = yacc.yacc()

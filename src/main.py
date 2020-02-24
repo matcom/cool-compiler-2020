@@ -21,8 +21,10 @@ def main():
         exit_with_error(f'file {sys.argv[1]} not found')
 
     ast = p.parser.parse(input_data, lex.lexer)
-    for e in err.LEXER_ERRORS:
-        print(e)
+    if err.LEXER_ERRORS:
+        for e in err.LEXER_ERRORS:
+            print(e)
+        exit(1)
     for e in err.PARSER_ERRORS:
         print(e)
 

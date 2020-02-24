@@ -104,7 +104,6 @@ def t_LINECOMMENT(t):
     t.lexer.begin('commentLine')
 
 
-
 def t_TEXTCOMMENT(t):
     r'\(\*'
     t.lexer.comment_start = t.lexer.lexpos
@@ -182,7 +181,8 @@ def t_string_newline(t):
 def t_string_body(t):
     r'([^\n\"\\]|\\.)+'
     if t.value.rfind('\0') != -1:
-        add_lexer_error(t.lineno, find_column(t.lexer.lexdata, t.lexpos), "String contains null character")
+        add_lexer_error(t.lineno, find_column(t.lexer.lexdata, t.lexpos) + t.value.rfind('\0'),
+                        "String contains null character")
 
 
 def t_string_error(t):
