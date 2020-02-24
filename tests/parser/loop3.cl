@@ -44,7 +44,7 @@ class Test {
     count: Int <- 1;
 
     testing6(): Object {
-        while count > 1024*1024 -- Condition must be an expression
+        while count => 1024*1024 -- Condition must be an expression
         loop 
             count <- count * 2 
         pool
