@@ -25,8 +25,10 @@ def main():
         for e in err.LEXER_ERRORS:
             print(e)
         exit(1)
-    for e in err.PARSER_ERRORS:
-        print(e)
+    if err.PARSER_ERRORS:
+        for e in err.PARSER_ERRORS:
+            print(e)
+        exit(1)
 
 
 if __name__ == "__main__":
