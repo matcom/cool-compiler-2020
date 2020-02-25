@@ -51,6 +51,80 @@ class CoolLexer:
             line = t.lineno
             column = find_column(self.lexer, t)
             self.errors.append(LexicographicError(error_text, line, column))
+    
+    #Strings
+    def t_strings(self,t):
+        r'\"'
+        t.lexer.str_start = t.lexer.lexpos
+        t.lexer.myString = ''
+        t.lexer.backslash = False
+        t.lexer.begin('strings')
+
+    def t_strings_end(self,t):
+        r'\"'
+        if t.lexer.backslash : 
+            t.lexer.myString += '"'
+            t.lexer.backslash = False
+        else:
+            t.value = t.lexer.myString 
+            t.type = 'string'
+            t.lexer.begin('INITIAL')           
+            return t
+
+    def t_strings_newline(self,t):
+        r'\n'
+        t.lexer.lineno += 1
+        if not t.lexer.backslash:
+            error_text = LexicographicError.UNDETERMINATED_STRING
+            line = t.lineno
+            column = find_column(self.lexer, t)
+            self.errors.append(LexicographicError(error_text, line, column))
+            t.lexer.begin('INITIAL')
+
+    def t_strings_nill(self,t):
+        r'\0'
+        error_text = LexicographicError.NULL_STRING
+        line = t.lineno
+        column = find_column(self.lexer, t)
+        self.errors.append(LexicographicError(error_text, line, column))
+
+    def t_strings_consume(self,t):
+        r'[^\n]'
+
+        if t.lexer.backslash :
+            if t.value == 'b':
+                t.lexer.myString += '\b'
+            
+            elif t.value == 't':
+                t.lexer.myString += '\t'
+
+            
+            elif t.value == 'f':
+                t.lexer.myString += '\f'
+
+            
+            elif t.value == 'n':
+                t.lexer.myString += '\n'
+            
+            elif t.value == '\\':
+                t.lexer.myString += '\\'
+            else:
+                t.lexer.myString += t.value
+            t.lexer.backslash = False
+        else:
+            if t.value != '\\':
+                t.lexer.myString += t.value
+            else:
+                t.lexer.backslash = True 
+
+
+    t_strings_ignore = ''
+
+    def t_strings_eof(self,t):
+        error_text = LexicographicError.EOF_STRING
+        line = t.lineno
+        column = find_column(self.lexer, t) 
+        self.errors.append(LexicographicError(error_text, line, column))
 
 
     # Regular expressions for simple tokens
@@ -97,12 +171,6 @@ class CoolLexer:
         r'\d+(\.\d+)? '
         t.value = float(t.value)
         return t
-    
-    # TODO: Los strings no pueden contener \n, \0, strings anidados, eof en strings
-    def t_string(self, t): 
-        r'"[^"]*"'
-        t.value = t.value[1:-1]
-        return t
 
     def t_comment(self, t):
         r'--.*($|\n)'
@@ -116,12 +184,13 @@ class CoolLexer:
 
     # Error handling rule
     def t_error(self, t):
-        error_text = LexicographicError.UNKNOWN_TOKEN % t.value
+        error_text = LexicographicError.UNKNOWN_TOKEN % t.value[0]
         line = t.lineno
         column = find_column(self.lexer, t)
         
         self.errors.append(LexicographicError(error_text, line, column))
-        t.lexer.skip(len(t.value))
+        t.lexer.skip(1)
+        #t.lexer.skip(len(t.value))
     
     def tokenize_text(self, text):
         self.lexer.input(text)
@@ -135,28 +204,8 @@ class CoolLexer:
 if __name__ == "__main__":
     lexer = CoolLexer()
 
-    data = '''
-class Main inherits IO {
-	str <- "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-	main() : Object {
-			{
-					out_string("Enter number of numbers to multiply\n");
-					out_int(prod(in_int()));
-					out_string("\n");
-			}
-	};
-	prod(i : Int) : Int {
-		let y : Int <- 1 in {
-			while (not (i = 0) ) loop {
-				out_string("Enter Number: ");
-				y <- y * in_int();
-				i <- i - 1;
-			}
-			y;
-		}
-	};
-}
-    '''
-
+    data = open('comment1.cl',encoding='utf-8')
+    data = data.read()
     res = lexer.tokenize_text(data)
-    pprint(res)
+    #pprint(res)
+    pprint(lexer.errors)

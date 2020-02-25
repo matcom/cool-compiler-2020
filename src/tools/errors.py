@@ -36,6 +36,7 @@ class LexicographicError(CoolError):
     UNDETERMINATED_STRING = 'Undeterminated string constant'
     EOF_COMMENT = 'EOF in comment'
     EOF_STRING = 'EOF in string constant'
+    NULL_STRING = 'String contains null character'
 
     @property
     def error_type(self):
