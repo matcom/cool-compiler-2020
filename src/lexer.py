@@ -1,50 +1,9 @@
 import ply.lex as lex
-import re
+import tokens
 
 class CoolLexer:
 
-    keywords = [
-        'CLASS',
-        'ELSE',
-        'FI',
-        'IF',
-        'IN',
-        'INHERITS',
-        'ISVOID',
-        'LET',
-        'LOOP',
-        'POOL',
-        'THEN',
-        'WHILE',
-        'CASE',
-        'ESAC',
-        'NEW',
-        'OF'
-    ]
-
-    operators = [
-        'PLUS',
-        'MINUS',
-        'MULT',
-        'DIV',
-        'ASSIGN',
-        'LESS',
-        'LESSEQUAL',
-        'EQUAL',
-        'INT_COMPLEMENT',
-        'NOT'
-    ]
-
-     #list of token names
-    tokens = [
-        'INTEGER',
-        'STRING',
-        'BOOL',
-        'TYPE',
-        'OBJECT',
-        'SPECIAL'
-     ] + operators + keywords
-
+    tokens =  tokens.tokens
     #list of errors
     errors = []
 
@@ -58,7 +17,6 @@ class CoolLexer:
     t_MINUS = r'\-'
     t_MULT = r'\*'
     t_DIV = r'\/'
-    t_ASSIGN = r'<-'
     t_LESS = r'<'
     t_LESSEQUAL = r'<='
     t_EQUAL = r'='
@@ -98,9 +56,17 @@ class CoolLexer:
         return t
 
     #regular expresion rule for special
-    def t_SPECIAL(self, t):
-        r'\(|\)|{|}|\.|;|,|:|@|=>'
-        return t
+    t_OCUR = r'{'
+    t_CCUR = r'}'
+    t_OPAR = r'\('
+    t_CPAR = r'\)'
+    t_DOT = r'\.'
+    t_SEMI = r';'
+    t_COLON = r':'
+    t_COMMA = r','
+    t_AT = '@'
+    t_ASSIGN = r'<-'
+    t_RARROW = r'=>'
 
     #others regular expresions
     def t_newline(self, t):
