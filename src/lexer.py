@@ -127,14 +127,14 @@ class CoolLexer:
         r"\n"
         t.lexer.lineno += 1
         if not t.lexer.string_backslashed:
-            self.errors.append("({0}, {1}) - LexicographicError: 'Unterminated string constant'".format(t.lineno, self.find_column(self.data, t)))
+            self.errors.append("({0},{1}) - LexicographicError: 'Unterminated string constant'".format(t.lineno, self.find_column(self.data, t)))
             t.lexer.pop_state()
         else:
             t.lexer.string_backslashed = False
 
     def t_STRING_null(self, t):
         r"\0"
-        self.errors.append("({0}, {1}) - LexicographicError: 'Null character in string'".format(t.lineno, self.find_column(self.data, t)))
+        self.errors.append("({0},{1}) - LexicographicError: 'Null character in string'".format(t.lineno, self.find_column(self.data, t)))
         t.lexer.skip(1)
 
     def t_STRING_end(self, t):
@@ -175,17 +175,17 @@ class CoolLexer:
 
     # STRING error handler
     def t_STRING_error(self, t):
-        self.errors.append("({0}, {1}) - LexicographicError: 'ERROR at or near {2}'".format(t.lineno, self.find_column(self.data, t), t.value[:10]))
+        self.errors.append("({0},{1}) - LexicographicError: 'ERROR at or near {2}'".format(t.lineno, self.find_column(self.data, t), t.value[:10]))
         t.lexer.skip(1)
 
     def t_STRING_eof(self, t):
-        self.errors.append("({0}, {1}) - LexicographicError: 'EOF in string'".format(t.lineno, self.find_column(self.data, t)))
+        self.errors.append("({0},{1}) - LexicographicError: 'EOF in string'".format(t.lineno, self.find_column(self.data, t)))
         t.lexer.pop_state()
     
 
     #regular expresion rule for error
     def t_error(self, t):
-        self.errors.append("({0}, {1}) - LexicographicError: ' UNKNOW character {2}'".format(t.lineno, self.find_column(self.data, t), t.value[0]))
+        self.errors.append("({0},{1}) - LexicographicError: ' UNKNOW character {2}'".format(t.lineno, self.find_column(self.data, t), t.value[0]))
         t.lexer.skip(1)
         pass
 
@@ -248,6 +248,6 @@ class CoolLexer:
             idx = idx +1
         
         if comments > 0:
-            self.errors.append("({0}, {1}) - LexicographicError: 'EOF in comment'".format(lineno, idx - last_nidx))
+            self.errors.append("({0},{1}) - LexicographicError: 'EOF in comment'".format(lineno, idx - last_nidx))
 
         return text_ret
