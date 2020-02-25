@@ -56,6 +56,11 @@ def find_position(input, token):
 t_ignore = ' \t\f\r\v'
 t_ignore_single_comment = r'\-\-[^\n]*'
 
+# count line number
+def t_INITIAL_comment_newline(t):
+    r'\n+'
+    addline(t)
+
 def t_BOOL(t):
     r't[rR][uU][eE]|f[aA][lL][sS][eE]'
     d = t.value.lower()
@@ -116,11 +121,7 @@ def t_comment_error(t):
     print(t.values, 'error en comment')
     t.lexer.skip(1)
 
-# count line number
-def t_INITIAL_comment_newline(t):
-    r'\n+'
-    addline(t)
-
+# string state
 def t_string(t):
     r'\"'
     t.lexer.begin('string')
@@ -178,3 +179,19 @@ def t_string_all(t):
     else:
         t.lexer.string += t.value
         
+lex.lex(debug=1)
+
+###### TOKENIZER ######
+
+def tokenizer(code):
+    tokens = []
+    lex.input(code)
+    while True:
+        token = lex.token()
+        if token is None:
+            break
+        ##Add token
+        pass
+    #tokens.append(Token('$', CoolGrammar.EOF))
+
+    return tokens, lex.errors
