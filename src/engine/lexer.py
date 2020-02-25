@@ -83,3 +83,20 @@ states = (
    ('comment','exclusive')
  )
 
+def t_comment(t):
+    r'\('
+    t.lexer.comments = 1
+    #t.lexer.unterminated_slash = False
+    t.lexer.begin('comment')
+
+t_comment_ignore = ''
+
+def t_comment_opar(t):
+    r'\(\*'
+    t.lexer.comments += 1
+
+def t_comment_cpar(t):
+    r'\*\)'
+    t.lexer.comments -=1
+    if not t.lexer.comments:
+        t.lexer.begin('INITIAL')
