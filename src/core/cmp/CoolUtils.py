@@ -155,7 +155,7 @@ program = CoolGrammar.NonTerminal('<program>', startSymbol=True)
 class_list, def_class = CoolGrammar.NonTerminals('<class-list> <def-class>')
 feature_list, feature = CoolGrammar.NonTerminals('<feature-list> <feature>')
 param_list, param = CoolGrammar.NonTerminals('<param-list> <param>')
-expr, member_call, expr_list, let_list, case_list = CoolGrammar.NonTerminals('<expr> <member-call> <expr-list> <let-list> <case-list>')
+expr, member_call, expr_list, block, let_list, case_list = CoolGrammar.NonTerminals('<expr> <member-call> <expr-list> <block> <let-list> <case-list>')
 truth_expr, comp_expr = CoolGrammar.NonTerminals('<truth-expr> <comp-expr>')
 arith, term, factor, factor_2, factor_3 = CoolGrammar.NonTerminals('<arith> <term> <factor> <factor-2> <factor-3>')
 atom, func_call, arg_list = CoolGrammar.NonTerminals('<atom> <func-call> <arg-list>')
@@ -213,8 +213,13 @@ expr %= idx + larrow + expr, lambda h, s: AssignNode(s[1], s[3])
 expr %= truth_expr, lambda h, s: s[1]
 
 # <expr-list>
-expr_list %= expr + semi, lambda h, s: [s[1]]
-expr_list %= expr + semi + expr_list, lambda h, s: [s[1]] + s[3]
+# expr_list %= expr + semi, lambda h, s: [s[1]]
+# expr_list %= expr + semi + expr_list, lambda h, s: [s[1]] + s[3]
+expr_list %= expr, lambda h, s: [s[1]]
+expr_list %= ocur + block + ccur, lambda h, s: s[2]
+
+block %= expr + semi, lambda h, s: [s[1]]
+block %= expr + semi + block, lambda h, s: [s[1]] + s[3]
 
 # <let-list>
 let_list %= idx + colon + typex, lambda h, s: [LetAttributeNode(s[1], s[3])]

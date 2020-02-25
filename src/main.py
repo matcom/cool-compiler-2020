@@ -32,7 +32,7 @@ def main(args):
     parse, (failure, token) = CoolParser(tokens)
     
     if failure:
-        print(f"({token.row},{token.column}) - SemanticError: Unexpected token {token}") #TODO: Use correct line and column
+        print(f"({token.row},{token.column}) - SyntacticError: Unexpected token {token}") #TODO: Use correct line and column
         exit(1)
 
     # Comming soon pipeline steps
