@@ -6,7 +6,9 @@ from .CoolUtils import *
 class CoolLexer:
 
     states = (
-        ('comments', 'inclusive'),
+        ('comments', 'exclusive'),
+        ('strings', 'exclusive'),
+        
     )
 
     reserved = {
@@ -74,6 +76,7 @@ class CoolLexer:
         "COMMA":        comma,
         "DOT":          dot,
         "AT":           at,
+        "STRING":       string,
     }
 
 
@@ -100,7 +103,8 @@ class CoolLexer:
         'LARROW',
         'COMMA',
         'DOT',
-        'AT'
+        'AT',
+        
 
     ] + list(reserved.values())
 
@@ -125,12 +129,22 @@ class CoolLexer:
     t_AT            = r'@'
 
     t_ignore = ' \t\f\r\t\v'
+    t_comments_ignore = ''
 
     def build(self, **kwargs):
         self.lexer = lex.lex(module=self, **kwargs)
         self.lexer.eof= (1,1)
-        self.lexer.comment_level = 0
+        self.comment_level = 0
         self.errors = []
+        self.string = ""
+
+    def t_comments_COMMENTOUT(self, t):
+        r'\*\)'
+        if self.comment_level == 0:
+            self.lexer.begin('INITIAL')
+        else:
+            self.comment_level -= 1
+        
 
     # def t_comments_EQUALS(self, t):
     #     r'='
@@ -195,9 +209,61 @@ class CoolLexer:
     # def t_comments_OBJECTIDENTIFIER(self, t):
     #     r'[a-z][a-zA-Z0-9|_]*'
     
-    # def t_comments_anything(self, t):
-        # r'.*'
-        
+    def t_STRINGIN(self, t):
+        r'"'
+        self.string = ""
+        t.lexer.begin('strings')
+    
+    def t_strings_NULL(self, t):
+        r'\0'
+        line = t.lexer.lineno
+        column = self.compute_column(t)
+        self.errors.append(f"({line},{column}) - LexicographicError: Null caracter in string")
+    
+    def t_strings_newline(self, t):
+        r'\\\n'
+        t.lexer.lineno+=1
+        self.string += '\n'
+
+    def t_strings_invalid_new_line(self, t):
+        r'\n'
+        line = t.lexer.lineno
+        t.lexer.lineno+=1
+        column = self.compute_column(t)
+        self.errors.append(f"({line},{column}) - LexicographicError: Unterminated string constant")
+        t.lexer.begin("INITIAL")
+    
+    # def t_string
+
+    def t_strings_escaped_special_character(self, t):
+        r'\\(b|t|f)'
+        self.string+= t.value
+    
+    def t_strings_escaped_character(self, t):
+        r'\\.'
+        self.string+= t.value[1]
+
+    def t_strings_STRINGOUT(self, t):
+        r'"'
+        t.lexer.begin('INITIAL')
+        t.type = 'STRING'
+        t.value = self.string
+        return t
+
+    def t_strings_character(self, t):
+        r'.'
+        self.string += t.value
+
+    def t_strings_eof(self, t):
+        line = t.lexer.lineno
+        column = self.compute_column(t)
+        self.errors.append(f"({line},{column}) - LexicographicError: EOF in string constant")
+
+    
+
+
+
+
     def t_TYPEIDENTIFIER(self, t):
         r'[A-Z][a-zA-Z0-9|_]*'
         l_value = t.value.lower()
@@ -221,7 +287,7 @@ class CoolLexer:
         t.value = int(t.value)
         return t
 
-    def t_newline(self, t):
+    def t_ANY_newline(self, t):
         r'\n+'
         t.lexer.lineno += len(t.value)
 
@@ -230,20 +296,12 @@ class CoolLexer:
     
     def t_COMMENTIN(self, t):
         r'\(\*'
-        self.lexer.comment_level = 1
         self.lexer.begin('comments')
     
     def t_comments_COMMENTIN(self, t):
         r'\(\*'
-        self.lexer.comment_level += 1
+        self.comment_level += 1
             
-    def t_comments_COMMENTOUT(self, t):
-        r'\*\)'
-        if self.lexer.comment_level == 1:
-            self.lexer.begin('INITIAL')
-        self.lexer.comment_level -= 1
-            
-        
     def t_eof(self, t):
         t.lexer.eof =(t.lexer.lineno, self.compute_column(t))
         return None

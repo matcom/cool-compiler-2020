@@ -122,4 +122,6 @@ if __name__ == '__main__':
     toks, errors = lex.tokenize(text)
     print(f"TEST {basename(input_file)}")
     print(errors)
+    for token in toks:
+        print(token)
        
