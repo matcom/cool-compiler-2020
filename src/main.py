@@ -1,5 +1,6 @@
 from core.cmp.CoolUtils import tokenize_text, CoolParser
 from core.cmp.lex import CoolLexer
+from pprint import pprint
 
 
 def main(args):
@@ -24,11 +25,14 @@ def main(args):
     
     if lexer_err:
         exit(1)
-
+    pprint(tokens)
+    # for t in tokens:
+        # print(t.token_type)
     # Parse
-    parse, (failure, token) = CoolParser([t.token_type for t in tokens])
+    parse, (failure, token) = CoolParser(tokens)
+    
     if failure:
-        print(f"(0,0) - SemanticError: Unexpected token {token}") #TODO: Use correct line and column
+        print(f"({token.row},{token.column}) - SemanticError: Unexpected token {token}") #TODO: Use correct line and column
         exit(1)
 
     # Comming soon pipeline steps
