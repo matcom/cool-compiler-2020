@@ -78,7 +78,6 @@ t_STAR = r'\*'
 t_DIV = r'/'
 t_NOT = r'~'
 t_COMMA = r','
-t_TYPE = r'[A-Z]+([a-z]|[A-Z]|[0-9]|_)*'
 
 
 def t_INT(t):
@@ -86,10 +85,14 @@ def t_INT(t):
     t.value = int(t.value)
     return t
 
+def t_TYPE(t):
+    r'[A-Z][a-zA-Z_0-9]*'
+    t.type = reserved.get(t.value.lower(),'TYPE')
+    return t
 
 def t_ID(t):
     r'[a-z][a-zA-Z_0-9]*'
-    t.type = reserved.get(t.value, 'ID')
+    t.type = reserved.get(t.value.lower(), 'ID')
     return t
 
 
