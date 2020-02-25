@@ -65,9 +65,3 @@ def compare_errors(compiler_path: str, cool_file_path: str, error_file_path: str
         print(return_code, output)
         assert return_code == 0, TEST_MUST_COMPILE % get_file_name(cool_file_path)
 
-
-if __name__ == "__main__":
-    compiler_path = '/media/loly/02485E43485E359F/_Escuela/__UH/4to Año/Complementos de Compilación/Compiler/cool-compiler-2020/src/coolc.sh'
-    cool_file_path = '/media/loly/02485E43485E359F/_Escuela/__UH/4to Año/Complementos de Compilación/Compiler/cool-compiler-2020/tests/parser/program3.cl'
-    sp = subprocess.run(['bash', compiler_path, cool_file_path], capture_output=True, timeout=1000)
-    return_code, output = sp.returncode, sp.stdout.decode()

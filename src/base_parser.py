@@ -12,15 +12,15 @@ class Parser:
         self.outputdir = 'src/output_parser'
         self.tokens = tokens
         self.errors = False
-        yacc.yacc(start='program',
-                  module=self, 
-                  outputdir=self.outputdir,
-                  optimize=1,
-                  debuglog=log,
-                  errorlog=log)
+        self.parser = yacc.yacc(start='program',
+                                module=self, 
+                                outputdir=self.outputdir,
+                                optimize=1,
+                                debuglog=log,
+                                errorlog=log)
         
    
     def parse(self, program, debug=False):
         self.errors = False
         # tokens = self.lexer.tokenize_text(program)
-        return yacc.parse(program, self.lexer.lexer, debug=debug)
+        return self.parser.parse(program, self.lexer.lexer, debug=log)

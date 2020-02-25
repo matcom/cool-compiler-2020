@@ -9,7 +9,7 @@ echo "LINEA_CON_NOMBRE_Y_VERSION_DEL_COMPILADOR"    # TODO: Recuerde cambiar est
 echo "Copyright (c) 2019: Loraine Monteagudo, Amanda Marrero, Manuel Fernandez"
 
 FILE="../src/main.py" 
-echo $FILE
+# echo $FILE
 
-echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
+# echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 python ${FILE} $INPUT_FILE 

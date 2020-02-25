@@ -36,9 +36,11 @@ class CoolParser(Parser):
 
     def p_def_class_error(self, p):
         '''def_class : class error ocur feature_list ccur semi 
+                     | class type ocur feature_list ccur error   
                      | class error inherits type ocur feature_list ccur semi
                      | class error inherits error ocur feature_list ccur semi
-                     | class type inherits error ocur feature_list ccur semi'''
+                     | class type inherits error ocur feature_list ccur semi
+                     | class type inherits type ocur feature_list ccur error'''
         p[0] = ErrorNode()
 
 
@@ -96,8 +98,9 @@ class CoolParser(Parser):
         p[0] = [p[1]] if len(p) == 2 else [p[1]] + p[3]
 
     def p_param_list_error(self, p):
-        '''param_list : error param_list'''
-        p[0] = [ErrorNode()] if len(p) == 2 else [ErrorNode()] + p[2]        
+        '''param_list : error comma param_list
+                      | param comma error'''
+        p[0] = [ErrorNode()]        
 
 
     def p_param_list_empty(self, p):
@@ -109,68 +112,21 @@ class CoolParser(Parser):
         p[0] = (p[1], p[3])
 
 
-    def p_expr_let(self, p):
-        'expr : let let_list in expr'
-        p[0] = LetNode(p[2], p[4])
-
-    def p_expr_let_error(self, p):
-        '''expr : let error in expr
-                | let let_list in error'''
-        p[0] = ErrorNode()
-
-
-    def p_expr_case(self, p):
-        'expr : case expr of cases_list esac'        
-        p[0] = CaseNode(p[2], p[4])
-
-    def p_expr_case_error(self, p):
-        '''expr : case error of cases_list esac
-                | case expr of error esac'''
-        p[0] = ErrorNode()
-
-
-    def p_expr_if(self, p):
-        'expr : if expr then expr else expr fi'
-        p[0] = ConditionalNode(p[2], p[4], p[6])
-
-    def p_expr_if_error(self, p):
-        '''expr : if error then expr else expr fi
-                | if expr then error else expr fi
-                | if expr then expr else error fi'''
-        p[0] = ErrorNode()
-
-
-    def p_expr_while(self, p):
-        'expr : while expr loop expr pool'
-        p[0] = WhileNode(p[2], p[4])
-
-
-    def p_expr_while_error(self, p):
-        '''expr : while error loop expr pool
-                | while expr loop error pool
-                | while expr loop expr error'''
-        p[0] = ErrorNode()
-
-
-    def p_expr_arith(self, p):
-        'expr : arith'
-        p[0] = p[1]
-
-
     def p_let_list(self, p):
         '''let_list : let_assign
                     | let_assign comma let_list'''
         p[0] = [p[1]] if len(p) == 2 else [p[1]] + p[3]
 
     def p_let_list_error(self, p):
-        'let_list : error let_list'
-        p[0] = ErrorNode()
+        '''let_list : error let_list
+                    | error'''
+        p[0] = [ErrorNode()]
 
     def p_let_assign(self, p):
         '''let_assign : param larrow expr
                       | param'''
         if len(p) == 2:
-            p[0] = VariableNode(p[1][0], p[1][1])
+            p[0] = VariableNode((p[1][0], p[1][1]))
         else:
             p[0] = VarDeclarationNode(p[1][0], p[1][1], p[3])
 
@@ -181,23 +137,21 @@ class CoolParser(Parser):
         p[0] = [p[1]] if len(p) == 3 else [p[1]] + p[3]
 
     def p_cases_list_error(self, p):
-        '''cases_list : error cases_list'''
-        p[0] = ErrorNode()
+        '''cases_list : error cases_list
+                      | error semi'''
+        p[0] = [ErrorNode()]
 
     def p_case(self, p):
         'casep : id colon type rarrow expr'
         p[0] = OptionNode(p[1], p[3], p[5])
 
 
-    def p_arith(self, p):
-        '''arith : id larrow expr
-                 | not comp
+    def p_expr(self, p):
+        '''expr : id larrow expr
                  | comp
         '''
         if len(p) == 4:
             p[0] = AssignNode(p[1], p[3])
-        elif len(p) == 3:
-            p[0] = NotNode(p[2])
         else:
             p[0] = p[1]
 
@@ -216,6 +170,13 @@ class CoolParser(Parser):
             p[0] = EqualNode(p[1], p[3])
 
 
+    def p_comp_error(self, p):
+        '''comp : comp less error
+                | comp lesseq error
+                | comp equal error'''
+        p[0] = ErrorNode()
+
+
     def p_op(self, p):
         '''op : op plus term
               | op minus term
@@ -226,6 +187,13 @@ class CoolParser(Parser):
             p[0] = PlusNode(p[1], p[3])
         elif p[2] == '-':
             p[0] = MinusNode(p[1], p[3])
+
+
+    def p_op_error(self, p):
+        '''op : op plus error
+              | op minus error'''
+        p[0] = ErrorNode()
+
 
     def p_term(self, p):
         '''term : term star base_call
@@ -243,6 +211,16 @@ class CoolParser(Parser):
             p[0] = StarNode(p[1], p[3])
         elif p[2] == '/': 
             p[0] = DivNode(p[1], p[3])
+
+    def p_term_error(self, p):
+        '''term : term star error
+                | term div error
+                | isvoid error
+                | nox error'''
+        if len(p) == 2:
+            p[0] = ErrorNode()
+        else:
+            p[0] = ErrorNode()   
 
     def p_base_call(self, p):
         '''base_call : factor arroba type dot func_call
@@ -263,13 +241,76 @@ class CoolParser(Parser):
                   | opar expr cpar''' 
         p[0] = p[1] if len(p) == 2 else p[2]
 
+    def p_factor1_error(self, p):
+        '''factor : opar expr error
+                  | error expr cpar
+                  | opar error cpar''' 
+        p[0] = ErrorNode()
+
+
     def p_factor2(self, p):
         '''factor : factor dot func_call
+                  | not expr
                   | func_call'''
         if len(p) == 2:
             p[0] = StaticCallNode(*p[1])
+        elif p[1] == 'not':
+            p[0] = NotNode(p[2])
         else:
             p[0] = CallNode(p[1], *p[3])
+
+
+    def p_expr_let(self, p):
+        'factor : let let_list in expr'
+        p[0] = LetNode(p[2], p[4])
+
+    def p_expr_let_error(self, p):
+        '''factor : let error in expr
+                | let let_list in error
+                | let let_list error expr'''
+        p[0] = ErrorNode()
+
+
+    def p_expr_case(self, p):
+        'factor : case expr of cases_list esac'        
+        p[0] = CaseNode(p[2], p[4])
+
+    def p_expr_case_error(self, p):
+        '''factor : case error of cases_list esac
+                | case expr of error esac
+                | case expr error cases_list esac
+                | case expr of cases_list error'''
+        p[0] = ErrorNode()
+
+
+    def p_expr_if(self, p):
+        'factor : if expr then expr else expr fi'
+        p[0] = ConditionalNode(p[2], p[4], p[6])
+
+    def p_expr_if_error(self, p):
+        '''factor : if error then expr else expr fi
+                | if expr then error else expr fi
+                | if expr then expr else error fi
+                | if expr error expr else expr fi
+                | if expr then expr error error expr fi
+                | if expr then expr error expr fi
+                | if expr then expr else expr error
+                | if error fi'''
+        p[0] = ErrorNode()
+
+
+    def p_expr_while(self, p):
+        'factor : while expr loop expr pool'
+        p[0] = WhileNode(p[2], p[4])
+
+
+    def p_expr_while_error(self, p):
+        '''factor : while error loop expr pool
+                | while expr loop error pool
+                | while expr loop expr error
+                | while expr error expr loop expr pool
+                | while expr error expr pool'''
+        p[0] = ErrorNode()
 
 
     def p_atom_num(self, p):
@@ -292,6 +333,12 @@ class CoolParser(Parser):
         'atom : ocur block ccur'
         p[0] = BlockNode(p[2])
 
+    def p_atom_block_error(self, p):
+        '''atom : error block ccur
+                | ocur error ccur
+                | ocur block error'''
+        p[0] = ErrorNode()
+
     def p_atom_boolean(self, p):
         '''atom : true
                 | false'''
@@ -309,7 +356,7 @@ class CoolParser(Parser):
 
     def p_block_error(self, p):
         '''block : error block
-                 | error'''
+                 | error semi'''
         p[0] = [ErrorNode()]
 
 

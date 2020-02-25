@@ -1,12 +1,12 @@
 from pprint import pprint
 from lexer import CoolLexer
 from parser import CoolParser
-import os
+import sys, os
 
 cwd = os.getcwd()
 
-# input_ = sys.argv[1]
-input_ = f'{cwd}/tests/parser/program3.cl' 
+input_ = sys.argv[1]
+# input_ = f'{cwd}/tests/parser/operation4.cl' 
 # output_ = args.output
 
 
@@ -15,15 +15,16 @@ try:
         data = f.read()
 
     lexer = CoolLexer()
+    tokens = lexer.tokenize_text(data)
+    if lexer.errors:
+        # print(lexer.errors)
+        raise Exception()
 
     parser = CoolParser(lexer)
-    if lexer.errors:
-        print(lexer.errors)
-        # raise Exception()
 
-    ast = parser.parse(data)
-    # if parser.errors:
-    #     raise Exception()
+    ast = parser.parse(data, debug=True)
+    if parser.errors:
+        raise Exception()
     # print(ast)
 
 except FileNotFoundError:
