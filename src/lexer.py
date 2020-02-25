@@ -117,6 +117,8 @@ class CoolLexer:
             else:
                 t.lexer.backslash = True 
 
+    def t_strings_error(self,t):
+        pass
 
     t_strings_ignore = ''
 
@@ -204,7 +206,7 @@ class CoolLexer:
 if __name__ == "__main__":
     lexer = CoolLexer()
 
-    data = open('comment1.cl',encoding='utf-8')
+    data = open('string4.cl',encoding='utf-8')
     data = data.read()
     res = lexer.tokenize_text(data)
     #pprint(res)
