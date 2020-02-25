@@ -37,16 +37,15 @@ tokens = [
 	'ASSIGN', 'LESS', 'LESSEQUAL', 'EQUAL', 'INT_COMPLEMENT', 'NOT',
 ] + list(keywords)
 
-def t_newline(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
-
 ####### Extra Methods #######
 
 def iskeyword(t):
     d = t.value.upper()
     if d in keywords:
         t.type = d
+
+def addline(t):
+    t.lexer.lineno += len(t.value)
 
 def find_position(input, token):
      line_start = input.rfind('\n', 0, token.lexpos) + 1
@@ -113,6 +112,69 @@ def t_comment_eof(t):
     #error eof in comment
     pass
 
-def t_comment_error(t)
+def t_comment_error(t):
     print(t.values, 'error en comment')
-    lexer.skip(1)
+    t.lexer.skip(1)
+
+# count line number
+def t_INITIAL_comment_newline(t):
+    r'\n+'
+    addline(t)
+
+def t_string(t):
+    r'\"'
+    t.lexer.begin('string')
+    t.lexer.string = ''
+
+t_string_ignore = ''
+
+def t_string_end(t):
+    r'\"'
+    if not t.lexer.unterminated_slash:
+        t.value = t.lexer.string
+        t.type = 'STRING'
+        t.lexer.begin('INITIAL')
+        return t
+    else:
+        t.lexer.string += '"'
+        t.lexer.unterminated_slash = False
+
+def t_string_newline(t):
+    r'\n'
+    t.lexer.lineno += 1
+    if not t.lexer.unterminated_slash:
+        # error non-escaped newline may not appear in a string
+        pass
+    else:
+        t.lexer.string += '\n'
+
+def t_string_slash(t):
+    r'\\'
+    if t.lexer.unterminated_slash:
+        t.lexer.string += '\\'
+        t.lexer.unterminated_slash = False
+    else:
+        t.lexer.unterminated_slash = True
+
+def t_string_eof(t):
+    # eof in string
+    pass
+
+def t_string_all(t):
+    r'[^\n]'
+    if t.lexer.unterminated_slash:
+        spec = {'b':'\b','t':'\t','n':'\n','f':'\f'}
+        if t.value == '0':
+            #null character in string
+            t.lexer.unterminated_slash = False
+            pass
+        elif t.value in ['b','t','n','f']:
+            t.string += spec[t.value]
+            if t.value == 'n':
+                t.lineno+=1
+            t.lexer.unterminated_slash = False
+        else:
+            t.string += t.value
+    else:
+        t.lexer.string += t.value
+        
