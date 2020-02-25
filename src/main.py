@@ -5,18 +5,26 @@ from core.cmp.lex import CoolLexer
 def main(args):
     # Read code
     try:
-        with open(args.file, 'w') as fd:
+        with open(args.file, 'r') as fd:
             code = fd.read()
     except:
         print(f"(0,0) - CompilerError: file {args.file} not found") #TODO: Customize errors
         exit(1)
 
     # Lexer
-    text = lexer(code)
-
-    # Tokenize
-    tokens = tokenize_text(text)
+    lexer = CoolLexer()
     
+    # Tokenize
+    tokens = lexer.tokenize(code)
+    lexer_err = False
+    for token in tokens:
+        if token.token_type == "ERROR":
+            lexer_err = True
+            print(token.lex)
+    
+    if lexer_err:
+        exit(1)
+
     # Parse
     parse, (failure, token) = CoolParser([t.token_type for t in tokens])
     if failure:

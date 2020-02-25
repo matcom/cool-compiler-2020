@@ -132,6 +132,9 @@ class CoolLexer:
     t_ignore = ' \t\f\r\t\v'
     t_comments_ignore = ''
 
+    def __init__(self):
+        self.build()
+        
     def build(self, **kwargs):
         self.lexer = lex.lex(module=self, **kwargs)
         self.lexer.eof= (1,1)
