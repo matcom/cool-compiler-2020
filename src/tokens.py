@@ -39,7 +39,7 @@ specials= [
         'COLON',
         'COMMA',
         'AT',
-        'ASSIGN',
+        'LARROW',
         'RARROW'
      ]
 
@@ -49,6 +49,5 @@ tokens = [
         'STRING',
         'BOOL',
         'TYPE',
-        'OBJECT',
-        'SPECIAL'
+        'OBJECT'
      ] + operators + keywords + specials

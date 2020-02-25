@@ -3,9 +3,10 @@ import tokens
 
 class CoolLexer:
 
-    tokens =  tokens.tokens
-    #list of errors
-    errors = []
+    def __init__(self):
+        self.tokens =  tokens.tokens
+        self.keywords = tokens.keywords
+        self.errors = []    #list of errors
 
     #regular expression rule for comment
     def t_comment(self, t):
@@ -28,9 +29,7 @@ class CoolLexer:
         t_upper = t.value.upper()
 
         if t_upper in self.keywords:
-            t.type = t.upper
-
-        return t
+            t.type = t_upper
 
     #regular expresion rule for bool
     def t_BOOL(self, t):
@@ -47,12 +46,14 @@ class CoolLexer:
 
     #regular expresion rule for type
     def t_TYPE(self, t):
-        r'[A-Z][0-9A-Za-z_]*|self|SELF_TYPE'
+        r'[A-Z][0-9A-Za-z_]*'
+        self.check_keyword(t)
         return t
 
     #regular expresion rule for object
     def t_OBJECT(self, t):
         r'[a-z][0-9A-Za-z_]*'
+        self.check_keyword(t)
         return t
 
     #regular expresion rule for special
@@ -65,7 +66,7 @@ class CoolLexer:
     t_COLON = r':'
     t_COMMA = r','
     t_AT = '@'
-    t_ASSIGN = r'<-'
+    t_LARROW = r'<-'
     t_RARROW = r'=>'
 
     #others regular expresions
@@ -161,18 +162,32 @@ class CoolLexer:
         self.lexer = lex.lex(module=self, **kwargs)
 
     # Test it output
-    def test(self,data):
+    def input(self,data):
+        self.build() 
+        
         self.data = data
         self.lexer.input(self.pre_proc(data))
 
-        tokens = []
+    def tokenize(self, data):
+        self.input(data)
+
+        self.tokens_res = []
         while True:
             tok = self.lexer.token()
             if not tok: 
                 break
-            tokens.append(tok)
+            self.tokens_res.append(tok)
+            print(tok)
+
+        self.idx = 0
+        return self.errors
+
+    def token(self):
+        if self.idx >= len(self.tokens_res):
+            return None
         
-        return (tokens, self.errors)
+        self.idx += 1
+        return self.tokens_res[self.idx-1]
 
     #### utils
     def find_column(self, text, token):
