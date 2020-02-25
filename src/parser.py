@@ -193,13 +193,9 @@ def p_init_expr(p):
 
 
 def p_expr(p):
-    '''expr : NOT expr
-            | cmp
+    '''expr : cmp
             | e'''
-    if len(p) == 3:
-        p[0] = LogicNegationNode(p[2])
-    else:
-        p[0] = p[1]
+    p[0] = p[1]
 
 
 def p_cmp(p):
@@ -251,7 +247,8 @@ def p_f(p):
     '''f : NOT f
          | OPAREN expr CPAREN
          | atom
-         | ISVOID f'''
+         | ISVOID f
+         | ~ f'''
     if len(p) == 4:
         p[0] = p[2]
     if len(p) == 3:
@@ -259,6 +256,8 @@ def p_f(p):
             p[0] = NegationNode(p[2])
         if p[1] == 'ISVOID':
             p[0] = IsVoidNode(p[2])
+        if p[1] == 'NOT':
+            p[0] = LogicNegationNode(p[2])
     else:
         p[0] = p[1]
     pass
