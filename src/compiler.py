@@ -8,7 +8,7 @@ def create_arg_parser():
 
     arg_parser.add_argument(
         "cool_program",
-        type=str, nargs="1",
+        type=str, nargs="+",
         help="One cool program source code file ending with *.cl extension.")
 
     arg_parser.add_argument(
@@ -47,13 +47,15 @@ def main():
 
     cool_program_code = ""
 
-    if not str(program).endswith(".cl"):
+    p = str(program)[2:-2]
+    print(p)
+    if not str(p).endswith(".cl"):
         print("Cool program files must end with a \`.cl\` extension.\r\n")
         arg_parser.print_usage()
         exit(1)
 
     try:
-        with open(program, encoding="utf-8") as file:
+        with open(p, encoding="utf-8") as file:
             cool_program_code += file.read()
     except (IOError, FileNotFoundError):
         print(f"Error! File {program} not found.")

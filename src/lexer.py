@@ -134,14 +134,7 @@ def t_error(t):
     t.lexer.skip(1)
 
 
-lexer = lex.lex()
-
-data = '''
-'''
-
-lexer.input(data)
-
-
 def make_lexer(data):
+    lexer = lex.lex()
     lexer.input(data)
     return lexer
