@@ -37,12 +37,20 @@ tokens = [
 	'ASSIGN', 'LESS', 'LESSEQUAL', 'EQUAL', 'INT_COMPLEMENT', 'NOT',
 ] + list(keywords)
 
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+
 ####### Extra Methods #######
 
 def iskeyword(t):
     d = t.value.upper()
     if d in keywords:
         t.type = d
+
+def find_position(input, token):
+     line_start = input.rfind('\n', 0, token.lexpos) + 1
+     return (token.lexpos - line_start) + 1, token.lineno
 
 ##### TOKEN RULES ##### 
 
@@ -84,7 +92,7 @@ states = (
  )
 
 def t_comment(t):
-    r'\('
+    r'\(\*'
     t.lexer.comments = 1
     #t.lexer.unterminated_slash = False
     t.lexer.begin('comment')
@@ -100,3 +108,11 @@ def t_comment_cpar(t):
     t.lexer.comments -=1
     if not t.lexer.comments:
         t.lexer.begin('INITIAL')
+
+def t_comment_eof(t):
+    #error eof in comment
+    pass
+
+def t_comment_error(t)
+    print(t.values, 'error en comment')
+    lexer.skip(1)
