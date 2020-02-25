@@ -9,23 +9,23 @@ states = (
 )
 
 reserved = {
-    r'(?i)if': 'IF',
-    r'(?i)then': 'THEN',
-    r'(?i)else': 'ELSE',
-    r'(?i)fi': 'FI',
-    r'(?i)class': 'CLASS',
-    r'(?i)inherits': 'INHERITS',
-    r'(?i)while': 'WHILE',
-    r'(?i)loop': 'LOOP',
-    r'(?i)pool': 'POOL',
-    r'(?i)let': 'LET',
-    r'(?i)in': 'IN',
-    r'(?i)case': 'CASE',
-    r'(?i)isvoid': 'ISVOID',
-    r'(?i)esac': 'ESAC',
-    r'(?i)new': 'NEW',
-    r'(?i)of': 'OF',
-    r'(?i)not': 'LNOT'
+    'if': 'IF',
+    'then': 'THEN',
+    'else': 'ELSE',
+    'fi': 'FI',
+    'class': 'CLASS',
+    'inherits': 'INHERITS',
+    'while': 'WHILE',
+    'loop': 'LOOP',
+    'pool': 'POOL',
+    'let': 'LET',
+    'in': 'IN',
+    'case': 'CASE',
+    'isvoid': 'ISVOID',
+    'esac': 'ESAC',
+    'new': 'NEW',
+    'of': 'OF',
+    'not': 'LNOT'
 }
 
 tokens = [
