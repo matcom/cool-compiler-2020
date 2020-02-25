@@ -200,6 +200,7 @@ class CoolLexer:
         column = self.compute_column(t)
         t.type = "ERROR"
         t.value = f"({line},{column}) - LexicographicError: EOF in string constant"
+        t.lexer.begin("INITIAL")
         return t
 
     
@@ -254,6 +255,8 @@ class CoolLexer:
         column = self.compute_column(t)
         t.type = "ERROR"
         t.value = f"({line},{column}) - LexicographicError: EOF in comment"
+        t.lexer.begin("INITIAL")
+        return t
 
     def compute_column(self, token):
         line_start = self.text.rfind('\n', 0, token.lexpos) + 1
