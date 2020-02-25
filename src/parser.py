@@ -30,9 +30,9 @@ def p_class_list(p):
     '''class_list : def_class class_list
                   | def_class'''
 
-    if len(p) == 3:
+    try:
         p[0] = [p[1]] + p[3]
-    else:
+    except:
         p[0] = [p[1]]
 
 
