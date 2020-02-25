@@ -12,6 +12,47 @@ class CoolLexer:
         self.errors = []
         self.lexer = lex.lex(module=self, **kwargs)
 
+    
+    states = (
+        ('comments', 'exclusive'),
+        ('strings', 'exclusive')
+    )
+
+    #Comments
+    def t_comments(self,t):
+        r'\(\*'
+        t.lexer.level = 1
+        t.lexer.begin('comments')
+    
+    def t_comments_open(self,t):
+        r'\(\*'
+        t.lexer.level += 1
+        
+    def t_comments_close(self,t):
+        r'\*\)'
+        t.lexer.level -= 1
+
+        if t.lexer.level == 0:
+            t.lexer.begin('INITIAL')
+
+    def t_comments_newline(self,t):
+        r'\n+'
+        t.lexer.lineno += len(t.value)
+
+    t_comments_ignore = '  \t\f\r\t\v'
+
+    def t_comments_error(self,t):
+        t.lexer.skip(1)
+
+    def t_comments_eof(self,t):
+        
+        if t.lexer.level > 0:
+            error_text = LexicographicError.EOF_COMMENT 
+            line = t.lineno
+            column = find_column(self.lexer, t)
+            self.errors.append(LexicographicError(error_text, line, column))
+
+
     # Regular expressions for simple tokens
     # t_ignore_COMMENT = r'--.* | \*(.)*\*'
     # A string containing ignored characters 
@@ -63,9 +104,9 @@ class CoolLexer:
         t.value = t.value[1:-1]
         return t
 
-    # TODO: Comentarios anidados, eof en los comentarios
     def t_comment(self, t):
-        r'--.* | \*(.)*\*'
+        r'--.*($|\n)'
+        t.lexer.lineno += 1
         pass
 
     # Define a rule so we can track line numbers
