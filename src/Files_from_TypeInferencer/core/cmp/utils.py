@@ -242,18 +242,12 @@ class ShiftReduceParser:
 
         while True:
             state = stack[-1]
-            lookahead = w[cursor]
+            lookahead = w[cursor].token_type
             if self.verbose: print(stack, w[cursor:])
 
             # Your code here!!! (Detect error)
-            try:
-                if state not in self.action or lookahead not in self.action[state]:
-                    return None
-            except:
-                print(state)
-                print(self.action)
-                print(lookahead)
-                return None
+            if state not in self.action or lookahead not in self.action[state]:
+                return None, (True, w[cursor]) #TODO: Build the correct error using `w[cursor]`
 
             action, tag = list(self.action[state][lookahead])[0]
             # Your code here!!! (Shift case)
@@ -270,7 +264,7 @@ class ShiftReduceParser:
                 output.append(tag)
             # Your code here!!! (OK case)
             elif action is ShiftReduceParser.OK:
-                return output if not get_shift_reduce else(output,operations)
+                return (output if not get_shift_reduce else(output,operations)), (False, None) 
             # Your code here!!! (Invalid case)
             else:
                 raise ValueError
