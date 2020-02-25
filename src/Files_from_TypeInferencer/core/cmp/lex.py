@@ -104,6 +104,7 @@ class CoolLexer:
         'COMMA',
         'DOT',
         'AT',
+        'ERROR'
         
 
     ] + list(reserved.values())
@@ -135,7 +136,6 @@ class CoolLexer:
         self.lexer = lex.lex(module=self, **kwargs)
         self.lexer.eof= (1,1)
         self.comment_level = 0
-        self.errors = []
         self.string = ""
 
     def t_comments_COMMENTOUT(self, t):
@@ -145,70 +145,6 @@ class CoolLexer:
         else:
             self.comment_level -= 1
         
-
-    # def t_comments_EQUALS(self, t):
-    #     r'='
-        
-    # def t_comments_PLUS(self, t):
-    #     r'\+'
-             
-    # def t_comments_MINUS(self, t):
-    #     r'-'
-              
-    # def t_comments_TIMES(self, t):
-    #     r'\*'
-                
-    # def t_comments_DIVIDE(self, t):
-    #     r'/'
-                
-    # def t_comments_LPAREN(self, t):
-    #     r'\('
-                 
-    # def t_comments_RPAREN(self, t):
-    #     r'\)'
-                 
-    # def t_comments_LESS(self, t):
-    #     r'<'
-                 
-    # def t_comments_LESSEQ(self, t):
-    #     r'<='
-              
-    # def t_comments_LCBRA(self, t):
-    #     r'{'
-                 
-    # def t_comments_RCBRA(self, t):
-    #     r'}'
-
-    # def t_comments_COLON(self, t):
-    #     r':'
-               
-    # def t_comments_SEMICOLON(self, t):
-    #     r';'
-              
-    # def t_comments_COMPLEMENT(self, t):
-    #     r'~'
-              
-    # def t_comments_RARROW(self, t):
-    #     r'=>'
-              
-    # def t_comments_LARROW(self, t):
-    #     r'<-'
-               
-    # def t_comments_COMMA(self, t):
-    #     r','
-                  
-    # def t_comments_DOT(self, t):
-    #     r'\.'
-      
-    # def t_comments_AT(self, t):
-    #     r'@'
-    
-    # def t_comments_TYPEIDENTIFIER(self, t):
-    #     r'[A-Z][a-zA-Z0-9|_]*'
-    
-    # def t_comments_OBJECTIDENTIFIER(self, t):
-    #     r'[a-z][a-zA-Z0-9|_]*'
-    
     def t_STRINGIN(self, t):
         r'"'
         self.string = ""
@@ -218,7 +154,10 @@ class CoolLexer:
         r'\0'
         line = t.lexer.lineno
         column = self.compute_column(t)
-        self.errors.append(f"({line},{column}) - LexicographicError: Null caracter in string")
+        t.type = "ERROR"
+        t.value = f"({line},{column}) - LexicographicError: Null caracter in string"
+        return t
+
     
     def t_strings_newline(self, t):
         r'\\\n'
@@ -230,10 +169,12 @@ class CoolLexer:
         line = t.lexer.lineno
         t.lexer.lineno+=1
         column = self.compute_column(t)
-        self.errors.append(f"({line},{column}) - LexicographicError: Unterminated string constant")
         t.lexer.begin("INITIAL")
+        t.type = "ERROR"
+        t.value = f"({line},{column}) - LexicographicError: Unterminated string constant"
+        return t
     
-    # def t_string
+    
 
     def t_strings_escaped_special_character(self, t):
         r'\\(b|t|f)'
@@ -257,7 +198,9 @@ class CoolLexer:
     def t_strings_eof(self, t):
         line = t.lexer.lineno
         column = self.compute_column(t)
-        self.errors.append(f"({line},{column}) - LexicographicError: EOF in string constant")
+        t.type = "ERROR"
+        t.value = f"({line},{column}) - LexicographicError: EOF in string constant"
+        return t
 
     
 
@@ -309,7 +252,8 @@ class CoolLexer:
     def t_comments_eof(self, t):
         line = t.lexer.lineno
         column = self.compute_column(t)
-        self.errors.append(f"({line},{column}) - LexicographicError: EOF in comment")
+        t.type = "ERROR"
+        t.value = f"({line},{column}) - LexicographicError: EOF in comment"
 
     def compute_column(self, token):
         line_start = self.text.rfind('\n', 0, token.lexpos) + 1
@@ -319,17 +263,23 @@ class CoolLexer:
         line = t.lexer.lineno
         column = self.compute_column(t)
         error_text = t.value[0]
-        self.errors.append(f"({line},{column}) - LexicographicError: \"{error_text}\"")
         t.lexer.skip(1)
+        t.type = "ERROR"
+        t.value = f"({line},{column}) - LexicographicError: \"{error_text}\""
+        return t
     
     def t_comments_error(self, t):
         t.lexer.skip(1)
     
     def tokenize(self, text):
-        self.errors = []
         self.text = text
         self.lexer.input(text)
+        tokens = []
         original_tokens = [token for token in self.lexer]
-        tokens =  [ Token(token.value, self.tokenType[token.type]) for token in original_tokens]
+        for token in original_tokens:
+            if token.type == "ERROR":
+                tokens.append(Token(token.value, "ERROR"))
+            else:
+                tokens.append(Token(token.value, self.tokenType[token.type]))
         EOF = Token('$', eof)
-        return (tokens + [EOF], self.errors)
+        return tokens + [EOF]

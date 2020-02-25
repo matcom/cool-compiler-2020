@@ -120,8 +120,8 @@ if __name__ == '__main__':
     lex = CoolLexer()
     lex.build()
     toks, errors = lex.tokenize(text)
-    print(f"TEST {basename(input_file)}")
-    print(errors)
+    
     for token in toks:
-        print(token)
+        if token.token_type == "ERROR":
+            print(token.lex)
        
