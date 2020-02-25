@@ -1,5 +1,6 @@
-from Files_from_TypeInferencer.core.cmp.CoolUtils import tokenize_text, CoolParser
-from missing_files import lexer
+from core.cmp.CoolUtils import tokenize_text, CoolParser
+from core.cmp.lex import CoolLexer
+
 
 def main(args):
     # Read code
