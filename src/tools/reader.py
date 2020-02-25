@@ -1,4 +1,4 @@
-from .utils import ERROR_FORMAT
+from tools.cmp_errors import CompilerError
 from pipeline import State
 
 class Reader(State):
@@ -10,5 +10,5 @@ class Reader(State):
             raw = open(path).read()
             return raw
         except:
-            self.errors.append(ERROR_FORMAT % (0, 0, 'CompilerError', 'Missing input file'))
+            self.errors.append(CompilerError(0, 0, 'Missing input file'))
             self.stop = True # stop pipeline

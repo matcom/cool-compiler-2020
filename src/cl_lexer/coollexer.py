@@ -1,8 +1,9 @@
 """ Lexer module for COOL Language """
 
-import ply.lex as lex
 from pipeline import State
-from tools.utils import ERROR_FORMAT, find_column
+from tools.utils import find_column
+from tools.cmp_errors import LexicographicError
+import ply.lex as lex
 
 class CoolLexer(State):
     def __init__(self, name, **kwargs):
@@ -62,7 +63,7 @@ class CoolLexer(State):
 
     def t_comments_eof(self, t):
         if self.balance > 0:
-            self.errors.append(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t.lexpos), "LexicographicError", "EOF in comment"))
+            self.errors.append(LexicographicError(t.lineno, find_column(t.lexer.lexdata, t.lexpos), "EOF in comment"))
 
     #          String Matching State 
     # ---------------------------------------
@@ -89,11 +90,11 @@ class CoolLexer(State):
         r'([^\n\"\\]|\\.)+'
         fnil = t.value.rfind('\0')
         if  fnil != -1:
-            self.errors.append(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t.lexpos) + fnil, "LexicographicError", "String contains null character"))
+            self.errors.append(LexicographicError(t.lineno, find_column(t.lexer.lexdata, t.lexpos) + fnil, "String contains null character"))
 
     def t_str_error(self, t):
         if t.value[0] == '\n':
-            self.errors.append(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t.lexpos), "LexicographicError", "Unterminated string constant"))
+            self.errors.append(LexicographicError(t.lineno, find_column(t.lexer.lexdata, t.lexpos), "Unterminated string constant"))
             t.lexer.lineno += 1
             t.lexer.skip(1)
             t.lexer.begin('INITIAL')
@@ -101,7 +102,7 @@ class CoolLexer(State):
             pass
 
     def t_str_eof(self, t):
-        self.errors.append(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t.lexpos), "LexicographicError", "EOF in string constant")) 
+        self.errors.append(LexicographicError(t.lineno, find_column(t.lexer.lexdata, t.lexpos), "EOF in string constant")) 
 
     #              Initial State
     # ---------------------------------------
@@ -220,7 +221,7 @@ class CoolLexer(State):
 
     #Error handling rule
     def t_error(self, t):
-        self.errors.append(ERROR_FORMAT % (t.lineno, find_column(t.lexer.lexdata, t.lexpos), "LexicographicError", f"ERROR {t.value[0]}"))
+        self.errors.append(LexicographicError(t.lineno, find_column(t.lexer.lexdata, t.lexpos), f"ERROR {t.value[0]}"))
         # Generate Error Token
         t.value = t.value[0]
         t.type = 'ERROR'

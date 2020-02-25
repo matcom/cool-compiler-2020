@@ -1,6 +1,3 @@
-#(Row, Col) - ErrorType: Message
-ERROR_FORMAT = "(%d, %d) - %s: %s"
-
 # Compute column.
 #     input is the input text string
 #     lexpos is a lex position in token instance

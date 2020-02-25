@@ -2,7 +2,8 @@
 from cl_ast import *
 from cl_lexer.coollexer import CoolLexer
 from pipeline import State
-from tools.utils import ERROR_FORMAT, find_column
+from tools.utils import find_column
+from tools.cmp_errors import SyntacticError
 import ply.yacc as yacc
 
 class CoolParser(State):
@@ -293,6 +294,6 @@ class CoolParser(State):
         if p:
            line = self.lexer.lexer.lineno
            col = find_column(self.lexer.lexer.lexdata, p.lexpos)  
-           self.errors.append(ERROR_FORMAT % (line, col, "SyntacticError", f"ERROR at or near {p.value}"))
+           self.errors.append(SyntacticError(line, col, f"ERROR at or near {p.value}"))
         else:
-           self.errors.append(ERROR_FORMAT % (0, 0, "SyntacticError", "ERROR at or near EOF"))
+           self.errors.append(SyntacticError(0, 0, "ERROR at or near EOF"))
