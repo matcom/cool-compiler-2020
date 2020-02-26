@@ -194,3 +194,8 @@ class Boolean(Constant):
     def to_readable(self):
         return f"{self.class_name}(content={self.content})"
 
+
+class Expr(AST):
+    def __init__(self):
+        super(Expr, self).__init__()
+
