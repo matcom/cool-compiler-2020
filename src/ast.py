@@ -143,3 +143,8 @@ class Self(Object):
 
     def to_readable(self):
         return f"{self.class_name}"
+
+
+class Constant(AST):
+    def __init__(self):
+        super(Constant, self).__init__()
