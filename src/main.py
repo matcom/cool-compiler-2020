@@ -18,6 +18,11 @@ def main(args):
     
     # Tokenize
     tokens = lexer.tokenize(code)
+
+    if len(tokens) == 1 and tokens[0].lex == '$':
+        print("(0, 0) - SyntacticError: Unexpected token EOF") 
+        exit(1)
+
     lexer_err = False
     for token in tokens:
         if token.token_type == "ERROR":
