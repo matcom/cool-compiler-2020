@@ -182,18 +182,12 @@ def t_string_eof(t):
 def t_string_all(t):
     r'[^\n]'
     if t.lexer.unterminated_slash:
-        spec = {'b':'\b','t':'\t','n':'\n','f':'\f'}
-        if t.value == '0':
-            lexer_error(t,'String contains null character')
-            t.lexer.unterminated_slash = False
-        elif t.value in ['b','t','n','f']:
-            t.lexer.string += spec[t.value]
-            if t.value == 'n':
-                t.lineno+=1
-            t.lexer.unterminated_slash = False
+        spec = {'b':'\b','t':'\t','f':'\f'}
+        if t.value in ['b','t','f']:
+            t.lexer.string += spec[t.value]    
         else:
             t.lexer.string += t.value
-            t.lexer.unterminated_slash = False
+        t.lexer.unterminated_slash = False
     else:
         t.lexer.string += t.value
         
