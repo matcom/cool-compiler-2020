@@ -115,3 +115,31 @@ class FormalParam(ClassFeature):
 
     def to_readable(self):
         return f"{self.class_name}(name='{self.name}', param_type={self.param_type})"
+
+
+class Object(AST):
+    def __init__(self, name):
+        super(Object, self).__init__()
+        self.name = name
+
+    def to_tuple(self):
+        return tuple([
+            ("class_name", self.class_name),
+            ("name", self.name)
+        ])
+
+    def to_readable(self):
+        return f"{self.class_name}(name='{self.name}')"
+
+
+class Self(Object):
+    def __init__(self):
+        super(Self, self).__init__("SELF")
+
+    def to_tuple(self):
+        return tuple([
+            ("class_name", self.class_name)
+        ])
+
+    def to_readable(self):
+        return f"{self.class_name}"
