@@ -1,3 +1,4 @@
+from sys import exit
 from core.cmp.CoolUtils import tokenize_text, CoolParser
 from core.cmp.lex import CoolLexer
 from pprint import pprint
@@ -21,13 +22,10 @@ def main(args):
     for token in tokens:
         if token.token_type == "ERROR":
             lexer_err = True
-            print(token.lex)
     
     if lexer_err:
         exit(1)
-    pprint(tokens)
-    # for t in tokens:
-        # print(t.token_type)
+
     # Parse
     parse, (failure, token) = CoolParser(tokens)
     
@@ -36,7 +34,7 @@ def main(args):
         exit(1)
 
     # Comming soon pipeline steps
-    print(parse)
+    #print(parse)
 
 
     exit(0)
