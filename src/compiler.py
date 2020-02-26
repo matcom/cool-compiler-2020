@@ -1,5 +1,8 @@
 import argparse
 
+from lexer import make_lexer
+
+
 def create_arg_parser():
     arg_parser = argparse.ArgumentParser(prog="pycoolc")
 
@@ -59,6 +62,13 @@ def main():
 
     if args.tokens:
         print("Run lexical analysis") if args.debug else None
+        lexer = make_lexer(cool_program_code)
+
+        while True:
+            tok = lexer.token()
+            if not tok:
+                break
+            print(tok)
 
     if args.ast:
         print("Getting ast") if args.debug else None
