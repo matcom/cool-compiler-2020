@@ -1,7 +1,7 @@
 import ply.lex as lex
-from errors import LexicographicError
-from parser import CoolGrammar
-from cp import Token
+from .errors import LexicographicError
+from .parser import CoolGrammar
+from .cp import Token
 
 ####### Tokens #######
 
@@ -37,7 +37,7 @@ tokens = [
 	# Special keywords
 	'ACTION',
 	# Operators
-	'ASSIGN', 'LESS', 'LESSEQUAL', 'EQUAL', 'INT_COMPLEMENT', 'NOT',
+	'ASSIGN', 'LESS', 'LESSEQUAL', 'EQUAL', 'INT_COMPLEMENT',
 ] + list(keywords)
 
 ####### Extra Methods #######
@@ -128,7 +128,7 @@ def t_comment_eof(t):
     lexer_error(t,'EOF in comment')
 
 def t_comment_error(t):
-    print(t.value, 'error en comment')
+    #print(t.value, 'error en comment')
     t.lexer.skip(1)
 
 # string state
@@ -139,12 +139,17 @@ def t_string(t):
 
 t_string_ignore = ''
 
+def t_string_error(t):
+    #print(t.value, 'error en string ')
+    t.lexer.skip(1)
+
 def t_string_end(t):
     r'\"'
     if not t.lexer.unterminated_slash:
         t.value = t.lexer.string
         t.type = 'STRING'
         t.lexer.begin('INITIAL')
+        t.lexer.string = ''
         return t
     else:
         t.lexer.string += '"'
@@ -155,9 +160,13 @@ def t_string_newline(t):
     t.lexer.lineno += 1
     if not t.lexer.unterminated_slash:
         lexer_error(t,'Unterminated string constant')
-        pass
     else:
+        t.lexer.unterminated_slash = False
         t.lexer.string += '\n'
+
+def t_string_null(t):
+    r'\0'
+    lexer_error(t,'String contains null character')
 
 def t_string_slash(t):
     r'\\'
@@ -169,7 +178,6 @@ def t_string_slash(t):
 
 def t_string_eof(t):
     lexer_error(t,'EOF in string constant')
-    pass
 
 def t_string_all(t):
     r'[^\n]'
@@ -178,20 +186,21 @@ def t_string_all(t):
         if t.value == '0':
             lexer_error(t,'String contains null character')
             t.lexer.unterminated_slash = False
-            pass
         elif t.value in ['b','t','n','f']:
-            t.string += spec[t.value]
+            t.lexer.string += spec[t.value]
             if t.value == 'n':
                 t.lineno+=1
             t.lexer.unterminated_slash = False
         else:
-            t.string += t.value
+            t.lexer.string += t.value
+            t.lexer.unterminated_slash = False
     else:
         t.lexer.string += t.value
         
-lexer = lex.lex(debug=1)
+lexer = lex.lex(debug=0)
 lexer.errors = []
 lexer.unterminated_slash = False
+lexer.string = ''
 
 ###### CoolGrammar ######
 
