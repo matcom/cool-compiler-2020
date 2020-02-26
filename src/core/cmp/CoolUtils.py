@@ -191,8 +191,8 @@ feature %= idx + colon + typex + semi, lambda h, s: AttrDeclarationNode(s[1], s[
 feature %= idx + colon + typex + larrow + expr + semi, lambda h, s: AttrDeclarationNode(s[1], s[3], s[5])
 
 # <def-func>
-feature %= idx + opar + param_list + cpar + colon + typex + ocur + expr_list + ccur + semi, lambda h, s: FuncDeclarationNode(s[1], s[3], s[6], s[8]) 
-feature %= idx + opar + cpar + colon + typex + ocur + expr_list + ccur + semi, lambda h, s: FuncDeclarationNode(s[1], [], s[5], s[7]) 
+feature %= idx + opar + param_list + cpar + colon + typex + ocur + expr + ccur + semi, lambda h, s: FuncDeclarationNode(s[1], s[3], s[6], s[8]) 
+feature %= idx + opar + cpar + colon + typex + ocur + expr + ccur + semi, lambda h, s: FuncDeclarationNode(s[1], [], s[5], s[7]) 
 
 # <param-list>
 param_list %= param, lambda h, s: [s[1]]
@@ -201,20 +201,12 @@ param_list %= param + comma + param_list, lambda h, s: [s[1]] + s[3]
 # <param>
 param %= idx + colon + typex, lambda h, s: (s[1], s[3])
 
+#TODO: Check precedence
 # <expr>
-expr %= ifx + expr + then + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], None)
-expr %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[6])
-expr %= whilex + expr + loop + expr_list + pool, lambda h, s: WhileLoopNode(s[2], s[4])
-expr %= ocur + expr_list + ccur, lambda h, s: BlockNode(s[2])
-expr %= let + let_list + inx + expr_list, lambda h, s: LetInNode(s[2], s[4])
-expr %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
-expr %= case + expr + of + ocur + case_list + ccur + esac, lambda h, s: CaseOfNode(s[2], s[5])
-expr %= idx + larrow + expr, lambda h, s: AssignNode(s[1], s[3])
+expr %= expr + leq + truth_expr, lambda h, s: LessEqualNode(s[1], s[3])
+expr %= expr + less + truth_expr, lambda h, s: LessNode(s[1], s[3])
+expr %= expr + equal + truth_expr, lambda h, s: EqualNode(s[1], s[3])
 expr %= truth_expr, lambda h, s: s[1]
-
-# <expr-list>
-expr_list %= expr, lambda h, s: [s[1]]
-expr_list %= ocur + block + ccur, lambda h, s: s[2]
 
 block %= expr + semi, lambda h, s: [s[1]]
 block %= expr + semi + block, lambda h, s: [s[1]] + s[3]
@@ -231,13 +223,10 @@ case_list %= idx + colon + typex + rarrow + expr + semi + case_list, lambda h, s
 
 # <truth-expr>
 truth_expr %= notx + truth_expr, lambda h, s: NotNode(s[2])
-truth_expr %= comp_expr, lambda h, s: s[1]
+truth_expr %= arith, lambda h, s: s[1]
 
 # <comp-expr> 
-comp_expr %= comp_expr + leq + arith, lambda h, s: LessEqualNode(s[1], s[3])
-comp_expr %= comp_expr + less + arith, lambda h, s: LessNode(s[1], s[3])
-comp_expr %= comp_expr + equal + arith, lambda h, s: EqualNode(s[1], s[3])
-comp_expr %= arith, lambda h, s: s[1]
+
 
 # <arith>
 arith %= arith + plus + term, lambda h, s: PlusNode(s[1], s[3])
@@ -284,6 +273,15 @@ atom %= idx, lambda h, s: IdNode(s[1])
 atom %= integer, lambda h, s: IntegerNode(s[1])
 atom %= string, lambda h, s: StringNode(s[1])
 atom %= boolx, lambda h, s: BoolNode(s[1])
+atom %= ifx + expr + then + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], None)
+atom %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[6])
+atom %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4])
+atom %= ocur + block + ccur, lambda h, s: BlockNode(s[2])
+atom %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
+atom %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
+atom %= case + expr + of + ocur + case_list + ccur + esac, lambda h, s: CaseOfNode(s[2], s[5])
+atom %= idx + larrow + expr, lambda h, s: AssignNode(s[1], s[3])
+
 
 # <member-call>
 member_call %= idx + opar + arg_list + cpar, lambda h, s: MemberCallNode(s[1], s[3])
