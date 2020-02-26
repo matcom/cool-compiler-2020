@@ -1,4 +1,6 @@
 import ply.lex as lex
+from errors import LexicographicError
+
 
 ####### Tokens #######
 
@@ -49,7 +51,11 @@ def addline(t):
 
 def find_position(input, token):
      line_start = input.rfind('\n', 0, token.lexpos) + 1
-     return (token.lexpos - line_start) + 1, token.lineno
+     return (token.lineno, (token.lexpos - line_start) + 1)
+
+def lexer_error(t, message):
+    t.lexer.errors.append(LexicographicError(*find_position(t.lexer.lexdata, t), message))
+    
 
 ##### TOKEN RULES ##### 
 
@@ -81,6 +87,10 @@ def t_ID(t):
     r'[a-z][A-Za-z0-9_]*'
     iskeyword(t)
     return t
+
+def t_error(t):
+    lexer_error(t,f'ERROR "{t.value}"')
+    t.lexer.skip(1)
 
 t_ASSIGN = r'<-'
 t_LESS = r'<'
@@ -114,11 +124,10 @@ def t_comment_cpar(t):
         t.lexer.begin('INITIAL')
 
 def t_comment_eof(t):
-    #error eof in comment
-    pass
+    lexer_error(t,'EOF in comment')
 
 def t_comment_error(t):
-    print(t.values, 'error en comment')
+    print(t.value, 'error en comment')
     t.lexer.skip(1)
 
 # string state
@@ -144,7 +153,7 @@ def t_string_newline(t):
     r'\n'
     t.lexer.lineno += 1
     if not t.lexer.unterminated_slash:
-        # error non-escaped newline may not appear in a string
+        lexer_error(t,'Unterminated string constant')
         pass
     else:
         t.lexer.string += '\n'
@@ -158,7 +167,7 @@ def t_string_slash(t):
         t.lexer.unterminated_slash = True
 
 def t_string_eof(t):
-    # eof in string
+    lexer_error(t,'EOF in string constant')
     pass
 
 def t_string_all(t):
@@ -166,7 +175,7 @@ def t_string_all(t):
     if t.lexer.unterminated_slash:
         spec = {'b':'\b','t':'\t','n':'\n','f':'\f'}
         if t.value == '0':
-            #null character in string
+            lexer_error(t,'String contains null character')
             t.lexer.unterminated_slash = False
             pass
         elif t.value in ['b','t','n','f']:
@@ -179,19 +188,21 @@ def t_string_all(t):
     else:
         t.lexer.string += t.value
         
-lex.lex(debug=1)
+lexer = lex.lex(debug=1)
+lexer.errors = []
+lexer.unterminated_slash = False
 
 ###### TOKENIZER ######
 
 def tokenizer(code):
     tokens = []
-    lex.input(code)
+    lexer.input(code)
     while True:
-        token = lex.token()
+        token = lexer.token()
         if token is None:
             break
         ##Add token
         pass
     #tokens.append(Token('$', CoolGrammar.EOF))
 
-    return tokens, lex.errors
+    return tokens, lexer.errors
