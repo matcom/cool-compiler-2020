@@ -199,3 +199,50 @@ class Expr(AST):
     def __init__(self):
         super(Expr, self).__init__()
 
+
+class NewObject(Expr):
+    def __init__(self, new_type):
+        super(NewObject, self).__init__()
+        self.type = new_type
+
+    def to_tuple(self):
+        return tuple([
+            ("class_name", self.class_name),
+            ("type", self.type)
+        ])
+
+    def to_readable(self):
+        return f"{self.class_name}(type={self.type})"
+
+
+class IsVoid(Expr):
+    def __init__(self, expr):
+        super(IsVoid, self).__init__()
+        self.expr = expr
+
+    def to_tuple(self):
+        return tuple([
+            ("class_name", self.class_name),
+            ("expr", self.expr)
+        ])
+
+    def to_readable(self):
+        return f"{self.class_name}(expr={self.expr})"
+
+
+class Assignment(Expr):
+    def __init__(self, instance, expr):
+        super(Assignment, self).__init__()
+        self.instance = instance
+        self.expr = expr
+
+    def to_tuple(self):
+        return tuple([
+            ("class_name", self.class_name),
+            ("instance", self.instance),
+            ("expr", self.expr)
+        ])
+
+    def to_readable(self):
+        return f"{self.class_name}(instance={self.instance}, expr={self.expr})"
+
