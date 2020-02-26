@@ -4,8 +4,8 @@
 
 **Nombre** | **Grupo** | **Github**
 --|--|--
-Juan David Menendez del Cueto | C412 | [@github_user](https://github.com/<user>)
-Karl Lewis Sosa Justiz        | C412 | [@github_user](https://github.com/<user>)
+Juan David Menendez del Cueto | C412 | [@juandamdc](https://github.com/juandamdc)
+Karl Lewis Sosa Justiz        | C412 | [@BlackBeard98](https://github.com/BlackBeard98)
 
 ## Readme
 
