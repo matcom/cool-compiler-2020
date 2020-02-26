@@ -22,7 +22,6 @@ class CoolLexer:
     t_LESSEQUAL = r'<='
     t_EQUAL = r'='
     t_INT_COMPLEMENT = r'~'
-    t_NOT = r'[Nn][Oo][Tt]'
 
     #regular expresion rule for keywords
     def check_keyword(self, t):
@@ -177,7 +176,7 @@ class CoolLexer:
             if not tok: 
                 break
             self.tokens_res.append(tok)
-            print(tok)
+            # print(tok)
 
         self.idx = 0
         return self.errors

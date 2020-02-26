@@ -438,7 +438,6 @@ class CoolParser():
     def p_empty(self, p):
         'empty :'
         p[0]=[]
-        pass
     
     # Error rule for syntax errors
     def p_error(self, p):
@@ -452,5 +451,8 @@ class CoolParser():
         self.lexer = lexer
         self.build()
         
-        result = self.parser.parse(lexer=lexer)
+        if len(lexer.tokens_res) == 0:
+            self.errors.append(f"(0,0) - SyntacticError: Error near EOF")
+        else:               
+            result = self.parser.parse(lexer=lexer)
         return self.errors

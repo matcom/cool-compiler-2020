@@ -14,7 +14,8 @@ keywords = [
         'CASE',
         'ESAC',
         'NEW',
-        'OF'
+        'OF',
+        'NOT'
     ]
 
 operators = [
@@ -25,8 +26,7 @@ operators = [
         'LESS',
         'LESSEQUAL',
         'EQUAL',
-        'INT_COMPLEMENT',
-        'NOT'
+        'INT_COMPLEMENT'
     ]
 
 specials= [
