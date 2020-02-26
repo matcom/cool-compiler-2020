@@ -1,6 +1,7 @@
 import ply.lex as lex
 from errors import LexicographicError
-
+from parser import CoolGrammar
+from cp import Token
 
 ####### Tokens #######
 
@@ -192,17 +193,34 @@ lexer = lex.lex(debug=1)
 lexer.errors = []
 lexer.unterminated_slash = False
 
+###### CoolGrammar ######
+
+tokens_dict = dict()
+
+tokens_dict['ACTION'] = CoolGrammar['=>']
+tokens_dict['ASSIGN'] = CoolGrammar['<-']
+tokens_dict['LESS'] = CoolGrammar['<']
+tokens_dict['LESSEQUAL'] = CoolGrammar['<=']
+tokens_dict['EQUAL'] = CoolGrammar['=']
+tokens_dict['INT_COMPLEMENT'] = CoolGrammar['~']
+
+for tok in tokens + literals:
+	if tok not in tokens_dict:
+		tokens_dict[tok] = CoolGrammar[tok.lower()]
+
+
 ###### TOKENIZER ######
 
 def tokenizer(code):
+
     tokens = []
     lexer.input(code)
     while True:
         token = lexer.token()
         if token is None:
             break
-        ##Add token
-        pass
-    #tokens.append(Token('$', CoolGrammar.EOF))
+        tokens.append(Token(token.value, tokens_dict[token.type], *find_position(lexer.lexdata, token)))
+
+    tokens.append(Token('$', CoolGrammar.EOF))
 
     return tokens, lexer.errors
