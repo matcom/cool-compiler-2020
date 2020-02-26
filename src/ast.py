@@ -148,3 +148,49 @@ class Self(Object):
 class Constant(AST):
     def __init__(self):
         super(Constant, self).__init__()
+
+
+class Integer(Constant):
+    def __init__(self, content):
+        super(Integer, self).__init__()
+        self.content = content
+
+    def to_tuple(self):
+        return tuple([
+            ("class_name", self.class_name),
+            ("content", self.content)
+        ])
+
+    def to_readable(self):
+        return f"{self.class_name}(content={self.content})"
+
+
+class String(Constant):
+    def __init__(self, content):
+        super(String, self).__init__()
+        self.content = content
+
+    def to_tuple(self):
+        return tuple([
+            ("class_name", self.class_name),
+            ("content", self.content)
+        ])
+
+    def to_readable(self):
+        return f"{self.class_name}(content={self.content})"
+
+
+class Boolean(Constant):
+    def __init__(self, content):
+        super(Boolean, self).__init__()
+        self.content = content
+
+    def to_tuple(self):
+        return tuple([
+            ("class_name", self.class_name),
+            ("content", self.content)
+        ])
+
+    def to_readable(self):
+        return f"{self.class_name}(content={self.content})"
+
