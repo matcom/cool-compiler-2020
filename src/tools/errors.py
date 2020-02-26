@@ -50,7 +50,7 @@ class SyntaticError(CoolError):
 
     @property
     def error_type(self):
-        return 'SyntacticError:'
+        return 'SyntacticError'
     
 
 class NameError(CoolError):

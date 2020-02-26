@@ -3,10 +3,8 @@ from lexer import CoolLexer
 from parser import CoolParser
 import sys, os
 
-cwd = os.getcwd()
-
 input_ = sys.argv[1]
-# input_ = f'{cwd}/tests/parser/operation4.cl' 
+# input_ = f'tests/codegen/atoi2.cl' 
 # output_ = args.output
 
 
@@ -17,7 +15,8 @@ try:
     lexer = CoolLexer()
     tokens = lexer.tokenize_text(data)
     if lexer.errors:
-        # print(lexer.errors)
+        for error in lexer.errors:
+            print(error)
         raise Exception()
 
     parser = CoolParser(lexer)

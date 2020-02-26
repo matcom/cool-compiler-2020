@@ -11,6 +11,7 @@ class CoolLexer:
         self.tokens = tokens
         self.errors = []
         self.lexer = lex.lex(module=self, **kwargs)
+        self.lexer.lineno = 1
 
     
     states = (
@@ -200,7 +201,7 @@ class CoolLexer:
         for tok in self.lexer:
             col = find_column(self.lexer, tok)
             tokens.append(Token(tok.type, tok.value, tok.lineno, col))
-        self.lexer.lineno = 0
+        self.lexer.lineno = 1
         return tokens
 
 
