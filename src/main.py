@@ -27,6 +27,7 @@ def main(args):
     for token in tokens:
         if token.token_type == "ERROR":
             lexer_err = True
+            print(token.lex)
     
     if lexer_err:
         exit(1)
