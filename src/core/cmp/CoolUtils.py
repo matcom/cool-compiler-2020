@@ -157,7 +157,7 @@ feature_list, feature = CoolGrammar.NonTerminals('<feature-list> <feature>')
 param_list, param = CoolGrammar.NonTerminals('<param-list> <param>')
 expr, member_call, expr_list, block, let_list, case_list = CoolGrammar.NonTerminals('<expr> <member-call> <expr-list> <block> <let-list> <case-list>')
 truth_expr, comp_expr = CoolGrammar.NonTerminals('<truth-expr> <comp-expr>')
-arith, term, factor, factor_2, factor_3 = CoolGrammar.NonTerminals('<arith> <term> <factor> <factor-2> <factor-3>')
+arith, term, factor, factor_2, factor_3, invocation = CoolGrammar.NonTerminals('<arith> <term> <factor> <factor-2> <factor-3> <invocation>')
 atom, func_call, arg_list = CoolGrammar.NonTerminals('<atom> <func-call> <arg-list>')
 
 # terminals
@@ -204,17 +204,15 @@ param %= idx + colon + typex, lambda h, s: (s[1], s[3])
 # <expr>
 expr %= ifx + expr + then + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], None)
 expr %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[6])
-expr %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4])
+expr %= whilex + expr + loop + expr_list + pool, lambda h, s: WhileLoopNode(s[2], s[4])
 expr %= ocur + expr_list + ccur, lambda h, s: BlockNode(s[2])
-expr %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
+expr %= let + let_list + inx + expr_list, lambda h, s: LetInNode(s[2], s[4])
 expr %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
 expr %= case + expr + of + ocur + case_list + ccur + esac, lambda h, s: CaseOfNode(s[2], s[5])
 expr %= idx + larrow + expr, lambda h, s: AssignNode(s[1], s[3])
 expr %= truth_expr, lambda h, s: s[1]
 
 # <expr-list>
-# expr_list %= expr + semi, lambda h, s: [s[1]]
-# expr_list %= expr + semi + expr_list, lambda h, s: [s[1]] + s[3]
 expr_list %= expr, lambda h, s: [s[1]]
 expr_list %= ocur + block + ccur, lambda h, s: s[2]
 
@@ -262,6 +260,11 @@ factor_2 %= factor_3, lambda h, s: s[1]
 # <factor-3>
 factor_3 %= atom, lambda h, s: s[1]
 factor_3 %= atom + func_call, lambda h, s: FunctionCallNode(s[1], *s[2])
+factor_3 %= atom + func_call + invocation, lambda h, s: FunctionCallNode(s[1], *s[2])
+
+# <invocation>
+invocation %= func_call + func_call, lambda h, s: FunctionCallNode(s[1], *s[2])
+invocation %= func_call + invocation, lambda h, s: FunctionCallNode(s[1], *s[2])
 
 # <func-call>
 func_call %= dot + idx + opar + arg_list + cpar, lambda h, s: (s[2], s[4])
