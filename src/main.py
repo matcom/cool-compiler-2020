@@ -1,10 +1,11 @@
 from pprint import pprint
 from lexer import CoolLexer
 from parser import CoolParser
+from tools.errors import CompilerError, SyntaticError
 import sys, os
 
 input_ = sys.argv[1]
-# input_ = f'tests/codegen/atoi2.cl' 
+# input_ = f'tests/parser/program1.cl' 
 # output_ = args.output
 
 
@@ -18,6 +19,12 @@ try:
         for error in lexer.errors:
             print(error)
         raise Exception()
+    
+    if len(tokens) == 0:
+        error_text = SyntaticError.ERROR % 'EOF'
+        print(SyntaticError(error_text, 0, 0))
+        raise Exception()
+
 
     parser = CoolParser(lexer)
 
@@ -27,5 +34,6 @@ try:
     # print(ast)
 
 except FileNotFoundError:
-    print(f'No se pude encontrar el fichero {input_}')
+    error_text = CompilerError.UNKNOWN_FILE % input_
+    print(CompilerError(error_text, 0, 0))
     
