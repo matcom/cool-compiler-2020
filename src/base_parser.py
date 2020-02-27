@@ -2,7 +2,7 @@ from tools.tokens import tokens
 import os
 import ply.yacc as yacc
 
-from utils.logger import log
+from logger import log
 from lexer import CoolLexer
 from tools.tokens import tokens
 

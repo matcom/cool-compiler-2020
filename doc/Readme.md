@@ -5,8 +5,8 @@
 **Nombre** | **Grupo** | **Github**
 --|--|--
 Loraine Monteagudo García | C411 | [@lorainemg](https://github.com/lorainemg)
-Amanda Marrero Santos | C411 | [@github_user](https://github.com/<user>)
-Manuel Fernández Arias | C411 | [@github_user](https://github.com/<user>)
+Amanda Marrero Santos | C411 | [@amymsantos42](https://github.com/amymsantos42)
+Manuel Fernández Arias | C411 | [@nolyfdezarias](https://github.com/nolyfdezarias)
 
 ## Readme
 
