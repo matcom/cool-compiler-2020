@@ -1,7 +1,9 @@
 import argparse
+from sys import argv
 
 from lexer import make_lexer
 
+tokens = ""
 
 def create_arg_parser():
     arg_parser = argparse.ArgumentParser(prog="pycoolc")
@@ -47,36 +49,44 @@ def main():
 
     cool_program_code = ""
 
-    p = str(program)[2:-2]
-    print(p)
+    p = program[0]
     if not str(p).endswith(".cl"):
         print("Cool program files must end with a \`.cl\` extension.\r\n")
         arg_parser.print_usage()
         exit(1)
 
     try:
-        with open(p, encoding="utf-8") as file:
-            cool_program_code += file.read()
-    except (IOError, FileNotFoundError):
-        print(f"Error! File {program} not found.")
-    except Exception:
-        print("An unexpected error occurred!")
+        with open(str(p)) as file:
+            while True:
+                i = file.read(1)
+                if not(i):
+                    break
+                if i == '\0':
+                    cool_program_code += r'\0'
+                else:
+                    cool_program_code += i
 
-    if args.tokens:
-        print("Run lexical analysis") if args.debug else None
-        lexer = make_lexer(cool_program_code)
+            lexer = make_lexer(cool_program_code)
 
         while True:
             tok = lexer.token()
             if not tok:
                 break
-            print(tok)
+        
+        pass
 
-    if args.ast:
-        print("Getting ast") if args.debug else None
+    except (IOError, FileNotFoundError):
+        print(f"Error! File {program} not found.")
+        exit(1)
+    except Exception:
+        print("An unexpected error occurred!")
+        exit(1)
+    
+    # if args.ast:
+    #     print("Getting ast") if args.debug else None
 
-    if args.semantics:
-        print("Running Semantic Analysis") if args.debug else None
+    # if args.semantics:
+    #     print("Running Semantic Analysis") if args.debug else None
 
 
 if __name__ == "__main__":
