@@ -72,7 +72,6 @@ def main():
             tok = lexer.token()
             if not tok:
                 break
-        
         pass
 
     except (IOError, FileNotFoundError):

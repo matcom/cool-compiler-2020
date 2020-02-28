@@ -1,47 +1,251 @@
 import ply.yacc as yacc
- 
-# Get the token map from the lexer.  This is required.
 from lexer import tokens
 
-def p_expression_plus(p):
-    'expression : expression PLUS term'
-    p[0] = p[1] + p[3]
+start = 'program'
 
-def p_expression_minus(p):
-    'expression : expression MINUS term'
-    p[0] = p[1] - p[3]
- 
-def p_expression_term(p):
-    'expression : term'
-    p[0] = p[1]
- 
-def p_term_times(p):
-    'term : term TIMES factor'
-    p[0] = p[1] * p[3]
- 
-def p_term_div(p):
-    'term : term DIVIDE factor'
-    p[0] = p[1] / p[3]
- 
-def p_term_factor(p):
-    'term : factor'
-    p[0] = p[1]
- 
-def p_factor_num(p):
-    'factor : NUMBER'
-    p[0] = p[1]
- 
-def p_factor_expr(p):
-    'factor : LPAREN expression RPAREN'
-    p[0] = p[2]
+def p_program(p):
+    'program : class_list'
+    pass
 
-# Error rule for syntax errors
+def p_class_list(p):
+    '''class_list : class_definition class_list
+                    | empty'''
+    pass
+
+def p_class_definition(p):
+    '''class_definition : CLASS CLASSID LBRACE class_feature_list RBRACE SEMICOLON
+                        | CLASS CLASSID INHERITS CLASSID LBRACE class_feature_list RBRACE SEMICOLON'''
+    pass
+
+
+def p_empty(p):
+    'empty :'
+    pass
+
+def p_class_feature_list(p):
+    '''class_feature_list : feature class_feature_list
+                            | empty'''
+    pass
+
+def p_feature(p):
+    '''feature : attribute_feature
+                | function_feature'''
+    pass
+
+def p_attribute_feature(p):
+    '''attribute_feature : ATTRIBUTEID COLON CLASSID SEMICOLON
+                            | ATTRIBUTEID COLON CLASSID ASSIGNATION expression SEMICOLON'''
+    pass
+
+def p_function_feature(p):
+    '''function_feature : ATTRIBUTEID LPAREN parameters_list RPAREN COLON CLASSID LBRACE expression RBRACE SEMICOLON
+                        | ATTRIBUTEID LPAREN RPAREN COLON CLASSID LBRACE expression RBRACE SEMICOLON'''
+    pass
+    
+def p_parameter_list(p):
+    '''parameters_list : parameter COMMA parameters_list
+                        | parameter'''
+    pass
+
+def p_parameter(p):
+    '''parameter : ATTRIBUTEID COLON CLASSID'''
+    pass
+
+def p_expression_list(p):
+    '''expression_list : expression SEMICOLON expression_list
+                        | expression SEMICOLON'''
+    pass
+
+def p_let_body(p):
+    '''let_body : ATTRIBUTEID COLON CLASSID
+                | ATTRIBUTEID COLON CLASSID ASSIGNATION expression
+                | ATTRIBUTEID COLON CLASSID COMMA let_body
+                | ATTRIBUTEID COLON CLASSID ASSIGNATION expression COMMA let_body'''
+    pass
+
+def p_case_body(p):
+    '''case_body : ATTRIBUTEID COLON CLASSID ARROW expression SEMICOLON case_body
+                | ATTRIBUTEID COLON CLASSID ARROW expression SEMICOLON'''
+    pass
+
+def p_expression(p):
+    '''expression : mixed_expression'''
+    pass
+
+def p_mixed_expression(p):
+    '''mixed_expression : mixed_expression LESSEQUAL arithmetic_expression_form
+                        | mixed_expression LESS arithmetic_expression_form
+                        | mixed_expression EQUAL arithmetic_expression_form
+                        | arithmetic_expression_form'''
+    pass
+ 
+def p_arithmetic_expression_form(p):
+    '''arithmetic_expression_form : NOT arithmetic_expression
+                                    | arithmetic_expression'''
+
+def p_arithmetic_expression(p):
+    '''arithmetic_expression : arithmetic_expression PLUS term
+                            | arithmetic_expression MINUS term
+                            | term'''
+
+def p_term(p):
+    '''term : term TIMES factor
+            | term DIVIDE factor
+            | factor'''
+    pass
+ 
+def p_factor(p):
+    '''factor : ISVOID factor_extra
+                | factor_extra'''
+    pass
+
+def p_factor_extra(p):
+    '''factor_extra : COMPLEMENT program_atom
+                    | program_atom'''
+    pass
+
+def p_program_atom_boolean(p):
+    '''program_atom : TRUE
+                    | FALSE'''
+    pass
+
+def p_program_atom_string(p):
+    '''program_atom : STRING'''
+    pass
+
+def p_program_atom_int(p):
+    '''program_atom : NUMBER'''
+    pass
+
+def p_program_atom_id(p):
+    '''program_atom : ATTRIBUTEID'''
+    pass
+
+def p_program_atom_parentesis(p):
+    '''program_atom : LPAREN expression RPAREN'''
+    pass
+
+def p_program_atom_new(p):
+    '''program_atom : NEW CLASSID'''
+    pass
+
+def p_program_atom_member(p):
+    '''program_atom : member_call'''
+    pass
+
+def p_program_atom_function(p):
+    '''program_atom : program_atom function_call'''
+    pass
+
+def p_program_atom_assign(p):
+    '''program_atom : ATTRIBUTEID ASSIGNATION expression'''
+    pass
+
+def p_program_atom_case(p):
+    '''program_atom : CASE expression OF case_body ESAC'''
+    pass
+
+def p_program_atom_let(p):
+    '''program_atom : LET let_body IN expression'''
+    pass
+
+def p_program_atom_block(p):
+    '''program_atom : LBRACE expression_list RBRACE'''
+    pass
+
+def p_program_atom_while(p):
+    '''program_atom : WHILE expression LOOP expression POOL'''
+    pass
+
+def p_program_atom_if(p):
+    '''program_atom : IF expression THEN expression ELSE expression FI'''
+    pass
+
+def p_function_call(p):
+    '''function_call : DOT ATTRIBUTEID LPAREN argument_list RPAREN
+                    | DOT ATTRIBUTEID LPAREN RPAREN
+                    | DISPATCH CLASSID DOT ATTRIBUTEID LPAREN argument_list RPAREN
+                    | DISPATCH CLASSID DOT ATTRIBUTEID LPAREN RPAREN'''
+    pass
+
+def p_argument_list(p):
+    '''argument_list : expression
+                    | expression COMMA argument_list'''
+    pass
+
+def p_member_call(p):
+    '''member_call : ATTRIBUTEID LPAREN RPAREN
+                    | ATTRIBUTEID LPAREN argument_list RPAREN'''
+
 def p_error(p):
-    print("Syntax error in input!")
- 
-# Build the parser
+    word = p.value
+    if p.type == 'ASSIGNATION': 
+        word = 'ASSIGN'
+    if p.type == 'ESAC':
+        word = 'ESAC'
+    if p.type == 'NEW':
+        word = 'NEW'
+    print("(%s, %s) - SyntacticError: ERROR at or near \"%s\"" % (p.lineno, p.colno, word))
+    pass
+
 parser = yacc.yacc()
 
-s = '''2 + 2'''
+s = r'''(* There are three forms of dispatch (i.e. method call) in Cool. The three forms differ only in how the called method is selected *)
+
+class Main {
+    main(): Object {
+        (new Alpha).print()
+    };
+};
+
+class Test {
+    test1: Object;
+    
+    testing1(): Int {
+        2 + 2
+    };
+
+    test2: Int <- 1;
+
+    test3: String <- "1";
+
+    testing2(a: Alpha, b: Int): Int {
+        2 + 2
+    };
+
+    testing3(): String {
+        "2 + 2"
+    };
+
+    testing4(x: Int, y: Int): Test {
+        self
+    };
+};
+
+class Test2 {
+    test1: Test <- new Test;
+
+    testing1(): Test {
+        test1.testing4(1 + 1, 1 + 2).testing4(2 + 3, 3 + 5).testing4(5 + 8, 8 + 13)
+    };
+
+    testing2(x: Int, y: Int): Test2 {
+        self
+    };
+
+    testing3(): Test2 {
+        testing2(1 + 1, 1 + 2).testing2(2 + 3, 3 + 5).testing2(5 + 8, true + fALSE)
+    };
+
+    testing4(): Object {
+        test1@object.copy() -- Type identifiers begin with a upper case letter
+    };
+}
+
+class Alpha inherits IO {
+    print() : Object {
+        out_string("reached!!\n")
+    };
+};'''
 result = parser.parse(s)
-print(result)
+# print(result)
