@@ -31,7 +31,6 @@ reserved = {
 tokens = [
     'ASSIGN',
     'ARROW',
-    'GREATEREQ',
     'LOWEREQ',
     'INT',
     'STRING',
@@ -46,7 +45,6 @@ tokens = [
     'AT',
     'DOT',
     'LOWER',
-    'GREATER',
     'EQUAL',
     'PLUS',
     'MINUS',
@@ -66,9 +64,7 @@ t_COLON = r':'
 t_AT = r'@'
 t_DOT = r'\.'
 t_LOWER = r'<'
-t_GREATER = r'>'
 t_EQUAL = r'='
-t_GREATEREQ = r'>='
 t_LOWEREQ = r'<='
 t_ASSIGN = r'<-'
 t_ARROW = r'=>'
@@ -85,10 +81,12 @@ def t_INT(t):
     t.value = int(t.value)
     return t
 
+
 def t_TYPE(t):
     r'[A-Z][a-zA-Z_0-9]*'
-    t.type = reserved.get(t.value.lower(),'TYPE')
+    t.type = reserved.get(t.value.lower(), 'TYPE')
     return t
+
 
 def t_ID(t):
     r'[a-z][a-zA-Z_0-9]*'
