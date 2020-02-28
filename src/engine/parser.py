@@ -181,7 +181,7 @@ class_list, def_class = CoolGrammar.NonTerminals('<class-list> <def-class>')
 feature_list, feature = CoolGrammar.NonTerminals('<feature-list> <feature>')
 param_list, param = CoolGrammar.NonTerminals('<param-list> <param>')
 expr, member_call, expr_list, let_list, case_list = CoolGrammar.NonTerminals('<expr> <member-call> <expr-list> <let-list> <case-list>')
-comp_expr, arith, term, factor, factor_2 = CoolGrammar.NonTerminals('<comp-expr> <arith> <term> <factor> <factor-2>')
+arith, arith_2, term, factor, factor_2 = CoolGrammar.NonTerminals('<arith> <arith-2> <term> <factor> <factor-2>')
 atom, func_call, arg_list = CoolGrammar.NonTerminals('<atom> <func-call> <arg-list>')
 
 # terminals
@@ -240,19 +240,23 @@ case_list %= idx + colon + typex + rarrow + expr + semi, lambda h, s: [(s[1], s[
 case_list %= idx + colon + typex + rarrow + expr + semi + case_list, lambda h, s: [(s[1], s[3], s[5])] + s[7]
 
 # <expr> == <truth-expr>   ???
-expr %= notx + expr, lambda h, s: NotNode(s[2])
-expr %= comp_expr, lambda h, s: s[1]
+# expr %= notx + expr, lambda h, s: NotNode(s[2])
+# expr %= comp_expr, lambda h, s: s[1]
 
 # <comp-expr>    ???
-comp_expr %= comp_expr + leq + arith, lambda h, s: LessEqualNode(s[1], s[3])
-comp_expr %= comp_expr + less + arith, lambda h, s: LessNode(s[1], s[3])
-comp_expr %= comp_expr + equal + arith, lambda h, s: EqualNode(s[1], s[3])
-comp_expr %= arith, lambda h, s: s[1]
+expr %= expr + leq + arith, lambda h, s: LessEqualNode(s[1], s[3])
+expr %= expr + less + arith, lambda h, s: LessNode(s[1], s[3])
+expr %= expr + equal + arith, lambda h, s: EqualNode(s[1], s[3])
+expr %= arith, lambda h, s: s[1]
 
-# <arith>       ???
-arith %= arith + plus + term, lambda h, s: PlusNode(s[1], s[3])
-arith %= arith + minus + term, lambda h, s: MinusNode(s[1], s[3])
-arith %= term, lambda h, s: s[1]
+# <arith>     ???
+arith %= notx + arith_2, lambda h, s: NotNode(s[2])
+arith %= arith_2, lambda h, s: s[1] 
+
+# <arith_2>       ???
+arith_2 %= arith_2 + plus + term, lambda h, s: PlusNode(s[1], s[3])
+arith_2 %= arith_2 + minus + term, lambda h, s: MinusNode(s[1], s[3])
+arith_2 %= term, lambda h, s: s[1]
 
 # <term>        ???
 term %= term + star + factor, lambda h, s: StarNode(s[1], s[3])
