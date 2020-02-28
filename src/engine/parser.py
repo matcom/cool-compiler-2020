@@ -190,9 +190,9 @@ ifx, then, elsex, fi = CoolGrammar.Terminals('if then else fi')
 whilex, loop, pool = CoolGrammar.Terminals('while loop pool')
 let, inx = CoolGrammar.Terminals('let in')
 case, of, esac = CoolGrammar.Terminals('case of esac')
-semi, colon, comma, dot, at, opar, cpar, ocur, ccur, larrow, rarrow = CoolGrammar.Terminals('; : , . @ ( ) { } <- =>')
-plus, minus, star, div, isvoid, compl = CoolGrammar.Terminals('+ - * / isvoid ~')
-notx, less, leq, equal = CoolGrammar.Terminals('not < <= =')
+semi, colon, comma, dot, at, opar, cpar, ocur, ccur, larrow, rarrow = CoolGrammar.Terminals('; : , . @ ( ) { } assign action')
+plus, minus, star, div, isvoid, compl = CoolGrammar.Terminals('+ - * / isvoid int_complement')
+notx, less, leq, equal = CoolGrammar.Terminals('not less lessequal equal')
 new, idx, typex, integer, string, boolx = CoolGrammar.Terminals('new id type integer string bool')
 
 # productions
