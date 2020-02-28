@@ -68,12 +68,11 @@ def main():
                 else:
                     cool_program_code += i
 
-            # lexer, errors = make_lexer(cool_program_code)
-            # print(len(errors))
-            # if len(errors) > 0:
-            #     for er in errors:
-            #         print(er)
-            #     exit(1)
+            lexer, errors = make_lexer(cool_program_code)
+            if len(errors) > 0:
+                for er in errors:
+                    print(er)
+                exit(1)
             make_parser(cool_program_code)
 
     except (IOError, FileNotFoundError):
