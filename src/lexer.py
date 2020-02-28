@@ -1,5 +1,5 @@
 from ply import lex as lex
-
+errors = []
 reserved = {
     'class': 'CLASS',
     'else': 'ELSE',
@@ -363,6 +363,8 @@ def make_lexer(data):
     newData = newData + '$'
     lexer = lex.lex()
     lexer.input(newData)
-    return lexer
+    print(lexer)
+    return lexer, errors
 
-lexer = lex.lex()
+
+lexer = lex.lex(debug=1)
