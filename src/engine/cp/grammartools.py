@@ -196,7 +196,8 @@ class ShiftReduceParser:
                 else:
                     assert False, 'Must be something wrong!'
             except KeyError:
-                print('Parsing Error:', stack, w[cursor:])
+                if self.verbose:
+                    print('Parsing Error:', stack, w[cursor:])
                 return w[cursor:][0], None
 
 class LR1Parser(ShiftReduceParser):

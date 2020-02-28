@@ -6,3 +6,4 @@ from .visitors import Checker
 from .visitors import Collector
 from .visitors import Format
 from .visitors import Inferer
+from .errors import *
