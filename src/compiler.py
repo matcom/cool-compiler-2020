@@ -2,8 +2,10 @@ import argparse
 from sys import argv
 
 from lexer import make_lexer
+from parser import make_parser
 
 tokens = ""
+
 
 def create_arg_parser():
     arg_parser = argparse.ArgumentParser(prog="pycoolc")
@@ -67,12 +69,12 @@ def main():
                     cool_program_code += i
 
             lexer = make_lexer(cool_program_code)
-
-        while True:
-            tok = lexer.token()
-            if not tok:
-                break
-        pass
+            print(len(lexer.errors))
+            if len(lexer.errors) > 0:
+                for er in lexer.errors:
+                    print(er)
+                exit(1)
+            # make_parser(cool_program_code)
 
     except (IOError, FileNotFoundError):
         print(f"Error! File {program} not found.")
@@ -80,14 +82,7 @@ def main():
     except Exception:
         print("An unexpected error occurred!")
         exit(1)
-    
-    # if args.ast:
-    #     print("Getting ast") if args.debug else None
-
-    # if args.semantics:
-    #     print("Running Semantic Analysis") if args.debug else None
 
 
 if __name__ == "__main__":
     main()
-
