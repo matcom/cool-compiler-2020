@@ -57,31 +57,38 @@ def main():
         arg_parser.print_usage()
         exit(1)
 
-    try:
-        with open(str(p)) as file:
-            while True:
-                i = file.read(1)
-                if not(i):
-                    break
-                if i == '\0':
-                    cool_program_code += r'\0'
-                else:
-                    cool_program_code += i
+    
+    with open(str(p)) as file:
+        while True:
+            i = file.read(1)
+            if not(i):
+                break
+            if i == '\0':
+                cool_program_code += r'\0'
+            else:
+                cool_program_code += i
 
-            # lexer, errors = make_lexer(cool_program_code)
-            # print(len(errors))
-            # if len(errors) > 0:
-            #     for er in errors:
-            #         print(er)
-            #     exit(1)
-            make_parser(cool_program_code)
+         #   lexer, errors = make_lexer(cool_program_code)
 
-    except (IOError, FileNotFoundError):
-        print(f"Error! File {program} not found.")
-        exit(1)
-    except Exception:
-        print("An unexpected error occurred!")
-        exit(1)
+        #    while True:
+        #        tok = lexer.token()
+        #        if not tok:
+        #            break
+       #         pass
+
+          #  print(len(errors))
+        # if len(errors) > 0:
+        #     for er in errors:
+        #         print(er)
+        #     exit(1)
+        make_parser(cool_program_code)
+
+    # except (IOError, FileNotFoundError):
+    #     print(f"Error! File {program} not found.")
+    #     exit(1)
+    # except Exception:
+    #     print("An unexpected error occurred!")
+    #     exit(1)
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ def p_program(p):
 
 def p_class_list(p):
     '''class_list : class_definition class_list
-                    | empty'''
+                    | class_definition'''
     pass
 
 
@@ -213,14 +213,27 @@ def p_member_call(p):
 
 
 def p_error(p):
+    if p == None:
+        print("(0, 0) - SyntacticError: ERROR at or near EOF")
+        return
     word = p.value
+    w = False
     if p.type == 'ASSIGNATION':
         word = 'ASSIGN'
+        w = True
     if p.type == 'ESAC':
         word = 'ESAC'
+        w = True
     if p.type == 'NEW':
         word = 'NEW'
-    print("(%s, %s) - SyntacticError: ERROR at or near \"%s\"" % (p.lineno, p.colno, word))
+        w = True
+    if p.type == 'CLASS':
+        word = 'CLASS'
+        w = True
+    if w:
+        print("(%s, %s) - SyntacticError: ERROR at or near %s "% (p.lineno, p.colno, word))
+    else: 
+        print("(%s, %s) - SyntacticError: ERROR at or near \"%s\"" % (p.lineno, p.colno, word))
     pass
 
 

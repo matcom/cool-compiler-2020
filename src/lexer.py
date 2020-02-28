@@ -363,8 +363,6 @@ def make_lexer(data):
     newData = newData + '$'
     lexer = lex.lex()
     lexer.input(newData)
-    print(lexer)
     return lexer, errors
 
-
-lexer = lex.lex(debug=1)
+lexer = lex.lex()
