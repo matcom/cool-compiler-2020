@@ -93,13 +93,13 @@ def t_error(t):
     lexer_error(t,f'ERROR "{t.value}"')
     t.lexer.skip(1)
 
-t_ASSIGN = r'<-'
-t_LESS = r'<'
-t_LESSEQUAL = r'<='
-t_EQUAL = r'='
-t_INT_COMPLEMENT = r'~'
+t_ASSIGN = r'\<\-'
+t_LESS = r'\<'
+t_LESSEQUAL = r'\<\='
+t_EQUAL = r'\='
+t_INT_COMPLEMENT = r'\~'
 
-t_ACTION = r'=>'
+t_ACTION = r'\=\>'
 
 states = (
    ('string','exclusive'),
@@ -130,6 +130,9 @@ def t_comment_eof(t):
 def t_comment_error(t):
     #print(t.value, 'error en comment')
     t.lexer.skip(1)
+
+def t_comment_literals(t):
+    r'\+|\-|\*|\:|\;|\(|\)|\{|\}|\@|\.|\,|\/|\<|\<\-|\<\=|\=|\~|\=|>'
 
 # string state
 def t_string(t):
@@ -199,13 +202,6 @@ lexer.string = ''
 ###### CoolGrammar ######
 
 tokens_dict = dict()
-
-tokens_dict['ACTION'] = CoolGrammar['=>']
-tokens_dict['ASSIGN'] = CoolGrammar['<-']
-tokens_dict['LESS'] = CoolGrammar['<']
-tokens_dict['LESSEQUAL'] = CoolGrammar['<=']
-tokens_dict['EQUAL'] = CoolGrammar['=']
-tokens_dict['INT_COMPLEMENT'] = CoolGrammar['~']
 
 for tok in tokens + literals:
 	if tok not in tokens_dict:
