@@ -10,7 +10,7 @@ precedence = (
     ('left', 'ISVOID'),
     ('left', 'STAR', 'DIV'),
     ('left', 'PLUS', 'MINUS'),
-    ('left', 'GREATEREQ', 'LOWEREQ', 'LOWER', 'GREATER', 'EQUAL'),
+    ('left', 'LOWEREQ', 'LOWER', 'EQUAL'),
     ('left', 'LNOT'),
     ('right', 'ASSIGN'),
 )
@@ -27,8 +27,8 @@ def p_empty(p):
 
 
 def p_class_list(p):
-    '''class_list : def_class class_list
-                  | def_class'''
+    '''class_list : def_class SEMICOLON class_list
+                  | def_class SEMICOLON'''
 
     try:
         p[0] = [p[1]] + p[3]
@@ -37,8 +37,8 @@ def p_class_list(p):
 
 
 def p_def_class(p):
-    '''def_class : CLASS TYPE OBRACKET feature_list CBRACKET SEMICOLON
-                  | CLASS TYPE INHERITS TYPE OBRACKET feature_list CBRACKET SEMICOLON'''
+    '''def_class : CLASS TYPE OBRACKET feature_list CBRACKET
+                  | CLASS TYPE INHERITS TYPE OBRACKET feature_list CBRACKET'''
     if len(p) == 8:
         p[0] = DefClassNode(p[2], p[6], p[4])
     else:
@@ -55,23 +55,36 @@ def p_feature_list(p):
         p[0] = []
 
 
-def p_def_attr(p):
-    '''def_attr : assign_elem'''
-    p[0] = DefAttrNode(*p[1])
+def p_def_attr_declaration(p):
+    '''def_attr : ID COLON TYPE ASSIGN expr
+                | ID COLON TYPE'''
+    try:
+        p[0] = DefAttrNode(p[1], p[3], p[5])
+    except:
+        p[0] = DefAttrNode(p[1], p[3])
 
 
 def p_def_func(p):
-    '''def_func : ID OPAREN param_list CPAREN COLON TYPE OBRACKET expr_list CBRACKET'''
+    '''def_func : ID OPAREN params CPAREN COLON TYPE OBRACKET expr CBRACKET'''
     p[0] = DefFuncNode(p[1], p[3], p[6], p[8])
+
+
+def p_params_ne(p):
+    '''params : param_list'''
+    p[0] = p[1]
+
+
+def p_params_e(p):
+    '''params : empty'''
+    p[0] = []
 
 
 def p_param_list(p):
     '''param_list : param COMMA param_list
-                  | param
-                  | empty'''
-    if len(p) == 4:
+                  | param empty'''
+    try:
         p[0] = [p[1]] + p[3]
-    else:
+    except:
         p[0] = [p[1]]
 
 
@@ -80,24 +93,31 @@ def p_param(p):
     p[0] = (p[1], p[3])
 
 
-def p_expr_list(p):
-    '''expr_list : expr expr_list
-                 | expr'''
-    if len(p) == 3:
-        p[0] = [p[1]] + p[2]
-    else:
-        p[0] = [p[1]]
+def p_expr_flow(p):
+    '''expr : LET let_attrs IN expr
+            | CASE expr OF case_list ESAC
+            | IF expr THEN expr ELSE expr FI
+            | WHILE expr LOOP expr POOL'''
+
+    if p[1].lower() == 'let':
+        p[0] = LetNode(p[2], p[4])
+    elif p[1].lower() == 'case':
+        p[0] = CaseNode(p[2], p[4])
+    elif p[1].lower() == 'if':
+        p[0] = IfNode(p[2], p[4], p[6])
+    elif p[1].lower() == 'while':
+        p[0] = WhileNode(p[2], p[4])
 
 
-def p_assign(p):
-    '''assign : ID ASSIGN expr'''
+def p_expr_assign(p):
+    '''expr : ID ASSIGN expr'''
     p[0] = AssignNode(p[1], p[3])
 
 
-def p_func_call(p):
-    '''func_call : expr AT TYPE DOT ID OPAREN arg_list CPAREN
-                 | expr DOT ID OPAREN arg_list CPAREN
-                 | ID OPAREN arg_list CPAREN'''
+def p_expr_func_all(p):
+    '''expr : expr AT TYPE DOT ID OPAREN arg_list CPAREN
+            | expr DOT ID OPAREN arg_list CPAREN
+            | ID OPAREN arg_list CPAREN'''
     if len(p) == 9:
         p[0] = FuncCallNode(p[1], p[3], p[5], p[7])
     elif len(p) == 7:
@@ -106,24 +126,118 @@ def p_func_call(p):
         p[0] = FuncCallNode(p[1], p[3])
 
 
+def p_expr_operators_binary(p):
+    '''expr : expr PLUS expr
+            | expr MINUS expr
+            | expr STAR expr
+            | expr DIV expr
+            | expr LOWER expr
+            | expr LOWEREQ expr
+            | expr EQUAL expr'''
+    if p[2] == '+':
+        p[0] = PlusNode(p[1], p[3])
+    elif p[2] == '-':
+        p[0] = MinusNode(p[1], p[3])
+    elif p[2] == '*':
+        p[0] = PlusNode(p[1], p[3])
+    elif p[2] == '/':
+        p[0] = DivNode(p[1], p[3])
+    elif p[2] == '<':
+        p[0] = LessThanNode(p[1], p[3])
+    elif p[2] == '<=':
+        p[0] = LessEqNode(p[1], p[3])
+    elif p[2] == '=':
+        p[0] = EqNode(p[1], p[3])
+
+
+def p_expr_operators_unary(p):
+    '''expr : NOT expr
+            | ISVOID expr
+            | LNOT expr'''
+    if p[1] == '~':
+        p[0] = NegationNode(p[2])
+    elif p[1].lower() == 'isvoid':
+        p[0] = IsVoidNode(p[2])
+    elif p[1].lower() == 'not':
+        p[0] = LogicNegationNode(p[2])
+
+
+def p_expr_group(p):
+    '''expr : OPAREN expr CPAREN'''
+    p[0] = p[2]
+
+
+def p_expr_atom(p):
+    '''expr : atom'''
+    p[0] = p[1]
+
+
+def p_let_attrs(p):
+    '''let_attrs : def_attr COMMA let_attrs
+                | def_attr'''
+    try:
+        p[0] = [p[1]] + p[3]
+    except:
+        p[0] = [p[1]]
+
+
+def p_case_list(p):
+    '''case_list : case_elem SEMICOLON case_list
+                 | case_elem SEMICOLON'''
+    try:
+        p[0] = [p[1]] + p[3]
+    except:
+        p[0] = [p[1]]
+
+
+def p_case_elem(p):
+    '''case_elem : ID COLON TYPE ARROW expr'''
+    p[0] = CaseElemNode(p[5], p[1], p[3])
+
+
 def p_arg_list(p):
-    '''arg_list : expr COMMA arg_list
-                | expr
+    '''arg_list : arg_list_ne
                 | empty'''
+    p[0] = [p[1]]
+
+
+def p_arg_list_ne(p):
+    '''arg_list_ne : expr COMMA arg_list_ne
+                   | expr '''
     if len(p) == 4:
         p[0] = [p[1]] + p[3]
     else:
         p[0] = [p[1]]
 
 
-def p_if_expr(p):
-    '''if_expr : IF expr THEN expr ELSE expr FI'''
-    p[0] = IfNode(p[2], p[4], p[6])
+def p_atom_int(p):
+    '''atom : INT'''
+    p[0] = IntNode(int(p[1]))
 
 
-def p_loop_expr(p):
-    '''loop_expr : WHILE expr LOOP expr POOL'''
-    p[0] = LoopNode(p[2], p[4])
+def p_atom_id(p):
+    '''atom : ID'''
+    p[0] = VarNode(p[1])
+
+
+def p_atom_new(p):
+    '''atom : NEW TYPE'''
+    p[0] = NewNode(p[2])
+
+
+def p_atom_block(p):
+    '''atom : block'''
+    p[0] = p[1]
+
+
+def p_atom_bool(p):
+    '''atom :  BOOL'''
+    p[0] = BoolNode(p[1].lower())
+
+
+def p_atom_atring(p):
+    '''atom : STRING'''
+    p[0] = StringNode(p[1])
 
 
 def p_block(p):
