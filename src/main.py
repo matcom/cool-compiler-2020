@@ -22,11 +22,12 @@ if len(errors):
         print(e)
     exit(1)
 
+
+parse, operations = CoolParser(tokens)
+
+if not operations:
+    message = f'ERROR at or near "{parse.lex}"'
+    print(SyntacticError(parse.line,parse.column, message))
+    exit(1)
+#print(parse)
 exit(0)
-
-# parse, operations = CoolParser(tokens)
-
-# if not operations:
-#     print(f"Unexpected token: {parse.lex} at Ln: {parse.line}, Col {parse.column}\n")
-
-# print(parse)
