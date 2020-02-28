@@ -33,10 +33,9 @@ class DefFuncNode(FeatureNode):
 
 
 class AssignNode:
-    def __init__(self, id, expr, type=None):
+    def __init__(self, id, expr):
         self.id = id
         self.expr = expr
-        self.type = type
 
 
 class FuncCallNode:
@@ -54,7 +53,7 @@ class IfNode:
         self.else_expr = else_expr
 
 
-class LoopNode:
+class WhileNode:
     def __init__(self, cond, body):
         self.cond = cond
         self.body = body
@@ -66,8 +65,8 @@ class BlockNode:
 
 
 class LetNode:
-    def __init__(self, assign_nodes, expr):
-        self.assign_nodes = assign_nodes
+    def __init__(self, let_attrs, expr):
+        self.let_attrs = let_attrs
         self.expr = expr
 
 
@@ -115,15 +114,7 @@ class DivNode(BinaryNode):
     pass
 
 
-class GreaterThanNode(BinaryNode):
-    pass
-
-
 class LessThanNode(BinaryNode):
-    pass
-
-
-class GreaterEqNode(BinaryNode):
     pass
 
 
@@ -153,4 +144,31 @@ class AtomNode(UnaryNode):
 
 
 class IsVoidNode(UnaryNode):
+    pass
+
+
+class VarNode:
+    def __init__(self, id):
+        self.id = id
+
+
+class NewNode:
+    def __init__(self, t):
+        self.type = t
+
+
+class ConstantNode:
+    def __init__(self, value):
+        self.value = value
+
+
+class IntNode(ConstantNode):
+    pass
+
+
+class BoolNode(ConstantNode):
+    pass
+
+
+class StringNode(ConstantNode):
     pass
