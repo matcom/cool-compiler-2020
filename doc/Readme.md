@@ -1,12 +1,13 @@
 # Documentación
 
+
 > Introduzca sus datos (de todo el equipo) en la siguiente tabla:
 
 **Nombre** | **Grupo** | **Github**
 --|--|--
-Nombre1 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
-Nombre2 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
-Nombre3 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
+Lazaro Jesus Suarez Nuñes | C412 | [@LazardStrife](https://github.com/LazardStrife)
+Marcos Antonio Maceo Reyes | C412 | [@stdevMac](https://github.com/stdevMac)
+
 
 ## Readme
 
