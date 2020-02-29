@@ -67,13 +67,17 @@ def main():
                     cool_program_code += r'\0'
                 else:
                     cool_program_code += i
-
+            s = cool_program_code
             lexer, errors = make_lexer(cool_program_code)
             if len(errors) > 0:
                 for er in errors:
                     print(er)
                 exit(1)
-            make_parser(cool_program_code)
+            _, errors = make_parser(s)
+            if len(errors) > 0:
+                for er in errors:
+                    print(er)
+                exit(1)
 
     except (IOError, FileNotFoundError):
         print(f"Error! File {program} not found.")
