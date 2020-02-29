@@ -1,5 +1,10 @@
 # COOL: Proyecto de Compilación
 
+## Integrantes
+
+- Lazaro Jesus Suarez Nuñez
+- Marcos Antonio Maceo Reyes
+
 La evaluación de la asignatura Complementos de Compilación, inscrita en el programa del 4to año de la Licenciatura en Ciencia de la Computación de la Facultad de Matemática y Computación de la
 Universidad de La Habana, consiste este curso en la implementación de un compilador completamente
 funcional para el lenguaje _COOL_.
