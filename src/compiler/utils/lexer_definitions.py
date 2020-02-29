@@ -41,7 +41,10 @@ basic_keywords = {
     "then": keyword("then"),
     "while": keyword("while"),
     "true": keyword("true"),
-    "false": keyword("false") 
+    "false": keyword("false"),
+    'not' : keyword('not') 
 }
 
+keywords_for_built_in_types = {
 
+}
