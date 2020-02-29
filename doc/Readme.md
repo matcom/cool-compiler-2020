@@ -5,8 +5,8 @@
 **Nombre** | **Grupo** | **Github**
 --|--|--
 Lázaro Raúl Iglesias Vera | C412 | [@github_user](https://github.com/stdevRulo)
-Miguel Tenorio Potrony | C4xx | [@github_user](https://github.com/stdevAntiD2ta)
-Mauricio Lázaro Perdomo Cortés  | C4xx | [@github_user](https://github.com/stdevMauricio1802)
+Miguel Tenorio Potrony | C412 | [@github_user](https://github.com/stdevAntiD2ta)
+Mauricio Lázaro Perdomo Cortés  | C412 | [@github_user](https://github.com/stdevMauricio1802)
 
 ## Readme
 
