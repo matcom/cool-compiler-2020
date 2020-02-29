@@ -1,13 +1,15 @@
-from abstract_component import Component
+from .abstract_component import Component
 
 
 class dummy_component (Component):
-    def __init__(self, input, component_type: str):
-        super().__init__(input)
-        self.component_type = component_type
+    def __init__(self, component_name, *args, **kwargs):
+        component_name = component_name + "dummy_"
+        super().__init__(*args, component_name = component_name + "dummy_", **kwargs)
+        
 
 
-    def output(self):
-        return "Sorry, this is just a dummy %s component" %(self.component_type)
+    def build_component(self):
+        super().build_component()
+        return "Sorry, this is just a %s component" %(self.component_name)
 
 
