@@ -432,13 +432,12 @@ def make_lexer(data):
         i += 1
 
     newData = newData + '$'
-    lexer = lex.lex()
     lexer.input(newData)
     while True:
         tok = lexer.token()
         if not tok:
             break
+    lexer.lineno = 1
     return lexer, errors
-
 
 lexer = lex.lex()
