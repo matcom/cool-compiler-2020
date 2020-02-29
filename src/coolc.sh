@@ -8,6 +8,6 @@ echo "Cool ml-uh v0.0.1"
 echo "Copyright (c) 2019: Lazaro Jesus Suarez Nuñez, Marcos Antonio Maceo Reyes"
 
 # Llamar al compilador
-echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
+#echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 
 python compiler.py "$INPUT_FILE" -o "$OUTPUT_FILE"

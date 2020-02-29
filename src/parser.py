@@ -1,6 +1,8 @@
 import ply.yacc as yacc
 from lexer import tokens
 start = 'program'
+errors = []
+
 
 def p_program(p):
     'program : class_list'
@@ -213,8 +215,9 @@ def p_member_call(p):
 
 
 def p_error(p):
+    global errors
     if p == None:
-        print("(0, 0) - SyntacticError: ERROR at or near EOF")
+        errors.append("(0, 0) - SyntacticError: ERROR at or near EOF")
         return
     word = p.value
     w = False
@@ -231,15 +234,17 @@ def p_error(p):
         word = 'CLASS'
         w = True
     if w:
-        print("(%s, %s) - SyntacticError: ERROR at or near %s "% (p.lineno, p.colno, word))
+        errors.append("(%s, %s) - SyntacticError: ERROR at or near %s "% (p.lineno, p.colno, word))
     else: 
-        print("(%s, %s) - SyntacticError: ERROR at or near \"%s\"" % (p.lineno, p.colno, word))
+        errors.append("(%s, %s) - SyntacticError: ERROR at or near \"%s\"" % (p.lineno, p.colno, word))
     pass
 
 
-parser = yacc.yacc()
+parser = yacc.yacc(debug=1)
 
 
 def make_parser(code):
+    global errors
+    errors = []
     result = parser.parse(code)
-    return result
+    return result, errors
