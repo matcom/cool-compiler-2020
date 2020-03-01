@@ -1,298 +1,289 @@
-# Generated from C:\Software\ANTLR\cool\COOL.g4 by ANTLR 4.7.2
+# Generated from COOL.g4 by ANTLR 4.7.2
 from antlr4 import *
 if __name__ is not None and "." in __name__:
-    from .COOLParser import COOLParser
+    from .COOL import COOL
 else:
-    from COOLParser import COOLParser
+    from COOL import COOL
 
-# This class defines a complete listener for a parse tree produced by COOLParser.
+# This class defines a complete listener for a parse tree produced by COOL.
 class COOLListener(ParseTreeListener):
 
-    # Enter a parse tree produced by COOLParser#program.
-    def enterProgram(self, ctx:COOLParser.ProgramContext):
+    # Enter a parse tree produced by COOL#program.
+    def enterProgram(self, ctx:COOL.ProgramContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#program.
-    def exitProgram(self, ctx:COOLParser.ProgramContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#classes.
-    def enterClasses(self, ctx:COOLParser.ClassesContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#classes.
-    def exitClasses(self, ctx:COOLParser.ClassesContext):
+    # Exit a parse tree produced by COOL#program.
+    def exitProgram(self, ctx:COOL.ProgramContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#eof.
-    def enterEof(self, ctx:COOLParser.EofContext):
+    # Enter a parse tree produced by COOL#classes.
+    def enterClasses(self, ctx:COOL.ClassesContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#eof.
-    def exitEof(self, ctx:COOLParser.EofContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#classDefine.
-    def enterClassDefine(self, ctx:COOLParser.ClassDefineContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#classDefine.
-    def exitClassDefine(self, ctx:COOLParser.ClassDefineContext):
+    # Exit a parse tree produced by COOL#classes.
+    def exitClasses(self, ctx:COOL.ClassesContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#method.
-    def enterMethod(self, ctx:COOLParser.MethodContext):
+    # Enter a parse tree produced by COOL#classDefine.
+    def enterClassDefine(self, ctx:COOL.ClassDefineContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#method.
-    def exitMethod(self, ctx:COOLParser.MethodContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#property.
-    def enterProperty(self, ctx:COOLParser.PropertyContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#property.
-    def exitProperty(self, ctx:COOLParser.PropertyContext):
+    # Exit a parse tree produced by COOL#classDefine.
+    def exitClassDefine(self, ctx:COOL.ClassDefineContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#formal.
-    def enterFormal(self, ctx:COOLParser.FormalContext):
+    # Enter a parse tree produced by COOL#method.
+    def enterMethod(self, ctx:COOL.MethodContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#formal.
-    def exitFormal(self, ctx:COOLParser.FormalContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#letIn.
-    def enterLetIn(self, ctx:COOLParser.LetInContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#letIn.
-    def exitLetIn(self, ctx:COOLParser.LetInContext):
+    # Exit a parse tree produced by COOL#method.
+    def exitMethod(self, ctx:COOL.MethodContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#minus.
-    def enterMinus(self, ctx:COOLParser.MinusContext):
+    # Enter a parse tree produced by COOL#property.
+    def enterProperty(self, ctx:COOL.PropertyContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#minus.
-    def exitMinus(self, ctx:COOLParser.MinusContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#string.
-    def enterString(self, ctx:COOLParser.StringContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#string.
-    def exitString(self, ctx:COOLParser.StringContext):
+    # Exit a parse tree produced by COOL#property.
+    def exitProperty(self, ctx:COOL.PropertyContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#isvoid.
-    def enterIsvoid(self, ctx:COOLParser.IsvoidContext):
+    # Enter a parse tree produced by COOL#formal.
+    def enterFormal(self, ctx:COOL.FormalContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#isvoid.
-    def exitIsvoid(self, ctx:COOLParser.IsvoidContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#while.
-    def enterWhile(self, ctx:COOLParser.WhileContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#while.
-    def exitWhile(self, ctx:COOLParser.WhileContext):
+    # Exit a parse tree produced by COOL#formal.
+    def exitFormal(self, ctx:COOL.FormalContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#division.
-    def enterDivision(self, ctx:COOLParser.DivisionContext):
+    # Enter a parse tree produced by COOL#letIn.
+    def enterLetIn(self, ctx:COOL.LetInContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#division.
-    def exitDivision(self, ctx:COOLParser.DivisionContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#negative.
-    def enterNegative(self, ctx:COOLParser.NegativeContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#negative.
-    def exitNegative(self, ctx:COOLParser.NegativeContext):
+    # Exit a parse tree produced by COOL#letIn.
+    def exitLetIn(self, ctx:COOL.LetInContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#boolNot.
-    def enterBoolNot(self, ctx:COOLParser.BoolNotContext):
+    # Enter a parse tree produced by COOL#minus.
+    def enterMinus(self, ctx:COOL.MinusContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#boolNot.
-    def exitBoolNot(self, ctx:COOLParser.BoolNotContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#lessThan.
-    def enterLessThan(self, ctx:COOLParser.LessThanContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#lessThan.
-    def exitLessThan(self, ctx:COOLParser.LessThanContext):
+    # Exit a parse tree produced by COOL#minus.
+    def exitMinus(self, ctx:COOL.MinusContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#block.
-    def enterBlock(self, ctx:COOLParser.BlockContext):
+    # Enter a parse tree produced by COOL#string.
+    def enterString(self, ctx:COOL.StringContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#block.
-    def exitBlock(self, ctx:COOLParser.BlockContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#id.
-    def enterId(self, ctx:COOLParser.IdContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#id.
-    def exitId(self, ctx:COOLParser.IdContext):
+    # Exit a parse tree produced by COOL#string.
+    def exitString(self, ctx:COOL.StringContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#multiply.
-    def enterMultiply(self, ctx:COOLParser.MultiplyContext):
+    # Enter a parse tree produced by COOL#isvoid.
+    def enterIsvoid(self, ctx:COOL.IsvoidContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#multiply.
-    def exitMultiply(self, ctx:COOLParser.MultiplyContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#if.
-    def enterIf(self, ctx:COOLParser.IfContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#if.
-    def exitIf(self, ctx:COOLParser.IfContext):
+    # Exit a parse tree produced by COOL#isvoid.
+    def exitIsvoid(self, ctx:COOL.IsvoidContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#case.
-    def enterCase(self, ctx:COOLParser.CaseContext):
+    # Enter a parse tree produced by COOL#while.
+    def enterWhile(self, ctx:COOL.WhileContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#case.
-    def exitCase(self, ctx:COOLParser.CaseContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#ownMethodCall.
-    def enterOwnMethodCall(self, ctx:COOLParser.OwnMethodCallContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#ownMethodCall.
-    def exitOwnMethodCall(self, ctx:COOLParser.OwnMethodCallContext):
+    # Exit a parse tree produced by COOL#while.
+    def exitWhile(self, ctx:COOL.WhileContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#add.
-    def enterAdd(self, ctx:COOLParser.AddContext):
+    # Enter a parse tree produced by COOL#division.
+    def enterDivision(self, ctx:COOL.DivisionContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#add.
-    def exitAdd(self, ctx:COOLParser.AddContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#new.
-    def enterNew(self, ctx:COOLParser.NewContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#new.
-    def exitNew(self, ctx:COOLParser.NewContext):
+    # Exit a parse tree produced by COOL#division.
+    def exitDivision(self, ctx:COOL.DivisionContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#parentheses.
-    def enterParentheses(self, ctx:COOLParser.ParenthesesContext):
+    # Enter a parse tree produced by COOL#negative.
+    def enterNegative(self, ctx:COOL.NegativeContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#parentheses.
-    def exitParentheses(self, ctx:COOLParser.ParenthesesContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#assignment.
-    def enterAssignment(self, ctx:COOLParser.AssignmentContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#assignment.
-    def exitAssignment(self, ctx:COOLParser.AssignmentContext):
+    # Exit a parse tree produced by COOL#negative.
+    def exitNegative(self, ctx:COOL.NegativeContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#false.
-    def enterFalse(self, ctx:COOLParser.FalseContext):
+    # Enter a parse tree produced by COOL#boolNot.
+    def enterBoolNot(self, ctx:COOL.BoolNotContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#false.
-    def exitFalse(self, ctx:COOLParser.FalseContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#int.
-    def enterInt(self, ctx:COOLParser.IntContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#int.
-    def exitInt(self, ctx:COOLParser.IntContext):
+    # Exit a parse tree produced by COOL#boolNot.
+    def exitBoolNot(self, ctx:COOL.BoolNotContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#equal.
-    def enterEqual(self, ctx:COOLParser.EqualContext):
+    # Enter a parse tree produced by COOL#lessThan.
+    def enterLessThan(self, ctx:COOL.LessThanContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#equal.
-    def exitEqual(self, ctx:COOLParser.EqualContext):
-        pass
-
-
-    # Enter a parse tree produced by COOLParser#true.
-    def enterTrue(self, ctx:COOLParser.TrueContext):
-        pass
-
-    # Exit a parse tree produced by COOLParser#true.
-    def exitTrue(self, ctx:COOLParser.TrueContext):
+    # Exit a parse tree produced by COOL#lessThan.
+    def exitLessThan(self, ctx:COOL.LessThanContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#lessEqual.
-    def enterLessEqual(self, ctx:COOLParser.LessEqualContext):
+    # Enter a parse tree produced by COOL#block.
+    def enterBlock(self, ctx:COOL.BlockContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#lessEqual.
-    def exitLessEqual(self, ctx:COOLParser.LessEqualContext):
+    # Exit a parse tree produced by COOL#block.
+    def exitBlock(self, ctx:COOL.BlockContext):
         pass
 
 
-    # Enter a parse tree produced by COOLParser#methodCall.
-    def enterMethodCall(self, ctx:COOLParser.MethodCallContext):
+    # Enter a parse tree produced by COOL#id.
+    def enterId(self, ctx:COOL.IdContext):
         pass
 
-    # Exit a parse tree produced by COOLParser#methodCall.
-    def exitMethodCall(self, ctx:COOLParser.MethodCallContext):
+    # Exit a parse tree produced by COOL#id.
+    def exitId(self, ctx:COOL.IdContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#multiply.
+    def enterMultiply(self, ctx:COOL.MultiplyContext):
+        pass
+
+    # Exit a parse tree produced by COOL#multiply.
+    def exitMultiply(self, ctx:COOL.MultiplyContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#if.
+    def enterIf(self, ctx:COOL.IfContext):
+        pass
+
+    # Exit a parse tree produced by COOL#if.
+    def exitIf(self, ctx:COOL.IfContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#case.
+    def enterCase(self, ctx:COOL.CaseContext):
+        pass
+
+    # Exit a parse tree produced by COOL#case.
+    def exitCase(self, ctx:COOL.CaseContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#ownMethodCall.
+    def enterOwnMethodCall(self, ctx:COOL.OwnMethodCallContext):
+        pass
+
+    # Exit a parse tree produced by COOL#ownMethodCall.
+    def exitOwnMethodCall(self, ctx:COOL.OwnMethodCallContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#add.
+    def enterAdd(self, ctx:COOL.AddContext):
+        pass
+
+    # Exit a parse tree produced by COOL#add.
+    def exitAdd(self, ctx:COOL.AddContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#new.
+    def enterNew(self, ctx:COOL.NewContext):
+        pass
+
+    # Exit a parse tree produced by COOL#new.
+    def exitNew(self, ctx:COOL.NewContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#parentheses.
+    def enterParentheses(self, ctx:COOL.ParenthesesContext):
+        pass
+
+    # Exit a parse tree produced by COOL#parentheses.
+    def exitParentheses(self, ctx:COOL.ParenthesesContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#assignment.
+    def enterAssignment(self, ctx:COOL.AssignmentContext):
+        pass
+
+    # Exit a parse tree produced by COOL#assignment.
+    def exitAssignment(self, ctx:COOL.AssignmentContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#false.
+    def enterFalse(self, ctx:COOL.FalseContext):
+        pass
+
+    # Exit a parse tree produced by COOL#false.
+    def exitFalse(self, ctx:COOL.FalseContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#int.
+    def enterInt(self, ctx:COOL.IntContext):
+        pass
+
+    # Exit a parse tree produced by COOL#int.
+    def exitInt(self, ctx:COOL.IntContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#equal.
+    def enterEqual(self, ctx:COOL.EqualContext):
+        pass
+
+    # Exit a parse tree produced by COOL#equal.
+    def exitEqual(self, ctx:COOL.EqualContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#true.
+    def enterTrue(self, ctx:COOL.TrueContext):
+        pass
+
+    # Exit a parse tree produced by COOL#true.
+    def exitTrue(self, ctx:COOL.TrueContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#lessEqual.
+    def enterLessEqual(self, ctx:COOL.LessEqualContext):
+        pass
+
+    # Exit a parse tree produced by COOL#lessEqual.
+    def exitLessEqual(self, ctx:COOL.LessEqualContext):
+        pass
+
+
+    # Enter a parse tree produced by COOL#methodCall.
+    def enterMethodCall(self, ctx:COOL.MethodCallContext):
+        pass
+
+    # Exit a parse tree produced by COOL#methodCall.
+    def exitMethodCall(self, ctx:COOL.MethodCallContext):
         pass
 
 
