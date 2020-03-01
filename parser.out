@@ -1,0 +1,4021 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> program
+Rule 1     program -> class SEMICOLON program
+Rule 2     program -> class SEMICOLON
+Rule 3     class -> CLASS TYPE _inherits LBRACE ffeature RBRACE
+Rule 4     _inherits -> INHERITS TYPE
+Rule 5     _inherits -> empty
+Rule 6     ffeature -> feature SEMICOLON ffeature
+Rule 7     ffeature -> empty
+Rule 8     feature -> ID LPAREN formal RPAREN TDOTS TYPE LBRACE expr RBRACE
+Rule 9     feature -> ID LPAREN RPAREN TDOTS TYPE LBRACE expr RBRACE
+Rule 10    feature -> temp
+Rule 11    formal -> idDots COMMA formal
+Rule 12    formal -> idDots
+Rule 13    expression_list -> expr SEMICOLON expression_list
+Rule 14    expression_list -> expr SEMICOLON
+Rule 15    expr -> NOT expr
+Rule 16    expr -> expr PLUS expr
+Rule 17    expr -> expr MINUS expr
+Rule 18    expr -> expr MULTIPLY expr
+Rule 19    expr -> expr DIVIDE expr
+Rule 20    expr -> LPAREN expr RPAREN
+Rule 21    expr -> ISVOID expr
+Rule 22    expr -> block
+Rule 23    expr -> conditional
+Rule 24    expr -> loop
+Rule 25    expr -> case
+Rule 26    expr -> dispatch
+Rule 27    expr -> INT_COMP expr
+Rule 28    block -> LBRACE expression_list RBRACE
+Rule 29    expr -> ID
+Rule 30    expr -> INTEGER
+Rule 31    expr -> STRING
+Rule 32    expr -> TRUE
+Rule 33    expr -> FALSE
+Rule 34    expr -> NEW TYPE
+Rule 35    expr -> let
+Rule 36    dispatch -> expr especific DOT dispatch_call
+Rule 37    dispatch -> dispatch_call
+Rule 38    especific -> AT TYPE
+Rule 39    especific -> empty
+Rule 40    dispatch_call -> ID LPAREN RPAREN
+Rule 41    dispatch_call -> ID LPAREN expr RPAREN
+Rule 42    dispatch_call -> ID LPAREN expr params_expression RPAREN
+Rule 43    params_expression -> COMMA expr params_expression
+Rule 44    params_expression -> COMMA expr
+Rule 45    empty -> <empty>
+Rule 46    let -> LET declaration_list IN expr
+Rule 47    declaration_list -> temp COMMA declaration_list
+Rule 48    declaration_list -> temp
+Rule 49    temp -> idDots
+Rule 50    temp -> idDots ASSIGN expr
+Rule 51    idDots -> ID TDOTS TYPE
+Rule 52    conditional -> IF expr THEN expr ELSE expr FI
+Rule 53    loop -> WHILE expr LOOP expr POOL
+Rule 54    case -> CASE expr OF add ESAC
+Rule 55    add -> derivate SEMICOLON add
+Rule 56    add -> derivate SEMICOLON
+Rule 57    derivate -> idDots ARROW expr
+Rule 58    expr -> expr LT expr
+Rule 59    expr -> expr LTEQ expr
+Rule 60    expr -> expr EQ expr
+Rule 61    expr -> ID ASSIGN expr
+
+Terminals, with rules where they appear
+
+ARROW                : 57
+ASSIGN               : 50 61
+AT                   : 38
+CASE                 : 54
+CLASS                : 3
+COMMA                : 11 43 44 47
+DIVIDE               : 19
+DOT                  : 36
+ELSE                 : 52
+EQ                   : 60
+ESAC                 : 54
+FALSE                : 33
+FI                   : 52
+ID                   : 8 9 29 40 41 42 51 61
+IF                   : 52
+IN                   : 46
+INHERITS             : 4
+INTEGER              : 30
+INT_COMP             : 27
+ISVOID               : 21
+LBRACE               : 3 8 9 28
+LET                  : 46
+LOOP                 : 53
+LPAREN               : 8 9 20 40 41 42
+LT                   : 58
+LTEQ                 : 59
+MINUS                : 17
+MULTIPLY             : 18
+NEW                  : 34
+NOT                  : 15
+OF                   : 54
+PLUS                 : 16
+POOL                 : 53
+RBRACE               : 3 8 9 28
+RPAREN               : 8 9 20 40 41 42
+SEMICOLON            : 1 2 6 13 14 55 56
+STRING               : 31
+TDOTS                : 8 9 51
+THEN                 : 52
+TRUE                 : 32
+TYPE                 : 3 4 8 9 34 38 51
+WHILE                : 53
+error                : 
+
+Nonterminals, with rules where they appear
+
+_inherits            : 3
+add                  : 54 55
+block                : 22
+case                 : 25
+class                : 1 2
+conditional          : 23
+declaration_list     : 46 47
+derivate             : 55 56
+dispatch             : 26
+dispatch_call        : 36 37
+empty                : 5 7 39
+especific            : 36
+expr                 : 8 9 13 14 15 16 16 17 17 18 18 19 19 20 21 27 36 41 42 43 44 46 50 52 52 52 53 53 54 57 58 58 59 59 60 60 61
+expression_list      : 13 28
+feature              : 6
+ffeature             : 3 6
+formal               : 8 11
+idDots               : 11 12 49 50 57
+let                  : 35
+loop                 : 24
+params_expression    : 42 43
+program              : 1 0
+temp                 : 10 47 48
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . program
+    (1) program -> . class SEMICOLON program
+    (2) program -> . class SEMICOLON
+    (3) class -> . CLASS TYPE _inherits LBRACE ffeature RBRACE
+
+    CLASS           shift and go to state 3
+
+    program                        shift and go to state 1
+    class                          shift and go to state 2
+
+state 1
+
+    (0) S' -> program .
+
+
+
+state 2
+
+    (1) program -> class . SEMICOLON program
+    (2) program -> class . SEMICOLON
+
+    SEMICOLON       shift and go to state 4
+
+
+state 3
+
+    (3) class -> CLASS . TYPE _inherits LBRACE ffeature RBRACE
+
+    TYPE            shift and go to state 5
+
+
+state 4
+
+    (1) program -> class SEMICOLON . program
+    (2) program -> class SEMICOLON .
+    (1) program -> . class SEMICOLON program
+    (2) program -> . class SEMICOLON
+    (3) class -> . CLASS TYPE _inherits LBRACE ffeature RBRACE
+
+    $end            reduce using rule 2 (program -> class SEMICOLON .)
+    CLASS           shift and go to state 3
+
+    class                          shift and go to state 2
+    program                        shift and go to state 6
+
+state 5
+
+    (3) class -> CLASS TYPE . _inherits LBRACE ffeature RBRACE
+    (4) _inherits -> . INHERITS TYPE
+    (5) _inherits -> . empty
+    (45) empty -> .
+
+    INHERITS        shift and go to state 8
+    LBRACE          reduce using rule 45 (empty -> .)
+
+    _inherits                      shift and go to state 7
+    empty                          shift and go to state 9
+
+state 6
+
+    (1) program -> class SEMICOLON program .
+
+    $end            reduce using rule 1 (program -> class SEMICOLON program .)
+
+
+state 7
+
+    (3) class -> CLASS TYPE _inherits . LBRACE ffeature RBRACE
+
+    LBRACE          shift and go to state 10
+
+
+state 8
+
+    (4) _inherits -> INHERITS . TYPE
+
+    TYPE            shift and go to state 11
+
+
+state 9
+
+    (5) _inherits -> empty .
+
+    LBRACE          reduce using rule 5 (_inherits -> empty .)
+
+
+state 10
+
+    (3) class -> CLASS TYPE _inherits LBRACE . ffeature RBRACE
+    (6) ffeature -> . feature SEMICOLON ffeature
+    (7) ffeature -> . empty
+    (8) feature -> . ID LPAREN formal RPAREN TDOTS TYPE LBRACE expr RBRACE
+    (9) feature -> . ID LPAREN RPAREN TDOTS TYPE LBRACE expr RBRACE
+    (10) feature -> . temp
+    (45) empty -> .
+    (49) temp -> . idDots
+    (50) temp -> . idDots ASSIGN expr
+    (51) idDots -> . ID TDOTS TYPE
+
+    ID              shift and go to state 15
+    RBRACE          reduce using rule 45 (empty -> .)
+
+    ffeature                       shift and go to state 12
+    feature                        shift and go to state 13
+    empty                          shift and go to state 14
+    temp                           shift and go to state 16
+    idDots                         shift and go to state 17
+
+state 11
+
+    (4) _inherits -> INHERITS TYPE .
+
+    LBRACE          reduce using rule 4 (_inherits -> INHERITS TYPE .)
+
+
+state 12
+
+    (3) class -> CLASS TYPE _inherits LBRACE ffeature . RBRACE
+
+    RBRACE          shift and go to state 18
+
+
+state 13
+
+    (6) ffeature -> feature . SEMICOLON ffeature
+
+    SEMICOLON       shift and go to state 19
+
+
+state 14
+
+    (7) ffeature -> empty .
+
+    RBRACE          reduce using rule 7 (ffeature -> empty .)
+
+
+state 15
+
+    (8) feature -> ID . LPAREN formal RPAREN TDOTS TYPE LBRACE expr RBRACE
+    (9) feature -> ID . LPAREN RPAREN TDOTS TYPE LBRACE expr RBRACE
+    (51) idDots -> ID . TDOTS TYPE
+
+    LPAREN          shift and go to state 20
+    TDOTS           shift and go to state 21
+
+
+state 16
+
+    (10) feature -> temp .
+
+    SEMICOLON       reduce using rule 10 (feature -> temp .)
+
+
+state 17
+
+    (49) temp -> idDots .
+    (50) temp -> idDots . ASSIGN expr
+
+    SEMICOLON       reduce using rule 49 (temp -> idDots .)
+    COMMA           reduce using rule 49 (temp -> idDots .)
+    IN              reduce using rule 49 (temp -> idDots .)
+    ASSIGN          shift and go to state 22
+
+
+state 18
+
+    (3) class -> CLASS TYPE _inherits LBRACE ffeature RBRACE .
+
+    SEMICOLON       reduce using rule 3 (class -> CLASS TYPE _inherits LBRACE ffeature RBRACE .)
+
+
+state 19
+
+    (6) ffeature -> feature SEMICOLON . ffeature
+    (6) ffeature -> . feature SEMICOLON ffeature
+    (7) ffeature -> . empty
+    (8) feature -> . ID LPAREN formal RPAREN TDOTS TYPE LBRACE expr RBRACE
+    (9) feature -> . ID LPAREN RPAREN TDOTS TYPE LBRACE expr RBRACE
+    (10) feature -> . temp
+    (45) empty -> .
+    (49) temp -> . idDots
+    (50) temp -> . idDots ASSIGN expr
+    (51) idDots -> . ID TDOTS TYPE
+
+    ID              shift and go to state 15
+    RBRACE          reduce using rule 45 (empty -> .)
+
+    feature                        shift and go to state 13
+    ffeature                       shift and go to state 23
+    empty                          shift and go to state 14
+    temp                           shift and go to state 16
+    idDots                         shift and go to state 17
+
+state 20
+
+    (8) feature -> ID LPAREN . formal RPAREN TDOTS TYPE LBRACE expr RBRACE
+    (9) feature -> ID LPAREN . RPAREN TDOTS TYPE LBRACE expr RBRACE
+    (11) formal -> . idDots COMMA formal
+    (12) formal -> . idDots
+    (51) idDots -> . ID TDOTS TYPE
+
+    RPAREN          shift and go to state 26
+    ID              shift and go to state 24
+
+    formal                         shift and go to state 25
+    idDots                         shift and go to state 27
+
+state 21
+
+    (51) idDots -> ID TDOTS . TYPE
+
+    TYPE            shift and go to state 28
+
+
+state 22
+
+    (50) temp -> idDots ASSIGN . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 29
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 23
+
+    (6) ffeature -> feature SEMICOLON ffeature .
+
+    RBRACE          reduce using rule 6 (ffeature -> feature SEMICOLON ffeature .)
+
+
+state 24
+
+    (51) idDots -> ID . TDOTS TYPE
+
+    TDOTS           shift and go to state 21
+
+
+state 25
+
+    (8) feature -> ID LPAREN formal . RPAREN TDOTS TYPE LBRACE expr RBRACE
+
+    RPAREN          shift and go to state 52
+
+
+state 26
+
+    (9) feature -> ID LPAREN RPAREN . TDOTS TYPE LBRACE expr RBRACE
+
+    TDOTS           shift and go to state 53
+
+
+state 27
+
+    (11) formal -> idDots . COMMA formal
+    (12) formal -> idDots .
+
+    COMMA           shift and go to state 54
+    RPAREN          reduce using rule 12 (formal -> idDots .)
+
+
+state 28
+
+    (51) idDots -> ID TDOTS TYPE .
+
+    ASSIGN          reduce using rule 51 (idDots -> ID TDOTS TYPE .)
+    SEMICOLON       reduce using rule 51 (idDots -> ID TDOTS TYPE .)
+    COMMA           reduce using rule 51 (idDots -> ID TDOTS TYPE .)
+    RPAREN          reduce using rule 51 (idDots -> ID TDOTS TYPE .)
+    IN              reduce using rule 51 (idDots -> ID TDOTS TYPE .)
+    ARROW           reduce using rule 51 (idDots -> ID TDOTS TYPE .)
+
+
+state 29
+
+    (50) temp -> idDots ASSIGN expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    SEMICOLON       reduce using rule 50 (temp -> idDots ASSIGN expr .)
+    COMMA           reduce using rule 50 (temp -> idDots ASSIGN expr .)
+    IN              reduce using rule 50 (temp -> idDots ASSIGN expr .)
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 30
+
+    (15) expr -> NOT . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 65
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 31
+
+    (20) expr -> LPAREN . expr RPAREN
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 66
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 32
+
+    (21) expr -> ISVOID . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 67
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 33
+
+    (22) expr -> block .
+
+    PLUS            reduce using rule 22 (expr -> block .)
+    MINUS           reduce using rule 22 (expr -> block .)
+    MULTIPLY        reduce using rule 22 (expr -> block .)
+    DIVIDE          reduce using rule 22 (expr -> block .)
+    LT              reduce using rule 22 (expr -> block .)
+    LTEQ            reduce using rule 22 (expr -> block .)
+    EQ              reduce using rule 22 (expr -> block .)
+    AT              reduce using rule 22 (expr -> block .)
+    DOT             reduce using rule 22 (expr -> block .)
+    SEMICOLON       reduce using rule 22 (expr -> block .)
+    COMMA           reduce using rule 22 (expr -> block .)
+    IN              reduce using rule 22 (expr -> block .)
+    RPAREN          reduce using rule 22 (expr -> block .)
+    THEN            reduce using rule 22 (expr -> block .)
+    LOOP            reduce using rule 22 (expr -> block .)
+    OF              reduce using rule 22 (expr -> block .)
+    ELSE            reduce using rule 22 (expr -> block .)
+    POOL            reduce using rule 22 (expr -> block .)
+    RBRACE          reduce using rule 22 (expr -> block .)
+    FI              reduce using rule 22 (expr -> block .)
+
+
+state 34
+
+    (23) expr -> conditional .
+
+    PLUS            reduce using rule 23 (expr -> conditional .)
+    MINUS           reduce using rule 23 (expr -> conditional .)
+    MULTIPLY        reduce using rule 23 (expr -> conditional .)
+    DIVIDE          reduce using rule 23 (expr -> conditional .)
+    LT              reduce using rule 23 (expr -> conditional .)
+    LTEQ            reduce using rule 23 (expr -> conditional .)
+    EQ              reduce using rule 23 (expr -> conditional .)
+    AT              reduce using rule 23 (expr -> conditional .)
+    DOT             reduce using rule 23 (expr -> conditional .)
+    SEMICOLON       reduce using rule 23 (expr -> conditional .)
+    COMMA           reduce using rule 23 (expr -> conditional .)
+    IN              reduce using rule 23 (expr -> conditional .)
+    RPAREN          reduce using rule 23 (expr -> conditional .)
+    THEN            reduce using rule 23 (expr -> conditional .)
+    LOOP            reduce using rule 23 (expr -> conditional .)
+    OF              reduce using rule 23 (expr -> conditional .)
+    ELSE            reduce using rule 23 (expr -> conditional .)
+    POOL            reduce using rule 23 (expr -> conditional .)
+    RBRACE          reduce using rule 23 (expr -> conditional .)
+    FI              reduce using rule 23 (expr -> conditional .)
+
+
+state 35
+
+    (24) expr -> loop .
+
+    PLUS            reduce using rule 24 (expr -> loop .)
+    MINUS           reduce using rule 24 (expr -> loop .)
+    MULTIPLY        reduce using rule 24 (expr -> loop .)
+    DIVIDE          reduce using rule 24 (expr -> loop .)
+    LT              reduce using rule 24 (expr -> loop .)
+    LTEQ            reduce using rule 24 (expr -> loop .)
+    EQ              reduce using rule 24 (expr -> loop .)
+    AT              reduce using rule 24 (expr -> loop .)
+    DOT             reduce using rule 24 (expr -> loop .)
+    SEMICOLON       reduce using rule 24 (expr -> loop .)
+    COMMA           reduce using rule 24 (expr -> loop .)
+    IN              reduce using rule 24 (expr -> loop .)
+    RPAREN          reduce using rule 24 (expr -> loop .)
+    THEN            reduce using rule 24 (expr -> loop .)
+    LOOP            reduce using rule 24 (expr -> loop .)
+    OF              reduce using rule 24 (expr -> loop .)
+    ELSE            reduce using rule 24 (expr -> loop .)
+    POOL            reduce using rule 24 (expr -> loop .)
+    RBRACE          reduce using rule 24 (expr -> loop .)
+    FI              reduce using rule 24 (expr -> loop .)
+
+
+state 36
+
+    (25) expr -> case .
+
+    PLUS            reduce using rule 25 (expr -> case .)
+    MINUS           reduce using rule 25 (expr -> case .)
+    MULTIPLY        reduce using rule 25 (expr -> case .)
+    DIVIDE          reduce using rule 25 (expr -> case .)
+    LT              reduce using rule 25 (expr -> case .)
+    LTEQ            reduce using rule 25 (expr -> case .)
+    EQ              reduce using rule 25 (expr -> case .)
+    AT              reduce using rule 25 (expr -> case .)
+    DOT             reduce using rule 25 (expr -> case .)
+    SEMICOLON       reduce using rule 25 (expr -> case .)
+    COMMA           reduce using rule 25 (expr -> case .)
+    IN              reduce using rule 25 (expr -> case .)
+    RPAREN          reduce using rule 25 (expr -> case .)
+    THEN            reduce using rule 25 (expr -> case .)
+    LOOP            reduce using rule 25 (expr -> case .)
+    OF              reduce using rule 25 (expr -> case .)
+    ELSE            reduce using rule 25 (expr -> case .)
+    POOL            reduce using rule 25 (expr -> case .)
+    RBRACE          reduce using rule 25 (expr -> case .)
+    FI              reduce using rule 25 (expr -> case .)
+
+
+state 37
+
+    (26) expr -> dispatch .
+
+    PLUS            reduce using rule 26 (expr -> dispatch .)
+    MINUS           reduce using rule 26 (expr -> dispatch .)
+    MULTIPLY        reduce using rule 26 (expr -> dispatch .)
+    DIVIDE          reduce using rule 26 (expr -> dispatch .)
+    LT              reduce using rule 26 (expr -> dispatch .)
+    LTEQ            reduce using rule 26 (expr -> dispatch .)
+    EQ              reduce using rule 26 (expr -> dispatch .)
+    AT              reduce using rule 26 (expr -> dispatch .)
+    DOT             reduce using rule 26 (expr -> dispatch .)
+    SEMICOLON       reduce using rule 26 (expr -> dispatch .)
+    COMMA           reduce using rule 26 (expr -> dispatch .)
+    IN              reduce using rule 26 (expr -> dispatch .)
+    RPAREN          reduce using rule 26 (expr -> dispatch .)
+    THEN            reduce using rule 26 (expr -> dispatch .)
+    LOOP            reduce using rule 26 (expr -> dispatch .)
+    OF              reduce using rule 26 (expr -> dispatch .)
+    ELSE            reduce using rule 26 (expr -> dispatch .)
+    POOL            reduce using rule 26 (expr -> dispatch .)
+    RBRACE          reduce using rule 26 (expr -> dispatch .)
+    FI              reduce using rule 26 (expr -> dispatch .)
+
+
+state 38
+
+    (27) expr -> INT_COMP . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 68
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 39
+
+    (29) expr -> ID .
+    (61) expr -> ID . ASSIGN expr
+    (40) dispatch_call -> ID . LPAREN RPAREN
+    (41) dispatch_call -> ID . LPAREN expr RPAREN
+    (42) dispatch_call -> ID . LPAREN expr params_expression RPAREN
+
+    PLUS            reduce using rule 29 (expr -> ID .)
+    MINUS           reduce using rule 29 (expr -> ID .)
+    MULTIPLY        reduce using rule 29 (expr -> ID .)
+    DIVIDE          reduce using rule 29 (expr -> ID .)
+    LT              reduce using rule 29 (expr -> ID .)
+    LTEQ            reduce using rule 29 (expr -> ID .)
+    EQ              reduce using rule 29 (expr -> ID .)
+    AT              reduce using rule 29 (expr -> ID .)
+    DOT             reduce using rule 29 (expr -> ID .)
+    SEMICOLON       reduce using rule 29 (expr -> ID .)
+    COMMA           reduce using rule 29 (expr -> ID .)
+    IN              reduce using rule 29 (expr -> ID .)
+    RPAREN          reduce using rule 29 (expr -> ID .)
+    THEN            reduce using rule 29 (expr -> ID .)
+    LOOP            reduce using rule 29 (expr -> ID .)
+    OF              reduce using rule 29 (expr -> ID .)
+    ELSE            reduce using rule 29 (expr -> ID .)
+    POOL            reduce using rule 29 (expr -> ID .)
+    RBRACE          reduce using rule 29 (expr -> ID .)
+    FI              reduce using rule 29 (expr -> ID .)
+    ASSIGN          shift and go to state 69
+    LPAREN          shift and go to state 70
+
+
+state 40
+
+    (30) expr -> INTEGER .
+
+    PLUS            reduce using rule 30 (expr -> INTEGER .)
+    MINUS           reduce using rule 30 (expr -> INTEGER .)
+    MULTIPLY        reduce using rule 30 (expr -> INTEGER .)
+    DIVIDE          reduce using rule 30 (expr -> INTEGER .)
+    LT              reduce using rule 30 (expr -> INTEGER .)
+    LTEQ            reduce using rule 30 (expr -> INTEGER .)
+    EQ              reduce using rule 30 (expr -> INTEGER .)
+    AT              reduce using rule 30 (expr -> INTEGER .)
+    DOT             reduce using rule 30 (expr -> INTEGER .)
+    SEMICOLON       reduce using rule 30 (expr -> INTEGER .)
+    COMMA           reduce using rule 30 (expr -> INTEGER .)
+    IN              reduce using rule 30 (expr -> INTEGER .)
+    RPAREN          reduce using rule 30 (expr -> INTEGER .)
+    THEN            reduce using rule 30 (expr -> INTEGER .)
+    LOOP            reduce using rule 30 (expr -> INTEGER .)
+    OF              reduce using rule 30 (expr -> INTEGER .)
+    ELSE            reduce using rule 30 (expr -> INTEGER .)
+    POOL            reduce using rule 30 (expr -> INTEGER .)
+    RBRACE          reduce using rule 30 (expr -> INTEGER .)
+    FI              reduce using rule 30 (expr -> INTEGER .)
+
+
+state 41
+
+    (31) expr -> STRING .
+
+    PLUS            reduce using rule 31 (expr -> STRING .)
+    MINUS           reduce using rule 31 (expr -> STRING .)
+    MULTIPLY        reduce using rule 31 (expr -> STRING .)
+    DIVIDE          reduce using rule 31 (expr -> STRING .)
+    LT              reduce using rule 31 (expr -> STRING .)
+    LTEQ            reduce using rule 31 (expr -> STRING .)
+    EQ              reduce using rule 31 (expr -> STRING .)
+    AT              reduce using rule 31 (expr -> STRING .)
+    DOT             reduce using rule 31 (expr -> STRING .)
+    SEMICOLON       reduce using rule 31 (expr -> STRING .)
+    COMMA           reduce using rule 31 (expr -> STRING .)
+    IN              reduce using rule 31 (expr -> STRING .)
+    RPAREN          reduce using rule 31 (expr -> STRING .)
+    THEN            reduce using rule 31 (expr -> STRING .)
+    LOOP            reduce using rule 31 (expr -> STRING .)
+    OF              reduce using rule 31 (expr -> STRING .)
+    ELSE            reduce using rule 31 (expr -> STRING .)
+    POOL            reduce using rule 31 (expr -> STRING .)
+    RBRACE          reduce using rule 31 (expr -> STRING .)
+    FI              reduce using rule 31 (expr -> STRING .)
+
+
+state 42
+
+    (32) expr -> TRUE .
+
+    PLUS            reduce using rule 32 (expr -> TRUE .)
+    MINUS           reduce using rule 32 (expr -> TRUE .)
+    MULTIPLY        reduce using rule 32 (expr -> TRUE .)
+    DIVIDE          reduce using rule 32 (expr -> TRUE .)
+    LT              reduce using rule 32 (expr -> TRUE .)
+    LTEQ            reduce using rule 32 (expr -> TRUE .)
+    EQ              reduce using rule 32 (expr -> TRUE .)
+    AT              reduce using rule 32 (expr -> TRUE .)
+    DOT             reduce using rule 32 (expr -> TRUE .)
+    SEMICOLON       reduce using rule 32 (expr -> TRUE .)
+    COMMA           reduce using rule 32 (expr -> TRUE .)
+    IN              reduce using rule 32 (expr -> TRUE .)
+    RPAREN          reduce using rule 32 (expr -> TRUE .)
+    THEN            reduce using rule 32 (expr -> TRUE .)
+    LOOP            reduce using rule 32 (expr -> TRUE .)
+    OF              reduce using rule 32 (expr -> TRUE .)
+    ELSE            reduce using rule 32 (expr -> TRUE .)
+    POOL            reduce using rule 32 (expr -> TRUE .)
+    RBRACE          reduce using rule 32 (expr -> TRUE .)
+    FI              reduce using rule 32 (expr -> TRUE .)
+
+
+state 43
+
+    (33) expr -> FALSE .
+
+    PLUS            reduce using rule 33 (expr -> FALSE .)
+    MINUS           reduce using rule 33 (expr -> FALSE .)
+    MULTIPLY        reduce using rule 33 (expr -> FALSE .)
+    DIVIDE          reduce using rule 33 (expr -> FALSE .)
+    LT              reduce using rule 33 (expr -> FALSE .)
+    LTEQ            reduce using rule 33 (expr -> FALSE .)
+    EQ              reduce using rule 33 (expr -> FALSE .)
+    AT              reduce using rule 33 (expr -> FALSE .)
+    DOT             reduce using rule 33 (expr -> FALSE .)
+    SEMICOLON       reduce using rule 33 (expr -> FALSE .)
+    COMMA           reduce using rule 33 (expr -> FALSE .)
+    IN              reduce using rule 33 (expr -> FALSE .)
+    RPAREN          reduce using rule 33 (expr -> FALSE .)
+    THEN            reduce using rule 33 (expr -> FALSE .)
+    LOOP            reduce using rule 33 (expr -> FALSE .)
+    OF              reduce using rule 33 (expr -> FALSE .)
+    ELSE            reduce using rule 33 (expr -> FALSE .)
+    POOL            reduce using rule 33 (expr -> FALSE .)
+    RBRACE          reduce using rule 33 (expr -> FALSE .)
+    FI              reduce using rule 33 (expr -> FALSE .)
+
+
+state 44
+
+    (34) expr -> NEW . TYPE
+
+    TYPE            shift and go to state 71
+
+
+state 45
+
+    (35) expr -> let .
+
+    PLUS            reduce using rule 35 (expr -> let .)
+    MINUS           reduce using rule 35 (expr -> let .)
+    MULTIPLY        reduce using rule 35 (expr -> let .)
+    DIVIDE          reduce using rule 35 (expr -> let .)
+    LT              reduce using rule 35 (expr -> let .)
+    LTEQ            reduce using rule 35 (expr -> let .)
+    EQ              reduce using rule 35 (expr -> let .)
+    AT              reduce using rule 35 (expr -> let .)
+    DOT             reduce using rule 35 (expr -> let .)
+    SEMICOLON       reduce using rule 35 (expr -> let .)
+    COMMA           reduce using rule 35 (expr -> let .)
+    IN              reduce using rule 35 (expr -> let .)
+    RPAREN          reduce using rule 35 (expr -> let .)
+    THEN            reduce using rule 35 (expr -> let .)
+    LOOP            reduce using rule 35 (expr -> let .)
+    OF              reduce using rule 35 (expr -> let .)
+    ELSE            reduce using rule 35 (expr -> let .)
+    POOL            reduce using rule 35 (expr -> let .)
+    RBRACE          reduce using rule 35 (expr -> let .)
+    FI              reduce using rule 35 (expr -> let .)
+
+
+state 46
+
+    (28) block -> LBRACE . expression_list RBRACE
+    (13) expression_list -> . expr SEMICOLON expression_list
+    (14) expression_list -> . expr SEMICOLON
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expression_list                shift and go to state 72
+    expr                           shift and go to state 73
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 47
+
+    (52) conditional -> IF . expr THEN expr ELSE expr FI
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 74
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 48
+
+    (53) loop -> WHILE . expr LOOP expr POOL
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 75
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 49
+
+    (54) case -> CASE . expr OF add ESAC
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 76
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 50
+
+    (37) dispatch -> dispatch_call .
+
+    PLUS            reduce using rule 37 (dispatch -> dispatch_call .)
+    MINUS           reduce using rule 37 (dispatch -> dispatch_call .)
+    MULTIPLY        reduce using rule 37 (dispatch -> dispatch_call .)
+    DIVIDE          reduce using rule 37 (dispatch -> dispatch_call .)
+    LT              reduce using rule 37 (dispatch -> dispatch_call .)
+    LTEQ            reduce using rule 37 (dispatch -> dispatch_call .)
+    EQ              reduce using rule 37 (dispatch -> dispatch_call .)
+    AT              reduce using rule 37 (dispatch -> dispatch_call .)
+    DOT             reduce using rule 37 (dispatch -> dispatch_call .)
+    SEMICOLON       reduce using rule 37 (dispatch -> dispatch_call .)
+    COMMA           reduce using rule 37 (dispatch -> dispatch_call .)
+    IN              reduce using rule 37 (dispatch -> dispatch_call .)
+    RPAREN          reduce using rule 37 (dispatch -> dispatch_call .)
+    THEN            reduce using rule 37 (dispatch -> dispatch_call .)
+    LOOP            reduce using rule 37 (dispatch -> dispatch_call .)
+    OF              reduce using rule 37 (dispatch -> dispatch_call .)
+    ELSE            reduce using rule 37 (dispatch -> dispatch_call .)
+    POOL            reduce using rule 37 (dispatch -> dispatch_call .)
+    RBRACE          reduce using rule 37 (dispatch -> dispatch_call .)
+    FI              reduce using rule 37 (dispatch -> dispatch_call .)
+
+
+state 51
+
+    (46) let -> LET . declaration_list IN expr
+    (47) declaration_list -> . temp COMMA declaration_list
+    (48) declaration_list -> . temp
+    (49) temp -> . idDots
+    (50) temp -> . idDots ASSIGN expr
+    (51) idDots -> . ID TDOTS TYPE
+
+    ID              shift and go to state 24
+
+    declaration_list               shift and go to state 77
+    temp                           shift and go to state 78
+    idDots                         shift and go to state 17
+
+state 52
+
+    (8) feature -> ID LPAREN formal RPAREN . TDOTS TYPE LBRACE expr RBRACE
+
+    TDOTS           shift and go to state 79
+
+
+state 53
+
+    (9) feature -> ID LPAREN RPAREN TDOTS . TYPE LBRACE expr RBRACE
+
+    TYPE            shift and go to state 80
+
+
+state 54
+
+    (11) formal -> idDots COMMA . formal
+    (11) formal -> . idDots COMMA formal
+    (12) formal -> . idDots
+    (51) idDots -> . ID TDOTS TYPE
+
+    ID              shift and go to state 24
+
+    idDots                         shift and go to state 27
+    formal                         shift and go to state 81
+
+state 55
+
+    (16) expr -> expr PLUS . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 82
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 56
+
+    (17) expr -> expr MINUS . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 83
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 57
+
+    (18) expr -> expr MULTIPLY . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 84
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 58
+
+    (19) expr -> expr DIVIDE . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 85
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 59
+
+    (58) expr -> expr LT . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 86
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 60
+
+    (59) expr -> expr LTEQ . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 87
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 61
+
+    (60) expr -> expr EQ . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 88
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 62
+
+    (36) dispatch -> expr especific . DOT dispatch_call
+
+    DOT             shift and go to state 89
+
+
+state 63
+
+    (38) especific -> AT . TYPE
+
+    TYPE            shift and go to state 90
+
+
+state 64
+
+    (39) especific -> empty .
+
+    DOT             reduce using rule 39 (especific -> empty .)
+
+
+state 65
+
+    (15) expr -> NOT expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+  ! reduce/reduce conflict for DOT resolved using rule 15 (expr -> NOT expr .)
+    PLUS            reduce using rule 15 (expr -> NOT expr .)
+    MINUS           reduce using rule 15 (expr -> NOT expr .)
+    MULTIPLY        reduce using rule 15 (expr -> NOT expr .)
+    DIVIDE          reduce using rule 15 (expr -> NOT expr .)
+    DOT             reduce using rule 15 (expr -> NOT expr .)
+    SEMICOLON       reduce using rule 15 (expr -> NOT expr .)
+    COMMA           reduce using rule 15 (expr -> NOT expr .)
+    IN              reduce using rule 15 (expr -> NOT expr .)
+    RPAREN          reduce using rule 15 (expr -> NOT expr .)
+    THEN            reduce using rule 15 (expr -> NOT expr .)
+    LOOP            reduce using rule 15 (expr -> NOT expr .)
+    OF              reduce using rule 15 (expr -> NOT expr .)
+    ELSE            reduce using rule 15 (expr -> NOT expr .)
+    POOL            reduce using rule 15 (expr -> NOT expr .)
+    RBRACE          reduce using rule 15 (expr -> NOT expr .)
+    FI              reduce using rule 15 (expr -> NOT expr .)
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+
+  ! LT              [ reduce using rule 15 (expr -> NOT expr .) ]
+  ! LTEQ            [ reduce using rule 15 (expr -> NOT expr .) ]
+  ! EQ              [ reduce using rule 15 (expr -> NOT expr .) ]
+  ! AT              [ reduce using rule 15 (expr -> NOT expr .) ]
+  ! PLUS            [ shift and go to state 55 ]
+  ! MINUS           [ shift and go to state 56 ]
+  ! MULTIPLY        [ shift and go to state 57 ]
+  ! DIVIDE          [ shift and go to state 58 ]
+  ! DOT             [ reduce using rule 45 (empty -> .) ]
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 66
+
+    (20) expr -> LPAREN expr . RPAREN
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    RPAREN          shift and go to state 91
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 67
+
+    (21) expr -> ISVOID expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+  ! reduce/reduce conflict for DOT resolved using rule 21 (expr -> ISVOID expr .)
+    PLUS            reduce using rule 21 (expr -> ISVOID expr .)
+    MINUS           reduce using rule 21 (expr -> ISVOID expr .)
+    MULTIPLY        reduce using rule 21 (expr -> ISVOID expr .)
+    DIVIDE          reduce using rule 21 (expr -> ISVOID expr .)
+    LT              reduce using rule 21 (expr -> ISVOID expr .)
+    LTEQ            reduce using rule 21 (expr -> ISVOID expr .)
+    EQ              reduce using rule 21 (expr -> ISVOID expr .)
+    DOT             reduce using rule 21 (expr -> ISVOID expr .)
+    SEMICOLON       reduce using rule 21 (expr -> ISVOID expr .)
+    COMMA           reduce using rule 21 (expr -> ISVOID expr .)
+    IN              reduce using rule 21 (expr -> ISVOID expr .)
+    RPAREN          reduce using rule 21 (expr -> ISVOID expr .)
+    THEN            reduce using rule 21 (expr -> ISVOID expr .)
+    LOOP            reduce using rule 21 (expr -> ISVOID expr .)
+    OF              reduce using rule 21 (expr -> ISVOID expr .)
+    ELSE            reduce using rule 21 (expr -> ISVOID expr .)
+    POOL            reduce using rule 21 (expr -> ISVOID expr .)
+    RBRACE          reduce using rule 21 (expr -> ISVOID expr .)
+    FI              reduce using rule 21 (expr -> ISVOID expr .)
+    AT              shift and go to state 63
+
+  ! AT              [ reduce using rule 21 (expr -> ISVOID expr .) ]
+  ! PLUS            [ shift and go to state 55 ]
+  ! MINUS           [ shift and go to state 56 ]
+  ! MULTIPLY        [ shift and go to state 57 ]
+  ! DIVIDE          [ shift and go to state 58 ]
+  ! LT              [ shift and go to state 59 ]
+  ! LTEQ            [ shift and go to state 60 ]
+  ! EQ              [ shift and go to state 61 ]
+  ! DOT             [ reduce using rule 45 (empty -> .) ]
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 68
+
+    (27) expr -> INT_COMP expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+  ! reduce/reduce conflict for DOT resolved using rule 27 (expr -> INT_COMP expr .)
+    PLUS            reduce using rule 27 (expr -> INT_COMP expr .)
+    MINUS           reduce using rule 27 (expr -> INT_COMP expr .)
+    MULTIPLY        reduce using rule 27 (expr -> INT_COMP expr .)
+    DIVIDE          reduce using rule 27 (expr -> INT_COMP expr .)
+    LT              reduce using rule 27 (expr -> INT_COMP expr .)
+    LTEQ            reduce using rule 27 (expr -> INT_COMP expr .)
+    EQ              reduce using rule 27 (expr -> INT_COMP expr .)
+    DOT             reduce using rule 27 (expr -> INT_COMP expr .)
+    SEMICOLON       reduce using rule 27 (expr -> INT_COMP expr .)
+    COMMA           reduce using rule 27 (expr -> INT_COMP expr .)
+    IN              reduce using rule 27 (expr -> INT_COMP expr .)
+    RPAREN          reduce using rule 27 (expr -> INT_COMP expr .)
+    THEN            reduce using rule 27 (expr -> INT_COMP expr .)
+    LOOP            reduce using rule 27 (expr -> INT_COMP expr .)
+    OF              reduce using rule 27 (expr -> INT_COMP expr .)
+    ELSE            reduce using rule 27 (expr -> INT_COMP expr .)
+    POOL            reduce using rule 27 (expr -> INT_COMP expr .)
+    RBRACE          reduce using rule 27 (expr -> INT_COMP expr .)
+    FI              reduce using rule 27 (expr -> INT_COMP expr .)
+    AT              shift and go to state 63
+
+  ! AT              [ reduce using rule 27 (expr -> INT_COMP expr .) ]
+  ! PLUS            [ shift and go to state 55 ]
+  ! MINUS           [ shift and go to state 56 ]
+  ! MULTIPLY        [ shift and go to state 57 ]
+  ! DIVIDE          [ shift and go to state 58 ]
+  ! LT              [ shift and go to state 59 ]
+  ! LTEQ            [ shift and go to state 60 ]
+  ! EQ              [ shift and go to state 61 ]
+  ! DOT             [ reduce using rule 45 (empty -> .) ]
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 69
+
+    (61) expr -> ID ASSIGN . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 92
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 70
+
+    (40) dispatch_call -> ID LPAREN . RPAREN
+    (41) dispatch_call -> ID LPAREN . expr RPAREN
+    (42) dispatch_call -> ID LPAREN . expr params_expression RPAREN
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    RPAREN          shift and go to state 93
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 94
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 71
+
+    (34) expr -> NEW TYPE .
+
+    PLUS            reduce using rule 34 (expr -> NEW TYPE .)
+    MINUS           reduce using rule 34 (expr -> NEW TYPE .)
+    MULTIPLY        reduce using rule 34 (expr -> NEW TYPE .)
+    DIVIDE          reduce using rule 34 (expr -> NEW TYPE .)
+    LT              reduce using rule 34 (expr -> NEW TYPE .)
+    LTEQ            reduce using rule 34 (expr -> NEW TYPE .)
+    EQ              reduce using rule 34 (expr -> NEW TYPE .)
+    AT              reduce using rule 34 (expr -> NEW TYPE .)
+    DOT             reduce using rule 34 (expr -> NEW TYPE .)
+    SEMICOLON       reduce using rule 34 (expr -> NEW TYPE .)
+    COMMA           reduce using rule 34 (expr -> NEW TYPE .)
+    IN              reduce using rule 34 (expr -> NEW TYPE .)
+    RPAREN          reduce using rule 34 (expr -> NEW TYPE .)
+    THEN            reduce using rule 34 (expr -> NEW TYPE .)
+    LOOP            reduce using rule 34 (expr -> NEW TYPE .)
+    OF              reduce using rule 34 (expr -> NEW TYPE .)
+    ELSE            reduce using rule 34 (expr -> NEW TYPE .)
+    POOL            reduce using rule 34 (expr -> NEW TYPE .)
+    RBRACE          reduce using rule 34 (expr -> NEW TYPE .)
+    FI              reduce using rule 34 (expr -> NEW TYPE .)
+
+
+state 72
+
+    (28) block -> LBRACE expression_list . RBRACE
+
+    RBRACE          shift and go to state 95
+
+
+state 73
+
+    (13) expression_list -> expr . SEMICOLON expression_list
+    (14) expression_list -> expr . SEMICOLON
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    SEMICOLON       shift and go to state 96
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 74
+
+    (52) conditional -> IF expr . THEN expr ELSE expr FI
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    THEN            shift and go to state 97
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 75
+
+    (53) loop -> WHILE expr . LOOP expr POOL
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    LOOP            shift and go to state 98
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 76
+
+    (54) case -> CASE expr . OF add ESAC
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    OF              shift and go to state 99
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 77
+
+    (46) let -> LET declaration_list . IN expr
+
+    IN              shift and go to state 100
+
+
+state 78
+
+    (47) declaration_list -> temp . COMMA declaration_list
+    (48) declaration_list -> temp .
+
+    COMMA           shift and go to state 101
+    IN              reduce using rule 48 (declaration_list -> temp .)
+
+
+state 79
+
+    (8) feature -> ID LPAREN formal RPAREN TDOTS . TYPE LBRACE expr RBRACE
+
+    TYPE            shift and go to state 102
+
+
+state 80
+
+    (9) feature -> ID LPAREN RPAREN TDOTS TYPE . LBRACE expr RBRACE
+
+    LBRACE          shift and go to state 103
+
+
+state 81
+
+    (11) formal -> idDots COMMA formal .
+
+    RPAREN          reduce using rule 11 (formal -> idDots COMMA formal .)
+
+
+state 82
+
+    (16) expr -> expr PLUS expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+  ! reduce/reduce conflict for DOT resolved using rule 16 (expr -> expr PLUS expr .)
+    PLUS            reduce using rule 16 (expr -> expr PLUS expr .)
+    MINUS           reduce using rule 16 (expr -> expr PLUS expr .)
+    DOT             reduce using rule 16 (expr -> expr PLUS expr .)
+    SEMICOLON       reduce using rule 16 (expr -> expr PLUS expr .)
+    COMMA           reduce using rule 16 (expr -> expr PLUS expr .)
+    IN              reduce using rule 16 (expr -> expr PLUS expr .)
+    RPAREN          reduce using rule 16 (expr -> expr PLUS expr .)
+    THEN            reduce using rule 16 (expr -> expr PLUS expr .)
+    LOOP            reduce using rule 16 (expr -> expr PLUS expr .)
+    OF              reduce using rule 16 (expr -> expr PLUS expr .)
+    ELSE            reduce using rule 16 (expr -> expr PLUS expr .)
+    POOL            reduce using rule 16 (expr -> expr PLUS expr .)
+    RBRACE          reduce using rule 16 (expr -> expr PLUS expr .)
+    FI              reduce using rule 16 (expr -> expr PLUS expr .)
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+
+  ! MULTIPLY        [ reduce using rule 16 (expr -> expr PLUS expr .) ]
+  ! DIVIDE          [ reduce using rule 16 (expr -> expr PLUS expr .) ]
+  ! LT              [ reduce using rule 16 (expr -> expr PLUS expr .) ]
+  ! LTEQ            [ reduce using rule 16 (expr -> expr PLUS expr .) ]
+  ! EQ              [ reduce using rule 16 (expr -> expr PLUS expr .) ]
+  ! AT              [ reduce using rule 16 (expr -> expr PLUS expr .) ]
+  ! PLUS            [ shift and go to state 55 ]
+  ! MINUS           [ shift and go to state 56 ]
+  ! DOT             [ reduce using rule 45 (empty -> .) ]
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 83
+
+    (17) expr -> expr MINUS expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+  ! reduce/reduce conflict for DOT resolved using rule 17 (expr -> expr MINUS expr .)
+    PLUS            reduce using rule 17 (expr -> expr MINUS expr .)
+    MINUS           reduce using rule 17 (expr -> expr MINUS expr .)
+    DOT             reduce using rule 17 (expr -> expr MINUS expr .)
+    SEMICOLON       reduce using rule 17 (expr -> expr MINUS expr .)
+    COMMA           reduce using rule 17 (expr -> expr MINUS expr .)
+    IN              reduce using rule 17 (expr -> expr MINUS expr .)
+    RPAREN          reduce using rule 17 (expr -> expr MINUS expr .)
+    THEN            reduce using rule 17 (expr -> expr MINUS expr .)
+    LOOP            reduce using rule 17 (expr -> expr MINUS expr .)
+    OF              reduce using rule 17 (expr -> expr MINUS expr .)
+    ELSE            reduce using rule 17 (expr -> expr MINUS expr .)
+    POOL            reduce using rule 17 (expr -> expr MINUS expr .)
+    RBRACE          reduce using rule 17 (expr -> expr MINUS expr .)
+    FI              reduce using rule 17 (expr -> expr MINUS expr .)
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+
+  ! MULTIPLY        [ reduce using rule 17 (expr -> expr MINUS expr .) ]
+  ! DIVIDE          [ reduce using rule 17 (expr -> expr MINUS expr .) ]
+  ! LT              [ reduce using rule 17 (expr -> expr MINUS expr .) ]
+  ! LTEQ            [ reduce using rule 17 (expr -> expr MINUS expr .) ]
+  ! EQ              [ reduce using rule 17 (expr -> expr MINUS expr .) ]
+  ! AT              [ reduce using rule 17 (expr -> expr MINUS expr .) ]
+  ! PLUS            [ shift and go to state 55 ]
+  ! MINUS           [ shift and go to state 56 ]
+  ! DOT             [ reduce using rule 45 (empty -> .) ]
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 84
+
+    (18) expr -> expr MULTIPLY expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+  ! reduce/reduce conflict for DOT resolved using rule 18 (expr -> expr MULTIPLY expr .)
+    PLUS            reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    MINUS           reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    MULTIPLY        reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    DIVIDE          reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    DOT             reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    SEMICOLON       reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    COMMA           reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    IN              reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    RPAREN          reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    THEN            reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    LOOP            reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    OF              reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    ELSE            reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    POOL            reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    RBRACE          reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    FI              reduce using rule 18 (expr -> expr MULTIPLY expr .)
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+
+  ! LT              [ reduce using rule 18 (expr -> expr MULTIPLY expr .) ]
+  ! LTEQ            [ reduce using rule 18 (expr -> expr MULTIPLY expr .) ]
+  ! EQ              [ reduce using rule 18 (expr -> expr MULTIPLY expr .) ]
+  ! AT              [ reduce using rule 18 (expr -> expr MULTIPLY expr .) ]
+  ! PLUS            [ shift and go to state 55 ]
+  ! MINUS           [ shift and go to state 56 ]
+  ! MULTIPLY        [ shift and go to state 57 ]
+  ! DIVIDE          [ shift and go to state 58 ]
+  ! DOT             [ reduce using rule 45 (empty -> .) ]
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 85
+
+    (19) expr -> expr DIVIDE expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+  ! reduce/reduce conflict for DOT resolved using rule 19 (expr -> expr DIVIDE expr .)
+    PLUS            reduce using rule 19 (expr -> expr DIVIDE expr .)
+    MINUS           reduce using rule 19 (expr -> expr DIVIDE expr .)
+    MULTIPLY        reduce using rule 19 (expr -> expr DIVIDE expr .)
+    DIVIDE          reduce using rule 19 (expr -> expr DIVIDE expr .)
+    DOT             reduce using rule 19 (expr -> expr DIVIDE expr .)
+    SEMICOLON       reduce using rule 19 (expr -> expr DIVIDE expr .)
+    COMMA           reduce using rule 19 (expr -> expr DIVIDE expr .)
+    IN              reduce using rule 19 (expr -> expr DIVIDE expr .)
+    RPAREN          reduce using rule 19 (expr -> expr DIVIDE expr .)
+    THEN            reduce using rule 19 (expr -> expr DIVIDE expr .)
+    LOOP            reduce using rule 19 (expr -> expr DIVIDE expr .)
+    OF              reduce using rule 19 (expr -> expr DIVIDE expr .)
+    ELSE            reduce using rule 19 (expr -> expr DIVIDE expr .)
+    POOL            reduce using rule 19 (expr -> expr DIVIDE expr .)
+    RBRACE          reduce using rule 19 (expr -> expr DIVIDE expr .)
+    FI              reduce using rule 19 (expr -> expr DIVIDE expr .)
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+
+  ! LT              [ reduce using rule 19 (expr -> expr DIVIDE expr .) ]
+  ! LTEQ            [ reduce using rule 19 (expr -> expr DIVIDE expr .) ]
+  ! EQ              [ reduce using rule 19 (expr -> expr DIVIDE expr .) ]
+  ! AT              [ reduce using rule 19 (expr -> expr DIVIDE expr .) ]
+  ! PLUS            [ shift and go to state 55 ]
+  ! MINUS           [ shift and go to state 56 ]
+  ! MULTIPLY        [ shift and go to state 57 ]
+  ! DIVIDE          [ shift and go to state 58 ]
+  ! DOT             [ reduce using rule 45 (empty -> .) ]
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 86
+
+    (58) expr -> expr LT expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+  ! reduce/reduce conflict for DOT resolved using rule 45 (empty -> .)
+    PLUS            reduce using rule 58 (expr -> expr LT expr .)
+    MINUS           reduce using rule 58 (expr -> expr LT expr .)
+    MULTIPLY        reduce using rule 58 (expr -> expr LT expr .)
+    DIVIDE          reduce using rule 58 (expr -> expr LT expr .)
+    LT              reduce using rule 58 (expr -> expr LT expr .)
+    LTEQ            reduce using rule 58 (expr -> expr LT expr .)
+    EQ              reduce using rule 58 (expr -> expr LT expr .)
+    SEMICOLON       reduce using rule 58 (expr -> expr LT expr .)
+    COMMA           reduce using rule 58 (expr -> expr LT expr .)
+    IN              reduce using rule 58 (expr -> expr LT expr .)
+    RPAREN          reduce using rule 58 (expr -> expr LT expr .)
+    THEN            reduce using rule 58 (expr -> expr LT expr .)
+    LOOP            reduce using rule 58 (expr -> expr LT expr .)
+    OF              reduce using rule 58 (expr -> expr LT expr .)
+    ELSE            reduce using rule 58 (expr -> expr LT expr .)
+    POOL            reduce using rule 58 (expr -> expr LT expr .)
+    RBRACE          reduce using rule 58 (expr -> expr LT expr .)
+    FI              reduce using rule 58 (expr -> expr LT expr .)
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+  ! AT              [ reduce using rule 58 (expr -> expr LT expr .) ]
+  ! DOT             [ reduce using rule 58 (expr -> expr LT expr .) ]
+  ! PLUS            [ shift and go to state 55 ]
+  ! MINUS           [ shift and go to state 56 ]
+  ! MULTIPLY        [ shift and go to state 57 ]
+  ! DIVIDE          [ shift and go to state 58 ]
+  ! LT              [ shift and go to state 59 ]
+  ! LTEQ            [ shift and go to state 60 ]
+  ! EQ              [ shift and go to state 61 ]
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 87
+
+    (59) expr -> expr LTEQ expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+  ! reduce/reduce conflict for DOT resolved using rule 45 (empty -> .)
+    PLUS            reduce using rule 59 (expr -> expr LTEQ expr .)
+    MINUS           reduce using rule 59 (expr -> expr LTEQ expr .)
+    MULTIPLY        reduce using rule 59 (expr -> expr LTEQ expr .)
+    DIVIDE          reduce using rule 59 (expr -> expr LTEQ expr .)
+    LT              reduce using rule 59 (expr -> expr LTEQ expr .)
+    LTEQ            reduce using rule 59 (expr -> expr LTEQ expr .)
+    EQ              reduce using rule 59 (expr -> expr LTEQ expr .)
+    SEMICOLON       reduce using rule 59 (expr -> expr LTEQ expr .)
+    COMMA           reduce using rule 59 (expr -> expr LTEQ expr .)
+    IN              reduce using rule 59 (expr -> expr LTEQ expr .)
+    RPAREN          reduce using rule 59 (expr -> expr LTEQ expr .)
+    THEN            reduce using rule 59 (expr -> expr LTEQ expr .)
+    LOOP            reduce using rule 59 (expr -> expr LTEQ expr .)
+    OF              reduce using rule 59 (expr -> expr LTEQ expr .)
+    ELSE            reduce using rule 59 (expr -> expr LTEQ expr .)
+    POOL            reduce using rule 59 (expr -> expr LTEQ expr .)
+    RBRACE          reduce using rule 59 (expr -> expr LTEQ expr .)
+    FI              reduce using rule 59 (expr -> expr LTEQ expr .)
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+  ! AT              [ reduce using rule 59 (expr -> expr LTEQ expr .) ]
+  ! DOT             [ reduce using rule 59 (expr -> expr LTEQ expr .) ]
+  ! PLUS            [ shift and go to state 55 ]
+  ! MINUS           [ shift and go to state 56 ]
+  ! MULTIPLY        [ shift and go to state 57 ]
+  ! DIVIDE          [ shift and go to state 58 ]
+  ! LT              [ shift and go to state 59 ]
+  ! LTEQ            [ shift and go to state 60 ]
+  ! EQ              [ shift and go to state 61 ]
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 88
+
+    (60) expr -> expr EQ expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+  ! reduce/reduce conflict for DOT resolved using rule 45 (empty -> .)
+    PLUS            reduce using rule 60 (expr -> expr EQ expr .)
+    MINUS           reduce using rule 60 (expr -> expr EQ expr .)
+    MULTIPLY        reduce using rule 60 (expr -> expr EQ expr .)
+    DIVIDE          reduce using rule 60 (expr -> expr EQ expr .)
+    LT              reduce using rule 60 (expr -> expr EQ expr .)
+    LTEQ            reduce using rule 60 (expr -> expr EQ expr .)
+    EQ              reduce using rule 60 (expr -> expr EQ expr .)
+    SEMICOLON       reduce using rule 60 (expr -> expr EQ expr .)
+    COMMA           reduce using rule 60 (expr -> expr EQ expr .)
+    IN              reduce using rule 60 (expr -> expr EQ expr .)
+    RPAREN          reduce using rule 60 (expr -> expr EQ expr .)
+    THEN            reduce using rule 60 (expr -> expr EQ expr .)
+    LOOP            reduce using rule 60 (expr -> expr EQ expr .)
+    OF              reduce using rule 60 (expr -> expr EQ expr .)
+    ELSE            reduce using rule 60 (expr -> expr EQ expr .)
+    POOL            reduce using rule 60 (expr -> expr EQ expr .)
+    RBRACE          reduce using rule 60 (expr -> expr EQ expr .)
+    FI              reduce using rule 60 (expr -> expr EQ expr .)
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+  ! AT              [ reduce using rule 60 (expr -> expr EQ expr .) ]
+  ! DOT             [ reduce using rule 60 (expr -> expr EQ expr .) ]
+  ! PLUS            [ shift and go to state 55 ]
+  ! MINUS           [ shift and go to state 56 ]
+  ! MULTIPLY        [ shift and go to state 57 ]
+  ! DIVIDE          [ shift and go to state 58 ]
+  ! LT              [ shift and go to state 59 ]
+  ! LTEQ            [ shift and go to state 60 ]
+  ! EQ              [ shift and go to state 61 ]
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 89
+
+    (36) dispatch -> expr especific DOT . dispatch_call
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    ID              shift and go to state 105
+
+    dispatch_call                  shift and go to state 104
+
+state 90
+
+    (38) especific -> AT TYPE .
+
+    DOT             reduce using rule 38 (especific -> AT TYPE .)
+
+
+state 91
+
+    (20) expr -> LPAREN expr RPAREN .
+
+    PLUS            reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    MINUS           reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    MULTIPLY        reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    DIVIDE          reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    LT              reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    LTEQ            reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    EQ              reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    AT              reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    DOT             reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    SEMICOLON       reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    COMMA           reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    IN              reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    RPAREN          reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    THEN            reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    LOOP            reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    OF              reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    ELSE            reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    POOL            reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    RBRACE          reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+    FI              reduce using rule 20 (expr -> LPAREN expr RPAREN .)
+
+
+state 92
+
+    (61) expr -> ID ASSIGN expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+  ! reduce/reduce conflict for DOT resolved using rule 45 (empty -> .)
+    PLUS            reduce using rule 61 (expr -> ID ASSIGN expr .)
+    MINUS           reduce using rule 61 (expr -> ID ASSIGN expr .)
+    MULTIPLY        reduce using rule 61 (expr -> ID ASSIGN expr .)
+    DIVIDE          reduce using rule 61 (expr -> ID ASSIGN expr .)
+    SEMICOLON       reduce using rule 61 (expr -> ID ASSIGN expr .)
+    COMMA           reduce using rule 61 (expr -> ID ASSIGN expr .)
+    IN              reduce using rule 61 (expr -> ID ASSIGN expr .)
+    RPAREN          reduce using rule 61 (expr -> ID ASSIGN expr .)
+    THEN            reduce using rule 61 (expr -> ID ASSIGN expr .)
+    LOOP            reduce using rule 61 (expr -> ID ASSIGN expr .)
+    OF              reduce using rule 61 (expr -> ID ASSIGN expr .)
+    ELSE            reduce using rule 61 (expr -> ID ASSIGN expr .)
+    POOL            reduce using rule 61 (expr -> ID ASSIGN expr .)
+    RBRACE          reduce using rule 61 (expr -> ID ASSIGN expr .)
+    FI              reduce using rule 61 (expr -> ID ASSIGN expr .)
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+  ! LT              [ reduce using rule 61 (expr -> ID ASSIGN expr .) ]
+  ! LTEQ            [ reduce using rule 61 (expr -> ID ASSIGN expr .) ]
+  ! EQ              [ reduce using rule 61 (expr -> ID ASSIGN expr .) ]
+  ! AT              [ reduce using rule 61 (expr -> ID ASSIGN expr .) ]
+  ! DOT             [ reduce using rule 61 (expr -> ID ASSIGN expr .) ]
+  ! PLUS            [ shift and go to state 55 ]
+  ! MINUS           [ shift and go to state 56 ]
+  ! MULTIPLY        [ shift and go to state 57 ]
+  ! DIVIDE          [ shift and go to state 58 ]
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 93
+
+    (40) dispatch_call -> ID LPAREN RPAREN .
+
+    PLUS            reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    MINUS           reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    MULTIPLY        reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    DIVIDE          reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    LT              reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    LTEQ            reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    EQ              reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    AT              reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    DOT             reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    SEMICOLON       reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    COMMA           reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    IN              reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    RPAREN          reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    THEN            reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    LOOP            reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    OF              reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    ELSE            reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    POOL            reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    RBRACE          reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+    FI              reduce using rule 40 (dispatch_call -> ID LPAREN RPAREN .)
+
+
+state 94
+
+    (41) dispatch_call -> ID LPAREN expr . RPAREN
+    (42) dispatch_call -> ID LPAREN expr . params_expression RPAREN
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (43) params_expression -> . COMMA expr params_expression
+    (44) params_expression -> . COMMA expr
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    RPAREN          shift and go to state 106
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    COMMA           shift and go to state 108
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    params_expression              shift and go to state 107
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 95
+
+    (28) block -> LBRACE expression_list RBRACE .
+
+    PLUS            reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    MINUS           reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    MULTIPLY        reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    DIVIDE          reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    LT              reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    LTEQ            reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    EQ              reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    AT              reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    DOT             reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    SEMICOLON       reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    COMMA           reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    IN              reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    RPAREN          reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    THEN            reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    LOOP            reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    OF              reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    ELSE            reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    POOL            reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    RBRACE          reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+    FI              reduce using rule 28 (block -> LBRACE expression_list RBRACE .)
+
+
+state 96
+
+    (13) expression_list -> expr SEMICOLON . expression_list
+    (14) expression_list -> expr SEMICOLON .
+    (13) expression_list -> . expr SEMICOLON expression_list
+    (14) expression_list -> . expr SEMICOLON
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    RBRACE          reduce using rule 14 (expression_list -> expr SEMICOLON .)
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 73
+    expression_list                shift and go to state 109
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 97
+
+    (52) conditional -> IF expr THEN . expr ELSE expr FI
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 110
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 98
+
+    (53) loop -> WHILE expr LOOP . expr POOL
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 111
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 99
+
+    (54) case -> CASE expr OF . add ESAC
+    (55) add -> . derivate SEMICOLON add
+    (56) add -> . derivate SEMICOLON
+    (57) derivate -> . idDots ARROW expr
+    (51) idDots -> . ID TDOTS TYPE
+
+    ID              shift and go to state 24
+
+    add                            shift and go to state 112
+    derivate                       shift and go to state 113
+    idDots                         shift and go to state 114
+
+state 100
+
+    (46) let -> LET declaration_list IN . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 115
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 101
+
+    (47) declaration_list -> temp COMMA . declaration_list
+    (47) declaration_list -> . temp COMMA declaration_list
+    (48) declaration_list -> . temp
+    (49) temp -> . idDots
+    (50) temp -> . idDots ASSIGN expr
+    (51) idDots -> . ID TDOTS TYPE
+
+    ID              shift and go to state 24
+
+    temp                           shift and go to state 78
+    declaration_list               shift and go to state 116
+    idDots                         shift and go to state 17
+
+state 102
+
+    (8) feature -> ID LPAREN formal RPAREN TDOTS TYPE . LBRACE expr RBRACE
+
+    LBRACE          shift and go to state 117
+
+
+state 103
+
+    (9) feature -> ID LPAREN RPAREN TDOTS TYPE LBRACE . expr RBRACE
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 118
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 104
+
+    (36) dispatch -> expr especific DOT dispatch_call .
+
+    PLUS            reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    MINUS           reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    MULTIPLY        reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    DIVIDE          reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    LT              reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    LTEQ            reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    EQ              reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    AT              reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    DOT             reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    SEMICOLON       reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    COMMA           reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    IN              reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    RPAREN          reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    THEN            reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    LOOP            reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    OF              reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    ELSE            reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    POOL            reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    RBRACE          reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+    FI              reduce using rule 36 (dispatch -> expr especific DOT dispatch_call .)
+
+
+state 105
+
+    (40) dispatch_call -> ID . LPAREN RPAREN
+    (41) dispatch_call -> ID . LPAREN expr RPAREN
+    (42) dispatch_call -> ID . LPAREN expr params_expression RPAREN
+
+    LPAREN          shift and go to state 70
+
+
+state 106
+
+    (41) dispatch_call -> ID LPAREN expr RPAREN .
+
+    PLUS            reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    MINUS           reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    MULTIPLY        reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    DIVIDE          reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    LT              reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    LTEQ            reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    EQ              reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    AT              reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    DOT             reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    SEMICOLON       reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    COMMA           reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    IN              reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    RPAREN          reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    THEN            reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    LOOP            reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    OF              reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    ELSE            reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    POOL            reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    RBRACE          reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+    FI              reduce using rule 41 (dispatch_call -> ID LPAREN expr RPAREN .)
+
+
+state 107
+
+    (42) dispatch_call -> ID LPAREN expr params_expression . RPAREN
+
+    RPAREN          shift and go to state 119
+
+
+state 108
+
+    (43) params_expression -> COMMA . expr params_expression
+    (44) params_expression -> COMMA . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 120
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 109
+
+    (13) expression_list -> expr SEMICOLON expression_list .
+
+    RBRACE          reduce using rule 13 (expression_list -> expr SEMICOLON expression_list .)
+
+
+state 110
+
+    (52) conditional -> IF expr THEN expr . ELSE expr FI
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    ELSE            shift and go to state 121
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 111
+
+    (53) loop -> WHILE expr LOOP expr . POOL
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    POOL            shift and go to state 122
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 112
+
+    (54) case -> CASE expr OF add . ESAC
+
+    ESAC            shift and go to state 123
+
+
+state 113
+
+    (55) add -> derivate . SEMICOLON add
+    (56) add -> derivate . SEMICOLON
+
+    SEMICOLON       shift and go to state 124
+
+
+state 114
+
+    (57) derivate -> idDots . ARROW expr
+
+    ARROW           shift and go to state 125
+
+
+state 115
+
+    (46) let -> LET declaration_list IN expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+  ! shift/reduce conflict for PLUS resolved as shift
+  ! shift/reduce conflict for MINUS resolved as shift
+  ! shift/reduce conflict for MULTIPLY resolved as shift
+  ! shift/reduce conflict for DIVIDE resolved as shift
+  ! shift/reduce conflict for LT resolved as shift
+  ! shift/reduce conflict for LTEQ resolved as shift
+  ! shift/reduce conflict for EQ resolved as shift
+  ! shift/reduce conflict for AT resolved as shift
+  ! reduce/reduce conflict for DOT resolved using rule 45 (empty -> .)
+    SEMICOLON       reduce using rule 46 (let -> LET declaration_list IN expr .)
+    COMMA           reduce using rule 46 (let -> LET declaration_list IN expr .)
+    IN              reduce using rule 46 (let -> LET declaration_list IN expr .)
+    RPAREN          reduce using rule 46 (let -> LET declaration_list IN expr .)
+    THEN            reduce using rule 46 (let -> LET declaration_list IN expr .)
+    LOOP            reduce using rule 46 (let -> LET declaration_list IN expr .)
+    OF              reduce using rule 46 (let -> LET declaration_list IN expr .)
+    ELSE            reduce using rule 46 (let -> LET declaration_list IN expr .)
+    POOL            reduce using rule 46 (let -> LET declaration_list IN expr .)
+    RBRACE          reduce using rule 46 (let -> LET declaration_list IN expr .)
+    FI              reduce using rule 46 (let -> LET declaration_list IN expr .)
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+  ! PLUS            [ reduce using rule 46 (let -> LET declaration_list IN expr .) ]
+  ! MINUS           [ reduce using rule 46 (let -> LET declaration_list IN expr .) ]
+  ! MULTIPLY        [ reduce using rule 46 (let -> LET declaration_list IN expr .) ]
+  ! DIVIDE          [ reduce using rule 46 (let -> LET declaration_list IN expr .) ]
+  ! LT              [ reduce using rule 46 (let -> LET declaration_list IN expr .) ]
+  ! LTEQ            [ reduce using rule 46 (let -> LET declaration_list IN expr .) ]
+  ! EQ              [ reduce using rule 46 (let -> LET declaration_list IN expr .) ]
+  ! AT              [ reduce using rule 46 (let -> LET declaration_list IN expr .) ]
+  ! DOT             [ reduce using rule 46 (let -> LET declaration_list IN expr .) ]
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 116
+
+    (47) declaration_list -> temp COMMA declaration_list .
+
+    IN              reduce using rule 47 (declaration_list -> temp COMMA declaration_list .)
+
+
+state 117
+
+    (8) feature -> ID LPAREN formal RPAREN TDOTS TYPE LBRACE . expr RBRACE
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 126
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 118
+
+    (9) feature -> ID LPAREN RPAREN TDOTS TYPE LBRACE expr . RBRACE
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    RBRACE          shift and go to state 127
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 119
+
+    (42) dispatch_call -> ID LPAREN expr params_expression RPAREN .
+
+    PLUS            reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    MINUS           reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    MULTIPLY        reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    DIVIDE          reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    LT              reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    LTEQ            reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    EQ              reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    AT              reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    DOT             reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    SEMICOLON       reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    COMMA           reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    IN              reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    RPAREN          reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    THEN            reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    LOOP            reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    OF              reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    ELSE            reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    POOL            reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    RBRACE          reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+    FI              reduce using rule 42 (dispatch_call -> ID LPAREN expr params_expression RPAREN .)
+
+
+state 120
+
+    (43) params_expression -> COMMA expr . params_expression
+    (44) params_expression -> COMMA expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (43) params_expression -> . COMMA expr params_expression
+    (44) params_expression -> . COMMA expr
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    RPAREN          reduce using rule 44 (params_expression -> COMMA expr .)
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    COMMA           shift and go to state 108
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    params_expression              shift and go to state 128
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 121
+
+    (52) conditional -> IF expr THEN expr ELSE . expr FI
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 129
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 122
+
+    (53) loop -> WHILE expr LOOP expr POOL .
+
+    PLUS            reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    MINUS           reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    MULTIPLY        reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    DIVIDE          reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    LT              reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    LTEQ            reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    EQ              reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    AT              reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    DOT             reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    SEMICOLON       reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    COMMA           reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    IN              reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    RPAREN          reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    THEN            reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    LOOP            reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    OF              reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    ELSE            reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    POOL            reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    RBRACE          reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+    FI              reduce using rule 53 (loop -> WHILE expr LOOP expr POOL .)
+
+
+state 123
+
+    (54) case -> CASE expr OF add ESAC .
+
+    PLUS            reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    MINUS           reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    MULTIPLY        reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    DIVIDE          reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    LT              reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    LTEQ            reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    EQ              reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    AT              reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    DOT             reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    SEMICOLON       reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    COMMA           reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    IN              reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    RPAREN          reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    THEN            reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    LOOP            reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    OF              reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    ELSE            reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    POOL            reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    RBRACE          reduce using rule 54 (case -> CASE expr OF add ESAC .)
+    FI              reduce using rule 54 (case -> CASE expr OF add ESAC .)
+
+
+state 124
+
+    (55) add -> derivate SEMICOLON . add
+    (56) add -> derivate SEMICOLON .
+    (55) add -> . derivate SEMICOLON add
+    (56) add -> . derivate SEMICOLON
+    (57) derivate -> . idDots ARROW expr
+    (51) idDots -> . ID TDOTS TYPE
+
+    ESAC            reduce using rule 56 (add -> derivate SEMICOLON .)
+    ID              shift and go to state 24
+
+    derivate                       shift and go to state 113
+    add                            shift and go to state 130
+    idDots                         shift and go to state 114
+
+state 125
+
+    (57) derivate -> idDots ARROW . expr
+    (15) expr -> . NOT expr
+    (16) expr -> . expr PLUS expr
+    (17) expr -> . expr MINUS expr
+    (18) expr -> . expr MULTIPLY expr
+    (19) expr -> . expr DIVIDE expr
+    (20) expr -> . LPAREN expr RPAREN
+    (21) expr -> . ISVOID expr
+    (22) expr -> . block
+    (23) expr -> . conditional
+    (24) expr -> . loop
+    (25) expr -> . case
+    (26) expr -> . dispatch
+    (27) expr -> . INT_COMP expr
+    (29) expr -> . ID
+    (30) expr -> . INTEGER
+    (31) expr -> . STRING
+    (32) expr -> . TRUE
+    (33) expr -> . FALSE
+    (34) expr -> . NEW TYPE
+    (35) expr -> . let
+    (58) expr -> . expr LT expr
+    (59) expr -> . expr LTEQ expr
+    (60) expr -> . expr EQ expr
+    (61) expr -> . ID ASSIGN expr
+    (28) block -> . LBRACE expression_list RBRACE
+    (52) conditional -> . IF expr THEN expr ELSE expr FI
+    (53) loop -> . WHILE expr LOOP expr POOL
+    (54) case -> . CASE expr OF add ESAC
+    (36) dispatch -> . expr especific DOT dispatch_call
+    (37) dispatch -> . dispatch_call
+    (46) let -> . LET declaration_list IN expr
+    (40) dispatch_call -> . ID LPAREN RPAREN
+    (41) dispatch_call -> . ID LPAREN expr RPAREN
+    (42) dispatch_call -> . ID LPAREN expr params_expression RPAREN
+
+    NOT             shift and go to state 30
+    LPAREN          shift and go to state 31
+    ISVOID          shift and go to state 32
+    INT_COMP        shift and go to state 38
+    ID              shift and go to state 39
+    INTEGER         shift and go to state 40
+    STRING          shift and go to state 41
+    TRUE            shift and go to state 42
+    FALSE           shift and go to state 43
+    NEW             shift and go to state 44
+    LBRACE          shift and go to state 46
+    IF              shift and go to state 47
+    WHILE           shift and go to state 48
+    CASE            shift and go to state 49
+    LET             shift and go to state 51
+
+    expr                           shift and go to state 131
+    block                          shift and go to state 33
+    conditional                    shift and go to state 34
+    loop                           shift and go to state 35
+    case                           shift and go to state 36
+    dispatch                       shift and go to state 37
+    let                            shift and go to state 45
+    dispatch_call                  shift and go to state 50
+
+state 126
+
+    (8) feature -> ID LPAREN formal RPAREN TDOTS TYPE LBRACE expr . RBRACE
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    RBRACE          shift and go to state 132
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 127
+
+    (9) feature -> ID LPAREN RPAREN TDOTS TYPE LBRACE expr RBRACE .
+
+    SEMICOLON       reduce using rule 9 (feature -> ID LPAREN RPAREN TDOTS TYPE LBRACE expr RBRACE .)
+
+
+state 128
+
+    (43) params_expression -> COMMA expr params_expression .
+
+    RPAREN          reduce using rule 43 (params_expression -> COMMA expr params_expression .)
+
+
+state 129
+
+    (52) conditional -> IF expr THEN expr ELSE expr . FI
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    FI              shift and go to state 133
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 130
+
+    (55) add -> derivate SEMICOLON add .
+
+    ESAC            reduce using rule 55 (add -> derivate SEMICOLON add .)
+
+
+state 131
+
+    (57) derivate -> idDots ARROW expr .
+    (16) expr -> expr . PLUS expr
+    (17) expr -> expr . MINUS expr
+    (18) expr -> expr . MULTIPLY expr
+    (19) expr -> expr . DIVIDE expr
+    (58) expr -> expr . LT expr
+    (59) expr -> expr . LTEQ expr
+    (60) expr -> expr . EQ expr
+    (36) dispatch -> expr . especific DOT dispatch_call
+    (38) especific -> . AT TYPE
+    (39) especific -> . empty
+    (45) empty -> .
+
+    SEMICOLON       reduce using rule 57 (derivate -> idDots ARROW expr .)
+    PLUS            shift and go to state 55
+    MINUS           shift and go to state 56
+    MULTIPLY        shift and go to state 57
+    DIVIDE          shift and go to state 58
+    LT              shift and go to state 59
+    LTEQ            shift and go to state 60
+    EQ              shift and go to state 61
+    AT              shift and go to state 63
+    DOT             reduce using rule 45 (empty -> .)
+
+    especific                      shift and go to state 62
+    empty                          shift and go to state 64
+
+state 132
+
+    (8) feature -> ID LPAREN formal RPAREN TDOTS TYPE LBRACE expr RBRACE .
+
+    SEMICOLON       reduce using rule 8 (feature -> ID LPAREN formal RPAREN TDOTS TYPE LBRACE expr RBRACE .)
+
+
+state 133
+
+    (52) conditional -> IF expr THEN expr ELSE expr FI .
+
+    PLUS            reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    MINUS           reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    MULTIPLY        reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    DIVIDE          reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    LT              reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    LTEQ            reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    EQ              reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    AT              reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    DOT             reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    SEMICOLON       reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    COMMA           reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    IN              reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    RPAREN          reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    THEN            reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    LOOP            reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    OF              reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    ELSE            reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    POOL            reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    RBRACE          reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+    FI              reduce using rule 52 (conditional -> IF expr THEN expr ELSE expr FI .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for PLUS in state 115 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 115 resolved as shift
+WARNING: shift/reduce conflict for MULTIPLY in state 115 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 115 resolved as shift
+WARNING: shift/reduce conflict for LT in state 115 resolved as shift
+WARNING: shift/reduce conflict for LTEQ in state 115 resolved as shift
+WARNING: shift/reduce conflict for EQ in state 115 resolved as shift
+WARNING: shift/reduce conflict for AT in state 115 resolved as shift
+WARNING: reduce/reduce conflict in state 65 resolved using rule (expr -> NOT expr)
+WARNING: rejected rule (empty -> <empty>) in state 65
+WARNING: reduce/reduce conflict in state 67 resolved using rule (expr -> ISVOID expr)
+WARNING: rejected rule (empty -> <empty>) in state 67
+WARNING: reduce/reduce conflict in state 68 resolved using rule (expr -> INT_COMP expr)
+WARNING: rejected rule (empty -> <empty>) in state 68
+WARNING: reduce/reduce conflict in state 82 resolved using rule (expr -> expr PLUS expr)
+WARNING: rejected rule (empty -> <empty>) in state 82
+WARNING: reduce/reduce conflict in state 83 resolved using rule (expr -> expr MINUS expr)
+WARNING: rejected rule (empty -> <empty>) in state 83
+WARNING: reduce/reduce conflict in state 84 resolved using rule (expr -> expr MULTIPLY expr)
+WARNING: rejected rule (empty -> <empty>) in state 84
+WARNING: reduce/reduce conflict in state 85 resolved using rule (expr -> expr DIVIDE expr)
+WARNING: rejected rule (empty -> <empty>) in state 85
+WARNING: reduce/reduce conflict in state 86 resolved using rule (empty -> <empty>)
+WARNING: rejected rule (expr -> expr LT expr) in state 86
+WARNING: reduce/reduce conflict in state 87 resolved using rule (empty -> <empty>)
+WARNING: rejected rule (expr -> expr LTEQ expr) in state 87
+WARNING: reduce/reduce conflict in state 88 resolved using rule (empty -> <empty>)
+WARNING: rejected rule (expr -> expr EQ expr) in state 88
+WARNING: reduce/reduce conflict in state 92 resolved using rule (empty -> <empty>)
+WARNING: rejected rule (expr -> ID ASSIGN expr) in state 92
+WARNING: reduce/reduce conflict in state 115 resolved using rule (empty -> <empty>)
+WARNING: rejected rule (let -> LET declaration_list IN expr) in state 115
