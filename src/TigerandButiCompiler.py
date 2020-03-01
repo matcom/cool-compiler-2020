@@ -5,6 +5,10 @@ import sys
 
 LexerError=False
 
+Welcome='Tiger and Buti Compiler 2020 0.2.0\nCopyright (c) 2019: José Gabriel Navarro Comabella, Alberto Helguera Fleitas'
+
+print(Welcome)
+
 tokens=(
     'class', 'else', 'false', 'if','fi', 'in', 'inherits', 'isvoid', 'let', 'loop', 'pool', 'then', 'while', 'case', 'esac', 'new', 'of', 'true',
     'type', 'constant', 'id','string','number',
