@@ -84,7 +84,11 @@ def t_eofcomment(t):
     line_start=t.lexer.lexdata.rfind('\n',0,t.lexpos)+1
     columna=t.lexpos-line_start+1
     global LexerError
-    outstr="({0},{1}) - LexicographicError: 'EOF in comment'".format(t.lexer.lineno, columna)
+    linea=1
+    for i in range(t.lexpos):
+        if t.lexer.lexdata[i]=='\n':
+            linea+=1
+    outstr="({0},{1}) - LexicographicError: 'EOF in comment'".format(linea, columna)
     print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: EOF in comment')
     LexerError=True
 
@@ -170,7 +174,11 @@ def t_string(t):
     if encontrado>-1:
         columna=find_column(t.lexer.lexdata,t)
         columna+=encontrado
-        outstr="({0},{1}) - LexicographicError: 'Null character in string'".format(t.lexer.lineno, columna)
+        linea=1
+        for i in range(t.lexpos):
+            if t.lexer.lexdata[i]=='\n':
+                linea+=1
+        outstr="({0},{1}) - LexicographicError: 'Null character in string'".format(linea, columna)
         print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: String contains null character')
     t.type='string'
     global LexerError
@@ -184,14 +192,19 @@ def t_eofstring(t):
     pos=find_column(t.lexer.lexdata,t)
     columna=pos
     todavia=True
+    linea=1
+    for i in range(t.lexpos):
+        if t.lexer.lexdata[i]=='\n':
+            linea+=1
     for a in t.value:
         pos+=1
         if a=='\n':
             t.lexer.lineno+=1
+            linea+=1
             pos=1
         columna=pos
     
-    outstr="({0},{1}) - LexicographicError: 'EOF string constant'".format(t.lexer.lineno, columna)
+    outstr="({0},{1}) - LexicographicError: 'EOF string constant'".format(linea, columna)
     print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: EOF string constant')
     global LexerError
     LexerError=True
@@ -210,7 +223,7 @@ def t_unfinished_string(t):
             if todavia:
                 columna=pos-1
                 todavia=False
-    outstr="({0},{1}) - LexicographicError: 'Unterminated string constant'".format(linea, columna)
+    outstr="({0},{1}) - LexicographicError: 'Unterminated string constant'".format(linea+1, columna)
     print(outstr)#'('+str(linea)+','+str(columna)+') - LexicographicError: Unterminated string constant')
     global LexerError
     LexerError=True
@@ -226,7 +239,11 @@ def t_error(t):
   #  if token=='\"':f
   #      print('('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: EOF in string constant')
   #  else:
-    outstr="({0},{1}) - LexicographicError: 'UNKNOW character {2}'".format(t.lexer.lineno, columna,str(token))
+    linea=1
+    for i in range(t.lexpos):
+        if t.lexer.lexdata[i]=='\n':
+            linea+=1
+    outstr="({0},{1}) - LexicographicError: 'UNKNOW character {2}'".format(linea, columna,str(token))
     print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: ERROR "'+ token+'"')
     global LexerError
     LexerError=True
@@ -415,7 +432,7 @@ def p_error(p):
     print('('+str(linea)+','+str(columna)+') - SyntacticError: ERROR at or near "'+ str(token)+'"')
     return
 
-archivo=open(sys.argv[1],'r',encoding='utf-8')
+archivo=open(sys.argv[1],encoding='utf-8')
 texto=archivo.read()
 respuesta=elimina_comentarios(texto)
 respuesta=elimina_comentarios_fin_de_linea(respuesta)
@@ -427,25 +444,30 @@ for t in mylex:
 parser=yacc.yacc()
 if not LexerError:
     parser.parse(respuesta,lexer=mylex, debug=False)
-else:
-    return 1
+return 1
 
     
 if False:
-    tests = [(file) for file in os.listdir('tests\\parser') if file.endswith('.cl')]
-    errors=[(file) for file in os.listdir('tests\\parser') if file.endswith('_error.txt')]
+    tests = [(file) for file in os.listdir('tests\\lexer') if file.endswith('.cl')]
+    errors=[(file) for file in os.listdir('tests\\lexer') if file.endswith('_error.txt')]
     for i in range(len(tests)):
+        mylex.lineno=0
         te=tests[i]
         print(te)
-        archivo=open("tests\\parser\\"+te,encoding='utf-8')
+        archivo=open("tests\\lexer\\"+te,encoding='utf-8')
         texto=archivo.read()
         respuesta=elimina_comentarios(texto)
         respuesta=elimina_comentarios_fin_de_linea(respuesta)
-
-        parser.parse(respuesta,lexer=mylex, debug=False)
+        mylex.input(respuesta)
+        for t in mylex:
+            pass
+        if not LexerError:
+            parser.parse(respuesta,lexer=mylex, debug=False)
+        else:
+            LexerError=False
         er=errors[i]
         print(er)
-        archivoerror=open("tests\\parser\\"+er,encoding='utf-8')
+        archivoerror=open("tests\\lexer\\"+er,encoding='utf-8')
         print(archivoerror.read())
 
 #archivo=open("tests\\parser\\program1.cl",encoding='utf-8')
@@ -455,4 +477,4 @@ if False:
 #parser.parse(respuesta,lexer=mylex, debug=True)
 #print(parser.parse(r'clas%s P { f(): Int { variab <- 2 ;}; };', debug=True))
 
-return 1
+#return 1
