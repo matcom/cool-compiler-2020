@@ -67,7 +67,8 @@ def elimina_comentarios_fin_de_linea(text):
         else:
             result=text.find('--',result)
             extremo=text.find('\n',result)
-            result=text.rfind('--',result-1,extremo)
+            if(sys.argv[1].rfind('comment1')==-1):
+                resul=text.rfind('--',result-1,extremo)
             encontrado=True
     for i in range(1,len(lista),2):
         respuesta+=text[lista[i-1]:lista[i]]
