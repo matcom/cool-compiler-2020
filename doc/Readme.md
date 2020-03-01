@@ -6,7 +6,7 @@
 --|--|--
 Liset Silva Oropesa | C411 | [@Liset97](https://github.com/Liset97)
 Pablo Antonio de Armas Suarez | C411 | [@github_user](https://github.com/<user>)
-Yenli Gil Machado | C412 | [@github_user](https://github.com/<user>)
+Yenli Gil Machado | C412 | [@YenGM](https://github.com/YenGM)
 
 ## Readme
 
