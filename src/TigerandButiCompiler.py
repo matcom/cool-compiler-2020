@@ -5,9 +5,9 @@ import sys
 
 LexerError=False
 
-Welcome='Tiger and Buti Compiler 2020 0.2.0\nCopyright (c) 2019: José Gabriel Navarro Comabella, Alberto Helguera Fleitas'
+#Welcome='Tiger and Buti Compiler 2020 0.2.0\nCopyright (c) 2019: José Gabriel Navarro Comabella, Alberto Helguera Fleitas'
 
-print(Welcome)
+#print(Welcome)
 
 tokens=(
     'class', 'else', 'false', 'if','fi', 'in', 'inherits', 'isvoid', 'let', 'loop', 'pool', 'then', 'while', 'case', 'esac', 'new', 'of', 'true',
@@ -84,7 +84,7 @@ def t_eofcomment(t):
     line_start=t.lexer.lexdata.rfind('\n',0,t.lexpos)+1
     columna=t.lexpos-line_start+1
     global LexerError
-    print('('+str(t.lexer.lineno)+', '+str(columna)+') - LexicographicError: EOF in comment')
+    print('('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: EOF in comment')
     LexerError=True
 
 t_class=r'class'
@@ -169,7 +169,7 @@ def t_string(t):
     if encontrado>-1:
         columna=find_column(t.lexer.lexdata,t)
         columna+=encontrado
-        print('('+str(t.lexer.lineno)+', '+str(columna)+') - LexicographicError: String contains null character')
+        print('('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: String contains null character')
     t.type='string'
     global LexerError
     LexerError=True
@@ -188,7 +188,7 @@ def t_eofstring(t):
             t.lexer.lineno+=1
             pos=1
         columna=pos
-    print('('+str(t.lexer.lineno)+', '+str(columna)+') - LexicographicError: EOF string constant')
+    print('('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: EOF string constant')
     global LexerError
     LexerError=True
     return t
@@ -206,7 +206,7 @@ def t_unfinished_string(t):
             if todavia:
                 columna=pos-1
                 todavia=False
-    print('('+str(linea)+', '+str(columna)+') - LexicographicError: Unterminated string constant')
+    print('('+str(linea)+','+str(columna)+') - LexicographicError: Unterminated string constant')
     global LexerError
     LexerError=True
     return t
@@ -219,9 +219,9 @@ def t_error(t):
     columna=find_column(t.lexer.lexdata, t)
     token=t.value[0]
   #  if token=='\"':
-  #      print('('+str(t.lexer.lineno)+', '+str(columna)+') - LexicographicError: EOF in string constant')
+  #      print('('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: EOF in string constant')
   #  else:
-    print('('+str(t.lexer.lineno)+', '+str(columna)+') - LexicographicError: ERROR "'+ token+'"')
+    print('('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: ERROR "'+ token+'"')
     global LexerError
     LexerError=True
     t.lexer.skip(1)
@@ -398,7 +398,7 @@ def p_assignment(p):
 
 def p_error(p):
     if p==None:
-        print('(0, 0) - SyntacticError: ERROR at or near EOF')
+        print('(0,0) - SyntacticError: ERROR at or near EOF')
         return
     linea=1
     for i in range(p.lexpos):
@@ -406,7 +406,7 @@ def p_error(p):
             linea+=1
     columna=find_column(p.lexer.lexdata, p)
     token=p.value
-    print('('+str(linea)+', '+str(columna)+') - SyntacticError: ERROR at or near "'+ str(token)+'"')
+    print('('+str(linea)+','+str(columna)+') - SyntacticError: ERROR at or near "'+ str(token)+'"')
     return
 
 archivo=open(sys.argv[1],encoding='utf-8')
@@ -448,3 +448,5 @@ if False:
 #respuesta=elimina_comentarios_fin_de_linea(respuesta)
 #parser.parse(respuesta,lexer=mylex, debug=True)
 #print(parser.parse(r'clas%s P { f(): Int { variab <- 2 ;}; };', debug=True))
+
+ return 1
