@@ -8,6 +8,5 @@ echo "Tiger and Buti Compiler 2020 V0.2.0"        # TODO: Recuerde cambiar estas
 echo "Copyright (c) 2020: Jose Gabriel Navarro Comabella, Alberto Helguera Fleitas"    # TODO: líneas a los valores correctos
 
 # Llamar al compilador
-echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 
 python3.7 TigerandButiCompiler.py $INPUT_FILE
