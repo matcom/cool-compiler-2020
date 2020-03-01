@@ -10,8 +10,8 @@ parser = yacc(module=parser_rules)
 
 
 lexer = lex(module=lexer_rules)
-
-with open(sys.argv[1], encoding = "utf-8") as f:
+addr = input()
+with open(addr, encoding = "utf-8") as f:
     text = f.read()
 
 
