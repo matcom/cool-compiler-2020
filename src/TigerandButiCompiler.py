@@ -415,7 +415,7 @@ def p_error(p):
     print('('+str(linea)+','+str(columna)+') - SyntacticError: ERROR at or near "'+ str(token)+'"')
     return
 
-archivo=open(sys.argv[1],encoding='utf-8')
+archivo=open(sys.argv[1],'r',encoding='utf-8')
 texto=archivo.read()
 respuesta=elimina_comentarios(texto)
 respuesta=elimina_comentarios_fin_de_linea(respuesta)
@@ -455,4 +455,4 @@ if False:
 #parser.parse(respuesta,lexer=mylex, debug=True)
 #print(parser.parse(r'clas%s P { f(): Int { variab <- 2 ;}; };', debug=True))
 
- return 1
+return 1
