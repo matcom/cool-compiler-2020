@@ -48,8 +48,8 @@ def elimina_comentarios(text):
                 respuesta+=' '
     if count>0:
         
-        for i in range(max(len(text)-text.rfind('\n')-1,0)):
-            respuesta+=' '
+       # for i in range(max(len(text)-text.rfind('\n')-1,0)):
+       #     respuesta+=' '
         respuesta+='###EOFCOMMENT###'
     return respuesta
 
