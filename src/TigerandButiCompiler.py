@@ -84,7 +84,8 @@ def t_eofcomment(t):
     line_start=t.lexer.lexdata.rfind('\n',0,t.lexpos)+1
     columna=t.lexpos-line_start+1
     global LexerError
-    print('('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: EOF in comment')
+    outstr="({0},{1}) - LexicographicError: 'EOF in comment'".format(t.lexer.lineno, columna)
+    print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: EOF in comment')
     LexerError=True
 
 t_class=r'class'
@@ -169,7 +170,8 @@ def t_string(t):
     if encontrado>-1:
         columna=find_column(t.lexer.lexdata,t)
         columna+=encontrado
-        print('('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: String contains null character')
+        outstr="({0},{1}) - LexicographicError: 'Null character in string'".format(t.lexer.lineno, columna)
+        print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: String contains null character')
     t.type='string'
     global LexerError
     LexerError=True
@@ -188,7 +190,9 @@ def t_eofstring(t):
             t.lexer.lineno+=1
             pos=1
         columna=pos
-    print('('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: EOF string constant')
+    
+    outstr="({0},{1}) - LexicographicError: 'EOF string constant'".format(t.lexer.lineno, columna)
+    print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: EOF string constant')
     global LexerError
     LexerError=True
     return t
@@ -206,7 +210,8 @@ def t_unfinished_string(t):
             if todavia:
                 columna=pos-1
                 todavia=False
-    print('('+str(linea)+','+str(columna)+') - LexicographicError: Unterminated string constant')
+    outstr="({0},{1}) - LexicographicError: 'Unterminated string constant'".format(linea, columna)
+    print(outstr)#'('+str(linea)+','+str(columna)+') - LexicographicError: Unterminated string constant')
     global LexerError
     LexerError=True
     return t
@@ -218,10 +223,11 @@ def t_ignored(t):
 def t_error(t):
     columna=find_column(t.lexer.lexdata, t)
     token=t.value[0]
-  #  if token=='\"':
+  #  if token=='\"':f
   #      print('('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: EOF in string constant')
   #  else:
-    print('('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: ERROR "'+ token+'"')
+    outstr="({0},{1}) - LexicographicError: 'UNKNOW character {2}'".format(t.lexer.lineno, columna,str(token))
+    print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: ERROR "'+ token+'"')
     global LexerError
     LexerError=True
     t.lexer.skip(1)
@@ -398,7 +404,7 @@ def p_assignment(p):
 
 def p_error(p):
     if p==None:
-        print('(0,0) - SyntacticError: ERROR at or near EOF')
+        print("(0,0) - SyntacticError: 'ERROR at or near EOF'")
         return
     linea=1
     for i in range(p.lexpos):
