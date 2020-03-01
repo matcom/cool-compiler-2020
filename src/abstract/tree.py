@@ -1,7 +1,3 @@
-from abstract.semantics import ObjectType, IntegerType, StringType, BoolType, VoidType
-from abstract.semantics import Context
-
-
 class Node:
     pass
 
@@ -20,11 +16,11 @@ class ProgramNode(Node):
 
     def check_semantics(self, deep=1):
         from travels import typecollector, typebuilder, inference
-        #recolectar los tipos
+        # recolectar los tipos
         type_collector = typecollector.TypeCollector()
         type_collector.visit(self)
 
-        #Construir los tipos detectados en el contexto
+        # Construir los tipos detectados en el contexto
         type_builder = typebuilder.TypeBuilder(type_collector.context,
                                                type_collector.errors)
         type_builder.visit(self)
@@ -37,7 +33,7 @@ class ProgramNode(Node):
                 print(d)
                 scope = inferer.visit(self, scope=scope, deep=d)
                 print(scope)
-        #reportar los errores
+        # reportar los errores
         return errors, type_builder.context
 
 

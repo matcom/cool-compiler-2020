@@ -9,8 +9,6 @@ from lexer.tokens import Token
 from parserr.ll1 import build_ll1_parser
 from tools.evaluate import evaluate_parse
 
-#%%
-
 
 class EpsilonNode(AtomicNode):
     def evaluate(self):
@@ -81,9 +79,6 @@ class QuestionNode(UnaryNode):
     @staticmethod
     def operate(value):
         return automata_union(value, EpsilonNode('').evaluate())
-
-
-#%%
 
 
 class Regex(object):
