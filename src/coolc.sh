@@ -9,4 +9,4 @@ echo "Copyright (c) 2019: Liset Silva Oropesa, Pablo A. de Armas Suárez, Yenli 
 
 # Llamar al compilador
 #echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
-python COOLCompiler.py INPUT_FILE OUTPUT_FILE
+python COOLCompiler.py $INPUT_FILE $OUTPUT_FILE

@@ -9,4 +9,4 @@ class COOLParserErrorListener(ErrorListener):
             msg = "EOF"
         else:
             msg = "\"" + msg + "\""
-        print("(" + str(line) + ", " + str(column+1) + ") - SyntacticError: ERROR at or near " +msg, file=sys.stderr)
+        print("(" + str(line) + ", " + str(column+1) + ") - SyntacticError: ERROR at or near " +msg, file=sys.stdout)

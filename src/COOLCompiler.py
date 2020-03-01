@@ -1,5 +1,6 @@
 import sys
 import os.path
+import errno
 from antlr4 import *
 from COOLLexer import COOLLexer
 from COOLLexerErrorListener import COOLLexerErrorListener
@@ -9,8 +10,8 @@ from COOLListener import COOLListener
 
 def main(argv):
     if not os.path.isfile(argv[1]):
-        print("invalid input filename")
-        return
+        print("invalid input filename: " + argv[1])
+        return sys.exit(errno.EPERM)
 
     input = FileStream(argv[1])
 
@@ -22,7 +23,7 @@ def main(argv):
         token = lexer.nextToken()
 
     if lexer.hasErrors:
-        return
+        return sys.exit(errno.EPERM)
 
     lexer.reset();
     stream = CommonTokenStream(lexer)
@@ -31,6 +32,8 @@ def main(argv):
     parser.addErrorListener(COOLParserErrorListener())
 
     tree = parser.program()
+    if parser.getNumberOfSyntaxErrors() > 0:
+        return sys.exit(errno.EPERM)
 
 if __name__ == '__main__':
     main(sys.argv)

@@ -13,8 +13,11 @@ from antlr4.error.Errors import IllegalStateException, LexerNoViableAltException
 class COOLParser(COOL):
     def __init__(self, input=None, output:TextIO = sys.stdout):
         super().__init__(input, output)
+        self._hasErrors = False
 
     def notifyErrorListeners(self, msg:str, offendingToken:Token = None, e:RecognitionException = None):
+        self._hasErrors = True
+
         if offendingToken is None:
             offendingToken = self.getCurrentToken()
         self._syntaxErrors += 1
