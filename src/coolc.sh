@@ -10,4 +10,4 @@ echo "Copyright (c) 2020: José Gabriel Navarro Comabella, Alberto Helguera Flei
 # Llamar al compilador
 echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 
-python3 TigerandButiCompiler.py $1
+python3.7 TigerandButiCompiler.py $INPUT_FILE
