@@ -417,6 +417,8 @@ for t in mylex:
 parser=yacc.yacc()
 if not LexerError:
     parser.parse(respuesta,lexer=mylex, debug=False)
+else:
+    return 1
 
     
 if False:
