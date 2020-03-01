@@ -223,7 +223,7 @@ def t_unfinished_string(t):
             if todavia:
                 columna=pos-1
                 todavia=False
-    outstr="({0},{1}) - LexicographicError: 'Unterminated string constant'".format(linea+1, columna)
+    outstr="({0},{1}) - LexicographicError: 'Unterminated string constant'".format(linea, columna)
     print(outstr)#'('+str(linea)+','+str(columna)+') - LexicographicError: Unterminated string constant')
     global LexerError
     LexerError=True
