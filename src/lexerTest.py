@@ -2,9 +2,9 @@ import lexer_rules
 from ply.lex import lex
 import sys
 
-addr = input()
+#addr = input()
 lexer = lex(module=lexer_rules)
-with open(addr, encoding = "utf-8") as f:
+with open(sys.argv[1], encoding = "utf-8") as f:
     text = f.read()
     lexer.input(text)
 

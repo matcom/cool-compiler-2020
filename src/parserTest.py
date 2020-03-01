@@ -1,5 +1,6 @@
 import lexer_rules
 import parser_rules
+import sys
 
 from ply.lex import lex
 from ply.yacc import yacc
@@ -9,8 +10,8 @@ parser = yacc(module=parser_rules)
 
 
 lexer = lex(module=lexer_rules)
-addr = input()
-with open(addr, encoding = "utf-8") as f:
+
+with open(sys.argv[1], encoding = "utf-8") as f:
     text = f.read()
 
 
