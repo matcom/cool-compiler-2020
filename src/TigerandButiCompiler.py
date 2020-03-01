@@ -4,8 +4,6 @@ import os
 import sys
 
 LexerError=False
-outnormal=sys.stdout
-sys.stdout=sys.stderr
 
 tokens=(
     'class', 'else', 'false', 'if','fi', 'in', 'inherits', 'isvoid', 'let', 'loop', 'pool', 'then', 'while', 'case', 'esac', 'new', 'of', 'true',
@@ -81,7 +79,9 @@ def t_eofcomment(t):
     r'\#\#\#EOFCOMMENT\#\#\#'
     line_start=t.lexer.lexdata.rfind('\n',0,t.lexpos)+1
     columna=t.lexpos-line_start+1
+    global LexerError
     print('('+str(t.lexer.lineno)+', '+str(columna)+') - LexicographicError: EOF in comment')
+    LexerError=True
 
 t_class=r'class'
 t_else=r'else'
@@ -167,6 +167,8 @@ def t_string(t):
         columna+=encontrado
         print('('+str(t.lexer.lineno)+', '+str(columna)+') - LexicographicError: String contains null character')
     t.type='string'
+    global LexerError
+    LexerError=True
     return t
 
 
@@ -183,6 +185,7 @@ def t_eofstring(t):
             pos=1
         columna=pos
     print('('+str(t.lexer.lineno)+', '+str(columna)+') - LexicographicError: EOF string constant')
+    global LexerError
     LexerError=True
     return t
 
@@ -200,6 +203,7 @@ def t_unfinished_string(t):
                 columna=pos-1
                 todavia=False
     print('('+str(linea)+', '+str(columna)+') - LexicographicError: Unterminated string constant')
+    global LexerError
     LexerError=True
     return t
 
@@ -214,6 +218,7 @@ def t_error(t):
   #      print('('+str(t.lexer.lineno)+', '+str(columna)+') - LexicographicError: EOF in string constant')
   #  else:
     print('('+str(t.lexer.lineno)+', '+str(columna)+') - LexicographicError: ERROR "'+ token+'"')
+    global LexerError
     LexerError=True
     t.lexer.skip(1)
 
@@ -413,7 +418,7 @@ parser=yacc.yacc()
 if not LexerError:
     parser.parse(respuesta,lexer=mylex, debug=False)
 
-
+    
 if False:
     tests = [(file) for file in os.listdir('tests\\parser') if file.endswith('.cl')]
     errors=[(file) for file in os.listdir('tests\\parser') if file.endswith('_error.txt')]
