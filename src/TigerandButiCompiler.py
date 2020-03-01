@@ -4,6 +4,8 @@ import os
 import sys
 
 LexerError=False
+outnormal=sys.stdout
+sys.stdout=sys.stderr
 
 tokens=(
     'class', 'else', 'false', 'if','fi', 'in', 'inherits', 'isvoid', 'let', 'loop', 'pool', 'then', 'while', 'case', 'esac', 'new', 'of', 'true',
