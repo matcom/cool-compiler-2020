@@ -44,6 +44,8 @@ def elimina_comentarios(text):
             faltan-=1
             if text.find('\n',i,i+1)>=0:
                 respuesta+='\n'
+            else:
+                respuesta+=' '
     if count>0:
         
         for i in range(max(len(text)-text.rfind('\n')-1,0)):
@@ -64,6 +66,8 @@ def elimina_comentarios_fin_de_linea(text):
             encontrado=False
         else:
             result=text.find('--',result)
+            extremo=text.find('\n',result)
+            result=text.rfind('--',result-1,extremo)
             encontrado=True
     for i in range(1,len(lista),2):
         respuesta+=text[lista[i-1]:lista[i]]
@@ -88,7 +92,7 @@ def t_eofcomment(t):
     for i in range(t.lexpos):
         if t.lexer.lexdata[i]=='\n':
             linea+=1
-    outstr="({0},{1}) - LexicographicError: 'EOF in comment'".format(linea, columna)
+    outstr="({0}, {1}) - LexicographicError: EOF in comment".format(linea, columna)
     print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: EOF in comment')
     LexerError=True
 
@@ -178,11 +182,11 @@ def t_string(t):
         for i in range(t.lexpos):
             if t.lexer.lexdata[i]=='\n':
                 linea+=1
-        outstr="({0},{1}) - LexicographicError: 'Null character in string'".format(linea, columna)
+        outstr="({0}, {1}) - LexicographicError: String contains null character".format(linea, columna)
+        global LexerError
+        LexerError=True
         print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: String contains null character')
     t.type='string'
-    global LexerError
-    LexerError=True
     return t
 
 
@@ -204,7 +208,7 @@ def t_eofstring(t):
             pos=1
         columna=pos
     
-    outstr="({0},{1}) - LexicographicError: 'EOF string constant'".format(linea, columna)
+    outstr="({0}, {1}) - LexicographicError: EOF in string constant".format(linea, columna)
     print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: EOF string constant')
     global LexerError
     LexerError=True
@@ -223,7 +227,7 @@ def t_unfinished_string(t):
             if todavia:
                 columna=pos-1
                 todavia=False
-    outstr="({0},{1}) - LexicographicError: 'Unterminated string constant'".format(linea, columna)
+    outstr="({0}, {1}) - LexicographicError: Unterminated string constant".format(linea, columna)
     print(outstr)#'('+str(linea)+','+str(columna)+') - LexicographicError: Unterminated string constant')
     global LexerError
     LexerError=True
@@ -243,7 +247,7 @@ def t_error(t):
     for i in range(t.lexpos):
         if t.lexer.lexdata[i]=='\n':
             linea+=1
-    outstr="({0},{1}) - LexicographicError: 'UNKNOW character {2}'".format(linea, columna,str(token))
+    outstr="({0}, {1}) - LexicographicError: ERROR \"{2}\"".format(linea, columna,str(token))
     print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: ERROR "'+ token+'"')
     global LexerError
     LexerError=True
@@ -421,7 +425,7 @@ def p_assignment(p):
 
 def p_error(p):
     if p==None:
-        print("(0,0) - SyntacticError: 'ERROR at or near EOF'")
+        print("(0, 0) - SyntacticError: 'ERROR at or near EOF'")
         return
     linea=1
     for i in range(p.lexpos):
@@ -429,7 +433,7 @@ def p_error(p):
             linea+=1
     columna=find_column(p.lexer.lexdata, p)
     token=p.value
-    print('('+str(linea)+','+str(columna)+') - SyntacticError: ERROR at or near "'+ str(token)+'"')
+    print('('+str(linea)+', '+str(columna)+') - SyntacticError: ERROR at or near "'+ str(token)+'"')
     return
 
 archivo=open(sys.argv[1],encoding='utf-8')
@@ -437,6 +441,7 @@ texto=archivo.read()
 respuesta=elimina_comentarios(texto)
 respuesta=elimina_comentarios_fin_de_linea(respuesta)
 
+LexerError=False
 mylex.input(respuesta)
 for t in mylex:
     pass
@@ -448,13 +453,14 @@ exit(1)
 
     
 if False:
-    tests = [(file) for file in os.listdir('tests\\lexer') if file.endswith('.cl')]
-    errors=[(file) for file in os.listdir('tests\\lexer') if file.endswith('_error.txt')]
+    tests = [(file) for file in os.listdir('tests\\parser') if file.endswith('.cl')]
+    errors=[(file) for file in os.listdir('tests\\parser') if file.endswith('_error.txt')]
     for i in range(len(tests)):
+        LexerError=False
         mylex.lineno=0
         te=tests[i]
         print(te)
-        archivo=open("tests\\lexer\\"+te,encoding='utf-8')
+        archivo=open("tests\\parser\\"+te,encoding='utf-8')
         texto=archivo.read()
         respuesta=elimina_comentarios(texto)
         respuesta=elimina_comentarios_fin_de_linea(respuesta)
@@ -462,12 +468,13 @@ if False:
         for t in mylex:
             pass
         if not LexerError:
+            print("parseo")
             parser.parse(respuesta,lexer=mylex, debug=False)
         else:
             LexerError=False
         er=errors[i]
         print(er)
-        archivoerror=open("tests\\lexer\\"+er,encoding='utf-8')
+        archivoerror=open("tests\\parser\\"+er,encoding='utf-8')
         print(archivoerror.read())
 
 #archivo=open("tests\\parser\\program1.cl",encoding='utf-8')
