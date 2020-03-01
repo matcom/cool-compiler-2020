@@ -48,29 +48,7 @@ basic_keywords = {
 }
 
 #Simple rules for cool
-simple_rules = {
-    "t_LPAREN" : r'\(',                    
-    "t_RPAREN" : r'\)',                       
-    "t_LBRACE" : r'\{',                      
-    "t_RBRACE" : r'\}',                       
-    "t_COLON" : r'\:' ,                       
-    "t_COMMA" : r'\,' ,                    
-    "t_DOT" : r'\.'   ,                    
-    "t_SEMICOLON" : r'\;',                 
-    "t_AT" : r'\@',                        
-    "t_PLUS" : r'\+',                      
-    "t_MINUS" : r'\-',                     
-    "t_MULTIPLY" : r'\*',
-    "t_DIVIDE" : r'\/',                    
-    "t_EQ" : r'\=',                         
-    "t_LT" : r'\<',                        
-    "t_LTEQ" : r'\<\=',
-    "t_ASSIGN" : r'\<\-',                            
-    "t_INT_COMP" : r'~',                   
-    "t_NOT" : r'not',                      
-    "t_ignore" : ' \t\r\f'    
-}
-""" t_LPAREN = r'\('                    # (
+t_LPAREN = r'\('                    # (
 t_RPAREN = r'\)'                    # )   
 t_LBRACE = r'\{'                    # {  
 t_RBRACE = r'\}'                    # }   
@@ -91,7 +69,30 @@ t_INT_COMP = r'~'                   # ~
 t_NOT = r'not'                      # not
 
 #ignore spaces
-t_ignore = ' \t\r\f' """
+t_ignore = ' \t\r\f'
+
+simple_rules = [
+    t_LPAREN,
+    t_RPAREN,
+    t_LBRACE,
+    t_RBRACE,
+    t_COLON,
+    t_COMMA,
+    t_DOT,
+    t_SEMICOLON,
+    t_AT,
+    t_PLUS,
+    t_MINUS,
+    t_MULTIPLY,
+    t_DIVIDE,
+    t_EQ,
+    t_LT,
+    t_LTEQ,
+    t_ASSIGN,
+    t_INT_COMP,
+    t_NOT
+]
+
 
 #Complex rules for cool
 
@@ -182,25 +183,12 @@ def t_STRING_anything(self, token):
             token.lexer.string_backslashed = True
 
 
-
-complex_rules = [ 
-    t_BOOLEAN,
-    t_INTEGER,
-    t_TYPE,
-    t_newline,
-    t_ID,
-    #----------
-    #String states rules
-    t_STRING_start,
-    t_STRING_newline,
-    t_STRING_anything,
-    t_STRING_end
-    #----------
- ]
-
-
 # STRING ignored characters
 t_STRING_ignore = ''
+
+
+
+
 
 
 # The comment states
@@ -244,4 +232,35 @@ def t_COMMENT_error(self, token):
 def t_error(self, token):
     print("Illegal character! Line: {0}, character: {1}".format(token.lineno, token.value[0]))
     token.lexer.skip(1)
+
+
+
+#Complex rules list
+complex_rules = [ 
+    t_BOOLEAN,
+    t_INTEGER,
+    t_TYPE,
+    t_newline,
+    t_ID,
+    #----------
+    #String states rules
+    t_STRING_start,
+    t_STRING_newline,
+    t_STRING_anything,
+    t_STRING_end,
+    t_STRING_ignore,
+    #----------
+    #Comment states rules
+    t_COMMENT_start,
+    t_COMMENT_startanother,
+    t_COMMENT_end,
+    t_COMMENT_ignore  
+ ]
+
+#Error handlers
+error_handlers = [
+    t_STRING_error,
+    t_COMMENT_error,
+    t_error
+]
 
