@@ -4,9 +4,8 @@
 
 **Nombre** | **Grupo** | **Github**
 --|--|--
-Nombre1 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
-Nombre2 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
-Nombre3 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
+José Gabriel Navarro Comabella | C412 | [@TTigre](https://github.com/TTigre)
+Alberto Helguera Fleitas | C412 | [@Al3ERT](https://github.com/Al3ERT)
 
 ## Readme
 
