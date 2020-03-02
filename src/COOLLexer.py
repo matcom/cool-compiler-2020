@@ -14,6 +14,7 @@ class COOLLexer(COOL_LEX):
     def __init__(self, input=None, output:TextIO = sys.stdout):
         super().__init__(input, output)
         self._hasErrors = False
+        self._currentToken = None;
 
     def notifyListeners(self, e:LexerNoViableAltException):
         self._hasErrors = True
@@ -21,13 +22,47 @@ class COOLLexer(COOL_LEX):
         start = self._tokenStartCharIndex
         stop = self._input.index
         text = self._input.getText(start, stop)
-        msg = "'" + self.getErrorDisplay(text) + "'"
+        if self._currentToken.type in [COOL_LEX.STRING, COOL_LEX.STRING_FIRSTLINE, COOL_LEX.STRING_INNERLINE] or text[0] == '"':
+            if self.inputStream.size == self.inputStream.index:
+                msg = "EOF in string constant"
+            else:
+                msg = "Unterminated string constant"
+        else:
+            msg = "'" + self.getErrorDisplay(text) + "'"
+        if self._token == None:
+            line = self.line
+            col= self.column
+        else:
+            line = self._tokenStartLine
+            col = self._tokenStartColumn
         listener = self.getErrorListenerDispatch()
-        listener.syntaxError(self, self._token, self._tokenStartLine, self._tokenStartColumn, msg, e)
+        listener.syntaxError(self, self._token, line, col, msg, e)
+
+    def nextToken(self):
+        while (True):
+            lastToken = self._currentToken
+            self._currentToken = super().nextToken()
+            if self._currentToken.type in [COOL_LEX.OPEN_COMMENT, COOL_LEX.CLOSE_COMMENT]:
+                continue
+            elif self._currentToken.type == COOL_LEX.STRING_FIRSTLINE:
+                continue
+            elif self._currentToken.type == COOL_LEX.STRING_INNERLINE:
+                continue
+            else:
+                 break
+
+        if self._currentToken.type == Token.EOF:
+            if lastToken != None and lastToken.type == COOL_LEX.OPEN_COMMENT:
+                self._hasErrors = True
+                listener = self.getErrorListenerDispatch()
+                listener.syntaxError(self, self._currentToken, self._currentToken.line, self._currentToken.column,
+                                     "EOF in comment", None)
+        return self._currentToken;
 
     def reset(self):
         super().reset()
         self._hasErrors = False
+        self._currentToken = None;
 
     @property
     def hasErrors(self):

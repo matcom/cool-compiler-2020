@@ -20,8 +20,8 @@ def main(argv):
     lexer.addErrorListener(COOLLexerErrorListener())
     token = lexer.nextToken()
     while token.type != Token.EOF:
+        #print(token.type)
         token = lexer.nextToken()
-
     if lexer.hasErrors:
         return sys.exit(errno.EPERM)
 
