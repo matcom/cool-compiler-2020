@@ -1,3 +1,5 @@
+""" Contains Context Structures and Definitons for Attr, Method and Types, """
+
 from tools.cmp_errors import *
 import itertools as itt
 

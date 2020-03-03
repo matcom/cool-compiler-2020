@@ -54,7 +54,8 @@ class NameError(Error):
 class TypeError(Error):
     def __init__(self, row, col, message):
         super().__init__(row, col, TYPE_ERR, message)
-        
-class SemanticError(Error):
+
+# Base Semantic for others Errors, redefine constructor      
+class BaseSemanticError(Error):
     def __init__(self, row, col, message):
         super().__init__(row, col, SEMANTIC_ERR, message)
