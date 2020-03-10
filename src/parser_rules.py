@@ -3,7 +3,7 @@ from lexer_rules import tokens
 
 from operator import add, mul
 #from expressions import BinaryOperation, Number
-
+my_bool = False
 
 # Parsing rules
 precedence = (
@@ -189,12 +189,13 @@ def find_column(t):
 
 
 def p_error(t):
-		"""
-		Error rule for Syntax Errors handling and reporting.
-		"""
-		if t is None:
-			print('(0, 0) - SyntacticError: ERROR at or near EOF')
-		else:
-			print('({}, {}) - SyntacticError: ERROR at or near "{}"'.format(
-					t.lineno, find_column(t), t.value))
-			# t.errok()
+    global my_bool
+    """
+    Error rule for Syntax Errors handling and reporting.
+    """
+    if t is None:
+        print('(0, 0) - SyntacticError: ERROR at or near EOF')
+    else:
+        print('({}, {}) - SyntacticError: ERROR at or near "{}"'.format(
+                t.lineno, find_column(t), t.value))
+    my_bool = True

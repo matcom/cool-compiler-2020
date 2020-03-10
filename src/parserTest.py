@@ -10,10 +10,11 @@ parser = yacc(module=parser_rules)
 
 
 lexer = lex(module=lexer_rules)
-addr = input()
-with open(addr, encoding = "utf-8") as f:
+with open(sys.argv[1], encoding = "utf-8") as f:
     text = f.read()
 
 
 parser.parse(text, lexer)
 
+if parser_rules.my_bool:
+    exit(1)

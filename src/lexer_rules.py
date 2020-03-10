@@ -81,13 +81,6 @@ t_ASSIGN = r'\<\-'      # <-
 t_ARROW = r'\=\>'       # =>
 
 t_ignore_WHITESPACES = r"[ \t]+"
-#t_ignore = " \t"
-#t_ID = r"[a-zA-Z_][a-zA-Z0-9_]*"
-
-# @TOKEN(r"\d+")
-# def t_NUMBER(token):
-#     token.value = int(token.value)
-# 	return token
 
 def find_column(t):
     line_start = t.lexer.lexdata.rfind('\n', 0, t.lexpos) + 1
@@ -96,14 +89,8 @@ def find_column(t):
 
 @TOKEN(r"\d+")
 def t_INTEGER(token):
-    #r"[1-9][0-9]*"
     token.value = int(token.value)
     return token
-
-# def t_ID(token):
-#     r"[a-zA-Z_][a-zA-Z0-9_]*"
-#     token.value =
-#     return token
 
 @TOKEN(r"[A-Z][a-zA-Z_0-9]*")
 def t_TYPE(token):
@@ -115,19 +102,9 @@ def t_ID(token):
 	token.type = reserved_keywords.get(token.value, 'ID')
 	return token
 
-# @TOKEN(r"(true|false)")
-# def t_BOOLEAN(token):
-# 	token.value = True if token.value == "true" else False
-# 	return token
-
 def t_NEWLINE(token):
     r"\n+"
     token.lexer.lineno += len(token.value)
-
-# def t_null(t):
-#     r"\0"
-#     print(f'({t.lineno} ,{find_column(t)}) - LexicographicError: String contains null character')
-
 
 # LEXER STATES
 def states():
@@ -148,24 +125,15 @@ def t_start_string(token):
 
 @TOKEN(r"\n")
 def t_STRING_newline(token):
+    global my_bool
     token.lexer.lineno += 1
     if not token.lexer.string_backslashed:
-        #print("String newline not escaped")
         token.lexer.skip(1)
         token.lexer.pop_state()
         print(f'({token.lineno}, {find_column(token)}) - LexicographicError: Unterminated string constant')
         my_bool = True
     else:
         token.lexer.string_backslashed = False
-
-# @TOKEN(r"0")
-# def t_STRING_null(t):
-#     print('-------------------------------------------------------------------------------------')
-#     if token.lexer.stringbuf == "\":
-#         t.lexer.skip(1)
-#         t.lexer.pop_state()
-#         print(f'({t.lineno} ,{find_column(t)}) - LexicographicError: String contains null character')
-
 
 @TOKEN(r"\"")
 def t_STRING_end(token):
@@ -181,7 +149,9 @@ def t_STRING_end(token):
 
 @TOKEN('\0')
 def t_STRING_null(t):
+    global my_bool
     print(f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: String contains null character')
+    my_bool = True
 
 @TOKEN(r"[^\n]")
 def t_STRING_anything(token):
@@ -210,11 +180,13 @@ def t_STRING_anything(token):
 t_STRING_ignore = ''
 
 def t_STRING_eof(t):
+    global my_bool
     print(f'({t.lineno}, {find_column(t)}) - LexicographicError: EOF in string constant')
     my_bool = True
 
 # STRING error handler
 def t_STRING_error(token):
+    global my_bool
     print("Illegal character! Line: {0}, character: {1}".format(token.lineno, token.value[0]))
     token.lexer.skip(1)
     my_bool = True
@@ -240,6 +212,7 @@ def t_COMMENT_NEWLINE(t):
 
 
 def t_COMMENT_eof(t):
+    global my_bool
     #print("(55, 46) - LexicographicError: EOF in comment")
     print(f"({t.lineno}, {find_column(t)}) - LexicographicError: EOF in comment")
     my_bool = True
@@ -266,6 +239,7 @@ def t_COMMENT_error(t):
 
 
 def t_error(t):
+    global my_bool
     message = f'({t.lineno}, {find_column(t)}) - LexicographicError: ERROR "'
     message += t.value[0]
     message +='"'
