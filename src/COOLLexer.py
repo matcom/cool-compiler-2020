@@ -22,7 +22,7 @@ class COOLLexer(COOL_LEX):
         start = self._tokenStartCharIndex
         stop = self._input.index
         text = self._input.getText(start, stop)
-        if self._currentToken.type in [COOL_LEX.STRING, COOL_LEX.STRING_FIRSTLINE, COOL_LEX.STRING_INNERLINE, COOL_LEX.STRING_SIMPLE_START, COOL_LEX.STRING_SIMPLE_CONTENT ] or text[0] == '"':
+        if self._currentToken.type in [COOL_LEX.STRING_FIRSTLINE, COOL_LEX.STRING_INNERLINE, COOL_LEX.STRING_SIMPLE_START, COOL_LEX.STRING_SIMPLE_CONTENT ] or text[0] == '"':
             if self._input.data[start] == 0:
                 msg = "String contains null character"
             elif self.inputStream.size == self.inputStream.index:
@@ -67,7 +67,7 @@ class COOLLexer(COOL_LEX):
                     listener = self.getErrorListenerDispatch()
                     listener.syntaxError(self, self._currentToken, self._currentToken.line, self._currentToken.column,
                                          "EOF in comment", None)
-                elif lastToken.type == COOL_LEX.STRING_SIMPLE_START:
+                elif lastToken.type in [COOL_LEX.STRING_SIMPLE_START, COOL_LEX.STRING_SIMPLE_CONTENT]:
                     self._hasErrors = True
                     listener = self.getErrorListenerDispatch()
                     listener.syntaxError(self, self._currentToken, self._currentToken.line, self._currentToken.column,
