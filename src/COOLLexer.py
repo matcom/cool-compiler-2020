@@ -33,7 +33,7 @@ class COOLLexer(COOL_LEX):
                 self.popMode()
                 msg = "Unterminated string constant"
         else:
-            msg = "'" + self.getErrorDisplay(text) + "'"
+            msg = "ERROR \"" + self.getErrorDisplay(text) + "\""
         if self._token == None:
             line = self.line
             col= self.column
