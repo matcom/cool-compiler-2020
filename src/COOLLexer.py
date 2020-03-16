@@ -27,6 +27,8 @@ class COOLLexer(COOL_LEX):
                 msg = "String contains null character"
             elif self.inputStream.size == self.inputStream.index:
                 msg = "EOF in string constant"
+            elif text in ['\r', '\n', '\0'] and self._input.getText(start-1, start-1) in ['\r', '\n', '\0']:
+                return;
             else:
                 msg = "Unterminated string constant"
         else:

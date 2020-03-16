@@ -129,7 +129,7 @@ class COOL ( Parser ):
     symbolicNames = [ "<INVALID>", "CLASS", "ELSE", "FALSE", "FI", "IF", 
                       "IN", "INHERITS", "ISVOID", "LET", "LOOP", "POOL", 
                       "THEN", "WHILE", "CASE", "ESAC", "NEW", "OF", "NOT", 
-                      "TRUE", "STRING", "STRING_SIMPLE", "STRING_SIMPLE_START", 
+                      "TRUE", "STRING", "STRING_SIMPLE_START", "STRING_SIMPLE", 
                       "STRING_FIRSTLINE", "INT", "TYPEID", "OBJECTID", "ASSIGNMENT", 
                       "CASE_ARROW", "ADD", "MINUS", "MULTIPLY", "DIVISION", 
                       "LESS_THAN", "LESS_EQUAL", "EQUAL", "INTEGER_NEGATIVE", 
@@ -170,8 +170,8 @@ class COOL ( Parser ):
     NOT=18
     TRUE=19
     STRING=20
-    STRING_SIMPLE=21
-    STRING_SIMPLE_START=22
+    STRING_SIMPLE_START=21
+    STRING_SIMPLE=22
     STRING_FIRSTLINE=23
     INT=24
     TYPEID=25
