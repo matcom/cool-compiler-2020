@@ -30,6 +30,7 @@ class COOLLexer(COOL_LEX):
             elif text in ['\r', '\n', '\0'] and self._input.getText(start-1, start-1) in ['\r', '\n', '\0']:
                 return;
             else:
+                self.popMode()
                 msg = "Unterminated string constant"
         else:
             msg = "'" + self.getErrorDisplay(text) + "'"
@@ -52,15 +53,25 @@ class COOLLexer(COOL_LEX):
                 continue
             elif self._currentToken.type == COOL_LEX.STRING_INNERLINE:
                 continue
+            elif self._currentToken.type == COOL_LEX.STRING_SIMPLE_START:
+                continue
+            elif self._currentToken.type == COOL_LEX.STRING_SIMPLE_CONTENT:
+                continue
             else:
                  break
 
         if self._currentToken.type == Token.EOF:
-            if lastToken != None and lastToken.type == COOL_LEX.OPEN_COMMENT:
-                self._hasErrors = True
-                listener = self.getErrorListenerDispatch()
-                listener.syntaxError(self, self._currentToken, self._currentToken.line, self._currentToken.column,
-                                     "EOF in comment", None)
+            if lastToken != None:
+                if lastToken.type == COOL_LEX.OPEN_COMMENT:
+                    self._hasErrors = True
+                    listener = self.getErrorListenerDispatch()
+                    listener.syntaxError(self, self._currentToken, self._currentToken.line, self._currentToken.column,
+                                         "EOF in comment", None)
+                elif lastToken.type == COOL_LEX.STRING_SIMPLE_START:
+                    self._hasErrors = True
+                    listener = self.getErrorListenerDispatch()
+                    listener.syntaxError(self, self._currentToken, self._currentToken.line, self._currentToken.column,
+                                         "EOF in string constant", None)
         return self._currentToken;
 
     def reset(self):
