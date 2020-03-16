@@ -22,8 +22,10 @@ class COOLLexer(COOL_LEX):
         start = self._tokenStartCharIndex
         stop = self._input.index
         text = self._input.getText(start, stop)
-        if self._currentToken.type in [COOL_LEX.STRING, COOL_LEX.STRING_FIRSTLINE, COOL_LEX.STRING_INNERLINE] or text[0] == '"':
-            if self.inputStream.size == self.inputStream.index:
+        if self._currentToken.type in [COOL_LEX.STRING, COOL_LEX.STRING_FIRSTLINE, COOL_LEX.STRING_INNERLINE, COOL_LEX.STRING_SIMPLE_START, COOL_LEX.STRING_SIMPLE_CONTENT ] or text[0] == '"':
+            if self._input.data[start] == 0:
+                msg = "String contains null character"
+            elif self.inputStream.size == self.inputStream.index:
                 msg = "EOF in string constant"
             else:
                 msg = "Unterminated string constant"
