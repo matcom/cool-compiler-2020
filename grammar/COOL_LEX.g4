@@ -97,7 +97,7 @@ STRING_CONTENT
     ;
 
 STRING_FIRSTLINE
-   : '"' STRING_CONTENT* '\\\r\n' -> pushMode(MULTILINE_STR)
+   : '"' STRING_CONTENT* ('\\\r\n' | '\\\n') -> pushMode(MULTILINE_STR)
    ;
 
 INT
@@ -297,7 +297,7 @@ CLOSE_COMMENT
 mode MULTILINE_STR;
 
 STRING_INNERLINE
-   : STRING_CONTENT* '\\\r\n'
+   : STRING_CONTENT* ('\\\r\n' | '\\\n')
    ;
 
 STRING_LASTLINE
