@@ -27,28 +27,28 @@ reserved_keywords = {
 		"case": "CASE",
 
 		"class": "CLASS",
-        #"Class": "CLASS",
-        #"CLaSS": "CLASS",
+        	"Class": "CLASS",
+        	"CLaSS": "CLASS",
 
-		#"eLSe": "ELSE",
-        "else": "ELSE",
-        #"elsE": "ELSE",
-        #"ElsE": "ELSE",
+		"eLSe": "ELSE",
+        	"else": "ELSE",
+        	"elsE": "ELSE",
+        	"ElsE": "ELSE",
 
 		"esac": "ESAC",
 
 		"fi": "FI",
-        #"Fi": "FI",
-        #"fI": "FI",
+        	"Fi": "FI",
+        	"fI": "FI",
 
 		"if": "IF",
-        #"If": "IF",
-        #"iF": "IF",
+        	"If": "IF",
+        	"iF": "IF",
 
 		"in": "IN",
 
 		"inherits": "INHERITS",
-        #"iNHeRiTS": "INHERITS",
+        	"iNHeRiTS": "INHERITS",
 
 		"isvoid": "ISVOID",
 		"let": "LET",
@@ -58,13 +58,13 @@ reserved_keywords = {
 		"pool": "POOL",
 
 		"then": "THEN",
-        #"THeN": "THEN",
-        #"tHen": "THEN",
+        	"THeN": "THEN",
+        	"tHen": "THEN",
 
 		"while": "WHILE",
 		"not": "NOT",
-        "true":"TRUE",
-        "false":"FALSE"
+        	"true":"TRUE",
+        	"false":"FALSE"
 	}
 
 reserved = reserved_keywords.keys()  # ply reserved keywords map
@@ -104,17 +104,17 @@ def t_INTEGER(token):
 
 @TOKEN(r"[A-Z][a-zA-Z_0-9]*")
 def t_TYPE(token):
-    tempL = str.lower(token.value)
-    if reserved_keywords.keys().__contains__(tempL):
-        token.value = tempL
+    #tempL = str.lower(token.value)
+    #if reserved_keywords.keys().__contains__(tempL):
+    #    token.value = tempL
     token.type = reserved_keywords.get(token.value, 'TYPE')
     return token
 
 @TOKEN(r"[a-z][a-zA-Z_0-9]*")
 def t_ID(token):
-    tempL = str.lower(token.value)
-    if reserved_keywords.keys().__contains__(tempL):
-        token.value = tempL
+    #tempL = str.lower(token.value)
+    #if reserved_keywords.keys().__contains__(tempL):
+    #    token.value = tempL
     token.type = reserved_keywords.get(token.value, 'ID')
     return token
 
