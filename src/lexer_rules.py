@@ -26,7 +26,7 @@ tokens = [
 reserved_keywords = {
 		"case": "CASE",
 		"class": "CLASS",
-        "CLaSS": "CLASS",
+        #"CLaSS": "CLASS",
 		"eLSe": "ELSE",
         "else": "ELSE",
         "elsE": "ELSE",
