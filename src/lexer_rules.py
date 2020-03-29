@@ -25,46 +25,35 @@ tokens = [
 
 reserved_keywords = {
 		"case": "CASE",
-
 		"class": "CLASS",
-        	"Class": "CLASS",
-        	"CLaSS": "CLASS",
-
+        "CLaSS": "CLASS",
 		"eLSe": "ELSE",
-        	"else": "ELSE",
-        	"elsE": "ELSE",
-        	"ElsE": "ELSE",
-
+        "else": "ELSE",
+        "elsE": "ELSE",
+        "ElsE": "ELSE",
 		"esac": "ESAC",
-
 		"fi": "FI",
-        	"Fi": "FI",
-        	"fI": "FI",
-
+        "Fi": "FI",
+        "fI": "FI",
 		"if": "IF",
-        	"If": "IF",
-        	"iF": "IF",
-
+        "If": "IF",
+        "iF": "IF",
 		"in": "IN",
-
 		"inherits": "INHERITS",
-        	"iNHeRiTS": "INHERITS",
-
+        "iNHeRiTS": "INHERITS",
 		"isvoid": "ISVOID",
 		"let": "LET",
 		"loop": "LOOP",
 		"new": "NEW",
 		"of": "OF",
 		"pool": "POOL",
-
 		"then": "THEN",
-        	"THeN": "THEN",
-        	"tHen": "THEN",
-
+        "THeN": "THEN",
+        "tHen": "THEN",
 		"while": "WHILE",
 		"not": "NOT",
-        	"true":"TRUE",
-        	"false":"FALSE"
+        "true":"TRUE",
+        "false":"FALSE"
 	}
 
 reserved = reserved_keywords.keys()  # ply reserved keywords map
@@ -97,6 +86,7 @@ def find_column(t):
     line_start = t.lexer.lexdata.rfind('\n', 0, t.lexpos) + 1
     return t.lexpos - line_start + 1
 
+
 @TOKEN(r"\d+")
 def t_INTEGER(token):
     token.value = int(token.value)
@@ -104,19 +94,13 @@ def t_INTEGER(token):
 
 @TOKEN(r"[A-Z][a-zA-Z_0-9]*")
 def t_TYPE(token):
-    #tempL = str.lower(token.value)
-    #if reserved_keywords.keys().__contains__(tempL):
-    #    token.value = tempL
-    token.type = reserved_keywords.get(token.value, 'TYPE')
-    return token
+	token.type = reserved_keywords.get(token.value, 'TYPE')
+	return token
 
 @TOKEN(r"[a-z][a-zA-Z_0-9]*")
 def t_ID(token):
-    #tempL = str.lower(token.value)
-    #if reserved_keywords.keys().__contains__(tempL):
-    #    token.value = tempL
-    token.type = reserved_keywords.get(token.value, 'ID')
-    return token
+	token.type = reserved_keywords.get(token.value, 'ID')
+	return token
 
 def t_NEWLINE(token):
     r"\n+"
@@ -130,7 +114,7 @@ def states():
     )
 states = states()
 
-
+###
 # THE STRING STATE
 @TOKEN(r"\"")
 def t_start_string(token):
@@ -162,6 +146,7 @@ def t_STRING_end(token):
         token.lexer.stringbuf += '"'
         token.lexer.string_backslashed = False
 
+
 @TOKEN('\0')
 def t_STRING_null(t):
     global my_bool
@@ -190,6 +175,7 @@ def t_STRING_anything(token):
         else:
             token.lexer.string_backslashed = True
 
+
 # STRING ignored characters
 t_STRING_ignore = ''
 
@@ -206,19 +192,24 @@ def t_STRING_error(token):
     my_bool = True
 
 
+###
 # THE COMMENT STATE
 @TOKEN(r"\(\*")
 def t_start_comment(token):
     token.lexer.push_state("COMMENT")
     token.lexer.comment_count = 0
 
+
 @TOKEN(r"\(\*")
 def t_COMMENT_startanother(t):
     t.lexer.comment_count += 1
 
+
+
 @TOKEN(r"\n")
 def t_COMMENT_NEWLINE(t):
     t.lexer.lineno+=1
+
 
 def t_COMMENT_eof(t):
     global my_bool
@@ -226,12 +217,16 @@ def t_COMMENT_eof(t):
     print(f"({t.lineno}, {find_column(t)}) - LexicographicError: EOF in comment")
     my_bool = True
 
+
+
+
 @TOKEN(r"\*\)")
 def t_COMMENT_end(token):
     if token.lexer.comment_count == 0:
         token.lexer.pop_state()
     else:
         token.lexer.comment_count -= 1
+
 
 # COMMENT ignored characters
 t_COMMENT_ignore = ''
@@ -242,11 +237,12 @@ t_ignore = ' \t\r\f'
 def t_COMMENT_error(t):
     t.lexer.skip(1)
 
+
 def t_error(t):
     global my_bool
     message = f'({t.lineno}, {find_column(t)}) - LexicographicError: ERROR "'
     message += t.value[0]
     message +='"'
     print(message)
-    t.lexer.skip(1)#######
     my_bool = True
+    #(4, 2) - LexicographicError: ERROR "!"
