@@ -1,7 +1,8 @@
+from pipeline import Pipeline
 from tools.reader import Reader
 from cl_lexer import CoolLexer
 from cl_parser import CoolParser
-from pipeline import Pipeline
+from semantic import *
 
 import sys
 
@@ -18,6 +19,6 @@ def main():
 
     if pipeline.pipeline_errors:
         exit(1)
-
+ 
 if __name__ == "__main__":
     main()
