@@ -58,7 +58,7 @@ def find_comments(program: str) -> str:
         try:
             i, char = next(iter_char)
             column += 1
-            if char == '-' and i > 0 and program[i-1] != '<':
+            if char == '-' and i > 0 and program[i - 1] != '<':
                 i, char = next(iter_char)
                 column += 1
                 if char == '-':
@@ -67,14 +67,14 @@ def find_comments(program: str) -> str:
                     if stack:
                         first = stack.pop()
                         pairs.append((first, i))
-                    column = 1
-                    line += 1
+                        column = 1
+                        line += 1
             elif char == '\n':
                 if stack:
                     first = stack.pop()
                     pairs.append((first, i))
-                column = 1
-                line += 1
+                    column = 1
+                    line += 1
         except StopIteration:
             break
     while pairs:
