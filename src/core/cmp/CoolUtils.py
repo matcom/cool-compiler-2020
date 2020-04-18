@@ -156,7 +156,6 @@ class_list, def_class = CoolGrammar.NonTerminals('<class-list> <def-class>')
 feature_list, feature = CoolGrammar.NonTerminals('<feature-list> <feature>')
 param_list, param = CoolGrammar.NonTerminals('<param-list> <param>')
 expr, member_call, expr_list, block, let_list, case_list = CoolGrammar.NonTerminals('<expr> <member-call> <expr-list> <block> <let-list> <case-list>')
-truth_expr, comp_expr = CoolGrammar.NonTerminals('<truth-expr> <comp-expr>')
 arith, term, factor, factor_2, factor_3, invocation = CoolGrammar.NonTerminals('<arith> <term> <factor> <factor-2> <factor-3> <invocation>')
 atom, func_call, arg_list = CoolGrammar.NonTerminals('<atom> <func-call> <arg-list>')
 
@@ -203,10 +202,11 @@ param %= idx + colon + typex, lambda h, s: (s[1], s[3])
 
 #TODO: Check precedence
 # <expr>
-expr %= expr + leq + truth_expr, lambda h, s: LessEqualNode(s[1], s[3])
-expr %= expr + less + truth_expr, lambda h, s: LessNode(s[1], s[3])
-expr %= expr + equal + truth_expr, lambda h, s: EqualNode(s[1], s[3])
-expr %= truth_expr, lambda h, s: s[1]
+expr %= notx + expr, lambda h, s: NotNode(s[2])
+expr %= expr + leq + expr, lambda h, s: LessEqualNode(s[1], s[3])
+expr %= expr + less + expr, lambda h, s: LessNode(s[1], s[3])
+expr %= expr + equal + expr, lambda h, s: EqualNode(s[1], s[3])
+expr %= arith, lambda h, s: s[1]
 
 block %= expr + semi, lambda h, s: [s[1]]
 block %= expr + semi + block, lambda h, s: [s[1]] + s[3]
@@ -220,13 +220,6 @@ let_list %= idx + colon + typex + larrow + expr + comma + let_list, lambda h, s:
 # <case-list>
 case_list %= idx + colon + typex + rarrow + expr + semi, lambda h, s: [CaseExpressionNode(s[1], s[3], s[5])]
 case_list %= idx + colon + typex + rarrow + expr + semi + case_list, lambda h, s: [CaseExpressionNode(s[1], s[3], s[5])] + s[7]
-
-# <truth-expr>
-truth_expr %= notx + truth_expr, lambda h, s: NotNode(s[2])
-truth_expr %= arith, lambda h, s: s[1]
-
-# <comp-expr> 
-
 
 # <arith>
 arith %= arith + plus + term, lambda h, s: PlusNode(s[1], s[3])
