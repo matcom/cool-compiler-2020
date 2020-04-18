@@ -200,7 +200,6 @@ param_list %= param + comma + param_list, lambda h, s: [s[1]] + s[3]
 # <param>
 param %= idx + colon + typex, lambda h, s: (s[1], s[3])
 
-#TODO: Check precedence
 # <expr>
 expr %= notx + expr, lambda h, s: NotNode(s[2])
 expr %= expr + leq + expr, lambda h, s: LessEqualNode(s[1], s[3])
