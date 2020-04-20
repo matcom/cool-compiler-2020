@@ -1,7 +1,9 @@
 from sys import exit
-from core.cmp.CoolUtils import tokenize_text, CoolParser
-from core.cmp.lex import CoolLexer
 from pprint import pprint
+from core.cmp.visitors import *
+from core.cmp.lex import CoolLexer
+from core.cmp.evaluation import evaluate_reverse_parse
+from core.cmp.CoolUtils import tokenize_text, CoolParser
 
 
 def main(args):
@@ -33,7 +35,7 @@ def main(args):
         exit(1)
 
     # Parse
-    parse, (failure, token) = CoolParser(tokens)
+    (parse, operations), (failure, token) = CoolParser(tokens, get_shift_reduce=True)
     
     if failure:
         print(f"({token.row},{token.column}) - SyntacticError: Unexpected token {token}") #TODO: Use correct line and column
@@ -42,6 +44,47 @@ def main(args):
     # Comming soon pipeline steps
     #print(parse)
 
+    # AST
+    ast = evaluate_reverse_parse(parse, operations, tokens)
+
+    # Collect user types
+    collector = TypeCollector()
+    collector.visit(ast)
+    context = collector.context
+
+    if collector.errors:
+        # Display errors
+        pass
+
+    # Building types
+    builder = TypeBuilder(context)
+    builder.visit(ast)
+
+    if builder.errors:
+        # Display errors
+        pass
+
+    # Checking types
+    checker = TypeChecker(context)
+    scope = checker.visit(ast)
+
+    if checker.errors:
+        # Display errors
+        pass
+
+    # Infering types
+    inferer = InferenceVisitor(context)
+    while True:
+        old = scope.count_auto()
+        scope = inferer.visit(ast)
+        if old == scope.count_auto():
+            break
+    inferer.errors.clear()
+    scope = inferer.visit(ast)
+
+    if inferer.errors:
+        # Display errors
+        pass
 
     exit(0)
 
