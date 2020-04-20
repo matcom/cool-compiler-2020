@@ -14,7 +14,7 @@ def main(args):
     except:
         print(f"(0,0) - CompilerError: file {args.file} not found") #TODO: Customize errors
         exit(1)
-
+    
     # Lexer
     lexer = CoolLexer()
     
@@ -35,7 +35,7 @@ def main(args):
         exit(1)
 
     # Parse
-    (parse, operations), (failure, token) = CoolParser(tokens, get_shift_reduce=True)
+    parsedData, (failure, token) = CoolParser(tokens, get_shift_reduce=True)
     
     if failure:
         print(f"({token.row},{token.column}) - SyntacticError: Unexpected token {token}") #TODO: Use correct line and column
@@ -45,6 +45,7 @@ def main(args):
     #print(parse)
 
     # AST
+    parse, operations = parsedData
     ast = evaluate_reverse_parse(parse, operations, tokens)
 
     # Collect user types
