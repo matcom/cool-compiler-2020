@@ -45,12 +45,6 @@ def main(args):
         print(f"({token.row},{token.column}) - SyntacticError: Unexpected token {token}") #//TODO: Use correct line and column
         exit(1)
 
-    # Comming soon pipeline steps
-    #print(parse)
-    #//TODO: Semantic Check
-   
-    #//TODO: COOL to CIL
-
     # AST
     parse, operations = parsedData
     ast = evaluate_reverse_parse(parse, operations, tokens)
@@ -62,7 +56,7 @@ def main(args):
 
     if collector.errors:
         # Display errors
-        pass
+        print('Collector have errors!!')
 
     # Building types
     builder = TypeBuilder(context)
@@ -70,7 +64,7 @@ def main(args):
 
     if builder.errors:
         # Display errors
-        pass
+        print('Builder have errors!!')
 
     # Checking types
     checker = TypeChecker(context)
@@ -78,7 +72,7 @@ def main(args):
 
     if checker.errors:
         # Display errors
-        pass
+        print('Checker have errors!!')
 
     # Infering types
     inferer = InferenceVisitor(context)
@@ -92,7 +86,15 @@ def main(args):
 
     if inferer.errors:
         # Display errors
-        pass
+        print('Inferer have errors!!')
+
+    #CIL Transformation
+    cool_to_cil = COOLToCILVisitor(context)
+    cil_ast = cool_to_cil.visit(ast, scope)
+    formatter = get_formatter()
+    ast_cil = formatter(cil_ast)
+    print(ast_cil)
+    #Write cil to a source file
 
     exit(0)
 
