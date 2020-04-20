@@ -1,6 +1,8 @@
 from sys import exit
 from core.cmp.CoolUtils import tokenize_text, CoolParser
 from core.cmp.lex import CoolLexer
+from core.cmp.evaluation import *
+from core.cmp.cil import get_formatter
 from pprint import pprint
 
 
@@ -10,7 +12,7 @@ def main(args):
         with open(args.file, 'r') as fd:
             code = fd.read()
     except:
-        print(f"(0,0) - CompilerError: file {args.file} not found") #TODO: Customize errors
+        print(f"(0,0) - CompilerError: file {args.file} not found") #//TODO: Customize errors
         exit(1)
 
     # Lexer
@@ -36,12 +38,14 @@ def main(args):
     parse, (failure, token) = CoolParser(tokens)
     
     if failure:
-        print(f"({token.row},{token.column}) - SyntacticError: Unexpected token {token}") #TODO: Use correct line and column
+        print(f"({token.row},{token.column}) - SyntacticError: Unexpected token {token}") #//TODO: Use correct line and column
         exit(1)
 
     # Comming soon pipeline steps
     #print(parse)
-
+    #//TODO: Semantic Check
+   
+    #//TODO: COOL to CIL
 
     exit(0)
 
