@@ -247,7 +247,7 @@ class ShiftReduceParser:
 
             # Your code here!!! (Detect error)
             if state not in self.action or lookahead not in self.action[state]:
-                return None, (True, w[cursor]) #TODO: Build the correct error using `w[cursor]`
+                return None, (True, w[cursor]) #//TODO: Build the correct error using `w[cursor]`
 
             action, tag = list(self.action[state][lookahead])[0]
             # Your code here!!! (Shift case)
