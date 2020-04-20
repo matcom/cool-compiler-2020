@@ -4,6 +4,8 @@ from time import sleep
 from core.cmp.visitors import *
 from core.cmp.evaluation import *
 from core.cmp.lex import CoolLexer
+from core.cmp.cil import get_formatter
+from core.cmp.CoolUtils import CoolGrammar
 import sys
 from os.path import basename
 
@@ -94,6 +96,13 @@ def run_pipeline(G, text):
             tree = formatter.visit(ast)
             txt += 'AST:\n' + str(tree)
         data.append(txt)
+        txt = '============= TRANSFORMING TO CIL =============\n'
+        cool_to_cil = COOLToCILVisitor(context)
+        cil_ast = cool_to_cil.visit(ast, scope)
+        formatter = get_formatter()
+        ast_cil = formatter(cil_ast)
+        txt += 'AST-CIL:\n' + str(ast_cil)
+        data.append(txt)
     return '\n\n'.join(data)
 
 @eel.expose
@@ -117,11 +126,12 @@ if __name__ == '__main__':
     text = ""
     with open(input_file, 'r') as f:
         text = f.read()
-    lex = CoolLexer()
-    lex.build()
-    toks, errors = lex.tokenize(text)
+    # lex = CoolLexer()
+    # lex.build()
+    # toks, errors = lex.tokenize(text)
     
-    for token in toks:
-        if token.token_type == "ERROR":
-            print(token.lex)
+    # for token in toks:
+    #     if token.token_type == "ERROR":
+    #         print(token.lex)
+    print(run_pipeline(CoolGrammar, text))
        
