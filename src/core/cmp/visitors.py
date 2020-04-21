@@ -1363,6 +1363,16 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.visit(feature, child_scope)
                 
         self.current_type = None
+
+    @visitor.when(AttrDeclarationNode)
+    def visit(self, node, scope):
+        ###############################
+        # node.id -> str
+        # node.type -> str
+        # node.expr -> ExpressionNode
+        ###############################
+        #//TODO: Implement AttrDeclarationNode
+        pass
                 
     @visitor.when(FuncDeclarationNode)
     def visit(self, node, scope):
@@ -1393,10 +1403,65 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         self.current_method = None
 
+    @visitor.when(IfThenElseNode)
+    def visit(self, node, scope):
+        ###################################
+        # node.condition -> ExpressionNode
+        # node.if_body -> ExpressionNode
+        # node.else_body -> ExpressionNode
+        ##################################
+        #//TODO: Implement IfThenElseNode
+        pass
+
+    @visitor.when(WhileLoopNode)
+    def visit(self, node, scope):
+        ###################################
+        # node.condition -> ExpressionNode
+        # node.body -> ExpressionNode
+        ###################################
+         #//TODO: Implement WhileLoopNode
+        pass
+
+    @visitor.when(BlockNode)
+    def visit(self, node, scope):
+        #######################################
+        # node.exprs -> [ ExpressionNode ... ]
+        #######################################
+         #//TODO: Implement BlockNode
+        pass
+
+    @visitor.when(LetInNode)
+    def visit(self, node, scope):
+        ############################################
+        # node.let_body -> [ LetAttributeNode ... ]
+        # node.in_body -> ExpressionNode
+        ############################################
+         #//TODO: Implement LetInNode
+        pass
+
+    @visitor.when(CaseOfNode)
+    def visit(self, node, scope):
+        ##############################################
+        # node.expr -> ExpressionNode
+        # node.branches -> [ CaseExpressionNode ... }
+        ##############################################
+         #//TODO: Implement CaseOfNode
+        pass
+
+    @visitor.when(CaseExpressionNode)
+    def visit(self, node, scope):
+        ###############################
+        # node.id -> str
+        # node.type -> str
+        # node.expr -> ExpressionNode
+        ###############################
+        #//TODO: Implement CaseExpressionNode
+        pass
+
     @visitor.when(LetAttributeNode)
     def visit(self, node, scope):
         ###############################
-        # node.id -> strs
+        # node.id -> str
         # node.type -> str
         # node.expr -> ExpressionNode
         ###############################
@@ -1418,62 +1483,40 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             return self.register_instruction(cil.AssignNode(vname, expr.dest))
         return self.register_instruction(cil.AssignNode(vname, node.expr))
 
-    @visitor.when(FunctionCallNode)
+    @visitor.when(NotNode)
     def visit(self, node, scope):
         ###############################
-        # node.obj -> AtomicNode
-        # node.id -> str
-        # node.args -> [ ExpressionNode ... ]
-        # node.type -> str
+        # node.expr -> ExpressionNode
         ###############################
-        
-        for arg in node.args:
-            vname = self.define_internal_local()
-            value = self.visit(arg, scope)
-            self.register_instruction(cil.AssignNode(vname, value))
-            self.register_instruction(cil.ArgNode(vname))
-        result = self.define_internal_local()
-        
-        obj = self.visit(node.obj, scope)
-        if type(obj) is cil.AllocateNode:
-            return self.register_instruction(cil.StaticCallNode(self.to_function_name(node.id, obj.type), result))
-        elif type(obj) is str:
-            for n in [lv.name for lv in self.current_function.localvars]:
-                if obj in n.split("_"):
-                    return n
-        return None
+        #//TODO: Implement NotNode
+        pass
 
-    @visitor.when(IntegerNode)
+    @visitor.when(LessEqualNode)
     def visit(self, node, scope):
         ###############################
-        # node.lex -> str
+        # node.left -> ExpressionNode
+        # node.right -> ExpressionNode
         ###############################
-        
-        return node.lex
+        #//TODO: Implement LessEqualNode
+        pass
 
-    @visitor.when(IdNode)
+    @visitor.when(LessNode)
     def visit(self, node, scope):
         ###############################
-        # node.lex -> str
+        # node.left -> ExpressionNode
+        # node.right -> ExpressionNode
         ###############################
-        
-        param_names = [pn.name for pn in self.current_function.params]
-        if node.lex in param_names:
-            for n in param_names:
-                if node.lex in n.split("_"):
-                    return n
-        for n in [lv.name for lv in self.current_function.localvars]:
-            if node.lex in n.split("_"):
-                return n
+        #//TODO: Implement LessNode
+        pass
 
-    @visitor.when(NewNode)
+    @visitor.when(EqualNode)
     def visit(self, node, scope):
         ###############################
-        # node.type -> str
+        # node.left -> ExpressionNode
+        # node.right -> ExpressionNode
         ###############################
-        
-        instance = self.define_internal_local()
-        return self.register_instruction(cil.AllocateNode(node.type, instance))
+        #//TODO: Implement EqualNode
+        pass
 
     @visitor.when(PlusNode)
     def visit(self, node, scope):
@@ -1522,3 +1565,101 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         left = self.visit(node.left, scope)
         right = self.visit(node.right, scope)
         return self.register_instruction(cil.DivNode(star, left, right))
+
+    @visitor.when(IsVoidNode)
+    def visit(self, node, scope):
+        ###############################
+        # node.expr -> ExpressionNode
+        ###############################
+        #//TODO: Implement IsVoidNode
+        pass
+
+    @visitor.when(ComplementNode)
+    def visit(self, node, scope):
+        ###############################
+        # node.expr -> ExpressionNode
+        ###############################
+        #//TODO: Implement ComplementNode
+        pass
+
+    @visitor.when(FunctionCallNode)
+    def visit(self, node, scope):
+        ######################################
+        # node.obj -> AtomicNode
+        # node.id -> str
+        # node.args -> [ ExpressionNode ... ]
+        # node.type -> str
+        #####################################
+        
+        for arg in node.args:
+            vname = self.define_internal_local()
+            value = self.visit(arg, scope)
+            self.register_instruction(cil.AssignNode(vname, value))
+            self.register_instruction(cil.ArgNode(vname))
+        result = self.define_internal_local()
+        
+        obj = self.visit(node.obj, scope)
+        if type(obj) is cil.AllocateNode:
+            return self.register_instruction(cil.StaticCallNode(self.to_function_name(node.id, obj.type), result))
+        elif type(obj) is str:
+            for n in [lv.name for lv in self.current_function.localvars]:
+                if obj in n.split("_"):
+                    return n
+        return None
+
+    @visitor.when(MemberCallNode)
+    def visit(self, node, scope):
+        ######################################
+        # node.id -> str
+        # node.args -> [ ExpressionNode ... ]
+        ######################################
+        #//TODO: Implement MemberCallNode
+        pass
+
+    @visitor.when(NewNode)
+    def visit(self, node, scope):
+        ###############################
+        # node.type -> str
+        ###############################
+        
+        instance = self.define_internal_local()
+        return self.register_instruction(cil.AllocateNode(node.type, instance))
+
+    @visitor.when(IntegerNode)
+    def visit(self, node, scope):
+        ###############################
+        # node.lex -> str
+        ###############################
+        
+        return node.lex
+
+    @visitor.when(IdNode)
+    def visit(self, node, scope):
+        ###############################
+        # node.lex -> str
+        ###############################
+        
+        param_names = [pn.name for pn in self.current_function.params]
+        if node.lex in param_names:
+            for n in param_names:
+                if node.lex in n.split("_"):
+                    return n
+        for n in [lv.name for lv in self.current_function.localvars]:
+            if node.lex in n.split("_"):
+                return n
+
+    @visitor.when(StringNode)
+    def visit(self, node, scope):
+        ###############################
+        # node.lex -> str
+        ###############################
+        
+        return node.lex
+
+    @visitor.when(StringNode)
+    def visit(self, node, scope):
+        ###############################
+        # node.lex -> str
+        ###############################
+        
+        return node.lex
