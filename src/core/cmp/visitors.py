@@ -1415,8 +1415,26 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.if_body -> ExpressionNode
         # node.else_body -> ExpressionNode
         ##################################
-        #//TODO: Implement IfThenElseNode
-        pass
+        vret = self.define_internal_local()
+
+        then_label_node = self.register_label('then_label')
+        else_label_node = self.register_label('else_label')
+
+        #If x GOTO label
+        condition_value = self.visit(node.condition, scope).dest
+        self.register_instruction(cil.GotoIfNode(condition_value, then_label_node.label))
+        #GOTO else_label
+        self.register_instruction(cil.GotoNode(else_label_node.label))
+
+        self.register_instruction(then_label_node)
+        then_expr = self.visit(node.if_body, scope)
+        self.register_instruction(cil.AssignNode(vret, then_expr.dest))
+
+        self.register_instruction(else_label_node)
+        else_expr = self.visit(node.else_body, scope)
+        self.register_instruction(cil.AssignNode(vret, then_expr.dest))
+
+        scope.ret_expr = vret
 
     @visitor.when(WhileLoopNode)
     def visit(self, node, scope):
