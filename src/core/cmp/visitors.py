@@ -1415,24 +1415,24 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.if_body -> ExpressionNode
         # node.else_body -> ExpressionNode
         ##################################
-        vret = self.define_internal_local()
+        vret = self.register_local(VariableInfo('if_then_else_value', None))
 
         then_label_node = self.register_label('then_label')
         else_label_node = self.register_label('else_label')
 
-        #If x GOTO label
-        condition_value = self.visit(node.condition, scope).dest
-        self.register_instruction(cil.GotoIfNode(condition_value, then_label_node.label))
+        #If condition GOTO then_label
+        self.visit(node.condition, scope)
+        self.register_instruction(cil.GotoIfNode(scope.ret_expr.dest, then_label_node.label))
         #GOTO else_label
         self.register_instruction(cil.GotoNode(else_label_node.label))
-
+        #Label then_label
         self.register_instruction(then_label_node)
-        then_expr = self.visit(node.if_body, scope)
-        self.register_instruction(cil.AssignNode(vret, then_expr.dest))
-
+        self.visit(node.if_body, scope)
+        self.register_instruction(cil.AssignNode(vret, scope.ret_expr.dest))
+        #Label else_label
         self.register_instruction(else_label_node)
-        else_expr = self.visit(node.else_body, scope)
-        self.register_instruction(cil.AssignNode(vret, then_expr.dest))
+        self.visit(node.else_body, scope)
+        self.register_instruction(cil.AssignNode(vret, scope.ret_expr.dest))
 
         scope.ret_expr = vret
 
@@ -1442,8 +1442,29 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.condition -> ExpressionNode
         # node.body -> ExpressionNode
         ###################################
-         #//TODO: Implement WhileLoopNode
-        pass
+        vret = self.register_local(VariableInfo('while_value', None))
+
+        while_label_node = self.register_label('while_label')
+        loop_label_node = self.register_label('loop_label')
+        pool_label_node = self.register_label('pool_label')
+        #Label while
+        self.register_instruction(while_label_node)
+        #If condition GOTO loop
+        self.visit(node.condition, scope)
+        self.register_instruction(cil.GotoIfNode(scope.ret_expr.dest, loop_label_node.label))
+        #GOTO pool
+        self.register_instruction(cil.GotoNode(pool_label_node.label))
+        #Label loop
+        self.register_instruction(loop_label_node)
+        self.visit(node.body, scope)
+        self.register_instruction(cil.AssignNode(vret, scope.ret_expr.dest))
+        #GOTO while
+        self.register_instruction(cil.GotoNode(while_label_node.label))
+        #Label pool
+        self.register_instruction(pool_label_node)
+
+        scope.ret_expr = vret
+
 
     @visitor.when(BlockNode)
     def visit(self, node, scope):
