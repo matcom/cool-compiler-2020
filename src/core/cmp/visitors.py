@@ -1376,7 +1376,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.type -> str
         # node.expr -> ExpressionNode
         ###############################
-        #//TODO: Implement AttrDeclarationNode
+        #//TODO: Implement AttrDeclarationNode, assess whether this needs to be done
         pass
                 
     @visitor.when(FuncDeclarationNode)
@@ -1396,15 +1396,15 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         for param_name, _ in node.params:
             self.register_param(VariableInfo(param_name, None))
         
-        instructions = []
+        scope.ret_expr = None
         for instruction in node.body:
-            instructions.append(self.visit(instruction, scope))
+            self.visit(instruction, scope)
         # (Handle RETURN)
         #//TODO: Handle RETURN 0 and RETURN 
-        if type(instructions[-1]) is str:
-            self.register_instruction(cil.ReturnNode(instructions[-1]))
+        if type(scope.ret_expr) is str:
+            self.register_instruction(cil.ReturnNode(scope.ret_expr))
         else:
-            self.register_instruction(cil.ReturnNode(instructions[-1].dest))
+            self.register_instruction(cil.ReturnNode(scope.ret_expr.dest))
         
         self.current_method = None
 
