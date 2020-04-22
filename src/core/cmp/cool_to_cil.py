@@ -439,8 +439,22 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.id -> str
         # node.args -> [ ExpressionNode ... ]
         ######################################
-        #//TODO: Implement MemberCallNode
-        pass
+        method = [self.to_function_name(method.name, xtype.name) for method, xtype in self.current_type.all_methods() if method.name == node.id][0]
+        
+        args = []
+        for arg in node.args:
+            vname = self.register_local(VariableInfo(f'{node.id}_arg'))
+            self.visit(arg, scope)
+            self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
+            args.append(cil.ArgNode(vname))
+        result = self.register_local(VariableInfo(f'return_value_of_{node.id}'))
+
+        for arg in args:
+            self.register_instruction(arg)
+        
+        self.register_instruction(cil.StaticCallNode(method, result))
+        scope.ret_expr = result
+
 
     @visitor.when(cool.NewNode)
     def visit(self, node, scope):
