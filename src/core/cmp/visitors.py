@@ -364,10 +364,10 @@ class TypeChecker:
         for pname, ptype in zip(self.current_method.param_names, self.current_method.param_types):
             scope.define_variable(pname, ptype)
             
-        for expr in node.body:
-            self.visit(expr, scope)
+        # for expr in node.body:
+        self.visit(node.body, scope)
             
-        last_expr = node.body[-1]
+        last_expr = node.body
         last_expr_type = last_expr.computed_type
         method_rtn_type = self.current_method.return_type
 
@@ -778,10 +778,10 @@ class InferenceVisitor(object):
         for pname, ptype in zip(self.current_method.param_names, self.current_method.param_types):
             scope.define_variable(pname, ptype)
 
-        for expr in node.body:
-            self.visit(expr, scope)
+        # for expr in node.body:
+        self.visit(node.body, scope)
 
-        last_expr = node.body[-1]
+        last_expr = node.body
         last_expr_type = last_expr.computed_type
         method_rtn_type = self.current_method.return_type    
 
