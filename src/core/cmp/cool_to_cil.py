@@ -145,15 +145,17 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         for param_name, _ in node.params:
             self.register_param(VariableInfo(param_name, None))
         
+        #//TODO: Check whether a value of a expression is a string and see if it must be added to .DATA or not
         scope.ret_expr = None
         for instruction in node.body:
             self.visit(instruction, scope)
         # (Handle RETURN)
-        #//TODO: Handle RETURN 0 and RETURN 
-        if type(scope.ret_expr) is str:
-            self.register_instruction(cil.ReturnNode(scope.ret_expr))
+        if scope.ret_expr is None:
+            self.register_instruction(cil.ReturnNode(''))
+        elif self.current_function.name is 'entry':
+            self.register_instruction(cil.ReturnNode(0))
         else:
-            self.register_instruction(cil.ReturnNode(scope.ret_expr.dest))
+            self.register_instruction(cil.ReturnNode(scope.ret_expr))
         
         self.current_method = None
 
