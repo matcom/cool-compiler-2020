@@ -447,9 +447,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         # node.type -> str
         ###############################
-        
         instance = self.define_internal_local()
-        return self.register_instruction(cil.AllocateNode(node.type, instance))
+        self.register_instruction(cil.AllocateNode(node.type, instance))
+        scope.ret_expr = instance
 
     @visitor.when(cool.IntegerNode)
     def visit(self, node, scope):
