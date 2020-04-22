@@ -1317,6 +1317,11 @@ class BaseCOOLToCILVisitor:
         self.dotdata.append(data_node)
         return data_node
 
+    def register_label(self, label):
+        lname = f'{label}_{self.current_function.labels_count}'
+        self.current_function.labels_count += 1
+        return cil.LabelNode(lname)
+
 
 class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.on('node')
