@@ -456,29 +456,39 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         # node.lex -> str
         ###############################
-        
-        return node.lex
+        scope.ret_expr = node.lex
 
     @visitor.when(cool.IdNode)
     def visit(self, node, scope):
         ###############################
         # node.lex -> str
         ###############################
-        
         param_names = [pn.name for pn in self.current_function.params]
         if node.lex in param_names:
             for n in param_names:
                 if node.lex in n.split("_"):
-                    return n
-        for n in [lv.name for lv in self.current_function.localvars]:
-            if node.lex in n.split("_"):
-                return n
+                    scope.ret_expr = n
+                    break
+        else:
+            for n in [lv.name for lv in self.current_function.localvars]:
+                if node.lex in n.split("_"):
+                    scope.ret_expr = n
+                    break
 
     @visitor.when(cool.StringNode)
     def visit(self, node, scope):
         ###############################
         # node.lex -> str
         ###############################
-        
-        return node.lex
+        #//TODO: Check if this value must be added to .DATA or not
+        scope.ret_expr = node.lex
 
+    @visitor.when(cool.BoolNode)
+    def visit(self, node, scope):
+        ###############################
+        # node.lex -> str
+        ###############################
+        if node.lex is 'true':
+            scope.ret_expr = 1
+        else:
+            scope.ret_expr = 0
