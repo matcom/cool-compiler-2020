@@ -63,6 +63,15 @@ class StarNode(ArithmeticNode):
 class DivNode(ArithmeticNode):
     pass
 
+class LessEqualNode(ArithmeticNode):
+    pass
+
+class LessNode(ArithmeticNode):
+    pass
+
+class EqualNode(ArithmeticNode):
+    pass
+
 class GetAttribNode(InstructionNode):
     pass
 
@@ -149,6 +158,11 @@ class ReadNode(InstructionNode):
 class PrintNode(InstructionNode):
     def __init__(self, str_addr):
         self.str_addr = str_addr
+
+class ComplementNode(InstructionNode):
+    def __init__(self, dest, obj):
+        self.dest = dest
+        self.obj = obj
 
 def get_formatter():
 
