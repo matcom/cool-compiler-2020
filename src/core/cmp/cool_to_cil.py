@@ -173,17 +173,17 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         #If condition GOTO then_label
         self.visit(node.condition, scope)
-        self.register_instruction(cil.GotoIfNode(scope.ret_expr.dest, then_label_node.label))
+        self.register_instruction(cil.GotoIfNode(scope.ret_expr, then_label_node.label))
         #GOTO else_label
         self.register_instruction(cil.GotoNode(else_label_node.label))
         #Label then_label
         self.register_instruction(then_label_node)
         self.visit(node.if_body, scope)
-        self.register_instruction(cil.AssignNode(vret, scope.ret_expr.dest))
+        self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
         #Label else_label
         self.register_instruction(else_label_node)
         self.visit(node.else_body, scope)
-        self.register_instruction(cil.AssignNode(vret, scope.ret_expr.dest))
+        self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
 
         scope.ret_expr = vret
 
@@ -202,13 +202,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(while_label_node)
         #If condition GOTO loop
         self.visit(node.condition, scope)
-        self.register_instruction(cil.GotoIfNode(scope.ret_expr.dest, loop_label_node.label))
+        self.register_instruction(cil.GotoIfNode(scope.ret_expr, loop_label_node.label))
         #GOTO pool
         self.register_instruction(cil.GotoNode(pool_label_node.label))
         #Label loop
         self.register_instruction(loop_label_node)
         self.visit(node.body, scope)
-        self.register_instruction(cil.AssignNode(vret, scope.ret_expr.dest))
+        self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
         #GOTO while
         self.register_instruction(cil.GotoNode(while_label_node.label))
         #Label pool
@@ -235,7 +235,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         for let_att_node in node.let_body:
             self.visit(let_att_node, scope)
         self.visit(node.in_body, scope)
-        self.register_instruction(cil.AssignNode(vret, scope.ret_expr.dest))
+        self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
         scope.ret_expr = vret
         
     @visitor.when(cool.CaseOfNode)
@@ -264,10 +264,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.type -> str
         # node.expr -> ExpressionNode
         ###############################
-        
+        #//TODO: See if node.type is string prior to add it to .DATA ???
         vname = self.register_local(VariableInfo(node.id, node.type))
-        expr = self.visit(node.expr, scope)
-        return self.register_instruction(cil.AssignNode(vname, expr))
+        self.visit(node.expr, scope)
+        self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
+        scope.ret_expr = None
 
     @visitor.when(cool.AssignNode)
     def visit(self, node, scope):
@@ -277,10 +278,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         
         vname = self.register_local(VariableInfo(node.id, None))
-        expr = self.visit(node.expr, scope)
-        if issubclass(type(expr), cil.InstructionNode):
-            return self.register_instruction(cil.AssignNode(vname, expr.dest))
-        return self.register_instruction(cil.AssignNode(vname, node.expr))
+        self.visit(node.expr, scope)
+        self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
+        scope.ret_expr = vname
 
     @visitor.when(cool.NotNode)
     def visit(self, node, scope):
