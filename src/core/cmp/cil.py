@@ -89,13 +89,17 @@ class TypeOfNode(InstructionNode):
         self.dest = dest
 
 class LabelNode(InstructionNode):
-    pass
+    def __init__(self, label):
+        self.label = label
 
 class GotoNode(InstructionNode):
-    pass
+    def __init__(self, label):
+        self.label = label
 
 class GotoIfNode(InstructionNode):
-    pass
+    def __init__(self, condition, label):
+        self.condition = condition
+        self.label = label
 
 class StaticCallNode(InstructionNode):
     def __init__(self, function, dest):
