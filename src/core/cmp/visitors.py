@@ -14,6 +14,7 @@ INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
 CONDITION_NOT_BOOL = '"%s" conditions return type must be Bool not "%s"'
 
 build_in_types = [ 'Int', 'String', 'Bool', 'IO', 'SELF_TYPE', 'AUTO_TYPE' ]
+build_in_types = [ 'Int', 'String', 'Bool', 'IO', 'SELF_TYPE', 'AUTO_TYPE', 'Object']
 
 #AST Printer
 class FormatVisitor(object):
@@ -189,14 +190,14 @@ class TypeCollector(object):
                 
     @visitor.when(ClassDeclarationNode)
     def visit(self, node):
-        if node.id not in ['AUTO_TYPE', 'SELF_TYPE', 'self']:
+        if node.id not in build_in_types:
             try:
                 self.context.create_type(node.id)
                 self.type_level[node.id] = node.parent
             except SemanticError as ex:
                 self.errors.append(ex.text)
         else:
-            self.errors.append(f'{node.id} is a keyword and cannot be a class name')
+            self.errors.append(f'{node.id} is an invalid class name')
 
 # Type Builder
 class TypeBuilder:
