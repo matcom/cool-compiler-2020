@@ -27,6 +27,7 @@ class FunctionNode(Node):
         self.params = params
         self.localvars = localvars
         self.instructions = instructions
+        self.labels_count = 0
 
 class ParamNode(Node):
     def __init__(self, name):
