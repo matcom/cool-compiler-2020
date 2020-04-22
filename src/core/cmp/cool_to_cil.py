@@ -214,7 +214,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         scope.ret_expr = vret
 
-
     @visitor.when(cool.BlockNode)
     def visit(self, node, scope):
         #######################################
@@ -229,9 +228,14 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.let_body -> [ LetAttributeNode ... ]
         # node.in_body -> ExpressionNode
         ############################################
-         #//TODO: Implement LetInNode
-        pass
+        vret = self.register_local(VariableInfo('let_in_value', None))
 
+        for let_att_node in node.let_body:
+            self.visit(let_att_node, scope)
+        self.visit(node.in_body, scope)
+        self.register_instruction(cil.AssignNode(vret, scope.ret_expr.dest))
+        scope.ret_expr = vret
+        
     @visitor.when(cool.CaseOfNode)
     def visit(self, node, scope):
         ##############################################
