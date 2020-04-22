@@ -287,8 +287,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         # node.expr -> ExpressionNode
         ###############################
-        #//TODO: Implement NotNode
-        pass
+        vname = self.define_internal_local()
+        self.visit(node.expr, scope)
+        self.register_instruction(cil.MinusNode(vname, 1, scope.ret_expr))
+        scope.ret_expr = vname
 
     @visitor.when(cool.LessEqualNode)
     def visit(self, node, scope):
@@ -296,8 +298,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.left -> ExpressionNode
         # node.right -> ExpressionNode
         ###############################
-        #//TODO: Implement LessEqualNode
-        pass
+        vname = self.define_internal_local()
+        self.visit(node.left, scope)
+        left = scope.ret_expr
+        self.visit(node.right, scope)
+        right = scope.ret_expr
+        self.register_instruction(cil.LessEqualNode(vname, left, right))
+        scope.ret_expr = vname
 
     @visitor.when(cool.LessNode)
     def visit(self, node, scope):
@@ -305,8 +312,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.left -> ExpressionNode
         # node.right -> ExpressionNode
         ###############################
-        #//TODO: Implement LessNode
-        pass
+        vname = self.define_internal_local()
+        self.visit(node.left, scope)
+        left = scope.ret_expr
+        self.visit(node.right, scope)
+        right = scope.ret_expr
+        self.register_instruction(cil.LessNode(vname, left, right))
+        scope.ret_expr = vname
 
     @visitor.when(cool.EqualNode)
     def visit(self, node, scope):
@@ -314,8 +326,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.left -> ExpressionNode
         # node.right -> ExpressionNode
         ###############################
-        #//TODO: Implement EqualNode
-        pass
+        vname = self.define_internal_local()
+        self.visit(node.left, scope)
+        left = scope.ret_expr
+        self.visit(node.right, scope)
+        right = scope.ret_expr
+        self.register_instruction(cil.EqualNode(vname, left, right))
+        scope.ret_expr = vname
 
     @visitor.when(cool.PlusNode)
     def visit(self, node, scope):
@@ -323,11 +340,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.left -> ExpressionNode
         # node.right -> ExpressionNode
         ###############################
-        
-        plus = self.define_internal_local()
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
-        return self.register_instruction(cil.PlusNode(plus, left, right))
+        vname = self.define_internal_local()
+        self.visit(node.left, scope)
+        left = scope.ret_expr
+        self.visit(node.right, scope)
+        right = scope.ret_expr
+        self.register_instruction(cil.PlusNode(vname, left, right))
+        scope.ret_expr = vname
 
     @visitor.when(cool.MinusNode)
     def visit(self, node, scope):
@@ -335,11 +354,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.left -> ExpressionNode
         # node.right -> ExpressionNode
         ###############################
-        
-        minus = self.define_internal_local()
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
-        return self.register_instruction(cil.MinusNode(minus, left, right))
+        vname = self.define_internal_local()
+        self.visit(node.left, scope)
+        left = scope.ret_expr
+        self.visit(node.right, scope)
+        right = scope.ret_expr
+        self.register_instruction(cil.MinusNode(vname, left, right))
+        scope.ret_expr = vname
 
     @visitor.when(cool.StarNode)
     def visit(self, node, scope):
@@ -347,11 +368,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.left -> ExpressionNode
         # node.right -> ExpressionNode
         ###############################
-        
-        star = self.define_internal_local()
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
-        return self.register_instruction(cil.StarNode(star, left, right))
+        vname = self.define_internal_local()
+        self.visit(node.left, scope)
+        left = scope.ret_expr
+        self.visit(node.right, scope)
+        right = scope.ret_expr
+        self.register_instruction(cil.StarNode(vname, left, right))
+        scope.ret_expr = vname
 
     @visitor.when(cool.DivNode)
     def visit(self, node, scope):
@@ -359,11 +382,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.left -> ExpressionNode
         # node.right -> ExpressionNode
         ###############################
-        
-        div = self.define_internal_local()
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
-        return self.register_instruction(cil.DivNode(div, left, right))
+        vname = self.define_internal_local()
+        self.visit(node.left, scope)
+        left = scope.ret_expr
+        self.visit(node.right, scope)
+        right = scope.ret_expr
+        self.register_instruction(cil.DivNode(vname, left, right))
+        scope.ret_expr = vname
 
     @visitor.when(cool.IsVoidNode)
     def visit(self, node, scope):
@@ -378,8 +403,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         # node.expr -> ExpressionNode
         ###############################
-        #//TODO: Implement ComplementNode
-        pass
+        vname = self.define_internal_local()
+        self.visit(node.expr, scope)
+        self.register_instruction(cil.ComplementNode(vname, scope.ret_expr))
+        scope.ret_expr = vname
 
     @visitor.when(cool.FunctionCallNode)
     def visit(self, node, scope):
@@ -455,10 +482,3 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         return node.lex
 
-    @visitor.when(cool.StringNode)
-    def visit(self, node, scope):
-        ###############################
-        # node.lex -> str
-        ###############################
-        
-        return node.lex
