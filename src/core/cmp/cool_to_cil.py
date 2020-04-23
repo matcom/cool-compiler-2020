@@ -149,7 +149,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         for param_name, _ in node.params:
             self.register_param(VariableInfo(param_name, None))
         
-        #//TODO: Check whether a value of a expression is a string and see if it must be added to .DATA or not
         scope.ret_expr = None
         for instruction in node.body:
             self.visit(instruction, scope)
@@ -506,8 +505,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         # node.lex -> str
         ###############################
-        #//TODO: Check if this value must be added to .DATA or not
-        scope.ret_expr = node.lex
+        data_node = self.register_data(node.lex)
+        vname = self.register_local(VariableInfo('msg', None))
+        self.register_instruction(cil.LoadNode(vname, data_node.name))
+        scope.ret_expr = vname
 
     @visitor.when(cool.BoolNode)
     def visit(self, node, scope):
