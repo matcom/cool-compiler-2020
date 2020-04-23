@@ -246,9 +246,9 @@ class Scope:
         return num + sum([scp.count_auto() for scp in self.children])
 
 class CoolContext(Context):
-    def get_type(self, name:str, default=ErrorType()):
+    def get_type(self, name:str, default=None, change=False):
         target = super().get_type(name)
         print(target, target.name)
-        if target.name == "SELF_TYPE":
+        if target.name == "SELF_TYPE" and change:
             return default
         return target
