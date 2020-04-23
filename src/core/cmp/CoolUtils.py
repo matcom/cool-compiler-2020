@@ -145,6 +145,11 @@ class StringNode(AtomicNode):
 class BoolNode(AtomicNode):
     pass
 
+def FunctionCallNodeBuilder(obj, calls):
+    while len(calls):
+        obj = FunctionCallNode(obj, *calls[0])
+        calls.pop(0)
+    return obj
 
 # Grammar
 
@@ -240,12 +245,11 @@ factor_2 %= factor_3, lambda h, s: s[1]
 
 # <factor-3>
 factor_3 %= atom, lambda h, s: s[1]
-factor_3 %= atom + func_call, lambda h, s: FunctionCallNode(s[1], *s[2])
-factor_3 %= atom + func_call + invocation, lambda h, s: s[3], None, None, lambda h, s: FunctionCallNode(s[1], *s[2])
+factor_3 %= atom + invocation, lambda h, s: FunctionCallNodeBuilder(s[1], s[2])
 
 # <invocation>
-invocation %= func_call, lambda h, s: s[1]
-invocation %= func_call + invocation, lambda h, s: s[2], None, lambda h, s: FunctionCallNode(h[0], *s[1])
+invocation %= func_call, lambda h, s: [s[1]]
+invocation %= func_call + invocation, lambda h, s: [s[1]] + s[2]
 
 # <func-call>
 func_call %= dot + idx + opar + arg_list + cpar, lambda h, s: (s[2], s[4])
