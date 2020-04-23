@@ -975,7 +975,7 @@ class InferenceVisitor(object):
     @visitor.when(NotNode)
     def visit(self, node, scope):
         self.visit(node.expr, scope)
-        if IsAuto(node.expr.computed_type):
+        if IsAuto(node.expr.computed_type.name):
             self.update(node.expr, scope, self.context.get_type('Bool'))
             node.computed_type = node.expr.computed_type
         else:
