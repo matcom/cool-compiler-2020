@@ -1,6 +1,6 @@
 class AstNode:
     def accept(self, visitor):
-        visitor.visit(self)
+        return visitor.visit(self)
 
 
 class ProgramNode(AstNode):

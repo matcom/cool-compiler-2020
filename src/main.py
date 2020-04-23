@@ -1,6 +1,7 @@
 import sys
 import errors as err
 from lexer_parser import lexer, parser
+from semantic import semantic_check
 
 
 def exit_with_error(error):
@@ -26,6 +27,12 @@ def main():
         exit(1)
     if err.PARSER_ERRORS:
         for e in err.PARSER_ERRORS:
+            print(e)
+        exit(1)
+
+    semantic_check(ast)
+    if err.SEMANTIC_ERRORS:
+        for e in err.SEMANTIC_ERRORS:
             print(e)
         exit(1)
 
