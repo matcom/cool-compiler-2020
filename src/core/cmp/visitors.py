@@ -13,6 +13,7 @@ VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined.'
 INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
 CONDITION_NOT_BOOL = '"%s" conditions return type must be Bool not "%s"'
 
+ST, AT = ['SELF_TYPE', 'AUTO_TYPE']
 sealed = ['Int', 'String', 'Bool', 'SELF_TYPE', 'AUTO_TYPE']
 built_in_types = [ 'Int', 'String', 'Bool', 'IO', 'SELF_TYPE', 'AUTO_TYPE', 'Object']
 
@@ -37,6 +38,12 @@ def define_built_in_types(context):
     s.define_method('length', [], [], i)
     s.define_method('concat', ['s'], [s], s)
     s.define_method('substr', ['i', 'l'], [i, i], s)
+
+def match(type1, type2):
+    return IsAuto(type1.name) or type1.conforms_to(type2)
+
+def fixed_type(type1, type2):
+    return type1 if type1.name != ST else type2
 
 #AST Printer
 class FormatVisitor(object):
@@ -368,7 +375,7 @@ class TypeChecker:
         self.visit(node.expr, scope)
         expr_type = node.expr.computed_type
 
-        if not (IsAuto(expr_type.name) or expr_type.conforms_to(node_type)):
+        if not match(expr_type, node_type):
             self.errors.append(INCOMPATIBLE_TYPES.replace('%s', expr_type.name, 1).replace('%s', node_type.name, 1))
         
         node.computed_type = node_type 
@@ -385,9 +392,10 @@ class TypeChecker:
             
         last_expr = node.body
         last_expr_type = last_expr.computed_type
-        method_rtn_type = self.current_method.return_type
+        method_rtn_type = fixed_type(self.current_method.return_type, self.current_type)
 
-        if not last_expr_type.conforms_to(method_rtn_type):
+        # //TODO: be carefull whit void
+        if not match(last_expr_type, method_rtn_type):
             self.errors.append(INCOMPATIBLE_TYPES.replace('%s', last_expr_type.name, 1).replace('%s', method_rtn_type.name, 1))
             
     @visitor.when(AssignNode)
@@ -397,11 +405,11 @@ class TypeChecker:
         
         if scope.is_defined(node.id):
             var = scope.find_variable(node.id)
-            node_type = var.type       
+            node_type = fixed_type(var.type, self.current_type)       
             
             if var.name == 'self':
                 self.errors.append(SELF_IS_READONLY)
-            elif not (IsAuto(expr_type.name) or expr_type.conforms_to(node_type)): 
+            elif not match(expr_type, node_type): 
                 self.errors.append(INCOMPATIBLE_TYPES.replace('%s', expr_type.name, 1).replace('%s', node_type.name, 1))
         else:
             self.errors.append(VARIABLE_NOT_DEFINED.replace('%s', node.id, 1))
