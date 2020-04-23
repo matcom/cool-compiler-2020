@@ -244,3 +244,11 @@ class Scope:
             if var.type.name == 'AUTO_TYPE':
                 num += 1
         return num + sum([scp.count_auto() for scp in self.children])
+
+class CoolContext(Context):
+    def get_type(self, name:str, default=ErrorType()):
+        target = super().get_type(name)
+        print(target, target.name)
+        if target.name == "SELF_TYPE":
+            return default
+        return target
