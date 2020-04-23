@@ -243,7 +243,7 @@ class TypeBuilder:
     @visitor.when(AttrDeclarationNode)
     def visit(self, node):
         try:
-            attr_type = self.context.get_type(node.type, self.current_type)
+            attr_type = self.context.get_type(node.type)
         except SemanticError as ex:
             self.errors.append(ex.text)
             attr_type = ErrorType()
