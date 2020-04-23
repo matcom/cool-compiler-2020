@@ -3,7 +3,7 @@ from core.cmp.CoolUtils import *
 from core.cmp.semantic import SemanticError
 from core.cmp.semantic import Attribute, Method, Type
 from core.cmp.semantic import ErrorType, IntType, StringType, BoolType, IOType, VoidType
-from core.cmp.semantic import Context, Scope
+from core.cmp.semantic import CoolContext as Context, Scope
 
 WRONG_SIGNATURE = 'Method "%s" already defined in "%s" with a different signature.'
 SELF_IS_READONLY = 'Variable "self" is read-only.'
@@ -164,7 +164,7 @@ class TypeCollector(object):
         self.context.create_type('String').set_parent(obj)
         self.context.create_type('Bool').set_parent(obj)
         self.context.create_type('IO').set_parent(obj)
-        #self.context.create_type('SELF_TYPE')
+        self.context.create_type('SELF_TYPE')
         self.context.create_type('AUTO_TYPE')
         
         for def_class in node.declarations:
@@ -221,8 +221,7 @@ class TypeBuilder:
             if main.parent.name != 'Object':
                 self.errors.append('The class "Main" cannot inherits from any type.')
         except SemanticError:
-            self.errors.append('The class "Main" and his method "main" are needed.')
-            
+            self.errors.append('The class "Main" and his method "main" are needed.')         
     
     @visitor.when(ClassDeclarationNode)
     def visit(self, node):
@@ -244,7 +243,7 @@ class TypeBuilder:
     @visitor.when(AttrDeclarationNode)
     def visit(self, node):
         try:
-            attr_type = self.context.get_type(node.type) if node.type != 'SELF_TYPE' else self.current_type
+            attr_type = self.context.get_type(node.type, self.current_type)
         except SemanticError as ex:
             self.errors.append(ex.text)
             attr_type = ErrorType()
@@ -259,7 +258,7 @@ class TypeBuilder:
         arg_names, arg_types = [], []
         for idx, typex in node.params:
             try:
-                arg_type = self.context.get_type(typex) if node.type != 'SELF_TYPE' else self.current_type
+                arg_type = self.context.get_type(typex, self.current_type)
             except SemanticError as ex:
                 self.errors.append(ex.text)
                 arg_type = ErrorType()
@@ -268,7 +267,7 @@ class TypeBuilder:
             arg_types.append(arg_type)
         
         try:
-            ret_type = self.context.get_type(node.type) if node.type != 'SELF_TYPE' else self.current_type
+            ret_type = self.context.get_type(node.type, self.current_type)
         except SemanticError as ex:
             self.errors.append(ex.text)
             ret_type = ErrorType()
@@ -341,7 +340,7 @@ class TypeChecker:
     @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope):
         try:
-            node_type = self.context.get_type(node.type) if node.type != 'SELF_TYPE' else self.current_type
+            node_type = self.context.get_type(node.type, self.current_type)
         except SemanticError as ex:
             self.errors.append(ex.text)
             node_type = ErrorType()
@@ -432,7 +431,7 @@ class TypeChecker:
     @visitor.when(LetAttributeNode)
     def visit(self, node, scope):
         try:
-            node_type = self.context.get_type(node.type) if node.type != 'SELF_TYPE' else self.current_type
+            node_type = self.context.get_type(node.type, self.current_type)
         except SemanticError as ex:
             self.errors.append(ex.text)
             node_type = ErrorType()
@@ -872,7 +871,7 @@ class InferenceVisitor(object):
     def visit(self, node, scope):
         node.scope = scope
         try:
-            node_type = self.context.get_type(node.type) if node.type != 'SELF_TYPE' else self.current_type
+            node_type = self.context.get_type(node.type, self.current_type)
         except SemanticError as ex:
             self.errors.append(ex.text)
             node_type = ErrorType()
