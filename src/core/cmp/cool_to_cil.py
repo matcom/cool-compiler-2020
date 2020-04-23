@@ -421,21 +421,29 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.type -> str
         #####################################
         
+        args = []
         for arg in node.args:
-            vname = self.define_internal_local()
-            value = self.visit(arg, scope)
-            self.register_instruction(cil.AssignNode(vname, value))
-            self.register_instruction(cil.ArgNode(vname))
-        result = self.define_internal_local()
+            vname = self.register_local(VariableInfo(f'{node.id}_arg'))
+            self.visit(arg, scope)
+            self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
+            args.append(cil.ArgNode(vname))
+        result = self.register_local(VariableInfo(f'return_value_of_{node.id}'))
         
-        obj = self.visit(node.obj, scope)
-        if type(obj) is cil.AllocateNode:
-            return self.register_instruction(cil.StaticCallNode(self.to_function_name(node.id, obj.type), result))
-        elif type(obj) is str:
-            for n in [lv.name for lv in self.current_function.localvars]:
-                if obj in n.split("_"):
-                    return n
-        return None
+        for arg in args:
+            self.register_instruction(arg)
+
+        if node.type:
+            #Call of type <expr>@<type>.id(<expr>,...,<expr>)
+            at_type = [typex for typex in self.dottypes if typex.name == node.type][0]
+            #method = [method for method in at_type.methods if method.name == node.id][0]
+            self.register_instruction(cil.DynamicCallNode(at_type.name, self.to_function_name(node.id, at_type.name), result))
+            scope.ret_expr = result
+        else:
+            #Call of type <expr>.<id>(<expr>,...,<expr>)
+            #//TODO: Check if node,obj's type is void, and in that case throw runtime error
+            _, vtype = [vinfo for vinfo in scope.locals if vinfo.name == node.obj.lex][0]
+            self.register_instruction(cil.StaticCallNode(self.to_function_name(node.id, vtype), result))
+            scope.ret_expr = result
 
     @visitor.when(cool.MemberCallNode)
     def visit(self, node, scope):
