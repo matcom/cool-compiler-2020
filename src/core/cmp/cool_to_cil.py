@@ -140,8 +140,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_method = self.current_type.get_method(node.id)
         type_name = self.current_type.name
         
-        # (Handle PARAMS)
         self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
+        
+        # (Handle PARAMS)
+        #//TODO: Return type SELF_TYPE 
+        if self.current_method.return_type.name is self.current_type.name:
+            self.register_param(VariableInfo('self', None))
         for param_name, _ in node.params:
             self.register_param(VariableInfo(param_name, None))
         
