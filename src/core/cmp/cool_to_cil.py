@@ -196,7 +196,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.condition -> ExpressionNode
         # node.body -> ExpressionNode
         ###################################
-        vret = self.register_local(VariableInfo('while_value', None))
 
         while_label_node = self.register_label('while_label')
         loop_label_node = self.register_label('loop_label')
@@ -211,13 +210,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         #Label loop
         self.register_instruction(loop_label_node)
         self.visit(node.body, scope)
-        self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
         #GOTO while
         self.register_instruction(cil.GotoNode(while_label_node.label))
         #Label pool
         self.register_instruction(pool_label_node)
 
-        scope.ret_expr = vret
+        #The result of a while loop is void
+        scope.ret_expr = None
 
     @visitor.when(cool.BlockNode)
     def visit(self, node, scope):
@@ -465,7 +464,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         self.register_instruction(cil.StaticCallNode(method, result))
         scope.ret_expr = result
-
 
     @visitor.when(cool.NewNode)
     def visit(self, node, scope):
