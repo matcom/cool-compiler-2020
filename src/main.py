@@ -1,7 +1,6 @@
-import lexer as lex
-import parser as p
 import sys
 import errors as err
+from lexer_parser import lexer, parser
 
 
 def exit_with_error(error):
@@ -20,7 +19,7 @@ def main():
     except FileNotFoundError:
         exit_with_error(f'file {sys.argv[1]} not found')
 
-    ast = p.parser.parse(input_data, lex.lexer)
+    ast = parser.parse(input_data, lexer)
     if err.LEXER_ERRORS:
         for e in err.LEXER_ERRORS:
             print(e)

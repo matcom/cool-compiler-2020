@@ -1,7 +1,7 @@
 import ply.yacc as yacc
-from lexer import *
+from .lexer import *
 from errors import add_parser_error
-from ast import *
+from .ast import *
 
 precedence = (
     ('left', 'DOT'),
