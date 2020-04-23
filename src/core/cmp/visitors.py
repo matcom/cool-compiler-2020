@@ -9,7 +9,7 @@ WRONG_SIGNATURE = 'Method "%s" already defined in "%s" with a different signatur
 SELF_IS_READONLY = 'Variable "self" is read-only.'
 LOCAL_ALREADY_DEFINED = 'Variable "%s" is already defined in method "%s".'
 INCOMPATIBLE_TYPES = 'Cannot convert "%s" into "%s".'
-VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined in "%s".'
+VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined.'
 INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
 CONDITION_NOT_BOOL = '"%s" conditions return type must be Bool not "%s"'
 
@@ -389,7 +389,7 @@ class TypeChecker:
             elif not (IsAuto(expr_type.name) or expr_type.conforms_to(node_type)): 
                 self.errors.append(INCOMPATIBLE_TYPES.replace('%s', expr_type.name, 1).replace('%s', node_type.name, 1))
         else:
-            self.errors.append(VARIABLE_NOT_DEFINED.replace('%s', node.id, 1).replace('%s', self.current_method.name, 1))
+            self.errors.append(VARIABLE_NOT_DEFINED.replace('%s', node.id, 1))
             node_type = ErrorType()
         
         node.computed_type = node_type
@@ -589,7 +589,7 @@ class TypeChecker:
             var = scope.find_variable(node.lex)
             node_type = var.type       
         else:
-            self.errors.append(VARIABLE_NOT_DEFINED.replace('%s', node.lex, 1).replace('%s', self.current_method.name, 1))
+            self.errors.append(VARIABLE_NOT_DEFINED.replace('%s', node.lex, 1))
             node_type = ErrorType()
         
         node.computed_type = node_type
@@ -951,7 +951,7 @@ class InferenceVisitor(object):
                         self.update(node.expr, scope, node_type)
                         node.computed_type = node.expr.computed_type
         else:
-            self.errors.append(VARIABLE_NOT_DEFINED.replace('%s', node.id, 1).replace('%s', self.current_method.name, 1))
+            self.errors.append(VARIABLE_NOT_DEFINED.replace('%s', node.id, 1))
             node.computed_type = ErrorType()
         
     @visitor.when(IsVoidNode)
@@ -1104,7 +1104,7 @@ class InferenceVisitor(object):
             var = scope.find_variable(node.lex)
             node_type = var.type       
         else:
-            self.errors.append(VARIABLE_NOT_DEFINED.replace('%s', node.lex, 1).replace('%s', self.current_method.name, 1))
+            self.errors.append(VARIABLE_NOT_DEFINED.replace('%s', node.lex, 1))
             node_type = ErrorType()
         
         node.computed_type = node_type
