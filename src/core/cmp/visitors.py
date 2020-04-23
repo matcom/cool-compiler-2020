@@ -13,7 +13,7 @@ VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined in "%s".'
 INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
 CONDITION_NOT_BOOL = '"%s" conditions return type must be Bool not "%s"'
 
-build_in_types = [ 'Int', 'String', 'Bool', 'IO', 'SELF_TYPE', 'AUTO_TYPE' ]
+sealed = ['Int', 'String', 'Bool', 'SELF_TYPE', 'AUTO_TYPE']
 build_in_types = [ 'Int', 'String', 'Bool', 'IO', 'SELF_TYPE', 'AUTO_TYPE', 'Object']
 
 #AST Printer
@@ -218,7 +218,7 @@ class TypeBuilder:
         try:
             main = self.context.get_type('Main')
             main.get_method('main')
-            if main.parent.name != 'Object':
+            if not main.parent or main.parent.name != 'Object':
                 self.errors.append('The class "Main" cannot inherits from any type.')
         except SemanticError:
             self.errors.append('The class "Main" and his method "main" are needed.')
@@ -229,14 +229,14 @@ class TypeBuilder:
         self.current_type = self.context.get_type(node.id)
         
         if node.parent:
-            if node.parent in build_in_types:
+            if node.parent in sealed:
                 self.errors.append(f'Is not possible to inherits from "{node.parent}"')
-            else:
-                try:
-                    parent_type = self.context.get_type(node.parent)
-                    self.current_type.set_parent(parent_type)
-                except SemanticError as ex:
-                    self.errors.append(ex.text)
+                node.parent = 'Object'
+            try:
+                parent_type = self.context.get_type(node.parent)
+                self.current_type.set_parent(parent_type)
+            except SemanticError as ex:
+                self.errors.append(ex.text)
         
         for feature in node.features:
             self.visit(feature)
