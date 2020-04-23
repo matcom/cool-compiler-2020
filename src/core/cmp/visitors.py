@@ -258,7 +258,7 @@ class TypeBuilder:
         arg_names, arg_types = [], []
         for idx, typex in node.params:
             try:
-                arg_type = self.context.get_type(typex, self.current_type)
+                arg_type = self.context.get_type(typex)
             except SemanticError as ex:
                 self.errors.append(ex.text)
                 arg_type = ErrorType()
@@ -267,7 +267,7 @@ class TypeBuilder:
             arg_types.append(arg_type)
         
         try:
-            ret_type = self.context.get_type(node.type, self.current_type)
+            ret_type = self.context.get_type(node.type)
         except SemanticError as ex:
             self.errors.append(ex.text)
             ret_type = ErrorType()
