@@ -14,7 +14,29 @@ INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
 CONDITION_NOT_BOOL = '"%s" conditions return type must be Bool not "%s"'
 
 sealed = ['Int', 'String', 'Bool', 'SELF_TYPE', 'AUTO_TYPE']
-build_in_types = [ 'Int', 'String', 'Bool', 'IO', 'SELF_TYPE', 'AUTO_TYPE', 'Object']
+built_in_types = [ 'Int', 'String', 'Bool', 'IO', 'SELF_TYPE', 'AUTO_TYPE', 'Object']
+
+def define_built_in_types(context):
+    obj = context.create_type('Object')
+    i = context.create_type('Int').set_parent(obj)
+    s = context.create_type('String').set_parent(obj)
+    context.create_type('Bool').set_parent(obj)
+    io = context.create_type('IO').set_parent(obj)
+    st = context.create_type('SELF_TYPE')
+    context.create_type('AUTO_TYPE')
+
+    obj.define_method('abort', [], [], obj)
+    obj.define_method('type_name', [], [], s)
+    obj.define_method('copy', [], [], st)
+
+    io.define_method('out_string', ['x'], [s], st)
+    io.define_method('out_int', ['x'], [i], st)
+    io.define_method('in_string', [], [], s)
+    io.define_method('in_int', [], [], i)
+
+    s.define_method('length', [], [], i)
+    s.define_method('concat', ['s'], [s], s)
+    s.define_method('substr', ['i', 'l'], [i, i], s)
 
 #AST Printer
 class FormatVisitor(object):
@@ -159,13 +181,7 @@ class TypeCollector(object):
     @visitor.when(ProgramNode)
     def visit(self, node):
         self.context = Context()
-        obj = self.context.create_type('Object')
-        self.context.create_type('Int').set_parent(obj)
-        self.context.create_type('String').set_parent(obj)
-        self.context.create_type('Bool').set_parent(obj)
-        self.context.create_type('IO').set_parent(obj)
-        self.context.create_type('SELF_TYPE')
-        self.context.create_type('AUTO_TYPE')
+        define_built_in_types(self.context)
         
         for def_class in node.declarations:
             self.visit(def_class)
