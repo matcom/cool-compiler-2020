@@ -3,7 +3,7 @@ from core.cmp.CoolUtils import *
 from core.cmp.semantic import SemanticError
 from core.cmp.semantic import Attribute, Method, Type
 from core.cmp.semantic import ErrorType, IntType, StringType, BoolType, IOType, VoidType
-from core.cmp.semantic import CoolContext as Context, Scope
+from core.cmp.semantic import Context, Scope
 
 WRONG_SIGNATURE = 'Method "%s" already defined in "%s" with a different signature.'
 SELF_IS_READONLY = 'Variable "self" is read-only.'
@@ -15,14 +15,17 @@ CONDITION_NOT_BOOL = '"%s" conditions return type must be Bool not "%s"'
 
 ST, AT = ['SELF_TYPE', 'AUTO_TYPE']
 sealed = ['Int', 'String', 'Bool', 'SELF_TYPE', 'AUTO_TYPE']
-built_in_types = [ 'Int', 'String', 'Bool', 'IO', 'SELF_TYPE', 'AUTO_TYPE', 'Object']
+built_in_types = [ 'Int', 'String', 'Bool', 'Object', 'IO', 'SELF_TYPE', 'AUTO_TYPE']
 
 def define_built_in_types(context):
     obj = context.create_type('Object')
-    i = context.create_type('Int').set_parent(obj)
-    s = context.create_type('String').set_parent(obj)
+    i = context.create_type('Int')
+    i.set_parent(obj)
+    s = context.create_type('String')
+    s.set_parent(obj)
     context.create_type('Bool').set_parent(obj)
-    io = context.create_type('IO').set_parent(obj)
+    io = context.create_type('IO')
+    io.set_parent(obj)
     st = context.create_type('SELF_TYPE')
     context.create_type('AUTO_TYPE')
 
@@ -213,7 +216,7 @@ class TypeCollector(object):
                 
     @visitor.when(ClassDeclarationNode)
     def visit(self, node):
-        if node.id not in build_in_types:
+        if node.id not in built_in_types:
             try:
                 self.context.create_type(node.id)
                 self.type_level[node.id] = node.parent
@@ -363,7 +366,7 @@ class TypeChecker:
     @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope):
         try:
-            node_type = self.context.get_type(node.type, self.current_type)
+            node_type = self.context.get_type(node.type)
         except SemanticError as ex:
             self.errors.append(ex.text)
             node_type = ErrorType()
@@ -373,9 +376,9 @@ class TypeChecker:
             return
 
         self.visit(node.expr, scope)
-        expr_type = node.expr.computed_type
+        expr_type = fixed_type(node.expr.computed_type, self.current_type)
 
-        if not match(expr_type, node_type):
+        if not match(expr_type, fixed_type(node_type, self.current_type)):
             self.errors.append(INCOMPATIBLE_TYPES.replace('%s', expr_type.name, 1).replace('%s', node_type.name, 1))
         
         node.computed_type = node_type 
@@ -391,7 +394,7 @@ class TypeChecker:
         self.visit(node.body, scope)
             
         last_expr = node.body
-        last_expr_type = last_expr.computed_type
+        last_expr_type = fixed_type(last_expr.computed_type, self.current_type)
         method_rtn_type = fixed_type(self.current_method.return_type, self.current_type)
 
         # //TODO: be carefull whit void
@@ -405,11 +408,11 @@ class TypeChecker:
         
         if scope.is_defined(node.id):
             var = scope.find_variable(node.id)
-            node_type = fixed_type(var.type, self.current_type)       
+            node_type = var.type       
             
             if var.name == 'self':
                 self.errors.append(SELF_IS_READONLY)
-            elif not match(expr_type, node_type): 
+            elif not match(fixed_type(expr_type, self.current_type), fixed_type(node_type, self.current_type)): 
                 self.errors.append(INCOMPATIBLE_TYPES.replace('%s', expr_type.name, 1).replace('%s', node_type.name, 1))
         else:
             self.errors.append(VARIABLE_NOT_DEFINED.replace('%s', node.id, 1))
@@ -424,7 +427,8 @@ class TypeChecker:
         
         types_list = []
         for case in node.branches:
-            self.visit(case.expr, scope)
+            self.visit(case.expr, scope.create_child())
+            # //TODO: be carefull whit void
             has_auto |= IsAuto(case.expr.computed_type.name)
             has_error |= case.expr.computed_type.name == '<error>'
             types_list.append(case.expr.computed_type)
@@ -434,7 +438,10 @@ class TypeChecker:
         elif has_auto:
             node.computed_type = self.context.get_type('AUTO_TYPE')
         else:
-            node.computed_type = LCA(types_list, self.context)
+            if all([t.name == ST for t in types_list]):
+                node.computed_type = types_list[0]
+            else:
+                node.computed_type = LCA([fixed_type(t, self.current_type) for t in types_list], self.context)
 
     @visitor.when(CaseExpressionNode)
     def visit(self, node, scope):
@@ -455,7 +462,7 @@ class TypeChecker:
     @visitor.when(LetAttributeNode)
     def visit(self, node, scope):
         try:
-            node_type = self.context.get_type(node.type, self.current_type)
+            node_type = self.context.get_type(node.type)
         except SemanticError as ex:
             self.errors.append(ex.text)
             node_type = ErrorType()
@@ -472,9 +479,8 @@ class TypeChecker:
         self.visit(node.expr, scope)
         expr_type = node.expr.computed_type
         
-        if not(IsAuto(expr_type.name) or expr_type.conforms_to(node_type)):
+        if not match(fixed_type(expr_type, self.current_type), fixed_type(node_type, self.current_type)): 
             self.errors.append(INCOMPATIBLE_TYPES.replace('%s', expr_type.name, 1).replace('%s', node_type.name, 1))
-          
         
         node.computed_type = node_type
         
@@ -491,12 +497,17 @@ class TypeChecker:
         
         if node.else_body:
             self.visit(node.else_body, scope)
+            # //TODO: Check priority preference between AUTO and Error
             if IsAuto(node.if_body.computed_type.name) or IsAuto(node.else_body.computed_type.name):
                 node.computed_type = self.context.get_type('AUTO_TYPE')
             elif '<error>' in [node.if_body.computed_type.name, node.else_body.computed_type.name]:
                 node.computed_type = ErrorType()
             else:
-                node.computed_type = LCA([node.if_body.computed_type, node.else_body.computed_type], self.context)
+                types_list = [node.if_body.computed_type, node.else_body.computed_type]
+                if all([t.name == ST for t in types_list]):
+                    node.computed_type = types_list[0]
+                else:
+                    node.computed_type = LCA([fixed_type(t, self.current_type) for t in types_list], self.context)
             
     @visitor.when(BlockNode)
     def visit(self, node, scope):
@@ -522,17 +533,12 @@ class TypeChecker:
         self.visit(node.obj, scope)
         obj_type = node.obj.computed_type
         
-        if node.type:
-            try:
+        try:
+            if node.type:
                 if IsAuto(node.type):
                     raise SemanticError('Is not possible to use AUTO_TYPE in a cast')
                 if not obj_type.conforms_to(self.context.get_type(node.type)):
                     self.errors.append(INCOMPATIBLE_TYPES.replace('%s', obj_type.name, 1).replace('%s', node.type, 1))
-            except SemanticError as ex:
-                self.errors.append(ex.text)
-
-        try:
-            if node.type:
                 obj_method = self.context.get_type(node.type).get_method(node.id)
             else:
                 obj_method = obj_type.get_method(node.id)
@@ -540,9 +546,9 @@ class TypeChecker:
             if len(node.args) == len(obj_method.param_types):
                 for arg, param_type in zip(node.args, obj_method.param_types):
                     self.visit(arg, scope)
-                    arg_type = arg.computed_type
+                    arg_type = fixed_type(arg.computed_type, self.current_type)
                     
-                    if not (IsAuto(arg_type.name) or arg_type.conforms_to(param_type)):
+                    if not match(arg_type, fixed_type(param_type, self.current_type)):
                         self.errors.append(INCOMPATIBLE_TYPES.replace('%s', arg_type.name, 1).replace('%s', param_type.name, 1))
             else:
                 self.errors.append(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
@@ -564,9 +570,9 @@ class TypeChecker:
             if len(node.args) == len(obj_method.param_types):
                 for arg, param_type in zip(node.args, obj_method.param_types):
                     self.visit(arg, scope)
-                    arg_type = arg.computed_type
+                    arg_type = fixed_type(arg.computed_type, self.current_type)
                     
-                    if not (IsAuto(arg_type.name) or arg_type.conforms_to(param_type)):
+                    if not match(arg_type, fixed_type(param_type, self.current_type)):
                         self.errors.append(INCOMPATIBLE_TYPES.replace('%s', arg_type.name, 1).replace('%s', param_type.name, 1))
             else:
                 self.errors.append(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
@@ -586,7 +592,7 @@ class TypeChecker:
         self.visit(node.right, scope)
         right_type = node.right.computed_type
         
-        if not (IsAuto(left_type.name) or left_type.conforms_to(IntType())) or not (IsAuto(right_type.name) or right_type.conforms_to(IntType())):
+        if not (left_type.name == 'Int' and right_type.name == 'Int'):
             self.errors.append(INVALID_OPERATION.replace('%s', left_type.name, 1).replace('%s', right_type.name, 1))
             node_type = ErrorType()
         else:
@@ -619,7 +625,7 @@ class TypeChecker:
 
     @visitor.when(NewNode)
     def visit(self, node, scope):
-        if node.type in build_in_types:
+        if node.type in built_in_types[:3]:
             self.errors.append(f'It cannot be initialized a {node.type} with the new keyword')
             node.computed_type = ErrorType()
         else:
@@ -639,7 +645,7 @@ class TypeChecker:
     @visitor.when(ComplementNode)
     def visit(self, node, scope):
         self.visit(node.expr, scope)
-        if not (IsAuto(node.expr.computed_type.name) or node.expr.computed_type.name != 'Int'):
+        if node.expr.computed_type.name != 'Int':
             self.errors.append("Complement works only for Int")
             node.computed_type = ErrorType()
         else:
@@ -648,11 +654,27 @@ class TypeChecker:
     @visitor.when(NotNode)
     def visit(self, node, scope):
         self.visit(node.expr, scope)
-        if not (IsAuto(node.expr.computed_type.name) or node.expr.computed_type.name != 'Bool'):
+        if node.expr.computed_type.name != 'Bool':
             self.errors.append("Not operator works only for Bool")
             node.computed_type = ErrorType()
         else:
             node.computed_type = self.context.get_type('Bool')
+
+    @visitor.when(EqualNode)
+    def visit(self, node, scope):
+        self.visit(node.left, scope)
+        left_type = node.left.computed_type
+        
+        self.visit(node.right, scope)
+        right_type = node.right.computed_type
+        
+        if not (left_type.name == right_type.name and left_type.name in built_in_types[:3]):
+            self.errors.append(INVALID_OPERATION.replace('%s', left_type.name, 1).replace('%s', right_type.name, 1))
+            node_type = ErrorType()
+        else:
+            node_type = right_type
+            
+        node.computed_type = node_type
 
 # Type Inference Visitor
 class InferenceVisitor(object):
@@ -707,7 +729,11 @@ class InferenceVisitor(object):
 
             names = [node.if_body.computed_type.name, node.else_body.computed_type.name]
             if 'AUTO_TYPE' not in names and '<error>' not in names:
-                node.computed_type = LCA([node.if_body.computed_type, node.else_body.computed_type], self.context)
+                types_list = [node.if_body.computed_type, node.else_body.computed_type]
+                if all([t.name == ST for t in types_list]):
+                    node.computed_type = types_list[0]
+                else:
+                    node.computed_type = LCA([fixed_type(t, self.current_type) for t in types_list], self.context)
             else:
                 if '<error>' in names:
                     node.computed_type = ErrorType()
@@ -731,7 +757,10 @@ class InferenceVisitor(object):
         elif has_auto:
             node.computed_type = self.context.get_type('AUTO_TYPE')
         else:
-            node.computed_type = LCA(types_list)
+            if all([t.name == ST for t in types_list]):
+                node.computed_type = types_list[0]
+            else:
+                node.computed_type = LCA([fixed_type(t, self.current_type) for t in types_list], self.context)
 
     @visitor.when(CaseExpressionNode)
     def update(self, node, scope, ntype):
@@ -843,7 +872,11 @@ class InferenceVisitor(object):
             self.visit(node.else_body, scope)
             names = [node.if_body.computed_type.name, node.else_body.computed_type.name]
             if 'AUTO_TYPE' not in names and '<error>' not in names:
-                node.computed_type = LCA([node.if_body.computed_type, node.else_body.computed_type], self.context)
+                types_list = [node.if_body.computed_type, node.else_body.computed_type]
+                if all([t.name == ST for t in types_list]):
+                    node.computed_type = types_list[0]
+                else:
+                    node.computed_type = LCA([fixed_type(t, self.current_type) for t in types_list], self.context)
             else:
                 if '<error>' in names:
                     node.computed_type = ErrorType()
@@ -942,7 +975,10 @@ class InferenceVisitor(object):
         elif has_auto:
             node.computed_type = self.context.get_type('AUTO_TYPE')
         else:
-            node.computed_type = LCA(types_list, self.context)
+            if all([t.name == ST for t in types_list]):
+                node.computed_type = types_list[0]
+            else:
+                node.computed_type = LCA([fixed_type(t, self.current_type) for t in types_list], self.context)
         
     @visitor.when(CaseExpressionNode)
     def visit(self, node, scope):
