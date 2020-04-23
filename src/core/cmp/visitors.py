@@ -218,7 +218,7 @@ class TypeBuilder:
         try:
             main = self.context.get_type('Main')
             main.get_method('main')
-            if not main.parent or main.parent.name != 'Object':
+            if main.parent.name != 'Object':
                 self.errors.append('The class "Main" cannot inherits from any type.')
         except SemanticError:
             self.errors.append('The class "Main" and his method "main" are needed.')
