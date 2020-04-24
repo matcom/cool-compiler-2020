@@ -183,6 +183,7 @@ class TypeCollector:
         self.context = None
         self.errors = errors
         self.type_level = {}
+        self.parent = {}
     
     @visitor.on('node')
     def visit(self, node):
@@ -204,7 +205,7 @@ class TypeCollector:
                 return 0
             
             if parent == 0:
-                self.errors.append('Cyclic heritage.')
+                self.errors.append(('Cyclic heritage.', self.parent[typex]))
             elif type(parent) is not int:
                 self.type_level[typex] = 0 if parent else 1
                 if type(parent) is str:
@@ -220,10 +221,11 @@ class TypeCollector:
             try:
                 self.context.create_type(node.id)
                 self.type_level[node.id] = node.parent
+                self.parent[node.id] = node.tparent
             except SemanticError as ex:
                 self.errors.append(ex.text)
         else:
-            self.errors.append(f'{node.id} is an invalid class name')
+            self.errors.append((f'{node.id} is an invalid class name', node.tid))
 
 # Type Builder
 class TypeBuilder:
