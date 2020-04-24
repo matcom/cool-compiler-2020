@@ -83,13 +83,16 @@ class BinaryNode(ExpressionNode):
         self.left = left
         self.right = right
 
-class LessEqualNode(BinaryNode):
+class ComparisonNode(BinaryNode):
     pass
 
-class LessNode(BinaryNode):
+class LessEqualNode(ComparisonNode):
     pass
 
-class EqualNode(BinaryNode):
+class LessNode(ComparisonNode):
+    pass
+
+class EqualNode(ComparisonNode):
     pass
 
 class ArithmeticNode(BinaryNode):
