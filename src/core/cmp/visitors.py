@@ -795,7 +795,7 @@ class InferenceVisitor(TypeChecker):
     def visit(self, node, scope):
         pass
     
-    @visitor.on(Node)
+    @visitor.when(Node)
     def visit(self, node, scope):
         super().visit(node, scope)
     
