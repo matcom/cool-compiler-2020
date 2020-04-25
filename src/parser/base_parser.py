@@ -1,15 +1,15 @@
-from tools.tokens import tokens
+from utils.tokens import tokens
 import os
 import ply.yacc as yacc
 
-from logger import log
-from lexer import CoolLexer
-from tools.tokens import tokens
+from parser.logger import log
+from lexer.lexer import CoolLexer
+from utils.tokens import tokens
 
 class Parser:
     def __init__(self, lexer=None):
         self.lexer = lexer if lexer else CoolLexer()
-        self.outputdir = 'src/output_parser'
+        self.outputdir = 'parser/output_parser'
         self.tokens = tokens
         self.errors = False
         self.parser = yacc.yacc(start='program',

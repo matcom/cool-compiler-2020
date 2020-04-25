@@ -49,6 +49,10 @@ def compare_errors(compiler_path: str, cool_file_path: str, error_file_path: str
         errors = fd.read().split('\n')
         fd.close()
 
+        print('OUTPUT')
+        print(compiler_output[2:])
+        print('ERRORS')
+        print(errors)
         # checking the errors of compiler
         cmp(compiler_output[2:], errors)
     else:

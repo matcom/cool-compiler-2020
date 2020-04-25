@@ -15,86 +15,99 @@ class ErrorNode(Node):
     pass
 
 class ClassDeclarationNode(DeclarationNode):
-    def __init__(self, idx, features, parent=None):
+    def __init__(self, idx, features, pos, parent=None):
         self.id = idx
         self.parent = parent
         self.features = features
+        self.pos = pos
 
 class FuncDeclarationNode(DeclarationNode):
-    def __init__(self, idx, params, return_type, body):
+    def __init__(self, idx, params, return_type, body, pos):
         self.id = idx
         self.params = params
         self.type = return_type
         self.body = body
+        self.pos = pos
+        self.pos = pos
 
 class AttrDeclarationNode(DeclarationNode):
-    def __init__(self, idx, typex, expr=None):
+    def __init__(self, idx, typex, pos, expr=None):
         self.id = idx
         self.type = typex
         self.expr = expr
+        self.pos = pos
 
 class VarDeclarationNode(ExpressionNode):
-    def __init__(self, idx, typex, expr=None):
+    def __init__(self, idx, typex, pos, expr=None):
         self.id = idx
         self.type = typex
         self.expr = expr
+        self.pos = pos
 
 class AssignNode(ExpressionNode):
-    def __init__(self, idx, expr):
+    def __init__(self, idx, expr, pos):
         self.id = idx
         self.expr = expr
+        self.pos = pos
 
 class CallNode(ExpressionNode):
-    def __init__(self, obj, idx, args):
+    def __init__(self, obj, idx, args, pos):
         self.obj = obj
         self.id = idx
         self.args = args
+        self.pos = pos
 
 class BlockNode(ExpressionNode):
-    def __init__(self, expr_list):
+    def __init__(self, expr_list, pos):
         self.expr_list = expr_list
+        self.pos = pos
 
 class BaseCallNode(ExpressionNode):
-    def __init__(self, obj, typex, idx, args):
+    def __init__(self, obj, typex, idx, args, pos):
         self.obj = obj
         self.id = idx
         self.args = args
         self.type = typex
+        self.pos = pos
 
 
 class StaticCallNode(ExpressionNode):
-    def __init__(self, idx, args):
+    def __init__(self, idx, args, pos):
         self.id = idx
         self.args = args
+        self.pos = pos
 
 
 class AtomicNode(ExpressionNode):
-    def __init__(self, lex):
+    def __init__(self, lex, pos):
         self.lex = lex
+        self.pos = pos
 
 class BinaryNode(ExpressionNode):
-    def __init__(self, left, right):
+    def __init__(self, left, right, pos):
         self.left = left
         self.right = right
+        self.pos = pos
 
 class BinaryLogicalNode(BinaryNode):
-    def __init__(self, left, right):
-        super().__init__(left, right)
+    def __init__(self, left, right, pos):
+        super().__init__(left, right, pos)
 
 class BinaryArithNode(BinaryNode):
-    def __init__(self, left, right):
-        super().__init__(left, right)
+    def __init__(self, left, right, pos):
+        super().__init__(left, right, pos)
 
 class UnaryNode(ExpressionNode):
-    def __init__(self, expr):
+    def __init__(self, expr, pos):
         self.expr = expr
+        self.pos = pos
 
 class UnaryLogicalNode(UnaryNode):
-    def __init__(self, operand):
-        super().__init__(operand)
+    def __init__(self, operand, pos):
+        super().__init__(operand, pos)
 
 class UnaryArithNode(UnaryNode):
-    def __init__(self, operand):
+    def __init__(self, operand, pos):
         super().__init__(operand)
 
 class WhileNode(ExpressionNode):
