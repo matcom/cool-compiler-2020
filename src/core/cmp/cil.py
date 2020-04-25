@@ -73,10 +73,16 @@ class EqualNode(ArithmeticNode):
     pass
 
 class GetAttribNode(InstructionNode):
-    pass
+    def __init__(self, dest, xtype, attr):
+        self.dest = dest
+        self.xtype = xtype
+        self.attr = attr
 
 class SetAttribNode(InstructionNode):
-    pass
+    def __init__(self, xtype, attr, value):
+        self.xtype = xtype
+        self.attr = attr
+        self.value = value
 
 class GetIndexNode(InstructionNode):
     pass

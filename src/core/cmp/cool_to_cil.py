@@ -1,7 +1,7 @@
 import core.cmp.visitor as visitor
 import core.cmp.cil as cil
 import core.cmp.CoolUtils as cool
-from core.cmp.semantic import Attribute, Method, Type, VariableInfo
+from core.cmp.semantic import Attribute, Method, Type, VariableInfo, SemanticError
 
 class BaseCOOLToCILVisitor:
     def __init__(self, context):
@@ -360,10 +360,15 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.expr -> ExpressionNode
         ###############################
         
-        vname = self.register_local(VariableInfo(node.id, None))
         self.visit(node.expr, scope)
-        self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
-        scope.ret_expr = vname
+
+        try:
+            self.current_type.attributes.get_attribute(node.id)
+            self.register_instruction(cil.SetAttribNode(self.current_type.name, node.id, scope.ret_expr))
+        except SemanticError:
+            vname = self.register_local(VariableInfo(node.id, None))
+            self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
+            scope.ret_expr = vname
 
     @visitor.when(cool.NotNode)
     def visit(self, node, scope):
@@ -569,17 +574,23 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         # node.lex -> str
         ###############################
-        param_names = [pn.name for pn in self.current_function.params]
-        if node.lex in param_names:
-            for n in param_names:
-                if node.lex in n.split("_"):
-                    scope.ret_expr = n
-                    break
-        else:
-            for n in [lv.name for lv in self.current_function.localvars]:
-                if node.lex in n.split("_"):
-                    scope.ret_expr = n
-                    break
+        try:
+            self.current_type.attributes.get_attribute(node.lex)
+            attr = self.register_local(VariableInfo('attr_value', None))
+            self.register_instruction(cil.GetAttribNode(attr, self.current_type.name, node.lex))
+            scope.ret_expr = attr
+        except SemanticError:
+            param_names = [pn.name for pn in self.current_function.params]
+            if node.lex in param_names:
+                for n in param_names:
+                    if node.lex in n.split("_"):
+                        scope.ret_expr = n
+                        break
+            else:
+                for n in [lv.name for lv in self.current_function.localvars]:
+                    if node.lex in n.split("_"):
+                        scope.ret_expr = n
+                        break
 
     @visitor.when(cool.StringNode)
     def visit(self, node, scope):
