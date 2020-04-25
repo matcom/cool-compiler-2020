@@ -36,6 +36,18 @@ def __check_type_hierarchy__(node: ProgramNode):
     return True
 
 
+def __check_inherits__(typeA, typeB):
+    '''
+    Return True if typeA <= typeB
+    '''
+    current = typeA
+    while current != typeB:
+        if current is None:
+            return False
+        current = TypesHierarchy[current]
+    return True
+
+
 class ProgramVisitor(Visitor):
     def __init__(self):
         super().__init__({}, {}, None)
@@ -83,7 +95,7 @@ class DefAttrVisitor(Visitor):
     def visit(self, node: DefAttrNode):
         if node.expr:
             expr_type = node.expr.accept(DefExpressionVisitor(self.MethodEnv, self.ObjectEnv, self.CurrentClass))
-            if expr_type != self.ObjectEnv[node.id]:
+            if not __check_inherits__(expr_type, self.ObjectEnv[node.id]):
                 add_semantic_error(0, 0, f'Invalid type {expr_type}')
 
 
@@ -104,6 +116,12 @@ class DefExpressionVisitor(Visitor):
             return IntType
         if type(node) is StringNode:
             return StringType
+        if type(node) is VarNode:
+            try:
+                return self.ObjectEnv[node.id]
+            except KeyError:
+                add_semantic_error(0, 0, f'invalid variable {node.id}')
+                return
 
 
 def semantic_check(node):
