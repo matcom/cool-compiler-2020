@@ -3,6 +3,7 @@ from core.cmp.functions import LR1Parser
 from core.cmp.utils import Token, tokenizer
 
 empty_token = Token("", "")
+empty_token.row, empty_token.column = (0, 0)
 
 # AST Classes
 class Node:
@@ -16,12 +17,16 @@ class DeclarationNode(Node):
     pass
 
 class ClassDeclarationNode(DeclarationNode):
-    def __init__(self, idx, features, parent=Token('Object', "")):
+    def __init__(self, idx, features, parent=None):
         self.id = idx.lex
         self.tid = idx
+        self.features = features
+        if not parent:
+            parent = Token("Object", "type")
+            parent.row = idx.row
+            parent.column = idx.column
         self.parent = parent.lex
         self.tparent = parent
-        self.features = features
 
 class AttrDeclarationNode(DeclarationNode):
     def __init__(self, idx, typex, expr=None, arrow=empty_token):
@@ -171,6 +176,15 @@ def FunctionCallNodeBuilder(obj, calls):
         calls.pop(0)
     return obj
 
+class Param:
+    def __init__(self, tid, ttype):
+        self.tid = tid
+        self.ttype = ttype
+        
+    def __iter__(self):
+        yield self.tid.lex
+        yield self.ttype.lex
+        
 # Grammar
 
 CoolGrammar = Grammar()
@@ -223,7 +237,7 @@ param_list %= param, lambda h, s: [s[1]]
 param_list %= param + comma + param_list, lambda h, s: [s[1]] + s[3]
 
 # <param>
-param %= idx + colon + typex, lambda h, s: (s[1], s[3])
+param %= idx + colon + typex, lambda h, s: Param(s[1], s[3])
 
 # <expr>
 expr %= notx + expr, lambda h, s: NotNode(s[2], s[1])

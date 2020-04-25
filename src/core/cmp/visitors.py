@@ -223,7 +223,7 @@ class TypeCollector:
                 self.type_level[node.id] = node.parent
                 self.parent[node.id] = node.tparent
             except SemanticError as ex:
-                self.errors.append(ex.text)
+                self.errors.append((ex.text, node.tid))
         else:
             self.errors.append((f'{node.id} is an invalid class name', node.tid))
 
@@ -233,6 +233,7 @@ class TypeBuilder:
         self.context = context
         self.current_type = None
         self.errors = errors
+        self.methods = {}
     
     @visitor.on('node')
     def visit(self, node):
@@ -240,16 +241,22 @@ class TypeBuilder:
     
     @visitor.when(ProgramNode)
     def visit(self, node):
+        main_token = None
         for def_class in node.declarations:
             self.visit(def_class)
+            if def_class.id == 'Main':
+                main_token = def_class.tid
             
         try:
             main = self.context.get_type('Main')
-            main.get_method('main')
-            if main.parent.name != 'Object':
-                self.errors.append('The class "Main" cannot inherits from any type.')
+            method = main.methods['main']
+            tmethod = self.methods['Main']['main']
+            if method.param_names:
+                self.errors.append(('Method "main" must takes no formal parameters', tmethod))
         except SemanticError:
-            self.errors.append('The class "Main" and his method "main" are needed.')         
+            self.errors.append(('No definition for class "Main"', empty_token))
+        except KeyError:
+            self.errors.append(('Class "Main" must have a method "main"', main_token))         
     
     @visitor.when(ClassDeclarationNode)
     def visit(self, node):
@@ -257,13 +264,13 @@ class TypeBuilder:
         
         if node.parent:
             if node.parent in sealed:
-                self.errors.append(f'Is not possible to inherits from "{node.parent}"')
+                self.errors.append((f'Is not possible to inherits from "{node.parent}"', node.tparent))
                 node.parent = 'Object'
             try:
                 parent_type = self.context.get_type(node.parent)
                 self.current_type.set_parent(parent_type)
             except SemanticError as ex:
-                self.errors.append(ex.text)
+                self.errors.append((ex.text, node.tparent))
         
         for feature in node.features:
             self.visit(feature)
@@ -273,22 +280,22 @@ class TypeBuilder:
         try:
             attr_type = self.context.get_type(node.type)
         except SemanticError as ex:
-            self.errors.append(ex.text)
+            self.errors.append((ex.text, node.ttype))
             attr_type = ErrorType()
             
         try:
             self.current_type.define_attribute(node.id, attr_type)
         except SemanticError as ex:
-            self.errors.append(ex.text)
+            self.errors.append((ex.text, node.tid))
         
     @visitor.when(FuncDeclarationNode)
     def visit(self, node):
         arg_names, arg_types = [], []
-        for idx, typex in node.params:
+        for i, (idx, typex) in enumerate(node.params):
             try:
                 arg_type = self.context.get_type(typex)
             except SemanticError as ex:
-                self.errors.append(ex.text)
+                self.errors.append((ex.text, node.params[i].ttype))
                 arg_type = ErrorType()
                 
             arg_names.append(idx)
@@ -297,13 +304,16 @@ class TypeBuilder:
         try:
             ret_type = self.context.get_type(node.type)
         except SemanticError as ex:
-            self.errors.append(ex.text)
+            self.errors.append((ex.text, node.ttype))
             ret_type = ErrorType()
         
         try:
             self.current_type.define_method(node.id, arg_names, arg_types, ret_type)
+            if not self.current_type.name in self.methods:
+                self.methods[self.current_type.name] = {}
+            self.methods[self.current_type.name][node.id] = node.tid    
         except SemanticError as ex:
-            self.errors.append(ex.text)
+            self.errors.append((ex.text, node.tid))
 
 # Compute the Lowest Common Ancestor in
 # the type hierarchy tree
