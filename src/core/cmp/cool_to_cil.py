@@ -226,9 +226,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
         
         # (Handle PARAMS)
-        #//TODO: Return type SELF_TYPE 
-        if self.current_method.return_type.name is self.current_type.name:
-            self.register_param(VariableInfo('self', None))
+        self.register_param(self.vself)
         for param_name, _ in node.params:
             self.register_param(VariableInfo(param_name, None))
         
@@ -510,6 +508,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             args.append(cil.ArgNode(vname))
         result = self.register_local(VariableInfo(f'return_value_of_{node.id}'))
         
+        self.register_instruction(cil.ArgNode(self.vself.name))
         for arg in args:
             self.register_instruction(arg)
 
@@ -542,6 +541,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             args.append(cil.ArgNode(vname))
         result = self.register_local(VariableInfo(f'return_value_of_{node.id}'))
 
+        self.register_instruction(cil.ArgNode(self.vself.name))
         for arg in args:
             self.register_instruction(arg)
         
