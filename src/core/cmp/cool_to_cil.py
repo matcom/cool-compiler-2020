@@ -12,6 +12,7 @@ class BaseCOOLToCILVisitor:
         self.current_method = None
         self.current_function = None
         self.context = context
+        self.vself = VariableInfo('self', None)
     
     @property
     def params(self):
