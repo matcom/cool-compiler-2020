@@ -217,15 +217,26 @@ class TypeCollector:
                 
     @visitor.when(ClassDeclarationNode)
     def visit(self, node):
+        def new_type():
+            self.context.create_type(node.id)
+            self.type_level[node.id] = node.parent
+            self.parent[node.id] = node.tparent
+
+        def make_a_duplicate():
+            while True:
+                node.id = '1' + node.id
+                try: new_type()
+                except SemanticError: pass
+                else: break
+
         if node.id not in built_in_types:
-            try:
-                self.context.create_type(node.id)
-                self.type_level[node.id] = node.parent
-                self.parent[node.id] = node.tparent
+            try: new_type()
             except SemanticError as ex:
                 self.errors.append((ex.text, node.tid))
+                make_a_duplicate()
         else:
             self.errors.append((f'{node.id} is an invalid class name', node.tid))
+            make_a_duplicate()
 
 # Type Builder
 class TypeBuilder:
