@@ -11,49 +11,12 @@ class Visitor:
         pass
 
 
-def __check_type_declaration__(node: ProgramNode):
-    for c in node.classes:
-        try:
-            _ = TypesByName[c.type]
-            add_semantic_error(0, 0, f'duplicated declaration of type {c.type}')
-            return False
-        except KeyError:
-            TypesByName[c.type] = CoolType(c.type, None)
-    return True
-
-
-def __check_type_hierarchy__(node: ProgramNode):
-    for c in node.classes:
-        cType = TypesByName[c.type]
-        if c.parent_type:
-            try:
-                cType.parent = TypesByName[c.parent_type]
-            except KeyError:
-                add_semantic_error(0, 0, f'unknown parent type {c.parent_type}')
-                return False
-        else:
-            cType.parent = ObjectType
-    return True
-
-
-def __check_inherits__(type_a: CoolType, type_b: CoolType):
-    """
-    Return True if type_a <= typeB
-    """
-    current = type_a
-    while current != type_b:
-        if current is None:
-            return False
-        current = current.parent
-    return True
-
-
 class ProgramVisitor(Visitor):
     def __init__(self):
         super().__init__(None)
 
     def visit(self, node: ProgramNode):
-        if not (__check_type_declaration__(node) and __check_type_hierarchy__(node)):
+        if not (check_type_declaration(node) and check_type_hierarchy(node)):
             return
         # Check Main class exists
         try:
@@ -128,7 +91,7 @@ class DefAttrVisitor(Visitor):
         if node.expr:
             expr_type = node.expr.accept(DefExpressionVisitor(self.CurrentClass))
             attr_type = self.CurrentClass.attributes[node.id].attrType
-            if not __check_inherits__(expr_type, attr_type):
+            if not check_inherits(expr_type, attr_type):
                 add_semantic_error(0, 0, f'Invalid type {expr_type}')
             else:
                 return attr_type
@@ -141,7 +104,7 @@ class DefFuncVisitor(Visitor):
     def visit(self, node: DefFuncNode):
         body_type = node.expressions.accept(DefExpressionVisitor(self.CurrentClass))
         return_type = TypesByName[node.return_type]
-        if __check_inherits__(body_type, return_type):
+        if check_inherits(body_type, return_type):
             return return_type
         elif body_type is not None:
             add_semantic_error(0, 0, f'invalid returned type {body_type}')
@@ -171,10 +134,11 @@ class DefExpressionVisitor(Visitor):
                 add_semantic_error(0, 0, f'invalid variable {node.id}')
                 return None
             expressionType = node.accept(DefExpressionVisitor(self.CurrentClass))
-            if __check_inherits__(expressionType, varType):
+            if check_inherits(expressionType, varType):
                 return varType
             else:
                 return None
+        print(f'Not rule for {type(node)} in DefExpressionVisitor')
 
 
 def semantic_check(node):
