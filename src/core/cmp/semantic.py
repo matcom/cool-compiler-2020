@@ -94,7 +94,7 @@ class Type:
         return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
 
     def bypass(self):
-        if self.name == 'Object' or self.name == 'AUTO_TYPE':
+        if self.name == 'Object':
             return True
         return False
 
@@ -137,10 +137,10 @@ class VoidType(Type):
         return True
 
     def bypass(self):
-        return True
+        return False
 
     def __eq__(self, other):
-        return isinstance(other, VoidType)
+        return other.name == self.name or isinstance(other, VoidType)
 
 class IntType(Type):
     def __init__(self):
