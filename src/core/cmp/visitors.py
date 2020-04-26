@@ -205,7 +205,9 @@ class TypeCollector:
                 return 0
             
             if parent == 0:
-                self.errors.append(('Cyclic heritage.', self.parent[typex]))
+                node = self.parent[typex]
+                node.parent = "Object"
+                self.errors.append(('Cyclic heritage.', node.tparent))
             elif type(parent) is not int:
                 self.type_level[typex] = 0 if parent else 1
                 if type(parent) is str:
@@ -220,7 +222,7 @@ class TypeCollector:
         def new_type():
             self.context.create_type(node.id)
             self.type_level[node.id] = node.parent
-            self.parent[node.id] = node.tparent
+            self.parent[node.id] = node
 
         def make_a_duplicate():
             while True:
