@@ -77,15 +77,8 @@ class Type:
                 raise SemanticError(f'Method "{name}" is not defined in {self.name}.')
 
     def define_method(self, name:str, param_names:list, param_types:list, return_type):
-        if name in self.methods:
+        if name in self.methods.keys():
             raise SemanticError(f'Method "{name}" already defined in {self.name}')
-            # raise SemanticError(f'Method "{name}" already defined in {self.name} with a different signature.')
-
-        method = self.methods[name] = Method(name, param_names, param_types, return_type)
-        return method
-    
-    # my method, change it in future
-    def define_method(self, name:str, param_names:list, param_types:list, return_type):
         try:
             method = self.get_method(name)
         except SemanticError:
