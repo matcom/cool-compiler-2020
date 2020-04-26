@@ -1,4 +1,5 @@
 from semantic.tools import *
+from semantic.types import Type, Method
 from semantic.visitors import visitor
 from utils.ast import *
 
@@ -101,5 +102,7 @@ class SelfTypeVisitor(object):
 
         if var_info.type.name == 'SELF_TYPE':
             var_info.type = self.current_type
-
-        
+    
+    @visitor.when(InstantiateNode)
+    def visit(self, node:InstantiateNode, scope:Scope):
+        node.lex = self.current_type.name if node.lex == 'SELF_TYPE' else node.lex

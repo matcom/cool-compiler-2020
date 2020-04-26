@@ -12,9 +12,9 @@ def run_pipeline(ast):
     collector = TypeCollector(errors)
     collector.visit(ast)
     context = collector.context
-    print('Errors:', errors)
-    print('Context:')
-    print(context)
+    print('Errors: [')
+    for error in errors:
+        print('\t', error)
     print('=============== BUILDING TYPES ================')
     builder = TypeBuilder(context, errors)
     builder.visit(ast)
@@ -22,8 +22,6 @@ def run_pipeline(ast):
     for error in errors:
         print('\t', error)
     print(']')
-    print('Context:')
-    print(context)
     print('=============== VAR COLLECTOR ================')
     checker = VarCollector(context, errors)
     scope = checker.visit(ast)
@@ -31,13 +29,13 @@ def run_pipeline(ast):
     for error in errors:
         print('\t', error)
     print(']')
-    print('=============== SELF TYPE ================')
-    checker = SelfTypeVisitor(context, errors)
-    checker.visit(ast, scope)
-    print('Errors: [')
-    for error in errors:
-        print('\t', error)
-    print(']')
+    # print('=============== SELF TYPE ================')
+    # checker = SelfTypeVisitor(context, errors)
+    # checker.visit(ast, scope)
+    # print('Errors: [')
+    # for error in errors:
+    #     print('\t', error)
+    # print(']')
     print('=============== CHECKING TYPES ================')
     checker = TypeChecker(context, errors)
     checker.visit(ast, scope)

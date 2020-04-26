@@ -1,6 +1,7 @@
 from semantic.visitors import visitor
 from semantic.tools import *
-from utils.utils import get_common_basetype
+from semantic.types import *
+from utils.utils import get_common_basetype, get_type
 from utils.ast import *
 from utils.errors import SemanticError, AttributesError, TypesError, NamesError
 
@@ -28,7 +29,6 @@ class TypeChecker:
             self.errors.append(e)
             return ErrorType()
 
-
     def _get_method(self, typex:Type, name:str, pos) -> Method:
         try:
             return typex.get_method(name, pos)
@@ -55,14 +55,17 @@ class TypeChecker:
     @visitor.when(AttrDeclarationNode)
     def visit(self, node:AttrDeclarationNode, scope:Scope):
         varinfo = scope.find_variable(node.id)
+
+        vartype = get_type(varinfo.type, self.current_type)
+
         if node.expr is not None:
             typex = self.visit(node.expr, scope)
-            if not typex.conforms_to(varinfo.type):
-                error_text = TypesError.INCOMPATIBLE_TYPES %(typex.name, varinfo.type.name)
-                self.errors.append(TypesError(error_text, node.pos))
+            if not typex.conforms_to(vartype):
+                error_text = TypesError.INCOMPATIBLE_TYPES %(typex.name, vartype.name)
+                self.errors.append(TypesError(error_text, *node.pos))
                 return ErrorType()
             return typex
-        return self._get_type(node.type, node.type_pos)
+        return vartype
 
 
         
@@ -70,25 +73,25 @@ class TypeChecker:
     def visit(self, node:FuncDeclarationNode, scope:Scope):
         parent = self.current_type.parent 
         ptypes = [param[1] for param in node.params]
-
+        
         self.current_method = method = self.current_type.get_method(node.id, node.pos)
         if parent is not None:
             try:
                 old_meth = parent.get_method(node.id, node.pos)
                 error_text = AttributesError.WRONG_SIGNATURE % (node.id, parent.name)
                 if old_meth.return_type.name != method.return_type.name:
-                    if node.type != 'SELF_TYPE':
                         self.errors.append(AttributesError(error_text, *node.pos))
                 elif any(type1.name != type2.name for name, type1, type2 in zip(ptypes, method.param_types, old_meth.param_types)):
-                    if name != 'SELF_TYPE':
                         self.errors.append(AttributesError(error_text, *node.pos))
             except SemanticError:
                 pass
 
         result = self.visit(node.body, scope)
-        
-        if not result.conforms_to(method.return_type):
-            error_text = TypesError.INCOMPATIBLE_TYPES %(method.return_type.name, result.name)
+
+        return_type = get_type(method.return_type, self.current_type)
+
+        if not result.conforms_to(return_type):
+            error_text = TypesError.INCOMPATIBLE_TYPES %(return_type.name, result.name)
             self.errors.append(TypesError(error_text, *node.type_pos))
 
     
@@ -96,11 +99,11 @@ class TypeChecker:
     def visit(self, node:VarDeclarationNode, scope:Scope):
 
         var_info = scope.find_variable(node.id)
-        vtype = var_info.type
+        vtype = get_type(var_info.type, self.current_type)
 
         if node.expr != None:
             typex = self.visit(node.expr, scope)
-            if not typex.conforms_to(var_info.type):
+            if not typex.conforms_to(vtype):
                 error_text = TypesError.INCOMPATIBLE_TYPES %(vtype.name, typex.name)            
                 self.errors.append(TypesError(error_text, *node.type_pos))
             return typex
@@ -110,7 +113,7 @@ class TypeChecker:
     @visitor.when(AssignNode)
     def visit(self, node:AssignNode, scope:Scope):
         vinfo = scope.find_variable(node.id)
-        vtype = vinfo.type
+        vtype = get_type(vinfo.type, self.current_type) 
             
         typex = self.visit(node.expr, scope)
 
@@ -142,9 +145,11 @@ class TypeChecker:
         stype = self.visit(node.obj, scope)
 
         meth = self._get_method(stype, node.id, node.pos)
-        self._check_args(meth, scope, node.args, node.pos)
-        return meth.return_type
+        if not isinstance(meth, MethodError):
+            self._check_args(meth, scope, node.args, node.pos)
 
+        return get_type(meth.return_type, stype)
+        
 
     @visitor.when(BaseCallNode)
     def visit(self, node:BaseCallNode, scope:Scope):
@@ -157,17 +162,21 @@ class TypeChecker:
             return ErrorType()
         
         meth = self._get_method(typex, node.id, node.pos)
-        self._check_args(meth, scope, node.args, node.pos)
-        return meth.return_type
-
+        if not isinstance(meth, MethodError):
+            self._check_args(meth, scope, node.args, node.pos)
+       
+        return get_type(meth.return_type, typex)
+              
 
     @visitor.when(StaticCallNode)
     def visit(self, node:StaticCallNode, scope:Scope):
         typex = self.current_type
 
         meth = self._get_method(typex, node.id, node.pos)
-        self._check_args(meth, scope, node.args, node.pos)
-        return meth.return_type
+        if not isinstance(meth, MethodError):
+            self._check_args(meth, scope, node.args, node.pos)
+
+        return get_type(meth.return_type, typex)
 
 
     @visitor.when(ConstantNumNode)
@@ -187,12 +196,13 @@ class TypeChecker:
 
     @visitor.when(VariableNode)
     def visit(self, node:VariableNode, scope:Scope):
-        return scope.find_variable(node.lex).type
-    
+        typex = scope.find_variable(node.lex).type
+        return get_type(typex, self.current_type)
+       
 
     @visitor.when(InstantiateNode)
     def visit(self, node:InstantiateNode, scope:Scope):
-        return self._get_type(node.lex, node.pos)
+        return get_type(self._get_type(node.lex, node.pos), self.current_type)
 
     
     @visitor.when(WhileNode)

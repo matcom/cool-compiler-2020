@@ -1,8 +1,7 @@
-from semantic.tools import SemanticError
-from semantic.tools import Attribute, Method, Type
-from semantic.tools import VoidType, ErrorType, StringType, BoolType, IntType, ObjectType, AutoType
+from utils.errors import SemanticError
 from semantic.tools import Context
 from semantic.visitors import visitor
+from semantic.types import *
 from utils.ast import *
 
 class TypeCollector(object):
@@ -21,8 +20,8 @@ class TypeCollector(object):
         self.context.types['Int'] = IntType()
         self.context.types['Object'] = ObjectType()
         self.context.types['Bool'] = BoolType()
-        self.context.types['AUTO_TYPE'] = AutoType()
-        self.context.create_type('SELF_TYPE', (0, 0))
+        self.context.types['SELF_TYPE'] = SelfType()
+        # self.context.create_type('SELF_TYPE', (0, 0))
         for dec in node.declarations:
             self.visit(dec)
 

@@ -1,5 +1,5 @@
 import itertools
-
+from semantic.types import Type, SelfType
 
 def find_column(lexer, token):
     line_start = lexer.lexdata.rfind('\n', 0, token.lexpos)
@@ -26,3 +26,7 @@ def get_common_basetype(types):
             return paths[0][i-1]
 
     return paths[0][-1]
+
+def get_type(typex:Type, current_type:Type) -> Type:
+    return current_type if typex == SelfType() else typex
+    

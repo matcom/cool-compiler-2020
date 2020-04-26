@@ -1,6 +1,5 @@
 from utils.errors import SemanticError, AttributesError, TypesError, NamesError
-from semantic.tools import Attribute, Method, Type
-from semantic.tools import VoidType, ErrorType
+from semantic.types import Type, VoidType, ErrorType, Attribute, Method
 from semantic.tools import Context
 from semantic.visitors import visitor 
 from utils.ast import *
@@ -19,8 +18,6 @@ class TypeBuilder:
     def visit(self, node:ProgramNode):
         for dec in node.declarations:
             self.visit(dec)
-    
-
 
     @visitor.when(ClassDeclarationNode)
     def visit(self, node:ClassDeclarationNode):
@@ -32,7 +29,7 @@ class TypeBuilder:
         
         if node.parent is not None:
             try:
-                parent = self.context.get_type(node.parent, node.pos)
+                parent = self.context.get_type(node.parent, node.parent_pos)
                 current = parent
                 while current is not None:
                     if current.name == self.current_type.name:
