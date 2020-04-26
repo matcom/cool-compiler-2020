@@ -394,25 +394,17 @@ class TypeChecker:
     
     @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope):
-        try:
-            node_type = self.context.get_type(node.type)
-        except SemanticError as ex:
-            self.errors.append(ex.text)
-            node_type = ErrorType()
-
         if not node.expr:
-            node.computed_type = node_type 
             return
 
         self.visit(node.expr, scope)
         expr_type = fixed_type(node.expr.computed_type, self.current_type)
+        real_type = fixed_type(node.attr_type, self.current_type)
 
-        if not match(expr_type, fixed_type(node_type, self.current_type)):
+        # //TODO: SELF_TYPE match every type???
+        if not expr_type.conforms_to(real_type):
             self.errors.append(INCOMPATIBLE_TYPES.replace('%s', expr_type.name, 1).replace('%s', node_type.name, 1))
-            node_type = ErrorType()
-        
-        node.computed_type = node_type 
-    
+            
     @visitor.when(FuncDeclarationNode)
     def visit(self, node, scope):
         self.current_method = self.current_type.get_method(node.id)
