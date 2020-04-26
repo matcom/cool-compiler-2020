@@ -295,7 +295,8 @@ class TypeBuilder:
         except SemanticError as ex:
             self.errors.append((ex.text, node.ttype))
             attr_type = ErrorType()
-            
+        node.attr_type = attr_type
+        
         try:
             self.current_type.define_attribute(node.id, attr_type)
         except SemanticError as ex:
@@ -319,7 +320,9 @@ class TypeBuilder:
         except SemanticError as ex:
             self.errors.append((ex.text, node.ttype))
             ret_type = ErrorType()
-        
+        node.ret_type = ret_type
+        node.arg_types = arg_types
+
         try:
             self.current_type.define_method(node.id, arg_names, arg_types, ret_type)
             if not self.current_type.name in self.methods:
