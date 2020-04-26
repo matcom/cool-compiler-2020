@@ -404,6 +404,7 @@ class CoolLexer:
             tokens[-1].row = token.row
             tokens[-1].column = token.column
         EOF = Token('$', eof)
+        EOF.row, EOF.column = self.lexer.eof
         return tokens + [EOF]
 
     def add_line_column(self, t):
