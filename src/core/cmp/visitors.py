@@ -407,7 +407,7 @@ class TypeChecker:
             
     @visitor.when(FuncDeclarationNode)
     def visit(self, node, scope):
-        self.current_method = self.current_type.get_method(node.id)
+        self.current_method = Method(node.id, node.arg_names, node.arg_types, node.ret_type)
         
         for pname, ptype in zip(self.current_method.param_names, self.current_method.param_types):
             scope.define_variable(pname, ptype)
@@ -415,12 +415,11 @@ class TypeChecker:
         # for expr in node.body:
         self.visit(node.body, scope)
             
-        last_expr = node.body
-        last_expr_type = fixed_type(last_expr.computed_type, self.current_type)
+        body_type = fixed_type(node.body.computed_type, self.current_type)
         method_rtn_type = fixed_type(self.current_method.return_type, self.current_type)
 
         # //TODO: be carefull whit void
-        if not match(last_expr_type, method_rtn_type):
+        if not match(body_type, method_rtn_type):
             self.errors.append(INCOMPATIBLE_TYPES.replace('%s', last_expr_type.name, 1).replace('%s', method_rtn_type.name, 1))
             
     @visitor.when(AssignNode)
