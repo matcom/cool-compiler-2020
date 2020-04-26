@@ -403,7 +403,7 @@ class TypeChecker:
 
         # //TODO: SELF_TYPE match every type???
         if not expr_type.conforms_to(real_type):
-            self.errors.append(INCOMPATIBLE_TYPES.replace('%s', expr_type.name, 1).replace('%s', node_type.name, 1))
+            self.errors.append((INCOMPATIBLE_TYPES % (expr_type.name, real_type.name),  node.arrow))
             
     @visitor.when(FuncDeclarationNode)
     def visit(self, node, scope):
@@ -420,7 +420,7 @@ class TypeChecker:
 
         # //TODO: be carefull whit void
         if not match(body_type, method_rtn_type):
-            self.errors.append(INCOMPATIBLE_TYPES.replace('%s', last_expr_type.name, 1).replace('%s', method_rtn_type.name, 1))
+            self.errors.append((INCOMPATIBLE_TYPES % (body_type.name, method_rtn_type.name), node.ttype))
             
     @visitor.when(AssignNode)
     def visit(self, node, scope):
