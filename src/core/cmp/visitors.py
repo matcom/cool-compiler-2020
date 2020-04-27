@@ -449,8 +449,9 @@ class TypeChecker:
         types_list = []
         for case in node.branches:
             self.visit(case, scope.create_child())
+            type_list.append(case.computed_type)
         # The return type of a <case of> is unknown until runtime 
-        node.computed_type = ErrorType()
+        node.computed_type = LCA(types_list, self.context)
 
     @visitor.when(CaseExpressionNode)
     def visit(self, node, scope):
