@@ -173,12 +173,12 @@ class BoolNode(AtomicNode):
     pass
 
 def FunctionCallNodeBuilder(obj, calls):
-    print("-------------------")
+    #print("-------------------")
     while len(calls):
-        print(obj)
+        #print(obj)
         obj = FunctionCallNode(obj, *calls[0])
         calls.pop(0)
-    print("-------------------")
+    #print("-------------------")
     return obj
 
 class Param:
@@ -200,7 +200,7 @@ class_list, def_class = CoolGrammar.NonTerminals('<class-list> <def-class>')
 feature_list, feature = CoolGrammar.NonTerminals('<feature-list> <feature>')
 param_list, param = CoolGrammar.NonTerminals('<param-list> <param>')
 expr, member_call, expr_list, block, let_list, case_list = CoolGrammar.NonTerminals('<expr> <member-call> <expr-list> <block> <let-list> <case-list>')
-arith, term, factor, factor_2, factor_3, factor_4, invocation = CoolGrammar.NonTerminals('<arith> <term> <factor> <factor-2> <factor-3> <factor-4> <invocation>')
+arith, term, factor, factor_2, factor_3, factor_4, invocation, func_expr = CoolGrammar.NonTerminals('<arith> <term> <factor> <factor-2> <factor-3> <factor-4> <invocation> <func-expr>')
 atom, func_call, arg_list = CoolGrammar.NonTerminals('<atom> <func-call> <arg-list>')
 
 # terminals
@@ -283,8 +283,11 @@ expr %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4
 expr %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
 expr %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
 expr %= case + expr + of + ocur + case_list + ccur + esac, lambda h, s: CaseOfNode(s[2], s[5])
-expr %= factor + invocation, lambda h, s: FunctionCallNodeBuilder(s[1], s[2])
-expr %= factor, lambda h, s: s[1]
+expr %= func_expr, lambda h, s: s[1]
+
+# <func-expr>
+func_expr %= factor + invocation, lambda h, s: FunctionCallNodeBuilder(s[1], s[2])
+func_expr %= factor, lambda h, s: s[1]
 
 # <factor>
 factor %= compl + factor_2, lambda h, s: ComplementNode(s[2], s[1])
@@ -295,13 +298,13 @@ factor_2 %= isvoid + term, lambda h, s: IsVoidNode(s[2], s[1])
 factor_2 %= term, lambda h, s: s[1]
 
 # <term>
-term %= term + star + arith, lambda h, s: StarNode(s[1], s[3], s[2])
-term %= term + div + arith, lambda h, s: DivNode(s[1], s[3], s[2])
+term %= expr + star + expr, lambda h, s: StarNode(s[1], s[3], s[2])
+term %= expr + div + expr, lambda h, s: DivNode(s[1], s[3], s[2])
 term %= arith, lambda h, s: s[1]
 
 # <arith>
-arith %= arith + plus + term, lambda h, s: PlusNode(s[1], s[3], s[2])
-arith %= arith + minus + term, lambda h, s: MinusNode(s[1], s[3], s[2])
+arith %= expr + plus + expr, lambda h, s: PlusNode(s[1], s[3], s[2])
+arith %= expr + minus + expr, lambda h, s: MinusNode(s[1], s[3], s[2])
 arith %= factor_3, lambda h, s: s[1]
 
 # <factor-3>
@@ -311,7 +314,7 @@ factor_3 %= expr + equal + expr, lambda h, s: EqualNode(s[1], s[3], s[2])
 factor_3 %= factor_4, lambda h, s: s[1]
 
 #<factor-4>
-factor_4 %= notx + expr, lambda h, s: NotNode(s[2], s[1])
+factor_4 %= notx + func_expr, lambda h, s: NotNode(s[2], s[1])
 factor_4 %= atom, lambda h, s: s[1]
 
 # <atom> 
