@@ -161,7 +161,7 @@ class_list, def_class = CoolGrammar.NonTerminals('<class-list> <def-class>')
 feature_list, feature = CoolGrammar.NonTerminals('<feature-list> <feature>')
 param_list, param = CoolGrammar.NonTerminals('<param-list> <param>')
 expr, member_call, expr_list, block, let_list, case_list = CoolGrammar.NonTerminals('<expr> <member-call> <expr-list> <block> <let-list> <case-list>')
-arith, term, factor, factor_2, factor_3, invocation = CoolGrammar.NonTerminals('<arith> <term> <factor> <factor-2> <factor-3> <invocation>')
+arith, term, factor, factor_2, factor_3, factor_4, invocation = CoolGrammar.NonTerminals('<arith> <term> <factor> <factor-2> <factor-3> <factor-4> <invocation>')
 atom, func_call, arg_list = CoolGrammar.NonTerminals('<atom> <func-call> <arg-list>')
 
 # terminals
@@ -205,13 +205,7 @@ param_list %= param + comma + param_list, lambda h, s: [s[1]] + s[3]
 # <param>
 param %= idx + colon + typex, lambda h, s: (s[1], s[3])
 
-# <expr>
-expr %= notx + expr, lambda h, s: NotNode(s[2])
-expr %= expr + leq + expr, lambda h, s: LessEqualNode(s[1], s[3])
-expr %= expr + less + expr, lambda h, s: LessNode(s[1], s[3])
-expr %= expr + equal + expr, lambda h, s: EqualNode(s[1], s[3])
-expr %= arith, lambda h, s: s[1]
-
+# <block>
 block %= expr + semi, lambda h, s: [s[1]]
 block %= expr + semi + block, lambda h, s: [s[1]] + s[3]
 
@@ -225,27 +219,43 @@ let_list %= idx + colon + typex + larrow + expr + comma + let_list, lambda h, s:
 case_list %= idx + colon + typex + rarrow + expr + semi, lambda h, s: [CaseExpressionNode(s[1], s[3], s[5])]
 case_list %= idx + colon + typex + rarrow + expr + semi + case_list, lambda h, s: [CaseExpressionNode(s[1], s[3], s[5])] + s[7]
 
-# <arith>
-arith %= arith + plus + term, lambda h, s: PlusNode(s[1], s[3])
-arith %= arith + minus + term, lambda h, s: MinusNode(s[1], s[3])
-arith %= term, lambda h, s: s[1]
-
-# <term>
-term %= term + star + factor, lambda h, s: StarNode(s[1], s[3])
-term %= term + div + factor, lambda h, s: DivNode(s[1], s[3])
-term %= factor, lambda h, s: s[1]
+# <expr>
+expr %= ifx + expr + then + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], None)
+expr %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[6])
+expr %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4])
+expr %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
+expr %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
+expr %= case + expr + of + ocur + case_list + ccur + esac, lambda h, s: CaseOfNode(s[2], s[5])
+expr %= factor + invocation, lambda h, s: FunctionCallNodeBuilder(s[1], s[2])
+expr %= factor, lambda h, s: s[1]
 
 # <factor>
-factor %= isvoid + factor_2, lambda h, s: IsVoidNode(s[2])
+factor %= compl + factor_2, lambda h, s: ComplementNode(s[2])
 factor %= factor_2, lambda h, s: s[1]
 
 # <factor-2>
-factor_2 %= compl + factor_3, lambda h, s: ComplementNode(s[2])
-factor_2 %= factor_3, lambda h, s: s[1]
+factor_2 %= isvoid + term, lambda h, s: IsVoidNode(s[2])
+factor_2 %= term, lambda h, s: s[1]
+
+# <term>
+term %= term + star + arith, lambda h, s: StarNode(s[1], s[3])
+term %= term + div + arith, lambda h, s: DivNode(s[1], s[3])
+term %= arith, lambda h, s: s[1]
+
+# <arith>
+arith %= arith + plus + term, lambda h, s: PlusNode(s[1], s[3])
+arith %= arith + minus + term, lambda h, s: MinusNode(s[1], s[3])
+arith %= factor_3, lambda h, s: s[1]
 
 # <factor-3>
-factor_3 %= atom, lambda h, s: s[1]
-factor_3 %= atom + invocation, lambda h, s: FunctionCallNodeBuilder(s[1], s[2])
+factor_3 %= factor_3 + leq + factor_4, lambda h, s: LessEqualNode(s[1], s[3])
+factor_3 %= factor_3 + less + factor_4, lambda h, s: LessNode(s[1], s[3])
+factor_3 %= factor_3 + equal + factor_4, lambda h, s: EqualNode(s[1], s[3])
+factor_3 %= factor_4, lambda h, s: s[1]
+
+#<factor-4>
+factor_4 %= notx + atom, lambda h, s: NotNode(s[2])
+factor_4 %= atom, lambda h, s: s[1]
 
 # <invocation>
 invocation %= func_call, lambda h, s: [s[1]]
@@ -269,13 +279,7 @@ atom %= idx, lambda h, s: IdNode(s[1])
 atom %= integer, lambda h, s: IntegerNode(s[1])
 atom %= string, lambda h, s: StringNode(s[1])
 atom %= boolx, lambda h, s: BoolNode(s[1])
-atom %= ifx + expr + then + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], None)
-atom %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[6])
-atom %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4])
 atom %= ocur + block + ccur, lambda h, s: BlockNode(s[2])
-atom %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
-atom %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
-atom %= case + expr + of + ocur + case_list + ccur + esac, lambda h, s: CaseOfNode(s[2], s[5])
 atom %= idx + larrow + expr, lambda h, s: AssignNode(s[1], s[3])
 
 
