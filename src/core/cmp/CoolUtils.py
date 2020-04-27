@@ -173,9 +173,12 @@ class BoolNode(AtomicNode):
     pass
 
 def FunctionCallNodeBuilder(obj, calls):
+    print("-------------------")
     while len(calls):
+        print(obj)
         obj = FunctionCallNode(obj, *calls[0])
         calls.pop(0)
+    print("-------------------")
     return obj
 
 class Param:
