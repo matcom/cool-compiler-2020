@@ -16,6 +16,7 @@ CONDITION_NOT_BOOL = '"%s" conditions return type must be Bool not "%s"'
 ST, AT = ['SELF_TYPE', 'AUTO_TYPE']
 sealed = ['Int', 'String', 'Bool', 'SELF_TYPE', 'AUTO_TYPE']
 built_in_types = [ 'Int', 'String', 'Bool', 'Object', 'IO', 'SELF_TYPE', 'AUTO_TYPE']
+INT, STRING, BOOL, OBJ = None, None, None, None
 
 def define_built_in_types(context):
     obj = context.create_type('Object')
@@ -23,7 +24,8 @@ def define_built_in_types(context):
     i.set_parent(obj)
     s = context.create_type('String')
     s.set_parent(obj)
-    context.create_type('Bool').set_parent(obj)
+    b = context.create_type('Bool')
+    b.set_parent(obj)
     io = context.create_type('IO')
     io.set_parent(obj)
     st = context.create_type('SELF_TYPE')
@@ -41,6 +43,9 @@ def define_built_in_types(context):
     s.define_method('length', [], [], i)
     s.define_method('concat', ['s'], [s], s)
     s.define_method('substr', ['i', 'l'], [i, i], s)
+
+    global INT, STRING, BOOL, OBJ
+    INT, STRING, BOOL, OBJ = i, s, b, obj
 
 def match(type1, type2):
     return IsAuto(type1.name) or type1.conforms_to(type2)
@@ -401,7 +406,6 @@ class TypeChecker:
         expr_type = fixed_type(node.expr.computed_type, self.current_type)
         real_type = fixed_type(node.attr_type, self.current_type)
 
-        # //TODO: SELF_TYPE match every type???
         if not expr_type.conforms_to(real_type):
             self.errors.append((INCOMPATIBLE_TYPES % (expr_type.name, real_type.name),  node.arrow))
             
@@ -509,7 +513,7 @@ class TypeChecker:
         if node.else_body:
             self.visit(node.else_body, scope)
             else_type = node.else_body.computed_type
-            node_type = LCA([if_body, else_body], self.context)
+            node_type = LCA([if_type, else_type], self.context)
 
         node.computed_type = node_type
         
@@ -530,7 +534,7 @@ class TypeChecker:
             self.errors.append((CONDITION_NOT_BOOL % ('While', cond_type.name), node.token))
 
         self.visit(node.body, scope)
-        node.computed_type = self.context.get_type('Object')
+        node.computed_type = OBJ
     
     @visitor.when(FunctionCallNode)
     def visit(self, node, scope):
@@ -587,8 +591,7 @@ class TypeChecker:
         arg_types = []
         for arg in node.args:
             self.visit(arg, scope)
-            arg = arg.computed_type
-            arg_types.append(arg)
+            arg_types.append(arg.computed_type)
 
         try:
             token = node.tid
@@ -624,7 +627,7 @@ class TypeChecker:
             self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
             node_type = ErrorType()
         else:
-            node_type = IntType()
+            node_type = INT
             
         node.computed_type = node_type
     
@@ -640,21 +643,21 @@ class TypeChecker:
             self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
             node_type = ErrorType()
         else:
-            node_type = BoolType()
+            node_type = BOOL
             
         node.computed_type = node_type
 
     @visitor.when(IntegerNode)
     def visit(self, node, scope):
-        node.computed_type = IntType()
+        node.computed_type = INT
         
     @visitor.when(StringNode)
     def visit(self, node, scope):
-        node.computed_type = self.context.get_type("String")
+        node.computed_type = STRING
         
     @visitor.when(BoolNode)
     def visit(self, node, scope):
-        node.computed_type = BoolType()
+        node.computed_type = BOOL
 
     @visitor.when(IdNode)
     def visit(self, node, scope):
@@ -685,7 +688,7 @@ class TypeChecker:
     @visitor.when(IsVoidNode)
     def visit(self, node, scope):
         self.visit(node.expr, scope)
-        node.computed_type = BoolType()
+        node.computed_type = BOOL
 
     @visitor.when(ComplementNode)
     def visit(self, node, scope):
@@ -695,7 +698,7 @@ class TypeChecker:
             self.errors.append(("Complement works only for Int", node.symbol))
             node.computed_type = ErrorType()
         else:
-            node.computed_type = IntType()
+            node.computed_type = INT
 
     @visitor.when(NotNode)
     def visit(self, node, scope):
@@ -705,7 +708,7 @@ class TypeChecker:
             self.errors.append(("Not operator works only for Bool", node.symbol))
             node.computed_type = ErrorType()
         else:
-            node.computed_type = BoolType()
+            node.computed_type = BOOL
 
     @visitor.when(EqualNode)
     def visit(self, node, scope):
@@ -718,7 +721,7 @@ class TypeChecker:
         valid_types = [IntType(), BoolType(), StringType()]
         for op_type in valid_types:
             if op_type == right_type and op_type == left_type:
-                node_type = BoolType()
+                node_type = BOOL
                 break
         else:
             self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
