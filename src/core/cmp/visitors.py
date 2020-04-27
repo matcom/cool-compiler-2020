@@ -454,6 +454,12 @@ class TypeChecker:
 
     @visitor.when(CaseExpressionNode)
     def visit(self, node, scope):
+        try:
+            branch_type = self.context.get_type(node.type)
+        except SemanticError as ex:
+            self.errors.append((ex.text, node.ttype))
+            branch_type = ErrorType()
+        scope.define_variable(node.id, branch_type)
         self.visit(node.expr, scope)
         node.computed_type = node.expr.computed_type
             
