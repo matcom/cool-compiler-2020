@@ -418,8 +418,7 @@ class TypeChecker:
         body_type = fixed_type(node.body.computed_type, self.current_type)
         method_rtn_type = fixed_type(self.current_method.return_type, self.current_type)
 
-        # //TODO: be carefull whit void
-        if not match(body_type, method_rtn_type):
+        if not body_type.conforms_to(method_rtn_type):
             self.errors.append((INCOMPATIBLE_TYPES % (body_type.name, method_rtn_type.name), node.ttype))
             
     @visitor.when(AssignNode)
@@ -448,7 +447,7 @@ class TypeChecker:
         
         types_list = []
         for case in node.branches:
-            self.visit(case.expr, scope.create_child())
+            self.visit(case, scope.create_child())
         # The return type of a <case of> is unknown until runtime 
         node.computed_type = ErrorType()
 
@@ -470,7 +469,7 @@ class TypeChecker:
         
         for expr in node.let_body:
             self.visit(expr, child)
-            
+        
         self.visit(node.in_body, child)
         node.computed_type = node.in_body.computed_type
 
@@ -522,7 +521,7 @@ class TypeChecker:
         self.visit(node.condition, scope)
         cond_type = fixed_type(node.condition.computed_type, self.current_type)
 
-        if BoolType() != cond_type::
+        if BoolType() != cond_type:
             self.errors.append((CONDITION_NOT_BOOL % ('While', cond_type.name), node.token))
 
         self.visit(node.body, scope)
@@ -564,7 +563,7 @@ class TypeChecker:
                         error = True
             else:
                 raise SemanticError(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
-            assert error
+            assert not error
             node_type = obj_method.return_type
         except SemanticError as ex:
             self.errors.append((ex.text, token))
@@ -590,7 +589,7 @@ class TypeChecker:
             token = node.tid
             obj_method = obj_type.get_method(node.id)
             if len(node.args) == len(obj_method.param_types):
-                for arg, param_type in zip(node.args, obj_method.param_types):
+                for arg, param_type in zip(arg_types, obj_method.param_types):
                     real_type = fixed_type(param_type, self.current_type)
                     
                     if not arg.conforms_to(real_type):
@@ -598,7 +597,7 @@ class TypeChecker:
                         error = True
             else:
                 raise SemanticError(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
-            assert error
+            assert not error
             node_type = obj_method.return_type
         except SemanticError as ex:
             self.errors.append((ex.text, token))
@@ -632,9 +631,9 @@ class TypeChecker:
         self.visit(node.right, scope)
         right_type = fixed_type(node.right.computed_type, self.current_type)
         
-        if BoolType() != right_type or BoolType() != left_type:
+        if IntType() != right_type or IntType() != left_type:
             self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
-            node_type = BoolType()
+            node_type = ErrorType()
         else:
             node_type = BoolType()
             
@@ -646,7 +645,7 @@ class TypeChecker:
         
     @visitor.when(StringNode)
     def visit(self, node, scope):
-        node.computed_type = StringType()
+        node.computed_type = self.context.get_type("String")
         
     @visitor.when(BoolNode)
     def visit(self, node, scope):
@@ -685,7 +684,7 @@ class TypeChecker:
     @visitor.when(ComplementNode)
     def visit(self, node, scope):
         self.visit(node.expr, scope)
-        expr_type = fixed_type(node.expr.computed_type.name, self.current_type)
+        expr_type = fixed_type(node.expr.computed_type, self.current_type)
         if IntType() != expr_type:
             self.errors.append(("Complement works only for Int", node.symbol))
             node.computed_type = ErrorType()
@@ -695,7 +694,7 @@ class TypeChecker:
     @visitor.when(NotNode)
     def visit(self, node, scope):
         self.visit(node.expr, scope)
-        expr_type = fixed_type(node.expr.computed_type.name, self.current_type)
+        expr_type = fixed_type(node.expr.computed_type, self.current_type)
         if BoolType() != expr_type:
             self.errors.append(("Not operator works only for Bool", node.symbol))
             node.computed_type = ErrorType()
@@ -712,15 +711,15 @@ class TypeChecker:
         
         valid_types = [IntType(), BoolType(), StringType()]
         for op_type in valid_types:
-            if op == right_type and op == left_type:
-                node_type = op_type
+            if op_type == right_type and op_type == left_type:
+                node_type = BoolType()
                 break
         else:
             self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
             node_type = ErrorType()
             
         node.computed_type = node_type
-        
+
 # Type Inference Visitor
 class InferenceVisitor(TypeChecker):
     def __init__(self, context, errors=[]):
