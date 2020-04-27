@@ -520,10 +520,10 @@ class TypeChecker:
     @visitor.when(WhileLoopNode)
     def visit(self, node, scope):
         self.visit(node.condition, scope)
-        expr_type = node.condition.computed_type
+        cond_type = fixed_type(node.condition.computed_type, self.current_type)
 
-        if not expr_type.name in ['Bool', 'AUTO_TYPE']:
-            self.errors.append(CONDITION_NOT_BOOL.replace('%s', 'While', 1).replace('%s', expr_type.name, 1))
+        if BoolType() != cond_type::
+            self.errors.append((CONDITION_NOT_BOOL % ('While', cond_type.name), node.token))
 
         self.visit(node.body, scope)
         node.computed_type = VoidType()
