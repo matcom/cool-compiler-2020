@@ -57,7 +57,8 @@ class IfThenElseNode(ExpressionNode):
         self.else_body = else_body
 
 class WhileLoopNode(ExpressionNode):
-    def __init__(self, condition, body):
+    def __init__(self, condition, body, token):
+        self.token = token
         self.condition = condition
         self.body = body
 
@@ -306,7 +307,7 @@ atom %= string, lambda h, s: StringNode(s[1])
 atom %= boolx, lambda h, s: BoolNode(s[1])
 atom %= ifx + expr + then + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1])
 atom %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1], s[6])
-atom %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4])
+atom %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4], s[1])
 atom %= ocur + block + ccur, lambda h, s: BlockNode(s[2])
 atom %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
 atom %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
