@@ -658,7 +658,7 @@ class TypeChecker:
             var = scope.find_variable(node.lex)
             node_type = var.type       
         else:
-            self.errors.append(VARIABLE_NOT_DEFINED.replace('%s', node.lex, 1))
+            self.errors.append((VARIABLE_NOT_DEFINED % (node.lex), node.token))
             node_type = ErrorType()
         
         node.computed_type = node_type
@@ -666,13 +666,13 @@ class TypeChecker:
     @visitor.when(NewNode)
     def visit(self, node, scope):
         if node.type in built_in_types[:3]:
-            self.errors.append(f'It cannot be initialized a {node.type} with the new keyword')
+            self.errors.append((f'It cannot be initialized a {node.type} with the new keyword', node.ttype))
             node.computed_type = ErrorType()
         else:
             try:
                 node_type = self.context.get_type(node.type)
             except SemanticError as ex:
-                self.errors.append(ex.text)
+                self.errors.append((ex.text, node.ttype))
                 node_type = ErrorType()
                 
             node.computed_type = node_type
@@ -680,25 +680,27 @@ class TypeChecker:
     @visitor.when(IsVoidNode)
     def visit(self, node, scope):
         self.visit(node.expr, scope)
-        node.computed_type = self.context.get_type('Bool')
+        node.computed_type = BoolType()
 
     @visitor.when(ComplementNode)
     def visit(self, node, scope):
         self.visit(node.expr, scope)
-        if node.expr.computed_type.name != 'Int':
-            self.errors.append("Complement works only for Int")
+        expr_type = fixed_type(node.expr.computed_type.name, self.current_type)
+        if IntType() != expr_type:
+            self.errors.append(("Complement works only for Int", node.symbol))
             node.computed_type = ErrorType()
         else:
-            node.computed_type = self.context.get_type('Int')
+            node.computed_type = IntType()
 
     @visitor.when(NotNode)
     def visit(self, node, scope):
         self.visit(node.expr, scope)
-        if node.expr.computed_type.name != 'Bool':
-            self.errors.append("Not operator works only for Bool")
+        expr_type = fixed_type(node.expr.computed_type.name, self.current_type)
+        if BoolType() != expr_type:
+            self.errors.append(("Not operator works only for Bool", node.symbol))
             node.computed_type = ErrorType()
         else:
-            node.computed_type = self.context.get_type('Bool')
+            node.computed_type = BoolType()
 
     @visitor.when(EqualNode)
     def visit(self, node, scope):
