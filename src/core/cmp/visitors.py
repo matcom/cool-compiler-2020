@@ -611,13 +611,13 @@ class TypeChecker:
     @visitor.when(ArithmeticNode)
     def visit(self, node, scope):
         self.visit(node.left, scope)
-        left_type = node.left.computed_type
+        left_type = fixed_type(node.left.computed_type, self.current_type)
         
         self.visit(node.right, scope)
-        right_type = node.right.computed_type
+        right_type = fixed_type(node.right.computed_type, self.current_type)
         
-        if not (left_type.name == 'Int' and right_type.name == 'Int'):
-            self.errors.append(INVALID_OPERATION.replace('%s', left_type.name, 1).replace('%s', right_type.name, 1))
+        if IntType() != right_type or IntType() != left_type:
+            self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
             node_type = ErrorType()
         else:
             node_type = IntType()
