@@ -499,16 +499,20 @@ class TypeChecker:
     @visitor.when(IfThenElseNode)
     def visit(self, node, scope):
         self.visit(node.condition, scope)
-        cond_type = fixed_type(node.condition.computed_type, self.current_type)
+        cond_type = node.condition.computed_type
 
         if BoolType() != cond_type:
             self.errors.append((CONDITION_NOT_BOOL % ('If', cond_type.name), node.token))
 
         self.visit(node.if_body, scope)
+        node_type = if_type = node.if_body.computed_type
+
         if node.else_body:
             self.visit(node.else_body, scope)
-        # The return type of a <if> is unknown until runtime 
-        node.computed_type = ErrorType()
+            else_type = node.else_body.computed_type
+            node_type = LCA([if_body, else_body], self.context)
+
+        node.computed_type = node_type
         
     @visitor.when(BlockNode)
     def visit(self, node, scope):
