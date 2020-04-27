@@ -259,9 +259,9 @@ case_list %= idx + colon + typex + rarrow + expr + semi, lambda h, s: [CaseExpre
 case_list %= idx + colon + typex + rarrow + expr + semi + case_list, lambda h, s: [CaseExpressionNode(s[1], s[3], s[5])] + s[7]
 
 # <expr>
-expr %= ifx + expr + then + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], None)
-expr %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[6])
-expr %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4])
+expr %= ifx + expr + then + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1])
+expr %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1], s[6])
+expr %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4], s[1])
 expr %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
 expr %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
 expr %= case + expr + of + ocur + case_list + ccur + esac, lambda h, s: CaseOfNode(s[2], s[5])
@@ -269,31 +269,31 @@ expr %= factor + invocation, lambda h, s: FunctionCallNodeBuilder(s[1], s[2])
 expr %= factor, lambda h, s: s[1]
 
 # <factor>
-factor %= compl + factor_2, lambda h, s: ComplementNode(s[2])
+factor %= compl + factor_2, lambda h, s: ComplementNode(s[2], s[1])
 factor %= factor_2, lambda h, s: s[1]
 
 # <factor-2>
-factor_2 %= isvoid + term, lambda h, s: IsVoidNode(s[2])
+factor_2 %= isvoid + term, lambda h, s: IsVoidNode(s[2], s[1])
 factor_2 %= term, lambda h, s: s[1]
 
 # <term>
-term %= term + star + arith, lambda h, s: StarNode(s[1], s[3])
-term %= term + div + arith, lambda h, s: DivNode(s[1], s[3])
+term %= term + star + arith, lambda h, s: StarNode(s[1], s[3], s[2])
+term %= term + div + arith, lambda h, s: DivNode(s[1], s[3], s[2])
 term %= arith, lambda h, s: s[1]
 
 # <arith>
-arith %= arith + plus + term, lambda h, s: PlusNode(s[1], s[3])
-arith %= arith + minus + term, lambda h, s: MinusNode(s[1], s[3])
+arith %= arith + plus + term, lambda h, s: PlusNode(s[1], s[3], s[2])
+arith %= arith + minus + term, lambda h, s: MinusNode(s[1], s[3], s[2])
 arith %= factor_3, lambda h, s: s[1]
 
 # <factor-3>
-factor_3 %= factor_3 + leq + factor_4, lambda h, s: LessEqualNode(s[1], s[3])
-factor_3 %= factor_3 + less + factor_4, lambda h, s: LessNode(s[1], s[3])
-factor_3 %= factor_3 + equal + factor_4, lambda h, s: EqualNode(s[1], s[3])
+factor_3 %= factor_3 + leq + factor_4, lambda h, s: LessEqualNode(s[1], s[3], s[2])
+factor_3 %= factor_3 + less + factor_4, lambda h, s: LessNode(s[1], s[3], s[2])
+factor_3 %= factor_3 + equal + factor_4, lambda h, s: EqualNode(s[1], s[3], s[2])
 factor_3 %= factor_4, lambda h, s: s[1]
 
 #<factor-4>
-factor_4 %= notx + atom, lambda h, s: NotNode(s[2])
+factor_4 %= notx + atom, lambda h, s: NotNode(s[2], s[1])
 factor_4 %= atom, lambda h, s: s[1]
 
 # <invocation>
