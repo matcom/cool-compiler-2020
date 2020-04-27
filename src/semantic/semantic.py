@@ -29,41 +29,14 @@ class ProgramVisitor(Visitor):
             classType = TypesByName[c.type]
             for f in c.feature_nodes:
                 if type(f) is DefFuncNode:
-                    # Add all functions to types
-                    functionArgsTypeNames = [a[1] for a in f.params]
-                    functionArgsType = []
-                    for type_name in functionArgsTypeNames:
-                        # Check all argument types
-                        try:
-                            functionArgsType.append(TypesByName[type_name])
-                        except KeyError:
-                            add_semantic_error(0, 0, f'unknown type {type_name}')
-                            return
-                    # Check returned type
-                    try:
-                        returnType = TypesByName[f.return_type]
-                    except KeyError:
-                        add_semantic_error(0, 0, f'unknown type {f.return_type}')
-                        return
-                    try:
-                        _ = classType.methods[f.id]
-                        # Duplicated method declaration in same class, not overload allowed
-                        add_semantic_error(0, 0, f'method {f.id} already declared in class {classType.name}')
-                    except KeyError:
-                        classType.methods[f.id] = CoolTypeMethod(f.id, functionArgsType, returnType)
+                    result, msg = classType.add_method(f.id, f.params, f.return_type)
+                    if not result:
+                        add_semantic_error(0, 0, msg)
                 elif type(f) is DefAttrNode:
                     # Add all attributes to types
-                    try:
-                        _ = classType.attributes[f.id]
-                        add_semantic_error(0, 0, f'attribute {f.id} already declared')
-                    except KeyError:
-                        try:
-                            attrType = TypesByName[f.type]
-                        except KeyError:
-                            add_semantic_error(0, 0, f'unknown type {f.type}')
-                            return
-                        classType.attributes[f.id] = CoolTypeAttribute(f.id, attrType)
-
+                    result, msg = classType.add_attr(f.id, f.type)
+                    if not result:
+                        add_semantic_error(0, 0, msg)
         # Visit each class inside
         for c in node.classes:
             c.accept(DefClassVisitor())
@@ -103,7 +76,7 @@ class DefFuncVisitor(Visitor):
 
     def visit(self, node: DefFuncNode):
         body_type = node.expressions.accept(DefExpressionVisitor(self.CurrentClass))
-        return_type = TypesByName[node.return_type]
+        return_type = type_by_name(node.return_type, self.CurrentClass.name)
         if check_inherits(body_type, return_type):
             return return_type
         elif body_type is not None:
