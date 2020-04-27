@@ -578,22 +578,32 @@ class TypeChecker:
     def visit(self, node, scope):
         obj_type = self.current_type
         
+        error = False
+
+        arg_types = []
+        for arg in node.args:
+            self.visit(arg, scope)
+            arg = fixed_type(arg.computed_type, self.current_type)
+            arg_types.append(arg)
+
         try:
+            token = node.tid
             obj_method = obj_type.get_method(node.id)
-        
             if len(node.args) == len(obj_method.param_types):
                 for arg, param_type in zip(node.args, obj_method.param_types):
-                    self.visit(arg, scope)
-                    arg_type = fixed_type(arg.computed_type, self.current_type)
+                    real_type = fixed_type(param_type, self.current_type)
                     
-                    if not match(arg_type, fixed_type(param_type, self.current_type)):
-                        self.errors.append(INCOMPATIBLE_TYPES.replace('%s', arg_type.name, 1).replace('%s', param_type.name, 1))
+                    if not arg.conforms_to(real_type):
+                        self.errors.append((INCOMPATIBLE_TYPES % (arg.name, real_type.name + f" in the argument #{idx} of {node.id}"), token))
+                        error = True
             else:
-                self.errors.append(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
-            
+                raise SemanticError(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
+            assert error
             node_type = obj_method.return_type
         except SemanticError as ex:
-            self.errors.append(ex.text)
+            self.errors.append((ex.text, token))
+            node_type = ErrorType()
+        except AssertionError:
             node_type = ErrorType()
             
         node.computed_type = node_type
