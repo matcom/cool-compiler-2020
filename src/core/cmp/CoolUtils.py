@@ -258,6 +258,24 @@ let_list %= idx + colon + typex + larrow + expr + comma + let_list, lambda h, s:
 case_list %= idx + colon + typex + rarrow + expr + semi, lambda h, s: [CaseExpressionNode(s[1], s[3], s[5])]
 case_list %= idx + colon + typex + rarrow + expr + semi + case_list, lambda h, s: [CaseExpressionNode(s[1], s[3], s[5])] + s[7]
 
+# <invocation>
+invocation %= func_call, lambda h, s: [s[1]]
+invocation %= func_call + invocation, lambda h, s: [s[1]] + s[2]
+
+# <func-call>
+func_call %= dot + idx + opar + arg_list + cpar, lambda h, s: (s[2], s[4])
+func_call %= dot + idx + opar + cpar, lambda h, s: (s[2], [])
+func_call %= at + typex + dot + idx + opar + arg_list + cpar, lambda h, s: (s[4], s[6], s[2])
+func_call %= at + typex + dot + idx + opar + cpar, lambda h, s: (s[4], [], s[2])
+
+# <arg-list>
+arg_list %= expr, lambda h, s: [s[1]]
+arg_list %= expr + comma + arg_list, lambda h, s: [s[1]] + s[3]
+
+# <member-call>
+member_call %= idx + opar + arg_list + cpar, lambda h, s: MemberCallNode(s[1], s[3])
+member_call %= idx + opar + cpar, lambda h, s: MemberCallNode(s[1], [])
+
 # <expr>
 expr %= ifx + expr + then + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1])
 expr %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1], s[6])
@@ -287,28 +305,14 @@ arith %= arith + minus + term, lambda h, s: MinusNode(s[1], s[3], s[2])
 arith %= factor_3, lambda h, s: s[1]
 
 # <factor-3>
-factor_3 %= factor_3 + leq + factor_4, lambda h, s: LessEqualNode(s[1], s[3], s[2])
-factor_3 %= factor_3 + less + factor_4, lambda h, s: LessNode(s[1], s[3], s[2])
-factor_3 %= factor_3 + equal + factor_4, lambda h, s: EqualNode(s[1], s[3], s[2])
+factor_3 %= expr + leq + expr, lambda h, s: LessEqualNode(s[1], s[3], s[2])
+factor_3 %= expr + less + expr, lambda h, s: LessNode(s[1], s[3], s[2])
+factor_3 %= expr + equal + expr, lambda h, s: EqualNode(s[1], s[3], s[2])
 factor_3 %= factor_4, lambda h, s: s[1]
 
 #<factor-4>
-factor_4 %= notx + atom, lambda h, s: NotNode(s[2], s[1])
+factor_4 %= notx + expr, lambda h, s: NotNode(s[2], s[1])
 factor_4 %= atom, lambda h, s: s[1]
-
-# <invocation>
-invocation %= func_call, lambda h, s: [s[1]]
-invocation %= func_call + invocation, lambda h, s: [s[1]] + s[2]
-
-# <func-call>
-func_call %= dot + idx + opar + arg_list + cpar, lambda h, s: (s[2], s[4])
-func_call %= dot + idx + opar + cpar, lambda h, s: (s[2], [])
-func_call %= at + typex + dot + idx + opar + arg_list + cpar, lambda h, s: (s[4], s[6], s[2])
-func_call %= at + typex + dot + idx + opar + cpar, lambda h, s: (s[4], [], s[2])
-
-# <arg-list>
-arg_list %= expr, lambda h, s: [s[1]]
-arg_list %= expr + comma + arg_list, lambda h, s: [s[1]] + s[3]
 
 # <atom> 
 atom %= member_call, lambda h, s: s[1]
@@ -320,11 +324,6 @@ atom %= string, lambda h, s: StringNode(s[1])
 atom %= boolx, lambda h, s: BoolNode(s[1])
 atom %= ocur + block + ccur, lambda h, s: BlockNode(s[2])
 atom %= idx + larrow + expr, lambda h, s: AssignNode(s[1], s[3])
-
-
-# <member-call>
-member_call %= idx + opar + arg_list + cpar, lambda h, s: MemberCallNode(s[1], s[3])
-member_call %= idx + opar + cpar, lambda h, s: MemberCallNode(s[1], [])
 
 # Parser
 CoolParser = LR1Parser(CoolGrammar)
