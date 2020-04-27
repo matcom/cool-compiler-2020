@@ -449,7 +449,7 @@ class TypeChecker:
         types_list = []
         for case in node.branches:
             self.visit(case.expr, scope.create_child())
-        # The return type of a <case of> is known at runtime 
+        # The return type of a <case of> is unknown until runtime 
         node.computed_type = ErrorType()
 
     @visitor.when(CaseExpressionNode)
@@ -498,28 +498,17 @@ class TypeChecker:
     @visitor.when(IfThenElseNode)
     def visit(self, node, scope):
         self.visit(node.condition, scope)
-        expr_type = node.condition.computed_type
+        cond_type = fixed_type(node.condition.computed_type, self.current_type)
 
-        if not expr_type.name in ['Bool', 'AUTO_TYPE']:
-            self.errors.append(CONDITION_NOT_BOOL.replace('%s', 'If', 1).replace('%s', expr_type.name, 1))
+        if BoolType() != cond_type:
+            self.errors.append((CONDITION_NOT_BOOL % ('If', cond_type.name), node.token))
 
         self.visit(node.if_body, scope)
-        node.computed_type = node.if_body.computed_type
-        
         if node.else_body:
             self.visit(node.else_body, scope)
-            # //TODO: Check priority preference between AUTO and Error
-            if IsAuto(node.if_body.computed_type.name) or IsAuto(node.else_body.computed_type.name):
-                node.computed_type = self.context.get_type('AUTO_TYPE')
-            elif '<error>' in [node.if_body.computed_type.name, node.else_body.computed_type.name]:
-                node.computed_type = ErrorType()
-            else:
-                types_list = [node.if_body.computed_type, node.else_body.computed_type]
-                if all([t.name == ST for t in types_list]):
-                    node.computed_type = types_list[0]
-                else:
-                    node.computed_type = LCA([fixed_type(t, self.current_type) for t in types_list], self.context)
-            
+        # The return type of a <if> is unknown until runtime 
+        node.computed_type = ErrorType()
+        
     @visitor.when(BlockNode)
     def visit(self, node, scope):
         for expr in node.exprs:
