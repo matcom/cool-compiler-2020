@@ -26,10 +26,9 @@ class CoolType:
             return False, f'method {id} already declared in class {self.name}'
         return self.__can_be_define_hierarchy__(id)
 
-    def add_method(self, id, arg_types, returned_type):
+    def add_method(self, id, arg_types_name, returned_type):
         ok, msg = self.__can_be_define__(id)
         if ok:
-            arg_types_name = [a[1] for a in arg_types]
             arg_types = []
             for arg in arg_types_name:
                 arg_type = type_by_name(arg, self.name)
@@ -43,6 +42,21 @@ class CoolType:
             return True, None
         else:
             return False, msg
+
+    def get_method(self, id, args_types):
+        try:
+            method = self.methods[id]
+            if len(args_types) != len(method.args):
+                return None, f'arguments count mismatch'
+            for i, a in enumerate(args_types):
+                if a != method.args[i]:
+                    return None, f'type of argument {i} mismatch'
+            return method, None
+        except KeyError:
+            if self.parent:
+                return self.parent.get_method(id, args_types)
+            else:
+                return None, f'unknown method {id}'
 
     def add_attr(self, id, attr_type):
         try:
@@ -80,7 +94,7 @@ class CoolTypeMethod:
 
 def type_by_name(type_name, current_class):
     if type_name == 'SELF_TYPE':
-        return current_class
+        return TypesByName[current_class]
     try:
         return TypesByName[type_name]
     except KeyError:

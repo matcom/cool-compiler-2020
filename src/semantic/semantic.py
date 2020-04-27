@@ -111,6 +111,17 @@ class DefExpressionVisitor(Visitor):
                 return varType
             else:
                 return None
+        if type(node) is FuncCallNode:
+            args_types = []
+            for a in node.args:
+                a_type = a.accept(DefExpressionVisitor(self.CurrentClass))
+                if a_type:
+                    args_types.append(a_type)
+            if node.object:
+                print('Not rule for FuncCall from var')
+            else:
+                method, msg = self.CurrentClass.get_method(node.id, args_types)
+                return method.returnedType
         print(f'Not rule for {type(node)} in DefExpressionVisitor')
 
 
