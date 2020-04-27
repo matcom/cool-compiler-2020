@@ -424,19 +424,20 @@ class TypeChecker:
     @visitor.when(AssignNode)
     def visit(self, node, scope):
         self.visit(node.expr, scope)
-        expr_type = fixed_type(node.expr.computed_type, self.current_type)
+        node_type = node.expr.computed_type
         
-        if scope.is_defined(node.id):
+        try:
+            if scope.is_defined(node.id):
+                raise SemanticError(VARIABLE_NOT_DEFINED % (node.id))
             var = scope.find_variable(node.id)
-            node_type = var.type      
-            var_type = fixed_type(node_type, self.current_type) 
+            var_type = fixed_type(var.type, self.current_type) 
             
             if var.name == 'self':
-                self.errors.append((SELF_IS_READONLY, node.tid))
-            elif not expr_type.conforms_to(var_type): 
-                self.errors.append((INCOMPATIBLE_TYPES % (expr_type, var_type), node.tid))
-        else:
-            self.errors.append((VARIABLE_NOT_DEFINED % (node.id), node.tid))
+                raise SemanticError(SELF_IS_READONLY)
+            if not node_type.conforms_to(var_type): 
+                raise SemanticError(INCOMPATIBLE_TYPES % (node_type, var_type))
+        except SemanticError as ex:
+            self.errors.append((ex.text, node.tid))
             node_type = ErrorType()
         
         node.computed_type = node_type
