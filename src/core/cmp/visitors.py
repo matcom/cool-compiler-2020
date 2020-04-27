@@ -705,19 +705,22 @@ class TypeChecker:
     @visitor.when(EqualNode)
     def visit(self, node, scope):
         self.visit(node.left, scope)
-        left_type = node.left.computed_type
+        left_type = fixed_type(node.left.computed_type, self.current_type)
         
         self.visit(node.right, scope)
-        right_type = node.right.computed_type
+        right_type = fixed_type(node.right.computed_type, self.current_type)
         
-        if not (left_type.name == right_type.name and left_type.name in built_in_types[:3]):
-            self.errors.append(INVALID_OPERATION.replace('%s', left_type.name, 1).replace('%s', right_type.name, 1))
-            node_type = ErrorType()
+        valid_types = [IntType(), BoolType(), StringType()]
+        for op_type in valid_types:
+            if op == right_type and op == left_type:
+                node_type = op_type
+                break
         else:
-            node_type = right_type
+            self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
+            node_type = ErrorType()
             
         node.computed_type = node_type
-
+        
 # Type Inference Visitor
 class InferenceVisitor(TypeChecker):
     def __init__(self, context, errors=[]):
