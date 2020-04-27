@@ -445,25 +445,12 @@ class TypeChecker:
     @visitor.when(CaseOfNode)
     def visit(self, node, scope):
         self.visit(node.expr, scope)
-        has_auto = has_error = False
         
         types_list = []
         for case in node.branches:
             self.visit(case.expr, scope.create_child())
-            # //TODO: be carefull whit void
-            has_auto |= IsAuto(case.expr.computed_type.name)
-            has_error |= case.expr.computed_type.name == '<error>'
-            types_list.append(case.expr.computed_type)
-
-        if has_error:
-            node.computed_type = ErrorType()
-        elif has_auto:
-            node.computed_type = self.context.get_type('AUTO_TYPE')
-        else:
-            if all([t.name == ST for t in types_list]):
-                node.computed_type = types_list[0]
-            else:
-                node.computed_type = LCA([fixed_type(t, self.current_type) for t in types_list], self.context)
+        # The return type of a <case of> is known at runtime 
+        node.computed_type = ErrorType()
 
     @visitor.when(CaseExpressionNode)
     def visit(self, node, scope):
