@@ -10,17 +10,10 @@ class ProgramNode(Node):
         self._dottext = dottext
         self._dotdata = dotdata
 
-class TextSectionNode(Node):
-    def __init__(self, functions):
-        self.functions
 
 class FunctionNode(Node):
     def __init__(self, instructions):
         self.instructions = instructions
-
-class DataSectionNode(Node):
-    def __init__(self, data):
-        self.data = data
 
 class DataNode(Node):
     def __init__(self, name, value):
@@ -75,9 +68,17 @@ class JumpRegister(InstructionNode):
 
 
 class MIPSType():
-    def __init__(self, name, attributes):
+    def __init__(self, name, attributes, methods):
         self.attributes = attributes
+        self.methods = methods
 
-    def get_offset(self, attr_name):
+    def get_attr_offset(self, attr_name):
         return ATTR_SIZE * self.attributes.index(attributes)
+    
+    def get_func(self, method_name):
+        return self.methods[method_name]
+    
+    @property
+    def size(self):
+        return len(self.attributes) * ATTR_SIZE 
 
