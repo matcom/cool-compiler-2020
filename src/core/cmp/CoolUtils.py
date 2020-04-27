@@ -251,9 +251,9 @@ block %= expr + semi + block, lambda h, s: [s[1]] + s[3]
 
 # <let-list>
 let_list %= idx + colon + typex, lambda h, s: [LetAttributeNode(s[1], s[3])]
-let_list %= idx + colon + typex + larrow + expr, lambda h, s: [LetAttributeNode(s[1], s[3], s[5])]
+let_list %= idx + colon + typex + larrow + expr, lambda h, s: [LetAttributeNode(s[1], s[3], s[5], s[4])]
 let_list %= idx + colon + typex + comma + let_list, lambda h, s: [LetAttributeNode(s[1], s[3])] + s[5]
-let_list %= idx + colon + typex + larrow + expr + comma + let_list, lambda h, s: [LetAttributeNode(s[1], s[3], s[5])] + s[7]
+let_list %= idx + colon + typex + larrow + expr + comma + let_list, lambda h, s: [LetAttributeNode(s[1], s[3], s[5], s[4])] + s[7]
 
 # <case-list>
 case_list %= idx + colon + typex + rarrow + expr + semi, lambda h, s: [CaseExpressionNode(s[1], s[3], s[5])]
