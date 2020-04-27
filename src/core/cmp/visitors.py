@@ -627,14 +627,14 @@ class TypeChecker:
     @visitor.when(ComparisonNode)
     def visit(self, node, scope):
         self.visit(node.left, scope)
-        left_type = node.left.computed_type
+        left_type = fixed_type(node.left.computed_type, self.current_type)
         
         self.visit(node.right, scope)
-        right_type = node.right.computed_type
+        right_type = fixed_type(node.right.computed_type, self.current_type)
         
-        if not (left_type.name == 'Bool' and right_type.name == 'Bool'):
-            self.errors.append(INVALID_OPERATION.replace('%s', left_type.name, 1).replace('%s', right_type.name, 1))
-            node_type = ErrorType()
+        if BoolType() != right_type or BoolType() != left_type:
+            self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
+            node_type = BoolType()
         else:
             node_type = BoolType()
             
