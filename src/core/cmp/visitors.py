@@ -479,26 +479,21 @@ class TypeChecker:
         try:
             node_type = self.context.get_type(node.type)
         except SemanticError as ex:
-            self.errors.append(ex.text)
+            self.errors.append((ex.text, node.ttype))
             node_type = ErrorType()
 
         if not scope.is_local(node.id):
             scope.define_variable(node.id, node_type)
         else:
-            self.errors.append(LOCAL_ALREADY_DEFINED.replace('%s', node.id, 1).replace('%s', self.current_method.name, 1))
-            # //TODO: use ErrorType here and in Inferencer
-        if not node.expr:
-            node.computed_type = node.type
-            return
+            self.errors.append((LOCAL_ALREADY_DEFINED % (node.id, self.current_method.name), node.tid))
+        
+        if node.expr:
+            self.visit(node.expr, scope)
+            expr_type = fixed_type(node.expr.computed_type, self.current_type)
+            real_type = fixed_type(node_type, self.current_type)
             
-        self.visit(node.expr, scope)
-        expr_type = node.expr.computed_type
-        
-        if not match(fixed_type(expr_type, self.current_type), fixed_type(node_type, self.current_type)): 
-            self.errors.append(INCOMPATIBLE_TYPES.replace('%s', expr_type.name, 1).replace('%s', node_type.name, 1))
-            # //TODO: Same here
-        
-        node.computed_type = node_type
+            if not expr_type.conforms_to(real_type): 
+                self.errors.append((INCOMPATIBLE_TYPES % (expr_type.name, real_type.name), node.arrow))
         
     @visitor.when(IfThenElseNode)
     def visit(self, node, scope):
