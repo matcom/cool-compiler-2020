@@ -77,15 +77,8 @@ class Type:
                 raise SemanticError(f'Method "{name}" is not defined in {self.name}.')
 
     def define_method(self, name:str, param_names:list, param_types:list, return_type):
-        if name in self.methods:
+        if name in self.methods.keys():
             raise SemanticError(f'Method "{name}" already defined in {self.name}')
-            # raise SemanticError(f'Method "{name}" already defined in {self.name} with a different signature.')
-
-        method = self.methods[name] = Method(name, param_names, param_types, return_type)
-        return method
-    
-    # my method, change it in future
-    def define_method(self, name:str, param_names:list, param_types:list, return_type):
         try:
             method = self.get_method(name)
         except SemanticError:
@@ -101,7 +94,7 @@ class Type:
         return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
 
     def bypass(self):
-        if self.name == 'Object' or self.name == 'AUTO_TYPE':
+        if self.name == 'Object':
             return True
         return False
 
@@ -144,10 +137,10 @@ class VoidType(Type):
         return True
 
     def bypass(self):
-        return True
+        return False
 
     def __eq__(self, other):
-        return isinstance(other, VoidType)
+        return other.name == self.name or isinstance(other, VoidType)
 
 class IntType(Type):
     def __init__(self):

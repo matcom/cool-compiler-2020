@@ -12,7 +12,7 @@ def main(args):
         with open(args.file, 'r') as fd:
             code = fd.read()
     except:
-        print(f"(0,0) - CompilerError: file {args.file} not found") #TODO: Customize errors
+        print(f"(0,0) - CompilerError: file {args.file} not found")
         exit(1)
     
     # Lexer
@@ -38,54 +38,34 @@ def main(args):
     parsedData, (failure, token) = CoolParser(tokens, get_shift_reduce=True)
     
     if failure:
-        print(f"({token.row},{token.column}) - SyntacticError: Unexpected token {token}") #TODO: Use correct line and column
+        print(f"({token.row},{token.column}) - SyntacticError: Unexpected token {token.lex}")
         exit(1)
-
-    # Comming soon pipeline steps
-    #print(parse)
 
     # AST
     parse, operations = parsedData
     ast = evaluate_reverse_parse(parse, operations, tokens)
+    errors = []
 
     # Collect user types
     collector = TypeCollector()
     collector.visit(ast)
     context = collector.context
-
-    if collector.errors:
-        # Display errors
-        pass
+    errors.extend(collector.errors)
 
     # Building types
     builder = TypeBuilder(context)
     builder.visit(ast)
-
-    if builder.errors:
-        # Display errors
-        pass
+    errors.extend(builder.errors)
 
     # Checking types
     checker = TypeChecker(context)
-    scope = checker.visit(ast)
-
-    if checker.errors:
-        # Display errors
-        pass
-
-    # Infering types
-    inferer = InferenceVisitor(context)
-    while True:
-        old = scope.count_auto()
-        scope = inferer.visit(ast)
-        if old == scope.count_auto():
-            break
-    inferer.errors.clear()
-    scope = inferer.visit(ast)
-
-    if inferer.errors:
-        # Display errors
-        pass
+    checker.visit(ast)
+    errors.extend(checker.errors)
+    
+    if errors:
+        for (msg, token) in errors:
+            print(f"({token.row},{token.column}) - SemanticError: {msg}")
+        exit(1)
 
     exit(0)
 

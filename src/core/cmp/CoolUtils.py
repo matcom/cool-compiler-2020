@@ -2,6 +2,9 @@ from core.cmp.pycompiler import Grammar
 from core.cmp.functions import LR1Parser
 from core.cmp.utils import Token, tokenizer
 
+empty_token = Token("", "")
+empty_token.row, empty_token.column = (0, 0)
+
 # AST Classes
 class Node:
     pass
@@ -14,35 +17,48 @@ class DeclarationNode(Node):
     pass
 
 class ClassDeclarationNode(DeclarationNode):
-    def __init__(self, idx, features, parent='Object'):
-        self.id = idx
-        self.parent = parent
+    def __init__(self, idx, features, parent=None):
+        self.id = idx.lex
+        self.tid = idx
         self.features = features
+        if not parent:
+            parent = Token("Object", "type")
+            parent.row = idx.row
+            parent.column = idx.column
+        self.parent = parent.lex
+        self.tparent = parent
 
 class AttrDeclarationNode(DeclarationNode):
-    def __init__(self, idx, typex, expr=None):
-        self.id = idx
-        self.type = typex
+    def __init__(self, idx, typex, expr=None, arrow=empty_token):
+        self.id = idx.lex
+        self.tid = idx
+        self.type = typex.lex
+        self.ttype = typex
+        self.arrow = arrow
         self.expr = expr
 
 class FuncDeclarationNode(DeclarationNode):
     def __init__(self, idx, params, return_type, body):
-        self.id = idx
+        self.id = idx.lex
+        self.tid = idx
         self.params = params
-        self.type = return_type
+        self.type = return_type.lex
+        self.ttype = return_type
         self.body = body
 
 class ExpressionNode(Node):
     pass
 
 class IfThenElseNode(ExpressionNode):
-    def __init__(self, condition, if_body, else_body):
+    def __init__(self, condition, if_body, if_token, else_body=None):
+        self.token = if_token
         self.condition = condition
         self.if_body = if_body
         self.else_body = else_body
 
 class WhileLoopNode(ExpressionNode):
-    def __init__(self, condition, body):
+    def __init__(self, condition, body, token):
+        self.token = token
         self.condition = condition
         self.body = body
 
@@ -68,28 +84,34 @@ class LetAttributeNode(AttrDeclarationNode):
 
 class AssignNode(ExpressionNode):
     def __init__(self, idx, expr):
-        self.id = idx
+        self.id = idx.lex
+        self.tid = idx
         self.expr= expr
 
 class UnaryNode(ExpressionNode):
-    def __init__(self, expr):
+    def __init__(self, expr, symbol):
+        self.symbol = symbol
         self.expr = expr
 
 class NotNode(UnaryNode):
     pass
 
 class BinaryNode(ExpressionNode):
-    def __init__(self, left, right):
+    def __init__(self, left, right, symbol):
+        self.symbol = symbol
         self.left = left
         self.right = right
 
-class LessEqualNode(BinaryNode):
+class ComparisonNode(BinaryNode):
     pass
 
-class LessNode(BinaryNode):
+class LessEqualNode(ComparisonNode):
     pass
 
-class EqualNode(BinaryNode):
+class LessNode(ComparisonNode):
+    pass
+
+class EqualNode(ComparisonNode):
     pass
 
 class ArithmeticNode(BinaryNode):
@@ -114,24 +136,29 @@ class ComplementNode(UnaryNode):
     pass
 
 class FunctionCallNode(ExpressionNode):
-    def __init__(self, obj, idx, args, typex=None):
+    def __init__(self, obj, idx, args, typex=empty_token):
         self.obj = obj
-        self.id = idx
+        self.id = idx.lex
+        self.tid = idx
         self.args = args
-        self.type = typex
+        self.type = typex.lex
+        self.ttype = typex
 
 class MemberCallNode(ExpressionNode):
     def __init__(self, idx, args):
-        self.id = idx
+        self.id = idx.lex
+        self.tid = idx
         self.args = args
 
 class NewNode(ExpressionNode):
     def __init__(self, typex):
-        self.type = typex
+        self.type = typex.lex
+        self.ttype = typex
 
 class AtomicNode(ExpressionNode):
-    def __init__(self, lex):
-        self.lex = lex
+    def __init__(self, token):
+        self.lex = token.lex
+        self.token = token
 
 class IntegerNode(AtomicNode):
     pass
@@ -146,11 +173,23 @@ class BoolNode(AtomicNode):
     pass
 
 def FunctionCallNodeBuilder(obj, calls):
+    print("-------------------")
     while len(calls):
+        print(obj)
         obj = FunctionCallNode(obj, *calls[0])
         calls.pop(0)
+    print("-------------------")
     return obj
 
+class Param:
+    def __init__(self, tid, ttype):
+        self.tid = tid
+        self.ttype = ttype
+        
+    def __iter__(self):
+        yield self.tid.lex
+        yield self.ttype.lex
+        
 # Grammar
 
 CoolGrammar = Grammar()
@@ -192,7 +231,7 @@ feature_list %= CoolGrammar.Epsilon, lambda h, s: []
 
 # <def-attr>
 feature %= idx + colon + typex + semi, lambda h, s: AttrDeclarationNode(s[1], s[3])
-feature %= idx + colon + typex + larrow + expr + semi, lambda h, s: AttrDeclarationNode(s[1], s[3], s[5])
+feature %= idx + colon + typex + larrow + expr + semi, lambda h, s: AttrDeclarationNode(s[1], s[3], s[5], s[4])
 
 # <def-func>
 feature %= idx + opar + param_list + cpar + colon + typex + ocur + expr + ccur + semi, lambda h, s: FuncDeclarationNode(s[1], s[3], s[6], s[8]) 
@@ -203,7 +242,7 @@ param_list %= param, lambda h, s: [s[1]]
 param_list %= param + comma + param_list, lambda h, s: [s[1]] + s[3]
 
 # <param>
-param %= idx + colon + typex, lambda h, s: (s[1], s[3])
+param %= idx + colon + typex, lambda h, s: Param(s[1], s[3])
 
 # <block>
 block %= expr + semi, lambda h, s: [s[1]]
@@ -211,9 +250,9 @@ block %= expr + semi + block, lambda h, s: [s[1]] + s[3]
 
 # <let-list>
 let_list %= idx + colon + typex, lambda h, s: [LetAttributeNode(s[1], s[3])]
-let_list %= idx + colon + typex + larrow + expr, lambda h, s: [LetAttributeNode(s[1], s[3], s[5])]
+let_list %= idx + colon + typex + larrow + expr, lambda h, s: [LetAttributeNode(s[1], s[3], s[5], s[4])]
 let_list %= idx + colon + typex + comma + let_list, lambda h, s: [LetAttributeNode(s[1], s[3])] + s[5]
-let_list %= idx + colon + typex + larrow + expr + comma + let_list, lambda h, s: [LetAttributeNode(s[1], s[3], s[5])] + s[7]
+let_list %= idx + colon + typex + larrow + expr + comma + let_list, lambda h, s: [LetAttributeNode(s[1], s[3], s[5], s[4])] + s[7]
 
 # <case-list>
 case_list %= idx + colon + typex + rarrow + expr + semi, lambda h, s: [CaseExpressionNode(s[1], s[3], s[5])]
