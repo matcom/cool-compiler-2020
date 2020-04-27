@@ -531,31 +531,45 @@ class TypeChecker:
     @visitor.when(FunctionCallNode)
     def visit(self, node, scope):
         self.visit(node.obj, scope)
-        obj_type = node.obj.computed_type
+        obj_type = fixed_type(node.obj.computed_type, self.current_type)
+        
+        error = False
+
+        arg_types = []
+        for arg in node.args:
+            self.visit(arg, scope)
+            arg = fixed_type(arg.computed_type, self.current_type)
+            arg_types.append(arg)
         
         try:
             if node.type:
-                if IsAuto(node.type):
-                    raise SemanticError('Is not possible to use AUTO_TYPE in a cast')
-                if not obj_type.conforms_to(self.context.get_type(node.type)):
-                    self.errors.append(INCOMPATIBLE_TYPES.replace('%s', obj_type.name, 1).replace('%s', node.type, 1))
-                obj_method = self.context.get_type(node.type).get_method(node.id)
-            else:
-                obj_method = obj_type.get_method(node.id)
+                token = node.ttype
+                cast_type = self.context.get_type(node.type)
+                if cast_type.name == ST:
+                    raise SemanticError("Invalid use of SELF_TYPE")
+                # if IsAuto(node.type):
+                #     raise SemanticError('Is not possible to use AUTO_TYPE in a cast')
+                if not obj_type.conforms_to(cast_type):
+                    raise SemanticError(INCOMPATIBLE_TYPES % (obj_type.name, node.type))
+                obj_type = cast_type
             
+            token = node.tid
+            obj_method = obj_type.get_method(node.id)
             if len(node.args) == len(obj_method.param_types):
-                for arg, param_type in zip(node.args, obj_method.param_types):
-                    self.visit(arg, scope)
-                    arg_type = fixed_type(arg.computed_type, self.current_type)
+                for idx, (arg, param_type) in enumerate(zip(arg_types, obj_method.param_types)):
+                    real_type = fixed_type(param_type, self.current_type)
                     
-                    if not match(arg_type, fixed_type(param_type, self.current_type)):
-                        self.errors.append(INCOMPATIBLE_TYPES.replace('%s', arg_type.name, 1).replace('%s', param_type.name, 1))
+                    if not arg.conforms_to(real_type):
+                        self.errors.append((INCOMPATIBLE_TYPES % (arg.name, real_type.name + f" in the argument #{idx} of {node.id}"), token))
+                        error = True
             else:
-                self.errors.append(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
-            
+                raise SemanticError(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
+            assert error
             node_type = obj_method.return_type
         except SemanticError as ex:
-            self.errors.append(ex.text)
+            self.errors.append((ex.text, token))
+            node_type = ErrorType()
+        except AssertionError:
             node_type = ErrorType()
             
         node.computed_type = node_type
