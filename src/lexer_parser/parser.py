@@ -198,7 +198,7 @@ def p_case_elem(p):
 def p_arg_list(p):
     '''arg_list : arg_list_ne
                 | empty'''
-    p[0] = [p[1]]
+    p[0] = p[1]
 
 
 def p_arg_list_ne(p):
