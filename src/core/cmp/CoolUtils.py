@@ -200,7 +200,7 @@ class_list, def_class = CoolGrammar.NonTerminals('<class-list> <def-class>')
 feature_list, feature = CoolGrammar.NonTerminals('<feature-list> <feature>')
 param_list, param = CoolGrammar.NonTerminals('<param-list> <param>')
 expr, member_call, expr_list, block, let_list, case_list = CoolGrammar.NonTerminals('<expr> <member-call> <expr-list> <block> <let-list> <case-list>')
-arith, term, func_expr, void, compl_expr, not_expr, cmp_expr = CoolGrammar.NonTerminals('<arith> <term> <func-expr> <void> <compl-expr> <not-exp> <cmp-expr>')
+arith, term, func_expr, void, compl_expr, not_expr, cmp_expr, statement = CoolGrammar.NonTerminals('<arith> <term> <func-expr> <void> <compl-expr> <not-exp> <cmp-expr> <statement>')
 atom, func_call, arg_list = CoolGrammar.NonTerminals('<atom> <func-call> <arg-list>')
 
 # terminals
@@ -300,7 +300,15 @@ void %= compl_expr, lambda h, s: s[1]
 
 #<compl-expr>
 compl_expr %= compl + compl_expr, lambda h, s: ComplementNode(s[2], s[1])
-compl_expr %= func_expr, lambda h, s: s[1]
+compl_expr %= statement, lambda h, s: s[1]
+
+statement %= ocur + block + ccur, lambda h, s: BlockNode(s[2])
+statement %= ifx + expr + then + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1])
+statement %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1], s[6])
+statement %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4], s[1])
+statement %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
+statement %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
+statement %= func_expr, lambda h, s: s[1]
 
 # <func-expr>
 func_expr %= func_expr + func_call, lambda h, s: FunctionCallNode(s[1], *s[2])
