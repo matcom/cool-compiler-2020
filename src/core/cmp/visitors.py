@@ -624,11 +624,8 @@ class TypeChecker:
         
         if IntType() != right_type or IntType() != left_type:
             self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
-            node_type = ErrorType()
-        else:
-            node_type = INT
             
-        node.computed_type = node_type
+        node.computed_type = INT
     
     @visitor.when(ComparisonNode)
     def visit(self, node, scope):
@@ -640,11 +637,8 @@ class TypeChecker:
         
         if IntType() != right_type or IntType() != left_type:
             self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
-            node_type = ErrorType()
-        else:
-            node_type = BOOL
             
-        node.computed_type = node_type
+        node.computed_type = BOOL
 
     @visitor.when(IntegerNode)
     def visit(self, node, scope):
@@ -695,9 +689,7 @@ class TypeChecker:
         expr_type = node.expr.computed_type
         if IntType() != expr_type:
             self.errors.append(("Complement works only for Int", node.symbol))
-            node.computed_type = ErrorType()
-        else:
-            node.computed_type = INT
+        node.computed_type = INT
 
     @visitor.when(NotNode)
     def visit(self, node, scope):
@@ -705,9 +697,7 @@ class TypeChecker:
         expr_type = node.expr.computed_type
         if BoolType() != expr_type:
             self.errors.append(("Not operator works only for Bool", node.symbol))
-            node.computed_type = ErrorType()
-        else:
-            node.computed_type = BOOL
+        node.computed_type = BOOL
 
     @visitor.when(EqualNode)
     def visit(self, node, scope):
@@ -718,15 +708,15 @@ class TypeChecker:
         right_type = node.right.computed_type
         
         valid_types = [IntType(), BoolType(), StringType()]
-        for op_type in valid_types:
-            if op_type == right_type and op_type == left_type:
-                node_type = BOOL
-                break
-        else:
+        try:
+            for op_type in valid_types:
+                if op_type == right_type or op_type == left_type:
+                    assert op_type == right_type and op_type == left_type
+                    break
+        except AssertionError:
             self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
-            node_type = ErrorType()
             
-        node.computed_type = node_type
+        node.computed_type = BOOL
 
 # Type Inference Visitor
 class InferenceVisitor(TypeChecker):
