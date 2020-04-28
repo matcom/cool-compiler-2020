@@ -22,6 +22,12 @@ class BaseCILToMIPSVisitor:
     def cil_instructions(self)
         return self.actual_function.instructions
 
+    def variable_index(self, var_name):
+        for i, var in enumerate self.localvars:
+            if var.name == var_name:
+                return i
+        return -1
+
     def add_instructions(self, instructions):
         self.actual_function_instructions.extend(instructions)
 
@@ -45,7 +51,11 @@ class CILToMIPSVisitor(BaseCILToMIPSVisitor):
 
     @visitor.when(cil.TypeNode)
     def visit(self, node):
-        self.types.append(cil_to_mips_type(node))
+        data_label = mips.TYPE_NAME_LABEL.format(len(self.types))
+        mips_type  = cil_to_mips_type(node)
+        mips_type.set_data_label(data_label)
+        self.types.append(mips_type)
+        self.dotdata.append(mips.DataNode(data_label, node.name))
 
     @visitor.when(cil.DataNode)
     def visit(self, node):
@@ -57,9 +67,6 @@ class CILToMIPSVisitor(BaseCILToMIPSVisitor):
         
         registers_to_save = ['ra', 't0', 't1']
         #Saving Register
-        # self.add_instructions(mips.save_register(mips.REGISTERS['ra']))
-        # self.add_instructions(mips.save_register(mips.REGISTERS['t0']))
-        # self.add_instructions(mips.save_register(mips.REGISTERS['t1']))
         self.add_instructions(mips.save_registers(registers_to_save))
         
         #Argument received to params
@@ -75,14 +82,18 @@ class CILToMIPSVisitor(BaseCILToMIPSVisitor):
             self.visit(instruction)
 
         #Loading saved register
-        # self.add_instructions(mips.load_reg_from_stack(mips.REGISTERS['t1']))
-        # self.add_instructions(mips.load_reg_from_stack(mips.REGISTERS['t0']))
-        # self.add_instructions(mips.load_reg_from_stack(mips.REGISTERS['ra']))
         self.add_instructions(mips.load_registers_from_stack(registers_to_save[-1]))
 
         self.actual_function_instructions = []
         self.actual_function = None
 
+    @visitor.when(cil.AllocateNode)
+    def visit(self, node):
+        size      = self.types[node.vtype].size
+        var_index = self.variable_index(node.dest.name) 
+        offset    = var_index * mips.ATTR_SIZE
+        addr      = mips.Address(mips.REGISTERS['t0'], offset)
+        self.add_instructions(mips.allocate_memory(addr, size))
 
 
 

@@ -1,11 +1,12 @@
 from itertools import chain
 import core.cmp.visitor as visitor
 
-ATTR_SIZE      = 4
-RESGISTER_SIZE = 4
-REGISTER_NAMES = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7','t8', 't9', 'v0', 'v1', 'a0', 'sp', 'ra']
-REGISTERS      = { name: Register(name) for name in REGISTER_NAMES }
+ATTR_SIZE       = 4
+RESGISTER_SIZE  = 4
+REGISTER_NAMES  = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7','t8', 't9', 'v0', 'v1', 'a0', 'sp', 'ra']
+REGISTERS       = { name: Register(name) for name in REGISTER_NAMES }
 
+TYPE_NAME_LABEL = f"type_name_{}"
 
 
 class Node:
@@ -84,6 +85,18 @@ class MIPSType():
     def __init__(self, name, attributes, methods):
         self.attributes = attributes
         self.methods    = methods
+        self.data_label = ""
+
+    @property
+    def size(self):
+        return len(self.attributes) * ATTR_SIZE 
+    
+    @property
+    def data_label(self):
+        return self.data_label
+
+    def set_data_label(self, data_label):
+        self.data_label = string
 
     def get_attr_offset(self, attr_name):
         return ATTR_SIZE * self.attributes.index(attributes)
@@ -91,9 +104,8 @@ class MIPSType():
     def get_func(self, method_name):
         return self.methods[method_name]
     
-    @property
-    def size(self):
-        return len(self.attributes) * ATTR_SIZE 
+    
+    
 
 class Register():
     def __init__(self, name):
