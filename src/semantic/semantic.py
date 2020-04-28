@@ -99,7 +99,7 @@ class DefExpressionVisitor(Visitor):
             return IntType
         if type(node) is StringNode:
             return StringType
-        if type(node) is BoolNode:
+        if type(node) in [BoolNode, EqNode]:
             return BoolType
         if type(node) is VarNode:
             try:
