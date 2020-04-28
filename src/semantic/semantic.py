@@ -4,8 +4,9 @@ from .types import *
 
 
 class Visitor:
-    def __init__(self, current_class):
+    def __init__(self, current_class, local_scope=None):
         self.CurrentClass = current_class
+        self.LocalScope = local_scope if local_scope else {}
 
     def visit(self, node):
         pass
@@ -76,13 +77,16 @@ class DefFuncVisitor(Visitor):
         super().__init__(current_class)
 
     def visit(self, node: DefFuncNode):
+        local_scope = self.LocalScope.copy()
+        for arg in node.params:
+            local_scope[arg[0]] = type_by_name(arg[1])
         if type(node.expressions) is list:
             for exp in node.expressions:
-                body_type = exp.accept(DefExpressionVisitor(self.CurrentClass))
+                body_type = exp.accept(DefExpressionVisitor(self.CurrentClass, local_scope))
                 if body_type is None:
                     break
         else:
-            body_type = node.expressions.accept(DefExpressionVisitor(self.CurrentClass))
+            body_type = node.expressions.accept(DefExpressionVisitor(self.CurrentClass, local_scope))
         return_type = type_by_name(node.return_type)
         if check_inherits(body_type, return_type):
             return return_type
@@ -91,8 +95,8 @@ class DefFuncVisitor(Visitor):
 
 
 class DefExpressionVisitor(Visitor):
-    def __init__(self, current_class):
-        super().__init__(current_class)
+    def __init__(self, current_class, local_scope=None):
+        super().__init__(current_class, local_scope)
 
     def visit(self, node):
         if type(node) is IntNode:
@@ -102,17 +106,19 @@ class DefExpressionVisitor(Visitor):
         if type(node) in [BoolNode, EqNode]:
             return BoolType
         if type(node) is VarNode:
+            if node.id in self.LocalScope.keys():
+                return self.LocalScope[node.id]
             try:
                 return self.CurrentClass.attributes[node.id].attrType
             except KeyError:
                 add_semantic_error(0, 0, f'invalid variable {node.id}')
                 return None
         if type(node) in [StarNode, PlusNode, DivNode, MinusNode]:
-            lvalue_type = node.lvalue.accept(DefExpressionVisitor(self.CurrentClass))
+            lvalue_type = node.lvalue.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
             if lvalue_type != IntType and lvalue_type is not None:
                 add_semantic_error(0, 0, f'invalid left value type')
                 return None
-            rvalue_type = node.rvalue.accept(DefExpressionVisitor(self.CurrentClass))
+            rvalue_type = node.rvalue.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
             if rvalue_type != IntType and rvalue_type is not None:
                 add_semantic_error(0, 0, f'invalid right value type')
                 return None
@@ -129,19 +135,19 @@ class DefExpressionVisitor(Visitor):
             else:
                 return None
         if type(node) is IfNode:
-            if_expr_type = node.if_expr.accept(DefExpressionVisitor(self.CurrentClass))
+            if_expr_type = node.if_expr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
             if if_expr_type != BoolType:
                 add_semantic_error(0, 0, f'\"if\" expression must be a Bool type')
                 return
-            then_expr_type = node.then_expr.accept(DefExpressionVisitor(self.CurrentClass))
-            else_expr_type = node.else_expr.accept(DefExpressionVisitor(self.CurrentClass))
+            then_expr_type = node.then_expr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
+            else_expr_type = node.else_expr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
             if then_expr_type is None or else_expr_type is None:
                 return
             return pronounced_join(then_expr_type, else_expr_type)
         if type(node) is FuncCallNode:
             args_types = []
             for a in node.args:
-                a_type = a.accept(DefExpressionVisitor(self.CurrentClass))
+                a_type = a.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
                 if a_type:
                     args_types.append(a_type)
             if node.object:
