@@ -76,8 +76,14 @@ class DefFuncVisitor(Visitor):
         super().__init__(current_class)
 
     def visit(self, node: DefFuncNode):
-        body_type = node.expressions.accept(DefExpressionVisitor(self.CurrentClass))
-        return_type = type_by_name(node.return_type, self.CurrentClass.name)
+        if type(node.expressions) is list:
+            for exp in node.expressions:
+                body_type = exp.accept(DefExpressionVisitor(self.CurrentClass))
+                if body_type is None:
+                    break
+        else:
+            body_type = node.expressions.accept(DefExpressionVisitor(self.CurrentClass))
+        return_type = type_by_name(node.return_type)
         if check_inherits(body_type, return_type):
             return return_type
         elif body_type is not None:
