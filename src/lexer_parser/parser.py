@@ -123,6 +123,8 @@ def p_expr_func_all(p):
     elif len(p) == 7:
         p[0] = FuncCallNode(p[3], p[5], p[1])
     else:
+        if p[3] is None:
+            p[3] = []
         p[0] = FuncCallNode(p[1], p[3])
 
 
