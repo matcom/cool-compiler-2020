@@ -141,7 +141,7 @@ def p_expr_operators_binary(p):
     elif p[2] == '-':
         p[0] = MinusNode(p[1], p[3])
     elif p[2] == '*':
-        p[0] = PlusNode(p[1], p[3])
+        p[0] = StarNode(p[1], p[3])
     elif p[2] == '/':
         p[0] = DivNode(p[1], p[3])
     elif p[2] == '<':
