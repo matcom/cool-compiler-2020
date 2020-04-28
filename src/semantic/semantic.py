@@ -128,6 +128,16 @@ class DefExpressionVisitor(Visitor):
                 return varType
             else:
                 return None
+        if type(node) is IfNode:
+            if_expr_type = node.if_expr.accept(DefExpressionVisitor(self.CurrentClass))
+            if if_expr_type != BoolType:
+                add_semantic_error(0, 0, f'\"if\" expression must be a Bool type')
+                return
+            then_expr_type = node.then_expr.accept(DefExpressionVisitor(self.CurrentClass))
+            else_expr_type = node.else_expr.accept(DefExpressionVisitor(self.CurrentClass))
+            if then_expr_type is None or else_expr_type is None:
+                return
+            return pronounced_join(then_expr_type, else_expr_type)
         if type(node) is FuncCallNode:
             args_types = []
             for a in node.args:
