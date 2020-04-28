@@ -107,6 +107,16 @@ class DefExpressionVisitor(Visitor):
             except KeyError:
                 add_semantic_error(0, 0, f'invalid variable {node.id}')
                 return None
+        if type(node) in [StarNode, PlusNode, DivNode, MinusNode]:
+            lvalue_type = node.lvalue.accept(DefExpressionVisitor(self.CurrentClass))
+            if lvalue_type != IntType and lvalue_type is not None:
+                add_semantic_error(0, 0, f'invalid left value type')
+                return None
+            rvalue_type = node.rvalue.accept(DefExpressionVisitor(self.CurrentClass))
+            if rvalue_type != IntType and rvalue_type is not None:
+                add_semantic_error(0, 0, f'invalid right value type')
+                return None
+            return IntType
         if type(node) is AssignNode:
             try:
                 varType = self.CurrentClass.attributes[node.id].attrType
