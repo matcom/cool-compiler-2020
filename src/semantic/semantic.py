@@ -29,7 +29,8 @@ class ProgramVisitor(Visitor):
             classType = TypesByName[c.type]
             for f in c.feature_nodes:
                 if type(f) is DefFuncNode:
-                    result, msg = classType.add_method(f.id, f.params, f.return_type)
+                    param_types = [param[1] for param in f.params]
+                    result, msg = classType.add_method(f.id, param_types, f.return_type)
                     if not result:
                         add_semantic_error(0, 0, msg)
                 elif type(f) is DefAttrNode:
