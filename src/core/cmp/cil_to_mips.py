@@ -7,8 +7,23 @@ class BaseCILToMIPSVisitor:
         self.types = {}
         self.dottext = []
         self.dotdata = []
+        self.actual_function = None
+        self.actual_function_instructions = []
     
+    @property
+    def localvars(self):
+        return self.actual_function.localvars
+    
+    @property
+    def params(self):
+        return self.actual_function.parmas
+    
+    @property
+    def cil_instructions(self)
+        return self.actual_function.instructions
 
+    def add_instructions(self, instructions):
+        self.actual_function_instructions.extend(instructions)
 
 class CILToMIPSVisitor(BaseCILToMIPSVisitor):
     @visitor.on('node')
@@ -38,6 +53,36 @@ class CILToMIPSVisitor(BaseCILToMIPSVisitor):
 
     @visitor.when(cil.FunctionNode)
     def visit(self, node):
+        self.actual_function = node
+        
+        registers_to_save = ['ra', 't0', 't1']
+        #Saving Register
+        # self.add_instructions(mips.save_register(mips.REGISTERS['ra']))
+        # self.add_instructions(mips.save_register(mips.REGISTERS['t0']))
+        # self.add_instructions(mips.save_register(mips.REGISTERS['t1']))
+        self.add_instructions(mips.save_registers(registers_to_save))
+        
+        #Argument received to params
+        self.add_instructions(mips.MoveNode(mips.REGISTERS['t1'], mips.REGISTERS['t2']))
+        
+        #Allocating memory for local variables
+        addr     = mips.Address(mips.REGISTERS['t0'], 0)
+        var_size = len(self.localvars) * mips.ATTR_SIZE
+        self.add_instructions(mips.allocate_memory(addr, var_size))
+
+        #function_body
+        for instruction in self.cil_isntructions:
+            self.visit(instruction)
+
+        #Loading saved register
+        # self.add_instructions(mips.load_reg_from_stack(mips.REGISTERS['t1']))
+        # self.add_instructions(mips.load_reg_from_stack(mips.REGISTERS['t0']))
+        # self.add_instructions(mips.load_reg_from_stack(mips.REGISTERS['ra']))
+        self.add_instructions(mips.load_registers_from_stack(registers_to_save[-1]))
+
+        self.actual_function_instructions = []
+        self.actual_function = None
+
 
 
 
