@@ -31,11 +31,11 @@ class CoolType:
         if ok:
             arg_types = []
             for arg in arg_types_name:
-                arg_type = type_by_name(arg, self.name)
+                arg_type = type_by_name(arg)
                 if arg_type is None:
                     return False, f'unknown type {arg}'
                 arg_types.append(arg_type)
-            returned_type = type_by_name(returned_type, self.name)
+            returned_type = type_by_name(returned_type)
             if returned_type is None:
                 return False, f'unknown type {returned_type}'
             self.methods[id] = CoolTypeMethod(id, arg_types, returned_type)
@@ -63,7 +63,7 @@ class CoolType:
             _ = self.attributes[id]
             return False, f'attribute {id} already declared in class {self.name}'
         except KeyError:
-            attr_type = type_by_name(attr_type, self.name)
+            attr_type = type_by_name(attr_type)
             if attr_type is None:
                 return False, f'unknown type {attr_type}'
             self.attributes[id] = CoolTypeAttribute(id, attr_type)
@@ -92,9 +92,7 @@ class CoolTypeMethod:
         return f'{self.id}{self.args}:{self.returnedType}'
 
 
-def type_by_name(type_name, current_class):
-    if type_name == 'SELF_TYPE':
-        return TypesByName[current_class]
+def type_by_name(type_name):
     try:
         return TypesByName[type_name]
     except KeyError:
@@ -143,7 +141,7 @@ def check_type_hierarchy(node: ProgramNode):
     return True
 
 
-SelfType = CoolType('SELF_TYPE', None)
+SelfType = CoolType('SELF_TYPE', None, False)
 ObjectType = CoolType('Object', None)
 IOType = CoolType('IO', ObjectType)
 IntType = CoolType('Int', ObjectType, False)
@@ -151,6 +149,7 @@ StringType = CoolType('String', ObjectType, False)
 BoolType = CoolType('Bool', ObjectType, False)
 
 TypesByName = {
+    'SELF_TYPE': SelfType,
     'Object': ObjectType,
     'IO': IOType,
     'Int': IntType,

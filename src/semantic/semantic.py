@@ -128,6 +128,8 @@ class DefExpressionVisitor(Visitor):
                 print('Not rule for FuncCall from var')
             else:
                 method, msg = self.CurrentClass.get_method(node.id, args_types)
+                if method.returnedType == SelfType:
+                    return self.CurrentClass
                 return method.returnedType
         print(f'Not rule for {type(node)} in DefExpressionVisitor')
 
