@@ -141,6 +141,14 @@ def check_type_hierarchy(node: ProgramNode):
     return True
 
 
+def __type_hierarchy__(type_x):
+    h = []
+    while type_x is not None:
+        h.append(type_x)
+        type_x = type_x.parent
+    return h
+
+
 SelfType = CoolType('SELF_TYPE', None, False)
 ObjectType = CoolType('Object', None)
 IOType = CoolType('IO', ObjectType)
