@@ -149,6 +149,15 @@ def __type_hierarchy__(type_x):
     return h
 
 
+def pronounced_join(type_a, type_b):
+    h = __type_hierarchy__(type_b)
+    while type_a is not None:
+        if type_a in h:
+            break
+        type_a = type_a.parent
+    return type_a
+
+
 SelfType = CoolType('SELF_TYPE', None, False)
 ObjectType = CoolType('Object', None)
 IOType = CoolType('IO', ObjectType)
