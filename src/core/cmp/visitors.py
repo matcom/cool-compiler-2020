@@ -340,9 +340,10 @@ class TypeBuilder:
 # Compute the Lowest Common Ancestor in
 # the type hierarchy tree
 def LCA(type_list, context):
-    known_types = set()
     counter = {}
 
+    if any([isinstance(t, ErrorType) for t in type_list]):
+        return ErrorType()
     type_list = [ context.get_type(tp.name) for tp in type_list ]
     for typex in type_list:
         node = typex
@@ -350,14 +351,12 @@ def LCA(type_list, context):
             try:
                 counter[node.name] += 1
                 if counter[node.name] == len(type_list):
-                    return [t for t in known_types if t.name == node.name][0]
+                    return node
             except KeyError:
                 counter[node.name] = 1
-                known_types.add(node)
-            if node.parent:
-                node = node.parent
-            else:
+            if not node.parent:
                 break
+            node = node.parent
 
     raise Exception('El LCA se partio')
 
@@ -431,7 +430,7 @@ class TypeChecker:
         node_type = node.expr.computed_type
         
         try:
-            if scope.is_defined(node.id):
+            if not scope.is_defined(node.id):
                 raise SemanticError(VARIABLE_NOT_DEFINED % (node.id))
             var = scope.find_variable(node.id)
             
@@ -448,11 +447,11 @@ class TypeChecker:
     @visitor.when(CaseOfNode)
     def visit(self, node, scope):
         self.visit(node.expr, scope)
-        
+            
         types_list = []
         for case in node.branches:
             self.visit(case, scope.create_child())
-            type_list.append(case.computed_type)
+            types_list.append(case.computed_type)
 
         node.computed_type = LCA(types_list, self.context)
 
