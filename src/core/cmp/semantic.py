@@ -1,4 +1,5 @@
 import itertools as itt
+from collections import OrderedDict
 
 class SemanticError(Exception):
     @property
@@ -96,6 +97,18 @@ class Type:
 
         method = self.methods[name] = Method(name, param_names, param_types, return_type)
         return method
+
+    def all_attributes(self, clean=True):
+        plain = OrderedDict() if self.parent is None else self.parent.all_attributes(False)
+        for attr in self.attributes:
+            plain[attr.name] = (attr, self)
+        return plain.values() if clean else plain
+
+    def all_methods(self, clean=True):
+        plain = OrderedDict() if self.parent is None else self.parent.all_methods(False)
+        for method in self.methods:
+            plain[method.name] = (method, self)
+        return plain.values() if clean else plain
 
     def conforms_to(self, other):
         return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
