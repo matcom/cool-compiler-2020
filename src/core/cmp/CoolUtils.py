@@ -200,7 +200,7 @@ class_list, def_class = CoolGrammar.NonTerminals('<class-list> <def-class>')
 feature_list, feature = CoolGrammar.NonTerminals('<feature-list> <feature>')
 param_list, param = CoolGrammar.NonTerminals('<param-list> <param>')
 expr, member_call, expr_list, block, let_list, case_list = CoolGrammar.NonTerminals('<expr> <member-call> <expr-list> <block> <let-list> <case-list>')
-arith, term, func_expr, void, compl_expr, not_expr, cmp_expr, statement = CoolGrammar.NonTerminals('<arith> <term> <func-expr> <void> <compl-expr> <not-exp> <cmp-expr> <statement>')
+arith, term, func_expr, void, compl_expr, cmp_expr, statement = CoolGrammar.NonTerminals('<arith> <term> <func-expr> <void> <compl-expr> <cmp-expr> <statement>')
 atom, func_call, arg_list = CoolGrammar.NonTerminals('<atom> <func-call> <arg-list>')
 
 # terminals
@@ -274,14 +274,12 @@ member_call %= idx + opar + cpar, lambda h, s: MemberCallNode(s[1], [])
 
 # <expr>
 expr %= idx + larrow + expr, lambda h, s: AssignNode(s[1], s[3])
-expr %= not_expr, lambda h, s: s[1]
-
-not_expr %= notx + not_expr, lambda h, s: NotNode(s[2], s[1])
-not_expr %= cmp_expr, lambda h, s: s[1]
+expr %= cmp_expr, lambda h, s: s[1]
 
 cmp_expr %= cmp_expr + leq + cmp_expr, lambda h, s: LessEqualNode(s[1], s[3], s[2])
 cmp_expr %= cmp_expr + less + cmp_expr, lambda h, s: LessNode(s[1], s[3], s[2])
 cmp_expr %= cmp_expr + equal + cmp_expr, lambda h, s: EqualNode(s[1], s[3], s[2])
+cmp_expr %= notx + cmp_expr, lambda h, s: NotNode(s[2], s[1])
 cmp_expr %= arith, lambda h, s: s[1]
 
 # <arith>
