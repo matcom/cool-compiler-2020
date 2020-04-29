@@ -134,6 +134,26 @@ class DefExpressionVisitor(Visitor):
                 return varType
             else:
                 return None
+        if type(node) is DefAttrNode:
+            attr_type = type_by_name(node.type)
+            if attr_type is None:
+                add_semantic_error(0, 0, f'unknown type {node.type}')
+                return None
+            if node.expr:
+                expr_type = node.expr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
+                if check_inherits(expr_type, attr_type):
+                    return attr_type
+                else:
+                    add_semantic_error(0, 0, f'type {expr_type.name} cannot be stored in an {attr_type.name}')
+                    return None
+            return attr_type
+        if type(node) is LetNode:
+            for attr in node.let_attrs:
+                attr_type = attr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
+                if attr_type is None:
+                    return None
+                self.LocalScope[attr.id] = attr_type
+            return None
         if type(node) is IfNode:
             if_expr_type = node.if_expr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
             if if_expr_type != BoolType:
