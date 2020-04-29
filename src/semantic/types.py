@@ -59,9 +59,12 @@ class CoolType:
                 return None, f'unknown method {id}'
 
     def add_attr(self, id, attr_type):
+        attribute, owner_type = get_attribute(self, id)
+        if attribute is not None:
+            return False, f'attribute \"{id}\" already declared in class \"{owner_type.name}\"'
         try:
             _ = self.attributes[id]
-            return False, f'attribute {id} already declared in class {self.name}'
+            return False, f'attribute \"{id}\" already declared in class \"{self.name}\"'
         except KeyError:
             attr_type = type_by_name(attr_type)
             if attr_type is None:
@@ -74,6 +77,15 @@ class CoolType:
 
     def __str__(self):
         return f'{self.name}'
+
+
+def get_attribute(type_c: CoolType, id: str):
+    while type_c is not None:
+        try:
+            return type_c.attributes[id], type_c
+        except KeyError:
+            type_c = type_c.parent
+    return None, None
 
 
 class CoolTypeAttribute:
