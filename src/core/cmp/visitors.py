@@ -390,8 +390,13 @@ class TypeChecker:
         self.current_type = self.context.get_type(node.id)
         
         scope.define_variable('self', self.current_type)
-        for attr in self.current_type.attributes:
-            scope.define_variable(attr.name, attr.type)
+        cur_type = self.current_type
+        while True:
+            for attr in cur_type.attributes:
+                scope.define_variable(attr.name, attr.type)
+            if not cur_type.parent:
+                break
+            cur_type = cur_type.parent
             
         for feature in node.features:
             self.visit(feature, scope.create_child())
