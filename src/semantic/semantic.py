@@ -148,6 +148,7 @@ class DefExpressionVisitor(Visitor):
                     return None
             return attr_type
         if type(node) is LetNode:
+            self.LocalScope = self.LocalScope.copy()
             for attr in node.let_attrs:
                 attr_type = attr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
                 if attr_type is None:
