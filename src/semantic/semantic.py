@@ -154,7 +154,9 @@ class DefExpressionVisitor(Visitor):
                 if attr_type is None:
                     return None
                 self.LocalScope[attr.id] = attr_type
-            return None
+            expr_type = node.expr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
+            if expr_type is not None:
+                return expr_type
         if type(node) is IfNode:
             if_expr_type = node.if_expr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
             if if_expr_type != BoolType:
