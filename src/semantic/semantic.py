@@ -206,13 +206,11 @@ def case_expr_visitor(case:CaseNode, current_class:CoolType, local_scope:dict):
     expr_0=expression_visitor(case.expr, current_class, local_scope)
     
     branch_0=case.case_list[0]
-    temp={}
     temp=local_scope.copy()
     temp[branch_0.id]=expr_0
     current_type=expression_visitor(branch_0.expr, current_class, temp)
     
     for branch in case.case_list[1:]:
-        temp={}
         temp=local_scope.copy()
         temp[branch.id]=expr_0
         current_type=pronounced_join(current_type, expression_visitor(branch.expr, current_class, temp))
