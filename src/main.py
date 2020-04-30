@@ -1,4 +1,5 @@
 import sys
+
 import errors as err
 from lexer_parser import lexer, parser
 from semantic import semantic_check

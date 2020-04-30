@@ -1,6 +1,7 @@
 import ply.lex as lex
-from utils import *
+
 from errors import add_lexer_error
+from utils import *
 
 states = (
     ('commentLine', 'exclusive'),

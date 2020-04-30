@@ -1,5 +1,3 @@
-from errors import add_semantic_error
-from lexer_parser.ast import *
 from .types import *
 
 
