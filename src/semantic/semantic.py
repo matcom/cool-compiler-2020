@@ -202,6 +202,22 @@ def func_call_visitor(func_call: FuncCallNode, current_class: CoolType, local_sc
         return current_class
     return method.returnedType
 
+def case_expr_visitor(case:CaseNode, current_class:CoolType, scope:dict):
+    expr_0=expression_visitor(case.expr, current_class, local_scope)
+    current_type=expression_visitor(case.case_list[0].expr, current_class, local_scope)
+    
+    for branch in case.case_list[1:]:
+        temp={}
+        temp=local_scope.copy()
+        temp[branch.id]=expr_0
+        current_type=pronounced_join(current_type, expression_visitor(branch.expr, current_class, temp))
+      
+    return current_type
+           
+
+def is_void_expr_visitor(isvoid:IsVoidNode, current_class:CoolType, scope:dict):
+    pass
+
 
 __visitors__ = {
     list: list_expr_visitor,
@@ -220,7 +236,9 @@ __visitors__ = {
     DefAttrNode: def_attribute_visitor,
     LetNode: let_visitor,
     IfNode: if_visitor,
-    FuncCallNode: func_call_visitor
+    FuncCallNode: func_call_visitor,
+    CaseNode: case_expr_visitor,
+    IsVoidNode: is_void_expr_visitor
 }
 
 
