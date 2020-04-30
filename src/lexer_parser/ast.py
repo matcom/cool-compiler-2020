@@ -1,4 +1,7 @@
 class AstNode:
+    def __init__(self):      
+        self.lineno = 0
+
     def accept(self, visitor):
         return visitor.visit(self)
 
