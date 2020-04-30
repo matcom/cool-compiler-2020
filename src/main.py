@@ -20,7 +20,7 @@ def main():
     except FileNotFoundError:
         exit_with_error(f'file {sys.argv[1]} not found')
 
-    ast = parser.parse(input_data, lexer)
+    ast = parser.parse(input_data, lexer, tracking=True)
     if err.LEXER_ERRORS:
         for e in err.LEXER_ERRORS:
             print(e)

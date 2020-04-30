@@ -1,6 +1,11 @@
 class AstNode:
     def __init__(self):      
         self.lineno = 0
+        self.colno = 0
+
+    def add_location(self, line, column):
+        self.lineno = line
+        self.colno = column
 
     def accept(self, visitor):
         return visitor.visit(self)

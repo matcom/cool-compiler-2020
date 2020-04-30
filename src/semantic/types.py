@@ -122,7 +122,7 @@ def check_type_declaration(node: ProgramNode):
     for c in node.classes:
         try:
             _ = TypesByName[c.type]
-            add_semantic_error(0, 0, f'duplicated declaration of type {c.type}')
+            add_semantic_error(c.lineno, c.colno, f'duplicated declaration of type {c.type}')
             return False
         except KeyError:
             TypesByName[c.type] = CoolType(c.type, None)
@@ -138,10 +138,10 @@ def check_type_hierarchy(node: ProgramNode):
                 if parentType.inherit:
                     cType.parent = parentType
                 else:
-                    add_semantic_error(0, 0, f'can\'t be inherit from class {parentType.name}')
+                    add_semantic_error(c.lineno, c.colno, f'can\'t be inherit from class {parentType.name}')
                     return False
             except KeyError:
-                add_semantic_error(0, 0, f'unknown parent type {c.parent_type}')
+                add_semantic_error(c.lineno, c.colno, f'unknown parent type {c.parent_type}')
                 return False
         else:
             cType.parent = ObjectType
