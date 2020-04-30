@@ -202,6 +202,7 @@ param_list, param = CoolGrammar.NonTerminals('<param-list> <param>')
 expr, member_call, expr_list, block, let_list, case_list = CoolGrammar.NonTerminals('<expr> <member-call> <expr-list> <block> <let-list> <case-list>')
 arith, term, func_expr, void, compl_expr, cmp_expr, statement = CoolGrammar.NonTerminals('<arith> <term> <func-expr> <void> <compl-expr> <cmp-expr> <statement>')
 atom, func_call, arg_list = CoolGrammar.NonTerminals('<atom> <func-call> <arg-list>')
+final_expr, unary_expr = CoolGrammar.NonTerminals('<final> <unary>')
 
 # terminals
 classx, inherits = CoolGrammar.Terminals('class inherits')
@@ -273,13 +274,30 @@ member_call %= idx + opar + arg_list + cpar, lambda h, s: MemberCallNode(s[1], s
 member_call %= idx + opar + cpar, lambda h, s: MemberCallNode(s[1], [])
 
 # <expr>
-expr %= idx + larrow + expr, lambda h, s: AssignNode(s[1], s[3])
+expr %= arith + plus  + final_expr, lambda h, s: PlusNode(s[1], s[3], s[2])
+expr %= arith + minus + final_expr, lambda h, s: MinusNode(s[1], s[3], s[2])
+expr %= arith + star  + final_expr, lambda h, s: StarNode(s[1], s[3], s[2])
+expr %= arith + div   + final_expr, lambda h, s: DivNode(s[1], s[3], s[2])
+expr %= arith + leq   + final_expr, lambda h, s: LessEqualNode(s[1], s[3], s[2])
+expr %= arith + less  + final_expr, lambda h, s: LessNode(s[1], s[3], s[2])
+expr %= arith + equal + final_expr, lambda h, s: EqualNode(s[1], s[3], s[2])
+expr %= unary_expr, lambda h, s: s[1]
 expr %= cmp_expr, lambda h, s: s[1]
 
-cmp_expr %= cmp_expr + leq + cmp_expr, lambda h, s: LessEqualNode(s[1], s[3], s[2])
-cmp_expr %= cmp_expr + less + cmp_expr, lambda h, s: LessNode(s[1], s[3], s[2])
-cmp_expr %= cmp_expr + equal + cmp_expr, lambda h, s: EqualNode(s[1], s[3], s[2])
-cmp_expr %= notx + cmp_expr, lambda h, s: NotNode(s[2], s[1])
+# <unary>
+unary_expr %= isvoid + unary_expr, lambda h, s: IsVoidNode(s[1], s[3], s[2])
+unary_expr %= compl  + unary_expr, lambda h, s: ComplementNode(s[1], s[3], s[2])
+unary_expr %= final_expr, lambda h, s: s[1]
+
+# <final>
+final_expr %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
+final_expr %= idx + larrow + expr, lambda h, s: AssignNode(s[1], s[3])
+final_expr %= notx + expr, lambda h, s: AssignNode(s[1], s[3])
+
+# <cmp-exp>
+cmp_expr %= arith + leq + arith, lambda h, s: LessEqualNode(s[1], s[3], s[2])
+cmp_expr %= arith + less + arith, lambda h, s: LessNode(s[1], s[3], s[2])
+cmp_expr %= arith + equal + arith, lambda h, s: EqualNode(s[1], s[3], s[2])
 cmp_expr %= arith, lambda h, s: s[1]
 
 # <arith>
@@ -297,16 +315,8 @@ void %= isvoid + void, lambda h, s: IsVoidNode(s[2], s[1])
 void %= compl_expr, lambda h, s: s[1]
 
 #<compl-expr>
-compl_expr %= compl + compl_expr, lambda h, s: ComplementNode(s[2], s[1])
-compl_expr %= statement, lambda h, s: s[1]
-
-statement %= ocur + block + ccur, lambda h, s: BlockNode(s[2])
-statement %= ifx + expr + then + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1])
-statement %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1], s[6])
-statement %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4], s[1])
-statement %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
-statement %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
-statement %= func_expr, lambda h, s: s[1]
+compl_expr %= compl + void, lambda h, s: ComplementNode(s[2], s[1])
+compl_expr %= func_expr, lambda h, s: s[1]
 
 # <func-expr>
 func_expr %= func_expr + func_call, lambda h, s: FunctionCallNode(s[1], *s[2])
@@ -320,6 +330,11 @@ atom %= idx, lambda h, s: IdNode(s[1])
 atom %= integer, lambda h, s: IntegerNode(s[1])
 atom %= string, lambda h, s: StringNode(s[1])
 atom %= boolx, lambda h, s: BoolNode(s[1])
+atom %= ocur + block + ccur, lambda h, s: BlockNode(s[2])
+atom %= ifx + expr + then + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1])
+atom %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1], s[6])
+atom %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4], s[1])
+atom %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
 
 # Parser
 CoolParser = LR1Parser(CoolGrammar)
