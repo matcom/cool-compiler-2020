@@ -215,6 +215,7 @@ plus, minus, star, div, isvoid, compl = CoolGrammar.Terminals('+ - * / isvoid ~'
 notx, less, leq, equal = CoolGrammar.Terminals('not < <= =')
 new, idx, typex, integer, string, boolx = CoolGrammar.Terminals('new id type integer string bool')
 eof = CoolGrammar.EOF
+
 # productions
 program %= class_list, lambda h, s: ProgramNode(s[1])
 
@@ -276,8 +277,12 @@ member_call %= idx + opar + cpar, lambda h, s: MemberCallNode(s[1], [])
 # <expr>
 expr %= arith + plus  + final_expr, lambda h, s: PlusNode(s[1], s[3], s[2])
 expr %= arith + minus + final_expr, lambda h, s: MinusNode(s[1], s[3], s[2])
-expr %= arith + star  + final_expr, lambda h, s: StarNode(s[1], s[3], s[2])
-expr %= arith + div   + final_expr, lambda h, s: DivNode(s[1], s[3], s[2])
+expr %= term  + star  + final_expr, lambda h, s: StarNode(s[1], s[3], s[2])
+expr %= term  + div   + final_expr, lambda h, s: DivNode(s[1], s[3], s[2])
+expr %= arith + plus  + term + star + final_expr, lambda h, s: PlusNode(s[1], StarNode(s[3], s[5], s[4]), s[2])
+expr %= arith + minus + term + star + final_expr, lambda h, s: MinusNode(s[1], StarNode(s[3], s[5], s[4]), s[2])
+expr %= arith + plus  + term + div  + final_expr, lambda h, s: PlusNode(s[1], DivNode(s[3], s[5], s[4]), s[2])
+expr %= arith + minus + term + div  + final_expr, lambda h, s: MinusNode(s[1], DivNode(s[3], s[5], s[4]), s[2])
 expr %= arith + leq   + final_expr, lambda h, s: LessEqualNode(s[1], s[3], s[2])
 expr %= arith + less  + final_expr, lambda h, s: LessNode(s[1], s[3], s[2])
 expr %= arith + equal + final_expr, lambda h, s: EqualNode(s[1], s[3], s[2])
@@ -292,7 +297,7 @@ unary_expr %= final_expr, lambda h, s: s[1]
 # <final>
 final_expr %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
 final_expr %= idx + larrow + expr, lambda h, s: AssignNode(s[1], s[3])
-final_expr %= notx + expr, lambda h, s: AssignNode(s[1], s[3])
+final_expr %= notx + expr, lambda h, s: NotNode(s[2], s[1])
 
 # <cmp-exp>
 cmp_expr %= arith + leq + arith, lambda h, s: LessEqualNode(s[1], s[3], s[2])
