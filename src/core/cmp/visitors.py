@@ -670,18 +670,14 @@ class TypeChecker:
 
     @visitor.when(NewNode)
     def visit(self, node, scope):
-        if node.type in built_in_types[:3]:
-            self.errors.append((f'It cannot be initialized a {node.type} with the new keyword', node.ttype))
-            node.computed_type = ErrorType()
-        else:
-            try:
-                raw_type = self.context.get_type(node.type)
-                node_type = fixed_type(raw_type, self.current_type)
-            except SemanticError as ex:
-                self.errors.append((ex.text, node.ttype))
-                node_type = ErrorType()
-                
-            node.computed_type = node_type
+        try:
+            raw_type = self.context.get_type(node.type)
+            node_type = fixed_type(raw_type, self.current_type)
+        except SemanticError as ex:
+            self.errors.append((ex.text, node.ttype))
+            node_type = ErrorType()
+            
+        node.computed_type = node_type
 
     @visitor.when(IsVoidNode)
     def visit(self, node, scope):
