@@ -64,7 +64,7 @@ class DefAttrVisitor(Visitor):
 
     def visit(self, node: DefAttrNode):
         if node.expr:
-            expr_type = node.expr.accept(DefExpressionVisitor(self.CurrentClass))
+            expr_type = expression_visitor(node.expr, self.CurrentClass, {})
             attr_type = self.CurrentClass.attributes[node.id].attrType
             if not check_inherits(expr_type, attr_type):
                 add_semantic_error(0, 0, f'Invalid type {expr_type}')
@@ -80,13 +80,7 @@ class DefFuncVisitor(Visitor):
         local_scope = self.LocalScope.copy()
         for arg in node.params:
             local_scope[arg[0]] = type_by_name(arg[1])
-        if type(node.expressions) is list:
-            for exp in node.expressions:
-                body_type = exp.accept(DefExpressionVisitor(self.CurrentClass, local_scope))
-                if body_type is None:
-                    break
-        else:
-            body_type = node.expressions.accept(DefExpressionVisitor(self.CurrentClass, local_scope))
+        body_type = expression_visitor(node.expressions, self.CurrentClass, local_scope)
         return_type = type_by_name(node.return_type)
         if check_inherits(body_type, return_type):
             return return_type
@@ -94,93 +88,161 @@ class DefFuncVisitor(Visitor):
             add_semantic_error(0, 0, f'invalid returned type {body_type}')
 
 
-class DefExpressionVisitor(Visitor):
-    def __init__(self, current_class, local_scope=None):
-        super().__init__(current_class, local_scope)
+def int_visitor(expr, current_class, local_scope):
+    return IntType
 
-    def visit(self, node):
-        if type(node) is IntNode:
-            return IntType
-        if type(node) is StringNode:
-            return StringType
-        if type(node) in [BoolNode, EqNode]:
-            return BoolType
-        if type(node) is VarNode:
-            if node.id in self.LocalScope.keys():
-                return self.LocalScope[node.id]
-            try:
-                return self.CurrentClass.attributes[node.id].attrType
-            except KeyError:
-                add_semantic_error(0, 0, f'invalid variable {node.id}')
-                return None
-        if type(node) in [StarNode, PlusNode, DivNode, MinusNode]:
-            lvalue_type = node.lvalue.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
-            if lvalue_type != IntType and lvalue_type is not None:
-                add_semantic_error(0, 0, f'invalid left value type')
-                return None
-            rvalue_type = node.rvalue.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
-            if rvalue_type != IntType and rvalue_type is not None:
-                add_semantic_error(0, 0, f'invalid right value type')
-                return None
-            return IntType
-        if type(node) is AssignNode:
-            try:
-                varType = self.CurrentClass.attributes[node.id].attrType
-            except KeyError:
-                add_semantic_error(0, 0, f'invalid variable {node.id}')
-                return None
-            expressionType = node.accept(DefExpressionVisitor(self.CurrentClass))
-            if check_inherits(expressionType, varType):
-                return varType
+
+def string_visitor(expr, current_class, local_scope):
+    return StringType
+
+
+def bool_visitor(expr, current_class, local_scope):
+    return BoolType
+
+
+def var_visitor(var: VarNode, current_class: CoolType, local_scope: dict):
+    if var.id in local_scope.keys():
+        return local_scope[var.id]
+    attribute, _ = get_attribute(current_class, var.id)
+    if attribute is not None:
+        return attribute.attrType
+    else:
+        raise Exception(f'unknown variable {var.id}')
+
+
+def arithmetic_operator_visitor(operator: BinaryNode, current_class: CoolType, local_scope: dict):
+    lvalue_type = expression_visitor(operator.lvalue, current_class, local_scope)
+    if lvalue_type != IntType:
+        raise Exception(f'invalid left value type {lvalue_type}, must be a {IntType}')
+    rvalue_type = expression_visitor(operator.rvalue, current_class, local_scope)
+    if rvalue_type != IntType:
+        raise Exception(f'invalid left value type {rvalue_type}, must be a {IntType}')
+    return IntType
+
+
+def equal_visitor(equal: EqNode, current_class: CoolType, local_scope: dict):
+    lvalue_type = expression_visitor(equal.lvalue, current_class, local_scope)
+    rvalue_type = expression_visitor(equal.rvalue, current_class, local_scope)
+    static_types = [IntType, BoolType, StringType]
+    if (lvalue_type in static_types or rvalue_type in static_types) and lvalue_type != rvalue_type:
+        raise Exception(f'impossible compare {lvalue_type} and {rvalue_type} types')
+    return BoolType
+
+
+def comparison_visitor(cmp: BinaryNode, current_class: CoolType, local_scope: dict):
+    lvalue_type = expression_visitor(cmp.lvalue, current_class, local_scope)
+    if lvalue_type != IntType:
+        raise Exception(f'lvalue type must be a {IntType}')
+    rvalue_type = expression_visitor(cmp.rvalue, current_class, local_scope)
+    if rvalue_type != IntType:
+        raise Exception(f'rvalue type must be a {IntType}')
+    return BoolType
+
+
+def assignment_visitor(assign: AssignNode, current_class: CoolType, local_scope: dict):
+    try:
+        id_type = local_scope[assign.id]
+    except KeyError:
+        attr, _ = get_attribute(current_class, assign.id)
+        if attr is None:
+            raise Exception(f'unknown variable {assign.id}')
+        else:
+            id_type = attr.attrType
+    expr_type = expression_visitor(assign.expr, current_class, local_scope)
+    if check_inherits(expr_type, id_type):
+        return expr_type
+    raise Exception(f'Type {expr_type} cannot be stored in type {id_type}')
+
+
+def def_attribute_visitor(def_attr: DefAttrNode, current_class: CoolType, local_scope: dict):
+    id_type = type_by_name(def_attr.type)
+    if id_type is None:
+        raise Exception(f'unknown type {def_attr.type}')
+    if def_attr.expr:
+        expr_type = expression_visitor(def_attr.expr, current_class, local_scope)
+        if not check_inherits(expr_type, id_type):
+            raise Exception(f'Type {expr_type} cannot be stored in type {id_type}')
+    return id_type
+
+
+def let_visitor(let: LetNode, current_class: CoolType, local_scope: dict):
+    local_scope = local_scope.copy()
+    for attribute in let.let_attrs:
+        attribute_type = expression_visitor(attribute, current_class, local_scope)
+        local_scope[attribute.id] = attribute_type
+    return expression_visitor(let.expr, current_class, local_scope)
+
+
+def list_expr_visitor(expressions: list, current_class: CoolType, local_scope: dict):
+    final_type = None
+    for expr in expressions:
+        final_type = expression_visitor(expr, current_class, local_scope)
+    return final_type
+
+
+def if_visitor(if_struct: IfNode, current_class: CoolType, local_scope: dict):
+    predicate_type = expression_visitor(if_struct.if_expr, current_class, local_scope)
+    if predicate_type != BoolType:
+        raise Exception(f'\"if\" condition must be a {BoolType}')
+    then_type = expression_visitor(if_struct.then_expr, current_class, local_scope)
+    else_type = expression_visitor(if_struct.else_expr, current_class, local_scope)
+    return pronounced_join(then_type, else_type)
+
+
+def func_call_visitor(func_call: FuncCallNode, current_class: CoolType, local_scope: dict):
+    args_types = []
+    method = None
+    msg = None
+    for arg in func_call.args:
+        arg_type = expression_visitor(arg, current_class, local_scope)
+        args_types.append(arg_type)
+    if func_call.object:
+        if func_call.type:
+            specific_type = type_by_name(func_call.type)
+            if specific_type is None:
+                raise Exception(f'unknown type {func_call.type}')
+            if check_inherits(current_class, specific_type):
+                    method, msg = specific_type.get_method_without_hierarchy(func_call.id, args_types)
             else:
-                return None
-        if type(node) is DefAttrNode:
-            attr_type = type_by_name(node.type)
-            if attr_type is None:
-                add_semantic_error(0, 0, f'unknown type {node.type}')
-                return None
-            if node.expr:
-                expr_type = node.expr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
-                if check_inherits(expr_type, attr_type):
-                    return attr_type
-                else:
-                    add_semantic_error(0, 0, f'type {expr_type.name} cannot be stored in an {attr_type.name}')
-                    return None
-            return attr_type
-        if type(node) is LetNode:
-            self.LocalScope = self.LocalScope.copy()
-            for attr in node.let_attrs:
-                attr_type = attr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
-                if attr_type is None:
-                    return None
-                self.LocalScope[attr.id] = attr_type
-            expr_type = node.expr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
-            if expr_type is not None:
-                return expr_type
-        if type(node) is IfNode:
-            if_expr_type = node.if_expr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
-            if if_expr_type != BoolType:
-                add_semantic_error(0, 0, f'\"if\" expression must be a Bool type')
-                return
-            then_expr_type = node.then_expr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
-            else_expr_type = node.else_expr.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
-            if then_expr_type is None or else_expr_type is None:
-                return
-            return pronounced_join(then_expr_type, else_expr_type)
-        if type(node) is FuncCallNode:
-            args_types = []
-            for a in node.args:
-                a_type = a.accept(DefExpressionVisitor(self.CurrentClass, self.LocalScope))
-                if a_type:
-                    args_types.append(a_type)
-            if node.object:
-                print('Not rule for FuncCall from var')
-            else:
-                method, msg = self.CurrentClass.get_method(node.id, args_types)
-                if method.returnedType == SelfType:
-                    return self.CurrentClass
-                return method.returnedType
-        print(f'Not rule for {type(node)} in DefExpressionVisitor')
+                raise Exception(f'type {current_class} not inherits from {specific_type}')
+        else:
+            object_type = expression_visitor(func_call.object, current_class, local_scope)
+            method, msg = object_type.get_method(func_call.id, args_types)
+    else:
+        method, msg = current_class.get_method(func_call.id, args_types)
+    if method is None:
+        raise Exception(msg)
+    if method.returnedType == SelfType:
+        return current_class
+    return method.returnedType
+
+
+__visitors__ = {
+    list: list_expr_visitor,
+    IntNode: int_visitor,
+    StringNode: string_visitor,
+    BoolNode: bool_visitor,
+    VarNode: var_visitor,
+    PlusNode: arithmetic_operator_visitor,
+    MinusNode: arithmetic_operator_visitor,
+    StarNode: arithmetic_operator_visitor,
+    DivNode: arithmetic_operator_visitor,
+    EqNode: equal_visitor,
+    LessThanNode: comparison_visitor,
+    LessEqNode: comparison_visitor,
+    AssignNode: assignment_visitor,
+    DefAttrNode: def_attribute_visitor,
+    LetNode: let_visitor,
+    IfNode: if_visitor,
+    FuncCallNode: func_call_visitor
+}
+
+
+def expression_visitor(expression, current_class: CoolType, local_scope: dict) -> CoolType:
+    try:
+        return __visitors__[type(expression)](expression, current_class, local_scope)
+    except KeyError:
+        print(f'Not visitor for {expression}')
 
 
 def semantic_check(node):
