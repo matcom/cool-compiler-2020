@@ -55,7 +55,7 @@ class DefClassVisitor(Visitor):
             if type(feature) is DefAttrNode:
                 feature.accept(DefAttrVisitor(self.CurrentClass))
             if type(feature) is DefFuncNode:
-                feature.accept(DefFuncVisitor(self.CurrentClass))
+                def_func_visitor(feature, self.CurrentClass, {})
 
 
 class DefAttrVisitor(Visitor):
@@ -72,20 +72,16 @@ class DefAttrVisitor(Visitor):
                 return attr_type
 
 
-class DefFuncVisitor(Visitor):
-    def __init__(self, current_class):
-        super().__init__(current_class)
-
-    def visit(self, node: DefFuncNode):
-        local_scope = self.LocalScope.copy()
-        for arg in node.params:
-            local_scope[arg[0]] = type_by_name(arg[1])
-        body_type = expression_visitor(node.expressions, self.CurrentClass, local_scope)
-        return_type = type_by_name(node.return_type)
-        if check_inherits(body_type, return_type):
-            return return_type
-        elif body_type is not None:
-            add_semantic_error(0, 0, f'invalid returned type {body_type}')
+def def_func_visitor(function: DefFuncNode, current_class: CoolType, local_scope: dict):
+    local_scope = local_scope.copy()
+    for arg in function.params:
+        local_scope[arg[0]] = type_by_name(arg[1])
+    body_type = expression_visitor(function.expressions, current_class, local_scope)
+    return_type = type_by_name(function.return_type)
+    if check_inherits(body_type, return_type):
+        return return_type
+    elif body_type is not None:
+        add_semantic_error(0, 0, f'invalid returned type {body_type}')
 
 
 def int_visitor(expr, current_class, local_scope):
@@ -202,7 +198,7 @@ def func_call_visitor(func_call: FuncCallNode, current_class: CoolType, local_sc
             if specific_type is None:
                 raise Exception(f'unknown type {func_call.type}')
             if check_inherits(current_class, specific_type):
-                    method, msg = specific_type.get_method_without_hierarchy(func_call.id, args_types)
+                method, msg = specific_type.get_method_without_hierarchy(func_call.id, args_types)
             else:
                 raise Exception(f'type {current_class} not inherits from {specific_type}')
         else:
