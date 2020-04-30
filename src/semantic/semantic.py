@@ -233,6 +233,8 @@ def new_expr_visitor(new:NewNode, current_class:CoolType, local_scope:dict):
     t=type_by_name(new.type)
     if not t:
         raise Exception(f'Type {new.type} does not exist. Cannot create instance.')
+    if t==SelfType:
+        return current_class
     return t
 
 
