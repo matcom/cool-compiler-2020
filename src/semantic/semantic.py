@@ -229,7 +229,7 @@ def loop_expr_visitor(loop:WhileNode, current_class:CoolType, local_scope:dict):
     expression_visitor(loop.body, current_class, local_scope)
     return ObjectType
 
-def new_visitor(new:NewNode, current_class:CoolType, local_scope:dict):
+def new_expr_visitor(new:NewNode, current_class:CoolType, local_scope:dict):
     t=type_by_name(new.type)
     if not t:
         raise Exception(f'Type {new.type} does not exist. Cannot create instance.')
@@ -255,7 +255,9 @@ __visitors__ = {
     IfNode: if_visitor,
     FuncCallNode: func_call_visitor,
     CaseNode: case_expr_visitor,
-    IsVoidNode: is_void_expr_visitor
+    IsVoidNode: is_void_expr_visitor,
+    WhileNode: loop_expr_visitor,
+    NewNode:new_expr_visitor
 }
 
 
