@@ -10,21 +10,10 @@ class CoolType:
         self.methods = {}
         self.inherit = inherit
 
-    def __can_be_define_hierarchy__(self, id):
-        try:
-            method = self.methods[id]
-            if method.redefine:
-                return True, None
-            return False, f'method {id} in class {self.name} can\'t be redefine'
-        except KeyError:
-            if self.parent:
-                return self.parent.__can_be_define_hierarchy__(id)
-            return True, None
-
     def __can_be_define__(self, id):
         if id in self.methods.keys():
             return False, f'method {id} already declared in class {self.name}'
-        return self.__can_be_define_hierarchy__(id)
+        return True, None
 
     def add_method(self, id, arg_types_name, returned_type):
         ok, msg = self.__can_be_define__(id)
@@ -45,6 +34,15 @@ class CoolType:
 
     def get_method(self, id, args_types):
         try:
+            return self.get_method_without_hierarchy(id, args_types)
+        except Exception:
+            if self.parent:
+                return self.parent.get_method(id, args_types)
+            else:
+                return None, f'unknown method {id}'
+
+    def get_method_without_hierarchy(self, id, args_types):
+        try:
             method = self.methods[id]
             if len(args_types) != len(method.args):
                 return None, f'arguments count mismatch'
@@ -53,10 +51,7 @@ class CoolType:
                     return None, f'type of argument {i} mismatch'
             return method, None
         except KeyError:
-            if self.parent:
-                return self.parent.get_method(id, args_types)
-            else:
-                return None, f'unknown method {id}'
+            raise Exception(f'type {self.name} don\'t have a method {id}')
 
     def add_attr(self, id, attr_type):
         attribute, owner_type = get_attribute(self, id)
