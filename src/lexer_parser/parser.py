@@ -119,8 +119,12 @@ def p_expr_func_all(p):
             | expr DOT ID OPAREN arg_list CPAREN
             | ID OPAREN arg_list CPAREN'''
     if len(p) == 9:
-        p[0] = FuncCallNode(p[1], p[3], p[5], p[7])
+        if p[7] is None:
+            p[7] = []
+        p[0] = FuncCallNode(p[5], p[7], p[1], p[3])
     elif len(p) == 7:
+        if p[5] is None:
+            p[5] = []
         p[0] = FuncCallNode(p[3], p[5], p[1])
     else:
         if p[3] is None:
