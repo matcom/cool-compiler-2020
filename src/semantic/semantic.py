@@ -202,38 +202,41 @@ def func_call_visitor(func_call: FuncCallNode, current_class: CoolType, local_sc
         return current_class
     return method.returnedType
 
-def case_expr_visitor(case:CaseNode, current_class:CoolType, local_scope:dict):
-    expr_0=expression_visitor(case.expr, current_class, local_scope)
-    
-    branch_0=case.case_list[0]
-    temp=local_scope.copy()
-    temp[branch_0.id]=expr_0
-    current_type=expression_visitor(branch_0.expr, current_class, temp)
-    
-    for branch in case.case_list[1:]:
-        temp=local_scope.copy()
-        temp[branch.id]=expr_0
-        current_type=pronounced_join(current_type, expression_visitor(branch.expr, current_class, temp))
-      
-    return current_type
-           
 
-def is_void_expr_visitor(isvoid:IsVoidNode, current_class:CoolType, local_scope:dict):
+def case_expr_visitor(case: CaseNode, current_class: CoolType, local_scope: dict):
+    expr_0 = expression_visitor(case.expr, current_class, local_scope)
+
+    branch_0 = case.case_list[0]
+    temp = local_scope.copy()
+    temp[branch_0.id] = expr_0
+    current_type = expression_visitor(branch_0.expr, current_class, temp)
+
+    for branch in case.case_list[1:]:
+        temp = local_scope.copy()
+        temp[branch.id] = expr_0
+        current_type = pronounced_join(current_type, expression_visitor(branch.expr, current_class, temp))
+
+    return current_type
+
+
+def is_void_expr_visitor(isvoid: IsVoidNode, current_class: CoolType, local_scope: dict):
     expression_visitor(isvoid.val, current_class, local_scope)
     return BoolType
 
-def loop_expr_visitor(loop:WhileNode, current_class:CoolType, local_scope:dict):
-    predicate_type=expression_visitor(loop.cond, current_class, local_scope)
+
+def loop_expr_visitor(loop: WhileNode, current_class: CoolType, local_scope: dict):
+    predicate_type = expression_visitor(loop.cond, current_class, local_scope)
     if predicate_type != BoolType:
         raise Exception(f'\"loop\" condition must be a {BoolType}')
     expression_visitor(loop.body, current_class, local_scope)
     return ObjectType
 
-def new_expr_visitor(new:NewNode, current_class:CoolType, local_scope:dict):
-    t=type_by_name(new.type)
+
+def new_expr_visitor(new: NewNode, current_class: CoolType, local_scope: dict):
+    t = type_by_name(new.type)
     if not t:
         raise Exception(f'Type {new.type} does not exist. Cannot create instance.')
-    if t==SelfType:
+    if t == SelfType:
         return current_class
     return t
 
@@ -259,7 +262,7 @@ __visitors__ = {
     CaseNode: case_expr_visitor,
     IsVoidNode: is_void_expr_visitor,
     WhileNode: loop_expr_visitor,
-    NewNode:new_expr_visitor
+    NewNode: new_expr_visitor
 }
 
 
