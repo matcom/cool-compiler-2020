@@ -53,23 +53,19 @@ class DefClassVisitor(Visitor):
         # Check all features
         for feature in node.feature_nodes:
             if type(feature) is DefAttrNode:
-                feature.accept(DefAttrVisitor(self.CurrentClass))
+                def_attr_class_visitor(feature, self.CurrentClass, {})
             if type(feature) is DefFuncNode:
                 def_func_visitor(feature, self.CurrentClass, {})
 
 
-class DefAttrVisitor(Visitor):
-    def __init__(self, current_class):
-        super().__init__(current_class)
-
-    def visit(self, node: DefAttrNode):
-        if node.expr:
-            expr_type = expression_visitor(node.expr, self.CurrentClass, {})
-            attr_type = self.CurrentClass.attributes[node.id].attrType
-            if not check_inherits(expr_type, attr_type):
-                add_semantic_error(0, 0, f'Invalid type {expr_type}')
-            else:
-                return attr_type
+def def_attr_class_visitor(attr: DefAttrNode, current_class: CoolType, local_scope: dict):
+    if attr.expr:
+        expr_type = expression_visitor(attr.expr, current_class, {})
+        attr_type = current_class.attributes[attr.id].attrType
+        if not check_inherits(expr_type, attr_type):
+            add_semantic_error(0, 0, f'Invalid type {expr_type}')
+        else:
+            return attr_type
 
 
 def def_func_visitor(function: DefFuncNode, current_class: CoolType, local_scope: dict):
