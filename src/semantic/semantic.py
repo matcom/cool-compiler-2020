@@ -220,8 +220,9 @@ def case_expr_visitor(case:CaseNode, current_class:CoolType, local_scope:dict):
     return current_type
            
 
-def is_void_expr_visitor(isvoid:IsVoidNode, current_class:CoolType, scope:dict):
-    pass
+def is_void_expr_visitor(isvoid:IsVoidNode, current_class:CoolType, local_scope:dict):
+    expression_visitor(isvoid.val, current_class, local_scope)
+    return BoolType
 
 
 __visitors__ = {
