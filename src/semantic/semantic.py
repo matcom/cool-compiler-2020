@@ -41,21 +41,17 @@ class ProgramVisitor(Visitor):
                         add_semantic_error(0, 0, msg)
         # Visit each class inside
         for c in node.classes:
-            c.accept(DefClassVisitor())
+            class_visitor(c, self.CurrentClass, {})
 
 
-class DefClassVisitor(Visitor):
-    def __init__(self):
-        super().__init__(None)
-
-    def visit(self, node: DefClassNode):
-        self.CurrentClass = TypesByName[node.type]
-        # Check all features
-        for feature in node.feature_nodes:
-            if type(feature) is DefAttrNode:
-                def_attr_class_visitor(feature, self.CurrentClass, {})
-            if type(feature) is DefFuncNode:
-                def_func_visitor(feature, self.CurrentClass, {})
+def class_visitor(_class: DefClassNode, current_class: CoolType, local_scope: dict):
+    current_class = TypesByName[_class.type]
+    # Check all features
+    for feature in _class.feature_nodes:
+        if type(feature) is DefAttrNode:
+            def_attr_class_visitor(feature, current_class, {})
+        if type(feature) is DefFuncNode:
+            def_func_visitor(feature, current_class, {})
 
 
 def def_attr_class_visitor(attr: DefAttrNode, current_class: CoolType, local_scope: dict):
