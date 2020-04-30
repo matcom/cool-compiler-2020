@@ -19,6 +19,7 @@ precedence = (
 def p_program(p):
     'program : class_list'
     p[0] = ProgramNode(p[1])
+    p[0].lineno = p.lineno(0)
 
 
 def p_empty(p):
@@ -44,6 +45,8 @@ def p_def_class(p):
     else:
         p[0] = DefClassNode(p[2], p[4])
 
+    p[0].lineno = p.lineno(0)
+
 
 def p_feature_list(p):
     '''feature_list : def_attr SEMICOLON feature_list
@@ -63,10 +66,13 @@ def p_def_attr_declaration(p):
     except:
         p[0] = DefAttrNode(p[1], p[3])
 
+    p[0].lineno = p.lineno(0)
+
 
 def p_def_func(p):
     '''def_func : ID OPAREN params CPAREN COLON TYPE OBRACKET expr CBRACKET'''
     p[0] = DefFuncNode(p[1], p[3], p[6], p[8])
+    p[0].lineno = p.lineno(0)
 
 
 def p_params_ne(p):
@@ -108,10 +114,13 @@ def p_expr_flow(p):
     elif p[1].lower() == 'while':
         p[0] = WhileNode(p[2], p[4])
 
+    p[0].lineno = p.lineno(0)
+
 
 def p_expr_assign(p):
     '''expr : ID ASSIGN expr'''
     p[0] = AssignNode(p[1], p[3])
+    p[0].lineno = p.lineno(0)
 
 
 def p_expr_func_all(p):
@@ -130,6 +139,8 @@ def p_expr_func_all(p):
         if p[3] is None:
             p[3] = []
         p[0] = FuncCallNode(p[1], p[3])
+    
+    p[0].lineno = p.lineno(0)
 
 
 def p_expr_operators_binary(p):
@@ -155,6 +166,8 @@ def p_expr_operators_binary(p):
     elif p[2] == '=':
         p[0] = EqNode(p[1], p[3])
 
+    p[0].lineno = p.lineno(0)
+
 
 def p_expr_operators_unary(p):
     '''expr : NOT expr
@@ -166,6 +179,8 @@ def p_expr_operators_unary(p):
         p[0] = IsVoidNode(p[2])
     elif p[1].lower() == 'not':
         p[0] = LogicNegationNode(p[2])
+
+    p[0].lineno = p.lineno(0)
 
 
 def p_expr_group(p):
@@ -199,6 +214,7 @@ def p_case_list(p):
 def p_case_elem(p):
     '''case_elem : ID COLON TYPE ARROW expr'''
     p[0] = CaseElemNode(p[5], p[1], p[3])
+    p[0].lineno = p.lineno(0)
 
 
 def p_arg_list(p):
@@ -219,16 +235,19 @@ def p_arg_list_ne(p):
 def p_atom_int(p):
     '''atom : INT'''
     p[0] = IntNode(int(p[1]))
+    p[0].lineno = p.lineno(0)
 
 
 def p_atom_id(p):
     '''atom : ID'''
     p[0] = VarNode(p[1])
+    p[0].lineno = p.lineno(0)
 
 
 def p_atom_new(p):
     '''atom : NEW TYPE'''
     p[0] = NewNode(p[2])
+    p[0].lineno = p.lineno(0)
 
 
 def p_atom_block(p):
@@ -239,11 +258,13 @@ def p_atom_block(p):
 def p_atom_bool(p):
     '''atom :  BOOL'''
     p[0] = BoolNode(p[1].lower())
+    p[0].lineno = p.lineno(0)
 
 
 def p_atom_atring(p):
     '''atom : STRING'''
     p[0] = StringNode(p[1])
+    p[0].lineno = p.lineno(0)
 
 
 def p_block(p):
