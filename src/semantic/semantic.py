@@ -222,6 +222,19 @@ def is_void_expr_visitor(isvoid:IsVoidNode, current_class:CoolType, local_scope:
     expression_visitor(isvoid.val, current_class, local_scope)
     return BoolType
 
+def loop_expr_visitor(loop:WhileNode, current_class:CoolType, local_scope:dict):
+    predicate_type=expression_visitor(loop.cond, current_class, local_scope)
+    if predicate_type != BoolType:
+        raise Exception(f'\"loop\" condition must be a {BoolType}')
+    expression_visitor(loop.body, current_class, local_scope)
+    return ObjectType
+
+def new_visitor(new:NewNode, current_class:CoolType, local_scope:dict):
+    t=type_by_name(new.type)
+    if not t:
+        raise Exception(f'Type {new.type} does not exist. Cannot create instance.')
+    return t
+
 
 __visitors__ = {
     list: list_expr_visitor,
