@@ -31,12 +31,12 @@ class ProgramVisitor(Visitor):
                     param_types = [param[1] for param in f.params]
                     result, msg = classType.add_method(f.id, param_types, f.return_type)
                     if not result:
-                        add_semantic_error(0, 0, msg)
+                        add_semantic_error(f.lineno, f.colno, msg)
                 elif type(f) is DefAttrNode:
                     # Add all attributes to types
                     result, msg = classType.add_attr(f.id, f.type)
                     if not result:
-                        add_semantic_error(0, 0, msg)
+                        add_semantic_error(f.lineno, f.colno, msg)
         # Visit each class inside
         for c in node.classes:
             class_visitor(c, self.CurrentClass, {})
@@ -71,7 +71,7 @@ def def_func_visitor(function: DefFuncNode, current_class: CoolType, local_scope
     if check_inherits(body_type, return_type):
         return return_type
     elif body_type is not None:
-        add_semantic_error(0, 0, f'invalid returned type {body_type}')
+        add_semantic_error(node.lineno, node.colno, f'invalid returned type {body_type}')
 
 
 def int_visitor(expr, current_class, local_scope):
