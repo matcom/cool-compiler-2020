@@ -1,15 +1,6 @@
 from .types import *
 
 
-class Visitor:
-    def __init__(self, current_class, local_scope=None):
-        self.CurrentClass = current_class
-        self.LocalScope = local_scope if local_scope else {}
-
-    def visit(self, node):
-        pass
-
-
 def program_visitor(program: ProgramNode):
     if not (check_type_declaration(program) and check_type_hierarchy(program)):
         return
