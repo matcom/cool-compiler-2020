@@ -512,14 +512,11 @@ class TypeChecker:
             self.errors.append((CONDITION_NOT_BOOL % ('If', cond_type.name), node.token))
 
         self.visit(node.if_body, scope)
-        node_type = if_type = node.if_body.computed_type
+        if_type = node.if_body.computed_type
 
-        if node.else_body:
-            self.visit(node.else_body, scope)
-            else_type = node.else_body.computed_type
-            node_type = LCA([if_type, else_type], self.context)
-
-        node.computed_type = node_type
+        self.visit(node.else_body, scope)
+        else_type = node.else_body.computed_type
+        node.computed_type = LCA([if_type, else_type], self.context)
         
     @visitor.when(BlockNode)
     def visit(self, node, scope):

@@ -50,7 +50,7 @@ class ExpressionNode(Node):
     pass
 
 class IfThenElseNode(ExpressionNode):
-    def __init__(self, condition, if_body, if_token, else_body=None):
+    def __init__(self, condition, if_body, if_token, else_body):
         self.token = if_token
         self.condition = condition
         self.if_body = if_body
@@ -336,7 +336,6 @@ atom %= integer, lambda h, s: IntegerNode(s[1])
 atom %= string, lambda h, s: StringNode(s[1])
 atom %= boolx, lambda h, s: BoolNode(s[1])
 atom %= ocur + block + ccur, lambda h, s: BlockNode(s[2])
-atom %= ifx + expr + then + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1])
 atom %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[1], s[6])
 atom %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4], s[1])
 atom %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
