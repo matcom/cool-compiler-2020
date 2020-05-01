@@ -54,9 +54,11 @@ def class_visitor(_class: DefClassNode, current_class: CoolType, local_scope: di
 def def_attr_class_visitor(attr: DefAttrNode, current_class: CoolType, local_scope: dict):
     if attr.expr:
         expr_type = expression_visitor(attr.expr, current_class, {})
-        attr_type = current_class.attributes[attr.id].attrType
+        attr_type = type_by_name(attr.type)
+        if attr_type is None:
+            raise Exception(attr.lineno, attr.colno, f'unknown type {attr.type}')
         if not check_inherits(expr_type, attr_type):
-            add_semantic_error(0, 0, f'Invalid type {expr_type}')
+            raise Exception(attr.lineno, attr.colno, f'cannot save type {expr_type} inside type {attr_type}')
         else:
             return attr_type
 
