@@ -89,15 +89,15 @@ def t_TYPE(t):
     return t
 
 
-def t_ID(t):
-    r'[a-z][a-zA-Z_0-9]*'
-    t.type = reserved.get(t.value.lower(), 'ID')
-    return t
-
-
 def t_BOOL(t):
     r'f[Aa][Ll][Ss][Ee]|t[Rr][Uu][Ee]'
     t.value = (t.value.lower == 'true')
+    return t
+
+
+def t_ID(t):
+    r'[a-z][a-zA-Z_0-9]*'
+    t.type = reserved.get(t.value.lower(), 'ID')
     return t
 
 

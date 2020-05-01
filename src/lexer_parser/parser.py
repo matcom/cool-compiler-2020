@@ -261,7 +261,7 @@ def p_atom_block(p):
 
 def p_atom_bool(p):
     '''atom :  BOOL'''
-    p[0] = BoolNode(p[1].lower())
+    p[0] = BoolNode(p[1])
     p[0].add_location(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)))
 
 
