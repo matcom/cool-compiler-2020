@@ -24,10 +24,10 @@ class CoolType:
                 if arg_type is None:
                     return False, f'unknown type {arg}'
                 arg_types.append(arg_type)
-            returned_type = type_by_name(returned_type)
-            if returned_type is None:
+            _returned_type = type_by_name(returned_type)
+            if _returned_type is None:
                 return False, f'unknown type {returned_type}'
-            self.methods[id] = CoolTypeMethod(id, arg_types, returned_type)
+            self.methods[id] = CoolTypeMethod(id, arg_types, _returned_type)
             return True, None
         else:
             return False, msg
@@ -61,10 +61,10 @@ class CoolType:
             _ = self.attributes[id]
             return False, f'attribute \"{id}\" already declared in class \"{self.name}\"'
         except KeyError:
-            attr_type = type_by_name(attr_type)
-            if attr_type is None:
+            _attr_type = type_by_name(attr_type)
+            if _attr_type is None:
                 return False, f'unknown type {attr_type}'
-            self.attributes[id] = CoolTypeAttribute(id, attr_type)
+            self.attributes[id] = CoolTypeAttribute(id, _attr_type)
             return True, None
 
     def __repr__(self):
