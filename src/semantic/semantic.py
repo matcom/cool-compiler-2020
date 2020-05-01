@@ -42,10 +42,13 @@ def class_visitor(_class: DefClassNode, current_class: CoolType, local_scope: di
     current_class = TypesByName[_class.type]
     # Check all features
     for feature in _class.feature_nodes:
-        if type(feature) is DefAttrNode:
-            def_attr_class_visitor(feature, current_class, {})
-        if type(feature) is DefFuncNode:
-            def_func_visitor(feature, current_class, {})
+        try:
+            if type(feature) is DefAttrNode:
+                def_attr_class_visitor(feature, current_class, {})
+            if type(feature) is DefFuncNode:
+                def_func_visitor(feature, current_class, {})
+        except Exception as exception:
+            add_semantic_error(exception.args[0], exception.args[1], exception.args[2])
 
 
 def def_attr_class_visitor(attr: DefAttrNode, current_class: CoolType, local_scope: dict):
@@ -67,7 +70,7 @@ def def_func_visitor(function: DefFuncNode, current_class: CoolType, local_scope
     if check_inherits(body_type, return_type):
         return return_type
     elif body_type is not None:
-        add_semantic_error(node.lineno, node.colno, f'invalid returned type {body_type}')
+        raise Exception(function.lineno, function.colno, f'invalid returned type {function.return_type}')
 
 
 def int_visitor(expr, current_class, local_scope):
@@ -89,16 +92,18 @@ def var_visitor(var: VarNode, current_class: CoolType, local_scope: dict):
     if attribute is not None:
         return attribute.attrType
     else:
-        raise Exception(f'unknown variable {var.id}')
+        raise Exception(var.lineno, var.colno, f'unknown variable {var.id}')
 
 
 def arithmetic_operator_visitor(operator: BinaryNode, current_class: CoolType, local_scope: dict):
     lvalue_type = expression_visitor(operator.lvalue, current_class, local_scope)
     if lvalue_type != IntType:
-        raise Exception(f'invalid left value type {lvalue_type}, must be a {IntType}')
+        raise Exception(operator.lvalue.lineno, operator.lvalue.colno,
+                        f'invalid left value type {lvalue_type}, must be a {IntType}')
     rvalue_type = expression_visitor(operator.rvalue, current_class, local_scope)
     if rvalue_type != IntType:
-        raise Exception(f'invalid left value type {rvalue_type}, must be a {IntType}')
+        raise Exception(operator.rvalue.lineno, operator.rvalue.colno,
+                        f'invalid left value type {rvalue_type}, must be a {IntType}')
     return IntType
 
 
@@ -107,17 +112,17 @@ def equal_visitor(equal: EqNode, current_class: CoolType, local_scope: dict):
     rvalue_type = expression_visitor(equal.rvalue, current_class, local_scope)
     static_types = [IntType, BoolType, StringType]
     if (lvalue_type in static_types or rvalue_type in static_types) and lvalue_type != rvalue_type:
-        raise Exception(f'impossible compare {lvalue_type} and {rvalue_type} types')
+        raise Exception(equal.lineno, equal.colno, f'impossible compare {lvalue_type} and {rvalue_type} types')
     return BoolType
 
 
 def comparison_visitor(cmp: BinaryNode, current_class: CoolType, local_scope: dict):
     lvalue_type = expression_visitor(cmp.lvalue, current_class, local_scope)
     if lvalue_type != IntType:
-        raise Exception(f'lvalue type must be a {IntType}')
+        raise Exception(cmp.lvalue.lineno, cmp.lvalue.colno, 'lvalue type must be a {IntType}')
     rvalue_type = expression_visitor(cmp.rvalue, current_class, local_scope)
     if rvalue_type != IntType:
-        raise Exception(f'rvalue type must be a {IntType}')
+        raise Exception(cmp.rvalue.lineno, cmp.rvalue.colno, f'rvalue type must be a {IntType}')
     return BoolType
 
 
@@ -127,23 +132,23 @@ def assignment_visitor(assign: AssignNode, current_class: CoolType, local_scope:
     except KeyError:
         attr, _ = get_attribute(current_class, assign.id)
         if attr is None:
-            raise Exception(f'unknown variable {assign.id}')
+            raise Exception(assign.id.lineno, assign.id.colno, f'unknown variable {assign.id}')
         else:
             id_type = attr.attrType
     expr_type = expression_visitor(assign.expr, current_class, local_scope)
     if check_inherits(expr_type, id_type):
         return expr_type
-    raise Exception(f'Type {expr_type} cannot be stored in type {id_type}')
+    raise Exception(assign.expr.lineno, assign.expr.colno, f'Type {expr_type} cannot be stored in type {id_type}')
 
 
 def def_attribute_visitor(def_attr: DefAttrNode, current_class: CoolType, local_scope: dict):
     id_type = type_by_name(def_attr.type)
     if id_type is None:
-        raise Exception(f'unknown type {def_attr.type}')
+        raise Exception(def_attr.lineno, def_attr.colno, f'unknown type {def_attr.type}')
     if def_attr.expr:
         expr_type = expression_visitor(def_attr.expr, current_class, local_scope)
         if not check_inherits(expr_type, id_type):
-            raise Exception(f'Type {expr_type} cannot be stored in type {id_type}')
+            raise Exception(def_attr.lineno, def_attr.colno, f'Type {expr_type} cannot be stored in type {id_type}')
     return id_type
 
 
@@ -165,7 +170,7 @@ def list_expr_visitor(expressions: list, current_class: CoolType, local_scope: d
 def if_visitor(if_struct: IfNode, current_class: CoolType, local_scope: dict):
     predicate_type = expression_visitor(if_struct.if_expr, current_class, local_scope)
     if predicate_type != BoolType:
-        raise Exception(f'\"if\" condition must be a {BoolType}')
+        raise Exception(if_struct.if_expr.lineno, if_struct.if_expr.colno, f'\"if\" condition must be a {BoolType}')
     then_type = expression_visitor(if_struct.then_expr, current_class, local_scope)
     else_type = expression_visitor(if_struct.else_expr, current_class, local_scope)
     return pronounced_join(then_type, else_type)
@@ -182,18 +187,19 @@ def func_call_visitor(func_call: FuncCallNode, current_class: CoolType, local_sc
         if func_call.type:
             specific_type = type_by_name(func_call.type)
             if specific_type is None:
-                raise Exception(f'unknown type {func_call.type}')
+                raise Exception(func_call.lineno, func_call.colno, f'unknown type {func_call.type}')
             if check_inherits(current_class, specific_type):
                 method, msg = specific_type.get_method_without_hierarchy(func_call.id, args_types)
             else:
-                raise Exception(f'type {current_class} not inherits from {specific_type}')
+                raise Exception(func_call.lineno, func_call.colno,
+                                f'type {current_class} not inherits from {specific_type}')
         else:
             object_type = expression_visitor(func_call.object, current_class, local_scope)
             method, msg = object_type.get_method(func_call.id, args_types)
     else:
         method, msg = current_class.get_method(func_call.id, args_types)
     if method is None:
-        raise Exception(msg)
+        raise Exception(func_call.lineno, func_call.colno, msg)
     if method.returnedType == SelfType:
         return current_class
     return method.returnedType
@@ -223,7 +229,7 @@ def is_void_expr_visitor(isvoid: IsVoidNode, current_class: CoolType, local_scop
 def loop_expr_visitor(loop: WhileNode, current_class: CoolType, local_scope: dict):
     predicate_type = expression_visitor(loop.cond, current_class, local_scope)
     if predicate_type != BoolType:
-        raise Exception(f'\"loop\" condition must be a {BoolType}')
+        raise Exception(loop.cond.lineno, loop.cond.colno, f'\"loop\" condition must be a {BoolType}')
     expression_visitor(loop.body, current_class, local_scope)
     return ObjectType
 
@@ -231,7 +237,7 @@ def loop_expr_visitor(loop: WhileNode, current_class: CoolType, local_scope: dic
 def new_expr_visitor(new: NewNode, current_class: CoolType, local_scope: dict):
     t = type_by_name(new.type)
     if not t:
-        raise Exception(f'Type {new.type} does not exist. Cannot create instance.')
+        raise Exception(new.lineno, new.colno, f'Type {new.type} does not exist. Cannot create instance.')
     if t == SelfType:
         return current_class
     return t
