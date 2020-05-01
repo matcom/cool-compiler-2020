@@ -33,7 +33,7 @@ def p_class_list(p):
 
     try:
         p[0] = [p[1]] + p[3]
-    except:
+    except IndexError:
         p[0] = [p[1]]
 
 
@@ -61,7 +61,7 @@ def p_def_attr_declaration(p):
                 | ID COLON TYPE'''
     try:
         p[0] = DefAttrNode(p[1], p[3], p[5])
-    except:
+    except IndexError:
         p[0] = DefAttrNode(p[1], p[3])
 
 
@@ -85,11 +85,12 @@ def p_param_list(p):
                   | param empty'''
     try:
         p[0] = [p[1]] + p[3]
-    except:
+    except IndexError:
         p[0] = [p[1]]
 
 
 def p_param(p):
+    # noinspection PySingleQuotedDocstring
     '''param : ID COLON TYPE'''
     p[0] = (p[1], p[3])
 
@@ -184,7 +185,7 @@ def p_let_attrs(p):
                 | def_attr'''
     try:
         p[0] = [p[1]] + p[3]
-    except:
+    except IndexError:
         p[0] = [p[1]]
 
 
@@ -193,7 +194,7 @@ def p_case_list(p):
                  | case_elem SEMICOLON'''
     try:
         p[0] = [p[1]] + p[3]
-    except:
+    except IndexError:
         p[0] = [p[1]]
 
 
