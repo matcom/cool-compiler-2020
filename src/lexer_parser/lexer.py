@@ -215,7 +215,6 @@ def test(data):
         tok = lexer.token()
         if not tok:
             break
-        # print(f'#{tok.lineno} {tok.type} {tok.value}')
 
 
 lexer = lex.lex()
