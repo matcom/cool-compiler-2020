@@ -124,7 +124,7 @@ def check_type_declaration(node: ProgramNode):
     for c in node.classes:
         try:
             _ = TypesByName[c.type]
-            add_semantic_error(c.lineno, c.colno, f'duplicated declaration of type {c.type}')
+            add_semantic_error(c.lineno, c.colno, f'duplicated declaration of type \'{c.type}\'')
             return False
         except KeyError:
             TypesByName[c.type] = CoolType(c.type, None)

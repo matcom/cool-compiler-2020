@@ -11,7 +11,15 @@ def program_visitor(program: ProgramNode):
         add_semantic_error(0, 0, f'Main class undeclared')
         return
     # Initialize MethodEnv
-    for c in program.classes:
+    types_already_check = [ObjectType, IntType, StringNode, BoolType, IOType]
+    classes = program.classes.copy()
+    while len(classes) != 0:
+        c: DefClassNode = classes.pop()
+        if c.parent_type is not None:
+            parent_type = TypesByName[c.parent_type]
+            if parent_type not in types_already_check:
+                classes = [c] + classes
+                continue
         classType = TypesByName[c.type]
         for f in c.feature_nodes:
             if type(f) is DefFuncNode:
@@ -24,6 +32,7 @@ def program_visitor(program: ProgramNode):
                 result, msg = classType.add_attr(f.id, f.type)
                 if not result:
                     add_semantic_error(f.lineno, f.colno, msg)
+        types_already_check.append(classType)
     # Visit each class inside
     for c in program.classes:
         class_visitor(c, None, {})
