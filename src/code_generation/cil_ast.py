@@ -7,7 +7,7 @@ class ProgramNode(Node):
         self.data = data
         self.code = code
         
-class TypesNode(Node):
+class TypeNode(Node):
     def __init__(self, type):
         self.attributes=[]
         self.methods=[]
@@ -99,12 +99,15 @@ class ArrayNode(InstructionNode):
         self.result=result
         
 class CallNode(InstructionNode):
-    def __init__(self, method):
+    def __init__(self, method, result):
         self.method=method
+        self.result=result
         
 class VCAllNode(InstructionNode):
-    def __init__(self, type, method):
+    def __init__(self, type, method, result):
         self.method=method
+        self.type=type
+        self.result=result
         
 class ArgNode(InstructionNode):
     def __init__(self, val):
@@ -127,25 +130,34 @@ class ReturnNode(InstructionNode):
     def __init__(self, ret_value):
         self.ret_value=ret_value
 
-class StrOpNode(InstructionNode):
-     def __init__(self, str, result):
+        
+class LoadNode(InstructionNode):
+    def __init__(self, addr, result):
+        self.result=result
+        self.addr=addr
+               
+class LengthNode(InstructionNode):
+    def __init__(self, str, result):
         self.result=result
         self.str=str
-        
-class LoadNode(StrOpNode):
-    pass
-               
-class LengthNode(StrOpNode):
-    pass
 
-class ConcatNode(StrOpNode):
-    pass
+class ConcatNode(InstructionNode):
+    def __init__(self, str_a, str_b, result):
+        self.result=result
+        self.str_a=str_a
+        self.str_b=str_b
 
-class SubStringNode(StrOpNode):
-    pass
+class SubStringNode(InstructionNode):
+    def __init__(self, str_a, str_b, result):
+        self.result=result
+        self.str_a=str_a
+        self.str_b=str_b
         
-class StrNode(StrOpNode):
-    pass
+class StrNode(InstructionNode):
+    def __init__(self, val, str):
+        self.str=str
+        self.val=val
+    
     
 class ReadNode(InstructionNode):
     pass
