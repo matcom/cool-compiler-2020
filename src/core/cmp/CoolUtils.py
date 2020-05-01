@@ -275,17 +275,17 @@ member_call %= idx + opar + arg_list + cpar, lambda h, s: MemberCallNode(s[1], s
 member_call %= idx + opar + cpar, lambda h, s: MemberCallNode(s[1], [])
 
 # <expr>
-expr %= arith + plus  + final_expr, lambda h, s: PlusNode(s[1], s[3], s[2])
-expr %= arith + minus + final_expr, lambda h, s: MinusNode(s[1], s[3], s[2])
-expr %= term  + star  + final_expr, lambda h, s: StarNode(s[1], s[3], s[2])
-expr %= term  + div   + final_expr, lambda h, s: DivNode(s[1], s[3], s[2])
-expr %= arith + plus  + term + star + final_expr, lambda h, s: PlusNode(s[1], StarNode(s[3], s[5], s[4]), s[2])
-expr %= arith + minus + term + star + final_expr, lambda h, s: MinusNode(s[1], StarNode(s[3], s[5], s[4]), s[2])
-expr %= arith + plus  + term + div  + final_expr, lambda h, s: PlusNode(s[1], DivNode(s[3], s[5], s[4]), s[2])
-expr %= arith + minus + term + div  + final_expr, lambda h, s: MinusNode(s[1], DivNode(s[3], s[5], s[4]), s[2])
-expr %= arith + leq   + final_expr, lambda h, s: LessEqualNode(s[1], s[3], s[2])
-expr %= arith + less  + final_expr, lambda h, s: LessNode(s[1], s[3], s[2])
-expr %= arith + equal + final_expr, lambda h, s: EqualNode(s[1], s[3], s[2])
+expr %= arith + plus  + unary_expr, lambda h, s: PlusNode(s[1], s[3], s[2])
+expr %= arith + minus + unary_expr, lambda h, s: MinusNode(s[1], s[3], s[2])
+expr %= term  + star  + unary_expr, lambda h, s: StarNode(s[1], s[3], s[2])
+expr %= term  + div   + unary_expr, lambda h, s: DivNode(s[1], s[3], s[2])
+expr %= arith + plus  + term + star + unary_expr, lambda h, s: PlusNode(s[1], StarNode(s[3], s[5], s[4]), s[2])
+expr %= arith + minus + term + star + unary_expr, lambda h, s: MinusNode(s[1], StarNode(s[3], s[5], s[4]), s[2])
+expr %= arith + plus  + term + div  + unary_expr, lambda h, s: PlusNode(s[1], DivNode(s[3], s[5], s[4]), s[2])
+expr %= arith + minus + term + div  + unary_expr, lambda h, s: MinusNode(s[1], DivNode(s[3], s[5], s[4]), s[2])
+expr %= arith + leq   + unary_expr, lambda h, s: LessEqualNode(s[1], s[3], s[2])
+expr %= arith + less  + unary_expr, lambda h, s: LessNode(s[1], s[3], s[2])
+expr %= arith + equal + unary_expr, lambda h, s: EqualNode(s[1], s[3], s[2])
 expr %= unary_expr, lambda h, s: s[1]
 expr %= cmp_expr, lambda h, s: s[1]
 
