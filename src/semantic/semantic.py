@@ -10,36 +10,32 @@ class Visitor:
         pass
 
 
-class ProgramVisitor(Visitor):
-    def __init__(self):
-        super().__init__(None)
-
-    def visit(self, node: ProgramNode):
-        if not (check_type_declaration(node) and check_type_hierarchy(node)):
-            return
-        # Check Main class exists
-        try:
-            TypesByName['Main']
-        except KeyError:
-            add_semantic_error(0, 0, f'Main class undeclared')
-            return
-        # Initialize MethodEnv
-        for c in node.classes:
-            classType = TypesByName[c.type]
-            for f in c.feature_nodes:
-                if type(f) is DefFuncNode:
-                    param_types = [param[1] for param in f.params]
-                    result, msg = classType.add_method(f.id, param_types, f.return_type)
-                    if not result:
-                        add_semantic_error(0, 0, msg)
-                elif type(f) is DefAttrNode:
-                    # Add all attributes to types
-                    result, msg = classType.add_attr(f.id, f.type)
-                    if not result:
-                        add_semantic_error(0, 0, msg)
-        # Visit each class inside
-        for c in node.classes:
-            class_visitor(c, self.CurrentClass, {})
+def program_visitor(program: ProgramNode):
+    if not (check_type_declaration(program) and check_type_hierarchy(program)):
+        return
+    # Check Main class exists
+    try:
+        TypesByName['Main']
+    except KeyError:
+        add_semantic_error(0, 0, f'Main class undeclared')
+        return
+    # Initialize MethodEnv
+    for c in program.classes:
+        classType = TypesByName[c.type]
+        for f in c.feature_nodes:
+            if type(f) is DefFuncNode:
+                param_types = [param[1] for param in f.params]
+                result, msg = classType.add_method(f.id, param_types, f.return_type)
+                if not result:
+                    add_semantic_error(0, 0, msg)
+            elif type(f) is DefAttrNode:
+                # Add all attributes to types
+                result, msg = classType.add_attr(f.id, f.type)
+                if not result:
+                    add_semantic_error(0, 0, msg)
+    # Visit each class inside
+    for c in program.classes:
+        class_visitor(c, None, {})
 
 
 def class_visitor(_class: DefClassNode, current_class: CoolType, local_scope: dict):
@@ -275,4 +271,4 @@ def expression_visitor(expression, current_class: CoolType, local_scope: dict) -
 
 def semantic_check(node):
     if type(node) is ProgramNode:
-        node.accept(ProgramVisitor())
+        program_visitor(node)
