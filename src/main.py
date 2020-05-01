@@ -56,6 +56,11 @@ def main(args):
     builder = TypeBuilder(context)
     builder.visit(ast)
     errors.extend(builder.errors)
+
+    # Checking types
+    checker = TypeChecker(context)
+    checker.visit(ast)
+    errors.extend(checker.errors)
     
     if errors:
         for (msg, token) in errors:
