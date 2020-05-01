@@ -55,9 +55,7 @@ def def_attr_class_visitor(attr: DefAttrNode, current_class: CoolType, local_sco
     if attr.expr:
         expr_type = expression_visitor(attr.expr, current_class, {})
         attr_type = type_by_name(attr.type)
-        if attr_type is None:
-            raise Exception(attr.lineno, attr.colno, f'unknown type {attr.type}')
-        if not check_inherits(expr_type, attr_type):
+        if attr_type is not None and not check_inherits(expr_type, attr_type):
             raise Exception(attr.lineno, attr.colno, f'cannot save type {expr_type} inside type {attr_type}')
         else:
             return attr_type
