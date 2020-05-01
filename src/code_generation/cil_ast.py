@@ -46,6 +46,18 @@ class ArithNode(InstructionNode):
         self.left=left
         self.right=right
         self.result=result
+        
+class PlusNode(ArithNode):
+    pass
+
+class MinusNode(ArithNode):
+    pass
+
+class StarNode(ArithNode):
+    pass
+
+class DivNode(ArithNode):
+    pass
 
 class GetAttrNode(InstructionNode):
     def __init__(self, obj, attr, result):
