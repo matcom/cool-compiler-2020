@@ -31,12 +31,14 @@ def program_visitor(program: ProgramNode):
 
 def class_visitor(_class: DefClassNode, current_class: CoolType, local_scope: dict):
     current_class = TypesByName[_class.type]
+    local_scope = local_scope.copy()
+    local_scope['self'] = current_class
     # Check all features
     for feature in _class.feature_nodes:
         if type(feature) is DefAttrNode:
-            def_attr_class_visitor(feature, current_class, {})
+            def_attr_class_visitor(feature, current_class, local_scope)
         if type(feature) is DefFuncNode:
-            def_func_visitor(feature, current_class, {})
+            def_func_visitor(feature, current_class, local_scope)
 
 
 def def_attr_class_visitor(attr: DefAttrNode, current_class: CoolType, local_scope: dict):
