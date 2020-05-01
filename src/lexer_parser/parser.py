@@ -21,6 +21,7 @@ def p_program(p):
     'program : class_list'
     p[0] = ProgramNode(p[1])
 
+
 def p_empty(p):
     'empty :'
     pass
@@ -66,13 +67,12 @@ def p_def_attr_declaration(p):
         p[0] = DefAttrNode(p[1], p[3])
 
     p[0].add_location(p.lineno(3), find_column(p.lexer.lexdata, p.lexpos(3)))
-    
+
 
 def p_def_func(p):
     '''def_func : ID OPAREN params CPAREN COLON TYPE OBRACKET expr CBRACKET'''
     p[0] = DefFuncNode(p[1], p[3], p[6], p[8])
     p[0].add_location(p.lineno(6), find_column(p.lexer.lexdata, p.lexpos(6)))
-
 
 
 def p_params_ne(p):
@@ -124,7 +124,6 @@ def p_expr_assign(p):
     p[0].add_location(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)))
 
 
-
 def p_expr_func_all(p):
     '''expr : expr AT TYPE DOT ID OPAREN arg_list CPAREN
             | expr DOT ID OPAREN arg_list CPAREN
@@ -144,7 +143,7 @@ def p_expr_func_all(p):
             p[3] = []
         p[0] = FuncCallNode(p[1], p[3])
         p[0].add_location(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)))
-    
+
     p[0].lineno = p.lineno(0)
 
 
@@ -172,6 +171,7 @@ def p_expr_operators_binary(p):
         p[0] = EqNode(p[1], p[3])
 
     p[0].add_location(p.lineno(0), find_column(p.lexer.lexdata, p.lexpos(0)))
+
 
 def p_expr_operators_unary(p):
     '''expr : NOT expr
@@ -287,7 +287,7 @@ def p_block_list(p):
 
 def p_error(p):
     if p:
-        add_parser_error(p.lineno, find_column(p.lexer.lexdata, p.lexpos), f'ERROR at or near \"{p.value}\"')
+        add_parser_error(p.lineno, find_column(p.lexer.lexdata, p.lexpos), f'ERROR at or near \'{p.value}\'')
     else:
         add_parser_error(0, 0, "ERROR at or near EOF")
 
