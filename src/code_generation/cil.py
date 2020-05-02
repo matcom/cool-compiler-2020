@@ -26,8 +26,10 @@ def func_to_cil_visitor(type_name, func):
     return cil.FuncNode(name, params, locals, body)
               
 def expression_to_cil_visitor(expression, locals_count):
-    #choose appropriate visitor 
-    pass
+    try:
+        return __visitor__[type(expression)](expression, locals_count)
+    except:
+        raise Exception(f'There is no visitor for {type(expression)}')
 
 def assign_to_cil_visitor(assign, locals_count):
     expr=expression_to_cil_visitor(assign.expr, locals_count)
