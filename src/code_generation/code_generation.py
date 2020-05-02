@@ -52,9 +52,11 @@ def local_cg_visitor(local:LocalNode):
     return f'LOCAL {local} ;'
 
 
-def instruction_cg_visitor(instrucion:InstructionNode):
-    #aqui se llama al metodo que toque segun el tipo dinamico de instruction
-    pass
+def instruction_cg_visitor(instruction:InstructionNode):
+     try:
+        return __visitors__[type(instruction)](instruction)
+    except KeyError:
+        print(f'Not visitor for {instruction}')
 
 
 def assign_cg_visitor(assign:AssignNode):
@@ -134,6 +136,36 @@ def read_cg_visitor(read:ReadNode):
 
 def print_cg_visitor(print:PrintNode):
     return f'PRINT {print.str} ;'
+
+
+__visitors__ = {
+    AssignNode:assign_cg_visitor,
+    PlusNode:plus_cg_visitor,
+    MinusNode:minus_cg_visitor,
+    StarNode:star_cg_visitor,
+    DivNode:div_cg_visitor,
+    GetAttrNode:get_attr_cg_visitor,
+    SetAttrNode:set_attr_cg_visitor,
+    GetIndexNode:get_index_cg_visitor,
+    SetIndexNode:set_index_cg_visitor,
+    AllocateNode:allocate_cg_visitor,
+    TypeOfNode:typeof_cg_visitor,
+    ArrayNode:array_cg_visitor,
+    CallNode:call_cg_visitor,
+    VCAllNode:vcall_cg_visitor,
+    ArgNode:arg_cg_visitor,
+    ConditionalGotoNode:cond_goto_cg_visitor,
+    GotoNode:goto_cg_visitor,
+    LabelNode: label_cg_visitor,
+    ReturnNode:return_cg_visitor,
+    LoadNode:load_cg_visitor,
+    LengthNode:length_cg_visitor,
+    ConcatNode:concat_cg_visitor,
+    SubStringNode:substring_cg_visitor,
+    StrNode:str_cg_visitor,
+    ReadNode:read_cg_visitor,
+    PrintNode:print_cg_visitor
+}
     
 
 
