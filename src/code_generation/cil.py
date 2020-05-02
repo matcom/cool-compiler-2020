@@ -158,6 +158,18 @@ def let_to_cil_visitor(let, locals_count):
     
     return CIL_block(locals, body, expr_cil.value, data)
         
+def logic_not_to_cil_visitor(not_node, locals_count):
+    expr_cil=expression_to_cil_visitor(not_node.val, locals_count)
+    locals_count+=len(expr_cil.locals)
+    
+    value=f'local_{locals_count}'
+    end_label=f'local_{locals_count + 1}'
+    
+    
+    locals=expr_cil.locals+[cil.LocalNode(value)]
+    body=expr_cil.body+[cil.AssignNode(value, 0), cil.ConditionalGotoNode(expr_cil.value, end_label), cil.AssignNode(value, 1), cil.LabelNode(end_label)]
+    
+    return CIL_block(locals, body, value, expr_cil.data)
 
 class CIL_block:
     def __init__(self, locals, body, value, data=[]):
