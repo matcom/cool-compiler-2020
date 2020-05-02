@@ -171,6 +171,22 @@ def logic_not_to_cil_visitor(not_node, locals_count):
     
     return CIL_block(locals, body, value, expr_cil.data)
 
+def block_to_cil_visitor(block, locals_count):
+    locals=[]
+    body=[]
+    data=[]
+    value=None
+    
+    for expr in block.expressions:
+        expr_cil=expression_to_cil_visitor(expr, locals_count)
+        locals_count+=len(expr_cil.locals)
+        locals+=expr_cil.locals
+        body+=expr_cil.body
+        data+=expr_cil.data
+        value=expr_cil.value
+    
+    return CIL_block(locals, body, value, data)
+            
 class CIL_block:
     def __init__(self, locals, body, value, data=[]):
         self.locals=locals
