@@ -101,9 +101,9 @@ def loop_to_cil_visitor(loop, locals_count):
     
     return CIL_block(locals, body, value, data)
 
-def equal_to_cil_visitor(less_than, locals_count):
-    l=expression_to_cil_visitor(arith.lvalue, locals_count)
-    r=expression_to_cil_visitor(arith.rvalue, locals_count)
+def equal_to_cil_visitor(equal, locals_count):
+    l=expression_to_cil_visitor(equal.lvalue, locals_count)
+    r=expression_to_cil_visitor(equal.rvalue, locals_count)
     locals_count+=len(l.locals)+len(r.locals)
     
     cil_result=f'local_{locals_count}'
