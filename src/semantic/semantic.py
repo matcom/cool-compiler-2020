@@ -66,6 +66,8 @@ def def_func_visitor(function: DefFuncNode, current_class: CoolType, local_scope
         local_scope[arg[0]] = type_by_name(arg[1])
     body_type = expression_visitor(function.expressions, current_class, local_scope)
     return_type = type_by_name(function.return_type)
+    if return_type == SelfType:
+        return_type = current_class
     if check_inherits(body_type, return_type):
         return return_type
     elif body_type is not None:
