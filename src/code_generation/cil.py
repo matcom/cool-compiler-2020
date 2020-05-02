@@ -110,12 +110,40 @@ def equal_to_cil_visitor(less_than, locals_count):
     
     return CIL_block(locals, body, value)
     
+    
+def integer_to_cil_visitor(integer, locals_count):
+    return CIL_block([], [], integer.value)
+
+def bool_to_cil_visitor(bool, locals_count):
+    return CIL_block([], [], 1) if bool=='true' else CIL_block([], [], 0)
+
+def id_to_cil_visitor(id, locals_count):
+    return CIL_block([], [], id.id)
+
+def new_to_cil_visitor(new_node, locals_count):
+    value=f'local_{locals_count}'
+    body=[cil.AllocateNode(new_node.type, value)]
+    locals=[cil.LocalNode(value)]
+    return CIL_block(locals, body, value)
+
+def string_to_cil_visitor(str, locals_count):
+    str_addr=f'local_{locals_count}'
+    str_id=f'local_{locals_count+1}'
+    
+    locals=[cil.LocalNode(str_id)]
+    data=[cil.DataNode(str_addr, str.value)]
+    body=[cil.LoadNode(str_addr, str_id)]
+    
+    return CIL_block(locals, body, str_id, data)
 
 class CIL_block:
-    def __init__(self, locals, body):
+    def __init__(self, locals, body, value, data=[]):
         self.locals=locals
         self.body=body
         self.value=value
+        self.data=data
+        
+    
     
     
             
