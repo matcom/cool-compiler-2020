@@ -29,7 +29,7 @@ def program_visitor(program: ProgramNode):
                     add_semantic_error(f.lineno, f.colno, msg)
             elif type(f) is DefAttrNode:
                 # Add all attributes to types
-                result, msg = classType.add_attr(f.id, f.type)
+                result, msg = classType.add_attr(f.id, f.type, f.expr)
                 if not result:
                     add_semantic_error(f.lineno, f.colno, msg)
         types_already_check.append(classType)
