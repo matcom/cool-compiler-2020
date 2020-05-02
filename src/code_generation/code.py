@@ -1,4 +1,4 @@
-from cil_ast import *
+from code_generation.ast import *
 
 def program_cg_visitor(program:ProgramNode):
     type_code=''

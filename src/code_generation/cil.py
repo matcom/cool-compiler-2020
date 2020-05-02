@@ -1,17 +1,19 @@
 import lexer_parser.ast as lp_ast
+
+
 from types import TypesByName
-import cil_ast as cil
+import code_generation.ast as cil
 
 def program_to_cil_visitor(program):
     types=[]
     data=[]
     code=[]
-                
+    #build program node with each section
     return cil.ProgramNode(types, data, code)
                 
 def func_to_cil_visitor(type_name, func):    
     name=f'{type_name}_{func.id}'
-    params=[id for (id, t) in func.params]
+    params=[cil.ParamNode(id) for (id, t) in func.params]
     locals=[]
     body=[]
     locals_count=0
@@ -22,9 +24,9 @@ def func_to_cil_visitor(type_name, func):
         locals_count+=len(instruction.locals)
         
     return cil.FuncNode(name, params, locals, body)
-        
-       
+              
 def expression_to_cil_visitor(expression, locals_count):
+    #choose appropriate visitor 
     pass
 
 def assign_to_cil_visitor(assign, locals_count):
@@ -106,7 +108,7 @@ def equal_to_cil_visitor(less_than, locals_count):
     locals=l.locals+r.locals+[cil.LocalNode(cil_result), cil.LocalNode(value)]
     body=l.body+r.body+[cil.MinusNode(l.value, r.value, cil_result), cil.AssignNode(value, 0),cil.ConditionalGotoNode(cil_result, end_label), cil.AssignNode(value, 1), cil.LabelNode(end_label)]
     
-    return CIL_block(locals, body)
+    return CIL_block(locals, body, value)
     
 
 class CIL_block:
