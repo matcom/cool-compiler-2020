@@ -31,6 +31,18 @@ class CoolType:
             return True, None
         else:
             return False, msg
+        
+    def get_all_attributes(self):
+        t=self
+        result=[]
+        while t:
+            temp=[]
+            for attr in t.attributes:
+                temp.append(attr)
+            result.append(temp)
+            t=t.parent
+        return [elem for sublist in result[::-1] for elem in sublist]
+    
 
     def get_method(self, id, args_types):
         try:
@@ -55,7 +67,7 @@ class CoolType:
         except KeyError:
             raise Exception(f'type {self.name} don\'t have a method {id}')
 
-    def add_attr(self, id, attr_type):
+    def add_attr(self, id, attr_type, expression):
         attribute, owner_type = get_attribute(self, id)
         if attribute is not None:
             return False, f'attribute \'{id}\' already declared in class \'{owner_type.name}\''
@@ -66,7 +78,7 @@ class CoolType:
             _attr_type = type_by_name(attr_type)
             if _attr_type is None:
                 return False, f'unknown type \'{attr_type}\''
-            self.attributes[id] = CoolTypeAttribute(id, _attr_type)
+            self.attributes[id] = CoolTypeAttribute(id, _attr_type, expression)
             return True, None
 
     def __repr__(self):
@@ -86,9 +98,10 @@ def get_attribute(type_c: CoolType, id: str):
 
 
 class CoolTypeAttribute:
-    def __init__(self, id, attr_type):
+    def __init__(self, id, attr_type, expression=None):
         self.id = id
         self.attrType = attr_type
+        self.expression = expression
 
 
 class CoolTypeMethod:
