@@ -35,7 +35,7 @@ def assign_to_cil_visitor(assign, locals_count):
     value=[f'local_{locals_count}']
     locals=expr.locals+[cil.LocalNode(value)]
     body=expr.body+[cil.AssignNode(assign.id, expr.value)]
-    return CIL_block(locals, body, value)
+    return CIL_block(locals, body, value, expr.data)
 
 def arith_to_cil_visitor(arith, locals_count):
     
@@ -47,6 +47,7 @@ def arith_to_cil_visitor(arith, locals_count):
     
     locals=l.locals+r.locals+[cil.LocalNode(cil_result)]
     body=l.body+r.body
+    data=l.data+r.data
     
     if type(arith)==lp_ast.PlusNode:
         body.append(cil.PlusNode(l.value, r.value, cil_result))
@@ -57,7 +58,7 @@ def arith_to_cil_visitor(arith, locals_count):
     elif type(arith)==lp_ast.DivNode:
         body.append(cil.DivNode(l.value, r.value, cil_result))
       
-    return CIL_block(locals, body, cil_result)
+    return CIL_block(locals, body, cil_result, data)
     
 def if_to_cil_visitor(_if, locals_count):
     predicate=expression_to_cil_visitor(_if.if_expr, locals_count)
@@ -75,8 +76,9 @@ def if_to_cil_visitor(_if, locals_count):
 
     locals=predicate.locals+then.locals+else_expression.locals+[cil.LocalNode(value)]
     body=[cil.ConditionalGotoNode(predicate.value, label_1)]+else_expression.body+[cil.AssignNode(value, else_expression.value),cil.GotoNode(label_2),cil.LabelNode(label_1)]+then.body+[cil.AssignNode(value, then.value),cil.LabelNode(label_2)]
+    data=predicate.data+then.data+else_expression.data
     
-    return CIL_block(locals, body, value)
+    return CIL_block(locals, body, value, data)
     
 def loop_to_cil_visitor(loop, locals_count):
     predicate=expression_to_cil_visitor(loop.cond, locals_count)
@@ -93,8 +95,9 @@ def loop_to_cil_visitor(loop, locals_count):
     end_label=f'local_{locals_count+2}'
     
     body=[cil.ConditionalGotoNode(predicate.value, loop_label), cil.GotoNode(end_label), cil.LabelNode(loop_label)]+loop_block.body+[cil.AssignNode(value, loop_block.value) ,cil.LabelNode(end_label)]
+    data=predicate.data+loop_block.data
     
-    return CIL_block(locals, body, value)
+    return CIL_block(locals, body, value, data)
 
 def equal_to_cil_visitor(less_than, locals_count):
     l=expression_to_cil_visitor(arith.lvalue, locals_count)
@@ -107,10 +110,10 @@ def equal_to_cil_visitor(less_than, locals_count):
     
     locals=l.locals+r.locals+[cil.LocalNode(cil_result), cil.LocalNode(value)]
     body=l.body+r.body+[cil.MinusNode(l.value, r.value, cil_result), cil.AssignNode(value, 0),cil.ConditionalGotoNode(cil_result, end_label), cil.AssignNode(value, 1), cil.LabelNode(end_label)]
+    data=l.data+r.data
     
-    return CIL_block(locals, body, value)
-    
-    
+    return CIL_block(locals, body, value, data)
+       
 def integer_to_cil_visitor(integer, locals_count):
     return CIL_block([], [], integer.value)
 
@@ -135,6 +138,26 @@ def string_to_cil_visitor(str, locals_count):
     body=[cil.LoadNode(str_addr, str_id)]
     
     return CIL_block(locals, body, str_id, data)
+
+def let_to_cil_visitor(let, locals_count):
+    body=[]
+    locals=[]
+    data=[]
+    for attr in let.let_attr:
+        attr_cil=expression_to_cil_visitor(attr, locals_count)
+        locals_count+=len(attr_cil.locals)
+        body.append(cil.AssignNode(attr.id, attr_cil.value))
+        body+=attr_cil.body
+        locals+=attr_cil.locals
+        data+=attr_cil.data
+    
+    expr_cil=expression_to_cil_visitor(let.expr, locals_count)
+    locals+=expr_cil.locals
+    body+=expr_cil.locals
+    data+=expr_cil.data
+    
+    return CIL_block(locals, body, expr_cil.value, data)
+        
 
 class CIL_block:
     def __init__(self, locals, body, value, data=[]):
