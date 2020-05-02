@@ -31,6 +31,18 @@ class CoolType:
             return True, None
         else:
             return False, msg
+        
+    def get_all_attributes(self):
+        t=self
+        result=[]
+        while t:
+            temp=[]
+            for attr in t.attributes:
+                temp.append(attr)
+            result.append(temp)
+            t=t.parent
+        return [elem for sublist in result[::-1] for elem in sublist]
+    
 
     def get_method(self, id, args_types):
         try:
