@@ -11,7 +11,15 @@ def program_visitor(program: ProgramNode):
         add_semantic_error(0, 0, f'Main class undeclared')
         return
     # Initialize MethodEnv
-    for c in program.classes:
+    types_already_check = [ObjectType, IntType, StringNode, BoolType, IOType]
+    classes = program.classes.copy()
+    while len(classes) != 0:
+        c: DefClassNode = classes.pop()
+        if c.parent_type is not None:
+            parent_type = TypesByName[c.parent_type]
+            if parent_type not in types_already_check:
+                classes = [c] + classes
+                continue
         classType = TypesByName[c.type]
         for f in c.feature_nodes:
             if type(f) is DefFuncNode:
@@ -24,6 +32,7 @@ def program_visitor(program: ProgramNode):
                 result, msg = classType.add_attr(f.id, f.type)
                 if not result:
                     add_semantic_error(f.lineno, f.colno, msg)
+        types_already_check.append(classType)
     # Visit each class inside
     for c in program.classes:
         class_visitor(c, None, {})
@@ -31,12 +40,14 @@ def program_visitor(program: ProgramNode):
 
 def class_visitor(_class: DefClassNode, current_class: CoolType, local_scope: dict):
     current_class = TypesByName[_class.type]
+    local_scope = local_scope.copy()
+    local_scope['self'] = current_class
     # Check all features
     for feature in _class.feature_nodes:
         if type(feature) is DefAttrNode:
-            def_attr_class_visitor(feature, current_class, {})
+            def_attr_class_visitor(feature, current_class, local_scope)
         if type(feature) is DefFuncNode:
-            def_func_visitor(feature, current_class, {})
+            def_func_visitor(feature, current_class, local_scope)
 
 
 def def_attr_class_visitor(attr: DefAttrNode, current_class: CoolType, local_scope: dict):
@@ -44,7 +55,7 @@ def def_attr_class_visitor(attr: DefAttrNode, current_class: CoolType, local_sco
         expr_type = expression_visitor(attr.expr, current_class, {})
         attr_type = type_by_name(attr.type)
         if attr_type is not None and not check_inherits(expr_type, attr_type):
-            add_semantic_error(attr.lineno, attr.colno, f'cannot save type {expr_type} inside type {attr_type}')
+            add_semantic_error(attr.lineno, attr.colno, f'cannot save type \'{expr_type}\' inside type \'{attr_type}\'')
         else:
             return attr_type
 
@@ -55,10 +66,12 @@ def def_func_visitor(function: DefFuncNode, current_class: CoolType, local_scope
         local_scope[arg[0]] = type_by_name(arg[1])
     body_type = expression_visitor(function.expressions, current_class, local_scope)
     return_type = type_by_name(function.return_type)
+    if return_type == SelfType:
+        return_type = current_class
     if check_inherits(body_type, return_type):
         return return_type
     elif body_type is not None:
-        add_semantic_error(function.lineno, function.colno, f'invalid returned type {function.return_type}')
+        add_semantic_error(function.lineno, function.colno, f'invalid returned type \'{function.return_type}\'')
 
 
 def int_visitor(expr, current_class, local_scope):
@@ -80,7 +93,7 @@ def var_visitor(var: VarNode, current_class: CoolType, local_scope: dict):
     if attribute is not None:
         return attribute.attrType
     else:
-        add_semantic_error(var.lineno, var.colno, f'unknown variable {var.id}')
+        add_semantic_error(var.lineno, var.colno, f'unknown variable \'{var.id}\'')
 
 
 def arithmetic_operator_visitor(operator: BinaryNode, current_class: CoolType, local_scope: dict):
@@ -120,25 +133,26 @@ def assignment_visitor(assign: AssignNode, current_class: CoolType, local_scope:
     except KeyError:
         attr, _ = get_attribute(current_class, assign.id)
         if attr is None:
-            add_semantic_error(assign.id.lineno, assign.id.colno, f'unknown variable {assign.id}')
+            add_semantic_error(assign.id.lineno, assign.id.colno, f'unknown variable \'{assign.id}\'')
             id_type = None
         else:
             id_type = attr.attrType
     expr_type = expression_visitor(assign.expr, current_class, local_scope)
     if not check_inherits(expr_type, id_type) and id_type is not None and expr_type is not None:
         add_semantic_error(assign.expr.lineno, assign.expr.colno,
-                           f'Type {expr_type} cannot be stored in type {id_type}')
+                           f'Type \'{expr_type}\' cannot be stored in type \'{id_type}\'')
     return expr_type
 
 
 def def_attribute_visitor(def_attr: DefAttrNode, current_class: CoolType, local_scope: dict):
     id_type = type_by_name(def_attr.type)
     if id_type is None:
-        add_semantic_error(def_attr.lineno, def_attr.colno, f'unknown type {def_attr.type}')
+        add_semantic_error(def_attr.lineno, def_attr.colno, f'unknown type \'{def_attr.type}\'')
     if def_attr.expr:
         expr_type = expression_visitor(def_attr.expr, current_class, local_scope)
         if not check_inherits(expr_type, id_type) and id_type is not None and expr_type is not None:
-            add_semantic_error(def_attr.lineno, def_attr.colno, f'Type {expr_type} cannot be stored in type {id_type}')
+            add_semantic_error(def_attr.lineno, def_attr.colno,
+                               f'Type \'{expr_type}\' cannot be stored in type \'{id_type}\'')
     return id_type
 
 
@@ -160,7 +174,7 @@ def list_expr_visitor(expressions: list, current_class: CoolType, local_scope: d
 def if_visitor(if_struct: IfNode, current_class: CoolType, local_scope: dict):
     predicate_type = expression_visitor(if_struct.if_expr, current_class, local_scope)
     if predicate_type != BoolType:
-        add_semantic_error(if_struct.if_expr.lineno, if_struct.if_expr.colno, f'\"if\" condition must be a {BoolType}')
+        add_semantic_error(if_struct.if_expr.lineno, if_struct.if_expr.colno, f'\'if\' condition must be a {BoolType}')
     then_type = expression_visitor(if_struct.then_expr, current_class, local_scope)
     else_type = expression_visitor(if_struct.else_expr, current_class, local_scope)
     return pronounced_join(then_type, else_type)
@@ -177,7 +191,7 @@ def func_call_visitor(func_call: FuncCallNode, current_class: CoolType, local_sc
         if func_call.type:
             specific_type = type_by_name(func_call.type)
             if specific_type is None:
-                add_semantic_error(func_call.lineno, func_call.colno, f'unknown type {func_call.type}')
+                add_semantic_error(func_call.lineno, func_call.colno, f'unknown type \'{func_call.type}\'')
             elif check_inherits(current_class, specific_type):
                 method, msg = specific_type.get_method_without_hierarchy(func_call.id, args_types)
             else:
