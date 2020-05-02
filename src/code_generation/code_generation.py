@@ -12,8 +12,7 @@ def program_cg_visitor(program:ProgramNode):
         func_code+=f'{func_cg_visitor(f)}\n'
         
     return f'.TYPES \n {type_code} .DATA \n {data_code} .CODE \n {func_code}'
-    
-    
+      
 def type_cg_visitor(type: TypeNode):
     attr_code=''
     method_code=''
@@ -24,7 +23,6 @@ def type_cg_visitor(type: TypeNode):
         method_code+=f'method {met}:{type.name}_{met};\n'
         
     return f'type {type.name} {{ \n {attr_code} {method_code} }}'
-
 
 def data_cg_visitor(data: DataNode):
     return f'{data.id} = {data.value} ;'
@@ -44,20 +42,17 @@ def func_cg_visitor(func: FuncNode):
         
     return f'function {func.name} {{ \n {params_code} {locals_code} {body_code} }}'
         
-
 def param_cg_visitor(param:ParamNode):
     return f'PARAM {param} ;'
 
 def local_cg_visitor(local:LocalNode):
     return f'LOCAL {local} ;'
 
-
 def instruction_cg_visitor(instruction:InstructionNode):
-     try:
+    try:
         return __visitors__[type(instruction)](instruction)
     except KeyError:
         print(f'Not visitor for {instruction}')
-
 
 def assign_cg_visitor(assign:AssignNode):
     return f'{assign.id} = {assign.val} ;'
