@@ -193,7 +193,26 @@ class CIL_block:
         self.body=body
         self.value=value
         self.data=data
-        
+  
+  
+__visitor__={
+    lp_ast.AssignNode:assign_to_cil_visitor,
+    lp_ast.BlockNode:block_to_cil_visitor,
+    lp_ast.BoolNode:bool_to_cil_visitor,
+    lp_ast.IfNode:if_to_cil_visitor,
+    lp_ast.WhileNode:loop_to_cil_visitor,
+    lp_ast.EqNode:equal_to_cil_visitor,
+    lp_ast.LogicNegationNode:logic_not_to_cil_visitor,
+    lp_ast.LetNode:let_to_cil_visitor,
+    lp_ast.NewNode:new_to_cil_visitor,
+    lp_ast.IntNode:integer_to_cil_visitor,
+    lp_ast.StringNode:string_to_cil_visitor,
+    lp_ast.PlusNode:arith_to_cil_visitor,
+    lp_ast.MinusNode:arith_to_cil_visitor,
+    lp_ast.StarNode:arith_to_cil_visitor,
+    lp_ast.DivNode:arith_to_cil_visitor, 
+    lp_ast.VarNode:id_to_cil_visitor   
+}      
     
     
     
