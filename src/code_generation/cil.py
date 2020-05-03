@@ -4,8 +4,6 @@ import lexer_parser.ast as lp_ast
 from semantic.types import *
 import code_generation.ast as cil
 
-__types_attributes__={}
-
 def program_to_cil_visitor(program):
     types=[]
     data=[]
@@ -15,19 +13,9 @@ def program_to_cil_visitor(program):
     entry_data=[]
     
     for t in TypesByName:
-        value=TypesByName[t]
-        attr=value.get_all_atributes()
         _type=cil.TypeNode(t)
-        __types_attributes__[t]=[]
         
         #los atributos que llevan inicializacion por defecto se los guarda aqui
-        for a in attr:
-            if a.expression:
-                __types_attributes__[t].append(a)
-    
-            
-            
-    entry_function=cil.FuncNode(f'entry', [], [], body)
         
         
         
@@ -154,16 +142,16 @@ def new_to_cil_visitor(new_node, locals_count):
     locals_count+=1
     body=[cil.AllocateNode(new_node.type, value)]
     data=[]
-    init_attr=__types_attributes__[new_node.type]
+    init_attr=TypesByName[new_node.type].get_all_attributes()
     for attr in init_attr:
-        
-        attr_cil=expression_to_cil_visitor(attr.expression, locals_count)
-        locals_count+=len(attr_cil.locals)
-        locals.append(attr_cil.locals)
-        body.append(attr_cil.body)
-        data.append(attr_cil.data)
-        
-        body.append(cil.SetAttrNode(value, attr.id, attr_cil.value))
+        if attr.expression:
+            attr_cil=expression_to_cil_visitor(attr.expression, locals_count)
+            locals_count+=len(attr_cil.locals)
+            locals.append(attr_cil.locals)
+            body.append(attr_cil.body)
+            data.append(attr_cil.data)
+            
+            body.append(cil.SetAttrNode(value, attr.id, attr_cil.value))
     
     return CIL_block(locals, body, value, data)
 
