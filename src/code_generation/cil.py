@@ -14,16 +14,30 @@ def program_to_cil_visitor(program):
     data=[]
     code=[]
 
-    #esta funcion esta incompleta
+    #completing .TYPE section
     for t in TypesByName:
         _type=cil.TypeNode(t)
         value=TypesByName[t]
         for attr in value.get_all_attributes():
             _type.attributes.append(attr.id)
             
-        for met in value.get_all_methods():
+        for met in value.get_all_self_methods():
+            _type.methods.append((met.id, t))
             
+            
+        for met in value.get_all_inherited_methods():
+            _type.methods.append((met.id, met.owner))           
         
+        types.append(_type) 
+        
+    #completing .CODE and .DATA sections
+    for c in program.classes:
+        for f in c.features:
+            if type(f)==DefFuncNode:
+                fun=func_to_cil_visitor(c.name, f)
+                code.append(fun[0])
+                data.append(fun[1])
+                
         
     return cil.ProgramNode(types, data, code)
 
@@ -33,14 +47,16 @@ def func_to_cil_visitor(type_name, func):
     params=[cil.ParamNode(id) for (id, t) in func.params]
     locals=[]
     body=[]
+    data=[]
     locals_count=0
     for exp in func.expressions:
         instruction=expression_to_cil_visitor(exp, locals_count)
-        locals.append(instruction.locals)
-        body.append(instruction.body)
+        locals+=instruction.locals
+        body+=instruction.body
+        data+=instruction.data
         locals_count+=len(instruction.locals)
         
-    return cil.FuncNode(name, params, locals, body)
+    return cil.FuncNode(name, params, locals, body), data
               
 def expression_to_cil_visitor(expression, locals_count):
     try:

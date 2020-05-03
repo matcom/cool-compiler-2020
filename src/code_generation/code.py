@@ -25,8 +25,8 @@ def type_cg_visitor(type: TypeNode):
     for attr in type.attributes:
         attr_code+=f'attribute {attr}; \n'
     
-    for met in type.methods:
-        method_code+=f'method {met}:{type.name}_{met};\n'
+    for name, owner in type.methods:
+        method_code+=f'method {name}:{owner}_{name};\n'
         
     return f'type {type.name} {{ \n {attr_code} {method_code} }}'
 
