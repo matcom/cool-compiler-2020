@@ -255,6 +255,42 @@ def block_to_cil_visitor(block, locals_count):
         value=expr_cil.value
     
     return CIL_block(locals, body, value, data)
+
+def type_func_call_to_cil_visitor(call, locals_count):
+    locals=[]
+    body=[]
+    data=[]
+    obj_cil=expression_to_cil_visitor(call.object, locals_count)
+    locals_count+=len(obj_cil.locals)
+    locals+=obj_cil.locals
+    body+=obj_cil.body
+    data+=obj_cil.data
+    
+    arg_values=[]
+    
+    for arg in call.args:
+        arg_cil=expression_to_cil_visitor(arg, locals_count)
+        locals_count+=len(arg_cil.locals)
+        locals+=arg_cil.locals
+        body+=arg_cil.body
+        data+=arg_cil.data
+        arg_values.append(arg_cil.value)
+        
+    body.append(cil.ArgNode(obj_cil.value))
+    
+    for arg in arg_values:
+        body.append(cil.ArgNode(arg))
+    
+    result=f'local_{locals_count}'
+    locals.append(cil.LocalNode(result))
+    body.append(cil.VCAllNode(type, call.id, result))
+    
+    return CIL_block(locals, body, result, data)
+    
+        
+    
+    
+        
     
 class CIL_block:
     def __init__(self, locals, body, value, data=[]):
