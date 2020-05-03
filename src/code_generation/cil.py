@@ -1,15 +1,38 @@
 import lexer_parser.ast as lp_ast
 
 
-from types import TypesByName
+from semantic.types import *
 import code_generation.ast as cil
+
+__types_attributes__={}
 
 def program_to_cil_visitor(program):
     types=[]
     data=[]
     code=[]
-    #build program node with each section
+    entry_body=[]
+    entry_locals=[]
+    entry_data=[]
+    
+    for t in TypesByName:
+        value=TypesByName[t]
+        attr=value.get_all_atributes()
+        _type=cil.TypeNode(t)
+        __types_attributes__[t]=[]
+        
+        #los atributos que llevan inicializacion por defecto se los guarda aqui
+        for a in attr:
+            if a.expression:
+                __types_attributes__[t].append(a)
+    
+            
+            
+    entry_function=cil.FuncNode(f'entry', [], [], body)
+        
+        
+        
     return cil.ProgramNode(types, data, code)
+
                 
 def func_to_cil_visitor(type_name, func):    
     name=f'{type_name}_{func.id}'
@@ -127,9 +150,22 @@ def id_to_cil_visitor(id, locals_count):
 
 def new_to_cil_visitor(new_node, locals_count):
     value=f'local_{locals_count}'
-    body=[cil.AllocateNode(new_node.type, value)]
     locals=[cil.LocalNode(value)]
-    return CIL_block(locals, body, value)
+    locals_count+=1
+    body=[cil.AllocateNode(new_node.type, value)]
+    data=[]
+    init_attr=__types_attributes__[new_node.type]
+    for attr in init_attr:
+        
+        attr_cil=expression_to_cil_visitor(attr.expression, locals_count)
+        locals_count+=len(attr_cil.locals)
+        locals.append(attr_cil.locals)
+        body.append(attr_cil.body)
+        data.append(attr_cil.data)
+        
+        body.append(cil.SetAttrNode(value, attr.id, attr_cil.value))
+    
+    return CIL_block(locals, body, value, data)
 
 def string_to_cil_visitor(str, locals_count):
     str_addr=f'local_{locals_count}'
@@ -214,7 +250,8 @@ __visitor__={
     lp_ast.StarNode:arith_to_cil_visitor,
     lp_ast.DivNode:arith_to_cil_visitor, 
     lp_ast.VarNode:id_to_cil_visitor   
-}      
+}   
+   
     
     
     
