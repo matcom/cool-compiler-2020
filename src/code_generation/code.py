@@ -1,5 +1,11 @@
 from code_generation.ast import *
 
+
+def cil_to_code(ast):
+    if type(ast)==ProgramNode:
+        return program_cg_visitor(ast)
+    raise Exception(f'AST root must be program')
+
 def program_cg_visitor(program:ProgramNode):
     type_code=''
     data_code=''

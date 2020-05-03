@@ -4,12 +4,17 @@ import lexer_parser.ast as lp_ast
 from semantic.types import *
 import code_generation.ast as cil
 
+def ast_to_cil(ast):
+    if type(ast)==lp_ast.ProgramNode:
+        return program_to_cil_visitor(program)
+    raise Exception(f'AST root must be program')
+
 def program_to_cil_visitor(program):
     types=[]
     data=[]
     code=[]
 
-    
+    #esta funcion esta incompleta
     for t in TypesByName:
         _type=cil.TypeNode(t)
         for attr in TypesByName[t].get_all_attributes():

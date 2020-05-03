@@ -1,1 +1,1 @@
-#aun no tengo la funcion que hay que importar de aqui, por eso no lo habia puesto
+from .code_gen import generate_code
