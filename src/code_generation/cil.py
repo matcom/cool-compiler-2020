@@ -8,9 +8,7 @@ def program_to_cil_visitor(program):
     types=[]
     data=[]
     code=[]
-    entry_body=[]
-    entry_locals=[]
-    entry_data=[]
+
     
     for t in TypesByName:
         _type=cil.TypeNode(t)
