@@ -36,7 +36,9 @@ def program_to_cil_visitor(program):
         for f in c.features:
             if type(f)==DefFuncNode:
                 if f.id=='main' and c.name=='Main':
-                    code.insert(0, func_to_cil_visitor(c.name, f))
+                    fun=func_to_cil_visitor(c.name, f)
+                    code.insert(0, fun[0])
+                    data.append(fun[1])
                 else:
                     fun=func_to_cil_visitor(c.name, f)
                     code.append(fun[0])
