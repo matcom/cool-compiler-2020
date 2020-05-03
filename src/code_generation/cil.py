@@ -29,19 +29,23 @@ def program_to_cil_visitor(program):
             _type.methods.append((met.id, met.owner))           
         
         types.append(_type) 
-        
+
+
     #completing .CODE and .DATA sections
     for c in program.classes:
         for f in c.features:
             if type(f)==DefFuncNode:
-                fun=func_to_cil_visitor(c.name, f)
-                code.append(fun[0])
-                data.append(fun[1])
+                if f.id=='main' and c.name=='Main':
+                    code.insert(0, func_to_cil_visitor(c.name, f))
+                else:
+                    fun=func_to_cil_visitor(c.name, f)
+                    code.append(fun[0])
+                    data.append(fun[1])
+                    
                 
         
     return cil.ProgramNode(types, data, code)
-
-                
+     
 def func_to_cil_visitor(type_name, func):    
     name=f'{type_name}_{func.id}'
     params=[cil.ParamNode(id) for (id, t) in func.params]
@@ -49,6 +53,22 @@ def func_to_cil_visitor(type_name, func):
     body=[]
     data=[]
     locals_count=0
+    
+    if type_name=='Main' and func.id=='main':
+        instance='__main__'
+        locals.append(cil.LocalNode(instance))
+        body.append(cil.AllocateNode('Main', instance))
+        
+        init_attr=TypesByName['Main'].get_all_attributes()    
+        for attr in init_attr:
+            if attr.expression:
+                attr_cil=expression_to_cil_visitor(attr.expression, locals_count)
+                locals_count+=len(attr_cil.locals)
+                locals.append(attr_cil.locals)
+                body.append(attr_cil.body)
+                data.append(attr_cil.data)           
+                body.append(cil.SetAttrNode(value, attr.id, attr_cil.value))
+        
     for exp in func.expressions:
         instruction=expression_to_cil_visitor(exp, locals_count)
         locals+=instruction.locals
@@ -165,6 +185,7 @@ def new_to_cil_visitor(new_node, locals_count):
     body=[cil.AllocateNode(new_node.type, value)]
     data=[]
     init_attr=TypesByName[new_node.type].get_all_attributes()
+    
     for attr in init_attr:
         if attr.expression:
             attr_cil=expression_to_cil_visitor(attr.expression, locals_count)
