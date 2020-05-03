@@ -43,6 +43,23 @@ class CoolType:
             t=t.parent
         return [elem for sublist in result[::-1] for elem in sublist]
     
+    
+    def get_all_self_methods(self):
+        return self.methods
+    
+    def get_all_inherited_methods(self):
+        t=self.parent
+        result=[]
+        while t:
+            temp=[]
+            for met in t.methods:
+                met.owner=t.name
+                temp.append(met)
+            result.append(temp)
+            t=t.parent
+        return [elem for sublist in result[::-1] for elem in sublist]
+                
+        
 
     def get_method(self, id, args_types):
         try:

@@ -17,8 +17,12 @@ def program_to_cil_visitor(program):
     #esta funcion esta incompleta
     for t in TypesByName:
         _type=cil.TypeNode(t)
-        for attr in TypesByName[t].get_all_attributes():
+        value=TypesByName[t]
+        for attr in value.get_all_attributes():
             _type.attributes.append(attr.id)
+            
+        for met in value.get_all_methods():
+            
         
         
     return cil.ProgramNode(types, data, code)
