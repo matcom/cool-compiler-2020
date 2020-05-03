@@ -10,7 +10,7 @@ class ProgramNode(Node):
 class TypeNode(Node):
     def __init__(self, type):
         self.attributes=[]
-        self.methods=[]
+        self.methods={}
         self.type=type
         
 class DataNode(Node):

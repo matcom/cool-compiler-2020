@@ -19,15 +19,14 @@ def program_to_cil_visitor(program):
         _type=cil.TypeNode(t)
         value=TypesByName[t]
         for attr in value.get_all_attributes():
-            _type.attributes.append(attr.id)
-            
-        for met in value.get_all_self_methods():
-            _type.methods.append((met.id, t))
-            
+            _type.attributes.append(attr.id)      
             
         for met in value.get_all_inherited_methods():
-            _type.methods.append((met.id, met.owner))           
+            _type.methods[met.id]=met.owner         
         
+        for met in value.get_all_self_methods():
+            _type.methods[met.id]=t
+            
         types.append(_type) 
 
 
@@ -256,7 +255,7 @@ def block_to_cil_visitor(block, locals_count):
         value=expr_cil.value
     
     return CIL_block(locals, body, value, data)
-            
+    
 class CIL_block:
     def __init__(self, locals, body, value, data=[]):
         self.locals=locals
