@@ -49,7 +49,8 @@ def program_to_cil_visitor(program):
      
 def func_to_cil_visitor(type_name, func):    
     name=f'{type_name}_{func.id}'
-    params=[cil.ParamNode(id) for (id, t) in func.params]
+    params=[cil.ParamNode('self')]
+    params+=[cil.ParamNode(id) for (id, t) in func.params]
     locals=[]
     body=[]
     data=[]
@@ -287,7 +288,8 @@ def type_func_call_to_cil_visitor(call, locals_count):
     
     return CIL_block(locals, body, result, data)
     
-        
+def func_call_to_cil_visitor(call, locals_count):
+    pass       
     
     
         
