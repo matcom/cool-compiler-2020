@@ -14,9 +14,8 @@ def program_to_cil_visitor(program):
     
     for t in TypesByName:
         _type=cil.TypeNode(t)
-        
-        #los atributos que llevan inicializacion por defecto se los guarda aqui
-        
+        for attr in TypesByName[t].get_all_attributes():
+            _type.attributes.append(attr.id)
         
         
     return cil.ProgramNode(types, data, code)
@@ -149,8 +148,7 @@ def new_to_cil_visitor(new_node, locals_count):
             locals_count+=len(attr_cil.locals)
             locals.append(attr_cil.locals)
             body.append(attr_cil.body)
-            data.append(attr_cil.data)
-            
+            data.append(attr_cil.data)           
             body.append(cil.SetAttrNode(value, attr.id, attr_cil.value))
     
     return CIL_block(locals, body, value, data)
