@@ -135,32 +135,38 @@ def equal_to_cil_visitor(equal, locals_count):
 def lessthan_to_cil_visitor(lessthan, locals_count):
     l=expression_to_cil_visitor(lessthan.lvalue, locals_count)
     r=expression_to_cil_visitor(lessthan.rvalue, locals_count)
-    locals_count+=len(l.locals)+len(r.locals)
+    locals_count += len(l.locals) + len(r.locals)
     
-    cil_less=f'local_{locals_count}'
-    cil_equal=f'local_{locals_count+1}'
-    eq_label=f'local_{locals_count+2}'
-    end_label=f'local_{locals_count+3}'
-    value=f'local_{locals_count+4}'
+    cil_result = f'local_{locals_count}'
+    end_label = f'local_{locals_count + 1}'
+    value = f'local_{locals_count + 2}'
     
-    locals=l.locals+r.locals+[cil.LocalNode(cil_less), cil.LocalNode(cil_equal), cil.LocalNode(value)]
-    body=l.body+r.body+[cil.DivNode(l.value, r.value, cil_less), cil.AssignNode(value, 0),cil.ConditionalGotoNode(cil_less, eq_label), cil.AssignNode(value, 1), cil.GotoNode(end_label), cil.LabelNode(eq_label), cil.MinusNode(l.value, r.value, cil_equal), cil.ConditionalGotoNode(cil_equal, end_label), cil.AssignNode(value, 1), cil.LabelNode(end_label)]
-    data=l.data+r.data
+    locals = l.locals + r.locals + [cil.LocalNode(cil_result), cil.LocalNode(value)]
+    body = l.body + r.body + [cil.DivNode(l.value, r.value, cil_result), cil.AssignNode(value, 0),
+                              cil.ConditionalGotoNode(cil_result, end_label), cil.AssignNode(value, 1), 
+                              cil.LabelNode(end_label)]
+    data = l.data + r.data
     
     return CIL_block(locals, body, value, data)
 
 def lesseqthan_to_cil_visitor(lessthan, locals_count):
     l=expression_to_cil_visitor(lessthan.lvalue, locals_count)
     r=expression_to_cil_visitor(lessthan.rvalue, locals_count)
-    locals_count+=len(l.locals)+len(r.locals)
+    locals_count += len(l.locals) + len(r.locals)
     
-    cil_result=f'local_{locals_count}'
-    end_label=f'local_{locals_count+1}'
-    value=f'local_{locals_count+2}'
+    cil_less = f'local_{locals_count}'
+    cil_equal = f'local_{locals_count + 1}'
+    eq_label = f'local_{locals_count + 2}'
+    end_label = f'local_{locals_count + 3}'
+    value = f'local_{locals_count + 4}'
     
-    locals=l.locals+r.locals+[cil.LocalNode(cil_result), cil.LocalNode(value)]
-    body=l.body+r.body+[cil.DivNode(l.value, r.value, cil_result), cil.AssignNode(value, 0),cil.ConditionalGotoNode(cil_result, end_label), cil.AssignNode(value, 1), cil.LabelNode(end_label)]
-    data=l.data+r.data
+    locals = l.locals + r.locals + [cil.LocalNode(cil_less), cil.LocalNode(cil_equal), cil.LocalNode(value)]
+    body = l.body + r.body + [cil.DivNode(l.value, r.value, cil_less), cil.AssignNode(value, 0), 
+                              cil.ConditionalGotoNode(cil_less, eq_label), cil.AssignNode(value, 1), 
+                              cil.GotoNode(end_label), cil.LabelNode(eq_label), 
+                              cil.MinusNode(l.value, r.value, cil_equal), cil.ConditionalGotoNode(cil_equal, end_label), 
+                              cil.AssignNode(value, 1), cil.LabelNode(end_label)]
+    data = l.data + r.data
     
     return CIL_block(locals, body, value, data)
 
