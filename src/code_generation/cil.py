@@ -67,7 +67,7 @@ def func_to_cil_visitor(type_name, func):
                 locals.append(attr_cil.locals)
                 body.append(attr_cil.body)
                 data.append(attr_cil.data)           
-                body.append(cil.SetAttrNode(value, attr.id, attr_cil.value))
+                body.append(cil.SetAttrNode(instance, attr.id, attr_cil.value))
         
     for exp in func.expressions:
         instruction=expression_to_cil_visitor(exp, locals_count)
