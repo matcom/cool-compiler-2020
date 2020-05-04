@@ -66,6 +66,7 @@ class FuncCallNode(ExpressionNode):
         self.type = type
         self.id = id
         self.args = args
+        self.self_type = None
 
 
 class IfNode(ExpressionNode):
