@@ -108,6 +108,7 @@ def func_call_visitor(func_call: FuncCallNode, current_class: CoolType, local_sc
     args_types = []
     method = None
     msg = None
+    func_call.self_type = current_class
     for arg in func_call.args:
         arg_type = expression_visitor(arg, current_class, local_scope)
         args_types.append(arg_type)
