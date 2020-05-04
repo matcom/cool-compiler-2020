@@ -349,7 +349,33 @@ def standard_func_call_to_cil_visitor(call, locals_count):
     return CIL_block(locals, body, result, data)
 
 def self_func_call_to_cil_visitor(call, locals_count):
-    pass
+    locals=[]
+    body=[]
+    data=[]
+    
+    arg_values = []
+
+    for arg in call.args:
+        arg_cil = expression_to_cil_visitor(arg, locals_count)
+        locals_count += len(arg_cil.locals)
+        locals += arg_cil.locals
+        body += arg_cil.body
+        data += arg_cil.data
+        arg_values.append(arg_cil.value)
+        
+    body.append(cil.ArgNode('self'))
+    
+    for arg in arg_values:
+        body.append(cil.ArgNode(arg))
+        
+    result = f'local_{locals_count}'
+    locals.append(cil.LocalNode(result))
+    
+    body.append(cil.VCAllNode(call.self_type, call.id, result))
+        
+    return CIL_block(locals, body, data, result)
+    
+    
 
 
 class CIL_block:
