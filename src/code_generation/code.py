@@ -1,6 +1,5 @@
 from code_generation.ast import *
 
-
 def cil_to_code(ast):
     if type(ast)==ProgramNode:
         return program_cg_visitor(ast)
@@ -127,7 +126,7 @@ def arg_cg_visitor(arg: ArgNode):
     return f'ARG {arg.val} ;'
 
 
-def cond_goto_cg_visitor(gcoto: ConditionalGotoNode):
+def cond_goto_cg_visitor(cgoto: ConditionalGotoNode):
     return f'IF {cgoto.predicate} GOTO {cgoto.label} ;'
 
 
