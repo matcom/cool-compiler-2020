@@ -314,8 +314,7 @@ def block_to_cil_visitor(block, locals_count):
 
     return CIL_block(locals, body, value, data)
 
-
-def type_func_call_to_cil_visitor(call, locals_count):
+def standard_func_call_to_cil_visitor(call, locals_count):
     locals = []
     body = []
     data = []
@@ -342,14 +341,12 @@ def type_func_call_to_cil_visitor(call, locals_count):
 
     result = f'local_{locals_count}'
     locals.append(cil.LocalNode(result))
-    body.append(cil.VCAllNode(call.type, call.id, result))
+    if not call.type:
+        body.append(cil.VCAllNode(call.object.returned_type, call.id, result))
+    else:
+        body.append(cil.VCAllNode(call.type, call.id, result))
 
     return CIL_block(locals, body, result, data)
-
-
-def standard_func_call_to_cil_visitor(call, locals_count):
-    pass
-
 
 def self_func_call_to_cil_visitor(call, locals_count):
     pass
@@ -366,9 +363,7 @@ class CIL_block:
 def func_call_to_cil_visitor(call, locals_count):
     if not object:
         return self_func_call_to_cil_visitor(call, locals_count)
-    if not type:
-        return standard_func_call_to_cil_visitor(call, locals_count)
-    return type_func_call_to_cil_visitor(call, locals_count)
+    return standard_func_call_to_cil_visitor(call, locals_count)
 
 
 __visitor__ = {
