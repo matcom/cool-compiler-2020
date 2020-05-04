@@ -5,7 +5,7 @@ import code_generation.ast as cil
 
 def ast_to_cil(ast):
     if type(ast) == lp_ast.ProgramNode:
-        return program_to_cil_visitor(lp_ast.Proprogram)
+        return program_to_cil_visitor(ast)
     raise Exception(f'AST root must be program')
 
 
