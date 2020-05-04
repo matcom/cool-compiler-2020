@@ -47,12 +47,12 @@ class FormalParameter(AST):
 
 
 # <formal_param> ::= ID : TYPE | ID : TYPE <- <expression> 
-class Parameter(AST):
-    def __init__(self, name, TYPE, expr):
-        super(Parameter, self).__init__()
-        self.name = name
-        self.TYPE = TYPE
-        self.expr = expr
+# class Parameter(AST):
+#     def __init__(self, name, TYPE, expr):
+#         super(Parameter, self).__init__()
+#         self.name = name
+#         self.TYPE = TYPE
+#         self.expr = expr
 
 # <expression>
 class Expr(AST):
