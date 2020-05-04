@@ -288,7 +288,7 @@ def type_func_call_to_cil_visitor(call, locals_count):
     
     return CIL_block(locals, body, result, data)
     
-def func_call_to_cil_visitor(call, locals_count):
+def standard_func_call_to_cil_visitor(call, locals_count):
     pass  
 
 def self_func_call_to_cil_visitor(call, locals_count):
@@ -322,6 +322,13 @@ class CIL_block:
         self.value=value
         self.data=data
   
+def func_call_to_cil_visitor(call, locals_count):
+    if not object:
+        return self_func_call_to_cil_visitor(call, locals_count)
+    if not type:
+        return standard_func_call_to_cil_visitor(call, locals_count)
+    return type_func_call_to_cil_visitor(call, locals_count)
+
   
 __visitor__={
     lp_ast.AssignNode:assign_to_cil_visitor,
@@ -339,7 +346,8 @@ __visitor__={
     lp_ast.MinusNode:arith_to_cil_visitor,
     lp_ast.StarNode:arith_to_cil_visitor,
     lp_ast.DivNode:arith_to_cil_visitor, 
-    lp_ast.VarNode:id_to_cil_visitor 
+    lp_ast.VarNode:id_to_cil_visitor, 
+    lp_ast.FuncCallNode: func_call_to_cil_visitor
 }   
    
     
