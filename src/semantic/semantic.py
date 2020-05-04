@@ -234,6 +234,22 @@ def equal_visitor(equal: EqNode, current_class: CoolType, local_scope: dict):
     return BoolType
 
 
+def negation_visitor(negation: NegationNode, current_class: CoolType, local_scope: dict):
+    value_type = expression_visitor(negation.val, current_class, local_scope)
+    if value_type != IntNode and value_type is not None:
+        add_semantic_error(negation.lineno, negation.colno,
+                           f'type {value_type} invalid. The \'~\' operator can only be used with type {IntType}')
+    return IntType
+
+
+def logic_negation_visitor(negation: LogicNegationNode, current_class: CoolType, local_scope: dict):
+    value_type = expression_visitor(negation.val, current_class, local_scope)
+    if value_type != BoolType and value_type is not None:
+        add_semantic_error(negation.lineno, negation.colno,
+                           f'type {value_type} invalid. The \'not\' operator can only be used with type {BoolType}')
+    return BoolType
+
+
 def is_void_expr_visitor(isvoid: IsVoidNode, current_class: CoolType, local_scope: dict):
     expression_visitor(isvoid.val, current_class, local_scope)
     isvoid.returned_type = BoolType
@@ -288,6 +304,8 @@ __visitors__ = {
     StarNode: arithmetic_operator_visitor,
     DivNode: arithmetic_operator_visitor,
     EqNode: equal_visitor,
+    NegationNode: negation_visitor,
+    LogicNegationNode: logic_negation_visitor,
     LessThanNode: comparison_visitor,
     LessEqNode: comparison_visitor,
     AssignNode: assignment_visitor,
