@@ -183,7 +183,7 @@ def let_visitor(let: LetNode, current_class: CoolType, local_scope: dict):
     return let.returned_type
 
 
-def list_expr_visitor(block: BlockNode, current_class: CoolType, local_scope: dict):
+def block_expr_visitor(block: BlockNode, current_class: CoolType, local_scope: dict):
     final_type = None
     for expr in block.expressions:
         final_type = expression_visitor(expr, current_class, local_scope)
@@ -278,7 +278,7 @@ def new_expr_visitor(new: NewNode, current_class: CoolType, local_scope: dict):
 
 
 __visitors__ = {
-    BlockNode: list_expr_visitor,
+    BlockNode: block_expr_visitor,
     IntNode: int_visitor,
     StringNode: string_visitor,
     BoolNode: bool_visitor,
