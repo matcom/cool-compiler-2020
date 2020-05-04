@@ -173,7 +173,7 @@ def integer_to_cil_visitor(integer, locals_count):
     return CIL_block([], [], integer.value)
 
 def bool_to_cil_visitor(bool, locals_count):
-    return CIL_block([], [], 1) if bool=='true' else CIL_block([], [], 0)
+    return CIL_block([], [], 1) if bool.value=='true' else CIL_block([], [], 0)
 
 def id_to_cil_visitor(id, locals_count):
     return CIL_block([], [], id.id)
