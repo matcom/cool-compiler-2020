@@ -2,80 +2,80 @@ import lexer_parser.ast as lp_ast
 from semantic.types import *
 import code_generation.ast as cil
 
+
 def ast_to_cil(ast):
-    if type(ast)==lp_ast.ProgramNode:
-        return program_to_cil_visitor(program)
+    if type(ast) == lp_ast.ProgramNode:
+        return program_to_cil_visitor(lp_ast.Proprogram)
     raise Exception(f'AST root must be program')
+
 
 def program_to_cil_visitor(program):
     types = []
     data = []
     code = []
 
-    #completing .TYPE section
+    # completing .TYPE section
     for t in TypesByName:
-        _type=cil.TypeNode(t)
-        value=TypesByName[t]
+        _type = cil.TypeNode(t)
+        value = TypesByName[t]
         for attr in value.get_all_attributes():
-            _type.attributes.append(attr.id)      
-            
+            _type.attributes.append(attr.id)
+
         for met in value.get_all_inherited_methods():
-            _type.methods[met.id]=met.owner         
-        
+            _type.methods[met.id] = met.owner
+
         for met in value.get_all_self_methods():
-            _type.methods[met.id]=t
-            
-        types.append(_type) 
+            _type.methods[met.id] = t
 
+        types.append(_type)
 
-    #completing .CODE and .DATA sections
+        # completing .CODE and .DATA sections
     for c in program.classes:
         for f in c.features:
-            if type(f)==DefFuncNode:
-                if f.id=='main' and c.name=='Main':
-                    fun=func_to_cil_visitor(c.name, f)
+            if type(f) == DefFuncNode:
+                if f.id == 'main' and c.name == 'Main':
+                    fun = func_to_cil_visitor(c.name, f)
                     code.insert(0, fun[0])
                     data.append(fun[1])
                 else:
-                    fun=func_to_cil_visitor(c.name, f)
+                    fun = func_to_cil_visitor(c.name, f)
                     code.append(fun[0])
                     data.append(fun[1])
-                    
-                
-        
+
     return cil.ProgramNode(types, data, code)
-     
-def func_to_cil_visitor(type_name, func):    
-    name=f'{type_name}_{func.id}'
-    params=[cil.ParamNode('self')]
-    params+=[cil.ParamNode(id) for (id, t) in func.params]
-    locals=[]
-    body=[]
-    data=[]
-    locals_count=0
-    
-    if type_name=='Main' and func.id=='main':
-        instance='__main__'
+
+
+def func_to_cil_visitor(type_name, func):
+    name = f'{type_name}_{func.id}'
+    params = [cil.ParamNode('self')]
+    params += [cil.ParamNode(id) for (id, t) in func.params]
+    locals = []
+    body = []
+    data = []
+    locals_count = 0
+
+    if type_name == 'Main' and func.id == 'main':
+        instance = '__main__'
         locals.append(cil.LocalNode(instance))
         body.append(cil.AllocateNode('Main', instance))
-        
-        init_attr=TypesByName['Main'].get_all_attributes()    
+
+        init_attr = TypesByName['Main'].get_all_attributes()
         for attr in init_attr:
             if attr.expression:
-                attr_cil=expression_to_cil_visitor(attr.expression, locals_count)
-                locals_count+=len(attr_cil.locals)
+                attr_cil = expression_to_cil_visitor(attr.expression, locals_count)
+                locals_count += len(attr_cil.locals)
                 locals.append(attr_cil.locals)
                 body.append(attr_cil.body)
-                data.append(attr_cil.data)           
+                data.append(attr_cil.data)
                 body.append(cil.SetAttrNode(instance, attr.id, attr_cil.value))
-        
+
     for exp in func.expressions:
-        instruction=expression_to_cil_visitor(exp, locals_count)
-        locals+=instruction.locals
-        body+=instruction.body
-        data+=instruction.data
-        locals_count+=len(instruction.locals)
-        
+        instruction = expression_to_cil_visitor(exp, locals_count)
+        locals += instruction.locals
+        body += instruction.body
+        data += instruction.data
+        locals_count += len(instruction.locals)
+
     return cil.FuncNode(name, params, locals, body), data
 
 
@@ -180,42 +180,44 @@ def equal_to_cil_visitor(equal, locals_count):
 
     return CIL_block(locals, body, value, data)
 
+
 def lessthan_to_cil_visitor(lessthan, locals_count):
-    l=expression_to_cil_visitor(lessthan.lvalue, locals_count)
-    r=expression_to_cil_visitor(lessthan.rvalue, locals_count)
+    l = expression_to_cil_visitor(lessthan.lvalue, locals_count)
+    r = expression_to_cil_visitor(lessthan.rvalue, locals_count)
     locals_count += len(l.locals) + len(r.locals)
-    
+
     cil_result = f'local_{locals_count}'
     end_label = f'local_{locals_count + 1}'
     value = f'local_{locals_count + 2}'
-    
+
     locals = l.locals + r.locals + [cil.LocalNode(cil_result), cil.LocalNode(value)]
     body = l.body + r.body + [cil.DivNode(l.value, r.value, cil_result), cil.AssignNode(value, 0),
-                              cil.ConditionalGotoNode(cil_result, end_label), cil.AssignNode(value, 1), 
+                              cil.ConditionalGotoNode(cil_result, end_label), cil.AssignNode(value, 1),
                               cil.LabelNode(end_label)]
     data = l.data + r.data
-    
+
     return CIL_block(locals, body, value, data)
 
+
 def lesseqthan_to_cil_visitor(lessthan, locals_count):
-    l=expression_to_cil_visitor(lessthan.lvalue, locals_count)
-    r=expression_to_cil_visitor(lessthan.rvalue, locals_count)
+    l = expression_to_cil_visitor(lessthan.lvalue, locals_count)
+    r = expression_to_cil_visitor(lessthan.rvalue, locals_count)
     locals_count += len(l.locals) + len(r.locals)
-    
+
     cil_less = f'local_{locals_count}'
     cil_equal = f'local_{locals_count + 1}'
     eq_label = f'local_{locals_count + 2}'
     end_label = f'local_{locals_count + 3}'
     value = f'local_{locals_count + 4}'
-    
+
     locals = l.locals + r.locals + [cil.LocalNode(cil_less), cil.LocalNode(cil_equal), cil.LocalNode(value)]
-    body = l.body + r.body + [cil.DivNode(l.value, r.value, cil_less), cil.AssignNode(value, 0), 
-                              cil.ConditionalGotoNode(cil_less, eq_label), cil.AssignNode(value, 1), 
-                              cil.GotoNode(end_label), cil.LabelNode(eq_label), 
-                              cil.MinusNode(l.value, r.value, cil_equal), cil.ConditionalGotoNode(cil_equal, end_label), 
+    body = l.body + r.body + [cil.DivNode(l.value, r.value, cil_less), cil.AssignNode(value, 0),
+                              cil.ConditionalGotoNode(cil_less, eq_label), cil.AssignNode(value, 1),
+                              cil.GotoNode(end_label), cil.LabelNode(eq_label),
+                              cil.MinusNode(l.value, r.value, cil_equal), cil.ConditionalGotoNode(cil_equal, end_label),
                               cil.AssignNode(value, 1), cil.LabelNode(end_label)]
     data = l.data + r.data
-    
+
     return CIL_block(locals, body, value, data)
 
 
@@ -224,20 +226,21 @@ def integer_to_cil_visitor(integer, locals_count):
 
 
 def bool_to_cil_visitor(bool, locals_count):
-    return CIL_block([], [], 1) if bool.value=='true' else CIL_block([], [], 0)
+    return CIL_block([], [], 1) if bool.value == 'true' else CIL_block([], [], 0)
+
 
 def id_to_cil_visitor(id, locals_count):
     return CIL_block([], [], id.id)
 
 
 def new_to_cil_visitor(new_node, locals_count):
-    value=f'local_{locals_count}'
-    locals=[cil.LocalNode(value)]
-    locals_count+=1
-    body=[cil.AllocateNode(new_node.type, value)]
-    data=[]
-    init_attr=TypesByName[new_node.type].get_all_attributes()
-    
+    value = f'local_{locals_count}'
+    locals = [cil.LocalNode(value)]
+    locals_count += 1
+    body = [cil.AllocateNode(new_node.type, value)]
+    data = []
+    init_attr = TypesByName[new_node.type].get_all_attributes()
+
     for attr in init_attr:
         if attr.expression:
             attr_cil = expression_to_cil_visitor(attr.expression, locals_count)
@@ -311,89 +314,46 @@ def block_to_cil_visitor(block, locals_count):
 
     return CIL_block(locals, body, value, data)
 
+
 def type_func_call_to_cil_visitor(call, locals_count):
-    locals=[]
-    body=[]
-    data=[]
-    obj_cil=expression_to_cil_visitor(call.object, locals_count)
-    locals_count+=len(obj_cil.locals)
-    locals+=obj_cil.locals
-    body+=obj_cil.body
-    data+=obj_cil.data
-    
-    arg_values=[]
-    
+    locals = []
+    body = []
+    data = []
+    obj_cil = expression_to_cil_visitor(call.object, locals_count)
+    locals_count += len(obj_cil.locals)
+    locals += obj_cil.locals
+    body += obj_cil.body
+    data += obj_cil.data
+
+    arg_values = []
+
     for arg in call.args:
-        arg_cil=expression_to_cil_visitor(arg, locals_count)
-        locals_count+=len(arg_cil.locals)
-        locals+=arg_cil.locals
-        body+=arg_cil.body
-        data+=arg_cil.data
+        arg_cil = expression_to_cil_visitor(arg, locals_count)
+        locals_count += len(arg_cil.locals)
+        locals += arg_cil.locals
+        body += arg_cil.body
+        data += arg_cil.data
         arg_values.append(arg_cil.value)
-        
+
     body.append(cil.ArgNode(obj_cil.value))
-    
+
     for arg in arg_values:
         body.append(cil.ArgNode(arg))
-    
-    result=f'local_{locals_count}'
+
+    result = f'local_{locals_count}'
     locals.append(cil.LocalNode(result))
     body.append(cil.VCAllNode(call.type, call.id, result))
-    
+
     return CIL_block(locals, body, result, data)
-    
+
+
 def standard_func_call_to_cil_visitor(call, locals_count):
-    pass  
+    pass
+
 
 def self_func_call_to_cil_visitor(call, locals_count):
     pass
-    
-class CIL_block:
-    def __init__(self, locals, body, value, data=[]):
-        self.locals=locals
-        self.body=body
-        self.value=value
-        self.data=data
-  
-def func_call_to_cil_visitor(call, locals_count):
-    if not object:
-        return self_func_call_to_cil_visitor(call, locals_count)
-    if not type:
-        return standard_func_call_to_cil_visitor(call, locals_count)
-    return type_func_call_to_cil_visitor(call, locals_count)
 
-  
-__visitor__={
-    lp_ast.AssignNode:assign_to_cil_visitor,
-    lp_ast.BlockNode:block_to_cil_visitor,
-    lp_ast.BoolNode:bool_to_cil_visitor,
-    lp_ast.IfNode:if_to_cil_visitor,
-    lp_ast.WhileNode:loop_to_cil_visitor,
-    lp_ast.EqNode:equal_to_cil_visitor,
-    lp_ast.LogicNegationNode:logic_not_to_cil_visitor,
-    lp_ast.LetNode:let_to_cil_visitor,
-    lp_ast.NewNode:new_to_cil_visitor,
-    lp_ast.IntNode:integer_to_cil_visitor,
-    lp_ast.StringNode:string_to_cil_visitor,
-    lp_ast.PlusNode:arith_to_cil_visitor,
-    lp_ast.MinusNode:arith_to_cil_visitor,
-    lp_ast.StarNode:arith_to_cil_visitor,
-    lp_ast.DivNode:arith_to_cil_visitor, 
-    lp_ast.VarNode:id_to_cil_visitor, 
-    lp_ast.FuncCallNode: func_call_to_cil_visitor
-}   
-   
-    
-    
-    
-            
-            
-            
-        
-        
-        
-        
-    
 
 class CIL_block:
     def __init__(self, locals, body, value, data=[]):
@@ -402,3 +362,39 @@ class CIL_block:
         self.value = value
         self.data = data
 
+
+def func_call_to_cil_visitor(call, locals_count):
+    if not object:
+        return self_func_call_to_cil_visitor(call, locals_count)
+    if not type:
+        return standard_func_call_to_cil_visitor(call, locals_count)
+    return type_func_call_to_cil_visitor(call, locals_count)
+
+
+__visitor__ = {
+    lp_ast.AssignNode: assign_to_cil_visitor,
+    lp_ast.BlockNode: block_to_cil_visitor,
+    lp_ast.BoolNode: bool_to_cil_visitor,
+    lp_ast.IfNode: if_to_cil_visitor,
+    lp_ast.WhileNode: loop_to_cil_visitor,
+    lp_ast.EqNode: equal_to_cil_visitor,
+    lp_ast.LogicNegationNode: logic_not_to_cil_visitor,
+    lp_ast.LetNode: let_to_cil_visitor,
+    lp_ast.NewNode: new_to_cil_visitor,
+    lp_ast.IntNode: integer_to_cil_visitor,
+    lp_ast.StringNode: string_to_cil_visitor,
+    lp_ast.PlusNode: arith_to_cil_visitor,
+    lp_ast.MinusNode: arith_to_cil_visitor,
+    lp_ast.StarNode: arith_to_cil_visitor,
+    lp_ast.DivNode: arith_to_cil_visitor,
+    lp_ast.VarNode: id_to_cil_visitor,
+    lp_ast.FuncCallNode: func_call_to_cil_visitor
+}
+
+
+class CIL_block:
+    def __init__(self, locals, body, value, data=[]):
+        self.locals = locals
+        self.body = body
+        self.value = value
+        self.data = data
