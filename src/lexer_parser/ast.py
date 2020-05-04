@@ -85,6 +85,7 @@ class BlockNode(AstNode):
     def __init__(self, expressions):
         super().__init__()
         self.expressions = expressions
+        self.returned_type = None
 
 
 class LetNode(AstNode):
