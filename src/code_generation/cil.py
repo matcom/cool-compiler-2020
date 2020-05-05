@@ -74,15 +74,6 @@ def func_to_cil_visitor(type_name, func, data_count):
                 data.append(attr_cil.data)
                 body.append(cil.SetAttrNode(instance, attr.id, attr_cil.value))
 
-    if type(func.expressions) is BlockNode:
-        for exp in func.expressions.expressions:
-            instruction = expression_to_cil_visitor(exp, locals_count, data_count)
-            locals += instruction.locals
-            body += instruction.body
-            data += instruction.data
-            locals_count += len(instruction.locals)
-            data_count+=len(instruction.data)
-    else:
         instruction = expression_to_cil_visitor(func.expressions, locals_count)
         locals += instruction.locals
         body += instruction.body
@@ -223,8 +214,7 @@ def loop_to_cil_visitor(loop, locals_count, data_count):
     end_label = f'local_{locals_count + 2}'
 
     body = [cil.ConditionalGotoNode(predicate.value, loop_label), cil.GotoNode(end_label),
-            cil.LabelNode(loop_label)] + loop_block.body + [cil.AssignNode(value, loop_block.value),
-                                                            cil.LabelNode(end_label)]
+            cil.LabelNode(loop_label)] + loop_block.body + [cil.LabelNode(end_label), cil.AssignNode(value, 0)]
     data = predicate.data + loop_block.data
 
     return CIL_block(locals, body, value, data)
@@ -329,6 +319,8 @@ def new_to_cil_visitor(new_node, locals_count, data_count):
 
     return CIL_block(locals, body, value, data)
 
+def is_void_to_cil_visitor(isvoid, locals_count, data_count):
+    pass
 
 def string_to_cil_visitor(str, locals_count, data_count):
     str_addr = f'data_{data_count}'
