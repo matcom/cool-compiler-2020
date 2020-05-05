@@ -145,7 +145,7 @@ def case_to_cil_visitor(case, locals_count, data_count):
 
 
 def assign_to_cil_visitor(assign, locals_count, data_count):
-    expr = expression_to_cil_visitor(assign.expr, locals_count)
+    expr = expression_to_cil_visitor(assign.expr, locals_count, data_count)
     locals_count += len(expr.locals)
     data_count+=len(expr.data)
     value = [f'local_{locals_count}']
