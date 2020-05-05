@@ -25,7 +25,7 @@ def program_to_cil_visitor(program):
             _type.methods[met.id] = met.owner
 
         for met in value.get_all_self_methods():
-            _type.methods[met.id] = t
+            _type.methods[met] = t
 
         types.append(_type)
 
