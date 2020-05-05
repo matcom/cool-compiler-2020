@@ -54,11 +54,11 @@ def func_cg_visitor(func: FuncNode):
 
 
 def param_cg_visitor(param: ParamNode):
-    return f'PARAM {param} ;'
+    return f'PARAM {param.id} ;'
 
 
 def local_cg_visitor(local: LocalNode):
-    return f'LOCAL {local} ;'
+    return f'LOCAL {local.id} ;'
 
 
 def instruction_cg_visitor(instruction: InstructionNode):
