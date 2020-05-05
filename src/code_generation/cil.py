@@ -84,6 +84,50 @@ def expression_to_cil_visitor(expression, locals_count):
         return __visitor__[type(expression)](expression, locals_count)
     except:
         raise Exception(f'There is no visitor for {type(expression)}')
+    
+def case_to_cil_visitor(case, locals_count):
+    locals=[]
+    body=[]
+    data=[]
+    expr_cil=expression_to_cil_visitor(case.expr, locals_count)
+    locals_count+=len(expr_cil.locals)
+    locals+=expr_cil.locals
+    body+=expr_cil.body
+    data+=expr_cil.data
+    t=f'local_{locals_count}'
+    locals_count+=1
+    locals.append(cil.LocalNode(t))
+    body.append(cil.TypeOfNode(t, expr_cil.value))
+    types=[]
+    labels=[]
+    for c in case.case_list:
+        types.append(c.type)
+        
+    for l in range(len(case.case_list)):
+        labels.append(f'local_{locals_count}')
+        locals_count+=1
+              
+    value=None
+    
+    for i, branch in enumerate(case.case_list):
+        predicate=f'local_{locals_count}'
+        locals_count+=1
+        locals+=[cil.LocalNode(predicate), cil.LocalNode(branch.id)]
+        body.append(cil.MinusNode(t, branch.type, predicate))
+        body.append(cil.ConditionalGotoNode(predicate, labels[i]))
+        body.append(cil.AssignNode(branch.id, expr_cil.value))
+        branch_cil=expression_to_cil_visitor(branch.expr, locals_count)
+        locals+=branch_cil.locals
+        body+=branch_cil.body
+        data+=branch_cil.data
+        locals_count+=len(branch_cil.locals)
+        value=branch_cil.value
+        body.append(cil.LabelNode(labels[i]))
+        
+    return CIL_block(locals, body, value, data)
+        
+        
+        
 
 
 def assign_to_cil_visitor(assign, locals_count):
