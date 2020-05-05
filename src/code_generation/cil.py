@@ -314,15 +314,22 @@ def block_to_cil_visitor(block, locals_count):
 
     return CIL_block(locals, body, value, data)
 
-def standard_func_call_to_cil_visitor(call, locals_count):
+def case_to_cil_visitor(case, locals_count):
+    pass
+
+def func_call_to_cil_visitor(call, locals_count):
     locals = []
     body = []
     data = []
-    obj_cil = expression_to_cil_visitor(call.object, locals_count)
-    locals_count += len(obj_cil.locals)
-    locals += obj_cil.locals
-    body += obj_cil.body
-    data += obj_cil.data
+    if call.object:
+        obj_cil = expression_to_cil_visitor(call.object, locals_count)
+        locals_count += len(obj_cil.locals)
+        locals += obj_cil.locals
+        body += obj_cil.body
+        data += obj_cil.data
+        obj=obj_cil.value
+    else:
+        obj='self'
 
     arg_values = []
 
@@ -333,48 +340,24 @@ def standard_func_call_to_cil_visitor(call, locals_count):
         body += arg_cil.body
         data += arg_cil.data
         arg_values.append(arg_cil.value)
+        
+    t=f'local_{locals_count}'
+    locals.append(cil.LocalNode(t))
+    body.append(cil.TypeOfNode(t, obj))
 
-    body.append(cil.ArgNode(obj_cil.value))
+    body.append(cil.ArgNode(obj))
 
     for arg in arg_values:
         body.append(cil.ArgNode(arg))
 
-    result = f'local_{locals_count}'
+    result = f'local_{locals_count+1}'
     locals.append(cil.LocalNode(result))
     if not call.type:
-        body.append(cil.VCAllNode(call.object.returned_type, call.id, result))
+        body.append(cil.VCAllNode(t, call.id, result))
     else:
         body.append(cil.VCAllNode(call.type, call.id, result))
 
-    return CIL_block(locals, body, result, data)
-
-def self_func_call_to_cil_visitor(call, locals_count):
-    locals=[]
-    body=[]
-    data=[]
-    
-    arg_values = []
-
-    for arg in call.args:
-        arg_cil = expression_to_cil_visitor(arg, locals_count)
-        locals_count += len(arg_cil.locals)
-        locals += arg_cil.locals
-        body += arg_cil.body
-        data += arg_cil.data
-        arg_values.append(arg_cil.value)
-        
-    body.append(cil.ArgNode('self'))
-    
-    for arg in arg_values:
-        body.append(cil.ArgNode(arg))
-        
-    result = f'local_{locals_count}'
-    locals.append(cil.LocalNode(result))
-    
-    body.append(cil.VCAllNode(call.self_type, call.id, result))
-        
-    return CIL_block(locals, body, data, result)
-    
+    return CIL_block(locals, body, result, data)   
     
 
 
@@ -384,13 +367,6 @@ class CIL_block:
         self.body = body
         self.value = value
         self.data = data
-
-
-def func_call_to_cil_visitor(call, locals_count):
-    if not object:
-        return self_func_call_to_cil_visitor(call, locals_count)
-    return standard_func_call_to_cil_visitor(call, locals_count)
-
 
 __visitor__ = {
     lp_ast.AssignNode: assign_to_cil_visitor,
