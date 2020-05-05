@@ -335,7 +335,7 @@ def string_to_cil_visitor(str, locals_count, data_count):
     str_id = f'local_{locals_count}'
 
     locals = [cil.LocalNode(str_id)]
-    data = [cil.DataNode(str_addr, str.value)]
+    data = [cil.DataNode(str_addr, f"\"{str.value}\"")]
     body = [cil.LoadNode(str_addr, str_id)]
 
     return CIL_block(locals, body, str_id, data)
