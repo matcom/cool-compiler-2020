@@ -16,8 +16,9 @@ def main():
         exit_with_error("invalid number of arguments")
 
     input_data = ""
+    input_file = sys.argv[1]
     try:
-        with open(sys.argv[1]) as f:
+        with open(input_file) as f:
             input_data = f.read()
     except FileNotFoundError:
         exit_with_error(f'file {sys.argv[1]} not found')
@@ -39,7 +40,10 @@ def main():
         exit(1)
         
     cil_code=generate_code(ast)
+    output_file = input_file[0:-2] + 'cli'
 
+    with open(output_file,"x") as output:
+        output.write(cil_code)
 
 if __name__ == "__main__":
     main()
