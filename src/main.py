@@ -3,7 +3,7 @@ import sys
 import errors as err
 from lexer_parser import lexer, parser
 from semantic import semantic_check
-from src.code_generation import generate_code
+from code_generation import generate_code
 
 
 def exit_with_error(error):
