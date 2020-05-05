@@ -180,7 +180,7 @@ def let_visitor(let: LetNode, current_class: CoolType, local_scope: dict):
             add_semantic_error(attribute.lineno, attribute.colno,
                                f'Type \'{attribute_type}\' cannot be stored in type \'{id_type}\'')
             return None
-        local_scope[attribute.id] = ObjectType
+        local_scope[attribute.id] = id_type
     let.returned_type = expression_visitor(let.expr, current_class, local_scope)
     return let.returned_type
 
@@ -260,11 +260,12 @@ def is_void_expr_visitor(isvoid: IsVoidNode, current_class: CoolType, local_scop
 def var_visitor(var: VarNode, current_class: CoolType, local_scope: dict):
     if var.id in local_scope.keys():
         var.returned_type = local_scope[var.id]
-    attribute, _ = get_attribute(current_class, var.id)
-    if attribute is not None:
-        var.returned_type = attribute.attrType
     else:
-        add_semantic_error(var.lineno, var.colno, f'unknown variable \'{var.id}\'')
+        attribute, _ = get_attribute(current_class, var.id)
+        if attribute is not None:
+            var.returned_type = attribute.attrType
+        else:
+            add_semantic_error(var.lineno, var.colno, f'unknown variable \'{var.id}\'')
     return var.returned_type
 
 
