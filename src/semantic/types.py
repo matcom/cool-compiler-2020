@@ -51,7 +51,7 @@ class CoolType:
         result = []
         while t:
             temp = []
-            for met in t.methods:
+            for met in t.methods.values():
                 met.owner = t.name
                 temp.append(met)
             result.append(temp)
