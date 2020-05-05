@@ -19,7 +19,7 @@ def program_to_cil_visitor(program):
         _type = cil.TypeNode(t)
         value = TypesByName[t]
         for attr in value.get_all_attributes():
-            _type.attributes.append(attr.id)
+            _type.attributes.append(attr)
 
         for met in value.get_all_inherited_methods():
             _type.methods[met.id] = met.owner
@@ -38,7 +38,7 @@ def program_to_cil_visitor(program):
                     code.insert(0, fun[0])
                     data.append(fun[1])
                 else:
-                    fun = func_to_cil_visitor(c.name, f)
+                    fun = func_to_cil_visitor(c.type, f)
                     code.append(fun[0])
                     data.append(fun[1])
 
