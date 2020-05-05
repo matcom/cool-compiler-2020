@@ -41,7 +41,7 @@ def program_to_cil_visitor(program):
                     data.append(fun[1])
                     data_count+=len(fun[1])
                 else:
-                    fun = func_to_cil_visitor(c.type, f)
+                    fun = func_to_cil_visitor(c.type, f, data_count)
                     code.append(fun[0])
                     data.append(fun[1])
                     data_count+=len(fun[1])
@@ -83,7 +83,7 @@ def func_to_cil_visitor(type_name, func, data_count):
             locals_count += len(instruction.locals)
             data_count+=len(instruction.data)
     else:
-        instruction = expression_to_cil_visitor(func.expressions, locals_count)
+        instruction = expression_to_cil_visitor(func.expressions, locals_count, data_count)
         locals += instruction.locals
         body += instruction.body
         data += instruction.data
