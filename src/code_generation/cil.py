@@ -31,7 +31,7 @@ def program_to_cil_visitor(program):
 
         # completing .CODE and .DATA sections
     for c in program.classes:
-        for f in c.features:
+        for f in c.feature_nodes:
             if type(f) == DefFuncNode:
                 if f.id == 'main' and c.name == 'Main':
                     fun = func_to_cil_visitor(c.name, f)
