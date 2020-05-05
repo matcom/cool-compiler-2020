@@ -40,9 +40,9 @@ def main():
         exit(1)
         
     cil_code=generate_code(ast)
-    output_file = input_file[0:-2] + 'cli'
+    output_file = input_file[0:-2] + 'cil'
 
-    with open(output_file,"x") as output:
+    with open(output_file,"w") as output:
         output.write(cil_code)
 
 if __name__ == "__main__":

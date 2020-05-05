@@ -41,7 +41,7 @@ def program_to_cil_visitor(program):
                     data.append(fun[1])
                     data_count+=len(fun[1])
                 else:
-                    fun = func_to_cil_visitor(c.type, f)
+                    fun = func_to_cil_visitor(c.type, f, data_count)
                     code.append(fun[0])
                     data.append(fun[1])
                     data_count+=len(fun[1])
@@ -74,12 +74,12 @@ def func_to_cil_visitor(type_name, func, data_count):
                 data.append(attr_cil.data)
                 body.append(cil.SetAttrNode(instance, attr.id, attr_cil.value))
 
-        instruction = expression_to_cil_visitor(func.expressions, locals_count)
-        locals += instruction.locals
-        body += instruction.body
-        data += instruction.data
-        data_count+=len(instruction.data)
-        locals_count += len(instruction.locals)
+    instruction = expression_to_cil_visitor(func.expressions, locals_count)
+    locals += instruction.locals
+    body += instruction.body
+    data += instruction.data
+    data_count+=len(instruction.data)
+    locals_count += len(instruction.locals)
 
     return cil.FuncNode(name, params, locals, body), data
 
@@ -136,7 +136,7 @@ def case_to_cil_visitor(case, locals_count, data_count):
 
 
 def assign_to_cil_visitor(assign, locals_count, data_count):
-    expr = expression_to_cil_visitor(assign.expr, locals_count)
+    expr = expression_to_cil_visitor(assign.expr, locals_count, data_count)
     locals_count += len(expr.locals)
     data_count+=len(expr.data)
     value = [f'local_{locals_count}']
@@ -327,7 +327,7 @@ def string_to_cil_visitor(str, locals_count, data_count):
     str_id = f'local_{locals_count}'
 
     locals = [cil.LocalNode(str_id)]
-    data = [cil.DataNode(str_addr, str.value)]
+    data = [cil.DataNode(str_addr, f"\"{str.value}\"")]
     body = [cil.LoadNode(str_addr, str_id)]
 
     return CIL_block(locals, body, str_id, data)
