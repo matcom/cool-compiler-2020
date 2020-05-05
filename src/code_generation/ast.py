@@ -11,10 +11,11 @@ class ProgramNode(Node):
 
 class TypeNode(Node):
     def __init__(self, type):
-        self.attributes=[]
-        self.methods={}
-        self.type=type
-        
+        self.attributes = []
+        self.methods = {}
+        self.type = type
+
+
 class DataNode(Node):
     def __init__(self, id, val):
         self.id = id

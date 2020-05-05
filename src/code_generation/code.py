@@ -1,16 +1,18 @@
 from code_generation.ast import *
 
+
 def cil_to_code(ast):
-    if type(ast)==ProgramNode:
+    if type(ast) == ProgramNode:
         return program_cg_visitor(ast)
     raise Exception(f'AST root must be program')
 
-def program_cg_visitor(program:ProgramNode):
-    type_code=''
-    data_code=''
-    func_code=''
-    for t in program.types:       
-        type_code+=f'{type_cg_visitor(t)}\n'
+
+def program_cg_visitor(program: ProgramNode):
+    type_code = ''
+    data_code = ''
+    func_code = ''
+    for t in program.types:
+        type_code += f'{type_cg_visitor(t)}\n'
     for d in program.data:
         data_code += f'{data_cg_visitor(d)}\n'
     for f in program.code:
@@ -23,11 +25,11 @@ def type_cg_visitor(type: TypeNode):
     attr_code = ''
     method_code = ''
     for attr in type.attributes:
-        attr_code+=f'attribute {attr}; \n'
-    
+        attr_code += f'attribute {attr}; \n'
+
     for name in type.methods:
-        method_code+=f'method {name}:{type.methods[name]}_{name};\n'
-        
+        method_code += f'method {name}:{type.methods[name]}_{name};\n'
+
     return f'type {type.type} {{ \n {attr_code} {method_code} }}'
 
 

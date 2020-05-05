@@ -31,35 +31,32 @@ class CoolType:
             return True, None
         else:
             return False, msg
-        
+
     def get_all_attributes(self):
-        t=self
-        result=[]
+        t = self
+        result = []
         while t:
-            temp=[]
+            temp = []
             for attr in t.attributes:
                 temp.append(attr)
             result.append(temp)
-            t=t.parent
+            t = t.parent
         return [elem for sublist in result[::-1] for elem in sublist]
-    
-    
+
     def get_all_self_methods(self):
         return self.methods
-    
+
     def get_all_inherited_methods(self):
-        t=self.parent
-        result=[]
+        t = self.parent
+        result = []
         while t:
-            temp=[]
+            temp = []
             for met in t.methods:
-                met.owner=t.name
+                met.owner = t.name
                 temp.append(met)
             result.append(temp)
-            t=t.parent
+            t = t.parent
         return [elem for sublist in result[::-1] for elem in sublist]
-                
-        
 
     def get_method(self, id, args_types):
         try:
