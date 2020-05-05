@@ -401,14 +401,6 @@ def func_call_to_cil_visitor(call, locals_count):
     return CIL_block(locals, body, result, data)   
     
 
-
-class CIL_block:
-    def __init__(self, locals, body, value, data=[]):
-        self.locals = locals
-        self.body = body
-        self.value = value
-        self.data = data
-
 __visitor__ = {
     lp_ast.AssignNode: assign_to_cil_visitor,
     lp_ast.BlockNode: block_to_cil_visitor,
