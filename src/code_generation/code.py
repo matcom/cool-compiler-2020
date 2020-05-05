@@ -28,11 +28,11 @@ def type_cg_visitor(type: TypeNode):
     for name in type.methods:
         method_code+=f'method {name}:{type.methods[name]}_{name};\n'
         
-    return f'type {type.name} {{ \n {attr_code} {method_code} }}'
+    return f'type {type.type} {{ \n {attr_code} {method_code} }}'
 
 
 def data_cg_visitor(data: DataNode):
-    return f'{data.id} = {data.value} ;'
+    return f'{data.id} = {data.val} ;'
 
 
 def func_cg_visitor(func: FuncNode):
