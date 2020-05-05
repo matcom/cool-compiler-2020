@@ -3,6 +3,7 @@ import sys
 import errors as err
 from lexer_parser import lexer, parser
 from semantic import semantic_check
+from src.code_generation import generate_code
 
 
 def exit_with_error(error):
@@ -36,6 +37,8 @@ def main():
         for e in err.SEMANTIC_ERRORS:
             print(e)
         exit(1)
+        
+    cil_code=generate_code(ast)
 
 
 if __name__ == "__main__":
