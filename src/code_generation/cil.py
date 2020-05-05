@@ -358,9 +358,6 @@ def block_to_cil_visitor(block, locals_count):
 
     return CIL_block(locals, body, value, data)
 
-def case_to_cil_visitor(case, locals_count):
-    pass
-
 def func_call_to_cil_visitor(call, locals_count):
     locals = []
     body = []
