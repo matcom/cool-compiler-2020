@@ -69,8 +69,15 @@ def func_to_cil_visitor(type_name, func):
                 data.append(attr_cil.data)
                 body.append(cil.SetAttrNode(instance, attr.id, attr_cil.value))
 
-    for exp in func.expressions:
-        instruction = expression_to_cil_visitor(exp, locals_count)
+    if type(func.expressions) is BlockNode:
+        for exp in func.expressions.expressions:
+            instruction = expression_to_cil_visitor(exp, locals_count)
+            locals += instruction.locals
+            body += instruction.body
+            data += instruction.data
+            locals_count += len(instruction.locals)
+    else:
+        instruction = expression_to_cil_visitor(func.expressions, locals_count)
         locals += instruction.locals
         body += instruction.body
         data += instruction.data
