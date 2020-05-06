@@ -39,6 +39,7 @@ def data_cg_visitor(data: DataNode):
     except:
         return ''
 
+
 def func_cg_visitor(func: FuncNode):
     params_code = ''
     locals_code = ''
