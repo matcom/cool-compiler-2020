@@ -93,7 +93,7 @@ def func_to_cil_visitor(type_name, func):
         func.expressions)
     body += instruction.body
 
-    _locals = [cil.LocalNode(f'local_{i}') for i in range(locals_count)]
+    _locals = [cil.LocalNode(f'local_{i + 1}') for i in range(locals_count)]
     return cil.FuncNode(name, params, _locals, body)
 
 
