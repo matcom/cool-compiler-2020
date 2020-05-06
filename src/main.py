@@ -2,7 +2,7 @@ from pipeline import Pipeline
 from tools.reader import Reader
 from cl_lexer import CoolLexer
 from cl_parser import CoolParser
-from semantic import *
+from visitors import *
 
 import sys
 
@@ -13,6 +13,7 @@ def main():
 
     pipeline.submit_state(Reader('Reader'))
     pipeline.submit_state(CoolParser('Parser'))
+    pipeline.submit_state(FormatVisitor('Formatter', './ast.txt'))
 
     pipeline.run_pipeline(program)
     pipeline.report_errors()

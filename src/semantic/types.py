@@ -85,7 +85,7 @@ class Type:
 
 class ErrorType(Type):
     def __init__(self):
-        Type.__init__(self, '<error>')
+        Type.__init__(self, '<Error>')
 
     def conforms_to(self, other):
         return True
@@ -101,7 +101,7 @@ class ErrorType(Type):
 
 class VoidType(Type):
     def __init__(self):
-        Type.__init__(self, '<void>')
+        Type.__init__(self, 'Void')
 
     def conforms_to(self, other):
         raise Exception('Invalid type: void type.')

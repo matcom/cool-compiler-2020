@@ -15,8 +15,8 @@ class Pipeline(object):
             if state.stop:
                 break
 
-        # collect errors from current state
-        self.pipeline_errors += state.errors
+            # collect errors from current state
+            self.pipeline_errors += state.errors
 
         return res
 

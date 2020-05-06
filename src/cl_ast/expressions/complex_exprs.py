@@ -50,6 +50,7 @@ class CaseNode(ExpressionNode):
         return id(self)
 
 class OptionNode(ExpressionNode):
+    
     def __init__(self, idx, typex, expr):
         self.id = idx
         self.typex = typex
