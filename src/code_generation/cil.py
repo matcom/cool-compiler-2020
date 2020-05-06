@@ -14,14 +14,13 @@ def add_str_data(data: str):
         return __DATA__[data]
 
 
-__LOCALS__ = []
+locals_count = 0
 
 
 def add_local():
-    locals_count = len(__LOCALS__) + 1
-    local = f'local_{locals_count}'
-    __LOCALS__.append(local)
-    return local
+    global locals_count
+    locals_count += 1
+    return f'local_{locals_count}'
 
 
 def ast_to_cil(ast):
@@ -83,18 +82,18 @@ def program_to_cil_visitor(program):
 
 
 def func_to_cil_visitor(type_name, func):
-    global __LOCALS__
+    global locals_count
     name = f'{type_name}_{func.id}'
     params = [cil.ParamNode('self')]
     params += [cil.ParamNode(id) for (id, t) in func.params]
-    __LOCALS__ = []
+    locals_count = 0
     body = []
 
     instruction = expression_to_cil_visitor(
         func.expressions)
     body += instruction.body
 
-    _locals = [cil.LocalNode(l) for l in __LOCALS__]
+    _locals = [cil.LocalNode(f'local_{i}') for i in range(locals_count)]
     return cil.FuncNode(name, params, _locals, body)
 
 
