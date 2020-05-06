@@ -34,10 +34,7 @@ def type_cg_visitor(type: TypeNode):
 
 
 def data_cg_visitor(data: DataNode):
-    try:
-        return f'{data[0].id} = {data[0].val} ;'
-    except:
-        return ''
+    return f'{data.id} = \"{data.val}\" ;'
 
 
 def func_cg_visitor(func: FuncNode):
