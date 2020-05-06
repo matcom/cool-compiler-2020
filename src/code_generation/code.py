@@ -53,7 +53,7 @@ def func_cg_visitor(func: FuncNode):
     for instruction in func.body:
         body_code += f'\t{instruction_cg_visitor(instruction)}\n'
 
-    return f'function {func.name} {{\n{params_code}{locals_code}{body_code}}}'
+    return f'function {func.name} {{\n{params_code}{locals_code}{body_code}}}\n'
 
 
 def param_cg_visitor(param: ParamNode):

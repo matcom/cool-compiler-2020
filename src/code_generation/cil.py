@@ -31,19 +31,33 @@ def program_to_cil_visitor(program):
         types.append(_type)
 
         # completing .CODE and .DATA sections
+
+    """
+    Building main function
+
+    function main {
+	    LOCAL __main__ ;
+	    LOCAL main_result ;
+	    __main__ = ALLOCATE Main ;
+	    ARG __main__ ;
+	    main_result = VCALL Main main ;
+    }
+    """
+    main_instance = '__main__'
+    main_result = 'main_result'
+    main_function = cil.FuncNode('main', [], [cil.LocalNode(main_instance), cil.LocalNode(main_result)],
+                                 [cil.AllocateNode('Main', main_instance),
+                                  cil.ArgNode(main_instance),
+                                  cil.VCAllNode('Main', 'main', main_result)])
+    code.append(main_function)
+
     for c in program.classes:
         for f in c.feature_nodes:
             if type(f) == DefFuncNode:
-                if f.id == 'main' and c.type == 'Main':
-                    fun = func_to_cil_visitor(c.type, f, data_count)
-                    code.insert(0, fun[0])
-                    data.append(fun[1])
-                    data_count += len(fun[1])
-                else:
-                    fun = func_to_cil_visitor(c.type, f, data_count)
-                    code.append(fun[0])
-                    data.append(fun[1])
-                    data_count += len(fun[1])
+                fun = func_to_cil_visitor(c.type, f, data_count)
+                code.append(fun[0])
+                data.append(fun[1])
+                data_count += len(fun[1])
 
     return cil.ProgramNode(types, data, code)
 
@@ -57,22 +71,6 @@ def func_to_cil_visitor(type_name, func, data_count):
     data = []
     locals_count = 0
 
-    if type_name == 'Main' and func.id == 'main':
-        instance = '__main__'
-        locals.append(cil.LocalNode(instance))
-        body.append(cil.AllocateNode('Main', instance))
-
-        init_attr = TypesByName['Main'].get_all_attributes()
-        for attr in init_attr:
-            if attr.expression:
-                attr_cil = expression_to_cil_visitor(
-                    attr.expression, locals_count, data_count)
-                locals_count += len(attr_cil.locals)
-                data_count += len(attr_cil.data)
-                locals.append(attr_cil.locals)
-                body.append(attr_cil.body)
-                data.append(attr_cil.data)
-                body.append(cil.SetAttrNode(instance, attr.id, attr_cil.value))
 
     instruction = expression_to_cil_visitor(
         func.expressions, locals_count, data_count)
