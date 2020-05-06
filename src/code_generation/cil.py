@@ -1,7 +1,6 @@
+import code_generation.ast as cil
 import lexer_parser.ast as lp_ast
 from semantic.types import *
-import code_generation.ast as cil
-
 
 __DATA__ = {}
 

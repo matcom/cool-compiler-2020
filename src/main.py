@@ -1,9 +1,9 @@
 import sys
 
 import errors as err
+from code_generation import generate_code
 from lexer_parser import lexer, parser
 from semantic import semantic_check
-from code_generation import generate_code
 
 
 def exit_with_error(error):
