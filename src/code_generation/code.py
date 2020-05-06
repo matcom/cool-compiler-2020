@@ -18,19 +18,19 @@ def program_cg_visitor(program: ProgramNode):
     for f in program.code:
         func_code += f'{func_cg_visitor(f)}\n'
 
-    return f'.TYPES \n {type_code} .DATA \n {data_code} .CODE \n {func_code}'
+    return f'.TYPES \n\n{type_code}\n.DATA\n\n{data_code}\n.CODE\n\n{func_code}\n'
 
 
 def type_cg_visitor(type: TypeNode):
     attr_code = ''
     method_code = ''
     for attr in type.attributes:
-        attr_code += f'attribute {attr}; \n'
+        attr_code += f'attribute {attr};\n'
 
     for name in type.methods:
-        method_code += f'method {name}:{type.methods[name]}_{name};\n'
+        method_code += f'\tmethod {name}:{type.methods[name]}_{name};\n'
 
-    return f'type {type.type} {{ \n {attr_code} {method_code} }}'
+    return f'type {type.type} {{\n{attr_code}{method_code}}}\n'
 
 
 def data_cg_visitor(data: DataNode):
@@ -45,15 +45,15 @@ def func_cg_visitor(func: FuncNode):
     locals_code = ''
     body_code = ''
     for param in func.params:
-        params_code += f'{param_cg_visitor(param)}\n'
+        params_code += f'\t{param_cg_visitor(param)}\n'
 
     for local in func.locals:
-        locals_code += f'{local_cg_visitor(local)}\n'
+        locals_code += f'\t{local_cg_visitor(local)}\n'
 
     for instruction in func.body:
-        body_code += f'{instruction_cg_visitor(instruction)}\n'
+        body_code += f'\t{instruction_cg_visitor(instruction)}\n'
 
-    return f'function {func.name} {{ \n {params_code} {locals_code} {body_code} }}'
+    return f'function {func.name} {{\n{params_code}{locals_code}{body_code}}}'
 
 
 def param_cg_visitor(param: ParamNode):
