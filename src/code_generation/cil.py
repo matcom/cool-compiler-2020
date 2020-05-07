@@ -283,14 +283,7 @@ def is_void_to_cil_visitor(isvoid):
     
     body = expr_cil.body
 
-    value = add_local()
-
-    if expr_cil.value is None:
-        body.append(cil.AssignNode(value, 1))
-    else:
-        body.append(cil.AssignNode(value, 0))
-
-    return CIL_block(body, value)
+    return CIL_block(body, 1) if expr_cil.value is None else CIL_block(body, 0)
 
 
 def string_to_cil_visitor(str):
