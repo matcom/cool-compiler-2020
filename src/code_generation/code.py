@@ -27,7 +27,7 @@ def type_cg_visitor(type: TypeNode):
     attr_code = ''
     method_code = ''
     for attr in type.attributes:
-        attr_code += f'attribute {attr};\n'
+        attr_code += f'\tattribute {attr};\n'
 
     for name in type.methods:
         method_code += f'\tmethod {name}:{type.methods[name]}_{name};\n'
