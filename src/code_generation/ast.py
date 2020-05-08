@@ -72,6 +72,10 @@ class StarNode(ArithNode):
 class DivNode(ArithNode):
     pass
 
+class NotNode(Node):
+    def __init__(self, value, result):
+        self.value = value
+        self.result = result
 
 class GetAttrNode(InstructionNode):
     def __init__(self, obj, attr, result):

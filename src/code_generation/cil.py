@@ -115,7 +115,7 @@ def case_to_cil_visitor(case):
     for c in case.case_list:
         types.append(c.type)
 
-    for l in range(len(case.case_list)):
+    for _ in range(len(case.case_list)):
         labels.append(add_local())
 
     value = None
@@ -251,15 +251,15 @@ def lesseqthan_to_cil_visitor(lessthan):
 
 
 def integer_to_cil_visitor(integer):
-    return CIL_block([], [], integer.value)
+    return CIL_block([], integer.value)
 
 
 def bool_to_cil_visitor(bool):
-    return CIL_block([], [], 1) if bool.value == 'true' else CIL_block([], [], 0)
+    return CIL_block([], 1) if bool.value == 'true' else CIL_block([], 0)
 
 
 def id_to_cil_visitor(id):
-    return CIL_block([], [], id.id)
+    return CIL_block([], id.id)
 
 
 def new_to_cil_visitor(new_node):
@@ -278,7 +278,12 @@ def new_to_cil_visitor(new_node):
 
 
 def is_void_to_cil_visitor(isvoid):
-    pass
+    expr_cil = expression_to_cil_visitor(
+        isvoid.val)
+    
+    body = expr_cil.body
+
+    return CIL_block(body, 1) if expr_cil.value is None else CIL_block(body, 0)
 
 
 def string_to_cil_visitor(str):
@@ -312,6 +317,17 @@ def logic_not_to_cil_visitor(not_node):
 
     body = expr_cil.body + [cil.AssignNode(value, 0), cil.ConditionalGotoNode(expr_cil.value, end_label),
                             cil.AssignNode(value, 1), cil.LabelNode(end_label)]
+
+    return CIL_block(body, value)
+
+
+def not_to_cil_visitor(not_node):
+    expr_cil = expression_to_cil_visitor(
+        not_node.val)
+
+    value = add_local()
+
+    body = expr_cil.body + [cil.NotNode(expr_cil.value, value)]
 
     return CIL_block(body, value)
 
@@ -379,7 +395,9 @@ __visitor__ = {
     lp_ast.StarNode: arith_to_cil_visitor,
     lp_ast.DivNode: arith_to_cil_visitor,
     lp_ast.VarNode: id_to_cil_visitor,
-    lp_ast.FuncCallNode: func_call_to_cil_visitor
+    lp_ast.FuncCallNode: func_call_to_cil_visitor,
+    lp_ast.IsVoidNode: is_void_to_cil_visitor,
+    lp_ast.NegationNode: not_to_cil_visitor
 }
 
 
