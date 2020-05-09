@@ -41,6 +41,18 @@ def add_data_local(string_addr):
         return local_data, True
 
 
+__TYPEOF__ = {}
+
+
+def get_typeof(obj):
+    try:
+        return __TYPEOF__[obj], False
+    except KeyError:
+        type_local = add_local()
+        __TYPEOF__[obj] = type_local
+        return type_local, True
+
+
 def program_to_cil_visitor(program):
     types = []
     code = []
@@ -94,12 +106,13 @@ def program_to_cil_visitor(program):
 
 
 def func_to_cil_visitor(type_name, func):
-    global locals_count, __DATA_LOCALS__
+    global locals_count, __DATA_LOCALS__, __TYPEOF__
     name = f'{type_name}_{func.id}'
     params = [cil.ParamNode('self')]
     params += [cil.ParamNode(id) for (id, t) in func.params]
     locals_count = 0
     __DATA_LOCALS__ = {}
+    __TYPEOF__ = {}
     body = []
 
     instruction = expression_to_cil_visitor(
@@ -377,8 +390,9 @@ def func_call_to_cil_visitor(call):
         body += arg_cil.body
         arg_values.append(arg_cil.value)
 
-    t = add_local()
-    body.append(cil.TypeOfNode(t, obj))
+    t, need_typeof = get_typeof(obj)
+    if need_typeof:
+        body.append(cil.TypeOfNode(t, obj))
 
     body.append(cil.ArgNode(obj))
 
