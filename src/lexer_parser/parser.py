@@ -5,6 +5,7 @@ from .ast import *
 from .lexer import *
 
 precedence = (
+    ('right', 'ASSIGN'),
     ('left', 'DOT'),
     ('left', 'AT'),
     ('left', 'NOT'),
@@ -13,7 +14,6 @@ precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'LOWEREQ', 'LOWER', 'EQUAL'),
     ('left', 'LNOT'),
-    ('right', 'ASSIGN'),
 )
 
 
