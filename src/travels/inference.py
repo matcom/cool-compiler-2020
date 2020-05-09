@@ -1,10 +1,10 @@
-
 from abstract.semantics import *
 from abstract.tree import *
 import typecheck.visitor as visitor
 from travels.context_actions import update_attr_type, update_method_param, update_scope_variable
 
 void = VoidType()
+
 
 class TypeInferer:
     """
@@ -25,7 +25,7 @@ class TypeInferer:
     BOLEAN entonces el tipo de la expresión completa sera el Ancestro Común Mas Cercano  a los tipos T1 y T2, o en otras palabras,
     el menor tipo T3 tal que T1 se conforme en T3 y T2 se conforme en T3.
     """
-    def __init__(self,context: Context, errors = []):
+    def __init__(self, context: Context, errors=[]):
         self.context: Context = context
         self.current_type: Type = None
         self.INTEGER = self.context.get_type('int')
@@ -37,8 +37,9 @@ class TypeInferer:
         self.current_method = None
 
     @visitor.on('node')
-    def visit(self,node, scope,infered_type = None):
+    def visit(self, node, scope, infered_type=None):
         pass
+
     #--------------------------------------------------------------------------------------------------------------------------#
     #-----------------------------------------------------EXPRESIONES----------------------------------------------------------#
     #--------------------------------------------------------------------------------------------------------------------------#
@@ -47,25 +48,26 @@ class TypeInferer:
     # Calcular todos los tipos en el contexto del programa.        |
     #---------------------------------------------------------------
     @visitor.when(ProgramNode)
-    def visit(self, node, scope = None, infered_type = None, deep = 1):
+    def visit(self, node, scope=None, infered_type=None, deep=1):
         program_scope = Scope() if scope is None else scope
         print(f"Este es el scope en la vuelta {deep} :\n {program_scope}")
         if deep == 1:
             for class_ in node.class_list:
-                self.visit(class_,program_scope.create_child())
+                self.visit(class_, program_scope.create_child())
         else:
-            for class_, child_scope in zip(node.class_list, program_scope.children):
-                self.visit(class_,child_scope, deep = deep)
+            for class_, child_scope in zip(node.class_list,
+                                           program_scope.children):
+                self.visit(class_, child_scope, deep=deep)
         return program_scope
-    
+
     #-----------------------------------------------------------------
     #Calcular los tipos en esta clase, visitar primero los atributos |
     #y luego los métodos para garantizar que al revisar los métodos  |
     #ya todos los atributos estén definidos en el scope.             |
     #-----------------------------------------------------------------
     @visitor.when(ClassDef)
-    def visit(self, node, scope: Scope, infered_type = None, deep = 1):
-        self.current_type:Type = self.context.get_type(node.idx)
+    def visit(self, node, scope: Scope, infered_type=None, deep=1):
+        self.current_type: Type = self.context.get_type(node.idx)
         for feature in node.features:
             if isinstance(feature, AttributeDef):
                 self.visit(feature, scope, deep=deep)
@@ -82,11 +84,14 @@ class TypeInferer:
     #Definir un atributo en el scope.                        |
     #---------------------------------------------------------
     @visitor.when(AttributeDef)
-    def visit(self,node: AttributeDef, scope: Scope, infered_type = None, deep = 1):
+    def visit(self,
+              node: AttributeDef,
+              scope: Scope,
+              infered_type=None,
+              deep=1):
         atrib = self.current_type.get_attribute(node.idx)
         if deep == 1:
-            scope.define_variable(atrib.name,atrib.type)
-            
+            scope.define_variable(atrib.name, atrib.type)
 
     #---------------------------------------------------------------------
     #Si el método no tiene un tipo definido, entonces tratar de inferir  |
@@ -95,7 +100,7 @@ class TypeInferer:
     #los argumentos que no hayan sido definidos con tipos específicos.   |
     #---------------------------------------------------------------------
     @visitor.when(MethodDef)
-    def visit(self, node: MethodDef, scope, infered_type = None, deep = 1):
+    def visit(self, node: MethodDef, scope, infered_type=None, deep=1):
         print(node.idx)
         method = self.current_type.get_method(node.idx)
         self.current_method = method
@@ -110,15 +115,16 @@ class TypeInferer:
             method.return_type = last
         else:
             if not last.conforms_to(method.return_type):
-                self.errors.append(f'Method {method.name} cannot return {last}')
+                self.errors.append(
+                    f'Method {method.name} cannot return {last}')
         print(scope)
-    
+
     @visitor.when(Param)
-    def visit(self, node: Param, scope: Scope, infered_type = None, deep = 1):
+    def visit(self, node: Param, scope: Scope, infered_type=None, deep=1):
         type_ = self.context.get_type(node.type)
         if deep == 1:
             scope.define_variable(node.id, type_)
-    
+
     #-------------------------------------------------------------------------
     #Checkear si la variable a la que se le va a asignar el resultado de la  |
     #expresión tiene un tipo bien definido: en caso de tenerlo, verificar que|
@@ -126,7 +132,7 @@ class TypeInferer:
     #trario asignarle a la variable el tipo de retorno de la expresión.      |
     #-------------------------------------------------------------------------
     @visitor.when(AssignNode)
-    def visit(self, node: AssignNode, scope: Scope, infered_type = None, deep = 1):
+    def visit(self, node: AssignNode, scope: Scope, infered_type=None, deep=1):
         var_info = scope.find_variable(node.idx)
         if var_info:
             e = self.visit(node.expr, scope, infered_type)
@@ -134,41 +140,55 @@ class TypeInferer:
                 print(f'Infered type {e.name} for {node.idx}')
                 var_info.type = e
                 if not scope.is_local(var_info.name):
-                    update_attr_type(self.current_type, var_info.name, var_info.type)
+                    update_attr_type(self.current_type, var_info.name,
+                                     var_info.type)
                 else:
-                    update_method_param(self.current_type, self.current_method.name, var_info.name, var_info.type)                    
+                    update_method_param(self.current_type,
+                                        self.current_method.name,
+                                        var_info.name, var_info.type)
                 update_scope_variable(var_info.name, e, scope)
                 return void
             else:
                 if not e.conforms_to(var_info.type):
-                    self.errors.append(f'Expresion of type {e.name} cannot be assigned to variable {var_info.name} of type {var_info.type.name}')
+                    self.errors.append(
+                        f'Expresion of type {e.name} cannot be assigned to variable {var_info.name} of type {var_info.type.name}'
+                    )
                 return void
         else:
             self.errors.append(f'Undefined variable name: {node.idx}')
 
     @visitor.when(VariableCall)
-    def visit(self, node, scope: Scope, infered_type = None, deep = 1):
+    def visit(self, node, scope: Scope, infered_type=None, deep=1):
         var_info = scope.find_variable(node.idx)
         if var_info:
             if infered_type and var_info.type == self.AUTO_TYPE:
                 print(f'Infered type {infered_type.name} for {var_info.name}')
                 var_info.type = infered_type
                 if not scope.is_local(var_info.name):
-                    update_attr_type(self.current_type, var_info.name, var_info.type)
+                    update_attr_type(self.current_type, var_info.name,
+                                     var_info.type)
                 else:
-                    update_method_param(self.current_type,self.current_method.name, var_info.name, var_info.type)
+                    update_method_param(self.current_type,
+                                        self.current_method.name,
+                                        var_info.name, var_info.type)
                 update_scope_variable(var_info.name, infered_type, scope)
             return var_info.type
         else:
             self.errors.append(f'Name {node.idx} is not define.')
 
     @visitor.when(IfThenElseNode)
-    def visit(self, node: IfThenElseNode, scope: Scope, infered_type = None, deep = 1):
+    def visit(self,
+              node: IfThenElseNode,
+              scope: Scope,
+              infered_type=None,
+              deep=1):
         cond = self.visit(node.cond, scope, infered_type, deep)
         e1 = self.visit(node.expr1, scope, infered_type, deep)
-        e2 = self.visit(node.expr2,scope, infered_type, deep)
+        e2 = self.visit(node.expr2, scope, infered_type, deep)
         if cond != self.BOOL:
-            self.errors.append(f'Se esperaba una expresion de tipo bool y se obtuvo una de tipo {cond}.')
+            self.errors.append(
+                f'Se esperaba una expresion de tipo bool y se obtuvo una de tipo {cond}.'
+            )
         if e1.conforms_to(e2):
             return e2
         elif e2.conforms_to(e1):
@@ -182,7 +202,11 @@ class TypeInferer:
             return e1_parent
 
     @visitor.when(VariableDeclaration)
-    def visit(self, node : VariableDeclaration, scope:Scope, infered_type = None, deep = 1):
+    def visit(self,
+              node: VariableDeclaration,
+              scope: Scope,
+              infered_type=None,
+              deep=1):
         type_ = self.context.get_type(node.type)
         if type_ != self.AUTO_TYPE:
             if deep == 1:
@@ -192,18 +216,18 @@ class TypeInferer:
             if deep == 1:
                 type_ = self.visit(node.expr, scope, infered_type, deep)
                 print(f'Infered type {type_.name} for {node.idx}')
-                scope.define_variable(node.idx,type_)
+                scope.define_variable(node.idx, type_)
             return void
 
     @visitor.when(FunCall)
-    def visit(self, node:FunCall, scope:Scope, infered_type = None, deep = 1):
+    def visit(self, node: FunCall, scope: Scope, infered_type=None, deep=1):
         if isinstance(node.obj, Type):
             method = node.obj.get_method(node.id)
         elif node.obj == 'self':
             method = self.current_type.get_method(node.id)
         else:
             method = self.context.get_type(node.obj).get_method(node.id)
-        
+
         for arg in node.args:
             self.visit(arg, scope, infered_type, deep)
 
@@ -216,70 +240,80 @@ class TypeInferer:
         else:
             return self.AUTO_TYPE
 
-
-
     @visitor.when(InstantiateClassNode)
-    def visit(self, node: InstantiateClassNode, scope, infered_type = None, deep = 1):
+    def visit(self,
+              node: InstantiateClassNode,
+              scope,
+              infered_type=None,
+              deep=1):
         ret_type = self.context.get_type(node.type_)
-        if ret_type in (self.AUTO_TYPE, void, self.STRING, self.INTEGER, self.OBJECT, self.BOOL):
+        if ret_type in (self.AUTO_TYPE, void, self.STRING, self.INTEGER,
+                        self.OBJECT, self.BOOL):
             self.errors.append(f'Cannot instantiate {ret_type}')
         return ret_type
 
     @visitor.when(WhileBlockNode)
-    def visit(self, node: WhileBlockNode, scope, infered_type= None, deep = 1):
+    def visit(self, node: WhileBlockNode, scope, infered_type=None, deep=1):
         ret_type = None
         for st in node.statements:
             ret_type = self.visit(st, scope, infered_type, deep)
         return ret_type
-    
+
     #---------------------------------------------------------------------------------------------------------------------------#
     #---------------------------------------OPERACIONES ARITMÉTICAS-------------------------------------------------------------#
     #---------------------------------------------------------------------------------------------------------------------------#
-   
-   #-------------------------------------------------------------------------------------------------
-   # Todas las operaciones aritméticas estan definidas solamente para los enteros, luego, de checkeo|
-   # de cada operación se realiza evaluando sus operandos y viendo si sus tipos son consistentes con|
-   # INTEGER.                                                                                       |
-   #-------------------------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------------------------
+# Todas las operaciones aritméticas estan definidas solamente para los enteros, luego, de checkeo|
+# de cada operación se realiza evaluando sus operandos y viendo si sus tipos son consistentes con|
+# INTEGER.                                                                                       |
+#-------------------------------------------------------------------------------------------------
+
     @visitor.when(PlusNode)
-    def visit(self,node, scope, infered_type = None, deep = 1):
-        left = self.visit(node.left, scope, self.INTEGER,deep)
-        right = self.visit(node.right, scope, self.INTEGER,deep)
+    def visit(self, node, scope, infered_type=None, deep=1):
+        left = self.visit(node.left, scope, self.INTEGER, deep)
+        right = self.visit(node.right, scope, self.INTEGER, deep)
         if left.conforms_to(self.INTEGER) and right.conforms_to(self.INTEGER):
             return self.INTEGER
         else:
-            self.errors.append(f'Invalid operation :{left.name} + {right.name}')
+            self.errors.append(
+                f'Invalid operation :{left.name} + {right.name}')
             return self.INTEGER
 
     @visitor.when(DifNode)
-    def visit(self,node, scope, infered_type = None, deep = 1):
+    def visit(self, node, scope, infered_type=None, deep=1):
         left = self.visit(node.left, scope, self.INTEGER, deep)
         right = self.visit(node.right, scope, self.INTEGER, deep)
         if left.conforms_to(self.INTEGER) and right.conforms_to(self.INTEGER):
             return self.INTEGER
         else:
-            self.errors.append(f'Invalid operation :{left.name} - {right.name}')
+            self.errors.append(
+                f'Invalid operation :{left.name} - {right.name}')
             return self.INTEGER
 
     @visitor.when(DivNode)
-    def visit(self,node, scope, infered_type=None, deep = 1):
+    def visit(self, node, scope, infered_type=None, deep=1):
         left = self.visit(node.left, scope, self.INTEGER, deep)
         right = self.visit(node.right, scope, self.INTEGER, deep)
         if left.conforms_to(self.INTEGER) and right.conforms_to(self.INTEGER):
             return self.INTEGER
         else:
-            self.errors.append(f'Invalid operation :{left.name} / {right.name}')
+            self.errors.append(
+                f'Invalid operation :{left.name} / {right.name}')
             return self.INTEGER
 
     @visitor.when(MulNode)
-    def visit(self, node, scope, infered_type = None, deep = 1):
+    def visit(self, node, scope, infered_type=None, deep=1):
         left = self.visit(node.left, scope, self.INTEGER, deep)
         right = self.visit(node.right, scope, self.INTEGER, deep)
         if left.conforms_to(self.INTEGER) and right.conforms_to(self.INTEGER):
             return self.INTEGER
         else:
-            self.errors.append(f'Invalid operation :{left.name} * {right.name}')
+            self.errors.append(
+                f'Invalid operation :{left.name} * {right.name}')
             return self.INTEGER
+
     #-------------------------------------------------------------------------------------------#
     #-----------------------------------OPERACIONES COMPARATIVAS -------------------------------#
     #-------------------------------------------------------------------------------------------#
@@ -289,80 +323,85 @@ class TypeInferer:
     # toda operación comparativa es BOOLEAN.                                                     |
     #---------------------------------------------------------------------------------------------
     @visitor.when(GreaterThanNode)
-    def visit(self, node: GreaterThanNode, scope, infered_type = None, deep = 1):
+    def visit(self, node: GreaterThanNode, scope, infered_type=None, deep=1):
         left = self.visit(node.left, scope, infered_type, deep)
         right = self.visit(node.right, scope, infered_type, deep)
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(f'Invalid operation: {left.name} > {right.name}')
+            self.errors.append(
+                f'Invalid operation: {left.name} > {right.name}')
             return self.BOOL
 
     @visitor.when(GreaterEqualNode)
-    def visit(self, node: GreaterEqualNode, scope, infered_type = None, deep = 1):
+    def visit(self, node: GreaterEqualNode, scope, infered_type=None, deep=1):
         left = self.visit(node.left, scope, infered_type, deep)
         right = self.visit(node.right, scope, infered_type, deep)
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(f'Invalid operation: {left.name} >= {right.name}')
+            self.errors.append(
+                f'Invalid operation: {left.name} >= {right.name}')
             return self.BOOL
-
 
     @visitor.when(LowerThanNode)
-    def visit(self, node: LowerThanNode, scope, infered_type = None, deep = 1):
+    def visit(self, node: LowerThanNode, scope, infered_type=None, deep=1):
         left = self.visit(node.left, scope, infered_type, deep)
         right = self.visit(node.right, scope, infered_type, deep)
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(f'Invalid operation: {left.name} < {right.name}')
+            self.errors.append(
+                f'Invalid operation: {left.name} < {right.name}')
             return self.BOOL
 
     @visitor.when(LowerEqual)
-    def visit(self, node: LowerEqual, scope, infered_type = None, deep = 1):
+    def visit(self, node: LowerEqual, scope, infered_type=None, deep=1):
         left = self.visit(node.left, scope, infered_type, deep)
         right = self.visit(node.right, scope, infered_type, deep)
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(f'Invalid operation: {left.name} <= {right.name}')
+            self.errors.append(
+                f'Invalid operation: {left.name} <= {right.name}')
             return self.BOOL
 
     @visitor.when(EqualToNode)
-    def visit(self, node: EqualToNode, scope, infered_type = None, deep = 1):
+    def visit(self, node: EqualToNode, scope, infered_type=None, deep=1):
         left = self.visit(node.left, scope, infered_type, deep)
         right = self.visit(node.right, scope, infered_type, deep)
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(f'Invalid operation: {left.name} == {right.name}')
+            self.errors.append(
+                f'Invalid operation: {left.name} == {right.name}')
             return self.BOOL
 
     @visitor.when(NotNode)
-    def visit(self, node: NotNode, scope, infered_type = None, deep = 1):
+    def visit(self, node: NotNode, scope, infered_type=None, deep=1):
         val_type = self.visit(node.lex, scope, infered_type, deep)
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
             self.errors.append(f'Invalid operation: ! {val_type.name}')
             return self.BOOL
+
     #-----------------------------------------------------------------------------------------------------------------------#
     #--------------------------------------------------CONSTANTES-----------------------------------------------------------#
     #-----------------------------------------------------------------------------------------------------------------------#
 
     @visitor.when(IntegerConstant)
-    def visit(self, node, scope, infered_type = None, deep = 1):
+    def visit(self, node, scope, infered_type=None, deep=1):
         return self.INTEGER
 
     @visitor.when(StringConstant)
-    def visit(self,node, scope, infered_type = None, deep = 1):
+    def visit(self, node, scope, infered_type=None, deep=1):
         return self.STRING
-    
+
     @visitor.when(TrueConstant)
-    def visit(self, node, scope, infered_type = None, deep = 1):
+    def visit(self, node, scope, infered_type=None, deep=1):
         return self.BOOL
-    
+
     @visitor.when(FalseConstant)
-    def visit(self, node, scope, infered_type = None, deep = 1):
+    def visit(self, node, scope, infered_type=None, deep=1):
         return self.BOOL
