@@ -29,6 +29,18 @@ def ast_to_cil(ast):
     raise Exception(f'AST root must be program')
 
 
+__DATA_LOCALS__ = {}
+
+
+def add_data_local(string_addr):
+    try:
+        return __DATA_LOCALS__[string_addr], False
+    except KeyError:
+        local_data = add_local()
+        __DATA_LOCALS__[string_addr] = local_data
+        return local_data, True
+
+
 def program_to_cil_visitor(program):
     types = []
     code = []
@@ -82,11 +94,12 @@ def program_to_cil_visitor(program):
 
 
 def func_to_cil_visitor(type_name, func):
-    global locals_count
+    global locals_count, __DATA_LOCALS__
     name = f'{type_name}_{func.id}'
     params = [cil.ParamNode('self')]
     params += [cil.ParamNode(id) for (id, t) in func.params]
     locals_count = 0
+    __DATA_LOCALS__ = {}
     body = []
 
     instruction = expression_to_cil_visitor(
@@ -280,7 +293,7 @@ def new_to_cil_visitor(new_node):
 def is_void_to_cil_visitor(isvoid):
     expr_cil = expression_to_cil_visitor(
         isvoid.val)
-    
+
     body = expr_cil.body
 
     return CIL_block(body, 1) if expr_cil.value is None else CIL_block(body, 0)
@@ -288,9 +301,12 @@ def is_void_to_cil_visitor(isvoid):
 
 def string_to_cil_visitor(str):
     str_addr = add_str_data(str.value)
-    str_id = add_local()
+    str_id, need_load = add_data_local(str_addr)
 
-    body = [cil.LoadNode(str_addr, str_id)]
+    if need_load:
+        body = [cil.LoadNode(str_addr, str_id)]
+    else:
+        body = []
 
     return CIL_block(body, str_id)
 
