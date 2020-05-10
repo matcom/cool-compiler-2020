@@ -7,7 +7,6 @@ class TypeBuilder:
         self.context = context
         self.errors = errors
         self.current_type = None
-        
 
     @visitor.on('node')
     def visit(self, node):
@@ -17,7 +16,7 @@ class TypeBuilder:
     def visit(self,node):
         for class_ in node.class_list:
             self.visit(class_)
-    
+
     @visitor.when(ClassDef)
     def visit(self, node: ClassDef):
         self.current_type = self.context.get_type(node.idx)
@@ -28,13 +27,13 @@ class TypeBuilder:
             self.errors.append(f'Circular dependency: class {self.current_type.name} cannot inherit from {parent.name}')
         else:
             self.current_type.set_parent(parent)
-            
+
             # for method in parent.methods.values():
             #     try:
             #         self.current_type.define_method(method.name, method.param_names, method.param_types, method.return_type)
             #     except SemanticError as e:
             #         self.errors.append(e.text)
-            
+
             # for att in parent.attributes:
             #     try:
             #         self.current_type.define_attribute(att.name, att.type)
@@ -43,7 +42,7 @@ class TypeBuilder:
 
             for feature in node.features:
                 self.visit(feature)
-        
+
 
     @visitor.when(AttributeDef)
     def visit(self, node):
