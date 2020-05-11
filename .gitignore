@@ -411,4 +411,4 @@ dmypy.json
 ### Sublime Text Projects ###
 *.sublime-project
 
-.builds
+src/.builds
