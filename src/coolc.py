@@ -23,3 +23,5 @@ if not cparser.parse(clexer):
     for error in cparser.errors:
         print(error)
     exit(1)
+
+program = cparser.result

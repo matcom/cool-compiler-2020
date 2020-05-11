@@ -351,7 +351,7 @@ class COOL_PARSER:
             self.build()
         try:
             result = self.parser.parse(lexer=lexer)
-            print(result)
+            self.result = result
         except SyntaxError:
             return False
         return True
