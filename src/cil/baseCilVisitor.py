@@ -12,6 +12,7 @@ class BaseCoolToCilVisitor:
         self.current_type: Optional[Type] = None
         self.current_method: Optional[Method] = None
         self.current_function: Optional[nodes.FunctionNode] = None
+        self.__labels_count: int = 0
 
     @property
     def params(self) -> List[nodes.ParamNode]:
@@ -68,3 +69,7 @@ class BaseCoolToCilVisitor:
         data_node = nodes.DataNode(vname, value)
         self.dot_data.append(data_node)
         return data_node
+
+    def do_label(self, label: str) -> str:
+        self.__labels_count += 1
+        return f"label_{label}_{self.__labels_count}"
