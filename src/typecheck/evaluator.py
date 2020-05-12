@@ -1,4 +1,7 @@
-def evaluate_right_parse(parse: [], tokens):
+from typing import Iterable, Any
+
+
+def evaluate_right_parse(parse: Iterable[Any], tokens):
     def evaluate_production(productions, production, tokens):
         synteticed = [None] * (len(production.Right) + 1)
         rules = production.attributes

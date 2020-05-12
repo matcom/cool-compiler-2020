@@ -1,3 +1,4 @@
+from typing import Any
 '''
 Process a source file removing coments.
 Because coments in COOL can be nested, there is
@@ -6,7 +7,7 @@ to preprocess the file and strip them out.
 '''
 
 
-def find_comments(program: str) -> str:
+def find_comments(program: Any) -> str:
     '''
     This functions detects every comment in a Cool program\
     and replace it with empty lines. This is done in a way\
