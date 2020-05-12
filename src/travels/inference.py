@@ -183,6 +183,7 @@ class TypeInferer:
             return e1_parent
 
     @visitor.when(coolAst.VariableDeclaration)  #type: ignore  # noqa
+    # TODO FIX THIS, IT is not working after change in grammar, REIMPLEMENT IT!!!!
     def visit(self, node: coolAst.VariableDeclaration, scope: semantic.Scope, infered_type=None, deep=1):  # noqa: F811
         type_ = self.context.get_type(node.type)
         if type_ != self.AUTO_TYPE:
