@@ -136,3 +136,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.visit(node.expr2, scope)
 
         self.register_instruction(cil.LabelNode(end_label))
+
+    @visitor.when(coolAst.VariableDeclaration)  # type: ignore
+    def visit(self, node: coolAst.VariableDeclaration, scope: Scope, local_vm_holder: str = '') -> None:  # noqa: F811
+        node.

@@ -4,12 +4,12 @@ Contenedor para la funcion que construye la gramatica de cool.
 from grammar.grammar import Grammar
 from abstract.tree import ProgramNode, ClassDef, MethodDef, AttributeDef, Param, VariableDeclaration
 from abstract.tree import PlusNode, DivNode, MulNode, DifNode, IntegerConstant, FunCall
-from abstract.tree import VariableCall, FalseConstant, StringConstant, GreaterThanNode, TrueConstant
+from abstract.tree import VariableCall, FalseConstant, StringConstant, TrueConstant
 from abstract.tree import GreaterEqualNode, LowerThanNode, LowerEqual, AssignNode, IfThenElseNode
 from abstract.tree import NotNode, WhileBlockNode, EqualToNode, InstantiateClassNode
 from abstract.tree import ActionNode, CaseNode, ParentFuncCall, BlockNode, IsVoidNode
 from abstract.tree import NegNode
-from lexer.tokenizer import Lexer
+# from lexer.tokenizer import Lexer
 from tknizer import Tokenizer
 
 
