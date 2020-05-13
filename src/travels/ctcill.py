@@ -165,10 +165,15 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
     @visitor.when(coolAst.AssignNode)  # type:ignore
     def visit(self, node: coolAst.AssignNode, scope: Scope):  # noqa: F811
-        # Assignments had the form :
+        # Assignments looks like:
         # id <- expr
         # So here we assume that a local variable named "id"
         # has already been defined
 
         # TODO: need to diferentiate between attributes and method vars?
-        pass
+
+        # Generate the code for the rvalue (expr)
+        rvalue_vm_holder = self.visit(self, node.expr)
+
+        # register the assignment instruction
+        self.register_instruction(cil.AssignNode(node.idx, rvalue_vm_holder))
