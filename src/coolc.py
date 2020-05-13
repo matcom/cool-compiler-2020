@@ -31,3 +31,5 @@ if not cchecker.check_semantics(program):
     for error in cchecker.errors:
         print(error)
     exit(1)
+
+exit(0)

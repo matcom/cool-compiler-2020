@@ -8,3 +8,4 @@ class COOL_CHECKER:
         self.errors.clear()
         # All semantics checks here
         return len(self.errors) > 0
+        return not len(self.errors) > 0
