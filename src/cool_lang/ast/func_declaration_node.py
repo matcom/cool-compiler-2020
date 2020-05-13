@@ -1,11 +1,10 @@
-from .declaration_node import DeclarationNode
+from typing import List
+from .expresion_node import ExpressionNode
+from .feature_declaration_node import FeatureDeclarationNode
+from .param_declaration_node import ParamDeclarationNode
 
 
-class FuncDeclarationNode(DeclarationNode):
-    def __init__(self, idx, params, return_type, body, line, column):
-        self.id = idx
-        self.params = params
-        self.type = return_type
-        self.body = body
-        self.line = line
-        self.column = column
+class FuncDeclarationNode(FeatureDeclarationNode):
+    def __init__(self, idx: str, params: List[ParamDeclarationNode], typex: str, expression: ExpressionNode, line: int, column: int):
+        super(FuncDeclarationNode, self).__init__(idx, typex, expression, line, column)
+        self.params: List[ParamDeclarationNode] = params

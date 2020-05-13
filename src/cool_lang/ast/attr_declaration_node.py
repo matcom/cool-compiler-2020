@@ -1,10 +1,7 @@
-from .declaration_node import DeclarationNode
+from .expresion_node import ExpressionNode
+from .feature_declaration_node import FeatureDeclarationNode
 
 
-class AttrDeclarationNode(DeclarationNode):
-    def __init__(self, idx, typex, expression, line, column):
-        self.id = idx
-        self.type = typex
-        self.expression = expression
-        self.line = line
-        self.column = column
+class AttrDeclarationNode(FeatureDeclarationNode):
+    def __init__(self, idx: str, typex: str, expression: ExpressionNode, line: int, column: int):
+        super(AttrDeclarationNode, self).__init__(idx, typex, expression, line, column)
