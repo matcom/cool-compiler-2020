@@ -177,3 +177,24 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # register the assignment instruction
         self.register_instruction(cil.AssignNode(node.idx, rvalue_vm_holder))
+
+    @visitor.when(coolAst.WhileBlockNode)  # type: ignore
+    def visit(self, node: coolAst.WhileBlockNode, scope: Scope):  # noqa: F811
+
+        # First evaluate the condition and set a label
+        # to return to
+        while_label = self.do_label('WHILE')
+        end_label = self.do_label('WHILE_END')
+        self.register_instruction(cil.LabelNode(while_label))
+        cond_vm_holder = self.visit(node.cond, scope)
+
+        # Compare condition, if true then execute, else jump to end
+        self.register_instruction(cil.IfZeroJump(cond_vm_holder, end_label))
+
+        # Register the instructions of the body
+        self.visit(node.statements, scope)
+
+        # Do am unconditional jump to condition check
+        self.register_instruction(cil.UnconditionalJump(while_label))
+        # Register the end label
+        self.register_instruction(cil.LabelNode(end_label))

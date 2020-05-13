@@ -121,6 +121,12 @@ class LabelNode(InstructionNode):
         self.label: str = label
 
 
+class IfZeroJump(InstructionNode):
+    def __init__(self, variable: str, label: str):
+        self.variable = variable
+        self.label = label
+
+
 class NotZeroJump(InstructionNode):
     def __init__(self, variable: str, label: str):
         self.variable: str = variable
@@ -199,3 +205,5 @@ class ReadNode(InstructionNode):
 class PrintNode(InstructionNode):
     def __init__(self, string_address):
         self.string_address = string_address
+
+
