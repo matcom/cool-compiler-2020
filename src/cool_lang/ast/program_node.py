@@ -1,8 +1,9 @@
+from typing import List
+from .class_declaration_node import ClassDeclarationNode
 from .node import Node
 
 
 class ProgramNode(Node):
-    def __init__(self, declarations, line, column):
-        self.declarations = declarations
-        self.line = line
-        self.column = column
+    def __init__(self, classes: List[ClassDeclarationNode], line: int, column: int):
+        super(ProgramNode, self).__init__(line, column)
+        self.classes: List[ClassDeclarationNode] = classes

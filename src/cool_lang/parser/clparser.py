@@ -1,9 +1,5 @@
 import ply.yacc as yacc
-from ..ast import AssignNode, AttrDeclarationNode, BlockNode, BoolNode, CaseOfNode, \
-    ClassDeclarationNode, ComplementNode, DeclarationNode, DivNode, EqualNode, \
-    FuncDeclarationNode, FunctionCallNode, IdNode, IfThenElseNode, IntegerNode, \
-    IsVoidNode, LessEqualNode, LessNode, LetInNode, MemberCallNode, MinusNode, \
-    NewNode, NotNode, PlusNode, ProgramNode, StarNode, StringNode, WhileLoopNode
+from ..ast import *
 from ..errors import SyntacticError
 from ..lexer import COOL_TOKENS
 from ..utils import find_column
@@ -102,7 +98,7 @@ class COOL_PARSER:
 
     def p_param(self, p):
         'param : ID COLON TYPE'
-        p[0] = (p[1], p[3])
+        p[0] = ParamDeclarationNode(p[1], p[3])
     
     def p_expr_list_simple(self, p):
         'expr_list : expr SEMICOLON'
@@ -114,27 +110,27 @@ class COOL_PARSER:
 
     def p_let_list_declaration_simple(self, p):
         'let_list : ID COLON TYPE'
-        p[0] = [(p[1], p[3], None)]
+        p[0] = [LetNode(p[1], p[3], None)]
 
     def p_let_list_declaration_multi(self, p):
         'let_list : ID COLON TYPE COMMA let_list'
-        p[0] = [(p[1], p[3], None)] + p[5]
+        p[0] = [LetNode(p[1], p[3], None)] + p[5]
 
     def p_let_list_assign_simple(self, p):
         'let_list : ID COLON TYPE ASSIGN expr'
-        p[0] = [(p[1], p[3], p[5])]
+        p[0] = [LetNode(p[1], p[3], p[5])]
 
     def p_let_list_assign_multi(self, p):
         'let_list : ID COLON TYPE ASSIGN expr COMMA let_list'
-        p[0] = [(p[1], p[3], p[5])] + p[7]
+        p[0] = [LetNode(p[1], p[3], p[5])] + p[7]
 
     def p_case_list_simple(self, p):
         'case_list : ID COLON TYPE ACTION expr SEMICOLON'
-        p[0] = [(p[1], p[3], p[5])]
+        p[0] = [CaseNode(p[1], p[3], p[5])]
 
     def p_case_list_multi(self, p):
         'case_list : ID COLON TYPE ACTION expr SEMICOLON case_list'
-        p[0] = [(p[1], p[3], p[5])] + p[7]
+        p[0] = [CaseNode(p[1], p[3], p[5])] + p[7]
 
     def p_expr(self, p):
         'expr : comp_expr'

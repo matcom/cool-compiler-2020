@@ -385,6 +385,9 @@ celerybeat-schedule
 # mkdocs documentation
 /site
 
+# virtual env
+venv/*
+
 # mypy
 .mypy_cache/
 .dmypy.json
