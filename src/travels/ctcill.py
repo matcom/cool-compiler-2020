@@ -30,8 +30,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.register_instruction(cil.ArgNode(instance))
 
         # call the main method
-        self.register_instruction(
-            cil.StaticCallNode(self.to_function_name('main', 'Main'), result))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('main', 'Main'), result))
         self.register_instruction(cil.ReturnNode(0))
         self.current_function = None
 
@@ -139,4 +138,23 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
     @visitor.when(coolAst.VariableDeclaration)  # type: ignore
     def visit(self, node: coolAst.VariableDeclaration, scope: Scope, local_vm_holder: str = '') -> None:  # noqa: F811
-        node.
+        for var_idx, var_type, var_init_expr in node.var_list:
+
+            # Register the variables in order
+            var_info = scope.find_variable(var_idx)
+            local_var = self.register_local(var_info)
+
+            # Allocate memory for the variable type
+            self.register_instruction(cil.AllocateNode(var_info.type.name, local_var))
+
+            # Generate the code of the initialization expr if exists
+            if var_init_expr is not None:
+                self.visit(var_init_expr, scope, local_vm_holder)
+                # assign the corresponding value to the defined local_var
+                self.register_instruction(cil.AssignNode(local_var, local_vm_holder))
+
+        # Process the associated block, if any, to the let declaration
+        self.visit(node.block_statements, scope, local_vm_holder)
+
+    @visitor.when(coolAst.BlockNode)  # type:ignore
+    def visit(self, node: coolAst.BlockNode, scope: Scope, local_vm_holder: str = '') -> None:  # noqa: F811

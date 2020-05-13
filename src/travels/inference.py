@@ -185,17 +185,17 @@ class TypeInferer:
     @visitor.when(coolAst.VariableDeclaration)  #type: ignore  # noqa
     # TODO FIX THIS, IT is not working after change in grammar, REIMPLEMENT IT!!!!
     def visit(self, node: coolAst.VariableDeclaration, scope: semantic.Scope, infered_type=None, deep=1):  # noqa: F811
-        type_ = self.context.get_type(node.type)
-        if type_ != self.AUTO_TYPE:
-            if deep == 1:
-                scope.define_variable(node.idx, type_)
-            return void
-        else:
-            if deep == 1:
-                type_ = self.visit(node.expr, scope, infered_type, deep)
-                print(f'Infered type {type_.name} for {node.idx}')
-                scope.define_variable(node.idx, type_)
-            return void
+        for var_idx, var_type, var_init_exp in node.var_list:
+            type_ = self.context.get_type(var_type)
+            if type_ != self.AUTO_TYPE:
+                if deep == 1:
+                    scope.define_variable(var_idx, type_)
+            else:
+                if deep == 1:
+                    type_ = self.visit(node.block_statements, scope, infered_type, deep)
+                    print(f'Infered type {type_.name} for {var_idx}')
+                    scope.define_variable(node.idx, type_)
+        return void
 
     @visitor.when(coolAst.FunCall)  #type: ignore  # noqa
     def visit(self, node: coolAst.FunCall, scope: semantic.Scope, infered_type=None, deep=1):  # noqa: F811
