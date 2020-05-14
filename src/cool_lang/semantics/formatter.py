@@ -59,9 +59,11 @@ class COOL_FORMATTER(object):
 
     @when(LetNode)
     def visit(self, node: LetNode, tabs=0):
-        ans = '\t' * tabs + f'\\_LetNode var {node.id} of type {node.type} equal to'
-        expr = self.visit(node.expression, tabs + 1)
-        return f'{ans}\n{expr}'
+        ans = '\t' * tabs + f'\\_LetNode var {node.id} of type {node.type}'
+        expr = ''
+        if node.expression:
+            expr = f' equal to\n {self.visit(node.expression, tabs + 1)}'
+        return f'{ans}{expr}'
         
     @when(LetInNode)
     def visit(self, node: LetInNode, tabs=0):
@@ -101,9 +103,9 @@ class COOL_FORMATTER(object):
     def visit(self, node: FunctionCallNode, tabs=0):
         ans = '\t' * tabs + '\\_FunctionCallNode from object'
         obj = self.visit(node.obj, tabs + 1)
-        xid = '\t' * tabs + f'Calling function {node.id}'
+        xid = '\t' * tabs + f'Calling function {node.id}{f" as type {node.type}" if node.type else ""}'
         args = '\n'.join([ self.visit(arg, tabs + 1) for arg in node.args ])
-        return f'{ans}\n{args}'
+        return f'{ans}\n{obj}\n{xid}\n{args}'
 
     @when(NewNode)
     def visit(self, node: NewNode, tabs=0):
