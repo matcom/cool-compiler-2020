@@ -11,4 +11,5 @@ echo "Copyright (c) 2019: Antonio Jesús Otaño Barrera, Daniel Cordovés Borrot
 # Llamar al compilador
 #echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 
+# check python3 main.py -h for help
 python3 main.py $INPUT_FILE

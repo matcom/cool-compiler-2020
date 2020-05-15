@@ -141,6 +141,7 @@ class Parser:
 
         self.tokens = self.lexer.tokens
         self.parser = yacc.yacc(module=self)
+        self.errors = []
 
     def find_column(self, t):
         line_start = t.lexer.lexdata.rfind('\n', 0, t.lexpos) + 1
@@ -148,16 +149,14 @@ class Parser:
 
     def p_error(self, p):
         if not p:
-            print(f"(0, 0) - SyntacticError: ERROR at or near EOF")
+            self.errors.append(f"(0, 0) - SyntacticError: ERROR at or near EOF")
 
         else:
             line_number = p.lineno
             column = self.find_column(p)
 
             # (<línea>,<columna>) - <tipo_de_error>: <texto_del_error>
-            print(f"({line_number}, {column}) - SyntacticError: ERROR at or near \"{p.value}\"")
-
-        exit(1)
+            self.errors.append(f"({line_number}, {column}) - SyntacticError: ERROR at or near \"{p.value}\"")
 
     precedence = (
         ("right", "ASSIGN"),
