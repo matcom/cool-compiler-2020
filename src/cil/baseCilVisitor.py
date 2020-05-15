@@ -11,7 +11,7 @@ LCA_TABLE = Dict[Tuple[str, str], str]
 # la jerarquia en runtime. InheritanceGraph representa grafos no dirigidos ya que
 # las restricciones de Cool permiten hacer transformaciones al Grafo Dirigido que
 # se obtiene de la jerarquia de clases para trabajar sobre arboles.
-class __InheritanceGraph:
+class InheritanceGraph:
     def __init__(self):
         # Lista de adyacencia del grafo
         self._adytable: Dict[str, List[str]] = {}
@@ -24,10 +24,12 @@ class __InheritanceGraph:
         try:
             # Caso de que se hallan inicializado las listas de cada nodo.
             self._adytable[parent].append(child)
-            self._adytable[child].append(parent)
         except KeyError:
             # Hay k inicializar las listas de cada nodo.
             self._adytable[parent] = [child]
+        try:
+            self._adytable[child].append(parent)
+        except KeyError:
             self._adytable[child] = [parent]
 
     def __do_euler_trip(self, root: str, visited: Dict[str, bool], tour: List[str]):
@@ -71,6 +73,7 @@ class __InheritanceGraph:
         for i, node in enumerate(tour):
             if not visited[node]:
                 representative[node] = i
+                visited[node] = True
         return representative
 
     def build_lca_table(self):
@@ -100,20 +103,20 @@ class __InheritanceGraph:
 
         # crear el array de nodos representativos
         representative = self.__compute_representative_array(tour)
-        nodes = len(representative)
+        nodes = len(levels)
 
         # Preprocesar la tabla para responder las rmq-querys.
         # rmq_table[i][j] contiene el indice del menor elemento en el intervalo[i, j]
         rmq_table: List[List[int]] = [[0 for _ in range(nodes)] for _ in range(nodes)]
 
-        # Sabemos que rmq[i,0] = i. Entonces podemos inicializar la tabla
+        # Sabemos que rmq[i,i] = i. Entonces podemos inicializar la tabla
         for i in range(nodes):
-            rmq_table[i][0] = i
+            rmq_table[i][i] = i
 
         # Para calcular la tabla solo tenemos que aplicar la DP:
         # rmq[i, j] = min(A[rmq[i, j-1]], A[j]) donde A es nuestro array
         for i in range(nodes):  # Iterar de menor a mayor longitud del intervalo
-            for j in range(1, nodes):
+            for j in range(i + 1, nodes):
                 m1 = rmq_table[i][j-1]
                 if levels[m1] < levels[j]:
                     rmq_table[i][j] = m1
@@ -125,7 +128,10 @@ class __InheritanceGraph:
             for node2 in self._adytable.keys():
                 # El LCA lo podemos calcular como LCA(x,y) = E[RMQ(r[x], r[y])] donde E es el tour de euler
                 # y r es el array representativo.
-                self._lcatable[node1, node2] = tour[rmq_table[representative[node1][representative[node2]]]]
+                m1 = min(representative[node1], representative[node2])
+                m2 = max(representative[node1], representative[node2])
+                self._lcatable[node1, node2] = tour[rmq_table[m1][m2]]
+                self._lcatable[node2, node1] = tour[rmq_table[m1][m2]]
 
 
 class BaseCoolToCilVisitor:
@@ -212,23 +218,16 @@ class BaseCoolToCilVisitor:
         """
 
         # Crear el grafo de herencia basado en el contexto que tenemos hasta el momento.
-        graph = __InheritanceGraph()
+        graph = InheritanceGraph()
         for itype in self.context.types:
             if self.context.types[itype].parent is not None:
                 graph.add_edge(self.context.types[itype].parent.name, itype)  # type: ignore
 
         # Crear la tabla LCA
         graph.build_lca_table()
+        self.lca_table = graph._lcatable
 
         # Procesar la tabla LCA para hacerla accesible en runtime
 
     def __build_builtins(self):
         pass
-
-
-if __name__ == '__main__':
-    context = Context()
-    object_type = context.create_type('Object')
-    int_type = context.create_type('Integer')
-    string_type = context.create_type('String')
-    a_type = context.create_type('A')
