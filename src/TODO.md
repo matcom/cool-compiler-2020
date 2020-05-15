@@ -1,0 +1,1 @@
+- [ ] Show multiple syntax errors if there are any. 

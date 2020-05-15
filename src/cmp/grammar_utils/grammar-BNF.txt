@@ -53,7 +53,7 @@ case_list ::= ID : TYPE => expr ; case_list
 |   ID : TYPE => expr ;
 
 expr ::= ID <- expr
-| 	expr cast . ID ( expr_params )
+| 	expr cast DOT ID ( expr_params )
 | 	ID ( expr_params )
 | 	IF expr THEN expr ELSE expr FI
 | 	WHILE expr LOOP expr POOL

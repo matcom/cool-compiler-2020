@@ -11,5 +11,4 @@ echo "Copyright (c) 2019: Antonio Jesús Otaño Barrera, Daniel Cordovés Borrot
 # Llamar al compilador
 #echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 
-python3 lexer.py $INPUT_FILE
-python3 parser.py $INPUT_FILE
+python3 main.py $INPUT_FILE

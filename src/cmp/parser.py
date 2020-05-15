@@ -1,7 +1,6 @@
 import ply.yacc as yacc
-from lexer import Cool_Lexer
+from .lexer import Cool_Lexer
 import sys
-
 
 class Parser:
     def p_program(self, p):
@@ -72,13 +71,7 @@ class Parser:
         expr_list_comma_helper : COMMA expr expr_list_comma_helper
         |	 epsilon
         """
-
-    def p_cast(self, p):
-        """
-        cast : CAST TYPE
-        |	 epsilon
-        """
-
+        
     def p_simple_attribute(self, p):
         """
         simple_attribute : ID COLON TYPE assignation
@@ -107,10 +100,12 @@ class Parser:
         |	 ID COLON TYPE ARROW expr SEMICOLON
         """
 
+    #### SHIFT/REDUCE conflict with the let is intended
     def p_expr(self, p):
         """
         expr : ID ASSIGN expr
-        |	 expr cast DOT ID LPAREN expr_params RPAREN
+        |	 expr CAST TYPE DOT ID LPAREN expr_params RPAREN
+        |    expr DOT ID LPAREN expr_params RPAREN
         |	 ID LPAREN expr_params RPAREN
         |	 IF expr THEN expr ELSE expr FI
         |	 WHILE expr LOOP expr POOL
@@ -166,25 +161,12 @@ class Parser:
 
     precedence = (
         ("right", "ASSIGN"),
-        ("left", "NOT"),
+        ("right", "NOT"),
         ("nonassoc", "LESS", "LESS_EQ", "EQ"),
         ("left", "PLUS", "MINUS"),
         ("left", "MUL", "DIV"),
-        ("left", "ISVOID"),
-        ("left", "INT_COMP"),
-        ("left", "CAST"),
+        ("right", "ISVOID"),
+        ("right", "INT_COMP"),
+        ("right", "CAST"),
         ("left", "DOT")
     )
-
-
-if __name__ == "__main__":
-    parser_obj = Parser()
-    parser_obj.build()
-
-    with open(sys.argv[1]) as f:
-        inp = ""
-
-        for line in f:
-            inp += line
-
-        parser_obj.parser.parse(inp)
