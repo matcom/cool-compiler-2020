@@ -198,3 +198,16 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.register_instruction(cil.UnconditionalJump(while_label))
         # Register the end label
         self.register_instruction(cil.LabelNode(end_label))
+
+    @visitor.when(coolAst.CaseNode)  # type: ignore
+    def visit(self, node: coolAst.CaseNode, scope: Scope):  # noqa: F811
+        # First need to evaluate expr0
+        expr_vm_holder = self.visit(node.expression, scope)
+
+        # Store the type of the returned value
+        type_internal_local_holder = self.define_internal_local()
+        self.register_instruction(cil.TypeOfNode(expr_vm_holder, type_internal_local_holder))
+
+        # Iterate over every action
+        for action_node in node.actions:
+            pass

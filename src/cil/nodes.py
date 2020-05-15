@@ -113,7 +113,9 @@ class ArrayNode(InstructionNode):
 
 
 class TypeOfNode(InstructionNode):
-    pass
+    def __init__(self, variable: str, dest: str):
+        self.variable = variable
+        self.dest = dest
 
 
 class LabelNode(InstructionNode):

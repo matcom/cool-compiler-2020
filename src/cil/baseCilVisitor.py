@@ -1,6 +1,131 @@
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Dict, Tuple
 import cil.nodes as nodes
 from abstract.semantics import VariableInfo, Context, Type, Method
+
+LCA_TABLE = Dict[Tuple[str, str], str]
+
+
+# Esta clase no debe ser utilizada directamente en el desarrollo del compilador.
+# Solo esta pensada para dar soporte a un grafo que represente la jerarquia de
+# clases de Cool, sobre la cual se construira una tabla LCA para poder consultar
+# la jerarquia en runtime. InheritanceGraph representa grafos no dirigidos ya que
+# las restricciones de Cool permiten hacer transformaciones al Grafo Dirigido que
+# se obtiene de la jerarquia de clases para trabajar sobre arboles.
+class __InheritanceGraph:
+    def __init__(self):
+        # Lista de adyacencia del grafo
+        self._adytable: Dict[str, List[str]] = {}
+
+        # Tabla LCA
+        self._lcatable: LCA_TABLE = {}
+
+    def add_edge(self, parent: str, child: str) -> None:
+        # Agregar una arista a la lista de adyacencia.
+        try:
+            # Caso de que se hallan inicializado las listas de cada nodo.
+            self._adytable[parent].append(child)
+            self._adytable[child].append(parent)
+        except KeyError:
+            # Hay k inicializar las listas de cada nodo.
+            self._adytable[parent] = [child]
+            self._adytable[child] = [parent]
+
+    def __do_euler_trip(self, root: str, visited: Dict[str, bool], tour: List[str]):
+        # Este metodo realiza el tour de euler en el grafo representado esta instancia.
+
+        # Marcar el nodo desde el que partimos como visitado.
+        visited[root] = True
+
+        # Agregar el nodo al tour cuando lo vemos por primera vez.
+        tour.append(root)
+
+        for v in self._adytable[root]:
+            # Realizar el tour por todos los subarboles que no hayamos visitado.
+            if not visited[v]:
+                self.__do_euler_trip(v, visited, tour)
+                # Volver a agregar el nodo del que partimos cuando regresamos a el.
+                tour.append(root)
+
+    def __compute_nodes_levels(self, root: str, visited: Dict[str, bool], levels: List[int], lvl: int = 0):
+        # Es la misma idea que el tour de euler, visitar los nodos en DFS y agregar para cada nodo
+        # su distancia desde la raiz
+
+        # marcar el nodo raiz de este subarbol como visitado
+        visited[root] = True
+
+        # agregar el nivel de este nodo a la lista de niveles
+        levels.append(lvl)
+
+        # Visitar los nodos adyacentes en DFS
+        for v in self._adytable[root]:
+            # Realizar el recorrido por los subarboles que no hayamos visitado
+            if not visited[v]:
+                self.__compute_nodes_levels(v, visited, levels, lvl + 1)
+                # Volver a agregar el nivel del nodo cuando regresamos a el.
+                levels.append(lvl)
+
+    def __compute_representative_array(self, tour: List[str]) -> Dict[str, int]:
+        # El representativo de cada nodo es la primera ocurrencia j del nodo tour[j]
+        visited: Dict[str, bool] = {node: False for node in self._adytable.keys()}
+        representative: Dict[str, int] = {}
+        for i, node in enumerate(tour):
+            if not visited[node]:
+                representative[node] = i
+        return representative
+
+    def build_lca_table(self):
+        # Realizar el preprocesamiento necesario para crear la Tabla LCA.
+        # Este preprocesamiento coincide con una DP para preprocesar un array para RMQ.
+        # La implementacion del preprocesamiento es O(n^2). Existen algoritmos para preprocesar en
+        # O(n) y responder las querys en O(1), pero dado que vamos a preguntar las n(n-1)/2 querys
+        # para almacenarlas en la tabla, hacer el preprocesamiento en O(n^2) no afecta el orden del
+        # tiempo total de construccion. No obstante la DP es necesaria para no realizar el preprocesamiento
+        # en O(n^3).
+
+        # Verificar que se halla construido el grafo
+        assert self._adytable
+        visited: Dict[str, bool] = {node: False for node in self._adytable.keys()}
+
+        # Crear el tour de euler
+        tour: List[str] = []
+        # La raiz de la jerarquia es Object
+        root = 'Object'
+        self.__do_euler_trip(root, visited, tour)
+
+        # crear el array de niveles
+        levels: List[int] = []
+        for node in visited.keys():
+            visited[node] = False
+        self.__compute_nodes_levels(root, visited, levels)
+
+        # crear el array de nodos representativos
+        representative = self.__compute_representative_array(tour)
+        nodes = len(representative)
+
+        # Preprocesar la tabla para responder las rmq-querys.
+        # rmq_table[i][j] contiene el indice del menor elemento en el intervalo[i, j]
+        rmq_table: List[List[int]] = [[0 for _ in range(nodes)] for _ in range(nodes)]
+
+        # Sabemos que rmq[i,0] = i. Entonces podemos inicializar la tabla
+        for i in range(nodes):
+            rmq_table[i][0] = i
+
+        # Para calcular la tabla solo tenemos que aplicar la DP:
+        # rmq[i, j] = min(A[rmq[i, j-1]], A[j]) donde A es nuestro array
+        for i in range(nodes):  # Iterar de menor a mayor longitud del intervalo
+            for j in range(1, nodes):
+                m1 = rmq_table[i][j-1]
+                if levels[m1] < levels[j]:
+                    rmq_table[i][j] = m1
+                else:
+                    rmq_table[i][j] = j
+
+        # Con la tabla construida, pasemos a hacer todas las preguntas
+        for node1 in self._adytable.keys():
+            for node2 in self._adytable.keys():
+                # El LCA lo podemos calcular como LCA(x,y) = E[RMQ(r[x], r[y])] donde E es el tour de euler
+                # y r es el array representativo.
+                self._lcatable[node1, node2] = tour[rmq_table[representative[node1][representative[node2]]]]
 
 
 class BaseCoolToCilVisitor:
@@ -13,6 +138,8 @@ class BaseCoolToCilVisitor:
         self.current_method: Optional[Method] = None
         self.current_function: Optional[nodes.FunctionNode] = None
         self.__labels_count: int = 0
+        self.__build_CART()
+        self.__build_builtins()
 
     @property
     def params(self) -> List[nodes.ParamNode]:
@@ -73,3 +200,35 @@ class BaseCoolToCilVisitor:
     def do_label(self, label: str) -> str:
         self.__labels_count += 1
         return f"label_{label}_{self.__labels_count}"
+
+    def __build_CART(self) -> None:
+        """
+        CART: Context Aware Runtime Table.\
+        This structure stores data related to the Class Hierarchy defined in the program. This structure is meant to be stored \
+        on the .DATA section and would be used by methods related to runtime type-checking. It is the first defined data in the \
+        .DATA section. The structure is a table where for class i,j table[i,j] contains the LCA of class i and class j, i.e, \
+        table[i,j] = C where i < C, j < C, and C is the lowest Class that satisfy this condition and the operator "<" stands \
+        for 'conforms to'.
+        """
+
+        # Crear el grafo de herencia basado en el contexto que tenemos hasta el momento.
+        graph = __InheritanceGraph()
+        for itype in self.context.types:
+            if self.context.types[itype].parent is not None:
+                graph.add_edge(self.context.types[itype].parent.name, itype)  # type: ignore
+
+        # Crear la tabla LCA
+        graph.build_lca_table()
+
+        # Procesar la tabla LCA para hacerla accesible en runtime
+
+    def __build_builtins(self):
+        pass
+
+
+if __name__ == '__main__':
+    context = Context()
+    object_type = context.create_type('Object')
+    int_type = context.create_type('Integer')
+    string_type = context.create_type('String')
+    a_type = context.create_type('A')
