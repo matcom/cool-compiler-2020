@@ -77,7 +77,11 @@ class BaseCOOLToCILVisitor:
         type_node = self.register_type('Object')
 
         self.current_function = self.register_function(self.to_function_name('abort', 'Object'))
-        #//TODO: Code of abort
+        vname = self.define_internal_local()
+        self.register_instruction(cil.LoadNode(vname, 'data_0'))
+        self.register_instruction(cil.PrintNode(vname))
+        self.register_instruction(cil.ExitNode())
+        # No need for RETURN here right??
 
         self.current_function = self.register_function(self.to_function_name('type_name', 'Object'))
         self.register_param(self.vself)
@@ -172,6 +176,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(cil.StaticCallNode(self.to_function_name('main', 'Main'), result))
         self.register_instruction(cil.ReturnNode(0))
         self.register_built_in()
+        # Error message raised by Object:abort()
+        self.register_data('Program aborted')
         self.current_function = None
         
         for declaration, child_scope in zip(node.declarations, scope.children):
