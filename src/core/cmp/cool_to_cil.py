@@ -225,8 +225,15 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.type -> str
         # node.expr -> ExpressionNode
         ###############################
-        #//TODO: Implement AttrDeclarationNode, assess whether this needs to be done
-        pass
+        instance = scope.ret_expr
+        if node.expr:
+            self.visit(node.expr, scope)
+        else:
+            try:
+                scope.ret_expr = self.default_values[node.type]
+            except KeyError:
+                scope.ret_expr = None
+        self.register_instruction(cil.SetAttribNode(instance, node.id, scope.ret_expr))
                 
     @visitor.when(cool.FuncDeclarationNode)
     def visit(self, node, scope):
