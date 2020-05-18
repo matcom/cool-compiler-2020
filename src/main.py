@@ -43,7 +43,7 @@ def main():
     content = ""
 
     with open(args.file_path) as file:
-        content = "".join(file.readlines())
+        content = file.read()
 
     lexical_analysis(content)
     syntactic_analysis(content)
