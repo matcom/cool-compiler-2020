@@ -3,18 +3,31 @@ from argparse import ArgumentParser
 from cmp.lexer import Cool_Lexer
 from cmp.parser import Parser
 
+args = ArgumentParser(description="Cool compiler programmed in Python.")
+args.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="Verbose mode.")
+args.add_argument("file_path", help="Path to cool file to compile.")
+args = args.parse_args()
+
 def lexical_analysis(content):
     lex = Cool_Lexer()
     lex.build()
 
     lex = lex.lexer
-
     lex.input(content)
 
+    token_list = []
     for token in lex:
-        pass
+        token_list.append(token)
 
-    return lex.errors
+    if args.verbose:
+        print("Lexical Analysis Tokens")
+
+        for token in token_list:
+            print(token)
+
+    if len(lex.errors) > 0:
+        print("".join(lex.errors))
+        exit(1)
 
 def syntactic_analysis(content):
     p = Parser()
@@ -22,31 +35,18 @@ def syntactic_analysis(content):
 
     p.parser.parse(content)
 
-    return p.errors
+    if len(p.errors) > 0:
+        print("".join(p.errors))
+        exit(1)
 
-def output_errors(*errors):
-    for e in errors:
-        if len(e) > 0:
-            print("".join(e))
-            exit(1)
+def main():
+    content = ""
 
-args = ArgumentParser(description="Cool compiler programmed in Python.")
-args.add_argument("-c", choices=["lexer", "parser"], dest="comp", default="all", help="Show output of single components of compiler. Default is all components.", type=str)
-args.add_argument("path_file", help="Path to cool file to compile.")
-args = args.parse_args()
+    with open(args.file_path) as file:
+        content = "".join(file.readlines())
 
-content = ""
+    lexical_analysis(content)
+    syntactic_analysis(content)
 
-with open(args.path_file) as file:
-    content = "".join(file.readlines())
-
-lex_errors = lexical_analysis(content)
-par_errors = syntactic_analysis(content)
-
-if args.comp == "lexer":
-    output_errors(lex_errors)
-
-elif args.comp == "parser":
-    output_errors(par_errors)
-
-else: output_errors(lex_errors, par_errors)
+if __name__ == "__main__":
+    main()
