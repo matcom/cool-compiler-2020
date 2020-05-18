@@ -388,7 +388,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         try:
             self.current_type.attributes.get_attribute(node.id)
-            self.register_instruction(cil.SetAttribNode(self.current_type.name, node.id, scope.ret_expr))
+            self.register_instruction(cil.SetAttribNode(self.vself, node.id, scope.ret_expr))
+            scope.ret_expr = node.id
         except SemanticError:
             vname = self.register_local(VariableInfo(node.id, None))
             self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
@@ -613,7 +614,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         try:
             self.current_type.attributes.get_attribute(node.lex)
             attr = self.register_local(VariableInfo('attr_value', None))
-            self.register_instruction(cil.GetAttribNode(attr, self.current_type.name, node.lex))
+            self.register_instruction(cil.GetAttribNode(attr, self.vself, node.lex))
             scope.ret_expr = attr
         except SemanticError:
             param_names = [pn.name for pn in self.current_function.params]
