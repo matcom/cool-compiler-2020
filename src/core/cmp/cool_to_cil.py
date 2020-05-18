@@ -86,14 +86,12 @@ class BaseCOOLToCILVisitor:
         self.current_function = self.register_function(self.to_function_name('type_name', 'Object'))
         self.register_param(self.vself)
         result = self.define_internal_local()
-        self.register_instruction(cil.ArgNode(self.vself.name))
         self.register_instruction(cil.TypeNameNode(result, self.vself.name))
         self.register_instruction(cil.ReturnNode(result))
 
         self.current_function = self.register_function(self.to_function_name('copy', 'Object'))
         self.register_param(self.vself)
         result = self.define_internal_local()
-        self.register_instruction(cil.ArgNode(self.vself.name))
         self.register_instruction(cil.CopyNode(result, self.vself.name))
         self.register_instruction(cil.ReturnNode(result))
 
