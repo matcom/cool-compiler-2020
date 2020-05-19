@@ -182,10 +182,11 @@ class ConcatNode(InstructionNode):
 
 
 class SubStringNode(InstructionNode):
-    def __init__(self, str_a, str_b, result):
+    def __init__(self,str, i, len, result):
         self.result = result
-        self.str_a = str_a
-        self.str_b = str_b
+        self.i = i
+        self.len = len
+        self.str=str
 
 
 class StrNode(InstructionNode):

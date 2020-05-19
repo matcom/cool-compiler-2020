@@ -116,6 +116,23 @@ def out_int_to_cil():
 def in_string_to_cil():
     return cil.FuncNode('in_string_IO', [cil.ParamNode('self')], [cil.LocalNode('str')], [cil.ReadNode('str'), cil.ReturnNode('str')])
 
+def in_int_to_cil():
+    pass
+
+def type_name_to_cil():
+    pass
+
+def copy_to_cil():
+    pass
+
+def length_to_cil():
+    return cil.FuncNode('length_String', [cil.ParamNode('self')], [cil.LocalNode('result')], [cil.LengthNode('self', 'result'), cil.ReturnNode('result')])
+
+def concat_to_cil():
+    return cil.FuncNode('concat_String', [cil.ParamNode('self'), cil.ParamNode('x')], [cil.LocalNode('result')], [cil.ConcatNode('x', 'self', 'result'), cil.ReturnNode('result')])
+
+def substring_to_cil():
+    return cil.FuncNode('substr_String', [cil.ParamNode('self'), cil.ParamNode('i'),cil.ParamNode('l')], [cil.LocalNode('result')], [cil.SubStringNode('self', 'i', 'l','result'), cil.ReturnNode('result')])
 
 def func_to_cil_visitor(type_name, func):
     global locals_count, __DATA_LOCALS__, __TYPEOF__
