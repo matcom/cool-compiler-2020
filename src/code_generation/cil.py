@@ -129,7 +129,7 @@ def length_to_cil():
     return cil.FuncNode('length_String', [cil.ParamNode('self')], [cil.LocalNode('result')], [cil.LengthNode('self', 'result'), cil.ReturnNode('result')])
 
 def concat_to_cil():
-    return cil.FuncNode('concat_String', [cil.ParamNode('self'), cil.ParamNode('x')], [cil.LocalNode('result')], [cil.ConcatNode('x', 'self', 'result'), cil.ReturnNode('result')])
+    return cil.FuncNode('concat_String', [cil.ParamNode('self'), cil.ParamNode('x')], [cil.LocalNode('result')], [cil.ConcatNode('self', 'x', 'result'), cil.ReturnNode('result')])
 
 def substring_to_cil():
     return cil.FuncNode('substr_String', [cil.ParamNode('self'), cil.ParamNode('i'),cil.ParamNode('l')], [cil.LocalNode('result')], [cil.SubStringNode('self', 'i', 'l','result'), cil.ReturnNode('result')])
