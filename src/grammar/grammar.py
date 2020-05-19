@@ -1,5 +1,4 @@
-from grammar.symbols import (NonTerminal, Terminal, Sentence,
-                             Epsilon, EOF, AttributeProduction)
+from grammar.symbols import NonTerminal, Terminal, Sentence, Epsilon, EOF, AttributeProduction
 import json
 
 
@@ -48,8 +47,7 @@ class Grammar():
         if len(self.Productions) == 0:
             self.pType = type(production)
 
-        assert type(
-            production) == self.pType, "The Productions most be of only 1 type."
+        assert type(production) == self.pType, "The Productions most be of only 1 type."
 
         production.Left.productions.append(production)
         self.Productions.append(production)
@@ -108,8 +106,8 @@ class Grammar():
 
             productions.append({'Head': head, 'Body': body})
 
-        d = {'NonTerminals': [symb.Name for symb in self.nonTerminals if symb != self.startSymbol], 'Terminals':
-             [symb.Name for symb in self.terminals],
+        d = {'NonTerminals': [symb.Name for symb in self.nonTerminals if symb != self.startSymbol],
+             'Terminals': [symb.Name for symb in self.terminals],
              'Productions': productions}
         d['StartSymbol'] = self.startSymbol.Name
 

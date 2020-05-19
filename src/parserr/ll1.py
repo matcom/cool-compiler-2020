@@ -1,24 +1,30 @@
+from typing import Dict, Tuple
 from tools.firsts import compute_firsts
 from tools.follows import compute_follows
-from grammar.grammar import Grammar
+from grammar.grammar import Grammar, NonTerminal, Terminal
+from grammar.symbols import Sentence
 
-def build_ll1_parsing_table(G:Grammar, firsts: dict, follows: dict):
-    table = {}
+TableEntry = Tuple[NonTerminal, Terminal]
+
+
+def build_ll1_parsing_table(G: Grammar, firsts: Dict, follows: Dict):
+    table: Dict[TableEntry, Sentence] = {}
 
     for production in G.Productions:
-        x,alpha = production.Left, production.Right
+        x, alpha = production.Left, production.Right
 
         for t in firsts[alpha]:
-            #si la tabla contiene entradas repetidas entonces la gramatica
-            #no es LL(1)
-            assert not table.get((x,t),None), "La gramatica no es LL(1)"
-            table[(x,t)] = production
+            # si la tabla contiene entradas repetidas entonces la gramatica
+            # no es LL(1)
+            assert not table.get((x, t), None), "La gramatica no es LL(1)"
+            table[(x, t)] = production
 
         if firsts[alpha].contains_epsilon:
             for t in follows[x]:
-                assert not table.get((x,t),None), "La gramatica no es LL(1)"
-                table[(x,t)] = production
+                assert not table.get((x, t), None), "La gramatica no es LL(1)"
+                table[(x, t)] = production
     return table
+
 
 def build_ll1_parser(G: Grammar):
     firsts = compute_firsts(G)
@@ -26,7 +32,7 @@ def build_ll1_parser(G: Grammar):
     table = build_ll1_parsing_table(G, firsts, follows)
 
     def parser(w: list):
-        #Asumimos que w termina en $
+        # Asumimos que w termina en $
         stack = [G.startSymbol]
         cursor = 0
         output = []
@@ -38,7 +44,7 @@ def build_ll1_parser(G: Grammar):
                 cursor += 1
             else:
                 try:
-                    production = table[(sym,w[cursor].token_type)]
+                    production = table[(sym, w[cursor].token_type)]
                     output.append(production)
                     try:
                         for symbol in production.Right[::-1]:

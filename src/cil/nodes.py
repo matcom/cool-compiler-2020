@@ -200,10 +200,17 @@ class ToStrNode(InstructionNode):
 
 
 class ReadNode(InstructionNode):
-    def __init__(self, dest):
+    def __init__(self, dest: str):
         self.dest = dest
 
 
 class PrintNode(InstructionNode):
-    def __init__(self, string_address):
+    def __init__(self, string_address: str):
         self.string_address = string_address
+
+
+class LCANode(InstructionNode):
+    def __init__(self, itypeA: str, variable: str, dest: str):
+        self.itypeA = itypeA
+        self.variable = variable
+        self.dest = dest

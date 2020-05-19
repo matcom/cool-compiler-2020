@@ -12,7 +12,7 @@ class State:
     def add_transition(self, symbol, state):
         try:
             self.transitions[symbol].append(state)
-        except:
+        except Exception:
             self.transitions[symbol] = [state]
         return self
 
@@ -31,13 +31,13 @@ class State:
         closure = self.epsilon_closure
         start = State(tuple(closure), any(s.final for s in closure))
 
-        closures = [ closure ]
-        states = [ start ]
-        pending = [ start ]
+        closures = [closure]
+        states = [start]
+        pending = [start]
 
         while pending:
             state = pending.pop()
-            symbols = { symbol for s in state.state for symbol in s.transitions }
+            symbols = {symbol for s in state.state for symbol in s.transitions}
 
             for symbol in symbols:
                 move = self.move_by_state(symbol, *state.state)
@@ -64,9 +64,9 @@ class State:
             states.append(state)
 
         for origin, dest in nfa.transitions.items():
-            for symbol,destinations in dest.items():
+            for symbol, destinations in dest.items():
                 src = states[origin]
-                src[symbol] = [ states[d] for d in destinations ]
+                src[symbol] = [states[d] for d in destinations]
 
         if get_states:
             return states[nfa.start], states
@@ -74,11 +74,11 @@ class State:
 
     @staticmethod
     def move_by_state(symbol, *states):
-        return { s for state in states if state.has_transition(symbol) for s in state[symbol]}
+        return {s for state in states if state.has_transition(symbol) for s in state[symbol]}
 
     @staticmethod
     def epsilon_closure_by_state(*states):
-        closure = { state for state in states }
+        closure = {state for state in states}
 
         l = 0
         while l != len(closure):
@@ -86,7 +86,7 @@ class State:
             tmp = [s for s in closure]
             for s in tmp:
                 for epsilon_state in s.epsilon_transitions:
-                        closure.add(epsilon_state)
+                    closure.add(epsilon_state)
         return closure
 
     @property
@@ -122,35 +122,35 @@ class State:
         return hash(frozenset(self.state)) if not isinstance(self.state, int) else\
             hash(self.state)
 
-    def graph(self):
-        import pydot
-        G = pydot.Dot(rankdir='LR', margin=0.1)
-        G.add_node(pydot.Node('start', shape='plaintext', label='', width=0, height=0))
+    # def graph(self):
+    #     import pydot
+    #     G = pydot.Dot(rankdir='LR', margin=0.1)
+    #     G.add_node(pydot.Node('start', shape='plaintext', label='', width=0, height=0))
 
-        visited = set()
-        def visit(start):
-            ids = id(start)
-            if ids not in visited:
-                visited.add(ids)
-                G.add_node(pydot.Node(ids, label=start.name, shape='circle', style='bold' if start.final else ''))
-                for tran, destinations in start.transitions.items():
-                    for end in destinations:
-                        visit(end)
-                        G.add_edge(pydot.Edge(ids, id(end), label=tran, labeldistance=2))
-                for end in start.epsilon_transitions:
-                    visit(end)
-                    G.add_edge(pydot.Edge(ids, id(end), label='ε', labeldistance=2))
+    #     visited = set()
+    #     def visit(start):
+    #         ids = id(start)
+    #         if ids not in visited:
+    #             visited.add(ids)
+    #             G.add_node(pydot.Node(ids, label=start.name, shape='circle', style='bold' if start.final else ''))
+    #             for tran, destinations in start.transitions.items():
+    #                 for end in destinations:
+    #                     visit(end)
+    #                     G.add_edge(pydot.Edge(ids, id(end), label=tran, labeldistance=2))
+    #             for end in start.epsilon_transitions:
+    #                 visit(end)
+    #                 G.add_edge(pydot.Edge(ids, id(end), label='ε', labeldistance=2))
 
-        visit(self)
-        G.add_edge(pydot.Edge('start', id(self), label='', style='dashed'))
+    #     visit(self)
+    #     G.add_edge(pydot.Edge('start', id(self), label='', style='dashed'))
 
-        return G
+    #     return G
 
-    def _repr_svg_(self):
-        try:
-            return self.graph().create_svg().decode('utf8')
-        except:
-            pass
+    # def _repr_svg_(self):
+    #     try:
+    #         return self.graph().create_svg().decode('utf8')
+    #     except:
+    #         pass
 
     def __iter__(self):
         yield from self._visit()

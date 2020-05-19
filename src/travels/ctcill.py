@@ -188,26 +188,34 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.register_instruction(cil.LabelNode(while_label))
         cond_vm_holder = self.visit(node.cond, scope)
 
-        # Compare condition, if true then execute, else jump to end
+        # Probar la condicion, si es true continuar la ejecucion, sino saltar al LABEL end
         self.register_instruction(cil.IfZeroJump(cond_vm_holder, end_label))
 
-        # Register the instructions of the body
+        # Registrar las instrucciones del cuerpo del while
         self.visit(node.statements, scope)
 
-        # Do am unconditional jump to condition check
+        # Realizar un salto incondicional al chequeo de la condicion
         self.register_instruction(cil.UnconditionalJump(while_label))
-        # Register the end label
+        # Registrar el LABEL final
         self.register_instruction(cil.LabelNode(end_label))
 
     @visitor.when(coolAst.CaseNode)  # type: ignore
     def visit(self, node: coolAst.CaseNode, scope: Scope):  # noqa: F811
-        # First need to evaluate expr0
+        # Evalauar la expr0
         expr_vm_holder = self.visit(node.expression, scope)
 
-        # Store the type of the returned value
+        # Almacenar el tipo del valor retornado
         type_internal_local_holder = self.define_internal_local()
         self.register_instruction(cil.TypeOfNode(expr_vm_holder, type_internal_local_holder))
 
-        # Iterate over every action
-        for action_node in node.actions:
-            pass
+        # Iterar por cada accion que se toma en la expresion case
+        # para generar el codigo de cada action, ademas se agrega
+        # en cada accion un chequeo en runtime que indica si el branch
+        # que analizamos es el LCA entre el tipo que se deduce de la expresion
+        # calculada y el tipo actual que se chequea en la rama
+        branch_type = self.define_internal_local()
+        for i, action_node in enumerate(node.actions):
+            next_i_label = self.do_label(f'NEXT{i}')
+            self.register_instruction(cil.LabelNode(next_i_label))
+            self.register_instruction(cil.LCANode(action_node.itype.name, type_internal_local_holder, branch_type))
+            # Comparar el LCA con 

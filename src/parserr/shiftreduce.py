@@ -74,14 +74,14 @@ class ShiftReduceParser:
         para cargarlo posteriormente con load.
         '''
         try:
-            import cloudpickle
+            import cloudpickle  # type: ignore
         except ImportError:
             return False
 
         try:
             cloudpickle.dump(self, file)
             return True
-        except Exception as e:
+        except Exception:
             return False
 
     @staticmethod

@@ -3,7 +3,6 @@ from tools.firsts import ContainerSet
 from automatons.state import State
 from parserr.shiftreduce import ShiftReduceParser
 from tools.firsts import compute_firsts, compute_local_first
-from progressbar.progressbar import ProgressBar
 
 
 def expand(item, firsts):
