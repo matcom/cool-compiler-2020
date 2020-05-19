@@ -76,11 +76,6 @@ class InheritanceGraph:
         root = 'Object'
         self.__dfs(root, visited)
 
-        print(self._discover)
-        print("\t\t**********\n\n")
-        print(self._finalization)
-        print("\t\t**********\n\n")
-
         # Construir la tabla
         for nodex in self._adytable:
             for nodey in self._adytable:
@@ -175,9 +170,8 @@ class BaseCoolToCilVisitor:
         CART: Context Aware Runtime Table.\
         Esta estructura almacena datos relacionados con la jerarquia de clases definida en el programa. CART se debe almacenar \
         en la seccion .DATA y sera usada por metodos relacionados con chequeo de tipos en tiempo de ejecucion. La estructura es una \
-        tabla LCA, o sea, una tabla donde dadas dos clases A y B, CART[A, B] = C donde C es otra clase y se cumple que \
-        A < C, B < C, y C es la primera clase en la jerarquia que partiendo de A o de B, cumple esa condicion; el operador \
-        '<' significa "se conforma en" o "es subclase de".
+        TDT (type distance table), donde dadas dos clases A y B, CART[A, B] = d donde d es la distancia entre la clase A y \
+        la clase B, si la clase A es ancestro de la clase B en la jerarquia de tipos, 0 si A = B y -1 en otro caso.
         """
 
         # Crear el grafo de herencia basado en el contexto que tenemos hasta el momento.
@@ -186,13 +180,17 @@ class BaseCoolToCilVisitor:
             if self.context.types[itype].parent is not None:
                 graph.add_edge(self.context.types[itype].parent.name, itype)  # type: ignore
 
-        # Crear la tabla LCA
+        # Crear la TDT
         graph.build_tdt()
         self.tdt_table = graph.tdt
 
-        # Procesar la tabla LCA para hacerla accesible en runtime
-        # Para crear la tabla solo tenemos que definir varias etiquetas que describan
-        # los tipos, y cada celda de la tabla contiene la direccion de estas etiquetas
+        # Procesar la TDT para hacerla accesible en runtime.
+        # La tabla nos es mas que una matriz de NxN (N es la cantidad de tipos definidos en el programa)
+        # donde cada subindice indica el indice del Tipo en la seccion .Types:
+        # m[i, j] = d significa que la distancia entre el tipo en el indice i de la seccion .Types y el tipo
+        # en el indice j es d.
+        # Tener en cuenta que los tipos son definidos en la seccion .TYPES en el orden en que son definidos en
+        # el programa, y recolectados por el TypeBuilder.
         data_nodes_dict: Dict[str, nodes.DataNode] = {}
         for itype in self.context.types:
             data_node = self.register_data(itype)
