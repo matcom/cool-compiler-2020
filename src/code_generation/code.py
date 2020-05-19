@@ -167,7 +167,7 @@ def str_cg_visitor(str: StrNode):
 
 
 def read_cg_visitor(read: ReadNode):
-    return 'READ ;'
+    return f'{read.val} = READ ;'
 
 
 def print_cg_visitor(print: PrintNode):

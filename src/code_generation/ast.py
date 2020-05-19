@@ -195,7 +195,9 @@ class StrNode(InstructionNode):
 
 
 class ReadNode(InstructionNode):
-    pass
+    def __init__(self, val):
+        self.val=val
+        
 
 
 class PrintNode(InstructionNode):

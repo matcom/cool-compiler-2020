@@ -111,9 +111,10 @@ def out_string_to_cil():
     return cil.FuncNode('out_string_IO', ['self','str'], [], [cil.PrintNode('str'), cil.ReturnNode('self')])
 
 def out_int_to_cil():
-    return cil.FuncNode('out_int_IO', ['self','int'], ['str'], cil.StrNode('int', 'str'), cil.PrintNode('int'), cil.ReturnNode('self'))
+    return cil.FuncNode('out_int_IO', ['self','int'], ['str'], [cil.StrNode('int', 'str'), cil.PrintNode('int'), cil.ReturnNode('self')])
 
-
+def in_string_to_cil():
+    return cil.FuncNode('in_string_IO', ['self'], ['str'], [cil.ReadNode('str'), cil.ReturnNode('str')])
 
 
 def func_to_cil_visitor(type_name, func):
