@@ -2,7 +2,7 @@ from typing import List, Optional, Any, Dict, Tuple
 import cil.nodes as nodes
 from abstract.semantics import VariableInfo, Context, Type, Method
 
-LCA_TABLE = Dict[Tuple[str, str], str]
+TDT = Dict[Tuple[str, str], int]
 
 
 # Esta clase no debe ser utilizada directamente en el desarrollo del compilador.
@@ -17,7 +17,12 @@ class InheritanceGraph:
         self._adytable: Dict[str, List[str]] = {}
 
         # Tabla LCA
-        self._lcatable: LCA_TABLE = {}
+        self.tdt: TDT = {}
+
+        self._discover: Dict[str, int] = {}
+        self._finalization: Dict[str, int] = {}
+        self.__time = 0
+        self.root_distance: Dict[str, int] = {}
 
     def add_edge(self, parent: str, child: str) -> None:
         # Agregar una arista a la lista de adyacencia.
@@ -32,112 +37,57 @@ class InheritanceGraph:
         except KeyError:
             self._adytable[child] = [parent]
 
-    def __do_euler_trip(self, root: str, visited: Dict[str, bool], tour: List[str]):
-        # Este metodo realiza el tour de euler en el grafo representado esta instancia.
+    def __ancestor(self, node_x: str, node_y: str) -> bool:
+        # Devuelve true si x es ancestro de y.
+        # Para realizar este calculo nos basamos en el arbol
+        # construido por el DFS, y tenemos en cuenta los tiempo
+        # de descubrimiento y finalizacion
+        return self._discover[node_x] < self._discover[node_y] < self._finalization[node_y] < self._finalization[node_x]
 
-        # Marcar el nodo desde el que partimos como visitado.
+    def __distance_from(self, node_x: str, node_y: str) -> int:
+        # Si x es ancestro de y, entonces la distancia entre ellos
+        # se calcula como d[y] - d[x], si x no es ancenstro de y,
+        # entonces podemos definir la distancia entre ellos como infinito
+        if self.__ancestor(node_x, node_y):
+            return self.root_distance[node_y] - self.root_distance[node_x]
+        else:
+            return -1
+
+    def __dfs(self, root: str, visited: Dict[str, bool], deep=0):
         visited[root] = True
-
-        # Agregar el nodo al tour cuando lo vemos por primera vez.
-        tour.append(root)
+        self._discover[root] = self.__time
+        self.root_distance[root] = deep
+        self.__time += 1
 
         for v in self._adytable[root]:
-            # Realizar el tour por todos los subarboles que no hayamos visitado.
             if not visited[v]:
-                self.__do_euler_trip(v, visited, tour)
-                # Volver a agregar el nodo del que partimos cuando regresamos a el.
-                tour.append(root)
+                self.__dfs(v, visited, deep + 1)
+                self.__time += 1
+        self._finalization[root] = self.__time
 
-    def __compute_nodes_levels(self, root: str, visited: Dict[str, bool], levels: List[int], lvl: int = 0):
-        # Es la misma idea que el tour de euler, visitar los nodos en DFS y agregar para cada nodo
-        # su distancia desde la raiz
+    def build_tdt(self):
+        # Construir una tabla de distancia para cada Nodo del arbol.
+        # En dicha tabla, tdt[x, y] = d donde d es la distancia entre
+        # el nodo x y el nodo y, si x es ancestro de y, entonces d >= 1,
+        # si x == y, d = 0 y d = -1 en otro caso
+        visited = {node: False for node in self._adytable}
 
-        # marcar el nodo raiz de este subarbol como visitado
-        visited[root] = True
-
-        # agregar el nivel de este nodo a la lista de niveles
-        levels.append(lvl)
-
-        # Visitar los nodos adyacentes en DFS
-        for v in self._adytable[root]:
-            # Realizar el recorrido por los subarboles que no hayamos visitado
-            if not visited[v]:
-                self.__compute_nodes_levels(v, visited, levels, lvl + 1)
-                # Volver a agregar el nivel del nodo cuando regresamos a el.
-                levels.append(lvl)
-
-    def __compute_representative_array(self, tour: List[str]) -> Dict[str, int]:
-        # El representativo de cada nodo es la primera ocurrencia j del nodo tour[j]
-        visited: Dict[str, bool] = {node: False for node in self._adytable.keys()}
-        representative: Dict[str, int] = {}
-        for i, node in enumerate(tour):
-            if not visited[node]:
-                representative[node] = i
-                visited[node] = True
-        return representative
-
-    def build_lca_table(self):
-        # Realizar el preprocesamiento necesario para crear la Tabla LCA.
-        # Este preprocesamiento coincide con una DP para preprocesar un array para RMQ.
-        # La implementacion del preprocesamiento es O(n^2). Existen algoritmos para preprocesar en
-        # O(n) y responder las querys en O(1), pero dado que vamos a preguntar las n(n-1)/2 querys
-        # para almacenarlas en la tabla, hacer el preprocesamiento en O(n^2) no afecta el orden del
-        # tiempo total de construccion. No obstante la DP es necesaria para no realizar el preprocesamiento
-        # en O(n^3).
-
-        # Verificar que se halla construido el grafo
-        assert self._adytable
-        visited: Dict[str, bool] = {node: False for node in self._adytable.keys()}
-
-        # Crear el tour de euler
-        tour: List[str] = []
-        # La raiz de la jerarquia es Object
+        # Realizar un recorrido dfs para inicializar los array d y f
         root = 'Object'
-        self.__do_euler_trip(root, visited, tour)
+        self.__dfs(root, visited)
 
-        # crear el array de niveles
-        levels: List[int] = []
-        for node in visited.keys():
-            visited[node] = False
-        self.__compute_nodes_levels(root, visited, levels)
+        print(self._discover)
+        print("\t\t**********\n\n")
+        print(self._finalization)
+        print("\t\t**********\n\n")
 
-        # crear el array de nodos representativos
-        representative = self.__compute_representative_array(tour)
-        nodes = len(levels)
-
-        # Preprocesar la tabla para responder las rmq-querys.
-        # rmq_table[i][j] contiene el indice del menor elemento en el intervalo[i, j]
-        rmq_table: List[List[int]] = [[0 for _ in range(nodes)] for _ in range(nodes)]
-
-        # Sabemos que rmq[i,i] = i. Entonces podemos inicializar la tabla
-        for i in range(nodes):
-            rmq_table[i][i] = i
-
-        # Para calcular la tabla solo tenemos que aplicar la DP:
-        # rmq[i, j] = min(A[rmq[i, j-1]], A[j]) donde A es nuestro array
-        for i in range(nodes):  # Iterar de menor a mayor longitud del intervalo
-            for j in range(i + 1, nodes):
-                m1 = rmq_table[i][j-1]
-                if levels[m1] < levels[j]:
-                    rmq_table[i][j] = m1
+        # Construir la tabla
+        for nodex in self._adytable:
+            for nodey in self._adytable:
+                if nodey == nodex:
+                    self.tdt[(nodex, nodey)] = 0
                 else:
-                    rmq_table[i][j] = j
-
-        # TODO: Sera mejor representar en CIL la tabla rmq, el tour y los representativos e implementar una rutina
-        #       para procesar una query, de modo que no halla que construir la tabla LCA en O(n^2), se puedan hacer
-        #       las querys en O(1) y poder hacer el preprocesamiento en O(n)??
-        #       Tener en cuenta que esto implica mas estructura en el codigo del programa, o sea, mas espacio en memoria
-        #       y es un poco mas complejo.
-
-        # Con la tabla construida, pasemos a hacer todas las preguntas
-        for node1 in self._adytable.keys():
-            for node2 in self._adytable.keys():
-                # El LCA lo podemos calcular como LCA(x,y) = E[RMQ(r[x], r[y])] donde E es el tour de euler
-                # y r es el array representativo.
-                m1 = min(representative[node1], representative[node2])
-                m2 = max(representative[node1], representative[node2])
-                self._lcatable[node1, node2] = tour[rmq_table[m1][m2]]
-                self._lcatable[node2, node1] = tour[rmq_table[m1][m2]]
+                    self.tdt[(nodex, nodey)] = self.__distance_from(nodex, nodey)
 
 
 class BaseCoolToCilVisitor:
@@ -237,8 +187,8 @@ class BaseCoolToCilVisitor:
                 graph.add_edge(self.context.types[itype].parent.name, itype)  # type: ignore
 
         # Crear la tabla LCA
-        graph.build_lca_table()
-        self.lca_table = graph._lcatable
+        graph.build_tdt()
+        self.tdt_table = graph.tdt
 
         # Procesar la tabla LCA para hacerla accesible en runtime
         # Para crear la tabla solo tenemos que definir varias etiquetas que describan
@@ -247,7 +197,6 @@ class BaseCoolToCilVisitor:
         for itype in self.context.types:
             data_node = self.register_data(itype)
             data_nodes_dict[itype] = data_node
-
 
     def __build_builtins(self):
         pass

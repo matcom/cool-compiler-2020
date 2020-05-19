@@ -18,4 +18,4 @@ if __name__ == '__main__':
     d_type.set_parent(object_type)
 
     v = BaseCoolToCilVisitor(context)
-    print(v.lca_table)
+    print(v.tdt_table)

@@ -165,24 +165,23 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
     @visitor.when(coolAst.AssignNode)  # type:ignore
     def visit(self, node: coolAst.AssignNode, scope: Scope):  # noqa: F811
-        # Assignments looks like:
+        # La asignacion tiene la siguiente forma:
         # id <- expr
-        # So here we assume that a local variable named "id"
-        # has already been defined
+        # Aqui asumimos que una variable interna llamada id
+        # ya ha sido definida
 
-        # TODO: need to diferentiate between attributes and method vars?
+        # TODO: Es necesario diferenciar entre variable y atributo ?
 
-        # Generate the code for the rvalue (expr)
+        # Generar el codigo para el rvalue (expr)
         rvalue_vm_holder = self.visit(self, node.expr)
 
-        # register the assignment instruction
+        # registrar la instruccion de asignacion
         self.register_instruction(cil.AssignNode(node.idx, rvalue_vm_holder))
 
     @visitor.when(coolAst.WhileBlockNode)  # type: ignore
     def visit(self, node: coolAst.WhileBlockNode, scope: Scope):  # noqa: F811
-
-        # First evaluate the condition and set a label
-        # to return to
+        # Evaluar la condicion y definir un LABEL al cual
+        # retornar
         while_label = self.do_label('WHILE')
         end_label = self.do_label('WHILE_END')
         self.register_instruction(cil.LabelNode(while_label))
@@ -218,4 +217,4 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             next_i_label = self.do_label(f'NEXT{i}')
             self.register_instruction(cil.LabelNode(next_i_label))
             self.register_instruction(cil.LCANode(action_node.itype.name, type_internal_local_holder, branch_type))
-            # Comparar el LCA con 
+            # Comparar el LCA con
