@@ -340,7 +340,7 @@ def is_void_to_cil_visitor(isvoid):
 
     body = expr_cil.body
 
-    return CIL_block(body, 1) if expr_cil.value is None else CIL_block(body, 0)
+    return CIL_block(body, 1) if expr_cil.value==0 else CIL_block(body, 0)
 
 
 def string_to_cil_visitor(str):
