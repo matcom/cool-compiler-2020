@@ -321,8 +321,16 @@ def id_to_cil_visitor(id):
 
 def new_to_cil_visitor(new_node):
     value = add_local()
-    body = [cil.AllocateNode(new_node.type, value)]
-    init_attr = TypesByName[new_node.type].get_all_attributes()
+    t=new_node.type
+    body=[]
+    
+    if t=='SELF_TYPE':
+        t, need_typeof=get_typeof(t,'self')
+        if need_typeof:
+            body.append(cil.TypeOfNode(t,'self'))
+            
+    body.append(cil.AllocateNode(t, value))
+    init_attr = TypesByName[t].get_all_attributes()
 
     for attr in init_attr:
         if attr.expression:
