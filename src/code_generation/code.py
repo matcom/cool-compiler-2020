@@ -12,7 +12,7 @@ def program_cg_visitor(program: ProgramNode):
     data_code = ''
     func_code = ''
     for t in program.types:
-        if t == 'SELF_TYPE':
+        if t.type == 'SELF_TYPE':
             continue
         type_code += f'{type_cg_visitor(t)}\n'
     for d in program.data:
