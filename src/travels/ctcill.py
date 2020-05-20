@@ -303,4 +303,36 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Devolver la variable que contiene el resultado
         return minus_internal_vm_holder
 
-    
+    @visitor.when(coolAst.MulNode)  # type: ignore
+    def visit(self, node: coolAst.MulNode, scope: Scope):  # noqa: F811
+        # Definir una variable interna local para almacenar el resultado intermedio
+        mul_internal_vm_holder = self.define_internal_local()
+
+        # Obtener el resultado del primer factor
+        left_vm_holder = self.visit(node.left, scope)
+
+        # Obtener el resultado del segundo factor
+        right_vm_holder = self.visit(node.right, scope)
+
+        # Registrar la instruccion de multimplicacion
+        self.register_instruction(cil.StarNode(left_vm_holder, right_vm_holder, mul_internal_vm_holder))
+
+        # Retornarl el resultado
+        return mul_internal_vm_holder
+
+    @visitor.when(coolAst.DivNode)  # type: ignore
+    def visit(self, node: coolAst.DivNode, scope: Scope):  # noqa: F811
+        # Definir una variable interna local para almacenar el resultado intermedio
+        div_internal_vm_holder = self.define_internal_local()
+
+        # Obtener el resultad del dividendo
+        left_vm_holder = self.visit(node.left, scope)
+
+        # Obtener el resultado del divisor
+        right_vm_holder = self.visit(node.right, scope)
+
+        # Registrar la instruccion de division
+        self.register_instruction(cil.DivNode(div_internal_vm_holder, left_vm_holder, right_vm_holder))
+
+        # Devolver el resultado
+        return div_internal_vm_holder

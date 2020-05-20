@@ -76,7 +76,10 @@ class MinusNode(ArithmeticNode):
 
 
 class StarNode(ArithmeticNode):
-    pass
+    def __init__(self, x: str, y: str, dest: str):
+        self.x = x
+        self.y = y
+        self.dest = dest
 
 
 class DivNode(ArithmeticNode):
