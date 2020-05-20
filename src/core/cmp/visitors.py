@@ -358,7 +358,6 @@ def LCA(type_list, context):
                 break
             node = node.parent
 
-    raise Exception('El LCA se partio')
 
 def IsAuto(name):
     return name == 'AUTO_TYPE' or IsVoid(name)
