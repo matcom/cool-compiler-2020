@@ -77,7 +77,7 @@ class CoolType:
                 return None, f'method \'{self.name}.{id}\' formal parameter count ({len(method.args)}) ' \
                              f'does not match actual parameter count ({len(args_types)})'
             for i, a in enumerate(args_types):
-                if a != method.args[i]:
+                if not check_inherits(a,method.args[i]):
                     return None, f'method \'{self.name}.{id}\' parameter #{i} type mismatch. Actual: \'{a}\' should ' \
                                  f'be a subtype of \'{method.args[i]}\' '
             return method, None
