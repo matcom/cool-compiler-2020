@@ -209,13 +209,22 @@ def case_expr_visitor(case: CaseNode, current_class: CoolType, local_scope: dict
     expr_0 = expression_visitor(case.expr, current_class, local_scope)
 
     branch_0 = case.case_list[0]
+    branch_0_type = type_by_name(branch_0.type)
     temp = local_scope.copy()
-    temp[branch_0.id] = expr_0
+    if branch_0_type is None:
+        add_semantic_error(branch_0.line, branch_0.column,
+                           f"unknow type \"{branch_0.type}\"")
+    else:
+        temp[branch_0.id] = branch_0_type
     current_type = expression_visitor(branch_0.expr, current_class, temp)
 
     for branch in case.case_list[1:]:
         temp = local_scope.copy()
-        temp[branch.id] = expr_0
+        branch_type = type_by_name(branch.type)
+        if branch_type is None:
+            add_semantic_error(branch_0.line, branch_0.column,
+                               f"unknow type \"{branch.type}\"")
+        temp[branch.id] = branch_type
         current_type = pronounced_join(
             current_type, expression_visitor(branch.expr, current_class, temp))
     case.returned_type = current_type
