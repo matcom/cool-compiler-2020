@@ -1,16 +1,21 @@
-from collections import deque
+from collections import deque, namedtuple
 
-class Program:
+# Definition of a Formal
+Formal = namedtuple('Formal', ['id', 'type'])
+
+class ASTNode: pass
+
+class Program(ASTNode):
     def __init__(self, class_list = deque()):
         self.class_list = deque()
 
-class Class:
+class Class(ASTNode):
     def __init__(self, type, opt_inherits, feature_list = deque()):
         self.type = type
         self.opt_inherits = opt_inherits  #can be None
         self.feature_list = feature_list
 
-class Feature: pass
+class Feature(ASTNode): pass
 
 class Method(Feature):
     def __init__(self, id, formal_list, type, expr_list = deque()):
@@ -24,12 +29,7 @@ class Attribute(Feature):
         self.formal = formal
         self.opt_init = opt_init  #can be None
 
-class Formal:
-    def __init__(self, id, type):
-        self.id = id
-        self.type = type
-
-class Expr: pass
+class Expr(ASTNode): pass
 
 class Assignment(Expr):
     def __init__(self, id, expr):
