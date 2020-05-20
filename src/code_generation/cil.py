@@ -365,13 +365,13 @@ def string_to_cil_visitor(str):
 
     return CIL_block(body, str_id)
 
-
 def let_to_cil_visitor(let):
     body = []
     for attr in let.let_attrs:
-        attr_cil = expression_to_cil_visitor(attr)
-        body.append(cil.AssignNode(attr.id, attr_cil.value))
-        body += attr_cil.body
+        if attr.expr:
+            attr_cil = expression_to_cil_visitor(attr.expr)
+            body += attr_cil.body
+            body.append(cil.AssignNode(attr.id, attr_cil.value))
 
     expr_cil = expression_to_cil_visitor(let.expr)
     body += expr_cil.body
