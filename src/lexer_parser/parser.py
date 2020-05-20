@@ -13,7 +13,6 @@ precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'LOWEREQ', 'LOWER', 'EQUAL'),
     ('left', 'LNOT'),
-    ('right', 'ASSIGN'),
 )
 
 
