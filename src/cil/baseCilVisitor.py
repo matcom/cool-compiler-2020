@@ -40,7 +40,7 @@ class InheritanceGraph:
     def __ancestor(self, node_x: str, node_y: str) -> bool:
         # Devuelve true si x es ancestro de y.
         # Para realizar este calculo nos basamos en el arbol
-        # construido por el DFS, y tenemos en cuenta los tiempo
+        # construido por el DFS, y tenemos en cuenta los tiempos
         # de descubrimiento y finalizacion
         return self._discover[node_x] < self._discover[node_y] < self._finalization[node_y] < self._finalization[node_x]
 

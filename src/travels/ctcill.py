@@ -207,6 +207,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         type_internal_local_holder = self.define_internal_local()
         self.register_instruction(cil.TypeOfNode(expr_vm_holder, type_internal_local_holder))
 
+        # Variables internas para almacenar resultados intermedios
         branch_type_index = self.define_internal_local()
         expr_type_index = self.define_internal_local()
         branch_type = self.define_internal_local()
@@ -224,9 +225,12 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             # Calcular la distancia hacia el tipo, y actualizar el minimo de ser necesario
             self.register_instruction(cil.TdtLookupNode(branch_type_index, expr_type_index, tdt_result))
 
+            # Comparar el resultado obtenido con el minimo actual.
             self.register_instruction(cil.MinusNode(min_, tdt_result, min_check_local))
             not_min_label = self.do_label('Not_min{i}')
             self.register_instruction(cil.JumpIfGreaterThanZeroNode(min_check_local, not_min_label))
+
+            # Si mejora el minimo, entonces actualizarlo.
             self.register_instruction(cil.AssignNode(min_, tdt_result))
             self.register_instruction(cil.LabelNode(not_min_label))
 
@@ -264,3 +268,39 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # TODO: Define some form of runtime errors
 
         self.register_instruction(cil.LabelNode(end_label))
+
+    @visitor.when(coolAst.PlusNode)  # type: ignore
+    def visit(self, node: coolAst.PlusNode, scope: Scope):  # noqa: F811
+        # Definir una variable interna local para almacenar el resultado
+        sum_internal_local = self.define_internal_local()
+
+        # Obtener el resultado del primero operando
+        left_vm_holder = self.visit(node.left, scope)
+
+        # Obtener el resultado del segundo operando
+        right_vm_holder = self.visit(node.right, scope)
+
+        # registrar la instruccion de suma
+        self.register_instruction(cil.PlusNode(sum_internal_local, left_vm_holder, right_vm_holder))
+
+        # Devolver la variable interna que contiene la suma
+        return sum_internal_local
+
+    @visitor.when(coolAst.DifNode)  # type: ignore
+    def visit(self, node: coolAst.DifNode, scope: Scope):  # noqa: F811
+        # Definir una variable interna local para almacenar el resultado intermedio
+        minus_internal_vm_holder = self.define_internal_local()
+
+        # Obtener el resultado del minuendo
+        left_vm_holder = self.visit(node.left, scope)
+
+        # Obtener el resultado del sustraendo
+        right_vm_holder = self.visit(node.right, scope)
+
+        # Registrar la instruccion de resta
+        self.register_instruction(cil.MinusNode(left_vm_holder, right_vm_holder, minus_internal_vm_holder))
+
+        # Devolver la variable que contiene el resultado
+        return minus_internal_vm_holder
+
+    
