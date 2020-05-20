@@ -67,6 +67,7 @@ def instruction_cg_visitor(instruction: InstructionNode):
     try:
         return __visitors__[type(instruction)](instruction)
     except KeyError:
+        print(type(instruction))
         print(f'Not visitor for {instruction}')
 
 

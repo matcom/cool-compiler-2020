@@ -98,6 +98,8 @@ def program_to_cil_visitor(program):
             if type(f) == DefFuncNode:
                 fun = func_to_cil_visitor(c.type, f)
                 code.append(fun)
+                
+    code += built_in_to_cil()
 
     data = [cil.DataNode(__DATA__[data_value], data_value)
             for data_value in __DATA__.keys()]
@@ -105,16 +107,16 @@ def program_to_cil_visitor(program):
     return cil.ProgramNode(types, data, code)
 
 def built_in_to_cil():
-    pass
+    return [out_int_to_cil(), out_string_to_cil(), in_string_to_cil()]
     
 def out_string_to_cil():
-    return cil.FuncNode('out_string_IO', [cil.ParamNode('self'),cil.ParamNode('str')], [], [cil.PrintNode('str'), cil.ReturnNode('self')])
+    return cil.FuncNode('IO_out_string', [cil.ParamNode('self'),cil.ParamNode('str')], [], [cil.PrintNode('str'), cil.ReturnNode('self')])
 
 def out_int_to_cil():
-    return cil.FuncNode('out_int_IO', [cil.ParamNode('self'),cil.ParamNode('int')], [cil.LocalNode('str')], [cil.StrNode('int', 'str'), cil.PrintNode('int'), cil.ReturnNode('self')])
+    return cil.FuncNode('IO_out_int', [cil.ParamNode('self'),cil.ParamNode('int')], [cil.LocalNode('str')], [cil.StrNode('int', 'str'), cil.PrintNode('int'), cil.ReturnNode('self')])
 
 def in_string_to_cil():
-    return cil.FuncNode('in_string_IO', [cil.ParamNode('self')], [cil.LocalNode('str')], [cil.ReadNode('str'), cil.ReturnNode('str')])
+    return cil.FuncNode('IO_in_string', [cil.ParamNode('self')], [cil.LocalNode('str')], [cil.ReadNode('str'), cil.ReturnNode('str')])
 
 def in_int_to_cil():
     pass
@@ -148,17 +150,17 @@ def func_to_cil_visitor(type_name, func):
         func.expressions)
     body += instruction.body
     
-    body.append([cil.ReturnNode(instruction.value)])
+    body.append(cil.ReturnNode(instruction.value))
 
     _locals = [cil.LocalNode(f'local_{i + 1}') for i in range(locals_count)]
     return cil.FuncNode(name, params, _locals, body)
 
 
 def expression_to_cil_visitor(expression):
-    try:
-        return __visitor__[type(expression)](expression)
-    except:
-        raise Exception(f'There is no visitor for {type(expression)}')
+    #try:
+    return __visitor__[type(expression)](expression)
+    #except:
+        #raise Exception(f'There is no visitor for {type(expression)}')
 
 
 def case_to_cil_visitor(case):
@@ -331,12 +333,13 @@ def new_to_cil_visitor(new_node):
             
     body.append(cil.AllocateNode(t, value))
     init_attr = TypesByName[t].get_all_attributes()
+    
 
     for attr in init_attr:
         if attr.expression:
             attr_cil = expression_to_cil_visitor(
                 attr.expression)
-            body.append(attr_cil.body)
+            body+=attr_cil.body
             body.append(cil.SetAttrNode(value, attr.id, attr_cil.value))
 
     return CIL_block(body, value)
