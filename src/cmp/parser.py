@@ -5,129 +5,134 @@ import sys
 class Parser:
     def p_program(self, p):
         """
-        program : class SEMICOLON program
-        |	 class SEMICOLON
+        program : class SEMICOLON program 
+        |	 class SEMICOLON 
         """
 
     def p_class(self, p):
         """
-        class : CLASS TYPE inherits LBRACE class_feature RBRACE
+        class : CLASS TYPE inherits LBRACE feature_list RBRACE 
         """
 
     def p_inherits(self, p):
         """
-        inherits : INHERITS TYPE
-        |	 epsilon
+        inherits : INHERITS TYPE 
+        |	 epsilon 
         """
 
-    def p_class_feature(self, p):
+    def p_feature_list(self, p):
         """
-        class_feature : feature SEMICOLON class_feature
-        |	 epsilon
+        feature_list : feature SEMICOLON feature_list 
+        |	 epsilon 
         """
 
     def p_feature(self, p):
         """
-        feature : ID LPAREN formal_params RPAREN COLON TYPE LBRACE expr RBRACE
-        |	 simple_attribute
+        feature : ID LPAREN formal_params RPAREN COLON TYPE LBRACE expr RBRACE 
+        |	 attribute 
         """
 
     def p_formal_params(self, p):
         """
-        formal_params : formal_list
-        |	 epsilon
+        formal_params : formal_list 
+        |	 epsilon 
+        """
+
+    def p_formal(self, p):
+        """
+        formal : ID COLON TYPE 
         """
 
     def p_formal_list(self, p):
         """
-        formal_list : ID COLON TYPE formal_list_helper
+        formal_list : formal formal_list_helper 
         """
 
     def p_formal_list_helper(self, p):
         """
-        formal_list_helper : COMMA ID COLON TYPE formal_list_helper
-        |	 epsilon
+        formal_list_helper : COMMA formal formal_list_helper 
+        |	 epsilon 
         """
 
     def p_expr_list_semicolon(self, p):
         """
-        expr_list_semicolon : expr SEMICOLON expr_list_semicolon
-        |	 expr SEMICOLON
+        expr_list_semicolon : expr SEMICOLON expr_list_semicolon 
+        |	 expr SEMICOLON 
         """
 
     def p_expr_params(self, p):
         """
-        expr_params : expr_list_comma
-        |	 epsilon
+        expr_params : expr_list_comma 
+        |	 epsilon 
         """
 
     def p_expr_list_comma(self, p):
         """
-        expr_list_comma : expr expr_list_comma_helper
+        expr_list_comma : expr expr_list_comma_helper 
         """
 
     def p_expr_list_comma_helper(self, p):
         """
-        expr_list_comma_helper : COMMA expr expr_list_comma_helper
-        |	 epsilon
-        """
-        
-    def p_simple_attribute(self, p):
-        """
-        simple_attribute : ID COLON TYPE assignation
+        expr_list_comma_helper : COMMA expr expr_list_comma_helper 
+        |	 epsilon 
         """
 
-    def p_compound_attribute(self, p):
+    def p_attribute(self, p):
         """
-        compound_attribute : simple_attribute compound_attribute_helper
-        """
-
-    def p_compound_attribute_helper(self, p):
-        """
-        compound_attribute_helper : COMMA simple_attribute compound_attribute_helper
-        |	 epsilon
+        attribute : formal opt_expr_init 
         """
 
-    def p_assignation(self, p):
+    def p_attribute_list(self, p):
         """
-        assignation : ASSIGN expr
-        |	 epsilon
+        attribute_list : attribute attribute_list_helper 
+        """
+
+    def p_attribute_list_helper(self, p):
+        """
+        attribute_list_helper : COMMA attribute attribute_list_helper 
+        |	 epsilon 
+        """
+
+    def p_opt_expr_init(self, p):
+        """
+        opt_expr_init : ASSIGN expr 
+        |	 epsilon 
         """
 
     def p_case_list(self, p):
         """
-        case_list : ID COLON TYPE ARROW expr SEMICOLON case_list
-        |	 ID COLON TYPE ARROW expr SEMICOLON
+        case_list : formal ARROW expr SEMICOLON case_list 
+        |	 formal ARROW expr SEMICOLON 
         """
 
     #### SHIFT/REDUCE conflict with the let is intended
     def p_expr(self, p):
         """
-        expr : ID ASSIGN expr
-        |	 expr CAST TYPE DOT ID LPAREN expr_params RPAREN
-        |    expr DOT ID LPAREN expr_params RPAREN
-        |	 ID LPAREN expr_params RPAREN
-        |	 IF expr THEN expr ELSE expr FI
-        |	 WHILE expr LOOP expr POOL
-        |	 LBRACE expr_list_semicolon RBRACE
-        |	 LET compound_attribute IN expr
-        |	 CASE expr OF case_list ESAC
-        |	 NEW TYPE
-        |	 ISVOID expr
-        |	 expr PLUS expr
-        |	 expr MINUS expr
-        |	 expr MUL expr
-        |	 expr DIV expr
-        |	 INT_COMP expr
-        |	 expr LESS expr
-        |	 expr LESS_EQ expr
-        |	 expr EQ expr
-        |	 NOT expr
-        |	 LPAREN expr RPAREN
-        |	 ID
-        |	 INT
-        |	 STRING
-        |	 BOOL
+        expr : ID ASSIGN expr 
+        |	 expr CAST TYPE DOT ID LPAREN expr_params RPAREN 
+        |	 expr DOT ID LPAREN expr_params RPAREN 
+        |	 ID LPAREN expr_params RPAREN 
+        |	 IF expr THEN expr ELSE expr FI 
+        |	 WHILE expr LOOP expr POOL 
+        |	 LBRACE expr_list_semicolon RBRACE 
+        |	 LET attribute_list IN expr 
+        |	 CASE expr OF case_list ESAC 
+        |	 NEW TYPE 
+        |	 ISVOID expr 
+        |	 expr PLUS expr 
+        |	 expr MINUS expr 
+        |	 expr MUL expr 
+        |	 expr DIV expr 
+        |	 INT_COMP expr 
+        |	 expr LESS expr 
+        |	 expr LESS_EQ expr 
+        |	 expr EQ expr 
+        |	 NOT expr 
+        |	 LPAREN expr RPAREN 
+        |	 ID 
+        |	 INT 
+        |	 STRING 
+        |	 BOOL 
         """
 
     def p_epsilon(self, p):

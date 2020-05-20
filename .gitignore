@@ -410,3 +410,4 @@ dmypy.json
 
 src/cmp/parsetab.py
 src/extra/
+*.old

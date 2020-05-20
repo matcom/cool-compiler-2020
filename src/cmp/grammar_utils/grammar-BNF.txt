@@ -6,23 +6,25 @@
 program ::= class ; program
 |   class ;
 
-class ::= CLASS TYPE inherits { class_feature }
+class ::= CLASS TYPE inherits { feature_list }
 
 inherits ::= INHERITS TYPE
 |   epsilon
 
-class_feature ::= feature ; class_feature
+feature_list ::= feature ; feature_list
 |   epsilon
 
 feature ::= ID ( formal_params ) : TYPE { expr }
-|	simple_attribute
+|	attribute
 
 formal_params ::= formal_list
 |   epsilon
 
-formal_list ::= ID : TYPE formal_list_helper
+formal ::= ID : TYPE
 
-formal_list_helper ::= , ID : TYPE formal_list_helper
+formal_list ::= formal formal_list_helper
+
+formal_list_helper ::= , formal formal_list_helper
 |	epsilon
 
 expr_list_semicolon ::= expr ; expr_list_semicolon
@@ -36,29 +38,27 @@ expr_list_comma ::= expr expr_list_comma_helper
 expr_list_comma_helper ::= , expr expr_list_comma_helper
 |	epsilon
 
-cast ::= @ TYPE
+attribute ::= formal opt_expr_init
+
+attribute_list ::= attribute attribute_list_helper
+
+attribute_list_helper ::= , attribute attribute_list_helper
 |	epsilon
 
-simple_attribute ::= ID : TYPE assignation
-
-compound_attribute ::= simple_attribute compound_attribute_helper
-
-compound_attribute_helper ::= , simple_attribute compound_attribute_helper
+opt_expr_init ::= <- expr
 |	epsilon
 
-assignation ::= <- expr
-|	epsilon
-
-case_list ::= ID : TYPE => expr ; case_list
-|   ID : TYPE => expr ;
+case_list ::= formal => expr ; case_list
+|   formal => expr ;
 
 expr ::= ID <- expr
-| 	expr cast DOT ID ( expr_params )
+| 	expr @ TYPE . ID ( expr_params )
+|   expr . ID ( expr_params )
 | 	ID ( expr_params )
 | 	IF expr THEN expr ELSE expr FI
 | 	WHILE expr LOOP expr POOL
 | 	{ expr_list_semicolon }
-| 	LET compound_attribute IN expr
+| 	LET attribute_list IN expr
 | 	CASE expr OF case_list ESAC
 | 	NEW TYPE
 | 	ISVOID expr

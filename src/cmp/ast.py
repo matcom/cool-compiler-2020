@@ -59,9 +59,9 @@ class Method(Feature):
         self.expr_list = expr_list
 
 class Attribute(Feature):
-    def __init__(self, formal, opt_init):
+    def __init__(self, formal, opt_expr_init):
         self.formal = formal
-        self.opt_init = opt_init  #can be None
+        self.opt_expr_init = opt_expr_init  #can be None
 
 class Expr(ASTNode): pass
 
@@ -141,10 +141,7 @@ class Terminal(ASTNode):
 
 class Int(Expr, Terminal): pass
 class String(Expr, Terminal): pass
-
 class Bool(Expr, Terminal): pass
-class TrueValue(Bool): pass
-class FalseValue(Bool): pass
 
 if __name__ == '__main__':
     plus = Plus(Int(123), Int(65))
