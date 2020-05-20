@@ -263,7 +263,7 @@ def equal_visitor(equal: EqNode, current_class: CoolType, local_scope: dict):
 
 def negation_visitor(negation: NegationNode, current_class: CoolType, local_scope: dict):
     value_type = expression_visitor(negation.val, current_class, local_scope)
-    if value_type != IntNode and value_type is not None:
+    if value_type != IntType and value_type is not None:
         add_semantic_error(negation.lineno, negation.colno,
                            f'type {value_type} invalid. The \'~\' operator can only be used with type {IntType}')
     return IntType
