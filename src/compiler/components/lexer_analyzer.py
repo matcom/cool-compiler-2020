@@ -1,71 +1,210 @@
-from .abstract_component import Component
-from ..utils.compiler_containers import lexer_analyzer_dependency_container as injector
-from ply import lex
+import ply.lex as lex
+from ply.lex import Token
+from ply.lex import TOKEN
+from ..utils.errors import lexicographicError
 
-class lexer_analyzer(Component):
-    def __init__(self,
-                tokens_collection,
-                basic_keywords,
-                simple_rules,
-                complex_rules,
-                error_handlers,
-                *args,
-                **kwargs):                
-        self.inject(complex_rules)
-        self.inject(error_handlers)
-        self.tokens_collection = tokens_collection
-        self.basic_keywords = basic_keywords
-        super().__init__(*args, **kwargs)
+tokens = [
+    # Identifiers
+    "ID", "TYPE",
 
-    def inject(self, function_group):
-        for function in function_group:
-            super().__setattr__(function.__name__, function)
+    # Primitive Types
+    "INTEGER", "STRING", "BOOLEAN",
 
+    # Literals
+    "LPAREN", "RPAREN", "LBRACE", "RBRACE", "COLON", "COMMA", "DOT", "SEMICOLON", "AT",
+
+    # Operators
+    "PLUS", "MINUS", "MULTIPLY", "DIVIDE", "EQ", "LT", "LTEQ", "ASSIGN", "INT_COMP", "NOT",
+
+    # Special Operators
+    "ARROW"
+]
+
+reserved = {
+    'new':'NEW',
+    'of':'OF',
+    'if' : 'IF',
+    'let':'LET',
+    'in' : 'IN',
+    'fi':'FI',
+    'else' : 'ELSE',
+    'while':'WHILE',
+    'case':'CASE',
+    'then' : 'THEN',
+    'esac':'ESAC',
+    'pool':'POOL',
+    'class':'CLASS',
+    'loop':'LOOP',
+    'true':'TRUE',
+    'inherits':'INHERITS',
+    'isvoid':'ISVOID',
+    'false':'FALSE'
+}
+
+tokens += list(reserved.values())
+
+#Simple rules
+t_PLUS = r'\+'
+t_MINUS = r'\-'
+t_MULTIPLY = r'\*'
+t_DIVIDE = r'\/'
+t_LPAREN = r'\('
+t_RPAREN = r'\)'
+t_EQ = r'\='
+t_LT = r'\<'
+t_LTEQ = r'\<\='
+t_ASSIGN = r'\<\-'
+t_INT_COMP = r'~'
+t_NOT = r'not'
+t_LBRACE = r'\{'
+t_RBRACE = r'\}'
+t_COLON = r'\:'
+t_COMMA = r'\,'
+t_DOT = r'\.'
+t_SEMICOLON = r'\;'
+t_AT = r'\@'
+t_ARROW = r'\=\>'
+#complex rules
+
+@TOKEN(r"(true|false)")
+def t_BOOLEAN(token):
+    token.value = True if token.value == "true" else False
+    return token
+
+@TOKEN(r"\d+")
+def t_INTEGER(token):
+    token.value = int(token.value)
+    return token
+
+@TOKEN(r"[A-Z][A-Za-z0-9_]*")
+def t_TYPE(token):
+    token.type = reserved.get(token.value, 'TYPE')
+    return token
+
+@TOKEN(r"[a-z][A-Za-z0-9_]*")
+def t_ID(token):
+    token.type = reserved.get(token.value, "ID")
+    return token
+
+# Utility definitions
+@TOKEN(r'\n+')
+def t_ANY_newline(t):
+    global readjust_col
+    readjust_col = t.lexpos + len(t.value)
+    t.lexer.lineno += len(t.value)
+
+def t_error(token):
+    errors.append(lexicographicError(row_and_col= (token.lineno, token.lexpos - readjust_col + 1), message='ERROR "%s"' % (token.value[:1])))
+    token.lexer.skip(1)
+
+t_ignore  = ' \t'
+t_ignore_COMMENTLINE = r"\-\-[^\n]*"
+
+
+#Global states
+states = (
+    ("STRING", "exclusive"),
+    ("COMMENT", "exclusive")
+)
+
+#The string states
+@TOKEN(r'\"')
+def t_start_string(token):
+    token.lexer.push_state("STRING")
+    token.lexer.string_backslashed = False
+    token.lexer.stringbuf = ""
+
+@TOKEN(r"\n")
+def t_STRING_newline(token):
+    token.lexer.lineno += 1
+    if not token.lexer.string_backslashed:
+        errors.append(lexicographicError(row_and_col= (token.lineno, token.lexpos - readjust_col + 1), message= "Unterminated string constant"))
+        token.lexer.pop_state()
+    else:
+        token.lexer.string_backslashed = False
+
+@TOKEN("\0")
+def t_STRING_null(token):
+    errors.append(lexicographicError(row_and_col= (token.lineno, token.lexpos - readjust_col + 1), message='Null character in string'))
+    token.lexer.skip(1)
+
+@TOKEN(r"\"")
+def t_STRING_end(token):
+    if not token.lexer.string_backslashed:
+        token.lexer.pop_state()
+        token.value = token.lexer.stringbuf
+        token.type = "STRING"
+        return token
+    else:
+        token.lexer.stringbuf += '"'
+        token.lexer.string_backslashed = False
+
+@TOKEN(r"[^\n]")
+def t_STRING_anything(token):
+    if token.lexer.string_backslashed:
+        if token.value == 'b':
+            token.lexer.stringbuf += '\b'
+        elif token.value == 't':
+            token.lexer.stringbuf += '\t'
+        elif token.value == 'n':
+            token.lexer.stringbuf += '\n'
+        elif token.value == 'f':
+            token.lexer.stringbuf += '\f'
+        elif token.value == '\\':
+            token.lexer.stringbuf += '\\'
+        else:
+            token.lexer.stringbuf += token.value
+        token.lexer.string_backslashed = False
+    else:
+        if token.value != '\\':
+            token.lexer.stringbuf += token.value
+        else:
+            token.lexer.string_backslashed = True
+
+def t_STRING_error(token):
+    token.lexer.skip(1)
+    errors.append(lexicographicError( 
+                row_and_col= (token.lineno, token.lexpos - readjust_col + 1),
+                message= 'ERROR at or near '))
+
+t_STRING_ignore = ''
+
+# The comment state
+
+@TOKEN(r"\(\*")
+def t_start_comment(token):
+    token.lexer.push_state("COMMENT")
+    token.lexer.comment_count = 0
+
+@TOKEN(r"\(\*")
+def t_COMMENT_startanother(token):
+    token.lexer.comment_count += 1
+
+@TOKEN(r"\*\)")
+def t_COMMENT_end(token):
+    if token.lexer.comment_count == 0:
+        token.lexer.pop_state()
+    else:
+        token.lexer.comment_count -= 1
+
+
+def t_COMMENT_error(token):
+    token.lexer.skip(1)
     
-    def build_component(self):
-        self.reserved = self.basic_keywords.keys()
-        self.tokens = self.tokens_collection + tuple(self.basic_keywords.values())
-        self.lexer = lex.lex(module = self)
+def t_COMMENT_eof(token):
+    errors.append(lexicographicError(row_and_col= (token.lineno, token.lexpos - readjust_col + 1), message= "EOF in comment"))
+    token.lexer.pop_state()
 
-        
-    def input_lexer(self, cool_program_source_code):
-        self.lexer.input(cool_program_source_code)
-        
-
-    def token(self):
-        self.last_token = self.lexer.token()
-        return self.last_token
+t_COMMENT_ignore = ''
+errors = []
 
 
-    # A funny iterator here
-    def __iter__(self):
-        return self
+def tokenizer(stream_input):
+    lexer = lex.lex()
+    lexer.input(stream_input)
+    token_list = []
+    for tok in lexer:
+        token_list.append(tok)
 
-    def __next__(self):
-        t = self.token()
-        if t is None:
-            raise StopIteration
-        return t
+    return errors, token_list
 
-    def next(self):
-        return self.__next__()
-    # End of fun
-
-
-
-if __name__ == "__main__":
-    import sys
-
-    input_info = sys.argv[1]
-    with open(input_info, encoding = 'utf-8') as file:
-        cool_program_source_code = file.read()
-    
-    lexer = lexer_analyzer(tokens_collection = injector.tokens_collection_cool,
-                        basic_keywords = injector.reserved_keywords_cool, 
-                        simple_rules = injector.simple_rules_cool, 
-                        complex_rules = injector.complex_rules_cool,
-                        error_handlers = injector.error_handlers_cool)
-    lexer.input_lexer(cool_program_source_code)
-
-    for token in lexer:
-        print(token)

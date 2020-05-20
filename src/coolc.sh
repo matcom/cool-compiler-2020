@@ -1,6 +1,6 @@
 # Incluya aquí las instrucciones necesarias para ejecutar su compilador
 
- 
+
 INPUT_FILE=$1
 OUTPUT_FILE=${INPUT_FILE:0: -2}mips
 
@@ -15,6 +15,6 @@ echo "LINEA_CON_NOMBRE_Y_VERSION_DEL_COMPILADOR"        # TODO: Recuerde cambiar
 echo "CopyLeft (L) 2020: Alejandro Díaz Roque, Rafael Horrach"    
 
 # Llamar al compilador
-python3 main.py $@
-echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
+python main.py "$@"
+#echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 
