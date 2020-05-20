@@ -138,7 +138,7 @@ def func_call_visitor(func_call: FuncCallNode, current_class: CoolType, local_sc
                 return None
             else:
                 method, msg = object_type.get_method(func_call.id, args_types)
-                if method.returnedType == SelfType:
+                if method is not None and method.returnedType == SelfType:
                     method.returnedType = object_type
     else:
         method, msg = current_class.get_method(func_call.id, args_types)
