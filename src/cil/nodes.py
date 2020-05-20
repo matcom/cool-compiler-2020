@@ -69,7 +69,10 @@ class PlusNode(ArithmeticNode):
 
 
 class MinusNode(ArithmeticNode):
-    pass
+    def __init__(self, x: str, y: str, dest: str):
+        self.x = x
+        self.y = y
+        self.dest = dest
 
 
 class StarNode(ArithmeticNode):
@@ -123,6 +126,12 @@ class LabelNode(InstructionNode):
         self.label: str = label
 
 
+class JumpIfGreaterThanZeroNode(InstructionNode):
+    def __init__(self, variable: str, label: str):
+        self.label = label
+        self.variable = variable
+
+
 class IfZeroJump(InstructionNode):
     def __init__(self, variable: str, label: str):
         self.variable = variable
@@ -138,14 +147,6 @@ class NotZeroJump(InstructionNode):
 class UnconditionalJump(InstructionNode):
     def __init__(self, label: str):
         self.label: str = label
-
-
-class GotoNode(InstructionNode):
-    pass
-
-
-class GotoIfNode(InstructionNode):
-    pass
 
 
 class StaticCallNode(InstructionNode):
@@ -209,8 +210,14 @@ class PrintNode(InstructionNode):
         self.string_address = string_address
 
 
-class LCANode(InstructionNode):
-    def __init__(self, itypeA: str, variable: str, dest: str):
-        self.itypeA = itypeA
-        self.variable = variable
+class TdtLookupNode(InstructionNode):
+    def __init__(self, index_varA: str, index_varB: str, dest: str):
+        self.i = index_varA
+        self.j = index_varB
+        self.dest = dest
+
+
+class GetTypeIndex(InstructionNode):
+    def __init__(self, itype: str, dest: str):
+        self.itype = itype
         self.dest = dest

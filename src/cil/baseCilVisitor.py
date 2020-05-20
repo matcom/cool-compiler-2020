@@ -191,10 +191,13 @@ class BaseCoolToCilVisitor:
         # en el indice j es d.
         # Tener en cuenta que los tipos son definidos en la seccion .TYPES en el orden en que son definidos en
         # el programa, y recolectados por el TypeBuilder.
-        data_nodes_dict: Dict[str, nodes.DataNode] = {}
-        for itype in self.context.types:
-            data_node = self.register_data(itype)
-            data_nodes_dict[itype] = data_node
+        table = [[-1 for _ in self.context.types] for _ in self.context.types]
+        self.types_indexes: Dict[str, int] = {}
+        for i, itype in enumerate(self.context.types):
+            self.types_indexes[itype] = i
+            for j, atype in enumerate(self.context.types):
+                table[i][j] = self.tdt_table[itype, atype]
+        self.tdt_data_node = self.register_data(table)
 
     def __build_builtins(self):
         pass

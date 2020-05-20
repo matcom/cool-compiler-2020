@@ -207,14 +207,60 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         type_internal_local_holder = self.define_internal_local()
         self.register_instruction(cil.TypeOfNode(expr_vm_holder, type_internal_local_holder))
 
-        # Iterar por cada accion que se toma en la expresion case
-        # para generar el codigo de cada action, ademas se agrega
-        # en cada accion un chequeo en runtime que indica si el branch
-        # que analizamos es el LCA entre el tipo que se deduce de la expresion
-        # calculada y el tipo actual que se chequea en la rama
+        branch_type_index = self.define_internal_local()
+        expr_type_index = self.define_internal_local()
         branch_type = self.define_internal_local()
+        min_ = self.define_internal_local()
+        tdt_result = self.define_internal_local()
+        min_check_local = self.define_internal_local()
+
+        self.register_instruction(cil.AssignNode(min_, len(self.context.types)))
+        self.register_instruction(cil.GetTypeIndex(type_internal_local_holder, expr_type_index))
+
         for i, action_node in enumerate(node.actions):
-            next_i_label = self.do_label(f'NEXT{i}')
-            self.register_instruction(cil.LabelNode(next_i_label))
-            self.register_instruction(cil.LCANode(action_node.itype.name, type_internal_local_holder, branch_type))
-            # Comparar el LCA con
+            self.register_instruction(cil.AssignNode(branch_type, action_node.itype.name))
+            # Obtener el indice del tipo en el contexto
+            self.register_instruction(cil.GetTypeIndex(branch_type, branch_type_index))
+            # Calcular la distancia hacia el tipo, y actualizar el minimo de ser necesario
+            self.register_instruction(cil.TdtLookupNode(branch_type_index, expr_type_index, tdt_result))
+
+            self.register_instruction(cil.MinusNode(min_, tdt_result, min_check_local))
+            not_min_label = self.do_label('Not_min{i}')
+            self.register_instruction(cil.JumpIfGreaterThanZeroNode(min_check_local, not_min_label))
+            self.register_instruction(cil.AssignNode(min_, tdt_result))
+            self.register_instruction(cil.LabelNode(not_min_label))
+
+        # Ya tenemos la menor distancia entre el tipo calculado en la expr0, y todos los tipos definidos
+        # en los branches del case.
+        # Comprobar que tengamos una coincidencia
+        self.register_instruction(cil.AssignNode(tdt_result, len(self.context.types)))
+        self.register_instruction(cil.MinusNode(tdt_result, min_, type_internal_local_holder))
+        error_label = self.do_label("ERROR")
+        self.register_instruction(cil.IfZeroJump(type_internal_local_holder, error_label))
+
+        end_label = self.do_label('END')
+
+        # Procesar cada accion y ejecutar el tipo cuya distancia sea igual a min_
+        for i, action_node in enumerate(node.actions):
+            next_label = self.do_label(f'NEXT{i}')
+            self.register_instruction(cil.AssignNode(branch_type, action_node.itype.name))
+            self.register_instruction(cil.GetTypeIndex(branch_type, branch_type_index))
+            self.register_instruction(cil.TdtLookupNode(branch_type_index, expr_type_index, tdt_result))
+            self.register_instruction(cil.MinusNode(min_, tdt_result, min_check_local))
+            self.register_instruction(cil.NotZeroJump(min_check_local, next_label))
+            # Implemententacion del branch.
+            # Registrar la variable <idk>
+            var_info = scope.find_variable(action_node.idx)
+            idk = self.register_local(var_info)
+            # Asignar al identificador idk el valor de expr0
+            self.register_instruction(cil.AssignNode(idk, expr_vm_holder))
+            # Generar el codigo de la expresion asociada a esta rama
+            self.visit(action_node.actions)
+            # Generar un salto de modo que no se chequee otra rama
+            self.register_instruction(cil.UnconditionalJump(end_label))
+            self.register_instruction(cil.LabelNode(next_label))
+
+        self.register_instruction(cil.LabelNode(error_label))
+        # TODO: Define some form of runtime errors
+
+        self.register_instruction(cil.LabelNode(end_label))
