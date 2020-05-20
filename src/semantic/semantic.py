@@ -155,7 +155,7 @@ def func_call_visitor(func_call: FuncCallNode, current_class: CoolType, local_sc
 def if_visitor(if_struct: IfNode, current_class: CoolType, local_scope: dict):
     predicate_type = expression_visitor(
         if_struct.if_expr, current_class, local_scope)
-    if predicate_type != BoolType:
+    if predicate_type != BoolType and predicate_type is not None:
         add_semantic_error(if_struct.if_expr.lineno, if_struct.if_expr.colno,
                            f'\'if\' condition must be a {BoolType}')
     then_type = expression_visitor(
