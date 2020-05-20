@@ -37,7 +37,7 @@ class CoolType:
         result=[]
         while t:
             temp=[]
-            for attr in t.attributes:
+            for attr in t.attributes.values():
                 temp.append(attr)
             result.append(temp)
             t=t.parent
