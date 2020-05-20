@@ -27,7 +27,12 @@ class ASTNode:
 
         for attr in self.__dict__:
             name = getattr(self, attr)
-            rep = name.print_node(new_width, char)
+
+            try:
+                rep = name.print_node(new_width, char)
+            except AttributeError:
+                rep = str(name)
+
             lst.append(f"{new_padding}{attr} = {rep}")
 
         lst.append(f"{cur_padding})")
@@ -52,11 +57,11 @@ class Class(ASTNode):
 class Feature(ASTNode): pass
 
 class Method(Feature):
-    def __init__(self, id, formal_list, type, expr_list = Deque()):
+    def __init__(self, id, formal_list, type, expr):
         self.id = id
         self.formal_list = formal_list
         self.type = type
-        self.expr_list = expr_list
+        self.expr = expr
 
 class Attribute(Feature):
     def __init__(self, formal, opt_expr_init):
@@ -135,13 +140,14 @@ class Less(BinaryOp): pass
 class LessEq(BinaryOp): pass
 class Eq(BinaryOp): pass
 
-class Terminal(ASTNode):
+class Terminal(Expr, ASTNode):
     def __init__(self, value):
         self.value = value
 
-class Int(Expr, Terminal): pass
-class String(Expr, Terminal): pass
-class Bool(Expr, Terminal): pass
+class Id(Terminal): pass
+class Int(Terminal): pass
+class String(Terminal): pass
+class Bool(Terminal): pass
 
 if __name__ == '__main__':
     plus = Plus(Int(123), Int(65))

@@ -5,6 +5,7 @@ from cmp.parser import Parser
 
 args = ArgumentParser(description="Cool compiler programmed in Python.")
 args.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="Verbose mode.")
+args.add_argument("--ast", dest="ast", action="store_true", help="Print AST.")
 args.add_argument("file_path", help="Path to cool file to compile.")
 args = args.parse_args()
 
@@ -33,11 +34,14 @@ def syntactic_analysis(content):
     p = Parser()
     p.build()
 
-    p.parser.parse(content)
+    res = p.parser.parse(content)
 
     if len(p.errors) > 0:
         print("".join(p.errors))
         exit(1)
+
+    if args.ast:
+        print(res)
 
 def main():
     content = ""
@@ -48,5 +52,4 @@ def main():
     lexical_analysis(content)
     syntactic_analysis(content)
 
-if __name__ == "__main__":
-    main()
+main()
