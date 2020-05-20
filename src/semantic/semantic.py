@@ -120,29 +120,30 @@ def func_call_visitor(func_call: FuncCallNode, current_class: CoolType, local_sc
         arg_type = expression_visitor(arg, current_class, local_scope)
         args_types.append(arg_type)
     if func_call.object:
+        object_type = expression_visitor(
+            func_call.object, current_class, local_scope)
+        if object_type is None:
+            return None
         if func_call.type:
             specific_type = type_by_name(func_call.type)
             if specific_type is None:
                 add_semantic_error(
                     func_call.lineno, func_call.colno, f'unknown type \'{func_call.type}\'')
-            elif check_inherits(current_class, specific_type):
+            elif check_inherits(object_type, specific_type):
                 method, msg = specific_type.get_method_without_hierarchy(
                     func_call.id, args_types)
+                if method is not None and method.returnedType == SelfType:
+                    method.returnedType = specific_type
             else:
                 add_semantic_error(func_call.lineno, func_call.colno,
-                                   f'type {current_class} not inherits from {specific_type}')
+                                   f'type {object_type} not inherits from {specific_type}')
         else:
-            object_type = expression_visitor(
-                func_call.object, current_class, local_scope)
-            if object_type is None:
-                return None
-            else:
-                method, msg = object_type.get_method(func_call.id, args_types)
-                if method is not None and method.returnedType == SelfType:
-                    method.returnedType = object_type
+            method, msg = object_type.get_method(func_call.id, args_types)
+            if method is not None and method.returnedType == SelfType:
+                method.returnedType = object_type
     else:
         method, msg = current_class.get_method(func_call.id, args_types)
-    if method is None:
+    if method is None and msg is not None:
         add_semantic_error(func_call.lineno, func_call.colno, msg)
     elif method.returnedType == SelfType:
         func_call.returned_type = current_class
