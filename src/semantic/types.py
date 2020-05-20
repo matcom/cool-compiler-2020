@@ -31,35 +31,32 @@ class CoolType:
             return True, None
         else:
             return False, msg
-        
+
     def get_all_attributes(self):
-        t=self
-        result=[]
+        t = self
+        result = []
         while t:
-            temp=[]
+            temp = []
             for attr in t.attributes:
                 temp.append(attr)
             result.append(temp)
-            t=t.parent
+            t = t.parent
         return [elem for sublist in result[::-1] for elem in sublist]
-    
-    
+
     def get_all_self_methods(self):
         return self.methods
-    
+
     def get_all_inherited_methods(self):
-        t=self.parent
-        result=[]
+        t = self.parent
+        result = []
         while t:
-            temp=[]
+            temp = []
             for met in t.methods:
-                met.owner=t.name
+                met.owner = t.name
                 temp.append(met)
             result.append(temp)
-            t=t.parent
+            t = t.parent
         return [elem for sublist in result[::-1] for elem in sublist]
-                
-        
 
     def get_method(self, id, args_types):
         try:
@@ -77,7 +74,7 @@ class CoolType:
                 return None, f'method \'{self.name}.{id}\' formal parameter count ({len(method.args)}) ' \
                              f'does not match actual parameter count ({len(args_types)})'
             for i, a in enumerate(args_types):
-                if not check_inherits(a,method.args[i]):
+                if not check_inherits(a, method.args[i]):
                     return None, f'method \'{self.name}.{id}\' parameter #{i} type mismatch. Actual: \'{a}\' should ' \
                                  f'be a subtype of \'{method.args[i]}\' '
             return method, None
@@ -154,7 +151,8 @@ def check_type_declaration(node: ProgramNode):
     for c in node.classes:
         try:
             _ = TypesByName[c.type]
-            add_semantic_error(c.lineno, c.colno, f'duplicated declaration of type \'{c.type}\'')
+            add_semantic_error(c.lineno, c.colno,
+                               f'duplicated declaration of type \'{c.type}\'')
             return False
         except KeyError:
             TypesByName[c.type] = CoolType(c.type, None)
@@ -170,10 +168,12 @@ def check_type_hierarchy(node: ProgramNode):
                 if parentType.inherit:
                     cType.parent = parentType
                 else:
-                    add_semantic_error(c.lineno, c.colno, f'can\'t be inherit from class {parentType.name}')
+                    add_semantic_error(
+                        c.lineno, c.colno, f'can\'t be inherit from class {parentType.name}')
                     return False
             except KeyError:
-                add_semantic_error(c.lineno, c.colno, f'unknown parent type {c.parent_type}')
+                add_semantic_error(c.lineno, c.colno,
+                                   f'unknown parent type {c.parent_type}')
                 return False
         else:
             cType.parent = ObjectType
