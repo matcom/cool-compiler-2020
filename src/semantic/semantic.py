@@ -53,7 +53,7 @@ def class_visitor(_class: DefClassNode, current_class: CoolType, local_scope: di
 
 def def_attr_class_visitor(attr: DefAttrNode, current_class: CoolType, local_scope: dict):
     if attr.expr:
-        expr_type = expression_visitor(attr.expr, current_class, {})
+        expr_type = expression_visitor(attr.expr, current_class, local_scope)
         attr_type = type_by_name(attr.type)
         if attr_type is not None and not check_inherits(expr_type, attr_type):
             add_semantic_error(
