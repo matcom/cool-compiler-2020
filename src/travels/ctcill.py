@@ -39,6 +39,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         return cil.CilProgramNode(self.dot_types, self.dot_data, self.dot_code)
 
+    #  *************** IMPLEMENTACION DE LAS DEFINICIONES DE CLASES *****************
+
     @visitor.when(coolAst.ClassDef)  # type: ignore
     def visit(self, node: coolAst.ClassDef, scope: Scope) -> None:  # noqa: F811
         # node.idx -> String with the Class Name
@@ -84,6 +86,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         self.current_type = None
 
+    # ******************  IMPLEMENTACION DE LAS DEFINICIONES DE METODOS ******************
+
     @visitor.when(coolAst.MethodDef)  # type: ignore
     def visit(self, node: coolAst.MethodDef, scope: Scope) -> None:  # noqa: F811
         self.current_method = self.current_type.get_method(node.idx)
@@ -108,6 +112,10 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         self.current_method = None
         self.current_function = None
+
+    # **************   IMPLEMENTACION DE LAS EXPRESIONES CONDICIONAES (IF, WHILE, CASE) Y LAS DECLARACIONES
+    #                  DE VARIABLES (let)
+    # **************
 
     @visitor.when(coolAst.IfThenElseNode)  # type: ignore
     def visit(self, node: coolAst.IfThenElseNode, scope: Scope) -> None:  # noqa: F811
@@ -269,6 +277,10 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         self.register_instruction(cil.LabelNode(end_label))
 
+    # ***************   IMPLEMENTACION DE LAS EXPRESIONES ARITMETICAS
+    #
+    # ***************
+
     @visitor.when(coolAst.PlusNode)  # type: ignore
     def visit(self, node: coolAst.PlusNode, scope: Scope):  # noqa: F811
         # Definir una variable interna local para almacenar el resultado
@@ -336,3 +348,45 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Devolver el resultado
         return div_internal_vm_holder
+
+    # *********************  IMPLEMENTACION DE LAS CONSTANTES
+    #
+    # *********************
+
+    @visitor.when(coolAst.IntegerConstant)  # type: ignore
+    def visit(self, node: coolAst.IntegerConstant, scope: Scope):  # noqa: F811
+        # Variable interna que guarda el valor de la constante
+        int_const_vm_holder = self.define_internal_local()
+
+        # Asignarle el valor a la variable
+        self.register_instruction(cil.AssignNode(int_const_vm_holder, int(node.lex)))
+
+        # devolver el valor
+        return int_const_vm_holder
+
+    @visitor.when(coolAst.StringConstant)  # type: ignore
+    def visit(self, node: coolAst.StringConstant, scope: Scope):  # noqa: F811
+        # Variable interna que apunta al string
+        str_const_vm_holder = self.define_internal_local()
+
+        # Registrar el string en la seccion de datos
+        s1 = self.register_data(node.lex)
+
+        # Cargar el string en la variable interna
+        self.register_instruction(cil.LoadNode(str_const_vm_holder, s1))
+
+        # Devolver la variable que contiene el string
+        return str_const_vm_holder
+
+    @visitor.when(coolAst.TrueConstant)  # type: ignore
+    def visit(self, node: coolAst.TrueConstant, scope: Scope):  # noqa: F811
+        # variable interna que devuelve el valor de la constante
+        true_const_vm_holder = self.define_internal_local()
+        self.register_instruction(cil.AssignNode(true_const_vm_holder), 1)
+        return true_const_vm_holder
+
+    @visitor.when(coolAst.FalseConstant)  # type: ignore
+    def visit(self, node: coolAst.FalseConstant, scope: Scope):  # noqa: F811
+        false_const_vm_holder = self.define_internal_local()
+        self.register_instruction(cil.AssignNode(false_const_vm_holder), 0)
+        return false_const_vm_holder

@@ -176,7 +176,7 @@ class ReturnNode(InstructionNode):
 
 
 class LoadNode(InstructionNode):
-    def __init__(self, dest, message):
+    def __init__(self, dest: str, message: DataNode):
         self.dest = dest
         self.message = message
 
