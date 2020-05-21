@@ -163,10 +163,10 @@ def func_to_cil_visitor(type_name, func):
 
 
 def expression_to_cil_visitor(expression):
-    #try:
+    try:
     return __visitor__[type(expression)](expression)
-    #except:
-        #raise Exception(f'There is no visitor for {type(expression)}')
+    except:
+        raise Exception(f'There is no visitor for {type(expression)}')
 
 
 def case_to_cil_visitor(case):
