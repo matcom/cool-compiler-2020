@@ -134,6 +134,9 @@ def arg_cg_visitor(arg: ArgNode):
 def cond_goto_cg_visitor(cgoto: ConditionalGotoNode):
     return f'IF {cgoto.predicate} GOTO {cgoto.label} ;'
 
+def not_cg_visitor(n:NotNode):
+    return f'{n.result} = ~ {n.value}'
+
 
 def goto_cg_visitor(goto: GotoNode):
     return f'GOTO {goto.label} ;'
@@ -201,5 +204,6 @@ __visitors__ = {
     SubStringNode: substring_cg_visitor,
     StrNode: str_cg_visitor,
     ReadNode: read_cg_visitor,
-    PrintNode: print_cg_visitor
+    PrintNode: print_cg_visitor,
+    NotNode: not_cg_visitor
 }

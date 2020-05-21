@@ -22,6 +22,11 @@ def add_local():
     locals_count += 1
     return f'local_{locals_count}'
 
+def add_label():
+    global labels_count
+    labels_count+=1
+    return f'label_{labels_count}'
+
 
 def ast_to_cil(ast):
     if type(ast) == lp_ast.ProgramNode:
@@ -62,7 +67,7 @@ def program_to_cil_visitor(program):
         _type = cil.TypeNode(t)
         value = TypesByName[t]
         for attr in value.get_all_attributes():
-            _type.attributes.append(attr)
+            _type.attributes.append(attr.id)
 
         for met in value.get_all_inherited_methods():
             _type.methods[met.id] = met.owner
@@ -137,11 +142,12 @@ def substring_to_cil():
     return cil.FuncNode('substr_String', [cil.ParamNode('self'), cil.ParamNode('i'),cil.ParamNode('l')], [cil.LocalNode('result')], [cil.SubStringNode('self', 'i', 'l','result'), cil.ReturnNode('result')])
 
 def func_to_cil_visitor(type_name, func):
-    global locals_count, __DATA_LOCALS__, __TYPEOF__
+    global locals_count, __DATA_LOCALS__, __TYPEOF__, labels_count
     name = f'{type_name}_{func.id}'
     params = [cil.ParamNode('self')]
     params += [cil.ParamNode(id) for (id, t) in func.params]
     locals_count = 0
+    labels_count = 0
     __DATA_LOCALS__ = {}
     __TYPEOF__ = {}
     body = []
@@ -175,7 +181,7 @@ def case_to_cil_visitor(case):
         types.append(c.type)
 
     for _ in range(len(case.case_list)):
-        labels.append(add_local())
+        labels.append(add_label())
 
     value = None
 
@@ -229,8 +235,8 @@ def if_to_cil_visitor(_if):
     else_expression = expression_to_cil_visitor(
         _if.else_expr)
 
-    label_1 = add_local()
-    label_2 = add_local()
+    label_1 = add_label()
+    label_2 = add_label()
     value = add_local()
 
     body = [cil.ConditionalGotoNode(predicate.value, label_1)] + else_expression.body + [
@@ -247,8 +253,8 @@ def loop_to_cil_visitor(loop):
 
     value = add_local()
 
-    loop_label = add_local()
-    end_label = add_local()
+    loop_label = add_label()
+    end_label = add_label()
 
     body = [cil.ConditionalGotoNode(predicate.value, loop_label), cil.GotoNode(end_label),
             cil.LabelNode(loop_label)] + loop_block.body + [cil.LabelNode(end_label), cil.AssignNode(value, 0)]
@@ -260,8 +266,8 @@ def equal_to_cil_visitor(equal):
     l = expression_to_cil_visitor(equal.lvalue)
     r = expression_to_cil_visitor(equal.rvalue)
 
-    cil_result = add_local()
-    end_label = add_local()
+    cil_result = add_label()
+    end_label = add_label()
     value = add_local()
 
     body = l.body + r.body + [cil.MinusNode(l.value, r.value, cil_result), cil.AssignNode(value, 0),
@@ -276,8 +282,8 @@ def lessthan_to_cil_visitor(lessthan):
     l = expression_to_cil_visitor(lessthan.lvalue)
     r = expression_to_cil_visitor(lessthan.rvalue)
 
-    cil_result = add_local()
-    end_label = add_local()
+    cil_result = add_label()
+    end_label = add_label()
     value = add_local()
 
     body = l.body + r.body + [cil.DivNode(l.value, r.value, cil_result), cil.AssignNode(value, 0),
@@ -294,8 +300,8 @@ def lesseqthan_to_cil_visitor(lessthan):
 
     cil_less = add_local()
     cil_equal = add_local()
-    eq_label = add_local()
-    end_label = add_local()
+    eq_label = add_label()
+    end_label = add_label()
     value = add_local()
 
     body = l.body + r.body + [cil.DivNode(l.value, r.value, cil_less), cil.AssignNode(value, 0),
@@ -384,7 +390,7 @@ def logic_not_to_cil_visitor(not_node):
         not_node.val)
 
     value = add_local()
-    end_label = add_local()
+    end_label = add_label()
 
     body = expr_cil.body + [cil.AssignNode(value, 0), cil.ConditionalGotoNode(expr_cil.value, end_label),
                             cil.AssignNode(value, 1), cil.LabelNode(end_label)]
@@ -469,7 +475,10 @@ __visitor__ = {
     lp_ast.VarNode: id_to_cil_visitor,
     lp_ast.FuncCallNode: func_call_to_cil_visitor,
     lp_ast.IsVoidNode: is_void_to_cil_visitor,
-    lp_ast.NegationNode: not_to_cil_visitor
+    lp_ast.NegationNode: not_to_cil_visitor, 
+    lp_ast.LessThanNode:lessthan_to_cil_visitor,
+    lp_ast.LessEqNode:lesseqthan_to_cil_visitor, 
+    lp_ast.CaseNode:case_to_cil_visitor, 
 }
 
 
