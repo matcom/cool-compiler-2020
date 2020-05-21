@@ -73,10 +73,16 @@ class EqualNode(ArithmeticNode):
     pass
 
 class GetAttribNode(InstructionNode):
-    pass
+    def __init__(self, dest, xtype, attr):
+        self.dest = dest
+        self.xtype = xtype
+        self.attr = attr
 
 class SetAttribNode(InstructionNode):
-    pass
+    def __init__(self, xtype, attr, value):
+        self.xtype = xtype
+        self.attr = attr
+        self.value = value
 
 class GetIndexNode(InstructionNode):
     pass
@@ -134,17 +140,33 @@ class LoadNode(InstructionNode):
         self.dest = dest
         self.msg = msg
 
+class TypeNameNode(InstructionNode):
+    def __init__(self, dest, source):
+        self.dest = dest
+        self.source = source
+
+class CopyNode(InstructionNode):
+    def __init__(self, dest, source):
+        self.dest = dest
+        self.source = source
+
 class LengthNode(InstructionNode):
-    pass
+    def __init__(self, dest, source):
+        self.dest = dest
+        self.source = source
 
 class ConcatNode(InstructionNode):
-    pass
-
-class PrefixNode(InstructionNode):
-    pass
+    def __init__(self, dest, prefix, suffix):
+        self.dest = dest
+        self.prefix = prefix
+        self.suffix = suffix
 
 class SubstringNode(InstructionNode):
-    pass
+    def __init__(self, dest, str_value, index, length):
+        self.dest = dest
+        self.str_value = str_value
+        self.index = index
+        self.length = length
 
 class ToStrNode(InstructionNode):
     def __init__(self, dest, ivalue):
