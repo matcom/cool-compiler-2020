@@ -1,7 +1,7 @@
 import ply.lex as lex
 from ply.lex import TOKEN
 import ply.yacc as yacc
-from .ast import Id
+from .ast import Id, Type
 
 class Cool_Lexer(object):
 
@@ -85,6 +85,7 @@ class Cool_Lexer(object):
     @TOKEN(r'[A-Z][A-Za-z_0-9]*')
     def t_TYPE(self, t):
         t.type = self.keywords.get(t.value.lower(), 'TYPE')
+        t.value = Type(t.value)
         return t
 
     @TOKEN(r'\d+')

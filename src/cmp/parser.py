@@ -203,7 +203,7 @@ class Parser:
     def p_expr_block(self, p):
         "expr : LBRACE expr_list_semicolon RBRACE"
 
-        p[0] = p[2]
+        p[0] = Block(p[2])
 
     #### SHIFT/REDUCE conflict with the let is intended
     def p_expr_let(self, p):

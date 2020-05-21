@@ -1,46 +1,48 @@
-from collections import deque, namedtuple
+from collections import deque
 from collections.abc import Sequence
 
-# Definition of a Formal
-Formal = namedtuple('Formal', ['id', 'type'])
-
 class ASTNode:
-    def print_node(self, cur_width = 0, char = '.'):
-        cur_padding = cur_width * char
-
-        new_width = cur_width + 5
-        new_padding = new_width * char
-
-        if issubclass(self.__class__, Sequence):
-            lst = [ ]
-
-            for x in self:
-                lst.append(x.print_node(new_width, char))
-
-            joined = ',\n'.join(lst)
-            return f"\n{joined}"
+    def dfs(self, obj, pattr = "", depth = 0, width = 5):
+        pad = depth * width * '.'
+        info = f"{pattr}=" if pattr else ""
 
         if issubclass(self.__class__, Terminal):
-            return f"{self.value}"
+            obj.__rep_node.append(f"{pad}{info}{repr(self.value)}")
+            return
 
-        lst = [ f"{cur_padding}{self.__class__.__name__}(" ]
+        if issubclass(self.__class__, Sequence):
+            obj.__rep_node.append(f"{pad}{info}")
 
-        for attr in self.__dict__:
-            name = getattr(self, attr)
+            if len(self) == 0:
+                obj.__rep_node[-1] += "()"
 
-            try:
-                rep = name.print_node(new_width, char)
-            except AttributeError:
-                rep = str(name)
+            else:
+                for x in self:
+                    x.dfs(obj, "", depth + 1)
 
-            lst.append(f"{new_padding}{attr} = {rep}")
+            return
 
-        lst.append(f"{cur_padding})")
+        obj.__rep_node.append(f"{pad}{info}{self.__class__.__name__}(")
 
-        return "\n".join(lst)
+        attr_list = [ attr for attr in self.__dict__ if (not attr.startswith("_")
+                                                                and getattr(self, attr) != None) ]
+        
+        for attr in attr_list:
+            node = getattr(self, attr)
+            node.dfs(obj, attr, depth + 1)
+
+        obj.__rep_node.append(f"{pad})")
 
     def __repr__(self):
-        return self.print_node()
+        self.__rep_node = []
+        self.dfs(self)
+        return "\n".join(self.__rep_node)
+
+# Definition of a Formal
+class Formal(ASTNode):
+    def __init__(self, id, type):
+        self.id = id
+        self.type = type
 
 class Deque(deque, ASTNode): pass
 
@@ -144,6 +146,7 @@ class Terminal(Expr, ASTNode):
     def __init__(self, value):
         self.value = value
 
+class Type(Terminal): pass
 class Id(Terminal): pass
 class Int(Terminal): pass
 class String(Terminal): pass
@@ -153,6 +156,7 @@ if __name__ == '__main__':
     plus = Plus(Int(123), Int(65))
     isvoid = IsVoid(Int(5))
     b = Block(Deque([Plus(Int(1), Int(1)), IsVoid(String("asd"))]))
+    b = Minus(Int(3), Int(4))
 
     block = Block(Deque([plus, b, isvoid]))
 
