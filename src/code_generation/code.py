@@ -67,12 +67,18 @@ def instruction_cg_visitor(instruction: InstructionNode):
     try:
         return __visitors__[type(instruction)](instruction)
     except KeyError:
-        print(type(instruction))
         print(f'Not visitor for {instruction}')
 
 
 def assign_cg_visitor(assign: AssignNode):
     return f'{assign.id} = {assign.val} ;'
+
+def less_eq_cg_visitor(lesseq:LessEqNode):
+    return f'{lesseq.result} = {lesseq.left} <= {lesseq.right} ;'
+
+
+def less_cg_visitor(less:LessNode):
+    return f'{less.result} = {less.left} < {less.right} ;'
 
 
 def plus_cg_visitor(plus: PlusNode):
@@ -216,5 +222,7 @@ __visitors__ = {
     NotNode: not_cg_visitor, 
     AbortNode:abort_cg_visitor, 
     ReadIntNode: read_int_cg_visitor, 
-    CopyNode:copy_cg_visitor
+    CopyNode:copy_cg_visitor, 
+    LessEqNode:less_eq_cg_visitor,
+    LessNode:less_cg_visitor
 }

@@ -239,7 +239,7 @@ def if_to_cil_visitor(_if):
     label_2 = add_label()
     value = add_local()
 
-    body = [cil.ConditionalGotoNode(predicate.value, label_1)] + else_expression.body + [
+    body = predicate.body+ [cil.ConditionalGotoNode(predicate.value, label_1)] + else_expression.body + [
         cil.AssignNode(value, else_expression.value), cil.GotoNode(label_2), cil.LabelNode(label_1)] + then.body + [
         cil.AssignNode(value, then.value), cil.LabelNode(label_2)]
 
@@ -282,36 +282,17 @@ def lessthan_to_cil_visitor(lessthan):
     l = expression_to_cil_visitor(lessthan.lvalue)
     r = expression_to_cil_visitor(lessthan.rvalue)
 
-    cil_result = add_label()
-    end_label = add_label()
     value = add_local()
-
-    body = l.body + r.body + [cil.DivNode(l.value, r.value, cil_result), cil.AssignNode(value, 0),
-                              cil.ConditionalGotoNode(
-                                  cil_result, end_label), cil.AssignNode(value, 1),
-                              cil.LabelNode(end_label)]
-
+    body = l.body + r.body + [cil.LessNode(l.value, r.value, value)]
     return CIL_block(body, value)
 
 
 def lesseqthan_to_cil_visitor(lessthan):
     l = expression_to_cil_visitor(lessthan.lvalue)
     r = expression_to_cil_visitor(lessthan.rvalue)
-
-    cil_less = add_local()
-    cil_equal = add_local()
-    eq_label = add_label()
-    end_label = add_label()
+    
     value = add_local()
-
-    body = l.body + r.body + [cil.DivNode(l.value, r.value, cil_less), cil.AssignNode(value, 0),
-                              cil.ConditionalGotoNode(
-                                  cil_less, eq_label), cil.AssignNode(value, 1),
-                              cil.GotoNode(end_label), cil.LabelNode(eq_label),
-                              cil.MinusNode(l.value, r.value, cil_equal), cil.ConditionalGotoNode(
-                                  cil_equal, end_label),
-                              cil.AssignNode(value, 1), cil.LabelNode(end_label)]
-
+    body = l.body + r.body + [cil.LessEqNode(l.value, r.value, value)]
     return CIL_block(body, value)
 
 

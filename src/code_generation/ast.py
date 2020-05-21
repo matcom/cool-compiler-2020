@@ -72,6 +72,12 @@ class StarNode(ArithNode):
 class DivNode(ArithNode):
     pass
 
+class LessEqNode(ArithNode):
+    pass
+
+class LessNode(ArithNode):
+    pass
+
 class NotNode(InstructionNode):
     def __init__(self, value, result):
         self.value = value
