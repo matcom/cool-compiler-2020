@@ -165,10 +165,10 @@ class Parser:
         """
 
         if len(p) == 6:
-            p[5].appendleft((p[1], p[3]))
+            p[5].appendleft(CaseBranch(p[1], p[3]))
             p[0] = p[5]
 
-        else: p[0] = NodeContainer([(p[1], p[3])])
+        else: p[0] = NodeContainer([CaseBranch(p[1], p[3])])
 
     def p_expr_assignment(self, p):
         "expr : ID ASSIGN expr"

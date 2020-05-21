@@ -2,34 +2,34 @@ from collections import deque
 from collections.abc import Sequence
 
 class ASTNode:
-    def dfs(self, obj, pattr = "", depth = 0, width = 5):
-        pad = depth * width * '.'
-        info = f"{pattr}=" if pattr else ""
-
-        if issubclass(self.__class__, Terminal):
-            obj.__rep_node.append(f"{pad}{info}{repr(self.value)}")
-            return
-
-        if issubclass(self.__class__, NodeContainer):
-            obj.__rep_node.append(f"{pad}{info}")
-
-            if len(self) == 0:
-                obj.__rep_node[-1] += "()"
-
-            else:
-                for x in self:
-                    x.dfs(obj, "", depth + 1)
-
-            return
-
-        obj.__rep_node.append(f"{pad}{info}{self.__class__.__name__}(")
+    def children(self):
+        if isinstance(self, NodeContainer):
+            return ([""] * len(self), list(self))
 
         attr_list = [ attr for attr in self.__dict__ if (not attr.startswith("_")
                                                                 and getattr(self, attr) != None) ]
 
-        for attr in attr_list:
-            node = getattr(self, attr)
-            node.dfs(obj, attr, depth + 1)
+        name_list = [ getattr(self, attr) for attr in attr_list]
+
+        return (attr_list, name_list)
+
+    def class_name(self):
+        return self.__class__.__name__
+
+    def dfs(self, obj, pattr = "", depth = 0, width = 5):
+        pad = depth * width * '.'
+        info = f"{pattr}=" if pattr else ""
+
+        if isinstance(self, Terminal):
+            obj.__rep_node.append(f"{pad}{info}{repr(self.value)}")
+            return
+
+        obj.__rep_node.append(f"{pad}{info}{self.__class__.__name__}(")
+        
+        attrs, names = self.children()
+
+        for attr, name in zip(attrs, names):
+            name.dfs(obj, attr, depth + 1)
 
         obj.__rep_node.append(f"{pad})")
 
@@ -38,7 +38,6 @@ class ASTNode:
         self.dfs(self)
         return "\n".join(self.__rep_node)
 
-# Definition of a Formal
 class Formal(ASTNode):
     def __init__(self, id, type):
         self.id = id
@@ -109,8 +108,13 @@ class Let(Expr):
         self.attribute_list = attribute_list
         self.body = body
 
+class CaseBranch(Expr):
+    def __init__(self, formal, expr):
+        self.formal = formal
+        self.expr = expr
+
 class Case(Expr):
-    # Case list is a Deque of (Formal, Expr)
+    # Case list is a NodeContainer of CaseBranch
 
     def __init__(self, expr, case_list = NodeContainer()):
         self.expr = expr
