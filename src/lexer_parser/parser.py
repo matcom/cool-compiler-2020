@@ -10,9 +10,9 @@ precedence = (
     ('left', 'AT'),
     ('left', 'NOT'),
     ('left', 'ISVOID'),
+    ('left', 'LOWEREQ', 'LOWER', 'EQUAL'),
     ('left', 'STAR', 'DIV'),
     ('left', 'PLUS', 'MINUS'),
-    ('left', 'LOWEREQ', 'LOWER', 'EQUAL'),
     ('left', 'LNOT'),
 )
 
