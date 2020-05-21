@@ -88,8 +88,8 @@ def t_ID(token):
 
 # Utility definitions
 @TOKEN(r'\n+')
-def t_ANY_newline(t):
-    global readjust_col
+def t_newline(t):
+    global readjust_col    
     readjust_col = t.lexpos + len(t.value)
     t.lexer.lineno += len(t.value)
 
@@ -114,21 +114,24 @@ def t_start_string(token):
     token.lexer.string_backslashed = False
     token.lexer.stringbuf = ""
 
-@TOKEN(r"\n")
+@TOKEN(r'\n')
 def t_STRING_newline(token):
+    global readjust_col
     token.lexer.lineno += 1
     if not token.lexer.string_backslashed:
-        errors.append(lexicographicError(row_and_col= (token.lineno, token.lexpos - readjust_col + 1), message= "Unterminated string constant"))
+        errors.append(lexicographicError(row_and_col= (token.lineno, token.lexpos - readjust_col + 1),
+                                        message= "Unterminated string constant"))
         token.lexer.pop_state()
     else:
         token.lexer.string_backslashed = False
+    readjust_col = token.lexpos + len(token.value)
 
-@TOKEN("\0")
+@TOKEN('\0')
 def t_STRING_null(token):
     errors.append(lexicographicError(row_and_col= (token.lineno, token.lexpos - readjust_col + 1), message='Null character in string'))
     token.lexer.skip(1)
 
-@TOKEN(r"\"")
+@TOKEN(r'\"')
 def t_STRING_end(token):
     if not token.lexer.string_backslashed:
         token.lexer.pop_state()
@@ -167,6 +170,10 @@ def t_STRING_error(token):
                 row_and_col= (token.lineno, token.lexpos - readjust_col + 1),
                 message= 'ERROR at or near '))
 
+def t_STRING_eof(token):
+    errors.append(lexicographicError(row_and_col= (token.lineno, token.lexpos - readjust_col + 1), message='EOF in string constant'))
+    token.lexer.pop_state()
+
 t_STRING_ignore = ''
 
 # The comment state
@@ -179,6 +186,12 @@ def t_start_comment(token):
 @TOKEN(r"\(\*")
 def t_COMMENT_startanother(token):
     token.lexer.comment_count += 1
+
+@TOKEN(r"\n+")
+def t_COMMENT_newline(token):
+    global readjust_col
+    readjust_col = token.lexpos + len(token.value)
+    token.lexer.lineno += len(token.value)
 
 @TOKEN(r"\*\)")
 def t_COMMENT_end(token):
