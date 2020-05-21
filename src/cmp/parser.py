@@ -13,7 +13,7 @@ class Parser:
     def p_program_2(self, p):
         "program : class SEMICOLON"
 
-        p[0] = Program(Deque([p[1]]))
+        p[0] = Program(NodeContainer([p[1]]))
 
     def p_class(self, p):
         "class : CLASS TYPE inherits LBRACE feature_list RBRACE"
@@ -38,7 +38,7 @@ class Parser:
             p[3].appendleft(p[1])
             p[0] = p[3]
 
-        else: p[0] = Deque()
+        else: p[0] = NodeContainer()
 
     def p_feature(self, p):
         """
@@ -59,7 +59,7 @@ class Parser:
     def p_formal_params_2(self, p):
         "formal_params : epsilon"
 
-        p[0] = Deque()
+        p[0] = NodeContainer()
 
     def p_formal(self, p):
         "formal : ID COLON TYPE"
@@ -82,7 +82,7 @@ class Parser:
             p[3].appendleft(p[2])
             p[0] = p[3]
 
-        else: p[0] = Deque()
+        else: p[0] = NodeContainer()
 
     def p_expr_list_semicolon(self, p):
         """
@@ -94,7 +94,7 @@ class Parser:
             p[3].appendleft(p[1])
             p[0] = p[3]
 
-        else: p[0] = Deque([p[1]])
+        else: p[0] = NodeContainer([p[1]])
 
     def p_expr_params_1(self, p):
         "expr_params : expr_list_comma"
@@ -104,7 +104,7 @@ class Parser:
     def p_expr_params_2(self, p):
         "expr_params : epsilon"
 
-        p[0] = Deque()
+        p[0] = NodeContainer()
 
     def p_expr_list_comma(self, p):
         "expr_list_comma : expr expr_list_comma_helper"
@@ -122,7 +122,7 @@ class Parser:
             p[3].appendleft(p[2])
             p[0] = p[3]
 
-        else: p[0] = Deque()
+        else: p[0] = NodeContainer()
 
     def p_attribute(self, p):
         "attribute : formal opt_expr_init"
@@ -145,7 +145,7 @@ class Parser:
             p[3].appendleft(p[2])
             p[0] = p[3]
 
-        else: p[0] = Deque()
+        else: p[0] = NodeContainer()
 
     def p_opt_expr_init(self, p):
         """
@@ -168,7 +168,7 @@ class Parser:
             p[5].appendleft((p[1], p[3]))
             p[0] = p[5]
 
-        else: p[0] = Deque([(p[1], p[3])])
+        else: p[0] = NodeContainer([(p[1], p[3])])
 
     def p_expr_assignment(self, p):
         "expr : ID ASSIGN expr"

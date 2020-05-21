@@ -10,7 +10,7 @@ class ASTNode:
             obj.__rep_node.append(f"{pad}{info}{repr(self.value)}")
             return
 
-        if issubclass(self.__class__, Sequence):
+        if issubclass(self.__class__, NodeContainer):
             obj.__rep_node.append(f"{pad}{info}")
 
             if len(self) == 0:
@@ -26,7 +26,7 @@ class ASTNode:
 
         attr_list = [ attr for attr in self.__dict__ if (not attr.startswith("_")
                                                                 and getattr(self, attr) != None) ]
-        
+
         for attr in attr_list:
             node = getattr(self, attr)
             node.dfs(obj, attr, depth + 1)
@@ -44,14 +44,14 @@ class Formal(ASTNode):
         self.id = id
         self.type = type
 
-class Deque(deque, ASTNode): pass
+class NodeContainer(deque, ASTNode): pass
 
 class Program(ASTNode):
-    def __init__(self, class_list = Deque()):
+    def __init__(self, class_list = NodeContainer()):
         self.class_list = class_list
 
 class Class(ASTNode):
-    def __init__(self, type, opt_inherits, feature_list = Deque()):
+    def __init__(self, type, opt_inherits, feature_list = NodeContainer()):
         self.type = type
         self.opt_inherits = opt_inherits  #can be None
         self.feature_list = feature_list
@@ -78,14 +78,14 @@ class Assignment(Expr):
         self.expr = expr
 
 class Dispatch(Expr):
-    def __init__(self, expr, opt_type, id, expr_list = Deque()):
+    def __init__(self, expr, opt_type, id, expr_list = NodeContainer()):
         self.expr = expr
         self.opt_type = opt_type  #can be None
         self.id = id
         self.expr_list = expr_list
 
 class SelfDispatch(Expr):
-    def __init__(self, id, expr_list = Deque()):
+    def __init__(self, id, expr_list = NodeContainer()):
         self.id = id
         self.expr_list = expr_list
 
@@ -101,7 +101,7 @@ class While(Expr):
         self.body = body
 
 class Block(Expr):
-    def __init__(self, expr_list = Deque()):
+    def __init__(self, expr_list = NodeContainer()):
         self.expr_list = expr_list
 
 class Let(Expr):
@@ -112,7 +112,7 @@ class Let(Expr):
 class Case(Expr):
     # Case list is a Deque of (Formal, Expr)
 
-    def __init__(self, expr, case_list = Deque()):
+    def __init__(self, expr, case_list = NodeContainer()):
         self.expr = expr
         self.case_list = case_list
 
@@ -155,10 +155,10 @@ class Bool(Terminal): pass
 if __name__ == '__main__':
     plus = Plus(Int(123), Int(65))
     isvoid = IsVoid(Int(5))
-    b = Block(Deque([Plus(Int(1), Int(1)), IsVoid(String("asd"))]))
+    b = Block(NodeContainer([Plus(Int(1), Int(1)), IsVoid(String("asd"))]))
     b = Minus(Int(3), Int(4))
 
-    block = Block(Deque([plus, b, isvoid]))
+    block = Block(NodeContainer([plus, b, isvoid]))
 
     print(block)
     print(b)
