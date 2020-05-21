@@ -177,6 +177,14 @@ def read_cg_visitor(read: ReadNode):
 def print_cg_visitor(print: PrintNode):
     return f'PRINT {print.str} ;'
 
+def abort_cg_visitor(abort:AbortNode):
+    return 'ABORT ;'
+
+def read_int_cg_visitor(ri:ReadIntNode):
+    return f'{ri.result} = READINT ;'
+
+def copy_cg_visitor(copy:CopyNode):
+    return f'{copy.result} = COPY {copy.val} ;'
 
 __visitors__ = {
     AssignNode: assign_cg_visitor,
@@ -205,5 +213,8 @@ __visitors__ = {
     StrNode: str_cg_visitor,
     ReadNode: read_cg_visitor,
     PrintNode: print_cg_visitor,
-    NotNode: not_cg_visitor
+    NotNode: not_cg_visitor, 
+    AbortNode:abort_cg_visitor, 
+    ReadIntNode: read_int_cg_visitor, 
+    CopyNode:copy_cg_visitor
 }

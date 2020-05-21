@@ -124,13 +124,13 @@ def in_string_to_cil():
     return cil.FuncNode('IO_in_string', [cil.ParamNode('self')], [cil.LocalNode('str')], [cil.ReadNode('str'), cil.ReturnNode('str')])
 
 def in_int_to_cil():
-    pass
+    return cil.FuncNode('IO_in_int', [cil.ParamNode('self')], [cil.LocalNode('int')], [cil.ReadIntNode('int'), cil.ReturnNode('int')])
 
 def type_name_to_cil():
-    pass
+    return cil.FuncNode('Object_type_name', [cil.ParamNode('self')], [cil.LocalNode('type')], [cil.TypeOfNode('type', 'self'), cil.ReturnNode('type')])
 
 def copy_to_cil():
-    pass
+    return cil.FuncNode('Object_copy', [cil.ParamNode('self')], [cil.LocalNode('copy')], [cil.CopyNode('self', 'copy'), cil.ReturnNode('copy')])
 
 def length_to_cil():
     return cil.FuncNode('length_String', [cil.ParamNode('self')], [cil.LocalNode('result')], [cil.LengthNode('self', 'result'), cil.ReturnNode('result')])

@@ -72,7 +72,7 @@ class StarNode(ArithNode):
 class DivNode(ArithNode):
     pass
 
-class NotNode(Node):
+class NotNode(InstructionNode):
     def __init__(self, value, result):
         self.value = value
         self.result = result
@@ -109,6 +109,18 @@ class AllocateNode(InstructionNode):
     def __init__(self, type, addr):
         self.type = type
         self.addr = addr
+        
+class AbortNode(InstructionNode):
+    pass
+
+class ReadIntNode(InstructionNode):
+    def __init__(self, result):
+        self.result=result
+        
+class CopyNode(InstructionNode):
+    def __init__(self, val, result):
+        self.result=result
+        self.val=val
 
 
 class TypeOfNode(InstructionNode):
