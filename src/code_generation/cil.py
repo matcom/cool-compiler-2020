@@ -16,6 +16,7 @@ def add_str_data(data: str):
 
 locals_count = 0
 
+
 class Local:
     def __init__(self, name):
         self.name = name
@@ -32,9 +33,10 @@ def add_local():
     locals_count += 1
     return Local(f'local_{locals_count}')
 
+
 def add_label():
     global labels_count
-    labels_count+=1
+    labels_count += 1
     return f'label_{labels_count}'
 
 
@@ -113,7 +115,7 @@ def program_to_cil_visitor(program):
             if type(f) == DefFuncNode:
                 fun = func_to_cil_visitor(c.type, f)
                 code.append(fun)
-                
+
     code += built_in_to_cil()
 
     data = [cil.DataNode(__DATA__[data_value], data_value)
@@ -121,35 +123,46 @@ def program_to_cil_visitor(program):
 
     return cil.ProgramNode(types, data, code)
 
+
 def built_in_to_cil():
     return [out_int_to_cil(), out_string_to_cil(), in_string_to_cil()]
-    
+
+
 def out_string_to_cil():
-    return cil.FuncNode('IO_out_string', [cil.ParamNode('self'),cil.ParamNode('str')], [], [cil.PrintNode('str'), cil.ReturnNode('self')])
+    return cil.FuncNode('IO_out_string', [cil.ParamNode('self'), cil.ParamNode('str')], [], [cil.PrintNode('str'), cil.ReturnNode('self')])
+
 
 def out_int_to_cil():
-    return cil.FuncNode('IO_out_int', [cil.ParamNode('self'),cil.ParamNode('int')], [cil.LocalNode('str')], [cil.StrNode('int', 'str'), cil.PrintNode('int'), cil.ReturnNode('self')])
+    return cil.FuncNode('IO_out_int', [cil.ParamNode('self'), cil.ParamNode('int')], [cil.LocalNode('str')], [cil.StrNode('int', 'str'), cil.PrintNode('int'), cil.ReturnNode('self')])
+
 
 def in_string_to_cil():
     return cil.FuncNode('IO_in_string', [cil.ParamNode('self')], [cil.LocalNode('str')], [cil.ReadNode('str'), cil.ReturnNode('str')])
 
+
 def in_int_to_cil():
     return cil.FuncNode('IO_in_int', [cil.ParamNode('self')], [cil.LocalNode('int')], [cil.ReadIntNode('int'), cil.ReturnNode('int')])
+
 
 def type_name_to_cil():
     return cil.FuncNode('Object_type_name', [cil.ParamNode('self')], [cil.LocalNode('type')], [cil.TypeOfNode('type', 'self'), cil.ReturnNode('type')])
 
+
 def copy_to_cil():
     return cil.FuncNode('Object_copy', [cil.ParamNode('self')], [cil.LocalNode('copy')], [cil.CopyNode('self', 'copy'), cil.ReturnNode('copy')])
+
 
 def length_to_cil():
     return cil.FuncNode('length_String', [cil.ParamNode('self')], [cil.LocalNode('result')], [cil.LengthNode('self', 'result'), cil.ReturnNode('result')])
 
+
 def concat_to_cil():
     return cil.FuncNode('concat_String', [cil.ParamNode('self'), cil.ParamNode('x')], [cil.LocalNode('result')], [cil.ConcatNode('self', 'x', 'result'), cil.ReturnNode('result')])
 
+
 def substring_to_cil():
-    return cil.FuncNode('substr_String', [cil.ParamNode('self'), cil.ParamNode('i'),cil.ParamNode('l')], [cil.LocalNode('result')], [cil.SubStringNode('self', 'i', 'l','result'), cil.ReturnNode('result')])
+    return cil.FuncNode('substr_String', [cil.ParamNode('self'), cil.ParamNode('i'), cil.ParamNode('l')], [cil.LocalNode('result')], [cil.SubStringNode('self', 'i', 'l', 'result'), cil.ReturnNode('result')])
+
 
 def func_to_cil_visitor(type_name, func):
     global locals_count, __DATA_LOCALS__, __TYPEOF__, labels_count
@@ -165,7 +178,7 @@ def func_to_cil_visitor(type_name, func):
     instruction = expression_to_cil_visitor(
         func.expressions)
     body += instruction.body
-    
+
     body.append(cil.ReturnNode(instruction.value))
 
     _locals = [cil.LocalNode(f'local_{i + 1}') for i in range(locals_count)]
@@ -249,7 +262,7 @@ def if_to_cil_visitor(_if):
     label_2 = add_label()
     value = add_local()
 
-    body = predicate.body+ [cil.ConditionalGotoNode(predicate.value, label_1)] + else_expression.body + [
+    body = predicate.body + [cil.ConditionalGotoNode(predicate.value, label_1)] + else_expression.body + [
         cil.AssignNode(value, else_expression.value), cil.GotoNode(label_2), cil.LabelNode(label_1)] + then.body + [
         cil.AssignNode(value, then.value), cil.LabelNode(label_2)]
 
@@ -300,7 +313,7 @@ def lessthan_to_cil_visitor(lessthan):
 def lesseqthan_to_cil_visitor(lessthan):
     l = expression_to_cil_visitor(lessthan.lvalue)
     r = expression_to_cil_visitor(lessthan.rvalue)
-    
+
     value = add_local()
     body = l.body + r.body + [cil.LessEqNode(l.value, r.value, value)]
     return CIL_block(body, value)
@@ -320,23 +333,22 @@ def id_to_cil_visitor(id):
 
 def new_to_cil_visitor(new_node):
     value = add_local()
-    t=new_node.type
-    body=[]
-    
-    if t=='SELF_TYPE':
-        t, need_typeof=get_typeof(t,'self')
+    t = new_node.type
+    body = []
+
+    if t == 'SELF_TYPE':
+        t, need_typeof = get_typeof(t, 'self')
         if need_typeof:
-            body.append(cil.TypeOfNode(t,'self'))
-            
+            body.append(cil.TypeOfNode(t, 'self'))
+
     body.append(cil.AllocateNode(t, value))
     init_attr = TypesByName[t].get_all_attributes()
-    
 
     for attr in init_attr:
         if attr.expression:
             attr_cil = expression_to_cil_visitor(
                 attr.expression)
-            body+=attr_cil.body
+            body += attr_cil.body
             body.append(cil.SetAttrNode(value, attr.id, attr_cil.value))
 
     return CIL_block(body, value)
@@ -361,6 +373,7 @@ def string_to_cil_visitor(str):
         body = []
 
     return CIL_block(body, str_id)
+
 
 def let_to_cil_visitor(let):
     body = []
@@ -466,10 +479,10 @@ __visitor__ = {
     lp_ast.VarNode: id_to_cil_visitor,
     lp_ast.FuncCallNode: func_call_to_cil_visitor,
     lp_ast.IsVoidNode: is_void_to_cil_visitor,
-    lp_ast.NegationNode: not_to_cil_visitor, 
-    lp_ast.LessThanNode:lessthan_to_cil_visitor,
-    lp_ast.LessEqNode:lesseqthan_to_cil_visitor, 
-    lp_ast.CaseNode:case_to_cil_visitor, 
+    lp_ast.NegationNode: not_to_cil_visitor,
+    lp_ast.LessThanNode: lessthan_to_cil_visitor,
+    lp_ast.LessEqNode: lesseqthan_to_cil_visitor,
+    lp_ast.CaseNode: case_to_cil_visitor,
 }
 
 
