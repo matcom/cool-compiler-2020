@@ -3,10 +3,11 @@ class Node:
 
 
 class ProgramNode(Node):
-    def __init__(self, types, data, code):
+    def __init__(self, types, data, code, built_in_code):
         self.types = types
         self.data = data
         self.code = code
+        self.built_in_code = built_in_code
 
 
 class TypeNode(Node):

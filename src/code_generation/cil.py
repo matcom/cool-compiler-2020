@@ -63,6 +63,7 @@ def get_typeof(obj):
 def program_to_cil_visitor(program):
     types = []
     code = []
+    built_in_code = []
 
     # completing .TYPE section
     for t in TypesByName:
@@ -96,7 +97,7 @@ def program_to_cil_visitor(program):
                                  [cil.AllocateNode('Main', main_instance),
                                   cil.ArgNode(main_instance),
                                   cil.VCAllNode('Main', 'main', main_result)])
-    code.append(main_function)
+    built_in_code.append(main_function)
 
     # completing .CODE and .DATA sections
 
@@ -106,7 +107,7 @@ def program_to_cil_visitor(program):
                 fun = func_to_cil_visitor(c.type, f)
                 code.append(fun)
 
-    code += built_in_to_cil()
+    built_in_code += built_in_to_cil()
 
     data = [cil.DataNode(__DATA__[data_value], data_value)
             for data_value in __DATA__.keys()]
