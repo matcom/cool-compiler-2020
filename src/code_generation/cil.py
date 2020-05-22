@@ -1,6 +1,7 @@
 import code_generation.ast as cil
 import lexer_parser.ast as lp_ast
 from semantic.types import *
+from .optimization import optimization_locals
 
 __DATA__ = {}
 
@@ -112,7 +113,9 @@ def program_to_cil_visitor(program):
     data = [cil.DataNode(__DATA__[data_value], data_value)
             for data_value in __DATA__.keys()]
 
-    return cil.ProgramNode(types, data, code)
+    cil_program = cil.ProgramNode(types, data, code, built_in_code)
+    optimization_locals(cil_program)
+    return cil_program
 
 
 def built_in_to_cil():
