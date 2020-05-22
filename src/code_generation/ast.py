@@ -37,6 +37,12 @@ class InstructionNode(Node):
 class LocalNode(Node):
     def __init__(self, id):
         self.id = id
+    
+    def __str__(self):
+        return self.id
+
+    def __repr__(self):
+        return self.id
 
 
 class ParamNode(Node):

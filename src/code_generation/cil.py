@@ -14,24 +14,14 @@ def add_str_data(data: str):
         return __DATA__[data]
 
 
-locals_count = 0
-
-
-class Local:
-    def __init__(self, name):
-        self.name = name
-
-    def __repr__(self):
-        return self.name
-
-    def __str__(self):
-        return self.name
+__LOCALS__ = []
 
 
 def add_local():
-    global locals_count
-    locals_count += 1
-    return Local(f'local_{locals_count}')
+    global __LOCALS__
+    local = cil.LocalNode(f'local_{len(__LOCALS__)}')
+    __LOCALS__.append(local)
+    return local
 
 
 def add_label():
@@ -165,11 +155,11 @@ def substring_to_cil():
 
 
 def func_to_cil_visitor(type_name, func):
-    global locals_count, __DATA_LOCALS__, __TYPEOF__, labels_count
+    global __LOCALS__, __DATA_LOCALS__, __TYPEOF__, labels_count
     name = f'{type_name}_{func.id}'
     params = [cil.ParamNode('self')]
     params += [cil.ParamNode(id) for (id, t) in func.params]
-    locals_count = 0
+    __LOCALS__ = []
     labels_count = 0
     __DATA_LOCALS__ = {}
     __TYPEOF__ = {}
@@ -181,7 +171,7 @@ def func_to_cil_visitor(type_name, func):
 
     body.append(cil.ReturnNode(instruction.value))
 
-    _locals = [cil.LocalNode(f'local_{i + 1}') for i in range(locals_count)]
+    _locals = __LOCALS__.copy()
     return cil.FuncNode(name, params, _locals, body)
 
 
