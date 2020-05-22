@@ -32,13 +32,18 @@ class FuncNode(Node):
 
 
 class InstructionNode(Node):
-    pass
+    def __init__(self):
+        self.locals = []
+
+    def check_local(self, var):
+        if type(var) is LocalNode:
+            self.locals.append(var)
 
 
 class LocalNode(Node):
     def __init__(self, id):
         self.id = id
-    
+
     def __str__(self):
         return self.id
 
@@ -53,15 +58,22 @@ class ParamNode(Node):
 
 class AssignNode(InstructionNode):
     def __init__(self, id, val):
+        super().__init__()
         self.id = id
         self.val = val
+        self.check_local(id)
+        self.check_local(val)
 
 
 class ArithNode(InstructionNode):
     def __init__(self, left, right, result):
+        super().__init__()
         self.left = left
         self.right = right
         self.result = result
+        self.check_local(left)
+        self.check_local(right)
+        self.check_local(result)
 
 
 class PlusNode(ArithNode):
@@ -79,16 +91,23 @@ class StarNode(ArithNode):
 class DivNode(ArithNode):
     pass
 
+
 class LessEqNode(ArithNode):
     pass
+
 
 class LessNode(ArithNode):
     pass
 
+
 class NotNode(InstructionNode):
     def __init__(self, value, result):
+        super().__init__()
         self.value = value
         self.result = result
+        self.check_local(value)
+        self.check_local(result)
+
 
 class GetAttrNode(InstructionNode):
     def __init__(self, obj, attr, result):
@@ -99,9 +118,12 @@ class GetAttrNode(InstructionNode):
 
 class SetAttrNode(InstructionNode):
     def __init__(self, obj, attr, val):
+        super().__init__()
         self.val = val
         self.obj = obj
         self.attr = attr
+        self.check_local(obj)
+        self.check_local(val)
 
 
 class SetIndexNode(InstructionNode):
@@ -119,27 +141,35 @@ class GetIndexNode(InstructionNode):
 
 
 class AllocateNode(InstructionNode):
-    def __init__(self, type, addr):
-        self.type = type
+    def __init__(self, _type, addr):
+        super().__init__()
+        self.type = _type
         self.addr = addr
-        
+        self.check_local(addr)
+
+
 class AbortNode(InstructionNode):
     pass
 
+
 class ReadIntNode(InstructionNode):
     def __init__(self, result):
-        self.result=result
-        
+        self.result = result
+
+
 class CopyNode(InstructionNode):
     def __init__(self, val, result):
-        self.result=result
-        self.val=val
+        self.result = result
+        self.val = val
 
 
 class TypeOfNode(InstructionNode):
     def __init__(self, result, var):
+        super().__init__()
         self.result = result
         self.var = var
+        self.check_local(result)
+        self.check_local(var)
 
 
 class ArrayNode(InstructionNode):
@@ -156,41 +186,54 @@ class CallNode(InstructionNode):
 
 class VCAllNode(InstructionNode):
     def __init__(self, type, method, result):
+        super().__init__()
         self.method = method
         self.type = type
         self.result = result
+        self.check_local(result)
+        self.check_local(type)
 
 
 class ArgNode(InstructionNode):
     def __init__(self, val):
+        super().__init__()
         self.val = val
+        self.check_local(val)
 
 
 class ConditionalGotoNode(InstructionNode):
     def __init__(self, predicate, label):
+        super().__init__()
         self.predicate = predicate
         self.label = label
+        self.check_local(predicate)
 
 
 class GotoNode(InstructionNode):
     def __init__(self, label):
+        super().__init__()
         self.label = label
 
 
 class LabelNode(InstructionNode):
     def __init__(self, label_name):
+        super().__init__()
         self.label_name = label_name
 
 
 class ReturnNode(InstructionNode):
     def __init__(self, ret_value):
+        super().__init__()
         self.ret_value = ret_value
+        self.check_local(ret_value)
 
 
 class LoadNode(InstructionNode):
     def __init__(self, addr, result):
+        super().__init__()
         self.result = result
         self.addr = addr
+        self.check_local(result)
 
 
 class LengthNode(InstructionNode):
@@ -207,25 +250,31 @@ class ConcatNode(InstructionNode):
 
 
 class SubStringNode(InstructionNode):
-    def __init__(self,str, i, len, result):
+    def __init__(self, str, i, len, result):
         self.result = result
         self.i = i
         self.len = len
-        self.str=str
+        self.str = str
 
 
 class StrNode(InstructionNode):
     def __init__(self, val, str):
+        super().__init__()
         self.str = str
         self.val = val
+        self.check_local(val)
+        self.check_local(str)
 
 
 class ReadNode(InstructionNode):
     def __init__(self, val):
-        self.val=val
-        
+        super().__init__()
+        self.val = val
+        self.check_local(val)
 
 
 class PrintNode(InstructionNode):
     def __init__(self, str):
+        super().__init__()
         self.str = str
+        self.check_local(str)
