@@ -4,7 +4,6 @@ from semantic.types import *
 
 __DATA__ = {}
 
-
 def add_str_data(data: str):
     try:
         return __DATA__[data]
@@ -14,8 +13,7 @@ def add_str_data(data: str):
         return __DATA__[data]
 
 
-locals_count = 0
-
+locals_count = 0    
 
 def add_local():
     global locals_count
@@ -58,6 +56,10 @@ def get_typeof(obj):
         return type_local, True
 
 
+
+__ATTR__ = {}
+__CURRENT_TYPE__=None
+
 def program_to_cil_visitor(program):
     types = []
     code = []
@@ -66,8 +68,10 @@ def program_to_cil_visitor(program):
     for t in TypesByName:
         _type = cil.TypeNode(t)
         value = TypesByName[t]
+        __ATTR__[t]=[]
         for attr in value.get_all_attributes():
             _type.attributes.append(attr.id)
+            __ATTR__[t].append(attr.id)
 
         for met in value.get_all_inherited_methods():
             _type.methods[met.id] = met.owner
@@ -142,7 +146,7 @@ def substring_to_cil():
     return cil.FuncNode('substr_String', [cil.ParamNode('self'), cil.ParamNode('i'),cil.ParamNode('l')], [cil.LocalNode('result')], [cil.SubStringNode('self', 'i', 'l','result'), cil.ReturnNode('result')])
 
 def func_to_cil_visitor(type_name, func):
-    global locals_count, __DATA_LOCALS__, __TYPEOF__, labels_count
+    global locals_count, __DATA_LOCALS__, __TYPEOF__, labels_count, __CURRENT_TYPE__
     name = f'{type_name}_{func.id}'
     params = [cil.ParamNode('self')]
     params += [cil.ParamNode(id) for (id, t) in func.params]
@@ -150,6 +154,7 @@ def func_to_cil_visitor(type_name, func):
     labels_count = 0
     __DATA_LOCALS__ = {}
     __TYPEOF__ = {}
+    __CURRENT_TYPE__=type_name
     body = []
 
     instruction = expression_to_cil_visitor(
@@ -200,10 +205,13 @@ def case_to_cil_visitor(case):
 
 
 def assign_to_cil_visitor(assign):
+        
     expr = expression_to_cil_visitor(assign.expr)
-    value = [add_local()]
-    body = expr.body + [cil.AssignNode(assign.id, expr.value)]
-    return CIL_block(body, value)
+    if assign.id in __ATTR__[__CURRENT_TYPE__]:
+        body=expr.body + [cil.SetAttrNode('self', assign.id, expr.value)]
+    else:
+        body = expr.body + [cil.AssignNode(assign.id, expr.value)]
+    return CIL_block(body, assign.id)
 
 
 def arith_to_cil_visitor(arith):
@@ -239,7 +247,7 @@ def if_to_cil_visitor(_if):
     label_2 = add_label()
     value = add_local()
 
-    body = predicate.body+ [cil.ConditionalGotoNode(predicate.value, label_1)] + else_expression.body + [
+    body = predicate.body + [cil.ConditionalGotoNode(predicate.value, label_1)] + else_expression.body + [
         cil.AssignNode(value, else_expression.value), cil.GotoNode(label_2), cil.LabelNode(label_1)] + then.body + [
         cil.AssignNode(value, then.value), cil.LabelNode(label_2)]
 
@@ -253,11 +261,12 @@ def loop_to_cil_visitor(loop):
 
     value = add_local()
 
+    predicate_label=add_label()
     loop_label = add_label()
     end_label = add_label()
 
-    body = [cil.ConditionalGotoNode(predicate.value, loop_label), cil.GotoNode(end_label),
-            cil.LabelNode(loop_label)] + loop_block.body + [cil.LabelNode(end_label), cil.AssignNode(value, 0)]
+    body = [cil.LabelNode(predicate_label)] + predicate.body + [cil.ConditionalGotoNode(predicate.value, loop_label), cil.GotoNode(end_label),
+            cil.LabelNode(loop_label)] + loop_block.body + [cil.GotoNode(predicate_label),cil.LabelNode(end_label), cil.AssignNode(value, 0)]
 
     return CIL_block(body, value)
 
@@ -305,6 +314,9 @@ def bool_to_cil_visitor(bool):
 
 
 def id_to_cil_visitor(id):
+    if id.id in __ATTR__[__CURRENT_TYPE__]:
+        result=add_local()
+        return CIL_block([cil.GetAttrNode('self', id.id, result)], result)
     return CIL_block([], id.id)
 
 
