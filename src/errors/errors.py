@@ -1,3 +1,9 @@
+"""
+Copyright (c) 2020 School of Math and Computer Science, University of Havana
+
+COOL compiler project
+"""
+
 LEXER_ERRORS = []
 PARSER_ERRORS = []
 SEMANTIC_ERRORS = []
