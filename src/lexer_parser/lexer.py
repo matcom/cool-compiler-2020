@@ -1,7 +1,13 @@
+"""
+Copyright (c) 2020 School of Math and Computer Science, University of Havana
+
+COOL compiler project
+"""
+
 import ply.lex as lex
 
 from errors import add_lexer_error
-from utils import *
+from .utils import *
 
 states = (
     ('commentLine', 'exclusive'),

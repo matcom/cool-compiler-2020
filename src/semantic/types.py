@@ -1,3 +1,9 @@
+"""
+Copyright (c) 2020 School of Math and Computer Science, University of Havana
+
+COOL compiler project
+"""
+
 from errors import add_semantic_error
 from lexer_parser.ast import *
 

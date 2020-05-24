@@ -1,3 +1,9 @@
+"""
+Copyright (c) 2020 School of Math and Computer Science, University of Havana
+
+COOL compiler project
+"""
+
 import ply.yacc as yacc
 
 from errors import add_parser_error
@@ -131,17 +137,20 @@ def p_expr_func_all(p):
         if p[7] is None:
             p[7] = []
         p[0] = FuncCallNode(p[5], p[7], p[1], p[3])
-        p[0].add_location(p.lineno(5), find_column(p.lexer.lexdata, p.lexpos(5)))
+        p[0].add_location(p.lineno(5), find_column(
+            p.lexer.lexdata, p.lexpos(5)))
     elif len(p) == 7:
         if p[5] is None:
             p[5] = []
         p[0] = FuncCallNode(p[3], p[5], p[1])
-        p[0].add_location(p.lineno(3), find_column(p.lexer.lexdata, p.lexpos(3)))
+        p[0].add_location(p.lineno(3), find_column(
+            p.lexer.lexdata, p.lexpos(3)))
     else:
         if p[3] is None:
             p[3] = []
         p[0] = FuncCallNode(p[1], p[3])
-        p[0].add_location(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)))
+        p[0].add_location(p.lineno(1), find_column(
+            p.lexer.lexdata, p.lexpos(1)))
 
     p[0].lineno = p.lineno(0)
 
@@ -286,7 +295,8 @@ def p_block_list(p):
 
 def p_error(p):
     if p:
-        add_parser_error(p.lineno, find_column(p.lexer.lexdata, p.lexpos), f'ERROR at or near \'{p.value}\'')
+        add_parser_error(p.lineno, find_column(
+            p.lexer.lexdata, p.lexpos), f'ERROR at or near \'{p.value}\'')
     else:
         add_parser_error(0, 0, "ERROR at or near EOF")
 
