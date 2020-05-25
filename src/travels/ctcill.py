@@ -390,3 +390,25 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         false_const_vm_holder = self.define_internal_local()
         self.register_instruction(cil.AssignNode(false_const_vm_holder), 0)
         return false_const_vm_holder
+
+    # *******************  Implementacion de las comparaciones
+    #
+    # *******************
+
+    @visitor.when(coolAst.EqualToNode)  # type: ignore
+    def visit(self, node: coolAst.EqualToNode, scope: Scope):  # noqa: F811
+        # Debemos devolver una variable que contenga 0 si los valores a comparar
+        # son iguales.
+        expr_result_vm_holder = self.define_internal_local()
+
+        # Obtener el valor de la expresion izquierda
+        left_vm_holder = self.visit(node.left, scope)
+
+        # obtener el valor de la expresion derecha
+        right_vm_holder = self.visit(node.right, scope)
+
+        # Realizar una resta y devolver el resultado
+        self.register_instruction(cil.MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder))
+
+        # Devolver la variable con el resultado
+        return expr_result_vm_holder
