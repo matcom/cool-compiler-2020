@@ -17,6 +17,8 @@ def program_cg_visitor(program: ProgramNode):
         type_code += f'{type_cg_visitor(t)}\n'
     for d in program.data:
         data_code += f'{data_cg_visitor(d)}\n'
+    for f in program.built_in_code:
+        func_code += f'{func_cg_visitor(f)}\n'
     for f in program.code:
         func_code += f'{func_cg_visitor(f)}\n'
 
@@ -73,11 +75,12 @@ def instruction_cg_visitor(instruction: InstructionNode):
 def assign_cg_visitor(assign: AssignNode):
     return f'{assign.id} = {assign.val} ;'
 
-def less_eq_cg_visitor(lesseq:LessEqNode):
+
+def less_eq_cg_visitor(lesseq: LessEqNode):
     return f'{lesseq.result} = {lesseq.left} <= {lesseq.right} ;'
 
 
-def less_cg_visitor(less:LessNode):
+def less_cg_visitor(less: LessNode):
     return f'{less.result} = {less.left} < {less.right} ;'
 
 
@@ -140,7 +143,8 @@ def arg_cg_visitor(arg: ArgNode):
 def cond_goto_cg_visitor(cgoto: ConditionalGotoNode):
     return f'IF {cgoto.predicate} GOTO {cgoto.label} ;'
 
-def not_cg_visitor(n:NotNode):
+
+def not_cg_visitor(n: NotNode):
     return f'{n.result} = ~ {n.value}'
 
 
@@ -183,14 +187,18 @@ def read_cg_visitor(read: ReadNode):
 def print_cg_visitor(print: PrintNode):
     return f'PRINT {print.str} ;'
 
-def abort_cg_visitor(abort:AbortNode):
+
+def abort_cg_visitor(abort: AbortNode):
     return 'ABORT ;'
 
-def read_int_cg_visitor(ri:ReadIntNode):
+
+def read_int_cg_visitor(ri: ReadIntNode):
     return f'{ri.result} = READINT ;'
 
-def copy_cg_visitor(copy:CopyNode):
+
+def copy_cg_visitor(copy: CopyNode):
     return f'{copy.result} = COPY {copy.val} ;'
+
 
 __visitors__ = {
     AssignNode: assign_cg_visitor,
@@ -219,10 +227,10 @@ __visitors__ = {
     StrNode: str_cg_visitor,
     ReadNode: read_cg_visitor,
     PrintNode: print_cg_visitor,
-    NotNode: not_cg_visitor, 
-    AbortNode:abort_cg_visitor, 
-    ReadIntNode: read_int_cg_visitor, 
-    CopyNode:copy_cg_visitor, 
-    LessEqNode:less_eq_cg_visitor,
-    LessNode:less_cg_visitor
+    NotNode: not_cg_visitor,
+    AbortNode: abort_cg_visitor,
+    ReadIntNode: read_int_cg_visitor,
+    CopyNode: copy_cg_visitor,
+    LessEqNode: less_eq_cg_visitor,
+    LessNode: less_cg_visitor
 }
