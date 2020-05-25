@@ -111,9 +111,12 @@ class NotNode(InstructionNode):
 
 class GetAttrNode(InstructionNode):
     def __init__(self, obj, attr, result):
+        super().__init__()
         self.attr = attr
         self.obj = obj
         self.result = result
+        self.check_local(obj)
+        self.check_local(result)
 
 
 class SetAttrNode(InstructionNode):
