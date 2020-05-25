@@ -478,3 +478,58 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.register_instruction(cil.LabelNode(end_label))
 
         return expr_result_vm_holder
+
+    @visitor.when(coolAst.GreaterThanNode)  # type: ignore
+    def visit(self, node: coolAst.GreaterThanNode, scope: Scope):  # noqa: F811
+        expr_result_vm_holder = self.define_internal_local()
+        true_label = self.do_label("TRUE")
+        end_label = self.do_label("END")
+
+        # Obtener el valor de la expresion izquierda
+        left_vm_holder = self.visit(node.left, scope)
+
+        # Obtener el valor de la expresion derecha
+        right_vm_holder = self.visit(node.right, scope)
+
+        self.register_instruction(cil.MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder))
+
+        self.register_instruction(cil.JumpIfGreaterThanZeroNode(expr_result_vm_holder, true_label))
+
+        # False Branch
+        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 0))
+        self.register_instruction(cil.UnconditionalJump(end_label))
+
+        # True Branch
+        self.register_instruction(cil.LabelNode(true_label))
+        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(cil.LabelNode(end_label))
+
+        return expr_result_vm_holder
+
+    @visitor.when(coolAst.GreaterEqualNode)  # type: ignore
+    def visit(self, node: coolAst.GreaterEqualNode, scope: Scope):  # noqa: F811
+        expr_result_vm_holder = self.define_internal_local()
+        true_label = self.do_label("TRUE")
+        end_label = self.do_label("END")
+
+        # Obtener el valor de la expresion izquierda
+        left_vm_holder = self.visit(node.left, scope)
+
+        # Obtener el valor de la expresion derecha
+        right_vm_holder = self.visit(node.right, scope)
+
+        self.register_instruction(cil.MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder))
+
+        self.register_instruction(cil.JumpIfGreaterThanZeroNode(expr_result_vm_holder, true_label))
+        self.register_instruction(cil.IfZeroJump(expr_result_vm_holder, true_label))
+
+        # False Branch
+        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(cil.UnconditionalJump(end_label))
+
+        # True Branch
+        self.register_instruction(cil.LabelNode(true_label))
+        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(cil.LabelNode(end_label))
+
+        return expr_result_vm_holder
