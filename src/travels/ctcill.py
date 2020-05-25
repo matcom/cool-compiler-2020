@@ -128,7 +128,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         internal_cond_vm_holder = self.visit(node.cond, scope)
 
         # Do the check and jump if necesary
-        self.register_instruction(cil.NotZeroJump(internal_cond_vm_holder, false_label))
+        self.register_instruction(cil.IfZeroJump(internal_cond_vm_holder, false_label))
 
         # Save the instructions related to the then branch
         self.visit(node.expr1, scope)
@@ -391,15 +391,16 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.register_instruction(cil.AssignNode(false_const_vm_holder), 0)
         return false_const_vm_holder
 
-    # *******************  Implementacion de las comparaciones
-    #
+    # *******************  Implementacion de las comparaciones ********************
+    # Todas las operaciones de comparacion devuelven 1 si el resultado es verdadero,
+    # o 0 si es falso.
     # *******************
 
     @visitor.when(coolAst.EqualToNode)  # type: ignore
     def visit(self, node: coolAst.EqualToNode, scope: Scope):  # noqa: F811
-        # Debemos devolver una variable que contenga 0 si los valores a comparar
-        # son iguales.
         expr_result_vm_holder = self.define_internal_local()
+        true_label = self.do_label("TRUE")
+        end_label = self.do_label("END")
 
         # Obtener el valor de la expresion izquierda
         left_vm_holder = self.visit(node.left, scope)
@@ -410,5 +411,70 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Realizar una resta y devolver el resultado
         self.register_instruction(cil.MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder))
 
+        # Si la resta da 0, entonces son iguales y se devuelve 1, si no, se devuelve 0
+        self.register_instruction(cil.IfZeroJump(expr_result_vm_holder, true_label))
+
+        # si la resta no da 0, almacenar 0 y retornar
+        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 0))
+        self.register_instruction(cil.UnconditionalJump(end_label))
+
+        # Si la resta da 0, devolver 1
+        self.register_instruction(cil.LabelNode(true_label))
+        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
+
+        self.register_instruction(cil.LabelNode(end_label))
+
         # Devolver la variable con el resultado
+        return expr_result_vm_holder
+
+    @visitor.when(coolAst.LowerThanNode)  # type: ignore
+    def visit(self, node: coolAst.LowerThanNode, scope: Scope):  # noqa: F811
+        expr_result_vm_holder = self.define_internal_local()
+        false_label = self.do_label("FALSE")
+        end_label = self.do_label("END")
+
+        # Obtener el valor de la expresion izquierda
+        left_vm_holder = self.visit(node.left, scope)
+
+        # Obtener el valor de la expresion derecha
+        right_vm_holder = self.visit(node.right, scope)
+
+        # Comparar los resultados restando
+        self.register_instruction(cil.MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder))
+
+        self.register_instruction(cil.JumpIfGreaterThanZeroNode(expr_result_vm_holder, false_label))
+        self.register_instruction(cil.IfZeroJump(expr_result_vm_holder, false_label))
+
+        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(cil.UnconditionalJump(end_label))
+
+        self.register_instruction(cil.LabelNode(false_label))
+        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 0))
+        self.register_instruction(cil.LabelNode(end_label))
+
+        return expr_result_vm_holder
+
+    @visitor.when(coolAst.LowerEqual)  # type: ignore
+    def visit(self, node: coolAst.LowerEqual, scope:Scope):  # noqa: F811
+        expr_result_vm_holder = self.define_internal_local()
+        false_label = self.do_label("FALSE")
+        end_label = self.do_label("END")
+
+        # Obtener el valor de la expresion izquierda
+        left_vm_holder = self.visit(node.left, scope)
+
+        # Obtener el valor de la expresion derecha
+        right_vm_holder = self.visit(node.right, scope)
+
+        self.register_instruction(cil.MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder))
+
+        self.register_instruction(cil.JumpIfGreaterThanZeroNode(expr_result_vm_holder, false_label))
+
+        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(cil.UnconditionalJump(end_label))
+
+        self.register_instruction(cil.LabelNode(false_label))
+        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 0))
+        self.register_instruction(cil.LabelNode(end_label))
+
         return expr_result_vm_holder
