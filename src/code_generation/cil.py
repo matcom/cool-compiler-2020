@@ -154,7 +154,7 @@ def func_to_cil_visitor(type_name, func):
     labels_count = 0
     __DATA_LOCALS__ = {}
     __TYPEOF__ = {}
-    __CURRENT_TYPE__=type_name
+    __CURRENT_TYPE__ = type_name
     body = []
 
     instruction = expression_to_cil_visitor(
@@ -275,7 +275,7 @@ def equal_to_cil_visitor(equal):
     l = expression_to_cil_visitor(equal.lvalue)
     r = expression_to_cil_visitor(equal.rvalue)
 
-    cil_result = add_label()
+    cil_result = add_local()
     end_label = add_label()
     value = add_local()
 
