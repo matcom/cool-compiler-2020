@@ -1,7 +1,7 @@
 import code_generation.ast as cil
 import lexer_parser.ast as lp_ast
 from semantic.types import *
-from .optimization import optimization_locals
+from .optimization import optimization_locals, remove_unused_locals
 
 __DATA__ = {}
 
@@ -14,15 +14,23 @@ def add_str_data(data: str):
         return __DATA__[data]
 
 
-__LOCALS__ = []
+__LOCALS__ = {}
 
 
 def add_local():
     global __LOCALS__
-    local = cil.LocalNode(f'local_{len(__LOCALS__)}')
-    __LOCALS__.append(local)
+    id=f'local_{len(__LOCALS__)}'
+    local = cil.LocalNode(id)
+    __LOCALS__[id]=local
     return local
 
+def add_named_local(id):
+    global __LOCALS__
+    local=cil.LocalNode(id)
+    __LOCALS__[id]=local
+    return local
+
+labels_count = 0
 
 def add_label():
     global labels_count
@@ -62,7 +70,7 @@ def get_typeof(obj):
 
 
 __ATTR__ = {}
-__CURRENT_TYPE__=None
+__CURRENT_TYPE__ = None
 
 def program_to_cil_visitor(program):
     types = []
@@ -119,7 +127,8 @@ def program_to_cil_visitor(program):
             for data_value in __DATA__.keys()]
 
     cil_program = cil.ProgramNode(types, data, code, built_in_code)
-    optimization_locals(cil_program)
+    remove_unused_locals(cil_program)
+    #optimization_locals(cil_program)
     return cil_program
 
 
@@ -144,7 +153,7 @@ def in_int_to_cil():
 
 
 def type_name_to_cil():
-    return cil.FuncNode('Object_type_name', [cil.ParamNode('self')], [cil.LocalNode('type')], [cil.TypeOfNode('type', 'self'), cil.ReturnNode('type')])
+    return cil.FuncNode('Object_type_name', [cil.ParamNode('self')], [cil.LocalNode('type'), cil.LocalNode('str')], [cil.TypeOfNode('type', 'self'), cil.StrNode('type', 'str'),cil.ReturnNode('str')])
 
 
 def copy_to_cil():
@@ -164,11 +173,18 @@ def substring_to_cil():
 
 
 def func_to_cil_visitor(type_name, func):
+    '''
+    Converts from FunctionNode in parsing AST to FuncionNode in cil AST. \n
+    1) Builds ParamNodes for each param in FunctionNode.params\n
+    2) Builds function body by putting together each instruction's body\n
+    3) Creates an array of necessary local variables
+    
+    '''
     global __LOCALS__, __DATA_LOCALS__, __TYPEOF__, labels_count, __CURRENT_TYPE__
     name = f'{type_name}_{func.id}'
     params = [cil.ParamNode('self')]
     params += [cil.ParamNode(id) for (id, t) in func.params]
-    __LOCALS__ = []
+    __LOCALS__ = {}
     labels_count = 0
     __DATA_LOCALS__ = {}
     __TYPEOF__ = {}
@@ -182,10 +198,14 @@ def func_to_cil_visitor(type_name, func):
     body.append(cil.ReturnNode(instruction.value))
 
     _locals = __LOCALS__.copy()
-    return cil.FuncNode(name, params, _locals, body)
+    return cil.FuncNode(name, params, [_locals[k] for k in _locals.keys()], body)
 
 
 def expression_to_cil_visitor(expression):
+    '''
+    Selects the appropriate CIL converter for each expression type and calls it. \n
+    If there is no appropriate CIL converter it throws the exception \'There is no visitor for [type(expression)]\'
+    '''
     try:
         return __visitor__[type(expression)](expression)
     except:
@@ -193,11 +213,21 @@ def expression_to_cil_visitor(expression):
 
 
 def case_to_cil_visitor(case):
+    '''
+    CaseNode CIL converter.\n
+    1) Attaches the body of case expression to instruction body.\n
+    2) Finds out string repr of case expression dynamic type.\n
+    3) For each branch it builts a labeled body in which it is compared branch type to case expression type.\n
+    4) Inside the labeled body the branch expression body is attached.
+
+    '''
     body = []
     expr_cil = expression_to_cil_visitor(case.expr)
     body += expr_cil.body
     t = add_local()
     body.append(cil.TypeOfNode(t, expr_cil.value))
+    str_t = add_local()
+    body.append(cil.StrNode(t, str_t))
     types = []
     labels = []
     for c in case.case_list:
@@ -210,9 +240,10 @@ def case_to_cil_visitor(case):
 
     for i, branch in enumerate(case.case_list):
         predicate = add_local()
-        body.append(cil.MinusNode(t, branch.type, predicate))
+        body.append(cil.MinusNode(str_t, branch.type, predicate))
         body.append(cil.ConditionalGotoNode(predicate, labels[i]))
-        body.append(cil.AssignNode(branch.id, expr_cil.value))
+        val=add_named_local(branch.id)
+        body.append(cil.AssignNode(val, expr_cil.value))
         branch_cil = expression_to_cil_visitor(
             branch.expr)
         body += branch_cil.body
@@ -223,13 +254,20 @@ def case_to_cil_visitor(case):
 
 
 def assign_to_cil_visitor(assign):
+    
+    '''
+    AssignNode CIL converter.\n
+    1) Pendiente
+    '''
         
     expr = expression_to_cil_visitor(assign.expr)
     if assign.id in __ATTR__[__CURRENT_TYPE__]:
         body=expr.body + [cil.SetAttrNode('self', assign.id, expr.value)]
+        return CIL_block(body, expr.value)
     else:
-        body = expr.body + [cil.AssignNode(assign.id, expr.value)]
-    return CIL_block(body, assign.id)
+        val=add_named_local(assign.id)
+        body = expr.body + [cil.AssignNode(val, expr.value)]
+        return CIL_block(body, val)
 
 
 def arith_to_cil_visitor(arith):
@@ -335,7 +373,11 @@ def id_to_cil_visitor(id):
     if id.id in __ATTR__[__CURRENT_TYPE__]:
         result=add_local()
         return CIL_block([cil.GetAttrNode('self', id.id, result)], result)
-    return CIL_block([], id.id)
+    try:
+        val=__LOCALS__[id.id]
+        return CIL_block([], val)
+    except:
+        return CIL_block([], id.id)
 
 
 def new_to_cil_visitor(new_node):
@@ -388,7 +430,8 @@ def let_to_cil_visitor(let):
         if attr.expr:
             attr_cil = expression_to_cil_visitor(attr.expr)
             body += attr_cil.body
-            body.append(cil.AssignNode(attr.id, attr_cil.value))
+            val=add_named_local(attr.id)
+            body.append(cil.AssignNode(val, attr_cil.value))
 
     expr_cil = expression_to_cil_visitor(let.expr)
     body += expr_cil.body

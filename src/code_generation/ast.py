@@ -57,11 +57,11 @@ class ParamNode(Node):
 
 
 class AssignNode(InstructionNode):
-    def __init__(self, id, val):
+    def __init__(self, result, val):
         super().__init__()
-        self.id = id
+        self.result = result
         self.val = val
-        self.check_local(id)
+        self.check_local(result)
         self.check_local(val)
 
 
@@ -144,11 +144,11 @@ class GetIndexNode(InstructionNode):
 
 
 class AllocateNode(InstructionNode):
-    def __init__(self, _type, addr):
+    def __init__(self, _type, result):
         super().__init__()
         self.type = _type
-        self.addr = addr
-        self.check_local(addr)
+        self.result = result
+        self.check_local(result)
 
 
 class AbortNode(InstructionNode):
@@ -261,19 +261,19 @@ class SubStringNode(InstructionNode):
 
 
 class StrNode(InstructionNode):
-    def __init__(self, val, str):
+    def __init__(self, val, result):
         super().__init__()
-        self.str = str
+        self.result = result
         self.val = val
         self.check_local(val)
-        self.check_local(str)
+        self.check_local(result)
 
 
 class ReadNode(InstructionNode):
-    def __init__(self, val):
+    def __init__(self, result):
         super().__init__()
-        self.val = val
-        self.check_local(val)
+        self.result = result
+        self.check_local(result)
 
 
 class PrintNode(InstructionNode):

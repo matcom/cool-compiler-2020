@@ -73,7 +73,7 @@ def instruction_cg_visitor(instruction: InstructionNode):
 
 
 def assign_cg_visitor(assign: AssignNode):
-    return f'{assign.id} = {assign.val} ;'
+    return f'{assign.result} = {assign.val} ;'
 
 
 def less_eq_cg_visitor(lesseq: LessEqNode):
@@ -117,7 +117,7 @@ def set_index_cg_visitor(setindex: SetIndexNode):
 
 
 def allocate_cg_visitor(allocate: AllocateNode):
-    return f'{allocate.addr} = ALLOCATE {allocate.type} ;'
+    return f'{allocate.result} = ALLOCATE {allocate.type} ;'
 
 
 def typeof_cg_visitor(typeof: TypeOfNode):
@@ -177,11 +177,11 @@ def substring_cg_visitor(substring: SubStringNode):
 
 
 def str_cg_visitor(str: StrNode):
-    return f'{str.str} = STR {str.val} ;'
+    return f'{str.result} = STR {str.val} ;'
 
 
 def read_cg_visitor(read: ReadNode):
-    return f'{read.val} = READ ;'
+    return f'{read.result} = READ ;'
 
 
 def print_cg_visitor(print: PrintNode):
