@@ -128,7 +128,7 @@ def program_to_cil_visitor(program):
 
     cil_program = cil.ProgramNode(types, data, code, built_in_code)
     remove_unused_locals(cil_program)
-    #optimization_locals(cil_program)
+    optimization_locals(cil_program)
     return cil_program
 
 
