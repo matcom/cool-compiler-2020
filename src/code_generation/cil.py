@@ -17,16 +17,11 @@ def add_str_data(data: str):
 __LOCALS__ = {}
 
 
-def add_local():
+def add_local(id=None):
     global __LOCALS__
-    id=f'local_{len(__LOCALS__)}'
+    if id is None:
+        id=f'local_{len(__LOCALS__)}'
     local = cil.LocalNode(id)
-    __LOCALS__[id]=local
-    return local
-
-def add_named_local(id):
-    global __LOCALS__
-    local=cil.LocalNode(id)
     __LOCALS__[id]=local
     return local
 
@@ -242,7 +237,7 @@ def case_to_cil_visitor(case):
         predicate = add_local()
         body.append(cil.MinusNode(str_t, branch.type, predicate))
         body.append(cil.ConditionalGotoNode(predicate, labels[i]))
-        val=add_named_local(branch.id)
+        val=add_local(branch.id)
         body.append(cil.AssignNode(val, expr_cil.value))
         branch_cil = expression_to_cil_visitor(
             branch.expr)
@@ -265,7 +260,7 @@ def assign_to_cil_visitor(assign):
         body=expr.body + [cil.SetAttrNode('self', assign.id, expr.value)]
         return CIL_block(body, expr.value)
     else:
-        val=add_named_local(assign.id)
+        val=add_local(assign.id)
         body = expr.body + [cil.AssignNode(val, expr.value)]
         return CIL_block(body, val)
 
@@ -430,7 +425,7 @@ def let_to_cil_visitor(let):
         if attr.expr:
             attr_cil = expression_to_cil_visitor(attr.expr)
             body += attr_cil.body
-            val=add_named_local(attr.id)
+            val=add_local(attr.id)
             body.append(cil.AssignNode(val, attr_cil.value))
 
     expr_cil = expression_to_cil_visitor(let.expr)
