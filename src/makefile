@@ -9,3 +9,5 @@ clean:
 test:
 	pytest ../tests -v --tb=short -m=${TAG}
 
+unit_tests:
+	pytest coolcmp/unit_tests -v

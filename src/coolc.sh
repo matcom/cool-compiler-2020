@@ -12,4 +12,4 @@ echo "Copyright (c) 2019: Antonio Jesús Otaño Barrera, Daniel Cordovés Borrot
 #echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 
 # check python3 main.py -h for help
-python3 main.py $INPUT_FILE
+python3 -m coolcmp $INPUT_FILE
