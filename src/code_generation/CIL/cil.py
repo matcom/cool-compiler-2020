@@ -1,4 +1,4 @@
-import code_generation.ast as cil
+import code_generation.CIL.ast as cil
 import lexer_parser.ast as lp_ast
 from semantic.types import *
 from .optimization import optimization_locals, remove_unused_locals

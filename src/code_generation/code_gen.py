@@ -1,5 +1,5 @@
-from .cil import ast_to_cil
-from .code import cil_to_code
+from .CIL.cil import ast_to_cil
+from .CIL.code import cil_to_code
 
 
 def generate_code(ast):

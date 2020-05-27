@@ -1,4 +1,4 @@
-from code_generation.ast import *
+from code_generation.CIL.ast import *
 
 
 def cil_to_code(ast):
