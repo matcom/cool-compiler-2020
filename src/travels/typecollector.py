@@ -19,11 +19,11 @@ class TypeCollector:
         INTEGER.set_parent(OBJECT)
         STRING.set_parent(OBJECT)
         BOOL.set_parent(OBJECT)
-        self.context.types['object'] = OBJECT
-        self.context.types['int'] = INTEGER
-        self.context.types['string'] = STRING
-        self.context.types['bool'] = BOOL
-        self.context.types['void'] = VOID
+        self.context.types['Object'] = OBJECT
+        self.context.types['Int'] = INTEGER
+        self.context.types['String'] = STRING
+        self.context.types['Bool'] = BOOL
+        self.context.types['Void'] = VOID
         self.context.types['AUTO_TYPE'] = AutoType()
 
         for class_ in node.class_list:

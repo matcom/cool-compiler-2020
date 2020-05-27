@@ -354,18 +354,18 @@ class TypeInferer:
     # --------------------------------------------------CONSTANTES-----------------------------------------------------------#
     # -----------------------------------------------------------------------------------------------------------------------#
 
-    @visitor.when(IntegerConstant)  #type: ignore  # noqa
+    @visitor.when(coolAst.IntegerConstant)  #type: ignore  # noqa
     def visit(self, node, scope, infered_type=None, deep=1):  # noqa: F811
         return self.INTEGER
 
-    @visitor.when(StringConstant)  #type: ignore  # noqa
+    @visitor.when(coolAst.StringConstant)  #type: ignore  # noqa
     def visit(self, node, scope, infered_type=None, deep=1):  # noqa: F811
         return self.STRING
 
-    @visitor.when(TrueConstant)  #type: ignore  # noqa
+    @visitor.when(coolAst.TrueConstant)  #type: ignore  # noqa
     def visit(self, node, scope, infered_type=None, deep=1):  # noqa: F811
         return self.BOOL
 
-    @visitor.when(FalseConstant)  #type: ignore  # noqa
+    @visitor.when(coolAst.FalseConstant)  #type: ignore  # noqa
     def visit(self, node, scope, infered_type=None, deep=1):  # noqa: F811
         return self.BOOL

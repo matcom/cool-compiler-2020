@@ -25,15 +25,15 @@ class ProgramNode(Node):
                                                type_collector.errors)
         type_builder.visit(self)
         errors = type_builder.errors
-        if not errors:
-            inferer = inference.TypeInferer(type_builder.context,
-                                            errors=errors)
-            scope = None
-            for d in range(1, deep + 1):
-                print(d)
-                scope = inferer.visit(self, scope=scope, deep=d)
-                print(scope)
-        # reportar los errores
+        # if not errors:
+        #     inferer = inference.TypeInferer(type_builder.context,
+        #                                     errors=errors)
+        #     scope = None
+        #     for d in range(1, deep + 1):
+        #         print(d)
+        #         scope = inferer.visit(self, scope=scope, deep=d)
+        #         print(scope)
+        # # reportar los errores
         return errors, type_builder.context
 
 
@@ -143,36 +143,36 @@ class BoleanNode(TypeNode):
 
 class FalseConstant(AtomicNode):
     def __init__(self):
-        super(FalseConstant, self).__init__('false')
+        super(FalseConstant, self).__init__('False')
 
 
 class TrueConstant(AtomicNode):
     def __init__(self):
-        super(TrueConstant, self).__init__('true')
+        super(TrueConstant, self).__init__('True')
 
 
 class StringTypeNode(TypeNode):
     def __init__(self):
-        super(StringTypeNode, self).__init__('string')
+        super(StringTypeNode, self).__init__('String')
 
 
 class IntegerTypeNode(TypeNode):
     def __init__(self):
-        super(IntegerTypeNode, self).__init__('int')
+        super(IntegerTypeNode, self).__init__('Int')
 
 
 class ObjectTypeNode(TypeNode):
     def __init__(self):
-        super(ObjectTypeNode, self).__init__('object')
+        super(ObjectTypeNode, self).__init__('Object')
 
 
 class VoidTypeNode(TypeNode):
     def __init__(self):
-        super(VoidTypeNode, self).__init__('void')
+        super(VoidTypeNode, self).__init__('Void')
 
 
 class ClassDef(DeclarationNode):
-    def __init__(self, idx, features, parent='object'):
+    def __init__(self, idx, features, parent='Object'):
         self.idx = idx
         self.features = features
         self.parent = parent

@@ -118,7 +118,7 @@ class Attribute:
 
 class VoidType(Type):
     def __init__(self):
-        super(VoidType, self).__init__('void')
+        super(VoidType, self).__init__('Void')
 
     def __eq__(self, other):
         return isinstance(other, VoidType)
@@ -126,7 +126,7 @@ class VoidType(Type):
 
 class ObjectType(Type):
     def __init__(self):
-        super(ObjectType, self).__init__('object')
+        super(ObjectType, self).__init__('Object')
 
     def __eq__(self, other):
         return isinstance(other, ObjectType)
@@ -134,7 +134,7 @@ class ObjectType(Type):
 
 class IntegerType(Type):
     def __init__(self):
-        super(IntegerType, self).__init__('int')
+        super(IntegerType, self).__init__('Int')
 
     def __eq__(self, other):
         return isinstance(other, IntegerType)
@@ -142,7 +142,7 @@ class IntegerType(Type):
 
 class StringType(Type):
     def __init__(self):
-        super(StringType, self).__init__('string')
+        super(StringType, self).__init__('String')
 
     def __eq__(self, other):
         return isinstance(other, StringType)
@@ -150,7 +150,7 @@ class StringType(Type):
 
 class BoolType(Type):
     def __init__(self):
-        super(BoolType, self).__init__('bool')
+        super(BoolType, self).__init__('Bool')
 
     def __eq__(self, other):
         return isinstance(other, BoolType)

@@ -92,26 +92,29 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     def visit(self, node: coolAst.MethodDef, scope: Scope) -> None:  # noqa: F811
         self.current_method = self.current_type.get_method(node.idx)
 
-        # Register the new function in .CODE
+        # Registrar la nueva funcion en .CODE
         function_node = self.register_function(self.to_function_name(node.idx, self.current_type.name))
 
-        # Stablish this method as the current function so we can properly set
-        # names for variables and stuffs.
+        # Establecer el metodo actual y la funcion actual en construccion
+        # para poder establecer nombres de variables y otras cosas.
         self.current_function = function_node
 
-        # Define method's params
+        # Definir los parametros del metodo.
         params: List[semantics.VariableInfo] = [scope.find_variable(param.idx) for param in node.param_list]
 
-        # Register function's params
+        # Establecer los parametros de la funcion.
         for param in params:
             self.register_params(param)
 
-        # Get the instructions that conforms the body of the method
-        for exp in node.statements:
-            self.visit(exp, scope)
+        # Registrar las instrucciones que conforman el cuerpo del metodo.
+        last = self.visit(node.statements, scope)
 
         self.current_method = None
         self.current_function = None
+        if last is not None:
+            self.register_instruction(cil.ReturnNode(last))
+        else:
+            self.register_instruction(cil.ReturnNode())
 
     # **************   IMPLEMENTACION DE LAS EXPRESIONES CONDICIONAES (IF, WHILE, CASE) Y LAS DECLARACIONES
     #                  DE VARIABLES (let)
@@ -119,23 +122,23 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
     @visitor.when(coolAst.IfThenElseNode)  # type: ignore
     def visit(self, node: coolAst.IfThenElseNode, scope: Scope) -> None:  # noqa: F811
-        # Create a jumping label
+        # Crear un LABEL al cual realizar un salto.
         false_label = self.do_label("FALSE")
         end_label = self.do_label("END")
 
-        # Save the instructions related to the condition,
-        # Each expr returns the name of the holder varaiable
+        # Salvar las instrucciones relacionadas con la condicion,
+        # cada expresion retorna el nombre de la variable interna que contiene el valor ??
         internal_cond_vm_holder = self.visit(node.cond, scope)
 
-        # Do the check and jump if necesary
+        # Chequear y saltar si es necesario.
         self.register_instruction(cil.IfZeroJump(internal_cond_vm_holder, false_label))
 
-        # Save the instructions related to the then branch
+        # Salvar las instrucciones relacionadas con la rama TRUE.
         self.visit(node.expr1, scope)
 
         self.register_instruction(cil.UnconditionalJump(end_label))
 
-        # Save the instructions related to the else branch
+        # Registrar las instrucciones relacionadas con la rama ELSE
         self.register_instruction(cil.LabelNode(false_label))
         self.visit(node.expr2, scope)
 
@@ -145,17 +148,16 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     def visit(self, node: coolAst.VariableDeclaration, scope: Scope) -> None:  # noqa: F811
         for var_idx, var_type, var_init_expr in node.var_list:
 
-            # Register the variables in order
+            # Registrar las variables en orden.
             var_info = scope.find_variable(var_idx)
             local_var = self.register_local(var_info)
 
-            # Allocate memory for the variable type and give default initialization
+            # Reservar memoria para la variable y realizar su inicializacion si tiene
             self.register_instruction(cil.AllocateNode(var_info.type.name, local_var))
 
-            # Generate the code of the initialization expr if exists
             if var_init_expr is not None:
                 expr_init_vm_holder = self.visit(var_init_expr, scope)
-                # assign the corresponding value to the defined local_var
+                # Assignar el valor correspondiente a la variable reservada
                 self.register_instruction(cil.AssignNode(local_var, expr_init_vm_holder))
 
         # Process the associated expr, if any, to the let declaration
@@ -455,7 +457,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         return expr_result_vm_holder
 
     @visitor.when(coolAst.LowerEqual)  # type: ignore
-    def visit(self, node: coolAst.LowerEqual, scope:Scope):  # noqa: F811
+    def visit(self, node: coolAst.LowerEqual, scope: Scope):  # noqa: F811
         expr_result_vm_holder = self.define_internal_local()
         false_label = self.do_label("FALSE")
         end_label = self.do_label("END")
@@ -533,3 +535,167 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.register_instruction(cil.LabelNode(end_label))
 
         return expr_result_vm_holder
+
+    # *********************  IMPLEMENTACION DE LOS METODOS DE DISPATCH  *******************
+    #
+    # *********************
+
+    @visitor.when(coolAst.FunCall)  # type: ignore
+    def visit(self, node: coolAst.FunCall, scope: Scope):  # noqa: F811
+        type_vm_holder = self.define_internal_local()
+        return_vm_holder = self.define_internal_local()
+        # Evaluar la expresion a la izquierda del punto
+        expr = self.visit(node.obj, scope)
+
+        self.register_instruction(cil.TypeOfNode(expr, type_vm_holder))
+
+        # Evaluar los argumentos
+        for arg in node.args:
+            arg_expr = self.visit(arg, scope)
+            self.register_instruction(cil.ArgNode(arg_expr))
+
+        self.register_instruction(cil.DynamicCallNode(type_vm_holder, node.id, return_vm_holder))
+
+        return return_vm_holder
+
+    @visitor.when(coolAst.ParentFuncCall)  # type: ignore
+    def visit(self, node: coolAst.ParentFuncCall, scope: Scope):  # noqa: F811
+        local_type_identifier = self.define_internal_local()
+        return_expr_vm_holder = self.define_internal_local()
+        expr = self.visit(node.obj, scope)
+
+        # Evaluar los argumentos
+        for arg in node.arg_list:
+            arg_expr = self.visit(arg, scope)
+            self.register_instruction(cil.ArgNode(arg_expr))
+
+        # Asignar el tipo a una variable
+        type_ = self.context.get_type(node.parent_type)
+        self.register_instruction(cil.AssignNode(local_type_identifier, type_))
+
+        self.register_instruction(cil.DynamicCallNode(local_type_identifier, node.idx, return_expr_vm_holder))
+
+        return return_expr_vm_holder
+
+
+class CilDisplayFormatter:
+    @visitor.on("node")
+    def visit(self, node):
+        pass
+
+    @visitor.when(cil.CilProgramNode)  # type: ignore
+    def visit(self, node: cil.CilProgramNode):  # noqa: F811
+        # Primero imprimir la seccion .TYPES
+        dottypes = '\n'.join(self.visit(type_) for type_ in node.dottypes)
+
+        # Imprimir la seccion .DATA
+        dotdata = '\n'.join(self.visit(data) for data in node.dotdata)
+
+        # Imprimir la seccion .CODE
+        dotcode = '\n'.join(self.visit(code) for code in node.dotcode)
+
+        return f'.TYPES\n{dottypes}\n\n.DATA\n{dotdata}\n\n.CODE\n{dotcode}'
+
+    @visitor.when(cil.TypeNode)  # type: ignore
+    def visit(self, node: cil.TypeNode):  # noqa: F811
+        attributes = '\n\t'.join(f'attribute {x}' for x in node.attributes)
+        methods = '\n\t'.join(f'method {x}: {y}' for x, y in node.methods)
+
+        return f'type {node.name} {{\n\t{attributes}\n\n\t{methods}\n}}'
+
+    @visitor.when(cil.FunctionNode)  # type: ignore
+    def visit(self, node: cil.FunctionNode):  # noqa: F811
+        params = '\n\t'.join(self.visit(x) for x in node.params)
+        localvars = '\n\t'.join(self.visit(x) for x in node.localvars)
+        instructions = '\n\t'.join(self.visit(x) for x in node.instructions)
+
+        return f'function {node.name} {{\n\t{params}\n\n\t{localvars}\n\n\t{instructions}\n}}'
+
+    @visitor.when(cil.ParamNode)  # type: ignore
+    def visit(self, node: cil.ParamNode):  # noqa : F811
+        return f'PARAM {node.name}'
+
+    @visitor.when(cil.LocalNode)  # type: ignore
+    def visit(self, node: cil.LocalNode):  # noqa: F811
+        return f'LOCAL {node.name}'
+
+    @visitor.when(cil.AssignNode)  # type: ignore
+    def visit(self, node: cil.AssignNode):  # noqa: F811
+        return f'{node.dest} = {node.source}'
+
+    @visitor.when(cil.PlusNode)  # type: ignore
+    def visit(self, node: cil.PlusNode):  # noqa: F811
+        return f'{node.dest} = {node.left} + {node.right}'
+
+    @visitor.when(cil.MinusNode)  # type: ignore
+    def visit(self, node: cil.MinusNode):  # noqa: F811
+        return f'{node.dest} = {node.x} - {node.y}'
+
+    @visitor.when(cil.StarNode)  # type: ignore
+    def visit(self, node: cil.StarNode):  # noqa: F811
+        return f'{node.dest} = {node.x} * {node.y}'
+
+    @visitor.when(cil.DivNode)  # type: ignore
+    def visit(self, node: cil.DivNode):  # noqa: F811
+        return f'{node.dest} = {node.left} / {node.right}'
+
+    @visitor.when(cil.AllocateNode)  # type: ignore
+    def visit(self, node: cil.AllocateNode):  # noqa: F811
+        return f'{node.dest} = ALLOCATE {node.itype}'
+
+    @visitor.when(cil.TypeOfNode)  # type: ignore
+    def visit(self, node: cil.TypeOfNode):  # noqa: F811
+        return f'{node.dest} = TYPEOF {node.variable}'
+
+    @visitor.when(cil.DynamicCallNode)  # type: ignore
+    def visit(self, node: cil.DynamicCallNode):  # noqa: F811
+        return f'{node.dest} = VCALL {node.xtype} {node.method}'
+
+    @visitor.when(cil.StaticCallNode)  # type: ignore
+    def visit(self, node: cil.StaticCallNode):  # noqa: F811
+        return f'{node.dest} = CALL {node.function}'
+
+    @visitor.when(cil.ArgNode)  # type: ignore
+    def visit(self, node: cil.ArgNode):  # noqa: F811
+        return f'ARG {node.name}'
+
+    @visitor.when(cil.ReturnNode)  # type: ignore
+    def visit(self, node: cil.ReturnNode):  # noqa: F811
+        return f'RETURN {node.value if node.value is not None else ""}'
+
+    @visitor.when(cil.DataNode)  # type: ignore
+    def visit(self, node: cil.DataNode):  # noqa: F811
+        if isinstance(node.value, str):
+            return f'{node.name} = "{node.value}" ;'
+        elif isinstance(node.value, list):
+            data = "\n\t".join(x for x in node.value)
+            return f'{node.name} = {data}'
+        elif isinstance(node.value, int):
+            return f'{node.name} = {node.value}'
+
+    @visitor.when(cil.GetTypeIndex)  # type: ignore
+    def visit(self, node: cil.GetTypeIndex):  # noqa: F811
+        return f'{node.dest} = GETTYPEINDEX {node.itype}'
+
+    @visitor.when(cil.TdtLookupNode)  # type: ignore
+    def visit(self, node: cil.TdtLookupNode):  # noqa: F811
+        return f'{node.dest} = TYPE_DISTANCE {node.i} {node.j}'
+
+    @visitor.when(cil.IfZeroJump)  # type: ignore
+    def visit(self, node: cil.IfZeroJump):  # noqa: F811
+        return f'IF_ZERO {node.variable} GOTO {node.label}'
+
+    @visitor.when(cil.UnconditionalJump)  # type: ignore
+    def visit(self, node: cil.UnconditionalJump):  # noqa: F811
+        return f'GOTO {node.label}'
+
+    @visitor.when(cil.JumpIfGreaterThanZeroNode)  # type: ignore
+    def visit(self, node: cil.JumpIfGreaterThanZeroNode):  # noqa: F811
+        return f'IF_GREATER_ZERO {node.variable} GOTO {node.label}'
+
+    @visitor.when(cil.LabelNode)  # type: ignore
+    def visit(self, node: cil.LabelNode):  # noqa: F811
+        return f'{node.label}:'
+
+    def __call__(self, node):
+        return self.visit(node)
