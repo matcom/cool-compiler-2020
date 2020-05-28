@@ -128,7 +128,7 @@ def program_to_cil_visitor(program):
 
 
 def built_in_to_cil():
-    return [out_int_to_cil(), out_string_to_cil(), in_string_to_cil()]
+    return [out_int_to_cil(), out_string_to_cil(), in_string_to_cil(), in_int_to_cil(), type_name_to_cil(), copy_to_cil(), length_to_cil(), concat_to_cil(), substring_to_cil()]
 
 
 def out_string_to_cil():

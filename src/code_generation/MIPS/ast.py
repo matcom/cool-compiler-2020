@@ -26,7 +26,6 @@ class SubuNode(BinaryNode):
     def __str__(self):
         return f'subu {self.des}, {self.src1}, {self.src2}'
     
-
 class SeqNode(BinaryNode):
     def __str__(self):
         return f'seq {self.des}, {self.src1}, {self.src2}'
