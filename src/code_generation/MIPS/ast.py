@@ -72,11 +72,11 @@ class BeqzNode(Node):
     def __str__(self):
         return f'beqz {self.src}, {self.lab}'
 
-        
-class JNode(Node):
+class LabelJumpNode(Node):
     def __init__(self, lab):
         self.lab=lab
         
+class JNode(LabelJumpNode):
     def __str__(self):
         return f'j {self.lab}'
         
@@ -86,6 +86,11 @@ class JrNode(Node):
     
     def __str__(self):
         return f'jr {self.src}'
+    
+class JalNode(LabelJumpNode):
+    def __str__(self):
+        return f'jal {self.lab}'
+        
 
 class AddressNode(Node):
     pass
