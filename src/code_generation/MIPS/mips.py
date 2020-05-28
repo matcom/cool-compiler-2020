@@ -1,5 +1,6 @@
 from code_generation.CIL import ast as cil
 from . import ast as mips
+from .utilities import *
 
 __METHOD_MAPPING__ = {}
 __ADDRS__ = {}
@@ -27,6 +28,9 @@ def push_stack(src):
 
 def program_to_mips_visitor(program: cil.ProgramNode):
     global __METHOD_MAPPING__
+
+    # Initialize Types Codes
+    init_types_codes(program.types)
 
     # filling method mapping
     for t in program.types:
