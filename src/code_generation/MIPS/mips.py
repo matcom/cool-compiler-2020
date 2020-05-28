@@ -64,4 +64,11 @@ def program_to_mips_visitor(program: cil.ProgramNode):
 
 
 def vcall_to_mips_visitor(vcall: cil.VCAllNode):
-    return save_caller_registers() + [mips.JalInstruction([__METHOD_MAPPING__[(vcall.type, vcall.method)]])] + restore_caller_registers() + [mips.MoveInstruction(['v0', __ADDRS__[vcall.result]])]
+    return save_caller_registers() + [mips.JalInstruction([__METHOD_MAPPING__[(vcall.type, vcall.method)]])] + restore_caller_registers() + [mips.MoveInstruction(['$v0', __ADDRS__[vcall.result]])]
+
+
+def arg_to_mips_visitor(arg:cil.ArgNode):
+    return allocate_stack(4) + push_stack(__ADDRS__[arg.val])
+
+def param_to_mips_visitor(param:cil.ParamNode):
+    return pop_stack(__ADDRS__[param.id]) + restore_stack(4)
