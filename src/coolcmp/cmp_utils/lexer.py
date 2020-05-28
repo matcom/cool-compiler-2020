@@ -1,7 +1,7 @@
 import ply.lex as lex
 from ply.lex import TOKEN
 import ply.yacc as yacc
-from coolcmp.cmp_utils.ast import Id, Type
+from coolcmp.cmp_utils.ast import Id, Type, TrueBoolean, FalseBoolean
 
 class Cool_Lexer(object):
 
@@ -72,10 +72,10 @@ class Cool_Lexer(object):
     @TOKEN(r'[a-z][A-Za-z_0-9]*')
     def t_ID(self, t):
         if t.value.lower() == 'true':
-            t.value = True
+            t.value = TrueBoolean
             t.type = 'BOOL'
         elif t.value.lower() == 'false':
-            t.value = False
+            t.value = FalseBoolean
             t.type = 'BOOL'
         else:
             t.type = self.keywords.get(t.value.lower(), 'ID')

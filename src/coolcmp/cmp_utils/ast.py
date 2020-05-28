@@ -198,6 +198,9 @@ class Int(Terminal): pass
 class String(Terminal): pass
 class Bool(Terminal): pass
 
+TrueBoolean = Bool('true')
+FalseBoolean = Bool('false')
+
 if __name__ == '__main__':
     plus = Plus(Int(123), Int(65))
     isvoid = IsVoid(Int(5))

@@ -205,7 +205,8 @@ class Parser:
 
         p[0] = Block(p[2])
 
-    #### SHIFT/REDUCE conflict with the let is intended
+    # SHIFT/REDUCE conflict with the let expr is intended,
+    # it is resolved in favor of shifting
     def p_expr_let(self, p):
         "expr : LET attribute_list IN expr"
 
@@ -294,7 +295,7 @@ class Parser:
     def p_expr_bool(self, p):
         "expr : BOOL"
 
-        p[0] = Bool(p[1])
+        p[0] = p[1]
 
     def p_epsilon(self, p):
         """
