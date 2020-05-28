@@ -4,7 +4,7 @@ from coolcmp.cmp_utils.parser import Parser
 
 tests = getclfiles('.') + getclfiles('../tests')
 
-@pytest.mark.ast_rep
+@pytest.mark.cmp_dfs
 @pytest.mark.parametrize("file", tests)
 def test_parser_errors(file):
     p = Parser()
@@ -18,5 +18,6 @@ def test_parser_errors(file):
     res = p.parser.parse(content)
     
     if len(p.errors) == 0:
-        print(res.__repr__())
-        assert(res.__class__.__name__ == "Program")
+        x = res.dfs_rec_rep()
+        y = res.dfs_iter_rep()
+        assert(x == y)
