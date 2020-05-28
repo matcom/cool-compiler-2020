@@ -5,24 +5,50 @@ __METHOD_MAPPING__ = {}
 __ADDRS__ = {}
 
 
-def save_caller_registers():
-    pass
-
-
 def save_callee_registers():
-    pass
+    allocate_stack(40)
+    for i in range(8):
+        push_stack(f'$s{i}', (7-i)*4)
+    push_stack('$fp', 4)
+    push_stack('$ra')  
+    
 
 
-def restore_caller_registers():
-    pass
+def save_caller_registers():
+    allocate_stack(40)
+    for i in range(10):
+        push_stack(f'$t{i}', (9-i)*4)
 
 
 def restore_callee_registers():
-    pass
+    for i in range(8):
+        push_stack(f'$s{i}', (7-i)*4)
+    pop_stack('$fp', 4)
+    pop_stack('$ra')
+    restore_stack(40)
 
 
-def push_stack(src):
-    pass
+def restore_caller_registers():
+    for i in range(10):
+        pop_stack(f'$t{i}', (9-i)*4)
+    restore_stack(40)
+
+def restore_stack(bytes):
+    return [mips.AdduInstruction('$sp', '$sp', bytes)]
+        
+def allocate_stack(bytes):
+    return [mips.SubuInstruction('$sp', '$sp', bytes)]
+
+def push_stack(src, pos=0):
+    if pos:
+        return [mips.SwInstruction(src, f'{pos}($sp)')]
+    return [mips.SwInstruction(src, '($sp)')]
+
+def pop_stack(src, pos=0):
+    if pos:
+        return [mips.LwInstruction(src, f'{pos}($sp)')]
+    return [mips.LwInstruction(src, '($sp)')]
+        
 
 
 def program_to_mips_visitor(program: cil.ProgramNode):
@@ -38,4 +64,4 @@ def program_to_mips_visitor(program: cil.ProgramNode):
 
 
 def vcall_to_mips_visitor(vcall: cil.VCAllNode):
-    return save_caller_registers() + [mips.JalNode(__METHOD_MAPPING__[(vcall.type, vcall.method)])] + restore_caller_registers() + [mips.Move('v0', __ADDRS__[vcall.result])]
+    return save_caller_registers() + [mips.JalInstruction([__METHOD_MAPPING__[(vcall.type, vcall.method)]])] + restore_caller_registers() + [mips.MoveInstruction(['v0', __ADDRS__[vcall.result]])]
