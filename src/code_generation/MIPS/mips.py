@@ -15,6 +15,10 @@ def restore_caller_registers():
 
 def restore_callee_registers():
     pass
+
+def push_stack(src):
+    pass
+    
     
 
 def program_to_mips_visitor(program:cil.ProgramNode):
@@ -30,5 +34,3 @@ def program_to_mips_visitor(program:cil.ProgramNode):
     
 def vcall_to_mips_visitor(vcall:cil.VCAllNode):
     return save_caller_registers() + [mips.JalNode(__METHOD_MAPPING__[(vcall.type, vcall.method)])] + restore_caller_registers() + [mips.Move('v0',__ADDRS__[vcall.result])]
-
-        
