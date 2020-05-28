@@ -5,13 +5,13 @@ class Instruction:
 
     def __str__(self):
         if self.arguments is None:
-            return f"{name}"
+            return f"{self.name}"
         elif len(self.arguments) == 3:
-            return f"{name} {self.arguments[0]}, {self.arguments[1]}, {self.arguments[2]}"
+            return f"{self.name} {self.arguments[0]}, {self.arguments[1]}, {self.arguments[2]}"
         elif len(self.arguments) == 2:
-            return f"{name} {self.arguments[0]}, {self.arguments[1]}"
+            return f"{self.name} {self.arguments[0]}, {self.arguments[1]}"
         elif len(self.arguments) == 1:
-            return f"{name} {self.arguments[0]}"
+            return f"{self.name} {self.arguments[0]}"
 
 
 # ===============
