@@ -381,7 +381,7 @@ class SubStringNode(InstructionNode):
         self.str = str
         
     def __str__(self):
-        return f'{self.result} = SUBSTRING {self.str_a} {self.str_b} ;'
+        return f'{self.result} = SUBSTRING {self.str} {self.i} {self.len};'
 
 
 class StrNode(InstructionNode):
