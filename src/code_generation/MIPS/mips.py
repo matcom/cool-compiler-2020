@@ -5,6 +5,7 @@ from .utilities import *
 __METHOD_MAPPING__ = {}
 __ADDRS__ = {}
 
+
 def program_to_mips_visitor(program: cil.ProgramNode):
     global __METHOD_MAPPING__
 
@@ -25,15 +26,15 @@ def program_to_mips_visitor(program: cil.ProgramNode):
 
 
 def function_to_mips_visitor(function):
-    code=save_callee_registers() #revisar que save_callee_registers no tiene valor de retorno
-    for i,param in enumerate(function.params):
-        __ADDRS__[param.id]=(len(function.params)-1-i)*4
-              
-    
-    code+=allocate_stack(len(function.locals)*4)
-    for i,local in enumerate(function.locals):
-        __ADDRS__[local.id]=(len(function.locals)-1-i)*4
-    
+    # revisar que save_callee_registers no tiene valor de retorno
+    code = save_callee_registers()
+    for i, param in enumerate(function.params):
+        __ADDRS__[param.id] = (len(function.params)-1-i)*4
+
+    code += allocate_stack(len(function.locals)*4)
+    for i, local in enumerate(function.locals):
+        __ADDRS__[local.id] = (len(function.locals)-1-i)*4
+
     for inst in function.body:
         code += instruction_to_mips_visitor(inst)
 
