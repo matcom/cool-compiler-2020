@@ -36,10 +36,12 @@ def function_to_mips_visitor(function):
     
     for inst in function.body:
         code += instruction_to_mips_visitor(inst)
-
+        
+    
+    code+=restore_stack(len(function.params)*4)
     code += restore_callee_registers()
     code += restore_stack(len(function.locals)*4)
-    
+    code.append(mips.JrInstruction('$ra'))    
     return code
 
 
