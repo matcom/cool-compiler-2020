@@ -184,7 +184,7 @@ def plus_to_mips_visitor(plus: cil.PlusNode):
         mips.Comment(str(plus)),
         mips.LwInstruction(('$t1', y_addr)),
         mips.LwInstruction(('$t2', z_addr)),
-        mips.AddInstruction(('$t0', '$t1', '$t2'))
+        mips.AddInstruction(('$t0', '$t1', '$t2')),
         mips.SwInstruction(('$t0', x_addr))
     ]
 
@@ -199,12 +199,14 @@ def minus_to_mips_visitor(minus: cil.MinusNode):
         sub $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
-
+    x_addr = __ADDRS__[minus.result]
+    y_addr = __ADDRS__[minus.left]
+    z_addr = __ADDRS__[minus.right]
     return [
         mips.Comment(str(minus)),
         mips.LwInstruction(('$t1', y_addr)),
         mips.LwInstruction(('$t2', z_addr)),
-        mips.SubInstruction(('$t0', '$t1', '$t2'))
+        mips.SubInstruction(('$t0', '$t1', '$t2')),
         mips.SwInstruction(('$t0', x_addr))
     ]
 
@@ -219,12 +221,14 @@ def star_to_mips_visitor(star: cil.StarNode):
         mult $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
-
+    x_addr = __ADDRS__[star.result]
+    y_addr = __ADDRS__[star.left]
+    z_addr = __ADDRS__[star.right]
     return [
         mips.Comment(str(star)),
         mips.LwInstruction(('$t1', y_addr)),
         mips.LwInstruction(('$t2', z_addr)),
-        mips.MultInstruction(('$t0', '$t1', '$t2'))
+        mips.MultInstruction(('$t0', '$t1', '$t2')),
         mips.SwInstruction(('$t0', x_addr))
     ]
 
@@ -239,12 +243,14 @@ def div_to_mips_visitor(div: cil.DivNode):
         div $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
-
+    x_addr = __ADDRS__[div.result]
+    y_addr = __ADDRS__[div.left]
+    z_addr = __ADDRS__[div.right]
     return [
         mips.Comment(str(div)),
         mips.LwInstruction(('$t1', y_addr)),
         mips.LwInstruction(('$t2', z_addr)),
-        mips.DivInstruction(('$t0', '$t1', '$t2'))
+        mips.DivInstruction(('$t0', '$t1', '$t2')),
         mips.SwInstruction(('$t0', x_addr))
     ]
 
@@ -254,12 +260,21 @@ def lesseq_to_mips_visitor(lesseq: cil.LessEqNode):
     CIL:
         x = y <= z
     MIPS:
-        sle x, y, z
+        lw  $t1, [addr(y)]
+        lw  $t2, [addr(z)]
+        sle $t0, $t1, $t2
+        sw  $t0, [addr(x)]
     """
 
+    x_addr = __ADDRS__[lesseq.result]
+    y_addr = __ADDRS__[lesseq.left]
+    z_addr = __ADDRS__[lesseq.right]
     return [
         mips.Comment(str(lesseq)),
-        mips.SleInstruction((lesseq.result, lesseq.left, lesseq.right))
+        mips.LwInstruction(('$t1', y_addr)),
+        mips.LwInstruction(('$t2', z_addr)),
+        mips.SleInstruction(('$t0', '$t1', '$t2')),
+        mips.SwInstruction(('$t0', x_addr))   
     ]
 
 
@@ -268,12 +283,21 @@ def less_to_mips_visitor(less: cil.LessNode):
     CIL:
         x = y < z
     MIPS:
-        slt x, y, z
+        lw  $t1, [addr(y)]
+        lw  $t2, [addr(z)]
+        slt $t0, $t1, $t2
+        sw  $t0, [addr(x)]
     """
 
+    x_addr = __ADDRS__[less.result]
+    y_addr = __ADDRS__[less.left]
+    z_addr = __ADDRS__[less.right]
     return [
         mips.Comment(str(less)),
-        mips.SleInstruction((less.result, less.left, less.right))
+        mips.LwInstruction(('$t1', y_addr)),
+        mips.LwInstruction(('$t2', z_addr)),
+        mips.SleInstruction(('$t0', '$t1', '$t2')),
+        mips.SwInstruction(('$t0', x_addr))
     ]
 
 
@@ -282,12 +306,17 @@ def not_to_mips_visitor(notn: cil.NotNode):
     CIL:
         x = ~ y
     MIPS:
-        not x, y
+        lw  $t1, [addr(y)]
+        not $t0, $t1
+        sw  $t0, [addr(x)]
     """
-
+    x_addr = __ADDRS__[notn.result]
+    y_addr = __ADDRS__[notn.value]
     return [
         mips.Comment(str(notn)),
-        mips.NotInstruction((notn.result, notn.value))
+        mips.LwInstruction(('$t1', y_addr)),
+        mips.NotInstruction(('$t0', '$t1')),
+        mips.SwInstruction(('$t0', x_addr))
     ]
 
 
