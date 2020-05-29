@@ -57,7 +57,29 @@ def arg_to_mips_visitor(arg: cil.ArgNode):
     return allocate_stack(4) + push_stack(__ADDRS__[arg.val])
 
 
+def allocate_to_mips_visitor(allocate: cil.AllocateNode):
+    """
+    CIL:
+        x  = ALLOCATE T
+    MIPS:
+        li      $a0, [syze(T)]
+        li      $v0, 9
+        syscall
+        move    [addr(x)], $v0
+    """
+    size = get_type_size(allocate.type)
+    address = __ADDRS__[allocate.result]
+    code = [
+        mips.LiInstruction(('$a0', size)),
+        mips.LiInstruction(('$v0', 9)),
+        mips.SyscallInstruction(),
+        mips.MoveInstruction((address, '$v0'))
+    ]
+    return code 
+
+
 __visitors__ = {
     cil.VCAllNode: vcall_to_mips_visitor,
     cil.ArgNode: arg_to_mips_visitor
+    cil.AllocateNode: allocate_to_mips_visitor
 }

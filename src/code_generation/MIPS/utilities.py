@@ -30,7 +30,7 @@ def get_type_size(type):
     more for save the type identifier.Each attribute needs 4 bytes of space and 
     the type identifier also.
     """
-    return len(type.attributes) + 1
+    return (len(type.attributes) + 1) * 4
 
 
 def save_callee_registers():
@@ -38,8 +38,8 @@ def save_callee_registers():
     for i in range(8):
         push_stack(f'$s{i}', (7-i)*4)
     push_stack('$fp', 4)
-    push_stack('$ra')  
-    
+    push_stack('$ra')
+
 
 def save_caller_registers():
     allocate_stack(40)
