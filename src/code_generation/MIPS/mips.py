@@ -171,12 +171,21 @@ def plus_to_mips_visitor(plus: cil.PlusNode):
     CIL:
         x = y + z
     MIPS:
-        add x, y, z
+        lw  $t1, [addr(y)]
+        lw  $t2, [addr(z)]
+        add $t0, $t1, $t2
+        sw  $t0, [addr(x)]
     """
 
+    x_addr = __ADDRS__[plus.result]
+    y_addr = __ADDRS__[plus.left]
+    z_addr = __ADDRS__[plus.right]
     return [
         mips.Comment(str(plus)),
-        mips.AddInstruction((plus.result, plus.left, plus.right))
+        mips.LwInstruction(('$t1', y_addr)),
+        mips.LwInstruction(('$t2', z_addr)),
+        mips.AddInstruction(('$t0', '$t1', '$t2'))
+        mips.SwInstruction(('$t0', x_addr))
     ]
 
 
@@ -185,12 +194,18 @@ def minus_to_mips_visitor(minus: cil.MinusNode):
     CIL:
         x = y - z
     MIPS:
-        sub x, y, z
+        lw  $t1, [addr(y)]
+        lw  $t2, [addr(z)]
+        sub $t0, $t1, $t2
+        sw  $t0, [addr(x)]
     """
 
     return [
         mips.Comment(str(minus)),
-        mips.SubInstruction((minus.result, minus.left, minus.right))
+        mips.LwInstruction(('$t1', y_addr)),
+        mips.LwInstruction(('$t2', z_addr)),
+        mips.SubInstruction(('$t0', '$t1', '$t2'))
+        mips.SwInstruction(('$t0', x_addr))
     ]
 
 
@@ -199,12 +214,18 @@ def star_to_mips_visitor(star: cil.StarNode):
     CIL:
         x = y * z
     MIPS:
-        mult x, y, z
+        lw  $t1, [addr(y)]
+        lw  $t2, [addr(z)]
+        mult $t0, $t1, $t2
+        sw  $t0, [addr(x)]
     """
 
     return [
         mips.Comment(str(star)),
-        mips.MultInstruction((star.result, star.left, star.right))
+        mips.LwInstruction(('$t1', y_addr)),
+        mips.LwInstruction(('$t2', z_addr)),
+        mips.MultInstruction(('$t0', '$t1', '$t2'))
+        mips.SwInstruction(('$t0', x_addr))
     ]
 
 
@@ -213,12 +234,18 @@ def div_to_mips_visitor(div: cil.DivNode):
     CIL:
         x = y / z
     MIPS:
-        div x, y, z
+        lw  $t1, [addr(y)]
+        lw  $t2, [addr(z)]
+        div $t0, $t1, $t2
+        sw  $t0, [addr(x)]
     """
 
     return [
         mips.Comment(str(div)),
-        mips.DivInstruction((div.result, div.left, div.right))
+        mips.LwInstruction(('$t1', y_addr)),
+        mips.LwInstruction(('$t2', z_addr)),
+        mips.DivInstruction(('$t0', '$t1', '$t2'))
+        mips.SwInstruction(('$t0', x_addr))
     ]
 
 
