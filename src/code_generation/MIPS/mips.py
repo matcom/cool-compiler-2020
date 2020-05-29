@@ -146,6 +146,26 @@ def getattr_to_mips_visitor(getattr: cil.GetAttrNode):
     ]
 
 
+def setattr_to_mips_visitor(setattr: cil.SetAttrNode):
+    """
+    CIL:
+        SETATTR y attr x
+    MIPS:
+        lw  $t0, [addr(x)]
+        lw  $t1, [addr(y)]
+        sw  $t0, [attr_shift($t0)]
+    """
+    x_addr = __ADDRS__[setattr.val]
+    y_addr = __ADDRS__[setattr.obj]
+    attr_shift = (setattr.attr_index + 1) * 4
+    return [
+        mips.Comment(str(setattr)),
+        mips.LwInstruction(('$t0', x_addr)),
+        mips.LwInstruction(('$t1', y_addr)),
+        mips.SwInstruction(('$t0', f'{attr_shift}($t0)'))
+    ]
+
+
 def plus_to_mips_visitor(plus: cil.PlusNode):
     """
     CIL:
@@ -250,6 +270,7 @@ __visitors__ = {
     cil.AllocateNode: allocate_to_mips_visitor,
     cil.CopyNode: copy_to_mips_visitor,
     cil.GetAttrNode: getattr_to_mips_visitor,
+    cil.SetAttrNode: setattr_to_mips_visitor,
     cil.PlusNode: plus_to_mips_visitor,
     cil.MinusNode: minus_to_mips_visitor,
     cil.StarNode: star_to_mips_visitor,
