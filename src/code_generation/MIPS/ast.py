@@ -118,3 +118,32 @@ class XorInstruction(Instruction):
 class AbsInstruction(Instruction):
     def __init__(self, arguments):
         super().__init__('abs', arguments)
+
+
+# =======================
+# Comparison Instructions
+# =======================
+
+class SeqInstruction(Instruction):
+    def __init__(self, arguments):
+        super().__init__('seq', arguments)
+
+class SneInstruction(Instruction):
+    def __init__(self, arguments):
+        super().__init__('sne', arguments)
+
+class SgeInstruction(Instruction):
+    def __init__(self, arguments, signed = True):
+        super().__init__('sge', arguments) if signed else super().__init__('sgeu', arguments)
+
+class SgtInstruction(Instruction):
+    def __init__(self, arguments, signed = True):
+        super().__init__('sgt', arguments) if signed else super().__init__('sgtu', arguments)
+
+class SleInstruction(Instruction):
+    def __init__(self, arguments, signed = True):
+        super().__init__('sle', arguments) if signed else super().__init__('sleu', arguments)
+
+class SltInstruction(Instruction):
+    def __init__(self, arguments, signed = True):
+        super().__init__('slt', arguments) if signed else super().__init__('sltu', arguments)
