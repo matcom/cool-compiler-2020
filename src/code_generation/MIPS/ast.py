@@ -48,8 +48,8 @@ class SwInstruction(Instruction):
 class LwInstruction(Instruction):
     def __init__(self, arguments):
         super().__init__('lw', arguments)
-        
-        
+
+
 
 # =======================
 # Arithmetic Instructions
@@ -120,6 +120,7 @@ class AbsInstruction(Instruction):
         super().__init__('abs', arguments)
 
 
+
 # =======================
 # Comparison Instructions
 # =======================
@@ -147,3 +148,46 @@ class SleInstruction(Instruction):
 class SltInstruction(Instruction):
     def __init__(self, arguments, signed = True):
         super().__init__('slt', arguments) if signed else super().__init__('sltu', arguments)
+
+
+
+# ============================
+# Branch and Jump Instructions
+# ============================
+
+class BInstruction(Instruction):
+    def __init__(self, arguments):
+        super().__init__('b', arguments)
+
+class BeqInstruction(Instruction):
+    def __init__(self, arguments):
+        super().__init__('beq', arguments)
+
+class BneInstruction(Instruction):
+    def __init__(self, arguments):
+        super().__init__('bne', arguments)
+
+class BgeInstruction(Instruction):
+    def __init__(self, arguments, signed = True):
+        super().__init__('bge', arguments) if signed else super().__init__('bgeu', arguments)
+
+class BgtInstruction(Instruction):
+    def __init__(self, arguments, signed = True):
+        super().__init__('bgt', arguments) if signed else super().__init__('bgtu', arguments)
+
+class BleInstruction(Instruction):
+    def __init__(self, arguments, signed = True):
+        super().__init__('ble', arguments) if signed else super().__init__('bleu', arguments)
+
+class BltInstruction(Instruction):
+    def __init__(self, arguments, signed = True):
+        super().__init__('blt', arguments) if signed else super().__init__('bltu', arguments)
+
+
+class JInstruction(Instruction):
+    def __init__(self, arguments):
+        super().__init__('j', arguments)
+
+class JrInstruction(Instruction):
+    def __init__(self, arguments):
+        super().__init__('jr', arguments)
