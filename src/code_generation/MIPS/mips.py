@@ -25,7 +25,6 @@ def program_to_mips_visitor(program: cil.ProgramNode):
         text_section += function_to_mips_visitor(function)
 
 
-
 def function_to_mips_visitor(function):
     '''
     Converts a function CIL to a piece of MIPS code:\n
@@ -38,23 +37,22 @@ def function_to_mips_visitor(function):
     7) Restores local's stack space\n
     8) Jumps to the next instruction which address is in ra register\n
     '''
-    for i,param in enumerate(function.params):
-        __ADDRS__[param.id]=f'{(len(function.params)-1-i)*4}($sp)'
-              
-    code=save_callee_registers()
-    
-    code+=allocate_stack(len(function.locals)*4)
-    for i,local in enumerate(function.locals):
-        __ADDRS__[local.id]=f'{(len(function.locals)-1-i)*4}($sp)'
-    
+    for i, param in enumerate(function.params):
+        __ADDRS__[param.id] = f'{(len(function.params)-1-i)*4}($sp)'
+
+    code = save_callee_registers()
+
+    code += allocate_stack(len(function.locals)*4)
+    for i, local in enumerate(function.locals):
+        __ADDRS__[local.id] = f'{(len(function.locals)-1-i)*4}($sp)'
+
     for inst in function.body:
         code += instruction_to_mips_visitor(inst)
-        
-    
-    code+=restore_stack(len(function.params)*4)
+
+    code += restore_stack(len(function.params)*4)
     code += restore_callee_registers()
     code += restore_stack(len(function.locals)*4)
-    code.append(mips.JrInstruction('$ra'))    
+    code.append(mips.JrInstruction('$ra'))
     return code
 
 
@@ -66,7 +64,6 @@ def instruction_to_mips_visitor(inst):
         return __visitors__[type(inst)]
     except KeyError:
         raise Exception(f'There is no visitor for {type(inst)}')
-
 
 
 def vcall_to_mips_visitor(vcall: cil.VCAllNode):
@@ -129,7 +126,24 @@ def copy_to_mips_visitor(copy: cil.CopyNode):
 
 
 def getattr_to_mips_visitor(getattr: cil.GetAttrNode):
-    pass
+    """
+    CIL:
+        x = GETATTR y attr
+    MIPS:
+        lw  $t0, [addr(y)]
+        lw  $t1, [attr_shift($t0)]
+        sw  $t1, [addr(x)]
+    """
+
+    x_addr = __ADDRS__[getattr.result]
+    y_addr = __ADDRS__[getattr.obj]
+    attr_shift = (getattr.attr_index + 1) * 4
+    return [
+        mips.Comment(str(getattr)),
+        mips.LwInstruction(('$t0', y_addr)),
+        mips.LwInstruction(('$t1', f'{attr_shift}($t0)')),
+        mips.SwInstruction(('$t1', x_addr))
+    ]
 
 def plus_to_mips_visitor(plus: cil.PlusNode):
     """
