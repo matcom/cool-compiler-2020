@@ -131,11 +131,108 @@ def copy_to_mips_visitor(copy: cil.CopyNode):
 def getattr_to_mips_visitor(getattr: cil.GetAttrNode):
     pass
 
+def plus_to_mips_visitor(plus: cil.PlusNode):
+    """
+    CIL:
+        x = y + z
+    MIPS:
+        add x, y, z
+    """
+
+    return [
+        mips.Comment(str(plus)),
+        mips.AddInstruction((plus.result, plus.left, plus.right))
+    ]
+
+def minus_to_mips_visitor(minus: cil.MinusNode):
+    """
+    CIL:
+        x = y - z
+    MIPS:
+        sub x, y, z
+    """
+
+    return [
+        mips.Comment(str(minus)),
+        mips.SubInstruction((minus.result, minus.left, minus.right))
+    ]
+
+def star_to_mips_visitor(star: cil.StarNode):
+    """
+    CIL:
+        x = y * z
+    MIPS:
+        mult x, y, z
+    """
+
+    return [
+        mips.Comment(str(star)),
+        mips.MultInstruction((star.result, star.left, star.right))
+    ]
+
+def div_to_mips_visitor(div: cil.DivNode):
+    """
+    CIL:
+        x = y / z
+    MIPS:
+        div x, y, z
+    """
+
+    return [
+        mips.Comment(str(div)),
+        mips.DivInstruction((div.result, div.left, div.right))
+    ]
+
+def lesseq_to_mips_visitor(lesseq: cil.LessEqNode):
+    """
+    CIL:
+        x = y <= z
+    MIPS:
+        sle x, y, z
+    """
+
+    return [
+        mips.Comment(str(lesseq)),
+        mips.SleInstruction((lesseq.result, lesseq.left, lesseq.right))
+    ]
+
+def less_to_mips_visitor(less: cil.LessNode):
+    """
+    CIL:
+        x = y < z
+    MIPS:
+        slt x, y, z
+    """
+
+    return [
+        mips.Comment(str(less)),
+        mips.SleInstruction((less.result, less.left, less.right))
+    ]
+
+def not_to_mips_visitor(notn: cil.NotNode):
+    """
+    CIL:
+        x = ~ y
+    MIPS:
+        not x, y
+    """
+
+    return [
+        mips.Comment(str(notn)),
+        mips.NotInstruction((notn.result, notn.value))
+    ]
 
 __visitors__ = {
     cil.VCAllNode: vcall_to_mips_visitor,
     cil.ArgNode: arg_to_mips_visitor,
     cil.AllocateNode: allocate_to_mips_visitor,
     cil.CopyNode: copy_to_mips_visitor,
-    cil.GetAttrNode: getattr_to_mips_visitor
+    cil.GetAttrNode: getattr_to_mips_visitor,
+    cil.PlusNode: plus_to_mips_visitor,
+    cil.MinusNode: minus_to_mips_visitor,
+    cil.StarNode: star_to_mips_visitor,
+    cil.DivNode: div_to_mips_visitor,
+    cil.LessEqNode: lesseq_to_mips_visitor,
+    cil.LessNode: less_to_mips_visitor,
+    cil.NotNode: not_to_mips_visitor,
 }
