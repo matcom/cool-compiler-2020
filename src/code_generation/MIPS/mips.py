@@ -1,5 +1,5 @@
 from code_generation.CIL import ast as cil
-from . import ast as mips
+from code_generation.MIPS import ast as mips
 from .utilities import *
 
 __METHOD_MAPPING__ = {}
@@ -10,7 +10,7 @@ def program_to_mips_visitor(program: cil.ProgramNode):
     global __METHOD_MAPPING__
 
     # Initialize Types Codes
-    init_types_codes(program.types)
+    init_types(program.types)
 
     # filling method mapping
     for t in program.types:
@@ -97,15 +97,16 @@ def allocate_to_mips_visitor(allocate: cil.AllocateNode):
         li      $a0, [syze(T)]
         li      $v0, 9
         syscall
-        move    [addr(x)], $v0
+        sw      $v0, [addr(x)]
     """
-    size = get_type_size(allocate.type)
+    size = allocate.type.size_mips
     address = __ADDRS__[allocate.result]
     code = [
+        mips.Comment(str(allocate)),
         mips.LiInstruction(('$a0', size)),
         mips.LiInstruction(('$v0', 9)),
         mips.SyscallInstruction(),
-        mips.MoveInstruction((address, '$v0'))
+        mips.SwInstruction(('$v0', address))
     ]
     return code
 
@@ -115,16 +116,26 @@ def copy_to_mips_visitor(copy: cil.CopyNode):
     CIL:
         x = COPY y
     MIPS:
-        move [addr(x)], [addr(y)]
+        lw  $t0, [addr(y)]
+        sw  $t0, [addr(x)]
     """
     x_addr = __ADDRS__[copy.result]
     y_addr = __ADDRS__[copy.val]
-    return [mips.MoveInstruction((x_addr, y_addr))]
+    return [
+        mips.Comment(str(copy)),
+        mips.LwInstruction(('$t0', y_addr)),
+        mips.SwInstruction(('$t0', x_addr))
+    ]
+
+
+def getattr_to_mips_visitor(getattr: cil.GetAttrNode):
+    pass
 
 
 __visitors__ = {
     cil.VCAllNode: vcall_to_mips_visitor,
     cil.ArgNode: arg_to_mips_visitor,
     cil.AllocateNode: allocate_to_mips_visitor,
-    cil.CopyNode: copy_to_mips_visitor
+    cil.CopyNode: copy_to_mips_visitor,
+    cil.GetAttrNode: getattr_to_mips_visitor
 }

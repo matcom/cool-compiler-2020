@@ -1,36 +1,19 @@
-from . import ast as mips
-
-__TYPES_CODES__ = {}
+from code_generation.MIPS import ast as mips
 
 
-def init_types_codes(types):
+def init_types(types):
     """
-    Objects in MIPS code are memory space, therefore we need to know the type 
+    Objects in MIPS code are memory space (size_mips), therefore we need to know the type 
     of this object. But we cannot save the type name, therefore, we configure 
-    a unique number for each type which will be identified in MIPS.
+    a unique number for each type which will be identified in MIPS (code_mips)\n
+
     """
     for i, t in enumerate(types):
-        __TYPES_CODES__[t] = i
-
-
-def get_type_code(type):
-    """
-    If the type is valid, it returns the number that identifies that type in 
-    MIPS. In other case, returns None.
-    """
-    try:
-        return __TYPES_CODES__[type]
-    except KeyError:
-        return None
-
-
-def get_type_size(type):
-    """
-    The size of the any type in memory is size of they attributes and one space
-    more for save the type identifier.Each attribute needs 4 bytes of space and 
-    the type identifier also.
-    """
-    return (len(type.attributes) + 1) * 4
+        t.code_mips = i
+        t.size_mips = (len(t.attributes) + 1) * 4
+        t.attr_index_mips = {}
+        for i, a in enumerate(t.attributes):
+            t.attr_index_mips[a] = i + 1
 
 
 def save_callee_registers():
