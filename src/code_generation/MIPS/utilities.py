@@ -30,7 +30,7 @@ def get_type_size(type):
     more for save the type identifier.Each attribute needs 4 bytes of space and 
     the type identifier also.
     """
-    return len(type.attributes) + 1
+    return (len(type.attributes) + 1) * 4
 
 
 def save_callee_registers():
