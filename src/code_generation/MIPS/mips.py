@@ -24,7 +24,19 @@ def program_to_mips_visitor(program: cil.ProgramNode):
         text_section += function_to_mips_visitor(function)
 
 
+
 def function_to_mips_visitor(function):
+    '''
+    Converts a function CIL to a piece of MIPS code:\n
+    1) Assigns the right stack address to each param id\n
+    2) Saves callee registers\n
+    3) Assigns and allocates a chunk in the stack for each local\n
+    4) Appends MIPS translation of each instruction in CIL body\n
+    5) Restores param's space in stack\n
+    6) Restores callee registers\n
+    7) Restores local's stack space\n
+    8) Jumps to the next instruction which address is in ra register\n
+    '''
     for i,param in enumerate(function.params):
         __ADDRS__[param.id]=(len(function.params)-1-i)*4
               
@@ -46,17 +58,33 @@ def function_to_mips_visitor(function):
 
 
 def instruction_to_mips_visitor(inst):
+    '''
+    Resolves visitor for each type
+    '''
     try:
         return __visitors__[type(inst)]
     except KeyError:
         raise Exception(f'There is no visitor for {type(inst)}')
 
 
+
 def vcall_to_mips_visitor(vcall: cil.VCAllNode):
+    '''
+    Converts an VCall CIL node to a piece of MIPS code:\n
+    1) Saves caller registers\n
+    2) Jumps to function label and sets the value of ra\n
+    3) Restore caller registers\n
+    4) Takes the result from v0
+    '''
     return save_caller_registers() + [mips.JalInstruction([__METHOD_MAPPING__[(vcall.type, vcall.method)]])] + restore_caller_registers() + [mips.MoveInstruction(['$v0', __ADDRS__[vcall.result]])]
 
 
 def arg_to_mips_visitor(arg: cil.ArgNode):
+    '''
+    Converts an Arg CIL node to a piece of MIPS code:\n
+    1) Allocates a 4-bytes space in stack\n
+    2) Pushes the arg value in the stack\n
+    '''
     return allocate_stack(4) + push_stack(__ADDRS__[arg.val])
 
 
