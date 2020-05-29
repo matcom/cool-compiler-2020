@@ -26,19 +26,6 @@ class Comment(Instruction):
 class AsciizInst(Instruction):
     def __init__(self, arguments):
         super().__init__(".asciiz", arguments)
-
-
-# ============================
-# Jump and Branch Instructions
-# ============================
-
-class JalInstruction(Instruction):
-    def __init__(self, arguments):
-        super().__init__('jal', arguments)
-        
-class JrInstruction(Instruction):
-    def __init__(self, arguments):
-        super().__init__('jr', arguments)
         
 
 # =============================
@@ -231,6 +218,13 @@ class JrInstruction(Instruction):
     def __init__(self, arguments):
         super().__init__('jr', arguments)
 
+class JalInstruction(Instruction):
+    def __init__(self, arguments):
+        super().__init__('jal', arguments)
+
+class JalrInstruction(Instruction):
+    def __init__(self, arguments):
+        super().__init__('jalr', arguments)
 # ==================
 # Exception Handling
 # ==================
