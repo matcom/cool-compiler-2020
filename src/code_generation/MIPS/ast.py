@@ -14,6 +14,11 @@ class Instruction:
             return f"{self.name} {self.arguments[0]}"
 
 
+class Comment(Instruction):
+    def __init__(self, text):
+        super().__init__('#', (text))
+
+
 # ===============
 # Data Directives
 # ===============
