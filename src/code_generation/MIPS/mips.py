@@ -145,6 +145,7 @@ def getattr_to_mips_visitor(getattr: cil.GetAttrNode):
         mips.SwInstruction(('$t1', x_addr))
     ]
 
+
 def plus_to_mips_visitor(plus: cil.PlusNode):
     """
     CIL:
@@ -157,6 +158,7 @@ def plus_to_mips_visitor(plus: cil.PlusNode):
         mips.Comment(str(plus)),
         mips.AddInstruction((plus.result, plus.left, plus.right))
     ]
+
 
 def minus_to_mips_visitor(minus: cil.MinusNode):
     """
@@ -171,6 +173,7 @@ def minus_to_mips_visitor(minus: cil.MinusNode):
         mips.SubInstruction((minus.result, minus.left, minus.right))
     ]
 
+
 def star_to_mips_visitor(star: cil.StarNode):
     """
     CIL:
@@ -183,6 +186,7 @@ def star_to_mips_visitor(star: cil.StarNode):
         mips.Comment(str(star)),
         mips.MultInstruction((star.result, star.left, star.right))
     ]
+
 
 def div_to_mips_visitor(div: cil.DivNode):
     """
@@ -197,6 +201,7 @@ def div_to_mips_visitor(div: cil.DivNode):
         mips.DivInstruction((div.result, div.left, div.right))
     ]
 
+
 def lesseq_to_mips_visitor(lesseq: cil.LessEqNode):
     """
     CIL:
@@ -209,6 +214,7 @@ def lesseq_to_mips_visitor(lesseq: cil.LessEqNode):
         mips.Comment(str(lesseq)),
         mips.SleInstruction((lesseq.result, lesseq.left, lesseq.right))
     ]
+
 
 def less_to_mips_visitor(less: cil.LessNode):
     """
@@ -223,6 +229,7 @@ def less_to_mips_visitor(less: cil.LessNode):
         mips.SleInstruction((less.result, less.left, less.right))
     ]
 
+
 def not_to_mips_visitor(notn: cil.NotNode):
     """
     CIL:
@@ -235,6 +242,7 @@ def not_to_mips_visitor(notn: cil.NotNode):
         mips.Comment(str(notn)),
         mips.NotInstruction((notn.result, notn.value))
     ]
+
 
 __visitors__ = {
     cil.VCAllNode: vcall_to_mips_visitor,
