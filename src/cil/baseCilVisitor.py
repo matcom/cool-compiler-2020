@@ -122,17 +122,17 @@ class BaseCoolToCilVisitor:
     def register_params(self, vinfo: VariableInfo) -> str:
         # Registra un parametro en la funcion en construccion y devuelve el nombre procesado del parametro
         assert self.current_function is not None
-        vinfo.name = f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
-        param_node: nodes.ParamNode = nodes.ParamNode(vinfo.name)
+        name = f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
+        param_node: nodes.ParamNode = nodes.ParamNode(name)
         self.params.append(param_node)
-        return vinfo.name
+        return name
 
     def register_local(self, vinfo: VariableInfo) -> str:
         assert self.current_function is not None
-        vinfo.name = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
-        local_node = nodes.LocalNode(vinfo.name)
+        name = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
+        local_node = nodes.LocalNode(name)
         self.localvars.append(local_node)
-        return vinfo.name
+        return name
 
     def define_internal_local(self) -> str:
         vinfo = VariableInfo('internal')
@@ -196,7 +196,10 @@ class BaseCoolToCilVisitor:
         for i, itype in enumerate(self.context.types):
             self.types_indexes[itype] = i
             for j, atype in enumerate(self.context.types):
-                table[i][j] = self.tdt_table[itype, atype]
+                try:
+                    table[i][j] = self.tdt_table[itype, atype]
+                except KeyError:
+                    table[i][j] = -1
         self.tdt_data_node = self.register_data(table)
 
     def __build_builtins(self):

@@ -191,9 +191,10 @@ class Context:
 
 
 class VariableInfo:
-    def __init__(self, name: str, vtype: Optional[Type] = None):
+    def __init__(self, name: str, vtype: Optional[Type] = None, location=None):
         self.name = name
         self.type = vtype
+        self.location = location
 
 
 class Scope:
@@ -212,8 +213,8 @@ class Scope:
         self.children.append(child)
         return child
 
-    def define_variable(self, vname: str, vtype: Type) -> VariableInfo:
-        info = VariableInfo(vname, vtype)
+    def define_variable(self, vname: str, vtype: Type, location=None) -> VariableInfo:
+        info = VariableInfo(vname, vtype, location)
         self.locals.append(info)
         return info
 

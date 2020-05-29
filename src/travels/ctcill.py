@@ -11,11 +11,11 @@ Scope = semantics.Scope
 
 class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     @visitor.on("node")
-    def visit(self, node: coolAst.Node) -> None:
+    def visit(self, node: coolAst.Node, scope: Scope) -> None:
         pass
 
     @visitor.when(coolAst.ProgramNode)  # type: ignore
-    def visit(self, node: coolAst.ProgramNode, scope: Scope, local_vm_holder: str = '') -> cil.CilProgramNode:  # noqa: F811
+    def visit(self, node: coolAst.ProgramNode, scope: Scope) -> cil.CilProgramNode:  # noqa: F811
         # node.class_list -> [ClassDef ...]
 
         # Define the entry point for the program.
@@ -50,8 +50,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.current_type = self.context.get_type(node.idx)
         new_type_node = self.register_type(node.idx)
 
-        methods: List[str] = [feature.idx for feature in node.feature if isinstance(feature, coolAst.MethodDef)]
-        attributes: List[semantics.Attribute] = [feature for feature in node.feature if isinstance(feature, coolAst.AttributeDef)]
+        methods: List[str] = [feature.idx for feature in node.features if isinstance(feature, coolAst.MethodDef)]
+        attributes: List[semantics.Attribute] = [feature for feature in node.features if isinstance(feature, coolAst.AttributeDef)]
 
         # Handle inherited features such as attributes and methods first
         if self.current_type.parent is not None:
@@ -75,13 +75,13 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         for attribute in attributes:
             new_type_node.attributes.append(attribute.idx)
         for method in methods:
-            new_type_node.methods.append((method.idx, self.to_function_name(method.idx, node.idx)))
+            new_type_node.methods.append((method, self.to_function_name(method, node.idx)))
 
         # TODO: It is necessary to visit attributes?? Think so cuz they can be initialized
         # and their value could perhaps go to .DATA section
 
         # Visit every method for generate its code in the .CODE section
-        for feature, child_scope in zip(methods, scope.children):
+        for feature, child_scope in zip((x for x in node.features if isinstance(x, coolAst.MethodDef)), scope.children):
             self.visit(feature, child_scope)
 
         self.current_type = None
@@ -100,7 +100,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.current_function = function_node
 
         # Definir los parametros del metodo.
-        params: List[semantics.VariableInfo] = [scope.find_variable(param.idx) for param in node.param_list]
+        params: List[semantics.VariableInfo] = [scope.find_variable(param.id) for param in node.param_list]
 
         # Establecer los parametros de la funcion.
         for param in params:
@@ -108,13 +108,14 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Registrar las instrucciones que conforman el cuerpo del metodo.
         last = self.visit(node.statements, scope)
-
-        self.current_method = None
-        self.current_function = None
         if last is not None:
             self.register_instruction(cil.ReturnNode(last))
         else:
             self.register_instruction(cil.ReturnNode())
+
+        self.current_method = None
+        self.current_function = None
+
 
     # **************   IMPLEMENTACION DE LAS EXPRESIONES CONDICIONAES (IF, WHILE, CASE) Y LAS DECLARACIONES
     #                  DE VARIABLES (let)
@@ -162,7 +163,33 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Process the associated expr, if any, to the let declaration
         # A block defines a new scope, so it is important to manage it
-        self.visit(node.block_statements, scope.children[0])
+        return self.visit(node.block_statements, scope)
+
+    @visitor.when(coolAst.VariableCall)  # type: ignore
+    def visit(self, node: coolAst.VariableCall, scope: Scope):  # noqa: F811
+        vinfo = scope.find_variable(node.idx)
+        # Diferenciar la variable si es un parametro, un atributo o una variable local
+        # en el scope actual
+        if vinfo.location == "PARAM":
+            for param_node in self.params:
+                if vinfo.name in param_node.name:
+                    return param_node.name
+        if vinfo.location == "ATTRIBUTE":
+            local = self.define_internal_local()
+            self.register_instruction(cil.GetAttributeNode(self.current_type.name, vinfo.name, local))
+            return local
+        if vinfo.location == "LOCAL":
+            for local_node in self.localvars:
+                if vinfo.name in local_node.name:
+                    return local_node.name
+
+    @visitor.when(coolAst.InstantiateClassNode)  # type: ignore
+    def visit(self, node: coolAst.InstantiateClassNode, scope: Scope):  # noqa: F811
+        # Reservar una variable que guarde la nueva instancia
+        type_ = self.context.get_type(node.type_)
+        instance_vm_holder = self.define_internal_local()
+        self.register_instruction(cil.AllocateNode(type_, instance_vm_holder))
+        return instance_vm_holder
 
     @visitor.when(coolAst.BlockNode)  # type:ignore
     def visit(self, node: coolAst.BlockNode, scope: Scope) -> str:  # noqa: F811
@@ -269,7 +296,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             # Asignar al identificador idk el valor de expr0
             self.register_instruction(cil.AssignNode(idk, expr_vm_holder))
             # Generar el codigo de la expresion asociada a esta rama
-            self.visit(action_node.actions)
+            self.visit(action_node.actions, scope)
             # Generar un salto de modo que no se chequee otra rama
             self.register_instruction(cil.UnconditionalJump(end_label))
             self.register_instruction(cil.LabelNode(next_label))
@@ -668,7 +695,7 @@ class CilDisplayFormatter:
         if isinstance(node.value, str):
             return f'{node.name} = "{node.value}" ;'
         elif isinstance(node.value, list):
-            data = "\n\t".join(x for x in node.value)
+            data = "\n\t".join(str(x) for x in node.value)
             return f'{node.name} = {data}'
         elif isinstance(node.value, int):
             return f'{node.name} = {node.value}'

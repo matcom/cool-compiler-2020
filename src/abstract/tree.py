@@ -25,16 +25,16 @@ class ProgramNode(Node):
                                                type_collector.errors)
         type_builder.visit(self)
         errors = type_builder.errors
-        # if not errors:
-        #     inferer = inference.TypeInferer(type_builder.context,
-        #                                     errors=errors)
-        #     scope = None
-        #     for d in range(1, deep + 1):
-        #         print(d)
-        #         scope = inferer.visit(self, scope=scope, deep=d)
-        #         print(scope)
-        # # reportar los errores
-        return errors, type_builder.context
+        scope = None
+        if not errors:
+            inferer = inference.TypeInferer(type_builder.context,
+                                            errors=errors)
+            for d in range(1, deep + 1):
+                print(d)
+                scope = inferer.visit(self, scope=scope, deep=d)
+                print(scope)
+        # reportar los errores
+        return errors, type_builder.context, scope
 
 
 class MethodDef(DeclarationNode):

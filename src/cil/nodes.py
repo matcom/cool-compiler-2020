@@ -44,7 +44,7 @@ class ParamNode(CilNode):
 
 class LocalNode(CilNode):
     def __init__(self, name):
-        self.name
+        self.name = name
 
 
 class InstructionNode(CilNode):
@@ -55,7 +55,7 @@ class ArithmeticNode(InstructionNode):
     def __init__(self, dest, left, right):
         self.dest = dest
         self.left = left
-        self.dest = right
+        self.right = right
 
 
 class AssignNode(InstructionNode):

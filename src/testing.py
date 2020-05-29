@@ -44,16 +44,16 @@ def pipeline(program: str, deep: int) -> None:
     ######################
 
     # Run type checker visitor
-    errors, context = ast.check_semantics(deep)
+    errors, context, scope = ast.check_semantics(deep)
     if errors:
         print("FOUND ERRORS!!!")
         report(errors)
         sys.exit(1)
 
     print("SEMENATIC CHECK DONE!!!")
-    print(context)
+    print(scope)
     cil_travel = CoolToCILVisitor(context)
-    cil_program_node = cil_travel.visit(ast)
+    cil_program_node = cil_travel.visit(ast, scope)
     formatter = CilDisplayFormatter()
     print(formatter(cil_program_node))
 

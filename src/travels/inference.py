@@ -29,10 +29,10 @@ class TypeInferer:
     def __init__(self, context: semantic.Context, errors=[]):
         self.context: semantic.Context = context
         self.current_type: Optional[semantic.Type] = None
-        self.INTEGER = self.context.get_type('int')
-        self.OBJECT = self.context.get_type('object')
-        self.STRING = self.context.get_type('string')
-        self.BOOL = self.context.get_type('bool')
+        self.INTEGER = self.context.get_type('Int')
+        self.OBJECT = self.context.get_type('Object')
+        self.STRING = self.context.get_type('String')
+        self.BOOL = self.context.get_type('Bool')
         self.AUTO_TYPE = self.context.get_type('AUTO_TYPE')
         self.errors = errors
         self.current_method: Optional[semantic.Method] = None
@@ -87,7 +87,7 @@ class TypeInferer:
     def visit(self, node: coolAst.AttributeDef, scope: semantic.Scope, infered_type=None, deep=1):  # noqa: F811
         atrib = self.current_type.get_attribute(node.idx)
         if deep == 1:
-            scope.define_variable(atrib.name, atrib.type)
+            scope.define_variable(atrib.name, atrib.type, "ATTRIBUTE")
 
     # ---------------------------------------------------------------------
     # Si el método no tiene un tipo definido, entonces tratar de inferir  |
@@ -103,9 +103,7 @@ class TypeInferer:
         for param in node.param_list:
             self.visit(param, scope, deep=deep)
 
-        last = None
-        for statement in node.statements:
-            last = self.visit(statement, scope, deep=deep)
+        last = self.visit(node.statements, scope, deep=deep)
         if not method.return_type != self.AUTO_TYPE:
             print(f'Infered type {last.name} for {node.idx}')
             method.return_type = last
@@ -114,11 +112,19 @@ class TypeInferer:
                 self.errors.append(f'Method {method.name} cannot return {last}')
         print(scope)
 
+    @visitor.when(coolAst.BlockNode)  # type: ignore
+    def visit(self, node: coolAst.BlockNode, scope: semantic.Scope, infered_type=None, deep=1):  # noqa: F811
+        # Visitar cada expr del bloque, el tipo del bloque es el tipo de la ultima expresion
+        last = None
+        for expr in node.expressions:
+            last = self.visit(expr, scope, infered_type, deep)
+        return last
+
     @visitor.when(coolAst.Param)  #type: ignore  # noqa
     def visit(self, node: coolAst.Param, scope: semantic.Scope, infered_type=None, deep=1):  # noqa: F811
         type_ = self.context.get_type(node.type)
         if deep == 1:
-            scope.define_variable(node.id, type_)
+            scope.define_variable(node.id, type_, "PARAM")
 
     # -------------------------------------------------------------------------
     # Checkear si la variable a la que se le va a asignar el resultado de la  |
@@ -182,37 +188,94 @@ class TypeInferer:
                 e2_parent = e2_parent.parent
             return e1_parent
 
-    @visitor.when(coolAst.VariableDeclaration)  #type: ignore  # noqa
-    # TODO FIX THIS, IT is not working after change in grammar, REIMPLEMENT IT!!!!
+    # @visitor.when(coolAst.VariableDeclaration)  #type: ignore  # noqa
+    # # TODO FIX THIS, IT is not working after change in grammar, REIMPLEMENT IT!!!!
+    # def visit(self, node: coolAst.VariableDeclaration, scope: semantic.Scope, infered_type=None, deep=1):  # noqa: F811
+    #     for var_idx, var_type, var_init_exp in node.var_list:
+    #         type_ = self.context.get_type(var_type)
+    #         if type_ != self.AUTO_TYPE:
+    #             if deep == 1:
+    #                 scope.define_variable(var_idx, type_, "LOCAL")
+    #         else:
+    #             if deep == 1:
+    #                 type_ = self.visit(node.block_statements, scope, infered_type, deep)
+    #                 print(f'Infered type {type_.name} for {var_idx}')
+    #                 scope.define_variable(node.idx, type_, "LOCAL")
+    #     return void
+    @visitor.when(coolAst.VariableDeclaration)  # type: ignore
     def visit(self, node: coolAst.VariableDeclaration, scope: semantic.Scope, infered_type=None, deep=1):  # noqa: F811
-        for var_idx, var_type, var_init_exp in node.var_list:
+        for var_id, var_type, var_init_expr in node.var_list:
             type_ = self.context.get_type(var_type)
-            if type_ != self.AUTO_TYPE:
-                if deep == 1:
-                    scope.define_variable(var_idx, type_)
+            # Revisar que la expresion de inicializacion (de existir) se conforme con el tipo
+            # de la variable.
+            # Se pueden dar varios casos:
+            # - La variable se inicializa en AUTO_TYPE y existe la expresion de inicializacion,
+            #   en este caso la variable adquiere el tipo de la expresion
+            # - La variable se inicializa en un tipo T_1 y existe la expresion de inicializacion con tipo estatico T_2,
+            #   en este caso T_2 < T_1.
+            # - La variable se inicializa en un tipo T y no existe expr de inicializacion (solo se define la variable).
+            # - La variable se inicializa en AUTO_TYPE y no existe la expr, en este caso se define la variable
+            #   y su tipo se deja a inferir por el contexto.
+            if var_init_expr:
+                init_expr_type: semantic.Type = self.visit(var_init_expr, scope, infered_type, deep)
+                if type_ != self.AUTO_TYPE:
+                    if not init_expr_type.conforms_to(type_):
+                        self.errors.append(f"Init expression of {var_id} must conform to type {type_}")
+                    else:
+                        if deep == 1:
+                            scope.define_variable(var_id, type_, "LOCAL")
+                else:
+                    if deep == 1:
+                        scope.define_variable(var_id, init_expr_type, "LOCAL")
             else:
-                if deep == 1:
-                    type_ = self.visit(node.block_statements, scope, infered_type, deep)
-                    print(f'Infered type {type_.name} for {var_idx}')
-                    scope.define_variable(node.idx, type_)
-        return void
+                # No hay expresion de inicializacion, entonces solo queda definir la variable, y si es necesario,
+                # se actualizara su tipo al chequear el contexto.
+                if not (scope.is_defined(var_id) and scope.is_local(var_id)):
+                    scope.define_variable(var_id, type_, "LOCAL")
 
-    @visitor.when(coolAst.FunCall)  #type: ignore  # noqa
+        # Visitar la expresion asociada.
+        return_type = self.visit(node.block_statements, scope, infered_type, deep)
+        return return_type
+
+    # @visitor.when(coolAst.FunCall)  #type: ignore  # noqa
+    # def visit(self, node: coolAst.FunCall, scope: semantic.Scope, infered_type=None, deep=1):  # noqa: F811
+    #     if isinstance(node.obj, semantic.Type):
+    #         method = node.obj.get_method(node.id)
+    #     elif node.obj == 'self':
+    #         method = self.current_type.get_method(node.id)
+    #     else:
+    #         method = self.context.get_type(node.obj).get_method(node.id)
+
+    #     for arg in node.args:
+    #         self.visit(arg, scope, infered_type, deep)
+
+    #     if method.return_type != self.AUTO_TYPE:
+    #         return method.return_type
+    #     elif infered_type:
+    #         print(f'Infered type {infered_type.name} for {node.id}')
+    #         method.return_type = infered_type
+    #         return infered_type
+    #     else:
+    #         return self.AUTO_TYPE
+
+    @visitor.when(coolAst.FunCall)  # type: ignore
     def visit(self, node: coolAst.FunCall, scope: semantic.Scope, infered_type=None, deep=1):  # noqa: F811
-        if isinstance(node.obj, semantic.Type):
-            method = node.obj.get_method(node.id)
-        elif node.obj == 'self':
-            method = self.current_type.get_method(node.id)
-        else:
-            method = self.context.get_type(node.obj).get_method(node.id)
+        # Detectar el tipo estatico de la expr0.
+        static_expr0_type: semantic.Type = self.visit(node.obj, scope, infered_type, deep)
 
-        for arg in node.args:
-            self.visit(arg, scope, infered_type, deep)
+        # Encontrar el metodo en el tipo.
+        method: semantic.Method = static_expr0_type.get_method(node.id)
 
+        # Iterar por cada parametro del metodo y chequear que cada expresion corresponda en tipo.
+        for expr_i, type_i, param_name in zip(node.args, method.param_types, method.param_names):
+            type_expr_i = self.visit(expr_i, scope, infered_type, deep)
+            if not type_expr_i.conforms_to(type_i):
+                raise semantic.SemanticError(f"Expression corresponding to param {param_name} in call to {node.id} must conform to {type_i}")
+
+        # Procesar el tipo de retorno de la funcion
         if method.return_type != self.AUTO_TYPE:
             return method.return_type
         elif infered_type:
-            print(f'Infered type {infered_type.name} for {node.id}')
             method.return_type = infered_type
             return infered_type
         else:
