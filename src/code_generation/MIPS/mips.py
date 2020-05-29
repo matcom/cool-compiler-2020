@@ -75,11 +75,24 @@ def allocate_to_mips_visitor(allocate: cil.AllocateNode):
         mips.SyscallInstruction(),
         mips.MoveInstruction((address, '$v0'))
     ]
-    return code 
+    return code
+
+
+def copy_to_mips_visitor(copy: cil.CopyNode):
+    """
+    CIL:
+        x = COPY y
+    MIPS:
+        move [addr(x)], [addr(y)]
+    """
+    x_addr = __ADDRS__[copy.result]
+    y_addr = __ADDRS__[copy.val]
+    return [mips.MoveInstruction((x_addr, y_addr))]
 
 
 __visitors__ = {
     cil.VCAllNode: vcall_to_mips_visitor,
     cil.ArgNode: arg_to_mips_visitor
-    cil.AllocateNode: allocate_to_mips_visitor
+    cil.AllocateNode: allocate_to_mips_visitor,
+    cil.CopyNode: copy_to_mips_visitor
 }
