@@ -1,4 +1,4 @@
-
+from . import ast as mips
 
 __TYPES_CODES__ = {}
 
@@ -34,31 +34,38 @@ def get_type_size(type):
 
 
 def save_callee_registers():
-    allocate_stack(40)
+    code=allocate_stack(40)
     for i in range(8):
-        push_stack(f'$s{i}', (7-i)*4)
-    push_stack('$fp', 4)
-    push_stack('$ra')
-
+        code+=push_stack(f'$s{i}', (7-i)*4)
+    code+=push_stack('$fp', 4)
+    code+=push_stack('$ra')
+    return code  
+    
 
 def save_caller_registers():
-    allocate_stack(40)
+    code=allocate_stack(40)
     for i in range(10):
-        push_stack(f'$t{i}', (9-i)*4)
+        code+=push_stack(f'$t{i}', (9-i)*4)
+        
+    return code
 
 
 def restore_callee_registers():
+    code=[]
     for i in range(8):
-        push_stack(f'$s{i}', (7-i)*4)
-    peek_stack('$fp', 4)
-    peek_stack('$ra')
-    restore_stack(40)
+        code+=peek_stack(f'$s{i}', (7-i)*4)
+    code+=peek_stack('$fp', 4)
+    code+=peek_stack('$ra')
+    code+=restore_stack(40)
+    return code
 
 
 def restore_caller_registers():
+    code=[]
     for i in range(10):
-        peek_stack(f'$t{i}', (9-i)*4)
-    restore_stack(40)
+        code+=peek_stack(f'$t{i}', (9-i)*4)
+    code+=restore_stack(40)
+    return code
 
 
 def restore_stack(bytes):
@@ -70,9 +77,17 @@ def allocate_stack(bytes):
 
 
 def push_stack(src, pos=0):
-    if pos:
-        return [mips.SwInstruction(src, f'{pos}($sp)')]
-    return [mips.SwInstruction(src, '($sp)')]
+    code=[]
+    if src[0]!='$':
+        code=[peek_stack('$t0', src)]
+        if pos:
+            return code+[mips.SwInstruction('$t0', f'{pos}($sp)')]
+        return code+[mips.SwInstruction('$t0', '($sp)')]
+    else:
+        if pos:
+            return code+[mips.SwInstruction(src, f'{pos}($sp)')]
+        return code+[mips.SwInstruction(src, '($sp)')]
+        
 
 
 def peek_stack(src, pos=0):

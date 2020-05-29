@@ -35,7 +35,11 @@ class AsciizInst(Instruction):
 class JalInstruction(Instruction):
     def __init__(self, arguments):
         super().__init__('jal', arguments)
-
+        
+class JrInstruction(Instruction):
+    def __init__(self, arguments):
+        super().__init__('jr', arguments)
+        
 
 # =============================
 # Load, Store and Data Movement
