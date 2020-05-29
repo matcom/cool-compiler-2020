@@ -25,10 +25,10 @@ def program_to_mips_visitor(program: cil.ProgramNode):
 
 
 def function_to_mips_visitor(function):
-    code=save_callee_registers() #revisar que save_callee_registers no tiene valor de retorno
     for i,param in enumerate(function.params):
         __ADDRS__[param.id]=(len(function.params)-1-i)*4
               
+    code=save_callee_registers()
     
     code+=allocate_stack(len(function.locals)*4)
     for i,local in enumerate(function.locals):
@@ -39,6 +39,8 @@ def function_to_mips_visitor(function):
 
     code += restore_callee_registers()
     code += restore_stack(len(function.locals)*4)
+    
+    return code
 
 
 def instruction_to_mips_visitor(inst):
