@@ -77,9 +77,17 @@ def allocate_stack(bytes):
 
 
 def push_stack(src, pos=0):
-    if pos:
-        return [mips.SwInstruction(src, f'{pos}($sp)')]
-    return [mips.SwInstruction(src, '($sp)')]
+    code=[]
+    if src[0]!='$':
+        code=[peek_stack('$t0', src)]
+        if pos:
+            return code+[mips.SwInstruction('$t0', f'{pos}($sp)')]
+        return code+[mips.SwInstruction('$t0', '($sp)')]
+    else:
+        if pos:
+            return code+[mips.SwInstruction(src, f'{pos}($sp)')]
+        return code+[mips.SwInstruction(src, '($sp)')]
+        
 
 
 def peek_stack(src, pos=0):

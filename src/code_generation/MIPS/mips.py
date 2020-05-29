@@ -39,13 +39,13 @@ def function_to_mips_visitor(function):
     8) Jumps to the next instruction which address is in ra register\n
     '''
     for i,param in enumerate(function.params):
-        __ADDRS__[param.id]=(len(function.params)-1-i)*4
+        __ADDRS__[param.id]=f'{(len(function.params)-1-i)*4}($sp)'
               
     code=save_callee_registers()
     
     code+=allocate_stack(len(function.locals)*4)
     for i,local in enumerate(function.locals):
-        __ADDRS__[local.id]=(len(function.locals)-1-i)*4
+        __ADDRS__[local.id]=f'{(len(function.locals)-1-i)*4}($sp)'
     
     for inst in function.body:
         code += instruction_to_mips_visitor(inst)
