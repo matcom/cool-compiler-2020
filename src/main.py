@@ -8,6 +8,7 @@ from core.cmp.lex import CoolLexer
 from core.cmp.evaluation import *
 from core.cmp.cil import get_formatter
 from pprint import pprint
+from core.cmp.cil_to_mips import test
 
 
 def main(args):
@@ -100,11 +101,12 @@ def main(args):
 
 
 if __name__ == "__main__":
-    import argparse 
+    # import argparse 
+# 
+    # parser = argparse.ArgumentParser(description='CoolCompiler pipeline')
+    # parser.add_argument('-f', '--file', type=str, default='code.cl', help='node address')
+# 
+    # args = parser.parse_args()
+    # main(args)
 
-    parser = argparse.ArgumentParser(description='CoolCompiler pipeline')
-    parser.add_argument('-f', '--file', type=str, default='code.cl', help='node address')
-
-    args = parser.parse_args()
-    main(args)
-
+    test()

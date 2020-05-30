@@ -1,13 +1,21 @@
 from itertools import chain
 import core.cmp.visitor as visitor
 
-ATTR_SIZE       = 4
-RESGISTER_SIZE  = 4
-REGISTER_NAMES  = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7','t8', 't9', 'v0', 'v1', 'a0', 'sp', 'ra']
-REGISTERS       = { name: Register(name) for name in REGISTER_NAMES }
+ATTR_SIZE           = 4
+RESGISTER_SIZE      = 4
+REGISTER_NAMES      = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7','t8', 't9', 'v0', 'v1', 'a0', 'sp', 'ra']
+STRING_TYPE         = "string_type"
 
-TYPE_NAME_LABEL = f"type_name_{}"
+# TYPE_NAME_LABEL     = f"type_name_{}"
+TYPE_METADATA_SIZE  = 4
 
+
+
+class Register():
+    def __init__(self, name):
+        self.name = name
+
+REGISTERS           = { name: Register(name) for name in REGISTER_NAMES }
 
 class Node:
     pass
@@ -24,9 +32,35 @@ class FunctionNode(Node):
         self.instructions = instructions
 
 class DataNode(Node):
-    def __init__(self, name, value):
-        self.name  = name
-        self.value = value
+    def __init__(self, label):
+        self._label  = label
+    
+    @property
+    def label(self):
+        return self._label
+
+class StringConst(DataNode):
+    def __init__(self, label, string):
+        super().__init__(label)
+        self._string = string
+    
+    def __repr__(self):
+        return f'STRING_CONST {self._label} {STRING_TYPE} {self._string}'
+
+class TypeDesc(DataNode):
+    def __init__(self, label, name, size,  methods):
+        super().__init__(label)
+        self._size    = size
+        self._name    = name
+        self._methods = methods
+    
+    def __repr__(self):
+        print(self._name)
+        print(self._size)
+        return f'TYPE_DESC {self._name} {self._size} {self._label} {self._methods}'
+
+        
+        
 
 class InstructionNode(Node):
     pass
@@ -82,10 +116,12 @@ class AddInmediateNode(InstructionNode):
 
 
 class MIPSType():
-    def __init__(self, name, attributes, methods):
-        self.attributes = attributes
-        self.methods    = methods
-        self.data_label = ""
+    def __init__(self, label, name, size, methods):
+        self._label = label
+        self._name = name
+        self._size = size
+        self._methods = methods
+        
 
     @property
     def size(self):
@@ -103,13 +139,18 @@ class MIPSType():
     
     def get_func(self, method_name):
         return self.methods[method_name]
+
+class Label():
+    def __init__(self, name):
+        self._name = name
+    
+    def __repr__(self):
+        return self._name
+    
     
     
     
 
-class Register():
-    def __init__(self, name):
-        self.name = name
 
 class Address():
     def __init__(self, reg, offset):
