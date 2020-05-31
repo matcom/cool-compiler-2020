@@ -33,7 +33,7 @@ class DIV(ArithmeticNode):
 
 class DIVU(ArithmeticNode):
     """
-    dest = src1 / src2. Sin signo
+    dest = src1 / src2. Sin signo.
     """
     pass
 

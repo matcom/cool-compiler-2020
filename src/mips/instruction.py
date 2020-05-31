@@ -113,6 +113,15 @@ class UnconditionalJumpNode(MipsNode):
         return f'{self.action} {self.label}'
 
 
+class UnconditionalJumpRegisterNode(MipsNode):
+    def __init__(self, src1: int):
+        self.src1 = src1
+        self.action = self.__class__.__name__.lower()
+
+    def __str__(self):
+        return f'{self.action} ${self.src1}'
+
+
 class UnaryJumpNode(MipsNode):
     def __init__(self, src1: int, label: str):
         self.src1 = src1
@@ -135,3 +144,13 @@ class BinaryJumpNode(MipsNode):
         if self.const_src2:
             return f'{self.action} ${self.src1}, {self.src2}, {self.label}'
         return f'{self.action} ${self.src1}, ${self.src2}, {self.label}'
+
+
+class AbstractLoadNode(MipsNode):
+    def __init__(self, dest: int, src: int):
+        self.dest = dest
+        self.src = src
+        self.action = self.__class__.__name__.lower()
+
+    def __str__(self):
+        return f'{self.action} {self.dest}, {self.}'
