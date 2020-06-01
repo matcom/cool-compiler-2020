@@ -24,6 +24,8 @@ def program_to_mips_visitor(program: cil.ProgramNode):
     for function in program.built_in_code + program.code:
         text_section += function_to_mips_visitor(function)
 
+    return mips.MIPSProgram(data_section, text_section)
+
 
 def function_to_mips_visitor(function):
     '''

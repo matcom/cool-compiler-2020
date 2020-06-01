@@ -1,3 +1,15 @@
+
+class MIPSProgram:
+    def __init__(self, data_section, text_section):
+        self.data = data_section
+        self.text = text_section
+
+    def __str__(self):
+        d = '\n'.join([str(x) for x in self.data])
+        t = '\n'.join([str(x) for x in self.text])
+        return '\n'.join([t, d])
+
+
 class Instruction:
     def __init__(self, name, arguments=None):
         self.name = name
@@ -26,7 +38,7 @@ class Comment(Instruction):
 class AsciizInst(Instruction):
     def __init__(self, arguments):
         super().__init__(".asciiz", arguments)
-        
+
 
 # =============================
 # Load, Store and Data Movement
@@ -218,9 +230,11 @@ class JrInstruction(Instruction):
     def __init__(self, arguments):
         super().__init__('jr', arguments)
 
+
 class JalInstruction(Instruction):
     def __init__(self, arguments):
         super().__init__('jal', arguments)
+
 
 class JalrInstruction(Instruction):
     def __init__(self, arguments):
