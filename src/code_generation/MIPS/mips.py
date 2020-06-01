@@ -17,13 +17,13 @@ def program_to_mips_visitor(program: cil.ProgramNode):
         for m in t.methods:
             __METHOD_MAPPING__[(t, m)] = t.methods[m]
 
-    data_section = [mips.AsciizInst(d.val) for d in program.data]
+    data = [mips.MIPSDataItem(d.id, mips.AsciizInst(d.val))
+            for d in program.data]
+    data_section = mips.MIPSDataSection(data)
     # continue
-    text_section = []
-
-    for function in program.built_in_code + program.code:
-        text_section += function_to_mips_visitor(function)
-
+    functions = [function_to_mips_visitor(
+        f) for f in program.built_in_code + program.code]
+    text_section = mips.MIPSTextSection(functions)
     return mips.MIPSProgram(data_section, text_section)
 
 
@@ -55,7 +55,7 @@ def function_to_mips_visitor(function):
     code += restore_callee_registers()
     code += restore_stack(len(function.locals)*4)
     code.append(mips.JrInstruction('$ra'))
-    return code
+    return mips.MIPSFunction(function.name, code)
 
 
 def instruction_to_mips_visitor(inst):
@@ -63,9 +63,10 @@ def instruction_to_mips_visitor(inst):
     Resolves visitor for each type
     '''
     try:
-        return __visitors__[type(inst)]
+        return __visitors__[type(inst)](inst)
     except KeyError:
-        raise Exception(f'There is no visitor for {type(inst)}')
+        print(f'There is no visitor for {type(inst)}')
+        return []
 
 
 def vcall_to_mips_visitor(vcall: cil.VCAllNode):
@@ -76,7 +77,7 @@ def vcall_to_mips_visitor(vcall: cil.VCAllNode):
     3) Restore caller registers\n
     4) Takes the result from v0
     '''
-    return save_caller_registers() + [mips.JalInstruction([__METHOD_MAPPING__[(vcall.type, vcall.method)]])] + restore_caller_registers() + [mips.MoveInstruction(['$v0', __ADDRS__[vcall.result]])]
+    return save_caller_registers() + [mips.JalInstruction(__METHOD_MAPPING__[(vcall.type, vcall.method)])] + restore_caller_registers() + [mips.MoveInstruction('$v0', __ADDRS__[vcall.result])]
 
 
 def arg_to_mips_visitor(arg: cil.ArgNode):
@@ -98,14 +99,14 @@ def allocate_to_mips_visitor(allocate: cil.AllocateNode):
         syscall
         sw      $v0, [addr(x)]
     """
-    size = allocate.type.size_mips
+    size = get_type(allocate.type).size_mips
     address = __ADDRS__[allocate.result]
     code = [
         mips.Comment(str(allocate)),
-        mips.LiInstruction(('$a0', size)),
-        mips.LiInstruction(('$v0', 9)),
+        mips.LiInstruction('$a0', size),
+        mips.LiInstruction('$v0', 9),
         mips.SyscallInstruction(),
-        mips.SwInstruction(('$v0', address))
+        mips.SwInstruction('$v0', address)
     ]
     return code
 
@@ -122,8 +123,8 @@ def copy_to_mips_visitor(copy: cil.CopyNode):
     y_addr = __ADDRS__[copy.val]
     return [
         mips.Comment(str(copy)),
-        mips.LwInstruction(('$t0', y_addr)),
-        mips.SwInstruction(('$t0', x_addr))
+        mips.LwInstruction('$t0', y_addr),
+        mips.SwInstruction('$t0', x_addr)
     ]
 
 
@@ -142,9 +143,9 @@ def getattr_to_mips_visitor(getattr: cil.GetAttrNode):
     attr_shift = (getattr.attr_index + 1) * 4
     return [
         mips.Comment(str(getattr)),
-        mips.LwInstruction(('$t0', y_addr)),
-        mips.LwInstruction(('$t1', f'{attr_shift}($t0)')),
-        mips.SwInstruction(('$t1', x_addr))
+        mips.LwInstruction('$t0', y_addr),
+        mips.LwInstruction('$t1', f'{attr_shift}($t0)'),
+        mips.SwInstruction('$t1', x_addr)
     ]
 
 
@@ -162,9 +163,9 @@ def setattr_to_mips_visitor(setattr: cil.SetAttrNode):
     attr_shift = (setattr.attr_index + 1) * 4
     return [
         mips.Comment(str(setattr)),
-        mips.LwInstruction(('$t0', x_addr)),
-        mips.LwInstruction(('$t1', y_addr)),
-        mips.SwInstruction(('$t0', f'{attr_shift}($t0)'))
+        mips.LwInstruction('$t0', x_addr),
+        mips.LwInstruction('$t1', y_addr),
+        mips.SwInstruction('$t0', f'{attr_shift}($t0)')
     ]
 
 
@@ -184,10 +185,10 @@ def plus_to_mips_visitor(plus: cil.PlusNode):
     z_addr = __ADDRS__[plus.right]
     return [
         mips.Comment(str(plus)),
-        mips.LwInstruction(('$t1', y_addr)),
-        mips.LwInstruction(('$t2', z_addr)),
-        mips.AddInstruction(('$t0', '$t1', '$t2')),
-        mips.SwInstruction(('$t0', x_addr))
+        mips.LwInstruction('$t1', y_addr),
+        mips.LwInstruction('$t2', z_addr),
+        mips.AddInstruction('$t0', '$t1', '$t2'),
+        mips.SwInstruction('$t0', x_addr)
     ]
 
 
@@ -206,10 +207,10 @@ def minus_to_mips_visitor(minus: cil.MinusNode):
     z_addr = __ADDRS__[minus.right]
     return [
         mips.Comment(str(minus)),
-        mips.LwInstruction(('$t1', y_addr)),
-        mips.LwInstruction(('$t2', z_addr)),
-        mips.SubInstruction(('$t0', '$t1', '$t2')),
-        mips.SwInstruction(('$t0', x_addr))
+        mips.LwInstruction('$t1', y_addr),
+        mips.LwInstruction('$t2', z_addr),
+        mips.SubInstruction('$t0', '$t1', '$t2'),
+        mips.SwInstruction('$t0', x_addr)
     ]
 
 
@@ -228,10 +229,10 @@ def star_to_mips_visitor(star: cil.StarNode):
     z_addr = __ADDRS__[star.right]
     return [
         mips.Comment(str(star)),
-        mips.LwInstruction(('$t1', y_addr)),
-        mips.LwInstruction(('$t2', z_addr)),
-        mips.MultInstruction(('$t0', '$t1', '$t2')),
-        mips.SwInstruction(('$t0', x_addr))
+        mips.LwInstruction('$t1', y_addr),
+        mips.LwInstruction('$t2', z_addr),
+        mips.MultInstruction('$t0', '$t1', '$t2'),
+        mips.SwInstruction('$t0', x_addr)
     ]
 
 
@@ -250,10 +251,10 @@ def div_to_mips_visitor(div: cil.DivNode):
     z_addr = __ADDRS__[div.right]
     return [
         mips.Comment(str(div)),
-        mips.LwInstruction(('$t1', y_addr)),
-        mips.LwInstruction(('$t2', z_addr)),
-        mips.DivInstruction(('$t0', '$t1', '$t2')),
-        mips.SwInstruction(('$t0', x_addr))
+        mips.LwInstruction('$t1', y_addr),
+        mips.LwInstruction('$t2', z_addr),
+        mips.DivInstruction('$t0', '$t1', '$t2'),
+        mips.SwInstruction('$t0', x_addr)
     ]
 
 
@@ -273,10 +274,10 @@ def lesseq_to_mips_visitor(lesseq: cil.LessEqNode):
     z_addr = __ADDRS__[lesseq.right]
     return [
         mips.Comment(str(lesseq)),
-        mips.LwInstruction(('$t1', y_addr)),
-        mips.LwInstruction(('$t2', z_addr)),
-        mips.SleInstruction(('$t0', '$t1', '$t2')),
-        mips.SwInstruction(('$t0', x_addr))   
+        mips.LwInstruction('$t1', y_addr),
+        mips.LwInstruction('$t2', z_addr),
+        mips.SleInstruction('$t0', '$t1', '$t2'),
+        mips.SwInstruction('$t0', x_addr)
     ]
 
 
@@ -296,10 +297,10 @@ def less_to_mips_visitor(less: cil.LessNode):
     z_addr = __ADDRS__[less.right]
     return [
         mips.Comment(str(less)),
-        mips.LwInstruction(('$t1', y_addr)),
-        mips.LwInstruction(('$t2', z_addr)),
-        mips.SleInstruction(('$t0', '$t1', '$t2')),
-        mips.SwInstruction(('$t0', x_addr))
+        mips.LwInstruction('$t1', y_addr),
+        mips.LwInstruction('$t2', z_addr),
+        mips.SleInstruction('$t0', '$t1', '$t2'),
+        mips.SwInstruction('$t0', x_addr)
     ]
 
 
@@ -316,9 +317,9 @@ def not_to_mips_visitor(notn: cil.NotNode):
     y_addr = __ADDRS__[notn.value]
     return [
         mips.Comment(str(notn)),
-        mips.LwInstruction(('$t1', y_addr)),
-        mips.NotInstruction(('$t0', '$t1')),
-        mips.SwInstruction(('$t0', x_addr))
+        mips.LwInstruction('$t1', y_addr),
+        mips.NotInstruction('$t0', '$t1'),
+        mips.SwInstruction('$t0', x_addr)
     ]
 
 

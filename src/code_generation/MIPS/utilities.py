@@ -1,6 +1,9 @@
 from code_generation.MIPS import ast as mips
 
 
+__TYPES__ = {}
+
+
 def init_types(types):
     """
     Objects in MIPS code are memory space (size_mips), therefore we need to know the type 
@@ -14,40 +17,48 @@ def init_types(types):
         t.attr_index_mips = {}
         for i, a in enumerate(t.attributes):
             t.attr_index_mips[a] = i + 1
+        __TYPES__[t.type] = t
+
+
+def get_type(name):
+    try:
+        return __TYPES__[name]
+    except KeyError:
+        return None
 
 
 def save_callee_registers():
-    code=allocate_stack(40)
+    code = allocate_stack(40)
     for i in range(8):
-        code+=push_stack(f'$s{i}', (7-i)*4)
-    code+=push_stack('$fp', 4)
-    code+=push_stack('$ra')
-    return code  
-    
+        code += push_stack(f'$s{i}', (7-i)*4)
+    code += push_stack('$fp', 4)
+    code += push_stack('$ra')
+    return code
+
 
 def save_caller_registers():
-    code=allocate_stack(40)
+    code = allocate_stack(40)
     for i in range(10):
-        code+=push_stack(f'$t{i}', (9-i)*4)
-        
+        code += push_stack(f'$t{i}', (9-i)*4)
+
     return code
 
 
 def restore_callee_registers():
-    code=[]
+    code = []
     for i in range(8):
-        code+=peek_stack(f'$s{i}', (7-i)*4)
-    code+=peek_stack('$fp', 4)
-    code+=peek_stack('$ra')
-    code+=restore_stack(40)
+        code += peek_stack(f'$s{i}', (7-i)*4)
+    code += peek_stack('$fp', 4)
+    code += peek_stack('$ra')
+    code += restore_stack(40)
     return code
 
 
 def restore_caller_registers():
-    code=[]
+    code = []
     for i in range(10):
-        code+=peek_stack(f'$t{i}', (9-i)*4)
-    code+=restore_stack(40)
+        code += peek_stack(f'$t{i}', (9-i)*4)
+    code += restore_stack(40)
     return code
 
 
@@ -60,9 +71,9 @@ def allocate_stack(bytes):
 
 
 def push_stack(src, pos=0):
-    code=[]
-    if src[0]!='$':
-        code=[peek_stack('$t0', src)]
+    code = []
+    if src[0] != '$':
+        code = [peek_stack('$t0', src)]
         if pos:
             return code+[mips.SwInstruction('$t0', f'{pos}($sp)')]
         return code+[mips.SwInstruction('$t0', '($sp)')]
@@ -70,7 +81,6 @@ def push_stack(src, pos=0):
         if pos:
             return code+[mips.SwInstruction(src, f'{pos}($sp)')]
         return code+[mips.SwInstruction(src, '($sp)')]
-        
 
 
 def peek_stack(src, pos=0):
