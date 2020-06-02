@@ -411,3 +411,4 @@ dmypy.json
 .idea
 .vscode
 *.cil
+*.mips

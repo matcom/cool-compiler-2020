@@ -5,6 +5,7 @@ from .optimization import optimization_locals, remove_unused_locals
 
 __DATA__ = {}
 
+
 def add_str_data(data: str):
     try:
         return __DATA__[data]
@@ -20,12 +21,14 @@ __LOCALS__ = {}
 def add_local(id=None):
     global __LOCALS__
     if id is None:
-        id=f'local_{len(__LOCALS__)}'
+        id = f'local_{len(__LOCALS__)}'
     local = cil.LocalNode(id)
-    __LOCALS__[id]=local
+    __LOCALS__[id] = local
     return local
 
+
 labels_count = 0
+
 
 def add_label():
     global labels_count
@@ -63,9 +66,9 @@ def get_typeof(obj):
         return type_local, True
 
 
-
 __ATTR__ = {}
 __CURRENT_TYPE__ = None
+
 
 def program_to_cil_visitor(program):
     types = []
@@ -76,7 +79,7 @@ def program_to_cil_visitor(program):
     for t in TypesByName:
         _type = cil.TypeNode(t)
         value = TypesByName[t]
-        __ATTR__[t]=[]
+        __ATTR__[t] = []
         for attr in value.get_all_attributes():
             _type.attributes.append(attr.id)
             __ATTR__[t].append(attr.id)
@@ -148,7 +151,7 @@ def in_int_to_cil():
 
 
 def type_name_to_cil():
-    return cil.FuncNode('Object_type_name', [cil.ParamNode('self')], [cil.LocalNode('type'), cil.LocalNode('str')], [cil.TypeOfNode('type', 'self'), cil.StrNode('type', 'str'),cil.ReturnNode('str')])
+    return cil.FuncNode('Object_type_name', [cil.ParamNode('self')], [cil.LocalNode('type'), cil.LocalNode('str')], [cil.TypeOfNode('type', 'self'), cil.StrNode('type', 'str'), cil.ReturnNode('str')])
 
 
 def copy_to_cil():
@@ -173,7 +176,7 @@ def func_to_cil_visitor(type_name, func):
     1) Builds ParamNodes for each param in FunctionNode.params\n
     2) Builds function body by putting together each instruction's body\n
     3) Creates an array of necessary local variables
-    
+
     '''
     global __LOCALS__, __DATA_LOCALS__, __TYPEOF__, labels_count, __CURRENT_TYPE__
     name = f'{type_name}_{func.id}'
@@ -237,7 +240,7 @@ def case_to_cil_visitor(case):
         predicate = add_local()
         body.append(cil.MinusNode(str_t, branch.type, predicate))
         body.append(cil.ConditionalGotoNode(predicate, labels[i]))
-        val=add_local(branch.id)
+        val = add_local(branch.id)
         body.append(cil.AssignNode(val, expr_cil.value))
         branch_cil = expression_to_cil_visitor(
             branch.expr)
@@ -249,18 +252,19 @@ def case_to_cil_visitor(case):
 
 
 def assign_to_cil_visitor(assign):
-    
     '''
     AssignNode CIL converter.\n
     1) Pendiente
     '''
-        
+
     expr = expression_to_cil_visitor(assign.expr)
     if assign.id in __ATTR__[__CURRENT_TYPE__]:
-        body=expr.body + [cil.SetAttrNode('self', assign.id, expr.value)]
+        index = __ATTR__[__CURRENT_TYPE__].index(assign.id)
+        body = expr.body + \
+            [cil.SetAttrNode('self', assign.id, expr.value, index)]
         return CIL_block(body, expr.value)
     else:
-        val=add_local(assign.id)
+        val = add_local(assign.id)
         body = expr.body + [cil.AssignNode(val, expr.value)]
         return CIL_block(body, val)
 
@@ -312,12 +316,12 @@ def loop_to_cil_visitor(loop):
 
     value = add_local()
 
-    predicate_label=add_label()
+    predicate_label = add_label()
     loop_label = add_label()
     end_label = add_label()
 
     body = [cil.LabelNode(predicate_label)] + predicate.body + [cil.ConditionalGotoNode(predicate.value, loop_label), cil.GotoNode(end_label),
-            cil.LabelNode(loop_label)] + loop_block.body + [cil.GotoNode(predicate_label),cil.LabelNode(end_label), cil.AssignNode(value, 0)]
+                                                                cil.LabelNode(loop_label)] + loop_block.body + [cil.GotoNode(predicate_label), cil.LabelNode(end_label), cil.AssignNode(value, 0)]
 
     return CIL_block(body, value)
 
@@ -366,10 +370,11 @@ def bool_to_cil_visitor(bool):
 
 def id_to_cil_visitor(id):
     if id.id in __ATTR__[__CURRENT_TYPE__]:
-        result=add_local()
-        return CIL_block([cil.GetAttrNode('self', id.id, result)], result)
+        result = add_local()
+        index = __ATTR__[__CURRENT_TYPE__].index(id.id)
+        return CIL_block([cil.GetAttrNode('self', id.id, result, index)], result)
     try:
-        val=__LOCALS__[id.id]
+        val = __LOCALS__[id.id]
         return CIL_block([], val)
     except:
         return CIL_block([], id.id)
@@ -388,12 +393,12 @@ def new_to_cil_visitor(new_node):
     body.append(cil.AllocateNode(t, value))
     init_attr = TypesByName[t].get_all_attributes()
 
-    for attr in init_attr:
+    for index, attr in enumerate(init_attr):
         if attr.expression:
             attr_cil = expression_to_cil_visitor(
                 attr.expression)
             body += attr_cil.body
-            body.append(cil.SetAttrNode(value, attr.id, attr_cil.value))
+            body.append(cil.SetAttrNode(value, attr.id, attr_cil.value, index))
 
     return CIL_block(body, value)
 
@@ -425,7 +430,7 @@ def let_to_cil_visitor(let):
         if attr.expr:
             attr_cil = expression_to_cil_visitor(attr.expr)
             body += attr_cil.body
-            val=add_local(attr.id)
+            val = add_local(attr.id)
             body.append(cil.AssignNode(val, attr_cil.value))
 
     expr_cil = expression_to_cil_visitor(let.expr)
