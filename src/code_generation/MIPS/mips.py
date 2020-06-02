@@ -77,7 +77,7 @@ def vcall_to_mips_visitor(vcall: cil.VCAllNode):
     3) Restore caller registers\n
     4) Takes the result from v0
     '''
-    return save_caller_registers() + [mips.JalInstruction(__METHOD_MAPPING__[(vcall.type, vcall.method)])] + restore_caller_registers() + [mips.MoveInstruction('$v0', __ADDRS__[vcall.result])]
+    return [mips.Comment(str(vcall))]+save_caller_registers() + [mips.JalInstruction(__METHOD_MAPPING__[(vcall.type, vcall.method)])] + restore_caller_registers() + [mips.MoveInstruction('$v0', __ADDRS__[vcall.result])]
 
 
 def arg_to_mips_visitor(arg: cil.ArgNode):
@@ -86,7 +86,7 @@ def arg_to_mips_visitor(arg: cil.ArgNode):
     1) Allocates a 4-bytes space in stack\n
     2) Pushes the arg value in the stack\n
     '''
-    return [mips.Comment('ARG [arg] ;')] + allocate_stack(4) + push_stack(__ADDRS__[arg.val])
+    return [mips.Comment(str(arg))] + allocate_stack(4) + push_stack(__ADDRS__[arg.val])
 
 
 def allocate_to_mips_visitor(allocate: cil.AllocateNode):
