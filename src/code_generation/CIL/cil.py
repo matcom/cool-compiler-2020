@@ -139,7 +139,7 @@ def out_string_to_cil():
 
 
 def out_int_to_cil():
-    return cil.FuncNode('IO_out_int', [cil.ParamNode('self'), cil.ParamNode('int')], [cil.LocalNode('str')], [cil.StrNode('int', 'str'), cil.PrintNode('int'), cil.ReturnNode('self')])
+    return cil.FuncNode('IO_out_int', [cil.ParamNode('self'), cil.ParamNode('int')], [], [cil.PrintNode('int'), cil.ReturnNode('self')])
 
 
 def in_string_to_cil():
@@ -151,7 +151,7 @@ def in_int_to_cil():
 
 
 def type_name_to_cil():
-    return cil.FuncNode('Object_type_name', [cil.ParamNode('self')], [cil.LocalNode('type'), cil.LocalNode('str')], [cil.TypeOfNode('type', 'self'), cil.StrNode('type', 'str'), cil.ReturnNode('str')])
+    return cil.FuncNode('Object_type_name', [cil.ParamNode('self')], [cil.LocalNode('type'), cil.LocalNode('str')], [cil.TypeOfNode('type', 'self'), cil.ReturnNode('type')])
 
 
 def copy_to_cil():
@@ -224,8 +224,6 @@ def case_to_cil_visitor(case):
     body += expr_cil.body
     t = add_local()
     body.append(cil.TypeOfNode(t, expr_cil.value))
-    str_t = add_local()
-    body.append(cil.StrNode(t, str_t))
     types = []
     labels = []
     for c in case.case_list:
@@ -238,7 +236,7 @@ def case_to_cil_visitor(case):
 
     for i, branch in enumerate(case.case_list):
         predicate = add_local()
-        body.append(cil.MinusNode(str_t, branch.type, predicate))
+        body.append(cil.MinusNode(t, branch.type, predicate))
         body.append(cil.ConditionalGotoNode(predicate, labels[i]))
         val = add_local(branch.id)
         body.append(cil.AssignNode(val, expr_cil.value))

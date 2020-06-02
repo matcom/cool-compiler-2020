@@ -14,8 +14,9 @@ def program_to_mips_visitor(program: cil.ProgramNode):
 
     # filling method mapping
     for t in program.types:
+        print(t)
         for m in t.methods:
-            __METHOD_MAPPING__[(t, m)] = t.methods[m]
+            __METHOD_MAPPING__[(t.type, m)] = t.methods[m]
 
     data = [mips.MIPSDataItem(d.id, mips.AsciizInst(d.val))
             for d in program.data]
@@ -67,8 +68,23 @@ def instruction_to_mips_visitor(inst):
     except KeyError:
         print(f'There is no visitor for {type(inst)}')
         return []
-
-
+    
+    
+def print_to_mips_visitor(p:cil.PrintNode):
+    code = [ mips.Comment(str(p)), mips.MoveInstruction('$a0', __ADDRS__[p.str])]
+    if p.str=='int':
+        code+=[
+        mips.LiInstruction('$v0', 1),
+        mips.SyscallInstruction(),
+        ]       
+    elif p.str=='str':
+        code+=[
+        mips.LiInstruction('$v0', 4),
+        mips.SyscallInstruction(), 
+        ]
+        
+    return code
+        
 def vcall_to_mips_visitor(vcall: cil.VCAllNode):
     '''
     Converts an VCall CIL node to a piece of MIPS code:\n
@@ -337,4 +353,5 @@ __visitors__ = {
     cil.LessEqNode: lesseq_to_mips_visitor,
     cil.LessNode: less_to_mips_visitor,
     cil.NotNode: not_to_mips_visitor,
+    cil.PrintNode: print_to_mips_visitor
 }
