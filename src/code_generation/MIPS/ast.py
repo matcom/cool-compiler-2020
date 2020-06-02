@@ -72,6 +72,10 @@ class Comment(Instruction):
 class AsciizInst(Instruction):
     def __init__(self, *arguments):
         super().__init__(".asciiz", *arguments)
+        
+class SpaceInst(Instruction):
+    def __init__(self, *arguments):
+        super().__init__(".space", *arguments)
 
 
 # =============================
@@ -96,7 +100,10 @@ class LwInstruction(Instruction):
 class LiInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('li', *arguments)
-
+        
+class LaInstruction(Instruction):
+    def __init__(self, *arguments):
+        super().__init__('la', *arguments)
 
 # =======================
 # Arithmetic Instructions

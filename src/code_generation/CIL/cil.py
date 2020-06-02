@@ -143,31 +143,38 @@ def out_int_to_cil():
 
 
 def in_string_to_cil():
-    return cil.FuncNode('IO_in_string', [cil.ParamNode('self')], [cil.LocalNode('str')], [cil.ReadNode('str'), cil.ReturnNode('str')])
+    str=cil.LocalNode('str')
+    return cil.FuncNode('IO_in_string', [cil.ParamNode('self')], [str], [cil.ReadNode(str), cil.ReturnNode(str)])
 
 
 def in_int_to_cil():
-    return cil.FuncNode('IO_in_int', [cil.ParamNode('self')], [cil.LocalNode('int')], [cil.ReadIntNode('int'), cil.ReturnNode('int')])
+    i=cil.LocalNode('int')
+    return cil.FuncNode('IO_in_int', [cil.ParamNode('self')], [i], [cil.ReadIntNode(i), cil.ReturnNode(i)])
 
 
 def type_name_to_cil():
-    return cil.FuncNode('Object_type_name', [cil.ParamNode('self')], [cil.LocalNode('type'), cil.LocalNode('str')], [cil.TypeOfNode('type', 'self'), cil.ReturnNode('type')])
+    t=cil.LocalNode('type')
+    return cil.FuncNode('Object_type_name', [cil.ParamNode('self')], [t], [cil.TypeOfNode(t, 'self'), cil.ReturnNode(t)])
 
 
 def copy_to_cil():
-    return cil.FuncNode('Object_copy', [cil.ParamNode('self')], [cil.LocalNode('copy')], [cil.CopyNode('self', 'copy'), cil.ReturnNode('copy')])
+    copy=cil.LocalNode('copy')
+    return cil.FuncNode('Object_copy', [cil.ParamNode('self')], [copy], [cil.CopyNode('self', copy), cil.ReturnNode(copy)])
 
 
 def length_to_cil():
-    return cil.FuncNode('length_String', [cil.ParamNode('self')], [cil.LocalNode('result')], [cil.LengthNode('self', 'result'), cil.ReturnNode('result')])
+    result=cil.LocalNode('result')
+    return cil.FuncNode('length_String', [cil.ParamNode('self')], [result], [cil.LengthNode('self', result), cil.ReturnNode(result)])
 
 
 def concat_to_cil():
-    return cil.FuncNode('concat_String', [cil.ParamNode('self'), cil.ParamNode('x')], [cil.LocalNode('result')], [cil.ConcatNode('self', 'x', 'result'), cil.ReturnNode('result')])
+    result=cil.LocalNode('result')
+    return cil.FuncNode('concat_String', [cil.ParamNode('self'), cil.ParamNode('x')], [result], [cil.ConcatNode('self', 'x', result), cil.ReturnNode(result)])
 
 
 def substring_to_cil():
-    return cil.FuncNode('substr_String', [cil.ParamNode('self'), cil.ParamNode('i'), cil.ParamNode('l')], [cil.LocalNode('result')], [cil.SubStringNode('self', 'i', 'l', 'result'), cil.ReturnNode('result')])
+    result=cil.LocalNode('result')
+    return cil.FuncNode('substr_String', [cil.ParamNode('self'), cil.ParamNode('i'), cil.ParamNode('l')], [result], [cil.SubStringNode('self', 'i', 'l', result), cil.ReturnNode(result)])
 
 
 def func_to_cil_visitor(type_name, func):

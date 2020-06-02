@@ -87,3 +87,16 @@ def peek_stack(src, pos=0):
     if pos:
         return [mips.LwInstruction(src, f'{pos}($sp)')]
     return [mips.LwInstruction(src, '($sp)')]
+
+
+def get_address(dict, key):
+    if type(key) is int:
+        return key, True
+    try:
+        if type(key) is str:
+            return dict[key], False
+        return dict[key.id], False
+    except:
+        raise Exception('Local not found in stack')
+    
+    

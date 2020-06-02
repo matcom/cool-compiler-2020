@@ -4,10 +4,13 @@ from .utilities import *
 
 __METHOD_MAPPING__ = {}
 __ADDRS__ = {}
+__BUFFSIZE__= 1024
+__DATA__= []
+
 
 
 def program_to_mips_visitor(program: cil.ProgramNode):
-    global __METHOD_MAPPING__
+    global __METHOD_MAPPING__, __DATA__
 
     # Initialize Types Codes
     init_types(program.types)
@@ -18,13 +21,13 @@ def program_to_mips_visitor(program: cil.ProgramNode):
         for m in t.methods:
             __METHOD_MAPPING__[(t.type, m)] = t.methods[m]
 
-    data = [mips.MIPSDataItem(d.id, mips.AsciizInst(d.val))
+    __DATA__ = [mips.MIPSDataItem(d.id, mips.AsciizInst(d.val))
             for d in program.data]
-    data_section = mips.MIPSDataSection(data)
-    # continue
+    
     functions = [function_to_mips_visitor(
         f) for f in program.built_in_code + program.code]
     text_section = mips.MIPSTextSection(functions)
+    data_section = mips.MIPSDataSection(__DATA__)
     return mips.MIPSProgram(data_section, text_section)
 
 
@@ -71,19 +74,48 @@ def instruction_to_mips_visitor(inst):
     
     
 def print_to_mips_visitor(p:cil.PrintNode):
-    code = [ mips.Comment(str(p)), mips.MoveInstruction('$a0', __ADDRS__[p.str])]
+    code = [ mips.Comment(str(p)), mips.MoveInstruction('$a0', __ADDRS__[p.str]) ]
     if p.str=='int':
-        code+=[
-        mips.LiInstruction('$v0', 1),
-        mips.SyscallInstruction(),
+        code += [
+            mips.LiInstruction('$v0', 1),
+            mips.SyscallInstruction(),
         ]       
     elif p.str=='str':
-        code+=[
-        mips.LiInstruction('$v0', 4),
-        mips.SyscallInstruction(), 
+        code += [
+            mips.LiInstruction('$v0', 4),
+            mips.SyscallInstruction(), 
         ]
         
     return code
+
+def return_to_mips_visitor(ret:cil.ReturnNode):
+    val, is_integer=get_address(__ADDRS__, ret.ret_value)
+    code=[mips.Comment(str(ret))]
+    if is_integer:
+        code.append(mips.LiInstruction('$v0', val))
+    else:
+        code.append(mips.LwInstruction('$v0', val)) 
+    return code
+
+def read_to_mips_visitor(read:cil.ReadNode):
+    __DATA__.append(mips.MIPSDataItem(read.result, mips.SpaceInst(__BUFFSIZE__)))
+    code = [ 
+            mips.Comment(str(read)), 
+            mips.LaInstruction('$a0', read.result),
+            mips.LiInstruction('$a1', __BUFFSIZE__),
+            mips.LiInstruction('$v0', 8), 
+            mips.SyscallInstruction()
+    ]
+    return code
+
+def read_int_to_mips_visitor(read:cil.ReadIntNode):
+    code = [ 
+            mips.Comment(str(read)), 
+            mips.LiInstruction('$v0', 5), 
+            mips.SyscallInstruction()
+    ]
+    return code
+
         
 def vcall_to_mips_visitor(vcall: cil.VCAllNode):
     '''
@@ -93,7 +125,7 @@ def vcall_to_mips_visitor(vcall: cil.VCAllNode):
     3) Restore caller registers\n
     4) Takes the result from v0
     '''
-    return [mips.Comment(str(vcall))]+save_caller_registers() + [mips.JalInstruction(__METHOD_MAPPING__[(vcall.type, vcall.method)])] + restore_caller_registers() + [mips.MoveInstruction('$v0', __ADDRS__[vcall.result])]
+    return [mips.Comment(str(vcall))]+save_caller_registers() + [mips.JalInstruction(__METHOD_MAPPING__[(vcall.type, vcall.method)])] + restore_caller_registers() + [mips.SwInstruction('$v0', __ADDRS__[vcall.result])]
 
 
 def arg_to_mips_visitor(arg: cil.ArgNode):
@@ -353,5 +385,8 @@ __visitors__ = {
     cil.LessEqNode: lesseq_to_mips_visitor,
     cil.LessNode: less_to_mips_visitor,
     cil.NotNode: not_to_mips_visitor,
-    cil.PrintNode: print_to_mips_visitor
+    cil.PrintNode: print_to_mips_visitor, 
+    cil.ReturnNode: return_to_mips_visitor,
+    cil.ReadNode: read_to_mips_visitor, 
+    cil.ReadIntNode: read_int_to_mips_visitor
 }
