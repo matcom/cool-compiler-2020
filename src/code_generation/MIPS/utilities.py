@@ -14,6 +14,7 @@ def init_types(types):
     for i, t in enumerate(types):
         t.code_mips = i
         t.size_mips = (len(t.attributes) + 1) * 4
+        t.size_vt = (len(t.methods) + 1) * 4
         t.attr_index_mips = {}
         for i, a in enumerate(t.attributes):
             t.attr_index_mips[a] = i + 1
@@ -98,5 +99,3 @@ def get_address(dict, key):
         return dict[key.id], False
     except:
         raise Exception('Local not found in stack')
-    
-    
