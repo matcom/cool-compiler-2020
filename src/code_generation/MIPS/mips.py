@@ -23,15 +23,19 @@ def program_to_mips_visitor(program: cil.ProgramNode):
     __DATA__ = [mips.MIPSDataItem(d.id, mips.AsciizInst(d.val))
                 for d in program.data]
 
+    main_code = function_to_mips_visitor(program.built_in_code[0])
+    main_code.instructions.insert(0, mips.MIPSLabel('main'))
     functions = [function_to_mips_visitor(
-        f) for f in program.built_in_code + program.code]
+        f) for f in program.built_in_code[1:] + program.code]
+    functions.insert(0, main_code)
     text_section = mips.MIPSTextSection(functions)
     data_section = mips.MIPSDataSection(vt_code + __DATA__)
     return mips.MIPSProgram(data_section, text_section)
 
 
 def build_virtual_tables(program: cil.ProgramNode):
-    code = [mips.MIPSDataItem(f'vt_{t.type}', mips.SpaceInst(t.size_vt)) for t in program.types]
+    code = [mips.MIPSDataItem(f'vt_{t.type}', mips.SpaceInst(
+        t.size_vt)) for t in program.types]
     return code
 
 
