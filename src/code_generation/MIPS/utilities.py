@@ -38,8 +38,8 @@ def save_callee_registers():
             code += push_stack(f'$s{i}', f'{pos}($sp)')
         else:
             code += push_stack(f'$s{i}', '($sp)')
-    code += push_stack('$fp', 4)
-    code += push_stack('$ra')
+    code += push_stack('$fp', f'4($sp)')
+    code += push_stack('$ra', '($sp)')
     return code
 
 
