@@ -13,6 +13,7 @@ def program_to_mips_visitor(program: cil.ProgramNode):
 
     # Initialize Types Codes
     init_types(program.types)
+    vt_code = build_virtual_tables(program)
 
     # filling method mapping
     for t in program.types:
@@ -25,8 +26,13 @@ def program_to_mips_visitor(program: cil.ProgramNode):
     functions = [function_to_mips_visitor(
         f) for f in program.built_in_code + program.code]
     text_section = mips.MIPSTextSection(functions)
-    data_section = mips.MIPSDataSection(__DATA__)
+    data_section = mips.MIPSDataSection(vt_code + __DATA__)
     return mips.MIPSProgram(data_section, text_section)
+
+
+def build_virtual_tables(program: cil.ProgramNode):
+    code = [mips.MIPSDataItem(f'vt_{t.type}', mips.SpaceInst(t.size_vt)) for t in program.types]
+    return code
 
 
 def function_to_mips_visitor(function):
