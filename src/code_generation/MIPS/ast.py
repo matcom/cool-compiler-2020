@@ -25,6 +25,12 @@ class MIPSDataSection:
         data_text = '\n'.join([str(d) for d in self.data])
         return f'\n.data\n{data_text}\n'
 
+class MIPSLabel:
+    def __init__(self, name):
+        self.name=name
+        
+    def __str__(self):
+        return f'{self.name}:\n'
 
 class MIPSFunction:
     def __init__(self, name, instructions):
@@ -104,6 +110,10 @@ class LiInstruction(Instruction):
 class LaInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('la', *arguments)
+
+class LbInstruction(Instruction):
+    def __init__(self, *arguments):
+        super().__init__('lb', *arguments)
 
 # =======================
 # Arithmetic Instructions
@@ -330,6 +340,10 @@ class BltInstruction(Instruction):
 class BltuInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('bltu', *arguments)
+        
+class BeqzInstruction(Instruction):
+    def __init__(self, *arguments):
+        super().__init__('beqz', *arguments)
 
 
 class JInstruction(Instruction):
