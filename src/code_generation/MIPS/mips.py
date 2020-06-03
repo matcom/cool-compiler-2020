@@ -99,7 +99,8 @@ def return_to_mips_visitor(ret:cil.ReturnNode):
     return code
 
 def read_to_mips_visitor(read:cil.ReadNode):
-    __DATA__.append(mips.MIPSDataItem(read.result, mips.SpaceInst(__BUFFSIZE__)))
+    __DATA__.append(mips.MIPSDataItem(read.result.id, mips.SpaceInst(__BUFFSIZE__)))
+    __ADDRS__[read.result.id]=read.result.id
     code = [ 
             mips.Comment(str(read)), 
             mips.LaInstruction('$a0', read.result),
@@ -109,11 +110,39 @@ def read_to_mips_visitor(read:cil.ReadNode):
     ]
     return code
 
+
+def substring_to_mips_visitor(ss:cil.SubStringNode):
+    addr, _=get_address(__ADDRS__, ss.str)
+    i, _=get_address(__ADDRS__, ss.i)
+    l, _=get_address(__ADDRS__, ss.len)
+    __DATA__.append(mips.MIPSDataItem(ss.result.id, mips.SpaceInst(__BUFFSIZE__)))
+    __ADDRS__[ss.result.id]=ss.result.id
+    code = [
+        mips.Comment(str(ss)),
+        mips.LaInstruction('$t0', addr), 
+        mips.LaInstruction('$t1', ss.result.id),
+        mips.LwInstruction('$t4', i),
+        mips.LwInstruction('$t2', l),
+        mips.AdduInstruction('$t0', '$t0', '$t4'),
+        mips.MIPSLabel('substring_loop'),
+        mips.BeqzInstruction('$t2', 'end_substring_loop'),
+        mips.LbInstruction('$t3', '($t0)'),
+        mips.SbInstruction('$t3', '($t1)'), 
+        mips.SubuInstruction('$t2', '$t2', 1),
+        mips.AdduInstruction('$t0', '$t0', 1),
+        mips.AdduInstruction('$t1', '$t1', 1),
+        mips.BInstruction('substring_loop'),
+        mips.MIPSLabel('end_substring_loop')
+    ]
+    return code
+
 def read_int_to_mips_visitor(read:cil.ReadIntNode):
+    addr,_=get_address(__ADDRS__, read.result)
     code = [ 
             mips.Comment(str(read)), 
             mips.LiInstruction('$v0', 5), 
-            mips.SyscallInstruction()
+            mips.SyscallInstruction(),
+            mips.SwInstruction('$v0', addr)
     ]
     return code
 
@@ -136,7 +165,8 @@ def length_to_mips_visitor(length:cil.LengthNode):
     return code
 
 def concat_to_mips_visitor(concat:cil.ConcatNode):
-    __DATA__.append(mips.MIPSDataItem(concat.result, mips.SpaceInst(2 * __BUFFSIZE__)))
+    __DATA__.append(mips.MIPSDataItem(concat.result.id, mips.SpaceInst(2 * __BUFFSIZE__)))
+    __ADDRS__[concat.result.id]=concat.result.id
     a,_ = get_address(__ADDRS__, concat.str_a)
     b,_ = get_address(__ADDRS__, concat.str_b)
     
@@ -423,5 +453,6 @@ __visitors__ = {
     cil.ReadIntNode: read_int_to_mips_visitor, 
     cil.LengthNode: length_to_mips_visitor, 
     cil.ConcatNode: concat_to_mips_visitor, 
-    cil.LoadNode:load_to_mips_visitor
+    cil.LoadNode:load_to_mips_visitor, 
+    cil.SubStringNode:substring_to_mips_visitor
 }

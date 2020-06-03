@@ -114,6 +114,11 @@ class LaInstruction(Instruction):
 class LbInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('lb', *arguments)
+        
+
+class SbInstruction(Instruction):
+    def __init__(self, *arguments):
+        super().__init__('sb', *arguments)
 
 # =======================
 # Arithmetic Instructions
