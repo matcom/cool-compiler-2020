@@ -74,7 +74,7 @@ def allocate_stack(bytes):
 def push_stack(src, pos=0):
     code = []
     if src[0] != '$':
-        code = [peek_stack('$t0', src)]
+        code = peek_stack('$t0', src)
         if pos:
             return code+[mips.SwInstruction('$t0', f'{pos}($sp)')]
         return code+[mips.SwInstruction('$t0', '($sp)')]
