@@ -3,6 +3,9 @@
 # Created by https://www.gitignore.io/api/visualstudiocode,linux,latex,python
 # Edit at https://www.gitignore.io/?templates=visualstudiocode,linux,latex,python
 
+# VCode Settings
+.vscode
+
 ### LaTeX ###
 ## Core latex/pdflatex auxiliary files:
 *.aux
