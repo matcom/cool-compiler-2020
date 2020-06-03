@@ -2,6 +2,7 @@ from code_generation.MIPS import ast as mips
 
 
 __TYPES__ = {}
+__ADDRS__ = {}
 
 
 def init_types(types):
@@ -89,13 +90,16 @@ def peek_stack(src, pos=0):
         return [mips.LwInstruction(src, f'{pos}($sp)')]
     return [mips.LwInstruction(src, '($sp)')]
 
+def restore_addresses():
+    __ADDRS__ = {}
 
-def get_address(dict, key):
-    if type(key) is int:
-        return key, True
+def get_address(key):
     try:
         if type(key) is str:
-            return dict[key], False
-        return dict[key.id], False
+            return __ADDRS__[key]
+        return __ADDRS__[key.id]
     except:
         raise Exception('Local not found in stack')
+
+def save_address(key, value):
+    __ADDRS__[key]=value
