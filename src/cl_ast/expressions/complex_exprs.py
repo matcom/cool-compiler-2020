@@ -62,6 +62,10 @@ class AssignNode(ExpressionNode):
         self.id = idx
         self.expr = expr
 
+class IsVoidNode(ExpressionNode):
+    def __init__(self, expr):
+        self.expr = expr
+
 #Dispatch
 
 class ExprCallNode(ExpressionNode): #CallNode

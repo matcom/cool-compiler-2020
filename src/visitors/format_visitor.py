@@ -112,7 +112,7 @@ class FormatVisitor(State):
 
     @visitor.when(NewNode)
     def visit(self, node, tabs=0):
-        return '\t' * tabs + f'\\__ InstantiateNode: new {node.type}()'
+        return '\t' * tabs + f'\\__ NewNode: new {node.type}()'
 
     @visitor.when(VariableNode)
     def visit(self, node, tabs=0):

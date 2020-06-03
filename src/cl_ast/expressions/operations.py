@@ -16,54 +16,37 @@ class UnaryOperationNode(OperationNode):
 
 #Binaries
 
-class SumNode(BinaryOperationNode):
-    
-    def __init__(self, left, right):
-        super().__init__(left, right)
+class BinaryArithOperationNode(BinaryOperationNode):
+    pass
 
-class DiffNode(BinaryOperationNode):
-    
-    def __init__(self, left, right):
-        super().__init__(left, right)
+class SumNode(BinaryArithOperationNode):
+    pass
 
-class StarNode(BinaryOperationNode):
-    
-    def __init__(self, left, right):
-        super().__init__(left, right)
+class DiffNode(BinaryArithOperationNode):
+    pass
 
-class DivNode(BinaryOperationNode):
-    
-    def __init__(self, left, right):
-        super().__init__(left, right)
+class StarNode(BinaryArithOperationNode):
+    pass
 
-class LessNode(BinaryOperationNode):
-    
-    def __init__(self, left, right):
-        super().__init__(left, right)
+class DivNode(BinaryArithOperationNode):
+    pass
 
-class LessEqualNode(BinaryOperationNode):
+class BinaryLogicalOperationNode(BinaryOperationNode):
+    pass
 
-    def __init__(self, left, right):
-        super().__init__(left, right)
+class LessNode(BinaryLogicalOperationNode):
+    pass
 
-class EqualNode(BinaryOperationNode): 
+class LessEqualNode(BinaryLogicalOperationNode):
+    pass
 
-    def __init__(self, left, right):
-        super().__init__(left, right)
+class EqualNode(BinaryLogicalOperationNode): 
+    pass
 
 #Unaries
 
 class BitNotNode(UnaryOperationNode):
-
-    def __init__(self, expr):
-        super().__init__(expr)
-
-class IsVoidNode(UnaryOperationNode):
-
-    def __init__(self, expr):
-        super().__init__(expr)
+    pass
 
 class NotNode(UnaryOperationNode):
-    
-    def __init__(self, expr):
-        super().__init__(expr)
+    pass

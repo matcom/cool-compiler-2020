@@ -1,5 +1,6 @@
 """Contains Context Structures"""
 
+import itertools as itt
 from .types import *
 from .error import SemanticError
 
@@ -38,6 +39,7 @@ class VariableInfo:
 
 class Scope:
     def __init__(self, parent=None):
+        #self.context = context
         self.locals = []
         self.parent = parent
         self.children = []
@@ -55,7 +57,7 @@ class Scope:
                 classx = scope.locals[0]
                 name = classx.type.name
             except:
-                name = '1'
+                name = 'miss'
             res += name + scope.tab_level(1, '', 1) #'\n\t' +  ('\n' + '\t').join(str(local) for local in scope.locals) + '\n'
         return res
 

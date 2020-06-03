@@ -1,6 +1,7 @@
 """Contains Definitions for Semantic Types"""
 
 from .error import SemanticError
+from .features import *
 
 class Type:
     def __init__(self, name:str):
@@ -142,6 +143,16 @@ class StringType(Type):
 
     def __ne__(self, other):
         return other.name != self.name and not isinstance(other, StringType)
+
+class IOType(Type):
+    def __init__(self):
+        Type.__init__(self, 'IO')
+
+    def __eq__(self, other):
+        return other.name == self.name or isinstance(other, IOType)
+
+    def __ne__(self, other):
+        return other.name != self.name and not isinstance(other, IOType)
 
 class ObjectType(Type):
     def __init__(self):
