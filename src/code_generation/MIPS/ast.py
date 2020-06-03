@@ -22,7 +22,7 @@ class MIPSDataSection:
         self.data = data
 
     def __str__(self):
-        data_text = '\n'.join([str(d) for d in self.data])
+        data_text = '\n'.join([f'\t{str(d)}' for d in self.data])
         return f'\n.data\n{data_text}\n'
 
 class MIPSLabel:
@@ -38,7 +38,7 @@ class MIPSFunction:
         self.instructions = instructions
 
     def __str__(self):
-        return '\n'.join([f'# FUNCTION: {self.name}']+[str(i) for i in self.instructions])
+        return '\n'.join([f'# FUNCTION: {self.name}']+[f'\t{str(i)}' for i in self.instructions])
 
 
 class MIPSDataItem:
@@ -47,7 +47,7 @@ class MIPSDataItem:
         self.instruction = instruction
 
     def __str__(self):
-        return f'{self.label}: {str(self.instruction)}'
+        return f'{self.label}:\n\t\t{str(self.instruction)}'
 
 
 class Instruction:
@@ -57,13 +57,13 @@ class Instruction:
 
     def __str__(self):
         if len(self.arguments) == 0:
-            return f"\t{self.name}"
+            return f"{self.name}"
         elif len(self.arguments) == 3:
-            return f"\t{'{:10}'.format(self.name)} {self.arguments[0]}, {self.arguments[1]}, {self.arguments[2]}"
+            return f"{'{:10}'.format(self.name)} {self.arguments[0]}, {self.arguments[1]}, {self.arguments[2]}"
         elif len(self.arguments) == 2:
-            return f"\t{'{:10}'.format(self.name)} {self.arguments[0]}, {self.arguments[1]}"
+            return f"{'{:10}'.format(self.name)} {self.arguments[0]}, {self.arguments[1]}"
         elif len(self.arguments) == 1:
-            return f"\t{'{:10}'.format(self.name)} {self.arguments[0]}"
+            return f"{'{:10}'.format(self.name)} {self.arguments[0]}"
 
 
 class Comment(Instruction):
