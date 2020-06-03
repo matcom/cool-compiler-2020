@@ -160,16 +160,6 @@ def load_to_mips_visitor(load:cil.LoadNode):
     __ADDRS__[load.result]=load.addr
     return []
         
-def vcall_to_mips_visitor(vcall: cil.VCAllNode):
-    '''
-    Converts an VCall CIL node to a piece of MIPS code:\n
-    1) Saves caller registers\n
-    2) Jumps to function label and sets the value of ra\n
-    3) Restore caller registers\n
-    4) Takes the result from v0
-    '''
-    pass
-
 def arg_to_mips_visitor(arg: cil.ArgNode):
     '''
     Converts an Arg CIL node to a piece of MIPS code:\n
@@ -415,7 +405,6 @@ def not_to_mips_visitor(notn: cil.NotNode):
 
 
 __visitors__ = {
-    cil.VCAllNode: vcall_to_mips_visitor,
     cil.ArgNode: arg_to_mips_visitor,
     cil.AllocateNode: allocate_to_mips_visitor,
     cil.CopyNode: copy_to_mips_visitor,
