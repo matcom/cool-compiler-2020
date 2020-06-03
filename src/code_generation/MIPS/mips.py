@@ -3,7 +3,6 @@ from code_generation.MIPS import ast as mips
 from .utilities import *
 
 __METHOD_MAPPING__ = {}
-__ADDRS__ = {}
 __BUFFSIZE__ = 1024
 __DATA__ = []
 
@@ -49,13 +48,13 @@ def function_to_mips_visitor(function):
     '''
 
     for i, param in enumerate(function.params):
-        __ADDRS__[param.id] = f'{(len(function.params)-1-i)*4}($sp)'
+        save_address(param.id, f'{(len(function.params)-1-i)*4}($sp)')
 
     code = save_callee_registers()
 
     code += allocate_stack(len(function.locals)*4)
     for i, local in enumerate(function.locals):
-        __ADDRS__[local.id] = f'{(len(function.locals)-1-i)*4}($sp)'
+        save_address(local.id, f'{(len(function.locals)-1-i)*4}($sp)')
 
     for inst in function.body:
         code += instruction_to_mips_visitor(inst)
@@ -79,8 +78,9 @@ def instruction_to_mips_visitor(inst):
 
 
 def print_to_mips_visitor(p: cil.PrintNode):
+    addr=get_address(p.str)
     code = [mips.Comment(str(p)), mips.MoveInstruction(
-        '$a0', __ADDRS__[p.str])]
+        '$a0',addr)]
     if p.str == 'int':
         code += [
             mips.LiInstruction('$v0', 1),
@@ -96,17 +96,17 @@ def print_to_mips_visitor(p: cil.PrintNode):
 
 
 def return_to_mips_visitor(ret: cil.ReturnNode):
-    val, is_integer = get_address(__ADDRS__, ret.ret_value)
     code = [mips.Comment(str(ret))]
-    if is_integer:
-        code.append(mips.LiInstruction('$v0', val))
+    if type(ret.ret_value) is int:
+        code.append(mips.LiInstruction('$v0', ret.ret_value))
     else:
+        val = get_address(ret.ret_value)
         code.append(mips.LwInstruction('$v0', val))
     return code
 
 def read_to_mips_visitor(read:cil.ReadNode):
     __DATA__.append(mips.MIPSDataItem(read.result.id, mips.SpaceInst(__BUFFSIZE__)))
-    __ADDRS__[read.result.id]=read.result.id
+    save_address(read.result, read.result.id)
     code = [ 
             mips.Comment(str(read)), 
             mips.LaInstruction('$a0', read.result),
@@ -118,11 +118,11 @@ def read_to_mips_visitor(read:cil.ReadNode):
 
 
 def substring_to_mips_visitor(ss:cil.SubStringNode):
-    addr, _=get_address(__ADDRS__, ss.str)
-    i, _=get_address(__ADDRS__, ss.i)
-    l, _=get_address(__ADDRS__, ss.len)
+    addr=get_address(ss.str)
+    i=get_address(ss.i)
+    l=get_address(ss.len)
     __DATA__.append(mips.MIPSDataItem(ss.result.id, mips.SpaceInst(__BUFFSIZE__)))
-    __ADDRS__[ss.result.id]=ss.result.id
+    save_address(ss.result, ss.result.id)
     code = [
         mips.Comment(str(ss)),
         mips.LaInstruction('$t0', addr), 
@@ -143,7 +143,7 @@ def substring_to_mips_visitor(ss:cil.SubStringNode):
     return code
 
 def read_int_to_mips_visitor(read:cil.ReadIntNode):
-    addr,_=get_address(__ADDRS__, read.result)
+    addr=get_address(read.result)
     code = [ 
             mips.Comment(str(read)), 
             mips.LiInstruction('$v0', 5), 
@@ -154,8 +154,8 @@ def read_int_to_mips_visitor(read:cil.ReadIntNode):
 
 
 def length_to_mips_visitor(length: cil.LengthNode):
-    val, _ = get_address(__ADDRS__, length.str)
-    result_val, _ = get_address(__ADDRS__, length.result)
+    val= get_address(length.str)
+    result_val= get_address(length.result)
 
     code = [
         mips.Comment(str(length)),
@@ -173,9 +173,9 @@ def length_to_mips_visitor(length: cil.LengthNode):
 
 def concat_to_mips_visitor(concat:cil.ConcatNode):
     __DATA__.append(mips.MIPSDataItem(concat.result.id, mips.SpaceInst(2 * __BUFFSIZE__)))
-    __ADDRS__[concat.result.id]=concat.result.id
-    a,_ = get_address(__ADDRS__, concat.str_a)
-    b,_ = get_address(__ADDRS__, concat.str_b)
+    save_address(concat.result, concat.result.id)
+    a = get_address(concat.str_a)
+    b = get_address(concat.str_b)
     
     code = [
         mips.Comment(str(concat)),
@@ -195,7 +195,7 @@ def concat_to_mips_visitor(concat:cil.ConcatNode):
 
 
 def load_to_mips_visitor(load: cil.LoadNode):
-    __ADDRS__[load.result] = load.addr
+    save_address(load.result, load.addr)
     return []
 
 
@@ -205,7 +205,7 @@ def arg_to_mips_visitor(arg: cil.ArgNode):
     1) Allocates a 4-bytes space in stack\n
     2) Pushes the arg value in the stack\n
     '''
-    addr, _ = get_address(__ADDRS__, arg.val)
+    addr= get_address(arg.val)
     return [mips.Comment(str(arg))] + allocate_stack(4) + push_stack(addr)
 
 
@@ -220,7 +220,7 @@ def allocate_to_mips_visitor(allocate: cil.AllocateNode):
         sw      $v0, [addr(x)]
     """
     size = get_type(allocate.type).size_mips
-    address, _ = get_address(__ADDRS__, allocate.result)
+    address = get_address(allocate.result)
     code = [
         mips.Comment(str(allocate)),
         mips.LiInstruction('$a0', size),
@@ -239,8 +239,8 @@ def copy_to_mips_visitor(copy: cil.CopyNode):
         lw  $t0, [addr(y)]
         sw  $t0, [addr(x)]
     """
-    x_addr, _ = get_address(__ADDRS__, copy.result)
-    y_addr, _ = get_address(__ADDRS__, copy.val)
+    x_addr = get_address( copy.result)
+    y_addr = get_address( copy.val)
     return [
         mips.Comment(str(copy)),
         mips.LwInstruction('$t0', y_addr),
@@ -258,8 +258,8 @@ def getattr_to_mips_visitor(getattr: cil.GetAttrNode):
         sw  $t1, [addr(x)]
     """
 
-    x_addr, _ = get_address(__ADDRS__, getattr.result)
-    y_addr, _ = get_address(__ADDRS__, getattr.obj)
+    x_addr = get_address( getattr.result)
+    y_addr = get_address( getattr.obj)
     attr_shift = (getattr.attr_index + 1) * 4
     return [
         mips.Comment(str(getattr)),
@@ -278,8 +278,8 @@ def setattr_to_mips_visitor(setattr: cil.SetAttrNode):
         lw  $t1, [addr(y)]
         sw  $t0, [attr_shift($t0)]
     """
-    x_addr = __ADDRS__[setattr.val]
-    y_addr = __ADDRS__[setattr.obj]
+    x_addr = get_address(setattr.val)
+    y_addr = get_address(setattr.obj)
     attr_shift = (setattr.attr_index + 1) * 4
     return [
         mips.Comment(str(setattr)),
@@ -300,9 +300,9 @@ def plus_to_mips_visitor(plus: cil.PlusNode):
         sw  $t0, [addr(x)]
     """
 
-    x_addr = __ADDRS__[plus.result]
-    y_addr = __ADDRS__[plus.left]
-    z_addr = __ADDRS__[plus.right]
+    x_addr = get_address(plus.result)
+    y_addr = get_address(plus.left)
+    z_addr = get_address(plus.right)
     return [
         mips.Comment(str(plus)),
         mips.LwInstruction('$t1', y_addr),
@@ -322,9 +322,9 @@ def minus_to_mips_visitor(minus: cil.MinusNode):
         sub $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
-    x_addr = __ADDRS__[minus.result]
-    y_addr = __ADDRS__[minus.left]
-    z_addr = __ADDRS__[minus.right]
+    x_addr = get_address(minus.result)
+    y_addr = get_address(minus.left)
+    z_addr = get_address(minus.right)
     return [
         mips.Comment(str(minus)),
         mips.LwInstruction('$t1', y_addr),
@@ -344,9 +344,9 @@ def star_to_mips_visitor(star: cil.StarNode):
         mult $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
-    x_addr = __ADDRS__[star.result]
-    y_addr = __ADDRS__[star.left]
-    z_addr = __ADDRS__[star.right]
+    x_addr = get_address(star.result)
+    y_addr = get_address(star.left)
+    z_addr = get_address(star.right)
     return [
         mips.Comment(str(star)),
         mips.LwInstruction('$t1', y_addr),
@@ -366,9 +366,9 @@ def div_to_mips_visitor(div: cil.DivNode):
         div $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
-    x_addr = __ADDRS__[div.result]
-    y_addr = __ADDRS__[div.left]
-    z_addr = __ADDRS__[div.right]
+    x_addr = get_address(div.result)
+    y_addr = get_address(div.left)
+    z_addr = get_address(div.right)
     return [
         mips.Comment(str(div)),
         mips.LwInstruction('$t1', y_addr),
@@ -389,9 +389,9 @@ def lesseq_to_mips_visitor(lesseq: cil.LessEqNode):
         sw  $t0, [addr(x)]
     """
 
-    x_addr = __ADDRS__[lesseq.result]
-    y_addr = __ADDRS__[lesseq.left]
-    z_addr = __ADDRS__[lesseq.right]
+    x_addr = get_address(lesseq.result)
+    y_addr = get_address(lesseq.left)
+    z_addr = get_address(lesseq.right)
     return [
         mips.Comment(str(lesseq)),
         mips.LwInstruction('$t1', y_addr),
@@ -412,9 +412,9 @@ def less_to_mips_visitor(less: cil.LessNode):
         sw  $t0, [addr(x)]
     """
 
-    x_addr = __ADDRS__[less.result]
-    y_addr = __ADDRS__[less.left]
-    z_addr = __ADDRS__[less.right]
+    x_addr = get_address(less.result)
+    y_addr = get_address(less.left)
+    z_addr = get_address(less.right)
     return [
         mips.Comment(str(less)),
         mips.LwInstruction('$t1', y_addr),
@@ -433,8 +433,8 @@ def not_to_mips_visitor(notn: cil.NotNode):
         not $t0, $t1
         sw  $t0, [addr(x)]
     """
-    x_addr = __ADDRS__[notn.result]
-    y_addr = __ADDRS__[notn.value]
+    x_addr = get_address(notn.result)
+    y_addr = get_address(notn.value)
     return [
         mips.Comment(str(notn)),
         mips.LwInstruction('$t1', y_addr),
