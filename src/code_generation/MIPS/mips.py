@@ -35,7 +35,7 @@ def program_to_mips_visitor(program: cil.ProgramNode):
 
 def build_virtual_tables(program: cil.ProgramNode):
     code = [mips.MIPSDataItem(f'vt_{t.type}', mips.SpaceInst(
-        t.size_vt)) for t in program.types]
+        t.size_vt)) for t in program.types[1:]]
     return code
 
 
