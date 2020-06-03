@@ -147,10 +147,10 @@ class BinaryJumpNode(MipsNode):
 
 
 class AbstractLoadNode(MipsNode):
-    def __init__(self, dest: int, src: int):
+    def __init__(self, dest: int, src):
         self.dest = dest
         self.src = src
         self.action = self.__class__.__name__.lower()
 
     def __str__(self):
-        return f'{self.action} {self.dest}, {self.}'
+        return f'{self.action} {self.dest}, {self.src}'
