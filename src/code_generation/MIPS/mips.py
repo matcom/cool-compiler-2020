@@ -52,13 +52,15 @@ def function_to_mips_visitor(function):
     '''
 
     for i, param in enumerate(function.params):
-        save_address(param.id, f'{(len(function.params)-1-i)*4}($sp)')
+        pos=(len(function.params)-1-i)
+        save_address(param.id, pos*4)
 
     code = save_callee_registers()
 
     code += allocate_stack(len(function.locals)*4)
     for i, local in enumerate(function.locals):
-        save_address(local.id, f'{(len(function.locals)-1-i)*4}($sp)')
+        pos=(len(function.locals)-1-i)
+        save_address(local.id, pos*4)
 
     for inst in function.body:
         code += instruction_to_mips_visitor(inst)
@@ -210,7 +212,7 @@ def arg_to_mips_visitor(arg: cil.ArgNode):
     2) Pushes the arg value in the stack\n
     '''
     addr= get_address(arg.val)
-    return [mips.Comment(str(arg))] + allocate_stack(4) + push_stack(addr)
+    return [mips.Comment(str(arg))] + allocate_stack(4) + push_stack(addr, '($sp)')
 
 
 def allocate_to_mips_visitor(allocate: cil.AllocateNode):
