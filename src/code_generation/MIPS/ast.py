@@ -1,3 +1,5 @@
+import re
+
 
 class MIPSProgram:
     def __init__(self, data_section, text_section):
@@ -25,12 +27,14 @@ class MIPSDataSection:
         data_text = '\n'.join([f'\t{str(d)}' for d in self.data])
         return f'\n.data\n{data_text}\n'
 
+
 class MIPSLabel:
     def __init__(self, name):
-        self.name=name
-        
+        self.name = name
+
     def __str__(self):
         return f'{self.name}:\n'
+
 
 class MIPSFunction:
     def __init__(self, name, instructions):
@@ -54,6 +58,18 @@ class Instruction:
     def __init__(self, name, *arguments):
         self.name = name
         self.arguments = arguments
+        self.registers = []
+        patterns = [re.compile(r'\$(?P<register>..)'),
+                    re.compile(r'[0-9]+\(\$(?P<register>..)\)')]
+        for a in self.arguments:
+            for p in patterns:
+                match = p.match(str(a))
+                if match:
+                    register = match.group('register')
+                    if register not in self.registers:
+                        self.registers.append(register)
+                    break
+        print(self.registers)
 
     def __str__(self):
         if len(self.arguments) == 0:
@@ -78,7 +94,8 @@ class Comment(Instruction):
 class AsciizInst(Instruction):
     def __init__(self, *arguments):
         super().__init__(".asciiz", *arguments)
-        
+
+
 class SpaceInst(Instruction):
     def __init__(self, *arguments):
         super().__init__(".space", *arguments)
@@ -106,15 +123,17 @@ class LwInstruction(Instruction):
 class LiInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('li', *arguments)
-        
+
+
 class LaInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('la', *arguments)
 
+
 class LbInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('lb', *arguments)
-        
+
 
 class SbInstruction(Instruction):
     def __init__(self, *arguments):
@@ -123,6 +142,7 @@ class SbInstruction(Instruction):
 # =======================
 # Arithmetic Instructions
 # =======================
+
 
 class SubInstruction(Instruction):
     def __init__(self, *arguments):
@@ -345,7 +365,8 @@ class BltInstruction(Instruction):
 class BltuInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('bltu', *arguments)
-        
+
+
 class BeqzInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('beqz', *arguments)
