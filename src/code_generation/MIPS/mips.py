@@ -10,31 +10,38 @@ __DATA__ = []
 def program_to_mips_visitor(program: cil.ProgramNode):
     global __METHOD_MAPPING__, __DATA__
 
-    # Initialize Types Codes
+    # Initialize Types
     init_types(program.types)
-    vt_code = build_virtual_tables(program)
+
+    # Build .data section
+    vt_space_code = reserve_virtual_tables_space(program)
+    __DATA__ = [mips.MIPSDataItem(d.id, mips.AsciizInst(d.val))
+                for d in program.data]
+    data_section = mips.MIPSDataSection(vt_space_code + __DATA__)
 
     # filling method mapping
     for t in program.types:
         for m in t.methods:
             __METHOD_MAPPING__[(t.type, m)] = t.methods[m]
 
-    __DATA__ = [mips.MIPSDataItem(d.id, mips.AsciizInst(d.val))
-                for d in program.data]
-
+    # Build .text section
     main_code = function_to_mips_visitor(program.built_in_code[0])
     main_code.instructions.insert(0, mips.MIPSLabel('main'))
-    functions = [function_to_mips_visitor(
-        f) for f in program.built_in_code[1:] + program.code]
+    functions = [function_to_mips_visitor(f)
+                 for f in program.built_in_code[1:] + program.code]
     functions.insert(0, main_code)
     text_section = mips.MIPSTextSection(functions)
-    data_section = mips.MIPSDataSection(vt_code + __DATA__)
     return mips.MIPSProgram(data_section, text_section)
 
 
-def build_virtual_tables(program: cil.ProgramNode):
-    code = [mips.MIPSDataItem(f'vt_{t.type}', mips.SpaceInst(
-        t.size_vt)) for t in program.types[1:]]
+def reserve_virtual_tables_space(program: cil.ProgramNode):
+    """
+    Each virtual table has a space in the .data section. The 
+    space is 4 bytes for each function, where the address of 
+    the real function is stored.
+    """
+    code = [mips.MIPSDataItem(f'vt_{t.type}', mips.SpaceInst(t.size_vt))
+            for t in program.types[1:]]
     return code
 
 
@@ -52,14 +59,14 @@ def function_to_mips_visitor(function):
     '''
 
     for i, param in enumerate(function.params):
-        pos=(len(function.params)-1-i)
+        pos = (len(function.params)-1-i)
         save_address(param.id, pos*4)
 
     code = save_callee_registers()
 
     code += allocate_stack(len(function.locals)*4)
     for i, local in enumerate(function.locals):
-        pos=(len(function.locals)-1-i)
+        pos = (len(function.locals)-1-i)
         save_address(local.id, pos*4)
 
     for inst in function.body:
@@ -84,9 +91,9 @@ def instruction_to_mips_visitor(inst):
 
 
 def print_to_mips_visitor(p: cil.PrintNode):
-    addr=get_address(p.str)
+    addr = get_address(p.str)
     code = [mips.Comment(str(p)), mips.MoveInstruction(
-        '$a0',addr)]
+        '$a0', addr)]
     if p.str == 'int':
         code += [
             mips.LiInstruction('$v0', 1),
@@ -110,28 +117,31 @@ def return_to_mips_visitor(ret: cil.ReturnNode):
         code.append(mips.LwInstruction('$v0', val))
     return code
 
-def read_to_mips_visitor(read:cil.ReadNode):
-    __DATA__.append(mips.MIPSDataItem(read.result.id, mips.SpaceInst(__BUFFSIZE__)))
+
+def read_to_mips_visitor(read: cil.ReadNode):
+    __DATA__.append(mips.MIPSDataItem(
+        read.result.id, mips.SpaceInst(__BUFFSIZE__)))
     save_address(read.result, read.result.id)
-    code = [ 
-            mips.Comment(str(read)), 
-            mips.LaInstruction('$a0', read.result),
-            mips.LiInstruction('$a1', __BUFFSIZE__),
-            mips.LiInstruction('$v0', 8), 
-            mips.SyscallInstruction()
+    code = [
+        mips.Comment(str(read)),
+        mips.LaInstruction('$a0', read.result),
+        mips.LiInstruction('$a1', __BUFFSIZE__),
+        mips.LiInstruction('$v0', 8),
+        mips.SyscallInstruction()
     ]
     return code
 
 
-def substring_to_mips_visitor(ss:cil.SubStringNode):
-    addr=get_address(ss.str)
-    i=get_address(ss.i)
-    l=get_address(ss.len)
-    __DATA__.append(mips.MIPSDataItem(ss.result.id, mips.SpaceInst(__BUFFSIZE__)))
+def substring_to_mips_visitor(ss: cil.SubStringNode):
+    addr = get_address(ss.str)
+    i = get_address(ss.i)
+    l = get_address(ss.len)
+    __DATA__.append(mips.MIPSDataItem(
+        ss.result.id, mips.SpaceInst(__BUFFSIZE__)))
     save_address(ss.result, ss.result.id)
     code = [
         mips.Comment(str(ss)),
-        mips.LaInstruction('$t0', addr), 
+        mips.LaInstruction('$t0', addr),
         mips.LaInstruction('$t1', ss.result.id),
         mips.LwInstruction('$t4', i),
         mips.LwInstruction('$t2', l),
@@ -139,7 +149,7 @@ def substring_to_mips_visitor(ss:cil.SubStringNode):
         mips.MIPSLabel('substring_loop'),
         mips.BeqzInstruction('$t2', 'end_substring_loop'),
         mips.LbInstruction('$t3', '($t0)'),
-        mips.SbInstruction('$t3', '($t1)'), 
+        mips.SbInstruction('$t3', '($t1)'),
         mips.SubuInstruction('$t2', '$t2', 1),
         mips.AdduInstruction('$t0', '$t0', 1),
         mips.AdduInstruction('$t1', '$t1', 1),
@@ -148,20 +158,21 @@ def substring_to_mips_visitor(ss:cil.SubStringNode):
     ]
     return code
 
-def read_int_to_mips_visitor(read:cil.ReadIntNode):
-    addr=get_address(read.result)
-    code = [ 
-            mips.Comment(str(read)), 
-            mips.LiInstruction('$v0', 5), 
-            mips.SyscallInstruction(),
-            mips.SwInstruction('$v0', addr)
+
+def read_int_to_mips_visitor(read: cil.ReadIntNode):
+    addr = get_address(read.result)
+    code = [
+        mips.Comment(str(read)),
+        mips.LiInstruction('$v0', 5),
+        mips.SyscallInstruction(),
+        mips.SwInstruction('$v0', addr)
     ]
     return code
 
 
 def length_to_mips_visitor(length: cil.LengthNode):
-    val= get_address(length.str)
-    result_val= get_address(length.result)
+    val = get_address(length.str)
+    result_val = get_address(length.result)
 
     code = [
         mips.Comment(str(length)),
@@ -177,12 +188,14 @@ def length_to_mips_visitor(length: cil.LengthNode):
     ]
     return code
 
-def concat_to_mips_visitor(concat:cil.ConcatNode):
-    __DATA__.append(mips.MIPSDataItem(concat.result.id, mips.SpaceInst(2 * __BUFFSIZE__)))
+
+def concat_to_mips_visitor(concat: cil.ConcatNode):
+    __DATA__.append(mips.MIPSDataItem(concat.result.id,
+                                      mips.SpaceInst(2 * __BUFFSIZE__)))
     save_address(concat.result, concat.result.id)
     a = get_address(concat.str_a)
     b = get_address(concat.str_b)
-    
+
     code = [
         mips.Comment(str(concat)),
         mips.LwInstruction('$t0', a),
@@ -211,7 +224,7 @@ def arg_to_mips_visitor(arg: cil.ArgNode):
     1) Allocates a 4-bytes space in stack\n
     2) Pushes the arg value in the stack\n
     '''
-    addr= get_address(arg.val)
+    addr = get_address(arg.val)
     return [mips.Comment(str(arg))] + allocate_stack(4) + push_stack(addr, '($sp)')
 
 
@@ -245,8 +258,8 @@ def copy_to_mips_visitor(copy: cil.CopyNode):
         lw  $t0, [addr(y)]
         sw  $t0, [addr(x)]
     """
-    x_addr = get_address( copy.result)
-    y_addr = get_address( copy.val)
+    x_addr = get_address(copy.result)
+    y_addr = get_address(copy.val)
     return [
         mips.Comment(str(copy)),
         mips.LwInstruction('$t0', y_addr),
@@ -264,8 +277,8 @@ def getattr_to_mips_visitor(getattr: cil.GetAttrNode):
         sw  $t1, [addr(x)]
     """
 
-    x_addr = get_address( getattr.result)
-    y_addr = get_address( getattr.obj)
+    x_addr = get_address(getattr.result)
+    y_addr = get_address(getattr.obj)
     attr_shift = (getattr.attr_index + 1) * 4
     return [
         mips.Comment(str(getattr)),
@@ -464,10 +477,10 @@ __visitors__ = {
     cil.NotNode: not_to_mips_visitor,
     cil.PrintNode: print_to_mips_visitor,
     cil.ReturnNode: return_to_mips_visitor,
-    cil.ReadNode: read_to_mips_visitor, 
-    cil.ReadIntNode: read_int_to_mips_visitor, 
-    cil.LengthNode: length_to_mips_visitor, 
-    cil.ConcatNode: concat_to_mips_visitor, 
-    cil.LoadNode:load_to_mips_visitor, 
-    cil.SubStringNode:substring_to_mips_visitor
+    cil.ReadNode: read_to_mips_visitor,
+    cil.ReadIntNode: read_int_to_mips_visitor,
+    cil.LengthNode: length_to_mips_visitor,
+    cil.ConcatNode: concat_to_mips_visitor,
+    cil.LoadNode: load_to_mips_visitor,
+    cil.SubStringNode: substring_to_mips_visitor
 }
