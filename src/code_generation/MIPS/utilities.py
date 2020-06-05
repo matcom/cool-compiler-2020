@@ -31,9 +31,9 @@ def get_type(name):
 
 def save_callee_registers():
     code = allocate_stack(40)
-    n=8
+    n = 8
     for i in range(n):
-        pos= (n-1-i)*4
+        pos = (n-1-i)*4
         if pos:
             code += push_stack(f'$s{i}', f'{pos}($sp)')
         else:
@@ -45,9 +45,9 @@ def save_callee_registers():
 
 def save_caller_registers():
     code = allocate_stack(40)
-    n=10
+    n = 10
     for i in range(n):
-        pos =(n-1-i)*4
+        pos = (n-1-i)*4
         if pos:
             code += push_stack(f'$t{i}', f'{pos}($sp)')
         else:
@@ -58,9 +58,9 @@ def save_caller_registers():
 
 def restore_callee_registers():
     code = []
-    n=8
+    n = 8
     for i in range(n):
-        pos=(n-1-i)*4
+        pos = (n-1-i)*4
         if pos:
             code += peek_stack(f'$s{i}', f'{pos}($sp)')
         else:
@@ -73,9 +73,9 @@ def restore_callee_registers():
 
 def restore_caller_registers():
     code = []
-    n=10
+    n = 10
     for i in range(n):
-        pos=(n-1-i)*4
+        pos = (n-1-i)*4
         code += peek_stack(f'$t{i}', f'{pos}($sp)')
     code += restore_stack(40)
     return code
@@ -101,8 +101,10 @@ def push_stack(src, pos):
 def peek_stack(src, pos):
     return [mips.LwInstruction(src, pos)]
 
+
 def restore_addresses():
     __ADDRS__ = {}
+
 
 def get_address(key):
     try:
@@ -112,11 +114,12 @@ def get_address(key):
     except:
         raise Exception('Local not found in stack')
 
+
 def save_address(key, value):
     if type(value) is int:
         if value:
-            __ADDRS__[key]=f'{value}($sp)'
+            __ADDRS__[key] = f'{value}($sp)'
         else:
-            __ADDRS__[key]=f'($sp)'
-            
-    __ADDRS__[key]=value
+            __ADDRS__[key] = f'($sp)'
+
+    __ADDRS__[key] = value
