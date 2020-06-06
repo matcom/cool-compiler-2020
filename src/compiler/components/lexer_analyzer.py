@@ -38,6 +38,7 @@ reserved = {
     'inherits':'INHERITS',
     'isvoid':'ISVOID',
     "self": "SELF",
+    "not" : "NOT"
 }
 
 tokens += list(reserved.values())
@@ -54,7 +55,6 @@ t_LT = r'\<'
 t_LTEQ = r'\<\='
 t_ASSIGN = r'\<\-'
 t_INT_COMP = r'~'
-t_NOT = r'not'
 t_LBRACE = r'\{'
 t_RBRACE = r'\}'
 t_COLON = r'\:'
