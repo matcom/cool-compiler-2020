@@ -188,7 +188,6 @@ class pyCoolParser:
         """        
     
     ## ######################### LET EXPRESSIONS ########################################
-    
     def p_expression_let(self, p):
         """
          expression : let_expression
@@ -196,28 +195,21 @@ class pyCoolParser:
         
     def p_expression_let_simple(self, p):
         """
-        let_expression : LET ID COLON TYPE IN expression
-                       | nested_lets COMMA LET ID COLON TYPE
-        """        
-        
-    def p_expression_let_initialized(self, p):
+        let_expression : LET nested_lets IN expression
         """
-        let_expression : LET ID COLON TYPE ASSIGN expression IN expression
-                       | nested_lets COMMA LET ID COLON TYPE ASSIGN expression
-        """        
-        
-    def p_inner_lets_simple(self, p):
+
+    def p_nested_lets_simple(self, p):
         """
-        nested_lets : ID COLON TYPE IN expression
+        nested_lets : ID COLON TYPE
                     | nested_lets COMMA ID COLON TYPE
-        """        
-        
-    def p_inner_lets_initialized(self, p):
         """
-        nested_lets : ID COLON TYPE ASSIGN expression IN expression
+
+    def p_nested_lets_initialize(self, p):
+        """
+        nested_lets : ID COLON TYPE ASSIGN expression
                     | nested_lets COMMA ID COLON TYPE ASSIGN expression
-        """        
-    
+        """
+
     # ######################### CASE EXPRESSION ########################################
     
     def p_expression_case(self, p):
