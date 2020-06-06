@@ -35,10 +35,8 @@ reserved = {
     'pool':'POOL',
     'class':'CLASS',
     'loop':'LOOP',
-    'true':'TRUE',
     'inherits':'INHERITS',
     'isvoid':'ISVOID',
-    'false':'FALSE',
     "self": "SELF",
 }
 
@@ -67,9 +65,9 @@ t_AT = r'\@'
 t_ARROW = r'\=\>'
 #complex rules
 
-@TOKEN(r"(true|false)")
+@TOKEN(r"(t[R|r][U|u][e|E]|f[a|A][l|L][s|S][e|E])")
 def t_BOOLEAN(token):
-    token.value = True if token.value == "true" else False
+    token.value = token.value.lower()
     return token
 
 @TOKEN(r"\d+")
@@ -79,12 +77,12 @@ def t_INTEGER(token):
 
 @TOKEN(r"[A-Z][A-Za-z0-9_]*")
 def t_TYPE(token):
-    token.type = reserved.get(token.value, 'TYPE')
+    token.type = reserved.get(token.value.lower(), 'TYPE')
     return token
 
 @TOKEN(r"[a-z][A-Za-z0-9_]*")
 def t_ID(token):
-    token.type = reserved.get(token.value, "ID")
+    token.type = reserved.get(token.value.lower(), "ID")
     return token
 
 # Utility definitions
