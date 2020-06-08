@@ -146,6 +146,8 @@ class BinaryJumpNode(MipsNode):
         return f'{self.action} ${self.src1}, ${self.src2}, {self.label}'
 
 
+
+# ********************   INSTRUCCIONES PARA ALMACENAR Y CARGAR DATOS EN REGISTROS  ************
 class AbstractLoadNode(MipsNode):
     def __init__(self, dest: int, src):
         self.dest = dest
@@ -153,4 +155,58 @@ class AbstractLoadNode(MipsNode):
         self.action = self.__class__.__name__.lower()
 
     def __str__(self):
-        return f'{self.action} {self.dest}, {self.src}'
+        return f'{self.action} ${self.dest}, {self.src}'
+
+
+class MOVE(BinaryNode):
+    """
+    Copia el contenido de $src1 en $dest.
+    """
+    pass
+
+
+# ********************    MANEJO DE EXCEPCIONES   *************************
+class RFE(MipsNode):
+    """
+    Retorna de una excepcion.
+    """
+    def __str__(self):
+        return "rfe"
+
+
+class SYSCALL(MipsNode):
+    """
+    Realiza una llamada a sistema.
+    """
+    def __str__(self):
+        return "syscall"
+
+
+class BREAK(MipsNode):
+    """
+    Usado por el debugger.
+    """
+    def __init__(self, const: int):
+        self.const = const
+
+    def __str__(self):
+        return f'break {self.const}'
+
+
+class NOP(MipsNode):
+    """
+    Instruccion que no hace nada, salvo consumir un ciclo del reloj.
+    """
+    def __str__(self):
+        return "nop"
+
+
+class LineComment(MipsNode):
+    """
+    Representa un comentario en una linea
+    """
+    def __init__(self, string: str):
+        self.text = string
+
+    def __str__(self):
+        return f'# {self.text}'

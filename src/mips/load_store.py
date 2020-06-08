@@ -67,3 +67,38 @@ class ULH(AbstractLoadNode):
     Carga 2 bytes empezando en src en $dest
     """
     pass
+
+
+class SB(AbstractLoadNode):
+    """
+    Almacena el primer byte del registro $dest en addr.
+    """
+    pass
+
+
+class SH(AbstractLoadNode):
+    """
+    Almacena los primeros dos bytes del registro $dest en addr.
+    """
+    pass
+
+
+class SW(AbstractLoadNode):
+    """
+    Almacena los 4 bytes del registro $dest en addr.
+    """
+    pass
+
+
+class SWL(AbstractLoadNode):
+    """
+    Almacena los ultimos dos bytes del registro $dest en addr (esta direccion esta probablemente desalineada).
+    """
+    pass
+
+
+class USW(AbstractLoadNode):
+    """
+    Almacena los 4 bytes del registro $dest en addr (esta direccion esta probablemente desalineada).
+    """
+    pass
