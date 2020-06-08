@@ -23,6 +23,8 @@ class keyword(str):
         if val != 'true' and val != 'false':
             return val  == other.lower()
         return val[0] == other[0] and val[1:] == other.lower()[1:]
+    def __hash__(self):
+        return super().__hash__()
 
 basic_keywords = {
     "case": keyword("case"),
@@ -71,27 +73,28 @@ t_NOT = r'not'                      # not
 #ignore spaces
 t_ignore = ' \t\r\f'
 
-simple_rules = [
-    t_LPAREN,
-    t_RPAREN,
-    t_LBRACE,
-    t_RBRACE,
-    t_COLON,
-    t_COMMA,
-    t_DOT,
-    t_SEMICOLON,
-    t_AT,
-    t_PLUS,
-    t_MINUS,
-    t_MULTIPLY,
-    t_DIVIDE,
-    t_EQ,
-    t_LT,
-    t_LTEQ,
-    t_ASSIGN,
-    t_INT_COMP,
-    t_NOT
-]
+simple_rules = {
+    't_LPAREN': t_LPAREN,
+    't_RPAREN': t_RPAREN,
+    't_LBRACE': t_LBRACE,
+    't_RBRACE': t_RBRACE,
+    't_COLON': t_COLON,
+    't_COMMA': t_COMMA,
+    't_DOT': t_DOT,
+    't_SEMICOLON': t_SEMICOLON,
+    't_AT': t_AT,
+    't_PLUS': t_PLUS,
+    't_MINUS': t_MINUS,
+    't_MULTIPLY': t_MULTIPLY,
+    't_DIVIDE': t_DIVIDE,
+    't_EQ': t_EQ,
+    't_LT': t_LT,
+    't_LTEQ': t_LTEQ,
+    't_ASSIGN': t_ASSIGN,
+    't_INT_COMP': t_INT_COMP,
+    't_NOT': t_NOT,
+    't_ignore' : t_ignore
+}
 
 
 #Complex rules for cool
@@ -150,7 +153,7 @@ def t_STRING_newline(token):
 
 
 @TOKEN(r"\"")
-def t_STRING_end(self, token):
+def t_STRING_end(token):
     if not token.lexer.string_backslashed:
         token.lexer.pop_state()
         token.value = token.lexer.stringbuf
@@ -161,7 +164,7 @@ def t_STRING_end(self, token):
         token.lexer.string_backslashed = False
 
 @TOKEN(r"[^\n]")
-def t_STRING_anything(self, token):
+def t_STRING_anything( token):
     if token.lexer.string_backslashed:
         if token.value == 'b':
             token.lexer.stringbuf += '\b'
@@ -193,74 +196,72 @@ t_STRING_ignore = ''
 
 # The comment states
 @TOKEN(r"\(\*")
-def t_COMMENT_start(self, token):
+def t_COMMENT_start(token):
     token.lexer.push_state("COMMENT")
     token.lexer.comment_count = 0
 
 #Comments can be recursive
 @TOKEN(r"\(\*")
-def t_COMMENT_startanother(self, t):
+def t_COMMENT_startanother(t):
     t.lexer.comment_count += 1
 
 @TOKEN(r"\*\)")
-def t_COMMENT_end(self, token):
+def t_COMMENT_end(token):
     if token.lexer.comment_count == 0:
         token.lexer.pop_state()
     else:
         token.lexer.comment_count -= 1
 
-# COMMENT ignored characters
-t_COMMENT_ignore = ''
 
+t_ignore_SINGLE_LINE_COMMENT = r"\-\-[^\n]*"
 
 
 
 
 
 #Error handlers
-
+#(4, 2) - LexicographicError: ERROR "!" 
 # STRING error handler
-def t_STRING_error(self, token):
-    print("Illegal character! Line: {0}, character: {1}".format(token.lineno, token.value[0]))
+def t_STRING_error( token):
+    print('({0}, {1}) - LexicographicError: ERROR "{2}"'.format(token.lineno, token.lexpos, token.value[0]))
     token.lexer.skip(1)
 
-
+#(55, 46) - LexicographicError: EOF in comment
 # COMMENT error handler
-def t_COMMENT_error(self, token):
+def t_COMMENT_error( token):
+    print("({0}, {1}) - LexicographicError: EOF in comment".format(token.lineno, token.lexpos))
     token.lexer.skip(1)
 
-def t_error(self, token):
-    print("Illegal character! Line: {0}, character: {1}".format(token.lineno, token.value[0]))
+
+def t_error( token):
+    print('({0}, {1}) - LexicographicError: ERROR "{2}"'.format(token.lineno, token.lexpos, token.value[0]))
     token.lexer.skip(1)
 
 
 
 #Complex rules list
-complex_rules = [ 
-    t_BOOLEAN,
-    t_INTEGER,
-    t_TYPE,
-    t_newline,
-    t_ID,
+complex_rules = {
+    't_BOOLEAN': t_BOOLEAN,
+    't_INTEGER':  t_INTEGER,
+    't_TYPE':  t_TYPE,
+    't_newline':  t_newline,
+    't_ID':  t_ID,
     #----------
     #String states rules
-    t_STRING_start,
-    t_STRING_newline,
-    t_STRING_anything,
-    t_STRING_end,
-    t_STRING_ignore,
+    't_STRING_start': t_STRING_start,
+    't_STRING_newline': t_STRING_newline,
+    't_STRING_anything': t_STRING_anything,
+    't_STRING_end': t_STRING_end,
     #----------
     #Comment states rules
-    t_COMMENT_start,
-    t_COMMENT_startanother,
-    t_COMMENT_end,
-    t_COMMENT_ignore  
- ]
-
+    't_COMMENT_start': t_COMMENT_start,
+    't_COMMENT_startanother': t_COMMENT_startanother,
+    't_COMMENT_end': t_COMMENT_end,
+}
 #Error handlers
-error_handlers = [
-    t_STRING_error,
-    t_COMMENT_error,
-    t_error
-]
+error_handlers = {
+    't_STRING_error': t_STRING_error,
+    't_COMMENT_error': t_COMMENT_error,
+    't_error': t_error
+}
 

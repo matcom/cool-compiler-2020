@@ -10,6 +10,7 @@ class Component:
         self.component_name = component_name
         self.debug_session = debug_session
         self.error_log_file = error_log_file
+        
         if build_after_initialize: self.build_component()
 
 
