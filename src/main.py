@@ -1,6 +1,7 @@
 import sys, fileinput
 from argparse import ArgumentParser
-from compiler.components.lexer_analyzer import tokenizer
+from compiler.components.lexer_analyzer import tokenizer, tokens
+from compiler.components.syntax_analyzer import run_parser
 
 parser_input =  ArgumentParser(description= 'This is the Diaz-Horrach cool compiler, an school project.\nRead this help and see the ofitial repo')
 parser_input.add_argument('files_for_compile', help = 'The file(s) to be compiled', nargs= '+')
@@ -14,13 +15,22 @@ args = parser_input.parse_args()
 file = open(args.files_for_compile[0])
 working_input = file.read()
 
-errors, tokens = tokenizer(working_input)
+all_errors = []
+token_errors, tokens_for_input, real_col = tokenizer(working_input)
+#print(tokens_for_input)
 
-if errors:
-    for error in errors:
+parser_errors = run_parser(tokens, working_input, real_col)
+
+all_errors += token_errors + parser_errors
+
+""" print('tokens for _input \n')
+print(tokens_for_input)
+print('---------------') """
+if all_errors:
+    for error in all_errors:
         print(error)
     exit(1)
-print(tokens)
+
 
 exit(0)
 
