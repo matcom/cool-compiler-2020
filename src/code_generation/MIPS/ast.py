@@ -31,18 +31,87 @@ class MIPSDataSection:
 class MIPSLabel:
     def __init__(self, name):
         self.name = name
+        self.callee_saved_reg = set()
+        self.caller_saved_reg = set()
 
     def __str__(self):
         return f'{self.name}:\n'
 
 
 class MIPSFunction:
-    def __init__(self, name, instructions):
+    def __init__(self, name, params, locals):
         self.name = name
-        self.instructions = instructions
+        self.ADDR = {}
+        self.init_instructions = []
+        self.instructions = []
+        self.end_instructions = []
+        self.caller_saved_reg = set()
+        self.callee_saved_reg = set()
+
+        self.init_instructions.append(MoveInstruction('$fp', '$sp'))
+
+        self.params_count = len(params)
+        for i, p in enumerate(params, 1):
+            self.ADDR[p.id] = f'{(self.params_count - i) * 4}($fp)'
+
+        for i, l in enumerate(locals, 1):
+            self.ADDR[str(l)] = f'-{i * 4}($fp)'
+
+        self.fp_shift = len(locals)
+        self.init_instructions.append(
+            Comment(f'{self.fp_shift} LOCALS = {self.fp_shift * 4} bytes'))
+        self.fp_shift += 1
+        self.init_instructions.append(SwInstruction(
+            '$ra', f'-{self.fp_shift * 4}($fp)'))
+
+    def append_instruction(self, instruction):
+        """
+        Add new instruction to function block. For a correct operation, the
+        instructions must be addes continuisly, in the same order that they
+        were declared in CIL.
+        """
+        # Update used registers
+        self.__update_callee_saved_reg__(instruction.callee_saved_reg)
+        self.__update_caller_saved_reg__(instruction.caller_saved_reg)
+        # Update function instrcutions
+        self.instructions.append(instruction)
+
+    def end(self):
+        """
+        It points the end of the CIL function, and adds the last necessary
+        actions.
+        """
+        self.init_instructions.append(SubuInstruction(
+            '$sp', '$sp', f'{self.fp_shift * 4}'))
+        self.end_instructions.append(AdduInstruction(
+            '$sp', '$sp', f'{self.fp_shift * 4}'))
+
+    def get_address(self, id):
+        """
+        Return thememory address where it store the \"id\" identifier of CIL
+        """
+        try:
+            return self.ADDR[id]
+        except KeyError:
+            raise Exception(f'Unsaved id {id}')
+
+    def __update_callee_saved_reg__(self, registers: set):
+        diff = registers.difference(self.callee_saved_reg)
+        for reg in diff:
+            self.fp_shift += 1
+            self.init_instructions.append(SwInstruction(
+                f'${reg}', f'-{self.fp_shift * 4}($fp)'))
+            self.end_instructions.append(SwInstruction(
+                f'-{self.fp_shift * 4}($fp)', f'${reg}'))
+        self.callee_saved_reg.update(diff)
+
+    def __update_caller_saved_reg__(self, registers: set):
+        self.caller_saved_reg.update(registers)
 
     def __str__(self):
-        return '\n'.join([f'# FUNCTION: {self.name}']+[f'\t{str(i)}' for i in self.instructions])
+        instructions = self.init_instructions + \
+            self.instructions + self.end_instructions
+        return '\n'.join([f'{self.name}:']+[f'\t{str(i)}' for i in instructions])
 
 
 class MIPSDataItem:
@@ -58,18 +127,22 @@ class Instruction:
     def __init__(self, name, *arguments):
         self.name = name
         self.arguments = arguments
-        self.registers = []
+        self.caller_saved_reg = set()
+        self.callee_saved_reg = set()
         patterns = [re.compile(r'\$(?P<register>..)'),
                     re.compile(r'[0-9]+\(\$(?P<register>..)\)')]
+        caller_pattern = re.compile(r't[0-9]|a[0-3]|v[0-1]')
+        callee_pattern = re.compile(r's[0-7]')
         for a in self.arguments:
             for p in patterns:
                 match = p.match(str(a))
                 if match:
-                    register = match.group('register')
-                    if register not in self.registers:
-                        self.registers.append(register)
+                    reg = match.group('register')
+                    if caller_pattern.match(reg):
+                        self.caller_saved_reg.add(reg)
+                    elif callee_pattern.match(reg):
+                        self.callee_saved_reg.add(reg)
                     break
-        print(self.registers)
 
     def __str__(self):
         if len(self.arguments) == 0:
