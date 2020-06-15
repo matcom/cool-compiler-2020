@@ -1,6 +1,7 @@
 import ply.yacc as yacc
 from ply.yacc import YaccProduction, YaccSymbol
 from ..utils.errors import error
+from ..utils.AST_definitions import *
 from ..components.lexer_analyzer import lexer
 
 class pyCoolParser:
@@ -29,30 +30,33 @@ class pyCoolParser:
         """
         program : class_list
         """        
-        
+        p[0] = NodeProgram(p[1])
 
     def p_class_list(self, p):
         """
         class_list : class_list class SEMICOLON
                    | class SEMICOLON
         """        
-        
+        p[0] = NodeClassTuple((p[1],) if len(p) == 3 else p[1] + (p[2], ))
+
     def p_class(self, p):
         """
         class : CLASS TYPE LBRACE features_list_opt RBRACE
         """        
-        
+        p[0] = NodeClass(idName = p[2], body = p[4], parent = "Object")
+
     def p_class_inherits(self, p):
         """
         class : CLASS TYPE INHERITS TYPE LBRACE features_list_opt RBRACE
         """        
-        
+        p[0] = NodeClass(idName = p[2], body = p[6], parent = p[4] )
+
     def p_feature_list_opt(self, p):
         """
         features_list_opt : features_list
                           | empty
-        """        
-    
+        """
+
     def p_feature_list(self, p):
         """
         features_list : features_list feature SEMICOLON
@@ -298,6 +302,7 @@ def run_parser(tokens, source_program, real_col):
     #print(source_program)
     parserCool = pyCoolParser(tokens, real_col)
     lexer.lineno = 1
-    parserCool.parser.parse(source_program, lexer=lexer)
-    return parserCool.errors_parser
+    ast_result = parserCool.parser.parse(source_program, lexer=lexer)
+    print(ast_result)
+    return ast_result, parserCool.errors_parser
 
