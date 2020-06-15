@@ -1,40 +1,6 @@
 \__ProgramNode [<class> ... <class>]
-	\__ClassDeclarationNode: class Main : IO { <feature> ... <feature> }
-		\__FuncDeclarationNode: main() : Object -> <body>
-			\__ BlockNode { <expr_list> }
-				\__SelfCallNode: out_string(<expr>, ..., <expr>)
-					\__ StringNode: Enter n to find nth fibonacci number!\n
-				\__SelfCallNode: out_int(<expr>, ..., <expr>)
-					\__SelfCallNode: fib(<expr>, ..., <expr>)
-						\__SelfCallNode: in_int(<expr>, ..., <expr>)
-
-				\__SelfCallNode: out_string(<expr>, ..., <expr>)
-					\__ StringNode: \n
-		\__FuncDeclarationNode: fib(i:Int) : Int -> <body>
-			\__ LetNode let <init_list> in <expr>
-				\__VarDeclarationNode: a : Int = <expr>
-					\__ IntegerNode: 1
-				\__VarDeclarationNode: b : Int = <expr>
-					\__ IntegerNode: 0
-				\__VarDeclarationNode: c : Int = <expr>
-					\__ IntegerNode: 0
-				\__ BlockNode { <expr_list> }
-					\__WhileNode: while <cond> loop <expr> pool
-						\__NotNode <expr>
-							\__<expr> EqualNode <expr>
-								\__ VarAccessNode: i
-								\__ IntegerNode: 0
-						\__ BlockNode { <expr_list> }
-							\__AssignNode: c <- <expr>
-								\__<expr> SumNode <expr>
-									\__ VarAccessNode: a
-									\__ VarAccessNode: b
-							\__AssignNode: i <- <expr>
-								\__<expr> DiffNode <expr>
-									\__ VarAccessNode: i
-									\__ IntegerNode: 1
-							\__AssignNode: b <- <expr>
-								\__ VarAccessNode: a
-							\__AssignNode: a <- <expr>
-								\__ VarAccessNode: c
-					\__ VarAccessNode: c
+	\__ClassDeclarationNode: class B  { <feature> ... <feature> }
+		\__AttrDeclarationNode: x : Int
+	\__ClassDeclarationNode: class A : B { <feature> ... <feature> }
+		\__AttrDeclarationNode: y : String
+		\__AttrDeclarationNode: x : Int

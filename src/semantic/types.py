@@ -21,7 +21,7 @@ class Type:
         try:
             return next(attr for attr in self.attributes if attr.name == name)
         except StopIteration:
-            if self.parent is None:
+            if not self.parent:
                 raise SemanticError(f'Attribute "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_attribute(name)
@@ -42,7 +42,7 @@ class Type:
         try:
             return self.methods[name]
         except KeyError:
-            if self.parent is None:
+            if not self.parent:
                 raise SemanticError(f'Method "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_method(name)
@@ -52,8 +52,7 @@ class Type:
     def define_method(self, name:str, param_names:list, param_types:list, return_type):
         if name in self.methods:
             raise SemanticError(f'Method "{name}" already defined in {self.name}')
-            # raise SemanticError(f'Method "{name}" already defined in {self.name} with a different signature.')
-
+        
         method = self.methods[name] = Method(name, param_names, param_types, return_type)
         return method
 
@@ -61,7 +60,6 @@ class Type:
         idx = method.param_names.index(nparm)
         method.param_types[idx] = newtype
                 
-
     def conforms_to(self, other):
         return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
 

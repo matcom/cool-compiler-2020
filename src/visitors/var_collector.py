@@ -80,7 +80,7 @@ class VarCollector(State):
     def visit(self, node, scope):
         if node.id == 'self':
             self.errors.append(SELF_IS_READONLY)
-        
+            
         else:
             vinfo = scope.find_variable(node.id)
             if vinfo is None:
