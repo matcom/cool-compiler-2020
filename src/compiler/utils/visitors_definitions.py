@@ -1,8 +1,7 @@
 from ..utils.AST_definitions import *
 from ..utils.context import globalContex
 
-#Necesito en ejecución definir nuevos tipos.
-#Tal como hacen las interfaces en C#.
+
 class NodeVisitor:
     def visit(self, node: Node):
         visitor_method_name = 'visit_' + node.clsname
@@ -20,6 +19,9 @@ class TypeCheckVisitor(NodeVisitor):
         self.programContext.initialize()
         for classNode in node.class_list:
             self.visit(classNode)
+        
+        return self.programContext
 
     def visit_NodeClass(self, node: NodeClass):
         self.programContext.createType(node)
+        return self.programContext

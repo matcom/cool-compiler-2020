@@ -44,14 +44,6 @@ class NodeClass(Node):
         self.body = body
         self.parent = parent
 
-    def to_tuple(self):
-        return tuple([
-            ("class_name", self.clsname),
-            ("name", self.idName),
-            ("parent", self.parent), 
-            ("features", self.body)
-        ])
-
     def to_readable(self):
         return "{}(name='{}', parent={}, features={})".format(
             self.clsname, self.idName, self.parent, self.body)
