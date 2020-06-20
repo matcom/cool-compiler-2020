@@ -61,10 +61,7 @@ class Type:
         method.param_types[idx] = newtype
                 
     def conforms_to(self, other):
-        return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
-
-    def bypass(self):
-        return False
+        return self == other or self.parent is not None and self.parent.conforms_to(other)
 
     def __str__(self):
         output = f'type {self.name}'

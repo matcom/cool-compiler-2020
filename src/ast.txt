@@ -1,6 +1,27 @@
 \__ProgramNode [<class> ... <class>]
-	\__ClassDeclarationNode: class B  { <feature> ... <feature> }
-		\__AttrDeclarationNode: x : Int
 	\__ClassDeclarationNode: class A : B { <feature> ... <feature> }
 		\__AttrDeclarationNode: y : String
+		\__AttrDeclarationNode: z : Int
+	\__ClassDeclarationNode: class C : B { <feature> ... <feature> }
+		\__AttrDeclarationNode: y : Int
+		\__AttrDeclarationNode: z : Bool
+		\__FuncDeclarationNode: test1() : Bool -> <body>
+			\__ BoolNode: False
+		\__FuncDeclarationNode: test(a:String, b:Bool) : Int -> <body>
+			\__<expr> SumNode <expr>
+				\__ IntegerNode: 2
+				\__ IntegerNode: 2
+		\__FuncDeclarationNode: test() : Int -> <body>
+			\__<expr> SumNode <expr>
+				\__ IntegerNode: 1
+				\__ IntegerNode: 1
+	\__ClassDeclarationNode: class B  { <feature> ... <feature> }
 		\__AttrDeclarationNode: x : Int
+		\__FuncDeclarationNode: test() : Int -> <body>
+			\__<expr> SumNode <expr>
+				\__ IntegerNode: 2
+				\__ IntegerNode: 2
+		\__FuncDeclarationNode: test_self(a:String, b:Bool) : Int -> <body>
+			\__<expr> DiffNode <expr>
+				\__ IntegerNode: 2
+				\__ IntegerNode: 2

@@ -21,114 +21,127 @@ class TypeBuilder(State):
 
     @visitor.when(ProgramNode)
     def visit(self, node):
+        builder = Builder(self.context)
+        inherit = InheritBuilder(self.context)
+        builder.visit(node)
+        inherit.visit(node)
+        self.errors = builder.errors + inherit.errors
+
+class Builder:
+    def __init__(self, context):
+        self.errors = [ ]
+        self.context = context
+        self.current_type = None
+    
+    @visitor.on('node')
+    def visit(self, node):
         pass
+    
+    @visitor.when(ProgramNode)
+    def visit(self, node):
+        for dec in node.declarations:
+            self.visit(dec)   
+    
+    @visitor.when(ClassDeclarationNode)
+    def visit(self, node):
+        # set current type for this class declaration
+        self.current_type = self.context.get_type(node.id)
+        # visit func declarations and attr declarations for this class
+        for feature in node.features:
+            self.visit(feature)
+        # compute parent
+        if node.parent:
+            try:
+                parent = self.context.get_type(node.parent)
+                current = parent
+                while current:
+                    if current.name == self.current_type.name:
+                        raise SemanticError('<CIRCULAR DEPENDENCY>')
+                    current = current.parent
+            except SemanticError as e:
+                parent = ErrorType()
+                self.errors.append(e.text) # parent type missing
+            
+            self.current_type.set_parent(parent)
+    
+    @visitor.when(FuncDeclarationNode)
+    def visit(self, node):
+        args_ids = []
+        args_types = []
+        for n, t in node.params:
+            args_ids.append(n)
+            try:
+                args_types.append(self.context.get_type(t))
+            except SemanticError as e:
+                args_types.append(ErrorType())
+                self.errors.append(e.text)
+        try:
+            ret_type = self.context.get_type(node.type)
+        except SemanticError as e:
+            ret_type = ErrorType()
+            self.errors.append(e.text)
+        try:
+            self.current_type.define_method(node.id, args_ids, args_types, ret_type)
+        except SemanticError as e:
+            self.errors.append(e.text)
+   
+    @visitor.when(AttrDeclarationNode)
+    def visit(self, node):
+        try:
+            attr_type = self.context.get_type(node.type)
+        except SemanticError as e:
+            attr_type = ErrorType()
+            self.errors.append(e.text)
+        try:
+            self.current_type.define_attribute(node.id, attr_type)
+        except SemanticError as e:
+            self.errors.append(e.text)
 
-    class Builder:
-        def __init__(self):
-            self.context = None
-            self.current_type = None
-
-        @visitor.on('node')
-        def visit(self, node):
-            pass
-
-        @visitor.when(ProgramNode)
-        def visit(self, node):
-            for dec in node.declarations:
-                self.visit(dec)   
-
-        @visitor.when(ClassDeclarationNode)
-        def visit(self, node):
-            # set current type for this class declaration
-            self.current_type = self.context.get_type(node.id)
-
-            # visit func declarations and attr declarations for this class
+class InheritBuilder:
+    def __init__(self, context):
+        self.errors = []
+        self.context = context
+        self.current_type = None
+    
+    @visitor.on('node')
+    def visit(self, node):
+        pass
+    
+    @visitor.when(ProgramNode)
+    def visit(self, node):
+        for dec in node.declarations:
+            self.visit(dec)   
+    
+    @visitor.when(ClassDeclarationNode)
+    def visit(self, node):
+        # set current type for this class declaration
+        self.current_type = self.context.get_type(node.id)
+        parent = self.current_type.parent
+        # visit func declarations and attr declarations for this class
+        if node.parent and parent is not ErrorType():
             for feature in node.features:
                 self.visit(feature)
-
-            # compute parent
-            if node.parent:
-                try:
-                    parent = self.context.get_type(node.parent)
-                    current = parent
-                    while current:
-                        if current.name == self.current_type.name:
-                            raise SemanticError('<CIRCULAR DEPENDENCY>')
-                        current = current.parent
-                except SemanticError as e:
-                    parent = ErrorType()
-                    self.errors.append(e.text) # parent type missing
-                
-                self.current_type.set_parent(parent)
-
-        @visitor.when(FuncDeclarationNode)
-        def visit(self, node):
-            args_ids = []
-            args_types = []
-
-            for n, t in node.params:
-                args_ids.append(n)
-                try:
-                    args_types.append(self.context.get_type(t))
-                except SemanticError as e:
-                    args_types.append(ErrorType())
-                    self.errors.append(e.text)
-
-            try:
-                ret_type = self.context.get_type(node.type)
-            except SemanticError as e:
-                ret_type = ErrorType()
-                self.errors.append(e.text)
-
-            try:
-                self.current_type.define_method(node.id, args_ids, args_types, ret_type)
-            except:
-                self.errors.append(e.text)
-
-        @visitor.when(AttrDeclarationNode)
-        def visit(self, node):
-            try:
-                attr_type = self.context.get_type(node.type)
-            except SemanticError as e:
-                attr_type = ErrorType()
-                self.errors.append(e.text)
-
-            try:
-                self.current_type.define_attribute(node.id, attr_type)
-            except SemanticError as e:
-                self.errors.append(e.text)
-
-    class InheritBuilder:
-        def __init__(self):
-            self.context = None
-            self.current_type = None
-
-        @visitor.when('node')
-        def visit(self, node):
+    
+    @visitor.when(FuncDeclarationNode)
+    def visit(self, node):
+        # check correct override 
+        parent = self.current_type.parent
+        cmeth = self.current_type.get_method(node.id)
+        
+        try:
+            pmeth = parent.get_method(node.id)
+            if not pmeth == cmeth:
+                self.errors.append(WRONG_SIGNATURE % (node.id, parent.name))
+        except SemanticError:
             pass
-
-        @visitor.when(ProgramNode)
-        def visit(self, node):
-            for dec in node.declarations:
-                self.visit(dec)   
-
-        @visitor.when(ClassDeclarationNode)
-        def visit(self, node):
-            # set current type for this class declaration
-            self.current_type = self.context.get_type(node.id)
-            parent = self.current_type.parent
-
-            # visit func declarations and attr declarations for this class
-            if node.parent and parent is not ErrorType():
-                for feature in node.features:
-                    self.visit(feature)
-
-        @visitor.when(FuncDeclarationNode)
-        def visit(self, node):
-            # check correct override 
-            parent = self.current_type.parent
-            
-
-        @visitor.when(AttrDeclarationNode)
-        def visit(self, node):
+    
+    @visitor.when(AttrDeclarationNode)
+    def visit(self, node):
+        parent = self.current_type.parent
+        
+        try:
+            pattr = parent.get_attribute(node.id)
+            if pattr:
+                self.errors.append(f"Cannot override attribute {node.id} in {self.current_type.name} from {parent.name}")
+        except SemanticError:
             pass
