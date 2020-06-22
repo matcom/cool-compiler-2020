@@ -210,3 +210,14 @@ class LineComment(MipsNode):
 
     def __str__(self):
         return f'# {self.text}'
+
+
+class Label(MipsNode):
+    """
+    Representa un label. (almacena una direccion de memoria a la cual se puede referenciar)
+    """
+    def __init__(self, label: str):
+        self.label = label
+
+    def __str__(self):
+        return f"{self.label}: "

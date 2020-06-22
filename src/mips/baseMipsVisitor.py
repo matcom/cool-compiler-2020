@@ -3,8 +3,9 @@ import mips.branch as branchNodes
 import mips.comparison as cmpNodes
 import mips.arithmetic as arithNodes
 import mips.load_store as lsNodes
-from typing import List
+from typing import List, Optional
 import time
+import cil.nodes as cil
 
 
 class AbstractDirective(instrNodes.MipsNode):
@@ -12,7 +13,7 @@ class AbstractDirective(instrNodes.MipsNode):
         self.addr = addr
 
     def __str__(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 class DotDataDirective(AbstractDirective):
@@ -66,6 +67,9 @@ class BaseCilToMipsVisitor:
     def __init__(self):
         # Un programa de MIPS es una lista de Instrucciones de MIPS.
         self.program: List[instrNodes.MipsNode] = []
+        # Necesitamos saber si estamos construyendo un tipo, para poder acceder
+        # a nombres de funciones, atributos, etc.
+        self.current_type: Optional[cil.TypeNode] = None
 
         # Construir el header del programa.
         self.__program_header()
