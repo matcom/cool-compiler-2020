@@ -185,22 +185,7 @@ class BaseCoolToCilVisitor:
         self.tdt_table = graph.tdt
 
         # Procesar la TDT para hacerla accesible en runtime.
-        # La tabla nos es mas que una matriz de NxN (N es la cantidad de tipos definidos en el programa)
-        # donde cada subindice indica el indice del Tipo en la seccion .Types:
-        # m[i, j] = d significa que la distancia entre el tipo en el indice i de la seccion .Types y el tipo
-        # en el indice j es d.
-        # Tener en cuenta que los tipos son definidos en la seccion .TYPES en el orden en que son definidos en
-        # el programa, y recolectados por el TypeBuilder.
-        table = [[-1 for _ in self.context.types] for _ in self.context.types]
-        self.types_indexes: Dict[str, int] = {}
-        for i, itype in enumerate(self.context.types):
-            self.types_indexes[itype] = i
-            for j, atype in enumerate(self.context.types):
-                try:
-                    table[i][j] = self.tdt_table[itype, atype]
-                except KeyError:
-                    table[i][j] = -1
-        self.tdt_data_node = self.register_data(table)
+        self.tdt_data_node = self.register_data(self.tdt_table)
 
     def __build_builtins(self):
         pass

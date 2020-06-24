@@ -65,7 +65,25 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Registrar la direccion de memoria donde termina el tipo para calcular facilmente
         # sizeof
         self.register_instruction(instrNodes.Label(f"{node.name}_end"))
-        
+
+        self.current_type = None
+
+    @visitor.when(cil.DataNode)  #type: ignore
+    def visit(self, node: cil.DataNode):
+        # Registrar los DataNode en la seccion .data
+        self.register_instruction(DotDataDirective())
+        if isinstance(node.value, str):
+            self.register_instruction(instrNodes.FixedData(node.name, rf"{node.value}", type_='asciiz'))
+        elif isinstance(node.value, dict):
+            # Lo unico que puede ser un diccionario es la TDT. Me parece..... mehh !!??
+            # La TDT se contiene para cada par (typo1, tipo2), la distancia entre tipo1 y tipo2
+            # en caso de que tipo1 sea ancestro de tipo2, -1 en otro caso. Para hacerla accesible en O(1)
+            # podemos representarlas como la concatenacion de los nombres de tipo1 y tipo2 (Al final en cada)
+            # programa los tipos son unicos.
+            for (type1, type2), distance in node.value.items():
+                self.register_instruction(instrNodes.FixedData(f"__{type1}_{type2}_tdt_entry__", distance))
+                
+
 
 class MipsCodeGenerator(CilToMipsVisitor):
     """
