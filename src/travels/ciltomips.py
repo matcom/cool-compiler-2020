@@ -4,6 +4,7 @@ from mips.baseMipsVisitor import (BaseCilToMipsVisitor, DotDataDirective,
                                   branchNodes, lsNodes)
 import typecheck.visitor as visitor
 import cil.nodes as cil
+from typing import List
 
 
 class CilToMipsVisitor(BaseCilToMipsVisitor):
@@ -40,6 +41,40 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Los tipos los definiremos en la seccion .data
         self.register_instruction(DotDataDirective())
+
+        # Construir la VTABLE para este tipo.
+        self.register_instruction(instrNodes.LineComment(f" **** VTABLE for type {node.name} ****"))
+        
+        # Los punteros a funciones estaran definidos en el orden en que aparecen declaradas en las clases
+        # de modo que la VTABLE sea indexable y podamos efectuar VCALL en O(1).
+        self.register_instruction(instrNodes.FixedData(f'{node.name}_vtable', ", ".join(x[1] for x in node.methods)))
+        
+        self.register_instruction((instrNodes.LineComment(f" **** Type RECORD for type {node.name} ****")))
         # Declarar la direccion de memoria donde comienza el tipo
         self.register_instruction(instrNodes.Label(self.current_type.name))
-        # 
+        # Declarar los atributos: Si los atributos son de tipo string, guardarlos como asciiz
+        # de lo contrario son o numeros o punteros y se inicializan como .words
+        for attrib in self.current_type.attributes:
+            if attrib.name == "String":
+                self.register_instruction(instrNodes.FixedData(f'{node.name}_attrib_{attrib.name}', r"", 'asciiz'))
+            else:
+                self.register_instruction(instrNodes.FixedData(f'{node.name}_attrib_{attrib.name}', 0))
+        
+        # Registrar un puntero a la VTABLE del tipo.
+        self.register_instruction(instrNodes.FixedData(f'{node.name}_vtable_pointer', f"{node.name}_vtable"))
+        # Registrar la direccion de memoria donde termina el tipo para calcular facilmente
+        # sizeof
+        self.register_instruction(instrNodes.Label(f"{node.name}_end"))
+        
+
+class MipsCodeGenerator(CilToMipsVisitor):
+    """
+    Clase que complete el pipeline entre un programa en CIL y un programa en MIPS.
+    El Generador visita el AST del programa en CIL para obtener el conjunto de nodos
+    correspondientes a cada instruccion de MIPS y luego devuelve una version en texto
+    plano del AST de MIPS, la cual se puede escribir a un archivo de salida y debe estar
+    lista para ejecutarse en SPIM.
+    """
+    def __call__(self, ast: cil.CilProgramNode) -> str:
+        self.visit(ast)
+        return "".join(str(x) for x in self.program)

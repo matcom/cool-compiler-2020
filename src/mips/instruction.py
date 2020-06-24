@@ -221,3 +221,18 @@ class Label(MipsNode):
 
     def __str__(self):
         return f"{self.label}: "
+
+class FixedData(MipsNode):
+    """
+    Representa un dato en la seccion .data.
+    Por ejemplo: 
+        msg:    .asciiz "Hello World!\n"
+    """
+    def __init__(self, name: str, value, type_="word"):
+        assert type_ in ("word", "asciiz", "byte", "space")
+        self.name = name
+        self.value = value
+        self.type = type_
+
+    def __str__(self):
+        return f"{self.name}:   .{self.type}    {self.value}"

@@ -1,3 +1,5 @@
+from typing import List
+from abstract.semantics import Attribute
 """
 Define a hierachy to represent each CIL instruction.
 Every CIL Instruction would be a Node of an AST, and every\
@@ -19,7 +21,7 @@ class CilProgramNode(CilNode):
 class TypeNode(CilNode):
     def __init__(self, name):
         self.name = name
-        self.attributes = []
+        self.attributes: List[Attribute] = []
         self.methods = []
 
 

@@ -56,7 +56,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Handle inherited features such as attributes and methods first
         if self.current_type.parent is not None:
             for attribute in self.current_type.parent.attributes:
-                new_type_node.attributes.append(attribute.name)
+                new_type_node.attributes.append(attribute)
 
             for method in self.current_type.parent.methods.keys():
                 # Handle methods overload
@@ -73,7 +73,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # }                                                                 #
         #####################################################################
         for attribute in attributes:
-            new_type_node.attributes.append(attribute.idx)
+            new_type_node.attributes.append(attribute)
         for method in methods:
             new_type_node.methods.append((method, self.to_function_name(method, node.idx)))
 
