@@ -127,14 +127,14 @@ class BaseCoolToCilVisitor:
         self.params.append(param_node)
         return name
 
-    def register_local(self, vinfo: VariableInfo) -> str:
+    def register_local(self, vinfo: VariableInfo) -> nodes.LocalNode:
         assert self.current_function is not None
         name = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
         local_node = nodes.LocalNode(name)
         self.localvars.append(local_node)
-        return name
+        return local_node
 
-    def define_internal_local(self) -> str:
+    def define_internal_local(self) -> nodes.LocalNode:
         vinfo = VariableInfo('internal')
         return self.register_local(vinfo)
 

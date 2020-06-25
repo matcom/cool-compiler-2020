@@ -173,7 +173,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         if vinfo.location == "PARAM":
             for param_node in self.params:
                 if vinfo.name in param_node.name:
-                    return param_node.name
+                    return param_node
         if vinfo.location == "ATTRIBUTE":
             local = self.define_internal_local()
             self.register_instruction(cil.GetAttributeNode(self.current_type.name, vinfo.name, local))
@@ -181,7 +181,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         if vinfo.location == "LOCAL":
             for local_node in self.localvars:
                 if vinfo.name in local_node.name:
-                    return local_node.name
+                    return local_node
 
     @visitor.when(coolAst.InstantiateClassNode)  # type: ignore
     def visit(self, node: coolAst.InstantiateClassNode, scope: Scope):  # noqa: F811
@@ -384,14 +384,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
     @visitor.when(coolAst.IntegerConstant)  # type: ignore
     def visit(self, node: coolAst.IntegerConstant, scope: Scope):  # noqa: F811
-        # Variable interna que guarda el valor de la constante
-        int_const_vm_holder = self.define_internal_local()
-
-        # Asignarle el valor a la variable
-        self.register_instruction(cil.AssignNode(int_const_vm_holder, int(node.lex)))
-
         # devolver el valor
-        return int_const_vm_holder
+        return int(node.lex)
 
     @visitor.when(coolAst.StringConstant)  # type: ignore
     def visit(self, node: coolAst.StringConstant, scope: Scope):  # noqa: F811
@@ -410,15 +404,11 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     @visitor.when(coolAst.TrueConstant)  # type: ignore
     def visit(self, node: coolAst.TrueConstant, scope: Scope):  # noqa: F811
         # variable interna que devuelve el valor de la constante
-        true_const_vm_holder = self.define_internal_local()
-        self.register_instruction(cil.AssignNode(true_const_vm_holder), 1)
-        return true_const_vm_holder
+        return 1
 
     @visitor.when(coolAst.FalseConstant)  # type: ignore
     def visit(self, node: coolAst.FalseConstant, scope: Scope):  # noqa: F811
-        false_const_vm_holder = self.define_internal_local()
-        self.register_instruction(cil.AssignNode(false_const_vm_holder), 0)
-        return false_const_vm_holder
+        return 0
 
     # *******************  Implementacion de las comparaciones ********************
     # Todas las operaciones de comparacion devuelven 1 si el resultado es verdadero,
@@ -449,7 +439,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Si la resta da 0, devolver 1
         self.register_instruction(cil.LabelNode(true_label))
-        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
+        expr_result_vm_holder = 1
 
         self.register_instruction(cil.LabelNode(end_label))
 
@@ -648,39 +638,39 @@ class CilDisplayFormatter:
 
     @visitor.when(cil.AssignNode)  # type: ignore
     def visit(self, node: cil.AssignNode):  # noqa: F811
-        return f'{node.dest} = {node.source}'
+        return f'{self.visit(node.dest)} = {self.visit(node.source)}'
 
     @visitor.when(cil.PlusNode)  # type: ignore
     def visit(self, node: cil.PlusNode):  # noqa: F811
-        return f'{node.dest} = {node.left} + {node.right}'
+        return f'{self.visit(node.dest)} = {self.visit(node.left)} + {self.visit(node.right)}'
 
     @visitor.when(cil.MinusNode)  # type: ignore
     def visit(self, node: cil.MinusNode):  # noqa: F811
-        return f'{node.dest} = {node.x} - {node.y}'
+        return f'{self.visit(node.dest)} = {self.visit(node.x)} - {self.visit(node.y)}'
 
     @visitor.when(cil.StarNode)  # type: ignore
     def visit(self, node: cil.StarNode):  # noqa: F811
-        return f'{node.dest} = {node.x} * {node.y}'
+        return f'{self.visit(node.dest)} = {self.visit(node.x)} * {self.visit(node.y)}'
 
     @visitor.when(cil.DivNode)  # type: ignore
     def visit(self, node: cil.DivNode):  # noqa: F811
-        return f'{node.dest} = {node.left} / {node.right}'
+        return f'{self.visit(node.dest)} = {self.visit(node.left)} / {self.visit(node.right)}'
 
     @visitor.when(cil.AllocateNode)  # type: ignore
     def visit(self, node: cil.AllocateNode):  # noqa: F811
-        return f'{node.dest} = ALLOCATE {node.itype}'
+        return f'{self.visit(node.dest)} = ALLOCATE {node.itype}'
 
     @visitor.when(cil.TypeOfNode)  # type: ignore
     def visit(self, node: cil.TypeOfNode):  # noqa: F811
-        return f'{node.dest} = TYPEOF {node.variable}'
+        return f'{self.visit(node.dest)} = TYPEOF {node.variable}'
 
     @visitor.when(cil.DynamicCallNode)  # type: ignore
     def visit(self, node: cil.DynamicCallNode):  # noqa: F811
-        return f'{node.dest} = VCALL {node.xtype} {node.method}'
+        return f'{self.visit(node.dest)} = VCALL {node.xtype} {node.method}'
 
     @visitor.when(cil.StaticCallNode)  # type: ignore
     def visit(self, node: cil.StaticCallNode):  # noqa: F811
-        return f'{node.dest} = CALL {node.function}'
+        return f'{self.visit(node.dest)} = CALL {node.function}'
 
     @visitor.when(cil.ArgNode)  # type: ignore
     def visit(self, node: cil.ArgNode):  # noqa: F811
@@ -702,11 +692,11 @@ class CilDisplayFormatter:
 
     @visitor.when(cil.GetTypeIndex)  # type: ignore
     def visit(self, node: cil.GetTypeIndex):  # noqa: F811
-        return f'{node.dest} = GETTYPEINDEX {node.itype}'
+        return f'{self.visit(node.dest)} = GETTYPEINDEX {node.itype}'
 
     @visitor.when(cil.TdtLookupNode)  # type: ignore
     def visit(self, node: cil.TdtLookupNode):  # noqa: F811
-        return f'{node.dest} = TYPE_DISTANCE {node.i} {node.j}'
+        return f'{self.visit(node.dest)} = TYPE_DISTANCE {node.i} {node.j}'
 
     @visitor.when(cil.IfZeroJump)  # type: ignore
     def visit(self, node: cil.IfZeroJump):  # noqa: F811
@@ -723,6 +713,10 @@ class CilDisplayFormatter:
     @visitor.when(cil.LabelNode)  # type: ignore
     def visit(self, node: cil.LabelNode):  # noqa: F811
         return f'{node.label}:'
+
+    @visitor.when(int)  #type: ignore
+    def visit(self, node: int):
+        return str(node)
 
     def __call__(self, node):
         return self.visit(node)

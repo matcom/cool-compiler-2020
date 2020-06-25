@@ -133,6 +133,10 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
     def visit(self, node: cil.LabelNode):
         self.register_instruction(instrNodes.Label(node.label))
 
+    @visitor.when(cil.AllocateNode)  #type: ignore
+    def visit(self, node: cil.AllocateNode):
+        pass
+
 
 class MipsCodeGenerator(CilToMipsVisitor):
     """
