@@ -6,7 +6,7 @@ import typecheck.visitor as visitor
 import cil.nodes as cil
 from typing import List
 from mips.instruction import (
-    a0, a1, a2, a3, at, 
+    a0, a1, a2, a3, at,
     t0, t1, t2, t3, t4, t5, t6, t7, t8, t9,
     s0, s1, s2, s3, s4, s5, s6, s7, sp,
     ra, fp, k0, k1, gp, v0, v1, zero,
@@ -301,8 +301,88 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.register_instruction(lsNodes.SW(reg, dest))
             self.used_registers[reg] = self.used_registers[right_reg] = False
 
+    @visitor.when(cil.GetAttributeNode)  # type: ignore
+    def visit(self, node: cil.GetAttributeNode):
+        pass
+
+    @visitor.when(cil.SetAttributeNode)  #type: ignore
+    def visit(self, node: cil.SetAttributeNode):
+        pass
+
     @visitor.when(cil.AllocateNode)  #type: ignore
     def visit(self, node: cil.AllocateNode):
+        pass
+
+    @visitor.when(cil.TypeOfNode)  #type: ignore
+    def visit(self, node: cil.TypeOfNode):
+        pass
+
+    @visitor.when(cil.JumpIfGreaterThanZeroNode)  #type: ignore
+    def visit(self, node: cil.JumpIfGreaterThanZeroNode):
+        pass
+
+    @visitor.when(cil.IfZeroJump)  # type: ignore
+    def visit(self, node: cil.IfZeroJump):
+        pass
+
+    @visitor.when(cil.NotZeroJump)  # type: ignore
+    def visit(self, node: cil.NotZeroJump):
+        pass
+
+    @visitor.when(cil.UnconditionalJump)  # type: ignore
+    def visit(self, node: cil.UnconditionalJump):
+        pass
+
+    @visitor.when(cil.StaticCallNode)  # type: ignore
+    def visit(self, node: cil.StaticCallNode):
+        pass
+
+    @visitor.when(cil.DynamicCallNode)  # type: ignore
+    def visit(self, node: cil.DynamicCallNode):
+        pass
+
+    @visitor.when(cil.ArgNode)  # type: ignore
+    def visit(self, node: cil.ArgNode):
+        pass
+
+    @visitor.when(cil.ReturnNode)  # type: ignore
+    def visit(self, node: cil.ReturnNode):
+        pass
+
+    @visitor.when(cil.LoadNode)  # type: ignore
+    def visit(self, node: cil.LoadNode):
+        pass
+
+    @visitor.when(cil.LengthNode)  # type: ignore
+    def visit(self, node: cil.LengthNode):
+        pass
+
+    @visitor.when(cil.SubstringNode)  # type: ignore
+    def visit(self, node: cil.LengthNode):
+        pass
+
+    @visitor.when(cil.ConcatNode)  # type: ignore
+    def visit(self, node: cil.ConcatNode):
+        pass
+
+    @visitor.when(cil.PrefixNode)  # type: ignore
+    def visit(self, node: cil.PrefixNode):
+        pass
+
+    @visitor.when(cil.ToStrNode)  # type: ignore
+    def visit(self, node: cil.ToStrNode):
+        pass
+
+    @visitor.when(cil.ReadNode)  # type: ignore
+    def visit(self, node: cil.ReadNode):
+        pass
+
+    @visitor.when(cil.PrintNode)  # type: ignore
+    def visit(self, node: cil.PrintNode):
+        pass
+
+    @visitor.when(cil.TdtLookupNode)  # type: ignore
+    def visit(self, node: cil.TdtLookupNode):
         pass
 
 
