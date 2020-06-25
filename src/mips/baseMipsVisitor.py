@@ -71,6 +71,10 @@ class BaseCilToMipsVisitor:
         # a nombres de funciones, atributos, etc.
         self.current_type: Optional[cil.TypeNode] = None
 
+        # Necesitamos acceso a las variables locales y parametros de la funcion que estamos
+        # construyendo
+        self.current_function: Optional[cil.FunctionNode] = None
+
         # Construir el header del programa.
         self.__program_header()
 

@@ -94,6 +94,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
     @visitor.when(cil.FunctionNode)  # type: ignore
     def visit(self, node: cil.FunctionNode):
         ret = 0
+        self.current_function = node
         # El codigo referente a cada funcion debe ir en la seccion de texto.
         self.register_instruction(DotTextDirective())
         # Documentar la signatura de la funcion (parametros que recibe, valor que devuelve)
@@ -125,6 +126,12 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         for instruction in node.instructions:
             self.visit(instruction)
+        
+        self.current_function = None
+
+    @visitor.when(cil.LabelNode)  #type: ignore
+    def visit(self, node: cil.LabelNode):
+        self.register_instruction(instrNodes.Label(node.label))
 
 
 class MipsCodeGenerator(CilToMipsVisitor):
