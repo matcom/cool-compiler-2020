@@ -125,3 +125,10 @@ class BaseCilToMipsVisitor:
             assert index > -1
             index += 1
             return f"-{index * 4}($fp)"
+
+    def get_available_register(self):
+        for register in instrNodes.TEMP_REGISTERS:
+            if not self.used_registers[register]:
+                self.used_registers[register] = True
+                return register
+        return None

@@ -135,38 +135,171 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visitor.when(cil.ParamNode)  #type: ignore
     def visit(self, node: cil.ParamNode):
-        address = self.get_location_address(node)
-        # Buscar un registro que no haya sido utilizado, mover el parametro a ese registro
-        # y devolver el registro
-        for register in TEMP_REGISTERS:
-            if not self.used_registers[register]:
-                self.used_registers[register] = True
-                self.register_instruction(lsNodes.SW(register, address))
-                return register
-        
-        # Si todos los registros estan utilizados entonces devolver simplemente la direccion de
-        # memoria del parametro
-        return address
+        return self.get_location_address(node)
 
     @visitor.when(cil.LocalNode)  #type: ignore
     def visit(self, node: cil.LocalNode):
-        address = self.get_location_address(node)
-        # Buscar un registro que no haya sido utilizado, mover la variable local
-        # a ese registro y devolver el registro
-        for register in TEMP_REGISTERS:
-            if not self.used_registers[register]:
-                self.used_registers[register] = True
-                self.register_instruction(lsNodes.SW(register, address))
-                return register
-        
-        # Si todos los registros estan utilizados entonces devolver la direccion de memoria
-        # de la variable
-        return address
+        return self.get_location_address(node)        
 
     @visitor.when(cil.AssignNode)  #type: ignore
     def visit(self, node: cil.AssignNode):
         assert self.current_function is not None
-        # Una asignacion simplemente conciste en mover un resultado de un lugar a otro
+        # Una asignacion simplemente consiste en mover un resultado de un lugar a otro
+        dest = self.visit(node.dest)
+        source = self.visit(node.source)
+
+        # Puede que se asigne una constante o lo que hay en alguna direccion de memoria
+        if isinstance(source, int):
+            reg = self.get_available_register()
+            if reg is not None:
+                # Si tenemos registro temporal disponible entonces movemos
+                # lo que hay en la direccion de memoria source a reg y luego
+                # asignamos el valor de reg a dest.
+                self.register_instruction(lsNodes.LI(reg, source))
+                self.register_instruction(lsNodes.SW(reg, dest))
+                self.used_registers[reg] = False
+            else:
+                # Si no hay registro temporal disponible entonces tenemos que hacer
+                # dos instrucciones mas pues hay que salvar el registro s0
+                # utlizarlo para hacer la transaccion y luego restaurarlo.
+                self.register_instruction(lsNodes.SW(s0, "0($sp)"))
+                self.register_instruction(lsNodes.LI(s0, source))
+                self.register_instruction(lsNodes.SW(s0, dest))
+                self.register_instruction(lsNodes.LI(s0, "0($sp)"))
+        elif isinstance(source, str):
+            # Source es una direccion de memoria
+            reg1 = self.get_available_register()
+            self.register_instruction(lsNodes.LW(reg, source))
+            self.register_instruction(lsNodes.SW(reg, dest))
+            self.used_registers[reg] = False
+
+    @visitor.when(cil.PlusNode)  #type: ignore
+    def visit(self, node: cil.PlusNode):
+        assert self.current_function is not None
+        dest = self.visit(node.dest)
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+
+        if isinstance(left, str):
+            # left es una direccion de memoria
+            reg = self.get_available_register()
+            right_reg = self.get_available_register()
+            self.register_instruction(lsNodes.LW(reg, left))
+            if not isinstance(right, int):
+                self.register_instruction(lsNodes.LW(right_reg, right))
+                self.register_instruction(arithNodes.ADD(reg, reg, right_reg))
+            else:
+                self.register_instruction(arithNodes.ADD(reg, reg, right, True))
+            self.register_instruction(lsNodes.SW(reg, dest))
+            self.used_registers[reg] = self.used_registers[right_reg] = False
+        else:
+            # left es una constante
+            reg = self.get_available_register()
+            right_reg = self.get_available_register()
+            self.register_instruction(lsNodes.LI(reg, left))
+            if not isinstance(right, int):
+                self.register_instruction(lsNodes.LW(right_reg, right))
+                self.register_instruction(arithNodes.ADD(reg, reg, right_reg))
+            else:
+                self.register_instruction(arithNodes.ADD(reg, reg, right, True))
+            self.register_instruction(lsNodes.SW(reg, dest))
+            self.used_registers[reg] = self.used_registers[right_reg] = False
+
+    @visitor.when(cil.MinusNode)  #type: ignore
+    def visit(self, node: cil.MinusNode):
+        assert self.current_function is not None
+        dest = self.visit(node.dest)
+        left = self.visit(node.x)
+        right = self.visit(node.y)
+
+        if isinstance(left, str):
+            # left es una direccion de memoria
+            reg = self.get_available_register()
+            right_reg = self.get_available_register()
+            self.register_instruction(lsNodes.LW(reg, left))
+            if not isinstance(right, int):
+                self.register_instruction(lsNodes.LW(right_reg, right))
+                self.register_instruction(arithNodes.SUB(reg, reg, right_reg))
+            else:
+                self.register_instruction(arithNodes.SUB(reg, reg, right, True))
+            self.register_instruction(lsNodes.SW(reg, dest))
+            self.used_registers[reg] = self.used_registers[right_reg] = False
+        else:
+            # left es una constante
+            reg = self.get_available_register()
+            right_reg = self.get_available_register()
+            self.register_instruction(lsNodes.LI(reg, left))
+            if not isinstance(right, int):
+                self.register_instruction(lsNodes.LW(right_reg, right))
+                self.register_instruction(arithNodes.SUB(reg, reg, right_reg))
+            else:
+                self.register_instruction(arithNodes.SUB(reg, reg, right, True))
+            self.register_instruction(lsNodes.SW(reg, dest))
+            self.used_registers[reg] = self.used_registers[right_reg] = False
+
+    @visitor.when(cil.StarNode)  #type: ignore
+    def visit(self, node: cil.StarNode):
+        assert self.current_function is not None
+        dest = self.visit(node.dest)
+        left = self.visit(node.x)
+        right = self.visit(node.y)
+
+        if isinstance(left, str):
+            # left es una direccion de memoria
+            reg = self.get_available_register()
+            right_reg = self.get_available_register()
+            self.register_instruction(lsNodes.LW(reg, left))
+            if not isinstance(right, int):
+                self.register_instruction(lsNodes.LW(right_reg, right))
+                self.register_instruction(arithNodes.MUL(reg, reg, right_reg))
+            else:
+                self.register_instruction(arithNodes.MUL(reg, reg, right, True))
+            self.register_instruction(lsNodes.SW(reg, dest))
+            self.used_registers[reg] = self.used_registers[right_reg] = False
+        else:
+            # left es una constante
+            reg = self.get_available_register()
+            right_reg = self.get_available_register()
+            self.register_instruction(lsNodes.LI(reg, left))
+            if not isinstance(right, int):
+                self.register_instruction(lsNodes.LW(right_reg, right))
+                self.register_instruction(arithNodes.MUL(reg, reg, right_reg))
+            else:
+                self.register_instruction(arithNodes.MUL(reg, reg, right, True))
+            self.register_instruction(lsNodes.SW(reg, dest))
+            self.used_registers[reg] = self.used_registers[right_reg] = False
+
+    @visitor.when(cil.DivNode)  #type: ignore
+    def visit(self, node: cil.DivNode):
+        assert self.current_function is not None
+        dest = self.visit(node.dest)
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+
+        if isinstance(left, str):
+            # left es una direccion de memoria
+            reg = self.get_available_register()
+            right_reg = self.get_available_register()
+            self.register_instruction(lsNodes.LW(reg, left))
+            if not isinstance(right, int):
+                self.register_instruction(lsNodes.LW(right_reg, right))
+                self.register_instruction(arithNodes.DIV(reg, reg, right_reg))
+            else:
+                self.register_instruction(arithNodes.DIV(reg, reg, right, True))
+            self.register_instruction(lsNodes.SW(reg, dest))
+            self.used_registers[reg] = self.used_registers[right_reg] = False
+        else:
+            # left es una constante
+            reg = self.get_available_register()
+            right_reg = self.get_available_register()
+            self.register_instruction(lsNodes.LI(reg, left))
+            if not isinstance(right, int):
+                self.register_instruction(lsNodes.LW(right_reg, right))
+                self.register_instruction(arithNodes.DIV(reg, reg, right_reg))
+            else:
+                self.register_instruction(arithNodes.DIV(reg, reg, right, True))
+            self.register_instruction(lsNodes.SW(reg, dest))
+            self.used_registers[reg] = self.used_registers[right_reg] = False
 
     @visitor.when(cil.AllocateNode)  #type: ignore
     def visit(self, node: cil.AllocateNode):
