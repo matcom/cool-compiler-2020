@@ -12,6 +12,7 @@ from mips.instruction import (
     ra, fp, k0, k1, gp, v0, v1, zero
 )
 
+TEMP_REGISTERS = (t0, t1, t2, t3, t4, t5, t6, t7, t8, t9)
 
 class CilToMipsVisitor(BaseCilToMipsVisitor):
     @visitor.on('node')
@@ -132,6 +133,29 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
     @visitor.when(cil.LabelNode)  #type: ignore
     def visit(self, node: cil.LabelNode):
         self.register_instruction(instrNodes.Label(node.label))
+
+    @visitor.when(cil.ParamNode)  #type: ignore
+    def visit(self, node: cil.ParamNode):
+        # Este nodo solo tiene sentido en el contexto de una funcion.
+        assert self.current_function is not None
+        index = -1
+        # Buscar el indice del parametro al que corresponde
+        for i, param in enumerate(self.current_function.params):
+            if param.name == node.name:
+                index = i
+        
+        assert index > -1
+        # Buscar un registro que no haya sido utilizado, mover el parametro a ese registro
+        # y devolver el registro
+        for register in TEMP_REGISTERS:
+            if not self.used_registers[register]:
+                self.used_registers[register] = True
+                self.register_instruction(lsNodes.SW(register, f"{index * 4}($fp)"))
+                return register
+        
+        # Si todos los registros estan utilizados entonces devolver simplemente la direccion de
+        # memoria del parametro
+        return f"{index * 4}($fp)"
 
     @visitor.when(cil.AllocateNode)  #type: ignore
     def visit(self, node: cil.AllocateNode):

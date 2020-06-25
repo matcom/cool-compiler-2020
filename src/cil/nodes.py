@@ -34,7 +34,7 @@ class DataNode(CilNode):
 class FunctionNode(CilNode):
     def __init__(self, fname, params, lvars, instr):
         self.name = fname
-        self.params = params
+        self.params: List[ParamNode] = params
         self.localvars = lvars
         self.instructions = instr
 

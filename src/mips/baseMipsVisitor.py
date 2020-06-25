@@ -75,6 +75,12 @@ class BaseCilToMipsVisitor:
         # construyendo
         self.current_function: Optional[cil.FunctionNode] = None
 
+        # Llevar un record de los registros que hemos utilizado en la funcion actual
+        # Cada funcion es libre de usar los registros t0 -- t9 (temporales, estos registros)
+        # no guardan valores de retornos ni son utilizados como confiables, solo se usan para
+        # almacenar valores intermedios y valores de variables, para evitar accesos a memoria.
+        self.used_registers = [False] * 32
+
         # Construir el header del programa.
         self.__program_header()
 

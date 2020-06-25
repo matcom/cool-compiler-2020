@@ -119,13 +119,13 @@ class BaseCoolToCilVisitor:
         assert self.current_function is not None
         return self.current_function.instructions
 
-    def register_params(self, vinfo: VariableInfo) -> str:
+    def register_params(self, vinfo: VariableInfo) -> nodes.ParamNode:
         # Registra un parametro en la funcion en construccion y devuelve el nombre procesado del parametro
         assert self.current_function is not None
         name = f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
         param_node: nodes.ParamNode = nodes.ParamNode(name)
         self.params.append(param_node)
-        return name
+        return param_node
 
     def register_local(self, vinfo: VariableInfo) -> nodes.LocalNode:
         assert self.current_function is not None
