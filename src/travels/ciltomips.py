@@ -5,6 +5,12 @@ from mips.baseMipsVisitor import (BaseCilToMipsVisitor, DotDataDirective,
 import typecheck.visitor as visitor
 import cil.nodes as cil
 from typing import List
+from mips.instruction import (
+    a0, a1, a2, a3, at, 
+    t0, t1, t2, t3, t4, t5, t6, t7, t8, t9,
+    s0, s1, s2, s3, s4, s5, s6, s7, sp,
+    ra, fp, k0, k1, gp, v0, v1, zero
+)
 
 
 class CilToMipsVisitor(BaseCilToMipsVisitor):
@@ -31,7 +37,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # registrar instrucciones para terminar la ejecucion
         self.register_instruction(instrNodes.LineComment("syscall code 10 is for exit"))
-        self.register_instruction(lsNodes.LI(instrNodes.v0, 10))
+        self.register_instruction(lsNodes.LI(v0, 10))
         self.register_instruction(instrNodes.SYSCALL())
 
     @visitor.when(cil.TypeNode)  # type: ignore
@@ -76,13 +82,49 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.register_instruction(instrNodes.FixedData(node.name, rf"{node.value}", type_='asciiz'))
         elif isinstance(node.value, dict):
             # Lo unico que puede ser un diccionario es la TDT. Me parece..... mehh !!??
-            # La TDT se contiene para cada par (typo1, tipo2), la distancia entre tipo1 y tipo2
+            # La TDT contiene para cada par (typo1, tipo2), la distancia entre tipo1 y tipo2
             # en caso de que tipo1 sea ancestro de tipo2, -1 en otro caso. Para hacerla accesible en O(1)
-            # podemos representarlas como la concatenacion de los nombres de tipo1 y tipo2 (Al final en cada)
-            # programa los tipos son unicos.
+            # podemos representarlas como la concatenacion de los nombres de tipo1 y tipo2 (Al final en cada
+            # programa los tipos son unicos).
             for (type1, type2), distance in node.value.items():
                 self.register_instruction(instrNodes.FixedData(f"__{type1}_{type2}_tdt_entry__", distance))
-                
+        elif isinstance(node.value, int):
+            self.register_instruction(instrNodes.FixedData(node.name, node.value))
+
+    @visitor.when(cil.FunctionNode)  # type: ignore
+    def visit(self, node: cil.FunctionNode):
+        ret = 0
+        # El codigo referente a cada funcion debe ir en la seccion de texto.
+        self.register_instruction(DotTextDirective())
+        # Documentar la signatura de la funcion (parametros que recibe, valor que devuelve)
+        self.register_instruction(instrNodes.LineComment(f"{node.name} implementation."))
+        self.register_instruction(instrNodes.LineComment("@Params:"))
+        for i, param in enumerate(node.params):
+            if i < 4:
+                self.register_instruction(instrNodes.LineComment(f"\t$a{i} = {param}"))
+            else:
+                self.register_instruction(instrNodes.LineComment(f"\t{(i-4) * 4}($fp) = {param}"))
+        # Direccion de memoria de la funcion.
+        self.register_instruction(instrNodes.Label(node.name))
+        # Crear el marco de pila para la funcion
+        locals_count = len(node.localvars)
+        self.register_instruction(instrNodes.LineComment("Allocate stack frame for function."))
+        # Salvar primero espacio para las variables locales
+        if locals_count * 4 < 24:  # MIPS fuerza a un minimo de 32 bytes por stack frame
+            self.register_instruction(arithNodes.SUBU(sp, sp, 32, True))
+            ret = 32
+        else:
+            self.register_instruction(arithNodes.SUBU(sp, sp, locals_count * 4 + 8, True))
+            ret = locals_count * 4 + 8
+        
+        # Salvar ra y fp
+        self.register_instruction(lsNodes.SW(ra, "8($sp)"))
+        self.register_instruction(lsNodes.SW(fp, "4($sp)"))
+        # mover fp al inicio del frame
+        self.register_instruction(arithNodes.ADDU(fp, sp, ret, True))
+
+        for instruction in node.instructions:
+            self.visit(instruction)
 
 
 class MipsCodeGenerator(CilToMipsVisitor):
