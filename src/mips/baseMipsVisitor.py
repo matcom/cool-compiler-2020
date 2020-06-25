@@ -3,7 +3,7 @@ import mips.branch as branchNodes
 import mips.comparison as cmpNodes
 import mips.arithmetic as arithNodes
 import mips.load_store as lsNodes
-from typing import List, Optional
+from typing import List, Optional, Union
 import time
 import cil.nodes as cil
 
@@ -101,3 +101,27 @@ class BaseCilToMipsVisitor:
         self.register_instruction(instrNodes.LineComment(f'{ep}, {la}, {ad} --- {date}'))
         self.register_instruction(instrNodes.LineComment(institution))
 
+    # Funcion de ayuda para obtener la direccion de memoria de un parametro o una variable
+    def get_location_address(self, node: Union[cil.ParamNode, cil.LocalNode]) -> str:
+        assert self.current_function is not None
+        index = -1
+        if isinstance(node, cil.ParamNode):
+            # Buscar el indice del parametro al que corresponde
+            for i, param in enumerate(self.current_function.params):
+                if param.name == node.name:
+                    index = i
+                    break
+            
+            assert index > -1
+
+            return f"{index * 4}($fp)" 
+        else:
+            # Buscar el indice de la variable local
+            for i, local_var in enumerate(self.current_function.localvars):
+                if local_var.name == node.name:
+                    index = i
+                    break
+            
+            assert index > -1
+            index += 1
+            return f"-{index * 4}($fp)"

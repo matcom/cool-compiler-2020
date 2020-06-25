@@ -9,10 +9,9 @@ from mips.instruction import (
     a0, a1, a2, a3, at, 
     t0, t1, t2, t3, t4, t5, t6, t7, t8, t9,
     s0, s1, s2, s3, s4, s5, s6, s7, sp,
-    ra, fp, k0, k1, gp, v0, v1, zero
+    ra, fp, k0, k1, gp, v0, v1, zero,
+    TEMP_REGISTERS
 )
-
-TEMP_REGISTERS = (t0, t1, t2, t3, t4, t5, t6, t7, t8, t9)
 
 class CilToMipsVisitor(BaseCilToMipsVisitor):
     @visitor.on('node')
@@ -136,26 +135,38 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visitor.when(cil.ParamNode)  #type: ignore
     def visit(self, node: cil.ParamNode):
-        # Este nodo solo tiene sentido en el contexto de una funcion.
-        assert self.current_function is not None
-        index = -1
-        # Buscar el indice del parametro al que corresponde
-        for i, param in enumerate(self.current_function.params):
-            if param.name == node.name:
-                index = i
-        
-        assert index > -1
+        address = self.get_location_address(node)
         # Buscar un registro que no haya sido utilizado, mover el parametro a ese registro
         # y devolver el registro
         for register in TEMP_REGISTERS:
             if not self.used_registers[register]:
                 self.used_registers[register] = True
-                self.register_instruction(lsNodes.SW(register, f"{index * 4}($fp)"))
+                self.register_instruction(lsNodes.SW(register, address))
                 return register
         
         # Si todos los registros estan utilizados entonces devolver simplemente la direccion de
         # memoria del parametro
-        return f"{index * 4}($fp)"
+        return address
+
+    @visitor.when(cil.LocalNode)  #type: ignore
+    def visit(self, node: cil.LocalNode):
+        address = self.get_location_address(node)
+        # Buscar un registro que no haya sido utilizado, mover la variable local
+        # a ese registro y devolver el registro
+        for register in TEMP_REGISTERS:
+            if not self.used_registers[register]:
+                self.used_registers[register] = True
+                self.register_instruction(lsNodes.SW(register, address))
+                return register
+        
+        # Si todos los registros estan utilizados entonces devolver la direccion de memoria
+        # de la variable
+        return address
+
+    @visitor.when(cil.AssignNode)  #type: ignore
+    def visit(self, node: cil.AssignNode):
+        assert self.current_function is not None
+        # Una asignacion simplemente conciste en mover un resultado de un lugar a otro
 
     @visitor.when(cil.AllocateNode)  #type: ignore
     def visit(self, node: cil.AllocateNode):

@@ -56,6 +56,8 @@ fp = 30
 # Direccion de retorno
 ra = 31
 
+TEMP_REGISTERS = (t0, t1, t2, t3, t4, t5, t6, t7, t8, t9)
+
 
 class MipsNode:
     pass
