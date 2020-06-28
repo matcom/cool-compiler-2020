@@ -5,7 +5,6 @@ COOL compiler project
 """
 
 from errors import add_semantic_error
-from lexer_parser.ast import *
 
 
 class CoolType:
@@ -153,7 +152,7 @@ def check_inherits(type_a: CoolType, type_b: CoolType):
     return True
 
 
-def check_type_declaration(node: ProgramNode):
+def check_type_declaration(node):
     for c in node.classes:
         try:
             _ = TypesByName[c.type]
@@ -165,7 +164,7 @@ def check_type_declaration(node: ProgramNode):
     return True
 
 
-def check_type_hierarchy(node: ProgramNode):
+def check_type_hierarchy(node):
     for c in node.classes:
         cType = TypesByName[c.type]
         if c.parent_type:

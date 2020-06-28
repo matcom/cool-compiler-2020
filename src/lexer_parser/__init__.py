@@ -6,3 +6,4 @@ COOL compiler project
 
 from .lexer import lexer
 from .parser import parser
+import ast as CoolAST

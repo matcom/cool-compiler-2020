@@ -1,6 +1,6 @@
-import code_generation.CIL.ast as cil
-import lexer_parser.ast as lp_ast
-from semantic.types import *
+from . import ast as CilAST
+import lexer_parser.ast as CoolAST
+import cool_types as CT
 from .optimization import optimization_locals, remove_unused_locals
 
 __DATA__ = {}
@@ -22,7 +22,7 @@ def add_local(id=None):
     global __LOCALS__
     if id is None:
         id = f'local_{len(__LOCALS__)}'
-    local = cil.LocalNode(id)
+    local = CilAST.LocalNode(id)
     __LOCALS__[id] = local
     return local
 
@@ -37,7 +37,7 @@ def add_label():
 
 
 def ast_to_cil(ast):
-    if type(ast) == lp_ast.ProgramNode:
+    if type(ast) == CoolAST.ProgramNode:
         return program_to_cil_visitor(ast)
     raise Exception(f'AST root must be program')
 
@@ -76,9 +76,9 @@ def program_to_cil_visitor(program):
     built_in_code = []
 
     # completing .TYPE section
-    for t in TypesByName:
-        _type = cil.TypeNode(t)
-        value = TypesByName[t]
+    for t in CT.TypesByName:
+        _type = CilAST.TypeNode(t)
+        value = CT.TypesByName[t]
         __ATTR__[t] = []
         for attr in value.get_all_attributes():
             _type.attributes.append(attr.id)
@@ -105,26 +105,26 @@ def program_to_cil_visitor(program):
     """
     main_instance = '__main__'
     main_result = 'main_result'
-    main_function = cil.FuncNode('main', [], [cil.LocalNode(main_instance), cil.LocalNode(main_result)],
-                                 [cil.AllocateNode('Main', main_instance),
-                                  cil.ArgNode(main_instance),
-                                  cil.VCAllNode('Main', 'main', main_result)])
+    main_function = CilAST.FuncNode('main', [], [CilAST.LocalNode(main_instance),  CilAST.LocalNode(main_result)],
+                                    [CilAST.AllocateNode('Main', main_instance),
+                                     CilAST.ArgNode(main_instance),
+                                     CilAST.VCAllNode('Main', 'main', main_result)])
     built_in_code.append(main_function)
 
     # completing .CODE and .DATA sections
 
     for c in program.classes:
         for f in c.feature_nodes:
-            if type(f) == DefFuncNode:
+            if type(f) == CoolAST.DefFuncNode:
                 fun = func_to_cil_visitor(c.type, f)
                 code.append(fun)
 
     built_in_code += built_in_to_cil()
 
-    data = [cil.DataNode(__DATA__[data_value], data_value)
+    data = [CilAST.DataNode(__DATA__[data_value], data_value)
             for data_value in __DATA__.keys()]
 
-    cil_program = cil.ProgramNode(types, data, code, built_in_code)
+    cil_program = CilAST.ProgramNode(types, data, code, built_in_code)
     remove_unused_locals(cil_program)
     optimization_locals(cil_program)
     return cil_program
@@ -135,51 +135,51 @@ def built_in_to_cil():
 
 
 def out_string_to_cil():
-    return cil.FuncNode('IO_out_string', [cil.ParamNode('self'), cil.ParamNode('str')], [], [cil.PrintNode('str'), cil.ReturnNode('self')])
+    return CilAST.FuncNode('IO_out_string', [CilAST.ParamNode('self'),  CilAST.ParamNode('str')], [], [CilAST.PrintNode('str'),  CilAST.ReturnNode('self')])
 
 
 def out_int_to_cil():
-    return cil.FuncNode('IO_out_int', [cil.ParamNode('self'), cil.ParamNode('int')], [], [cil.PrintNode('int'), cil.ReturnNode('self')])
+    return CilAST.FuncNode('IO_out_int', [CilAST.ParamNode('self'),  CilAST.ParamNode('int')], [], [CilAST.PrintNode('int'),  CilAST.ReturnNode('self')])
 
 
 def in_string_to_cil():
-    str=cil.LocalNode('str')
-    return cil.FuncNode('IO_in_string', [cil.ParamNode('self')], [str], [cil.ReadNode(str), cil.ReturnNode(str)])
+    str = CilAST.LocalNode('str')
+    return CilAST.FuncNode('IO_in_string', [CilAST.ParamNode('self')], [str], [CilAST.ReadNode(str),   CilAST.ReturnNode(str)])
 
 
 def in_int_to_cil():
-    i=cil.LocalNode('int')
-    return cil.FuncNode('IO_in_int', [cil.ParamNode('self')], [i], [cil.ReadIntNode(i), cil.ReturnNode(i)])
+    i = CilAST.LocalNode('int')
+    return CilAST.FuncNode('IO_in_int', [CilAST.ParamNode('self')], [i], [CilAST.ReadIntNode(i),   CilAST.ReturnNode(i)])
 
 
 def type_name_to_cil():
-    t=cil.LocalNode('type')
-    return cil.FuncNode('Object_type_name', [cil.ParamNode('self')], [t], [cil.TypeOfNode(t, 'self'), cil.ReturnNode(t)])
+    t = CilAST.LocalNode('type')
+    return CilAST.FuncNode('Object_type_name', [CilAST.ParamNode('self')], [t], [CilAST.TypeOfNode(t, 'self'),   CilAST.ReturnNode(t)])
 
 
 def copy_to_cil():
-    copy=cil.LocalNode('copy')
-    return cil.FuncNode('Object_copy', [cil.ParamNode('self')], [copy], [cil.CopyNode('self', copy), cil.ReturnNode(copy)])
+    copy = CilAST.LocalNode('copy')
+    return CilAST.FuncNode('Object_copy', [CilAST.ParamNode('self')], [copy], [CilAST.CopyNode('self', copy),   CilAST.ReturnNode(copy)])
 
 
 def length_to_cil():
-    result=cil.LocalNode('result')
-    return cil.FuncNode('length_String', [cil.ParamNode('self')], [result], [cil.LengthNode('self', result), cil.ReturnNode(result)])
+    result = CilAST.LocalNode('result')
+    return CilAST.FuncNode('length_String', [CilAST.ParamNode('self')], [result], [CilAST.LengthNode('self', result),   CilAST.ReturnNode(result)])
 
 
 def concat_to_cil():
-    result=cil.LocalNode('result')
-    return cil.FuncNode('concat_String', [cil.ParamNode('self'), cil.ParamNode('x')], [result], [cil.ConcatNode('self', 'x', result), cil.ReturnNode(result)])
+    result = CilAST.LocalNode('result')
+    return CilAST.FuncNode('concat_String', [CilAST.ParamNode('self'),   CilAST.ParamNode('x')], [result], [CilAST.ConcatNode('self', 'x', result),   CilAST.ReturnNode(result)])
 
 
 def substring_to_cil():
-    result=cil.LocalNode('result')
-    return cil.FuncNode('substr_String', [cil.ParamNode('self'), cil.ParamNode('i'), cil.ParamNode('l')], [result], [cil.SubStringNode('self', 'i', 'l', result), cil.ReturnNode(result)])
+    result = CilAST.LocalNode('result')
+    return CilAST.FuncNode('substr_String', [CilAST.ParamNode('self'),   CilAST.ParamNode('i'),   CilAST.ParamNode('l')], [result], [CilAST.SubStringNode('self', 'i', 'l', result),   CilAST.ReturnNode(result)])
 
 
 def func_to_cil_visitor(type_name, func):
     '''
-    Converts from FunctionNode in parsing AST to FuncionNode in cil AST. \n
+    Converts from FunctionNode in COOL AST to FuncionNode in CIL AST. \n
     1) Builds ParamNodes for each param in FunctionNode.params\n
     2) Builds function body by putting together each instruction's body\n
     3) Creates an array of necessary local variables
@@ -187,8 +187,8 @@ def func_to_cil_visitor(type_name, func):
     '''
     global __LOCALS__, __DATA_LOCALS__, __TYPEOF__, labels_count, __CURRENT_TYPE__
     name = f'{type_name}_{func.id}'
-    params = [cil.ParamNode('self')]
-    params += [cil.ParamNode(id) for (id, t) in func.params]
+    params = [CilAST.ParamNode('self')]
+    params += [CilAST.ParamNode(id) for (id, t) in func.params]
     __LOCALS__ = {}
     labels_count = 0
     __DATA_LOCALS__ = {}
@@ -200,10 +200,10 @@ def func_to_cil_visitor(type_name, func):
         func.expressions)
     body += instruction.body
 
-    body.append(cil.ReturnNode(instruction.value))
+    body.append(CilAST.ReturnNode(instruction.value))
 
     _locals = __LOCALS__.copy()
-    return cil.FuncNode(name, params, [_locals[k] for k in _locals.keys()], body)
+    return CilAST.FuncNode(name, params, [_locals[k] for k in _locals.keys()], body)
 
 
 def expression_to_cil_visitor(expression):
@@ -230,7 +230,7 @@ def case_to_cil_visitor(case):
     expr_cil = expression_to_cil_visitor(case.expr)
     body += expr_cil.body
     t = add_local()
-    body.append(cil.TypeOfNode(t, expr_cil.value))
+    body.append(CilAST.TypeOfNode(t, expr_cil.value))
     types = []
     labels = []
     for c in case.case_list:
@@ -243,15 +243,15 @@ def case_to_cil_visitor(case):
 
     for i, branch in enumerate(case.case_list):
         predicate = add_local()
-        body.append(cil.MinusNode(t, branch.type, predicate))
-        body.append(cil.ConditionalGotoNode(predicate, labels[i]))
+        body.append(CilAST.MinusNode(t, branch.type, predicate))
+        body.append(CilAST.ConditionalGotoNode(predicate, labels[i]))
         val = add_local(branch.id)
-        body.append(cil.AssignNode(val, expr_cil.value))
+        body.append(CilAST.AssignNode(val, expr_cil.value))
         branch_cil = expression_to_cil_visitor(
             branch.expr)
         body += branch_cil.body
         value = branch_cil.value
-        body.append(cil.LabelNode(labels[i]))
+        body.append(CilAST.LabelNode(labels[i]))
 
     return CIL_block(body, value)
 
@@ -266,11 +266,11 @@ def assign_to_cil_visitor(assign):
     if assign.id in __ATTR__[__CURRENT_TYPE__]:
         index = __ATTR__[__CURRENT_TYPE__].index(assign.id)
         body = expr.body + \
-            [cil.SetAttrNode('self', assign.id, expr.value, index)]
+            [CilAST.SetAttrNode('self', assign.id, expr.value, index)]
         return CIL_block(body, expr.value)
     else:
         val = add_local(assign.id)
-        body = expr.body + [cil.AssignNode(val, expr.value)]
+        body = expr.body + [CilAST.AssignNode(val, expr.value)]
         return CIL_block(body, val)
 
 
@@ -282,14 +282,14 @@ def arith_to_cil_visitor(arith):
 
     body = l.body + r.body
 
-    if type(arith) == lp_ast.PlusNode:
-        body.append(cil.PlusNode(l.value, r.value, cil_result))
-    elif type(arith) == lp_ast.MinusNode:
-        body.append(cil.MinusNode(l.value, r.value, cil_result))
-    elif type(arith) == lp_ast.StarNode:
-        body.append(cil.StarNode(l.value, r.value, cil_result))
-    elif type(arith) == lp_ast.DivNode:
-        body.append(cil.DivNode(l.value, r.value, cil_result))
+    if type(arith) == CoolAST.PlusNode:
+        body.append(CilAST.PlusNode(l.value, r.value, cil_result))
+    elif type(arith) == CoolAST.MinusNode:
+        body.append(CilAST.MinusNode(l.value, r.value, cil_result))
+    elif type(arith) == CoolAST.StarNode:
+        body.append(CilAST.StarNode(l.value, r.value, cil_result))
+    elif type(arith) == CoolAST.DivNode:
+        body.append(CilAST.DivNode(l.value, r.value, cil_result))
 
     return CIL_block(body, cil_result)
 
@@ -307,9 +307,9 @@ def if_to_cil_visitor(_if):
     label_2 = add_label()
     value = add_local()
 
-    body = predicate.body + [cil.ConditionalGotoNode(predicate.value, label_1)] + else_expression.body + [
-        cil.AssignNode(value, else_expression.value), cil.GotoNode(label_2), cil.LabelNode(label_1)] + then.body + [
-        cil.AssignNode(value, then.value), cil.LabelNode(label_2)]
+    body = predicate.body + [CilAST.ConditionalGotoNode(predicate.value, label_1)] + else_expression.body + [
+        CilAST.AssignNode(value, else_expression.value),  CilAST.GotoNode(label_2),  CilAST.LabelNode(label_1)] + then.body + [
+        CilAST.AssignNode(value, then.value),  CilAST.LabelNode(label_2)]
 
     return CIL_block(body, value)
 
@@ -325,8 +325,8 @@ def loop_to_cil_visitor(loop):
     loop_label = add_label()
     end_label = add_label()
 
-    body = [cil.LabelNode(predicate_label)] + predicate.body + [cil.ConditionalGotoNode(predicate.value, loop_label), cil.GotoNode(end_label),
-                                                                cil.LabelNode(loop_label)] + loop_block.body + [cil.GotoNode(predicate_label), cil.LabelNode(end_label), cil.AssignNode(value, 0)]
+    body = [CilAST.LabelNode(predicate_label)] + predicate.body + [CilAST.ConditionalGotoNode(predicate.value, loop_label),  CilAST.GotoNode(end_label),
+                                                                   CilAST.LabelNode(loop_label)] + loop_block.body + [CilAST.GotoNode(predicate_label),  CilAST.LabelNode(end_label),  CilAST.AssignNode(value, 0)]
 
     return CIL_block(body, value)
 
@@ -339,10 +339,10 @@ def equal_to_cil_visitor(equal):
     end_label = add_label()
     value = add_local()
 
-    body = l.body + r.body + [cil.MinusNode(l.value, r.value, cil_result), cil.AssignNode(value, 0),
-                              cil.ConditionalGotoNode(
-                                  cil_result, end_label), cil.AssignNode(value, 1),
-                              cil.LabelNode(end_label)]
+    body = l.body + r.body + [CilAST.MinusNode(l.value, r.value, cil_result),  CilAST.AssignNode(value, 0),
+                              CilAST.ConditionalGotoNode(
+        cil_result, end_label),  CilAST.AssignNode(value, 1),
+        CilAST.LabelNode(end_label)]
 
     return CIL_block(body, value)
 
@@ -352,7 +352,7 @@ def lessthan_to_cil_visitor(lessthan):
     r = expression_to_cil_visitor(lessthan.rvalue)
 
     value = add_local()
-    body = l.body + r.body + [cil.LessNode(l.value, r.value, value)]
+    body = l.body + r.body + [CilAST.LessNode(l.value, r.value, value)]
     return CIL_block(body, value)
 
 
@@ -361,7 +361,7 @@ def lesseqthan_to_cil_visitor(lessthan):
     r = expression_to_cil_visitor(lessthan.rvalue)
 
     value = add_local()
-    body = l.body + r.body + [cil.LessEqNode(l.value, r.value, value)]
+    body = l.body + r.body + [CilAST.LessEqNode(l.value, r.value, value)]
     return CIL_block(body, value)
 
 
@@ -377,7 +377,7 @@ def id_to_cil_visitor(id):
     if id.id in __ATTR__[__CURRENT_TYPE__]:
         result = add_local()
         index = __ATTR__[__CURRENT_TYPE__].index(id.id)
-        return CIL_block([cil.GetAttrNode('self', id.id, result, index)], result)
+        return CIL_block([CilAST.GetAttrNode('self', id.id, result, index)], result)
     try:
         val = __LOCALS__[id.id]
         return CIL_block([], val)
@@ -391,19 +391,20 @@ def new_to_cil_visitor(new_node):
     body = []
 
     if t == 'SELF_TYPE':
-        t, need_typeof = get_typeof(t, 'self')
+        t, need_typeof = get_typeof(__CURRENT_TYPE__)
         if need_typeof:
-            body.append(cil.TypeOfNode(t, 'self'))
+            body.append(CilAST.TypeOfNode(t, __CURRENT_TYPE__))
 
-    body.append(cil.AllocateNode(t, value))
-    init_attr = TypesByName[t].get_all_attributes()
+    body.append(CilAST.AllocateNode(t, value))
+    init_attr = CT.TypesByName[t].get_all_attributes()
 
     for index, attr in enumerate(init_attr):
         if attr.expression:
             attr_cil = expression_to_cil_visitor(
                 attr.expression)
             body += attr_cil.body
-            body.append(cil.SetAttrNode(value, attr.id, attr_cil.value, index))
+            body.append(CilAST.SetAttrNode(
+                value, attr.id, attr_cil.value, index))
 
     return CIL_block(body, value)
 
@@ -422,7 +423,7 @@ def string_to_cil_visitor(str):
     str_id, need_load = add_data_local(str_addr)
 
     if need_load:
-        body = [cil.LoadNode(str_addr, str_id)]
+        body = [CilAST.LoadNode(str_addr, str_id)]
     else:
         body = []
 
@@ -436,7 +437,7 @@ def let_to_cil_visitor(let):
             attr_cil = expression_to_cil_visitor(attr.expr)
             body += attr_cil.body
             val = add_local(attr.id)
-            body.append(cil.AssignNode(val, attr_cil.value))
+            body.append(CilAST.AssignNode(val, attr_cil.value))
 
     expr_cil = expression_to_cil_visitor(let.expr)
     body += expr_cil.body
@@ -451,8 +452,8 @@ def logic_not_to_cil_visitor(not_node):
     value = add_local()
     end_label = add_label()
 
-    body = expr_cil.body + [cil.AssignNode(value, 0), cil.ConditionalGotoNode(expr_cil.value, end_label),
-                            cil.AssignNode(value, 1), cil.LabelNode(end_label)]
+    body = expr_cil.body + [CilAST.AssignNode(value, 0),  CilAST.ConditionalGotoNode(expr_cil.value, end_label),
+                            CilAST.AssignNode(value, 1),  CilAST.LabelNode(end_label)]
 
     return CIL_block(body, value)
 
@@ -463,7 +464,7 @@ def not_to_cil_visitor(not_node):
 
     value = add_local()
 
-    body = expr_cil.body + [cil.NotNode(expr_cil.value, value)]
+    body = expr_cil.body + [CilAST.NotNode(expr_cil.value, value)]
 
     return CIL_block(body, value)
 
@@ -499,45 +500,45 @@ def func_call_to_cil_visitor(call):
 
     t, need_typeof = get_typeof(obj)
     if need_typeof:
-        body.append(cil.TypeOfNode(t, obj))
+        body.append(CilAST.TypeOfNode(t, obj))
 
-    body.append(cil.ArgNode(obj))
+    body.append(CilAST.ArgNode(obj))
 
     for arg in arg_values:
-        body.append(cil.ArgNode(arg))
+        body.append(CilAST.ArgNode(arg))
 
     result = add_local()
     if not call.type:
-        body.append(cil.VCAllNode(t, call.id, result))
+        body.append(CilAST.VCAllNode(t, call.id, result))
     else:
-        body.append(cil.VCAllNode(call.type, call.id, result))
+        body.append(CilAST.VCAllNode(call.type, call.id, result))
 
     return CIL_block(body, result)
 
 
 __visitor__ = {
-    lp_ast.AssignNode: assign_to_cil_visitor,
-    lp_ast.BlockNode: block_to_cil_visitor,
-    lp_ast.BoolNode: bool_to_cil_visitor,
-    lp_ast.IfNode: if_to_cil_visitor,
-    lp_ast.WhileNode: loop_to_cil_visitor,
-    lp_ast.EqNode: equal_to_cil_visitor,
-    lp_ast.LogicNegationNode: logic_not_to_cil_visitor,
-    lp_ast.LetNode: let_to_cil_visitor,
-    lp_ast.NewNode: new_to_cil_visitor,
-    lp_ast.IntNode: integer_to_cil_visitor,
-    lp_ast.StringNode: string_to_cil_visitor,
-    lp_ast.PlusNode: arith_to_cil_visitor,
-    lp_ast.MinusNode: arith_to_cil_visitor,
-    lp_ast.StarNode: arith_to_cil_visitor,
-    lp_ast.DivNode: arith_to_cil_visitor,
-    lp_ast.VarNode: id_to_cil_visitor,
-    lp_ast.FuncCallNode: func_call_to_cil_visitor,
-    lp_ast.IsVoidNode: is_void_to_cil_visitor,
-    lp_ast.NegationNode: not_to_cil_visitor,
-    lp_ast.LessThanNode: lessthan_to_cil_visitor,
-    lp_ast.LessEqNode: lesseqthan_to_cil_visitor,
-    lp_ast.CaseNode: case_to_cil_visitor,
+    CoolAST.AssignNode: assign_to_cil_visitor,
+    CoolAST.BlockNode: block_to_cil_visitor,
+    CoolAST.BoolNode: bool_to_cil_visitor,
+    CoolAST.IfNode: if_to_cil_visitor,
+    CoolAST.WhileNode: loop_to_cil_visitor,
+    CoolAST.EqNode: equal_to_cil_visitor,
+    CoolAST.LogicNegationNode: logic_not_to_cil_visitor,
+    CoolAST.LetNode: let_to_cil_visitor,
+    CoolAST.NewNode: new_to_cil_visitor,
+    CoolAST.IntNode: integer_to_cil_visitor,
+    CoolAST.StringNode: string_to_cil_visitor,
+    CoolAST.PlusNode: arith_to_cil_visitor,
+    CoolAST.MinusNode: arith_to_cil_visitor,
+    CoolAST.StarNode: arith_to_cil_visitor,
+    CoolAST.DivNode: arith_to_cil_visitor,
+    CoolAST.VarNode: id_to_cil_visitor,
+    CoolAST.FuncCallNode: func_call_to_cil_visitor,
+    CoolAST.IsVoidNode: is_void_to_cil_visitor,
+    CoolAST.NegationNode: not_to_cil_visitor,
+    CoolAST.LessThanNode: lessthan_to_cil_visitor,
+    CoolAST.LessEqNode: lesseqthan_to_cil_visitor,
+    CoolAST.CaseNode: case_to_cil_visitor,
 }
 
 
