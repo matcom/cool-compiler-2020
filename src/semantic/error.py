@@ -9,3 +9,8 @@ class ContextError(Exception):
     @property
     def text(self):
         return self.args[0]
+
+class ScopeError(Exception):
+    @property
+    def text(self):
+        return self.args[0]

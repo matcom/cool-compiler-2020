@@ -10,7 +10,6 @@ class FormatVisitor(State):
     def run(self, ast):
         printed_ast = self.visit(ast)
         f = open(self.fname, 'w')
-        f.write(printed_ast)
         f.close()
         return ast 
 

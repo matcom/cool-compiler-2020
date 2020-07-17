@@ -80,22 +80,18 @@ class TypeChecker(State):
 
     @visitor.when(ProgramNode)
     def visit(self, node, scope):
-        for dec, scp in zip(node.declarations, scope.children):
-            self.visit(dec, scp)
+        for dec in node.declarations:
+            self.visit(dec, scope.cls_scopes[dec.id])
 
     @visitor.when(ClassDeclarationNode)
     def visit(self, node, scope):
         self.current_type = self.context.get_type(node.id)
         for feature in node.features:
-            try:
-                n_scope = scope.functions[feature.id]    
-                self.visit(feature, n_scope)
-            except:
-                self.visit(feature, scope)
+            self.visit(feature, scope)
 
-    @visitor.when(AttrDeclarationNode) #check attribute redefine (TODO: HIdden Attribute in methods scope using vars)
+    @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope):
-        vinfo = scope.find_variable(node.id)
+        vinfo = scope.get_attribute(node.id)
         if node.expr:
             etype = self.visit(node.expr, scope)
             if not etype.conforms_to(vinfo.type):
@@ -109,6 +105,7 @@ class TypeChecker(State):
 
     @visitor.when(FuncDeclarationNode)
     def visit(self, node, scope):
+        fscope = scope.func_scopes[node.id]
         parent = self.current_type.parent
         ptypes = [param[1] for param in node.params]
 
@@ -125,7 +122,7 @@ class TypeChecker(State):
             except SemanticError:
                 parent = parent.parent
         
-        res = self.visit(node.body, scope)
+        res = self.visit(node.body, fscope)
 
         if not res.conforms_to(meth.return_type):
             self.errors.append(INCOMPATIBLE_TYPES %(meth.return_type.name, res.name))

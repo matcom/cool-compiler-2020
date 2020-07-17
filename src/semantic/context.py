@@ -3,6 +3,7 @@
 import itertools as itt
 from .types import *
 from .error import *
+from tools.cmp_errors import * 
 
 class Context:
     def __init__(self):
@@ -44,67 +45,108 @@ class VariableInfo:
         return str(self)
 
 class Scope:
+    """ Defines the global scope using a given context """
+
+    def __init__(self, context=None):
+        self.context = context
+        self.cls_scopes = { }
+
+        if context:
+            for cls_name, cls in context.types.items():
+                self.cls_scopes[cls_name] = ClassScope(cls_type=cls)
+
+class ClassScope:
+    """ Defines the class scope using a given cool class """
+
+    def __init__(self, cls_type=None):
+        self.self_type = cls_type
+        self.self_var = VariableInfo('self', self.self_type)
+        self.parent = None # using in backtrack search
+        self.func_scopes = { fname: InnerScope(parent=self) for fname in cls_type.methods.keys() } 
+
+    def get_attribute(self, name):
+        return self.self_var if name == 'self' else self.self_type.get_attribute(name) 
+
+    def is_innerScope(self):
+        return False
+
+    def is_class_scope(self):
+        return True
+
+class InnerScope:
     def __init__(self, parent=None):
-        #self.context = context
-        self.locals = []
-        self.parent = parent
-        self.children = []
+        self.parent = parent # the scope parent
+        self.locals = [ ] # local variables for the current scope
+        self.children = [ ]
         self.expr_dict = { }
-        self.functions = { }
-        self.index = 0 if parent is None else len(parent)
-
-    def __len__(self):
-        return len(self.locals)
-
-    def __str__(self):
-        res = ''
-        for scope in self.children:
-            try:
-                classx = scope.locals[0]
-                name = classx.type.name
-            except:
-                name = 'miss'
-            res += name + scope.tab_level(1, '', 1) #'\n\t' +  ('\n' + '\t').join(str(local) for local in scope.locals) + '\n'
-        return res
-
-    def tab_level(self, tabs, name, num):
-        res = ('\t' * tabs) +  ('\n' + ('\t' * tabs)).join(str(local) for local in self.locals)
-        if self.functions:
-            children = '\n'.join(v.tab_level(tabs + 1, '[method] ' + k, num) for k, v in self.functions.items())
-        else:
-            children = '\n'.join(child.tab_level(tabs + 1, num, num + 1) for child in self.children)
-        return "\t" * (tabs-1) + f'{name}' + "\t" * tabs + f'\n{res}\n{children}'
-
-    def __repr__(self):
-        return str(self)
 
     def create_child(self):
-        child = Scope(self)
+        child = InnerScope(self)
         self.children.append(child)
         return child
 
     def define_variable(self, vname, vtype):
+        if vname == 'self':
+            raise ScopeError(SELF_IS_READONLY)
+
         info = VariableInfo(vname, vtype)
         self.locals.append(info)
         return info
 
-    def define_attribute(self, attr):
-        self.locals.append(attr)
-
-    def find_variable(self, vname, index=None):
-        locals = self.locals if index is None else itt.islice(self.locals, index)
+    def find_variable(self, vname):
         try:
-            return next(x for x in locals if x.name == vname)
+            return next(x for x in self.locals if x.name == vname)
         except StopIteration:
-            return self.parent.find_variable(vname, self.index) if self.parent else None
+            if self.parent.is_innerScope():
+                return self.parent.find_variable(vname)
+            else:
+                try:
+                    return self.parent.get_attribute(vname)
+                except SemanticError:
+                    return None
 
     def get_class_scope(self):
-        if self.parent == None or self.parent.parent == None:
-            return self
+        if self.parent.parent == None:
+            return self.parent
         return self.parent.get_class_scope()
 
     def is_defined(self, vname):
         return self.find_variable(vname) is not None
 
+    def is_attribute(self, aname):
+        cl_scope = self.get_class_scope()
+        return cl_scope.get_attribute(aname) is not None 
+
     def is_local(self, vname):
         return any(True for x in self.locals if x.name == vname)
+
+    def is_innerScope(self):
+        return True
+
+    def is_class_scope(self):
+        return False
+
+    # def __len__(self):
+    #     return len(self.locals)
+
+    # def __str__(self):
+    #     res = ''
+    #     for scope in self.children:
+    #         try:
+    #             classx = scope.locals[0]
+    #             name = classx.type.name
+    #         except:
+    #             name = 'miss'
+    #         res += name + scope.tab_level(1, '', 1) #'\n\t' +  ('\n' + '\t').join(str(local) for local in scope.locals) + '\n'
+    #     return res
+
+    # def tab_level(self, tabs, name, num):
+    #     res = ('\t' * tabs) +  ('\n' + ('\t' * tabs)).join(str(local) for local in self.locals)
+    #     if self.functions:
+    #         children = '\n'.join(v.tab_level(tabs + 1, '[method] ' + k, num) for k, v in self.functions.items())
+    #     else:
+    #         children = '\n'.join(child.tab_level(tabs + 1, num, num + 1) for child in self.children)
+    #     return "\t" * (tabs-1) + f'{name}' + "\t" * tabs + f'\n{res}\n{children}'
+
+    # def __repr__(self):
+    #     return str(self)

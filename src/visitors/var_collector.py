@@ -1,4 +1,5 @@
 from semantic import *
+from tools.cmp_errors import * 
 
 import visitors.visitor as visitor
 from pipeline import State
@@ -23,46 +24,42 @@ class VarCollector(State):
 
     @visitor.when(ProgramNode)
     def visit(self, node, scope=None):
-        scope = Scope()
+        scope = Scope(context=self.context)
         for dec in node.declarations:
-            self.visit(dec, scope.create_child())
+            self.visit(dec, scope.cls_scopes[dec.id])
         return scope
 
     @visitor.when(ClassDeclarationNode)
     def visit(self, node, scope):
         self.current_type = self.context.get_type(node.id)
-        scope.define_variable('self', self.current_type)
-
-        # visit features (# Inherits methods and attribures here?)
+        
+        # visit features
         for feature in node.features:
             self.visit(feature, scope)
 
     @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope):
-        scope.define_attribute(self.current_type.get_attribute(node.id))
+        pass
 
     @visitor.when(FuncDeclarationNode)
     def visit(self, node, scope):
         self.current_method = self.current_type.get_method(node.id)
-        new_scope = scope.create_child()
+        func_scope = scope.func_scopes[node.id]
 
         for pname, ptype in node.params:
             try:
-                new_scope.define_variable(pname, self.context.get_type(ptype))
+                if pname == 'self':
+                    raise SemanticError(FORMAL_ERROR_SELF)
+                func_scope.define_variable(pname, self.context.get_type(ptype))
             except SemanticError as e:
                 self.errors.append(e.text)
-                new_scope.define_variable(pname, ErrorType())
+                func_scope.define_variable(pname, ErrorType())
 
-        scope.functions[node.id] = new_scope
-
-        self.visit(node.body, new_scope)        
+        self.visit(node.body, func_scope)        
 
     @visitor.when(VarDeclarationNode)
     def visit(self, node, scope):
-        if node.id == 'self':
-            self.errors.append(SELF_IS_READONLY)
-
-        elif scope.is_defined(node.id) and scope.find_variable(node.id).type is not ErrorType():
+        if scope.is_defined(node.id) and scope.find_variable(node.id).type is not ErrorType():
             self.errors.append(LOCAL_ALREADY_DEFINED %(node.id, self.current_method.name))
 
         else:
@@ -78,16 +75,17 @@ class VarCollector(State):
 
     @visitor.when(AssignNode)
     def visit(self, node, scope):
-        if node.id == 'self':
-            self.errors.append(SELF_IS_READONLY)
-            
-        else:
-            vinfo = scope.find_variable(node.id)
-            if vinfo is None:
-                self.errors.append(VARIABLE_NOT_DEFINED %(node.id, self.current_method.name))
-                scope.define_variable(node.id, ErrorType())
+        vinfo = scope.find_variable(node.id)
+        if vinfo is None:
+            self.errors.append(VARIABLE_NOT_DEFINED %(node.id, self.current_method.name))
+            scope.define_variable(node.id, ErrorType())
 
         self.visit(node.expr, scope)
+
+    @visitor.when(BlockNode)
+    def visit(self, node, scope):
+        for expr in node.expr_list:
+            self.visit(expr, scope)
 
     @visitor.when(LetNode)
     def visit(self, node, scope):
@@ -100,17 +98,9 @@ class VarCollector(State):
 
     @visitor.when(VariableNode)
     def visit(self, node, scope):
-        if not (scope.is_defined(node.id) or self.asc_defined(node.id, self.current_type)):
+        if not scope.is_defined(node.id):
             self.errors.append(VARIABLE_NOT_DEFINED %(node.id, self.current_method.name))
             scope.define_variable(node.id, ErrorType())
-
-    # CHANGE
-    def asc_defined(self, name, ptype):
-        while ptype:
-            attr = ptype.get_attribute(name)
-            if attr != None:
-                return True
-            ptype = ptype.parent
 
     @visitor.when(CaseNode)
     def visit(self, node, scope):

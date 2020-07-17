@@ -13,6 +13,7 @@ SEMANTIC_ERR = 'SemanticError'
 # Semantic Messages
 WRONG_SIGNATURE = 'Method "%s" already defined in "%s" with a different signature.'
 SELF_IS_READONLY = 'Variable "self" is read-only.'
+FORMAL_ERROR_SELF = '"self" identifier cannot be used as formal parameter'
 LOCAL_ALREADY_DEFINED = 'Variable "%s" is already defined in method "%s".'
 INCOMPATIBLE_TYPES = 'Cannot convert "%s" into "%s".'
 VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined in "%s".'
