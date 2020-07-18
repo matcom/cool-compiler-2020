@@ -1,6 +1,7 @@
 """Contains Context Structures"""
 
 import itertools as itt
+import pprint
 from .types import *
 from .error import *
 from tools.cmp_errors import * 
@@ -55,6 +56,15 @@ class Scope:
             for cls_name, cls in context.types.items():
                 self.cls_scopes[cls_name] = ClassScope(cls_type=cls)
 
+    def __str__(self):
+        res = '  Program Scope   \n' + '-'*18 + '\nClasses in Program\n' + '-'*18 + '\n\n'
+        for name, cls in self.cls_scopes.items():
+            res += f'{name}, {str(cls)}\n'
+        return res
+
+    def __repr__(self):
+        return str(self)
+
 class ClassScope:
     """ Defines the class scope using a given cool class """
 
@@ -72,6 +82,15 @@ class ClassScope:
 
     def is_class_scope(self):
         return True
+
+    def __str__(self):
+        res = 'Class Methods\n' + '-'*25 + '\n'
+        for mname, s in self.func_scopes.items():
+            res += f'{mname}: {str(s)}\n'
+        return res
+
+    def __repr__(self):
+        return str(self)
 
 class InnerScope:
     def __init__(self, parent=None):
@@ -126,27 +145,11 @@ class InnerScope:
     def is_class_scope(self):
         return False
 
-    # def __len__(self):
-    #     return len(self.locals)
+    def __str__(self, tabs=0):
+        res = ('\t' * tabs) + '[ ' + (', '.join( str(local) for local in self.locals )) + ' ]\n'
+        if self.children:
+            res += '\n'.join(c.__str__(tabs + 1) for c in self.children)
+        return res
 
-    # def __str__(self):
-    #     res = ''
-    #     for scope in self.children:
-    #         try:
-    #             classx = scope.locals[0]
-    #             name = classx.type.name
-    #         except:
-    #             name = 'miss'
-    #         res += name + scope.tab_level(1, '', 1) #'\n\t' +  ('\n' + '\t').join(str(local) for local in scope.locals) + '\n'
-    #     return res
-
-    # def tab_level(self, tabs, name, num):
-    #     res = ('\t' * tabs) +  ('\n' + ('\t' * tabs)).join(str(local) for local in self.locals)
-    #     if self.functions:
-    #         children = '\n'.join(v.tab_level(tabs + 1, '[method] ' + k, num) for k, v in self.functions.items())
-    #     else:
-    #         children = '\n'.join(child.tab_level(tabs + 1, num, num + 1) for child in self.children)
-    #     return "\t" * (tabs-1) + f'{name}' + "\t" * tabs + f'\n{res}\n{children}'
-
-    # def __repr__(self):
-    #     return str(self)
+    def __repr__(self):
+        return str(self)

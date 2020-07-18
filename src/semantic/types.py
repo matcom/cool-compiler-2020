@@ -79,6 +79,10 @@ class Type:
     def __repr__(self):
         return str(self)
 
+class SELF_TYPE(Type):
+    def __init__(self):
+        Type.__init__(self, 'SELF_TYPE')
+
 class ErrorType(Type):
     def __init__(self):
         Type.__init__(self, '<Error>')
@@ -133,6 +137,8 @@ class StringType(Type):
     def __init__(self):
         Type.__init__(self, 'String')
 
+        self.methods = { }
+
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, StringType)
 
@@ -142,6 +148,8 @@ class StringType(Type):
 class IOType(Type):
     def __init__(self):
         Type.__init__(self, 'IO')
+
+        self.methods = { }
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, IOType)
@@ -153,7 +161,7 @@ class ObjectType(Type):
     def __init__(self):
         self.name = 'Object'
         self.attributes = []
-        self.methods = {}
+        self.methods = { }
         self.parent = None
 
 
