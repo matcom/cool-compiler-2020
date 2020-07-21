@@ -62,21 +62,24 @@ class pyCoolParser:
         features_list : features_list feature SEMICOLON
                       | feature SEMICOLON
         """        
-        
+        p[0] = (p[1], ) if len(p) == 3 else p[1] + (p[2], )
+
     def p_feature_method(self, p):
         """
         feature : ID LPAREN formal_params_list RPAREN COLON TYPE LBRACE expression RBRACE
         """        
-    
+        p[0] = NodeClassMethod(idName=p[1], formal_params=p[3], return_type=p[6], body=p[8])
+
     def p_feature_method_no_formals(self, p):
         """
         feature : ID LPAREN RPAREN COLON TYPE LBRACE expression RBRACE
-        """        
+        """
+        p[0] = NodeClassMethod(idName=p[1], formal_params=[], return_type=p[5], body=p[7])
         
     def p_feature_attr_initialized(self, p):
         """
         feature : ID COLON TYPE ASSIGN expression
-        """        
+        """
         
     def p_feature_attr(self, p):
         """
