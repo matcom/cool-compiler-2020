@@ -80,23 +80,26 @@ class pyCoolParser:
         """
         feature : ID COLON TYPE ASSIGN expression
         """
-        
+        p[0] = NodeAttr(idName= p[1], attr_type= p[3], expr= p[5])
+
     def p_feature_attr(self, p):
         """
         feature : ID COLON TYPE
         """        
-        
+        p[0] = NodeAttr(idName= p[1], attr_type= p[3], expr= None)
+
     def p_formal_list_many(self, p):
         """
         formal_params_list  : formal_params_list COMMA formal_param
                             | formal_param
-        """        
+        """
         
+
     def p_formal(self, p):
         """
         formal_param : ID COLON TYPE
         """        
-        
+
     def p_expression_object_identifier(self, p):
         """
         expression : ID
