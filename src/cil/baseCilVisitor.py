@@ -42,7 +42,8 @@ class InheritanceGraph:
         # Para realizar este calculo nos basamos en el arbol
         # construido por el DFS, y tenemos en cuenta los tiempos
         # de descubrimiento y finalizacion
-        return self._discover[node_x] < self._discover[node_y] < self._finalization[node_y] < self._finalization[node_x]
+        return self._discover[node_x] < self._discover[
+            node_y] < self._finalization[node_y] < self._finalization[node_x]
 
     def __distance_from(self, node_x: str, node_y: str) -> int:
         # Si x es ancestro de y, entonces la distancia entre ellos
@@ -82,7 +83,8 @@ class InheritanceGraph:
                 if nodey == nodex:
                     self.tdt[(nodex, nodey)] = 0
                 else:
-                    self.tdt[(nodex, nodey)] = self.__distance_from(nodex, nodey)
+                    self.tdt[(nodex,
+                              nodey)] = self.__distance_from(nodex, nodey)
 
 
 class BaseCoolToCilVisitor:
@@ -141,7 +143,8 @@ class BaseCoolToCilVisitor:
     def to_function_name(self, method_name: str, type_name: str) -> str:
         return f"function_{method_name}_at_{type_name}"
 
-    def register_instruction(self, instruction: nodes.InstructionNode) -> nodes.InstructionNode:
+    def register_instruction(
+            self, instruction: nodes.InstructionNode) -> nodes.InstructionNode:
         self.instructions.append(instruction)
         return instruction
 
@@ -178,7 +181,8 @@ class BaseCoolToCilVisitor:
         graph = InheritanceGraph()
         for itype in self.context.types:
             if self.context.types[itype].parent is not None:
-                graph.add_edge(self.context.types[itype].parent.name, itype)  # type: ignore
+                graph.add_edge(self.context.types[itype].parent.name,
+                               itype)  # type: ignore
 
         # Crear la TDT
         graph.build_tdt()

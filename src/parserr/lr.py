@@ -3,6 +3,7 @@ from tools.firsts import ContainerSet
 from automatons.state import State
 from parserr.shiftreduce import ShiftReduceParser
 from tools.firsts import compute_firsts, compute_local_first
+from typing import Iterable, Optional, List, Union, Set, FrozenSet
 
 
 def expand(item, firsts):
@@ -102,10 +103,10 @@ def build_LR1_automaton(G):
 
 
 def build_lalr_automaton(G):
-    def centers(items: [Item]):
+    def centers(items: Iterable[Optional[Item]]):
         return frozenset(item.Center() for item in items)
 
-    def lookaheads(items: [Item]):
+    def lookaheads(items: Iterable[Optional[Item]]):
         return {item.Center(): item.lookaheads for item in items}
 
     def subset(items1, items2):
