@@ -43,13 +43,13 @@ class pyCoolParser:
         """
         class : CLASS TYPE LBRACE features_list_opt RBRACE
         """        
-        p[0] = NodeClass(idName = p[2], body = p[4], parent = "Object")
+        p[0] = NodeClass(idName = p[2], feature_list= p[4], parent = "Object")
 
     def p_class_inherits(self, p):
         """
         class : CLASS TYPE INHERITS TYPE LBRACE features_list_opt RBRACE
         """        
-        p[0] = NodeClass(idName = p[2], body = p[6], parent = p[4] )
+        p[0] = NodeClass(idName = p[2], feature_list = p[6], parent = p[4] )
 
     def p_feature_list_opt(self, p):
         """
@@ -61,8 +61,14 @@ class pyCoolParser:
         """
         features_list : features_list feature SEMICOLON
                       | feature SEMICOLON
-        """        
-        p[0] = (p[1], ) if len(p) == 3 else p[1] + (p[2], )
+        """
+        p[0] = { 'methods': (), 'attributes': () }
+        if len(p) == 3:
+            key = 'methods' if type(p[1]) is NodeClassMethod else 'attributes'
+            p[0][key] += (p[1], )
+        else:
+            p[0]['methods'] = p[1]['methods'] + p[2]['methods']
+            p[0]['attributes'] = p[1]['attributes'] + p[2]['attributes']
 
     def p_feature_method(self, p):
         """
@@ -75,7 +81,7 @@ class pyCoolParser:
         feature : ID LPAREN RPAREN COLON TYPE LBRACE expression RBRACE
         """
         p[0] = NodeClassMethod(idName=p[1], formal_params=[], return_type=p[5], body=p[7])
-        
+
     def p_feature_attr_initialized(self, p):
         """
         feature : ID COLON TYPE ASSIGN expression
@@ -93,7 +99,6 @@ class pyCoolParser:
         formal_params_list  : formal_params_list COMMA formal_param
                             | formal_param
         """
-        
 
     def p_formal(self, p):
         """
