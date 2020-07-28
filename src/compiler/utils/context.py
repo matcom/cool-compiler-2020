@@ -18,9 +18,9 @@ class context:
             'attrs': {},
             'methods': {} }
             } )
-        return self.attachFeaturesToType(node) or 'Success'
+        return 'Success'
 
-    def attachFeaturesToType (self, node: NodeClass):
+    """ def attachFeaturesToType (self, node: NodeClass):
         errors = []
         featureType = { NodeAttr: 'attrs', NodeClassMethod: 'methods' }
         classContext = self.types[node.idName]
@@ -33,7 +33,7 @@ class context:
                 classContext[featureType[type(feature)]].update({
                         feature.idName: feature
                     })
-        return errors
+        return errors """
 
     def getType(self, idName: str):
         return self.types.get(idName, False)
