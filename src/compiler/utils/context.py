@@ -1,48 +1,44 @@
 from ..utils.AST_definitions import *
+from ..utils.errors import error
 
 class context:
-    def __init__(self, dictionaries):
-        self.dictionaries = dictionaries
-        pass
+    def __init__(self, dictionaries ={}):
+        self.types = { }
+
+    def createType(self, node: NodeClass):
+        if node.idName in self.types:
+            return [error(
+                error_type='Semantic error',
+                row_and_col=(0,0), 
+                message='Class %s already exist' %node.idName
+                )]
+        self.types.update({
+            node.idName: {
+            'parent': node.parent,
+            'attrs': {},
+            'methods': {} }
+            } )
+        return self.attachFeaturesToType(node) or 'Success'
+
+    def attachFeaturesToType (self, node: NodeClass):
+        errors = []
+        featureType = { NodeAttr: 'attrs', NodeClassMethod: 'methods' }
+        classContext = self.types[node.idName]
+        for feature in node.feature_list:
+            if feature in self.types:
+                errors.append(error(
+                    error_type= 'Semantic error', row_and_col= (0, 0),
+                    message='Feature %s already exist as a %s in the current scope' %(feature.idName, featureType[type(feature)][ :-1] ) ) )
+            else:
+                classContext[featureType[type(feature)]].update({
+                        feature.idName: feature
+                    })
+        return errors
+
+    def getType(self, idName: str):
+        return self.types.get(idName, False)
 
     def __repr__(self):
         return self.__str__()
 
-    def __str__(self):
-        toReturn= ""
-        for dictio in self.dictionaries:
-            toReturn += "%s: {\n" %(dictio.__name__)
-            for key in dictio:
-                toReturn += "\t%s: %s\n" %(key, dictio[key])
-            toReturn +="\n}"
-        return toReturn
-
-class globalContex(context):
-    def __init__ (self):
-        self.types = {}
-        super().__init__(dictionaries = [self.types])
-
-    def createType(self, node: NodeClass):
-        currentClassContext = classContext(node)
-        currentClassContext.initialize()
-        self.types.update({node.idName : currentClassContext})
-
-
-    def initialize(self):
-        pass
-
-
-class classContext(context):
-    def __init__(self, node: NodeClass):
-        self.classInfo = {}
-        self.methods = {}
-        self.attrs ={}
-        self.node = node
-        super().__init__(dictionaries = [self.classInfo, 
-        self.methods, self.attrs])
-
-    def initialize(self):
-        self.classInfo.update({"idName": self.node.idName,
-        "parent": self.node.parent})
-
-
+programContext = context()
