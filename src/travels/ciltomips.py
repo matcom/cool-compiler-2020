@@ -2,21 +2,20 @@ from mips.baseMipsVisitor import (BaseCilToMipsVisitor, DotDataDirective,
                                   DotGlobalDirective, DotTextDirective,
                                   instrNodes, arithNodes, cmpNodes,
                                   branchNodes, lsNodes)
-import typecheck.visitor as visitor
 import cil.nodes as cil
-from typing import List
 from mips.instruction import (a0, a1, a2, a3, at, t0, t1, t2, t3, t4, t5, t6,
                               t7, t8, t9, s0, s1, s2, s3, s4, s5, s6, s7, sp,
                               ra, fp, k0, k1, gp, v0, v1, zero, TEMP_REGISTERS)
+from functools import singledispatchmethod
 
 
 class CilToMipsVisitor(BaseCilToMipsVisitor):
-    @visitor.on('node')
+    @singledispatchmethod
     def visit(self, node):
         pass
 
-    @visitor.when(cil.CilProgramNode)  # type: ignore
-    def visit(self, node: cil.CilProgramNode):  # noqa: F811
+    @visit.register
+    def _(self, node: cil.CilProgramNode):
         # El programa de CIL se compone por las 3 secciones
         # .TYPES, .DATA y .CODE
 
@@ -38,8 +37,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(lsNodes.LI(v0, 10))
         self.register_instruction(instrNodes.SYSCALL())
 
-    @visitor.when(cil.TypeNode)  # type: ignore
-    def visit(self, node: cil.TypeNode):  # noqa: F811
+    @visit.register
+    def _(self, node: cil.TypeNode):  # noqa: F811
         # registrar el tipo actual que estamos construyendo
         self.current_type = node
 
@@ -82,14 +81,14 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.current_type = None
 
-    @visitor.when(cil.DataNode)  #type: ignore
-    def visit(self, node: cil.DataNode):
+    @visit.register
+    def _(self, node: cil.DataNode):
         # Registrar los DataNode en la seccion .data
         self.register_instruction(DotDataDirective())
         if isinstance(node.value, str):
             self.register_instruction(
                 instrNodes.FixedData(node.name,
-                                     rf"{node.value}",
+                                     f"{node.value}",
                                      type_='asciiz'))
         elif isinstance(node.value, dict):
             # Lo unico que puede ser un diccionario es la TDT. Me parece..... mehh !!??
@@ -105,8 +104,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.register_instruction(
                 instrNodes.FixedData(node.name, node.value))
 
-    @visitor.when(cil.FunctionNode)  # type: ignore
-    def visit(self, node: cil.FunctionNode):
+    @visit.register
+    def _(self, node: cil.FunctionNode):
         ret = 0
         self.current_function = node
         # El codigo referente a cada funcion debe ir en la seccion de texto.
@@ -148,20 +147,20 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.current_function = None
 
-    @visitor.when(cil.LabelNode)  #type: ignore
-    def visit(self, node: cil.LabelNode):
+    @visit.register
+    def _(self, node: cil.LabelNode):
         self.register_instruction(instrNodes.Label(node.label))
 
-    @visitor.when(cil.ParamNode)  #type: ignore
-    def visit(self, node: cil.ParamNode):
+    @visit.register
+    def _(self, node: cil.ParamNode):
         return self.get_location_address(node)
 
-    @visitor.when(cil.LocalNode)  #type: ignore
-    def visit(self, node: cil.LocalNode):
+    @visit.register
+    def _(self, node: cil.LocalNode):
         return self.get_location_address(node)
 
-    @visitor.when(cil.AssignNode)  #type: ignore
-    def visit(self, node: cil.AssignNode):
+    @visit.register
+    def _(self, node: cil.AssignNode):
         assert self.current_function is not None
         # Una asignacion simplemente consiste en mover un resultado de un lugar a otro
         dest = self.visit(node.dest)
@@ -192,8 +191,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.register_instruction(lsNodes.SW(reg, dest))
             self.used_registers[reg] = False
 
-    @visitor.when(cil.PlusNode)  #type: ignore
-    def visit(self, node: cil.PlusNode):
+    @visit.register
+    def _(self, node: cil.PlusNode):
         assert self.current_function is not None
         dest = self.visit(node.dest)
         left = self.visit(node.left)
@@ -226,8 +225,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.register_instruction(lsNodes.SW(reg, dest))
             self.used_registers[reg] = self.used_registers[right_reg] = False
 
-    @visitor.when(cil.MinusNode)  #type: ignore
-    def visit(self, node: cil.MinusNode):
+    @visit.register
+    def _(self, node: cil.MinusNode):
         assert self.current_function is not None
         dest = self.visit(node.dest)
         left = self.visit(node.x)
@@ -260,8 +259,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.register_instruction(lsNodes.SW(reg, dest))
             self.used_registers[reg] = self.used_registers[right_reg] = False
 
-    @visitor.when(cil.StarNode)  #type: ignore
-    def visit(self, node: cil.StarNode):
+    @visit.register
+    def _(self, node: cil.StarNode):
         assert self.current_function is not None
         dest = self.visit(node.dest)
         left = self.visit(node.x)
@@ -294,8 +293,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.register_instruction(lsNodes.SW(reg, dest))
             self.used_registers[reg] = self.used_registers[right_reg] = False
 
-    @visitor.when(cil.DivNode)  #type: ignore
-    def visit(self, node: cil.DivNode):
+    @visit.register
+    def _(self, node: cil.DivNode):
         assert self.current_function is not None
         dest = self.visit(node.dest)
         left = self.visit(node.left)
@@ -328,88 +327,88 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.register_instruction(lsNodes.SW(reg, dest))
             self.used_registers[reg] = self.used_registers[right_reg] = False
 
-    @visitor.when(cil.GetAttributeNode)  # type: ignore
-    def visit(self, node: cil.GetAttributeNode):
+    @visit.register
+    def _(self, node: cil.GetAttributeNode):
         pass
 
-    @visitor.when(cil.SetAttributeNode)  #type: ignore
-    def visit(self, node: cil.SetAttributeNode):
+    @visit.register
+    def _(self, node: cil.SetAttributeNode):
         pass
 
-    @visitor.when(cil.AllocateNode)  #type: ignore
-    def visit(self, node: cil.AllocateNode):
+    @visit.register
+    def _(self, node: cil.AllocateNode):
         pass
 
-    @visitor.when(cil.TypeOfNode)  #type: ignore
-    def visit(self, node: cil.TypeOfNode):
+    @visit.register
+    def _(self, node: cil.TypeOfNode):
         pass
 
-    @visitor.when(cil.JumpIfGreaterThanZeroNode)  #type: ignore
-    def visit(self, node: cil.JumpIfGreaterThanZeroNode):
+    @visit.register
+    def _(self, node: cil.JumpIfGreaterThanZeroNode):
         pass
 
-    @visitor.when(cil.IfZeroJump)  # type: ignore
-    def visit(self, node: cil.IfZeroJump):
+    @visit.register
+    def _(self, node: cil.IfZeroJump):
         pass
 
-    @visitor.when(cil.NotZeroJump)  # type: ignore
-    def visit(self, node: cil.NotZeroJump):
+    @visit.register
+    def _(self, node: cil.NotZeroJump):
         pass
 
-    @visitor.when(cil.UnconditionalJump)  # type: ignore
-    def visit(self, node: cil.UnconditionalJump):
+    @visit.register
+    def _(self, node: cil.UnconditionalJump):
         pass
 
-    @visitor.when(cil.StaticCallNode)  # type: ignore
-    def visit(self, node: cil.StaticCallNode):
+    @visit.register
+    def _(self, node: cil.StaticCallNode):
         pass
 
-    @visitor.when(cil.DynamicCallNode)  # type: ignore
-    def visit(self, node: cil.DynamicCallNode):
+    @visit.register
+    def _(self, node: cil.DynamicCallNode):
         pass
 
-    @visitor.when(cil.ArgNode)  # type: ignore
-    def visit(self, node: cil.ArgNode):
+    @visit.register
+    def _(self, node: cil.ArgNode):
         pass
 
-    @visitor.when(cil.ReturnNode)  # type: ignore
-    def visit(self, node: cil.ReturnNode):
+    @visit.register
+    def _(self, node: cil.ReturnNode):
         pass
 
-    @visitor.when(cil.LoadNode)  # type: ignore
-    def visit(self, node: cil.LoadNode):
+    @visit.register
+    def _(self, node: cil.LoadNode):
         pass
 
-    @visitor.when(cil.LengthNode)  # type: ignore
-    def visit(self, node: cil.LengthNode):
+    @visit.register
+    def _(self, node: cil.LengthNode):
         pass
 
-    @visitor.when(cil.SubstringNode)  # type: ignore
-    def visit(self, node: cil.LengthNode):
+    @visit.register
+    def _(self, node: cil.LengthNode):
         pass
 
-    @visitor.when(cil.ConcatNode)  # type: ignore
-    def visit(self, node: cil.ConcatNode):
+    @visit.register
+    def _(self, node: cil.ConcatNode):
         pass
 
-    @visitor.when(cil.PrefixNode)  # type: ignore
-    def visit(self, node: cil.PrefixNode):
+    @visit.register
+    def _(self, node: cil.PrefixNode):
         pass
 
-    @visitor.when(cil.ToStrNode)  # type: ignore
-    def visit(self, node: cil.ToStrNode):
+    @visit.register
+    def _(self, node: cil.ToStrNode):
         pass
 
-    @visitor.when(cil.ReadNode)  # type: ignore
-    def visit(self, node: cil.ReadNode):
+    @visit.register
+    def _(self, node: cil.ReadNode):
         pass
 
-    @visitor.when(cil.PrintNode)  # type: ignore
-    def visit(self, node: cil.PrintNode):
+    @visit.register
+    def _(self, node: cil.PrintNode):
         pass
 
-    @visitor.when(cil.TdtLookupNode)  # type: ignore
-    def visit(self, node: cil.TdtLookupNode):
+    @visit.register
+    def _(self, node: cil.TdtLookupNode):
         # Los nodos TDT siempre tienen
         pass
 
