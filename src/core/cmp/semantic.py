@@ -127,6 +127,10 @@ class ErrorType(Type):
     def __eq__(self, other):
         return isinstance(other, Type)
 
+class AutoType(ErrorType):
+    def __init__(self):
+        Type.__init__(self, 'AUTO_TYPE')
+
 class VoidType(Type):
     def __init__(self):
         Type.__init__(self, 'void')
