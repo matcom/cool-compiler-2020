@@ -179,11 +179,15 @@ class Context:
     def __init__(self):
         self.types = {}
 
-    def create_type(self, name:str):
+    def append_type(self, new_type):
+        name = new_type.name
         if name in self.types:
             raise SemanticError(f'Type with the same name ({name}) already in context.')
-        typex = self.types[name] = Type(name)
+        typex = self.types[name] = new_type
         return typex
+
+    def create_type(self, name:str):
+        return self.append_type(Type(name))
 
     def get_type(self, name:str):
         try:
