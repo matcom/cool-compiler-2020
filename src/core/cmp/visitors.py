@@ -634,7 +634,7 @@ class TypeChecker:
         self.visit(node.right, scope)
         right_type = node.right.computed_type
         
-        if IntType() != right_type or IntType() != left_type:
+        if not (right_type.conforms_to(INT) and left_type.conforms_to(INT)):
             self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
             
         node.computed_type = INT
@@ -647,7 +647,7 @@ class TypeChecker:
         self.visit(node.right, scope)
         right_type = node.right.computed_type
         
-        if IntType() != right_type or IntType() != left_type:
+        if not (right_type.conforms_to(INT) and left_type.conforms_to(INT)):
             self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
             
         node.computed_type = BOOL
@@ -695,7 +695,7 @@ class TypeChecker:
     def visit(self, node, scope):
         self.visit(node.expr, scope)
         expr_type = node.expr.computed_type
-        if IntType() != expr_type:
+        if not expr_type.conforms_to(INT):
             self.errors.append(("Complement works only for Int", node.symbol))
         node.computed_type = INT
 
@@ -703,7 +703,7 @@ class TypeChecker:
     def visit(self, node, scope):
         self.visit(node.expr, scope)
         expr_type = node.expr.computed_type
-        if BoolType() != expr_type:
+        if not expr_type.conforms_to(BOOL):
             self.errors.append(("Not operator works only for Bool", node.symbol))
         node.computed_type = BOOL
 
