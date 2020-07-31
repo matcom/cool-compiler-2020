@@ -717,10 +717,13 @@ class TypeChecker:
         
         valid_types = [IntType(), BoolType(), StringType()]
         try:
+            cur_types = [right_type, left_type]
             for op_type in valid_types:
-                if op_type == right_type or op_type == left_type:
-                    assert op_type == right_type and op_type == left_type
+                try:
+                    cur_types.remove(op_type)
+                    assert cur_types[0].conforms_to(op_type)
                     break
+                except ValueError: pass
         except AssertionError:
             self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
             
