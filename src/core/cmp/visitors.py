@@ -2,7 +2,7 @@ import core.cmp.visitor as visitor
 from core.cmp.CoolUtils import *
 from core.cmp.semantic import SemanticError
 from core.cmp.semantic import Attribute, Method, Type
-from core.cmp.semantic import ErrorType, IntType, StringType, BoolType, IOType, VoidType
+from core.cmp.semantic import ErrorType, IntType, StringType, BoolType, IOType, VoidType, AutoType
 from core.cmp.semantic import Context, Scope
 
 WRONG_SIGNATURE = 'Method "%s" already defined in "%s" with a different signature.'
@@ -20,16 +20,16 @@ INT, STRING, BOOL, OBJ = None, None, None, None
 
 def define_built_in_types(context):
     obj = context.create_type('Object')
-    i = context.create_type('Int')
+    i = context.append_type(IntType())
     i.set_parent(obj)
-    s = context.create_type('String')
+    s = context.append_type(StringType())
     s.set_parent(obj)
-    b = context.create_type('Bool')
+    b = context.append_type(BoolType())
     b.set_parent(obj)
-    io = context.create_type('IO')
+    io = context.append_type(IOType())
     io.set_parent(obj)
     st = context.create_type('SELF_TYPE')
-    context.create_type('AUTO_TYPE')
+    context.append_type(AutoType())
 
     obj.define_method('abort', [], [], obj)
     obj.define_method('type_name', [], [], s)
@@ -431,7 +431,6 @@ class TypeChecker:
         for pname, ptype in zip(self.current_method.param_names, self.current_method.param_types):
             scope.define_variable(pname, ptype)
             
-        # for expr in node.body:
         self.visit(node.body, scope)
             
         body_type = fixed_type(node.body.computed_type, self.current_type)
