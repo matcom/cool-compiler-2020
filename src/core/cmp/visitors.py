@@ -566,8 +566,8 @@ class TypeChecker:
                 cast_type = self.context.get_type(node.type)
                 if cast_type.name == ST:
                     raise SemanticError("Invalid use of SELF_TYPE")
-                # if IsAuto(node.type):
-                #     raise SemanticError('Is not possible to use AUTO_TYPE in a cast')
+                if cast_type.name == AT:
+                    raise SemanticError('Is not possible to use AUTO_TYPE in a cast')
                 if not obj_type.conforms_to(cast_type):
                     raise SemanticError(INCOMPATIBLE_TYPES % (obj_type.name, node.type))
                 obj_type = cast_type
