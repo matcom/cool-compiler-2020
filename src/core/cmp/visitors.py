@@ -418,7 +418,7 @@ class TypeChecker:
             return
 
         self.visit(node.expr, scope)
-        expr_type = fixed_type(node.expr.computed_type, self.current_type)
+        expr_type = node.expr.computed_type
         real_type = fixed_type(node.attr_type, self.current_type)
 
         if not expr_type.conforms_to(real_type):
@@ -433,7 +433,7 @@ class TypeChecker:
             
         self.visit(node.body, scope)
             
-        body_type = fixed_type(node.body.computed_type, self.current_type)
+        body_type = node.body.computed_type
         method_rtn_type = fixed_type(self.current_method.return_type, self.current_type)
 
         if not body_type.conforms_to(method_rtn_type):
@@ -448,11 +448,11 @@ class TypeChecker:
             if not scope.is_defined(node.id):
                 raise SemanticError(VARIABLE_NOT_DEFINED % (node.id))
             var = scope.find_variable(node.id)
-            
             if var.name == 'self':
                 raise SemanticError(SELF_IS_READONLY)
-            if not node_type.conforms_to(var.type): 
-                raise SemanticError(INCOMPATIBLE_TYPES % (node_type, var.type))
+            var_type = fixed_type(var.type, self.current_type)
+            if not node_type.conforms_to(var_type): 
+                raise SemanticError(INCOMPATIBLE_TYPES % (node_type.name, var.type.name))
         except SemanticError as ex:
             self.errors.append((ex.text, node.tid))
             node_type = ErrorType()
@@ -557,8 +557,7 @@ class TypeChecker:
         arg_types = []
         for arg in node.args:
             self.visit(arg, scope)
-            arg = arg.computed_type
-            arg_types.append(arg)
+            arg_types.append(arg.computed_type)
         
         try:
             if node.type:
