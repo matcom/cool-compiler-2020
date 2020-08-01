@@ -405,7 +405,7 @@ class TypeChecker:
                 self.visit(feature, scope)
                 if not scope.is_defined(feature.id):
                     scope.define_variable(feature.id, cur_type.attributes[count].type)
-                    count += 1
+                count += 1
             else:
                 pending.append(feature)
 
