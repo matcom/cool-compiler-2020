@@ -637,21 +637,8 @@ class TypeChecker:
         if not (right_type.conforms_to(INT) and left_type.conforms_to(INT)):
             self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
             
-        node.computed_type = INT
+        node.computed_type = [BOOL, INT][isinstance(node, ArithmeticNode)]
     
-    @visitor.when(ComparisonNode)
-    def visit(self, node, scope):
-        self.visit(node.left, scope)
-        left_type = node.left.computed_type
-        
-        self.visit(node.right, scope)
-        right_type = node.right.computed_type
-        
-        if not (right_type.conforms_to(INT) and left_type.conforms_to(INT)):
-            self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
-            
-        node.computed_type = BOOL
-
     @visitor.when(IntegerNode)
     def visit(self, node, scope):
         node.computed_type = INT
