@@ -576,7 +576,7 @@ class TypeChecker:
             obj_method = obj_type.get_method(node.id)
             if len(node.args) == len(obj_method.param_types):
                 for idx, (arg, param_type) in enumerate(zip(arg_types, obj_method.param_types)):
-                    real_type = fixed_type(param_type, self.current_type)
+                    real_type = fixed_type(param_type, obj_type)
                     
                     if not arg.conforms_to(real_type):
                         self.errors.append((INCOMPATIBLE_TYPES % (arg.name, real_type.name + f" in the argument #{idx} of {node.id}"), token))
