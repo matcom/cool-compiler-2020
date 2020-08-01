@@ -518,7 +518,7 @@ class TypeChecker:
         self.visit(node.condition, scope)
         cond_type = node.condition.computed_type
 
-        if BoolType() != cond_type:
+        if not cond_type.conforms_to(BOOL):
             self.errors.append((CONDITION_NOT_BOOL % ('If', cond_type.name), node.token))
 
         self.visit(node.if_body, scope)
@@ -541,10 +541,11 @@ class TypeChecker:
         self.visit(node.condition, scope)
         cond_type = node.condition.computed_type
 
-        if BoolType() != cond_type:
+        if not cond_type.conforms_to(BOOL):
             self.errors.append((CONDITION_NOT_BOOL % ('While', cond_type.name), node.token))
 
         self.visit(node.body, scope)
+        # //TODO: Return VoidType()
         node.computed_type = OBJ
     
     @visitor.when(FunctionCallNode)
