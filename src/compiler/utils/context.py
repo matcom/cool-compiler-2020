@@ -1,42 +1,52 @@
 from ..utils.AST_definitions import *
-from ..utils.errors import error
+from ..utils.errors import error, interceptError
 
 class context:
     def __init__(self, dictionaries ={}):
         self.types = { }
 
     def createType(self, node: NodeClass):
-        if node.idName in self.types:
-            return [error(
-                error_type='Semantic error',
-                row_and_col=(0,0), 
-                message='Class %s already exist' %node.idName
-                )]
-        self.types.update({
-            node.idName: {
-            'parent': node.parent,
-            'attrs': {},
-            'methods': {} }
-            } )
-        return 'Success'
-
-    """ def attachFeaturesToType (self, node: NodeClass):
-        errors = []
-        featureType = { NodeAttr: 'attrs', NodeClassMethod: 'methods' }
-        classContext = self.types[node.idName]
-        for feature in node.feature_list:
-            if feature in self.types:
-                errors.append(error(
-                    error_type= 'Semantic error', row_and_col= (0, 0),
-                    message='Feature %s already exist as a %s in the current scope' %(feature.idName, featureType[type(feature)][ :-1] ) ) )
-            else:
-                classContext[featureType[type(feature)]].update({
-                        feature.idName: feature
-                    })
-        return errors """
+        return interceptError(
+            validationFunc= lambda: not node.idName in self.types,
+            errorType= 'repeated class',
+            idName= node.idName) or self.types.update({
+                                node.idName: {
+                                'parent': node.parent,
+                                'attributes': {},
+                                'methods': {} }
+                                } )
 
     def getType(self, idName: str):
-        return self.types.get(idName, False)
+        return interceptError(
+            validationFunc= lambda: idName in self.types,
+            errorType= 'undefined type',
+            idName= idName
+        ) or self.types.get(idName)
+
+    def defineAttrInType(self, typeName: str, attr: NodeAttr):
+        return interceptError(
+            validationFunc= lambda : not attr.idName in self.types[typeName],
+            errorType= 'repeated attr',
+            idName= attr.idName
+        ) or not self.types[typeName]['attributes'].update({ attr.idName:
+        { 'type': attr.attrType } }) 
+
+    def defineMethod(self, typeNameForAttach: str,
+                           methodName: str,
+                           returnType,
+                           argNames,
+                           argTypes):
+        return interceptError(
+            validationFunc= lambda: not methodName in
+            programContext.types[typeNameForAttach]['methods'],
+            errorType= 'repeated method',
+            idName= methodName
+        ) and not programContext.types[typeNameForAttach]['methods'].update(
+                { methodName: {
+                'returnType': returnType,
+                'argNames': argNames,
+                'argTypesNames':argTypes 
+            } })
 
     def __repr__(self):
         return self.__str__()
