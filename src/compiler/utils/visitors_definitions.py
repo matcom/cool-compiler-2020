@@ -4,9 +4,6 @@ from ..utils.errors import error
 
 class NodeVisitor:
 
-    def __init__(self):
-        self.errors = []
-
     def visit(self, node: Node):
         visitor_method_name = 'visit_' + node.clsname
         visitor = getattr(self, visitor_method_name, self.not_implemented)
@@ -16,23 +13,55 @@ class NodeVisitor:
         raise Exception('Not implemented visit_{} method'.format(node.clsname))        
 
 # We need to highlight here the inheritance relations between classes
-class TypeCheckVisitor(NodeVisitor):
+class TypeCollectorVisitor(NodeVisitor):
 
     def visit_NodeProgram(self, node: NodeProgram):
+        errors = []
         for nodeClass in node.class_list:
-            self.visit(nodeClass)
+            result= self.visit(nodeClass)
+            if result:
+                errors.append (result)
+        return errors
 
     def visit_NodeClass(self, node: NodeClass):
-        # When we create a type, we store it in the context
-        result = programContext.createType(node) 
-        if not result is 'Success':
-            self.errors += result
+        # When we create a type, we store it in the context, if there is no errors
+        return programContext.createType(node)
 
 class TypeBuilderVisitor(NodeVisitor):
+    def __init__(self):
+        self.currentTypeName = ''
+
+    def visit_NodeProgram(self, node: NodeProgram):
+        errors = []
+        for nodeClass in node.class_list:
+            errors += self.visit(nodeClass)
+        return errors
 
     def visit_NodeClass(self, node: NodeClass):
-        currentClassContext = programContext.types[node.idName]
-        for attr in currentClassContext.attrs:
-            self.visit(attr)
-        for method in currentClassContext.methods:
-            self.visit(method)
+        errors = []
+        self.currentTypeName = node.idName
+        for nodeAttr in node.attributes:
+            errors += self.visit(nodeAttr)
+        for nodeClassMethod in node.methods:
+            errors += self.visit(nodeClassMethod)
+        return errors
+
+    def visit_NodeAttr(self, node:NodeAttr):
+        resultOp = programContext.defineAttrInType(self.currentTypeName, node)
+        if type (resultOp) is error:
+            return [resultOp]
+        return []
+
+    def visit_NodeClassMethod(self, node: NodeClassMethod):
+        return [definition for definition in
+        [programContext.getType(node.returnType)] +
+        [programContext.getType(idName = arg) for arg in node.argTypesNames] +
+        [programContext.defineMethod(
+            self.currentTypeName,
+            node.idName,
+            node.returnType,
+            node.argNames,
+            node.argTypesNames
+            )]
+        if type(definition) is error    
+        ]
