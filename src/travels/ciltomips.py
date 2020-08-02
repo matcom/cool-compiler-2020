@@ -187,9 +187,10 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         elif isinstance(source, str):
             # Source es una direccion de memoria
             reg1 = self.get_available_register()
-            self.register_instruction(lsNodes.LW(reg, source))
-            self.register_instruction(lsNodes.SW(reg, dest))
-            self.used_registers[reg] = False
+            assert reg1 is not None
+            self.register_instruction(lsNodes.LW(reg1, source))
+            self.register_instruction(lsNodes.SW(reg1, dest))
+            self.used_registers[reg1] = False
 
     @visit.register
     def _(self, node: cil.PlusNode):
@@ -201,12 +202,16 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         if isinstance(left, str):
             # left es una direccion de memoria
             reg = self.get_available_register()
+            assert reg is not None
             right_reg = self.get_available_register()
+            assert right_reg is not None
             self.register_instruction(lsNodes.LW(reg, left))
             if not isinstance(right, int):
+                # right no es una constante
                 self.register_instruction(lsNodes.LW(right_reg, right))
                 self.register_instruction(arithNodes.ADD(reg, reg, right_reg))
             else:
+                # rigth es una constante
                 self.register_instruction(arithNodes.ADD(
                     reg, reg, right, True))
             self.register_instruction(lsNodes.SW(reg, dest))

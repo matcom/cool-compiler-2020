@@ -1,3 +1,6 @@
+from typing import List, Optional, Tuple, Union
+
+
 class Node:
     pass
 
@@ -12,7 +15,7 @@ class ExpressionNode(Node):
 
 class ProgramNode(Node):
     def __init__(self, class_list):
-        self.class_list = class_list
+        self.class_list: List[ClassDef] = class_list
 
     def check_semantics(self, deep=1):
         from travels import typecollector, typebuilder, inference
@@ -21,6 +24,7 @@ class ProgramNode(Node):
         type_collector.visit(self)
 
         # Construir los tipos detectados en el contexto
+        assert type_collector.context is not None
         type_builder = typebuilder.TypeBuilder(type_collector.context,
                                                type_collector.errors)
         type_builder.visit(self)
@@ -37,35 +41,38 @@ class ProgramNode(Node):
         return errors, type_builder.context, scope
 
 
-class MethodDef(DeclarationNode):
-    def __init__(self, idx, param_list, return_type, statements):
-        self.idx = idx
-        self.param_list = param_list
-        self.return_type = return_type
-        self.statements = statements
-
-
-class AttributeDef(DeclarationNode):
-    def __init__(self, idx, typex, default_value=None):
-        self.idx = idx
-        self.typex = typex
-        self.default_value = default_value
-
-
 class Param(DeclarationNode):
     def __init__(self, idx, typex):
         self.id, self.type = idx, typex
 
 
-class VariableDeclaration(DeclarationNode):
+class MethodDef(DeclarationNode):
+    def __init__(self, idx: str, param_list: List[Param], return_type: str,
+                 statements: List[ExpressionNode]):
+        self.idx: str = idx
+        self.param_list: List[Param] = param_list
+        self.return_type: str = return_type
+        self.statements: List[ExpressionNode] = statements
+
+
+class AttributeDef(DeclarationNode):
+    def __init__(self, idx: str, typex: str, default_value=None):
+        self.idx: str = idx
+        self.typex: str = typex
+        self.default_value: Optional[ExpressionNode] = default_value
+
+
+class VariableDeclaration(ExpressionNode):
     def __init__(self, var_list, block_statements=None):
-        self.var_list = var_list
-        self.block_statements = block_statements
+        self.var_list: List[Tuple[str, str,
+                                  Optional[ExpressionNode]]] = var_list
+        self.block_statements: Optional[ExpressionNode] = block_statements
 
 
 class BinaryNode(ExpressionNode):
     def __init__(self, left, right):
-        self.left, self.right = left, right
+        self.left: ExpressionNode = left
+        self.right: ExpressionNode = right
 
 
 class AtomicNode(ExpressionNode):
@@ -75,9 +82,9 @@ class AtomicNode(ExpressionNode):
 
 class IfThenElseNode(ExpressionNode):
     def __init__(self, cond, expr1, expr2):
-        self.cond = cond
-        self.expr1 = expr1
-        self.expr2 = expr2
+        self.cond: ExpressionNode = cond
+        self.expr1: ExpressionNode = expr1
+        self.expr2: ExpressionNode = expr2
 
 
 class PlusNode(BinaryNode):
@@ -102,23 +109,23 @@ class DivNode(BinaryNode):
 
 class FunCall(ExpressionNode):
     def __init__(self, obj, idx, arg_list):
-        self.obj = obj
-        self.id = idx
-        self.args = arg_list
+        self.obj: Union[str, ExpressionNode] = obj
+        self.id: str = idx
+        self.args: List[ExpressionNode] = arg_list
 
 
 class ParentFuncCall(ExpressionNode):
     def __init__(self, obj, parent_type, idx, arg_list):
-        self.obj = obj
-        self.parent_type = parent_type
-        self.idx = idx
-        self.arg_list = arg_list
+        self.obj: ExpressionNode = obj
+        self.parent_type: str = parent_type
+        self.idx: str = idx
+        self.arg_list: List[ExpressionNode] = arg_list
 
 
 class AssignNode(ExpressionNode):
     def __init__(self, idx, expr):
-        self.idx = idx
-        self.expr = expr
+        self.idx: str = idx
+        self.expr: ExpressionNode = expr
 
 
 class IntegerConstant(AtomicNode):
@@ -173,14 +180,14 @@ class VoidTypeNode(TypeNode):
 
 class ClassDef(DeclarationNode):
     def __init__(self, idx, features, parent='Object'):
-        self.idx = idx
-        self.features = features
-        self.parent = parent
+        self.idx: str = idx
+        self.features: List[Union[MethodDef, AttributeDef]] = features
+        self.parent: str = parent
 
 
 class VariableCall(ExpressionNode):
     def __init__(self, idx):
-        self.idx = idx
+        self.idx: str = idx
 
 
 class GreaterThanNode(BinaryNode):
@@ -220,34 +227,34 @@ class NegNode(AtomicNode):
 
 class InstantiateClassNode(ExpressionNode):
     def __init__(self, type_, args=None):
-        self.type_ = type_
+        self.type_: str = type_
         self.args = args
 
 
 class WhileBlockNode(ExpressionNode):
     def __init__(self, cond, statements):
-        self.cond = cond
-        self.statements = statements
+        self.cond: ExpressionNode = cond
+        self.statements: ExpressionNode = statements
 
 
 class ActionNode(ExpressionNode):
     def __init__(self, idx, typex, expresion):
-        self.actions = expresion
-        self.idx = idx
-        self.typex = typex
+        self.actions: ExpressionNode = expresion
+        self.idx: str = idx
+        self.typex: str = typex
 
 
 class CaseNode(ExpressionNode):
     def __init__(self, expression, actions):
-        self.expression = expression
-        self.actions = actions
+        self.expression: ExpressionNode = expression
+        self.actions: ActionNode = actions
 
 
 class BlockNode(ExpressionNode):
     def __init__(self, expressions):
-        self.expressions = expressions
+        self.expressions: List[ExpressionNode] = expressions
 
 
 class IsVoidNode(ExpressionNode):
     def __init__(self, expr):
-        self.expr = expr
+        self.expr: ExpressionNode = expr
