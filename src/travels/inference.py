@@ -1,4 +1,5 @@
 import abstract.semantics as semantic
+from abstract.semantics import Type
 import abstract.tree as coolAst
 from travels.context_actions import update_attr_type, update_method_param, update_scope_variable
 from typing import Optional
@@ -38,8 +39,10 @@ class TypeInferer:
         self.current_method: Optional[semantic.Method] = None
 
     @singledispatchmethod
-    def visit(self, node, scope, infered_type=None):
-        pass
+    def visit(self, node, scope, infered_type=None) -> Type:
+        # Devolver un tipo por defecto, en verdad
+        # no importa ya que este metodo nunca sera llamado.
+        return Type('')
 
     # --------------------------------------------------------------------------------------------------------------------------#
     # -----------------------------------------------------EXPRESIONES----------------------------------------------------------#
@@ -166,6 +169,7 @@ class TypeInferer:
           infered_type=None,
           deep=1):  # noqa: F811
         var_info = scope.find_variable(node.idx)
+        assert self.current_type is not None
         if var_info:
             e = self.visit(node.expr, scope, infered_type)
             if var_info.type == self.AUTO_TYPE:
@@ -196,6 +200,7 @@ class TypeInferer:
           infered_type=None,
           deep=1):  # noqa: F811
         var_info = scope.find_variable(node.idx)
+        assert self.current_type is not None
         if var_info:
             if infered_type and var_info.type == self.AUTO_TYPE:
                 print(f'Infered type {infered_type.name} for {var_info.name}')
@@ -237,20 +242,6 @@ class TypeInferer:
                 e2_parent = e2_parent.parent
             return e1_parent
 
-    # @visitor.when(coolAst.VariableDeclaration)  #type: ignore  # noqa
-    # # TODO FIX THIS, IT is not working after change in grammar, REIMPLEMENT IT!!!!
-    # def visit(self, node: coolAst.VariableDeclaration, scope: semantic.Scope, infered_type=None, deep=1):  # noqa: F811
-    #     for var_idx, var_type, var_init_exp in node.var_list:
-    #         type_ = self.context.get_type(var_type)
-    #         if type_ != self.AUTO_TYPE:
-    #             if deep == 1:
-    #                 scope.define_variable(var_idx, type_, "LOCAL")
-    #         else:
-    #             if deep == 1:
-    #                 type_ = self.visit(node.block_statements, scope, infered_type, deep)
-    #                 print(f'Infered type {type_.name} for {var_idx}')
-    #                 scope.define_variable(node.idx, type_, "LOCAL")
-    #     return void
     @visit.register
     def _(self,
           node: coolAst.VariableDeclaration,
@@ -270,7 +261,7 @@ class TypeInferer:
             # - La variable se inicializa en AUTO_TYPE y no existe la expr, en este caso se define la variable
             #   y su tipo se deja a inferir por el contexto.
             if var_init_expr:
-                init_expr_type: semantic.Type = self.visit(
+                init_expr_type: Optional[Type] = self.visit(
                     var_init_expr, scope, infered_type, deep)
                 if type_ != self.AUTO_TYPE:
                     if not init_expr_type.conforms_to(type_):
@@ -293,27 +284,6 @@ class TypeInferer:
         return_type = self.visit(node.block_statements, scope, infered_type,
                                  deep)
         return return_type
-
-    # @visitor.when(coolAst.FunCall)  #type: ignore  # noqa
-    # def visit(self, node: coolAst.FunCall, scope: semantic.Scope, infered_type=None, deep=1):  # noqa: F811
-    #     if isinstance(node.obj, semantic.Type):
-    #         method = node.obj.get_method(node.id)
-    #     elif node.obj == 'self':
-    #         method = self.current_type.get_method(node.id)
-    #     else:
-    #         method = self.context.get_type(node.obj).get_method(node.id)
-
-    #     for arg in node.args:
-    #         self.visit(arg, scope, infered_type, deep)
-
-    #     if method.return_type != self.AUTO_TYPE:
-    #         return method.return_type
-    #     elif infered_type:
-    #         print(f'Infered type {infered_type.name} for {node.id}')
-    #         method.return_type = infered_type
-    #         return infered_type
-    #     else:
-    #         return self.AUTO_TYPE
 
     @visit.register
     def _(self,
@@ -364,9 +334,7 @@ class TypeInferer:
           scope: semantic.Scope,
           infered_type=None,
           deep=1):  # noqa: F811
-        ret_type = None
-        for st in node.statements:
-            ret_type = self.visit(st, scope, infered_type, deep)
+        ret_type = self.visit(node.statements, scope, infered_type, deep)
         return ret_type
 
     # ---------------------------------------------------------------------------------------------------------------------------#
@@ -513,7 +481,7 @@ class TypeInferer:
           node: coolAst.EqualToNode,
           scope: semantic.Scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1) -> Type:
         left = self.visit(node.left, scope, infered_type, deep)
         right = self.visit(node.right, scope, infered_type, deep)
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
@@ -528,7 +496,7 @@ class TypeInferer:
           node: coolAst.NotNode,
           scope: semantic.Scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1) -> Type:
         val_type = self.visit(node.lex, scope, infered_type, deep)
         if val_type == self.AUTO_TYPE or val_type == self.BOOL:
             return self.BOOL
@@ -545,7 +513,7 @@ class TypeInferer:
           node: coolAst.IntegerConstant,
           scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1) -> Type:
         return self.INTEGER
 
     @visit.register
@@ -553,7 +521,7 @@ class TypeInferer:
           node: coolAst.StringConstant,
           scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1) -> Type:
         return self.STRING
 
     @visit.register
@@ -561,7 +529,7 @@ class TypeInferer:
           node: coolAst.TrueConstant,
           scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1) -> Type:
         return self.BOOL
 
     @visit.register
@@ -569,5 +537,5 @@ class TypeInferer:
           node: coolAst.FalseConstant,
           scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1) -> Type:
         return self.BOOL

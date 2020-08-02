@@ -32,18 +32,6 @@ class TypeBuilder:
         else:
             self.current_type.set_parent(parent)
 
-            # for method in parent.methods.values():
-            #     try:
-            #         self.current_type.define_method(method.name, method.param_names, method.param_types, method.return_type)
-            #     except SemanticError as e:
-            #         self.errors.append(e.text)
-
-            # for att in parent.attributes:
-            #     try:
-            #         self.current_type.define_attribute(att.name, att.type)
-            #     except SemanticError as e:
-            #         self.errors.append(e.text)
-
             for feature in node.features:
                 self.visit(feature)
 
