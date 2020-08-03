@@ -799,3 +799,15 @@ class InferenceVisitor(TypeChecker):
             cur_type = node.scope.find_variable(attr.id).type
             if update_condition(attr.attr_type, cur_type):
                 attr.type = cur_type.name
+
+    @visitor.when(LetAttributeNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+
+        if not node.expr:
+            return
+
+        expr, rtype = node.info
+        if update_condition(rtype, expr):
+            scope.find_variable(node.id).type = expr
+            node.type = expr.name
