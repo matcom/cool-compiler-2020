@@ -114,22 +114,29 @@ class Type:
     def __repr__(self):
         return str(self)
 
-class ErrorType(Type):
-    def __init__(self):
-        Type.__init__(self, '<error>')
-
+class MutableType(Type):
     def conforms_to(self, other):
         return True
 
     def bypass(self):
         return True
 
+class ErrorType(MutableType):
+    def __init__(self):
+        Type.__init__(self, '<error>')
+
     def __eq__(self, other):
         return isinstance(other, Type)
 
-class AutoType(ErrorType):
+    def __bool__(self):
+        return False
+
+class AutoType(MutableType):
     def __init__(self):
         Type.__init__(self, 'AUTO_TYPE')
+
+    def __eq__(self, other):
+        return isinstance(other, AutoType)
 
 class VoidType(Type):
     def __init__(self):
