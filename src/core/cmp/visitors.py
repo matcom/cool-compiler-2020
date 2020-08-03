@@ -414,6 +414,7 @@ class TypeChecker:
         self.visit(node.expr, scope)
         expr_type = node.expr.computed_type
         real_type = fixed_type(node.attr_type, self.current_type)
+        node.info = [expr_type, real_type]
 
         if not expr_type.conforms_to(real_type):
             self.errors.append((INCOMPATIBLE_TYPES % (expr_type.name, real_type.name),  node.arrow))
@@ -466,11 +467,14 @@ class TypeChecker:
 
     @visitor.when(CaseExpressionNode)
     def visit(self, node, scope):
+        node.scope = scope
         try:
             branch_type = self.context.get_type(node.type)
         except SemanticError as ex:
             self.errors.append((ex.text, node.ttype))
             branch_type = ErrorType()
+        node.branch_type = branch_type
+
         scope.define_variable(node.id, branch_type)
         self.visit(node.expr, scope)
         node.computed_type = node.expr.computed_type
@@ -493,7 +497,8 @@ class TypeChecker:
         except SemanticError as ex:
             self.errors.append((ex.text, node.ttype))
             node_type = ErrorType()
-
+        node.attr_type = node_type
+        
         if not scope.is_local(node.id):
             scope.define_variable(node.id, node_type)
         else:
@@ -503,7 +508,8 @@ class TypeChecker:
             self.visit(node.expr, scope)
             expr_type = node.expr.computed_type
             real_type = fixed_type(node_type, self.current_type)
-            
+            node.info = [expr_type, real_type]
+
             if not expr_type.conforms_to(real_type): 
                 self.errors.append((INCOMPATIBLE_TYPES % (expr_type.name, real_type.name), node.arrow))
         
@@ -734,3 +740,19 @@ class InferenceVisitor(TypeChecker):
             if update_condition(attr.type, actual_type):
                 self.current_type.attributes[idx].type = actual_type
                 node.features[node.attr_idx[idx]].type = actual_type.name
+    
+    @visitor.when(AttrDeclarationNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+
+        if not node.expr:
+            return
+
+        expr, rtype = node.info
+        if update_condition(rtype, expr):
+            scope.find_variable(node.id).type = expr
+            node.type = expr.name
+
+    @visitor.when(CaseExpressionNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
