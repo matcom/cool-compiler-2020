@@ -78,7 +78,7 @@ class FormatVisitor:
     def visit(self, node, tabs=0):
         sons = [node.expr] if node.expr else []
         text = '<- <expr>' if node.expr else ''
-        ans = '\t' * tabs + f'\\__AttrDeclarationNode: {node.id} : {node.type} {text}'
+        ans = '\t' * tabs + f'\\__{node.__class__.__name__}: {node.id} : {node.type} {text}'
         body = '\n'.join(self.visit(child, tabs + 1) for child in sons)
         return f'{ans}\n{body}' if body else f'{ans}'
     
@@ -86,17 +86,13 @@ class FormatVisitor:
     def visit(self, node, tabs=0):
         params = ', '.join(':'.join(param) for param in node.params)
         ans = '\t' * tabs + f'\\__FuncDeclarationNode: {node.id}({params}) : {node.type} {{<body>}}'
-        body = '\n'.join(self.visit(child, tabs + 1) for child in node.body)
+        body = self.visit(node.body, tabs + 1)
         return f'{ans}\n{body}'
     
     @visitor.when(IfThenElseNode)
     def visit(self, node, tabs=0):
-        sons = [node.condition, node.if_body]
-        text = ''
-        if node.else_body:
-            sons.append(node.else_body)
-            text += 'else <body>'
-        ans = '\t' * tabs + f'\\__IfThenElseNode: if <cond> then <body> {text} fi'
+        sons = [node.condition, node.if_body, node.else_body]
+        ans = '\t' * tabs + f'\\__IfThenElseNode: if <cond> then <body> else <body> fi'
         body = '\n'.join(self.visit(child, tabs + 1) for child in sons)
         return f'{ans}\n{body}'
     
@@ -134,14 +130,6 @@ class FormatVisitor:
         ans = '\t' * tabs + f'\\__CaseExpressionNode: {node.id} : {node.type} => <expr>'
         body = '\n'.join(self.visit(child, tabs + 1) for child in sons)
         return f'{ans}\n{body}'
-
-    @visitor.when(LetAttributeNode)
-    def visit(self, node, tabs=0):
-        sons = [node.expr] if node.expr else []
-        text = '<- <expr>' if node.expr else ''
-        ans = '\t' * tabs + f'\\__LetAttributeNode: {node.id} : {node.type} {text}'
-        body = '\n'.join(self.visit(child, tabs + 1) for child in sons)
-        return f'{ans}\n{body}' if body else f'{ans}'
     
     @visitor.when(AssignNode)
     def visit(self, node, tabs=0):
@@ -152,13 +140,13 @@ class FormatVisitor:
     
     @visitor.when(UnaryNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__{node.__class__.__name__} <expr>'
+        ans = '\t' * tabs + f'\\__{node.__class__.__name__}: {node.symbol.lex} <expr>'
         right = self.visit(node.expr, tabs + 1)
         return f'{ans}\n{right}'
    
     @visitor.when(BinaryNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__<expr> {node.__class__.__name__} <expr>'
+        ans = '\t' * tabs + f'\\__{node.__class__.__name__}: <expr> {node.symbol.lex} <expr>'
         left = self.visit(node.left, tabs + 1)
         right = self.visit(node.right, tabs + 1)
         return f'{ans}\n{left}\n{right}'
@@ -172,13 +160,16 @@ class FormatVisitor:
         obj = self.visit(node.obj, tabs + 1)
         ans = '\t' * tabs + f'\\__FunctionCallNode: <obj>.{node.id}(<expr>, ..., <expr>)'
         args = '\n'.join(self.visit(arg, tabs + 1) for arg in node.args)
-        return f'{ans}\n{obj}\n{args}'
+        ans = f'{ans}\n{obj}'
+        if args: ans += f'\n{args}'
+        return ans
 
     @visitor.when(MemberCallNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__MemberCallNode: {node.id}(<expr>, ..., <expr>)'
         args = '\n'.join(self.visit(arg, tabs + 1) for arg in node.args)
-        return f'{ans}\n{args}'
+        if args: ans += f'\n{args}'
+        return ans
     
     @visitor.when(NewNode)
     def visit(self, node, tabs=0):
