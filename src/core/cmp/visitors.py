@@ -344,10 +344,10 @@ def LCA(type_list, context):
         while True:
             try:
                 counter[node.name] += 1
-                if counter[node.name] == len(type_list):
-                    return node
             except KeyError:
                 counter[node.name] = 1
+            if counter[node.name] == len(type_list):
+                return node
             if not node.parent:
                 break
             node = node.parent
