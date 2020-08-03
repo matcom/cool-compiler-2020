@@ -460,7 +460,7 @@ class TypeChecker:
     @visitor.when(CaseOfNode)
     def visit(self, node, scope):
         self.visit(node.expr, scope)
-            
+        
         types_list = []
         for case in node.branches:
             self.visit(case, scope.create_child())
@@ -558,7 +558,7 @@ class TypeChecker:
         
         error = False
 
-        arg_types = []
+        arg_types, real_types = [], []
         for arg in node.args:
             self.visit(arg, scope)
             arg_types.append(arg.computed_type)
@@ -577,10 +577,12 @@ class TypeChecker:
             
             token = node.tid
             obj_method = obj_type.get_method(node.id)
+            node.obj_method = obj_method
             if len(node.args) == len(obj_method.param_types):
                 for idx, (arg, param_type) in enumerate(zip(arg_types, obj_method.param_types)):
                     real_type = fixed_type(param_type, obj_type)
-                    
+                    real_types.append(real_type)
+
                     if not arg.conforms_to(real_type):
                         self.errors.append((INCOMPATIBLE_TYPES % (arg.name, real_type.name + f" in the argument #{idx} of {node.id}"), token))
                         error = True
@@ -593,7 +595,8 @@ class TypeChecker:
             node_type = ErrorType()
         except AssertionError:
             node_type = ErrorType()
-            
+        
+        node.info = [arg_types, real_types]
         node.computed_type = node_type
 
     @visitor.when(MemberCallNode)
@@ -602,7 +605,7 @@ class TypeChecker:
         
         error = False
 
-        arg_types = []
+        arg_types, real_types = [], []
         for arg in node.args:
             self.visit(arg, scope)
             arg_types.append(arg.computed_type)
@@ -610,9 +613,11 @@ class TypeChecker:
         try:
             token = node.tid
             obj_method = obj_type.get_method(node.id)
+            node.obj_method = obj_method
             if len(node.args) == len(obj_method.param_types):
                 for arg, param_type in zip(arg_types, obj_method.param_types):
                     real_type = fixed_type(param_type, self.current_type)
+                    real_types.append(real_type)
                     
                     if not arg.conforms_to(real_type):
                         self.errors.append((INCOMPATIBLE_TYPES % (arg.name, real_type.name + f" in the argument #{idx} of {node.id}"), token))
@@ -626,7 +631,8 @@ class TypeChecker:
             node_type = ErrorType()
         except AssertionError:
             node_type = ErrorType()
-            
+
+        node.info = [arg_types, real_types] 
         node.computed_type = node_type
     
     @visitor.when(ArithmeticNode)
@@ -811,3 +817,27 @@ class InferenceVisitor(TypeChecker):
         if update_condition(rtype, expr):
             scope.find_variable(node.id).type = expr
             node.type = expr.name
+
+    @visitor.when(FunctionCallNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+
+        args, real = node.info
+        if not real:
+            return
+
+        for idx, (atype, rtype) in enumerate(zip(args, real)):
+            if update_condition(rtype, atype):
+                node.obj_method.param_types[idx] = atype
+
+    @visitor.when(MemberCallNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+
+        args, real = node.info
+        if not real:
+            return
+
+        for idx, (atype, rtype) in enumerate(zip(args, real)):
+            if update_condition(rtype, atype):
+                node.obj_method.param_types[idx] = atype
