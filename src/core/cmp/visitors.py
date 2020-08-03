@@ -430,6 +430,7 @@ class TypeChecker:
             
         body_type = node.body.computed_type
         method_rtn_type = fixed_type(self.current_method.return_type, self.current_type)
+        node.info = [body_type, method_rtn_type]
 
         if not body_type.conforms_to(method_rtn_type):
             self.errors.append((INCOMPATIBLE_TYPES % (body_type.name, method_rtn_type.name), node.ttype))
@@ -752,6 +753,21 @@ class InferenceVisitor(TypeChecker):
         if update_condition(rtype, expr):
             scope.find_variable(node.id).type = expr
             node.type = expr.name
+
+    @visitor.when(FuncDeclarationNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)   
+
+        body, rtn = node.info
+        if update_condition(rtn, body):
+            self.current_method.return_type = body
+            node.type = body.name
+        for idx, pname in enumerate(self.current_method.param_names):
+            actual_type = scope.find_variable(pname).type
+            if update_condition(self.current_method.param_types[idx], actual_type):
+                self.current_method.param_types[idx] = actual_type
+                node.params[idx].ttype = actual_type.name
+            
 
     @visitor.when(CaseExpressionNode)
     def visit(self, node, scope):
