@@ -709,4 +709,12 @@ class TypeChecker:
         node.computed_type = BOOL
 
 
+# Type Inference Visitor
+class InferenceVisitor(TypeChecker):
+    @visitor.on('node')
+    def visit(self, node, scope):
+        pass
 
+    @visitor.when(Node)
+    def visit(self, node, scope):
+        super().visit(node, scope)
