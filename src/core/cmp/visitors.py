@@ -337,7 +337,8 @@ def LCA(type_list, context):
 
     if any([isinstance(t, ErrorType) for t in type_list]):
         return ErrorType()
-    type_list = [ context.get_type(tp.name) for tp in type_list ]
+    if any([isinstance(t, AutoType) for t in type_list]):
+        return AutoType()
     for typex in type_list:
         node = typex
         while True:
@@ -350,8 +351,6 @@ def LCA(type_list, context):
             if not node.parent:
                 break
             node = node.parent
-
-    raise Exception('El LCA se partio')
 
 def IsAuto(name):
     return name == 'AUTO_TYPE' or IsVoid(name)
