@@ -777,6 +777,16 @@ class InferenceVisitor(TypeChecker):
         node_type, var = node.info
         if update_condition(var, node_type):
             scope.find_variable(node.id).type = node_type
+
+    @visitor.when(CaseOfNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+
+        for idx, branch in enumerate(node.branches):
+            cur_type = branch.scope.find_variable(branch.id).type
+            if update_condition(branch.branch_type, cur_type):
+                branch.type = cur_type.name
+
     @visitor.when(CaseExpressionNode)
     def visit(self, node, scope):
         super().visit(node, scope)
