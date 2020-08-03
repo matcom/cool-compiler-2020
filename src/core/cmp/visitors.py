@@ -732,6 +732,18 @@ class InferenceVisitor(TypeChecker):
     def update(self, node, scope, ntype):
     	pass
 
+    @visitor.when(AssignNode)
+    def update(self, node, scope, ntype):
+        self.update(node.expr, scope, ntype)
+
+    @visitor.when(CaseExpressionNode)
+    def update(self, node, scope, ntype):
+        self.update(node.expr, node.scope, ntype)
+
+    @visitor.when(BlockNode)
+    def update(self, node, scope, ntype):
+        self.update(node.exprs[-1], scope, ntype)
+
     @visitor.on('node')
     def visit(self, node, scope):
         pass
