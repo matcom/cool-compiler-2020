@@ -790,3 +790,12 @@ class InferenceVisitor(TypeChecker):
     @visitor.when(CaseExpressionNode)
     def visit(self, node, scope):
         super().visit(node, scope)
+
+    @visitor.when(LetInNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+
+        for attr in node.let_body:
+            cur_type = node.scope.find_variable(attr.id).type
+            if update_condition(attr.attr_type, cur_type):
+                attr.type = cur_type.name
