@@ -47,11 +47,13 @@ def define_built_in_types(context):
     global INT, STRING, BOOL, OBJ
     INT, STRING, BOOL, OBJ = i, s, b, obj
 
-def match(type1, type2):
-    return IsAuto(type1.name) or type1.conforms_to(type2)
-
 def fixed_type(type1, type2):
     return type1 if type1.name != ST else type2
+
+def update_condition(target, value):
+    c1 = isinstance(target, AutoType)
+    c2 = (not isinstance(value, AutoType)) and value
+    return c1 and c2
 
 #AST Printer
 class FormatVisitor:
