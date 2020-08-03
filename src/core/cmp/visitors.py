@@ -390,13 +390,15 @@ class TypeChecker:
                 break
             cur_type = cur_type.parent
             
+        node.attr_idx = []
         cur_type = self.current_type
         pending, count = [], 0
-        for feature in node.features:
+        for idx, feature in enumerate(node.features):
             if isinstance(feature, AttrDeclarationNode):
-                self.visit(feature, scope)
+                node.attr_idx.append(idx)
                 if not scope.is_defined(feature.id):
                     scope.define_variable(feature.id, cur_type.attributes[count].type)
+                self.visit(feature, scope)
                 count += 1
             else:
                 pending.append(feature)
@@ -718,3 +720,17 @@ class InferenceVisitor(TypeChecker):
     @visitor.when(Node)
     def visit(self, node, scope):
         super().visit(node, scope)
+
+    @visitor.when(ProgramNode)
+    def visit(self, node, scope=None):
+        return super().visit(node, scope) 
+
+    @visitor.when(ClassDeclarationNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+
+        for idx, attr in enumerate(self.current_type.attributes):
+            actual_type = scope.find_variable(attr.name).type
+            if update_condition(attr.type, actual_type):
+                self.current_type.attributes[idx].type = actual_type
+                node.features[node.attr_idx[idx]].type = actual_type.name
