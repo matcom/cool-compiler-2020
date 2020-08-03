@@ -439,7 +439,8 @@ class TypeChecker:
     def visit(self, node, scope):
         self.visit(node.expr, scope)
         node_type = node.expr.computed_type
-        
+        var_type = None
+
         try:
             if not scope.is_defined(node.id):
                 raise SemanticError(VARIABLE_NOT_DEFINED % (node.id))
@@ -453,6 +454,7 @@ class TypeChecker:
             self.errors.append((ex.text, node.tid))
             node_type = ErrorType()
         
+        node.info = [node_type, var_type]
         node.computed_type = node_type
         
     @visitor.when(CaseOfNode)
@@ -767,8 +769,14 @@ class InferenceVisitor(TypeChecker):
             if update_condition(self.current_method.param_types[idx], actual_type):
                 self.current_method.param_types[idx] = actual_type
                 node.params[idx].ttype = actual_type.name
-            
-
+    
+    @visitor.when(AssignNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+        
+        node_type, var = node.info
+        if update_condition(var, node_type):
+            scope.find_variable(node.id).type = node_type
     @visitor.when(CaseExpressionNode)
     def visit(self, node, scope):
         super().visit(node, scope)
