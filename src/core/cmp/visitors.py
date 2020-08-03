@@ -729,6 +729,10 @@ class TypeChecker:
 # Type Inference Visitor
 class InferenceVisitor(TypeChecker):
     @visitor.on('node')
+    def update(self, node, scope, ntype):
+    	pass
+
+    @visitor.on('node')
     def visit(self, node, scope):
         pass
 
