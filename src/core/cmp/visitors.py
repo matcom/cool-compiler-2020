@@ -519,9 +519,9 @@ class TypeChecker:
     @visitor.when(IfThenElseNode)
     def visit(self, node, scope):
         self.visit(node.condition, scope)
-        cond_type = node.condition.computed_type
+        node.cond_type = node.condition.computed_type
 
-        if not cond_type.conforms_to(BOOL):
+        if not node.cond_type.conforms_to(BOOL):
             self.errors.append((CONDITION_NOT_BOOL % ('If', cond_type.name), node.token))
 
         self.visit(node.if_body, scope)
@@ -542,13 +542,12 @@ class TypeChecker:
     @visitor.when(WhileLoopNode)
     def visit(self, node, scope):
         self.visit(node.condition, scope)
-        cond_type = node.condition.computed_type
+        node.cond_type = node.condition.computed_type
 
-        if not cond_type.conforms_to(BOOL):
+        if not node.cond_type.conforms_to(BOOL):
             self.errors.append((CONDITION_NOT_BOOL % ('While', cond_type.name), node.token))
 
         self.visit(node.body, scope)
-        # //TODO: Return VoidType()
         node.computed_type = OBJ
     
     @visitor.when(FunctionCallNode)
@@ -884,6 +883,20 @@ class InferenceVisitor(TypeChecker):
         if update_condition(expr, rtype):
             self.update(node.expr, scope, rtype)			
 
+    @visitor.when(IfThenElseNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+
+        if isinstance(node.cond_type, AutoType):
+            self.update(node.condition, scope, BOOL)
+        
+    @visitor.when(WhileLoopNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+
+        if isinstance(node.cond_type, AutoType):
+            self.update(node.condition, scope, BOOL)
+    
     @visitor.when(FunctionCallNode)
     def visit(self, node, scope):
         super().visit(node, scope)
