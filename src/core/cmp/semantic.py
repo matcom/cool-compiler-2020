@@ -77,6 +77,7 @@ class Type:
                 raise SemanticError(f'Method "{name}" is not defined in {self.name}.')
 
     def define_method(self, name:str, param_names:list, param_types:list, return_type):
+        # //TODO: Remove the below if clause
         if name in self.methods.keys():
             raise SemanticError(f'Method "{name}" already defined in {self.name}')
         try:
@@ -247,8 +248,5 @@ class Scope:
         return any(True for x in self.locals if x.name == vname)
 
     def count_auto(self):
-        num = 0
-        for var in self.locals:
-            if var.type.name == 'AUTO_TYPE':
-                num += 1
+        num = sum([x.type.name == 'AUTO_TYPE' for x in self.locals])
         return num + sum([scp.count_auto() for scp in self.children])
