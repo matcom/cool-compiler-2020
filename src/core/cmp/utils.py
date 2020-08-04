@@ -268,3 +268,11 @@ class ShiftReduceParser:
             # Your code here!!! (Invalid case)
             else:
                 raise ValueError
+
+class InferenceSets:
+    D, S = [], []
+
+    def add(self, new_type, conforms=True):
+        cur = [self.S, self.D][conforms]
+        cur.append(new_type)
+        return self
