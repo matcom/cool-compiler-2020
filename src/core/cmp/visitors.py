@@ -691,6 +691,8 @@ class TypeChecker:
     def visit(self, node, scope):
         self.visit(node.expr, scope)
         expr_type = node.expr.computed_type
+        node.expr_type = expr_type
+
         if not expr_type.conforms_to(INT):
             self.errors.append(("Complement works only for Int", node.symbol))
         node.computed_type = INT
@@ -699,6 +701,8 @@ class TypeChecker:
     def visit(self, node, scope):
         self.visit(node.expr, scope)
         expr_type = node.expr.computed_type
+        node.expr_type = expr_type
+
         if not expr_type.conforms_to(BOOL):
             self.errors.append(("Not operator works only for Bool", node.symbol))
         node.computed_type = BOOL
@@ -934,3 +938,17 @@ class InferenceVisitor(TypeChecker):
             self.update(node.left, scope, INT)
         if isinstance(right, AutoType):
             self.update(node.right, scope, INT)
+        
+    @visitor.when(ComplementNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+
+        if isinstance(node.expr_type, AutoType):
+            self.update(node.expr, scope, INT)
+
+    @visitor.when(NotNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+
+        if isinstance(node.expr_type, AutoType):
+            self.update(node.expr, scope, BOOL)
