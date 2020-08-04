@@ -771,6 +771,14 @@ class InferenceVisitor(TypeChecker):
     def update(self, node, scope, ntype):
         self.update(node.exprs[-1], scope, ntype)
 
+    @visitor.when(FunctionCallNode)
+    def update(self, node, scope, ntype):
+        node.obj_method.return_type = ntype
+
+    @visitor.when(MemberCallNode)
+    def update(self, node, scope, ntype):
+        node.obj_method.return_type = ntype
+
     @visitor.on('node')
     def visit(self, node, scope):
         pass
