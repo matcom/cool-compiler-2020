@@ -817,6 +817,8 @@ class InferenceVisitor(TypeChecker):
         if update_condition(rtype, expr):
             scope.find_variable(node.id).type = expr
             node.type = expr.name
+        if update_condition(expr, rtype):
+            self.update(node.expr, scope, rtype)			
 
     @visitor.when(FuncDeclarationNode)
     def visit(self, node, scope):
@@ -826,6 +828,9 @@ class InferenceVisitor(TypeChecker):
         if update_condition(rtn, body):
             self.current_method.return_type = body
             node.type = body.name
+        if update_condition(body, rtn):
+            self.update(node.body, scope, rtn)
+            
         for idx, pname in enumerate(self.current_method.param_names):
             actual_type = scope.find_variable(pname).type
             if update_condition(self.current_method.param_types[idx], actual_type):
@@ -839,6 +844,9 @@ class InferenceVisitor(TypeChecker):
         node_type, var = node.info
         if update_condition(var, node_type):
             scope.find_variable(node.id).type = node_type
+        if update_condition(node_type, var):
+            self.update(node.expr, scope, var)
+            node.computed_type = var
 
     @visitor.when(CaseOfNode)
     def visit(self, node, scope):
@@ -873,6 +881,8 @@ class InferenceVisitor(TypeChecker):
         if update_condition(rtype, expr):
             scope.find_variable(node.id).type = expr
             node.type = expr.name
+        if update_condition(expr, rtype):
+            self.update(node.expr, scope, rtype)			
 
     @visitor.when(FunctionCallNode)
     def visit(self, node, scope):
@@ -885,6 +895,8 @@ class InferenceVisitor(TypeChecker):
         for idx, (atype, rtype) in enumerate(zip(args, real)):
             if update_condition(rtype, atype):
                 node.obj_method.param_types[idx] = atype
+            if update_condition(atype, rtype):
+                self.update(node.args[idx], scope, rtype)
 
     @visitor.when(MemberCallNode)
     def visit(self, node, scope):
@@ -897,3 +909,5 @@ class InferenceVisitor(TypeChecker):
         for idx, (atype, rtype) in enumerate(zip(args, real)):
             if update_condition(rtype, atype):
                 node.obj_method.param_types[idx] = atype
+            if update_condition(atype, rtype):
+                self.update(node.args[idx], scope, rtype)
