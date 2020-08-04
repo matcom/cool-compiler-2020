@@ -779,6 +779,11 @@ class InferenceVisitor(TypeChecker):
     def update(self, node, scope, ntype):
         node.obj_method.return_type = ntype
 
+    @visitor.when(IdNode)
+    def update(self, node, scope, ntype):
+        print("id" , ntype, scope.find_variable(node.lex).type)
+        scope.find_variable(node.lex).type = ntype
+
     @visitor.on('node')
     def visit(self, node, scope):
         pass
