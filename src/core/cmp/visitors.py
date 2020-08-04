@@ -751,6 +751,15 @@ class InferenceVisitor(TypeChecker):
     def update(self, node, scope, ntype):
         self.update(node.expr, node.scope, ntype)
 
+    @visitor.when(LetInNode)
+    def update(self, node, scope, ntype):
+        self.update(node.in_body, node.scope, ntype)
+
+        for attr in node.let_body:
+            cur_type = node.scope.find_variable(attr.id).type
+            if update_condition(attr.attr_type, cur_type):
+                attr.type = cur_type.name
+
     @visitor.when(IfThenElseNode)
     def update(self, node, scope, ntype):
         if isinstance(node.if_body.computed_type, AutoType):
