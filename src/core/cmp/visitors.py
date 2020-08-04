@@ -714,6 +714,7 @@ class TypeChecker:
         
         self.visit(node.right, scope)
         right_type = node.right.computed_type
+        node.info = [left_type, right_type]
         
         valid_types = [IntType(), BoolType(), StringType()]
         try:
@@ -730,6 +731,7 @@ class TypeChecker:
         node.computed_type = BOOL
 
 
+# //TODO: Try to infer SELF_TYPE
 # Type Inference Visitor
 class InferenceVisitor(TypeChecker):
     @visitor.on('node')
@@ -788,6 +790,7 @@ class InferenceVisitor(TypeChecker):
         print("id" , ntype, scope.find_variable(node.lex).type)
         scope.find_variable(node.lex).type = ntype
 
+    # Visit
     @visitor.on('node')
     def visit(self, node, scope):
         pass
@@ -929,6 +932,7 @@ class InferenceVisitor(TypeChecker):
                 node.obj_method.param_types[idx] = atype
             if update_condition(atype, rtype):
                 self.update(node.args[idx], scope, rtype)
+
     @visitor.when(BinaryNode)
     def visit(self, node, scope):
         super().visit(node, scope)
@@ -952,3 +956,14 @@ class InferenceVisitor(TypeChecker):
 
         if isinstance(node.expr_type, AutoType):
             self.update(node.expr, scope, BOOL)
+   
+    @visitor.when(EqualNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+
+        left, right = node.info
+        if update_condition(left, right):
+            self.update(node.left, scope, right)
+        if update_condition(right, left):
+            self.update(node.right, scope, left)
+        
