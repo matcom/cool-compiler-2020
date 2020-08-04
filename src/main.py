@@ -58,14 +58,23 @@ def main(args):
     errors.extend(builder.errors)
 
     # Checking types
-    checker = TypeChecker(context)
-    checker.visit(ast)
+    checker = InferenceVisitor(context)
+    auto = -1
+    while True:
+        checker.errors.clear()
+        scope = checker.visit(ast)
+        cant = scope.count_auto()
+        if auto == cant:
+            break
+        auto = cant
     errors.extend(checker.errors)
     
     if errors:
         for (msg, token) in errors:
             print(f"({token.row},{token.column}) - SemanticError: {msg}")
         exit(1)
+    # else:
+    #     print(FormatVisitor().visit(ast))
 
     exit(0)
 
