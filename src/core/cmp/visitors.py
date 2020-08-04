@@ -634,13 +634,14 @@ class TypeChecker:
         node.info = [arg_types, real_types] 
         node.computed_type = node_type
     
-    @visitor.when(ArithmeticNode)
+    @visitor.when(BinaryNode)
     def visit(self, node, scope):
         self.visit(node.left, scope)
         left_type = node.left.computed_type
         
         self.visit(node.right, scope)
         right_type = node.right.computed_type
+        node.info = [left_type, right_type]
         
         if not (right_type.conforms_to(INT) and left_type.conforms_to(INT)):
             self.errors.append((INVALID_OPERATION % (left_type.name, right_type.name), node.symbol))
@@ -924,3 +925,12 @@ class InferenceVisitor(TypeChecker):
                 node.obj_method.param_types[idx] = atype
             if update_condition(atype, rtype):
                 self.update(node.args[idx], scope, rtype)
+    @visitor.when(BinaryNode)
+    def visit(self, node, scope):
+        super().visit(node, scope)
+
+        left, right = node.info
+        if isinstance(left, AutoType):
+            self.update(node.left, scope, INT)
+        if isinstance(right, AutoType):
+            self.update(node.right, scope, INT)
