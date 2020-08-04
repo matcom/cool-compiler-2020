@@ -751,6 +751,13 @@ class InferenceVisitor(TypeChecker):
     def update(self, node, scope, ntype):
         self.update(node.expr, node.scope, ntype)
 
+    @visitor.when(IfThenElseNode)
+    def update(self, node, scope, ntype):
+        if isinstance(node.if_body.computed_type, AutoType):
+            self.update(node.if_body, scope, ntype)
+        if isinstance(node.else_body.computed_type, AutoType):
+            self.update(node.else_body, scope, ntype)
+
     @visitor.when(BlockNode)
     def update(self, node, scope, ntype):
         self.update(node.exprs[-1], scope, ntype)
