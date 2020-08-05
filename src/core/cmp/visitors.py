@@ -339,13 +339,13 @@ class TypeBuilder:
 
 # Compute the Lowest Common Ancestor in
 # the type hierarchy tree
-def LCA(type_list, context):
+def LCA(type_list):
     counter = {}
 
-    if any([isinstance(t, ErrorType) for t in type_list]):
-        return ErrorType()
     if any([isinstance(t, AutoType) for t in type_list]):
         return AutoType()
+    if any([isinstance(t, ErrorType) for t in type_list]):
+        return ErrorType()
     for typex in type_list:
         node = typex
         while True:
@@ -474,7 +474,7 @@ class TypeChecker:
             self.visit(case, scope.create_child())
             types_list.append(case.computed_type)
 
-        node.computed_type = LCA(types_list, self.context)
+        node.computed_type = LCA(types_list)
 
     @visitor.when(CaseExpressionNode)
     def visit(self, node, scope):
@@ -539,7 +539,7 @@ class TypeChecker:
 
         self.visit(node.else_body, scope)
         else_type = node.else_body.computed_type
-        node.computed_type = LCA([if_type, else_type], self.context)
+        node.computed_type = LCA([if_type, else_type])
         
     @visitor.when(BlockNode)
     def visit(self, node, scope):
