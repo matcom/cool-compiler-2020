@@ -1,5 +1,6 @@
 import core.cmp.visitor as visitor
 from core.cmp.CoolUtils import *
+from core.cmp.utils import InferenceSets
 from core.cmp.semantic import SemanticError
 from core.cmp.semantic import Attribute, Method, Type
 from core.cmp.semantic import ErrorType, IntType, StringType, BoolType, IOType, VoidType, AutoType
@@ -84,7 +85,7 @@ class FormatVisitor:
     
     @visitor.when(FuncDeclarationNode)
     def visit(self, node, tabs=0):
-        params = ', '.join(':'.join(param) for param in node.params)
+        params = ', '.join(' : '.join(param) for param in node.params)
         ans = '\t' * tabs + f'\\__FuncDeclarationNode: {node.id}({params}) : {node.type} {{<body>}}'
         body = self.visit(node.body, tabs + 1)
         return f'{ans}\n{body}'
@@ -296,14 +297,16 @@ class TypeBuilder:
         node.attr_type = attr_type
 
         try:
-            self.current_type.define_attribute(node.id, attr_type)
+            attr = self.current_type.define_attribute(node.id, attr_type)
+            attr.node = node
         except SemanticError as ex:
             self.errors.append((ex.text, node.tid))
         
     @visitor.when(FuncDeclarationNode)
     def visit(self, node):
-        arg_names, arg_types = [], []
-        for i, (idx, typex) in enumerate(node.params):
+        arg_names, arg_types, arg_nodes = [], [], []
+        for i, arg in enumerate(node.params):
+            idx, typex = arg
             try:
                 arg_type = self.context.get_type(typex)
             except SemanticError as ex:
@@ -312,6 +315,7 @@ class TypeBuilder:
                 
             arg_names.append(idx)
             arg_types.append(arg_type)
+            arg_nodes.append(arg)
         
         try:
             ret_type = self.context.get_type(node.type)
@@ -321,9 +325,12 @@ class TypeBuilder:
         node.ret_type = ret_type
         node.arg_types = arg_types
         node.arg_names = arg_names
+        node.arg_nodes = arg_nodes
 
         try:
-            self.current_type.define_method(node.id, arg_names, arg_types, ret_type)
+            method = self.current_type.define_method(node.id, arg_names, arg_types, ret_type)
+            method.nodes = arg_nodes
+            method.ret_node = node
             if not self.current_type.name in self.methods:
                 self.methods[self.current_type.name] = {}
             self.methods[self.current_type.name][node.id] = node.tid    
@@ -385,20 +392,20 @@ class TypeChecker:
         cur_type = self.current_type.parent
         while True:
             for attr in cur_type.attributes:
-                scope.define_variable(attr.name, attr.type)
+                var = scope.define_variable(attr.name, attr.type)
+                var.node = attr.node
             if not cur_type.parent:
                 break
             cur_type = cur_type.parent
             
-        node.attr_idx = []
         cur_type = self.current_type
         pending, count = [], 0
         for idx, feature in enumerate(node.features):
             if isinstance(feature, AttrDeclarationNode):
-                node.attr_idx.append(idx)
-                if not scope.is_defined(feature.id):
-                    scope.define_variable(feature.id, cur_type.attributes[count].type)
                 self.visit(feature, scope)
+                if not scope.is_defined(feature.id):
+                    var = scope.define_variable(feature.id, cur_type.attributes[count].type)
+                    var.node = cur_type.attributes[count]
                 count += 1
             else:
                 pending.append(feature)
@@ -421,15 +428,16 @@ class TypeChecker:
             
     @visitor.when(FuncDeclarationNode)
     def visit(self, node, scope):
-        self.current_method = Method(node.id, node.arg_names, node.arg_types, node.ret_type)
+        self.current_method = node.id
         
-        for pname, ptype in zip(self.current_method.param_names, self.current_method.param_types):
-            scope.define_variable(pname, ptype)
+        for pname, ptype, pnode in zip(node.arg_names, node.arg_types, node.arg_nodes):
+            var = scope.define_variable(pname, ptype)
+            var.node = pnode
             
         self.visit(node.body, scope)
             
         body_type = node.body.computed_type
-        method_rtn_type = fixed_type(self.current_method.return_type, self.current_type)
+        method_rtn_type = fixed_type(node.ret_type, self.current_type)
         node.info = [body_type, method_rtn_type]
 
         if not body_type.conforms_to(method_rtn_type):
@@ -478,7 +486,8 @@ class TypeChecker:
             branch_type = ErrorType()
         node.branch_type = branch_type
 
-        scope.define_variable(node.id, branch_type)
+        var = scope.define_variable(node.id, branch_type)
+        var.node = node
         self.visit(node.expr, scope)
         node.computed_type = node.expr.computed_type
             
@@ -503,9 +512,10 @@ class TypeChecker:
         node.attr_type = node_type
         
         if not scope.is_local(node.id):
-            scope.define_variable(node.id, node_type)
+            var = scope.define_variable(node.id, node_type)
+            var.node = node
         else:
-            self.errors.append((LOCAL_ALREADY_DEFINED % (node.id, self.current_method.name), node.tid))
+            self.errors.append((LOCAL_ALREADY_DEFINED % (node.id, self.current_method), node.tid))
         
         if node.expr:
             self.visit(node.expr, scope)
