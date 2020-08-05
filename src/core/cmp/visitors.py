@@ -778,11 +778,6 @@ class InferenceVisitor(TypeChecker):
             if isinstance(branch.computed_type, AutoType):
                 self.update(branch, scope, ntype)
 
-        for idx, branch in enumerate(node.branches):
-            cur_type = branch.scope.find_variable(branch.id).type
-            if update_condition(branch.branch_type, cur_type):
-                branch.type = cur_type.name
-
     @visitor.when(CaseExpressionNode)
     def update(self, node, scope, ntype):
         self.update(node.expr, node.scope, ntype)
@@ -790,11 +785,6 @@ class InferenceVisitor(TypeChecker):
     @visitor.when(LetInNode)
     def update(self, node, scope, ntype):
         self.update(node.in_body, node.scope, ntype)
-
-        for attr in node.let_body:
-            cur_type = node.scope.find_variable(attr.id).type
-            if update_condition(attr.attr_type, cur_type):
-                attr.type = cur_type.name
 
     @visitor.when(IfThenElseNode)
     def update(self, node, scope, ntype):
@@ -809,16 +799,15 @@ class InferenceVisitor(TypeChecker):
 
     @visitor.when(FunctionCallNode)
     def update(self, node, scope, ntype):
-        node.obj_method.return_type = ntype
+        self.inference(node.obj_method.ret_node, ntype)
 
     @visitor.when(MemberCallNode)
     def update(self, node, scope, ntype):
-        node.obj_method.return_type = ntype
+        self.inference(node.obj_method.ret_node, ntype)
 
     @visitor.when(IdNode)
     def update(self, node, scope, ntype):
-        print("id" , ntype, scope.find_variable(node.lex).type)
-        scope.find_variable(node.lex).type = ntype
+        self.inference(scope.find_variable(node.lex).node, ntype)
 
     # Visit
     @visitor.on('node')
@@ -831,17 +820,19 @@ class InferenceVisitor(TypeChecker):
 
     @visitor.when(ProgramNode)
     def visit(self, node, scope=None):
-        return super().visit(node, scope) 
+        super().visit(node, scope) 
 
-    @visitor.when(ClassDeclarationNode)
-    def visit(self, node, scope):
-        super().visit(node, scope)
-
-        for idx, attr in enumerate(self.current_type.attributes):
-            actual_type = scope.find_variable(attr.name).type
-            if update_condition(attr.type, actual_type):
-                self.current_type.attributes[idx].type = actual_type
-                node.features[node.attr_idx[idx]].type = actual_type.name
+        for (auto, sets) in self.variable.items():
+            try:
+                ok, D1 = check_path(sets.D, OBJ)
+                assert ok
+                if len(sets.S):
+                    candidate = LCA(sets.S)
+                    assert LCA([candidate, D1]) == D1
+                    D1 = candidate
+                auto.type = D1.name
+            except AssertionError:
+                self.errors.append((f'Bad use of AUTO_TYPE detected', auto.ttype))
     
     @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope):
@@ -852,8 +843,7 @@ class InferenceVisitor(TypeChecker):
 
         expr, rtype = node.info
         if update_condition(rtype, expr):
-            scope.find_variable(node.id).type = expr
-            node.type = expr.name
+            self.inference(node, expr, False)
         if update_condition(expr, rtype):
             self.update(node.expr, scope, rtype)			
 
@@ -863,16 +853,9 @@ class InferenceVisitor(TypeChecker):
 
         body, rtn = node.info
         if update_condition(rtn, body):
-            self.current_method.return_type = body
-            node.type = body.name
+            self.inference(node, body, False)
         if update_condition(body, rtn):
             self.update(node.body, scope, rtn)
-            
-        for idx, pname in enumerate(self.current_method.param_names):
-            actual_type = scope.find_variable(pname).type
-            if update_condition(self.current_method.param_types[idx], actual_type):
-                self.current_method.param_types[idx] = actual_type
-                node.params[idx].ttype = actual_type.name
     
     @visitor.when(AssignNode)
     def visit(self, node, scope):
@@ -880,32 +863,13 @@ class InferenceVisitor(TypeChecker):
         
         node_type, var = node.info
         if update_condition(var, node_type):
-            scope.find_variable(node.id).type = node_type
+            self.inference(scope.find_variable(node.id).node, node_type, False)
         if update_condition(node_type, var):
             self.update(node.expr, scope, var)
-            node.computed_type = var
-
-    @visitor.when(CaseOfNode)
-    def visit(self, node, scope):
-        super().visit(node, scope)
-
-        for idx, branch in enumerate(node.branches):
-            cur_type = branch.scope.find_variable(branch.id).type
-            if update_condition(branch.branch_type, cur_type):
-                branch.type = cur_type.name
 
     @visitor.when(CaseExpressionNode)
     def visit(self, node, scope):
         super().visit(node, scope)
-
-    @visitor.when(LetInNode)
-    def visit(self, node, scope):
-        super().visit(node, scope)
-
-        for attr in node.let_body:
-            cur_type = node.scope.find_variable(attr.id).type
-            if update_condition(attr.attr_type, cur_type):
-                attr.type = cur_type.name
 
     @visitor.when(LetAttributeNode)
     def visit(self, node, scope):
@@ -916,8 +880,7 @@ class InferenceVisitor(TypeChecker):
 
         expr, rtype = node.info
         if update_condition(rtype, expr):
-            scope.find_variable(node.id).type = expr
-            node.type = expr.name
+            self.inference(scope.find_variable(node.id).node, expr, False)
         if update_condition(expr, rtype):
             self.update(node.expr, scope, rtype)			
 
@@ -945,7 +908,7 @@ class InferenceVisitor(TypeChecker):
 
         for idx, (atype, rtype) in enumerate(zip(args, real)):
             if update_condition(rtype, atype):
-                node.obj_method.param_types[idx] = atype
+                self.inference(node.obj_method.nodes[idx], atype, False)
             if update_condition(atype, rtype):
                 self.update(node.args[idx], scope, rtype)
 
@@ -959,7 +922,7 @@ class InferenceVisitor(TypeChecker):
 
         for idx, (atype, rtype) in enumerate(zip(args, real)):
             if update_condition(rtype, atype):
-                node.obj_method.param_types[idx] = atype
+                self.inference(node.obj_method.nodes[idx], atype, False)
             if update_condition(atype, rtype):
                 self.update(node.args[idx], scope, rtype)
 
@@ -991,6 +954,7 @@ class InferenceVisitor(TypeChecker):
     def visit(self, node, scope):
         super().visit(node, scope)
 
+        # //TODO: Only infer if atomic
         left, right = node.info
         if update_condition(left, right):
             self.update(node.left, scope, right)
