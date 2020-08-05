@@ -58,16 +58,9 @@ def main(args):
     errors.extend(builder.errors)
 
     # Checking types
-    checker = InferenceVisitor(context)
-    auto = -1
-    while True:
-        checker.errors.clear()
-        scope = checker.visit(ast)
-        cant = scope.count_auto()
-        if auto == cant:
-            break
-        auto = cant
-    errors.extend(checker.errors)
+    inferencer = InferenceVisitor(context)
+    inferencer.visit(ast)
+    errors.extend(inferencer.errors)
     
     if errors:
         for (msg, token) in errors:
