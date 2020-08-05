@@ -299,6 +299,7 @@ class TypeBuilder:
         try:
             attr = self.current_type.define_attribute(node.id, attr_type)
             attr.node = node
+            node.attr = attr
         except SemanticError as ex:
             self.errors.append((ex.text, node.tid))
         
@@ -316,6 +317,8 @@ class TypeBuilder:
             arg_names.append(idx)
             arg_types.append(arg_type)
             arg_nodes.append(arg)
+            arg.idx = i
+            arg.method_types = arg_types
         
         try:
             ret_type = self.context.get_type(node.type)
@@ -331,6 +334,9 @@ class TypeBuilder:
             method = self.current_type.define_method(node.id, arg_names, arg_types, ret_type)
             method.nodes = arg_nodes
             method.ret_node = node
+            node.method = method
+            for arg in node.params:
+                arg.method = method
             if not self.current_type.name in self.methods:
                 self.methods[self.current_type.name] = {}
             self.methods[self.current_type.name][node.id] = node.tid    
@@ -415,7 +421,7 @@ class TypeChecker:
                 self.visit(feature, scope)
                 if not scope.is_defined(feature.id):
                     var = scope.define_variable(feature.id, cur_type.attributes[count].type)
-                    var.node = cur_type.attributes[count]
+                    var.node = cur_type.attributes[count].node
                 count += 1
             else:
                 pending.append(feature)
@@ -520,6 +526,7 @@ class TypeChecker:
             self.errors.append((ex.text, node.ttype))
             node_type = ErrorType()
         node.attr_type = node_type
+        node.scope = None
         
         if not scope.is_local(node.id):
             var = scope.define_variable(node.id, node_type)
@@ -754,8 +761,9 @@ class TypeChecker:
 # //TODO: Try to infer SELF_TYPE
 # Type Inference Visitor
 class InferenceVisitor(TypeChecker):
-    def __init__(self, context, errors=[]):
+    def __init__(self, context, skip_object=True, errors=[]):
         super().__init__(context, errors)
+        self.skip = skip_object
         self.variable = {}
 
     def inference(self, node, ntype, conforms=True):
@@ -763,6 +771,35 @@ class InferenceVisitor(TypeChecker):
             self.variable[node].add(ntype, conforms)
         except KeyError:
             self.variable[node] = InferenceSets().add(ntype, conforms)
+
+    @visitor.on('node')
+    def context_update(self, node, ntype):
+        pass
+
+    @visitor.when(Node)
+    def context_update(self, node, ntype):
+        pass
+
+    @visitor.when(Param)
+    def context_update(self, node, ntype):
+        node.method_types[node.idx] = ntype
+        try: node.method.param_types[node.idx] = ntype
+        except AttributeError: pass
+    
+    @visitor.when(AttrDeclarationNode)
+    def context_update(self, node, ntype):
+        try: node.attr_type = ntype
+        except AttributeError: pass
+        try: node.branch_type = ntype
+        except AttributeError: pass
+        try: node.attr.type = ntype
+        except AttributeError: pass
+
+    @visitor.when(FuncDeclarationNode)
+    def context_update(self, node, ntype):
+        node.ret_type = ntype
+        try: node.method.return_type = ntype
+        except AttributeError: pass
 
     @visitor.on('node')
     def update(self, node, scope, ntype):
@@ -822,8 +859,12 @@ class InferenceVisitor(TypeChecker):
     def visit(self, node, scope=None):
         super().visit(node, scope) 
 
+        infered = 0
+        if not self.skip: print(self.variable.keys())
         for (auto, sets) in self.variable.items():
             try:
+                if self.skip and (len(sets.D) + len(sets.S) == 1):
+                    continue
                 ok, D1 = check_path(sets.D, OBJ)
                 assert ok
                 if len(sets.S):
@@ -831,8 +872,12 @@ class InferenceVisitor(TypeChecker):
                     assert LCA([candidate, D1]) == D1
                     D1 = candidate
                 auto.type = D1.name
+                self.context_update(auto, D1)
+                infered += 1
             except AssertionError:
                 self.errors.append((f'Bad use of AUTO_TYPE detected', auto.ttype))
+        self.variable.clear()
+        return infered
     
     @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope):
@@ -888,7 +933,7 @@ class InferenceVisitor(TypeChecker):
 
         if isinstance(node.attr_type, AutoType):
             self.inference(node, OBJ)
-            
+
         if not node.expr:
             return
 

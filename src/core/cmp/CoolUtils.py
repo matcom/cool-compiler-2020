@@ -181,7 +181,7 @@ def FunctionCallNodeBuilder(obj, calls):
     #print("-------------------")
     return obj
 
-class Param:
+class Param(Node):
     def __init__(self, tid, ttype):
         self.tid = tid
         self.ttype = ttype
