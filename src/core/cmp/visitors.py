@@ -838,6 +838,9 @@ class InferenceVisitor(TypeChecker):
     def visit(self, node, scope):
         super().visit(node, scope)
 
+        if isinstance(node.attr_type, AutoType):
+            self.inference(node, OBJ)
+
         if not node.expr:
             return
 
@@ -852,6 +855,11 @@ class InferenceVisitor(TypeChecker):
         super().visit(node, scope)   
 
         body, rtn = node.info
+        if isinstance(rtn, AutoType):
+            self.inference(node, OBJ)
+        for ptype, pnode in zip(node.arg_types, node.arg_nodes):
+            if isinstance(ptype, AutoType):
+                self.inference(pnode, OBJ)
         if update_condition(rtn, body):
             self.inference(node, body, False)
         if update_condition(body, rtn):
@@ -871,10 +879,16 @@ class InferenceVisitor(TypeChecker):
     def visit(self, node, scope):
         super().visit(node, scope)
 
+        if isinstance(node.branch_type, AutoType):
+            self.inference(node, OBJ)
+
     @visitor.when(LetAttributeNode)
     def visit(self, node, scope):
         super().visit(node, scope)
 
+        if isinstance(node.attr_type, AutoType):
+            self.inference(node, OBJ)
+            
         if not node.expr:
             return
 
