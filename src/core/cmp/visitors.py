@@ -359,6 +359,16 @@ def LCA(type_list):
                 break
             node = node.parent
 
+def check_path(D, ans):
+    for t in D:
+        l = [ans, t]
+        lca = LCA(l)
+        try: l.remove(lca)
+        except ValueError:
+            return False, None
+        ans = l[0]
+    return True, ans
+
 def IsAuto(name):
     return name == 'AUTO_TYPE' or IsVoid(name)
 
