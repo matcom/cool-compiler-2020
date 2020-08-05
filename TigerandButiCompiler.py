@@ -25,6 +25,39 @@ def find_column(input, token):
     line_start=input.rfind('\n',0,token.lexpos)
     return (token.lexpos-line_start)
 
+def elimina_comentarios2(text):
+    acumulado=0
+    respuesta=""
+    bypass=False
+
+    for indice in range(len(text)-1):
+        if bypass:
+            bypass=False
+            continue
+
+        if text[indice]=='(' and text[indice+1]=='*':
+            acumulado+=1
+            bypass=True
+            continue
+        
+        if  acumulado>0 and text[indice]=='*' and text[indice+1]==')':
+            acumulado-=1
+            bypass=True
+            continue
+
+        if acumulado==0 or text[indice]=='\n':
+            respuesta+=text[indice]
+
+    if acumulado>0:
+        for i in range(max(len(text)-text.rfind('\n')-1,0)):
+            respuesta+=' '
+        respuesta+='###EOFCOMMENT###'
+    
+    return respuesta
+
+
+    
+
 def elimina_comentarios(text):
     count=0
     faltan=0
@@ -432,9 +465,64 @@ def p_error(p):
     print('('+str(linea)+', '+str(columna)+') - SyntacticError: ERROR at or near "'+ str(token)+'"')
     return
 
+# eliminado=elimina_comentarios2('''
+# (*(*(*
+# Comments may also be written by enclosing
+# text in (∗ . . . ∗). The latter form of comment may be nested.
+# Comments cannot cross file boundaries.
+# *)*)*)
+
+# class Error() {
+
+#         (* There was once a comment,
+#          that was quite long.
+#          But, the reader soon discovered that
+#          the comment was indeed longer than
+#          previously assumed. Now, the reader
+#          was in a real dilemma; is the comment
+#          ever gonna end? If I stop reading, will
+#          it end?
+#          He started imagining all sorts of things.
+#          He thought about heisenberg's cat and how
+#          how that relates to the end of the sentence.
+#          He thought to himself "I'm gonna stop reading".
+#          "If I keep reading this comment, I'm gonna know
+#          the fate of this sentence; That will be disastorous."
+#          He knew that such a comment was gonna extend to
+#          another file. It was too awesome to be contained in
+#          a single file. And he would have kept reading too...
+#          if only...
+#          cool wasn't a super-duper-fab-awesomest language;
+#          but cool is that language;
+#          "This comment shall go not cross this file" said cool.
+#          Alas! The reader could read no more.
+#          There was once a comment,
+#          that was quite long.
+#          But, the reader soon discovered that
+#          the comment was indeed longer than
+#          previously assumed. Now, the reader
+#          was in a real dilemma; is the comment
+#          ever gonna end? If I stop reading, will
+#          it end?
+#          He started imagining all sorts of things.
+#          He thought about heisenberg's cat and how
+#          how that relates to the end of the sentence.
+#          He thought to himself "I'm gonna stop reading".
+#          "If I keep reading this comment, I'm gonna know
+#          the fate of this sentence; That will be disastorous."
+#          He knew that such a comment was gonna extend to
+#          another file. It was too awesome to be contained in
+#          a single file. And he would have kept reading too...
+#          if only...
+#          cool wasn't a super-duper-fab-awesomest language;
+#          but cool is that language;
+#          "This comment shall go not cross this file" said cool.
+#          Alas! The reader could read no more.''')
+# print(eliminado)
+
 archivo=open(sys.argv[1],encoding='utf-8')
 texto=archivo.read()
-respuesta=elimina_comentarios(texto)
+respuesta=elimina_comentarios2(texto)
 respuesta=elimina_comentarios_fin_de_linea(respuesta)
 
 mylex.input(respuesta)
