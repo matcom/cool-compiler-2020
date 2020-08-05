@@ -754,6 +754,16 @@ class TypeChecker:
 # //TODO: Try to infer SELF_TYPE
 # Type Inference Visitor
 class InferenceVisitor(TypeChecker):
+    def __init__(self, context, errors=[]):
+        super().__init__(context, errors)
+        self.variable = {}
+
+    def inference(self, node, ntype, conforms=True):
+        try:
+            self.variable[node].add(ntype, conforms)
+        except KeyError:
+            self.variable[node] = InferenceSets().add(ntype, conforms)
+
     @visitor.on('node')
     def update(self, node, scope, ntype):
     	pass
