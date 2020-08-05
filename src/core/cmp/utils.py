@@ -270,7 +270,9 @@ class ShiftReduceParser:
                 raise ValueError
 
 class InferenceSets:
-    D, S = [], []
+    def __init__(self):
+        self.D = []
+        self.S = []
 
     def add(self, new_type, conforms=True):
         cur = [self.S, self.D][conforms]
