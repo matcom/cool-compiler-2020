@@ -63,10 +63,14 @@ def elimina_comentarios2(text):
 
     if acumulado>0:
         respuesta+=' ###EOFCOMMENT###'
-    else:
+    elif not bypass:
         respuesta+=text[len(text)-1]
     
     return respuesta
+
+prueba01='''(* A Cool program can't be empty *)'''
+eliminado=elimina_comentarios2(prueba01)
+print(eliminado)
 
 def elimina_comentarios(text):
     count=0
