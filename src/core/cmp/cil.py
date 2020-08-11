@@ -38,7 +38,9 @@ class LocalNode(Node):
         self.name = name
 
 class InstructionNode(Node):
-    pass
+    def __init__(self):
+        self.leader = False
+
 
 class AssignNode(InstructionNode):
     def __init__(self, dest, source):

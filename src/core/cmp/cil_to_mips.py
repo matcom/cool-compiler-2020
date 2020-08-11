@@ -3,6 +3,44 @@ import core.cmp.cil as cil
 import core.cmp.mips as mips
 from core.cmp.utils import CountDict
 
+
+
+class RegistersManager:
+    def __init__(self):
+        pass
+    
+    def getReg(self, instruction):
+        pass
+
+class Register:
+    def __init__(self, name):
+        self._name = name
+        self._registerDescriptor = RegisterDescriptor()
+    
+    @property
+    def name(self):
+        return self._name
+    
+    @property
+    def get_register_descriptor(self):
+        return self._registerDescriptor
+
+class RegisterDescriptor:
+    def __init__(self):
+        pass
+
+
+class AddressDescriptor:
+    def __init__(self):
+        #List locations
+        pass
+
+class SymbolTable:
+    def __init__(self):
+        #Dict name: AddressDescriptor
+        pass
+
+
 class BaseCILToMIPSVisitor:
     def __init__(self):
         self.types = {}
@@ -14,6 +52,7 @@ class BaseCILToMIPSVisitor:
         self.funcs_dict = CountDict()
         self.str_consts = CountDict()
         self.int_consts = CountDict()
+        self.symbol_table = SymbolTable()
 
             
     @property
@@ -109,27 +148,27 @@ class CILToMIPSVisitor(BaseCILToMIPSVisitor):
     def visit(self, node):
         self.actual_function = node
         
-        registers_to_save = ['ra', 't0', 't1']
-        #Saving Register
-        self.add_instructions(mips.save_registers(registers_to_save))
-        
-        #Argument received to params
-        self.add_instructions(mips.MoveNode(mips.REGISTERS['t1'], mips.REGISTERS['t2']))
-        
-        #Allocating memory for local variables
-        addr     = mips.Address(mips.REGISTERS['t0'], 0)
-        var_size = len(self.localvars) * mips.ATTR_SIZE
-        self.add_instructions(mips.allocate_memory(addr, var_size))
+        #registers_to_save = ['ra', 't0', 't1']
+        ## Saving Register
+        #self.add_instructions(mips.save_registers(registers_to_save))
+        #
+        ## Argument received to params
+        #self.add_instructions(mips.MoveNode(mips.REGISTERS['t1'], mips.REGISTERS['t2']))
+        #
+        ## Allocating memory for local variables
+        #addr     = mips.Address(mips.REGISTERS['t0'], 0)
+        #var_size = len(self.localvars) * mips.ATTR_SIZE
+        #self.add_instructions(mips.allocate_memory(addr, var_size))
 
-        #function_body
-        for instruction in self.cil_isntructions:
-            self.visit(instruction)
+        ## function_body
+        #for instruction in self.cil_isntructions:
+        #    self.visit(instruction)
 
-        #Loading saved register
-        self.add_instructions(mips.load_registers_from_stack(registers_to_save[-1]))
+        ## Loading saved register
+        #self.add_instructions(mips.load_registers_from_stack(registers_to_save[-1]))
 
-        self.actual_function_instructions = []
-        self.actual_function = None
+        #self.actual_function_instructions = []
+        #self.actual_function = None
 
     @visitor.when(cil.AllocateNode)
     def visit(self, node):
@@ -150,6 +189,110 @@ def cil_to_mips_data(cil_data):
 
 def cil_to_mips_type(cil_type):
     return mips.MIPSType(cil_type.name, cil_type.attributes, cil_type.methods)
+
+
+
+# class A:
+    # pass
+# 
+# class B(A):
+    # pass
+# 
+# class C:
+    # pass
+# 
+# @visitor.on('param')
+# def try2(param):
+    # pass
+# 
+# @visitor.when(A)
+# def try2(param):
+    # print("is A")
+# 
+# @visitor.when(B)
+# def try2(param):
+    # print("is B")
+
+
+#Change Name
+class FunctionDivider:
+    def __init__(self):
+        self.mark
+        
+        
+    def divide_basics_blocks(self, intructions):
+        self.mark = True
+        for instruction in instructions:
+            self.mark_leaders(instruction)
+
+        blocks = []
+
+        for instruction in instrucctions:
+            if instruction.leader:
+                block.append([instruction])
+            block[-1].append(instruction)
+        
+        return blocks
+
+    def create_flow_graph(blocks) #graph between blocks in a same function does not include relations between functions
+        graph = [[-1 for _ in range(len(blocks))] for _ in range(len(blocks)) ]
+        labels = {b.name : i for i, b in enumerate(blocks) if type(b[0]) == cil.LabelNode}
+
+        for i, block in enumerate(blocks):
+            tp = type(block[-1])
+            if tp == cil.GotoNode:
+                graph[i][labels[block[-1].label]] = 1
+
+            elif tp == cil.GotoIfNode:
+                graph[i][labels[block[-1].label]] = 1
+                graph[i][min(len(blocks)-1, i+1)] = 1
+
+            elif tp == cil.DynamicCallNode:
+                pass #analize what to do with function calls
+            elif tp == cil.StaticCallNode:
+                pass #analize what to do with function calls
+
+            return graph            
+
+
+
+    @visitor.on('instruction')
+    def mark_leaders(self, instruction):
+        pass
+
+    @visitor.when(cil.LabelNode)
+    def mark_leaders(self, instruction):
+        instruction.leader = True
+        self.mark = False
+
+    @visitor.when(cil.GotoNode)
+    def mark_leaders(self, instruction):
+        self.mark = True
+
+    @visitor.when(cil.GotoIfNode)
+    def mark_leaders(self, instruction):
+        self.mark = True
+    
+    @visitor.when(cil.DynamicCallNode)
+    def mark_leaders(self, instruction):
+        self.mark = True
+
+    @visitor.when(cil.StaticCallNode)
+    def mark_leaders(self, instruction):
+        self.mark = True
+    
+    @visitor.when(cil.InstructionNode)
+    def mark_leaders(self, instruction):
+        instruction.leader = self.mark
+        self.mark = False
+
+     
+
+
+
+
+
+
 
 
 
