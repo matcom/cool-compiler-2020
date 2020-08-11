@@ -40,20 +40,24 @@ def elimina_comentarios2(text):
 
         if(text[indice]=='-' and text[indice+1]=='-' and acumulado == 0):
             finlinea=True
+            respuesta+=' '
             continue
 
         if bypass:
             bypass=False
+            respuesta+=' '
             continue
 
         if text[indice]=='(' and text[indice+1]=='*':
             acumulado+=1
             bypass=True
+            respuesta+=' '
             continue
         
         if  acumulado>0 and text[indice]=='*' and text[indice+1]==')':
             acumulado-=1
             bypass=True
+            respuesta+=' '
             continue
 
         if acumulado==0 or text[indice]=='\n':
