@@ -38,7 +38,7 @@ def elimina_comentarios2(text):
                 respuesta+='\n'
             continue
 
-        if(text[indice]=='-' and text[indice+1]=='-' and acumulado == 0):
+        if(text[indice]=='-' and text[indice+1]=='-' and acumulado == 0 and not (indice>0 and text[indice-1]=='<')):
             finlinea=True
             respuesta+=' '
             continue
