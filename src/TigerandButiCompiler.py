@@ -68,9 +68,6 @@ def elimina_comentarios2(text):
     
     return respuesta
 
-prueba01='''(* A Cool program can't be empty *)'''
-eliminado=elimina_comentarios2(prueba01)
-print(eliminado)
 
 def elimina_comentarios(text):
     count=0
