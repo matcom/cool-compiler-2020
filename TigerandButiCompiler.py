@@ -29,8 +29,19 @@ def elimina_comentarios2(text):
     acumulado=0
     respuesta=""
     bypass=False
+    finlinea=False
 
     for indice in range(len(text)-1):
+        if finlinea:
+            if text[indice]=='\n':
+                finlinea=False
+                respuesta+='\n'
+            continue
+
+        if(text[indice]=='-' and text[indice+1]=='-' and acumulado == 0):
+            finlinea=True
+            continue
+
         if bypass:
             bypass=False
             continue
@@ -47,11 +58,13 @@ def elimina_comentarios2(text):
 
         if acumulado==0 or text[indice]=='\n':
             respuesta+=text[indice]
+        else:
+            respuesta+=' '
 
     if acumulado>0:
-        for i in range(max(len(text)-text.rfind('\n')-1,0)):
-            respuesta+=' '
-        respuesta+='###EOFCOMMENT###'
+        respuesta+=' ###EOFCOMMENT###'
+    else:
+        respuesta+=text[len(text)-1]
     
     return respuesta
 
@@ -465,60 +478,60 @@ def p_error(p):
     print('('+str(linea)+', '+str(columna)+') - SyntacticError: ERROR at or near "'+ str(token)+'"')
     return
 
-# eliminado=elimina_comentarios2('''
-# (*(*(*
-# Comments may also be written by enclosing
-# text in (∗ . . . ∗). The latter form of comment may be nested.
-# Comments cannot cross file boundaries.
-# *)*)*)
+eliminado=elimina_comentarios2('''
+(*(*(*
+Comments may also be written by enclosing
+text in (∗ . . . ∗). The latter form of comment may be nested.
+Comments cannot cross file boundaries.
+*)*)*)
 
-# class Error() {
+class Error() {
 
-#         (* There was once a comment,
-#          that was quite long.
-#          But, the reader soon discovered that
-#          the comment was indeed longer than
-#          previously assumed. Now, the reader
-#          was in a real dilemma; is the comment
-#          ever gonna end? If I stop reading, will
-#          it end?
-#          He started imagining all sorts of things.
-#          He thought about heisenberg's cat and how
-#          how that relates to the end of the sentence.
-#          He thought to himself "I'm gonna stop reading".
-#          "If I keep reading this comment, I'm gonna know
-#          the fate of this sentence; That will be disastorous."
-#          He knew that such a comment was gonna extend to
-#          another file. It was too awesome to be contained in
-#          a single file. And he would have kept reading too...
-#          if only...
-#          cool wasn't a super-duper-fab-awesomest language;
-#          but cool is that language;
-#          "This comment shall go not cross this file" said cool.
-#          Alas! The reader could read no more.
-#          There was once a comment,
-#          that was quite long.
-#          But, the reader soon discovered that
-#          the comment was indeed longer than
-#          previously assumed. Now, the reader
-#          was in a real dilemma; is the comment
-#          ever gonna end? If I stop reading, will
-#          it end?
-#          He started imagining all sorts of things.
-#          He thought about heisenberg's cat and how
-#          how that relates to the end of the sentence.
-#          He thought to himself "I'm gonna stop reading".
-#          "If I keep reading this comment, I'm gonna know
-#          the fate of this sentence; That will be disastorous."
-#          He knew that such a comment was gonna extend to
-#          another file. It was too awesome to be contained in
-#          a single file. And he would have kept reading too...
-#          if only...
-#          cool wasn't a super-duper-fab-awesomest language;
-#          but cool is that language;
-#          "This comment shall go not cross this file" said cool.
-#          Alas! The reader could read no more.''')
-# print(eliminado)
+        (* There was once a comment,
+         that was quite long.
+         But, the reader soon discovered that
+         the comment was indeed longer than
+         previously assumed. Now, the reader
+         was in a real dilemma; is the comment
+         ever gonna end? If I stop reading, will
+         it end?
+         He started imagining all sorts of things.
+         He thought about heisenberg's cat and how
+         how that relates to the end of the sentence.
+         He thought to himself "I'm gonna stop reading".
+         "If I keep reading this comment, I'm gonna know
+         the fate of this sentence; That will be disastorous."
+         He knew that such a comment was gonna extend to
+         another file. It was too awesome to be contained in
+         a single file. And he would have kept reading too...
+         if only...
+         cool wasn't a super-duper-fab-awesomest language;
+         but cool is that language;
+         "This comment shall go not cross this file" said cool.
+         Alas! The reader could read no more.
+         There was once a comment,
+         that was quite long.
+         But, the reader soon discovered that
+         the comment was indeed longer than
+         previously assumed. Now, the reader
+         was in a real dilemma; is the comment
+         ever gonna end? If I stop reading, will
+         it end?
+         He started imagining all sorts of things.
+         He thought about heisenberg's cat and how
+         how that relates to the end of the sentence.
+         He thought to himself "I'm gonna stop reading".
+         "If I keep reading this comment, I'm gonna know
+         the fate of this sentence; That will be disastorous."
+         He knew that such a comment was gonna extend to
+         another file. It was too awesome to be contained in
+         a single file. And he would have kept reading too...
+         if only...
+         cool wasn't a super-duper-fab-awesomest language;
+         but cool is that language;
+         "This comment shall go not cross this file" said cool.
+         Alas! The reader could read no more.''')
+print(eliminado)
 
 archivo=open(sys.argv[1],encoding='utf-8')
 texto=archivo.read()
@@ -532,7 +545,7 @@ for t in mylex:
 parser=yacc.yacc()
 if not LexerError:
     parser.parse(respuesta,lexer=mylex, debug=False)
-return 1
+# return 1
 
     
 if False:

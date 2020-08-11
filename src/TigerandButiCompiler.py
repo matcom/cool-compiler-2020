@@ -25,6 +25,49 @@ def find_column(input, token):
     line_start=input.rfind('\n',0,token.lexpos)
     return (token.lexpos-line_start)
 
+def elimina_comentarios2(text):
+    acumulado=0
+    respuesta=""
+    bypass=False
+    finlinea=False
+
+    for indice in range(len(text)-1):
+        if finlinea:
+            if text[indice]=='\n':
+                finlinea=False
+                respuesta+='\n'
+            continue
+
+        if(text[indice]=='-' and text[indice+1]=='-' and acumulado == 0):
+            finlinea=True
+            continue
+
+        if bypass:
+            bypass=False
+            continue
+
+        if text[indice]=='(' and text[indice+1]=='*':
+            acumulado+=1
+            bypass=True
+            continue
+        
+        if  acumulado>0 and text[indice]=='*' and text[indice+1]==')':
+            acumulado-=1
+            bypass=True
+            continue
+
+        if acumulado==0 or text[indice]=='\n':
+            respuesta+=text[indice]
+        else:
+            respuesta+=' '
+
+    if acumulado>0:
+        respuesta+=' ###EOFCOMMENT###'
+    else:
+        respuesta+=text[len(text)-1]
+    
+    return respuesta
+
 def elimina_comentarios(text):
     count=0
     faltan=0
@@ -51,33 +94,6 @@ def elimina_comentarios(text):
        # for i in range(max(len(text)-text.rfind('\n')-1,0)):
        #     respuesta+=' '
         respuesta+='###EOFCOMMENT###'
-    return respuesta
-
-
-def elimina_comentarios_fin_de_linea(text):
-    lista=[]
-    result=0
-    encontrado=False
-    respuesta=''
-    while result>=0:
-        lista.append(result)
-        if encontrado:
-            result=text.find('\n',result)
-            encontrado=False
-        else:
-            result=text.find('--',result)
-            extremo=text.find('\n',result)
-            encontrado=True
-            tempres=text.rfind('--',result-4,extremo)
-            
-            comillas=text.rfind('“--”',result-4,extremo)
-            comillas2=text.rfind('"--"',result-4,extremo)
-            if sys.argv[1].find('comment1')<0:
-                result=tempres 
-    for i in range(1,len(lista),2):
-        respuesta+=text[lista[i-1]:lista[i]]
-    if len(lista)%2!=0:
-        respuesta+=text[lista[len(lista)-1]:]
     return respuesta
 
 
@@ -443,8 +459,8 @@ def p_error(p):
 
 archivo=open(sys.argv[1],encoding='utf-8')
 texto=archivo.read()
-respuesta=elimina_comentarios(texto)
-respuesta=elimina_comentarios_fin_de_linea(respuesta)
+respuesta=elimina_comentarios2(texto)
+# respuesta=elimina_comentarios_fin_de_linea(respuesta)
 
 LexerError=False
 mylex.input(respuesta)
