@@ -188,6 +188,7 @@ def t_number(t):
     r'[0-9]+'
     #t.type='constant'
     t.value=int(t.value)
+    t.type="Int"
     return t
 
 def t_newline(t):
@@ -212,7 +213,7 @@ def t_string(t):
         global LexerError
         LexerError=True
         print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: String contains null character')
-    t.type='string'
+    t.type='String'
     return t
 
 
@@ -335,6 +336,11 @@ def p_methoddef(p):
 def p_expressionlist(p):
     '''expressionlist : expression pcoma expressionlist
                       | empty'''
+    if len(p)==4:
+        if p[3]=='':
+            p[0].type=p[1].type
+        else:
+            p[0].type=p[3].type
     pass
 
 def p_param(p):
@@ -380,14 +386,39 @@ def p_expressionparams(p):
 
 def p_conditional(p):
     '''conditional : if expression then expression else expression fi'''
+    if p[2].type!="Bool":
+        linea=1
+        
+        for i in range(p.lexpos):
+            if p.lexer.lexdata[i]=='\n':
+                linea+=1
+                columna=find_column(p.lexer.lexdata, p)
+        
+        token=p.value
+        print('('+str(linea)+', '+str(columna)+') - SemanticError: ERROR at or near "'+ str(token)+'"')
+
+    p[0].type="Object"
     pass
 
 def p_loopexp(p):
     '''loopexp : while expression loop expression pool'''
+    if p[2].type!="Bool":
+        linea=1
+        
+        for i in range(p.lexpos):
+            if p.lexer.lexdata[i]=='\n':
+                linea+=1
+                columna=find_column(p.lexer.lexdata, p)
+        
+        token=p.value
+        print('('+str(linea)+', '+str(columna)+') - SemanticError: ERROR at or near "'+ str(token)+'"')
+
+    p[0].type="Object"
     pass
 
 def p_blockexp(p):
     '''blockexp : lbracket expressionlist rbracket'''#'''blockexp : lbracket expression pcoma expressionlist rbracket'''
+    p[0].type=p[2].type
     pass
 
 def p_letexp(p):
@@ -413,6 +444,7 @@ def p_newexp(p):
 
 def p_isvoidexp(p):
     '''isvoidexp : isvoid expression'''
+    p[0].type="Bool"
     pass
 
 def p_aritmetica(p):
@@ -421,6 +453,19 @@ def p_aritmetica(p):
                   | expression mult expression
                   | expression div expression
                   | intnot expression'''
+    
+    if((p[1]=="~" and p[2].type!="Int") or (p[1].type!="Int" or p[3].type!="Int")):
+        linea=1
+        
+        for i in range(p.lexpos):
+            if p.lexer.lexdata[i]=='\n':
+                linea+=1
+                columna=find_column(p.lexer.lexdata, p)
+        
+        token=p.value
+        print('('+str(linea)+', '+str(columna)+') - SemanticError: ERROR at or near "'+ str(token)+'"')
+
+    p[0].type="Int"
     pass
 
 def p_comparison(p):
@@ -428,10 +473,25 @@ def p_comparison(p):
                   | expression lesse expression
                   | expression equal expression
                   | not expression'''
+    if((p[1].value=="not" and p[2].type!="Bool") or (p[1].type!="Int" or p[3].type!="Int") or (p[2].value=="equal" and p[1].type!=p[3].type)):
+        linea=1
+        
+        for i in range(p.lexpos):
+            if p.lexer.lexdata[i]=='\n':
+                linea+=1
+                columna=find_column(p.lexer.lexdata, p)
+        
+        token=p.value
+        print('('+str(linea)+', '+str(columna)+') - SemanticError: ERROR at or near "'+ str(token)+'"')
+
+    p[0].type="Bool"
+    pass
+
     pass
 
 def p_parenexpression(p):
     '''parenexpression : lparen expression rparen'''
+    p[0].type=p[2].type
     pass
 
 def p_constantexp(p):
@@ -439,6 +499,7 @@ def p_constantexp(p):
                 | string
                 | true
                 | false'''
+    p[0].type=p[1].type
     pass
 
 def p_identifier(p):
@@ -447,6 +508,8 @@ def p_identifier(p):
 
 def p_assignment(p):
     '''assignment : id assign expression'''
+    p[0].id=p[1].value
+    p[0].type=p[3].type
     pass
 
 def p_error(p):
