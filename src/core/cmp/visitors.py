@@ -1016,10 +1016,9 @@ class InferenceVisitor(TypeChecker):
     def visit(self, node, scope):
         super().visit(node, scope)
 
-        # //TODO: Only infer if atomic
         left, right = node.info
-        if update_condition(left, right):
+        if update_condition(left, right) and right in [INT, BOOL, STRING]:
             self.update(node.left, scope, right)
-        if update_condition(right, left):
+        if update_condition(right, left) and left in [INT, BOOL, STRING]:
             self.update(node.right, scope, left)
         
