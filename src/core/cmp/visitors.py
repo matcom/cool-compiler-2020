@@ -758,12 +758,10 @@ class TypeChecker:
         node.computed_type = BOOL
 
 
-# //TODO: Try to infer SELF_TYPE
 # Type Inference Visitor
 class InferenceVisitor(TypeChecker):
-    def __init__(self, context, skip_object=True, errors=[]):
+    def __init__(self, context, errors=[]):
         super().__init__(context, errors)
-        self.skip = skip_object
         self.variable = {}
 
     def inference(self, node, ntype, conforms=True):
@@ -860,10 +858,11 @@ class InferenceVisitor(TypeChecker):
         super().visit(node, scope) 
 
         infered = 0
-        if not self.skip: print(self.variable.keys())
+        pending = []
         for (auto, sets) in self.variable.items():
             try:
-                if self.skip and (len(sets.D) + len(sets.S) == 1):
+                if (len(sets.D) + len(sets.S) == 1):
+                    pending.append(auto)
                     continue
                 ok, D1 = check_path(sets.D, OBJ)
                 assert ok
@@ -876,6 +875,10 @@ class InferenceVisitor(TypeChecker):
                 infered += 1
             except AssertionError:
                 self.errors.append((f'Bad use of AUTO_TYPE detected', auto.ttype))
+        if not infered:
+            for auto in pending:
+                auto.type = OBJ.name
+                self.context_update(auto, OBJ)
         self.variable.clear()
         return infered
     

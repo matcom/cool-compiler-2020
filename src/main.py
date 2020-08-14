@@ -61,7 +61,6 @@ def main(args):
     inferencer = InferenceVisitor(context)
     while inferencer.visit(ast): pass
     inferencer.errors.clear()
-    inferencer.skip = False
     inferencer.visit(ast)
     errors.extend(inferencer.errors)
     
