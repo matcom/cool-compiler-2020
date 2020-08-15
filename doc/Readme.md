@@ -4,9 +4,9 @@
 
 **Nombre** | **Grupo** | **Github**
 --|--|--
-Dalianys Pérez Perera | C411 | [@github_user](https://github.com/DalyPerez)
-Dayany Alfaro González | C411 | [@github_user](https://github.com/dayanyalfaro)
-Gilberto González Rodríguez | C411 | [@github_user](https://github.com/ginrod)
+Dalianys Pérez Perera | C411 | [@DalyPerez](https://github.com/DalyPerez)
+Dayany Alfaro González | C411 | [@dayanyalfaro](https://github.com/dayanyalfaro)
+Gilberto González Rodríguez | C411 | [@ginrod](https://github.com/ginrod)
 
 ## Readme
 
