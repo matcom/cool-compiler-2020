@@ -12,7 +12,10 @@ class RegistersManager:
     def getReg(self, instruction):
         pass
 
-class Register:
+class StoreLocation:
+    pass
+
+class Register(StoreLocation):
     def __init__(self, name):
         self._name = name
         self._registerDescriptor = RegisterDescriptor()
@@ -27,10 +30,20 @@ class Register:
 
 class RegisterDescriptor:
     def __init__(self):
+        #ListVariables
         pass
 
+class MemoryLocation(StoreLocation):
+    pass
 
-class AddressDescriptor:
+class HeapLocation(MemoryLocation):
+    pass
+
+class StackLocation(MemoryLocation):
+    pass
+
+
+class AddressDescriptor():
     def __init__(self):
         #List locations
         pass
