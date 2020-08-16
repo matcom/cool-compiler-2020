@@ -143,10 +143,6 @@ class Lexer():
         """
         The Type Token Rule.
         """
-        # token.type = self.builtin_types.get(token.value, 'TYPE')
-        # if self.builtin_types.__contains__(token.value):
-        #     token.type = self.builtin_types[token.value]
-        # elif self.keywords.__contains__(str.lower(token.value)):
         if self.keywords.__contains__(str.lower(token.value)):
             token.type = self.keywords[str.lower(token.value)]
             token.value = str.lower(token.value)
@@ -203,8 +199,6 @@ class Lexer():
     def t_STRING_newline(self, token):
         token.lexer.lineno += 1
         if not token.lexer.backslashed:
-            # print("Newline not escaped inside a string")
-            # token.lexer.skip(1)
             message = 'Unterminated string constant'
             column = find_column(token.lexer.lexdata,token)
             error = ErrorToken(message, token.lineno, column)
@@ -376,13 +370,8 @@ if __name__ == "__main__":
     
     lexer = Lexer()
     lexer.input(cool_program_code)
-    for token in lexer:
-        pass
+    for token in lexer: pass
     
     if lexer.errors:
         print(lexer.errors[0])
         exit(1)
-    #     print(token)
-    # print('-------------------------------------')
-    # for error in lexer.errors:
-    #     print(error)
