@@ -77,6 +77,7 @@ class Type:
                 raise SemanticError(f'Method "{name}" is not defined in {self.name}.')
 
     def define_method(self, name:str, param_names:list, param_types:list, return_type):
+        # //TODO: Remove the below if clause
         if name in self.methods.keys():
             raise SemanticError(f'Method "{name}" already defined in {self.name}')
         try:
@@ -114,18 +115,29 @@ class Type:
     def __repr__(self):
         return str(self)
 
-class ErrorType(Type):
-    def __init__(self):
-        Type.__init__(self, '<error>')
-
+class MutableType(Type):
     def conforms_to(self, other):
         return True
 
     def bypass(self):
         return True
 
+class ErrorType(MutableType):
+    def __init__(self):
+        Type.__init__(self, '<error>')
+
     def __eq__(self, other):
         return isinstance(other, Type)
+
+    def __bool__(self):
+        return False
+
+class AutoType(MutableType):
+    def __init__(self):
+        Type.__init__(self, 'AUTO_TYPE')
+
+    def __eq__(self, other):
+        return isinstance(other, AutoType)
 
 class VoidType(Type):
     def __init__(self):
@@ -175,11 +187,15 @@ class Context:
     def __init__(self):
         self.types = {}
 
-    def create_type(self, name:str):
+    def append_type(self, new_type):
+        name = new_type.name
         if name in self.types:
             raise SemanticError(f'Type with the same name ({name}) already in context.')
-        typex = self.types[name] = Type(name)
+        typex = self.types[name] = new_type
         return typex
+
+    def create_type(self, name:str):
+        return self.append_type(Type(name))
 
     def get_type(self, name:str):
         try:
@@ -232,8 +248,5 @@ class Scope:
         return any(True for x in self.locals if x.name == vname)
 
     def count_auto(self):
-        num = 0
-        for var in self.locals:
-            if var.type.name == 'AUTO_TYPE':
-                num += 1
+        num = sum([x.type.name == 'AUTO_TYPE' for x in self.locals])
         return num + sum([scp.count_auto() for scp in self.children])

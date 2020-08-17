@@ -173,22 +173,21 @@ class BoolNode(AtomicNode):
     pass
 
 def FunctionCallNodeBuilder(obj, calls):
-    #print("-------------------")
     while len(calls):
-        #print(obj)
         obj = FunctionCallNode(obj, *calls[0])
         calls.pop(0)
-    #print("-------------------")
     return obj
 
-class Param:
+class Param(Node):
     def __init__(self, tid, ttype):
         self.tid = tid
         self.ttype = ttype
+        self.type = ttype.lex
         
     def __iter__(self):
         yield self.tid.lex
-        yield self.ttype.lex
+        yield self.type
+
         
 # Grammar
 
