@@ -247,7 +247,7 @@ class FunctionDivider:
         
         return blocks
 
-    def create_flow_graph(blocks) #graph between blocks in a same function does not include relations between functions
+    def create_flow_graph(blocks): #graph between blocks in a same function does not include relations between functions
         graph = [[-1 for _ in range(len(blocks))] for _ in range(len(blocks)) ]
         labels = {b.name : i for i, b in enumerate(blocks) if type(b[0]) == cil.LabelNode}
 

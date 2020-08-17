@@ -101,12 +101,12 @@ def main(args):
 
 
 if __name__ == "__main__":
-    # import argparse 
-# 
-    # parser = argparse.ArgumentParser(description='CoolCompiler pipeline')
-    # parser.add_argument('-f', '--file', type=str, default='code.cl', help='node address')
-# 
-    # args = parser.parse_args()
-    # main(args)
+    import argparse 
 
-    test()
+    parser = argparse.ArgumentParser(description='CoolCompiler pipeline')
+    parser.add_argument('-f', '--file', type=str, default='code.cl', help='node address')
+
+    args = parser.parse_args()
+    main(args)
+
+    # test()
