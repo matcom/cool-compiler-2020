@@ -375,12 +375,6 @@ def check_path(D, ans):
         ans = l[0]
     return True, ans
 
-def IsAuto(name):
-    return name == 'AUTO_TYPE' or IsVoid(name)
-
-def IsVoid(name):
-    return name == 'void'
-
 # Type Checker
 class TypeChecker:
     def __init__(self, context, errors=[]):
