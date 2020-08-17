@@ -9,6 +9,7 @@ DEVELOPERS		:= Lázaro Raúl Iglesias Vera, Miguel Tenorio Potrony, Mauricio Lá
 COPYRIGHT	 	:= Copyright © 2020: $(DEVELOPERS)
 
 main: ## Compiling the compiler :)
+	./coolc.sh "code.cl"
 	# Compiling the compiler :)
 
 clean: ## Remove temporary files

@@ -1,3 +1,4 @@
+#!/bin/bash
 # Execution details
 
 INPUT_FILE=$1

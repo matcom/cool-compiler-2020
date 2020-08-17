@@ -286,3 +286,13 @@ class CountDict():
         
     def __len__(self):
         return self._count
+        
+class InferenceSets:
+    def __init__(self):
+        self.D = []
+        self.S = []
+
+    def add(self, new_type, conforms=True):
+        cur = [self.S, self.D][conforms]
+        cur.append(new_type)
+        return self
