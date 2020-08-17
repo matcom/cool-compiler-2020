@@ -360,8 +360,41 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.expr -> ExpressionNode
         # node.branches -> [ CaseExpressionNode ... }
         ##############################################
-         #//TODO: Implement CaseOfNode
-        pass
+        vexpr = self.register_local(VariableInfo('case_expr_value', None))
+        vtype = self.register_local(VariableInfo('typeName_value', None))
+        vcond = self.register_local(VariableInfo('equal_value', None))
+        vret = self.register_local(VariableInfo('case_value', None))
+        self.visit(node.expr, scope)
+        self.register_instruction(cil.AssignNode(vexpr, scope.ret_expr))
+        self.register_instruction(cil.TypeNameNode(vtype, scope.ret_expr))
+        #//TODO: Ask if <vexpr> is void and raise proper error if vexpr value is void
+
+        end_label = self.register_label('end_label')
+        labels = []
+        for idx, b in enumerate(node.branches):
+            labels.append(self.register_label(f'{idx}_label'))
+            h = self.buildHierarchy(b.type)
+            if not h:
+                self.register_instruction(cil.GotoNode(labels[-1].label))
+                break
+            for t in h:
+                data_node = self.register_data(t)
+                vbranch_type_name = self.register_local(VariableInfo('branch_type_name', None))
+                self.register_instruction(cil.LoadNode(vbranch_type_name, data_node.name))
+                self.register_instruction(cil.EqualNode(vcond, vtype, vbranch_type_name))
+                self.register_instruction(cil.GotoIfNode(vcond, labels[-1].label))
+
+        #//TODO: Raise runtime error if no Goto was executed
+        
+        for idx, l in enumerate(labels):
+            self.register_instruction(l)
+            vid = self.register_local(VariableInfo(node.branches[idx].id, None))
+            self.register_instruction(cil.AssignNode(vid, vexpr))
+            self.visit(node.branches[idx], scope)
+            self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
+            self.register_instruction(cil.GotoNode(end_label.label))
+
+        self.register_instruction(end_label)
 
     @visitor.when(cool.CaseExpressionNode)
     def visit(self, node, scope):
@@ -370,8 +403,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.type -> str
         # node.expr -> ExpressionNode
         ###############################
-        #//TODO: Implement CaseExpressionNode
-        pass
+        self.visit(node.expr, scope)
 
     @visitor.when(cool.LetAttributeNode)
     def visit(self, node, scope):
