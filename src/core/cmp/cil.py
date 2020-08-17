@@ -142,6 +142,9 @@ class LoadNode(InstructionNode):
         self.dest = dest
         self.msg = msg
 
+class ExitNode(InstructionNode):
+    pass
+
 class TypeNameNode(InstructionNode):
     def __init__(self, dest, source):
         self.dest = dest

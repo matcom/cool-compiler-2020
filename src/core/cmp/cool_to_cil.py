@@ -13,6 +13,7 @@ class BaseCOOLToCILVisitor:
         self.current_function = None
         self.context = context
         self.vself = VariableInfo('self', None)
+        self.default_values = {'Int': 0, 'String': '', 'Bool': False}
     
     @property
     def params(self):
@@ -77,19 +78,21 @@ class BaseCOOLToCILVisitor:
         type_node = self.register_type('Object')
 
         self.current_function = self.register_function(self.to_function_name('abort', 'Object'))
-        #//TODO: Code of abort
+        vname = self.define_internal_local()
+        self.register_instruction(cil.LoadNode(vname, 'data_0'))
+        self.register_instruction(cil.PrintNode(vname))
+        self.register_instruction(cil.ExitNode())
+        # No need for RETURN here right??
 
         self.current_function = self.register_function(self.to_function_name('type_name', 'Object'))
         self.register_param(self.vself)
         result = self.define_internal_local()
-        self.register_instruction(cil.ArgNode(self.vself.name))
         self.register_instruction(cil.TypeNameNode(result, self.vself.name))
         self.register_instruction(cil.ReturnNode(result))
 
         self.current_function = self.register_function(self.to_function_name('copy', 'Object'))
         self.register_param(self.vself)
         result = self.define_internal_local()
-        self.register_instruction(cil.ArgNode(self.vself.name))
         self.register_instruction(cil.CopyNode(result, self.vself.name))
         self.register_instruction(cil.ReturnNode(result))
 
@@ -172,6 +175,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(cil.StaticCallNode(self.to_function_name('main', 'Main'), result))
         self.register_instruction(cil.ReturnNode(0))
         self.register_built_in()
+        # Error message raised by Object:abort()
+        self.register_data('Program aborted')
         self.current_function = None
         
         for declaration, child_scope in zip(node.declarations, scope.children):
@@ -193,10 +198,23 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         type_node = self.register_type(node.id)
         type_node.attributes = [attr.name for attr, _ in self.current_type.all_attributes()]
         type_node.methods = [(method.name, self.to_function_name(method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
-          
+
         func_declarations = (f for f in node.features if isinstance(f, cool.FuncDeclarationNode))
         for feature, child_scope in zip(func_declarations, scope.children):
             self.visit(feature, child_scope)
+
+        #init
+        self.current_function = self.register_function(self.to_function_name('init', node.id))
+        #allocate
+        instance = self.define_internal_local()
+        self.register_instruction(cil.AllocateNode(node.id, instance))
+        scope.ret_expr = instance
+
+        attr_declarations = (f for f in node.features if isinstance(f, cool.AttrDeclarationNode))
+        for feature in attr_declarations:
+            self.visit(feature, scope)
+        self.register_instruction(cil.ReturnNode(instance))
+        self.current_function = None
                 
         self.current_type = None
 
@@ -207,8 +225,15 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.type -> str
         # node.expr -> ExpressionNode
         ###############################
-        #//TODO: Implement AttrDeclarationNode, assess whether this needs to be done
-        pass
+        instance = scope.ret_expr
+        if node.expr:
+            self.visit(node.expr, scope)
+        else:
+            try:
+                scope.ret_expr = self.default_values[node.type]
+            except KeyError:
+                scope.ret_expr = None
+        self.register_instruction(cil.SetAttribNode(instance, node.id, scope.ret_expr))
                 
     @visitor.when(cool.FuncDeclarationNode)
     def visit(self, node, scope):
@@ -363,7 +388,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         try:
             self.current_type.attributes.get_attribute(node.id)
-            self.register_instruction(cil.SetAttribNode(self.current_type.name, node.id, scope.ret_expr))
+            self.register_instruction(cil.SetAttribNode(self.vself, node.id, scope.ret_expr))
+            scope.ret_expr = node.id
         except SemanticError:
             vname = self.register_local(VariableInfo(node.id, None))
             self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
@@ -514,9 +540,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         if node.type:
             #Call of type <expr>@<type>.id(<expr>,...,<expr>)
+            #Is ok to search node.type in dottypes???
             at_type = [typex for typex in self.dottypes if typex.name == node.type][0]
             instance = self.define_internal_local()
-            self.register_instruction(cil.AllocateNode(at_type.name, instance))
+            self.register_instruction(cil.StaticCallNode(self.to_function_name('init', at_type.name), instance))
             #self for Static Dispatch
             self.register_instruction(cil.ArgNode(instance))
             for arg in args:
@@ -530,14 +557,14 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             #Call of type <expr>.<id>(<expr>,...,<expr>)
             type_of_node = self.register_local(VariableInfo(f'{node.id}_type'))
             self.register_instruction(cil.TypeOfNode(node.obj.lex, type_of_node))
+            instance = self.define_internal_local()
+            self.register_instruction(cil.DynamicCallNode(type_of_node, 'init', instance))
             #self for Dynamic Dispatch
-            self.register_instruction(cil.ArgNode(type_of_node))
+            self.register_instruction(cil.ArgNode(instance))
             for arg in args:
                 self.register_instruction(arg)
 
-            #//TODO: Check if node,obj's type is void, and in that case throw runtime error
-            _, vtype = [vinfo for vinfo in scope.locals if vinfo.name == node.obj.lex][0]
-            self.register_instruction(cil.DynamicCallNode(type_of_node, self.to_function_name(node.id, vtype), result))
+            self.register_instruction(cil.DynamicCallNode(type_of_node, node.id, result))
             scope.ret_expr = result
 
     @visitor.when(cool.MemberCallNode)
@@ -569,7 +596,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.type -> str
         ###############################
         instance = self.define_internal_local()
-        self.register_instruction(cil.AllocateNode(node.type, instance))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', node.type), instance))
         scope.ret_expr = instance
 
     @visitor.when(cool.IntegerNode)
@@ -587,7 +614,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         try:
             self.current_type.attributes.get_attribute(node.lex)
             attr = self.register_local(VariableInfo('attr_value', None))
-            self.register_instruction(cil.GetAttribNode(attr, self.current_type.name, node.lex))
+            self.register_instruction(cil.GetAttribNode(attr, self.vself, node.lex))
             scope.ret_expr = attr
         except SemanticError:
             param_names = [pn.name for pn in self.current_function.params]
