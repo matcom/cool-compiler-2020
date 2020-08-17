@@ -158,6 +158,15 @@ class BaseCOOLToCILVisitor:
 
 
 class COOLToCILVisitor(BaseCOOLToCILVisitor):
+    def __init__(self, context):
+       super().__init__(context)
+
+    def buildHierarchy(self, t:str):
+        h = []
+        if t == 'Object': return None
+        h.extend([x for x in self.context.types if x.conforms_to(t)])
+        return h
+            
     @visitor.on('node')
     def visit(self, node):
         pass
