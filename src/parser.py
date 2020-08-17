@@ -118,7 +118,6 @@ class Parser():
         features_list_opt : features_list
                           | empty
         """
-        # parse[0] = parse[1]
         parse[0] = tuple() if parse.slice[1].type == "empty" else parse[1]
 
     def p_feature_list(self, parse):
@@ -147,7 +146,6 @@ class Parser():
         """
         feature : formal
         """
-        # parse[0] = AST.Formal(name=parse[1], Type=parse[3], expr=parse[5])
         parse[0] = parse[1]
     
     def p_formal(self, parse):
@@ -248,7 +246,6 @@ class Parser():
         arguments_list_opt : arguments_list
                            | empty
         """
-        # parse[0] = parse[1]
         parse[0] = tuple() if parse.slice[1].type == "empty" else parse[1]
 
     def p_arguments_list(self, parse):
@@ -371,7 +368,6 @@ class Parser():
         action : ID COLON TYPE ARROW expression SEMICOLON
         """
         parse[0] = AST.Action(name=parse[1], action_type=parse[3], body=parse[5])
-        # parse[0] = (parse[1], parse[3], parse[5])
 
     # ######################### UNARY OPERATIONS #######################################
 
@@ -417,26 +413,9 @@ class Parser():
             return
 
         message = f'"{parse.value}"'
-        # column = find_column(token.lexer.lexdata,token)
-        # column = parse.lexpos
         error = ErrorParser(message, parse.lineno, lexer.find_column(parse.lexer.lexdata, parse))
         self.errors.append(error)
         self.parser.errok()
-
-        # token.lexer.skip(1)
-        # return error
-
-    # def p_error(self, parse):
-    #     """
-    #     Error rule for Syntax Errors handling and reporting.
-    #     """
-    #     if parse is None:
-    #         print("Error! Unexpected end of input!")
-    #     else:
-    #         error = "Syntax error! Line: {}, position: {}, character: {}, type: {}".format(
-    #             parse.lineno, parse.lexpos, parse.value, parse.type)
-    #         self.error_list.append(error)
-    #         self.parser.errok()
 
     # ################### END OF FORMAL GRAMMAR RULES SPECIFICATION ####################
 
@@ -474,21 +453,10 @@ class Parser():
         # Expose tokens collections to this instance scope
         self.tokens = self.lexer.tokens
 
-        # EYE
-        # Changing output to parsing_log.txt to do not have the WARNING: tokens related messages on sdout
-        # import sys
-        # stdout = sys.stdout
-        # sys.stdout = open('.parsing_log', 'w') 
-
         # Build yacc parser
         self.parser = yacc.yacc(module=self, write_tables=write_tables, debug=debug, optimize=optimize,
-                                # outputdir=outputdir, tabmodule=yacctab, debuglog=debuglog, errorlog=errorlog)
                                 outputdir=outputdir, tabmodule=yacctab, debuglog=debuglog, errorlog=yacc.NullLogger())
 
-        # Setting output to stdout again
-        # sys.stdout.close()
-        # sys.stdout = stdout
-        
     def parse(self, program_source_code: str) -> AST.Program:
         """
         Parses a COOL program source code passed as a string.
@@ -514,26 +482,16 @@ if __name__ == '__main__':
     parser = Parser()
 
     if len(sys.argv) > 1:
-        # if not str(sys.argv[1]).endswith(".cl"):
-        #     print("Cool program source code files must end with .cl extension.")
-        #     print("Usage: ./parser.py program.cl")
-        #     exit()
-
         input_file = sys.argv[1]
         with open(input_file, encoding="utf-8") as file:
             cool_program_code = file.read()
 
         parse_result = parser.parse(cool_program_code)
 
-        # for error in parser.errors:
-        #     print(error)
-    
         if parser.errors:
             print(parser.errors[0])
             exit(1)
 
-        # print('PRINTING parse_result')
-        # print(parse_result)
     else:
         print("cool-compiler-2020 Parser: Interactive Mode.\r\n")
         while True:
