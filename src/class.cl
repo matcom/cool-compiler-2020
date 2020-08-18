@@ -8,7 +8,7 @@ class Hello {
 	
 };
 
-class World {
+class World inherits Hello{
    foo2: Int;
    bar2: String;
    g(b: Hello): Hello{b}; 
