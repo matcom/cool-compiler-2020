@@ -431,6 +431,7 @@ class Main inherits IO {
 };
 '''
 
+_text3 = '''
 class B : A {
     c : int ;
     def f ( d : int , a : A ) : void {
