@@ -369,18 +369,20 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         end_label = self.register_label('end_label')
         labels = []
+        old = []
         for idx, b in enumerate(node.branches):
             labels.append(self.register_label(f'{idx}_label'))
             h = self.buildHierarchy(b.type)
             if not h:
                 self.register_instruction(cil.GotoNode(labels[-1].label))
                 break
-            for t in h:
-                data_node = self.register_data(t)
-                vbranch_type_name = self.register_local(VariableInfo('branch_type_name', None))
-                self.register_instruction(cil.LoadNode(vbranch_type_name, data_node.name))
-                self.register_instruction(cil.EqualNode(vcond, vtype, vbranch_type_name))
-                self.register_instruction(cil.GotoIfNode(vcond, labels[-1].label))
+            if len([True for x in old if b.type in x]) > 0:
+                for t in h:
+                    data_node = self.register_data(t)
+                    vbranch_type_name = self.register_local(VariableInfo('branch_type_name', None))
+                    self.register_instruction(cil.LoadNode(vbranch_type_name, data_node.name))
+                    self.register_instruction(cil.EqualNode(vcond, vtype, vbranch_type_name))
+                    self.register_instruction(cil.GotoIfNode(vcond, labels[-1].label))
 
         #//TODO: Raise runtime error if no Goto was executed
         
