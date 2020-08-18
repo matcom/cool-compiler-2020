@@ -874,7 +874,7 @@ class InferenceVisitor(TypeChecker):
                 auto.type = OBJ.name
                 self.context_update(auto, OBJ)
         self.variable.clear()
-        return infered
+        return infered, scope
     
     @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope):

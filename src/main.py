@@ -63,9 +63,9 @@ def main(args):
 
     # Checking types
     inferencer = InferenceVisitor(context)
-    while inferencer.visit(ast): pass
+    while inferencer.visit(ast)[0]: pass
     inferencer.errors.clear()
-    inferencer.visit(ast)
+    _, scope = inferencer.visit(ast)
     errors.extend(inferencer.errors)
     
     if errors:
