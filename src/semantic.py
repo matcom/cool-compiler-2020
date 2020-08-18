@@ -253,3 +253,4 @@ class Scope:
 
     def is_local(self, vname):
         return any(True for x in self.locals if x.name == vname)
+
