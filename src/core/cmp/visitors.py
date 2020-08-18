@@ -849,7 +849,7 @@ class InferenceVisitor(TypeChecker):
 
     @visitor.when(ProgramNode)
     def visit(self, node, scope=None):
-        super().visit(node, scope) 
+        scope = super().visit(node, scope) 
 
         infered = 0
         pending = []
