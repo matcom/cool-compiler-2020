@@ -8,6 +8,7 @@ from core.cmp.lex import CoolLexer
 from core.cmp.evaluation import *
 from core.cmp.cil import get_formatter
 from pprint import pprint
+from core.cmp.cool_to_cil import COOLToCILVisitor
 
 
 def main(args):
