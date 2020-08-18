@@ -40,6 +40,7 @@ class Method:
 class Type:
     def __init__(self, name: str):
         self.name = name
+        self.sealed = False # indicates if this type is restricted for inheritance
         self.attributes = []
         self.methods = {}
         self.parent = None
@@ -133,12 +134,60 @@ class ErrorType(Type):
         return isinstance(other, Type)
 
 
+class ObjectType(Type):
+    def __init__(self):
+        Type.__init__(self, 'Object')
+        self.define_method('abort', [], [], 'Object')
+        self.define_method('type_name', [], [], 'String')
+        self.define_method('copy',[],[],'SELF_TYPE')
+
+    def bypass(self):
+        return True
+
+    def __eq__(self, other):
+        return other.name == self.name or isinstance(other, ObjectType)
+
+
+class IOType(Type):
+    def __init__(self):
+        Type.__init__(self, 'IO')
+        self.define_method('out_string', ['x'], ['String'], 'SELF_TYPE')
+        self.define_method('out_int', ['x'], ['Int'], 'SELF_TYPE')
+        self.define_method('in_string', [], [], 'String')
+        self.define_method('in_int', [], [], 'Int')
+
+    def __eq__(self, other):
+        return other.name == self.name or isinstance(other, IOType)
+
+
+class StringType(Type):
+    def __init__(self):
+        Type.__init__(self, 'String')
+        self.sealed = True
+        self.define_method('length', [], [], 'Int')
+        self.define_method('concat', ['s'], ['String'], 'String')
+        self.define_method('substr', ['i', 'l'], ['Int', 'Int'], 'String')
+
+
+    def __eq__(self, other):
+        return other.name == self.name or isinstance(other, StringType)
+
 class IntType(Type):
     def __init__(self):
-        Type.__init__(self, 'int')
+        Type.__init__(self, 'Int')
+        self.sealed = True
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, IntType)
+
+
+class BoolType(Type):
+    def __init__(self):
+        Type.__init__(self, 'Bool')
+        self.sealed = True
+
+    def __eq__(self, other):
+        return other.name == self.name or isinstance(other, BoolType)
 
 
 class Context:
