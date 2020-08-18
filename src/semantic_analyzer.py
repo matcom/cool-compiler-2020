@@ -33,7 +33,6 @@ class TypeCollector(object):
     def visit(self, node):
         try:
             self.context.create_type(node.name)
-            print(node.name, node.parent)
         except SemanticError as e:
             self.errors.append(e.text)
 
@@ -87,7 +86,6 @@ class TypeBuilder:
         try:
             self.current_type.define_attribute(
                 node.name, self.context.get_type(node.type))
-            print(self.context.get_type(node.name))
         except SemanticError as e:
             self.errors.append(e)
 
@@ -111,7 +109,7 @@ class TypeChecker:
 
     @visitor.when(AST.Class)
     def visit(self, node, scope):
-        self.current_type = self.context.get_type(node.id)  #TODO: creo que aqui debe ser node.name
+        self.current_type = self.context.get_type(node.name)  #TODO: creo que aqui debe ser node.name
         # for feature in node.features:
         #     if isinstance(feature, AttrDeclarationNode):
         #         self.visit(feature, scope)
@@ -246,7 +244,8 @@ class SemanticAnalyzer:
         collector = TypeCollector(self.errors)
         collector.visit(self.ast)
         context = collector.context
-
+        
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         # #'=============== BUILDING TYPES ================'
         builder = TypeBuilder(context, self.errors)
         builder.visit(self.ast)
