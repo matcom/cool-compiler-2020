@@ -79,9 +79,9 @@ def main(args):
     #CIL Transformation
     cool_to_cil = COOLToCILVisitor(context)
     cil_ast = cool_to_cil.visit(ast, scope)
-    formatter = get_formatter()
-    ast_cil = formatter(cil_ast)
-    print(ast_cil)
+    #formatter = get_formatter()
+    #ast_cil = formatter(cil_ast)
+    #print(ast_cil)
     
     exit(0)
 

@@ -372,10 +372,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         for idx, b in enumerate(node.branches):
             labels.append(self.register_label(f'{idx}_label'))
             h = self.buildHierarchy(b.type)
-            h.add(b.type)
             if not h:
                 self.register_instruction(cil.GotoNode(labels[-1].label))
                 break
+            h.add(b.type)
             for s in old:
                 h -= s
             for t in h:
@@ -566,7 +566,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(cool.FunctionCallNode)
     def visit(self, node, scope):
         ######################################
-        # node.obj -> AtomicNode
+        # node.obj -> ExpressionNode
         # node.id -> str
         # node.args -> [ ExpressionNode ... ]
         # node.type -> str
@@ -581,24 +581,25 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result = self.register_local(VariableInfo(f'return_value_of_{node.id}', None))
         
         if node.type:
-            #Call of type <expr>@<type>.id(<expr>,...,<expr>)
+            #Call of type <obj>@<type>.id(<expr>,...,<expr>)
             #Is ok to search node.type in dottypes???
-            at_type = [typex for typex in self.dottypes if typex.name == node.type][0]
-            instance = self.define_internal_local()
-            self.register_instruction(cil.StaticCallNode(self.to_function_name('init', at_type.name), instance))
+            vparent = self.define_internal_local()
+            self.register_instruction(cil.StaticCallNode(self.to_function_name('init', node.type), vparent))
             #self for Static Dispatch
-            self.register_instruction(cil.ArgNode(instance))
+            self.register_instruction(cil.ArgNode(vparent))
             for arg in args:
                 self.register_instruction(arg)
-                
             #method = [method for method in at_type.methods if method.name == node.id][0]
             #Shall we look method node.id in at_type parents???
-            self.register_instruction(cil.StaticCallNode(self.to_function_name(node.id, at_type.name), result))
+            self.register_instruction(cil.StaticCallNode(self.to_function_name(node.id, node.type), result))
             scope.ret_expr = result
         else:
-            #Call of type <expr>.<id>(<expr>,...,<expr>)
+            #Call of type <obj>.<id>(<expr>,...,<expr>)
             type_of_node = self.register_local(VariableInfo(f'{node.id}_type', None))
-            self.register_instruction(cil.TypeOfNode(node.obj.lex, type_of_node))
+            vobj = self.define_internal_local()
+            self.visit(node.obj, scope)
+            self.register_instruction(cil.AssignNode(vobj, scope.ret_expr))
+            self.register_instruction(cil.TypeOfNode(vobj, type_of_node))
             instance = self.define_internal_local()
             self.register_instruction(cil.DynamicCallNode(type_of_node, 'init', instance))
             #self for Dynamic Dispatch
