@@ -100,7 +100,7 @@ class Type:
 
     def all_methods(self, clean=True):
         plain = OrderedDict() if self.parent is None else self.parent.all_methods(False)
-        for method in self.methods:
+        for method in self.methods.values():
             plain[method.name] = (method, self)
         return plain.values() if clean else plain
 
