@@ -248,7 +248,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.id -> str
         # node.params -> [ (str, str) ... ]
         # node.type -> str
-        # node.body -> [ ExpressionNode ... ]
+        # node.body -> ExpressionNode
         #####################################
         
         self.current_method = self.current_type.get_method(node.id)
@@ -262,8 +262,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.register_param(VariableInfo(param_name, None))
         
         scope.ret_expr = None
-        for instruction in node.body:
-            self.visit(instruction, scope)
+        self.visit(node.body, scope)
         # (Handle RETURN)
         if scope.ret_expr is None:
             self.register_instruction(cil.ReturnNode(''))
