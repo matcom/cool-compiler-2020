@@ -239,6 +239,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             try:
                 scope.ret_expr = self.default_values[node.type]
             except KeyError:
+                #Void value
                 scope.ret_expr = None
         self.register_instruction(cil.SetAttribNode(instance, node.id, scope.ret_expr))
                 
@@ -583,10 +584,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         if node.type:
             #Call of type <obj>@<type>.id(<expr>,...,<expr>)
             #Is ok to search node.type in dottypes???
-            vparent = self.define_internal_local()
-            self.register_instruction(cil.StaticCallNode(self.to_function_name('init', node.type), vparent))
+            vobj = self.define_internal_local()
+            self.visit(node.obj, scope)
+            self.register_instruction(cil.AssignNode(vobj, scope.ret_expr))
             #self for Static Dispatch
-            self.register_instruction(cil.ArgNode(vparent))
+            self.register_instruction(cil.ArgNode(vobj))
             for arg in args:
                 self.register_instruction(arg)
             #method = [method for method in at_type.methods if method.name == node.id][0]
@@ -600,10 +602,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.visit(node.obj, scope)
             self.register_instruction(cil.AssignNode(vobj, scope.ret_expr))
             self.register_instruction(cil.TypeOfNode(vobj, type_of_node))
-            instance = self.define_internal_local()
-            self.register_instruction(cil.DynamicCallNode(type_of_node, 'init', instance))
             #self for Dynamic Dispatch
-            self.register_instruction(cil.ArgNode(instance))
+            self.register_instruction(cil.ArgNode(vobj))
             for arg in args:
                 self.register_instruction(arg)
 
