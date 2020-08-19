@@ -429,7 +429,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.visit(node.expr, scope)
 
         try:
-            self.current_type.attributes.get_attribute(node.id)
+            self.current_type.get_attribute(node.id)
             self.register_instruction(cil.SetAttribNode(self.vself, node.id, scope.ret_expr))
             scope.ret_expr = node.id
         except SemanticError:
@@ -654,7 +654,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.lex -> str
         ###############################
         try:
-            self.current_type.attributes.get_attribute(node.lex)
+            self.current_type.get_attribute(node.lex)
             attr = self.register_local(VariableInfo('attr_value', None))
             self.register_instruction(cil.GetAttribNode(attr, self.vself, node.lex))
             scope.ret_expr = attr
