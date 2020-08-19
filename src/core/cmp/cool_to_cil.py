@@ -575,11 +575,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         args = []
         for arg in node.args:
-            vname = self.register_local(VariableInfo(f'{node.id}_arg'))
+            vname = self.register_local(VariableInfo(f'{node.id}_arg', None))
             self.visit(arg, scope)
             self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
             args.append(cil.ArgNode(vname))
-        result = self.register_local(VariableInfo(f'return_value_of_{node.id}'))
+        result = self.register_local(VariableInfo(f'return_value_of_{node.id}', None))
         
         if node.type:
             #Call of type <expr>@<type>.id(<expr>,...,<expr>)
@@ -598,7 +598,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             scope.ret_expr = result
         else:
             #Call of type <expr>.<id>(<expr>,...,<expr>)
-            type_of_node = self.register_local(VariableInfo(f'{node.id}_type'))
+            type_of_node = self.register_local(VariableInfo(f'{node.id}_type', None))
             self.register_instruction(cil.TypeOfNode(node.obj.lex, type_of_node))
             instance = self.define_internal_local()
             self.register_instruction(cil.DynamicCallNode(type_of_node, 'init', instance))
@@ -620,11 +620,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         args = []
         for arg in node.args:
-            vname = self.register_local(VariableInfo(f'{node.id}_arg'))
+            vname = self.register_local(VariableInfo(f'{node.id}_arg', None))
             self.visit(arg, scope)
             self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
             args.append(cil.ArgNode(vname))
-        result = self.register_local(VariableInfo(f'return_value_of_{node.id}'))
+        result = self.register_local(VariableInfo(f'return_value_of_{node.id}', None))
 
         self.register_instruction(cil.ArgNode(self.vself.name))
         for arg in args:
