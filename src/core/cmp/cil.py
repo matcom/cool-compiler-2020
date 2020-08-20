@@ -148,6 +148,11 @@ class TypeNameNode(InstructionNode):
         self.dest = dest
         self.source = source
 
+class NameNode(InstructionNode):
+    def __init__(self, dest, name):
+        self.dest = dest
+        self.name = name
+
 class CopyNode(InstructionNode):
     def __init__(self, dest, source):
         self.dest = dest

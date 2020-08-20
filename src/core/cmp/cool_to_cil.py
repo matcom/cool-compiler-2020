@@ -409,9 +409,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             for s in old:
                 h -= s
             for t in h:
-                data_node = self.register_data(t)
                 vbranch_type_name = self.register_local(VariableInfo('branch_type_name', None))
-                self.register_instruction(cil.LoadNode(vbranch_type_name, data_node.name))
+                self.register_instruction(cil.NameNode(vbranch_type_name, t))
                 self.register_instruction(cil.EqualNode(vcond, vtype, vbranch_type_name))
                 self.register_instruction(cil.GotoIfNode(vcond, labels[-1].label))
 
