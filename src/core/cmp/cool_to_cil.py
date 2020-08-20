@@ -79,7 +79,8 @@ class BaseCOOLToCILVisitor:
 
         self.current_function = self.register_function(self.to_function_name('abort', 'Object'))
         vname = self.define_internal_local()
-        self.register_instruction(cil.LoadNode(vname, 'data_0'))
+        data_node = [d for d in self.dotdata if d.name == 'Program aborted'][0]
+        self.register_instruction(cil.LoadNode(vname, data_node))
         self.register_instruction(cil.PrintNode(vname))
         self.register_instruction(cil.ExitNode())
         # No need for RETURN here right??
@@ -88,7 +89,10 @@ class BaseCOOLToCILVisitor:
         self.register_param(self.vself)
         result = self.define_internal_local()
         self.register_instruction(cil.TypeNameNode(result, self.vself.name))
-        self.register_instruction(cil.ReturnNode(result))
+        instance = self.define_internal_local()
+        self.register_instruction(cil.ArgNode(result))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'String'), instance))
+        self.register_instruction(cil.ReturnNode(instance))
 
         self.current_function = self.register_function(self.to_function_name('copy', 'Object'))
         self.register_param(self.vself)
@@ -105,30 +109,48 @@ class BaseCOOLToCILVisitor:
         self.register_param(self.vself)
         self.register_param(VariableInfo('x', None))
         vname = self.define_internal_local()
-        self.register_instruction(cil.LoadNode(vname, 'x'))
+        self.register_instruction(cil.GetAttribNode(vname, 'x', 'value'))
         self.register_instruction(cil.PrintNode(vname))
         self.register_instruction(cil.ReturnNode(self.vself.name))
 
         self.current_function = self.register_function(self.to_function_name('out_int', 'IO'))
         self.register_param(self.vself)
         self.register_param(VariableInfo('x', None))
-        self.register_instruction(cil.PrintNode('x'))
+        vname = self.define_internal_local()
+        self.register_instruction(cil.GetAttribNode(vname, 'x', 'value'))
+        self.register_instruction(cil.PrintNode(vname))
         self.register_instruction(cil.ReturnNode(self.vself.name)) 
 
         self.current_function = self.register_function(self.to_function_name('in_string', 'IO'))
         self.register_param(self.vself)
         result = self.define_internal_local()
         self.register_instruction(cil.ReadNode(result))
+        instance = self.define_internal_local()
+        self.register_instruction(cil.ArgNode(result))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'String'), instance))
         self.register_instruction(cil.ReturnNode(result))
 
         self.current_function = self.register_function(self.to_function_name('in_int', 'IO'))
         self.register_param(self.vself)
         result = self.define_internal_local()
         self.register_instruction(cil.ReadNode(result))
+        instance = self.define_internal_local()
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
+        self.register_instruction(cil.SetAttribNode(instance, 'value', result))
         self.register_instruction(cil.ReturnNode(result))  
 
         #String
         type_node = self.register_type('String')
+        type_node.attributes = ['value']
+
+        self.current_function = self.register_function(self.to_function_name('init', 'String'))
+        self.register_param(VariableInfo('val', None))
+        val = self.define_internal_local()
+        self.register_instruction(cil.GetAttribNode(val, 'val', 'value'))
+        instance = self.define_internal_local()
+        self.register_instruction(cil.AllocateNode('String', instance))
+        self.register_instruction(cil.SetAttribNode(instance, 'value', val))
+        self.register_instruction(cil.ReturnNode(instance))
 
         self.current_function = self.register_function(self.to_function_name('length', 'String'))
         self.register_param(self.vself)
@@ -153,8 +175,14 @@ class BaseCOOLToCILVisitor:
 
         #Int
         type_node = self.register_type('Int')
-        #Bool
-        type_node = self.register_type('Bool')
+        type_node.attributes = ['value']
+
+        self.current_function = self.register_function(self.to_function_name('init', 'Int'))
+        self.register_param(VariableInfo('val', None))
+        instance = self.define_internal_local()
+        self.register_instruction(cil.AllocateNode('Int', instance))
+        self.register_instruction(cil.SetAttribNode(instance, 'value', 'val'))
+        self.register_instruction(cil.ReturnNode(instance))
 
 
 class COOLToCILVisitor(BaseCOOLToCILVisitor):
