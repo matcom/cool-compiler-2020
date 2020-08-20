@@ -708,7 +708,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         # node.lex -> str
         ###############################
-        scope.ret_expr = node.lex
+        instance = self.define_internal_local()
+        self.register_instruction(cil.ArgNode(int(node.lex)))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
+        scope.ret_expr = instance
 
     @visitor.when(cool.IdNode)
     def visit(self, node, scope):
@@ -752,3 +755,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             scope.ret_expr = 1
         else:
             scope.ret_expr = 0
+        instance = self.define_internal_local()
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
+        self.register_instruction(cil.SetAttribNode(instance, 'value', scope.ret_expr))
+        scope.ret_expr = instance
