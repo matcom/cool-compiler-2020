@@ -526,12 +526,17 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.right -> ExpressionNode
         ###############################
         vname = self.define_internal_local()
+        vleft = self.define_internal_local()
+        vright = self.define_internal_local()
         self.visit(node.left, scope)
-        left = scope.ret_expr
+        self.register_instruction(cil.GetAttribNode(vleft, scope.ret_expr, 'value'))
         self.visit(node.right, scope)
-        right = scope.ret_expr
-        self.register_instruction(cil.PlusNode(vname, left, right))
-        scope.ret_expr = vname
+        self.register_instruction(cil.GetAttribNode(vright, scope.ret_expr, 'value'))
+        self.register_instruction(cil.PlusNode(vname, vleft, vright))
+        instance = self.define_internal_local()
+        self.register_instruction(cil.ArgNode(vname))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
+        scope.ret_expr = instance
 
     @visitor.when(cool.MinusNode)
     def visit(self, node, scope):
@@ -540,11 +545,16 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.right -> ExpressionNode
         ###############################
         vname = self.define_internal_local()
+        vleft = self.define_internal_local()
+        vright = self.define_internal_local()
         self.visit(node.left, scope)
-        left = scope.ret_expr
+        self.register_instruction(cil.GetAttribNode(vleft, scope.ret_expr, 'value'))
         self.visit(node.right, scope)
-        right = scope.ret_expr
-        self.register_instruction(cil.MinusNode(vname, left, right))
+        self.register_instruction(cil.GetAttribNode(vright, scope.ret_expr, 'value'))
+        self.register_instruction(cil.MinusNode(vname, vleft, vright))
+        instance = self.define_internal_local()
+        self.register_instruction(cil.ArgNode(vname))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
         scope.ret_expr = vname
 
     @visitor.when(cool.StarNode)
@@ -554,11 +564,16 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.right -> ExpressionNode
         ###############################
         vname = self.define_internal_local()
+        vleft = self.define_internal_local()
+        vright = self.define_internal_local()
         self.visit(node.left, scope)
-        left = scope.ret_expr
+        self.register_instruction(cil.GetAttribNode(vleft, scope.ret_expr, 'value'))
         self.visit(node.right, scope)
-        right = scope.ret_expr
-        self.register_instruction(cil.StarNode(vname, left, right))
+        self.register_instruction(cil.GetAttribNode(vright, scope.ret_expr, 'value'))
+        self.register_instruction(cil.StarNode(vname, vleft, vright))
+        instance = self.define_internal_local()
+        self.register_instruction(cil.ArgNode(vname))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
         scope.ret_expr = vname
 
     @visitor.when(cool.DivNode)
@@ -568,11 +583,17 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.right -> ExpressionNode
         ###############################
         vname = self.define_internal_local()
+        vleft = self.define_internal_local()
+        vright = self.define_internal_local()
         self.visit(node.left, scope)
-        left = scope.ret_expr
+        self.register_instruction(cil.GetAttribNode(vleft, scope.ret_expr, 'value'))
         self.visit(node.right, scope)
-        right = scope.ret_expr
-        self.register_instruction(cil.DivNode(vname, left, right))
+        self.register_instruction(cil.GetAttribNode(vright, scope.ret_expr, 'value'))
+        #//TODO: Check division by 0 runtime error???
+        self.register_instruction(cil.DivNode(vname, vleft, vright))
+        instance = self.define_internal_local()
+        self.register_instruction(cil.ArgNode(vname))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
         scope.ret_expr = vname
 
     @visitor.when(cool.IsVoidNode)
@@ -594,6 +615,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.expr -> ExpressionNode
         ###############################
         vname = self.define_internal_local()
+        value = self.define_internal_local()
         self.visit(node.expr, scope)
         self.register_instruction(cil.GetAttribNode(value, scope.ret_expr, 'value'))
         self.register_instruction(cil.ComplementNode(vname, value))
