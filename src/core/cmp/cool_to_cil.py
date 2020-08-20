@@ -13,7 +13,7 @@ class BaseCOOLToCILVisitor:
         self.current_function = None
         self.context = context
         self.vself = VariableInfo('self', None)
-        self.default_values = {'Int': 0, 'String': '', 'Bool': False}
+        self.default_values = {'Int': 0, 'String': '', 'Bool': 0}
     
     @property
     def params(self):
