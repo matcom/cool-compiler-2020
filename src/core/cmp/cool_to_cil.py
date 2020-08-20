@@ -268,7 +268,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
                 scope.ret_expr = self.default_values[node.type]
             except KeyError:
                 #Void value
-                scope.ret_expr = None
+                scope.ret_expr = cil.VoidNode()
         self.register_instruction(cil.SetAttribNode(instance, node.id, scope.ret_expr))
                 
     @visitor.when(cool.FuncDeclarationNode)
@@ -291,6 +291,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.register_param(VariableInfo(param_name, None))
         
         scope.ret_expr = None
+        #//TODO: scope children used here ???
         self.visit(node.body, scope)
         # (Handle RETURN)
         if scope.ret_expr is None:
@@ -356,7 +357,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(pool_label_node)
 
         #The result of a while loop is void
-        scope.ret_expr = None
+        scope.ret_expr = cil.VoidNode()
 
     @visitor.when(cool.BlockNode)
     def visit(self, node, scope):
@@ -579,8 +580,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         # node.expr -> ExpressionNode
         ###############################
-        #//TODO: Implement IsVoidNode
-        pass
+        void = cil.VoidNode()
+        value = self.define_internal_local()
+        self.visit(node.expr, scope)
+        self.register_instruction(cil.AssignNode(value, scope.ret_expr))
+        result = self.define_internal_local()
+        self.register_instruction(cil.EqualNode(result, value, void))
+        scope.ret_expr = result
 
     @visitor.when(cool.ComplementNode)
     def visit(self, node, scope):
@@ -589,7 +595,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         vname = self.define_internal_local()
         self.visit(node.expr, scope)
-        self.register_instruction(cil.ComplementNode(vname, scope.ret_expr))
+        self.register_instruction(cil.GetAttribNode(value, scope.ret_expr, 'value'))
+        self.register_instruction(cil.ComplementNode(vname, value))
         scope.ret_expr = vname
 
     @visitor.when(cool.FunctionCallNode)

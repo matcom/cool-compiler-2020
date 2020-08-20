@@ -189,6 +189,9 @@ class ComplementNode(InstructionNode):
         self.dest = dest
         self.obj = obj
 
+class VoidNode(InstructionNode):
+    pass
+
 def get_formatter():
 
     class PrintVisitor(object):
