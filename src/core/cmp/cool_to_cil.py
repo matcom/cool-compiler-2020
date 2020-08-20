@@ -79,8 +79,7 @@ class BaseCOOLToCILVisitor:
 
         self.current_function = self.register_function(self.to_function_name('abort', 'Object'))
         vname = self.define_internal_local()
-        data_node = [d for d in self.dotdata if d.name == 'Program aborted'][0]
-        self.register_instruction(cil.LoadNode(vname, data_node))
+        self.register_instruction(cil.LoadNode(vname, 'data_0'))
         self.register_instruction(cil.PrintNode(vname))
         self.register_instruction(cil.ExitNode())
         # No need for RETURN here right??
@@ -209,9 +208,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(cil.ArgNode(self.vself.name))
         self.register_instruction(cil.StaticCallNode(self.to_function_name('main', 'Main'), result))
         self.register_instruction(cil.ReturnNode(0))
-        self.register_built_in()
         # Error message raised by Object:abort()
         self.register_data('Program aborted')
+        self.register_built_in()
         self.current_function = None
         
         for declaration, child_scope in zip(node.declarations, scope.children):
