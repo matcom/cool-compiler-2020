@@ -375,8 +375,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ############################################
         vret = self.register_local(VariableInfo('let_in_value', None))
 
-        for let_att_node in node.let_body:
-            self.visit(let_att_node, scope)
+        for let_attr_node in node.let_body:
+            self.visit(let_attr_node, scope)
         self.visit(node.in_body, scope)
         self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
         scope.ret_expr = vret
@@ -442,11 +442,16 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.type -> str
         # node.expr -> ExpressionNode
         ###############################
-        #//TODO: See if node.type is string prior to add it to .DATA ???
         vname = self.register_local(VariableInfo(node.id, node.type))
-        self.visit(node.expr, scope)
+        if node.expr:
+            self.visit(node.expr, scope)
+        else:
+            try:
+                scope.ret_expr = self.default_values[node.type]
+            except KeyError:
+                #Void value
+                scope.ret_expr = cil.VoidNode()
         self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
-        scope.ret_expr = None
 
     @visitor.when(cool.AssignNode)
     def visit(self, node, scope):
