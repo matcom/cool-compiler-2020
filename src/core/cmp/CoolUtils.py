@@ -430,3 +430,14 @@ class Main inherits IO {
     };
 };
 '''
+
+_text3 = '''
+class B : A {
+    c : int ;
+    def f ( d : int , a : A ) : void {
+        let f : int = 8 ;
+        let c = new A ( ) . suma ( 5 , f ) ;
+        c ;
+    }
+}
+'''

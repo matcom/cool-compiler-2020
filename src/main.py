@@ -8,7 +8,7 @@ from core.cmp.lex import CoolLexer
 from core.cmp.evaluation import *
 from core.cmp.cil import get_formatter
 from pprint import pprint
-from core.cmp.cil_to_mips import test
+from core.cmp.cool_to_cil import COOLToCILVisitor
 
 
 def main(args):
@@ -64,9 +64,9 @@ def main(args):
 
     # Checking types
     inferencer = InferenceVisitor(context)
-    while inferencer.visit(ast): pass
+    while inferencer.visit(ast)[0]: pass
     inferencer.errors.clear()
-    inferencer.visit(ast)
+    _, scope = inferencer.visit(ast)
     errors.extend(inferencer.errors)
     
     if errors:
@@ -76,6 +76,13 @@ def main(args):
     # else:
     #     print(FormatVisitor().visit(ast))
 
+    #CIL Transformation
+    cool_to_cil = COOLToCILVisitor(context)
+    cil_ast = cool_to_cil.visit(ast, scope)
+    #formatter = get_formatter()
+    #ast_cil = formatter(cil_ast)
+    #print(ast_cil)
+    
     exit(0)
 
 

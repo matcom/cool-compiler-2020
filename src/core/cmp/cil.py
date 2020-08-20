@@ -150,6 +150,11 @@ class TypeNameNode(InstructionNode):
         self.dest = dest
         self.source = source
 
+class NameNode(InstructionNode):
+    def __init__(self, dest, name):
+        self.dest = dest
+        self.name = name
+
 class CopyNode(InstructionNode):
     def __init__(self, dest, source):
         self.dest = dest
@@ -190,6 +195,9 @@ class ComplementNode(InstructionNode):
     def __init__(self, dest, obj):
         self.dest = dest
         self.obj = obj
+
+class VoidNode(InstructionNode):
+    pass
 
 def get_formatter():
 
