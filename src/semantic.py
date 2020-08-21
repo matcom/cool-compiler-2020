@@ -147,7 +147,6 @@ class ObjectType(Type):
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, ObjectType)
 
-
 class IOType(Type):
     def __init__(self):
         Type.__init__(self, 'IO')
@@ -158,7 +157,6 @@ class IOType(Type):
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, IOType)
-
 
 class StringType(Type):
     def __init__(self):
@@ -180,7 +178,6 @@ class IntType(Type):
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, IntType)
 
-
 class BoolType(Type):
     def __init__(self):
         Type.__init__(self, 'Bool')
@@ -200,6 +197,11 @@ class Context:
         self.types['String'] = StringType()
         self.types['Int'] = IntType()
         self.types['Bool'] = BoolType()
+
+        self.types['IO'].set_parent(self.types['Object'])
+        self.types['String'].set_parent(self.types['Object'])
+        self.types['Int'].set_parent(self.types['Object'])
+        self.types['Bool'].set_parent(self.types['Object'])
 
     def create_type(self, name: str):
         if name in self.types:
