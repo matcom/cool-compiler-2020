@@ -56,8 +56,7 @@ class TypeBuilder:
     def visit(self, node):
         try:
             self.current_type = self.context.get_type(node.name)
-            if node.parent:
-                #TODO: falla xq no existen aun los tipos builtin
+            if node.parent:        
                 self.current_type.set_parent(
                     self.context.get_type(node.parent))
 
@@ -77,7 +76,6 @@ class TypeBuilder:
             return_type = self.context.get_type(node.return_type)
             self.current_type.define_method(
                 node.name, param_names, param_types, return_type)
-            print(self.context.get_type(node.name))
         except SemanticError as e:
             self.errors
 
@@ -109,7 +107,7 @@ class TypeChecker:
 
     @visitor.when(AST.Class)
     def visit(self, node, scope):
-        self.current_type = self.context.get_type(node.name)  #TODO: creo que aqui debe ser node.name
+        self.current_type = self.context.get_type(node.name)
         # for feature in node.features:
         #     if isinstance(feature, AttrDeclarationNode):
         #         self.visit(feature, scope)
@@ -245,13 +243,9 @@ class SemanticAnalyzer:
         collector.visit(self.ast)
         context = collector.context
         
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         # #'=============== BUILDING TYPES ================'
         builder = TypeBuilder(context, self.errors)
         builder.visit(self.ast)
-        print(context)
-    
-
 
         #'=============== CHECKING TYPES ================'
         # checker = TypeChecker(context, self.errors)
