@@ -1,7 +1,7 @@
 import visitor
 import ast_nodes as AST
 from semantic import SemanticError
-from semantic import Attribute, Method, Type
+from semantic import Attribute, Method, Type, IntType, StringType, IOType, BoolType, ObjectType
 from semantic import ErrorType
 from semantic import Context
 
@@ -25,6 +25,7 @@ class TypeCollector(object):
     @visitor.when(AST.Program)
     def visit(self, node):
         self.context = Context()
+        self.context.create_builtin_types()
         for klass in node.classes:
             self.visit(klass)
 
@@ -55,9 +56,10 @@ class TypeBuilder:
     def visit(self, node):
         try:
             self.current_type = self.context.get_type(node.name)
-            if node.parent:
+            if node.parent:        
                 self.current_type.set_parent(
                     self.context.get_type(node.parent))
+
             for f in node.features:
                 self.visit(f)
         except SemanticError as e:
@@ -105,7 +107,7 @@ class TypeChecker:
 
     @visitor.when(AST.Class)
     def visit(self, node, scope):
-        self.current_type = self.context.get_type(node.id)
+        self.current_type = self.context.get_type(node.name)
         # for feature in node.features:
         #     if isinstance(feature, AttrDeclarationNode):
         #         self.visit(feature, scope)
@@ -240,9 +242,8 @@ class SemanticAnalyzer:
         collector = TypeCollector(self.errors)
         collector.visit(self.ast)
         context = collector.context
-        print(context)
-
-        #'=============== BUILDING TYPES ================'
+        
+        # #'=============== BUILDING TYPES ================'
         builder = TypeBuilder(context, self.errors)
         builder.visit(self.ast)
 

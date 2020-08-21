@@ -27,9 +27,9 @@ class Method:
         self.return_type = return_type
 
     def __str__(self):
-        params = ', '.join(f'{n}:{t.name}' for n, t in zip(
+        params = ', '.join(f'{n}:{t}' for n, t in zip(
             self.param_names, self.param_types))
-        return f'[method] {self.name}({params}): {self.return_type.name};'
+        return f'[method] {self.name}({params}): {self.return_type};'
 
     def __eq__(self, other):
         return other.name == self.name and \
@@ -194,6 +194,13 @@ class Context:
     def __init__(self):
         self.types = {}
 
+    def create_builtin_types(self):
+        self.types['Object'] = ObjectType()
+        self.types['IO'] = IOType()
+        self.types['String'] = StringType()
+        self.types['Int'] = IntType()
+        self.types['Bool'] = BoolType()
+
     def create_type(self, name: str):
         if name in self.types:
             raise SemanticError(
@@ -206,6 +213,8 @@ class Context:
             return self.types[name]
         except KeyError:
             raise SemanticError(f'Type "{name}" is not defined.')
+    
+   
 
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
@@ -253,3 +262,4 @@ class Scope:
 
     def is_local(self, vname):
         return any(True for x in self.locals if x.name == vname)
+
