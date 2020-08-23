@@ -77,6 +77,11 @@ class BaseCOOLToCILVisitor:
         #Object
         type_node = self.register_type('Object')
 
+        self.current_function = self.register_function(self.to_function_name('init', 'Object'))
+        instance = self.define_internal_local()
+        self.register_instruction(cil.AllocateNode('Object', instance))
+        self.register_instruction(cil.ReturnNode(instance))
+
         self.current_function = self.register_function(self.to_function_name('abort', 'Object'))
         vname = self.define_internal_local()
         self.register_instruction(cil.LoadNode(vname, 'data_0'))
@@ -99,10 +104,15 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.CopyNode(result, self.vself.name))
         self.register_instruction(cil.ReturnNode(result))
 
-        type_node.methods = [(name, self.to_function_name(name, 'Object')) for name in ['abort', 'type_name', 'copy']]
+        type_node.methods = [(name, self.to_function_name(name, 'Object')) for name in ['init', 'abort', 'type_name', 'copy']]
 
         #IO
         type_node = self.register_type('IO')
+
+        self.current_function = self.register_function(self.to_function_name('init', 'Object'))
+        instance = self.define_internal_local()
+        self.register_instruction(cil.AllocateNode('Object', instance))
+        self.register_instruction(cil.ReturnNode(instance))
 
         self.current_function = self.register_function(self.to_function_name('out_string', 'IO'))
         self.register_param(self.vself)
@@ -138,6 +148,8 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.SetAttribNode(instance, 'value', result))
         self.register_instruction(cil.ReturnNode(result))  
 
+        type_node.methods = [(name, self.to_function_name(name, 'IO')) for name in ['init', 'out_string', 'out_int', 'in_string', 'in_int']]
+
         #String
         type_node = self.register_type('String')
         type_node.attributes = ['value']
@@ -172,6 +184,8 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.SubstringNode(result, self.vself.name, 'i', 'l'))
         self.register_instruction(cil.ReturnNode(result))
 
+        type_node.methods = [(name, self.to_function_name(name, 'String')) for name in ['init', 'length', 'concat', 'substr']]
+
         #Int
         type_node = self.register_type('Int')
         type_node.attributes = ['value']
@@ -182,6 +196,8 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.AllocateNode('Int', instance))
         self.register_instruction(cil.SetAttribNode(instance, 'value', 'val'))
         self.register_instruction(cil.ReturnNode(instance))
+
+        type_node.methods = [('init', self.to_function_name('init', 'Int'))]
 
 
 class COOLToCILVisitor(BaseCOOLToCILVisitor):
