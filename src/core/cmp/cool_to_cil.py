@@ -85,7 +85,7 @@ class BaseCOOLToCILVisitor:
         self.current_function = self.register_function(self.to_function_name('abort', 'Object'))
         vname = self.define_internal_local()
         self.register_instruction(cil.LoadNode(vname, 'data_0'))
-        self.register_instruction(cil.PrintNode(vname))
+        self.register_instruction(cil.PrintStrNode(vname))
         self.register_instruction(cil.ExitNode())
         # No need for RETURN here right??
 
@@ -736,7 +736,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         try:
             self.current_type.get_attribute(node.lex)
             attr = self.register_local(VariableInfo('attr_value', None))
-            self.register_instruction(cil.GetAttribNode(attr, self.vself, node.lex, scope.find_variable(node.lex).type))
+            self.register_instruction(cil.GetAttribNode(attr, self.vself, node.lex, self.current_type.name))
             scope.ret_expr = attr
         except SemanticError:
             param_names = [pn.name for pn in self.current_function.params]
