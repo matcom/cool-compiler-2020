@@ -137,16 +137,16 @@ class BaseCOOLToCILVisitor:
         instance = self.define_internal_local()
         self.register_instruction(cil.ArgNode(result))
         self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'String'), instance))
-        self.register_instruction(cil.ReturnNode(result))
+        self.register_instruction(cil.ReturnNode(instance))
 
         self.current_function = self.register_function(self.to_function_name('in_int', 'IO'))
         self.register_param(self.vself)
         result = self.define_internal_local()
         self.register_instruction(cil.ReadNode(result))
         instance = self.define_internal_local()
+        self.register_instruction(cil.ArgNode(result))
         self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
-        self.register_instruction(cil.SetAttribNode(instance, 'value', result))
-        self.register_instruction(cil.ReturnNode(result))  
+        self.register_instruction(cil.ReturnNode(instance))  
 
         type_node.methods = [(name, self.to_function_name(name, 'IO')) for name in ['init', 'out_string', 'out_int', 'in_string', 'in_int']]
 
