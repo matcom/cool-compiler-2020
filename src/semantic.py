@@ -6,7 +6,6 @@ class SemanticError(Exception):
     def text(self):
         return self.args[0]
 
-
 class Attribute:
     def __init__(self, name, typex):
         self.name = name
@@ -17,7 +16,6 @@ class Attribute:
 
     def __repr__(self):
         return str(self)
-
 
 class Method:
     def __init__(self, name, param_names, params_types, return_type):
@@ -35,7 +33,6 @@ class Method:
         return other.name == self.name and \
             other.return_type == self.return_type and \
             other.param_types == self.param_types
-
 
 class Type:
     def __init__(self, name: str):
@@ -102,6 +99,42 @@ class Type:
 
     def bypass(self):
         return False
+    
+    def ancestors_path(self):
+        """
+        Return a list with all ancestors of the self type, starting by self
+        """
+        l = []
+        l.append(self)
+        current_parent = self.parent
+        while (current_parent is not None):
+            l.append(current_parent)
+            current_parent = current_parent.parent
+        return l
+
+    def join(self, other):
+        """
+        Return the least type C such as self <= C and other <= C
+        """
+        if self.name == other.name:  # A |_| A = A
+            return self
+
+        other_path = other.ancestors_path()
+        for p in self.ancestors_path():
+            for o in other.ancestors_path():
+                if o.name == p.name:
+                    return p
+        return other
+    
+    def multiple_join(*args):
+        """
+        Return the least type C such as all type in *args conforms with C
+        """
+        least_type = args[0]
+        for t in args:
+            least_type = least_type.join(t)
+        return least_type
+
 
     def __str__(self):
         output = f'type {self.name}'
@@ -147,7 +180,6 @@ class ObjectType(Type):
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, ObjectType)
 
-
 class IOType(Type):
     def __init__(self):
         Type.__init__(self, 'IO')
@@ -158,7 +190,6 @@ class IOType(Type):
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, IOType)
-
 
 class StringType(Type):
     def __init__(self):
@@ -180,7 +211,6 @@ class IntType(Type):
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, IntType)
 
-
 class BoolType(Type):
     def __init__(self):
         Type.__init__(self, 'Bool')
@@ -201,6 +231,11 @@ class Context:
         self.types['Int'] = IntType()
         self.types['Bool'] = BoolType()
 
+        self.types['IO'].set_parent(self.types['Object'])
+        self.types['String'].set_parent(self.types['Object'])
+        self.types['Int'].set_parent(self.types['Object'])
+        self.types['Bool'].set_parent(self.types['Object'])
+
     def create_type(self, name: str):
         if name in self.types:
             raise SemanticError(
@@ -214,8 +249,6 @@ class Context:
         except KeyError:
             raise SemanticError(f'Type "{name}" is not defined.')
     
-   
-
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
 
