@@ -119,7 +119,7 @@ class BaseCOOLToCILVisitor:
         self.register_param(VariableInfo('x', None))
         vname = self.define_internal_local()
         self.register_instruction(cil.GetAttribNode(vname, 'x', 'value'))
-        self.register_instruction(cil.PrintNode(vname))
+        self.register_instruction(cil.PrintStrNode(vname))
         self.register_instruction(cil.ReturnNode(self.vself.name))
 
         self.current_function = self.register_function(self.to_function_name('out_int', 'IO'))
@@ -127,7 +127,7 @@ class BaseCOOLToCILVisitor:
         self.register_param(VariableInfo('x', None))
         vname = self.define_internal_local()
         self.register_instruction(cil.GetAttribNode(vname, 'x', 'value'))
-        self.register_instruction(cil.PrintNode(vname))
+        self.register_instruction(cil.PrintIntNode(vname))
         self.register_instruction(cil.ReturnNode(self.vself.name)) 
 
         self.current_function = self.register_function(self.to_function_name('in_string', 'IO'))

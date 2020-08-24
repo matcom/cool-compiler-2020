@@ -185,9 +185,13 @@ class ReadNode(InstructionNode):
     def __init__(self, dest):
         self.dest = dest
 
-class PrintNode(InstructionNode):
-    def __init__(self, str_addr):
-        self.str_addr = str_addr
+class PrintStrNode(InstructionNode):
+    def __init__(self, value):
+        self.value = value
+
+class PrintIntNode(InstructionNode):
+    def __init__(self, value):
+        self.value = value
 
 class ComplementNode(InstructionNode):
     def __init__(self, dest, obj):
