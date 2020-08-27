@@ -156,11 +156,9 @@ class BaseCOOLToCILVisitor:
 
         self.current_function = self.register_function(self.to_function_name('init', 'String'))
         self.register_param(VariableInfo('val', None))
-        val = self.define_internal_local()
-        self.register_instruction(cil.GetAttribNode(val, 'val', 'value', 'String'))
         instance = self.define_internal_local()
         self.register_instruction(cil.AllocateNode('String', instance))
-        self.register_instruction(cil.SetAttribNode(instance, 'value', val, 'String'))
+        self.register_instruction(cil.SetAttribNode(instance, 'value', 'val', 'String'))
         self.register_instruction(cil.ReturnNode(instance))
 
         self.current_function = self.register_function(self.to_function_name('length', 'String'))
