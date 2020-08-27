@@ -59,6 +59,7 @@ class TypeBuilder:
             if node.parent:        
                 self.current_type.set_parent(
                     self.context.get_type(node.parent))
+                self.context.graph[node.parent].append(node.name)
 
             for f in node.features:
                 self.visit(f)
@@ -108,18 +109,11 @@ class TypeChecker:
     @visitor.when(AST.Class)
     def visit(self, node, scope):
         self.current_type = self.context.get_type(node.name)
-        # for feature in node.features:
-        #     if isinstance(feature, AttrDeclarationNode):
-        #         self.visit(feature, scope)
-        # for feature in node.features:
-        #     if isinstance(feature, FuncDeclarationNode):
-        #         self.visit(feature, scope.create_child())
-        # return scope
+    
         pass
 
     @visitor.when(AST.Formal)
     def visit(self, node, scope):
-        # scope.define_variable(node.id, node.type)
         pass
 
     @visitor.when(AST.ClassMethod)
@@ -246,6 +240,8 @@ class SemanticAnalyzer:
         # #'=============== BUILDING TYPES ================'
         builder = TypeBuilder(context, self.errors)
         builder.visit(self.ast)
+
+        print(context.graph)
 
         #'=============== CHECKING TYPES ================'
         # checker = TypeChecker(context, self.errors)

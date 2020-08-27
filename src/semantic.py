@@ -223,6 +223,7 @@ class BoolType(Type):
 class Context:
     def __init__(self):
         self.types = {}
+        self.graph = {}
 
     def create_builtin_types(self):
         self.types['Object'] = ObjectType()
@@ -230,6 +231,11 @@ class Context:
         self.types['String'] = StringType()
         self.types['Int'] = IntType()
         self.types['Bool'] = BoolType()
+        self.graph['Object'] = ['IO', 'String', 'Bool', 'Int']
+        self.graph['IO'] = []
+        self.graph['String'] = []
+        self.graph['Int'] = []
+        self.graph['Bool'] = []
 
         self.types['IO'].set_parent(self.types['Object'])
         self.types['String'].set_parent(self.types['Object'])
@@ -241,6 +247,7 @@ class Context:
             raise SemanticError(
                 f'Type with the same name ({name}) already in context.')
         typex = self.types[name] = Type(name)
+        self.graph[name] = []
         return typex
 
     def get_type(self, name: str):
