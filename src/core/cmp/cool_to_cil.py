@@ -754,10 +754,16 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         # node.lex -> str
         ###############################
-        data_node = self.register_data(node.lex)
+        try:
+            data_node = [dn for dn in self.dotdata if dn.value == node.lex][0]
+        except IndexError:
+            data_node = self.register_data(node.lex)
         vname = self.register_local(VariableInfo('msg', None))
-        self.register_instruction(cil.LoadNode(vname, data_node.name))
-        scope.ret_expr = vname
+        self.register_instruction(cil.LoadNode(vname, data_node))
+        instance = self.define_internal_local()
+        self.register_instruction(cil.ArgNode(vname))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'String'), instance))
+        scope.ret_expr = instance
 
     @visitor.when(cool.BoolNode)
     def visit(self, node, scope):
