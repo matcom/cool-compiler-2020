@@ -225,4 +225,24 @@ class PrintVisitor:
     def print(self, node):
         pass
     
+    @visitor.when(Register)
+    def visit(self, node):
+        return f'${node.name}'
+
+    @visitor.when(int)
+    def visit(self, node):
+        return str(node)
     
+    @visitor.when(str)
+    def visit(self, node):
+        return node
+
+    @visitor.when(ProgramNode)
+    def visit(self, node):
+        data_section_header = "\t.data"
+        static_strings = '\n'.join([self.visit(string_const) for string_const in node.static_data])
+        
+        types = "\n".join([self.visit(tp) for tp in node.types])
+        
+        code = "\n".join([self.visit(func) for func in node.functions])
+        return f'{data_section_header}\n{static_strings}\n{types}\n\t.text\n\t.globl main\n{code}' 
