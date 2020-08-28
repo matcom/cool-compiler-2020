@@ -263,3 +263,15 @@ class PrintVisitor:
     @visitor.when(LabelRelativeLocation)
     def visit(self, node):
         return f'{node.label} + {node.offset}'
+    
+    @visitor.when(RegisterRelativeLocation)
+    def visit(self, node):
+        return f'{node.offset}({self.visit(node.register)})'
+    
+    @visitor.when(FunctionNode)
+    def visit(self, node):
+        instr = [self.visit(instruction) for instruction in node.instructions]
+        #TODO la linea de abajo sobra, es necesaria mientras la traduccion del AST de CIL este incompleta
+        instr2 = [inst for inst in instr if type(inst) == str]
+        instructions = "\n\t".join(instr2)
+        return f'{node.label}:\n\t{instructions}'
