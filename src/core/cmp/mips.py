@@ -3,10 +3,10 @@ import core.cmp.visitor as visitor
 
 ATTR_SIZE           = 4
 RESGISTER_SIZE      = 4
-REGISTER_NAMES      = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7','t8', 't9', 'v0', 'v1', 'a0', 'sp', 'ra']
-STRING_TYPE         = "string_type"
+REGISTER_NAMES      = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7','t8', 't9']
+ARG_REGISTERS_NAMES = ['a0', 'a1', 'a2', 'a3']
 
-# TYPE_NAME_LABEL     = f"type_name_{}"
+
 TYPE_METADATA_SIZE  = 4
 
 
@@ -16,6 +16,12 @@ class Register():
         self.name = name
 
 REGISTERS           = { name: Register(name) for name in REGISTER_NAMES }
+ARG_REGISTERS       = [ Register(name) for name in ARG_REGISTERS_NAMES ]
+FP_REG              = Register('fp') 
+SP_REG              = Register('sp')
+RA_REG              = Register('ra')
+V0_REG              = Register('v0')
+V1_REG              = Register('v1')
 
 class Node:
     pass
