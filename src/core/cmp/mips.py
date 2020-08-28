@@ -201,3 +201,32 @@ def allocate_memory(addr, size):
 
 
 
+
+class MemoryLocation:
+    pass
+
+class RegisterRelativeLocation(MemoryLocation):
+    def __init__(self, register, offset):
+        self._register = register
+        self._offset = offset
+    
+    @property
+    def register(self):
+        return self._register
+    
+    @property
+    def offset(self):
+        return self._offset
+
+class LabelRelativeLocation(MemoryLocation):
+    def __init__(self, label, offset):
+        self._label = label
+        self._offset = offset
+    
+    @property
+    def label(self):
+        return self._label
+    
+    @property
+    def offset(self):
+        return self._offset
