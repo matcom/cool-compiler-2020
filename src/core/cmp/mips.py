@@ -7,7 +7,7 @@ REGISTER_NAMES      = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7','t8', 't9'
 ARG_REGISTERS_NAMES = ['a0', 'a1', 'a2', 'a3']
 
 
-TYPE_METADATA_SIZE  = 4
+INSTANCE_METADATA_SIZE  = 4
 
 
 
@@ -140,33 +140,26 @@ class AddInmediateNode(InstructionNode):
         self.value = value
 
 
-
-
-
-class MIPSType():
-    def __init__(self, label, name, size, methods):
+class MIPSType:
+    def __init__(self, label, name_addr, attributes, methods):
         self._label = label
-        self._name = name
-        self._size = size
+        self._name = name_addr
+        self._attributes = attributes
         self._methods = methods
         
 
     @property
     def size(self):
-        return len(self.attributes) * ATTR_SIZE 
+        return (len(self.attributes) * ATTR_SIZE) + INSTANCE_METADATA_SIZE
     
     @property
-    def data_label(self):
-        return self.data_label
-
-    def set_data_label(self, data_label):
-        self.data_label = string
-
-    def get_attr_offset(self, attr_name):
-        return ATTR_SIZE * self.attributes.index(attributes)
+    def label(self):
+        return self._label
     
-    def get_func(self, method_name):
-        return self.methods[method_name]
+    @property
+    def string_name_label(self):
+        return self._name
+   
 
 class Label():
     def __init__(self, name):
