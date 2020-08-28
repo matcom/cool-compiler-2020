@@ -161,22 +161,7 @@ class MIPSType:
         return self._name
    
 
-class Label():
-    def __init__(self, name):
-        self._name = name
-    
-    def __repr__(self):
-        return self._name
-    
-    
-    
-    
 
-
-class Address():
-    def __init__(self, reg, offset):
-        self.offset = offset
-        self.reg    = reg
 
 def save_register(reg):
     move_stack = AddInmediateNode(REGISTERS['sp'], REGISTERS['sp'], -RESGISTER_SIZE)
