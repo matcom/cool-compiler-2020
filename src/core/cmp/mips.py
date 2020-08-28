@@ -217,3 +217,12 @@ def exit_program():
     instructions.append(LoadInmediateNode(V0_REG, 10))
     instructions.append(SyscallNode())
     return instructions
+
+
+class PrintVisitor:
+    
+    @visitor.on('node')
+    def print(self, node):
+        pass
+    
+    
