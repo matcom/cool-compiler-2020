@@ -21,10 +21,22 @@ class Node:
     pass
 
 class ProgramNode(Node):
-    def __init__(self, dottext, dotdata, types):
-        self._dottext = dottext
-        self._dotdata = dotdata
+    def __init__(self, data, types, functions):
+        self._data = data
+        self._types = types
+        self._functions = functions
 
+    @property
+    def data(self):
+        return self._data
+    
+    @property
+    def types(self):
+        return self._types
+    
+    @property
+    def functions(self):
+        return self._functions
 
 class FunctionNode(Node):
     def __init__(self, name, instructions):
