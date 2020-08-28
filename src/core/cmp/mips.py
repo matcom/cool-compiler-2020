@@ -125,6 +125,10 @@ class JumpAndLinkNode(InstructionNode):
     def __init__(self, label):
         self.label = label
 
+class JumpRegisterAndLinkNode(InstructionNode):
+    def __init__(self, reg):
+        self.reg = reg
+
 class JumpRegister(InstructionNode):
     def __init__(self, reg):
         self.reg = reg
