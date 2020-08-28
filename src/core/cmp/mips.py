@@ -45,9 +45,32 @@ class ProgramNode(Node):
         return self._functions
 
 class FunctionNode(Node):
-    def __init__(self, name, instructions):
-        self.name = name
-        self.instructions = instructions
+    def __init__(self, label, params, localvars, instructions = []):
+        self._label = label
+        self._instructions = instructions
+        self._params = params
+        self._localvars = localvars
+    
+    def add_instructions(self, instructions):
+        self._instructions.extend(instructions)
+    
+    def get_param_stack_location(self, name):
+        #TODO Tener en cuenta que los primeros argumentos se guardan en los registros para argumentos 
+        index = self._params.index(name)
+        offset = ((len(self._params) -1 ) - index) * ATTR_SIZE
+        return RegisterRelativeLocation(FP_REG, offset)
+
+    def get_local_stack_location(self, name):
+        index = self._localvars.index(name)
+        offset = (index + 2) * -ATTR_SIZE
+        return RegisterRelativeLocation(FP_REG, offset)
+    
+    def get_var_location(self, name):
+        try:
+            return self.get_param_stack_location(name)
+        except ValueError:
+            return self.get_local_stack_location(name)
+        
 
 class DataNode(Node):
     def __init__(self, label):
