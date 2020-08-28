@@ -246,3 +246,20 @@ class PrintVisitor:
         
         code = "\n".join([self.visit(func) for func in node.functions])
         return f'{data_section_header}\n{static_strings}\n{types}\n\t.text\n\t.globl main\n{code}' 
+    
+    @visitor.when(StringConst)
+    def visit(self, node):
+        return f'{node.label}: .asciiz "{node.string}"'
+    
+    @visitor.when(MIPSType)
+    def visit(self, node):
+        methods = " ".join(node.methods)
+        return f'{node.label}:\n\t.word {node.string_name_label} {node.size} {methods}'
+
+    @visitor.when(SyscallNode)
+    def visit(self, node):
+        return 'syscall'
+    
+    @visitor.when(LabelRelativeLocation)
+    def visit(self, node):
+        return f'{node.label} + {node.offset}'
