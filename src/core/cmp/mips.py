@@ -85,23 +85,6 @@ class StringConst(DataNode):
         super().__init__(label)
         self._string = string
     
-    def __repr__(self):
-        return f'STRING_CONST {self._label} {STRING_TYPE} {self._string}'
-
-class TypeDesc(DataNode):
-    def __init__(self, label, name, size,  methods):
-        super().__init__(label)
-        self._size    = size
-        self._name    = name
-        self._methods = methods
-    
-    def __repr__(self):
-        print(self._name)
-        print(self._size)
-        return f'TYPE_DESC {self._name} {self._size} {self._label} {self._methods}'
-
-        
-        
 
 class InstructionNode(Node):
     pass
