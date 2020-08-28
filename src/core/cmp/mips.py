@@ -163,39 +163,6 @@ class MIPSType:
 
 
 
-def save_register(reg):
-    move_stack = AddInmediateNode(REGISTERS['sp'], REGISTERS['sp'], -RESGISTER_SIZE)
-    addr       = Address(REGISTERS['sp'], 0)
-    save_value = StoreWordNode(reg, addr)
-    return [move_stack, save_value]
-
-def save_registers(registers):
-    instructions = []
-    instructions.extend(chain.from_iterable([save_register(reg) for reg in registers]))
-    return instructions   
-
-def load_reg_from_stack(reg):
-    addr       = Address(REGISTERS['sp'], 0)
-    load_value = LoadWordNode(reg, addr)
-    move_stack = AddInmediateNode(REGISTERS['sp'], REGISTERS['sp'], RESGISTER_SIZE)
-    return [load_value, move_stack]
-
-def load_registers_from_stack(registers):
-    instructions = []
-    instructions.extend(chain.from_iterable([load_reg_from_stack(reg) for reg in registers]))
-    return instructions
-
-def allocate_memory(addr, size):
-    set_operation_number = LoadInmediateNode(REGISTERS['v0'], 9)
-    set_size             = LoadInmediateNode(REGISTERS['a0'], size)
-    syscall              = SyscallNode()
-    save_pointer         = StoreWordNode(REGISTERS['v0'], addr)
-    return [set_operation_number, set_size, syscall, save_pointer]
-
-
-
-
-
 class MemoryLocation:
     pass
 
@@ -224,3 +191,29 @@ class LabelRelativeLocation(MemoryLocation):
     @property
     def offset(self):
         return self._offset
+
+##Snippets
+
+def push_register(reg):
+    move_stack = AddInmediateNode(SP_REG, SP_REG, -RESGISTER_SIZE)
+    save_location = RegisterRelativeLocation(SP_REG, 0)
+    save_register = StoreWordNode(reg, save_location)
+    return [move_stack, save_register]
+
+def pop_register(reg):
+    load_value = LoadWordNode(reg, RegisterRelativeLocation(SP_REG, 0))
+    move_stack = AddInmediateNode(SP_REG, SP_REG, RESGISTER_SIZE)
+    return [load_value, move_stack]
+
+def alloc_memory(size):
+    instructions = []
+    instructions.append(LoadInmediateNode(V0_REG, 9))
+    instructions.append(LoadInmediateNode(ARG_REGISTERS[0], size))
+    instructions.append(SyscallNode())
+    return instructions
+
+def exit_program():
+    instructions = []
+    instructions.append(LoadInmediateNode(V0_REG, 10))
+    instructions.append(SyscallNode())
+    return instructions
