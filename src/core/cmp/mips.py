@@ -291,3 +291,19 @@ class PrintVisitor:
     @visitor.when(JumpAndLinkNode)
     def visit(self, node):
         return f'jal {node.label}'
+    
+    @visitor.when(JumpRegister)
+    def visit(self, node):
+        return f'jr {self.visit(node.reg)}'
+    
+    @visitor.when(LoadWordNode)
+    def visit(self, node):
+        return f'lw {self.visit(node.reg)}, {self.visit(node.addr)}'
+    
+    @visitor.when(LoadAddressNode)
+    def visit(self, node):
+        return f'la {self.visit(node.reg)}, {self.visit(node.label)}'
+    
+    @visitor.when(MoveNode)
+    def visit(self, node):
+        return f'move {self.visit(node.reg1)} {self.visit(node.reg2 )}'
