@@ -144,25 +144,25 @@ class Parser():
 
     def p_feature_attr_initialized(self, parse):
         """
-        feature : formal
+        feature : attribute_init
         """
         parse[0] = parse[1]
     
-    def p_formal(self, parse):
+    def p_atrribute_init(self, parse):
         """
-        formal : ID COLON TYPE ASSIGN expression 
-               | formal_param
+        attribute_init : ID COLON TYPE ASSIGN expression 
+                       | attribute_def
         """ 
         if len(parse) == 2:
             parse[0] = parse[1]
         else:
-            parse[0] = AST.Formal(name=parse[1], Type=parse[3], expr=parse[5])
+            parse[0] = AST.AttributeInit(name=parse[1], Type=parse[3], expr=parse[5])
 
     def p_feature_attr(self, parse):
         """
-        feature : ID COLON TYPE
+        attribute_def : ID COLON TYPE
         """
-        parse[0] = AST.Formal(name=parse[1], Type=parse[3], expr=None)
+        parse[0] = AST.AttributeDef(name=parse[1], Type=parse[3])
 
     def p_formal_list_many(self, parse):
         """
@@ -331,19 +331,36 @@ class Parser():
 
     def p_expression_let_simple(self, parse):
         """
-        let_expression : LET nested_formals IN expression
+        let_expression : LET nested_vars IN expression
         """
-        parse[0] = AST.Let(formal_list=parse[2], body=parse[4])
+        parse[0] = AST.Let(var_list=parse[2], body=parse[4])
 
-    def p_inner_formals_initialized(self, parse):
+    def p_nested_let_vars(self, parse):
         """
-        nested_formals  : formal
-                        | nested_formals COMMA formal
+        nested_vars  : let_var_init
+                        | nested_vars COMMA let_var_init
         """
         if len(parse) == 2:
             parse[0] = (parse[1],)
         else:
             parse[0] = parse[1] + (parse[3],)
+
+    def p_let_var_initialized(self, parse):
+        """
+        let_var_init : ID COLON TYPE ASSIGN expression 
+                       | let_var_def
+        """
+        if len(parse) == 2:
+            parse[0] = parse[1]
+        else:
+            parse[0] = AST.LetVarInit(
+                name=parse[1], Type=parse[3], expr=parse[5])
+
+    def p_let_var_def(self, parse):
+        """
+        let_var_def : ID COLON TYPE
+        """
+        parse[0] = AST.LetVarDef(name=parse[1], Type=parse[3])
 
     # ######################### CASE EXPRESSION ########################################
 
