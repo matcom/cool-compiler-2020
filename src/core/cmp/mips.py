@@ -275,3 +275,19 @@ class PrintVisitor:
         instr2 = [inst for inst in instr if type(inst) == str]
         instructions = "\n\t".join(instr2)
         return f'{node.label}:\n\t{instructions}'
+    
+    @visitor.when(AddInmediateNode)
+    def visit(self, node):
+        return f'addi {self.visit(node.dest)}, {self.visit(node.src)}, {self.visit(node.value)}'
+    
+    @visitor.when(StoreWordNode)
+    def visit(self, node):
+        return f'sw {self.visit(node.reg)}, {self.visit(node.addr)}'
+    
+    @visitor.when(LoadInmediateNode)
+    def visit(self, node):
+        return f'li {self.visit(node.reg)}, {self.visit(node.value)}'
+
+    @visitor.when(JumpAndLinkNode)
+    def visit(self, node):
+        return f'jal {node.label}'
