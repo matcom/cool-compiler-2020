@@ -88,6 +88,45 @@ class TypeBuilder:
         except SemanticError as e:
             self.errors.append(e)
 
+class InheritanceChecker:
+    def __init__(self, context, errors=[]):
+        self.context = context
+        self.current_type = None
+        self.errors = errors
+        self.visited = {} #types visited in the graph by the DFS
+        for t in self.context.graph.keys():
+            self.visited[t] = False
+
+    def detect_cycles(self):
+        self.visit_component('Object')
+        for t in self.visited.keys():
+            if not self.visited[t]: # type t is part of another component in the graph 
+                self.errors.append("The graph of types is not a tree")
+                return
+                
+    def visit_component(self, node):
+        if not self.visited[node]: 
+            self.visited[node] = True
+            for t in self.context.graph[node]:
+                    self.visit_component(t)
+       
+    @visitor.on('node')
+    def visit(self, node):
+        pass
+
+    @visitor.when(AST.Program)
+    def visit(self, node):
+        scope = Scope()
+        self.detect_cycles()
+        for c in node.classes:
+            self.visit(c, scope.create_child())
+
+    @visitor.when(AST.Class)
+    def visit(self, node, scope):
+        self.current_type = self.context.get_type(node.name)
+        pass
+        
+
 
 class TypeChecker:
     def __init__(self, context, errors=[]):
@@ -236,12 +275,20 @@ class SemanticAnalyzer:
         collector = TypeCollector(self.errors)
         collector.visit(self.ast)
         context = collector.context
-        
-        # #'=============== BUILDING TYPES ================'
+        print(context)
+        print("-------------------------------------------------------------------------------------")
+        #'============== BUILDING TYPES ===================='
         builder = TypeBuilder(context, self.errors)
         builder.visit(self.ast)
+        print(context)
 
-        print(context.graph)
+        #'=============== CHECKING INHERITANCE ============='
+        checker1 = InheritanceChecker(context, self.errors)
+        checker1.detect_cycles()
+        
+       
+
+
 
         #'=============== CHECKING TYPES ================'
         # checker = TypeChecker(context, self.errors)
