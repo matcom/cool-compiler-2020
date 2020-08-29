@@ -29,13 +29,21 @@ class ClassMethod(AST):
         self.expr = expr
 
 
-# <formal> ::= ID : TYPE <- <expression> | <formal_param>
-class Formal(AST):
+# <attribute_init> ::= ID : TYPE <- <expression> | <attribute_def>
+class AttributeInit(AST):
     def __init__(self, name, Type, expr):
-        super(Formal, self).__init__()
+        super(AttributeInit, self).__init__()
         self.name = name
         self.type = Type
         self.expr = expr
+
+
+# <attribute_def> ::= ID : TYPE
+class AttributeDef(AST):
+    def __init__(self, name, Type):
+        super(AttributeDef, self).__init__()
+        self.name = name
+        self.type = Type
 
 
 # <formal_param> ::= ID : TYPE
@@ -52,6 +60,8 @@ class Expr(AST):
         super(Expr, self).__init__()
 
 # <expression> ::= ID <- <expr>
+
+
 class AssingExpr(Expr):
     def __init__(self, instance, expr):
         super(AssingExpr, self).__init__()
@@ -59,6 +69,8 @@ class AssingExpr(Expr):
         self.expr = expr
 
 # <expression> ::= <expression>.ID( <arguments_list_opt> )
+
+
 class DynamicCall(Expr):
     def __init__(self, instance, method, args):
         super(DynamicCall, self).__init__()
@@ -67,6 +79,8 @@ class DynamicCall(Expr):
         self.args = args
 
 # <expression> ::= <expression><at-type>.ID( <arguments_list_opt> )
+
+
 class StaticCall(Expr):
     def __init__(self, instance, static_type, method, args):
         super(StaticCall, self).__init__()
@@ -78,6 +92,7 @@ class StaticCall(Expr):
 # <arguments_list>  ::= <arguments_list_opt> , <expression>
 #                   |   <expression>
 
+
 class Arg(Expr):
     def __init__(self, expr):
         super(Arg, self)
@@ -85,6 +100,8 @@ class Arg(Expr):
 
 # <expression> ::= <case>
 # <case> ::= case <expression> of <actions> esac
+
+
 class Case(Expr):
     def __init__(self, expr, actions):
         super(Case, self).__init__()
@@ -94,6 +111,8 @@ class Case(Expr):
 # <actions> ::= <action>
 #            |   <action> <actions>
 # <action> ::= ID : TYPE => <expr>
+
+
 class Action(AST):
     def __init__(self, name, action_type, body):
         super(Action, self).__init__()
@@ -103,6 +122,8 @@ class Action(AST):
 
 # <expression> ::= <if_then_else>
 # <if_then_else> ::= if <expression> then <expression> else <expression> fi
+
+
 class If(Expr):
     def __init__(self, predicate, then_body, else_body):
         super(If, self).__init__()
@@ -112,6 +133,8 @@ class If(Expr):
 
 # <expression> ::= <while>
 # <while> ::= while <expression> loop <expression> pool
+
+
 class While(Expr):
     def __init__(self, predicate, body):
         super(While, self).__init__()
@@ -122,34 +145,62 @@ class While(Expr):
 # <block_expression> ::= { <block_list> }
 # <block_list> ::= <block_list> <expression> ;
 #               |   <expression> ;
+
+
 class Block(Expr):
     def __init__(self, exprs):
         super(Block, self).__init__()
         self.exprs = exprs
 
 # <expression> ::= <let_expression>
-# <let_expression> ::= let <nested_formals> in <expression>
-# <nested_formals> ::= <formal>
-#                  |   <nested_formals> , <formal>
+# <let_expression> ::= let <nested_vars> in <expression>
+# <nested_vars> ::= <let_var_init>
+#                  |   <nested_vars> , <let_var_def>
+
+
 class Let(Expr):
-    def __init__(self, formal_list, body):
+    def __init__(self, var_list, body):
         super(Let, self).__init__()
-        self.formal_list = formal_list
+        self.var_list = var_list
         self.body = body
 
+
+# <let_var_init> ::= ID : TYPE <- <expression> | <let_var_def>
+class LetVarInit(AST):
+    def __init__(self, name, Type, expr):
+        super(LetVarInit, self).__init__()
+        self.name = name
+        self.type = Type
+        self.expr = expr
+
+
+# <let_var_def> ::= ID : TYPE
+class LetVarDef(AST):
+    def __init__(self, name, Type):
+        super(LetVarDef, self).__init__()
+        self.name = name
+        self.type = Type
+
+
 # <expression> ::= new TYPE
+
+
 class NewType(Expr):
     def __init__(self, Type):
         super(NewType, self)
         self.type = Type
 
 # <expression> ::= isvoid <expr>
+
+
 class IsVoid(Expr):
     def __init__(self, expr):
         super(IsVoid, self).__init__()
         self.expr = expr
 
 # <expression> ::= <expression> + <expression>
+
+
 class Sum(Expr):
     def __init__(self, summand1, summand2):
         super(Sum, self).__init__()
@@ -175,9 +226,9 @@ class Mult(Expr):
 
 # <expression> ::= <expression> / <expression>
 class Div(Expr):
-    def __init__(self, dividend , divisor):
+    def __init__(self, dividend, divisor):
         super(Div, self).__init__()
-        self.dividend  = dividend 
+        self.dividend = dividend
         self.divisor = divisor
 
 
@@ -204,6 +255,8 @@ class LessOrEqualThan(Expr):
         self.right = right
 
 # <expression> ::= <expression> = <expression>
+
+
 class Equals(Expr):
     def __init__(self, left, right):
         super(Equals, self).__init__()
@@ -245,6 +298,8 @@ class STRING(Expr):
         self.value = value
 
 # <expression> ::= TRUE | FALSE
+
+
 class Boolean(Expr):
     def __init__(self, value):
         super(Boolean, self).__init__()

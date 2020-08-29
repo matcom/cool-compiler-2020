@@ -56,7 +56,7 @@ class TypeBuilder:
     def visit(self, node):
         try:
             self.current_type = self.context.get_type(node.name)
-            if node.parent:        
+            if node.parent:
                 self.current_type.set_parent(
                     self.context.get_type(node.parent))
                 self.context.graph[node.parent].append(node.name)
@@ -80,7 +80,15 @@ class TypeBuilder:
         except SemanticError as e:
             self.errors
 
-    @visitor.when(AST.Formal)
+    @visitor.when(AST.AttributeInit)
+    def visit(self, node):
+        try:
+            self.current_type.define_attribute(
+                node.name, self.context.get_type(node.type))
+        except SemanticError as e:
+            self.errors.append(e)
+
+    @visitor.when(AST.AttributeDef)
     def visit(self, node):
         try:
             self.current_type.define_attribute(
@@ -151,7 +159,11 @@ class TypeChecker:
     
         pass
 
-    @visitor.when(AST.Formal)
+    @visitor.when(AST.AttributeInit)
+    def visit(self, node, scope):
+        pass
+
+    @visitor.when(AST.AttributeDef)
     def visit(self, node, scope):
         pass
 
@@ -197,6 +209,14 @@ class TypeChecker:
         pass
 
     @visitor.when(AST.Let)
+    def visit(self, node, scope):
+        pass
+
+    @visitor.when(AST.LetVarInit)
+    def visit(self, node, scope):
+        pass
+
+    @visitor.when(AST.LetVarDef)
     def visit(self, node, scope):
         pass
 
@@ -275,9 +295,8 @@ class SemanticAnalyzer:
         collector = TypeCollector(self.errors)
         collector.visit(self.ast)
         context = collector.context
-        print(context)
-        print("-------------------------------------------------------------------------------------")
-        #'============== BUILDING TYPES ===================='
+
+        # #'=============== BUILDING TYPES ================'
         builder = TypeBuilder(context, self.errors)
         builder.visit(self.ast)
         print(context)
@@ -318,4 +337,3 @@ if __name__ == '__main__':
 
         for e in semantic_analyzer.errors:
             print(e)
-            
