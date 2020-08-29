@@ -4,10 +4,13 @@ from semantic import SemanticError
 from semantic import Attribute, Method, Type, IntType, StringType, IOType, BoolType, ObjectType
 from semantic import ErrorType
 from semantic import Context
+from semantic import Scope
+
 
 WRONG_SIGNATURE = 'Method "%s" already defined in "%s" with a different signature.'
 SELF_IS_READONLY = 'Variable "self" is read-only.'
 LOCAL_ALREADY_DEFINED = 'Variable "%s" is already defined in method "%s".'
+PARAM_ALREADY_DEFINED = 'Parameter "%s" is already defined in method "%s".'
 INCOMPATIBLE_TYPES = 'Cannot convert "%s" into "%s".'
 VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined in "%s".'
 INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
@@ -182,11 +185,6 @@ class TypeChecker:
 
     @visitor.when(AST.AttributeInit)
     def visit(self, node, scope):
-        pass
-
-    @visitor.when(AST.AttributeDef)
-    def visit(self, node, scope):
-        pass
         try:
             node_type = self.context.get_type(node.type)
         except SemanticError as ex:
@@ -202,9 +200,33 @@ class TypeChecker:
 
         scope.define_variable(node.name, node_type)
 
+    @visitor.when(AST.AttributeDef)
+    def visit(self, node, scope):
+        try:
+            node_type = self.context.get_type(node.type)
+        except SemanticError as ex:
+            self.errors.append(ex.text)
+            node_type = ErrorType()
+
+        scope.define_variable(node.name, node_type)
+
     @visitor.when(AST.ClassMethod)
     def visit(self, node, scope):
         self.current_method = self.current_type.get_method(node.name)
+        method_scope = scope.create_child()
+
+        for param in node.params:
+            self.visit(param, method_scope)
+
+        for e in node.expr:
+            self.visit(e, method_scope)
+
+        last_expr = node.expr[-1]
+        last_expr_type = last_expr.computed_type
+
+        if not last_expr_type.conforms_to(node.return_type):
+            self.errors.append(INCOMPATIBLE_TYPES.replace(
+                '%s', last_expr_type.name, 1).replace('%s', node.return_type.name, 1))
 
     @visitor.when(AST.FormalParameter)
     def visit(self, node, scope):
@@ -214,7 +236,11 @@ class TypeChecker:
             self.errors.append(ex.text)
             node_type = ErrorType()
 
-        scope.define_variable(node.name, node_type)
+        if not scope.is_local(node.name):
+            scope.define_variable(node.name, node_type)
+        else:
+            self.errors.append(PARAM_ALREADY_DEFINED.replace(
+                '%s', node.name, 1).replace('%s', self.current_method.name, 1))
 
     @visitor.when(AST.DynamicCall)
     def visit(self, node, scope):
