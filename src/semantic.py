@@ -316,3 +316,7 @@ class Scope:
     def is_local(self, vname):
         return any(True for x in self.locals if x.name == vname)
 
+    def remove_local(self, vname):
+        self.locals = [local for local in self.locals if local.name != vname]
+        
+

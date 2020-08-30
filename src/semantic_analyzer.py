@@ -341,27 +341,71 @@ class TypeChecker:
 
     @visitor.when(AST.Block)
     def visit(self, node, scope):
-        pass
+        for expr in node.exprs:
+            self.visit(expr, scope)
+            
+        node.computed_type = node.exprs[-1].computed_type
 
     @visitor.when(AST.Let)
     def visit(self, node, scope):
-        pass
+        let_scope = scope.create_child()
+        
+        for var in node.var_list:
+            self.visit(var, let_scope)
+        
+        self.visit(node.body, let_scope)
+
+        node.computed_type = node.body.computed_type
 
     @visitor.when(AST.LetVarInit)
     def visit(self, node, scope):
-        pass
+        try:
+            node_type = self.context.get_type(node.type)
+        except SemanticError as ex:
+            self.errors.append(ex.text)
+            node_type = ErrorType()
+
+        self.visit(node.expr, scope)
+        expr_type = node.expr.computed_type
+
+        if not expr_type.conforms_to(node_type):
+            self.errors.append(INCOMPATIBLE_TYPES.replace(
+                '%s', expr_type.name, 1).replace('%s', node_type.name, 1))
+
+        if scope.is_local(node.name):
+            scope.remove_local(node.name)
+
+        scope.define_variable(node.name, node_type)
 
     @visitor.when(AST.LetVarDef)
     def visit(self, node, scope):
-        pass
+        try:
+            node_type = self.context.get_type(node.type)
+        except SemanticError as ex:
+            self.errors.append(ex.text)
+            node_type = ErrorType()
+
+        if scope.is_local(node.name):
+            scope.remove_local(node.name)
+
+        scope.define_variable(node.name, node_type)
 
     @visitor.when(AST.NewType)
     def visit(self, node, scope):
-        pass
+        if node.type == 'SELF_TYPE':
+            node.computed_type = scope.find_variable('self')
+        else:
+            try:
+                node_type = self.context.get_type(node.type)
+            except SemanticError as ex:
+                self.errors.append(ex.text)
+                node_type = ErrorType()
+            node.computed_type = node_type
 
     @visitor.when(AST.IsVoid)
     def visit(self, node, scope):
-        pass
+        self.visit(node.expr, scope)
+        node.computed_type = self.context.get_type('Bool')
 
     @visitor.when(AST.Sum)
     def visit(self, node, scope):
