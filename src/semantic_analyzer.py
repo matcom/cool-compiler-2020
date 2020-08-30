@@ -244,15 +244,84 @@ class TypeChecker:
 
     @visitor.when(AST.DynamicCall)
     def visit(self, node, scope):
-        pass
+        self.visit(node.instance,scope)
+        instance_type = node.instance.computed_type
+
+        try:
+            instance_method = instance_type.get_method(node.method)
+            
+            if len(node.args) == len(instance_method.param_types):
+                for arg, param_type in zip(node.args, instance_method.param_types):
+                    self.visit(arg, scope)
+                    arg_type = arg.computed_type
+                    
+                    if not arg_type.conforms_to(param_type):
+                        self.errors.append(INCOMPATIBLE_TYPES.replace('%s', arg_type.name, 1).replace('%s', param_type.name, 1))
+            else:
+                self.errors.append(
+                    f'Method "{instance_method.name}" of "{instance_type.name}" only accepts {len(instance_method.param_types)} argument(s)')
+            
+            if instance_method.return_type == 'SELF_TYPE':
+                node_type = instance_type
+            else:
+                try:
+                    node_type = self.context.get_type(instance_method.return_type)
+                except SemanticError as ex:
+                    self.errors.append(ex.text)
+                    node_type = ErrorType()
+
+        except SemanticError as ex:
+            self.errors.append(ex.text)
+            node_type = ErrorType()
+
+        node.computed_type = node_type
 
     @visitor.when(AST.StaticCall)
     def visit(self, node, scope):
-        pass
+        self.visit(node.instance, scope)
+        instance_type = node.instance.computed_type
 
-    @visitor.when(AST.Arg)
-    def visit(self, node, scope):
-        pass
+        try:
+            static_type = self.context.get_type(node.static_type)
+        except SemanticError as ex:
+            self.errors.append(ex.text)
+            static_type = ErrorType()
+
+        if not instance_type.conforms_to(static_type):
+            self.errors.append(INCOMPATIBLE_TYPES.replace(
+                '%s', instance_type.name, 1).replace('%s', static_type.name, 1))
+
+        try:
+            method = static_type.get_method(node.method)
+
+            if len(node.args) == len(method.param_types):
+                for arg, param_type in zip(node.args, method.param_types):
+                    self.visit(arg, scope)
+                    arg_type = arg.computed_type
+
+                    if not arg_type.conforms_to(param_type):
+                        self.errors.append(INCOMPATIBLE_TYPES.replace(
+                            '%s', arg_type.name, 1).replace('%s', param_type.name, 1))
+            else:
+                self.errors.append(
+                    f'Method "{method.name}" of "{static_type.name}" only accepts {len(method.param_types)} argument(s)')
+
+            if instance_method.return_type == 'SELF_TYPE':
+                node_type = instance_type
+            else:
+                try:
+                    node_type = self.context.get_type(
+                        instance_method.return_type)
+                except SemanticError as ex:
+                    self.errors.append(ex.text)
+                    node_type = ErrorType()
+
+        except SemanticError as ex:
+            self.errors.append(ex.text)
+            node_type = ErrorType()
+
+        node.computed_type = node_type
+       
 
     @visitor.when(AST.Case)
     def visit(self, node, scope):
