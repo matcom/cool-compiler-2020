@@ -1,3 +1,7 @@
+from __future__ import annotations
+from typing import Any, Callable, List, Optional, Tuple, Union
+
+
 class Symbol(object):
     """
     Modelaremos los símbolos del lenguaje con la clase Symbol.
@@ -14,9 +18,8 @@ class Symbol(object):
     Los símbolos no deben ser instanciados directamente (ni sus descendiente) con la aplicación
     de su constructor.
     """
-
-    def __init__(self, name, grammar):
-        self.Name = name
+    def __init__(self, name: str, grammar):
+        self.Name: str = name
         self.Grammar = grammar
 
     def __str__(self):
@@ -59,8 +62,7 @@ class Terminal(Symbol):
 
     Los terminales no deben ser instanciados directamente con la aplicación de su constructor.
     """
-
-    def __init__(self, name, grammar):
+    def __init__(self, name: str, grammar):
         super().__init__(name, grammar)
 
     @property
@@ -82,81 +84,6 @@ class Terminal(Symbol):
         return isinstance(other, Terminal) and other.Name == self.Name
 
 
-class NonTerminal(Symbol):
-    """
-    Los símbolos no terminales los modelaremos con la clase NonTerminal.
-    Dicha clase extiende la clase Symbol para:
-
-    -Añadir noción de las producción que tiene al no terminal como cabecera.
-     Estas pueden ser conocidas a través del campo productions de cada instancia.
-    -Permitir añadir producciones para ese no terminal a través del operador %=.
-    -Incluir propiedades IsNonTerminal - IsTerminal que devolveran True - False respectivamente.
-
-    Los no terminales no deben ser instanciados directamente con la aplicación de su constructor.
-    """
-
-    def __init__(self, name, grammar):
-        super().__init__(name, grammar)
-        self.productions = []
-
-    def __imod__(self, other):
-
-        if isinstance(other, Sentence):
-            p = Production(self, other)
-            self.Grammar.Add_Production(p)
-            return self
-
-        if isinstance(other, SentenceList):
-
-            for s in other:
-                p = Production(self, s)
-                self.Grammar.Add_Production(p)
-
-            return self
-
-        if isinstance(other, tuple):
-            assert len(other) > 1
-
-            if len(other) == 2:
-                other += (None,) * len(other[0])
-            assert len(other) == len(other[0]) + 2, "Reglas malformadas"
-
-            if isinstance(other[0], Symbol) or isinstance(other[0], Sentence):
-                p = AttributeProduction(self, other[0], other[1:])
-            else:
-                raise Exception("")
-
-            self.Grammar.Add_Production(p)
-            return self
-
-        if isinstance(other, Symbol):
-            p = Production(self, Sentence(other))
-            self.Grammar.Add_Production(p)
-            return self
-
-        if isinstance(other, SentenceList):
-
-            for s in other:
-                p = Production(self, s)
-                self.Grammar.Add_Production(p)
-
-            return self
-
-        raise TypeError(other)
-
-    @property
-    def IsTerminal(self):
-        return False
-
-    @property
-    def IsNonTerminal(self):
-        return True
-
-    @property
-    def IsEpsilon(self):
-        return False
-
-
 class EOF(Terminal):
     """
     Modelaremos el símbolo de fin de cadena con la clase EOF.
@@ -166,7 +93,6 @@ class EOF(Terminal):
     En su lugar, una instancia concreta para determinada gramática G de Grammar se construirá
     automáticamente y será accesible a través de G.EOF.
     """
-
     def __init__(self, Grammar):
         super().__init__('$', Grammar)
 
@@ -194,7 +120,6 @@ class Sentence(object):
     En su lugar, usaremos el operador + entre símbolos para formar las oraciones,
     y el operador | entre oraciones para agruparlas.
     """
-
     def __init__(self, *args):
         self._symbols = tuple(x for x in args if not x.IsEpsilon)
         self.hash = hash(self._symbols)
@@ -202,16 +127,16 @@ class Sentence(object):
     def __len__(self):
         return len(self._symbols)
 
-    def __add__(self, other):
+    def __add__(self, other: Union[Symbol, Sentence]):
         if isinstance(other, Symbol):
-            return Sentence(*(self._symbols + (other,)))
+            return Sentence(*(self._symbols + (other, )))
 
         if isinstance(other, Sentence):
             return Sentence(*(self._symbols + other._symbols))
 
         raise TypeError(other)
 
-    def __or__(self, other):
+    def __or__(self, other: Union[Symbol, Sentence]):
         if isinstance(other, Sentence):
             return SentenceList(self, other)
 
@@ -244,11 +169,10 @@ class Sentence(object):
 
 
 class SentenceList(object):
-
-    def __init__(self, *args):
+    def __init__(self, *args: Sentence):
         self._sentences = list(args)
 
-    def Add(self, symbol):
+    def Add(self, symbol: Optional[Sentence]):
         if not symbol and (symbol is None or not symbol.IsEpsilon):
             raise ValueError(symbol)
 
@@ -257,7 +181,7 @@ class SentenceList(object):
     def __iter__(self):
         return iter(self._sentences)
 
-    def __or__(self, other):
+    def __or__(self, other: Union[Sentence, Symbol]):
         if isinstance(other, Sentence):
             self.Add(other)
             return self
@@ -278,7 +202,6 @@ class Epsilon(Terminal, Sentence):
     En su lugar, una instancia concreta para determinada gramática G de Grammar se construirá
     automáticamente y será accesible a través de G.Epsilon.
     """
-
     def __init__(self, grammar):
         super().__init__('epsilon', grammar)
 
@@ -298,7 +221,7 @@ class Epsilon(Terminal, Sentence):
         return other
 
     def __eq__(self, other):
-        return isinstance(other, (Epsilon,))
+        return isinstance(other, (Epsilon, ))
 
     def __hash__(self):
         return hash("")
@@ -334,8 +257,7 @@ class Production(object):
 
       S %= S + a | G.Epsilon
     """
-
-    def __init__(self, nonTerminal, sentence):
+    def __init__(self, nonTerminal: NonTerminal, sentence: Sentence):
         self.Left = nonTerminal
         self.Right = sentence
 
@@ -349,8 +271,10 @@ class Production(object):
         yield self.Left
         yield self.Right
 
-    def __eq__(self, other):
-        return isinstance(other, Production) and self.Left == other.Left and self.Right == other.Right
+    def __eq__(self, other: Production):
+        return isinstance(
+            other, Production
+        ) and self.Left == other.Left and self.Right == other.Right
 
     def __hash__(self):
         return hash((self.Left, self.Right))
@@ -418,8 +342,9 @@ class AttributeProduction(Production):
     No se deben definir múltiples producciones de la misma cabecera en una única sentencia.
 
     """
+    def __init__(self, nonTerminal: NonTerminal,
+                 sentence: Union[Sentence, Symbol], attributes):
 
-    def __init__(self, nonTerminal, sentence, attributes):
         if not isinstance(sentence, Sentence) and isinstance(sentence, Symbol):
             sentence = Sentence(sentence)
         super(AttributeProduction, self).__init__(nonTerminal, sentence)
@@ -439,3 +364,69 @@ class AttributeProduction(Production):
     @property
     def IsEpsilon(self):
         return self.Right.IsEpsilon
+
+
+class NonTerminal(Symbol):
+    """
+    Los símbolos no terminales los modelaremos con la clase NonTerminal.
+    Dicha clase extiende la clase Symbol para:
+
+    -Añadir noción de las producción que tiene al no terminal como cabecera.
+     Estas pueden ser conocidas a través del campo productions de cada instancia.
+    -Permitir añadir producciones para ese no terminal a través del operador %=.
+    -Incluir propiedades IsNonTerminal - IsTerminal que devolveran True - False respectivamente.
+
+    Los no terminales no deben ser instanciados directamente con la aplicación de su constructor.
+    """
+    def __init__(self, name: str, grammar):
+        super().__init__(name, grammar)
+        self.productions = []
+
+    def __imod__(self, other: Union[Sentence, SentenceList, Tuple, Symbol]):
+
+        if isinstance(other, Sentence):
+            p = Production(self, other)
+            self.Grammar.Add_Production(p)
+            return self
+
+        if isinstance(other, SentenceList):
+
+            for s in other:
+                p = Production(self, s)
+                self.Grammar.Add_Production(p)
+
+            return self
+
+        if isinstance(other, tuple):
+            assert len(other) > 1
+
+            if len(other) == 2:
+                other += (None, ) * len(other[0])
+            assert len(other) == len(other[0]) + 2, "Reglas malformadas"
+
+            if isinstance(other[0], Symbol) or isinstance(other[0], Sentence):
+                p = AttributeProduction(self, other[0], other[1:])
+            else:
+                raise Exception("")
+
+            self.Grammar.Add_Production(p)
+            return self
+
+        if isinstance(other, Symbol):
+            p = Production(self, Sentence(other))
+            self.Grammar.Add_Production(p)
+            return self
+
+        raise TypeError(other)
+
+    @property
+    def IsTerminal(self):
+        return False
+
+    @property
+    def IsNonTerminal(self):
+        return True
+
+    @property
+    def IsEpsilon(self):
+        return False

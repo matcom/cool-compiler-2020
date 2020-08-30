@@ -1,10 +1,14 @@
 import re
+from typing import List, Tuple, Union
+from grammar.symbols import EOF
 from lexer.tokens import Token
 from grammar.grammar import Terminal
 
+RegexTypes = Tuple[Union[str, Terminal], str]
+
 
 class Tokenizer:
-    def __init__(self, regex_table, eof):
+    def __init__(self, regex_table: List[RegexTypes], eof: EOF):
         self.regexs = self._build_regexs(regex_table)
         self.eof = eof
         self.line = 1
@@ -19,7 +23,7 @@ class Tokenizer:
         regexs.append(("Space", fixed_space_token))
         return regexs
 
-    def _walk(self, string):
+    def _walk(self, string: str):
         matched_suffix = ''
         tt = None
 
@@ -50,7 +54,7 @@ class Tokenizer:
                 else:
                     self.column += len(newlines[0])
                 raise SyntaxError(
-                    f'{self.line, self.column} - LexicographicError: {token_type} {suffix}'
+                    f'({self.line},{self.column}) - LexicographicError: {token_type} {suffix}'
                 )
             elif token_type == "Line":
                 self.column = 1
@@ -65,9 +69,9 @@ class Tokenizer:
                         if '\0' in line:
                             self.column = line.index('\0') + 1
                             raise SyntaxError(
-                                f'{self.line, self.column} - LexicographicError: String contains null character'
+                                f'({self.line},{self.column}) - LexicographicError: String contains null character'
                             )
-                        line += 1
+                        newlines += 1
                 # Strings may have some troubles with rows and columns
                 newlines = re.split(r"\\\n", suffix)
                 # Now we have a list with every line of the string

@@ -1,3 +1,6 @@
+from grammar.symbols import Terminal
+
+
 class Token:
     """
     Basic token class.
@@ -9,8 +12,11 @@ class Token:
     token_type : Enum
         Token's type.
     """
-
-    def __init__(self, lex, token_type, token_column=None, token_line=None):
+    def __init__(self,
+                 lex: str,
+                 token_type: Terminal,
+                 token_column=None,
+                 token_line=None):
         self.lex = lex
         self.token_type = token_type
         self.token_column = token_column

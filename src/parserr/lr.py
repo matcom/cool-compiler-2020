@@ -1,16 +1,21 @@
+from grammar.grammar import Grammar
 from grammar.items import Item
+from grammar.symbols import NonTerminal, Terminal
 from tools.firsts import ContainerSet
 from automatons.state import State
 from parserr.shiftreduce import ShiftReduceParser
 from tools.firsts import compute_firsts, compute_local_first
-from typing import Iterable, Optional, List, Union, Set, FrozenSet
+from typing import Dict, Iterable, Optional, List, Union, Set, FrozenSet
+
+Symb = Optional[Union[Terminal, NonTerminal]]
 
 
-def expand(item, firsts):
+def expand(item: Item, firsts):
     next_symbol = item.NextSymbol
     if next_symbol is None or not next_symbol.IsNonTerminal:
         return []
 
+    assert isinstance(next_symbol, NonTerminal)
     lookaheads = ContainerSet()
 
     for remainder in item.Preview():
@@ -25,8 +30,8 @@ def expand(item, firsts):
     return expanded
 
 
-def compress(items):
-    centers = {}
+def compress(items: Iterable[Item]) -> Set[Item]:
+    centers: Dict[Item, Set] = {}
 
     for item in items:
         center = item.Center()
@@ -42,7 +47,7 @@ def compress(items):
     }
 
 
-def closure_lr1(items, firsts):
+def closure_lr1(items: Iterable[Item], firsts) -> Set[Item]:
     closure = ContainerSet(*items)
 
     changed = True
@@ -59,14 +64,14 @@ def closure_lr1(items, firsts):
     return compress(closure)
 
 
-def goto_lr1(items, symbol, firsts=None, just_kernel=False):
+def goto_lr1(items, symbol: Symb, firsts=None, just_kernel=False):
     assert just_kernel or firsts is not None, '`firsts` must be provided if `just_kernel=False`'
     items = frozenset(item.next_item() for item in items
-                      if item.NextSymbol == symbol)
+                      if item.NextSymbol == symbol and item)
     return items if just_kernel else closure_lr1(items, firsts)
 
 
-def build_LR1_automaton(G):
+def build_LR1_automaton(G: Grammar):
     assert len(G.startSymbol.productions) == 1, 'Grammar must be augmented'
 
     firsts = compute_firsts(G)

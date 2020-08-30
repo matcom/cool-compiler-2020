@@ -247,7 +247,7 @@ class ActionNode(ExpressionNode):
 class CaseNode(ExpressionNode):
     def __init__(self, expression, actions):
         self.expression: ExpressionNode = expression
-        self.actions: ActionNode = actions
+        self.actions: List[ActionNode] = actions
 
 
 class BlockNode(ExpressionNode):

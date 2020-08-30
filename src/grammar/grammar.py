@@ -1,23 +1,23 @@
-from grammar.symbols import NonTerminal, Terminal, Sentence, Epsilon, EOF, AttributeProduction
+from typing import Dict, List, Optional, Type, Union
+from grammar.symbols import NonTerminal, Production, Symbol, Terminal, Sentence, Epsilon, EOF, AttributeProduction
 import json
 
 
 class Grammar():
-
     def __init__(self):
 
-        self.Productions = []
-        self.nonTerminals = []
-        self.terminals = []
-        self.startSymbol = None
+        self.Productions: List[Union[AttributeProduction, Production]] = []
+        self.nonTerminals: List[NonTerminal] = []
+        self.terminals: List[Terminal] = []
+        self.startSymbol: Optional[NonTerminal] = None
         # production type
-        self.pType = None
+        self.pType: Optional[Type] = None
         self.Epsilon = Epsilon(self)
         self.EOF = EOF(self)
 
-        self.symbDict = {}
+        self.symbDict: Dict[str, Symbol] = {}
 
-    def NonTerminal(self, name, startSymbol=False):
+    def NonTerminal(self, name: str, startSymbol=False):
 
         name = name.strip()
         if not name:
@@ -36,23 +36,25 @@ class Grammar():
         self.symbDict[name] = term
         return term
 
-    def NonTerminals(self, names):
+    def NonTerminals(self, names: str):
 
         ans = tuple((self.NonTerminal(x) for x in names.strip().split()))
 
         return ans
 
-    def Add_Production(self, production):
+    def Add_Production(self, production: Union[Production,
+                                               AttributeProduction]):
 
         if len(self.Productions) == 0:
             self.pType = type(production)
 
-        assert type(production) == self.pType, "The Productions most be of only 1 type."
+        assert type(production
+                    ) == self.pType, "The Productions most be of only 1 type."
 
         production.Left.productions.append(production)
         self.Productions.append(production)
 
-    def Terminal(self, name):
+    def Terminal(self, name: str):
 
         name = name.strip()
         if not name:
@@ -63,7 +65,7 @@ class Grammar():
         self.symbDict[name] = term
         return term
 
-    def Terminals(self, names):
+    def Terminals(self, names: str):
 
         ans = tuple((self.Terminal(x) for x in names.strip().split()))
 
@@ -91,47 +93,53 @@ class Grammar():
 
         return ans
 
-    @property
-    def to_json(self):
+    # @property
+    # def to_json(self):
 
-        productions = []
+    #     productions = []
 
-        for p in self.Productions:
-            head = p.Left.Name
+    #     for p in self.Productions:
+    #         head = p.Left.Name
 
-            body = []
+    #         body = []
 
-            for s in p.Right:
-                body.append(s.Name)
+    #         for s in p.Right:
+    #             body.append(s.Name)
 
-            productions.append({'Head': head, 'Body': body})
+    #         productions.append({'Head': head, 'Body': body})
 
-        d = {'NonTerminals': [symb.Name for symb in self.nonTerminals if symb != self.startSymbol],
-             'Terminals': [symb.Name for symb in self.terminals],
-             'Productions': productions}
-        d['StartSymbol'] = self.startSymbol.Name
+    #     d = {
+    #         'NonTerminals': [
+    #             symb.Name for symb in self.nonTerminals
+    #             if symb != self.startSymbol
+    #         ],
+    #         'Terminals': [symb.Name for symb in self.terminals],
+    #         'Productions':
+    #         productions
+    #     }
+    #     d['StartSymbol'] = self.startSymbol.Name
 
-        return json.dumps(d)
+    #     return json.dumps(d)
 
-    @staticmethod
-    def from_json(data):
-        data = json.loads(data)
+    # @staticmethod
+    # def from_json(data):
+    #     data = json.loads(data)
 
-        G = Grammar()
-        dic = {'epsilon': G.Epsilon}
-        dic[data['StartSymbol']] = G.NonTerminal(data['StartSymbol'], True)
+    #     G = Grammar()
+    #     dic = {'epsilon': G.Epsilon}
+    #     dic[data['StartSymbol']] = G.NonTerminal(data['StartSymbol'], True)
 
-        for term in data['Terminals']:
-            dic[term] = G.Terminal(term)
+    #     for term in data['Terminals']:
+    #         dic[term] = G.Terminal(term)
 
-        for noTerm in data['NonTerminals']:
-            dic[noTerm] = G.NonTerminal(noTerm)
+    #     for noTerm in data['NonTerminals']:
+    #         dic[noTerm] = G.NonTerminal(noTerm)
 
-        for p in data['Productions']:
-            head = p['Head']
-            dic[head] %= Sentence(*[dic[term] for term in p['Body']])
+    #     for p in data['Productions']:
+    #         head = p['Head']
+    #         dic[head] %= Sentence(*[dic[term] for term in p['Body']])
 
-        return G
+    #     return G
 
     def copy(self):
         G = Grammar()

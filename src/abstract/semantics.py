@@ -21,19 +21,19 @@ class Type:
         self.parent = parent
 
     def get_attribute(self, name):
-        # type: (str) -> Attribute
         try:
             return next(attr for attr in self.attributes if attr.name == name)
         except StopIteration:
             if self.parent is None:
-                raise SemanticError(f'Attribute "{name}" is not defined in {self.name}.')
+                raise SemanticError(
+                    f'Attribute "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_attribute(name)
             except SemanticError:
-                raise SemanticError(f'Attribute "{name}" is not defined in {self.name}.')
+                raise SemanticError(
+                    f'Attribute "{name}" is not defined in {self.name}.')
 
     def define_attribute(self, name, typex):
-        # type: (str, Type) -> Optional[Attribute]
         try:
             self.get_attribute(name)
         except SemanticError:
@@ -41,30 +41,35 @@ class Type:
             self.attributes.append(attribute)
             return attribute
         else:
-            raise SemanticError(f'Attribute "{name}" is already defined in {self.name}.')
+            raise SemanticError(
+                f'Attribute "{name}" is already defined in {self.name}.')
 
     def get_method(self, name):
-        # type: (str) -> Method
         try:
             return self.methods[name]
         except KeyError:
             if self.parent is None:
-                raise SemanticError(f'Method "{name}" is not defined in {self.name}.')
+                raise SemanticError(
+                    f'Method "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_method(name)
             except SemanticError:
-                raise SemanticError(f'Method "{name}" is not defined in {self.name}.')
+                raise SemanticError(
+                    f'Method "{name}" is not defined in {self.name}.')
 
     def define_method(self, name, param_names, param_types, return_type):
-        # type: (str, List[str], List[Type], Type) -> Method
         if name in self.methods:
-            raise SemanticError(f'Method "{name}" already defined in {self.name}.')
+            raise SemanticError(
+                f'Method "{name}" already defined in {self.name}.')
 
-        method = self.methods[name] = Method(name, param_names, param_types, return_type)
+        method = self.methods[name] = Method(name, param_names, param_types,
+                                             return_type)
         return method
 
     def conforms_to(self, other) -> bool:
-        return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
+        return other.bypass(
+        ) or self == other or self.parent is not None and self.parent.conforms_to(
+            other)
 
     def bypass(self) -> bool:
         return False
@@ -90,14 +95,16 @@ class Type:
 
 
 class Method:
-    def __init__(self, name: str, param_names: List[str], params_types: List[Type], return_type: Type):
+    def __init__(self, name: str, param_names: List[str],
+                 params_types: List[Type], return_type: Type):
         self.name = name
         self.param_names = param_names
         self.param_types = params_types
         self.return_type = return_type
 
     def __str__(self):
-        params = ', '.join(f'{n}:{t.name}' for n, t in zip(self.param_names, self.param_types))
+        params = ', '.join(f'{n}:{t.name}'
+                           for n, t in zip(self.param_names, self.param_types))
         return f'[method] {self.name}({params}): {self.return_type.name};'
 
     def __eq__(self, other):
@@ -173,7 +180,8 @@ class Context:
 
     def create_type(self, name: str) -> Type:
         if name in self.types:
-            raise SemanticError(f'Type with the same name ({name}) already in context.')
+            raise SemanticError(
+                f'Type with the same name ({name}) already in context.')
         typex = self.types[name] = Type(name)
         return typex
 
@@ -184,7 +192,8 @@ class Context:
             raise SemanticError(f'Type "{name}" is not defined.')
 
     def __str__(self):
-        return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
+        return '{\n\t' + '\n\t'.join(y for x in self.types.values()
+                                     for y in str(x).split('\n')) + '\n}'
 
     def __repr__(self):
         return str(self)
@@ -208,17 +217,21 @@ class Scope:
         return len(self.locals)
 
     def create_child(self):
-        # type: () -> Scope
         child: Scope = Scope(self)
         self.children.append(child)
         return child
 
-    def define_variable(self, vname: str, vtype: Type, location=None) -> VariableInfo:
+    def define_variable(self,
+                        vname: str,
+                        vtype: Type,
+                        location=None) -> VariableInfo:
         info = VariableInfo(vname, vtype, location)
         self.locals.append(info)
         return info
 
-    def find_variable(self, vname: str, index: int = None) -> Optional[VariableInfo]:
+    def find_variable(self,
+                      vname: str,
+                      index: int = None) -> Optional[VariableInfo]:
         locals = self.locals if index is None else itt.islice(
             self.locals, index)
         try:

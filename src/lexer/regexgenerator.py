@@ -1,4 +1,3 @@
-#%%
 from baseNodeTree.base import Node, AtomicNode, UnaryNode, BinaryNode
 from automatons.nondeterministic import NFA
 from automatons.operations import (automata_union, automata_concatenation,

@@ -1,4 +1,3 @@
-#%%
 from automatons.deterministic import DFA
 from automatons.nondeterministic import NFA
 from tools.firsts import ContainerSet
@@ -31,8 +30,10 @@ def nfa_to_deterministic(automaton: NFA):
         for symbol in automaton.vocabulary:
             next_state = []
             for s in state:
-                next_state += [x for x in automaton.transitions.get(
-                    s, {}).get(symbol, [])]
+                next_state += [
+                    x
+                    for x in automaton.transitions.get(s, {}).get(symbol, [])
+                ]
             if next_state:
                 try:
                     transitions[state.state, symbol]
@@ -41,8 +42,8 @@ def nfa_to_deterministic(automaton: NFA):
                     next_state = compute_epsilon_closure(automaton, next_state)
                     if next_state not in aut_states:
                         next_state.state = n
-                        next_state.is_final = any(
-                            s in automaton.finals for s in next_state)
+                        next_state.is_final = any(s in automaton.finals
+                                                  for s in next_state)
                         pending.append(next_state)
                         aut_states.append(next_state)
                         n += 1

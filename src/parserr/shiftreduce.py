@@ -2,7 +2,14 @@
 Este modulo contiene la declaracion de la clase ShiftReduceParser, la cual
 sirve de base para los parsers SLR, LALR y LR
 '''
-from grammar.grammar import EOF
+from typing import Dict, List, Literal, Tuple, Union
+from grammar.grammar import EOF, Grammar
+from grammar.symbols import Production, Terminal
+from lexer.tokens import Token
+
+Action = Union[Literal['SHIFT'], Literal['REDUCE'], Literal['OK']]
+Tag = Union[Production, int]
+ActionTableEntry = Tuple[int, Terminal]
 
 
 class ShiftReduceParser:
@@ -16,17 +23,17 @@ class ShiftReduceParser:
     REDUCE = 'REDUCE'
     OK = 'OK'
 
-    def __init__(self, G, verbose=False):
+    def __init__(self, G: Grammar, verbose: bool = False):
         self.G = G
         self.verbose = verbose
-        self.action = {}
+        self.action: Dict[ActionTableEntry, Tuple[Action, Tag]] = {}
         self.goto = {}
         self._build_parsing_table()
 
     def _build_parsing_table(self):
         raise NotImplementedError()
 
-    def __call__(self, tokens):
+    def __call__(self, tokens: List[Token]):
         stack = [0]
         cursor = 0
         output = []
@@ -48,9 +55,11 @@ class ShiftReduceParser:
 
             if action == self.SHIFT:
                 cursor += 1
+                assert isinstance(tag, int)
                 stack.append(tag)
 
             elif action == self.REDUCE:
+                assert isinstance(tag, Production)
                 head, body = tag
 
                 for _ in range(len(body)):

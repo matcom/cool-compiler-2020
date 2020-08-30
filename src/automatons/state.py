@@ -44,7 +44,8 @@ class State:
                 closure = self.epsilon_closure_by_state(*move)
 
                 if closure not in closures:
-                    new_state = State(tuple(closure), any(s.final for s in closure))
+                    new_state = State(tuple(closure),
+                                      any(s.final for s in closure))
                     closures.append(closure)
                     states.append(new_state)
                     pending.append(new_state)
@@ -74,7 +75,11 @@ class State:
 
     @staticmethod
     def move_by_state(symbol, *states):
-        return {s for state in states if state.has_transition(symbol) for s in state[symbol]}
+        return {
+            s
+            for state in states if state.has_transition(symbol)
+            for s in state[symbol]
+        }
 
     @staticmethod
     def epsilon_closure_by_state(*states):
@@ -121,36 +126,6 @@ class State:
     def __hash__(self):
         return hash(frozenset(self.state)) if not isinstance(self.state, int) else\
             hash(self.state)
-
-    # def graph(self):
-    #     import pydot
-    #     G = pydot.Dot(rankdir='LR', margin=0.1)
-    #     G.add_node(pydot.Node('start', shape='plaintext', label='', width=0, height=0))
-
-    #     visited = set()
-    #     def visit(start):
-    #         ids = id(start)
-    #         if ids not in visited:
-    #             visited.add(ids)
-    #             G.add_node(pydot.Node(ids, label=start.name, shape='circle', style='bold' if start.final else ''))
-    #             for tran, destinations in start.transitions.items():
-    #                 for end in destinations:
-    #                     visit(end)
-    #                     G.add_edge(pydot.Edge(ids, id(end), label=tran, labeldistance=2))
-    #             for end in start.epsilon_transitions:
-    #                 visit(end)
-    #                 G.add_edge(pydot.Edge(ids, id(end), label='ε', labeldistance=2))
-
-    #     visit(self)
-    #     G.add_edge(pydot.Edge('start', id(self), label='', style='dashed'))
-
-    #     return G
-
-    # def _repr_svg_(self):
-    #     try:
-    #         return self.graph().create_svg().decode('utf8')
-    #     except:
-    #         pass
 
     def __iter__(self):
         yield from self._visit()

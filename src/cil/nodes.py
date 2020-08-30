@@ -1,5 +1,5 @@
 from typing import List
-from abstract.semantics import Attribute
+from abstract.semantics import Attribute, Type
 """
 Define a hierachy to represent each CIL instruction.
 Every CIL Instruction would be a Node of an AST, and every\
@@ -13,9 +13,9 @@ class CilNode:
 
 class CilProgramNode(CilNode):
     def __init__(self, dottypes, dotdata, dotcode):
-        self.dottypes = dottypes
-        self.dotdata = dotdata
-        self.dotcode = dotcode
+        self.dottypes: List[TypeNode] = dottypes
+        self.dotdata: List[DataNode] = dotdata
+        self.dotcode: List[FunctionNode] = dotcode
 
 
 class TypeNode(CilNode):
@@ -71,14 +71,14 @@ class PlusNode(ArithmeticNode):
 
 
 class MinusNode(ArithmeticNode):
-    def __init__(self, x: str, y: str, dest: str):
+    def __init__(self, x: LocalNode, y: LocalNode, dest: LocalNode):
         self.x = x
         self.y = y
         self.dest = dest
 
 
 class StarNode(ArithmeticNode):
-    def __init__(self, x: str, y: str, dest: str):
+    def __init__(self, x: LocalNode, y: LocalNode, dest: LocalNode):
         self.x = x
         self.y = y
         self.dest = dest
@@ -89,7 +89,7 @@ class DivNode(ArithmeticNode):
 
 
 class GetAttributeNode(InstructionNode):
-    def __init__(self, itype: str, attrname: str, dest: str):
+    def __init__(self, itype: str, attrname: str, dest: LocalNode):
         self.itype = itype
         self.attrname = attrname
         self.dest = dest
@@ -111,7 +111,7 @@ class SetIndexNode(InstructionNode):
 
 
 class AllocateNode(InstructionNode):
-    def __init__(self, itype: str, dest: str):
+    def __init__(self, itype: Type, dest: LocalNode):
         self.itype = itype
         self.dest = dest
 
@@ -121,7 +121,7 @@ class ArrayNode(InstructionNode):
 
 
 class TypeOfNode(InstructionNode):
-    def __init__(self, variable: str, dest: str):
+    def __init__(self, variable: CilNode, dest: LocalNode):
         self.variable = variable
         self.dest = dest
 
@@ -132,21 +132,21 @@ class LabelNode(InstructionNode):
 
 
 class JumpIfGreaterThanZeroNode(InstructionNode):
-    def __init__(self, variable: str, label: str):
+    def __init__(self, variable: LocalNode, label: str):
         self.label = label
         self.variable = variable
 
 
 class IfZeroJump(InstructionNode):
-    def __init__(self, variable: str, label: str):
+    def __init__(self, variable: LocalNode, label: str):
         self.variable = variable
         self.label = label
 
 
 class NotZeroJump(InstructionNode):
-    def __init__(self, variable: str, label: str):
-        self.variable: str = variable
-        self.label: str = label
+    def __init__(self, variable: LocalNode, label: str):
+        self.variable = variable
+        self.label = label
 
 
 class UnconditionalJump(InstructionNode):
@@ -155,7 +155,7 @@ class UnconditionalJump(InstructionNode):
 
 
 class StaticCallNode(InstructionNode):
-    def __init__(self, function: str, dest: str):
+    def __init__(self, function: str, dest: LocalNode):
         self.function = function
         self.dest = dest
 
@@ -216,7 +216,8 @@ class PrintNode(InstructionNode):
 
 
 class TdtLookupNode(InstructionNode):
-    def __init__(self, index_varA: str, index_varB: str, dest: str):
+    def __init__(self, index_varA: str, index_varB: LocalNode,
+                 dest: LocalNode):
         self.i = index_varA
         self.j = index_varB
         self.dest = dest

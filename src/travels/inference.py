@@ -1,9 +1,11 @@
-import abstract.semantics as semantic
-from abstract.semantics import Type
-import abstract.tree as coolAst
-from travels.context_actions import update_attr_type, update_method_param, update_scope_variable
-from typing import Optional
 from functools import singledispatchmethod
+from typing import Optional
+
+import abstract.semantics as semantic
+import abstract.tree as coolAst
+from abstract.semantics import Type
+from travels.context_actions import (update_attr_type, update_method_param,
+                                     update_scope_variable)
 
 void = semantic.VoidType()
 

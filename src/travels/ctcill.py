@@ -2,8 +2,10 @@ import cil.baseCilVisitor as baseCilVisitor
 import abstract.tree as coolAst
 import abstract.semantics as semantics
 import cil.nodes as cil
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 from functools import singledispatchmethod
+
+from cil.nodes import CilNode, LocalNode
 
 ExpressionReturn = Tuple[List[cil.InstructionNode], List[cil.LocalNode]]
 Scope = semantics.Scope
@@ -11,8 +13,10 @@ Scope = semantics.Scope
 
 class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     @singledispatchmethod
-    def visit(self, node, scope: Scope) -> None:
-        pass
+    def visit(self, node, scope: Scope) -> CilNode:
+        # Devolver un nodo vacio, al final este metodo no
+        # se debe llamar nunca.
+        return CilNode()
 
     @visit.register
     def _(self, node: coolAst.ProgramNode,
@@ -20,8 +24,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # node.class_list -> [ClassDef ...]
 
         # Define the entry point for the program.
-        self.current_function: cil.FunctionNode = self.register_function(
-            "entry")
+        self.current_function = self.register_function("entry")
         instance = self.define_internal_local()
         result = self.define_internal_local()
 
@@ -57,8 +60,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             feature.idx for feature in node.features
             if isinstance(feature, coolAst.MethodDef)
         ]
-        attributes: List[semantics.Attribute] = [
-            feature for feature in node.features
+        attributes: List[str] = [
+            feature.idx for feature in node.features
             if isinstance(feature, coolAst.AttributeDef)
         ]
 
@@ -116,13 +119,14 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.current_function = function_node
 
         # Definir los parametros del metodo.
-        params: List[semantics.VariableInfo] = [
+        params: List[Optional[semantics.VariableInfo]] = [
             scope.find_variable(param.id) for param in node.param_list
         ]
 
         # Establecer los parametros de la funcion.
         for param in params:
-            self.register_params(param)
+            if param:
+                self.register_params(param)
 
         # Registrar las instrucciones que conforman el cuerpo del metodo.
         last = self.visit(node.statements, scope)
@@ -150,6 +154,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         internal_cond_vm_holder = self.visit(node.cond, scope)
 
         # Chequear y saltar si es necesario.
+        assert isinstance(internal_cond_vm_holder, LocalNode)
         self.register_instruction(
             cil.IfZeroJump(internal_cond_vm_holder, false_label))
 
@@ -166,11 +171,12 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
     @visit.register
     def _(self, node: coolAst.VariableDeclaration,
-          scope: Scope) -> None:  # noqa: F811
+          scope: Scope) -> CilNode:  # noqa: F811
         for var_idx, var_type, var_init_expr in node.var_list:
 
             # Registrar las variables en orden.
             var_info = scope.find_variable(var_idx)
+            assert var_info is not None
             local_var = self.register_local(var_info)
 
             # Reservar memoria para la variable y realizar su inicializacion si tiene
@@ -216,8 +222,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         return instance_vm_holder
 
     @visit.register
-    def _(self, node: coolAst.BlockNode, scope: Scope) -> str:
-        last = ''
+    def _(self, node: coolAst.BlockNode, scope: Scope) -> CilNode:
+        last: CilNode = CilNode()
         # A block is simply a list of statements, so visit each one
         for stmt in node.expressions:
             last = self.visit(stmt, scope)
@@ -249,6 +255,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         cond_vm_holder = self.visit(node.cond, scope)
 
         # Probar la condicion, si es true continuar la ejecucion, sino saltar al LABEL end
+        assert isinstance(cond_vm_holder, LocalNode)
         self.register_instruction(cil.IfZeroJump(cond_vm_holder, end_label))
 
         # Registrar las instrucciones del cuerpo del while
@@ -282,7 +289,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         for i, action_node in enumerate(node.actions):
             # Calcular la distancia hacia el tipo, y actualizar el minimo de ser necesario
             self.register_instruction(
-                cil.TdtLookupNode(action_node.itype,
+                cil.TdtLookupNode(action_node.typex,
                                   type_internal_local_holder, tdt_result))
 
             # Comparar el resultado obtenido con el minimo actual.
@@ -313,7 +320,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         for i, action_node in enumerate(node.actions):
             next_label = self.do_label(f'NEXT{i}')
             self.register_instruction(
-                cil.TdtLookupNode(action_node.itype,
+                cil.TdtLookupNode(action_node.typex,
                                   type_internal_local_holder, tdt_result))
             self.register_instruction(
                 cil.MinusNode(min_, tdt_result, min_check_local))
@@ -322,6 +329,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             # Implemententacion del branch.
             # Registrar la variable <idk>
             var_info = scope.find_variable(action_node.idx)
+            assert var_info is not None
             idk = self.register_local(var_info)
             # Asignar al identificador idk el valor de expr0
             self.register_instruction(cil.AssignNode(idk, expr_vm_holder))
@@ -370,6 +378,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         right_vm_holder = self.visit(node.right, scope)
 
         # Registrar la instruccion de resta
+        assert isinstance(left_vm_holder, LocalNode) and isinstance(
+            right_vm_holder, LocalNode)
         self.register_instruction(
             cil.MinusNode(left_vm_holder, right_vm_holder,
                           minus_internal_vm_holder))
