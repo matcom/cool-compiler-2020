@@ -62,7 +62,7 @@ class Expr(AST):
 # <expression> ::= ID <- <expr>
 
 
-class AssingExpr(Expr):
+class AssignExpr(Expr):
     def __init__(self, instance, expr):
         super(AssingExpr, self).__init__()
         self.instance = instance
@@ -88,15 +88,6 @@ class StaticCall(Expr):
         self.method = method
         self.static_type = static_type
         self.args = args
-
-# <arguments_list>  ::= <arguments_list_opt> , <expression>
-#                   |   <expression>
-
-
-class Arg(Expr):
-    def __init__(self, expr):
-        super(Arg, self)
-        self.expr = expr
 
 # <expression> ::= <case>
 # <case> ::= case <expression> of <actions> esac

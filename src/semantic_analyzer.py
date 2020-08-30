@@ -322,6 +322,9 @@ class TypeChecker:
 
         node.computed_type = node_type
        
+    @visitor.when(AST.AssignExpr)
+    def visit(self, node, scope):
+        pass
 
     @visitor.when(AST.Case)
     def visit(self, node, scope):
