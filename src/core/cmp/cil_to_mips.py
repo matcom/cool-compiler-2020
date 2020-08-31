@@ -1,3 +1,4 @@
+import itertools as itt
 import core.cmp.visitor as visitor
 import core.cmp.cil as cil
 import core.cmp.mips as mips
@@ -95,6 +96,9 @@ class CILToMIPSVisitor:
     def free_reg(self, reg):
         self._registers_manager.free_reg(reg)
     
+    def in_entry_function(self):
+        return self._actual_function.label == 'main'
+    
     @vistor.on('node')
     def collect_func_names(self, node):
         pass
@@ -152,7 +156,60 @@ class CILToMIPSVisitor:
     def visit(self, node):
         label = self.generate_data_label()
         self._data_section[node.name] = mips.StringConst(label, node.value)
-    
+
+    @visitor.when(cil.FunctionNode)
+    def visit(self, node):
+        used_regs_finder = UsedRegisterFinder()
+
+        label = self._name_func_map[node.name]
+        params = [param.name for param in node.params]
+        localvars = [local.name for local in node.localvars]
+        size_for_locals = len(localvars) * mips.ATTR_SIZE
+        
+        new_func = mips.FunctionNode(label, params, localvars)
+        self.register_function(node.name, new_func)
+        self.init_function(new_func)
+
+        initial_instructions = []
+
+
+        initial_instructions.extend(mips.push_register(mips.FP_REG))
+        initial_instructions.append(mips.AddInmediateNode(mips.FP_REG, mips.SP_REG, 4))
+        initial_instructions.append(mips.AddInmediateNode(mips.SP_REG, mips.SP_REG, -size_for_locals))
+
+        code_instrutions = []
+        
+        #This try-except block is for debuggin purposes
+        try:
+            code_instrutions = list(itt.chain.from_iterable([self.visit(instrucion) for instruction in node.instructions]))
+        except:
+            print(node.name)
+
+        final_instructions = []
+        
+        if not self.in_entry_function():
+            used_regs = used_regs_finder.get_used_registers(code_instrutions)
+            #TODO change this to grow the stack just once
+            for reg in used_regs:
+                initial_instructions.extend(mips.push_register(reg))
+            
+            #TODO change this to shrink the stack just once
+            for reg in used_regs[::-1]:
+                final_instructions.extend(mips.pop_register(reg))
+        
+        final_instructions.append(mips.AddInmediateNode(mips.SP_REG, mips.SP_REG, size_for_locals))
+        final_instructions.extend(mips.pop_register(mips.FP_REG))
+
+        if not self.in_entry_function():
+            final_instructions.append(mips.JumpRegister(mips.RA_REG))
+        else:
+            final_instructions.extend(mips.exit_program())
+        
+        func_instructions = list(itt.chain(initial_instructions, code_instrutions, final_instructions))
+        new_func.add_instructions(func_instructions)
+        self.finish_functions() 
+
+       
     @visitor.when(cil.ArgNode)
     def visit(self, node):
         self.push_arg()
@@ -349,6 +406,7 @@ class CILToMIPSVisitor:
         self.free_reg(reg)
         self.free_reg(reg2)
         return instructions
+
 
 
 class UsedRegisterFinder:
