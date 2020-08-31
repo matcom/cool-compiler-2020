@@ -19,7 +19,7 @@ class CilProgramNode(CilNode):
 
 
 class TypeNode(CilNode):
-    def __init__(self, name):
+    def __init__(self, name: str):
         self.name = name
         self.attributes: List[Attribute] = []
         self.methods = []
@@ -121,7 +121,7 @@ class ArrayNode(InstructionNode):
 
 
 class TypeOfNode(InstructionNode):
-    def __init__(self, variable: CilNode, dest: LocalNode):
+    def __init__(self, variable: LocalNode, dest: LocalNode):
         self.variable = variable
         self.dest = dest
 
@@ -178,7 +178,7 @@ class ReturnNode(InstructionNode):
 
 
 class LoadNode(InstructionNode):
-    def __init__(self, dest: str, message: DataNode):
+    def __init__(self, dest: LocalNode, message: DataNode):
         self.dest = dest
         self.message = message
 

@@ -1,3 +1,5 @@
+from cil.nodes import TypeNode
+from cil.nodes import CilNode, FunctionNode
 import mips.instruction as instrNodes
 import mips.branch as branchNodes
 import mips.comparison as cmpNodes
@@ -6,6 +8,7 @@ import mips.load_store as lsNodes
 from typing import List, Optional, Union
 import time
 import cil.nodes as cil
+from travels.ctcill import CilDisplayFormatter
 
 
 class AbstractDirective(instrNodes.MipsNode):
@@ -83,6 +86,8 @@ class BaseCilToMipsVisitor:
         # Construir el header del programa.
         self.__program_header()
 
+        self.__cil_display_formatter = CilDisplayFormatter()
+
     # Metodos Publicos
     def register_instruction(self, node: instrNodes.MipsNode):
         self.program.append(node)
@@ -104,6 +109,9 @@ class BaseCilToMipsVisitor:
     # Funcion de ayuda para obtener la direccion de memoria de un parametro o una variable
     def get_location_address(self, node: Union[cil.ParamNode,
                                                cil.LocalNode]) -> str:
+        """
+        Devuelve el offset del parametro o variable local que estamos buscando, accediendo a este en el stack. Offset es positivo si se trata de un parametro, negativo en caso de una variable local.
+        """
         assert self.current_function is not None
         index = -1
         if isinstance(node, cil.ParamNode):
@@ -128,8 +136,82 @@ class BaseCilToMipsVisitor:
             return f"-{index * 4}($fp)"
 
     def get_available_register(self) -> Optional[int]:
+        """
+        Obtiene un registro disponible.
+        """
         for register in instrNodes.TEMP_REGISTERS:
             if not self.used_registers[register]:
                 self.used_registers[register] = True
                 return register
         return None
+
+    def add_source_line_comment(self, source: CilNode):
+        """
+        Muestra en el archivo mips un comentario con la linea que se esta transcribiendo.
+        """
+        self.register_instruction(
+            instrNodes.LineComment(self.__cil_display_formatter.visit(source)))
+
+    def cil_func_signature(self, func: FunctionNode):
+        """
+        Genera un comentario en el archivo mips que indica la signatura de la funcion que se esta creando.
+        """
+        self.register_instruction(
+            instrNodes.LineComment(f"{func.name} implementation."))
+        self.register_instruction(instrNodes.LineComment("@Params:"))
+        for i, param in enumerate(func.params):
+            if i < 4:
+                self.register_instruction(
+                    instrNodes.LineComment(f"\t$a{i} = {param}"))
+            else:
+                self.register_instruction(
+                    instrNodes.LineComment(f"\t{(i-4) * 4}($fp) = {param}"))
+
+    def operate(self, dest, left, right, operand):
+        """
+        Realiza la operacion indicada por operand entre left y right
+        y la guarda en dest.
+        """
+        if isinstance(left, str):
+            # left es una direccion de memoria
+            reg = self.get_available_register()
+            assert reg is not None
+            right_reg = self.get_available_register()
+            assert right_reg is not None
+            self.register_instruction(lsNodes.LW(reg, left))
+            if not isinstance(right, int):
+                # right no es una constante
+                self.register_instruction(lsNodes.LW(right_reg, right))
+                self.register_instruction(operand(reg, reg, right_reg))
+            else:
+                # rigth es una constante
+                self.register_instruction(operand(reg, reg, right, True))
+            self.register_instruction(lsNodes.SW(reg, dest))
+            self.used_registers[reg] = self.used_registers[right_reg] = False
+        else:
+            # left es una constante
+            reg = self.get_available_register()
+            right_reg = self.get_available_register()
+            assert right_reg is not None
+            assert reg is not None
+            self.register_instruction(lsNodes.LI(reg, left))
+            if not isinstance(right, int):
+                self.register_instruction(lsNodes.LW(right_reg, right))
+                self.register_instruction(operand(reg, reg, right_reg))
+            else:
+                self.register_instruction(operand(reg, reg, right, True))
+            self.register_instruction(lsNodes.SW(reg, dest))
+            self.used_registers[reg] = self.used_registers[right_reg] = False
+
+    def create_type_array(self, types: List[TypeNode]):
+        """
+        Crea en la seccion .data una secuencia de labels que referencian
+        los distintos tipos del programa, de modo que se puedan referenciar en 
+        mips como mismo se referenciarian en una lista.
+        """
+        self.register_instruction(DotDataDirective())
+
+        # Generar por cada tipo, un label que lo identifique, en el mismo orden que aparecen
+        # en la lista de tipos.
+        for t in types:
+            self.register_instruction(instrNodes.Label(t.name))

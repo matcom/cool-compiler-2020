@@ -19,6 +19,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # El programa de CIL se compone por las 3 secciones
         # .TYPES, .DATA y .CODE
 
+        # Generar los tipos
+        self.create_type_array(node.dottypes)
+
         # Visitar cada nodo de la seccion .TYPES
         for type_node in node.dottypes:
             self.visit(type_node)
@@ -58,11 +61,12 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction((instrNodes.LineComment(
             f" **** Type RECORD for type {node.name} ****")))
         # Declarar la direccion de memoria donde comienza el tipo
-        self.register_instruction(instrNodes.Label(self.current_type.name))
+        self.register_instruction(
+            instrNodes.Label(f"{self.current_type.name}_start"))
         # Declarar los atributos: Si los atributos son de tipo string, guardarlos como asciiz
         # de lo contrario son o numeros o punteros y se inicializan como .words
         for attrib in self.current_type.attributes:
-            if attrib.name == "String":
+            if attrib.type.name == "String":
                 self.register_instruction(
                     instrNodes.FixedData(f'{node.name}_attrib_{attrib.name}',
                                          r"", 'asciiz'))
@@ -110,23 +114,19 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.current_function = node
         # El codigo referente a cada funcion debe ir en la seccion de texto.
         self.register_instruction(DotTextDirective())
+
         # Documentar la signatura de la funcion (parametros que recibe, valor que devuelve)
-        self.register_instruction(
-            instrNodes.LineComment(f"{node.name} implementation."))
-        self.register_instruction(instrNodes.LineComment("@Params:"))
-        for i, param in enumerate(node.params):
-            if i < 4:
-                self.register_instruction(
-                    instrNodes.LineComment(f"\t$a{i} = {param}"))
-            else:
-                self.register_instruction(
-                    instrNodes.LineComment(f"\t{(i-4) * 4}($fp) = {param}"))
+        self.cil_func_signature(node)
+
         # Direccion de memoria de la funcion.
         self.register_instruction(instrNodes.Label(node.name))
+
         # Crear el marco de pila para la funcion
         locals_count = len(node.localvars)
         self.register_instruction(
-            instrNodes.LineComment("Allocate stack frame for function."))
+            instrNodes.LineComment(
+                f"Allocate stack frame for function {node.name}."))
+
         # Salvar primero espacio para las variables locales
         if locals_count * 4 < 24:  # MIPS fuerza a un minimo de 32 bytes por stack frame
             self.register_instruction(arithNodes.SUBU(sp, sp, 32, True))
@@ -139,6 +139,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Salvar ra y fp
         self.register_instruction(lsNodes.SW(ra, "8($sp)"))
         self.register_instruction(lsNodes.SW(fp, "4($sp)"))
+
         # mover fp al inicio del frame
         self.register_instruction(arithNodes.ADDU(fp, sp, ret, True))
 
@@ -153,11 +154,23 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.ParamNode):
-        return self.get_location_address(node)
+        label = self.get_location_address(node)
+
+        # Agregar la linea que vamos a traducir.
+        self.register_instruction(
+            instrNodes.LineComment(f"PARAM {node.name} --> {label}"))
+
+        return label
 
     @visit.register
     def _(self, node: cil.LocalNode):
-        return self.get_location_address(node)
+        label = self.get_location_address(node)
+
+        # Agregar la linea que vamos a traducir.
+        self.register_instruction(
+            instrNodes.LineComment(f"LOCAL {node.name} --> {label}"))
+
+        return label
 
     @visit.register
     def _(self, node: cil.AssignNode):
@@ -165,6 +178,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Una asignacion simplemente consiste en mover un resultado de un lugar a otro
         dest = self.visit(node.dest)
         source = self.visit(node.source)
+
+        # Agregar la linea que vamos a traducir.
+        self.add_source_line_comment(source=node)
 
         # Puede que se asigne una constante o lo que hay en alguna direccion de memoria
         if isinstance(source, int):
@@ -199,36 +215,12 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         left = self.visit(node.left)
         right = self.visit(node.right)
 
-        if isinstance(left, str):
-            # left es una direccion de memoria
-            reg = self.get_available_register()
-            assert reg is not None
-            right_reg = self.get_available_register()
-            assert right_reg is not None
-            self.register_instruction(lsNodes.LW(reg, left))
-            if not isinstance(right, int):
-                # right no es una constante
-                self.register_instruction(lsNodes.LW(right_reg, right))
-                self.register_instruction(arithNodes.ADD(reg, reg, right_reg))
-            else:
-                # rigth es una constante
-                self.register_instruction(arithNodes.ADD(
-                    reg, reg, right, True))
-            self.register_instruction(lsNodes.SW(reg, dest))
-            self.used_registers[reg] = self.used_registers[right_reg] = False
-        else:
-            # left es una constante
-            reg = self.get_available_register()
-            right_reg = self.get_available_register()
-            self.register_instruction(lsNodes.LI(reg, left))
-            if not isinstance(right, int):
-                self.register_instruction(lsNodes.LW(right_reg, right))
-                self.register_instruction(arithNodes.ADD(reg, reg, right_reg))
-            else:
-                self.register_instruction(arithNodes.ADD(
-                    reg, reg, right, True))
-            self.register_instruction(lsNodes.SW(reg, dest))
-            self.used_registers[reg] = self.used_registers[right_reg] = False
+        assert left is not None and right is not None
+
+        # Agregar la linea que vamos a traducir.
+        self.add_source_line_comment(source=node)
+
+        self.operate(dest, left, right, arithNodes.ADD)
 
     @visit.register
     def _(self, node: cil.MinusNode):
@@ -237,32 +229,12 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         left = self.visit(node.x)
         right = self.visit(node.y)
 
-        if isinstance(left, str):
-            # left es una direccion de memoria
-            reg = self.get_available_register()
-            right_reg = self.get_available_register()
-            self.register_instruction(lsNodes.LW(reg, left))
-            if not isinstance(right, int):
-                self.register_instruction(lsNodes.LW(right_reg, right))
-                self.register_instruction(arithNodes.SUB(reg, reg, right_reg))
-            else:
-                self.register_instruction(arithNodes.SUB(
-                    reg, reg, right, True))
-            self.register_instruction(lsNodes.SW(reg, dest))
-            self.used_registers[reg] = self.used_registers[right_reg] = False
-        else:
-            # left es una constante
-            reg = self.get_available_register()
-            right_reg = self.get_available_register()
-            self.register_instruction(lsNodes.LI(reg, left))
-            if not isinstance(right, int):
-                self.register_instruction(lsNodes.LW(right_reg, right))
-                self.register_instruction(arithNodes.SUB(reg, reg, right_reg))
-            else:
-                self.register_instruction(arithNodes.SUB(
-                    reg, reg, right, True))
-            self.register_instruction(lsNodes.SW(reg, dest))
-            self.used_registers[reg] = self.used_registers[right_reg] = False
+        assert left is not None and right is not None
+
+        # Agregar la linea que vamos a traducir.
+        self.add_source_line_comment(source=node)
+
+        self.operate(dest, left, right, arithNodes.SUB)
 
     @visit.register
     def _(self, node: cil.StarNode):
@@ -271,32 +243,12 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         left = self.visit(node.x)
         right = self.visit(node.y)
 
-        if isinstance(left, str):
-            # left es una direccion de memoria
-            reg = self.get_available_register()
-            right_reg = self.get_available_register()
-            self.register_instruction(lsNodes.LW(reg, left))
-            if not isinstance(right, int):
-                self.register_instruction(lsNodes.LW(right_reg, right))
-                self.register_instruction(arithNodes.MUL(reg, reg, right_reg))
-            else:
-                self.register_instruction(arithNodes.MUL(
-                    reg, reg, right, True))
-            self.register_instruction(lsNodes.SW(reg, dest))
-            self.used_registers[reg] = self.used_registers[right_reg] = False
-        else:
-            # left es una constante
-            reg = self.get_available_register()
-            right_reg = self.get_available_register()
-            self.register_instruction(lsNodes.LI(reg, left))
-            if not isinstance(right, int):
-                self.register_instruction(lsNodes.LW(right_reg, right))
-                self.register_instruction(arithNodes.MUL(reg, reg, right_reg))
-            else:
-                self.register_instruction(arithNodes.MUL(
-                    reg, reg, right, True))
-            self.register_instruction(lsNodes.SW(reg, dest))
-            self.used_registers[reg] = self.used_registers[right_reg] = False
+        assert left is not None and right is not None
+
+        # Agregar la linea que vamos a traducir.
+        self.add_source_line_comment(source=node)
+
+        self.operate(dest, left, right, arithNodes.MUL)
 
     @visit.register
     def _(self, node: cil.DivNode):
@@ -305,32 +257,12 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         left = self.visit(node.left)
         right = self.visit(node.right)
 
-        if isinstance(left, str):
-            # left es una direccion de memoria
-            reg = self.get_available_register()
-            right_reg = self.get_available_register()
-            self.register_instruction(lsNodes.LW(reg, left))
-            if not isinstance(right, int):
-                self.register_instruction(lsNodes.LW(right_reg, right))
-                self.register_instruction(arithNodes.DIV(reg, reg, right_reg))
-            else:
-                self.register_instruction(arithNodes.DIV(
-                    reg, reg, right, True))
-            self.register_instruction(lsNodes.SW(reg, dest))
-            self.used_registers[reg] = self.used_registers[right_reg] = False
-        else:
-            # left es una constante
-            reg = self.get_available_register()
-            right_reg = self.get_available_register()
-            self.register_instruction(lsNodes.LI(reg, left))
-            if not isinstance(right, int):
-                self.register_instruction(lsNodes.LW(right_reg, right))
-                self.register_instruction(arithNodes.DIV(reg, reg, right_reg))
-            else:
-                self.register_instruction(arithNodes.DIV(
-                    reg, reg, right, True))
-            self.register_instruction(lsNodes.SW(reg, dest))
-            self.used_registers[reg] = self.used_registers[right_reg] = False
+        assert left is not None and right is not None
+
+        # Agregar la linea que vamos a traducir.
+        self.add_source_line_comment(source=node)
+
+        self.operate(dest, left, right, arithNodes.DIV)
 
     @visit.register
     def _(self, node: cil.GetAttributeNode):

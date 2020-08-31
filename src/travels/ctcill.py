@@ -21,7 +21,6 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     @visit.register
     def _(self, node: coolAst.ProgramNode,
           scope: Scope) -> cil.CilProgramNode:  # noqa: F811
-        # node.class_list -> [ClassDef ...]
 
         # Define the entry point for the program.
         self.current_function = self.register_function("entry")
@@ -31,7 +30,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # The first method to call need to be the method main in a Main Class
 
         # allocate memory for the main object
-        self.register_instruction(cil.AllocateNode('Main', instance))
+        main_type = self.context.get_type('Main')
+        self.register_instruction(cil.AllocateNode(main_type, instance))
         self.register_instruction(cil.ArgNode(instance))
 
         # call the main method
@@ -56,14 +56,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.current_type = self.context.get_type(node.idx)
         new_type_node = self.register_type(node.idx)
 
-        methods: List[str] = [
-            feature.idx for feature in node.features
-            if isinstance(feature, coolAst.MethodDef)
-        ]
-        attributes: List[str] = [
-            feature.idx for feature in node.features
-            if isinstance(feature, coolAst.AttributeDef)
-        ]
+        methods = self.current_type.methods
+        attributes = self.current_type.attributes
 
         # Handle inherited features such as attributes and methods first
         if self.current_type.parent is not None:
@@ -89,6 +83,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         #####################################################################
         for attribute in attributes:
             new_type_node.attributes.append(attribute)
+
         for method in methods:
             new_type_node.methods.append(
                 (method, self.to_function_name(method, node.idx)))
@@ -180,8 +175,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             local_var = self.register_local(var_info)
 
             # Reservar memoria para la variable y realizar su inicializacion si tiene
+            assert var_info.type is not None
             self.register_instruction(
-                cil.AllocateNode(var_info.type.name, local_var))
+                cil.AllocateNode(var_info.type, local_var))
 
             if var_init_expr is not None:
                 expr_init_vm_holder = self.visit(var_init_expr, scope)
@@ -214,7 +210,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
                     return local_node
 
     @visit.register
-    def _(self, node: coolAst.InstantiateClassNode, scope: Scope):
+    def _(self, node: coolAst.InstantiateClassNode, scope: Scope) -> LocalNode:
         # Reservar una variable que guarde la nueva instancia
         type_ = self.context.get_type(node.type_)
         instance_vm_holder = self.define_internal_local()
@@ -274,11 +270,12 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Almacenar el tipo del valor retornado
         type_internal_local_holder = self.define_internal_local()
         sub_vm_local_holder = self.define_internal_local()
+
+        assert isinstance(expr_vm_holder, LocalNode)
         self.register_instruction(
             cil.TypeOfNode(expr_vm_holder, type_internal_local_holder))
 
         # Variables internas para almacenar resultados intermedios
-        branch_type = self.define_internal_local()
         min_ = self.define_internal_local()
         tdt_result = self.define_internal_local()
         min_check_local = self.define_internal_local()
@@ -349,7 +346,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     # ***************
 
     @visit.register
-    def _(self, node: coolAst.PlusNode, scope: Scope):
+    def _(self, node: coolAst.PlusNode, scope: Scope) -> LocalNode:
         # Definir una variable interna local para almacenar el resultado
         sum_internal_local = self.define_internal_local()
 
@@ -367,7 +364,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         return sum_internal_local
 
     @visit.register
-    def _(self, node: coolAst.DifNode, scope: Scope):
+    def _(self, node: coolAst.DifNode, scope: Scope) -> LocalNode:
         # Definir una variable interna local para almacenar el resultado intermedio
         minus_internal_vm_holder = self.define_internal_local()
 
@@ -388,7 +385,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         return minus_internal_vm_holder
 
     @visit.register
-    def _(self, node: coolAst.MulNode, scope: Scope):
+    def _(self, node: coolAst.MulNode, scope: Scope) -> LocalNode:
         # Definir una variable interna local para almacenar el resultado intermedio
         mul_internal_vm_holder = self.define_internal_local()
 
@@ -398,16 +395,19 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Obtener el resultado del segundo factor
         right_vm_holder = self.visit(node.right, scope)
 
+        assert isinstance(left_vm_holder, LocalNode) and isinstance(
+            right_vm_holder, LocalNode)
+
         # Registrar la instruccion de multimplicacion
         self.register_instruction(
             cil.StarNode(left_vm_holder, right_vm_holder,
                          mul_internal_vm_holder))
 
-        # Retornarl el resultado
+        # Retornar el resultado
         return mul_internal_vm_holder
 
     @visit.register
-    def _(self, node: coolAst.DivNode, scope: Scope):
+    def _(self, node: coolAst.DivNode, scope: Scope) -> LocalNode:
         # Definir una variable interna local para almacenar el resultado intermedio
         div_internal_vm_holder = self.define_internal_local()
 
@@ -430,12 +430,12 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     # *********************
 
     @visit.register
-    def _(self, node: coolAst.IntegerConstant, scope: Scope):
+    def _(self, node: coolAst.IntegerConstant, scope: Scope) -> int:
         # devolver el valor
         return int(node.lex)
 
     @visit.register
-    def _(self, node: coolAst.StringConstant, scope: Scope):
+    def _(self, node: coolAst.StringConstant, scope: Scope) -> LocalNode:
         # Variable interna que apunta al string
         str_const_vm_holder = self.define_internal_local()
 
@@ -449,12 +449,12 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         return str_const_vm_holder
 
     @visit.register
-    def _(self, node: coolAst.TrueConstant, scope: Scope):
+    def _(self, node: coolAst.TrueConstant, scope: Scope) -> int:
         # variable interna que devuelve el valor de la constante
         return 1
 
     @visit.register
-    def _(self, node: coolAst.FalseConstant, scope: Scope):
+    def _(self, node: coolAst.FalseConstant, scope: Scope) -> int:
         return 0
 
     # *******************  Implementacion de las comparaciones ********************
@@ -463,7 +463,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     # *******************
 
     @visit.register
-    def _(self, node: coolAst.EqualToNode, scope: Scope):
+    def _(self, node: coolAst.EqualToNode, scope: Scope) -> int:
         expr_result_vm_holder = self.define_internal_local()
         true_label = self.do_label("TRUE")
         end_label = self.do_label("END")
@@ -475,6 +475,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         right_vm_holder = self.visit(node.right, scope)
 
         # Realizar una resta y devolver el resultado
+        assert isinstance(left_vm_holder, LocalNode) and isinstance(
+            right_vm_holder, LocalNode)
+
         self.register_instruction(
             cil.MinusNode(left_vm_holder, right_vm_holder,
                           expr_result_vm_holder))
@@ -497,7 +500,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         return expr_result_vm_holder
 
     @visit.register
-    def _(self, node: coolAst.LowerThanNode, scope: Scope):
+    def _(self, node: coolAst.LowerThanNode, scope: Scope) -> LocalNode:
         expr_result_vm_holder = self.define_internal_local()
         false_label = self.do_label("FALSE")
         end_label = self.do_label("END")
@@ -509,6 +512,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         right_vm_holder = self.visit(node.right, scope)
 
         # Comparar los resultados restando
+        assert isinstance(left_vm_holder, LocalNode) and isinstance(
+            right_vm_holder, LocalNode)
         self.register_instruction(
             cil.MinusNode(left_vm_holder, right_vm_holder,
                           expr_result_vm_holder))
@@ -528,7 +533,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         return expr_result_vm_holder
 
     @visit.register
-    def _(self, node: coolAst.LowerEqual, scope: Scope):
+    def _(self, node: coolAst.LowerEqual, scope: Scope) -> LocalNode:
         expr_result_vm_holder = self.define_internal_local()
         false_label = self.do_label("FALSE")
         end_label = self.do_label("END")
@@ -538,6 +543,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Obtener el valor de la expresion derecha
         right_vm_holder = self.visit(node.right, scope)
+
+        assert isinstance(left_vm_holder, LocalNode) and isinstance(
+            right_vm_holder, LocalNode)
 
         self.register_instruction(
             cil.MinusNode(left_vm_holder, right_vm_holder,
@@ -556,7 +564,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         return expr_result_vm_holder
 
     @visit.register
-    def _(self, node: coolAst.GreaterThanNode, scope: Scope):
+    def _(self, node: coolAst.GreaterThanNode, scope: Scope) -> LocalNode:
         expr_result_vm_holder = self.define_internal_local()
         true_label = self.do_label("TRUE")
         end_label = self.do_label("END")
@@ -566,6 +574,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Obtener el valor de la expresion derecha
         right_vm_holder = self.visit(node.right, scope)
+
+        assert isinstance(left_vm_holder, LocalNode) and isinstance(
+            right_vm_holder, LocalNode)
 
         self.register_instruction(
             cil.MinusNode(left_vm_holder, right_vm_holder,
@@ -586,7 +597,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         return expr_result_vm_holder
 
     @visit.register
-    def _(self, node: coolAst.GreaterEqualNode, scope: Scope):
+    def _(self, node: coolAst.GreaterEqualNode, scope: Scope) -> LocalNode:
         expr_result_vm_holder = self.define_internal_local()
         true_label = self.do_label("TRUE")
         end_label = self.do_label("END")
@@ -596,6 +607,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Obtener el valor de la expresion derecha
         right_vm_holder = self.visit(node.right, scope)
+
+        assert isinstance(left_vm_holder, LocalNode) and isinstance(
+            right_vm_holder, LocalNode)
 
         self.register_instruction(
             cil.MinusNode(left_vm_holder, right_vm_holder,
@@ -622,12 +636,13 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     # *********************
 
     @visit.register
-    def _(self, node: coolAst.FunCall, scope: Scope):
+    def _(self, node: coolAst.FunCall, scope: Scope) -> LocalNode:
         type_vm_holder = self.define_internal_local()
         return_vm_holder = self.define_internal_local()
         # Evaluar la expresion a la izquierda del punto
         expr = self.visit(node.obj, scope)
 
+        assert isinstance(expr, LocalNode)
         self.register_instruction(cil.TypeOfNode(expr, type_vm_holder))
 
         # Evaluar los argumentos
@@ -641,7 +656,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         return return_vm_holder
 
     @visit.register
-    def _(self, node: coolAst.ParentFuncCall, scope: Scope):
+    def _(self, node: coolAst.ParentFuncCall, scope: Scope) -> LocalNode:
         local_type_identifier = self.define_internal_local()
         return_expr_vm_holder = self.define_internal_local()
         expr = self.visit(node.obj, scope)
