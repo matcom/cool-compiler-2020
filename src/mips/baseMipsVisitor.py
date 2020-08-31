@@ -1,9 +1,12 @@
+from json import load
 from cil.nodes import TypeNode
 from cil.nodes import CilNode, FunctionNode
+from mips import load_store
 import mips.instruction as instrNodes
 import mips.branch as branchNodes
 import mips.comparison as cmpNodes
 import mips.arithmetic as arithNodes
+from mips.instruction import a0, v0
 import mips.load_store as lsNodes
 from typing import List, Optional, Union
 import time
@@ -215,3 +218,21 @@ class BaseCilToMipsVisitor:
         # en la lista de tipos.
         for t in types:
             self.register_instruction(instrNodes.Label(t.name))
+
+    def allocate_memory(self, bytes_num: int):
+        """
+        Reserva @bytes_num bytes en heap y devuelve la direccion de memoria asignada
+        en $v0.
+        """
+        self.register_instruction(
+            instrNodes.LineComment(f"Allocating {bytes_num} of memory"))
+
+        # Cargar la cantidad de bytes en el registro $a0
+        self.register_instruction(load_store.LI(a0, bytes_num))
+
+        # $v0 = 9 (syscall 9 = sbrk)
+        self.register_instruction(load_store.LI(v0, 9))
+
+        # syscall
+        self.register_instruction(instrNodes.SYSCALL())
+        # la direccion del espacio en memoria esta ahora en v0

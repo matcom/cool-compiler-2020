@@ -274,7 +274,58 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.AllocateNode):
-        pass
+
+        # Cada instancia debe almacenar lo siguiente:
+        # - Un puntero a la vTable de su tipo
+        # - Espacio para cada atributo
+        # - Un puntero a su tipo en el array de tipos, de modo que sea facil calcular typeof
+
+        #################################  address
+        #          TYPE_POINTER         #
+        #################################  address + 4
+        #          VTABLE_POINTER       #
+        #################################  address  + 8
+        #           ATTRIBUTE_1         #
+        #################################  address + 12
+        #           ATTRIBUTE_2         #
+        #################################
+        #               ...             #
+        #               ...             #
+        #               ...             #
+        #################################
+
+        num_bytes = 8  # inicialmente necesita al menos dos punteros
+        dest = self.visit(node.dest)
+
+        instance_type = node.itype
+
+        assert dest is not None
+
+        num_bytes += len(instance_type.attributes)
+
+        # Reservar memoria para la instancia
+        self.allocate_memory(num_bytes)
+
+        reg = self.get_available_register()
+        assert reg is not None, "Out of registers."
+
+        # Inicializar la instancia
+
+        # Cargar el puntero al tipo de la instancia
+        self.register_instruction(lsNodes.LA(dest=reg, src=instance_type.name))
+        self.register_instruction(lsNodes.SW(dest=reg, src="0($v0)"))
+
+        # Cargar el puntero a la VTABLE
+        self.register_instruction(
+            lsNodes.LA(dest=reg, src=f"{instance_type.name}_start"))
+        self.register_instruction(lsNodes.SW(dest=reg, src="4($v0)"))
+
+        # TODO: Manejar los atributos
+
+        # mover la direccion que almacena la instancia hacia dest
+        self.register_instruction(lsNodes.SW(v0, dest))
+
+        self.used_registers[reg] = False
 
     @visit.register
     def _(self, node: cil.TypeOfNode):

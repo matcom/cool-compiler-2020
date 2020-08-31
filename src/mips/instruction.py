@@ -5,8 +5,8 @@ parametrizar y sea facil su uso a la hora de escribir en ensamblador.
 
 # **********************  REGISTROS *********************************
 
-zero = 0   # Siempre almacena la constante 0.
-at = 1     # Reservado para el assembler.
+zero = 0  # Siempre almacena la constante 0.
+at = 1  # Reservado para el assembler.
 
 # Registros para almacenar resultados
 v0 = 2
@@ -148,7 +148,6 @@ class BinaryJumpNode(MipsNode):
         return f'{self.action} ${self.src1}, ${self.src2}, {self.label}'
 
 
-
 # ********************   INSTRUCCIONES PARA ALMACENAR Y CARGAR DATOS EN REGISTROS  ************
 class AbstractLoadNode(MipsNode):
     def __init__(self, dest: int, src):
@@ -223,6 +222,7 @@ class Label(MipsNode):
 
     def __str__(self):
         return f"{self.label}: "
+
 
 class FixedData(MipsNode):
     """
