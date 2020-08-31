@@ -236,3 +236,22 @@ class BaseCilToMipsVisitor:
         # syscall
         self.register_instruction(instrNodes.SYSCALL())
         # la direccion del espacio en memoria esta ahora en v0
+
+    def conditional_jump(self, node, condition, value=0, const=True):
+        """
+        Realiza un salto condicional en dependencia de la condicion especificada 
+        en @condition y toma por valor de comparacion @value. @const indica si @value
+        debe tomarse como una constante o como un registro.
+        """
+        addr = self.get_location_address(node.variable)
+        reg = self.get_available_register()
+
+        assert reg is not None, "Out of registers"
+
+        self.add_source_line_comment(node)
+
+        self.register_instruction(lsNodes.LW(reg, addr))
+        # Comparar y saltar
+        self.register_instruction(condition(reg, value, node.label, const))
+
+        self.used_registers[reg] = False

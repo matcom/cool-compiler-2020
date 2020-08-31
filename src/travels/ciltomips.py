@@ -350,19 +350,20 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.JumpIfGreaterThanZeroNode):
-        pass
+        self.conditional_jump(node, branchNodes.BGT)
 
     @visit.register
     def _(self, node: cil.IfZeroJump):
-        pass
+        self.conditional_jump(node, branchNodes.BEQ)
 
     @visit.register
     def _(self, node: cil.NotZeroJump):
-        pass
+        self.conditional_jump(node, branchNodes.BNE)
 
     @visit.register
     def _(self, node: cil.UnconditionalJump):
-        pass
+        self.add_source_line_comment(node)
+        self.register_instruction(branchNodes.J(node.label))
 
     @visit.register
     def _(self, node: cil.StaticCallNode):
