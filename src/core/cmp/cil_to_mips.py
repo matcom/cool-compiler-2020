@@ -56,7 +56,7 @@ class CILToMIPSVisitor:
         self._label_generator = label_generator
         self._registers_manager = regiters_manager
         self._types = {}
-        self._data_sections = {}
+        self._data_section = {}
         self._functions = {}
         self._actual_function = None
         self._name_func_map = {}
@@ -106,6 +106,40 @@ class CILToMIPSVisitor:
     @visitor.when(cil.InstructionNode)
     def visit(self, node):
         print(type(node))
+    
+    @visitor.when(cil.ProgramNode)
+    def visit(self, node):
+        #Get functions names
+        self.collect_func_names(node)
+
+        #Convert CIL ProgramNode to MIPS ProgramNode
+        for tp in node.dottypes:
+            self.visit(tp)
+        
+        for data in node.dotdata:
+            self.visit(data)
+        
+        for func in node.dotcode:
+            self.visit(func)
+        
+        return mips.ProgramNode([func for func in self._functions.values()], [data for data in self._data_section.values()], [tp for tp in self._types.values()])
+
+    @visitor.when(cil.TypeNode)
+    def visit(self, node):
+        name_label = self.generate_data_label()
+        self._data_section[node.name] = mips.StringConst(name_label, node.name)
+
+        type_label = self.generate_type_label()
+        methods = {key: self._name_func_map[value] for key, value in node.methods}
+        new_type = mips.MIPSType(type_label, name_label, node.attributes, methods)
+
+        self._types[node.name] = new_type
+    
+    @visitor.when(cil.DataNode)
+    def visit(self, node):
+        label = self.generate_data_label()
+        self._data_section[node.name] = mips.StringConst(label, node.value)
+
             
 
     
