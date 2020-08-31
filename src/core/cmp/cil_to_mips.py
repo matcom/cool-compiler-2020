@@ -53,7 +53,7 @@ class LabelGenerator:
 
 
 class CILToMIPSVisitor:
-    def __init__(self, label_generator = LabelGenerator(), regiters_manager = SimpleRegistersManager()):
+    def __init__(self, label_generator = LabelGenerator(), regiters_manager = SimpleRegistersManager(mips.REGISTERS)):
         self._label_generator = label_generator
         self._registers_manager = regiters_manager
         self._types = {}
@@ -99,7 +99,7 @@ class CILToMIPSVisitor:
     def in_entry_function(self):
         return self._actual_function.label == 'main'
     
-    @vistor.on('node')
+    @visitor.on('node')
     def collect_func_names(self, node):
         pass
     

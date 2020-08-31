@@ -9,6 +9,8 @@ from core.cmp.evaluation import *
 from core.cmp.cil import get_formatter
 from pprint import pprint
 from core.cmp.cool_to_cil import COOLToCILVisitor
+from core.cmp.cil_to_mips import CILToMIPSVisitor
+from core.cmp.mips import PrintVisitor
 
 
 def main(args):
@@ -82,6 +84,16 @@ def main(args):
     #formatter = get_formatter()
     #ast_cil = formatter(cil_ast)
     #print(ast_cil)
+
+    cil_to_mips = CILToMIPSVisitor()
+    mips_ast = cil_to_mips.visit(cil_ast)
+    printer = PrintVisitor()
+    mips_code = printer.visit(mips_ast)
+
+    with open("compiled.asm") as f:
+        f.write(mips_code)
+
+
     
     exit(0)
 

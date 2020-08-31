@@ -222,7 +222,7 @@ def exit_program():
 class PrintVisitor:
     
     @visitor.on('node')
-    def print(self, node):
+    def visit(self, node):
         pass
     
     @visitor.when(Register)
