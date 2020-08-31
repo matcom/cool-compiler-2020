@@ -4,54 +4,32 @@ import core.cmp.mips as mips
 from core.cmp.utils import CountDict
 
 
+USED   = 1
+UNUSED = 0
 
-class RegistersManager:
-    def __init__(self):
-        pass
+
+class SimpleRegistersManager:
+    def __init__(self, registers):
+        self.registers = {reg: UNUSED for reg in registers}
+            
+    def get_free_reg(self):
+        for reg, state in self.registers.items():
+            if state == UNUSED:
+                self.registers[reg] = USED
+                return reg
+        raise Exception("not free register")
+        
     
-    def getReg(self, instruction):
-        pass
-
-class StoreLocation:
-    pass
-
-class Register(StoreLocation):
-    def __init__(self, name):
-        self._name = name
-        self._registerDescriptor = RegisterDescriptor()
+    def free_reg(self, reg):
+        self.registers[reg] = UNUSED
     
-    @property
-    def name(self):
-        return self._name
-    
-    @property
-    def get_register_descriptor(self):
-        return self._registerDescriptor
+    def is_used(self, reg):
+        return self.registers[reg] == USED
 
-class RegisterDescriptor:
-    def __init__(self):
-        #ListVariables
-        pass
-
-class MemoryLocation(StoreLocation):
-    pass
-
-class HeapLocation(MemoryLocation):
-    pass
-
-class StackLocation(MemoryLocation):
-    pass
-
-
-class AddressDescriptor():
-    def __init__(self):
-        #List locations
-        pass
-
-class SymbolTable:
-    def __init__(self):
-        #Dict name: AddressDescriptor
-        pass
+    def get_registers_for_save(self):
+        regs = [reg for reg, state in self.registers.items() if state == USED]
+        regs.extend([mips.RA_REG])
+        return regs
 
 
 class BaseCILToMIPSVisitor:
