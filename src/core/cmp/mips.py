@@ -93,6 +93,10 @@ class StringConst(DataNode):
         super().__init__(label)
         self._string = string
     
+    @property
+    def string(self):
+        return self._string
+    
 
 class InstructionNode(Node):
     pass
