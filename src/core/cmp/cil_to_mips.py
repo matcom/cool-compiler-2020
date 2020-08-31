@@ -103,6 +103,9 @@ class CILToMIPSVisitor:
     def visit(self, node):
         pass
     
+    @visitor.when(cil.InstructionNode)
+    def visit(self, node):
+        print(type(node))
             
 
     
