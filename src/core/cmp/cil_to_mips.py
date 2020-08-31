@@ -59,6 +59,7 @@ class CILToMIPSVisitor:
         self._data_sections = {}
         self._functions = {}
         self._actual_function = None
+        self._name_func_map = {}
     
     def generate_type_label(self):
         return self._label_generator.generate_type_label()
@@ -80,6 +81,23 @@ class CILToMIPSVisitor:
     
     def finish_functions(self):
         self._actual_function = None
+    
+    @vistor.on('node')
+    def collect_func_names(self, node):
+        pass
+    
+    @visitor.when(cil.ProgramNode)
+    def collect_func_names(self, node):
+        for func in node.dotcode:
+            self.collect_func_names(func)
+        
+    @visitor.when(cil.FunctionNode)
+    def collect_func_names(self, node):
+        if node.name == "entry":
+            self._name_func_map[node.name] = 'main'
+        else:
+            self._name_func_map[node.name] = self.generate_code_label()
+            
 
     
     
