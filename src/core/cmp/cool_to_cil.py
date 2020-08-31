@@ -109,7 +109,7 @@ class BaseCOOLToCILVisitor:
         #IO
         type_node = self.register_type('IO')
 
-        self.current_function = self.register_function(self.to_function_name('init', 'Object'))
+        self.current_function = self.register_function(self.to_function_name('init', 'IO'))
         instance = self.define_internal_local()
         self.register_instruction(cil.AllocateNode('Object', instance))
         self.register_instruction(cil.ReturnNode(instance))
