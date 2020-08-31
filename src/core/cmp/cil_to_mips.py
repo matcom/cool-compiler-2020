@@ -51,7 +51,13 @@ class LabelGenerator:
         return f'L_{self.code_count}'
 
 
-
+class CILToMIPSVisitor:
+    def __init__(self, label_generator = LabelGenerator(), regiters_manager = SimpleRegistersManager()):
+        self._label_generator = label_generator
+        self._registers_manager = regiters_manager
+        self._types = {}
+        self._data_sections = {}
+        self._functions = {}
 
     
     
