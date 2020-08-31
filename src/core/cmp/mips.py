@@ -55,6 +55,10 @@ class FunctionNode(Node):
     def label(self):
         return self._label
     
+    @property
+    def instructions(self):
+        return self._instructions
+    
     def add_instructions(self, instructions):
         self._instructions.extend(instructions)
     
