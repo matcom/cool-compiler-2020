@@ -283,6 +283,31 @@ class CILToMIPSVisitor:
         instructions.append(mips.SyscallNode())
 
         return instructions
+    
+    @visitor.when(cil.TypeNameNode)
+    def visit(self, node):
+        instructions = []
+        reg = self.get_free_reg()
+
+        src_location = self.get_var_location(node.source)
+        dst_location = self.get_var_location(node.dest)
+
+        instructions.append(mips.LoadWordNode(reg, src_location))
+        instructions.append(mips.LoadWordNode(reg, mips.RegisterRelativeLocation(reg, 0)))
+        instructions.append(mips.LoadWordNode(reg, mips.RegisterRelativeLocation(reg, 0)))
+        instructions.append(mips.StoreWordNode(reg, dst_location))
+
+        self.free_reg(reg)
+
+        return instructions
+    
+    @visitor.when(cil.ExitNode)
+    def visit(self, node):
+        instructions = []
+        instructions.append(mips.LoadInmediateNode(mips.V0_REG, 10))
+        instructions.append(mips.SyscallNode())
+
+        return instructions
 
             
 
