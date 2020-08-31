@@ -351,6 +351,47 @@ class CILToMIPSVisitor:
         return instructions
 
 
+class UsedRegisterFinder:
+    def __init__(self):
+        self.used_registers = set()
+
+    def get_used_registers(self, instructions):
+        self.used_registers = set()
+        
+        for inst in instructions:
+            self.visit(inst)
+        self.used_registers = set.difference(self.used_registers, set([mips.SP_REG, mips.FP_REG, mips.V0_REG]))
+        return [reg for reg in self.used_registers]
+
+
+    @visitor.on('node')
+    def visit(self, node):
+        pass
+
+    @visitor.when(mips.LoadInmediateNode)
+    def visit(self, node):
+        self.used_registers.add(node.reg)
+    
+    @visitor.when(mips.LoadAddressNode)
+    def visit(self, node):
+        self.used_registers.add(node.reg)
+    
+    @visitor.when(mips.AddInmediateNode)
+    def visit(self, node):
+        self.used_registers.add(node.dest)
+    
+    @visitor.when(mips.MoveNode)
+    def visit(self, node):
+        self.used_registers.add(node.reg1)
+    
+    @visitor.when(mips.LoadWordNode)
+    def visit(self, node):
+        self.used_registers.add(node.reg)
+
+    @visitor.when(mips.JumpAndLinkNode)
+    def visit(self, node):
+        self.used_registers.add(mips.RA_REG)
+
             
 
     
@@ -359,34 +400,8 @@ class CILToMIPSVisitor:
 
 
 
-def cil_to_mips_data(cil_data):
-    return mips.DataNode(cil_data.name, cil_data.value)
-
-def cil_to_mips_type(cil_type):
-    return mips.MIPSType(cil_type.name, cil_type.attributes, cil_type.methods)
 
 
-
-# class A:
-    # pass
-# 
-# class B(A):
-    # pass
-# 
-# class C:
-    # pass
-# 
-# @visitor.on('param')
-# def try2(param):
-    # pass
-# 
-# @visitor.when(A)
-# def try2(param):
-    # print("is A")
-# 
-# @visitor.when(B)
-# def try2(param):
-    # print("is B")
 
 
 #Change Name
