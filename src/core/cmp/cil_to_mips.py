@@ -229,6 +229,35 @@ class CILToMIPSVisitor:
         instructions.append(mips.StoreWordNode(mips.V0_REG, location))
 
         return instructions
+    
+    @visitor.when(cil.ReturnNode)
+    def visit(self, node):
+        instructions = []
+
+        if node.value is None:
+            instructions.append(mips.LoadInmediateNode(mips.V0_REG, 0))
+        elif type(node.value) == int:
+            instructions.append(mips.LoadInmediateNode(mips.V0_REG, node.value))
+        else:
+            location = self.get_var_location(node.value)
+            instructions.append(mips.LoadWordNode(mips.V0_REG, location))
+            
+        return instructions
+    
+    @visitor.when(cil.LoadNode)
+    def visit(self, node):
+        instructions = []
+
+        reg = self.get_free_reg()
+        string_location = mips.LabelRelativeLocation(self._data_section[node.msg].label, 0)
+        instructions.append(mips.LoadAddressNode(reg, string_location))
+
+        dest_location = self.get_var_location(node.dest)
+        instructions.append(mips.StoreWordNode(reg, dest_location))
+
+        self.free_reg(reg)
+
+        return instructions
 
             
 
