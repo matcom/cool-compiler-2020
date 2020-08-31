@@ -301,6 +301,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         assert dest is not None
 
+        self.add_source_line_comment(node)
+
         num_bytes += len(instance_type.attributes)
 
         # Reservar memoria para la instancia
@@ -329,7 +331,22 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.TypeOfNode):
-        pass
+        local_addr = self.get_location_address(node=node.variable)
+        return_addr = self.get_location_address(node=node.dest)
+        reg = self.get_available_register()
+        reg2 = self.get_available_register()
+
+        assert reg is not None, "Out of registers"
+        assert reg2 is not None, "Out of registers"
+
+        self.add_source_line_comment(node)
+
+        self.register_instruction(lsNodes.LW(reg, local_addr))
+        self.register_instruction(lsNodes.LW(reg2, f"0(${reg})"))
+        self.register_instruction(lsNodes.SW(reg2, return_addr))
+
+        self.used_registers[reg] = False
+        self.used_registers[reg2] = False
 
     @visit.register
     def _(self, node: cil.JumpIfGreaterThanZeroNode):
