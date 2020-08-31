@@ -184,7 +184,7 @@ class CILToMIPSVisitor:
             code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
         except Exception as e:
             print(node.name)
-          
+            
         final_instructions = []
         
         if not self.in_entry_function():
@@ -304,16 +304,14 @@ class CILToMIPSVisitor:
     @visitor.when(cil.LoadNode)
     def visit(self, node):
         instructions = []
-
         reg = self.get_free_reg()
-        string_location = mips.LabelRelativeLocation(self._data_section[node.msg].label, 0)
+        string_location = mips.LabelRelativeLocation(self._data_section[node.msg.name].label, 0)
         instructions.append(mips.LoadAddressNode(reg, string_location))
 
         dest_location = self.get_var_location(node.dest)
         instructions.append(mips.StoreWordNode(reg, dest_location))
 
         self.free_reg(reg)
-
         return instructions
     
     @visitor.when(cil.PrintIntNode)
