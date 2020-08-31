@@ -258,6 +258,31 @@ class CILToMIPSVisitor:
         self.free_reg(reg)
 
         return instructions
+    
+    @visitor.when(cil.PrintIntNode)
+    def visit(self, node):
+        instructions = []
+        instructions.append(mips.LoadInmediateNode(mips.V0_REG, 1))
+
+        #TODO save $a0 if is beign used
+        location = self.get_var_location(node.value)
+        instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[0], location))
+        instructions.append(mips.SyscallNode())
+
+        return instructions
+    
+    @visitor.when(cil.PrintStrNode)
+    def visit(self, node):
+        instructions = []
+        instructions.append(mips.LoadInmediateNode(mips.V0_REG, 4))
+
+        #TODO save $a0 if is beign used
+
+        location = self.get_var_location(node.value)
+        instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[0], location))
+        instructions.append(mips.SyscallNode())
+
+        return instructions
 
             
 
