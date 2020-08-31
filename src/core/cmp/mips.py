@@ -15,7 +15,7 @@ class Register():
     def __init__(self, name):
         self.name = name
 
-REGISTERS           = { name: Register(name) for name in REGISTER_NAMES }
+REGISTERS           = [ Register(name) for name in REGISTER_NAMES ]
 ARG_REGISTERS       = [ Register(name) for name in ARG_REGISTERS_NAMES ]
 FP_REG              = Register('fp') 
 SP_REG              = Register('sp')

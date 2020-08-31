@@ -84,7 +84,7 @@ class CILToMIPSVisitor:
     def finish_functions(self):
         self._actual_function = None
     
-    def push_args(self):
+    def push_arg(self):
         self._pushed_args += 1
     
     def clean_pushed_args(self):
@@ -139,7 +139,7 @@ class CILToMIPSVisitor:
         for func in node.dotcode:
             self.visit(func)
         
-        return mips.ProgramNode([func for func in self._functions.values()], [data for data in self._data_section.values()], [tp for tp in self._types.values()])
+        return mips.ProgramNode( [data for data in self._data_section.values()], [tp for tp in self._types.values()], [func for func in self._functions.values()])
 
     @visitor.when(cil.TypeNode)
     def visit(self, node):
@@ -177,18 +177,18 @@ class CILToMIPSVisitor:
         initial_instructions.append(mips.AddInmediateNode(mips.FP_REG, mips.SP_REG, 4))
         initial_instructions.append(mips.AddInmediateNode(mips.SP_REG, mips.SP_REG, -size_for_locals))
 
-        code_instrutions = []
+        code_instructions = []
         
         #This try-except block is for debuggin purposes
         try:
-            code_instrutions = list(itt.chain.from_iterable([self.visit(instrucion) for instruction in node.instructions]))
-        except:
+            code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
+        except Exception as e:
             print(node.name)
-
+          
         final_instructions = []
         
         if not self.in_entry_function():
-            used_regs = used_regs_finder.get_used_registers(code_instrutions)
+            used_regs = used_regs_finder.get_used_registers(code_instructions)
             #TODO change this to grow the stack just once
             for reg in used_regs:
                 initial_instructions.extend(mips.push_register(reg))
@@ -205,7 +205,7 @@ class CILToMIPSVisitor:
         else:
             final_instructions.extend(mips.exit_program())
         
-        func_instructions = list(itt.chain(initial_instructions, code_instrutions, final_instructions))
+        func_instructions = list(itt.chain(initial_instructions, code_instructions, final_instructions))
         new_func.add_instructions(func_instructions)
         self.finish_functions() 
 
@@ -256,14 +256,14 @@ class CILToMIPSVisitor:
 
         if node.source.isnumeric():
             load_value = mips.LoadInmediateNode(reg, int(node.source))
-            instrucctions.append(load_value)
+            instructions.append(load_value)
         else:
             value_location = self.get_var_location(node.source)
             load_value = mips.LoadWordNode(reg, value_location)
-            instrucctions.append(load_value)
+            instructions.append(load_value)
         
         location = self.get_var_location(node.dest)
-        instrucctions.append(mips.StoreWordNode(reg, location))
+        instructions.append(mips.StoreWordNode(reg, location))
         self.free_reg(reg)
 
         return instructions

@@ -90,7 +90,7 @@ def main(args):
     printer = PrintVisitor()
     mips_code = printer.visit(mips_ast)
 
-    with open("compiled.asm") as f:
+    with open("compiled.asm", 'w') as f:
         f.write(mips_code)
 
 
