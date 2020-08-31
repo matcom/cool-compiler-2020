@@ -171,6 +171,10 @@ class MIPSType:
     @property
     def string_name_label(self):
         return self._name
+    
+    @property
+    def methods(self):
+        return self._methods
    
 
 
