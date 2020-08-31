@@ -308,6 +308,48 @@ class CILToMIPSVisitor:
         instructions.append(mips.SyscallNode())
 
         return instructions
+    
+    @visitor.when(cil.GetAttribNode)
+    def visit(self, node):
+        instructions = []
+        reg = self.get_free_reg()
+
+        obj_location = self.get_var_location(node.obj)
+        dst_location = self.get_var_location(node.dest)
+        tp = self._types[node.xtype]
+        offset = (tp.attributes.index(node.attr) + 1) * mips.ATTR_SIZE
+
+        instructions.append(mips.LoadWordNode(reg, obj_location))
+        instructions.append(mips.LoadWordNode(reg, mips.RegisterRelativeLocation(reg, offset)))
+        instructions.append(mips.StoreWordNode(reg, dst_location))
+
+        self.free_reg(reg)
+        return instructions
+    
+    @visitor.when(cil.SetAttribNode)
+    def visit(self, node):
+        instructions = []
+        reg = self.get_free_reg()
+        reg2 = self.get_free_reg()
+        
+        obj_location = self.get_var_location(node.obj)
+        tp = self._types[node.xtype]
+        offset = (tp.attributes.index(node.attr) + 1) * mips.ATTR_SIZE
+        
+        instructions.append(mips.LoadWordNode(reg2, obj_location))
+
+        if node.value.isnumeric():
+            instructions.append(mips.LoadInmediateNode(reg, int(node.value)))
+        else:
+            src_location = self.get_var_location(node.value)
+            instructions.append(mips.LoadWordNode(reg, src_location))
+        
+        instructions.append(mips.StoreWordNode(reg, mips.RegisterRelativeLocation(reg2, offset)))
+
+        self.free_reg(reg)
+        self.free_reg(reg2)
+        return instructions
+
 
             
 
