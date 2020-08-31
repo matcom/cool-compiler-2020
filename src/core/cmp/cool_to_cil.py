@@ -218,8 +218,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         self.current_function = self.register_function('entry')
         result = self.define_internal_local()
-        self.register_instruction(cil.AllocateNode('Main', self.vself.name))
-        self.register_instruction(cil.ArgNode(self.vself.name))
+        instance = self.register_local(VariableInfo('instance', None))
+        self.register_instruction(cil.AllocateNode('Main', instance))
+        self.register_instruction(cil.ArgNode(instance))
         self.register_instruction(cil.StaticCallNode(self.to_function_name('main', 'Main'), result))
         self.register_instruction(cil.ReturnNode(0))
         # Error message raised by Object:abort()
