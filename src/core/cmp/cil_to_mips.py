@@ -72,7 +72,14 @@ class CILToMIPSVisitor:
     def get_var_location(self, name):
         return self._actual_function.get_var_location(name)
     
+    def register_function(self, name, function):
+        self._functions[name] = function
     
+    def init_function(self, function):
+        self._actual_function = function
+    
+    def finish_functions(self):
+        self._actual_function = None
 
     
     
