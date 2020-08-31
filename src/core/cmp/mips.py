@@ -51,6 +51,10 @@ class FunctionNode(Node):
         self._params = params
         self._localvars = localvars
     
+    @property
+    def label(self):
+        return self._label
+    
     def add_instructions(self, instructions):
         self._instructions.extend(instructions)
     
@@ -240,7 +244,7 @@ class PrintVisitor:
     @visitor.when(ProgramNode)
     def visit(self, node):
         data_section_header = "\t.data"
-        static_strings = '\n'.join([self.visit(string_const) for string_const in node.static_data])
+        static_strings = '\n'.join([self.visit(string_const) for string_const in node.data])
         
         types = "\n".join([self.visit(tp) for tp in node.types])
         
