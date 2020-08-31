@@ -89,6 +89,12 @@ class CILToMIPSVisitor:
     def clean_pushed_args(self):
         self._pushed_args = 0
     
+    def get_free_reg(self):
+        return self._registers_manager.get_free_reg()
+    
+    def free_reg(self, reg):
+        self._registers_manager.free_reg(reg)
+    
     @vistor.on('node')
     def collect_func_names(self, node):
         pass
@@ -154,19 +160,19 @@ class CILToMIPSVisitor:
         instructions = []
         
         if type(node.name) == int:
-            reg = self.register_manager.get_free_reg()
+            reg = self.get_free_reg()
             load_value = mips.LoadInmediateNode(reg, node.name)
             instructions.append(load_value)
             instructions.extend(mips.push_register(reg))
         else:
-            reg = self.register_manager.get_free_reg()
+            reg = self.get_free_reg()
             # if not loaded:
             value_address = self.get_var_location(node.name)
             load_value = mips.LoadWordNode(reg, value_address)
             instructions.append(load_value)
             instructions.extend(mips.push_register(reg))
         
-        self.register_manager.free_reg(reg)
+        self.free_reg(reg)
         return instructions
     
     @visitor.when(cil.StaticCallNode)
@@ -184,7 +190,45 @@ class CILToMIPSVisitor:
             instructions.append(mips.AddInmediateNode(mips.SP_REG, mips.SP_REG, self._pushed_args * mips.ATTR_SIZE))
             self.clean_pushed_args()
 
-        return instructions 
+        return instructions
+    
+    @visitor.when(cil.AssignNode)
+    def visit(self, node):
+        instructions = []
+        reg = self.get_free_reg()
+
+        if node.source.isnumeric():
+            load_value = mips.LoadInmediateNode(reg, int(node.source))
+            instrucctions.append(load_value)
+        else:
+            value_location = self.get_var_location(node.source)
+            load_value = mips.LoadWordNode(reg, value_location)
+            instrucctions.append(load_value)
+        
+        location = self.get_var_location(node.dest)
+        instrucctions.append(mips.StoreWordNode(reg, location))
+        self.free_reg(reg)
+
+        return instructions
+    
+    @visitor.when(cil.AllocateNode)
+    def visit(self, node):
+        #TODO Save $a0 register if is beign used
+        object_size = self._types[node.type].size
+        object_label = self._types[node.type].label
+
+        instructions = []
+        instructions.extend(mips.alloc_memory(object_size))
+
+        reg = self.get_free_reg()
+        instructions.append(mips.LoadAddressNode(reg, object_label))
+        instructions.append(mips.StoreWordNode(reg, mips.RegisterRelativeLocation(mips.V0_REG, 0)))
+        self.free_reg(reg)
+
+        location = self.get_var_location(node.dest)
+        instructions.append(mips.StoreWordNode(mips.V0_REG, location))
+
+        return instructions
 
             
 
