@@ -32,6 +32,25 @@ class SimpleRegistersManager:
         return regs
 
 
+class LabelGenerator:
+    def __init__(self):
+        self.data_count = 0
+        self.type_count = 0
+        self.code_count = 0
+
+    def generate_type_label(self):
+        self.type_count += 1        
+        return f'type_{self.type_count}'
+        
+    def generate_data_label(self):
+        self.data_count += 1
+        return f'data_{self.data_count}'
+    
+    def generate_code_label(self):
+        self.code_count += 1
+        return f'L_{self.code_count}'
+
+
 class BaseCILToMIPSVisitor:
     def __init__(self):
         self.types = {}
