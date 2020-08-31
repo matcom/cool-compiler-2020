@@ -175,6 +175,10 @@ class MIPSType:
     @property
     def methods(self):
         return self._methods
+    
+    @property
+    def attributes(self):
+        return self._attributes
    
 
 
