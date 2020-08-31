@@ -58,6 +58,15 @@ class CILToMIPSVisitor:
         self._types = {}
         self._data_sections = {}
         self._functions = {}
+    
+    def generate_type_label(self):
+        return self._label_generator.generate_type_label()
+    
+    def generate_data_label(self):
+        return self._label_generator.generate_data_label()
+    
+    def generate_code_label(self):
+        return self._label_generator.generate_code_label()
 
     
     
