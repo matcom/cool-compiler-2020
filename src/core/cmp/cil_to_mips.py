@@ -97,6 +97,12 @@ class CILToMIPSVisitor:
             self._name_func_map[node.name] = 'main'
         else:
             self._name_func_map[node.name] = self.generate_code_label()
+    
+    
+    @visitor.on('node')
+    def visit(self, node):
+        pass
+    
             
 
     
