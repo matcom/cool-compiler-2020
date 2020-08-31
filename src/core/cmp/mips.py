@@ -45,9 +45,9 @@ class ProgramNode(Node):
         return self._functions
 
 class FunctionNode(Node):
-    def __init__(self, label, params, localvars, instructions = []):
+    def __init__(self, label, params, localvars):
         self._label = label
-        self._instructions = instructions
+        self._instructions = []
         self._params = params
         self._localvars = localvars
     
