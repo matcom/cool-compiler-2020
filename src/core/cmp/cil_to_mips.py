@@ -60,6 +60,7 @@ class CILToMIPSVisitor:
         self._functions = {}
         self._actual_function = None
         self._name_func_map = {}
+        self._pushed_args = 0
     
     def generate_type_label(self):
         return self._label_generator.generate_type_label()
@@ -81,6 +82,12 @@ class CILToMIPSVisitor:
     
     def finish_functions(self):
         self._actual_function = None
+    
+    def push_args(self):
+        self._pushed_args += 1
+    
+    def clean_pushed_args(self):
+        self._pushed_args = 0
     
     @vistor.on('node')
     def collect_func_names(self, node):
@@ -139,6 +146,45 @@ class CILToMIPSVisitor:
     def visit(self, node):
         label = self.generate_data_label()
         self._data_section[node.name] = mips.StringConst(label, node.value)
+    
+    @visitor.when(cil.ArgNode)
+    def visit(self, node):
+        self.push_arg()
+
+        instructions = []
+        
+        if type(node.name) == int:
+            reg = self.register_manager.get_free_reg()
+            load_value = mips.LoadInmediateNode(reg, node.name)
+            instructions.append(load_value)
+            instructions.extend(mips.push_register(reg))
+        else:
+            reg = self.register_manager.get_free_reg()
+            # if not loaded:
+            value_address = self.get_var_location(node.name)
+            load_value = mips.LoadWordNode(reg, value_address)
+            instructions.append(load_value)
+            instructions.extend(mips.push_register(reg))
+        
+        self.register_manager.free_reg(reg)
+        return instructions
+    
+    @visitor.when(cil.StaticCallNode)
+    def visit(self, node):
+        instructions = []
+
+        label = self._name_func_map[node.function]
+
+        instructions.append(mips.JumpAndLinkNode(label))
+
+        dst_location = self.get_var_location(node.dest)
+        instructions.append(mips.StoreWordNode(mips.V0_REG, dst_location))
+
+        if self._pushed_args > 0:
+            instructions.append(mips.AddInmediateNode(mips.SP_REG, mips.SP_REG, self._pushed_args * mips.ATTR_SIZE))
+            self.clean_pushed_args()
+
+        return instructions 
 
             
 
