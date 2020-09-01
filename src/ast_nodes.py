@@ -192,38 +192,47 @@ class IsVoid(Expr):
 # <expression> ::= <expression> + <expression>
 
 
-class Sum(Expr):
+class ArithmeticBinOp(Expr):
+    super(ArithmeticBinOp, self).__init__()
+
+
+class Sum(ArithmeticBinOp):
     def __init__(self, summand1, summand2):
         super(Sum, self).__init__()
-        self.summand1 = summand1
-        self.summand2 = summand2
+        self.left = summand1
+        self.right = summand2
 
 
 # <expression> ::= <expression> - <expression>
-class Sub(Expr):
+class Sub(ArithmeticBinOp):
     def __init__(self, minuend, subtrahend):
         super(Sub, self).__init__()
-        self.minuend = minuend
-        self.subtrahend = subtrahend
+        self.left = minuend
+        self.right = subtrahend
 
 
 # <expression> ::= <expression> * <expression>
-class Mult(Expr):
+class Mult(ArithmeticBinOp):
     def __init__(self, factor1, factor2):
         super(Mult, self).__init__()
-        self.factor1 = factor1
-        self.factor2 = factor2
+        self.left = factor1
+        self.right = factor2
 
 
 # <expression> ::= <expression> / <expression>
-class Div(Expr):
+class Div(ArithmeticBinOp):
     def __init__(self, dividend, divisor):
         super(Div, self).__init__()
-        self.dividend = dividend
-        self.divisor = divisor
+        self.left = dividend
+        self.right = divisor
 
+
+class LogicBinOp(Expr):
+    super(LogicBinOp, self).__init__()
 
 # <expression> ::= ~ <expression>
+
+
 class LogicalNot(Expr):
     def __init__(self, expr):
         super(LogicalNot, self).__init__()
@@ -231,7 +240,7 @@ class LogicalNot(Expr):
 
 
 # <expression> ::= <expression> < <expression>
-class LessThan(Expr):
+class LessThan(LogicBinOp):
     def __init__(self, left, right):
         super(LessThan, self).__init__()
         self.left = left
@@ -239,7 +248,7 @@ class LessThan(Expr):
 
 
 # <expression> ::= <expression> <= <expression>
-class LessOrEqualThan(Expr):
+class LessOrEqualThan(LogicBinOp):
     def __init__(self, left, right):
         super(LessOrEqualThan, self).__init__()
         self.left = left
