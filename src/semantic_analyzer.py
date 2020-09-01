@@ -14,6 +14,8 @@ PARAM_ALREADY_DEFINED = 'Parameter "%s" is already defined in method "%s".'
 INCOMPATIBLE_TYPES = 'Cannot convert "%s" into "%s".'
 VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined in "%s".'
 INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
+WRONG_TYPE = 'Type %s expected'
+
 BUILTIN_TYPES = ['Object', 'Int', 'String', 'Bool', 'IO']
 
 
@@ -244,28 +246,30 @@ class TypeChecker:
 
     @visitor.when(AST.DynamicCall)
     def visit(self, node, scope):
-        self.visit(node.instance,scope)
+        self.visit(node.instance, scope)
         instance_type = node.instance.computed_type
 
         try:
             instance_method = instance_type.get_method(node.method)
-            
+
             if len(node.args) == len(instance_method.param_types):
                 for arg, param_type in zip(node.args, instance_method.param_types):
                     self.visit(arg, scope)
                     arg_type = arg.computed_type
-                    
+
                     if not arg_type.conforms_to(param_type):
-                        self.errors.append(INCOMPATIBLE_TYPES.replace('%s', arg_type.name, 1).replace('%s', param_type.name, 1))
+                        self.errors.append(INCOMPATIBLE_TYPES.replace(
+                            '%s', arg_type.name, 1).replace('%s', param_type.name, 1))
             else:
                 self.errors.append(
                     f'Method "{instance_method.name}" of "{instance_type.name}" only accepts {len(instance_method.param_types)} argument(s)')
-            
+
             if instance_method.return_type == 'SELF_TYPE':
                 node_type = instance_type
             else:
                 try:
-                    node_type = self.context.get_type(instance_method.return_type)
+                    node_type = self.context.get_type(
+                        instance_method.return_type)
                 except SemanticError as ex:
                     self.errors.append(ex.text)
                     node_type = ErrorType()
@@ -321,41 +325,93 @@ class TypeChecker:
             node_type = ErrorType()
 
         node.computed_type = node_type
-       
+
     @visitor.when(AST.AssignExpr)
     def visit(self, node, scope):
-        pass
+        self.visit(node.expr, scope)
+        node_type = node.expr.computed_type
+
+        if scope.is_defined(node.name):
+            var = scope.find_variable(node.name)
+
+            if var.name == 'self':
+                self.errors.append(SELF_IS_READONLY)
+                node_type = ErrorType()
+            elif not node_type.conforms_to(var.type):
+                self.errors.append(INCOMPATIBLE_TYPES.replace(
+                    '%s', node_type.name, 1).replace('%s', var.type.name, 1))
+                node_type = ErrorType()
+
+        else:
+            self.errors.append(VARIABLE_NOT_DEFINED.replace(
+                '%s', node.name, 1).replace('%s', self.current_method.name, 1))
+            node_type = ErrorType()
+
+        node.computed_type = node_type
 
     @visitor.when(AST.Case)
     def visit(self, node, scope):
-        pass
+        action_expr_types = []
+        for action in node.actions:
+            self.visit(action, scope.create_child())
+            action_expr_types.append(action.computed_type)
+        t_0 = action_expr_types.pop(0)
+        node.computed_type = t_0.multiple_join(action_expr_types)
 
     @visitor.when(AST.Action)
     def visit(self, node, scope):
-        pass
+        try:
+            action_type = self.context.get_type(node.action_type)
+        except SemanticError as ex:
+            self.errors.append(ex.text)
+            action_type = ErrorType()
+
+        scope.define_variable(node.name, action_type)
+
+        self.visit(node.body)
+        node.computed_type = node.body.computed_type
 
     @visitor.when(AST.If)
     def visit(self, node, scope):
-        pass
+        self.visit(node.predicate, scope)
+        predicate_type = node.predicate.computed_type
+
+        if predicate_type.name != 'Bool'
+        self.errors.append(WRONG_TYPE.replace('%s', 'Bool', 1))
+
+        self.visit(node.then_body, scope)
+        then_type = node.then_body.computed_type
+        self.visit(node.else_body, scope)
+        else_type = node.else_body.computed_type
+
+        node.computed_type = then_type.join(else_type)
 
     @visitor.when(AST.While)
     def visit(self, node, scope):
-        pass
+        self.visit(node.predicate, scope)
+        predicate_type = node.predicate.computed_type
+
+        if predicate_type.name != 'Bool'
+        self.errors.append(WRONG_TYPE.replace('%s', 'Bool', 1))
+
+        self.visit(node.body, scope)
+
+        node.computed_type = self.context.get_type('Object')
 
     @visitor.when(AST.Block)
     def visit(self, node, scope):
         for expr in node.exprs:
             self.visit(expr, scope)
-            
+
         node.computed_type = node.exprs[-1].computed_type
 
     @visitor.when(AST.Let)
     def visit(self, node, scope):
         let_scope = scope.create_child()
-        
+
         for var in node.var_list:
             self.visit(var, let_scope)
-        
+
         self.visit(node.body, let_scope)
 
         node.computed_type = node.body.computed_type
@@ -396,7 +452,7 @@ class TypeChecker:
     @visitor.when(AST.NewType)
     def visit(self, node, scope):
         if node.type == 'SELF_TYPE':
-            node.computed_type = scope.find_variable('self')
+            node.computed_type = scope.find_variable('self').type
         else:
             try:
                 node_type = self.context.get_type(node.type)

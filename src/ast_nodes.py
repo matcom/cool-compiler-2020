@@ -65,7 +65,7 @@ class Expr(AST):
 class AssignExpr(Expr):
     def __init__(self, instance, expr):
         super(AssingExpr, self).__init__()
-        self.instance = instance
+        self.name = instance
         self.expr = expr
 
 # <expression> ::= <expression>.ID( <arguments_list_opt> )
