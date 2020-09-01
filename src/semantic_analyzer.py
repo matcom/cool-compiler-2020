@@ -466,61 +466,104 @@ class TypeChecker:
         self.visit(node.expr, scope)
         node.computed_type = self.context.get_type('Bool')
 
-    @visitor.when(AST.Sum)
+    @visitor.when(AST.ArithmeticBinOp)
     def visit(self, node, scope):
-        pass
+        node_type = self.context.get_type('Int')
 
-    @visitor.when(AST.Sub)
-    def visit(self, node, scope):
-        pass
+        self.visit(node.left, scope)
+        left_type = node.left.computed_type
 
-    @visitor.when(AST.Mult)
-    def visit(self, node, scope):
-        pass
+        if left_type.name != 'Int':
+            self.errors.append(WRONG_TYPE.replace('%s', 'Int', 1))
+            node_type = ErrorType()
 
-    @visitor.when(AST.Div)
-    def visit(self, node, scope):
-        pass
+        self.visit(node.right, scope)
+        right_type = node.right.computed_type
 
-    @visitor.when(AST.LogicalNot)
-    def visit(self, node, scope):
-        pass
+        if right_type.name != 'Int':
+            self.errors.append(WRONG_TYPE.replace('%s', 'Int', 1))
+            node_type = ErrorType()
 
-    @visitor.when(AST.LessThan)
-    def visit(self, node, scope):
-        pass
+        node.computed_type = node_type
 
-    @visitor.when(AST.LessOrEqualThan)
-    def visit(self, node, scope):
-        pass
 
-    @visitor.when(AST.Equals)
+    @visitor.when(AST.LogicBinOp)
     def visit(self, node, scope):
-        pass
+        node_type = self.context.get_type('Bool')
+
+        self.visit(node.left, scope)
+        left_type = node.left.computed_type
+
+        if left_type.name != 'Bool':
+            self.errors.append(WRONG_TYPE.replace('%s', 'Bool', 1))
+            node_type = ErrorType()
+
+        self.visit(node.right, scope)
+        right_type = node.right.computed_type
+
+        if right_type.name != 'Bool':
+            self.errors.append(WRONG_TYPE.replace('%s', 'Bool', 1))
+            node_type = ErrorType()
+
+        node.computed_type = node_type
 
     @visitor.when(AST.Not)
     def visit(self, node, scope):
-        pass
+        node_type = self.context.get_type('Int')
+
+        self.visit(node.expr, scope)
+        expr_type = node.expr.computed_type
+
+        if expr_type.name != 'Int':
+            self.errors.append(WRONG_TYPE.replace('%s', 'Int', 1))
+            node_type = ErrorType()
+
+        node.computed_type = node_type
+
+    @visitor.when(AST.LogicalNot)
+    def visit(self, node, scope):
+        node_type = self.context.get_type('Bool')
+
+        self.visit(node.expr, scope)
+        expr_type = node.expr.computed_type
+
+        if expr_type.name != 'Bool':
+            self.errors.append(WRONG_TYPE.replace('%s', 'Bool', 1))
+            node_type = ErrorType()
+
+        node.computed_type = node_type
+
+    @visitor.when(AST.Equals)
+    def visit(self, node, scope):
+        node_type = self.context.get_type('Bool')
+
+        self.visit(node.left, scope)
+        left_type = node.left.computed_type
+
+        self.visit(node.right, scope)
+        right_type = node.right.computed_type
+
+        if left_type.name in ['Int', 'Bool', 'String'] and left_type.name != right_type.name:
+            self.errors.append(WRONG_TYPE.replace('%s', left_type.name, 1))
+            node_type = ErrorType()
+        
+        node.computed_type = node_type
 
     @visitor.when(AST.Object)
     def visit(self, node, scope):
-        pass
-
-    @visitor.when(AST.SELF)
-    def visit(self, node, scope):
-        pass
+        node.computed_type = self.context.get_type('Object')
 
     @visitor.when(AST.INTEGER)
     def visit(self, node, scope):
-        pass
+        node.computed_type = self.context.get_type('Int')
 
     @visitor.when(AST.STRING)
     def visit(self, node, scope):
-        pass
+        node.computed_type = self.context.get_type('String')
 
     @visitor.when(AST.Boolean)
     def visit(self, node, scope):
-        pass
+        node.computed_type = self.context.get_type('Bool')
 
 
 class SemanticAnalyzer:
