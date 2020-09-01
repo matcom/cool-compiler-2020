@@ -6,7 +6,7 @@ import mips.instruction as instrNodes
 import mips.branch as branchNodes
 import mips.comparison as cmpNodes
 import mips.arithmetic as arithNodes
-from mips.instruction import a0, v0
+from mips.instruction import a0, fp, ra, sp, v0
 import mips.load_store as lsNodes
 from typing import List, Optional, Union
 import time
@@ -255,3 +255,56 @@ class BaseCilToMipsVisitor:
         self.register_instruction(condition(reg, value, node.label, const))
 
         self.used_registers[reg] = False
+
+    def allocate_stack_frame(self, node: FunctionNode):
+        """
+        Crea el marco de pila necesario para ejecutar la funcion representada por @node.
+        """
+        # Crear el marco de pila para la funcion
+        locals_count = len(node.localvars)
+        self.register_instruction(
+            instrNodes.LineComment(
+                f"Allocate stack frame for function {node.name}."))
+
+        # Salvar primero espacio para las variables locales
+        if locals_count * 4 < 24:  # MIPS fuerza a un minimo de 32 bytes por stack frame
+            self.register_instruction(arithNodes.SUBU(sp, sp, 32, True))
+            ret = 32
+        else:
+            self.register_instruction(
+                arithNodes.SUBU(sp, sp, locals_count * 4 + 8, True))
+            ret = locals_count * 4 + 8
+
+        # Salvar ra y fp
+        self.register_instruction(lsNodes.SW(ra, "8($sp)"))
+        self.register_instruction(lsNodes.SW(fp, "4($sp)"))
+
+        # mover fp al inicio del frame
+        self.register_instruction(arithNodes.ADDU(fp, sp, ret, True))
+
+    def deallocate_stack_frame(self, node: FunctionNode):
+        """
+        Deshace el marco de pila creado por un llamado a @allocate_stack_frame anterior.
+        Esta funcion solo es un espejo de lo que realiza @allocate_stack_frame.
+        """
+        locals_count = len(node.localvars)
+        self.register_instruction(
+            instrNodes.LineComment(
+                f"Deallocate stack frame for function {node.name}."))
+
+        # Calcular cuantos bytes fueron reservados
+        if locals_count * 4 < 24:  # MIPS fuerza a un minimo de 32 bytes por stack frame
+            ret = 32
+        else:
+            ret = locals_count * 4 + 8
+
+        # restaurar ra y fp
+        self.register_instruction(instrNodes.LineComment("Restore $ra"))
+        self.register_instruction(lsNodes.LW(ra, "8($sp)"))
+        self.register_instruction(instrNodes.LineComment("Restore $fp"))
+        self.register_instruction(lsNodes.LW(fp, "4($sp)"))
+
+        # restaurar el Stack Pointer
+        self.register_instruction(
+            instrNodes.LineComment("Restore Stack pointer $sp"))
+        self.register_instruction(arithNodes.ADDU(sp, sp, ret, True))

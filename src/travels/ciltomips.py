@@ -1,3 +1,4 @@
+from cil.nodes import LocalNode
 from mips.baseMipsVisitor import (BaseCilToMipsVisitor, DotDataDirective,
                                   DotGlobalDirective, DotTextDirective,
                                   instrNodes, arithNodes, cmpNodes,
@@ -110,7 +111,6 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.FunctionNode):
-        ret = 0
         self.current_function = node
         # El codigo referente a cada funcion debe ir en la seccion de texto.
         self.register_instruction(DotTextDirective())
@@ -121,27 +121,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Direccion de memoria de la funcion.
         self.register_instruction(instrNodes.Label(node.name))
 
-        # Crear el marco de pila para la funcion
-        locals_count = len(node.localvars)
-        self.register_instruction(
-            instrNodes.LineComment(
-                f"Allocate stack frame for function {node.name}."))
-
-        # Salvar primero espacio para las variables locales
-        if locals_count * 4 < 24:  # MIPS fuerza a un minimo de 32 bytes por stack frame
-            self.register_instruction(arithNodes.SUBU(sp, sp, 32, True))
-            ret = 32
-        else:
-            self.register_instruction(
-                arithNodes.SUBU(sp, sp, locals_count * 4 + 8, True))
-            ret = locals_count * 4 + 8
-
-        # Salvar ra y fp
-        self.register_instruction(lsNodes.SW(ra, "8($sp)"))
-        self.register_instruction(lsNodes.SW(fp, "4($sp)"))
-
-        # mover fp al inicio del frame
-        self.register_instruction(arithNodes.ADDU(fp, sp, ret, True))
+        # Crear el marco de pila de la funcion.
+        self.allocate_stack_frame(node)
 
         for instruction in node.instructions:
             self.visit(instruction)
@@ -367,7 +348,18 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.StaticCallNode):
-        pass
+
+        # Registrar un comentario con la linea fuente
+        self.add_source_line_comment(node)
+        dest = self.visit(node.dest)
+
+        assert dest is not None
+
+        # Saltar hacia la direccion de memoria correspondiente a la funcion
+        self.register_instruction(branchNodes.JAL(node.function))
+
+        # EL resultado viene en v0
+        self.register_instruction(lsNodes.SW(v0, dest))
 
     @visit.register
     def _(self, node: cil.DynamicCallNode):
@@ -379,14 +371,27 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.ReturnNode):
-        pass
+        # Generar dos formas de codigo en dependencia de si se devuelve un valor  o no
+        self.add_source_line_comment(node)
+        val = node.value
+        if val is not None:
+            if isinstance(val, LocalNode):
+                src = self.get_location_address(val)
+                # almacenar el resultado en $v0
+                self.register_instruction(lsNodes.LW(v0, src))
+            else:
+                # val es una constante
+                self.register_instruction(lsNodes.LI(v0, val))
+
+        # Liberar el marco de pila
+        assert self.current_function is not None
+        self.deallocate_stack_frame(self.current_function)
+
+        # salir del llamado de la funcion
+        self.register_instruction(branchNodes.JR(ra))
 
     @visit.register
     def _(self, node: cil.LoadNode):
-        pass
-
-    @visit.register
-    def _(self, node: cil.LengthNode):
         pass
 
     @visit.register
