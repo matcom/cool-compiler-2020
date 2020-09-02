@@ -1,13 +1,25 @@
-class Main inherits IO {
-     main() : String {
-         foo(42)
-     };
+class A{
+ x:Int <- 3;
+};
 
-     foo(i : Int) : String {
-        if i = 0 then "" else 
-	    (let next : Int <- i / 10 in
-		foo(next).concat(foo(i - next * 10))
-	    )
-        fi
-    };
+class B inherits A {
+
+};
+
+class Main inherits IO {
+	y:B <- new B;
+	x:A <- y;
+
+    main() : Object {{
+		
+		out_string("\n");
+        if (x = y)
+			then out_string("EQUAL\n")
+			else out_string("NOT EQUAL\n")
+		fi;
+		out_string(x.type_name());
+		out_string("\n");
+
+		1 < 3 + let a:Int<-3 in a;
+    }};
 };
