@@ -77,15 +77,9 @@ class Type:
                 raise SemanticError(f'Method "{name}" is not defined in {self.name}.')
 
     def define_method(self, name:str, param_names:list, param_types:list, return_type):
-        if name in self.methods:
+        # //TODO: Remove the below if clause
+        if name in self.methods.keys():
             raise SemanticError(f'Method "{name}" already defined in {self.name}')
-            # raise SemanticError(f'Method "{name}" already defined in {self.name} with a different signature.')
-
-        method = self.methods[name] = Method(name, param_names, param_types, return_type)
-        return method
-    
-    # my method, change it in future
-    def define_method(self, name:str, param_names:list, param_types:list, return_type):
         try:
             method = self.get_method(name)
         except SemanticError:
@@ -101,7 +95,7 @@ class Type:
         return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
 
     def bypass(self):
-        if self.name == 'Object' or self.name == 'AUTO_TYPE':
+        if self.name == 'Object':
             return True
         return False
 
@@ -121,18 +115,29 @@ class Type:
     def __repr__(self):
         return str(self)
 
-class ErrorType(Type):
-    def __init__(self):
-        Type.__init__(self, '<error>')
-
+class MutableType(Type):
     def conforms_to(self, other):
         return True
 
     def bypass(self):
         return True
 
+class ErrorType(MutableType):
+    def __init__(self):
+        Type.__init__(self, '<error>')
+
     def __eq__(self, other):
         return isinstance(other, Type)
+
+    def __bool__(self):
+        return False
+
+class AutoType(MutableType):
+    def __init__(self):
+        Type.__init__(self, 'AUTO_TYPE')
+
+    def __eq__(self, other):
+        return isinstance(other, AutoType)
 
 class VoidType(Type):
     def __init__(self):
@@ -144,10 +149,10 @@ class VoidType(Type):
         return True
 
     def bypass(self):
-        return True
+        return False
 
     def __eq__(self, other):
-        return isinstance(other, VoidType)
+        return other.name == self.name or isinstance(other, VoidType)
 
 class IntType(Type):
     def __init__(self):
@@ -182,11 +187,15 @@ class Context:
     def __init__(self):
         self.types = {}
 
-    def create_type(self, name:str):
+    def append_type(self, new_type):
+        name = new_type.name
         if name in self.types:
             raise SemanticError(f'Type with the same name ({name}) already in context.')
-        typex = self.types[name] = Type(name)
+        typex = self.types[name] = new_type
         return typex
+
+    def create_type(self, name:str):
+        return self.append_type(Type(name))
 
     def get_type(self, name:str):
         try:
@@ -230,7 +239,7 @@ class Scope:
         try:
             return next(x for x in locals if x.name == vname)
         except StopIteration:
-            return self.parent.find_variable(vname, self.index) if self.parent else None
+            return self.parent.find_variable(vname, self.index) if self.parent is not None else None
 
     def is_defined(self, vname):
         return self.find_variable(vname) is not None
@@ -239,8 +248,5 @@ class Scope:
         return any(True for x in self.locals if x.name == vname)
 
     def count_auto(self):
-        num = 0
-        for var in self.locals:
-            if var.type.name == 'AUTO_TYPE':
-                num += 1
+        num = sum([x.type.name == 'AUTO_TYPE' for x in self.locals])
         return num + sum([scp.count_auto() for scp in self.children])
