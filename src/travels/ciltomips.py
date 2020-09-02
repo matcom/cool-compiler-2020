@@ -64,8 +64,10 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         ##################################### Type address
         #           VTABLE_POINTER          #
         ##################################### Type address + 4
-        #         ATTRIBUTE_LIST_POINTER    #
-        #####################################
+        #         ATTRIBUTE_LIST            #
+        #            ..........             #
+        #            ..........             #
+        ##################################### Type_end
 
         self.comment(f" **** Type RECORD for type {node.name} ****")
         # Declarar la direccion de memoria donde comienza el tipo
@@ -445,7 +447,17 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.LoadNode):
-        pass
+        dest = self.visit(node.dest)
+        assert dest is not None
+
+        # message es un string, asi que solo hay que cargar el puntero a dicho string
+        reg = self.get_available_register()
+        assert reg is not None, "Out of registers"
+        self.add_source_line_comment(node)
+        self.register_instruction(lsNodes.LW(reg, node.message.name))
+        self.register_instruction(lsNodes.SW(reg, dest))
+
+        self.used_registers[reg] = False
 
     @visit.register
     def _(self, node: cil.LengthNode):
