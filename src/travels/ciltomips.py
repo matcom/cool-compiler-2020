@@ -1,3 +1,4 @@
+from abstract.semantics import Type
 from cil.nodes import LocalNode
 from mips.baseMipsVisitor import (BaseCilToMipsVisitor, DotDataDirective,
                                   DotGlobalDirective, DotTextDirective,
@@ -20,6 +21,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # El programa de CIL se compone por las 3 secciones
         # .TYPES, .DATA y .CODE
 
+        self.types = node.dottypes
+
         # Generar los tipos
         self.create_type_array(node.dottypes)
 
@@ -36,8 +39,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.visit(code_node)
 
         # registrar instrucciones para terminar la ejecucion
-        self.register_instruction(
-            instrNodes.LineComment("syscall code 10 is for exit"))
+        self.comment("syscall code 10 is for exit")
         self.register_instruction(lsNodes.LI(v0, 10))
         self.register_instruction(instrNodes.SYSCALL())
 
@@ -50,8 +52,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(DotDataDirective())
 
         # Construir la VTABLE para este tipo.
-        self.register_instruction(
-            instrNodes.LineComment(f" **** VTABLE for type {node.name} ****"))
+        self.comment(f" **** VTABLE for type {node.name} ****")
 
         # Los punteros a funciones estaran definidos en el orden en que aparecen declaradas en las clases
         # de modo que la VTABLE sea indexable y podamos efectuar VCALL en O(1).
@@ -59,11 +60,23 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             instrNodes.FixedData(f'{node.name}_vtable',
                                  ", ".join(x[1] for x in node.methods)))
 
-        self.register_instruction((instrNodes.LineComment(
-            f" **** Type RECORD for type {node.name} ****")))
+        # FORMA DE UN TIPO EN ASSEMBLY
+        ##################################### Type address
+        #           VTABLE_POINTER          #
+        ##################################### Type address + 4
+        #         ATTRIBUTE_LIST_POINTER    #
+        #####################################
+
+        self.comment(f" **** Type RECORD for type {node.name} ****")
         # Declarar la direccion de memoria donde comienza el tipo
         self.register_instruction(
             instrNodes.Label(f"{self.current_type.name}_start"))
+
+        # Registrar un puntero a la VTABLE del tipo.
+        self.register_instruction(
+            instrNodes.FixedData(f'{node.name}_vtable_pointer',
+                                 f"{node.name}_vtable"))
+
         # Declarar los atributos: Si los atributos son de tipo string, guardarlos como asciiz
         # de lo contrario son o numeros o punteros y se inicializan como .words
         for attrib in self.current_type.attributes:
@@ -76,10 +89,6 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
                     instrNodes.FixedData(f'{node.name}_attrib_{attrib.name}',
                                          0))
 
-        # Registrar un puntero a la VTABLE del tipo.
-        self.register_instruction(
-            instrNodes.FixedData(f'{node.name}_vtable_pointer',
-                                 f"{node.name}_vtable"))
         # Registrar la direccion de memoria donde termina el tipo para calcular facilmente
         # sizeof
         self.register_instruction(instrNodes.Label(f"{node.name}_end"))
@@ -138,8 +147,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         label = self.get_location_address(node)
 
         # Agregar la linea que vamos a traducir.
-        self.register_instruction(
-            instrNodes.LineComment(f"PARAM {node.name} --> {label}"))
+        self.comment(f"PARAM {node.name} --> {label}")
 
         return label
 
@@ -148,10 +156,13 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         label = self.get_location_address(node)
 
         # Agregar la linea que vamos a traducir.
-        self.register_instruction(
-            instrNodes.LineComment(f"LOCAL {node.name} --> {label}"))
+        self.comment(f"LOCAL {node.name} --> {label}")
 
         return label
+
+    @visit.register
+    def _(self, node: Type):
+        return node.name
 
     @visit.register
     def _(self, node: cil.AssignNode):
@@ -181,8 +192,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
                 self.register_instruction(lsNodes.LI(s0, source))
                 self.register_instruction(lsNodes.SW(s0, dest))
                 self.register_instruction(lsNodes.LI(s0, "0($sp)"))
+
         elif isinstance(source, str):
-            # Source es una direccion de memoria
+            # Source es una direccion de memoria (Puede ser un label, en caso de que sea un tipo)
             reg1 = self.get_available_register()
             assert reg1 is not None
             self.register_instruction(lsNodes.LW(reg1, source))
@@ -255,7 +267,6 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.AllocateNode):
-
         # Cada instancia debe almacenar lo siguiente:
         # - Un puntero a la vTable de su tipo
         # - Espacio para cada atributo
@@ -323,7 +334,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.add_source_line_comment(node)
 
         self.register_instruction(lsNodes.LW(reg, local_addr))
-        self.register_instruction(lsNodes.LW(reg2, f"0(${reg})"))
+        self.comment("Load pointer to type")
+        self.register_instruction(lsNodes.LW(reg2, f"4(${reg})"))
         self.register_instruction(lsNodes.SW(reg2, return_addr))
 
         self.used_registers[reg] = False
@@ -331,14 +343,17 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.JumpIfGreaterThanZeroNode):
+        self.add_source_line_comment(node)
         self.conditional_jump(node, branchNodes.BGT)
 
     @visit.register
     def _(self, node: cil.IfZeroJump):
+        self.add_source_line_comment(node)
         self.conditional_jump(node, branchNodes.BEQ)
 
     @visit.register
     def _(self, node: cil.NotZeroJump):
+        self.add_source_line_comment(node)
         self.conditional_jump(node, branchNodes.BNE)
 
     @visit.register
@@ -363,7 +378,45 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.DynamicCallNode):
-        pass
+        type_src = self.visit(node.xtype)
+        dest = self.visit(node.dest)
+
+        assert type_src is not None and dest is not None
+
+        # Generar el comentario de la linea fuente
+        self.add_source_line_comment(node)
+
+        # obtener el indice que le corresponde a la funcion que estamos llamando
+        i = self.get_method_index(node.method)
+
+        # Reservar registros para operaciones intermedias
+        reg1 = self.get_available_register()
+        reg2 = self.get_available_register()
+        reg3 = self.get_available_register()
+        assert reg1 is not None and reg2 is not None and reg3 is not None, "out of registers"
+
+        # Cargar el puuntero al tipo en el primer registro
+        self.comment("Get pointer to type")
+        self.register_instruction(lsNodes.LW(reg1, type_src))
+
+        # Cargar el puntero a la VTABLE en el segundo registro
+        self.comment("Get pointer to type's VTABLE")
+        self.register_instruction(lsNodes.LW(reg2, f"0(${reg1})"))
+
+        # Cargar el puntero a la funcion correspondiente en el tercer registro
+        self.comment("Get pointer to function address")
+        self.register_instruction(lsNodes.LW(reg3, f"{i * 4}(${reg2})"))
+
+        # saltar hacia la direccion de memoria correspondiente a la funcion
+        self.comment("Call function. Result is on $v0")
+        self.register_instruction(branchNodes.JALR(reg3))
+
+        # El resultado viene en $v0
+        self.register_instruction(lsNodes.SW(v0, dest))
+
+        self.used_registers[reg1] = False
+        self.used_registers[reg2] = False
+        self.used_registers[reg3] = False
 
     @visit.register
     def _(self, node: cil.ArgNode):

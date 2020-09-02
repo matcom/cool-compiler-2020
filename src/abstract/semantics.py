@@ -101,6 +101,7 @@ class Method:
         self.param_names = param_names
         self.param_types = params_types
         self.return_type = return_type
+        self.vtable_index = 0
 
     def __str__(self):
         params = ', '.join(f'{n}:{t.name}'

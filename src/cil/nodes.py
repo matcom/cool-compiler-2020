@@ -1,5 +1,5 @@
-from typing import List
-from abstract.semantics import Attribute, Type
+from typing import List, Tuple
+from abstract.semantics import Attribute, Method, Type
 """
 Define a hierachy to represent each CIL instruction.
 Every CIL Instruction would be a Node of an AST, and every\
@@ -22,7 +22,7 @@ class TypeNode(CilNode):
     def __init__(self, name: str):
         self.name = name
         self.attributes: List[Attribute] = []
-        self.methods = []
+        self.methods: List[Tuple[str, str]] = []
 
 
 class DataNode(CilNode):
@@ -161,7 +161,7 @@ class StaticCallNode(InstructionNode):
 
 
 class DynamicCallNode(InstructionNode):
-    def __init__(self, xtype, method, dest):
+    def __init__(self, xtype: LocalNode, method: str, dest: LocalNode):
         self.xtype = xtype
         self.method = method
         self.dest = dest

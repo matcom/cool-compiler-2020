@@ -49,9 +49,6 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
     @visit.register
     def _(self, node: coolAst.ClassDef, scope: Scope) -> None:  # noqa: F811
-        # node.idx -> String with the Class Name
-        # node.features -> [AttributeDef ... MethodDef ...] List with attributes and method declarations
-
         # Register the new type in .Types section
         self.current_type = self.context.get_type(node.idx)
         new_type_node = self.register_type(node.idx)
@@ -659,7 +656,6 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     def _(self, node: coolAst.ParentFuncCall, scope: Scope) -> LocalNode:
         local_type_identifier = self.define_internal_local()
         return_expr_vm_holder = self.define_internal_local()
-        expr = self.visit(node.obj, scope)
 
         # Evaluar los argumentos
         for arg in node.arg_list:

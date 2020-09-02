@@ -8,7 +8,7 @@ import mips.comparison as cmpNodes
 import mips.arithmetic as arithNodes
 from mips.instruction import a0, fp, ra, sp, v0
 import mips.load_store as lsNodes
-from typing import List, Optional, Union
+from typing import List, Optional, Type, Union
 import time
 import cil.nodes as cil
 from travels.ctcill import CilDisplayFormatter
@@ -85,6 +85,9 @@ class BaseCilToMipsVisitor:
         # no guardan valores de retornos ni son utilizados como confiables, solo se usan para
         # almacenar valores intermedios y valores de variables, para evitar accesos a memoria.
         self.used_registers = [False] * 32
+
+        # Necesitamos acceso a los tipos del programa
+        self.types: List[TypeNode] = []
 
         # Construir el header del programa.
         self.__program_header()
@@ -170,7 +173,7 @@ class BaseCilToMipsVisitor:
                 self.register_instruction(
                     instrNodes.LineComment(f"\t{(i-4) * 4}($fp) = {param}"))
 
-    def operate(self, dest, left, right, operand):
+    def operate(self, dest, left, right, operand: Type):
         """
         Realiza la operacion indicada por operand entre left y right
         y la guarda en dest.
@@ -308,3 +311,17 @@ class BaseCilToMipsVisitor:
         self.register_instruction(
             instrNodes.LineComment("Restore Stack pointer $sp"))
         self.register_instruction(arithNodes.ADDU(sp, sp, ret, True))
+
+    def get_method_index(self, method: str):
+        """
+        Devuelve el indice de un metodo en las tablas virtuales.
+        Los metodos, ocupan el mismo indice en todas las vtables que aparezcan.
+        """
+        for typ in self.types:
+            for i, (methodName, _) in enumerate(typ.methods):
+                if methodName == method:
+                    return i
+        return 0
+
+    def comment(self, message: str):
+        self.register_instruction(instrNodes.LineComment(message))
