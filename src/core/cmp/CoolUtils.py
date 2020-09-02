@@ -172,12 +172,6 @@ class StringNode(AtomicNode):
 class BoolNode(AtomicNode):
     pass
 
-def FunctionCallNodeBuilder(obj, calls):
-    while len(calls):
-        obj = FunctionCallNode(obj, *calls[0])
-        calls.pop(0)
-    return obj
-
 class Param(Node):
     def __init__(self, tid, ttype):
         self.tid = tid
