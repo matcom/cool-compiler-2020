@@ -535,11 +535,48 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.right -> ExpressionNode
         ###############################
         vname = self.define_internal_local()
+        type_left = self.define_internal_local()
+        type_int = self.define_internal_local()
+        type_string = self.define_internal_local()
+        equal_result = self.define_internal_local()
+        left_value = self.define_internal_local()
+        right_value = self.define_internal_local()
+
         self.visit(node.left, scope)
         left = scope.ret_expr
         self.visit(node.right, scope)
         right = scope.ret_expr
+
+        self.register_instruction(cil.TypeNameNode(type_left, left))
+        self.register_instruction(cil.NameNode(type_int, 'Int'))
+        self.register_instruction(cil.NameNode(type_string, 'String'))
+
+        int_node = self.register_label('int_label')
+        string_node = self.register_label('string_label')
+        reference_node = self.register_label('reference_label')
+        continue_node = self.register_label('continue_label')
+        self.register_instruction(cil.EqualNode(equal_result, type_left, type_int))
+        self.register_instruction(cil.GotoIfNode(equal_result, int_node.label))
+        self.register_instruction(cil.EqualNode(equal_result, type_left, type_string))
+        self.register_instruction(cil.GotoIfNode(equal_result, string_node.label))
+        self.register_instruction(cil.GotoNode(reference_node.label))
+
+        self.register_instruction(int_node)
+        self.register_instruction(cil.GetAttribNode(left_value, left, 'value', 'Int'))
+        self.register_instruction(cil.GetAttribNode(right_value, right, 'value', 'Int'))
+        self.register_instruction(cil.EqualNode(vname, left_value, right_value))
+        self.register_instruction(cil.GotoNode(continue_node.label))
+
+        self.register_instruction(string_node)
+        self.register_instruction(cil.GetAttribNode(left_value, left, 'value', 'String'))
+        self.register_instruction(cil.GetAttribNode(right_value, right, 'value', 'String'))
+        self.register_instruction(cil.EqualNode(vname, left_value, right_value))
+        self.register_instruction(cil.GotoNode(continue_node.label))
+
+        self.register_instruction(reference_node)
         self.register_instruction(cil.EqualNode(vname, left, right))
+
+        self.register_instruction(continue_node)
         scope.ret_expr = vname
 
     @visitor.when(cool.PlusNode)
