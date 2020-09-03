@@ -5,7 +5,7 @@ import cil.nodes as cil
 from typing import List, Optional, Tuple
 from functools import singledispatchmethod
 
-from cil.nodes import CilNode, LocalNode
+from cil.nodes import CilNode, LocalNode, ParamNode
 
 ExpressionReturn = Tuple[List[cil.InstructionNode], List[cil.LocalNode]]
 Scope = semantics.Scope
@@ -639,7 +639,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Evaluar la expresion a la izquierda del punto
         expr = self.visit(node.obj, scope)
 
-        assert isinstance(expr, LocalNode)
+        assert isinstance(expr, LocalNode) or isinstance(expr, ParamNode)
         self.register_instruction(cil.TypeOfNode(expr, type_vm_holder))
 
         # Evaluar los argumentos

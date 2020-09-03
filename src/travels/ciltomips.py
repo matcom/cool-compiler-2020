@@ -305,7 +305,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.add_source_line_comment(node)
 
-        num_bytes += len(instance_type.attributes)
+        num_bytes += len(instance_type.attributes) * 4
 
         # Reservar memoria para la instancia
         self.allocate_memory(num_bytes)

@@ -228,7 +228,7 @@ class BaseCilToMipsVisitor:
         en $v0.
         """
         self.register_instruction(
-            instrNodes.LineComment(f"Allocating {bytes_num} of memory"))
+            instrNodes.LineComment(f"Allocating {bytes_num} bytes of memory"))
 
         # Cargar la cantidad de bytes en el registro $a0
         self.register_instruction(load_store.LI(a0, bytes_num))

@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from abstract.semantics import Attribute, Method, Type
 """
 Define a hierachy to represent each CIL instruction.
@@ -121,7 +121,7 @@ class ArrayNode(InstructionNode):
 
 
 class TypeOfNode(InstructionNode):
-    def __init__(self, variable: LocalNode, dest: LocalNode):
+    def __init__(self, variable: Union[LocalNode, ParamNode], dest: LocalNode):
         self.variable = variable
         self.dest = dest
 
