@@ -302,9 +302,9 @@ class BaseCilToMipsVisitor:
             ret = locals_count * 4 + 8
 
         # restaurar ra y fp
-        self.register_instruction(instrNodes.LineComment("Restore $ra"))
+        self.comment("Restore $ra")
         self.register_instruction(lsNodes.LW(ra, "8($sp)"))
-        self.register_instruction(instrNodes.LineComment("Restore $fp"))
+        self.comment("Restore $fp")
         self.register_instruction(lsNodes.LW(fp, "4($sp)"))
 
         # restaurar el Stack Pointer

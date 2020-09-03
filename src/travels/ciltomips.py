@@ -422,7 +422,22 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.ArgNode):
-        pass
+        # Pasar los argumentos en la pila. #TODO: Pasarlos en registros
+        self.add_source_line_comment(node)
+        src = self.visit(node.name)
+        reg = self.get_available_register()
+        assert src is not None and reg is not None
+
+        if isinstance(src, int):
+            self.register_instruction(lsNodes.LI(reg, src))
+        else:
+            self.register_instruction(lsNodes.LW(reg, src))
+
+        self.comment("Push arg into stack")
+        self.register_instruction(arithNodes.SUBU(sp, sp, 4, True))
+        self.register_instruction(lsNodes.SW(reg, "0($sp)"))
+
+        self.used_registers[reg] = False
 
     @visit.register
     def _(self, node: cil.ReturnNode):
@@ -459,6 +474,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.used_registers[reg] = False
 
+    ##          NODOS REFERENTES A OPERACIONES BUILT-IN DE COOL   ##
+
     @visit.register
     def _(self, node: cil.LengthNode):
         pass
@@ -487,6 +504,10 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
     def _(self, node: cil.TdtLookupNode):
         # Los nodos TDT siempre tienen
         pass
+
+    @visit.register
+    def _(self, node: int):
+        return node
 
 
 class MipsCodeGenerator(CilToMipsVisitor):
