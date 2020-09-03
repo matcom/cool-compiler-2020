@@ -26,13 +26,17 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Generar los tipos
         self.create_type_array(node.dottypes)
 
+        self.comment("\n\n")
+
         # Visitar cada nodo de la seccion .TYPES
         for type_node in node.dottypes:
             self.visit(type_node)
+            self.comment("\n\n")
 
         # Visitar cada nodo de la seccion .DATA
         for data_node in node.dotdata:
             self.visit(data_node)
+            self.comment("\n\n")
 
         # Visitar cada nodo de la seccion .CODE
         for code_node in node.dotcode:
@@ -59,6 +63,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(
             instrNodes.FixedData(f'{node.name}_vtable',
                                  ", ".join(x[1] for x in node.methods)))
+
+        self.comment("\n\n")
 
         # FORMA DE UN TIPO EN ASSEMBLY
         ##################################### Type address
@@ -139,6 +145,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.visit(instruction)
 
         self.current_function = None
+
+        self.comment("\n\n")
 
     @visit.register
     def _(self, node: cil.LabelNode):
@@ -520,4 +528,4 @@ class MipsCodeGenerator(CilToMipsVisitor):
     """
     def __call__(self, ast: cil.CilProgramNode) -> str:
         self.visit(ast)
-        return "".join(str(x) for x in self.program)
+        return "\n".join(str(x) for x in self.program)

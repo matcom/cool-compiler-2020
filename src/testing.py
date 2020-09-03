@@ -1,5 +1,6 @@
 # type: ignore
 from build.compiler_struct import LEXER, PARSER
+from travels.ciltomips import MipsCodeGenerator
 from typecheck.evaluator import evaluate_right_parse
 from comments import find_comments
 from travels.ctcill import CilDisplayFormatter, CoolToCILVisitor
@@ -33,12 +34,12 @@ def pipeline(program: str, deep: int) -> None:
         print(e)
         sys.exit(1)
     # build the AST from the obtained parse
-    try:
-        ast = evaluate_right_parse(parse, tokens[:-1])
-        print("BUILDING AST DONE!!!")
-    except Exception as e:
-        print(e)
-        sys.exit(1)
+    # try:
+    ast = evaluate_right_parse(parse, tokens[:-1])
+    print("BUILDING AST DONE!!!")
+    # except Exception as e:
+    #     print(e)
+    #     sys.exit(1)
     #####################
     # Start the visitors #
     ######################
@@ -51,11 +52,14 @@ def pipeline(program: str, deep: int) -> None:
         sys.exit(1)
 
     print("SEMENATIC CHECK DONE!!!")
-    print(scope)
     cil_travel = CoolToCILVisitor(context)
     cil_program_node = cil_travel.visit(ast, scope)
     formatter = CilDisplayFormatter()
     print(formatter(cil_program_node))
+
+    mips_gen = MipsCodeGenerator()
+    source = mips_gen(cil_program_node)
+    print(source)
 
 
 text = """
@@ -72,9 +76,18 @@ class B inherits A {
     f ( d : Int , a : A ) : Int {
       {
         let f : Int in 8 ;
-        let c : Int in (new A) . suma ( 5 , f ) ;
+        let c : Int in a. suma ( 5 , f ) ;
         c;
       }
+    };
+};
+
+class Main {
+
+    main(): Object {
+        {
+            (new B).f(5, (new A));
+        }
     };
 };
 """

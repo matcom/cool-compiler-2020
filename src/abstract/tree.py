@@ -1,5 +1,7 @@
 from typing import List, Optional, Tuple, Union
 
+from abstract.semantics import SemanticError
+
 
 class Node:
     pass
@@ -28,6 +30,19 @@ class ProgramNode(Node):
         type_builder = typebuilder.TypeBuilder(type_collector.context,
                                                type_collector.errors)
         type_builder.visit(self)
+
+        # Garantizar que exista un tipo Main que contenga un
+        # metodo main
+        context = type_builder.context
+        try:
+            context.get_type('Main')
+            context.get_type('Main').methods['main']
+        except SemanticError as e:
+            type_builder.errors.append(str(e))
+        except KeyError:
+            type_builder.errors.append(
+                f"Main class must contain a main method.")
+
         errors = type_builder.errors
         scope = None
         if not errors:

@@ -693,7 +693,7 @@ class CilDisplayFormatter:
 
     @visit.register
     def _(self, node: cil.TypeNode):
-        attributes = '\n\t'.join(f'attribute {x}' for x in node.attributes)
+        attributes = '\n\t'.join(f'{x}' for x in node.attributes)
         methods = '\n\t'.join(f'method {x}: {y}' for x, y in node.methods)
 
         return f'type {node.name} {{\n\t{attributes}\n\n\t{methods}\n}}'
@@ -704,7 +704,7 @@ class CilDisplayFormatter:
         localvars = '\n\t'.join(self.visit(x) for x in node.localvars)
         instructions = '\n\t'.join(self.visit(x) for x in node.instructions)
 
-        return f'function {node.name} {{\n\t{params}\n\n\t{localvars}\n\n\t{instructions}\n}}'
+        return f'{node.name} {{\n\t{params}\n\n\t{localvars}\n\n\t{instructions}\n}}'
 
     @visit.register
     def _(self, node: cil.ParamNode) -> str:
@@ -712,7 +712,7 @@ class CilDisplayFormatter:
 
     @visit.register
     def _(self, node: cil.LocalNode) -> str:
-        return f'LOCAL {node.name}'
+        return f'{node.name}'
 
     @visit.register
     def _(self, node: cil.AssignNode) -> str:
@@ -736,15 +736,15 @@ class CilDisplayFormatter:
 
     @visit.register
     def _(self, node: cil.AllocateNode) -> str:
-        return f'{self.visit(node.dest)} = ALLOCATE {node.itype}'
+        return f'{self.visit(node.dest)} = ALLOCATE {node.itype.name}'
 
     @visit.register
     def _(self, node: cil.TypeOfNode) -> str:
-        return f'{self.visit(node.dest)} = TYPEOF {node.variable}'
+        return f'{self.visit(node.dest)} = TYPEOF {node.variable.name}'
 
     @visit.register
     def _(self, node: cil.DynamicCallNode) -> str:
-        return f'{self.visit(node.dest)} = VCALL {node.xtype} {node.method}'
+        return f'{self.visit(node.dest)} = VCALL {node.xtype.name} {node.method}'
 
     @visit.register
     def _(self, node: cil.StaticCallNode) -> str:
@@ -752,11 +752,18 @@ class CilDisplayFormatter:
 
     @visit.register
     def _(self, node: cil.ArgNode) -> str:
-        return f'ARG {node.name}'
+        if isinstance(node.name, int):
+            return f'ARG {self.visit(node.name)}'
+        else:
+            return f'ARG {node.name.name}'
 
     @visit.register
     def _(self, node: cil.ReturnNode) -> str:
-        return f'RETURN {node.value if node.value is not None else ""}'
+        if isinstance(node.value, int):
+            return f'RETURN {node.value}'
+        elif isinstance(node.value, LocalNode):
+            return f'RETURN {node.value.name}'
+        return "RETURN"
 
     @visit.register
     def _(self, node: cil.DataNode) -> str:
@@ -769,15 +776,15 @@ class CilDisplayFormatter:
 
     @visit.register
     def _(self, node: cil.GetTypeIndex) -> str:
-        return f'{self.visit(node.dest)} = GETTYPEINDEX {node.itype}'
+        return f'{node.dest} = GETTYPEINDEX {node.itype}'
 
     @visit.register
     def _(self, node: cil.TdtLookupNode) -> str:
-        return f'{self.visit(node.dest)} = TYPE_DISTANCE {node.i} {node.j}'
+        return f'{node.dest.name} = TYPE_DISTANCE {node.i} {node.j}'
 
     @visit.register
     def _(self, node: cil.IfZeroJump) -> str:
-        return f'IF_ZERO {node.variable} GOTO {node.label}'
+        return f'IF_ZERO {node.variable.name} GOTO {node.label}'
 
     @visit.register
     def _(self, node: cil.UnconditionalJump) -> str:
@@ -785,7 +792,7 @@ class CilDisplayFormatter:
 
     @visit.register
     def _(self, node: cil.JumpIfGreaterThanZeroNode) -> str:
-        return f'IF_GREATER_ZERO {node.variable} GOTO {node.label}'
+        return f'IF_GREATER_ZERO {node.variable.name} GOTO {node.label}'
 
     @visit.register
     def _(self, node: cil.LabelNode) -> str:

@@ -107,10 +107,10 @@ class BaseCilToMipsVisitor:
         ep = 'Eliane Puerta'
         la = 'Liset Alfaro'
         institution = 'School of Math and Computer Science, University of Havana'
-        self.register_instruction(instrNodes.LineComment(coolc))
-        self.register_instruction(
-            instrNodes.LineComment(f'{ep}, {la}, {ad} --- {date}'))
-        self.register_instruction(instrNodes.LineComment(institution))
+        self.comment(coolc)
+        self.comment(f'{ep}, {la}, {ad} --- {date}')
+        self.comment(institution)
+        self.comment("\n")
 
     # Funcion de ayuda para obtener la direccion de memoria de un parametro o una variable
     def get_location_address(self, node: Union[cil.ParamNode,
