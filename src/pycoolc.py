@@ -1,4 +1,7 @@
 from build.compiler_struct import LEXER, PARSER
+from cil.nodes import CilProgramNode
+from travels.ciltomips import MipsCodeGenerator
+from travels.ctcill import CoolToCILVisitor
 from typecheck.evaluator import evaluate_right_parse
 from comments import find_comments
 from argparse import ArgumentParser
@@ -10,7 +13,7 @@ def report(errors: list):
         print(error)
 
 
-def pipeline(program: str, deep: int) -> None:
+def pipeline(program: str, deep: int, file_name: str) -> None:
     try:
         program = find_comments(program)
     except AssertionError as e:
@@ -41,10 +44,27 @@ def pipeline(program: str, deep: int) -> None:
     ######################
 
     # Run type checker visitor
-    errors, context = ast.check_semantics(deep)
+    errors, context, scope = ast.check_semantics(deep)
     if errors:
         report(errors)
         sys.exit(1)
+
+    # Run Cool to CIL visitor
+    cil_visitor = CoolToCILVisitor(context)
+    try:
+        cil_program = cil_visitor.visit(ast)
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+
+    assert isinstance(cil_program, CilProgramNode)
+
+    # Run CIL to MIPS visitor
+    code_gen = MipsCodeGenerator()
+    file_str = code_gen(cil_program)
+
+    with open(f"{file_name}.mips", "w+") as f:
+        f.write(file_str)
 
 
 if __name__ == '__main__':
@@ -55,5 +75,5 @@ if __name__ == '__main__':
     deep = 3 if args.deep is None else args.deep
     with open(args.file, "r") as f:
         program = f.read()
-        pipeline(program, deep)
+        pipeline(program, deep, args.file)
         sys.exit(0)
