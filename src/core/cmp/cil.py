@@ -203,6 +203,10 @@ class ComplementNode(InstructionNode):
 class VoidNode(InstructionNode):
     pass
 
+class ErrorNode(InstructionNode):
+    def __init__(self, data_node):
+        self.data_node = data_node
+
 def get_formatter():
 
     class PrintVisitor(object):
