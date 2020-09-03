@@ -60,7 +60,6 @@ class TypeInferer:
           infered_type=None,
           deep=1):  # noqa: F811
         program_scope = semantic.Scope() if scope is None else scope
-        print(f"Este es el scope en la vuelta {deep} :\n {program_scope}")
         if deep == 1:
             for class_ in node.class_list:
                 self.visit(class_, program_scope.create_child())
@@ -120,7 +119,6 @@ class TypeInferer:
           scope,
           infered_type=None,
           deep=1):  # noqa: F811
-        print(node.idx)
         method = self.current_type.get_method(node.idx)
         self.current_method = method
         for param in node.param_list:
@@ -128,13 +126,11 @@ class TypeInferer:
 
         last = self.visit(node.statements, scope, deep=deep)
         if not method.return_type != self.AUTO_TYPE:
-            print(f'Infered type {last.name} for {node.idx}')
             method.return_type = last
         else:
             if not last.conforms_to(method.return_type):
                 self.errors.append(
                     f'Method {method.name} cannot return {last}')
-        print(scope)
 
     @visit.register
     def _(self,
@@ -175,7 +171,6 @@ class TypeInferer:
         if var_info:
             e = self.visit(node.expr, scope, infered_type)
             if var_info.type == self.AUTO_TYPE:
-                print(f'Infered type {e.name} for {node.idx}')
                 var_info.type = e
                 if not scope.is_local(var_info.name):
                     update_attr_type(self.current_type, var_info.name,
@@ -205,7 +200,6 @@ class TypeInferer:
         assert self.current_type is not None
         if var_info:
             if infered_type and var_info.type == self.AUTO_TYPE:
-                print(f'Infered type {infered_type.name} for {var_info.name}')
                 var_info.type = infered_type
                 if not scope.is_local(var_info.name):
                     update_attr_type(self.current_type, var_info.name,

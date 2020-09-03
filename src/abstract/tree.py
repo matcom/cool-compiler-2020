@@ -34,9 +34,7 @@ class ProgramNode(Node):
             inferer = inference.TypeInferer(type_builder.context,
                                             errors=errors)
             for d in range(1, deep + 1):
-                print(d)
                 scope = inferer.visit(self, scope=scope, deep=d)
-                print(scope)
         # reportar los errores
         return errors, type_builder.context, scope
 
