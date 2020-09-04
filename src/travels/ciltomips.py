@@ -1,13 +1,13 @@
 from abstract.semantics import Type
 from cil.nodes import LocalNode
 from mips.baseMipsVisitor import (BaseCilToMipsVisitor, DotDataDirective,
-                                  DotGlobalDirective, DotTextDirective,
-                                  instrNodes, arithNodes, cmpNodes,
-                                  branchNodes, lsNodes)
+                                  DotTextDirective, instrNodes, arithNodes,
+                                  lsNodes)
 import cil.nodes as cil
 from mips.instruction import (a0, a1, a2, a3, at, t0, t1, t2, t3, t4, t5, t6,
                               t7, t8, t9, s0, s1, s2, s3, s4, s5, s6, s7, sp,
                               ra, fp, k0, k1, gp, v0, v1, zero, TEMP_REGISTERS)
+import mips.branch as branchNodes
 from functools import singledispatchmethod
 
 
@@ -464,6 +464,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Liberar el marco de pila
         assert self.current_function is not None
         self.deallocate_stack_frame(self.current_function)
+
+        # Liberar el espacio de los argumentos de la funcion
+        self.deallocate_args(self.current_function)
 
         # salir del llamado de la funcion
         self.register_instruction(branchNodes.JR(ra))

@@ -1,4 +1,6 @@
 from json import load
+
+from typed_ast.ast3 import arg
 from cil.nodes import TypeNode
 from cil.nodes import CilNode, FunctionNode
 from mips import load_store
@@ -277,8 +279,8 @@ class BaseCilToMipsVisitor:
             ret = locals_count * 4 + 8
 
         # Salvar ra y fp
-        self.register_instruction(lsNodes.SW(ra, "8($sp)"))
-        self.register_instruction(lsNodes.SW(fp, "4($sp)"))
+        self.register_instruction(lsNodes.SW(ra, "4($sp)"))
+        self.register_instruction(lsNodes.SW(fp, "0($sp)"))
 
         # mover fp al inicio del frame
         self.register_instruction(arithNodes.ADDU(fp, sp, ret, True))
@@ -301,13 +303,12 @@ class BaseCilToMipsVisitor:
 
         # restaurar ra y fp
         self.comment("Restore $ra")
-        self.register_instruction(lsNodes.LW(ra, "8($sp)"))
+        self.register_instruction(lsNodes.LW(ra, "4($sp)"))
         self.comment("Restore $fp")
-        self.register_instruction(lsNodes.LW(fp, "4($sp)"))
+        self.register_instruction(lsNodes.LW(fp, "0($sp)"))
 
         # restaurar el Stack Pointer
-        self.register_instruction(
-            instrNodes.LineComment("Restore Stack pointer $sp"))
+        self.comment("Restore Stack pointer $sp")
         self.register_instruction(arithNodes.ADDU(sp, sp, ret, True))
 
     def get_method_index(self, method: str):
@@ -323,3 +324,8 @@ class BaseCilToMipsVisitor:
 
     def comment(self, message: str):
         self.register_instruction(instrNodes.LineComment(message))
+
+    def deallocate_args(self, func: FunctionNode):
+        args = len(func.params)
+        if args > 0:
+            self.register_instruction(arithNodes.ADDU(sp, sp, 4 * args, True))
