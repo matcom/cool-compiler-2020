@@ -3,8 +3,6 @@ from cil.nodes import TypeNode
 from cil.nodes import CilNode, FunctionNode
 from mips import load_store
 import mips.instruction as instrNodes
-import mips.branch as branchNodes
-import mips.comparison as cmpNodes
 import mips.arithmetic as arithNodes
 from mips.instruction import a0, fp, ra, sp, v0
 import mips.load_store as lsNodes
