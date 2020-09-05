@@ -2,90 +2,29 @@ from collections import deque
 from collections import namedtuple
 
 class ASTNode:
-    def children(self):  #returns a zip iterator object
+    def get_children(self):
         if isinstance(self, NodeContainer):
-            return zip([""] * len(self), list(self))
+            return list(self)
 
         attr_list = [ attr for attr in self.__dict__ if isinstance(getattr(self, attr), ASTNode) ]
-        name_list = [ getattr(self, attr) for attr in attr_list]
+        name_list = [ getattr(self, attr) for attr in attr_list ]
 
-        return zip(attr_list, name_list)
+        return name_list
 
     def class_name(self):
         return self.__class__.__name__
 
-    ################################################################
-    # RECURSIVE DFS
-    # this is only kept around for testing purposes
-    def dfs(self, obj, pattr = "", depth = 0, width = 5):
-        pad = depth * width * '.'
-        info = f"{pattr}=" if pattr else ""
-
-        obj.__rep_node.append(f"{pad}{info}{self.class_name()}(")
-
-        if isinstance(self, Terminal):
-            obj.__rep_node[-1] += f"{repr(self.value)})"
-            return
-
-        for attr, name in self.children():
-            name.dfs(obj, attr, depth + 1)
-
-        obj.__rep_node.append(f"{pad})")
-
-    # this too :)
-    def dfs_rec_rep(self):
-        self.__rep_node = []
-        self.dfs(self)
-        return "\n".join(self.__rep_node)
-    ################################################################
-
-    def dfs_iter_rep(self, width = 5):
-        class Data:
-            def __init__(self, cur, it, pattr, depth):
-                self.cur = cur
-                self.it = it
-                self.pattr = pattr
-                self.depth = depth
-
-        stk = [ Data(self, None, "", 0) ]
-        rep = []
-
-        while stk:
-            data = stk[-1]
-            cur = data.cur
-
-            pad = data.depth * width * '.'
-            info = f'{data.pattr}=' if data.pattr else ''
-            
-            if data.it == None:  #this is the first time visiting node cur
-                data.it = cur.children()  #get the iterator object
-
-                rep.append(f'{pad}{info}{cur.class_name()}(')  #print its info
-
-                if isinstance(cur, Terminal):  #is a terminal node, print rest of info and exit
-                    rep[-1] += f'{repr(cur.value)})'
-                    stk.pop()
-                    continue
-
-            try:
-                to = next(data.it)
-                stk.append(Data(to[1], None, to[0], data.depth + 1))  #go to children
-
-            except StopIteration:
-                rep.append(f'{pad})')  #print rest of info and exit
-                stk.pop()
-
-        return "\n".join(rep)
-
-    def __repr__(self):
-        return self.dfs_iter_rep()
+    def __str__(self):
+        return self.class_name()
 
 class Formal(ASTNode):
     def __init__(self, id, type):
         self.id = id
         self.type = type
 
-class NodeContainer(deque, ASTNode): pass
+class NodeContainer(deque, ASTNode):
+    def __str__(self):
+        return f'{self.class_name()}({len(self)})'
 
 class Program(ASTNode):
     def __init__(self, class_list = NodeContainer()):
@@ -192,6 +131,9 @@ class Terminal(Expr, ASTNode):
     def __init__(self, value):
         self.value = value
 
+    def __str__(self):
+        return f'{self.class_name()}({repr(self.value)})'
+
 class Type(Terminal): pass
 class Id(Terminal): pass
 class Int(Terminal): pass
@@ -208,7 +150,3 @@ if __name__ == '__main__':
     b = Minus(Int(3), Int(4))
 
     block = Block(NodeContainer([plus, b, isvoid]))
-
-    print(block)
-    print(b)
-    print(plus)

@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 from coolcmp.cmp_utils.lexer import Cool_Lexer
-from coolcmp.cmp_utils.ast import *
+from coolcmp.cmp_utils.my_ast import *
 import sys
 
 class Parser:

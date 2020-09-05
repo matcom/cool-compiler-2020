@@ -41,7 +41,8 @@ def syntactic_analysis(content):
         exit(1)
 
     if args.ast:
-        print(res)
+        from coolcmp.cmp_utils.print_ast import PrintAst
+        PrintAst(res)
 
 def main():
     content = ""

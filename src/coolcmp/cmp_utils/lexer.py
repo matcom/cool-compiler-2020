@@ -1,7 +1,7 @@
 import ply.lex as lex
 from ply.lex import TOKEN
 import ply.yacc as yacc
-from coolcmp.cmp_utils.ast import Id, Type, TrueBoolean, FalseBoolean
+from coolcmp.cmp_utils.my_ast import Id, Type, TrueBoolean, FalseBoolean
 
 class Cool_Lexer(object):
 
