@@ -19,7 +19,7 @@ def test_parser_errors(file):
 
     try:
         res = p.parser.parse(content)
-    except CmpErrors as err:
+    except CmpErrors:
         return
     
     PrintAst(res)

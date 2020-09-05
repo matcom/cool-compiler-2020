@@ -1,7 +1,7 @@
 import ply.lex as lex
 from ply.lex import TOKEN
 import ply.yacc as yacc
-from coolcmp.cmp_utils.my_ast import Id, Type, TrueBoolean, FalseBoolean
+from coolcmp.cmp_utils.my_ast import Id, Type, TrueBoolean, FalseBoolean, Int, String
 
 class Cool_Lexer(object):
 
@@ -90,7 +90,7 @@ class Cool_Lexer(object):
 
     @TOKEN(r'\d+')
     def t_INT(self, t):
-        t.value = int(t.value)
+        t.value = Int(t.value)
         return t
 
     @TOKEN(r'\n+')
@@ -162,7 +162,7 @@ class Cool_Lexer(object):
         else:
             t.lexer.pop_state()
             t.type = "STRING"
-            t.value = t.lexer.stringbuf
+            t.value = String(t.lexer.stringbuf)
             return t
 
     @TOKEN('\0')

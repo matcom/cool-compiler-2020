@@ -286,12 +286,12 @@ class Parser:
     def p_expr_int(self, p):
         "expr : INT"
 
-        p[0] = Int(p[1])
+        p[0] = p[1]
 
     def p_expr_string(self, p):
         "expr : STRING"
 
-        p[0] = String(p[1])
+        p[0] = p[1]
 
     def p_expr_bool(self, p):
         "expr : BOOL"
