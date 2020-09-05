@@ -2,6 +2,7 @@ import pytest
 from .utils import getclfiles
 from coolcmp.cmp_utils.parser import Parser
 from coolcmp.cmp_utils.print_ast import PrintAst
+from coolcmp.cmp_utils.errors import CmpErrors
 
 tests = getclfiles('.') + getclfiles('../tests')
 
@@ -16,8 +17,10 @@ def test_parser_errors(file):
     with open(file) as file:
         content = file.read()
 
-    res = p.parser.parse(content)
+    try:
+        res = p.parser.parse(content)
+    except CmpErrors as err:
+        return
     
-    if len(p.errors) == 0:
-        PrintAst(res)
-        assert(res.class_name() == "Program")
+    PrintAst(res)
+    assert(res.class_name() == "Program")

@@ -1,6 +1,7 @@
 import ply.yacc as yacc
 from coolcmp.cmp_utils.lexer import Cool_Lexer
 from coolcmp.cmp_utils.my_ast import *
+from coolcmp.cmp_utils.errors import SyntacticError
 import sys
 
 class Parser:
@@ -316,14 +317,13 @@ class Parser:
 
     def p_error(self, p):
         if not p:
-            self.errors.append(f"(0, 0) - SyntacticError: ERROR at or near EOF")
+            raise SyntacticError(0, 0, "ERROR at or near EOF")
 
         else:
             line_number = p.lineno
             column = self.find_column(p)
 
-            # (<línea>,<columna>) - <tipo_de_error>: <texto_del_error>
-            self.errors.append(f"({line_number}, {column}) - SyntacticError: ERROR at or near \"{p.value}\"")
+            raise SyntacticError(line_number, column, 'ERROR at or near "{}"'.format(p.value))
 
     precedence = (
         ("right", "ASSIGN"),

@@ -14,7 +14,7 @@ class ASTNode:
     def class_name(self):
         return self.__class__.__name__
 
-    def __str__(self):
+    def __repr__(self):
         return self.class_name()
 
 class Formal(ASTNode):
@@ -23,7 +23,7 @@ class Formal(ASTNode):
         self.type = type
 
 class NodeContainer(deque, ASTNode):
-    def __str__(self):
+    def __repr__(self):
         return f'{self.class_name()}({len(self)})'
 
 class Program(ASTNode):
@@ -127,11 +127,14 @@ class Less(BinaryOp): pass
 class LessEq(BinaryOp): pass
 class Eq(BinaryOp): pass
 
-class Terminal(Expr, ASTNode):
+class Terminal(Expr):
     def __init__(self, value):
         self.value = value
 
     def __str__(self):
+        return str(self.value)
+
+    def __repr__(self):
         return f'{self.class_name()}({repr(self.value)})'
 
 class Type(Terminal): pass

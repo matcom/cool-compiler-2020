@@ -2,6 +2,7 @@ import sys
 from argparse import ArgumentParser
 from coolcmp.cmp_utils.lexer import Cool_Lexer
 from coolcmp.cmp_utils.parser import Parser
+from coolcmp.cmp_utils.errors import CmpErrors
 
 args = ArgumentParser(description="Cool compiler programmed in Python.")
 args.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="Verbose mode.")
@@ -34,10 +35,10 @@ def syntactic_analysis(content):
     p = Parser()
     p.build()
 
-    res = p.parser.parse(content)
-
-    if len(p.errors) > 0:
-        print("".join(p.errors))
+    try:
+        res = p.parser.parse(content)
+    except CmpErrors as err:
+        print(err)
         exit(1)
 
     if args.ast:

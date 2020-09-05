@@ -5,4 +5,4 @@ class PrintAst(PrintTree):
         return node.get_children()
 
     def get_node_str(self, node):
-        return str(node)
+        return repr(node)
