@@ -1,26 +1,24 @@
 import pytest
 from .utils import getclfiles
-from coolcmp.cmp_utils.parser import Parser
+from coolcmp.cmp_utils.source_code import SourceCode
 from coolcmp.cmp_utils.print_ast import PrintAst
 from coolcmp.cmp_utils.errors import CmpErrors
+from coolcmp.cmp_utils.lexer import Lexer
 
 tests = getclfiles('.') + getclfiles('../tests')
 
 @pytest.mark.print_ast
 @pytest.mark.parametrize("file", tests)
 def test_parser_errors(file):
-    p = Parser()
-    p.build()
-
-    content = ""
-
     with open(file) as file:
         content = file.read()
 
+    source_code = SourceCode(content)
+
     try:
-        res = p.parser.parse(content)
+        root = source_code.syntacticAnalysis(Lexer())
     except CmpErrors:
         return
     
-    PrintAst(res)
-    assert(res.class_name() == "Program")
+    PrintAst(root)
+    assert(root.class_name() == "Program")

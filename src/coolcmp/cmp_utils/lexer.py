@@ -3,7 +3,7 @@ from ply.lex import TOKEN
 import ply.yacc as yacc
 from coolcmp.cmp_utils.my_ast import Id, Type, TrueBoolean, FalseBoolean, Int, String
 
-class Cool_Lexer(object):
+class Lexer(object):
 
     def build(self, **kwargs):
         self.lexer = lex.lex(module=self, errorlog=yacc.NullLogger(), **kwargs)
@@ -105,7 +105,7 @@ class Cool_Lexer(object):
         return t.lexpos - line_start + 1
 
     def t_error(self, t):
-        self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: ERROR \"{t.value[0]}\"' + "\n")
+        self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: ERROR \"{t.value[0]}\"')
         t.lexer.skip(1)
 
 
@@ -131,7 +131,7 @@ class Cool_Lexer(object):
         t.lexer.lineno += len(t.value)
 
     def t_COMMENT_eof(self, t):
-        self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: EOF in comment' + "\n")
+        self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: EOF in comment')
 
     def t_COMMENT_error(self, t):
         t.lexer.skip(1)
@@ -147,7 +147,7 @@ class Cool_Lexer(object):
         t.lexer.lineno += 1
 
         if not t.lexer.string_backslashed:
-            self.lexer.errors.append(f"({t.lexer.lineno - 1}, {self.find_column(t)}) - LexicographicError: Unterminated string constant" + "\n")
+            self.lexer.errors.append(f"({t.lexer.lineno - 1}, {self.find_column(t)}) - LexicographicError: Unterminated string constant")
             t.lexer.pop_state()
             #t.lexer.skip(1)
         else:
@@ -167,7 +167,7 @@ class Cool_Lexer(object):
 
     @TOKEN('\0')
     def t_STRING_null(self, t):
-        self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: String contains null character' + "\n")
+        self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: String contains null character')
 
 
     @TOKEN(r'[^\n]')
@@ -193,17 +193,17 @@ class Cool_Lexer(object):
                 t.lexer.stringbuf += t.value
 
     def t_STRING_eof(self, t):
-        self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: EOF in string constant' + "\n")
+        self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: EOF in string constant')
 
 
     # def t_STRING_error(self, t):
-    #     self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: \"{t.value[0]}\"' + "\n")
+    #     self.lexer.errors.append(f'({t.lexer.lineno}, {self.find_column(t)}) - LexicographicError: \"{t.value[0]}\"')
     #     t.lexer.skip(1)
 
 
 if __name__ == "__main__":
     import sys
-    cool_lexer = Cool_Lexer()
+    cool_lexer = Lexer()
     cool_lexer.build()
     lexer = cool_lexer.lexer
 

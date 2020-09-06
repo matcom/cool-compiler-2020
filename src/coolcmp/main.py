@@ -1,57 +1,32 @@
 import sys
 from argparse import ArgumentParser
-from coolcmp.cmp_utils.lexer import Cool_Lexer
+from coolcmp.cmp_utils.lexer import Lexer
 from coolcmp.cmp_utils.parser import Parser
-from coolcmp.cmp_utils.errors import CmpErrors
+from coolcmp.cmp_utils.errors import SyntacticError
+from coolcmp.cmp_utils.source_code import SourceCode
 
 args = ArgumentParser(description="Cool compiler programmed in Python.")
-args.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="Verbose mode.")
 args.add_argument("--ast", dest="ast", action="store_true", help="Print AST.")
 args.add_argument("file_path", help="Path to cool file to compile.")
 args = args.parse_args()
 
-def lexical_analysis(content):
-    lex = Cool_Lexer()
-    lex.build()
+with open(args.file_path) as file:
+    content = file.read()
 
-    lex = lex.lexer
-    lex.input(content)
+source_code = SourceCode(content)
 
-    token_list = []
-    for token in lex:
-        token_list.append(token)
+lexer = source_code.lexicalAnalysis()
 
-    if args.verbose:
-        print("Lexical Analysis Tokens")
+if lexer.lexer.errors:
+    print('\n'.join(lexer.lexer.errors))
+    exit(1)
 
-        for token in token_list:
-            print(token)
+try:
+    root = source_code.syntacticAnalysis(lexer)
+except SyntacticError as err:
+    print(err)
+    exit(1)
 
-    if len(lex.errors) > 0:
-        print("".join(lex.errors))
-        exit(1)
-
-def syntactic_analysis(content):
-    p = Parser()
-    p.build()
-
-    try:
-        res = p.parser.parse(content)
-    except CmpErrors as err:
-        print(err)
-        exit(1)
-
-    if args.ast:
-        from coolcmp.cmp_utils.print_ast import PrintAst
-        PrintAst(res)
-
-def main():
-    content = ""
-
-    with open(args.file_path) as file:
-        content = file.read()
-
-    lexical_analysis(content)
-    syntactic_analysis(content)
-
-main()
+if args.ast:
+    from coolcmp.cmp_utils.print_ast import PrintAst
+    PrintAst(root)

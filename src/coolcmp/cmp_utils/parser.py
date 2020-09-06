@@ -1,5 +1,5 @@
 import ply.yacc as yacc
-from coolcmp.cmp_utils.lexer import Cool_Lexer
+from coolcmp.cmp_utils.lexer import Lexer
 from coolcmp.cmp_utils.my_ast import *
 from coolcmp.cmp_utils.errors import SyntacticError
 import sys
@@ -303,13 +303,9 @@ class Parser:
         epsilon :
         """
 
-    def build(self):
-        self.lexer = Cool_Lexer()
-        self.lexer.build()
-
-        self.tokens = self.lexer.tokens
+    def build(self, tokens):
+        self.tokens = tokens
         self.parser = yacc.yacc(module=self)
-        self.errors = []
 
     def find_column(self, t):
         line_start = t.lexer.lexdata.rfind('\n', 0, t.lexpos) + 1
