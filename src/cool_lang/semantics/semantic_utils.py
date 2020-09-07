@@ -102,10 +102,10 @@ class Type:
     def is_subtype(self, otype): # check if self is subtype of otype
         actual = self
         while True:
-            if actual.parent == None:
-                return False
             if actual.name == otype.name:
                 return True
+            if actual.parent == None:
+                return False
             actual = actual.parent
 
     def __str__(self):
