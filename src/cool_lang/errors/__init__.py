@@ -43,7 +43,7 @@ class AttributeError(LocalizedError):
 
 
 class SemanticError(LocalizedError):
-    def LocalizedError(self, row, column, description):
+    def __init__(self, row, column, description):
         LocalizedError.__init__(self, 'SemanticError', row, column, description)        
 
 
