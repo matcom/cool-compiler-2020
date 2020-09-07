@@ -1,9 +1,9 @@
-from .semantic_utils import Context, SemanticException, Type
+from .semantic_utils import Context, SemanticException, Type, VoidType
 from ..utils import on, when
 from ..errors import SemanticError
 from ..ast import ProgramNode, ClassDeclarationNode
 
-class COOL_TYPECOLLECTOR(object):
+class COOL_TYPE_COLLECTOR(object):
     def __init__(self, errors = []):
         self.context = None
         self.errors = errors
