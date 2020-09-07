@@ -6,6 +6,7 @@ from cool_lang.semantics import COOL_CHECKER
 
 INPUT_FILE = argv[1]
 OUTPUT_FILE = argv[2]
+VERBOSE = True if '--verbose' in argv[3:] else False
 
 code = open(INPUT_FILE, encoding="utf8").read()
 
@@ -27,7 +28,7 @@ if not cparser.parse(clexer):
 
 program = cparser.result
 cchecker = COOL_CHECKER()
-if not cchecker.check_semantics(program):
+if not cchecker.check_semantics(program, verbose=VERBOSE):
     for error in cchecker.errors:
         print(error)
     exit(1)
