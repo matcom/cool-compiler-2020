@@ -303,13 +303,14 @@ class Parser:
         epsilon :
         """
 
-    def build(self, tokens):
+    def find_column(self, lexpos):
+        line_start = self.code.rfind('\n', 0, lexpos) + 1
+        return lexpos - line_start + 1
+
+    def build(self, code, tokens):
+        self.code = code
         self.tokens = tokens
         self.parser = yacc.yacc(module=self)
-
-    def find_column(self, t):
-        line_start = t.lexer.lexdata.rfind('\n', 0, t.lexpos) + 1
-        return t.lexpos - line_start + 1
 
     def p_error(self, p):
         if not p:
@@ -317,7 +318,7 @@ class Parser:
 
         else:
             line_number = p.lineno
-            column = self.find_column(p)
+            column = self.find_column(p.lexpos)
 
             raise SyntacticError(line_number, column, 'ERROR at or near "{}"'.format(p.value))
 
