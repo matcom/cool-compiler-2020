@@ -52,7 +52,7 @@ def pipeline(program: str, deep: int, file_name: str) -> None:
     # Run Cool to CIL visitor
     cil_visitor = CoolToCILVisitor(context)
     try:
-        cil_program = cil_visitor.visit(ast)
+        cil_program = cil_visitor.visit(ast, scope)
     except Exception as e:
         print(e)
         sys.exit(1)

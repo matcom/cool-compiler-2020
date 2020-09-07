@@ -4,6 +4,7 @@ from typed_ast.ast3 import arg
 from cil.nodes import TypeNode
 from cil.nodes import CilNode, FunctionNode
 from mips import load_store
+from mips.branch import JAL, JALR
 import mips.instruction as instrNodes
 import mips.arithmetic as arithNodes
 from mips.instruction import a0, fp, ra, sp, v0
@@ -329,3 +330,12 @@ class BaseCilToMipsVisitor:
         args = len(func.params)
         if args > 0:
             self.register_instruction(arithNodes.ADDU(sp, sp, 4 * args, True))
+
+    def define_entry_point(self):
+        self.register_instruction(instrNodes.Label("main"))
+        # Realizar un jump a entry
+        self.register_instruction(JAL("entry"))
+        # registrar instrucciones para terminar la ejecucion
+        self.comment("syscall code 10 is for exit")
+        self.register_instruction(lsNodes.LI(v0, 10))
+        self.register_instruction(instrNodes.SYSCALL())

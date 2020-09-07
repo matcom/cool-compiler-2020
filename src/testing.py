@@ -29,14 +29,12 @@ def pipeline(program: str, deep: int) -> None:
     # Parse the tokens to obtain a derivation tree
     try:
         parse = PARSER(tokens)
-        print("PARSING DONE!!!")
     except Exception as e:
         print(e)
         sys.exit(1)
     # build the AST from the obtained parse
     # try:
     ast = evaluate_right_parse(parse, tokens[:-1])
-    print("BUILDING AST DONE!!!")
     # except Exception as e:
     #     print(e)
     #     sys.exit(1)
@@ -47,15 +45,13 @@ def pipeline(program: str, deep: int) -> None:
     # Run type checker visitor
     errors, context, scope = ast.check_semantics(deep)
     if errors:
-        print("FOUND ERRORS!!!")
         report(errors)
         sys.exit(1)
 
-    print("SEMENATIC CHECK DONE!!!")
     cil_travel = CoolToCILVisitor(context)
     cil_program_node = cil_travel.visit(ast, scope)
-    formatter = CilDisplayFormatter()
-    print(formatter(cil_program_node))
+    # formatter = CilDisplayFormatter()
+    # print(formatter(cil_program_node))
 
     mips_gen = MipsCodeGenerator()
     source = mips_gen(cil_program_node)

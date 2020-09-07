@@ -38,14 +38,11 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.visit(data_node)
             self.comment("\n\n")
 
+        self.define_entry_point()
+
         # Visitar cada nodo de la seccion .CODE
         for code_node in node.dotcode:
             self.visit(code_node)
-
-        # registrar instrucciones para terminar la ejecucion
-        self.comment("syscall code 10 is for exit")
-        self.register_instruction(lsNodes.LI(v0, 10))
-        self.register_instruction(instrNodes.SYSCALL())
 
     @visit.register
     def _(self, node: cil.TypeNode):  # noqa: F811
