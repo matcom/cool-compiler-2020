@@ -30,7 +30,7 @@ class COOL_FORMATTER(object):
 
     @when(FuncDeclarationNode)
     def visit(self, node: FuncDeclarationNode, tabs=0):
-        params = ', '.join([f'{param[0]}:{param[1]}' for param in node.params ])
+        params = ', '.join([f'{param.id}:{param.type}' for param in node.params ])
         ans = '\t' * tabs + f'\\_FuncDeclarationNode {node.id} ({params}) {node.type}'
         expr = self.visit(node.expression, tabs + 1)
         return f'{ans}\n{expr}'
