@@ -162,3 +162,42 @@ class Context:
 
     def __repr__(self):
         return str(self)
+
+class Var:
+    def __init__(self, idx, typex):
+        self.id = idx
+        self.type = typex
+
+    def __str__(self):
+        return f'[var] {self.id}: {self.type.name}'
+
+    def __repr__(self):
+        return str(self)
+
+class Scope:
+    def __init__(self, parent=None):
+        self.parent = parent
+        self.vars = {}
+
+    def define_var(self, name, typex):
+        if name in self.vars:
+            raise SemanticException(f'Variable {name} already defined in current context.')
+        var = self.vars[name] = Var(name, typex)
+        return var
+    
+    def get_var(self, name):
+        try:
+            return self.vars[name]
+        except KeyError:
+            if not self.parent is None:
+                try:
+                    return self.parent.get_var(name)
+                except SemanticException as e:
+                    raise e
+            raise SemanticException(f'Variable {name} is not defined.')
+
+    def __str__(self):
+        return '{\n' + ('\t' if self.parent is None else 'Parent:\n' + f'{self.parent}\n\t') + '\n\t'.join(str(x) for x in self.vars.values()) + '\n}'
+
+    def __repr__(self):
+        return str(self)
