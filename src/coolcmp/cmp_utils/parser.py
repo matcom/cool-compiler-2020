@@ -8,18 +8,20 @@ class Parser:
     def p_program_1(self, p):
         "program : class SEMICOLON program"
 
-        p[3].class_list.appendleft(p[1])
+        p[3].cls_list.appendleft(p[1])
         p[0] = p[3]
 
     def p_program_2(self, p):
         "program : class SEMICOLON"
 
         p[0] = Program(NodeContainer([p[1]]))
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_class(self, p):
         "class : CLASS TYPE inherits LBRACE feature_list RBRACE"
 
         p[0] = Class(p[2], p[3], p[5])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_inherits(self, p):
         """
@@ -49,6 +51,7 @@ class Parser:
 
         if len(p) == 10:
             p[0] = Method(p[1], p[3], p[6], p[8])
+            p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
         else: p[0] = p[1]
 
@@ -66,6 +69,7 @@ class Parser:
         "formal : ID COLON TYPE"
 
         p[0] = Formal(p[1], p[3])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_formal_list(self, p):
         "formal_list : formal formal_list_helper"
@@ -129,6 +133,7 @@ class Parser:
         "attribute : formal opt_expr_init"
 
         p[0] = Attribute(p[1], p[2])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_attribute_list(self, p):
         "attribute_list : attribute attribute_list_helper"
@@ -165,46 +170,56 @@ class Parser:
         |	 formal ARROW expr SEMICOLON
         """
 
+        case = CaseBranch(p[1], p[3])
+        case.set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
+
         if len(p) == 6:
-            p[5].appendleft(CaseBranch(p[1], p[3]))
+            p[5].appendleft(case)
             p[0] = p[5]
 
-        else: p[0] = NodeContainer([CaseBranch(p[1], p[3])])
+        else: p[0] = NodeContainer([case])
 
     def p_expr_assignment(self, p):
         "expr : ID ASSIGN expr"
 
         p[0] = Assignment(p[1], p[3])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_dispatch_1(self, p):
         "expr : expr CAST TYPE DOT ID LPAREN expr_params RPAREN"
 
         p[0] = Dispatch(p[1], p[3], p[5], p[7])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_dispatch_2(self, p):
         "expr : expr DOT ID LPAREN expr_params RPAREN"
 
         p[0] = Dispatch(p[1], None, p[3], p[5])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_self_dispatch(self, p):
         "expr : ID LPAREN expr_params RPAREN"
 
         p[0] = SelfDispatch(p[1], p[3])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_if(self, p):
         "expr : IF expr THEN expr ELSE expr FI"
 
         p[0] = If(p[2], p[4], p[6])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_while(self, p):
         "expr : WHILE expr LOOP expr POOL"
 
         p[0] = While(p[2], p[4])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_block(self, p):
         "expr : LBRACE expr_list_semicolon RBRACE"
 
         p[0] = Block(p[2])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     # SHIFT/REDUCE conflict with the let expr is intended,
     # it is resolved in favor of shifting
@@ -212,66 +227,79 @@ class Parser:
         "expr : LET attribute_list IN expr"
 
         p[0] = Let(p[2], p[4])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_case(self, p):
         "expr : CASE expr OF case_list ESAC"
 
         p[0] = Case(p[2], p[4])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_new(self, p):
         "expr : NEW TYPE"
 
         p[0] = New(p[2])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_unary_isvoid(self, p):
         "expr : ISVOID expr"
 
         p[0] = IsVoid(p[2])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_unary_intcomp(self, p):
         "expr : INT_COMP expr"
 
         p[0] = IntComp(p[2])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_unary_not(self, p):
         "expr : NOT expr"
 
         p[0] = Not(p[2])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_binary_plus(self, p):
         "expr : expr PLUS expr"
 
         p[0] = Plus(p[1], p[3])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_binary_minus(self, p):
         "expr : expr MINUS expr"
 
         p[0] = Minus(p[1], p[3])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_binary_mul(self, p):
         "expr : expr MUL expr"
 
         p[0] = Mult(p[1], p[3])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_binary_div(self, p):
         "expr : expr DIV expr"
 
         p[0] = Div(p[1], p[3])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
     
     def p_expr_binary_less(self, p):
         "expr : expr LESS expr"
 
         p[0] = Less(p[1], p[3])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_binary_lesseq(self, p):
         "expr : expr LESS_EQ expr"
 
         p[0] = LessEq(p[1], p[3])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_binary_eq(self, p):
         "expr : expr EQ expr"
 
         p[0] = Eq(p[1], p[3])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_paren(self, p):
         "expr : LPAREN expr RPAREN"

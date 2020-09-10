@@ -2,6 +2,10 @@ from collections import deque
 from collections import namedtuple
 
 class ASTNode:
+    def set_tracker(self, line, col):
+        self.line = line
+        self.col = col
+
     def get_children(self):
         if isinstance(self, NodeContainer):
             return list(self)
@@ -27,14 +31,19 @@ class NodeContainer(deque, ASTNode):
         return f'{self.class_name()}({len(self)})'
 
 class Program(ASTNode):
-    def __init__(self, class_list = NodeContainer()):
-        self.class_list = class_list
+    def __init__(self, cls_list = NodeContainer()):
+        self.cls_list = cls_list
 
 class Class(ASTNode):
-    def __init__(self, type, opt_inherits, feature_list = NodeContainer()):
+    def __init__(self, type, opt_inherits, feature_list = NodeContainer(), can_inherit = True):
         self.type = type
         self.opt_inherits = opt_inherits  #can be None
         self.feature_list = feature_list
+        self.children = []
+        self.can_inherit = can_inherit
+
+    def __str__(self):
+        return f'<Class "{self.type}">'
 
 class Feature(ASTNode): pass
 

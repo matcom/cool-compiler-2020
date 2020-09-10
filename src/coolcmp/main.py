@@ -2,7 +2,7 @@ import sys
 from argparse import ArgumentParser
 from coolcmp.cmp_utils.lexer import Lexer
 from coolcmp.cmp_utils.parser import Parser
-from coolcmp.cmp_utils.errors import SyntacticError
+from coolcmp.cmp_utils.errors import *
 from coolcmp.cmp_utils.source_code import SourceCode
 
 args = ArgumentParser(description="Cool compiler programmed in Python.")
@@ -31,3 +31,9 @@ except SyntacticError as err:
 if args.ast:
     from coolcmp.cmp_utils.print_ast import PrintAst
     PrintAst(root)
+
+try:
+    source_code.semanticAnalysis(root)
+except SemanticError as err:
+    print(err)
+    exit(1)

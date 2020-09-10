@@ -1,7 +1,7 @@
 import ply.lex as lex
 from ply.lex import TOKEN
 import ply.yacc as yacc
-from coolcmp.cmp_utils.my_ast import Id, Type, TrueBoolean, FalseBoolean, Int, String
+from coolcmp.cmp_utils.my_ast import Id, Type, Int, String, Bool
 
 class Lexer(object):
 
@@ -72,25 +72,31 @@ class Lexer(object):
     @TOKEN(r'[a-z][A-Za-z_0-9]*')
     def t_ID(self, t):
         if t.value.lower() == 'true':
-            t.value = TrueBoolean
+            t.value = Bool('true')
             t.type = 'BOOL'
         elif t.value.lower() == 'false':
-            t.value = FalseBoolean
+            t.value = Bool('false')
             t.type = 'BOOL'
         else:
             t.type = self.keywords.get(t.value.lower(), 'ID')
             t.value = Id(t.value)
+
+        t.value.set_tracker(t.lexer.lineno, self.find_column(t))
         return t
 
     @TOKEN(r'[A-Z][A-Za-z_0-9]*')
     def t_TYPE(self, t):
         t.type = self.keywords.get(t.value.lower(), 'TYPE')
         t.value = Type(t.value)
+        t.value.set_tracker(t.lexer.lineno, self.find_column(t))
+        
         return t
 
     @TOKEN(r'\d+')
     def t_INT(self, t):
         t.value = Int(t.value)
+        t.value.set_tracker(t.lexer.lineno, self.find_column(t))
+
         return t
 
     @TOKEN(r'\n+')
@@ -163,6 +169,8 @@ class Lexer(object):
             t.lexer.pop_state()
             t.type = "STRING"
             t.value = String(t.lexer.stringbuf)
+            t.value.set_tracker(t.lexer.lineno, self.find_column(t))
+
             return t
 
     @TOKEN('\0')
