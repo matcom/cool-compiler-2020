@@ -124,6 +124,11 @@ class Attribute:
         return str(self)
 
 
+class SelfType(Type):
+    def __init__(self) -> None:
+        super(SelfType, self).__init__('SELF_TYPE')
+
+
 class VoidType(Type):
     def __init__(self):
         super(VoidType, self).__init__('Void')
@@ -173,6 +178,14 @@ class AutoType(Type):
 
     def conforms_to(self, other: Type) -> bool:
         return True
+
+
+class IoType(Type):
+    def __init__(self) -> None:
+        super(IoType, self).__init__('IO')
+
+    def __eq__(self, other):
+        return isinstance(other, IoType)
 
 
 class Context:

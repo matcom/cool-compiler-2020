@@ -1,5 +1,5 @@
-# type: ignore
 from build.compiler_struct import LEXER, PARSER
+from cil.nodes import CilProgramNode
 from travels.ciltomips import MipsCodeGenerator
 from typecheck.evaluator import evaluate_right_parse
 from comments import find_comments
@@ -48,12 +48,15 @@ def pipeline(program: str, deep: int) -> None:
         report(errors)
         sys.exit(1)
 
+    print(scope)
+
     cil_travel = CoolToCILVisitor(context)
     cil_program_node = cil_travel.visit(ast, scope)
     # formatter = CilDisplayFormatter()
     # print(formatter(cil_program_node))
 
     mips_gen = MipsCodeGenerator()
+    assert isinstance(cil_program_node, CilProgramNode)
     source = mips_gen(cil_program_node)
     print(source)
 
@@ -61,7 +64,7 @@ def pipeline(program: str, deep: int) -> None:
 text = """
 class A {
     a : Int ;
-    suma ( a : Int , b : Int ) : Int {
+    suma ( a : AUTO_TYPE , b : Int ) : AUTO_TYPE {
         a + b
     };
     b : Int ;
@@ -69,13 +72,11 @@ class A {
 
 class B inherits A {
     c : Int ;
-    f ( d : Int , a : A ) : Int {
-      {
-        let f : Int in 8 ;
-        let c : Int in a. suma ( 5 , f ) ;
+    f ( d : Int , a : A ) : AUTO_TYPE { {
+        let f : AUTO_TYPE <- 10 in 8 ;
+        let c : AUTO_TYPE <- a. suma ( 5 , f ) in c ;
         c;
-      }
-    };
+    } };
 };
 
 class Main {

@@ -3,6 +3,8 @@ import abstract.tree as coolAst
 from abstract.semantics import SemanticError, Type, Context
 from functools import singledispatchmethod
 
+INHERITABLES = ('Int', 'Bool', 'String', 'AUTO_TYPE')
+
 
 class TypeBuilder:
     def __init__(self, context: Context, errors=[]):
@@ -23,6 +25,11 @@ class TypeBuilder:
     def _(self, node: coolAst.ClassDef):  # noqa: F811
         self.current_type = self.context.get_type(node.idx)
         parent = self.context.get_type(node.parent)
+
+        # No se puede heredar de Int ni de BOOL ni de AutoType ni de String
+        if parent.name in INHERITABLES:
+            self.errors.append(f"Cannot inherit from builtin {parent.name}")
+            return
 
         # Detectar dependencias circulares
         if parent.conforms_to(self.current_type):
