@@ -7,7 +7,7 @@ from ..ast import ProgramNode, ClassDeclarationNode, AttrDeclarationNode, FuncDe
                     MemberCallNode, LessEqualNode, LessNode, EqualNode, ComplementNode, StringNode,   \
                     IsVoidNode, NotNode
 
-class COOL_FORMATTER(object):
+class COOL_CHECKER(object):
     def __init__(self, context: Context, errors=[]):
         self.current_class = None
         self.current_method = None
