@@ -154,6 +154,13 @@ class AddInmediateNode(InstructionNode):
         self.src   = src
         self.value = value
 
+class ShiftLeftLogical(InstructionNode):
+    def __init__(self, dest, src, bits):
+        self.dest = dest
+        self.src  = src
+        self.bits = bits
+    
+
 
 class MIPSType:
     def __init__(self, label, name_addr, attributes, methods):
