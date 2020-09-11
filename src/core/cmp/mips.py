@@ -5,6 +5,7 @@ ATTR_SIZE           = 4
 RESGISTER_SIZE      = 4
 REGISTER_NAMES      = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7','t8', 't9']
 ARG_REGISTERS_NAMES = ['a0', 'a1', 'a2', 'a3']
+OBJECT_MARK = -1
 
 
 INSTANCE_METADATA_SIZE  = 4
@@ -30,6 +31,8 @@ class ProgramNode(Node):
     def __init__(self, data, types, functions):
         self._data = data
         self._types = types
+        for i, t in enumerate(self._types):
+            t.index = i
         self._functions = functions
 
     @property
@@ -262,10 +265,16 @@ class PrintVisitor:
         data_section_header = "\t.data"
         static_strings = '\n'.join([self.visit(string_const) for string_const in node.data])
         
-        types = "\n".join([self.visit(tp) for tp in node.types])
+        
+        names_table = "types_names_table:\n" + "\n".join([f"\t.word\t{tp.string_name_label}" for tp in node.types])
+        proto_table = "proto_table:\n" + "\n".join([f"\t.word\t{tp.label}_proto" for tp in node.types])
+
+
+
+        types = "\n\n".join([self.visit(tp) for tp in node.types])
         
         code = "\n".join([self.visit(func) for func in node.functions])
-        return f'{data_section_header}\n{static_strings}\n{types}\n\t.text\n\t.globl main\n{code}' 
+        return f'{data_section_header}\n{static_strings}\n\n{names_table}\n\n{proto_table}\n\n{types}\n\t.text\n\t.globl main\n{code}' 
     
     @visitor.when(StringConst)
     def visit(self, node):
@@ -273,8 +282,14 @@ class PrintVisitor:
     
     @visitor.when(MIPSType)
     def visit(self, node):
-        methods = " ".join(node.methods)
-        return f'{node.label}:\n\t.word {node.string_name_label} {node.size} {methods}'
+        methods = "\n".join([f"\t.word\t {v}" for v in node.methods.values()])
+        dispatch_table = f"{node.label}_dispatch:\n{methods}"
+        proto_begin = f"{node.label}_proto:\n\t.word\t{node.index}\n\t.word\t{node.size}\n\t.word\t{node.label}_dispatch"
+        proto_attr = "\n".join(['\t.word\t0' for _ in node.attributes])
+        proto_end = f"\t.word\t{OBJECT_MARK}"
+        proto = f"{proto_begin}\n{proto_attr}\n{proto_end}" if proto_attr != "" else f"{proto_begin}\n{proto_end}"
+        
+        return f'{dispatch_table}\n\n{proto}'
 
     @visitor.when(SyscallNode)
     def visit(self, node):
