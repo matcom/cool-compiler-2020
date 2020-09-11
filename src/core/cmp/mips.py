@@ -161,6 +161,12 @@ class AddInmediateUnsignedNode(InstructionNode):
         self.src   = src
         self.value = value
 
+class AddUnsignedNode(InstructionNode):
+    def __init__(self, dest, sum1, sum2):
+        self.dest = dest
+        self.sum1 = sum1
+        self.sum2 = sum2
+
 class ShiftLeftLogicalNode(InstructionNode):
     def __init__(self, dest, src, bits):
         self.dest = dest
@@ -363,4 +369,8 @@ class PrintVisitor:
     
     @visitor.when(AddInmediateUnsignedNode)
     def visit(self, node):
-        return f"addiu {self.visit(node.dest)}, {self.visit(node.src)}, {self.visit(node.value)}""
+        return f"addiu {self.visit(node.dest)} {self.visit(node.src)} {self.visit(node.value)}""
+
+    @visitor.when(AddUnsignedNode)
+    def visit(self, node):
+        return f"addu {self.visit(node.dest)} {self.visit(node.sum1)} {self.visit(node.sum2)}"
