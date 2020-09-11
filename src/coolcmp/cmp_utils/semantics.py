@@ -1,6 +1,5 @@
 from coolcmp.cmp_utils.errors import *
 from coolcmp.cmp_utils.my_ast import *
-from coolcmp.cmp_utils.native import native_classes
 from coolcmp.cmp_utils.visitor import Visitor
 from coolcmp.cmp_utils.environment import Environment
 
@@ -10,43 +9,47 @@ class SemanticAnalyzer:
     def __init__(self, ast_root):
         self.ast_root = ast_root
 
-    def build_inheritance_tree(self):
-        native_names = [ cls.type.value for cls in native_classes ]
-        cls_names = {}
-
-        for cls in self.ast_root.cls_list:
-            if cls.type.value in native_names:
-                raise SemanticError(cls.type.line, cls.type.col, 'Tried to redefine a native class "{}"'.format(cls.type.value))
-
-            if cls.type.value in cls_names:
-                raise SemanticError(cls.type.line, cls.type.col, 'Tried to redefine class "{}"'.format(cls.type.value))
-
-            cls_names[cls.type.value] = cls
+    def build_inheritance_tree(self, native_classes):
+        cls_refs = {}
 
         for cls in native_classes:
-            cls_names[cls.type.value] = cls
+            cls_refs[cls.type.value] = cls
 
         for cls in self.ast_root.cls_list:
-            name = (cls.opt_inherits or Type('Object')).value
+            if cls.type.value in cls_refs:
+                raise SemanticError(cls.type.line, cls.type.col, f'Tried to redefine class "{cls.type.value}"')
 
-            if not name in cls_names:
-                raise SemanticError(cls.opt_inherits.line, cls.opt_inherits.col, 'Tried to inherit from class "{}" that doesnt exists'.format(name))
-
-            parent = cls_names[name]
-
-            if not parent.can_inherit:
-                raise SemanticError(cls.opt_inherits.line, cls.opt_inherits.col, 'Cant inherit from class "{}"'.format(name))
-            
-            parent.children.append(cls)
+            cls_refs[cls.type.value] = cls
 
         for cls in native_classes:
             self.ast_root.cls_list.append(cls)
 
-    def check_cycles(self):
         for cls in self.ast_root.cls_list:
-            self._dfs(cls)
+            if cls.type.value == 'Object':
+                continue
 
-    def _dfs(self, u, seen={}, up={}):
+            name = (cls.opt_inherits or Type('Object')).value
+
+            if name not in cls_refs:
+                assert cls.opt_inherits
+                raise SemanticError(cls.opt_inherits.line, cls.opt_inherits.col, f'Tried to inherit from unexistent class "{cls.opt_inherits.value}"')
+
+            parent = cls_refs[name]
+
+            if not parent.can_inherit:
+                raise SemanticError(cls.opt_inherits.line, cls.opt_inherits.col, f'Tried to inherit from class "{cls.opt_inherits.value}"')
+
+            parent.children.append(cls)
+
+    def check_cycles(self):
+        seen = {}
+        up = {}
+
+        for cls in self.ast_root.cls_list:
+            if cls.type.value not in seen:
+                self._dfs(cls, seen, up)
+
+    def _dfs(self, u, seen, up):
         seen[u.type.value] = up[u.type.value] = True
 
         for v in u.children:
@@ -54,6 +57,6 @@ class SemanticAnalyzer:
                 self._dfs(v, seen, up)
 
             elif up[v.type.value]:
-                raise SemanticError(v.type.line, v.type.col, 'Inheritance cycle detected at class "{}" inheriting from "{}"'.format(v.type.value, u.type.value))
+                raise SemanticError(v.type.line, v.type.col, f'Inheritance cycle detected at class "{v.type.value}" inheriting from "{u.type.value}"')
 
         up[u.type.value] = False

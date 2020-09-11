@@ -1,6 +1,7 @@
 from coolcmp.cmp_utils.lexer import Lexer
 from coolcmp.cmp_utils.parser import Parser
 from coolcmp.cmp_utils.semantics import SemanticAnalyzer
+from coolcmp.cmp_utils.my_ast import Class, Type
 
 class SourceCode:
     def __init__(self, code, tab_size=4):
@@ -11,6 +12,17 @@ class SourceCode:
                 self.code += ' ' * tab_size
 
             else: self.code += c
+
+        self._inject_native_classes()
+
+    def _inject_native_classes(self):
+        self.native_classes = [
+            Class(Type('Object'), None),
+            Class(Type('Int'), None, can_inherit=False),
+            Class(Type('String'), None, can_inherit=False),
+            Class(Type('Bool'), None, can_inherit=False),
+            Class(Type('IO'), None)
+        ]
 
     def lexicalAnalysis(self):
         lex = Lexer()
@@ -32,5 +44,5 @@ class SourceCode:
     def semanticAnalysis(self, root):
         semantics = SemanticAnalyzer(root)
         
-        semantics.build_inheritance_tree()
+        semantics.build_inheritance_tree(self.native_classes)
         semantics.check_cycles()
