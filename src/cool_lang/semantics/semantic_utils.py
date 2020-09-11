@@ -27,7 +27,7 @@ class Method:
             if self.return_type.is_subtype(omethod.return_type):
                 if len(self.param_names) == len(omethod.param_names):
                     for ptype, optype in zip(self.param_types, omethod.param_types):
-                        if not ptype.is_subtype(optype): # The manual says it must be exactly the same.
+                        if not ptype == optype:
                             break
                     else:
                         valid = True
