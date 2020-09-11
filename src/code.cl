@@ -11,3 +11,9 @@ class Main inherits IO {
         fi
     };
 };
+
+class A{
+    X: Int;
+    Y: Int;
+    Z: Int;
+};
