@@ -154,7 +154,7 @@ class AddInmediateNode(InstructionNode):
         self.src   = src
         self.value = value
 
-class ShiftLeftLogical(InstructionNode):
+class ShiftLeftLogicalNode(InstructionNode):
     def __init__(self, dest, src, bits):
         self.dest = dest
         self.src  = src
@@ -349,3 +349,7 @@ class PrintVisitor:
     @visitor.when(MoveNode)
     def visit(self, node):
         return f'move {self.visit(node.reg1)} {self.visit(node.reg2 )}'
+    
+    @visitor.when(ShiftLeftLogicalNode)
+    def visit(self, node):
+        return f"sll {self.visit(node.dest)} {self.visit(node.src)} {node.bits}"
