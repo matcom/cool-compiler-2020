@@ -10,7 +10,8 @@ OBJECT_MARK = -1
 
 INSTANCE_METADATA_SIZE  = 4
 
-
+TYPENAMES_TABLE_LABEL   = "type_name_table"
+PROTO_TABLE_LABEL       = "proto_table"
 
 class Register():
     def __init__(self, name):
@@ -153,6 +154,12 @@ class AddInmediateNode(InstructionNode):
         self.dest  = dest
         self.src   = src
         self.value = value
+    
+class AddInmediateUnsignedNode(InstructionNode):
+    def __init__(self, dest, src, value):
+        self.dest  = dest
+        self.src   = src
+        self.value = value
 
 class ShiftLeftLogicalNode(InstructionNode):
     def __init__(self, dest, src, bits):
@@ -273,8 +280,8 @@ class PrintVisitor:
         static_strings = '\n'.join([self.visit(string_const) for string_const in node.data])
         
         
-        names_table = "types_names_table:\n" + "\n".join([f"\t.word\t{tp.string_name_label}" for tp in node.types])
-        proto_table = "proto_table:\n" + "\n".join([f"\t.word\t{tp.label}_proto" for tp in node.types])
+        names_table = f"{TYPENAMES_TABLE_LABEL}:\n" + "\n".join([f"\t.word\t{tp.string_name_label}" for tp in node.types])
+        proto_table = f"{PROTO_TABLE_LABEL}:\n" + "\n".join([f"\t.word\t{tp.label}_proto" for tp in node.types])
 
 
 
@@ -353,3 +360,7 @@ class PrintVisitor:
     @visitor.when(ShiftLeftLogicalNode)
     def visit(self, node):
         return f"sll {self.visit(node.dest)} {self.visit(node.src)} {node.bits}"
+    
+    @visitor.when(AddInmediateUnsignedNode)
+    def visit(self, node):
+        return f"addiu {self.visit(node.dest)}, {self.visit(node.src)}, {self.visit(node.value)}""
