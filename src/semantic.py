@@ -121,16 +121,16 @@ class Type:
 
         other_path = other.ancestors_path()
         for p in self.ancestors_path():
-            for o in other.ancestors_path():
+            for o in other_path:
                 if o.name == p.name:
                     return p
         return other
     
-    def multiple_join(*args):
+    def multiple_join(self, *args):
         """
         Return the least type C such as all type in *args conforms with C
         """
-        least_type = args[0]
+        least_type = self
         for t in args:
             least_type = least_type.join(t)
         return least_type
