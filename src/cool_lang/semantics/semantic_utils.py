@@ -141,6 +141,23 @@ class VoidType(Type):
     def __eq__(self, other):
         return isinstance(other, VoidType)
 
+def find_common_ancestor(type1:Type, type2:Type):
+    if type1 is ErrorType or type2 is ErrorType:
+        return ErrorType()
+
+    ancestor_t1 = []
+    actual = type1
+    while actual:
+        ancestor_t1.append(actual)
+        actual = actual.parent
+
+    actual = type2
+    while actual:
+        if actual in ancestor_t1:
+            return actual
+        actual = actual.parent
+    
+
 class Context:
     def __init__(self):
         self.types = {}
