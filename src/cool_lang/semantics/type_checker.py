@@ -7,7 +7,7 @@ from ..ast import ProgramNode, ClassDeclarationNode, AttrDeclarationNode, FuncDe
                     MemberCallNode, LessEqualNode, LessNode, EqualNode, ComplementNode, StringNode,   \
                     IsVoidNode, NotNode
 
-class COOL_CHECKER(object):
+class COOL_TYPE_CHECKER(object):
     def __init__(self, context: Context, errors=[]):
         self.current_type: Type = None
         self.context: Context = context
@@ -27,7 +27,8 @@ class COOL_CHECKER(object):
         pass
 
     @when(ProgramNode)
-    def visit(self, node:ProgramNode, scope:Scope):
+    def visit(self, node:ProgramNode, scope:Scope=None):
+        scope = Scope()
         for classx_node in node.classes:
             self.visit(classx_node, scope)
         
