@@ -270,6 +270,7 @@ class CILToMIPSVisitor:
     
     @visitor.when(cil.AllocateNode)
     def visit(self, node):
+        #This have to change after GC be implemented
         #TODO Save $a0 register if is beign used
         object_size = self._types[node.type].size
         object_label = self._types[node.type].label
@@ -343,16 +344,20 @@ class CILToMIPSVisitor:
     def visit(self, node):
         instructions = []
         reg = self.get_free_reg()
+        reg2 = self.get_free_reg()
 
         src_location = self.get_var_location(node.source)
         dst_location = self.get_var_location(node.dest)
 
         instructions.append(mips.LoadWordNode(reg, src_location))
         instructions.append(mips.LoadWordNode(reg, mips.RegisterRelativeLocation(reg, 0)))
-        instructions.append(mips.LoadWordNode(reg, mips.RegisterRelativeLocation(reg, 0)))
+        instructions.append(mips.ShiftLeftLogicalNode(reg, reg, 2))
+        instructions.append(mips.LoadAddressNode(reg2, mips.TYPENAMES_TABLE_LABEL))
+        instructions.append(mips.AddUnsignedNode(reg, reg, reg2))
         instructions.append(mips.StoreWordNode(reg, dst_location))
 
         self.free_reg(reg)
+        self.free_reg(reg2)
 
         return instructions
     
