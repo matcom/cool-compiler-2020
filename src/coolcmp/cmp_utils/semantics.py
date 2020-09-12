@@ -3,8 +3,6 @@ from coolcmp.cmp_utils.my_ast import *
 from coolcmp.cmp_utils.visitor import Visitor
 from coolcmp.cmp_utils.environment import Environment
 
-#check for class main at type-checking
-
 class SemanticAnalyzer:
     def __init__(self, ast_root):
         self.ast_root = ast_root
@@ -25,6 +23,19 @@ class SemanticAnalyzer:
             self.ast_root.cls_list.append(cls)
 
         for cls in self.ast_root.cls_list:
+            for feature in cls.feature_list:
+                if isinstance(feature, Method):
+                    if feature.id.value in cls.methods:
+                        raise SemanticError(feature.id.line, feature.id.col, f'Tried to redefine method "{feature.id.value}" in class "{cls.type.value}"')
+
+                    cls.methods[feature.id.value] = feature
+
+                else:
+                    if feature.formal.id.value in cls.attrs:
+                        raise SemanticError(feature.formal.id.line, feature.formal.id.col, f'Tried to redefine attribute "{feature.formal.id.value}" in class "{cls.type.value}"')
+
+                    cls.attrs[feature.formal.id.value] = feature
+
             if cls.type.value == 'Object':
                 continue
 
@@ -40,6 +51,14 @@ class SemanticAnalyzer:
                 raise SemanticError(cls.opt_inherits.line, cls.opt_inherits.col, f'Tried to inherit from class "{cls.opt_inherits.value}"')
 
             parent.children.append(cls)
+
+        if 'Main' not in cls_refs:
+            raise SemanticError(1, 1, 'Class "Main" doesnt exist')
+
+        main_class = cls_refs['Main']
+
+        if 'main' not in main_class.methods:
+            raise SemanticError(main_class.type.line, main_class.type.col, 'Couldnt find method "main" on "Main" class')
 
     def check_cycles(self):
         seen = {}

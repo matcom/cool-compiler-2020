@@ -6,6 +6,9 @@ class ASTNode:
         self.line = line
         self.col = col
 
+    def set_static_type(self, t):
+        self.static_type = t
+
     def get_children(self):
         if isinstance(self, NodeContainer):
             return list(self)
@@ -41,6 +44,14 @@ class Class(ASTNode):
         self.feature_list = feature_list
         self.children = []
         self.can_inherit = can_inherit
+        self.methods = {}
+        self.attrs = {}
+
+        # data for type checker
+        self.parent = None
+        self.td = 0
+        self.tf = 0
+        self.level = 0
 
     def __str__(self):
         return f'<Class "{self.type}">'
@@ -151,14 +162,3 @@ class Id(Terminal): pass
 class Int(Terminal): pass
 class String(Terminal): pass
 class Bool(Terminal): pass
-
-TrueBoolean = Bool('true')
-FalseBoolean = Bool('false')
-
-if __name__ == '__main__':
-    plus = Plus(Int(123), Int(65))
-    isvoid = IsVoid(Int(5))
-    b = Block(NodeContainer([Plus(Int(1), Int(1)), IsVoid(String("asd"))]))
-    b = Minus(Int(3), Int(4))
-
-    block = Block(NodeContainer([plus, b, isvoid]))

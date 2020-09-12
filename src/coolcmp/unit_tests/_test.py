@@ -24,21 +24,23 @@ def test_parser_errors(file):
     assert root.class_name() == 'Program'
     return sc, root
 
-cycles = getclfiles(PREFIX_DIR + 'cycles/')
+tests = getclfiles(PREFIX_DIR + 'Semantics_First_Phase/')
 
-@pytest.mark.Icycles
-@pytest.mark.parametrize('file', cycles)
+@pytest.mark.semantics
+@pytest.mark.parametrize('file', tests)
 def test_Icycles(file):
-    ans = load_file(file + '.ans').rstrip()
+    ans = file.split('/')[-2]
+    assert ans == 'fail' or ans == 'success'
+
     sc, root = test_parser_errors(file)
 
     try:
         sc.semanticAnalysis(root)
     except CmpErrors as err:
-        assert 'NO' == ans, err
+        assert 'fail' == ans, err
         return
 
-    assert 'YES' == ans
+    assert 'success' == ans
 
     tot_cls = len(root.cls_list)
 

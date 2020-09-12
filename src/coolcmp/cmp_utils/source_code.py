@@ -24,6 +24,8 @@ class SourceCode:
             Class(Type('IO'), None)
         ]
 
+        self.root = self.native_classes[0]  #reference to root of inheritance tree
+
     def lexicalAnalysis(self):
         lex = Lexer()
         lex.build()
@@ -41,8 +43,8 @@ class SourceCode:
 
         return p.parser.parse(self.code)
 
-    def semanticAnalysis(self, root):
-        semantics = SemanticAnalyzer(root)
+    def semanticAnalysis(self, ast_root):
+        semantics = SemanticAnalyzer(ast_root)
         
         semantics.build_inheritance_tree(self.native_classes)
         semantics.check_cycles()
