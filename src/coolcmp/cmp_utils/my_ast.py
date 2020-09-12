@@ -66,8 +66,9 @@ class Method(Feature):
         self.expr = expr
 
 class Attribute(Feature):
-    def __init__(self, formal, opt_expr_init):
-        self.formal = formal
+    def __init__(self, id, type, opt_expr_init):
+        self.id = id
+        self.type = type
         self.opt_expr_init = opt_expr_init  #can be None
 
 class Expr(ASTNode): pass
@@ -104,14 +105,25 @@ class Block(Expr):
     def __init__(self, expr_list = NodeContainer()):
         self.expr_list = expr_list
 
+class LetVar(Expr):
+    def __init__(self, id, type, opt_expr_init):
+        self.id = id
+        self.type = type
+        self.opt_expr_init = opt_expr_init
+
 class Let(Expr):
-    def __init__(self, attribute_list, body):
-        self.attribute_list = attribute_list
+    def __init__(self, let_list, body):
+        self.let_list = let_list
         self.body = body
 
+class CaseVar(Expr):
+    def __init__(self, id, type):
+        self.id = id
+        self.type = type
+
 class CaseBranch(Expr):
-    def __init__(self, formal, expr):
-        self.formal = formal
+    def __init__(self, case_var, expr):
+        self.case_var = case_var
         self.expr = expr
 
 class Case(Expr):

@@ -31,10 +31,10 @@ class SemanticAnalyzer:
                     cls.methods[feature.id.value] = feature
 
                 else:
-                    if feature.formal.id.value in cls.attrs:
-                        raise SemanticError(feature.formal.id.line, feature.formal.id.col, f'Tried to redefine attribute "{feature.formal.id.value}" in class "{cls.type.value}"')
+                    if feature.id.value in cls.attrs:
+                        raise SemanticError(feature.id.line, feature.id.col, f'Tried to redefine attribute "{feature.id.value}" in class "{cls.type.value}"')
 
-                    cls.attrs[feature.formal.id.value] = feature
+                    cls.attrs[feature.id.value] = feature
 
             if cls.type.value == 'Object':
                 continue

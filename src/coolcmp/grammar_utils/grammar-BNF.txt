@@ -38,18 +38,22 @@ expr_list_comma ::= expr expr_list_comma_helper
 expr_list_comma_helper ::= , expr expr_list_comma_helper
 |	epsilon
 
-attribute ::= formal opt_expr_init
+attribute ::= ID : TYPE opt_expr_init
 
-attribute_list ::= attribute attribute_list_helper
+let_var ::= ID : TYPE opt_expr_init
 
-attribute_list_helper ::= , attribute attribute_list_helper
+let_list ::= let_var let_list_helper
+
+let_list_helper ::= , let_var let_list_helper
 |	epsilon
 
 opt_expr_init ::= <- expr
 |	epsilon
 
-case_list ::= formal => expr ; case_list
-|   formal => expr ;
+case_var ::= ID : TYPE
+
+case_list ::= case_var => expr ; case_list
+|   case_var => expr ;
 
 expr ::= ID <- expr
 | 	expr @ TYPE . ID ( expr_params )
@@ -58,7 +62,7 @@ expr ::= ID <- expr
 | 	IF expr THEN expr ELSE expr FI
 | 	WHILE expr LOOP expr POOL
 | 	{ expr_list_semicolon }
-| 	LET attribute_list IN expr
+| 	LET let_list IN expr
 | 	CASE expr OF case_list ESAC
 | 	NEW TYPE
 | 	ISVOID expr

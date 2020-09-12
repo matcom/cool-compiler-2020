@@ -130,20 +130,28 @@ class Parser:
         else: p[0] = NodeContainer()
 
     def p_attribute(self, p):
-        "attribute : formal opt_expr_init"
+        "attribute : ID COLON TYPE opt_expr_init"
 
-        p[0] = Attribute(p[1], p[2])
+        p[0] = Attribute(p[1], p[3], p[4])
         p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
-    def p_attribute_list(self, p):
-        "attribute_list : attribute attribute_list_helper"
+    def p_let_var(self, p):
+        """
+        let_var : ID COLON TYPE opt_expr_init
+        """
+
+        p[0] = LetVar(p[1], p[3], p[4])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
+
+    def p_let_list(self, p):
+        "let_list : let_var let_list_helper"
 
         p[2].appendleft(p[1])
         p[0] = p[2]
 
-    def p_attribute_list_helper(self, p):
+    def p_let_list_helper(self, p):
         """
-        attribute_list_helper : COMMA attribute attribute_list_helper
+        let_list_helper : COMMA let_var let_list_helper
         |	 epsilon
         """
 
@@ -164,10 +172,18 @@ class Parser:
 
         else: p[0] = None
 
+    def p_expr_case_var(self, p):
+        """
+        case_var : ID COLON TYPE
+        """
+
+        p[0] = CaseVar(p[1], p[3])
+        p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
+
     def p_case_list(self, p):
         """
-        case_list : formal ARROW expr SEMICOLON case_list
-        |	 formal ARROW expr SEMICOLON
+        case_list : case_var ARROW expr SEMICOLON case_list
+        |	 case_var ARROW expr SEMICOLON
         """
 
         case = CaseBranch(p[1], p[3])
@@ -224,7 +240,7 @@ class Parser:
     # SHIFT/REDUCE conflict with the let expr is intended,
     # it is resolved in favor of shifting
     def p_expr_let(self, p):
-        "expr : LET attribute_list IN expr"
+        "expr : LET let_list IN expr"
 
         p[0] = Let(p[2], p[4])
         p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
