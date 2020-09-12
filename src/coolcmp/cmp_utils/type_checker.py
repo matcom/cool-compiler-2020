@@ -40,5 +40,3 @@ class TypeChecker(Visitor):
 
     def visit_String(self, node):
         node.set_static_type(self.cls_refs['String'])
-
-    
