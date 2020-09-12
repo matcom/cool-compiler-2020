@@ -73,18 +73,18 @@ class EqualNode(ArithmeticNode):
     pass
 
 class GetAttribNode(InstructionNode):
-    def __init__(self, dest, obj, attr, xtype):
+    def __init__(self, dest, obj, attr, computed_type):
         self.dest = dest
         self.obj = obj
         self.attr = attr
-        self.xtype = xtype
+        self.computed_type = computed_type
 
 class SetAttribNode(InstructionNode):
-    def __init__(self, obj, attr, value, xtype):
+    def __init__(self, obj, attr, value, computed_type):
         self.obj = obj
         self.attr = attr
         self.value = value
-        self.xtype = xtype
+        self.computed_type = computed_type
 
 class GetIndexNode(InstructionNode):
     pass
@@ -124,10 +124,11 @@ class StaticCallNode(InstructionNode):
         self.dest = dest
 
 class DynamicCallNode(InstructionNode):
-    def __init__(self, xtype, method, dest):
+    def __init__(self, xtype, method, dest, computed_type):
         self.type = xtype
         self.method = method
         self.dest = dest
+        self.computed_type = computed_type
 
 class ArgNode(InstructionNode):
     def __init__(self, name):

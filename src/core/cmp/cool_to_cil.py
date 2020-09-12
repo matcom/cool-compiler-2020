@@ -771,7 +771,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             #Call of type <obj>.<id>(<expr>,...,<expr>)
             type_of_node = self.register_local(VariableInfo(f'{node.id}_type', None))
             self.register_instruction(cil.TypeOfNode(vobj, type_of_node))
-            self.register_instruction(cil.DynamicCallNode(type_of_node, node.id, result))
+            self.register_instruction(cil.DynamicCallNode(type_of_node, node.id, result, node.obj.computed_type))
 
         scope.ret_expr = result
 
