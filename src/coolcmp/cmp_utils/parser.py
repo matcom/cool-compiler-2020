@@ -51,7 +51,6 @@ class Parser:
 
         if len(p) == 10:
             p[0] = Method(p[1], p[3], p[6], p[8])
-            p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
         else: p[0] = p[1]
 
@@ -216,7 +215,10 @@ class Parser:
     def p_expr_self_dispatch(self, p):
         "expr : ID LPAREN expr_params RPAREN"
 
-        p[0] = SelfDispatch(p[1], p[3])
+        slf = Id('self')
+        slf.set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
+
+        p[0] = Dispatch(slf, None, p[1], p[3])
         p[0].set_tracker(p.lineno(0), self.find_column(p.lexpos(0)))
 
     def p_expr_if(self, p):

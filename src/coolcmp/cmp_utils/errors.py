@@ -8,7 +8,14 @@ class CmpErrors(Exception):
         return '({},{}) - {}: {}'.format(self.line, self.column, self.__class__.__name__, self.msg)
 
 class CompilerError(CmpErrors): pass
-class LexicographicError(CmpErrors): pass
+
+class LexicographicError(CmpErrors):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
 class SyntacticError(CmpErrors): pass
 class NameError(CmpErrors): pass
 class TypeError(CmpErrors): pass

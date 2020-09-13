@@ -1,22 +1,34 @@
 from coolcmp.cmp_utils.visitor import Visitor
+from coolcmp.cmp_utils.errors import *
+from coolcmp.cmp_utils.environment import Environment
 
 class TypeChecker(Visitor):
-    def __init__(self, root):
+    def __init__(self, root, cls_refs):
         self.root = root
-        self.cls_refs = {}
+        self.cls_refs = cls_refs
         self._t = 0
-        self._dfs(root)
+        self._dfs(root, Environment())
 
-    def _dfs(self, u):
+    def _dfs(self, u, env):
         self._t += 1
-        
         u.td = self._t
-        self.cls_refs[u.type.value] = u
+
+        for name, ref in u.methods.items():
+            old = env.get(name)
+
+            if old and old.get_signature() != ref.get_signature():
+                raise SemanticError(ref.id.line, ref.id.col, (
+                        f'The signature of method "{ref.id.value}" in class "{u.type.value}" is '
+                        f'different from signature of inherited method "{old.id.value}". '
+                        f'Expected {old.get_signature()}, found {ref.get_signature()}'))
+
+            env.define(name, ref)
 
         for v in u.children:
             v.parent = u
             v.level = u.level + 1
-            self._dfs(v)
+
+            self._dfs(v, Environment(env))
         
         u.tf = self._t
 

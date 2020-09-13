@@ -31,7 +31,7 @@ class Formal(ASTNode):
 
 class NodeContainer(deque, ASTNode):
     def __repr__(self):
-        return f'{self.class_name()}({len(self)})'
+        return f'<NodeContainer({len(self)})>'
 
 class Program(ASTNode):
     def __init__(self, cls_list = NodeContainer()):
@@ -53,8 +53,13 @@ class Class(ASTNode):
         self.tf = 0
         self.level = 0
 
-    def __str__(self):
-        return f'<Class "{self.type}">'
+    def __repr__(self):
+        return f'<Class {self.type}>'
+
+class SelfType(Class):
+    def __init__(self, cls):
+        self.type = Type('SELF_TYPE')  #note that this won't have line and col info
+        self.cls = cls
 
 class Feature(ASTNode): pass
 
@@ -64,6 +69,13 @@ class Method(Feature):
         self.formal_list = formal_list
         self.type = type
         self.expr = expr
+        self._sign = tuple([ formal.type.value for formal in self.formal_list ] + [self.type.value])
+
+    def get_signature(self):
+        return self._sign
+
+    def __repr__(self):
+        return f'<Method {self.id.value}{self.get_signature()}>'
 
 class Attribute(Feature):
     def __init__(self, id, type, opt_expr_init):
@@ -82,11 +94,6 @@ class Dispatch(Expr):
     def __init__(self, expr, opt_type, id, expr_list = NodeContainer()):
         self.expr = expr
         self.opt_type = opt_type  #can be None
-        self.id = id
-        self.expr_list = expr_list
-
-class SelfDispatch(Expr):
-    def __init__(self, id, expr_list = NodeContainer()):
         self.id = id
         self.expr_list = expr_list
 
@@ -163,11 +170,8 @@ class Terminal(Expr):
     def __init__(self, value):
         self.value = value
 
-    def __str__(self):
-        return str(self.value)
-
     def __repr__(self):
-        return f'{self.class_name()}({repr(self.value)})'
+        return f'<{self.class_name()}: {repr(self.value)}>'
 
 class Type(Terminal): pass
 class Id(Terminal): pass

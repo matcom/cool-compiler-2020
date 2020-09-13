@@ -1,12 +1,11 @@
 import pytest
 from .utils import getclfiles, load_file
 from coolcmp.cmp_utils.source_code import SourceCode
-from coolcmp.cmp_utils.semantics import SemanticAnalyzer
 from coolcmp.cmp_utils.print_ast import PrintAst
 from coolcmp.cmp_utils.errors import CmpErrors
 from coolcmp.cmp_utils.lexer import Lexer
 
-PREFIX_DIR = 'coolcmp/unit_tests/'
+PREFIX_DIR = 'coolcmp/unit_tests/Custom/'
 
 tests = getclfiles('.') + getclfiles('../tests')
 
@@ -24,13 +23,14 @@ def test_parser_errors(file):
     assert root.class_name() == 'Program'
     return sc, root
 
-tests = getclfiles(PREFIX_DIR + 'Semantics_First_Phase/')
+tests = getclfiles(PREFIX_DIR + 'semantics/')
 
 @pytest.mark.semantics
 @pytest.mark.parametrize('file', tests)
-def test_Icycles(file):
-    ans = file.split('/')[-2]
-    assert ans == 'fail' or ans == 'success'
+def test_semantics(file, ans=None):
+    if not ans:
+        ans = file.split('/')[-2]
+        assert ans == 'fail' or ans == 'success'
 
     sc, root = test_parser_errors(file)
 
@@ -69,3 +69,24 @@ def test_Icycles(file):
 
     assert tot_cls == nodes, f'tot_cls = {tot_cls}, nodes = {nodes}'
     assert edges == nodes - 1, f'edges = {edges}, nodes = {nodes}'
+
+    return sc
+
+tests = getclfiles(PREFIX_DIR + 'type_checker/')
+
+@pytest.mark.type_checker
+@pytest.mark.parametrize('file', tests)
+def test_type_checker(file, ans=None):
+    if not ans:
+        ans = file.split('/')[-2]
+        assert ans == 'fail' or ans == 'success'
+
+    sc = test_semantics(file, 'success')
+
+    try:
+        sc.runTypeChecker()
+    except CmpErrors as err:
+        assert 'fail' == ans, err
+        return
+
+    assert 'success' == ans

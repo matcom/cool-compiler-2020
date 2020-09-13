@@ -60,6 +60,8 @@ class SemanticAnalyzer:
         if 'main' not in main_class.methods:
             raise SemanticError(main_class.type.line, main_class.type.col, 'Couldnt find method "main" on "Main" class')
 
+        return cls_refs
+
     def check_cycles(self):
         seen = {}
         up = {}

@@ -2,6 +2,8 @@ from coolcmp.cmp_utils.lexer import Lexer
 from coolcmp.cmp_utils.parser import Parser
 from coolcmp.cmp_utils.semantics import SemanticAnalyzer
 from coolcmp.cmp_utils.my_ast import Class, Type
+from coolcmp.cmp_utils.errors import LexicographicError
+from coolcmp.cmp_utils.type_checker import TypeChecker
 
 class SourceCode:
     def __init__(self, code, tab_size=4):
@@ -33,6 +35,9 @@ class SourceCode:
 
         for _ in lex.lexer: pass
 
+        if lex.lexer.errors:
+            raise LexicographicError('\n'.join(lex.lexer.errors))
+
         return lex
 
     def syntacticAnalysis(self, lexer):
@@ -46,5 +51,8 @@ class SourceCode:
     def semanticAnalysis(self, ast_root):
         semantics = SemanticAnalyzer(ast_root)
         
-        semantics.build_inheritance_tree(self.native_classes)
+        self.cls_refs = semantics.build_inheritance_tree(self.native_classes)
         semantics.check_cycles()
+
+    def runTypeChecker(self):
+        chk = TypeChecker(self.root, self.cls_refs)

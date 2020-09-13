@@ -1,25 +1,16 @@
 class Environment:
-    def __init__(self):
-        self.vars = {}
-        self.parent = None
+    def __init__(self, parent=None):
+        self.map = {}
+        self.parent = parent
 
-    def define(self, name, value=None): ...
-    def is_defined(self, name): ...
-    def get(self, name): ...
-
-class SemanticsEnv(Environment):
-    def define(self, name, value=None):
-        assert(not self.is_defined(name))
-        self.vars[name] = True
-
-    def is_defined(self, name):
-        return name in self.vars
+    def define(self, name, ref):
+        self.map[name] = ref
 
     def get(self, name):
-        if self.is_defined(name):
-            return True
+        if name in self.map:
+            return self.map[name]
             
         if self.parent:
             return self.parent.get(name)
 
-        return False
+        return None

@@ -16,24 +16,17 @@ with open(args.file_path) as file:
 
 source_code = SourceCode(content, args.tab_size)
 
-lexer = source_code.lexicalAnalysis()
-
-if lexer.lexer.errors:
-    print('\n'.join(lexer.lexer.errors))
-    exit(1)
-
 try:
+    lexer = source_code.lexicalAnalysis()
     root = source_code.syntacticAnalysis(lexer)
-except SyntacticError as err:
-    print(err)
-    exit(1)
 
-if args.ast:
-    from coolcmp.cmp_utils.print_ast import PrintAst
-    PrintAst(root)
+    if args.ast:
+        from coolcmp.cmp_utils.print_ast import PrintAst
+        PrintAst(root)
 
-try:
     source_code.semanticAnalysis(root)
-except SemanticError as err:
+    source_code.runTypeChecker()
+
+except CmpErrors as err:
     print(err)
     exit(1)
