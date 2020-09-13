@@ -75,13 +75,16 @@ class Method(Feature):
         return self._sign
 
     def __repr__(self):
-        return f'<Method {self.id.value}{self.get_signature()}>'
+        return f'<Method {self.id}{self.get_signature()}>'
 
 class Attribute(Feature):
     def __init__(self, id, type, opt_expr_init):
         self.id = id
         self.type = type
         self.opt_expr_init = opt_expr_init  #can be None
+    
+    def __repr__(self):
+        return f'<Attribute {self.id}>'
 
 class Expr(ASTNode): pass
 

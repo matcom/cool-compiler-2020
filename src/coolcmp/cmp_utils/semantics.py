@@ -15,7 +15,7 @@ class SemanticAnalyzer:
 
         for cls in self.ast_root.cls_list:
             if cls.type.value in cls_refs:
-                raise SemanticError(cls.type.line, cls.type.col, f'Tried to redefine class "{cls.type.value}"')
+                raise SemanticError(cls.type.line, cls.type.col, f'Tried to redefine {cls}')
 
             cls_refs[cls.type.value] = cls
 
@@ -26,13 +26,13 @@ class SemanticAnalyzer:
             for feature in cls.feature_list:
                 if isinstance(feature, Method):
                     if feature.id.value in cls.methods:
-                        raise SemanticError(feature.id.line, feature.id.col, f'Tried to redefine method "{feature.id.value}" in class "{cls.type.value}"')
+                        raise SemanticError(feature.id.line, feature.id.col, f'Tried to redefine {feature} in {cls}')
 
                     cls.methods[feature.id.value] = feature
 
                 else:
                     if feature.id.value in cls.attrs:
-                        raise SemanticError(feature.id.line, feature.id.col, f'Tried to redefine attribute "{feature.id.value}" in class "{cls.type.value}"')
+                        raise SemanticError(feature.id.line, feature.id.col, f'Tried to redefine {feature} in {cls}')
 
                     cls.attrs[feature.id.value] = feature
 
@@ -43,22 +43,22 @@ class SemanticAnalyzer:
 
             if name not in cls_refs:
                 assert cls.opt_inherits
-                raise SemanticError(cls.opt_inherits.line, cls.opt_inherits.col, f'Tried to inherit from unexistent class "{cls.opt_inherits.value}"')
+                raise SemanticError(cls.opt_inherits.line, cls.opt_inherits.col, f'Tried to inherit from <Class {cls.opt_inherits}> who doesnt exists')
 
             parent = cls_refs[name]
 
             if not parent.can_inherit:
-                raise SemanticError(cls.opt_inherits.line, cls.opt_inherits.col, f'Tried to inherit from class "{cls.opt_inherits.value}"')
+                raise SemanticError(cls.opt_inherits.line, cls.opt_inherits.col, f'Tried to inherit from {parent}')
 
             parent.children.append(cls)
 
         if 'Main' not in cls_refs:
-            raise SemanticError(1, 1, 'Class "Main" doesnt exist')
+            raise SemanticError(1, 1, f'<Class {Type("Main")}> doesnt exist')
 
         main_class = cls_refs['Main']
 
         if 'main' not in main_class.methods:
-            raise SemanticError(main_class.type.line, main_class.type.col, 'Couldnt find method "main" on "Main" class')
+            raise SemanticError(main_class.type.line, main_class.type.col, f'Couldnt find <Method {Id("main")}()> on {main_class}')
 
         return cls_refs
 
@@ -78,6 +78,6 @@ class SemanticAnalyzer:
                 self._dfs(v, seen, up)
 
             elif up[v.type.value]:
-                raise SemanticError(v.type.line, v.type.col, f'Inheritance cycle detected at class "{v.type.value}" inheriting from "{u.type.value}"')
+                raise SemanticError(v.type.line, v.type.col, f'Inheritance cycle detected at {v} inheriting from {u}')
 
         up[u.type.value] = False

@@ -17,10 +17,7 @@ class TypeChecker(Visitor):
             old = env.get(name)
 
             if old and old.get_signature() != ref.get_signature():
-                raise SemanticError(ref.id.line, ref.id.col, (
-                        f'The signature of method "{ref.id.value}" in class "{u.type.value}" is '
-                        f'different from signature of inherited method "{old.id.value}". '
-                        f'Expected {old.get_signature()}, found {ref.get_signature()}'))
+                raise SemanticError(ref.id.line, ref.id.col, f'{ref} of {u} is not compatible to {old} for inheritance')
 
             env.define(name, ref)
 
