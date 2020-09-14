@@ -176,8 +176,29 @@ class COOL_TYPE_CHECKER(object):
         if not node.expression.static_type.is_subtype(var_type):
             self.errors.append(SemanticError(node.line, node.column, f'Invalid assignment. Type {node.expression.static_type.name} is not subtype of {var_type.name}.'))
     
-    @when(FunctionCallNode)
     @when(MemberCallNode)
+    def visit(self, node:MemberCallNode, scope:Scope):
+        obj_type = self.current_type
+
+        node_type = ErrorType()
+        try:
+            method = obj_type.get_method(node.id)
+        except SemanticException as e:
+            self.errors.append(SemanticError(node.line, node.column, e.text))
+        else:
+            if len(node.args) != len(method.names):
+                self.errors.append(SemanticError(node.line, node.column, f'Invalid dispatch. Expected {len(method.names)} parameter(s), found {len(node.args)}.'))
+            else:
+                node_type = method.return_type
+                for pname, ptype, expr in zip(method.param_names, method.param_types, node.args):
+                    self.visit(expr, scope)
+                    expected_type = ptype
+                    if not expr.static_type.is_subtype(expected_type):
+                        self.errors.append(SemanticError(node.line, node.column, f'Invalid dispatch. Parameter "{pname}" type {expr.static_type.name} is not subtype of {expected_type.name}.'))    
+
+        node.static_type = node_type
+
+    @when(FunctionCallNode)
     def visit(self, node:FunctionCallNode, scope:Scope):
         obj_type = self.current_type
 
@@ -261,6 +282,13 @@ class COOL_TYPE_CHECKER(object):
         node.static_type = self.type_bool
 
     @when(LessEqualNode)
+    def visit(self, node:LessEqualNode, scope:Scope):
+        self.visit(node.left, scope)
+        self.visit(node.right, scope)
+        if not(node.left.static_type == self.type_int and node.left.static_type == self.type_int):
+            self.errors.append(SemanticError(node.line, node.column, f'Invalid comparison between types {node.left.static_type.name} and {node.right.static_type.name}.'))
+        node.static_type = self.type_bool
+
     @when(LessNode)
     def visit(self, node:LessNode, scope:Scope):
         self.visit(node.left, scope)
