@@ -159,7 +159,7 @@ class COOL_PARSER:
         p[0] = p[1]
 
     def p_not_arith_not(self, p):
-        'not_arith : NOT arith'
+        'not_arith : NOT comp_expr'
         p[0] = NotNode(p[2])
 
     def p_not_arith(self, p):
