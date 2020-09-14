@@ -175,6 +175,8 @@ class COOL_TYPE_CHECKER(object):
         self.visit(node.expression, scope)
         if not node.expression.static_type.is_subtype(var_type):
             self.errors.append(SemanticError(node.line, node.column, f'Invalid assignment. Type {node.expression.static_type.name} is not subtype of {var_type.name}.'))
+        
+        node.static_type = node.expression.static_type
     
     @when(MemberCallNode)
     def visit(self, node:MemberCallNode, scope:Scope):
@@ -223,7 +225,7 @@ class COOL_TYPE_CHECKER(object):
         except SemanticException as e:
             self.errors.append(SemanticError(node.line, node.column, e.text))
         else:
-            if len(node.args) != len(method.names):
+            if len(node.args) != len(method.param_names):
                 self.errors.append(SemanticError(node.line, node.column, f'Invalid dispatch. Expected {len(method.names)} parameter(s), found {len(node.args)}.'))
             else:
                 node_type = method.return_type
@@ -253,14 +255,14 @@ class COOL_TYPE_CHECKER(object):
     def visit(self, node:NotNode, scope:Scope):
         self.visit(node.expression, scope)
         if not node.expression.static_type == self.type_bool:
-            self.errors.append(SemanticError(node.line, node.column, f'Invalid boolean complement over type {node.expression.static_type}.'))
+            self.errors.append(SemanticError(node.line, node.column, f'Invalid boolean complement over type {node.expression.static_type.name}.'))
         node.static_type = self.type_bool
 
     @when(ComplementNode)
     def visit(self, node:ComplementNode, scope:Scope):
         self.visit(node.expression, scope)
         if not node.expression.static_type == self.type_int:
-            self.errors.append(SemanticError(node.line, node.column, f'Invalid integer complement over type {node.expression.static_type}.'))
+            self.errors.append(SemanticError(node.line, node.column, f'Invalid integer complement over type {node.expression.static_type.name}.'))
         node.static_type = self.type_int
 
     @when(ArithmeticNode)
