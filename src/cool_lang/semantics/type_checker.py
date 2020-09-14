@@ -186,7 +186,7 @@ class COOL_TYPE_CHECKER(object):
         except SemanticException as e:
             self.errors.append(SemanticError(node.line, node.column, e.text))
         else:
-            if len(node.args) != len(method.names):
+            if len(node.args) != len(method.param_names):
                 self.errors.append(SemanticError(node.line, node.column, f'Invalid dispatch. Expected {len(method.names)} parameter(s), found {len(node.args)}.'))
             else:
                 node_type = method.return_type
@@ -200,23 +200,22 @@ class COOL_TYPE_CHECKER(object):
 
     @when(FunctionCallNode)
     def visit(self, node:FunctionCallNode, scope:Scope):
-        obj_type = self.current_type
+        obj_type = None
 
-        if node is FunctionCallNode:
-            self.visit(node.obj, scope)
-            if node.type:
-                cast_type = ErrorType()
-                try:
-                    cast_type = self.context.get_type(node.type)
-                except SemanticException as e:
-                    self.errors.append(SemanticError(node.line, node.column, e.text))
-                if cast_type is ErrorType:
-                    return
-                elif not node.obj.static_type.is_subtype(cast_type):
-                    self.errors.append(SemanticError(node.line, node.column, f'Invalid cast. Type {node.obj.static_type.name} is not subtype of {cast_type.name}.'))
-                obj_type = cast_type
-            else:
-                obj_type = node.obj.static_type
+        self.visit(node.obj, scope)
+        if node.type:
+            cast_type = ErrorType()
+            try:
+                cast_type = self.context.get_type(node.type)
+            except SemanticException as e:
+                self.errors.append(SemanticError(node.line, node.column, e.text))
+                node.static_type = ErrorType()
+                return
+            if not node.obj.static_type.is_subtype(cast_type):
+                self.errors.append(SemanticError(node.line, node.column, f'Invalid cast. Type {node.obj.static_type.name} is not subtype of {cast_type.name}.'))
+            obj_type = cast_type
+        else:
+            obj_type = node.obj.static_type
 
         node_type = ErrorType()
         try:
