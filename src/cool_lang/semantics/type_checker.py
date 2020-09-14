@@ -53,7 +53,9 @@ class COOL_TYPE_CHECKER(object):
     @when(AttrDeclarationNode)
     def visit(self, node:AttrDeclarationNode, scope:Scope):
         if node.expression:
-            self.visit(node.expression, scope)
+            new_scope = Scope(parent=scope)
+            new_scope.define_var('self', self.current_type)
+            self.visit(node.expression, new_scope)
 
             attr_type = self.context.get_type(node.type)
 
@@ -116,8 +118,8 @@ class COOL_TYPE_CHECKER(object):
 
         if node.expression:
             self.visit(node.expression, scope)
-            if not node.expression.static_type == node_type:
-                self.errors.append(SemanticError(node.line, node.column, f'Invalid initialization. Type {node.expression.static_type.name} is not subtype of {node_type}.'))
+            if not node.expression.static_type.is_subtype(node_type):
+                self.errors.append(SemanticError(node.line, node.column, f'Invalid initialization. Type {node.expression.static_type.name} is not subtype of {node_type.name}.'))
         try:
             scope.define_var(node.id, node_type)
         except SemanticException as e:
