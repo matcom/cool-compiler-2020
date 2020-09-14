@@ -197,6 +197,9 @@ class Scope:
         self.vars = {}
 
     def define_var(self, name, typex):
+        if name == 'self':
+            raise SemanticException('Invalid identifier.')
+
         if name in self.vars:
             raise SemanticException(f'Variable {name} already defined in current context.')
         var = self.vars[name] = Var(name, typex)
