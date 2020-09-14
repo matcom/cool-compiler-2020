@@ -56,3 +56,4 @@ class SourceCode:
 
     def runTypeChecker(self):
         chk = TypeChecker(self.root, self.cls_refs)
+        chk.visit(self.root)

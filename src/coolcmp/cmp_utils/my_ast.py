@@ -22,12 +22,15 @@ class ASTNode:
         return self.__class__.__name__
 
     def __repr__(self):
-        return self.class_name()
+        return f'<{self.class_name()}>'
 
 class Formal(ASTNode):
     def __init__(self, id, type):
         self.id = id
         self.type = type
+
+    def __repr__(self):
+        return f'<Formal {self.id}>'
 
 class NodeContainer(deque, ASTNode):
     def __repr__(self):
@@ -55,11 +58,6 @@ class Class(ASTNode):
 
     def __repr__(self):
         return f'<Class {self.type}>'
-
-class SelfType(Class):
-    def __init__(self, cls):
-        self.type = Type('SELF_TYPE')  #note that this won't have line and col info
-        self.cls = cls
 
 class Feature(ASTNode): pass
 
@@ -92,6 +90,9 @@ class Assignment(Expr):
     def __init__(self, id, expr):
         self.id = id
         self.expr = expr
+
+    def __repr__(self):
+        return f'<Assignment {self.id}>'
 
 class Dispatch(Expr):
     def __init__(self, expr, opt_type, id, expr_list = NodeContainer()):

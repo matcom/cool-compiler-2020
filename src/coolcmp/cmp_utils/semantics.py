@@ -1,6 +1,5 @@
 from coolcmp.cmp_utils.errors import *
 from coolcmp.cmp_utils.my_ast import *
-from coolcmp.cmp_utils.visitor import Visitor
 from coolcmp.cmp_utils.environment import Environment
 
 class SemanticAnalyzer:
@@ -59,6 +58,17 @@ class SemanticAnalyzer:
 
         if 'main' not in main_class.methods:
             raise SemanticError(main_class.type.line, main_class.type.col, f'Couldnt find <Method {Id("main")}()> on {main_class}')
+
+        ref = main_class.methods['main']
+
+        if len(ref.get_signature()) > 1:
+            raise SemanticError(ref.id.line, ref.id.col, f'{ref} must have no formal parameters')
+        
+        if 'SELF_TYPE' in cls_refs:
+            ref = cls_refs['SELF_TYPE']
+            raise SemanticError(ref.type.line, ref.type.col, f'Tried to declare {ref}')
+
+        cls_refs['SELF_TYPE'] = Class(Type('SELF_TYPE'), None)
 
         return cls_refs
 

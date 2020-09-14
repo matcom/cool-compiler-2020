@@ -169,7 +169,7 @@ class Lexer(object):
             t.lexer.pop_state()
             t.type = "STRING"
             t.value = String(t.lexer.stringbuf)
-            t.value.set_tracker(t.lexer.lineno, self.find_column(t))
+            t.value.set_tracker(t.lexer.lineno, self.find_column(t) - len(t.value.value) - 1)
 
             return t
 
