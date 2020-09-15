@@ -626,6 +626,8 @@ class TypeChecker:
                 raise SemanticError(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
             assert not error
             node_type = obj_method.return_type
+            if node_type.name == ST:
+                node_type = obj_type
         except SemanticError as ex:
             self.errors.append((ex.text, token))
             node_type = ErrorType()
@@ -661,6 +663,8 @@ class TypeChecker:
                 raise SemanticError(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
             assert not error
             node_type = obj_method.return_type
+            if node_type.name == ST:
+                node_type = obj_type
         except SemanticError as ex:
             self.errors.append((ex.text, token))
             node_type = ErrorType()
