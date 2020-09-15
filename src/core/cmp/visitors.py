@@ -14,6 +14,7 @@ VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined.'
 INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
 CONDITION_NOT_BOOL = '"%s" conditions return type must be Bool not "%s"'
 INVALID_PARAMETER = 'Formal parameter "%s" cannot have type SELF_TYPE.'
+INVALID_BRANCH = 'Identifier "%s" declared with type SELF_TYPE in case branch.'
 
 ST, AT = ['SELF_TYPE', 'AUTO_TYPE']
 sealed = ['Int', 'String', 'Bool', 'SELF_TYPE', 'AUTO_TYPE']
@@ -495,9 +496,13 @@ class TypeChecker:
     def visit(self, node, scope):
         node.scope = scope
         try:
+            assert node.type != ST
             branch_type = self.context.get_type(node.type)
         except SemanticError as ex:
             self.errors.append((ex.text, node.ttype))
+            branch_type = ErrorType()
+        except AssertionError:
+            self.errors.append((INVALID_BRANCH % node.id, node.ttype))
             branch_type = ErrorType()
         node.branch_type = branch_type
 
