@@ -355,6 +355,7 @@ class TypeBuilder:
 def LCA(type_list):
     counter = {}
 
+    type_list = [fixed_type(t) for t in type_list]
     if any([isinstance(t, AutoType) for t in type_list]):
         return AutoType()
     if any([isinstance(t, ErrorType) for t in type_list]):
