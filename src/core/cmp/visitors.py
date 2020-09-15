@@ -374,6 +374,8 @@ def LCA(type_list):
             node = node.parent
 
 def check_path(D, ans):
+    if any([(t.name == ST) for t in D]):
+        return True, SelfType()
     for t in D:
         l = [ans, t]
         lca = LCA(l)
@@ -880,7 +882,7 @@ class InferenceVisitor(TypeChecker):
                     continue
                 ok, D1 = check_path(sets.D, OBJ)
                 assert ok
-                if len(sets.S):
+                if len(sets.S) and not isinstance(D1, SelfType):
                     candidate = LCA(sets.S)
                     assert LCA([candidate, D1]) == D1
                     D1 = candidate
