@@ -443,7 +443,7 @@ class TypeChecker:
 
         self.visit(node.expr, scope)
         expr_type = node.expr.computed_type
-        real_type = fixed_type(node.attr_type, self.current_type)
+        real_type = node.attr_type
         node.info = [expr_type, real_type]
 
         if not expr_type.conforms_to(real_type):
@@ -460,7 +460,7 @@ class TypeChecker:
         self.visit(node.body, scope)
             
         body_type = node.body.computed_type
-        method_rtn_type = fixed_type(node.ret_type, self.current_type)
+        method_rtn_type = node.ret_type
         node.info = [body_type, method_rtn_type]
 
         if not body_type.conforms_to(method_rtn_type):
@@ -478,8 +478,7 @@ class TypeChecker:
             var = scope.find_variable(node.id)
             if var.name == 'self':
                 raise SemanticError(SELF_IS_READONLY)
-            var_type = fixed_type(var.type, self.current_type)
-            if not node_type.conforms_to(var_type): 
+            if not node_type.conforms_to(var.type): 
                 raise SemanticError(INCOMPATIBLE_TYPES % (node_type.name, var.type.name))
         except SemanticError as ex:
             self.errors.append((ex.text, node.tid))
@@ -550,11 +549,10 @@ class TypeChecker:
         if node.expr:
             self.visit(node.expr, scope)
             expr_type = node.expr.computed_type
-            real_type = fixed_type(node_type, self.current_type)
-            node.info = [expr_type, real_type]
+            node.info = [expr_type, node_type]
 
-            if not expr_type.conforms_to(real_type): 
-                self.errors.append((INCOMPATIBLE_TYPES % (expr_type.name, real_type.name), node.arrow))
+            if not expr_type.conforms_to(node_type): 
+                self.errors.append((INCOMPATIBLE_TYPES % (expr_type.name, node_type.name), node.arrow))
         
     @visitor.when(IfThenElseNode)
     def visit(self, node, scope):
@@ -619,16 +617,15 @@ class TypeChecker:
             node.obj_method = obj_method
             if len(node.args) == len(obj_method.param_types):
                 for idx, (arg, param_type) in enumerate(zip(arg_types, obj_method.param_types)):
-                    real_type = fixed_type(param_type, obj_type)
-                    real_types.append(real_type)
+                    real_types.append(param_type)
 
-                    if not arg.conforms_to(real_type):
-                        self.errors.append((INCOMPATIBLE_TYPES % (arg.name, real_type.name + f" in the argument #{idx} of {node.id}"), token))
+                    if not arg.conforms_to(param_type):
+                        self.errors.append((INCOMPATIBLE_TYPES % (arg.name, param_type.name + f" in the argument #{idx} of {node.id}"), token))
                         error = True
             else:
                 raise SemanticError(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
             assert not error
-            node_type = fixed_type(obj_method.return_type, obj_type)
+            node_type = obj_method.return_type
         except SemanticError as ex:
             self.errors.append((ex.text, token))
             node_type = ErrorType()
@@ -655,16 +652,15 @@ class TypeChecker:
             node.obj_method = obj_method
             if len(node.args) == len(obj_method.param_types):
                 for arg, param_type in zip(arg_types, obj_method.param_types):
-                    real_type = fixed_type(param_type, self.current_type)
-                    real_types.append(real_type)
+                    real_types.append(param_type)
                     
-                    if not arg.conforms_to(real_type):
-                        self.errors.append((INCOMPATIBLE_TYPES % (arg.name, real_type.name + f" in the argument #{idx} of {node.id}"), token))
+                    if not arg.conforms_to(param_type):
+                        self.errors.append((INCOMPATIBLE_TYPES % (arg.name, param_type.name + f" in the argument #{idx} of {node.id}"), token))
                         error = True
             else:
                 raise SemanticError(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
             assert not error
-            node_type = fixed_type(obj_method.return_type, self.current_type)
+            node_type = obj_method.return_type
         except SemanticError as ex:
             self.errors.append((ex.text, token))
             node_type = ErrorType()
@@ -703,8 +699,7 @@ class TypeChecker:
     @visitor.when(IdNode)
     def visit(self, node, scope):
         if scope.is_defined(node.lex):
-            var = scope.find_variable(node.lex)
-            node_type = fixed_type(var.type, self.current_type)       
+            node_type = scope.find_variable(node.lex).type       
         else:
             self.errors.append((VARIABLE_NOT_DEFINED % (node.lex), node.token))
             node_type = ErrorType()
