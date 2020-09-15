@@ -19,11 +19,11 @@ class SourceCode:
 
     def _inject_native_classes(self):
         self.native_classes = [
-            Class(Type('Object'), None),
-            Class(Type('Int'), None, can_inherit=False),
-            Class(Type('String'), None, can_inherit=False),
-            Class(Type('Bool'), None, can_inherit=False),
-            Class(Type('IO'), None)
+            Class(Type('Object')),
+            Class(Type('Int'), can_inherit=False),
+            Class(Type('String'), can_inherit=False),
+            Class(Type('Bool'), can_inherit=False),
+            Class(Type('IO'))
         ]
 
         self.root = self.native_classes[0]  #reference to root of inheritance tree

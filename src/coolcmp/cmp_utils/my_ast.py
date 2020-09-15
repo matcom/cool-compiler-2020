@@ -41,7 +41,7 @@ class Program(ASTNode):
         self.cls_list = cls_list
 
 class Class(ASTNode):
-    def __init__(self, type, opt_inherits, feature_list = NodeContainer(), can_inherit = True):
+    def __init__(self, type, opt_inherits=None, feature_list = NodeContainer(), can_inherit = True):
         self.type = type
         self.opt_inherits = opt_inherits  #can be None
         self.feature_list = feature_list
@@ -55,9 +55,17 @@ class Class(ASTNode):
         self.td = 0
         self.tf = 0
         self.level = 0
+        self.self_type = None
 
     def __repr__(self):
         return f'<Class {self.type}>'
+
+class SELF_TYPE(Class):
+    def __init__(self):
+        Class.__init__(self, Type('SELF_TYPE'))
+
+    def __repr__(self):
+        return f'<SELF_TYPE {self.parent.type}>'
 
 class Feature(ASTNode): pass
 
@@ -101,6 +109,9 @@ class Dispatch(Expr):
         self.id = id
         self.expr_list = expr_list
 
+    def __repr__(self):
+        return f'<Dispatch {self.id}>'
+
 class If(Expr):
     def __init__(self, predicate, if_branch, else_branch):
         self.predicate = predicate
@@ -115,6 +126,9 @@ class While(Expr):
 class Block(Expr):
     def __init__(self, expr_list = NodeContainer()):
         self.expr_list = expr_list
+
+    def __repr__(self):
+        return f'<Block({len(self.expr_list)})>'
 
 class LetVar(Expr):
     def __init__(self, id, type, opt_expr_init):
@@ -147,6 +161,9 @@ class Case(Expr):
 class New(Expr):
     def __init__(self, type):
         self.type = type
+
+    def __repr__(self):
+        return f'<New {self.type}>'
 
 class UnaryOp(Expr):
     def __init__(self, expr):

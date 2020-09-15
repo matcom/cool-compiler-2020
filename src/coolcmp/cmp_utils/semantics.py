@@ -68,7 +68,13 @@ class SemanticAnalyzer:
             ref = cls_refs['SELF_TYPE']
             raise SemanticError(ref.type.line, ref.type.col, f'Tried to declare {ref}')
 
-        cls_refs['SELF_TYPE'] = Class(Type('SELF_TYPE'), None)
+        cls_refs['SELF_TYPE'] = Class(Type('SELF_TYPE'))
+
+        for cls in self.ast_root.cls_list:
+            cls.self_type = SELF_TYPE()
+            cls.children.append(cls.self_type)
+
+        self.ast_root.cls_list.extend([cls.self_type for cls in self.ast_root.cls_list])
 
         return cls_refs
 
