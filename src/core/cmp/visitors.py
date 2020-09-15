@@ -3,7 +3,7 @@ from core.cmp.CoolUtils import *
 from core.cmp.utils import InferenceSets
 from core.cmp.semantic import SemanticError
 from core.cmp.semantic import Attribute, Method, Type
-from core.cmp.semantic import ErrorType, IntType, StringType, BoolType, IOType, VoidType, AutoType
+from core.cmp.semantic import ErrorType, IntType, StringType, BoolType, IOType, VoidType, AutoType, SelfType
 from core.cmp.semantic import Context, Scope
 
 WRONG_SIGNATURE = 'Method "%s" already defined in "%s" with a different signature.'
@@ -19,7 +19,7 @@ INVALID_BRANCH = 'Identifier "%s" declared with type SELF_TYPE in case branch.'
 ST, AT = ['SELF_TYPE', 'AUTO_TYPE']
 sealed = ['Int', 'String', 'Bool', 'SELF_TYPE', 'AUTO_TYPE']
 built_in_types = [ 'Int', 'String', 'Bool', 'Object', 'IO', 'SELF_TYPE', 'AUTO_TYPE']
-INT, STRING, BOOL, OBJ = None, None, None, None
+INT, STRING, BOOL, OBJ, SELF_TYPE = None, None, None, None, None
 
 def define_built_in_types(context):
     obj = context.create_type('Object')
@@ -31,7 +31,7 @@ def define_built_in_types(context):
     b.set_parent(obj)
     io = context.append_type(IOType())
     io.set_parent(obj)
-    st = context.create_type('SELF_TYPE')
+    st = context.append_type(SelfType())
     context.append_type(AutoType())
 
     obj.define_method('abort', [], [], obj)
@@ -47,11 +47,12 @@ def define_built_in_types(context):
     s.define_method('concat', ['s'], [s], s)
     s.define_method('substr', ['i', 'l'], [i, i], s)
 
-    global INT, STRING, BOOL, OBJ
-    INT, STRING, BOOL, OBJ = i, s, b, obj
+    global INT, STRING, BOOL, OBJ, SELF_TYPE
+    INT, STRING, BOOL, OBJ, SELF_TYPE = i, s, b, obj, st
 
-def fixed_type(type1, type2):
-    return type1 if type1.name != ST else type2
+def fixed_type(cur_type):
+    try: return cur_type.fixed
+    except AttributeError: return cur_type
 
 def update_condition(target, value):
     c1 = isinstance(target, AutoType)
