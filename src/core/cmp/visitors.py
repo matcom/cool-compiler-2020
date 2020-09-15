@@ -408,13 +408,13 @@ class TypeChecker:
     def visit(self, node, scope):
         self.current_type = self.context.get_type(node.id)
         
-        scope.define_variable('self', SELF_TYPE.fixed_to(self.current_type))
+        scope.define_variable('self', SelfType(self.current_type))
         cur_type = self.current_type.parent
         while True:
             for attr in cur_type.attributes:
                 vtype = attr.type
-                if vtype.conforms_to(SELF_TYPE):
-                    vtype = vtype.fixed_to(self.current_type)
+                if vtype.name == ST:
+                    vtype = SelfType(self.current_type)
                 var = scope.define_variable(attr.name, vtype)
                 var.node = attr.node
             if not cur_type.parent:
@@ -428,8 +428,8 @@ class TypeChecker:
                 self.visit(feature, scope)
                 if not scope.is_defined(feature.id):
                     vtype = cur_type.attributes[count].type
-                    if vtype.conforms_to(SELF_TYPE):
-                        vtype = vtype.fixed_to(self.current_type)
+                    if vtype.name == ST:
+                        vtype = SelfType(self.current_type)
                     var = scope.define_variable(feature.id, vtype)
                     var.node = cur_type.attributes[count].node
                 count += 1
@@ -536,7 +536,7 @@ class TypeChecker:
         try:
             node_type = self.context.get_type(node.type)
             if node_type.name == ST:
-                node_type = node_type.fixed_to(self.current_type)
+                node_type = SelfType(self.current_type)
         except SemanticError as ex:
             self.errors.append((ex.text, node.ttype))
             node_type = ErrorType()
@@ -642,7 +642,7 @@ class TypeChecker:
 
     @visitor.when(MemberCallNode)
     def visit(self, node, scope):
-        obj_type = SELF_TYPE.fixed_to(self.current_type)
+        obj_type = SelfType(self.current_type)
         
         error = False
 
@@ -718,7 +718,7 @@ class TypeChecker:
         try:
             node_type = self.context.get_type(node.type)
             if node.type == ST:
-                node_type = node_type.fixed_to(self.current_type)
+                node_type = SelfType(self.current_type)
         except SemanticError as ex:
             self.errors.append((ex.text, node.ttype))
             node_type = ErrorType()

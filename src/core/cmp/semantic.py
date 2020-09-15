@@ -187,9 +187,6 @@ class SelfType(Type):
         Type.__init__(self, 'SELF_TYPE')
         self.fixed = fixed
 
-    def fixed_to(self, fixed):
-        return SelfType(fixed)
-
     def get_method(self, name):
         return self.fixed.get_method(name)
 
