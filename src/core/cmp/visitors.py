@@ -405,11 +405,14 @@ class TypeChecker:
     def visit(self, node, scope):
         self.current_type = self.context.get_type(node.id)
         
-        scope.define_variable('self', self.current_type)
+        scope.define_variable('self', SELF_TYPE.fixed_to(self.current_type))
         cur_type = self.current_type.parent
         while True:
             for attr in cur_type.attributes:
-                var = scope.define_variable(attr.name, attr.type)
+                vtype = attr.type
+                if vtype.conforms_to(SELF_TYPE):
+                    vtype = vtype.fixed_to(self.current_type)
+                var = scope.define_variable(attr.name, vtype)
                 var.node = attr.node
             if not cur_type.parent:
                 break
@@ -421,7 +424,10 @@ class TypeChecker:
             if isinstance(feature, AttrDeclarationNode):
                 self.visit(feature, scope)
                 if not scope.is_defined(feature.id):
-                    var = scope.define_variable(feature.id, cur_type.attributes[count].type)
+                    vtype = cur_type.attributes[count].type
+                    if vtype.conforms_to(SELF_TYPE):
+                        vtype = vtype.fixed_to(self.current_type)
+                    var = scope.define_variable(feature.id, vtype)
                     var.node = cur_type.attributes[count].node
                 count += 1
             else:
@@ -527,6 +533,8 @@ class TypeChecker:
     def visit(self, node, scope):
         try:
             node_type = self.context.get_type(node.type)
+            if node_type.name == ST:
+                node_type = node_type.fixed_to(self.current_type)
         except SemanticError as ex:
             self.errors.append((ex.text, node.ttype))
             node_type = ErrorType()
@@ -632,7 +640,7 @@ class TypeChecker:
 
     @visitor.when(MemberCallNode)
     def visit(self, node, scope):
-        obj_type = self.current_type
+        obj_type = SELF_TYPE.fixed_to(self.current_type)
         
         error = False
 
@@ -706,8 +714,9 @@ class TypeChecker:
     @visitor.when(NewNode)
     def visit(self, node, scope):
         try:
-            raw_type = self.context.get_type(node.type)
-            node_type = fixed_type(raw_type, self.current_type)
+            node_type = self.context.get_type(node.type)
+            if node.type == ST:
+                node_type = node_type.fixed_to(self.current_type)
         except SemanticError as ex:
             self.errors.append((ex.text, node.ttype))
             node_type = ErrorType()
