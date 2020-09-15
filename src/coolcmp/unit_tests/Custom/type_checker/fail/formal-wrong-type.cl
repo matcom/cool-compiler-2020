@@ -1,5 +1,7 @@
 class Main inherits IO {
-    main(z: Int, b:String, a:Fuk): Int {
+    main() : Int {1};
+    
+    fun(z: Int, b:String, a:Fuk): Int {
         1
     };
 };

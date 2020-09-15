@@ -1,7 +1,7 @@
 from coolcmp.cmp_utils.lexer import Lexer
 from coolcmp.cmp_utils.parser import Parser
 from coolcmp.cmp_utils.semantics import SemanticAnalyzer
-from coolcmp.cmp_utils.my_ast import Class, Type
+from coolcmp.cmp_utils.my_ast import *
 from coolcmp.cmp_utils.errors import LexicographicError
 from coolcmp.cmp_utils.type_checker import TypeChecker
 
@@ -25,6 +25,34 @@ class SourceCode:
             Class(Type('Bool'), can_inherit=False),
             Class(Type('IO'))
         ]
+
+        methods = {
+            'Object': [
+                        Method(Id('abort'), NodeContainer(), Type('Object'), Id('self')),
+                        Method(Id('type_name'), NodeContainer(), Type('String'), String('""')),
+                        Method(Id('copy'), NodeContainer(), Type('SELF_TYPE'), Id('self'))
+                      ],
+
+            'String': [
+                        Method(Id('length'), NodeContainer(), Type('Int'), Int('0')),
+                        Method(Id('concat'), NodeContainer([Formal(Id('s'), Type('String'))]), Type('String'), String('""')),
+                        Method(Id('substr'), NodeContainer([
+                            Formal(Id('i'), Type('Int')),
+                            Formal(Id('l'), Type('Int'))
+                        ]), Type('String'), String('""'))
+                      ],
+
+            'IO':     [
+                        Method(Id('out_string'), NodeContainer([Formal(Id('x'), Type('String'))]), Type('SELF_TYPE'), Id('self')),
+                        Method(Id('out_int'), NodeContainer([Formal(Id('x'), Type('Int'))]), Type('SELF_TYPE'), Id('self')),
+                        Method(Id('in_string'), NodeContainer(), Type('String'), String('""')),
+                        Method(Id('in_int'), NodeContainer(), Type('Int'), Int('0'))
+                      ]
+        }
+
+        for cls in self.native_classes:
+            if cls.type.value in methods:
+                cls.feature_list = methods[cls.type.value]
 
         self.root = self.native_classes[0]  #reference to root of inheritance tree
 

@@ -16,7 +16,8 @@ def test_parser_errors(file):
 
     try:
         root = sc.syntacticAnalysis(Lexer())
-    except CmpErrors:
+    except CmpErrors as err:
+        assert 0, err
         return
     
     PrintAst(root)
