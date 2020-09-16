@@ -479,6 +479,7 @@ class TypeChecker:
             if not scope.is_defined(node.id):
                 raise SemanticError(VARIABLE_NOT_DEFINED % (node.id))
             var = scope.find_variable(node.id)
+            var_type = var.type
             if var.name == 'self':
                 raise SemanticError(SELF_IS_READONLY)
             if not node_type.conforms_to(var.type): 
