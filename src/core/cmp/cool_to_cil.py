@@ -771,7 +771,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             #Call of type <obj>.<id>(<expr>,...,<expr>)
             type_of_node = self.register_local(VariableInfo(f'{node.id}_type', None))
             self.register_instruction(cil.TypeOfNode(vobj, type_of_node))
-            self.register_instruction(cil.DynamicCallNode(type_of_node, node.id, result, node.obj.computed_type))
+            computed_type = node.obj.computed_type
+            if computed_type.name == 'SELF_TYPE':
+                computed_type = computed_type.fixed
+            self.register_instruction(cil.DynamicCallNode(type_of_node, node.id, result, computed_type.name))
 
         scope.ret_expr = result
 
@@ -804,6 +807,19 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.type -> str
         ###############################
         instance = self.define_internal_local()
+        
+        if node.type == 'SELF_TYPE':
+            vtype = self.define_internal_local()
+            self.register_instruction(cil.TypeOfNode(self.vself, vtype))
+            self.register_instruction(cil.AllocateNode(vtype, instance))
+        elif node.type == 'Int' or node.type == 'Bool':
+            self.register_instruction(cil.ArgNode(0))
+        elif node.type == 'String':
+            data_node = [dn for dn in self.dotdata if dn.value == ''][0]
+            vmsg = self.register_local(VariableInfo('msg', None))
+            self.register_instruction(cil.LoadNode(vmsg, data_node))
+            self.register_instruction(cil.ArgNode(vmsg))
+
         self.register_instruction(cil.StaticCallNode(self.to_function_name('init', node.type), instance))
         scope.ret_expr = instance
 
@@ -849,10 +865,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             data_node = [dn for dn in self.dotdata if dn.value == node.lex][0]
         except IndexError:
             data_node = self.register_data(node.lex)
-        vname = self.register_local(VariableInfo('msg', None))
-        self.register_instruction(cil.LoadNode(vname, data_node))
+        vmsg = self.register_local(VariableInfo('msg', None))
         instance = self.define_internal_local()
-        self.register_instruction(cil.ArgNode(vname))
+        self.register_instruction(cil.LoadNode(vmsg, data_node))
+        self.register_instruction(cil.ArgNode(vmsg))
         self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'String'), instance))
         scope.ret_expr = instance
 
