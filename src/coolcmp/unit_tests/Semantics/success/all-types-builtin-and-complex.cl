@@ -4,5 +4,6 @@ class Main inherits Object {
     c: Object;
     d: Bool;
     e: IO;
-    f: Complex;
+
+    main() : Int {1};
 };

@@ -136,6 +136,9 @@ class LetVar(Expr):
         self.type = type
         self.opt_expr_init = opt_expr_init
 
+    def __repr__(self):
+        return f'<LetVar {self.id}>'
+
 class Let(Expr):
     def __init__(self, let_list, body):
         self.let_list = let_list
@@ -145,6 +148,9 @@ class CaseVar(Expr):
     def __init__(self, id, type):
         self.id = id
         self.type = type
+
+    def __repr__(self):
+        return f'<CaseVar {self.id}>'
 
 class CaseBranch(Expr):
     def __init__(self, case_var, expr):

@@ -29,7 +29,7 @@ class TypeChecker:
 
             for formal in ref.formal_list:
                 if formal.type.value == 'SELF_TYPE':
-                    raise SemanticError(formal.type.line, formal.type.col, f'Tried to declare a formal with {formal.type}')
+                    raise SemanticError(formal.type.line, formal.type.col, f'Tried to declare {formal} with {formal.type}')
 
                 formal.set_static_type(self._get_correct_type(formal, u.self_type))  #precalculate static type of formals before doing visitor
 
@@ -158,7 +158,7 @@ class TypeChecker:
             self.visit(expr)
 
             if not self._conforms(expr.static_type, node.static_type):
-                raise TypeError(expr.line, expr.col, f'{expr} with {expr.static_type} doesnt conform to {node} with {node.static_type}')
+                raise TypeError(node.line, node.col, f'{expr} with {expr.static_type} doesnt conform to {node} with {node.static_type}')
 
     def visit_Dispatch(self, node):
         for expr in node.expr_list:
@@ -220,7 +220,7 @@ class TypeChecker:
         self.visit(node.expr)
 
         if not self._conforms(node.expr.static_type, node.id.static_type):
-            raise TypeError(node.expr.line, node.expr.col, f'{node.expr} with {node.expr.static_type} doesnt conform to {node.id} with {node.id.static_type}')
+            raise TypeError(node.line, node.col, f'{node.expr} with {node.expr.static_type} doesnt conform to {node.id} with {node.id.static_type}')
 
         node.set_static_type(node.expr.static_type)
 
@@ -246,12 +246,96 @@ class TypeChecker:
 
         node.set_static_type(self._lca(node.if_branch.static_type, node.else_branch.static_type))
 
+    def visit_While(self, node):
+        self.visit(node.predicate)
+
+        _static_type = node.predicate.static_type
+
+        if _static_type.type.value != 'Bool':
+            raise TypeError(node.predicate.line, node.predicate.col, f'{node} predicate must have {self.cls_refs["Bool"]}, not {_static_type}')
+
+        self.visit(node.body)
+
+        node.set_static_type(self.cls_refs['Object'])
+
+    def visit_LetVar(self, node):
+        if node.id.value == 'self':
+            raise SemanticError(node.id.line, node.id.col, f'Tried to assign to {node.id}')
+
+        if node.opt_expr_init:
+            self.logger.info(f'{node} has expr')
+
+            expr = node.opt_expr_init
+            self.visit(expr)
+
+            self.cur_env.define(node.id.value, node)
+            self.visit(node.id)
+            node.set_static_type(node.id.static_type)
+
+            if not self._conforms(expr.static_type, node.static_type):
+                raise TypeError(node.line, node.col, f'{expr} with {expr.static_type} doesnt conform to {node} with {node.static_type}')
+
+        else:
+            self.cur_env.define(node.id.value, node)
+            self.visit(node.id)
+            node.set_static_type(node.id.static_type)
+
+    def visit_Let(self, node):
+        old_env = self.cur_env
+        self.cur_env = Environment(old_env)
+
+        for let_var in node.let_list:
+            self.visit(let_var)
+
+        self.visit(node.body)
+        node.set_static_type(node.body.static_type)
+        
+        self.cur_env = old_env
+
+    def visit_CaseVar(self, node):
+        if node.id.value == 'self':
+            raise SemanticError(node.id.line, node.id.col, f'Tried to assign to {node.id}')
+
+        if node.type.value == 'SELF_TYPE':
+            raise SemanticError(node.type.line, node.type.col, f'Tried to declare {node} with {node.type}')
+        
+        self.cur_env.define(node.id.value, node)
+        self.visit(node.id)
+        node.set_static_type(node.id.static_type)
+
+    def visit_Case(self, node):
+        self.visit(node.expr)
+
+        mp = {}
+        lca = None
+
+        for branch in node.case_list:
+            if branch.case_var.type.value in mp:
+                raise SemanticError(branch.case_var.type.line, branch.case_var.type.col, f'{branch.case_var.type} appears in other branch of {node}')
+
+            mp[branch.case_var.type.value] = True
+
+            old_env = self.cur_env
+            self.cur_env = Environment(old_env)
+
+            self.visit(branch.case_var)
+            self.visit(branch.expr)
+
+            if not lca:
+                lca = branch.expr.static_type
+
+            else: lca = self._lca(lca, branch.expr.static_type)
+
+            self.cur_env = old_env
+
+        node.set_static_type(lca)
+
     def visit_Plus(self, node):
         self.visit(node.left)
         self.visit(node.right)
 
         if node.left.static_type.type.value != 'Int' or node.right.static_type.type.value != 'Int':
-            raise TypeError(node.line, node.col, f'{node.left} and {node.right} must both have {self.cls_refs["Int"]}')
+            raise TypeError(node.line, node.col, f'{node.left} has {node.left.static_type}; {node.right} has {node.right.static_type}, they both should have {self.cls_refs["Int"]}')
 
         node.set_static_type(self.cls_refs['Int'])
 

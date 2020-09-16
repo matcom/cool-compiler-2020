@@ -130,12 +130,18 @@ class Parser:
 
         p[0] = Attribute(p[1], p[3], p[4])
 
+        if p[4]:
+            p[0].set_tracker(p[4].assign_line, p[4].assign_col)
+
     def p_let_var(self, p):
         """
         let_var : ID COLON TYPE opt_expr_init
         """
 
         p[0] = LetVar(p[1], p[3], p[4])
+
+        if p[4]:
+            p[0].set_tracker(p[4].assign_line, p[4].assign_col)
 
     def p_let_list(self, p):
         "let_list : let_var let_list_helper"
@@ -163,7 +169,7 @@ class Parser:
 
         if len(p) == 3:
             p[0] = p[2]
-            p[0].set_tracker(p.lineno(1), self.find_column(p.lexpos(1)))
+            p[0].assign_line, p[0].assign_col = p.lineno(1), self.find_column(p.lexpos(1))
 
         else: p[0] = None
 
@@ -371,6 +377,6 @@ class Parser:
         ("left", "MUL", "DIV"),
         ("right", "ISVOID"),
         ("right", "INT_COMP"),
-        ("right", "CAST"),
+        ("left", "CAST"),
         ("left", "DOT")
     )

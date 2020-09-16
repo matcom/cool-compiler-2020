@@ -1,11 +1,11 @@
 import pytest
-from .utils import getclfiles, load_file
+from .utils import getclfiles, load_file, compare_errors
 from coolcmp.cmp_utils.source_code import SourceCode
 from coolcmp.cmp_utils.print_ast import PrintAst
 from coolcmp.cmp_utils.errors import CmpErrors
 from coolcmp.cmp_utils.lexer import Lexer
 
-PREFIX_DIR = 'coolcmp/unit_tests/Custom/'
+PREFIX_DIR = 'coolcmp/unit_tests/'
 
 tests = getclfiles('.') + getclfiles('../tests')
 
@@ -16,15 +16,14 @@ def test_parser_errors(file):
 
     try:
         root = sc.syntacticAnalysis(Lexer())
-    except CmpErrors as err:
-        assert 0, err
+    except CmpErrors:
         return
     
     PrintAst(root)
     assert root.class_name() == 'Program'
     return sc, root
 
-tests = getclfiles(PREFIX_DIR + 'semantics/')
+tests = getclfiles(PREFIX_DIR + 'Custom/semantics/')
 
 @pytest.mark.semantics
 @pytest.mark.parametrize('file', tests)
@@ -73,7 +72,7 @@ def test_semantics(file, ans=None):
 
     return sc
 
-tests = getclfiles(PREFIX_DIR + 'type_checker/')
+tests = getclfiles(PREFIX_DIR + 'Custom/type_checker/')
 
 @pytest.mark.type_checker
 @pytest.mark.parametrize('file', tests)
@@ -91,3 +90,24 @@ def test_type_checker(file, ans=None):
         return
 
     assert 'success' == ans
+
+tests = getclfiles(PREFIX_DIR + 'Semantics/')
+
+@pytest.mark.tc_others
+@pytest.mark.parametrize('file', tests)
+def test_tc_others(file, ans=None):
+    if not ans:
+        ans = file.split('/')[-2]
+        assert ans == 'fail' or ans == 'success'
+
+    sc = test_semantics(file, 'success')
+
+    try:
+        sc.runTypeChecker()
+    except CmpErrors as err:
+        assert 'fail' == ans, err
+        return
+
+    assert 'success' == ans
+    
+    assert ans == 'success'
