@@ -15,6 +15,7 @@ INCOMPATIBLE_TYPES = 'Cannot convert "%s" into "%s".'
 VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined in "%s".'
 INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
 WRONG_TYPE = 'Type %s expected'
+INVALID_SELF_TYPE = 'Invalid use of SELF_TYPE'
 
 BUILTIN_TYPES = ['Object', 'Int', 'String', 'Bool', 'IO']
 
@@ -232,11 +233,15 @@ class TypeChecker:
 
     @visitor.when(AST.FormalParameter)
     def visit(self, node, scope):
-        try:
-            node_type = self.context.get_type(node.type)
-        except SemanticError as ex:
-            self.errors.append(ex.text)
+        if node.type == 'SELF_TYPE':
+            self.errors.append(INVALID_SELF_TYPE)
             node_type = ErrorType()
+        else:
+            try:
+                node_type = self.context.get_type(node.type)
+            except SemanticError as ex:
+                self.errors.append(ex.text)
+                node_type = ErrorType()
 
         if not scope.is_local(node.name):
             scope.define_variable(node.name, node_type)
@@ -486,7 +491,6 @@ class TypeChecker:
 
         node.computed_type = node_type
 
-
     @visitor.when(AST.LogicBinOp)
     def visit(self, node, scope):
         node_type = self.context.get_type('Bool')
@@ -546,7 +550,7 @@ class TypeChecker:
         if left_type.name in ['Int', 'Bool', 'String'] and left_type.name != right_type.name:
             self.errors.append(WRONG_TYPE.replace('%s', left_type.name, 1))
             node_type = ErrorType()
-        
+
         node.computed_type = node_type
 
     @visitor.when(AST.Object)
