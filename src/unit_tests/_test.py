@@ -1,11 +1,11 @@
 import pytest
-from .utils import getclfiles, load_file, compare_errors
-from coolcmp.cmp_utils.source_code import SourceCode
-from coolcmp.cmp_utils.print_ast import PrintAst
-from coolcmp.cmp_utils.errors import CmpErrors
-from coolcmp.cmp_utils.lexer import Lexer
+from .utils import getclfiles, load_file
+from coolcmp.cmp.source_code import SourceCode
+from coolcmp.cmp.print_ast import PrintAst
+from coolcmp.cmp.errors import CmpErrors
+from coolcmp.cmp.lexer import Lexer
 
-PREFIX_DIR = 'coolcmp/unit_tests/'
+PREFIX_DIR = 'unit_tests/'
 
 tests = getclfiles('.') + getclfiles('../tests')
 

@@ -1,6 +1,4 @@
-"""
-Utility to generate parser file given some grammar.txt file
-"""
+#Utility to generate parser file given some grammar.txt file
 
 import re
 

@@ -1,7 +1,7 @@
-from coolcmp.cmp_utils.errors import *
-from coolcmp.cmp_utils.environment import Environment
-from coolcmp.cmp_utils.my_ast import Id, Type, Attribute, Class, SELF_TYPE
-from coolcmp.cmp_utils.utils import init_logger
+from coolcmp.cmp.errors import *
+from coolcmp.cmp.environment import Environment
+from coolcmp.cmp.my_ast import Id, Type, Attribute, Class, SELF_TYPE
+from coolcmp.cmp.utils import init_logger
 
 class TypeChecker:
     def __init__(self, root, cls_refs):

@@ -1,9 +1,9 @@
-from coolcmp.cmp_utils.lexer import Lexer
-from coolcmp.cmp_utils.parser import Parser
-from coolcmp.cmp_utils.semantics import SemanticAnalyzer
-from coolcmp.cmp_utils.my_ast import *
-from coolcmp.cmp_utils.errors import LexicographicError
-from coolcmp.cmp_utils.type_checker import TypeChecker
+from coolcmp.cmp.lexer import Lexer
+from coolcmp.cmp.parser import Parser
+from coolcmp.cmp.semantics import SemanticAnalyzer
+from coolcmp.cmp.my_ast import *
+from coolcmp.cmp.errors import LexicographicError
+from coolcmp.cmp.type_checker import TypeChecker
 
 class SourceCode:
     def __init__(self, code, tab_size=4):

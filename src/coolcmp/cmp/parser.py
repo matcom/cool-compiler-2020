@@ -1,7 +1,7 @@
 import ply.yacc as yacc
-from coolcmp.cmp_utils.lexer import Lexer
-from coolcmp.cmp_utils.my_ast import *
-from coolcmp.cmp_utils.errors import SyntacticError
+from coolcmp.cmp.lexer import Lexer
+from coolcmp.cmp.my_ast import *
+from coolcmp.cmp.errors import SyntacticError
 import sys
 
 class Parser:

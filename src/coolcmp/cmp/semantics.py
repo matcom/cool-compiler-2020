@@ -1,6 +1,6 @@
-from coolcmp.cmp_utils.errors import *
-from coolcmp.cmp_utils.my_ast import *
-from coolcmp.cmp_utils.environment import Environment
+from coolcmp.cmp.errors import *
+from coolcmp.cmp.my_ast import *
+from coolcmp.cmp.environment import Environment
 
 class SemanticAnalyzer:
     def __init__(self, ast_root):

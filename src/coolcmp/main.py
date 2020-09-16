@@ -1,9 +1,9 @@
 import sys
 from argparse import ArgumentParser
-from coolcmp.cmp_utils.lexer import Lexer
-from coolcmp.cmp_utils.parser import Parser
-from coolcmp.cmp_utils.errors import *
-from coolcmp.cmp_utils.source_code import SourceCode
+from coolcmp.cmp.lexer import Lexer
+from coolcmp.cmp.parser import Parser
+from coolcmp.cmp.errors import *
+from coolcmp.cmp.source_code import SourceCode
 
 args = ArgumentParser(description="Cool compiler programmed in Python.")
 args.add_argument("--ast", dest="ast", action="store_true", help="Print AST.")
@@ -21,7 +21,7 @@ try:
     root = source_code.syntacticAnalysis(lexer)
 
     if args.ast:
-        from coolcmp.cmp_utils.print_ast import PrintAst
+        from coolcmp.cmp.print_ast import PrintAst
         PrintAst(root)
 
     source_code.semanticAnalysis(root)
