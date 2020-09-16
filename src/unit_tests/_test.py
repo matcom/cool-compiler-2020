@@ -1,5 +1,5 @@
 import pytest
-from .utils import getclfiles, load_file
+from .utils import getclfiles, load_file, run_test
 from coolcmp.cmp.source_code import SourceCode
 from coolcmp.cmp.print_ast import PrintAst
 from coolcmp.cmp.errors import CmpErrors
@@ -77,37 +77,11 @@ tests = getclfiles(PREFIX_DIR + 'Custom/type_checker/')
 @pytest.mark.type_checker
 @pytest.mark.parametrize('file', tests)
 def test_type_checker(file, ans=None):
-    if not ans:
-        ans = file.split('/')[-2]
-        assert ans == 'fail' or ans == 'success'
-
-    sc = test_semantics(file, 'success')
-
-    try:
-        sc.runTypeChecker()
-    except CmpErrors as err:
-        assert 'fail' == ans, err
-        return
-
-    assert 'success' == ans
+    run_test(file)
 
 tests = getclfiles(PREFIX_DIR + 'Semantics/')
 
 @pytest.mark.tc_others
 @pytest.mark.parametrize('file', tests)
-def test_tc_others(file, ans=None):
-    if not ans:
-        ans = file.split('/')[-2]
-        assert ans == 'fail' or ans == 'success'
-
-    sc = test_semantics(file, 'success')
-
-    try:
-        sc.runTypeChecker()
-    except CmpErrors as err:
-        assert 'fail' == ans, err
-        return
-
-    assert 'success' == ans
-    
-    assert ans == 'success'
+def test_tc_others(file):
+    run_test(file)
