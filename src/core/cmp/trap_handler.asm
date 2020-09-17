@@ -13,9 +13,17 @@ neg_header_size = 0-header_size
 free_list = 0
 used_list = header_size
 state_size = 4
+stack_base = -4
 init_alloc_size = (header_size*2) +  state_size
+object_mark = -1
 
 
+    .globl main
+main:
+    jal mem_manager_init
+
+    li $v0 10
+    syscall
     
 
 #####################################################################################################
@@ -52,10 +60,12 @@ mem_manager_init:
     li $a1 alloc_size
     jal extend_heap
 
-    addi $a0 $a0 header_size
+    addiu $a0 $a0 header_size
     sw $zero header_size_slot($a0)      #The used-list start with a block without space, just header, that will always be there.
     sw $zero header_next_slot($a0)
     sw $zero header_reachable_slot($a0)
+
+    sw $sp stack_base($gp)
     
     lw $v0 0($sp)
     lw $a0 4($sp)
@@ -414,6 +424,79 @@ malloc_first_valid_block:
     move $v1 $t1                        # selected block size    = actual block size
     move $t3 $t2 
     j malloc_loop
+
+
+
+gc_collect:
+    addiu $sp $sp -16
+    sw $t0 0($sp)
+    sw $t1 4($sp)
+    sw $t2 8($sp)
+    sw $t3 12($sp)
+
+    li $t3 -1
+    addiu $t0 $sp 16
+    lw $t1 stack_base($gp)
+
+gc_collect_loop:
+    addiu $t0 $t0 4
+    beq $t0 $t1 gc_collect_loop_end
+    j gc_collect_check_if_is_object
+
+gc_collect_check_if_is_object:
+    lw $t2 0($t0)
+    blt $t2 $zero j gc_collect_loop
+    bge $t2 type_number($zero) j gc_collect_loop
+    lw $t2 4($t0)
+    addiu $t2 $t2 -1
+    ssl $t2 $t2 2
+    addu $t2 $t0 $t2
+    lw $t2 0($t2)
+    bne $t2 object_mark($zero) gc_collect_loop
+
+    sw $t3 header_reachable_slot($t2)
+    
+    j gc_collect_loop
+
+gc_collect_end:
+    lw $t0 0($sp)
+    lw $t1 4($sp)
+    lw $t2 8($sp)
+    lw $t3 12($sp)
+
+    addiu $sp $sp 16
+
+    jr $ra
+
+
+
+$a0 address from 
+$a1 address to
+$a2 size
+copy:
+    addiu $sp $sp -16
+    sw $a0 0($sp)
+    sw $a1 4($sp)
+    sw $a2 8($sp)
+    sw $t0 12($sp)
+
+copy_loop:
+    beq $a2 $zero copy_end
+    lw $t0 0($a0)
+    sw $t0 0($a1)
+    addiu $a0 $a0 4
+    addiu $a1 $a1 4
+    addi $a2 $a2 -4
+    j copy_loop 
+
+copy_end:
+    lw $a0 0($sp)
+    lw $a1 4($sp)
+    lw $a2 8($sp)
+    lw $t0 12($sp)
+    addiu $sp $sp 16
+
+    jr $ra
 
 
 
