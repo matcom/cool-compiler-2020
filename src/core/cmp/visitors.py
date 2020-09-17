@@ -544,10 +544,8 @@ class TypeChecker:
         node.attr_type = node_type
         node.scope = None
         
-        if not scope.is_local(node.id):
-            var = scope.define_variable(node.id, node_type)
-            var.node = node
-        else:
+        correct_declaration = not scope.is_local(node.id)
+        if not correct_declaration:
             self.errors.append((LOCAL_ALREADY_DEFINED % (node.id, self.current_method), node.tid))
         
         if node.expr:
@@ -557,6 +555,10 @@ class TypeChecker:
 
             if not expr_type.conforms_to(node_type): 
                 self.errors.append((INCOMPATIBLE_TYPES % (expr_type.name, node_type.name), node.arrow))
+
+        if correct_declaration:
+            var = scope.define_variable(node.id, node_type)
+            var.node = node
         
     @visitor.when(IfThenElseNode)
     def visit(self, node, scope):
