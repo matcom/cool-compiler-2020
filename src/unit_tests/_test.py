@@ -11,7 +11,7 @@ tests = getclfiles('.') + getclfiles('../tests')
 
 @pytest.mark.print_ast
 @pytest.mark.parametrize('file', tests)
-def test_parser_errors(file):
+def test_print_ast(file):
     sc = SourceCode(load_file(file))
 
     try:
@@ -32,7 +32,7 @@ def test_semantics(file, ans=None):
         ans = file.split('/')[-2]
         assert ans == 'fail' or ans == 'success'
 
-    sc, root = test_parser_errors(file)
+    sc, root = test_print_ast(file)
 
     try:
         sc.semanticAnalysis(root)
