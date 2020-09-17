@@ -618,6 +618,7 @@ class TypeChecker:
                     raise SemanticError(INCOMPATIBLE_TYPES % (obj_type.name, node.type))
                 obj_type = cast_type
             
+            assert obj_type
             token = node.tid
             obj_method = obj_type.get_method(node.id)
             node.obj_method = obj_method
