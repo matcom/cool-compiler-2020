@@ -409,7 +409,7 @@ class TypeChecker:
         self.current_type = self.context.get_type(node.id)
         
         scope.define_variable('self', SelfType(self.current_type))
-        cur_type = self.current_type.parent
+        cur_type = self.current_type
         while True:
             for attr in cur_type.attributes:
                 vtype = attr.type
