@@ -16,6 +16,7 @@ state_size = 4
 stack_base = -4
 init_alloc_size = (header_size*2) +  state_size
 object_mark = -1
+meta_data_object_size = 4   #in words
 
 
     .globl main
@@ -440,7 +441,7 @@ gc_collect:
 
 gc_collect_loop:
     addiu $t0 $t0 4
-    beq $t0 $t1 gc_collect_loop_end
+    beq $t0 $t1 gc_collect_dfs
     j gc_collect_check_if_is_object
 
 gc_collect_check_if_is_object:
@@ -458,6 +459,19 @@ gc_collect_check_if_is_object:
     
     j gc_collect_loop
 
+gc_collect_dfs:
+    addiu $t1 $gp used_list
+
+gc_collect_outer_loop:
+    lw $t1 header_next_slot($t1)
+    lw $t2 header_reachable_slot($t1)
+    beq $t2 $t3 gc_collect_expand
+
+gc_collect_expand:
+    lw $t4 4($t1)
+    addi $t4 $t4 -3
+    addiu $t5 $t1 8
+
 gc_collect_end:
     lw $t0 0($sp)
     lw $t1 4($sp)
@@ -467,6 +481,25 @@ gc_collect_end:
     addiu $sp $sp 16
 
     jr $ra
+
+
+gc_collect_recursive_expand:
+    addiu $sp $sp -12
+    sw $a0 0($sp)
+    sw $t0 4($sp)
+    sw $t1 8($sp)
+
+    move $t0 $a0
+
+
+    lw $t1 4($a0)
+    addi $t1 $t1 -3
+
+gc_collect
+
+
+  
+
 
 
 
@@ -500,7 +533,62 @@ copy_end:
 
 
 
+# $a0 address to check
+check_if_is_object:
+    addiu $sp $sp -20
+    sw $t0 0($sp)
+    sw $t1 4($sp)
+    sw $t2 8($sp)
+    sw $t3 12($sp)
+    sw $a0 16($sp)
 
+    move $t0 $a0
+
+    li $v0 9
+    move $a0 $zero
+    syscall
+
+    addiu $t1 $v0 -4    #Last word of heap
+
+    blt $t0 $gp check_if_is_object_not_object
+    bgt $t0 $t1 check_if_is_object_not_object
+    lw $t2 0($t0)
+    blt $t2 $zero check_if_is_object_not_object
+    bgt $t2 type_number check_if_is_object_not_object
+
+    addiu $t0 $t0 4
+    blt $t0 $gp check_if_is_object_not_object
+    bgt $t0 $t1 check_if_is_object_not_object
+    lw $t2 0($t0)   #Store size in $t2
+
+    addiu $t0 $t0 8
+    
+    li $t3 meta_data_object_size
+    sub $t2 $t2 $t3 
+    sll $t2 $t2 2
+
+    addu $t0 $t0 $t2
+    blt $t0 $gp check_if_is_object_not_object
+    bgt $t0 $t1 check_if_is_object_not_object
+    lw $t2 0($t0)
+    bnq $t2 object_mark check_if_is_object_not_object
+    li $v0 1
+    j check_if_is_object_end
+    
+    
+check_if_is_object_not_object:
+    li $v0 0
+
+
+check_if_is_object_end:
+    lw $t0 0($sp)
+    lw $t1 4($sp)
+    lw $t2 8($sp)
+    lw $t3 12($sp)
+    lw $a0 16($sp)
+    addiu $sp $sp 20
+
+    jr $ra
 
 
 
