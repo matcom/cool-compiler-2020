@@ -868,7 +868,8 @@ class InferenceVisitor(TypeChecker):
 
     @visitor.when(Node)
     def visit(self, node, scope):
-        super().visit(node, scope)
+        if not issubclass(node.__class__, BinaryNode):
+            super().visit(node, scope)
 
     @visitor.when(ProgramNode)
     def visit(self, node, scope=None):
