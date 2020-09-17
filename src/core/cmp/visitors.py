@@ -12,9 +12,10 @@ LOCAL_ALREADY_DEFINED = 'Variable "%s" is already defined in method "%s".'
 INCOMPATIBLE_TYPES = 'Cannot convert "%s" into "%s".'
 VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined.'
 INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
-CONDITION_NOT_BOOL = '"%s" conditions return type must be Bool not "%s"'
+CONDITION_NOT_BOOL = '"%s" conditions return type must be Bool not "%s".'
 INVALID_PARAMETER = 'Formal parameter "%s" cannot have type SELF_TYPE.'
 INVALID_BRANCH = 'Identifier "%s" declared with type SELF_TYPE in case branch.'
+DUPLICATED_BRANCH = 'Duplicate branch "%s" in case statement.'
 
 ST, AT = ['SELF_TYPE', 'AUTO_TYPE']
 sealed = ['Int', 'String', 'Bool', 'SELF_TYPE', 'AUTO_TYPE']
@@ -496,7 +497,11 @@ class TypeChecker:
         self.visit(node.expr, scope)
         
         types_list = []
+        branches = set()
         for case in node.branches:
+            if case.type in branches:
+                self.errors.append((DUPLICATED_BRANCH % (case.type), case.ttype))
+            branches.add(case.type)
             self.visit(case, scope.create_child())
             types_list.append(case.computed_type)
 
