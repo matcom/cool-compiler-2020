@@ -261,6 +261,20 @@ def exit_program():
     instructions.append(SyscallNode())
     return instructions
 
+def create_object(reg1, reg2, reg3):
+    instructions = []
+    instructions.append(ShiftLeftLogicalNode(reg1, reg1, 2))
+    instructions.append(LoadAddressNode(reg2, PROTO_TABLE_LABEL))
+    instructions.append(AddUnsignedNode(reg2, reg2, reg1))
+    instructions.append(LoadWordNode(ARG_REGISTERS[0], RegisterRelativeLocation(reg2, 4)))
+    instructions.append(JumpAndLinkNode("malloc"))
+    instructions.append(MoveNode(ARG_REGISTERS[2], ARG_REGISTERS[0]))
+    instructions.append(MoveNode(ARG_REGISTERS[0], reg2))
+    instructions.append(MoveNode(ARG_REGISTERS[1], V0_REG))
+    instructions.append(JumpAndLinkNode("copy"))
+    instructions.append(MoveNode(V0_REG, reg3))
+    return instructions
+
 
 class PrintVisitor:
     
