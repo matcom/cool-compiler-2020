@@ -184,7 +184,7 @@ class MIPSType:
 
     @property
     def size(self):
-        return (len(self.attributes) * ATTR_SIZE) + INSTANCE_METADATA_SIZE
+        return len(self.attributes) + INSTANCE_METADATA_SIZE
     
     @property
     def label(self):

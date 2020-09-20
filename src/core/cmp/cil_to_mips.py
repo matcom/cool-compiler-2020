@@ -183,6 +183,8 @@ class CILToMIPSVisitor:
         try:
             code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
         except Exception as e:
+            if node.name == "entry":
+                print(e)
             print(node.name)
             
             
@@ -284,7 +286,7 @@ class CILToMIPSVisitor:
             tp = self._types[node.type].index
             
         instructions.append(mips.LoadInmediateNode(reg1, tp))
-        instrucctions.extend(mips.create_object(reg1, reg2))
+        instructions.extend(mips.create_object(reg1, reg2))
         
         location = self.get_var_location(node.dest)
         instructions.append(mips.StoreWordNode(mips.V0_REG, location))
