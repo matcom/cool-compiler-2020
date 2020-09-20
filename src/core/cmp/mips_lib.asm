@@ -1,6 +1,5 @@
     .text
 
-type_number= 2
 header_size = 12 #in bytes
 header_size_slot = 0
 header_next_slot = 4
@@ -676,7 +675,9 @@ check_if_is_object:
     bgt $t0 $t1 check_if_is_object_not_object
     lw $t2 0($t0)
     blt $t2 $zero check_if_is_object_not_object
-    bgt $t2 type_number check_if_is_object_not_object
+    la $t3 type_number
+    lw $t3 0($t3)
+    bge $t2 $t3 check_if_is_object_not_object
 
     addiu $t0 $t0 4
     blt $t0 $gp check_if_is_object_not_object
