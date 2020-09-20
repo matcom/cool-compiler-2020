@@ -32,8 +32,6 @@ class ProgramNode(Node):
     def __init__(self, data, types, functions):
         self._data = data
         self._types = types
-        for i, t in enumerate(self._types):
-            t.index = i
         self._functions = functions
 
     @property
@@ -176,11 +174,12 @@ class ShiftLeftLogicalNode(InstructionNode):
 
 
 class MIPSType:
-    def __init__(self, label, name_addr, attributes, methods):
+    def __init__(self, label, name_addr, attributes, methods, index):
         self._label = label
         self._name = name_addr
         self._attributes = attributes
         self._methods = methods
+        self._index = index
         
 
     @property
@@ -202,6 +201,10 @@ class MIPSType:
     @property
     def attributes(self):
         return self._attributes
+    
+    @property
+    def index(self):
+        return self._index
    
 
 
@@ -261,8 +264,9 @@ def exit_program():
     instructions.append(SyscallNode())
     return instructions
 
-def create_object(reg1, reg2, reg3):
+def create_object(reg1, reg2):
     instructions = []
+
     instructions.append(ShiftLeftLogicalNode(reg1, reg1, 2))
     instructions.append(LoadAddressNode(reg2, PROTO_TABLE_LABEL))
     instructions.append(AddUnsignedNode(reg2, reg2, reg1))
@@ -272,7 +276,7 @@ def create_object(reg1, reg2, reg3):
     instructions.append(MoveNode(ARG_REGISTERS[0], reg2))
     instructions.append(MoveNode(ARG_REGISTERS[1], V0_REG))
     instructions.append(JumpAndLinkNode("copy"))
-    instructions.append(MoveNode(V0_REG, reg3))
+    
     return instructions
 
 
@@ -383,7 +387,7 @@ class PrintVisitor:
     
     @visitor.when(AddInmediateUnsignedNode)
     def visit(self, node):
-        return f"addiu {self.visit(node.dest)} {self.visit(node.src)} {self.visit(node.value)}""
+        return f"addiu {self.visit(node.dest)} {self.visit(node.src)} {self.visit(node.value)}"
 
     @visitor.when(AddUnsignedNode)
     def visit(self, node):

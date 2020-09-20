@@ -148,7 +148,7 @@ class CILToMIPSVisitor:
 
         type_label = self.generate_type_label()
         methods = {key: self._name_func_map[value] for key, value in node.methods}
-        new_type = mips.MIPSType(type_label, name_label, node.attributes, methods)
+        new_type = mips.MIPSType(type_label, name_label, node.attributes, methods, len(self._types))
 
         self._types[node.name] = new_type
     
@@ -184,6 +184,7 @@ class CILToMIPSVisitor:
             code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
         except Exception as e:
             print(node.name)
+            
             
         final_instructions = []
         
@@ -270,19 +271,21 @@ class CILToMIPSVisitor:
     
     @visitor.when(cil.AllocateNode)
     def visit(self, node):
-        #This have to change after GC be implemented
-        #TODO Save $a0 register if is beign used
-        object_size = self._types[node.type].size
-        object_label = self._types[node.type].label
-
+        #TODO Save $a0, $a1 and $a2 registers if are beign used
         instructions = []
-        instructions.extend(mips.alloc_memory(object_size))
 
-        reg = self.get_free_reg()
-        instructions.append(mips.LoadAddressNode(reg, object_label))
-        instructions.append(mips.StoreWordNode(reg, mips.RegisterRelativeLocation(mips.V0_REG, 0)))
-        self.free_reg(reg)
-
+        reg1 = self.get_free_reg()
+        reg2 = self.get_free_reg()
+                
+        tp = 0
+        if node.type.isnumeric():
+            tp = node.type
+        else:
+            tp = self._types[node.type].index
+            
+        instructions.append(mips.LoadInmediateNode(reg1, tp))
+        instrucctions.extend(mips.create_object(reg1, reg2))
+        
         location = self.get_var_location(node.dest)
         instructions.append(mips.StoreWordNode(mips.V0_REG, location))
 

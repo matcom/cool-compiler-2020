@@ -3,12 +3,16 @@ data_1: .asciiz "Object"
 data_2: .asciiz "IO"
 data_3: .asciiz "String"
 data_4: .asciiz "Int"
-data_5: .asciiz "Main"
-data_6: .asciiz "A"
+data_5: .asciiz "A"
+data_6: .asciiz "Main"
 data_7: .asciiz "Program aborted"
-data_8: .asciiz "Hello World!"
+data_8: .asciiz "Dispatch on void"
+data_9: .asciiz "Case on void"
+data_10: .asciiz "Execution of a case statement without a matching branch"
+data_11: .asciiz "Division by zero"
+data_12: .asciiz "Substring out of range"
 
-types_names_table:
+type_name_table:
 	.word	data_1
 	.word	data_2
 	.word	data_3
@@ -76,30 +80,30 @@ type_5_dispatch:
 	.word	 L_2
 	.word	 L_3
 	.word	 L_4
-	.word	 L_6
-	.word	 L_7
-	.word	 L_8
-	.word	 L_9
-	.word	 L_15
 
 type_5_proto:
 	.word	4
-	.word	4
+	.word	16
 	.word	type_5_dispatch
+	.word	0
+	.word	0
+	.word	0
 	.word	-1
 
 type_6_dispatch:
 	.word	 L_2
 	.word	 L_3
 	.word	 L_4
+	.word	 L_6
+	.word	 L_7
+	.word	 L_8
+	.word	 L_9
+	.word	 L_16
 
 type_6_proto:
 	.word	5
-	.word	16
+	.word	4
 	.word	type_6_dispatch
-	.word	0
-	.word	0
-	.word	0
 	.word	-1
 	.text
 	.globl main
@@ -108,19 +112,6 @@ main:
 	sw $fp, 0($sp)
 	addi $fp, $sp, 4
 	addi $sp, $sp, -8
-	li $v0, 9
-	li $a0, 4
-	syscall
-	la $t0, type_5
-	sw $t0, 0($v0)
-	sw $v0, -12($fp)
-	lw $t0, -12($fp)
-	addi $sp, $sp, -4
-	sw $t0, 0($sp)
-	jal L_15
-	sw $v0, -8($fp)
-	addi $sp, $sp, 4
-	li $v0, 0
 	addi $sp, $sp, 8
 	lw $fp, 0($sp)
 	addi $sp, $sp, 4
@@ -131,21 +122,6 @@ L_1:
 	sw $fp, 0($sp)
 	addi $fp, $sp, 4
 	addi $sp, $sp, -4
-	addi $sp, $sp, -4
-	sw $a0, 0($sp)
-	addi $sp, $sp, -4
-	sw $t0, 0($sp)
-	li $v0, 9
-	li $a0, 4
-	syscall
-	la $t0, type_1
-	sw $t0, 0($v0)
-	sw $v0, -8($fp)
-	lw $v0, -8($fp)
-	lw $t0, 0($sp)
-	addi $sp, $sp, 4
-	lw $a0, 0($sp)
-	addi $sp, $sp, 4
 	addi $sp, $sp, 4
 	lw $fp, 0($sp)
 	addi $sp, $sp, 4
@@ -167,19 +143,25 @@ L_3:
 	addi $sp, $sp, -4
 	sw $ra, 0($sp)
 	addi $sp, $sp, -4
-	sw $t1, 0($sp)
-	lw $t1, 0($fp)
-	lw $t1, 0($t1)
-	lw $t1, 0($t1)
-	sw $t1, -8($fp)
-	lw $t1, -8($fp)
+	sw $t5, 0($sp)
 	addi $sp, $sp, -4
-	sw $t1, 0($sp)
+	sw $t6, 0($sp)
+	lw $t5, 0($fp)
+	lw $t5, 0($t5)
+	sll $t5 $t5 2
+	la $t6, type_name_table
+	addu $t5 $t5 $t6
+	sw $t5, -8($fp)
+	lw $t5, -8($fp)
+	addi $sp, $sp, -4
+	sw $t5, 0($sp)
 	jal L_10
 	sw $v0, -12($fp)
 	addi $sp, $sp, 4
 	lw $v0, -12($fp)
-	lw $t1, 0($sp)
+	lw $t6, 0($sp)
+	addi $sp, $sp, 4
+	lw $t5, 0($sp)
 	addi $sp, $sp, 4
 	lw $ra, 0($sp)
 	addi $sp, $sp, 4
@@ -201,21 +183,6 @@ L_5:
 	sw $fp, 0($sp)
 	addi $fp, $sp, 4
 	addi $sp, $sp, -4
-	addi $sp, $sp, -4
-	sw $a0, 0($sp)
-	addi $sp, $sp, -4
-	sw $t1, 0($sp)
-	li $v0, 9
-	li $a0, 4
-	syscall
-	la $t1, type_1
-	sw $t1, 0($v0)
-	sw $v0, -8($fp)
-	lw $v0, -8($fp)
-	lw $t1, 0($sp)
-	addi $sp, $sp, 4
-	lw $a0, 0($sp)
-	addi $sp, $sp, 4
 	addi $sp, $sp, 4
 	lw $fp, 0($sp)
 	addi $sp, $sp, 4
@@ -225,21 +192,6 @@ L_6:
 	sw $fp, 0($sp)
 	addi $fp, $sp, 4
 	addi $sp, $sp, -4
-	addi $sp, $sp, -4
-	sw $a0, 0($sp)
-	addi $sp, $sp, -4
-	sw $t1, 0($sp)
-	lw $t1, 0($fp)
-	lw $t1, 4($t1)
-	sw $t1, -8($fp)
-	li $v0, 4
-	lw $a0, -8($fp)
-	syscall
-	lw $v0, 4($fp)
-	lw $t1, 0($sp)
-	addi $sp, $sp, 4
-	lw $a0, 0($sp)
-	addi $sp, $sp, 4
 	addi $sp, $sp, 4
 	lw $fp, 0($sp)
 	addi $sp, $sp, 4
@@ -249,21 +201,6 @@ L_7:
 	sw $fp, 0($sp)
 	addi $fp, $sp, 4
 	addi $sp, $sp, -4
-	addi $sp, $sp, -4
-	sw $a0, 0($sp)
-	addi $sp, $sp, -4
-	sw $t1, 0($sp)
-	lw $t1, 0($fp)
-	lw $t1, 4($t1)
-	sw $t1, -8($fp)
-	li $v0, 1
-	lw $a0, -8($fp)
-	syscall
-	lw $v0, 4($fp)
-	lw $t1, 0($sp)
-	addi $sp, $sp, 4
-	lw $a0, 0($sp)
-	addi $sp, $sp, 4
 	addi $sp, $sp, 4
 	lw $fp, 0($sp)
 	addi $sp, $sp, 4
@@ -290,30 +227,8 @@ L_10:
 	addi $sp, $sp, -4
 	sw $fp, 0($sp)
 	addi $fp, $sp, 4
-	addi $sp, $sp, -4
-	addi $sp, $sp, -4
-	sw $a0, 0($sp)
-	addi $sp, $sp, -4
-	sw $t2, 0($sp)
-	addi $sp, $sp, -4
-	sw $t1, 0($sp)
-	li $v0, 9
-	li $a0, 8
-	syscall
-	la $t1, type_3
-	sw $t1, 0($v0)
-	sw $v0, -8($fp)
-	lw $t2, -8($fp)
-	lw $t1, 0($fp)
-	sw $t1, 4($t2)
-	lw $v0, -8($fp)
-	lw $t1, 0($sp)
-	addi $sp, $sp, 4
-	lw $t2, 0($sp)
-	addi $sp, $sp, 4
-	lw $a0, 0($sp)
-	addi $sp, $sp, 4
-	addi $sp, $sp, 4
+	addi $sp, $sp, -12
+	addi $sp, $sp, 12
 	lw $fp, 0($sp)
 	addi $sp, $sp, 4
 	jr $ra
@@ -330,8 +245,8 @@ L_12:
 	addi $sp, $sp, -4
 	sw $fp, 0($sp)
 	addi $fp, $sp, 4
-	addi $sp, $sp, -4
-	addi $sp, $sp, 4
+	addi $sp, $sp, -8
+	addi $sp, $sp, 8
 	lw $fp, 0($sp)
 	addi $sp, $sp, 4
 	jr $ra
@@ -339,8 +254,8 @@ L_13:
 	addi $sp, $sp, -4
 	sw $fp, 0($sp)
 	addi $fp, $sp, 4
-	addi $sp, $sp, -4
-	addi $sp, $sp, 4
+	addi $sp, $sp, -28
+	addi $sp, $sp, 28
 	lw $fp, 0($sp)
 	addi $sp, $sp, 4
 	jr $ra
@@ -349,28 +264,6 @@ L_14:
 	sw $fp, 0($sp)
 	addi $fp, $sp, 4
 	addi $sp, $sp, -4
-	addi $sp, $sp, -4
-	sw $a0, 0($sp)
-	addi $sp, $sp, -4
-	sw $t2, 0($sp)
-	addi $sp, $sp, -4
-	sw $t1, 0($sp)
-	li $v0, 9
-	li $a0, 8
-	syscall
-	la $t1, type_4
-	sw $t1, 0($v0)
-	sw $v0, -8($fp)
-	lw $t2, -8($fp)
-	lw $t1, 0($fp)
-	sw $t1, 4($t2)
-	lw $v0, -8($fp)
-	lw $t1, 0($sp)
-	addi $sp, $sp, 4
-	lw $t2, 0($sp)
-	addi $sp, $sp, 4
-	lw $a0, 0($sp)
-	addi $sp, $sp, 4
 	addi $sp, $sp, 4
 	lw $fp, 0($sp)
 	addi $sp, $sp, 4
@@ -379,36 +272,8 @@ L_15:
 	addi $sp, $sp, -4
 	sw $fp, 0($sp)
 	addi $fp, $sp, 4
-	addi $sp, $sp, -16
 	addi $sp, $sp, -4
-	sw $ra, 0($sp)
-	addi $sp, $sp, -4
-	sw $t1, 0($sp)
-	la $t1, data_8 + 0
-	sw $t1, -12($fp)
-	lw $t1, -12($fp)
-	addi $sp, $sp, -4
-	sw $t1, 0($sp)
-	jal L_10
-	sw $v0, -16($fp)
 	addi $sp, $sp, 4
-	lw $t1, -16($fp)
-	sw $t1, -8($fp)
-	lw $t1, 0($fp)
-	addi $sp, $sp, -4
-	sw $t1, 0($sp)
-	lw $t1, -8($fp)
-	addi $sp, $sp, -4
-	sw $t1, 0($sp)
-	jal L_6
-	sw $v0, -20($fp)
-	addi $sp, $sp, 8
-	lw $v0, -20($fp)
-	lw $t1, 0($sp)
-	addi $sp, $sp, 4
-	lw $ra, 0($sp)
-	addi $sp, $sp, 4
-	addi $sp, $sp, 16
 	lw $fp, 0($sp)
 	addi $sp, $sp, 4
 	jr $ra
@@ -416,23 +281,8 @@ L_16:
 	addi $sp, $sp, -4
 	sw $fp, 0($sp)
 	addi $fp, $sp, 4
-	addi $sp, $sp, -4
-	addi $sp, $sp, -4
-	sw $a0, 0($sp)
-	addi $sp, $sp, -4
-	sw $t1, 0($sp)
-	li $v0, 9
-	li $a0, 4
-	syscall
-	la $t1, type_5
-	sw $t1, 0($v0)
-	sw $v0, -8($fp)
-	lw $v0, -8($fp)
-	lw $t1, 0($sp)
-	addi $sp, $sp, 4
-	lw $a0, 0($sp)
-	addi $sp, $sp, 4
-	addi $sp, $sp, 4
+	addi $sp, $sp, -36
+	addi $sp, $sp, 36
 	lw $fp, 0($sp)
 	addi $sp, $sp, 4
 	jr $ra
