@@ -1,4 +1,6 @@
 # 2kodevs ignores
+*src/code.cl
+*src/code.s
 *Stuff/
 
 # File created using '.gitignore Generator' for Visual Studio Code: https://bit.ly/vscode-gig

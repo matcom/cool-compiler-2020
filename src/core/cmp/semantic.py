@@ -195,6 +195,22 @@ class IOType(Type):
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, IOType)
 
+class SelfType(Type):
+    def __init__(self, fixed=None):
+        Type.__init__(self, 'SELF_TYPE')
+        self.fixed = fixed
+
+    def get_method(self, name):
+        return self.fixed.get_method(name)
+
+    def get_attribute(self, name):
+        return self.fixed.get_attribute(name)
+
+    def conforms_to(self, other):
+        return Type.conforms_to(self, other) or self.fixed is not None and self.fixed.conforms_to(other)
+    
+    def __eq__(self, other):
+        return other.name == self.name or isinstance(other, SelfType)
 
 class Context:
     def __init__(self):

@@ -3,7 +3,7 @@ from core.cmp.CoolUtils import *
 from core.cmp.utils import InferenceSets
 from core.cmp.semantic import SemanticError
 from core.cmp.semantic import Attribute, Method, Type
-from core.cmp.semantic import ErrorType, IntType, StringType, BoolType, IOType, VoidType, AutoType
+from core.cmp.semantic import ErrorType, IntType, StringType, BoolType, IOType, VoidType, AutoType, SelfType
 from core.cmp.semantic import Context, Scope
 
 WRONG_SIGNATURE = 'Method "%s" already defined in "%s" with a different signature.'
@@ -13,11 +13,13 @@ INCOMPATIBLE_TYPES = 'Cannot convert "%s" into "%s".'
 VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined.'
 INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
 CONDITION_NOT_BOOL = '"%s" conditions return type must be Bool not "%s"'
+INVALID_PARAMETER = 'Formal parameter "%s" cannot have type SELF_TYPE.'
+INVALID_BRANCH = 'Identifier "%s" declared with type SELF_TYPE in case branch.'
 
 ST, AT = ['SELF_TYPE', 'AUTO_TYPE']
 sealed = ['Int', 'String', 'Bool', 'SELF_TYPE', 'AUTO_TYPE']
 built_in_types = [ 'Int', 'String', 'Bool', 'Object', 'IO', 'SELF_TYPE', 'AUTO_TYPE']
-INT, STRING, BOOL, OBJ = None, None, None, None
+INT, STRING, BOOL, OBJ, SELF_TYPE = None, None, None, None, None
 
 def define_built_in_types(context):
     obj = context.create_type('Object')
@@ -29,7 +31,7 @@ def define_built_in_types(context):
     b.set_parent(obj)
     io = context.append_type(IOType())
     io.set_parent(obj)
-    st = context.create_type('SELF_TYPE')
+    st = context.append_type(SelfType())
     context.append_type(AutoType())
 
     obj.define_method('abort', [], [], obj)
@@ -45,11 +47,12 @@ def define_built_in_types(context):
     s.define_method('concat', ['s'], [s], s)
     s.define_method('substr', ['i', 'l'], [i, i], s)
 
-    global INT, STRING, BOOL, OBJ
-    INT, STRING, BOOL, OBJ = i, s, b, obj
+    global INT, STRING, BOOL, OBJ, SELF_TYPE
+    INT, STRING, BOOL, OBJ, SELF_TYPE = i, s, b, obj, st
 
-def fixed_type(type1, type2):
-    return type1 if type1.name != ST else type2
+def fixed_type(cur_type):
+    try: return cur_type.fixed
+    except AttributeError: return cur_type
 
 def update_condition(target, value):
     c1 = isinstance(target, AutoType)
@@ -309,9 +312,13 @@ class TypeBuilder:
         for i, arg in enumerate(node.params):
             idx, typex = arg
             try:
+                assert typex != ST
                 arg_type = self.context.get_type(typex)
             except SemanticError as ex:
                 self.errors.append((ex.text, node.params[i].ttype))
+                arg_type = ErrorType()
+            except AssertionError:
+                self.errors.append((INVALID_PARAMETER % (idx), node.params[i].ttype))
                 arg_type = ErrorType()
                 
             arg_names.append(idx)
@@ -348,6 +355,7 @@ class TypeBuilder:
 def LCA(type_list):
     counter = {}
 
+    type_list = [fixed_type(t) for t in type_list]
     if any([isinstance(t, AutoType) for t in type_list]):
         return AutoType()
     if any([isinstance(t, ErrorType) for t in type_list]):
@@ -366,6 +374,8 @@ def LCA(type_list):
             node = node.parent
 
 def check_path(D, ans):
+    if any([(t.name == ST) for t in D]):
+        return True, SelfType()
     for t in D:
         l = [ans, t]
         lca = LCA(l)
@@ -398,11 +408,14 @@ class TypeChecker:
     def visit(self, node, scope):
         self.current_type = self.context.get_type(node.id)
         
-        scope.define_variable('self', self.current_type)
+        scope.define_variable('self', SelfType(self.current_type))
         cur_type = self.current_type.parent
         while True:
             for attr in cur_type.attributes:
-                var = scope.define_variable(attr.name, attr.type)
+                vtype = attr.type
+                if vtype.name == ST:
+                    vtype = SelfType(self.current_type)
+                var = scope.define_variable(attr.name, vtype)
                 var.node = attr.node
             if not cur_type.parent:
                 break
@@ -414,7 +427,10 @@ class TypeChecker:
             if isinstance(feature, AttrDeclarationNode):
                 self.visit(feature, scope)
                 if not scope.is_defined(feature.id):
-                    var = scope.define_variable(feature.id, cur_type.attributes[count].type)
+                    vtype = cur_type.attributes[count].type
+                    if vtype.name == ST:
+                        vtype = SelfType(self.current_type)
+                    var = scope.define_variable(feature.id, vtype)
                     var.node = cur_type.attributes[count].node
                 count += 1
             else:
@@ -430,7 +446,7 @@ class TypeChecker:
 
         self.visit(node.expr, scope)
         expr_type = node.expr.computed_type
-        real_type = fixed_type(node.attr_type, self.current_type)
+        real_type = node.attr_type
         node.info = [expr_type, real_type]
 
         if not expr_type.conforms_to(real_type):
@@ -447,7 +463,7 @@ class TypeChecker:
         self.visit(node.body, scope)
             
         body_type = node.body.computed_type
-        method_rtn_type = fixed_type(node.ret_type, self.current_type)
+        method_rtn_type = node.ret_type
         node.info = [body_type, method_rtn_type]
 
         if not body_type.conforms_to(method_rtn_type):
@@ -465,8 +481,7 @@ class TypeChecker:
             var = scope.find_variable(node.id)
             if var.name == 'self':
                 raise SemanticError(SELF_IS_READONLY)
-            var_type = fixed_type(var.type, self.current_type)
-            if not node_type.conforms_to(var_type): 
+            if not node_type.conforms_to(var.type): 
                 raise SemanticError(INCOMPATIBLE_TYPES % (node_type.name, var.type.name))
         except SemanticError as ex:
             self.errors.append((ex.text, node.tid))
@@ -490,9 +505,13 @@ class TypeChecker:
     def visit(self, node, scope):
         node.scope = scope
         try:
+            assert node.type != ST
             branch_type = self.context.get_type(node.type)
         except SemanticError as ex:
             self.errors.append((ex.text, node.ttype))
+            branch_type = ErrorType()
+        except AssertionError:
+            self.errors.append((INVALID_BRANCH % node.id, node.ttype))
             branch_type = ErrorType()
         node.branch_type = branch_type
 
@@ -516,6 +535,8 @@ class TypeChecker:
     def visit(self, node, scope):
         try:
             node_type = self.context.get_type(node.type)
+            if node_type.name == ST:
+                node_type = SelfType(self.current_type)
         except SemanticError as ex:
             self.errors.append((ex.text, node.ttype))
             node_type = ErrorType()
@@ -531,11 +552,10 @@ class TypeChecker:
         if node.expr:
             self.visit(node.expr, scope)
             expr_type = node.expr.computed_type
-            real_type = fixed_type(node_type, self.current_type)
-            node.info = [expr_type, real_type]
+            node.info = [expr_type, node_type]
 
-            if not expr_type.conforms_to(real_type): 
-                self.errors.append((INCOMPATIBLE_TYPES % (expr_type.name, real_type.name), node.arrow))
+            if not expr_type.conforms_to(node_type): 
+                self.errors.append((INCOMPATIBLE_TYPES % (expr_type.name, node_type.name), node.arrow))
         
     @visitor.when(IfThenElseNode)
     def visit(self, node, scope):
@@ -600,16 +620,17 @@ class TypeChecker:
             node.obj_method = obj_method
             if len(node.args) == len(obj_method.param_types):
                 for idx, (arg, param_type) in enumerate(zip(arg_types, obj_method.param_types)):
-                    real_type = fixed_type(param_type, obj_type)
-                    real_types.append(real_type)
+                    real_types.append(param_type)
 
-                    if not arg.conforms_to(real_type):
-                        self.errors.append((INCOMPATIBLE_TYPES % (arg.name, real_type.name + f" in the argument #{idx} of {node.id}"), token))
+                    if not arg.conforms_to(param_type):
+                        self.errors.append((INCOMPATIBLE_TYPES % (arg.name, param_type.name + f" in the argument #{idx} of {node.id}"), token))
                         error = True
             else:
                 raise SemanticError(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
             assert not error
-            node_type = fixed_type(obj_method.return_type, obj_type)
+            node_type = obj_method.return_type
+            if node_type.name == ST:
+                node_type = obj_type
         except SemanticError as ex:
             self.errors.append((ex.text, token))
             node_type = ErrorType()
@@ -621,7 +642,7 @@ class TypeChecker:
 
     @visitor.when(MemberCallNode)
     def visit(self, node, scope):
-        obj_type = self.current_type
+        obj_type = SelfType(self.current_type)
         
         error = False
 
@@ -636,16 +657,17 @@ class TypeChecker:
             node.obj_method = obj_method
             if len(node.args) == len(obj_method.param_types):
                 for arg, param_type in zip(arg_types, obj_method.param_types):
-                    real_type = fixed_type(param_type, self.current_type)
-                    real_types.append(real_type)
+                    real_types.append(param_type)
                     
-                    if not arg.conforms_to(real_type):
-                        self.errors.append((INCOMPATIBLE_TYPES % (arg.name, real_type.name + f" in the argument #{idx} of {node.id}"), token))
+                    if not arg.conforms_to(param_type):
+                        self.errors.append((INCOMPATIBLE_TYPES % (arg.name, param_type.name + f" in the argument #{idx} of {node.id}"), token))
                         error = True
             else:
                 raise SemanticError(f'Method "{obj_method.name}" of "{obj_type.name}" only accepts {len(obj_method.param_types)} argument(s)')
             assert not error
-            node_type = fixed_type(obj_method.return_type, self.current_type)
+            node_type = obj_method.return_type
+            if node_type.name == ST:
+                node_type = obj_type
         except SemanticError as ex:
             self.errors.append((ex.text, token))
             node_type = ErrorType()
@@ -684,8 +706,7 @@ class TypeChecker:
     @visitor.when(IdNode)
     def visit(self, node, scope):
         if scope.is_defined(node.lex):
-            var = scope.find_variable(node.lex)
-            node_type = fixed_type(var.type, self.current_type)       
+            node_type = scope.find_variable(node.lex).type       
         else:
             self.errors.append((VARIABLE_NOT_DEFINED % (node.lex), node.token))
             node_type = ErrorType()
@@ -695,8 +716,9 @@ class TypeChecker:
     @visitor.when(NewNode)
     def visit(self, node, scope):
         try:
-            raw_type = self.context.get_type(node.type)
-            node_type = fixed_type(raw_type, self.current_type)
+            node_type = self.context.get_type(node.type)
+            if node.type == ST:
+                node_type = SelfType(self.current_type)
         except SemanticError as ex:
             self.errors.append((ex.text, node.ttype))
             node_type = ErrorType()
@@ -860,7 +882,7 @@ class InferenceVisitor(TypeChecker):
                     continue
                 ok, D1 = check_path(sets.D, OBJ)
                 assert ok
-                if len(sets.S):
+                if len(sets.S) and not isinstance(D1, SelfType):
                     candidate = LCA(sets.S)
                     assert LCA([candidate, D1]) == D1
                     D1 = candidate
