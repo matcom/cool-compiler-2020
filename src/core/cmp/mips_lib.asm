@@ -1,8 +1,6 @@
- 
-
-
     .text
 
+type_number= 2
 header_size = 12 #in bytes
 header_size_slot = 0
 header_next_slot = 4
@@ -15,14 +13,12 @@ used_list = header_size
 state_size = 4
 stack_base = -4
 init_alloc_size = (header_size*2) +  state_size
+object_mark = -1
+meta_data_object_size = 4   #in words
+object_expanded = -2
+reachable = 1
 
 
-    .globl main
-main:
-    jal mem_manager_init
-
-    li $v0 10
-    syscall
     
 
 #####################################################################################################
@@ -38,6 +34,7 @@ main:
 #    A block of size alloc_size is created an added to Free-List                                    #
 ##################################################################################################### 
 mem_manager_init:
+    
     addiu $sp $sp -16
     sw $v0 0($sp)
     sw $a0 4($sp)
@@ -64,13 +61,15 @@ mem_manager_init:
     sw $zero header_next_slot($a0)
     sw $zero header_reachable_slot($a0)
 
-    sw $sp stack_base($gp)
+    
     
     lw $v0 0($sp)
     lw $a0 4($sp)
     lw $a1 8($sp)
     lw $ra 12($sp)
     addiu $sp $sp 16
+    
+    sw $sp stack_base($gp)
 
     jr $ra
     
@@ -425,32 +424,298 @@ malloc_first_valid_block:
     j malloc_loop
 
 
+#TODO Look for objects in registers
+#####################################################################################################
+# Remove from used-list the blocks that are not reachables, the root objects are in the stack and   #
+# registers                                                                                         #
+# Args:                                                                                             #
+#                                                                                                   #
+# Return:                                                                                           # 
+#                                                                                                   #
+# Summary:                                                                                          #
+#     First the objects in stack and registers are marked as reachables, after that the objects     #
+#     that are reachables from them are marked as reachable too using a dfs algorithm. When all     #
+#     reachables objects are marked the used-list is scanned and all the objects that are not       #
+#     marked as reachables are released.                                                            #
+##################################################################################################### 
+
 gc_collect:
-    addiu $sp $sp 
+    addiu $sp $sp -24
     sw $t0 0($sp)
     sw $t1 4($sp)
     sw $t2 8($sp)
     sw $t3 12($sp)
+    sw $a0 16($sp)
+    sw $ra 20($sp)
 
-    li $t3 1
-    addiu $t0 $sp 
-    addiu $t1 $gp stack_base
+    li $t3 reachable    # $t3 = reachable value
+    addiu $t0 $sp 20    # $t0 = the start of the stack without count this function
+    lw $t1 stack_base($gp)  # $t1 = the end of the stack
 
+    li $t2 1
+# Go through the stack searching for objects
 gc_collect_loop:
     addiu $t0 $t0 4
-    beq $t0 $t1 gc_collect_loop_end
-    j gc_collect_check_if_is_object
+    beq $t0 $t1 gc_collect_dfs      # If the end of the stack was reached finish this loop
+    
+    lw $a0 0($t0)
+    jal check_if_is_object
+    
+    bne $v0 $t2 gc_collect_loop
 
-gc_collect_check_if_is_object:
+    addiu $a0 $a0 neg_header_size
+    sw $t3 header_reachable_slot($a0)
+    
+    j gc_collect_loop
+
+gc_collect_dfs:
+    addiu $t1 $gp used_list
+
+# Go through the used-list and try to expand any reachable block
+gc_collect_outer_loop:
+    lw $t1 header_next_slot($t1)
+    beq $t1 $zero gc_collect_free
+    lw $t2 header_reachable_slot($t1)
+    beq $t2 reachable gc_collect_expand
+    j gc_collect_outer_loop
+
+gc_collect_expand:
+    addiu $a0 $t1 header_size      # expand an object not a block
+    jal gc_collect_recursive_expand
+    j gc_collect_outer_loop
+
+gc_collect_free:
+    addiu $t0 $gp used_list
+    lw $t0 header_next_slot($t0)
+
+# Go through the used-list and free any unreachable object and set the reachable and expanded field to their default values
+gc_collect_free_loop:
+    beq $t0 $zero gc_collect_end
+    lw $t1 header_reachable_slot($t0)
+    bne $t1 reachable gc_collect_free_loop_free
+    sw $zero header_reachable_slot($t0)
+    move $a0 $t0
+    jal check_if_is_object
+    beq $v0 $zero j gc_collect_free_loop
+    li $t1 object_mark
+    addiu $t2 $t0 header_size
+    lw $t3 4($t2)
+    sll $t3 $t3 2
+    addu $t2 $t2 $t3
+    sw $t1 -4($t2)
+    lw $t0 header_next_slot($t0)
+    j gc_collect_free_loop
+
+gc_collect_free_loop_free:
+    move $a0 $t0
+    lw $t0 header_next_slot($t0)
+    jal free_block
+    j gc_collect_free_loop
+
+    
+gc_collect_end:
+    lw $t0 0($sp)
+    lw $t1 4($sp)
+    lw $t2 8($sp)
+    lw $t3 12($sp)
+    lw $a0 16($sp)
+    lw $ra 20($sp)
+    addiu $sp $sp 24
+
+    jr $ra
+
+
+
+
+#####################################################################################################
+# Mark the objects that are reachable from the attrs of one object in a recursive way.              #
+# Args:                                                                                             #
+# $a0: Object to expand                                                                             #
+# Return:                                                                                           # 
+#                                                                                                   #
+# Summary:                                                                                          #
+#     The actual object is marked as reachable and expanded to avoid infinite cycles, and this      #
+#     routine is called recursively to expand the objects in the attrs of the actual object.        #
+##################################################################################################### 
+gc_collect_recursive_expand:
+    addiu $sp $sp -16
+    sw $a0 0($sp)
+    sw $t0 4($sp)
+    sw $t1 8($sp)
+    sw $ra 12($sp)
+    
+    jal check_if_is_object  # If is not an object can not be expanded
+    beq $v0 $zero gc_collect_recursive_expand_end
+
+    lw $t0 4($a0)
+    sll $t0 $t0 2
+    addiu $t0 $t0 -4
+    addu $t0 $a0 $t0
+    lw $t1 0($t0)   # Check if the object was ready expanded to avoid infinite cycles
+    beq $t1 object_expanded gc_collect_recursive_expand_end
+    
+    # Mark the block that contains the object as reachable
+    li $t1 reachable
+    addiu $a0 $a0 neg_header_size
+    sw $t1 header_reachable_slot($a0)
+    addiu $a0 $a0 header_size 
+
+    # Mark the object as expanded
+    li $t1 object_expanded
+    sw $t1 0($t0)
+
+    lw $t0 0($a0)   # $t0 = type of the object
+    
+    # int and string types are special cases
+    la $t1 int_type
+    lw $t1 0($t1)
+    beq $t0 $t1 gc_collect_recursive_expand_end
+
+    la $t1 string_type
+    lw $t1 0($t1)
+    beq $t0 $t1 gc_collect_recursive_expand_string_object
+
+    lw $t0 4($a0)
+    li $t1 meta_data_object_size
+    sub $t0 $t0 $t1
+    
+    addiu $t1 $a0 12
+
+# call this routine in every attr of the object
+gc_collect_recursive_expand_attr_loop:
+    beq $t0 $zero gc_collect_recursive_expand_end
+    lw $a0 0($t1)
+    jal gc_collect_recursive_expand
+    addiu $t1 $t1 4
+    sub $t0 $t0 1
+    j gc_collect_recursive_expand_attr_loop
+
+# the value field of string object is not an object but it is a 
+# reference to the block where the string is saved, so that block 
+# needs to be marked as reachable
+gc_collect_recursive_expand_string_object:
+    lw $t0 8($a0)
+    addiu $t0 $t0 neg_header_size
+    li $t1 reachable
+    sw $t1 header_reachable_slot($t0)
+    
+
+gc_collect_recursive_expand_end:
+    lw $a0 0($sp)
+    lw $t0 4($sp)
+    lw $t1 8($sp)
+    lw $ra 12($sp)
+    addiu $sp $sp 16
+
+    jr $ra
+
+
+
+  
+
+
+
+
+# $a0 address from 
+# $a1 address to
+# $a2 size
+copy:
+    addiu $sp $sp -16
+    sw $a0 0($sp)
+    sw $a1 4($sp)
+    sw $a2 8($sp)
+    sw $t0 12($sp)
+
+copy_loop:
+    beq $a2 $zero copy_end
+    lw $t0 0($a0)
+    sw $t0 0($a1)
+    addiu $a0 $a0 4
+    addiu $a1 $a1 4
+    addi $a2 $a2 -4
+    j copy_loop 
+
+copy_end:
+    lw $a0 0($sp)
+    lw $a1 4($sp)
+    lw $a2 8($sp)
+    lw $t0 12($sp)
+    addiu $sp $sp 16
+
+    jr $ra
+
+
+#####################################################################################################
+# Check if a value is a reference to an object                                                      #
+# Args:                                                                                             #
+# $a0: Value to check                                                                               #
+# Return:                                                                                           # 
+#    $v0: 1 if is a reference to an object else 0                                                   #
+# Summary:                                                                                          #
+#     Check if a value is a valid heap address and if it is check if in that address there are      #
+#     values that match with the object schema                                                      #
+##################################################################################################### 
+check_if_is_object:
+    addiu $sp $sp -20
+    sw $t0 0($sp)
+    sw $t1 4($sp)
+    sw $t2 8($sp)
+    sw $t3 12($sp)
+    sw $a0 16($sp)
+
+    move $t0 $a0
+
+    li $v0 9
+    move $a0 $zero
+    syscall
+
+    addiu $t1 $v0 -4    # Last word of heap
+
+    # Check that the first word is a type object
+    blt $t0 $gp check_if_is_object_not_object
+    bgt $t0 $t1 check_if_is_object_not_object
     lw $t2 0($t0)
-    #Check if is object, if not object return to loop
+    blt $t2 $zero check_if_is_object_not_object
+    bgt $t2 type_number check_if_is_object_not_object
 
-    sw $t3 header_reachable_slot($t2)
+    addiu $t0 $t0 4
+    blt $t0 $gp check_if_is_object_not_object
+    bgt $t0 $t1 check_if_is_object_not_object
+    lw $t2 0($t0)   #Store size in $t2
+
+    addiu $t0 $t0 8
+    
+
+    li $t3 meta_data_object_size
+    sub $t2 $t2 $t3 
+    sll $t2 $t2 2
+    addu $t0 $t0 $t2
+    
+    # Check if the last word of the object is an object mark
+    blt $t0 $gp check_if_is_object_not_object
+    bgt $t0 $t1 check_if_is_object_not_object
+    lw $t2 0($t0)
+    beq $t2 object_mark check_if_is_object_is_object
+    beq $t2 object_expanded check_if_is_object_is_object
+
+check_if_is_object_not_object:
+    li $v0 0
+    j check_if_is_object_end
+    
+    
+check_if_is_object_is_object:
+    li $v0 1
 
 
+check_if_is_object_end:
+    lw $t0 0($sp)
+    lw $t1 4($sp)
+    lw $t2 8($sp)
+    lw $t3 12($sp)
+    lw $a0 16($sp)
+    addiu $sp $sp 20
 
-
-
+    jr $ra
 
 
 
