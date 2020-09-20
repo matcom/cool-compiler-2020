@@ -4,6 +4,7 @@ from coolcmp.cmp.semantics import SemanticAnalyzer
 from coolcmp.cmp.my_ast import *
 from coolcmp.cmp.errors import LexicographicError
 from coolcmp.cmp.type_checker import TypeChecker
+from coolcmp.cmp.gen_cil import GenCIL
 
 class SourceCode:
     def __init__(self, code, tab_size=4):
@@ -85,3 +86,9 @@ class SourceCode:
     def runTypeChecker(self):
         chk = TypeChecker(self.root, self.cls_refs)
         chk.visit(self.root)
+
+    def genCILCode(self):
+        cil = GenCIL(self.cls_refs)
+        cil.visit(self.root)
+
+        return cil.cil_code

@@ -1,5 +1,6 @@
 from collections import deque
 from collections import namedtuple
+from collections.abc import Iterable
 
 class ASTNode:
     def set_tracker(self, line, col):
@@ -10,7 +11,7 @@ class ASTNode:
         self.static_type = t
 
     def get_children(self):
-        if isinstance(self, NodeContainer):
+        if issubclass(self.__class__, Iterable):
             return list(self)
 
         attr_list = [ attr for attr in self.__dict__ if isinstance(getattr(self, attr), ASTNode) ]
@@ -156,6 +157,10 @@ class CaseBranch(Expr):
     def __init__(self, case_var, expr):
         self.case_var = case_var
         self.expr = expr
+
+    def set_times(self, td, tf):
+        self.td = td
+        self.tf = tf
 
 class Case(Expr):
     # Case list is a NodeContainer of CaseBranch
