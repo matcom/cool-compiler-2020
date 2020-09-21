@@ -414,6 +414,24 @@ class CILToMIPSVisitor:
         self.free_reg(reg)
         self.free_reg(reg2)
         return instructions
+    
+    @visitor.when(cil.CopyNode)
+    def visit(self, node):
+        instructions = []
+
+        #Save $a0, $a1, $a2
+
+        reg1 = self.get_free_reg()
+        reg2 = self.get_free_reg()
+
+        src_location = self.get_var_location(node.source)
+        instructions.append(mips.LoadWordNode(reg1, src_location))
+        instructions.extend(mips.copy_object(reg1, reg2))
+
+        dst_location = self.get_var_location(node.dest)
+        instructions.append(mips.StoreWordNode(mips.V0_REG, dst_location))
+
+        return instructions
 
 
 
