@@ -123,6 +123,15 @@ class CILToMIPSVisitor:
         else:
             self._name_func_map[node.name] = self.generate_code_label()
     
+    @visitor.on('node')
+    def collect_labels_in_func(self, node):
+        pass
+    
+    @visitor.when(cil.LabelNode)
+    def collect_labels_in_func(self, node):
+        mips_label = self.generate_code_label()
+        self.register_label(node.label, mips_label)
+    
     
     @visitor.on('node')
     def visit(self, node):
@@ -177,6 +186,9 @@ class CILToMIPSVisitor:
         new_func = mips.FunctionNode(label, params, localvars)
         self.register_function(node.name, new_func)
         self.init_function(new_func)
+
+        for intructions in node.instructions:
+            self.collect_labels_in_func(instruction)
 
         initial_instructions = []
         if self.in_entry_function():
@@ -466,13 +478,13 @@ class CILToMIPSVisitor:
         if type(node.left) == int:
             instructions.append(mips.LoadInmediateNode(mips.ARG_REGISTERS[0], node.left))
         else:
-            location = sefl.get_var_location(node.left)
+            location = self.get_var_location(node.left)
             instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[0], location))
         
         if type(node.right) == int:
             instructions.append(mips.LoadInmediateNode(mips.ARG_REGISTERS[1], node.right))
         else:
-            location = sefl.get_var_location(node.right)
+            location = self.get_var_location(node.right)
             instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], location))
 
         instructions.append(mips.JumpAndLinkNode("equals"))
@@ -484,10 +496,9 @@ class CILToMIPSVisitor:
 
     @visitor.when(cil.LabelNode)
     def visit(self, node):
-        mips_label = self.generate_code_label()
-        self.register_label(node.label, mips_label)
-
-        return [mips.LabelNode(mips_label)]
+        return [mips.LabelNode(self.get_mips_label(node.label))]
+    
+    
         
 
 
