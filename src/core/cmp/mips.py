@@ -407,3 +407,7 @@ class PrintVisitor:
     @visitor.when(AddUnsignedNode)
     def visit(self, node):
         return f"addu {self.visit(node.dest)} {self.visit(node.sum1)} {self.visit(node.sum2)}"
+    
+    @visitor.when(LabelNode)
+    def visit(self, node):
+        return f"{node.name}:"
