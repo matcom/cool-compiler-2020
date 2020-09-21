@@ -62,6 +62,7 @@ class CILToMIPSVisitor:
         self._actual_function = None
         self._name_func_map = {}
         self._pushed_args = 0
+        self._labels_map = {}
     
     def generate_type_label(self):
         return self._label_generator.generate_type_label()
@@ -77,6 +78,7 @@ class CILToMIPSVisitor:
     
     def register_function(self, name, function):
         self._functions[name] = function
+        self._labels_map = {}
     
     def init_function(self, function):
         self._actual_function = function
@@ -98,6 +100,12 @@ class CILToMIPSVisitor:
     
     def in_entry_function(self):
         return self._actual_function.label == 'main'
+
+    def register_label(self, cil_label, mips_label):
+        self._labels_map[cil_label] = mips_label    
+    
+    def get_mips_label(self, label):
+        return self._labels_map[label]
     
     @visitor.on('node')
     def collect_func_names(self, node):
@@ -473,6 +481,17 @@ class CILToMIPSVisitor:
         instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
         
         return instructions
+
+    @visitor.when(cil.LabelNode)
+    def visit(self, node):
+        mips_label = self.generate_code_label()
+        self.register_label(node.label, mips_label)
+
+        return [mips.LabelNode(mips_label)]
+        
+
+
+
 
 
 
