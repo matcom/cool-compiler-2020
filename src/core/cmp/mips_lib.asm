@@ -1,17 +1,17 @@
-    .text
+
 
 header_size = 12 #in bytes
 header_size_slot = 0
 header_next_slot = 4
 header_reachable_slot = 8
 alloc_size       = 2048
-total_alloc_size = alloc_size + header_size
-neg_header_size = 0-header_size
+total_alloc_size =  2060 #alloc_size + header_size
+neg_header_size = -12 #-header_size
 free_list = 0
 used_list = header_size
 state_size = 4
 stack_base = -4
-init_alloc_size = (header_size*2) +  state_size
+init_alloc_size = 28 #(header_size*2) +  state_size
 object_mark = -1
 meta_data_object_size = 4   #in words
 object_expanded = -2
@@ -495,7 +495,7 @@ gc_collect_free_loop:
     sw $zero header_reachable_slot($t0)
     move $a0 $t0
     jal check_if_is_object
-    beq $v0 $zero j gc_collect_free_loop
+    beq $v0 $zero gc_collect_free_loop
     li $t1 object_mark
     addiu $t2 $t0 header_size
     lw $t3 4($t2)

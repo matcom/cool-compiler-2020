@@ -171,6 +171,8 @@ class CILToMIPSVisitor:
         self.init_function(new_func)
 
         initial_instructions = []
+        if self.in_entry_function():
+            initial_instructions.append(mips.JumpAndLinkNode("mem_manager_init"))
 
 
         initial_instructions.extend(mips.push_register(mips.FP_REG))
@@ -181,9 +183,13 @@ class CILToMIPSVisitor:
         
         #This try-except block is for debuggin purposes
         try:
+            if node.name == "function_main_at_Main":
+                print(node.instructions)
+                print(node.instructions[1].function)
             code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
         except Exception as e:
             if node.name == "entry":
+                print(node.instructions)
                 print(e)
             print(node.name)
             
@@ -291,6 +297,9 @@ class CILToMIPSVisitor:
         location = self.get_var_location(node.dest)
         instructions.append(mips.StoreWordNode(mips.V0_REG, location))
 
+        self.free_reg(reg1)
+        self.free_reg(reg2)
+
         return instructions
     
     @visitor.when(cil.ReturnNode)
@@ -381,7 +390,7 @@ class CILToMIPSVisitor:
 
         obj_location = self.get_var_location(node.obj)
         dst_location = self.get_var_location(node.dest)
-        tp = self._types[node.xtype]
+        tp = self._types[node.computed_type]
         offset = (tp.attributes.index(node.attr) + 1) * mips.ATTR_SIZE
 
         instructions.append(mips.LoadWordNode(reg, obj_location))
@@ -398,7 +407,7 @@ class CILToMIPSVisitor:
         reg2 = self.get_free_reg()
         
         obj_location = self.get_var_location(node.obj)
-        tp = self._types[node.xtype]
+        tp = self._types[node.computed_type]
         offset = (tp.attributes.index(node.attr) + 1) * mips.ATTR_SIZE
         
         instructions.append(mips.LoadWordNode(reg2, obj_location))
@@ -430,6 +439,9 @@ class CILToMIPSVisitor:
 
         dst_location = self.get_var_location(node.dest)
         instructions.append(mips.StoreWordNode(mips.V0_REG, dst_location))
+
+        self.free_reg(reg1)
+        self.free_reg(reg2)
 
         return instructions
 
