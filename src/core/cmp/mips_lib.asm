@@ -719,6 +719,16 @@ check_if_is_object_end:
     jr $ra
 
 
+equals:
+    beq $a0 $a1 equals_equal
+    li $v0 0
+    j equals_end
+    
+equals_equal:
+    li $v0 1
+
+equals_end:
+    jr $ra
 
 
 
