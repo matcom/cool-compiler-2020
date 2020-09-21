@@ -71,11 +71,11 @@ class SELF_TYPE(Class):
 class Feature(ASTNode): pass
 
 class Method(Feature):
-    def __init__(self, id, formal_list, type, expr):
+    def __init__(self, id, formal_list, type, expr=None):
         self.id = id
         self.formal_list = formal_list
         self.type = type
-        self.expr = expr
+        self.expr = expr  #None for native methods
         self._sign = tuple([ formal.type.value for formal in self.formal_list ] + [self.type.value])
 
     def get_signature(self):

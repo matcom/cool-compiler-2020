@@ -29,25 +29,25 @@ class SourceCode:
 
         methods = {
             'Object': [
-                        Method(Id('abort'), NodeContainer(), Type('Object'), Id('self')),
-                        Method(Id('type_name'), NodeContainer(), Type('String'), String('""')),
-                        Method(Id('copy'), NodeContainer(), Type('SELF_TYPE'), Id('self'))
+                        Method(Id('abort'), NodeContainer(), Type('Object')),
+                        Method(Id('type_name'), NodeContainer(), Type('String')),
+                        Method(Id('copy'), NodeContainer(), Type('SELF_TYPE'))
                       ],
 
             'String': [
-                        Method(Id('length'), NodeContainer(), Type('Int'), Int('0')),
-                        Method(Id('concat'), NodeContainer([Formal(Id('s'), Type('String'))]), Type('String'), String('""')),
+                        Method(Id('length'), NodeContainer(), Type('Int')),
+                        Method(Id('concat'), NodeContainer([Formal(Id('s'), Type('String'))]), Type('String')),
                         Method(Id('substr'), NodeContainer([
                             Formal(Id('i'), Type('Int')),
                             Formal(Id('l'), Type('Int'))
-                        ]), Type('String'), String('""'))
+                        ]), Type('String'))
                       ],
 
             'IO':     [
-                        Method(Id('out_string'), NodeContainer([Formal(Id('x'), Type('String'))]), Type('SELF_TYPE'), Id('self')),
-                        Method(Id('out_int'), NodeContainer([Formal(Id('x'), Type('Int'))]), Type('SELF_TYPE'), Id('self')),
-                        Method(Id('in_string'), NodeContainer(), Type('String'), String('""')),
-                        Method(Id('in_int'), NodeContainer(), Type('Int'), Int('0'))
+                        Method(Id('out_string'), NodeContainer([Formal(Id('x'), Type('String'))]), Type('SELF_TYPE')),
+                        Method(Id('out_int'), NodeContainer([Formal(Id('x'), Type('Int'))]), Type('SELF_TYPE')),
+                        Method(Id('in_string'), NodeContainer(), Type('String')),
+                        Method(Id('in_int'), NodeContainer(), Type('Int'))
                       ]
         }
 

@@ -1,6 +1,7 @@
 from coolcmp.cmp.utils import init_logger
 from coolcmp.cmp.cil_ast import *
 from coolcmp.cmp.my_ast import *
+from coolcmp.cmp.environment import Environment
 
 class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (ie, they are not generated)
     def __init__(self, cls_refs):
@@ -9,24 +10,31 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         self.cls_refs = cls_refs
         self.attrs = List()
         self.cil_code = CILCode(List(), List())
+        self.pos = -1
+        self.cur_env = None  #environment for locals only
 
-    def _get_declaration(self, node):
-        ref = self.visit(node.id)
+    @staticmethod
+    def get_default_value(_type: str):
         expr = Void()
 
-        if node.type.value == 'Bool':
+        if _type == 'Bool':
             expr = Bool('false')
 
-        elif node.type.value == 'String':
+        elif _type == 'String':
             expr = String('""')
         
-        elif node.type.value == 'Int':
+        elif _type == 'Int':
             expr = Int('0')
+
+        return expr
+
+    def _get_declaration_expr(self, node):
+        expr = GenCIL.get_default_value(node.type.value)
 
         if node.opt_expr_init:
             expr = self.visit(node.opt_expr_init)
 
-        return Declaration(ref, expr)
+        return expr
 
     def visit(self, node):
         if isinstance(node, Class):
@@ -49,10 +57,25 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         old_attrs = self.attrs
         self.attrs = List(old_attrs[:])
 
+        old_env = self.cur_env
+        self.cur_env = Environment(old_env)
+
+        self.attr_dict = {}
+        self.attr_dict['self'] = 0  #self is attr number 0
+
+        p = 1
+        for decl in self.attrs:  #declarations of attributes from inheritance
+            self.attr_dict[decl.ref.name] = p
+            p += 1
+
+        for name, _ in node.attrs.items():  #own attributes
+            self.attr_dict[name] = p
+            p += 1
+
         for feature in node.feature_list:
             self.visit(feature)
 
-        func_init = FuncInit(node.type.value, self.attrs, self.cur_table)
+        func_init = FuncInit(node.type.value, self.attrs, self.attr_dict, self.cur_table)
         self.cil_code.init_functions.append(func_init)
 
         self.logger.debug(func_init)
@@ -62,15 +85,27 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         for cls in node.children:
             self.visit(cls)
 
+        self.pos -= self.cur_env.definitions  #undo
+        self.cur_env = old_env
+
         self.cur_table = old_table
         self.attrs = old_attrs
 
     def visit_Formal(self, node):
+        self.pos += 1  #do
+        self.cur_env.define(node.id.value, self.pos)
+
         return self.visit(node.id)
 
     def visit_Method(self, node):
+        old_env = self.cur_env
+        self.cur_env = Environment(old_env)
+
+        assert self.pos == -1
+
         formals = List([ self.visit(formal) for formal in node.formal_list ])
-        body = self.visit(node.expr)
+        body = self.visit(node.expr) if node.expr else None  #if method is not native visit body, else None
+
         new_func = Function(node.id.value, formals, body)
 
         self.cil_code.functions.append(new_func)
@@ -83,8 +118,12 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         else:
             self.cur_table.append(new_func)
 
+        self.pos -= self.cur_env.definitions  #undo
+        self.cur_env = old_env
+
     def visit_Attribute(self, node):
-        self.attrs.append(self._get_declaration(node))
+        dec = AttrDecl(self.visit(node.id), node.type.value, self._get_declaration_expr(node))
+        self.attrs.append(dec)
 
     def visit_Dispatch(self, node):
         expr = self.visit(node.expr)
@@ -115,26 +154,48 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         return Block(List([ self.visit(expr) for expr in node.expr_list ]))  #now block has a list arg
 
     def visit_LetVar(self, node):
-        return self._get_declaration(node)
+        expr = self._get_declaration_expr(node)
+
+        self.pos += 1  #do
+        self.cur_env.define(node.id.value, self.pos)
+
+        ref = self.visit(node.id)
+
+        return Binding(ref, expr)
 
     def visit_Let(self, node):
+        old_env = self.cur_env
+        self.cur_env = Environment(old_env)
+
         exprs = [ self.visit(let_var) for let_var in node.let_list ]
         exprs.append(self.visit(node.body))
+
+        self.pos -= self.cur_env.definitions  #undo
+        self.cur_env = old_env
 
         return Block(List(exprs))
 
     def visit_CaseVar(self, node):
+        self.pos += 1  #do
+        self.cur_env.define(node.id.value, self.pos)
+
         cls = self.cls_refs[node.type.value]
 
         return self.visit(node.id), cls.td, cls.tf, cls.level
 
     def visit_CaseBranch(self, node):
+        old_env = self.cur_env
+        self.cur_env = Environment(old_env)
+
         ref, td, tf, level = self.visit(node.case_var)
         expr = self.visit(node.expr)
 
         branch = CaseBranch(ref, expr)
         branch.set_times(td, tf)
         branch.level = level
+
+        self.pos -= self.cur_env.definitions  #undo
+        self.cur_env = old_env
 
         return branch
 
@@ -179,7 +240,19 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         return Eq(self.visit(node.left), self.visit(node.right))
 
     def visit_Id(self, node):
-        return Reference(node.value)
+        ref = Reference(node.value)
+        to = self.cur_env.get(ref.name)
+
+        if to is None:  #must be an attr variable
+            assert ref.name in self.attr_dict
+            ref.refers_to = ('attr', self.attr_dict[ref.name])
+
+        else:
+            ref.refers_to = ('local', to)  #local variable (ie. formal, let_var or case_var)
+
+        self.logger.debug(f'{ref} refers to: {ref.refers_to}')
+
+        return ref
 
     def visit_Int(self, node):
         return Int(node.value)

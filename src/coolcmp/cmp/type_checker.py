@@ -136,14 +136,15 @@ class TypeChecker:
         for formal in node.formal_list:
             self.visit(formal)
 
-        self.visit(node.expr)
+        if node.expr: #if it is not a native method
+            self.visit(node.expr)
 
-        _static_type = self._get_correct_type(node, self.cur_cls.self_type)
+            _static_type = self._get_correct_type(node, self.cur_cls.self_type)
 
-        self.logger.debug(f'{node} static type: {_static_type}')
+            self.logger.debug(f'{node} static type: {_static_type}')
 
-        if not self._conforms(node.expr.static_type, _static_type):
-            raise TypeError(node.expr.line, node.expr.col, f'{node.expr} with {node.expr.static_type} doesnt conform to {node} with {_static_type}')
+            if not self._conforms(node.expr.static_type, _static_type):
+                raise TypeError(node.expr.line, node.expr.col, f'{node.expr} with {node.expr.static_type} doesnt conform to {node} with {_static_type}')
 
         self.cur_env = old_env
 
