@@ -279,6 +279,19 @@ def create_object(reg1, reg2):
     
     return instructions
 
+def copy_object(reg1, reg2):
+    instructions = []
+    
+    instructions.append(LoadWordNode(ARG_REGISTERS[0], RegisterRelativeLocation(reg1, 4)))
+    instructions.append(JumpAndLinkNode("malloc"))
+    instructions.append(MoveNode(ARG_REGISTERS[2], ARG_REGISTERS[0]))
+    instructions.append(MoveNode(ARG_REGISTERS[0], reg1))
+    instructions.append(MoveNode(ARG_REGISTERS[1], V0_REG))
+    instructions.append(JumpAndLinkNode("copy"))
+
+    return instructions
+    
+
 
 class PrintVisitor:
     
