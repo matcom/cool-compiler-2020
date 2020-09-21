@@ -300,10 +300,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         #allocate
         instance = self.define_internal_local()
         self.register_instruction(cil.AllocateNode(node.id, instance))
-        scope.ret_expr = instance
+        
 
         attr_declarations = (f for f in node.features if isinstance(f, cool.AttrDeclarationNode))
         for feature in attr_declarations:
+            scope.ret_expr = instance
             self.visit(feature, scope)
         self.register_instruction(cil.ReturnNode(instance))
         self.current_function = None
@@ -326,7 +327,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             except KeyError:
                 #Void value
                 scope.ret_expr = cil.VoidNode()
-        self.register_instruction(cil.SetAttribNode(instance, node.id, scope.ret_expr, node.type))
+        self.register_instruction(cil.SetAttribNode(instance, node.id, scope.ret_expr, self.current_type.name))
                 
     @visitor.when(cool.FuncDeclarationNode)
     def visit(self, node, scope):

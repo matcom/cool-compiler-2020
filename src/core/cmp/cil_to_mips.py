@@ -183,14 +183,13 @@ class CILToMIPSVisitor:
         
         #This try-except block is for debuggin purposes
         try:
-            if node.name == "function_main_at_Main":
-                print(node.instructions)
-                print(node.instructions[1].function)
             code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
         except Exception as e:
-            if node.name == "entry":
+            if node.name == "function_main_at_Main":
                 print(node.instructions)
+                
                 print(e)
+                print("HEREEEEEEE")
             print(node.name)
             
             
@@ -407,13 +406,18 @@ class CILToMIPSVisitor:
         reg2 = self.get_free_reg()
         
         obj_location = self.get_var_location(node.obj)
+        
         tp = self._types[node.computed_type]
+        
         offset = (tp.attributes.index(node.attr) + 1) * mips.ATTR_SIZE
+        
         
         instructions.append(mips.LoadWordNode(reg2, obj_location))
 
-        if node.value.isnumeric():
-            instructions.append(mips.LoadInmediateNode(reg, int(node.value)))
+        if type(node.value) == int:
+            instructions.append(mips.LoadInmediateNode(reg, node.value))
+        #if node.value.isnumeric():
+        #    instructions.append(mips.LoadInmediateNode(reg, int(node.value)))
         else:
             src_location = self.get_var_location(node.value)
             instructions.append(mips.LoadWordNode(reg, src_location))
