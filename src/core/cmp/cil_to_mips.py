@@ -453,28 +453,25 @@ class CILToMIPSVisitor:
     def visit(self, node):
         instructions = []
 
-        reg1 = self.get_free_reg()
-        reg2 = self.get_free_reg()
+        #TODO save $a0 $a1 $v0
 
         if type(node.left) == int:
-            instructions.append(mips.LoadInmediateNode(reg1, node.left))
+            instructions.append(mips.LoadInmediateNode(mips.ARG_REGISTERS[0], node.left))
         else:
             location = sefl.get_var_location(node.left)
-            instructions.append(mips.LoadWordNode(reg1, location))
+            instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[0], location))
         
         if type(node.right) == int:
-            instructions.append(mips.LoadInmediateNode(reg2, node.right))
+            instructions.append(mips.LoadInmediateNode(mips.ARG_REGISTERS[1], node.right))
         else:
             location = sefl.get_var_location(node.right)
-            instructions.append(mips.LoadWordNode(reg2, location))
+            instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], location))
+
+        instructions.append(mips.JumpAndLinkNode("equals"))
+
+        dest_location = self.get_var_location(node.dest)
+        instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
         
-        
-
-
-
-        self.free_reg(reg1)
-        self.free_reg(reg2)
-
         return instructions
 
 
