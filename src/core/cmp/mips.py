@@ -395,6 +395,10 @@ class PrintVisitor:
     def visit(self, node):
         return f'jr {self.visit(node.reg)}'
     
+    @visitor.when(JumpRegisterAndLinkNode)
+    def visit(self, node):
+        return f'jal {self.visit(node.reg)}'
+    
     @visitor.when(LoadWordNode)
     def visit(self, node):
         return f'lw {self.visit(node.reg)}, {self.visit(node.addr)}'
