@@ -5,19 +5,37 @@ from .utilities import *
 __BUFFSIZE__ = 1024
 __DATA__ = []
 CURRENT_FUNCTION = None
+__VT__ = {}
 
 
 def program_to_mips_visitor(program: cil.ProgramNode):
-    global __DATA__
+    global __DATA__, __VT__
+
+    # Build Virtual Table
+    q = program.types.copy()
+    t = q.pop(0)
+    if t.type != 'SELF_TYPE':
+        raise Exception("unexpected first type")
+
+    while len(q):
+        t = q.pop(0)
+        for method, type_impl in t.methods.items():
+            if type_impl == t.type:
+                __VT__[(t.type, method)] = f'{type_impl}_{method}'
+            else:
+                try:
+                    __VT__[(t.type, method)] = __VT__[(type_impl, method)]
+                except KeyError:
+                    q.append(t)
 
     # Initialize Types
     init_types(program.types)
 
     # Build .data section
-    vt_space_code = reserve_virtual_tables_space(program)
+    # vt_space_code = reserve_virtual_tables_space(program)
     __DATA__ = [mips.MIPSDataItem(d.id, mips.AsciizInst(d.val))
                 for d in program.data]
-    data_section = mips.MIPSDataSection(vt_space_code + __DATA__)
+    data_section = mips.MIPSDataSection(__DATA__)
 
     # Build .text section
     functions = [function_to_mips_visitor(f)
@@ -456,6 +474,28 @@ def not_to_mips_visitor(notn: cil.NotNode):
     ]
 
 
+def vcal_to_mips_visitor(vcall: cil.VCAllNode):
+    """
+    CIL:
+        result = VCALL [type] [method]
+    MIPS:
+        1 - Put the parameters into $a0-$a3. If there are more than four parameters,
+            the additional parameters are pushed onto the stack.
+        2 - Save any of the caller-saved registers ($t0 - $t9) which are used by the
+            caller.
+        3 - Execute a jal (or jalr) to jump to the function.
+        4 - Restore the caller-saved registers.
+        5 - If any arguments were passed on the stack (instead of in $a0-$a3), pop
+            them off of the stack.
+        6 - Extract the return value, if any, from register $v0.
+    """
+    t = get_type(vcall.type)
+    return [
+        # 3
+        mips.JalInstruction(__VT__[(vcall.type, vcall.method)])
+    ]
+
+
 __visitors__ = {
     cil.ArgNode: arg_to_mips_visitor,
     cil.AllocateNode: allocate_to_mips_visitor,
@@ -476,5 +516,6 @@ __visitors__ = {
     cil.LengthNode: length_to_mips_visitor,
     cil.ConcatNode: concat_to_mips_visitor,
     cil.LoadNode: load_to_mips_visitor,
-    cil.SubStringNode: substring_to_mips_visitor
+    cil.SubStringNode: substring_to_mips_visitor,
+    cil.VCAllNode: vcal_to_mips_visitor
 }
