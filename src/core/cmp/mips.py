@@ -417,3 +417,7 @@ class PrintVisitor:
     @visitor.when(LabelNode)
     def visit(self, node):
         return f"{node.name}:"
+
+    @visitor.when(BranchOnNotEqualNode)
+    def visit(self, node):
+        return f"bne {self.visit(node.reg1)} {self.visit(node.reg2)} {node.label}"
