@@ -83,7 +83,8 @@ class BaseCOOLToCILVisitor:
 
         self.current_function = self.register_function(self.to_function_name('abort', 'Object'))
         vname = self.define_internal_local()
-        self.register_instruction(cil.LoadNode(vname, 'data_0'))
+        data_node = [dn for dn in self.dotdata if dn.value == 'Program aborted'][0]
+        self.register_instruction(cil.LoadNode(vname, data_node))
         self.register_instruction(cil.PrintStrNode(vname))
         self.register_instruction(cil.ExitNode())
         # No need for RETURN here right??
