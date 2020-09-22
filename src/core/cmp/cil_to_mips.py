@@ -568,6 +568,21 @@ class CILToMIPSVisitor:
         self.free_reg(reg2)
 
         return instructions
+    
+
+    @visitor.when(cil.ErrorNode)
+    def visit(self, node):
+        instructions = []
+
+        mips_label = self._data_section[node.data_node.name].label
+
+        instructions.append(mips.LoadInmediateNode(mips.V0_REG, 4))
+        instructions.append(mips.LoadAddressNode(mips.ARG_REGISTERS[0], mips_label))
+        instructions.append(mips.SyscallNode())
+        instructions.append(mips.LoadInmediateNode(mips.V0_REG))
+        instructions.append(mips.SyscallNode())
+
+        return instructions
 
 
 
