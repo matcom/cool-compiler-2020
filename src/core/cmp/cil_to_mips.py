@@ -520,7 +520,12 @@ class CILToMIPSVisitor:
         self.free_reg(reg)
         
         return instructions
-        
+    
+    @visitor.when(cil.GotoNode)
+    def visit(self, node):
+        mips_label = self.get_mips_label(node.label)
+        return [mips.JumpNode(mips_label)]
+
     
     
         
