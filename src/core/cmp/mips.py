@@ -178,6 +178,10 @@ class BranchOnNotEqualNode(InstructionNode):
         self.reg2 = reg2
         self.label = label
     
+class JumpNode(InstructionNode):
+    def __init__(self, label):
+        self.label = label
+    
 
 
 class MIPSType:
@@ -422,3 +426,7 @@ class PrintVisitor:
     @visitor.when(BranchOnNotEqualNode)
     def visit(self, node):
         return f"bne {self.visit(node.reg1)} {self.visit(node.reg2)} {node.label}"
+    
+    @visitor.when(JumpNode)
+    def visit(self, node):
+        return f"j {node.label}"
