@@ -203,14 +203,20 @@ class CILToMIPSVisitor:
         
         #This try-except block is for debuggin purposes
         try:
-            code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
+            # code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
+            try:
+                for i, instruction in enumerate(node.instructions):
+                    self.visit(instruction)
+            except Exception as e:
+                if node.name == "function_init_at_A":
+                    print(i)
+                raise e
         except Exception as e:
-            if node.name == "function_main_at_Main":
-                print(node.instructions)
-                
+            if node.name == "function_init_at_A":
                 print(e)
-                print("HEREEEEEEE")
+                print(node.instructions)
             print(node.name)
+            
             
             
         final_instructions = []
@@ -424,29 +430,27 @@ class CILToMIPSVisitor:
     @visitor.when(cil.SetAttribNode)
     def visit(self, node):
         instructions = []
-        reg = self.get_free_reg()
+        reg1 = self.get_free_reg()
         reg2 = self.get_free_reg()
         
         obj_location = self.get_var_location(node.obj)
         
         tp = self._types[node.computed_type]
         
-        offset = (tp.attributes.index(node.attr) + 1) * mips.ATTR_SIZE
+        offset = (tp.attributes.index(node.attr) + 3) * mips.ATTR_SIZE
         
         
         instructions.append(mips.LoadWordNode(reg2, obj_location))
 
         if type(node.value) == int:
-            instructions.append(mips.LoadInmediateNode(reg, node.value))
-        #if node.value.isnumeric():
-        #    instructions.append(mips.LoadInmediateNode(reg, int(node.value)))
+            instructions.append(mips.LoadInmediateNode(reg1, node.value))
         else:
             src_location = self.get_var_location(node.value)
-            instructions.append(mips.LoadWordNode(reg, src_location))
+            instructions.append(mips.LoadWordNode(reg1, src_location))
         
-        instructions.append(mips.StoreWordNode(reg, mips.RegisterRelativeLocation(reg2, offset)))
+        instructions.append(mips.StoreWordNode(reg1, mips.RegisterRelativeLocation(reg2, offset)))
 
-        self.free_reg(reg)
+        self.free_reg(reg1)
         self.free_reg(reg2)
         return instructions
     
@@ -514,8 +518,8 @@ class CILToMIPSVisitor:
         mips_label = self.get_mips_label(node.label)
 
         location = self.get_var_location(node.condition)
-        instrucctions.append(mips.LoadWordNode(reg, location))
-        instrucctions.append(mips.BranchOnNotEqualNode(reg, mips.ZERO_REG, mips_label))
+        instructions.append(mips.LoadWordNode(reg, location))
+        instructions.append(mips.BranchOnNotEqualNode(reg, mips.ZERO_REG, mips_label))
 
         self.free_reg(reg)
         
@@ -579,7 +583,7 @@ class CILToMIPSVisitor:
         instructions.append(mips.LoadInmediateNode(mips.V0_REG, 4))
         instructions.append(mips.LoadAddressNode(mips.ARG_REGISTERS[0], mips_label))
         instructions.append(mips.SyscallNode())
-        instructions.append(mips.LoadInmediateNode(mips.V0_REG))
+        instructions.append(mips.LoadInmediateNode(mips.V0_REG, 10))
         instructions.append(mips.SyscallNode())
 
         return instructions
