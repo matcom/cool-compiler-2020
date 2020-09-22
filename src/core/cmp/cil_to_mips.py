@@ -543,6 +543,39 @@ class CILToMIPSVisitor:
 
         return instructions
 
+    @visitor.when(cil.DynamicCallNode)
+    def visit(self, node):
+        instructions = []
+
+        reg1 = self.get_free_reg()
+        reg2 = self.get_free_reg()
+
+        comp_tp = self._types[node.computed_type]
+        method_index = list(comp_tp.methods).index(node.method)
+
+        tp_location = self.get_var_location(node.type)
+        instructions.append(mips.LoadAddressNode(reg1, mips.PROTO_TABLE_LABEL))
+        instructions.append(mips.LoadWordNode(reg2, tp_location))
+        instructions.append(mips.ShiftLeftLogicalNode(reg2, reg2, 2))
+        instructions.append(mips.AddUnsignedNode(reg1, reg1, reg2 ))
+        instructions.append(mips.LoadWordNode(reg1, mips.RegisterRelativeLocation(reg1, 0)))
+        instructions.append(mips.LoadWordNode(reg1, mips.RegisterRelativeLocation(reg1, 8)))
+        instructions.append(mips.AddInmediateUnsignedNode(reg1, reg1, method_index*4))
+        instructions.append(mips.LoadWordNode(reg1, mips.RegisterRelativeLocation(reg1, 0)))
+        instructions.append(mips.JumpRegisterAndLinkNode(reg1))
+
+        self.free_reg(reg1)
+        self.free_reg(reg2)
+
+        return instructions
+
+
+
+
+
+
+
+
 
     
     

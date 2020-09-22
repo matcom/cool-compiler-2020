@@ -346,7 +346,7 @@ class PrintVisitor:
     
     @visitor.when(MIPSType)
     def visit(self, node):
-        methods = "\n".join([f"\t.word\t {v}" for v in node.methods.values()])
+        methods = "\n".join([f"\t.word\t {node.methods[k]}" for k in node.methods])
         dispatch_table = f"{node.label}_dispatch:\n{methods}"
         proto_begin = f"{node.label}_proto:\n\t.word\t{node.index}\n\t.word\t{node.size}\n\t.word\t{node.label}_dispatch"
         proto_attr = "\n".join(['\t.word\t0' for _ in node.attributes])

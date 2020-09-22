@@ -68,7 +68,8 @@ type_3_proto:
 
 type_4_dispatch:
 	.word	 L_14
-
+	.word	 test1
+	
 type_4_proto:
 	.word	3
 	.word	5
@@ -109,6 +110,17 @@ type_6_proto:
 	.text
 	.globl main
 main:
+
+	li $t0 3
+	la $s1 proto_table
+	sll $t0 $t0 2
+	addu $s1 $s1 $t0
+	lw $s1 0($s1)
+	lw $s1 8($s1)
+	addiu $s1 $s1 4
+	lw $s1 0($s1)
+	jal $s1
+
 	jal mem_manager_init
 	addi $sp, $sp, -4
 	sw $fp, 0($sp)
@@ -138,6 +150,13 @@ main:
 	lw $fp, 0($sp)
 	addi $sp, $sp, 4
 	li $v0, 10
+	syscall
+
+test1:
+	li $v0 1
+	li $a0 18
+	syscall
+	li $v0 10
 	syscall
 L_1:
 	addi $sp, $sp, -4
