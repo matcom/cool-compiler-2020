@@ -326,6 +326,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
                 scope.ret_expr = self.default_values[node.type]
             except KeyError:
                 #Void value
+                return
                 scope.ret_expr = cil.VoidNode()
         self.register_instruction(cil.SetAttribNode(instance, node.id, scope.ret_expr, self.current_type.name))
                 

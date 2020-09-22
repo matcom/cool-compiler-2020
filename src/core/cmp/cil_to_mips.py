@@ -187,7 +187,7 @@ class CILToMIPSVisitor:
         self.register_function(node.name, new_func)
         self.init_function(new_func)
 
-        for intructions in node.instructions:
+        for instruction in node.instructions:
             self.collect_labels_in_func(instruction)
 
         initial_instructions = []
@@ -285,6 +285,8 @@ class CILToMIPSVisitor:
         if node.source.isnumeric():
             load_value = mips.LoadInmediateNode(reg, int(node.source))
             instructions.append(load_value)
+        elif type(node.source) == cil.VoidNode:
+            instructions.append(mips.LoadInmediateNode(reg, 0))
         else:
             value_location = self.get_var_location(node.source)
             load_value = mips.LoadWordNode(reg, value_location)
@@ -477,12 +479,16 @@ class CILToMIPSVisitor:
 
         if type(node.left) == int:
             instructions.append(mips.LoadInmediateNode(mips.ARG_REGISTERS[0], node.left))
+        elif type(node.left) == cil.VoidNode:
+            instructions.append(mips.LoadInmediateNode(mips.ARG_REGISTERS[0], 0))
         else:
             location = self.get_var_location(node.left)
             instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[0], location))
         
         if type(node.right) == int:
             instructions.append(mips.LoadInmediateNode(mips.ARG_REGISTERS[1], node.right))
+        elif type(node.right) == cil.VoidNode:
+            instructions.append(mips.LoadInmediateNode(mips.ARG_REGISTERS[1], 0))
         else:
             location = self.get_var_location(node.right)
             instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], location))
