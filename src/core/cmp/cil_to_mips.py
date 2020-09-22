@@ -526,6 +526,24 @@ class CILToMIPSVisitor:
         mips_label = self.get_mips_label(node.label)
         return [mips.JumpNode(mips_label)]
 
+    @visitor.when(cil.TypeOfNode)
+    def visit(self, node):
+        instructions = []
+
+        reg = self.get_free_reg()
+
+        obj_location = self.get_var_location(node.obj)
+        instructions.append(mips.LoadWordNode(reg, obj_location))
+        instructions.append(mips.LoadWordNode(reg, mips.RegisterRelativeLocation(reg, 0)))
+        
+        dest_location = self.get_var_location(node.dest)
+        instructions.append(mips.StoreWordNode(reg, dest_location))
+
+        self.free_reg(reg)
+
+        return instructions
+
+
     
     
         
