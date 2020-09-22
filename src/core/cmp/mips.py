@@ -24,6 +24,7 @@ SP_REG              = Register('sp')
 RA_REG              = Register('ra')
 V0_REG              = Register('v0')
 V1_REG              = Register('v1')
+ZERO_REG            = Register('zero')
 
 class Node:
     pass

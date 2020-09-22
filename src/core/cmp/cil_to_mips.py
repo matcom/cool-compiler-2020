@@ -503,6 +503,24 @@ class CILToMIPSVisitor:
     @visitor.when(cil.LabelNode)
     def visit(self, node):
         return [mips.LabelNode(self.get_mips_label(node.label))]
+
+    @visitor.when(cil.GotoIfNode)
+    def visit(self, node):
+        
+        instructions = []
+
+        reg = self.get_free_reg()
+        
+        mips_label = self.get_mips_label(node.label)
+
+        location = self.get_var_location(node.condition)
+        instrucctions.append(mips.LoadWordNode(reg, location))
+        instrucctions.append(mips.BranchOnNotEqualNode(reg, mips.ZERO_REG, mips_label))
+
+        self.free_reg(reg)
+        
+        return instructions
+        
     
     
         
