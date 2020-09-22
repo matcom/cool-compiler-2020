@@ -13,7 +13,6 @@ class BaseCOOLToCILVisitor:
         self.current_function = None
         self.context = context
         self.vself = VariableInfo('self', None)
-        self.default_values = {'Int': 0, 'String': '', 'Bool': 0}
     
     @property
     def params(self):
@@ -84,7 +83,8 @@ class BaseCOOLToCILVisitor:
 
         self.current_function = self.register_function(self.to_function_name('abort', 'Object'))
         vname = self.define_internal_local()
-        self.register_instruction(cil.LoadNode(vname, 'data_0'))
+        data_node = [dn for dn in self.dotdata if dn.value == 'Program aborted'][0]
+        self.register_instruction(cil.LoadNode(vname, data_node))
         self.register_instruction(cil.PrintStrNode(vname))
         self.register_instruction(cil.ExitNode())
         # No need for RETURN here right??
@@ -301,10 +301,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         instance = self.define_internal_local()
         self.register_instruction(cil.AllocateNode(node.id, instance))
         
+        scope.ret_expr = instance
 
         attr_declarations = (f for f in node.features if isinstance(f, cool.AttrDeclarationNode))
         for feature in attr_declarations:
-            scope.ret_expr = instance
             self.visit(feature, scope)
         self.register_instruction(cil.ReturnNode(instance))
         self.current_function = None
@@ -321,14 +321,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         instance = scope.ret_expr
         if node.expr:
             self.visit(node.expr, scope)
-        else:
-            try:
-                scope.ret_expr = self.default_values[node.type]
-            except KeyError:
-                #Void value
-                return
-                scope.ret_expr = cil.VoidNode()
-        self.register_instruction(cil.SetAttribNode(instance, node.id, scope.ret_expr, self.current_type.name))
+            self.register_instruction(cil.SetAttribNode(instance, node.id, scope.ret_expr, self.current_type))
+        scope.ret_expr = instance
                 
     @visitor.when(cool.FuncDeclarationNode)
     def visit(self, node, scope):
@@ -512,14 +506,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         vname = self.register_local(VariableInfo(node.id, node.type))
         if node.expr:
             self.visit(node.expr, scope)
-        else:
-            try:
-                scope.ret_expr = self.default_values[node.type]
-            except KeyError:
-                #Void value
-                scope.ret_expr = cil.VoidNode()
-        self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
-
+            self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
+        
     @visitor.when(cool.AssignNode)
     def visit(self, node, scope):
         ###############################
