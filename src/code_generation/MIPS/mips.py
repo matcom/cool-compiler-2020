@@ -479,19 +479,17 @@ def vcal_to_mips_visitor(vcall: cil.VCAllNode):
     CIL:
         result = VCALL [type] [method]
     MIPS:
-        1 - Put the parameters into $a0-$a3. If there are more than four parameters,
-            the additional parameters are pushed onto the stack.
-        2 - Save any of the caller-saved registers ($t0 - $t9) which are used by the
+        1 - Save any of the caller-saved registers ($t0 - $t9) which are used by the
             caller.
-        3 - Execute a jal (or jalr) to jump to the function.
-        4 - Restore the caller-saved registers.
-        5 - If any arguments were passed on the stack (instead of in $a0-$a3), pop
+        2 - Execute a jal (or jalr) to jump to the function.
+        3 - Restore the caller-saved registers.
+        4 - If any arguments were passed on the stack (instead of in $a0-$a3), pop
             them off of the stack.
-        6 - Extract the return value, if any, from register $v0.
+        5 - Extract the return value, if any, from register $v0.
     """
     t = get_type(vcall.type)
     return [
-        # 3
+        # 2
         mips.JalInstruction(__VT__[(vcall.type, vcall.method)])
     ]
 
