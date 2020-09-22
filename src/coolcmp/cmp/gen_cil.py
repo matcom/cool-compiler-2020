@@ -2,16 +2,18 @@ from coolcmp.cmp.utils import init_logger
 from coolcmp.cmp.cil_ast import *
 from coolcmp.cmp.my_ast import *
 from coolcmp.cmp.environment import Environment
+from collections import defaultdict
 
 class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (ie, they are not generated)
     def __init__(self, cls_refs):
         self.logger = init_logger('GenCIL')
-        self.cur_table = List()
         self.cls_refs = cls_refs
         self.attrs = List()
-        self.cil_code = CILCode(List(), List())
+        self.cil_code = CILCode(List(), List(), defaultdict(lambda: []))
         self.pos = -1
+        self.max_idx = -1
         self.cur_env = None  #environment for locals only
+        self.cur_cls = None
 
     @staticmethod
     def get_default_value(_type: str):
@@ -50,20 +52,28 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
 
         return res
 
-    def visit_Class(self, node):
-        old_table = self.cur_table
-        self.cur_table = List(old_table[:])
+    #this functions dont have attributes or methods, so extra code of visit_Class is not needed
+    def visit_IntClass(self, node):
+        self.cil_code.init_functions.append(IntInit())
 
+    def visit_StringClass(self, node):
+        self.cil_code.init_functions.append(StringInit())
+
+    def visit_BoolClass(self, node): pass #bool doesnt have init function, its 2 objects will be saved in data segment
+
+    def visit_Class(self, node):
         old_attrs = self.attrs
         self.attrs = List(old_attrs[:])
 
         old_env = self.cur_env
         self.cur_env = Environment(old_env)
 
-        self.attr_dict = {}
-        self.attr_dict['self'] = 0  #self is attr number 0
+        old_cls = self.cur_cls
+        self.cur_cls = node
 
-        p = 1
+        self.attr_dict = {}
+
+        p = 0
         for decl in self.attrs:  #declarations of attributes from inheritance
             self.attr_dict[decl.ref.name] = p
             p += 1
@@ -75,24 +85,23 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         for feature in node.feature_list:
             self.visit(feature)
 
-        func_init = FuncInit(node.type.value, self.attrs, self.attr_dict, self.cur_table)
+        func_init = FuncInit(node.type.value, self.attrs, self.attr_dict)
         self.cil_code.init_functions.append(func_init)
 
         self.logger.debug(func_init)
-        self.logger.debug(f'FunctionTable: {self.cur_table}')
-        self.logger.debug(f'Attrs: {self.attrs}')
+        self.logger.debug(f'Attrs: {list(self.attrs)}')
 
         for cls in node.children:
             self.visit(cls)
 
         self.pos -= self.cur_env.definitions  #undo
         self.cur_env = old_env
-
-        self.cur_table = old_table
         self.attrs = old_attrs
+        self.cur_cls = old_cls
 
     def visit_Formal(self, node):
         self.pos += 1  #do
+        self.max_idx = max(self.max_idx, self.pos)
         self.cur_env.define(node.id.value, self.pos)
 
         return self.visit(node.id)
@@ -102,28 +111,39 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         self.cur_env = Environment(old_env)
 
         assert self.pos == -1
+        assert self.max_idx == -1
 
         formals = List([ self.visit(formal) for formal in node.formal_list ])
         body = self.visit(node.expr) if node.expr else None  #if method is not native visit body, else None
 
-        new_func = Function(node.id.value, formals, body)
+        new_func = Function(node.id.value, formals, body, self.max_idx + 1)
+
+        #needed for fast dispatch
+        new_func.td = self.cur_cls.td
+        new_func.tf = self.cur_cls.tf
+        new_func.level = self.cur_cls.level
+        new_func.label = f'{self.cur_cls.type.value}.{new_func.name}'
+
+        self.logger.debug(f'{new_func}, td={new_func.td}, tf={new_func.tf}, level={new_func.level}, locals_size={new_func.locals_size}, label={new_func.label}')
 
         self.cil_code.functions.append(new_func)
+        self.cil_code.dict_func[new_func.name].append(new_func)
 
-        for i, func in enumerate(self.cur_table):
-            if func.name == node.id.value:  #can happen at most once
-                self.cur_table[i] = new_func
-                break
-
-        else:
-            self.cur_table.append(new_func)
-
+        self.max_idx = -1
         self.pos -= self.cur_env.definitions  #undo
         self.cur_env = old_env
 
     def visit_Attribute(self, node):
-        dec = AttrDecl(self.visit(node.id), node.type.value, self._get_declaration_expr(node))
+        assert self.pos == -1
+        assert self.max_idx == -1
+
+        ref = self.visit(node.id)
+        expr = self._get_declaration_expr(node)
+
+        dec = AttrDecl(ref, node.type.value, expr, self.max_idx + 1)
         self.attrs.append(dec)
+
+        self.max_idx = -1
 
     def visit_Dispatch(self, node):
         expr = self.visit(node.expr)
@@ -157,6 +177,7 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         expr = self._get_declaration_expr(node)
 
         self.pos += 1  #do
+        self.max_idx = max(self.max_idx, self.pos)
         self.cur_env.define(node.id.value, self.pos)
 
         ref = self.visit(node.id)
@@ -177,6 +198,7 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
 
     def visit_CaseVar(self, node):
         self.pos += 1  #do
+        self.max_idx = max(self.max_idx, self.pos)
         self.cur_env.define(node.id.value, self.pos)
 
         cls = self.cls_refs[node.type.value]
@@ -241,6 +263,10 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
 
     def visit_Id(self, node):
         ref = Reference(node.value)
+
+        if ref.name == 'self':  #ignore self for now, it will be always saved in some fixed register at CG
+            return ref
+
         to = self.cur_env.get(ref.name)
 
         if to is None:  #must be an attr variable

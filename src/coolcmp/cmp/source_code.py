@@ -21,9 +21,9 @@ class SourceCode:
     def _inject_native_classes(self):
         self.native_classes = [
             Class(Type('Object')),
-            Class(Type('Int'), can_inherit=False),
-            Class(Type('String'), can_inherit=False),
-            Class(Type('Bool'), can_inherit=False),
+            IntClass(),
+            StringClass(),
+            BoolClass(),
             Class(Type('IO'))
         ]
 
@@ -90,5 +90,8 @@ class SourceCode:
     def genCILCode(self):
         cil = GenCIL(self.cls_refs)
         cil.visit(self.root)
+
+        for lst in cil.cil_code.dict_func.values():
+            lst.sort(key=lambda x: x.level, reverse=True)  #sort by greater level
 
         return cil.cil_code

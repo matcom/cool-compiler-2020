@@ -85,6 +85,15 @@ class TypeChecker:
 
         return res
 
+    def visit_IntClass(self, node):
+        self.visit_Class(node)
+
+    def visit_StringClass(self, node):
+        self.visit_Class(node)
+
+    def visit_BoolClass(self, node):
+        self.visit_Class(node)
+
     def visit_Class(self, node):
         old_env = self.cur_env
         self.cur_env = Environment(old_env)

@@ -61,6 +61,18 @@ class Class(ASTNode):
     def __repr__(self):
         return f'<Class {self.type}>'
 
+class IntClass(Class):
+    def __init__(self):
+        Class.__init__(self, type=Type('Int'), can_inherit=False)
+
+class StringClass(Class):
+    def __init__(self):
+        Class.__init__(self, type=Type('String'), can_inherit=False)
+
+class BoolClass(Class):
+    def __init__(self):
+        Class.__init__(self, type=Type('Bool'), can_inherit=False)
+
 class SELF_TYPE(Class):
     def __init__(self):
         Class.__init__(self, Type('SELF_TYPE'))
