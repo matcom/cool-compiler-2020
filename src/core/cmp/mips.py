@@ -171,6 +171,12 @@ class ShiftLeftLogicalNode(InstructionNode):
         self.src  = src
         self.bits = bits
     
+class BranchOnNotEqualNode(InstructionNode):
+    def __init__(self, reg1, reg2, label):
+        self.reg1 = reg1
+        self.reg2 = reg2
+        self.label = label
+    
 
 
 class MIPSType:
