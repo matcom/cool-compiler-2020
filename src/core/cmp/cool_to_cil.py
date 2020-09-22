@@ -13,7 +13,6 @@ class BaseCOOLToCILVisitor:
         self.current_function = None
         self.context = context
         self.vself = VariableInfo('self', None)
-        self.default_values = {'Int': 0, 'String': '', 'Bool': 0}
     
     @property
     def params(self):
@@ -319,13 +318,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         instance = scope.ret_expr
         if node.expr:
             self.visit(node.expr, scope)
-        else:
-            try:
-                scope.ret_expr = self.default_values[node.type]
-            except KeyError:
-                #Void value
-                scope.ret_expr = cil.VoidNode()
-        self.register_instruction(cil.SetAttribNode(instance, node.id, scope.ret_expr, node.type))
+            self.register_instruction(cil.SetAttribNode(instance, node.id, scope.ret_expr, self.current_type))
+        scope.ret_expr = instance
                 
     @visitor.when(cool.FuncDeclarationNode)
     def visit(self, node, scope):
@@ -509,14 +503,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         vname = self.register_local(VariableInfo(node.id, node.type))
         if node.expr:
             self.visit(node.expr, scope)
-        else:
-            try:
-                scope.ret_expr = self.default_values[node.type]
-            except KeyError:
-                #Void value
-                scope.ret_expr = cil.VoidNode()
-        self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
-
+            self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
+        
     @visitor.when(cool.AssignNode)
     def visit(self, node, scope):
         ###############################
