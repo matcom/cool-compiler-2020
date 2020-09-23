@@ -1,5 +1,5 @@
 from code_generation.MIPS import ast as mips
-
+import re
 
 __TYPES__ = {}
 __ADDRS__ = {}
@@ -54,3 +54,10 @@ def save_address(key, value):
             __ADDRS__[key] = f'($sp)'
 
     __ADDRS__[key] = value
+
+
+register_pattern = re.compile(r'\$v[0-1]|\$a[0-3]|\$t[0-9]|\$s[0-7]')
+
+
+def is_register(addr: str):
+    return register_pattern.match(addr) != None
