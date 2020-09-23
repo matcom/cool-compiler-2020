@@ -51,8 +51,16 @@ class MIPSFunction:
         self.init_instructions.append(MoveInstruction('$fp', '$sp'))
 
         self.params_count = len(params)
-        for i, p in enumerate(params, 1):
-            self.ADDR[p.id] = f'{(self.params_count - i) * 4}($fp)'
+        # Store first 4 arguments in $a0 - $a3 registers
+        i = 0
+        while i < self.params_count and i < 4:
+            p = params[i]
+            self.ADDR[p.id] = f'$a{i}'
+            i += 1
+        # Save the rest on the stack
+        if i < self.params_count:
+            for j, p in enumerate(params[i:]):
+                self.ADDR[p.id] = f'{j * 4}($fp)'
 
         for i, l in enumerate(locals, 1):
             self.ADDR[str(l)] = f'-{i * 4}($fp)'
