@@ -139,7 +139,7 @@ class Instruction:
         self.callee_saved_reg = set()
         patterns = [re.compile(r'\$(?P<register>..)'),
                     re.compile(r'[0-9]+\(\$(?P<register>..)\)')]
-        caller_pattern = re.compile(r't[0-9]|a[0-3]|v[0-1]')
+        caller_pattern = re.compile(r't[0-9]')
         callee_pattern = re.compile(r's[0-7]')
         for a in self.arguments:
             for p in patterns:
