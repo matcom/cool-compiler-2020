@@ -12,13 +12,13 @@ class Main inherits IO {
 
     main() : Object {{
 		
-		out_string("\n");
+		out_int(0);
         if (x = y)
-			then out_string("EQUAL\n")
-			else out_string("NOT EQUAL\n")
+			then out_int(1)
+			else out_int(2)
 		fi;
-		out_string(x.type_name());
-		out_string("\n");
+		
+		out_int(0);
 
 		1 < 3 + let a:Int<-3 in a;
     }};
