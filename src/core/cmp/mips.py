@@ -449,4 +449,8 @@ class PrintVisitor:
     
     @visitor.when(AddNode)
     def visit(self, node):
-        return f"add {self.visit(node.reg1} {self.visit(node.reg2} {self.visit(node.reg3}"
+        return f"add {self.visit(node.reg1)} {self.visit(node.reg2)} {self.visit(node.reg3)}"
+    
+    @visitor.when(SubNode)
+    def visit(self, node):
+        return f"sub {self.visit(node.reg1)} {self.visit(node.reg2)} {self.visit(node.reg3)}"
