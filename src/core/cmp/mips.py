@@ -440,3 +440,7 @@ class PrintVisitor:
     @visitor.when(JumpNode)
     def visit(self, node):
         return f"j {node.label}"
+    
+    @visitor.when(AddNode)
+    def visit(self, node):
+        return f"add {self.visit(node.reg1} {self.visit(node.reg2} {self.visit(node.reg3}"
