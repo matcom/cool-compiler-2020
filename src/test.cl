@@ -1,26 +1,30 @@
 class Main {
+
     main(): Object {
         (new Alpha).print()
     };
 };
 
 class Test {
-    test1: Object;
+    test1: Int;
+    test2: Int <- test3;
     
     testing1(): Int {
         2 - 2
     };
 
-    test2: Int <- 1;
 
     test3: String <- "1";
 
     testing2(a: Alpha, b: Int): Int {
-        2 + 2
+        let count: Int, pow: Int <- 1 -- Initialization must be an expression
+        in {
+            count <- 0;
+        }
     };
 
-    testing3(): String {
-        testing2(1, 2)
+    testing3(): Int {
+        testing2(new Alpha, 2)
     };
 
     testing4(): Int {
@@ -29,6 +33,7 @@ class Test {
 };
 
 class Alpha inherits IO {
+    x : Int <- 0;
     print() : Object {
         out_string("reached!!\n")
     };

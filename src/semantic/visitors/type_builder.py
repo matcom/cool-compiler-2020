@@ -1,7 +1,7 @@
 from utils.errors import SemanticError, AttributesError, TypesError, NamesError
 from semantic.types import Type, VoidType, ErrorType, Attribute, Method
 from semantic.tools import Context
-from semantic.visitors import visitor 
+from utils import visitor 
 from utils.ast import *
 
 class TypeBuilder:

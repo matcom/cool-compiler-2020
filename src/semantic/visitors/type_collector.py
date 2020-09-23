@@ -1,6 +1,6 @@
 from utils.errors import SemanticError
 from semantic.tools import Context
-from semantic.visitors import visitor
+from utils import visitor
 from semantic.types import *
 from utils.ast import *
 
@@ -21,6 +21,7 @@ class TypeCollector(object):
         self.context.types['Object'] = ObjectType()
         self.context.types['Bool'] = BoolType()
         self.context.types['SELF_TYPE'] = SelfType()
+        self.context.types['IO'] = IOType()
         # self.context.create_type('SELF_TYPE', (0, 0))
         for dec in node.declarations:
             self.visit(dec)

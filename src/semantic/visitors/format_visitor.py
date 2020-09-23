@@ -1,4 +1,4 @@
-from semantic.visitors import visitor 
+from utils import visitor 
 from utils.ast import *
 
 class FormatVisitor(object):

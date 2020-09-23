@@ -1,8 +1,9 @@
-from semantic.visitors import visitor
+from utils import visitor
 from semantic.tools import *
-from semantic.types import Type, ErrorType
+from semantic.types import Type, ErrorType, IntType, StringType, BoolType
 from utils.errors import SemanticError, AttributesError, TypesError, NamesError
 from utils.ast import *
+from ply.lex import LexToken
 
 class VarCollector:
     def __init__(self, context=Context, errors=[]):
@@ -10,6 +11,7 @@ class VarCollector:
         self.current_type = None
         self.current_method = None
         self.errors = errors
+        self.current_index = None # Lleva 
         
     @visitor.on('node')
     def visit(self, node, scope):
@@ -48,10 +50,25 @@ class VarCollector:
                 self.visit(feat, scope)
 
 
+    def _define_default_value(self, typex, node):
+            if typex == IntType():
+                node.expr = ConstantNumNode(0)
+            elif typex == StringType():
+                node.expr = ConstantStrNode("")
+            elif typex == BoolType():
+                node.expr = ConstantBoolNode('false')
+            else:
+                node.expr = ConstantVoidNode()
         
     @visitor.when(AttrDeclarationNode)
     def visit(self, node:AttrDeclarationNode, scope:Scope):
-        scope.define_attribute(self.current_type.get_attribute(node.id, node.pos))
+        attr = self.current_type.get_attribute(node.id, node.pos)
+        if node.expr is None:
+            self._define_default_value(attr.type, node)
+        else:
+            self.visit(node.expr, scope)
+        attr.expr = node.expr
+        scope.define_attribute(attr)
 
         
     @visitor.when(FuncDeclarationNode)
@@ -98,8 +115,10 @@ class VarCollector:
         vtype = self._get_type(node.type, node.type_pos)
         var_info = scope.define_variable(node.id, vtype)
        
-        if node.expr != None:
+        if node.expr is not None:
             self.visit(node.expr, scope)
+        else:
+            self._define_default_value(vtype, node)
             
         
     @visitor.when(AssignNode)
@@ -149,13 +168,16 @@ class VarCollector:
 
     @visitor.when(VariableNode)
     def visit(self, node:VariableNode, scope:Scope):
-        if not scope.is_defined(node.lex):
-            error_text = NamesError.VARIABLE_NOT_DEFINED %(node.lex, self.current_method.name)
-            self.errors.append(NamesError(error_text, *node.pos))
-            vinfo = scope.define_variable(node.lex, ErrorType(node.pos))
-        else:
-            vinfo = scope.find_variable(node.lex)
-        return vinfo.type
+        try:
+            return self.current_type.get_attribute(node.lex, node.pos).type
+        except AttributesError:
+            if not scope.is_defined(node.lex):
+                error_text = NamesError.VARIABLE_NOT_DEFINED %(node.lex, self.current_method.name)
+                self.errors.append(NamesError(error_text, *node.pos))
+                vinfo = scope.define_variable(node.lex, ErrorType(node.pos))
+            else:
+                vinfo = scope.find_variable(node.lex)
+            return vinfo.type
 
 
     @visitor.when(WhileNode)

@@ -6,7 +6,7 @@ class Node:
 class ProgramNode(Node):
     def __init__(self, declarations):
         self.declarations = declarations
-
+ 
 class DeclarationNode(Node):
     pass
 
@@ -96,8 +96,12 @@ class StaticCallNode(ExpressionNode):
 
 class AtomicNode(ExpressionNode):
     def __init__(self, lex):
-        self.lex = lex.value
-        self.pos = (lex.lineno, lex.column)
+        try:
+            self.lex = lex.value
+            self.pos = (lex.lineno, lex.column)
+        except AttributeError:
+            self.lex = lex
+            self.pos = (0, 0)
 
 class BinaryNode(ExpressionNode):
     def __init__(self, left, right):
@@ -173,6 +177,10 @@ class ConstantBoolNode(AtomicNode):
 class ConstantStrNode(AtomicNode):
     pass
 
+class ConstantVoidNode(AtomicNode):
+    def __init__(self):
+        super().__init__('void')
+
 class VariableNode(AtomicNode):
     pass
  
@@ -188,7 +196,7 @@ class BinaryNotNode(UnaryArithNode):
 class NotNode(UnaryLogicalNode):
     pass
 
-class IsVoidNode(UnaryArithNode):
+class IsVoidNode(UnaryLogicalNode):
     pass
 
 class PlusNode(BinaryArithNode):

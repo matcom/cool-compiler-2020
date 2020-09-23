@@ -27,9 +27,10 @@ class Context:
         return str(self)
 
 class VariableInfo:
-    def __init__(self, name, vtype):
+    def __init__(self, name, vtype, index=None):
         self.name = name
         self.type = vtype
+        self.index = index  # saves the index in the scope of the variable
 
     def __str__(self):
         return f'{self.name} : {self.type.name}'
@@ -40,6 +41,7 @@ class VariableInfo:
 class Scope:
     def __init__(self, parent=None):
         self.locals = []
+        self.attributes = []
         self.parent = parent
         self.children = []
         self.expr_dict = { }
@@ -82,11 +84,27 @@ class Scope:
         return info
 
     def find_variable(self, vname, index=None):
-        locals = self.locals if index is None else itt.islice(self.locals, index)
+        locals = self.attributes + self.locals
+        locals = locals if index is None else itt.islice(locals, index)
         try:
             return next(x for x in locals if x.name == vname)
         except StopIteration:
             return self.parent.find_variable(vname, self.index) if self.parent else None
+
+    def find_local(self, vname, index=None):
+        locals = self.locals if index is None else itt.islice(self.locals, index)
+        try:
+            return next(x for x in locals if x.name == vname)
+        except StopIteration:
+            return self.parent.find_local(vname, self.index) if self.parent else None
+
+    def find_attribute(self, vname, index=None):
+        locals = self.attributes if index is None else itt.islice(self.attributes, index)
+        try:
+            return next(x for x in locals if x.name == vname)
+        except StopIteration:
+            return self.parent.find_attribute(vname, self.index) if self.parent else None
+
 
     def get_class_scope(self):
         if self.parent == None or self.parent.parent == None:
@@ -100,4 +118,4 @@ class Scope:
         return any(True for x in self.locals if x.name == vname)
 
     def define_attribute(self, attr):
-        self.locals.append(attr)
+        self.attributes.append(attr)

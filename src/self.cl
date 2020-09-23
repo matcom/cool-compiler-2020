@@ -6,4 +6,4 @@ class Sally inherits Silly { };
 class Main {
     x : Sally <- (new Sally).copy();
     main() : Sally { new SELF_TYPE };
-};
+}; 

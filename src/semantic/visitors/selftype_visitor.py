@@ -1,6 +1,6 @@
 from semantic.tools import *
 from semantic.types import Type, Method
-from semantic.visitors import visitor
+from utils import visitor
 from utils.ast import *
 
 class SelfTypeVisitor(object):

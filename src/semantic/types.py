@@ -1,9 +1,12 @@
 from utils.errors import SemanticError, AttributesError, TypesError, NamesError
+from collections import OrderedDict
 
 class Attribute:
-    def __init__(self, name, typex):
+    def __init__(self, name, typex, index):
         self.name = name
         self.type = typex
+        self.index = index  # lugar que ocupa en el scope
+        self.expr = None
 
     def __str__(self):
         return f'[attrib] {self.name} : {self.type.name};'
@@ -39,7 +42,7 @@ class Type:
         if name == 'ObjectType':
             return ObjectType(pos)
         self.name = name
-        self.attributes = []
+        self.attributes = {}
         self.methods = {}
         self.parent = ObjectType(pos)
         self.pos = pos
@@ -50,10 +53,10 @@ class Type:
             raise TypesError(error_text, *self.pos)
         self.parent = parent
 
-    def get_attribute(self, name:str, pos):
+    def get_attribute(self, name:str, pos) -> Attribute:
         try:
-            return next(attr for attr in self.attributes if attr.name == name)
-        except StopIteration:
+            return self.attributes[name] #next(attr for attr in self.attributes if attr.name == name)
+        except KeyError:
             if self.parent is None:
                 error_text = AttributesError.ATTRIBUTE_NOT_DEFINED % (name, self.name)
                 raise AttributesError(error_text, *pos)
@@ -67,14 +70,14 @@ class Type:
         try:
             self.get_attribute(name, pos)
         except AttributesError:
-            attribute = Attribute(name, typex)
-            self.attributes.append(attribute)
+            self.attributes[name] = attribute = Attribute(name, typex, len(self.attributes))
+            # self.attributes.append(attribute)
             return attribute
         else:
             error_text = AttributesError.ATTRIBUTE_ALREADY_DEFINED %(name, self.name)
             raise AttributesError(error_text, *pos)
 
-    def get_method(self, name:str, pos):
+    def get_method(self, name:str, pos) -> Method:
         try:
             return self.methods[name]
         except KeyError:
@@ -97,7 +100,19 @@ class Type:
     def change_type(self, method, nparm, newtype):
         idx = method.param_names.index(nparm)
         method.param_types[idx] = newtype
-                
+
+    def all_attributes(self, clean=True):
+        plain = OrderedDict() if self.parent is None else self.parent.all_attributes(False)
+        for attr in self.attributes.values():
+            plain[attr.name] = (attr, self)
+        return plain.values() if clean else plain
+
+    def all_methods(self, clean=True):
+        plain = OrderedDict() if self.parent is None else self.parent.all_methods(False)
+        for method in self.methods.values():
+            plain[method.name] = (method, self)
+        return plain.values() if clean else plain
+   
 
     def conforms_to(self, other):
         return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
@@ -111,7 +126,7 @@ class Type:
         output += parent
         output += ' {'
         output += '\n\t' if self.attributes or self.methods else ''
-        output += '\n\t'.join(str(x) for x in self.attributes)
+        output += '\n\t'.join(str(x) for x in self.attributes.values())
         output += '\n\t' if self.attributes else ''
         output += '\n\t'.join(str(x) for x in self.methods.values())
         output += '\n' if self.methods else ''
@@ -142,7 +157,7 @@ class VoidType(Type):
         Type.__init__(self, '<void>', pos)
 
     def conforms_to(self, other):
-        raise Exception('Invalid type: void type.')
+        return True
 
     def bypass(self):
         return True
@@ -153,7 +168,7 @@ class VoidType(Type):
 class BoolType(Type):
     def __init__(self, pos=(0, 0)):
         self.name = 'Bool'
-        self.attributes = []
+        self.attributes = {}
         self.methods = {}
         self.parent = None
         self.pos = pos
@@ -168,7 +183,7 @@ class BoolType(Type):
 class SelfType(Type):
     def __init__(self, pos=(0, 0)):
         self.name = 'Self'
-        self.attributes = []
+        self.attributes = {}
         self.methods = {}
         self.parent = None
         self.pos = pos
@@ -183,7 +198,7 @@ class SelfType(Type):
 class IntType(Type):
     def __init__(self, pos=(0, 0)):
         self.name = 'Int'
-        self.attributes = []
+        self.attributes = {}
         self.methods = {}
         self.parent = None
         self.pos = pos
@@ -198,7 +213,7 @@ class IntType(Type):
 class StringType(Type):
     def __init__(self, pos=(0, 0)):
         self.name = 'String'
-        self.attributes = []
+        self.attributes = {}
         self.methods = {}
         self.parent = None
         self.pos = pos
@@ -219,7 +234,7 @@ class StringType(Type):
 class ObjectType(Type):
     def __init__(self, pos=(0, 0)):
         self.name = 'Object'
-        self.attributes = []
+        self.attributes = {}
         self.methods = {}
         self.parent = None
         self.pos = pos
@@ -250,7 +265,7 @@ class AutoType(Type):
 class IOType(Type):
     def __init__(self, pos=(0, 0)):
         self.name = 'IO'
-        self.attributes = []
+        self.attributes = {}
         self.methods = {}
         self.parent = ObjectType(pos)
         self.pos = pos

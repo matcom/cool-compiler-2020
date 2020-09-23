@@ -1,18 +1,18 @@
-from semantic.visitors import visitor
+from utils import visitor
 from semantic.tools import *
 from semantic.types import *
 from utils.utils import get_common_basetype, get_type
 from utils.ast import *
 from utils.errors import SemanticError, AttributesError, TypesError, NamesError
 
-
 class TypeChecker:
     def __init__(self, context:Context, errors=[]):
-        self.context = context
-        self.current_type = None
-        self.current_method = None
+        self.context:Context = context
+        self.current_type:Type = None
+        self.current_method:Method = None
         self.errors = errors
-        
+        self.current_index = None # Lleva el índice del scope en el que se está
+
     @visitor.on('node')
     def visit(self, node, scope):
         pass
@@ -54,19 +54,19 @@ class TypeChecker:
 
     @visitor.when(AttrDeclarationNode)
     def visit(self, node:AttrDeclarationNode, scope:Scope):
-        varinfo = scope.find_variable(node.id)
+        attr = self.current_type.get_attribute(node.id, node.pos)
+        # varinfo = scope.find_variable(node.id)
+        vartype = get_type(attr.type, self.current_type)
 
-        vartype = get_type(varinfo.type, self.current_type)
+        self.current_index = attr.index
+        typex = self.visit(node.expr, scope)
+        self.current_index = None
 
-        if node.expr is not None:
-            typex = self.visit(node.expr, scope)
-            if not typex.conforms_to(vartype):
-                error_text = TypesError.INCOMPATIBLE_TYPES %(typex.name, vartype.name)
-                self.errors.append(TypesError(error_text, *node.pos))
-                return ErrorType()
-            return typex
-        return vartype
-
+        if not typex.conforms_to(vartype):
+            error_text = TypesError.INCOMPATIBLE_TYPES %(typex.name, vartype.name)
+            self.errors.append(TypesError(error_text, *node.pos))
+            return ErrorType()
+        return typex
 
         
     @visitor.when(FuncDeclarationNode)
@@ -98,7 +98,7 @@ class TypeChecker:
     @visitor.when(VarDeclarationNode)
     def visit(self, node:VarDeclarationNode, scope:Scope):
 
-        var_info = scope.find_variable(node.id)
+        var_info = self.find_variable(scope, node.id)
         vtype = get_type(var_info.type, self.current_type)
 
         if node.expr != None:
@@ -112,7 +112,7 @@ class TypeChecker:
         
     @visitor.when(AssignNode)
     def visit(self, node:AssignNode, scope:Scope):
-        vinfo = scope.find_variable(node.id)
+        vinfo = self.find_variable(scope, node.id)
         vtype = get_type(vinfo.type, self.current_type) 
             
         typex = self.visit(node.expr, scope)
@@ -193,10 +193,21 @@ class TypeChecker:
     def visit(self, node:ConstantStrNode, scope:Scope):
         return StringType(node.pos)
 
+    @visitor.when(ConstantVoidNode)
+    def visit(self, node:ConstantVoidNode, scope:Scope):
+        return VoidType(node.pos)
+
+    def find_variable(self, scope, lex):
+        var_info = scope.find_attribute(lex, self.current_index)
+        if lex in self.current_type.attributes and var_info is None:
+            return VariableInfo(lex, VoidType())
+        if var_info is None:
+            var_info = scope.find_local(lex)
+        return var_info
 
     @visitor.when(VariableNode)
     def visit(self, node:VariableNode, scope:Scope):
-        typex = scope.find_variable(node.lex).type
+        typex = self.find_variable(scope, node.lex).type
         return get_type(typex, self.current_type)
        
 
@@ -211,8 +222,8 @@ class TypeChecker:
         
         if cond.name != 'Bool':
             self.errors.append(INCORRECT_TYPE % (cond.name, 'Bool'))   
-        return self.visit(node.expr, scope)
-
+        self.visit(node.expr, scope)
+        return VoidType()
 
     @visitor.when(IsVoidNode)
     def visit(self, node:IsVoidNode, scope:Scope):
@@ -280,7 +291,7 @@ class TypeChecker:
 
     @visitor.when(OptionNode)
     def visit(self, node:OptionNode, scope:Scope):
-        var_info = scope.find_variable(node.id)
+        var_info = self.find_variable(scope, node.id)
         typex = self.visit(node.expr, scope)
         return typex, var_info.type
 
@@ -317,7 +328,6 @@ class TypeChecker:
             return ErrorType()
 
         return BoolType()
-
 
 
     @visitor.when(UnaryArithNode)

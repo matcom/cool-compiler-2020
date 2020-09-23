@@ -6,7 +6,7 @@ from semantic.visitors.selftype_visitor import SelfTypeVisitor
 from semantic.visitors.type_checker import TypeChecker
 from semantic.visitors.format_visitor import FormatVisitor
 
-def run_pipeline(ast):
+def semantic_analysis(ast):
     print('============== COLLECTING TYPES ===============')
     errors = [] 
     collector = TypeCollector(errors)
