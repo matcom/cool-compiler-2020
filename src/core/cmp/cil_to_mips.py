@@ -625,6 +625,36 @@ class CILToMIPSVisitor:
         self.free_reg(reg)
 
         return instructions
+    
+    @visitor.when(cil.PlusNode)
+    def visit(self, node):
+        instructions = []
+
+        reg1 = self.get_free_reg()
+        reg2 = self.get_free_reg()
+
+        if type(node.left) == int:
+            instructions.append(mips.LoadInmediateNode(reg1, node.left))
+        else:
+            left_location = self.get_var_location(node.left)
+            instructions.append(mips.LoadWordNode(reg1, left_location))
+
+        if type(node.right) == int:
+            instructions.append(mips.LoadInmediateNode(reg2, node.right))
+        else:
+            right_location = self.get_var_location(node.right)
+            instructions.append(mips.LoadWordNode(reg2, right_location))
+
+        instructions.append(mips.AddNode(reg1, reg1, reg2))
+
+        dest_location = self.get_var_location(node.dest)
+        instructions.append(mips.StoreWordNode(reg1, dest_location))
+
+        self.free_reg(reg1)
+        self.free_reg(reg2)
+
+        return instructions
+
 
 
 
