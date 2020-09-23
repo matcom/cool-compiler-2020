@@ -608,6 +608,25 @@ class CILToMIPSVisitor:
         return instructions
 
 
+    @visitor.when(cil.NameNode)
+    def visit(self, node):
+        instructions = []
+
+        reg = self.get_free_reg()
+
+        instructions.append(mips.LoadAddressNode(reg, mips.TYPENAMES_TABLE_LABEL))
+        tp_number = self._types[node.name].index()
+        instructions.append(mips.AddInmediateUnsignedNode(reg, reg, tp_number*4))
+        instructions.append(mips.LoadWordNode(reg, mips.RegisterRelativeLocation(reg, 0)))
+
+        dest_location = self.get_var_location(node.dest)
+        instructions.append(mips.StoreWordNode(reg, dest_location))
+
+        self.free_reg(reg)
+
+        return instructions
+
+
 
 
 
