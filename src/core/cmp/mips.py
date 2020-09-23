@@ -181,6 +181,12 @@ class BranchOnNotEqualNode(InstructionNode):
 class JumpNode(InstructionNode):
     def __init__(self, label):
         self.label = label
+
+class AddNode(InstructionNode):
+    def __init__(self, reg1, reg2, reg3)
+        self.reg1 = reg1
+        self.reg2 = reg2
+        self.reg3 = reg3
     
 
 
