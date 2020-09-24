@@ -765,6 +765,31 @@ class CILToMIPSVisitor:
 
         return instructions
 
+    @visitor.when(cil.LessNode)
+    def visit(self, node):
+        instructions = []
+        #Save $a0, $a1, $v0
+
+        if type(node.left) == int:
+            instructions.append(mips.LoadInmediateNode(reg1, node.left))
+        else:
+            left_location = self.get_var_location(node.left)
+            instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[0], left_location))
+        
+        if type(node.right) == int:
+            instructions.append(mips.LoadInmediateNode(reg2, node.right))
+        else:
+            right_location = self.get_var_location(node.right)
+            instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], right_location))
+        
+        instruction.append(mips.JumpAndLinkNode('less'))
+        dest_location = self.get_var_location(node.dest)
+        instruction.append(mips.StoreWordNode(mips.V0_REG, dest_location))
+
+        return instructions
+    
+
+
         
     
 
