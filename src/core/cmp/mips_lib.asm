@@ -732,7 +732,16 @@ equals_end:
 
 
 
+less_equal:
+    ble $a0 $a1 less_equal_true
+    li $v0 0
+    j less_equal_end
 
+less_equal:
+    li $v0 1
+
+less_equal_end:
+    jr $ra
 
 
 
