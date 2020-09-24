@@ -1,6 +1,6 @@
 from codegen.cil_ast import ParamNode, LocalNode, FunctionNode, TypeNode, DataNode
 from semantic.tools import VariableInfo, Scope
-from semantic.types import Type
+from semantic.types import Type, StringType, ObjectType, IOType
 from codegen import cil_ast as cil
 from utils.ast import BinaryNode, UnaryNode
 
@@ -69,27 +69,26 @@ class BaseCOOLToCILVisitor:
         self.dotdata.append(data_node)
         return data_node
 
-    def _define_binary_node(self, node:BinaryNode, scope:Scope, cil_node:cil.Node):
+    def _define_binary_node(self, node: BinaryNode, scope: Scope, cil_node: cil.Node):
         result = self.define_internal_local()
         left, typex = self.visit(node.left, scope)
         right, typex = self.visit(node.right, scope)
         self.register_instruction(cil_node(result, left, right))
         return result, typex
 
-    def _define_unary_node(self, node:UnaryNode, scope:Scope, cil_node):
+    def _define_unary_node(self, node: UnaryNode, scope: Scope, cil_node):
         result = self.define_internal_local()
         expr, typex = self.visit(node.expr, scope)
         self.register_instruction(cil_node(result, expr))
         return result, typex
 
-    def native_methods(self, typex:Type, name:str, *args):
+    def native_methods(self, typex: Type, name: str, *args):
         if typex == StringType():
             return self.string_methods(name, *args)
         elif typex == ObjectType():
             return self.object_methods(name, *args)
         elif typex == IOType():
             return self.io_methods(name, *args)
-
 
     def string_methods(self, name, *args):
         result = self.define_internal_local()

@@ -1,9 +1,11 @@
 from utils import visitor
 from semantic.tools import *
 from semantic.types import *
-from utils.utils import get_common_basetype, get_type
 from utils.ast import *
 from utils.errors import SemanticError, AttributesError, TypesError, NamesError
+# from utils.utils import get_type, get_common_basetype
+from utils import get_type
+
 
 class TypeChecker:
     def __init__(self, context:Context, errors=[]):

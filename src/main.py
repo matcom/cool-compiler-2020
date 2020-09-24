@@ -1,8 +1,8 @@
-from lexer.lexer import CoolLexer
+from lexer import CoolLexer
 from utils.errors import CompilerError
 from semantic.semantic import semantic_analysis
-from parser.parser import CoolParser
 from codegen import codegen_pipeline
+from cool_parser import CoolParser
 
 def run_pipeline(input):
     try:
@@ -12,10 +12,10 @@ def run_pipeline(input):
         lexer = CoolLexer()
         tokens = lexer.run(text)
 
-        parser = CoolParser(lexer)
+        p = CoolParser(lexer)
 
-        ast = parser.parse(text, debug=True)
-        if parser.errors:
+        ast = p.parse(text, debug=True)
+        if p.errors:
             raise Exception()
         
         ast, errors, context, scope = semantic_analysis(ast)

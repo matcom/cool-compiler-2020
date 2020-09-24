@@ -1,14 +1,12 @@
 from semantic.visitors.type_collector import TypeCollector
 from semantic.visitors.type_builder import TypeBuilder
 from semantic.visitors.var_collector import VarCollector
-from semantic.visitors.selftype_visitor import SelfTypeVisitor
-# from semantic.visitors.autotype_visitor import AutoTypeVisitor
 from semantic.visitors.type_checker import TypeChecker
-from semantic.visitors.format_visitor import FormatVisitor
+
 
 def semantic_analysis(ast):
     print('============== COLLECTING TYPES ===============')
-    errors = [] 
+    errors = []
     collector = TypeCollector(errors)
     collector.visit(ast)
     context = collector.context
@@ -48,4 +46,3 @@ def semantic_analysis(ast):
     print('Scope:')
     print(scope)
     return ast, errors, context, scope
-

@@ -6,14 +6,14 @@ from semantic.types import *
 from utils import visitor
 from utils.utils import get_type, get_common_basetype
 
+
 class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.on('node')
     def visit(self, node):
         pass
-    
 
     @visitor.when(ProgramNode)
-    def visit(self, node:ProgramNode, scope:Scope):
+    def visit(self, node: ProgramNode, scope: Scope):
         self.current_function = self.register_function('entry')
         instance = self.define_internal_local()
         result = self.define_internal_local()
@@ -29,9 +29,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         return cil.ProgramNode(self.dottypes, self.dotdata, self.dotcode)
     
-    
     @visitor.when(ClassDeclarationNode)
-    def visit(self, node:ClassDeclarationNode, scope:Scope):
+    def visit(self, node: ClassDeclarationNode, scope: Scope):
         self.current_type = self.context.get_type(node.id, node.pos)
         
         cil_type = self.register_type(node.id)
@@ -46,9 +45,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         for feature, child_scope in zip(func_declarations, scope.children):
             self.visit(feature, child_scope)
 
-
     @visitor.when(FuncDeclarationNode)
-    def visit(self, node:FuncDeclarationNode, scope:Scope):   
+    def visit(self, node: FuncDeclarationNode, scope: Scope):
         self.current_method = self.current_type.get_method(node.id, node.pos)
         
         name = self.to_function_name(node.id, self.current_type.name)
@@ -65,9 +63,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(cil.ReturnNode(value)) 
         self.current_method = None
 
-
     @visitor.when(VarDeclarationNode)
-    def visit(self, node:VarDeclarationNode, scope:Scope):
+    def visit(self, node: VarDeclarationNode, scope: Scope):
         #? Aquí son solo locals o attributes también
         var_info = scope.find_variable(node.id)
         vtype = get_type(var_info.type, self.current_type)
@@ -79,9 +76,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
 
     @visitor.when(AssignNode)
-    def visit(self, node:AssignNode, scope:Scope):
+    def visit(self, node: AssignNode, scope: Scope):
         var_info = scope.find_local(node.id)
-        if var_info == None:
+        if var_info is None:
             var_info = scope.find_attribute(node.id)
             value, typex = self.visit(node.expr, scope)
             self.register_instruction(cil.SetAttribNode(VariableInfo('self', self.current_type), var_info, value))
@@ -89,14 +86,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             value, typex = self.visit(node.expr, scope)
         return value, typex
 
-
-    def _return_type(self, typex:Type, node):
+    def _return_type(self, typex: Type, node):
         meth = typex.get_method(node.id, node.pos)
         return get_type(meth.return_type, self.current_type)
 
-
     @visitor.when(CallNode)
-    def visit(self, node:CallNode, scope:Scope):
+    def visit(self, node: CallNode, scope: Scope):
         result = self.define_internal_local()
         obj, otype = self.visit(node.obj, scope)
         
@@ -109,10 +104,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         name = self.to_function_name(node.id, otype.name)
         self.register_instruction(cil.DynamicCallNode(otype.name, name, result))
         return result, self._return_type(otype, node)
-        
 
     @visitor.when(BaseCallNode)
-    def visit(self, node:BaseCallNode, scope:Scope):
+    def visit(self, node: BaseCallNode, scope: Scope):
         result = self.define_internal_local()
         obj, otype = self.visit(node.obj, scope)
         
@@ -125,10 +119,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         name = self.to_function_name(node.id, node.type)
         self.register_instruction(cil.DynamicCallNode(node.type, name, result))
         return result, self._return_type(otype, node)
-       
 
     @visitor.when(StaticCallNode)
-    def visit(self, node:StaticCallNode, scope:Scope):
+    def visit(self, node: StaticCallNode, scope: Scope):
         result = self.define_internal_local()
         
         args = [self.visit(arg, scope)[0] for arg in node.args]
@@ -141,25 +134,23 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(cil.StaticCallNode(name, result))
         return result, self._return_type(self.current_type, node)
 
-
     @visitor.when(ConstantNumNode)
-    def visit(self, node:ConstantNumNode, scope:Scope):
+    def visit(self, node: ConstantNumNode, scope: Scope):
         return int(node.lex), IntType()
-        
-    
+
     @visitor.when(ConstantBoolNode)
-    def visit(self, node:ConstantBoolNode, scope:Scope):
+    def visit(self, node: ConstantBoolNode, scope: Scope):
         return 1 if node.lex  == 'true' else 0, BoolType()
    
     @visitor.when(ConstantStrNode)
-    def visit(self, node:ConstantStrNode, scope:Scope):
+    def visit(self, node: ConstantStrNode, scope: Scope):
         data = self.register_data(node.lex)
         result = self.define_internal_local()
         self.register_instruction(cil.LoadNode(result, data.name))
         return result, StringType()
 
     @visitor.when(VariableNode)
-    def visit(self, node:VariableNode, scope:Scope):
+    def visit(self, node: VariableNode, scope: Scope):
         try:
             typex = scope.find_local(node.lex).type
             return node.lex, get_type(typex, self.current_type)
@@ -170,7 +161,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             return local_var, get_type(var_info.type, self.current_type)
 
     @visitor.when(InstantiateNode)
-    def visit(self, node:InstantiateNode, scope:Scope):
+    def visit(self, node: InstantiateNode, scope: Scope):
         instance = self.define_internal_local()
         typex = self.context.get_type(node.lex, node.pos)
         typex = get_type(typex, self.current_type)
@@ -183,7 +174,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
 
     @visitor.when(WhileNode)
-    def visit(self, node:WhileNode, scope:Scope):
+    def visit(self, node: WhileNode, scope: Scope):
         '''
         LABEL start
         IF <cond> GOTO continue
@@ -213,7 +204,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         return result, typex
 
     @visitor.when(ConditionalNode)
-    def visit(self, node:ConditionalNode, scope:Scope):
+    def visit(self, node: ConditionalNode, scope: Scope):
         '''
         IF cond GOTO true
         result = <false.expr>
@@ -224,8 +215,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         '''
         cond, _ = self.visit(node.cond, scope)
 
-        true_label = cil.LabelNode(true)
-        end_label = cil.LabelNode(end)
+        true_label = cil.LabelNode("true")
+        end_label = cil.LabelNode("end")
 
         result = self.define_internal_local()
         self.register_instruction(cil.GotoIfNode(cond, true_label))
@@ -240,9 +231,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(end_label)
         return result, get_common_basetype([ttypex, ftypex])
 
-
     @visitor.when(BlockNode)
-    def visit(self, node:BlockNode, scope:Scope):
+    def visit(self, node: BlockNode, scope: Scope):
         result = self.define_internal_local()
         value = None
         for exp in node.expr_list:
@@ -251,7 +241,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         return result, typex
 
     @visitor.when(LetNode)
-    def visit(self, node:LetNode, scope:Scope):
+    def visit(self, node: LetNode, scope: Scope):
         child_scope = scope.expr_dict[node]
         for init in node.init_list:
             self.visit(init, child_scope)
@@ -262,7 +252,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         return result, typex
 
     @visitor.when(CaseNode) 
-    def visit(self, node:CaseNode, scope:Scope):
+    def visit(self, node: CaseNode, scope: Scope):
         expr, typex = self.visit(node.expr, scope)
         result = self.define_internal_local()
         etype = self.define_internal_local()
@@ -272,7 +262,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         new_scope = scope.expr_dict[node]
         for i, (case, c_scope) in enumerate(zip(node.case_list, new_scope.children)):
             next_label = cil.LabelNode(f'next_{i}')
-            expr_i, label, self.visit(case, c_scope, expr, etype, next_label)
+            expr_i, label = self.visit(case, c_scope, expr, etype, next_label)
             self.register_instruction(cil.AssignNode(result, expr_i))
             self.register_instruction(cil.GotoNode(end_label))
             self.register_instruction(label)
@@ -280,7 +270,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         return result, typex
 
     @visitor.when(OptionNode)
-    def visit(self, node:OptionNode, scope:Scope, expr, expr_type, next_label):
+    def visit(self, node: OptionNode, scope: Scope, expr, expr_type, next_label):
         aux = self.define_internal_local()
         # TODO: Buscar una forma de representar conforms in cil
         self.register_instruction(cil.MinusNode(aux, expr_type, node.typex))
@@ -294,7 +284,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         return exp_i, next_label
 
     @visitor.when(NotNode)
-    def visit(self, node:NotNode, scope:Scope):
+    def visit(self, node: NotNode, scope: Scope):
         """
         expr = <expr>
         IF expr GOTO true
@@ -320,38 +310,38 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         return result, BoolType()
 
     @visitor.when(BinaryNotNode)
-    def visit(self, node:NotNode, scope:Scope):
+    def visit(self, node: NotNode, scope: Scope):
         return self._define_unary_node(node, scope, cil.BinaryNotNode)
 
 
     @visitor.when(IsVoidNode)
-    def visit(self, node:IsVoidNode, scope:Scope):
+    def visit(self, node: IsVoidNode, scope: Scope):
         return self._define_unary_node(node, scope, cil.IsVoidNode)
 
     @visitor.when(PlusNode)
-    def visit(self, node:PlusNode, scope:Scope):
+    def visit(self, node: PlusNode, scope: Scope):
         return self._define_binary_node(node, scope, cil.PlusNode)
 
     @visitor.when(MinusNode)
-    def visit(self, node:MinusNode, scope:Scope):
+    def visit(self, node: MinusNode, scope: Scope):
         return self._define_binary_node(node, scope, cil.MinusNode)
 
     @visitor.when(StarNode)
-    def visit(self, node:StarNode, scope:Scope):
+    def visit(self, node: StarNode, scope: Scope):
         return self._define_binary_node(node, scope, cil.StarNode)
 
     @visitor.when(DivNode)
-    def visit(self, node:DivNode, scope:Scope):
+    def visit(self, node: DivNode, scope: Scope):
         return self._define_binary_node(node, scope, cil.DivNode)
 
     @visitor.when(LessNode)
-    def visit(self, node:LessNode, scope:Scope):
+    def visit(self, node: LessNode, scope: Scope):
         return self._define_binary_node(node, scope, cil.MinusNode)
         
     @visitor.when(LessEqNode)
-    def visit(self, node:LessEqNode, scope:Scope):
+    def visit(self, node: LessEqNode, scope: Scope):
         return self._define_binary_node(node, scope, cil.LessEqNode)
 
     @visitor.when(EqualNode)
-    def visit(self, node:EqualNode, scope:Scope):
+    def visit(self, node: EqualNode, scope: Scope):
         return self._define_binary_node(node, scope, cil.MinusNode)

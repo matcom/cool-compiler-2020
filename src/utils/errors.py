@@ -44,7 +44,7 @@ class LexicographicError(CoolError):
     
 
 class SyntaticError(CoolError):
-    'Errores detectados en el parser'
+    'Errores detectados en el cool_parser'
 
     ERROR = 'ERROR at or near "%s"'
 

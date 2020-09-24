@@ -1,7 +1,7 @@
 from utils.ast import *
 from utils.errors import SyntaticError
 from utils.utils import find_column
-from parser.base_parser import Parser
+from cool_parser.base_parser import Parser
 
 class CoolParser(Parser):
     def p_program(self, p):
