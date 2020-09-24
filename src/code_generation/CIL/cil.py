@@ -483,13 +483,16 @@ def block_to_cil_visitor(block):
 
 def func_call_to_cil_visitor(call):
     body = []
+    t = None
     if call.object:
         obj_cil = expression_to_cil_visitor(
             call.object)
         body += obj_cil.body
         obj = obj_cil.value
+        t = call.object.returned_type.name
     else:
         obj = 'self'
+        t = __CURRENT_TYPE__
 
     arg_values = []
 
@@ -498,9 +501,6 @@ def func_call_to_cil_visitor(call):
         body += arg_cil.body
         arg_values.append(arg_cil.value)
 
-    t, need_typeof = get_typeof(obj)
-    if need_typeof:
-        body.append(CilAST.TypeOfNode(t, obj))
 
     body.append(CilAST.ArgNode(obj))
 
