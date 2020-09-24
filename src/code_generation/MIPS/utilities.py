@@ -33,6 +33,10 @@ def allocate_stack(bytes):
     return [mips.SubuInstruction('$sp', '$sp', bytes)]
 
 
+def free_stack(bytes):
+    return [mips.AdduInstruction('$sp', '$sp', bytes)]
+
+
 def push_stack(src, pos):
     code = []
     if src[0] != '$':
