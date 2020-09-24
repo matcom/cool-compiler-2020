@@ -744,6 +744,18 @@ less_equal_end:
     jr $ra
 
 
+less:
+    blt $a0 $a1 less_true
+    li $v0 0
+    j less_end
+
+less_true:
+    li $v0 1
+
+less_end:
+    jr $ra
+
+
 
 
 
