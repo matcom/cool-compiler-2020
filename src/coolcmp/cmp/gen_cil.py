@@ -8,12 +8,13 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
     def __init__(self, cls_refs):
         self.logger = init_logger('GenCIL')
         self.cls_refs = cls_refs
-        self.attrs = List()
-        self.cil_code = CILCode(List(), List(), defaultdict(lambda: []))
+        self.attrs = List()  #to hold attributes
+        self.cil_code = CILCode(List(), List(), defaultdict(lambda: []), {}, [])
         self.pos = -1
         self.max_idx = -1
         self.cur_env = None  #environment for locals only
         self.cur_cls = None
+        self.rev_attrs = None #to hold reserved attributes
 
     @staticmethod
     def get_default_value(_type: str):
@@ -52,16 +53,16 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
 
         return res
 
-    #this functions dont have attributes or methods, so extra code of visit_Class is not needed
     def visit_IntClass(self, node):
-        self.cil_code.init_functions.append(IntInit())
+        self.visit_Class(node, FactoryInit=IntInit)
 
     def visit_StringClass(self, node):
-        self.cil_code.init_functions.append(StringInit())
+        self.visit_Class(node, FactoryInit=StringInit)
 
-    def visit_BoolClass(self, node): pass #bool doesnt have init function, its 2 objects will be saved in data segment
+    def visit_BoolClass(self, node):
+        self.visit_Class(node, FactoryInit=BoolInit)
 
-    def visit_Class(self, node):
+    def visit_Class(self, node, FactoryInit=FuncInit):
         old_attrs = self.attrs
         self.attrs = List(old_attrs[:])
 
@@ -71,22 +72,37 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         old_cls = self.cur_cls
         self.cur_cls = node
 
+        #own attrs
+        own_attrs = [feature for feature in node.feature_list if isinstance(feature, Attribute)]
+        own_attrs.extend(node.reserved_attrs)  #adding reserverd attributes
+        
         self.attr_dict = {}
 
+        #filling attr_dict, it is needed so that references know what attr they are refering to
         p = 0
-        for decl in self.attrs:  #declarations of attributes from inheritance
+        for decl in self.attrs:  #declarations of attributes from inheritance, these are instance of AttrDecl
             self.attr_dict[decl.ref.name] = p
             p += 1
 
-        for name, _ in node.attrs.items():  #own attributes
-            self.attr_dict[name] = p
+        for attr in own_attrs:  #own attributes, note that these are instance of Attribute right now
+            self.attr_dict[attr.id.value] = p
             p += 1
 
         for feature in node.feature_list:
             self.visit(feature)
 
-        func_init = FuncInit(node.type.value, self.attrs, self.attr_dict)
+        self.rev_attrs = List()
+        for rev_attr in node.reserved_attrs:  #visiting reserved attrs
+            self.visit(rev_attr)
+
+        func_init = FactoryInit(node.type.value, self.attrs, self.attr_dict, f'{node.type.value}_Init', self.rev_attrs)
+        
+        #needed for static data segment of the type
+        func_init.td = self.cur_cls.td
+        func_init.tf = self.cur_cls.tf
+
         self.cil_code.init_functions.append(func_init)
+        self.cil_code.dict_init_func[func_init.name] = func_init
 
         self.logger.debug(func_init)
         self.logger.debug(f'Attrs: {list(self.attrs)}')
@@ -144,6 +160,19 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         self.attrs.append(dec)
 
         self.max_idx = -1
+
+    #reserved attributes
+    def visit_AttrTypeInfo(self, node):
+        self.rev_attrs.append(AttrTypeInfoDecl())
+
+    def visit_AttrIntLiteral(self, node):
+        self.rev_attrs.append(AttrIntLiteralDecl())
+
+    def visit_AttrStringLiteral(self, node):
+        self.rev_attrs.append(AttrStringLiteralDecl())
+
+    def visit_AttrBoolLiteral(self, node):
+        self.rev_attrs.append(AttrBoolLiteralDecl())
 
     def visit_Dispatch(self, node):
         expr = self.visit(node.expr)
@@ -226,7 +255,11 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         branches = List([ self.visit(branch) for branch in node.case_list ])
         branches.sort(key=lambda x: x.level, reverse=True)  #sort by greater level
 
-        return Case(expr, branches)
+        case = Case(expr, branches)
+        case.label = f'Case_{len(self.cil_code.cases)}'  #setting label
+        self.cil_code.cases.append(case)
+
+        return case
 
     def visit_New(self, node):
         return New(node.type.value)  #now attr of new is a string

@@ -42,7 +42,7 @@ class Program(ASTNode):
         self.cls_list = cls_list
 
 class Class(ASTNode):
-    def __init__(self, type, opt_inherits=None, feature_list = NodeContainer(), can_inherit = True):
+    def __init__(self, type, opt_inherits=None, feature_list=NodeContainer(), can_inherit=True, reserved_attrs=[]):
         self.type = type
         self.opt_inherits = opt_inherits  #can be None
         self.feature_list = feature_list
@@ -50,6 +50,7 @@ class Class(ASTNode):
         self.can_inherit = can_inherit
         self.methods = {}
         self.attrs = {}
+        self.reserved_attrs = [AttrTypeInfo()] + reserved_attrs  #reserved attributes for the compiler, everyone has type info attr
 
         # data for type checker
         self.parent = None
@@ -63,15 +64,15 @@ class Class(ASTNode):
 
 class IntClass(Class):
     def __init__(self):
-        Class.__init__(self, type=Type('Int'), can_inherit=False)
+        Class.__init__(self, type=Type('Int'), can_inherit=False, reserved_attrs=[AttrIntLiteral()])
 
 class StringClass(Class):
     def __init__(self):
-        Class.__init__(self, type=Type('String'), can_inherit=False)
+        Class.__init__(self, type=Type('String'), can_inherit=False, reserved_attrs=[AttrStringLiteral()])
 
 class BoolClass(Class):
     def __init__(self):
-        Class.__init__(self, type=Type('Bool'), can_inherit=False)
+        Class.__init__(self, type=Type('Bool'), can_inherit=False, reserved_attrs=[AttrBoolLiteral()])
 
 class SELF_TYPE(Class):
     def __init__(self):
@@ -104,6 +105,25 @@ class Attribute(Feature):
     
     def __repr__(self):
         return f'<Attribute {self.id}>'
+
+class AttrTypeInfo(Attribute): #reserved attribute for type info, used in gen_cil
+    def __init__(self):
+        Attribute.__init__(self, Id('_type_info'), Type('_reserved'), None)
+
+    def __repr__(self):
+        return f'<AttrTypeInfo {self.id}>'
+
+class AttrIntLiteral(Attribute):
+    def __init__(self):
+        Attribute.__init__(self, Id('_int_literal'), Type('_reserved'), None)
+
+class AttrStringLiteral(Attribute):
+    def __init__(self):
+        Attribute.__init__(self, Id('_string_literal'), Type('_reserved'), None)
+
+class AttrBoolLiteral(Attribute):
+    def __init__(self):
+        Attribute.__init__(self, Id('_bool_literal'), Type('_reserved'), None)
 
 class Expr(ASTNode): pass
 
