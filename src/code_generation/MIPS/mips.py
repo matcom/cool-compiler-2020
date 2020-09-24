@@ -500,16 +500,30 @@ def vcal_to_mips_visitor(vcall: cil.VCAllNode):
         1 - Save any of the caller-saved registers ($t0 - $t9) which are used by the
             caller.
         2 - Execute a jal (or jalr) to jump to the function.
-        3 - Restore the caller-saved registers.
-        4 - If any arguments were passed on the stack (instead of in $a0-$a3), pop
+        3 - If any arguments were passed on the stack (instead of in $a0-$a3), pop
             them off of the stack.
+        4 - Restore the caller-saved registers.
         5 - Extract the return value, if any, from register $v0.
     """
     t = get_type(vcall.type)
-    return [
-        # 2
-        mips.JalInstruction(__VT__[(vcall.type, vcall.method)])
-    ]
+    instructios = []
+    instructios.append(mips.Comment(str(vcall)))
+    # 1
+    size = len(CURRENT_FUNCTION.caller_saved_reg) * 4
+    instructios.extend(allocate_stack(size))
+    s = size
+    for reg in CURRENT_FUNCTION.caller_saved_reg:
+        s -= 4
+        instructios.extend(push_stack(f'${reg}', f'{s}($sp)'))
+    # 2
+    instructios.append(mips.JalInstruction(__VT__[(vcall.type, vcall.method)]))
+    # 4
+    s = size
+    for reg in CURRENT_FUNCTION.caller_saved_reg:
+        s -= 4
+        instructios.extend(peek_stack(f'${reg}', f'{s}($sp)'))
+    instructios.extend(free_stack(size))
+    return instructios
 
 
 __visitors__ = {
