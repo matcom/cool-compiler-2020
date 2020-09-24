@@ -461,4 +461,6 @@ class PrintVisitor:
     def visit(self, node):
         return f"sub {self.visit(node.reg1)} {self.visit(node.reg2)} {self.visit(node.reg3)}"
     
-       
+    @visitor.when(MultiplyNode)
+    def visit(self, node):
+        return f"mul {self.visit(node.reg1)} {self.visit(node.reg2)} {self.visit(node.reg3)}"
