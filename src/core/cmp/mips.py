@@ -193,6 +193,12 @@ class SubNode(InstructionNode):
         self.reg1 = reg1
         self.reg2 = reg2
         self.reg3 = reg3
+
+class MultiplyNode(InstructionNode):
+    def __init__(self, reg1, reg2, reg3)
+        self.reg1 = reg1
+        self.reg2 = reg2
+        self.reg3 = reg3
     
 
 
@@ -454,3 +460,5 @@ class PrintVisitor:
     @visitor.when(SubNode)
     def visit(self, node):
         return f"sub {self.visit(node.reg1)} {self.visit(node.reg2)} {self.visit(node.reg3)}"
+    
+       
