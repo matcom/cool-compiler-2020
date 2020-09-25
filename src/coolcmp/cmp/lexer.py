@@ -1,7 +1,7 @@
 import ply.lex as lex
 from ply.lex import TOKEN
 import ply.yacc as yacc
-from coolcmp.cmp.my_ast import Id, Type, Int, String, Bool
+from coolcmp.cmp.ast_cls import Id, Type, Int, String, Bool
 
 class Lexer(object):
 

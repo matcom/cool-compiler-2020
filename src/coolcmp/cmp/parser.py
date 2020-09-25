@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 from coolcmp.cmp.lexer import Lexer
-from coolcmp.cmp.my_ast import *
+from coolcmp.cmp.ast_cls import *
 from coolcmp.cmp.errors import SyntacticError
 import sys
 

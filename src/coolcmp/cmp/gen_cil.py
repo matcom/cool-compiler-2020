@@ -1,6 +1,5 @@
 from coolcmp.cmp.utils import init_logger
-from coolcmp.cmp.cil_ast import *
-from coolcmp.cmp.my_ast import *
+from coolcmp.cmp.ast_cls import *
 from coolcmp.cmp.environment import Environment
 from collections import defaultdict
 
@@ -14,7 +13,6 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         self.max_idx = -1
         self.cur_env = None  #environment for locals only
         self.cur_cls = None
-        self.rev_attrs = None #to hold reserved attributes
 
     @staticmethod
     def get_default_value(_type: str):
@@ -53,16 +51,7 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
 
         return res
 
-    def visit_IntClass(self, node):
-        self.visit_Class(node, FactoryInit=IntInit)
-
-    def visit_StringClass(self, node):
-        self.visit_Class(node, FactoryInit=StringInit)
-
-    def visit_BoolClass(self, node):
-        self.visit_Class(node, FactoryInit=BoolInit)
-
-    def visit_Class(self, node, FactoryInit=FuncInit):
+    def visit_Class(self, node):
         old_attrs = self.attrs
         self.attrs = List(old_attrs[:])
 
@@ -74,8 +63,7 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
 
         #own attrs
         own_attrs = [feature for feature in node.feature_list if isinstance(feature, Attribute)]
-        own_attrs.extend(node.reserved_attrs)  #adding reserverd attributes
-        
+
         self.attr_dict = {}
 
         #filling attr_dict, it is needed so that references know what attr they are refering to
@@ -88,14 +76,14 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
             self.attr_dict[attr.id.value] = p
             p += 1
 
+        for attr in node.reserved_attrs:  #reserved attributes
+            self.attr_dict[attr.ref.name] = p
+            p += 1
+
         for feature in node.feature_list:
             self.visit(feature)
 
-        self.rev_attrs = List()
-        for rev_attr in node.reserved_attrs:  #visiting reserved attrs
-            self.visit(rev_attr)
-
-        func_init = FactoryInit(node.type.value, self.attrs, self.attr_dict, f'{node.type.value}_Init', self.rev_attrs)
+        func_init = FuncInit(node.type.value, self.attrs, self.attr_dict, f'{node.type.value}_Init', List(node.reserved_attrs))
         
         #needed for static data segment of the type
         func_init.td = self.cur_cls.td
@@ -160,19 +148,6 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         self.attrs.append(dec)
 
         self.max_idx = -1
-
-    #reserved attributes
-    def visit_AttrTypeInfo(self, node):
-        self.rev_attrs.append(AttrTypeInfoDecl())
-
-    def visit_AttrIntLiteral(self, node):
-        self.rev_attrs.append(AttrIntLiteralDecl())
-
-    def visit_AttrStringLiteral(self, node):
-        self.rev_attrs.append(AttrStringLiteralDecl())
-
-    def visit_AttrBoolLiteral(self, node):
-        self.rev_attrs.append(AttrBoolLiteralDecl())
 
     def visit_Dispatch(self, node):
         expr = self.visit(node.expr)

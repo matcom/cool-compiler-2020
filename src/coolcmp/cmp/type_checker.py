@@ -1,6 +1,6 @@
 from coolcmp.cmp.errors import *
 from coolcmp.cmp.environment import Environment
-from coolcmp.cmp.my_ast import Id, Type, Attribute, Class, SELF_TYPE
+from coolcmp.cmp.ast_cls import Id, Type, Attribute, Class, SELF_TYPE
 from coolcmp.cmp.utils import init_logger
 
 class TypeChecker:
@@ -84,15 +84,6 @@ class TypeChecker:
             self.logger.debug(f'{node}, static_type: {node.static_type}')
 
         return res
-
-    def visit_IntClass(self, node):
-        self.visit_Class(node)
-
-    def visit_StringClass(self, node):
-        self.visit_Class(node)
-
-    def visit_BoolClass(self, node):
-        self.visit_Class(node)
 
     def visit_Class(self, node):
         old_env = self.cur_env

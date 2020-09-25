@@ -1,5 +1,5 @@
 from coolcmp.cmp.errors import *
-from coolcmp.cmp.my_ast import *
+from coolcmp.cmp.ast_cls import *
 from coolcmp.cmp.environment import Environment
 
 class SemanticAnalyzer:
