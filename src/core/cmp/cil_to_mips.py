@@ -788,6 +788,17 @@ class CILToMIPSVisitor:
 
         return instructions
     
+    @visitor.when(cil.ReadStrNode)
+    def visit(self, node):
+        instructions = []
+        #Save $v0
+        instructions.append(mips.JumpAndLinkNode("read_str"))
+        
+        dest_location = self.get_var_location(node.dest)
+        instructions.append(mips.StoreWordNode(mips.V0_REG), dest_location)
+
+        return instructions
+    
 
 
         
