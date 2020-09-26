@@ -181,12 +181,11 @@ class SubstringNode(InstructionNode):
         self.index = index
         self.length = length
 
-class ToStrNode(InstructionNode):
-    def __init__(self, dest, ivalue):
+class ReadStrNode(InstructionNode):
+    def __init__(self, dest):
         self.dest = dest
-        self.ivalue = ivalue
 
-class ReadNode(InstructionNode):
+class ReadIntNode(InstructionNode):
     def __init__(self, dest):
         self.dest = dest
 

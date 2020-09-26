@@ -133,7 +133,7 @@ class BaseCOOLToCILVisitor:
         self.current_function = self.register_function(self.to_function_name('in_string', 'IO'))
         self.register_param(self.vself)
         result = self.define_internal_local()
-        self.register_instruction(cil.ReadNode(result))
+        self.register_instruction(cil.ReadStrNode(result))
         instance = self.define_internal_local()
         self.register_instruction(cil.ArgNode(result))
         self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'String'), instance))
@@ -142,7 +142,7 @@ class BaseCOOLToCILVisitor:
         self.current_function = self.register_function(self.to_function_name('in_int', 'IO'))
         self.register_param(self.vself)
         result = self.define_internal_local()
-        self.register_instruction(cil.ReadNode(result))
+        self.register_instruction(cil.ReadIntNode(result))
         instance = self.define_internal_local()
         self.register_instruction(cil.ArgNode(result))
         self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
@@ -170,7 +170,7 @@ class BaseCOOLToCILVisitor:
         self.current_function = self.register_function(self.to_function_name('length', 'String'))
         self.register_param(self.vself)
         result = self.define_internal_local()
-        self.register_instruction(cil.GetAttribNode(result, self.vself, 'length', 'String'))
+        self.register_instruction(cil.GetAttribNode(result, self.vself.name, 'length', 'String'))
         self.register_instruction(cil.ReturnNode(result))
 
         self.current_function = self.register_function(self.to_function_name('concat', 'String'))
@@ -196,7 +196,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.GetAttribNode(index_value, 'i', 'value', 'Int'))
         self.register_instruction(cil.GetAttribNode(length_value, 'l', 'value', 'Int'))
         #Check Out of range error
-        self.register_instruction(cil.GetAttribNode(length_attr, self.vself, 'length', 'String'))
+        self.register_instruction(cil.GetAttribNode(length_attr, self.vself.name, 'length', 'String'))
         self.register_instruction(cil.PlusNode(length_substr, length_value, index_value))
         self.register_instruction(cil.LessNode(less_value, length_attr, length_substr))
         self.register_runtime_error(less_value, 'Substring out of range')
@@ -832,7 +832,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         try:
             self.current_type.get_attribute(node.lex)
             attr = self.register_local(VariableInfo('attr_value', None))
-            self.register_instruction(cil.GetAttribNode(attr, self.vself, node.lex, self.current_type.name))
+            self.register_instruction(cil.GetAttribNode(attr, self.vself.name, node.lex, self.current_type.name))
             scope.ret_expr = attr
         except SemanticError:
             param_names = [pn.name for pn in self.current_function.params]
