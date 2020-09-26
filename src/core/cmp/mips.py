@@ -184,19 +184,19 @@ class JumpNode(InstructionNode):
         self.label = label
 
 class AddNode(InstructionNode):
-    def __init__(self, reg1, reg2, reg3)
+    def __init__(self, reg1, reg2, reg3):
         self.reg1 = reg1
         self.reg2 = reg2
         self.reg3 = reg3
 
 class SubNode(InstructionNode):
-    def __init__(self, reg1, reg2, reg3)
+    def __init__(self, reg1, reg2, reg3):
         self.reg1 = reg1
         self.reg2 = reg2
         self.reg3 = reg3
 
 class MultiplyNode(InstructionNode):
-    def __init__(self, reg1, reg2, reg3)
+    def __init__(self, reg1, reg2, reg3):
         self.reg1 = reg1
         self.reg2 = reg2
         self.reg3 = reg3
