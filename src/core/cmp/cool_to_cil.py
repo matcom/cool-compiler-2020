@@ -152,7 +152,7 @@ class BaseCOOLToCILVisitor:
 
         #String
         type_node = self.register_type('String')
-        type_node.attributes = ['value']
+        type_node.attributes = ['value', 'length']
 
         self.current_function = self.register_function(self.to_function_name('init', 'String'))
         self.register_param(VariableInfo('val', None))
@@ -518,11 +518,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         try:
             self.current_type.get_attribute(node.id)
             self.register_instruction(cil.SetAttribNode(self.vself, node.id, scope.ret_expr, self.current_type.name))
-            scope.ret_expr = node.id
         except SemanticError:
             vname = self.register_local(VariableInfo(node.id, None))
             self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
-            scope.ret_expr = vname
 
     @visitor.when(cool.NotNode)
     def visit(self, node, scope):
