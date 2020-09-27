@@ -148,6 +148,7 @@ class CILToMIPSVisitor:
     def visit(self, node):
         #Get functions names
         self.collect_func_names(node)
+        print(self._name_func_map)
 
         #Convert CIL ProgramNode to MIPS ProgramNode
         for tp in node.dottypes:
@@ -205,16 +206,32 @@ class CILToMIPSVisitor:
         code_instructions = []
         
         #This try-except block is for debuggin purposes
-        if node.name == "function_get_x_at_A":
+        if node.name == "function_main_at_Main":
             print(node.instructions)
-            
+            print(f"{node.instructions[0].dest} = CALL {node.instructions[0].function}")
+            print(f"{node.instructions[1].dest} = {node.instructions[1].source}")
+            print(f"ARG {node.instructions[2].name}")
+            print(f"{node.instructions[3].dest} = CALL {node.instructions[3].function}")
+            print(f"{node.instructions[4].dest} = {node.instructions[4].source}")
+            print(f"{node.instructions[5].dest} = {node.instructions[5].source}")
+            print(f"{node.instructions[6].dest} = {node.instructions[6].source}")
+            print(f"ARG {node.instructions[-6].name}")
+            print(f"ARG {node.instructions[-5].name}")
+
         try:
             code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
-            if node.name == "function_main_at_Main":
-                print(node.instructions[-7].dest)
-                
+            # for i, ins in enumerate(node.instructions):
+                # try:
+                    # self.visit(ins)
+                # except Exception as e:
+                    # if node.name == "function_in_string_at_IO": 
+                        # print(i)
+                        # print(ins)
+                        # print(ins.dest)
+                        # print(e)
+                    # raise e
         except Exception as e:
-            if node.name == "function_init_at_A":
+            if node.name == "function_in_string_at_IO":
                 print(e)
                 print(node.instructions)
             print(node.name)
@@ -400,6 +417,7 @@ class CILToMIPSVisitor:
         instructions.append(mips.ShiftLeftLogicalNode(reg, reg, 2))
         instructions.append(mips.LoadAddressNode(reg2, mips.TYPENAMES_TABLE_LABEL))
         instructions.append(mips.AddUnsignedNode(reg, reg, reg2))
+        instructions.append(mips.LoadWordNode(reg, mips.RegisterRelativeLocation(reg, 0)))
         instructions.append(mips.StoreWordNode(reg, dst_location))
 
         self.free_reg(reg)
@@ -451,7 +469,9 @@ class CILToMIPSVisitor:
         obj_location = self.get_var_location(obj)
 
         tp = self._types[comp_type]
-
+        # print(self._actual_function.label)
+        # print(node.value)
+        # print(tp.attributes)
         offset = (tp.attributes.index(node.attr) + 3) * mips.ATTR_SIZE
 
 
@@ -795,7 +815,7 @@ class CILToMIPSVisitor:
         instructions.append(mips.JumpAndLinkNode("read_str"))
         
         dest_location = self.get_var_location(node.dest)
-        instructions.append(mips.StoreWordNode(mips.V0_REG), dest_location)
+        instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
 
         return instructions
 
