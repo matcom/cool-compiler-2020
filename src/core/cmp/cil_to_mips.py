@@ -206,18 +206,6 @@ class CILToMIPSVisitor:
         code_instructions = []
         
         #This try-except block is for debuggin purposes
-        if node.name == "function_main_at_Main":
-            print(node.instructions)
-            print(f"{node.instructions[0].dest} = CALL {node.instructions[0].function}")
-            print(f"{node.instructions[1].dest} = {node.instructions[1].source}")
-            print(f"ARG {node.instructions[2].name}")
-            print(f"{node.instructions[3].dest} = CALL {node.instructions[3].function}")
-            print(f"{node.instructions[4].dest} = {node.instructions[4].source}")
-            print(f"{node.instructions[5].dest} = {node.instructions[5].source}")
-            print(f"{node.instructions[6].dest} = {node.instructions[6].source}")
-            print(f"ARG {node.instructions[-6].name}")
-            print(f"ARG {node.instructions[-5].name}")
-
         try:
             code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
             # for i, ins in enumerate(node.instructions):
@@ -835,6 +823,19 @@ class CILToMIPSVisitor:
         instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
 
         return instructions
+
+    @visitor.when(cil.ReadIntNode)
+    def visit(self, node):
+        instructions = []
+        #save $v0
+        dest_location = self.get_var_location(node.dest)
+
+        instructions.append(mips.LoadInmediateNode(mips.V0_REG, 5))
+        instructions.append(mips.SyscallNode())
+        instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
+
+        return instructions
+
 
 
     
