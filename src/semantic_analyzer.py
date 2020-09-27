@@ -12,7 +12,7 @@ SELF_IS_READONLY = 'Variable "self" is read-only.'
 LOCAL_ALREADY_DEFINED = 'Variable "%s" is already defined in method "%s".'
 PARAM_ALREADY_DEFINED = 'Parameter "%s" is already defined in method "%s".'
 INCOMPATIBLE_TYPES = 'Cannot convert "%s" into "%s".'
-VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined in "%s".'
+VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined.'
 INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
 WRONG_TYPE = 'Type %s expected'
 INVALID_SELF_TYPE = 'Invalid use of SELF_TYPE'
@@ -183,13 +183,20 @@ class TypeChecker:
         self.current_type = self.context.get_type(node.name)
         scope.define_variable('self', self.current_type)
 
+        attributes = self.current_type.get_all_attributes()
+        for attr in attributes:
+            if attr.type.name == 'SELF_TYPE':
+                scope.define_variable(attr.name, self.current_type)
+            else:
+                scope.define_variable(attr.name, attr.type)
+
         for feature in node.features:
             self.visit(feature, scope)
 
     @visitor.when(AST.AttributeInit)
     def visit(self, node, scope):
         try:
-            node_type = self.context.get_type(node.type)
+            node_type = self.current_type.get_attribute(node.name).type
         except SemanticError as ex:
             self.errors.append(ex.text)
             node_type = ErrorType()
@@ -201,17 +208,12 @@ class TypeChecker:
             self.errors.append(INCOMPATIBLE_TYPES.replace(
                 '%s', expr_type.name, 1).replace('%s', node_type.name, 1))
 
-        scope.define_variable(node.name, node_type)
-
     @visitor.when(AST.AttributeDef)
     def visit(self, node, scope):
         try:
-            node_type = self.context.get_type(node.type)
+            self.current_type.get_attribute(node.name)
         except SemanticError as ex:
             self.errors.append(ex.text)
-            node_type = ErrorType()
-
-        scope.define_variable(node.name, node_type)
 
     @visitor.when(AST.ClassMethod)
     def visit(self, node, scope):
@@ -227,21 +229,25 @@ class TypeChecker:
         last_expr = node.expr[-1]
         last_expr_type = last_expr.computed_type
 
-        if not last_expr_type.conforms_to(node.return_type):
+        return_type = self.current_method.return_type
+
+        if return_type.name == 'SELF_TYPE':
+            if not last_expr_type.conforms_to(self.current_type):
+                self.errors.append(INCOMPATIBLE_TYPES.replace(
+                    '%s', last_expr_type.name, 1).replace('%s', self.current_type.name, 1))
+        elif not last_expr_type.conforms_to(return_type):
             self.errors.append(INCOMPATIBLE_TYPES.replace(
-                '%s', last_expr_type.name, 1).replace('%s', node.return_type.name, 1))
+                '%s', last_expr_type.name, 1).replace('%s', return_type.name, 1))
 
     @visitor.when(AST.FormalParameter)
     def visit(self, node, scope):
-        if node.type == 'SELF_TYPE':
-            self.errors.append(INVALID_SELF_TYPE)
-            node_type = ErrorType()
-        else:
-            try:
-                node_type = self.context.get_type(node.type)
-            except SemanticError as ex:
-                self.errors.append(ex.text)
+        try:
+            node_type = self.context.get_type(node.type)
+            if node_type.name == 'SELF_TYPE':
+                self.errors.append(INVALID_SELF_TYPE)
                 node_type = ErrorType()
+        except SemanticError as ex:
+            node_type = ErrorType()
 
         if not scope.is_local(node.name):
             scope.define_variable(node.name, node_type)
@@ -253,7 +259,8 @@ class TypeChecker:
     def visit(self, node, scope):
         self.visit(node.instance, scope)
         instance_type = node.instance.computed_type
-
+        if instance_type.name == 'SELF_TYPE':
+            instance_type = scope.find_variable('self').type
         try:
             instance_method = instance_type.get_method(node.method)
 
@@ -269,15 +276,9 @@ class TypeChecker:
                 self.errors.append(
                     f'Method "{instance_method.name}" of "{instance_type.name}" only accepts {len(instance_method.param_types)} argument(s)')
 
-            if instance_method.return_type == 'SELF_TYPE':
+            if instance_method.return_type.name == 'SELF_TYPE':
                 node_type = instance_type
-            else:
-                try:
-                    node_type = self.context.get_type(
-                        instance_method.return_type)
-                except SemanticError as ex:
-                    self.errors.append(ex.text)
-                    node_type = ErrorType()
+            node_type = instance_method.return_type
 
         except SemanticError as ex:
             self.errors.append(ex.text)
@@ -315,15 +316,9 @@ class TypeChecker:
                 self.errors.append(
                     f'Method "{method.name}" of "{static_type.name}" only accepts {len(method.param_types)} argument(s)')
 
-            if instance_method.return_type == 'SELF_TYPE':
+            if method.return_type.name == 'SELF_TYPE':
                 node_type = instance_type
-            else:
-                try:
-                    node_type = self.context.get_type(
-                        instance_method.return_type)
-                except SemanticError as ex:
-                    self.errors.append(ex.text)
-                    node_type = ErrorType()
+            node_type = method.return_type
 
         except SemanticError as ex:
             self.errors.append(ex.text)
@@ -346,22 +341,31 @@ class TypeChecker:
                 self.errors.append(INCOMPATIBLE_TYPES.replace(
                     '%s', node_type.name, 1).replace('%s', var.type.name, 1))
                 node_type = ErrorType()
-
         else:
             self.errors.append(VARIABLE_NOT_DEFINED.replace(
-                '%s', node.name, 1).replace('%s', self.current_method.name, 1))
+                '%s', node.name, 1))
             node_type = ErrorType()
 
         node.computed_type = node_type
 
     @visitor.when(AST.Case)
     def visit(self, node, scope):
+        self.visit(node.expr, scope)
         action_expr_types = []
         for action in node.actions:
             self.visit(action, scope.create_child())
             action_expr_types.append(action.computed_type)
+
         t_0 = action_expr_types.pop(0)
-        node.computed_type = t_0.multiple_join(action_expr_types)
+        node_type = t_0.multiple_join(action_expr_types)
+
+        for i in range(len(action_expr_types)):
+            for j in range(i, len(action_expr_types)):
+                if action_expr_types[i] == action_expr_types[j]:
+                    self.errors.append(
+                        f'Variables "{node.action[i].name}" and "{node.action[j].name}" must have different types')
+
+        node.computed_type = node_type
 
     @visitor.when(AST.Action)
     def visit(self, node, scope):
@@ -381,8 +385,8 @@ class TypeChecker:
         self.visit(node.predicate, scope)
         predicate_type = node.predicate.computed_type
 
-        if predicate_type.name != 'Bool'
-        self.errors.append(WRONG_TYPE.replace('%s', 'Bool', 1))
+        if predicate_type.name != 'Bool':
+            self.errors.append(WRONG_TYPE.replace('%s', 'Bool', 1))
 
         self.visit(node.then_body, scope)
         then_type = node.then_body.computed_type
@@ -396,8 +400,8 @@ class TypeChecker:
         self.visit(node.predicate, scope)
         predicate_type = node.predicate.computed_type
 
-        if predicate_type.name != 'Bool'
-        self.errors.append(WRONG_TYPE.replace('%s', 'Bool', 1))
+        if predicate_type.name != 'Bool':
+            self.errors.append(WRONG_TYPE.replace('%s', 'Bool', 1))
 
         self.visit(node.body, scope)
 
@@ -425,6 +429,8 @@ class TypeChecker:
     def visit(self, node, scope):
         try:
             node_type = self.context.get_type(node.type)
+            if node_type.name == 'SELF_TYPE':
+                node_type = scope.find_variable('self').type
         except SemanticError as ex:
             self.errors.append(ex.text)
             node_type = ErrorType()
@@ -445,6 +451,8 @@ class TypeChecker:
     def visit(self, node, scope):
         try:
             node_type = self.context.get_type(node.type)
+            if node_type.name == 'SELF_TYPE':
+                node_type = scope.find_variable('self').type
         except SemanticError as ex:
             self.errors.append(ex.text)
             node_type = ErrorType()
@@ -456,15 +464,15 @@ class TypeChecker:
 
     @visitor.when(AST.NewType)
     def visit(self, node, scope):
-        if node.type == 'SELF_TYPE':
-            node.computed_type = scope.find_variable('self').type
-        else:
-            try:
-                node_type = self.context.get_type(node.type)
-            except SemanticError as ex:
-                self.errors.append(ex.text)
-                node_type = ErrorType()
-            node.computed_type = node_type
+        try:
+            node_type = self.context.get_type(node.type)
+            if node_type.name == 'SELF_TYPE':
+                node_type = scope.find_variable('self').type
+        except SemanticError as ex:
+            self.errors.append(ex.text)
+            node_type = ErrorType()
+
+        node.computed_type = node_type
 
     @visitor.when(AST.IsVoid)
     def visit(self, node, scope):
@@ -498,15 +506,15 @@ class TypeChecker:
         self.visit(node.left, scope)
         left_type = node.left.computed_type
 
-        if left_type.name != 'Bool':
-            self.errors.append(WRONG_TYPE.replace('%s', 'Bool', 1))
+        if left_type.name != 'Int':
+            self.errors.append(WRONG_TYPE.replace('%s', 'Int', 1))
             node_type = ErrorType()
 
         self.visit(node.right, scope)
         right_type = node.right.computed_type
 
-        if right_type.name != 'Bool':
-            self.errors.append(WRONG_TYPE.replace('%s', 'Bool', 1))
+        if right_type.name != 'Int':
+            self.errors.append(WRONG_TYPE.replace('%s', 'Int', 1))
             node_type = ErrorType()
 
         node.computed_type = node_type
@@ -547,15 +555,22 @@ class TypeChecker:
         self.visit(node.right, scope)
         right_type = node.right.computed_type
 
-        if left_type.name in ['Int', 'Bool', 'String'] and left_type.name != right_type.name:
+        if (left_type.name in ['Int', 'Bool', 'String'] or right_type.name in ['Int', 'Bool', 'String']) and left_type.name != right_type.name:
             self.errors.append(WRONG_TYPE.replace('%s', left_type.name, 1))
             node_type = ErrorType()
 
         node.computed_type = node_type
 
-    @visitor.when(AST.Object)
+    @visitor.when(AST.Identifier)
     def visit(self, node, scope):
-        node.computed_type = self.context.get_type('Object')
+        if scope.is_defined(node.name):
+            node_type = self.scope.find_variable(node.name).type
+        else:
+            self.errors.append(VARIABLE_NOT_DEFINED.replace(
+                '%s', node.name, 1))
+            node_type = ErrorType()
+
+        node.computed_type = node_type
 
     @visitor.when(AST.INTEGER)
     def visit(self, node, scope):

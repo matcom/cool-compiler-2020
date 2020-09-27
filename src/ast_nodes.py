@@ -272,9 +272,9 @@ class Not(Expr):
 
 
 # <expression> ::= ID
-class Object(Expr):
+class Identifier(Expr):
     def __init__(self, name):
-        super(Object, self).__init__()
+        super(Identifier, self).__init__()
         self.name = name
 
 
@@ -291,7 +291,7 @@ class INTEGER(Expr):
         self.value = value
 
 
-# <expression> ::= INTEGER
+# <expression> ::= STRING
 class STRING(Expr):
     def __init__(self, value):
         super(STRING, self).__init__()

@@ -6,6 +6,7 @@ class SemanticError(Exception):
     def text(self):
         return self.args[0]
 
+
 class Attribute:
     def __init__(self, name, typex):
         self.name = name
@@ -17,6 +18,7 @@ class Attribute:
     def __repr__(self):
         return str(self)
 
+
 class Method:
     def __init__(self, name, param_names, params_types, return_type):
         self.name = name
@@ -27,17 +29,18 @@ class Method:
     def __str__(self):
         params = ', '.join(f'{n}:{t}' for n, t in zip(
             self.param_names, self.param_types))
-        return f'[method] {self.name}({params}): {self.return_type};'
+        return f'[method] {self.name}({params}): {self.return_type.name};'
 
     def __eq__(self, other):
         return other.name == self.name and \
             other.return_type == self.return_type and \
             other.param_types == self.param_types
 
+
 class Type:
     def __init__(self, name: str):
         self.name = name
-        self.sealed = False # indicates if this type is restricted for inheritance
+        self.sealed = False  # indicates if this type is restricted for inheritance
         self.attributes = []
         self.methods = {}
         self.parent = None
@@ -68,7 +71,8 @@ class Type:
             self.attributes.append(attribute)
             return attribute
         else:
-            raise SemanticError(f'Attribute "{name}" is already defined in {self.name}.')
+            raise SemanticError(
+                f'Attribute "{name}" is already defined in {self.name}.')
 
     def get_method(self, name: str):
         try:
@@ -82,14 +86,13 @@ class Type:
             except SemanticError:
                 raise SemanticError(
                     f'Method "{name}" is not defined in {self.name}.')
-      
 
     def define_method(self, name: str, param_names: list, param_types: list, return_type):
         try:
             method = self.get_method(name)
         except SemanticError:
             method = self.methods[name] = Method(
-            name, param_names, param_types, return_type)
+                name, param_names, param_types, return_type)
             return method
         else:
             try:
@@ -98,16 +101,24 @@ class Type:
                 if method.return_type != return_type or method.param_types != param_types:
                     raise SemanticError(
                         f'Method "{name}" is already defined in {self.name} with a different signature')
-            else: 
+            else:
                 raise SemanticError(
-                        f'Method "{name}" is already defined in {self.name}')
-                
+                    f'Method "{name}" is already defined in {self.name}')
+
+        return method
+
+    def get_all_attributes(self):
+        all_attributes = self.attributes
+        if self.parent:
+            all_atributes += self.parent.get_all_attributes()
+        return all_attributes
+
     def conforms_to(self, other):
         return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
 
     def bypass(self):
         return False
-    
+
     def ancestors_path(self):
         """
         Return a list with all ancestors of the self type, starting by self
@@ -133,7 +144,7 @@ class Type:
                 if o.name == p.name:
                     return p
         return other
-    
+
     def multiple_join(self, *args):
         """
         Return the least type C such as all type in *args conforms with C
@@ -159,6 +170,7 @@ class Type:
     def __repr__(self):
         return str(self)
 
+
 class ErrorType(Type):
     def __init__(self):
         Type.__init__(self, '<error>')
@@ -172,18 +184,20 @@ class ErrorType(Type):
     def __eq__(self, other):
         return isinstance(other, Type)
 
+
 class ObjectType(Type):
     def __init__(self):
         Type.__init__(self, 'Object')
         self.define_method('abort', [], [], 'Object')
         self.define_method('type_name', [], [], 'String')
-        self.define_method('copy',[],[],'SELF_TYPE')
+        self.define_method('copy', [], [], 'SELF_TYPE')
 
     def bypass(self):
         return True
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, ObjectType)
+
 
 class IOType(Type):
     def __init__(self):
@@ -196,6 +210,7 @@ class IOType(Type):
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, IOType)
 
+
 class StringType(Type):
     def __init__(self):
         Type.__init__(self, 'String')
@@ -204,9 +219,9 @@ class StringType(Type):
         self.define_method('concat', ['s'], ['String'], 'String')
         self.define_method('substr', ['i', 'l'], ['Int', 'Int'], 'String')
 
-
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, StringType)
+
 
 class IntType(Type):
     def __init__(self):
@@ -215,6 +230,7 @@ class IntType(Type):
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, IntType)
+
 
 class BoolType(Type):
     def __init__(self):
@@ -233,6 +249,8 @@ class Context:
         self.types['ErrorType'] = ErrorType()
 
     def create_builtin_types(self):
+        self.types['SELF_TYPE'] = Type('SELF_TYPE')
+
         self.types['Object'] = ObjectType()
         self.types['IO'] = IOType()
         self.types['String'] = StringType()
@@ -268,7 +286,7 @@ class Context:
             return self.types[name]
         except KeyError:
             raise SemanticError(f'Type "{name}" is not defined.')
-    
+
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
 
@@ -318,5 +336,3 @@ class Scope:
 
     def remove_local(self, vname):
         self.locals = [local for local in self.locals if local.name != vname]
-        
-
