@@ -519,7 +519,18 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.current_type.get_attribute(node.id)
             self.register_instruction(cil.SetAttribNode(self.vself, node.id, scope.ret_expr, self.current_type.name))
         except SemanticError:
-            vname = self.register_local(VariableInfo(node.id, None))
+            vname = None
+            param_names = [pn.name for pn in self.current_function.params]
+            if node.id in param_names:
+                for n in param_names:
+                    if node.id in n.split("_"):
+                        vname = n
+                        break
+            else:
+                for n in [lv.name for lv in self.current_function.localvars]:
+                    if node.id in n.split("_"):
+                        vname = n
+                        break
             self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
 
     @visitor.when(cool.NotNode)
@@ -827,7 +838,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         try:
             self.current_type.get_attribute(node.lex)
-            attr = self.register_local(VariableInfo('attr_value', None))
+            attr = self.register_local(VariableInfo(node.lex, None))
             self.register_instruction(cil.GetAttribNode(attr, self.vself.name, node.lex, self.current_type.name))
             scope.ret_expr = attr
         except SemanticError:
