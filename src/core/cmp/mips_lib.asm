@@ -17,7 +17,7 @@ meta_data_object_size = 4   #in words
 object_expanded = -2
 reachable = 1
 new_line = 10
-
+str_size_treshold = 1024
 
     
 
@@ -738,7 +738,7 @@ less_equal:
     li $v0 0
     j less_equal_end
 
-less_equal:
+less_equal_true:
     li $v0 1
 
 less_equal_end:
@@ -769,7 +769,7 @@ len_loop:
     lb $t1 0($t0)
     beq $t1 $zero len_end
     addi $v0 $v0 1
-    addiu $t0 $t0 4
+    addiu $t0 $t0 1
     j len_loop
 
 len_end:
@@ -876,7 +876,7 @@ read_str_nl_founded_alligned:
 
 read_str_no_nl:
 	addi $t1 $t1 1
-	blt $t1 str_size_treshold read_str_dup
+    blt $t1 str_size_treshold read_str_dup
 	addi $t1 $t1 alloc_size
 	j read_str_extend_heap
 read_str_dup:
