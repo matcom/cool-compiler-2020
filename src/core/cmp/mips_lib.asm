@@ -816,14 +816,16 @@ use_block_end:
 
 
 read_str:
-    addiu $sp $sp -28
+    addiu $sp $sp -36
     sw $t0 0($sp)
     sw $t1 4($sp)
     sw $t2 8($sp)
     sw $t3 12($sp)
 	sw $t4 16($sp)
 	sw $t5 20($sp)
-    sw $ra 24($sp)
+    sw $a0 24($sp)
+    sw $a1 28($sp)
+    sw $ra 32($sp)
 	
     addiu $t0 $gp free_list
     move $t1 $zero
@@ -933,8 +935,10 @@ read_str_end:
     lw $t3 12($sp)
 	lw $t4 16($sp)
 	lw $t5 20($sp)
-    lw $ra 24($sp)
-    addiu $sp $sp 28
+    sw $a0 24($sp)
+    sw $a1 28($sp)
+    sw $ra 32($sp)
+    addiu $sp $sp 36
 
     jr $ra
 
@@ -962,6 +966,64 @@ read_str_new_block_expanded:
     move $t2 $a0
     lw $t1 header_size_slot($a0)
     j read_str_reading
+
+
+
+concat:
+    addiu $sp $sp -24
+    sw $t0 0($sp)
+    sw $t1 4($sp)
+    sw $t2 8($sp)
+    sw $a0 12($sp)
+    sw $a1 16($sp)
+    sw $ra 20($sp)
+
+    move $t0 $a0
+    move $t1 $a1
+    addiu $a0 $a0 neg_header_size
+    addiu $a1 $a1 neg_header_size
+
+    lw $a0 header_size_slot($a0)
+    lw $a1 header_size_slot($a1)
+    
+    add $a0 $a0 $a1
+    jal malloc
+    move $t2 $v0
+
+concat_copy_first_loop:
+    lb $a0 0($t0)
+    beq $a0 $zero concat_copy_second_loop
+    sb $a0 0($t2)
+    addiu $t0 $t0 1
+    addiu $t2 $t2 1
+    j concat_copy_first_loop
+
+concat_copy_second_loop:
+    lb $a0 0($t1)
+    beq $a0 $zero concat_end
+    sb $a0 0($t2)
+    addiu $t1 $t1 1
+    addiu $t2 $t2 1
+    j concat_copy_second_loop
+
+concat_end:
+    lw $t0 0($sp)
+    lw $t1 4($sp)
+    lw $t2 8($sp)
+    lw $a0 12($sp)
+    lw $a1 16($sp)
+    lw $ra 20($sp)
+    addiu $sp $sp 24
+
+    jr $ra
+
+
+
+
+    
+
+    
+
 
 
 
