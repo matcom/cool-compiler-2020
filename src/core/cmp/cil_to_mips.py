@@ -836,8 +836,22 @@ class CILToMIPSVisitor:
 
         return instructions
 
+    @visitor.when(cil.ConcatNode)
+    def visit(self, node):
+        instructions = []
 
+        #save $a0, $a1, $v0
 
+        prefix_location = self.get_var_location(node.prefix)
+        suffix_location = self.get_var_location(node.suffix)
+        dest_location = self.get_var_location(node.dest)
+
+        instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[0], prefix_location))
+        instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], suffix_location))
+        instructions.append(mips.JumpAndLinkNode("concat"))
+        instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
+
+        return instructions
     
 
 
