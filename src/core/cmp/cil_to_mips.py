@@ -609,6 +609,9 @@ class CILToMIPSVisitor:
 
         self.free_reg(reg1)
         self.free_reg(reg2)
+        if self._pushed_args > 0:
+            instructions.append(mips.AddInmediateNode(mips.SP_REG, mips.SP_REG, self._pushed_args * mips.ATTR_SIZE))
+            self.clean_pushed_args()
 
         return instructions
     
