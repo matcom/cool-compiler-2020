@@ -152,7 +152,7 @@ class BaseCOOLToCILVisitor:
 
         #String
         type_node = self.register_type('String')
-        type_node.attributes = ['value']
+        type_node.attributes = ['value', 'length']
 
         self.current_function = self.register_function(self.to_function_name('init', 'String'))
         self.register_param(VariableInfo('val', None))
@@ -520,11 +520,20 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         try:
             self.current_type.get_attribute(node.id)
             self.register_instruction(cil.SetAttribNode(self.vself, node.id, scope.ret_expr, self.current_type.name))
-            scope.ret_expr = node.id
         except SemanticError:
-            vname = self.register_local(VariableInfo(node.id, None))
+            vname = None
+            param_names = [pn.name for pn in self.current_function.params]
+            if node.id in param_names:
+                for n in param_names:
+                    if node.id in n.split("_"):
+                        vname = n
+                        break
+            else:
+                for n in [lv.name for lv in self.current_function.localvars]:
+                    if node.id in n.split("_"):
+                        vname = n
+                        break
             self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
-            scope.ret_expr = vname
 
     @visitor.when(cool.NotNode)
     def visit(self, node, scope):
@@ -831,7 +840,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         try:
             self.current_type.get_attribute(node.lex)
-            attr = self.register_local(VariableInfo('attr_value', None))
+            attr = self.register_local(VariableInfo(node.lex, None))
             self.register_instruction(cil.GetAttribNode(attr, self.vself.name, node.lex, self.current_type.name))
             scope.ret_expr = attr
         except SemanticError:
