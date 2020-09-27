@@ -935,9 +935,9 @@ read_str_end:
     lw $t3 12($sp)
 	lw $t4 16($sp)
 	lw $t5 20($sp)
-    sw $a0 24($sp)
-    sw $a1 28($sp)
-    sw $ra 32($sp)
+    lw $a0 24($sp)
+    lw $a1 28($sp)
+    lw $ra 32($sp)
     addiu $sp $sp 36
 
     jr $ra
@@ -1007,6 +1007,7 @@ concat_copy_second_loop:
     j concat_copy_second_loop
 
 concat_end:
+    sb $zero 0($t2)
     lw $t0 0($sp)
     lw $t1 4($sp)
     lw $t2 8($sp)
@@ -1016,6 +1017,71 @@ concat_end:
     addiu $sp $sp 24
 
     jr $ra
+
+
+substr:
+    addiu $sp $sp -24
+    sw $t0 0($sp)
+    sw $t1 4($sp)
+    sw $t2 8($sp)
+    sw $t3 12($sp)
+    sw $a0 16($sp)
+    sw $ra 20($sp)
+
+    move $t0 $a0
+    li $t1 4
+
+    div $a2 $t1
+ 
+    mfhi $t2
+    bne $t2 $zero substr_allign_size
+    move $t1 $a2
+    j substr_new_block
+
+substr_allign_size:
+    sub $t1 $t1 $t2
+    add $t1 $t1 $a2
+
+substr_new_block:
+    move $a0 $t1
+    jal malloc
+    move $t3 $v0
+    move $t1 $zero
+    addu $t0 $t0 $a1
+
+substr_copy_loop:
+    beq $t1 $a2 substr_end
+    lb $t2 0($t0)
+    sb $t2 0($t3)
+    addiu $t0 $t0 1
+    addiu $t3 $t3 1
+    addiu $t1 $t1 1
+    j substr_copy_loop
+
+substr_end:
+    sb $zero 0($t3)
+    lw $t0 0($sp)
+    lw $t1 4($sp)
+    lw $t2 8($sp)
+    lw $t3 12($sp)
+    lw $a0 16($sp)
+    lw $ra 20($sp)
+    addiu $sp $sp 24
+
+    jr $ra
+
+
+
+
+
+
+
+
+
+
+    
+
+
 
 
 
