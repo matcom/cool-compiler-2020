@@ -852,7 +852,34 @@ class CILToMIPSVisitor:
         instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
 
         return instructions
-    
+
+    @visitor.when(cil.SubstringNode)
+    def visit(self, node):
+        instructions = []
+
+        #save $a0, $a1, $a2, $v0
+
+        str_location = self.get_var_location(node.str_value)
+        dest_location = self.get_var_location(node.dest)
+
+        instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[0], str_location))
+
+        if type(node.index) == int:
+            instructions.append(mips.LoadInmediateNode(mips.ARG_REGISTERS[1], node.index))
+        else:
+            index_location = self.get_var_location(node.index)
+            instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], index_location))
+        
+        if type(node.length) == int:
+            instructions.append(mips.LoadInmediateNode(mips.ARG_REGISTERS[2], node.length))
+        else:
+            lenght_location = self.get_var_location(node.length)
+            instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[2], lenght_location))
+        
+        instructions.append(mips.JumpAndLinkNode("substr"))
+        instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
+
+        return instructions
 
 
         
