@@ -208,18 +208,9 @@ class CILToMIPSVisitor:
         #This try-except block is for debuggin purposes
         try:
             code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
-            # for i, ins in enumerate(node.instructions):
-                # try:
-                    # self.visit(ins)
-                # except Exception as e:
-                    # if node.name == "function_in_string_at_IO": 
-                        # print(i)
-                        # print(ins)
-                        # print(ins.dest)
-                        # print(e)
-                    # raise e
+            
         except Exception as e:
-            if node.name == "function_in_string_at_IO":
+            if node.name == "function_substr_at_String":
                 print(e)
                 print(node.instructions)
             print(node.name)
@@ -793,9 +784,9 @@ class CILToMIPSVisitor:
             right_location = self.get_var_location(node.right)
             instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], right_location))
         
-        instruction.append(mips.JumpAndLinkNode('less'))
+        instructions.append(mips.JumpAndLinkNode('less'))
         dest_location = self.get_var_location(node.dest)
-        instruction.append(mips.StoreWordNode(mips.V0_REG, dest_location))
+        instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
 
         return instructions
     
