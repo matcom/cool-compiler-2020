@@ -87,7 +87,6 @@ class TypeBuilder:
         try:
             self.current_type = self.context.get_type(node.name)
             if node.parent: 
-                print("current type", node.name, "has parent", node.parent)
                 try:
                     parent = self.context.get_type(node.parent)
                 except SemanticError:
@@ -115,10 +114,9 @@ class TypeBuilder:
                     param_type = self.context.get_type(p.param_type)
                 except SemanticError:
                     param_type = ErrorType()
-                    param_types.append(param_type)
                     self.errors.append("The type of param {} in method {} not exist, in the class {}.".format(p.name, node.name, self.current_type.name))
-                else:
-                    param_types.append(param_type)
+                param_types.append(param_type)
+            
             try:
                 return_type = self.context.get_type(node.return_type)
             except SemanticError:
@@ -136,10 +134,9 @@ class TypeBuilder:
             attr_type = self.context.get_type(node.type)
         except SemanticError:
             attr_type = ErrorType()
-            self.current_type.define_attribute(node.name, attr_type)
             self.errors.append("The type of attr {} in class {} not exist.".format(node.name, self.current_type.name))
-        else:
-            self.current_type.define_attribute(node.name, attr_type)
+        
+        self.current_type.define_attribute(node.name, attr_type)
 
     @visitor.when(AST.AttributeDef)
     def visit(self, node):
@@ -147,10 +144,9 @@ class TypeBuilder:
             attr_type = self.context.get_type(node.type)
         except SemanticError:
             attr_type = ErrorType()
-            self.current_type.define_attribute(node.name, attr_type)
             self.errors.append("The type of attr {} in class {} not exist.".format(node.name, self.current_type.name))
-        else:
-            self.current_type.define_attribute(node.name, attr_type)
+    
+        self.current_type.define_attribute(node.name, attr_type)
 
 class TypeChecker:
     def __init__(self, context, errors=[]):
@@ -315,7 +311,6 @@ class SemanticAnalyzer:
         # #'=============== BUILDING TYPES ================'
         builder = TypeBuilder(context, self.errors)
         builder.visit(self.ast)
-        print(builder.sort)
 
 
         #'=============== CHECKING TYPES ================'
