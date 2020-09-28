@@ -86,7 +86,7 @@ class TypeBuilder:
     def visit(self, node):
         try:
             self.current_type = self.context.get_type(node.name)
-            if node.parent: #TODO:no heredar de builint excepto IO
+            if node.parent: 
                 print("current type", node.name, "has parent", node.parent)
                 try:
                     parent = self.context.get_type(node.parent)
@@ -111,8 +111,20 @@ class TypeBuilder:
             param_types = []
             for p in node.params:
                 param_names.append(p.name)
-                param_types.append(self.context.get_type(p.param_type))
-            return_type = self.context.get_type(node.return_type)
+                try:
+                    param_type = self.context.get_type(p.param_type)
+                except SemanticError:
+                    param_type = ErrorType()
+                    param_types.append(param_type)
+                    self.errors.append("The type of param {} in method {} not exist, in the class {}.".format(p.name, node.name, self.current_type.name))
+                else:
+                    param_types.append(param_type)
+            try:
+                return_type = self.context.get_type(node.return_type)
+            except SemanticError:
+                    return_type = ErrorType()
+                    self.errors.append("The return type {} in method {} not exist, in the class {}.".format(node.return_type, node.name, self.current_type.name))
+            
             self.current_type.define_method(
                 node.name, param_names, param_types, return_type)
         except SemanticError as e:
@@ -304,6 +316,7 @@ class SemanticAnalyzer:
         builder = TypeBuilder(context, self.errors)
         builder.visit(self.ast)
         print(builder.sort)
+
 
         #'=============== CHECKING TYPES ================'
         # checker = TypeChecker(context, self.errors)
