@@ -11,7 +11,7 @@ LOCAL_ALREADY_DEFINED = 'Variable "%s" is already defined in method "%s".'
 INCOMPATIBLE_TYPES = 'Cannot convert "%s" into "%s".'
 VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined in "%s".'
 INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
-
+BUILINT_TYPES = ['Object', 'Int', 'String', 'Bool', 'IO']
 
 class TypeCollector(object):
     def __init__(self, errors=[]):
@@ -32,7 +32,7 @@ class TypeCollector(object):
     @visitor.when(AST.Class)
     def visit(self, node):
         try:
-            self.context.create_type(node.name)
+            self.context.create_type(node)
         except SemanticError as e:
             self.errors.append(e.text)
 
@@ -42,6 +42,29 @@ class TypeBuilder:
         self.context = context
         self.current_type = None
         self.errors = errors
+        self.sort = []  #topologic sort for all types defined 
+        self.visited = {} #types visited in the graph by the DFS
+        for t in self.context.graph.keys():
+            self.visited[t] = False
+
+    def detect_cycles(self):
+        self.visit_component('Object')
+        for t in self.visited.keys():
+            if not self.visited[t]: # type t is part of another component in the graph 
+                self.errors.append("The graph of types is not a tree")
+                return
+                
+    def visit_component(self, node):
+        if not self.visited[node]: 
+            self.visited[node] = True
+            for t in self.context.graph[node]:
+                    self.visit_component(t)
+
+    def topologic_sort(self, actual_type):
+        self.sort.append(actual_type)
+        for children in self.context.graph[actual_type]:
+            self.topologic_sort(children)
+
 
     @visitor.on('node')
     def visit(self, node):
@@ -49,17 +72,21 @@ class TypeBuilder:
 
     @visitor.when(AST.Program)
     def visit(self, node):
-        for c in node.classes:
-            self.visit(c)
+        self.detect_cycles()
+        self.topologic_sort('Object')
+        for t in self.sort:
+            if t not in BUILINT_TYPES:
+                class_node = self.context.classes[t]
+                self.visit(class_node)
+              
 
     @visitor.when(AST.Class)
     def visit(self, node):
         try:
             self.current_type = self.context.get_type(node.name)
-            if node.parent:
+            if node.parent: #TODO: aqui el padre puede no estar declarado y por tanto get_type dara error
                 self.current_type.set_parent(
                     self.context.get_type(node.parent))
-                self.context.graph[node.parent].append(node.name)
 
             for f in node.features:
                 self.visit(f)
@@ -78,7 +105,7 @@ class TypeBuilder:
             self.current_type.define_method(
                 node.name, param_names, param_types, return_type)
         except SemanticError as e:
-            self.errors
+            self.errors.append(e)
 
     @visitor.when(AST.AttributeInit)
     def visit(self, node):
@@ -101,23 +128,7 @@ class InheritanceChecker:
         self.context = context
         self.current_type = None
         self.errors = errors
-        self.visited = {} #types visited in the graph by the DFS
-        for t in self.context.graph.keys():
-            self.visited[t] = False
-
-    def detect_cycles(self):
-        self.visit_component('Object')
-        for t in self.visited.keys():
-            if not self.visited[t]: # type t is part of another component in the graph 
-                self.errors.append("The graph of types is not a tree")
-                return
-                
-    def visit_component(self, node):
-        if not self.visited[node]: 
-            self.visited[node] = True
-            for t in self.context.graph[node]:
-                    self.visit_component(t)
-       
+        
     @visitor.on('node')
     def visit(self, node):
         pass
@@ -125,14 +136,13 @@ class InheritanceChecker:
     @visitor.when(AST.Program)
     def visit(self, node):
         scope = Scope()
-        self.detect_cycles()
         for c in node.classes:
             self.visit(c, scope.create_child())
 
     @visitor.when(AST.Class)
     def visit(self, node, scope):
         self.current_type = self.context.get_type(node.name)
-        pass
+
         
 
 
@@ -296,14 +306,17 @@ class SemanticAnalyzer:
         collector.visit(self.ast)
         context = collector.context
 
+
         # #'=============== BUILDING TYPES ================'
         builder = TypeBuilder(context, self.errors)
         builder.visit(self.ast)
-        print(context)
+        print(builder.sort)
+      
 
         #'=============== CHECKING INHERITANCE ============='
-        checker1 = InheritanceChecker(context, self.errors)
-        checker1.detect_cycles()
+        # checker1 = InheritanceChecker(context, self.errors)
+        # checker1.detect_cycles()
+       
         
        
 
