@@ -1030,17 +1030,17 @@ substr:
 
     move $t0 $a0
     li $t1 4
-
-    div $a2 $t1
+    addiu $t3 $a2 1
+    div $t3 $t1
  
     mfhi $t2
     bne $t2 $zero substr_allign_size
-    move $t1 $a2
+    move $t1 $t3
     j substr_new_block
 
 substr_allign_size:
     sub $t1 $t1 $t2
-    add $t1 $t1 $a2
+    add $t1 $t1 $t3
 
 substr_new_block:
     move $a0 $t1
