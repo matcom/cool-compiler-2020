@@ -140,8 +140,6 @@ class TypeBuilder:
         else:
             self.current_type.define_attribute(node.name, attr_type)
 
-  
-
 class TypeChecker:
     def __init__(self, context, errors=[]):
         self.context = context
@@ -306,16 +304,6 @@ class SemanticAnalyzer:
         builder = TypeBuilder(context, self.errors)
         builder.visit(self.ast)
         print(builder.sort)
-      
-
-        #'=============== CHECKING INHERITANCE ============='
-        # checker1 = InheritanceChecker(context, self.errors)
-        # checker1.detect_cycles()
-       
-        
-       
-
-
 
         #'=============== CHECKING TYPES ================'
         # checker = TypeChecker(context, self.errors)
