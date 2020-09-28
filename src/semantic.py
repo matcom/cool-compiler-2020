@@ -108,9 +108,10 @@ class Type:
         return method
 
     def get_all_attributes(self):
-        all_attributes = self.attributes
+        all_attributes = []
         if self.parent:
-            all_atributes += self.parent.get_all_attributes()
+            all_attributes = self.parent.get_all_attributes()
+        all_attributes += self.attributes
         return all_attributes
 
     def conforms_to(self, other):
