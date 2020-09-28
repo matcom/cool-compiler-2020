@@ -393,6 +393,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+#Cool test
+src/class.cl
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json

@@ -91,22 +91,17 @@ class Type:
             method = self.methods[name] = Method(
             name, param_names, param_types, return_type)
             return method
-        else: #TODO:arreglar porque puede redefinir el del padrle
+        else:
             try:
                 self.methods[name]
             except KeyError:
                 if method.return_type != return_type or method.param_types != param_types:
                     raise SemanticError(
                         f'Method "{name}" is already defined in {self.name} with a different signature')
-                
-            else: #error no se puede redefinir el metodo
+            else: 
                 raise SemanticError(
                         f'Method "{name}" is already defined in {self.name}')
                 
-
-                
-
-
     def conforms_to(self, other):
         return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
 
@@ -147,7 +142,6 @@ class Type:
         for t in args:
             least_type = least_type.join(t)
         return least_type
-
 
     def __str__(self):
         output = f'type {self.name}'
@@ -235,7 +229,8 @@ class Context:
     def __init__(self):
         self.types = {}
         self.graph = {}
-        self.classes = {}  #TODO: add the class nodes for the sort
+        self.classes = {}
+        self.types['ErrorType'] = ErrorType()
 
     def create_builtin_types(self):
         self.types['Object'] = ObjectType()

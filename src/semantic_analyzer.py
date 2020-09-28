@@ -27,7 +27,10 @@ class TypeCollector(object):
         self.context = Context()
         self.context.create_builtin_types()
         for klass in node.classes:
-            self.visit(klass)
+            if klass.name in BUILINT_TYPES:
+                self.errors.append("Is an error redefine a builint type")
+            else:
+                self.visit(klass)
 
     @visitor.when(AST.Class)
     def visit(self, node):
@@ -79,14 +82,22 @@ class TypeBuilder:
                 class_node = self.context.classes[t]
                 self.visit(class_node)
               
-
     @visitor.when(AST.Class)
     def visit(self, node):
         try:
             self.current_type = self.context.get_type(node.name)
-            if node.parent: #TODO: aqui el padre puede no estar declarado y por tanto get_type dara error
-                self.current_type.set_parent(
-                    self.context.get_type(node.parent))
+            if node.parent: #TODO:no heredar de builint excepto IO
+                print("current type", node.name, "has parent", node.parent)
+                try:
+                    parent = self.context.get_type(node.parent)
+                except SemanticError:
+                    parent = ErrorType()
+                    self.current_type.set_parent(parent)
+                else: 
+                    if parent.name in ['Int', 'String', 'Bool']:
+                        parent = ErrorType()
+                        self.errors.append("Type {} inherits from a builint type".format(node.name))
+                    self.current_type.set_parent(parent)
 
             for f in node.features:
                 self.visit(f)
@@ -110,41 +121,26 @@ class TypeBuilder:
     @visitor.when(AST.AttributeInit)
     def visit(self, node):
         try:
-            self.current_type.define_attribute(
-                node.name, self.context.get_type(node.type))
-        except SemanticError as e:
-            self.errors.append(e)
+            attr_type = self.context.get_type(node.type)
+        except SemanticError:
+            attr_type = ErrorType()
+            self.current_type.define_attribute(node.name, attr_type)
+            self.errors.append("The type of attr {} in class {} not exist.".format(node.name, self.current_type.name))
+        else:
+            self.current_type.define_attribute(node.name, attr_type)
 
     @visitor.when(AST.AttributeDef)
     def visit(self, node):
         try:
-            self.current_type.define_attribute(
-                node.name, self.context.get_type(node.type))
-        except SemanticError as e:
-            self.errors.append(e)
+            attr_type = self.context.get_type(node.type)
+        except SemanticError:
+            attr_type = ErrorType()
+            self.current_type.define_attribute(node.name, attr_type)
+            self.errors.append("The type of attr {} in class {} not exist.".format(node.name, self.current_type.name))
+        else:
+            self.current_type.define_attribute(node.name, attr_type)
 
-class InheritanceChecker:
-    def __init__(self, context, errors=[]):
-        self.context = context
-        self.current_type = None
-        self.errors = errors
-        
-    @visitor.on('node')
-    def visit(self, node):
-        pass
-
-    @visitor.when(AST.Program)
-    def visit(self, node):
-        scope = Scope()
-        for c in node.classes:
-            self.visit(c, scope.create_child())
-
-    @visitor.when(AST.Class)
-    def visit(self, node, scope):
-        self.current_type = self.context.get_type(node.name)
-
-        
-
+  
 
 class TypeChecker:
     def __init__(self, context, errors=[]):
@@ -305,7 +301,6 @@ class SemanticAnalyzer:
         collector = TypeCollector(self.errors)
         collector.visit(self.ast)
         context = collector.context
-
 
         # #'=============== BUILDING TYPES ================'
         builder = TypeBuilder(context, self.errors)
