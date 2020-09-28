@@ -148,8 +148,7 @@ class CILToMIPSVisitor:
     def visit(self, node):
         #Get functions names
         self.collect_func_names(node)
-        print(self._name_func_map)
-
+        
         #Convert CIL ProgramNode to MIPS ProgramNode
         for tp in node.dottypes:
             self.visit(tp)
