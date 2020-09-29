@@ -108,9 +108,7 @@ class Type:
         return method
 
     def get_all_attributes(self):
-        all_attributes = []
-        if self.parent:
-            all_attributes = self.parent.get_all_attributes()
+        all_attributes = self.parent and self.parent.get_all_attributes() or []
         all_attributes += self.attributes
         return all_attributes
 
