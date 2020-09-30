@@ -1,14 +1,18 @@
 from coolcmp.cmp.utils import init_logger
 from coolcmp.cmp.gen_cil import GenCIL
-from coolcmp.cmp.ast_cls import New, FunctionCall
+from coolcmp.cmp.ast_cls import New, FunctionCall, Plus
 
 WORD = 4
+
+LABEL_FUNC_PREF = '_st_'
 
 LABEL_EXIT = '_exit'
 LABEL_RESERVE_MEMORY = '_reserve_memory'
 LABEL_RUNTIME_DISPATCH = '_runtime_dispatch'
 LABEL_PRINT_ERROR_EXIT = '_print_error_exit'
 LABEL_MAIN = 'main'
+LABEL_START_LOOP = '_loop_'
+LABEL_END_LOOP = '_end_loop_'
 
 LABEL_DISPATCH_VOID = '_err_dispatch_void'
 LABEL_CASE_VOID = '_err_case_void'
@@ -82,7 +86,7 @@ class DataSegment:
 
     def _add_functions(self):
         for name, lst in self.dict_func.items():
-            self.code.append(f'_st_{name}:')  # added a '_st_' to name
+            self.code.append(f'{LABEL_FUNC_PREF}{name}:')
 
             for func in lst:
                 self.code.append(Directive('.word', func.td))
@@ -206,7 +210,7 @@ class GenMIPS:
         # save at $t1 contents of $t0 (which has correct td)
         self.code.append(Ins('move', self.get_temp_reg(1), self.get_temp_reg(0)))
         
-        loop_label = f'_loop_{self.loops}'
+        loop_label = f'{LABEL_START_LOOP}{self.loops}'
 
         #setting up the loop
         #pointer to current address of i-th func is in $t0
@@ -238,7 +242,7 @@ class GenMIPS:
         self.code.append(Ins('bgt', self.get_temp_reg(3), self.get_temp_reg(1), loop_label))
         self.code.append(Ins('bgt', self.get_temp_reg(1), self.get_temp_reg(4), loop_label))
 
-        self.code.append(Label(f'_end_loop_{self.loops}:'))
+        self.code.append(Label(f'{LABEL_END_LOOP}{self.loops}:'))
         self.loops += 1
 
         # load func_label to jump to result_reg
@@ -276,6 +280,7 @@ class GenMIPS:
             self.visit(func)
     
     # native functions:
+    # REMEMBER TO ADD RESULT FOR NATIVE FUNCTIONS TOO
 
     # from Object
     def native_abort(self): pass
@@ -304,6 +309,9 @@ class GenMIPS:
 
         self.code.append(Ins('li', '$v0', 1))
         self.code.append(Ins('syscall'))
+
+        # the result of the body of this native function is current self
+        self.code.append(Ins('move', self.get_result_reg(), self.get_self_reg()))
 
     def native_in_string(self): pass
     def native_in_int(self): pass
@@ -347,8 +355,8 @@ class GenMIPS:
         self._deallocate_stack(WORD)
 
         # set self, as old saved self
-        self._deallocate_stack(WORD)
         self.code.append(Ins('lw', self.get_self_reg(), '0($sp)'))
+        self._deallocate_stack(WORD)
 
         # get $fp from stack
         self.code.append(Ins('lw', '$fp', '0($sp)'))
@@ -398,8 +406,8 @@ class GenMIPS:
 
         # either way $t0 has the correct td for the dispatch
 
-        #save at arg_reg the address where functions with name _st_{node.name} are
-        self.code.append(Ins('la', self.get_arg_reg(), f'_st_{node.name}'))
+        #save at arg_reg the address where functions with name {LABEL_FUNC_PREF}{node.name} are
+        self.code.append(Ins('la', self.get_arg_reg(), f'{LABEL_FUNC_PREF}{node.name}'))
 
         #transfer control to runtime_dispatch subprogram
         self.code.append(Ins('jal', LABEL_RUNTIME_DISPATCH))
@@ -493,18 +501,18 @@ class GenMIPS:
         #store int value passed in arg_reg in attr_idx position of attrs
         self.code.append(Ins('sw', self.get_arg_reg(), f'{self.attr_idx * WORD}({self.get_self_reg()})'))
 
-    def visit_AttrStringLiteral(self, node):
-        pass  #FILL
-
-    def visit_AttrBoolLiteral(self, node):
-        pass  #FILL
+    def visit_AttrStringLiteral(self, node): pass
+    def visit_AttrBoolLiteral(self, node): pass
 
     def visit_Binding(self, node): pass
-
     def visit_If(self, node): pass
     def visit_While(self, node): pass
 
-    def visit_Block(self, node): pass
+    def visit_Block(self, node):
+        for expr in node.expr_list:
+            self.visit(expr)
+
+        # result is the result of last expr (which is saved at result reg)
 
     def visit_Case(self, node): pass
 
@@ -520,15 +528,54 @@ class GenMIPS:
             # save addres of label to jump at $t0
             self.code.append(Ins('la', self.get_temp_reg(0), self.dict_init_func[node.type].label))
 
+        # fill this, remember that each attribute of these classes expect the value in arg_reg
+        if node.type == 'Int':
+            # send 0 as value to initialize
+            self.code.append(Ins('li', self.get_arg_reg(), 0))
+
+        elif node.type == 'String':
+            pass
+
+        elif node.type == 'Bool':
+            pass
+
         # either way $t0 has address of label to jump
-        # jump!
-        self.code.append(Ins('jalr', self.get_temp_reg(0)))
+        self.code.append(Ins('jalr', self.get_temp_reg(0))) # jump!
+        # in result_reg is the result of New
 
     def visit_IsVoid(self, node): pass
     def visit_IntComp(self, node): pass
     def visit_Not(self, node): pass
 
-    def visit_Plus(self, node): pass
+    def visit_Plus(self, node):
+        self.visit(node.left)
+
+        # save result at stack
+        self._allocate_stack(WORD)
+        self.code.append(Ins('sw', self.get_result_reg(), '0($sp)'))
+
+        self.visit(node.right)
+
+        # save left side on $t0
+        self.code.append(Ins('lw', self.get_temp_reg(0), '0($sp)'))
+        self._deallocate_stack(WORD)
+
+        # save right side on $t1
+        self.code.append(Ins('move', self.get_temp_reg(1), self.get_result_reg()))
+
+        # get id of attribute _int_literal
+        idx = self.dict_init_func['Int'].attr_dict['_int_literal']
+
+        # get the int value
+        self.code.append(Ins('lw', self.get_temp_reg(0), f'{idx * WORD}({self.get_temp_reg(0)})'))
+        self.code.append(Ins('lw', self.get_temp_reg(1), f'{idx * WORD}({self.get_temp_reg(1)})'))
+
+        # do $arg_reg := $t0 + $t1, to send the value to init function
+        self.code.append(Ins('add', self.get_arg_reg(), self.get_temp_reg(0), self.get_temp_reg(1)))
+
+        # note that this saves result in result_reg, so I dont save it here
+        self.code.append(Ins('jal', self.dict_init_func['Int'].label))
+
     def visit_Minus(self, node): pass
     def visit_Mult(self, node): pass
     def visit_Div(self, node): pass
@@ -547,15 +594,18 @@ class GenMIPS:
             self.code.append(Ins('lw', self.get_result_reg(), f'{node.refers_to[1] * WORD}({self.get_self_reg()})'))
 
         else:  # locals (including formals)
-            # get it from stack
-            self.code.append(Ins('lw', self.get_result_reg(), f'{node.refers_to[1] * WORD}($fp)'))
+            # get it from stack (negative offset from $fp)
+            self.code.append(Ins('lw', self.get_result_reg(), f'{-node.refers_to[1] * WORD}($fp)'))
 
     def visit_Int(self, node):
         # send in arg_reg the integer, note that literals dont have any attributes
-        # and is guaranteed for them that argument_reg will have the found literal always
+        # and is guaranteed for them that argument_reg will always have found the literal
+
+        # send value to initialize and jump to init function
         self.code.append(Ins('li', self.get_arg_reg(), node.value))
-        self.code.append(Ins('jal', self.dict_init_func['Int'].label))  #jump to init-function for Int class
-        #this saved reference at result_reg so here I dont save it
+
+        # note that this saves result in result_reg, so I dont save it here
+        self.code.append(Ins('jal', self.dict_init_func['Int'].label))
 
     def visit_String(self, node): pass
     def visit_Bool(self, node): pass
