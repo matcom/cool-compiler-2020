@@ -1,10 +1,11 @@
 from coolcmp.cmp.lexer import Lexer
 from coolcmp.cmp.parser import Parser
 from coolcmp.cmp.semantics import SemanticAnalyzer
-from coolcmp.cmp.my_ast import *
+from coolcmp.cmp.ast_cls import *
 from coolcmp.cmp.errors import LexicographicError
 from coolcmp.cmp.type_checker import TypeChecker
 from coolcmp.cmp.gen_cil import GenCIL
+from coolcmp.cmp.gen_mips import DataSegment, GenMIPS
 
 class SourceCode:
     def __init__(self, code, tab_size=4):
@@ -21,9 +22,9 @@ class SourceCode:
     def _inject_native_classes(self):
         self.native_classes = [
             Class(Type('Object')),
-            IntClass(),
-            StringClass(),
-            BoolClass(),
+            Class(Type('Int'), reserved_attrs=[AttrIntLiteral()], can_inherit=False),
+            Class(Type('String'), reserved_attrs=[AttrStringLiteral()], can_inherit=False),
+            Class(Type('Bool'), reserved_attrs=[AttrBoolLiteral()], can_inherit=False),
             Class(Type('IO'))
         ]
 
@@ -95,3 +96,11 @@ class SourceCode:
             lst.sort(key=lambda x: x.level, reverse=True)  #sort by greater level
 
         return cil.cil_code
+
+    def genMIPSCode(self, cil_code):
+        data = DataSegment(cil_code)
+
+        mips = GenMIPS(data.code, cil_code)
+        mips.visit(cil_code)
+
+        return '\n'.join(map(str, mips.code))

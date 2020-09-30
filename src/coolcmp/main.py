@@ -15,6 +15,7 @@ args = args.parse_args()
 with open(args.file_path) as file:
     content = file.read()
 
+name = args.file_path.split('/')[-1]
 source_code = SourceCode(content, args.tab_size)
 
 try:
@@ -32,6 +33,11 @@ try:
     if args.cil_ast:
         from coolcmp.cmp.print_ast import PrintAst
         PrintAst(cil_root)
+
+    mips_code = source_code.genMIPSCode(cil_root)
+
+    with open(f'{name}.mips', 'w') as f:
+        print(mips_code, file=f)
 
 except CmpErrors as err:
     print(err)

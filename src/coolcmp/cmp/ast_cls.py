@@ -227,6 +227,7 @@ class CILCode(ASTNode):
         self.dict_func = dict_func  #dict for functions (ie. regular functions, not init-functions)
         self.dict_init_func = dict_init_func
         self.cases = cases
+        self.str_literals = {}  #literals for string
 
 class Function(ASTNode):
     def __init__(self, name, formals, body, locals_size):
@@ -242,7 +243,7 @@ class FuncInit(ASTNode):
     def __init__(self, name, attrs, attr_dict, label, reserved_attrs):
         self.name = name
         self.attrs = attrs  #list of attrs in correct order
-        self.attr_dict = attr_dict  #dict of (name, position) for attrs including self
+        self.attr_dict = attr_dict  #dict of (name, position) for attrs including reserved attrs
         self.label = label
         self.reserved_attrs = reserved_attrs
 

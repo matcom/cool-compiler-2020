@@ -22,15 +22,32 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
             expr = Bool('false')
 
         elif _type == 'String':
-            expr = String('""')
+            expr = String('')
         
         elif _type == 'Int':
             expr = Int('0')
 
         return expr
 
+    def _save_str_literal(self, ref):
+        if ref.value not in self.cil_code.str_literals:
+            label = f'_StringLiteral_{len(self.cil_code.str_literals)}'
+            self.cil_code.str_literals[ref.value] = label
+
+        else:
+            label = self.cil_code.str_literals[ref.value]
+
+        ref.label = label
+
     def _get_declaration_expr(self, node):
         expr = GenCIL.get_default_value(node.type.value)
+
+        if isinstance(expr, String):
+            #it must be empty string
+            assert expr.value == ''
+
+            #save it as a string literal for data segment
+            self._save_str_literal(expr)
 
         if node.opt_expr_init:
             expr = self.visit(node.opt_expr_init)
@@ -68,16 +85,20 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
 
         #filling attr_dict, it is needed so that references know what attr they are refering to
         p = 0
+
+        #I ensure that _type_info attr will always be at position 0 in "attr table"
+        assert node.reserved_attrs[0].ref.name == '_type_info'
+
+        for attr in node.reserved_attrs:  #reserved attributes
+            self.attr_dict[attr.ref.name] = p
+            p += 1
+
         for decl in self.attrs:  #declarations of attributes from inheritance, these are instance of AttrDecl
             self.attr_dict[decl.ref.name] = p
             p += 1
 
         for attr in own_attrs:  #own attributes, note that these are instance of Attribute right now
             self.attr_dict[attr.id.value] = p
-            p += 1
-
-        for attr in node.reserved_attrs:  #reserved attributes
-            self.attr_dict[attr.ref.name] = p
             p += 1
 
         for feature in node.feature_list:
@@ -231,7 +252,7 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         branches.sort(key=lambda x: x.level, reverse=True)  #sort by greater level
 
         case = Case(expr, branches)
-        case.label = f'Case_{len(self.cil_code.cases)}'  #setting label
+        case.label = f'_Case_{len(self.cil_code.cases)}'  #setting label
         self.cil_code.cases.append(case)
 
         return case
@@ -295,4 +316,6 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         return Bool(node.value)
 
     def visit_String(self, node):
-        return String(node.value)
+        ref = String(node.value)
+        self._save_str_literal(ref)
+        return ref
