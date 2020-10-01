@@ -269,8 +269,10 @@ class GenMIPS:
         self.code.append(Ins('li', '$v0', 4))
         self.code.append(Ins('syscall'))
 
-        # exit program
-        self.code.append(Ins('jal', LABEL_EXIT))
+        # exit program with code 1 (indicating that an error ocurred)
+        self.code.append(Ins('li', '$a0', 1))
+        self.code.append(Ins('li', '$v0', 17))
+        self.code.append(Ins('syscall'))
 
     def visit_CILCode(self, node):
         for init in node.init_functions:

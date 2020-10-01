@@ -4,6 +4,7 @@ from coolcmp.cmp.lexer import Lexer
 from coolcmp.cmp.parser import Parser
 from coolcmp.cmp.errors import *
 from coolcmp.cmp.source_code import SourceCode
+from pathlib import Path
 
 args = ArgumentParser(description="Cool compiler programmed in Python.")
 args.add_argument("--ast", dest="ast", action="store_true", help="Print AST.")
@@ -13,10 +14,14 @@ args.add_argument('--no_mips', dest='no_mips', action='store_true', help='Dont g
 args.add_argument("file_path", help="Path to cool file to compile.")
 args = args.parse_args()
 
-with open(args.file_path) as file:
+path = Path(args.file_path)
+
+if not path.exists():
+    raise Exception(f'File {path} doesnt exists')
+
+with open(path) as file:
     content = file.read()
 
-name = args.file_path.split('/')[-1]
 source_code = SourceCode(content, args.tab_size)
 
 try:
@@ -38,7 +43,7 @@ try:
     mips_code = source_code.genMIPSCode(cil_root)
     
     if not args.no_mips:
-        with open(f'{name}.mips', 'w') as f:
+        with open(f'{path.stem}.mips', 'w') as f:
             print(mips_code, file=f)
 
 except CmpErrors as err:

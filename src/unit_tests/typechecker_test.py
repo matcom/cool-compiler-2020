@@ -13,4 +13,4 @@ tests.extend(list(root.rglob('*.cl')))
 @pytest.mark.typechecker
 @pytest.mark.parametrize('file', tests, ids=map(str, tests))
 def test_typechecker(file):
-    run_test(file)
+    run_test(file, add_args=['--no_mips'])

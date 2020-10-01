@@ -1,9 +1,14 @@
 import os
 import subprocess
+from pathlib import Path
 
-def getclfiles(root):
-    return [ os.path.join(dir_path, file) for dir_path, _, file_list in os.walk(root)
-                                             for file in file_list if file.endswith('cl') ]
+error_conversions = {
+    'Dispatch on void': 'Dispatch to void.'
+}
+
+# lines that mimps simulator prints
+USELESS_LINES = 5
+USELESS_SUFFIX = 'COOL program successfully executed'
 
 def load_file(file):
     with open(file) as f:
@@ -11,12 +16,13 @@ def load_file(file):
         
     return content
 
-def run_test(file):
-    verdict = file.parts[-2]
-    assert verdict == 'success' or verdict == 'fail'
+def run_test(file, add_args=[], verdict=None):
+    if not verdict:
+        verdict = file.parts[-2]
+        assert verdict == 'success' or verdict == 'fail'
 
     try:
-        p = subprocess.run(args=['python3', '-m', 'coolcmp', '--no_mips', file], capture_output=True, timeout=2, text=True)
+        p = subprocess.run(args=['python3', '-m', 'coolcmp', file] + add_args, capture_output=True, timeout=2, text=True)
     except subprocess.TimeoutExpired:
         assert 0, 'Timeout Expired'
         return
@@ -28,3 +34,46 @@ def run_test(file):
     else:
         assert p.returncode == 0, f'File {file} must compile'
         assert verdict == 'success'
+
+def get_output(p):
+    output = p.stdout.split('\n')[USELESS_LINES:]
+    output = '\n'.join(output)
+    return output
+
+def run_test_codegen(file, t=2):
+    # it is assumed that tests in codegen can only have runtime errors
+    run_test(file=file, verdict='success')
+
+    mips_file = Path('.', f'{file.stem}.mips').resolve()
+
+    assert mips_file.exists()
+
+    try:
+        mine = subprocess.run(args=['spim', '-f', mips_file], capture_output=True, text=True, timeout=t)
+    except subprocess.TimeoutExpired:
+        assert 0, 'Timeout Expired'
+        return
+    
+    # delete mips file
+    mips_file.unlink()
+
+    try:
+        ref = subprocess.run(args=['bash', './cmp.sh', file], capture_output=True, text=True, timeout=t)
+    except subprocess.TimeoutExpired:
+        assert 0, 'Timeout Expired'
+        return
+
+    mips_file_ref = Path(file.parent, f'{file.stem}.s')
+
+    assert mips_file_ref.exists()
+    mips_file_ref.unlink()  # delete it
+
+    my_output = get_output(mine).rstrip()
+    ref_output = get_output(ref).rstrip()
+
+    if mine.returncode == 1:  # runtime exception of my compiled code
+        assert ref_output.endswith(error_conversions[my_output])
+
+    else:
+        assert ref_output.endswith(USELESS_SUFFIX)
+        assert my_output + USELESS_SUFFIX == ref_output
