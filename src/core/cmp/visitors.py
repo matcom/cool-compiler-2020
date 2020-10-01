@@ -356,11 +356,16 @@ class TypeBuilder:
 def LCA(type_list):
     counter = {}
 
-    type_list = [fixed_type(t) for t in type_list]
-    if any([isinstance(t, AutoType) for t in type_list]):
+    def check(target):
+        return [isinstance(t, target) for t in type_list]
+
+    if all(check(SelfType)):
+        return SelfType(type_list[0].fixed)
+    if any(check(AutoType)):
         return AutoType()
-    if any([isinstance(t, ErrorType) for t in type_list]):
+    if any(check(ErrorType)):
         return ErrorType()
+    type_list = [fixed_type(t) for t in type_list]
     for typex in type_list:
         node = typex
         while True:
