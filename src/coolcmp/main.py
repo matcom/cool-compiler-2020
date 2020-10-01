@@ -9,6 +9,7 @@ args = ArgumentParser(description="Cool compiler programmed in Python.")
 args.add_argument("--ast", dest="ast", action="store_true", help="Print AST.")
 args.add_argument("--cil_ast", dest="cil_ast", action="store_true", help="Print CIL AST.")
 args.add_argument('--tab_size', dest='tab_size', default=4, type=int, help='Tab size to convert tabs to spaces.')
+args.add_argument('--no_mips', dest='no_mips', action='store_true', help='Dont generate mips file')
 args.add_argument("file_path", help="Path to cool file to compile.")
 args = args.parse_args()
 
@@ -35,9 +36,10 @@ try:
         PrintAst(cil_root)
 
     mips_code = source_code.genMIPSCode(cil_root)
-
-    with open(f'{name}.mips', 'w') as f:
-        print(mips_code, file=f)
+    
+    if not args.no_mips:
+        with open(f'{name}.mips', 'w') as f:
+            print(mips_code, file=f)
 
 except CmpErrors as err:
     print(err)

@@ -12,13 +12,14 @@ def load_file(file):
     return content
 
 def run_test(file):
-    verdict = file.split('/')[-2]
+    verdict = file.parts[-2]
     assert verdict == 'success' or verdict == 'fail'
 
     try:
-        p = subprocess.run(args=['python3', '-m', 'coolcmp', file], capture_output=True, timeout=1, text=True)
+        p = subprocess.run(args=['python3', '-m', 'coolcmp', '--no_mips', file], capture_output=True, timeout=2, text=True)
     except subprocess.TimeoutExpired:
         assert 0, 'Timeout Expired'
+        return
 
     if p.stdout:
         assert p.returncode == 1, f'Return code must be 1, found {p.returncode}'
