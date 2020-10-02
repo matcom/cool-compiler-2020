@@ -107,6 +107,21 @@ class TypeInferer:
         if deep == 1:
             scope.define_variable(atrib.name, atrib.type, "ATTRIBUTE")
 
+        # Checkear que el valor de retorno de la expresion
+        # de inicializacion del atributo (si existe) se
+        # conforme con el tipo del atributo
+        if node.default_value is not None:
+            return_type = self.visit(node.default_value, scope, infered_type,
+                                     deep)
+
+            if atrib.type == self.AUTO_TYPE:
+                # Inferir el tipo del atributo segun su expresion de inicializacion
+                atrib.type = return_type
+            elif not return_type.conforms_to(atrib.type):
+                self.errors.append(
+                    f'Attribute {node.idx} of type {atrib.type.name} can not be initialized with \
+                    an expression of type {return_type.name}')
+
     # ---------------------------------------------------------------------
     # Si el método no tiene un tipo definido, entonces tratar de inferir  |
     # su tipo en dependencia del tipo de su expresién de retorno.         |
