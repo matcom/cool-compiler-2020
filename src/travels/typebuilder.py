@@ -43,13 +43,23 @@ class TypeBuilder:
                 self.visit(feature)
 
     @visit.register
-    def _(self, node: coolAst.AttributeDef):  # noqa: F811
+    def _(self, node: coolAst.AttributeDef):
+        # Detectar si el atributo que vamos a crear
+        # redefine algun atributo heredadoo definido
+        # anteriormente
         try:
-            attr_type = self.context.get_type(node.typex) if isinstance(
-                node.typex, str) else node.typex
-            self.current_type.define_attribute(node.idx, attr_type)
-        except SemanticError as e:
-            self.errors.append(e.text)
+            self.current_type.get_attribute(node.idx)
+            self.errors.append(f"Can not redefine {node.idx} attribute")
+        except SemanticError:  # Al lanzar la excepcion indica que el atributo no se ha definido
+            try:
+                # Extraer el tipo del atributo del contexto
+                attr_type = self.context.get_type(node.typex) if isinstance(
+                    node.typex, str) else node.typex
+
+                # Definir el atributo en el tipo actual
+                self.current_type.define_attribute(node.idx, attr_type)
+            except SemanticError as e:
+                self.errors.append(e.text)
 
     @visit.register
     def _(self, node: coolAst.MethodDef):  # noqa: F811
