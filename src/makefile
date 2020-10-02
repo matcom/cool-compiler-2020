@@ -20,7 +20,7 @@ endif
 
 #define some macros
 COMPSTRUCTFILE=compiler_struct.py
-PIPREQUIREMENTS=cloudpickle pyinstaller progressbar
+PIPREQUIREMENTS=cloudpickle
 
 # pyinstaller modules
 COOLCIMPORTS= ~/.pycoocl

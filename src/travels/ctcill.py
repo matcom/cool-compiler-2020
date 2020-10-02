@@ -1,3 +1,4 @@
+from cloudpickle.cloudpickle import instance
 import cil.baseCilVisitor as baseCilVisitor
 import abstract.tree as coolAst
 import abstract.semantics as semantics
@@ -85,8 +86,11 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             new_type_node.methods.append(
                 (method, self.to_function_name(method, node.idx)))
 
-        # TODO: It is necessary to visit attributes?? Think so cuz they can be initialized
-        # and their value could perhaps go to .DATA section
+        # Visitar los atributos definidos en la clase para generar sus funciones
+        # de inicializacion
+        for feature in node.features:
+            if isinstance(feature, coolAst.AttributeDef):
+                self.visit(feature, scope)
 
         # Visitar cada metodo para generar su codigo en la seccion .CODE
         for feature, child_scope in zip(

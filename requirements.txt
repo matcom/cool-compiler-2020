@@ -1,5 +1,3 @@
 pytest
 pytest-ordering
 cloudpickle
-pyinstaller
-progressbar
