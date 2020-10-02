@@ -550,7 +550,7 @@ class GenMIPS:
     def visit_IntComp(self, node): pass
     def visit_Not(self, node): pass
 
-    def visit_Plus(self, node):
+    def _binary_op(self, node, ops):
         self.visit(node.left)
 
         # save result at stack
@@ -573,15 +573,39 @@ class GenMIPS:
         self.code.append(Ins('lw', self.get_temp_reg(0), f'{idx * WORD}({self.get_temp_reg(0)})'))
         self.code.append(Ins('lw', self.get_temp_reg(1), f'{idx * WORD}({self.get_temp_reg(1)})'))
 
-        # do $arg_reg := $t0 + $t1, to send the value to init function
-        self.code.append(Ins('add', self.get_arg_reg(), self.get_temp_reg(0), self.get_temp_reg(1)))
+        # do operations
+        self.code.extend(ops)
 
         # note that this saves result in result_reg, so I dont save it here
         self.code.append(Ins('jal', self.dict_init_func['Int'].label))
 
-    def visit_Minus(self, node): pass
-    def visit_Mult(self, node): pass
-    def visit_Div(self, node): pass
+    def visit_Plus(self, node):
+        # do $arg_reg := $t0 + $t1, to send the value to init function
+        op = Ins('add', self.get_arg_reg(), self.get_temp_reg(0), self.get_temp_reg(1))
+        self._binary_op(node, [op])
+
+    def visit_Minus(self, node):
+        # do $arg_reg := $t0 - $t1, to send the value to init function
+        op = Ins('sub', self.get_arg_reg(), self.get_temp_reg(0), self.get_temp_reg(1))
+        self._binary_op(node, [op])
+
+    def visit_Mult(self, node):
+        # do $arg_reg := $t0 * $t1, to send the value to init function
+        # note that here only lowest 32 bits are saved
+        op = Ins('mul', self.get_arg_reg(), self.get_temp_reg(0), self.get_temp_reg(1))
+        self._binary_op(node, [op])
+
+    def visit_Div(self, node):
+        # do $arg_reg := $t0 / $t1, to send the value to init function
+        # note that here only lowest 32 bits are saved
+
+        ops = [
+            Ins('la', '$a0', LABEL_DIV_BY_0),
+            Ins('beqz', self.get_temp_reg(1), LABEL_PRINT_ERROR_EXIT),
+            Ins('div', self.get_arg_reg(), self.get_temp_reg(0), self.get_temp_reg(1))
+        ]
+
+        self._binary_op(node, ops)
 
     def visit_Less(self, node): pass
     def visit_LessEq(self, node): pass

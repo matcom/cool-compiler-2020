@@ -3,7 +3,8 @@ import subprocess
 from pathlib import Path
 
 error_conversions = {
-    'Dispatch on void': 'Dispatch to void.'
+    'Dispatch on void': 'Dispatch to void.',
+    'Division by zero': '[Breakpoint/Division by 0]  Execution aborted'
 }
 
 # lines that mimps simulator prints
@@ -75,5 +76,10 @@ def run_test_codegen(file, t=2):
         assert ref_output.endswith(error_conversions[my_output])
 
     else:
-        assert ref_output.endswith(USELESS_SUFFIX)
-        assert my_output + USELESS_SUFFIX == ref_output
+        if ref.stderr:  # ref compiler gave some runtime error (div0 or heap overflow can be)
+            assert ref.stderr == mine.stderr, (f'Reference compiler gives error:\n{ref.stderr}\n'
+                                                f'My compiler gives:\n{mine.stderr}\n')
+ 
+        else:
+            assert ref_output.endswith(USELESS_SUFFIX)
+            assert my_output + USELESS_SUFFIX == ref_output

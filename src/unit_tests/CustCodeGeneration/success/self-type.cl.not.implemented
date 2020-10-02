@@ -1,0 +1,19 @@
+class Main inherits IO {
+    a : A <- new A;
+    b : B <- new B;
+    c : C <- new C;
+
+    main() : SELF_TYPE {{
+        out_string(a.fun().type_name());
+        out_string(b.fun().type_name());
+        out_string(c.fun().type_name());
+    }};
+};
+
+class P {
+    fun() : SELF_TYPE { new SELF_TYPE };
+};
+
+class A inherits P {};
+class B inherits P {};
+class C inherits P {};
