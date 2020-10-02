@@ -411,5 +411,4 @@ dmypy.json
 /src/extra
 /src/coolcmp/cmp_utils/parsetab.py
 .vscode/
-cmp.sh
 *.mips

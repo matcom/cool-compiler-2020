@@ -289,7 +289,7 @@ class Binding(Expr):  #models a binding between a reference and an object addres
         self.expr = expr
 
     def __repr__(self):
-        return f'<Binding {self.ref}>'
+        return f'<Binding>'
 
 class Reference(Expr):
     def __init__(self, name):

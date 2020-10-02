@@ -58,7 +58,7 @@ def run_test_codegen(file, t=2):
     mips_file.unlink()
 
     try:
-        ref = subprocess.run(args=['bash', './cmp.sh', file], capture_output=True, text=True, timeout=t)
+        ref = subprocess.run(args=['bash', 'unit_tests/cmp.sh', file], capture_output=True, text=True, timeout=t)
     except subprocess.TimeoutExpired:
         assert 0, 'Timeout Expired'
         return

@@ -212,14 +212,14 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
     def visit_Let(self, node):
         old_env = self.cur_env
         self.cur_env = Environment(old_env)
-
-        exprs = [ self.visit(let_var) for let_var in node.let_list ]
-        exprs.append(self.visit(node.body))
+        
+        lets = [ self.visit(let_var) for let_var in node.let_list ]
+        body = self.visit(node.body)
 
         self.pos -= self.cur_env.definitions  #undo
         self.cur_env = old_env
 
-        return Block(List(exprs))
+        return Let(List(lets), body)
 
     def visit_CaseVar(self, node):
         self.pos += 1  #do

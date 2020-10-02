@@ -516,6 +516,7 @@ class GenMIPS:
 
         # result is the result of last expr (which is saved at result reg)
 
+    def visit_Let(self, node): pass
     def visit_Case(self, node): pass
 
     def visit_New(self, node):
