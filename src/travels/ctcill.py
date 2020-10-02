@@ -22,19 +22,19 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     def _(self, node: coolAst.ProgramNode,
           scope: Scope) -> cil.CilProgramNode:  # noqa: F811
 
-        # Define the entry point for the program.
+        # Definir el punto de entrada del programa.
         self.current_function = self.register_function("entry")
         instance = self.define_internal_local()
         result = self.define_internal_local()
 
-        # The first method to call need to be the method main in a Main Class
+        # El primer metodo que se invoca es el metodo main de la clase Main
 
-        # allocate memory for the main object
+        # Reservar memoria para el objeto Main
         main_type = self.context.get_type('Main')
         self.register_instruction(cil.AllocateNode(main_type, instance))
         self.register_instruction(cil.ArgNode(instance))
 
-        # call the main method
+        # Llamar al metodo main
         self.register_instruction(
             cil.StaticCallNode(self.to_function_name('main', 'Main'), result))
         self.register_instruction(cil.ReturnNode(0))
@@ -49,28 +49,28 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
     @visit.register
     def _(self, node: coolAst.ClassDef, scope: Scope) -> None:  # noqa: F811
-        # Register the new type in .Types section
+        # Registrar el tipo que creamos en .Types section
         self.current_type = self.context.get_type(node.idx)
         new_type_node = self.register_type(node.idx)
 
         methods = self.current_type.methods
         attributes = self.current_type.attributes
 
-        # Handle inherited features such as attributes and methods first
+        # Manejar los features heredados como atributos y metodos
         if self.current_type.parent is not None:
             for attribute in self.current_type.parent.attributes:
                 new_type_node.attributes.append(attribute)
 
             for method in self.current_type.parent.methods.keys():
-                # Handle methods overload
+                # Manejar la redefinicion de metodos
                 if method not in methods:
                     new_type_node.methods.append(
                         (method,
                          self.to_function_name(method,
                                                self.current_type.parent.name)))
 
-        # Register every attribute and method for this type
-        # so the .Type section must look like:
+        # Registrar cada atributo y metodo para este tipo
+        # la seccion .Type debe tener la siguiente forma:
         #####################################################################
         # .TYPES                                                            #
         # type A {                                                          #
@@ -88,7 +88,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # TODO: It is necessary to visit attributes?? Think so cuz they can be initialized
         # and their value could perhaps go to .DATA section
 
-        # Visit every method for generate its code in the .CODE section
+        # Visitar cada metodo para generar su codigo en la seccion .CODE
         for feature, child_scope in zip(
             (x for x in node.features if isinstance(x, coolAst.MethodDef)),
                 scope.children):

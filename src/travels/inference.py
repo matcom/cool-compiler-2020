@@ -4,6 +4,7 @@ from typing import Optional
 import abstract.semantics as semantic
 import abstract.tree as coolAst
 from abstract.semantics import Type
+from abstract.tree import IsVoidNode
 from travels.context_actions import (update_attr_type, update_method_param,
                                      update_scope_variable)
 
@@ -520,33 +521,21 @@ class TypeInferer:
     # -----------------------------------------------------------------------------------------------------------------------#
 
     @visit.register
-    def _(self,
-          node: coolAst.IntegerConstant,
-          scope,
-          infered_type=None,
-          deep=1) -> Type:
+    def _(self, node: coolAst.IntegerConstant, scope, infered_t=None, deep=1):
         return self.INTEGER
 
     @visit.register
-    def _(self,
-          node: coolAst.StringConstant,
-          scope,
-          infered_type=None,
-          deep=1) -> Type:
+    def _(self, node: coolAst.StringConstant, scope, infered_t=None, deep=1):
         return self.STRING
 
     @visit.register
-    def _(self,
-          node: coolAst.TrueConstant,
-          scope,
-          infered_type=None,
-          deep=1) -> Type:
+    def _(self, node: coolAst.TrueConstant, scope, infered_type=None, deep=1):
         return self.BOOL
 
     @visit.register
-    def _(self,
-          node: coolAst.FalseConstant,
-          scope,
-          infered_type=None,
-          deep=1) -> Type:
+    def _(self, node: coolAst.FalseConstant, scope, infered_type=None, deep=1):
+        return self.BOOL
+
+    @visit.register
+    def _(self, node: coolAst.IsVoidNode, scope, infered_type=None, deep=1):
         return self.BOOL
