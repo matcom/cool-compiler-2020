@@ -545,7 +545,6 @@ class MipsCodeGenerator(CilToMipsVisitor):
     """
     def __call__(self, ast: cil.CilProgramNode) -> str:
         self.visit(ast)
-        # return "\n".join(str(x) for x in self.program)
         return self.to_str()
 
     def to_str(self) -> str:
