@@ -308,7 +308,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.allocate_memory(num_bytes)
 
         reg = self.get_available_register()
-        assert reg is not None, "Out of registers."
+        temp = self.get_available_register()
+        assert reg is not None and temp is not None, "Out of registers."
 
         # Inicializar la instancia
 
@@ -321,12 +322,22 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             lsNodes.LA(dest=reg, src=f"{instance_type.name}_start"))
         self.register_instruction(lsNodes.SW(dest=reg, src="4($v0)"))
 
-        # TODO: Manejar los atributos
+        self.register_instruction(instrNodes.MOVE(temp, v0))
+
+        # Los atributos comienzan en el indice 8($v0)
+        for i, attribute in enumerate(instance_type.attributes):
+            # llamar la funcion de inicializacion del atributo
+            self.register_instruction(
+                branchNodes.JAL(f"__attrib__{attribute.name}__init"))
+            # El valor de retorno viene en v0
+            self.register_instruction(
+                lsNodes.SW(dest=v0, src=f"{8 + i*4}(${temp})"))
 
         # mover la direccion que almacena la instancia hacia dest
-        self.register_instruction(lsNodes.SW(v0, dest))
+        self.register_instruction(lsNodes.SW(temp, dest))
 
         self.used_registers[reg] = False
+        self.used_registers[temp] = False
 
     @visit.register
     def _(self, node: cil.TypeOfNode):
