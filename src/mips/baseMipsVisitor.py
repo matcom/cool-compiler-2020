@@ -169,7 +169,7 @@ class BaseCilToMipsVisitor:
         for i, param in enumerate(func.params):
             if i < 4:
                 self.register_instruction(
-                    instrNodes.LineComment(f"\t$a{i} = {param}"))
+                    instrNodes.LineComment(f"\t$a{i} = {param.name}"))
             else:
                 self.register_instruction(
                     instrNodes.LineComment(f"\t{(i-4) * 4}($fp) = {param}"))
@@ -339,3 +339,4 @@ class BaseCilToMipsVisitor:
         self.comment("syscall code 10 is for exit")
         self.register_instruction(lsNodes.LI(v0, 10))
         self.register_instruction(instrNodes.SYSCALL())
+        self.comment("main END\n")

@@ -4,9 +4,10 @@ from mips.baseMipsVisitor import (BaseCilToMipsVisitor, DotDataDirective,
                                   DotTextDirective, instrNodes, arithNodes,
                                   lsNodes)
 import cil.nodes as cil
-from mips.instruction import (a0, a1, a2, a3, at, t0, t1, t2, t3, t4, t5, t6,
-                              t7, t8, t9, s0, s1, s2, s3, s4, s5, s6, s7, sp,
-                              ra, fp, k0, k1, gp, v0, v1, zero, TEMP_REGISTERS)
+from mips.instruction import (REG_TO_STR, a0, a1, a2, a3, at, t0, t1, t2, t3,
+                              t4, t5, t6, t7, t8, t9, s0, s1, s2, s3, s4, s5,
+                              s6, s7, sp, ra, fp, k0, k1, gp, v0, v1, zero,
+                              TEMP_REGISTERS)
 import mips.branch as branchNodes
 from functools import singledispatchmethod
 
@@ -143,7 +144,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.current_function = None
 
-        self.comment("\n\n")
+        self.comment("Function END\n\n")
 
     @visit.register
     def _(self, node: cil.LabelNode):
@@ -331,7 +332,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
                 branchNodes.JAL(f"__attrib__{attribute.name}__init"))
             # El valor de retorno viene en v0
             self.register_instruction(
-                lsNodes.SW(dest=v0, src=f"{8 + i*4}(${temp})"))
+                lsNodes.SW(dest=v0, src=f"{8 + i*4}(${REG_TO_STR[temp]})"))
 
         # mover la direccion que almacena la instancia hacia dest
         self.register_instruction(lsNodes.SW(temp, dest))
@@ -419,11 +420,12 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Cargar el puntero a la VTABLE en el segundo registro
         self.comment("Get pointer to type's VTABLE")
-        self.register_instruction(lsNodes.LW(reg2, f"0(${reg1})"))
+        self.register_instruction(lsNodes.LW(reg2, f"0(${REG_TO_STR[reg1]})"))
 
         # Cargar el puntero a la funcion correspondiente en el tercer registro
         self.comment("Get pointer to function address")
-        self.register_instruction(lsNodes.LW(reg3, f"{i * 4}(${reg2})"))
+        self.register_instruction(
+            lsNodes.LW(reg3, f"{i * 4}(${REG_TO_STR[reg2]})"))
 
         # saltar hacia la direccion de memoria correspondiente a la funcion
         self.comment("Call function. Result is on $v0")
@@ -543,4 +545,20 @@ class MipsCodeGenerator(CilToMipsVisitor):
     """
     def __call__(self, ast: cil.CilProgramNode) -> str:
         self.visit(ast)
-        return "\n".join(str(x) for x in self.program)
+        # return "\n".join(str(x) for x in self.program)
+        return self.to_str()
+
+    def to_str(self) -> str:
+        program = ""
+        indent = 0
+        for instr in self.program:
+            line = str(instr)
+            if '.data' in line or '.text' in line:
+                indent = 0
+            program += "\n" + " " * (3 * indent) + line
+            if '#' not in line and (':' in line and 'end' not in line):
+                if 'word' not in line and 'asciiz' not in line and 'byte' not in line:
+                    indent += 1
+            if "END" in line or "end" in line:
+                indent -= 1
+        return program
