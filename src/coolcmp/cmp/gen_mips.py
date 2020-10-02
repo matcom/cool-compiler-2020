@@ -30,6 +30,10 @@ rte_errors = {
     LABEL_HEAP_OVERFLOW: 'Heap overflow'
 }
 
+LABEL_BOOL_TRUE = '_bool_true'
+LABEL_BOOL_FALSE = '_bool_false'
+LABEL_BOOL_END = '_bool_end'
+
 #classes for formatting
 class Directive:
     def __init__(self, *args):
@@ -79,6 +83,7 @@ class DataSegment:
         self._add_cases()
         self._add_str_literals()
         self._add_error_msgs()
+        self._add_bools()
 
     def _init_ds(self):
         self.code.append(Directive('.data'))
@@ -142,6 +147,15 @@ class DataSegment:
         for label, msg in rte_errors.items():
             self.code.append(Label(f'{label}:'))
             self.code.append(Directive('.asciiz', f'"{msg}\\n"'))
+
+    def _add_bools(self):
+        self.code.append(Label(f'{LABEL_BOOL_TRUE}:'))
+        self.code.append(Directive('.word', 'Bool'))
+        self.code.append(Directive('.word', 1))
+
+        self.code.append(Label(f'{LABEL_BOOL_FALSE}:'))
+        self.code.append(Directive('.word', 'Bool'))
+        self.code.append(Directive('.word', 0))
 
 class GenMIPS:
     def __init__(self, code, cil_code):
@@ -419,8 +433,25 @@ class GenMIPS:
         # jump!
         self.code.append(Ins('jalr', self.get_result_reg()))
 
+    def _init_bool(self):
+        # initialize Bool(false) at first
+        self.code.append(Ins('la', self.get_result_reg(), LABEL_BOOL_FALSE))
+
+        # if arg_reg = 0, then go to LABEL_END_BOOL and finish
+        # else initialize Bool(true)
+        self.code.append(Ins('beqz', self.get_arg_reg(), LABEL_BOOL_END))
+        self.code.append(Ins('la', self.get_result_reg(), LABEL_BOOL_TRUE))
+
+        self.code.append(Label(f'{LABEL_BOOL_END}:'))
+        self.code.append(Ins('jr', '$ra'))  #jump back to caller
+        # either way, result reg has the address of correct Bool object
+
     def visit_FuncInit(self, node):
         self.code.append(Label(f'{node.label}:'))
+
+        if node.name == 'Bool':
+            self._init_bool()
+            return
 
         self._allocate_stack(WORD)  #for $ra
         self.code.append(Ins('sw', '$ra', '0($sp)'))  #save $ra at top of stack
@@ -528,18 +559,16 @@ class GenMIPS:
             self.code.append(Ins('lw', self.get_temp_reg(0), f'{2 * WORD}({self.get_temp_reg(0)})'))
 
         else:
-            # save addres of label to jump at $t0
+            # save address of label to jump at $t0
             self.code.append(Ins('la', self.get_temp_reg(0), self.dict_init_func[node.type].label))
 
         # fill this, remember that each attribute of these classes expect the value in arg_reg
-        if node.type == 'Int':
+        if node.type == 'Int' or node.type == 'Bool':
+            # int and bool both initialize by default with 0
             # send 0 as value to initialize
             self.code.append(Ins('li', self.get_arg_reg(), 0))
 
         elif node.type == 'String':
-            pass
-
-        elif node.type == 'Bool':
             pass
 
         # either way $t0 has address of label to jump
@@ -635,7 +664,15 @@ class GenMIPS:
         self.code.append(Ins('jal', self.dict_init_func['Int'].label))
 
     def visit_String(self, node): pass
-    def visit_Bool(self, node): pass
+
+    def visit_Bool(self, node):
+        # send value to initialize and jump to init function
+
+        value = 1 if node.value == 'true' else 0
+        self.code.append(Ins('li', self.get_arg_reg(), value))
+
+        # note that this saves result in result_reg, so I dont save it here
+        self.code.append(Ins('jal', self.dict_init_func['Bool'].label))
 
     def visit_Void(self, node):
         # load address 0 (it doesnt exists) to void
