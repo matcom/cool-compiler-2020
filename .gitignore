@@ -1,4 +1,5 @@
 # 2kodevs ignores
+*src/compiled.asm
 *src/code.cl
 *src/code.s
 *Stuff/
