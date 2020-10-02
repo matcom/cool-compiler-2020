@@ -1,6 +1,9 @@
 .DEFAULT_GOAL 	:= main
 .PHONY: clean, info
 
+CODE 			:= code.cl
+COOLC_ASM		:= $(shell echo $(CODE) | cut -d '.' -f 1).s
+ASM 			:= compiled.asm
 ORG_NAME 		:= 2kodevs
 PROJECT_NAME 	:= CoolCompiler
 APP_VERSION		:= v0.1
@@ -11,8 +14,8 @@ TEST_DIR		:= core/cmp/Stuff/tests/
 TEST           	:= 
 
 main: ## Compiling the compiler :)
-	./coolc.sh "code.cl"
-	# Compiling the compiler :)
+	@./coolc.sh $(CODE)
+	@spim -file $(ASM)
 
 clean: ## Remove temporary files
 	@rm -rf build/*
@@ -25,8 +28,8 @@ info: ## Display project description
 	@echo "$(COPYRIGHT)"
 
 coolc: ## Run the code.cl file using coolc
-	@coolc code.cl
-	@spim code.s
+	@coolc $(CODE)
+	@coolc_spim $(COOLC_ASM)
 
 save: ## Save the code.cl as a test
 	@cat code.cl > $(TEST_DIR)$(TEST).cl
