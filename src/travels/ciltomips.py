@@ -454,9 +454,13 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
                 src = self.get_location_address(val)
                 # almacenar el resultado en $v0
                 self.register_instruction(lsNodes.LW(v0, src))
-            else:
+            elif isinstance(val, int):
                 # val es una constante
                 self.register_instruction(lsNodes.LI(v0, val))
+            else:
+                # val es un str que representa la direccion
+                # de un hardcoded string en la seccion .DATA
+                self.register_instruction(lsNodes.LW(v0, val))
 
         # Liberar el marco de pila
         assert self.current_function is not None

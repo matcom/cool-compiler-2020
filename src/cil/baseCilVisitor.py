@@ -99,6 +99,7 @@ class BaseCoolToCilVisitor:
         self.current_type: Optional[Type] = None
         self.current_method: Optional[Method] = None
         self.current_function: Optional[nodes.FunctionNode] = None
+        self.null = self.register_data("")
         self.__labels_count: int = 0
         self.__build_CART()
         self.__build_builtins()

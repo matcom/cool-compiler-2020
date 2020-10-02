@@ -6,7 +6,7 @@ import cil.nodes as cil
 from typing import List, Optional, Tuple
 from functools import singledispatchmethod
 
-from cil.nodes import CilNode, LocalNode, ParamNode
+from cil.nodes import CilNode, LocalNode, ParamNode, ReturnNode
 
 ExpressionReturn = Tuple[List[cil.InstructionNode], List[cil.LocalNode]]
 Scope = semantics.Scope
@@ -101,6 +101,26 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.current_type = None
 
     # ******************  IMPLEMENTACION DE LAS DEFINICIONES DE METODOS ******************
+
+    @visit.register
+    def _(self, node: coolAst.AttributeDef, scope: Scope) -> None:
+        self.current_function = self.register_function(
+            f"__attrib__{node.idx}__init")
+        if node.default_value is not None:
+            # Generar el codigo de la expresion de inicializacion
+            # y devolver el valor de esta
+            value = self.visit(node.default_value, scope)
+            self.register_instruction(ReturnNode(value))
+
+        else:
+            # Si no tiene expresion de inicializacion entonces devolvemos
+            # 0 en caso de que sea Int, Bool u otro tipo excepto String
+            # (0 = false y 0 = void)
+            attribute_type = self.context.get_type(node.typex)
+            if attribute_type.name == "String":
+                self.register_instruction(ReturnNode(self.null.name))
+            else:
+                self.register_instruction(ReturnNode(0))
 
     @visit.register
     def _(self, node: coolAst.MethodDef, scope: Scope) -> None:  # noqa: F811

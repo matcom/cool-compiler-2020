@@ -26,7 +26,7 @@ class TypeNode(CilNode):
 
 
 class DataNode(CilNode):
-    def __init__(self, vname, value):
+    def __init__(self, vname: str, value):
         self.name = vname
         self.value = value
 
