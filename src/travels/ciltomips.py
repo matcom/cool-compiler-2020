@@ -1,15 +1,14 @@
 from abstract.semantics import Type
 from cil.nodes import LocalNode
+from mips.arithmetic import ADD, DIV, MUL, SUB, SUBU
 from mips.baseMipsVisitor import (BaseCilToMipsVisitor, DotDataDirective,
-                                  DotTextDirective, instrNodes, arithNodes,
-                                  lsNodes)
+                                  DotTextDirective)
 import cil.nodes as cil
-from mips.instruction import (REG_TO_STR, a0, a1, a2, a3, at, t0, t1, t2, t3,
-                              t4, t5, t6, t7, t8, t9, s0, s1, s2, s3, s4, s5,
-                              s6, s7, sp, ra, fp, k0, k1, gp, v0, v1, zero,
-                              TEMP_REGISTERS)
+from mips.instruction import (FixedData, Label, MOVE, REG_TO_STR, a0, s0,  sp, ra,  v0)
 import mips.branch as branchNodes
 from functools import singledispatchmethod
+
+from mips.load_store import LA, LI, LW, SW
 
 
 class CilToMipsVisitor(BaseCilToMipsVisitor):
@@ -59,7 +58,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Los punteros a funciones estaran definidos en el orden en que aparecen declaradas en las clases
         # de modo que la VTABLE sea indexable y podamos efectuar VCALL en O(1).
         self.register_instruction(
-            instrNodes.FixedData(f'{node.name}_vtable',
+            FixedData(f'{node.name}_vtable',
                                  ", ".join(x[1] for x in node.methods)))
 
         self.comment("\n\n")
@@ -76,11 +75,11 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.comment(f" **** Type RECORD for type {node.name} ****")
         # Declarar la direccion de memoria donde comienza el tipo
         self.register_instruction(
-            instrNodes.Label(f"{self.current_type.name}_start"))
+            Label(f"{self.current_type.name}_start"))
 
         # Registrar un puntero a la VTABLE del tipo.
         self.register_instruction(
-            instrNodes.FixedData(f'{node.name}_vtable_pointer',
+            FixedData(f'{node.name}_vtable_pointer',
                                  f"{node.name}_vtable"))
 
         # Declarar los atributos: Si los atributos son de tipo string, guardarlos como asciiz
@@ -88,16 +87,16 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         for attrib in self.current_type.attributes:
             if attrib.type.name == "String":
                 self.register_instruction(
-                    instrNodes.FixedData(f'{node.name}_attrib_{attrib.name}',
+                    FixedData(f'{node.name}_attrib_{attrib.name}',
                                          r"", 'asciiz'))
             else:
                 self.register_instruction(
-                    instrNodes.FixedData(f'{node.name}_attrib_{attrib.name}',
+                    FixedData(f'{node.name}_attrib_{attrib.name}',
                                          0))
 
         # Registrar la direccion de memoria donde termina el tipo para calcular facilmente
         # sizeof
-        self.register_instruction(instrNodes.Label(f"{node.name}_end"))
+        self.register_instruction(Label(f"{node.name}_end"))
 
         self.current_type = None
 
@@ -107,7 +106,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(DotDataDirective())
         if isinstance(node.value, str):
             self.register_instruction(
-                instrNodes.FixedData(node.name,
+                FixedData(node.name,
                                      f"{node.value}",
                                      type_='asciiz'))
         elif isinstance(node.value, dict):
@@ -118,11 +117,11 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             # programa los tipos son unicos).
             for (type1, type2), distance in node.value.items():
                 self.register_instruction(
-                    instrNodes.FixedData(f"__{type1}_{type2}_tdt_entry__",
+                    FixedData(f"__{type1}_{type2}_tdt_entry__",
                                          distance))
         elif isinstance(node.value, int):
             self.register_instruction(
-                instrNodes.FixedData(node.name, node.value))
+                FixedData(node.name, node.value))
 
     @visit.register
     def _(self, node: cil.FunctionNode):
@@ -134,7 +133,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.cil_func_signature(node)
 
         # Direccion de memoria de la funcion.
-        self.register_instruction(instrNodes.Label(node.name))
+        self.register_instruction(Label(node.name))
 
         # Crear el marco de pila de la funcion.
         self.allocate_stack_frame(node)
@@ -148,7 +147,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.LabelNode):
-        self.register_instruction(instrNodes.Label(node.label))
+        self.register_instruction(Label(node.label))
 
     @visit.register
     def _(self, node: cil.ParamNode):
@@ -189,24 +188,24 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
                 # Si tenemos registro temporal disponible entonces movemos
                 # lo que hay en la direccion de memoria source a reg y luego
                 # asignamos el valor de reg a dest.
-                self.register_instruction(lsNodes.LI(reg, source))
-                self.register_instruction(lsNodes.SW(reg, dest))
+                self.register_instruction(LI(reg, source))
+                self.register_instruction(SW(reg, dest))
                 self.used_registers[reg] = False
             else:
                 # Si no hay registro temporal disponible entonces tenemos que hacer
                 # dos instrucciones mas pues hay que salvar el registro s0
                 # utlizarlo para hacer la transaccion y luego restaurarlo.
-                self.register_instruction(lsNodes.SW(s0, "0($sp)"))
-                self.register_instruction(lsNodes.LI(s0, source))
-                self.register_instruction(lsNodes.SW(s0, dest))
-                self.register_instruction(lsNodes.LI(s0, "0($sp)"))
+                self.register_instruction(SW(s0, "0($sp)"))
+                self.register_instruction(LI(s0, source))
+                self.register_instruction(SW(s0, dest))
+                self.register_instruction(LI(s0, "0($sp)"))
 
         elif isinstance(source, str):
             # Source es una direccion de memoria (Puede ser un label, en caso de que sea un tipo)
             reg1 = self.get_available_register()
             assert reg1 is not None
-            self.register_instruction(lsNodes.LW(reg1, source))
-            self.register_instruction(lsNodes.SW(reg1, dest))
+            self.register_instruction(LW(reg1, source))
+            self.register_instruction(SW(reg1, dest))
             self.used_registers[reg1] = False
 
     @visit.register
@@ -221,7 +220,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Agregar la linea que vamos a traducir.
         self.add_source_line_comment(source=node)
 
-        self.operate(dest, left, right, arithNodes.ADD)
+        self.operate(dest, left, right, ADD)
 
     @visit.register
     def _(self, node: cil.MinusNode):
@@ -235,7 +234,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Agregar la linea que vamos a traducir.
         self.add_source_line_comment(source=node)
 
-        self.operate(dest, left, right, arithNodes.SUB)
+        self.operate(dest, left, right, SUB)
 
     @visit.register
     def _(self, node: cil.StarNode):
@@ -249,7 +248,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Agregar la linea que vamos a traducir.
         self.add_source_line_comment(source=node)
 
-        self.operate(dest, left, right, arithNodes.MUL)
+        self.operate(dest, left, right, MUL)
 
     @visit.register
     def _(self, node: cil.DivNode):
@@ -263,7 +262,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Agregar la linea que vamos a traducir.
         self.add_source_line_comment(source=node)
 
-        self.operate(dest, left, right, arithNodes.DIV)
+        self.operate(dest, left, right, DIV)
 
     @visit.register
     def _(self, node: cil.GetAttributeNode):
@@ -282,9 +281,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # luego moverlo hacia dest. El objeto self siempre
         # esta en el registro a0
         self.register_instruction(
-            lsNodes.LW(reg, f"{offset}(${REG_TO_STR[a0]})"))
+            LW(reg, f"{offset}(${REG_TO_STR[a0]})"))
 
-        self.register_instruction(lsNodes.SW(dest, reg))
+        self.register_instruction(SW(dest, reg))
 
         self.used_registers[reg] = False
 
@@ -305,9 +304,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Cargar el valor de source en un registro temporal
         # y luego moverlo a la direccion de memoria del
         # atributo
-        self.register_instruction(lsNodes.LW(reg, source))
+        self.register_instruction(LW(reg, source))
         self.register_instruction(
-            lsNodes.SW(reg, f"{offset}(${REG_TO_STR[a0]})"))
+            SW(reg, f"{offset}(${REG_TO_STR[a0]})"))
 
         self.used_registers[reg] = False
 
@@ -353,15 +352,15 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Inicializar la instancia
 
         # Cargar el puntero al tipo de la instancia
-        self.register_instruction(lsNodes.LA(dest=reg, src=instance_type.name))
-        self.register_instruction(lsNodes.SW(dest=reg, src="0($v0)"))
+        self.register_instruction(LA(dest=reg, src=instance_type.name))
+        self.register_instruction(SW(dest=reg, src="0($v0)"))
 
         # Cargar el puntero a la VTABLE
         self.register_instruction(
-            lsNodes.LA(dest=reg, src=f"{instance_type.name}_start"))
-        self.register_instruction(lsNodes.SW(dest=reg, src="4($v0)"))
+            LA(dest=reg, src=f"{instance_type.name}_start"))
+        self.register_instruction(SW(dest=reg, src="4($v0)"))
 
-        self.register_instruction(instrNodes.MOVE(temp, v0))
+        self.register_instruction(MOVE(temp, v0))
 
         # Los atributos comienzan en el indice 8($v0)
         for i, attribute in enumerate(instance_type.attributes):
@@ -370,10 +369,10 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
                 branchNodes.JAL(f"__attrib__{attribute.name}__init"))
             # El valor de retorno viene en v0
             self.register_instruction(
-                lsNodes.SW(dest=v0, src=f"{8 + i*4}(${REG_TO_STR[temp]})"))
+                SW(dest=v0, src=f"{8 + i*4}(${REG_TO_STR[temp]})"))
 
         # mover la direccion que almacena la instancia hacia dest
-        self.register_instruction(lsNodes.SW(temp, dest))
+        self.register_instruction(SW(temp, dest))
 
         self.used_registers[reg] = False
         self.used_registers[temp] = False
@@ -390,10 +389,10 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.add_source_line_comment(node)
 
-        self.register_instruction(lsNodes.LW(reg, local_addr))
+        self.register_instruction(LW(reg, local_addr))
         self.comment("Load pointer to type")
-        self.register_instruction(lsNodes.LW(reg2, f"4(${REG_TO_STR[reg]})"))
-        self.register_instruction(lsNodes.SW(reg2, return_addr))
+        self.register_instruction(LW(reg2, f"4(${REG_TO_STR[reg]})"))
+        self.register_instruction(SW(reg2, return_addr))
 
         self.used_registers[reg] = False
         self.used_registers[reg2] = False
@@ -431,7 +430,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(branchNodes.JAL(node.function))
 
         # EL resultado viene en v0
-        self.register_instruction(lsNodes.SW(v0, dest))
+        self.register_instruction(SW(v0, dest))
 
     @visit.register
     def _(self, node: cil.DynamicCallNode):
@@ -454,23 +453,23 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Cargar el puuntero al tipo en el primer registro
         self.comment("Get pointer to type")
-        self.register_instruction(lsNodes.LW(reg1, type_src))
+        self.register_instruction(LW(reg1, type_src))
 
         # Cargar el puntero a la VTABLE en el segundo registro
         self.comment("Get pointer to type's VTABLE")
-        self.register_instruction(lsNodes.LW(reg2, f"0(${REG_TO_STR[reg1]})"))
+        self.register_instruction(LW(reg2, f"0(${REG_TO_STR[reg1]})"))
 
         # Cargar el puntero a la funcion correspondiente en el tercer registro
         self.comment("Get pointer to function address")
         self.register_instruction(
-            lsNodes.LW(reg3, f"{i * 4}(${REG_TO_STR[reg2]})"))
+            LW(reg3, f"{i * 4}(${REG_TO_STR[reg2]})"))
 
         # saltar hacia la direccion de memoria correspondiente a la funcion
         self.comment("Call function. Result is on $v0")
         self.register_instruction(branchNodes.JALR(reg3))
 
         # El resultado viene en $v0
-        self.register_instruction(lsNodes.SW(v0, dest))
+        self.register_instruction(SW(v0, dest))
 
         self.used_registers[reg1] = False
         self.used_registers[reg2] = False
@@ -485,13 +484,13 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         assert src is not None and reg is not None
 
         if isinstance(src, int):
-            self.register_instruction(lsNodes.LI(reg, src))
+            self.register_instruction(LI(reg, src))
         else:
-            self.register_instruction(lsNodes.LW(reg, src))
+            self.register_instruction(LW(reg, src))
 
         self.comment("Push arg into stack")
-        self.register_instruction(arithNodes.SUBU(sp, sp, 4, True))
-        self.register_instruction(lsNodes.SW(reg, "0($sp)"))
+        self.register_instruction(SUBU(sp, sp, 4, True))
+        self.register_instruction(SW(reg, "0($sp)"))
 
         self.used_registers[reg] = False
 
@@ -504,14 +503,14 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             if isinstance(val, LocalNode):
                 src = self.get_location_address(val)
                 # almacenar el resultado en $v0
-                self.register_instruction(lsNodes.LW(v0, src))
+                self.register_instruction(LW(v0, src))
             elif isinstance(val, int):
                 # val es una constante
-                self.register_instruction(lsNodes.LI(v0, val))
+                self.register_instruction(LI(v0, val))
             else:
                 # val es un str que representa la direccion
                 # de un hardcoded string en la seccion .DATA
-                self.register_instruction(lsNodes.LW(v0, val))
+                self.register_instruction(LW(v0, val))
 
         # Liberar el marco de pila
         assert self.current_function is not None
@@ -532,8 +531,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         reg = self.get_available_register()
         assert reg is not None, "Out of registers"
         self.add_source_line_comment(node)
-        self.register_instruction(lsNodes.LW(reg, node.message.name))
-        self.register_instruction(lsNodes.SW(reg, dest))
+        self.register_instruction(LW(reg, node.message.name))
+        self.register_instruction(SW(reg, dest))
 
         self.used_registers[reg] = False
 
