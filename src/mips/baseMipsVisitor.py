@@ -1,6 +1,7 @@
 from json import load
 
 from typed_ast.ast3 import arg
+from abstract.semantics import Attribute
 from cil.nodes import TypeNode
 from cil.nodes import CilNode, FunctionNode
 from mips import load_store
@@ -340,3 +341,20 @@ class BaseCilToMipsVisitor:
         self.register_instruction(lsNodes.LI(v0, 10))
         self.register_instruction(instrNodes.SYSCALL())
         self.comment("main END\n")
+
+    def locate_attribute(self, attrname: str, attributes: List[Attribute]):
+        # Para ubicar el atributo que vamos a manejar
+        # buscamos el offset del atributo en el tipo
+        # y luego apuntamos a ese offset en el registro
+        # que contiene el objeto self. Recordar que en
+        # COOL los atributos solo pueden ser accedidos
+        # directamente desde el interior de la clase.
+
+        # Hallar el offset del atributo en el tipo que se
+        # esta ejecutando
+        offset: int = 8
+        for i, attribute in enumerate(attributes):
+            if attribute.name == attrname:
+                offset += i * 4
+                break
+        return offset

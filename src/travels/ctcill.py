@@ -221,9 +221,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
                     return param_node
         if vinfo.location == "ATTRIBUTE":
             local = self.define_internal_local()
+            assert self.current_type is not None
             self.register_instruction(
-                cil.GetAttributeNode(self.current_type.name, vinfo.name,
-                                     local))
+                cil.GetAttributeNode(self.current_type, vinfo.name, local))
             return local
         if vinfo.location == "LOCAL":
             for local_node in self.localvars:
@@ -266,8 +266,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             self.register_instruction(
                 cil.AssignNode(node.idx, rvalue_vm_holder))
         else:
+            assert self.current_type is not None
             self.register_instruction(
-                cil.SetAttributeNode(self.current_type.name, node.idx,
+                cil.SetAttributeNode(self.current_type, node.idx,
                                      rvalue_vm_holder))
 
     @visit.register

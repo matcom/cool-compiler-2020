@@ -267,11 +267,49 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.GetAttributeNode):
-        pass
+        # Registrar la linea que estamos traduciendo
+        self.add_source_line_comment(node)
+
+        # Localizar el atributo
+        offset = self.locate_attribute(node.attrname,
+                                       self.current_type.attributes)
+
+        dest = self.visit(node.dest)
+        reg = self.get_available_register()
+        assert reg is not None and dest is not None
+
+        # Cargar el atributo en un registro temporal para
+        # luego moverlo hacia dest. El objeto self siempre
+        # esta en el registro a0
+        self.register_instruction(
+            lsNodes.LW(reg, f"{offset}(${REG_TO_STR[a0]})"))
+
+        self.register_instruction(lsNodes.SW(dest, reg))
+
+        self.used_registers[reg] = False
 
     @visit.register
     def _(self, node: cil.SetAttributeNode):
-        pass
+        # registrar la linea que estamos traduciendo
+        self.add_source_line_comment(node)
+
+        # Localizar el atributo
+        offset = self.locate_attribute(node.attrname,
+                                       self.current_type.attributes)
+
+        source = self.visit(node.source)
+        reg = self.get_available_register()
+
+        assert reg is not None and source is not None
+
+        # Cargar el valor de source en un registro temporal
+        # y luego moverlo a la direccion de memoria del
+        # atributo
+        self.register_instruction(lsNodes.LW(reg, source))
+        self.register_instruction(
+            lsNodes.SW(reg, f"{offset}(${REG_TO_STR[a0]})"))
+
+        self.used_registers[reg] = False
 
     @visit.register
     def _(self, node: cil.AllocateNode):

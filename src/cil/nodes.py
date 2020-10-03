@@ -89,14 +89,14 @@ class DivNode(ArithmeticNode):
 
 
 class GetAttributeNode(InstructionNode):
-    def __init__(self, itype: str, attrname: str, dest: LocalNode):
+    def __init__(self, itype: Type, attrname: str, dest: LocalNode):
         self.itype = itype
         self.attrname = attrname
         self.dest = dest
 
 
 class SetAttributeNode(InstructionNode):
-    def __init__(self, itype: str, attrname: str, source: LocalNode):
+    def __init__(self, itype: Type, attrname: str, source: LocalNode):
         self.source = source
         self.itype = itype
         self.attrname = attrname
