@@ -478,3 +478,7 @@ class PrintVisitor:
     @visitor.when(DivideNode)
     def visit(self, node):
         return f"div {self.visit(node.reg1)} {self.visit(node.reg2)}"
+
+    @visitor.when(MoveFromLowNode)
+    def visit(self, node):
+        return f"mflo {self.visit(node.reg)}"
