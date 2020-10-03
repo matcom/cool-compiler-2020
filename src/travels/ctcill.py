@@ -254,13 +254,21 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Aqui asumimos que una variable interna llamada id
         # ya ha sido definida
 
-        # TODO: Es necesario diferenciar entre variable y atributo ?
-
         # Generar el codigo para el rvalue (expr)
         rvalue_vm_holder = self.visit(self, node.expr)
+        assert isinstance(rvalue_vm_holder, LocalNode)
 
-        # registrar la instruccion de asignacion
-        self.register_instruction(cil.AssignNode(node.idx, rvalue_vm_holder))
+        # Es necesario diferenciar entre variable y atributo.
+        # Las variables se diferencian en si son locales al
+        # metodo que estamos creando o si son atributos.
+        if scope.is_local(node.idx):
+            # registrar la instruccion de asignacion
+            self.register_instruction(
+                cil.AssignNode(node.idx, rvalue_vm_holder))
+        else:
+            self.register_instruction(
+                cil.SetAttributeNode(self.current_type.name, node.idx,
+                                     rvalue_vm_holder))
 
     @visit.register
     def _(self, node: coolAst.WhileBlockNode, scope: Scope):

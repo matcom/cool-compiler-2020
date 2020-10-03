@@ -96,7 +96,7 @@ class GetAttributeNode(InstructionNode):
 
 
 class SetAttributeNode(InstructionNode):
-    def __init__(self, itype: str, attrname: str, source: str):
+    def __init__(self, itype: str, attrname: str, source: LocalNode):
         self.source = source
         self.itype = itype
         self.attrname = attrname
