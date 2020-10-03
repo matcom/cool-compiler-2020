@@ -1,38 +1,7 @@
 from coolcmp.cmp.utils import init_logger
 from coolcmp.cmp.gen_cil import GenCIL
 from coolcmp.cmp.ast_cls import New, FunctionCall, Plus
-
-WORD = 4
-
-LABEL_FUNC_PREF = '_st_'
-
-LABEL_EXIT = '_exit'
-LABEL_RESERVE_MEMORY = '_reserve_memory'
-LABEL_RUNTIME_DISPATCH = '_runtime_dispatch'
-LABEL_PRINT_ERROR_EXIT = '_print_error_exit'
-LABEL_MAIN = 'main'
-LABEL_START_LOOP = '_loop_'
-LABEL_END_LOOP = '_end_loop_'
-
-LABEL_DISPATCH_VOID = '_err_dispatch_void'
-LABEL_CASE_VOID = '_err_case_void'
-LABEL_CASE_NO_BRANCH = '_err_case_no_branch'
-LABEL_DIV_BY_0 = '_err_div_by_0'
-LABEL_SUBSTR_RANGE = '_err_substr_range'
-LABEL_HEAP_OVERFLOW = '_err_heap_overflow'
-
-rte_errors = {
-    LABEL_DISPATCH_VOID: 'Dispatch on void',
-    LABEL_CASE_VOID: 'Case on void',
-    LABEL_CASE_NO_BRANCH: 'Case without a matching branch',
-    LABEL_DIV_BY_0: 'Division by zero',
-    LABEL_SUBSTR_RANGE: 'Substring out of range',
-    LABEL_HEAP_OVERFLOW: 'Heap overflow'
-}
-
-LABEL_BOOL_TRUE = '_bool_true'
-LABEL_BOOL_FALSE = '_bool_false'
-LABEL_BOOL_END = '_bool_end'
+from coolcmp.cmp.constants import *
 
 #classes for formatting
 class Directive:
@@ -104,6 +73,7 @@ class DataSegment:
             self.code.append(Directive('.word', init.td))
             self.code.append(Directive('.word', init.tf))
             self.code.append(Directive('.word', init.label))
+            self.code.append(Directive('.word', init.type_obj))
             self.code.append(Directive('.asciiz', f'"{name}"'))
 
     def _add_cases(self):
@@ -164,6 +134,7 @@ class GenMIPS:
         self.dict_init_func = cil_code.dict_init_func
         self.regs = [ f'$t{i}' for i in range(10) ]  #temporals
         self.loops = 0  #keep counter of loops labels
+        self.branches = 0 #keep counter of branches
 
         self.code = code
         self.code.append('#Text Segment')
@@ -579,7 +550,7 @@ class GenMIPS:
     def visit_IntComp(self, node): pass
     def visit_Not(self, node): pass
 
-    def _binary_op(self, node, ops):
+    def _binary_op_load(self, node):
         self.visit(node.left)
 
         # save result at stack
@@ -594,6 +565,10 @@ class GenMIPS:
 
         # save right side on $t1
         self.code.append(Ins('move', self.get_temp_reg(1), self.get_result_reg()))
+
+    def _binary_op_int(self, node, ops):
+        # load LHS to $t0 and RHS to $t1
+        self._binary_op_load(node)
 
         # get id of attribute _int_literal
         idx = self.dict_init_func['Int'].attr_dict['_int_literal']
@@ -611,18 +586,18 @@ class GenMIPS:
     def visit_Plus(self, node):
         # do $arg_reg := $t0 + $t1, to send the value to init function
         op = Ins('add', self.get_arg_reg(), self.get_temp_reg(0), self.get_temp_reg(1))
-        self._binary_op(node, [op])
+        self._binary_op_int(node, [op])
 
     def visit_Minus(self, node):
         # do $arg_reg := $t0 - $t1, to send the value to init function
         op = Ins('sub', self.get_arg_reg(), self.get_temp_reg(0), self.get_temp_reg(1))
-        self._binary_op(node, [op])
+        self._binary_op_int(node, [op])
 
     def visit_Mult(self, node):
         # do $arg_reg := $t0 * $t1, to send the value to init function
         # note that here only lowest 32 bits are saved
         op = Ins('mul', self.get_arg_reg(), self.get_temp_reg(0), self.get_temp_reg(1))
-        self._binary_op(node, [op])
+        self._binary_op_int(node, [op])
 
     def visit_Div(self, node):
         # do $arg_reg := $t0 / $t1, to send the value to init function
@@ -634,11 +609,110 @@ class GenMIPS:
             Ins('div', self.get_arg_reg(), self.get_temp_reg(0), self.get_temp_reg(1))
         ]
 
-        self._binary_op(node, ops)
+        self._binary_op_int(node, ops)
 
-    def visit_Less(self, node): pass
-    def visit_LessEq(self, node): pass
-    def visit_Eq(self, node): pass
+    def _do_binary_comparison(self, ins_to_use):
+        # assume it is true
+        self.code.append(Ins('li', self.get_arg_reg(), 1))
+        
+        # compare
+        self.code.append(Ins(ins_to_use, self.get_temp_reg(0), self.get_temp_reg(1), f'{LABEL_BRANCH}{self.branches}'))
+
+        # if it enters here is false
+        self.code.append(Ins('li', self.get_arg_reg(), 0))
+
+        self.code.append(Label(f'{LABEL_BRANCH}{self.branches}:'))
+
+        # increase number of branches
+        self.branches += 1
+
+    def _binary_op_bool(self, node, ins_to_use):  # used for le and leq
+        # load LHS to $t0 and RHS to $t1
+        self._binary_op_load(node)
+
+        # get id of attribute _int_literal
+        idx = self.dict_init_func['Int'].attr_dict['_int_literal']
+
+        # get the int value
+        self.code.append(Ins('lw', self.get_temp_reg(0), f'{idx * WORD}({self.get_temp_reg(0)})'))
+        self.code.append(Ins('lw', self.get_temp_reg(1), f'{idx * WORD}({self.get_temp_reg(1)})'))
+
+        self._do_binary_comparison(ins_to_use)
+
+        # note that this saves result in result_reg, so I dont save it here
+        self.code.append(Ins('jal', self.dict_init_func['Bool'].label))
+
+    def visit_Less(self, node):
+        # use blt instruction
+        self._binary_op_bool(node, 'blt')
+
+    def visit_LessEq(self, node):
+        # use ble instruction
+        self._binary_op_bool(node, 'ble')
+
+    def _eq_not_primitive(self):
+        # code when types are not primitive
+        self.code.append(Label(f'{LABEL_EQ_NOT_PRIMITIVE}:'))
+
+        self._do_binary_comparison('beq')
+        self.code.append(Ins('b', LABEL_EQ_END))
+
+    def _eq_int(self):
+        # code when types are int
+        self.code.append(Label(f'{LABEL_EQ_BRANCH_INT}:'))
+
+        # get id of attribute _int_literal
+        idx = self.dict_init_func['Int'].attr_dict['_int_literal']
+
+        # get the int value
+        self.code.append(Ins('lw', self.get_temp_reg(0), f'{idx * WORD}({self.get_temp_reg(0)})'))
+        self.code.append(Ins('lw', self.get_temp_reg(1), f'{idx * WORD}({self.get_temp_reg(1)})'))
+
+        self._do_binary_comparison('beq')
+        self.code.append(Ins('b', LABEL_EQ_END))
+
+    def _eq_bool(self):
+        # code when types are bool
+        self.code.append(Label(f'{LABEL_EQ_BRANCH_BOOL}:'))
+
+        # as bool are singleton objects, it suffices to compare their addresses
+
+        self._do_binary_comparison('beq')
+        self.code.append(Ins('b', LABEL_EQ_END))
+
+    def _eq_string(self):
+        # code when types are string
+        self.code.append(Label(f'{LABEL_EQ_BRANCH_STRING}:'))
+
+        #TODO: FILL THIS
+
+    def visit_Eq(self, node):
+        # load LHS and RHS
+        self._binary_op_load(node)
+
+        # both objects ($t0 and $t1) will have the same type_obj value (typechecker enforces this)
+
+        # load address of _type_info attr at $t8
+        self.code.append(Ins('lw', self.get_temp_reg(8), f'0({self.get_temp_reg(0)})'))
+
+        # save type_obj (it has position 3) at $t8
+        self.code.append(Ins('lw', self.get_temp_reg(8), f'{3 * WORD}({self.get_temp_reg(8)})'))
+        
+        self.code.append(Ins('beq', self.get_temp_reg(8), TYPE_NOT_PRIMITIVE, LABEL_EQ_NOT_PRIMITIVE))
+        self.code.append(Ins('beq', self.get_temp_reg(8), TYPE_INT, LABEL_EQ_BRANCH_INT))
+        self.code.append(Ins('beq', self.get_temp_reg(8), TYPE_BOOL, LABEL_EQ_BRANCH_BOOL))
+        self.code.append(Ins('beq', self.get_temp_reg(8), TYPE_STRING, LABEL_EQ_BRANCH_STRING))
+
+        self._eq_not_primitive()
+        self._eq_int()
+        self._eq_bool()
+        self._eq_string()
+
+        # end branch
+        self.code.append(Label(f'{LABEL_EQ_END}:'))
+        
+        # note that this saves result in result_reg, so I dont save it here
+        self.code.append(Ins('jal', self.dict_init_func['Bool'].label))
 
     def visit_Reference(self, node):
         if node.name == 'self':

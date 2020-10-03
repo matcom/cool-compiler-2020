@@ -104,7 +104,7 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         for feature in node.feature_list:
             self.visit(feature)
 
-        func_init = FuncInit(node.type.value, self.attrs, self.attr_dict, f'{node.type.value}_Init', List(node.reserved_attrs))
+        func_init = FuncInit(node.type.value, self.attrs, self.attr_dict, f'{node.type.value}_Init', List(node.reserved_attrs), node.type_obj)
         
         #needed for static data segment of the type
         func_init.td = self.cur_cls.td

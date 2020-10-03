@@ -1,6 +1,7 @@
 from collections import deque
 from collections import namedtuple
 from collections.abc import Iterable
+from coolcmp.cmp.constants import TYPE_NOT_PRIMITIVE
 
 class ASTNode:
     def set_tracker(self, line, col):
@@ -42,7 +43,7 @@ class Program(ASTNode):
         self.cls_list = cls_list
 
 class Class(ASTNode):
-    def __init__(self, type, opt_inherits=None, feature_list=NodeContainer(), can_inherit=True, reserved_attrs=[]):
+    def __init__(self, type, opt_inherits=None, feature_list=NodeContainer(), can_inherit=True, reserved_attrs=[], type_obj=TYPE_NOT_PRIMITIVE):
         self.type = type
         self.opt_inherits = opt_inherits  #can be None
         self.feature_list = feature_list
@@ -51,6 +52,7 @@ class Class(ASTNode):
         self.methods = {}
         self.attrs = {}
         self.reserved_attrs = [AttrTypeInfo()] + reserved_attrs  #reserved attributes for the compiler, everyone has type info attr
+        self.type_obj = type_obj
 
         # data for type checker
         self.parent = None
@@ -240,12 +242,13 @@ class Function(ASTNode):
         return f'<Function {repr(self.name)}>'
 
 class FuncInit(ASTNode):
-    def __init__(self, name, attrs, attr_dict, label, reserved_attrs):
+    def __init__(self, name, attrs, attr_dict, label, reserved_attrs, type_obj):
         self.name = name
         self.attrs = attrs  #list of attrs in correct order
         self.attr_dict = attr_dict  #dict of (name, position) for attrs including reserved attrs
         self.label = label
         self.reserved_attrs = reserved_attrs
+        self.type_obj = type_obj
 
     def __repr__(self):
         return f'<FuncInit {repr(self.name)}>'

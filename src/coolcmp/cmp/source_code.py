@@ -6,6 +6,7 @@ from coolcmp.cmp.errors import LexicographicError
 from coolcmp.cmp.type_checker import TypeChecker
 from coolcmp.cmp.gen_cil import GenCIL
 from coolcmp.cmp.gen_mips import DataSegment, GenMIPS
+from coolcmp.cmp.constants import TYPE_INT, TYPE_BOOL, TYPE_STRING
 
 class SourceCode:
     def __init__(self, code, tab_size=4):
@@ -22,9 +23,9 @@ class SourceCode:
     def _inject_native_classes(self):
         self.native_classes = [
             Class(Type('Object')),
-            Class(Type('Int'), reserved_attrs=[AttrIntLiteral()], can_inherit=False),
-            Class(Type('String'), reserved_attrs=[AttrStringLiteral()], can_inherit=False),
-            Class(Type('Bool'), reserved_attrs=[AttrBoolLiteral()], can_inherit=False),
+            Class(Type('Int'), reserved_attrs=[AttrIntLiteral()], can_inherit=False, type_obj=TYPE_INT),
+            Class(Type('String'), reserved_attrs=[AttrStringLiteral()], can_inherit=False, type_obj=TYPE_STRING),
+            Class(Type('Bool'), reserved_attrs=[AttrBoolLiteral()], can_inherit=False, type_obj=TYPE_BOOL),
             Class(Type('IO'))
         ]
 
