@@ -1,6 +1,6 @@
 from coolcmp.cmp.utils import init_logger
 from coolcmp.cmp.gen_cil import GenCIL
-from coolcmp.cmp.ast_cls import New, FunctionCall, Plus
+from coolcmp.cmp.ast_cls import New, FunctionCall, Void
 from coolcmp.cmp.constants import *
 
 #classes for formatting
@@ -509,9 +509,78 @@ class GenMIPS:
     def visit_AttrStringLiteral(self, node): pass
     def visit_AttrBoolLiteral(self, node): pass
 
-    def visit_Binding(self, node): pass
-    def visit_If(self, node): pass
-    def visit_While(self, node): pass
+    def visit_Binding(self, node):
+        self.visit(node.expr)
+
+        if node.ref.refers_to[0] == 'attr':  # attrs
+            # get attr number {node.refers_to[1]} of self
+            self.code.append(Ins('la', self.get_temp_reg(0), f'{node.ref.refers_to[1] * WORD}({self.get_self_reg()})'))
+
+        else:  # locals (including formals)
+            # get it from stack (negative offset from $fp)
+            self.code.append(Ins('la', self.get_temp_reg(0), f'{-node.ref.refers_to[1] * WORD}($fp)'))
+
+        # in result reg we have the body (the object) and we saved it at address $t0
+        self.code.append(Ins('sw', self.get_result_reg(), f'({self.get_temp_reg(0)})'))
+        # also, result_reg has the result of Binding expr
+    
+    def visit_If(self, node):
+        else_branch = f'{LABEL_BRANCH}{self.branches}'
+        self.branches += 1
+
+        out_branch = f'{LABEL_BRANCH}{self.branches}'
+        self.branches += 1
+
+        self.visit(node.predicate)
+
+        self.code.append(Ins('la', self.get_temp_reg(0), LABEL_BOOL_FALSE))
+
+        # if predicate (saved at result_reg) is false, go to else branch
+        self.code.append(Ins('beq', self.get_temp_reg(0), self.get_result_reg(), else_branch))
+
+        # generate if branch
+        self.visit(node.if_branch)
+
+        # get out
+        self.code.append(Ins('b', out_branch))
+
+        # else branch
+        self.code.append(Label(f'{else_branch}:'))
+
+        # generate else branch
+        self.visit(node.else_branch)
+
+        # finished if
+        self.code.append(Label(f'{out_branch}:'))
+        # result is saved at result_reg, so I dont save it here
+
+    def visit_While(self, node):
+        loop_starts = f'{LABEL_START_LOOP}{self.loops}'
+        self.loops += 1
+
+        loop_ends = f'{LABEL_START_LOOP}{self.loops}'
+        self.loops += 1
+
+        # start of loop
+        self.code.append(Label(f'{loop_starts}:'))
+
+        self.visit(node.predicate)
+
+        self.code.append(Ins('la', self.get_temp_reg(0), LABEL_BOOL_FALSE))
+
+        # if predicate (saved at result_reg) is false, go to end of loop
+        self.code.append(Ins('beq', self.get_temp_reg(0), self.get_result_reg(), loop_ends))
+
+        self.visit(node.body)
+
+        # repeat
+        self.code.append(Ins('b', loop_starts))
+
+        # end loop
+        self.code.append(Label(f'{loop_ends}:'))
+
+        # while retuns void, result is saved at result_reg
+        self.visit(Void())
 
     def visit_Block(self, node):
         for expr in node.expr_list:
@@ -519,7 +588,13 @@ class GenMIPS:
 
         # result is the result of last expr (which is saved at result reg)
 
-    def visit_Let(self, node): pass
+    def visit_Let(self, node):
+        for binding in node.let_list:
+            self.visit(binding)
+
+        self.visit(node.body)
+        # result is saved at result_reg
+
     def visit_Case(self, node): pass
 
     def visit_New(self, node):
