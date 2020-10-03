@@ -333,6 +333,7 @@ class BaseCilToMipsVisitor:
             self.register_instruction(arithNodes.ADDU(sp, sp, 4 * args, True))
 
     def define_entry_point(self):
+        self.register_instruction(DotTextDirective())
         self.register_instruction(instrNodes.Label("main"))
         # Realizar un jump a entry
         self.register_instruction(JAL("entry"))

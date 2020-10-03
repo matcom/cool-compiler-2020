@@ -48,8 +48,6 @@ def pipeline(program: str, deep: int) -> None:
         report(errors)
         sys.exit(1)
 
-    print(scope)
-
     cil_travel = CoolToCILVisitor(context)
     cil_program_node = cil_travel.visit(ast, scope)
     # formatter = CilDisplayFormatter()
