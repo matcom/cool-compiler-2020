@@ -354,7 +354,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.register_instruction(lsNodes.LW(reg, local_addr))
         self.comment("Load pointer to type")
-        self.register_instruction(lsNodes.LW(reg2, f"4(${reg})"))
+        self.register_instruction(lsNodes.LW(reg2, f"4(${REG_TO_STR[reg]})"))
         self.register_instruction(lsNodes.SW(reg2, return_addr))
 
         self.used_registers[reg] = False
