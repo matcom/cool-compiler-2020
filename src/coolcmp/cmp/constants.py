@@ -35,6 +35,8 @@ LABEL_BOOL_END = '_bool_end'
 # represents a branch, it prints as {LABEL_BRANCH}{id}
 LABEL_BRANCH = '_branch_label_'
 
+LABEL_EQ_FUNCTION = '_eq_function'
+
 # branches for eq
 LABEL_EQ_NOT_PRIMITIVE = '_branch_not_primitive_type'
 LABEL_EQ_BRANCH_INT = '_branch_int_type'

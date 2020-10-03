@@ -148,6 +148,7 @@ class GenMIPS:
         self._print_error_exit()
         self._reserve_memory_label()
         self._runtime_dispatch()
+        self._eq_function()
 
     def get_self_reg(self):
         return self.regs[9] #register for self
@@ -686,10 +687,13 @@ class GenMIPS:
 
         #TODO: FILL THIS
 
-    def visit_Eq(self, node):
-        # load LHS and RHS
-        self._binary_op_load(node)
+    def _eq_function(self):
+        self.code.append(Label(f'{LABEL_EQ_FUNCTION}:'))
 
+        # save $ra
+        self._allocate_stack(WORD)
+        self.code.append(Ins('sw', '$ra', '0($sp)'))
+        
         # both objects ($t0 and $t1) will have the same type_obj value (typechecker enforces this)
 
         # load address of _type_info attr at $t8
@@ -710,9 +714,23 @@ class GenMIPS:
 
         # end branch
         self.code.append(Label(f'{LABEL_EQ_END}:'))
-        
+
         # note that this saves result in result_reg, so I dont save it here
         self.code.append(Ins('jal', self.dict_init_func['Bool'].label))
+
+        # load $ra
+        self.code.append(Ins('lw', '$ra', '0($sp)'))
+        self._deallocate_stack(WORD)
+
+        # jump to caller
+        self.code.append(Ins('jr', '$ra'))
+
+    def visit_Eq(self, node):
+        # load LHS and RHS
+        self._binary_op_load(node)
+
+        self.code.append(Ins('jal', LABEL_EQ_FUNCTION))
+        # result is saved at result_reg
 
     def visit_Reference(self, node):
         if node.name == 'self':
