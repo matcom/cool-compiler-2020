@@ -70,6 +70,12 @@ def main(args):
     inferencer.errors.clear()
     _, scope = inferencer.visit(ast)
     errors.extend(inferencer.errors)
+
+    verifier = TypeVerifier(context)
+    verifier.visit(ast)
+    for e in verifier.errors:
+        if not e in errors:
+            errors.append(e)
     
     if errors:
         for (msg, token) in errors:
@@ -102,7 +108,7 @@ if __name__ == "__main__":
     import argparse 
 
     parser = argparse.ArgumentParser(description='CoolCompiler pipeline')
-    parser.add_argument('-f', '--file', type=str, default='code.cl', help='node address')
+    parser.add_argument('-f', '--file', type=str, default='code.cl', help='file to read')
 
     args = parser.parse_args()
     main(args)
