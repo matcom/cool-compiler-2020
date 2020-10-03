@@ -412,3 +412,5 @@ dmypy.json
 *.sublime-project
 
 src/.builds
+
+src/testing.py
