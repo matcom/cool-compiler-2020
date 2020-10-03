@@ -483,6 +483,7 @@ class TypeChecker:
 
         try:
             if not scope.is_defined(node.id):
+                scope.define_variable(node.id, ErrorType())
                 raise SemanticError(VARIABLE_NOT_DEFINED % (node.id))
             var = scope.find_variable(node.id)
             var_type = var.type
@@ -722,6 +723,7 @@ class TypeChecker:
         if scope.is_defined(node.lex):
             node_type = scope.find_variable(node.lex).type       
         else:
+            scope.define_variable(node.lex, ErrorType())
             self.errors.append((VARIABLE_NOT_DEFINED % (node.lex), node.token))
             node_type = ErrorType()
         
