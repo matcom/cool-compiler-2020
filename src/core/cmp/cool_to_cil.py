@@ -666,7 +666,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         instance = self.define_internal_local()
         self.register_instruction(cil.ArgNode(vname))
         self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
-        scope.ret_expr = vname
+        scope.ret_expr = instance
 
     @visitor.when(cool.StarNode)
     def visit(self, node, scope):
@@ -685,7 +685,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         instance = self.define_internal_local()
         self.register_instruction(cil.ArgNode(vname))
         self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
-        scope.ret_expr = vname
+        scope.ret_expr = instance
 
     @visitor.when(cool.DivNode)
     def visit(self, node, scope):
@@ -710,7 +710,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         instance = self.define_internal_local()
         self.register_instruction(cil.ArgNode(vname))
         self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
-        scope.ret_expr = vname
+        scope.ret_expr = instance
 
     @visitor.when(cool.IsVoidNode)
     def visit(self, node, scope):
