@@ -209,7 +209,7 @@ class CILToMIPSVisitor:
             code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
             
         except Exception as e:
-            if node.name == "function_substr_at_String":
+            if node.name == "function_main_at_Main":
                 print(e)
                 print(node.instructions)
             print(node.name)
@@ -736,7 +736,9 @@ class CILToMIPSVisitor:
         instructions.append(mips.DivideNode(reg1, reg2))
 
         dest_location = self.get_var_location(node.dest)
-        instructions.append(mips.StoreWordNode(mips.LOW_REG, dest_location))
+        
+        instructions.append(mips.MoveFromLowNode(reg1))
+        instructions.append(mips.StoreWordNode(reg1, dest_location))
 
         self.free_reg(reg1)
         self.free_reg(reg2)
