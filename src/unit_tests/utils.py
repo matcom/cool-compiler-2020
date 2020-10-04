@@ -69,11 +69,11 @@ def run_test_codegen(file, t=2):
     assert mips_file_ref.exists()
     mips_file_ref.unlink()  # delete it
 
-    my_output = get_output(mine).rstrip()
+    my_output = get_output(mine)
     ref_output = get_output(ref).rstrip()
 
     if mine.returncode == 1:  # runtime exception of my compiled code
-        assert ref_output.endswith(error_conversions[my_output])
+        assert ref_output.endswith(error_conversions[my_output.rstrip()])
 
     else:
         if ref.stderr:  # ref compiler gave some runtime error (div0 or heap overflow can be)

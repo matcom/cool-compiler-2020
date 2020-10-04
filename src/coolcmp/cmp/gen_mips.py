@@ -121,6 +121,7 @@ class GenMIPS:
     def __init__(self, code, cil_code):
         self.logger = init_logger('GenMIPS')
 
+        self.str_literals = cil_code.str_literals
         self.dict_init_func = cil_code.dict_init_func
         self.regs = [ f'$t{i}' for i in range(10) ]  #temporals
         self.loops = 0  #keep counter of loops labels
@@ -262,7 +263,14 @@ class GenMIPS:
 
     # from Object
     def native_abort(self): pass
-    def native_type_name(self): pass
+
+    def native_type_name(self):
+        # load address of _type_info attr at $t0
+        self.code.append(Ins('lw', self.get_temp_reg(0), f'0({self.get_self_reg()})'))
+
+        # save string object of type at result_reg
+        self.code.append(Ins('lw', self.get_result_reg(), f'{4 * WORD}({self.get_temp_reg(0)})'))
+
     def native_copy(self): pass
 
     # from String
@@ -271,12 +279,26 @@ class GenMIPS:
     def native_substr(self): pass
 
     # from IO
-    def native_out_string(self): pass
+    def native_out_string(self):
+        # reference of String is saved at $a0
+        self.code.append(Ins('lw', '$a0', '0($fp)'))
+
+        # get id of attribute _string_literal
+        idx = self.dict_init_func['String'].attr_dict['_string_literal']
+
+        # save the string adress to $a0
+        self.code.append(Ins('la', '$a0', f'{idx * WORD}($a0)'))
+
+        self.code.append(Ins('li', '$v0', 4))
+        self.code.append(Ins('syscall'))
+
+        # the result of the body of this native function is current self
+        self.code.append(Ins('move', self.get_result_reg(), self.get_self_reg()))
     
     def native_out_int(self):
         # this has one formal and it should be at 0($fp)
 
-        # reference of Int is in $a0
+        # reference of Int is saved at $a0
         self.code.append(Ins('lw', '$a0', '0($fp)'))
 
         # get id of attribute _int_literal
@@ -607,7 +629,10 @@ class GenMIPS:
             self.code.append(Ins('li', self.get_arg_reg(), 0))
 
         elif node.type == 'String':
-            pass
+            # in this case we load address of obj at result_reg and return
+            # string initializes with empty string
+            self.code.append(Ins('la', self.get_result_reg(), self.str_literals['']))
+            return
 
         # either way $t0 has address of label to jump
         self.code.append(Ins('jalr', self.get_temp_reg(0))) # jump!
@@ -821,7 +846,8 @@ class GenMIPS:
         # note that this saves result in result_reg, so I dont save it here
         self.code.append(Ins('jal', self.dict_init_func['Int'].label))
 
-    def visit_String(self, node): pass
+    def visit_String(self, node):
+        self.code.append(Ins('la', self.get_result_reg(), self.str_literals[node.value]))
 
     def visit_Bool(self, node):
         # send value to initialize and jump to init function
