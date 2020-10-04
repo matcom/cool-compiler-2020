@@ -278,6 +278,10 @@ class AttrIntLiteral(AttrDecl):
     def __init__(self):
         AttrDecl.__init__(self, Reference('_int_literal'), '_reserved', None, 0)
 
+class AttrStringLength(AttrDecl):
+    def __init__(self):
+        AttrDecl.__init__(self, Reference('_string_length'), '_reserved', None, 0)
+
 class AttrStringLiteral(AttrDecl):
     def __init__(self):
         AttrDecl.__init__(self, Reference('_string_literal'), '_reserved', None, 0)

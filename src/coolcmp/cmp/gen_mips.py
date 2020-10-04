@@ -9,7 +9,12 @@ class Directive:
         self.args = args
 
     def __repr__(self): #separate by tabs
-        return '\t' + '\t'.join(map(str, self.args))
+        res = '\t' + f'{self.args[0]}'
+        
+        if len(self.args) > 1:
+            res += '\t' + ', '.join(map(str, self.args[1:]))
+
+        return res
 
 class Ins:
     def __init__(self, *ins):
@@ -40,7 +45,7 @@ class Comment:
 
 class DataSegment:
     def __init__(self, cil_code):
-        self.code = ['#Data Segment']
+        self.code = [ Comment('Data Segment') ]
         self.dict_func = cil_code.dict_func
         self.dict_init_func = cil_code.dict_init_func
         self.cases = cil_code.cases
@@ -53,10 +58,17 @@ class DataSegment:
         self._add_str_literals()
         self._add_error_msgs()
         self._add_bools()
+    
+    def _fix_str(self, s):
+        str_bytes = [ ord(c) for c in s ] + [0]
+
+        while len(str_bytes) % 4 > 0:
+            str_bytes.append(0)
+
+        return str_bytes
 
     def _init_ds(self):
         self.code.append(Directive('.data'))
-        self.code.append(Directive('.align 2'))
 
     def _add_functions(self):
         for name, lst in self.dict_func.items():
@@ -74,7 +86,7 @@ class DataSegment:
             self.code.append(Directive('.word', init.tf))
             self.code.append(Directive('.word', init.label))
             self.code.append(Directive('.word', init.type_obj))
-            self.code.append(Directive('.asciiz', f'"{name}"'))
+            self.code.append(Directive('.word', self.str_literals[name]))
 
     def _add_cases(self):
         for case in self.cases:
@@ -84,34 +96,12 @@ class DataSegment:
                 self.code.append(Directive('.word', branch.td))
                 self.code.append(Directive('.word', branch.tf))
 
-    def fix_string(self, s):  #TODO: Possibly fix this
-        res = ''
-
-        assert s[-1] != '\\'
-
-        i = 0
-        while i < len(s):
-            if s[i] in ['\t', '\b', '\n', '\f']:
-                res += s[i]
-
-            elif s[i] == '\\':
-                res += s[i + 1]
-                i += 1
-
-            else: res += s[i]
-
-            i += 1
-
-        return res
-
     def _add_str_literals(self):
-        #TODO: Implement this!
-        # for lit in self.str_literals:
-        #     lit.value = self.fix_string(lit.value)
-
-        #     self.code.append(Label(f'{lit.label}:'))
-        #     self.code.append(Directive('.asciiz', f"{repr(lit.value)}"))
-        pass
+        for lit, label in self.str_literals.items():
+            self.code.append(Label(f'{label}:'))
+            self.code.append(Directive('.word', 'String'))
+            self.code.append(Directive('.word', len(lit)))
+            self.code.append(Directive('.byte', *self._fix_str(lit)))
 
     def _add_error_msgs(self):
         for label, msg in rte_errors.items():
@@ -137,7 +127,7 @@ class GenMIPS:
         self.branches = 0 #keep counter of branches
 
         self.code = code
-        self.code.append('#Text Segment')
+        self.code.append(Comment('Text Segment'))
         self.code.append(Directive('.text'))
         
         # entry point
@@ -506,6 +496,7 @@ class GenMIPS:
         #store int value passed in arg_reg in attr_idx position of attrs
         self.code.append(Ins('sw', self.get_arg_reg(), f'{self.attr_idx * WORD}({self.get_self_reg()})'))
 
+    def visit_AttrStringLength(self, node): pass
     def visit_AttrStringLiteral(self, node): pass
     def visit_AttrBoolLiteral(self, node): pass
 

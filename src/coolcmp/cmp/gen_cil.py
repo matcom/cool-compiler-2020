@@ -2,6 +2,7 @@ from coolcmp.cmp.utils import init_logger
 from coolcmp.cmp.ast_cls import *
 from coolcmp.cmp.environment import Environment
 from collections import defaultdict
+from coolcmp.cmp.constants import LABEL_STR_LITERAL
 
 class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (ie, they are not generated)
     def __init__(self, cls_refs):
@@ -13,6 +14,9 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         self.max_idx = -1
         self.cur_env = None  #environment for locals only
         self.cur_cls = None
+
+        # save empty string literal
+        self._save_str_literal('')
 
     @staticmethod
     def get_default_value(_type: str):
@@ -29,25 +33,13 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
 
         return expr
 
-    def _save_str_literal(self, ref):
-        if ref.value not in self.cil_code.str_literals:
-            label = f'_StringLiteral_{len(self.cil_code.str_literals)}'
-            self.cil_code.str_literals[ref.value] = label
-
-        else:
-            label = self.cil_code.str_literals[ref.value]
-
-        ref.label = label
+    def _save_str_literal(self, value: str):
+        if value not in self.cil_code.str_literals:
+            label = f'{LABEL_STR_LITERAL}{len(self.cil_code.str_literals)}'
+            self.cil_code.str_literals[value] = label
 
     def _get_declaration_expr(self, node):
         expr = GenCIL.get_default_value(node.type.value)
-
-        if isinstance(expr, String):
-            #it must be empty string
-            assert expr.value == ''
-
-            #save it as a string literal for data segment
-            self._save_str_literal(expr)
 
         if node.opt_expr_init:
             expr = self.visit(node.opt_expr_init)
@@ -77,6 +69,9 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
 
         old_cls = self.cur_cls
         self.cur_cls = node
+
+        # let's save each class type as a String object in data segment
+        self._save_str_literal(node.type.value)
 
         #own attrs
         own_attrs = [feature for feature in node.feature_list if isinstance(feature, Attribute)]
@@ -317,5 +312,5 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
 
     def visit_String(self, node):
         ref = String(node.value)
-        self._save_str_literal(ref)
+        self._save_str_literal(ref.value)
         return ref

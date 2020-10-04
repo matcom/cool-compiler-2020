@@ -24,7 +24,7 @@ class SourceCode:
         self.native_classes = [
             Class(Type('Object')),
             Class(Type('Int'), reserved_attrs=[AttrIntLiteral()], can_inherit=False, type_obj=TYPE_INT),
-            Class(Type('String'), reserved_attrs=[AttrStringLiteral()], can_inherit=False, type_obj=TYPE_STRING),
+            Class(Type('String'), reserved_attrs=[AttrStringLength(), AttrStringLiteral()], can_inherit=False, type_obj=TYPE_STRING),
             Class(Type('Bool'), reserved_attrs=[AttrBoolLiteral()], can_inherit=False, type_obj=TYPE_BOOL),
             Class(Type('IO'))
         ]
