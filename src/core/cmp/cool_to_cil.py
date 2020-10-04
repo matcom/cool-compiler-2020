@@ -2,6 +2,7 @@ import core.cmp.visitor as visitor
 import core.cmp.cil as cil
 import core.cmp.CoolUtils as cool
 from core.cmp.semantic import Attribute, Method, Type, VariableInfo, SemanticError
+from core.cmp.functions import get_token
 
 class BaseCOOLToCILVisitor:
     def __init__(self, context):
@@ -105,6 +106,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.ReturnNode(result))
 
         type_node.methods = [(name, self.to_function_name(name, 'Object')) for name in ['init', 'abort', 'type_name', 'copy']]
+        obj_methods = ['abort', 'type_name', 'copy']
 
         #IO
         type_node = self.register_type('IO')
@@ -149,6 +151,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.ReturnNode(instance))  
 
         type_node.methods = [(name, self.to_function_name(name, 'IO')) for name in ['init', 'out_string', 'out_int', 'in_string', 'in_int']]
+        type_node.methods += [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
 
         #String
         type_node = self.register_type('String')
@@ -213,6 +216,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.ReturnNode(instance))
 
         type_node.methods = [(name, self.to_function_name(name, 'String')) for name in ['init', 'length', 'concat', 'substr']]
+        type_node.methods += [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
 
         #Int
         type_node = self.register_type('Int')
@@ -226,13 +230,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.ReturnNode(instance))
 
         type_node.methods = [('init', self.to_function_name('init', 'Int'))]
-
-    def register_errors_messages(self):
-        self.register_data('Dispatch on void')
-        self.register_data('Case on void')
-        self.register_data('Execution of a case statement without a matching branch')
-        self.register_data('Division by zero')
-        self.register_data('Substring out of range')
+        type_node.methods += [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
 
     def register_runtime_error(self, condition, msg):
         error_node = self.register_label('error_label')
@@ -240,7 +238,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.GotoIfNode(condition, error_node.label))
         self.register_instruction(cil.GotoNode(continue_node.label))
         self.register_instruction(error_node)
-        data_node = [dn for dn in self.dotdata if dn.value == msg][0]
+        data_node = self.register_data(msg)
         self.register_instruction(cil.ErrorNode(data_node))
         
         self.register_instruction(continue_node)
@@ -267,13 +265,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_function = self.register_function('entry')
         result = self.define_internal_local()
         instance = self.register_local(VariableInfo('instance', None))
-        self.register_instruction(cil.AllocateNode('Main', instance))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Main'), instance))
         self.register_instruction(cil.ArgNode(instance))
         self.register_instruction(cil.StaticCallNode(self.to_function_name('main', 'Main'), result))
         self.register_instruction(cil.ReturnNode(0))
         # Error message raised by Object:abort()
         self.register_data('Program aborted')
-        self.register_errors_messages()
         self.register_built_in()
         self.current_function = None
         
@@ -459,7 +456,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         equal_result = self.define_internal_local()
         self.register_instruction(cil.EqualNode(equal_result, vexpr, void))
 
-        self.register_runtime_error(equal_result, 'Case on void')
+        token = get_token(node.expr)
+        self.register_runtime_error(equal_result,  f'({token.row},{token.column}) - RuntimeError: Case on void\n')
 
         end_label = self.register_label('end_label')
         labels = []
@@ -488,7 +486,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.register_instruction(cil.GotoNode(end_label.label))
 
         #Raise runtime error if no Goto was executed
-        data_node = [dn for dn in self.dotdata if dn.value == 'Execution of a case statement without a matching branch'][0]
+        data_node = self.register_data(f'({token.row + 5},{token.column + 1 + len(node.branches)}) - RuntimeError: Execution of a case statement without a matching branch\n')
         self.register_instruction(cil.ErrorNode(data_node))
 
         self.register_instruction(end_label)
@@ -704,7 +702,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         #Check division by 0
         equal_result = self.define_internal_local()
         self.register_instruction(cil.EqualNode(equal_result, vright, 0))
-        self.register_runtime_error(equal_result, 'Division by zero')
+        token = get_token(node.right)
+        self.register_runtime_error(equal_result, f'({token.row},{token.column}) - RuntimeError: Division by zero\n')
 
         self.register_instruction(cil.DivNode(vname, vleft, vright))
         instance = self.define_internal_local()
@@ -763,7 +762,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         equal_result = self.define_internal_local()
         self.register_instruction(cil.EqualNode(equal_result, vobj, void))
 
-        self.register_runtime_error(equal_result, 'Dispatch on void')
+        token = get_token(node.obj)
+        self.register_runtime_error(equal_result, f'({token.row},{token.column}) - RuntimeError: Dispatch on void\n')
         
         #self
         self.register_instruction(cil.ArgNode(vobj))
