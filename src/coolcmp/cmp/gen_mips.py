@@ -656,9 +656,51 @@ class GenMIPS:
         self.code.append(Ins('jalr', self.get_temp_reg(0))) # jump!
         # in result_reg is the result of New
 
-    def visit_IsVoid(self, node): pass
-    def visit_IntComp(self, node): pass
-    def visit_Not(self, node): pass
+    def visit_IsVoid(self, node):
+        self.visit(node.expr)
+
+        # assume it is true
+        self.code.append(Ins('li', self.get_arg_reg(), 1))
+        
+        # compare
+        self.code.append(Ins('beqz', self.get_result_reg(), f'{LABEL_BRANCH}{self.branches}'))
+
+        # if it enters here is false
+        self.code.append(Ins('li', self.get_arg_reg(), 0))
+
+        self.code.append(Label(f'{LABEL_BRANCH}{self.branches}:'))
+
+        # increase number of branches
+        self.branches += 1
+
+        # note that this saves result in result_reg, so I dont save it here
+        self.code.append(Ins('jal', self.dict_init_func['Bool'].label))
+
+    def visit_IntComp(self, node):
+        self.visit(node.expr)
+
+        # get id of attribute _int_literal
+        idx = self.dict_init_func['Int'].attr_dict['_int_literal']
+
+        # get the int value and save it at arg_reg
+        self.code.append(Ins('lw', self.get_arg_reg(), f'{idx * WORD}({self.get_result_reg()})'))
+        self.code.append(Ins('neg', self.get_arg_reg(), self.get_arg_reg()))
+
+        # note that this saves result in result_reg, so I dont save it here
+        self.code.append(Ins('jal', self.dict_init_func['Int'].label))
+
+    def visit_Not(self, node):
+        self.visit(node.expr)
+
+        # get id of attribute _bool_literal
+        idx = self.dict_init_func['Bool'].attr_dict['_bool_literal']
+
+        # get the bool value and save it at arg_reg
+        self.code.append(Ins('lw', self.get_arg_reg(), f'{idx * WORD}({self.get_result_reg()})'))
+        self.code.append(Ins('xor', self.get_arg_reg(), self.get_arg_reg(), 1))
+
+        # note that this saves result in result_reg, so I dont save it here
+        self.code.append(Ins('jal', self.dict_init_func['Bool'].label))
 
     def _binary_op_load(self, node):
         self.visit(node.left)
