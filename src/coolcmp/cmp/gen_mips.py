@@ -328,7 +328,14 @@ class GenMIPS:
         self.code.append(Ins('move', self.get_result_reg(), self.get_self_reg()))
 
     def native_in_string(self): pass
-    def native_in_int(self): pass
+
+    def native_in_int(self):
+        self.code.append(Ins('li', '$v0', 5))
+        self.code.append(Ins('syscall'))
+        self.code.append(Ins('move', self.get_arg_reg(), '$v0'))
+        
+        # note that this saves result in result_reg, so I dont save it here
+        self.code.append(Ins('jal', self.dict_init_func['Int'].label))
 
     def visit_Function(self, node):
         self.code.append(Label(f'{node.label}:'))
