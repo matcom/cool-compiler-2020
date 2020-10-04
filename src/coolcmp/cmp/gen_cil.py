@@ -2,7 +2,7 @@ from coolcmp.cmp.utils import init_logger
 from coolcmp.cmp.ast_cls import *
 from coolcmp.cmp.environment import Environment
 from collections import defaultdict
-from coolcmp.cmp.constants import LABEL_STR_LITERAL
+from coolcmp.cmp.constants import LABEL_INT_LITERAL, LABEL_STR_LITERAL
 
 class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (ie, they are not generated)
     def __init__(self, cls_refs):
@@ -17,6 +17,9 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
 
         # save empty string literal
         self._save_str_literal('')
+
+        # save 0 int literal
+        self._save_int_literal(0)
 
     @staticmethod
     def get_default_value(_type: str):
@@ -37,6 +40,14 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         if value not in self.cil_code.str_literals:
             label = f'{LABEL_STR_LITERAL}{len(self.cil_code.str_literals)}'
             self.cil_code.str_literals[value] = label
+
+            # save length int literal
+            self._save_int_literal(len(value))
+
+    def _save_int_literal(self, value: int):
+        if value not in self.cil_code.int_literals:
+            label = f'{LABEL_INT_LITERAL}{len(self.cil_code.int_literals)}'
+            self.cil_code.int_literals[value] = label
 
     def _get_declaration_expr(self, node):
         expr = GenCIL.get_default_value(node.type.value)
@@ -305,7 +316,9 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         return ref
 
     def visit_Int(self, node):
-        return Int(node.value)
+        ref = Int(node.value)
+        self._save_int_literal(int(ref.value))
+        return ref
 
     def visit_Bool(self, node):
         return Bool(node.value)

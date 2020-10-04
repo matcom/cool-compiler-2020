@@ -230,6 +230,7 @@ class CILCode(ASTNode):
         self.dict_init_func = dict_init_func
         self.cases = cases
         self.str_literals = {}  #literals for string
+        self.int_literals = {}  #literals for ints
 
 class Function(ASTNode):
     def __init__(self, name, formals, body, locals_size):
@@ -259,6 +260,9 @@ class FunctionCall(ASTNode):
         self.opt_class = opt_class  #a str with name of class or None
         self.name = name  #a string with the name of the function to call
         self.args = args  #list of expressions
+
+    def __repr__(self):
+        return f'<FunctionCall {repr(self.name)}>'
 
 class AttrDecl(Expr):  #models the declaration of an attribute
     def __init__(self, ref, type, expr, locals_size):

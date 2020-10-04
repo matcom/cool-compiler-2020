@@ -1,6 +1,7 @@
 WORD = 4
 
 LABEL_STR_LITERAL = '_str_literal_'
+LABEL_INT_LITERAL = '_int_literal_'
 
 LABEL_FUNC_PREF = '_st_'
 

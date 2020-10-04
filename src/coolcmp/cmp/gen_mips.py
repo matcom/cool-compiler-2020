@@ -50,12 +50,14 @@ class DataSegment:
         self.dict_init_func = cil_code.dict_init_func
         self.cases = cil_code.cases
         self.str_literals = cil_code.str_literals
-        
+        self.int_literals = cil_code.int_literals
+
         self._init_ds()
         self._add_functions()
         self._add_init_functions()
         self._add_cases()
         self._add_str_literals()
+        self._add_int_literals()
         self._add_error_msgs()
         self._add_bools()
     
@@ -100,8 +102,14 @@ class DataSegment:
         for lit, label in self.str_literals.items():
             self.code.append(Label(f'{label}:'))
             self.code.append(Directive('.word', 'String'))
-            self.code.append(Directive('.word', len(lit)))
+            self.code.append(Directive('.word', self.int_literals[len(lit)]))
             self.code.append(Directive('.byte', *self._fix_str(lit)))
+
+    def _add_int_literals(self):
+        for lit, label in self.int_literals.items():
+            self.code.append(Label(f'{label}:'))
+            self.code.append(Directive('.word', 'Int'))
+            self.code.append(Directive('.word', lit))
 
     def _add_error_msgs(self):
         for label, msg in rte_errors.items():
@@ -122,6 +130,8 @@ class GenMIPS:
         self.logger = init_logger('GenMIPS')
 
         self.str_literals = cil_code.str_literals
+        self.int_literals = cil_code.int_literals
+
         self.dict_init_func = cil_code.dict_init_func
         self.regs = [ f'$t{i}' for i in range(10) ]  #temporals
         self.loops = 0  #keep counter of loops labels
@@ -274,7 +284,11 @@ class GenMIPS:
     def native_copy(self): pass
 
     # from String
-    def native_length(self): pass
+    def native_length(self):
+        # get id of attribute _string_length
+        idx = self.dict_init_func['String'].attr_dict['_string_length']
+        self.code.append(Ins('lw', self.get_result_reg(), f'{idx * WORD}({self.get_self_reg()})'))
+
     def native_concat(self): pass
     def native_substr(self): pass
 
@@ -622,10 +636,14 @@ class GenMIPS:
             # save address of label to jump at $t0
             self.code.append(Ins('la', self.get_temp_reg(0), self.dict_init_func[node.type].label))
 
-        # fill this, remember that each attribute of these classes expect the value in arg_reg
-        if node.type == 'Int' or node.type == 'Bool':
-            # int and bool both initialize by default with 0
-            # send 0 as value to initialize
+        if node.type == 'Int':
+            # in this case we load address of obj at result_reg and return
+            # int initializes with 0
+            self.code.append(Ins('la', self.get_result_reg(), self.int_literals[0]))
+            return
+
+        elif node.type == 'Bool':
+            # bool initializes by default with 0
             self.code.append(Ins('li', self.get_arg_reg(), 0))
 
         elif node.type == 'String':
@@ -837,16 +855,11 @@ class GenMIPS:
             self.code.append(Ins('lw', self.get_result_reg(), f'{-node.refers_to[1] * WORD}($fp)'))
 
     def visit_Int(self, node):
-        # send in arg_reg the integer, note that literals dont have any attributes
-        # and is guaranteed for them that argument_reg will always have found the literal
-
-        # send value to initialize and jump to init function
-        self.code.append(Ins('li', self.get_arg_reg(), node.value))
-
-        # note that this saves result in result_reg, so I dont save it here
-        self.code.append(Ins('jal', self.dict_init_func['Int'].label))
+        # return int_literal object
+        self.code.append(Ins('la', self.get_result_reg(), self.int_literals[int(node.value)]))
 
     def visit_String(self, node):
+        # return string_literal object
         self.code.append(Ins('la', self.get_result_reg(), self.str_literals[node.value]))
 
     def visit_Bool(self, node):
