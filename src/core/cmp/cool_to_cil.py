@@ -109,7 +109,7 @@ class BaseCOOLToCILVisitor:
         #IO
         type_node = self.register_type('IO')
 
-        self.current_function = self.register_function(self.to_function_name('init', 'Object'))
+        self.current_function = self.register_function(self.to_function_name('init', 'IO'))
         instance = self.define_internal_local()
         self.register_instruction(cil.AllocateNode('Object', instance))
         self.register_instruction(cil.ReturnNode(instance))
@@ -266,8 +266,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         self.current_function = self.register_function('entry')
         result = self.define_internal_local()
-        self.register_instruction(cil.AllocateNode('Main', self.vself.name))
-        self.register_instruction(cil.ArgNode(self.vself.name))
+        instance = self.register_local(VariableInfo('instance', None))
+        self.register_instruction(cil.AllocateNode('Main', instance))
+        self.register_instruction(cil.ArgNode(instance))
         self.register_instruction(cil.StaticCallNode(self.to_function_name('main', 'Main'), result))
         self.register_instruction(cil.ReturnNode(0))
         # Error message raised by Object:abort()
@@ -305,6 +306,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         #allocate
         instance = self.define_internal_local()
         self.register_instruction(cil.AllocateNode(node.id, instance))
+        
         scope.ret_expr = instance
 
         attr_declarations = (f for f in node.features if isinstance(f, cool.AttrDeclarationNode))

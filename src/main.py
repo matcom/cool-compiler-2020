@@ -9,6 +9,8 @@ from core.cmp.evaluation import *
 from core.cmp.cil import get_formatter
 from pprint import pprint
 from core.cmp.cool_to_cil import COOLToCILVisitor
+from core.cmp.cil_to_mips import CILToMIPSVisitor
+from core.cmp.mips import PrintVisitor
 
 
 def main(args):
@@ -68,6 +70,12 @@ def main(args):
     inferencer.errors.clear()
     _, scope = inferencer.visit(ast)
     errors.extend(inferencer.errors)
+
+    verifier = TypeVerifier(context)
+    verifier.visit(ast)
+    for e in verifier.errors:
+        if not e in errors:
+            errors.append(e)
     
     if errors:
         for (msg, token) in errors:
@@ -82,6 +90,16 @@ def main(args):
     #formatter = get_formatter()
     #ast_cil = formatter(cil_ast)
     #print(ast_cil)
+
+    cil_to_mips = CILToMIPSVisitor()
+    mips_ast = cil_to_mips.visit(cil_ast)
+    printer = PrintVisitor()
+    mips_code = printer.visit(mips_ast)
+
+    with open("compiled.asm", 'w') as f:
+        f.write(mips_code)
+        with open("./core/cmp/mips_lib.asm") as f2:
+            f.write("".join(f2.readlines()))
     
     exit(0)
 
@@ -90,8 +108,9 @@ if __name__ == "__main__":
     import argparse 
 
     parser = argparse.ArgumentParser(description='CoolCompiler pipeline')
-    parser.add_argument('-f', '--file', type=str, default='code.cl', help='node address')
+    parser.add_argument('-f', '--file', type=str, default='code.cl', help='file to read')
 
     args = parser.parse_args()
     main(args)
 
+    # test()

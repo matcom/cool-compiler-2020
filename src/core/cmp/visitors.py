@@ -12,9 +12,10 @@ LOCAL_ALREADY_DEFINED = 'Variable "%s" is already defined in method "%s".'
 INCOMPATIBLE_TYPES = 'Cannot convert "%s" into "%s".'
 VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined.'
 INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
-CONDITION_NOT_BOOL = '"%s" conditions return type must be Bool not "%s"'
+CONDITION_NOT_BOOL = '"%s" conditions return type must be Bool not "%s".'
 INVALID_PARAMETER = 'Formal parameter "%s" cannot have type SELF_TYPE.'
 INVALID_BRANCH = 'Identifier "%s" declared with type SELF_TYPE in case branch.'
+DUPLICATED_BRANCH = 'Duplicate branch "%s" in case statement.'
 
 ST, AT = ['SELF_TYPE', 'AUTO_TYPE']
 sealed = ['Int', 'String', 'Bool', 'SELF_TYPE', 'AUTO_TYPE']
@@ -355,11 +356,16 @@ class TypeBuilder:
 def LCA(type_list):
     counter = {}
 
-    type_list = [fixed_type(t) for t in type_list]
-    if any([isinstance(t, AutoType) for t in type_list]):
+    def check(target):
+        return [isinstance(t, target) for t in type_list]
+
+    if all(check(SelfType)):
+        return SelfType(type_list[0].fixed)
+    if any(check(AutoType)):
         return AutoType()
-    if any([isinstance(t, ErrorType) for t in type_list]):
+    if any(check(ErrorType)):
         return ErrorType()
+    type_list = [fixed_type(t) for t in type_list]
     for typex in type_list:
         node = typex
         while True:
@@ -409,7 +415,7 @@ class TypeChecker:
         self.current_type = self.context.get_type(node.id)
         
         scope.define_variable('self', SelfType(self.current_type))
-        cur_type = self.current_type.parent
+        cur_type = self.current_type
         while True:
             for attr in cur_type.attributes:
                 vtype = attr.type
@@ -477,8 +483,10 @@ class TypeChecker:
 
         try:
             if not scope.is_defined(node.id):
+                scope.define_variable(node.id, ErrorType())
                 raise SemanticError(VARIABLE_NOT_DEFINED % (node.id))
             var = scope.find_variable(node.id)
+            var_type = var.type
             if var.name == 'self':
                 raise SemanticError(SELF_IS_READONLY)
             if not node_type.conforms_to(var.type): 
@@ -495,7 +503,11 @@ class TypeChecker:
         self.visit(node.expr, scope)
         
         types_list = []
+        branches = set()
         for case in node.branches:
+            if case.type in branches:
+                self.errors.append((DUPLICATED_BRANCH % (case.type), case.ttype))
+            branches.add(case.type)
             self.visit(case, scope.create_child())
             types_list.append(case.computed_type)
 
@@ -543,10 +555,8 @@ class TypeChecker:
         node.attr_type = node_type
         node.scope = None
         
-        if not scope.is_local(node.id):
-            var = scope.define_variable(node.id, node_type)
-            var.node = node
-        else:
+        correct_declaration = not scope.is_local(node.id)
+        if not correct_declaration:
             self.errors.append((LOCAL_ALREADY_DEFINED % (node.id, self.current_method), node.tid))
         
         if node.expr:
@@ -556,6 +566,10 @@ class TypeChecker:
 
             if not expr_type.conforms_to(node_type): 
                 self.errors.append((INCOMPATIBLE_TYPES % (expr_type.name, node_type.name), node.arrow))
+
+        if correct_declaration:
+            var = scope.define_variable(node.id, node_type)
+            var.node = node
         
     @visitor.when(IfThenElseNode)
     def visit(self, node, scope):
@@ -615,6 +629,7 @@ class TypeChecker:
                     raise SemanticError(INCOMPATIBLE_TYPES % (obj_type.name, node.type))
                 obj_type = cast_type
             
+            assert obj_type
             token = node.tid
             obj_method = obj_type.get_method(node.id)
             node.obj_method = obj_method
@@ -708,6 +723,7 @@ class TypeChecker:
         if scope.is_defined(node.lex):
             node_type = scope.find_variable(node.lex).type       
         else:
+            scope.define_variable(node.lex, ErrorType())
             self.errors.append((VARIABLE_NOT_DEFINED % (node.lex), node.token))
             node_type = ErrorType()
         
@@ -867,7 +883,8 @@ class InferenceVisitor(TypeChecker):
 
     @visitor.when(Node)
     def visit(self, node, scope):
-        super().visit(node, scope)
+        if not issubclass(node.__class__, BinaryNode):
+            super().visit(node, scope)
 
     @visitor.when(ProgramNode)
     def visit(self, node, scope=None):
@@ -1038,3 +1055,43 @@ class InferenceVisitor(TypeChecker):
         if update_condition(right, left) and left in [INT, BOOL, STRING]:
             self.update(node.right, scope, left)
         
+# Type Verifier
+class TypeVerifier:
+    def __init__(self, context, errors=[]):
+        self.context = context
+        self.current_type = None
+        self.errors = errors
+    
+    @visitor.on('node')
+    def visit(self, node):
+        pass
+    
+    @visitor.when(ProgramNode)
+    def visit(self, node):
+        main_token = None
+        for def_class in node.declarations:
+            self.visit(def_class)         
+    
+    @visitor.when(ClassDeclarationNode)
+    def visit(self, node):
+        self.current_type = self.context.get_type(node.id)
+        
+        for feature in node.features:
+            self.visit(feature)
+            
+    @visitor.when(AttrDeclarationNode)
+    def visit(self, node):
+        pass
+        
+    @visitor.when(FuncDeclarationNode)
+    def visit(self, node):
+        try:
+            m1 = node.method
+            m2 = self.current_type.parent.get_method(m1.name)
+            assert m1.return_type == m2.return_type and m1.param_types == m2.param_types
+        except AttributeError: 
+            pass
+        except SemanticError:
+            pass
+        except AssertionError:
+            self.errors.append((f'Method "{m1.name}" already defined in {self.current_type.name} with a different signature.', node.tid))
