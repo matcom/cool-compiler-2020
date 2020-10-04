@@ -106,6 +106,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.ReturnNode(result))
 
         type_node.methods = [(name, self.to_function_name(name, 'Object')) for name in ['init', 'abort', 'type_name', 'copy']]
+        obj_methods = ['abort', 'type_name', 'copy']
 
         #IO
         type_node = self.register_type('IO')
@@ -150,6 +151,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.ReturnNode(instance))  
 
         type_node.methods = [(name, self.to_function_name(name, 'IO')) for name in ['init', 'out_string', 'out_int', 'in_string', 'in_int']]
+        type_node.methods += [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
 
         #String
         type_node = self.register_type('String')
@@ -214,6 +216,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.ReturnNode(instance))
 
         type_node.methods = [(name, self.to_function_name(name, 'String')) for name in ['init', 'length', 'concat', 'substr']]
+        type_node.methods += [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
 
         #Int
         type_node = self.register_type('Int')
@@ -227,6 +230,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.ReturnNode(instance))
 
         type_node.methods = [('init', self.to_function_name('init', 'Int'))]
+        type_node.methods += [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
 
     def register_runtime_error(self, condition, msg):
         error_node = self.register_label('error_label')
