@@ -11,7 +11,7 @@ LOCAL_ALREADY_DEFINED = 'Variable "%s" is already defined in method "%s".'
 INCOMPATIBLE_TYPES = 'Cannot convert "%s" into "%s".'
 VARIABLE_NOT_DEFINED = 'Variable "%s" is not defined in "%s".'
 INVALID_OPERATION = 'Operation is not defined between "%s" and "%s".'
-
+BUILTIN_TYPES = ['Object', 'Int', 'String', 'Bool', 'IO']
 
 class TypeCollector(object):
     def __init__(self, errors=[]):
@@ -27,12 +27,15 @@ class TypeCollector(object):
         self.context = Context()
         self.context.create_builtin_types()
         for klass in node.classes:
-            self.visit(klass)
+            if klass.name in BUILTIN_TYPES:
+                self.errors.append("Is an error redefine a builint type")
+            else:
+                self.visit(klass)
 
     @visitor.when(AST.Class)
     def visit(self, node):
         try:
-            self.context.create_type(node.name)
+            self.context.create_type(node)
         except SemanticError as e:
             self.errors.append(e.text)
 
@@ -42,23 +45,59 @@ class TypeBuilder:
         self.context = context
         self.current_type = None
         self.errors = errors
+        self.sort = []  #topologic sort for all types defined 
+        self.visited = {key: False for key in self.context.graph.keys()} #types visited in the graph by the DFS
+       
+    def visit_component(self, actual_type):
+        self.sort.append(actual_type)
+        for children in self.context.graph[actual_type]:
+            self.visit_component(children)
 
+    def topologic_sort(self):
+        indeg = {key: 0 for key in self.context.graph.keys()}
+        for u in self.context.graph.keys():
+            for v in self.context.graph[u]:
+                indeg[v] += 1
+        
+        roots = [key for key in indeg.keys() if indeg[key] == 0]
+        if len(roots) > 1:
+            self.errors.append("The graph of types is not a tree")
+        for v in roots:
+            self.visit_component(v)
+
+        
     @visitor.on('node')
     def visit(self, node):
         pass
 
     @visitor.when(AST.Program)
     def visit(self, node):
-        for c in node.classes:
-            self.visit(c)
-
+        self.topologic_sort()
+        for t in self.sort:
+            if t not in BUILTIN_TYPES:
+                try:
+                    class_node = self.context.classes[t]
+                except KeyError:
+                    self.errors.append("The class {} not exist".format(t))
+                else:
+                    self.visit(class_node)
+                
+              
     @visitor.when(AST.Class)
     def visit(self, node):
         try:
             self.current_type = self.context.get_type(node.name)
-            if node.parent:
-                self.current_type.set_parent(
-                    self.context.get_type(node.parent))
+            if node.parent: 
+                try:
+                    parent = self.context.get_type(node.parent)
+                except SemanticError:
+                    parent = ErrorType()
+                    self.current_type.set_parent(parent)
+                else: 
+                    if parent.name in ['Int', 'String', 'Bool']:
+                        parent = ErrorType()
+                        self.errors.append("Type {} inherits from a builint type".format(node.name))
+                    self.current_type.set_parent(parent)
 
             for f in node.features:
                 self.visit(f)
@@ -72,29 +111,43 @@ class TypeBuilder:
             param_types = []
             for p in node.params:
                 param_names.append(p.name)
-                param_types.append(self.context.get_type(p.param_type))
-            return_type = self.context.get_type(node.return_type)
+                try:
+                    param_type = self.context.get_type(p.param_type)
+                except SemanticError:
+                    param_type = ErrorType()
+                    self.errors.append("The type of param {} in method {} not exist, in the class {}.".format(p.name, node.name, self.current_type.name))
+                param_types.append(param_type)
+            
+            try:
+                return_type = self.context.get_type(node.return_type)
+            except SemanticError:
+                    return_type = ErrorType()
+                    self.errors.append("The return type {} in method {} not exist, in the class {}.".format(node.return_type, node.name, self.current_type.name))
+            
             self.current_type.define_method(
                 node.name, param_names, param_types, return_type)
         except SemanticError as e:
-            self.errors
+            self.errors.append(e)
 
     @visitor.when(AST.AttributeInit)
     def visit(self, node):
         try:
-            self.current_type.define_attribute(
-                node.name, self.context.get_type(node.type))
-        except SemanticError as e:
-            self.errors.append(e)
+            attr_type = self.context.get_type(node.type)
+        except SemanticError:
+            attr_type = ErrorType()
+            self.errors.append("The type of attr {} in class {} not exist.".format(node.name, self.current_type.name))
+        
+        self.current_type.define_attribute(node.name, attr_type)
 
     @visitor.when(AST.AttributeDef)
     def visit(self, node):
         try:
-            self.current_type.define_attribute(
-                node.name, self.context.get_type(node.type))
-        except SemanticError as e:
-            self.errors.append(e)
-
+            attr_type = self.context.get_type(node.type)
+        except SemanticError:
+            attr_type = ErrorType()
+            self.errors.append("The type of attr {} in class {} not exist.".format(node.name, self.current_type.name))
+    
+        self.current_type.define_attribute(node.name, attr_type)
 
 class TypeChecker:
     def __init__(self, context, errors=[]):
@@ -116,13 +169,7 @@ class TypeChecker:
     @visitor.when(AST.Class)
     def visit(self, node, scope):
         self.current_type = self.context.get_type(node.name)
-        # for feature in node.features:
-        #     if isinstance(feature, AttrDeclarationNode):
-        #         self.visit(feature, scope)
-        # for feature in node.features:
-        #     if isinstance(feature, FuncDeclarationNode):
-        #         self.visit(feature, scope.create_child())
-        # return scope
+    
         pass
 
     @visitor.when(AST.AttributeInit)
@@ -261,6 +308,7 @@ class SemanticAnalyzer:
         collector = TypeCollector(self.errors)
         collector.visit(self.ast)
         context = collector.context
+
 
         # #'=============== BUILDING TYPES ================'
         builder = TypeBuilder(context, self.errors)

@@ -68,8 +68,7 @@ class Type:
             self.attributes.append(attribute)
             return attribute
         else:
-            raise SemanticError(
-                f'Attribute "{name}" is already defined in {self.name}.')
+            raise SemanticError(f'Attribute "{name}" is already defined in {self.name}.')
 
     def get_method(self, name: str):
         try:
@@ -83,17 +82,26 @@ class Type:
             except SemanticError:
                 raise SemanticError(
                     f'Method "{name}" is not defined in {self.name}.')
+      
 
     def define_method(self, name: str, param_names: list, param_types: list, return_type):
-        if name in self.methods:
-            raise SemanticError(
-                f'Method "{name}" already defined in {self.name}')
-            # raise SemanticError(f'Method "{name}" already defined in {self.name} with a different signature.')
-
-        method = self.methods[name] = Method(
+        try:
+            method = self.get_method(name)
+        except SemanticError:
+            method = self.methods[name] = Method(
             name, param_names, param_types, return_type)
-        return method
-
+            return method
+        else:
+            try:
+                self.methods[name]
+            except KeyError:
+                if method.return_type != return_type or method.param_types != param_types:
+                    raise SemanticError(
+                        f'Method "{name}" is already defined in {self.name} with a different signature')
+            else: 
+                raise SemanticError(
+                        f'Method "{name}" is already defined in {self.name}')
+                
     def conforms_to(self, other):
         return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
 
@@ -135,7 +143,6 @@ class Type:
             least_type = least_type.join(t)
         return least_type
 
-
     def __str__(self):
         output = f'type {self.name}'
         parent = '' if self.parent is None else f' : {self.parent.name}'
@@ -152,7 +159,6 @@ class Type:
     def __repr__(self):
         return str(self)
 
-
 class ErrorType(Type):
     def __init__(self):
         Type.__init__(self, '<error>')
@@ -165,7 +171,6 @@ class ErrorType(Type):
 
     def __eq__(self, other):
         return isinstance(other, Type)
-
 
 class ObjectType(Type):
     def __init__(self):
@@ -223,6 +228,9 @@ class BoolType(Type):
 class Context:
     def __init__(self):
         self.types = {}
+        self.graph = {}
+        self.classes = {}
+        self.types['ErrorType'] = ErrorType()
 
     def create_builtin_types(self):
         self.types['Object'] = ObjectType()
@@ -230,17 +238,29 @@ class Context:
         self.types['String'] = StringType()
         self.types['Int'] = IntType()
         self.types['Bool'] = BoolType()
+        self.graph['Object'] = ['IO', 'String', 'Bool', 'Int']
+        self.graph['IO'] = []
+        self.graph['String'] = []
+        self.graph['Int'] = []
+        self.graph['Bool'] = []
 
         self.types['IO'].set_parent(self.types['Object'])
         self.types['String'].set_parent(self.types['Object'])
         self.types['Int'].set_parent(self.types['Object'])
         self.types['Bool'].set_parent(self.types['Object'])
 
-    def create_type(self, name: str):
-        if name in self.types:
+    def create_type(self, node):
+        if node.name in self.types:
             raise SemanticError(
-                f'Type with the same name ({name}) already in context.')
-        typex = self.types[name] = Type(name)
+                f'Type with the same name ({node.name}) already in context.')
+        typex = self.types[node.name] = Type(node.name)
+        self.classes[node.name] = node
+        if not self.graph.__contains__(node.name):
+            self.graph[node.name] = []
+        if self.graph.__contains__(node.parent):
+            self.graph[node.parent].append(node.name)
+        else:
+            self.graph[node.parent] = [node.name]
         return typex
 
     def get_type(self, name: str):
