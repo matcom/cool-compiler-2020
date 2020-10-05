@@ -17,6 +17,6 @@ class Main inherits IO {
 
     main() : SELF_TYPE {{
         out_int(math.factorial(12));
-        out_int(math.fib(15));
+        out_int(math.fib(10));
     }};
 };

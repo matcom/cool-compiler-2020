@@ -1,6 +1,6 @@
 from coolcmp.cmp.utils import init_logger
 from coolcmp.cmp.gen_cil import GenCIL
-from coolcmp.cmp.ast_cls import New, FunctionCall, Void, Binding
+from coolcmp.cmp.ast_cls import New, FunctionCall, Void
 from coolcmp.cmp.constants import *
 
 #classes for formatting
@@ -582,7 +582,7 @@ class GenMIPS:
         loop_starts = f'{LABEL_START_LOOP}{self.loops}'
         self.loops += 1
 
-        loop_ends = f'{LABEL_START_LOOP}{self.loops}'
+        loop_ends = f'{LABEL_END_LOOP}{self.loops}'
         self.loops += 1
 
         # start of loop
