@@ -1,6 +1,6 @@
 from coolcmp.cmp.utils import init_logger
 from coolcmp.cmp.gen_cil import GenCIL
-from coolcmp.cmp.ast_cls import New, FunctionCall, Void
+from coolcmp.cmp.ast_cls import New, FunctionCall, Void, Binding
 from coolcmp.cmp.constants import *
 
 #classes for formatting
@@ -48,14 +48,12 @@ class DataSegment:
         self.code = [ Comment('Data Segment') ]
         self.dict_func = cil_code.dict_func
         self.dict_init_func = cil_code.dict_init_func
-        self.cases = cil_code.cases
         self.str_literals = cil_code.str_literals
         self.int_literals = cil_code.int_literals
 
         self._init_ds()
         self._add_functions()
         self._add_init_functions()
-        self._add_cases()
         self._add_str_literals()
         self._add_int_literals()
         self._add_error_msgs()
@@ -89,14 +87,6 @@ class DataSegment:
             self.code.append(Directive('.word', init.label))
             self.code.append(Directive('.word', init.type_obj))
             self.code.append(Directive('.word', self.str_literals[name]))
-
-    def _add_cases(self):
-        for case in self.cases:
-            self.code.append(Label(f'{case.label}:'))
-
-            for branch in case.case_list:
-                self.code.append(Directive('.word', branch.td))
-                self.code.append(Directive('.word', branch.tf))
 
     def _add_str_literals(self):
         for lit, label in self.str_literals.items():
@@ -629,7 +619,71 @@ class GenMIPS:
         self.visit(node.body)
         # result is saved at result_reg
 
-    def visit_Case(self, node): pass
+    def visit_Case(self, node):
+        self.visit(node.expr)
+        
+        # if result_reg is 0 then it's a case on a void expr
+        self.code.append(Ins('la', '$a0', LABEL_CASE_VOID))
+        self.code.append(Ins('beqz', self.get_result_reg(), LABEL_PRINT_ERROR_EXIT))
+
+        # load address of _type_info attr at $t0
+        self.code.append(Ins('lw', self.get_temp_reg(0), f'0({self.get_result_reg()})'))
+
+        # save td at $t0
+        self.code.append(Ins('lw', self.get_temp_reg(0), f'0({self.get_temp_reg(0)})'))
+
+        next_label = []
+
+        for _ in node.case_list:
+            next_label.append(f'{LABEL_BRANCH}{self.branches}')
+            self.branches += 1
+
+        ok_label = []
+        for _ in node.case_list:
+            ok_label.append(f'{LABEL_BRANCH}{self.branches}')
+            self.branches += 1
+
+        get_out_label = f'{LABEL_BRANCH}{self.branches}'
+        self.branches += 1
+
+        for i, branch in enumerate(node.case_list):
+            self.code.append(Ins('li', self.get_temp_reg(1), branch.td))
+            self.code.append(Ins('li', self.get_temp_reg(2), branch.tf))
+
+            # now we check that $t1 <= $t0 <= $t2, so we check $t1 > $t0 or $t0 > $t2 instead
+
+            self.code.append(Ins('bgt', self.get_temp_reg(1), self.get_temp_reg(0), next_label[i]))
+            self.code.append(Ins('bgt', self.get_temp_reg(0), self.get_temp_reg(2), next_label[i]))
+            self.code.append(Ins('b', ok_label[i]))
+            self.code.append(Label(f'{next_label[i]}:'))
+
+        # if code gets to here then it means that there was no valid branch to select
+        self.code.append(Ins('la', '$a0', LABEL_CASE_NO_BRANCH))
+        self.code.append(Ins('b', LABEL_PRINT_ERROR_EXIT))
+
+        for i, branch in enumerate(node.case_list):
+            # set label
+            self.code.append(Label(f'{ok_label[i]}:'))
+
+            # type(branch.case_var) == Reference
+            # bind reference to expr0
+            refers_to = branch.case_var.refers_to
+            assert refers_to[0] == 'local'
+
+            # get it from stack (negative offset from $fp)
+            self.code.append(Ins('la', self.get_temp_reg(3), f'{-refers_to[1] * WORD}($fp)'))
+
+            # in result reg we have the body (the object) and we saved it at address $t3
+            self.code.append(Ins('sw', self.get_result_reg(), f'({self.get_temp_reg(3)})'))
+
+            self.visit(branch.expr)
+            # result is saved at result reg
+
+            # get out!
+            self.code.append(Ins('b', get_out_label))
+
+        self.code.append(Label(f'{get_out_label}:'))
+        # result was saved at result_reg
 
     def visit_New(self, node):
         if node.type == 'SELF_TYPE':

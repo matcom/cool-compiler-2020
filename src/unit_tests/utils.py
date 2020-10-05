@@ -4,7 +4,9 @@ from pathlib import Path
 
 error_conversions = {
     'Dispatch on void': 'Dispatch to void.',
-    'Division by zero': '[Breakpoint/Division by 0]  Execution aborted'
+    'Division by zero': '[Breakpoint/Division by 0]  Execution aborted',
+    'Case on void': 'Match on void in case statement.',
+    'Case without a matching branch': 'No match in case statement'
 }
 
 # lines that mimps simulator prints
@@ -73,7 +75,11 @@ def run_test_codegen(file, t=2):
     ref_output = get_output(ref).rstrip()
 
     if mine.returncode == 1:  # runtime exception of my compiled code
-        assert ref_output.endswith(error_conversions[my_output.rstrip()])
+        if my_output.rstrip() == 'Case without a matching branch':
+            assert ref_output.startswith(error_conversions[my_output.rstrip()])
+
+        else:
+            assert ref_output.endswith(error_conversions[my_output.rstrip()])
 
     else:
         if ref.stderr:  # ref compiler gave some runtime error (div0 or heap overflow can be)

@@ -223,12 +223,11 @@ class List(list, ASTNode):  #to save lists and be able to print cil ast
         return f'<List ({len(self)})>'
 
 class CILCode(ASTNode):
-    def __init__(self, functions, init_functions, dict_func, dict_init_func, cases):
+    def __init__(self, functions, init_functions, dict_func, dict_init_func):
         self.functions = functions  #list of functions
         self.init_functions = init_functions
         self.dict_func = dict_func  #dict for functions (ie. regular functions, not init-functions)
         self.dict_init_func = dict_init_func
-        self.cases = cases
         self.str_literals = {}  #literals for string
         self.int_literals = {}  #literals for ints
 
