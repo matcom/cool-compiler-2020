@@ -14,6 +14,7 @@ class BaseCOOLToCILVisitor:
         self.current_function = None
         self.context = context
         self.vself = VariableInfo('self', None)
+        self.value_types = ['String', 'Int', 'Bool']
     
     @property
     def params(self):
@@ -325,6 +326,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         if node.expr:
             self.visit(node.expr, scope)
             self.register_instruction(cil.SetAttribNode(instance, node.id, scope.ret_expr, self.current_type))
+        elif node.type in self.value_types:
+            vtemp = self.define_internal_local()
+            self.register_instruction(cil.AllocateNode(node.type, vtemp))
+            self.register_instruction(cil.SetAttribNode(instance, node.id, vtemp, self.current_type))
         scope.ret_expr = instance
                 
     @visitor.when(cool.FuncDeclarationNode)
@@ -511,6 +516,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         if node.expr:
             self.visit(node.expr, scope)
             self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
+        elif node.type in self.value_types:
+            self.register_instruction(cil.AllocateNode(node.type, vname))
         
     @visitor.when(cool.AssignNode)
     def visit(self, node, scope):
