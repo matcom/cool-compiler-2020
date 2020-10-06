@@ -2,6 +2,7 @@ import ply.lex as lex
 import ply.yacc as yacc
 import os
 import sys
+from AST import *
 
 LexerError=False
 
@@ -290,6 +291,11 @@ mylex=lex.lex(debug=False)
 def p_program(p):
     '''program : classdec program
                | classdec'''
+    if len(p) == 3:
+        p[2].insert(0,p[1])
+        p[0] = ProgramNode(classes = p[2])
+    else:
+        p[0] = ProgramNode(classes = [p[2]])
     pass
 
 def p_empty(p):
@@ -299,16 +305,26 @@ def p_empty(p):
 def p_classdec(p):
     '''classdec : class type lbracket featurelist rbracket pcoma
                 | class type inherits type lbracket featurelist rbracket pcoma'''
+    if len(p)== 7:
+        p[0] = ClassNode(name = p[2], parent = "Object", features = p[4])
+    else:
+        p[0] = ClassNode(name = p[2], parent = p[4], features = p[6])
     pass
 
 def p_featurelist(p):
     '''featurelist : feature featurelist
                    | empty'''
+    if len(p) == 3:
+        p[2].insert(0,p[2])
+        p[0] = p[2]
+    else:
+        p[0] = []
     pass
 
 def p_feature(p):
     '''feature : attribute pcoma
                | methoddef pcoma'''
+    p[0] = p[1]
     pass
 
 def p_expression(p):
@@ -326,11 +342,17 @@ def p_expression(p):
                   | aritmetica
                   | comparison
                   | parenexpression'''
+    p[0] = p[1]
     pass
 
 def p_methoddef(p):
     '''methoddef : id lparen rparen dpoint type lbracket expression rbracket
                  | id lparen param paramslistdef rparen dpoint type lbracket expression rbracket'''
+    if len(p) == 9:
+        p[0] = MethodNode(name = p[1], parameters = [], return_type = p[5], body = p[7])
+    else:
+        p[4].insert( 0, p[3])
+        p[0] = MethodNode(name = p[1], parameters = p[4], return_type = p[7], body = p[9])
     pass
 
 def p_expressionlist(p):
@@ -341,24 +363,45 @@ def p_expressionlist(p):
             p[0].type=p[1].type
         else:
             p[0].type=p[3].type
+    if len(p)==4:
+        p[3].insert(0,p[1])
+        p[0] = p[3]
+    else:
+        p[0] = []
     pass
 
 def p_param(p):
     '''param : id dpoint type'''
+    p[0] = ParameterNode(name = p[1], param_type = p[3])
     pass
 
 def p_attribute(p):
     '''attribute : id dpoint type
                  | id dpoint type assign expression'''
+    if len(p)==4:
+        p[0] = AttributeNode(name = p[1], attr_type = p[3], value = None)
+    else:
+        p[0] = AttributeNode(name = p[1], attr_type = p[3], value = p[5])
     pass
 
 def p_letattributelist(p):
     '''letattributelist : coma attribute letattributelist
                         | empty'''
+    if len(p)==4:
+        p[3].insert(0,p[2])
+        p[0] = p[3]
+    else:
+        p[0] = []
+    pass
 
 def p_paramslistdef(p):
     '''paramslistdef : coma param paramslistdef
                      | empty'''
+    if len(p)==4:
+        p[3].insert(0,p[2])
+        p[0] = p[3]
+    else:
+        p[0] = []
     pass
 
 def p_dispatch(p):
@@ -368,6 +411,22 @@ def p_dispatch(p):
                 | expression point id lparen expression expressionparams rparen
                 | expression arroba type point id lparen rparen
                 | expression arroba type point id lparen expression expressionparams rparen'''
+    if p[3] == ')':
+        p[0] = DispatchNode(func_id = p[1], parameters = [], left_expr = None)
+    elif p[2] == '(':
+        p[4].insert(0,p[3])
+        p[0] = DispatchNode(func_id = p[1], parameters = p[4], left_expr = None)
+    elif p[5] == ')':
+        p[0] = DispatchNode(func_id = p[4], parameters = [], left_expr = p[1])
+    elif p[2] == '.':
+        p[6].insert(0,p[5])
+        p[0] = DispatchNode(func_id = p[3], parameters = p[6], left_expr = p[1])
+    elif len(p) == 7:
+        p[0] = StaticDispatchNode(func_id = p[5], parent_id = p[3] ,parameters = [], left_expr = p[1])
+    else:
+        p[8].insert(0,p[7])
+        p[0] = StaticDispatchNode(func_id = p[5], parent_id = p[3] ,parameters = p[8], left_expr = p[1])
+
     pass
 
 precedence=(
@@ -382,10 +441,16 @@ precedence=(
 def p_expressionparams(p):
     '''expressionparams : coma expression expressionparams
                         | empty'''
+    if len(p)==4:
+        p[3].insert(0,p[2])
+        p[0] = p[3]
+    else:
+        p[0] = []
     pass
 
 def p_conditional(p):
     '''conditional : if expression then expression else expression fi'''
+    p[0] = ConditionalNode(predicate = p[2], then_body = p[4], else_body = p[6])
     if p[2].type!="Bool":
         linea=1
         
@@ -402,6 +467,7 @@ def p_conditional(p):
 
 def p_loopexp(p):
     '''loopexp : while expression loop expression pool'''
+    p[0] = LoopNode(predicate = p[2], body = p[4])
     if p[2].type!="Bool":
         linea=1
         
@@ -418,28 +484,41 @@ def p_loopexp(p):
 
 def p_blockexp(p):
     '''blockexp : lbracket expressionlist rbracket'''#'''blockexp : lbracket expression pcoma expressionlist rbracket'''
+    p[0] = BlockNode(expressions = p[2])
     p[0].type=p[2].type
     pass
 
 def p_letexp(p):
     '''letexp : let attribute letattributelist in expression'''
+    p[3].insert(0,p[2])
+    p[0] = LetNode(declarations = p[3], in_body = p[5])
     pass
 
 def p_caseexp(p):
     '''caseexp : case expression of subcase listcase esac'''
+    p[5].insert(0,p[4]) 
+    p[0] = CaseNode(expression = p[2], subcases = p[5])
     pass
 
 def p_listcase(p):
     '''listcase : subcase listcase
                 | empty'''
+    if len(p)==3:
+        p[2].insert(0,p[1])
+        p[0] = p[2]
+    else:
+        p[0] = []
+    pass
     pass
 
 def p_subcase(p):
     '''subcase : id dpoint type implica expression pcoma'''
+    p[0] = SubCaseNode(name = p[1], sub_type = p[3], expression = p[5])
     pass
 
 def p_newexp(p):
     '''newexp : new type'''
+    p[0] = NewNode(new_type = p[2])
     pass
 
 def p_isvoidexp(p):
@@ -453,6 +532,16 @@ def p_aritmetica(p):
                   | expression mult expression
                   | expression div expression
                   | intnot expression'''
+    if p[2] == '+':
+        p[0] = PlusNode(left = p[1], right = p[3])
+    elif p[2] == '-':
+        p[0] = MinusNode(left = p[1], right = p[3])
+    elif p[2] == '*':
+        p[0] = MultNode(left = p[1], right = p[3])
+    elif p[2] == '/':
+        p[0] = DivNode(left = p[1], right = p[3])
+    else:
+        p[0] = IntComplementNode(value = p[2])
     
     if((p[1]=="~" and p[2].type!="Int") or (p[1].type!="Int" or p[3].type!="Int")):
         linea=1
@@ -473,6 +562,15 @@ def p_comparison(p):
                   | expression lesse expression
                   | expression equal expression
                   | not expression'''
+    if p[2] == '<':
+        p[0] = LesserNode(left = p[1], right = p[3])
+    elif p[2] == '<=':
+        p[0] = LesserEqualThanNode(left = p[1], right = p[3])
+    elif p[2] == '=':
+        p[0] = EqualNode(left = p[1], right = p[3])
+    else:
+        p[0] = BoolComplementNode(value = p[2])
+
     if((p[1].value=="not" and p[2].type!="Bool") or (p[1].type!="Int" or p[3].type!="Int") or (p[2].value=="equal" and p[1].type!=p[3].type)):
         linea=1
         
@@ -491,6 +589,7 @@ def p_comparison(p):
 
 def p_parenexpression(p):
     '''parenexpression : lparen expression rparen'''
+    p[0] = p[2]
     p[0].type=p[2].type
     pass
 
@@ -499,15 +598,24 @@ def p_constantexp(p):
                 | string
                 | true
                 | false'''
+    if p[1].type == "Int":
+        p[0] = IntegerNode(value = p[1])
+    elif p[1].type == "String":
+        p[0] = StringNode(value = p[1])
+    else:
+        p[1].type = "Bool"
+        p[0] = BoolNode(value = p[1])
     p[0].type=p[1].type
     pass
 
 def p_identifier(p):
     '''identifier : id'''
+    p[0] = VariableNode(var_id = p[1])
     pass
 
 def p_assignment(p):
     '''assignment : id assign expression'''
+    p[0] = AssignNode(variable = p[1], expr = p[3])
     p[0].id=p[1].value
     p[0].type=p[3].type
     pass
