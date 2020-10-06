@@ -150,8 +150,8 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
         self.register_instruction(cil.ReturnNode(instance))  
 
-        type_node.methods = [(name, self.to_function_name(name, 'IO')) for name in ['init', 'out_string', 'out_int', 'in_string', 'in_int']]
-        type_node.methods += [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
+        type_node.methods = [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
+        type_node.methods += [(name, self.to_function_name(name, 'IO')) for name in ['init', 'out_string', 'out_int', 'in_string', 'in_int']]
 
         #String
         type_node = self.register_type('String')
@@ -215,8 +215,8 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'String'), instance))
         self.register_instruction(cil.ReturnNode(instance))
 
-        type_node.methods = [(name, self.to_function_name(name, 'String')) for name in ['init', 'length', 'concat', 'substr']]
-        type_node.methods += [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
+        type_node.methods = [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
+        type_node.methods += [(name, self.to_function_name(name, 'String')) for name in ['init', 'length', 'concat', 'substr']]
 
         #Int
         type_node = self.register_type('Int')
@@ -229,8 +229,8 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.SetAttribNode(instance, 'value', 'val', 'Int'))
         self.register_instruction(cil.ReturnNode(instance))
 
-        type_node.methods = [('init', self.to_function_name('init', 'Int'))]
-        type_node.methods += [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
+        type_node.methods = [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
+        type_node.methods += [('init', self.to_function_name('init', 'Int'))]
 
     def register_runtime_error(self, condition, msg):
         error_node = self.register_label('error_label')
