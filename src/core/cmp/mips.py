@@ -324,6 +324,7 @@ def copy_object(reg1, reg2):
     instructions = []
     
     instructions.append(LoadWordNode(ARG_REGISTERS[0], RegisterRelativeLocation(reg1, 4)))
+    instructions.append(ShiftLeftLogicalNode(ARG_REGISTERS[0], ARG_REGISTERS[0], 2))
     instructions.append(JumpAndLinkNode("malloc"))
     instructions.append(MoveNode(ARG_REGISTERS[2], ARG_REGISTERS[0]))
     instructions.append(MoveNode(ARG_REGISTERS[0], reg1))

@@ -46,6 +46,9 @@ class AssignNode(InstructionNode):
     def __init__(self, dest, source):
         self.dest = dest
         self.source = source
+    
+    def __repr__(self):
+        return f"{self.dest} = {self.source}"
 
 class ArithmeticNode(InstructionNode):
     def __init__(self, dest, left, right):
@@ -72,7 +75,8 @@ class LessNode(ArithmeticNode):
     pass
 
 class EqualNode(ArithmeticNode):
-    pass
+    def __repr__(self):
+        return f"{self.dest} = {self.left} == {self.right}"
 
 class GetAttribNode(InstructionNode):
     def __init__(self, dest, obj, attr, computed_type):
@@ -80,6 +84,9 @@ class GetAttribNode(InstructionNode):
         self.obj = obj
         self.attr = attr
         self.computed_type = computed_type
+    
+    def __repr__(self):
+        return f"{self.dest} = GETATTR {self.obj} {self.attr}"
 
 class SetAttribNode(InstructionNode):
     def __init__(self, obj, attr, value, computed_type):
@@ -107,18 +114,30 @@ class TypeOfNode(InstructionNode):
         self.obj = obj
         self.dest = dest
 
+    def __repr__(self):
+        return f"{self.dest} = TYPEOF {self.obj}"
+
 class LabelNode(InstructionNode):
     def __init__(self, label):
         self.label = label
+    
+    def __repr__(self):
+        return f"LABEL {self.label}:"
 
 class GotoNode(InstructionNode):
     def __init__(self, label):
         self.label = label
+    
+    def __repr__(self):
+        return f"GOTO {self.label}"
 
 class GotoIfNode(InstructionNode):
     def __init__(self, condition, label):
         self.condition = condition
         self.label = label
+    
+    def __repr__(self):
+        return f"GOTO {self.label} if {self.condition}"
 
 class StaticCallNode(InstructionNode):
     def __init__(self, function, dest):
@@ -131,14 +150,23 @@ class DynamicCallNode(InstructionNode):
         self.method = method
         self.dest = dest
         self.computed_type = computed_type
+    
+    def __repr__(self):
+        return f"{self.dest} = VCALL {self.type} {self.method}"
 
 class ArgNode(InstructionNode):
     def __init__(self, name):
         self.name = name
 
+    def __repr__(self):
+        return f"ARG {self.name}"
+
 class ReturnNode(InstructionNode):
     def __init__(self, value=None):
         self.value = value
+    
+    def __repr__(self):
+        return f"RETURN {self.value}"
 
 class LoadNode(InstructionNode):
     def __init__(self, dest, msg):
@@ -208,6 +236,9 @@ class VoidNode(InstructionNode):
 class ErrorNode(InstructionNode):
     def __init__(self, data_node):
         self.data_node = data_node
+    
+    def __repr__(self):
+        return f"ERROR {self.data_node}"
 
 def get_formatter():
 
