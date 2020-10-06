@@ -5,6 +5,61 @@ import sys
 
 LexerError=False
 
+typesDic={}
+
+typeToTree={}
+
+visited=[]
+nodosReferidos=[]
+nodosDefinidos={}
+
+class ElementoAtributo():
+    def __init__(self,nombre,tipo, columna, linea):
+        self.nombre=nombre
+        self.tipo=tipo
+        self.columna=columna
+        self.linea=linea
+
+class ElementoClase():
+    def __init__(self,valor,padre,columna, linea,token,atributos={},hijos={}):
+        self.valor=valor
+        self.hijos=hijos
+        self.atributos=atributos
+        self.columna=columna
+        self.linea=linea
+        self.padre=padre
+        self.token=token
+
+    def RellenaHijos():
+        for nodo in nodosDefinidos.values:
+            if not nodo.padre in nodosDefinidos.keys:
+                print('('+str(self.linea)+', '+str(self.columna)+') - SemanticError: ERROR at or near "'+ str(self.token)+'"')#Padre no definido
+            else:
+                nodosDefinidos[nodo.padre].hijos[nodo.valor]=nodo
+
+    def HayCiclos(self):
+        if self.valor in visited:
+            return True
+        else:
+            visited.append(self.valor)
+
+        for hijo in self.hijos.values:
+            if hijo.HayCiclos():
+                return True
+        return False
+
+    def HayCiclosBase(self):
+        visited=[]
+        respuesta=self.HayCiclos()
+
+        for nodo in nodosDefinidos.values:
+            if not nodo.valor in visited:
+                print('('+str(nodo.linea)+', '+str(nodo.columna)+') - SemanticError: ERROR at or near "'+ str(nodo.token)+'"')
+
+
+nodosDefinidos["Object"]=ElementoClase("Object",None,0,0,"Object")
+
+
 #Welcome='Tiger and Buti Compiler 2020 0.2.0\nCopyright (c) 2019: José Gabriel Navarro Comabella, Alberto Helguera Fleitas'
 
 #print(Welcome)
@@ -171,8 +226,8 @@ def t_type(t):
     if t.value.lower() not in reserverd:
         t.type='type'
     else:
-        t.type=t.value.lower()
-        t.value=t.value.lower()
+        t.type=t.value
+        t.value=t.value
     return t
 
 def t_id(t):
@@ -180,8 +235,8 @@ def t_id(t):
     if t.value.lower() not in reserverd:
         t.type='id'
     else:
-        t.type=t.value.lower()
-        t.value=t.value.lower()
+        t.type=t.value
+        t.value=t.value
     return t
 
 def t_number(t):
@@ -299,6 +354,24 @@ def p_empty(p):
 def p_classdec(p):
     '''classdec : class type lbracket featurelist rbracket pcoma
                 | class type inherits type lbracket featurelist rbracket pcoma'''
+    
+    if p[4].value=='{':
+        padre="Object"
+    else:
+        padre=p[4].value
+
+    linea=0
+    columna=0
+    for i in range(p.lexpos):
+            if p.lexer.lexdata[i]=='\n':
+                linea+=1
+                columna=find_column(p.lexer.lexdata, p)
+
+    Nodo=ElementoClase(p[2].value,padre,columna)
+    if not Nodo.valor in nodosDefinidos.keys:
+        nodosDefinidos[Nodo.valor]=Nodo
+    else:
+        print('('+str(linea)+', '+str(columna)+') - SemanticError: ERROR at or near "'+ str(token)+'"')
     pass
 
 def p_featurelist(p):
@@ -350,6 +423,14 @@ def p_param(p):
 def p_attribute(p):
     '''attribute : id dpoint type
                  | id dpoint type assign expression'''
+    if p[1].value in typesDic.keys or p[3].value!=p[5].type:
+        for i in range(p.lexpos):
+            if p.lexer.lexdata[i]=='\n':
+                linea+=1
+                columna=find_column(p.lexer.lexdata, p)
+        
+        token=p.value
+        print('('+str(linea)+', '+str(columna)+') - SemanticError: ERROR at or near "'+ str(token)+'"')
     pass
 
 def p_letattributelist(p):
