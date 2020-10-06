@@ -233,6 +233,20 @@ class BaseCOOLToCILVisitor:
         type_node.methods = [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
         type_node.methods += [('init', self.to_function_name('init', 'Int'))]
 
+        #Bool
+        type_node = self.register_type('Bool')
+        type_node.attributes = ['value']
+
+        self.current_function = self.register_function(self.to_function_name('init', 'Bool'))
+        self.register_param(VariableInfo('val', None))
+        instance = self.define_internal_local()
+        self.register_instruction(cil.AllocateNode('Bool', instance))
+        self.register_instruction(cil.SetAttribNode(instance, 'value', 'val', 'Bool'))
+        self.register_instruction(cil.ReturnNode(instance))
+
+        type_node.methods = [(method, self.to_function_name(method, 'Object')) for method in obj_methods]
+        type_node.methods += [('init', self.to_function_name('init', 'Bool'))]
+
     def register_runtime_error(self, condition, msg):
         error_node = self.register_label('error_label')
         continue_node = self.register_label('continue_label')
@@ -895,6 +909,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         else:
             scope.ret_expr = 0
         instance = self.define_internal_local()
-        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
-        self.register_instruction(cil.SetAttribNode(instance, 'value', scope.ret_expr, 'Int'))
+        self.register_instruction(cil.ArgNode(scope.ret_expr))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Bool'), instance))
         scope.ret_expr = instance
