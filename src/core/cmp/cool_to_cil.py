@@ -250,7 +250,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     def buildHierarchy(self, t:str):
         if t == 'Object': return None
-        return {x.name for x in self.context.types.values() if x.conforms_to(self.context.get_type(t))}
+        return {x.name for x in self.context.types.values() if x.name != 'AUTO_TYPE' and x.conforms_to(self.context.get_type(t))}
             
     @visitor.on('node')
     def visit(self, node):
