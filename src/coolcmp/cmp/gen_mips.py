@@ -88,6 +88,7 @@ class DataSegment:
             self.code.append(Directive('.word', init.label))
             self.code.append(Directive('.word', init.type_obj))
             self.code.append(Directive('.word', self.str_literals[name]))
+            self.code.append(Directive('.word', len(init.attrs) + len(init.reserved_attrs)))
 
     def _add_str_literals(self):
         for lit, label in self.str_literals.items():
@@ -308,7 +309,46 @@ class GenMIPS:
         # save string object of type at result_reg
         self.code.append(Ins('lw', self.get_result_reg(), f'{4 * WORD}({self.get_temp_reg(0)})'))
 
-    def native_copy(self): pass
+    def native_copy(self):
+        # load address of _type_info attr at $t0
+        self.code.append(Ins('lw', self.get_temp_reg(0), f'0({self.get_self_reg()})'))
+
+        # save number of attrs at $t0
+        self.code.append(Ins('lw', self.get_temp_reg(0), f'{5 * WORD}({self.get_temp_reg(0)})'))
+
+        self.code.append(Ins('move', '$a0', self.get_temp_reg(0)))
+        self.code.append(Ins('mul', '$a0', '$a0', WORD))
+        self.code.append(Ins('jal', LABEL_RESERVE_MEMORY))
+
+        loop_starts = f'{LABEL_START_LOOP}{self.loops}'
+        self.loops += 1
+
+        loop_ends = f'{LABEL_END_LOOP}{self.loops}'
+        self.loops += 1
+
+        # iterator over attrs of self
+        self.code.append(Ins('la', self.get_temp_reg(1), f'({self.get_self_reg()})'))
+
+        # interator over attrs of newly created object
+        self.code.append(Ins('la', self.get_temp_reg(2), '($v0)'))
+
+        self.code.append(Label(f'{loop_starts}:'))
+
+        # as $t1 has i-th attr of self and $t2 has i-th attr of $v0 object
+        # then load content of $t1 and store it on $t2
+        self.code.append(Ins('lw', self.get_temp_reg(3), f'({self.get_temp_reg(1)})'))
+        self.code.append(Ins('sw', self.get_temp_reg(3), f'({self.get_temp_reg(2)})'))
+
+        self.code.append(Ins('addu', self.get_temp_reg(1), self.get_temp_reg(1), WORD))
+        self.code.append(Ins('addu', self.get_temp_reg(2), self.get_temp_reg(2), WORD))
+        self.code.append(Ins('sub', self.get_temp_reg(0), self.get_temp_reg(0), 1))
+
+        self.code.append(Ins('beqz', self.get_temp_reg(0), loop_ends))
+        self.code.append(Ins('b', loop_starts))
+
+        self.code.append(Label(f'{loop_ends}:'))
+
+        self.code.append(Ins('move', self.get_result_reg(), '$v0'))
 
     # from String
     def native_length(self):
