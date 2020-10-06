@@ -14,7 +14,7 @@ tokens = [
     "LPAREN", "RPAREN", "LBRACE", "RBRACE", "COLON", "COMMA", "DOT", "SEMICOLON", "AT",
 
     # Operators
-    "PLUS", "MINUS", "MULTIPLY", "DIVIDE", "EQ", "LT", "LTEQ", "ASSIGN", "INT_COMP", "NOT",
+    "PLUS", "MINUS", "MULTIPLY", "DIVIDE", "EQ", "LT", "LTEQ", "ASSIGN", "INT_COMP",
 
     # Special Operators
     "ARROW"
@@ -38,7 +38,7 @@ reserved = {
     'inherits':'INHERITS',
     'isvoid':'ISVOID',
     "self": "SELF",
-    "not" : "NOT"
+    "not": "NOT"
 }
 
 tokens += list(reserved.values())
@@ -88,7 +88,7 @@ def t_ID(token):
 # Utility definitions
 @TOKEN(r'\n+')
 def t_newline(t):
-    global readjust_col    
+    global readjust_col 
     readjust_col = t.lexpos + len(t.value)
     t.lexer.lineno += len(t.value)
 

@@ -24,29 +24,29 @@ class pyCoolParser:
         ('left', 'AT'),
         ('left', 'DOT')
     )
-    
+ 
     def p_program(self, p):
         """
         program : class_list
-        """        
-        
+        """
+ 
 
     def p_class_list(self, p):
         """
         class_list : class_list class SEMICOLON
                    | class SEMICOLON
-        """        
-        
+        """
+ 
     def p_class(self, p):
         """
         class : CLASS TYPE LBRACE features_list_opt RBRACE
-        """        
-        
+        """
+ 
     def p_class_inherits(self, p):
         """
         class : CLASS TYPE INHERITS TYPE LBRACE features_list_opt RBRACE
         """        
-        
+ 
     def p_feature_list_opt(self, p):
         """
         features_list_opt : features_list
@@ -103,7 +103,7 @@ class pyCoolParser:
     def p_expression_boolean_constant(self, p):
         """
         expression : BOOLEAN
-        """        
+        """
         
     def p_expression_string_constant(self, p):
         """
