@@ -1,5 +1,17 @@
 WORD = 4
 
+# static literals
+
+LABEL_ABORT_STR = '_static_abort'
+LABEL_SPACE = '_static_space'
+LABEL_ENDL = '_static_endl'
+
+static_literals = {
+    LABEL_ABORT_STR: 'Abort called from class',
+    LABEL_SPACE: ' ',
+    LABEL_ENDL: r'\n'
+}
+
 LABEL_STR_LITERAL = '_str_literal_'
 LABEL_INT_LITERAL = '_int_literal_'
 
@@ -14,6 +26,8 @@ LABEL_MAIN = 'main'
 # represents a loop start and end, they print as {LABEL_...}{id}
 LABEL_START_LOOP = '_loop_'
 LABEL_END_LOOP = '_end_loop_'
+
+# static errors literals
 
 LABEL_DISPATCH_VOID = '_err_dispatch_void'
 LABEL_CASE_VOID = '_err_case_void'

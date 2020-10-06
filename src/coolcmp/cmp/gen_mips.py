@@ -58,6 +58,7 @@ class DataSegment:
         self._add_int_literals()
         self._add_error_msgs()
         self._add_bools()
+        self._add_static_literals()
     
     def _fix_str(self, s):
         str_bytes = [ ord(c) for c in s ] + [0]
@@ -104,7 +105,7 @@ class DataSegment:
     def _add_error_msgs(self):
         for label, msg in rte_errors.items():
             self.code.append(Label(f'{label}:'))
-            self.code.append(Directive('.asciiz', f'"{msg}\\n"'))
+            self.code.append(Directive('.asciiz', f'"{msg}"'))
 
     def _add_bools(self):
         self.code.append(Label(f'{LABEL_BOOL_TRUE}:'))
@@ -114,6 +115,11 @@ class DataSegment:
         self.code.append(Label(f'{LABEL_BOOL_FALSE}:'))
         self.code.append(Directive('.word', 'Bool'))
         self.code.append(Directive('.word', 0))
+
+    def _add_static_literals(self):
+        for label, msg in static_literals.items():
+            self.code.append(Label(f'{label}:'))
+            self.code.append(Directive('.asciiz', f'"{msg}"'))
 
 class GenMIPS:
     def __init__(self, code, cil_code):
@@ -240,11 +246,18 @@ class GenMIPS:
         self.visit(FunctionCall(New('Main'), None, 'main', []))
         self.code.append(Ins('jal', LABEL_EXIT))
 
+    def _print_mips(self):
+        # assumes that message was passed at $a0
+        self.code.append(Ins('li', '$v0', 4))
+        self.code.append(Ins('syscall'))
+
     def _print_error_exit(self):
         # the error msg was passed at $a0
         self.code.append(Label(f'{LABEL_PRINT_ERROR_EXIT}:'))
-        self.code.append(Ins('li', '$v0', 4))
-        self.code.append(Ins('syscall'))
+        self._print_mips()
+
+        self.code.append(Ins('la', '$a0', LABEL_ENDL))
+        self._print_mips()
 
         # exit program with code 1 (indicating that an error ocurred)
         self.code.append(Ins('li', '$a0', 1))
@@ -262,7 +275,31 @@ class GenMIPS:
     # REMEMBER TO ADD RESULT FOR NATIVE FUNCTIONS TOO
 
     # from Object
-    def native_abort(self): pass
+    def native_abort(self):
+        self.code.append(Ins('la', '$a0', LABEL_ABORT_STR))
+        self._print_mips()
+
+        self.code.append(Ins('la', '$a0', LABEL_SPACE))
+        self._print_mips()
+
+        # load address of _type_info attr at $t0
+        self.code.append(Ins('lw', self.get_temp_reg(0), f'0({self.get_self_reg()})'))
+
+        # save string object of type at $t0
+        self.code.append(Ins('lw', self.get_temp_reg(0), f'{4 * WORD}({self.get_temp_reg(0)})'))
+
+        # get id of attribute _string_literal
+        idx = self.dict_init_func['String'].attr_dict['_string_literal']
+
+        # save the string adress to $a0
+        self.code.append(Ins('la', '$a0', f'{idx * WORD}({self.get_temp_reg(0)})'))
+        self._print_mips()
+
+        self.code.append(Ins('la', '$a0', LABEL_ENDL))
+        self._print_mips()
+
+        # exit program with code 0
+        self.code.append(Ins('jal', LABEL_EXIT))
 
     def native_type_name(self):
         # load address of _type_info attr at $t0
@@ -292,9 +329,7 @@ class GenMIPS:
 
         # save the string adress to $a0
         self.code.append(Ins('la', '$a0', f'{idx * WORD}($a0)'))
-
-        self.code.append(Ins('li', '$v0', 4))
-        self.code.append(Ins('syscall'))
+        self._print_mips()
 
         # the result of the body of this native function is current self
         self.code.append(Ins('move', self.get_result_reg(), self.get_self_reg()))

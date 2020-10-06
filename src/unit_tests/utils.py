@@ -87,5 +87,9 @@ def run_test_codegen(file, t=2):
                                                 f'My compiler gives:\n{mine.stderr}\n')
  
         else:
-            assert ref_output.endswith(USELESS_SUFFIX)
-            assert my_output + USELESS_SUFFIX == ref_output
+            if ref_output.startswith('Abort called from class'):
+                assert my_output.rstrip() == ref_output
+
+            else:
+                assert ref_output.endswith(USELESS_SUFFIX)
+                assert my_output + USELESS_SUFFIX == ref_output
