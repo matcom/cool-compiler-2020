@@ -223,26 +223,24 @@ class TypeChecker:
         for param in node.params:
             self.visit(param, method_scope)
 
-        for e in node.expr:
-            self.visit(e, method_scope)
+        self.visit(node.expr, method_scope)
 
-        last_expr = node.expr[-1]
-        last_expr_type = last_expr.computed_type
+        expr_type = node.expr.computed_type
 
         return_type = self.current_method.return_type
 
         if return_type.name == 'SELF_TYPE':
-            if not last_expr_type.conforms_to(self.current_type):
+            if not expr_type.conforms_to(self.current_type):
                 self.errors.append(INCOMPATIBLE_TYPES.replace(
-                    '%s', last_expr_type.name, 1).replace('%s', self.current_type.name, 1))
-        elif not last_expr_type.conforms_to(return_type):
+                    '%s', expr_type.name, 1).replace('%s', self.current_type.name, 1))
+        elif not expr_type.conforms_to(return_type):
             self.errors.append(INCOMPATIBLE_TYPES.replace(
-                '%s', last_expr_type.name, 1).replace('%s', return_type.name, 1))
+                '%s', expr_type.name, 1).replace('%s', return_type.name, 1))
 
     @visitor.when(AST.FormalParameter)
     def visit(self, node, scope):
         try:
-            node_type = self.context.get_type(node.type)
+            node_type = self.context.get_type(node.param_type)
             if node_type.name == 'SELF_TYPE':
                 self.errors.append(INVALID_SELF_TYPE)
                 node_type = ErrorType()
@@ -564,7 +562,7 @@ class TypeChecker:
     @visitor.when(AST.Identifier)
     def visit(self, node, scope):
         if scope.is_defined(node.name):
-            node_type = self.scope.find_variable(node.name).type
+            node_type = scope.find_variable(node.name).type
         else:
             self.errors.append(VARIABLE_NOT_DEFINED.replace(
                 '%s', node.name, 1))
@@ -601,8 +599,8 @@ class SemanticAnalyzer:
         builder.visit(self.ast)
 
         #'=============== CHECKING TYPES ================'
-        # checker = TypeChecker(context, self.errors)
-        # scope = checker.visit(self.ast)
+        checker = TypeChecker(context, self.errors)
+        checker.visit(self.ast)
 
 
 if __name__ == '__main__':

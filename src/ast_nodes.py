@@ -193,7 +193,8 @@ class IsVoid(Expr):
 
 
 class ArithmeticBinOp(Expr):
-    super(ArithmeticBinOp, self).__init__()
+    def __init__(self):
+        super(ArithmeticBinOp, self).__init__()
 
 
 class Sum(ArithmeticBinOp):
@@ -228,7 +229,8 @@ class Div(ArithmeticBinOp):
 
 
 class LogicBinOp(Expr):
-    super(LogicBinOp, self).__init__()
+    def __init__(self):
+        super(LogicBinOp, self).__init__()
 
 # <expression> ::= ~ <expression>
 
@@ -278,10 +280,10 @@ class Identifier(Expr):
         self.name = name
 
 
-# <expression> ::= SELF
-class SELF(Object):
-    def __init__(self):
-        super(SELF, self).__init__("SELF")
+# # <expression> ::= SELF
+# class SELF(Object):
+#     def __init__(self):
+#         super(SELF, self).__init__("SELF")
 
 
 # <expression> ::= INTEGER
