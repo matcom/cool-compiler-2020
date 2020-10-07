@@ -393,7 +393,6 @@ class GenMIPS:
         self.code.append(Ins('move', self.get_result_reg(), self.get_self_reg()))
 
     def native_in_string(self):
-        #TODO: need to complete it!
         loop_starts = f'{LABEL_START_LOOP}{self.loops}'
         self.loops += 1
 
@@ -557,7 +556,9 @@ class GenMIPS:
         # jump!
         self.code.append(Ins('jalr', self.get_result_reg()))
 
-    def _init_bool(self):
+    def native_Bool(self, node):
+        self.code.append(Label(f'{node.label}:'))
+
         # initialize Bool(false) at first
         self.code.append(Ins('la', self.get_result_reg(), LABEL_BOOL_FALSE))
 
@@ -570,12 +571,56 @@ class GenMIPS:
         self.code.append(Ins('jr', '$ra'))  #jump back to caller
         # either way, result reg has the address of correct Bool object
 
-    def visit_FuncInit(self, node):
+    def native_Int(self, node):
         self.code.append(Label(f'{node.label}:'))
 
-        if node.name == 'Bool':
-            self._init_bool()
+        self._allocate_stack(WORD)
+        self.code.append(Ins('sw', '$ra', '0($sp)'))
+
+        self._allocate_stack(WORD)
+        self.code.append(Ins('sw', self.get_self_reg(), '0($sp)'))
+
+        # Int only has reserved attrs
+        self.code.append(Ins('li', '$a0', WORD * len(node.reserved_attrs)))
+        self.code.append(Ins('jal', LABEL_RESERVE_MEMORY))
+
+        #saves address of object (ie. self), it is needed in the next visit calls
+        self.code.append(Ins('move', self.get_self_reg(), '$v0'))
+
+        for attr in node.reserved_attrs:  #visiting reserved_attrs
+            self.attr_idx = node.attr_dict[attr.ref.name]
+            self.static_data_label = node.name
+
+            self.visit(attr)
+
+        self.code.append(Ins('move', self.get_result_reg(), self.get_self_reg()))
+
+        self.code.append(Ins('lw', self.get_self_reg(), '0($sp)'))
+        self._deallocate_stack(WORD)
+
+        self.code.append(Ins('lw', '$ra', '0($sp)'))
+        self._deallocate_stack(WORD)
+
+        self.code.append(Ins('jr', '$ra'))
+
+    def visit_AttrIntLiteral(self, node):
+        #store int value passed in arg_reg in attr_idx position of attrs
+        self.code.append(Ins('sw', self.get_arg_reg(), f'{self.attr_idx * WORD}({self.get_self_reg()})'))
+
+    def native_String(self, node):
+        self.code.append(Label(f'{node.label}:'))
+
+    def visit_AttrStringLength(self, node): pass
+    def visit_AttrStringLiteral(self, node): pass
+
+    def visit_FuncInit(self, node):
+        if node.type_obj != TYPE_NOT_PRIMITIVE:
+            # dispatch to native func init
+            fn = getattr(self, 'native_' + node.name)
+            fn(node)
             return
+
+        self.code.append(Label(f'{node.label}:'))
 
         self._allocate_stack(WORD)  #for $ra
         self.code.append(Ins('sw', '$ra', '0($sp)'))  #save $ra at top of stack
@@ -653,14 +698,6 @@ class GenMIPS:
         assert self.attr_idx == 0
         self.code.append(Ins('la', self.get_temp_reg(0), self.static_data_label))
         self.code.append(Ins('sw', self.get_temp_reg(0), f'{self.attr_idx * WORD}({self.get_self_reg()})'))
-
-    def visit_AttrIntLiteral(self, node):
-        #store int value passed in arg_reg in attr_idx position of attrs
-        self.code.append(Ins('sw', self.get_arg_reg(), f'{self.attr_idx * WORD}({self.get_self_reg()})'))
-
-    def visit_AttrStringLength(self, node): pass
-    def visit_AttrStringLiteral(self, node): pass
-    def visit_AttrBoolLiteral(self, node): pass
 
     def visit_Binding(self, node):
         self.visit(node.expr)
