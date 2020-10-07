@@ -187,9 +187,6 @@ class ErrorType(Type):
 class ObjectType(Type):
     def __init__(self):
         Type.__init__(self, 'Object')
-        self.define_method('abort', [], [], 'Object')
-        self.define_method('type_name', [], [], 'String')
-        self.define_method('copy', [], [], 'SELF_TYPE')
 
     def bypass(self):
         return True
@@ -201,10 +198,6 @@ class ObjectType(Type):
 class IOType(Type):
     def __init__(self):
         Type.__init__(self, 'IO')
-        self.define_method('out_string', ['x'], ['String'], 'SELF_TYPE')
-        self.define_method('out_int', ['x'], ['Int'], 'SELF_TYPE')
-        self.define_method('in_string', [], [], 'String')
-        self.define_method('in_int', [], [], 'Int')
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, IOType)
@@ -214,9 +207,6 @@ class StringType(Type):
     def __init__(self):
         Type.__init__(self, 'String')
         self.sealed = True
-        self.define_method('length', [], [], 'Int')
-        self.define_method('concat', ['s'], ['String'], 'String')
-        self.define_method('substr', ['i', 'l'], ['Int', 'Int'], 'String')
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, StringType)
@@ -265,6 +255,21 @@ class Context:
         self.types['String'].set_parent(self.types['Object'])
         self.types['Int'].set_parent(self.types['Object'])
         self.types['Bool'].set_parent(self.types['Object'])
+
+        self.types['Object'].define_method('abort', [], [], self.types['Object'])
+        self.types['Object'].define_method('type_name', [], [], self.types['String'])
+        self.types['Object'].define_method('copy', [], [], self.types['SELF_TYPE'])
+
+        self.types['IO'].define_method('out_string', ['x'], [self.types['String']], self.types['SELF_TYPE'])
+        self.types['IO'].define_method('out_int', ['x'], [self.types['Int']], self.types['SELF_TYPE'])
+        self.types['IO'].define_method('in_string', [], [], self.types['String'])
+        self.types['IO'].define_method('in_int', [], [], self.types['Int'])
+
+        self.types['String'].define_method('length', [], [], self.types['Int'])
+        self.types['String'].define_method('concat', ['s'], [self.types['String']], self.types['String'])
+        self.types['String'].define_method('substr', ['i', 'l'], [self.types['Int'], self.types['Int']], self.types['String'])
+
+
 
     def create_type(self, node):
         if node.name in self.types:

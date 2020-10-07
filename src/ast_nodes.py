@@ -279,10 +279,10 @@ class Identifier(Expr):
         self.name = name
 
 
-# # <expression> ::= SELF
-# class SELF(Object):
-#     def __init__(self):
-#         super(SELF, self).__init__("SELF")
+# <expression> ::= SELF
+class SELF(Identifier):
+    def __init__(self):
+        super(SELF, self).__init__("self")
 
 
 # <expression> ::= INTEGER
