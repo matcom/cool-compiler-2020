@@ -236,7 +236,7 @@ class Parser():
         """
         expression : ID ASSIGN expression
         """
-        parse[0] = AST.AssingExpr(AST.Object(name=parse[1]), expr=parse[3])
+        parse[0] = AST.AssignExpr(instance=parse[1], expr=parse[3])
 
     # ######################### METHODS DISPATCH ######################################
 

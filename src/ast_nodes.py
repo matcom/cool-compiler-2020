@@ -64,7 +64,7 @@ class Expr(AST):
 
 class AssignExpr(Expr):
     def __init__(self, instance, expr):
-        super(AssingExpr, self).__init__()
+        super(AssignExpr, self).__init__()
         self.name = instance
         self.expr = expr
 
@@ -232,9 +232,8 @@ class LogicBinOp(Expr):
     def __init__(self):
         super(LogicBinOp, self).__init__()
 
+
 # <expression> ::= ~ <expression>
-
-
 class LogicalNot(Expr):
     def __init__(self, expr):
         super(LogicalNot, self).__init__()
