@@ -392,6 +392,7 @@ class TypeChecker:
         else_type = node.else_body.computed_type
 
         node.computed_type = then_type.join(else_type)
+  
 
     @visitor.when(AST.While)
     def visit(self, node, scope):
@@ -519,6 +520,19 @@ class TypeChecker:
 
     @visitor.when(AST.Not)
     def visit(self, node, scope):
+        node_type = self.context.get_type('Bool')
+
+        self.visit(node.expr, scope)
+        expr_type = node.expr.computed_type
+
+        if expr_type.name != 'Bool':            
+            self.errors.append(WRONG_TYPE.replace('%s', 'Bool', 1))
+            node_type = ErrorType()
+
+        node.computed_type = node_type
+
+    @visitor.when(AST.LogicalNot)
+    def visit(self, node, scope):
         node_type = self.context.get_type('Int')
 
         self.visit(node.expr, scope)
@@ -526,19 +540,6 @@ class TypeChecker:
 
         if expr_type.name != 'Int':
             self.errors.append(WRONG_TYPE.replace('%s', 'Int', 1))
-            node_type = ErrorType()
-
-        node.computed_type = node_type
-
-    @visitor.when(AST.LogicalNot)
-    def visit(self, node, scope):
-        node_type = self.context.get_type('Bool')
-
-        self.visit(node.expr, scope)
-        expr_type = node.expr.computed_type
-
-        if expr_type.name != 'Bool':
-            self.errors.append(WRONG_TYPE.replace('%s', 'Bool', 1))
             node_type = ErrorType()
 
         node.computed_type = node_type
