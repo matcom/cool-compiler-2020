@@ -392,7 +392,61 @@ class GenMIPS:
         # the result of the body of this native function is current self
         self.code.append(Ins('move', self.get_result_reg(), self.get_self_reg()))
 
-    def native_in_string(self): pass
+    def native_in_string(self):
+        #TODO: need to complete it!
+        loop_starts = f'{LABEL_START_LOOP}{self.loops}'
+        self.loops += 1
+
+        loop_ends = f'{LABEL_END_LOOP}{self.loops}'
+        self.loops += 1
+
+        # save old $fp
+        self._allocate_stack(WORD)
+        self.code.append(Ins('sw', '$fp', '0($sp)'))
+
+        # set frame pointer to first position of string
+        self.code.append(Ins('subu', '$fp', '$sp', 1))
+
+        # total of bytes
+        self.code.append(Ins('li', self.get_temp_reg(0), 0))
+
+        self.code.append(Label(f'{loop_starts}:'))
+
+        self.code.append(Ins('li', '$v0', 12))
+        self.code.append(Ins('syscall'))
+
+        # if it's '\n' then break
+        self.code.append(Ins('beq', '$v0', '0xa', loop_ends))
+
+        # save byte
+        self._allocate_stack(1)
+        self.code.append(Ins('sb', '$v0', '0($sp)'))
+
+        # add 1
+        self.code.append(Ins('add', self.get_temp_reg(0), self.get_temp_reg(0), 1))
+        self.code.append(Ins('b', loop_starts))
+
+        self.code.append(Label(f'{loop_ends}:'))
+
+        #TODO: mult de 4
+
+        # save total of bytes (including padding)
+        self._allocate_stack(WORD)
+        self.code.append(Ins('sw', self.get_temp_reg(0), '0($sp)'))
+
+        # initialize
+        self.code.append(Ins('jal', self.dict_init_func['String'].label))
+
+        # load total of bytes
+        self.code.append(Ins('lw', self.get_temp_reg(0), '0($sp)'))
+        self._deallocate_stack(WORD)
+
+        # deallocate $t0 bytes (same amount you allocated)
+        self.code.append(Ins('addu', '$fp', '$fp', self.get_temp_reg(0)))
+
+        # get old $fp from stack
+        self.code.append(Ins('lw', '$fp', '0($sp)'))
+        self._deallocate_stack(WORD)
 
     def native_in_int(self):
         self.code.append(Ins('li', '$v0', 5))
