@@ -1,6 +1,10 @@
+from cil_types_collector import CILTypesCollector
+from cil_data_collector import CILDataCollector
+from cil_code_builder import CILCodeBuilder
+
 if __name__ == '__main__':
     import sys
-    from parser import Parser
+    from cparser import Parser
 
     parser = Parser()
 
@@ -26,4 +30,6 @@ if __name__ == '__main__':
         build_cil_ast(cool_ast)
 
 def build_cil_ast(cool_ast):
-    pass
+    cil_types_collector = CILTypesCollector() 
+    cil_data_collector = CILDataCollector() 
+    cil_code_builder = CILCodeBuilder()
