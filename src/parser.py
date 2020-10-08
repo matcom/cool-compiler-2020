@@ -3,6 +3,7 @@ import ast_nodes as AST
 import lexer
 from lexer import Lexer
 
+
 class ErrorParser():
     def __init__(self, message, line, column):
         self.type = 'SyntacticError'
@@ -15,6 +16,7 @@ class ErrorParser():
 
     def __repr__(self):
         return str(self)
+
 
 class Parser():
     def __init__(self,
@@ -90,7 +92,7 @@ class Parser():
         program : class_list
         """
         parse[0] = AST.Program(classes=parse[1])
-        
+
     def p_class_list(self, parse):
         """
         class_list : class_list class SEMICOLON
@@ -134,29 +136,32 @@ class Parser():
         """
         feature : ID LPAREN formal_params_list RPAREN COLON TYPE LBRACE expression RBRACE
         """
-        parse[0] = AST.ClassMethod(name=parse[1], params=parse[3], return_type=parse[6], expr=parse[8])
+        parse[0] = AST.ClassMethod(
+            name=parse[1], params=parse[3], return_type=parse[6], expr=parse[8])
 
     def p_feature_method_no_formals(self, parse):
         """
         feature : ID LPAREN RPAREN COLON TYPE LBRACE expression RBRACE
         """
-        parse[0] = AST.ClassMethod(name=parse[1], params=tuple(), return_type=parse[5], expr=parse[7])
+        parse[0] = AST.ClassMethod(
+            name=parse[1], params=tuple(), return_type=parse[5], expr=parse[7])
 
     def p_feature_attr_initialized(self, parse):
         """
         feature : attribute_init
         """
         parse[0] = parse[1]
-    
+
     def p_atrribute_init(self, parse):
         """
         attribute_init : ID COLON TYPE ASSIGN expression 
                        | attribute_def
-        """ 
+        """
         if len(parse) == 2:
             parse[0] = parse[1]
         else:
-            parse[0] = AST.AttributeInit(name=parse[1], Type=parse[3], expr=parse[5])
+            parse[0] = AST.AttributeInit(
+                name=parse[1], Type=parse[3], expr=parse[5])
 
     def p_feature_attr(self, parse):
         """
@@ -184,7 +189,7 @@ class Parser():
         """
         expression : ID
         """
-        parse[0] = AST.Object(name=parse[1])
+        parse[0] = AST.Identifier(name=parse[1])
 
     def p_expression_integer_constant(self, parse):
         """
@@ -239,7 +244,8 @@ class Parser():
         """
         expression : expression DOT ID LPAREN arguments_list_opt RPAREN
         """
-        parse[0] = AST.DynamicCall(instance=parse[1], method=parse[3], args=parse[5])
+        parse[0] = AST.DynamicCall(
+            instance=parse[1], method=parse[3], args=parse[5])
 
     def p_arguments_list_opt(self, parse):
         """
@@ -262,13 +268,15 @@ class Parser():
         """
         expression : expression AT TYPE DOT ID LPAREN arguments_list_opt RPAREN
         """
-        parse[0] = AST.StaticCall(instance=parse[1], static_type=parse[3], method=parse[5], args=parse[7])
+        parse[0] = AST.StaticCall(
+            instance=parse[1], static_type=parse[3], method=parse[5], args=parse[7])
 
     def p_expression_self_dispatch(self, parse):
         """
         expression : ID LPAREN arguments_list_opt RPAREN
         """
-        parse[0] = AST.DynamicCall(instance=AST.SELF(), method=parse[1], args=parse[3])
+        parse[0] = AST.DynamicCall(
+            instance=AST.SELF(), method=parse[1], args=parse[3])
 
     # ######################### PARENTHESIZED, MATH & COMPARISONS #####################
 
@@ -313,7 +321,8 @@ class Parser():
         """
         expression : IF expression THEN expression ELSE expression FI
         """
-        parse[0] = AST.If(predicate=parse[2], then_body=parse[4], else_body=parse[6])
+        parse[0] = AST.If(predicate=parse[2],
+                          then_body=parse[4], else_body=parse[6])
 
     def p_expression_while_loop(self, parse):
         """
@@ -384,7 +393,8 @@ class Parser():
         """
         action : ID COLON TYPE ARROW expression SEMICOLON
         """
-        parse[0] = AST.Action(name=parse[1], action_type=parse[3], body=parse[5])
+        parse[0] = AST.Action(
+            name=parse[1], action_type=parse[3], body=parse[5])
 
     # ######################### UNARY OPERATIONS #######################################
 
@@ -411,7 +421,7 @@ class Parser():
         expression : NOT expression
         """
         parse[0] = AST.Not(parse[2])
-    
+
     def p_empty(self, parse):
         """
         empty :
@@ -430,7 +440,8 @@ class Parser():
             return
 
         message = f'"{parse.value}"'
-        error = ErrorParser(message, parse.lineno, lexer.find_column(parse.lexer.lexdata, parse))
+        error = ErrorParser(message, parse.lineno,
+                            lexer.find_column(parse.lexer.lexdata, parse))
         self.errors.append(error)
         self.parser.errok()
 
@@ -465,7 +476,7 @@ class Parser():
             errorlog = kwargs.get("errorlog", self._errorlog)
 
         self.lexer = Lexer(debug=debug, optimize=optimize, outputdir=outputdir, debuglog=debuglog,
-                                errorlog=errorlog)
+                           errorlog=errorlog)
 
         # Expose tokens collections to this instance scope
         self.tokens = self.lexer.tokens
@@ -481,7 +492,8 @@ class Parser():
         :return: Parser output.
         """
         if self.parser is None:
-            raise ValueError("Parser was not build, try building it first with the build() method.")
+            raise ValueError(
+                "Parser was not build, try building it first with the build() method.")
 
         return self.parser.parse(program_source_code)
 
