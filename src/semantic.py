@@ -125,6 +125,11 @@ class Type:
         all_attributes = self.parent and self.parent.get_all_attributes() or []
         all_attributes += self.attributes
         return all_attributes
+    
+    def get_all_methods(self):
+        all_methods = self.parent and self.parent.get_all_methods() or []
+        all_methods += self.methods
+        return all_methods
 
     def conforms_to(self, other):
         return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
