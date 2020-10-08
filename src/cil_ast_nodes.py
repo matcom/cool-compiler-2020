@@ -10,11 +10,11 @@ class Program(AST):
         self.code = [] # list of AST.Function
 
 class Type(AST):
-    def __init__(self, name):
+    def __init__(self, name, atrributes, methods):
         super(Type, self).__init__()
         self.name = name
-        self.attributes = []
-        self.methods = []
+        self.attributes = atrributes
+        self.methods = methods
 
 class Attribute(AST):
     def __init__(self, name):
@@ -22,7 +22,7 @@ class Attribute(AST):
         self.name = name
 
 class Method(AST):
-    def __init__(self, name):
+    def __init__(self, method_name, cil_function):
         super(Method, self).__init__()
-        self.method_name = name
-        self.cil_function = None
+        self.method_name = method_name
+        self.cil_function = cil_function
