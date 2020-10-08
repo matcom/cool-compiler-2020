@@ -27,9 +27,9 @@ class Method:
         self.return_type = return_type
 
     def __str__(self):
-        params = ', '.join(f'{n}:{t}' for n, t in zip(
+        params = ', '.join(f'{n}:{t.name}' for n, t in zip(
             self.param_names, self.param_types))
-        return f'[method] {self.name}({params}): {self.return_type};'
+        return f'[method] {self.name}({params}): {self.return_type.name};'
 
     def __eq__(self, other):
         return other.name == self.name and \
@@ -134,8 +134,11 @@ class Type:
         """
         Return the least type C such as self <= C and other <= C
         """
+        print(type(self))
+        print(type(other))
         if self.name == other.name:  # A |_| A = A
             return self
+
 
         other_path = other.ancestors_path()
         for p in self.ancestors_path():
@@ -144,13 +147,16 @@ class Type:
                     return p
         return other
 
-    def multiple_join(self, *args):
+    def multiple_join(self, args):
         """
         Return the least type C such as all type in *args conforms with C
         """
         least_type = self
+    
         for t in args:
             least_type = least_type.join(t)
+
+        print("final:", least_type)
         return least_type
 
     def __str__(self):

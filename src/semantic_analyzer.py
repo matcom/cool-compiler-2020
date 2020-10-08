@@ -374,7 +374,7 @@ class TypeChecker:
             for j in range(i, len(action_expr_types)):
                 if action_expr_types[i] == action_expr_types[j]:
                     self.errors.append(
-                        f'Variables "{node.action[i].name}" and "{node.action[j].name}" must have different types')
+                        f'Variables "{node.actions[i].name}" and "{node.actions[j].name}" must have different types')
 
         node.computed_type = node_type
 
@@ -388,7 +388,7 @@ class TypeChecker:
 
         scope.define_variable(node.name, action_type)
 
-        self.visit(node.body)
+        self.visit(node.body, scope)
         node.computed_type = node.body.computed_type
 
     @visitor.when(AST.If)
@@ -605,10 +605,9 @@ class SemanticAnalyzer:
     def analyze(self):
         #'============== COLLECTING TYPES ==============='
         collector = TypeCollector(self.errors)
+
         collector.visit(self.ast)
         context = collector.context
-
-        print(context)
 
         # #'=============== BUILDING TYPES ================'
         builder = TypeBuilder(context, self.errors)
