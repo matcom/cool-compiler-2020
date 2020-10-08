@@ -20,7 +20,7 @@ if __name__ == '__main__':
         if parser.errors:
             print(parser.errors)
         
-        if parser.errors
+        if parser.errors:
             exit(1)
 
         semantic_analyzer = SemanticAnalyzer(cool_ast)
@@ -28,7 +28,8 @@ if __name__ == '__main__':
 
         for e in semantic_analyzer.errors:
             print(e)
-        if semantic_analyzer.errors    
+
+        if semantic_analyzer.errors:    
             exit(1)
         
         build_cil_ast(cool_ast, context)
