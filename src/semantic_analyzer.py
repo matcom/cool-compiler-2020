@@ -603,6 +603,7 @@ class SemanticAnalyzer:
         #'=============== CHECKING TYPES ================'
         # checker = TypeChecker(context, self.errors)
         # scope = checker.visit(self.ast)
+        return context
 
 
 if __name__ == '__main__':
