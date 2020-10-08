@@ -5,6 +5,7 @@ from cil_code_builder import CILCodeBuilder
 if __name__ == '__main__':
     import sys
     from cparser import Parser
+    from semantic_analyzer import SemanticAnalyzer
 
     parser = Parser()
 
