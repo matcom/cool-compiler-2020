@@ -2,6 +2,8 @@ from cil_types_collector import CILTypesCollector
 from cil_data_collector import CILDataCollector
 from cil_code_builder import CILCodeBuilder
 
+import cil_ast_nodes as CIL_AST
+
 if __name__ == '__main__':
     import sys
     from cparser import Parser
@@ -32,9 +34,12 @@ if __name__ == '__main__':
         if semantic_analyzer.errors:    
             exit(1)
         
-        build_cil_ast(cool_ast, context)
+        cil_ast = build_cil_ast(cool_ast, context)
 
 def build_cil_ast(cool_ast, context):
-    cil_types_collector = CILTypesCollector() 
-    cil_data_collector = CILDataCollector() 
-    cil_code_builder = CILCodeBuilder()
+    cil_ast = CIL_AST.Program()
+    cil_types_collector = CILTypesCollector(cil_ast) 
+    cil_data_collector = CILDataCollector(cil_ast) 
+    cil_code_builder = CILCodeBuilder(cil_ast)
+
+    return cil_ast
