@@ -4,6 +4,14 @@ from cil_code_builder import CILCodeBuilder
 
 import cil_ast_nodes as CIL_AST
 
+def build_cil_ast(cool_ast, context):
+    cil_ast = CIL_AST.Program()
+    cil_types_collector = CILTypesCollector(cil_ast, context) 
+    cil_data_collector = CILDataCollector(cil_ast, context) 
+    cil_code_builder = CILCodeBuilder(cil_ast, context)
+
+    return cil_ast
+
 if __name__ == '__main__':
     import sys
     from cparser import Parser
@@ -35,11 +43,3 @@ if __name__ == '__main__':
             exit(1)
         
         cil_ast = build_cil_ast(cool_ast, context)
-
-def build_cil_ast(cool_ast, context):
-    cil_ast = CIL_AST.Program()
-    cil_types_collector = CILTypesCollector(cil_ast) 
-    cil_data_collector = CILDataCollector(cil_ast) 
-    cil_code_builder = CILCodeBuilder(cil_ast)
-
-    return cil_ast
