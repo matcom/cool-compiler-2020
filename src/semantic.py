@@ -134,11 +134,9 @@ class Type:
         """
         Return the least type C such as self <= C and other <= C
         """
-        print(type(self))
-        print(type(other))
+
         if self.name == other.name:  # A |_| A = A
             return self
-
 
         other_path = other.ancestors_path()
         for p in self.ancestors_path():
@@ -149,11 +147,14 @@ class Type:
 
     def multiple_join(self, args):
         """
-        Return the least type C such as all type in *args conforms with C
+        Return the least type C such as all type in args conforms with C
         """
         least_type = self
     
         for t in args:
+            if isinstance(least_type, ErrorType) or isinstance(t, ErrorType):
+                least_type = ErrorType()
+                return least_type
             least_type = least_type.join(t)
 
         print("final:", least_type)
