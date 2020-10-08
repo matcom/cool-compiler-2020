@@ -53,11 +53,11 @@ class TypeBuilder:
         self.current_type = None
         self.errors = errors
         self.sort = []  # topologic sort for all types defined
-        # types visited in the graph by the DFS
-        self.visited = {key: False for key in self.context.graph.keys()}
+        self.visited = {key: False for key in self.context.graph.keys()} # types visited in the graph by the DFS
 
     def visit_component(self, actual_type):
         self.sort.append(actual_type)
+        self.visited[actual_type] = True
         for children in self.context.graph[actual_type]:
             self.visit_component(children)
 
@@ -72,6 +72,12 @@ class TypeBuilder:
             self.errors.append("The graph of types is not a tree")
         for v in roots:
             self.visit_component(v)
+        
+        for t in self.visited:
+            if not self.visited[t] and not t in BUILTIN_TYPES:
+                self.errors.append("Exist a cycle that start in type {}".format(t))
+                break
+               
 
     @visitor.on('node')
     def visit(self, node):
@@ -88,6 +94,12 @@ class TypeBuilder:
                     self.errors.append("The class {} not exist".format(t))
                 else:
                     self.visit(class_node)
+        if not self.context.types.__contains__('Main'):
+            self.errors.append("The class Main is not defined")
+        else:
+            if not self.context.types['Main'].methods.__contains__('main'):
+                self.errors.append("The main method is not defined in class Main")
+
 
     @visitor.when(AST.Class)
     def visit(self, node):
@@ -257,6 +269,7 @@ class TypeChecker:
     def visit(self, node, scope):
         self.visit(node.instance, scope)
         instance_type = node.instance.computed_type
+
         if instance_type.name == 'SELF_TYPE':
             instance_type = scope.find_variable('self').type
         try:
@@ -595,9 +608,12 @@ class SemanticAnalyzer:
         collector.visit(self.ast)
         context = collector.context
 
+        print(context)
+
         # #'=============== BUILDING TYPES ================'
         builder = TypeBuilder(context, self.errors)
         builder.visit(self.ast)
+
 
         #'=============== CHECKING TYPES ================'
         checker = TypeChecker(context, self.errors)
