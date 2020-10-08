@@ -17,19 +17,22 @@ if __name__ == '__main__':
         cool_ast = parser.parse(cool_program_code)
 
         if parser.errors:
-            print(parser.errors[0])
+            print(parser.errors)
+        
+        if parser.errors
             exit(1)
 
-        # semantic_analyzer = SemanticAnalyzer(cool_ast)
-        # semantic_analyzer.analyze()
+        semantic_analyzer = SemanticAnalyzer(cool_ast)
+        context = semantic_analyzer.analyze()
 
-        # for e in semantic_analyzer.errors:
-        #     print(e)
-        #     exit(1)
+        for e in semantic_analyzer.errors:
+            print(e)
+        if semantic_analyzer.errors    
+            exit(1)
         
-        build_cil_ast(cool_ast)
+        build_cil_ast(cool_ast, context)
 
-def build_cil_ast(cool_ast):
+def build_cil_ast(cool_ast, context):
     cil_types_collector = CILTypesCollector() 
     cil_data_collector = CILDataCollector() 
     cil_code_builder = CILCodeBuilder()
