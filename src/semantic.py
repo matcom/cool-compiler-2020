@@ -128,7 +128,7 @@ class Type:
     
     def get_all_methods(self):
         all_methods = self.parent and self.parent.get_all_methods() or []
-        all_methods += self.methods
+        all_methods += (self.name, self.methods)
         return all_methods
 
     def conforms_to(self, other):
