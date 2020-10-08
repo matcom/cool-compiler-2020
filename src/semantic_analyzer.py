@@ -680,7 +680,7 @@ class SemanticAnalyzer:
 
 if __name__ == '__main__':
     import sys
-    from parser import Parser
+    from cparser import Parser
 
     parser = Parser()
 

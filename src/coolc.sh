@@ -9,5 +9,5 @@ echo "Copyright (c) 2020: Dalianys Perez, Dayany Alfaro, Gilberto Gonzalez"    #
 
 # Llamar al compilador
 #echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
-python3 lexer.py $INPUT_FILE
-python3 parser.py $INPUT_FILE
+python lexer.py $INPUT_FILE
+python cparser.py $INPUT_FILE
