@@ -92,15 +92,25 @@ class DataSegment:
 
     def _add_str_literals(self):
         for lit, label in self.str_literals.items():
+            fixed_str = self._fix_str(lit)
+            size = len(fixed_str)
+
+            # the -1 is for _string_literal attr
+            size += (len(self.dict_init_func['String'].reserved_attrs) - 1) * WORD
+
             self.code.append(Label(f'{label}:'))
             self.code.append(Directive('.word', 'String'))
+            self.code.append(Directive('.word', size))
             self.code.append(Directive('.word', self.int_literals[len(lit)]))
-            self.code.append(Directive('.byte', *self._fix_str(lit)))
+            self.code.append(Directive('.byte', *fixed_str))
 
     def _add_int_literals(self):
         for lit, label in self.int_literals.items():
+            size = len(self.dict_init_func['Int'].reserved_attrs) * WORD
+
             self.code.append(Label(f'{label}:'))
             self.code.append(Directive('.word', 'Int'))
+            self.code.append(Directive('.word', size))
             self.code.append(Directive('.word', lit))
 
     def _add_error_msgs(self):
@@ -109,12 +119,16 @@ class DataSegment:
             self.code.append(Directive('.asciiz', f'"{msg}"'))
 
     def _add_bools(self):
+        size = len(self.dict_init_func['Bool'].reserved_attrs) * WORD
+
         self.code.append(Label(f'{LABEL_BOOL_TRUE}:'))
         self.code.append(Directive('.word', 'Bool'))
+        self.code.append(Directive('.word', size))
         self.code.append(Directive('.word', 1))
 
         self.code.append(Label(f'{LABEL_BOOL_FALSE}:'))
         self.code.append(Directive('.word', 'Bool'))
+        self.code.append(Directive('.word', size))
         self.code.append(Directive('.word', 0))
 
     def _add_static_literals(self):
@@ -309,22 +323,61 @@ class GenMIPS:
         # save string object of type at result_reg
         self.code.append(Ins('lw', self.get_result_reg(), f'{4 * WORD}({self.get_temp_reg(0)})'))
 
+    def _copy_bool(self):
+        # return self (Bool is singleton :) ) 
+        self.code.append(Ins('move', self.get_result_reg(), self.get_self_reg()))
+
+    def _copy_string(self):
+        #TODO
+        pass
+
     def native_copy(self):
-        # load address of _type_info attr at $t0
-        self.code.append(Ins('lw', self.get_temp_reg(0), f'0({self.get_self_reg()})'))
+        not_bool_branch = f'{LABEL_BRANCH}{self.branches}'
+        self.branches += 1
 
-        # save number of attrs at $t0
-        self.code.append(Ins('lw', self.get_temp_reg(0), f'{5 * WORD}({self.get_temp_reg(0)})'))
+        bool_out_branch = f'{LABEL_BRANCH}{self.branches}'
+        self.branches += 1
 
-        self.code.append(Ins('move', '$a0', self.get_temp_reg(0)))
-        self.code.append(Ins('mul', '$a0', '$a0', WORD))
-        self.code.append(Ins('jal', LABEL_RESERVE_MEMORY))
+        not_string_branch = f'{LABEL_BRANCH}{self.branches}'
+        self.branches += 1
 
         loop_starts = f'{LABEL_START_LOOP}{self.loops}'
         self.loops += 1
 
         loop_ends = f'{LABEL_END_LOOP}{self.loops}'
         self.loops += 1
+
+        # load address of _type_info attr at $t0
+        self.code.append(Ins('lw', self.get_temp_reg(0), f'0({self.get_self_reg()})'))
+
+        # save type_obj (it has position 3) at $t4
+        self.code.append(Ins('lw', self.get_temp_reg(4), f'{3 * WORD}({self.get_temp_reg(0)})'))
+        
+        # check if it's not Bool
+        self.code.append(Ins('bne', self.get_temp_reg(4), TYPE_BOOL, not_bool_branch))
+
+        # bool has a different copy semantics (because it's implemented as a singleton)
+        self._copy_bool()
+        self.code.append(Ins('b', bool_out_branch)) # get out
+
+        self.code.append(Label(f'{not_bool_branch}:'))
+
+        # save number of attrs at $t0
+        self.code.append(Ins('lw', self.get_temp_reg(0), f'{5 * WORD}({self.get_temp_reg(0)})'))
+
+        # save size of object (in bytes) at $a0, it will be at position 1 (the attr)
+        self.code.append(Ins('lw', '$a0', f'{WORD}({self.get_self_reg()})'))
+        self.code.append(Ins('jal', LABEL_RESERVE_MEMORY))
+        
+        # check if it's not String
+        self.code.append(Ins('bne', self.get_temp_reg(4), TYPE_STRING, not_string_branch))
+
+        # string has a different copy semantics (well string is complicated :facepalm:)
+        # yet it will use $v0 reference to store copy of string!
+        self._copy_string()
+        self.code.append(Ins('b', loop_ends))  # get out
+
+        self.code.append(Label(f'{not_string_branch}:'))
 
         # iterator over attrs of self
         self.code.append(Ins('la', self.get_temp_reg(1), f'({self.get_self_reg()})'))
@@ -349,6 +402,9 @@ class GenMIPS:
         self.code.append(Label(f'{loop_ends}:'))
 
         self.code.append(Ins('move', self.get_result_reg(), '$v0'))
+
+        # if it was bool then get out, result is saved at result_reg
+        self.code.append(Label(f'{bool_out_branch}:'))
 
     # from String
     def native_length(self):
@@ -393,6 +449,8 @@ class GenMIPS:
         self.code.append(Ins('move', self.get_result_reg(), self.get_self_reg()))
 
     def native_in_string(self):
+        #TODO: need to complete it!
+
         loop_starts = f'{LABEL_START_LOOP}{self.loops}'
         self.loops += 1
 
@@ -587,6 +645,9 @@ class GenMIPS:
         #saves address of object (ie. self), it is needed in the next visit calls
         self.code.append(Ins('move', self.get_self_reg(), '$v0'))
 
+        # to initialize attr size_info
+        self.size_info = WORD * len(node.reserved_attrs)
+
         for attr in node.reserved_attrs:  #visiting reserved_attrs
             self.attr_idx = node.attr_dict[attr.ref.name]
             self.static_data_label = node.name
@@ -636,6 +697,9 @@ class GenMIPS:
 
         #saves address of object (ie. self), it is needed in the next visit calls
         self.code.append(Ins('move', self.get_self_reg(), '$v0'))
+
+        # to initialize attr size_info
+        self.size_info = WORD * tot_attrs
 
         for attr in node.reserved_attrs:  #visiting reserved_attrs
             self.attr_idx = node.attr_dict[attr.ref.name]
@@ -697,6 +761,12 @@ class GenMIPS:
 
         assert self.attr_idx == 0
         self.code.append(Ins('la', self.get_temp_reg(0), self.static_data_label))
+        self.code.append(Ins('sw', self.get_temp_reg(0), f'{self.attr_idx * WORD}({self.get_self_reg()})'))
+
+    def visit_AttrSizeInfo(self, node):
+        assert self.attr_idx == 1
+
+        self.code.append(Ins('li', self.get_temp_reg(0), self.size_info))
         self.code.append(Ins('sw', self.get_temp_reg(0), f'{self.attr_idx * WORD}({self.get_self_reg()})'))
 
     def visit_Binding(self, node):
