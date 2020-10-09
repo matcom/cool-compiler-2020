@@ -262,6 +262,10 @@ def get_formatter():
 
             return f'type {node.name} {{\n\t{attributes}\n\n\t{methods}\n}}'
 
+        @visitor.when(DataNode)
+        def visit(self, node):
+            return f'{node.name} = {node.value}'
+
         @visitor.when(FunctionNode)
         def visit(self, node):
             params = '\n\t'.join(self.visit(x) for x in node.params)
@@ -298,6 +302,26 @@ def get_formatter():
         def visit(self, node):
             return f'{node.dest} = {node.left} / {node.right}'
 
+        @visitor.when(LessEqualNode)
+        def visit(self, node):
+            return f'{node.dest} = {node.left} <= {node.right}'
+
+        @visitor.when(LessNode)
+        def visit(self, node):
+            return f'{node.dest} = {node.left} < {node.right}'
+
+        @visitor.when(EqualNode)
+        def visit(self, node):
+            return f'{node.dest} = {node.left} == {node.right}'
+
+        @visitor.when(GetAttribNode)
+        def visit(self, node):
+            return f'{node.dest} = GETATTR {node.obj} {node.attr}'
+
+        @visitor.when(SetAttribNode)
+        def visit(self, node):
+            return f'SETATTR {node.obj} {node.attr} {node.value}'
+
         @visitor.when(AllocateNode)
         def visit(self, node):
             return f'{node.dest} = ALLOCATE {node.type}'
@@ -305,6 +329,18 @@ def get_formatter():
         @visitor.when(TypeOfNode)
         def visit(self, node):
             return f'{node.dest} = TYPEOF {node.type}'
+
+        @visitor.when(LabelNode)
+        def visit(self, node):
+            return f'LABEL {node.label}'
+
+        @visitor.when(GotoNode)
+        def visit(self, node):
+            return f'GOTO {node.label}'
+
+        @visitor.when(GotoIfNode)
+        def visit(self, node):
+            return f'IF {node.condition} GOTO {node.label}'
 
         @visitor.when(StaticCallNode)
         def visit(self, node):
@@ -321,6 +357,66 @@ def get_formatter():
         @visitor.when(ReturnNode)
         def visit(self, node):
             return f'RETURN {node.value if node.value is not None else ""}'
+
+        @visitor.when(LoadNode)
+        def visit(self, node):
+            return f'{node.dest} = Load {node.msg}'
+
+        @visitor.when(ExitNode)
+        def visit(self, node):
+            return f'EXIT'
+
+        @visitor.when(TypeNameNode)
+        def visit(self, node):
+            return f'{node.dest} = TYPENAME {node.source}'
+
+        @visitor.when(NameNode)
+        def visit(self, node):
+            return f'{node.dest} = NAME {node.name}'
+
+        @visitor.when(CopyNode)
+        def visit(self, node):
+            return f'{node.dest} = COPY {node.source}'
+
+        @visitor.when(LengthNode)
+        def visit(self, node):
+            return f'{node.dest} = LENGTH {node.source}'
+
+        @visitor.when(ConcatNode)
+        def visit(self, node):
+            return f'{node.dest} = CONCAT {node.prefix} {node.suffix}'
+
+        @visitor.when(SubstringNode)
+        def visit(self, node):
+            return f'{node.dest} = SUBSTRING {node.index} {node.length}'
+
+        @visitor.when(ReadStrNode)
+        def visit(self, node):
+            return f'{node.dest} = READSTR'
+
+        @visitor.when(ReadIntNode)
+        def visit(self, node):
+            return f'{node.dest} = READINT'
+
+        @visitor.when(PrintStrNode)
+        def visit(self, node):
+            return f'PRINT {node.value}'
+
+        @visitor.when(PrintIntNode)
+        def visit(self, node):
+            return f'PRINT {node.value}'
+
+        @visitor.when(ComplementNode)
+        def visit(self, node):
+            return f'{node.dest} = COMPL {node.obj}'
+
+        @visitor.when(VoidNode)
+        def visit(self, node):
+            return 'VOID'
+
+        @visitor.when(ErrorNode)
+        def visit(self, node):
+            return f'ERROR {node.data_node}'
 
     printer = PrintVisitor()
     return (lambda ast: printer.visit(ast))
