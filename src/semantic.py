@@ -157,7 +157,6 @@ class Type:
                 return least_type
             least_type = least_type.join(t)
 
-        print("final:", least_type)
         return least_type
 
     def __str__(self):

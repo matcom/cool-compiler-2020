@@ -363,18 +363,19 @@ class TypeChecker:
     def visit(self, node, scope):
         self.visit(node.expr, scope)
         action_expr_types = []
+        var_declared = []
+
         for action in node.actions:
+            var_type = action.action_type
+            if not var_type in var_declared:
+                var_declared.append(var_type)
+            else:
+                self.errors.append("The type {} is declared in another branch".format(var_type))
             self.visit(action, scope.create_child())
             action_expr_types.append(action.computed_type)
 
         t_0 = action_expr_types.pop(0)
         node_type = t_0.multiple_join(action_expr_types)
-
-        for i in range(len(action_expr_types)):
-            for j in range(i, len(action_expr_types)):
-                if action_expr_types[i] == action_expr_types[j]:
-                    self.errors.append(
-                        f'Variables "{node.actions[i].name}" and "{node.actions[j].name}" must have different types')
 
         node.computed_type = node_type
 
