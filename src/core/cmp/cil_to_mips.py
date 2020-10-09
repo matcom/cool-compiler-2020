@@ -616,7 +616,7 @@ class CILToMIPSVisitor:
         reg = self.get_free_reg()
 
         instructions.append(mips.LoadAddressNode(reg, mips.TYPENAMES_TABLE_LABEL))
-        tp_number = self._types[node.name].index()
+        tp_number = self._types[node.name].index
         instructions.append(mips.AddInmediateUnsignedNode(reg, reg, tp_number*4))
         instructions.append(mips.LoadWordNode(reg, mips.RegisterRelativeLocation(reg, 0)))
 
