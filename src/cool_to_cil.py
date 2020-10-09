@@ -51,6 +51,5 @@ if __name__ == '__main__':
         cil_ast = build_cil_ast(cool_ast, context)
 
         print(cil_ast)
-        with open(f'{sys.argv[1][:-3]}.cil', 'w'): pass
-        with open(f'{sys.argv[1][:-3]}.cil', 'a') as f:
+        with open(f'{sys.argv[1][:-3]}.cil', 'w') as f:
             f.write(f'{cil_ast}')
