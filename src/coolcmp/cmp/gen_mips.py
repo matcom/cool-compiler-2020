@@ -463,7 +463,81 @@ class GenMIPS:
         idx = self.dict_init_func['String'].attr_dict['_string_length']
         self.code.append(Ins('lw', self.rR(), f'{idx * WORD}({self.sR()})'))
 
-    def native_concat(self, formals): pass
+    def _concat_iterate_str(self):
+        loop_starts = f'{LABEL_START_LOOP}{self.loops}'
+        self.loops += 1
+
+        loop_ends = f'{LABEL_END_LOOP}{self.loops}'
+        self.loops += 1
+
+        self.code.append(Label(f'{loop_starts}:'))
+
+        # load byte
+        self.code.append(Ins('lb', self.tR(2), f'({self.tR(1)})'))
+
+        # if 0, get out
+        self.code.append(Ins('beqz', self.tR(2), loop_ends))
+
+        # save byte
+        self._allocate_stack(1)
+        self.code.append(Ins('sb', self.tR(2), '0($sp)'))
+
+        # add 1 to total of bytes
+        self.code.append(Ins('add', self.tR(0), self.tR(0), 1))
+
+        # move one byte
+        self.code.append(Ins('addu', self.tR(1), self.tR(1), 1))
+        self.code.append(Ins('b', loop_starts))
+
+        self.code.append(Label(f'{loop_ends}:'))
+
+    def native_concat(self, formals):
+        # formal s:String
+        idx = formals[0].refers_to[1]
+
+        # reference of String is saved at $t3, negative offset because stack
+        self.code.append(Ins('lw', self.tR(3), f'{-idx * WORD}($fp)'))
+
+        # save old $fp
+        self._allocate_stack(WORD)
+        self.code.append(Ins('sw', '$fp', '0($sp)'))
+
+        # set frame pointer to first position of string
+        self.code.append(Ins('subu', '$fp', '$sp', 1))
+
+        # total of bytes
+        self.code.append(Ins('li', self.tR(0), 0))
+
+        # get address of string literal
+        idx = self.dict_init_func['String'].attr_dict['_string_literal']
+        # idx positive, because it's from heap
+        self.code.append(Ins('la', self.tR(1), f'{idx * WORD}({self.sR()})'))
+
+        # iterate and push it to stack
+        self.code.append(Comment('Iterating over self string'))
+        self._concat_iterate_str()
+        self.code.append(Comment('Ended iterating over self string'))
+
+        #####################################################
+        # iterating formal now
+
+        # load address of _string_literal of formal
+        # idx positive, because it's from heap
+        self.code.append(Ins('la', self.tR(1), f'{idx * WORD}({self.tR(3)})'))
+        
+        self.code.append(Comment('Iterating over formal string'))
+        self._concat_iterate_str()
+        self.code.append(Comment('Ended iterating over formal string'))
+
+        # adding padding now, this uses $t0 as a register keeping total of bytes
+        self._send_string()
+
+        # get old $fp from stack
+        self.code.append(Ins('lw', '$fp', '0($sp)'))
+        self._deallocate_stack(WORD)
+
+        # result is saved at $result_reg, so I wont save it here
+
     def native_substr(self, formals): pass
 
     # from IO
