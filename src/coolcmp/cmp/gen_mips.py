@@ -1,6 +1,6 @@
 from coolcmp.cmp.utils import init_logger
 from coolcmp.cmp.gen_cil import GenCIL
-from coolcmp.cmp.ast_cls import New, FunctionCall, Void
+from coolcmp.cmp.ast_cls import AttrStringLiteral, New, FunctionCall, Void
 from coolcmp.cmp.constants import *
 
 #classes for formatting
@@ -331,8 +331,56 @@ class GenMIPS:
         self.code.append(Ins('move', self.get_result_reg(), self.get_self_reg()))
 
     def _copy_string(self):
-        #TODO
-        pass
+        self.code.append(Comment('On String copy'))
+
+        finit = self.dict_init_func['String']
+
+        for attr in finit.reserved_attrs:
+            idx = finit.attr_dict[attr.ref.name]
+
+            if isinstance(attr, AttrStringLiteral):
+                # size of attrs, not counting StringLiteral
+                attrs_sz = (len(finit.reserved_attrs) - 1) * WORD
+
+                # save size at $t2
+                self.code.append(Ins('lw', self.get_temp_reg(2), f'{WORD}({self.get_self_reg()})'))
+
+                # with this, we obtain number of bytes (with padding) of the string (the values)
+                self.code.append(Ins('sub', self.get_temp_reg(2), self.get_temp_reg(2), attrs_sz))
+
+                loop_starts = f'{LABEL_START_LOOP}{self.loops}'
+                self.loops += 1
+
+                loop_ends = f'{LABEL_END_LOOP}{self.loops}'
+                self.loops += 1
+
+                # iterator over original object
+                self.code.append(Ins('la', self.get_temp_reg(0), f'{idx * WORD}({self.get_self_reg()})'))
+
+                # iterator over new object
+                self.code.append(Ins('la', self.get_temp_reg(1), f'{idx * WORD}($v0)'))
+                
+                self.code.append(Label(f'{loop_starts}:'))
+
+                # consumed all bytes, get out
+                self.code.append(Ins('beqz', self.get_temp_reg(2), loop_ends))
+                self.code.append(Ins('sub', self.get_temp_reg(2), self.get_temp_reg(2), 1))
+
+                self.code.append(Ins('lb', self.get_temp_reg(3), f'({self.get_temp_reg(0)})'))
+                self.code.append(Ins('sb', self.get_temp_reg(3), f'({self.get_temp_reg(1)})'))
+
+                self.code.append(Ins('addu', self.get_temp_reg(0), self.get_temp_reg(0), 1))
+                self.code.append(Ins('addu', self.get_temp_reg(1), self.get_temp_reg(1), 1))
+
+                self.code.append(Ins('b', loop_starts))
+
+                self.code.append(Label(f'{loop_ends}:'))
+
+            else:
+                self.code.append(Ins('lw', self.get_temp_reg(0), f'{idx * WORD}({self.get_self_reg()})'))
+                self.code.append(Ins('sw', self.get_temp_reg(0), f'{idx * WORD}($v0)'))
+
+        self.code.append(Comment('Ended String copy'))
 
     def native_copy(self):
         not_bool_branch = f'{LABEL_BRANCH}{self.branches}'
@@ -504,8 +552,6 @@ class GenMIPS:
         self.code.append(Ins('addu', '$sp', '$sp', self.get_temp_reg(0)))
 
     def native_in_string(self):
-        #TODO: need to complete it!
-
         loop_starts = f'{LABEL_START_LOOP}{self.loops}'
         self.loops += 1
 
