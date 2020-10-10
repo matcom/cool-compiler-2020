@@ -4,18 +4,15 @@ import sys
 from parser import Parser
 
 class Tester:
-    def __init__(self, path):
-        self.path = path
+    def __init__(self):
         self.success = []
         self.failed = []
         
-    def run(self):
-        test_list = os.listdir(self.path)
+    def run_correct_test(self, path):
+        test_list = os.listdir(path)
         for test in test_list:
             try:
-               
-                errors = self.execute_test(self.path +"/"+ test)
-                
+                errors = self.execute_test(path +"/"+ test)
             except:
                 self.failed.append(test)
             else:
@@ -23,10 +20,28 @@ class Tester:
                     self.failed.append(test)
                 else:
                     self.success.append(test)
-        print("Total:", len(test_list))
+        print("Total of Correct Test:", len(test_list))
         print("Success:", len(self.success))
         print("Failed:", len(self.failed))
         print(self.failed)
+        return self.failed
+    
+    def run_bad_test(self, path):
+        test_list = os.listdir(path)
+        for test in test_list:
+            try:
+                errors = self.execute_test(path +"/"+ test)
+            except:
+                self.failed.append(test)
+            else:
+                if len(errors) == 0:
+                    self.failed.append(test)
+                else:
+                    self.success.append(test)
+        print("Total of Bad Test:", len(test_list))
+        print("Success:", len(self.success))
+        print("Failed:", len(self.failed))
+        print(self.success)
         return self.failed
 
 
@@ -48,5 +63,6 @@ class Tester:
         return analyzer.errors
 
 if __name__ == '__main__':
-    tester = Tester("../tests/semantic")
-    tester.run()
+    tester = Tester()
+    # tester.run_correct_test("../tests/semantic/Correct")
+    tester.run_bad_test("../tests/semantic/Bad")

@@ -377,7 +377,7 @@ class TypeChecker:
 
         t_0 = action_expr_types.pop(0)
         node_type = t_0.multiple_join(action_expr_types)
-
+       
         node.computed_type = node_type
 
     @visitor.when(AST.Action)
