@@ -249,15 +249,6 @@ class TypeChecker:
             self.errors.append(INCOMPATIBLE_TYPES.replace(
                 '%s', expr_type.name, 1).replace('%s', return_type.name, 1))
 
-        # if return_type.name == 'SELF_TYPE':
-        #     if not expr_type.conforms_to(self.current_type):
-        #         self.errors.append(INCOMPATIBLE_TYPES.replace(
-        #             '%s', expr_type.name, 1).replace('%s', self.current_type.name, 1))
-        # elif not expr_type.conforms_to(return_type):
-        #     print("return type", return_type.name)
-        #     print("body", expr_type.name)
-        #     self.errors.append(INCOMPATIBLE_TYPES.replace(
-        #         '%s', expr_type.name, 1).replace('%s', return_type.name, 1))
 
     @visitor.when(AST.FormalParameter)
     def visit(self, node, scope):
@@ -440,7 +431,7 @@ class TypeChecker:
     @visitor.when(AST.Let)
     def visit(self, node, scope):
         let_scope = scope.create_child()
-
+    
         for var in node.var_list:
             self.visit(var, let_scope)
 
