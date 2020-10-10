@@ -293,7 +293,7 @@ class GenMIPS:
     # REMEMBER TO ADD RESULT FOR NATIVE FUNCTIONS TOO
 
     # from Object
-    def native_abort(self):
+    def native_abort(self, formals):
         self.code.append(Ins('la', '$a0', LABEL_ABORT_STR))
         self._print_mips()
 
@@ -319,7 +319,7 @@ class GenMIPS:
         # exit program with code 0
         self.code.append(Ins('jal', LABEL_EXIT))
 
-    def native_type_name(self):
+    def native_type_name(self, formals):
         # load address of _type_info attr at $t0
         self.code.append(Ins('lw', self.tR(0), f'0({self.sR()})'))
 
@@ -382,7 +382,7 @@ class GenMIPS:
 
         self.code.append(Comment('Ended String copy'))
 
-    def native_copy(self):
+    def native_copy(self, formals):
         not_bool_branch = f'{LABEL_BRANCH}{self.branches}'
         self.branches += 1
 
@@ -458,18 +458,21 @@ class GenMIPS:
         self.code.append(Label(f'{bool_out_branch}:'))
 
     # from String
-    def native_length(self):
+    def native_length(self, formals):
         # get id of attribute _string_length
         idx = self.dict_init_func['String'].attr_dict['_string_length']
         self.code.append(Ins('lw', self.rR(), f'{idx * WORD}({self.sR()})'))
 
-    def native_concat(self): pass
-    def native_substr(self): pass
+    def native_concat(self, formals): pass
+    def native_substr(self, formals): pass
 
     # from IO
-    def native_out_string(self):
-        # reference of String is saved at $a0
-        self.code.append(Ins('lw', '$a0', '0($fp)'))
+    def native_out_string(self, formals):
+        # formal x:String
+        idx = formals[0].refers_to[1]
+
+        # reference of String is saved at $a0, negative offset because stack
+        self.code.append(Ins('lw', '$a0', f'{-idx * WORD}($fp)'))
 
         # get id of attribute _string_literal
         idx = self.dict_init_func['String'].attr_dict['_string_literal']
@@ -481,11 +484,12 @@ class GenMIPS:
         # the result of the body of this native function is current self
         self.code.append(Ins('move', self.rR(), self.sR()))
     
-    def native_out_int(self):
-        # this has one formal and it should be at 0($fp)
+    def native_out_int(self, formals):
+        # formal x:Int
+        idx = formals[0].refers_to[1]
 
-        # reference of Int is saved at $a0
-        self.code.append(Ins('lw', '$a0', '0($fp)'))
+        # reference of Int is saved at $a0, negative offset because stack
+        self.code.append(Ins('lw', '$a0', f'{-idx * WORD}($fp)'))
 
         # get id of attribute _int_literal
         idx = self.dict_init_func['Int'].attr_dict['_int_literal']
@@ -551,7 +555,7 @@ class GenMIPS:
         # deallocate $t0 bytes (same amount you allocated)
         self.code.append(Ins('addu', '$sp', '$sp', self.tR(0)))
 
-    def native_in_string(self):
+    def native_in_string(self, formals):
         loop_starts = f'{LABEL_START_LOOP}{self.loops}'
         self.loops += 1
 
@@ -595,7 +599,7 @@ class GenMIPS:
 
         # result is saved at $result_reg, so I wont save it here
 
-    def native_in_int(self):
+    def native_in_int(self, formals):
         self.code.append(Ins('li', '$v0', 5))
         self.code.append(Ins('syscall'))
         self.code.append(Ins('move', self.aR(), '$v0'))
@@ -635,7 +639,7 @@ class GenMIPS:
 
         else:  # native function
             fn = getattr(self, 'native_' + node.name)
-            fn()
+            fn(node.formals)
 
         # #get $ra from stack
         self.code.append(Ins('lw', '$ra', '0($sp)'))
