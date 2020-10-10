@@ -328,7 +328,7 @@ def get_formatter():
 
         @visitor.when(TypeOfNode)
         def visit(self, node):
-            return f'{node.dest} = TYPEOF {node.type}'
+            return f'{node.dest} = TYPEOF {node.obj}'
 
         @visitor.when(LabelNode)
         def visit(self, node):
