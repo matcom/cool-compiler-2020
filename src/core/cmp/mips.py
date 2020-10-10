@@ -206,6 +206,11 @@ class DivideNode(InstructionNode):
         self.reg1 = reg1
         self.reg2 = reg2
 
+class ComplementNode(InstructionNode):
+    def __init__(self, reg1, reg2):
+        self.reg1 = reg1
+        self.reg2 = reg2
+
 class MoveFromLowNode(InstructionNode):
     def __init__(self, reg):
         self.reg = reg
