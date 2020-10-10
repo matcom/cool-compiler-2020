@@ -61,11 +61,14 @@ class DataSegment:
         self._add_static_literals()
     
     def _fix_str(self, s):
-        str_bytes = [ ord(c) for c in s ] + [0]
+        str_bytes = [ ord(c) for c in s ]
+        add = 4 - len(str_bytes) % 4
 
-        while len(str_bytes) % 4 > 0:
+        while add > 0:
             str_bytes.append(0)
+            add -= 1
 
+        assert len(str_bytes) % 4 == 0 and str_bytes[-1] == 0
         return str_bytes
 
     def _init_ds(self):
@@ -448,6 +451,58 @@ class GenMIPS:
         # the result of the body of this native function is current self
         self.code.append(Ins('move', self.get_result_reg(), self.get_self_reg()))
 
+    def _send_string(self):
+        # send a string to init function
+        # it pads the string so that lenght will be mult of 4 and have at least a 0 at the end
+        # it assumes that $t0 has total of bytes of the string
+        # this also undoes str on stack and its size too
+
+        loop_st_pad = f'{LABEL_START_LOOP}{self.loops}'
+        self.loops += 1
+
+        loop_nd_pad = f'{LABEL_END_LOOP}{self.loops}'
+        self.loops += 1
+
+        # compute $t0 % 4
+        self.code.append(Ins('and', self.get_temp_reg(1), self.get_temp_reg(0), 3))
+        self.code.append(Ins('li', self.get_temp_reg(2), 4))
+
+        # compute 4 - remainder
+        self.code.append(Ins('sub', self.get_temp_reg(1), self.get_temp_reg(2), self.get_temp_reg(1)))
+
+        self.code.append(Label(f'{loop_st_pad}:'))
+
+        # if $t1 == 0 get out
+        self.code.append(Ins('beqz', self.get_temp_reg(1), loop_nd_pad))
+
+        # save byte
+        self._allocate_stack(1)
+        self.code.append(Ins('sb', '$zero', '0($sp)'))
+
+        # add 1 to total bytes
+        self.code.append(Ins('add', self.get_temp_reg(0), self.get_temp_reg(0), 1))
+
+        # decrease $t1 by 1
+        self.code.append(Ins('sub', self.get_temp_reg(1), self.get_temp_reg(1), 1))
+
+        self.code.append(Ins('b', loop_st_pad))
+
+        self.code.append(Label(f'{loop_nd_pad}:'))
+
+        # save total of bytes (including padding)
+        self._allocate_stack(WORD)
+        self.code.append(Ins('sw', self.get_temp_reg(0), '0($sp)'))
+
+        # initialize
+        self.code.append(Ins('jal', self.dict_init_func['String'].label))
+
+        # load total of bytes
+        self.code.append(Ins('lw', self.get_temp_reg(0), '0($sp)'))
+        self._deallocate_stack(WORD)
+
+        # deallocate $t0 bytes (same amount you allocated)
+        self.code.append(Ins('addu', '$sp', '$sp', self.get_temp_reg(0)))
+
     def native_in_string(self):
         #TODO: need to complete it!
 
@@ -485,25 +540,14 @@ class GenMIPS:
 
         self.code.append(Label(f'{loop_ends}:'))
 
-        #TODO: mult de 4
-
-        # save total of bytes (including padding)
-        self._allocate_stack(WORD)
-        self.code.append(Ins('sw', self.get_temp_reg(0), '0($sp)'))
-
-        # initialize
-        self.code.append(Ins('jal', self.dict_init_func['String'].label))
-
-        # load total of bytes
-        self.code.append(Ins('lw', self.get_temp_reg(0), '0($sp)'))
-        self._deallocate_stack(WORD)
-
-        # deallocate $t0 bytes (same amount you allocated)
-        self.code.append(Ins('addu', '$fp', '$fp', self.get_temp_reg(0)))
+        # adding padding now, for this use $t0 as register keeping total of bytes
+        self._send_string()
 
         # get old $fp from stack
         self.code.append(Ins('lw', '$fp', '0($sp)'))
         self._deallocate_stack(WORD)
+
+        # result is saved at $result_reg, so I wont save it here
 
     def native_in_int(self):
         self.code.append(Ins('li', '$v0', 5))
@@ -671,8 +715,123 @@ class GenMIPS:
     def native_String(self, node):
         self.code.append(Label(f'{node.label}:'))
 
-    def visit_AttrStringLength(self, node): pass
-    def visit_AttrStringLiteral(self, node): pass
+        # load size at arg_reg
+        self.code.append(Ins('lw', self.get_temp_reg(6), '0($sp)'))
+
+        self._allocate_stack(WORD)
+        self.code.append(Ins('sw', '$ra', '0($sp)'))
+
+        self._allocate_stack(WORD)
+        self.code.append(Ins('sw', self.get_self_reg(), '0($sp)'))
+
+        # size of attrs, not counting StringLiteral, since its size is $arg_reg
+        attrs_sz = (len(node.reserved_attrs) - 1) * WORD
+
+        # save total of bytes at $t7
+        self.code.append(Ins('move', self.get_temp_reg(7), self.get_temp_reg(6)))
+        self.code.append(Ins('add', self.get_temp_reg(6), self.get_temp_reg(6), attrs_sz))
+
+        self.code.append(Ins('move', '$a0', self.get_temp_reg(6)))
+        self.code.append(Ins('jal', LABEL_RESERVE_MEMORY))
+
+        # saves address of object (ie. self), it is needed in the next visit calls
+        self.code.append(Ins('move', self.get_self_reg(), '$v0'))
+
+        # set to -1 since strings are special :)
+        self.size_info = -1
+
+        for attr in node.reserved_attrs:  #visiting reserved_attrs
+            self.attr_idx = node.attr_dict[attr.ref.name]
+            self.static_data_label = node.name
+
+            self.visit(attr)
+
+        self.code.append(Ins('move', self.get_result_reg(), self.get_self_reg()))
+
+        self.code.append(Ins('lw', self.get_self_reg(), '0($sp)'))
+        self._deallocate_stack(WORD)
+
+        self.code.append(Ins('lw', '$ra', '0($sp)'))
+        self._deallocate_stack(WORD)
+
+        self.code.append(Ins('jr', '$ra'))
+
+    def visit_AttrStringLength(self, node):
+        loop_starts = f'{LABEL_START_LOOP}{self.loops}'
+        self.loops += 1
+
+        loop_ends = f'{LABEL_END_LOOP}{self.loops}'
+        self.loops += 1
+
+        # set $t0
+        self.code.append(Ins('move', self.get_temp_reg(0), '$fp'))
+        self.code.append(Ins('li', self.get_arg_reg(), 0))
+
+        self.code.append(Label(f'{loop_starts}:'))
+
+        # get it from stack
+        self.code.append(Ins('lb', self.get_temp_reg(1), f'({self.get_temp_reg(0)})'))
+
+        # if 0 get out
+        self.code.append(Ins('beqz', self.get_temp_reg(1), loop_ends))
+
+        # move 1 byte towards top of stack (here we substract because it's stack)
+        self.code.append(Ins('subu', self.get_temp_reg(0), self.get_temp_reg(0), 1))
+
+        # add one to length
+        self.code.append(Ins('add', self.get_arg_reg(), self.get_arg_reg(), 1))
+
+        self.code.append(Ins('b', loop_starts))
+
+        self.code.append(Label(f'{loop_ends}:'))
+
+        # create int object with length
+        self.code.append(Ins('jal', self.dict_init_func['Int'].label))
+
+        # save string length
+        self.code.append(Ins('sw', self.get_result_reg(), f'{self.attr_idx * WORD}({self.get_self_reg()})'))
+
+    def visit_AttrStringLiteral(self, node):
+        loop_starts = f'{LABEL_START_LOOP}{self.loops}'
+        self.loops += 1
+
+        loop_ends = f'{LABEL_END_LOOP}{self.loops}'
+        self.loops += 1
+
+        # setting special attributes
+        # $t0 pointer to address of current byte on stack
+        # $t1 has current byte
+        # $t2 pointer to address of current byte on heap
+
+        # set $t0
+        self.code.append(Ins('move', self.get_temp_reg(0), '$fp'))
+
+        # set $t2
+        self.code.append(Ins('la', self.get_temp_reg(2), f'{self.attr_idx * WORD}({self.get_self_reg()})'))
+
+        self.code.append(Label(f'{loop_starts}:'))
+
+        # if consumed all bytes, get out
+        self.code.append(Ins('beqz', self.get_temp_reg(7), loop_ends))
+
+        # substract 1
+        self.code.append(Ins('sub', self.get_temp_reg(7), self.get_temp_reg(7), 1))
+
+        # get it from stack
+        self.code.append(Ins('lb', self.get_temp_reg(1), f'({self.get_temp_reg(0)})'))
+
+        # save it on heap
+        self.code.append(Ins('sb', self.get_temp_reg(1), f'({self.get_temp_reg(2)})'))
+        
+        # move 1 byte towards top of stack (here we substract because it's stack)
+        self.code.append(Ins('subu', self.get_temp_reg(0), self.get_temp_reg(0), 1))
+
+        # move 1 byte (here we add because it's heap)
+        self.code.append(Ins('addu', self.get_temp_reg(2), self.get_temp_reg(2), 1))
+
+        self.code.append(Ins('b', loop_starts))
+
+        self.code.append(Label(f'{loop_ends}:'))
 
     def visit_FuncInit(self, node):
         if node.type_obj != TYPE_NOT_PRIMITIVE:
@@ -766,8 +925,13 @@ class GenMIPS:
     def visit_AttrSizeInfo(self, node):
         assert self.attr_idx == 1
 
-        self.code.append(Ins('li', self.get_temp_reg(0), self.size_info))
-        self.code.append(Ins('sw', self.get_temp_reg(0), f'{self.attr_idx * WORD}({self.get_self_reg()})'))
+        if self.size_info == -1:
+            # it's a string :), size is passed at $t6
+            self.code.append(Ins('sw', self.get_temp_reg(6), f'{self.attr_idx * WORD}({self.get_self_reg()})'))
+
+        else:
+            self.code.append(Ins('li', self.get_temp_reg(0), self.size_info))
+            self.code.append(Ins('sw', self.get_temp_reg(0), f'{self.attr_idx * WORD}({self.get_self_reg()})'))
 
     def visit_Binding(self, node):
         self.visit(node.expr)
