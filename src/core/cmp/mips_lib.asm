@@ -1071,6 +1071,39 @@ substr_end:
     jr $ra
 
 
+equal_str:
+    addiu $sp $sp -16
+    sw $t0 0($sp)
+    sw $t1 4($sp)
+    sw $t2 8($sp)
+    sw $t3 12($sp)
+
+    move $t0 $a0
+    move $t1 $a1
+
+equal_str_loop:
+    lb $t2 0($t0)
+    lb $t3 0($t1)
+    bne $t2 $t3 equal_str_not_equal
+    beq $t2 $zero equal_str_equal
+
+    addiu $t0 $t0 1
+    addiu $t1 $t1 1
+    j equal_str_loop
+
+equal_str_not_equal:
+    move $v0 $zero
+    j equal_str_end
+
+equal_str_equal:
+    li $v0 1
+
+equal_str_end:
+    lw $t0 0($sp)
+    lw $t1 4($sp)
+    lw $t2 8($sp)
+    lw $t3 12($sp)
+    addiu $sp $sp 16
 
 
 
