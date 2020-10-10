@@ -209,9 +209,9 @@ class CILToMIPSVisitor:
             code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
             
         except Exception as e:
-            if node.name == "function_main_at_Main":
+            if node.name == "function_a2i_aux_at_A2I":
                 print(e)
-                print(node.instructions)
+                # print(node.instructions)
             print(node.name)
             
             
@@ -286,7 +286,9 @@ class CILToMIPSVisitor:
         
         reg = self.get_free_reg()
 
-        if node.source.isnumeric():
+        if type(node.source) == cil.VoidNode:
+            instructions.append(mips.LoadInmediateNode(reg, 0))
+        elif node.source.isnumeric():
             load_value = mips.LoadInmediateNode(reg, int(node.source))
             instructions.append(load_value)
         elif type(node.source) == cil.VoidNode:
@@ -744,6 +746,29 @@ class CILToMIPSVisitor:
         self.free_reg(reg2)
 
         return instructions
+
+    @visitor.when(cil.ComplementNode)
+    def visit(self, node):
+        instructions = []
+
+        reg1 = self.get_free_reg()
+        
+        if type(node.obj) == int:
+            instructions.append(mips.LoadInmediateNode(reg1, node.obj))
+        else:
+            left_location = self.get_var_location(node.obj)
+            instructions.append(mips.LoadWordNode(reg1, left_location))
+
+        dest_location = self.get_var_location(node.dest)
+        
+        instructions.append(mips.ComplementNode(reg1, reg1))
+        instructions.append(mips.StoreWordNode(reg1, dest_location))
+
+        self.free_reg(reg1)
+
+        return instructions
+
+
 
     @visitor.when(cil.LessEqualNode)
     def visit(self, node):
