@@ -143,6 +143,9 @@ class StaticCallNode(InstructionNode):
     def __init__(self, function, dest):
         self.function = function
         self.dest = dest
+    
+    def __repr__(self):
+        return f"{self.dest} = CALL {self.function}"
 
 class DynamicCallNode(InstructionNode):
     def __init__(self, xtype, method, dest, computed_type):
@@ -173,6 +176,9 @@ class LoadNode(InstructionNode):
         self.dest = dest
         self.msg = msg
 
+    def __repr__(self):
+        return f"{self.dest} LOAD {self.msg}"
+
 class ExitNode(InstructionNode):
     pass
 
@@ -180,11 +186,17 @@ class TypeNameNode(InstructionNode):
     def __init__(self, dest, source):
         self.dest = dest
         self.source = source
+    
+    def __repr__(self):
+        return f"{self.dest} = TYPENAME {self.source}"
 
 class NameNode(InstructionNode):
     def __init__(self, dest, name):
         self.dest = dest
         self.name = name
+    
+    def __repr__(self):
+        return f"{self.dest} = NAME {self.name}"
 
 class CopyNode(InstructionNode):
     def __init__(self, dest, source):
@@ -220,6 +232,9 @@ class ReadIntNode(InstructionNode):
 class PrintStrNode(InstructionNode):
     def __init__(self, value):
         self.value = value
+    
+    def __repr__(self):
+        return f"PRINTSTR {self.value}"
 
 class PrintIntNode(InstructionNode):
     def __init__(self, value):
