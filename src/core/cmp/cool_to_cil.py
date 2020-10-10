@@ -496,6 +496,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
                 self.register_instruction(cil.EqualNode(vcond, vtype, vbranch_type_name))
                 self.register_instruction(cil.GotoIfNode(vcond, labels[-1].label))
 
+        #Raise runtime error if no Goto was executed
+        data_node = self.register_data(f'({token.row + 1 + len(node.branches)},{token.column - 5}) - RuntimeError: Execution of a case statement without a matching branch\n')
+        self.register_instruction(cil.ErrorNode(data_node))
+
         for idx, l in enumerate(labels):
             self.register_instruction(l)
             vid = self.register_local(VariableInfo(node.branches[idx].id, None))
@@ -503,10 +507,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.visit(node.branches[idx], scope)
             self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
             self.register_instruction(cil.GotoNode(end_label.label))
-
-        #Raise runtime error if no Goto was executed
-        data_node = self.register_data(f'({token.row + 5},{token.column + 1 + len(node.branches)}) - RuntimeError: Execution of a case statement without a matching branch\n')
-        self.register_instruction(cil.ErrorNode(data_node))
 
         self.register_instruction(end_label)
 
