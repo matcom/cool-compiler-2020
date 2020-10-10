@@ -1340,10 +1340,50 @@ class GenMIPS:
         self.code.append(Ins('b', LABEL_EQ_END))
 
     def _eq_string(self):
+        self.code.append(Comment('On String equality function'))
+
         # code when types are string
         self.code.append(Label(f'{LABEL_EQ_BRANCH_STRING}:'))
 
-        #TODO: FILL THIS
+        # let's load address where both string start
+        idx = self.dict_init_func['String'].attr_dict['_string_literal']
+        self.code.append(Ins('la', self.get_temp_reg(2), f'{idx * WORD}({self.get_temp_reg(0)})'))
+        self.code.append(Ins('la', self.get_temp_reg(3), f'{idx * WORD}({self.get_temp_reg(1)})'))
+
+        loop_starts = f'{LABEL_START_LOOP}{self.loops}'
+        self.loops += 1
+
+        loop_ends = f'{LABEL_END_LOOP}{self.loops}'
+        self.loops += 1
+
+        self.code.append(Label(f'{loop_starts}:'))
+
+        # load bytes
+        self.code.append(Ins('lb', self.get_temp_reg(0), f'({self.get_temp_reg(2)})'))
+        self.code.append(Ins('lb', self.get_temp_reg(1), f'({self.get_temp_reg(3)})'))
+
+        # if any it's zero, get out
+        self.code.append(Ins('beqz', self.get_temp_reg(0), loop_ends))
+        self.code.append(Ins('beqz', self.get_temp_reg(1), loop_ends))
+
+        # do comparison with $t0 and $t1, result is at $arg_reg
+        self._do_binary_comparison('beq')
+
+        # chars are distinct, get out
+        self.code.append(Ins('beqz', self.get_arg_reg(), loop_ends))
+
+        self.code.append(Ins('addu', self.get_temp_reg(2), self.get_temp_reg(2), 1))
+        self.code.append(Ins('addu', self.get_temp_reg(3), self.get_temp_reg(3), 1))
+
+        self.code.append(Ins('b', loop_starts))
+
+        self.code.append(Label(f'{loop_ends}:'))
+
+        # check again, if they are different then 0
+        # else they must be both equal to 0, so 1
+        self._do_binary_comparison('beq')
+
+        self.code.append(Comment('Ended String equality function'))
 
     def _eq_function(self):
         self.code.append(Label(f'{LABEL_EQ_FUNCTION}:'))
