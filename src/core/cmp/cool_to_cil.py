@@ -640,7 +640,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(string_node)
         self.register_instruction(cil.GetAttribNode(left_value, left, 'value', 'String'))
         self.register_instruction(cil.GetAttribNode(right_value, right, 'value', 'String'))
-        self.register_instruction(cil.EqualNode(vname, left_value, right_value))
+        self.register_instruction(cil.EqualStrNode(vname, left_value, right_value))
         self.register_instruction(cil.GotoNode(continue_node.label))
 
         self.register_instruction(reference_node)

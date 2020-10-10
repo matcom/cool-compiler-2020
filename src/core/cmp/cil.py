@@ -78,6 +78,9 @@ class EqualNode(ArithmeticNode):
     def __repr__(self):
         return f"{self.dest} = {self.left} == {self.right}"
 
+class EqualStrNode(ArithmeticNode):
+    pass
+
 class GetAttribNode(InstructionNode):
     def __init__(self, dest, obj, attr, computed_type):
         self.dest = dest
