@@ -1,6 +1,6 @@
 import visitor
 import ast_nodes as AST
-from semantic import SemanticError
+from semantic import SemanticError, ErrorSemantic
 from semantic import Attribute, Method, Type, IntType, StringType, IOType, BoolType, ObjectType
 from semantic import ErrorType
 from semantic import Context
@@ -35,7 +35,8 @@ class TypeCollector(object):
         self.context.create_builtin_types()
         for klass in node.classes:
             if klass.name in BUILTIN_TYPES:
-                self.errors.append("Is an error redefine a builint type")
+                error = ErrorSemantic("Is an error redefine a builint type", klass.line, klass.column)
+                self.errors.append(error)
             else:
                 self.visit(klass)
 
@@ -229,7 +230,11 @@ class TypeChecker:
 
     @visitor.when(AST.ClassMethod)
     def visit(self, node, scope):
-        self.current_method = self.current_type.get_method(node.name)
+        try:
+            self.current_method = self.current_type.get_method(node.name)
+        except SemanticError as ex:
+            self.errors.append(ex.text)
+        
         method_scope = scope.create_child()
 
         for param in node.params:

@@ -20,9 +20,9 @@ class ErrorToken(LexToken):
  # Compute column.
  #     input is the input text string
  #     token is a token instance
-def find_column(input, token):
-    line_start = input.rfind('\n', 0, token.lexpos) + 1
-    return (token.lexpos - line_start) + 1
+def find_column(input, lexpos):
+    line_start = input.rfind('\n', 0, lexpos) + 1
+    return (lexpos - line_start) + 1
 
 class Lexer():
     def __init__(self,
@@ -200,7 +200,7 @@ class Lexer():
         token.lexer.lineno += 1
         if not token.lexer.backslashed:
             message = 'Unterminated string constant'
-            column = find_column(token.lexer.lexdata,token)
+            column = find_column(token.lexer.lexdata,token.lexpos)
             error = ErrorToken(message, token.lineno, column)
             self.errors.append(error)
             token.lexer.pop_state()
@@ -211,7 +211,7 @@ class Lexer():
     @TOKEN(r"\0")
     def t_STRING_null(self, token):
         message = 'String contains null character'
-        column = find_column(token.lexer.lexdata,token)
+        column = find_column(token.lexer.lexdata,token.lexpos)
         error = ErrorToken(message, token.lineno, column)
         self.errors.append(error)
 
@@ -257,14 +257,14 @@ class Lexer():
     # STRING error handler
     def t_STRING_error(self, token):
         message = f'{token.value[0]} in String'
-        column = find_column(token.lexer.lexdata,token)
+        column = find_column(token.lexer.lexdata,token.lexpos)
         error = ErrorToken(message, token.lineno, column)
         self.errors.append(error)
         return error
 
     def t_STRING_eof(self, token):
         message = f'EOF in string constant'
-        column = find_column(token.lexer.lexdata,token)
+        column = find_column(token.lexer.lexdata,token.lexpos)
         error = ErrorToken(message, token.lineno, column)
         token.lexer.pop_state()
         self.errors.append(error)
@@ -305,7 +305,7 @@ class Lexer():
 
     def t_COMMENT_eof(self, token):
         message = f'EOF in comment'
-        column = find_column(token.lexer.lexdata,token)
+        column = find_column(token.lexer.lexdata,token.lexpos)
         error = ErrorToken(message, token.lineno, column)
         self.errors.append(error)
         token.lexer.pop_state()
@@ -317,7 +317,7 @@ class Lexer():
         Error Handling and Reporting Rule.
         """
         message = f'ERROR "{token.value[0]}"'
-        column = find_column(token.lexer.lexdata,token)
+        column = find_column(token.lexer.lexdata,token.lexpos)
         error = ErrorToken(message, token.lineno, column)
         self.errors.append(error)
         token.lexer.skip(1)

@@ -6,6 +6,19 @@ class SemanticError(Exception):
     def text(self):
         return self.args[0]
 
+class ErrorSemantic():
+    def __init__(self, message, line, column):
+        self.type = 'SemanticError'
+        self.value = message
+        self.line = line
+        self.column = column
+
+        def __str__(self):
+            return f'({self.line}, {self.column}) - {self.type}: {self.value}'
+
+        def __repr__(self):
+            return str(self)
+
 
 class Attribute:
     def __init__(self, name, typex):

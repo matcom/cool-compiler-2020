@@ -41,7 +41,7 @@ class Tester:
         print("Total of Bad Test:", len(test_list))
         print("Success:", len(self.success))
         print("Failed:", len(self.failed))
-        print(self.success)
+        print(self.failed)
         return self.failed
 
 
@@ -64,5 +64,5 @@ class Tester:
 
 if __name__ == '__main__':
     tester = Tester()
-    # tester.run_correct_test("../tests/semantic/Correct")
-    tester.run_bad_test("../tests/semantic/Bad")
+    tester.run_correct_test("../tests/semantic/Correct")
+    # tester.run_bad_test(/"../tests/semantic/Bad")
