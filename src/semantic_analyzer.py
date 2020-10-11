@@ -104,7 +104,8 @@ class TypeBuilder:
             self.errors.append(error)
         else:
             if not self.context.types['Main'].methods.__contains__('main'):
-                error = ErrorSemantic("The main method is not defined in class Main", 0, 0)
+                main_node = self.context.classes['Main']
+                error = ErrorSemantic("The main method is not defined in class Main", main_node.line, main_node.column)
                 self.errors.append(error)
 
 
@@ -699,4 +700,4 @@ if __name__ == '__main__':
         semantic_analyzer.analyze()
 
         for e in semantic_analyzer.errors:
-            print(e.text)
+            print(e)

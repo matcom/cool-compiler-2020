@@ -14,11 +14,11 @@ class ErrorSemantic():
         self.column = column
         self.text = f'({self.line}, {self.column}) - {self.type}: {self.value}'
 
-        def __str__(self):
-            return 
+    def __str__(self):
+        return f'({self.line}, {self.column}) - {self.type}: {self.value}'
 
-        def __repr__(self):
-            return str(self)
+    def __repr__(self):
+        return str(self)
 
 
 class Attribute:
