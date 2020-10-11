@@ -12,9 +12,10 @@ class ErrorSemantic():
         self.value = message
         self.line = line
         self.column = column
+        self.text = f'({self.line}, {self.column}) - {self.type}: {self.value}'
 
         def __str__(self):
-            return f'({self.line}, {self.column}) - {self.type}: {self.value}'
+            return 
 
         def __repr__(self):
             return str(self)
