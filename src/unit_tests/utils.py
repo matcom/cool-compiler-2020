@@ -1,12 +1,17 @@
 import os
 import subprocess
 from pathlib import Path
+from coolcmp.cmp.constants import *
 
 error_conversions = {
-    'Dispatch on void': 'Dispatch to void.',
-    'Division by zero': '[Breakpoint/Division by 0]  Execution aborted',
-    'Case on void': 'Match on void in case statement.',
-    'Case without a matching branch': 'No match in case statement'
+    rte_errors[LABEL_DISPATCH_VOID]: 'Dispatch to void.',
+    rte_errors[LABEL_DIV_BY_0]: '[Breakpoint/Division by 0]  Execution aborted',
+    rte_errors[LABEL_CASE_VOID]: 'Match on void in case statement.',
+    rte_errors[LABEL_CASE_NO_BRANCH]: 'No match in case statement',
+    rte_errors[LABEL_SUBSTR_TOO_LONG_INDEX]: 'Index to substr is too big',
+    rte_errors[LABEL_SUBSTR_TOO_LONG_LENGTH]: 'Length to substr too long',
+    rte_errors[LABEL_SUBSTR_NEG_INDEX]: 'Index to substr is negative',
+    rte_errors[LABEL_SUBSTR_NEG_LENGTH]: 'Length to substr is negative'
 }
 
 # lines that mimps simulator prints

@@ -1,6 +1,9 @@
-class Main {
+class Main inherits IO {
     a : A;
-    main() : Int { a.fun() };
+    main() : Int {{
+        -- out_string("fuk");
+        a.fun();
+    }};
 };
 
 class A {
