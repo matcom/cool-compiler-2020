@@ -110,11 +110,10 @@ class ParamDec(Expr):
     def __str__(self):
         return f'PARAM {self.name};'
 
-class Local(Expr):
-    def __init__(self, name, value=0):
-        super(Local, self).__init__()
+class LocalDec(Expr):
+    def __init__(self, name):
+        super(LocalDec, self).__init__()
         self.name = name
-        self.value = value
     
     def __str__(self):
         return f'LOCAL {self.name};'
@@ -150,7 +149,7 @@ class Allocate(Expr):
     def __str__(self):
         return f'{self.instance_name} = ALLOCATE {self.type};'
 
-class VCallCIL(CILExpression):
+class VCall(Expr):
     def __init__(self, _type, function, params_count):
         self.type = _type
         self.function = function
@@ -183,6 +182,9 @@ class Assign(Expr):
     def __init__(self, local, right_expr):
         self.local = local
         self.right_expr = right_expr
+    
+    def __str__(self):
+        return f'{self.local} = {self.right_expr}'
 
 class BinaryOperator(Expr):
     def __init__(self, left, right):
@@ -221,6 +223,9 @@ class Param(Expr):
 class Arg(Expr):
     def __init__(self, arg):
         self.arg = arg
+    
+    def __str__(self):
+        return f'ARG {self.arg};'
 
 class Case(Expr):
     def __init__(self, local_typeof, types_list, label_list):
@@ -242,7 +247,7 @@ class Label(Expr):
         self.label = label
 
 class Return(Expr):
-    def __init__(self, variable = LocalCIL("default")):
+    def __init__(self, variable):
         self.variable = variable
 
 class Load(Expr):
