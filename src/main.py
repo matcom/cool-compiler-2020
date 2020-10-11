@@ -17,7 +17,7 @@ def main():
     pipeline.submit_state(TypeCollector('TCollector'))
     pipeline.submit_state(TypeBuilder('TBuilder'))
     pipeline.submit_state(VarCollector('VCollector'))
-    #pipeline.submit_state(TypeChecker('TChecker'))
+    pipeline.submit_state(TypeChecker('TChecker'))
 
     ast, context, scope = pipeline.run_pipeline(program)
     print(context)

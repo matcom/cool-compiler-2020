@@ -4,6 +4,7 @@ import itertools as itt
 import pprint
 from .types import *
 from .error import *
+from .features import *
 from tools.cmp_errors import * 
 
 class Context:
@@ -14,7 +15,22 @@ class Context:
             'Object' : ObjectType(),
             'Bool' : BoolType(),
             'IO' : IOType(),
+            'SELF_TYPE' : SELF_TYPE()
         }
+
+        # build-in methods
+        self.types['Object'].methods['abort'] = Method('abort', [], [], self.types['Object'])
+        self.types['Object'].methods['type_name'] = Method('type_name', [], [], self.types['String'])
+        self.types['Object'].methods['copy'] = Method('copy', [], [], self.types['SELF_TYPE'])
+
+        self.types['IO'].methods['out_string'] = Method('out_string', ['x'], [self.types['String']], self.types['SELF_TYPE'])
+        self.types['IO'].methods['out_int'] = Method('out_int', ['x'], [self.types['Int']], self.types['SELF_TYPE'])
+        self.types['IO'].methods['in_string'] = Method('in_string', [], [], self.types['String'])
+        self.types['IO'].methods['in_int'] = Method('in_int', [], [], self.types['Int'])
+
+        self.types['String'].methods['length'] = Method('length', [], [], self.types['Int'])
+        self.types['String'].methods['concat'] = Method('concat', ['s'], [self.types['String']], self.types['String'])
+        self.types['String'].methods['substr'] = Method('substr', ['i', 'l'], [self.types['Int'], self.types['Int']], self.types['String'])
 
     def create_type(self, name:str):
         if name in self.types:

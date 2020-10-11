@@ -2,6 +2,7 @@
 
 from .error import SemanticError
 from .features import *
+from tools.utils import Singleton
 
 class Type:
     def __init__(self, name:str):
@@ -78,7 +79,6 @@ class Type:
 
     def __repr__(self):
         return str(self)
-
 class SELF_TYPE(Type):
     def __init__(self):
         Type.__init__(self, 'SELF_TYPE')
@@ -133,7 +133,7 @@ class IntType(Type):
     def __ne__(self, other):
         return other.name != self.name and not isinstance(other, IntType)
 
-class StringType(Type):
+class StringType(Type, metaclass=Singleton):
     def __init__(self):
         Type.__init__(self, 'String')
 
@@ -145,7 +145,7 @@ class StringType(Type):
     def __ne__(self, other):
         return other.name != self.name and not isinstance(other, StringType)
 
-class IOType(Type):
+class IOType(Type, metaclass=Singleton):
     def __init__(self):
         Type.__init__(self, 'IO')
 
@@ -157,13 +157,12 @@ class IOType(Type):
     def __ne__(self, other):
         return other.name != self.name and not isinstance(other, IOType)
 
-class ObjectType(Type):
+class ObjectType(Type, metaclass=Singleton):
     def __init__(self):
         self.name = 'Object'
         self.attributes = []
         self.methods = { }
         self.parent = None
-
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, ObjectType)
