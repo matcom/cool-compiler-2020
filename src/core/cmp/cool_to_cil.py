@@ -577,11 +577,15 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.right -> ExpressionNode
         ###############################
         vname = self.define_internal_local()
+        left_value = self.define_internal_local()
+        right_value = self.define_internal_local()
         self.visit(node.left, scope)
         left = scope.ret_expr
         self.visit(node.right, scope)
         right = scope.ret_expr
-        self.register_instruction(cil.LessEqualNode(vname, left, right))
+        self.register_instruction(cil.GetAttribNode(left_value, left, 'value', 'Int'))
+        self.register_instruction(cil.GetAttribNode(right_value, right, 'value', 'Int'))
+        self.register_instruction(cil.LessEqualNode(vname, left_value, right_value))
         scope.ret_expr = vname
 
     @visitor.when(cool.LessNode)
@@ -591,11 +595,15 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.right -> ExpressionNode
         ###############################
         vname = self.define_internal_local()
+        left_value = self.define_internal_local()
+        right_value = self.define_internal_local()
         self.visit(node.left, scope)
         left = scope.ret_expr
         self.visit(node.right, scope)
         right = scope.ret_expr
-        self.register_instruction(cil.LessNode(vname, left, right))
+        self.register_instruction(cil.GetAttribNode(left_value, left, 'value', 'Int'))
+        self.register_instruction(cil.GetAttribNode(right_value, right, 'value', 'Int'))
+        self.register_instruction(cil.LessNode(vname, left_value, right_value))
         scope.ret_expr = vname
 
     @visitor.when(cool.EqualNode)
