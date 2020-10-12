@@ -212,10 +212,11 @@ class LengthNode(InstructionNode):
         self.source = source
 
 class ConcatNode(InstructionNode):
-    def __init__(self, dest, prefix, suffix):
+    def __init__(self, dest, prefix, suffix, length):
         self.dest = dest
         self.prefix = prefix
         self.suffix = suffix
+        self.length = length
 
 class SubstringNode(InstructionNode):
     def __init__(self, dest, str_value, index, length):
