@@ -23,6 +23,10 @@ class CILDataCollector:
         for feature in node.features:
             self.visit(feature)
     
+    @visitor.when(COOL_AST.AttributeInit)
+    def visit(self, node):
+        self.visit(node.expr)
+    
     @visitor.when(COOL_AST.ClassMethod)
     def visit(self, node):
         self.visit(node.expr)
