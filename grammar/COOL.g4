@@ -2,6 +2,7 @@ parser grammar COOL;
 
 options {
     tokenVocab=COOL_LEX;
+    output=AST;
 }
 
 program
