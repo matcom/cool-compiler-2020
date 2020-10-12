@@ -1,6 +1,6 @@
 import visitor
 import ast_nodes as AST
-from semantic import SemanticError, ErrorSemantic
+from semantic import SemanticException, ErrorSemantic
 from semantic import Attribute, Method, Type, IntType, StringType, IOType, BoolType, ObjectType
 from semantic import ErrorType
 from semantic import Context
@@ -44,7 +44,7 @@ class TypeCollector(object):
     def visit(self, node):
         try:
             self.context.create_type(node)
-        except SemanticError as e:
+        except SemanticException as e:
             error = ErrorSemantic(e.text, node.line, node.column)
             self.errors.append(error)
 
@@ -116,7 +116,7 @@ class TypeBuilder:
             if node.parent:
                 try:
                     parent = self.context.get_type(node.parent)
-                except SemanticError as e:
+                except SemanticException as e:
                     error = ErrorSemantic(e.text, node.line, node.column)
                     self.errors.append(error)
                     parent = ErrorType()
@@ -130,7 +130,7 @@ class TypeBuilder:
 
             for f in node.features:
                 self.visit(f)
-        except SemanticError as e:
+        except SemanticException as e:
             error = ErrorSemantic(e.text, node.line, node.column)
             self.errors.append(error)
 
@@ -143,7 +143,7 @@ class TypeBuilder:
                 param_names.append(p.name)
                 try:
                     param_type = self.context.get_type(p.param_type)
-                except SemanticError:
+                except SemanticException:
                     param_type = ErrorType()
                     error = ErrorSemantic("The type of param {} in method {} not exist, in the class {}.".format(
                         p.name, node.name, self.current_type.name), node.line, node.column)
@@ -153,7 +153,7 @@ class TypeBuilder:
 
             try:
                 return_type = self.context.get_type(node.return_type)
-            except SemanticError:
+            except SemanticException:
                 return_type = ErrorType()
                 error = ErrorSemantic("The return type {} in method {} not exist, in the class {}.".format(
                     node.return_type, node.name, self.current_type.name), node.line, node.column)
@@ -161,7 +161,7 @@ class TypeBuilder:
 
             self.current_type.define_method(
                 node.name, param_names, param_types, return_type)
-        except SemanticError as e:
+        except SemanticException as e:
             error = ErrorSemantic(e.text, node.line, node.column)
             self.errors.append(error)
 
@@ -169,7 +169,7 @@ class TypeBuilder:
     def visit(self, node):
         try:
             attr_type = self.context.get_type(node.type)
-        except SemanticError:
+        except SemanticException:
             attr_type = ErrorType()
             error = ErrorSemantic("The type of attr {} in class {} not exist.".format(
                 node.name, self.current_type.name), node.line, node.column)
@@ -181,7 +181,7 @@ class TypeBuilder:
     def visit(self, node):
         try:
             attr_type = self.context.get_type(node.type)
-        except SemanticError:
+        except SemanticException:
             attr_type = ErrorType()
             error = ErrorSemantic("The type of attr {} in class {} not exist.".format(
                 node.name, self.current_type.name), node.line, node.column)
@@ -226,7 +226,7 @@ class TypeChecker:
     def visit(self, node, scope):
         try:
             node_type = self.current_type.get_attribute(node.name).type
-        except SemanticError as ex:
+        except SemanticException as ex:
             node_type = ErrorType()
             error =  ErrorSemantic(ex.text, node.line, node.column)
             self.errors.append(error)
@@ -243,7 +243,7 @@ class TypeChecker:
     def visit(self, node, scope):
         try:
             self.current_type.get_attribute(node.name)
-        except SemanticError as ex:
+        except SemanticException as ex:
             error = ErrorSemantic(ex.text, node.line, node.column)
             self.errors.append(error)
 
@@ -251,7 +251,7 @@ class TypeChecker:
     def visit(self, node, scope):
         try:
             self.current_method = self.current_type.get_method(node.name)
-        except SemanticError as ex:
+        except SemanticException as ex:
             error = ErrorSemantic(ex.text, node.line, node.column)
             self.errors.append(error)
         
@@ -286,7 +286,7 @@ class TypeChecker:
                 error = ErrorSemantic(INVALID_SELF_TYPE, node.line, node.column)
                 self.errors.append(error)
                
-        except SemanticError as ex:
+        except SemanticException as ex:
             node_type = ErrorType()
             error = ErrorSemantic(ex.text, node.line, node.column)
             self.errors.append(error)
@@ -325,7 +325,7 @@ class TypeChecker:
                 node_type = instance_type
             node_type = instance_method.return_type
 
-        except SemanticError as ex:
+        except SemanticException as ex:
             node_type = ErrorType()
             error = ErrorSemantic(ex.text, node.line, node.column)
             self.errors.append(error)
@@ -339,7 +339,7 @@ class TypeChecker:
 
         try:
             static_type = self.context.get_type(node.static_type)
-        except SemanticError as ex:
+        except SemanticException as ex:
             static_type = ErrorType()
             error = ErrorSemantic(ex.text, node.line, node.column)
             self.errors.append(error)
@@ -369,7 +369,7 @@ class TypeChecker:
                 node_type = instance_type
             node_type = method.return_type
 
-        except SemanticError as ex:
+        except SemanticException as ex:
             error = ErrorSemantic(ex.text, node.line, node.column)
             self.errors.append(error)
             node_type = ErrorType()
@@ -426,7 +426,7 @@ class TypeChecker:
     def visit(self, node, scope):
         try:
             action_type = self.context.get_type(node.action_type)
-        except SemanticError as ex:
+        except SemanticException as ex:
             error = ErrorSemantic(ex.text, node.line, node.column )
             self.errors.append(error)
             action_type = ErrorType()
@@ -490,7 +490,7 @@ class TypeChecker:
             node_type = self.context.get_type(node.type)
             if node_type.name == 'SELF_TYPE':
                 node_type = scope.find_variable('self').type
-        except SemanticError as ex:
+        except SemanticException as ex:
             error = ErrorSemantic(ex.text, node.line, node.column)
             self.errors.append(error)
             node_type = ErrorType()
@@ -514,7 +514,7 @@ class TypeChecker:
             node_type = self.context.get_type(node.type)
             if node_type.name == 'SELF_TYPE':
                 node_type = scope.find_variable('self').type
-        except SemanticError as ex:
+        except SemanticException as ex:
             error = ErrorSemantic(ex.text, node.line, node.column)
             self.errors.append(error)
             node_type = ErrorType()
@@ -530,7 +530,7 @@ class TypeChecker:
             node_type = self.context.get_type(node.type)
             if node_type.name == 'SELF_TYPE':
                 node_type = scope.find_variable('self').type
-        except SemanticError as ex:
+        except SemanticException as ex:
             error = ErrorSemantic(ex.text, node.line, node.column)
             self.errors.append(error)
             node_type = ErrorType()

@@ -64,5 +64,5 @@ class Tester:
 
 if __name__ == '__main__':
     tester = Tester()
-    # tester.run_correct_test("../tests/semantic/Correct")
-    tester.run_bad_test("../tests/semantic/Bad")
+    tester.run_correct_test("../tests/semantic/Correct")
+    # tester.run_bad_test("../tests/semantic/Bad")

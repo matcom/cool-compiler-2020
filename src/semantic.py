@@ -1,7 +1,7 @@
 import itertools as itt
 
 
-class SemanticError(Exception):
+class SemanticException(Exception):
     @property
     def text(self):
         return self.args[0]
@@ -61,7 +61,7 @@ class Type:
 
     def set_parent(self, parent):
         if self.parent is not None:
-            raise SemanticError(f'Parent type is already set for {self.name}.')
+            raise SemanticException(f'Parent type is already set for {self.name}.')
         self.parent = parent
 
     def get_attribute(self, name: str):
@@ -69,23 +69,23 @@ class Type:
             return next(attr for attr in self.attributes if attr.name == name)
         except StopIteration:
             if self.parent is None:
-                raise SemanticError(
+                raise SemanticException(
                     f'Attribute "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_attribute(name)
-            except SemanticError:
-                raise SemanticError(
+            except SemanticException:
+                raise SemanticException(
                     f'Attribute "{name}" is not defined in {self.name}.')
 
     def define_attribute(self, name: str, typex):
         try:
             self.get_attribute(name)
-        except SemanticError:
+        except SemanticException:
             attribute = Attribute(name, typex)
             self.attributes.append(attribute)
             return attribute
         else:
-            raise SemanticError(
+            raise SemanticException(
                 f'Attribute "{name}" is already defined in {self.name}.')
 
     def get_method(self, name: str):
@@ -93,18 +93,18 @@ class Type:
             return self.methods[name]
         except KeyError:
             if self.parent is None:
-                raise SemanticError(
+                raise SemanticException(
                     f'Method "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_method(name)
-            except SemanticError:
-                raise SemanticError(
+            except SemanticException:
+                raise SemanticException(
                     f'Method "{name}" is not defined in {self.name}.')
 
     def define_method(self, name: str, param_names: list, param_types: list, return_type):
         try:
             method = self.get_method(name)
-        except SemanticError:
+        except SemanticException:
             method = self.methods[name] = Method(
                 name, param_names, param_types, return_type)
             return method
@@ -113,10 +113,10 @@ class Type:
                 self.methods[name]
             except KeyError:
                 if method.return_type != return_type or method.param_types != param_types:
-                    raise SemanticError(
+                    raise SemanticException(
                         f'Method "{name}" is already defined in {self.name} with a different signature')
             else:
-                raise SemanticError(
+                raise SemanticException(
                     f'Method "{name}" is already defined in {self.name}')
 
         return method
@@ -293,7 +293,7 @@ class Context:
 
     def create_type(self, node):
         if node.name in self.types:
-            raise SemanticError(
+            raise SemanticException(
                 f'Type with the same name ({node.name}) already in context.')
         typex = self.types[node.name] = Type(node.name)
         self.classes[node.name] = node
@@ -309,7 +309,7 @@ class Context:
         try:
             return self.types[name]
         except KeyError:
-            raise SemanticError(f'Type "{name}" is not defined.')
+            raise SemanticException(f'Type "{name}" is not defined.')
 
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
