@@ -520,6 +520,26 @@ class CILToMIPSVisitor:
         instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
         
         return instructions
+    
+    @visitor.when(cil.EqualStrNode)
+    def visit(self, node):
+        instructions = []
+
+        location = self.get_var_location(node.left)
+        instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[0], location))
+
+        location = self.get_var_location(node.right)
+        instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], location))
+
+        instructions.append(mips.JumpAndLinkNode("equal_str"))
+
+        dest_location = self.get_var_location(node.dest)
+        instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
+        
+        return instructions
+
+
+
 
     @visitor.when(cil.LabelNode)
     def visit(self, node):
