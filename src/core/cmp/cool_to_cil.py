@@ -389,6 +389,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         then_label_node = self.register_label('then_label')
         else_label_node = self.register_label('else_label')
+        end_label_node  = self.register_label('end_label')
 
         #If condition GOTO then_label
         self.visit(node.condition, scope)
@@ -399,11 +400,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(then_label_node)
         self.visit(node.if_body, scope)
         self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
+        self.register_instruction(cil.GotoNode(end_label_node.label))
         #Label else_label
         self.register_instruction(else_label_node)
         self.visit(node.else_body, scope)
         self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
 
+        self.register_instruction(end_label_node)
         scope.ret_expr = vret
 
     @visitor.when(cool.WhileLoopNode)
