@@ -980,15 +980,25 @@ concat:
 
     move $t0 $a0
     move $t1 $a1
-    addiu $a0 $a0 neg_header_size
-    addiu $a1 $a1 neg_header_size
 
-    lw $a0 header_size_slot($a0)
-    lw $a1 header_size_slot($a1)
-    
-    add $a0 $a0 $a1
+
+    addiu $a0 $a2 1
+    li $t2 4
+    div $a0 $t2
+    mfhi $a0
+    bne $a0 $zero concat_allign_size
+    addiu $a0 $a2 1
+
+concat_size_alligned:
     jal malloc
     move $t2 $v0
+    j concat_copy_first_loop
+
+concat_allign_size:
+    sub $t2 $t2 $a0
+    add $a0 $a2 $t2
+    addiu $a0 $a0 1
+    j concat_size_alligned
 
 concat_copy_first_loop:
     lb $a0 0($t0)
