@@ -13,8 +13,8 @@ def build_cil_ast(cool_ast, context):
     cil_data_collector = CILDataCollector(cil_ast, context) 
     cil_data_collector.visit(cool_ast)
     
-    # cil_code_builder = CILCodeBuilder(cil_ast, context)
-    # cil_code_builder.visit(cool_ast)
+    cil_code_builder = CILCodeBuilder(cil_ast, context)
+    cil_code_builder.visit(cool_ast)
 
     return cil_ast
 

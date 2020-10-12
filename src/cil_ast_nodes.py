@@ -8,20 +8,20 @@ class AST:
 class Program(AST):
     def __init__(self):
         super(Program, self).__init__()
-        self.types = [] # list of AST.Type
-        self.data = {}  # string, name dict, ex "Hello": "s3"
-        self.code = [] # list of AST.Function
+        self.types = {} 
+        self.data = {}
+        self.code = []
     
     def __str__(self):
         def scape_special_chars(s):
-            special_chars = [('\n', 'n'), ('\r', 'r'), ('\t', 't')]
+            special_chars = [('\n', 'n'), ('\r', 'r'), ('\t', 't'), ('\b', 'b'), ('\f', 'f')]
             for schar, char in special_chars:
                 s = s.replace(schar, f'\\{char}', len(s))
             return s
 
         text = '.TYPES'
 
-        for type in self.types:
+        for type in self.types.values():
             text += f'\n\n{type}'
         
         text += '\n\n.DATA\n'
@@ -66,13 +66,13 @@ class Attribute(AST):
         return f'attribute {self.name};'
 
 class Method(AST):
-    def __init__(self, method_name, cil_function):
+    def __init__(self, name, virtual_type):
         super(Method, self).__init__()
-        self.method_name = method_name
-        self.cil_function = cil_function
+        self.name = name
+        self.virtual_type = virtual_type
 
     def __str__(self):
-        return f'method {self.method_name}: {self.cil_function};'
+        return f'method {self.virtual_type}_{self.name}: func_{self.virtual_type}_{self.name};'
 
 class Function(AST):
     def __init__(self, name, params=[], locals=[], body=[]):
@@ -138,29 +138,17 @@ class SetAttr(Expr):
         self.value = value
     
     def __str__(self):
-        return f'SETATTR {self.type} {self.attr} {self.value};'
-
-class Allocate(Expr):
-    def __init__(self, instance_name, type):
-        super(Allocate, self).__init__()
-        self.instance_name = instance_name
-        self.type = type
-    
-    def __str__(self):
-        return f'{self.instance_name} = ALLOCATE {self.type};'
+        return f'SETATTR {self.instance} {self.attr} {self.value};'
 
 class VCall(Expr):
-    def __init__(self, _type, function, params_count):
-        self.type = _type
-        self.function = function
-        self.params_count = params_count
-
-class AssignVCall(Expr):
-    def __init__(self, var_name, type, method):
-        super(AssignVCall, self).__init__()
-        self.var_name = var_name
-        self.type = type
+    def __init__(self, itype, vtype, method, params_count):
+        self.instance_type = itype
+        self.virtual_type = vtype
         self.method = method
+        self.params_count = params_count
+    
+    def __str__(self):
+        return f'VCALL {self.instance_type} {self.virtual_type}_{self.method};'
 
 class INTEGER(Expr):
     def __init__(self, value):
@@ -206,6 +194,9 @@ class Div(BinaryOperator):
 class Allocate(Expr):
     def __init__(self, type):
         self.type = type
+    
+    def __str__(self):
+        return f'ALLOCATE {self.type};'
 
 class TypeOf(Expr):
     def __init__(self, variable):
@@ -253,6 +244,9 @@ class Return(Expr):
 class Load(Expr):
     def __init__(self, msg):
         self.msg = msg
+    
+    def __str__(self):
+        return f'LOAD {self.msg};'
 
 class Length(Expr):
     def __init__(self, variable):
