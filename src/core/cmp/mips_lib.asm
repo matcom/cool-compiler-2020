@@ -1115,6 +1115,8 @@ equal_str_end:
     lw $t3 12($sp)
     addiu $sp $sp 16
 
+    jr $ra
+
 
 
 
