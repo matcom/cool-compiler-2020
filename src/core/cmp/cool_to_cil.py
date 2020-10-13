@@ -397,7 +397,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         then_label_node = self.register_label('then_label')
         else_label_node = self.register_label('else_label')
-        end_label_node  = self.register_label('end_label')
+        continue_label_node = self.register_label('continue_label')
 
         #If condition GOTO then_label
         self.visit(node.condition, scope)
@@ -408,13 +408,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(then_label_node)
         self.visit(node.if_body, scope)
         self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
-        self.register_instruction(cil.GotoNode(end_label_node.label))
+        self.register_instruction(cil.GotoNode(continue_label_node.label))
         #Label else_label
         self.register_instruction(else_label_node)
         self.visit(node.else_body, scope)
         self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
 
-        self.register_instruction(end_label_node)
+        self.register_instruction(continue_label_node)
         scope.ret_expr = vret
 
     @visitor.when(cool.WhileLoopNode)
@@ -590,14 +590,19 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         vname = self.define_internal_local()
         left_value = self.define_internal_local()
         right_value = self.define_internal_local()
+        instance = self.define_internal_local()
+
         self.visit(node.left, scope)
         left = scope.ret_expr
         self.visit(node.right, scope)
         right = scope.ret_expr
-        self.register_instruction(cil.GetAttribNode(left_value, left, 'value', 'Int'))
-        self.register_instruction(cil.GetAttribNode(right_value, right, 'value', 'Int'))
+        self.register_instruction(cil.GetAttribNode(left_value, left, 'value', 'Bool'))
+        self.register_instruction(cil.GetAttribNode(right_value, right, 'value', 'Bool'))
         self.register_instruction(cil.LessEqualNode(vname, left_value, right_value))
-        scope.ret_expr = vname
+        
+        self.register_instruction(cil.ArgNode(vname))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Bool'), instance))
+        scope.ret_expr = instance
 
     @visitor.when(cool.LessNode)
     def visit(self, node, scope):
@@ -608,14 +613,19 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         vname = self.define_internal_local()
         left_value = self.define_internal_local()
         right_value = self.define_internal_local()
+        instance = self.define_internal_local()
+
         self.visit(node.left, scope)
         left = scope.ret_expr
         self.visit(node.right, scope)
         right = scope.ret_expr
-        self.register_instruction(cil.GetAttribNode(left_value, left, 'value', 'Int'))
-        self.register_instruction(cil.GetAttribNode(right_value, right, 'value', 'Int'))
+        self.register_instruction(cil.GetAttribNode(left_value, left, 'value', 'Bool'))
+        self.register_instruction(cil.GetAttribNode(right_value, right, 'value', 'Bool'))
         self.register_instruction(cil.LessNode(vname, left_value, right_value))
-        scope.ret_expr = vname
+
+        self.register_instruction(cil.ArgNode(vname))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Bool'), instance))
+        scope.ret_expr = instance
 
     @visitor.when(cool.EqualNode)
     def visit(self, node, scope):
@@ -626,10 +636,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         vname = self.define_internal_local()
         type_left = self.define_internal_local()
         type_int = self.define_internal_local()
+        type_bool = self.define_internal_local()
         type_string = self.define_internal_local()
         equal_result = self.define_internal_local()
         left_value = self.define_internal_local()
         right_value = self.define_internal_local()
+        instance = self.define_internal_local()
 
         self.visit(node.left, scope)
         left = scope.ret_expr
@@ -638,6 +650,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         self.register_instruction(cil.TypeNameNode(type_left, left))
         self.register_instruction(cil.NameNode(type_int, 'Int'))
+        self.register_instruction(cil.NameNode(type_bool, 'Bool'))
         self.register_instruction(cil.NameNode(type_string, 'String'))
 
         int_node = self.register_label('int_label')
@@ -645,6 +658,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         reference_node = self.register_label('reference_label')
         continue_node = self.register_label('continue_label')
         self.register_instruction(cil.EqualNode(equal_result, type_left, type_int))
+        self.register_instruction(cil.GotoIfNode(equal_result, int_node.label))
+        self.register_instruction(cil.EqualNode(equal_result, type_left, type_bool))
         self.register_instruction(cil.GotoIfNode(equal_result, int_node.label))
         self.register_instruction(cil.EqualNode(equal_result, type_left, type_string))
         self.register_instruction(cil.GotoIfNode(equal_result, string_node.label))
@@ -666,7 +681,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(cil.EqualNode(vname, left, right))
 
         self.register_instruction(continue_node)
-        scope.ret_expr = vname
+        self.register_instruction(cil.ArgNode(vname))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Bool'), instance))
+        scope.ret_expr = instance
 
     @visitor.when(cool.PlusNode)
     def visit(self, node, scope):
