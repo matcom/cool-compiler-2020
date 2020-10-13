@@ -206,6 +206,11 @@ class DivideNode(InstructionNode):
         self.reg1 = reg1
         self.reg2 = reg2
 
+class ComplementNode(InstructionNode):
+    def __init__(self, reg1, reg2):
+        self.reg1 = reg1
+        self.reg2 = reg2
+
 class MoveFromLowNode(InstructionNode):
     def __init__(self, reg):
         self.reg = reg
@@ -479,6 +484,10 @@ class PrintVisitor:
     @visitor.when(DivideNode)
     def visit(self, node):
         return f"div {self.visit(node.reg1)} {self.visit(node.reg2)}"
+    
+    @visitor.when(ComplementNode)
+    def visit(self, node):
+        return f"not {self.visit(node.reg1)} {self.visit(node.reg2)}"
 
     @visitor.when(MoveFromLowNode)
     def visit(self, node):

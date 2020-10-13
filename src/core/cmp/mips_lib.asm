@@ -980,15 +980,25 @@ concat:
 
     move $t0 $a0
     move $t1 $a1
-    addiu $a0 $a0 neg_header_size
-    addiu $a1 $a1 neg_header_size
 
-    lw $a0 header_size_slot($a0)
-    lw $a1 header_size_slot($a1)
-    
-    add $a0 $a0 $a1
+
+    addiu $a0 $a2 1
+    li $t2 4
+    div $a0 $t2
+    mfhi $a0
+    bne $a0 $zero concat_allign_size
+    addiu $a0 $a2 1
+
+concat_size_alligned:
     jal malloc
     move $t2 $v0
+    j concat_copy_first_loop
+
+concat_allign_size:
+    sub $t2 $t2 $a0
+    add $a0 $a2 $t2
+    addiu $a0 $a0 1
+    j concat_size_alligned
 
 concat_copy_first_loop:
     lb $a0 0($t0)
@@ -1071,6 +1081,41 @@ substr_end:
     jr $ra
 
 
+equal_str:
+    addiu $sp $sp -16
+    sw $t0 0($sp)
+    sw $t1 4($sp)
+    sw $t2 8($sp)
+    sw $t3 12($sp)
+
+    move $t0 $a0
+    move $t1 $a1
+
+equal_str_loop:
+    lb $t2 0($t0)
+    lb $t3 0($t1)
+    bne $t2 $t3 equal_str_not_equal
+    beq $t2 $zero equal_str_equal
+
+    addiu $t0 $t0 1
+    addiu $t1 $t1 1
+    j equal_str_loop
+
+equal_str_not_equal:
+    move $v0 $zero
+    j equal_str_end
+
+equal_str_equal:
+    li $v0 1
+
+equal_str_end:
+    lw $t0 0($sp)
+    lw $t1 4($sp)
+    lw $t2 8($sp)
+    lw $t3 12($sp)
+    addiu $sp $sp 16
+
+    jr $ra
 
 
 

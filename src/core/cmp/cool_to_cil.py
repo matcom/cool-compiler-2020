@@ -182,10 +182,18 @@ class BaseCOOLToCILVisitor:
         self.register_param(VariableInfo('s', None))
         str_1 = self.define_internal_local()
         str_2 = self.define_internal_local()
+        length_1 = self.define_internal_local()
+        length_2 = self.define_internal_local()
         self.register_instruction(cil.GetAttribNode(str_1, self.vself.name, 'value', 'String'))
         self.register_instruction(cil.GetAttribNode(str_2, 's', 'value', 'String'))
+        self.register_instruction(cil.GetAttribNode(length_1, self.vself.name, 'length', 'String'))
+        self.register_instruction(cil.GetAttribNode(length_2, 's', 'length', 'String'))
+        self.register_instruction(cil.GetAttribNode(length_1, length_1, 'value', 'Int'))
+        self.register_instruction(cil.GetAttribNode(length_2, length_2, 'value', 'Int'))
+        self.register_instruction(cil.PlusNode(length_1, length_1, length_2))
+
         result = self.define_internal_local()
-        self.register_instruction(cil.ConcatNode(result, str_1, str_2))
+        self.register_instruction(cil.ConcatNode(result, str_1, str_2, length_1))
         instance = self.define_internal_local()
         self.register_instruction(cil.ArgNode(result))
         self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'String'), instance))
@@ -389,6 +397,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         then_label_node = self.register_label('then_label')
         else_label_node = self.register_label('else_label')
+        end_label_node  = self.register_label('end_label')
 
         #If condition GOTO then_label
         self.visit(node.condition, scope)
@@ -399,11 +408,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(then_label_node)
         self.visit(node.if_body, scope)
         self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
+        self.register_instruction(cil.GotoNode(end_label_node.label))
         #Label else_label
         self.register_instruction(else_label_node)
         self.visit(node.else_body, scope)
         self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
 
+        self.register_instruction(end_label_node)
         scope.ret_expr = vret
 
     @visitor.when(cool.WhileLoopNode)
@@ -577,11 +588,15 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.right -> ExpressionNode
         ###############################
         vname = self.define_internal_local()
+        left_value = self.define_internal_local()
+        right_value = self.define_internal_local()
         self.visit(node.left, scope)
         left = scope.ret_expr
         self.visit(node.right, scope)
         right = scope.ret_expr
-        self.register_instruction(cil.LessEqualNode(vname, left, right))
+        self.register_instruction(cil.GetAttribNode(left_value, left, 'value', 'Int'))
+        self.register_instruction(cil.GetAttribNode(right_value, right, 'value', 'Int'))
+        self.register_instruction(cil.LessEqualNode(vname, left_value, right_value))
         scope.ret_expr = vname
 
     @visitor.when(cool.LessNode)
@@ -591,11 +606,15 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.right -> ExpressionNode
         ###############################
         vname = self.define_internal_local()
+        left_value = self.define_internal_local()
+        right_value = self.define_internal_local()
         self.visit(node.left, scope)
         left = scope.ret_expr
         self.visit(node.right, scope)
         right = scope.ret_expr
-        self.register_instruction(cil.LessNode(vname, left, right))
+        self.register_instruction(cil.GetAttribNode(left_value, left, 'value', 'Int'))
+        self.register_instruction(cil.GetAttribNode(right_value, right, 'value', 'Int'))
+        self.register_instruction(cil.LessNode(vname, left_value, right_value))
         scope.ret_expr = vname
 
     @visitor.when(cool.EqualNode)

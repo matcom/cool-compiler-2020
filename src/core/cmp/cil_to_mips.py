@@ -209,9 +209,9 @@ class CILToMIPSVisitor:
             code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
             
         except Exception as e:
-            if node.name == "function_main_at_Main":
+            if node.name == "function_a2i_aux_at_A2I":
                 print(e)
-                print(node.instructions)
+                # print(node.instructions)
             print(node.name)
             
             
@@ -286,7 +286,9 @@ class CILToMIPSVisitor:
         
         reg = self.get_free_reg()
 
-        if node.source.isnumeric():
+        if type(node.source) == cil.VoidNode:
+            instructions.append(mips.LoadInmediateNode(reg, 0))
+        elif node.source.isnumeric():
             load_value = mips.LoadInmediateNode(reg, int(node.source))
             instructions.append(load_value)
         elif type(node.source) == cil.VoidNode:
@@ -518,6 +520,26 @@ class CILToMIPSVisitor:
         instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
         
         return instructions
+    
+    @visitor.when(cil.EqualStrNode)
+    def visit(self, node):
+        instructions = []
+
+        location = self.get_var_location(node.left)
+        instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[0], location))
+
+        location = self.get_var_location(node.right)
+        instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], location))
+
+        instructions.append(mips.JumpAndLinkNode("equal_str"))
+
+        dest_location = self.get_var_location(node.dest)
+        instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
+        
+        return instructions
+
+
+
 
     @visitor.when(cil.LabelNode)
     def visit(self, node):
@@ -745,6 +767,29 @@ class CILToMIPSVisitor:
 
         return instructions
 
+    @visitor.when(cil.ComplementNode)
+    def visit(self, node):
+        instructions = []
+
+        reg1 = self.get_free_reg()
+        
+        if type(node.obj) == int:
+            instructions.append(mips.LoadInmediateNode(reg1, node.obj))
+        else:
+            left_location = self.get_var_location(node.obj)
+            instructions.append(mips.LoadWordNode(reg1, left_location))
+
+        dest_location = self.get_var_location(node.dest)
+        
+        instructions.append(mips.ComplementNode(reg1, reg1))
+        instructions.append(mips.StoreWordNode(reg1, dest_location))
+
+        self.free_reg(reg1)
+
+        return instructions
+
+
+
     @visitor.when(cil.LessEqualNode)
     def visit(self, node):
         instructions = []
@@ -832,14 +877,16 @@ class CILToMIPSVisitor:
     def visit(self, node):
         instructions = []
 
-        #save $a0, $a1, $v0
+        #save $a0, $a1, $a2, $v0
 
         prefix_location = self.get_var_location(node.prefix)
         suffix_location = self.get_var_location(node.suffix)
+        lenght_location = self.get_var_location(node.length)
         dest_location = self.get_var_location(node.dest)
 
         instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[0], prefix_location))
         instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], suffix_location))
+        instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[2], lenght_location))
         instructions.append(mips.JumpAndLinkNode("concat"))
         instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
 
