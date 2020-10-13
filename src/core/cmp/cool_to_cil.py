@@ -426,6 +426,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.body -> ExpressionNode
         ###################################
 
+        vcondition = self.define_internal_local()
         while_label_node = self.register_label('while_label')
         loop_label_node = self.register_label('loop_label')
         pool_label_node = self.register_label('pool_label')
@@ -433,7 +434,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(while_label_node)
         #If condition GOTO loop
         self.visit(node.condition, scope)
-        self.register_instruction(cil.GotoIfNode(scope.ret_expr, loop_label_node.label))
+        self.register_instruction(cil.GetAttribNode(vcondition, scope.ret_exp, 'value', 'Bool'))
+        self.register_instruction(cil.GotoIfNode(vcondition, loop_label_node.label))
         #GOTO pool
         self.register_instruction(cil.GotoNode(pool_label_node.label))
         #Label loop
