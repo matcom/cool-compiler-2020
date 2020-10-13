@@ -394,6 +394,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.else_body -> ExpressionNode
         ##################################
         vret = self.register_local(VariableInfo('if_then_else_value', None))
+        vcondition = self.define_internal_local()
 
         then_label_node = self.register_label('then_label')
         else_label_node = self.register_label('else_label')
@@ -401,7 +402,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         #If condition GOTO then_label
         self.visit(node.condition, scope)
-        self.register_instruction(cil.GotoIfNode(scope.ret_expr, then_label_node.label))
+        self.register_instruction(cil.GetAttribNode(vcondition, scope.ret_expr, 'value', 'Bool'))
+        self.register_instruction(cil.GotoIfNode(vcondition, then_label_node.label))
         #GOTO else_label
         self.register_instruction(cil.GotoNode(else_label_node.label))
         #Label then_label
