@@ -771,10 +771,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         vname = self.define_internal_local()
         value = self.define_internal_local()
+        instance = self.define_internal_local()
         self.visit(node.expr, scope)
         self.register_instruction(cil.GetAttribNode(value, scope.ret_expr, 'value', 'Int'))
         self.register_instruction(cil.ComplementNode(vname, value))
-        scope.ret_expr = vname
+        self.register_instruction(cil.ArgNode(vname))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
+        scope.ret_expr = instance
 
     @visitor.when(cool.FunctionCallNode)
     def visit(self, node, scope):
