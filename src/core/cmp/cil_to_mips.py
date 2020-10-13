@@ -782,6 +782,7 @@ class CILToMIPSVisitor:
         dest_location = self.get_var_location(node.dest)
         
         instructions.append(mips.ComplementNode(reg1, reg1))
+        instructions.append(mips.AddInmediateNode(reg1, reg1, 1))
         instructions.append(mips.StoreWordNode(reg1, dest_location))
 
         self.free_reg(reg1)
