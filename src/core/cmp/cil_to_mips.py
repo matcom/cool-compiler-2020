@@ -808,9 +808,9 @@ class CILToMIPSVisitor:
             right_location = self.get_var_location(node.right)
             instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], right_location))
         
-        instruction.append(mips.JumpAndLinkNode('less_equal'))
+        instructions.append(mips.JumpAndLinkNode('less_equal'))
         dest_location = self.get_var_location(node.dest)
-        instruction.append(mips.StoreWordNode(mips.V0_REG, dest_location))
+        instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
 
         return instructions
 
