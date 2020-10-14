@@ -569,9 +569,9 @@ class GenMIPS:
         # save value in $t3
         self.code.append(Ins('lw', self.tR(3), f'{int_idx * WORD}({self.tR(3)})'))
 
-        # check if index >= $t3
+        # check if index > $t3
         self.code.append(Ins('la', '$a0', LABEL_SUBSTR_TOO_LONG_INDEX))
-        self.code.append(Ins('bge', self.tR(1), self.tR(3), LABEL_PRINT_ERROR_EXIT))
+        self.code.append(Ins('bgt', self.tR(1), self.tR(3), LABEL_PRINT_ERROR_EXIT))
 
         # set $t4 to $t1(index) + $t2(length formal)
         self.code.append(Ins('add', self.tR(4), self.tR(1), self.tR(2)))
