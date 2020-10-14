@@ -24,6 +24,18 @@ def load_file(file):
         
     return content
 
+def run_unconditionally(file, add_args=[]):
+    try:
+        p = subprocess.run(args=['python3', '-m', 'coolcmp', file] + add_args, capture_output=True, timeout=2, text=True)
+    except subprocess.TimeoutExpired:
+        assert 0, 'Timeout Expired'
+        return
+
+    mips_file = Path('.', f'{file.stem}.mips').resolve()
+    assert mips_file.exists()
+    # delete mips file
+    mips_file.unlink()
+
 def run_test(file, add_args=[], verdict=None):
     if not verdict:
         verdict = file.parts[-2]
