@@ -1569,6 +1569,10 @@ class GenMIPS:
         # save $ra
         self._allocate_stack(WORD)
         self.code.append(Ins('sw', '$ra', '0($sp)'))
+
+        # if one of them is void, then jump to compare not primitive
+        self.code.append(Ins('beqz', self.tR(0), LABEL_EQ_NOT_PRIMITIVE))
+        self.code.append(Ins('beqz', self.tR(1), LABEL_EQ_NOT_PRIMITIVE))
         
         # both objects ($t0 and $t1) will have the same type_obj value (typechecker enforces this)
 
