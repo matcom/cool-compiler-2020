@@ -538,7 +538,107 @@ class GenMIPS:
 
         # result is saved at $result_reg, so I wont save it here
 
-    def native_substr(self, formals): pass
+    def native_substr(self, formals):
+        # formals: i:Int (index), l:Int (length)
+
+        int_idx = self.dict_init_func['Int'].attr_dict['_int_literal']
+
+        # load index
+        formal_idx = formals[0].refers_to[1]
+        self.code.append(Ins('lw', self.tR(1), f'{-formal_idx * WORD}($fp)'))
+        # save index value to $t1
+        self.code.append(Ins('lw', self.tR(1), f'{int_idx * WORD}({self.tR(1)})'))
+
+        # load length
+        formal_idx = formals[1].refers_to[1]
+        self.code.append(Ins('lw', self.tR(2), f'{-formal_idx * WORD}($fp)'))
+        # save length value to $t2
+        self.code.append(Ins('lw', self.tR(2), f'{int_idx * WORD}({self.tR(2)})'))
+
+        # check if index < 0
+        self.code.append(Ins('la', '$a0', LABEL_SUBSTR_NEG_INDEX))
+        self.code.append(Ins('bltz', self.tR(1), LABEL_PRINT_ERROR_EXIT))
+
+        # check if length < 0
+        self.code.append(Ins('la', '$a0', LABEL_SUBSTR_NEG_LENGTH))
+        self.code.append(Ins('bltz', self.tR(2), LABEL_PRINT_ERROR_EXIT))
+
+        # save length of string (no padding) in $t3
+        idx = self.dict_init_func['String'].attr_dict['_string_length']
+        self.code.append(Ins('lw', self.tR(3), f'{idx * WORD}({self.sR()})'))
+        # save value in $t3
+        self.code.append(Ins('lw', self.tR(3), f'{int_idx * WORD}({self.tR(3)})'))
+
+        # check if index >= $t3
+        self.code.append(Ins('la', '$a0', LABEL_SUBSTR_TOO_LONG_INDEX))
+        self.code.append(Ins('bge', self.tR(1), self.tR(3), LABEL_PRINT_ERROR_EXIT))
+
+        # set $t4 to $t1(index) + $t2(length formal)
+        self.code.append(Ins('add', self.tR(4), self.tR(1), self.tR(2)))
+
+        # we represent interval as [$t1, $t1 + $t2), $t4 now has $t1 + $t2
+
+        # check if $t4 > $t3 (string_size)
+        self.code.append(Ins('la', '$a0', LABEL_SUBSTR_TOO_LONG_LENGTH))
+        self.code.append(Ins('bgt', self.tR(4), self.tR(3), LABEL_PRINT_ERROR_EXIT))
+
+        # get address of string literal
+        idx = self.dict_init_func['String'].attr_dict['_string_literal']
+        # idx positive, because it's from heap
+        # now $t3 will have address to beginning of string
+        self.code.append(Ins('la', self.tR(3), f'{idx * WORD}({self.sR()})'))
+
+        # add to $t3 the index (this sets $t3 in correct address)
+        self.code.append(Ins('addu', self.tR(3), self.tR(3), self.tR(1)))
+
+        # set $t4 to $t3 + length 
+        self.code.append(Ins('addu', self.tR(4), self.tR(3), self.tR(2)))
+
+        loop_starts = f'{LABEL_START_LOOP}{self.loops}'
+        self.loops += 1
+
+        loop_ends = f'{LABEL_END_LOOP}{self.loops}'
+        self.loops += 1
+
+        # save old $fp
+        self._allocate_stack(WORD)
+        self.code.append(Ins('sw', '$fp', '0($sp)'))
+
+        # set frame pointer to first position of string
+        self.code.append(Ins('subu', '$fp', '$sp', 1))
+
+        # total of bytes
+        self.code.append(Ins('li', self.tR(0), 0))
+
+        self.code.append(Label(f'{loop_starts}:'))
+
+        # if equal, get out
+        self.code.append(Ins('beq', self.tR(3), self.tR(4), loop_ends))
+        
+        # load byte
+        self.code.append(Ins('lb', self.tR(5), f'({self.tR(3)})'))
+
+        # save byte
+        self._allocate_stack(1)
+        self.code.append(Ins('sb', self.tR(5), '0($sp)'))
+
+        # add 1 to total of bytes
+        self.code.append(Ins('add', self.tR(0), self.tR(0), 1))
+
+        # move one byte
+        self.code.append(Ins('addu', self.tR(3), self.tR(3), 1))
+        self.code.append(Ins('b', loop_starts))
+
+        self.code.append(Label(f'{loop_ends}:'))
+
+        # adding padding now, this uses $t0 as a register keeping total of bytes
+        self._send_string()
+
+        # get old $fp from stack
+        self.code.append(Ins('lw', '$fp', '0($sp)'))
+        self._deallocate_stack(WORD)
+
+        # result is saved at $result_reg, so I wont save it here
 
     # from IO
     def native_out_string(self, formals):
