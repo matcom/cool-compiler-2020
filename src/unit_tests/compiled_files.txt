@@ -12,7 +12,6 @@
 /home/daniel/Projects/cool-compiler-2020/tests/codegen/complex.cl
 /home/daniel/Projects/cool-compiler-2020/tests/codegen/print-cool.cl
 /home/daniel/Projects/cool-compiler-2020/tests/codegen/atoi2.cl
-/home/daniel/Projects/cool-compiler-2020/src/extra/substr1.cl
 /home/daniel/Projects/cool-compiler-2020/src/extra/true.cl
 /home/daniel/Projects/cool-compiler-2020/src/extra/attr-disp.cl
 /home/daniel/Projects/cool-compiler-2020/src/extra/mult-inh.cl
@@ -21,7 +20,6 @@
 /home/daniel/Projects/cool-compiler-2020/src/extra/divs.cl
 /home/daniel/Projects/cool-compiler-2020/src/extra/mmm.cl
 /home/daniel/Projects/cool-compiler-2020/src/extra/cycle.cl
-/home/daniel/Projects/cool-compiler-2020/src/extra/rec.cl
 /home/daniel/Projects/cool-compiler-2020/src/extra/hello_world.cl
 /home/daniel/Projects/cool-compiler-2020/src/extra/st-dispatch.cl
 /home/daniel/Projects/cool-compiler-2020/src/extra/attrs.cl
@@ -176,7 +174,6 @@
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/Semantics/success/let-scope-variable.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/Semantics/success/dispatchnoargs.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/Semantics/success/mod-param.cl
-/home/daniel/Projects/cool-compiler-2020/src/unit_tests/Semantics/success/nested-arith.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/Semantics/success/casevoid.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/Semantics/success/basicequality1.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/Semantics/success/fibo.cl
@@ -259,7 +256,6 @@
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/Parsing/success/basicequality.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/Parsing/success/lam-gc.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/Parsing/success/mod-param.cl
-/home/daniel/Projects/cool-compiler-2020/src/unit_tests/Parsing/success/nested-arith.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/Parsing/success/casevoid.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/Parsing/success/fibo.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/Parsing/success/new-self-dispatch.cl
@@ -324,6 +320,7 @@
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/CustCodeGeneration/fail/while.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/CustCodeGeneration/fail/substr2.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/CustCodeGeneration/fail/case-err.cl
+/home/daniel/Projects/cool-compiler-2020/src/unit_tests/CustCodeGeneration/fail/wtf.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/CustCodeGeneration/fail/case-err1.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/CustCodeGeneration/fail/substr.cl
 /home/daniel/Projects/cool-compiler-2020/src/unit_tests/CustCodeGeneration/fail/div0.cl

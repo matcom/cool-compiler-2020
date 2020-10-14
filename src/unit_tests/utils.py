@@ -55,8 +55,19 @@ def run_test(file, add_args=[], verdict=None):
         assert p.returncode == 0, f'File {file} must compile'
         assert verdict == 'success'
 
-def get_output(p):
+def get_output(p, is_ref=False):
     output = p.stdout.split('\n')[USELESS_LINES:]
+
+    if is_ref:
+        ok_out = []
+        for line in output:
+            if line == 'Increasing heap...':
+                continue
+
+            ok_out.append(line)
+
+        output = ok_out
+
     output = '\n'.join(output)
     return output
 
@@ -89,14 +100,17 @@ def run_test_codegen(file, t=2):
     mips_file_ref.unlink()  # delete it
 
     my_output = get_output(mine)
-    ref_output = get_output(ref).rstrip()
+    ref_output = get_output(ref, is_ref=True).rstrip()
 
     if mine.returncode == 1:  # runtime exception of my compiled code
-        if my_output.rstrip() == 'Case without a matching branch':
-            assert ref_output.startswith(error_conversions[my_output.rstrip()])
+        conv = None
 
-        else:
-            assert ref_output.endswith(error_conversions[my_output.rstrip()])
+        for k, v  in error_conversions.items():
+            if k in my_output:
+                conv = v
+
+        assert conv
+        assert conv in ref_output
 
     else:
         if ref.stderr:  # ref compiler gave some runtime error (div0 or heap overflow can be)
@@ -104,7 +118,7 @@ def run_test_codegen(file, t=2):
                                                 f'My compiler gives:\n{mine.stderr}\n')
  
         else:
-            if ref_output.startswith('Abort called from class'):
+            if 'Abort called from class' in ref_output:
                 assert my_output.rstrip() == ref_output
 
             else:
