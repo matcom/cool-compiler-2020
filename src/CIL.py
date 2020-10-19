@@ -1,14 +1,14 @@
-class InstructionNode:
+class CILInstructionNode:
     def __init__(destination=None, params=[]):
         self.destination=destination
         self.params=params
 
-class ClassMethod:
+class CILClassMethod:
     def __init__(localname,globalname):
         self.localname=localname
         self.globalname=globalname
 
-class Attribute:
+class CILAttribute:
     def __init__(name):
         self.name=name
 
@@ -17,16 +17,18 @@ class CILClass:
         self.listaAtributos=listaAtributos
         self.listaMetodos=listaMetodos
 
-class CILTypes:
-    def __init__(listaClases):
-        self.listaClases=listaClases
-
-class DataDeclaration:
+class CILDataDeclaration:
     def __init__(nombre, valorString):
         self.nombre=nombre
         self.valorString=valorString
 
-class GlobalMethod:
+class CILGlobalMethod:
     def __init__(nombre, intrucciones=[]):
         self.nombre=nombre
         self.intrucciones=intrucciones
+
+class CILProgram:
+    def __init__(Types=[],Data=[],Methods=[]):
+        self.Types=Types
+        self.Data=Data
+        self.Methods=Methods
