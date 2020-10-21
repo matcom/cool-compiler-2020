@@ -9,6 +9,8 @@ class Scope:
         self.variables = {}
         self.attributes = {}
         self.methods = {}
+        self.locals={}
+        self.params={}
         if not parent:
             self.cool_types = {cool_type.name: cool_type for cool_type in get_basic_types()}
 

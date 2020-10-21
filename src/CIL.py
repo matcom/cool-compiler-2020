@@ -3,6 +3,48 @@ class CILInstructionNode:
         self.destination=destination
         self.params=params
 
+class CILBinaryOperator(CILInstructionNode):
+    pass
+
+class CILAritmetic(CILBinaryOperator):
+    pass
+
+class CILComparison(CILBinaryOperator):
+    pass
+
+class CILPlus(CILAritmetic):
+    pass
+class CILMinus(CILAritmetic):
+    pass
+class CILMult(CILAritmetic):
+    pass
+class CILDiv(CILAritmetic):
+    pass
+
+class CILLesser(CILComparison):
+    pass
+class CILLesserEqual(CILComparison):
+    pass
+class CILEqual(CILComparison):
+    pass
+
+class CILLabel(CILInstructionNode):
+    pass
+class CILConditionalJump(CILInstructionNode):
+    pass
+class CILJump(CILInstructionNode):
+    pass
+
+class CILUnaryOperator(CILInstructionNode):
+    pass
+class CILNot(CILUnaryOperator):
+    pass
+class CILComplement(CILUnaryOperator):
+    pass
+class CILIsVoid(CILUnaryOperator):
+    pass
+
+
 class CILClassMethod:
     def __init__(localname,globalname):
         self.localname=localname
@@ -13,7 +55,8 @@ class CILAttribute:
         self.name=name
 
 class CILClass:
-    def __init__(listaAtributos=[], listaMetodos=[]):
+    def __init__(name,listaAtributos=[], listaMetodos=[]):
+        self.name=name
         self.listaAtributos=listaAtributos
         self.listaMetodos=listaMetodos
 

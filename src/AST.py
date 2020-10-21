@@ -135,48 +135,36 @@ class BoolNotNode(UnaryOperatorNode):
         self.value = value
 
 class BinaryOperatorNode(ExpressionNode):
-    pass
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
 
 class ComparisonNode(BinaryOperatorNode):
     pass
 
 class LesserNode(ComparisonNode):
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
+    pass
 
 class LesserEqualNode(ComparisonNode):
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
+    pass
 
 class EqualNode(ComparisonNode):
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
+    pass
 
 class ArithmeticNode(BinaryOperatorNode):
     pass
 
 class PlusNode(ArithmeticNode):
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
+    pass
 
 class MinusNode(ArithmeticNode):
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
+    pass
 
 class MultNode(ArithmeticNode):
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
+    pass
 
 class DivNode(ArithmeticNode):
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
+    pass
 
 
 

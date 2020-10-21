@@ -1,11 +1,14 @@
 from AST import *
 from CIL import *
+from Scope import *
 import visitor as visitor
 
 class CILTranspiler:
     def __init__(self):
         self.data={}
         self.datacount=0
+        self.variablecount=0
+        self.labelcount=0
     def GenerarGrafoDeHerencia(self,classes:list):
         grafo={}
         for c in classes:
@@ -79,6 +82,9 @@ class CILTranspiler:
             self.methods[c.name]=mismetodos.values()
 
         return (self.methods, self.globalnames)
+
+    def GenerarNombreVariable():
+        return "var#"+str(self.variablecount)
                     
 
 
@@ -87,7 +93,7 @@ class CILTranspiler:
     def visit(self, node, scope):
         pass
 
-    @visitor.when('ProgramNode')
+    @visitor.when(ProgramNode)
     def visit(self, node: ProgramNode, _):
         classes=self.OrdenarClasesPorHerencia(node.classes)
         atributosdic=self.GenerarDiccionarioAtributos(classes)
@@ -110,10 +116,86 @@ class CILTranspiler:
                 nuevoCIL=CILClassMethod(element.name,metodosglobalesdic[c.name+"#"+element.name])
                 metodosClaseCIL.append(nuevoCIL)
             
-            claseCIL=CILClass(atributosCIL, metodosClaseCIL)
+            claseCIL=CILClass(c.name,atributosCIL, metodosClaseCIL)
+            classesCIL.append(claseCIL)
 
-    @visitor.when('StringNode')
+    @visitor.when(StringNode)
     def visit(self, node: StringNode, _):
         datadeclaration=CILDataDeclaration("st"+str(self.datacount), node.value)
         self.datacount+=1
         self.data[datadeclaration.nombre]=datadeclaration
+
+    @visitor.when(MethodNode)
+    def visit(self, node: MethodNode, scope:Scope):
+        parameters=[]
+        locales=[]
+        for param in node.parameters:
+            parameters.append(param.name)
+    
+        instructions=[]
+        for element in node.body:
+            instructions.extend(self.visit(element,scope))
+        
+        return CILGlobalMethod(parameters,locales,instructions)
+
+    @visitor.when(AssignNode)
+    def visit(self, node: AssignNode, scope:Scope):
+        if node.variable.id not in self.attrib[scope.class_name] and node.variable.id not in scope.params and node.variable.id not in scope.locals:
+            scope.locals.append(node.variable.id)
+
+        instrucciones=self.visit(node.expression,scope)
+        instrucciones[len(instrucciones)-1].destination=node.variable.id
+
+        return instrucciones
+
+    @visitor.when(BinaryOperatorNode)
+    def visit(self, node: BinaryOperatorNode, scope:Scope):
+        instrucciones=self.visit(node.left,scope)
+        izquierda=instrucciones[len(instrucciones)-1].destination
+        instrucciones.extend(self.visit(node.right,scope))
+        derecha=instrucciones[len(instrucciones)-1].destination
+
+        nombrevariable=self.GenerarNombreVariable()
+        if node is PlusNode:
+            nuevoCIL=CILPlus(nombrevariable,[izquierda,derecha])
+        elif node is MinusNode:
+            nuevoCIL=CILMinus(nombrevariable,[izquierda,derecha])
+        elif node is MultNode:
+            nuevoCIL=CILMult(nombrevariable,[izquierda,derecha])
+        elif node is DivNode:
+            nuevoCIL=CILDiv(nombrevariable,[izquierda,derecha])
+        elif node is LesserNode:
+            nuevoCIL=CILLesser(nombrevariable,[izquierda,derecha])
+        elif node is LesserEqualNode:
+            nuevoCIL=CILLesserEqual(nombrevariable,[izquierda,derecha])
+        elif node is EqualNode:
+            nuevoCIL=CILEqual(nombrevariable,[izquierda,derecha])
+        
+        instrucciones.append(nuevoCIL)
+        self.variablecount+=1
+
+        scope.locals.append(nuevoCIL.destination)
+        return instrucciones
+
+    @visitor.when(LoopNode)
+    def visit(self, node: LoopNode, scope:Scope):
+        label=CILLabel(params=["Lbl"+str(self.labelcount)])
+        self.labelcount+=1
+        finalciclo=CILLabel(params=["Lbl"+str(self.labelcount)])
+        self.labelcount+=1
+
+        instructions=[label]
+        instructions.extend(self.visit(node.predicate,scope))
+        
+        negado=self.GenerarNombreVariable()
+        instructions.append(CILNot(negado,[instructions[len(instructions)-1]]))
+
+        instructions.append(CILConditionalJump(params=[negado,finalciclo.params[0]]))
+
+        instructions.extend(self.visit(node.body,scope))
+
+        instructions.append(CILJump(params=[label.params[0]]))
+        
+        instructions.append(finalciclo)
+
+        return instructions
