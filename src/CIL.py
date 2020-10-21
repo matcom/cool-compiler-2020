@@ -27,6 +27,8 @@ class CILLesserEqual(CILComparison):
     pass
 class CILEqual(CILComparison):
     pass
+class CILDifferent(CILComparison):
+    pass
 
 class CILLabel(CILInstructionNode):
     pass
@@ -42,6 +44,13 @@ class CILNot(CILUnaryOperator):
 class CILComplement(CILUnaryOperator):
     pass
 class CILIsVoid(CILUnaryOperator):
+    pass
+class CILAssign(CILUnaryOperator):
+    pass
+
+class CILMemory(CILInstructionNode):
+    pass
+class CILAllocate(CILMemory):
     pass
 
 

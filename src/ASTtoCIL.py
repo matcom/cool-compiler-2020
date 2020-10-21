@@ -84,6 +84,7 @@ class CILTranspiler:
         return (self.methods, self.globalnames)
 
     def GenerarNombreVariable():
+        self.variablecount+=1
         return "var#"+str(self.variablecount)
                     
 
@@ -120,10 +121,71 @@ class CILTranspiler:
             classesCIL.append(claseCIL)
 
     @visitor.when(StringNode)
-    def visit(self, node: StringNode, _):
+    def visit(self, node: StringNode, scope:Scope):
         datadeclaration=CILDataDeclaration("st"+str(self.datacount), node.value)
         self.datacount+=1
         self.data[datadeclaration.nombre]=datadeclaration
+
+    @visitor.when(IntegerNode)
+    def visit(self, node: IntegerNode, scope:Scope):
+        destino=self.GenerarNombreVariable()
+        instruccion=CILAssign(destino,[node.value])
+        return [instruccion]
+
+    @visitor.when(BoolNode)
+    def visit(self, node: BoolNode, scope:Scope):
+        destino=self.GenerarNombreVariable()
+        instruccion=CILAssign(destino,[node.value])
+        return [instruccion]
+
+    @visitor.when(NewNode)
+    def visit(self, node: NewNode, scope:Scope):
+        destino=self.GenerarNombreVariable()
+        instruccion=CILAllocate(destino,[node.type])
+        return [instruccion]
+
+    @visitor.when(BlockNode)
+    def visit(self, node: BlockNode, scope:Scope):
+        instrucciones=[]
+        for e in node.expressions:
+            instrucciones.extend(self.visit(e,scope))
+        
+        return instrucciones
+
+    @visitor.when(ConditionalNode)
+    def visit(self, node: ConditionalNode, scope:Scope):
+        predicateCode=self.visit(node.predicate,scope)
+        thencode=self.visit(node.then_body,scope)
+        elsecode=self.visit(node.else_body,scope)
+
+        thenLabel=CILLabel(params=["Lbl"+str(self.labelcount)])
+        self.labelcount+=1
+        finalLabel=CILLabel(params=["Lbl"+str(self.labelcount)])
+        self.labelcount+=1
+        
+        resultadoPredicado=predicateCode[len(predicateCode)-1]
+        conditinalJump=CILConditionalJump(params=[resultadoPredicado,thenLabel.params[0]])
+        saltoalfinal=CILJump(params=[finalLabel.params[0]])
+
+        destinoinicial=self.GenerarNombreVariable()
+        asignacionThen=CILAssign(destinoinicial,[thencode[len(thencode)-1].destination])
+        thencode.append(asignacionThen)
+        asignacionElse=CILAssign(destinoinicial,[elsecode[len(elsecode)-1].destination])
+        elsecode.append(asignacionElse)
+
+        instrucciones=predicateCode
+        instrucciones.append(conditinalJump)
+        instrucciones.extend(elsecode)
+        instrucciones.append(saltoalfinal)
+        instrucciones.append(thenLabel)
+        instrucciones.extend(thencode)
+        instrucciones.append(finalLabel)
+
+        destinofinal=self.GenerarNombreVariable()
+        asignacionFinal=CILAssign(destinofinal,[destinoinicial])
+        instrucciones.append(asignacionFinal)
+        
+        return instrucciones
 
     @visitor.when(MethodNode)
     def visit(self, node: MethodNode, scope:Scope):
@@ -144,7 +206,10 @@ class CILTranspiler:
             scope.locals.append(node.variable.id)
 
         instrucciones=self.visit(node.expression,scope)
-        instrucciones[len(instrucciones)-1].destination=node.variable.id
+        
+        nombrevariable=self.GenerarNombreVariable()
+        asignacion=CILAssign(nombrevariable,instrucciones[len(instrucciones)-1].destination)
+        instrucciones.append(asignacion)
 
         return instrucciones
 
