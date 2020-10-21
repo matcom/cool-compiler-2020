@@ -18,6 +18,7 @@ class CILCodeBuilder:
 
         allocate = CIL_AST.Allocate('Main')
         assign_instance = CIL_AST.Assign(instance.name, allocate)
+        body.append(assign_instance)
 
         for attr, data in self.class_attributes["Main"].items():
             _, attr_body, attr_value = data
@@ -31,7 +32,7 @@ class CILCodeBuilder:
         assign_result = CIL_AST.Assign(result.name, vcall)
         ret = CIL_AST.Return(0)
         
-        body += [assign_instance, arg, assign_result, ret]
+        body += [arg, assign_result, ret]
 
         entry_funtion = CIL_AST.Function("entry", [], locals, body)
         self.cil_ast.code.insert(0, entry_funtion)
@@ -47,8 +48,6 @@ class CILCodeBuilder:
             self.visit(klass)
         
         self.build_entry_function(node)
-        foo = self.cil_ast.code
-        bar = 0
 
     @visitor.when(COOL_AST.Class)
     def visit(self, node):
