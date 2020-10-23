@@ -58,7 +58,7 @@ class CILCodeBuilder:
     
     @visitor.when(COOL_AST.ClassMethod)
     def visit(self, node, self_type):
-        self.params_names = [f'{param.name}{self.scope_depth}' for param in node.params]
+        self.params_names = [f'{param.name}_{self.scope_depth}' for param in node.params]
         params = [CIL_AST.ParamDec('self')] + [CIL_AST.ParamDec(param) for param in self.params_names]
         
         # locals = [local for local in self.class_locals if local.name not in params_names]
@@ -151,8 +151,17 @@ class CILCodeBuilder:
         self.expr_value_number += 1
         allocate = CIL_AST.Allocate(node.type)
         assign = CIL_AST.Assign(local.name, allocate)
+
+        locals, body = [local], [assign]
+        for attr, data in self.class_attributes[allocate.type].items():
+            attr_locals, attr_body, attr_value = data
+            locals += attr_locals
+            if attr_value:
+                setAttr = CIL_AST.SetAttr(local.name, attr, attr_value)
+                body += attr_body
+                body.append(setAttr)
         
-        return [local], [assign], local.name
+        return locals, body, local.name
     
     @visitor.when(COOL_AST.Identifier)
     def visit(self, node, self_type):
