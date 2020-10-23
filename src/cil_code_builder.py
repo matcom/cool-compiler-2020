@@ -117,7 +117,7 @@ class CILCodeBuilder:
     
     @visitor.when(COOL_AST.AssignExpr)
     def visit(self, node, self_type):
-        var_name = f'{node.name}{self.scope_depth}'
+        var_name = f'{node.name}_{self.scope_depth}'
         expr_locals, expr_code, expr_value = self.visit(node.expr, self_type)
         assign = var_name in self.params_names and \
                     CIL_AST.Assign(var_name, expr_value) or \
