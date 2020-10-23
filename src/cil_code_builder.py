@@ -113,6 +113,10 @@ class CILCodeBuilder:
             expr_locals += locals
             expr_code += code
 
+        locals_set = [name for name in set([local.name for local in expr_locals])]
+        locals_set.sort()
+        expr_locals = [CIL_AST.LocalDec(name) for name in locals_set]
+
         return expr_locals, expr_code, expr_value
     
     @visitor.when(COOL_AST.AssignExpr)
