@@ -8,28 +8,47 @@ class CILCodeBuilder:
         self.context = context
         
     def build_entry_function(self, cool_ast):
-        pass
-        # main = next(cil_type for cil_type in self.cil_ast.types if cil_type.name == 'Main')
-        # locals = [CIL_AST.LocalDec(f'l_{attr.name}') for attr in main.attributes]
-        # locals.append(CIL_AST.LocalDec('inst_Main'))
-        # locals.append(CIL_AST.LocalDec('result'))
+        locals, body = [], []
+        for attr_locals,_,_ in self.class_attributes["Main"].values():
+            locals += attr_locals
+        
+        result = CIL_AST.LocalDec('result')
+        instance = CIL_AST.LocalDec('instance')
+        locals += [result, instance]
 
-        # self.types_initializer.visit(cool_ast)
-            
+        allocate = CIL_AST.Allocate('Main')
+        assign_instance = CIL_AST.Assign(instance.name, allocate)
+        body.append(assign_instance)
+
+        for attr, data in self.class_attributes["Main"].items():
+            _, attr_body, attr_value = data
+            if attr_value:
+                setAttr = CIL_AST.SetAttr(instance.name, attr, attr_value)
+                body += attr_body
+                body.append(setAttr)
+
+        arg = CIL_AST.Arg(instance.name)
+        vcall = CIL_AST.VCall('Main', 'Main', 'main', 1)
+        assign_result = CIL_AST.Assign(result.name, vcall)
+        ret = CIL_AST.Return(0)
+        
+        body += [arg, assign_result, ret]
+
+        entry_funtion = CIL_AST.Function("entry", [], locals, body)
+        self.cil_ast.code.insert(0, entry_funtion)
+
     @visitor.on('node')
     def visit(self, node):
         pass
 
     @visitor.when(COOL_AST.Program)
     def visit(self, node):
-        # self.build_entry_function(node)
-        # cil_object_type = next(cil_type for cil_type in self.cil_ast.types if cil_type.name == 'Object')
-        # cil_IO_type = next(cil_type for cil_type in self.cil_ast.types if cil_type.name == 'IO')
-        
         self.class_attributes = { type: {} for type in self.context.types.keys()}
         for klass in node.classes:
             self.visit(klass)
-    
+        
+        self.build_entry_function(node)
+
     @visitor.when(COOL_AST.Class)
     def visit(self, node):
         self.expr_value_number = 0
@@ -98,7 +117,7 @@ class CILCodeBuilder:
     
     @visitor.when(COOL_AST.AssignExpr)
     def visit(self, node, self_type):
-        var_name = f'{node.name.name}{self.scope_depth}'
+        var_name = f'{node.name}{self.scope_depth}'
         expr_locals, expr_code, expr_value = self.visit(node.expr, self_type)
         assign = var_name in self.params_names and \
                     CIL_AST.Assign(var_name, expr_value) or \
