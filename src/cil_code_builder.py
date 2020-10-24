@@ -141,12 +141,20 @@ class CILCodeBuilder:
 
         local = CIL_AST.LocalDec(f'expr_value_{self.expr_value_number}')
         self.expr_value_number += 1
-        args = [CIL_AST.Arg(inst_value)] + [CIL_AST.Arg(arg.name) for arg in node.args]
+
+        args_locals, args_code, args_values = [], [], []
+        for arg in node.args:
+            curr_locals, curr_code, curr_value = self.visit(arg, self_type)
+            args_locals += curr_locals
+            args_code += curr_code
+            args_values.append(curr_value)
+
+        args = [CIL_AST.Arg(inst_value)] + [CIL_AST.Arg(name) for name in args_values]
         virtual_type = next(m.virtual_type for m in self.cil_ast.types[instance_type].methods if m.name == node.method)
         vcall = CIL_AST.VCall(instance_type, virtual_type, node.method, len(node.args))
         assign = CIL_AST.Assign(local.name, vcall)
 
-        return inst_locals + [local], inst_code + args + [assign], local.name      
+        return inst_locals + [local] + args_locals, inst_code + args_code + args + [assign], local.name      
 
 
     @visitor.when(COOL_AST.NewType)
