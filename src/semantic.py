@@ -1,10 +1,24 @@
 import itertools as itt
 
 
-class SemanticError(Exception):
+class SemanticException(Exception):
     @property
     def text(self):
         return self.args[0]
+
+class ErrorSemantic():
+    def __init__(self, message, line, column):
+        self.type = 'SemanticError'
+        self.value = message
+        self.line = line
+        self.column = column
+        self.text = f'({self.line}, {self.column}) - {self.type}: {self.value}'
+
+    def __str__(self):
+        return f'({self.line}, {self.column}) - {self.type}: {self.value}'
+
+    def __repr__(self):
+        return str(self)
 
 
 class Attribute:
@@ -27,7 +41,7 @@ class Method:
         self.return_type = return_type
 
     def __str__(self):
-        params = ', '.join(f'{n}:{t}' for n, t in zip(
+        params = ', '.join(f'{n}:{t.name}' for n, t in zip(
             self.param_names, self.param_types))
         return f'[method] {self.name}({params}): {self.return_type.name};'
 
@@ -47,7 +61,7 @@ class Type:
 
     def set_parent(self, parent):
         if self.parent is not None:
-            raise SemanticError(f'Parent type is already set for {self.name}.')
+            raise SemanticException(f'Parent type is already set for {self.name}.')
         self.parent = parent
 
     def get_attribute(self, name: str):
@@ -55,23 +69,23 @@ class Type:
             return next(attr for attr in self.attributes if attr.name == name)
         except StopIteration:
             if self.parent is None:
-                raise SemanticError(
+                raise SemanticException(
                     f'Attribute "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_attribute(name)
-            except SemanticError:
-                raise SemanticError(
+            except SemanticException:
+                raise SemanticException(
                     f'Attribute "{name}" is not defined in {self.name}.')
 
     def define_attribute(self, name: str, typex):
         try:
             self.get_attribute(name)
-        except SemanticError:
+        except SemanticException:
             attribute = Attribute(name, typex)
             self.attributes.append(attribute)
             return attribute
         else:
-            raise SemanticError(
+            raise SemanticException(
                 f'Attribute "{name}" is already defined in {self.name}.')
 
     def get_method(self, name: str):
@@ -79,18 +93,18 @@ class Type:
             return self.methods[name]
         except KeyError:
             if self.parent is None:
-                raise SemanticError(
+                raise SemanticException(
                     f'Method "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_method(name)
-            except SemanticError:
-                raise SemanticError(
+            except SemanticException:
+                raise SemanticException(
                     f'Method "{name}" is not defined in {self.name}.')
 
     def define_method(self, name: str, param_names: list, param_types: list, return_type):
         try:
             method = self.get_method(name)
-        except SemanticError:
+        except SemanticException:
             method = self.methods[name] = Method(
                 name, param_names, param_types, return_type)
             return method
@@ -99,10 +113,10 @@ class Type:
                 self.methods[name]
             except KeyError:
                 if method.return_type != return_type or method.param_types != param_types:
-                    raise SemanticError(
+                    raise SemanticException(
                         f'Method "{name}" is already defined in {self.name} with a different signature')
             else:
-                raise SemanticError(
+                raise SemanticException(
                     f'Method "{name}" is already defined in {self.name}')
 
         return method
@@ -141,6 +155,7 @@ class Type:
         """
         Return the least type C such as self <= C and other <= C
         """
+
         if self.name == other.name:  # A |_| A = A
             return self
 
@@ -151,13 +166,18 @@ class Type:
                     return p
         return other
 
-    def multiple_join(self, *args):
+    def multiple_join(self, args):
         """
-        Return the least type C such as all type in *args conforms with C
+        Return the least type C such as all type in args conforms with C
         """
         least_type = self
+    
         for t in args:
+            if isinstance(least_type, ErrorType) or isinstance(t, ErrorType):
+                least_type = ErrorType()
+                return least_type
             least_type = least_type.join(t)
+
         return least_type
 
     def __str__(self):
@@ -194,9 +214,6 @@ class ErrorType(Type):
 class ObjectType(Type):
     def __init__(self):
         Type.__init__(self, 'Object')
-        self.define_method('abort', [], [], 'Object')
-        self.define_method('type_name', [], [], 'String')
-        self.define_method('copy', [], [], 'SELF_TYPE')
 
     def bypass(self):
         return True
@@ -208,10 +225,6 @@ class ObjectType(Type):
 class IOType(Type):
     def __init__(self):
         Type.__init__(self, 'IO')
-        self.define_method('out_string', ['x'], ['String'], 'SELF_TYPE')
-        self.define_method('out_int', ['x'], ['Int'], 'SELF_TYPE')
-        self.define_method('in_string', [], [], 'String')
-        self.define_method('in_int', [], [], 'Int')
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, IOType)
@@ -221,9 +234,6 @@ class StringType(Type):
     def __init__(self):
         Type.__init__(self, 'String')
         self.sealed = True
-        self.define_method('length', [], [], 'Int')
-        self.define_method('concat', ['s'], ['String'], 'String')
-        self.define_method('substr', ['i', 'l'], ['Int', 'Int'], 'String')
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, StringType)
@@ -273,9 +283,24 @@ class Context:
         self.types['Int'].set_parent(self.types['Object'])
         self.types['Bool'].set_parent(self.types['Object'])
 
+        self.types['Object'].define_method('abort', [], [], self.types['Object'])
+        self.types['Object'].define_method('type_name', [], [], self.types['String'])
+        self.types['Object'].define_method('copy', [], [], self.types['SELF_TYPE'])
+
+        self.types['IO'].define_method('out_string', ['x'], [self.types['String']], self.types['SELF_TYPE'])
+        self.types['IO'].define_method('out_int', ['x'], [self.types['Int']], self.types['SELF_TYPE'])
+        self.types['IO'].define_method('in_string', [], [], self.types['String'])
+        self.types['IO'].define_method('in_int', [], [], self.types['Int'])
+
+        self.types['String'].define_method('length', [], [], self.types['Int'])
+        self.types['String'].define_method('concat', ['s'], [self.types['String']], self.types['String'])
+        self.types['String'].define_method('substr', ['i', 'l'], [self.types['Int'], self.types['Int']], self.types['String'])
+
+
+
     def create_type(self, node):
         if node.name in self.types:
-            raise SemanticError(
+            raise SemanticException(
                 f'Type with the same name ({node.name}) already in context.')
         typex = self.types[node.name] = Type(node.name)
         self.classes[node.name] = node
@@ -291,7 +316,7 @@ class Context:
         try:
             return self.types[name]
         except KeyError:
-            raise SemanticError(f'Type "{name}" is not defined.')
+            raise SemanticException(f'Type "{name}" is not defined.')
 
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
@@ -332,7 +357,7 @@ class Scope:
         try:
             return next(x for x in locals if x.name == vname)
         except StopIteration:
-            return self.parent.find_variable(vname, self.index) if self.parent else None
+            return self.parent.find_variable(vname, self.index) if (self.parent is not None) else None
 
     def is_defined(self, vname):
         return self.find_variable(vname) is not None

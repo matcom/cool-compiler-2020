@@ -27,7 +27,8 @@ class Parser():
                  outputdir="",
                  yacctab="pycoolc.yacctab",
                  debuglog=None,
-                 errorlog=None):
+                 errorlog=None, 
+                 tracking =True):
         """
         Initializer.
         :param debug: Debug mode flag.
@@ -107,13 +108,14 @@ class Parser():
         """
         class : CLASS TYPE LBRACE features_list_opt RBRACE
         """
-        parse[0] = AST.Class(name=parse[2], parent="Object", features=parse[4])
+        parse[0] = AST.Class(name=parse[2], parent="Object", features=parse[4], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
+       
 
     def p_class_inherits(self, parse):
         """
         class : CLASS TYPE INHERITS TYPE LBRACE features_list_opt RBRACE
         """
-        parse[0] = AST.Class(name=parse[2], parent=parse[4], features=parse[6])
+        parse[0] = AST.Class(name=parse[2], parent=parse[4], features=parse[6], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(4)) )
 
     def p_feature_list_opt(self, parse):
         """
@@ -137,14 +139,14 @@ class Parser():
         feature : ID LPAREN formal_params_list RPAREN COLON TYPE LBRACE expression RBRACE
         """
         parse[0] = AST.ClassMethod(
-            name=parse[1], params=parse[3], return_type=parse[6], expr=parse[8])
+            name=parse[1], params=parse[3], return_type=parse[6], expr=parse[8], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_feature_method_no_formals(self, parse):
         """
         feature : ID LPAREN RPAREN COLON TYPE LBRACE expression RBRACE
         """
         parse[0] = AST.ClassMethod(
-            name=parse[1], params=tuple(), return_type=parse[5], expr=parse[7])
+            name=parse[1], params=tuple(), return_type=parse[5], expr=parse[7], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_feature_attr_initialized(self, parse):
         """
@@ -161,13 +163,13 @@ class Parser():
             parse[0] = parse[1]
         else:
             parse[0] = AST.AttributeInit(
-                name=parse[1], Type=parse[3], expr=parse[5])
+                name=parse[1], Type=parse[3], expr=parse[5], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_feature_attr(self, parse):
         """
         attribute_def : ID COLON TYPE
         """
-        parse[0] = AST.AttributeDef(name=parse[1], Type=parse[3])
+        parse[0] = AST.AttributeDef(name=parse[1], Type=parse[3], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_formal_list_many(self, parse):
         """
@@ -183,44 +185,44 @@ class Parser():
         """
         formal_param : ID COLON TYPE
         """
-        parse[0] = AST.FormalParameter(name=parse[1], param_type=parse[3])
+        parse[0] = AST.FormalParameter(name=parse[1], param_type=parse[3], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_expression_object_identifier(self, parse):
         """
         expression : ID
         """
-        parse[0] = AST.Identifier(name=parse[1])
+        parse[0] = AST.Identifier(name=parse[1], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_expression_integer_constant(self, parse):
         """
         expression : INTEGER
         """
-        parse[0] = AST.INTEGER(value=parse[1])
+        parse[0] = AST.INTEGER(value=parse[1], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_expression_boolean_constant(self, parse):
         """
         expression : TRUE 
                    | FALSE
         """
-        parse[0] = AST.Boolean(value=parse[1])
+        parse[0] = AST.Boolean(value=parse[1], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_expression_string_constant(self, parse):
         """
         expression : STRING
         """
-        parse[0] = AST.STRING(value=parse[1])
+        parse[0] = AST.STRING(value=parse[1], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_expr_self(self, parse):
         """
         expression  : SELF
         """
-        parse[0] = AST.SELF()
+        parse[0] = AST.SELF(line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_expression_block(self, parse):
         """
         expression : LBRACE block_list RBRACE
         """
-        parse[0] = AST.Block(exprs=parse[2])
+        parse[0] = AST.Block(exprs=parse[2], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_block_list(self, parse):
         """
@@ -236,7 +238,7 @@ class Parser():
         """
         expression : ID ASSIGN expression
         """
-        parse[0] = AST.AssingExpr(AST.Object(name=parse[1]), expr=parse[3])
+        parse[0] = AST.AssignExpr(instance=parse[1], expr=parse[3], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     # ######################### METHODS DISPATCH ######################################
 
@@ -245,7 +247,7 @@ class Parser():
         expression : expression DOT ID LPAREN arguments_list_opt RPAREN
         """
         parse[0] = AST.DynamicCall(
-            instance=parse[1], method=parse[3], args=parse[5])
+            instance=parse[1], method=parse[3], args=parse[5], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_arguments_list_opt(self, parse):
         """
@@ -269,14 +271,14 @@ class Parser():
         expression : expression AT TYPE DOT ID LPAREN arguments_list_opt RPAREN
         """
         parse[0] = AST.StaticCall(
-            instance=parse[1], static_type=parse[3], method=parse[5], args=parse[7])
+            instance=parse[1], static_type=parse[3], method=parse[5], args=parse[7], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_expression_self_dispatch(self, parse):
         """
         expression : ID LPAREN arguments_list_opt RPAREN
         """
         parse[0] = AST.DynamicCall(
-            instance=AST.SELF(), method=parse[1], args=parse[3])
+            instance=AST.SELF(line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1))), method=parse[1], args=parse[3], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     # ######################### PARENTHESIZED, MATH & COMPARISONS #####################
 
@@ -288,13 +290,13 @@ class Parser():
                    | expression DIVIDE expression
         """
         if parse[2] == '+':
-            parse[0] = AST.Sum(summand1=parse[1], summand2=parse[3])
+            parse[0] = AST.Sum(summand1=parse[1], summand2=parse[3], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
         elif parse[2] == '-':
-            parse[0] = AST.Sub(minuend=parse[1], subtrahend=parse[3])
+            parse[0] = AST.Sub(minuend=parse[1], subtrahend=parse[3], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
         elif parse[2] == '*':
-            parse[0] = AST.Mult(factor1=parse[1], factor2=parse[3])
+            parse[0] = AST.Mult(factor1=parse[1], factor2=parse[3], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
         elif parse[2] == '/':
-            parse[0] = AST.Div(dividend=parse[1], divisor=parse[3])
+            parse[0] = AST.Div(dividend=parse[1], divisor=parse[3], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
 
     def p_expression_math_comparisons(self, parse):
         """
@@ -303,11 +305,11 @@ class Parser():
                    | expression EQ expression
         """
         if parse[2] == '<':
-            parse[0] = AST.LessThan(left=parse[1], right=parse[3])
+            parse[0] = AST.LessThan(left=parse[1], right=parse[3], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
         elif parse[2] == '<=':
-            parse[0] = AST.LessOrEqualThan(left=parse[1], right=parse[3])
+            parse[0] = AST.LessOrEqualThan(left=parse[1], right=parse[3], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
         elif parse[2] == '=':
-            parse[0] = AST.Equals(left=parse[1], right=parse[3])
+            parse[0] = AST.Equals(left=parse[1], right=parse[3], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
 
     def p_expression_with_parenthesis(self, parse):
         """
@@ -322,13 +324,13 @@ class Parser():
         expression : IF expression THEN expression ELSE expression FI
         """
         parse[0] = AST.If(predicate=parse[2],
-                          then_body=parse[4], else_body=parse[6])
+                          then_body=parse[4], else_body=parse[6], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
 
     def p_expression_while_loop(self, parse):
         """
         expression : WHILE expression LOOP expression POOL
         """
-        parse[0] = AST.While(predicate=parse[2], body=parse[4])
+        parse[0] = AST.While(predicate=parse[2], body=parse[4], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
 
     # ######################### LET EXPRESSIONS ########################################
 
@@ -342,7 +344,7 @@ class Parser():
         """
         let_expression : LET nested_vars IN expression
         """
-        parse[0] = AST.Let(var_list=parse[2], body=parse[4])
+        parse[0] = AST.Let(var_list=parse[2], body=parse[4], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
 
     def p_nested_let_vars(self, parse):
         """
@@ -363,13 +365,13 @@ class Parser():
             parse[0] = parse[1]
         else:
             parse[0] = AST.LetVarInit(
-                name=parse[1], Type=parse[3], expr=parse[5])
+                name=parse[1], Type=parse[3], expr=parse[5], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
 
     def p_let_var_def(self, parse):
         """
         let_var_def : ID COLON TYPE
         """
-        parse[0] = AST.LetVarDef(name=parse[1], Type=parse[3])
+        parse[0] = AST.LetVarDef(name=parse[1], Type=parse[3], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     # ######################### CASE EXPRESSION ########################################
 
@@ -377,7 +379,7 @@ class Parser():
         """
         expression : CASE expression OF actions_list ESAC
         """
-        parse[0] = AST.Case(expr=parse[2], actions=parse[4])
+        parse[0] = AST.Case(expr=parse[2], actions=parse[4], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_actions_list(self, parse):
         """
@@ -394,7 +396,7 @@ class Parser():
         action : ID COLON TYPE ARROW expression SEMICOLON
         """
         parse[0] = AST.Action(
-            name=parse[1], action_type=parse[3], body=parse[5])
+            name=parse[1], action_type=parse[3], body=parse[5], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     # ######################### UNARY OPERATIONS #######################################
 
@@ -402,25 +404,25 @@ class Parser():
         """
         expression : NEW TYPE
         """
-        parse[0] = AST.NewType(parse[2])
+        parse[0] = AST.NewType(parse[2],  line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
 
     def p_expression_isvoid(self, parse):
         """
         expression : ISVOID expression
         """
-        parse[0] = AST.IsVoid(parse[2])
+        parse[0] = AST.IsVoid(parse[2], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
 
     def p_expression_integer_complement(self, parse):
         """
         expression : INT_COMP expression
         """
-        parse[0] = AST.LogicalNot(parse[2])
+        parse[0] = AST.LogicalNot(parse[2], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_expression_boolean_complement(self, parse):
         """
         expression : NOT expression
         """
-        parse[0] = AST.Not(parse[2])
+        parse[0] = AST.Not(parse[2], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_empty(self, parse):
         """
@@ -438,10 +440,10 @@ class Parser():
             error = ErrorParser('"EOF"', 0, 0)
             self.errors.append(error)
             return
-
+        
         message = f'"{parse.value}"'
         error = ErrorParser(message, parse.lineno,
-                            lexer.find_column(parse.lexer.lexdata, parse))
+                            lexer.find_column(parse.lexer.lexdata, parse.lexpos))
         self.errors.append(error)
         self.parser.errok()
 
@@ -517,7 +519,7 @@ if __name__ == '__main__':
 
         parse_result = parser.parse(cool_program_code)
 
-        if parser.errors:
+        if parser.errors:        
             print(parser.errors[0])
             exit(1)
 

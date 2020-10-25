@@ -238,8 +238,11 @@ class Label(Expr):
         self.label = label
 
 class Return(Expr):
-    def __init__(self, variable):
-        self.variable = variable
+    def __init__(self, expr):
+        self.expr = expr
+    
+    def __str__(self):
+        return f'RETURN {self.expr}'
 
 class Load(Expr):
     def __init__(self, msg):
