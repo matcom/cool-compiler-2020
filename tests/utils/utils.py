@@ -37,7 +37,7 @@ def compare_errors(compiler_path: str, cool_file_path: str, error_file_path: str
     try:
         sp = subprocess.run(['bash', compiler_path, cool_file_path], capture_output=True, timeout=timeout)
         return_code, output = sp.returncode, sp.stdout.decode()
-    except TimeoutError:
+    except subprocess.TimeoutExpired:
         assert False, COMPILER_TIMEOUT
 
     compiler_output = output.split('\n')
