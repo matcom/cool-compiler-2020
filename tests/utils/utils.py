@@ -26,6 +26,14 @@ def first_error(compiler_output: list, errors: list):
     assert line == oline and column == ocolumn and error_type == oerror_type,\
         UNEXPECTED_ERROR % (error_type, line, column, oerror_type, oline, ocolumn)
 
+def first_error_only_line(compiler_output: list, errors: list):
+    line, column, error_type, _ = parse_error(errors[0])
+
+    oline, ocolumn, oerror_type, _ = parse_error(compiler_output[0])
+
+    assert line == oline and error_type == oerror_type,\
+        UNEXPECTED_ERROR % (error_type, line, column, oerror_type, oline, ocolumn)
+
 
 def get_file_name(path: str):
     try:
