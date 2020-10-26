@@ -1,0 +1,2 @@
+assignment1.cl:6: Inferred type String of initialization of attribute test does not conform to declared type Int.
+Compilation halted due to static semantic errors. 

@@ -1,0 +1,2 @@
+self2.cl:9: 'self' cannot be bound in a 'let' expression.
+Compilation halted due to static semantic errors. 
