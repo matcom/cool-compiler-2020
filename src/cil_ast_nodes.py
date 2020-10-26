@@ -1,3 +1,5 @@
+import visitor
+
 class AST:
     def __init__(self):
         pass
@@ -6,11 +8,11 @@ class AST:
         return str(self)
 
 class Program(AST):
-    def __init__(self):
+    def __init__(self, dottypes, dotdata, dotcode):
         super(Program, self).__init__()
-        self.types = {} 
-        self.data = {}
-        self.code = []
+        self.dottypes = dottypes
+        self.dotdata = dotdata
+        self.dotcode = dotcode
     
     def __str__(self):
         def scape_special_chars(s):
@@ -21,16 +23,16 @@ class Program(AST):
 
         text = '.TYPES'
 
-        for type in self.types.values():
+        for type in self.types:
             text += f'\n\n{type}'
         
         text += '\n\n.DATA\n'
 
-        for string, var in self.data.items():
+        for string, var in self.data:
             string = scape_special_chars(string)
             text += f'\n{var} = "{string}";' 
         
-        text += self.data.items() and '\n\n.CODE' or '\n.CODE'
+        text += self.data and '\n\n.CODE' or '\n.CODE'
 
         for code in self.code:
             text += f'\n\n{code}'
@@ -38,12 +40,12 @@ class Program(AST):
         return text
 
 class Type(AST):
-    def __init__(self, name, atrributes, methods):
+    def __init__(self, name):
         super(Type, self).__init__()
         self.name = name
-        self.attributes = atrributes
-        self.methods = methods
-    
+        self.attributes = []
+        self.methods = []
+
     def __str__(self):
         text = f'type {self.name} {{'
         
@@ -57,6 +59,13 @@ class Type(AST):
 
         return text
 
+class DataNode(AST):
+    def __init__(self, vname, value):
+        super(DataNode, self).__init__()
+        self.name = vname
+        self.value = value
+
+# ?
 class Attribute(AST):
     def __init__(self, name):
         super(Attribute, self).__init__()
@@ -65,6 +74,7 @@ class Attribute(AST):
     def __str__(self):
         return f'attribute {self.name};'
 
+# ?
 class Method(AST):
     def __init__(self, name, virtual_type):
         super(Method, self).__init__()
@@ -75,28 +85,19 @@ class Method(AST):
         return f'method {self.virtual_type}_{self.name}: func_{self.virtual_type}_{self.name};'
 
 class Function(AST):
-    def __init__(self, name, params=[], locals=[], body=[]):
+    def __init__(self, name, params=[], localvars=[], instructions =[]):
         super(Function, self).__init__()
         self.name = name
         self.params = params # list of Param
-        self.locals = locals # list of LocalDec
-        self.body = body # list of Line
+        self.localvars = localvars # list of LocalDec
+        self.instructions = instructions # list of Instructions
     
     def __str__(self):
-        text = f'function {self.name} {{'
-        
-        for line in self.params:
-            text += f'\n    {line}'
-        
-        for line in self.locals:
-            text += f'\n    {line}'
+        # params = '\n\t'.join(x for x in self.params)
+        # localvars = '\n\t'.join(x.name for x in self.localvars)
+        # instructions = '\n\t'.join(x for x in self.instructions)
 
-        for line in self.body:
-            text += f'\n    {line}'
-
-        text += '\n}'
-
-        return text
+        return f'function {node.name} {{\n\t{params}\n\n\t{localvars}\n\n\t{instructions}\n}}'
 
 class Expr(AST):
     def __init__(self):
@@ -141,7 +142,8 @@ class SetAttr(Expr):
         return f'SETATTR {self.instance} {self.attr} {self.value};'
 
 class VCall(Expr):
-    def __init__(self, itype, vtype, method, params_count):
+    def __init__(self, dest, itype, vtype, method, params_count):
+        self.local_dest = dest
         self.instance_type = itype
         self.virtual_type = vtype
         self.method = method
@@ -167,15 +169,16 @@ class STRING(Expr):
         return f'{self.value};'
 
 class Assign(Expr):
-    def __init__(self, local, right_expr):
-        self.local = local
+    def __init__(self, local_dest, right_expr):
+        self.local_dest = local_dest
         self.right_expr = right_expr
     
     def __str__(self):
         return f'{self.local} = {self.right_expr}'
 
 class BinaryOperator(Expr):
-    def __init__(self, left, right):
+    def __init__(self, local_dest, left, right):
+        self.local_dest = local_dest
         self.left = left
         self.right = right
 
@@ -192,19 +195,22 @@ class Div(BinaryOperator):
     pass
 
 class Allocate(Expr):
-    def __init__(self, type):
-        self.type = type
+    def __init__(self, t, dest):
+        self.type = t
+        self.local_dest = dest
     
     def __str__(self):
         return f'ALLOCATE {self.type};'
 
 class TypeOf(Expr):
-    def __init__(self, variable):
+    def __init__(self, variable, local_dest):
         self.variable = variable
+        self.local_dest = local_dest
 
 class Call(Expr):
-    def __init__(self, function):
+    def __init__(self, function, local_dest):
         self.function = function
+        self.local_dest = local_dest
 
 class Param(Expr):
     def __init__(self, param, shift = 0):
@@ -238,8 +244,8 @@ class Label(Expr):
         self.label = label
 
 class Return(Expr):
-    def __init__(self, expr):
-        self.expr = expr
+    def __init__(self, value):
+        self.value = value
     
     def __str__(self):
         return f'RETURN {self.expr}'
@@ -309,3 +315,91 @@ class LessThan(Compare):
     
 class LessThanEquals(Compare):
     pass
+
+
+
+def get_formatter():
+
+    class PrintVisitor(object):
+        @visitor.on('node')
+        def visit(self, node):
+            pass
+
+        @visitor.when(Program)
+        def visit(self, node):
+            print("DOTTYPES LEN:", len(node.dottypes))
+            dottypes = '\n'.join(self.visit(t) for t in node.dottypes)
+            dotdata = '\n'.join(self.visit(t) for t in node.dotdata)
+            dotcode = '\n'.join(self.visit(t) for t in node.dotcode)
+
+            return f'.TYPES\n{dottypes}\n\n.DATA\n{dotdata}\n\n.CODE\n{dotcode}'
+
+        @visitor.when(Type)
+        def visit(self, node):
+            attributes = '\n\t'.join(f'attribute {x}' for x in node.attributes)
+            methods = '\n\t'.join(f'method {x}: {y}' for x,y in node.methods)
+
+            return f'type {node.name} {{\n\t{attributes}\n\n\t{methods}\n}}'
+
+        @visitor.when(Function)
+        def visit(self, node):
+            params = '\n\t'.join(self.visit(x) for x in node.params)
+            localvars = '\n\t'.join(self.visit(x) for x in node.localvars)
+            instructions = '\n\t'.join(self.visit(x) for x in node.instructions)
+
+            return f'function {node.name} {{\n\t{params}\n\n\t{localvars}\n\n\t{instructions}\n}}'
+
+        @visitor.when(ParamDec)
+        def visit(self, node):
+            return f'PARAM {node.name}'
+
+        @visitor.when(LocalDec)
+        def visit(self, node):
+            return f'LOCAL {node.name}'
+
+        @visitor.when(Assign)
+        def visit(self, node):
+            return f'{node.local_dest} = {node.right_expr}'
+
+        @visitor.when(Plus)
+        def visit(self, node):
+            return f'{node.local_dest} = {node.left} + {node.right}'
+
+        @visitor.when(Minus)
+        def visit(self, node):
+            return f'{node.local_dest} = {node.left} - {node.right}'
+
+        @visitor.when(Star)
+        def visit(self, node):
+            return f'{node.local_dest} = {node.left} * {node.right}'
+
+        @visitor.when(Div)
+        def visit(self, node):
+            return f'{node.local_dest} = {node.left} / {node.right}'
+
+        @visitor.when(Allocate)
+        def visit(self, node):
+            return f'{node.local_dest} = ALLOCATE {node.type}'
+
+        @visitor.when(TypeOf)
+        def visit(self, node):
+            return f'{node.local_dest} = TYPEOF {node.variable}'
+
+        @visitor.when(Call)
+        def visit(self, node):
+            return f'{node.local_dest} = CALL {node.function}'
+
+        @visitor.when(VCall)
+        def visit(self, node):
+            return f'{node.dest} = VCALL {node.instance_type} {node.virtual_type}_{node.method}'
+
+        @visitor.when(Arg)
+        def visit(self, node):
+            return f'ARG {node.arg}'
+
+        @visitor.when(Return)
+        def visit(self, node):
+            return f'RETURN {node.value if node.value is not None else ""}'
+
+    printer = PrintVisitor()
+    return (lambda ast: printer.visit(ast))
