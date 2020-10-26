@@ -29,7 +29,7 @@ class BaseCOOLToCILVisitor:
         return self.current_function.instructions
     
     def register_param(self, vinfo):
-        vinfo.name = f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
+        # vinfo.name = f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
         param_node = CIL_AST.ParamDec(vinfo.name)
         self.params.append(param_node)
         return vinfo.name
@@ -116,26 +116,122 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
                 
         self.current_type = None
                 
-    # @visitor.when(COOL_AST.ClassMethod)
-    # def visit(self, node, scope):
-    #     self.current_method = self.current_type.get_method(node.id)
+    @visitor.when(COOL_AST.ClassMethod)
+    def visit(self, node, scope):
+        self.current_method = self.current_type.get_method(node.name)
         
-    #     # Your code here!!! (Handle PARAMS)
+        cil_method_name = self.to_function_name(node.name, self.current_type.name)
+        self.current_function = self.register_function(cil_method_name)
+
+        self.register_param(VariableInfo('self', self.current_type))
+        for p in node.params:
+            self.register_param(VariableInfo(p.name, p.type))
         
-    #     for instruction, child_scope in zip(node.body, scope.children):
-    #         value = self.visit(instruction, child_scope)
-    #     # Your code here!!! (Handle RETURN)
+        value = self.visit(node.expr, scope)
         
-    #     self.current_method = None
+        self.register_instruction(CIL_AST.Return(value)) 
+        self.current_method = None
 
-    # @visitor.when(COOL_AST.AttributeDef)
-    # def visit(self, node, scope):
-    #     pass
+    @visitor.when(COOL_AST.AttributeDef)
+    def visit(self, node, scope):
+        pass
 
-    # @visitor.when(COOL_AST.AttributeInit)
-    # def visit(self, node, scope):
-    #     pass
+    @visitor.when(COOL_AST.AttributeInit)
+    def visit(self, node, scope):
+        pass
 
+
+    @visitor.when(COOL_AST.FormalParameter)
+    def visit(self, node, scope):
+        pass
+
+    @visitor.when(COOL_AST.DynamicCall)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.StaticCall)
+    def visit(self, node, scope):
+        pass
+
+    @visitor.when(COOL_AST.AssignExpr)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.Case)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.Action)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.If)
+    def visit(self, node, scope):
+        pass
+
+    @visitor.when(COOL_AST.While)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.Block)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.Let)
+    def visit(self, node, scope):
+        pass
+    
+    @visitor.when(COOL_AST.LetVarInit)
+    def visit(self, node, scope):
+        pass
+
+    @visitor.when(COOL_AST.LetVarDef)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.NewType)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.IsVoid)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.ArithmeticBinOp)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.LogicBinOp)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.Not)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.LogicalNot)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.Equals)
+    def visit(self, node, scope):
+        pass
+        
+    @visitor.when(COOL_AST.Identifier)
+    def visit(self, node, scope):
+        pass
+    
+    @visitor.when(COOL_AST.INTEGER)
+    def visit(self, node, scope):
+        return node.value
+
+    @visitor.when(COOL_AST.STRING)
+    def visit(self, node, scope):
+        return node.value
+        
+    @visitor.when(COOL_AST.Boolean)
+    def visit(self, node, scope):
+        return node.value
 
 if __name__ == '__main__':
     import sys
