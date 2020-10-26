@@ -1,0 +1,2 @@
+features2.cl:18: Method x is multiply defined.
+Compilation halted due to static semantic errors.
