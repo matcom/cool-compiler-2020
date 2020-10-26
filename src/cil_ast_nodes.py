@@ -328,6 +328,8 @@ def get_formatter():
         @visitor.when(Program)
         def visit(self, node):
             print("DOTTYPES LEN:", len(node.dottypes))
+            print("DOTDATA LEN:", len(node.dotdata))
+            print("DOTCODE LEN:", len(node.dotcode))
             dottypes = '\n'.join(self.visit(t) for t in node.dottypes)
             dotdata = '\n'.join(self.visit(t) for t in node.dotdata)
             dotcode = '\n'.join(self.visit(t) for t in node.dotcode)

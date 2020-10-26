@@ -93,6 +93,11 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
     def visit(self, node, scope):
         self.current_type = self.context.get_type(node.name)
         
+        #Handle all the .TYPE section
+        cil_type = self.register_type(self.current_type.name)
+        cil_type.attributes = [attr.name for attr in self.current_type.attributes]
+        cil_type.methods = [(method, self.to_function_name(method, kclass)) for kclass, method  in self.current_type.get_all_methods()]
+        
         func_declarations = (f for f in node.features if isinstance(f, COOL_AST.ClassMethod))
         for feature, child_scope in zip(func_declarations, scope.children):
             self.visit(feature, child_scope)
