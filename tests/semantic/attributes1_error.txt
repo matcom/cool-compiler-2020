@@ -1,0 +1,2 @@
+attributes1.cl:10: Inferred type A of initialization of attribute test2 does not conform to declared type B.
+Compilation halted due to static semantic errors. 
