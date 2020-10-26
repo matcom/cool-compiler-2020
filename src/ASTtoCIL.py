@@ -2,6 +2,8 @@ from AST import *
 from CIL import *
 from Scope import *
 import visitor as visitor
+from DefaultClasses import *
+
 
 class CILTranspiler:
     def __init__(self):
@@ -9,6 +11,7 @@ class CILTranspiler:
         self.datacount=0
         self.variablecount=0
         self.labelcount=0
+        self.classidcount=10
     def GenerarGrafoDeHerencia(self,classes:list):
         grafo={}
         for c in classes:
@@ -23,7 +26,7 @@ class CILTranspiler:
         grafo=self.grafo
         if actual not in self.grafo.keys():
             return []
-        ordenados=grafo[actual]
+        ordenados=grafo[actual].copy()
         nuevos=[]
         for elemento in ordenados:
             nuevos.append(elemento)
@@ -35,10 +38,11 @@ class CILTranspiler:
     def OrdenarClasesPorHerencia(self, classes:list):
         grafo=self.GenerarGrafoDeHerencia(classes)
         ordenados=[]
-        if "Object" in self.grafo.keys():
-            ordenados.extend(self.OrdenarClasesPorHerenciaHelper("Object"))
-        if "IO" in self.grafo.keys():
-            ordenados.extend(self.OrdenarClasesPorHerenciaHelper("IO"))
+        ordenados.extend(self.OrdenarClasesPorHerenciaHelper(None))
+        # if "Object" in self.grafo.keys():
+        #     ordenados.extend(self.OrdenarClasesPorHerenciaHelper("Object"))
+        # if "IO" in self.grafo.keys():
+        #     ordenados.extend(self.OrdenarClasesPorHerenciaHelper("IO"))
         
         return ordenados
             
@@ -48,7 +52,7 @@ class CILTranspiler:
         for c in classes:
             misatributos={}
 
-            if c.parent not in ["Object","IO"]:
+            if c.parent != None:
                 for elemento in self.attrib[c.parent]:
                     misatributos[elemento.name]=elemento
 
@@ -67,7 +71,7 @@ class CILTranspiler:
         for c in classes:
             mismetodos={}
 
-            if c.parent not in ["Object","IO"]:
+            if c.parent != None:
                 for elemento in self.methods[c.parent]:
                     mismetodos[elemento.name]=elemento
                     self.globalnames[c.name+"#"+elemento.name]=self.globalnames[c.parent+"#"+elemento.name]
@@ -83,10 +87,10 @@ class CILTranspiler:
 
         return (self.methods, self.globalnames)
 
-    def GenerarNombreVariable():
+    def GenerarNombreVariable(self):
         self.variablecount+=1
         return "var#"+str(self.variablecount)
-                    
+
 
 
 
@@ -95,8 +99,14 @@ class CILTranspiler:
         pass
 
     @visitor.when(ProgramNode)
-    def visit(self, node: ProgramNode, _):
-        classes=self.OrdenarClasesPorHerencia(node.classes)
+    def visit(self, node: ProgramNode, _):        
+        claseObject=Defaults.ObjectClass()
+        claseIO=Defaults.IOClass()
+
+        clasescompletas=node.classes.copy()
+        clasescompletas.extend([claseObject,claseIO])
+
+        classes=self.OrdenarClasesPorHerencia(clasescompletas)
         atributosdic=self.GenerarDiccionarioAtributos(classes)
         metodosdic,metodosglobalesdic=self.GenerarDiccionarioMetodos(classes)
 
@@ -106,6 +116,8 @@ class CILTranspiler:
             #Generando los Types e información de clase
             atributosAST=atributosdic[c.name]
             metodosAST=metodosdic[c.name]
+            atributosAST[0].value=IntegerNode(self.classidcount)
+            self.classidcount+=1
 
             atributosCIL=[]
             for element in atributosAST:
@@ -198,6 +210,10 @@ class CILTranspiler:
         for element in node.body:
             instructions.extend(self.visit(element,scope))
         
+        ultimoDestino=instructions[len(instructions)-1].destination
+        
+        retorno=CILReturn([ultimoDestino])
+        
         return CILGlobalMethod(parameters,locales,instructions)
 
     @visitor.when(AssignNode)
@@ -264,3 +280,57 @@ class CILTranspiler:
         instructions.append(finalciclo)
 
         return instructions
+
+    @visitor.when(DispatchNode)
+    def visit(self, node:DispatchNode, scope:Scope):
+        instructions=[]
+        for p in node.parameters:
+            instructions.append(CILArgument(params=[p.name]))
+        
+        resultVariable=self.GenerarNombreVariable()
+        llamada=CILCall(resultVariable,[node.func_id])
+        instructions.append(llamada)
+
+        return instructions
+
+    @visitor.when(StaticDispatchNode)
+    def visit(self, node:StaticDispatchNode, scope:Scope):
+        instructions=[]
+        for p in node.parameters:
+            instructions.append(CILArgument(params=[p.name]))
+        
+        resultVariable=self.GenerarNombreVariable()
+        llamada=CILVirtualCall(resultVariable,[node.parent_id,node.func_id])
+        instructions.append(llamada)
+
+        return instructions
+
+    @visitor.when(LetNode)
+    def visit(self, node:LetNode, scope:Scope):
+        instructions=[]
+        for at in node.declarations:
+            if at.name not in scope.locals:
+                scope.locals.append(at.name)
+            delcaracionExp=self.visit(at.value,scope)
+            instructions.extend(delcaracionExp)
+        
+        bodyExp=self.visit(node.body,scope)
+
+        instructions.extend(bodyExp)
+
+        return instructions
+
+    @visitor.when(SubCaseNode)
+    def visit(self, node:SubCaseNode, scope:Scope):
+        instructions=[]
+        prevName=scope.class_name
+        scope.class_name=node.type
+
+        instructions.extend(self.visit(node.expression,scope))
+
+        resultVariable=self.GenerarNombreVariable()
+        asignacion=CILAssign(resultVariable,[instructions[len(instructions)-1].destination])
+
+        scope.class_name=prevName
+
+        instructions.append(asignacion)

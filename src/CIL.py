@@ -53,6 +53,17 @@ class CILMemory(CILInstructionNode):
 class CILAllocate(CILMemory):
     pass
 
+class CILMethodInstruction(CILInstructionNode):
+    pass
+class CILCall(CILMethodInstruction):
+    pass
+class CILVirtualCall(CILMethodInstruction):
+    pass
+class CILArgument(CILMethodInstruction):
+    pass
+class CILReturn(CILMethodInstruction):
+    pass
+
 
 class CILClassMethod:
     def __init__(localname,globalname):
@@ -75,8 +86,9 @@ class CILDataDeclaration:
         self.valorString=valorString
 
 class CILGlobalMethod:
-    def __init__(nombre, intrucciones=[]):
+    def __init__(nombre, params=[], locals=[], intrucciones=[]):
         self.nombre=nombre
+        self.params=params
         self.intrucciones=intrucciones
 
 class CILProgram:
