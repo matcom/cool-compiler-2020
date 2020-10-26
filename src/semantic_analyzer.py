@@ -206,6 +206,7 @@ class TypeChecker:
         scope = Scope()
         for c in node.classes:
             self.visit(c, scope.create_child())
+        return scope
 
     @visitor.when(AST.Class)
     def visit(self, node, scope):
@@ -675,9 +676,9 @@ class SemanticAnalyzer:
 
         #'=============== CHECKING TYPES ================'
         checker = TypeChecker(context, self.errors)
-        checker.visit(self.ast)
+        scope = checker.visit(self.ast)
 
-        return context
+        return context, scope
 
 
 if __name__ == '__main__':

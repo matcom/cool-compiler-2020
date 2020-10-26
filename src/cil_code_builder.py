@@ -6,6 +6,9 @@ class CILCodeBuilder:
     def __init__(self, cil_ast, context):
         self.cil_ast = cil_ast
         self.context = context
+        self.current_type = None
+        self.current_method = None
+        self.current_function = None
         
     def build_entry_function(self, cool_ast):
         locals, body = [], []
