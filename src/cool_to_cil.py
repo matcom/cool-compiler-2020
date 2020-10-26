@@ -66,6 +66,15 @@ class BaseCOOLToCILVisitor:
         data_node = cil.DataNode(vname, value)
         self.dotdata.append(data_node)
         return data_node
+    
+    def register_builtin_types(self):
+        for t in ['Object', 'Int', 'String', 'Bool', 'IO']:
+            builtin_type = self.context.get_type(t)
+            cil_type = self.register_type(t)
+            cil_type.attributes = [attr.name for attr in builtin_type.attributes]
+            cil_type.methods = [(method, self.to_function_name(method, kclass)) for kclass, method  in builtin_type.get_all_methods()]
+        
+
 
 class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.on('node')
@@ -83,6 +92,9 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.Call('entry', result))
         self.register_instruction(CIL_AST.Return(0))
         self.current_function = None
+
+        #Add built-in types in .TYPES section
+        self.register_builtin_types()
         
         for klass, child_scope in zip(node.classes, scope.children):
             self.visit(klass, child_scope)
