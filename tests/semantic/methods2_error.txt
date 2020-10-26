@@ -1,0 +1,2 @@
+methods2.cl:11: Inferred return type D of method test does not conform to declared return type C.
+Compilation halted due to static semantic errors. 

@@ -1,0 +1,2 @@
+methods3.cl:13: Inferred return type B of method test2 does not conform to declared return type C.
+Compilation halted due to static semantic errors. 
