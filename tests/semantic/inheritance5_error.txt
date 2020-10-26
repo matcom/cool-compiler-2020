@@ -1,0 +1,4 @@
+inheritance5.cl:21: Class C, or an ancestor of C, is involved in an inheritance cycle.
+inheritance5.cl:15: Class B, or an ancestor of B, is involved in an inheritance cycle.
+inheritance5.cl:9: Class A, or an ancestor of A, is involved in an inheritance cycle.
+Compilation halted due to static semantic errors.
