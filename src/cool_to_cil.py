@@ -28,6 +28,10 @@ class BaseCOOLToCILVisitor:
     def instructions(self):
         return self.current_function.instructions
     
+    @property
+    def labels(self):
+        return self.current_function.labels
+
     def register_param(self, vinfo):
         # vinfo.name = f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
         param_node = CIL_AST.ParamDec(vinfo.name)
@@ -40,6 +44,12 @@ class BaseCOOLToCILVisitor:
         self.localvars.append(local_node)
         return vinfo.name
 
+    def register_label(self, expre_name):
+        label_name = f'LABEL_{expre_name}_{len(self.labels)}'
+        label_node = CIL_AST.Label(label_name)
+        self.labels.append(label_node)
+        return label_name
+
     def define_internal_local(self):
         vinfo = VariableInfo('internal', None)
         return self.register_local(vinfo)
@@ -50,7 +60,7 @@ class BaseCOOLToCILVisitor:
     
     def to_function_name(self, method_name, type_name):
         return f'function_{method_name}_at_{type_name}'
-    
+
     def register_function(self, function_name):
         function_node = CIL_AST.Function(function_name, [], [], [])
         self.dotcode.append(function_node)
@@ -74,8 +84,6 @@ class BaseCOOLToCILVisitor:
             cil_type.attributes = [attr.name for attr in builtin_type.attributes]
             cil_type.methods = [(method, self.to_function_name(method, kclass)) for kclass, method  in builtin_type.get_all_methods()]
         
-
-
 class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.on('node')
     def visit(self, node):
@@ -89,7 +97,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         result = self.define_internal_local()
         self.register_instruction(CIL_AST.Allocate('Main', instance))
         self.register_instruction(CIL_AST.Arg(instance))
-        self.register_instruction(CIL_AST.Call('entry', result))
+        self.register_instruction(CIL_AST.Call(self.to_function_name('main', 'Main'), result))
         self.register_instruction(CIL_AST.Return(0))
         self.current_function = None
 
@@ -125,7 +133,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
         self.register_param(VariableInfo('self', self.current_type))
         for p in node.params:
-            self.register_param(VariableInfo(p.name, p.type))
+            self.register_param(VariableInfo(p.name, p.param_type))
         
         value = self.visit(node.expr, scope)
         
@@ -134,13 +142,33 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.AttributeDef)
     def visit(self, node, scope):
-        pass
-
+        vname = self.register_local(VariableInfo(node.name, node.type))
+    
     @visitor.when(COOL_AST.AttributeInit)
     def visit(self, node, scope):
-        pass
+        vname = self.register_local(VariableInfo(node.name, node.type))
+        expr = self.visit(node.expr, scope)
+        return self.register_instruction(cil.Assign(vname, expr))
 
+    @visitor.when(COOL_AST.AssignExpr)
+    def visit(self, node, scope):
+        var_info = scope.find_variable(node.name)
+        local_var = self.register_local(var_info)
+        
+        value = self.visit(node.expr, scope)
+        self.register_instruction(CIL_AST.Assign(local_var, value))
+        return local_var
 
+    @visitor.when(COOL_AST.Block)
+    def visit(self, node, scope):
+        for e in node.exprs:
+            result_local = self.visit(e, scope)
+        return result_local
+                 
+    @visitor.when(COOL_AST.If)
+    def visit(self, node, scope):
+        cond_local = self.visit(node.predicate)
+        
     @visitor.when(COOL_AST.FormalParameter)
     def visit(self, node, scope):
         pass
@@ -152,10 +180,6 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(COOL_AST.StaticCall)
     def visit(self, node, scope):
         pass
-
-    @visitor.when(COOL_AST.AssignExpr)
-    def visit(self, node, scope):
-        pass
         
     @visitor.when(COOL_AST.Case)
     def visit(self, node, scope):
@@ -164,16 +188,8 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(COOL_AST.Action)
     def visit(self, node, scope):
         pass
-        
-    @visitor.when(COOL_AST.If)
-    def visit(self, node, scope):
-        pass
 
     @visitor.when(COOL_AST.While)
-    def visit(self, node, scope):
-        pass
-        
-    @visitor.when(COOL_AST.Block)
     def visit(self, node, scope):
         pass
         
@@ -197,9 +213,38 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
     def visit(self, node, scope):
         pass
         
-    @visitor.when(COOL_AST.ArithmeticBinOp)
+    @visitor.when(COOL_AST.Sum)
     def visit(self, node, scope):
-        pass
+        result_local = self.define_internal_local()
+        left_local = self.visit(node.left, scope)
+        right_local = self.visit(node.right, scope)
+        self.register_instruction(CIL_AST.Plus(result_local, left_local, right_local))
+        return result_local
+        
+
+    @visitor.when(COOL_AST.Sub)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        left_local = self.visit(node.left, scope)
+        right_local = self.visit(node.right, scope)
+        self.register_instruction(CIL_AST.Minus(result_local, left_local, right_local))
+        return result_local
+
+    @visitor.when(COOL_AST.Mult)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        left_local = self.visit(node.left, scope)
+        right_local = self.visit(node.right, scope)
+        self.register_instruction(CIL_AST.Star(result_local, left_local, right_local))
+        return result_local
+
+    @visitor.when(COOL_AST.Div)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        left_local = self.visit(node.left, scope)
+        right_local = self.visit(node.right, scope)
+        self.register_instruction(CIL_AST.Div(result_local, left_local, right_local))
+        return result_local
         
     @visitor.when(COOL_AST.LogicBinOp)
     def visit(self, node, scope):
@@ -219,7 +264,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         
     @visitor.when(COOL_AST.Identifier)
     def visit(self, node, scope):
-        pass
+        return node.name
     
     @visitor.when(COOL_AST.INTEGER)
     def visit(self, node, scope):
@@ -231,7 +276,10 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         
     @visitor.when(COOL_AST.Boolean)
     def visit(self, node, scope):
-        return node.value
+        if str(node.value) == "True":
+            return 1
+        else:
+            return 0
 
 if __name__ == '__main__':
     import sys

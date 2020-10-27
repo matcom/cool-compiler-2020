@@ -85,12 +85,13 @@ class Method(AST):
         return f'method {self.virtual_type}_{self.name}: func_{self.virtual_type}_{self.name};'
 
 class Function(AST):
-    def __init__(self, name, params=[], localvars=[], instructions =[]):
+    def __init__(self, name, params=[], localvars=[], instructions =[], labels = []):
         super(Function, self).__init__()
         self.name = name
         self.params = params # list of Param
         self.localvars = localvars # list of LocalDec
         self.instructions = instructions # list of Instructions
+        self.labels = labels
     
     def __str__(self):
         # params = '\n\t'.join(x for x in self.params)
@@ -374,6 +375,10 @@ def get_formatter():
         @visitor.when(Star)
         def visit(self, node):
             return f'{node.local_dest} = {node.left} * {node.right}'
+
+        @visitor.when(Div)
+        def visit(self, node):
+            return f'{node.local_dest} = {node.left} / {node.right}'
 
         @visitor.when(Div)
         def visit(self, node):
