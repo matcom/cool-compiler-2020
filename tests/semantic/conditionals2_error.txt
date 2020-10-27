@@ -1,0 +1,3 @@
+conditionals2.cl:23: Inferred type A of initialization of attribute test does not conform to declared type B.
+Compilation halted due to static semantic errors.
+ 
