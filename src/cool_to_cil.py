@@ -379,14 +379,13 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.Identifier)
     def visit(self, node, scope):
-        # if self.is_defined_param(node.name):
-        #     return node.name
-        # elif self.current_type.has_attr(node.name): #load class attr
-        #     result_local = self.define_internal_local()
-        #     self.register_instruction(CIL_AST.GetAttr(self.current_type.name, node.name))
-        # else:
-        #     return node.name
-        return node.name
+        if self.is_defined_param(node.name):
+            return node.name
+        else: 
+            self.current_type.has_attr(node.name) #load class attr
+            result_local = self.define_internal_local()
+            self.register_instruction(CIL_AST.GetAttr(result_local, "self", node.name, self.current_type.name))
+            return result_local
         
     
     @visitor.when(COOL_AST.INTEGER)

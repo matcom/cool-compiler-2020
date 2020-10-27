@@ -104,9 +104,11 @@ class Halt(Expr):
         return 'HALT;'
 
 class GetAttr(Expr):
-    def __init__(self, instance, attr):
+    def __init__(self, dest, instance, attr, static_type):
         self.instance = instance
         self.attr = attr
+        self.local_dest = dest
+        self.static_type = static_type
 
 class SetAttr(Expr):
     def __init__(self, instance, attr, value):
@@ -351,6 +353,10 @@ def get_formatter():
         @visitor.when(Load)
         def visit(self, node):
             return f'{node.local_dest} = LOAD {node.msg}'
+
+        @visitor.when(GetAttr)
+        def visit(self, node):
+            return f'{node.local_dest} = GetAttr {node.instance} {node.attr} {node.static_type}'
 
         @visitor.when(TypeOf)
         def visit(self, node):
