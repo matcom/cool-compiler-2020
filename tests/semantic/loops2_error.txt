@@ -1,0 +1,2 @@
+loops2.cl:8: Inferred type Object of initialization of attribute test2 does not conform to declared type Int.
+Compilation halted due to static semantic errors. 
