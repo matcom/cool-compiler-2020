@@ -8,7 +8,7 @@ import cil_ast_nodes as CIL_AST
 
 class BaseCOOLToCILVisitor:
     def __init__(self, context):
-        self.dottypes = []
+        self.dottypes = {}
         self.dotdata = []
         self.dotcode = []
         self.current_type = None
@@ -45,7 +45,7 @@ class BaseCOOLToCILVisitor:
         return vinfo.name
 
     def register_label(self, expre_name):
-        label_name = f'LABEL_{expre_name}_{len(self.labels)}'
+        label_name = f'{expre_name}_{len(self.labels)}'
         label_node = CIL_AST.Label(label_name)
         self.labels.append(label_node)
         return label_name
@@ -68,7 +68,7 @@ class BaseCOOLToCILVisitor:
     
     def register_type(self, name):
         type_node = CIL_AST.Type(name)
-        self.dottypes.append(type_node)
+        self.dottypes[name] = type_node
         return type_node
 
     def register_data(self, value):
@@ -115,7 +115,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         
         #Handle all the .TYPE section
         cil_type = self.register_type(self.current_type.name)
-        cil_type.attributes = [attr.name for attr in self.current_type.attributes]
+        cil_type.attributes = [attr for attr in self.current_type.get_all_attributes()]
         cil_type.methods = [(method, self.to_function_name(method, kclass)) for kclass, method  in self.current_type.get_all_methods()]
         
         func_declarations = (f for f in node.features if isinstance(f, COOL_AST.ClassMethod))
@@ -167,7 +167,31 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
                  
     @visitor.when(COOL_AST.If)
     def visit(self, node, scope):
-        cond_local = self.visit(node.predicate)
+        
+        result_local = self.define_internal_local()
+        cond_local = self.define_internal_local()
+        then_local = self.define_internal_local()
+        else_local = self.define_internal_local()
+
+        cond_value = self.visit(node.predicate, scope)
+        self.register_instruction(CIL_AST.Assign(cond_local, cond_value))
+        
+        then_label = self.register_label("if_then")
+        self.register_instruction(CIL_AST.IfGoto(cond_local, then_label))
+
+        else_value = self.visit(node.else_body, scope)
+        self.register_instruction(CIL_AST.Assign(else_local, else_value))
+        self.register_instruction(CIL_AST.Assign(result_local, else_local))
+        endif_label = self.register_label("endif")
+        self.register_instruction(CIL_AST.Goto(endif_label))
+
+        self.register_instruction(CIL_AST.Label(then_label))
+        then_value = self.visit(node.then_body, scope)
+        self.register_instruction(CIL_AST.Assign(then_local, then_value))
+        self.register_instruction(CIL_AST.Assign(result_local, then_local))
+        self.register_instruction(CIL_AST.Label(endif_label))
+
+        return result_local
         
     @visitor.when(COOL_AST.FormalParameter)
     def visit(self, node, scope):
@@ -276,7 +300,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         
     @visitor.when(COOL_AST.Boolean)
     def visit(self, node, scope):
-        if str(node.value) == "True":
+        if str(node.value) == "true":
             return 1
         else:
             return 0

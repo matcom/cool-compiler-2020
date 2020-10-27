@@ -331,7 +331,7 @@ def get_formatter():
             print("DOTTYPES LEN:", len(node.dottypes))
             print("DOTDATA LEN:", len(node.dotdata))
             print("DOTCODE LEN:", len(node.dotcode))
-            dottypes = '\n'.join(self.visit(t) for t in node.dottypes)
+            dottypes = '\n'.join(self.visit(t) for t in node.dottypes.values())
             dotdata = '\n'.join(self.visit(t) for t in node.dotdata)
             dotcode = '\n'.join(self.visit(t) for t in node.dotcode)
 
@@ -364,6 +364,20 @@ def get_formatter():
         def visit(self, node):
             return f'{node.local_dest} = {node.right_expr}'
 
+        @visitor.when(IfGoto)
+        def visit(self, node):
+            return f'IF {node.variable} GOTO {node.label}'
+        
+        @visitor.when(Label)
+        def visit(self, node):
+            return f'LABEL {node.label}'
+        
+        @visitor.when(Goto)
+        def visit(self, node):
+            return f'GOTO {node.label}'
+
+
+
         @visitor.when(Plus)
         def visit(self, node):
             return f'{node.local_dest} = {node.left} + {node.right}'
@@ -375,10 +389,6 @@ def get_formatter():
         @visitor.when(Star)
         def visit(self, node):
             return f'{node.local_dest} = {node.left} * {node.right}'
-
-        @visitor.when(Div)
-        def visit(self, node):
-            return f'{node.local_dest} = {node.left} / {node.right}'
 
         @visitor.when(Div)
         def visit(self, node):
@@ -406,7 +416,7 @@ def get_formatter():
 
         @visitor.when(Return)
         def visit(self, node):
-            return f'RETURN {node.value if node.value is not None else ""}'
+            return f'\n RETURN {node.value if node.value is not None else ""}'
 
     printer = PrintVisitor()
     return (lambda ast: printer.visit(ast))
