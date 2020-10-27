@@ -1,0 +1,2 @@
+arithmetic5.cl:9: Inferred type Int of initialization of attribute test does not conform to declared type Bool.
+Compilation halted due to static semantic errors. 
