@@ -1,0 +1,2 @@
+let1.cl:14: Inferred type E of initialization of b does not conform to identifier's declared type C.
+Compilation halted due to static semantic errors. 
