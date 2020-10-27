@@ -39,7 +39,7 @@ class BaseCOOLToCILVisitor:
         return vinfo.name
     
     def register_local(self, vinfo):
-        vinfo.name = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
+        vinfo.name = f'{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
         local_node = CIL_AST.LocalDec(vinfo.name)
         self.localvars.append(local_node)
         return vinfo.name
@@ -284,7 +284,31 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         
     @visitor.when(COOL_AST.Equals)
     def visit(self, node, scope):
-        pass
+        result_local = self.define_internal_local()
+        aux_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+        self.register_instruction(CIL_AST.Minus(aux_local, left_local, right_local))
+
+        equals_dif = self.register_label("equals_dif")
+        self.register_instruction(CIL_AST.IfGoto(aux_local, equals_dif))
+        
+        self.register_instruction(CIL_AST.Assign(result_local, 1))
+        end = self.register_label("equals_end")
+        self.register_instruction(CIL_AST.Goto(end))
+        self.register_instruction(CIL_AST.Label(equals_dif))
+        self.register_instruction(CIL_AST.Assign(result_local, 0))
+
+        self.register_instruction(CIL_AST.Label(end))
+
+        return result_local
+
         
     @visitor.when(COOL_AST.Identifier)
     def visit(self, node, scope):
