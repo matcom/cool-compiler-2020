@@ -1,0 +1,2 @@
+blocks1.cl:13: Inferred type F of initialization of attribute test does not conform to declared type B.
+Compilation halted due to static semantic errors. 
