@@ -1,0 +1,2 @@
+eq4.cl:16: Inferred type Bool of initialization of attribute test does not conform to declared type Int.
+Compilation halted due to static semantic errors. 
