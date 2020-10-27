@@ -45,7 +45,8 @@ class BaseCOOLToCILVisitor:
         return False
     
     def register_local(self, name):
-        var_name = f'{self.current_function.name[9:]}_{name}_{len(self.localvars)}'
+        # var_name = f'{self.current_function.name[9:]}_{name}_{len(self.localvars)}'
+        var_name = f'{name}_{len(self.localvars)}'
         local_node = CIL_AST.LocalDec(var_name)
         self.localvars.append(local_node)
         return var_name
@@ -152,7 +153,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
     def visit(self, node, scope):
         vname = self.register_local(node.name)
         expr = self.visit(node.expr, scope)
-        return self.register_instruction(cil.Assign(vname, expr))
+        return self.register_instruction(CIL_AST.Assign(vname, expr))
 
     @visitor.when(COOL_AST.AssignExpr)
     def visit(self, node, scope):
@@ -196,10 +197,26 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.Label(endif_label))
 
         return result_local
-        
-    @visitor.when(COOL_AST.FormalParameter)
+
+    @visitor.when(COOL_AST.While)
     def visit(self, node, scope):
-        pass
+        result_local = self.define_internal_local()
+
+        self.register_instruction(CIL_AST.Label("loop_init"))
+        pred_value = self.visit(node.predicate, scope)
+        self.register_instruction(CIL_AST.IfGoto(pred_value, "loop_body"))
+        self.register_instruction(CIL_AST.Goto("loop_end"))
+        
+        self.register_instruction(CIL_AST.Label("loop_body"))
+        body_value = self.visit(node.body, scope)
+        self.register_instruction(CIL_AST.Goto("loop_init"))
+        self.register_instruction(CIL_AST.Label("loop_end"))
+
+        self.register_instruction(CIL_AST.Assign(result_local, body_value))
+
+        return result_local
+
+        
 
     @visitor.when(COOL_AST.DynamicCall)
     def visit(self, node, scope):
@@ -214,10 +231,6 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         pass
         
     @visitor.when(COOL_AST.Action)
-    def visit(self, node, scope):
-        pass
-
-    @visitor.when(COOL_AST.While)
     def visit(self, node, scope):
         pass
         
@@ -386,7 +399,6 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
             result_local = self.define_internal_local()
             self.register_instruction(CIL_AST.GetAttr(result_local, "self", node.name, self.current_type.name))
             return result_local
-        
     
     @visitor.when(COOL_AST.INTEGER)
     def visit(self, node, scope):
