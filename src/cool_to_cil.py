@@ -9,7 +9,7 @@ import cil_ast_nodes as CIL_AST
 class BaseCOOLToCILVisitor:
     def __init__(self, context):
         self.dottypes = {}
-        self.dotdata = []
+        self.dotdata = {}
         self.dotcode = []
         self.current_type = None
         self.current_method = None
@@ -37,12 +37,18 @@ class BaseCOOLToCILVisitor:
         param_node = CIL_AST.ParamDec(vinfo.name)
         self.params.append(param_node)
         return vinfo.name
+
+    def is_defined_param(self, name):
+        for p in self.params:
+            if p.name == name:
+                return True
+        return False
     
-    def register_local(self, vinfo):
-        vinfo.name = f'{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
-        local_node = CIL_AST.LocalDec(vinfo.name)
+    def register_local(self, name):
+        var_name = f'{self.current_function.name[9:]}_{name}_{len(self.localvars)}'
+        local_node = CIL_AST.LocalDec(var_name)
         self.localvars.append(local_node)
-        return vinfo.name
+        return var_name
 
     def register_label(self, expre_name):
         label_name = f'{expre_name}_{len(self.labels)}'
@@ -51,8 +57,7 @@ class BaseCOOLToCILVisitor:
         return label_name
 
     def define_internal_local(self):
-        vinfo = VariableInfo('internal', None)
-        return self.register_local(vinfo)
+        return self.register_local("internal")
 
     def register_instruction(self, instruction):
         self.instructions.append(instruction)
@@ -72,10 +77,9 @@ class BaseCOOLToCILVisitor:
         return type_node
 
     def register_data(self, value):
-        vname = f'data_{len(self.dotdata)}'
-        data_node = cil.DataNode(vname, value)
-        self.dotdata.append(data_node)
-        return data_node
+        vname = f's_{len(self.dotdata)}'
+        self.dotdata[vname] = value
+        return vname
     
     def register_builtin_types(self):
         for t in ['Object', 'Int', 'String', 'Bool', 'IO']:
@@ -142,18 +146,18 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.AttributeDef)
     def visit(self, node, scope):
-        vname = self.register_local(VariableInfo(node.name, node.type))
+        vname = self.register_local(node.name)
     
     @visitor.when(COOL_AST.AttributeInit)
     def visit(self, node, scope):
-        vname = self.register_local(VariableInfo(node.name, node.type))
+        vname = self.register_local(node.name)
         expr = self.visit(node.expr, scope)
         return self.register_instruction(cil.Assign(vname, expr))
 
     @visitor.when(COOL_AST.AssignExpr)
     def visit(self, node, scope):
         var_info = scope.find_variable(node.name)
-        local_var = self.register_local(var_info)
+        local_var = self.register_local(var_info.name)
         
         value = self.visit(node.expr, scope)
         self.register_instruction(CIL_AST.Assign(local_var, value))
@@ -269,7 +273,6 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
         return result_local
 
-
     @visitor.when(COOL_AST.Mult)
     def visit(self, node, scope):
         result_local = self.define_internal_local()
@@ -374,10 +377,17 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
         return result_local
 
-        
     @visitor.when(COOL_AST.Identifier)
     def visit(self, node, scope):
+        # if self.is_defined_param(node.name):
+        #     return node.name
+        # elif self.current_type.has_attr(node.name): #load class attr
+        #     result_local = self.define_internal_local()
+        #     self.register_instruction(CIL_AST.GetAttr(self.current_type.name, node.name))
+        # else:
+        #     return node.name
         return node.name
+        
     
     @visitor.when(COOL_AST.INTEGER)
     def visit(self, node, scope):
@@ -385,7 +395,17 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.STRING)
     def visit(self, node, scope):
-        return node.value
+        str_name = ""
+        for s in self.dotdata.keys():
+            if self.dotdata[s] == node.value:
+                str_name = s
+                break
+        if str_name == "":
+            str_name = self.register_data(node.value)
+
+        result_local = self.define_internal_local()
+        self.register_instruction(CIL_AST.Load(str_name, result_local))
+        return result_local
         
     @visitor.when(COOL_AST.Boolean)
     def visit(self, node, scope):

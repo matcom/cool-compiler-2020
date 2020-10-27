@@ -64,6 +64,13 @@ class Type:
             raise SemanticException(f'Parent type is already set for {self.name}.')
         self.parent = parent
 
+    def has_attr(self, name: str):
+        try: 
+            attr_name = get_attribute(name)
+        except:
+            return False
+        return True
+
     def get_attribute(self, name: str):
         try:
             return next(attr for attr in self.attributes if attr.name == name)
