@@ -177,23 +177,18 @@ class Assign(Expr):
     def __str__(self):
         return f'{self.local} = {self.right_expr}'
 
+class UnaryOperator(Expr):
+    def __init__(self, local_dest, expr_value, op):
+        self.local_dest = local_dest
+        self.expr_value = expr_value
+        self.op = op
+
 class BinaryOperator(Expr):
-    def __init__(self, local_dest, left, right):
+    def __init__(self, local_dest, left, right, op):
         self.local_dest = local_dest
         self.left = left
         self.right = right
-
-class Plus(BinaryOperator):
-    pass
-
-class Minus(BinaryOperator):
-    pass
-
-class Star(BinaryOperator):
-    pass
-
-class Div(BinaryOperator):
-    pass
+        self.op = op
 
 class Allocate(Expr):
     def __init__(self, t, dest):
@@ -297,27 +292,18 @@ class PrintInteger(Print):
     pass
 
 class Compare(Expr):
-    def __init__(self, left, right):
+    def __init__(self, left, right, dest):
         self.left = left
         self.right = right
+        self.local_dest = dest
 
 class IsVoid(Expr):
     def __init__(self, local):
         self.local = local
 
-class Equals(Compare):
-    pass
 
 class EqualsString(Compare):
     pass
-    
-class LessThan(Compare):
-    pass
-    
-class LessThanEquals(Compare):
-    pass
-
-
 
 def get_formatter():
 
@@ -376,23 +362,13 @@ def get_formatter():
         def visit(self, node):
             return f'GOTO {node.label}'
 
-
-
-        @visitor.when(Plus)
+        @visitor.when(UnaryOperator)
         def visit(self, node):
-            return f'{node.local_dest} = {node.left} + {node.right}'
+            return f'{node.local_dest} = {node.op} {node.expr_value}'
 
-        @visitor.when(Minus)
+        @visitor.when(BinaryOperator)
         def visit(self, node):
-            return f'{node.local_dest} = {node.left} - {node.right}'
-
-        @visitor.when(Star)
-        def visit(self, node):
-            return f'{node.local_dest} = {node.left} * {node.right}'
-
-        @visitor.when(Div)
-        def visit(self, node):
-            return f'{node.local_dest} = {node.left} / {node.right}'
+            return f'{node.local_dest} = {node.left} {node.op} {node.right}'
 
         @visitor.when(Allocate)
         def visit(self, node):

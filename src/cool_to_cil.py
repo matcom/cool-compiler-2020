@@ -240,52 +240,6 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(COOL_AST.Sum)
     def visit(self, node, scope):
         result_local = self.define_internal_local()
-        left_local = self.visit(node.left, scope)
-        right_local = self.visit(node.right, scope)
-        self.register_instruction(CIL_AST.Plus(result_local, left_local, right_local))
-        return result_local
-        
-
-    @visitor.when(COOL_AST.Sub)
-    def visit(self, node, scope):
-        result_local = self.define_internal_local()
-        left_local = self.visit(node.left, scope)
-        right_local = self.visit(node.right, scope)
-        self.register_instruction(CIL_AST.Minus(result_local, left_local, right_local))
-        return result_local
-
-    @visitor.when(COOL_AST.Mult)
-    def visit(self, node, scope):
-        result_local = self.define_internal_local()
-        left_local = self.visit(node.left, scope)
-        right_local = self.visit(node.right, scope)
-        self.register_instruction(CIL_AST.Star(result_local, left_local, right_local))
-        return result_local
-
-    @visitor.when(COOL_AST.Div)
-    def visit(self, node, scope):
-        result_local = self.define_internal_local()
-        left_local = self.visit(node.left, scope)
-        right_local = self.visit(node.right, scope)
-        self.register_instruction(CIL_AST.Div(result_local, left_local, right_local))
-        return result_local
-        
-    @visitor.when(COOL_AST.LogicBinOp)
-    def visit(self, node, scope):
-        pass
-        
-    @visitor.when(COOL_AST.Not)
-    def visit(self, node, scope):
-        pass
-        
-    @visitor.when(COOL_AST.LogicalNot)
-    def visit(self, node, scope):
-        pass
-        
-    @visitor.when(COOL_AST.Equals)
-    def visit(self, node, scope):
-        result_local = self.define_internal_local()
-        aux_local = self.define_internal_local()
         left_local = self.define_internal_local()
         right_local = self.define_internal_local()
 
@@ -294,18 +248,129 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
         self.register_instruction(CIL_AST.Assign(left_local, left_value))
         self.register_instruction(CIL_AST.Assign(right_local, right_value))
-        self.register_instruction(CIL_AST.Minus(aux_local, left_local, right_local))
 
-        equals_dif = self.register_label("equals_dif")
-        self.register_instruction(CIL_AST.IfGoto(aux_local, equals_dif))
+        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "+"))
+
+        return result_local
+
+    @visitor.when(COOL_AST.Sub)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+
+        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "-"))
+
+        return result_local
+
+
+    @visitor.when(COOL_AST.Mult)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+
+        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "*"))
+
+        return result_local
+
+    @visitor.when(COOL_AST.Div)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+
+        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "/"))
+
+        return result_local
+
+    @visitor.when(COOL_AST.LogicalNot)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        expr_local = self.define_internal_local() 
         
-        self.register_instruction(CIL_AST.Assign(result_local, 1))
-        end = self.register_label("equals_end")
-        self.register_instruction(CIL_AST.Goto(end))
-        self.register_instruction(CIL_AST.Label(equals_dif))
-        self.register_instruction(CIL_AST.Assign(result_local, 0))
+        expr_value = self.visit(node.expr, scope)
+        
+        self.register_instruction(CIL_AST.Assign(expr_local, expr_value))
+        self.register_instruction(CIL_AST.UnaryOperator(result_local, expr_local, "~"))
 
-        self.register_instruction(CIL_AST.Label(end))
+        return result_local
+        
+    @visitor.when(COOL_AST.Not)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        expr_local = self.define_internal_local() 
+        
+        expr_value = self.visit(node.expr, scope)
+        
+        self.register_instruction(CIL_AST.Assign(expr_local, expr_value))
+        self.register_instruction(CIL_AST.UnaryOperator(result_local, expr_local, "not"))
+
+        return result_local
+
+    @visitor.when(COOL_AST.LessThan)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+
+        self.register_instruction(CIL_AST.BinaryOperator(result_local, left_local, right_local, "<"))
+
+        return result_local
+
+    @visitor.when(COOL_AST.LessOrEqualThan)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+
+        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "<="))
+
+        return result_local
+
+    @visitor.when(COOL_AST.Equals)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+
+        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "="))
 
         return result_local
 
