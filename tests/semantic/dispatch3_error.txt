@@ -1,0 +1,2 @@
+dispatch3.cl:35: In call of method alphabet, type B of parameter c does not conform to declared type C.
+Compilation halted due to static semantic errors. 
