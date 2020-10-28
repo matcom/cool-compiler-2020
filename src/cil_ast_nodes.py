@@ -182,8 +182,10 @@ class TypeOf(Expr):
         self.local_dest = local_dest
 
 class Call(Expr):
-    def __init__(self, function, local_dest):
+    def __init__(self, local_dest, function, params, static_type):
         self.function = function
+        self.params = params
+        self.static_type = static_type
         self.local_dest = local_dest
 
 class Param(Expr):
@@ -373,7 +375,7 @@ def get_formatter():
 
         @visitor.when(Call)
         def visit(self, node):
-            return f'{node.local_dest} = CALL {node.function}'
+            return f'{node.local_dest} = CALL {node.function} {node.static_type}'
 
         @visitor.when(VCall)
         def visit(self, node):
