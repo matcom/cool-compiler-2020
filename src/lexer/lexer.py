@@ -18,7 +18,6 @@ class CoolLexer:
     def _update_column(self, t):
         t.column = t.lexpos - t.lexer.linestart + 1
         
-
     states = (
         ('comments', 'exclusive'),
         ('strings', 'exclusive')
@@ -34,13 +33,12 @@ class CoolLexer:
         r'\(\*'
         t.lexer.level = 1
         t.lexer.begin('comments')
-    
 
-    def t_comments_open(self,t):
+    def t_comments_open(self, t):
         r'\(\*'
         t.lexer.level += 1
  
-    def t_comments_close(self,t):
+    def t_comments_close(self, t):
         r'\*\)'
         t.lexer.level -= 1
 

@@ -46,6 +46,7 @@ tokens = [
     'string'
 ] + list(reserved.values())
 
+
 class Token:
     def __init__(self, lex, type_, lineno, pos):
         self.lex = lex
