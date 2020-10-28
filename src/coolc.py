@@ -1,12 +1,20 @@
-from sys import argv
+import argparse
+
 from cool_lang.lexer import COOL_LEXER
 from cool_lang.parser import COOL_PARSER
 from cool_lang.semantics import COOL_CHECKER
 
 
-INPUT_FILE = argv[1]
-OUTPUT_FILE = argv[2]
-VERBOSE = True if '--verbose' in argv[3:] else False
+parser = argparse.ArgumentParser(description='COOL Compiler')
+parser.add_argument('INPUT_FILE', help='file to compile.', type=str)
+parser.add_argument('OUTPUT_FILE', help='compiled file.', type=str)
+parser.add_argument('-v', '--verbose', help='execute in verbose mode', action="store_true")
+
+args = parser.parse_args()
+
+INPUT_FILE = args.INPUT_FILE
+OUTPUT_FILE = args.OUTPUT_FILE
+VERBOSE = args.verbose
 
 code = open(INPUT_FILE, encoding="utf8").read()
 
