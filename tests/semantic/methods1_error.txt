@@ -1,2 +1,1 @@
-methods1.cl:11: Formal parameter a is multiply defined.
-Compilation halted due to static semantic errors. 
+(11, 16) - SemanticError: Formal parameter a is multiply defined.

@@ -1,2 +1,1 @@
-attributes2.cl:10: Inferred type D of initialization of attribute test2 does not conform to declared type C.
-Compilation halted due to static semantic errors. 
+(10, 17) - TypeError: Inferred type D of initialization of attribute test2 does not conform to declared type C. 

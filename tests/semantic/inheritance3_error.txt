@@ -1,2 +1,1 @@
-inheritance3.cl:9: Class A, or an ancestor of A, is involved in an inheritance cycle.
-Compilation halted due to static semantic errors.
+(9, 18) - SemanticError: Class A, or an ancestor of A, is involved in an inheritance cycle.

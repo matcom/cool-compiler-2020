@@ -1,2 +1,1 @@
-methods4.cl:12: In redefined method f, parameter type Object is different from original type Int
-Compilation halted due to static semantic errors. 
+(12, 15) - SemanticError: In redefined method f, parameter type Object is different from original type Int.

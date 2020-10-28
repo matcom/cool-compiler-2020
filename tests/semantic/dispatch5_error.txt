@@ -1,3 +1,1 @@
-dispatch5.cl:24: Dispatch to undefined method sum.
-Compilation halted due to static semantic errors.
- 
+(24, 9) - AttributeError: Dispatch to undefined method sum. 

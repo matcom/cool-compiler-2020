@@ -1,2 +1,1 @@
-dispatch4.cl:35: Inferred type B of initialization of attribute test does not conform to declared type D.
-Compilation halted due to static semantic errors.
+(35, 16) - TypeError: Inferred type B of initialization of attribute test does not conform to declared type D.

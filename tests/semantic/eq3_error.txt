@@ -1,2 +1,1 @@
-eq3.cl:16: Illegal comparison with a basic type.
-Compilation halted due to static semantic errors. 
+(16, 26) - TypeError: Illegal comparison with a basic type. 

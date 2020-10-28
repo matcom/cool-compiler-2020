@@ -1,2 +1,1 @@
-assignment2.cl:12: Inferred return type C of method test2 does not conform to declared return type D.
-Compilation halted due to static semantic errors. 
+(12, 22) - TypeError: Inferred return type C of method test2 does not conform to declared return type D.

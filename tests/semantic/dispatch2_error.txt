@@ -1,2 +1,1 @@
-dispatch2.cl:33: Method g called with wrong number of arguments.
-Compilation halted due to static semantic errors. 
+(33, 39) - SemanticError: Method g called with wrong number of arguments. 

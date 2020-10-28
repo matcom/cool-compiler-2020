@@ -1,2 +1,1 @@
-conditionals1.cl:13: Predicate of 'if' does not have type Bool.
-Compilation halted due to static semantic errors. 
+(13, 16) - TypeError: Predicate of 'if' does not have type Bool. 
