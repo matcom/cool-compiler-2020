@@ -66,10 +66,11 @@ class Type:
 
     def has_attr(self, name: str):
         try: 
-            attr_name = get_attribute(name)
+            attr_name = self.get_attribute(name)
         except:
             return False
-        return True
+        else:
+            return True
 
     def get_attribute(self, name: str):
         try:

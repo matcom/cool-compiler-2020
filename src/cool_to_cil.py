@@ -77,6 +77,9 @@ class BaseCOOLToCILVisitor:
         self.dottypes[name] = type_node
         return type_node
 
+    def is_in_data(self, name):
+        return name in self.dotdata.keys
+
     def register_data(self, value):
         vname = f's_{len(self.dotdata)}'
         self.dotdata[vname] = value
@@ -157,12 +160,18 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.AssignExpr)
     def visit(self, node, scope):
-        var_info = scope.find_variable(node.name)
-        local_var = self.register_local(var_info.name)
-        
-        value = self.visit(node.expr, scope)
-        self.register_instruction(CIL_AST.Assign(local_var, value))
-        return local_var
+        expr_local = self.visit(node.expr, scope)
+        result_local = self.define_internal_local()
+
+        if self.is_defined_param(node.name):
+            self.register_instruction(CIL_AST.Assign(node.name, expr_local))
+            return expr_local
+        elif self.current_type.has_attr(node.name):
+            self.register_instruction(CIL_AST.SetAttr("self", node.name, expr_local, self.current_type.name ))
+            return expr_local
+        else:
+            print("visit COOL ASSIGN error ")
+        #TODO: cuando no es ninguno de los casos
 
     @visitor.when(COOL_AST.Block)
     def visit(self, node, scope):
@@ -216,8 +225,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
         return result_local
 
-        
-
+    
     @visitor.when(COOL_AST.DynamicCall)
     def visit(self, node, scope):
         pass
@@ -248,7 +256,15 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         
     @visitor.when(COOL_AST.NewType)
     def visit(self, node, scope):
-        pass
+        result_local = self.define_internal_local()
+        if node.type == "SELF_TYPE":
+            get_type_local = self.define_internal_local()
+            self.register_instruction(CIL_AST.TypeOf("self", get_type_local))
+            self.register_instruction(CIL_AST.Allocate(get_type_local, result_local))
+            return result_local
+        else:
+            self.register_instruction(CIL_AST.Allocate(node.type, result_local))
+            return result_local
         
     @visitor.when(COOL_AST.IsVoid)
     def visit(self, node, scope):
@@ -432,7 +448,7 @@ if __name__ == '__main__':
 
     parser = Parser()
 
-    sys.argv.append('hello_world.cl')
+    sys.argv.append('test.cl')
 
     if len(sys.argv) > 1:
 

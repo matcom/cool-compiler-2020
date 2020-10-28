@@ -111,7 +111,7 @@ class GetAttr(Expr):
         self.static_type = static_type
 
 class SetAttr(Expr):
-    def __init__(self, dest, instance, attr, static_type):
+    def __init__(self,instance, attr, value, static_type):
         self.instance = instance
         self.attr = attr
         self.value = value
@@ -360,7 +360,7 @@ def get_formatter():
 
         @visitor.when(SetAttr)
         def visit(self, node):
-            return f'SetAttr {node.instance} {node.attr} {node.local_dest} {node.static_type}'
+            return f'SetAttr {node.instance} {node.attr} {node.value} {node.static_type}'
 
 
         @visitor.when(TypeOf)
