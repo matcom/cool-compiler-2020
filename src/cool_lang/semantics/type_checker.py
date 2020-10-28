@@ -54,7 +54,7 @@ class COOL_TYPE_CHECKER(object):
     def visit(self, node:AttrDeclarationNode, scope:Scope):
         if node.expression:
             new_scope = Scope(parent=scope)
-            new_scope.define_var('self', self.current_type)
+            new_scope.define_var('self', self.current_type, no_check=True)
             self.visit(node.expression, new_scope)
 
             attr_type = self.context.get_type(node.type)
@@ -65,7 +65,7 @@ class COOL_TYPE_CHECKER(object):
     @when(FuncDeclarationNode)
     def visit(self, node:FuncDeclarationNode, scope:Scope):
         func_scope = Scope(parent=scope)
-        func_scope.define_var('self', self.current_type)
+        func_scope.define_var('self', self.current_type, no_check=True)
 
         for param in node.params:
             try:

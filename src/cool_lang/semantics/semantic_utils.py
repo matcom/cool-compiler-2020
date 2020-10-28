@@ -196,8 +196,8 @@ class Scope:
         self.parent = parent
         self.vars = {}
 
-    def define_var(self, name, typex):
-        if name == 'self':
+    def define_var(self, name, typex, no_check=False):
+        if name == 'self' and not no_check:
             raise SemanticException('Invalid identifier.')
 
         if name in self.vars:
