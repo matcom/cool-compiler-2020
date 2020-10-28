@@ -120,13 +120,20 @@ class SetAttr(Expr):
     def __str__(self):
         return f'SETATTR {self.instance} {self.attr} {self.value};'
 
+class Call(Expr):
+    def __init__(self, local_dest, function, params, static_type):
+        self.function = function
+        self.params = params
+        self.static_type = static_type
+        self.local_dest = local_dest
+        
+
 class VCall(Expr):
-    def __init__(self, dest, itype, vtype, method, params_count):
-        self.local_dest = dest
-        self.instance_type = itype
-        self.virtual_type = vtype
-        self.method = method
-        self.params_count = params_count
+    def __init__(self, local_dest, function, params, dynamic_type):
+        self.function = function
+        self.params = params
+        self.dynamic_type = dynamic_type
+        self.local_dest = local_dest
     
     def __str__(self):
         return f'VCALL {self.instance_type} {self.virtual_type}_{self.method};'
@@ -179,13 +186,6 @@ class Allocate(Expr):
 class TypeOf(Expr):
     def __init__(self, variable, local_dest):
         self.variable = variable
-        self.local_dest = local_dest
-
-class Call(Expr):
-    def __init__(self, local_dest, function, params, static_type):
-        self.function = function
-        self.params = params
-        self.static_type = static_type
         self.local_dest = local_dest
 
 class Param(Expr):
@@ -379,7 +379,7 @@ def get_formatter():
 
         @visitor.when(VCall)
         def visit(self, node):
-            return f'{node.dest} = VCALL {node.instance_type} {node.virtual_type}_{node.method}'
+            return f'{node.local_dest} = VCALL {node.function} {node.dynamic_type}'
 
         @visitor.when(Arg)
         def visit(self, node):

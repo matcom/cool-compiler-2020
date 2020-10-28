@@ -438,7 +438,22 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
     
     @visitor.when(COOL_AST.DynamicCall)
     def visit(self, node, scope):
-        pass
+        result_local = self.define_internal_local()
+        expr_value = self.visit(node.instance, scope)
+
+        call_args = [expr_value]
+        for arg in node.args:
+            param_local = self.visit(arg, scope)
+            call_args.append(param_local)
+        
+        dynamic_type = self.define_internal_local()
+        self.register_instruction(CIL_AST.TypeOf(expr_value, dynamic_type))
+
+        for arg in call_args:
+            self.register_instruction(CIL_AST.Arg(arg))
+        self.register_instruction(CIL_AST.VCall(result_local, node.method, call_args, dynamic_type ))
+        
+        return result_local
         
     @visitor.when(COOL_AST.StaticCall)
     def visit(self, node, scope):
