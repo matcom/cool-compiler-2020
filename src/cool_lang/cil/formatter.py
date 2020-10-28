@@ -1,7 +1,8 @@
 from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, AssignNode, PlusNode \
     , MinusNode, StarNode, DivNode, AllocateNode, TypeOfNode, StaticCallNode, DynamicCallNode    \
     , ArgNode, ReturnNode, ReadNode, PrintNode, LoadNode, LengthNode, ConcatNode, PrefixNode     \
-    , SubstringNode, ToStrNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode
+    , SubstringNode, ToStrNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
+    , DataNode
 from ..utils import on, when
 
 
@@ -17,6 +18,10 @@ class CIL_FORMATTER(object):
         dotcode = '\n'.join(self.visit(t) for t in node.dotcode)
 
         return f'.TYPES\n{dottypes}\n\n.DATA\n{dotdata}\n\n.CODE\n{dotcode}'
+
+    @when(DataNode)
+    def visit(self, node: DataNode):
+        return f'{node.name} = "{node.value}"'
 
     @when(TypeNode)
     def visit(self, node: TypeNode):
