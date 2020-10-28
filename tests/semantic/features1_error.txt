@@ -1,2 +1,1 @@
-features1.cl:18: Attribute x is multiply defined in class.
-Compilation halted due to static semantic errors.
+(18, 5) - SemanticError: Attribute x is multiply defined in class.

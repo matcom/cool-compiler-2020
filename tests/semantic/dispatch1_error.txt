@@ -1,3 +1,1 @@
-dispatch1.cl:32: Dispatch to undefined method back.
-dispatch1.cl:32: Inferred type Object of initialization of attribute test does not conform to declared type B.
-Compilation halted due to static semantic errors. 
+(32, 37) - AttributeError: Dispatch to undefined method back. 

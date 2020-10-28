@@ -1,3 +1,1 @@
-dispatch6.cl:31: Expression type A does not conform to declared static dispatch type B.
-dispatch6.cl:31: Inferred type Object of initialization of attribute test does not conform to declared type Int.
-Compilation halted due to static semantic errors. 
+(31, 18) - TypeError: Expression type A does not conform to declared static dispatch type B. 

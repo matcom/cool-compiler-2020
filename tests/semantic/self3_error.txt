@@ -1,2 +1,1 @@
-self3.cl:9: 'self' cannot be the name of a formal parameter.
-Compilation halted due to static semantic errors. 
+(9, 10) - SemanticError: 'self' cannot be the name of a formal parameter.

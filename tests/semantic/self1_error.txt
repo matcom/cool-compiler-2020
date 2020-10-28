@@ -1,3 +1,1 @@
-self1.cl:10: Cannot assign to 'self'.
-self1.cl:10: Type Main of assigned expression does not conform to declared type SELF_TYPE of identifier self.
-Compilation halted due to static semantic errors. 
+(10, 30) - SemanticError: Cannot assign to 'self'.

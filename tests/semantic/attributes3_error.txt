@@ -1,3 +1,1 @@
-attributes3.cl:9: Undeclared identifier b.
-attributes3.cl:9: Predicate of 'if' does not have type Bool.
-Compilation halted due to static semantic errors. 
+(9, 16) - NameError: Undeclared identifier b.

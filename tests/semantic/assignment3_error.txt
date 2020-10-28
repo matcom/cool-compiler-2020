@@ -1,2 +1,1 @@
-assignment3.cl:13: Inferred type C of initialization of attribute d does not conform to declared type D.
-Compilation halted due to static semantic errors.
+(13, 13) - TypeError: Inferred type C of initialization of attribute d does not conform to declared type D.

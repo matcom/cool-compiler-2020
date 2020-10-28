@@ -1,2 +1,1 @@
-arithmetic7.cl:10: non-Int arguments: Int < String
-Compilation halted due to static semantic errors. 
+(10, 22) - TypeError: non-Int arguments: Int < String

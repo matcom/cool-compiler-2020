@@ -1,2 +1,1 @@
-loops1.cl:7: Loop condition does not have type Bool.
-Compilation halted due to static semantic errors. 
+(7, 27) - TypeError: Loop condition does not have type Bool.
