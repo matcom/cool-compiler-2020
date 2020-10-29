@@ -1,6 +1,10 @@
 from AstNodes import *
 import visitor as visitor
 import queue
+from collections import OrderedDict
+import itertools as itt
+
+
 
 class SemanticError(Exception):
     @property
@@ -12,7 +16,7 @@ class Attribute:
         self.name = name
         self.type = typex
 
-    def __str__(self): 
+    def __str__(self):
         return f'[attrib] {self.name} : {self.type.name};'
 
     def __repr__(self):
@@ -29,87 +33,92 @@ class Method:
         params = ', '.join(f'{n}:{t.name}' for n,t in zip(self.param_names, self.param_types))
         return f'[method] {self.name}({params}): {self.return_type.name};'
 
+    def __eq__(self, other):
+        return other.name == self.name and \
+            other.return_type == self.return_type and \
+            other.param_types == self.param_types
+
 class Type:
     def __init__(self, name:str):
         self.name = name
         self.attributes = []
-        self.methods = {}
+        self.methods = []
         self.parent = None
         self.sons = []
-        self.height = -1
 
-    def set_parent(self, parent,pos=0):
+    def set_parent(self, parent, pos=0):
         if self.parent is not None:
-            raise SemanticError(f'Parent type is already set for {self.name} {pos}.')
-        if parent.name in ["Int","String", "Bool"]:
-            raise SemanticError(f'Types can\'t have basic type "{parent.name}" as parent {pos}')
+            raise SemanticError(f'Parent type is already set for {self.name}. {pos}')
         self.parent = parent
         parent.sons.append(self)
 
-    def get_attribute(self, name:str, pos=0):
+    def get_attribute(self, name:str,pos=0):
         try:
             return next(attr for attr in self.attributes if attr.name == name)
         except StopIteration:
             if self.parent is None:
-                raise SemanticError(f'Attribute "{name}" is not defined in {self.name} {pos}.')
+                raise SemanticError(f'Attribute "{name}" is not defined in {self.name}.{pos}')
             try:
-                return self.parent.get_attribute(name, pos)
+                return self.parent.get_attribute(name)
             except SemanticError:
-                raise SemanticError(f'Attribute "{name}" is not defined in {self.name} {pos}.')
+                raise SemanticError(f'Attribute "{name}" is not defined in {self.name}.{pos}')
 
     def define_attribute(self, name:str, typex, pos):
         try:
-            self.get_attribute(name, pos=0)
+            self.get_attribute(name)
         except SemanticError:
             attribute = Attribute(name, typex)
             self.attributes.append(attribute)
             return attribute
         else:
-            raise SemanticError(f'Attribute "{name}" is already defined in {self.name} {pos}.')
+            raise SemanticError(f'Attribute "{name}" is already defined in {self.name}.{pos}')
 
-    def get_method(self, name:str, pos=0):
+    def get_method(self, name:str,pos=0):
         try:
-            return self.methods[name]
-        except KeyError:
+            return next(method for method in self.methods if method.name == name)
+        except StopIteration:
             if self.parent is None:
-                raise SemanticError(f'Method "{name}" is not defined in {self.name} {pos}.')
+                raise SemanticError(f'Method "{name}" is not defined in {self.name}.{pos}')
             try:
-                return self.parent.get_method(name, pos)
+                return self.parent.get_method(name)
             except SemanticError:
-                raise SemanticError(f'Method "{name}" is not defined in {self.name} {pos}.')
+                raise SemanticError(f'Method "{name}" is not defined in {self.name}.{pos}')
 
-    def define_method(self, name:str, param_names:list, param_types:list,  return_type, pos):
-        try:
-            method = self.get_method(name, pos)
-        except SemanticError:
-            pass
-        else:
-            if method.return_type != return_type or method.param_types != param_types:
-                raise SemanticError(f'Method "{name}" already defined in {self.name} with a different signature {pos}.')
+    def define_method(self, name:str, param_names:list, param_types:list, return_type,pos=0):
+        if name in (method.name for method in self.methods):
+            raise SemanticError(f'Method "{name}" already defined in {self.name} {pos}')
 
-        method = self.methods[name] = Method(name, param_names, param_types, return_type)
+        method = Method(name, param_names, param_types, return_type)
+        self.methods.append(method)
         return method
 
-    def inherits_from(self, a):
-        if a.name == 'Object':
-            return True
-        temp = self
-        while True:
-            if temp == a:
-                return True
-            if temp.parent is None:
-                return False
-            temp = temp.parent
+    def all_attributes(self, clean=True):
+        plain = OrderedDict() if self.parent is None else self.parent.all_attributes(False)
+        for attr in self.attributes:
+            plain[attr.name] = (attr, self)
+        return plain.values() if clean else plain
+
+    def all_methods(self, clean=True):
+        plain = OrderedDict() if self.parent is None else self.parent.all_methods(False)
+        for method in self.methods:
+            plain[method.name] = (method, self)
+        return plain.values() if clean else plain
+
+    def conforms_to(self, other):
+        return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
+
+    def bypass(self):
+        return False
 
     def __str__(self):
-        parent = '' if self.parent is None else f' : {self.parent.name}'
         output = f'type {self.name}'
+        parent = '' if self.parent is None else f' : {self.parent.name}'
         output += parent
         output += ' {'
         output += '\n\t' if self.attributes or self.methods else ''
         output += '\n\t'.join(str(x) for x in self.attributes)
         output += '\n\t' if self.attributes else ''
-        output += '\n\t'.join(str(x) for x in self.methods.values())
+        output += '\n\t'.join(str(x) for x in self.methods)
         output += '\n' if self.methods else ''
         output += '}\n'
         return output
@@ -121,6 +130,12 @@ class ErrorType(Type):
     def __init__(self):
         Type.__init__(self, '<error>')
 
+    def conforms_to(self, other):
+        return True
+
+    def bypass(self):
+        return True
+
     def __eq__(self, other):
         return isinstance(other, Type)
 
@@ -128,12 +143,18 @@ class VoidType(Type):
     def __init__(self):
         Type.__init__(self, '<void>')
 
+    def conforms_to(self, other):
+        raise Exception('Invalid type: void type.')
+
+    def bypass(self):
+        return True
+
     def __eq__(self, other):
         return isinstance(other, VoidType)
 
 class SELF_TYPE(Type):
     def __init__(self):
-        Type.__init__(self, 'SELF_TYPE')
+        Type.__init__(self, "SELF_TYPE")
 
     def __eq__(self, other):
         return isinstance(other, SELF_TYPE)
@@ -141,9 +162,6 @@ class SELF_TYPE(Type):
 class Context:
     def __init__(self):
         self.types = {}
-        self.locals = {}
-        self.parent = None
-        self.current_type = None
         self.bassic_classes()
 
     def bassic_classes(self):
@@ -163,81 +181,30 @@ class Context:
         self.types["Object"] =Object
 
         IO.define_method("out_string",["x"],[String],SELF_TYPE(),0)
-        IO.define_method("out_int",['x'],[Int],SELF_TYPE,0)
+        IO.define_method("out_int",['x'],[Int],SELF_TYPE(),0)
         IO.define_method("in_int",[],[],Int,0)
-        
-        String.define_method("lenght",[],[],Int,0)    
+        self.types['IO']= IO
+
+        String.define_method("length",[],[],Int,0)    
         String.define_method("concat",['s'],[String],String,0) 
         String.define_method("substr",['i','l'],[Int,Int],SELF_TYPE(),0)   
         self.types["String"] = String
-        
 
-    def child_context(self):
-        child = Context()
-        child.types = self.types
-        child.parent = self
-        child.current_type = self.current_type
-        return child
+    def check_type(self,x:Type,y:Type,pos):
+        if not x.conforms_to(y) :
+            raise(SemanticError(f"Expr type {x.name} is no subclass of {y.name} {pos}"))
 
-    def create_type(self, name:str, pos=0):
+    def create_type(self, name:str,pos=0):
         if name in self.types:
-            raise SemanticError(f'Type with the same name ({name}) already in context {pos}.')
+            raise SemanticError(f'Type with the same name ({name}) already in context.{pos}')
         typex = self.types[name] = Type(name)
         return typex
 
-    def get_type(self, name:str, pos=0):
+    def get_type(self, name:str,pos=0):
         try:
             return self.types[name]
         except KeyError:
-            raise SemanticError(f'Type "{name}" is not defined {pos}.')
-
-    def define_local(self, name:str, typex, pos):
-        if name in self.locals:
-            raise SemanticError(f'Variable with the same name "{name}" already in context {pos}')            
-        attr= Attribute(name, typex)
-        self.locals[name] = attr
-        return attr 
-
-    def get_local(self, name:str, pos=0):
-        try:
-            return self.locals[name]
-        except KeyError:
-            if self.parent is None:
-                try:
-                    return self.current_type.get_attribute(name)
-                except :
-                    raise SemanticError(f'Variable "{name}" is not defined {pos}')
-            try:
-                return self.parent.get_local(name, pos)
-            except :                
-                try:
-                    return self.current_type.get_attribute(name)
-                except SemanticError as e:
-                    raise SemanticError(f'Variable "{name}" is not defined {pos}')
-                    
-
-    def sort_types(self):
-        q = queue.deque()
-        lst = []
-        for tp in self.types:
-            if self.types[tp].parent is None:
-                if tp != "Object":
-                    self.types[tp].set_parent( self.types["Object"])
-
-        q.append("Object")
-        while len(q) != 0:
-            tp = q.popleft()
-            lst.append(tp)
-            for son in self.types[tp].sons:
-                q.append(son.name)
-        return lst
-
-    def inherits_from(self,a:Type, b:Type, pos=0):
-        return a.inherits_from(b)
-        
-    def check_type(self,x,y,pos):
-        if not self.inherits_from(x, y, pos) :
-            raise(SemanticError(f"Expr type {x.name} is no subclass of {y.name} {pos}"))
+            raise SemanticError(f'Type "{name}" is not defined.{pos}')
 
     def closest_common_antecesor(self, typexa:Type, typexb:Type):
         antecesor = []
@@ -257,8 +224,7 @@ class Context:
             if not typexb is None:
                 typexb = typexb.parent
 
-        return self.get_type("Object")
-
+        return self.get_type("Object") 
 
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
@@ -266,6 +232,48 @@ class Context:
     def __repr__(self):
         return str(self)
 
+class VariableInfo:
+    def __init__(self, name, vtype):
+        self.name = name
+        self.type = vtype
+
+class Scope:
+    def __init__(self, parent=None):
+        self.locals = []
+        self.parent = parent
+        self.children = []
+        self.index = 0 if parent is None else len(parent)
+
+    def __len__(self):
+        return len(self.locals)
+
+    def create_child(self):
+        child = Scope(self)
+        self.children.append(child)
+        return child
+
+    def define_variable(self, vname, vtype,pos=0):
+        if  self.is_local(vname):
+            raise SemanticError(f"Variable {vname} already define in scope {pos}")
+        info = VariableInfo(vname, vtype)
+        self.locals.append(info)
+        return info
+
+    def find_variable(self, vname, index=None):
+        locals = self.locals if index is None else itt.islice(self.locals, index)
+        try:
+            return next(x for x in locals if x.name == vname)
+        except StopIteration:
+            if not self.parent is None:
+                return self.parent.find_variable(vname, self.index)  
+            else:
+                return None
+
+    def is_defined(self, vname):
+        return self.find_variable(vname) is not None
+
+    def is_local(self, vname):
+        return any(True for x in self.locals if x.name == vname)
 class CoolSemantic:
 
     def __init__(self , ast):
@@ -338,7 +346,22 @@ class TypeCollector(object):
             self.context.create_type(node.id,node.line)
         except SemanticError as e:
             self.errors.append(e)
-        
+
+def sort_types(types):
+        q = queue.deque()
+        lst = []
+        for tp in types:
+            if types[tp].parent is None:
+                if tp != "Object":
+                    types[tp].set_parent( types["Object"])
+
+        q.append("Object")
+        while len(q) != 0:
+            tp = q.popleft()
+            lst.append(tp)
+            for son in types[tp].sons:
+                q.append(son.name)
+        return lst        
             
 class TypeBuilder:
     def __init__(self, context:Context, errors=[]):
@@ -354,7 +377,7 @@ class TypeBuilder:
     @visitor.when(ProgramNode)
     def visit(self, node):
         nodec={ def_class.id:def_class for def_class in node.declarations}
-        sorted_types = self.context.sort_types()
+        sorted_types = sort_types(self.context.types)
         for stypes in sorted_types:
             if stypes in nodec:
                 self.visit(nodec[stypes])
@@ -364,7 +387,7 @@ class TypeBuilder:
     @visitor.when(ClassDeclarationNode)
     def visit(self, node):
 
-        self.context.current_type = self.context.get_type(node.id,node.line)
+        self.current_type = self.context.get_type(node.id,node.line)
         for feature in node.features:
             self.visit(feature)
             
@@ -376,7 +399,7 @@ class TypeBuilder:
     def visit(self, node):        
         try:
             attr_type = self.context.get_type(node.type,node.line)
-            self.context.current_type.define_attribute(node.id, attr_type, node.line)
+            self.current_type.define_attribute(node.id, attr_type, node.line)
         except SemanticError as e:
             self.errors.append(e)
         
@@ -396,14 +419,14 @@ class TypeBuilder:
             self.errors.append(e)
             ret_type = ErrorType()
         try:
-            self.context.current_type.define_method(node.id, arg_names, arg_types, ret_type, node.line)
+            self.current_type.define_method(node.id, arg_names, arg_types, ret_type, node.line)
         except SemanticError as e:
             self.errors.append(e)
 
 class TypeChecking:
     def __init__(self, context:Context, errors=[]):
         self.context = context
-        self.context.current_type = None
+        self.current_type = None
         self.errors = errors
     
     @visitor.on('node')
@@ -411,74 +434,69 @@ class TypeChecking:
         pass
 
     @visitor.when(ProgramNode)
-    def visit(self, node:ProgramNode):
+    def visit(self, node:ProgramNode, scope=None):
+        scope = Scope()
         for dec in node.declarations:
             try:
-                self.visit(dec)
+                self.visit(dec,scope.create_child())
             except SemanticError as e:
                 self.errors.append(e)
 
-#Declarations
+
     @visitor.when(ClassDeclarationNode)
-    def visit(self, node:ClassDeclarationNode):
-        parent_contex = self.context
-        self.context = self.context.child_context()
+    def visit(self, node:ClassDeclarationNode, scope:Scope):      
         try :
             typex = self.context.get_type(node.id, node.line)
         except SemanticError as e:
             self.errors.append(e)
 
-        self.context.current_type = typex
-        self.context.define_local("self" , typex, node.line)
+        self.current_type = typex
+        for at in typex.all_attributes():
+            scope.define_variable(at[0].name, at[0].type,node.line)
+        scope.define_variable("self",typex,node.line)
         for feat in node.features:
-            self.visit(feat)
-        self.context = parent_contex
-        self.context.current_type = None
+            self.visit(feat,scope.create_child())
+       
 
     @visitor.when(AttrDeclarationNode)
-    def visit(self, node:AttrDeclarationNode):
-        self.visit(node.expression)
+    def visit(self, node:AttrDeclarationNode,scope:Scope):
+        self.visit(node.expression, scope.create_child())
         if not node.expression is None:
             try:
-                typex =self.context.current_type if node.type == "SELF_TYPE" else self.context.get_type(node.type,node.line)
+                typex =self.current_type if node.type == "SELF_TYPE" else self.context.get_type(node.type,node.line)
                 self.context.check_type(node.expression.type,typex,node.line)
             except SemanticError as e:
                 self.errors.append(e)
 
     @visitor.when(FuncDeclarationNode)
-    def visit(self, node:FuncDeclarationNode):
-        parent_contex = self.context
-        self.context = self.context.child_context()
-        method = self.context.current_type.get_method(node.id)
+    def visit(self, node:FuncDeclarationNode,scope:Scope):
+        method = self.current_type.get_method(node.id)
         for i in range(len(method.param_names)):
             try:
-                self.context.define_local(method.param_names[i],method.param_types[i],node.line)
+                scope.define_variable(method.param_names[i],method.param_types[i],node.line)
             except SemanticError as e:
                 self.errors.append(e)
 
-        self.visit(node.body)
+        self.visit(node.body,scope.create_child())
         try:
-            typex = method.return_type if not isinstance(method.return_type,SELF_TYPE) else self.context.current_type
+            typex = method.return_type if not isinstance(method.return_type,SELF_TYPE) else self.current_type
             self.context.check_type(node.body.type,typex,node.line)
         except SemanticError as e:
             self.errors.append(e)
-        self.context = parent_contex
+        
 
     @visitor.when(MemberCallNode)
-    def visit(self, node:FunctionCallNode):
-        parent_contex = self.context
-        self.context = self.context.child_context()
+    def visit(self, node:FunctionCallNode, scope:Scope):
         node.type = ErrorType()
-        self.context = parent_contex
+       
     
     @visitor.when(FunctionCallNode)
-    def visit(self, node:FunctionCallNode):
-        parent_contex = self.context
-        self.context = self.context.child_context()
-        self.visit(node.obj)
+    def visit(self, node:FunctionCallNode, scope:Scope):    
+        self.visit(node.obj,scope.create_child())
         node.type = ErrorType()
+
         for i in range(len(node.args)):
-            self.visit(node.args[i])
+            self.visit(node.args[i],scope.create_child())
 
         if not node.typex is None:            
             try:
@@ -511,80 +529,69 @@ class TypeChecking:
                     self.errors.append(e)
         except SemanticError as e:
             self.errors.append(e)
-        self.context = parent_contex
+        
 
     @visitor.when(IfThenElseNode)
-    def visit(self,node:IfThenElseNode):
-        parent_contex = self.context
-        self.context = self.context.child_context()
-        self.visit(node.condition)
+    def visit(self,node:IfThenElseNode,scope:Scope):
+        self.visit(node.condition,scope.create_child())
         try:
             self.context.check_type(node.condition.type,self.context.get_type("Bool"),node.line)
         except SemanticError as e:
             self.errors.append(e)
         
-        self.visit(node.if_body)
+        self.visit(node.if_body,scope.create_child())
         
-        self.visit(node.else_body)
+        self.visit(node.else_body, scope.create_child())
 
         try:    
             node.type = self.context.closest_common_antecesor(node.if_body.type, node.else_body.type)
         except SemanticError as e:
             self.errors.append(e)
             node.type =  ErrorType()
-        self.context = parent_contex
+
 
     @visitor.when(AssignNode)
-    def visit(self, node:AssignNode):
-        parent_contex = self.context 
-        self.context = self.context.child_context()
-        
-        self.visit(node.expression)
+    def visit(self, node:AssignNode,scope:Scope):
+        self.visit(node.expression, scope.create_child())
         try:
-            if node.id == self:
+            if node.id == "self":
                 raise SemanticError(f'Trying to assign value to self {node.line}')    
-            var = self.context.get_local(node.id,node.line)
+            var = scope.find_variable(node.id)
             self.context.check_type(node.expression.type, var.type, node.line)
             node.type = node.expression.type
         except SemanticError as e:
             self.errors.append(e)
             self.type = node.expression.type
-        self.context = parent_contex
+     
 
     @visitor.when(WhileLoopNode)
-    def visit(self , node:WhileLoopNode):
-        parent_contex = self.context 
-        self.context = self.context.child_context()
-            
-        self.visit(node.condition)
+    def visit(self , node:WhileLoopNode, scope:Scope):
+        self.visit(node.condition, scope.create_child())
         if self.context.get_type("Bool",node.line) != node.condition.type:
             self.errors.append(SemanticError("Expr should be boolean"))
-        self.visit(node.body)
-        self.type = self.context.get_type("Object",node.line)
-        self.context = parent_contex    
+        self.visit(node.body, scope.create_child())
+        node.type = self.context.get_type("Object",node.line)
+          
 
     @visitor.when(BlockNode)
-    def visit (self, node:BlockNode):
-        parent_contex = self.context 
-        self.context = self.context.child_context()
+    def visit (self, node:BlockNode, scope:Scope):
         for expr in node.expressions:
-            self.visit(expr)
+            self.visit(expr,scope.create_child())
         node.type = node.expressions[-1].type
-        self.context = parent_contex
+        
 
     @visitor.when(LetInNode)
-    def visit(self, node:LetInNode):
-        parent_contex = self.context 
-        self.context = self.context.child_context()
+    def visit(self, node:LetInNode,scope:Scope):
+        sc = scope.create_child()
         for init in node.let_body:
             if not init[2] is None:
-                self.visit(init[2])
+                self.visit(init[2],sc)
                 try:
                     self.context.check_type(init[2].type,self.context.get_type(init[1],node.line),node.line)
                 except SemanticError as e:
                     self.errors.append(e)
 
-            self.context = self.context.child_context()
+            sc = sc.create_child()
             typex= None
             try:
                 typex = self.context.get_type(init[1],node.line)
@@ -592,88 +599,106 @@ class TypeChecking:
                 self.errors.append(e)
                 typex = ErrorType()
             try:    
-                self.context.define_local(init[0],typex,node.line)
+                sc.define_variable(init[0],typex,node.line)
             except SemanticError as e:
                 self.errors.append(e)
         
-        self.visit(node.in_body)
+        self.visit(node.in_body,sc)
         node.type = node.in_body.type
-        self.context = parent_contex
+        
 
     @visitor.when(NewNode)
-    def visit(self, node:NewNode):
-        parent_contex = self.context 
-        self.context = self.context.child_context()
+    def visit(self, node:NewNode,scope:Scope):
         try:
             if node.type == "SELF_TYPE":
-                node.type= self.context.current_type
+                node.type= self.current_type
             else:
                 node.type = self.context.get_type(node.type,node.line)
         except SemanticError as e:
             self.errors.append(e)
             node.type = ErrorType()
 
-        self.context = parent_contex
+        
 
     @visitor.when(IsVoidNode)
-    def visit(self, node:IsVoidNode):
-        parent_contex = self.context 
-        self.context = self.context.child_context()
-        self.visit(node.expression)
+    def visit(self, node:IsVoidNode, scope:Scope):
+       
+        self.visit(node.expression,scope.create_child())
         node.type = self.context.get_type("Bool", node.line)
-        self.context = parent_contex
-#Binary
-#Arithmetic
+        
+
     @visitor.when(ArithmeticNode)
-    def visit(self, node:ArithmeticNode):
-        self.visit(node.left)
+    def visit(self, node:ArithmeticNode,scope:Scope):
+        self.visit(node.left,scope.create_child())
         if node.left.type != self.context.get_type("Int", node.line):
             self.errors.append(SemanticError (f"Expr must be an integer {node.line}"))
-        self.visit(node.right)
+        self.visit(node.right,scope.create_child())
         if node.right.type != self.context.get_type("Int", node.line):
             self.errors.append(SemanticError (f"Expr must be an integer {node.line}"))
         node.type = self.context.get_type("Int", node.line)
         
-#Comp
+
     @visitor.when(LessNode)
-    def visit(self, node:LessNode):
-        self.visit(node.left)
+    def visit(self, node:LessNode,scope:Scope):
+        self.visit(node.left,scope.create_child())
         if node.left.type != self.context.get_type("Int", node.line):
             self.errors.append(SemanticError (f"Expr must be an integer {node.line}"))
-        self.visit(node.right)
+        self.visit(node.right,scope.create_child())
         if node.right.type != self.context.get_type("Int", node.line):
             self.errors.append(SemanticError (f"Expr must be an integer {node.line}"))
         node.type = self.context.get_type("Bool", node.line)
 
     @visitor.when(LessEqualNode)
-    def visit(self, node:LessEqualNode):
-        self.visit(node.left)
+    def visit(self, node:LessEqualNode, scope:Scope):
+        self.visit(node.left,scope.create_child())
         if node.left.type != self.context.get_type("Int", node.line):
             self.errors.append(SemanticError (f"Expr must be an integer {node.line}"))
-        self.visit(node.right)
+        self.visit(node.right,scope.create_child())
         if node.right.type != self.context.get_type("Int", node.line):
             self.errors.append(SemanticError (f"Expr must be an integer {node.line}"))
         node.type = self.context.get_type("Bool", node.line)
 
+    @visitor.when(EqualNode)
+    def visit(self, node:EqualNode, scope:Scope):
+        self.visit(node.left,scope.create_child())
+        self.visit(node.right,scope.create_child())
+        if node.left.type != node.right.type:
+            basic = ['Int', 'String', 'Bool']
+            if node.left.type.name in basic or node.right.type.name in basic:
+                self.errors.append(SemanticError(f"Exprs must have same type {node.line}"))
+        node.type = self.context.get_type("Bool", node.line)
+
+    @visitor.when(ComplementNode)
+    def visit(self, node:ComplementNode, scope:Scope):
+        self.visit(node.expression, scope.create_child())
+        if node.expression.type != self.context.get_type("Int", node.line):
+            self.errors.append(SemanticError (f"Expr must be an integer {node.line}"))
+        node.type = self.context.get_type("Int", node.line)
+
+    @visitor.when(NotNode)
+    def visit(self, node:NotNode, scope:Scope):
+        self.visit(node.expression, scope.create_child())
+        if node.expression.type != self.context.get_type("Bool", node.line):
+            self.errors.append(SemanticError (f"Expr must be an integer {node.line}"))
+        node.type = self.context.get_type("Bool", node.line)
 
 
-#Atomic
     @visitor.when(IntegerNode)
-    def visit (self, node:IntegerNode):
+    def visit (self, node:IntegerNode,scope:Scope):
         node.type = self.context.get_type("Int", node.line)        
 
     @visitor.when(StringNode)
-    def visit (self, node:IntegerNode):
+    def visit (self, node:StringNode, scope:Scope):
         node.type = self.context.get_type("String", node.line)
 
     @visitor.when(BoolNode)
-    def visit (self, node:IntegerNode):
+    def visit (self, node:BoolNode, scope:Scope):
         node.type = self.context.get_type("Bool",node.line)
 
     @visitor.when(IdNode)
-    def visit (self, node:IntegerNode):
+    def visit (self, node:IntegerNode,scope:Scope):
         try:
-            x = self.context.get_local(node.token, node.line)
+            x = scope.find_variable(node.token)
             node.type = x.type
         except SemanticError as e:
             self.errors.append(e)

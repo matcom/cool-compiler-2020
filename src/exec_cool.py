@@ -3,7 +3,7 @@ from Parser import CoolParser
 from semantic import CoolSemantic
 import sys
 
-file = open("/media/karl/Datos/cool-compiler-2020/src/test.cl", 'r')
+file = open("F:/cool-compiler-2020/src/test.cl", 'r')
 cool_lexer = CoolLexer()
 errors_lexer = cool_lexer.tokenize(file.read())
 # errors_lexer = cool_lexer.tokenize('''''')
