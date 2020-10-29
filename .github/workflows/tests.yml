@@ -1,0 +1,39 @@
+name: Tests
+
+on:
+  push:
+    branches: [ tests ]
+  pull_request:
+    branches: [ tests ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Lexer tests
+        run: |
+          cd src
+          make clean
+          make
+          make test TAG=lexer
+      - name: Parser tests
+        run: |
+          cd src
+          make clean
+          make
+          make test TAG=parser
+      - name: Semantic tests
+        run: |
+          cd src
+          make clean
+          make
+          make test TAG=semantic
