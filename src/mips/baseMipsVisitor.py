@@ -8,7 +8,7 @@ from mips import load_store
 from mips.branch import JAL, JALR
 import mips.instruction as instrNodes
 import mips.arithmetic as arithNodes
-from mips.instruction import a0, fp, ra, sp, v0
+from mips.instruction import LineComment, a0, fp, ra, sp, v0
 import mips.load_store as lsNodes
 from typing import List, Optional, Type, Union
 import time
@@ -168,12 +168,8 @@ class BaseCilToMipsVisitor:
             instrNodes.LineComment(f"{func.name} implementation."))
         self.register_instruction(instrNodes.LineComment("@Params:"))
         for i, param in enumerate(func.params):
-            if i < 4:
-                self.register_instruction(
-                    instrNodes.LineComment(f"\t$a{i} = {param.name}"))
-            else:
-                self.register_instruction(
-                    instrNodes.LineComment(f"\t{(i-4) * 4}($fp) = {param}"))
+            self.register_instruction(
+                instrNodes.LineComment(f"\t{i * 4}($fp) = {param.name}"))
 
     def operate(self, dest, left, right, operand: Type):
         """
@@ -330,6 +326,7 @@ class BaseCilToMipsVisitor:
     def deallocate_args(self, func: FunctionNode):
         args = len(func.params)
         if args > 0:
+            self.register_instruction(LineComment("Deallocate function args"))
             self.register_instruction(arithNodes.ADDU(sp, sp, 4 * args, True))
 
     def define_entry_point(self):
