@@ -196,7 +196,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(CIL_AST.Return(0))        
 
 
-        #----------------String---------------------
+        # ----------------String---------------------
         object_type = self.context.get_type('String')
         object_cil = self.register_type('String')
         object_cil.attributes = ['value', 'length']
@@ -208,7 +208,7 @@ class BaseCOOLToCILVisitor:
         self.register_param(VariableInfo('v', None))
         self.register_instruction(CIL_AST.SetAttr('instance', 'value', 'v', 'String'))
         number = self.define_internal_local()
-        self.register_instruction(CIL_AST.Length('v', result))
+        self.register_instruction(CIL_AST.Length('v', number))
         instance = self.define_internal_local()
         self.register_instruction(CIL_AST.Allocate('Int', instance))
         self.register_instruction(CIL_AST.Arg(instance))

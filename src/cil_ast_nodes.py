@@ -387,5 +387,29 @@ def get_formatter():
         def visit(self, node):
             return f'\n RETURN {node.value if node.value is not None else ""}'
 
+        @visitor.when(Halt)
+        def visit(self, node):
+            return 'HALT'
+
+        @visitor.when(Length)
+        def visit(self, node):
+            return f'{node.result} = LENGTH {node.variable}'
+
+        @visitor.when(Concat)
+        def visit(self, node):
+            return f'{node.result} = CONCAT {node.string1}  {node.string2}'
+
+        @visitor.when(SubStr)
+        def visit(self, node):
+            return f'{node.result} = SUBSTR {node.i}  {node.length}  {node.string}'
+
+        @visitor.when(Read)
+        def visit(self, node):
+            return f'{node.variable} = READ'
+
+        @visitor.when(Print)
+        def visit(self, node):
+            return f'PRINT {node.variable}'
+
     printer = PrintVisitor()
     return (lambda ast: printer.visit(ast))
