@@ -110,19 +110,27 @@ class COOL_PARSER:
 
     def p_let_list_declaration_simple(self, p):
         'let_list : ID COLON TYPE'
-        p[0] = [LetNode(p[1], p[3], None)]
+        line = p.lineno(1)
+        column = find_column(self.code, p.lexpos(1))
+        p[0] = [LetNode(p[1], p[3], None, line=line, column=column)]
 
     def p_let_list_declaration_multi(self, p):
         'let_list : ID COLON TYPE COMMA let_list'
-        p[0] = [LetNode(p[1], p[3], None)] + p[5]
+        line = p.lineno(1)
+        column = find_column(self.code, p.lexpos(1))
+        p[0] = [LetNode(p[1], p[3], None, line=line, column=column)] + p[5]
 
     def p_let_list_assign_simple(self, p):
         'let_list : ID COLON TYPE ASSIGN expr'
-        p[0] = [LetNode(p[1], p[3], p[5])]
+        line = p.lineno(1)
+        column = find_column(self.code, p.lexpos(1))
+        p[0] = [LetNode(p[1], p[3], p[5], line=line, column=column)]
 
     def p_let_list_assign_multi(self, p):
         'let_list : ID COLON TYPE ASSIGN expr COMMA let_list'
-        p[0] = [LetNode(p[1], p[3], p[5])] + p[7]
+        line = p.lineno(1)
+        column = find_column(self.code, p.lexpos(1))
+        p[0] = [LetNode(p[1], p[3], p[5], line=line, column=column)] + p[7]
 
     def p_case_list_simple(self, p):
         'case_list : ID COLON TYPE ACTION expr SEMICOLON'
