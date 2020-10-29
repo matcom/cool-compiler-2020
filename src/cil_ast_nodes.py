@@ -61,13 +61,12 @@ class Type(AST):
 
 
 class Function(AST):
-    def __init__(self, name, params=[], localvars=[], instructions =[], labels = []):
+    def __init__(self, name, params=[], localvars=[], instructions =[]):
         super(Function, self).__init__()
         self.name = name
         self.params = params # list of Param
         self.localvars = localvars # list of LocalDec
         self.instructions = instructions # list of Instructions
-        self.labels = labels
     
     def __str__(self):
         # params = '\n\t'.join(x for x in self.params)
@@ -362,11 +361,11 @@ def get_formatter():
 
         @visitor.when(GetAttr)
         def visit(self, node):
-            return f'{node.local_dest} = GetAttr {node.instance} {node.attr} {node.static_type}'
+            return f'{node.local_dest} = GetAttr {node.instance} {node.attr} '
 
         @visitor.when(SetAttr)
         def visit(self, node):
-            return f'SetAttr {node.instance} {node.attr} {node.value} {node.static_type}'
+            return f'SetAttr {node.instance} {node.attr} {node.value}'
 
 
         @visitor.when(TypeOf)
@@ -375,11 +374,11 @@ def get_formatter():
 
         @visitor.when(Call)
         def visit(self, node):
-            return f'{node.local_dest} = CALL {node.function} {node.static_type}'
+            return f'{node.local_dest} = CALL {node.function}'
 
         @visitor.when(VCall)
         def visit(self, node):
-            return f'{node.local_dest} = VCALL {node.function} {node.dynamic_type}'
+            return f'{node.local_dest} = VCALL {node.dynamic_type} {node.function} '
 
         @visitor.when(Arg)
         def visit(self, node):

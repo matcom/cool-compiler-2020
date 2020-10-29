@@ -33,7 +33,6 @@ class BaseCOOLToCILVisitor:
         return self.current_function.labels
 
     def register_param(self, vinfo):
-        # vinfo.name = f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
         param_node = CIL_AST.ParamDec(vinfo.name)
         self.params.append(param_node)
         return vinfo.name
@@ -45,17 +44,10 @@ class BaseCOOLToCILVisitor:
         return False
     
     def register_local(self, name):
-        # var_name = f'{self.current_function.name[9:]}_{name}_{len(self.localvars)}'
         var_name = f'{name}_{len(self.localvars)}'
         local_node = CIL_AST.LocalDec(var_name)
         self.localvars.append(local_node)
         return var_name
-
-    def register_label(self, expre_name):
-        label_name = f'{expre_name}_{len(self.labels)}'
-        label_node = CIL_AST.Label(label_name)
-        self.labels.append(label_node)
-        return label_name
 
     def define_internal_local(self):
         return self.register_local("internal")
@@ -400,20 +392,19 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         cond_value = self.visit(node.predicate, scope)
         self.register_instruction(CIL_AST.Assign(cond_local, cond_value))
         
-        then_label = self.register_label("if_then")
-        self.register_instruction(CIL_AST.IfGoto(cond_local, then_label))
+        self.register_instruction(CIL_AST.IfGoto(cond_local, "if_then"))
 
         else_value = self.visit(node.else_body, scope)
         self.register_instruction(CIL_AST.Assign(else_local, else_value))
         self.register_instruction(CIL_AST.Assign(result_local, else_local))
-        endif_label = self.register_label("endif")
-        self.register_instruction(CIL_AST.Goto(endif_label))
+      
+        self.register_instruction(CIL_AST.Goto("endif"))
 
-        self.register_instruction(CIL_AST.Label(then_label))
+        self.register_instruction(CIL_AST.Label("if_then"))
         then_value = self.visit(node.then_body, scope)
         self.register_instruction(CIL_AST.Assign(then_local, then_value))
         self.register_instruction(CIL_AST.Assign(result_local, then_local))
-        self.register_instruction(CIL_AST.Label(endif_label))
+        self.register_instruction(CIL_AST.Label("endif"))
 
         return result_local
 
@@ -434,7 +425,6 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.Assign(result_local, body_value))
 
         return result_local
-
     
     @visitor.when(COOL_AST.DynamicCall)
     def visit(self, node, scope):
@@ -454,7 +444,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.VCall(result_local, node.method, call_args, dynamic_type ))
         
         return result_local
-        
+
     @visitor.when(COOL_AST.StaticCall)
     def visit(self, node, scope):
         result_local = self.define_internal_local()
@@ -470,13 +460,6 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.Call(result_local, node.method, call_args,  node.static_type, ))
         return result_local
 
-        
-
-        
-
-        
-
-        
     @visitor.when(COOL_AST.Case)
     def visit(self, node, scope):
         pass
@@ -715,7 +698,7 @@ if __name__ == '__main__':
 
     parser = Parser()
 
-    sys.argv.append('test.cl')
+    sys.argv.append('hello_world.cl')
 
     if len(sys.argv) > 1:
 
