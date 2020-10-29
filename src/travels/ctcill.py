@@ -1,4 +1,5 @@
 from cloudpickle.cloudpickle import instance
+from abstract.tree import AssignNode
 import cil.baseCilVisitor as baseCilVisitor
 import abstract.tree as coolAst
 import abstract.semantics as semantics
@@ -197,8 +198,16 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
             # Reservar memoria para la variable y realizar su inicializacion si tiene
             assert var_info.type is not None
-            self.register_instruction(
-                cil.AllocateNode(var_info.type, local_var))
+
+            # Si la variable es int, string o boolean, su valor por defecto es 0
+            if var_info.type.name not in ("String", "Int", "Bool"):
+                self.register_instruction(
+                    cil.AllocateNode(var_info.type, local_var))
+            else:
+                # Si la variable tiene una expresion de inicializacion
+                # entonces no es necesario ponerle valor por defecto
+                if var_init_expr is None:
+                    self.register_instruction(cil.AssignNode(local_var, 0))
 
             if var_init_expr is not None:
                 expr_init_vm_holder = self.visit(var_init_expr, scope)
