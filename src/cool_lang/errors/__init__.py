@@ -37,7 +37,7 @@ class CTypeError(LocalizedError):
         LocalizedError.__init__(self, 'TypeError', row, column, description)
 
 
-class AttributeError(LocalizedError):
+class CAttributeError(LocalizedError):
     def __init__(self, row, column, description):
         LocalizedError.__init__(self, 'AttributeError', row, column, description)
 
