@@ -43,8 +43,8 @@ class Type(AST):
     def __init__(self, name):
         super(Type, self).__init__()
         self.name = name
-        self.attributes = []
-        self.methods = []
+        self.attributes = {}
+        self.methods = {}
 
     def __str__(self):
         text = f'type {self.name} {{'
@@ -306,8 +306,10 @@ def get_formatter():
 
         @visitor.when(Type)
         def visit(self, node):
-            attributes = '\n\t'.join(f'attribute {x}' for x in node.attributes)
-            methods = '\n\t'.join(f'method {x}: {y}' for x,y in node.methods)
+            print(type(node.attributes))
+            print(dir(node.attributes))
+            attributes = '\n\t'.join(f'attribute {x}' for x in node.attributes.keys())
+            methods = '\n\t'.join(f'method {x}' for x in node.methods.keys())
 
             return f'type {node.name} {{\n\t{attributes}\n\n\t{methods}\n}}'
 
