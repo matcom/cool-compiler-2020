@@ -11,3 +11,4 @@ echo "Copyright (c) 2020: Dalianys Perez, Dayany Alfaro, Gilberto Gonzalez"    #
 #echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 python lexer.py $INPUT_FILE
 python cparser.py $INPUT_FILE
+python semantic_analyzer.py $INPUT_FILE
