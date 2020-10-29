@@ -40,7 +40,6 @@ class TypeBuilder:
                 parent = ErrorType()
                 self.errors.append(e)
             self.current_type.set_parent(parent)
-
         
         for feature in node.features:
             self.visit(feature)

@@ -27,6 +27,7 @@ class ClassDeclarationNode(DeclarationNode):
             self.parent = None
             self.parent_pos = (0, 0)
         self.features = features
+        self.token = idx
 
 class _Param:
     def __init__(self, tok):
@@ -34,7 +35,7 @@ class _Param:
         self.pos = (tok.lineno, tok.column)
 
 class FuncDeclarationNode(DeclarationNode):
-    def __init__(self, idx:LexToken, params, return_type, body):
+    def __init__(self, idx:LexToken, params, return_type:LexToken, body):
         self.id = idx.value
         self.pos = (idx.lineno, idx.column)
         self.params = [(pname.value, _Param(ptype)) for pname, ptype in params]
@@ -50,6 +51,7 @@ class AttrDeclarationNode(DeclarationNode):
         self.type = typex.value
         self.type_pos = (typex.lineno, typex.column)
         self.expr = expr
+        self.token = idx
 
 class VarDeclarationNode(ExpressionNode):
     def __init__(self, idx:LexToken, typex, expr=None):
@@ -61,8 +63,12 @@ class VarDeclarationNode(ExpressionNode):
 
 class AssignNode(ExpressionNode):
     def __init__(self, idx:LexToken, expr):
-        self.id = idx.value
-        self.pos = (idx.lineno, idx.column)
+        if isinstance(idx, LexToken):
+            self.id = idx.value
+            self.pos = (idx.lineno, idx.column)
+        else:
+            self.id = idx
+            self.pos = None
         self.expr = expr
 
 class CallNode(ExpressionNode):
@@ -76,6 +82,7 @@ class BlockNode(ExpressionNode):
     def __init__(self, expr_list, tok):
         self.expr_list = expr_list
         self.pos = (tok.lineno, tok.column)
+        self.token = tok
 
 class BaseCallNode(ExpressionNode):
     def __init__(self, obj, typex:LexToken, idx:LexToken, args):
@@ -180,6 +187,9 @@ class ConstantStrNode(AtomicNode):
 class ConstantVoidNode(AtomicNode):
     def __init__(self):
         super().__init__('void')
+
+class SelfNode(Node):
+    pass
 
 class VariableNode(AtomicNode):
     pass

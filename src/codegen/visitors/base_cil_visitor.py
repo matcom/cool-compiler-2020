@@ -1,19 +1,18 @@
 from codegen.cil_ast import ParamNode, LocalNode, FunctionNode, TypeNode, DataNode
-from semantic.tools import VariableInfo, Scope
-from semantic.types import Type, StringType, ObjectType, IOType
+from semantic.tools import VariableInfo, Scope, Context
+from semantic.types import Type, StringType, ObjectType, IOType, Method, Attribute
 from codegen import cil_ast as cil
-from utils.ast import BinaryNode, UnaryNode
-
+from utils.ast import BinaryNode, UnaryNode, AssignNode
 
 class BaseCOOLToCILVisitor:
     def __init__(self, context):
         self.dottypes = []
         self.dotdata = []
         self.dotcode = []
-        self.current_type = None
-        self.current_method = None
+        self.current_type: Type = None
+        self.current_method: Method = None
         self.current_function = None
-        self.context = context
+        self.context: Context = context
     
     @property
     def params(self):
@@ -82,6 +81,18 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil_node(result, expr))
         return result, typex
 
+    def initialize_attr(self, constructor, attr: Attribute):
+        if attr.expr:
+            constructor.body.expr_list.append(AssignNode(attr.name, attr.expr))
+        elif attr.type == 'Int':
+            constructor.body.expr_list.append(AssignNode(attr.name, ConstantNumNode(0)))
+        elif attr.type == 'Bool':
+            constructor.body.expr_list.append(AssignNode(attr.name, ConstantBoolNode(False)))
+        elif attr.type == 'String':
+            constructor.body.expr_list.append(AssignNode(attr.name, ConstantStrNode("")))
+
+
+    ###### TODO: Esto es lo de los métodos nativos que no creo que funcione ######
     def native_methods(self, typex: Type, name: str, *args):
         if typex == StringType():
             return self.string_methods(name, *args)

@@ -72,7 +72,7 @@ class BinaryNode(InstructionNode):
     def __init__(self, dest, left, right):
         self.dest = dest
         self.left = left
-        self.right = right
+        self.right = right 
 
 
 class PlusNode(BinaryNode):
@@ -215,3 +215,8 @@ class ReadNode(InstructionNode):
 class PrintNode(InstructionNode):
     def __init__(self, str_addr):
         self.str_addr = str_addr
+
+
+class CILSelf(InstructionNode):
+    def __init__(self):
+        pass

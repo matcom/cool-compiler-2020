@@ -2,7 +2,7 @@ from utils.errors import SemanticError, AttributesError, TypesError, NamesError
 from collections import OrderedDict
 
 class Attribute:
-    def __init__(self, name, typex, index):
+    def __init__(self, name, typex, index, tok=None):
         self.name = name
         self.type = typex
         self.index = index  # lugar que ocupa en el scope

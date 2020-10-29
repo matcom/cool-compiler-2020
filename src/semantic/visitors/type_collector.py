@@ -32,3 +32,6 @@ class TypeCollector(object):
             self.context.create_type(node.id, node.pos)
         except SemanticError as e:
             self.errors.append(e)
+        # añade un como padre Object si este no tiene
+        if not node.parent:
+            node.parent = 'Object'

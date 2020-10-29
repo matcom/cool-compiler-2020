@@ -87,7 +87,7 @@ class TypeChecker:
                         self.errors.append(AttributesError(error_text, *node.pos))
             except SemanticError:
                 pass
-
+            
         result = self.visit(node.body, scope)
 
         return_type = get_type(method.return_type, self.current_type)

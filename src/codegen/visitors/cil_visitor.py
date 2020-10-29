@@ -29,21 +29,30 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         return cil.ProgramNode(self.dottypes, self.dotdata, self.dotcode)
     
+
     @visitor.when(ClassDeclarationNode)
     def visit(self, node: ClassDeclarationNode, scope: Scope):
+        constructor = FuncDeclarationNode(node.token, [], node.token, BlockNode([], node.token))
         self.current_type = self.context.get_type(node.id, node.pos)
         
         cil_type = self.register_type(node.id)
+ 
+        for a_name, a_type in self.current_type.all_attributes():
+            cil_type.attributes.append((a_name.name, self.to_attr_name(a_name.name, a_type.name)))
+            self.initialize_attr(constructor, a_name)            ## add the initialization code in the constructor
         
         for method, mtype in self.current_type.all_methods():
             cil_type.methods.append((method.name, self.to_function_name(method.name, mtype.name)))
-        
-        for a_name, a_type in self.current_type.all_attributes():
-            cil_type.attributes.append((a_name.name, self.to_attr_name(a_name.name, a_type.name)))
 
-        func_declarations = (f for f in node.features if isinstance(f, FuncDeclarationNode))
-        for feature, child_scope in zip(func_declarations, scope.children):
+        # definiendo el constructor en el tipo para analizar
+        constructor.body.expr_list.append(SelfNode())
+        func_declarations = [constructor]
+        self.current_type.define_method(self.current_type.name, [], [], self.current_type)
+
+        func_declarations += [f for f in node.features if isinstance(f, FuncDeclarationNode)] 
+        for feature, child_scope in zip(func_declarations, [scope, scope.children]):
             self.visit(feature, child_scope)
+
 
     @visitor.when(FuncDeclarationNode)
     def visit(self, node: FuncDeclarationNode, scope: Scope):
@@ -63,9 +72,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(cil.ReturnNode(value)) 
         self.current_method = None
 
+
     @visitor.when(VarDeclarationNode)
     def visit(self, node: VarDeclarationNode, scope: Scope):
-        #? Aquí son solo locals o attributes también
         var_info = scope.find_variable(node.id)
         vtype = get_type(var_info.type, self.current_type)
         local_var = self.register_local(VariableInfo(var_info.name, vtype))
@@ -148,6 +157,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result = self.define_internal_local()
         self.register_instruction(cil.LoadNode(result, data.name))
         return result, StringType()
+
+    @visitor.when(SelfNode)
+    def visit(self, node: SelfNode, scope: Scope):
+        # TODO: Cual es el valor de self type?
+        return self.current_type.name, self.current_type
 
     @visitor.when(VariableNode)
     def visit(self, node: VariableNode, scope: Scope):

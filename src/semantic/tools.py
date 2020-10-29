@@ -6,14 +6,14 @@ class Context:
     def __init__(self):
         self.types = {}
 
-    def create_type(self, name:str, pos):
+    def create_type(self, name:str, pos) -> Type:
         if name in self.types:
             error_text = TypesError.TYPE_ALREADY_DEFINED % name
             raise TypesError(error_text, *pos)
         typex = self.types[name] = Type(name, pos)
         return typex
 
-    def get_type(self, name:str, pos):
+    def get_type(self, name:str, pos) -> Type:
         try:
             return self.types[name]
         except KeyError:
@@ -62,7 +62,7 @@ class Scope:
             res += name + scope.tab_level(1, '', 1) #'\n\t' +  ('\n' + '\t').join(str(local) for local in scope.locals) + '\n'
         return res
 
-    def tab_level(self, tabs, name, num):
+    def tab_level(self, tabs, name, num) -> str:
         res = ('\t' * tabs) +  ('\n' + ('\t' * tabs)).join(str(local) for local in self.locals)
         if self.functions:
             children = '\n'.join(v.tab_level(tabs + 1, '[method] ' + k, num) for k, v in self.functions.items())
@@ -78,12 +78,12 @@ class Scope:
         self.children.append(child)
         return child
 
-    def define_variable(self, vname, vtype):
+    def define_variable(self, vname, vtype) -> VariableInfo:
         info = VariableInfo(vname, vtype)
         self.locals.append(info)
         return info
 
-    def find_variable(self, vname, index=None):
+    def find_variable(self, vname, index=None) -> VariableInfo:
         locals = self.attributes + self.locals
         locals = locals if index is None else itt.islice(locals, index)
         try:
@@ -91,14 +91,14 @@ class Scope:
         except StopIteration:
             return self.parent.find_variable(vname, self.index) if self.parent else None
 
-    def find_local(self, vname, index=None):
+    def find_local(self, vname, index=None) -> VariableInfo:
         locals = self.locals if index is None else itt.islice(self.locals, index)
         try:
             return next(x for x in locals if x.name == vname)
         except StopIteration:
             return self.parent.find_local(vname, self.index) if self.parent else None
 
-    def find_attribute(self, vname, index=None):
+    def find_attribute(self, vname, index=None) :
         locals = self.attributes if index is None else itt.islice(self.attributes, index)
         try:
             return next(x for x in locals if x.name == vname)
@@ -111,7 +111,7 @@ class Scope:
             return self
         return self.parent.get_class_scope()
 
-    def is_defined(self, vname):
+    def is_defined(self, vname) -> VariableInfo:
         return self.find_variable(vname) is not None
 
     def is_local(self, vname):
