@@ -260,8 +260,8 @@ class COOL_PARSER:
 
     def p_atom_func_call(self, p):
         'atom : atom func_call'
-        line = p.lineno(1)
-        column = find_column(self.code, p.lexpos(1))
+        line = p[1].line
+        column = p[1].column
         p[0] = FunctionCallNode(p[1], *p[2], line, column)
 
     def p_atom_member_call(self, p):
