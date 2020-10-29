@@ -844,5 +844,9 @@ class CilDisplayFormatter:
     def _(self, node: int) -> str:
         return str(node)
 
+    @visit.register
+    def _(self, node: cil.GetAttributeNode):
+        return f'{node.dest.name} = GETATTRIBUTE {node.attrname} {node.itype.name}'
+
     def __call__(self, node) -> str:
         return self.visit(node)

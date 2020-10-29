@@ -3,7 +3,7 @@ from typing import Optional
 
 import abstract.semantics as semantic
 import abstract.tree as coolAst
-from abstract.semantics import Type
+from abstract.semantics import SemanticError, Type
 from abstract.tree import IsVoidNode
 from travels.context_actions import (update_attr_type, update_method_param,
                                      update_scope_variable)
@@ -80,8 +80,12 @@ class TypeInferer:
           node: coolAst.ClassDef,
           scope: semantic.Scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1):
         self.current_type = self.context.get_type(node.idx)
+        # Definir los atributos heredados
+        for attribute in self.current_type.attributes:
+            scope.define_variable(attribute.name, attribute.type, "ATTRIBUTE")
+
         for feature in node.features:
             if isinstance(feature, coolAst.AttributeDef):
                 self.visit(feature, scope, deep=deep)
@@ -103,10 +107,8 @@ class TypeInferer:
           node: coolAst.AttributeDef,
           scope: semantic.Scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1):
         atrib = self.current_type.get_attribute(node.idx)
-        if deep == 1:
-            scope.define_variable(atrib.name, atrib.type, "ATTRIBUTE")
 
         # Checkear que el valor de retorno de la expresion
         # de inicializacion del atributo (si existe) se
@@ -121,7 +123,7 @@ class TypeInferer:
             elif not return_type.conforms_to(atrib.type):
                 self.errors.append(
                     f'Attribute {node.idx} of type {atrib.type.name} can not be initialized with \
-                    an expression of type {return_type.name}')
+                    an expression of type {return_type.name}'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         )
 
     # ---------------------------------------------------------------------
     # Si el método no tiene un tipo definido, entonces tratar de inferir  |
@@ -130,11 +132,7 @@ class TypeInferer:
     # los argumentos que no hayan sido definidos con tipos específicos.   |
     # ---------------------------------------------------------------------
     @visit.register
-    def _(self,
-          node: coolAst.MethodDef,
-          scope,
-          infered_type=None,
-          deep=1):  # noqa: F811
+    def _(self, node: coolAst.MethodDef, scope, infered_type=None, deep=1):
         method = self.current_type.get_method(node.idx)
         self.current_method = method
         for param in node.param_list:
@@ -153,7 +151,7 @@ class TypeInferer:
           node: coolAst.BlockNode,
           scope: semantic.Scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1):
         # Visitar cada expr del bloque, el tipo del bloque es el tipo de la ultima expresion
         last = None
         for expr in node.expressions:
@@ -165,7 +163,7 @@ class TypeInferer:
           node: coolAst.Param,
           scope: semantic.Scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1):
         type_ = self.context.get_type(node.type)
         if deep == 1:
             scope.define_variable(node.id, type_, "PARAM")
@@ -181,7 +179,7 @@ class TypeInferer:
           node: coolAst.AssignNode,
           scope: semantic.Scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1):
         var_info = scope.find_variable(node.idx)
         assert self.current_type is not None
         if var_info:
@@ -211,16 +209,13 @@ class TypeInferer:
           node: coolAst.VariableCall,
           scope: semantic.Scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1):
         var_info = scope.find_variable(node.idx)
         assert self.current_type is not None
         if var_info:
             if infered_type and var_info.type == self.AUTO_TYPE:
                 var_info.type = infered_type
-                if not scope.is_local(var_info.name):
-                    update_attr_type(self.current_type, var_info.name,
-                                     var_info.type)
-                else:
+                if scope.is_local(var_info.name):
                     update_method_param(self.current_type,
                                         self.current_method.name,
                                         var_info.name, var_info.type)
@@ -228,13 +223,14 @@ class TypeInferer:
             return var_info.type
         else:
             self.errors.append(f'Name {node.idx} is not define.')
+            raise SemanticError(f'Name {node.idx} is not define in {scope}')
 
     @visit.register
     def _(self,
           node: coolAst.IfThenElseNode,
           scope: semantic.Scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1):
         cond = self.visit(node.cond, scope, infered_type, deep)
         e1 = self.visit(node.expr1, scope, infered_type, deep)
         e2 = self.visit(node.expr2, scope, infered_type, deep)

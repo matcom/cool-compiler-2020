@@ -1,6 +1,6 @@
 from typing import List, Any, Optional
 import abstract.tree as coolAst
-from abstract.semantics import SemanticError, Type, Context
+from abstract.semantics import Method, SemanticError, Type, Context
 from functools import singledispatchmethod
 
 INHERITABLES = ('Int', 'Bool', 'String', 'AUTO_TYPE')
@@ -22,7 +22,7 @@ class TypeBuilder:
             self.visit(class_)
 
     @visit.register
-    def _(self, node: coolAst.ClassDef):  # noqa: F811
+    def _(self, node: coolAst.ClassDef):
         self.current_type = self.context.get_type(node.idx)
         parent = self.context.get_type(node.parent)
 
@@ -38,6 +38,12 @@ class TypeBuilder:
             )
         else:
             self.current_type.set_parent(parent)
+
+            # Definir los atributos y metodos del padre
+            for attrib in parent.attributes:
+                self.current_type.attributes.append(attrib)
+
+            self.current_type.methods.update(parent.methods)
 
             for feature in node.features:
                 self.visit(feature)
@@ -58,7 +64,7 @@ class TypeBuilder:
             self.errors.append(e.text)
 
     @visit.register
-    def _(self, node: coolAst.MethodDef):  # noqa: F811
+    def _(self, node: coolAst.MethodDef):
         params = [param.id for param in node.param_list]
         try:
             params_type = [

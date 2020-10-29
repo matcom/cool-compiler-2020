@@ -75,6 +75,10 @@ class B inherits A {
         let c : AUTO_TYPE <- a. suma ( 5 , f ) in c ;
         c;
     } };
+
+    get_a() : Int {
+        a
+    };
 };
 
 class Main {

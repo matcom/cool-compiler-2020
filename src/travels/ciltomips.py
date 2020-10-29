@@ -74,8 +74,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.comment(f" **** Type RECORD for type {node.name} ****")
         # Declarar la direccion de memoria donde comienza el tipo
-        self.register_instruction(
-            Label(f"{self.current_type.name}_start"))
+        self.register_instruction(Label(f"{node.name}_start"))
 
         # Registrar un puntero a la VTABLE del tipo.
         self.register_instruction(
@@ -84,7 +83,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Declarar los atributos: Si los atributos son de tipo string, guardarlos como asciiz
         # de lo contrario son o numeros o punteros y se inicializan como .words
-        for attrib in self.current_type.attributes:
+        for attrib in node.attributes:
             if attrib.type.name == "String":
                 self.register_instruction(
                     FixedData(f'{node.name}_attrib_{attrib.name}',
@@ -270,8 +269,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.add_source_line_comment(node)
 
         # Localizar el atributo
-        offset = self.locate_attribute(node.attrname,
-                                       self.current_type.attributes)
+        offset = self.locate_attribute(node.attrname, node.itype.attributes)
 
         dest = self.visit(node.dest)
         reg = self.get_available_register()
@@ -280,10 +278,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Cargar el atributo en un registro temporal para
         # luego moverlo hacia dest. El objeto self siempre
         # esta en el registro a0
-        self.register_instruction(
-            LW(reg, f"{offset}(${REG_TO_STR[a0]})"))
+        self.register_instruction(LW(reg, f"{offset}($a0)"))
 
-        self.register_instruction(SW(dest, reg))
+        self.register_instruction(SW(reg, dest))
 
         self.used_registers[reg] = False
 
@@ -293,8 +290,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.add_source_line_comment(node)
 
         # Localizar el atributo
-        offset = self.locate_attribute(node.attrname,
-                                       self.current_type.attributes)
+        offset = self.locate_attribute(node.attrname, node.itype.attributes)
 
         source = self.visit(node.source)
         reg = self.get_available_register()
@@ -305,8 +301,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # y luego moverlo a la direccion de memoria del
         # atributo
         self.register_instruction(LW(reg, source))
-        self.register_instruction(
-            SW(reg, f"{offset}(${REG_TO_STR[a0]})"))
+        self.register_instruction(SW(reg, f"{offset}($a0)"))
 
         self.used_registers[reg] = False
 
@@ -588,6 +583,7 @@ class MipsCodeGenerator(CilToMipsVisitor):
         program = ""
         indent = 0
         for instr in self.program:
+            print(instr)
             line = str(instr)
             if '.data' in line or '.text' in line:
                 indent = 0

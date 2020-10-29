@@ -23,7 +23,6 @@ def update_scope_variable(vname: str,
     for i in range(index, len(scope.locals)):
         if scope.locals[i].name == vname:
             scope.locals[i].type = new_type
-            print(f'Changed {scope.locals[i].name} to type {new_type.name}')
             return
     if scope.parent:
         update_scope_variable(vname, new_type, scope.parent, scope.index)
