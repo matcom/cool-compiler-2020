@@ -310,8 +310,8 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         
         #Handle all the .TYPE section
         cil_type = self.register_type(self.current_type.name)
-        cil_type.attributes = {f'{self.current_type.name}.{attr.name}':attr for attr in self.current_type.get_all_attributes()}
-        cil_type.methods = {f'{self.current_type.name}.{m}': m for _, m  in self.current_type.get_all_methods()}
+        cil_type.attributes = {f'{c}.{attr.name}':attr for c, attr in self.current_type.get_all_attributes()}
+        cil_type.methods = {f'{c}.{m}': m for c, m  in self.current_type.get_all_methods()}
 
 
         func_declarations = (f for f in node.features if isinstance(f, COOL_AST.ClassMethod))
