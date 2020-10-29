@@ -85,13 +85,198 @@ class BaseCOOLToCILVisitor:
         self.dotdata[vname] = value
         return vname
     
-    def register_builtin_types(self):
-        for t in ['Object', 'Int', 'String', 'Bool', 'IO']:
-            builtin_type = self.context.get_type(t)
-            cil_type = self.register_type(t)
-            cil_type.attributes = [attr.name for attr in builtin_type.attributes]
-            cil_type.methods = [(method, self.to_function_name(method, kclass)) for kclass, method  in builtin_type.get_all_methods()]
-        
+    def register_builtin_types(self):            
+        #----------------Object---------------------
+        object_type = self.context.get_type('Object')
+        object_cil = self.register_type('Object')
+        object_cil.attributes = []
+        object_cil.methods = [(method, self.to_function_name(method, kclass)) for kclass, method in object_type.get_all_methods()]
+
+        #init
+        self.current_function = self.register_function(self.to_function_name('init', 'Object'))
+        self.register_param(VariableInfo('instance', None))
+        self.register_instruction(CIL_AST.Return(0))
+
+        #abort
+        self.current_function = self.register_function(self.to_function_name('abort', 'Object'))
+        self.register_param(VariableInfo('self',None))
+        msg = self.define_internal_local()
+        key_msg = ''
+        for s in self.dotdata.keys():
+            if self.dotdata[s] == 'Execution aborted':
+                key_msg = s
+        self.register_instruction(CIL_AST.Load(key_msg, msg))
+        self.register_instruction(CIL_AST.PrintString(msg))
+        self.register_instruction(CIL_AST.Halt())
+
+        #type_name
+        self.current_function = self.register_function(self.to_function_name('type_name', 'Object'))
+        self.register_param(VariableInfo('self', None))
+        type_name = self.define_internal_local()
+        self.register_instruction(CIL_AST.TypeOf('self', type_name))
+        instance = self.define_internal_local()
+        self.register_instruction(CIL_AST.Allocate('String', instance))
+        self.register_instruction(CIL_AST.Arg(instance))
+        self.register_instruction(CIL_AST.Arg(type_name))
+        result = self.define_internal_local()
+        self.register_instruction(CIL_AST.Call(self.to_function_name('init', 'String'), result))
+        self.register_instruction(CIL_AST.Return(instance))
+
+        #copy
+        self.current_function = self.register_function(self.to_function_name('type_name', 'Object'))
+        self.register_param(VariableInfo('self', None))
+        self.register_instruction(CIL_AST.Return(0))
+
+        #----------------IO---------------------
+        IO_type = self.context.get_type('IO')
+        IO_cil = self.register_type('IO')
+        IO_cil.attributes = []
+        IO_cil.methods = [(method, self.to_function_name(method, kclass)) for kclass, method in IO_type.get_all_methods()]
+
+        #init
+        self.current_function = self.register_function(self.to_function_name('init', 'IO'))
+        self.register_param(VariableInfo('instance', None))
+        self.register_instruction(CIL_AST.Return(0))        
+
+        #out_string
+        self.current_function = self.register_function(self.to_function_name('out_string', 'IO'))
+        self.register_param(VariableInfo('self', None))
+        self.register_param(VariableInfo('x', None))
+        msg = self.define_internal_local()
+        self.register_instruction(CIL_AST.GetAttr(msg, 'x', 'value', 'String'))
+        self.register_instruction(CIL_AST.PrintString(msg))
+        self.register_instruction(CIL_AST.Return('self'))
+
+        #out_int
+        self.current_function = self.register_function(self.to_function_name('out_int', 'IO'))
+        self.register_param(VariableInfo('self', None))
+        self.register_param(VariableInfo('x', None))
+        number = self.define_internal_local()
+        self.register_instruction(CIL_AST.GetAttr(number, 'x', 'value', 'Int'))
+        self.register_instruction(CIL_AST.PrintInteger(number))
+        self.register_instruction(CIL_AST.Return('self'))
+
+        #in_string
+        self.current_function = self.register_function(self.to_function_name('in_string', 'IO'))
+        self.register_param(VariableInfo('self', None))
+        msg = self.define_internal_local()
+        self.register_instruction(CIL_AST.ReadString(msg))
+        instance = self.define_internal_local()
+        self.register_instruction(CIL_AST.Allocate('String', instance))
+        self.register_instruction(CIL_AST.Arg(instance))
+        self.register_instruction(CIL_AST.Arg(msg))
+        result = self.define_internal_local()
+        self.register_instruction(CIL_AST.Call(self.to_function_name('init', 'String'), result))
+        self.register_instruction(CIL_AST.Return(instance))
+      
+        #in_int
+        self.current_function = self.register_function(self.to_function_name('in_int', 'IO'))
+        self.register_param(VariableInfo('self', None))
+        number = self.define_internal_local()
+        self.register_instruction(CIL_AST.ReadInteger(number))
+        instance = self.define_internal_local()
+        self.register_instruction(CIL_AST.Allocate('Int', instance))
+        self.register_instruction(CIL_AST.Arg(instance))
+        self.register_instruction(CIL_AST.Arg(number))
+        result = self.define_internal_local()
+        self.register_instruction(CIL_AST.Call(self.to_function_name('init', 'Int'), result))
+        self.register_instruction(CIL_AST.Return(instance))
+
+        #----------------Int---------------------
+        int_type = self.context.get_type('Int')
+        int_cil = self.register_type('Int')
+        int_cil.attributes = ['value']
+        int_cil.methods = [(method, self.to_function_name(method, kclass)) for kclass, method in int_type.get_all_methods()]
+
+        #init
+        self.current_function = self.register_function(self.to_function_name('init', 'Int'))
+        self.register_param(VariableInfo('instance', None))
+        self.register_param(VariableInfo('v', None))
+        self.register_instruction(CIL_AST.SetAttr('instance','value','v','Int'))
+        self.register_instruction(CIL_AST.Return(0))        
+
+
+        #----------------String---------------------
+        object_type = self.context.get_type('String')
+        object_cil = self.register_type('String')
+        object_cil.attributes = ['value', 'length']
+        object_cil.methods = [(method, self.to_function_name(method, kclass)) for kclass, method in object_type.get_all_methods()]
+
+        #init
+        self.current_function = self.register_function(self.to_function_name('init', 'String'))
+        self.register_param(VariableInfo('instance', None))
+        self.register_param(VariableInfo('v', None))
+        self.register_instruction(CIL_AST.SetAttr('instance', 'value', 'v', 'String'))
+        number = self.define_internal_local()
+        self.register_instruction(CIL_AST.Length('v', result))
+        instance = self.define_internal_local()
+        self.register_instruction(CIL_AST.Allocate('Int', instance))
+        self.register_instruction(CIL_AST.Arg(instance))
+        self.register_instruction(CIL_AST.Arg(number))
+        result = self.define_internal_local()
+        self.register_instruction(CIL_AST.Call(self.to_function_name('init', 'Int'), result))
+        self.register_instruction(CIL_AST.SetAttr('instance', 'length', instance, 'Int'))
+        self.register_instruction(CIL_AST.Return(0))
+
+        #length
+        self.current_function = self.register_function(self.to_function_name('length', 'String'))
+        self.register_param(VariableInfo('self', None))
+        self.register_instruction(CIL_AST.GetAttr(result, 'self', 'length', 'String'))
+        self.register_instruction(CIL_AST.Return(result))
+
+        #concat
+        self.current_function = self.register_function(self.to_function_name('concat', 'String'))
+        self.register_param(VariableInfo('self', None))
+        self.register_param(VariableInfo('s', None))
+        string1 = self.define_internal_local()
+        string2 = self.define_internal_local()
+        result = self.define_internal_local()
+        self.register_instruction(CIL_AST.GetAttr(string1, 'self', 'value', 'String'))
+        self.register_instruction(CIL_AST.GetAttr(string2, 's', 'value', 'String'))
+        self.register_instruction(CIL_AST.Concat(string1, string2, result))
+        instance = self.define_internal_local()
+        self.register_instruction(CIL_AST.Allocate('String', instance))
+        self.register_instruction(CIL_AST.Arg(instance))
+        self.register_instruction(CIL_AST.Arg(result))
+        result_init = self.define_internal_local()
+        self.register_instruction(CIL_AST.Call(self.to_function_name('init', 'String'), result_init))
+        self.register_instruction(CIL_AST.Return(instance))
+
+        #substr
+        self.current_function = self.register_function(self.to_function_name('substr', 'String'))
+        self.register_param(VariableInfo('self', None))
+        self.register_param(VariableInfo('i', None))
+        self.register_param(VariableInfo('l', None))
+        pos = self.define_internal_local()
+        len_sub = self.define_internal_local()
+        self.register_instruction(CIL_AST.GetAttr(pos, 'i', 'value', 'Int'))
+        self.register_instruction(CIL_AST.GetAttr(len_sub, 'l', 'value', 'Int'))
+        string = self.define_internal_local()
+        substring = self.define_internal_local()  
+        self.register_instruction(CIL_AST.GetAttr(string, 'self', 'value', 'String'))
+        self.register_instruction(CIL_AST.SubStr(pos, len_sub, string, substring))
+        instance = self.define_internal_local()
+        self.register_instruction(CIL_AST.Allocate('String', instance))
+        self.register_instruction(CIL_AST.Arg(instance))
+        self.register_instruction(CIL_AST.Arg(substring))
+        result = self.define_internal_local()
+        self.register_instruction(CIL_AST.Call(self.to_function_name('init', 'String'), result))
+        self.register_instruction(CIL_AST.Return(instance))        
+
+        #----------------Bool---------------------
+        bool_type = self.context.get_type('Bool')
+        bool_cil = self.register_type('Bool')
+        bool_cil.attributes = ['value']
+        bool_cil.methods = [(method, self.to_function_name(method, kclass)) for kclass, method in int_type.get_all_methods()]
+
+        #init
+        self.current_function = self.register_function(self.to_function_name('init', 'Bool'))
+        self.register_param(VariableInfo('instance', None))
+        self.register_param(VariableInfo('v', None))
+        self.register_instruction(CIL_AST.SetAttr('instance','value','v','Bool'))
+        self.register_instruction(CIL_AST.Return(0))  
+
+
 class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.on('node')
     def visit(self, node):
@@ -108,6 +293,8 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.Call(self.to_function_name('main', 'Main'), result))
         self.register_instruction(CIL_AST.Return(0))
         self.current_function = None
+
+        self.register_data('Execution aborted')
 
         #Add built-in types in .TYPES section
         self.register_builtin_types()
@@ -418,7 +605,13 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
     
     @visitor.when(COOL_AST.INTEGER)
     def visit(self, node, scope):
-        return node.value
+        instance = self.define_internal_local()
+        self.register_instruction(CIL_AST.Allocate('Int', instance))
+        self.register_instruction(CIL_AST.Arg(instance))
+        self.register_instruction(CIL_AST.Arg(node.value))
+        result = self.define_internal_local()
+        self.register_instruction(CIL_AST.Call(self.to_function_name('init', 'Int'), result))
+        return instance
 
     @visitor.when(COOL_AST.STRING)
     def visit(self, node, scope):
@@ -432,14 +625,26 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
         result_local = self.define_internal_local()
         self.register_instruction(CIL_AST.Load(str_name, result_local))
-        return result_local
+        instance = self.define_internal_local()
+        self.register_instruction(CIL_AST.Allocate('String', instance))
+        self.register_instruction(CIL_AST.Arg(instance))
+        self.register_instruction(CIL_AST.Arg(result_local))
+        result = self.define_internal_local()
+        self.register_instruction(CIL_AST.Call(self.to_function_name('init', 'String'), result))
+        return instance   
         
     @visitor.when(COOL_AST.Boolean)
     def visit(self, node, scope):
+        val = 0
         if str(node.value) == "true":
-            return 1
-        else:
-            return 0
+            val = 1
+        instance = self.define_internal_local()
+        self.register_instruction(CIL_AST.Allocate('Bool', instance))
+        self.register_instruction(CIL_AST.Arg(instance))
+        self.register_instruction(CIL_AST.Arg(val))
+        result = self.define_internal_local()
+        self.register_instruction(CIL_AST.Call(self.to_function_name('init', 'Bool'), result))
+        return instance
 
 if __name__ == '__main__':
     import sys
