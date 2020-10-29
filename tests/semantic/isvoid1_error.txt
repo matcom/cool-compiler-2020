@@ -1,0 +1,1 @@
+(20, 16) - TypeError: Inferred type Bool of initialization of attribute test does not conform to declared type B. 
