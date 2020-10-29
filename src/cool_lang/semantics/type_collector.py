@@ -20,6 +20,20 @@ class COOL_TYPE_COLLECTOR(object):
             self._order(son_node)
         self._to.append(actual)
     
+    def check_cyclic(self, obj, parents):
+        stack = [obj.id]
+        while True:
+            actual = stack[-1]
+            parent = parents.get(actual, None)
+            if parent is None:
+                break
+            else:
+                if parent in stack:
+                    self.errors.append(SemanticError(obj.line, obj.column, f'Cyclic inheritance in the hierarchy of {obj.id}.'))
+                    break
+                else:
+                    stack.append(parent)
+
     def define_basic_types(self):
         self.context.create_type('Object')
         self.context.create_type('IO')
@@ -43,7 +57,7 @@ class COOL_TYPE_COLLECTOR(object):
         if len(self.errors) == 0:
             for class_def in node.classes:
                 if class_def.parent is not None and class_def.parent in self._graph.keys(): 
-                    self._graph[class_def.parent].append(class_def.id)
+                    self._graph[class_def.id].append(class_def.parent)
         
             for class_def in node.classes:
                 if class_def._visited: 
@@ -51,7 +65,13 @@ class COOL_TYPE_COLLECTOR(object):
                 else: 
                     self._order(class_def)
 
-            node.classes = list(reversed(self._to)) 
+            ## Check for ciclyc inheritance
+            parents = dict()
+            for class_def in node.classes:
+                parents[class_def.id] = class_def.parent
+                self.check_cyclic(class_def, parents)
+            
+            node.classes = self._to
         
         return self.context
             

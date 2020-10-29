@@ -1,6 +1,6 @@
 from .semantic_utils import Context, SemanticException, Type, ErrorType, VoidType
 from ..utils import on, when
-from ..errors import SemanticError
+from ..errors import SemanticError, CTypeError
 from ..ast import ProgramNode, ClassDeclarationNode, FuncDeclarationNode, AttrDeclarationNode
 
 class COOL_TYPE_BUILDER(object):
@@ -44,23 +44,6 @@ class COOL_TYPE_BUILDER(object):
         self.build_basic_types()
         for class_def in node.classes:
             self.visit(class_def)
-        if len(self.errors) == 0: # Check for ciclyc inheritance
-            for typex in self.context.types.values():
-                if typex._visited:
-                    continue
-                stack = [typex]
-                while True:
-                    actual = stack[len(stack) - 1]
-                    actual._visited = True
-                    parent = actual.parent
-                    if parent is None:
-                        break
-                    else:
-                        if parent in stack:
-                            self.errors.append(SemanticError(node.line, node.column, f'Cyclic inheritance in the hierarchy of {parent.name}.'))
-                            break
-                        else:
-                            stack.append(parent)
         try:
             self.context.get_type('Main')
             try:
@@ -78,7 +61,7 @@ class COOL_TYPE_BUILDER(object):
             parent_type = self.context.get_type(node.parent) if node.parent is not None else self.context.get_type('Object')
             typex.set_parent(parent_type)
         except SemanticException as e:
-            self.errors.append(SemanticError(node.line, node.column, e.text))
+            self.errors.append(CTypeError(node.line, node.column, e.text))
         for feature in node.features:
             self.visit(feature)
     
