@@ -7,7 +7,7 @@ on:
     branches: [ tests ]
 
 jobs:
-  tests:
+  lexer:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,19 +19,45 @@ jobs:
       - name: Install requirements
         run: pip install -r requirements.txt
 
-      - name: Lexer tests
+      - name: Run tests
         run: |
           cd src
           make clean
           make
           make test TAG=lexer
-      - name: Parser tests
+
+  parser:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Run tests
         run: |
           cd src
           make clean
           make
           make test TAG=parser
-      - name: Semantic tests
+
+  semantic:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Run tests
         run: |
           cd src
           make clean
