@@ -8,8 +8,8 @@ import cil_ast_nodes as CIL_AST
 
 class BaseCOOLToCILVisitor:
     def __init__(self, context):
-        self.dottypes = []
-        self.dotdata = []
+        self.dottypes = {}
+        self.dotdata = {}
         self.dotcode = []
         self.current_type = None
         self.current_method = None
@@ -28,21 +28,37 @@ class BaseCOOLToCILVisitor:
     def instructions(self):
         return self.current_function.instructions
     
+    @property
+    def labels(self):
+        return self.current_function.labels
+
     def register_param(self, vinfo):
         # vinfo.name = f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
         param_node = CIL_AST.ParamDec(vinfo.name)
         self.params.append(param_node)
         return vinfo.name
+
+    def is_defined_param(self, name):
+        for p in self.params:
+            if p.name == name:
+                return True
+        return False
     
-    def register_local(self, vinfo):
-        vinfo.name = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
-        local_node = CIL_AST.LocalDec(vinfo.name)
+    def register_local(self, name):
+        # var_name = f'{self.current_function.name[9:]}_{name}_{len(self.localvars)}'
+        var_name = f'{name}_{len(self.localvars)}'
+        local_node = CIL_AST.LocalDec(var_name)
         self.localvars.append(local_node)
-        return vinfo.name
+        return var_name
+
+    def register_label(self, expre_name):
+        label_name = f'{expre_name}_{len(self.labels)}'
+        label_node = CIL_AST.Label(label_name)
+        self.labels.append(label_node)
+        return label_name
 
     def define_internal_local(self):
-        vinfo = VariableInfo('internal', None)
-        return self.register_local(vinfo)
+        return self.register_local("internal")
 
     def register_instruction(self, instruction):
         self.instructions.append(instruction)
@@ -50,7 +66,7 @@ class BaseCOOLToCILVisitor:
     
     def to_function_name(self, method_name, type_name):
         return f'function_{method_name}_at_{type_name}'
-    
+
     def register_function(self, function_name):
         function_node = CIL_AST.Function(function_name, [], [], [])
         self.dotcode.append(function_node)
@@ -58,14 +74,16 @@ class BaseCOOLToCILVisitor:
     
     def register_type(self, name):
         type_node = CIL_AST.Type(name)
-        self.dottypes.append(type_node)
+        self.dottypes[name] = type_node
         return type_node
 
+    def is_in_data(self, name):
+        return name in self.dotdata.keys
+
     def register_data(self, value):
-        vname = f'data_{len(self.dotdata)}'
-        data_node = cil.DataNode(vname, value)
-        self.dotdata.append(data_node)
-        return data_node
+        vname = f's_{len(self.dotdata)}'
+        self.dotdata[vname] = value
+        return vname
     
     def register_builtin_types(self):
         for t in ['Object', 'Int', 'String', 'Bool', 'IO']:
@@ -74,8 +92,6 @@ class BaseCOOLToCILVisitor:
             cil_type.attributes = [attr.name for attr in builtin_type.attributes]
             cil_type.methods = [(method, self.to_function_name(method, kclass)) for kclass, method  in builtin_type.get_all_methods()]
         
-
-
 class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.on('node')
     def visit(self, node):
@@ -89,7 +105,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         result = self.define_internal_local()
         self.register_instruction(CIL_AST.Allocate('Main', instance))
         self.register_instruction(CIL_AST.Arg(instance))
-        self.register_instruction(CIL_AST.Call('entry', result))
+        self.register_instruction(CIL_AST.Call(self.to_function_name('main', 'Main'), result))
         self.register_instruction(CIL_AST.Return(0))
         self.current_function = None
 
@@ -107,7 +123,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         
         #Handle all the .TYPE section
         cil_type = self.register_type(self.current_type.name)
-        cil_type.attributes = [attr.name for attr in self.current_type.attributes]
+        cil_type.attributes = [attr for attr in self.current_type.get_all_attributes()]
         cil_type.methods = [(method, self.to_function_name(method, kclass)) for kclass, method  in self.current_type.get_all_methods()]
         
         func_declarations = (f for f in node.features if isinstance(f, COOL_AST.ClassMethod))
@@ -125,7 +141,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
         self.register_param(VariableInfo('self', self.current_type))
         for p in node.params:
-            self.register_param(VariableInfo(p.name, p.type))
+            self.register_param(VariableInfo(p.name, p.param_type))
         
         value = self.visit(node.expr, scope)
         
@@ -134,26 +150,87 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.AttributeDef)
     def visit(self, node, scope):
-        pass
-
+        vname = self.register_local(node.name)
+    
     @visitor.when(COOL_AST.AttributeInit)
     def visit(self, node, scope):
-        pass
+        vname = self.register_local(node.name)
+        expr = self.visit(node.expr, scope)
+        return self.register_instruction(CIL_AST.Assign(vname, expr))
 
-
-    @visitor.when(COOL_AST.FormalParameter)
+    @visitor.when(COOL_AST.AssignExpr)
     def visit(self, node, scope):
-        pass
+        expr_local = self.visit(node.expr, scope)
+        result_local = self.define_internal_local()
 
+        if self.is_defined_param(node.name):
+            self.register_instruction(CIL_AST.Assign(node.name, expr_local))
+            return expr_local
+        elif self.current_type.has_attr(node.name):
+            self.register_instruction(CIL_AST.SetAttr("self", node.name, expr_local, self.current_type.name ))
+            return expr_local
+        else:
+            print("visit COOL ASSIGN error ")
+        #TODO: cuando no es ninguno de los casos
+
+    @visitor.when(COOL_AST.Block)
+    def visit(self, node, scope):
+        for e in node.exprs:
+            result_local = self.visit(e, scope)
+        return result_local
+                 
+    @visitor.when(COOL_AST.If)
+    def visit(self, node, scope):
+        
+        result_local = self.define_internal_local()
+        cond_local = self.define_internal_local()
+        then_local = self.define_internal_local()
+        else_local = self.define_internal_local()
+
+        cond_value = self.visit(node.predicate, scope)
+        self.register_instruction(CIL_AST.Assign(cond_local, cond_value))
+        
+        then_label = self.register_label("if_then")
+        self.register_instruction(CIL_AST.IfGoto(cond_local, then_label))
+
+        else_value = self.visit(node.else_body, scope)
+        self.register_instruction(CIL_AST.Assign(else_local, else_value))
+        self.register_instruction(CIL_AST.Assign(result_local, else_local))
+        endif_label = self.register_label("endif")
+        self.register_instruction(CIL_AST.Goto(endif_label))
+
+        self.register_instruction(CIL_AST.Label(then_label))
+        then_value = self.visit(node.then_body, scope)
+        self.register_instruction(CIL_AST.Assign(then_local, then_value))
+        self.register_instruction(CIL_AST.Assign(result_local, then_local))
+        self.register_instruction(CIL_AST.Label(endif_label))
+
+        return result_local
+
+    @visitor.when(COOL_AST.While)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+
+        self.register_instruction(CIL_AST.Label("loop_init"))
+        pred_value = self.visit(node.predicate, scope)
+        self.register_instruction(CIL_AST.IfGoto(pred_value, "loop_body"))
+        self.register_instruction(CIL_AST.Goto("loop_end"))
+        
+        self.register_instruction(CIL_AST.Label("loop_body"))
+        body_value = self.visit(node.body, scope)
+        self.register_instruction(CIL_AST.Goto("loop_init"))
+        self.register_instruction(CIL_AST.Label("loop_end"))
+
+        self.register_instruction(CIL_AST.Assign(result_local, body_value))
+
+        return result_local
+
+    
     @visitor.when(COOL_AST.DynamicCall)
     def visit(self, node, scope):
         pass
         
     @visitor.when(COOL_AST.StaticCall)
-    def visit(self, node, scope):
-        pass
-
-    @visitor.when(COOL_AST.AssignExpr)
     def visit(self, node, scope):
         pass
         
@@ -162,18 +239,6 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         pass
         
     @visitor.when(COOL_AST.Action)
-    def visit(self, node, scope):
-        pass
-        
-    @visitor.when(COOL_AST.If)
-    def visit(self, node, scope):
-        pass
-
-    @visitor.when(COOL_AST.While)
-    def visit(self, node, scope):
-        pass
-        
-    @visitor.when(COOL_AST.Block)
     def visit(self, node, scope):
         pass
         
@@ -191,35 +256,165 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         
     @visitor.when(COOL_AST.NewType)
     def visit(self, node, scope):
-        pass
+        result_local = self.define_internal_local()
+        if node.type == "SELF_TYPE":
+            get_type_local = self.define_internal_local()
+            self.register_instruction(CIL_AST.TypeOf("self", get_type_local))
+            self.register_instruction(CIL_AST.Allocate(get_type_local, result_local))
+            return result_local
+        else:
+            self.register_instruction(CIL_AST.Allocate(node.type, result_local))
+            return result_local
         
     @visitor.when(COOL_AST.IsVoid)
     def visit(self, node, scope):
         pass
         
-    @visitor.when(COOL_AST.ArithmeticBinOp)
+    @visitor.when(COOL_AST.Sum)
     def visit(self, node, scope):
-        pass
+        result_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+
+        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "+"))
+
+        return result_local
+
+    @visitor.when(COOL_AST.Sub)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+
+        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "-"))
+
+        return result_local
+
+    @visitor.when(COOL_AST.Mult)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+
+        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "*"))
+
+        return result_local
+
+    @visitor.when(COOL_AST.Div)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+
+        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "/"))
+
+        return result_local
+
+    @visitor.when(COOL_AST.LogicalNot)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        expr_local = self.define_internal_local() 
         
-    @visitor.when(COOL_AST.LogicBinOp)
-    def visit(self, node, scope):
-        pass
+        expr_value = self.visit(node.expr, scope)
+        
+        self.register_instruction(CIL_AST.Assign(expr_local, expr_value))
+        self.register_instruction(CIL_AST.UnaryOperator(result_local, expr_local, "~"))
+
+        return result_local
         
     @visitor.when(COOL_AST.Not)
     def visit(self, node, scope):
-        pass
+        result_local = self.define_internal_local()
+        expr_local = self.define_internal_local() 
         
-    @visitor.when(COOL_AST.LogicalNot)
+        expr_value = self.visit(node.expr, scope)
+        
+        self.register_instruction(CIL_AST.Assign(expr_local, expr_value))
+        self.register_instruction(CIL_AST.UnaryOperator(result_local, expr_local, "not"))
+
+        return result_local
+
+    @visitor.when(COOL_AST.LessThan)
     def visit(self, node, scope):
-        pass
-        
+        result_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+
+        self.register_instruction(CIL_AST.BinaryOperator(result_local, left_local, right_local, "<"))
+
+        return result_local
+
+    @visitor.when(COOL_AST.LessOrEqualThan)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+
+        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "<="))
+
+        return result_local
+
     @visitor.when(COOL_AST.Equals)
     def visit(self, node, scope):
-        pass
-        
+        result_local = self.define_internal_local()
+        left_local = self.define_internal_local()
+        right_local = self.define_internal_local()
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        self.register_instruction(CIL_AST.Assign(left_local, left_value))
+        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+
+        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "="))
+
+        return result_local
+
     @visitor.when(COOL_AST.Identifier)
     def visit(self, node, scope):
-        pass
+        if self.is_defined_param(node.name):
+            return node.name
+        else: 
+            self.current_type.has_attr(node.name) #load class attr
+            result_local = self.define_internal_local()
+            self.register_instruction(CIL_AST.GetAttr(result_local, "self", node.name, self.current_type.name))
+            return result_local
     
     @visitor.when(COOL_AST.INTEGER)
     def visit(self, node, scope):
@@ -227,11 +422,24 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.STRING)
     def visit(self, node, scope):
-        return node.value
+        str_name = ""
+        for s in self.dotdata.keys():
+            if self.dotdata[s] == node.value:
+                str_name = s
+                break
+        if str_name == "":
+            str_name = self.register_data(node.value)
+
+        result_local = self.define_internal_local()
+        self.register_instruction(CIL_AST.Load(str_name, result_local))
+        return result_local
         
     @visitor.when(COOL_AST.Boolean)
     def visit(self, node, scope):
-        return node.value
+        if str(node.value) == "true":
+            return 1
+        else:
+            return 0
 
 if __name__ == '__main__':
     import sys
@@ -240,7 +448,7 @@ if __name__ == '__main__':
 
     parser = Parser()
 
-    sys.argv.append('hello_world.cl')
+    sys.argv.append('test.cl')
 
     if len(sys.argv) > 1:
 
