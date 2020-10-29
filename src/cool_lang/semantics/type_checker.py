@@ -1,6 +1,7 @@
 from .semantic_utils import Context, SemanticException, Type, ErrorType, VoidType, Var, Scope, find_common_ancestor
 from ..utils import on, when
 from ..errors import SemanticError
+from ..errors import SemanticError, CTypeError, CNameError
 from ..ast import ProgramNode, ClassDeclarationNode, AttrDeclarationNode, FuncDeclarationNode, IdNode,\
                     IfThenElseNode, WhileLoopNode, BlockNode, LetInNode, ArithmeticNode, BoolNode,    \
                     CaseOfNode, LetNode, CaseNode, AssignNode, FunctionCallNode, NewNode, IntegerNode,\

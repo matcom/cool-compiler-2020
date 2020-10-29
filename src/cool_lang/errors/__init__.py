@@ -27,12 +27,12 @@ class SyntacticError(LocalizedError):
         LocalizedError.__init__(self, 'SyntacticError', row, column, description)
 
 
-class NameError(LocalizedError):
+class CNameError(LocalizedError):
     def __init__(self, row, column, description):
         LocalizedError.__init__(self, 'NameError', row, column, description)
 
 
-class TypeError(LocalizedError):
+class CTypeError(LocalizedError):
     def __init__(self, row, column, description):
         LocalizedError.__init__(self, 'TypeError', row, column, description)
 
