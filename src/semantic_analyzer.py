@@ -704,3 +704,4 @@ if __name__ == '__main__':
 
         for e in semantic_analyzer.errors:
             print(e)
+            exit(1)
