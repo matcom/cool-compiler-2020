@@ -129,12 +129,12 @@ class ComplementNode(UnaryNode):
     pass
 
 class FunctionCallNode(ExpressionNode):
-    def __init__(self, obj, idx, args, typex=None):
+    def __init__(self, obj, line, idx, args, typex=None):
         self.obj = obj
         self.id = idx
         self.args = args
         self.typex = typex
-        self.line = 0
+        self.line = line
         self.column = 0
 
 class MemberCallNode(ExpressionNode):

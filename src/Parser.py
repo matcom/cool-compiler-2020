@@ -223,7 +223,7 @@ class CoolParser():
     def p_atom_6(self, p):
         'atom : atom func_call'
         p[0]= FunctionCallNode(p[1], *p[2])
-
+        
     def p_atom_7(self, p):
         'atom : member_call'
         p[0]=p[1]
@@ -265,19 +265,24 @@ class CoolParser():
     #<func-call> ???
     def p_func_call_1(self, p):
         'func_call : DOT OBJECT OPAR arg_list CPAR'
-        p[0]=(p[2],p[4])
+        p[0]=(p.lineno(1),p[2],p[4])
+        
 
     def p_func_call_2(self, p):
         'func_call : DOT OBJECT OPAR CPAR'
-        p[0]=(p[2],[])
-        
+        p[0]=(p.lineno(1),p[2],[])
+
+
+
     def p_func_call_3(self, p):
         'func_call : AT TYPE DOT OBJECT OPAR arg_list CPAR'
-        p[0]=(p[4],p[6],p[2])
+        p[0]=(p.lineno(1),p[4],p[6],p[2])
+   
 
     def p_func_call_4(self, p):
         'func_call : AT TYPE DOT OBJECT OPAR  CPAR'
-        p[0]=(p[4],[],p[2])
+        p[0]=(p.lineno(1),p[4],[],p[2])
+
 
     def p_arg_list_1(self, p):
         'arg_list : expr'

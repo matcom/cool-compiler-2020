@@ -25,6 +25,6 @@ cool_sematic= CoolSemantic(ast)
 semantics_error = cool_sematic.check_semantics()
 
 if len(semantics_error) > 0:
-    for error in semantics_error:
-        print(error)
+    for error in semantics_error:gi
+        print(error.text)
     exit(1)
