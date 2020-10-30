@@ -7,8 +7,8 @@ class SemanticException(Exception):
         return self.args[0]
 
 class ErrorSemantic():
-    def __init__(self, message, line, column):
-        self.type = 'SemanticError'
+    def __init__(self,message, line, column, type = 'SemanticError'):
+        self.type = type
         self.value = message
         self.line = line
         self.column = column
@@ -86,6 +86,9 @@ class Type:
                     f'Attribute "{name}" is not defined in {self.name}.')
 
     def define_attribute(self, name: str, typex):
+        if name == 'self':
+            raise SemanticException(
+                "'self' cannot be the name of an attribute")
         try:
             self.get_attribute(name)
         except SemanticException:

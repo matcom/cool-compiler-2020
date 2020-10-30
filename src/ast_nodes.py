@@ -337,9 +337,9 @@ class Identifier(Expr):
 
 
 # <expression> ::= SELF
-class SELF(Identifier):
-    def __init__(self, line, column):
-        super(SELF, self).__init__("self", line, column)
+# class SELF(Identifier):
+#     def __init__(self, line, column):
+#         super(SELF, self).__init__("self", line, column)
 
 
 # <expression> ::= INTEGER

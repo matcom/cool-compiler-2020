@@ -105,6 +105,8 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         result = self.define_internal_local()
         self.register_instruction(CIL_AST.Allocate('Main', instance))
         self.register_instruction(CIL_AST.Arg(instance))
+        self.register_instruction(CIL_AST.Call(self.to_function_name('init', 'Main'), result))
+        self.register_instruction(CIL_AST.Arg(instance))
         self.register_instruction(CIL_AST.Call(self.to_function_name('main', 'Main'), result))
         self.register_instruction(CIL_AST.Return(0))
         self.current_function = None
@@ -129,7 +131,29 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         func_declarations = (f for f in node.features if isinstance(f, COOL_AST.ClassMethod))
         for feature, child_scope in zip(func_declarations, scope.children):
             self.visit(feature, child_scope)
-                
+        
+        attr_declarations = (f for f in node.features if not isinstance(f, COOL_AST.ClassMethod))
+
+        instance = self.define_internal_local()
+        self.register_instruction(CIL_AST.Allocate(node.name, instance))
+        self.current_type.instance = instance
+
+        #-------------------------Init---------------------------------
+        self.current_function = self.to_function_name('init', node.name)
+        self.register_param(VariableInfo('instance', None))
+
+        #Init parents recursively
+        result = self.define_internal_local()
+        self.register_instruction(CIL_AST.Arg(instance))
+        self.register_instruction(CIL_AST.Call(self.to_function_name('init', node.parent), result))
+
+        for attr in attr_declarations:
+            self.visit(attr, scope)
+
+        self.register_instruction(CIL_AST.Return(0))
+        #---------------------------------------------------------------
+
+        self.current_function = None
         self.current_type = None
                 
     @visitor.when(COOL_AST.ClassMethod)
@@ -150,13 +174,12 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.AttributeDef)
     def visit(self, node, scope):
-        vname = self.register_local(node.name)
+        self.register_instruction(CIL_AST.SetAttr('instance', node.name,0, node.type))
     
     @visitor.when(COOL_AST.AttributeInit)
     def visit(self, node, scope):
-        vname = self.register_local(node.name)
         expr = self.visit(node.expr, scope)
-        return self.register_instruction(CIL_AST.Assign(vname, expr))
+        self.register_instruction(CIL_AST.SetAttr('instance', node.name, expr, node.type))
 
     @visitor.when(COOL_AST.AssignExpr)
     def visit(self, node, scope):
@@ -257,14 +280,20 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(COOL_AST.NewType)
     def visit(self, node, scope):
         result_local = self.define_internal_local()
+        result_init = self.define_internal_local()
+
         if node.type == "SELF_TYPE":
             get_type_local = self.define_internal_local()
             self.register_instruction(CIL_AST.TypeOf("self", get_type_local))
             self.register_instruction(CIL_AST.Allocate(get_type_local, result_local))
-            return result_local
+            self.register_instruction(CIL_AST.Arg(result_local))
+            self.register_instruction(CIL_AST.Call(self.to_function_name('init', get_type_local), result_init))
         else:
             self.register_instruction(CIL_AST.Allocate(node.type, result_local))
-            return result_local
+            self.register_instruction(CIL_AST.Arg(result_local))
+            self.register_instruction(CIL_AST.Call(self.to_function_name('init', node.type), result_init))
+
+        return result_local
         
     @visitor.when(COOL_AST.IsVoid)
     def visit(self, node, scope):

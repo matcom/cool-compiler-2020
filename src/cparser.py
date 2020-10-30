@@ -212,11 +212,11 @@ class Parser():
         """
         parse[0] = AST.STRING(value=parse[1], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
-    def p_expr_self(self, parse):
-        """
-        expression  : SELF
-        """
-        parse[0] = AST.SELF(line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
+    # def p_expr_self(self, parse):
+    #     """
+    #     expression  : SELF
+    #     """
+    #     parse[0] = AST.SELF(line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_expression_block(self, parse):
         """
@@ -247,7 +247,7 @@ class Parser():
         expression : expression DOT ID LPAREN arguments_list_opt RPAREN
         """
         parse[0] = AST.DynamicCall(
-            instance=parse[1], method=parse[3], args=parse[5], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
+            instance=parse[1], method=parse[3], args=parse[5], line=parse.lineno(3), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(3)))
 
     def p_arguments_list_opt(self, parse):
         """
@@ -271,14 +271,14 @@ class Parser():
         expression : expression AT TYPE DOT ID LPAREN arguments_list_opt RPAREN
         """
         parse[0] = AST.StaticCall(
-            instance=parse[1], static_type=parse[3], method=parse[5], args=parse[7], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
+            instance=parse[1], static_type=parse[3], method=parse[5], args=parse[7], line=parse.lineno(5), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(5)))
 
     def p_expression_self_dispatch(self, parse):
         """
         expression : ID LPAREN arguments_list_opt RPAREN
         """
         parse[0] = AST.DynamicCall(
-            instance=AST.SELF(line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1))), method=parse[1], args=parse[3], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
+            instance=AST.Identifier('self',line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1))), method=parse[1], args=parse[3], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     # ######################### PARENTHESIZED, MATH & COMPARISONS #####################
 
@@ -324,13 +324,13 @@ class Parser():
         expression : IF expression THEN expression ELSE expression FI
         """
         parse[0] = AST.If(predicate=parse[2],
-                          then_body=parse[4], else_body=parse[6], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
+                          then_body=parse[4], else_body=parse[6], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     def p_expression_while_loop(self, parse):
         """
         expression : WHILE expression LOOP expression POOL
         """
-        parse[0] = AST.While(predicate=parse[2], body=parse[4], line=parse.lineno(2), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(2)))
+        parse[0] = AST.While(predicate=parse[2], body=parse[4], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
     # ######################### LET EXPRESSIONS ########################################
 

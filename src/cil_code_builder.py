@@ -40,6 +40,7 @@ class CILCodeBuilder:
         entry_funtion = CIL_AST.Function("entry", [], locals, body)
         self.cil_ast.code.insert(0, entry_funtion)
 
+
     @visitor.on('node')
     def visit(self, node):
         pass
@@ -62,6 +63,7 @@ class CILCodeBuilder:
     @visitor.when(COOL_AST.ClassMethod)
     def visit(self, node, self_type):
         self.params_names = [f'{param.name}_{self.scope_depth}' for param in node.params]
+
         params = [CIL_AST.ParamDec('self')] + [CIL_AST.ParamDec(param) for param in self.params_names]
         
         # locals = [local for local in self.class_locals if local.name not in params_names]
@@ -125,6 +127,7 @@ class CILCodeBuilder:
     @visitor.when(COOL_AST.AssignExpr)
     def visit(self, node, self_type):
         var_name = f'{node.name}_{self.scope_depth}'
+
         expr_locals, expr_code, expr_value = self.visit(node.expr, self_type)
         assign = var_name in self.params_names and \
                     CIL_AST.Assign(var_name, expr_value) or \
@@ -153,6 +156,7 @@ class CILCodeBuilder:
             args_values.append(curr_value)
 
         args = [CIL_AST.Arg(inst_value)] + [CIL_AST.Arg(name) for name in args_values]
+
         virtual_type = next(m.virtual_type for m in self.cil_ast.types[instance_type].methods if m.name == node.method)
         vcall = CIL_AST.VCall(instance_type, virtual_type, node.method, len(node.args))
         assign = CIL_AST.Assign(local.name, vcall)
