@@ -7,10 +7,54 @@ import ast_nodes as COOL_AST
 import cil_ast_nodes as CIL_AST
 
 class CILToMIPSVisitor():
+    def __init__(self):
+        self.mips_code = ''
+        self.mips_comm_for_binary_op = {
+            '+' : 'add',
+            '-' : 'sub'
+        }
+
     @visitor.on('node')
     def visit(self, node):
         pass
+
+    @visitor.when(CIL_AST.Program)
+    def visit(self, node):
+        for node_type in node.dottypes.values():
+            self.visit(node_type)
+        
+        # Write MIPS for node.dotdata
+
+        for node_function in node.dotcode:
+            self.visit(node_function)
+        
+        return self.mips_code.strip()
     
+    @visitor.when(CIL_AST.Function)
+    def visit(self, node):
+        for param_node in params:
+            self.visit(param_node)
+        
+        for local_node in localvars:
+            self.visit(local_node)
+        
+        for instruction in instructions:
+            self.visit(instruction)
+    
+    @visitor.when(CIL_AST.BinaryOperator)
+    def visit(self, node):
+        mips_comm = self.mips_comm_for_binary_op[node.op]
+        self.visit(left)
+        self.mips_code += 'sw $a0 0(sp)\n'
+        self.mips_code += 'addiu $sp $sp -4\n'
+        self.visit(right)
+        self.mips_code += 'lw $t1 4($sp)\n'
+        self.mips_code += f'{mips_comm} $a0 $t1 $a0\n'
+        self.mips_code += 'addiu $sp $sp 4\n'
+    
+    @visitor.when(CIL_AST.INTEGER)
+    def visit(self, node):
+        self.mips_code += f'li $a0 {node.value}\n'
 
 if __name__ == '__main__':
     import sys
