@@ -306,8 +306,6 @@ def get_formatter():
 
         @visitor.when(Type)
         def visit(self, node):
-            print(type(node.attributes))
-            print(dir(node.attributes))
             attributes = '\n\t'.join(f'attribute {x}' for x in node.attributes.keys())
             methods = '\n\t'.join(f'method {x}' for x in node.methods.keys())
 
