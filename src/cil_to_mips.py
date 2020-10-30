@@ -11,7 +11,9 @@ class CILToMIPSVisitor():
         self.mips_code = ''
         self.mips_comm_for_binary_op = {
             '+' : 'add',
-            '-' : 'sub'
+            '-' : 'sub',
+            '*' : 'mul',
+            '/' : 'div'
         }
 
     @visitor.on('node')
