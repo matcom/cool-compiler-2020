@@ -500,7 +500,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.LetVarDef)
     def visit(self, node, scope):
-        var_def = self.define_internal_local(scope = scope, name = "let_var_def", var_name=node.name)
+        var_def = self.define_internal_local(scope = scope, name = node.name, var_name=node.name)
         self.register_instruction(CIL_AST.Assign(var_def, 0))
         return var_def
     
