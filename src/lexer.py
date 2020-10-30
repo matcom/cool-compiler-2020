@@ -82,7 +82,7 @@ class Lexer():
             "new": "NEW",
             "of": "OF",
             "pool": "POOL",
-            "self": "SELF",
+            # "self": "SELF",
             "then": "THEN",
             "while": "WHILE",
             "false": "FALSE",
