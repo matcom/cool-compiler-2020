@@ -45,6 +45,10 @@ class COOL_TYPE_CHECKER(object):
 
         class_scope = Scope(parent=scope)
         for attr in attrs:
+            if attr.name == 'self':
+                line, column = [ (attrib.line, attrib.column) for attrib in node.features if type(attrib) is AttrDeclarationNode and attrib.id == 'self'][0]
+                self.errors.append(SemanticError(line, column, f'Identifier "self" cannot be used in Attribute declarations.'))
+                continue
             class_scope.define_var(attr.name, attr.type)
 
         for feature_node in node.features:
@@ -54,37 +58,37 @@ class COOL_TYPE_CHECKER(object):
     def visit(self, node:AttrDeclarationNode, scope:Scope):
         if node.expression:
             new_scope = Scope(parent=scope)
-            new_scope.define_var('self', self.current_type, no_check=True)
+            new_scope.define_var('self', self.current_type)
             self.visit(node.expression, new_scope)
 
             attr_type = self.context.get_type(node.type)
 
             if not node.expression.static_type.is_subtype(attr_type):
-                self.errors.append(SemanticError(node.line, node.column, f'Invalid attribute initialization. Type {node.expression.static_type.name} is not subtype of {attr_type.name}.'))
+                self.errors.append(CTypeError(node.line, node.column, f'Invalid attribute initialization. Type {node.expression.static_type.name} is not subtype of {attr_type.name}.'))
 
     @when(FuncDeclarationNode)
     def visit(self, node:FuncDeclarationNode, scope:Scope):
         func_scope = Scope(parent=scope)
-        func_scope.define_var('self', self.current_type, no_check=True)
+        func_scope.define_var('self', self.current_type)
 
         for param in node.params:
             try:
                 func_scope.define_var(param.id, self.context.get_type(param.type))
             except SemanticException: # Check if params names are differnt
-                self.errors.append(SemanticError(node.line, node.column, f'Identifier "{param.name}" can only be used once.'))
+                self.errors.append(SemanticError(node.line, node.column, f'Identifier "{param.id}" can only be used once.'))
 
         self.visit(node.expression, func_scope)
 
         ret_type = self.context.get_type(node.type)
         if not node.expression.static_type.is_subtype(ret_type):
-            self.errors.append(SemanticError(node.line, node.column, f'Invalid return type. Type {node.expression.static_type.name} is not subtype of {ret_type.name}.'))
+            self.errors.append(CTypeError(node.line, node.column, f'Invalid return type. Type {node.expression.static_type.name} is not subtype of {ret_type.name}.'))
 
 
     @when(IfThenElseNode)
     def visit(self, node:IfThenElseNode, scope:Scope):
         self.visit(node.condition, scope)
         if not node.condition.static_type == self.type_bool:
-            self.errors.append(SemanticError(node.line, node.column, f'Invalid predicate type. Found {node.condition.static_type.name} instead of {self.type_bool.name}.'))
+            self.errors.append(CTypeError(node.line, node.column, f'Invalid predicate type. Found {node.condition.static_type.name} instead of {self.type_bool.name}.'))
 
         self.visit(node.if_body, Scope(parent=scope))
         self.visit(node.else_body, Scope(parent=scope))
@@ -95,7 +99,7 @@ class COOL_TYPE_CHECKER(object):
     def visit(self, node:WhileLoopNode, scope:Scope):
         self.visit(node.condition, scope)
         if not node.condition.static_type == self.type_bool:
-            self.errors.append(SemanticError(node.line, node.column, f'Invalid predicate type. Found {node.condition.static_type.name} instead of {self.type_bool.name}.'))
+            self.errors.append(CTypeError(node.line, node.column, f'Invalid predicate type. Found {node.condition.static_type.name} instead of {self.type_bool.name}.'))
 
         self.visit(node.body, Scope(parent=scope))
         node.static_type = self.type_obj
@@ -114,25 +118,26 @@ class COOL_TYPE_CHECKER(object):
         try:
             node_type = self.context.get_type(node.type)
         except SemanticException as e:
-            self.errors.append(SemanticError(node.line, node.column, e.text))         
+            self.errors.append(CTypeError(node.line, node.column, e.text))         
 
         if node.expression:
             self.visit(node.expression, scope)
             if not node.expression.static_type.is_subtype(node_type):
-                self.errors.append(SemanticError(node.line, node.column, f'Invalid initialization. Type {node.expression.static_type.name} is not subtype of {node_type.name}.'))
+                self.errors.append(CTypeError(node.line, node.column, f'Invalid initialization. Type {node.expression.static_type.name} is not subtype of {node_type.name}.'))
+        if node.id == 'self':
+            self.errors.append(SemanticError(node.line, node.column, f'Var "self" is read-only.'))
         try:
             scope.define_var(node.id, node_type)
         except SemanticException as e:
-            self.errors.append(SemanticError(node.line, node.column, e.text))
+            self.errors.append(CNameError(node.line, node.column, e.text))
         node.static_type = node_type
         
     @when(LetInNode)
     def visit(self, node:LetInNode, scope:Scope):
-        letin_scope = Scope(parent=scope)
+        letin_scope = scope
         for letnode in node.let_body:
-            self.visit(letnode, letin_scope)# The defined variable is added to the scope, thus usable
-                                            # in the next assignation. To avoid this change the definition
-                                            # in the visit method for LetNode.
+            letin_scope = Scope(parent=letin_scope)
+            self.visit(letnode, letin_scope)
         
         self.visit(node.in_body, letin_scope)
         node.static_type = node.in_body.static_type
@@ -144,7 +149,7 @@ class COOL_TYPE_CHECKER(object):
         try:
             node_type = self.context.get_type(node.type)
         except SemanticException as e:
-            self.errors.append(SemanticError(node.line, node.columns, e.text))
+            self.errors.append(CTypeError(node.line, node.columns, e.text))
 
         case_scope.define_var(node.id, node_type)
         self.visit(node.expression, case_scope)
@@ -170,13 +175,15 @@ class COOL_TYPE_CHECKER(object):
         var_type = ErrorType()
         try:
             var = scope.get_var(node.id)
+            if node.id == 'self':
+                raise SemanticException(f'Var "self" is read-only.')
             var_type = var.type
         except SemanticException as e:
             self.errors.append(SemanticError(node.line, node.column, e.text))
 
         self.visit(node.expression, scope)
         if not node.expression.static_type.is_subtype(var_type):
-            self.errors.append(SemanticError(node.line, node.column, f'Invalid assignment. Type {node.expression.static_type.name} is not subtype of {var_type.name}.'))
+            self.errors.append(CTypeError(node.line, node.column, f'Invalid assignment. Type {node.expression.static_type.name} is not subtype of {var_type.name}.'))
         
         node.static_type = node.expression.static_type
     
@@ -188,7 +195,7 @@ class COOL_TYPE_CHECKER(object):
         try:
             method = obj_type.get_method(node.id)
         except SemanticException as e:
-            self.errors.append(SemanticError(node.line, node.column, e.text))
+            self.errors.append(CAttributeError(node.line, node.column, e.text))
         else:
             if len(node.args) != len(method.param_names):
                 self.errors.append(SemanticError(node.line, node.column, f'Invalid dispatch. Expected {len(method.names)} parameter(s), found {len(node.args)}.'))
@@ -198,7 +205,7 @@ class COOL_TYPE_CHECKER(object):
                     self.visit(expr, scope)
                     expected_type = ptype
                     if not expr.static_type.is_subtype(expected_type):
-                        self.errors.append(SemanticError(node.line, node.column, f'Invalid dispatch. Parameter "{pname}" type {expr.static_type.name} is not subtype of {expected_type.name}.'))    
+                        self.errors.append(CTypeError(node.line, node.column, f'Invalid dispatch. Parameter "{pname}" type {expr.static_type.name} is not subtype of {expected_type.name}.'))    
 
         node.static_type = node_type
 
@@ -212,11 +219,11 @@ class COOL_TYPE_CHECKER(object):
             try:
                 cast_type = self.context.get_type(node.type)
             except SemanticException as e:
-                self.errors.append(SemanticError(node.line, node.column, e.text))
+                self.errors.append(CTypeError(node.line, node.column, e.text))
                 node.static_type = ErrorType()
                 return
             if not node.obj.static_type.is_subtype(cast_type):
-                self.errors.append(SemanticError(node.line, node.column, f'Invalid cast. Type {node.obj.static_type.name} is not subtype of {cast_type.name}.'))
+                self.errors.append(CTypeError(node.line, node.column, f'Invalid cast. Type {node.obj.static_type.name} is not subtype of {cast_type.name}.'))
             obj_type = cast_type
         else:
             obj_type = node.obj.static_type
@@ -225,17 +232,17 @@ class COOL_TYPE_CHECKER(object):
         try:
             method = obj_type.get_method(node.id)
         except SemanticException as e:
-            self.errors.append(SemanticError(node.line, node.column, e.text))
+            self.errors.append(CAttributeError(node.line, node.column, e.text))
         else:
             if len(node.args) != len(method.param_names):
-                self.errors.append(SemanticError(node.line, node.column, f'Invalid dispatch. Expected {len(method.names)} parameter(s), found {len(node.args)}.'))
+                self.errors.append(SemanticError(node.line, node.column, f'Invalid dispatch. Expected {len(method.param_names)} parameter(s), found {len(node.args)}.'))
             else:
                 node_type = method.return_type
                 for pname, ptype, expr in zip(method.param_names, method.param_types, node.args):
                     self.visit(expr, scope)
                     expected_type = ptype
                     if not expr.static_type.is_subtype(expected_type):
-                        self.errors.append(SemanticError(node.line, node.column, f'Invalid dispatch. Parameter "{pname}" type {expr.static_type.name} is not subtype of {expected_type.name}.'))    
+                        self.errors.append(CTypeError(node.line, node.column, f'Invalid dispatch. Parameter "{pname}" type {expr.static_type.name} is not subtype of {expected_type.name}.'))    
 
         node.static_type = node_type
 
@@ -244,7 +251,7 @@ class COOL_TYPE_CHECKER(object):
         try:
             node_type = self.context.get_type(node.type)
         except SemanticException as e:
-            self.errors.append(SemanticError(node.line, node.column, e.text))
+            self.errors.append(CTypeError(node.line, node.column, e.text))
             node_type = ErrorType()
         node.static_type = node_type
 
@@ -257,22 +264,22 @@ class COOL_TYPE_CHECKER(object):
     def visit(self, node:NotNode, scope:Scope):
         self.visit(node.expression, scope)
         if not node.expression.static_type == self.type_bool:
-            self.errors.append(SemanticError(node.line, node.column, f'Invalid boolean complement over type {node.expression.static_type.name}.'))
+            self.errors.append(CTypeError(node.line, node.column, f'Invalid boolean complement over type {node.expression.static_type.name}.'))
         node.static_type = self.type_bool
 
     @when(ComplementNode)
     def visit(self, node:ComplementNode, scope:Scope):
         self.visit(node.expression, scope)
         if not node.expression.static_type == self.type_int:
-            self.errors.append(SemanticError(node.line, node.column, f'Invalid integer complement over type {node.expression.static_type.name}.'))
+            self.errors.append(CTypeError(node.line, node.column, f'Invalid integer complement over type {node.expression.static_type.name}.'))
         node.static_type = self.type_int
 
     @when(ArithmeticNode)
     def visit(self, node:ArithmeticNode, scope:Scope):
         self.visit(node.left, scope)
         self.visit(node.right, scope)
-        if not(node.left.static_type == self.type_int and node.left.static_type == self.type_int):
-            self.errors.append(SemanticError(node.line, node.column, f'Invalid arithmetic operation between types {node.left.static_type.name} and {node.right.static_type.name}.'))
+        if not(node.left.static_type == self.type_int and node.right.static_type == self.type_int):
+            self.errors.append(CTypeError(node.line, node.column, f'Invalid arithmetic operation between types {node.left.static_type.name} and {node.right.static_type.name}.'))
         node.static_type = self.type_int
 
     @when(EqualNode)
@@ -281,23 +288,23 @@ class COOL_TYPE_CHECKER(object):
         self.visit(node.right, scope)
         if self.is_basic(node.left.static_type) or self.is_basic(node.right.static_type):
             if not node.left.static_type == node.right.static_type:
-                self.errors.append(SemanticError(node.line, node.column, f'Invalid comparison between types {node.left.static_type.name} and {node.right.static_type.name}.'))
+                self.errors.append(CTypeError(node.line, node.column, f'Invalid comparison between types {node.left.static_type.name} and {node.right.static_type.name}.'))
         node.static_type = self.type_bool
 
     @when(LessEqualNode)
     def visit(self, node:LessEqualNode, scope:Scope):
         self.visit(node.left, scope)
         self.visit(node.right, scope)
-        if not(node.left.static_type == self.type_int and node.left.static_type == self.type_int):
-            self.errors.append(SemanticError(node.line, node.column, f'Invalid comparison between types {node.left.static_type.name} and {node.right.static_type.name}.'))
+        if not(node.left.static_type == self.type_int and node.right.static_type == self.type_int):
+            self.errors.append(CTypeError(node.line, node.column, f'Invalid comparison between types {node.left.static_type.name} and {node.right.static_type.name}.'))
         node.static_type = self.type_bool
 
     @when(LessNode)
     def visit(self, node:LessNode, scope:Scope):
         self.visit(node.left, scope)
         self.visit(node.right, scope)
-        if not(node.left.static_type == self.type_int and node.left.static_type == self.type_int):
-            self.errors.append(SemanticError(node.line, node.column, f'Invalid comparison between types {node.left.static_type.name} and {node.right.static_type.name}.'))
+        if not(node.left.static_type == self.type_int and node.right.static_type == self.type_int):
+            self.errors.append(CTypeError(node.line, node.column, f'Invalid comparison between types {node.left.static_type.name} and {node.right.static_type.name}.'))
         node.static_type = self.type_bool
         
     @when(IdNode)
@@ -305,7 +312,7 @@ class COOL_TYPE_CHECKER(object):
         try:
             node_type = scope.get_var(node.token).type
         except SemanticException as e:
-            self.errors.append(SemanticError(node.line, node.column, e.text))
+            self.errors.append(CNameError(node.line, node.column, e.text))
             node_type = ErrorType()
         node.static_type = node_type
 
