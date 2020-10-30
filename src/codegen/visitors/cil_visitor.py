@@ -6,7 +6,6 @@ from semantic.types import *
 from utils import visitor
 from utils.utils import get_type, get_common_basetype
 
-
 class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.on('node')
     def visit(self, node):
@@ -37,9 +36,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         cil_type = self.register_type(node.id)
  
-        for a_name, a_type in self.current_type.all_attributes():
-            cil_type.attributes.append((a_name.name, self.to_attr_name(a_name.name, a_type.name)))
-            self.initialize_attr(constructor, a_name)            ## add the initialization code in the constructor
+        for attr, a_type in self.current_type.all_attributes():
+            cil_type.attributes.append((attr.name, self.to_attr_name(attr.name, a_type.name)))
+            self.initialize_attr(constructor, attr, scope)            ## add the initialization code in the constructor
         
         for method, mtype in self.current_type.all_methods():
             cil_type.methods.append((method.name, self.to_function_name(method.name, mtype.name)))
@@ -78,7 +77,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         var_info = scope.find_variable(node.id)
         vtype = get_type(var_info.type, self.current_type)
         local_var = self.register_local(VariableInfo(var_info.name, vtype))
-        
+
         value, _ = self.visit(node.expr, scope)
         self.register_instruction(cil.AssignNode(local_var, value))
         return local_var, vtype
@@ -87,12 +86,14 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(AssignNode)
     def visit(self, node: AssignNode, scope: Scope):
         var_info = scope.find_local(node.id)
+        value, typex = self.visit(node.expr, scope)
         if var_info is None:
             var_info = scope.find_attribute(node.id)
-            value, typex = self.visit(node.expr, scope)
-            self.register_instruction(cil.SetAttribNode(VariableInfo('self', self.current_type), var_info, value))
+            attr_name = self.to_attr_name(var_info.name, var_info.type.name)
+            self.register_instruction(cil.SetAttribNode('self', attr_name, value))
         else:
-            value, typex = self.visit(node.expr, scope)
+            local_name = self.to_var_name(var_info.name)
+            self.register_instruction(cil.AssignNode(var_info.name, value))
         return value, typex
 
     def _return_type(self, typex: Type, node):
@@ -161,13 +162,14 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(SelfNode)
     def visit(self, node: SelfNode, scope: Scope):
         # TODO: Cual es el valor de self type?
-        return self.current_type.name, self.current_type
+        return 'self', self.current_type
 
     @visitor.when(VariableNode)
     def visit(self, node: VariableNode, scope: Scope):
         try:
             typex = scope.find_local(node.lex).type
-            return node.lex, get_type(typex, self.current_type)
+            name = self.to_var_name(node.lex)
+            return name, get_type(typex, self.current_type)
         except:
             var_info = scope.find_attribute(node.lex)
             local_var = self.register_local(var_info)
@@ -181,9 +183,18 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         typex = get_type(typex, self.current_type)
         self.register_instruction(cil.AllocateNode(typex.name, instance))
         
-        for attr, _ in typex.all_attributes(clean=True):
-            expr, _ = self.visit(attr.expr, scope)
-            self.register_instruction(cil.SetAttribNode(instance, attr, expr))
+        for attr, a_type in typex.all_attributes(clean=True):
+            # Aquí sería más cómodo llamar al constructor de la clase, pero tendría que guardar todos los constructores
+            if attr.expr is not None:
+                expr, _ = self.visit(attr.expr, scope)
+            elif attr.type.name == 'Int':
+                expr, _ = self.visit(ConstantNumNode(0), scope)
+            elif attr.type.name == 'Bool':
+                expr, _ = self.visit(ConstantBoolNode(False), scope)
+            elif attr.type.name == 'String':
+                expr, _ = self.visit(ConstantStrNode(''), scope)
+            attr_name = self.to_attr_name(attr.name, a_type.name)
+            self.register_instruction(cil.SetAttribNode(instance, attr_name, expr))
         return instance, typex
 
 
@@ -203,7 +214,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         end_label = cil.LabelNode('end')
         
         result = self.define_internal_local()
-        self.register_instruction(cil.AssignNode(result, ConstantVoidNode()))
+        self.register_instruction(cil.AssignNode(result, 'void'))
         self.register_instruction(start_label)
 
         cond, _ = self.visit(node.cond, scope)
@@ -247,10 +258,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(BlockNode)
     def visit(self, node: BlockNode, scope: Scope):
-        result = self.define_internal_local()
         value = None
         for exp in node.expr_list:
             value, typex = self.visit(exp, scope)
+        result = self.define_internal_local()
         self.register_instruction(cil.AssignNode(result, value))
         return result, typex
 
@@ -260,8 +271,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         for init in node.init_list:
             self.visit(init, child_scope)
         
-        result = self.define_internal_local()
         expr, typex = self.visit(node.expr, child_scope)
+        result = self.define_internal_local()
         self.register_instruction(cil.AssignNode(result, expr))
         return result, typex
 
@@ -292,7 +303,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(cil.GotoIfNode(aux, next_label))
         var_info = scope.find_variable(node.id)
         local_var = self.register_local(var_info)
-        self.register_instruction(cil.AssignNode(node.id, expr))
+        self.register_instruction(cil.AssignNode(local_var, expr))
 
         expr_i, typex = self.visit(node.expr, scope)
         return exp_i, next_label

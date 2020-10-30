@@ -217,6 +217,6 @@ class PrintNode(InstructionNode):
         self.str_addr = str_addr
 
 
-class CILSelf(InstructionNode):
+class SelfNode(InstructionNode):
     def __init__(self):
-        pass
+        pass    

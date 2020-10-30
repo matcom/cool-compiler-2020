@@ -97,7 +97,7 @@ def get_formatter():
 
         @visitor.when(SetAttribNode)
         def visit(self, node: SetAttribNode):
-            return f'SETATTR {node.obj} {node.attr.name} = {node.value}'
+            return f'SETATTR {node.obj} {node.attr} = {node.value}'
 
     printer = PrintVisitor()
     return lambda ast: printer.visit(ast)

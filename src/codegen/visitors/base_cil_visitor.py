@@ -52,6 +52,12 @@ class BaseCOOLToCILVisitor:
     def to_function_name(self, method_name, type_name):
         return f'function_{method_name}_{type_name}'
     
+    def to_var_name(self, var_name):
+        for name in self.localvars:
+            if var_name == name.split('_')[2]:
+                return name
+        return ''
+
     def register_function(self, function_name):
         function_node = FunctionNode(function_name, [], [], [])
         self.dotcode.append(function_node)
@@ -81,8 +87,9 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil_node(result, expr))
         return result, typex
 
-    def initialize_attr(self, constructor, attr: Attribute):
+    def initialize_attr(self, constructor, attr: Attribute, scope: Scope):
         if attr.expr:
+            expr, _ = self.visit(attr.expr, scope)
             constructor.body.expr_list.append(AssignNode(attr.name, attr.expr))
         elif attr.type == 'Int':
             constructor.body.expr_list.append(AssignNode(attr.name, ConstantNumNode(0)))
