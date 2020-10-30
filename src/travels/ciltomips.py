@@ -4,7 +4,8 @@ from mips.arithmetic import ADD, DIV, MUL, SUB, SUBU
 from mips.baseMipsVisitor import (BaseCilToMipsVisitor, DotDataDirective,
                                   DotTextDirective)
 import cil.nodes as cil
-from mips.instruction import (FixedData, Label, MOVE, REG_TO_STR, a0, s0,  sp, ra,  v0)
+from mips.instruction import (FixedData, Label, MOVE, REG_TO_STR, a0, s0, sp,
+                              ra, v0, a1)
 import mips.branch as branchNodes
 from functools import singledispatchmethod
 
@@ -59,7 +60,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # de modo que la VTABLE sea indexable y podamos efectuar VCALL en O(1).
         self.register_instruction(
             FixedData(f'{node.name}_vtable',
-                                 ", ".join(x[1] for x in node.methods)))
+                      ", ".join(x[1] for x in node.methods)))
 
         self.comment("\n\n")
 
@@ -78,20 +79,18 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Registrar un puntero a la VTABLE del tipo.
         self.register_instruction(
-            FixedData(f'{node.name}_vtable_pointer',
-                                 f"{node.name}_vtable"))
+            FixedData(f'{node.name}_vtable_pointer', f"{node.name}_vtable"))
 
         # Declarar los atributos: Si los atributos son de tipo string, guardarlos como asciiz
         # de lo contrario son o numeros o punteros y se inicializan como .words
         for attrib in node.attributes:
             if attrib.type.name == "String":
                 self.register_instruction(
-                    FixedData(f'{node.name}_attrib_{attrib.name}',
-                                         r"", 'asciiz'))
+                    FixedData(f'{node.name}_attrib_{attrib.name}', r"",
+                              'asciiz'))
             else:
                 self.register_instruction(
-                    FixedData(f'{node.name}_attrib_{attrib.name}',
-                                         0))
+                    FixedData(f'{node.name}_attrib_{attrib.name}', 0))
 
         # Registrar la direccion de memoria donde termina el tipo para calcular facilmente
         # sizeof
@@ -105,9 +104,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(DotDataDirective())
         if isinstance(node.value, str):
             self.register_instruction(
-                FixedData(node.name,
-                                     f"{node.value}",
-                                     type_='asciiz'))
+                FixedData(node.name, f"{node.value}", type_='asciiz'))
         elif isinstance(node.value, dict):
             # Lo unico que puede ser un diccionario es la TDT. Me parece..... mehh !!??
             # La TDT contiene para cada par (typo1, tipo2), la distancia entre tipo1 y tipo2
@@ -116,11 +113,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             # programa los tipos son unicos).
             for (type1, type2), distance in node.value.items():
                 self.register_instruction(
-                    FixedData(f"__{type1}_{type2}_tdt_entry__",
-                                         distance))
+                    FixedData(f"__{type1}_{type2}_tdt_entry__", distance))
         elif isinstance(node.value, int):
-            self.register_instruction(
-                FixedData(node.name, node.value))
+            self.register_instruction(FixedData(node.name, node.value))
 
     @visit.register
     def _(self, node: cil.FunctionNode):
@@ -446,6 +441,14 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         reg3 = self.get_available_register()
         assert reg1 is not None and reg2 is not None and reg3 is not None, "out of registers"
 
+        # Salvar el puntero a self en a1
+        self.comment("Save current self pointer in $a1")
+        self.register_instruction(MOVE(a1, a0))
+
+        # Actualizar el puntero a self en a0
+        self.comment("Save new self pointer in $a0")
+        self.register_instruction(LW(a0, type_src))
+
         # Cargar el puuntero al tipo en el primer registro
         self.comment("Get pointer to type")
         self.register_instruction(LW(reg1, type_src))
@@ -456,8 +459,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Cargar el puntero a la funcion correspondiente en el tercer registro
         self.comment("Get pointer to function address")
-        self.register_instruction(
-            LW(reg3, f"{i * 4}(${REG_TO_STR[reg2]})"))
+        self.register_instruction(LW(reg3, f"{i * 4}(${REG_TO_STR[reg2]})"))
 
         # saltar hacia la direccion de memoria correspondiente a la funcion
         self.comment("Call function. Result is on $v0")
@@ -465,6 +467,10 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # El resultado viene en $v0
         self.register_instruction(SW(v0, dest))
+
+        # Restaurar el valor antiguo del puntero a self
+        self.comment("Restore self pointer after function call")
+        self.register_instruction(MOVE(a0, a1))
 
         self.used_registers[reg1] = False
         self.used_registers[reg2] = False
