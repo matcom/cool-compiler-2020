@@ -14,8 +14,9 @@ class COOL_CHECKER:
         if verbose:
             print(COOL_FORMATTER().visit(program, tabs=0))
         context = COOL_TYPE_COLLECTOR(errors=self.errors).visit(program)
-        COOL_TYPE_BUILDER(context=context, errors=self.errors).visit(program)
-        COOL_TYPE_CHECKER(context, errors=self.errors).visit(program)
+        if len(self.errors) == 0:
+            COOL_TYPE_BUILDER(context=context, errors=self.errors).visit(program)
+            COOL_TYPE_CHECKER(context, errors=self.errors).visit(program)
         if verbose:
             print(context)
         return not len(self.errors) > 0
