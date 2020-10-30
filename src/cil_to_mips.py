@@ -47,16 +47,16 @@ class CILToMIPSVisitor():
     def visit(self, node):
         mips_comm = self.mips_comm_for_binary_op[node.op]
         self.visit(left)
-        self.mips_code += 'sw $a0 0(sp)\n'
-        self.mips_code += 'addiu $sp $sp -4\n'
+        self.mips_code += 'sw $a0, 0(sp)\n'
+        self.mips_code += 'addiu $sp, $sp, -4\n'
         self.visit(right)
-        self.mips_code += 'lw $t1 4($sp)\n'
-        self.mips_code += f'{mips_comm} $a0 $t1 $a0\n'
-        self.mips_code += 'addiu $sp $sp 4\n'
+        self.mips_code += 'lw $t1, 4($sp)\n'
+        self.mips_code += f'{mips_comm} $a0, $t1, $a0\n'
+        self.mips_code += 'addiu $sp, $sp, 4\n'
     
     @visitor.when(CIL_AST.INTEGER)
     def visit(self, node):
-        self.mips_code += f'li $a0 {node.value}\n'
+        self.mips_code += f'li $a0, {node.value}\n'
 
 if __name__ == '__main__':
     import sys
