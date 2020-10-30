@@ -1,3 +1,4 @@
+from __future__ import annotations
 import itertools as itt
 from typing import List, Dict, Optional
 
@@ -119,6 +120,9 @@ class Attribute:
 
     def __str__(self):
         return f'[attrib] {self.name} : {self.type.name};'
+
+    def __eq__(self, o: Attribute) -> bool:
+        return o.name == self.name and o.type.name == self.type.name
 
     def __repr__(self):
         return str(self)

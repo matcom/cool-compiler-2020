@@ -2,7 +2,8 @@ from abstract.semantics import Type
 from cil.nodes import LocalNode
 from mips.arithmetic import ADD, DIV, MUL, SUB, SUBU
 from mips.baseMipsVisitor import (BaseCilToMipsVisitor, DotDataDirective,
-                                  DotTextDirective)
+                                  DotTextDirective,
+                                  locate_attribute_in_type_hierarchy)
 import cil.nodes as cil
 from mips.instruction import (FixedData, Label, MOVE, REG_TO_STR, a0, s0, sp,
                               ra, v0, a1)
@@ -354,9 +355,12 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Los atributos comienzan en el indice 8($v0)
         for i, attribute in enumerate(instance_type.attributes):
+            attrib_type_name = locate_attribute_in_type_hierarchy(
+                attribute, instance_type)
             # llamar la funcion de inicializacion del atributo
             self.register_instruction(
-                branchNodes.JAL(f"__attrib__{attribute.name}__init"))
+                branchNodes.JAL(
+                    f"__{attrib_type_name}__attrib__{attribute.name}__init"))
             # El valor de retorno viene en v0
             self.register_instruction(
                 SW(dest=v0, src=f"{8 + i*4}(${REG_TO_STR[temp]})"))
@@ -589,7 +593,6 @@ class MipsCodeGenerator(CilToMipsVisitor):
         program = ""
         indent = 0
         for instr in self.program:
-            print(instr)
             line = str(instr)
             if '.data' in line or '.text' in line:
                 indent = 0

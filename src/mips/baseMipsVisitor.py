@@ -2,6 +2,7 @@ from json import load
 
 from typed_ast.ast3 import arg
 from abstract.semantics import Attribute
+from abstract.semantics import Type as SemanticType
 from cil.nodes import TypeNode
 from cil.nodes import CilNode, FunctionNode
 from mips import load_store
@@ -356,3 +357,17 @@ class BaseCilToMipsVisitor:
                 offset += i * 4
                 break
         return offset
+
+
+def locate_attribute_in_type_hierarchy(attribute: Attribute,
+                                       base_type: SemanticType):
+    # El atributo se define por primera vez en el primer tipo que lo contiene
+    # por lo que vamos subiendo por la jerarquia de tipos hasta encontrar
+    # un tipo que no contenga dicho atributo. Este proceso siempre
+    # termina porque la raiz de la jerarquia es Object que no tiene
+    # ningun atributo
+    last = base_type
+    while 1:
+        if attribute not in last.parent.attributes:
+            return last.name
+        last = last.parent

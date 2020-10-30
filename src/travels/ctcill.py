@@ -106,7 +106,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     @visit.register
     def _(self, node: coolAst.AttributeDef, scope: Scope) -> None:
         self.current_function = self.register_function(
-            f"__attrib__{node.idx}__init")
+            f"__{self.current_type.name}__attrib__{node.idx}__init")
         if node.default_value is not None:
             # Generar el codigo de la expresion de inicializacion
             # y devolver el valor de esta
