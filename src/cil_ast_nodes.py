@@ -233,26 +233,30 @@ class Load(Expr):
         return f'LOAD {self.msg};'
 
 class Length(Expr):
-    def __init__(self, variable):
+    def __init__(self, variable, result):
         self.variable = variable
+        self.result = result
 
 class Concat(Expr):
-    def __init__(self, local1, local2):
+    def __init__(self, local1, local2, result):
         self.string1 = local1
         self.string2 = local2
+        self.result = result
 
 class StringVar(Expr):
     def __init__(self, variable):
         self.variable = variable
 
 class SubStr(Expr):
-    def __init__(self, i, j, string):
+    def __init__(self, i, length, string, result):
         self.i = i
-        self.j = j
+        self.length = length
         self.string = string
+        self.result = result
 
 class Read(Expr):
-    pass
+    def __init__(self, variable):
+        self.variable = variable
 
 class ReadString(Read):
     pass
@@ -382,6 +386,30 @@ def get_formatter():
         @visitor.when(Return)
         def visit(self, node):
             return f'\n RETURN {node.value if node.value is not None else ""}'
+
+        @visitor.when(Halt)
+        def visit(self, node):
+            return 'HALT'
+
+        @visitor.when(Length)
+        def visit(self, node):
+            return f'{node.result} = LENGTH {node.variable}'
+
+        @visitor.when(Concat)
+        def visit(self, node):
+            return f'{node.result} = CONCAT {node.string1}  {node.string2}'
+
+        @visitor.when(SubStr)
+        def visit(self, node):
+            return f'{node.result} = SUBSTR {node.i}  {node.length}  {node.string}'
+
+        @visitor.when(Read)
+        def visit(self, node):
+            return f'{node.variable} = READ'
+
+        @visitor.when(Print)
+        def visit(self, node):
+            return f'PRINT {node.variable}'
 
     printer = PrintVisitor()
     return (lambda ast: printer.visit(ast))
