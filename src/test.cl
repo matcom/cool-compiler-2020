@@ -1,8 +1,14 @@
-(*
-<id>(<expr>,...,<expr>)  is shorthand for self.<id>(<expr>,...,<expr>).
-*)
+--The predicate must have static type Bool.
 
-class A inherits Int {
-	f(x: Int, y: Int): Int { x + y };
-	g(x: Int): Int { x + x };
+class A { };
+class B inherits A { };
+class C inherits B { };
+class D inherits B { };
+class E inherits B { }; 
+class F inherits A { }; 
+
+class Main inherits IO {
+	main(): IO { out_string("Hello World!")};
+
+	a: A <- if new F then new D else new C fi; 
 };

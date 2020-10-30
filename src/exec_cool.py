@@ -3,7 +3,7 @@ from Parser import CoolParser
 from semantic import CoolSemantic
 import sys
 
-file = open("F:/cool-compiler-2020/src/test.cl", 'r')
+file = open("/media/karl/Datos/cool-compiler-2020/src/test.cl", 'r')
 cool_lexer = CoolLexer()
 errors_lexer = cool_lexer.tokenize(file.read())
 # errors_lexer = cool_lexer.tokenize('''''')
@@ -25,6 +25,6 @@ cool_sematic= CoolSemantic(ast)
 semantics_error = cool_sematic.check_semantics()
 
 if len(semantics_error) > 0:
-    for error in semantics_error:gi
+    for error in semantics_error:
         print(error.text)
     exit(1)
