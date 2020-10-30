@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [ tests ]
+    branches: [ tests, cbermudez ]
   pull_request:
-    branches: [ tests ]
+    branches: [ tests, cbermudez ]
 
 jobs:
   lexer:
