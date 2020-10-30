@@ -70,13 +70,15 @@ class TypeBuilder:
                 indeg[v] += 1
 
         roots = [key for key in indeg.keys() if indeg[key] == 0]
-        if len(roots) > 1:
-            error = ErrorSemantic("The graph of types is not a tree", 0, 0, 'TypeError')
-            self.errors.append(error)
+        # if len(roots) > 1:
+        #     error = ErrorSemantic("The graph of types is not a tree", 0, 0, 'TypeError')
+        #     self.errors.append(error)
         for v in roots:
             self.visit_component(v)
         
-        for t in self.visited:
+        visited = [x for x in self.visited]
+        visited.reverse()
+        for t in visited:
             if not self.visited[t] and not t in BUILTIN_TYPES:
                 class_node = self.context.classes[t]
                 error = ErrorSemantic("Exist a cycle that start in type {}".format(t), class_node.line, class_node.column)
