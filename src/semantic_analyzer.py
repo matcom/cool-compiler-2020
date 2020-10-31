@@ -223,7 +223,7 @@ class TypeChecker:
         scope.define_variable('self', self.current_type)
 
         attributes = self.current_type.get_all_attributes()
-        for attr in attributes:
+        for _, attr in attributes:
             if attr.type.name == 'SELF_TYPE':
                 scope.define_variable(attr.name, self.current_type)
             else:
