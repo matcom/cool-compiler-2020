@@ -16,40 +16,47 @@ def report(errors: list):
 def pipeline(program: str, deep: int, file_name: str) -> None:
     try:
         program = find_comments(program)
+        # Tratar los \t en el programa como 4 espacios por comodidad
+        # a la hora de reportar errores de fila y columna
+        program = program.replace('\t', ' ' * 4)
     except AssertionError as e:
         print(e)
         sys.exit(1)
 
-    # Right now, program has no comments, so is safe to pass it to the LEXER
+    # El programa no contiene comentarios en esta fase
+    # por lo que es seguro pasarselo al LEXER
     try:
         tokens = LEXER(program)
     except Exception as e:
         print(e)
         sys.exit(1)
 
-    # Parse the tokens to obtain a derivation tree
+    # Parsear los tokens para obtener un arbol de derivacion
     try:
         parse = PARSER(tokens)
     except Exception as e:
         print(e)
         sys.exit(1)
-    # build the AST from the obtained parse
+    # Construir el AST a partir del arbol de derivacion obtenido
     try:
         ast = evaluate_right_parse(parse, tokens[:-1])
     except Exception as e:
         print(e)
         sys.exit(1)
-    #####################
-    # Start the visitors #
-    ######################
+    ########################
+    # Empezar los visitors #
+    ########################
 
-    # Run type checker visitor
+    # Ejecutar los visitors que recolectan los tipos,
+    # los crean y luego realizan un chequeo semantico
+    # sobre el programa y la inferencia de tipos
     errors, context, scope = ast.check_semantics(deep)
     if errors:
         report(errors)
         sys.exit(1)
 
-    # Run Cool to CIL visitor
+    # Correr el visitor que transforma el AST de COOL
+    # en un AST de CIL
     cil_visitor = CoolToCILVisitor(context)
     try:
         cil_program = cil_visitor.visit(ast, scope)
@@ -59,8 +66,11 @@ def pipeline(program: str, deep: int, file_name: str) -> None:
 
     assert isinstance(cil_program, CilProgramNode)
 
-    # Run CIL to MIPS visitor
+    # Convertir el AST de CIL en instrucciones de MIPS
     code_gen = MipsCodeGenerator()
+
+    # Obtener la representacion en str de las instrucciones
+    # en MIPS
     file_str = code_gen(cil_program)
 
     with open(f"{file_name}.mips", "w+") as f:

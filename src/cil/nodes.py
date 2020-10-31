@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import List, Tuple, Union
 from abstract.semantics import Attribute, Method, Type
 """
@@ -9,6 +10,11 @@ node would known how to generate its corresponding MIPS Code.
 
 class CilNode:
     pass
+
+
+class BuiltInNode(CilNode):
+    def __init__(self, dest: LocalNode) -> None:
+        self.dest = dest
 
 
 class CilProgramNode(CilNode):
@@ -71,7 +77,8 @@ class PlusNode(ArithmeticNode):
 
 
 class MinusNode(ArithmeticNode):
-    def __init__(self, x: LocalNode, y: LocalNode, dest: LocalNode):
+    def __init__(self, x: Union[LocalNode, int, ParamNode],
+                 y: Union[LocalNode, int, ParamNode], dest: LocalNode):
         self.x = x
         self.y = y
         self.dest = dest
@@ -183,19 +190,19 @@ class LoadNode(InstructionNode):
         self.message = message
 
 
-class LengthNode(InstructionNode):
+class LengthNode(BuiltInNode):
     pass
 
 
-class ConcatNode(InstructionNode):
+class ConcatNode(BuiltInNode):
     pass
 
 
-class PrefixNode(InstructionNode):
+class PrefixNode(BuiltInNode):
     pass
 
 
-class SubstringNode(InstructionNode):
+class SubstringNode(BuiltInNode):
     pass
 
 
@@ -227,3 +234,13 @@ class GetTypeIndex(InstructionNode):
     def __init__(self, itype: str, dest: str):
         self.itype = itype
         self.dest = dest
+
+
+class SelfNode(InstructionNode):
+    def __init__(self, dest: LocalNode) -> None:
+        self.dest = dest
+
+
+class NotNode(InstructionNode):
+    def __init__(self, src: LocalNode) -> None:
+        self.src = src

@@ -1,5 +1,6 @@
+import re
 from cloudpickle.cloudpickle import instance
-from abstract.tree import AssignNode
+from abstract.tree import AssignNode, SelfNode
 import cil.baseCilVisitor as baseCilVisitor
 import abstract.tree as coolAst
 import abstract.semantics as semantics
@@ -7,7 +8,20 @@ import cil.nodes as cil
 from typing import List, Optional, Tuple
 from functools import singledispatchmethod
 
-from cil.nodes import CilNode, LocalNode, ParamNode, ReturnNode
+from cil.nodes import CilNode, ConcatNode, LengthNode, LocalNode, ParamNode, PrintNode, ReadNode, ReturnNode, SubstringNode
+
+BUILT_IN_METHODS = {
+    'concat': ConcatNode,
+    'length': LengthNode,
+    'substr': SubstringNode,
+    'out_string': PrintNode,
+    'out_int': PrintNode,
+    'in_string': ReadNode,
+    'in_int': ReadNode
+}
+
+BUILTINS = ('concat', 'length', 'substr', 'out_string', 'out_int', 'in_string',
+            'in_int')
 
 ExpressionReturn = Tuple[List[cil.InstructionNode], List[cil.LocalNode]]
 Scope = semantics.Scope
@@ -225,6 +239,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Diferenciar la variable si es un parametro, un atributo o una variable local
         # en el scope actual
         if vinfo.location == "PARAM":
+
             for param_node in self.params:
                 if vinfo.name in param_node.name:
                     return param_node
@@ -265,17 +280,17 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Generar el codigo para el rvalue (expr)
         rvalue_vm_holder = self.visit(self, node.expr)
-        assert isinstance(rvalue_vm_holder, LocalNode)
 
         # Es necesario diferenciar entre variable y atributo.
         # Las variables se diferencian en si son locales al
         # metodo que estamos creando o si son atributos.
-        if scope.is_local(node.idx):
+        if isinstance(rvalue_vm_holder, ParamNode) or  scope.is_local(node.idx):
             # registrar la instruccion de asignacion
             self.register_instruction(
                 cil.AssignNode(node.idx, rvalue_vm_holder))
         else:
             assert self.current_type is not None
+            assert isinstance(rvalue_vm_holder, LocalNode)
             self.register_instruction(
                 cil.SetAttributeNode(self.current_type, node.idx,
                                      rvalue_vm_holder))
@@ -290,7 +305,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         cond_vm_holder = self.visit(node.cond, scope)
 
         # Probar la condicion, si es true continuar la ejecucion, sino saltar al LABEL end
-        assert isinstance(cond_vm_holder, LocalNode)
+        assert isinstance(cond_vm_holder,
+                          LocalNode), cond_vm_holder.__class__.__name__
         self.register_instruction(cil.IfZeroJump(cond_vm_holder, end_label))
 
         # Registrar las instrucciones del cuerpo del while
@@ -502,7 +518,22 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     # *******************
 
     @visit.register
-    def _(self, node: coolAst.EqualToNode, scope: Scope) -> int:
+    def _(self, node: coolAst.NegNode, scope: Scope):
+        # Obtener el valor de la expresion
+        expr_result = self.visit(node.lex, scope)
+        result_vm_holder = self.define_internal_local()
+
+        if isinstance(expr_result, int):
+            self.register_instruction(
+                cil.AssignNode(result_vm_holder, abs(expr_result - 1)))
+            return result_vm_holder
+        else:
+            assert isinstance(expr_result, LocalNode)
+            self.register_instruction(cil.NotNode(expr_result))
+            return expr_result
+
+    @visit.register
+    def _(self, node: coolAst.EqualToNode, scope: Scope) -> LocalNode:
         expr_result_vm_holder = self.define_internal_local()
         true_label = self.do_label("TRUE")
         end_label = self.do_label("END")
@@ -514,8 +545,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         right_vm_holder = self.visit(node.right, scope)
 
         # Realizar una resta y devolver el resultado
-        assert isinstance(left_vm_holder, LocalNode) and isinstance(
-            right_vm_holder, LocalNode)
+        assert (isinstance(left_vm_holder, LocalNode) or isinstance(left_vm_holder, int) or isinstance(left_vm_holder, ParamNode)) and (isinstance(
+            right_vm_holder, LocalNode) or isinstance(right_vm_holder, int) or isinstance(right_vm_holder, ParamNode))
 
         self.register_instruction(
             cil.MinusNode(left_vm_holder, right_vm_holder,
@@ -531,7 +562,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Si la resta da 0, devolver 1
         self.register_instruction(cil.LabelNode(true_label))
-        expr_result_vm_holder = 1
+        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
 
         self.register_instruction(cil.LabelNode(end_label))
 
@@ -714,6 +745,12 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         return return_expr_vm_holder
 
+    @visit.register
+    def _(self, node: SelfNode, scope: Scope) -> LocalNode:
+        return_expr_vm_holder = self.define_internal_local()
+        self.register_instruction(cil.SelfNode(return_expr_vm_holder))
+        return return_expr_vm_holder
+
 
 class CilDisplayFormatter:
     @singledispatchmethod
@@ -847,6 +884,14 @@ class CilDisplayFormatter:
     @visit.register
     def _(self, node: cil.GetAttributeNode):
         return f'{node.dest.name} = GETATTRIBUTE {node.attrname} {node.itype.name}'
+
+    @visit.register
+    def _(self, node: cil.SelfNode):
+        return f'{node.dest.name} = SELF'
+
+    @visit.register
+    def _(self, node: cil.NotNode):
+        return f'NOT {node.src.name}'
 
     def __call__(self, node) -> str:
         return self.visit(node)

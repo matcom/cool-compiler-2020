@@ -1,12 +1,12 @@
 from abstract.semantics import Type
 from cil.nodes import LocalNode
-from mips.arithmetic import ADD, DIV, MUL, SUB, SUBU
+from mips.arithmetic import ADD, DIV, MUL, NOR, SUB, SUBU
 from mips.baseMipsVisitor import (BaseCilToMipsVisitor, DotDataDirective,
                                   DotTextDirective,
                                   locate_attribute_in_type_hierarchy)
 import cil.nodes as cil
 from mips.instruction import (FixedData, Label, MOVE, REG_TO_STR, a0, s0, sp,
-                              ra, v0, a1)
+                              ra, v0, a1, zero)
 import mips.branch as branchNodes
 from functools import singledispatchmethod
 
@@ -412,6 +412,28 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(branchNodes.J(node.label))
 
     @visit.register
+    def _(self, node: cil.NotNode):
+        self.add_source_line_comment(node)
+        # Hay que cambiar lo que hay en dest, si es 1 poner 0
+        # y si es 0 poner 1
+        dest = self.visit(node.src)
+        assert dest is not None
+        reg = self.get_available_register()
+        assert reg is not None
+
+        self.comment("Load value in register")
+        self.register_instruction(LW(reg, dest))
+
+        # a nor 0 = not (a or 0) = not a
+        self.comment("a nor 0 = not (a or 0) = not a")
+        self.register_instruction(NOR(reg, reg, zero))
+
+        self.comment("Store negated value")
+        self.register_instruction(SW(reg, dest))
+
+        self.used_registers[reg] = False
+
+    @visit.register
     def _(self, node: cil.StaticCallNode):
 
         # Registrar un comentario con la linea fuente
@@ -576,6 +598,14 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
     def _(self, node: int):
         return node
 
+    @visit.register
+    def _(self, node: cil.SelfNode):
+        dest = self.visit(node.dest)
+        assert dest is not None
+        # El puntero a self siempre se guarda en el registro $a0
+        self.add_source_line_comment(node)
+        self.register_instruction(SW(a0, dest))
+
 
 class MipsCodeGenerator(CilToMipsVisitor):
     """
@@ -600,6 +630,6 @@ class MipsCodeGenerator(CilToMipsVisitor):
             if '#' not in line and (':' in line and 'end' not in line):
                 if 'word' not in line and 'asciiz' not in line and 'byte' not in line:
                     indent += 1
-            if "END" in line or "end" in line:
+            if '#' not in line and ("END" in line or "end" in line):
                 indent -= 1
         return program

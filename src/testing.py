@@ -15,6 +15,7 @@ def report(errors: list):
 def pipeline(program: str, deep: int) -> None:
     try:
         program = find_comments(program)
+        program = program.replace('\t', ' ' * 4)
     except AssertionError as e:
         print(e)
         sys.exit(1)
@@ -59,35 +60,36 @@ def pipeline(program: str, deep: int) -> None:
     print(source)
 
 
-text = """
-class A {
-    a : Int ;
-    suma ( a : AUTO_TYPE , b : Int ) : AUTO_TYPE {
-        a + b
-    };
-    b : Int ;
+text = r"""
+class Main inherits IO {
+	-- the class has features. Only methods in this case.
+	main(): Object {
+		{
+			out_string("Enter n to find nth fibonacci number!\n");
+			out_int(fib(in_int()));
+			out_string("\n");
+		}
+	};
+
+	fib(i : Int) : Int {	-- list of formals. And the return type of the method.
+			let a : Int <- 1,
+					b : Int <- 0,
+					c : Int <- 0
+			in
+			{
+			while (not (i = 0)) loop	-- expressions are nested.
+			{
+				c <- a + b;
+				i <- i - 1;
+				b <- a;
+				a <- c;
+			}
+			pool;
+			c;
+			}
+	};
+
 };
 
-class B inherits A {
-    c : Int ;
-    f ( d : Int , a : A ) : AUTO_TYPE { {
-        let f : AUTO_TYPE <- 10 in 8 ;
-        let c : AUTO_TYPE <- a. suma ( 5 , f ) in c ;
-        c;
-    } };
-
-    get_a() : Int {
-        a
-    };
-};
-
-class Main {
-
-    main(): Object {
-        {
-            (new B).f(5, (new A));
-        }
-    };
-};
 """
 pipeline(text, 5)

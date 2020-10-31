@@ -2,7 +2,7 @@
 Contenedor para la funcion que construye la gramatica de cool.
 '''
 from grammar.grammar import Grammar
-from abstract.tree import ProgramNode, ClassDef, MethodDef, AttributeDef, Param, VariableDeclaration
+from abstract.tree import ProgramNode, ClassDef, MethodDef, AttributeDef, Param, SelfNode, VariableDeclaration
 from abstract.tree import PlusNode, DivNode, MulNode, DifNode, IntegerConstant, FunCall
 from abstract.tree import VariableCall, FalseConstant, StringConstant, TrueConstant
 from abstract.tree import GreaterEqualNode, LowerThanNode, LowerEqual, AssignNode, IfThenElseNode
@@ -101,7 +101,8 @@ def build_cool_grammar():
 
     exp %= idx + assign + exp, lambda s: AssignNode(s[1], s[3])
 
-    exp %= while_ + exp + loop + statement_list + pool, lambda s: WhileBlockNode(s[2], s[5])
+    exp %= while_ + exp + loop + statement_list + pool, lambda s: WhileBlockNode(
+        s[2], s[4])
 
     exp %= atom, lambda s: s[1]
 
@@ -147,7 +148,8 @@ def build_cool_grammar():
 
     factor %= string_const, lambda s: s[1]
 
-    factor %= idx + opar + args_list_empty + cpar, lambda s: FunCall('self', s[1], s[3])
+    factor %= idx + opar + args_list_empty + cpar, lambda s: FunCall(
+        SelfNode(), s[1], s[3])
 
     factor %= factor + arroba + typex + period + idx + opar + args_list_empty + cpar, lambda s: ParentFuncCall(s[1], s[3], s[5], s[7])
 

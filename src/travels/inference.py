@@ -3,8 +3,8 @@ from typing import Optional
 
 import abstract.semantics as semantic
 import abstract.tree as coolAst
-from abstract.semantics import SemanticError, Type
-from abstract.tree import IsVoidNode
+from abstract.semantics import Scope, SemanticError, Type
+from abstract.tree import IsVoidNode, SelfNode
 from travels.context_actions import (update_attr_type, update_method_param,
                                      update_scope_variable)
 
@@ -38,6 +38,7 @@ class TypeInferer:
         self.STRING = self.context.get_type('String')
         self.BOOL = self.context.get_type('Bool')
         self.AUTO_TYPE = self.context.get_type('AUTO_TYPE')
+        self.SELF_TYPE = self.context.get_type('SELF_TYPE')
         self.errors = errors
         self.current_method: Optional[semantic.Method] = None
 
@@ -123,7 +124,7 @@ class TypeInferer:
             elif not return_type.conforms_to(atrib.type):
                 self.errors.append(
                     f'Attribute {node.idx} of type {atrib.type.name} can not be initialized with \
-                    an expression of type {return_type.name}'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         )
+                    an expression of type {return_type.name}'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        )
 
     # ---------------------------------------------------------------------
     # Si el método no tiene un tipo definido, entonces tratar de inferir  |
@@ -133,12 +134,15 @@ class TypeInferer:
     # ---------------------------------------------------------------------
     @visit.register
     def _(self, node: coolAst.MethodDef, scope, infered_type=None, deep=1):
+        assert self.current_type is not None
         method = self.current_type.get_method(node.idx)
         self.current_method = method
         for param in node.param_list:
             self.visit(param, scope, deep=deep)
 
         last = self.visit(node.statements, scope, deep=deep)
+        if last.name == 'SELF_TYPE':
+            last = self.current_type
         if not method.return_type != self.AUTO_TYPE:
             method.return_type = last
         else:
@@ -298,10 +302,14 @@ class TypeInferer:
           node: coolAst.FunCall,
           scope: semantic.Scope,
           infered_type=None,
-          deep=1):  # noqa: F811
+          deep=1):
+        assert self.current_type is not None
         # Detectar el tipo estatico de la expr0.
         static_expr0_type: semantic.Type = self.visit(node.obj, scope,
                                                       infered_type, deep)
+
+        if static_expr0_type.name == "SELF_TYPE":
+            static_expr0_type = self.current_type
 
         # Encontrar el metodo en el tipo.
         method: semantic.Method = static_expr0_type.get_method(node.id)
@@ -501,7 +509,7 @@ class TypeInferer:
 
     @visit.register
     def _(self,
-          node: coolAst.NotNode,
+          node: coolAst.NegNode,
           scope: semantic.Scope,
           infered_type=None,
           deep=1) -> Type:
@@ -535,3 +543,7 @@ class TypeInferer:
     @visit.register
     def _(self, node: coolAst.IsVoidNode, scope, infered_type=None, deep=1):
         return self.BOOL
+
+    @visit.register
+    def _(self, node: SelfNode, scope, infered_type=None, deep=1):
+        return self.SELF_TYPE

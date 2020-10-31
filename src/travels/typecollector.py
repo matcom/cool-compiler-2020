@@ -118,8 +118,8 @@ class TypeCollector:
     @visit.register  # type: ignore
     def _(self, node: coolAst.ProgramNode):  # noqa: F811
         self.context = Context()
-        OBJECT, INTEGER, STRING, BOOL, VOID = ObjectType(), IntegerType(
-        ), StringType(), BoolType(), VoidType()
+        OBJECT, INTEGER, STRING, BOOL, VOID, SELF_TYPE = ObjectType(
+        ), IntegerType(), StringType(), BoolType(), VoidType(), SelfType()
         ioType = IoType()
         INTEGER.set_parent(OBJECT)
         STRING.set_parent(OBJECT)
@@ -138,6 +138,7 @@ class TypeCollector:
         self.context.types['Void'] = VOID
         self.context.types['AUTO_TYPE'] = AutoType()
         self.context.types['IO'] = ioType
+        self.context.types['SELF_TYPE'] = SELF_TYPE
 
         for class_ in node.class_list:
             self.visit(class_)

@@ -271,3 +271,7 @@ class BlockNode(ExpressionNode):
 class IsVoidNode(ExpressionNode):
     def __init__(self, expr):
         self.expr: ExpressionNode = expr
+
+
+class SelfNode(ExpressionNode):
+    pass
