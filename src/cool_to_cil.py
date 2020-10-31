@@ -214,8 +214,7 @@ class BaseCOOLToCILVisitor:
         bool_cil.methods = [(method, self.to_function_name(method, kclass)) for kclass, method in int_type.get_all_methods()]
 
 
-
-class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
+class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.on('node')
     def visit(self, node, scope):
         pass
@@ -699,7 +698,7 @@ if __name__ == '__main__':
         if semantic_analyzer.errors:    
             exit(1)
         
-        cool_to_cil = MiniCOOLToCILVisitor(context)
+        cool_to_cil = COOLToCILVisitor(context)
         cil_ast = cool_to_cil.visit(cool_ast)
 
         formatter = CIL_AST.get_formatter()
