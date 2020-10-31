@@ -235,10 +235,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_function = None
 
         self.register_data('Execution aborted')
-
+        
         #Add built-in types in .TYPES section
         self.register_builtin_types(scope)
-        
         
         for klass in node.classes:
             self.visit(klass, scope.create_child())
@@ -256,17 +255,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         scope.define_cil_local("self", self.current_type, self.current_type.name)
 
+        func_declarations = (f for f in node.features if isinstance(f, COOL_AST.ClassMethod))
         attr_declarations = (a for a in node.features if not isinstance(a, COOL_AST.ClassMethod))
         for attr in attr_declarations:
             scope.define_cil_local(attr.name, attr.type, node.name)
 
-        func_declarations = (f for f in node.features if isinstance(f, COOL_AST.ClassMethod))
-        for feature, child_scope in zip(func_declarations, scope.children):
-            self.visit(feature, child_scope)
-        
-        attr_declarations = (f for f in node.features if not isinstance(f, COOL_AST.ClassMethod))
-
-        instance = self.define_internal_local()
+        instance = self.define_internal_local(scope=scope, name="instance", class_type=self.current_type.name)
         self.register_instruction(CIL_AST.Allocate(node.name, instance))
         self.current_type.instance = instance
 
@@ -275,7 +269,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_param(VariableInfo('instance', None))
 
         #Init parents recursively
-        result = self.define_internal_local()
+        result = self.define_internal_local(scope=scope, name = "result")
         self.register_instruction(CIL_AST.Arg(instance))
         self.register_instruction(CIL_AST.Call(self.to_function_name('init', node.parent), result))
 
@@ -284,8 +278,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         self.register_instruction(CIL_AST.Return(0))
         #---------------------------------------------------------------
-
         self.current_function = None
+        
         for feature in func_declarations:
             self.visit(feature, scope.create_child())
                 
