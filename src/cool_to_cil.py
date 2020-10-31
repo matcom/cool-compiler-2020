@@ -605,7 +605,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         return result_local
 
-    @visitor.when(COOL_AST.Identifier)
+   @visitor.when(COOL_AST.Identifier)
     def visit(self, node, scope):
         cil_name = scope.find_cil_local(node.name)
         if cil_name == None and self.is_defined_param(node.name):
@@ -619,13 +619,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     
     @visitor.when(COOL_AST.INTEGER)
     def visit(self, node, scope):
-        instance = self.define_internal_local()
-        self.register_instruction(CIL_AST.Allocate('Int', instance))
-        self.register_instruction(CIL_AST.Arg(instance))
-        self.register_instruction(CIL_AST.Arg(node.value))
-        result = self.define_internal_local()
-        self.register_instruction(CIL_AST.Call(self.to_function_name('init', 'Int'), result))
-        return instance
+        return node.value
 
     @visitor.when(COOL_AST.STRING)
     def visit(self, node, scope):
@@ -639,26 +633,14 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         result_local = self.define_internal_local(scope=scope)
         self.register_instruction(CIL_AST.Load(str_name, result_local))
-        instance = self.define_internal_local()
-        self.register_instruction(CIL_AST.Allocate('String', instance))
-        self.register_instruction(CIL_AST.Arg(instance))
-        self.register_instruction(CIL_AST.Arg(result_local))
-        result = self.define_internal_local()
-        self.register_instruction(CIL_AST.Call(self.to_function_name('init', 'String'), result))
-        return instance   
+        return result_local
         
     @visitor.when(COOL_AST.Boolean)
     def visit(self, node, scope):
-        val = 0
         if str(node.value) == "true":
-            val = 1
-        instance = self.define_internal_local()
-        self.register_instruction(CIL_AST.Allocate('Bool', instance))
-        self.register_instruction(CIL_AST.Arg(instance))
-        self.register_instruction(CIL_AST.Arg(val))
-        result = self.define_internal_local()
-        self.register_instruction(CIL_AST.Call(self.to_function_name('init', 'Bool'), result))
-        return instance
+            return 1
+        else:
+            return 0
 
 if __name__ == '__main__':
     import sys
