@@ -256,8 +256,8 @@ class SubStr(Expr):
         self.result = result
 
 class Read(Expr):
-    def __init__(self, variable):
-        self.variable = variable
+    def __init__(self, result):
+        self.result = result
 
 class ReadString(Read):
     pass
@@ -275,19 +275,17 @@ class PrintString(Print):
 class PrintInteger(Print):
     pass
 
-class Compare(Expr):
-    def __init__(self, left, right, dest):
-        self.left = left
-        self.right = right
-        self.local_dest = dest
 
 class IsVoid(Expr):
     def __init__(self, local):
         self.local = local
 
+class Copy(Expr):
+    def __init__(self, type, local_dest):
+        self.type = type
+        self.local_dest = local_dest
 
-class EqualsString(Compare):
-    pass
+
 
 def get_formatter():
 
@@ -406,7 +404,7 @@ def get_formatter():
 
         @visitor.when(Read)
         def visit(self, node):
-            return f'{node.variable} = READ'
+            return f'{node.result} = READ'
 
         @visitor.when(Print)
         def visit(self, node):
