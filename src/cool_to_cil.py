@@ -1,6 +1,3 @@
-from cil_types_collector import CILTypesCollector
-from cil_data_collector import CILDataCollector
-from cil_code_builder import CILCodeBuilder
 from semantic import Scope, VariableInfo
 import visitor
 import ast_nodes as COOL_AST
@@ -334,7 +331,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_type.instance = instance
 
         #-------------------------Init---------------------------------
-        self.current_function = self.to_function_name('init', node.name)
+        self.current_function = self.register_function(self.to_function_name('init', node.name))
         self.register_param(VariableInfo('instance', None))
 
         #Init parents recursively
