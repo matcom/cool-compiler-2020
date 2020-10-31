@@ -48,15 +48,18 @@ class SyntacticError(Error):
     def __init__(self, row, col, message):
         super().__init__(row, col, SYNTACTIC_ERR, message)
 
-class NameError(Error):
+class CSemanticError(Error):
+    def __init__(self, row, col, message):
+        super().__init__(row, col, SEMANTIC_ERR, message)
+
+class CNameError(Error):
     def __init__(self, row, col, message):
         super().__init__(row, col, NAME_ERR, message)
 
-class TypeError(Error):
+class CTypeError(Error):
     def __init__(self, row, col, message):
         super().__init__(row, col, TYPE_ERR, message)
 
-# Base Semantic for others Errors, redefine constructor      
-class BaseSemanticError(Error):
+class CAttributeError(Error):
     def __init__(self, row, col, message):
-        super().__init__(row, col, SEMANTIC_ERR, message)
+        super().__init__(row, col, ATTRIBUTE_ERR, message)

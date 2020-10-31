@@ -18,13 +18,19 @@ class CoolParser(State):
         self.errors = self.lexer.errors + self.errors
         return ast
 
+    def token_pos(self, p, idx):
+        line = self.lexer.lexer.lineno
+        col = find_column(self.lexer.lexer.lexdata, p.lexpos(idx))
+        return line, col
+
     # Set the grammar start symbol
     start = 'program'
 
     # Program Rule
     def p_program(self, p):
         '''program : class_list'''
-        p[0] = ProgramNode(p[1])
+        line, col = self.token_pos(p, 0)
+        p[0] = ProgramNode(line, col, p[1])
 
     # Empty Production
     def p_empty(self, p):
@@ -44,10 +50,11 @@ class CoolParser(State):
     def p_def_class(self, p):
         '''def_class : CLASS TYPEID LBRACE feature_list RBRACE SEMI
                      | CLASS TYPEID INHERITS TYPEID LBRACE feature_list RBRACE SEMI'''
+        line, col = self.token_pos(p, 1)
         if p[3].lower() == 'inherits':
-            p[0] = ClassDeclarationNode(p[2], p[6], p[4])
+            p[0] = ClassDeclarationNode(line, col, p[2], p[6], p[4])
         else:
-            p[0] = ClassDeclarationNode(p[2], p[4])
+            p[0] = ClassDeclarationNode(line, col, p[2], p[4])
 
     # Class Feature List Rules
     def p_feature_list(self, p):
@@ -63,15 +70,17 @@ class CoolParser(State):
     def p_def_attr(self, p):
         '''def_attr : ID COLON TYPEID
                     | ID COLON TYPEID ASSIGN expr'''
+        line, col = self.token_pos(p, 1)
         try:
-            p[0] = AttrDeclarationNode(p[1], p[3], p[5])
+            p[0] = AttrDeclarationNode(line, col, p[1], p[3], p[5])
         except:
-            p[0] = AttrDeclarationNode(p[1], p[3])
+            p[0] = AttrDeclarationNode(line, col, p[1], p[3])
 
     # Func Definition Rules
     def p_def_func(self, p):
         '''def_func : ID LPAREN param_list RPAREN COLON TYPEID LBRACE expr RBRACE'''
-        p[0] = FuncDeclarationNode(p[1], p[3], p[6], p[8])
+        line, col = self.token_pos(p, 1)
+        p[0] = FuncDeclarationNode(line, col, p[1], p[3], p[6], p[8])
 
     # Func Parameters List Rules
     def p_param_list_ept(self, p):
@@ -103,20 +112,21 @@ class CoolParser(State):
                 | CASE expr OF cases_list ESAC
                 | IF expr THEN expr ELSE expr FI
                 | WHILE expr LOOP expr POOL'''
-
+        line, col = self.token_pos(p, 1)
         if p[1].lower() == 'let':
-            p[0] = LetNode(p[2], p[4])
+            p[0] = LetNode(line, col, p[2], p[4])
         elif p[1].lower() == 'case':
-            p[0] = CaseNode(p[2], p[4])
+            p[0] = CaseNode(line, col, p[2], p[4])
         elif p[1].lower() == 'if':
-            p[0] = ConditionalNode(p[2], p[4], p[6])
+            p[0] = ConditionalNode(line, col, p[2], p[4], p[6])
         elif p[1].lower() == 'while':
-            p[0] = WhileNode(p[2], p[4])
+            p[0] = WhileNode(line, col, p[2], p[4])
 
     # Assign Production
     def p_expr_assign(self, p):
         '''expr : ID ASSIGN expr'''
-        p[0] = AssignNode(p[1], p[3])
+        line, col = self.token_pos(p, 2)
+        p[0] = AssignNode(line, col, p[1], p[3])
 
     # Precedence Production
     def p_expr_arith(self, p):
@@ -137,9 +147,11 @@ class CoolParser(State):
         '''let_assign : param ASSIGN expr
                       | param'''
         try:
-            p[0] = VarDeclarationNode(p[1][0], p[1][1], p[3])
+            line, col = self.token_pos(p, 2)
+            p[0] = VarDeclarationNode(line, col, p[1][0], p[1][1], p[3])
         except:
-            p[0] = VarDeclarationNode(p[1][0], p[1][1])
+            line, col = self.token_pos(p, 0)
+            p[0] = VarDeclarationNode(line, col, p[1][0], p[1][1])
 
     # Case Rules
 
@@ -153,7 +165,8 @@ class CoolParser(State):
 
     def p_case(self, p):
         '''case : ID COLON TYPEID WITH expr'''
-        p[0] = OptionNode(p[1], p[3], p[5])
+        line, col = self.token_pos(p, 0)
+        p[0] = OptionNode(line, col, p[1], p[3], p[5])
 
     #   Arith Operations
     # -------------------
@@ -178,20 +191,21 @@ class CoolParser(State):
                 | expr LESS expr
                 | expr LESSQ expr
                 | expr EQUALS expr'''
+        line, col = self.token_pos(p, 2)
         if p[2] == '+':
-            p[0] = SumNode(p[1], p[3])
+            p[0] = SumNode(line, col, p[1], p[3])
         elif p[2] == '-':
-            p[0] = DiffNode(p[1], p[3])
+            p[0] = DiffNode(line, col, p[1], p[3])
         elif p[2] == '*':
-            p[0] = StarNode(p[1], p[3])
+            p[0] = StarNode(line, col, p[1], p[3])
         elif p[2] == '/':
-            p[0] = DivNode(p[1], p[3])
+            p[0] = DivNode(line, col, p[1], p[3])
         elif p[2] == '<':
-            p[0] = LessNode(p[1], p[3])
+            p[0] = LessNode(line, col, p[1], p[3])
         elif p[2] == '<=':
-            p[0] = LessEqualNode(p[1], p[3])
+            p[0] = LessEqualNode(line, col, p[1], p[3])
         elif p[2] == '=':
-            p[0] = EqualNode(p[1], p[3])
+            p[0] = EqualNode(line, col, p[1], p[3])
 
     # Unary Operations Rules
 
@@ -199,12 +213,13 @@ class CoolParser(State):
         '''expr : BITNOT expr
                 | ISVOID expr
                 | NOT expr'''
+        line, col = self.token_pos(p, 1)
         if p[1] == '~':
-            p[0] = BitNotNode(p[2])
+            p[0] = BitNotNode(line, col, p[2])
         elif p[1].lower() == 'isvoid':
-            p[0] = IsVoidNode(p[2])
+            p[0] = IsVoidNode(line, col, p[2])
         elif p[1].lower() == 'not':
-            p[0] = NotNode(p[2])
+            p[0] = NotNode(line, col, p[2])
 
     def p_arith_basecall(self, p): 
         '''arith : base_call'''
@@ -216,17 +231,21 @@ class CoolParser(State):
         '''base_call : fact ARROBA TYPEID DOT func_call
                      | fact'''
         try:
-            p[0] = ParentCallNode(p[1], p[3], p[5][0], p[5][1])
+            line, col = self.token_pos(p, 2)
+            p[0] = ParentCallNode(line, col, p[1], p[3], p[5][0], p[5][1])
         except:
+            line, col = self.token_pos(p, 0)
             p[0] = p[1]
 
     def p_factcall(self, p):
         '''fact : fact DOT func_call
                 | func_call'''
         try:
-            p[0] = ExprCallNode(p[1], p[3][0], p[3][1])
+            line, col = self.token_pos(p, 2)
+            p[0] = ExprCallNode(line, col, p[1], p[3][0], p[3][1])
         except:
-            p[0] = SelfCallNode(p[1][0], p[1][1])
+            line, col = self.token_pos(p, 0)
+            p[0] = SelfCallNode(line, col, p[1][0], p[1][1])
 
     def p_func_call(self, p):
         '''func_call : ID LPAREN arg_list RPAREN'''
@@ -260,19 +279,23 @@ class CoolParser(State):
 
     def p_atom_int(self, p):
         '''atom : INTEGER'''
-        p[0] = IntegerNode(p[1])
+        line, col = self.token_pos(p, 1)
+        p[0] = IntegerNode(line, col, p[1])
 
     def p_atom_id(self, p):
         '''atom : ID'''
-        p[0] = VariableNode(p[1])
+        line, col = self.token_pos(p, 1)
+        p[0] = VariableNode(line, col, p[1])
 
     def p_atom_new(self, p):
         '''atom : NEW TYPEID'''
-        p[0] = NewNode(p[2])
+        line, col = self.token_pos(p, 1)
+        p[0] = NewNode(line, col, p[2])
 
     def p_atom_block(self, p):
         '''atom : LBRACE block RBRACE'''
-        p[0] = BlockNode(p[2])
+        line, col = self.token_pos(p, 1)
+        p[0] = BlockNode(line, col, p[2])
 
     def p_block(self, p):
         '''block : expr SEMI
@@ -284,16 +307,18 @@ class CoolParser(State):
 
     def p_atom_bool(self, p):
         '''atom : BOOL'''
-        p[0] = BoolNode(p[1])
+        line, col = self.token_pos(p, 1)
+        p[0] = BoolNode(line, col, p[1])
 
     def p_atom_string(self, p):
         '''atom : STRING'''
-        p[0] = StringNode(p[1])
+        line, col = self.token_pos(p, 1)
+        p[0] = StringNode(line, col, p[1])
 
     def p_error(self, p):
         if p:
            line = self.lexer.lexer.lineno
-           col = find_column(self.lexer.lexer.lexdata, p.lexpos)  
+           col = find_column(self.lexer.lexer.lexdata, p.lexpos)
            self.errors.append(SyntacticError(line, col, f"ERROR at or near {p.value}"))
         else:
            self.errors.append(SyntacticError(0, 0, "ERROR at or near EOF"))

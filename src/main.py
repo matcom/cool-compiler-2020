@@ -13,16 +13,18 @@ def main():
 
     pipeline.submit_state(Reader('Reader'))
     pipeline.submit_state(CoolParser('Parser'))
-    pipeline.submit_state(FormatVisitor('Formatter', './ast.txt'))
-    pipeline.submit_state(TypeCollector('TCollector'))
-    pipeline.submit_state(TypeBuilder('TBuilder'))
-    pipeline.submit_state(VarCollector('VCollector'))
-    pipeline.submit_state(TypeChecker('TChecker'))
+    # pipeline.submit_state(FormatVisitor('Formatter', './ast.txt'))
+    # pipeline.submit_state(TypeCollector('TCollector'))
+    # pipeline.submit_state(TypeBuilder('TBuilder'))
+    # pipeline.submit_state(VarCollector('VCollector'))
+    # pipeline.submit_state(TypeChecker('TChecker'))
 
-    ast, context, scope = pipeline.run_pipeline(program)
-    print(context)
-    print('-'*25)
-    print(scope)
+    pipeline.run_pipeline(program)
+
+    # ast, context, scope = pipeline.run_pipeline(program)
+    # print(context)
+    # print('-'*25)
+    # print(scope)
     
     pipeline.report_errors()
 
