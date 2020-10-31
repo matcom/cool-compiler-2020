@@ -471,8 +471,11 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         
     @visitor.when(COOL_AST.IsVoid)
     def visit(self, node, scope):
-        pass
-        
+        expre_value = self.visit(node.expr)
+        result_local = self.define_internal_local(scope=scope, name ="isvoid_result")
+        self.register_instruction(CIL_AST.IsVoid(result_local, expre_value))
+        return result_local
+       
     @visitor.when(COOL_AST.Sum)
     def visit(self, node, scope):
         result_local = self.define_internal_local(scope=scope, name = "result")

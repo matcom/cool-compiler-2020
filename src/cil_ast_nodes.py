@@ -277,8 +277,9 @@ class PrintInteger(Print):
 
 
 class IsVoid(Expr):
-    def __init__(self, local):
-        self.local = local
+    def __init__(self, result_local, expre_value):
+        self.result_local = result_local
+        self.expre_value = expre_value
 
 class Copy(Expr):
     def __init__(self, type, local_dest):
@@ -385,6 +386,10 @@ def get_formatter():
         @visitor.when(Return)
         def visit(self, node):
             return f'\n RETURN {node.value if node.value is not None else ""}'
+
+        @visitor.when(IsVoid)
+        def visit(self, node):
+            return f'{node.result_local} ISVOID {node.expre_value}'
 
         @visitor.when(Halt)
         def visit(self, node):
