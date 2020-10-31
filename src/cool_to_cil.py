@@ -331,7 +331,7 @@ class MiniCOOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_type.instance = instance
 
         #-------------------------Init---------------------------------
-        self.current_function = self.to_function_name('init', node.name)
+        self.current_function = self.register_function(self.to_function_name('init', node.name))
         self.register_param(VariableInfo('instance', None))
 
         #Init parents recursively

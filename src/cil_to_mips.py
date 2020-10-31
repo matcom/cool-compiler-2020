@@ -12,6 +12,8 @@ class CILToMIPSVisitor():
             '*' : 'mul',
             '/' : 'div'
         }
+        self.stack_values = []
+        self.current_function = None
 
     @visitor.on('node')
     def visit(self, node):
@@ -31,22 +33,42 @@ class CILToMIPSVisitor():
     
     @visitor.when(CIL_AST.Function)
     def visit(self, node):
-        for param_node in params:
+        for param_node in node.params.reverse():
             self.visit(param_node)
         
-        for local_node in localvars:
+        for local_node in node.localvars:
             self.visit(local_node)
         
-        for instruction in instructions:
+        for instruction in node.instructions:
             self.visit(instruction)
+        
+        self.stack_values = []
     
+    @visitor.when(Allocate)
+    def visit(self, node):
+        self.mips_code += f'lw $a0, {node.type}'
+        # main = "lw $a0, {}\nli $v0, 9\nsyscall\nla $t1, {}\nmove $t0, $v0\nsw $t1, ($t0)\n".format(node.type, node.type)
+        # return main
+
+    @visitor.when(CIL_AST.ParamDec)
+    def visit(self, node):
+        self.stack_values.append(node.name)
+
+    @visitor.when(CIL_AST.LocalDec)
+    def visit(self, node):
+        self.stack_values.append(node.name)
+
+    @visitor.when(CIL_AST.LocalDec)
+    def visit(self, node):
+        self.locals.append(node.name)
+
     @visitor.when(CIL_AST.BinaryOperator)
     def visit(self, node):
         mips_comm = self.mips_comm_for_binary_op[node.op]
-        self.visit(left)
+        self.visit(node.left)
         self.mips_code += 'sw $a0, 0(sp)\n'
         self.mips_code += 'addiu $sp, $sp, -4\n'
-        self.visit(right)
+        self.visit(node.right)
         self.mips_code += 'lw $t1, 4($sp)\n'
         self.mips_code += f'{mips_comm} $a0, $t1, $a0\n'
         self.mips_code += 'addiu $sp, $sp, 4\n'
@@ -91,8 +113,11 @@ if __name__ == '__main__':
         cool_to_cil = MiniCOOLToCILVisitor(context)
         cil_ast = cool_to_cil.visit(cool_ast, scope)
         
-        # formatter = CIL_AST.get_formatter()
-        # print(formatter(cil_ast))
+        formatter = CIL_AST.get_formatter()
+        cil_code = formatter(cil_ast)
+
+        with open(f'{sys.argv[1][:-3]}.cil', 'w') as f:
+            f.write(f'{cil_code}')
 
         cil_to_mips = CILToMIPSVisitor()
         mips_code = cil_to_mips.visit(cil_ast)
