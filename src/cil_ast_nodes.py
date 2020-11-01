@@ -315,7 +315,6 @@ def get_formatter():
             params = '\n\t'.join(self.visit(x) for x in node.params)
             localvars = '\n\t'.join(self.visit(x) for x in node.localvars)
             instructions = '\n\t'.join(self.visit(x) for x in node.instructions)
-
             return f'function {node.name} {{\n\t{params}\n\n\t{localvars}\n\n\t{instructions}\n}}'
 
         @visitor.when(ParamDec)
