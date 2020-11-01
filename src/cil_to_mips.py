@@ -53,7 +53,7 @@ class CILToMIPSVisitor():
             self.visit(node_type)
         
         for node_data in node.dotdata.keys():
-            self.data += f'{node_data}: asciiz "{node.dotdata[node_data]}"\n'
+            self.data += f'{node_data}: .asciiz "{node.dotdata[node_data]}"\n'
 
         for node_function in node.dotcode:
             self.visit(node_function)
@@ -85,13 +85,11 @@ class CILToMIPSVisitor():
 
     @visitor.when(CIL_AST.Type)
     def visit(self, node):
-        self.data += f'{node.name}_name: asciiz "{node.name}"\n'
-        methods = ''
-        for i,method in enumerate(node.methods.values()):
-            methods += f' {method}'
-            if i != len(node.methods.values()) - 1:
-                methods += ','
-        self.data += f'{node.name}_methods: .word {methods}\n'
+        self.data += f'{node.name}_name: .asciiz "{node.name}"\n'
+        self.data += f'{node.name}_methods:\n'
+        for method in node.methods.values():
+            self.data += f'.word {method}\n'
+        
             
     @visitor.when(CIL_AST.Allocate)
     def visit(self, node):
@@ -182,5 +180,5 @@ if __name__ == '__main__':
         cil_to_mips = CILToMIPSVisitor()
         mips_code = cil_to_mips.visit(cil_ast)
        
-        with open(f'{sys.argv[1][:-3]}.asm', 'w') as f:
+        with open(f'{sys.argv[1][:-3]}.s', 'w') as f:
             f.write(f'{mips_code}')
