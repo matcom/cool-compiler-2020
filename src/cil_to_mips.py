@@ -6,14 +6,29 @@ import cil_ast_nodes as CIL_AST
 class CILToMIPSVisitor():
     def __init__(self):
         self.mips_code = ''
+        self.text = ''
+        self.data = ''
         self.mips_comm_for_binary_op = {
             '+' : 'add',
             '-' : 'sub',
             '*' : 'mul',
             '/' : 'div'
         }
-        self.stack_values = []
         self.current_function = None
+
+    def search_local_offset(self, name):
+        for i, local in enumerate(self.current_function.locals):
+            if local.name == name:
+                return (len(self.current_function.locals) - i)*4
+
+    def search_param_offset(self, name):
+        for i, local in enumerate(self.current_function.params):
+            if local.name == name:
+                return (i + 1)*4
+
+    def is_param(self, name):
+        return name in self.current_function.params
+        
 
     @visitor.on('node')
     def visit(self, node):
@@ -33,16 +48,26 @@ class CILToMIPSVisitor():
     
     @visitor.when(CIL_AST.Function)
     def visit(self, node):
-        for param_node in node.params.reverse():
-            self.visit(param_node)
+        self.current_function = node
+
+        self.text += f'{node.name}:/n'
+        self.text += f'move $fp $sp/n'  #save frame pointer of current function
         
-        for local_node in node.localvars:
+        for local_node in node.localvars: #save space for locals 
             self.visit(local_node)
         
+        self.text += 'addi $sp, $sp, -4\n' # save return address
+        self.text += 'sw $ra, 0($sp)\n'
+
         for instruction in node.instructions:
             self.visit(instruction)
         
-        self.stack_values = []
+        self.text += 'lw $ra, 0($sp)\n'  #recover return address
+        total = 4 * len(node.locals) + 4 * len(node.params) + 8 
+        self.text += f'addi $sp, $sp, {total}\n' #pop locals,parameters,return address and caller fp from the stack
+        self.text += 'lw $fp, 0($sp)\n' # recover caller function frame pointer
+        self.text += 'jr $ra\n' 
+
     
     @visitor.when(Allocate)
     def visit(self, node):
@@ -52,15 +77,13 @@ class CILToMIPSVisitor():
 
     @visitor.when(CIL_AST.ParamDec)
     def visit(self, node):
-        self.stack_values.append(node.name)
+        pass
 
     @visitor.when(CIL_AST.LocalDec)
     def visit(self, node):
-        self.stack_values.append(node.name)
+        self.text += 'addi $sp, $sp, -4\n'
+        self.text += 'sw $zero, 0($sp)\n'
 
-    @visitor.when(CIL_AST.LocalDec)
-    def visit(self, node):
-        self.locals.append(node.name)
 
     @visitor.when(CIL_AST.BinaryOperator)
     def visit(self, node):
