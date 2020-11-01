@@ -21,3 +21,10 @@ jobs:
         - make clean
         - make
         - make test TAG=parser
+    - stage: "Semantic"
+      name: "Semantic" 
+      script: 
+        - cd src
+        - make clean
+        - make
+        - make test TAG=semantic
