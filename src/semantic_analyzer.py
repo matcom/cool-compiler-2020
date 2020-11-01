@@ -35,7 +35,7 @@ class TypeCollector(object):
         self.context.create_builtin_types()
         for klass in node.classes:
             if klass.name in BUILTIN_TYPES:
-                error = ErrorSemantic("Is an error redefine a builint type", klass.line, klass.column, 'TypeError')
+                error = ErrorSemantic("Is an error redefine a builint type", klass.line, klass.column)
                 self.errors.append(error)
             else:
                 self.visit(klass)
@@ -126,7 +126,7 @@ class TypeBuilder:
                 else:
                     if parent.name in ['Int', 'String', 'Bool']:
                         parent = ErrorType()
-                        error = ErrorSemantic("Type {} inherits from a builint type".format(node.name), node.line, node.column, 'TypeError')
+                        error = ErrorSemantic("Type {} inherits from a builint type".format(node.name), node.line, node.column)
                         self.errors.append(error)
                     self.current_type.set_parent(parent)
 
@@ -426,7 +426,7 @@ class TypeChecker:
             if not var_type in var_declared:
                 var_declared.append(var_type)
             else:
-                error = ErrorSemantic("The type {} is declared in another branch".format(var_type), node.line, node.column)
+                error = ErrorSemantic("The type {} is declared in another branch".format(var_type), action.line, action.column)
                 self.errors.append(error)
             self.visit(action, scope.create_child())
             action_expr_types.append(action.computed_type)
@@ -694,10 +694,11 @@ class SemanticAnalyzer:
         builder = TypeBuilder(context, self.errors)
         builder.visit(self.ast)
 
-
         #'=============== CHECKING TYPES ================'
-        checker = TypeChecker(context, self.errors)
-        scope = checker.visit(self.ast)
+        scope = None
+        if not self.errors:
+            checker = TypeChecker(context, self.errors)
+            scope = checker.visit(self.ast)
 
         return context, scope
 
