@@ -394,6 +394,10 @@ def get_formatter():
         @visitor.when(Halt)
         def visit(self, node):
             return 'HALT'
+        
+        @visitor.when(Copy)
+        def visit(self, node):
+            return f'{node.local_dest} = COPY {node.type}'
 
         @visitor.when(Length)
         def visit(self, node):
