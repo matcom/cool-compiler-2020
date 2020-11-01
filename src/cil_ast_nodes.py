@@ -306,7 +306,7 @@ def get_formatter():
         @visitor.when(Type)
         def visit(self, node):
             attributes = '\n\t'.join(f'attribute {x}' for x in node.attributes.keys())
-            methods = '\n\t'.join(f'method {x}' for x in node.methods.keys())
+            methods = '\n\t'.join(f'method {x} : {node.methods[x]}' for x in node.methods.keys())
 
             return f'type {node.name} {{\n\t{attributes}\n\n\t{methods}\n}}'
 
