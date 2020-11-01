@@ -18,9 +18,9 @@ class CILToMIPSVisitor():
         self.types = None
 
     def search_local_offset(self, name):
-        for i, local in enumerate(self.current_function.locals):
+        for i, local in enumerate(self.current_function.localvars):
             if local.name == name:
-                return (len(self.current_function.locals) - i)*4
+                return (len(self.current_function.localvars) - i)*4
 
     def search_param_offset(self, name):
         for i, param in enumerate(self.current_function.params):
@@ -58,6 +58,7 @@ class CILToMIPSVisitor():
         for node_function in node.dotcode:
             self.visit(node_function)
         
+        self.mips_code = '.data\n' + self.data + '.text\n' + self.text 
         return self.mips_code.strip()
     
     @visitor.when(CIL_AST.Function)
@@ -77,7 +78,7 @@ class CILToMIPSVisitor():
             self.visit(instruction)
         
         self.text += 'lw $ra, 0($sp)\n'  #recover return address
-        total = 4 * len(node.locals) + 4 * len(node.params) + 8 
+        total = 4 * len(node.localvars) + 4 * len(node.params) + 8
         self.text += f'addi $sp, $sp, {total}\n' #pop locals,parameters,return address and caller fp from the stack
         self.text += 'lw $fp, 0($sp)\n' # recover caller function frame pointer
         self.text += 'jr $ra\n' 
@@ -87,13 +88,12 @@ class CILToMIPSVisitor():
         self.data += f'{node.name}_name: asciiz "{node.name}"\n'
         methods = ''
         for i,method in enumerate(node.methods.values()):
-            methods += ' {method}'
+            methods += f' {method}'
             if i != len(node.methods.values()) - 1:
                 methods += ','
         self.data += f'{node.name}_methods: .word {methods}\n'
             
-
-    @visitor.when(Allocate)
+    @visitor.when(CIL_AST.Allocate)
     def visit(self, node):
         amount = len(self.types[node.type].attributes) + 3
         self.text += f'li $a0 {amount}\n' 
@@ -141,7 +141,7 @@ if __name__ == '__main__':
     import sys
     from cparser import Parser
     from semantic_analyzer import SemanticAnalyzer
-    from cool_to_cil import MiniCOOLToCILVisitor
+    from cool_to_cil import COOLToCILVisitor
 
     parser = Parser()
 
@@ -170,7 +170,7 @@ if __name__ == '__main__':
         if semantic_analyzer.errors:    
             exit(1)
         
-        cool_to_cil = MiniCOOLToCILVisitor(context)
+        cool_to_cil = COOLToCILVisitor(context)
         cil_ast = cool_to_cil.visit(cool_ast, scope)
         
         formatter = CIL_AST.get_formatter()

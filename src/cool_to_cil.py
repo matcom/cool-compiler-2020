@@ -83,7 +83,9 @@ class BaseCOOLToCILVisitor:
             cil_type = self.register_type(t)
             cil_type.attributes = {f'{attr.name}':attr for attr in builtin_type.attributes}
             cil_type.methods = {f'{m}':f'{c}.{m}' for c, m  in builtin_type.get_all_methods()}
-                        
+            if t in ['Object','IO']:
+                cil_type.methods['init'] = f'{t}.init'
+
         #----------------Object---------------------
         #init
         self.current_function = self.register_function(self.to_function_name('init', 'Object'))
@@ -110,7 +112,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(CIL_AST.Return(type_name))
 
         #copy
-        self.current_function = self.register_function(self.to_function_name('type_name', 'Object'))
+        self.current_function = self.register_function(self.to_function_name('copy', 'Object'))
         self.register_param(VariableInfo('self',None))
         copy = self.define_internal_local(scope=scope, name= "copy")
         self.register_instruction(CIL_AST.Copy('self', copy))
@@ -228,7 +230,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         cil_type = self.register_type(self.current_type.name)
         cil_type.attributes = {f'{attr.name}':attr for c, attr in self.current_type.get_all_attributes()}
         cil_type.methods = {f'{m}':f'{c}.{m}' for c, m  in self.current_type.get_all_methods()}
- 
+        cil_type.methods['init'] = f'{node.name}.init'
+
         scope.define_cil_local("self", self.current_type, self.current_type.name)
 
         func_declarations = (f for f in node.features if isinstance(f, COOL_AST.ClassMethod))
