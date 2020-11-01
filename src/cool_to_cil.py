@@ -83,37 +83,37 @@ class BaseCOOLToCILVisitor:
             cil_type.attributes = {f'{t}.{attr.name}':attr for attr in builtin_type.attributes}
             cil_type.methods = {f'{t}.{m}': m for _, m  in builtin_type.get_all_methods()}
                         
-        # #----------------Object---------------------
-        # #init
-        # self.current_function = self.register_function(self.to_function_name('init', 'Object'))
-        # self.register_param(VariableInfo('instance', None))
-        # self.register_instruction(CIL_AST.Return(0))
+        #----------------Object---------------------
+        #init
+        self.current_function = self.register_function(self.to_function_name('init', 'Object'))
+        self.register_param(VariableInfo('instance', None))
+        self.register_instruction(CIL_AST.Return(0))
 
-        # #abort
-        # self.current_function = self.register_function(self.to_function_name('abort', 'Object'))
-        # self.register_param(VariableInfo('self',None))
-        # msg = self.define_internal_local(scope=scope, name="msg")
-        # key_msg = ''
-        # for s in self.dotdata.keys():
-        #     if self.dotdata[s] == 'Execution aborted':
-        #         key_msg = s
-        # self.register_instruction(CIL_AST.Load(key_msg, msg))
-        # self.register_instruction(CIL_AST.PrintString(msg))
-        # self.register_instruction(CIL_AST.Halt())
+        #abort
+        self.current_function = self.register_function(self.to_function_name('abort', 'Object'))
+        self.register_param(VariableInfo('self',None))
+        msg = self.define_internal_local(scope=scope, name="msg")
+        key_msg = ''
+        for s in self.dotdata.keys():
+            if self.dotdata[s] == 'Execution aborted':
+                key_msg = s
+        self.register_instruction(CIL_AST.Load(key_msg, msg))
+        self.register_instruction(CIL_AST.PrintString(msg))
+        self.register_instruction(CIL_AST.Halt())
 
-        # #type_name
-        # self.current_function = self.register_function(self.to_function_name('type_name', 'Object'))
-        # self.register_param(VariableInfo('self', None))
-        # type_name = self.define_internal_local(scope=scope, name = "type_name" )
-        # self.register_instruction(CIL_AST.TypeOf('self', type_name))
-        # self.register_instruction(CIL_AST.Return(type_name))
+        #type_name
+        self.current_function = self.register_function(self.to_function_name('type_name', 'Object'))
+        self.register_param(VariableInfo('self', None))
+        type_name = self.define_internal_local(scope=scope, name = "type_name" )
+        self.register_instruction(CIL_AST.TypeOf('self', type_name))
+        self.register_instruction(CIL_AST.Return(type_name))
 
-        # #copy
-        # self.current_function = self.register_function(self.to_function_name('type_name', 'Object'))
-        # self.register_param(VariableInfo('self',None))
-        # copy = self.define_internal_local(scope=scope, name= "copy")
-        # self.register_instruction(CIL_AST.Copy('self', copy))
-        # self.register_instruction(CIL_AST.Return(copy))
+        #copy
+        self.current_function = self.register_function(self.to_function_name('type_name', 'Object'))
+        self.register_param(VariableInfo('self',None))
+        copy = self.define_internal_local(scope=scope, name= "copy")
+        self.register_instruction(CIL_AST.Copy('self', copy))
+        self.register_instruction(CIL_AST.Return(copy))
 
         # #----------------IO---------------------
         # #init
