@@ -45,6 +45,7 @@ class BaseCOOLToCILVisitor:
         if class_type != None:
             cilname = f'{class_type}.{name}'
             scope.define_cil_local(cool_var_name, cilname, None)
+            self.register_local(cilname)
         else :
             cilname = f'{name}_{len(self.localvars)}'
             scope.define_cil_local(cool_var_name, cilname, None)

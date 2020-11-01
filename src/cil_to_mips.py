@@ -15,6 +15,7 @@ class CILToMIPSVisitor():
             '/' : 'div'
         }
         self.current_function = None
+        self.types = None
 
     def search_local_offset(self, name):
         for i, local in enumerate(self.current_function.locals):
@@ -22,9 +23,19 @@ class CILToMIPSVisitor():
                 return (len(self.current_function.locals) - i)*4
 
     def search_param_offset(self, name):
-        for i, local in enumerate(self.current_function.params):
-            if local.name == name:
+        for i, param in enumerate(self.current_function.params):
+            if param.name == name:
                 return (i + 1)*4
+
+    def search_attr_offset(self,type_name, attr_name):
+        for i, attr in enumerate(self.types[type_name].attributes):
+            if attr == attr_name:
+                return i * 4
+                
+    def search_method_offset(self, type_name, method_name):
+        for i, method in enumerate(self.types[type_name].methods):
+            if method == method_name:
+                return i*4
 
     def is_param(self, name):
         return name in self.current_function.params
@@ -36,10 +47,13 @@ class CILToMIPSVisitor():
 
     @visitor.when(CIL_AST.Program)
     def visit(self, node):
+        self.types = node.dottypes
+
         for node_type in node.dottypes.values():
             self.visit(node_type)
         
-        # Write MIPS for node.dotdata
+        for node_data in node.dotdata.keys():
+            self.data += f'{node_data}: asciiz "{node.dotdata[node_data]}"\n'
 
         for node_function in node.dotcode:
             self.visit(node_function)
@@ -50,8 +64,8 @@ class CILToMIPSVisitor():
     def visit(self, node):
         self.current_function = node
 
-        self.text += f'{node.name}:/n'
-        self.text += f'move $fp $sp/n'  #save frame pointer of current function
+        self.text += f'{node.name}:\n'
+        self.text += f'move $fp $sp\n'  #save frame pointer of current function
         
         for local_node in node.localvars: #save space for locals 
             self.visit(local_node)
@@ -68,12 +82,35 @@ class CILToMIPSVisitor():
         self.text += 'lw $fp, 0($sp)\n' # recover caller function frame pointer
         self.text += 'jr $ra\n' 
 
-    
+    @visitor.when(CIL_AST.Type)
+    def visit(self, node):
+        self.data += f'{node.name}_name: asciiz "{node.name}"\n'
+        methods = ''
+        for i,method in enumerate(node.methods.values()):
+            methods += ' {method}'
+            if i != len(node.methods.values()) - 1:
+                methods += ','
+        self.data += f'{node.name}_methods: .word {methods}\n'
+            
+
     @visitor.when(Allocate)
     def visit(self, node):
-        self.mips_code += f'lw $a0, {node.type}'
-        # main = "lw $a0, {}\nli $v0, 9\nsyscall\nla $t1, {}\nmove $t0, $v0\nsw $t1, ($t0)\n".format(node.type, node.type)
-        # return main
+        amount = len(self.types[node.type].attributes) + 3
+        self.text += f'li $a0 {amount}\n' 
+        self.text += f'li $v0, 9\n'
+        self.text += f'syscall\n'
+        self.text += f'move $t0, $v0\n'
+        
+        #Initialize Object Layout
+        self.text += f'la $t1 {node.type}_name\n' #tag
+        self.text += f'sw $t1 0($t0)\n'
+        self.text += f'li $t1 {amount}\n' #size
+        self.text += f'sw $t1 4($t0)\n'
+        self.text += f'la $t1 {node.type}_methods\n' #methods pointer
+        self.text += f'sw $t1 8($t0)\n'
+
+        offset = self.search_local_offset(node.local_dest)
+        self.text += f'sw $t0 {offset}($sp)\n'  #store instance address in local
 
     @visitor.when(CIL_AST.ParamDec)
     def visit(self, node):
