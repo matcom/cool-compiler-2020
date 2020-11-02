@@ -61,7 +61,10 @@ class COOL_TYPE_BUILDER(object):
             parent_type = self.context.get_type(node.parent) if node.parent is not None else self.context.get_type('Object')
             typex.set_parent(parent_type)
         except SemanticException as e:
-            self.errors.append(CTypeError(node.line, node.column, e.text))
+            if self.current_type and  node.parent in ['Int', 'String', 'Bool']:
+                self.errors.append(SemanticError(node.line, node.column, e.text))
+            else:
+                self.errors.append(CTypeError(node.line, node.column, e.text))
         for feature in node.features:
             self.visit(feature)
     
