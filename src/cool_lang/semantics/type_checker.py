@@ -161,8 +161,18 @@ class COOL_TYPE_CHECKER(object):
         self.visit(node.expression, scope)
 
         node_type = None
+        cases_types = set()
         for case in node.cases:
             self.visit(case, scope)
+            try:
+                case_type = self.context.get_type(case.type)
+                if case_type in cases_types:
+                    self.errors.append(SemanticError(case.line, case.column, f'Duplicate case for type {case_type.name}.'))
+                else:
+                    cases_types.add(case_type)
+            except SemanticException:
+                pass
+
             if node_type:
                 node_type = find_common_ancestor(node_type, case.static_type)
             else:

@@ -134,11 +134,15 @@ class COOL_PARSER:
 
     def p_case_list_simple(self, p):
         'case_list : ID COLON TYPE ACTION expr SEMICOLON'
-        p[0] = [CaseNode(p[1], p[3], p[5])]
+        line = p.lineno(1)
+        column = find_column(self.code, p.lexpos(1))
+        p[0] = [CaseNode(p[1], p[3], p[5], line, column)]
 
     def p_case_list_multi(self, p):
         'case_list : ID COLON TYPE ACTION expr SEMICOLON case_list'
-        p[0] = [CaseNode(p[1], p[3], p[5])] + p[7]
+        line = p.lineno(1)
+        column = find_column(self.code, p.lexpos(1))
+        p[0] = [CaseNode(p[1], p[3], p[5], line, column)] + p[7]
 
     def p_expr(self, p):
         'expr : comp_expr'
