@@ -66,7 +66,7 @@ class CILToMIPSVisitor():
         self.current_function = node
 
         self.text += f'{node.name}:\n'
-        self.text += f'move $fp $sp\n'  #save frame pointer of current function
+        self.text += f'move $fp, $sp\n'  #save frame pointer of current function
         
         for local_node in node.localvars: #save space for locals 
             self.visit(local_node)
@@ -94,21 +94,21 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.Allocate)
     def visit(self, node):
         amount = len(self.types[node.type].attributes) + 3
-        self.text += f'li $a0 {amount}\n' 
+        self.text += f'li $a0, {amount}\n' 
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
         self.text += f'move $t0, $v0\n'
         
         #Initialize Object Layout
-        self.text += f'la $t1 {node.type}_name\n' #tag
-        self.text += f'sw $t1 0($t0)\n'
-        self.text += f'li $t1 {amount}\n' #size
-        self.text += f'sw $t1 4($t0)\n'
-        self.text += f'la $t1 {node.type}_methods\n' #methods pointer
-        self.text += f'sw $t1 8($t0)\n'
+        self.text += f'la $t1, {node.type}_name\n' #tag
+        self.text += f'sw $t1, 0($t0)\n'
+        self.text += f'li $t1, {amount}\n' #size
+        self.text += f'sw $t1, 4($t0)\n'
+        self.text += f'la $t1, {node.type}_methods\n' #methods pointer
+        self.text += f'sw $t1, 8($t0)\n'
 
         offset = self.search_local_offset(node.local_dest)
-        self.text += f'sw $t0 {offset}($sp)\n'  #store instance address in local
+        self.text += f'sw $t0, {offset}($sp)\n'  #store instance address in local
 
     @visitor.when(CIL_AST.ParamDec)
     def visit(self, node):
@@ -118,6 +118,31 @@ class CILToMIPSVisitor():
     def visit(self, node):
         self.text += 'addi $sp, $sp, -4\n'
         self.text += 'sw $zero, 0($sp)\n'
+
+    @visitor.when(CIL_AST.GetAttr)
+    def visit(self, node):
+        self_offset = self.search_param_offset(node.instance)
+        self.text += f'lw $t0, {self_offset}($fp)\n'  #get self address
+        
+        attr_offset = self.search_attr_offset(node.attr)
+        self.text += f'lw $t1, {attr_offset}($t0)\n'  #get attribute
+        
+        result_offset = self.search_local_offset(node.local_dest)
+        self.text += f'sw $t1, {result_offset}($sp)\n' #store attribute in local
+
+    @visitor.when(CIL_AST.SetAttr)
+    def visit(self, node):
+        self_offset = self.search_param_offset(node.instance)
+        self.text += f'lw $t0, {self_offset}($fp)\n'  #get self address
+
+        if node.value:
+            value_offset = self.search_local_offset(node.value) # get value from local
+            self.text += f'lw $t1, {value_offset}($sp)\n'
+        else:
+            self.text += f'lw $t1, $zero\n'  # not initialized attribute
+            
+        attr_offset = self.search_attr_offset(node.attr)
+        self.text += f'sw $t1, {attr_offset}($t0)\n' #set attribute in instance
 
 
     @visitor.when(CIL_AST.BinaryOperator)
