@@ -89,13 +89,13 @@ class COOL_TYPE_BUILDER(object):
         try:
             ret_type = self.context.get_type(node.type) if node.type != 'void' else VoidType()
         except SemanticException as e:
-            self.errors.append(SemanticError(node.line, node.column, e.text))
+            self.errors.append(CTypeError(node.line, node.column, e.text))
         for ind, param in enumerate(node.params):
             try:
                 params_id.append(param.id)
                 params_type[ind] = self.context.get_type(param.type)
             except SemanticException as e:
-                self.errors.append(SemanticError(param.line, param.column, e.text))
+                self.errors.append(CTypeError(param.line, param.column, e.text))
         try:
             self.current_type.define_method(node.id, params_id, params_type, ret_type)
         except SemanticException as e:

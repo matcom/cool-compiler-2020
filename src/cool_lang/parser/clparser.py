@@ -98,7 +98,9 @@ class COOL_PARSER:
 
     def p_param(self, p):
         'param : ID COLON TYPE'
-        p[0] = ParamDeclarationNode(p[1], p[3])
+        line = p.lineno(1)
+        column = find_column(self.code, p.lexpos(1))
+        p[0] = ParamDeclarationNode(p[1], p[3], line=line, column=column)
     
     def p_expr_list_simple(self, p):
         'expr_list : expr SEMICOLON'

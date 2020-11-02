@@ -71,15 +71,17 @@ class COOL_TYPE_CHECKER(object):
         func_scope = Scope(parent=scope)
         func_scope.define_var('self', self.current_type)
 
-        for param in node.params:
+        func = self.current_type.get_method(node.id)
+
+        for param, param_type in zip(node.params, func.param_types):
             try:
-                func_scope.define_var(param.id, self.context.get_type(param.type))
+                func_scope.define_var(param.id, param_type)
             except SemanticException: # Check if params names are differnt
-                self.errors.append(SemanticError(node.line, node.column, f'Identifier "{param.id}" can only be used once.'))
+                self.errors.append(SemanticError(param.line, param.column, f'Identifier "{param.id}" can only be used once.'))
 
         self.visit(node.expression, func_scope)
 
-        ret_type = self.context.get_type(node.type)
+        ret_type = func.return_type
         if not node.expression.static_type.is_subtype(ret_type):
             self.errors.append(CTypeError(node.line, node.column, f'Invalid return type. Type {node.expression.static_type.name} is not subtype of {ret_type.name}.'))
 
@@ -149,7 +151,7 @@ class COOL_TYPE_CHECKER(object):
         try:
             node_type = self.context.get_type(node.type)
         except SemanticException as e:
-            self.errors.append(CTypeError(node.line, node.columns, e.text))
+            self.errors.append(CTypeError(node.line, node.column, e.text))
 
         case_scope.define_var(node.id, node_type)
         self.visit(node.expression, case_scope)
