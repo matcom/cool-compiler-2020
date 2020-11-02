@@ -75,7 +75,7 @@ class COOL_TYPE_BUILDER(object):
             atype = self.context.get_type(node.type)
         except SemanticException as e:
             atype = ErrorType()
-            self.errors.append(SemanticError(node.line, node.column, e.text))
+            self.errors.append(CTypeError(node.line, node.column, e.text))
         try:
             self.current_type.define_attribute(node.id, atype)
         except SemanticException as e:
