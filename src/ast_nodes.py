@@ -69,7 +69,7 @@ class FormalParameter(AST):
 class Expr(AST):
     def __init__(self):
         super(Expr, self).__init__()
-
+        self.computed_type = None
 # <expression> ::= ID <- <expr>
 
 

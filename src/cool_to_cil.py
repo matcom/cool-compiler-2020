@@ -365,7 +365,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         # for arg in call_args:
         #     self.register_instruction(CIL_AST.Arg(arg))
-
+        
+        dynamic_type = node.instance.computed_type.name
         self.register_instruction(CIL_AST.VCall(result_local, node.method, call_args, dynamic_type, expr_value))
         
         return result_local
