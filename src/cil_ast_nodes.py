@@ -128,11 +128,12 @@ class Call(Expr):
         
 
 class VCall(Expr):
-    def __init__(self, local_dest, function, params, dynamic_type):
+    def __init__(self, local_dest, function, params, dynamic_type, instance):
         self.function = function
         self.params = params
         self.dynamic_type = dynamic_type
         self.local_dest = local_dest
+        self.instance = instance
     
     def __str__(self):
         return f'VCALL {self.instance_type} {self.virtual_type}_{self.method};'
