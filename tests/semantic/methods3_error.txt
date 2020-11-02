@@ -1,0 +1,1 @@
+(13, 22) - TypeError: Inferred return type B of method test2 does not conform to declared return type C.

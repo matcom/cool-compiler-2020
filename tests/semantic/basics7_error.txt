@@ -1,0 +1,1 @@
+(7, 7) - SemanticError: Redefinition of basic class Bool.
