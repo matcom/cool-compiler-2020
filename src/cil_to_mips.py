@@ -62,7 +62,7 @@ class CILToMIPSVisitor():
         self.current_function = node
 
         self.text += f'{node.name}:\n'
-        self.text += f'move $fp, $sp\n'  #save frame pointer of current function
+        # self.text += f'move $fp, $sp\n'  #save frame pointer of current function
         
         for local_node in reversed(node.localvars): #save space for locals 
             self.visit(local_node)
@@ -74,9 +74,9 @@ class CILToMIPSVisitor():
             self.visit(instruction)
         
         self.text += 'lw $ra, 0($sp)\n'  #recover return address
-        total = 4 * len(node.localvars) + 4 * len(node.params) + 8
-        self.text += f'addi $sp, $sp, {total}\n' #pop locals,parameters,return address and caller fp from the stack
-        self.text += 'lw $fp, 0($sp)\n' # recover caller function frame pointer
+        total = 4 * len(node.localvars) + 4 * len(node.params) + 4
+        self.text += f'addi $sp, $sp, {total}\n' #pop locals,parameters,return address from the stack
+        # self.text += 'lw $fp, 0($sp)\n' # recover caller function frame pointer
         self.text += 'jr $ra\n' 
 
     @visitor.when(CIL_AST.Type)
@@ -131,7 +131,7 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.GetAttr)
     def visit(self, node):
         self_offset = self.search_var_offset(node.instance)
-        self.text += f'lw $t0, {self_offset}($fp)\n'  #get self address
+        self.text += f'lw $t0, {self_offset}($sp)\n'  #get self address
         
         attr_offset = self.search_attr_offset(node.static_type, node.attr)
         self.text += f'lw $t1, {attr_offset}($t0)\n'  #get attribute
@@ -142,7 +142,7 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.SetAttr)
     def visit(self, node):
         self_offset = self.search_var_offset(node.instance)
-        self.text += f'lw $t0, {self_offset}($fp)\n'  #get self address
+        self.text += f'lw $t0, {self_offset}($sp)\n'  #get self address
 
         if node.value:
             value_offset = self.search_var_offset(
@@ -178,6 +178,16 @@ class CILToMIPSVisitor():
         self.text += f'lw $t3, {method_offset}($t2)\n' # get method address
         
         self.text += 'jal $t3\n'
+
+
+    @visitor.when(CIL_AST.Call)
+    def visit(self, node):
+        self.text += 'move $t0, $sp\n'
+        
+        for arg in node.params:
+            self.visit(arg)
+
+        self.text += f'jal {node.function}\n'
 
 
     @visitor.when(CIL_AST.BinaryOperator)

@@ -197,9 +197,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result = self.define_internal_local(scope = scope, name = "result")
         self.register_instruction(CIL_AST.Allocate('Main', instance))
         # self.register_instruction(CIL_AST.Arg(instance))
-        self.register_instruction(CIL_AST.VCall(result, self.to_function_name('init', 'Main'), [CIL_AST.Arg(instance)],"Main",instance))
+        self.register_instruction(CIL_AST.Call(result, self.to_function_name('init', 'Main'), [CIL_AST.Arg(instance)],"Main"))
         # self.register_instruction(CIL_AST.Arg(instance))
-        self.register_instruction(CIL_AST.VCall(result, self.to_function_name('main', 'Main'), [CIL_AST.Arg(instance)],"Main", instance))
+        self.register_instruction(CIL_AST.Call(result, self.to_function_name('main', 'Main'), [CIL_AST.Arg(instance)],"Main"))
         self.register_instruction(CIL_AST.Return(0))
         self.current_function = None
 
@@ -241,9 +241,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         #Init parents recursively
         result = self.define_internal_local(scope=scope, name = "result")
         # self.register_instruction(CIL_AST.Arg('instance'))
-        parent = self.define_internal_local(scope=scope, name="parent")
-        self.register_instruction(CIL_AST.Allocate(node.parent, parent))
-        self.register_instruction(CIL_AST.VCall(result, 'init',[CIL_AST.Arg('instance')], node.parent, parent))
+        self.register_instruction(CIL_AST.Call(result, self.to_function_name('init', node.parent),[CIL_AST.Arg('instance')], node.parent))
         self.register_instruction(CIL_AST.Return(0))
 
         for attr in attr_declarations:
@@ -365,7 +363,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         # for arg in call_args:
         #     self.register_instruction(CIL_AST.Arg(arg))
-        
+
         dynamic_type = node.instance.computed_type.name
         self.register_instruction(CIL_AST.VCall(result_local, node.method, call_args, dynamic_type, expr_value))
         
@@ -429,15 +427,15 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result_init = self.define_internal_local(scope=scope, name="init")
         
         if node.type == "SELF_TYPE":
-            get_type_local = self.define_internal_local(scope = scope, name = "type_name")
-            self.register_instruction(CIL_AST.TypeOf("self", get_type_local))
-            self.register_instruction(CIL_AST.Allocate(get_type_local, result_local))
-            self.register_instruction(CIL_AST.Arg(result_local))
-            self.register_instruction(CIL_AST.VCall(result_init, self.to_function_name('init', get_type_local), [result_local], self.current_type.name))
+            # get_type_local = self.define_internal_local(scope = scope, name = "type_name")
+            # self.register_instruction(CIL_AST.TypeOf("self", get_type_local))
+            self.register_instruction(CIL_AST.Allocate(self.current_type.name, result_local))
+            # self.register_instruction(CIL_AST.Arg(result_local))
+            self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', self.current_type.name), [result_local], self.current_type.name))
         else:
             self.register_instruction(CIL_AST.Allocate(node.type, result_local))
-            self.register_instruction(CIL_AST.Arg(result_local))
-            self.register_instruction(CIL_AST.VCall(result_init,self.to_function_name('init', node.type),[result_local], self.current_type.name ))
+            # self.register_instruction(CIL_AST.Arg(result_local))
+            self.register_instruction(CIL_AST.Call(result_init,self.to_function_name('init', node.type),[result_local], self.current_type.name ))
 
         return result_local
         
@@ -586,6 +584,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.Identifier)
     def visit(self, node, scope):
+        if node.name == 'self':
+            return node.name
         cil_name = scope.find_cil_local(node.name)
         if cil_name == None and self.is_defined_param(node.name):
             return node.name
