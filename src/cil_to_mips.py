@@ -88,13 +88,13 @@ class CILToMIPSVisitor():
         
     @visitor.when(CIL_AST.Assign)
     def visit(self, node):
-        offset = self.is_param(node.local_dest) and self.search_param_offset(node.local_dest) or self.search_local_offset(node.local_dest)
+        offset = self.search_var_offset(node.local_dest)
         self.visit(node.right_expr)
         
         if isinstance(node.right_expr, int):
             self.text += f'li $t1, {node.right_expr}\n'
         else:
-            right_offset = self.is_param(node.local_dest) and self.search_param_offset(node.local_dest) or self.search_local_offset(node.local_dest)
+            right_offset = self.search_var_offset(node.local_dest)
             self.text += f'lw $t1, {right_offset}($sp)'
 
         self.text += f'sw $t1, {offset}($sp)\n'
@@ -193,12 +193,12 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.BinaryOperator)
     def visit(self, node):
         mips_comm = self.mips_comm_for_binary_op[node.op]
-        left_offset = self.is_param(node.left) and self.search_param_offset(node.left) or self.search_local_offset(node.left)
-        right_offset = self.is_param(node.right) and self.search_param_offset(node.right) or self.search_local_offset(node.right)
+        left_offset = self.search_var_offset(node.left)
+        right_offset = self.search_var_offset(node.right)
         self.text += f'lw $a0, {left_offset}($sp)\n'
         self.text += f'lw $t1, {right_offset}($sp)\n'
         self.text += f'{mips_comm} $a0, $t1, $a0\n'
-        result_offset = self.is_param(node.local_dest) and self.search_param_offset(node.local_dest) or self.search_local_offset(node.local_dest)
+        result_offset = self.search_var_offset(node.local_dest)
         self.text += f'sw $a0, {result_offset}($sp)\n'
     
     @visitor.when(CIL_AST.INTEGER)
