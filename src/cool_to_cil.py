@@ -128,16 +128,14 @@ class BaseCOOLToCILVisitor:
         self.current_function = self.register_function(self.to_function_name('out_string', 'IO'))
         self.register_param(VariableInfo('self', None))
         self.register_param(VariableInfo('x', None))
-        msg = scope.get_cil_local('x') #get the cil name for the x params
-        self.register_instruction(CIL_AST.PrintString(msg))
+        self.register_instruction(CIL_AST.PrintString("x"))
         self.register_instruction(CIL_AST.Return('self'))
 
         #out_int
         self.current_function = self.register_function(self.to_function_name('out_int', 'IO'))
         self.register_param(VariableInfo('self', None))
         self.register_param(VariableInfo('x', None))
-        number = scope.get_cil_local('x') #get the cil name for the x params
-        self.register_instruction(CIL_AST.PrintInteger(number))
+        self.register_instruction(CIL_AST.PrintInteger("x"))
         self.register_instruction(CIL_AST.Return('self'))
 
         #in_string
@@ -160,20 +158,16 @@ class BaseCOOLToCILVisitor:
         self.current_function = self.register_function(self.to_function_name('length', 'String'))
         self.register_param(VariableInfo('self', None))
         length_result = self.define_internal_local(scope=scope, name="length")
-        self_cil_name = self_cil_name = scope.get_cil_local("self")
-        self.register_instruction(CIL_AST.Length(self_cil_name, length_result))
+        self.register_instruction(CIL_AST.Length('self', length_result))
         self.register_instruction(CIL_AST.Return(length_result))
 
         #concat
         self.current_function = self.register_function(self.to_function_name('concat', 'String'))
         self.register_param(VariableInfo('self', None))
         self.register_param(VariableInfo('s', None))
-        s2 = scope.get_cil_local('s') 
-        
         concat_result = self.define_internal_local(scope=scope, name="concat")
-        self_cil_name = scope.get_cil_local("self")
-        self.register_instruction(CIL_AST.Concat(self_cil_name, s2, concat_result ))
-        self.register_instruction(CIL_AST.Return(self_cil_name))
+        self.register_instruction(CIL_AST.Concat('self', 's', concat_result ))
+        self.register_instruction(CIL_AST.Return(concat_result))
         
     
         #substr
@@ -181,12 +175,9 @@ class BaseCOOLToCILVisitor:
         self.register_param(VariableInfo('self', None))
         self.register_param(VariableInfo('i', None))
         self.register_param(VariableInfo('l', None))
-        i = scope.get_cil_local('i')
-        l = scope.get_cil_local('l')
-        self_cil_name = scope.get_cil_local("self")
         subs_result = self.define_internal_local(scope=scope, name="subs_result")
 
-        self.register_instruction(CIL_AST.SubStr(i, l, self_cil_name, subs_result))
+        self.register_instruction(CIL_AST.SubStr('i', 'l', 'self', subs_result))
         self.register_instruction(CIL_AST.Return(subs_result))        
 
         #----------------Bool---------------------
@@ -237,7 +228,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         func_declarations = (f for f in node.features if isinstance(f, COOL_AST.ClassMethod))
         attr_declarations = (a for a in node.features if not isinstance(a, COOL_AST.ClassMethod))
         for attr in attr_declarations:
-            scope.define_cil_local(attr.name, attr.type, node.name)
+            scope.define_cil_local(attr.name, attr.name, node.name)
 
         #-------------------------Init---------------------------------
         self.current_function = self.register_function(self.to_function_name('init', node.name))
@@ -282,7 +273,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.AttributeDef)
     def visit(self, node, scope):
-        self.register_instruction(CIL_AST.SetAttr('instance', node.name,0, node.type))
+        self.register_instruction(CIL_AST.SetAttr('instance', node.name, 0, node.type))
     
     @visitor.when(COOL_AST.AttributeInit)
     def visit(self, node, scope):
@@ -296,10 +287,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         cil_node_name = scope.find_cil_local(node.name)
 
         if self.is_defined_param(node.name):
-            self.register_instruction(CIL_AST.Assign(cil_node_name, expr_local))
+            self.register_instruction(CIL_AST.Assign(node.name, expr_local))
         elif self.current_type.has_attr(node.name):
             cil_type_name = 'self'
             self.register_instruction(CIL_AST.SetAttr(cil_type_name, cil_node_name, expr_local, self.current_type.name ))
+            print(cil_node_name)
         else:
             cil_node_name = scope.find_cil_local(node.name)
             self.register_instruction(CIL_AST.Assign(cil_node_name, expr_local))
