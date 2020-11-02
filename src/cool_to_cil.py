@@ -45,6 +45,7 @@ class BaseCOOLToCILVisitor:
         if class_type != None:
             cilname = f'{class_type}.{name}'
             scope.define_cil_local(cool_var_name, cilname, None)
+            self.register_local(cilname)
         else :
             cilname = f'{name}_{len(self.localvars)}'
             scope.define_cil_local(cool_var_name, cilname, None)
@@ -80,9 +81,11 @@ class BaseCOOLToCILVisitor:
         for t in ['Object', 'Int', 'String', 'Bool', 'IO']:
             builtin_type = self.context.get_type(t)
             cil_type = self.register_type(t)
-            cil_type.attributes = {f'{t}.{attr.name}':attr for attr in builtin_type.attributes}
-            cil_type.methods = {f'{t}.{m}': m for _, m  in builtin_type.get_all_methods()}
-                        
+            cil_type.attributes = {f'{attr.name}':attr for attr in builtin_type.attributes}
+            cil_type.methods = {f'{m}':f'{c}.{m}' for c, m  in builtin_type.get_all_methods()}
+            if t in ['Object','IO']:
+                cil_type.methods['init'] = f'{t}.init'
+
         #----------------Object---------------------
         #init
         self.current_function = self.register_function(self.to_function_name('init', 'Object'))
@@ -109,7 +112,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(CIL_AST.Return(type_name))
 
         #copy
-        self.current_function = self.register_function(self.to_function_name('type_name', 'Object'))
+        self.current_function = self.register_function(self.to_function_name('copy', 'Object'))
         self.register_param(VariableInfo('self',None))
         copy = self.define_internal_local(scope=scope, name= "copy")
         self.register_instruction(CIL_AST.Copy('self', copy))
@@ -225,8 +228,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         #Handle all the .TYPE section
         cil_type = self.register_type(self.current_type.name)
-        cil_type.attributes = {f'{c}.{attr.name}':attr for c, attr in self.current_type.get_all_attributes()}
-        cil_type.methods = {f'{c}.{m}': m for c, m  in self.current_type.get_all_methods()}
+        cil_type.attributes = {f'{attr.name}':attr for c, attr in self.current_type.get_all_attributes()}
+        cil_type.methods = {f'{m}':f'{c}.{m}' for c, m  in self.current_type.get_all_methods()}
+        cil_type.methods['init'] = f'{node.name}.init'
 
         scope.define_cil_local("self", self.current_type, self.current_type.name)
 
@@ -263,7 +267,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(COOL_AST.ClassMethod)
     def visit(self, node, scope):
         self.current_method = self.current_type.get_method(node.name)
-        
+        self.dottypes[self.current_type.name].methods[node.name] = f'{self.current_type.name}.{node.name}'
         cil_method_name = self.to_function_name(node.name, self.current_type.name)
         self.current_function = self.register_function(cil_method_name)
 
@@ -362,12 +366,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             param_local = self.visit(arg, scope)
             call_args.append(param_local)
         
-        dynamic_type = self.define_internal_local(scope= scope, name="dyn_type")
-        self.register_instruction(CIL_AST.TypeOf(expr_value, dynamic_type))
+        # dynamic_type = self.define_internal_local(scope= scope, name="dyn_type")
+        # self.register_instruction(CIL_AST.TypeOf(expr_value, dynamic_type))
 
         for arg in call_args:
             self.register_instruction(CIL_AST.Arg(arg))
-        self.register_instruction(CIL_AST.VCall(result_local, node.method, call_args, dynamic_type ))
+        self.register_instruction(CIL_AST.VCall(result_local, node.method, call_args, expr_value ))
         
         return result_local
 
@@ -382,8 +386,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         for p in call_args:
             self.register_instruction(CIL_AST.Arg(p))
+
+        static_instance = define_internal_local(scope=scope, name='static_instance')
+        self.register_instruction(CIL_AST.Allocate(node.static_type, static_instance))
         
-        self.register_instruction(CIL_AST.Call(result_local, node.method, call_args,  node.static_type, ))
+        self.register_instruction(CIL_AST.Call(result_local, node.method, call_args,  static_instance ))
         return result_local
         
     @visitor.when(COOL_AST.Let)
