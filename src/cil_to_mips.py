@@ -63,9 +63,6 @@ class CILToMIPSVisitor():
     
     @visitor.when(CIL_AST.Function)
     def visit(self, node):
-        if node.name == 'Main.main':
-            foo = 0
-
         self.current_function = node
 
         self.text += f'{node.name}:\n'
@@ -95,9 +92,9 @@ class CILToMIPSVisitor():
         
     @visitor.when(CIL_AST.Assign)
     def visit(self, node):
-        local_offset = self.search_local_offset(node.local_dest)
+        offset = self.is_param(node.local_dest) and self.search_param_offset(node.local_dest) or self.search_local_offset(node.local_dest)
         self.visit(node.right_expr)
-        self.text += f'sw $a0, {local_offset}($sp)\n'
+        self.text += f'sw $a0, {offset}($sp)\n'
 
 
     @visitor.when(CIL_AST.Allocate)
