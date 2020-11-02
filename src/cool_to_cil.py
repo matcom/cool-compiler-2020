@@ -192,7 +192,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     def visit(self, node, scope = None):
 
         scope = Scope()
-        self.current_function = self.register_function('entry')
+        self.current_function = self.register_function('main')
         instance = self.define_internal_local(scope = scope, name = "instance")
         result = self.define_internal_local(scope = scope, name = "result")
         self.register_instruction(CIL_AST.Allocate('Main', instance))
@@ -230,23 +230,22 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         for attr in attr_declarations:
             scope.define_cil_local(attr.name, attr.name, node.name)
 
+
         #-------------------------Init---------------------------------
         self.current_function = self.register_function(self.to_function_name('init', node.name))
-        instance = self.define_internal_local(scope=scope, name="instance", class_type=self.current_type.name)
         self.register_param(VariableInfo('instance', None))
-        self.register_instruction(CIL_AST.Allocate(node.name, instance))
-        self.current_type.instance = instance
+        # instance = self.define_internal_local(scope=scope, name="instance", class_type=self.current_type.name)
+        # self.register_instruction(CIL_AST.Allocate(node.name, instance))
+        # self.current_type.instance = instance
 
         #Init parents recursively
         result = self.define_internal_local(scope=scope, name = "result")
         self.register_instruction(CIL_AST.Arg(instance))
-        self.register_instruction(CIL_AST.Call(result, self.to_function_name('init', node.parent),[instance], node.parent ))
+        self.register_instruction(CIL_AST.Call(result, 'init',['instance'], node.parent ))
         self.register_instruction(CIL_AST.Return(0))
 
         for attr in attr_declarations:
             self.visit(attr, scope)
-
-        
         #---------------------------------------------------------------
         self.current_function = None
         
@@ -273,7 +272,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.AttributeDef)
     def visit(self, node, scope):
-        self.register_instruction(CIL_AST.SetAttr('instance', node.name, 0, node.type))
+        self.register_instruction(CIL_AST.SetAttr('instance', node.name,None, node.type))
     
     @visitor.when(COOL_AST.AttributeInit)
     def visit(self, node, scope):
@@ -586,7 +585,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             return node.name
         elif cil_name == None and self.current_type.has_attr(node.name): 
             result_local = self.define_internal_local(scope=scope, name = node.name, class_type=self.current_type.name)
-            self.register_instruction(CIL_AST.GetAttr(result_local, "self", node.name, self.current_type.name))
+            self.register_instruction(CIL_AST.GetAttr(result_local, 'self' , node.name, self.current_type.name))
             return result_local
         else:
             return cil_name
