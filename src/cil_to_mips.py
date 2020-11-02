@@ -63,6 +63,9 @@ class CILToMIPSVisitor():
     
     @visitor.when(CIL_AST.Function)
     def visit(self, node):
+        if node.name == 'Main.main':
+            foo = 0
+
         self.current_function = node
 
         self.text += f'{node.name}:\n'
@@ -90,7 +93,13 @@ class CILToMIPSVisitor():
         for method in node.methods.values():
             self.data += f'.word {method}\n'
         
-            
+    @visitor.when(CIL_AST.Assign)
+    def visit(self, node):
+        local_offset = self.search_local_offset(node.local_dest)
+        self.visit(node.right_expr)
+        self.text += f'sw $a0, {local_offset}($sp)\n'
+
+
     @visitor.when(CIL_AST.Allocate)
     def visit(self, node):
         amount = len(self.types[node.type].attributes) + 3
@@ -148,17 +157,15 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.BinaryOperator)
     def visit(self, node):
         mips_comm = self.mips_comm_for_binary_op[node.op]
-        self.visit(node.left)
-        self.mips_code += 'sw $a0, 0(sp)\n'
-        self.mips_code += 'addiu $sp, $sp, -4\n'
-        self.visit(node.right)
-        self.mips_code += 'lw $t1, 4($sp)\n'
-        self.mips_code += f'{mips_comm} $a0, $t1, $a0\n'
-        self.mips_code += 'addiu $sp, $sp, 4\n'
+        left_offset = self.is_param(node.left) and self.search_param_offset(node.left) or self.search_local_offset(node.left)
+        right_offset = self.is_param(node.right) and self.search_param_offset(node.right) or self.search_local_offset(node.right)
+        self.text += f'lw $a0, {left_offset}($sp)\n'
+        self.text += f'lw $t1, {right_offset}($sp)\n'
+        self.text += f'{mips_comm} $a0, $t1, $a0\n'
     
     @visitor.when(CIL_AST.INTEGER)
     def visit(self, node):
-        self.mips_code += f'li $a0, {node.value}\n'
+        self.text += f'li $a0, {node.value}\n'
 
 if __name__ == '__main__':
     import sys
@@ -198,6 +205,8 @@ if __name__ == '__main__':
         
         formatter = CIL_AST.get_formatter()
         cil_code = formatter(cil_ast)
+        with open(f'{sys.argv[1][:-3]}.cil', 'w') as f:
+            f.write(f'{cil_code}')
 
         with open(f'{sys.argv[1][:-3]}.cil', 'w') as f:
             f.write(f'{cil_code}')

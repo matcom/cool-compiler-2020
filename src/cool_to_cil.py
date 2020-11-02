@@ -234,9 +234,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         #-------------------------Init---------------------------------
         self.current_function = self.register_function(self.to_function_name('init', node.name))
         self.register_param(VariableInfo('instance', None))
-        # instance = self.define_internal_local(scope=scope, name="instance", class_type=self.current_type.name)
-        # self.register_instruction(CIL_AST.Allocate(node.name, instance))
-        # self.current_type.instance = instance
+        instance = self.define_internal_local(scope=scope, name="instance", class_type=self.current_type.name)
+        self.register_instruction(CIL_AST.Allocate(node.name, instance))
+        self.current_type.instance = instance
 
         #Init parents recursively
         result = self.define_internal_local(scope=scope, name = "result")
@@ -592,7 +592,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     
     @visitor.when(COOL_AST.INTEGER)
     def visit(self, node, scope):
-        return node.value
+        return CIL_AST.INTEGER(node.value)
 
     @visitor.when(COOL_AST.STRING)
     def visit(self, node, scope):
