@@ -150,7 +150,6 @@ class CILToMIPSVisitor():
         attr_offset = self.search_attr_offset(node.attr)
         self.text += f'sw $t1, {attr_offset}($t0)\n' #set attribute in instance
 
-
     @visitor.when(CIL_AST.BinaryOperator)
     def visit(self, node):
         mips_comm = self.mips_comm_for_binary_op[node.op]
@@ -159,6 +158,8 @@ class CILToMIPSVisitor():
         self.text += f'lw $a0, {left_offset}($sp)\n'
         self.text += f'lw $t1, {right_offset}($sp)\n'
         self.text += f'{mips_comm} $a0, $t1, $a0\n'
+        result_offset = self.is_param(node.local_dest) and self.search_param_offset(node.local_dest) or self.search_local_offset(node.local_dest)
+        self.text += f'sw $a0, {result_offset}($sp)\n'
     
     @visitor.when(CIL_AST.INTEGER)
     def visit(self, node):
