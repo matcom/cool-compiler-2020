@@ -94,7 +94,14 @@ class CILToMIPSVisitor():
     def visit(self, node):
         offset = self.is_param(node.local_dest) and self.search_param_offset(node.local_dest) or self.search_local_offset(node.local_dest)
         self.visit(node.right_expr)
-        self.text += f'sw $a0, {offset}($sp)\n'
+        
+        if isinstance(node.right_expr, int):
+            self.text += f'li $t1, {node.right_expr}\n'
+        else:
+            right_offset = self.is_param(node.local_dest) and self.search_param_offset(node.local_dest) or self.search_local_offset(node.local_dest)
+            self.text += f'lw $t1, {right_offset}($sp)'
+
+        self.text += f'sw $t1, {offset}($sp)\n'
 
 
     @visitor.when(CIL_AST.Allocate)

@@ -592,7 +592,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     
     @visitor.when(COOL_AST.INTEGER)
     def visit(self, node, scope):
-        return CIL_AST.INTEGER(node.value)
+        return node.value
 
     @visitor.when(COOL_AST.STRING)
     def visit(self, node, scope):
