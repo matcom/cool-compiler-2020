@@ -120,6 +120,7 @@ class VariableNode(AtomicNode):
         self.id = var_id
 
 class UnaryOperatorNode(ExpressionNode):
+    operator = ""
     pass
 
 class IsVoidNode(UnaryOperatorNode):
@@ -127,14 +128,15 @@ class IsVoidNode(UnaryOperatorNode):
         self.expression = expr
 
 class IntComplementNode(UnaryOperatorNode):
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, right):
+        self.right = right
 
-class BoolNotNode(UnaryOperatorNode):
-    def __init(self, value):
-        self.value = value
+class BoolComplementNode(UnaryOperatorNode):
+    def __init__(self, right):
+        self.right = right
 
 class BinaryOperatorNode(ExpressionNode):
+    operator=""
     def __init__(self, left, right):
         self.left = left
         self.right = right

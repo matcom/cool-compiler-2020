@@ -1,0 +1,1 @@
+(18, 5) - SemanticError: Attribute x is multiply defined in class.
