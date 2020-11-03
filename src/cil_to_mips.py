@@ -270,6 +270,15 @@ class CILToMIPSVisitor():
         self.text += f'li $v0, 4\n'
         self.text += f'syscall\n'
 
+    @visitor.when(CIL_AST.ReadInteger)
+    def visit(self, node):
+        read_offset = self.var_offset[self.current_function.name][node.result]
+        self.text += f'li $v0, 5\n'
+        self.text += f'syscall\n'
+        self.text += f'sw $v0, {read_offset}($sp)\n'
+
+        
+
     @visitor.when(CIL_AST.INTEGER)
     def visit(self, node):
         self.text += f'li $a0, {node.value}\n'
