@@ -12,7 +12,10 @@ class CILToMIPSVisitor():
             '+' : 'add',
             '-' : 'sub',
             '*' : 'mul',
-            '/' : 'div'
+            '/' : 'div',
+            '<' : 'slt',
+            '<=' : 'sle',
+            '=' : 'seq'
         }
         self.current_function = None
         self.types = None
