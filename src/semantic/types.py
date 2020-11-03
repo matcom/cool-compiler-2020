@@ -30,6 +30,9 @@ class Type:
                 raise SemanticError(f'Attribute "{name}" is not defined in {self.name}.')
 
     def define_attribute(self, name:str, typex):
+        if name == 'self':
+            raise SemanticError(f'\'self\' cannot be the name of an attribute')
+        
         try:
             self.get_attribute(name)
         except SemanticError:
@@ -51,6 +54,9 @@ class Type:
                 raise SemanticError(f'Method "{name}" is not defined in {self.name}.')
 
     def define_method(self, name:str, param_names:list, param_types:list, return_type):
+        if name == 'self':
+            raise SemanticError(f'\'self\' cannot be the name of an method')
+        
         if name in self.methods:
             raise SemanticError(f'Method "{name}" already defined in {self.name}')
         
@@ -79,9 +85,14 @@ class Type:
 
     def __repr__(self):
         return str(self)
+
 class SELF_TYPE(Type):
     def __init__(self):
         Type.__init__(self, 'SELF_TYPE')
+
+    # not check conforms with self_type
+    def conforms_to(self, other):
+        return True
 
 class ErrorType(Type):
     def __init__(self):

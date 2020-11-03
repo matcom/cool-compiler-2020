@@ -69,8 +69,8 @@ class Scope:
         self.cls_scopes = { }
 
         if context:
-            for cls_name, cls in context.types.items():
-                self.cls_scopes[cls_name] = ClassScope(cls_type=cls)
+            for cls_name, clsx in context.types.items():
+                self.cls_scopes[cls_name] = ClassScope(cls_type=clsx)
 
     def __str__(self):
         res = '  Program Scope   \n' + '-'*18 + '\nClasses in Program\n' + '-'*18 + '\n\n'
@@ -89,6 +89,8 @@ class ClassScope:
         self.self_var = VariableInfo('self', self.self_type)
         self.parent = None # using in backtrack search
         self.func_scopes = { fname: InnerScope(parent=self) for fname in cls_type.methods.keys() } 
+        attr_names = [a.name for a in cls_type.attributes]
+        self.attr_scopes = { aname: InnerScope(parent=self) for aname in attr_names}
 
     def get_attribute(self, name):
         return self.self_var if name == 'self' else self.self_type.get_attribute(name) 
@@ -103,6 +105,8 @@ class ClassScope:
         res = 'Class Methods\n' + '-'*25 + '\n'
         for mname, s in self.func_scopes.items():
             res += f'{mname}: {str(s)}\n'
+        for aname, s in self.attr_scopes.items():
+            res += f'{aname}: {str(s)}\n'
         return res
 
     def __repr__(self):
@@ -125,8 +129,22 @@ class InnerScope:
             raise ScopeError(SELF_IS_READONLY)
 
         info = VariableInfo(vname, vtype)
-        self.locals.append(info)
+        if info.name in [v.name for v in self.locals]:
+            raise ScopeError(f"Identifier {info.name} already defined in this scope")
+        else:
+            self.locals.append(info)
         return info
+
+    def redefine_variable(self, vname, vtype):
+        if vname == 'self':
+            raise ScopeError(SELF_IS_READONLY)
+
+        try:
+            cvar = next(x for x in self.locals if x.name == vname)
+            cvar.type = vtype
+            return cvar
+        except:
+            return self.define_variable(vname, vtype)
 
     def find_variable(self, vname):
         try:

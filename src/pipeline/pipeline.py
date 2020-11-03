@@ -12,11 +12,10 @@ class Pipeline(object):
         res = inputx
         for state in self.states:
             res = state.run(res)
-            if state.stop:
+            self.pipeline_errors = state.errors
+            
+            if self.pipeline_errors:
                 break
-
-            # collect errors from current state
-            self.pipeline_errors += state.errors
 
         return res
 

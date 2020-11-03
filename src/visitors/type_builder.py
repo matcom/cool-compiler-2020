@@ -56,12 +56,15 @@ class Builder:
                 current = parent
                 while current:
                     if current.name == self.current_type.name:
-                        raise SemanticError('<CIRCULAR DEPENDENCY>')
+                        raise ContextError(f'{current.name} is involved in inheritance cycle')
                     current = current.parent
-            except SemanticError as e:
+            except ContextError as e:
                 parent = ErrorType()
                 self.errors.append(e.text) # parent type missing
             
+            if node.parent in ['Int', 'String', 'Bool']:
+                self.errors.append('Invalid inherit in basic classes')
+
             self.current_type.set_parent(parent)
     
     @visitor.when(FuncDeclarationNode)

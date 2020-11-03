@@ -39,7 +39,9 @@ class VarCollector(State):
 
     @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope):
-        pass
+        ascope = scope.attr_scopes[node.id]
+        self.current_method = self.current_type.get_attribute(node.id)
+        self.visit(node.expr, ascope)
 
     @visitor.when(FuncDeclarationNode)
     def visit(self, node, scope):
@@ -49,11 +51,10 @@ class VarCollector(State):
         for pname, ptype in node.params:
             try:
                 if pname == 'self':
-                    raise SemanticError(FORMAL_ERROR_SELF)
+                    raise ScopeError(FORMAL_ERROR_SELF)
                 func_scope.define_variable(pname, self.context.get_type(ptype))
-            except SemanticError as e:
+            except ScopeError as e:
                 self.errors.append(e.text)
-                func_scope.define_variable(pname, ErrorType())
 
         self.visit(node.body, func_scope)        
 
@@ -66,7 +67,7 @@ class VarCollector(State):
             try:
                 vtype = self.context.get_type(node.type)
                 scope.define_variable(node.id, vtype)
-            except SemanticError as e:
+            except ScopeError as e:
                 scope.define_variable(node.id, ErrorType())
                 self.errors.append(e.texts)
 
@@ -76,6 +77,9 @@ class VarCollector(State):
     @visitor.when(AssignNode)
     def visit(self, node, scope):
         vinfo = scope.find_variable(node.id)
+        if vinfo.name == 'self':
+            self.errors.append(SELF_IS_READONLY)            
+
         if vinfo is None:
             self.errors.append(VARIABLE_NOT_DEFINED %(node.id, self.current_method.name))
             scope.define_variable(node.id, ErrorType())
@@ -92,9 +96,24 @@ class VarCollector(State):
         new_scope = scope.create_child()
         scope.expr_dict[node] = new_scope
 
+        iscope = new_scope
+
         for init in node.init_list:
-            self.visit(init, new_scope)
-        self.visit(node.expr, new_scope) 
+            self.visit(init, iscope)
+            iscope = iscope.create_child()
+
+        self.visit(node.expr, iscope)
+
+    @visitor.when(LetDeclarationNode)
+    def visit(self, node, scope):
+        try:
+            vtype = self.context.get_type(node.type)
+            scope.redefine_variable(node.id, vtype)
+        except ScopeError as e:
+            self.errors.append(e.text)
+
+        if node.expr is not None:
+            self.visit(node.expr, scope)
 
     @visitor.when(VariableNode)
     def visit(self, node, scope):

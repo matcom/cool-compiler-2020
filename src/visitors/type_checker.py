@@ -51,13 +51,14 @@ class TypeChecker(State):
                 self.errors.append(INCOMPATIBLE_TYPES % (ptype.name, atype.name))
 
     def _join_types(self, ltypes):
-        
+        import itertools as itt
+
         def path_to_objet(typex):
             path = []
             c_type = typex
 
             while c_type:
-                path.append(c_type)
+                path = [c_type] + path
                 c_type = c_type.parent
 
             return path
@@ -65,12 +66,14 @@ class TypeChecker(State):
         paths = [path_to_objet(typex) for typex in ltypes]
         tuples = zip(*paths)
     
-        for i, t in enumerate(tuples):
-            gr = itt.groupby(t)
-            if len(list(gr)) > 1:
-                return paths[0][i-1]
-    
-        return paths[0][-1]
+        jtype = None
+
+        for t in tuples:
+            nxt = t[0]
+            if all(nxt == l for l in t):
+                jtype = nxt
+
+        return jtype
 
     # Visitor Functions
 
@@ -91,9 +94,10 @@ class TypeChecker(State):
 
     @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope):
+        ascope = scope.attr_scopes[node.id]
         vinfo = scope.get_attribute(node.id)
         if node.expr:
-            etype = self.visit(node.expr, scope)
+            etype = self.visit(node.expr, ascope)
             if not etype.conforms_to(vinfo.type):
                 self.errors.append(INCOMPATIBLE_TYPES %(etype.name, vinfo.type.name))
                 return ErrorType()
@@ -147,7 +151,7 @@ class TypeChecker(State):
         
         rtype = self.visit(node.expr, scope)
 
-        if not vtype.conforms_to(rtype):
+        if not rtype.conforms_to(vtype):
             self.errors.append(INCOMPATIBLE_TYPES %(vtype.name, rtype.name))
 
         return rtype
@@ -188,7 +192,9 @@ class TypeChecker(State):
         if ctype.name != 'Bool':
             self.errors.append(INCORRECT_TYPE %(ctype.name, 'Bool'))
         
-        return self.visit(node.expr, scope)
+        self.visit(node.expr, scope)
+        
+        return ObjectType()
 
     @visitor.when(ConditionalNode)
     def visit(self, node, scope):
@@ -216,10 +222,10 @@ class TypeChecker(State):
         etype = self.visit(node.expr, scope)
         new_scope = scope.expr_dict[node]
 
-        types = [t for opt, c_scp in zip(node.case_list, new_scope.children)]
-
+        types = [self.visit(opt, c_scp) for opt, c_scp in zip(node.case_list, new_scope.children)]
+        
         return self._join_types([t[0] for t in types])
-
+        
     @visitor.when(OptionNode)
     def visit(self, node, scope):
         var_info = scope.find_variable(node.id)
@@ -229,9 +235,27 @@ class TypeChecker(State):
     @visitor.when(LetNode)
     def visit(self, node, scope):
         child_scope = scope.expr_dict[node]
+        
+        iscope = child_scope
+        
         for init in node.init_list:
-            self.visit(init, child_scope)
-        return self.visit(node.expr, child_scope)
+            self.visit(init, iscope)
+            iscope = iscope.children[0]
+
+        return self.visit(node.expr, iscope)
+
+    @visitor.when(LetDeclarationNode)
+    def visit(self, node, scope):
+        vinfo = scope.find_variable(node.id)
+        vtype = vinfo.type
+
+        if node.expr:
+            etype = self.visit(node.expr, scope)
+            if not etype.conforms_to(vtype):
+                self.errors.append(INCOMPATIBLE_TYPES %(vtype.name, etype.name))
+            return etype
+
+        return vtype
 
     @visitor.when(BinaryArithOperationNode)
     def visit(self, node, scope):
@@ -248,7 +272,7 @@ class TypeChecker(State):
         ltype = self.visit(node.left, scope)
         rtype = self.visit(node.right, scope)
         if ltype != rtype != IntType():
-            self.errors.append(BOPERATION_NOT_DEFINED %('Logical', ltype.name, rtype.name))
+            self.errors.append(BOPERATION_NOT_DEFINED %('Comparison', ltype.name, rtype.name))
             return ErrorType()
 
         return BoolType()
@@ -258,7 +282,7 @@ class TypeChecker(State):
         ltype = self.visit(node.left, scope)
         rtype = self.visit(node.right, scope)
         if ltype != rtype != IntType():
-            self.errors.append(BOPERATION_NOT_DEFINED %('Logical', ltype.name, rtype.name))
+            self.errors.append(BOPERATION_NOT_DEFINED %('Comparison', ltype.name, rtype.name))
             return ErrorType()
 
         return BoolType()
@@ -267,7 +291,10 @@ class TypeChecker(State):
     def visit(self, node, scope):
         ltype = self.visit(node.left, scope)
         rtype = self.visit(node.right, scope)
-        
+
+        if ltype in [IntType(), StringType(), BoolType()] and ltype != rtype:
+            self.errors.append(f'Invalid comparison operation between {ltype.name} and {rtype.name}')
+
         return BoolType()
 
     @visitor.when(NotNode)

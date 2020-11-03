@@ -21,7 +21,7 @@ class CoolParser(State):
     def token_pos(self, p, idx):
         line = self.lexer.lexer.lineno
         col = find_column(self.lexer.lexer.lexdata, p.lexpos(idx))
-        return line, col
+        return -1, -1
 
     # Set the grammar start symbol
     start = 'program'
@@ -29,7 +29,7 @@ class CoolParser(State):
     # Program Rule
     def p_program(self, p):
         '''program : class_list'''
-        line, col = self.token_pos(p, 0)
+        line, col = self.token_pos(p, 0) 
         p[0] = ProgramNode(line, col, p[1])
 
     # Empty Production
@@ -50,7 +50,7 @@ class CoolParser(State):
     def p_def_class(self, p):
         '''def_class : CLASS TYPEID LBRACE feature_list RBRACE SEMI
                      | CLASS TYPEID INHERITS TYPEID LBRACE feature_list RBRACE SEMI'''
-        line, col = self.token_pos(p, 1)
+        line, col = self.token_pos(p, 2)
         if p[3].lower() == 'inherits':
             p[0] = ClassDeclarationNode(line, col, p[2], p[6], p[4])
         else:
@@ -148,10 +148,10 @@ class CoolParser(State):
                       | param'''
         try:
             line, col = self.token_pos(p, 2)
-            p[0] = VarDeclarationNode(line, col, p[1][0], p[1][1], p[3])
+            p[0] = LetDeclarationNode(line, col, p[1][0], p[1][1], p[3])
         except:
-            line, col = self.token_pos(p, 0)
-            p[0] = VarDeclarationNode(line, col, p[1][0], p[1][1])
+            line, col = self.token_pos(p, 1)
+            p[0] = LetDeclarationNode(line, col, p[1][0], p[1][1])
 
     # Case Rules
 
@@ -165,7 +165,7 @@ class CoolParser(State):
 
     def p_case(self, p):
         '''case : ID COLON TYPEID WITH expr'''
-        line, col = self.token_pos(p, 0)
+        line, col = self.token_pos(p, 1)
         p[0] = OptionNode(line, col, p[1], p[3], p[5])
 
     #   Arith Operations
@@ -231,17 +231,17 @@ class CoolParser(State):
         '''base_call : fact ARROBA TYPEID DOT func_call
                      | fact'''
         try:
-            line, col = self.token_pos(p, 2)
+            line, col = self.token_pos(p, 3)
             p[0] = ParentCallNode(line, col, p[1], p[3], p[5][0], p[5][1])
         except:
-            line, col = self.token_pos(p, 0)
+            line, col = self.token_pos(p, 1)
             p[0] = p[1]
 
     def p_factcall(self, p):
         '''fact : fact DOT func_call
                 | func_call'''
         try:
-            line, col = self.token_pos(p, 2)
+            line, col = self.token_pos(p, 1)
             p[0] = ExprCallNode(line, col, p[1], p[3][0], p[3][1])
         except:
             line, col = self.token_pos(p, 0)

@@ -35,6 +35,13 @@ class LetNode(ExpressionNode):
     def __hash__(self):
         return id(self)
 
+class LetDeclarationNode(ExpressionNode):
+    def __init__(self, row, col, idx, typex, expr=None):
+        super().__init__(row, col)
+        self.id = idx
+        self.type = typex
+        self.expr = expr
+
 class BlockNode(ExpressionNode):
     def __init__(self, row, col, expr_list):
         super().__init__(row, col)
