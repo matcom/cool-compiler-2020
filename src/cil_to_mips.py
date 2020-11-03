@@ -204,6 +204,13 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.INTEGER)
     def visit(self, node):
         self.text += f'li $a0, {node.value}\n'
+    
+    @visitor.when(CIL_AST.IfGoto)
+    def visit(self, node):
+        predicate_offset = self.search_var_offset(node.variable)
+        self.text += f'lw $a0, {predicate_offset}($sp)\n'
+        self.text += f'li $t1, 1\n'
+        self.text += f'beq $a0, $t1 {node.label}\n'
 
 if __name__ == '__main__':
     import sys
