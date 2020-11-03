@@ -16,6 +16,9 @@ class CILToMIPSVisitor():
         }
         self.current_function = None
         self.types = None
+        self.attr_offset = {}
+        self.method_offset = {}
+        self.var_offset = {}
 
     def search_var_offset(self, name):
         for i, local in enumerate(self.current_function.localvars + self.current_function.params):
@@ -85,15 +88,34 @@ class CILToMIPSVisitor():
         self.data += f'{node.name}_methods:\n'
         for method in node.methods.values():
             self.data += f'.word {method}\n'
+
+        idx = 0
+        for attr in node.attributes.values():
+            self.attr_offset.__setitem__(node.name, {})
+            self.attr_offset[node.name][attr] = 4*idx
+            idx = idx + 1
+        
+        idx = 0
+        for met in node.methods.values():
+            self.methods_offset.__setitem__(node.name, {})
+            self.methods_offset[node.name][met] = 4*idx
+            idx = idx + 1
+        
+        self.var_offset.__setitem__(self.current_function.name, {})
+
+        idx = 0
+        for var in enumerate(self.current_function.localvars + self.current_function.params)ms:
+            self.var_offset[self.current_function.name][var.name] = (idx + 1)*4
+            idx = idx + 1
         
     @visitor.when(CIL_AST.Assign)
     def visit(self, node):
-        offset = self.search_var_offset(node.local_dest)
+        offset = self.var_offset[self.current_function.name][node.local_dest]
         
         if isinstance(node.right_expr, int):
             self.text += f'li $t1, {node.right_expr}\n'
         else:
-            right_offset = self.search_var_offset(node.right_expr)
+            right_offset = self.var_offset[self.current_function.name][node.right_expr]
             self.text += f'lw $t1, {right_offset}($sp)\n'
 
         self.text += f'sw $t1, {offset}($sp)\n'
@@ -115,7 +137,7 @@ class CILToMIPSVisitor():
         self.text += f'la $t1, {node.type}_methods\n' #methods pointer
         self.text += f'sw $t1, 8($t0)\n'
 
-        offset = self.search_var_offset(node.local_dest)
+        offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $t0, {offset}($sp)\n'  #store instance address in local
 
     @visitor.when(CIL_AST.ParamDec)
@@ -129,34 +151,33 @@ class CILToMIPSVisitor():
 
     @visitor.when(CIL_AST.GetAttr)
     def visit(self, node):
-        self_offset = self.search_var_offset(node.instance)
+        self_offset = self.var_offset[self.current_function.name][node.instance]
         self.text += f'lw $t0, {self_offset}($sp)\n'  #get self address
         
-        attr_offset = self.search_attr_offset(node.static_type, node.attr)
+        attr_offset = self.attr_offset[node.static_type][node.attr]
         self.text += f'lw $t1, {attr_offset}($t0)\n'  #get attribute
         
-        result_offset = self.search_var_offset(node.local_dest)
+        result_offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $t1, {result_offset}($sp)\n' #store attribute in local
 
     @visitor.when(CIL_AST.SetAttr)
     def visit(self, node):
-        self_offset = self.search_var_offset(node.instance)
+        self_offset = self.var_offset[self.current_function.name][node.instance]
         self.text += f'lw $t0, {self_offset}($sp)\n'  #get self address
 
         if node.value:
-            value_offset = self.search_var_offset(
-                node.value)  # get value from local
+            value_offset = self.var_offset[self.current_function.name][node.value]  # get value from local
             self.text += f'lw $t1, {value_offset}($sp)\n'
         else:
             self.text += f'lw $t1, $zero\n'  # not initialized attribute
             
-        attr_offset = self.search_attr_offset(node.static_type, node.attr)
+        attr_offset = self.attr_offset[node.static_type][node.attr]
         self.text += f'sw $t1, {attr_offset}($t0)\n' #set attribute in instance
 
 
     @visitor.when(CIL_AST.Arg)
     def visit(self, node):
-        value_offset = self.search_var_offset(node.arg)  # get value from local
+        value_offset = self.var_offset[self.current_function.name][node.arg]  # get value from local
         self.text += f'lw $t1, {value_offset}($t0)\n'
         self.text += 'addi $sp, $sp, -4\n'
         self.text += 'sw $t1, 0($sp)\n'
@@ -168,12 +189,12 @@ class CILToMIPSVisitor():
         for arg in node.params:
             self.visit(arg)
 
-        value_offset = self.search_var_offset(node.instance)  
+        value_offset = self.var_offset[self.current_function.name][node.instance]  
         self.text += f'lw $t1, {value_offset}($t0)\n'  # get instance from local
 
         self.text += f'lw $t2, 8($t1)\n' #get dispatch table address
 
-        method_offset = self.search_method_offset(node.dynamic_type, node.function)
+        method_offset = self.method_offset[node.dynamic_type][node.function]
         self.text += f'lw $t3, {method_offset}($t2)\n' # get method address
         
         self.text += 'jal $t3\n'
@@ -192,12 +213,12 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.BinaryOperator)
     def visit(self, node):
         mips_comm = self.mips_comm_for_binary_op[node.op]
-        left_offset = self.search_var_offset(node.left)
-        right_offset = self.search_var_offset(node.right)
+        left_offset = self.var_offset[self.current_function.name][node.left]
+        right_offset = self.var_offset[self.current_function.name][node.right]
         self.text += f'lw $a0, {left_offset}($sp)\n'
         self.text += f'lw $t1, {right_offset}($sp)\n'
         self.text += f'{mips_comm} $a0, $t1, $a0\n'
-        result_offset = self.search_var_offset(node.local_dest)
+        result_offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $a0, {result_offset}($sp)\n'
     
     @visitor.when(CIL_AST.INTEGER)
@@ -206,7 +227,7 @@ class CILToMIPSVisitor():
     
     @visitor.when(CIL_AST.IfGoto)
     def visit(self, node):
-        predicate_offset = self.search_var_offset(node.variable)
+        predicate_offset = self.var_offset[self.current_function.name][node.variable]
         self.text += f'lw $a0, {predicate_offset}($sp)\n'
         self.text += f'li $t1, 1\n'
         self.text += f'beq $a0, $t1 {node.label}\n'
@@ -226,14 +247,14 @@ class CILToMIPSVisitor():
             self.text += f'li $a0 , {node.variable}\n'
             self.text += f'syscall\n'
         else:
-            var_offset = self.search_var_offset(node.variable)
+            var_offset = self.var_offset[self.current_function.name][node.variable]
             self.text += f'li $v0 , 1\n'
             self.text += f'lw $a0 , {var_offset}($sp)\n'
             self.text += f'syscall\n'
 
     @visitor.when(CIL_AST.PrintString)
     def visit(self, node):
-        var_offset = self.search_var_offset(node.variable)
+        var_offset = self.var_offset[self.current_function.name][node.variable]
         self.text += f'lw $a0, {var_offset}($sp)\n'
         self.text += f'li $v0, 4\n'
         self.text += f'syscall\n'
