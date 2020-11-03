@@ -260,9 +260,6 @@ if __name__ == '__main__':
         with open(f'{sys.argv[1][:-3]}.cil', 'w') as f:
             f.write(f'{cil_code}')
 
-        with open(f'{sys.argv[1][:-3]}.cil', 'w') as f:
-            f.write(f'{cil_code}')
-
         cil_to_mips = CILToMIPSVisitor()
         mips_code = cil_to_mips.visit(cil_ast)
        
