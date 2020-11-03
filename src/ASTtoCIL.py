@@ -12,6 +12,9 @@ class CILTranspiler:
         self.variablecount=0
         self.labelcount=0
         self.classidcount=10
+        self.caseResultStack=[]
+        self.caseEndStack=[]
+        self.caseExpresionStack=[]
     def GenerarGrafoDeHerencia(self,classes:list):
         grafo={}
         for c in classes:
@@ -134,9 +137,13 @@ class CILTranspiler:
 
     @visitor.when(StringNode)
     def visit(self, node: StringNode, scope:Scope):
-        datadeclaration=CILDataDeclaration("st"+str(self.datacount), node.value)
+        nombrestring="st"+str(self.datacount)
+        datadeclaration=CILDataDeclaration(nombrestring, node.value)
         self.datacount+=1
         self.data[datadeclaration.nombre]=datadeclaration
+        destino=self.GenerarNombreVariable()
+        return [CILStringLoad(destino, [nombrestring])]
+
 
     @visitor.when(IntegerNode)
     def visit(self, node: IntegerNode, scope:Scope):
@@ -284,11 +291,17 @@ class CILTranspiler:
     @visitor.when(DispatchNode)
     def visit(self, node:DispatchNode, scope:Scope):
         instructions=[]
+        leftInstructions=self.visit(node.left_expression, scope)
+        instructions.extend(leftInstructions)
+
         for p in node.parameters:
-            instructions.append(CILArgument(params=[p.name]))
-        
+            paramInstruction=self.visit(p, scope)
+            paramInstruction.append(CILArgument(params=[paramInstruction[len(paramInstruction)-1].destination]))
+            instructions.extend(paramInstruction)
+
+        instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
         resultVariable=self.GenerarNombreVariable()
-        llamada=CILCall(resultVariable,[node.func_id])
+        llamada=CILVirtualCall(resultVariable,[node.func_id])
         instructions.append(llamada)
 
         return instructions
@@ -296,9 +309,16 @@ class CILTranspiler:
     @visitor.when(StaticDispatchNode)
     def visit(self, node:StaticDispatchNode, scope:Scope):
         instructions=[]
+
+        leftInstructions=self.visit(node.left_expression, scope)
+        instructions.extend(leftInstructions)
+
         for p in node.parameters:
-            instructions.append(CILArgument(params=[p.name]))
-        
+            paramInstruction=self.visit(p, scope)
+            paramInstruction.append(CILArgument(params=[paramInstruction[len(paramInstruction)-1].destination]))
+            instructions.extend(paramInstruction)        
+
+        instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
         resultVariable=self.GenerarNombreVariable()
         llamada=CILVirtualCall(resultVariable,[node.parent_id,node.func_id])
         instructions.append(llamada)
@@ -320,17 +340,74 @@ class CILTranspiler:
 
         return instructions
 
+    @visitor.when(CaseNode)
+    def visit(self, node:CaseNode, scope:Scope):
+        instructions=[]
+        expresion0=self.visit(node.expression, scope)
+        instructions.extend(expresion0)
+
+        destinoExpresion0=expresion0[len(expresion0)-1].destination
+
+        resultado1=self.GenerarNombreVariable()
+        saltofinal=self.GenerarNombreVariable()
+        self.caseResultStack.append(resultado1)
+        self.caseExpresionStack.append(destinoExpresion0)
+        self.caseEndStack.append(saltofinal)
+
+        for sub in node.subcases:
+            nueva=self.GenerarNombreVariable()
+            subInstructions=self.visit(sub, case)
+            instructions.extend(subInstructions)
+
+        self.caseResultStack.pop(-1)
+        self.caseExpresionStack.pop(-1)
+        self.caseEndStack.append(saltofinal)
+
+        instructions.append(CILLabel([saltofinal]))
+        
+        resultadofinal=self.GenerarNombreVariable()
+        instructions.append(CILAssign(resultadofinal,[resultado1]))
+
+        return instructions
+
+
     @visitor.when(SubCaseNode)
     def visit(self, node:SubCaseNode, scope:Scope):
         instructions=[]
-        prevName=scope.class_name
-        scope.class_name=node.type
+        # prevName=scope.class_name
+        # scope.class_name=node.type
+
+        expresion0=self.caseExpresionStack.pop(-1)
+        self.caseExpresionStack.append(expresion0)
+
+        tipoResult=self.GenerarNombreVariable()
+        chequeo=CILTypeCheck(tipoResult,[expresion0, node.type])
+        instructions.append(chequeo)
+
+        labelfinal=self.GenerarNombreVariable()
+        salto=CILConditionalJump([tipoResult,labelfinal])
+        instructions.append(salto)
+
+        asignacion=CILAssign(node.name, [expresion0])
+        instructions.append(asignacion)
 
         instructions.extend(self.visit(node.expression,scope))
 
         resultVariable=self.GenerarNombreVariable()
         asignacion=CILAssign(resultVariable,[instructions[len(instructions)-1].destination])
 
-        scope.class_name=prevName
+        resultHolder=self.caseResultStack.pop(-1)
+        self.caseResultStack.append(resultHolder)
+        final=CILAssign(resultHolder,[resultVariable])
 
-        instructions.append(asignacion)
+        instructions.extend([asignacion,final])
+
+        saltofinal=self.caseEndStack.pop(-1)
+        self.caseEndStack.append(saltofinal)
+        CILJump([saltofinal])
+
+        # scope.class_name=prevName
+
+        instructions.append(CILLabel([labelfinal]))
+        
+        return instructions

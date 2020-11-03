@@ -3,6 +3,9 @@ class CILInstructionNode:
         self.destination=destination
         self.params=params
 
+class CILTypeCheck(CILInstructionNode): #Devuelve True si el tipo es correcto, se le pasa una variable y una variable con string
+    pass
+
 class CILBinaryOperator(CILInstructionNode):
     pass
 
@@ -62,6 +65,12 @@ class CILVirtualCall(CILMethodInstruction):
 class CILArgument(CILMethodInstruction):
     pass
 class CILReturn(CILMethodInstruction):
+    pass
+
+class CILStringInstruction(CILInstructionNode):
+    pass
+
+class CILStringLoad(CILInstructionNode):
     pass
 
 
