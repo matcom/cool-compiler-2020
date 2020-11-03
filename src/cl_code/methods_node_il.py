@@ -69,3 +69,39 @@ class CommentIL(NodeIL):
     
     def __str__(self):
         pass
+
+class HierarchyIL(NodeIL):
+    def __init__(self):
+        pass
+    
+    def __str__(self):
+        pass
+
+class InheritIL(NodeIL):
+    def __init__(self):
+        pass
+    
+    def __str__(self):
+        pass
+
+class VirtualTableIL(NodeIL):
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        pass
+
+class DispatchIL(NodeIL):
+    def __init__(self):
+        pass
+    
+    def __str__(self):
+        pass
+
+class DispatchParentIL(ILNode):
+    def __init__(self):
+        pass
+
+
+    def __str__(self):
+        pass
