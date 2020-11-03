@@ -89,13 +89,12 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.Assign)
     def visit(self, node):
         offset = self.search_var_offset(node.local_dest)
-        self.visit(node.right_expr)
         
         if isinstance(node.right_expr, int):
             self.text += f'li $t1, {node.right_expr}\n'
         else:
-            right_offset = self.search_var_offset(node.local_dest)
-            self.text += f'lw $t1, {right_offset}($sp)'
+            right_offset = self.search_var_offset(node.right_expr)
+            self.text += f'lw $t1, {right_offset}($sp)\n'
 
         self.text += f'sw $t1, {offset}($sp)\n'
 
@@ -211,6 +210,14 @@ class CILToMIPSVisitor():
         self.text += f'lw $a0, {predicate_offset}($sp)\n'
         self.text += f'li $t1, 1\n'
         self.text += f'beq $a0, $t1 {node.label}\n'
+    
+    @visitor.when(CIL_AST.Goto)
+    def visit(self, node):
+        self.text += f'b {node.label}\n'
+    
+    @visitor.when(CIL_AST.Label)
+    def visit(self, node):
+        self.text += f'{node.label}:\n'
 
 if __name__ == '__main__':
     import sys
