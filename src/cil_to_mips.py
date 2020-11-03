@@ -8,14 +8,16 @@ class CILToMIPSVisitor():
         self.mips_code = ''
         self.text = ''
         self.data = ''
-        self.mips_comm_for_binary_op = {
+        self.mips_comm_for_operators = {
             '+' : 'add',
             '-' : 'sub',
             '*' : 'mul',
             '/' : 'div',
             '<' : 'slt',
             '<=' : 'sle',
-            '=' : 'seq'
+            '=' : 'seq',
+            '~' : 'neg',
+            'not': 'not'
         }
         self.current_function = None
         self.types = None
@@ -215,7 +217,7 @@ class CILToMIPSVisitor():
 
     @visitor.when(CIL_AST.BinaryOperator)
     def visit(self, node):
-        mips_comm = self.mips_comm_for_binary_op[node.op]
+        mips_comm = self.mips_comm_for_operators[node.op]
         left_offset = self.var_offset[self.current_function.name][node.left]
         right_offset = self.var_offset[self.current_function.name][node.right]
         self.text += f'lw $a0, {left_offset}($sp)\n'
@@ -224,10 +226,16 @@ class CILToMIPSVisitor():
         result_offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $a0, {result_offset}($sp)\n'
     
-    @visitor.when(CIL_AST.INTEGER)
+    @visitor.when(CIL_AST.UnaryOperator)
     def visit(self, node):
-        self.text += f'li $a0, {node.value}\n'
-    
+        mips_comm = self.mips_comm_for_operators[node.op]
+        expr_offset = self.var_offset[self.current_function.name][node.expr_value]
+        self.text += f'lw $t1, {expr_offset}($sp)\n'
+        self.text += f'{mips_comm} $a0, $t1 \n'
+      
+        result_offset = self.var_offset[self.current_function.name][node.local_dest]
+        self.text += f'sw $a0, {result_offset}($sp)\n'
+        
     @visitor.when(CIL_AST.IfGoto)
     def visit(self, node):
         predicate_offset = self.var_offset[self.current_function.name][node.variable]
@@ -261,6 +269,10 @@ class CILToMIPSVisitor():
         self.text += f'lw $a0, {var_offset}($sp)\n'
         self.text += f'li $v0, 4\n'
         self.text += f'syscall\n'
+
+    @visitor.when(CIL_AST.INTEGER)
+    def visit(self, node):
+        self.text += f'li $a0, {node.value}\n'
 
     
 
