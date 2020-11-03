@@ -222,18 +222,21 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.PrintInteger)
     def visit(self, node):   
         if isinstance(node.variable, int):
-            self.text += $"\t li $v0 , 1\n";
-            self.text += $"\t li $a0 , {node.variable}\n";
-            self.text += $"\t syscall\n";
+            self.text += f'li $v0 , 1\n'
+            self.text += f'li $a0 , {node.variable}\n'
+            self.text += f'syscall\n'
         else:
             var_offset = self.search_var_offset(node.variable)
-            self.text += $"\t li $v0 , 1\n";
-            self.text += $"\t lw $a0 , {var_offset}($sp)\n";
-            self.text += $"\t syscall\n";
+            self.text += f'li $v0 , 1\n'
+            self.text += f'lw $a0 , {var_offset}($sp)\n'
+            self.text += f'syscall\n'
 
     @visitor.when(CIL_AST.PrintString)
     def visit(self, node):
-        pass
+        var_offset = self.search_var_offset(node.variable)
+        self.text += f'lw $a0, {var_offset}($sp)\n'
+        self.text += f'li $v0, 4\n'
+        self.text += f'syscall\n'
 
     
 
