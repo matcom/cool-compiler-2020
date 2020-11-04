@@ -74,11 +74,15 @@ def main():
                 for er in errors:
                     print(er)
                 exit(1)
+            
             _, errors = make_parser(s)
+            
             if len(errors) > 0:
                 for er in errors:
                     print(er)
                 exit(1)
+
+            
 
     except (IOError, FileNotFoundError):
         print(f"Error! File {program} not found.")
