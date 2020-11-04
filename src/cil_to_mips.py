@@ -69,6 +69,12 @@ class CILToMIPSVisitor():
     def visit(self, node):
         self.current_function = node
 
+        self.var_offset.__setitem__(self.current_function.name, {})
+       
+        for idx, var in enumerate(self.current_function.localvars + self.current_function.params):
+            self.var_offset[self.current_function.name][var.name] = (idx + 1)*4
+         
+
         self.text += f'{node.name}:\n'
         # self.text += f'move $fp, $sp\n'  #save frame pointer of current function
         
@@ -95,23 +101,17 @@ class CILToMIPSVisitor():
             self.data += f'.word {method}\n'
 
         idx = 0
-        for attr in node.attributes.values():
+        for attr in node.attributes:
             self.attr_offset.__setitem__(node.name, {})
             self.attr_offset[node.name][attr] = 4*idx
             idx = idx + 1
         
         idx = 0
-        for met in node.methods.values():
-            self.methods_offset.__setitem__(node.name, {})
-            self.methods_offset[node.name][met] = 4*idx
+        for met in node.methods:
+            self.method_offset.__setitem__(node.name, {})
+            self.method_offset[node.name][met] = 4*idx
             idx = idx + 1
         
-        self.var_offset.__setitem__(self.current_function.name, {})
-
-        idx = 0
-        for var in enumerate(self.current_function.localvars + self.current_function.params)ms:
-            self.var_offset[self.current_function.name][var.name] = (idx + 1)*4
-            idx = idx + 1
         
     @visitor.when(CIL_AST.Assign)
     def visit(self, node):
@@ -182,6 +182,11 @@ class CILToMIPSVisitor():
 
     @visitor.when(CIL_AST.Arg)
     def visit(self, node):
+        print(node.arg)
+        print(self.var_offset)
+        print(self.current_function.name)
+        print(len(self.current_function.params))
+        print("************************")
         value_offset = self.var_offset[self.current_function.name][node.arg]  # get value from local
         self.text += f'lw $t1, {value_offset}($t0)\n'
         self.text += 'addi $sp, $sp, -4\n'
