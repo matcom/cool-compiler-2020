@@ -1,0 +1,1 @@
+(15, 18) - TypeError: Class B inherits from an undefined class A.
