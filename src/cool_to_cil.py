@@ -259,6 +259,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_function = None
 
         self.register_data('Execution aborted')
+        self.dotdata['empty_str'] = ''
         
         #Add built-in types in .TYPES section
         self.register_builtin_types(scope)
@@ -327,7 +328,24 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.AttributeDef)
     def visit(self, node, scope):
-        self.register_instruction(CIL_AST.SetAttr('instance', node.name,None, node.type))
+        instance = None
+
+        if node.type in ['Int', 'Bool']:
+            instance = self.define_internal_local(scope=scope, name="instance")
+            self.register_instruction(CIL_AST.Allocate(node.type, instance))
+            value = self.define_internal_local(scope=scope, name="value")
+            self.register_instruction(CIL_AST.LoadInt(0,value))
+            result_init = self.define_internal_local(scope=scope, name="result_init")
+            self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', node.type), [CIL_AST.Arg(instance), CIL_AST.Arg(value)], node.type))
+        elif node.type == 'String':
+            instance = self.define_internal_local(scope=scope, name="instance")
+            self.register_instruction(CIL_AST.Allocate(node.type, instance))
+            value = self.define_internal_local(scope=scope, name="value")
+            self.register_instruction(CIL_AST.LoadStr('empty_str',value))
+            result_init = self.define_internal_local(scope=scope, name="result_init")
+            self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', node.type), [CIL_AST.Arg(instance), CIL_AST.Arg(value)], node.type))
+
+        self.register_instruction(CIL_AST.SetAttr('instance', node.name,instance, node.type))
     
     @visitor.when(COOL_AST.AttributeInit)
     def visit(self, node, scope):
@@ -398,8 +416,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.Goto("loop_init"))
         self.register_instruction(CIL_AST.Label("loop_end"))
 
-        self.register_instruction(CIL_AST.Assign(result_local, body_value))
-
+        self.register_instruction(CIL_AST.LoadVoid(result_local))
         return result_local
     
     @visitor.when(COOL_AST.DynamicCall)
@@ -499,7 +516,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         expre_value = self.visit(node.expr)
         result_local = self.define_internal_local(scope=scope, name ="isvoid_result")
         self.register_instruction(CIL_AST.IsVoid(result_local, expre_value))
-        return result_local
+        instance = self.define_internal_local(scope=scope, name="instance")
+        self.register_instruction(CIL_AST.Allocate('Bool', instance))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Bool'), [CIL_AST.Arg(instance), CIL_AST.Arg(result_local)], "Bool"))
+        return instance
        
     @visitor.when(COOL_AST.Sum)
     def visit(self, node, scope):

@@ -52,7 +52,9 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.Program)
     def visit(self, node):
         self.types = node.dottypes
-
+        
+        self.data += 'void .word 0'
+        
         for node_type in node.dottypes.values():
             self.visit(node_type)
         
@@ -174,7 +176,7 @@ class CILToMIPSVisitor():
             value_offset = self.var_offset[self.current_function.name][node.value]  # get value from local
             self.text += f'lw $t1, {value_offset}($sp)\n'
         else:
-            self.text += f'lw $t1, $zero\n'  # not initialized attribute
+            self.text += f'la $t1, void\n'  # not initialized attribute
             
         attr_offset = self.attr_offset[node.static_type][node.attr]
         self.text += f'sw $t1, {attr_offset}($t0)\n' #set attribute in instance
@@ -306,6 +308,15 @@ class CILToMIPSVisitor():
         self.text += 'lw $t1, 0($t0)\n' # get type name from the first pos in obj layout
         res_offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $t1, {res_offset}($sp)\n'
+
+    @visitor.when(CIL_AST.IsVoid)
+    def visit(self, node):
+        self.text += 'la $t0, void\n'
+        offset = self.var_offset[self.current_function.name][node.expre_value] 
+        self.text += 'lw $t1, {offset}($sp)\n' 
+        self.text += 'seq $a0, $t0, $t1\n'  
+        res_offset = self.var_offset[self.current_function.name][node.result_local]
+        self.text += f'sw $a0, {res_offset}($sp)\n'
 
 if __name__ == '__main__':
     import sys

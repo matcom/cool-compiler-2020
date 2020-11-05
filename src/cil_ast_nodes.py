@@ -239,6 +239,10 @@ class LoadStr(Expr):
     def __str__(self):
         return f'LOAD {self.msg};'
 
+class LoadVoid(Expr):
+    def __init__(self, dest):
+        self.local_dest = dest
+
 class Length(Expr):
     def __init__(self, variable, result):
         self.variable = variable
@@ -367,6 +371,10 @@ def get_formatter():
         @visitor.when(LoadInt)
         def visit(self, node):
             return f'{node.local_dest} = LOAD {node.num}'
+
+        @visitor.when(LoadVoid)
+        def visit(self, node):
+            return f'{node.local_dest} = LOAD VOID'
 
         @visitor.when(GetAttr)
         def visit(self, node):
