@@ -208,7 +208,7 @@ class CILTranspiler:
 
     @visitor.when(MethodNode)
     def visit(self, node: MethodNode, scope:Scope):
-        parameters=[]
+        parameters=["self"]
         locales=[]
         for param in node.parameters:
             parameters.append(param.name)
@@ -294,6 +294,8 @@ class CILTranspiler:
         leftInstructions=self.visit(node.left_expression, scope)
         instructions.extend(leftInstructions)
 
+        instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
+
         for p in node.parameters:
             paramInstruction=self.visit(p, scope)
             paramInstruction.append(CILArgument(params=[paramInstruction[len(paramInstruction)-1].destination]))
@@ -312,6 +314,8 @@ class CILTranspiler:
 
         leftInstructions=self.visit(node.left_expression, scope)
         instructions.extend(leftInstructions)
+
+        instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
 
         for p in node.parameters:
             paramInstruction=self.visit(p, scope)
