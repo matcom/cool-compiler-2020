@@ -101,7 +101,7 @@ class BaseCOOLToCILVisitor:
         for s in self.dotdata.keys():
             if self.dotdata[s] == 'Execution aborted':
                 key_msg = s
-        self.register_instruction(CIL_AST.Load(key_msg, msg))
+        self.register_instruction(CIL_AST.LoadStr(key_msg, msg))
         self.register_instruction(CIL_AST.PrintString(msg))
         self.register_instruction(CIL_AST.Halt())
 
@@ -655,8 +655,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     def visit(self, node, scope):
         instance = self.define_internal_local(scope=scope, name="instance")
         self.register_instruction(CIL_AST.Allocate('Int', instance))
+        value = self.define_internal_local(scope=scope, name="value")
+        self.register_instruction(CIL_AST.LoadInt(node.value,value))
         result_init = self.define_internal_local(scope=scope, name="result_init")
-        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Int'), [CIL_AST.Arg(instance), CIL_AST.Arg(node.value)], "Int"))
+        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Int'), [CIL_AST.Arg(instance), CIL_AST.Arg(value)], "Int"))
         return instance
 
     @visitor.when(COOL_AST.STRING)
@@ -670,7 +672,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             str_name = self.register_data(node.value)
 
         result_local = self.define_internal_local(scope=scope)
-        self.register_instruction(CIL_AST.Load(str_name, result_local))
+        self.register_instruction(CIL_AST.LoadStr(str_name, result_local))
         instance = self.define_internal_local(scope=scope, name="instance")
         self.register_instruction(CIL_AST.Allocate('String', instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
@@ -679,11 +681,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
     @visitor.when(COOL_AST.Boolean)
     def visit(self, node, scope):
-        value = 0
+        boolean = 0
         if str(node.value) == "true":
-            value = 1
+            boolean = 1
         instance = self.define_internal_local(scope=scope, name="instance")
         self.register_instruction(CIL_AST.Allocate('Bool', instance))
+        value = self.define_internal_local(scope=scope, name="value")
+        self.register_instruction(CIL_AST.LoadInt(boolean, value))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Bool'), [CIL_AST.Arg(instance), CIL_AST.Arg(value)], "Bool"))
         return instance

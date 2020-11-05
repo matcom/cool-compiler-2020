@@ -282,13 +282,18 @@ class CILToMIPSVisitor():
         self.text += f'syscall\n'
         self.text += f'sw $v0, {read_offset}($sp)\n'
 
-        
-
-    @visitor.when(CIL_AST.INTEGER)
+    @visitor.when(CIL_AST.LoadStr)
     def visit(self, node):
-        self.text += f'li $a0, {node.value}\n'
+        self.text += f'la $t0, {node.msg}\n'
+        offset = self.var_offset[self.current_function.name][node.local_dest]
+        self.text += f'sw $t0, {offset}($sp)\n'
 
-    
+    @visitor.when(CIL_AST.LoadInt)
+    def visit(self, node):
+        self.text += f'li $t0, {node.num}\n'
+        offset = self.var_offset[self.current_function.name][node.local_dest]
+        self.text += f'sw $t0, {offset}($sp)\n'
+
 
 if __name__ == '__main__':
     import sys
