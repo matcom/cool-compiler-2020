@@ -53,7 +53,7 @@ class CILToMIPSVisitor():
     def visit(self, node):
         self.types = node.dottypes
         
-        self.data += 'void .word 0'
+        self.data += 'void: .word 0\n'
         
         for node_type in node.dottypes.values():
             self.visit(node_type)
@@ -304,7 +304,7 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.TypeOf)
     def visit(self, node):
         obj_offset = self.var_offset[self.current_function.name][node.variable] 
-        self.text += 'lw $t0, {obj_offset}($sp)\n' #get obj address from local
+        self.text += f'lw $t0, {obj_offset}($sp)\n' #get obj address from local
         self.text += 'lw $t1, 0($t0)\n' # get type name from the first pos in obj layout
         res_offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $t1, {res_offset}($sp)\n'
