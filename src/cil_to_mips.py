@@ -294,6 +294,10 @@ class CILToMIPSVisitor():
         offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $t0, {offset}($sp)\n'
 
+    @visitor.when(CIL_AST.Halt)
+    def visit(self, node):
+        self.text += 'li $v0, 10\n'
+        self.text += 'syscall\n'
 
 if __name__ == '__main__':
     import sys
