@@ -48,20 +48,20 @@ class VarCollector(State):
         self.current_method = self.current_type.get_method(node.id)
         func_scope = scope.func_scopes[node.id]
 
-        for pname, ptype in node.params:
+        for param in node.params:
             try:
-                if pname == 'self':
+                if param.id == 'self':
                     raise ScopeError(FORMAL_ERROR_SELF)
-                func_scope.define_variable(pname, self.context.get_type(ptype))
+                func_scope.define_variable(param.id, self.context.get_type(param.type))
             except ScopeError as e:
-                self.errors.append(e.text)
+                self.errors.append(CSemanticError(param.row, param.col, e.text))
 
         self.visit(node.body, func_scope)        
 
     @visitor.when(VarDeclarationNode)
     def visit(self, node, scope):
         if scope.is_defined(node.id) and scope.find_variable(node.id).type is not ErrorType():
-            self.errors.append(LOCAL_ALREADY_DEFINED %(node.id, self.current_method.name))
+            self.errors.append(CSemanticError(node.row, node.col, LOCAL_ALREADY_DEFINED %(node.id, self.current_method.name)))
 
         else:
             try:
@@ -69,7 +69,7 @@ class VarCollector(State):
                 scope.define_variable(node.id, vtype)
             except ScopeError as e:
                 scope.define_variable(node.id, ErrorType())
-                self.errors.append(e.texts)
+                self.errors.append(CSemanticError(node.row, node.col, e.text))
 
             if node.expr is not None:
                 self.visit(node.expr, scope)
@@ -78,10 +78,10 @@ class VarCollector(State):
     def visit(self, node, scope):
         vinfo = scope.find_variable(node.id)
         if vinfo.name == 'self':
-            self.errors.append(SELF_IS_READONLY)            
+            self.errors.append(CSemanticError(node.row, node.col, SELF_IS_READONLY))            
 
         if vinfo is None:
-            self.errors.append(VARIABLE_NOT_DEFINED %(node.id, self.current_method.name))
+            self.errors.append(CNameError(node.row, node.col, VARIABLE_NOT_DEFINED %(node.id, self.current_method.name)))
             scope.define_variable(node.id, ErrorType())
 
         self.visit(node.expr, scope)
@@ -110,7 +110,7 @@ class VarCollector(State):
             vtype = self.context.get_type(node.type)
             scope.redefine_variable(node.id, vtype)
         except ScopeError as e:
-            self.errors.append(e.text)
+            self.errors.append(CSemanticError(node.type_pos[0], node.type_pos[1], e.text))
 
         if node.expr is not None:
             self.visit(node.expr, scope)
@@ -118,7 +118,7 @@ class VarCollector(State):
     @visitor.when(VariableNode)
     def visit(self, node, scope):
         if not scope.is_defined(node.id):
-            self.errors.append(VARIABLE_NOT_DEFINED %(node.id, self.current_method.name))
+            self.errors.append(CNameError(node.row, node.col, VARIABLE_NOT_DEFINED %(node.id, self.current_method.name)))
             scope.define_variable(node.id, ErrorType())
 
     @visitor.when(CaseNode)

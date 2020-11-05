@@ -60,10 +60,10 @@ class Builder:
                     current = current.parent
             except ContextError as e:
                 parent = ErrorType()
-                self.errors.append(e.text) # parent type missing
+                self.errors.append(CSemanticError(node.parent_pos[0], node.parent_pos[1], e.text)) # parent type missing
             
             if node.parent in ['Int', 'String', 'Bool']:
-                self.errors.append('Invalid inherit in basic classes')
+                self.errors.append(CSemanticError(node.parent_pos[0], node.parent_pos[1], 'Invalid inherit in basic classes'))
 
             self.current_type.set_parent(parent)
     
@@ -71,22 +71,22 @@ class Builder:
     def visit(self, node):
         args_ids = []
         args_types = []
-        for n, t in node.params:
-            args_ids.append(n)
+        for param in node.params:
+            args_ids.append(param.id)
             try:
-                args_types.append(self.context.get_type(t))
+                args_types.append(self.context.get_type(param.type))
             except SemanticError as e:
                 args_types.append(ErrorType())
-                self.errors.append(e.text)
+                self.errors.append(CSemanticError(param.row, param.col, e.text))
         try:
             ret_type = self.context.get_type(node.type)
         except SemanticError as e:
             ret_type = ErrorType()
-            self.errors.append(e.text)
+            self.errors.append(CSemanticError(node.type_pos[0], node.node.type_pos[1], e.text))
         try:
             self.current_type.define_method(node.id, args_ids, args_types, ret_type)
         except SemanticError as e:
-            self.errors.append(e.text)
+            self.errors.append(CSemanticError(node.row, node.col, e.text))
    
     @visitor.when(AttrDeclarationNode)
     def visit(self, node):
@@ -94,11 +94,11 @@ class Builder:
             attr_type = self.context.get_type(node.type)
         except SemanticError as e:
             attr_type = ErrorType()
-            self.errors.append(e.text)
+            self.errors.append(CSemanticError(node.type_pos[0], node.node.type_pos[1], e.text))
         try:
             self.current_type.define_attribute(node.id, attr_type)
         except SemanticError as e:
-            self.errors.append(e.text)
+            self.errors.append(CSemanticError(node.row, node.col, e.text))
 
 class InheritBuilder:
     def __init__(self, context):
@@ -133,8 +133,16 @@ class InheritBuilder:
         
         try:
             pmeth = parent.get_method(node.id)
-            if not pmeth == cmeth:
-                self.errors.append(WRONG_SIGNATURE % (node.id, parent.name))
+            for param, base in zip(node.params, zip(pmeth.param_names, pmeth.param_types)):
+                if param.type != base[1].name:
+                    self.errors.append(CSemanticError(param.row, param.col, WRONG_SIGNATURE % (node.id, parent.name)))   
+            
+            # Return Type compare and report error
+            if pmeth.return_type.name != node.type:
+                self.errors.append(CSemanticError(node.type_pos[0], node.node.type_pos[1], WRONG_SIGNATURE % (node.id, parent.name)))
+
+            # if not pmeth == cmeth:
+            #     self.errors.append(CSemanticError(node.row, node.col, WRONG_SIGNATURE % (node.id, parent.name)))
         except SemanticError:
             pass
     
@@ -145,6 +153,6 @@ class InheritBuilder:
         try:
             pattr = parent.get_attribute(node.id)
             if pattr:
-                self.errors.append(f"Cannot override attribute {node.id} in {self.current_type.name} from {parent.name}")
+                self.errors.append(CSemanticError(node.row, node.col, f"Cannot override attribute {node.id} in {self.current_type.name} from {parent.name}"))
         except SemanticError:
             pass

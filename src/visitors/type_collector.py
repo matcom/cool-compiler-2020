@@ -27,4 +27,4 @@ class TypeCollector(State):
         try:
             self.context.create_type(node.id)
         except ContextError as e:
-            self.errors.append(e.text) # report error in valid format
+            self.errors.append(CSemanticError(node.row, node.col, e.text))

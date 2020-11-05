@@ -14,14 +14,9 @@ class CoolParser(State):
         self.parser = yacc.yacc(module=self)
 
     def run(self, raw):
-        ast = self.parser.parse(raw, lexer=self.lexer)
+        ast = self.parser.parse(raw, lexer=self.lexer.lexer)
         self.errors = self.lexer.errors + self.errors
         return ast
-
-    def token_pos(self, p, idx):
-        line = self.lexer.lexer.lineno
-        col = find_column(self.lexer.lexer.lexdata, p.lexpos(idx))
-        return -1, -1
 
     # Set the grammar start symbol
     start = 'program'
@@ -29,8 +24,7 @@ class CoolParser(State):
     # Program Rule
     def p_program(self, p):
         '''program : class_list'''
-        line, col = self.token_pos(p, 0) 
-        p[0] = ProgramNode(line, col, p[1])
+        p[0] = ProgramNode(0, 0, p[1])
 
     # Empty Production
     def p_empty(self, p):
@@ -50,11 +44,11 @@ class CoolParser(State):
     def p_def_class(self, p):
         '''def_class : CLASS TYPEID LBRACE feature_list RBRACE SEMI
                      | CLASS TYPEID INHERITS TYPEID LBRACE feature_list RBRACE SEMI'''
-        line, col = self.token_pos(p, 2)
         if p[3].lower() == 'inherits':
-            p[0] = ClassDeclarationNode(line, col, p[2], p[6], p[4])
+            p[0] = ClassDeclarationNode(p.lineno(2), find_column(p.lexer.lexdata, p.lexpos(2)), p[2], p[6], p[4])
+            p[0].parent_pos = (p.lineno(4), find_column(p.lexer.lexdata, p.lexpos(4)))
         else:
-            p[0] = ClassDeclarationNode(line, col, p[2], p[4])
+            p[0] = ClassDeclarationNode(p.lineno(2), find_column(p.lexer.lexdata, p.lexpos(2)), p[2], p[4])
 
     # Class Feature List Rules
     def p_feature_list(self, p):
@@ -70,17 +64,17 @@ class CoolParser(State):
     def p_def_attr(self, p):
         '''def_attr : ID COLON TYPEID
                     | ID COLON TYPEID ASSIGN expr'''
-        line, col = self.token_pos(p, 1)
         try:
-            p[0] = AttrDeclarationNode(line, col, p[1], p[3], p[5])
+            p[0] = AttrDeclarationNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[1], p[3], p[5])
         except:
-            p[0] = AttrDeclarationNode(line, col, p[1], p[3])
+            p[0] = AttrDeclarationNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[1], p[3])
+            p[0].type_pos = (p.lineno(3), find_column(p.lexer.lexdata, p.lexpos(3)))
 
     # Func Definition Rules
     def p_def_func(self, p):
         '''def_func : ID LPAREN param_list RPAREN COLON TYPEID LBRACE expr RBRACE'''
-        line, col = self.token_pos(p, 1)
-        p[0] = FuncDeclarationNode(line, col, p[1], p[3], p[6], p[8])
+        p[0] = FuncDeclarationNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[1], p[3], p[6], p[8])
+        p[0].type_pos = (p.lineno(6), find_column(p.lexer.lexdata, p.lexpos(6)))
 
     # Func Parameters List Rules
     def p_param_list_ept(self, p):
@@ -102,7 +96,7 @@ class CoolParser(State):
     # Parameter Rule
     def p_param(self, p):
         '''param : ID COLON TYPEID'''
-        p[0] = (p[1], p[3]) # (ID, TYPE)
+        p[0] = FormalParamNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[1], p[3]) # (ID, TYPE)
 
     #    Expression Rules
     #   ------------------
@@ -112,21 +106,19 @@ class CoolParser(State):
                 | CASE expr OF cases_list ESAC
                 | IF expr THEN expr ELSE expr FI
                 | WHILE expr LOOP expr POOL'''
-        line, col = self.token_pos(p, 1)
         if p[1].lower() == 'let':
-            p[0] = LetNode(line, col, p[2], p[4])
+            p[0] = LetNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[2], p[4])
         elif p[1].lower() == 'case':
-            p[0] = CaseNode(line, col, p[2], p[4])
+            p[0] = CaseNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[2], p[4])
         elif p[1].lower() == 'if':
-            p[0] = ConditionalNode(line, col, p[2], p[4], p[6])
+            p[0] = ConditionalNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[2], p[4], p[6])
         elif p[1].lower() == 'while':
-            p[0] = WhileNode(line, col, p[2], p[4])
+            p[0] = WhileNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[2], p[4])
 
     # Assign Production
     def p_expr_assign(self, p):
         '''expr : ID ASSIGN expr'''
-        line, col = self.token_pos(p, 2)
-        p[0] = AssignNode(line, col, p[1], p[3])
+        p[0] = AssignNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[1], p[3])
 
     # Precedence Production
     def p_expr_arith(self, p):
@@ -144,14 +136,13 @@ class CoolParser(State):
             p[0] = [ p[1] ]
 
     def p_let_assign(self, p):
-        '''let_assign : param ASSIGN expr
-                      | param'''
+        '''let_assign : ID COLON TYPEID ASSIGN expr
+                      | ID COLON TYPEID'''
         try:
-            line, col = self.token_pos(p, 2)
-            p[0] = LetDeclarationNode(line, col, p[1][0], p[1][1], p[3])
+            p[0] = LetDeclarationNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[1], p[3], p[5])
         except:
-            line, col = self.token_pos(p, 1)
-            p[0] = LetDeclarationNode(line, col, p[1][0], p[1][1])
+            p[0] = LetDeclarationNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[1], p[3])
+        p[0].type_pos = (p.lineno(3), find_column(p.lexer.lexdata, p.lexpos(3)))
 
     # Case Rules
 
@@ -165,20 +156,19 @@ class CoolParser(State):
 
     def p_case(self, p):
         '''case : ID COLON TYPEID WITH expr'''
-        line, col = self.token_pos(p, 1)
-        p[0] = OptionNode(line, col, p[1], p[3], p[5])
+        p[0] = OptionNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[1], p[3], p[5])
 
     #   Arith Operations
     # -------------------
 
     # Operators Precedence
     precedence = (
-        ('right', 'BITNOT'),
-        ('right', 'ISVOID'),
-        ('left', 'STAR', 'DIVIDE'),
-        ('left', 'PLUS', 'MINUS'),
+        ('right', 'NOT'),
         ('nonassoc', 'LESS', 'LESSQ', 'EQUALS'),
-        ('right', 'NOT')
+        ('left', 'PLUS', 'MINUS'),
+        ('left', 'STAR', 'DIVIDE'),
+        ('right', 'ISVOID'),
+        ('right', 'BITNOT'),
     )
 
     # Binary Operations Rules
@@ -191,21 +181,20 @@ class CoolParser(State):
                 | expr LESS expr
                 | expr LESSQ expr
                 | expr EQUALS expr'''
-        line, col = self.token_pos(p, 2)
         if p[2] == '+':
-            p[0] = SumNode(line, col, p[1], p[3])
+            p[0] = SumNode(p.lineno(2), find_column(p.lexer.lexdata, p.lexpos(2)), p[1], p[3])
         elif p[2] == '-':
-            p[0] = DiffNode(line, col, p[1], p[3])
+            p[0] = DiffNode(p.lineno(2), find_column(p.lexer.lexdata, p.lexpos(2)), p[1], p[3])
         elif p[2] == '*':
-            p[0] = StarNode(line, col, p[1], p[3])
+            p[0] = StarNode(p.lineno(2), find_column(p.lexer.lexdata, p.lexpos(2)), p[1], p[3])
         elif p[2] == '/':
-            p[0] = DivNode(line, col, p[1], p[3])
+            p[0] = DivNode(p.lineno(2), find_column(p.lexer.lexdata, p.lexpos(2)), p[1], p[3])
         elif p[2] == '<':
-            p[0] = LessNode(line, col, p[1], p[3])
+            p[0] = LessNode(p.lineno(2), find_column(p.lexer.lexdata, p.lexpos(2)), p[1], p[3])
         elif p[2] == '<=':
-            p[0] = LessEqualNode(line, col, p[1], p[3])
+            p[0] = LessEqualNode(p.lineno(2), find_column(p.lexer.lexdata, p.lexpos(2)), p[1], p[3])
         elif p[2] == '=':
-            p[0] = EqualNode(line, col, p[1], p[3])
+            p[0] = EqualNode(p.lineno(2), find_column(p.lexer.lexdata, p.lexpos(2)), p[1], p[3])
 
     # Unary Operations Rules
 
@@ -213,13 +202,12 @@ class CoolParser(State):
         '''expr : BITNOT expr
                 | ISVOID expr
                 | NOT expr'''
-        line, col = self.token_pos(p, 1)
         if p[1] == '~':
-            p[0] = BitNotNode(line, col, p[2])
+            p[0] = BitNotNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[2])
         elif p[1].lower() == 'isvoid':
-            p[0] = IsVoidNode(line, col, p[2])
+            p[0] = IsVoidNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[2])
         elif p[1].lower() == 'not':
-            p[0] = NotNode(line, col, p[2])
+            p[0] = NotNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[2])
 
     def p_arith_basecall(self, p): 
         '''arith : base_call'''
@@ -228,28 +216,20 @@ class CoolParser(State):
     # Function Call Rules
 
     def p_basecall(self, p): # Parent Call (Review)
-        '''base_call : fact ARROBA TYPEID DOT func_call
+        '''base_call : fact ARROBA TYPEID DOT ID LPAREN arg_list RPAREN
                      | fact'''
         try:
-            line, col = self.token_pos(p, 3)
-            p[0] = ParentCallNode(line, col, p[1], p[3], p[5][0], p[5][1])
+            p[0] = ParentCallNode(p.lineno(5), find_column(p.lexer.lexdata, p.lexpos(5)), p[1], p[3], p[5], p[7])
         except:
-            line, col = self.token_pos(p, 1)
             p[0] = p[1]
 
     def p_factcall(self, p):
-        '''fact : fact DOT func_call
-                | func_call'''
+        '''fact : fact DOT ID LPAREN arg_list RPAREN
+                | ID LPAREN arg_list RPAREN'''
         try:
-            line, col = self.token_pos(p, 1)
-            p[0] = ExprCallNode(line, col, p[1], p[3][0], p[3][1])
+            p[0] = ExprCallNode(p.lineno(3), find_column(p.lexer.lexdata, p.lexpos(3)), p[1], p[3], p[5])
         except:
-            line, col = self.token_pos(p, 0)
-            p[0] = SelfCallNode(line, col, p[1][0], p[1][1])
-
-    def p_func_call(self, p):
-        '''func_call : ID LPAREN arg_list RPAREN'''
-        p[0] = (p[1], p[3])
+            p[0] = SelfCallNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[1], p[3])
 
     def p_arglist_ept(self, p):
         '''arg_list : empty'''
@@ -279,23 +259,19 @@ class CoolParser(State):
 
     def p_atom_int(self, p):
         '''atom : INTEGER'''
-        line, col = self.token_pos(p, 1)
-        p[0] = IntegerNode(line, col, p[1])
+        p[0] = IntegerNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[1])
 
     def p_atom_id(self, p):
         '''atom : ID'''
-        line, col = self.token_pos(p, 1)
-        p[0] = VariableNode(line, col, p[1])
+        p[0] = VariableNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[1])
 
     def p_atom_new(self, p):
         '''atom : NEW TYPEID'''
-        line, col = self.token_pos(p, 1)
-        p[0] = NewNode(line, col, p[2])
+        p[0] = NewNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[2])
 
     def p_atom_block(self, p):
         '''atom : LBRACE block RBRACE'''
-        line, col = self.token_pos(p, 1)
-        p[0] = BlockNode(line, col, p[2])
+        p[0] = BlockNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[2])
 
     def p_block(self, p):
         '''block : expr SEMI
@@ -307,13 +283,11 @@ class CoolParser(State):
 
     def p_atom_bool(self, p):
         '''atom : BOOL'''
-        line, col = self.token_pos(p, 1)
-        p[0] = BoolNode(line, col, p[1])
+        p[0] = BoolNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[1])
 
     def p_atom_string(self, p):
         '''atom : STRING'''
-        line, col = self.token_pos(p, 1)
-        p[0] = StringNode(line, col, p[1])
+        p[0] = StringNode(p.lineno(1), find_column(p.lexer.lexdata, p.lexpos(1)), p[1])
 
     def p_error(self, p):
         if p:

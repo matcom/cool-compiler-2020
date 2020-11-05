@@ -41,6 +41,7 @@ class LetDeclarationNode(ExpressionNode):
         self.id = idx
         self.type = typex
         self.expr = expr
+        self.type_pos = (0, 0)
 
 class BlockNode(ExpressionNode):
     def __init__(self, row, col, expr_list):

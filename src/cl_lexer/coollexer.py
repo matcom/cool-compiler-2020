@@ -17,6 +17,12 @@ class CoolLexer(State):
     def token(self):
         return self.lexer.token()
 
+    def lineno(self):
+        return self.lexer.lineno
+
+    def lexpos(self):
+        return self.lexer.lexpos
+
     def run(self, inputx):
         self.lexer.input(inputx)
         toks = []
@@ -207,8 +213,7 @@ class CoolLexer(State):
 
     # Line Comments rule
     def t_COMMENT(self, t):
-        r'--.*($|\n)'
-        t.lexer.lineno += 1
+        r"\-\-[^\n]*"
         pass
 
     # Track line numbers
@@ -217,7 +222,7 @@ class CoolLexer(State):
         t.lexer.lineno += len(t.value)
 
     # Ignored characters
-    t_ignore = ' \t\r\v\f'
+    t_ignore = ' \t\r\f'
 
     #Error handling rule
     def t_error(self, t):

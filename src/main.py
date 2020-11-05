@@ -21,7 +21,7 @@ def main():
     #temporal
     try:
         ast, context, scope = pipeline.run_pipeline(program)
-    except:
+    except Exception as e:
         pass
 
     pipeline.report_errors()

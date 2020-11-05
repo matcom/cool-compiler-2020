@@ -21,10 +21,10 @@ class Context:
         # build-in methods
         self.types['Object'].methods['abort'] = Method('abort', [], [], self.types['Object'])
         self.types['Object'].methods['type_name'] = Method('type_name', [], [], self.types['String'])
-        self.types['Object'].methods['copy'] = Method('copy', [], [], self.types['SELF_TYPE'])
+        self.types['Object'].methods['copy'] = Method('copy', [], [], self.types['Object']) # Must be ret type SELF_TYPE
 
-        self.types['IO'].methods['out_string'] = Method('out_string', ['x'], [self.types['String']], self.types['SELF_TYPE'])
-        self.types['IO'].methods['out_int'] = Method('out_int', ['x'], [self.types['Int']], self.types['SELF_TYPE'])
+        self.types['IO'].methods['out_string'] = Method('out_string', ['x'], [self.types['String']], self.types['IO']) # Must be ret type SELF_TYPE
+        self.types['IO'].methods['out_int'] = Method('out_int', ['x'], [self.types['Int']], self.types['IO']) # Must be ret type SELF_TYPE
         self.types['IO'].methods['in_string'] = Method('in_string', [], [], self.types['String'])
         self.types['IO'].methods['in_int'] = Method('in_int', [], [], self.types['Int'])
 
