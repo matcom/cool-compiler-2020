@@ -15,36 +15,36 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node):
         pass
 
-    @when(cool.cool.ProgramNode)
+    @when(cool.ProgramNode)
     def visit(self, node:cool.ProgramNode=None):
         pass
         
-    @when(cool.cool.ClassDeclarationNode)
+    @when(cool.ClassDeclarationNode)
     def visit(self, node:cool.ClassDeclarationNode):
         pass
 
-    @when(cool.cool.AttrDeclarationNode)
+    @when(cool.AttrDeclarationNode)
     def visit(self, node:cool.AttrDeclarationNode):
         pass
 
-    @when(cool.cool.FuncDeclarationNode)
+    @when(cool.FuncDeclarationNode)
     def visit(self, node:cool.FuncDeclarationNode):
         pass
 
 
-    @when(cool.cool.IfThenElseNode)
+    @when(cool.IfThenElseNode)
     def visit(self, node:cool.IfThenElseNode):
         pass
 
-    @when(cool.cool.WhileLoopNode)
+    @when(cool.WhileLoopNode)
     def visit(self, node:cool.WhileLoopNode):
         pass
 
-    @when(cool.cool.BlockNode)
+    @when(cool.BlockNode)
     def visit(self, node:cool.BlockNode):
         pass
 
-    @when(cool.cool.LetNode)
+    @when(cool.LetNode)
     def visit(self, node:cool.LetNode):
         pass
         

@@ -1,9 +1,9 @@
 import argparse
 
-from cool_lang.lexer import COOL_LEXER
-from cool_lang.parser import COOL_PARSER
-from cool_lang.semantics import COOL_CHECKER
-from cil.cool_to_cil import COOL_TO_CIL_VISITOR
+from cmp.cool_lang.lexer import COOL_LEXER
+from cmp.cool_lang.parser import COOL_PARSER
+from cmp.cool_lang.semantics import COOL_CHECKER
+from cmp.cil.cool_to_cil import COOL_TO_CIL_VISITOR
 
 
 parser = argparse.ArgumentParser(description='COOL Compiler')
