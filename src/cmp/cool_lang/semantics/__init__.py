@@ -6,6 +6,7 @@ from ..errors import SemanticError
 
 class COOL_CHECKER:
     def __init__(self):
+        self.context = None
         self.errors = []
 
     def check_semantics(self, program, verbose=False):
@@ -13,10 +14,10 @@ class COOL_CHECKER:
         # All semantics checks here
         if verbose:
             print(COOL_FORMATTER().visit(program, tabs=0))
-        context = COOL_TYPE_COLLECTOR(errors=self.errors).visit(program)
+        self.context = COOL_TYPE_COLLECTOR(errors=self.errors).visit(program)
         if len(self.errors) == 0:
-            COOL_TYPE_BUILDER(context=context, errors=self.errors).visit(program)
-            COOL_TYPE_CHECKER(context, errors=self.errors).visit(program)
+            COOL_TYPE_BUILDER(context=self.context, errors=self.errors).visit(program)
+            COOL_TYPE_CHECKER(self.context, errors=self.errors).visit(program)
         if verbose:
-            print(context)
+            print(self.context)
         return not len(self.errors) > 0

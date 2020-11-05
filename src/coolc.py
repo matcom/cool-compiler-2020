@@ -42,4 +42,10 @@ if not cchecker.check_semantics(program, verbose=VERBOSE):
         print(error)
     exit(1)
 
+ctc = COOL_TO_CIL_VISITOR(cchecker.context)
+cil_ast = ctc.visit(program)
+
+if VERBOSE:
+    print(CIL_FORMATTER().visit(cil_ast))
+
 exit(0)
