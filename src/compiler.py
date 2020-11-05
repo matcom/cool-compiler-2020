@@ -75,13 +75,14 @@ def main():
                     print(er)
                 exit(1)
             
-            _, errors = make_parser(s)
+            ast, errors = make_parser(s)
             
             if len(errors) > 0:
                 for er in errors:
                     print(er)
                 exit(1)
-
+            
+            print(ast)
             
 
     except (IOError, FileNotFoundError):

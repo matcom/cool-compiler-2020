@@ -1,5 +1,5 @@
 class Node:
-    def GetLineNumber(self):
+    def GetLineNumber(self, lineNumber):
         return self.lineNumber
 
 class ProgramNode(Node):
@@ -38,82 +38,81 @@ class ParameterNode(Node):
         self.lineNumber = lineNumber
 
 class StatementNode(Node):
-    def __init__(self, lineNumber):
-        self.lineNumber = lineNumber
+    pass
 
 class AssignStatementNode(StatementNode):
     def __init__(self, id, expression, lineNumber):
         self.id = id
         self.expression = expression
-        StatementNode.__init__(lineNumber)
+        self.lineNumber = lineNumber
 
 class DispatchStatementNode(StatementNode):
     def __init__(self, idRef, idFunc, args, typeDispatch, lineNumber):
-        StatementNode.__init__(lineNumber)
+        self.lineNumber = lineNumber
         self.variableName = idRef
         self.functionName = idFunc
         self.args = args
 
 class ConditionalStatementNode(StatementNode):
-    def __init__(self, evalExpr, ifExpr, elseExpr, lineNumber):
-        StatementNode.__init__(lineNumber)
+    def __init__(self, evalExpr, ifExpr, elseExpr):
         self.evalExpr = evalExpr
         self.ifExpr = ifExpr
         self.elseExpr = elseExpr
 
 class LoopStatementNode(StatementNode):
-    def __init__(self, evalExpr, loopExpr, lineNumber):
-        StatementNode.__init__(lineNumber)
+    def __init__(self, evalExpr, loopExpr):
         self.evalExpr = evalExpr
         self.loopExpr = loopExpr
 
 class BlockStatementNode(StatementNode):
-    def __init__(self, expressions, lineNumber):
-        StatementNode.__init__(lineNumber)
+    def __init__(self, expressions):
         self.expressions = expressions
 
 class LetStatementNode(StatementNode):
-    def __init__(self, variables, expression, lineNumber):
-        StatementNode.__init__(lineNumber)
+    def __init__(self, variables, expression):
         self.variables = variables
         self.expression = expression
 
 class CaseStatementNode(StatementNode):
-    def __init__(self, expression, body, lineNumber):
-        StatementNode.__init__(lineNumber)
+    def __init__(self, expression, body):
         self.expression = expression
         self.body = body
 
 class CaseBranchNode(StatementNode):
     def __init__(self, id, typeName, expression, lineNumber):
-        StatementNode.__init__(lineNumber)
+        self.lineNumber = lineNumber
         self.id = id
         self.typeName = typeName
         self.expression = expression
 
 class NewStatementNode(StatementNode):
     def __init__(self, typeName, lineNumber):
-        StatementNode.__init__(lineNumber)
+        self.lineNumber = lineNumber
         self.typeName = typeName
+
+class FunctionCallStatement(StatementNode):
+    def __init__(self, instance, dispatchType, function, args):
+        self.instance = instance
+        self.dispatchType = dispatchType
+        self.function = function
+        self.args = args
 
 class ExpressionNode(Node):
     pass
 
 class AtomicNode(ExpressionNode):
-    def __init__(self, lex, lineNumber):
+    def __init__(self, lex):
         self.lex = lex
         self.lineNumber = lineNumber
 
 class UnaryNode(ExpressionNode):
-    def __init__(self, expression, lineNumber):
+    def __init__(self, expression):
         self.expression = expression
-        self.lineNumber = lineNumber
 
 class BinaryNode(ExpressionNode):
-    def __init__(self, left, right, lineNumber):
+    def __init__(self, left, right):
         self.left = left
         self.right = right
-        self.lineNumber = lineNumber
 
 class ConstantNumericNode(AtomicNode):
     pass
@@ -126,11 +125,6 @@ class ConstantBoolNode(AtomicNode):
 
 class VariableNode(AtomicNode):
     pass
-
-class CallNode(AtomicNode):
-    def __init__(self, id, args):
-        AtomicNode.__init__(self, id)
-        self.args = args
 
 class NotNode(UnaryNode):
     pass
