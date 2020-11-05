@@ -9,3 +9,5 @@ clean:
 test:
 	pytest ../tests -v --tb=short -m=${TAG}
 
+quick_test:
+	bash coolc.sh test.cl

@@ -4,7 +4,7 @@
 
 **Nombre** | **Grupo** | **Github**
 --|--|--
-Carlos Bermudez Porto | C412 | [@stdevCbermudez](https://github.com/stdevCbermudez)
+Carlos Bermudez Porto | C412 | [@cbermudez97](https://github.com/cbermudez97)
 Leynier Gutiérrez González | C412 | [@leynier](https://github.com/leynier)
 Tony Raúl Blanco Fernández | C411 | [@70nybl4nc0](https://github.com/70nybl4nc0)
 

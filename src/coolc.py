@@ -1,11 +1,21 @@
-from sys import argv
-from cool_lang.lexer import COOL_LEXER
-from cool_lang.parser import COOL_PARSER
-from cool_lang.semantics import COOL_CHECKER
+import argparse
+
+from cmp.cool_lang.lexer import COOL_LEXER
+from cmp.cool_lang.parser import COOL_PARSER
+from cmp.cool_lang.semantics import COOL_CHECKER
+from cmp.cil import COOL_TO_CIL_VISITOR, CIL_FORMATTER
 
 
-INPUT_FILE = argv[1]
-OUTPUT_FILE = argv[2]
+parser = argparse.ArgumentParser(description='COOL Compiler')
+parser.add_argument('INPUT_FILE', help='file to compile.', type=str)
+parser.add_argument('OUTPUT_FILE', help='compiled file.', type=str)
+parser.add_argument('-v', '--verbose', help='execute in verbose mode', action="store_true")
+
+args = parser.parse_args()
+
+INPUT_FILE = args.INPUT_FILE
+OUTPUT_FILE = args.OUTPUT_FILE
+VERBOSE = args.verbose
 
 code = open(INPUT_FILE, encoding="utf8").read()
 
@@ -27,7 +37,15 @@ if not cparser.parse(clexer):
 
 program = cparser.result
 cchecker = COOL_CHECKER()
-if not cchecker.check_semantics(program):
+if not cchecker.check_semantics(program, verbose=VERBOSE):
     for error in cchecker.errors:
         print(error)
     exit(1)
+
+ctc = COOL_TO_CIL_VISITOR(cchecker.context)
+cil_ast = ctc.visit(program)
+
+if VERBOSE:
+    print(CIL_FORMATTER().visit(cil_ast))
+
+exit(0)
