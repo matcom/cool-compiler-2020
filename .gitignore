@@ -396,6 +396,8 @@ dmypy.json
 #Cool test
 src/class.cl
 *.cl
+*.cil
+*.s
 
 ### VisualStudioCode ###
 .vscode/*
