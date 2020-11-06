@@ -14,10 +14,21 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     @on('node')
     def visit(self, node, scope:Scope):
         pass
+    
+    def build_attr_init(self, node:cool.ProgramNode):
+        self.attr_init = dict()
+        for classx in node.classes:
+            self.attr_init[classx.id] = []
+            if classx.parent:
+                self.attr_init[classx.id] += self.attr_init[classx.parent]
+            for feature in classx.features:
+                if type(feature) is cool.AttrDeclarationNode:
+                    self.attr_init[classx.id].append(feature)
 
     @when(cool.ProgramNode)
     def visit(self, node:cool.ProgramNode=None, scope:Scope=None):
         scope = Scope()
+        self.build_attr_init(node)
         self.current_function = self.register_function('main')
         instance = self.define_internal_local()
         result = self.define_internal_local()
@@ -64,7 +75,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             func_scope.define_var(param_name, param_local)
         
         body = self.visit(node.expression, func_scope)
-        print(type(node.expression))
         self.register_instruction(ReturnNode(body))
 
         self.current_method = self.current_function = None
