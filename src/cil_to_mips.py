@@ -131,7 +131,7 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.Allocate)
     def visit(self, node):
         amount = len(self.types[node.type].attributes) + 3
-        self.text += f'li $a0, {amount}\n' 
+        self.text += f'li $a0, {amount * 4}\n' 
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
         self.text += f'move $t0, $v0\n'
