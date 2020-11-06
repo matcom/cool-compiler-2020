@@ -41,11 +41,30 @@ class AssignNode(InstructionNode):
         self.dest = dest
         self.source = source
 
+class ComplementNode(InstructionNode):
+    def __init__(self, dest, body):
+        self.dest = dest
+        self.body = body
+
+class IsVoidNode(InstructionNode):
+    def __init__(self, dest, body):
+        self.dest = dest
+        self.body = body
+
 class ArithmeticNode(InstructionNode):
     def __init__(self, dest, left, right):
         self.dest = dest
         self.left = left
         self.right = right
+
+class LessNode(ArithmeticNode):
+    pass
+
+class EqualNode(ArithmeticNode):
+    pass
+
+class LessEqNode(ArithmeticNode):
+    pass
 
 class PlusNode(ArithmeticNode):
     pass
