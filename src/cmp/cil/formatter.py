@@ -2,7 +2,7 @@ from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, Assi
     , MinusNode, StarNode, DivNode, AllocateNode, TypeOfNode, StaticCallNode, DynamicCallNode    \
     , ArgNode, ReturnNode, ReadNode, PrintNode, LoadNode, LengthNode, ConcatNode, PrefixNode     \
     , SubstringNode, ToStrNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
-    , DataNode
+    , DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode
 from .utils import on, when
 
 
@@ -49,6 +49,26 @@ class CIL_FORMATTER(object):
     @when(AssignNode)
     def visit(self, node: AssignNode):
         return f'{node.dest} = {node.source}'
+
+    @when(IsVoidNode)
+    def visit(self, node: IsVoidNode):
+        return f'{node.dest} = ISVOID {node.body}'
+
+    @when(ComplementNode)
+    def visit(self, node: ComplementNode):
+        return f'{node.dest} = COMPLEMENT {node.body}'
+
+    @when(LessNode)
+    def visit(self, node: LessNode):
+        return f'{node.dest} = {node.left} < {node.right}'
+        
+    @when(EqualNode)
+    def visit(self, node: EqualNode):
+        return f'{node.dest} = {node.left} == {node.right}'
+
+    @when(LessEqNode)
+    def visit(self, node: LessEqNode):
+        return f'{node.dest} = {node.left} <= {node.right}'
 
     @when(PlusNode)
     def visit(self, node: PlusNode):
