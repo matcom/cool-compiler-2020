@@ -2,49 +2,51 @@ from .node_il import NodeIL
 
 class LabelIL(NodeIL):
     
-    def __init__(self):
-        pass
+    def __init__(self, first, second, func):
+        self.label = first + '_' + second
+        self.first = first
+        self.second = second
+        self.func = func
 
     def __str__(self):
-        pass
+        return 'label {}:'.format(self.label)
 
 class GotoIL(NodeIL):
-    def __init__(self):
-        pass
+    def __init__(self, label):
+        self.label = label
 
     def __str__(self):
-        pass
+        return "goto {}".format(self.label)
 
 class IfJumpIL(NodeIL):
-    def __init__(self):
-        pass
+    
+    def __init__(self, var, label):
+        self.var = var
+        self.label = label
 
     def __str__(self):
-        pass
+        return 'if {} goto {}'.format(self.var, self.label)
 
 class PopIL(NodeIL):
     
-    def __init__(self):
-        pass
+    def __init__(self, size):
+        self.size = size
     
     def __str__(self):
-        pass
+        return 'pop {}'.format(self.size)
 
 class PushIL(NodeIL):
     
-    def __init__(self):
-        pass
+    def __init__(self, value):
+        self.value(value)
     
     def __str__(self):
-        pass
+        return 'push {}'.format(self.value)
 
 class ReturnIL(NodeIL):
     
-    def __init__(self):
-        pass
-    
     def __str__(self):
-        pass
+        return 'return\n'
 
 class StringIL(NodeIL):
     
@@ -56,19 +58,19 @@ class StringIL(NodeIL):
 
 class PrintIL(NodeIL):
     
-    def __init__(self):
-        pass
+    def __init__(self, string):
+        self.string = string
     
     def __str__(self):
-        pass
+        return 'print {}'.format(self.string)
 
 class CommentIL(NodeIL):
     
-    def __init__(self):
-        pass
+    def __init__(self, text):
+        self.text = text
     
     def __str__(self):
-        pass
+        return '#' + self.text
 
 class HierarchyIL(NodeIL):
     def __init__(self):

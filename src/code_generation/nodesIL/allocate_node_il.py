@@ -2,10 +2,10 @@ from .node_il import NodeIL
 
 class AllocateIL(NodeIL):
     
-    def __init__(self, var, size, type):
+    def __init__(self, var, size, typ):
         self.var = var
         self.size = size
-        self.type = type
+        self.typ = typ
 
     def __str__(self):
-        pass
+        return "alloc {} in {}".format(self.typ, self.var)
