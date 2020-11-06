@@ -56,9 +56,9 @@ class BASE_COOL_CIL_TRANSFORM:
     def to_function_name(self, method_name, type_name):
         return f'function_{method_name}_at_{type_name}'
 
-    def to_label_name(self, label_name, method_name):
+    def to_label_name(self, label_name):
         self.label_count += 1
-        return f'label_{label_name}{self.label_count}_at_{method_name}'
+        return f'label_{label_name}{self.label_count}_at_{self.current_function.name[9:]}'
     
     def register_function(self, function_name):
         function_node = FunctionNode(function_name, [], [], [])
