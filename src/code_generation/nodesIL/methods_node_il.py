@@ -11,6 +11,14 @@ class LabelIL(NodeIL):
     def __str__(self):
         return 'label {}:'.format(self.label)
 
+class LoadLabelIL(NodeIL):
+    def __init__(self, var, label):
+        self.var = var
+        self.label = label
+    
+    def __str__(self):
+        return "load: {} to {}".format(self.label, str(self.var))
+
 class GotoIL(NodeIL):
     def __init__(self, label):
         self.label = label
@@ -50,11 +58,12 @@ class ReturnIL(NodeIL):
 
 class StringIL(NodeIL):
     
-    def __init__(self):
-        pass
+    def __init__(self, label, string):
+        self.label = label
+        self.string = string
     
     def __str__(self):
-        pass
+        return "{}: {}".format(self.label,self.string)
 
 class PrintIL(NodeIL):
     
@@ -73,18 +82,23 @@ class CommentIL(NodeIL):
         return '#' + self.text
 
 class HierarchyIL(NodeIL):
-    def __init__(self):
-        pass
+    
+    def __init__(self, node, parent):
+        self.node = node
+        self.parent = parent
     
     def __str__(self):
-        pass
+        return "type {} descendant of {}".format(self.node, self.parent)
 
 class InheritIL(NodeIL):
-    def __init__(self):
-        pass
+    
+    def __init__(self, child, parent):
+        self.child = child
+        self.parent = parent
+        # self.res = res
     
     def __str__(self):
-        pass
+        return "child {} inherits parent {}".format(self.child, self.parent)
 
 class VirtualTableIL(NodeIL):
     def __init__(self):
@@ -94,16 +108,30 @@ class VirtualTableIL(NodeIL):
         pass
 
 class DispatchIL(NodeIL):
-    def __init__(self):
-        pass
+    
+    def __init__(self, obj, offset, result):
+        self.obj = obj
+        self.offset = offset
+        self.result = result
     
     def __str__(self):
-        pass
+        return "dispatch: object({}).method({}) to {}".format(self.obj,self.offset,self.result)
 
 class DispatchParentIL(ILNode):
-    def __init__(self):
-        pass
+    
+    def __init__(self, obj, method, result):
+        self.method = method
+        self.result = result
+        self.obj = obj
 
+
+    def __str__(self):
+        return "dispatch_parent: method {} with_obj {} in {}".format(self.method, self.obj, self.result)
+
+class VirtualTableIL(ILNode):
+    def __init__(self, name, methods):
+        self.name = name
+        self.methods = methods
 
     def __str__(self):
         pass
