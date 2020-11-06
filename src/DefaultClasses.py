@@ -1,8 +1,10 @@
 from AST import *
 
+#TODO Definir en CIL algunos métodos predefinidos
 class Defaults:
     def ObjectClass():
-        identifier=AttributeNode("type#","Int",IntegerNode(0))
+        selfattribute=AttributeNode("self","Int",IntegerNode(0))
+        # identifier=AttributeNode("type#","Int",IntegerNode(0))
         abort=MethodNode("abort",[],"Object",[])
         typename=MethodNode("type_name",[],"String",[])
         copy=MethodNode("copy",[],"SELF_TYPE",[])

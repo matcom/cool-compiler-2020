@@ -77,11 +77,16 @@ class CILTranspiler:
             if c.parent != None:
                 for elemento in self.methods[c.parent]:
                     mismetodos[elemento.name]=elemento
-                    self.globalnames[c.name+"#"+elemento.name]=self.globalnames[c.parent+"#"+elemento.name]
+                    if elemento.name == '$init' or elemento.name == 'type_name':
+                        self.globalnames[c.name+"#"+met.name]="$f"+str(counter)
+                        counter+=1
+                    else:
+                        self.globalnames[c.name+"#"+elemento.name]=self.globalnames[c.parent+"#"+elemento.name]
+                    
             
             for met in c.methods:
                 if c.name+"#"+met.name in self.globalnames.keys:
-                    self.globalnames[c.name+"#"+met.name]="f"+str(counter)
+                    self.globalnames[c.name+"#"+met.name]="$f"+str(counter)
                     counter+=1
                     
                 mismetodos[met.name]=met
@@ -105,22 +110,27 @@ class CILTranspiler:
     def visit(self, node: ProgramNode, _):        
         claseObject=Defaults.ObjectClass()
         claseIO=Defaults.IOClass()
+        claseString=Defaults.StringClass()
 
         clasescompletas=node.classes.copy()
-        clasescompletas.extend([claseObject,claseIO])
+        clasescompletas.extend([claseObject,claseIO,claseString])
 
         classes=self.OrdenarClasesPorHerencia(clasescompletas)
         atributosdic=self.GenerarDiccionarioAtributos(classes)
         metodosdic,metodosglobalesdic=self.GenerarDiccionarioMetodos(classes)
 
         classesCIL=[]
+        metodosGlobalesCIL={}
 
         for c in classes:
             #Generando los Types e información de clase
             atributosAST=atributosdic[c.name]
             metodosAST=metodosdic[c.name]
-            atributosAST[0].value=IntegerNode(self.classidcount)
             self.classidcount+=1
+
+            scope=Scope(c.name, c.parent)
+
+            #TODO Inicialización de atributos
 
             atributosCIL=[]
             for element in atributosAST:
@@ -132,8 +142,15 @@ class CILTranspiler:
                 nuevoCIL=CILClassMethod(element.name,metodosglobalesdic[c.name+"#"+element.name])
                 metodosClaseCIL.append(nuevoCIL)
             
+            for m in c.methods:
+                globalMethod=self.visit(m, scope)
+                globalMethod.name=metodosglobalesdic[c.name+"#"+m.name]
+                metodosGlobalesCIL[globalMethod.name]=globalMethod
+
             claseCIL=CILClass(c.name,atributosCIL, metodosClaseCIL)
             classesCIL.append(claseCIL)
+
+            return CILProgram(classesCIL,self.data.values(), metodosGlobalesCIL.values())
 
     @visitor.when(StringNode)
     def visit(self, node: StringNode, scope:Scope):
@@ -214,14 +231,14 @@ class CILTranspiler:
             parameters.append(param.name)
     
         instructions=[]
-        for element in node.body:
-            instructions.extend(self.visit(element,scope))
+        # for element in node.body:
+        instructions.extend(self.visit(node.body,scope))
         
         ultimoDestino=instructions[len(instructions)-1].destination
         
         retorno=CILReturn([ultimoDestino])
         
-        return CILGlobalMethod(parameters,locales,instructions)
+        return CILGlobalMethod(None,parameters,locales,instructions)
 
     @visitor.when(AssignNode)
     def visit(self, node: AssignNode, scope:Scope):
@@ -414,4 +431,14 @@ class CILTranspiler:
 
         instructions.append(CILLabel([labelfinal]))
         
+        return instructions
+    
+    @visitor.when(AttributeNode)
+    def visit(self, node:AttributeNode, scope:Scope):
+        instructions=[]
+        instructions.extend(self.visit(node.value, scope))
+        
+        final=CILAssign(node.name,[instructions[len(instructions)-1].destination])
+        instructions.append(final)
+
         return instructions
