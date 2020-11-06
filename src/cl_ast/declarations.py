@@ -10,12 +10,14 @@ class ClassDeclarationNode(ASTNode):
 
     def _sort_features(self, features):
         sort_f = []
+        fmeth = []
+        fattr = []
         for f in features:
             if isinstance(f, AttrDeclarationNode):
-                sort_f.insert(0, f)
+                fattr.append(f)
             else:
-                sort_f.append(f)
-        return sort_f
+                fmeth.append(f)
+        return fattr + fmeth
 
 class AttrDeclarationNode(ASTNode):
     def __init__(self, row, col, idx, typex, expr=None):

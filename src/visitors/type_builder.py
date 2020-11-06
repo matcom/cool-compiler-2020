@@ -56,11 +56,12 @@ class Builder:
                 current = parent
                 while current:
                     if current.name == self.current_type.name:
-                        raise ContextError(f'{current.name} is involved in inheritance cycle')
+                        self.errors.append(CSemanticError(node.parent_pos[0], node.parent_pos[1], (f'{current.name} is involved in inheritance cycle')))
+                        break
                     current = current.parent
             except ContextError as e:
                 parent = ErrorType()
-                self.errors.append(CSemanticError(node.parent_pos[0], node.parent_pos[1], e.text)) # parent type missing
+                self.errors.append(CTypeError(node.parent_pos[0], node.parent_pos[1], e.text)) # parent type missing
             
             if node.parent in ['Int', 'String', 'Bool']:
                 self.errors.append(CSemanticError(node.parent_pos[0], node.parent_pos[1], 'Invalid inherit in basic classes'))
@@ -75,14 +76,14 @@ class Builder:
             args_ids.append(param.id)
             try:
                 args_types.append(self.context.get_type(param.type))
-            except SemanticError as e:
+            except ContextError as e:
                 args_types.append(ErrorType())
-                self.errors.append(CSemanticError(param.row, param.col, e.text))
+                self.errors.append(CTypeError(param.row, param.col, e.text))
         try:
             ret_type = self.context.get_type(node.type)
-        except SemanticError as e:
+        except ContextError as e:
             ret_type = ErrorType()
-            self.errors.append(CSemanticError(node.type_pos[0], node.node.type_pos[1], e.text))
+            self.errors.append(CTypeError(node.type_pos[0], node.type_pos[1], e.text))
         try:
             self.current_type.define_method(node.id, args_ids, args_types, ret_type)
         except SemanticError as e:
@@ -92,9 +93,9 @@ class Builder:
     def visit(self, node):
         try:
             attr_type = self.context.get_type(node.type)
-        except SemanticError as e:
+        except ContextError as e:
             attr_type = ErrorType()
-            self.errors.append(CSemanticError(node.type_pos[0], node.node.type_pos[1], e.text))
+            self.errors.append(CTypeError(node.type_pos[0], node.type_pos[1], e.text))
         try:
             self.current_type.define_attribute(node.id, attr_type)
         except SemanticError as e:
@@ -133,16 +134,18 @@ class InheritBuilder:
         
         try:
             pmeth = parent.get_method(node.id)
+            if len(node.params) != len(pmeth.param_names):
+                self.errors.append(CSemanticError(node.row, node.col, f"Incompatible number of formal parameters in redefined {node.id}"))
+                raise SemanticError()    
+            
             for param, base in zip(node.params, zip(pmeth.param_names, pmeth.param_types)):
                 if param.type != base[1].name:
                     self.errors.append(CSemanticError(param.row, param.col, WRONG_SIGNATURE % (node.id, parent.name)))   
-            
+
             # Return Type compare and report error
             if pmeth.return_type.name != node.type:
-                self.errors.append(CSemanticError(node.type_pos[0], node.node.type_pos[1], WRONG_SIGNATURE % (node.id, parent.name)))
+                self.errors.append(CSemanticError(node.type_pos[0], node.type_pos[1], WRONG_SIGNATURE % (node.id, parent.name)))
 
-            # if not pmeth == cmeth:
-            #     self.errors.append(CSemanticError(node.row, node.col, WRONG_SIGNATURE % (node.id, parent.name)))
         except SemanticError:
             pass
     

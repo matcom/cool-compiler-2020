@@ -109,6 +109,8 @@ class VarCollector(State):
         try:
             vtype = self.context.get_type(node.type)
             scope.redefine_variable(node.id, vtype)
+        except ContextError as e:
+            self.errors.append(CTypeError(node.type_pos[0], node.type_pos[1], e.text))
         except ScopeError as e:
             self.errors.append(CSemanticError(node.type_pos[0], node.type_pos[1], e.text))
 
@@ -133,8 +135,12 @@ class VarCollector(State):
 
     @visitor.when(OptionNode)
     def visit(self, node, scope):
-        typex = self.context.get_type(node.typex)
-        
+        try:
+            typex = self.context.get_type(node.typex)
+        except ContextError as e:
+            self.errors.append(CTypeError( node.row, node.col, e.text))
+            typex = ErrorType()
+
         self.visit(node.expr, scope)
         scope.define_variable(node.id, typex)
 

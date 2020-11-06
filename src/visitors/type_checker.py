@@ -20,8 +20,8 @@ class TypeChecker(State):
     def _get_type(self, node, typex):
         try:
             return self.context.get_type(typex)
-        except SemanticError as e:
-            self.errors.append(CSemanticError(node.row, node.col, e.text))
+        except ContextError as e:
+            self.errors.append(CTypeError(node.row, node.col, e.text))
             return ErrorType()
 
     def _get_method(self, node, typex, name):
@@ -30,7 +30,7 @@ class TypeChecker(State):
         try:
             return typex.get_method(name)
         except SemanticError as e:
-            self.errors.append(CNameError(node.row, node.col, e.text))
+            self.errors.append(CAttributeError(node.row, node.col, e.text))
             return MethodError(name, [], [], ErrorType())
 
     def _check_args(self, node, meth, scope, args):
@@ -218,14 +218,23 @@ class TypeChecker(State):
     def visit(self, node, scope):
         etype = self.visit(node.expr, scope)
         new_scope = scope.expr_dict[node]
-
-        types = [self.visit(opt, c_scp) for opt, c_scp in zip(node.case_list, new_scope.children)]
         
-        return self._join_types([t[0] for t in types])
+        types = []
+        btypes = []
+        for opt, c_scp in zip(node.case_list, new_scope.children):
+            vtype, otype = self.visit(opt, c_scp)
+            types.append(vtype)
+            if otype in btypes:
+                self.errors.append(CSemanticError(opt.row, opt.col, f"Duplicate branch {otype.name} in case statement"))
+            else:
+                btypes.append(otype)
+
+        return self._join_types(types)
         
     @visitor.when(OptionNode)
     def visit(self, node, scope):
         var_info = scope.find_variable(node.id)
+        
         typex = self.visit(node.expr, scope)
         return typex, var_info.type
 
