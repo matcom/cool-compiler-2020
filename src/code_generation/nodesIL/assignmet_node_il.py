@@ -15,7 +15,7 @@ class VarToVarIL(AssigmentNodeIL):
         super().__init__(left, right)
     
     def __str__(self):
-        return "{} = {}".format(self.left, self.right)
+        return "var {} = var {}".format(self.left, self.right)
 
 class MemoToVarIL(AssigmentNodeIL):
     
@@ -24,7 +24,7 @@ class MemoToVarIL(AssigmentNodeIL):
         self.offset = offset
     
     def __str__(self):
-        return "{} = {}".format(self.left, self.offset)
+        return "var {} = memo [{}]".format(self.left, self.offset)
 
 class VarToMemoIL(AssigmentNodeIL):
     
@@ -33,7 +33,7 @@ class VarToMemoIL(AssigmentNodeIL):
         self.offset = offset
     
     def __str__(self):
-        return "{} = {}".format(self.offset, self.right)
+        return "memo [{}] = var {}".format(self.offset, self.right)
 
 class ConstToMemoIL(AssigmentNodeIL):
     
@@ -42,4 +42,4 @@ class ConstToMemoIL(AssigmentNodeIL):
         self.offset = offset
     
     def __str__(self):
-        return "{} = {}\n".format(self.left + self.offset, self.right)
+        return "memo [{}] = {}\n".format(self.left + self.offset, self.right)
