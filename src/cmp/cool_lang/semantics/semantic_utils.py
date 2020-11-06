@@ -99,6 +99,20 @@ class Type:
         method = self.methods[name] = Method(name, param_names, param_types, return_type)
         return method
 
+    def get_all_attributes(self):
+        if self.parent:
+            for attr in self.parent.get_all_attributes():
+                yield attr
+        for attr in self.attributes:
+            yield attr
+
+    def get_all_methods(self):
+        if self.parent:
+            for tup in self.parent.get_all_methods():
+                yield tup
+        for method in self.methods.values():
+            yield (method, self)
+
     def is_subtype(self, otype): # check if self is subtype of otype
         actual = self
         while True:

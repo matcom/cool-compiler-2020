@@ -52,7 +52,7 @@ class COOL_TYPE_CHECKER(object):
             class_scope.define_var(attr.name, attr.type)
 
         for feature_node in node.features:
-            self.visit(feature_node, scope if type(feature_node) is AttrDeclarationNode else class_scope) #Ensures an attribute cannot be defined from another one           
+            self.visit(feature_node, scope if feature_node is AttrDeclarationNode else class_scope) #Ensures an attribute cannot be defined from another one           
 
     @when(AttrDeclarationNode)
     def visit(self, node:AttrDeclarationNode, scope:Scope):
