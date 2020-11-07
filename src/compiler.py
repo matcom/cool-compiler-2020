@@ -1,10 +1,6 @@
 import argparse
-from sys import argv
-
-from lexer import make_lexer
-from parser import make_parser
-
-tokens = ""
+from .lexer import make_lexer
+from .parser import make_parser
 
 
 def create_arg_parser():
@@ -61,7 +57,7 @@ def main():
         with open(str(p)) as file:
             while True:
                 i = file.read(1)
-                if not(i):
+                if not i:
                     break
                 if i == '\0':
                     cool_program_code += r'\0'
@@ -83,7 +79,7 @@ def main():
     except (IOError, FileNotFoundError):
         print(f"Error! File {program} not found.")
         exit(1)
-    except Exception:
+    except _:
         print("An unexpected error occurred!")
         exit(1)
 
