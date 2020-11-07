@@ -41,6 +41,12 @@ class AssignNode(InstructionNode):
         self.dest = dest
         self.source = source
 
+class ComformNode(InstructionNode):
+    def __init__(self, dest, obj, typex):
+        self.dest = dest
+        self.obj = obj
+        self.type = typex
+
 class ComplementNode(InstructionNode):
     def __init__(self, dest, body):
         self.dest = dest
@@ -144,6 +150,10 @@ class DynamicCallNode(InstructionNode):
 class ArgNode(InstructionNode):
     def __init__(self, name):
         self.name = name
+
+class CleanArgsNode(InstructionNode):
+    def __init__(self, nargs):
+        self.nargs = nargs
 
 class ReturnNode(InstructionNode):
     def __init__(self, value=None):
