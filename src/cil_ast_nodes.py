@@ -104,9 +104,9 @@ class Halt(Expr):
 
 class GetAttr(Expr):
     def __init__(self, dest, instance, attr, static_type):
+        self.local_dest = dest
         self.instance = instance
         self.attr = attr
-        self.local_dest = dest
         self.static_type = static_type
 
 class SetAttr(Expr):

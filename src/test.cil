@@ -5,7 +5,6 @@ type Object {
 	method abort : Object.abort
 	method type_name : Object.type_name
 	method copy : Object.copy
-	method init : Object.init
 }
 type Int {
 	attribute value
@@ -13,7 +12,6 @@ type Int {
 	method abort : Object.abort
 	method type_name : Object.type_name
 	method copy : Object.copy
-	method init : Int.init
 }
 type String {
 	attribute value
@@ -24,7 +22,6 @@ type String {
 	method length : String.length
 	method concat : String.concat
 	method substr : String.substr
-	method init : String.init
 }
 type Bool {
 	attribute value
@@ -32,7 +29,6 @@ type Bool {
 	method abort : Object.abort
 	method type_name : Object.type_name
 	method copy : Object.copy
-	method init : Bool.init
 }
 type IO {
 	
@@ -44,20 +40,23 @@ type IO {
 	method out_int : IO.out_int
 	method in_string : IO.in_string
 	method in_int : IO.in_int
-	method init : IO.init
 }
 type Main {
-	
+	attribute y
 
 	method abort : Object.abort
 	method type_name : Object.type_name
 	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
 	method main : Main.main
-	method init : Main.init
 }
 
 .DATA
 s_0: Execution aborted
+empty_str: 
 
 .CODE
 function main {
@@ -67,12 +66,12 @@ function main {
 	LOCAL result_1
 
 	instance_0 = ALLOCATE Main
-	result_1 = CALL Main.init
+	result_1 = CALL Main_init
 	result_1 = CALL Main.main
 	
  RETURN 0
 }
-function Object.init {
+function Object_init {
 	PARAM instance
 
 	
@@ -98,7 +97,7 @@ function Object.type_name {
 
 	type_name_0 = TYPEOF self
 	instance_1 = ALLOCATE String
-	result_init_2 = CALL String.init
+	result_init_2 = CALL String_init
 	
  RETURN instance_1
 }
@@ -111,7 +110,7 @@ function Object.copy {
 	
  RETURN copy_0
 }
-function IO.init {
+function IO_init {
 	PARAM instance
 
 	
@@ -150,7 +149,7 @@ function IO.in_string {
 
 	read_str_0 = READ
 	instance_1 = ALLOCATE String
-	result_init_2 = CALL String.init
+	result_init_2 = CALL String_init
 	
  RETURN instance_1
 }
@@ -163,11 +162,11 @@ function IO.in_int {
 
 	read_int_0 = READ
 	instance_1 = ALLOCATE Int
-	result_init_2 = CALL Int.init
+	result_init_2 = CALL Int_init
 	
  RETURN instance_1
 }
-function String.init {
+function String_init {
 	PARAM instance
 	PARAM v
 
@@ -186,7 +185,7 @@ function String.length {
 
 	length_0 = LENGTH self
 	instance_1 = ALLOCATE Int
-	result_init_2 = CALL Int.init
+	result_init_2 = CALL Int_init
 	
  RETURN length_0
 }
@@ -204,7 +203,7 @@ function String.concat {
 	str2_1 = GetAttr s value 
 	concat_2 = CONCAT str1_0  str2_1
 	instance_3 = ALLOCATE String
-	result_init_4 = CALL String.init
+	result_init_4 = CALL String_init
 	
  RETURN instance_3
 }
@@ -223,11 +222,11 @@ function String.substr {
 	l_value_1 = GetAttr l value 
 	subs_result_2 = SUBSTR i_value_0  l_value_1  self
 	instance_3 = ALLOCATE String
-	result_init_4 = CALL String.init
+	result_init_4 = CALL String_init
 	
  RETURN instance_3
 }
-function Bool.init {
+function Bool_init {
 	PARAM instance
 	PARAM v
 
@@ -237,7 +236,7 @@ function Bool.init {
 	
  RETURN 0
 }
-function Int.init {
+function Int_init {
 	PARAM instance
 	PARAM v
 
@@ -247,25 +246,25 @@ function Int.init {
 	
  RETURN 0
 }
-function Main.init {
+function Main_init {
 	PARAM instance
 
 	LOCAL Main.instance
 	LOCAL result_1
 
 	Main.instance = ALLOCATE Main
-	result_1 = CALL Object.init
+	result_1 = CALL IO_init
 	
  RETURN 0
 }
 function Main.main {
 	PARAM self
 
-	LOCAL instance_0
-	LOCAL result_init_1
+	LOCAL result_0
+	LOCAL Main.y
 
-	instance_0 = ALLOCATE Int
-	result_init_1 = CALL Int.init
+	Main.y = GetAttr self y 
+	result_0 = VCALL Main out_int 
 	
- RETURN instance_0
+ RETURN result_0
 }

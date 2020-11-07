@@ -184,11 +184,6 @@ class CILToMIPSVisitor():
 
     @visitor.when(CIL_AST.Arg)
     def visit(self, node):
-        print(node.arg)
-        print(self.var_offset)
-        print(self.current_function.name)
-        print(len(self.current_function.params))
-        print("************************")
         value_offset = self.var_offset[self.current_function.name][node.arg]  # get value from local
         self.text += f'lw $t1, {value_offset}($t0)\n'
         self.text += 'addi $sp, $sp, -4\n'
@@ -328,7 +323,7 @@ if __name__ == '__main__':
     lexer = Lexer()
     parser = Parser()
 
-    sys.argv.append('arith.cl')
+    sys.argv.append('test.cl')
 
     if len(sys.argv) > 1:
 

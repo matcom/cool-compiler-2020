@@ -320,7 +320,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.register_param(VariableInfo(p.name, p.param_type))
         
         value = self.visit(node.expr, scope)
-        
+
         self.register_instruction(CIL_AST.Return(value)) 
         self.current_method = None
 
@@ -716,17 +716,14 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.Identifier)
     def visit(self, node, scope):
-        if node.name == 'self':
+        if self.is_defined_param(node.name):
             return node.name
-        cil_name = scope.find_cil_local(node.name)
-        if cil_name == None and self.is_defined_param(node.name):
-            return node.name
-        elif cil_name == None and self.current_type.has_attr(node.name): 
+        elif self.current_type.has_attr(node.name): 
             result_local = self.define_internal_local(scope=scope, name = node.name, class_type=self.current_type.name)
             self.register_instruction(CIL_AST.GetAttr(result_local, 'self' , node.name, self.current_type.name))
             return result_local
         else:
-            return cil_name
+            return scope.find_cil_local(node.name)
     
     @visitor.when(COOL_AST.INTEGER)
     def visit(self, node, scope):
