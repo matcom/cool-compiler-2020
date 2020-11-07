@@ -101,7 +101,7 @@ class ExpressionNode(Node):
     pass
 
 class AtomicNode(ExpressionNode):
-    def __init__(self, lex):
+    def __init__(self, lex, lineNumber):
         self.lex = lex
         self.lineNumber = lineNumber
 

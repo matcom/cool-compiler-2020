@@ -4,6 +4,8 @@ from sys import argv
 from lexer import make_lexer
 from parser import make_parser
 
+from visitor import *
+
 tokens = ""
 
 
@@ -74,6 +76,7 @@ def main():
                 for er in errors:
                     print(er)
                 exit(1)
+        
             
             ast, errors = make_parser(s)
             
@@ -82,7 +85,11 @@ def main():
                     print(er)
                 exit(1)
             
-            print(ast)
+            formatter = FormatVisitor()
+            tree = formatter.visit(ast)
+            print(tree)
+
+            
             
 
     except (IOError, FileNotFoundError):
