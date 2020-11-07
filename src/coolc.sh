@@ -8,6 +8,4 @@ echo "Cool Compiler version 1.0"        # TODO: Recuerde cambiar estas
 echo "Copyright (c) 2020: Dalianys Perez, Dayany Alfaro, Gilberto Gonzalez"    # TODO: líneas a los valores correctos
 
 # Llamar al compilador
-#echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
-python lexer.py $INPUT_FILE
-python semantic_analyzer.py $INPUT_FILE
+python cil_to_mips.py $INPUT_FILE

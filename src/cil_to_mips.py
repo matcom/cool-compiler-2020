@@ -321,9 +321,11 @@ class CILToMIPSVisitor():
 if __name__ == '__main__':
     import sys
     from cparser import Parser
+    from lexer import Lexer
     from semantic_analyzer import SemanticAnalyzer
     from cool_to_cil import COOLToCILVisitor
 
+    lexer = Lexer()
     parser = Parser()
 
     sys.argv.append('test.cl')
@@ -334,21 +336,24 @@ if __name__ == '__main__':
         with open(input_file, encoding="utf-8") as file:
             cool_program_code = file.read()
 
+        lexer.input(cool_program_code)
+        for token in lexer: pass
+        
+        if lexer.errors:
+            print(lexer.errors[0])
+            exit(1)
+
         cool_ast = parser.parse(cool_program_code)
 
         if parser.errors:
-            print(parser.errors)
-        
-        if parser.errors:
+            print(parser.errors[0])
             exit(1)
 
         semantic_analyzer = SemanticAnalyzer(cool_ast)
         context, scope = semantic_analyzer.analyze()
 
-        for e in semantic_analyzer.errors:
-            print(e)
-
-        if semantic_analyzer.errors:    
+        if semantic_analyzer.errors:
+            print(semantic_analyzer.errors[0])  
             exit(1)
         
         cool_to_cil = COOLToCILVisitor(context)
