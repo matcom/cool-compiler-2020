@@ -218,7 +218,7 @@ class BaseCOOLToCILVisitor:
         instance = self.define_internal_local(scope=scope, name="instance")
         self.register_instruction(CIL_AST.Allocate('String', instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
-        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'String'), [CIL_AST.Arg(subs_result),CIL_AST.Arg(instance)],"String"))
+        self.register_instruction(CIL_AST.Call(result_init, 'String_init', [CIL_AST.Arg(subs_result),CIL_AST.Arg(instance)],"String"))
         self.register_instruction(CIL_AST.Return(instance))
               
         #----------------Bool---------------------
@@ -538,7 +538,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # Allocate Int result
         self.register_instruction(CIL_AST.Allocate('Int', result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
-        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Int'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
+        self.register_instruction(CIL_AST.Call(result_init, 'Int_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
         return result_local
 
@@ -560,7 +560,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # Allocate Int result
         self.register_instruction(CIL_AST.Allocate('Int', result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
-        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Int'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
+        self.register_instruction(CIL_AST.Call(result_init, 'Int_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
         return result_local
 
@@ -582,7 +582,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # Allocate Int result
         self.register_instruction(CIL_AST.Allocate('Int', result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
-        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Int'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
+        self.register_instruction(CIL_AST.Call(result_init, 'Int_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
         return result_local
 
@@ -604,7 +604,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # Allocate Int result
         self.register_instruction(CIL_AST.Allocate('Int', result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
-        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Int'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
+        self.register_instruction(CIL_AST.Call(result_init, 'Int_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
         return result_local
 
@@ -622,7 +622,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # Allocate Int result
         self.register_instruction(CIL_AST.Allocate('Int', result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
-        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Int'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
+        self.register_instruction(CIL_AST.Call(result_init, 'Int_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
         return result_local
         
@@ -640,7 +640,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # Allocate Bool result
         self.register_instruction(CIL_AST.Allocate('Bool', result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
-        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Bool'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
+        self.register_instruction(CIL_AST.Call(result_init, 'Bool_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
 
         return result_local
 
@@ -662,7 +662,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # Allocate Bool result
         self.register_instruction(CIL_AST.Allocate('Bool', result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
-        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Bool'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
+        self.register_instruction(CIL_AST.Call(result_init, 'Bool_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
 
         return result_local
 
@@ -684,7 +684,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # Allocate Bool result
         self.register_instruction(CIL_AST.Allocate('Bool', result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
-        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Bool'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
+        self.register_instruction(CIL_AST.Call(result_init, 'Bool_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
 
         return result_local
 
@@ -710,7 +710,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # Allocate Bool result
         self.register_instruction(CIL_AST.Allocate('Bool', result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
-        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Bool'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
+        self.register_instruction(CIL_AST.Call(result_init, 'Bool_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
 
         return result_local
 
