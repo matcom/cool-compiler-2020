@@ -525,6 +525,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(COOL_AST.Sum)
     def visit(self, node, scope):
         result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
         right_local = self.define_internal_local(scope=scope, name = "right")
 
@@ -534,13 +535,19 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.GetAttr(left_local, left_value, "value", node.left.computed_type.name))
         self.register_instruction(CIL_AST.GetAttr(right_local, right_value, "value", node.right.computed_type.name))
 
-        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "+"))
+        self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "+"))
+
+        # Allocate Int result
+        self.register_instruction(CIL_AST.Allocate('Int', result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Int'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
         return result_local
 
     @visitor.when(COOL_AST.Sub)
     def visit(self, node, scope):
         result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
         right_local = self.define_internal_local(scope=scope, name = "right")
 
@@ -550,13 +557,19 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.GetAttr(left_local, left_value, "value", node.left.computed_type.name))
         self.register_instruction(CIL_AST.GetAttr(right_local, right_value, "value", node.right.computed_type.name))
 
-        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "-"))
+        self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "-"))
+
+        # Allocate Int result
+        self.register_instruction(CIL_AST.Allocate('Int', result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Int'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
         return result_local
 
     @visitor.when(COOL_AST.Mult)
     def visit(self, node, scope):
         result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
         right_local = self.define_internal_local(scope=scope, name = "right")
 
@@ -566,13 +579,19 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.GetAttr(left_local, left_value, "value", node.left.computed_type.name))
         self.register_instruction(CIL_AST.GetAttr(right_local, right_value, "value", node.right.computed_type.name))
 
-        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "*"))
+        self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "*"))
+
+        # Allocate Int result
+        self.register_instruction(CIL_AST.Allocate('Int', result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Int'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
         return result_local
 
     @visitor.when(COOL_AST.Div)
     def visit(self, node, scope):
         result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
         right_local = self.define_internal_local(scope=scope, name = "right")
 
@@ -582,37 +601,55 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.GetAttr(left_local, left_value, "value", node.left.computed_type.name))
         self.register_instruction(CIL_AST.GetAttr(right_local, right_value, "value", node.right.computed_type.name))
 
-        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "/"))
+        self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "/"))
+
+        # Allocate Int result
+        self.register_instruction(CIL_AST.Allocate('Int', result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Int'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
         return result_local
 
     @visitor.when(COOL_AST.LogicalNot)
     def visit(self, node, scope):
         result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
         expr_local = self.define_internal_local(scope=scope) 
         
         expr_value = self.visit(node.expr, scope)
         
         self.register_instruction(CIL_AST.GetAttr(expr_local, expr_value, "value", node.expr.computed_type.name))
-        self.register_instruction(CIL_AST.UnaryOperator(result_local, expr_local, "~"))
+        self.register_instruction(CIL_AST.UnaryOperator(op_local, expr_local, "~"))
+
+        # Allocate Int result
+        self.register_instruction(CIL_AST.Allocate('Int', result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Int'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
         return result_local
         
     @visitor.when(COOL_AST.Not)
     def visit(self, node, scope):
         result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
         expr_local = self.define_internal_local(scope=scope) 
         
         expr_value = self.visit(node.expr, scope)
         
         self.register_instruction(CIL_AST.GetAttr(expr_local, expr_value, "value", node.expr.computed_type.name))
-        self.register_instruction(CIL_AST.UnaryOperator(result_local, expr_local, "not"))
+        self.register_instruction(CIL_AST.UnaryOperator(op_local, expr_local, "not"))
+
+        # Allocate Bool result
+        self.register_instruction(CIL_AST.Allocate('Bool', result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Bool'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
 
         return result_local
 
     @visitor.when(COOL_AST.LessThan)
     def visit(self, node, scope):
         result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
         right_local = self.define_internal_local(scope=scope, name = "right")
 
@@ -622,13 +659,19 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.GetAttr(left_local, left_value, "value", node.left.computed_type.name))
         self.register_instruction(CIL_AST.GetAttr(right_local, right_value, "value", node.right.computed_type.name))
 
-        self.register_instruction(CIL_AST.BinaryOperator(result_local, left_local, right_local, "<"))
+        self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "<"))
+
+        # Allocate Bool result
+        self.register_instruction(CIL_AST.Allocate('Bool', result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Bool'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
 
         return result_local
 
     @visitor.when(COOL_AST.LessOrEqualThan)
     def visit(self, node, scope):
         result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
         right_local = self.define_internal_local(scope=scope, name = "right")
 
@@ -638,23 +681,34 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.GetAttr(left_local, left_value, "value", node.left.computed_type.name))
         self.register_instruction(CIL_AST.GetAttr(right_local, right_value, "value", node.right.computed_type.name))
 
-        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "<="))
+        self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "<="))
+
+        # Allocate Bool result
+        self.register_instruction(CIL_AST.Allocate('Bool', result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Bool'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
 
         return result_local
 
     @visitor.when(COOL_AST.Equals)
     def visit(self, node, scope):
         result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
         right_local = self.define_internal_local(scope=scope, name = "right")
 
         left_value = self.visit(node.left, scope)
         right_value = self.visit(node.right, scope)
 
-        self.register_instruction(CIL_AST.Assign(left_local, left_value))
-        self.register_instruction(CIL_AST.Assign(right_local, right_value))
+        self.register_instruction(CIL_AST.GetAttr(left_local, left_value, "value", node.left.computed_type.name))
+        self.register_instruction(CIL_AST.GetAttr(right_local, right_value, "value", node.right.computed_type.name))
 
-        self.register_instruction(CIL_AST.BinaryOperator( result_local, left_local, right_local, "="))
+        self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "="))
+
+        # Allocate Bool result
+        self.register_instruction(CIL_AST.Allocate('Bool', result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Bool'), [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
 
         return result_local
 
@@ -712,7 +766,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, self.to_function_name('init', 'Bool'), [CIL_AST.Arg(value),CIL_AST.Arg(instance)], "Bool"))
         return instance
-\
 
 if __name__ == '__main__':
     import sys
