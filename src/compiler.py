@@ -2,6 +2,7 @@ import argparse
 from .lexer import make_lexer
 from .parser import make_parser
 
+from .visitor import *
 
 def create_arg_parser():
     arg_parser = argparse.ArgumentParser(prog="pycoolc")
@@ -70,11 +71,21 @@ def main():
                 for er in errors:
                     print(er)
                 exit(1)
-            _, errors = make_parser(s)
+
+
+            ast, errors = make_parser(s)
+
             if len(errors) > 0:
                 for er in errors:
                     print(er)
                 exit(1)
+
+            formatter = FormatVisitor()
+            tree = formatter.visit(ast)
+            print(tree)
+
+
+
 
     except (IOError, FileNotFoundError):
         print(f"Error! File {program} not found.")
