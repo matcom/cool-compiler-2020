@@ -40,6 +40,16 @@ class ErrorNode(InstructionNode):
     def __init__(self, error=1):
         self.error = error
 
+class CopyNode(InstructionNode):
+    def __init__(self, dest, obj):
+        self.dest = dest
+        self.obj  = obj
+
+class TypeNameNode(InstructionNode):
+    def __init__(self, dest, typex):
+        self.dest = dest
+        self.type = typex
+
 class AssignNode(InstructionNode):
     def __init__(self, dest, source):
         self.dest = dest
