@@ -288,10 +288,10 @@ def t_STRING_eof(t):
 
 def t_COMMENT_rparen(t):
     r'\)'
-    if (t.lexer.star):
+    if t.lexer.star:
         t.lexer.star = False
         t.lexer.counter -= 1
-        if (t.lexer.counter == 0):
+        if t.lexer.counter == 0:
             t.lexer.pop_state()
 
 
@@ -369,7 +369,7 @@ def t_newline(t):
 
 def t_ATTRIBUTEID(t):
     r'[a-z][a-zA-Z_0-9]*'
-    if reserved.get(t.value.lower()) == None:
+    if reserved.get(t.value.lower()) is None:
         t.type = 'ATTRIBUTEID'
     else:
         t.type = reserved.get(t.value.lower())
@@ -379,7 +379,7 @@ def t_ATTRIBUTEID(t):
 
 def t_CLASSID(t):
     r'[A-Z][a-zA-Z_0-9]*'
-    if reserved.get(t.value.lower()) == None or reserved.get(t.value.lower()) == 'TRUE' or reserved.get(
+    if reserved.get(t.value.lower()) is None or reserved.get(t.value.lower()) == 'TRUE' or reserved.get(
             t.value.lower()) == 'FALSE':
         t.type = 'CLASSID'
     else:
@@ -416,7 +416,7 @@ def make_lexer(data):
                     counter += 1
                     j += 1
                 if data[j] == '*' and data[j + 1] == ')':
-                    if (counter == 0):
+                    if counter == 0:
                         matched = True
                         break
                     else:
@@ -424,7 +424,7 @@ def make_lexer(data):
                 if data[j] == '\n':
                     paster += '\n'
                 j += 1
-            if (matched):
+            if matched:
                 newData += paster
                 i = j + 2
                 continue
@@ -439,5 +439,6 @@ def make_lexer(data):
             break
     lexer.lineno = 1
     return lexer, errors
+
 
 lexer = lex.lex()
