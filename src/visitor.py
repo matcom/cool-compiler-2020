@@ -1,12 +1,13 @@
-import cmp.visitor as visitor
-from ast import *
+from .visitor_helper import *
+from .ast import *
+
 
 class FormatVisitor(object):
-    @visitor.on('node')
+    @on('node')
     def visit(self, node, tabs):
         pass
     
-    @visitor.when(ProgramNode)
+    @when(ProgramNode)
     def visit(self, node, tabs=0):  
         buff = ""
         buff += "ProgramNode"
@@ -16,7 +17,7 @@ class FormatVisitor(object):
         
         return buff
     
-    @visitor.when(ClassNode)
+    @when(ClassNode)
     def visit(self, node, tabs=0):
         buff = ""
         for i in range(0, tabs):
@@ -30,7 +31,7 @@ class FormatVisitor(object):
         
         return buff
     
-    @visitor.when(AttributeFeatureNode)
+    @when(AttributeFeatureNode)
     def visit(self, node, tabs=0):
         buff = ""
         for i in range(0, tabs):
@@ -39,7 +40,7 @@ class FormatVisitor(object):
 
         return buff + " " + node.id
 
-    @visitor.when(FunctionFeatureNode)
+    @when(FunctionFeatureNode)
     def visit(self, node, tabs=0):
         buff = ""
         for i in range(0, tabs):
