@@ -700,8 +700,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         left_value = self.visit(node.left, scope)
         right_value = self.visit(node.right, scope)
 
-        self.register_instruction(CIL_AST.GetAttr(left_local, left_value, "value", node.left.computed_type.name))
-        self.register_instruction(CIL_AST.GetAttr(right_local, right_value, "value", node.right.computed_type.name))
+        if node.left.computed_type.name in ['Int', 'Bool']:
+            self.register_instruction(CIL_AST.GetAttr(left_local, left_value, "value", node.left.computed_type.name))
+            self.register_instruction(CIL_AST.GetAttr(right_local, right_value, "value", node.right.computed_type.name))
+        else:
+            self.register_instruction(CIL_AST.Assign(left_local, left_value))
+            self.register_instruction(CIL_AST.Assign(right_local, right_value))
 
         self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "="))
 
