@@ -511,7 +511,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
     @visitor.when(COOL_AST.IsVoid)
     def visit(self, node, scope):
-        expre_value = self.visit(node.expr)
+        expre_value = self.visit(node.expr, scope)
         result_local = self.define_internal_local(scope=scope, name ="isvoid_result")
         self.register_instruction(CIL_AST.IsVoid(result_local, expre_value))
         instance = self.define_internal_local(scope=scope, name="instance")
