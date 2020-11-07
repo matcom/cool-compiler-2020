@@ -36,12 +36,16 @@ class LocalNode(Node):
 class InstructionNode(Node):
     pass
 
+class ErrorNode(InstructionNode):
+    def __init__(self, error=1):
+        self.error = error
+
 class AssignNode(InstructionNode):
     def __init__(self, dest, source):
         self.dest = dest
         self.source = source
 
-class ComformNode(InstructionNode):
+class ConformNode(InstructionNode):
     def __init__(self, dest, obj, typex):
         self.dest = dest
         self.obj = obj

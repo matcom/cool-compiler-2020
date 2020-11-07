@@ -4,8 +4,8 @@ from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, Assi
     , MinusNode, StarNode, DivNode, AllocateNode, TypeOfNode, StaticCallNode, DynamicCallNode    \
     , ArgNode, ReturnNode, ReadNode, PrintNode, LoadNode, LengthNode, ConcatNode, PrefixNode     \
     , SubstringNode, ToStrNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
-    , DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ComformNode         \
-    , CleanArgsNode
+    , DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ConformNode         \
+    , CleanArgsNode, ErrorNode
 from .utils import Scope
 from .basic_transform import BASE_COOL_CIL_TRANSFORM, VariableInfo
 from .utils import when, on
@@ -16,6 +16,9 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node, scope:Scope):
         pass
     
+    def order_caseof(self, node:cool.CaseOfNode):
+        return list(node.cases)
+
     def find_type_name(self, typex, func_name):
         if func_name in typex.methods.keys():
             return typex.name
@@ -160,12 +163,40 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         return result
 
     @when(cool.CaseNode)
-    def visit(self, node:cool.CaseNode, scope:Scope, obj_inst=None,result_inst=None):
-        pass
+    def visit(self, node:cool.CaseNode, scope:Scope, typex=None, result_inst=None, end_label=None):
+        cond = self.define_internal_local()
+        not_cond = self.define_internal_local()
+        case_label = self.to_label_name(f'case_{node.type}')
+        self.register_instruction(ConformNode(cond, typex, node.type))
+        self.register_instruction(ComplementNode(not_cond, cond))
+        self.register_instruction(GotoIfNode(not_cond, case_label))
+        case_scope = Scope(parent=scope)
+        case_var = self.register_local(node.id)
+        case_scope.define_var(node.id, case_var)
+        case_result = self.visit(node.expression, case_scope)
+        self.register_instruction(AssignNode(result_inst, case_result))
+        self.register_instruction(GotoNode(end_label))
+        self.register_instruction(LabelNode(case_label))
 
     @when(cool.CaseOfNode)
     def visit(self, node:cool.CaseOfNode, scope:Scope):
-        pass
+        order_cases = self.order_caseof(node)
+        end_label = self.to_label_name('end')
+        error_label = self.to_label_name('error')
+        result = self.define_internal_local()
+        type_inst = self.define_internal_local()
+        is_void = self.define_internal_local()
+        obj_inst = self.visit(node.expression, scope)
+        self.register_instruction(IsVoidNode(is_void, obj_inst))
+        self.register_instruction(GotoIfNode(is_void, error_label))
+        self.register_instruction(TypeOfNode(obj_inst, type_inst))
+        for case in order_cases:
+            self.visit(case, scope, type_inst, result, end_label)
+        self.register_instruction(LabelNode(error_label))
+        self.register_instruction(ErrorNode())
+        self.register_instruction(LabelNode(end_label))
+
+        return result
 
     @when(cool.AssignNode)
     def visit(self, node:cool.AssignNode, scope:Scope):

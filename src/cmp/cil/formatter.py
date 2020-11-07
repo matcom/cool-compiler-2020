@@ -2,8 +2,8 @@ from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, Assi
     , MinusNode, StarNode, DivNode, AllocateNode, TypeOfNode, StaticCallNode, DynamicCallNode    \
     , ArgNode, ReturnNode, ReadNode, PrintNode, LoadNode, LengthNode, ConcatNode, PrefixNode     \
     , SubstringNode, ToStrNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
-    , DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ComformNode         \
-    , CleanArgsNode 
+    , DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ConformNode         \
+    , CleanArgsNode, ErrorNode
 from .utils import on, when
 
 
@@ -47,12 +47,16 @@ class CIL_FORMATTER(object):
     def visit(self, node: LocalNode):
         return f'LOCAL {node.name}'
 
+    @when(ErrorNode)
+    def visit(self, node: ErrorNode):
+        return f'ERROR {node.error}'
+
     @when(AssignNode)
     def visit(self, node: AssignNode):
         return f'{node.dest} = {node.source}'
 
-    @when(ComformNode)
-    def visit(self, node: ComformNode):
+    @when(ConformNode)
+    def visit(self, node: ConformNode):
         return f'{node.dest} = COMFORM {node.obj} {node.type}'
 
     @when(IsVoidNode)
