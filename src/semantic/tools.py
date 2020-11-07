@@ -98,7 +98,7 @@ class Scope:
         except StopIteration:
             return self.parent.find_local(vname, self.index) if self.parent else None
 
-    def find_attribute(self, vname, index=None) :
+    def find_attribute(self, vname, index=None):
         locals = self.attributes if index is None else itt.islice(self.attributes, index)
         try:
             return next(x for x in locals if x.name == vname)

@@ -13,6 +13,13 @@ class BaseCOOLToCILVisitor:
         self.current_method: Method = None
         self.current_function = None
         self.context: Context = context
+        self.idx = 0
+
+    @property
+    def index(self):
+        i = self.idx
+        self.idx += 1
+        return i
     
     @property
     def params(self):
@@ -27,14 +34,14 @@ class BaseCOOLToCILVisitor:
         return self.current_function.instructions
     
     def register_param(self, vinfo):
-        param_node = ParamNode(vinfo.name)
+        param_node = ParamNode(vinfo.name, self.index)
         vinfo.name = f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
         self.params.append(param_node)
         return vinfo.name
     
     def register_local(self, vinfo):
         name = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
-        local_node = LocalNode(name)
+        local_node = LocalNode(name, self.index)
         self.localvars.append(local_node)
         return name
 
@@ -44,6 +51,7 @@ class BaseCOOLToCILVisitor:
 
     def register_instruction(self, instruction):
         self.instructions.append(instruction)
+        instruction.index = self.index
         return instruction
     
     def to_attr_name(self, attr_name, type_name):
@@ -57,9 +65,9 @@ class BaseCOOLToCILVisitor:
             if var_name == name.split('_')[2]:
                 return name
         return ''
-
+        
     def register_function(self, function_name):
-        function_node = FunctionNode(function_name, [], [], [])
+        function_node = FunctionNode(function_name, [], [], [], self.index)
         self.dotcode.append(function_node)
         return function_node
 
@@ -70,7 +78,7 @@ class BaseCOOLToCILVisitor:
 
     def register_data(self, value):
         vname = f'data_{len(self.dotdata)}'
-        data_node = DataNode(vname, value)
+        data_node = DataNode(vname, value, self.index)
         self.dotdata.append(data_node)
         return data_node
 

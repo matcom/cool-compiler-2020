@@ -4,7 +4,7 @@ from semantic.semantic import semantic_analysis
 from codegen import codegen_pipeline
 from cool_parser import CoolParser
 from ply.lex import LexToken
-
+ 
 def run_pipeline(input):
     try:
         with open(input_) as f:

@@ -14,10 +14,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(ProgramNode)
     def visit(self, node: ProgramNode, scope: Scope):
         self.current_function = self.register_function('entry')
+        idx = self.index
         instance = self.define_internal_local()
         result = self.define_internal_local()
+
         self.register_instruction(cil.AllocateNode('Main', instance))
         self.register_instruction(cil.ArgNode(instance))
+
         name = self.to_function_name('main', 'Main')
         self.register_instruction(cil.StaticCallNode(name, result))
         self.register_instruction(cil.ReturnNode(0))
@@ -26,7 +29,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         for declaration, child_scope in zip(node.declarations, scope.children):
             self.visit(declaration, child_scope)
 
-        return cil.ProgramNode(self.dottypes, self.dotdata, self.dotcode)
+        return cil.ProgramNode(self.dottypes, self.dotdata, self.dotcode, idx)
     
 
     @visitor.when(ClassDeclarationNode)
