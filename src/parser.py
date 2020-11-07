@@ -1,5 +1,6 @@
 import ply.yacc as yacc
-from lexer import tokens
+
+
 start = 'program'
 errors = []
 
@@ -216,7 +217,7 @@ def p_member_call(p):
 
 def p_error(p):
     global errors
-    if p == None:
+    if p is None:
         errors.append("(0, 0) - SyntacticError: ERROR at or near EOF")
         return
     word = p.value
