@@ -103,14 +103,14 @@ class CILToMIPSVisitor():
             self.data += f'.word {method}\n'
 
         idx = 0
+        self.attr_offset.__setitem__(node.name, {})
         for attr in node.attributes:
-            self.attr_offset.__setitem__(node.name, {})
             self.attr_offset[node.name][attr] = 4*idx
             idx = idx + 1
         
         idx = 0
+        self.method_offset.__setitem__(node.name, {})
         for met in node.methods:
-            self.method_offset.__setitem__(node.name, {})
             self.method_offset[node.name][met] = 4*idx
             idx = idx + 1
         
@@ -328,7 +328,7 @@ if __name__ == '__main__':
     lexer = Lexer()
     parser = Parser()
 
-    sys.argv.append('test.cl')
+    sys.argv.append('arith.cl')
 
     if len(sys.argv) > 1:
 
