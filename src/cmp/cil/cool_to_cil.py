@@ -35,7 +35,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         self.attr_init = dict()
         for classx in node.classes:
             self.attr_init[classx.id] = []
-            if classx.parent:
+            if classx.parent and not classx.parent in ['IO', 'Object']:
                 self.attr_init[classx.id] += self.attr_init[classx.parent]
             for feature in classx.features:
                 if type(feature) is cool.AttrDeclarationNode:
@@ -171,7 +171,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(ComplementNode(not_cond, cond))
         self.register_instruction(GotoIfNode(not_cond, case_label))
         case_scope = Scope(parent=scope)
-        case_var = self.register_local(node.id)
+        case_var = self.register_local(VariableInfo(node.id, None))
         case_scope.define_var(node.id, case_var)
         case_result = self.visit(node.expression, case_scope)
         self.register_instruction(AssignNode(result_inst, case_result))

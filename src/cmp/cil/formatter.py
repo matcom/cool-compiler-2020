@@ -101,7 +101,7 @@ class CIL_FORMATTER(object):
 
     @when(TypeOfNode)
     def visit(self, node: TypeOfNode):
-        return f'{node.dest} = TYPEOF {node.type}'
+        return f'{node.dest} = TYPEOF {node.obj}'
 
     @when(StaticCallNode)
     def visit(self, node: StaticCallNode):
