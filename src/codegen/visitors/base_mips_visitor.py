@@ -5,18 +5,20 @@ from typing import List
 
 class BaseCILToMIPSVisitor:
     def __init__(self):
-        self.code = []
+        self.code: list = []
         self.initialize_data_code()
         self.initialize_type_code()
         
         self.symbol_table = SymbolTable()
-        local_reg_list = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9']
+        local_reg_list = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8']
+        # temp registers: t8, t9, voy a usarlos para llevarlos de 
         global_reg_list = ['s0', 's1', 's2', 's3', 's4', 's5', 's6', 's7']
         # Not sure if i should only use local registers
         self.local_reg = RegisterDescriptor(local_reg_list)
         self.global_reg = RegisterDescriptor(global_reg_list)
         self.usable_reg = RegisterDescriptor(local_reg_list + global_reg_list)
         self.addr_desc = AddressDescriptor()
+        self.strings = {}
 
 
     def initialize_data_code(self):

@@ -313,33 +313,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(NotNode)
     def visit(self, node: NotNode, scope: Scope):
-        """
-        expr = <expr>
-        IF expr GOTO true
-            res = 1
-            GOTO end
-        LABEL true
-            res = 0
-        LABEL end
-        """
-        #? No sé si representar un  no...
-        result = self.define_internal_local()
-        expr, _ = self.visit(node.expr, scope)
-        
-        true_label = cil.LabelNode('true')
-        end_label = cil.LabelNode('end')
-        self.register_instruction(cil.GotoIfNode(expr, true_label))
-        self.register_instruction(cil.AssignNode(result, 1))
-        self.register_instruction(cil.GotoNode(end_label))
-        self.register_instruction(true_label)
-        self.register_instruction(cil.AssignNode(result, 0))
-        self.register_instruction(end_label)
-        # return self._define_unary_node(node, scope, cil.NotNode)
-        return result, BoolType()
+        return self._define_unary_node(node, scope, cil.NotNode)
 
     @visitor.when(BinaryNotNode)
     def visit(self, node: NotNode, scope: Scope):
-        return self._define_unary_node(node, scope, cil.BinaryNotNode)
+        return self._define_unary_node(node, scope, cil.NotNode)
 
 
     @visitor.when(IsVoidNode)
@@ -364,7 +342,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(LessNode)
     def visit(self, node: LessNode, scope: Scope):
-        return self._define_binary_node(node, scope, cil.MinusNode)
+        return self._define_binary_node(node, scope, cil.LessNode)
         
     @visitor.when(LessEqNode)
     def visit(self, node: LessEqNode, scope: Scope):
@@ -372,4 +350,4 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(EqualNode)
     def visit(self, node: EqualNode, scope: Scope):
-        return self._define_binary_node(node, scope, cil.MinusNode)
+        return self._define_binary_node(node, scope, cil.EqualNode)

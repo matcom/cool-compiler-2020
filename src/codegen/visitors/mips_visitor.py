@@ -2,7 +2,7 @@ from codegen.cil_ast import *
 from utils import visitor
 from codegen.visitors.base_mips_visitor import BaseCILToMIPSVisitor
 from codegen.tools import SymbolTable, AddressDescriptor, RegisterDescriptor
-
+from semantic.tools import VariableInfo
 
 class CILToMIPSVistor(BaseCILToMIPSVisitor):
     '''
@@ -50,16 +50,19 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
 
     @visitor.when(DataNode)
     def visit(self, node:DataNode):
-        self.data_code.append(f"{node.name}: .asciiz \"{node.value}\"")        
+        self.data_code.append(f"{node.name}: .asciiz \"{node.value}\"")    
+        self.strings[node.value] = node.name    
 
     @visitor.when(FunctionNode)
     def visit(self, node:FunctionNode):
+        self.code.append(f'{node.name}:')
         for param in node.params:
             self.visit(param)
         for var in node.localvars:
             self.visit(var)
         blocks = self.get_basic_blocks(node.instructions)
         self.next_use = self.construct_next_use(blocks)
+
         for block in blocks:
             self.block = block
             for inst in block:
@@ -72,41 +75,177 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         register = self.addr_desc.get_var_reg(node.name)
         self.code.append(f'sw $sp, ${register} ($sp)')
 
-    # @visitor.when(LocalNode)
-    # def visit(self, node:LocalNode):
-    #     pass
+    @visitor.when(LocalNode)
+    def visit(self, node:LocalNode):
+        # TODO: initialize variables
+        pass
 
     @visitor.when(AssignNode)
     def visit(self, node:AssignNode):
-        pass
+        rdest = self.addr_desc.get_var_reg(node.dest.name)
+        if isinstance(node.source, VariableInfo):
+            rsrc = self.addr_desc.get_var_reg(node.source.name)
+            self.code.append(f'move ${rdest}, ${rsrc}') 
+        elif isinstance(node.source, int):
+            self.code.append(f'li ${rdest}, ${node.source}')
+        elif isinstance(node.source, str):  # esto nunca se debe ejecutar (se llama a load node)
+            self.code.append(f'la ${rdest}, {self.strings[node.source]}')
 
     @visitor.when(NotNode)
     def visit(self, node:NotNode):
-        pass
+        # TODO: esta instruccion solo funciona con registros, así que revisar si al formar el nodo los operadores son variables
+        rdest = self.addr_desc.get_var_reg(node.dest)
+        rsrc = self.addr_desc.get_var_reg(node.expr)
+        self.code.append(f'not {rdest}, {rsrc}')
 
-    @visitor.when(BinaryNotNode)
-    def visit(self, node:BinaryNotNode):
-        pass
 
     @visitor.when(IsVoidNode)
     def visit(self, node:IsVoidNode):
         pass
 
+
     @visitor.when(PlusNode)
     def visit(self, node:PlusNode):
-        pass
+        rdest = self.addr_desc.get_var_reg(node.dest.name)
+        if isinstance(node.left, VariableInfo):
+            rleft = self.addr_desc.get_var_reg(node.left.name)
+            if isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"add ${rdest}, ${rleft}, ${rright}")
+            elif isinstance(node.right, int):
+                self.code.append(f"addi ${rdest}, ${rleft}, {node.right}")
+        elif isinstance(node.left, int):
+            if isinstance(node.right, int):
+                self.code.append(f"li ${rdest}, {node.left + node.right}")
+            elif isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"addi ${rdest}, ${node.left}, ${rright}")
+
 
     @visitor.when(MinusNode)
     def visit(self, node:MinusNode):
-        pass
+        rdest = self.addr_desc.get_var_reg(node.dest.name)
+        if isinstance(node.left, VariableInfo):
+            rleft = self.addr_desc.get_var_reg(node.left.name)
+            if isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"sub ${rdest}, ${rleft}, ${rright}")
+            elif isinstance(node.right, int):
+                self.code.append(f"addi ${rdest}, ${rleft}, -{node.right}")
+        elif isinstance(node.left, int):
+            if isinstance(node.right, int):
+                self.code.append(f"li ${rdest}, {node.left-node.right}")
+            elif isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"sub $t9, $zero, {rright}")
+                self.code.append(f"addi ${rdest}, $t9, {node.left}")
+
 
     @visitor.when(StarNode)
     def visit(self, node:StarNode):
-        pass
+        rdest = self.addr_desc.get_var_reg(node.dest.name)
+        if isinstance(node.left, VariableInfo):
+            rleft = self.addr_desc.get_var_reg(node.left.name)
+            if isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"mult ${rleft}, ${rright}")
+                self.code.append(f"mflo ${rdest}")
+            elif isinstance(node.right, int):
+                self.code.append(f"li $t9, {node.right}")
+                self.code.append(f"mult ${rleft}, $t9")
+                self.code.append(f"mflo ${rdest}")
+        elif isinstance(node.left, int):
+            if isinstance(node.right, int):
+                self.code.append(f"li ${rdest}, {node.left*node.right}")
+            elif isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"li $t9, {node.left}")
+                self.code.append(f"mult $t9, ${rright}")
+                self.code.append(f"mflo ${rdest}")
+
 
     @visitor.when(DivNode)
     def visit(self, node:DivNode):
-        pass
+        rdest = self.addr_desc.get_var_reg(node.dest.name)
+        if isinstance(node.left, VariableInfo):
+            rleft = self.addr_desc.get_var_reg(node.left.name)
+            if isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"div ${rleft}, ${rright}")
+                self.code.append(f"mflo ${rdest}")
+            elif isinstance(node.right, int):
+                self.code.append(f"li $t9, {node.right}")
+                self.code.append(f"div ${rleft}, $t9")
+                self.code.append(f"mflo ${rdest}")
+        elif isinstance(node.left, int):
+            if isinstance(node.right, int):
+                self.code.append(f"li ${rdest}, {node.left / node.right}")
+            elif isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"li $t9, {node.left}")
+                self.code.append(f"div ${rright}, $t9")
+                self.code.append(f"mflo ${rdest}")
+
+
+    @visitor.when(LessNode)
+    def visit(self, node:LessNode):
+        rdest = self.addr_desc.get_var_reg(node.dest.name)
+        if isinstance(node.left, VariableInfo):
+            rleft = self.addr_desc.get_var_reg(node.left.name)
+            if isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"slt ${rdest}, ${rleft}, ${rright}")
+            elif isinstance(node.right, int):
+                self.code.append(f"li $t9, {node.right}")
+                self.code.append(f"slt ${rdest}, ${rleft}, $t9")
+        elif isinstance(node.left, int):
+            if isinstance(node.right, int):
+                self.code.append(f"li ${rdest}, {int(node.left < node.right)}")
+            elif isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"li $t9, {node.left}")
+                self.code.append(f"slt ${rdest}, $t9, {rright}")
+
+
+    @visitor.when(LessEqNode)
+    def visit(self, node:MinusNode):
+        rdest = self.addr_desc.get_var_reg(node.dest.name)
+        if isinstance(node.left, VariableInfo):
+            rleft = self.addr_desc.get_var_reg(node.left.name)
+            if isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"sle ${rdest}, ${rleft}, ${rright}")
+            elif isinstance(node.right, int):
+                self.code.append(f"li $t9, {node.right}")
+                self.code.append(f"sle ${rdest}, ${rleft}, $t9")
+        elif isinstance(node.left, int):
+            if isinstance(node.right, int):
+                self.code.append(f"li ${rdest}, {int(node.left <= node.right)}")
+            elif isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"li $t9, {node.left}")
+                self.code.append(f"sle ${rdest}, $t9, {rright}")
+
+
+    @visitor.when(EqualNode)
+    def visit(self, node:MinusNode):
+        rdest = self.addr_desc.get_var_reg(node.dest.name)
+        if isinstance(node.left, VariableInfo):
+            rleft = self.addr_desc.get_var_reg(node.left.name)
+            if isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"seq ${rdest}, ${rleft}, ${rright}")
+            elif isinstance(node.right, int):
+                self.code.append(f"li $t9, {node.right}")
+                self.code.append(f"seq ${rdest}, ${rleft}, $t9")
+        elif isinstance(node.left, int):
+            if isinstance(node.right, int):
+                self.code.append(f"li ${rdest}, {int(node.left <= node.right)}")
+            elif isinstance(node.right, VariableInfo):
+                rright = self.addr_desc.get_var_reg(node.right.name)
+                self.code.append(f"li $t9, {node.left}")
+                self.code.append(f"seq ${rdest}, $t9, {rright}")
+
 
     @visitor.when(GetAttribNode)
     def visit(self, node:GetAttribNode):
@@ -126,23 +265,31 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
 
     @visitor.when(LabelNode)
     def visit(self, node:LabelNode):
-        pass
+        self.code.append(f'{node.label}')
 
     @visitor.when(GotoNode)
     def visit(self, node:GotoNode):
-        pass
+        self.code.append(f'j {node.label}')
 
     @visitor.when(GotoIfNode)
     def visit(self, node:GotoIfNode):
-        pass
+        if isinstance(node.cond, VariableInfo):
+            reg = self.addr_desc.get_var_reg(node.cond.name)
+            self.code.append(f'bnez ${reg}, {node.label}')
+        elif isinstance(node.cond, int):
+            self.code.append(f'li $t9, {node.cond}')
+            self.code.append(f'bnez $t9, {node.label}')
 
     @visitor.when(StaticCallNode)
     def visit(self, node:StaticCallNode):
-        pass
+        self.code.append('move $fp, $sp')
+        self.code.append('addiu $sp, $sp, 10') # Size of the method or only params?
+        self.code.append(f'jal {node.function}')
+        self.code.append(f'move ${node.dest.name}, $v0') # v0 es usado para guardar el valor de retorno
 
     @visitor.when(DynamicCallNode)
     def visit(self, node:DynamicCallNode):
-        pass
+        # TODO: Buscar cómo tratar con las instancias
 
     @visitor.when(ArgNode)
     def visit(self, node:ArgNode):
@@ -150,11 +297,13 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
 
     @visitor.when(ReturnNode)
     def visit(self, node:ReturnNode):
-        pass
+        self.code.append(f'addiu $sp, $sp, 10') # method size or only params?
+        self.code.append(f'jr $ra')
 
     @visitor.when(LoadNode)
     def visit(self, node:LoadNode):
-        pass
+        var_name = self.strings[node.msg]
+        self.code.append(f'la ${node.dest}, {var_name}')
 
     @visitor.when(SelfNode)
     def visit(self, node:SelfNode):
