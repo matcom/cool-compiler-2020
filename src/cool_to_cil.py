@@ -593,7 +593,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         expr_value = self.visit(node.expr, scope)
         
-        self.register_instruction(CIL_AST.Assign(expr_local, expr_value))
+        self.register_instruction(CIL_AST.GetAttr(expr_local, expr_value, "value", node.expr.computed_type.name))
         self.register_instruction(CIL_AST.UnaryOperator(result_local, expr_local, "~"))
 
         return result_local
@@ -605,7 +605,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         expr_value = self.visit(node.expr, scope)
         
-        self.register_instruction(CIL_AST.Assign(expr_local, expr_value))
+        self.register_instruction(CIL_AST.GetAttr(expr_local, expr_value, "value", node.expr.computed_type.name))
         self.register_instruction(CIL_AST.UnaryOperator(result_local, expr_local, "not"))
 
         return result_local
