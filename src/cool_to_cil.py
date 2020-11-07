@@ -454,7 +454,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # for p in call_args:
         #     self.register_instruction(CIL_AST.Arg(p))
 
-        static_instance = define_internal_local(scope=scope, name='static_instance')
+        static_instance = self.define_internal_local(scope=scope, name='static_instance')
         self.register_instruction(CIL_AST.Allocate(node.static_type, static_instance))
         
         self.register_instruction(CIL_AST.VCall(result_local, node.method, call_args, node.static_type, static_instance))
