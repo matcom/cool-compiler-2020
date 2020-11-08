@@ -17,7 +17,10 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         pass
     
     def order_caseof(self, node:cool.CaseOfNode):
-        return list(node.cases)
+        get_finish_time = lambda case: self.context.get_type(case.type).finish_time
+        array = [(get_finish_time(case), case) for case in node.cases]
+        array.sort()
+        return [case for _, case in array]
 
     def find_type_name(self, typex, func_name):
         if func_name in typex.methods.keys():

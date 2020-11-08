@@ -43,7 +43,15 @@ class Type:
         self.attributes = []
         self.methods = {}
         self.parent = None
+        self.children = []
+        self.finish_time = 0
         self._visited = False
+
+    def compute_finish_time_recursively(self, ref_int):
+        for child in self.children:
+            child.compute_finish_time_recursively(ref_int)
+        self.finish_time = ref_int['value']
+        ref_int['value'] += 1
 
     def set_parent(self, parent):
         if self.parent is not None:
@@ -51,6 +59,8 @@ class Type:
         if parent.name in ['Int', 'String', 'Bool']:
             raise SemanticException(f'Cannot inherit from basic type {parent.name}.')
         self.parent = parent
+        if all(map(lambda x: x.name != self.name, parent.children)):
+            parent.children.append(self)
 
     def get_attribute(self, name:str):
         try:
@@ -187,6 +197,10 @@ class Context:
             return self.types[name]
         except KeyError:
             raise SemanticException(f'Type "{name}" is not defined.')
+
+    def compute_finish_time(self):
+        root = self.types['Object']
+        root.compute_finish_time_recursively({'value': 0})
 
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
