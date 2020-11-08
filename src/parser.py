@@ -1,5 +1,6 @@
 import ply.yacc as yacc
-from .ast import *
+from lexer import tokens
+from ast import *
 
 start = 'program'
 errors = []

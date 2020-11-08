@@ -1,8 +1,8 @@
 import argparse
-from .lexer import make_lexer
-from .parser import make_parser
+from lexer import make_lexer
+from parser import make_parser
 
-from .visitor import *
+from visitor import *
 
 def create_arg_parser():
     arg_parser = argparse.ArgumentParser(prog="pycoolc")
@@ -49,6 +49,8 @@ def main():
     cool_program_code = ""
 
     p = program[0]
+    if '\r' == p[-1:]:
+        p = p[:-1]
     if not str(p).endswith(".cl"):
         print("Cool program files must end with a \`.cl\` extension.\r\n")
         arg_parser.print_usage()
