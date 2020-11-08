@@ -98,6 +98,7 @@ class CILGlobalMethod:
     def __init__(nombre, params=[], locals=[], intrucciones=[]):
         self.nombre=nombre
         self.params=params
+        self.locals=locals
         self.intrucciones=intrucciones
 
 class CILProgram:

@@ -99,6 +99,24 @@ class CILTranspiler:
         self.variablecount+=1
         return "var#"+str(self.variablecount)
 
+    def GenerarNombreVariable(self, scope:Scope):
+        variable=self.GenerarNombreVariable()
+        scope.locals.append(variable)
+        return variable
+
+    def GenerarInit(self, clase:ClassNode, scope:Scope):
+        instructions=[]
+        if clase.parent!=None:
+            dumb=self.GenerarNombreVariable(scope)
+            instructions.append(CILArgument(["self"]))
+            instructions.append(CILVirtualCall(dumb,[clase.parent,"$init"]))
+        
+        for a in clase.attributes:
+            inits=self.visit(a,scope)
+            instructions.extend(inits)
+        
+        return instructions
+
 
 
 
@@ -129,8 +147,13 @@ class CILTranspiler:
             self.classidcount+=1
 
             scope=Scope(c.name, c.parent)
+            scope.attributes=atributosAST
 
-            #TODO Inicialización de atributos
+            #Inicialización de atributos
+            initInstructions=self.GenerarInit(c,scope)
+            initName=metodosglobalesdic[c.name+"#"+"$init"]
+            globalInit=CILGlobalMethod(initName,["self"],scope.locals,initInstructions)
+            metodosGlobalesCIL[globalInit.name]=globalInit
 
             atributosCIL=[]
             for element in atributosAST:
@@ -146,6 +169,7 @@ class CILTranspiler:
                 globalMethod=self.visit(m, scope)
                 globalMethod.name=metodosglobalesdic[c.name+"#"+m.name]
                 metodosGlobalesCIL[globalMethod.name]=globalMethod
+                
 
             claseCIL=CILClass(c.name,atributosCIL, metodosClaseCIL)
             classesCIL.append(claseCIL)
@@ -158,25 +182,25 @@ class CILTranspiler:
         datadeclaration=CILDataDeclaration(nombrestring, node.value)
         self.datacount+=1
         self.data[datadeclaration.nombre]=datadeclaration
-        destino=self.GenerarNombreVariable()
+        destino=self.GenerarNombreVariable(scope)
         return [CILStringLoad(destino, [nombrestring])]
 
 
     @visitor.when(IntegerNode)
     def visit(self, node: IntegerNode, scope:Scope):
-        destino=self.GenerarNombreVariable()
+        destino=self.GenerarNombreVariable(scope)
         instruccion=CILAssign(destino,[node.value])
         return [instruccion]
 
     @visitor.when(BoolNode)
     def visit(self, node: BoolNode, scope:Scope):
-        destino=self.GenerarNombreVariable()
+        destino=self.GenerarNombreVariable(scope)
         instruccion=CILAssign(destino,[node.value])
         return [instruccion]
 
     @visitor.when(NewNode)
     def visit(self, node: NewNode, scope:Scope):
-        destino=self.GenerarNombreVariable()
+        destino=self.GenerarNombreVariable(scope)
         instruccion=CILAllocate(destino,[node.type])
         return [instruccion]
 
@@ -203,7 +227,7 @@ class CILTranspiler:
         conditinalJump=CILConditionalJump(params=[resultadoPredicado,thenLabel.params[0]])
         saltoalfinal=CILJump(params=[finalLabel.params[0]])
 
-        destinoinicial=self.GenerarNombreVariable()
+        destinoinicial=self.GenerarNombreVariable(scope)
         asignacionThen=CILAssign(destinoinicial,[thencode[len(thencode)-1].destination])
         thencode.append(asignacionThen)
         asignacionElse=CILAssign(destinoinicial,[elsecode[len(elsecode)-1].destination])
@@ -217,7 +241,7 @@ class CILTranspiler:
         instrucciones.extend(thencode)
         instrucciones.append(finalLabel)
 
-        destinofinal=self.GenerarNombreVariable()
+        destinofinal=self.GenerarNombreVariable(scope)
         asignacionFinal=CILAssign(destinofinal,[destinoinicial])
         instrucciones.append(asignacionFinal)
         
@@ -229,6 +253,8 @@ class CILTranspiler:
         locales=[]
         for param in node.parameters:
             parameters.append(param.name)
+
+        scope.params=parameters
     
         instructions=[]
         # for element in node.body:
@@ -247,7 +273,7 @@ class CILTranspiler:
 
         instrucciones=self.visit(node.expression,scope)
         
-        nombrevariable=self.GenerarNombreVariable()
+        nombrevariable=self.GenerarNombreVariable(scope)
         asignacion=CILAssign(nombrevariable,instrucciones[len(instrucciones)-1].destination)
         instrucciones.append(asignacion)
 
@@ -260,7 +286,7 @@ class CILTranspiler:
         instrucciones.extend(self.visit(node.right,scope))
         derecha=instrucciones[len(instrucciones)-1].destination
 
-        nombrevariable=self.GenerarNombreVariable()
+        nombrevariable=self.GenerarNombreVariable(scope)
         if node is PlusNode:
             nuevoCIL=CILPlus(nombrevariable,[izquierda,derecha])
         elif node is MinusNode:
@@ -292,7 +318,7 @@ class CILTranspiler:
         instructions=[label]
         instructions.extend(self.visit(node.predicate,scope))
         
-        negado=self.GenerarNombreVariable()
+        negado=self.GenerarNombreVariable(scope)
         instructions.append(CILNot(negado,[instructions[len(instructions)-1]]))
 
         instructions.append(CILConditionalJump(params=[negado,finalciclo.params[0]]))
@@ -319,8 +345,8 @@ class CILTranspiler:
             instructions.extend(paramInstruction)
 
         instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
-        resultVariable=self.GenerarNombreVariable()
-        llamada=CILVirtualCall(resultVariable,[node.func_id])
+        resultVariable=self.GenerarNombreVariable(scope)
+        llamada=CILCall(resultVariable,[node.func_id])
         instructions.append(llamada)
 
         return instructions
@@ -340,7 +366,7 @@ class CILTranspiler:
             instructions.extend(paramInstruction)        
 
         instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
-        resultVariable=self.GenerarNombreVariable()
+        resultVariable=self.GenerarNombreVariable(scope)
         llamada=CILVirtualCall(resultVariable,[node.parent_id,node.func_id])
         instructions.append(llamada)
 
@@ -369,14 +395,14 @@ class CILTranspiler:
 
         destinoExpresion0=expresion0[len(expresion0)-1].destination
 
-        resultado1=self.GenerarNombreVariable()
-        saltofinal=self.GenerarNombreVariable()
+        resultado1=self.GenerarNombreVariable(scope)
+        saltofinal=self.GenerarNombreVariable(scope)
         self.caseResultStack.append(resultado1)
         self.caseExpresionStack.append(destinoExpresion0)
         self.caseEndStack.append(saltofinal)
 
         for sub in node.subcases:
-            nueva=self.GenerarNombreVariable()
+            nueva=self.GenerarNombreVariable(scope)
             subInstructions=self.visit(sub, case)
             instructions.extend(subInstructions)
 
@@ -386,7 +412,7 @@ class CILTranspiler:
 
         instructions.append(CILLabel([saltofinal]))
         
-        resultadofinal=self.GenerarNombreVariable()
+        resultadofinal=self.GenerarNombreVariable(scope)
         instructions.append(CILAssign(resultadofinal,[resultado1]))
 
         return instructions
@@ -401,11 +427,11 @@ class CILTranspiler:
         expresion0=self.caseExpresionStack.pop(-1)
         self.caseExpresionStack.append(expresion0)
 
-        tipoResult=self.GenerarNombreVariable()
+        tipoResult=self.GenerarNombreVariable(scope)
         chequeo=CILTypeCheck(tipoResult,[expresion0, node.type])
         instructions.append(chequeo)
 
-        labelfinal=self.GenerarNombreVariable()
+        labelfinal=self.GenerarNombreVariable(scope)
         salto=CILConditionalJump([tipoResult,labelfinal])
         instructions.append(salto)
 
@@ -414,7 +440,7 @@ class CILTranspiler:
 
         instructions.extend(self.visit(node.expression,scope))
 
-        resultVariable=self.GenerarNombreVariable()
+        resultVariable=self.GenerarNombreVariable(scope)
         asignacion=CILAssign(resultVariable,[instructions[len(instructions)-1].destination])
 
         resultHolder=self.caseResultStack.pop(-1)
