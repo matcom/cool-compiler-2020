@@ -20,7 +20,7 @@ class VirtualTable:
                             if arg[i] != arguments[i]:
                                 differs = True
                                 break
-                        if !differs:
+                        if not differs:
                             add = False
             if add:
                 self.methods[A].append((B, args))                        

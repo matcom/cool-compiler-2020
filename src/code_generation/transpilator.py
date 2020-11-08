@@ -1,8 +1,8 @@
 import sys
 sys.path.append('/..')
 from .nodesIL import *
-from .virtual_table import VirtualTable
-from ..visitors import visitor
+from virtual_table import VirtualTable
+import visitor
 from ..cl_ast import *
 
 class codeVisitor:
@@ -26,6 +26,21 @@ class codeVisitor:
     def setInitialCode(self):
         pass
     
+    def setBuiltInTypes(self):
+        built_in = ['Object', 'IO', 'Bool', 'String']
+        for t in built_in:
+            self.code.append(LabelIL(t, 'Constructor', True))
+            self.code.append(PushIL())
+            self.append(ReturnIL())
+
+    def setClassConstructor(self):
+        pass
+
+    def handleBinaryOps(self, node, variables, symbol):
+        pass
+
+    def handleUnaryOps(self, node, variables, symbol):
+        pass
     
     @visitor.on('node')
     def visit(self, node):
@@ -34,7 +49,7 @@ class codeVisitor:
     #program
     @visitor.on(ProgramNode)
     def visit(self, node):
-        pass
+        self.visit(node.declarations)
     
     #declarations
     @visitor.on(ClassDeclarationNode)
