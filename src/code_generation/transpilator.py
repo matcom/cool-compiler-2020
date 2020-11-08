@@ -92,8 +92,64 @@ class codeVisitor:
     def visit(self, node):
         pass
 
-    #operations: complex
-    #TODO
+    #expressions: atomics
+    @visitor.on(VariableNode)
+    def visit(self, node):
+        pass
+
+    @visitor.on(NewNode)
+    def visit(self, node):
+        pass
+
+    #expressions: complex
+    @visitor.on(ConditionalNode)
+    def visit(self, node):
+        pass
+
+    @visitor.on(WhileNode)
+    def visit(self, node):
+        pass
+
+    @visitor.on(LetNode)
+    def visit(self, node):
+        pass
+
+    @visitor.on(LetDeclarationNode)
+    def visit(self, node):
+        pass
+
+    @visitor.on(BlockNode)
+    def visit(self, node):
+        pass
+
+    @visitor.on(CaseNode)
+    def visit(self, node):
+        pass
+
+    @visitor.on(OptionNode)
+    def visit(self, node):
+        pass
+
+    @visitor.on(AssignNode)
+    def visit(self, node):
+        pass
+
+    @visitor.on(IsVoidNode)
+    def visit(self, node):
+        pass
+
+    #expression: complex->dispatch
+    @visitor.on(ExprCallNode)
+    def visit(self, node):
+        pass
+
+    @visitor.on(SelfCallNode)
+    def visit(self, node):
+        pass
+
+    @visitor.on(ParentCallNode)
+    def visit(self, node):
+        pass
 
     #constants
     @visitor.on(IntegerNode)
@@ -107,5 +163,10 @@ class codeVisitor:
     @visitor.on(BoolNode)
     def visit(self, node):
         pass
+
+
+    
+
+
 
 
