@@ -56,29 +56,32 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
     @visitor.when(FunctionNode)
     def visit(self, node:FunctionNode):
         self.code.append(f'{node.name}:')
-        for param in node.params:
-            self.visit(param)
-        for var in node.localvars:
-            self.visit(var)
+        for i, param in enumerate(node.params):     # gets the params from the stack
+            self.visit(param, i)
+        self.pop_register('fp')                   # gets the frame pointer from the stack
+        for i, var in enumerate(node.localvars):
+            self.visit(var, i)
         blocks = self.get_basic_blocks(node.instructions)
         self.next_use = self.construct_next_use(blocks)
 
         for block in blocks:
             self.block = block
             for inst in block:
-                self.code += self.get_reg(inst, self.usable_reg)
+                self.get_reg(inst, self.reg_desc)
                 self.visit(inst)
 
     @visitor.when(ParamNode)
-    def visit(self, node:ParamNode):
-        self.code.append('addiu $sp, $sp, -4')
-        register = self.addr_desc.get_var_reg(node.name)
-        self.code.append(f'sw $sp, ${register} ($sp)')
+    def visit(self, node:ParamNode, idx:int):
+        register = self.addr_desc.get_var_reg(node.name.name)
+        if idx <= 3:                        # los primeros 3 registros se guardan en a0-a3  
+            self.code.append(f'move ${register}, $a{idx}')    
+        else:
+            self.pop_register(register)     # pops the register with the param value from stack           
 
     @visitor.when(LocalNode)
-    def visit(self, node:LocalNode):
-        # TODO: initialize variables
-        pass
+    def visit(self, node:LocalNode, idx:int):
+        self.addr_desc.set_var_addr(node.name, idx) # saves the address relative from the actual fp
+        self.code.append(f'addiu $sp, $sp, -4')     # updates stack pointers (pushing this value)
 
     @visitor.when(AssignNode)
     def visit(self, node:AssignNode):
@@ -90,14 +93,13 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
             self.code.append(f'li ${rdest}, ${node.source}')
         elif isinstance(node.source, str):  # esto nunca se debe ejecutar (se llama a load node)
             self.code.append(f'la ${rdest}, {self.strings[node.source]}')
+        offset = self.locals.index(node.dest.name)
 
     @visitor.when(NotNode)
     def visit(self, node:NotNode):
-        # TODO: esta instruccion solo funciona con registros, así que revisar si al formar el nodo los operadores son variables
         rdest = self.addr_desc.get_var_reg(node.dest)
-        rsrc = self.addr_desc.get_var_reg(node.expr)
+        rscr = self.save_to_register(node.expr)
         self.code.append(f'not {rdest}, {rsrc}')
-
 
     @visitor.when(IsVoidNode)
     def visit(self, node:IsVoidNode):
@@ -273,31 +275,58 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
 
     @visitor.when(GotoIfNode)
     def visit(self, node:GotoIfNode):
-        if isinstance(node.cond, VariableInfo):
-            reg = self.addr_desc.get_var_reg(node.cond.name)
-            self.code.append(f'bnez ${reg}, {node.label}')
-        elif isinstance(node.cond, int):
-            self.code.append(f'li $t9, {node.cond}')
-            self.code.append(f'bnez $t9, {node.label}')
+        reg = self.save_to_register(node.cond)
+        self.code.append(f'bnez ${reg}, {node.label}')
 
     @visitor.when(StaticCallNode)
     def visit(self, node:StaticCallNode):
-        self.code.append('move $fp, $sp')
-        self.code.append('addiu $sp, $sp, 10') # Size of the method or only params?
-        self.code.append(f'jal {node.function}')
-        self.code.append(f'move ${node.dest.name}, $v0') # v0 es usado para guardar el valor de retorno
+        self.empty_registers()                      # empty all used registers and saves them to memory
+        
+        self.push_register('ra')                    # pushes ra register to the stack
+        self.pop_register('fp')                     # pop fp register from the stack
+        for i, arg in enumerate(node.args):         # push the arguments to the stack
+            self.visit(arg, i)
+        self.push_register('fp')                    # pushes fp register to the stack
+        
+        self.code.append(f'jal {node.function}')    # this function will consume the arguments
+
+        if node.dest is not None:
+            rdest = self.addr_desc.get_var_reg(node.dest.name)
+            self.code.append(f'move ${rdest}, $v0') # v0 es usado para guardar el valor de retorno
 
     @visitor.when(DynamicCallNode)
     def visit(self, node:DynamicCallNode):
         # TODO: Buscar cómo tratar con las instancias
-
-    @visitor.when(ArgNode)
-    def visit(self, node:ArgNode):
         pass
 
+    @visitor.when(ArgNode)
+    def visit(self, node:ArgNode, idx):
+        if idx <= 3:        # los primeros 3 registros se guardan en a0-a2
+            reg = f'a{idx}'
+            if isinstance(node.dest, VariableInfo):
+                rdest = self.addr_desc.get_var_reg(node.dest.name)
+                self.code.append(f'move ${reg}, ${rdest}')
+            elif isintance(node.dest, int):
+                self.code.append(f'li ${reg}, {node.dest}')
+        else: 
+            self.code.append('addiu $sp, $sp, -4')
+            if isinstance(node.dest, VariableInfo):
+                reg = self.addr_desc.get_var_reg(node.dest.name)
+                self.code.append(f'sw ${reg}, ($sp)')
+            elif isinstance(node.dest, int):
+                self.code.append(f'li $t9, {node.dest}')
+                self.code.append(f'sw $t9, ($sp)')
+       
     @visitor.when(ReturnNode)
     def visit(self, node:ReturnNode):
-        self.code.append(f'addiu $sp, $sp, 10') # method size or only params?
+        self.pop_register('ra')                 # pop register ra from the stack
+        # save the return value
+        if isinstance(node.value, VariableInfo): 
+            rdest = self.addr_desc.get_var_reg(node.value.name)
+            self.code.append(f'move $v0, {rdest}')
+        elif isinstance(node.value, int):
+            self.code.append(f'li $v0, {node.value}')
+        # return to the caller
         self.code.append(f'jr $ra')
 
     @visitor.when(LoadNode)

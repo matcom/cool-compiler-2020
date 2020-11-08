@@ -10,13 +10,11 @@ class BaseCILToMIPSVisitor:
         self.initialize_type_code()
         
         self.symbol_table = SymbolTable()
-        local_reg_list = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8']
         # temp registers: t8, t9, voy a usarlos para llevarlos de 
-        global_reg_list = ['s0', 's1', 's2', 's3', 's4', 's5', 's6', 's7']
         # Not sure if i should only use local registers
         self.local_reg = RegisterDescriptor(local_reg_list)
         self.global_reg = RegisterDescriptor(global_reg_list)
-        self.usable_reg = RegisterDescriptor(local_reg_list + global_reg_list)
+        self.reg_desc = RegisterDescriptor()
         self.addr_desc = AddressDescriptor()
         self.strings = {}
 
@@ -116,36 +114,33 @@ class BaseCILToMIPSVisitor:
 
     def get_reg(self, inst: InstructionNode, reg_desc: RegisterDescriptor):
         rest_block = self.block[inst.idx-block[0].idx:]  # return the block of instructions after the current instruction
-        code1 = get_reg_var(inst.in1, reg_desc, rest_block) if is_variable(inst.in1) else None
-        code2 = get_reg_var(inst.in2, reg_desc, rest_block) if is_variable(inst.in2) else None
-        code = code1 + code2
-
+        get_reg_var(inst.in1, reg_desc, rest_block) if is_variable(inst.in1) else None
+        get_reg_var(inst.in2, reg_desc, rest_block) if is_variable(inst.in2) else None
+        
         # Comprobar si se puede usar uno de estos registros tambien para el destino
         nu_entry = self.next_use[inst.idx]
         if nu_entry.in1islive and nu_entry.in1nextuse < inst.idx:
             update_register(inst.out, in1_reg)
-            return code + 
+            return  
         if nu_entry.in2islive and nu_entry.in2nextuse < inst.idx:
             update_register(inst.out, in2_reg)
-            return code
+            return 
         # Si no buscar un registro para z por el otro procedimiento
-        code3 = get_reg_var(inst.out, reg_desc, rest_block) if is_variable(inst.out) else None
+        get_reg_var(inst.out, reg_desc, rest_block) if is_variable(inst.out) else None
         
-        return code + code3
-
 
     def get_reg_var(self, var, reg_desc: RegisterDescriptor):
         curr_inst = self.block[0]
         register = self.addr_desc.get_var_reg(var)
         if register is not None:   # ya la variable está en un registro
-            return []
+            return 
 
         var_st = self.symbol_table.lookup(var)
-
         register = reg_desc.find_empty_reg()
         if register is not None:
             update_register(var, register, reg_desc)
-            return [self.save_var_code(var)]
+            self.code.append(self.save_var_code(var))
+            return 
 
         # Choose a register that requires the minimal number of load and store instructions
         score = {}          # keeps the score of each variable (the amount of times a variable in a register is used) 
@@ -161,11 +156,9 @@ class BaseCILToMIPSVisitor:
         n_var = min(score, key=lambda x: score[x])
     
         register, memory, _ = self.addr_desc.get_var_storage(n_var)
-        code = [self.save_var_code(n_var)]
 
         update_register(var, register, reg_desc)
-        code.append(self.load_var_code(var)
-        return code
+        self.load_var_code(var)
 
 
     def _update_score(self, score, var):
@@ -176,26 +169,60 @@ class BaseCILToMIPSVisitor:
         except:
             score[var] = 1
 
-
     def update_register(self, var, register, reg_desc: RegisterDescriptor):
         content = reg_desc.get_content(register)
         if content is not None:
+            self.save_var_code(content)
             self.addr_desc.set_var_reg(content, None)
         reg_desc.insert_register(register, var)
         self.addr_desc.set_var_reg(var, register)
 
     def save_var_code(self, var):
+        "Code to save a variable to memory"
         var_st = self.symbol_table.lookup(var)
         register, memory, _= self.addr_desc.get_var_storage(var)
         if var_st.scope == Scope.LOCAL:
-            return f"sw ${register}, -{memory}($fp)"
+            self.code.append(f"sw ${register}, -{memory}($fp)")
         else:
-            return f"sw ${register}, {memory}"
+            self.code.append(f"sw ${register}, {memory}")
 
     def load_var_code(self, var):
+        "Code to load a variable from memory"
         var_st = self.symbol_table.lookup(var)
         register, memory, _ = self.addr_desc.get_var_storage(var)
-        if var_st.scope = Scope.LOCAL:
-            return f'lw ${register}, -{memory}(fp)'
+        if var_st.scope == Scope.LOCAL:
+            self.code.append(f'lw ${register}, -{memory}(fp)')
         else:
-            return f'lw ${register}, {mem_addr}'
+            self.code.append(f'lw ${register}, {mem_addr}')
+
+    def load_used_reg(self, registers):
+        "Loads the used variables in there registers"
+        for reg in used_reg:
+            self.code.append('addiu $sp, $sp, 4')
+            self.code.append(f'lw ${reg}, ($sp)')
+
+    def empty_registers(sef):
+        "Empty all used registers and saves there values to memory"
+        registers = self.reg_desc.used_registers()
+        for reg, var in registers: 
+            self.save_var_code(var)
+            self.addr_desc.set_var_reg(content, None)
+            self.reg_desc.insert_register(reg, None)     
+
+    def push_register(self, register):
+        "Pushes the register to the stack"
+        self.code.append('addiu $sp, $sp, -4')
+        self.code.append(f'sw ${register}, ($sp)')    
+
+    def pop_register(self, register):
+        "Popes the register from the stack"
+        self.code.append('addiu $sp, $sp, 4')   
+        self.code.append(f'lw ${register}, ($sp)')    
+
+    def save_to_register(self, expr):
+        "Aditional code to save an expression into a register. Returns the register"
+        if isinstance(expr, int):
+            self.code.append(f'li $t9, {expr}')
+            return 't9'
+        elif isinstance(expr, VariableInfo):
+            return self.addr_desc.get_var_reg(expr.name)

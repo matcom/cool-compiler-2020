@@ -81,9 +81,17 @@ class AddressDescriptor:
     def get_var_storage(self, name):
         return self.vars[name]
 
+class RegisterType(Enum):
+    TEMP = 0
+    GLOBAL = 1
+    ARG = 2
+    RETURN = 3
+
 class RegisterDescriptor:
     'Stores the contents of each register'
-    def __init__(self, registers: List[str]):
+    def __init__(self):
+        registers = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', \
+                    's0', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 'v1']
         self.registers = {reg: None for reg in registers}
 
     def insert_register(self, register:str, content:str):
@@ -94,5 +102,22 @@ class RegisterDescriptor:
 
     def find_empty_reg(self):
         for k, v in self.registers.items():
-            if v == None:
+            if v is None:
                 return k
+
+    def used_registers(self):
+        return [(k, v) for k, v in self.registers.items() if v is not None]
+
+    def empty_registers(self):
+        for k in self.registers:
+            self.registers[k] = None
+
+    def type(self, name:str):
+        if name.startswith('t'):
+            return RegisterType.TEMP
+        elif name.startswith('s'):
+            return RegisterType.GLOBAL
+        elif name.startswith('a'):
+            return RegisterType.ARG
+        elif name.startswith('v'):
+            return RegisterType.RETURN

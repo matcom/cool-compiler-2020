@@ -18,11 +18,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         instance = self.define_internal_local()
         result = self.define_internal_local()
 
-        self.register_instruction(cil.AllocateNode('Main', instance))
-        self.register_instruction(cil.ArgNode(instance))
+        self.register_instruction(cil.AllocateNode('Main', instance))        
+        # self.register_instruction(cil.ArgNode(instance))
 
         name = self.to_function_name('main', 'Main')
-        self.register_instruction(cil.StaticCallNode(name, result))
+        self.register_instruction(cil.StaticCallNode(name, result, [cil.ArgNode(instance)]))
         self.register_instruction(cil.ReturnNode(0))
         self.current_function = None
         
@@ -105,46 +105,52 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(CallNode)
     def visit(self, node: CallNode, scope: Scope):
-        result = self.define_internal_local()
         obj, otype = self.visit(node.obj, scope)
         
         args = [self.visit(arg, scope)[0] for arg in node.args]
-        
-        self.register_instruction(cil.ArgNode(obj))
-        for arg in args:
-            self.register_instruction(cil.ArgNode(arg))
-        
+        args_node = [cil.ArgNode(obj, self.index)] + [cil.ArgNode(arg, self.index) for arg in args]
+ 
+        rtype = otype.get_method(node.id, node.pos).return_type
+        if isinstance(rtype, VoidType):
+            result = None
+        else: 
+            result = self.define_internal_local()
+
         name = self.to_function_name(node.id, otype.name)
-        self.register_instruction(cil.DynamicCallNode(otype.name, name, result))
+        self.register_instruction(cil.DynamicCallNode(otype.name, name, result, args_node))
         return result, self._return_type(otype, node)
 
     @visitor.when(BaseCallNode)
     def visit(self, node: BaseCallNode, scope: Scope):
-        result = self.define_internal_local()
         obj, otype = self.visit(node.obj, scope)
         
         args = [self.visit(arg, scope)[0] for arg in node.args]
-
-        self.register_instruction(cil.ArgNode(obj))
-        for arg in args:
-            self.register_instruction(cil.ArgNode(arg))
+        args_node = [cil.ArgNode(obj, self.index)] + [cil.ArgNode(arg, self.index) for arg in args]
+        
+        rtype = otype.get_method(node.id, node.pos).return_type
+        if isinstance(rtype, VoidType):
+            result = None
+        else: 
+            result = self.define_internal_local()
         
         name = self.to_function_name(node.id, node.type)
-        self.register_instruction(cil.DynamicCallNode(node.type, name, result))
+        self.register_instruction(cil.DynamicCallNode(node.type, name, result, args_node))
         return result, self._return_type(otype, node)
 
     @visitor.when(StaticCallNode)
     def visit(self, node: StaticCallNode, scope: Scope):
-        result = self.define_internal_local()
         
         args = [self.visit(arg, scope)[0] for arg in node.args]
-        
-        self.register_instruction(cil.ArgNode('self'))
-        for arg in args:
-            self.register_instruction(cil.ArgNode(arg))
-
+        args_node = [cil.ArgNode('self')] + [cil.ArgNode(arg, self.index) for arg in args]
+       
         name = self.to_function_name(node.id, self.current_type.name)
-        self.register_instruction(cil.StaticCallNode(name, result))
+        rtype = self.current_type.get_method(node.id, node.pos).return_type
+        if isinstance(rtype, VoidType):
+            result = None
+        else: 
+            result = self.define_internal_local()
+
+        self.register_instruction(cil.StaticCallNode(name, result, args_node))
         return result, self._return_type(self.current_type, node)
 
     @visitor.when(ConstantNumNode)

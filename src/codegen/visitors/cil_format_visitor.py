@@ -73,7 +73,8 @@ def get_formatter():
 
         @visitor.when(StaticCallNode)
         def visit(self, node: StaticCallNode):
-            return f'{node.dest} = CALL {node.function}'
+            args = '\n\t'.join(self.visit(arg) for arg in node.args)
+            return f'{args}\n' + f'\t{node.dest} = CALL {node.function}'
 
         @visitor.when(LoadNode)
         def visit(self, node: LoadNode):
@@ -81,7 +82,8 @@ def get_formatter():
 
         @visitor.when(DynamicCallNode)
         def visit(self, node: DynamicCallNode):
-            return f'{node.dest} = VCALL {node.type} {node.method}'
+            args = '\n\t'.join(self.visit(arg) for arg in node.args)
+            return f'{args}\n' + f'\t{node.dest} = VCALL {node.type} {node.method}'
 
         @visitor.when(ArgNode)
         def visit(self, node: ArgNode):

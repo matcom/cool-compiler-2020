@@ -169,19 +169,21 @@ class GotoIfNode(InstructionNode):
         self.in1 = cond
 
 class StaticCallNode(InstructionNode):
-    def __init__(self, function, dest, idx=None):
+    def __init__(self, function, dest, args, idx=None):
         super().__init__(idx)
         self.function = function
         self.dest = dest
+        self.args = args
 
         self.out = dest
 
 class DynamicCallNode(InstructionNode):
-    def __init__(self, xtype, method, dest, idx=None):
+    def __init__(self, xtype, method, dest, args, idx=None):
         super().__init__(idx)
         self.type = xtype
         self.method = method
         self.dest = dest
+        self.args = args
 
         self.out = dest
 
@@ -190,10 +192,14 @@ class ArgNode(InstructionNode):
         super().__init__(idx)
         self.name = name
 
+        self.dest = name
+
 class ReturnNode(InstructionNode):
     def __init__(self, value, idx=None):
         super().__init__(idx)
         self.value = value
+
+        self.dest = value
 
 class LoadNode(InstructionNode):
     def __init__(self, dest, msg, idx=None):
