@@ -62,8 +62,51 @@ Procedemos a completar cada uno de los métodos con la parte derecha de cada reg
 
 ## Análisis Semántico
 
+Verificamos las reglas semánticas de _Cool_ especificadas en el manual.
+
+### Árbol de Herencia
+
+Procedemos a la creación del árbol de herencia, esto es, un árbol donde cada nodo representa una clase, en el que el nodo $u$ tiene como hijo a $v$ si la clase $v$ hereda de $u$. Notemos además, que este árbol tiene como raíz a la clase _Object_.
+
+Al tener el grafo creado, chequeamos que sea un árbol. Esto lo hacemos con el clásico algoritmo de detección de ciclos en grafos dirigidos, esto es, hacemos un [Depth First Search](https://en.wikipedia.org/wiki/Depth-first_search) (_DFS_) que va visitando los nodos, si estamos en el nodo $u$, vamos al nodo $v$ y detectamos que $v$ es ancestro de $u$ en el [_DFS-tree_](https://en.wikipedia.org/wiki/Depth-first_search#Output_of_a_depth-first_search)[^1] podemos afirmar que existe un ciclo. El siguiente código realiza este _DFS_:
+
+```python
+def check_cycles(self):
+    seen = {}
+    up = {}
+
+    for cls in self.ast_root.cls_list:
+        if cls.type.value not in seen:
+            self._dfs(cls, seen, up)
+
+def _dfs(self, u, seen, up):
+    seen[u.type.value] = up[u.type.value] = True
+
+    for v in u.children:
+        if v.type.value not in seen:
+            self._dfs(v, seen, up)
+
+        elif up[v.type.value]:
+            raise SemanticError(v.type.line, v.type.col, f'Inheritance cycle detected at {v} inheriting from {u}')
+
+    up[u.type.value] = False
+```
+
+Podemos notar que este árbol de herencia representa perfectamente la relación de _Conformance_ definida en el manual de _Cool_. Más aún, desde el punto de vista de nuestro árbol podemos afirmar que $A \le B \iff B \text{ es ancestro de } A$.
+
+### Sobre _SELF_TYPE_
+
+_SELF_TYPE_ cumple lo siguiente con respecto a _Conformance_:
+
+1. $\text{SELF\_TYPE}_{X} \le \text{SELF\_TYPE}_{X}$
+2. $\text{SELF\_TYPE}_{C} \le P$ si $C \le P$
+
+Nuestro árbol de herencia actual no maneja _SELF_TYPE_, pero podemos manejarlo fácilmente si decimos que cada nodo $C$ tiene un hijo $\text{SELF\_TYPE}_{C}$. De esta forma, el punto $1$ obviamente se cumple, y el punto $2$ también dado que si $P$ es ancestro de $C$, también lo es de $\text{SELF\_TYPE}_{C}$, porque $\text{SELF\_TYPE}_{C}$ es hijo de $C$.
+
 ## Chequeo de Tipos
 
 ## Generación de código CIL
 
 ## Generación de código MIPS
+
+[^1]: El [_DFS-tree_](https://en.wikipedia.org/wiki/Depth-first_search#Output_of_a_depth-first_search) de un grafo es un [Spanning Tree](https://en.wikipedia.org/wiki/Spanning_tree) obtenido por una pasada de _DFS_.
