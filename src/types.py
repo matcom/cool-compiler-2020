@@ -127,6 +127,19 @@ string_type = CoolType('String', object_type)
 int_type = CoolType('Int', object_type)
 bool_type = CoolType('Bool', object_type)
 
+# Set methods for basic types
+object_type.add_method('abort', [], 'Object')
+object_type.add_method('type_name', [], 'String')
+object_type.add_method('copy', [], 'Object')
+io_type.add_method('out_string', ['String'], 'SELF_TYPE')
+io_type.add_method('out_int', ['Int'], 'SELF_TYPE')
+io_type.add_method('in_string', [''], 'String')
+io_type.add_method('in_int', [''], 'Int')
+string_type.add_method('length', [], 'Int')
+string_type.add_method('concat', ['String'], 'String')
+string_type.add_method('substr', ['Int', 'Int'], 'String')
+
+# Add basic types to types dictionary
 AllTypes = {
     'Object': object_type,
     'SELF_TYPE': self_type,
