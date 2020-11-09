@@ -1,11 +1,8 @@
 class CoolType:
-    def __init__(self, name, parent_type):
+    def __init__(self, name, parent_type, inherit=True):
         self.name = name
         self.parent_type = parent_type
-        if not self.parent_type:
-            self.inherit = True
-        else:
-            self.inherit = False
+        self.inherit = inherit
         self.methods = {}
         self.attributes = {}
 
@@ -121,11 +118,11 @@ def get_type_by_name(type_name):
 
 # Declaring default types
 object_type = CoolType('Object', None)
-self_type = CoolType('SELF_TYPE', object_type)
-io_type = CoolType('IO', object_type)
-string_type = CoolType('String', object_type)
-int_type = CoolType('Int', object_type)
-bool_type = CoolType('Bool', object_type)
+self_type = CoolType('SELF_TYPE', None, False)
+io_type = CoolType('IO', object_type, False)
+string_type = CoolType('String', object_type, False)
+int_type = CoolType('Int', object_type, False)
+bool_type = CoolType('Bool', object_type, False)
 
 # Set methods for basic types
 object_type.add_method('abort', [], 'Object')
