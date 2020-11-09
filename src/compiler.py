@@ -1,6 +1,7 @@
 import argparse
 from lexer import make_lexer
 from parser import make_parser
+from semantic import check_semantic
 
 from visitor import *
 
@@ -69,14 +70,16 @@ def main():
             s = cool_program_code
             
             lexer, errors = make_lexer(cool_program_code)
+
+            # Print lexer errors
             if len(errors) > 0:
                 for er in errors:
                     print(er)
                 exit(1)
 
-
             ast, errors = make_parser(s)
 
+            # Print parser errors
             if len(errors) > 0:
                 for er in errors:
                     print(er)
@@ -86,13 +89,18 @@ def main():
             tree = formatter.visit(ast)
             print(tree)
 
+            errors = check_semantic(ast)
 
-
+            # Print semantic errors
+            if len(errors) > 0:
+                for er in errors:
+                    print(er)
+                exit(1)
 
     except (IOError, FileNotFoundError):
         print(f"Error! File {program} not found.")
         exit(1)
-    except _:
+    except:
         print("An unexpected error occurred!")
         exit(1)
 
