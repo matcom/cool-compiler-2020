@@ -35,11 +35,11 @@ class AttributeFeatureNode(FeatureNode):
 
 
 class FunctionFeatureNode(FeatureNode):
-    def __init__(self, func_id, parameters, type_number, statements, line_number):
+    def __init__(self, func_id, parameters, type_name, statements, line_number):
         super().__init__(line_number)
         self.id = func_id
         self.parameters = parameters
-        self.typeName = type_number
+        self.typeName = type_name
         self.statements = statements
         self.lineNumber = line_number
 
