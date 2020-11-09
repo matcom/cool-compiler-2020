@@ -1,6 +1,5 @@
 class Node:
     def __init__(self, line_number):
-        super().__init__(line_number)
         self.lineNumber = line_number
 
     def GetLineNumber(self):
@@ -8,7 +7,7 @@ class Node:
 
 
 class ProgramNode(Node):
-    def __init__(self, classes, line_number):
+    def __init__(self, classes, line_number=0):
         super().__init__(line_number)
         self.classes = classes
 
@@ -127,11 +126,12 @@ class NewStatementNode(StatementNode):
 
 
 class FunctionCallStatement(StatementNode):
-    def __init__(self, instance, dispatch_type, function, args):
+    def __init__(self, instance, dispatch_type, function, args, position=[]):
         super().__init__(0)
         self.instance = instance
         self.dispatchType = dispatch_type
         self.function = function
+        self.position = position
         self.args = args
 
 
