@@ -87,7 +87,7 @@ def _dfs(self, u, seen, up):
             self._dfs(v, seen, up)
 
         elif up[v.type.value]:
-            raise SemanticError(v.type.line, v.type.col, f'Inheritance cycle detected at {v} inheriting from {u}')
+            raise SemanticError(v.type.line, v.type.col, f'Inheritance cycle detected')
 
     up[u.type.value] = False
 ```
@@ -105,8 +105,43 @@ Nuestro árbol de herencia actual no maneja _SELF_TYPE_, pero podemos manejarlo 
 
 ## Chequeo de Tipos
 
+Realizamos el chequeo de tipos usando [visitor pattern](https://en.wikipedia.org/wiki/Visitor_pattern); cumpliendo con las especificaciones en el manual de _Cool_. En esta fase surgen algunos problemas interesantes:
+
+### Conformance Test
+
+Nos hace falta poder responder rápido si un nodo $u$ conforma con $v$ o no. Esto es posible hacerlo en $O(1)$ por cada pregunta. Para esto hacemos un _DFS_ por nuestro árbol de herencia calculando dos valores para cada nodo $x$:
+
+- $\text{td}(x) =$ tiempo de descubrimiento del nodo $x$, esto es, el primer momento en el que el _DFS_ llega a $x$.
+- $\text{tf}(x) =$ tiempo de finalización del nodo $x$, esto es, el último momento en el que el _DFS_ está en $x$ (cuando la recursión va a "salir" de $x$).
+
+Sería algo como:
+
+```python
+def _dfs(self, u):
+    self._t += 1
+    u.td = self._t
+
+    for v in u.children:
+        self._dfs(v)
+    
+    u.tf = self._t
+```
+
+Luego $u$ conforma con $v$ si $\text{td}(v) \le \text{td}(u) \le \text{tf}(v)$. Esta es una de las tantas propiedades del _DFS-tree_[^2].
+
+### Lowest Common Ancestor
+
+Necesitamos poder contestar preguntas de [Lowest Common Ancestor](https://en.wikipedia.org/wiki/Lowest_common_ancestor) (_LCA_) para realizar la operación "join" descrita en el manual. Para esto hay muchos algoritmos que van desde $O(n)$ por pregunta hasta $O(1)$ con $O(n \log n)$ de pre-procesamiento[^3]. Decidimos no complicarnos e implementamos uno de complejidad lineal por pregunta, este algoritmo es simple:
+
+- supongamos que $u$ está mas lejos de la raíz que $v$ (sino, intercambiamos $u$ con $v$), entonces $lca(u, v) = lca(p(u), v)$, donde $p(u)$ es el padre de $u$. Seguimos haciendo esto mientras que $u \neq v$.
+- cuando $u = v$ el _LCA_ es $u$.
+
 ## Generación de código CIL
 
 ## Generación de código MIPS
 
 [^1]: El [_DFS-tree_](https://en.wikipedia.org/wiki/Depth-first_search#Output_of_a_depth-first_search) de un grafo es un [Spanning Tree](https://en.wikipedia.org/wiki/Spanning_tree) obtenido por una pasada de _DFS_.
+
+[^2]: Para más información, incluida demostración, revisar el [CLRS](https://en.wikipedia.org/wiki/Introduction_to_Algorithms), epígrafe $22.3$ sobre _Depth First Trees_.
+
+[^3]: Incluso existe un algoritmo offline (todas las preguntas se saben de antemano) que funciona en $O(1)$ por pregunta con $O(n)$ de pre-procesamiento.
