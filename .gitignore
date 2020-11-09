@@ -394,6 +394,7 @@ dmypy.json
 .pyre/
 
 .idea/*
+./src/idea/*
 
 ### VisualStudioCode ###
 .vscode/*
