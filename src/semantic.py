@@ -1,2 +1,72 @@
-def check_semantic(ast):
-    pass
+from ast import *
+from types import *
+
+
+def check_type_declaration(ast: ProgramNode):
+    for cls in ast.classes:
+        if cls in AllTypes:
+            # TODO Update return error message
+            return 'Re-declaring class'
+        AllTypes[cls.type_name] = CoolType(cls.type_name, None)
+    return None
+
+
+def check_type_inheritance(ast: ProgramNode):
+    for cls in ast.classes:
+        if cls.father_type_name:
+            if cls.father_type_name in AllTypes:
+                father_type = AllTypes[cls.father_type_name]
+                if father_type.inherit:
+                    AllTypes[cls.type_name].parent_type = object_type
+                else:
+                    # TODO Update error message
+                    return f'Error inherit from {cls.father_type_name}'
+            else:
+                # TODO Update error message
+                return f'Error getting {cls.father_type_name}'
+        else:
+            AllTypes[cls.type_name].parent_type = object_type
+
+    return None
+
+
+def check_features(ast: ProgramNode):
+    for cls in ast.classes:
+        for feature in cls.features:
+            if type(feature) is FunctionFeatureNode:
+                return ''
+            if type(feature) is AttributeFeatureNode:
+                return ''
+
+    return None
+
+
+def check_semantic(ast: ProgramNode):
+    errors = []
+
+    # Checking semantic errors
+    # Checking duplicated types declaration
+    type_declaration_output = check_type_declaration(ast)
+    if len(type_declaration_output) > 0:
+        errors.append(type_declaration_output)
+        return errors
+
+    inheritance_check_output = check_type_inheritance(ast)
+    # Checking inheritance in declared types
+    if len(inheritance_check_output) > 0:
+        errors.append(inheritance_check_output)
+        return errors
+
+    # Check feature class list
+    feature_check_output = check_features(ast)
+    if len(feature_check_output) > 0:
+        errors.append(feature_check_output)
+        return errors
+
+    # Check Main unity
+    if 'Main' not in AllTypes:
+        # Update Error message
+        errors.append('Main not declared')
+        return errors
+
+    return []
