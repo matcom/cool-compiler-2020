@@ -70,7 +70,31 @@ class CILReturn(CILMethodInstruction):
 class CILStringInstruction(CILInstructionNode):
     pass
 
-class CILStringLoad(CILInstructionNode):
+class CILStringLoad(CILStringInstruction):
+    pass
+class CILStringLenght(CILStringInstruction):
+    pass
+class CILStringConcat(CILStringInstruction):
+    pass
+class CILStringSubstring(CILStringInstruction):
+    pass
+class CILStringEqual(CILStringInstruction):
+    pass
+
+class CILIOInstruction(CILInstructionNode):
+    pass
+class CILOutString(CILIOInstruction):
+    pass
+class CILOutInt(CILIOInstruction):
+    pass
+class CILInString(CILIOInstruction):
+    pass
+class CILInInt(CILIOInstruction):
+
+class CILAbort(CILInstructionNode):
+    pass
+
+class CILCopy(CILInstructionNode):
     pass
 
 
