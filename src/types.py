@@ -120,13 +120,15 @@ def get_type_by_name(type_name):
 
 
 # Declaring default types
-self_type = CoolType('SELF_TYPE', None)
-io_type = CoolType('IO', None)
-string_type = CoolType('String', None)
-int_type = CoolType('Int', None)
-bool_type = CoolType('Bool', None)
+object_type = CoolType('Object', None)
+self_type = CoolType('SELF_TYPE', object_type)
+io_type = CoolType('IO', object_type)
+string_type = CoolType('String', object_type)
+int_type = CoolType('Int', object_type)
+bool_type = CoolType('Bool', object_type)
 
 AllTypes = {
+    'Object': object_type,
     'SELF_TYPE': self_type,
     'IO': io_type,
     'String': string_type,
