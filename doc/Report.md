@@ -12,6 +12,8 @@ El desarrollo del compilador se realizó en varias fases, cada una planteando un
 
 ## Análisis Léxico
 
+En esta fase realizamos el análisis léxico usando el lexer de la herramienta `ply`.
+
 ## Análisis Sintáctico
 
 ## Análisis Semántico
@@ -20,4 +22,4 @@ El desarrollo del compilador se realizó en varias fases, cada una planteando un
 
 ## Generación de código CIL
 
-## Generacion de código MIPS
+## Generación de código MIPS
