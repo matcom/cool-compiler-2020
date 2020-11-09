@@ -9,7 +9,7 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         self.logger = init_logger('GenCIL')
         self.cls_refs = cls_refs
         self.attrs = List()  #to hold attributes
-        self.cil_code = CILCode(List(), List(), defaultdict(lambda: []), {}, [])
+        self.cil_code = CILCode(List(), List(), defaultdict(lambda: []), {})
         self.pos = -1
         self.max_idx = -1
         self.cur_env = None  #environment for locals only
@@ -258,8 +258,6 @@ class GenCIL:  #in this model Type, Let, LetVar, CaseVar, Class doesnt exists (i
         branches.sort(key=lambda x: x.level, reverse=True)  #sort by greater level
 
         case = Case(expr, branches)
-        case.label = f'_Case_{len(self.cil_code.cases)}'  #setting label
-        self.cil_code.cases.append(case)
 
         return case
 

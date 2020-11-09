@@ -1,5 +1,17 @@
 WORD = 4
 
+# static literals
+
+LABEL_ABORT_STR = '_static_abort'
+LABEL_SPACE = '_static_space'
+LABEL_ENDL = '_static_endl'
+
+static_literals = {
+    LABEL_ABORT_STR: 'Abort called from class',
+    LABEL_SPACE: ' ',
+    LABEL_ENDL: r'\n'
+}
+
 LABEL_STR_LITERAL = '_str_literal_'
 LABEL_INT_LITERAL = '_int_literal_'
 
@@ -15,11 +27,16 @@ LABEL_MAIN = 'main'
 LABEL_START_LOOP = '_loop_'
 LABEL_END_LOOP = '_end_loop_'
 
+# static errors literals
+
 LABEL_DISPATCH_VOID = '_err_dispatch_void'
 LABEL_CASE_VOID = '_err_case_void'
 LABEL_CASE_NO_BRANCH = '_err_case_no_branch'
 LABEL_DIV_BY_0 = '_err_div_by_0'
-LABEL_SUBSTR_RANGE = '_err_substr_range'
+LABEL_SUBSTR_TOO_LONG_INDEX = '_err_substr_too_long_index'
+LABEL_SUBSTR_TOO_LONG_LENGTH = '_err_substr_too_long_length'
+LABEL_SUBSTR_NEG_INDEX = '_err_substr_neg_index'
+LABEL_SUBSTR_NEG_LENGTH = '_err_substr_neg_length'
 LABEL_HEAP_OVERFLOW = '_err_heap_overflow'
 
 rte_errors = {
@@ -27,7 +44,10 @@ rte_errors = {
     LABEL_CASE_VOID: 'Case on void',
     LABEL_CASE_NO_BRANCH: 'Case without a matching branch',
     LABEL_DIV_BY_0: 'Division by zero',
-    LABEL_SUBSTR_RANGE: 'Substring out of range',
+    LABEL_SUBSTR_TOO_LONG_INDEX: 'Too long index passed to substr method',
+    LABEL_SUBSTR_TOO_LONG_LENGTH: 'Too long length passed to substr method',
+    LABEL_SUBSTR_NEG_INDEX: 'Negative index passed to substr method',
+    LABEL_SUBSTR_NEG_LENGTH: 'Negative length passed to substr method',
     LABEL_HEAP_OVERFLOW: 'Heap overflow'
 }
 

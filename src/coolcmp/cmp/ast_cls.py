@@ -51,7 +51,7 @@ class Class(ASTNode):
         self.can_inherit = can_inherit
         self.methods = {}
         self.attrs = {}
-        self.reserved_attrs = [AttrTypeInfo()] + reserved_attrs  #reserved attributes for the compiler, everyone has type info attr
+        self.reserved_attrs = [AttrTypeInfo(), AttrSizeInfo()] + reserved_attrs  #reserved attributes for the compiler, everyone has type info and size attrs
         self.type_obj = type_obj
 
         # data for type checker
@@ -223,12 +223,11 @@ class List(list, ASTNode):  #to save lists and be able to print cil ast
         return f'<List ({len(self)})>'
 
 class CILCode(ASTNode):
-    def __init__(self, functions, init_functions, dict_func, dict_init_func, cases):
+    def __init__(self, functions, init_functions, dict_func, dict_init_func):
         self.functions = functions  #list of functions
         self.init_functions = init_functions
         self.dict_func = dict_func  #dict for functions (ie. regular functions, not init-functions)
         self.dict_init_func = dict_init_func
-        self.cases = cases
         self.str_literals = {}  #literals for string
         self.int_literals = {}  #literals for ints
 
@@ -277,6 +276,10 @@ class AttrDecl(Expr):  #models the declaration of an attribute
 class AttrTypeInfo(AttrDecl): #reserved attribute for type info, used in gen_cil
     def __init__(self):
         AttrDecl.__init__(self, Reference('_type_info'), '_reserved', None, 0)
+
+class AttrSizeInfo(AttrDecl):  # number of bytes that object occupies
+    def __init__(self):
+        AttrDecl.__init__(self, Reference('_size_info'), '_reserved', None, 0)
 
 class AttrIntLiteral(AttrDecl):
     def __init__(self):

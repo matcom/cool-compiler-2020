@@ -1,4 +1,5 @@
-class Main {
+class Main inherits IO {
+    a : Main <- out_string("hellooooo");
     main() : B { new B };
 };
 
