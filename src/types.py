@@ -145,3 +145,5 @@ AllTypes = {
     'Int': int_type,
     'Bool': bool_type
 }
+
+BasicTypes = ['Object', 'SELF_TYPE', 'IO', 'String', 'Int', 'Bool']
