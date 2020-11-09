@@ -1,7 +1,5 @@
 # Documentación
 
-> Introduzca sus datos (de todo el equipo) en la siguiente tabla:
-
 **Nombre** | **Grupo** | **Github**
 --|--|--
 Antonio Otaño Barrera | C411 | [@AntonioJesus0398](https://github.com/AntonioJesus0398)
@@ -10,11 +8,34 @@ Daniel Enrique Cordovés Borroto | C411 | [@dcordb](https://github.com/dcordb)
 
 ## Readme
 
-Modifique el contenido de este documento para documentar de forma clara y concisa los siguientes aspectos:
+Para usar el compilador, nos movemos a `/src` y allí ejecutamos `python -m coolcmp -h` para mostrar la ayuda, esto da la siguiente salida:
 
-- Cómo ejecutar (y compilar si es necesario) su compilador.
-- Requisitos adicionales, dependencias, configuración, etc.
-- Opciones adicionales que tenga su compilador.
+```
+usage: python -m coolcmp [-h] [--ast] [--cil_ast] [--tab_size TAB_SIZE] [--no_mips] file_path
+
+Cool compiler programmed in Python.
+
+positional arguments:
+  file_path            Path to cool file to compile
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --ast                Print AST
+  --cil_ast            Print CIL AST
+  --tab_size TAB_SIZE  Tab size to convert tabs to spaces, default is 4
+  --no_mips            Dont generate mips file
+```
+
+Por tanto, para compilar un fichero `code.cl` solo debemos hacer `python -m coolcmp code.cl`. Esto genera un fichero `code.mips`, el cual podemos ejecutar utilizando el simulador SPIM haciendo `spim -f code.mips`.
+
+### Requisitos adicionales
+
+- pytest
+- pytest-ordering
+- ply
+- print-tree2
+
+También estos se  encuentran en el fichero `/requirements.txt`.
 
 ### Sobre los Equipos de Desarrollo
 

@@ -1,10 +1,28 @@
-# `coolcmp`
+# coolcmp
 
-Nuestro compilador `coolcmp` está finalmente terminado. En este reporte exponemos el proceso de construcción del compilador, las decisiones de diseño y el uso del mismo.
+Nuestro compilador _coolcmp_ está finalmente terminado. En este reporte exponemos el proceso de construcción del compilador, las decisiones de diseño y el uso del mismo.
 
-## Usando `coolcmp`
+## Usando coolcmp
 
-TODO: opciones....
+Para usar el compilador, nos movemos a `/src` y allí ejecutamos `python -m coolcmp -h` para mostrar la ayuda, esto da la siguiente salida:
+
+```
+usage: python -m coolcmp [-h] [--ast] [--cil_ast] [--tab_size TAB_SIZE] [--no_mips] file_path
+
+Cool compiler programmed in Python.
+
+positional arguments:
+  file_path            Path to cool file to compile
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --ast                Print AST
+  --cil_ast            Print CIL AST
+  --tab_size TAB_SIZE  Tab size to convert tabs to spaces, default is 4
+  --no_mips            Dont generate mips file
+```
+
+Por tanto, para compilar un fichero `code.cl` solo debemos hacer `python -m coolcmp code.cl`. Esto genera un fichero `code.mips`, el cual podemos ejecutar utilizando el simulador SPIM haciendo `spim -f code.mips`.
 
 # Estructura del proyecto
 
@@ -138,7 +156,70 @@ Necesitamos poder contestar preguntas de [Lowest Common Ancestor](https://en.wik
 
 ## Generación de código CIL
 
+En esta fase tomamos varias decisiones de diseño sobre la representación de las clases y funciones de cara a su implementación en MIPS.
+
+### Representación de clases
+
+Cada clase se transforma a una función de inicialización (le llamamos `FuncInit`), es decir, en código MIPS un objecto de una clase se crea llamando a una función de este tipo.
+
+Cada clase tiene una serie de atributos, que se dividen en dos tipos:
+
+- atributos reservados, entre ellos tenemos:
+    - `_type_info` contiene una referencia a la dirección de memoria en MIPS de los datos de su tipo.
+    - `_size_info` contiene el número de bytes que la instancia va a ocupar.
+    - `_int_literal`, este atributo solo lo tiene la clase `Int`, representa el entero que tiene la instancia.
+    - `_string_length`, este atributo solo lo tiene la clase `String`, representa la cantidad de caracteres de la instancia.
+    - `_string_literal`, este atributo solo lo tiene la clase `String`, representa el string de la instancia.
+    - `_bool_literal`, este atributo solo lo tiene la clase `Bool`, contiene $1$ (`true`) o $0$ (`false`).
+
+- atributos añadidos por el programador en la definición de la clase.
+
+Para cada clase $C$ guardamos también su correspondiente tiempo de descubrimiento ($\text{td}(C)$) y su tiempo de finalización ($\text{tf}(C)$), esto nos va a ser útil para resolver los dispatches y para la resolución de las expresiones `Case`.
+
+### Representación de métodos
+
+Cada método $f$ se transforma en una "función" (le llamamos `Function`).
+
+Digamos que $C$ es la clase donde está definido el método $f$, entonces guardamos los siguientes datos:
+
+- $\text{td}(C)$
+- $\text{tf}(C)$
+- $\text{level}(C)$ (distancia a la raíz del nodo $C$ en el árbol de herencia)
+
+Estos datos lo usamos para los dispatches.
+
+### Sobre las variables y su entorno
+
+En _Cool_ cada variable está dentro de alguna clase. Diferenciamos dos tipos de variables:
+
+- variables de clase (o atributos)
+- variables locales, estas serían parámetros formales de un método o variables definidas en una expresión `Let` o `Case`.
+
+Cada una de estas variables tienen un entorno determinado en el cual viven. Las variables de atributo viven en toda la clase, las variables locales solo viven en los bloques que fueron definidas. Además de esto, notemos que una variable local puede ofuscar a una variable definida en un entorno "superior" al de esta.
+
+Las variables contienen la dirección de memoria de objetos, los cuales se guardan en el _Heap_ (aunque hay ciertos objetos que guardamos en el _Data Segment_, por ejemplo los literales y los objetos _Bool_ `true` y `false`).
+
+Las variables necesitan estar accesibles a la hora de acceder a un atributo, o realizar un cálculo, por lo que ellas se guardan en el stack de _MIPS_.
+
+Un paso importante que tomamos es el de asignar de antemano a cada variable la posición que va a ocupar en el stack. Para esto llevamos un entorno que contiene para cada nombre de variable $x$ un número que indica donde se va a encontrar $x$ en el stack.
+
+Un entorno $E$ además tiene un padre $p(E)$, que es el bloque en el cual $E$ está contenido. Un nuevo entorno se crea al llegar a un `Let`, `CaseBranch` (la rama de algún `Case`), `FuncInit` o `Function`.
+
+Si estamos en un entorno $E$ y la última variable definida está en la posición $k$:
+
+- si nos encontramos la definición de una variable $x$, hacemos $E(x) = k + 1$ y aumentamos $k$ en $1$.
+
+- si nos encontramos con una variable que hace referencia a $x$, guardamos para esa variable su posición en ese momento en la pila (esto es, $E(x)$). Además guardamos si esta referencia fue a un atributo o a una variable local, cosa que podemos saber fácilmente.
+
+Cuando salimos de $E$, "eliminamos" las variables creadas, y ajustamos $k$ correspondientemente.
+
 ## Generación de código MIPS
+
+### Resolución de Dispatches
+
+Digamos que tenemos un dispatch $x.f(...)$ en la clase $C$.
+
+### Resolución de expresiones Case
 
 [^1]: El [_DFS-tree_](https://en.wikipedia.org/wiki/Depth-first_search#Output_of_a_depth-first_search) de un grafo es un [Spanning Tree](https://en.wikipedia.org/wiki/Spanning_tree) obtenido por una pasada de _DFS_.
 
