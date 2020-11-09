@@ -1,6 +1,7 @@
 from codegen.cil_ast import *
 from codegen.tools import *
 from semantic.tools import VariableInfo
+from semantic.types import Attribute
 from typing import List
 
 class BaseCILToMIPSVisitor:
@@ -10,14 +11,14 @@ class BaseCILToMIPSVisitor:
         self.initialize_type_code()
         
         self.symbol_table = SymbolTable()
-        # temp registers: t8, t9, voy a usarlos para llevarlos de 
+        # temp registers: t9, voy a usarlo para llevarlo de temporal en expresiones aritmeticas 
         # Not sure if i should only use local registers
-        self.local_reg = RegisterDescriptor(local_reg_list)
-        self.global_reg = RegisterDescriptor(global_reg_list)
         self.reg_desc = RegisterDescriptor()
         self.addr_desc = AddressDescriptor()
         self.strings = {}
-
+    
+        self.dispatch_table: DispatchTable = DispatchTable()
+        self.obj_table: ObjTable = ObjTable(self.dispatch_table)
 
     def initialize_data_code(self):
         self.data_code = ['.data'] 
@@ -44,15 +45,15 @@ class BaseCILToMIPSVisitor:
                 leaders.add(i)
         return sorted(list(leaders))
 
-
     def is_variable(self, expr):
-        if expr is None:
-            return False
-        try:
-            int(expr)
-            return False
-        except:
-            return True
+        return isinstance(expr, str)
+
+    def is_int(self, expr):
+        return isinstance(expr, int)
+
+    def add_entry_symb_tab(self, name):
+        "Method to add a entry in the symbol table. (Local)"
+        self.symbol_table.insert(name)
 
     def construct_next_use(self, basic_blocks: List[List[InstructionNode]]):
         next_use = {}
@@ -82,19 +83,18 @@ class BaseCILToMIPSVisitor:
                         outnextuse = entry_out.next_use
                         outislive = entry_out.is_live
                     else:
-                        scope = Scope.GLOBAL if isinstance(inst, SetAttribNode) else Scope.LOCAL
-                        # TODO: Calcular el tamaño cuando es un AllocateNode
-                        entry_out = SymbolTabEntry(out, scope=scope)
+                        # Esto no debería pasar
+                        entry_out = SymbolTabEntry(out)
                     entry_out.next_use = None
                     entry_out.is_live = False
                     self.symbol_table.insert(entry_out)
                 if in1 is not None:
                     if entry_in1 is not None:
-                        in1nextuse = entry_in1.nextUse
-                        in1islive = entry_in1.isLive
+                        in1nextuse = entry_in1.next_use
+                        in1islive = entry_in1.is_live
                     else:
-                        scope = Scope.GLOBAL if isinstance(inst, GetAttribNode) else Scope.LOCAL
-                        entry_in1 = SymbolTabEntry(out, scope=scope)
+                        # Esto no debería pasar
+                        entry_in1 = SymbolTabEntry(out)
                     entry_in1.next_use = inst.index
                     entry_in1.is_live = True
                     self.symbol_table.insert(entry_in1)
@@ -103,6 +103,7 @@ class BaseCILToMIPSVisitor:
                         in2nextuse = entry_in2.next_use
                         in2islive = entry_in2.is_live
                     else:
+                        # Esto no debería pasar
                         entry_in2 = SymbolTabEntry(in2)
                     entry_in2.next_use = inst.index
                     entry_in2.is_live = True
@@ -112,33 +113,35 @@ class BaseCILToMIPSVisitor:
                 next_use[inst.index] = n_entry
         return next_use
 
-    def get_reg(self, inst: InstructionNode, reg_desc: RegisterDescriptor):
-        rest_block = self.block[inst.idx-block[0].idx:]  # return the block of instructions after the current instruction
-        get_reg_var(inst.in1, reg_desc, rest_block) if is_variable(inst.in1) else None
-        get_reg_var(inst.in2, reg_desc, rest_block) if is_variable(inst.in2) else None
+    def get_reg(self, inst: InstructionNode):
+        if self.is_variable(inst.in1):
+            self.get_reg_var(inst.in1)
+        if self.is_variable(inst.in2):
+            self.get_reg_var(inst.in2) 
         
         # Comprobar si se puede usar uno de estos registros tambien para el destino
-        nu_entry = self.next_use[inst.idx]
-        if nu_entry.in1islive and nu_entry.in1nextuse < inst.idx:
+        nu_entry = self.next_use[inst.index]
+        if nu_entry.in1islive and nu_entry.in1nextuse < inst.index:
             update_register(inst.out, in1_reg)
             return  
-        if nu_entry.in2islive and nu_entry.in2nextuse < inst.idx:
+        if nu_entry.in2islive and nu_entry.in2nextuse < inst.index:
             update_register(inst.out, in2_reg)
             return 
         # Si no buscar un registro para z por el otro procedimiento
-        get_reg_var(inst.out, reg_desc, rest_block) if is_variable(inst.out) else None
-        
+        if self.is_variable(inst.out):
+            self.get_reg_var(inst.out) 
 
-    def get_reg_var(self, var, reg_desc: RegisterDescriptor):
+
+    def get_reg_var(self, var):
         curr_inst = self.block[0]
         register = self.addr_desc.get_var_reg(var)
         if register is not None:   # ya la variable está en un registro
             return 
 
         var_st = self.symbol_table.lookup(var)
-        register = reg_desc.find_empty_reg()
+        register = self.reg_desc.find_empty_reg()
         if register is not None:
-            update_register(var, register, reg_desc)
+            self.update_register(var, register)
             self.code.append(self.save_var_code(var))
             return 
 
@@ -157,7 +160,7 @@ class BaseCILToMIPSVisitor:
     
         register, memory, _ = self.addr_desc.get_var_storage(n_var)
 
-        update_register(var, register, reg_desc)
+        update_register(var, register)
         self.load_var_code(var)
 
 
@@ -169,44 +172,36 @@ class BaseCILToMIPSVisitor:
         except:
             score[var] = 1
 
-    def update_register(self, var, register, reg_desc: RegisterDescriptor):
-        content = reg_desc.get_content(register)
+    def update_register(self, var, register):
+        content = self.reg_desc.get_content(register)
         if content is not None:
             self.save_var_code(content)
             self.addr_desc.set_var_reg(content, None)
-        reg_desc.insert_register(register, var)
+        self.reg_desc.insert_register(register, var)
         self.addr_desc.set_var_reg(var, register)
 
     def save_var_code(self, var):
         "Code to save a variable to memory"
-        var_st = self.symbol_table.lookup(var)
         register, memory, _= self.addr_desc.get_var_storage(var)
-        if var_st.scope == Scope.LOCAL:
-            self.code.append(f"sw ${register}, -{memory}($fp)")
-        else:
-            self.code.append(f"sw ${register}, {memory}")
+        self.code.append(f"sw ${register}, -{memory}($fp)")
 
     def load_var_code(self, var):
         "Code to load a variable from memory"
-        var_st = self.symbol_table.lookup(var)
         register, memory, _ = self.addr_desc.get_var_storage(var)
-        if var_st.scope == Scope.LOCAL:
-            self.code.append(f'lw ${register}, -{memory}(fp)')
-        else:
-            self.code.append(f'lw ${register}, {mem_addr}')
-
+        self.code.append(f'lw ${register}, -{memory}(fp)')
+       
     def load_used_reg(self, registers):
         "Loads the used variables in there registers"
         for reg in used_reg:
             self.code.append('addiu $sp, $sp, 4')
             self.code.append(f'lw ${reg}, ($sp)')
 
-    def empty_registers(sef):
+    def empty_registers(self):
         "Empty all used registers and saves there values to memory"
         registers = self.reg_desc.used_registers()
         for reg, var in registers: 
             self.save_var_code(var)
-            self.addr_desc.set_var_reg(content, None)
+            self.addr_desc.set_var_reg(var, None)
             self.reg_desc.insert_register(reg, None)     
 
     def push_register(self, register):
@@ -221,8 +216,14 @@ class BaseCILToMIPSVisitor:
 
     def save_to_register(self, expr):
         "Aditional code to save an expression into a register. Returns the register"
-        if isinstance(expr, int):
+        if self.is_int(expr):
             self.code.append(f'li $t9, {expr}')
             return 't9'
-        elif isinstance(expr, VariableInfo):
+        elif self.is_variable(expr):
             return self.addr_desc.get_var_reg(expr.name)
+
+    def get_attr_offset(self, attr_name:str, type_name:str):
+        return self.obj_table[type_name].attr_offset(attr_name)
+
+    def get_method_offset(self, type_name, method_name):
+        self.obj_table[type_name].method_offset(method_name)

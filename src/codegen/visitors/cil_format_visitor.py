@@ -95,7 +95,7 @@ def get_formatter():
 
         @visitor.when(GetAttribNode)
         def visit(self, node: GetAttribNode):
-            return f'{node.dest} = GETATTR {node.obj} {node.attr.name}'
+            return f'{node.dest} = GETATTR {node.obj} {node.attr}'
 
         @visitor.when(SetAttribNode)
         def visit(self, node: SetAttribNode):

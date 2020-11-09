@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from enum import Enum
 
 
@@ -9,14 +9,10 @@ class Scope(Enum):
 
 
 class SymbolTabEntry:
-    def __init__(self, name, size=4, data_type="Int", scope=Scope.LOCAL, is_live=False, next_use=None):
+    def __init__(self, name, is_live=False, next_use=None):
+        self.name = name
         self.is_live = is_live
         self.next_use = next_use
-        self.data_type = data_type
-        self.scope = scope
-        self.size = size
-        self.name = name
-
 
 class SymbolTable:
     def __init__(self, entries:List[SymbolTabEntry]=None):
@@ -26,10 +22,13 @@ class SymbolTable:
     def lookup(self, entry_name: str) -> SymbolTabEntry:
         if entry_name != None:
             if entry_name in self.entries.keys():
-                return self.entries[s]
+                return self.entries[entry_name]
            
     def insert(self, entry: SymbolTabEntry):
         self.entries[entry.name] = entry
+
+    def insert_name(self, name):
+        self.entries[name] = SymbolTabEntry(name)
 
     def __getitem__(self, item):
         return self.entries[item]
@@ -91,7 +90,7 @@ class RegisterDescriptor:
     'Stores the contents of each register'
     def __init__(self):
         registers = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', \
-                    's0', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 'v1']
+                    's0', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 'v1', 'a0', 'a1', 'a2', 'a3']
         self.registers = {reg: None for reg in registers}
 
     def insert_register(self, register:str, content:str):
@@ -112,12 +111,112 @@ class RegisterDescriptor:
         for k in self.registers:
             self.registers[k] = None
 
-    def type(self, name:str):
-        if name.startswith('t'):
-            return RegisterType.TEMP
-        elif name.startswith('s'):
-            return RegisterType.GLOBAL
-        elif name.startswith('a'):
-            return RegisterType.ARG
-        elif name.startswith('v'):
-            return RegisterType.RETURN
+
+class DispatchTableEntry:
+    def __init__(self, type_name, methods):
+        self.type = type_name
+        self.methods = methods
+
+    def get_offset(self, method):
+        return self.methods.index(method)
+
+    def __iter__(self):
+        return iter(self.methods)
+
+class DispatchTable:
+    def __init__(self):
+        self.classes: List[DispatchTableEntry] = []
+
+    def add_class(self, type_name, methods):
+        self.classes.append(DispatchTableEntry(type_name, methods))
+    
+    def get_offset(self, type_name, method):
+        idx = self.find_entry(type_name)
+        return self.classes[idx].get_offset(method)
+
+    def find_entry(self, name):
+        for i, entry in enumerate(self.classes):
+            if entry.type == name:
+                return i
+        return -1
+
+    def find_full_name(self, type_name, mth_name):
+        idx = self.find_entry(type_name)
+        for meth in self.classes[idx]:
+            # format of methods: 'function_{method_name}_{type_name}' 
+            name = meth.split('_')[1]
+            if name == mth_name:
+                return meth
+        return None
+
+    def __len__(self):
+        return len(self.classes)
+
+
+class ObjTabEntry:
+    def __init__(self, name, methods, attrs):   
+        self.class_tag: str = name
+        self.size: int = 3 + len(attrs)
+        self.dispatch_table_size = len(methods)
+        self.dispatch_table_entry = methods
+        self.attrs = attrs
+    
+    @property
+    def class_tag_offset(self):
+        return 0
+
+    @property
+    def size_offset(self):
+        return 1
+
+    @property
+    def dispatch_ptr_offset(self):
+        return 2
+
+    def attr_offset(self, attr):
+        return self.attrs.index(attr) + 3
+
+    def method_offset(self, meth):
+        "Method offset in dispatch table"
+        return self.dispatch_table_entry.index(meth)
+
+
+class ObjTable:
+    def __init__(self, dispatch_table: DispatchTable):
+        self.objects: Dict[str, ObjTabEntry] = self.initialize_built_in()
+        self.dispatch_table = dispatch_table
+    
+    def initialize_built_in(self):
+        object_methods = [
+            'function_abort_Object', 
+            'function_type_name_Object', 
+            'function_copy_Object']
+        io_methods = [
+            'function_out_string_IO',
+            'function_out_int_IO',
+            'function_in_string_IO',
+            'function_in_int_IO']
+        str_methods = [
+            'function_length_String', 
+            'function_concat_String', 
+            'function_substr_String' ]
+        return {
+            'Int': ObjTabEntry('Int', [], []), 
+            'Bool': ObjTabEntry('Bool', [], []),
+            'IO': ObjTabEntry('IO', io_methods, []),
+            'String': ObjTabEntry('String', str_methods, []),
+            'Object': ObjTabEntry('Object', object_methods, [])
+        }
+
+    def add_entry(self, name, methods, attrs):
+        methods = [y for x, y in methods]
+        attrs = [x for x, y in attrs]
+        self.objects[name] = ObjTabEntry(name, methods, attrs)
+        # Adding the methods in the dispatch table
+        self.dispatch_table.add_class(name, methods)
+
+    def size_of_entry(self, name):
+        return self.objects[name].size
+
+    def __getitem__(self, item) -> ObjTabEntry:
+        return self.objects[item]

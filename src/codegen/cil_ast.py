@@ -68,8 +68,6 @@ class UnaryNode(InstructionNode):
 class NotNode(UnaryNode):
     pass
 
-class IsVoidNode(UnaryNode):
-    pass
 
 class BinaryNode(InstructionNode):
     def __init__(self, dest, left, right, idx=None):
@@ -104,23 +102,26 @@ class EqualNode(BinaryNode):
     pass
 
 class GetAttribNode(InstructionNode):
-    def __init__(self, obj, attr, dest, idx=None):
+    def __init__(self, obj, attr, typex, dest, idx=None):
         super().__init__(idx)
         self.obj = obj
         self.attr = attr
+        self.type_name = typex
+        # self.attr_offset = offset
         self.dest = dest
 
         self.out = dest
         self.in1 = obj
 
 class SetAttribNode(InstructionNode):
-    def __init__(self, obj, attr, value, idx=None):
+    def __init__(self, obj, attr, typex, value, idx=None):
         super().__init__(idx)
         self.obj = obj
         self.attr = attr
+        # self.attr_offset = offset
         self.value = value
+        self.type_name = typex
 
-        # TODO: Im not sure this is right, out shoul be attr and obj
         self.out = obj
         self.in1 = value
 

@@ -79,7 +79,7 @@ class BaseCOOLToCILVisitor:
     def register_data(self, value):
         vname = f'data_{len(self.dotdata)}'
         data_node = DataNode(vname, value, self.index)
-        self.dotdata.append(data_node)
+        self.dotdata.append(data_node)  
         return data_node
 
     def _define_binary_node(self, node: BinaryNode, scope: Scope, cil_node: cil.Node):
