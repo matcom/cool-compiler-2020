@@ -1,6 +1,6 @@
 from typing import List, Any, Optional
 import abstract.tree as coolAst
-from abstract.semantics import Method, SemanticError, Type, Context
+from abstract.semantics import Method, ObjectType, SemanticError, Type, Context
 from functools import singledispatchmethod
 
 INHERITABLES = ('Int', 'Bool', 'String', 'AUTO_TYPE')
@@ -43,7 +43,7 @@ class TypeBuilder:
             for attrib in parent.attributes:
                 self.current_type.attributes.append(attrib)
 
-            self.current_type.methods.update(parent.methods)
+            # self.current_type.methods.update(parent.methods)
 
             for feature in node.features:
                 self.visit(feature)

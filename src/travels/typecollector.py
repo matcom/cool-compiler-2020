@@ -121,15 +121,19 @@ class TypeCollector:
         OBJECT, INTEGER, STRING, BOOL, VOID, SELF_TYPE = ObjectType(
         ), IntegerType(), StringType(), BoolType(), VoidType(), SelfType()
         ioType = IoType()
-        INTEGER.set_parent(OBJECT)
-        STRING.set_parent(OBJECT)
-        BOOL.set_parent(OBJECT)
-        ioType.set_parent(OBJECT)
 
         # Agregar los metodos builtin
         bootstrap_string(STRING)
         bootstrap_io(ioType)
         bootstrap_object(OBJECT)
+
+        INTEGER.set_parent(OBJECT)
+        STRING.set_parent(OBJECT)
+        BOOL.set_parent(OBJECT)
+        ioType.set_parent(OBJECT)
+
+        # Agregar al objeto IO los metodos de OBJECT
+        ioType.methods.update(OBJECT.methods)
 
         self.context.types['Object'] = OBJECT
         self.context.types['Int'] = INTEGER

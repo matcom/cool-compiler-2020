@@ -1,6 +1,7 @@
 from typing import List, Optional, Any, Dict, Tuple
 import cil.nodes as nodes
 from abstract.semantics import VariableInfo, Context, Type, Method
+from cil.nodes import CopyNode, PrintIntNode, PrintNode, ReadIntNode, ReadNode, ReturnNode, SelfNode, TypeNode
 
 TDT = Dict[Tuple[str, str], int]
 
@@ -102,7 +103,7 @@ class BaseCoolToCilVisitor:
         self.null = self.register_data("")
         self.__labels_count: int = 0
         self.__build_CART()
-        self.__build_builtins()
+        self.build_builtins()
 
     @property
     def params(self) -> List[nodes.ParamNode]:
@@ -192,5 +193,82 @@ class BaseCoolToCilVisitor:
         # Procesar la TDT para hacerla accesible en runtime.
         self.tdt_data_node = self.register_data(self.tdt_table)
 
-    def __build_builtins(self):
+    def __implement_out_string(self):
+        # Registrar el parametro que espera la funcion
+        self.current_function = self.register_function(
+            'function_out_string_at_IO')
+        param = self.register_params(
+            VariableInfo('x', self.context.get_type('String'), 'PARAM'))
+        # Esta funcion espera que se llame con un argumento que apunta
+        # a la direccion de memoria de un string, luego solo realiza
+        # los procedimientos necesarios para imprimir en consola
+        # dicho string. Creamos el nodo PrintNode y dejamos la
+        # implementacion y la llamada a sistema a MIPS
+        self.register_instruction(PrintNode(param))
+        self.register_instruction(ReturnNode())
+        self.current_function = None
+
+    def __implement_out_int(self):
+        # Registrar el parametro que espera la funcion y la
+        # funcion como tal
+        self.current_function = self.register_function(
+            'function_out_int_at_IO')
+        param = self.register_params(
+            VariableInfo('x', self.context.get_type('Int'), 'PARAM'))
+
+        # Espera como unico parametro un entero.
+        self.register_instruction(PrintIntNode(param))
+        self.register_instruction(ReturnNode())
+        self.current_function = None
+
+    def __implement_in_string(self):
+        # Registrar la funcion
+        self.current_function = self.register_function(
+            'function_in_string_at_IO')
+        # Declarar una variable para devolver el valor
+        return_vm_holder = self.define_internal_local()
+        # Registrar el nodo que realiza el trabajo en MIPS
+        self.register_instruction(ReadNode(return_vm_holder))
+        self.register_instruction(ReturnNode(return_vm_holder))
+        self.current_function = None
+
+    def __implement_in_int(self):
+        # Registrar la funcion
+        self.current_function = self.register_function('function_in_int_at_IO')
+        # Declarar una variable para devolver el valor
+        return_vm_holder = self.define_internal_local()
+        self.register_instruction(ReadIntNode(return_vm_holder))
+        self.register_instruction(ReturnNode(return_vm_holder))
+        self.current_function = None
+
+    def __implement_abort(self):
+        # la funcion abort no recibe ningun paramentro
+        # Simplemente llama trap y le pasa la causa "abortion"
+        self.current_function = self.register_function(
+            'function_abort_at_Object')
+        # TODO: Implementarlo
+        self.current_function = None
         pass
+
+    def __implement_copy(self):
+        # La funcion copy es llamada sore un objeto
+        # para obtener una copia superficial de la misma,
+        # o sea, que se copia el propio objeto, pero no
+        # recursivamente algun objeto que este pueda contener
+        self.current_function = self.register_function(
+            'function_copy_at_Object')
+        # Obtener una referencia al objeto que queremos clonar
+        self_vm_holder = self.define_internal_local()
+        clone_vm_holder = self.define_internal_local()
+        self.register_instruction(SelfNode(self_vm_holder))
+        self.register_instruction(CopyNode(self_vm_holder, clone_vm_holder))
+        self.register_instruction(ReturnNode(clone_vm_holder))
+        self.current_function = None
+
+    def build_builtins(self):
+        self.__implement_in_string()
+        self.__implement_out_int()
+        self.__implement_out_string()
+        self.__implement_in_int()
+        self.__implement_abort()
+        self.__implement_copy()

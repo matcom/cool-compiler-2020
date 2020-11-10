@@ -213,13 +213,23 @@ class ToStrNode(InstructionNode):
 
 
 class ReadNode(InstructionNode):
-    def __init__(self, dest: str):
+    def __init__(self, dest):
+        self.dest = dest
+
+
+class ReadIntNode(InstructionNode):
+    def __init__(self, dest) -> None:
         self.dest = dest
 
 
 class PrintNode(InstructionNode):
-    def __init__(self, string_address: str):
-        self.string_address = string_address
+    def __init__(self, src) -> None:
+        self.src = src
+
+
+class PrintIntNode(InstructionNode):
+    def __init__(self, src) -> None:
+        self.src = src
 
 
 class TdtLookupNode(InstructionNode):
@@ -244,3 +254,9 @@ class SelfNode(InstructionNode):
 class NotNode(InstructionNode):
     def __init__(self, src: LocalNode) -> None:
         self.src = src
+
+
+class CopyNode(InstructionNode):
+    def __init__(self, selfsrc: LocalNode, dest: LocalNode) -> None:
+        self.selfsrc = selfsrc
+        self.dest = dest

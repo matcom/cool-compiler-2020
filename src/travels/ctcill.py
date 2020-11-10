@@ -1,29 +1,24 @@
 import re
 from cloudpickle.cloudpickle import instance
-from abstract.tree import AssignNode, SelfNode
+from abstract.tree import SelfNode
 import cil.baseCilVisitor as baseCilVisitor
 import abstract.tree as coolAst
 import abstract.semantics as semantics
-import cil.nodes as cil
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, no_type_check
 from functools import singledispatchmethod
 
-from cil.nodes import CilNode, ConcatNode, LengthNode, LocalNode, ParamNode, PrintNode, ReadNode, ReturnNode, SubstringNode
+import cil.nodes
 
-BUILT_IN_METHODS = {
-    'concat': ConcatNode,
-    'length': LengthNode,
-    'substr': SubstringNode,
-    'out_string': PrintNode,
-    'out_int': PrintNode,
-    'in_string': ReadNode,
-    'in_int': ReadNode
-}
+from cil.nodes import (
+    AllocateNode, ArgNode, AssignNode, CilNode, CilProgramNode, ConcatNode,
+    DataNode, DivNode, DynamicCallNode, FunctionNode, GetAttributeNode,
+    GetTypeIndex, IfZeroJump, InstructionNode, JumpIfGreaterThanZeroNode,
+    LabelNode, LengthNode, LoadNode, LocalNode, MinusNode, NotNode,
+    NotZeroJump, ParamNode, PlusNode, PrintIntNode, PrintNode, ReadIntNode,
+    ReadNode, ReturnNode, SetAttributeNode, StarNode, StaticCallNode,
+    SubstringNode, TdtLookupNode, TypeNode, TypeOfNode, UnconditionalJump)
 
-BUILTINS = ('concat', 'length', 'substr', 'out_string', 'out_int', 'in_string',
-            'in_int')
-
-ExpressionReturn = Tuple[List[cil.InstructionNode], List[cil.LocalNode]]
+ExpressionReturn = Tuple[List[InstructionNode], List[LocalNode]]
 Scope = semantics.Scope
 
 
@@ -36,7 +31,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
     @visit.register
     def _(self, node: coolAst.ProgramNode,
-          scope: Scope) -> cil.CilProgramNode:  # noqa: F811
+          scope: Scope) -> CilProgramNode:  # noqa: F811
 
         # Definir el punto de entrada del programa.
         self.current_function = self.register_function("entry")
@@ -47,19 +42,19 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Reservar memoria para el objeto Main
         main_type = self.context.get_type('Main')
-        self.register_instruction(cil.AllocateNode(main_type, instance))
-        self.register_instruction(cil.ArgNode(instance))
+        self.register_instruction(AllocateNode(main_type, instance))
+        self.register_instruction(ArgNode(instance))
 
         # Llamar al metodo main
         self.register_instruction(
-            cil.StaticCallNode(self.to_function_name('main', 'Main'), result))
-        self.register_instruction(cil.ReturnNode(0))
+            StaticCallNode(self.to_function_name('main', 'Main'), result))
+        self.register_instruction(ReturnNode(0))
         self.current_function = None
 
         for klass, child_scope in zip(node.class_list, scope.children):
             self.visit(klass, child_scope)
 
-        return cil.CilProgramNode(self.dot_types, self.dot_data, self.dot_code)
+        return CilProgramNode(self.dot_types, self.dot_data, self.dot_code)
 
     #  *************** IMPLEMENTACION DE LAS DEFINICIONES DE CLASES *****************
 
@@ -100,6 +95,10 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         for method in methods:
             new_type_node.methods.append(
                 (method, self.to_function_name(method, node.idx)))
+
+        print(self.current_type)
+        print(new_type_node.attributes)
+        print(new_type_node.methods)
 
         # Visitar los atributos definidos en la clase para generar sus funciones
         # de inicializacion
@@ -162,9 +161,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Registrar las instrucciones que conforman el cuerpo del metodo.
         last = self.visit(node.statements, scope)
         if last is not None:
-            self.register_instruction(cil.ReturnNode(last))
+            self.register_instruction(ReturnNode(last))
         else:
-            self.register_instruction(cil.ReturnNode())
+            self.register_instruction(ReturnNode())
 
         self.current_method = None
         self.current_function = None
@@ -187,18 +186,18 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Chequear y saltar si es necesario.
         assert isinstance(internal_cond_vm_holder, LocalNode)
         self.register_instruction(
-            cil.IfZeroJump(internal_cond_vm_holder, false_label))
+            IfZeroJump(internal_cond_vm_holder, false_label))
 
         # Salvar las instrucciones relacionadas con la rama TRUE.
         self.visit(node.expr1, scope)
 
-        self.register_instruction(cil.UnconditionalJump(end_label))
+        self.register_instruction(UnconditionalJump(end_label))
 
         # Registrar las instrucciones relacionadas con la rama ELSE
-        self.register_instruction(cil.LabelNode(false_label))
+        self.register_instruction(LabelNode(false_label))
         self.visit(node.expr2, scope)
 
-        self.register_instruction(cil.LabelNode(end_label))
+        self.register_instruction(LabelNode(end_label))
 
     @visit.register
     def _(self, node: coolAst.VariableDeclaration,
@@ -216,18 +215,18 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             # Si la variable es int, string o boolean, su valor por defecto es 0
             if var_info.type.name not in ("String", "Int", "Bool"):
                 self.register_instruction(
-                    cil.AllocateNode(var_info.type, local_var))
+                    AllocateNode(var_info.type, local_var))
             else:
                 # Si la variable tiene una expresion de inicializacion
                 # entonces no es necesario ponerle valor por defecto
                 if var_init_expr is None:
-                    self.register_instruction(cil.AssignNode(local_var, 0))
+                    self.register_instruction(AssignNode(local_var, 0))
 
             if var_init_expr is not None:
                 expr_init_vm_holder = self.visit(var_init_expr, scope)
                 # Assignar el valor correspondiente a la variable reservada
                 self.register_instruction(
-                    cil.AssignNode(local_var, expr_init_vm_holder))
+                    AssignNode(local_var, expr_init_vm_holder))
 
         # Process the associated expr, if any, to the let declaration
         # A block defines a new scope, so it is important to manage it
@@ -247,7 +246,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             local = self.define_internal_local()
             assert self.current_type is not None
             self.register_instruction(
-                cil.GetAttributeNode(self.current_type, vinfo.name, local))
+                GetAttributeNode(self.current_type, vinfo.name, local))
             return local
         if vinfo.location == "LOCAL":
             for local_node in self.localvars:
@@ -259,7 +258,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Reservar una variable que guarde la nueva instancia
         type_ = self.context.get_type(node.type_)
         instance_vm_holder = self.define_internal_local()
-        self.register_instruction(cil.AllocateNode(type_, instance_vm_holder))
+        self.register_instruction(AllocateNode(type_, instance_vm_holder))
         return instance_vm_holder
 
     @visit.register
@@ -284,16 +283,15 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Es necesario diferenciar entre variable y atributo.
         # Las variables se diferencian en si son locales al
         # metodo que estamos creando o si son atributos.
-        if isinstance(rvalue_vm_holder, ParamNode) or  scope.is_local(node.idx):
+        if isinstance(rvalue_vm_holder, ParamNode) or scope.is_local(node.idx):
             # registrar la instruccion de asignacion
-            self.register_instruction(
-                cil.AssignNode(node.idx, rvalue_vm_holder))
+            self.register_instruction(AssignNode(node.idx, rvalue_vm_holder))
         else:
             assert self.current_type is not None
             assert isinstance(rvalue_vm_holder, LocalNode)
             self.register_instruction(
-                cil.SetAttributeNode(self.current_type, node.idx,
-                                     rvalue_vm_holder))
+                SetAttributeNode(self.current_type, node.idx,
+                                 rvalue_vm_holder))
 
     @visit.register
     def _(self, node: coolAst.WhileBlockNode, scope: Scope):
@@ -301,21 +299,21 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # retornar
         while_label = self.do_label('WHILE')
         end_label = self.do_label('WHILE_END')
-        self.register_instruction(cil.LabelNode(while_label))
+        self.register_instruction(LabelNode(while_label))
         cond_vm_holder = self.visit(node.cond, scope)
 
         # Probar la condicion, si es true continuar la ejecucion, sino saltar al LABEL end
         assert isinstance(cond_vm_holder,
                           LocalNode), cond_vm_holder.__class__.__name__
-        self.register_instruction(cil.IfZeroJump(cond_vm_holder, end_label))
+        self.register_instruction(IfZeroJump(cond_vm_holder, end_label))
 
         # Registrar las instrucciones del cuerpo del while
         self.visit(node.statements, scope)
 
         # Realizar un salto incondicional al chequeo de la condicion
-        self.register_instruction(cil.UnconditionalJump(while_label))
+        self.register_instruction(UnconditionalJump(while_label))
         # Registrar el LABEL final
-        self.register_instruction(cil.LabelNode(end_label))
+        self.register_instruction(LabelNode(end_label))
 
     @visit.register
     def _(self, node: coolAst.CaseNode, scope: Scope):
@@ -328,43 +326,41 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         assert isinstance(expr_vm_holder, LocalNode)
         self.register_instruction(
-            cil.TypeOfNode(expr_vm_holder, type_internal_local_holder))
+            TypeOfNode(expr_vm_holder, type_internal_local_holder))
 
         # Variables internas para almacenar resultados intermedios
         min_ = self.define_internal_local()
         tdt_result = self.define_internal_local()
         min_check_local = self.define_internal_local()
 
-        self.register_instruction(cil.AssignNode(min_,
-                                                 len(self.context.types)))
+        self.register_instruction(AssignNode(min_, len(self.context.types)))
 
         for i, action_node in enumerate(node.actions):
             # Calcular la distancia hacia el tipo, y actualizar el minimo de ser necesario
             self.register_instruction(
-                cil.TdtLookupNode(action_node.typex,
-                                  type_internal_local_holder, tdt_result))
+                TdtLookupNode(action_node.typex, type_internal_local_holder,
+                              tdt_result))
 
             # Comparar el resultado obtenido con el minimo actual.
             self.register_instruction(
-                cil.MinusNode(min_, tdt_result, min_check_local))
+                MinusNode(min_, tdt_result, min_check_local))
             not_min_label = self.do_label('Not_min{i}')
             self.register_instruction(
-                cil.JumpIfGreaterThanZeroNode(min_check_local, not_min_label))
+                JumpIfGreaterThanZeroNode(min_check_local, not_min_label))
 
             # Si mejora el minimo, entonces actualizarlo.
-            self.register_instruction(cil.AssignNode(min_, tdt_result))
-            self.register_instruction(cil.LabelNode(not_min_label))
+            self.register_instruction(AssignNode(min_, tdt_result))
+            self.register_instruction(LabelNode(not_min_label))
 
         # Ya tenemos la menor distancia entre el tipo calculado en la expr0, y todos los tipos definidos
         # en los branches del case.
         # Comprobar que tengamos una coincidencia
         self.register_instruction(
-            cil.AssignNode(tdt_result, len(self.context.types)))
+            AssignNode(tdt_result, len(self.context.types)))
         self.register_instruction(
-            cil.MinusNode(tdt_result, min_, sub_vm_local_holder))
+            MinusNode(tdt_result, min_, sub_vm_local_holder))
         error_label = self.do_label("ERROR")
-        self.register_instruction(
-            cil.IfZeroJump(sub_vm_local_holder, error_label))
+        self.register_instruction(IfZeroJump(sub_vm_local_holder, error_label))
 
         end_label = self.do_label('END')
 
@@ -372,29 +368,28 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         for i, action_node in enumerate(node.actions):
             next_label = self.do_label(f'NEXT{i}')
             self.register_instruction(
-                cil.TdtLookupNode(action_node.typex,
-                                  type_internal_local_holder, tdt_result))
+                TdtLookupNode(action_node.typex, type_internal_local_holder,
+                              tdt_result))
             self.register_instruction(
-                cil.MinusNode(min_, tdt_result, min_check_local))
-            self.register_instruction(
-                cil.NotZeroJump(min_check_local, next_label))
+                MinusNode(min_, tdt_result, min_check_local))
+            self.register_instruction(NotZeroJump(min_check_local, next_label))
             # Implemententacion del branch.
             # Registrar la variable <idk>
             var_info = scope.find_variable(action_node.idx)
             assert var_info is not None
             idk = self.register_local(var_info)
             # Asignar al identificador idk el valor de expr0
-            self.register_instruction(cil.AssignNode(idk, expr_vm_holder))
+            self.register_instruction(AssignNode(idk, expr_vm_holder))
             # Generar el codigo de la expresion asociada a esta rama
             self.visit(action_node.actions, scope)
             # Generar un salto de modo que no se chequee otra rama
-            self.register_instruction(cil.UnconditionalJump(end_label))
-            self.register_instruction(cil.LabelNode(next_label))
+            self.register_instruction(UnconditionalJump(end_label))
+            self.register_instruction(LabelNode(next_label))
 
-        self.register_instruction(cil.LabelNode(error_label))
+        self.register_instruction(LabelNode(error_label))
         # TODO: Define some form of runtime errors
 
-        self.register_instruction(cil.LabelNode(end_label))
+        self.register_instruction(LabelNode(end_label))
 
     # ***************   IMPLEMENTACION DE LAS EXPRESIONES ARITMETICAS
     #
@@ -413,7 +408,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # registrar la instruccion de suma
         self.register_instruction(
-            cil.PlusNode(sum_internal_local, left_vm_holder, right_vm_holder))
+            PlusNode(sum_internal_local, left_vm_holder, right_vm_holder))
 
         # Devolver la variable interna que contiene la suma
         return sum_internal_local
@@ -433,8 +428,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         assert isinstance(left_vm_holder, LocalNode) and isinstance(
             right_vm_holder, LocalNode)
         self.register_instruction(
-            cil.MinusNode(left_vm_holder, right_vm_holder,
-                          minus_internal_vm_holder))
+            MinusNode(left_vm_holder, right_vm_holder,
+                      minus_internal_vm_holder))
 
         # Devolver la variable que contiene el resultado
         return minus_internal_vm_holder
@@ -455,8 +450,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Registrar la instruccion de multimplicacion
         self.register_instruction(
-            cil.StarNode(left_vm_holder, right_vm_holder,
-                         mul_internal_vm_holder))
+            StarNode(left_vm_holder, right_vm_holder, mul_internal_vm_holder))
 
         # Retornar el resultado
         return mul_internal_vm_holder
@@ -474,8 +468,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Registrar la instruccion de division
         self.register_instruction(
-            cil.DivNode(div_internal_vm_holder, left_vm_holder,
-                        right_vm_holder))
+            DivNode(div_internal_vm_holder, left_vm_holder, right_vm_holder))
 
         # Devolver el resultado
         return div_internal_vm_holder
@@ -498,7 +491,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         s1 = self.register_data(node.lex)
 
         # Cargar el string en la variable interna
-        self.register_instruction(cil.LoadNode(str_const_vm_holder, s1))
+        self.register_instruction(LoadNode(str_const_vm_holder, s1))
 
         # Devolver la variable que contiene el string
         return str_const_vm_holder
@@ -525,11 +518,11 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         if isinstance(expr_result, int):
             self.register_instruction(
-                cil.AssignNode(result_vm_holder, abs(expr_result - 1)))
+                AssignNode(result_vm_holder, abs(expr_result - 1)))
             return result_vm_holder
         else:
             assert isinstance(expr_result, LocalNode)
-            self.register_instruction(cil.NotNode(expr_result))
+            self.register_instruction(NotNode(expr_result))
             return expr_result
 
     @visit.register
@@ -545,26 +538,29 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         right_vm_holder = self.visit(node.right, scope)
 
         # Realizar una resta y devolver el resultado
-        assert (isinstance(left_vm_holder, LocalNode) or isinstance(left_vm_holder, int) or isinstance(left_vm_holder, ParamNode)) and (isinstance(
-            right_vm_holder, LocalNode) or isinstance(right_vm_holder, int) or isinstance(right_vm_holder, ParamNode))
+        assert (isinstance(left_vm_holder, LocalNode)
+                or isinstance(left_vm_holder, int)
+                or isinstance(left_vm_holder, ParamNode)) and (
+                    isinstance(right_vm_holder, LocalNode)
+                    or isinstance(right_vm_holder, int)
+                    or isinstance(right_vm_holder, ParamNode))
 
         self.register_instruction(
-            cil.MinusNode(left_vm_holder, right_vm_holder,
-                          expr_result_vm_holder))
+            MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder))
 
         # Si la resta da 0, entonces son iguales y se devuelve 1, si no, se devuelve 0
-        self.register_instruction(
-            cil.IfZeroJump(expr_result_vm_holder, true_label))
+        self.register_instruction(IfZeroJump(expr_result_vm_holder,
+                                             true_label))
 
         # si la resta no da 0, almacenar 0 y retornar
-        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 0))
-        self.register_instruction(cil.UnconditionalJump(end_label))
+        self.register_instruction(AssignNode(expr_result_vm_holder, 0))
+        self.register_instruction(UnconditionalJump(end_label))
 
         # Si la resta da 0, devolver 1
-        self.register_instruction(cil.LabelNode(true_label))
-        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(LabelNode(true_label))
+        self.register_instruction(AssignNode(expr_result_vm_holder, 1))
 
-        self.register_instruction(cil.LabelNode(end_label))
+        self.register_instruction(LabelNode(end_label))
 
         # Devolver la variable con el resultado
         return expr_result_vm_holder
@@ -585,20 +581,19 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         assert isinstance(left_vm_holder, LocalNode) and isinstance(
             right_vm_holder, LocalNode)
         self.register_instruction(
-            cil.MinusNode(left_vm_holder, right_vm_holder,
-                          expr_result_vm_holder))
+            MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder))
 
         self.register_instruction(
-            cil.JumpIfGreaterThanZeroNode(expr_result_vm_holder, false_label))
+            JumpIfGreaterThanZeroNode(expr_result_vm_holder, false_label))
         self.register_instruction(
-            cil.IfZeroJump(expr_result_vm_holder, false_label))
+            IfZeroJump(expr_result_vm_holder, false_label))
 
-        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
-        self.register_instruction(cil.UnconditionalJump(end_label))
+        self.register_instruction(AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(UnconditionalJump(end_label))
 
-        self.register_instruction(cil.LabelNode(false_label))
-        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 0))
-        self.register_instruction(cil.LabelNode(end_label))
+        self.register_instruction(LabelNode(false_label))
+        self.register_instruction(AssignNode(expr_result_vm_holder, 0))
+        self.register_instruction(LabelNode(end_label))
 
         return expr_result_vm_holder
 
@@ -618,18 +613,17 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             right_vm_holder, LocalNode)
 
         self.register_instruction(
-            cil.MinusNode(left_vm_holder, right_vm_holder,
-                          expr_result_vm_holder))
+            MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder))
 
         self.register_instruction(
-            cil.JumpIfGreaterThanZeroNode(expr_result_vm_holder, false_label))
+            JumpIfGreaterThanZeroNode(expr_result_vm_holder, false_label))
 
-        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
-        self.register_instruction(cil.UnconditionalJump(end_label))
+        self.register_instruction(AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(UnconditionalJump(end_label))
 
-        self.register_instruction(cil.LabelNode(false_label))
-        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 0))
-        self.register_instruction(cil.LabelNode(end_label))
+        self.register_instruction(LabelNode(false_label))
+        self.register_instruction(AssignNode(expr_result_vm_holder, 0))
+        self.register_instruction(LabelNode(end_label))
 
         return expr_result_vm_holder
 
@@ -649,20 +643,19 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             right_vm_holder, LocalNode)
 
         self.register_instruction(
-            cil.MinusNode(left_vm_holder, right_vm_holder,
-                          expr_result_vm_holder))
+            MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder))
 
         self.register_instruction(
-            cil.JumpIfGreaterThanZeroNode(expr_result_vm_holder, true_label))
+            JumpIfGreaterThanZeroNode(expr_result_vm_holder, true_label))
 
         # False Branch
-        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 0))
-        self.register_instruction(cil.UnconditionalJump(end_label))
+        self.register_instruction(AssignNode(expr_result_vm_holder, 0))
+        self.register_instruction(UnconditionalJump(end_label))
 
         # True Branch
-        self.register_instruction(cil.LabelNode(true_label))
-        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
-        self.register_instruction(cil.LabelNode(end_label))
+        self.register_instruction(LabelNode(true_label))
+        self.register_instruction(AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(LabelNode(end_label))
 
         return expr_result_vm_holder
 
@@ -682,22 +675,21 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             right_vm_holder, LocalNode)
 
         self.register_instruction(
-            cil.MinusNode(left_vm_holder, right_vm_holder,
-                          expr_result_vm_holder))
+            MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder))
 
         self.register_instruction(
-            cil.JumpIfGreaterThanZeroNode(expr_result_vm_holder, true_label))
-        self.register_instruction(
-            cil.IfZeroJump(expr_result_vm_holder, true_label))
+            JumpIfGreaterThanZeroNode(expr_result_vm_holder, true_label))
+        self.register_instruction(IfZeroJump(expr_result_vm_holder,
+                                             true_label))
 
         # False Branch
-        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
-        self.register_instruction(cil.UnconditionalJump(end_label))
+        self.register_instruction(AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(UnconditionalJump(end_label))
 
         # True Branch
-        self.register_instruction(cil.LabelNode(true_label))
-        self.register_instruction(cil.AssignNode(expr_result_vm_holder, 1))
-        self.register_instruction(cil.LabelNode(end_label))
+        self.register_instruction(LabelNode(true_label))
+        self.register_instruction(AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(LabelNode(end_label))
 
         return expr_result_vm_holder
 
@@ -713,15 +705,15 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         expr = self.visit(node.obj, scope)
 
         assert isinstance(expr, LocalNode) or isinstance(expr, ParamNode)
-        self.register_instruction(cil.TypeOfNode(expr, type_vm_holder))
+        self.register_instruction(TypeOfNode(expr, type_vm_holder))
 
         # Evaluar los argumentos
         for arg in node.args:
             arg_expr = self.visit(arg, scope)
-            self.register_instruction(cil.ArgNode(arg_expr))
+            self.register_instruction(ArgNode(arg_expr))
 
         self.register_instruction(
-            cil.DynamicCallNode(type_vm_holder, node.id, return_vm_holder))
+            DynamicCallNode(type_vm_holder, node.id, return_vm_holder))
 
         return return_vm_holder
 
@@ -733,22 +725,22 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Evaluar los argumentos
         for arg in node.arg_list:
             arg_expr = self.visit(arg, scope)
-            self.register_instruction(cil.ArgNode(arg_expr))
+            self.register_instruction(ArgNode(arg_expr))
 
         # Asignar el tipo a una variable
         type_ = self.context.get_type(node.parent_type)
-        self.register_instruction(cil.AssignNode(local_type_identifier, type_))
+        self.register_instruction(AssignNode(local_type_identifier, type_))
 
         self.register_instruction(
-            cil.DynamicCallNode(local_type_identifier, node.idx,
-                                return_expr_vm_holder))
+            DynamicCallNode(local_type_identifier, node.idx,
+                            return_expr_vm_holder))
 
         return return_expr_vm_holder
 
     @visit.register
     def _(self, node: SelfNode, scope: Scope) -> LocalNode:
         return_expr_vm_holder = self.define_internal_local()
-        self.register_instruction(cil.SelfNode(return_expr_vm_holder))
+        self.register_instruction(cil.nodes.SelfNode(return_expr_vm_holder))
         return return_expr_vm_holder
 
 
@@ -758,7 +750,7 @@ class CilDisplayFormatter:
         return ""
 
     @visit.register
-    def _(self, node: cil.CilProgramNode):
+    def _(self, node: CilProgramNode):
         # Primero imprimir la seccion .TYPES
         dottypes = '\n'.join(self.visit(type_) for type_ in node.dottypes)
 
@@ -771,14 +763,14 @@ class CilDisplayFormatter:
         return f'.TYPES\n{dottypes}\n\n.DATA\n{dotdata}\n\n.CODE\n{dotcode}'
 
     @visit.register
-    def _(self, node: cil.TypeNode):
+    def _(self, node: TypeNode):
         attributes = '\n\t'.join(f'{x}' for x in node.attributes)
         methods = '\n\t'.join(f'method {x}: {y}' for x, y in node.methods)
 
         return f'type {node.name} {{\n\t{attributes}\n\n\t{methods}\n}}'
 
     @visit.register
-    def _(self, node: cil.FunctionNode):
+    def _(self, node: FunctionNode):
         params = '\n\t'.join(self.visit(x) for x in node.params)
         localvars = '\n\t'.join(self.visit(x) for x in node.localvars)
         instructions = '\n\t'.join(self.visit(x) for x in node.instructions)
@@ -786,58 +778,58 @@ class CilDisplayFormatter:
         return f'{node.name} {{\n\t{params}\n\n\t{localvars}\n\n\t{instructions}\n}}'
 
     @visit.register
-    def _(self, node: cil.ParamNode) -> str:
+    def _(self, node: ParamNode) -> str:
         return f'PARAM {node.name}'
 
     @visit.register
-    def _(self, node: cil.LocalNode) -> str:
+    def _(self, node: LocalNode) -> str:
         return f'{node.name}'
 
     @visit.register
-    def _(self, node: cil.AssignNode) -> str:
+    def _(self, node: AssignNode) -> str:
         return f'{self.visit(node.dest)} = {self.visit(node.source)}'
 
     @visit.register
-    def _(self, node: cil.PlusNode) -> str:
+    def _(self, node: PlusNode) -> str:
         return f'{self.visit(node.dest)} = {self.visit(node.left)} + {self.visit(node.right)}'
 
     @visit.register
-    def _(self, node: cil.MinusNode) -> str:
+    def _(self, node: MinusNode) -> str:
         return f'{self.visit(node.dest)} = {self.visit(node.x)} - {self.visit(node.y)}'
 
     @visit.register
-    def _(self, node: cil.StarNode) -> str:
+    def _(self, node: StarNode) -> str:
         return f'{self.visit(node.dest)} = {self.visit(node.x)} * {self.visit(node.y)}'
 
     @visit.register
-    def _(self, node: cil.DivNode) -> str:
+    def _(self, node: DivNode) -> str:
         return f'{self.visit(node.dest)} = {self.visit(node.left)} / {self.visit(node.right)}'
 
     @visit.register
-    def _(self, node: cil.AllocateNode) -> str:
+    def _(self, node: AllocateNode) -> str:
         return f'{self.visit(node.dest)} = ALLOCATE {node.itype.name}'
 
     @visit.register
-    def _(self, node: cil.TypeOfNode) -> str:
+    def _(self, node: TypeOfNode) -> str:
         return f'{self.visit(node.dest)} = TYPEOF {node.variable.name}'
 
     @visit.register
-    def _(self, node: cil.DynamicCallNode) -> str:
+    def _(self, node: DynamicCallNode) -> str:
         return f'{self.visit(node.dest)} = VCALL {node.xtype.name} {node.method}'
 
     @visit.register
-    def _(self, node: cil.StaticCallNode) -> str:
+    def _(self, node: StaticCallNode) -> str:
         return f'{self.visit(node.dest)} = CALL {node.function}'
 
     @visit.register
-    def _(self, node: cil.ArgNode) -> str:
+    def _(self, node: ArgNode) -> str:
         if isinstance(node.name, int):
             return f'ARG {self.visit(node.name)}'
         else:
             return f'ARG {node.name.name}'
 
     @visit.register
-    def _(self, node: cil.ReturnNode) -> str:
+    def _(self, node: ReturnNode) -> str:
         if isinstance(node.value, int):
             return f'RETURN {node.value}'
         elif isinstance(node.value, LocalNode):
@@ -845,7 +837,7 @@ class CilDisplayFormatter:
         return "RETURN"
 
     @visit.register
-    def _(self, node: cil.DataNode) -> str:
+    def _(self, node: DataNode) -> str:
         if isinstance(node.value, str):
             return f'{node.name} = "{node.value}" ;'
         elif isinstance(node.value, list):
@@ -854,27 +846,27 @@ class CilDisplayFormatter:
         return f'{node.name} = {node.value}'
 
     @visit.register
-    def _(self, node: cil.GetTypeIndex) -> str:
+    def _(self, node: GetTypeIndex) -> str:
         return f'{node.dest} = GETTYPEINDEX {node.itype}'
 
     @visit.register
-    def _(self, node: cil.TdtLookupNode) -> str:
+    def _(self, node: TdtLookupNode) -> str:
         return f'{node.dest.name} = TYPE_DISTANCE {node.i} {node.j}'
 
     @visit.register
-    def _(self, node: cil.IfZeroJump) -> str:
+    def _(self, node: IfZeroJump) -> str:
         return f'IF_ZERO {node.variable.name} GOTO {node.label}'
 
     @visit.register
-    def _(self, node: cil.UnconditionalJump) -> str:
+    def _(self, node: UnconditionalJump) -> str:
         return f'GOTO {node.label}'
 
     @visit.register
-    def _(self, node: cil.JumpIfGreaterThanZeroNode) -> str:
+    def _(self, node: JumpIfGreaterThanZeroNode) -> str:
         return f'IF_GREATER_ZERO {node.variable.name} GOTO {node.label}'
 
     @visit.register
-    def _(self, node: cil.LabelNode) -> str:
+    def _(self, node: LabelNode) -> str:
         return f'{node.label}:'
 
     @visit.register
@@ -882,16 +874,32 @@ class CilDisplayFormatter:
         return str(node)
 
     @visit.register
-    def _(self, node: cil.GetAttributeNode):
+    def _(self, node: GetAttributeNode):
         return f'{node.dest.name} = GETATTRIBUTE {node.attrname} {node.itype.name}'
 
     @visit.register
-    def _(self, node: cil.SelfNode):
+    def _(self, node: cil.nodes.SelfNode):
         return f'{node.dest.name} = SELF'
 
     @visit.register
-    def _(self, node: cil.NotNode):
+    def _(self, node: NotNode):
         return f'NOT {node.src.name}'
+
+    @visit.register
+    def _(self, node: PrintIntNode):
+        return f'PRINT_INT {node.src.name}'
+
+    @visit.register
+    def _(self, node: ReadIntNode):
+        return f'{node.dest.name} = READ_INT'
+
+    @visit.register
+    def _(self, node: ReadNode):
+        return f'{node.dest.name} = READ_STR'
+
+    @visit.register
+    def _(self, node: PrintNode):
+        return f'PRINT_STR {node.src.name}'
 
     def __call__(self, node) -> str:
         return self.visit(node)

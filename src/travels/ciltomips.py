@@ -5,8 +5,8 @@ from mips.baseMipsVisitor import (BaseCilToMipsVisitor, DotDataDirective,
                                   DotTextDirective,
                                   locate_attribute_in_type_hierarchy)
 import cil.nodes as cil
-from mips.instruction import (FixedData, Label, MOVE, REG_TO_STR, a0, s0, sp,
-                              ra, v0, a1, zero)
+from mips.instruction import (FixedData, Label, MOVE, REG_TO_STR, SYSCALL, a0,
+                              s0, sp, ra, v0, a1, zero, s1)
 import mips.branch as branchNodes
 from functools import singledispatchmethod
 
@@ -273,8 +273,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Cargar el atributo en un registro temporal para
         # luego moverlo hacia dest. El objeto self siempre
-        # esta en el registro a0
-        self.register_instruction(LW(reg, f"{offset}($a0)"))
+        # esta en el registro s1
+        self.register_instruction(LW(reg, f"{offset}($s1)"))
 
         self.register_instruction(SW(reg, dest))
 
@@ -297,7 +297,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # y luego moverlo a la direccion de memoria del
         # atributo
         self.register_instruction(LW(reg, source))
-        self.register_instruction(SW(reg, f"{offset}($a0)"))
+        self.register_instruction(SW(reg, f"{offset}($s1)"))
 
         self.used_registers[reg] = False
 
@@ -469,11 +469,11 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Salvar el puntero a self en a1
         self.comment("Save current self pointer in $a1")
-        self.register_instruction(MOVE(a1, a0))
+        self.register_instruction(MOVE(a1, s1))
 
-        # Actualizar el puntero a self en a0
-        self.comment("Save new self pointer in $a0")
-        self.register_instruction(LW(a0, type_src))
+        # Actualizar el puntero a self en s1
+        self.comment("Save new self pointer in $s1")
+        self.register_instruction(LW(s1, type_src))
 
         # Cargar el puuntero al tipo en el primer registro
         self.comment("Get pointer to type")
@@ -496,7 +496,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Restaurar el valor antiguo del puntero a self
         self.comment("Restore self pointer after function call")
-        self.register_instruction(MOVE(a0, a1))
+        self.register_instruction(MOVE(s1, a1))
 
         self.used_registers[reg1] = False
         self.used_registers[reg2] = False
@@ -586,8 +586,47 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         pass
 
     @visit.register
+    def _(self, node: cil.PrintIntNode):
+        # El valor a imprimir se encuentra en la direccion
+        # de memoria src
+        self.add_source_line_comment(node)
+        src = self.visit(node.src)
+        assert src is not None
+
+        # En mips, syscall 1 se usa para imprimir el entero
+        # almacenado en $a0
+        # Cargar el entero en $a0
+        self.register_instruction(LW(a0, src))
+        # $v0 = 1; syscall 1
+        self.register_instruction(LI(v0, 1))
+        self.register_instruction(SYSCALL())
+
+    @visit.register
+    def _(self, node: cil.ReadIntNode):
+        dest = self.visit(node.dest)
+        assert dest is not None
+
+        self.add_source_line_comment(node)
+
+        # Cargar syscall read_int en $v0
+        self.register_instruction(LI(v0, 5))
+        self.register_instruction(SYSCALL())
+
+        # Almacenar el numero leido en dest
+        self.register_instruction(SW(v0, dest))
+
+    @visit.register
     def _(self, node: cil.PrintNode):
-        pass
+        src = self.visit(node.src)
+        assert src is not None
+
+        self.add_source_line_comment(node)
+
+        # Cargar la direccion del string en a0
+        self.register_instruction(LW(a0, src))
+        # syscall 4 = print_string
+        self.register_instruction(LI(v0, 4))
+        self.register_instruction(SYSCALL())
 
     @visit.register
     def _(self, node: cil.TdtLookupNode):
@@ -602,9 +641,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
     def _(self, node: cil.SelfNode):
         dest = self.visit(node.dest)
         assert dest is not None
-        # El puntero a self siempre se guarda en el registro $a0
+        # El puntero a self siempre se guarda en el registro $s1
         self.add_source_line_comment(node)
-        self.register_instruction(SW(a0, dest))
+        self.register_instruction(SW(s1, dest))
 
 
 class MipsCodeGenerator(CilToMipsVisitor):
