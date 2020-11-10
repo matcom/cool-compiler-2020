@@ -18,12 +18,66 @@ class codeVisitor:
 
         self.virtual_table = VirtualTable()
 
+        self.depth = {}
+
     def getInt(self):
         self.count = self.count + 1
         return self.count 
 
-    def collectTypes(self):
-        pass
+    def collectTypes(self, classes):
+        types = {'Object' : None, 'IO' : 'Object', 'Int' : 'Object', 'Bool' : 'Object', 'String' : 'Object'}
+        methods = {'Object' : ['abort', 'type_name', 'copy'],'IO' : ['out_string', 'out_int', 'in_string', 'in_int'],'String' : ['length', 'concat', 'substr'],'Int' : [], 'Bool' : [] }
+        
+        attr = dict([ (x, []) for x in types ])
+
+        for node in classes:
+            types[node.idx.value] = node.parent.value
+
+            for f in node.features:
+                if type(f) == AttrDeclarationNode:
+                    if not node.idx.value in attr:
+                        attr[node.idx.value] = []
+                    attr[node.idx.value].append(f.name.value)
+                else:
+                    if not node.idx.value in methods:
+                        methods[node.idx.value] = []
+                    methods[node.idx.value].append(f.name.value)
+        
+        for t in types.keys():
+            nodes = [t]
+            x = t
+
+            while types[x] != None:
+                x = types[x]
+                nodes.append(x)
+            
+            nodes.reverse()
+
+            for n in nodes:
+                try:
+                    self.virtual_table.add_method(t, n, methods[n])
+                except:
+                    pass
+
+                try:
+                    self.virtual_table.add_attr(t, attr[n])
+
+        for t in types:
+            slef.data.append(HierarchyIL(t, types[t]))
+
+        for m in self.virtual_table.methods:
+            self.data.append(VirtualTableIL(c, self.virtual_table.methods[m]))
+
+        depth = dict([(x, len(types) + 2) for x in types])
+        depth['Object'] = 0
+
+        for _ in types:
+            for c in types:
+                if c == 'Object':
+                    continue
+                p = types[c]
+                depth[c] = min(depth[c], depth[p] + 1)
+        self.depth = depth
 
     def setInitialCode(self):
         self.code.append(CommentIL('--------------Initial Code---------------'))
