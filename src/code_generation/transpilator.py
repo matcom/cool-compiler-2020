@@ -1,7 +1,8 @@
 import sys
 sys.path.append('/..')
-from .nodesIL import *
+from nodesIL import *
 from virtual_table import VirtualTable
+from variables import Variables
 import visitor
 from ..cl_ast import *
 
@@ -13,6 +14,7 @@ class codeVisitor:
         self.data = []
 
         self.count = 0
+        self.current_class = 'Main'
 
         self.virtual_table = VirtualTable()
 
@@ -24,8 +26,20 @@ class codeVisitor:
         pass
 
     def setInitialCode(self):
-        pass
-    
+        self.code.append(CommentIL('--------------Initial Code---------------'))
+        self.code.append(LabelIL("main", ""))
+        
+        self.append(PushIL())
+        self.append(PushIL())
+        self.append(PushIL())
+
+        self.code.append(AllocateIL(1, self.vt.get_index('Main'), 'Main'))
+        self.code.append(DispatchParentIL(2, 1, 'Main.Constructor'))
+
+        self.code.append(DispatchIL(3,1,self.virtual_table.get_method_id('Main', 'main')))
+
+        self.code.append(GotoIL("Object.abort"))
+
     def setBuiltInTypes(self):
         built_in = ['Object', 'IO', 'Bool', 'String']
         for t in built_in:
@@ -33,14 +47,50 @@ class codeVisitor:
             self.code.append(PushIL())
             self.append(ReturnIL())
 
-    def setClassConstructor(self):
-        pass
+    def setClassConstructor(self, attributes):
+        self.code.append(LabelIL(self.current_class, 'Constructor', True))
+
+        vars = Variables()
+        vars.add_var('self')
+        vars.add_temp()
+
+        for node in attributes:
+            if node.value == None:
+                continue
+            self.visit(node.value, vars)
+            p = vars.peek_last()
+            index = self.virtual_table.get_attributes_id(self.current_class, node.name.value)
+            self.code.append(VarToMemoIL(vars.id('self'), vars.id(p), index)))
+
+        self.code.append(PushIL())
+        self.code.append(ReturnIL())
+
 
     def handleBinaryOps(self, node, variables, symbol):
-        pass
+        self.code.append(CommentIL('Binary'))
+        self.code.append(PushIL())
+        res = variables.add_temp()
+
+        self.visit(node.left, variables)
+        left = variables.peek_last()
+        self.visit(node.right, variables)
+        right = variables.peek_last()
+
+        self.code.append(BinaryOperationIL(variables.id(res), variables.id(left), variables.id(right), symbol))
+
+        variables.pop_var()
+        variables.pop_var()
+        self.code.append(PopIL(2))
 
     def handleUnaryOps(self, node, variables, symbol):
-        pass
+        self.code.append(CommentIL('Unary'))
+        res = variables.add_tmp()
+        self.code.append(PushIL())
+
+        self.visit(node.expr, variables)
+        v = variables.peek_last()
+
+        self.code.append(UnaryOperationIL(variables.id(res), variables.id(v), symbol))
     
     @visitor.on('node')
     def visit(self, node):

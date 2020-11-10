@@ -25,7 +25,8 @@ class VirtualTable:
             if add:
                 self.methods[A].append((B, args))                        
 
-        
+    def get_index(self, c):
+        return len(self.attr[c]) + 1
 
     def add_attr(self, claSS, args):
         if not claSS in self.attributes:

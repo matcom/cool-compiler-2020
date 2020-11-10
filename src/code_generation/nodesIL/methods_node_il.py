@@ -45,11 +45,14 @@ class PopIL(NodeIL):
 
 class PushIL(NodeIL):
     
-    def __init__(self, value):
-        self.value(value)
+    def __init__(self, value = 0, case = 1):
+        self.value = value
+        self.case = case
     
     def __str__(self):
-        return 'push {}'.format(self.value)
+        if self.value:
+            return 'push {}'.format(self.value)
+        return 'push'    
 
 class ReturnIL(NodeIL):
     
