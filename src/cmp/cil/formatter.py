@@ -157,7 +157,7 @@ class CIL_FORMATTER(object):
 
     @when(SubstringNode)
     def visit(self, node: SubstringNode):
-        return f'{node.dest} = SUBSTRING {node.msg1} {node.msg2}'
+        return f'{node.dest} = SUBSTRING {node.msg1} {node.start} {node.length}'
 
     @when(ToStrNode)
     def visit(self, node: ToStrNode):

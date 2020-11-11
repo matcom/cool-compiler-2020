@@ -197,10 +197,11 @@ class PrefixNode(InstructionNode):
         self.msg2 = msg2
 
 class SubstringNode(InstructionNode):
-    def __init__(self, dest, msg1, msg2):
+    def __init__(self, dest, msg1, start, length):
         self.dest = dest
         self.msg1 = msg1
-        self.msg2 = msg2
+        self.start = start
+        self.length = length
 
 class ToStrNode(InstructionNode):
     def __init__(self, dest, ivalue):

@@ -89,6 +89,7 @@ class BASE_COOL_CIL_TRANSFORM:
 
     def build_basics(self):
         self.build_basic_object()
+        self.build_basic_string()
 
     def build_basic_object(self):
         self.current_type = self.context.get_type('Object')
@@ -96,45 +97,92 @@ class BASE_COOL_CIL_TRANSFORM:
         type_node.attributes = [ attr.name for attr in self.current_type.get_all_attributes() ]
         type_node.methods = [ (method.name, self.to_function_name(method.name, typex.name))  for method, typex in self.current_type.get_all_methods() ]
         ### abort function
-        func_scope = Scope()
         self.current_method = self.current_type.get_method('abort')
         type_name = self.current_type.name
         self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
         self_local = self.register_param(VariableInfo('self', None))
-        func_scope.define_var('self', self_local)
-        for param_name in self.current_method.param_names:
-            param_local = self.register_param(VariableInfo(param_name, None))
-            func_scope.define_var(param_name, param_local)
         self.register_instruction(ErrorNode(0))
         self.current_method = self.current_function = None
         ### copy function
-        func_scope = Scope()
         self.current_method = self.current_type.get_method('copy')
         type_name = self.current_type.name
         self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
         self_local = self.register_param(VariableInfo('self', None))
-        func_scope.define_var('self', self_local)
-        for param_name in self.current_method.param_names:
-            param_local = self.register_param(VariableInfo(param_name, None))
-            func_scope.define_var(param_name, param_local)
         copy_inst = self.define_internal_local()
         self.register_instruction(CopyNode(copy_inst, self_local))
         self.register_instruction(ReturnNode(copy_inst))
         self.current_method = self.current_function = None
         ### type_name
-        func_scope = Scope()
         self.current_method = self.current_type.get_method('type_name')
         type_name = self.current_type.name
         self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
         self_local = self.register_param(VariableInfo('self', None))
-        func_scope.define_var('self', self_local)
-        for param_name in self.current_method.param_names:
-            param_local = self.register_param(VariableInfo(param_name, None))
-            func_scope.define_var(param_name, param_local)
         obj_type = self.define_internal_local()
         type_name_inst = self.define_internal_local()
         self.register_instruction(TypeOfNode(self_local, obj_type))
         self.register_instruction(TypeNameNode(type_name_inst, obj_type))
         self.register_instruction(ReturnNode(type_name_inst))
+        self.current_method = self.current_function = None
+        self.current_type = None
+
+    def build_basic_string(self):
+        self.current_type = self.context.get_type('String')
+        type_node = self.register_type('String')
+        type_node.attributes = [ attr.name for attr in self.current_type.get_all_attributes() ]
+        type_node.methods = [ (method.name, self.to_function_name(method.name, typex.name))  for method, typex in self.current_type.get_all_methods() ]
+        ### length
+        self.current_method = self.current_type.get_method('length')
+        type_name = self.current_type.name
+        self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
+        self_local = self.register_param(VariableInfo('self', None))
+        length_var = self.define_internal_local()
+        self.register_instruction(LengthNode(length_var, self_local))
+        self.register_instruction(ReturnNode(length_var))
+        self.current_method = self.current_function = None
+        ### concat
+        self.current_method = self.current_type.get_method('concat')
+        type_name = self.current_type.name
+        self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
+        self_local = self.register_param(VariableInfo('self', None))
+        param_local = self.register_param(VariableInfo('s', None))
+        result_msg = self.define_internal_local()
+        self.register_instruction(ConcatNode(result_msg, self_local, param_local))
+        self.register_instruction(ReturnNode(result_msg))
+        self.current_method = self.current_function = None
+        ### substr
+        self.current_method = self.current_type.get_method('substr')
+        type_name = self.current_type.name
+        self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
+        self_local = self.register_param(VariableInfo('self', None))
+        start_parm = self.register_param(VariableInfo('i', None))
+        length_param = self.register_param(VariableInfo('l', None))
+        result_msg = self.define_internal_local()
+        length_var = self.define_internal_local()
+        sum_var = self.define_internal_local()
+        cmp_var1 = self.define_internal_local()
+        cmp_var2 = self.define_internal_local()
+        cmp_var3 = self.define_internal_local()
+        no_error_label1 = self.to_label_name('error1')
+        no_error_label2 = self.to_label_name('error2')
+        no_error_label3 = self.to_label_name('error3')
+        self.register_instruction(LengthNode(length_var, self_local))
+        # start param negative
+        self.register_instruction(LessEqNode(cmp_var1, 0, start_parm))
+        self.register_instruction(GotoIfNode(cmp_var1, no_error_label1))
+        self.register_instruction(ErrorNode())
+        self.register_instruction(LabelNode(no_error_label1))
+        # length param negative
+        self.register_instruction(LessEqNode(cmp_var2, 0, length_param))
+        self.register_instruction(GotoIfNode(cmp_var2, no_error_label2))
+        self.register_instruction(ErrorNode())
+        self.register_instruction(LabelNode(no_error_label2))
+        # substr larger than max length
+        self.register_instruction(PlusNode(sum_var, start_parm, length_param))
+        self.register_instruction(LessEqNode(cmp_var3, sum_var, length_var))
+        self.register_instruction(GotoIfNode(cmp_var3, no_error_label3))
+        self.register_instruction(ErrorNode())
+        self.register_instruction(LabelNode(no_error_label3))
+        self.register_instruction(SubstringNode(result_msg, self_local, start_parm, length_param))
+        self.register_instruction(ReturnNode(result_msg))
         self.current_method = self.current_function = None
         self.current_type = None
