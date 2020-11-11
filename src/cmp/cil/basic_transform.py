@@ -3,7 +3,7 @@ from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, Assi
     , ArgNode, ReturnNode, ReadNode, PrintNode, LoadNode, LengthNode, ConcatNode, PrefixNode     \
     , SubstringNode, ToStrNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
     , DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ConformNode         \
-    , CleanArgsNode, ErrorNode, CopyNode, TypeNameNode
+    , CleanArgsNode, ErrorNode, CopyNode, TypeNameNode, ToIntNode
 from .utils import Scope
 
 
@@ -90,6 +90,7 @@ class BASE_COOL_CIL_TRANSFORM:
     def build_basics(self):
         self.build_basic_object()
         self.build_basic_string()
+        self.build_basic_io()
 
     def build_basic_object(self):
         self.current_type = self.context.get_type('Object')
@@ -122,6 +123,53 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(TypeOfNode(self_local, obj_type))
         self.register_instruction(TypeNameNode(type_name_inst, obj_type))
         self.register_instruction(ReturnNode(type_name_inst))
+        self.current_method = self.current_function = None
+        self.current_type = None
+
+    def build_basic_io(self):
+        self.current_type = self.context.get_type('Object')
+        type_node = self.register_type('Object')
+        type_node.attributes = [ attr.name for attr in self.current_type.get_all_attributes() ]
+        type_node.methods = [ (method.name, self.to_function_name(method.name, typex.name))  for method, typex in self.current_type.get_all_methods() ]
+        ### in_string
+        self.current_method = self.current_type.get_method('in_string')
+        type_name = self.current_type.name
+        self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
+        _ = self.register_param(VariableInfo('self', None))
+        result_msg = self.define_internal_local()
+        self.register_instruction(ReadNode(result_msg))
+        self.register_instruction(ReturnNode(result_msg))
+        self.current_method = self.current_function = None
+        ### out_string
+        self.current_method = self.current_type.get_method('out_string')
+        type_name = self.current_type.name
+        self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
+        self_local = self.register_param(VariableInfo('self', None))
+        out_msg = self.register_param(VariableInfo('x', None))
+        self.register_instruction(PrintNode(out_msg))
+        self.register_instruction(ReturnNode(self_local))
+        self.current_method = self.current_function = None
+        ### in_int
+        self.current_method = self.current_type.get_method('in_string')
+        type_name = self.current_type.name
+        self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
+        _ = self.register_param(VariableInfo('self', None))
+        result_msg = self.define_internal_local()
+        result_int = self.define_internal_local()
+        self.register_instruction(ReadNode(result_msg))
+        self.register_instruction(ToIntNode(result_int, result_msg))
+        self.register_instruction(ReturnNode(result_int))
+        self.current_method = self.current_function = None
+        ### out_int
+        self.current_method = self.current_type.get_method('out_string')
+        type_name = self.current_type.name
+        self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
+        self_local = self.register_param(VariableInfo('self', None))
+        out_int = self.register_param(VariableInfo('x', None))
+        out_msg = self.define_internal_local()
+        self.register_instruction(ToStrNode(out_msg, out_int))
+        self.register_instruction(PrintNode(out_msg))
+        self.register_instruction(ReturnNode(self_local))
         self.current_method = self.current_function = None
         self.current_type = None
 

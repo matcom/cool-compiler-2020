@@ -3,7 +3,7 @@ from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, Assi
     , ArgNode, ReturnNode, ReadNode, PrintNode, LoadNode, LengthNode, ConcatNode, PrefixNode     \
     , SubstringNode, ToStrNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
     , DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ConformNode         \
-    , CleanArgsNode, ErrorNode, CopyNode, TypeNameNode
+    , CleanArgsNode, ErrorNode, CopyNode, TypeNameNode, ToIntNode
 from .utils import on, when
 
 
@@ -162,6 +162,10 @@ class CIL_FORMATTER(object):
     @when(ToStrNode)
     def visit(self, node: ToStrNode):
         return f'{node.dest} = STR {node.ivalue}'
+
+    @when(ToIntNode)
+    def visit(self, node: ToIntNode):
+        return f'{node.dest} = INT {node.msg}'
 
     @when(GetAttribNode)
     def visit(self, node: GetAttribNode):

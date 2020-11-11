@@ -208,6 +208,11 @@ class ToStrNode(InstructionNode):
         self.dest = dest
         self.ivalue = ivalue
 
+class ToIntNode(InstructionNode):
+    def __init__(self, dest, msg):
+        self.dest = dest
+        self.msg = msg
+
 class ReadNode(InstructionNode):
     def __init__(self, dest):
         self.dest = dest
