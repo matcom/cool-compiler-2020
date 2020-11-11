@@ -20,7 +20,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         return list(node.cases)
 
     def find_type_name(self, typex, func_name):
-        if func_name in typex.methods.keys():
+        if func_name in typex.methods:
             return typex.name
         return self.find_type_name(typex.parent, func_name)
 
@@ -212,8 +212,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     
     @when(cool.MemberCallNode)
     def visit(self, node:cool.MemberCallNode, scope:Scope):
-        type_name = self.find_type_name(self.current_type, node.id)
-        func_name = self.to_function_name(node.id, type_name)
+        type_name = self.current_type.name
         result = self.define_internal_local()
         rev_args = []
         for arg in node.args:
@@ -223,16 +222,16 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             self.register_instruction(ArgNode(arg_value))
         self_inst = scope.get_var('self').local_name
         self.register_instruction(ArgNode(self_inst))
-        self.register_instruction(StaticCallNode(func_name, result))
+        self.register_instruction(DynamicCallNode(type_name, node.id, result))
         self.register_instruction(CleanArgsNode(len(node.args)+1))
 
         return result
 
     @when(cool.FunctionCallNode)
     def visit(self, node:cool.FunctionCallNode, scope:Scope):
-        typex = node.obj.static_type if not node.type else self.context.get_type(node.type)
-        type_name = self.find_type_name( typex, node.id)
-        func_name = self.to_function_name(node.id, type_name)
+        typex = None if not node.type else self.context.get_type(node.type)
+        type_name = self.find_type_name(typex, node.id) if typex else ''
+        func_name = self.to_function_name(node.id, type_name) if type_name else ''
         result = self.define_internal_local()
         rev_args = []
         for arg in node.args:
@@ -242,7 +241,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             self.register_instruction(ArgNode(arg_value))
         obj_inst = self.visit(node.obj, scope)
         self.register_instruction(ArgNode(obj_inst))
-        self.register_instruction(StaticCallNode(func_name, result))
+        self.register_instruction(StaticCallNode(func_name, result)) if func_name else self.register_instruction(DynamicCallNode(node.obj.static_type.name, node.id, result))
         self.register_instruction(CleanArgsNode(len(node.args)+1))
 
         return result
