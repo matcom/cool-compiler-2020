@@ -1,6 +1,5 @@
 from ast import *
-from types import AllTypes, CoolType, object_type, BasicTypes
-
+from types_defined import AllTypes, CoolType, object_type, BasicTypes
 
 def check_type_declaration(ast: ProgramNode):
     for cls in ast.classes:
@@ -17,7 +16,7 @@ def check_type_inheritance(ast: ProgramNode):
             if cls.fatherTypeName in AllTypes:
                 father_type = AllTypes[cls.fatherTypeName]
                 if father_type.inherit:
-                    AllTypes[cls.typeName].parent_type = object_type
+                    AllTypes[cls.typeName].parent_type = father_type
                 else:
                     # TODO Update error message
                     return f'Error inherit from {cls.fatherTypeName}'
@@ -69,23 +68,28 @@ def check_semantic(ast: ProgramNode):
     errors = []
 
     # Checking semantic errors
+
     # Checking duplicated types declaration
     type_declaration_output = check_type_declaration(ast)
     if len(type_declaration_output) > 0:
         errors.append(type_declaration_output)
         return errors
 
-    inheritance_check_output = check_type_inheritance(ast)
     # Checking inheritance in declared types
+    inheritance_check_output = check_type_inheritance(ast)
     if len(inheritance_check_output) > 0:
         errors.append(inheritance_check_output)
         return errors
+
+    
 
     # Check feature class list
     feature_check_output = check_features(ast)
     if len(feature_check_output) > 0:
         errors.append(feature_check_output)
         return errors
+
+    
 
     # Check Main unity
     if 'Main' not in AllTypes:

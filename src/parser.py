@@ -331,7 +331,6 @@ def p_error(p):
 
 parser = yacc.yacc(debug=1)
 
-
 def make_parser(code):
     global errors
     errors = []
