@@ -87,7 +87,7 @@ def get_formatter():
 
         @visitor.when(ArgNode)
         def visit(self, node: ArgNode):
-            return f'ARG {node.name}'
+            return f'ARG {node.dest}'
 
         @visitor.when(ReturnNode)
         def visit(self, node: ReturnNode):

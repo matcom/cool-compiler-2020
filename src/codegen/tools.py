@@ -1,12 +1,7 @@
 from typing import List, Dict
 from enum import Enum
-
-
-class Scope(Enum):
-	''' Scope of a variable'''
-	GLOBAL = 1
-	LOCAL = 2
-
+from collections import OrderedDict
+import re
 
 class SymbolTabEntry:
     def __init__(self, name, is_live=False, next_use=None):
@@ -89,8 +84,8 @@ class RegisterType(Enum):
 class RegisterDescriptor:
     'Stores the contents of each register'
     def __init__(self):
-        registers = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', \
-                    's0', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 'v1', 'a0', 'a1', 'a2', 'a3']
+        registers = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 'a0', 'a1', 'a2', 'a3', \
+                    's0', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 'v1']
         self.registers = {reg: None for reg in registers}
 
     def insert_register(self, register:str, content:str):
@@ -112,42 +107,28 @@ class RegisterDescriptor:
             self.registers[k] = None
 
 
-class DispatchTableEntry:
-    def __init__(self, type_name, methods):
-        self.type = type_name
-        self.methods = methods
-
-    def get_offset(self, method):
-        return self.methods.index(method)
-
-    def __iter__(self):
-        return iter(self.methods)
-
 class DispatchTable:
     def __init__(self):
-        self.classes: List[DispatchTableEntry] = []
-
+        self.classes = OrderedDict()
+        self.regex = re.compile(r'function_(.+)_\w+')
+        
     def add_class(self, type_name, methods):
-        self.classes.append(DispatchTableEntry(type_name, methods))
-    
-    def get_offset(self, type_name, method):
-        idx = self.find_entry(type_name)
-        return self.classes[idx].get_offset(method)
+        self.classes[type_name] = methods
 
-    def find_entry(self, name):
-        for i, entry in enumerate(self.classes):
-            if entry.type == name:
-                return i
-        return -1
+    def get_offset(self, type_name, method):
+        return self.classes[type_name].index(method)
 
     def find_full_name(self, type_name, mth_name):
-        idx = self.find_entry(type_name)
-        for meth in self.classes[idx]:
+        for meth in self.classes[type_name]:
             # format of methods: 'function_{method_name}_{type_name}' 
-            name = meth.split('_')[1]
+            name = self.regex.search(meth).groups()[0]
             if name == mth_name:
                 return meth
         return None
+
+    def get_methods(self, type_name):
+        "Returns all the methods of a specific type"
+        return self.classes[type_name]
 
     def __len__(self):
         return len(self.classes)
@@ -185,7 +166,7 @@ class ObjTable:
     def __init__(self, dispatch_table: DispatchTable):
         self.objects: Dict[str, ObjTabEntry] = self.initialize_built_in()
         self.dispatch_table = dispatch_table
-    
+
     def initialize_built_in(self):
         object_methods = [
             'function_abort_Object', 
@@ -220,3 +201,6 @@ class ObjTable:
 
     def __getitem__(self, item) -> ObjTabEntry:
         return self.objects[item]
+
+    def __iter__(self):
+        return iter(self.objects.values())

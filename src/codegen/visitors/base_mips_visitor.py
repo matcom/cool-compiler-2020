@@ -15,10 +15,17 @@ class BaseCILToMIPSVisitor:
         # Not sure if i should only use local registers
         self.reg_desc = RegisterDescriptor()
         self.addr_desc = AddressDescriptor()
-        self.strings = {}
-    
+        
         self.dispatch_table: DispatchTable = DispatchTable()
         self.obj_table: ObjTable = ObjTable(self.dispatch_table)
+        self.initialize_methods()
+
+    def initialize_methods(self):
+        self.methods = [] 
+        # Built in methods added
+        for entry in self.obj_table:
+            entry: ObjTabEntry
+            self.methods.extend(entry.dispatch_table_entry)
 
     def initialize_data_code(self):
         self.data_code = ['.data'] 
@@ -227,3 +234,8 @@ class BaseCILToMIPSVisitor:
 
     def get_method_offset(self, type_name, method_name):
         self.obj_table[type_name].method_offset(method_name)
+
+    def save_meth_addr(self, func_nodes: List[FunctionNode]):
+        self.methods += [funct.name for funct in func_nodes]
+        words = 'methods: .word ' + ', '.join(map(lambda x: '0', self.methods))
+        self.data_code.append(words)

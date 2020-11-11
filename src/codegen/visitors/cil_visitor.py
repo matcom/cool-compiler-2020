@@ -22,7 +22,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # self.register_instruction(cil.ArgNode(instance))
 
         name = self.to_function_name('main', 'Main')
-        self.register_instruction(cil.StaticCallNode(name, result, [cil.ArgNode(instance)]))
+        self.register_instruction(cil.StaticCallNode('Main', 'main', result, [cil.ArgNode(instance)]))
         self.register_instruction(cil.ReturnNode(0))
         self.current_function = None
         
@@ -118,7 +118,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             result = self.define_internal_local()
 
         # name = self.to_function_name(node.id, otype.name)
-        self.register_instruction(cil.DynamicCallNode(otype.name, node.id, result, args_node))
+        self.register_instruction(cil.StaticCallNode(otype.name, node.id, result, args_node))
         return result, self._return_type(otype, node)
 
     @visitor.when(BaseCallNode)
@@ -135,7 +135,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             result = self.define_internal_local()
         
         # name = self.to_function_name(node.id, node.type)
-        self.register_instruction(cil.DynamicCallNode(node.type, node.id, result, args_node))
+        self.register_instruction(cil.StaticCallNode(node.type, node.id, result, args_node))
         return result, self._return_type(otype, node)
 
     @visitor.when(StaticCallNode)
@@ -151,7 +151,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         else: 
             result = self.define_internal_local()
 
-        self.register_instruction(cil.StaticCallNode(name, result, args_node))
+        self.register_instruction(cil.DynamicCallNode(self.current_type.name, node.id, result, args_node))
         return result, self._return_type(self.current_type, node)
 
     @visitor.when(ConstantNumNode)
@@ -171,7 +171,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(SelfNode)
     def visit(self, node: SelfNode, scope: Scope):
-        # TODO: Cual es el valor de self type?
         return 'self', self.current_type
 
     @visitor.when(VariableNode)

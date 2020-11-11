@@ -40,22 +40,30 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         # visit DataNodes
         for data in node.dotdata:
             self.visit(data)
+        # guardo las direcciones de cada método
+        self.save_meth_addr(node.dotcode)
         # visit code instrunctions
-        for code in node.dotcode:
-            self.visit(code)
+        for i, code in enumerate(node.dotcode):
+            self.visit(code, 4*i)
  
     @visitor.when(TypeNode)
     def visit(self, node:TypeNode):
         self.obj_table.add_entry(node.name, node.methods, node.attributes)
-        self.data_code.append(f"type_{node.name}: .asciiz \"{node.name}\"")     # guarda el nombre de la variable en la memoria
+        self.data_code.append(f"type_{node.name}: .asciiz \"{node.name}\"")     # guarda el nombre de la variable en la memoria            
 
     @visitor.when(DataNode)
     def visit(self, node:DataNode):
         self.data_code.append(f"{node.name}: .asciiz \"{node.value}\"")    
 
     @visitor.when(FunctionNode)
-    def visit(self, node:FunctionNode):
+    def visit(self, node:FunctionNode, index:int):
         self.code.append(f'{node.name}:')
+        
+        # guardo la dirección del método en el array de métodos
+        self.code.append(f'la $t9, {node.name}')
+        self.code.append(f'la $v0, methods')
+        self.code.append(f'sw $t9, {4*index}($v0)')
+
         self.code.append(f'move $fp, $sp')          # gets the frame pointer from the stack
         for i, param in enumerate(node.params):     # gets the params from the stack
             self.visit(param, i)
@@ -71,8 +79,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
                 self.visit(inst)
 
     @visitor.when(ParamNode)
-    def visit(self, node:ParamNode, idx:int):
-        # TODO: Im not sure of this method..
+    def visit(self, node:ParamNode, idx:int):        
         self.symbol_table.insert_name(node.name)
         if idx <= 3:                                # los primeros 3 registros se guardan en a0-a3  
             self.addr_desc.insert_var(node.name, None, f'$a{idx}')
@@ -238,15 +245,27 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append(f'li $t9, {size}')                 # saves the size of the node
         self.code.append(f'sw $t9, 4($v0)')                 # this is the second file of the table offset
         self.code.append(f'move ${rdest}, $v0')             # guarda la nueva dirección de la variable en el registro destino
-        
+
+        self.create_dispatch_table(node.type)               # memory of dispatch table in v0
+        self.code.append(f'sw $v0, 8(${rdest})')            # save a pointer of the dispatch table in the 3th position
+       
+    def create_dispatch_table(self, type_name):
+        # Get methods of the dispatch table
+        methods = self.dispatch_table.get_methods(type_name)
         # Allocate the dispatch table in the heap
-        # self.code.append('li $v0, 9')                       # code to request memory
-        # dispatch_table_size = 4*self.obj_table.dispatch_table_size
-        # self.code.append(f'li $a0, {dispatch_table_size}')
-        # self.code.append('syscall')
-        # Memory of the dispatch table in v0
-        # self.code.append(f'sw $v0, 8(${rdest})')            # save a pointer of the dispatch table in the 3th position
+        self.code.append('li $v0, 9')                       # code to request memory
+        dispatch_table_size = 4*len(methods)
+        self.code.append(f'li $a0, {dispatch_table_size}')
+        self.code.append('syscall')                         # Memory of the dispatch table in v0
         
+        for i, meth in enumerate(methods):
+            # guardo el offset de cada uno de los métodos de este tipo
+            offset = 4*self.methods.index(meth)
+            self.code.append(f'la $t8, methods')            # cargo la dirección de methods
+            self.code.append(f'lw $t9, {offset}($t8)')      # cargo la dirección del método en t9
+            self.code.append(f'sw $t9, {4*i}($v0)')         # guardo la direccion del metodo en su posicion en el dispatch table        
+
+
     @visitor.when(TypeOfNode)
     def visit(self, node:TypeOfNode):
         rdest = self.addr_desc.get_var_reg(node.dest)
@@ -274,31 +293,33 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
 
     @visitor.when(StaticCallNode)
     def visit(self, node:StaticCallNode):
-        self._code_function(node.function, node.args, node.dest)
-
+        function = self.dispatch_table.find_full_name(node.type, node.function)
+        self._code_to_function_call(node.args, function, node.dest)
 
     @visitor.when(DynamicCallNode)
     def visit(self, node:DynamicCallNode):
         # Find the actual name of the method in the dispatch table
-        function_name = self.dispatch_table.find_full_name(node.type, node.method)
-        self._code_function(function_name, node.args, node.dest)
+        reg = self.addr_desc.get_var_reg('self')        # obtiene la instancia actual
+        self.code.append(f'lw $t9, 8(${reg})')          # obtiene en t9 la dirección del dispatch table
+        function = self.dispatch_table.find_full_name(node.type, node.method)       
+        index = self.dispatch_table.get_offset(node.type, function)      # guarda el offset del me
+        self.code.append(f'lw $t8, {index}($t9)')       # guarda en $t8 la dirección de la función a llamar 
+        # Call function
+        self._code_to_function_call(node.args, '$t8', node.dest)
 
-
-    def _code_function(self, function, args, dest):
+    def _code_to_function_call(self, args, function, dest):
         self.empty_registers()                      # empty all used registers and saves them to memory
-        
         self.push_register('fp')                    # pushes fp register to the stack
         self.push_register('ra')                    # pushes ra register to the stack
-        for i, arg in enumerate(args):         # push the arguments to the stack
+        for i, arg in enumerate(args):              # push the arguments to the stack
             self.visit(arg, i)
-        
-        self.code.append(f'jal {function}')    # this function will consume the arguments
-        self.pop_register('fp')                     # pop fp register from the stack
 
+        self.code.append(f'jal {function}')         # this function will consume the arguments
+
+        self.pop_register('fp')                     # pop fp register from the stack
         if dest is not None:
             rdest = self.addr_desc.get_var_reg(dest)
             self.code.append(f'move ${rdest}, $v0') # v0 es usado para guardar el valor de retorno
-
 
     @visitor.when(ArgNode)
     def visit(self, node:ArgNode, idx):
