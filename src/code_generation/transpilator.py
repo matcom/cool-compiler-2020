@@ -213,12 +213,35 @@ class codeVisitor:
 
     #expressions: atomics
     @visitor.on(VariableNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.code.append(PushIL())
+        result = variables.add_temp()
+
+        if node.id.value in variables.variables:
+            self.code.append(VarToVarIL(variables.id(result), variables.id(node.id.value)))
+        else:
+            self.code.append(MemoToVarIL(variables.id(result), variables.id('self'), self.virtual_table.get_attributes_id(self.current_class, node.id.value)))
 
     @visitor.on(NewNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        result = variables.add_temp()
+        self.code.append(PushIL())
+
+        dispatch = variables.add_tmp()
+        self.code.append(PushIL())
+
+        self.code.append(PushIL())
+        p = variables.add_tmp()
+
+        size = self.virtual_table.get_index(node.type.value)
+        self.code.append(AllocateIL(variables.id(p), size, node.type.value))
+
+        self.code.append(VarToVarIL(variables.id(result), variables.id(p)))
+        self.code.append(DispatchParentIL(variables.id(dispatch), variables.id(p), node.type.value + '.Constructor'))
+
+        self.code.append(PopIL(2))
+        variables.pop_var()
+        variables.pop_var()
 
     #expressions: complex
     @visitor.on(ConditionalNode)
