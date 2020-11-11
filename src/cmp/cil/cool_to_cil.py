@@ -5,7 +5,7 @@ from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, Assi
     , ArgNode, ReturnNode, ReadNode, PrintNode, LoadNode, LengthNode, ConcatNode, PrefixNode     \
     , SubstringNode, ToStrNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
     , DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ConformNode         \
-    , CleanArgsNode, ErrorNode
+    , CleanArgsNode, ErrorNode, StringEqualNode
 from .utils import Scope
 from .basic_transform import BASE_COOL_CIL_TRANSFORM, VariableInfo
 from .utils import when, on
@@ -321,7 +321,10 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         right = self.visit(node.right, scope)
         result = self.define_internal_local()
 
-        self.register_instruction(EqualNode(result, left, right))
+        if node.left.static_type == self.context.get_type('String'):
+            self.register_instruction(StringEqualNode(result, left, right))
+        else:
+            self.register_instruction(EqualNode(result, left, right))
         return result
 
     @when(cool.LessNode)

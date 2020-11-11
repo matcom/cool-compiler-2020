@@ -203,6 +203,12 @@ class SubstringNode(InstructionNode):
         self.start = start
         self.length = length
 
+class StringEqualNode(InstructionNode):
+    def __init__(self, dest, msg1, msg2):
+        self.dest = dest
+        self.msg1 = msg1
+        self.msg2 = msg2
+
 class ToStrNode(InstructionNode):
     def __init__(self, dest, ivalue):
         self.dest = dest
