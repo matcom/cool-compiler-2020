@@ -119,10 +119,20 @@ def get_type_by_name(type_name):
 # Declaring default types
 object_type = CoolType('Object', None)
 self_type = CoolType('SELF_TYPE', None, False)
-io_type = CoolType('IO', object_type, False)
+io_type = CoolType('IO', object_type)
 string_type = CoolType('String', object_type, False)
 int_type = CoolType('Int', object_type, False)
 bool_type = CoolType('Bool', object_type, False)
+
+# Add basic types to types dictionary
+AllTypes = {
+    'Object': object_type,
+    'SELF_TYPE': self_type,
+    'IO': io_type,
+    'String': string_type,
+    'Int': int_type,
+    'Bool': bool_type
+}
 
 # Set methods for basic types
 object_type.add_method('abort', [], 'Object')
@@ -135,15 +145,5 @@ io_type.add_method('in_int', [''], 'Int')
 string_type.add_method('length', [], 'Int')
 string_type.add_method('concat', ['String'], 'String')
 string_type.add_method('substr', ['Int', 'Int'], 'String')
-
-# Add basic types to types dictionary
-AllTypes = {
-    'Object': object_type,
-    'SELF_TYPE': self_type,
-    'IO': io_type,
-    'String': string_type,
-    'Int': int_type,
-    'Bool': bool_type
-}
 
 BasicTypes = ['Object', 'SELF_TYPE', 'IO', 'String', 'Int', 'Bool']

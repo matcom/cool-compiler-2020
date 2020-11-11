@@ -100,8 +100,8 @@ def main():
     except (IOError, FileNotFoundError):
         print(f"Error! File {program} not found.")
         exit(1)
-    except:
-        print("An unexpected error occurred!")
+    except Exception as e:
+        print(f'An unexpected error occurred! {e}')
         exit(1)
 
 
