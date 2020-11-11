@@ -1,8 +1,9 @@
 from codegen.cil_ast import *
 from utils import visitor
 from codegen.visitors.base_mips_visitor import BaseCILToMIPSVisitor
-from codegen.tools import SymbolTable, AddressDescriptor, RegisterDescriptor
+from codegen.tools import SymbolTable, AddressDescriptor, RegisterDescriptor, AddrType
 from semantic.tools import VariableInfo
+from pprint import pprint
 
 class CILToMIPSVistor(BaseCILToMIPSVisitor):
     '''
@@ -37,6 +38,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         # visit TypeNodes
         for type_ in node.dottypes:
             self.visit(type_)
+        
         # visit DataNodes
         for data in node.dotdata:
             self.visit(data)
@@ -45,7 +47,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         # visit code instrunctions
         for i, code in enumerate(node.dotcode):
             self.visit(code, 4*i)
- 
+
     @visitor.when(TypeNode)
     def visit(self, node:TypeNode):
         self.obj_table.add_entry(node.name, node.methods, node.attributes)
@@ -81,6 +83,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
     @visitor.when(ParamNode)
     def visit(self, node:ParamNode, idx:int):        
         self.symbol_table.insert_name(node.name)
+        self.var_address[node.name] = self.get_type(node.type)
         if idx <= 3:                                # los primeros 3 registros se guardan en a0-a3  
             self.addr_desc.insert_var(node.name, None, f'$a{idx}')
             self.reg_desc.insert_register(f'a{idx}', node.name)
@@ -90,7 +93,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
 
     @visitor.when(LocalNode)
     def visit(self, node:LocalNode, idx:int):
-        self.symbol_table.insert_name(node.name)              # inserts the var in the symbol table, local by default
+        self.symbol_table.insert_name(node.name)    # inserts the var in the symbol table, local by default
         self.addr_desc.insert_var(node.name, idx)   # saves the address relative from the actual fp
         self.code.append(f'addiu $sp, $sp, -4')     # updates stack pointers (pushing this value)
 
@@ -100,16 +103,19 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         if self.is_variable(node.source):
             rsrc = self.addr_desc.get_var_reg(node.source)
             self.code.append(f'move ${rdest}, ${rsrc}') 
+            self.var_address[node.dest] = self.var_address[node.source]
         elif self.is_int(node.source):
             self.code.append(f'li ${rdest}, ${node.source}')
-        elif isinstance(node.source, str):  # esto nunca se debe ejecutar (se llama a load node)
-            self.code.append(f'la ${rdest}, {self.strings[node.source]}')
+            self.var_address[node.dest] = AddrType.INT
+        # elif isinstance(node.source, str):  # esto nunca se debe ejecutar (se llama a load node)
+        #     self.code.append(f'la ${rdest}, {self.strings[node.source]}')
 
     @visitor.when(NotNode)
     def visit(self, node:NotNode):
         rdest = self.addr_desc.get_var_reg(node.dest)
         rscr = self.save_to_register(node.expr)
         self.code.append(f'not {rdest}, {rsrc}')
+        self.var_address[node.dest] = AddrType.BOOL
 
 
     @visitor.when(PlusNode)
@@ -128,6 +134,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
             elif self.is_variable(node.right):
                 rright = self.addr_desc.get_var_reg(node.right)
                 self.code.append(f"addi ${rdest}, ${node.left}, ${rright}")
+        self.var_address[node.dest] = AddrType.INT
 
     @visitor.when(MinusNode)
     def visit(self, node:MinusNode):
@@ -146,6 +153,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
                 rright = self.addr_desc.get_var_reg(node.right)
                 self.code.append(f"sub $t9, $zero, {rright}")
                 self.code.append(f"addi ${rdest}, $t9, {node.left}")
+        self.var_address[node.dest] = AddrType.INT
 
     @visitor.when(StarNode)
     def visit(self, node:StarNode):
@@ -175,6 +183,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
                 self.code.append(f"li $t9, {node.left}")
                 self.code.append(f"{op} ${rright}, $t9")
                 self.code.append(f"mflo ${rdest}")
+        self.var_address[node.dest] = AddrType.INT
 
     @visitor.when(LessNode)
     def visit(self, node:LessNode):
@@ -205,11 +214,13 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
                 rright = self.addr_desc.get_var_reg(node.right)
                 self.code.append(f"li $t9, {node.left}")
                 self.code.append(f"{op} ${rdest}, $t9, {rright}")
+        self.var_address[node.dest] = AddrType.BOOL
 
 
     @visitor.when(GetAttribNode)
     def visit(self, node:GetAttribNode):
         rdest = self.addr_desc.get_var_reg(node.dest)
+        self.var_address[node.dest] = self.get_type(node.attr_type)
         rsrc = self.addr_desc.get_var_reg(node.obj)
         attr_offset = 4*self.get_attr_offset(node.attr, node.type_name)
         self.code.append(f'lw ${rdest}, {attr_offset}(${rsrc})')
@@ -231,6 +242,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
     def visit(self, node:AllocateNode):
         rdest = self.addr_desc.get_var_reg(node.dest)
         size = 4*self.obj_table.size_of_entry(node.type)      # size of the table entry of the new type
+        self.var_address[node.dest] = AddrType.REF
         # syscall to allocate memory of the object entry in heap
         self.code.append('li $v0, 9')                         # code to request memory
         self.code.append(f'li $a0, {size}')                   # argument (size)
@@ -271,12 +283,16 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         rdest = self.addr_desc.get_var_reg(node.dest)
         if self.is_variable(node.obj):
             rsrc = self.addr_desc.get_var_reg(node.obj)
-            # TODO: Falta comprobar si el tipo de la variable es por valor, en ese caso la información del nodo no estará en la primera posicion
-            # De todas formas todavía falta la implementacion de los tipos built in
-            self.code.append(f'la ${rdest}, 0(${rsrc})')    # como en el offset 0 está el nombre del tipo this is ok
+            if self.var_address[node.obj] == AddrType.REF:
+                self.code.append(f'la ${rdest}, 0(${rsrc})')    # como en el offset 0 está el nombre del tipo this is ok
+            elif self.var_address[node.obj] == AddrType.STR:
+                self.code.append(f'la ${rdest}, type_String')
+            elif self.var_address[node.obj] == AddrType.INT:
+                self.code.append(f'la ${rdest}, type_Int')
+            elif self.var_address[node.obj] == AddrType.BOOL:
+                self.code.append(f'la ${rdest}, type_Bool')
         elif self.is_int(node.obj):
-            # TODO: hacer algo para identificar el tipo int 
-            pass
+            self.code.append(f'la ${rdest}, type_Int')
 
     @visitor.when(LabelNode)
     def visit(self, node:LabelNode):
@@ -295,6 +311,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
     def visit(self, node:StaticCallNode):
         function = self.dispatch_table.find_full_name(node.type, node.function)
         self._code_to_function_call(node.args, function, node.dest)
+        self.var_address[node.dest] = self.get_type(node.return_type)
 
     @visitor.when(DynamicCallNode)
     def visit(self, node:DynamicCallNode):
@@ -306,6 +323,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append(f'lw $t8, {index}($t9)')       # guarda en $t8 la dirección de la función a llamar 
         # Call function
         self._code_to_function_call(node.args, '$t8', node.dest)
+        self.var_address[node.dest] = self.get_type(node.return_type)
 
     def _code_to_function_call(self, args, function, dest):
         self.empty_registers()                      # empty all used registers and saves them to memory
@@ -354,4 +372,5 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
     @visitor.when(LoadNode)
     def visit(self, node:LoadNode):
         rdest = self.addr_desc.get_var_reg(node.dest)
+        self.var_address[node.dest] = AddrType.STR
         self.code.append(f'la ${rdest}, {node.msg}')

@@ -31,8 +31,9 @@ class FunctionNode(Node):
         self.index = idx
 
 class ParamNode(Node):
-    def __init__(self, name, idx=None):
+    def __init__(self, name, typex, idx=None):
         self.name = name
+        self.type = typex
         self.index = idx
 
 class LocalNode(Node):
@@ -102,13 +103,14 @@ class EqualNode(BinaryNode):
     pass
 
 class GetAttribNode(InstructionNode):
-    def __init__(self, obj, attr, typex, dest, idx=None):
+    def __init__(self, obj, attr, typex, dest, attr_type, idx=None):
         super().__init__(idx)
         self.obj = obj
         self.attr = attr
         self.type_name = typex
         # self.attr_offset = offset
         self.dest = dest
+        self.attr_type = attr_type
 
         self.out = dest
         self.in1 = obj
@@ -170,23 +172,23 @@ class GotoIfNode(InstructionNode):
         self.in1 = cond
 
 class StaticCallNode(InstructionNode):
-    def __init__(self, xtype, function, dest, args, idx=None):
+    def __init__(self, xtype, function, dest, args, return_type, idx=None):
         super().__init__(idx)
         self.type = xtype
         self.function = function
         self.dest = dest
         self.args = args
-
+        self.return_type = return_type
         self.out = dest
 
 class DynamicCallNode(InstructionNode):
-    def __init__(self, xtype, method, dest, args, idx=None):
+    def __init__(self, xtype, method, dest, args, return_type, idx=None):
         super().__init__(idx)
         self.type = xtype
         self.method = method
         self.dest = dest
         self.args = args
-
+        self.return_type = return_type
         self.out = dest
 
 class ArgNode(InstructionNode):

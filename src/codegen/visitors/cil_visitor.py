@@ -22,7 +22,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # self.register_instruction(cil.ArgNode(instance))
 
         name = self.to_function_name('main', 'Main')
-        self.register_instruction(cil.StaticCallNode('Main', 'main', result, [cil.ArgNode(instance)]))
+        self.register_instruction(cil.StaticCallNode('Main', 'main', result, [cil.ArgNode(instance)], 'Object'))
         self.register_instruction(cil.ReturnNode(0))
         self.current_function = None
         
@@ -64,9 +64,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_function = self.register_function(name)
      
         # Handle PARAMS
-        self.register_param(VariableInfo('self', self.current_type))
+        self.register_param('self', self.current_type)
         for p_name, p_type in node.params:
-            self.register_param(VariableInfo(p_name, p_type))
+            self.register_param(p_name, p_type)
         
         value, _ = self.visit(node.body, scope)
         
@@ -79,7 +79,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     def visit(self, node: VarDeclarationNode, scope: Scope):
         var_info = scope.find_variable(node.id)
         vtype = get_type(var_info.type, self.current_type)
-        local_var = self.register_local(VariableInfo(var_info.name, vtype))
+        local_var = self.register_local(var_info.name)
 
         value, _ = self.visit(node.expr, scope)
         self.register_instruction(cil.AssignNode(local_var, value))
@@ -118,7 +118,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             result = self.define_internal_local()
 
         # name = self.to_function_name(node.id, otype.name)
-        self.register_instruction(cil.StaticCallNode(otype.name, node.id, result, args_node))
+        self.register_instruction(cil.StaticCallNode(otype.name, node.id, result, args_node, rtype.name))
         return result, self._return_type(otype, node)
 
     @visitor.when(BaseCallNode)
@@ -135,7 +135,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             result = self.define_internal_local()
         
         # name = self.to_function_name(node.id, node.type)
-        self.register_instruction(cil.StaticCallNode(node.type, node.id, result, args_node))
+        self.register_instruction(cil.StaticCallNode(node.type, node.id, result, args_node, rtype.name))
         return result, self._return_type(otype, node)
 
     @visitor.when(StaticCallNode)
@@ -151,7 +151,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         else: 
             result = self.define_internal_local()
 
-        self.register_instruction(cil.DynamicCallNode(self.current_type.name, node.id, result, args_node))
+        self.register_instruction(cil.DynamicCallNode(self.current_type.name, node.id, result, args_node, rtype.name))
         return result, self._return_type(self.current_type, node)
 
     @visitor.when(ConstantNumNode)
@@ -181,9 +181,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             return name, get_type(typex, self.current_type)
         except:
             var_info = scope.find_attribute(node.lex)
-            local_var = self.register_local(var_info)
+            local_var = self.register_local(var_info.name)
             # attributes = [attr.name for attr, a_type in self.current_type.all_attributes()]
-            self.register_instruction(cil.GetAttribNode('self', var_info.name, self.current_type.name, local_var))
+            self.register_instruction(cil.GetAttribNode('self', var_info.name, self.current_type.name, local_var, var_info.type.name))
             return local_var, get_type(var_info.type, self.current_type)
 
     @visitor.when(InstantiateNode)
@@ -313,7 +313,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         self.register_instruction(cil.GotoIfNode(aux, next_label))
         var_info = scope.find_variable(node.id)
-        local_var = self.register_local(var_info)
+        local_var = self.register_local(var_info.name)
         self.register_instruction(cil.AssignNode(local_var, expr))
 
         expr_i, typex = self.visit(node.expr, scope)

@@ -154,7 +154,7 @@ class ErrorType(Type):
 
 class VoidType(Type):
     def __init__(self, pos=(0, 0)):
-        Type.__init__(self, '<void>', pos)
+        Type.__init__(self, 'Void', pos)
 
     def conforms_to(self, other):
         return True

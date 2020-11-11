@@ -33,21 +33,20 @@ class BaseCOOLToCILVisitor:
     def instructions(self):
         return self.current_function.instructions
     
-    def register_param(self, vinfo):
-        param_node = ParamNode(vinfo.name, self.index)
-        vinfo.name = f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
+    def register_param(self, vname, vtype):
+        name = f'param_{self.current_function.name[9:]}_{vname}_{len(self.params)}'
+        param_node = ParamNode(vname, vtype, self.index)
         self.params.append(param_node)
-        return vinfo.name
+        return vname
     
-    def register_local(self, vinfo):
-        name = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
+    def register_local(self, vname):
+        name = f'local_{self.current_function.name[9:]}_{vname}_{len(self.localvars)}' 
         local_node = LocalNode(name, self.index)
         self.localvars.append(local_node)
         return name
 
     def define_internal_local(self):
-        vinfo = VariableInfo('internal', None)
-        return self.register_local(vinfo)
+        return self.register_local('internal')
 
     def register_instruction(self, instruction):
         self.instructions.append(instruction)
@@ -105,48 +104,3 @@ class BaseCOOLToCILVisitor:
             constructor.body.expr_list.append(AssignNode(attr.name, ConstantBoolNode(False)))
         elif attr.type == 'String':
             constructor.body.expr_list.append(AssignNode(attr.name, ConstantStrNode("")))
-
-
-    ###### TODO: Esto es lo de los métodos nativos que no creo que funcione ######
-    def native_methods(self, typex: Type, name: str, *args):
-        if typex == StringType():
-            return self.string_methods(name, *args)
-        elif typex == ObjectType():
-            return self.object_methods(name, *args)
-        elif typex == IOType():
-            return self.io_methods(name, *args)
-
-    def string_methods(self, name, *args):
-        result = self.define_internal_local()
-        if name == 'length':
-            self.register_instruction(cil.LengthNode(result, *args))
-        elif name == 'concat':
-            self.register_instruction(cil.ConcatNode(result, *args))
-        elif name == 'substr':
-            self.register_instruction(cil.SubstringNode(result, *args))
-        return result
-
-    def object_methods(self, name, result, *args):
-        if name == 'abort':
-            pass
-        elif name == 'type_name':
-            pass
-        elif name == 'copy':
-            pass
-
-    def io_methods(self, name, result, *args):
-        # ? Not sure of the difference between string and int
-        if name == 'out_string':
-            self.register_instruction(cil.PrintNode(*args))
-        elif name == 'out_int':
-            aux = self.define_internal_local()
-            self.register_instruction(cil.ToStrNode(aux, *args))
-            self.register_instruction(cil.PrintNode(aux))
-        elif name == 'in_string':
-            result = self.define_internal_local()
-            self.register_instruction(cil.ReadNode(result))
-            return result
-        elif name == 'in_int':
-            result = self.define_internal_local()
-            self.register_instruction(cil.ReadNode(result))
-            return result

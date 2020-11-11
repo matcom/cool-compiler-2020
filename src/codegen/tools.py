@@ -45,6 +45,11 @@ class NextUseEntry:
 		self.in2islive = in2islive
 		self.outislive = outislive
 
+class AddrType(Enum):
+    REF = 1,
+    STR = 2,
+    BOOL = 3,
+    INT = 4
 
 class AddressDescriptor:
     'Stores the location of each variable'
@@ -60,8 +65,8 @@ class AddressDescriptor:
     def set_var_addr(self, name, addr):
         self.vars[name][0] = addr
 
-    def get_var_reg(self, name):
-        return self.vars[name][1]
+    def get_var_reg(self, var):
+        return self.vars[var][1]
 
     def set_var_reg(self, name, reg):
         self.vars[name][1] = reg

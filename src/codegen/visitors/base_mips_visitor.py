@@ -8,8 +8,7 @@ class BaseCILToMIPSVisitor:
     def __init__(self):
         self.code: list = []
         self.initialize_data_code()
-        self.initialize_type_code()
-        
+        self.initialize_built_in_types()
         self.symbol_table = SymbolTable()
         # temp registers: t9, voy a usarlo para llevarlo de temporal en expresiones aritmeticas 
         # Not sure if i should only use local registers
@@ -19,6 +18,8 @@ class BaseCILToMIPSVisitor:
         self.dispatch_table: DispatchTable = DispatchTable()
         self.obj_table: ObjTable = ObjTable(self.dispatch_table)
         self.initialize_methods()
+        # Will hold the type of any of the vars
+        self.var_address = {'self': AddrType.REF}
 
     def initialize_methods(self):
         self.methods = [] 
@@ -30,10 +31,13 @@ class BaseCILToMIPSVisitor:
     def initialize_data_code(self):
         self.data_code = ['.data'] 
     
-
-    def initialize_type_code(self):
-        self.type_code = []
-
+    def initialize_built_in_types(self):
+        self.data_code.append(f"type_String: .asciiz \"String\"")     # guarda el nombre de la variable en la memoria            
+        self.data_code.append(f"type_Int: .asciiz \"Int\"")     # guarda el nombre de la variable en la memoria            
+        self.data_code.append(f"type_Bool: .asciiz \"Bool\"")     # guarda el nombre de la variable en la memoria            
+        self.data_code.append(f"type_Object: .asciiz \"Object\"")     # guarda el nombre de la variable en la memoria            
+        self.data_code.append(f"type_IO: .asciiz \"IO\"")     # guarda el nombre de la variable en la memoria            
+        
 
     def get_basic_blocks(self, instructions: List[InstructionNode]):
         leaders = self.find_leaders(instructions)
@@ -239,3 +243,13 @@ class BaseCILToMIPSVisitor:
         self.methods += [funct.name for funct in func_nodes]
         words = 'methods: .word ' + ', '.join(map(lambda x: '0', self.methods))
         self.data_code.append(words)
+
+    def get_type(self, xtype):
+        'Return the var address type according to its static type'
+        if xtype == 'Int':
+            return AddrType.INT
+        elif xtype == 'Bool':
+            return AddrType.BOOL
+        elif xtype == 'String':
+            return AddrType.STR
+        return AddrType.REF
