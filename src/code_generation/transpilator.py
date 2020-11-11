@@ -174,42 +174,42 @@ class codeVisitor:
 
     #operations: binary
     @visitor.on(SumNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.handleBinaryOps(node, variables, '+')
 
     @visitor.on(DiffNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.handleBinaryOps(node, variables, '-')
 
     @visitor.on(StarNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.handleBinaryOps(node, variables, '*')
 
     @visitor.on(DivNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.handleBinaryOps(node, variables, '/')
 
     @visitor.on(LessNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.handleBinaryOps(node, variables, '<')
 
     @visitor.on(LessEqualNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.handleBinaryOps(node, variables, '<=')
 
     @visitor.on(EqualNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.handleBinaryOps(node, variables, '=')
 
     #operations: unary
 
     @visitor.on(BitNotNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.handleUnaryOps(node, variables, '~')
 
     @visitor.on(NotNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.handleUnaryOps(node, variables, '!')
 
     #expressions: atomics
     @visitor.on(VariableNode)
