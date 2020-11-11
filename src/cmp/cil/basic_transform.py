@@ -127,8 +127,8 @@ class BASE_COOL_CIL_TRANSFORM:
         self.current_type = None
 
     def build_basic_io(self):
-        self.current_type = self.context.get_type('Object')
-        type_node = self.register_type('Object')
+        self.current_type = self.context.get_type('IO')
+        type_node = self.register_type('IO')
         type_node.attributes = [ attr.name for attr in self.current_type.get_all_attributes() ]
         type_node.methods = [ (method.name, self.to_function_name(method.name, typex.name))  for method, typex in self.current_type.get_all_methods() ]
         ### in_string
