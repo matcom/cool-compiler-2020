@@ -77,4 +77,174 @@ def p_expression_list(p):
     	else:
         	p[0] = [p[1]] + p[3]
 
+
+def p_let_body(p):
+    '''let_body : ATTRIBUTEID COLON CLASSID
+                | ATTRIBUTEID COLON CLASSID ASSIGNATION expression
+                | ATTRIBUTEID COLON CLASSID COMMA let_body
+                | ATTRIBUTEID COLON CLASSID ASSIGNATION expression COMMA let_body'''
+    	if(len(p) == 4):
+        	p[0] = [AttributeFeatureNode(p[1], p[3], None, [GetPosition(p, 1), GetPosition(p, 3)])]
+    	else:
+        	if(len(p) == 8):
+            		p[0] = [AttributeFeatureNode(p[1], p[3], p[5], [GetPosition(p, 1), GetPosition(p, 3)])] + p[7]
+        	else:
+            		if(p[4] == "<-"):
+                		p[0] = [AttributeFeatureNode(p[1], p[3], p[5], [GetPosition(p, 1), GetPosition(p, 3)])]
+            		else:
+                		p[0] = [AttributeFeatureNode(p[1], p[3], None, [GetPosition(p, 1), GetPosition(p, 3)])] + p[5]
+
+
+def p_case_body(p):
+    	'''case_body : ATTRIBUTEID COLON CLASSID ARROW expression SEMICOLON case_body
+                | ATTRIBUTEID COLON CLASSID ARROW expression SEMICOLON'''
+    	if(len(p) == 7):
+      		p[0] = [CaseBranchNode(p[1], p[3], p[5], [GetPosition(p, 1), GetPosition(p, 3)])]
+    	else:
+        	p[0] = [CaseBranchNode(p[1], p[3], p[5], [GetPosition(p, 1), GetPosition(p, 3)])] + p[7]
+
+def p_expression(p):
+	'''expression : mixed_expression'''
+    	p[0] = p[1]
+
+def p_mixed_expression(p):
+    	'''mixed_expression : mixed_expression LESSEQUAL arithmetic_expression_form
+                            | mixed_expression LESS arithmetic_expression_form
+                            | mixed_expression EQUAL arithmetic_expression_form
+                            | arithmetic_expression_form'''
+    	if(len(p) > 2):
+        	if(p[3] == "Less"):
+            		p[0] = LessNode(p[1], p[3])
+        	else:
+            		if(p[3] == "Equal"):
+                		p[0] = EqualNode(p[1], p[3])
+            		else:
+                		p[0] = LessEqualNode(p[1], p[3])
+    	else:
+        	p[0] = p[1]
+
+def p_arithmetic_expression_form(p):
+    	'''arithmetic_expression_form : NOT arithmetic_expression
+                                    | arithmetic_expression'''
+    	if(len(p) == 2):
+        	p[0] = p[1]
+    	else:
+        	p[0] = NotNode(p[2], [])
+
+
+def p_arithmetic_expression(p):
+    	'''arithmetic_expression : arithmetic_expression PLUS term
+                                 | arithmetic_expression MINUS term
+                                 | term'''
+    	if(len(p) == 2):
+        	p[0] = p[1]
+    	else:
+        	if(p[2] == "Plus"):
+            		p[0] = PlusNode(p[1], p[3])
+        	else:
+            		p[0] = MinusNode(p[1], p[3])
+
+
+def p_term(p):
+    	'''term : term TIMES factor
+                | term DIVIDE factor
+                | factor'''
+    	if(len(p) == 2):
+        	p[0] = p[1]
+    	else:
+        	if(p[2] == "Times"):
+            		p[0] = TimesNode(p[1], p[3])
+        	else:
+            		p[0] = DivideNode(p[1], p[3])
+
+
+def p_factor(p):
+    	'''factor : ISVOID factor_extra
+                  | factor_extra'''
+    	if(len(p) == 2):
+        	p[0] = p[1]
+   	else:
+        	p[0] = IsVoidNode(p[2])
+
+def p_factor_extra(p):
+    	'''factor_extra : COMPLEMENT program_atom
+                        | program_atom'''
+    	if(len(p) == 2):
+        	p[0] = p[1]
+    	else:
+        	p[0] = ComplementNode(p[2])
+
+def p_program_atom_boolean(p):
+    	'''program_atom : TRUE
+                        | FALSE'''
+    	p[0] = ConstantBoolNode(p[1], [GetPosition(p, 1)])
+
+def p_program_atom_string(p):
+  	'''program_atom : STRING'''
+    	p[0] = ConstantStringNode(p[1], [GetPosition(p, 1)])
+
+def p_program_atom_int(p):
+    	'''program_atom : NUMBER'''
+    	p[0] = ConstantNumericNode(p[1], [GetPosition(p, 1)])
+
+def p_program_atom_id(p):
+    	'''program_atom : ATTRIBUTEID'''
+    	p[0] = VariableNode(p[1], [GetPosition(p, 1)])
+
+def p_program_atom_parentesis(p):
+    	'''program_atom : LPAREN expression RPAREN'''
+    	p[0] = p[1]
+
+def p_program_atom_new(p):
+    	'''program_atom : NEW CLASSID'''
+    	p[0] = NewStatementNode(p[2], [GetPosition(p, 2)])
+
+def p_program_atom_member(p):
+    	'''program_atom : member_call'''
+    	p[0] = p[1]
+
+def p_program_atom_function(p):
+    	'''program_atom : program_atom function_call'''
+    	p[0] = FunctionCallStatement(p[1], (p[2])[0], (p[2])[1], (p[2])[2])
+
+def p_program_atom_assign(p):
+    	'''program_atom : ATTRIBUTEID ASSIGNATION expression'''
+    	p[0] = AssignStatementNode(p[1], p[3], [GetPosition(p, 1)])
+
+def p_program_atom_case(p):
+    	'''program_atom : CASE expression OF case_body ESAC'''
+    	p[0] = CaseStatementNode(p[2], p[4])
+
+def p_program_atom_let(p):
+    	'''program_atom : LET let_body IN expression'''
+    	p[0] = LetStatementNode(p[2], p[4])
+
+def p_program_atom_block(p):
+    	'''program_atom : LBRACE expression_list RBRACE'''
+    	p[0] = BlockStatementNode(p[2])
+
+def p_program_atom_while(p):
+    	'''program_atom : WHILE expression LOOP expression POOL'''
+    	p[0] = LoopStatementNode(p[2], p[4])
+
+def p_program_atom_if(p):
+    	'''program_atom : IF expression THEN expression ELSE expression FI'''
+    	p[0] = ConditionalStatementNode(p[2], p[4], p[6])
+
+def p_function_call(p):
+    	'''function_call : DOT ATTRIBUTEID LPAREN argument_list RPAREN
+                         | DOT ATTRIBUTEID LPAREN RPAREN
+                         | DISPATCH CLASSID DOT ATTRIBUTEID LPAREN argument_list RPAREN
+                         | DISPATCH CLASSID DOT ATTRIBUTEID LPAREN RPAREN'''
+    
+    	if(len(p) == 5):
+        	p[0] = [None, p[2], []]
+    	else:
+        	if(len(p) == 6):
+            		p[0] = [None, p[2], p[4]]
+        	else:
+            		if(len(p) == 7):
+                		p[0] = [p[2], p[4], []]
+            		else:
+                		p[0] = [p[2], p[4], p[6]]
 		
