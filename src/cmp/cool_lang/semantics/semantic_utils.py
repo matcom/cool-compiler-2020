@@ -107,10 +107,16 @@ class Type:
             yield attr
 
     def get_all_methods(self):
+        done = set()
         if self.parent:
-            for tup in self.parent.get_all_methods():
-                yield tup
+            for method, typex in self.parent.get_all_methods():
+                if method.name in self.methods:
+                    done.add(method.name)
+                    yield (self.methods[method.name], self)
+                else:
+                    yield (method, typex)
         for method in self.methods.values():
+            if method.name in done: continue
             yield (method, self)
 
     def is_subtype(self, otype): # check if self is subtype of otype
