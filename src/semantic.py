@@ -1,5 +1,5 @@
 from ast import *
-from types import *
+from types import AllTypes, CoolType, object_type, BasicTypes
 
 
 def check_type_declaration(ast: ProgramNode):
@@ -7,40 +7,48 @@ def check_type_declaration(ast: ProgramNode):
         if cls in AllTypes:
             # TODO Update return error message
             return 'Re-declaring class'
-        AllTypes[cls.type_name] = CoolType(cls.type_name, None)
+        AllTypes[cls.typeName] = CoolType(cls.typeName, None)
     return []
 
 
 def check_type_inheritance(ast: ProgramNode):
     for cls in ast.classes:
-        if cls.father_type_name:
-            if cls.father_type_name in AllTypes:
-                father_type = AllTypes[cls.father_type_name]
+        if cls.fatherTypeName:
+            if cls.fatherTypeName in AllTypes:
+                father_type = AllTypes[cls.fatherTypeName]
                 if father_type.inherit:
-                    AllTypes[cls.type_name].parent_type = object_type
+                    AllTypes[cls.typeName].parent_type = object_type
                 else:
                     # TODO Update error message
-                    return f'Error inherit from {cls.father_type_name}'
+                    return f'Error inherit from {cls.fatherTypeName}'
             else:
                 # TODO Update error message
-                return f'Error getting {cls.father_type_name}'
+                return f'Error getting {cls.fatherTypeName}'
         else:
-            AllTypes[cls.type_name].parent_type = object_type
+            AllTypes[cls.typeName].parent_type = object_type
 
     return []
 
 
 def check_features(ast: ProgramNode):
-    checked_types = [True if t in BasicTypes else False for t in AllTypes]
-    left_check = checked_types.count(False)
+    checked_types = [False for _ in ast.classes]
+    created_types_names = [cls.fatherTypeName for cls in ast.classes]
+    left_check = len(checked_types)
 
     while left_check > 0:
         for i, cls in enumerate(ast.classes):
             if checked_types[i]:
                 continue
-            if cls.father_type_name and cls.father_type_name not in checked_types:
-                continue
-            class_type = AllTypes[cls.type_name]
+
+            if cls.fatherTypeName:
+                # If father is in created types, then check if father is also checked
+                if cls.fatherTypeName in created_types_names:
+                    # If father not checked
+                    if not checked_types[created_types_names.index(cls.fatherTypeName)]:
+                        continue
+                # Else is in Basic types. so can continue checking
+
+            class_type = AllTypes[cls.typeName]
             for feature in cls.features:
                 if type(feature) is FunctionFeatureNode:
                     method_added = class_type.add_method(feature.id, feature.parameters, feature.typeName)
@@ -50,7 +58,7 @@ def check_features(ast: ProgramNode):
                     feature_added = class_type.add_attribute(feature.id, feature.typeName, feature.expression)
                     if not feature_added:
                         return 'Couldn\'t add feature'
-                return 'Unknow feature or Method'
+                return 'Unknown feature or Method'
             left_check = left_check - 1
             checked_types[i] = True
 
