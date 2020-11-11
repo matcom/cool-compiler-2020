@@ -295,16 +295,28 @@ class codeVisitor:
 
     #constants
     @visitor.on(IntegerNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.code.append(CommentIL('Integer'))
+        variables.add_temp()
+        self.code.append(PushIL(int(self.lex))
 
     @visitor.on(StringNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        label = 'string_' + str(self.getInt())
+        self.data.append(StringIL(label, node.lex))
+        self.code.append(CommentIL('loading label'))
+        self.code.append(PushIL())
+        p = variables.add_tmp()
+
+        self.code.append(LoadLabelIL(variables.id(p), label))
 
     @visitor.on(BoolNode)
     def visit(self, node):
-        pass
+        variables.add_tmp()
+        if node.lex:
+            self.code.append(PushIL(1))
+        else:
+            self.code.append(PushIL(0))
 
 
     
