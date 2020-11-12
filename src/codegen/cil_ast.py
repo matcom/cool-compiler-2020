@@ -10,10 +10,10 @@ class ProgramNode(Node):
 
 
 class TypeNode(Node):
-    def __init__(self, name):
+    def __init__(self, name , atributes = [] ,methods = []):
         self.name = name
-        self.attributes = []
-        self.methods = []
+        self.attributes = atributes
+        self.methods = methods
 
 
 class DataNode(Node):
@@ -198,8 +198,8 @@ class SubstringNode(InstructionNode):
     def __init__(self, dest, word, n):
         self.dest = dest
         self.word = word
-        self.n = n
-
+        self.begin = begin
+        self.end = end
 
 class ToStrNode(InstructionNode):
     def __init__(self, dest, ivalue):
@@ -220,3 +220,29 @@ class PrintNode(InstructionNode):
 class SelfNode(InstructionNode):
     def __init__(self):
         pass    
+
+
+class OutStringNode(InstructionNode):
+    def __init__(self,value):
+        self.value = value
+
+class OutIntNode(InstructionNode):
+    def __init__(self,value):
+        self.value = value
+
+class ReadStringNode(InstructionNode):
+    def __init__(self,dest):
+        self.dest = dest
+
+class ReadIntNode(InstructionNode):
+    def __init__(self,dest):
+        self.dest = dest
+
+class ExitNode(InstructionNode):
+    def __init__(self,value = 0):
+        self.value = value
+
+class CopyNode(InstructionNode):
+    def __init__(self,dest,source):
+        self.dest = dest
+        self.source = source
