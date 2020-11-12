@@ -195,9 +195,9 @@ En _Cool_ cada variable está dentro de alguna clase. Diferenciamos dos tipos de
 - variables de clase (o atributos)
 - variables locales, estas serían parámetros formales de un método o variables definidas en una expresión `Let` o `Case`.
 
-Cada una de estas variables tienen un entorno determinado en el cual viven. Las variables de atributo viven en toda la clase, las variables locales solo viven en los bloques que fueron definidas. Además de esto, notemos que una variable local puede ofuscar a una variable definida en un entorno "superior" al de esta.
+Cada una de estas variables tienen un entorno determinado en el cual viven. Las variables de atributo viven en toda la clase, las variables locales solo viven en los bloques que fueron definidas. Además de esto, notemos que una variable local puede ofuscar a una variable, con el mismo nombre, definida en un entorno "superior" al de esta.
 
-Las variables contienen la dirección de memoria de objetos, los cuales se guardan en el _Heap_ (aunque hay ciertos objetos que guardamos en el _Data Segment_, por ejemplo los literales y los objetos _Bool_ `true` y `false`).
+Las variables contienen la dirección de memoria de objetos, los cuales se guardan en el _Heap_ (aunque hay ciertos objetos que guardamos en el _Data Segment_, por ejemplo: los literales y los objetos _Bool_ `true` y `false`).
 
 Las variables necesitan estar accesibles a la hora de acceder a un atributo, o realizar un cálculo, por lo que ellas se guardan en el stack de _MIPS_.
 
@@ -205,24 +205,38 @@ Un paso importante que tomamos es el de asignar de antemano a cada variable la p
 
 Un entorno $E$ además tiene un padre $p(E)$, que es el bloque en el cual $E$ está contenido. Un nuevo entorno se crea al llegar a un `Let`, `CaseBranch` (la rama de algún `Case`), `FuncInit` o `Function`.
 
-Si estamos en un entorno $E$ y la última variable definida está en la posición $k$:
+Si el entorno actual es $E$ y la última variable definida está en la posición $k$:
 
 - si nos encontramos la definición de una variable $x$, hacemos $E(x) = k + 1$ y aumentamos $k$ en $1$.
 
 - si nos encontramos con una variable que hace referencia a $x$, guardamos para esa variable su posición en ese momento en la pila (esto es, $E(x)$). Además guardamos si esta referencia fue a un atributo o a una variable local, cosa que podemos saber fácilmente.
 
-Cuando salimos de $E$, "eliminamos" las variables creadas, y ajustamos $k$ correspondientemente.
+Cuando salimos de $E$, reseteamos el entorno actual a $p(E)$ y ajustamos $k$ correspondientemente.
 
 ## Generación de código MIPS
 
 ### Resolución de Dispatches
 
-Digamos que tenemos un dispatch $x.f(...)$ en la clase $C$.
+Digamos que tenemos un dispatch $x.f(...)$ y $x$ es instancia de la clase $C$ (si es un dispatch estático en la clase $T$, hacemos $C := T$). Para resolver el dispatch hay que buscar el ancestro más profundo de $C$, en el árbol de herencia, que contenga una función con nombre $f$.
+
+Para esto vamos a guardar el $\text{td}$, $\text{tf}$ y $\text{level}$ de cada función con nombre $f$, como $3$ números en el _Data Segment_, ordenados por el mayor $\text{level}$.
+
+Ahora resolver el dispatch se reduce a buscar el primer $X$ tal que $C \le X$[^4]. Esto lo podemos hacer iterando por los números guardados de las funciones con nombre $f$.
+
+Notemos que la complejidad por dispatch es de $O(\text{\#funciones distintas})$. Otra alternativa pudo haber sido tener una tabla de punteros a funciones, pero crearla requería de un pre-procesamiento más lento: $O((\text{\#funciones distintas})^3)$[^5]; aunque tendría un tiempo de respuesta por dispatch de $O(1)$. Pensamos que es un trade-off entre ambas opciones y escogimos la primera por considerarla un poco mejor.
 
 ### Resolución de expresiones Case
+
+Las expresiones `Case` se resuelven de forma similar a los dispatches. 
+
+Para esto reordenamos las ramas (notemos que la rama $i$ es de clase $T_i$ y por lo tanto tiene $\text{td}$, $\text{tf}$ y $\text{level}$) de la misma forma que hicimos en el punto anterior. Ahora nos queda un problema similar: si la expresión que se le hace el `Case` es instancia de $C$, entonces es buscar el primer $X$ tal que $C \le X$.
 
 [^1]: El [_DFS-tree_](https://en.wikipedia.org/wiki/Depth-first_search#Output_of_a_depth-first_search) de un grafo es un [Spanning Tree](https://en.wikipedia.org/wiki/Spanning_tree) obtenido por una pasada de _DFS_.
 
 [^2]: Para más información, incluida demostración, revisar el [CLRS](https://en.wikipedia.org/wiki/Introduction_to_Algorithms), epígrafe $22.3$ sobre _Depth First Trees_.
 
 [^3]: Incluso existe un algoritmo offline (todas las preguntas se saben de antemano) que funciona en $O(1)$ por pregunta con $O(n)$ de pre-procesamiento.
+
+[^4]: Porque ordenamos por mayor nivel esto garantiza que el primero que se encuentre es el correcto.
+
+[^5]: Podemos alcanzar está complejidad si tenemos una línea de herencia: $C_1 \leftarrow C_2 \leftarrow \ldots \leftarrow C_n$ con cada $C_i$ teniendo $n$ funciones distintas.
