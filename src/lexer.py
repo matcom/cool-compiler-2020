@@ -1,4 +1,4 @@
-from ply import lexer as lexer
+from ply import lex
 
 errors = []
 reserved = {
@@ -22,70 +22,66 @@ reserved = {
     'not': 'NOT',
     'true': 'TRUE',
 }
+
 tokens = [
-	'NUMBER',
-	'STRING',
-	'PLUS',
-	'MINUS',
-	'DIVIDE',
-	'TIMES',
-	'LPAREN',
-	'RPAREN',
-	'ATTRIBUTEID',
-	'CLASSID',
-	'LBRACE',
-	'RBRACE',
-	'COMMA',
-	'SEMICOLON',
-	'COLON',
-	'ASSIGNATION',
-	'ARROW',
-	'DOT',
-	'LESS',
-	'LESSEQUAL',
-	'GREATER',
-	'GREATEREQUAL',
-	'EQUAL',
-	'COMPLEMENT',
-	'DISPATCH'
-] + list(reserved.values())
-tokens_ignore = ' \t\f\v\f'
+             'NUMBER',
+             'STRING',
+             'PLUS',
+             'MINUS',
+             'TIMES',
+             'DIVIDE',
+             'LPAREN',
+             'RPAREN',
+             'ATTRIBUTEID',
+             'CLASSID',
+             'LBRACE',
+             'RBRACE',
+             'COMMA',
+             'SEMICOLON',
+             'COLON',
+             'ASSIGNATION',
+             'ARROW',
+             'DOT',
+             'LESS',
+             'LESSEQUAL',
+             'GREATER',
+             'GREATEREQUAL',
+             'EQUAL',
+             'COMPLEMENT',
+             'DISPATCH'
+         ] + list(reserved.values())
+
+t_ignore = ' \t\r\v\f'
 
 def t_INLINECOMMENT(token):
     r'--.*'
     pass
 
-def t_START_comment(token):
+def t_start_comment(token):
     r'\(\*'
     token.lexer.push_state("COMMENT")
+    token.lexer.counter = 1
     token.lexer.star = False
     token.lexer.lparen = False
-    token.lexer.counter = 1
 
-def t_START_string(token):
+def t_start_string(token):
     r'"'
     token.lexer.push_state("STRING")
     token.lexer.string_backslashed = False
-    token.lexer.string_containsNull = False
     token.lexer.stringbuf = ""
+    token.lexer.string_containsNull = False
     token.lexer.string_nullrow = 0
     token.lexer.string_nullcol = 0
 
 def t_PLUS(token):
     r'\+'
     token.value = '+'
-    token.colno = find_column(t.lexer.lexdata, token)
+    token.colno = find_column(token.lexer.lexdata, token)
     return token
 
 def t_MINUS(token):
     r'-'
     token.value = '-'
-    token.colno = find_column(t.lexer.lexdata, token)
-    return token
-
-def t_DIVIDE(token):
-    r'/'
-    token.value = '/'
     token.colno = find_column(token.lexer.lexdata, token)
     return token
 
@@ -95,26 +91,29 @@ def t_TIMES(token):
     token.colno = find_column(token.lexer.lexdata, token)
     return token
 
+def t_DIVIDE(token):
+    r'/'
+    token.value = '/'
+    token.colno = find_column(token.lexer.lexdata, token)
+    return token
+
 def t_LPAREN(token):
     r'\('
     token.value = '('
     token.colno = find_column(token.lexer.lexdata, token)
     return token
 
-
-def t_RPAREN(token):
+def t_RPAREN(t):
     r'\)'
-    token.value = ')'
-    token.colno = find_column(token.lexer.lexdata, token)
-    return token
-
+    t.value = ')'
+    t.colno = find_column(t.lexer.lexdata, t)
+    return t
 
 def t_LBRACE(token):
     r'\{'
     token.value = '{'
     token.colno = find_column(token.lexer.lexdata, token)
     return token
-
 
 def t_RBRACE(token):
     r'\}'
@@ -128,20 +127,17 @@ def t_COMMA(token):
     token.colno = find_column(token.lexer.lexdata, token)
     return token
 
-
 def t_SEMICOLON(token):
     r';'
     token.value = ';'
     token.colno = find_column(token.lexer.lexdata, token)
     return token
 
-
 def t_COLON(token):
     r':'
     token.value = ':'
     token.colno = find_column(token.lexer.lexdata, token)
     return token
-
 
 def t_ASSIGNATION(token):
     r'<-'
@@ -155,13 +151,11 @@ def t_ARROW(token):
     token.colno = find_column(token.lexer.lexdata, token)
     return token
 
-
 def t_DOT(token):
     r'\.'
     token.value = '.'
     token.colno = find_column(token.lexer.lexdata, token)
     return token
-
 
 def t_LESSEQUAL(token):
     r'<='
@@ -183,7 +177,6 @@ def t_GREATEREQUAL(token):
     token.colno = find_column(token.lexer.lexdata, token)
     return token
 
-
 def t_GREATER(token):
     r'>'
     token.value = '>'
@@ -196,13 +189,11 @@ def t_EQUAL(token):
     token.colno = find_column(token.lexer.lexdata, token)
     return token
 
-
 def t_COMPLEMENT(token):
     r'~'
     token.value = '~'
     token.colno = find_column(token.lexer.lexdata, token)
     return token
-
 
 def t_DISPATCH(token):
     r'@'
@@ -210,17 +201,18 @@ def t_DISPATCH(token):
     token.colno = find_column(token.lexer.lexdata, token)
     return token
 
-
 def t_NUMBER(token):
     r'\d+'
     token.value = int(token.value)
     token.colno = find_column(token.lexer.lexdata, token)
     return token
 
+
 states = (
     ('STRING', 'exclusive'),
     ('COMMENT', 'exclusive'),
 )
+
 
 def t_STRING_newline(token):
     r'\n'
@@ -233,25 +225,28 @@ def t_STRING_newline(token):
     else:
         token.lexer.string_backslashed = False
 
+
 def t_COMMENT_eof(token):
     r'\$'
     global errors
-    string = token.lexer.lexdata
-    lineCount = string.count('\n') + 1
-    positionCount = 1
-    i = len(string) - 1
+    s = token.lexer.lexdata
+    lineCount = s.count('\n') + 1
+    posCount = 1
+    i = len(s) - 1
     while i >= 0 and s[i] != '\n':
-        positionCount += 1
+        posCount += 1
         i -= 1
     errors.append("(%s, %s) - LexicographicError: EOF in comment" % (lineCount, find_column(token.lexer.lexdata, token) - 1))
+
 
 def t_COMMENT_star(token):
     r'\*'
     if (token.lexer.lparen):
-        token.lexer.counter += 1	
-	token.lexer.lparen = False
+        token.lexer.lparen = False
+        token.lexer.counter += 1
     else:
         token.lexer.star = True
+
 
 def t_COMMENT_lparen(token):
     r'\('
@@ -259,19 +254,23 @@ def t_COMMENT_lparen(token):
     if (token.lexer.star):
         token.lexer.start = False
 
+
 def t_STRING_eof(token):
     r'\$'
     global errors
-    errors.append("(%s, %s) - LexicographicError: EOF in string constant" % (token.lineno, find_column(token.lexer.lexdata, token) - 1))
+    errors.append("(%s, %s) - LexicographicError: EOF in string constant" %
+                  (token.lineno, find_column(token.lexer.lexdata, token) - 1))
     token.lexer.pop_state()
+
 
 def t_COMMENT_rparen(token):
     r'\)'
-    if (token.lexer.star):
-        token.lexer.counter -= 1
+    if token.lexer.star:
         token.lexer.star = False
-        if (token.lexer.counter == 0):
+        token.lexer.counter -= 1
+        if token.lexer.counter == 0:
             token.lexer.pop_state()
+
 
 def t_STRING_end(token):
     r'"'
@@ -291,9 +290,11 @@ def t_STRING_end(token):
         token.lexer.stringbuf += '"'
         token.lexer.string_backslashed = False
 
+
 def t_COMMENT_anything(token):
     r'(.|\n)'
     pass
+
 
 def t_STRING_anything(token):
     r'[^\n]'
@@ -319,19 +320,24 @@ def t_STRING_anything(token):
         else:
             token.lexer.string_backslashed = True
 
+
 t_STRING_ignore = ''
+
 
 def t_STRING_error(token):
     token.lexer.string_containsNull = True
     token.lexer.string_nullrow = token.lineno
     token.lexer.string_nullcol = find_column(token.lexer.lexdata, token) - 1
 
+
 t_COMMENT_ignore = ''
 
+
 def t_COMMENT_error(token):
-    t.lexer.star = False
-    t.lexer.lparen = False
-    t.lexer.counter = 0
+    token.lexer.counter = 0
+    token.lexer.star = False
+    token.lexer.lparen = False
+
 
 def t_newline(token):
     r'\n+'
@@ -340,7 +346,7 @@ def t_newline(token):
 
 def t_ATTRIBUTEID(token):
     r'[a-z][a-zA-Z_0-9]*'
-    if reserved.get(token.value.lower()) == None:
+    if reserved.get(token.value.lower()) is None:
         token.type = 'ATTRIBUTEID'
     else:
         token.type = reserved.get(token.value.lower())
@@ -350,7 +356,7 @@ def t_ATTRIBUTEID(token):
 
 def t_CLASSID(token):
     r'[A-Z][a-zA-Z_0-9]*'
-    if reserved.get(token.value.lower()) == None or reserved.get(token.value.lower()) == 'TRUE' or reserved.get(
+    if reserved.get(token.value.lower()) is None or reserved.get(token.value.lower()) == 'TRUE' or reserved.get(
             token.value.lower()) == 'FALSE':
         token.type = 'CLASSID'
     else:
@@ -367,7 +373,7 @@ def find_column(input, token):
 def t_error(token):
     global errors
     if not (token.value[0] == '$' and token.lexpos + 1 == len(token.lexer.lexdata)):
-        errors.append('(%s, %s) - LexicographicError: ERROR "%s"' % (token.lineno, find_column(token.lexer.lexdata, token), t.value[0]))
+        errors.append('(%s, %s) - LexicographicError: ERROR "%s"' % (token.lineno, find_column(token.lexer.lexdata, token), token.value[0]))
     token.lexer.skip(1)
 
 
@@ -387,7 +393,7 @@ def make_lexer(data):
                     counter += 1
                     j += 1
                 if data[j] == '*' and data[j + 1] == ')':
-                    if (counter == 0):
+                    if counter == 0:
                         matched = True
                         break
                     else:
@@ -395,7 +401,7 @@ def make_lexer(data):
                 if data[j] == '\n':
                     paster += '\n'
                 j += 1
-            if (matched):
+            if matched:
                 newData += paster
                 i = j + 2
                 continue
@@ -405,12 +411,11 @@ def make_lexer(data):
     newData = newData + '$'
     lexer.input(newData)
     while True:
-        t = lexer.token()
-        if not t:
+        tok = lexer.token()
+        if not tok:
             break
     lexer.lineno = 1
     return lexer, errors
 
+
 lexer = lex.lex()
-
-
