@@ -308,6 +308,7 @@ class codeVisitor:
 
     @visitor.on(LetNode)
     def visit(self, node, variables):
+        self.code.append(CommentIL('Let'))
         self.code.append(PushIL())
         result = variables.add_temp()
 
@@ -355,8 +356,15 @@ class codeVisitor:
         pass
 
     @visitor.on(AssignNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.code.append(CommentIL('Assignment'))
+        self.visit(node.expr, variables)
+        p = variables.peek_last()
+        
+        if node.idx.value in variables.variables:
+            self.code.append(VarToVarIL(variables.id(node.idx.value), variables.id(p)))
+        else:
+            self.code.append(VarToMemoIL(variables.id('self'), variables.id(p), self.virtual_table.get_attributes_id(self.current_class, node.idx.value)))
 
     @visitor.on(IsVoidNode)
     def visit(self, node):
