@@ -132,10 +132,10 @@ def p_mixed_expression(p):
                         | mixed_expression EQUAL arithmetic_expression_form
                         | arithmetic_expression_form'''
     if len(p) > 2:
-        if p[3] == "Less":
+        if p[2] == "<":
             p[0] = LessNode(p[1], p[3])
         else:
-            if p[3] == "Equal":
+            if p[2] == "=":
                 p[0] = EqualNode(p[1], p[3])
             else:
                 p[0] = LessEqualNode(p[1], p[3])
@@ -159,7 +159,7 @@ def p_arithmetic_expression(p):
     if len(p) == 2:
         p[0] = p[1]
     else:
-        if p[2] == "Plus":
+        if p[2] == "+":
             p[0] = PlusNode(p[1], p[3])
         else:
             p[0] = MinusNode(p[1], p[3])
@@ -172,7 +172,7 @@ def p_term(p):
     if len(p) == 2:
         p[0] = p[1]
     else:
-        if p[2] == "Times":
+        if p[2] == "*":
             p[0] = TimesNode(p[1], p[3])
         else:
             p[0] = DivideNode(p[1], p[3])
@@ -330,7 +330,6 @@ def p_error(p):
 
 
 parser = yacc.yacc(debug=1)
-
 
 def make_parser(code):
     global errors

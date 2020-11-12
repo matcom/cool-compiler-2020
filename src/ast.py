@@ -35,12 +35,12 @@ class AttributeFeatureNode(FeatureNode):
 
 
 class FunctionFeatureNode(FeatureNode):
-    def __init__(self, func_id, parameters, type_name, statements, line_number):
+    def __init__(self, func_id, parameters, type_name, statement, line_number):
         super().__init__(line_number)
         self.id = func_id
         self.parameters = parameters
         self.typeName = type_name
-        self.statements = statements
+        self.statement = statement
         self.lineNumber = line_number
 
 
@@ -62,16 +62,6 @@ class AssignStatementNode(StatementNode):
         self.id = assign_id
         self.expression = expression
         self.lineNumber = line_number
-
-
-class DispatchStatementNode(StatementNode):
-    def __init__(self, ref_id, func_id, args, type_dispatch, line_number):
-        super().__init__(line_number)
-        self.lineNumber = line_number
-        self.variableName = ref_id
-        self.functionName = func_id
-        self.typeDispatch = type_dispatch
-        self.args = args
 
 
 class ConditionalStatementNode(StatementNode):
@@ -126,12 +116,11 @@ class NewStatementNode(StatementNode):
 
 
 class FunctionCallStatement(StatementNode):
-    def __init__(self, instance, dispatch_type, function, args, position=[]):
+    def __init__(self, instance, dispatch_type, function, args):
         super().__init__(0)
         self.instance = instance
         self.dispatchType = dispatch_type
         self.function = function
-        self.position = position
         self.args = args
 
 
