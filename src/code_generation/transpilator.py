@@ -176,7 +176,18 @@ class codeVisitor:
 
     @visitor.on(FuncDeclarationNode)
     def visit(self, node):
-        pass
+        self.code.append(LabelIL(self.current_class, node.idx, True))
+
+        variables = Variables()
+        variables.add_var('self')
+
+        for p in node.params:
+            variables.add_var(p.name)
+
+        variables.add_temp()
+
+        self.visit(node.body, variables)
+        self.code.append(ReturnIL())
 
     @visitor.on(VarDeclarationNode)
     def visit(self, node):
