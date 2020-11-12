@@ -246,7 +246,35 @@ class codeVisitor:
     #expressions: complex
     @visitor.on(ConditionalNode)
     def visit(self, node, variables):
-        pass
+        self.code.append(CommentIL('Condition'))
+        result = variables.add_temp()
+        self.code.append(PushIL())
+
+        self.visit(node.cond, variables)
+        p = variables.peek_last()
+
+        IF = LabelIL('_if', self.getInt())
+        FI = labelIL('_fi', IF.second)
+
+        self.append(IfJumpIL(variables.id(p), IF.label))
+
+        self.visit(node.else_stm, variables)
+        ELSE = variables.peek_last()
+        self.code.append(VarToVarIL(variables.id(result), variables.id(ELSE)))
+
+        self.code.append(GotoIL(FI.label))
+
+        self.code.append(IF)
+        self.visit(node.stm, variables)
+        _if = variables.peek_last()
+        self.code.append(VarToVarIL(variables.id(result), variables.id(_if)))
+        variables.pop_var()
+
+        self.code.append(LabelIL('_fi'), IF.second)
+
+        variables.pop_var()
+        self.code.append(PopIL(2))
+        
 
     @visitor.on(WhileNode)
     def visit(self, node, variables):
