@@ -215,6 +215,19 @@ Cuando salimos de $E$, reseteamos el entorno actual a $p(E)$ y ajustamos $k$ cor
 
 ## Generación de código MIPS
 
+En esta última fase procedemos a generar código _MIPS_. Implementamos cuidadosamente toda la funcionalidad explicada en el manual.
+
+### Sobre los registros
+
+Se usó un esquema simple para la selección de registros a usar:
+
+- tenemos un registro que solamente va contener en todo momento la dirección de memoria del objeto `self` actual.
+- los registros temporales se usan para cualquier operación temporal necesaria.
+- como internamente se necesita "pasar" referencias de algún objeto, destinamos un registro de argumento para esto.
+- igualmente tenemos un registro dedicado a "regresar" una referencia de algún objeto.
+
+Notar que de ser necesario "pasar" más de un argumento o "regresar" más de un valor, usamos el stack de _MIPS_ para guardarlos.
+
 ### Resolución de Dispatches
 
 Digamos que tenemos un dispatch $x.f(...)$ y $x$ es instancia de la clase $C$ (si es un dispatch estático en la clase $T$, hacemos $C := T$). Para resolver el dispatch hay que buscar el ancestro más profundo de $C$, en el árbol de herencia, que contenga una función con nombre $f$.
@@ -230,6 +243,10 @@ Notemos que la complejidad por dispatch es de $O(\text{\#funciones distintas})$.
 Las expresiones `Case` se resuelven de forma similar a los dispatches. 
 
 Para esto reordenamos las ramas (notemos que la rama $i$ es de clase $T_i$ y por lo tanto tiene $\text{td}$, $\text{tf}$ y $\text{level}$) de la misma forma que hicimos en el punto anterior. Ahora nos queda un problema similar: si la expresión que se le hace el `Case` es instancia de $C$, entonces es buscar el primer $X$ tal que $C \le X$.
+
+### Sobre Strings y Data Segment
+
+En el _Data Segment_ guardamos también los literales de `Int`, `String` y `Bool`. En particular, a los literales de `String` se le añaden ceros de forma tal que su tamaño sea un múltiplo de $4$, para cumplir con las cuestiones de alineamiento de MIPS.
 
 [^1]: El [_DFS-tree_](https://en.wikipedia.org/wiki/Depth-first_search#Output_of_a_depth-first_search) de un grafo es un [Spanning Tree](https://en.wikipedia.org/wiki/Spanning_tree) obtenido por una pasada de _DFS_.
 
