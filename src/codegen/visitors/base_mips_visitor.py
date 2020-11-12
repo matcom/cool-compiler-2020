@@ -153,7 +153,7 @@ class BaseCILToMIPSVisitor:
         register = self.reg_desc.find_empty_reg()
         if register is not None:
             self.update_register(var, register)
-            self.code.append(self.save_var_code(var))
+            self.save_var_code(var)
             return 
 
         # Choose a register that requires the minimal number of load and store instructions
@@ -193,7 +193,7 @@ class BaseCILToMIPSVisitor:
 
     def save_var_code(self, var):
         "Code to save a variable to memory"
-        register, memory, _= self.addr_desc.get_var_storage(var)
+        memory, register, _= self.addr_desc.get_var_storage(var)
         self.code.append(f"sw ${register}, -{memory}($fp)")
 
     def load_var_code(self, var):

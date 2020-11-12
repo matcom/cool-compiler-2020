@@ -57,13 +57,17 @@ class AddressDescriptor:
         self.vars = {}
 
     def insert_var(self, name, address, register=None, stack=None):
-        self.vars[name] = [address, register, stack]
+        if address is not None:
+            self.vars[name] = [4*address, register, stack]
+        else:
+            self.vars[name] = [address, register, stack]
+            
 
     def get_var_addr(self, name):
         return self.vars[name][0]
 
     def set_var_addr(self, name, addr):
-        self.vars[name][0] = addr
+        self.vars[name][0] = 4*addr
 
     def get_var_reg(self, var):
         return self.vars[var][1]

@@ -38,7 +38,6 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         # visit TypeNodes
         for type_ in node.dottypes:
             self.visit(type_)
-        
         # visit DataNodes
         for data in node.dotdata:
             self.visit(data)
@@ -47,6 +46,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         # visit code instrunctions
         for i, code in enumerate(node.dotcode):
             self.visit(code, 4*i)
+        print()
 
     @visitor.when(TypeNode)
     def visit(self, node:TypeNode):
@@ -66,11 +66,12 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append(f'la $v0, methods')
         self.code.append(f'sw $t9, {4*index}($v0)')
 
-        self.code.append(f'move $fp, $sp')          # gets the frame pointer from the stack
+        n = len(node.params)
         for i, param in enumerate(node.params):     # gets the params from the stack
-            self.visit(param, i)
-        for i, var in enumerate(node.localvars):
-            self.visit(var, i+len(node.params))
+            self.visit(param, i, n)
+        self.code.append(f'move $fp, $sp')          # gets the frame pointer from the stack
+        for i, var in enumerate(node.localvars, len(node.params)):
+            self.visit(var, i)
         blocks = self.get_basic_blocks(node.instructions)
         self.next_use = self.construct_next_use(blocks)
 
@@ -81,15 +82,16 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
                 self.visit(inst)
 
     @visitor.when(ParamNode)
-    def visit(self, node:ParamNode, idx:int):        
+    def visit(self, node:ParamNode, idx:int, length:int):        
         self.symbol_table.insert_name(node.name)
         self.var_address[node.name] = self.get_type(node.type)
         if idx <= 3:                                # los primeros 3 registros se guardan en a0-a3  
-            self.addr_desc.insert_var(node.name, None, f'$a{idx}')
+            addr = idx if length <= 3 else length - 4 + idx
+            self.addr_desc.insert_var(node.name, addr, f'$a{idx}')
             self.reg_desc.insert_register(f'a{idx}', node.name)
         else:
             self.code.append('addiu $sp, $sp, 4')   # pops the register with the param value from stack      
-            self.addr_desc.insert_var(node.name, idx)
+            self.addr_desc.insert_var(node.name, length-idx-1)
 
     @visitor.when(LocalNode)
     def visit(self, node:LocalNode, idx:int):

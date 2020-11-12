@@ -229,11 +229,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(start_label)
 
         cond, _ = self.visit(node.cond, scope)
-        self.register_instruction(cil.GotoIfNode(cond, continue_label))
-        self.register_instruction(cil.GotoNode(end_label))
+        self.register_instruction(cil.GotoIfNode(cond, continue_label.label))
+        self.register_instruction(cil.GotoNode(end_label.label))
         self.register_instruction(continue_label)
         expr, typex = self.visit(node.expr, scope)
-        self.register_instruction(cil.GotoNode(start_label))
+        self.register_instruction(cil.GotoNode(start_label.label))
         self.register_instruction(end_label)
         
         self.register_instruction(cil.AssignNode(result, expr))
@@ -255,11 +255,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         end_label = cil.LabelNode("end")
 
         result = self.define_internal_local()
-        self.register_instruction(cil.GotoIfNode(cond, true_label))
+        self.register_instruction(cil.GotoIfNode(cond, true_label.label))
 
         false_expr, ftypex = self.visit(node.else_stm, scope)
         self.register_instruction(cil.AssignNode(result, false_expr))
-        self.register_instruction(cil.GotoNode(end_label))
+        self.register_instruction(cil.GotoNode(end_label.label))
         self.register_instruction(true_label)
         
         true_expr, ttypex = self.visit(node.stm, scope)
@@ -300,7 +300,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             next_label = cil.LabelNode(f'next_{i}')
             expr_i, label = self.visit(case, c_scope, expr, etype, next_label)
             self.register_instruction(cil.AssignNode(result, expr_i))
-            self.register_instruction(cil.GotoNode(end_label))
+            self.register_instruction(cil.GotoNode(end_label.label))
             self.register_instruction(label)
         self.register_instruction(end_label)
         return result, typex
@@ -311,7 +311,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # TODO: Buscar una forma de representar conforms in cil
         self.register_instruction(cil.MinusNode(aux, expr_type, node.typex))
 
-        self.register_instruction(cil.GotoIfNode(aux, next_label))
+        self.register_instruction(cil.GotoIfNode(aux, next_label.label))
         var_info = scope.find_variable(node.id)
         local_var = self.register_local(var_info.name)
         self.register_instruction(cil.AssignNode(local_var, expr))
