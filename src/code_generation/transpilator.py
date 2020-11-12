@@ -261,8 +261,19 @@ class codeVisitor:
         pass
 
     @visitor.on(BlockNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.code.append(CommentIL('Block'))
+        result = variables.add_temp()
+        self.code.append(PushIL(0))
+        for expr in node.expr_list:
+            self.visit(expr, variables)
+        
+        p = variables.peek_last()
+        self.code.append(VarToVarIL(variables.id(result), variables.id(p)))
+
+        self.code.append(PopIL())
+        for i in range(0, len(node.expr_list)):
+            variables.pop_var()
 
     @visitor.on(CaseNode)
     def visit(self, node):
