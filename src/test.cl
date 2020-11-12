@@ -1,24 +1,15 @@
-class Test {
-    test1: Object;
-    
-    testing1(): Int {
-        2 + 2
-    };
+class Test1 {
 
-    test2: Int <- 1;
+a : Int <- 4 + 4;
 
-    test3: String <- "1";
+b (r : Int, t : Bool, z : Test2) : Test1 {
+    5 = 3
+};
 
-    testing2(a: Alpha, b: Int): Int {
-        2 + 2
-    };
 
-    testing3(): String {
-        "2 + 2"
-    };
+};
 
-    testing4(x: Int, y: Int): Test {
-        self
-    };
+class Test2 inherits Test1 {
+
 };
 

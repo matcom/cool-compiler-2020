@@ -89,8 +89,7 @@ def main():
             tree = formatter.visit(ast)
             print(tree)
 
-            errors = check_semantic(ast)
-
+            #errors = check_semantic(ast)
             # Print semantic errors
             #if len(errors) > 0:
             #    for er in errors:
