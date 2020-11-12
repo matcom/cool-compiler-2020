@@ -307,8 +307,25 @@ class codeVisitor:
 
 
     @visitor.on(LetNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.code.append(PushIL())
+        result = variables.add_temp()
+
+        vars = variables.get_copy()
+
+        for expr in node.init_list:
+            self.visit(expr, vars)
+            vars = vars.get_copy()
+
+        self.visit(node.expr, vars)
+        p = vars.peek_last()
+
+        self.code.append(VarToVarIL(result, p))
+        pop_times = len(node.expr) + 1
+
+        self.code.append(PopIL(pop_times))
+
+
 
     @visitor.on(LetDeclarationNode)
     def visit(self, node):
