@@ -190,8 +190,16 @@ class codeVisitor:
         self.code.append(ReturnIL())
 
     @visitor.on(VarDeclarationNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.code.append(PushIL())
+        p = variables.add_var(node.idx.value)
+
+        if node.expr != None:
+            self.visit(node.expr, variables)
+            res = variables.peek_last()
+            self.code.append(VarToVarIL(variables.id(p), variables.id(res)))
+            variables.pop_var()
+            self.code.append(PopIL())
 
     #operations: binary
     @visitor.on(SumNode)
