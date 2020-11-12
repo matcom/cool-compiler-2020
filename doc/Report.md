@@ -77,7 +77,19 @@ El desarrollo del compilador se realizó en varias fases, cada una planteando un
 
 ## Análisis Léxico
 
-En esta fase realizamos el análisis léxico usando el lexer de la herramienta `ply`.
+La fase de análisis léxico constituye la primera por la que atraviesa el compilador. Toma como entrada código _Cool_ y devuelve una lista de tokens en caso de éxito, en caso contrario reporta los errores lexicográficos detectados en el código. 
+
+Para la generación del lexer de _Cool_ con `ply` identificamos tres tareas fundamentales:
+
+1. la definición de los tokens de nuestro lenguaje.
+2. la definición mediante expresiones regulares de las reglas que nos permiten identificar los tokens.
+3. la lógica encargada de crear los tokens.
+
+Entre las reglas más interesantes a analizar resaltan las de los comentarios y los strings. Al detectar un inicio de cadena o comentario necesitamos indicarle al lexer que aplique las reglas válidas para ese tipo de expresiones y deseche todas las demás, pues dejan de cobrar sentido cuando estamos analizando un string o un comentario. Para esto `ply` provee un mecanismo que llamaremos pila de estados y que funciona como se explica a continuación:
+
+- Al detectar un string o comentario, se le indica al lexer que pase al estado referente a ese tipo de expresiones. Se le hace “push” a la pila.
+- Mientras el lexer se mantenga en el nuevo estado aplicará solamente las reglas definidas para ese estado.
+- Una vez se detecte el fin del string o comentario se pasa al estado anterior que registraba el tope de la pila de estados del lexer. Se le hace “pop” a la pila.
 
 ## Análisis Sintáctico
 
