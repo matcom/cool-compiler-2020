@@ -17,10 +17,37 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         pass
     
     def order_caseof(self, node:cool.CaseOfNode):
-        get_finish_time = lambda case: self.context.get_type(case.type).finish_time
-        array = [(get_finish_time(case), case) for case in node.cases]
-        array.sort()
-        return [case for _, case in array]
+        ini_dict = {case.type: case for case in node.cases}
+        list_types = list()
+        set_types = set()
+        queue = [self.context.get_type(case.type) for case in node.cases]
+        while queue:
+            item = queue.pop(0)
+            if item.name not in set_types:
+                set_types.add(item.name)
+                list_types.append(item)
+            queue += item.children
+        list_types_for_sorted = [(item.finish_time, item) for item in list_types]
+        list_types_for_sorted.sort()
+        list_types_for_sorted = [item for _, item in list_types_for_sorted]
+        result = []
+        for item in list_types_for_sorted:
+            node = item
+            while True:
+                assert node is not None, "Error in case of node generator"
+                if node.name in ini_dict:
+                    case = ini_dict[node.name]
+                    new_case = cool.CaseNode(
+                        case.id,
+                        item.name,
+                        case.expression,
+                        case.line,
+                        case.column,
+                    )
+                    result.append(new_case)
+                    break
+                node = node.parent
+        return result
 
     def find_type_name(self, typex, func_name):
         if func_name in typex.methods:
