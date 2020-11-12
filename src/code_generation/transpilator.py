@@ -348,8 +348,53 @@ class codeVisitor:
             variables.pop_var()
 
     @visitor.on(CaseNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        node.case_list.sort(key = lambda x : self.depth[x.type], reverse = True)
+
+        result = variables.add_temp()
+        self.code.append(PushIL())
+
+        self.visit(node.expr, variables)
+        p = variables.peek_last()
+
+        labels = []
+        for b in node.branches:
+            labels.append(LabelIL('branch', self.getInt()))
+
+        index = 0
+        for b in node.branches:
+            tmp = variables.add_temp()
+            self.code.apppend(PushIL())
+
+            self.code.append(InheritIL(variables.id(p), b.typex, variables.id(tmp)))
+            
+            self.code.append(IfJumpIL(variables.id(tmp), labels[i].label))
+            self.code.append(PopIL(1))
+            variables.pop_var()
+            i += 1
+
+        end_label = LabelIL('esac', self.getInt())
+        i = 0
+        for b in node.branches:
+            self.code.append(labels[i])
+            i += 1
+            variables.pop_var()
+            self.code.append(PopIL(1))
+
+            self.code.append(PushIL())
+            result = variables.add_var(b.id)
+            self.code.append(VarToVarIL(variables.id(result), variables.id(p)))
+
+            self.visit(b.expr, variables)
+            m = variables.peek_last()
+
+            self.code.append(VarToVarIL(variables.id(result), variables.id(m)))
+            
+            variables.pop_var()
+            variables.pop_var()
+            variables.pop_var()
+
+            self.code.append(PopIL(3))
 
     @visitor.on(OptionNode)
     def visit(self, node):
