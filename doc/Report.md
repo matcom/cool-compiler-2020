@@ -2,6 +2,15 @@
 
 Nuestro compilador _coolcmp_ está finalmente terminado. En este reporte exponemos el proceso de construcción del compilador, las decisiones de diseño y el uso del mismo.
 
+### Requisitos
+
+- pytest
+- pytest-ordering
+- ply
+- print-tree2
+
+También estos se  encuentran en el fichero `/requirements.txt`.
+
 ## Usando coolcmp
 
 Para usar el compilador, nos movemos a `/src` y allí ejecutamos `python -m coolcmp -h` para mostrar la ayuda, esto da la siguiente salida:
@@ -62,7 +71,7 @@ En la carpeta `/src/coolcmp` tenemos:
 
 En la carpeta `/src/unit_tests` tenemos varias pruebas unitarias con las que probamos nuestro compilador (leer el fichero `/src/unit_tests/README.md` para más información).
 
-# Fases de construcción de `coolcmp`
+# Fases de construcción de coolcmp
 
 El desarrollo del compilador se realizó en varias fases, cada una planteando una serie de problemas interesantes a resolver:
 
@@ -110,7 +119,7 @@ def _dfs(self, u, seen, up):
     up[u.type.value] = False
 ```
 
-Podemos notar que este árbol de herencia representa perfectamente la relación de _Conformance_ definida en el manual de _Cool_. Más aún, desde el punto de vista de nuestro árbol podemos afirmar que $A \le B \iff B \text{ es ancestro de } A$.
+Podemos notar que este árbol de herencia representa perfectamente la relación de _Conformance_ ($\le$) definida en el manual de _Cool_. Más aún, desde el punto de vista de nuestro árbol podemos afirmar que $A \le B \iff B \text{ es ancestro de } A$.
 
 ### Sobre _SELF_TYPE_
 
@@ -135,6 +144,8 @@ Nos hace falta poder responder rápido si un nodo $u$ conforma con $v$ o no. Est
 Sería algo como:
 
 ```python
+self._t = 0
+
 def _dfs(self, u):
     self._t += 1
     u.td = self._t
@@ -192,7 +203,7 @@ Estos datos lo usamos para los dispatches.
 
 En _Cool_ cada variable está dentro de alguna clase. Diferenciamos dos tipos de variables:
 
-- variables de clase (o atributos)
+- variables de clase (o atributos).
 - variables locales, estas serían parámetros formales de un método o variables definidas en una expresión `Let` o `Case`.
 
 Cada una de estas variables tienen un entorno determinado en el cual viven. Las variables de atributo viven en toda la clase, las variables locales solo viven en los bloques que fueron definidas. Además de esto, notemos que una variable local puede ofuscar a una variable, con el mismo nombre, definida en un entorno "superior" al de esta.
