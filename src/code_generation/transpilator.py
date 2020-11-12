@@ -158,7 +158,17 @@ class codeVisitor:
     #declarations
     @visitor.on(ClassDeclarationNode)
     def visit(self, node):
-        pass
+        self.current_class = node.idx.value
+
+        attributes = []
+        for f in node.features:
+            if type(f) == AttrDeclarationNode:
+                attributes.append(f)
+        
+        self.setClassConstructor(attributes)
+
+        for f in node.features:
+            self.visit(f)
 
     @visitor.on(AttrDeclarationNode)
     def visit(self, node):
