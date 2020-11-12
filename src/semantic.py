@@ -17,7 +17,7 @@ def check_type_inheritance(ast: ProgramNode):
             if cls.fatherTypeName in AllTypes:
                 father_type = AllTypes[cls.fatherTypeName]
                 if father_type.inherit:
-                    AllTypes[cls.typeName].parent_type = object_type
+                    AllTypes[cls.typeName].parent_type = father_type
                 else:
                     # TODO Update error message
                     return f'Error inherit from {cls.fatherTypeName}'
@@ -54,10 +54,12 @@ def check_features(ast: ProgramNode):
                     method_added = class_type.add_method(feature.id, feature.parameters, feature.typeName)
                     if not method_added:
                         return 'Couldn\'t add method'
+                    continue
                 if type(feature) is AttributeFeatureNode:
                     feature_added = class_type.add_attribute(feature.id, feature.typeName, feature.expression)
                     if not feature_added:
                         return 'Couldn\'t add feature'
+                    continue
                 return 'Unknown feature or Method'
             left_check = left_check - 1
             checked_types[i] = True
@@ -92,5 +94,4 @@ def check_semantic(ast: ProgramNode):
         # Update Error message
         errors.append('Main not declared')
         return errors
-
     return []
