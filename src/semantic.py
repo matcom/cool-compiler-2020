@@ -1,5 +1,6 @@
 from ast import *
-from types import AllTypes, CoolType, object_type, BasicTypes
+from graph import Graph
+from types_gen import AllTypes, CoolType, object_type, BasicTypes
 
 
 def check_type_declaration(ast: ProgramNode):
@@ -67,6 +68,21 @@ def check_features(ast: ProgramNode):
     return []
 
 
+def check_cyclic_inheritance():
+    graph = Graph(len(AllTypes.keys()))
+
+    for cool_type_name in AllTypes.keys():
+        graph.addNewEdge(cool_type_name)
+
+    for cool_type in AllTypes.values():
+        if cool_type.parent_type is not None:
+            graph.addEdge(cool_type.parent_type.name, cool_type.name)
+        elif cool_type.name != 'Object':
+            graph.addEdge('Object', cool_type.name)
+
+    return [] if graph.dfs('Object') else 'error! Cyclic inheritance'
+
+
 def check_semantic(ast: ProgramNode):
     errors = []
 
@@ -81,6 +97,12 @@ def check_semantic(ast: ProgramNode):
     # Checking inheritance in declared types
     if len(inheritance_check_output) > 0:
         errors.append(inheritance_check_output)
+        return errors
+
+    # Check cyclic inheritance
+    cyclic_inheritance_check = check_cyclic_inheritance(ast)
+    if len(cyclic_inheritance_check) > 0:
+        errors.append(cyclic_inheritance_check)
         return errors
 
     # Check feature class list
