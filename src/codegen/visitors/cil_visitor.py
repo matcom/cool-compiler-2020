@@ -52,7 +52,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_type.define_method(self.current_type.name, [], [], self.current_type)
 
         func_declarations += [f for f in node.features if isinstance(f, FuncDeclarationNode)] 
-        for feature, child_scope in zip(func_declarations, [scope, scope.children]):
+        for feature, child_scope in zip(func_declarations, [scope] + scope.children):
             self.visit(feature, child_scope)
 
 

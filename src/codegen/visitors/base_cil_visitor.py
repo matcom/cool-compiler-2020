@@ -3,6 +3,7 @@ from semantic.tools import VariableInfo, Scope, Context
 from semantic.types import Type, StringType, ObjectType, IOType, Method, Attribute
 from codegen import cil_ast as cil
 from utils.ast import BinaryNode, UnaryNode, AssignNode
+import re
 
 class BaseCOOLToCILVisitor:
     def __init__(self, context):
@@ -14,6 +15,7 @@ class BaseCOOLToCILVisitor:
         self.current_function = None
         self.context: Context = context
         self.idx = 0
+        self.name_regex = re.compile('local_.+_(.+)_\d+')
 
     @property
     def index(self):
@@ -60,9 +62,10 @@ class BaseCOOLToCILVisitor:
         return f'function_{method_name}_{type_name}'
     
     def to_var_name(self, var_name):
-        for name in self.localvars:
-            if var_name == name.split('_')[2]:
-                return name
+        for node in self.localvars:
+            m = self.name_regex.match(node.name).groups()[0]
+            if  m == var_name:
+                return node.name
         return ''
         
     def register_function(self, function_name):

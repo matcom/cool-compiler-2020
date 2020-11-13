@@ -6,7 +6,7 @@ from typing import List
 
 class BaseCILToMIPSVisitor:
     def __init__(self):
-        self.code: list = []
+        self.code: list = ['.text', '.globl main']
         self.initialize_data_code()
         self.initialize_built_in_types()
         self.symbol_table = SymbolTable()
@@ -153,7 +153,7 @@ class BaseCILToMIPSVisitor:
         register = self.reg_desc.find_empty_reg()
         if register is not None:
             self.update_register(var, register)
-            self.save_var_code(var)
+            self.load_var_code(var)
             return 
 
         # Choose a register that requires the minimal number of load and store instructions
@@ -198,8 +198,8 @@ class BaseCILToMIPSVisitor:
 
     def load_var_code(self, var):
         "Code to load a variable from memory"
-        register, memory, _ = self.addr_desc.get_var_storage(var)
-        self.code.append(f'lw ${register}, -{memory}(fp)')
+        memory, register, _ = self.addr_desc.get_var_storage(var)
+        self.code.append(f'lw ${register}, -{memory}($fp)')
        
     def load_used_reg(self, registers):
         "Loads the used variables in there registers"

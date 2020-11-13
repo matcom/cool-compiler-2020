@@ -20,7 +20,10 @@ def run_pipeline(input):
             raise Exception()
         
         ast, errors, context, scope = semantic_analysis(ast)
-        if not errors:
+        if errors:
+            for err in errors:
+                print(err)
+        else:
             ast, context, scope, cil_ast = codegen_pipeline(context, ast, scope)
 
     except FileNotFoundError:
@@ -30,6 +33,6 @@ def run_pipeline(input):
 
 if __name__ == "__main__":
     # input_ = sys.argv[1]
-    input_ = f'test.cl' 
+    input_ = f'test1.cl' 
     # output_ = args.output
     run_pipeline(input_)
