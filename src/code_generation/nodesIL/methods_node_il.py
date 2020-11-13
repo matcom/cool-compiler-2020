@@ -104,11 +104,17 @@ class InheritIL(NodeIL):
         return "child {} inherits parent {}".format(self.child, self.parent)
 
 class VirtualTableIL(NodeIL):
-    def __init__(self):
-        pass
+    def __init__(self, name, methods):
+        self.name = name
+        self.methods = methods
 
     def __str__(self):
-        pass
+        to_return = ''
+        to_return += 'VirtualTable: ' + self.name + '\n'
+        to_return += '------Methods---------\n'
+        for m in self.methods:
+            to_return += m + '\n'
+        return to_return
 
 class DispatchIL(NodeIL):
     
@@ -130,11 +136,3 @@ class DispatchParentIL(ILNode):
 
     def __str__(self):
         return "dispatch_parent: method {} with_obj {} in {}".format(self.method, self.obj, self.result)
-
-class VirtualTableIL(ILNode):
-    def __init__(self, name, methods):
-        self.name = name
-        self.methods = methods
-
-    def __str__(self):
-        pass

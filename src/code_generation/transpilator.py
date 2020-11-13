@@ -450,8 +450,35 @@ class codeVisitor:
         pass
 
     @visitor.on(SelfCallNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.code.append(CommentIL('Self-Dispatch'))
+
+        result = variables.add_temp()
+        self.code.append(PushIL())
+
+        index = self.virtual_table.get_method_id(self.current_class, node.id.value)
+
+        if self.current_class != 'Main':
+            self.code.append(CommentIL('push self'))
+            s = variables.add_temp()
+            self.code.append(PushIL())
+            self.code.append(VarToVarIL(variables.id(s), variables.id('self')))
+        
+        i = 0
+        for p in node.args:
+            self.code.append(CommentIL('Args: ' + str(i)))
+            i += 1
+            self.visit(p, variables)
+        self.code.append(DispatchIL(variables.id(result), variables.id('self'), index))
+
+        n = 0
+        if self.current_class == 'Main':
+            n = 1
+
+        for i in range(len(node.args) + n):
+            variables.pop_var()
+        
+        self.code.append(PopIL(len(node.args) + n))
 
     @visitor.on(ParentCallNode)
     def visit(self, node):
