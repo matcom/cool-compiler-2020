@@ -122,11 +122,14 @@ class MIPS:
 
     @visitor.on(PushIL)
     def visit(self, node):
-        pass
+        self.code.append("li $a0, {}\n".format(node.value))
+        self.code.append("sw $a0, ($sp)\n")
+        self.code.append("addiu $sp, $sp, 4\n")
 
     @visitor.on(PopIL)
     def visit(self, node):
-        pass
+        self.code.append("addiu $sp, $sp, " + str(-4*node.size) + "\n")
+
 
     @visitor.on(ReturnIL)
     def visit(self, node):
