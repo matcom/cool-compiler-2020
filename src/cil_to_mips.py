@@ -352,6 +352,22 @@ class CILToMIPSVisitor():
         # before looping we can move $t3, $t1 and use $t3 but this should work 
         self.text += f'sw $v0, {offset}($sp)\n'  #store instance address in local
 
+    @visitor.when(CIL_AST.Length)
+    def visit(self, node):
+        offset = self.var_offset[self.current_function.name][node.variable]
+        self.text += f'move $t0, {offset}($sp)\n'
+        self.text += 'li $a0, 0\n'
+        self.text += 'count_char:\n'
+        self.text += 'lb $t1, ($t0)\n' # loading current char
+        self.text += 'beqz $t1, finish_chars_count\n' # finish if a zero is found
+        self.text += 'addi $t0, $t0, 1\n' # move to the next char
+        self.text += 'addi $a0, $a0, 1\n' # length_count += 1
+        self.text += 'j count_char\n'
+        self.text += 'finish_chars_count:\n'
+
+        offset = self.var_offset[self.current_function.name][node.result]
+        self.text += f'sw $a0, {offset}($sp)\n'  # store length count address in local
+
 if __name__ == '__main__':
     import sys
     from cparser import Parser
