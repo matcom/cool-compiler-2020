@@ -308,10 +308,45 @@ class CILToMIPSVisitor():
     def visit(self, node):
         self.text += 'la $t0, void\n'
         offset = self.var_offset[self.current_function.name][node.expre_value] 
-        self.text += 'lw $t1, {offset}($sp)\n' 
+        self.text += f'lw $t1, {offset}($sp)\n' 
         self.text += 'seq $a0, $t0, $t1\n'  
         res_offset = self.var_offset[self.current_function.name][node.result_local]
         self.text += f'sw $a0, {res_offset}($sp)\n'
+    
+    @visitor.when(CIL_AST.Copy)
+    def visit(self, node):
+        # offset = self.var_offset[self.current_function.name][self.current_function.params[0].name] 
+        self_offset = self.var_offset[self.current_function.name][node.type]
+        self.text += f'lw $t0, {self_offset}($sp)\n'  # get self address
+        self.text += f'lw $a0, 8($t0)\n'  # get self size
+        self.text += f'li $v0, 9\n'
+        self.text += f'syscall\n'
+        self.text += f'move $t1, $v0\n'
+
+        # Copy All Slots inlcuding Tag, Size, methods ptr and each atrribute 
+        # Tenemos q hacerlo en MIPS porq copy está a nivel de Object y en python
+        # en este punto no sabemos el tipo dinamico (para asi saber el tamaño real) 
+        # hasta q se haga el VCALL por lo el ciclo hayq  hacerlo en MIPS)
+
+        self.text += 'li $a0, 0\n'
+        self.text += 'copy_object_word:\n'
+        self.text += 'lw $t2, ($t0)\n' # load current object word
+        self.text += 'sw $t2, ($t1)\n' # store word in copy object
+        self.text += 'addi $t0, $t0, 4\n' # move to the next word in orginal object
+        self.text += 'addi $t1, $t1, 4\n' # move to the next word in copy object
+        self.text += 'addi $a0, $a0, 4\n' # size count
+        '''
+        Src2 can either be a register or an immediate value (a 16 bit integer).
+        blt Rsrc1, Src2, label (Branch on Less Than)
+        Conditionally branch to the instruction at the label if the contents of register Rsrc1 are less than Src2.
+        '''
+        self.text += 'blt $a0, 8($t0), copy_object_word\n' # 8($t0) is the orginal object size
+
+        offset = self.var_offset[self.current_function.name][node.local_dest]
+        # $t1 is pointing at the end of the object
+        # if $v0 is modified for any reason (it should not, but...)
+        # before looping we can move $t3, $t1 and use $t3 but this should work 
+        self.text += f'sw $v0, {offset}($sp)\n'  #store instance address in local
 
 if __name__ == '__main__':
     import sys
