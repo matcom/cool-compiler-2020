@@ -446,8 +446,31 @@ class codeVisitor:
 
     #expression: complex->dispatch
     @visitor.on(ExprCallNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.code.append(CommentIL('Point-Dispatch'))
+
+        result = variables.add_temp()
+        self.code.append(PushIL())
+
+        index = self.virtual_table.get_method_id(node.obj.type, node.id.value)
+
+        self.code.append(CommentIL('push object'))
+        self.visit(node.obj, variables)
+
+        name = variables.peek_last()
+
+        i = 0
+        for p in node.args:
+            self.code.append(CommentIL('Args: ' + str(i)))
+            i += 1
+            self.visit(p, variables)
+        
+        self.code.append(DispatchIL(variables.id(result), variables.id(name), index))
+
+        for i in range(0, len(node.args) + 1):
+            variables.pop_var()
+
+        self.code.append(PopIL(len(node.args) + 1))
 
     @visitor.on(SelfCallNode)
     def visit(self, node, variables):
