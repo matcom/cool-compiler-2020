@@ -105,7 +105,7 @@ class CILToMIPSVisitor():
         idx = 0
         self.attr_offset.__setitem__(node.name, {})
         for attr in node.attributes:
-            self.attr_offset[node.name][attr] = 4*idx
+            self.attr_offset[node.name][attr] = 4*idx + 16
             idx = idx + 1
         
         idx = 0
@@ -130,19 +130,23 @@ class CILToMIPSVisitor():
 
     @visitor.when(CIL_AST.Allocate)
     def visit(self, node):
-        amount = len(self.types[node.type].attributes) + 3
+        amount = len(self.types[node.type].attributes) + 4
         self.text += f'li $a0, {amount * 4}\n' 
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
         self.text += f'move $t0, $v0\n'
         
         #Initialize Object Layout
-        self.text += f'la $t1, {node.type}_name\n' #tag
-        self.text += f'sw $t1, 0($t0)\n'
-        self.text += f'li $t1, {amount}\n' #size
+
+        # Set tag here in the future
+        # self.text += f'la $t1, {node.type}_name\n' #tag
+        # self.text += f'sw $t1, 0($t0)\n'
+        self.text += f'la $t1, {node.type}_name\n' #type_name
         self.text += f'sw $t1, 4($t0)\n'
-        self.text += f'la $t1, {node.type}_methods\n' #methods pointer
+        self.text += f'li $t1, {amount}\n' #size
         self.text += f'sw $t1, 8($t0)\n'
+        self.text += f'la $t1, {node.type}_methods\n' #methods pointer
+        self.text += f'sw $t1, 12($t0)\n'
 
         offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $t0, {offset}($sp)\n'  #store instance address in local
@@ -199,7 +203,7 @@ class CILToMIPSVisitor():
         value_offset = self.var_offset[self.current_function.name][node.instance]  
         self.text += f'lw $t1, {value_offset}($t0)\n'  # get instance from local
 
-        self.text += f'lw $t2, 8($t1)\n' #get dispatch table address
+        self.text += f'lw $t2, 12($t1)\n' #get dispatch table address
 
         method_offset = self.method_offset[node.dynamic_type][node.function]
         self.text += f'lw $t3, {method_offset}($t2)\n' # get method address
@@ -300,7 +304,7 @@ class CILToMIPSVisitor():
     def visit(self, node):
         obj_offset = self.var_offset[self.current_function.name][node.variable] 
         self.text += f'lw $t0, {obj_offset}($sp)\n' #get obj address from local
-        self.text += 'lw $t1, 0($t0)\n' # get type name from the first pos in obj layout
+        self.text += 'lw $t1, 4($t0)\n' # get type name from the sec pos in obj layout
         res_offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $t1, {res_offset}($sp)\n'
 
