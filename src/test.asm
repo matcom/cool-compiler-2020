@@ -2,117 +2,266 @@
 .globl main
 # Save method directions in the methods array
 la $v0, methods
-la $t9, function_out_string_IO
-sw $t9, 0($v0)
-la $t9, function_out_int_IO
-sw $t9, 4($v0)
-la $t9, function_in_string_IO
-sw $t9, 8($v0)
-la $t9, function_in_int_IO
-sw $t9, 12($v0)
-la $t9, function_length_String
-sw $t9, 16($v0)
-la $t9, function_concat_String
-sw $t9, 20($v0)
-la $t9, function_substr_String
-sw $t9, 24($v0)
 la $t9, function_abort_Object
-sw $t9, 28($v0)
+sw $t9, 0($v0)
 la $t9, function_type_name_Object
-sw $t9, 32($v0)
+sw $t9, 4($v0)
 la $t9, function_copy_Object
+sw $t9, 8($v0)
+la $t9, function_out_string_IO
+sw $t9, 12($v0)
+la $t9, function_out_int_IO
+sw $t9, 16($v0)
+la $t9, function_in_int_IO
+sw $t9, 20($v0)
+la $t9, function_in_string_IO
+sw $t9, 24($v0)
+la $t9, function_length_String
+sw $t9, 28($v0)
+la $t9, function_concat_String
+sw $t9, 32($v0)
+la $t9, function_substr_String
 sw $t9, 36($v0)
-la $t9, entry
-sw $t9, 40($v0)
 la $t9, function_main_Main
-sw $t9, 44($v0)
+sw $t9, 40($v0)
 la $t9, function_Test_Test
-sw $t9, 48($v0)
+sw $t9, 44($v0)
 la $t9, function_testing1_Test
-sw $t9, 52($v0)
+sw $t9, 48($v0)
 la $t9, function_testing2_Test
-sw $t9, 56($v0)
+sw $t9, 52($v0)
 la $t9, function_testing3_Test
-sw $t9, 60($v0)
+sw $t9, 56($v0)
 la $t9, function_testing4_Test
-sw $t9, 64($v0)
+sw $t9, 60($v0)
 la $t9, function_Alpha_Alpha
-sw $t9, 68($v0)
+sw $t9, 64($v0)
 la $t9, function_print_Alpha
-sw $t9, 72($v0)
+sw $t9, 68($v0)
 
-entry:
+function_abort_Object:
 # Gets the params from the stack
+# The 3 firsts registers are saved in a0-a3
 # Gets the frame pointer from the stack
 move $fp, $sp
-# Updates stack pointer pushing local__internal_0 to the stack
+# Updates stack pointer pushing local_abort_self_0 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local__internal_1 to the stack
-addiu $sp, $sp, -4
-lw $t0, -0($fp)
-# Syscall to allocate memory of the object entry in heap
-li $v0, 9
-li $a0, 12
-syscall
-# Save the address in the stack
-sw $v0, -0($fp)
-# Loads the name of the variable and saves the name like the first field
-la $t9, type_Main
-sw $t9, 0($v0)
-# Saves the size of the node
-li $t9, 12
-sw $t9, 4($v0)
-move $t0, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 16
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 28($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 0($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 32($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 36($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_main_Main in t9
-lw $t9, 44($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-sw $v0, 8($t0)
-lw $t1, -4($fp)
-# Static Dispatch of the method main
-addiu $sp, $sp, -4
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-# Push the arguments to the stack
-# The 3 first registers are saved in a0-a3
-move $a0, $t0
-# Empty all used registers and saves them to memory
-sw $t0, -0($fp)
-sw $t1, -4($fp)
-# This function will consume the arguments
-jal function_main_Main
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
 lw $t0, -4($fp)
-# saves the return value
-move $t0, $v0
+# Moving self to local_abort_self_0
+move $t0, $a0
 # Pop ra register of return function of the stack
 addiu $sp, $sp, 4
 lw $ra, ($sp)
-li $v0, 0
+move $v0, $t0
 # Empty all used registers and saves them to memory
 sw $t0, -4($fp)
+sw $a0, -0($fp)
+jr $ra
+
+
+function_type_name_Object:
+# Gets the params from the stack
+# The 3 firsts registers are saved in a0-a3
+# Gets the frame pointer from the stack
+move $fp, $sp
+# Updates stack pointer pushing local_type_name_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+local_type_name_result_0 <- Type of self
+la $t0, 0($a0)
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $a0, -0($fp)
+jr $ra
+
+
+function_copy_Object:
+# Gets the params from the stack
+# The 3 firsts registers are saved in a0-a3
+# Gets the frame pointer from the stack
+move $fp, $sp
+# Updates stack pointer pushing local_copy_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $a0, -0($fp)
+jr $ra
+
+
+function_out_string_IO:
+# Gets the params from the stack
+# The 3 firsts registers are saved in a0-a3
+# The 3 firsts registers are saved in a0-a3
+# Gets the frame pointer from the stack
+move $fp, $sp
+# Updates stack pointer pushing local_out_string_self_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_out_string_word_1 to the stack
+addiu $sp, $sp, -4
+lw $t0, -8($fp)
+# Moving self to local_out_string_self_0
+move $t0, $a0
+lw $t1, -12($fp)
+# Saves in local_out_string_word_1 word
+la $t1, word
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -8($fp)
+sw $t1, -12($fp)
+sw $a0, -0($fp)
+sw $a1, -4($fp)
+jr $ra
+
+
+function_out_int_IO:
+# Gets the params from the stack
+# The 3 firsts registers are saved in a0-a3
+# The 3 firsts registers are saved in a0-a3
+# Gets the frame pointer from the stack
+move $fp, $sp
+# Updates stack pointer pushing local_out_int_self_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -8($fp)
+# Moving self to local_out_int_self_0
+move $t0, $a0
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -8($fp)
+sw $a0, -0($fp)
+sw $a1, -4($fp)
+jr $ra
+
+
+function_in_int_IO:
+# Gets the params from the stack
+# The 3 firsts registers are saved in a0-a3
+# Gets the frame pointer from the stack
+move $fp, $sp
+# Updates stack pointer pushing local_in_int_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $a0, -0($fp)
+jr $ra
+
+
+function_in_string_IO:
+# Gets the params from the stack
+# The 3 firsts registers are saved in a0-a3
+# Gets the frame pointer from the stack
+move $fp, $sp
+# Updates stack pointer pushing local_in_string_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $a0, -0($fp)
+jr $ra
+
+
+function_length_String:
+# Gets the params from the stack
+# The 3 firsts registers are saved in a0-a3
+# Gets the frame pointer from the stack
+move $fp, $sp
+# Updates stack pointer pushing local_length_word_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_length_result_1 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Saves in local_length_word_0 self
+la $t0, self
+lw $t1, -8($fp)
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+move $v0, $t1
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $t1, -8($fp)
+sw $a0, -0($fp)
+jr $ra
+
+
+function_concat_String:
+# Gets the params from the stack
+# The 3 firsts registers are saved in a0-a3
+# The 3 firsts registers are saved in a0-a3
+# Gets the frame pointer from the stack
+move $fp, $sp
+# Updates stack pointer pushing local_concat_word_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_concat_word_1 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_concat_result_2 to the stack
+addiu $sp, $sp, -4
+lw $t0, -8($fp)
+# Saves in local_concat_word_0 self
+la $t0, self
+lw $t1, -12($fp)
+# Saves in local_concat_word_1 word
+la $t1, word
+lw $t2, -16($fp)
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+move $v0, $t2
+# Empty all used registers and saves them to memory
+sw $t0, -8($fp)
+sw $t1, -12($fp)
+sw $t2, -16($fp)
+sw $a0, -0($fp)
+sw $a1, -4($fp)
+jr $ra
+
+
+function_substr_String:
+# Gets the params from the stack
+# The 3 firsts registers are saved in a0-a3
+# The 3 firsts registers are saved in a0-a3
+# The 3 firsts registers are saved in a0-a3
+# Gets the frame pointer from the stack
+move $fp, $sp
+# Updates stack pointer pushing local_substr_word_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_substr_result_1 to the stack
+addiu $sp, $sp, -4
+lw $t0, -12($fp)
+# Saves in local_substr_word_0 self
+la $t0, self
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -12($fp)
+sw $a0, -0($fp)
+sw $a1, -4($fp)
+sw $a2, -8($fp)
 jr $ra
 
 
@@ -149,39 +298,39 @@ syscall
 # Save the direction of methods
 la $t8, methods
 # Save the direction of the method function_abort_Object in t9
-lw $t9, 28($t8)
+lw $t9, 0($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 0($v0)
 # Save the direction of the method function_type_name_Object in t9
-lw $t9, 32($t8)
+lw $t9, 4($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 4($v0)
 # Save the direction of the method function_copy_Object in t9
-lw $t9, 36($t8)
+lw $t9, 8($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 8($v0)
 # Save the direction of the method function_out_string_IO in t9
-lw $t9, 0($t8)
+lw $t9, 12($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 12($v0)
 # Save the direction of the method function_out_int_IO in t9
-lw $t9, 4($t8)
+lw $t9, 16($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 16($v0)
 # Save the direction of the method function_in_string_IO in t9
-lw $t9, 8($t8)
+lw $t9, 24($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 20($v0)
 # Save the direction of the method function_in_int_IO in t9
-lw $t9, 12($t8)
+lw $t9, 20($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 24($v0)
 # Save the direction of the method function_print_Alpha in t9
-lw $t9, 72($t8)
+lw $t9, 68($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 28($v0)
 # Save the direction of the method function_Alpha_Alpha in t9
-lw $t9, 68($t8)
+lw $t9, 64($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 32($v0)
 sw $v0, 8($t0)
@@ -369,39 +518,39 @@ syscall
 # Save the direction of methods
 la $t8, methods
 # Save the direction of the method function_abort_Object in t9
-lw $t9, 28($t8)
+lw $t9, 0($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 0($v0)
 # Save the direction of the method function_type_name_Object in t9
-lw $t9, 32($t8)
+lw $t9, 4($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 4($v0)
 # Save the direction of the method function_copy_Object in t9
-lw $t9, 36($t8)
+lw $t9, 8($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 8($v0)
 # Save the direction of the method function_out_string_IO in t9
-lw $t9, 0($t8)
+lw $t9, 12($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 12($v0)
 # Save the direction of the method function_out_int_IO in t9
-lw $t9, 4($t8)
+lw $t9, 16($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 16($v0)
 # Save the direction of the method function_in_string_IO in t9
-lw $t9, 8($t8)
+lw $t9, 24($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 20($v0)
 # Save the direction of the method function_in_int_IO in t9
-lw $t9, 12($t8)
+lw $t9, 20($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 24($v0)
 # Save the direction of the method function_print_Alpha in t9
-lw $t9, 72($t8)
+lw $t9, 68($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 28($v0)
 # Save the direction of the method function_Alpha_Alpha in t9
-lw $t9, 68($t8)
+lw $t9, 64($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 32($v0)
 sw $v0, 8($t0)
@@ -577,10 +726,15 @@ type_Int: .asciiz "Int"
 type_Bool: .asciiz "Bool"
 type_Object: .asciiz "Object"
 type_IO: .asciiz "IO"
+type_Object: .asciiz "Object"
+type_IO: .asciiz "IO"
+type_String: .asciiz "String"
+type_Int: .asciiz "Int"
+type_Bool: .asciiz "Bool"
 type_Main: .asciiz "Main"
 type_Test: .asciiz "Test"
 type_Alpha: .asciiz "Alpha"
 data_0: .asciiz "1"
 data_1: .asciiz "reached!!
 "
-methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

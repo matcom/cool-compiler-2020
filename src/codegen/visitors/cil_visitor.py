@@ -25,7 +25,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(cil.StaticCallNode('Main', 'main', result, [cil.ArgNode(instance)], 'Object'))
         self.register_instruction(cil.ReturnNode(0))
         self.current_function = None
-        
+
+        self.create_built_in()
+
         for declaration, child_scope in zip(node.declarations, scope.children):
             self.visit(declaration, child_scope)
 

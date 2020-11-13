@@ -46,7 +46,7 @@ class InstructionNode(Node):
         self.in1 = None
         self.in2 = None
         self.out = None
-        self.idx = idx
+        self.index = idx
 
 class AssignNode(InstructionNode):
     def __init__(self, dest, source, idx=None):
@@ -228,7 +228,6 @@ class LengthNode(InstructionNode):
 class ConcatNode(InstructionNode):
     def __init__(self, dest, arg1, arg2, idx=None):
         super().__init__(idx)
-
         self.dest = dest
         self.arg1 = arg1
         self.arg2 = arg2
@@ -249,7 +248,7 @@ class PrefixNode(InstructionNode):
         self.in2 = n
 
 class SubstringNode(InstructionNode):
-    def __init__(self, dest, word, begin, idx=None):
+    def __init__(self, word, dest, begin, end, idx=None):
         super().__init__(idx)
         self.dest = dest
         self.word = word
@@ -257,8 +256,8 @@ class SubstringNode(InstructionNode):
         self.end = end
 
         self.out = dest
-        self.in1 = word
-        self.in2 = begin
+        self.in1 = begin
+        self.in2 = end
 
 class ToStrNode(InstructionNode):
     def __init__(self, dest, ivalue, idx=None):
@@ -268,24 +267,6 @@ class ToStrNode(InstructionNode):
 
         self.out = dest
         self.in1 = ivalue
-
-class ReadNode(InstructionNode):
-    def __init__(self, dest, idx=None):
-        super().__init__(idx)
-        self.dest = dest
-
-        self.out = dest
-
-class PrintNode(InstructionNode):
-    def __init__(self, str_addr, idx=None):
-        super().__init__(idx)
-        self.str_addr = str_addr
-
-        self.out = str_addr
-
-class SelfNode(InstructionNode):
-    def __init__(self, idx=None):
-        super().__init__(idx)
 
 class OutStringNode(InstructionNode):
     def __init__(self, value, idx=None):

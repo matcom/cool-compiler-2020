@@ -101,5 +101,46 @@ def get_formatter():
         def visit(self, node: SetAttribNode):
             return f'SETATTR {node.obj} {node.attr} = {node.value}'
 
+        @visitor.when(LengthNode)
+        def visit(self, node: LengthNode):
+            return f'{node.dest} = LENGTH {node.arg}'
+
+        @visitor.when(ConcatNode)
+        def visit(self, node: ConcatNode):
+            return f'{node.dest} = CONCAT {node.arg1} {node.arg2}'
+
+        @visitor.when(SubstringNode)
+        def visit(self, node: SubstringNode):
+            return f'{node.dest} = SUBSTRING {node.word} {node.begin} {node.end}'
+
+        @visitor.when(ToStrNode)
+        def visit(self, node: ToStrNode):
+            return f'{node.dest} = STR {node.ivalue}'
+
+        @visitor.when(OutStringNode)
+        def visit(self, node: OutStringNode):
+            return f'OUT_STR {node.value}'
+
+        @visitor.when(OutIntNode)
+        def visit(self, node: OutIntNode):
+            return f'OUT_INT {node.value}'
+
+        @visitor.when(ReadStringNode)
+        def visit(self, node: ReadStringNode):
+            return f'{node.dest} = READ_STR'
+
+        @visitor.when(ReadIntNode)
+        def visit(self, node: ReadIntNode):
+            return f'{node.dest} = READ_INT'
+
+        @visitor.when(ExitNode)
+        def visit(self, node: ExitNode):
+            return f'EXIT {node.value}'
+
+        @visitor.when(CopyNode)
+        def visit(self, node: CopyNode):
+            return f'{node.dest} = COPY {node.source}'
+
+
     printer = PrintVisitor()
     return lambda ast: printer.visit(ast)

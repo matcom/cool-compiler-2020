@@ -173,7 +173,7 @@ class ObjTabEntry:
 
 class ObjTable:
     def __init__(self, dispatch_table: DispatchTable):
-        self.objects: Dict[str, ObjTabEntry] = self.initialize_built_in()
+        self.objects: Dict[str, ObjTabEntry] = {} #self.initialize_built_in()
         self.dispatch_table = dispatch_table
 
     def initialize_built_in(self):
