@@ -9,10 +9,10 @@ class ProgramNode(Node):
         self.index = idx
 
 class TypeNode(Node):
-    def __init__(self, name, idx=None):
+    def __init__(self, name, atributes=None, methods=None, idx=None):
         self.name = name
-        self.attributes = []
-        self.methods = []
+        self.attributes = atributes if atributes is not None else []
+        self.methods = methods if methods is not None else []
         self.index = idx
 
 class DataNode(Node):
@@ -249,15 +249,16 @@ class PrefixNode(InstructionNode):
         self.in2 = n
 
 class SubstringNode(InstructionNode):
-    def __init__(self, dest, word, n, idx=None):
+    def __init__(self, dest, word, begin, idx=None):
         super().__init__(idx)
         self.dest = dest
         self.word = word
-        self.n = n
+        self.begin = begin
+        self.end = end
 
         self.out = dest
         self.in1 = word
-        self.in2 = n
+        self.in2 = begin
 
 class ToStrNode(InstructionNode):
     def __init__(self, dest, ivalue, idx=None):
@@ -282,6 +283,50 @@ class PrintNode(InstructionNode):
 
         self.out = str_addr
 
-class SelfNode(Node):
+class SelfNode(InstructionNode):
     def __init__(self, idx=None):
         super().__init__(idx)
+
+class OutStringNode(InstructionNode):
+    def __init__(self, value, idx=None):
+        super().__init__(idx)
+        self.value = value
+
+        self.in1 = value
+
+class OutIntNode(InstructionNode):
+    def __init__(self, value, idx=None):
+        super().__init__(idx)
+        self.value = value
+
+        self.in1 = value
+
+class ReadStringNode(InstructionNode):
+    def __init__(self, dest, idx=None):
+        super().__init__(idx)
+        self.dest = dest
+
+        self.out = dest
+
+class ReadIntNode(InstructionNode):
+    def __init__(self, dest, idx=None):
+        super().__init__(idx)
+        self.dest = dest
+
+        self.out = dest
+
+class ExitNode(InstructionNode):
+    def __init__(self, value=0, idx=None):
+        super().__init__(idx)
+        self.value = value
+
+        self.in1 = value
+
+class CopyNode(InstructionNode):
+    def __init__(self, dest, source, idx=None):
+        super().__init__(idx)
+        self.dest = dest
+        self.source = source
+
+        self.out = dest
+        self.in1 = source
