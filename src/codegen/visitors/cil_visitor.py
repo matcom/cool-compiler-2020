@@ -34,25 +34,37 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(ClassDeclarationNode)
     def visit(self, node: ClassDeclarationNode, scope: Scope):
-        constructor = FuncDeclarationNode(node.token, [], node.token, BlockNode([], node.token))
         self.current_type = self.context.get_type(node.id, node.pos)
         
         cil_type = self.register_type(node.id)
  
-        for attr, a_type in self.current_type.all_attributes():
+        attrs = self.current_type.all_attributes()
+        if len(attrs) > 0:
+            # Si hay atributos creo el constructor, en otro caso no
+            constructor = FuncDeclarationNode(node.token, [], node.token, BlockNode([], node.token))
+            # definiendo el constructor en el tipo para analizar
+            func_declarations = [constructor]
+            self.constructors.append(node.id)
+            self.current_type.define_method(self.current_type.name, [], [], self.current_type)
+            scopes = [scope] + scope.children
+        else:
+            func_declarations = []
+            scopes = scope.children
+            
+        for attr, a_type in attrs:
             cil_type.attributes.append((attr.name, self.to_attr_name(attr.name, a_type.name)))
             self.initialize_attr(constructor, attr, scope)            ## add the initialization code in the constructor
-        
+        if attrs:
+            # Append like the last expression self type
+            constructor.body.expr_list.append(SelfNode())
+
+
         for method, mtype in self.current_type.all_methods():
             cil_type.methods.append((method.name, self.to_function_name(method.name, mtype.name)))
 
-        # definiendo el constructor en el tipo para analizar
-        constructor.body.expr_list.append(SelfNode())
-        func_declarations = [constructor]
-        self.current_type.define_method(self.current_type.name, [], [], self.current_type)
 
         func_declarations += [f for f in node.features if isinstance(f, FuncDeclarationNode)] 
-        for feature, child_scope in zip(func_declarations, [scope] + scope.children):
+        for feature, child_scope in zip(func_declarations, scopes):
             self.visit(feature, child_scope)
 
 
@@ -97,7 +109,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.register_instruction(cil.SetAttribNode('self', var_info.name, self.current_type.name, value))
         else:
             local_name = self.to_var_name(var_info.name)
-            self.register_instruction(cil.AssignNode(var_info.name, value))
+            self.register_instruction(cil.AssignNode(local_name, value))
         return value, typex
 
     def _return_type(self, typex: Type, node):
@@ -193,19 +205,24 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         typex = get_type(typex, self.current_type)
         self.register_instruction(cil.AllocateNode(typex.name, instance))
         
-        attributes = [attr for attr, a_type in typex.all_attributes()]
-        for i, attr in enumerate(attributes):
-            # Aquí sería más cómodo llamar al constructor de la clase, pero tendría que guardar todos los constructores
-            if attr.expr is not None:
-                expr, _ = self.visit(attr.expr, scope)
-            elif attr.type.name == 'Int':
-                expr, _ = self.visit(ConstantNumNode(0), scope)
-            elif attr.type.name == 'Bool':
-                expr, _ = self.visit(ConstantBoolNode(False), scope)
-            elif attr.type.name == 'String':
-                expr, _ = self.visit(ConstantStrNode(''), scope)
-            # attr_name = self.to_attr_name(var_info.name, typex.name)           
-            self.register_instruction(cil.SetAttribNode(instance, attr.name, typex.name, expr))
+        # calling the constructor to load all attributes
+        # Si tiene atributos entonces tendrá constructor (esto se deberia optimizar mas)
+        if typex.all_attributes():
+            self.register_instruction(cil.StaticCallNode(typex.name, typex.name, None, [cil.ArgNode(instance)], typex.name))
+        
+        # attributes = [attr for attr, a_type in typex.all_attributes()]
+        # for i, attr in enumerate(attributes):
+        #     # Aquí sería más cómodo llamar al constructor de la clase, pero tendría que guardar todos los constructores
+        #     if attr.expr is not None:
+        #         expr, _ = self.visit(attr.expr, scope)
+        #     elif attr.type.name == 'Int':
+        #         expr, _ = self.visit(ConstantNumNode(0), scope)
+        #     elif attr.type.name == 'Bool':
+        #         expr, _ = self.visit(ConstantBoolNode(False), scope)
+        #     elif attr.type.name == 'String':
+        #         expr, _ = self.visit(ConstantStrNode(''), scope)
+        #     # attr_name = self.to_attr_name(var_info.name, typex.name)           
+        #     self.register_instruction(cil.SetAttribNode(instance, attr.name, typex.name, expr))
         return instance, typex
 
 

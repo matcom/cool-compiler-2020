@@ -243,6 +243,12 @@ class BaseCILToMIPSVisitor:
         self.methods += [funct.name for funct in func_nodes]
         words = 'methods: .word ' + ', '.join(map(lambda x: '0', self.methods))
         self.data_code.append(words)
+        # guardo la dirección del método en el array de métodos
+        self.code.append('# Save method directions in the methods array')
+        self.code.append('la $v0, methods')
+        for i, meth in enumerate(self.methods):
+            self.code.append(f'la $t9, {meth}')
+            self.code.append(f'sw $t9, {4*i}($v0)')
 
     def get_type(self, xtype):
         'Return the var address type according to its static type'

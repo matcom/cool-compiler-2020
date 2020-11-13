@@ -179,6 +179,7 @@ class StaticCallNode(InstructionNode):
         self.dest = dest
         self.args = args
         self.return_type = return_type
+        
         self.out = dest
 
 class DynamicCallNode(InstructionNode):
@@ -189,7 +190,9 @@ class DynamicCallNode(InstructionNode):
         self.dest = dest
         self.args = args
         self.return_type = return_type
+        
         self.out = dest
+        self.in1 = 'self'
 
 class ArgNode(InstructionNode):
     def __init__(self, name, idx=None):

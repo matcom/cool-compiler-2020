@@ -44,8 +44,8 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         # guardo las direcciones de cada método
         self.save_meth_addr(node.dotcode)
         # visit code instrunctions
-        for i, code in enumerate(node.dotcode):
-            self.visit(code, 4*i)
+        for code in node.dotcode:
+            self.visit(code)
         return self.data_code, self.code
 
     @visitor.when(TypeNode)
@@ -58,15 +58,9 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.data_code.append(f"{node.name}: .asciiz \"{node.value}\"")    
 
     @visitor.when(FunctionNode)
-    def visit(self, node:FunctionNode, index:int):
+    def visit(self, node:FunctionNode):
         self.code.append('')
         self.code.append(f'{node.name}:')
-        
-        # guardo la dirección del método en el array de métodos
-        self.code.append('# Save method direction in the methods array')
-        self.code.append(f'la $t9, {node.name}')
-        self.code.append(f'la $v0, methods')
-        self.code.append(f'sw $t9, {4*index}($v0)')
 
         self.code.append('# Gets the params from the stack')
         n = len(node.params)
@@ -305,11 +299,11 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append('syscall')                         # Memory of the dispatch table in v0
         
         self.code.append(f'# I save the offset of every one of the methods of this type')
+        self.code.append('# Save the direction of methods')
+        self.code.append('la $t8, methods')             # cargo la dirección de methods
         for i, meth in enumerate(methods):
             # guardo el offset de cada uno de los métodos de este tipo
             offset = 4*self.methods.index(meth)
-            self.code.append('# Save the direction of methods')
-            self.code.append('la $t8, methods')             # cargo la dirección de methods
             self.code.append(f'# Save the direction of the method {meth} in t9')
             self.code.append(f'lw $t9, {offset}($t8)')      # cargo la dirección del método en t9
             self.code.append('# Save the direction of the method in his position in the dispatch table')
@@ -396,6 +390,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
             reg = f'a{idx}'
             self.code.append('# The 3 first registers are saved in a0-a3')
             if self.is_variable(node.dest):
+                self.get_reg_var(node.dest)
                 rdest = self.addr_desc.get_var_reg(node.dest)
                 self.code.append(f'move ${reg}, ${rdest}')
             elif self.is_int(node.dest):
@@ -404,6 +399,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
             self.code.append('# The rest of the arguments are push into the stack')
             self.code.append('addiu $sp, $sp, -4')
             if self.is_variable(node.dest):
+                self.get_reg(inst)
                 reg = self.addr_desc.get_var_reg(node.dest)
                 self.code.append(f'sw ${reg}, ($sp)')
             elif self.is_int(node.dest):
@@ -430,6 +426,6 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
     @visitor.when(LoadNode)
     def visit(self, node:LoadNode):
         rdest = self.addr_desc.get_var_reg(node.dest)
-        self.code.append(f'Saves in {node.dest} {node.msg}')
+        self.code.append(f'# Saves in {node.dest} {node.msg}')
         self.var_address[node.dest] = AddrType.STR
         self.code.append(f'la ${rdest}, {node.msg}')

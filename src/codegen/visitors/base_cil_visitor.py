@@ -16,6 +16,7 @@ class BaseCOOLToCILVisitor:
         self.context: Context = context
         self.idx = 0
         self.name_regex = re.compile('local_.+_(.+)_\d+')
+        self.constructors = []
 
     @property
     def index(self):
@@ -99,7 +100,6 @@ class BaseCOOLToCILVisitor:
 
     def initialize_attr(self, constructor, attr: Attribute, scope: Scope):
         if attr.expr:
-            expr, _ = self.visit(attr.expr, scope)
             constructor.body.expr_list.append(AssignNode(attr.name, attr.expr))
         elif attr.type == 'Int':
             constructor.body.expr_list.append(AssignNode(attr.name, ConstantNumNode(0)))

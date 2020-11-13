@@ -33,6 +33,6 @@ def run_pipeline(input):
 
 if __name__ == "__main__":
     # input_ = sys.argv[1]
-    input_ = f'test1.cl' 
+    input_ = f'test.cl' 
     # output_ = args.output
     run_pipeline(input_)

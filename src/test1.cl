@@ -1,10 +1,6 @@
-class Main inherits IO {
+class Main {
 
-    main(): Object {
-        let test1: Int 
-        in {
-            1 + 2;
-            out_int(test1);
-        }
+    main(): Int {
+        1 + 2
     };
 };
