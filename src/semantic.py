@@ -117,7 +117,26 @@ def check_expressions(ast: ProgramNode):
     
     return []
 
-def GetExpressionReturnType(expression, insideFunction, attributes, functions, parameters, insideLet, letVars):
+def GetFirstCommonAncestor(types):
+    result = types[0]
+    for i in range(1, len(types)):
+        result = GetFirstCommonAncestor(result, types[i])
+    
+    return result
+
+def GetFirstCommonAncestor(typeA, typeB):
+    if IsAncestor(typeA, typeB):
+        return typeA
+    if IsAncestor(typeB, typeA):
+        return typeB
+    return GetFirstCommonAncestor(typeA.parent_type, typeB.parent_type)
+
+def IsAncestor(olderNode, youngerNode):
+    if olderNode.name == youngerNode.name:
+        return True
+    return IsAncestor(olderNode, youngerNode.parent_type)
+
+def GetExpressionReturnType(expression, insideFunction, attributes, functions, parameters, insideLet, letVars, insideCase = False, caseVar = {}):
 
     if type(expression) is AssignStatementNode:
         error1, type1 = GetExpressionReturnType(expression.expression, insideFunction, attributes, functions, parameters, insideLet, letVars)
@@ -137,8 +156,11 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
         error3, type3 = GetExpressionReturnType(expression.elseExpr, insideFunction, attributes, functions, parameters, insideLet, letVars)
         if len(error3) > 0:
             return error3, ""
-        # Aqui retornar como tipo el primer ancestro en 
+        # Aqui el tipo de retorno es el primer ancestro en 
         # comun de los tipos de retorno del then y el else
+        thenType = AllTypes[type2]
+        elseType = AllTypes[type3]
+        return [], GetFirstCommonAncestor(thenType, elseType)
 
     elif type(expression) is LoopStatementNode:
         error1, type1 = GetExpressionReturnType(expression.evalExpr, insideFunction, attributes, functions, parameters, insideLet, letVars)
@@ -176,14 +198,35 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
             return errorLet, ""
         return [], typeLet
 
+
     elif type(expression) is CaseStatementNode:
-        # Aqui retornar como tipo el primer ancestro en comun con los tipos de los case
-        pass
+        # Aqui se retorna el primer ancestro en comun de los tipos de retorno
+        # de las expresiones en los case
+        eError, eType = GetExpressionReturnType(expression.expression, insideFunction, attributes, functions, parameters, insideLet, letVars)
+        if len(eError) > 0:
+            return eError, ""
+        caseBranchesTypes = []
+        for caseBranch in expression.body:
+            error0, type0 = GetExpressionReturnType(caseBranch, insideFunction, attributes, functions, parameters, insideLet, letVars)
+            if len(error0) > 0:
+                return error0, ""
+            inList = False
+            for t in caseBranchesTypes:
+                if t.name == type0:
+                    inList = True
+                    break
+            if not inList:
+                inList.append(AllTypes[type0])
+        
+        return [], GetFirstCommonAncestor(caseBranchesTypes)
+            
 
     elif type(expression) is CaseBranchNode:
-        # Aqui comprobar que el tipo de la variable y del retorno de la 
-        # expresion sea el mismo
-        pass
+        error0, type0 = GetExpressionReturnType(expression.expression, insideFunction, attributes, functions, parameters, insideLet, letVars, True, {expression.id : expression.typeName})
+        if len(error0) > 0:
+            return error0, ""
+        
+        return [], type0
 
     elif type(expression) is NewStatementNode:
         if expression.typeName in AllTypes:
