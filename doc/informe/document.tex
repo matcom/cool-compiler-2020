@@ -1,0 +1,183 @@
+\documentclass[12pt]{article}
+
+%Packages
+\usepackage[latin1]{inputenc}
+% Esto es para que el LaTeX sepa que el texto estÃ¡ en espaÃ±ol:
+\usepackage[spanish]{babel}
+\usepackage[x11names,table]{xcolor}
+
+% Paquetes de la AMS:
+%\usepackage[total={6in,11in},top=0.50in, left=1in]{geometry}
+\usepackage[top=1in, left=1in, right=1in, bottom=1in]{geometry}
+\usepackage{amsmath, amsthm, amsfonts}
+\usepackage{graphics}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{epsfig}
+\usepackage{amssymb}
+
+\lstset{ %
+	language=Python, % lenguaje
+	basicstyle=\normalsize\ttfamily,
+	keywordstyle=\color{blue},
+	commentstyle=\color{blue!50},
+	backgroundcolor=\color{gray!9},
+	identifierstyle = \color{gray!161},
+	stringstyle = \color{yellow},
+	numberstyle = \color{green},
+	columns=fullflexible,
+	showspaces=false
+}
+
+
+
+\newtheorem{thm}{Teorema}[section]
+\newtheorem{cor}[thm]{Corolario}
+\newtheorem{lem}[thm]{Lema}
+\newtheorem{prop}[thm]{ProposiciÃ³n}
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definicion}
+\theoremstyle{remark}
+\newtheorem{rem}[thm]{ObservaciÃ³n}
+
+\def\RR{\mathbb{R}}
+
+\renewcommand{\labelenumi}{$\bullet$}
+\newtheorem{definition}{Definición}[section]
+\newtheorem{theorem}{Teorema}[section]
+\newtheorem{corollary}{Corolario}[section]
+\newtheorem{lemma}{Lema}[section]
+\newtheorem{proposition}{Proposición}[section]
+\newcommand{\statement}[3]{
+	\begin{center}
+		{ \fcolorbox {gray!11}{gray!11}{
+				\begin{minipage}[h!]{\textwidth}
+					\begin{#1}\label{#3}
+						#2
+					\end{#1}
+				\end{minipage} } }
+			\end{center}}
+			\renewcommand{\proof}[1]{{\it Demostración}\\ #1 \hfill\blacksquare}
+\newcommand{\pagediv}[4]
+{
+	\begin{figure}[!h]
+		\begin{minipage}[b]{#1\textwidth}
+			#3			
+		\end{minipage} \hfill 
+		\begin{minipage}[b]{#2\textwidth}
+			#4
+		\end{minipage}
+	\end{figure}
+	
+}
+
+
+
+%define title
+\author{
+	Dalianys P\'erez Perera\\
+	Dayany Alfaro González\\
+	Gilberto González Rodríguez\\
+	C-411 
+}
+\title{\textbf{Complementos de Compilación}  \\
+\textbf{COOL-Compiler}\\
+	}
+
+\date{}
+\begin{document}
+%generates the title
+\maketitle
+
+\selectlanguage{spanish}
+
+\newpage
+%insert table contents
+\tableofcontents
+\newpage
+
+\section{Introducción}
+COOL es un pequeño lenguaje orientado a objetos, con tipado estático, herencia simple, polimorfismo, recolección automática de basura y un sistema de tipos unificado. Admite control de flujo condicional e iterativo, además de la coincidencia de patrones. Todo en COOL es una expresión.
+
+El propósito de la asignatura Complementos de Compilación es desarrollar durante el curso un compilador para el lenguaje COOL que sea capaz de convertir programas escritos en Cool en programas escritos en MIPS.
+
+\section{Arquitectura del compilador}
+\subsection{Análisis Lexicográfico}
+\subsection{Análisis Sintáctico}
+\subsection{Análisis Semántico}
+Durante esta fase se analiza el cumplimiento de todos los predicados semánticos del lenguaje, y por tanto, el uso correcto de los tipos declarados. A continuación centraremos la atención en el problema de la verificación de dichos tipos.
+
+Primeramente tenemos que hacer un recorrido por todo el \textit{AST} para encontrar las definiciones de tipos, las cuales serán almacenadas en el concepto \lstinline|Context|. Esto lo haremos utilizando el patrón \textit{visitor}, el mismo será utilizado en las siguientes pasadas al \textit{AST}. Es importante conocer los nombres de las clases definidas de antemano , ya que podemos tener una declaración de un tipo $A$ con un atributo de tipo $B$, donde la declaración del tipo $B$ aparece luego de la de $A$. Con la clase \lstinline|TypeCollector| se logra crear un contexto inicial que solo contendrá los nombres de los tipos, por eso es que solo visita los nodos del \textit{AST} de tipo \lstinline|Program| y \lstinline|Class|.
+
+\begin{lstlisting}
+class TypeCollector(object):
+	def __init__(self, errors=[]):
+	self.context = None
+	self.errors = errors
+	
+	@visitor.on('node')
+	def visit(self, node):
+	
+	@visitor.when(AST.Program)
+	def visit(self, node):
+	
+	@visitor.when(AST.Class)
+	def visit(self, node):
+\end{lstlisting}
+Importante mencionar que la información referente a los tipos se almacena en el contexto a través de la clase \lstinline|Type|, y que la misma incluye la función \lstinline|conforms_to| con el objetivo de establecer la relación de conformidad entre tipos y garantizar el principio de sustitución.
+
+Posteriormente se pasa a construir los tipos como tal, con sus definiciones de atributos y métodos, por tal motivo se visitarán además los nodos que definen a los mismos en el \textit{AST}. Durante esta pasada de la clase \lstinline|TypeBuilder| también se chequea que la jerarquía de tipos conformada esté correcta y sea un árbol con raíz en el tipo $Object$. Esto último se resolvió comprobando si el grafo de tipos representa un orden topológico.
+
+Por último tenemos un \lstinline|TypeChecker | que verificará la consistencia de tipos en todos los nodos del \textit{AST}. El mismo recibe el contexto construido anteriormente y procesa por completo el \textit{AST}. A lo largo de este recorrido fue esencial el uso del concepto \lstinline|Scope|, el cual permite gestionar las variables definidas en los distintos niveles de visibilidad, así como saber con qué tipo se definieron. Cada clase tiene su propio ámbito o \textit{Scope} y a su vez cada método definido en esta. No obstante, la importancia de este concepto también se demuestra en el chequeo de las expresiones $Let$ y $Case$, pues ambas poseen un ámbito interno para nuevas variables locales que podrían definir, por tanto, el \textit{Scope} "hijo" que se le pasa a estos nodos permite desambiguar entre todas las variables declaradas.
+
+Para manejar los errores de forma consistente, cada una de las clases anteriores posee como atributo una lista de errores de tipo \lstinline|ErrorSemantic|. De modo que ante cualquier error de chequeo de tipos, simplemente se crea una instancia de esta clase y se añade a la lista. Aclarar que a cada error se le pasa la línea y columna del nodo del \textit{AST} correspondiente.
+
+
+
+
+\subsection{Generación de Código}
+Esta fase comprende dos etapas esenciales. Primeramente es necesario traducir el código de COOL a un lenguaje que nos permita generar código de forma más sencilla. Este lenguaje se denomina \textit{CIL} y todo programa en él tiene 3 secciones: .TYPES, .DATA y .CODE. Durante esta etapa se realiza un recorrido del AST de COOL y se obtiene un \textit{AST} de \textit{CIL}, representando toda la información y semántica necesaria del programa de COOL. Con ello logramos un mayor nivel de abstracción al disponer de instrucciones en 3-direcciones y de cualquier cantidad de registros.
+
+Durante la segunda etapa se realiza un recorrido sobre el \textit{AST} de \textit{CIL} conformado para generar el código de MIPS finalmente. En ambas, se emplea el patrón \textit{visitor}.
+\subsubsection{CIL}
+El módulo correspondiente a la generación del código intermedio es \lstinline|cool_to_cil.py|. Aquí se encuentra el recorrido realizado sobre el \textit{AST} de COOL por medio de la clase \lstinline|COOLToCILVisitor| la cual hereda de \lstinline|BaseCOOLToCILVisitor|. Esta última contiene una serie de atributos claves y métodos auxiliares para facilitar la generación:
+
+\begin{itemize}
+	\item Las variables de instancia \lstinline|dottypes|, \lstinline|dotdata| y \lstinline|dotcode| almacenan los nodos correspondientes a las secciones .TYPES, .DATA y .CODE respectivamente de un programa en \textit{CIL}.
+	\item Las variables \lstinline|current_type| y \lstinline|current_method| almacenan instancias de \lstinline|Type| y \lstinline|Method| respectivamente.
+	\item La variable \lstinline|current_function| almacena el nodo cil.FunctionNode que está en proceso de construcción (estos nodos pertenecen a la sección .CODE).
+	
+	\item Para definir parámetros, variables locales e instrucciones dentro de \lstinline|current_function| se usan las funciones auxiliares \lstinline|register_param|, \lstinline|register_local| y \lstinline|register_instruction| respectivamente.
+	
+	\item Los métodos \lstinline|register_function| y \lstinline|register_type| almacenan instancias de cil.FunctionNode y cil.TypeNode en las variables \lstinline|dotcode| y \lstinline|dottypes| respectivamente.
+\end{itemize}
+
+
+\subsubsection{MIPS}
+Puntualizar:
+
+.Object Layout
+
+.Polimorfismo
+
+.LLamado a funciones
+
+
+
+\section{Problemas técnicos}
+Mencionar quizás:
+
+ . comentario múltiple
+ 
+ . herencia
+ 
+ . lowest commun ancestor
+
+\section{Uso del compilador}
+
+Cómo se ejecuta
+
+
+
+
+\end{document}
