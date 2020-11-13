@@ -52,8 +52,14 @@ class MIPS:
 
     @visitor.on(UnaryOperationIL)
     def visit(self, node):
-        pass
-
+        self.code.append("lw $a0, {}($sp)\n".format(-4*node.op))
+        
+        if node.symbol == '~':
+            self.code.append("not $a0, $a0\n")
+        else:
+            self.code.append("li $a1, 1\n")
+            self.code.append("sub $a0, $a1, $a0\n")
+        self.code.append("sw $a0, {}($sp)\n".format(-4 * node.var))
     #allocate
 
     @visitor.on(AllocateIL)
@@ -63,36 +69,48 @@ class MIPS:
     #assignment
     @visitor.on(VarToVarIL)
     def visit(self, node):
-        pass
+        self.code.append("lw $a0, {}($sp)\n".format(-4 * node.rigth))
+        self.code.append("sw $a0, {}($sp)\n".format(-4 * node.left))
 
     @visitor.on(VarToMemoIL)
     def visit(self, node):
-        pass
+        self.code.append("lw $a0, {}($sp)\n".format(-4*node.right))
+        self.code.append("lw $a1, {}($sp)\n".format(-4*node.left))
+        self.code.append("sw $a0, {}($a1)\n".format(4*node.offset))
 
     @visitor.on(MemoToVarIL)
     def visit(self, node):
-        pass
+        self.code.append("lw $a0, {}($sp)\n".format(-4 * node.right))
+        self.code.append("lw $a1, {}($a0)\n".format(4*node.offset))
+        self.code.append("sw $a1, {}($sp)\n".format(-4*node.left))
 
     @visitor.on(ConstToMemoIL)
     def visit(self, node):
-        pass
+        self.code.append("lw $a0, {}($sp)\n".format(-4 * node.left))
+        self.code.append("li $a1, {}\n".format(node.right))
+        self.code.append("sw $a1, {}($a0)\n".format(4*node.offset))
 
     #methods
     @visitor.on(LabelIL)
     def visit(self, node):
-        pass
+        self.code.append(node.label + ':\n')
+        if node.func:
+            self.code.append("sw $ra, ($sp)\n")
+            self.code.append("addiu $sp, $sp, 4\n")
+
 
     @visitor.on(GotoIL)
     def visit(self, node):
-        pass
+        self.code.append("j " + node.label + "\n")
 
     @visitor.on(CommentIL)
     def visit(self, node):
-        pass
+        self.code.append(str(node))
 
     @visitor.on(IfJumpIL)
     def visit(self, node):
-        pass
+        self.code.append("lw $a0, {}($sp)\n".format(-4 * node.var))
+        self.code.append("bnez $a0, " + node.label + "\n")
 
     @visitor.on(HierarchyIL)
     def visit(self, node):
@@ -128,11 +146,15 @@ class MIPS:
 
     @visitor.on(StringIL)
     def visit(self, node):
-        pass
+        self.code.append("{}: .asciiz {}\n".format(node.label, node.string))
 
     @visitor.on(PrintIL)
     def visit(self, node):
-        pass
+        if node.string:
+            self.code.append("la $t0, _out_string\n")
+        else:
+            self.code.append("la $t0, _out_in\n")
+        self.code.append("jalr $ra, $t0\n")
 
     @visitor.on(LoadLabelIL)
     def visit(self, node):
