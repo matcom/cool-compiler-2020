@@ -87,14 +87,14 @@ def main():
 
             formatter = FormatVisitor()
             tree = formatter.visit(ast)
-            print(tree)
+            #print(tree)
 
-            #errors = check_semantic(ast)
+            errors = check_semantic(ast)
             # Print semantic errors
-            #if len(errors) > 0:
-            #    for er in errors:
-            #        print(er)
-            #    exit(1)
+            if len(errors) > 0:
+                for er in errors:
+                    print(er)
+                exit(1)
 
     except (IOError, FileNotFoundError):
         print(f"Error! File {program} not found.")

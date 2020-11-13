@@ -57,7 +57,7 @@ def check_features(ast: ProgramNode):
                 if type(feature) is FunctionFeatureNode:
                     parameters_name = []
                     for arg in feature.parameters:
-                        parameters_name.append(arg.typeName)
+                        parameters_name.append([arg.id, arg.typeName])
                     method_added = class_type.add_method(feature.id, parameters_name, feature.typeName)
                     if not method_added:
                         return 'Couldn\'t add method'
@@ -65,10 +65,25 @@ def check_features(ast: ProgramNode):
                 if type(feature) is AttributeFeatureNode:
                     feature_added = class_type.add_attribute(feature.id, feature.typeName, feature.expression)
                     if not feature_added:
-                        return 'Couldn\'t add feature'
+                        return 'Couldn\'t add attribute'
                     continue
-                return 'Unknown feature or Method'
+                return 'Unknown attribute or Method'
+            
+            class_methods = class_type.get_self_methods()
+            class_inherited_methods = class_type.get_methods_inherited()
+
+            for k in class_methods.keys():
+                if k in class_inherited_methods:
+                    if class_methods[k].return_type != class_inherited_methods[k].return_type:
+                        return "Child overriding function must have the same return type as father overrided function"
+                    if len(class_methods[k].args) != len(class_inherited_methods[k].args):
+                        return "Child overriding function must have the same params count as father overrided function"
+                    for i in range(0, len(class_methods[k].args)):
+                        if (class_methods[k].args[i])[1].name != (class_inherited_methods[k].args[i])[1].name:
+                            return "Child overriding function's params must have same type as father overrided function's params"
+
             left_check = left_check - 1
+            print(i)
             checked_types[i] = True
 
     return []
@@ -83,11 +98,10 @@ def check_expressions(ast: ProgramNode):
                     return error
                 if feature_type != expression_type:
                     return "Invalid expression returning type"
-        # Aqui meter en attributes y functions los atributos y funciones de la clase
-        # actual (incluidos los de la clase heredada)
-        attributes = {}
-        functions = {}
-        ############################################################################
+
+        attributes = AllTypes[cls.typeName].get_attributes()            
+        functions = AllTypes[cls.typeName].get_methods()
+            
         for feature in cls.features:
             if type(feature) is FunctionFeatureNode:
                 feature_type = feature.typeName
@@ -301,15 +315,16 @@ def check_semantic(ast: ProgramNode):
         return errors
 
     # Check expressions types
-    expressions_check_output = check_expressions(ast)
-    if len(expressions_check_output) > 0:
-        errors.append(expressions_check_output)
-        return errors
+    #expressions_check_output = check_expressions(ast)
+    #if len(expressions_check_output) > 0:
+    #    errors.append(expressions_check_output)
+    #    return errors
 
     # Check Main unity
-    if 'Main' not in AllTypes:
-        # Update Error message
-        errors.append('Main not declared')
-        return errors
+    #if 'Main' not in AllTypes:
+    #    # Update Error message
+    #    errors.append('Main not declared')
+    #    return errors
+    
     return []
 

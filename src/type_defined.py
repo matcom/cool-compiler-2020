@@ -9,14 +9,14 @@ class CoolType:
     def defined(self, method_name):
         return method_name in self.methods.keys()
 
-    def add_method(self, method_name, args_names, return_type):
+    def add_method(self, method_name, args_name_type, return_type):
         if not self.defined(method_name):
             args = []
-            for arg in args_names:
-                type_of_arg = get_type_by_name(arg)
+            for arg in args_name_type:
+                type_of_arg = get_type_by_name(arg[1])
                 if type_of_arg is None:
                     return False
-                args.append(type_of_arg)
+                args.append([arg[0], type_of_arg])
             type_of_return = get_type_by_name(return_type)
             if type_of_return is None:
                 return False
@@ -27,10 +27,10 @@ class CoolType:
 
     def get_attributes(self):
         node = self
-        attr = []
+        attr = {}
         while node:
-            for attrs in node.attributes.values():
-                attr.append(attrs)
+            for key in node.attributes.keys():
+                attr[key] = node.attributes[key]
             node = node.parent_type
         return attr
 
@@ -38,14 +38,32 @@ class CoolType:
         return self.methods
 
     def get_methods_inherited(self):
-        node = self
-        methods = []
+        node = self.parent_type
+        methods = {}
         while node:
-            for method in node.methods.values():
-                method.class_name = node.name
-                methods.append(method)
+            for methodName in node.methods.keys():
+                methods[methodName] = node.methods[methodName]
             node = node.parent_type
         return methods
+
+    def get_methods(self):
+        selfMethods = self.get_self_methods()
+        inheritedMethods = self.get_methods_inherited()
+        result = {}
+
+        for key in selfMethods:
+            if key in result:
+                continue
+            result[key] = selfMethods[key]
+
+        for key in inheritedMethods:
+            if key in result:
+                continue
+            result[key] = inheritedMethods[key]
+
+        return result
+            
+
 
     def get_method_without_inherit(self, method_name, args):
         try:
@@ -138,12 +156,12 @@ AllTypes = {
 object_type.add_method('abort', [], 'Object')
 object_type.add_method('type_name', [], 'String')
 object_type.add_method('copy', [], 'Object')
-io_type.add_method('out_string', ['String'], 'SELF_TYPE')
-io_type.add_method('out_int', ['Int'], 'SELF_TYPE')
-io_type.add_method('in_string', [''], 'String')
-io_type.add_method('in_int', [''], 'Int')
+io_type.add_method('out_string', [['x','String']], 'SELF_TYPE')
+io_type.add_method('out_int', [['x', 'Int']], 'SELF_TYPE')
+io_type.add_method('in_string', [['x', '']], 'String')
+io_type.add_method('in_int', [['x', '']], 'Int')
 string_type.add_method('length', [], 'Int')
-string_type.add_method('concat', ['String'], 'String')
-string_type.add_method('substr', ['Int', 'Int'], 'String')
+string_type.add_method('concat', [['x', 'String']], 'String')
+string_type.add_method('substr', [['a', 'Int'], ['b','Int']], 'String')
 
 BasicTypes = ['Object', 'SELF_TYPE', 'IO', 'String', 'Int', 'Bool']
