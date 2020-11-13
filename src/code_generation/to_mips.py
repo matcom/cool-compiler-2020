@@ -3,12 +3,43 @@ from nodesIL import *
 import visitor
 
 class MIPS:
-    def __init__(self):
-        pass
+    def __init__(self, il_code, il_data):
+        self.code = []
+        self.data = []
+        self.il_code = il_code
+        self.il_data = il_data
+        self.path = path
+
+    def _loadfrom(self, file):
+        fd = open(file)
+        return fd.read()
 
     def start(self):
-        pass
-    
+        code = ""
+        code += ".data\n"
+        code += "buffer:\n"
+        code += ".space 65536\n"
+        code += "\n"
+
+        for node in il_data:
+            self.visit(node)
+
+        code += "\n.globl main\n"
+        code+= ".text\n"
+
+        code += _loadfrom(path.join('code_generation/statics', 'IO.s'))
+        code += _loadfrom(path.join('code_generation/statics', 'Object.s'))
+        code += _loadfrom(path.join('code_generation/statics', 'String.s'))
+        code += _loadfrom(path.join('code_generation/statics', 'inherit.s'))
+
+        for c in self.code:
+            code += (c + "\n")
+
+        code += "li $v0, 10\n"
+        code += "syscall\n"
+
+        return code
+
     @visitor.on('node')
     def visit(self, node):
         pass

@@ -28,6 +28,6 @@ def main():
 
     if pipeline.pipeline_errors:
         exit(1)
- 
+
 if __name__ == "__main__":
     main()
