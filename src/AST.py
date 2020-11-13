@@ -103,10 +103,11 @@ class SubCaseNode:
         self.expression = expression 
 
 class DispatchNode(AtomicNode):
-    def __init__(self, func_id, parameters, left_expr):
+    def __init__(self, func_id, parameters, left_expr, left_type=None):
         self.func_id = func_id
         self.parameters = parameters
         self.left_expression = left_expr
+        self.left_type=left_type
 
 class StaticDispatchNode(AtomicNode):
     def __init__(self, func_id, parent_id ,parameters, left_expr):
@@ -151,7 +152,10 @@ class LesserEqualNode(ComparisonNode):
     pass
 
 class EqualNode(ComparisonNode):
-    pass
+    def __init__(self,left,right, isString=False):
+        self.left = left
+        self.right = right
+        self.isString = isString
 
 class ArithmeticNode(BinaryOperatorNode):
     pass

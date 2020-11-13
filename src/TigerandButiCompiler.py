@@ -488,12 +488,12 @@ def p_dispatch(p):
         p[0] = DispatchNode(func_id = p[1], parameters = [], left_expr = None)
     elif p[2] == '(':
         p[4].insert(0,p[3])
-        p[0] = DispatchNode(func_id = p[1], parameters = p[4], left_expr = None)
+        p[0] = DispatchNode(func_id = p[1], parameters = p[4], left_expr = p[4], left_type=p[4].type)
     elif p[5] == ')':
-        p[0] = DispatchNode(func_id = p[4], parameters = [], left_expr = p[1])
+        p[0] = DispatchNode(func_id = p[4], parameters = [], left_expr = p[1], p[1].type)
     elif p[2] == '.':
         p[6].insert(0,p[5])
-        p[0] = DispatchNode(func_id = p[3], parameters = p[6], left_expr = p[1])
+        p[0] = DispatchNode(func_id = p[3], parameters = p[6], left_expr = p[1], p[1].type)
     elif len(p) == 7:
         p[0] = StaticDispatchNode(func_id = p[5], parent_id = p[3] ,parameters = [], left_expr = p[1])
     else:
@@ -643,6 +643,9 @@ def p_comparison(p):
         p[0] = EqualNode(left = p[1], right = p[3])
     else:
         p[0] = BoolComplementNode(value = p[2])
+
+    if p[2].value=="equal" and p[1].type=="String":
+        p[0].isString=True
 
     if((p[1].value=="not" and p[2].type!="Bool") or (p[1].type!="Int" or p[3].type!="Int") or (p[2].value=="equal" and p[1].type!=p[3].type)):
         linea=1
