@@ -156,8 +156,7 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
         error3, type3 = GetExpressionReturnType(expression.elseExpr, insideFunction, attributes, functions, parameters, insideLet, letVars)
         if len(error3) > 0:
             return error3, ""
-        # Aqui el tipo de retorno es el primer ancestro en 
-        # comun de los tipos de retorno del then y el else
+
         thenType = AllTypes[type2]
         elseType = AllTypes[type3]
         return [], GetFirstCommonAncestor(thenType, elseType)
@@ -184,7 +183,7 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
         return [], lastType
 
     elif type(expression) is LetStatementNode:
-        letVariables = {}
+        letVariables = letVars
         for variable in expression.variables:
             error0, type0 = GetExpressionReturnType(variable.expression, insideFunction, attributes, functions, parameters, True, letVariables)
             if len(error0) > 0:
@@ -200,8 +199,6 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
 
 
     elif type(expression) is CaseStatementNode:
-        # Aqui se retorna el primer ancestro en comun de los tipos de retorno
-        # de las expresiones en los case
         eError, eType = GetExpressionReturnType(expression.expression, insideFunction, attributes, functions, parameters, insideLet, letVars)
         if len(eError) > 0:
             return eError, ""
@@ -251,6 +248,9 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
             if insideLet:
                 if expression.lex in letVars:
                     return [], letVars[expression.lex]
+            if insideCase:
+                if expression.lex in caseVar:
+                    return [], caseVar[expression.lex]
             if expression.lex in parameters:
                 return [], parameters[expression.lex]
             if expression.lex in attributes:
