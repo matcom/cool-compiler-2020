@@ -504,8 +504,30 @@ class codeVisitor:
         self.code.append(PopIL(len(node.args) + n))
 
     @visitor.on(ParentCallNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, variables):
+        self.code.append(CommentIL('Parent-Dispatch'))
+
+        result = variables.add_temp()
+        self.code.append(PushIL())
+
+        self.code.append('push object')
+        self.visit(node.obj, variables)
+        name = variables.peek_last()
+
+        i = 0
+        for p in node.args:
+            self.code.append(CommentIL('Args: ' + str(i)))
+            i += 1
+            self.visit(p, variables)
+        
+        method = node.idx.value + '.' + node.obj.idx.value
+        
+        self.code.append(DispatchParentIL(variables.id(result), variables.id(name), method))
+
+        for i in range((len(node.args) + 1)):
+            variables.pop_var()
+        self.code.append(PopIL(len(node.args) + 1))
+
 
     #constants
     @visitor.on(IntegerNode)
