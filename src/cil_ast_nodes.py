@@ -249,9 +249,11 @@ class Length(Expr):
         self.result = result
 
 class Concat(Expr):
-    def __init__(self, local1, local2, result):
-        self.string1 = local1
-        self.string2 = local2
+    def __init__(self, str1, len1, str2, len2, result):
+        self.str1 = str1
+        self.len1 = len1
+        self.str2 = str2
+        self.len2 = len2
         self.result = result
 
 class StringVar(Expr):
@@ -423,7 +425,7 @@ def get_formatter():
 
         @visitor.when(Concat)
         def visit(self, node):
-            return f'{node.result} = CONCAT {node.string1}  {node.string2}'
+            return f'{node.result} = CONCAT {node.str1}  {node.str2}'
 
         @visitor.when(SubStr)
         def visit(self, node):
