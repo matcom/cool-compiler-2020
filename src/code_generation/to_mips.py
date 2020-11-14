@@ -161,4 +161,5 @@ class MIPS:
 
     @visitor.on(LoadLabelIL)
     def visit(self, node):
-        pass
+        self.code.append("la $a0, " + node.label + "\n")
+        self.code.append("sw $a0, {}($sp)".format(-4 * node.var))
