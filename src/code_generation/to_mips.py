@@ -48,7 +48,34 @@ class MIPS:
 
     @visitor.on(BinaryOperationIL)
     def visit(self, node):
-        pass
+        self.code.append("lw $a0, " + node.label + "\n")
+        self,code,append("lw $a1, {}($sp)".format(-4 * node.var))
+
+        if node.symbol == '+':
+            self.code.append("add $a0, $a0, $a1\n")
+        elif node.symbol == '-':
+            self.code.append("sub $a0, $a0, $a1\n")
+        elif node.symbol == '*':
+            self.code.append("mult $a0, $a1\n")
+            self.code.append("mflo $a0\n")
+        elif node.symbol == '/':
+            self.code.append("div $a0, $a1\n")
+            self.code.append("mflo $a0\n")
+        elif node.symbol == '=':
+            self.code.append("seq $a0, $a0, $a1\n")
+        elif node.symbol == '>':
+            self.code.append("li $a2, 1\n")
+            self.code.append("add $a1, $a1, $a2\n")
+            self.code.append("sge $a0, $a0, $a1\n")
+        elif node.symbol == '>=':
+            self.code.append("sge $a0, $a0, $a1\n")
+        elif node.symbol == '<=':
+            self.code.append("add $a0, $a1, $a0\n")
+        elif node.symbol == '<':
+            self.code.append("li $a2, 1\n")
+            self.code.append("add $a0, $a0, $a2\n")
+            self.code.append("sge $a0, $a1, $a0\n")
+        self.code.append("sw $a0, {}($sp)\n".format(-4*node.var))
 
     @visitor.on(UnaryOperationIL)
     def visit(self, node):
