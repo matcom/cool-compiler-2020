@@ -384,27 +384,19 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
                  
     @visitor.when(COOL_AST.If)
     def visit(self, node, scope):
-        
         result_local = self.define_internal_local(scope=scope, name = "result")
-        cond_local = self.define_internal_local(scope=scope, name = "predicate")
-        then_local = self.define_internal_local(scope= scope, name = "then_value")
-        else_local = self.define_internal_local(scope=scope, name="else_value")
 
         cond_value = self.visit(node.predicate, scope)
-        self.register_instruction(CIL_AST.Assign(cond_local, cond_value))
-        
-        self.register_instruction(CIL_AST.IfGoto(cond_local, "if_then"))
+        self.register_instruction(CIL_AST.IfGoto(cond_value, "if_then"))
 
         else_value = self.visit(node.else_body, scope)
-        self.register_instruction(CIL_AST.Assign(else_local, else_value))
-        self.register_instruction(CIL_AST.Assign(result_local, else_local))
+        self.register_instruction(CIL_AST.Assign(result_local, else_value))
       
         self.register_instruction(CIL_AST.Goto("endif"))
 
         self.register_instruction(CIL_AST.Label("if_then"))
         then_value = self.visit(node.then_body, scope)
-        self.register_instruction(CIL_AST.Assign(then_local, then_value))
-        self.register_instruction(CIL_AST.Assign(result_local, then_local))
+        self.register_instruction(CIL_AST.Assign(result_local, then_value))
         self.register_instruction(CIL_AST.Label("endif"))
 
         return result_local
@@ -494,7 +486,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     
     @visitor.when(COOL_AST.Case)
     def visit(self, node, scope):
-        pass
+        case_expr = self.define_internal_local(scope=scope, name='case_expr')
         
     @visitor.when(COOL_AST.Action)
     def visit(self, node, scope):
