@@ -12,6 +12,8 @@ class BaseCOOLToCILVisitor:
         self.current_method = None
         self.current_function = None
         self.context = context
+        self.context.set_type_tags()
+        self.context.set_type_max_tags()
     
     @property
     def params(self):
