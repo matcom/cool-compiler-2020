@@ -12,24 +12,22 @@ class Defaults:
         copy=MethodNode("copy",[],"SELF_TYPE",[])
         init=MethodNode("$init",[],"SELF_TYPE",[])
 
-        clase=ClassNode("Object",None,[identifier,typeString,abort,typename,copy])
+        clase=ClassNode("Object",None,[typeString,abort,typename,copy])
 
         return clase
     
     def IOClass():
-        identifier=AttributeNode("type#","Int",IntegerNode(1))
         typeString=AttributeNode("$type","String",StringNode("IO"))
         out_string=MethodNode("out_string",[ParameterNode("x","String")],"SELF_TYPE",[])
         out_int=MethodNode("out_int",[ParameterNode("x","Int")],"SELF_TYPE",[])
         in_string=MethodNode("in_string",[],"String",[])
         in_int=MethodNode("in_int",[],"Int",[])
 
-        clase=ClassNode("IO","Object",[identifier,typeString,out_string,out_int,in_string,in_int])
+        clase=ClassNode("IO","Object",[typeString,out_string,out_int,in_string,in_int])
 
         return clase
 
     def StringClass():
-        identifier=AttributeNode("type#","Int",IntegerNode(2))
         typeString=AttributeNode("$type","String",StringNode("String"))
         value=AttributeNode("value", "Int", IntegerNode(0))
 
@@ -37,7 +35,7 @@ class Defaults:
         concat=MethodNode("concat",[ParameterNode("s","String")],"String",[])
         substr=MethodNode("substr",[ParameterNode("i","Int"),ParameterNode("l","Int")],"String",[])
 
-        clase=ClassNode("String","Object",[identifier,typeString,value,length,concat,substr])
+        clase=ClassNode("String","Object",[typeString,value,length,concat,substr])
         
         return clase
 

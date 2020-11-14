@@ -300,7 +300,10 @@ class CILTranspiler:
         elif node is LesserEqualNode:
             nuevoCIL=CILLesserEqual(nombrevariable,[izquierda,derecha])
         elif node is EqualNode:
-            nuevoCIL=CILEqual(nombrevariable,[izquierda,derecha])
+            if node.isString:
+                nuevoCIL=CILStringEqual(nombrevariable,[izquierda,derecha])
+            else:
+                nuevoCIL=CILEqual(nombrevariable,[izquierda,derecha])
         
         instrucciones.append(nuevoCIL)
         self.variablecount+=1
@@ -331,6 +334,8 @@ class CILTranspiler:
 
         return instructions
 
+
+    ##TODO Agregarle a Dispatch unos modos que faltaron
     @visitor.when(DispatchNode)
     def visit(self, node:DispatchNode, scope:Scope):
         instructions=[]
@@ -344,7 +349,7 @@ class CILTranspiler:
             paramInstruction.append(CILArgument(params=[paramInstruction[len(paramInstruction)-1].destination]))
             instructions.extend(paramInstruction)
 
-        instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
+        instructions.append(CILArgument(params=[node.left_type,leftInstructions[len(leftInstructions)-1].destination]))
         resultVariable=self.GenerarNombreVariable(scope)
         llamada=CILCall(resultVariable,[node.func_id])
         instructions.append(llamada)

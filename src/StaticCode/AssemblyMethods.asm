@@ -97,8 +97,8 @@
      jr $ra
 
      .Int.igual:
-     lw $t1, $a0
-     lw $t2, $a1
+     move $t1, $a0
+     move $t2, $a1
      beq $t1, $t2, Iguales
      li $v0, 0
      b FinalIgual
@@ -124,7 +124,7 @@
      sw $v0, $a1
      jr $ra
 
-     .Int.abort:
+     .Object.abort:
      li $v0, 10
      syscall
      jr $ra
