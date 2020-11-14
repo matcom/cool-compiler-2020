@@ -91,7 +91,12 @@ class MIPS:
 
     @visitor.on(AllocateIL)
     def visit(self, node):
-        pass
+        self.code.append("li $v0, 9\n")
+        self.code.append("li $a0, {}\n".format(4*node.size))
+        self.code.append("syscall\n")
+        self.code.append("sw $v0, {}($sp)\n".format(-4*node.var))
+        self.code.append("la $a1, {}_VT\n".format(node.typ))
+        self.code.append("sw $a1, ($v0)\n")
 
     #assignment
     @visitor.on(VarToVarIL)
