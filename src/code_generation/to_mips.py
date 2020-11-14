@@ -133,7 +133,11 @@ class MIPS:
 
     @visitor.on(ReturnIL)
     def visit(self, node):
-        pass
+        self.code.append("lw $v0, -4($sp)\n")
+        self.code.append("addiu $sp, $sp, -4\n")
+        self.code.append("lw $ra, -4($sp)\n")
+        self.code.append("addiu $sp, $sp, -4\n")
+        self.code.append("jr $ra\n")
 
     @visitor.on(DispatchIL)
     def visit(self, node):
@@ -162,4 +166,4 @@ class MIPS:
     @visitor.on(LoadLabelIL)
     def visit(self, node):
         self.code.append("la $a0, " + node.label + "\n")
-        self.code.append("sw $a0, {}($sp)".format(-4 * node.var))
+        self.code.append("sw $a0, {}($sp)\n".format(-4 * node.var))
