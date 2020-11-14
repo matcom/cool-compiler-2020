@@ -367,6 +367,51 @@ class CILToMIPSVisitor():
 
         offset = self.var_offset[self.current_function.name][node.result]
         self.text += f'sw $a0, {offset}($sp)\n'  # store length count address in local
+    
+    @visitor.when(CIL_AST.Concat)
+    def visit(self, node):
+        offset_str1 = self.var_offset[self.current_function.name][node.str1]
+        offset_len1 = self.var_offset[self.current_function.name][node.len1]
+
+        offset_str2 = self.var_offset[self.current_function.name][node.str2]
+        offset_len2 = self.var_offset[self.current_function.name][node.len2]
+
+        # reserve space for concatenation result
+        self.text += f'lw $a0, {offset_len1}($sp)\n'
+        self.text += f'lw $t0, {offset_len2}($sp)\n'
+        # add Rdest, Rsrc1, Src2 Addition (with overflow)
+        # is similar to addi but 2do summand can be a register
+        self.text += 'add $a0, $a0, t0\n'
+        self.text += 'addi $a0, $a0, 1\n' # reserve 1 more byte for '\0'
+        self.text += f'li $v0, 9\n'
+        self.text += f'syscall\n'
+        # the beginning of new reserved address is in $v0
+
+        self.text += f'move $t0, {offset_str1}($sp)\n'
+        self.text += f'move $t1, {offset_str2}($sp)\n'
+
+        # copy str1 starting in $t0 to $v0
+        self.text += 'copy_str1_char:\n'
+        self.text += 'lb $t2, ($t0)\n' # loading current char from str1
+        self.text += 'sb $t2, ($v0)\n' # storing current char into result_str end
+        self.text += 'beqz $t2, concat_str2_char\n' # finish if a zero is found
+        self.text += 'addi $t0, $t0, 1\n' # move to the next char
+        self.text += 'addi $v0, $v0, 1\n' # move to the next available byte
+        self.text += 'j copy_str1_char\n'
+
+        # concat str2 starting in $t1 to $v0
+        self.text += 'concat_str2_char:\n'
+        self.text += 'lb $t2, ($t0)\n' # loading current char from str1
+        self.text += 'sb $t2, ($v0)\n' # storing current char into result_str end
+        self.text += 'beqz $t2, finish_str2_concat\n' # finish if a zero is found
+        self.text += 'addi $t1, $t1, 1\n' # move to the next char
+        self.text += 'addi $v0, $v0, 1\n' # move to the next available byte
+        self.text += 'j concat_str2_char\n'
+        self.text += 'finish_str2_concat:\n'
+        self.text += 'sb $0, ($v0)\n' # put '\0' at the end
+        
+        offset = self.var_offset[self.current_function.name][node.result]
+        self.text += f'sw $v0, {offset}($sp)\n'  # store length count address in local
 
 if __name__ == '__main__':
     import sys
