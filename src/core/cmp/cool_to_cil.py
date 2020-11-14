@@ -434,7 +434,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(while_label_node)
         #If condition GOTO loop
         self.visit(node.condition, scope)
-        self.register_instruction(cil.GetAttribNode(vcondition, scope.ret_exp, 'value', 'Bool'))
+        self.register_instruction(cil.GetAttribNode(vcondition, scope.ret_expr, 'value', 'Bool'))
         self.register_instruction(cil.GotoIfNode(vcondition, loop_label_node.label))
         #GOTO pool
         self.register_instruction(cil.GotoNode(pool_label_node.label))
