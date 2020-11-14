@@ -137,10 +137,8 @@ class CILToMIPSVisitor():
         self.text += f'move $t0, $v0\n'
         
         #Initialize Object Layout
-
-        # Set tag here in the future
-        # self.text += f'la $t1, {node.type}_name\n' #tag
-        # self.text += f'sw $t1, 0($t0)\n'
+        self.text += f'li $t1, {node.tag}\n' #tag
+        self.text += f'sw $t1, 0($t0)\n'
         self.text += f'la $t1, {node.type}_name\n' #type_name
         self.text += f'sw $t1, 4($t0)\n'
         self.text += f'li $t1, {amount}\n' #size

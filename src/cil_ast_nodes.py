@@ -176,9 +176,10 @@ class BinaryOperator(Expr):
         self.op = op
 
 class Allocate(Expr):
-    def __init__(self, t, dest):
+    def __init__(self, t,tag, dest):
         self.type = t
         self.local_dest = dest
+        self.tag = tag
     
     def __str__(self):
         return f'ALLOCATE {self.type};'

@@ -332,7 +332,7 @@ class Context:
     def set_type_tags(self, node='Object', tag=0):
         self.types[node].tag = tag
         for t in self.graph[node]:
-            self.set_type_tag(t, tag + 1)
+            self.set_type_tags(t, tag + 1)
             
     def set_type_max_tags(self, node='Object'):
         if not self.graph[node]:
