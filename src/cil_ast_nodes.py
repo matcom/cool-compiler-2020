@@ -201,10 +201,16 @@ class Arg(Expr):
         return f'ARG {self.arg};'
 
 class Case(Expr):
-    def __init__(self, local_typeof, types_list, label_list):
-        self.local_typeof = local_typeof
-        self.types_list = types_list
-        self.label_list = label_list
+    def __init__(self, local_expr, first_label):
+        self.local_expr = local_expr
+        self.first_label = first_label
+
+class Action(Expr):
+    def __init__(self, local_expr, tag, max_tag, next_label):
+        self.local_expr = local_expr
+        self.tag = tag
+        self.max_tag = max_tag
+        self.next_label = next_label
 
 class IfGoto(Expr):
     def __init__(self, variable, label):

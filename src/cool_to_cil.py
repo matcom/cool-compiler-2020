@@ -12,6 +12,7 @@ class BaseCOOLToCILVisitor:
         self.current_method = None
         self.current_function = None
         self.context = context
+        self.label_count = 0
         self.context.set_type_tags()
         self.context.set_type_max_tags()
     
@@ -27,6 +28,10 @@ class BaseCOOLToCILVisitor:
     def instructions(self):
         return self.current_function.instructions
     
+    def get_label(self):
+        self.label_count += 1
+        return f'label_{self.label_count}'
+
     def register_param(self, vinfo):
         param_node = CIL_AST.ParamDec(vinfo.name)
         self.params.append(param_node)
@@ -486,8 +491,32 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     
     @visitor.when(COOL_AST.Case)
     def visit(self, node, scope):
-        case_expr = self.define_internal_local(scope=scope, name='case_expr')
+        result_local = self.define_internal_local(scope = scope, name = "result")
+        case_expr = self.visit(node.expr, scope)
+
+        exit_label = self.get_label()
+        label = self.get_label()
+
+        self.register_instruction(CIL_AST.Case(case_expr, label))
         
+        action_lst = []
+        for action in node.actions:
+            tag = self.context.get_type(action.action_type).tag
+            action_lst.append((tag, action))
+        action_lst.sort()
+
+        for t, action in reversed(action_lst):
+            self.register_instruction(CIL_AST.Label(label))
+            label = self.get_label()
+            action_type = self.context.get_type(action.action_type) 
+            self.register_instruction(CIL_AST.Action(case_expr, action_type.tag, action_type.max_tag, label))
+            #TODO Assign expr to id  
+            expr_result = self.visit(action.body, scope)
+            self.register_instruction(CIL_AST.Assign(result_local, expr_result))
+            self.register_instruction(CIL_AST.Goto(exit_label))
+        self.register_instruction(CIL_AST.Label(exit_label))
+        return result_local
+
     @visitor.when(COOL_AST.Action)
     def visit(self, node, scope):
         pass
