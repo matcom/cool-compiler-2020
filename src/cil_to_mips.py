@@ -387,8 +387,8 @@ class CILToMIPSVisitor():
         self.text += f'syscall\n'
         # the beginning of new reserved address is in $v0
 
-        self.text += f'move $t0, {offset_str1}($sp)\n'
-        self.text += f'move $t1, {offset_str2}($sp)\n'
+        self.text += f'lw $t0, {offset_str1}($sp)\n'
+        self.text += f'lw $t1, {offset_str2}($sp)\n'
 
         # copy str1 starting in $t0 to $v0
         self.text += 'copy_str1_char:\n'
@@ -412,6 +412,49 @@ class CILToMIPSVisitor():
         
         offset = self.var_offset[self.current_function.name][node.result]
         self.text += f'sw $v0, {offset}($sp)\n'  # store length count address in local
+
+    @visitor.when(CIL_AST.SubStr)
+    def visit(self, node):
+        offset_idx = self.var_offset[self.current_function.name][node.i]
+        offset_len = self.var_offset[self.current_function.name][node.length]
+        offset_str = self.var_offset[self.current_function.name][node.string]
+
+        # reserve space for substring result
+        self.text += f'lw $a0, {offset_len}($sp)\n'
+        self.text += 'addi $a0, $a0, 1\n' # reserve 1 more byte for '\0'
+        self.text += f'li $v0, 9\n'
+        self.text += f'syscall\n'
+        # the beginning of new reserved address is in $v0
+        
+        self.text += f'lw $t0, {offset_idx}($sp)\n'
+        self.text += f'lw $t1, {offset_len}($sp)\n'
+        self.text += f'lw $t2, {offset_str}($sp)\n'
+
+        # jump first i chars
+        self.text += 'li $a0, 0\n'
+        self.text += 'jump_str_char:\n'
+        self.text += f'beq $a0, $t0, finish_index_jump\n' # finish if we are at index i
+        self.text += 'addi $a0, $a0, 1\n' # chars count
+        self.text += 'addi $t2, $t2, 1\n' # move to the next char
+        self.text += 'j jump_str_char\n'
+        self.text += 'finish_index_jump:\n'
+        self.text += 'li $a0, 0\n' # reset $a0 to count the length
+
+        # coping chars from string $t2 (starting in $t0 index) until length $t1 to $v0
+        self.text += 'copy_substr_char:\n'
+        self.text += 'beq $a0, $t1 finish_substr_copy\n' # finish if the chars count is equals to length
+        self.text += 'lb $t0, ($t2)\n' # loading current char from string
+        self.text += 'sb $t0, ($v0)\n' # storing current char into result_str end
+        self.text += 'addi $t2, $t2, 1\n' # move to the next char
+        self.text += 'addi $v0, $v0, 1\n' # move to the next available byte
+        self.text += 'addi $a0, $a0, 1\n' # chars count
+        self.text += 'j copy_substr_char\n'
+        self.text += 'finish_substr_copy:\n'
+        self.text += 'sb $0, ($v0)\n' # put '\0' at the end
+        
+        offset = self.var_offset[self.current_function.name][node.result]
+        self.text += f'sw $v0, {offset}($sp)\n'  # store length count address in local
+
 
 if __name__ == '__main__':
     import sys
