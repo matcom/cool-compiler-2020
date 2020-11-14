@@ -220,6 +220,20 @@ class CILToMIPSVisitor():
 
         self.text += f'jal {node.function}\n'
 
+    @visitor.when(CIL_AST.Case)
+    def visit(self, node):
+        offset = self.var_offset[self.current_function.name][node.local_expr]
+        self.text += f'lw $t0, {value_offset}($sp)\n'
+        self.text += f'lw $t1, 0($t0)\n'
+        self.text += 'la $a0, void\n'
+        self.text += f'bne	$t1 $a0 {node.first_label}'
+        #TODO runtime error when is void
+
+    @visitor.when(CIL_AST.Action)
+    def visit(self, node):
+        self.text += f'blt	$t1 {node.tag} {node.next_label}'
+        self.text += f'bgt	$t1 {node.max_tag} {node.next_label}'
+
 
     @visitor.when(CIL_AST.BinaryOperator)
     def visit(self, node):
