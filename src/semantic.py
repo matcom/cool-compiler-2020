@@ -63,15 +63,18 @@ def check_features(ast: ProgramNode):
                     parameters_type = []
                     parameters_name = []
                     for arg in feature.parameters:
-                        parameters_name.append([arg.id, arg.typeName])
-                    method_added = class_type.add_method(feature.id, parameters_name, feature.typeName)
-                    if not method_added:
-                        return 'Couldn\'t add method'
+                        parameters_name.append(arg.id)
+                        parameters_type.append(arg.typeName)
+                    method_added = class_type.add_method(feature.id, parameters_type, parameters_name, feature.typeName)
+                    if len(method_added) > 0:
+                        return f'({feature.parameters[method_added[1]].getLineNumber()}, ' \
+                               f'{feature.parameters[method_added[1]].getColumnNumber()}) ' \
+                               f'{method_added[0]}'
                     continue
                 if type(feature) is AttributeFeatureNode:
-                    feature_added = class_type.add_attribute(feature.id, feature.typeName, feature.expression)
-                    if not feature_added:
-                        return 'Couldn\'t add attribute'
+                    feature_added_error = class_type.add_attribute(feature.id, feature.typeName, feature.expression)
+                    if len(feature_added_error) > 0:
+                        return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) {feature_added_error}'
                     continue
                 return 'Unknown attribute or Method'
 
