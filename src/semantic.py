@@ -5,9 +5,12 @@ from type_defined import AllTypes, CoolType, object_type, BasicTypes
 
 def check_type_declaration(ast: ProgramNode):
     for cls in ast.classes:
+        if cls.typeName in BasicTypes:
+            return f'({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Redefinition of basic class {cls.typeName}.'
         if cls.typeName in AllTypes:
             # TODO Update return error message
             return 'Re-declaring class'
+
         AllTypes[cls.typeName] = CoolType(cls.typeName, None)
     return []
 
@@ -24,11 +27,11 @@ def check_type_inheritance(ast: ProgramNode):
                         # TODO Update error message
                         return "Can't inherit from same class"
                 else:
-                    # TODO Update error message
-                    return f'Error inherit from {cls.fatherTypeName}'
+                    return f'({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Class {cls.typeName} ' \
+                           f'cannot inherit class {father_type.name}.'
             else:
-                # TODO Update error message
-                return f'Error getting {cls.fatherTypeName}'
+                return f"({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Class {cls.typeName} " \
+                       f"inherits from an undefined class {cls.fatherTypeName}. "
         else:
             AllTypes[cls.typeName].parent_type = object_type
 
@@ -74,6 +77,7 @@ def check_features(ast: ProgramNode):
 
     return []
 
+
 def check_expressions(ast: ProgramNode):
     for cls in ast.classes:
         for feature in cls.features:
@@ -95,17 +99,18 @@ def check_expressions(ast: ProgramNode):
                 params = {}
                 for parameter in feature.parameters:
                     params[parameter.id] = parameter.typeName
-                
-                error, expression_type = GetExpressionReturnType(feature.expression, attributes, functions, params, True)
+
+                error, expression_type = GetExpressionReturnType(feature.expression, attributes, functions, params,
+                                                                 True)
                 if len(error) > 0:
                     return error
                 if feature_type != expression_type:
                     return "Invalid expression returning type"
-    
+
     return []
 
-def GetExpressionReturnType(expression, attributes = {}, functions = {}, parameters = {}, isFunction = False):
 
+def GetExpressionReturnType(expression, attributes={}, functions={}, parameters={}, isFunction=False):
     if type(expression) is AssignStatementNode:
         error1, type1 = GetExpressionReturnType(expression.expression)
         if len(error1) > 0:
@@ -278,6 +283,7 @@ def GetExpressionReturnType(expression, attributes = {}, functions = {}, paramet
             return "Only integers can be divided", ""
         return [], "Int"
 
+
 def check_cyclic_inheritance():
     graph = Graph(len(AllTypes.keys()))
 
@@ -334,4 +340,3 @@ def check_semantic(ast: ProgramNode):
         errors.append('Main not declared')
         return errors
     return []
-
