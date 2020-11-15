@@ -63,9 +63,9 @@ def p_attribute_feature(p):
     '''attribute_feature : ATTRIBUTEID COLON CLASSID SEMICOLON
                             | ATTRIBUTEID COLON CLASSID ASSIGNATION expression SEMICOLON'''
     if len(p) == 5:
-        p[0] = AttributeFeatureNode(p[1], p[3], None, [GetPosition(p, 1), GetPosition(p, 3)])
+        p[0] = AttributeFeatureNode(p[1], p[3], None, [GetPosition(p, 3)])
     else:
-        p[0] = AttributeFeatureNode(p[1], p[3], p[5], [GetPosition(p, 1), GetPosition(p, 3)])
+        p[0] = AttributeFeatureNode(p[1], p[3], p[5], [GetPosition(p, 3)])
 
 
 def p_function_feature(p):
