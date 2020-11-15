@@ -27,10 +27,10 @@ class CoolType:
 
     def get_attributes(self):
         node = self
-        attr = []
+        attr = {}
         while node:
             for attrs in node.attributes.values():
-                attr.append(attrs)
+                attr[attrs.id] = attrs
             node = node.parent_type
         return attr
 
@@ -71,12 +71,12 @@ class CoolType:
     def add_attribute(self, attribute_name, attribute_type, expression):
         attr = self.get_attribute(attribute_name)
         if attr is not None:
-            return False
+            return f'- SemanticError: Attribute {attribute_name} is an attribute of an inherited class.'
         class_attr_type = get_type_by_name(attribute_type)
         if not class_attr_type:
-            return False
+            return f'- SemanticError: Attribute {attribute_name} does not have a defined type.'
         self.attributes[attribute_name] = CoolAttribute(attribute_name, class_attr_type, expression)
-        return True
+        return []
 
     def get_attribute(self, attribute_name):
         t = self
