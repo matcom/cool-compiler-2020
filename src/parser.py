@@ -6,8 +6,13 @@ start = 'program'
 errors = []
 
 
+def find_column(p, lex_pos):
+    line_start = p.lexer.lexdata.rfind('\n', 0, lex_pos) + 1
+    return (lex_pos - line_start) + 1
+
+
 def GetPosition(p, x):
-    return p.lineno(x), p.lexpos(x)
+    return p.lineno(x), find_column(p, p.lexpos(x))
 
 
 def p_program(p):
@@ -30,7 +35,7 @@ def p_class_definition(p):
     if len(p) == 7:
         p[0] = ClassNode(p[2], p[4], None, [GetPosition(p, 2)])
     else:
-        p[0] = ClassNode(p[2], p[6], p[4], [GetPosition(p, 2), GetPosition(p, 4)])
+        p[0] = ClassNode(p[2], p[6], p[4], [GetPosition(p, 4)])
 
 
 def p_empty(p):
