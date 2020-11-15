@@ -146,12 +146,16 @@ class MIPS:
 
     @visitor.on(HierarchyIL)
     def visit(self, node):
-        self.code.append(node.node + "_INH\n")
+        self.code.append(node.node + "_INH:\n")
         self.code.append(".word {}_INH\n".format(node.parent))
 
     @visitor.on(VirtualTableIL)
     def visit(self, node):
-        pass
+        self.code.append(node.name + "_VT:\n")
+        self.code.append(".word {}_INH\n".format(node.name))
+        
+        for m in node.methods:
+            self.code.append(".word " + str(m) + "\n")
 
     @visitor.on(PushIL)
     def visit(self, node):
