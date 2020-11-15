@@ -30,7 +30,7 @@ def check_type_inheritance(ast: ProgramNode):
                     return f'({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Class {cls.typeName} ' \
                            f'cannot inherit class {father_type.name}.'
             else:
-                return f"({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Class {cls.typeName} " \
+                return f"({cls.getLineNumber()}, {cls.getColumnNumber()}) - TypeError: Class {cls.typeName} " \
                        f"inherits from an undefined class {cls.fatherTypeName}. "
         else:
             AllTypes[cls.typeName].parent_type = object_type
@@ -67,9 +67,9 @@ def check_features(ast: ProgramNode):
                         return 'Couldn\'t add method'
                     continue
                 if type(feature) is AttributeFeatureNode:
-                    feature_added = class_type.add_attribute(feature.id, feature.typeName, feature.expression)
-                    if not feature_added:
-                        return 'Couldn\'t add feature'
+                    feature_added_error = class_type.add_attribute(feature.id, feature.typeName, feature.expression)
+                    if len(feature_added_error) > 0:
+                        return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) {feature_added_error}'
                     continue
                 return 'Unknown feature or Method'
             left_check = left_check - 1
@@ -312,6 +312,18 @@ def check_cyclic_inheritance(ast):
     return [] if graph.dfs('Object') else get_cyclic_class(graph, ast)
 
 
+def check_attributes_inheritance(ast):
+    for cls in ast.classes:
+        type_cls = AllTypes[cls.typeName]
+        attr_inherited = type_cls.get_attributes()
+        for attr in cls.features:
+            if type(attr) is AttributeFeatureNode:
+                if attr.id in attr_inherited:
+                    print(attr)
+        return ''
+    return []
+
+
 def check_semantic(ast: ProgramNode):
     errors = []
 
@@ -327,6 +339,12 @@ def check_semantic(ast: ProgramNode):
     inheritance_check_output = check_type_inheritance(ast)
     if len(inheritance_check_output) > 0:
         errors.append(inheritance_check_output)
+        return errors
+
+    # Check illegal redefinition of methods
+    attr_inheritance_redefinition = check_attributes_inheritance(ast)
+    if len(attr_inheritance_redefinition) > 0:
+        errors.append(attr_inheritance_redefinition)
         return errors
 
     # Check cyclic inheritance
