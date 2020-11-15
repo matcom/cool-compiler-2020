@@ -56,6 +56,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
     @visitor.when(DataNode)
     def visit(self, node:DataNode):
         self.data_code.append(f"{node.name}: .asciiz \"{node.value}\"")    
+        self.strings[node.name] = node.value
 
     @visitor.when(FunctionNode)
     def visit(self, node:FunctionNode):
@@ -258,10 +259,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         size = 4*self.obj_table.size_of_entry(node.type)      # size of the table entry of the new type
         self.var_address[node.dest] = AddrType.REF
         # syscall to allocate memory of the object entry in heap
-        var = self.reg_desc.get_content('a0')
-        if var is not None:
-            self.code.append('# Saving content of a0 to memory to use that register')
-            self.save_var_code(var)
+        var = self.save_reg_if_occupied('a0')
         
         self.code.append('# Syscall to allocate memory of the object entry in heap')
         self.code.append('li $v0, 9')                         # code to request memory
@@ -284,9 +282,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.create_dispatch_table(node.type)               # memory of dispatch table in v0
         self.code.append(f'sw $v0, 8(${rdest})')            # save a pointer of the dispatch table in the 3th position
        
-        if var is not None:
-            self.code.append('# Restore the variable of a0')
-            self.load_var_code(var)
+        self.load_var_if_occupied(var)
       
     def create_dispatch_table(self, type_name):
         # Get methods of the dispatch table
@@ -429,3 +425,183 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append(f'# Saves in {node.dest} {node.msg}')
         self.var_address[node.dest] = AddrType.STR
         self.code.append(f'la ${rdest}, {node.msg}')
+
+    
+    @visitor.when(LengthNode)
+    def visit(self, node: LengthNode):
+        rdest = self.addr_desc.get_var_reg(node.dest)
+        reg = self.addr_desc.get_var_reg(node.arg)
+        loop = f'loop_{self.loop_idx}'
+        end = f'end_{self.loop_idx}'
+        # saving the value of reg to iterate
+        self.code.append(f'move $t8, ${reg}')
+        self.code.append('# Determining the length of a string')
+        self.code.append(f'{loop}:')
+        self.code.append(f'lb $t9, 0($t8)')
+        self.code.append(f'beq $t9, $zero, {end}')
+        self.code.append(f'addi $t8, $t8, 1')
+        self.code.append(f'j {loop}')
+        self.code.append(f'{end}:')
+        self.code.append(f'{rdest}, $t8, {reg}')
+        self.loop_idx += 1
+
+    @visitor.when(ConcatNode)
+    def visit(self, node: ConcatNode):
+        rdest = self.addr_desc.get_var_reg(node.dest)
+        rsrc1 = self.addr_desc.get_var_reg(node.arg1)
+        rsrc2 = self.addr_desc.get_var_reg(node.arg2)
+        
+        self.code.append('# Copy the first string to dest')
+        var1 = self.save_reg_if_occupied('a0')
+        var2 = self.save_reg_if_occupied('a1')
+        self.code.append(f'move $a0, ${rsrc1}')
+        self.code.append(f'move $a1, ${rdest}')
+        self.code.append('jal strcopier')
+
+        self.code.append('# Concatenate second string on result buffer')
+        self.code.append(f'move $a0, ${rsrc2}')
+        self.code.append(f'move $a1, $v0')
+        self.code.append('jal strcopier')
+        self.code.append(f'j finish_{self.loop_idx}')
+
+        if self.first_defined['strcopier']:
+            self.code.append('# Definition of strcopier')
+            self.code.append('strcopier:')
+            self.code.append('# In a0 is the source and in a1 is the destination')
+            self.code.append(f'loop_{self.loop_idx}:')
+            self.code.append('lb $t8, ($a0)')
+            self.code.append(f'beq $t8, $zero, end_{self.loop_idx}')
+            self.code.append('addiu $a0, $a0, 1')
+            self.code.append('sb $t8, ($a1)')
+            self.code.append('addiu $a1, $a1, 1')
+            self.code.append(f'b loop_{self.loop_idx}')
+            self.code.append(f'end_{self.loop_idx}:')
+            self.code.append('move $v0, $a1')
+            self.code.append('jr $ra')
+            self.first_defined['strcopier'] = False
+        
+        self.code.append(f'finish_{self.loop_idx}:')
+        self.load_var_if_occupied(var1)
+        self.load_var_if_occupied(var2)
+        self.loop_idx += 1
+
+
+    @visitor.when(SubstringNode)
+    def visit(self, node: SubstringNode):
+        # TODO: Really not sure if the result should be allocated as well
+        rdest = self.addr_desc.get_var_reg(node.dest)
+        rstart = self.addr_desc.get_var_reg(node.start)
+        rend = self.addr_desc.get_var_reg(node.end)
+        rself = self.addr_desc.get_var_reg('self')
+
+        self.code.append("# Getting the substring of a node")
+        # Moves to the first position of the string
+        self.code.append(f'sll $t9, ${rstart}, 2')  # multiplicar entre 4
+        self.code.append(f'add $t8, t8, $t9')
+
+        self.code.append('# Saving dest to iterate over him')
+        self.code.append(f'move $v0, ${rdest}')
+
+        loop = f'loop_{self.loop_idx}'
+        end = f'end_{self.loop_idx}'
+        # Loops moving the bytes until reaching to end
+        self.code.append(f'{loop}:')
+        self.code.append(f'sub $t9, $v0, ${rdest}') # i should check: if this rest is negative runtime error generated
+        self.code.append('srl $t9, $t9, 2')         # dividir entre 4
+        self.code.append(f'beq $t9, ${rend}, {end}')
+        self.code.append(f'lb $t9, 0($t8)')
+        self.code.append(f'sb $t9, $v0')
+        
+        self.code.append('addi $t8, $t8, 1')
+        self.code.append(f'addi $v0, $v0, 1')
+        self.code.append(f'j {loop}')
+        self.code.append(f'{end}:')
+        self.code.append(f'{rdest}, $t8, {reg}')
+
+
+    @visitor.when(OutStringNode)
+    def visit(self, node: OutStringNode):
+        reg = self.addr_desc.get_var_reg(node.value)
+        self.code.append('# Printing a string')
+        self.code.append('li $v0, 4')
+        var = self.save_reg_if_occupied('a0')
+        self.code.append(f'move $a0, ${reg}')
+        self.code.append('syscall')
+        self.load_var_if_occupied(var)
+
+    @visitor.when(OutIntNode)
+    def visit(self, node: OutIntNode):
+        reg = self.addr_desc.get_var_reg(node.value)
+        self.code.append('# Printing an int')
+        self.code.append('li $v0, 1')
+        var = self.save_reg_if_occupied('a0')
+        self.code.append(f'move $a0, ${reg}')
+        self.code.append('syscall')
+        self.load_var_if_occupied(var)
+    
+
+    @visitor.when(ReadStringNode)
+    def visit(self, node: ReadStringNode):
+        # TODO: I should allocate space for this string, not sure of how this is done
+        rdest = self.addr_desc.get_var_reg(node.dest)
+        self.code.append('# Reading a string')
+        self.code.append('li $v0, 8')
+        var1 = self.save_reg_if_occupied('a0')
+        var2 = self.save_reg_if_occupied('a1')
+        self.code.append('Putting buffer in a0')
+        self.code.append(f'move $a0, {rdest}')
+        length = len(self.strings[node.dest])       # Get length of the string
+        self.code.append('Putting length of string in a1')
+        self.code.append(f'move $a1, {length}')
+        self.code.append('syscall')
+        self.code.append(f'move ${rdest}, $v0')
+        
+
+    @visitor.when(ReadIntNode)
+    def visit(self, node: ReadIntNode):
+        rdest = self.addr_desc.get_var_reg(node.dest)
+        self.code.append('# Reading a int')
+        self.code.append('li $v0, 5')
+        self.code.append('syscall')
+        self.code.append(f'move ${rdest}, $v0')
+
+
+    @visitor.when(ExitNode)
+    def visit(self, node: ExitNode):
+        reg = self.addr_desc.get_var_reg(node.value)
+        self.code.append('li $v0, 17')
+        self.code.append(f'move $a0, ${reg}')
+        self.code.append('syscall')
+
+    @visitor.when(CopyNode)
+    def visit(self, node: CopyNode):
+        rdest = self.addr_desc.get_var_reg(node.dest)
+        rsrc = self.addr_desc.get_var_reg(node.source)
+
+        self.code.append(f'move $t9, 4(${rscr})')           # getting the size of the object
+        self.code.append('# Syscall to allocate memory of the object entry in heap')
+        self.code.append('li $v0, 9')                       # code to request memory
+        var = self.save_reg_if_occupied('a0')
+        self.code.append(f'move $a0, $t9')                  # argument (size)
+        self.code.append('syscall')
+
+        self.code.append(f'move ${rdest}, $v0')
+        
+        self.code.append('# Loop to copy every field of the previous object')
+        # loop to copy every field of the previous object
+        self.code.append('# t8 the register to loop')
+        self.code.append('li $t8, 0')
+        self.code.append(f'loop_{self.loop_idx}:')
+        self.code.apppend('# In t9 is stored the size of the object')
+        self.code.append(f'bgt $t8, $t9, exit_{self.loop_idx}')
+        # offset in the copied element
+        self.code.append('addi $v0, $v0, 4')
+        # offset in the original element
+        self.code.append(f'addi ${rsrc}, ${rsrc}, 4')
+        self.code.append(f'lw $a0, (${rsrc})')
+        self.code.append('sw $a0, ($v0)')
+        self.code.append('# Increase loop counter')
+        self.code.append('addi $t8, $t8, 4')
+        self.code.append(f'j loop_{self.loop_idx}')
+        self.code.append(f'exit_{self.loop_idx}:')
+        self.loop_idx += 1

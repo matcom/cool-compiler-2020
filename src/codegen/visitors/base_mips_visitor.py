@@ -20,6 +20,9 @@ class BaseCILToMIPSVisitor:
         self.initialize_methods()
         # Will hold the type of any of the vars
         self.var_address = {'self': AddrType.REF}
+        self.strings = {}
+        self.loop_idx = 0   # to count the generic loops in the app
+        self.first_defined = {'strcopier': True}   # bool to keep in account when the first defined string function was defined  
 
     def initialize_methods(self):
         self.methods = [] 
@@ -259,3 +262,15 @@ class BaseCILToMIPSVisitor:
         elif xtype == 'String':
             return AddrType.STR
         return AddrType.REF
+
+    def save_reg_if_occupied(reg):
+        var = self.reg_desc.get_content(reg)
+        if var is not None:
+            self.code.append(f'# Saving content of {reg} to memory to use that register')
+            self.save_var_code(var)
+        return var
+    
+    def load_var_if_occupied(var):
+        if var is not None:
+            self.code.append(f'# Restore the variable of {var}')
+            self.load_var_code(var)

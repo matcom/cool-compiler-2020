@@ -239,9 +239,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         GOTO start
         LABEL end
         '''
-        start_label = cil.LabelNode('start')
-        continue_label = cil.LabelNode('continue')
-        end_label = cil.LabelNode('end')
+        start_label = cil.LabelNode(f'start_{self.idx}')
+        continue_label = cil.LabelNode(f'continue_{self.idx}')
+        end_label = cil.LabelNode(f'end_{self.idx}')
         
         result = self.define_internal_local()
         self.register_instruction(cil.AssignNode(result, 'void'))
@@ -270,8 +270,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         '''
         cond, _ = self.visit(node.cond, scope)
 
-        true_label = cil.LabelNode("true")
-        end_label = cil.LabelNode("end")
+        true_label = cil.LabelNode(f"true_{self.idx}")
+        end_label = cil.LabelNode(f"end_{self.idx}")
 
         result = self.define_internal_local()
         self.register_instruction(cil.GotoIfNode(cond, true_label.label))
@@ -311,12 +311,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         expr, typex = self.visit(node.expr, scope)
         result = self.define_internal_local()
         etype = self.define_internal_local()
-        end_label = cil.LabelNode('end')
+        end_label = cil.LabelNode(f'end_{self.idx}')
         self.register_instruction(cil.TypeOfNode(expr, etype))
 
         new_scope = scope.expr_dict[node]
         for i, (case, c_scope) in enumerate(zip(node.case_list, new_scope.children)):
-            next_label = cil.LabelNode(f'next_{i}')
+            next_label = cil.LabelNode(f'next_{self.idx}_{i}')
             expr_i, label = self.visit(case, c_scope, expr, etype, next_label)
             self.register_instruction(cil.AssignNode(result, expr_i))
             self.register_instruction(cil.GotoNode(end_label.label))
