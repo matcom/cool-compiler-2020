@@ -178,15 +178,27 @@ class MIPS:
 
     @visitor.on(DispatchIL)
     def visit(self, node):
-        pass
+        self.code.append("lw $a0, {}($sp)\n".format(-4 * node.obj))
+        self.code.append("lw $a0, ($a0)\n")
+        self.code.append("addiu $a0, $a0, {}\n".format(-4 * node.offset))
+        self.code.append("lw $v0, ($a0)\n")
+        self.code.append("jalr $ra, $v0\n")
+        self.code.append("sw $v0, {}($sp)\n".format(-4 * node.res))
+
 
     @visitor.on(DispatchParentIL)
     def visit(self, node):
-        pass
+        self.code.append("la $v0, " + node.method + "\n")
+        self.code.append("jalr $ra, $v0\n")
+        self.code.append("sw $v0, {}($sp)".format(-4 * node.result))
 
     @visitor.on(InheritIL)
     def visit(self, node):
-        pass
+        self.code.append("lw $a0, {}($sp)\n".format(-4 * node.child))
+        self.code.append("la $a1, " + node.parent + "\n")
+        self.code.append("la $t0, inherit\n")
+        self.code.append("jalr $ra, $t0\n")
+        self.code.append("sw $v0, {}($sp)\n".format(-4*node.result))
 
     @visitor.on(StringIL)
     def visit(self, node):

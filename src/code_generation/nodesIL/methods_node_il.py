@@ -95,10 +95,10 @@ class HierarchyIL(NodeIL):
 
 class InheritIL(NodeIL):
     
-    def __init__(self, child, parent):
+    def __init__(self, child, parent, result):
         self.child = child
         self.parent = parent
-        # self.res = res
+        self.result = result
     
     def __str__(self):
         return "child {} inherits parent {}".format(self.child, self.parent)
