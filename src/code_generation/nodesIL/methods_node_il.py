@@ -126,7 +126,7 @@ class DispatchIL(NodeIL):
     def __str__(self):
         return "dispatch: object({}).method({}) to {}".format(self.obj,self.offset,self.result)
 
-class DispatchParentIL(ILNode):
+class DispatchParentIL(NodeIL):
     
     def __init__(self, obj, method, result):
         self.method = method

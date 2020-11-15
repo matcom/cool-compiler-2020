@@ -21,8 +21,18 @@ def main():
     #temporal
     try:
         ast, context, scope = pipeline.run_pipeline(program)
+        cv = codeVisitor()
+        cv.visit(ast)
+
+        print('-----------------code----------------------------')
+        for n in cv.code:
+            print(str(n))
+        
+        
+
     except Exception as e:
         pass
+
 
     pipeline.report_errors()
 

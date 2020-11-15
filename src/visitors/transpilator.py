@@ -1,10 +1,8 @@
 import sys
 sys.path.append('/..')
-from nodesIL import *
-from virtual_table import VirtualTable
-from variables import Variables
-import visitor
-from ..cl_ast import *
+from code_generation import *
+import visitors.visitor as visitor
+from cl_ast import *
 
 class codeVisitor:
 
@@ -58,12 +56,13 @@ class codeVisitor:
                     self.virtual_table.add_method(t, n, methods[n])
                 except:
                     pass
-
                 try:
                     self.virtual_table.add_attr(t, attr[n])
+                except:
+                    pass
 
         for t in types:
-            slef.data.append(HierarchyIL(t, types[t]))
+            self.data.append(HierarchyIL(t, types[t]))
 
         for m in self.virtual_table.methods:
             self.data.append(VirtualTableIL(c, self.virtual_table.methods[m]))
@@ -114,7 +113,7 @@ class codeVisitor:
             self.visit(node.value, vars)
             p = vars.peek_last()
             index = self.virtual_table.get_attributes_id(self.current_class, node.name.value)
-            self.code.append(VarToMemoIL(vars.id('self'), vars.id(p), index)))
+            self.code.append(VarToMemoIL(vars.id('self'), vars.id(p), index))
 
         self.code.append(PushIL())
         self.code.append(ReturnIL())
@@ -151,12 +150,12 @@ class codeVisitor:
         pass
     
     #program
-    @visitor.on(ProgramNode)
+    @visitor.when(ProgramNode)
     def visit(self, node):
         self.visit(node.declarations)
     
     #declarations
-    @visitor.on(ClassDeclarationNode)
+    @visitor.when(ClassDeclarationNode)
     def visit(self, node):
         self.current_class = node.idx.value
 
@@ -170,11 +169,11 @@ class codeVisitor:
         for f in node.features:
             self.visit(f)
 
-    @visitor.on(AttrDeclarationNode)
+    @visitor.when(AttrDeclarationNode)
     def visit(self, node):
         pass
 
-    @visitor.on(FuncDeclarationNode)
+    @visitor.when(FuncDeclarationNode)
     def visit(self, node):
         self.code.append(LabelIL(self.current_class, node.idx, True))
 
@@ -189,7 +188,7 @@ class codeVisitor:
         self.visit(node.body, variables)
         self.code.append(ReturnIL())
 
-    @visitor.on(VarDeclarationNode)
+    @visitor.when(VarDeclarationNode)
     def visit(self, node, variables):
         self.code.append(PushIL())
         p = variables.add_var(node.idx.value)
@@ -202,46 +201,46 @@ class codeVisitor:
             self.code.append(PopIL())
 
     #operations: binary
-    @visitor.on(SumNode)
+    @visitor.when(SumNode)
     def visit(self, node, variables):
         self.handleBinaryOps(node, variables, '+')
 
-    @visitor.on(DiffNode)
+    @visitor.when(DiffNode)
     def visit(self, node, variables):
         self.handleBinaryOps(node, variables, '-')
 
-    @visitor.on(StarNode)
+    @visitor.when(StarNode)
     def visit(self, node, variables):
         self.handleBinaryOps(node, variables, '*')
 
-    @visitor.on(DivNode)
+    @visitor.when(DivNode)
     def visit(self, node, variables):
         self.handleBinaryOps(node, variables, '/')
 
-    @visitor.on(LessNode)
+    @visitor.when(LessNode)
     def visit(self, node, variables):
         self.handleBinaryOps(node, variables, '<')
 
-    @visitor.on(LessEqualNode)
+    @visitor.when(LessEqualNode)
     def visit(self, node, variables):
         self.handleBinaryOps(node, variables, '<=')
 
-    @visitor.on(EqualNode)
+    @visitor.when(EqualNode)
     def visit(self, node, variables):
         self.handleBinaryOps(node, variables, '=')
 
     #operations: unary
 
-    @visitor.on(BitNotNode)
+    @visitor.when(BitNotNode)
     def visit(self, node, variables):
         self.handleUnaryOps(node, variables, '~')
 
-    @visitor.on(NotNode)
+    @visitor.when(NotNode)
     def visit(self, node, variables):
         self.handleUnaryOps(node, variables, '!')
 
     #expressions: atomics
-    @visitor.on(VariableNode)
+    @visitor.when(VariableNode)
     def visit(self, node, variables):
         self.code.append(PushIL())
         result = variables.add_temp()
@@ -251,7 +250,7 @@ class codeVisitor:
         else:
             self.code.append(MemoToVarIL(variables.id(result), variables.id('self'), self.virtual_table.get_attributes_id(self.current_class, node.id.value)))
 
-    @visitor.on(NewNode)
+    @visitor.when(NewNode)
     def visit(self, node, variables):
         result = variables.add_temp()
         self.code.append(PushIL())
@@ -273,7 +272,7 @@ class codeVisitor:
         variables.pop_var()
 
     #expressions: complex
-    @visitor.on(ConditionalNode)
+    @visitor.when(ConditionalNode)
     def visit(self, node, variables):
         self.code.append(CommentIL('Condition'))
         result = variables.add_temp()
@@ -305,7 +304,7 @@ class codeVisitor:
         self.code.append(PopIL(2))
         
 
-    @visitor.on(WhileNode)
+    @visitor.when(WhileNode)
     def visit(self, node, variables):
         self.code.append(CommentIL('loop'))
         self.code.append(PushIL())
@@ -335,7 +334,7 @@ class codeVisitor:
         self.code.append(POOL)
 
 
-    @visitor.on(LetNode)
+    @visitor.when(LetNode)
     def visit(self, node, variables):
         self.code.append(CommentIL('Let'))
         self.code.append(PushIL())
@@ -357,11 +356,11 @@ class codeVisitor:
 
 
 
-    @visitor.on(LetDeclarationNode)
+    @visitor.when(LetDeclarationNode)
     def visit(self, node):
         pass
 
-    @visitor.on(BlockNode)
+    @visitor.when(BlockNode)
     def visit(self, node, variables):
         self.code.append(CommentIL('Block'))
         result = variables.add_temp()
@@ -376,7 +375,7 @@ class codeVisitor:
         for i in range(0, len(node.expr_list)):
             variables.pop_var()
 
-    @visitor.on(CaseNode)
+    @visitor.when(CaseNode)
     def visit(self, node, variables):
         node.case_list.sort(key = lambda x : self.depth[x.type], reverse = True)
 
@@ -425,11 +424,11 @@ class codeVisitor:
 
             self.code.append(PopIL(3))
 
-    @visitor.on(OptionNode)
+    @visitor.when(OptionNode)
     def visit(self, node):
         pass
 
-    @visitor.on(AssignNode)
+    @visitor.when(AssignNode)
     def visit(self, node, variables):
         self.code.append(CommentIL('Assignment'))
         self.visit(node.expr, variables)
@@ -440,12 +439,12 @@ class codeVisitor:
         else:
             self.code.append(VarToMemoIL(variables.id('self'), variables.id(p), self.virtual_table.get_attributes_id(self.current_class, node.idx.value)))
 
-    @visitor.on(IsVoidNode)
+    @visitor.when(IsVoidNode)
     def visit(self, node):
         pass
 
     #expression: complex->dispatch
-    @visitor.on(ExprCallNode)
+    @visitor.when(ExprCallNode)
     def visit(self, node, variables):
         self.code.append(CommentIL('Point-Dispatch'))
 
@@ -472,7 +471,7 @@ class codeVisitor:
 
         self.code.append(PopIL(len(node.args) + 1))
 
-    @visitor.on(SelfCallNode)
+    @visitor.when(SelfCallNode)
     def visit(self, node, variables):
         self.code.append(CommentIL('Self-Dispatch'))
 
@@ -503,7 +502,7 @@ class codeVisitor:
         
         self.code.append(PopIL(len(node.args) + n))
 
-    @visitor.on(ParentCallNode)
+    @visitor.when(ParentCallNode)
     def visit(self, node, variables):
         self.code.append(CommentIL('Parent-Dispatch'))
 
@@ -530,13 +529,13 @@ class codeVisitor:
 
 
     #constants
-    @visitor.on(IntegerNode)
+    @visitor.when(IntegerNode)
     def visit(self, node, variables):
         self.code.append(CommentIL('Integer'))
         variables.add_temp()
-        self.code.append(PushIL(int(self.lex))
+        self.code.append(PushIL(int(self.lex)))
 
-    @visitor.on(StringNode)
+    @visitor.when(StringNode)
     def visit(self, node, variables):
         label = 'string_' + str(self.getInt())
         self.data.append(StringIL(label, node.lex))
@@ -546,7 +545,7 @@ class codeVisitor:
 
         self.code.append(LoadLabelIL(variables.id(p), label))
 
-    @visitor.on(BoolNode)
+    @visitor.when(BoolNode)
     def visit(self, node):
         variables.add_tmp()
         if node.lex:
