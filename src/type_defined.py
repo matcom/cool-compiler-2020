@@ -9,21 +9,30 @@ class CoolType:
     def defined(self, method_name):
         return method_name in self.methods.keys()
 
-    def add_method(self, method_name, args_names, return_type):
+    def add_method(self, method_name, args_types, args_names, return_type):
         if not self.defined(method_name):
-            args = []
-            for arg in args_names:
+            if len(args_types) != len(args_names):
+                args_names = ['a' * i for i, _ in enumerate(args_types)]
+            final_args_type = []
+            names_added = []
+            for i, arg in enumerate(args_types):
                 type_of_arg = get_type_by_name(arg)
                 if type_of_arg is None:
-                    return False
-                args.append(type_of_arg)
+                    return 'Type should be defined'
+                if len(args_names) > i:
+                    final_args_type.append(type_of_arg)
+                if args_names[i] in names_added:
+                    return [f'- SemanticError: Formal parameter {args_names[i]} is multiply defined.', i]
+                else:
+                    names_added.append(args_names[i])
             type_of_return = get_type_by_name(return_type)
             if type_of_return is None:
-                return False
-            self.methods[method_name] = CoolMethod(method_name, args, type_of_return)
-            return True
+                return 'Method should return something'
+            self.methods[method_name] = CoolMethod(method_name, final_args_type, args_names, type_of_return)
+            return []
         else:
-            return False
+            # TODO Update error
+            return 'method already defined'
 
     def get_attributes(self):
         node = self
@@ -95,9 +104,10 @@ class CoolAttribute:
 
 
 class CoolMethod:
-    def __init__(self, method_name, args, return_type):
+    def __init__(self, method_name, args_types, args_names, return_type):
         self.name = method_name
-        self.args = args
+        self.args_types = args_types
+        self.args_names = args_names
         self.return_type = return_type
 
 
@@ -135,15 +145,15 @@ AllTypes = {
 }
 
 # Set methods for basic types
-object_type.add_method('abort', [], 'Object')
-object_type.add_method('type_name', [], 'String')
-object_type.add_method('copy', [], 'Object')
-io_type.add_method('out_string', ['String'], 'SELF_TYPE')
-io_type.add_method('out_int', ['Int'], 'SELF_TYPE')
-io_type.add_method('in_string', [''], 'String')
-io_type.add_method('in_int', [''], 'Int')
-string_type.add_method('length', [], 'Int')
-string_type.add_method('concat', ['String'], 'String')
-string_type.add_method('substr', ['Int', 'Int'], 'String')
+object_type.add_method('abort', [], [], 'Object')
+object_type.add_method('type_name', [], [], 'String')
+object_type.add_method('copy', [], [], 'Object')
+io_type.add_method('out_string', ['String'], [], 'SELF_TYPE')
+io_type.add_method('out_int', ['Int'], [], 'SELF_TYPE')
+io_type.add_method('in_string', [''], [], 'String')
+io_type.add_method('in_int', [''], [], 'Int')
+string_type.add_method('length', [], [], 'Int')
+string_type.add_method('concat', ['String'], [], 'String')
+string_type.add_method('substr', ['Int', 'Int'], [], 'String')
 
 BasicTypes = ['Object', 'SELF_TYPE', 'IO', 'String', 'Int', 'Bool']
