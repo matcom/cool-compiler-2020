@@ -85,9 +85,6 @@ def main():
                     print(er)
                 exit(1)
 
-            formatter = FormatVisitor()
-            tree = formatter.visit(ast)
-            print(tree)
 
             #errors = check_semantic(ast)
             # Print semantic errors
