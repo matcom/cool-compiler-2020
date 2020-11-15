@@ -103,12 +103,14 @@ class CaseBranchNode(StatementNode):
         self.id = case_id
         self.typeName = type_name
         self.expression = expression
+        self.lineNumber = line_number
 
 
 class NewStatementNode(StatementNode):
     def __init__(self, type_name, line_number):
         super().__init__(line_number)
         self.typeName = type_name
+        self.lineNumber = line_number
 
 
 class FunctionCallStatement(StatementNode):

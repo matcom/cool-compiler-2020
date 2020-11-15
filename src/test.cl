@@ -11,5 +11,9 @@ b (r : Int, t : Bool, z : Test2) : Test1 {
 
 class Test2 inherits Test1 {
 
+b (g : Int, q : Bool, l : Test2) : Test1 {
+    5
+};
+
 };
 
