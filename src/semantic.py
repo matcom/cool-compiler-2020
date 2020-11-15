@@ -24,8 +24,8 @@ def check_type_inheritance(ast: ProgramNode):
                     if not (father_type.name == cls.typeName):
                         AllTypes[cls.typeName].parent_type = father_type
                     else:
-                        # TODO Update error message
-                        return "Can't inherit from same class"
+                        return f"({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Class {cls.typeName}, " \
+                               f"or an ancestor of {cls.typeName}, is involved in an inheritance cycle"
                 else:
                     return f'({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Class {cls.typeName} ' \
                            f'cannot inherit class {father_type.name}.'
@@ -284,7 +284,20 @@ def GetExpressionReturnType(expression, attributes={}, functions={}, parameters=
         return [], "Int"
 
 
-def check_cyclic_inheritance():
+def get_cyclic_class(graph: Graph, ast: ProgramNode):
+    for cls in ast.classes:
+        if not graph.visited[graph.vertex_id.index(cls.typeName)]:
+            nodes = graph.graph[cls.typeName]
+            for cls2 in ast.classes:
+                if cls2.typeName == nodes[0]:
+                    return f"({cls2.getLineNumber()}, {cls2.getColumnNumber()}) - SemanticError: Class {cls2.typeName}, " \
+                           f"or an ancestor of {cls2.typeName}, is involved in an inheritance cycle"
+            return f"({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Class {cls.typeName}, " \
+                   f"or an ancestor of {cls.typeName}, is involved in an inheritance cycle"
+    return []
+
+
+def check_cyclic_inheritance(ast):
     graph = Graph(len(AllTypes.keys()))
 
     for cool_type_name in AllTypes.keys():
@@ -296,7 +309,7 @@ def check_cyclic_inheritance():
         elif cool_type.name != 'Object':
             graph.addEdge('Object', cool_type.name)
 
-    return [] if graph.dfs('Object') else 'error! Cyclic inheritance'
+    return [] if graph.dfs('Object') else get_cyclic_class(graph, ast)
 
 
 def check_semantic(ast: ProgramNode):
