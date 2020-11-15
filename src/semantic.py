@@ -59,19 +59,23 @@ def check_features(ast: ProgramNode):
             class_type = AllTypes[cls.typeName]
             for feature in cls.features:
                 if type(feature) is FunctionFeatureNode:
+                    parameters_type = []
                     parameters_name = []
                     for arg in feature.parameters:
-                        parameters_name.append(arg.typeName)
-                    method_added = class_type.add_method(feature.id, parameters_name, feature.typeName)
-                    if not method_added:
-                        return 'Couldn\'t add method'
+                        parameters_type.append(arg.typeName)
+                        parameters_name.append(arg.id)
+                    method_added = class_type.add_method(feature.id, parameters_type, parameters_name, feature.typeName)
+                    if len(method_added) > 0:
+                        return f'({feature.parameters[method_added[1]].getLineNumber()}, ' \
+                               f'{feature.parameters[method_added[1]].getColumnNumber()}) ' \
+                               f'{method_added[0]}'
                     continue
                 if type(feature) is AttributeFeatureNode:
                     feature_added_error = class_type.add_attribute(feature.id, feature.typeName, feature.expression)
                     if len(feature_added_error) > 0:
                         return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) {feature_added_error}'
                     continue
-                return 'Unknown feature or Method'
+                return 'Unknown feature or Method ' + feature.typeName
             left_check = left_check - 1
             checked_types[i] = True
 
@@ -321,6 +325,18 @@ def check_attributes_inheritance(ast):
                 if attr.id in attr_inherited:
                     print(attr)
         return ''
+    return []
+
+
+def check_methods_params(ast):
+    for cls in ast.classes:
+        cls_type = AllTypes[cls.typeName]
+        attrs = cls_type.get_attributtes()
+        for feature in enumerate(cls.features):
+            if type(feature) is FunctionFeatureNode:
+                for param in feature.parameters:
+                    if param.id in attrs:
+                        return f'({param.getLineNumber()}, {param.getColumnNumber()}) - '
     return []
 
 
