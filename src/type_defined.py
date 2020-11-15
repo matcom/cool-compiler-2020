@@ -39,7 +39,7 @@ class CoolType:
         attr = {}
         while node:
             for attrs in node.attributes.values():
-                attr[attrs.id] = attrs
+                attr.append(attrs)
             node = node.parent_type
         return attr
 
@@ -71,8 +71,6 @@ class CoolType:
             result[key] = inheritedMethods[key]
 
         return result
-
-
 
     def get_method_without_inherit(self, method_name, args):
         try:
@@ -166,12 +164,12 @@ AllTypes = {
 object_type.add_method('abort', [], [], 'Object')
 object_type.add_method('type_name', [], [], 'String')
 object_type.add_method('copy', [], [], 'Object')
-io_type.add_method('out_string', [['x','String']], [], 'SELF_TYPE')
-io_type.add_method('out_int', [['x', 'Int']], [], 'SELF_TYPE')
-io_type.add_method('in_string', [['x', '']], [], 'String')
-io_type.add_method('in_int', [['x', '']], [], 'Int')
+io_type.add_method('out_string', ['String'], [], 'SELF_TYPE')
+io_type.add_method('out_int', ['Int'], [], 'SELF_TYPE')
+io_type.add_method('in_string', [], [], 'String')
+io_type.add_method('in_int', [], [], 'Int')
 string_type.add_method('length', [], [], 'Int')
-string_type.add_method('concat', [['x', 'String']], [], 'String')
-string_type.add_method('substr', [['a', 'Int'], ['b','Int']], [], 'String')
+string_type.add_method('concat', ['String'], [], 'String')
+string_type.add_method('substr', ['Int', 'Int'], [], 'String')
 
 BasicTypes = ['Object', 'SELF_TYPE', 'IO', 'String', 'Int', 'Bool']
