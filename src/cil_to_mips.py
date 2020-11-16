@@ -80,8 +80,9 @@ class CILToMIPSVisitor():
         self.text += f'{node.name}:\n'
         # self.text += f'move $fp, $sp\n'  #save frame pointer of current function
         
-        for local_node in reversed(node.localvars): #save space for locals 
-            self.visit(local_node)
+        # for local_node in reversed(node.localvars): #save space for locals 
+        #     self.visit(local_node)
+        self.text += f'addi $sp, $sp, {-4 * len(node.localvars)}\n'
         
         self.text += 'addi $sp, $sp, -4\n' # save return address
         self.text += 'sw $ra, 0($sp)\n'
@@ -155,8 +156,9 @@ class CILToMIPSVisitor():
 
     @visitor.when(CIL_AST.LocalDec)
     def visit(self, node):
-        self.text += 'addi $sp, $sp, -4\n'
-        self.text += 'sw $zero, 0($sp)\n'
+        # self.text += 'addi $sp, $sp, -4\n'
+        # self.text += 'sw $zero, 0($sp)\n'
+        pass
 
     @visitor.when(CIL_AST.GetAttr)
     def visit(self, node):
