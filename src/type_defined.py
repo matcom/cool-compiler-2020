@@ -36,7 +36,7 @@ class CoolType:
 
     def get_attributes(self):
         node = self
-        attr = {}
+        attr = []
         while node:
             for attrs in node.attributes.values():
                 attr.append(attrs)
