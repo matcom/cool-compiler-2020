@@ -9,7 +9,7 @@ class CoolType:
     def defined(self, method_name):
         return method_name in self.methods.keys()
 
-    def add_method(self, method_name, args_types, args_names, return_type):
+    def add_method(self, method_name, args_types, args_names, return_type, expression = None):
         if not self.defined(method_name):
             if len(args_types) != len(args_names):
                 args_names = ['a' * i for i, _ in enumerate(args_types)]
@@ -28,7 +28,7 @@ class CoolType:
             type_of_return = get_type_by_name(return_type)
             if type_of_return is None:
                 return 'Method should return something'
-            self.methods[method_name] = CoolMethod(method_name, final_args_type, args_names, type_of_return)
+            self.methods[method_name] = CoolMethod(method_name, final_args_type, args_names, type_of_return, expression)
             return []
         else:
             # TODO Update error
@@ -39,7 +39,7 @@ class CoolType:
         attr = {}
         while node:
             for attrs in node.attributes.values():
-                attr.append(attrs)
+                attr[attrs.attribute_name] = attrs
             node = node.parent_type
         return attr
 
@@ -111,20 +111,42 @@ class CoolType:
             t = t.parent_type
         return None
 
+    def get_attribute_owner(self):
+        node = self
+        AO = {}
+        while node:
+            for attrs in node.attributes.values():
+                if attrs.attribute_name == "self":
+                    continue
+                AO[attrs.attribute_name] = node.name
+            node = node.parent_type
+        return AO
+        
+
+    def get_method_owner(self):
+        node = self
+        MO = {}
+        while node:
+            for method in node.methods.values():
+                MO[method.name] = node.name
+            node = node.parent_type
+        return MO
+
 
 class CoolAttribute:
-    def __init__(self, attribute_name, attribute_type, expression):
+    def __init__(self, attribute_name, attribute_type, expression = None):
         self.attribute_name = attribute_name
         self.attribute_type = attribute_type
         self.expression = expression
 
 
 class CoolMethod:
-    def __init__(self, method_name, args_types, args_names, return_type):
+    def __init__(self, method_name, args_types, args_names, return_type, expression = None):
         self.name = method_name
         self.args_types = args_types
         self.args_names = args_names
         self.return_type = return_type
+        self.expression = expression
 
 
 def inherits(a, b):
@@ -164,8 +186,8 @@ AllTypes = {
 object_type.add_method('abort', [], [], 'Object')
 object_type.add_method('type_name', [], [], 'String')
 object_type.add_method('copy', [], [], 'Object')
-io_type.add_method('out_string', ['String'], [], 'SELF_TYPE')
-io_type.add_method('out_int', ['Int'], [], 'SELF_TYPE')
+io_type.add_method('out_string', ['String'], [], 'IO')
+io_type.add_method('out_int', ['Int'], [], 'IO')
 io_type.add_method('in_string', [], [], 'String')
 io_type.add_method('in_int', [], [], 'Int')
 string_type.add_method('length', [], [], 'Int')
