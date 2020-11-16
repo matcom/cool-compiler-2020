@@ -65,7 +65,7 @@ def check_features(ast: ProgramNode):
                     for arg in feature.parameters:
                         parameters_name.append(arg.id)
                         parameters_type.append(arg.typeName)
-                    method_added = class_type.add_method(feature.id, parameters_type, parameters_name, feature.typeName)
+                    method_added = class_type.add_method(feature.id, parameters_type, parameters_name, feature.typeName, feature.statement)
                     if len(method_added) > 0:
                         return f'({feature.parameters[method_added[1]].getLineNumber()}, ' \
                                f'{feature.parameters[method_added[1]].getColumnNumber()}) ' \
@@ -103,11 +103,12 @@ def check_expressions(ast: ProgramNode):
         for feature in cls.features:
             if type(feature) is AttributeFeatureNode:
                 feature_type = feature.typeName
-                error, expression_type = get_expression_return_type(feature.expression, False, {}, {}, {}, False, {})
-                if len(error) > 0:
-                    return error
-                if feature_type != expression_type:
-                    return "Invalid expression returning type"
+                if feature.expression:
+                    error, expression_type = get_expression_return_type(feature.expression, False, {}, {}, {}, False, {})
+                    if len(error) > 0:
+                        return error
+                    if feature_type != expression_type:
+                        return "Invalid expression returning type"
 
         attributes = AllTypes[cls.typeName].get_attributes()
         functions = AllTypes[cls.typeName].get_methods()
@@ -118,8 +119,7 @@ def check_expressions(ast: ProgramNode):
                 params = {}
                 for parameter in feature.parameters:
                     params[parameter.id] = parameter.typeName
-
-                error, expression_type = get_expression_return_type(feature.expression, True, attributes, functions,
+                error, expression_type = get_expression_return_type(feature.statement, True, attributes, functions,
                                                                     params,
                                                                     False, {})
                 if len(error) > 0:
@@ -131,7 +131,7 @@ def check_expressions(ast: ProgramNode):
 
 
 def GetFirstCommonAncestor(types):
-    result = types[0]
+    result = types[0].name
     for i in range(1, len(types)):
         result = get_first_common_ancestor(result, types[i])
 
@@ -140,9 +140,9 @@ def GetFirstCommonAncestor(types):
 
 def get_first_common_ancestor(typeA, typeB):
     if is_ancestor(typeA, typeB):
-        return typeA
+        return typeA.name
     if is_ancestor(typeB, typeA):
-        return typeB
+        return typeB.name
     return get_first_common_ancestor(typeA.parent_type, typeB.parent_type)
 
 
@@ -168,6 +168,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
             return error1, ""
         if type1 != "Bool":
             return "Conditional predicate must be boolean", ""
+
         error2, type2 = get_expression_return_type(expression.ifExpr, insideFunction, attributes, functions, parameters,
                                                    insideLet, letVars, insideCase, caseVar)
         if len(error2) > 0:
@@ -264,6 +265,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
             return "New statement type not defined", ""
 
     elif type(expression) is FunctionCallStatement:
+
         e, t = get_expression_return_type(expression.instance, insideFunction, attributes, functions, parameters,
                                           insideLet, insideCase, caseVar)
         if len(e) > 0:
@@ -276,18 +278,19 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
             if is_ancestor(ancType, expType):
                 methods = ancType.get_methods()
                 if expression.function in methods:
-                    if len(methods[expression.function].args) != len(expression.args):
+                    if len(methods[expression.function].args_names) != len(expression.args):
                         return "Argument count does not match in function call", ""
                     i = 0
                     for arg in expression.args:
                         aError, aType = get_expression_return_type(arg, insideFunction, attributes, functions, parameters,
                                                                    insideLet, insideCase, caseVar)
+
                         if len(aError) > 0:
                             return aError, ""
-                        if aType != ((methods[expression.function]).args[i])[1].name:
+                        if aType != ((methods[expression.function]).args_types[i]).name:
                             return "Some argument type in function call doesn't match with functions argument type", ""
                         i = i + 1
-                    return [], methods[expression.function].return_type
+                    return [], methods[expression.function].return_type.name
                 else:
                     return "Function not defined", ""
 
@@ -296,7 +299,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
 
         methods = AllTypes[t].get_methods()
         if expression.function in methods:
-            if len(methods[expression.function].args) != len(expression.args):
+            if len(methods[expression.function].args_names) != len(expression.args):
                 return "Argument count does not match in function call", ""
             i = 0
             for arg in expression.args:
@@ -304,10 +307,11 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                                                            insideLet, insideCase, caseVar)
                 if len(aError) > 0:
                     return aError, ""
-                if aType != ((methods[expression.function]).args[i])[1].name:
+                if aType != ((methods[expression.function]).args_types[i]).name:
                     return "Some argument type in function call doesn't match with functions argument type", ""
                 i = i + 1
-            return [], methods[expression.function].return_type
+
+            return [], methods[expression.function].return_type.name
         else:
             return "Function not defined", ""
 
@@ -369,7 +373,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
             return error2, ""
         if type1 != "Int" or type2 != "Int":
             return "Only integers can be compared with <=", ""
-        return [], "Int"
+        return [], "Bool"
 
     elif type(expression) is LessNode:
         error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
@@ -382,7 +386,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
             return error2, ""
         if type1 != "Int" or type2 != "Int":
             return "Only integers can be compared with <", ""
-        return [], "Int"
+        return [], "Bool"
 
     elif type(expression) is EqualNode:
         error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
@@ -395,7 +399,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
             return error2, ""
         if type1 != type2:
             return "Expressions must be of same type", ""
-        return [], type1
+        return [], "Bool"
 
     elif type(expression) is PlusNode:
         error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
@@ -511,42 +515,47 @@ def check_semantic(ast: ProgramNode):
     type_declaration_output = check_type_declaration(ast)
     if len(type_declaration_output) > 0:
         errors.append(type_declaration_output)
-        return errors
+        return errors, AllTypes
 
     # Checking inheritance in declared types
     inheritance_check_output = check_type_inheritance(ast)
     if len(inheritance_check_output) > 0:
         errors.append(inheritance_check_output)
-        return errors
+        return errors, AllTypes
 
     # Check illegal redefinition of methods
     attr_inheritance_redefinition = check_attributes_inheritance(ast)
     if len(attr_inheritance_redefinition) > 0:
         errors.append(attr_inheritance_redefinition)
-        return errors
+        return errors, AllTypes
 
     # Check cyclic inheritance
     cyclic_inheritance_check = check_cyclic_inheritance(ast)
     if len(cyclic_inheritance_check) > 0:
         errors.append(cyclic_inheritance_check)
-        return errors
+        return errors, AllTypes
 
     # Check feature class list
     feature_check_output = check_features(ast)
     if len(feature_check_output) > 0:
         errors.append(feature_check_output)
-        return errors
+        return errors, AllTypes
 
     # Check expressions types
     expressions_check_output = check_expressions(ast)
     if len(expressions_check_output) > 0:
         errors.append(expressions_check_output)
-        return errors
+        return errors, AllTypes
 
     # Check Main unity
     if 'Main' not in AllTypes:
         # Update Error message
         errors.append('Main not declared')
-        return errors
+        return errors, AllTypes
 
-    return []
+    if 'main' not in AllTypes["Main"].methods:
+        # Update Error message
+        errors.append('main method not declared')
+        return errors, AllTypes
+
+    return [], AllTypes

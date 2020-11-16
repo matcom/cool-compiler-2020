@@ -16,7 +16,7 @@ class ProgramNode(Node):
 
 
 class ClassNode(Node):
-    def __init__(self, type_name, features, father_type_name, line_number):
+    def __init__(self, type_name, features, father_type_name, line_number=0):
         super().__init__(line_number)
         self.typeName = type_name
         self.features = features
@@ -28,7 +28,7 @@ class FeatureNode(Node):
 
 
 class AttributeFeatureNode(FeatureNode):
-    def __init__(self, attr_id, type_name, expression, line_number):
+    def __init__(self, attr_id, type_name, expression, line_number=0):
         super().__init__(line_number)
         self.id = attr_id
         self.typeName = type_name
@@ -36,7 +36,7 @@ class AttributeFeatureNode(FeatureNode):
 
 
 class FunctionFeatureNode(FeatureNode):
-    def __init__(self, func_id, parameters, type_name, statement, line_number):
+    def __init__(self, func_id, parameters, type_name, statement, line_number=0):
         super().__init__(line_number)
         self.id = func_id
         self.parameters = parameters
@@ -45,7 +45,7 @@ class FunctionFeatureNode(FeatureNode):
 
 
 class ParameterNode(Node):
-    def __init__(self, param_id, type_name, line_number):
+    def __init__(self, param_id, type_name, line_number=0):
         super().__init__(line_number)
         self.id = param_id
         self.typeName = type_name
@@ -56,7 +56,7 @@ class StatementNode(Node):
 
 
 class AssignStatementNode(StatementNode):
-    def __init__(self, assign_id, expression, line_number):
+    def __init__(self, assign_id, expression, line_number=0):
         super().__init__(line_number)
         self.id = assign_id
         self.expression = expression
@@ -98,7 +98,7 @@ class CaseStatementNode(StatementNode):
 
 
 class CaseBranchNode(StatementNode):
-    def __init__(self, case_id, type_name, expression, line_number):
+    def __init__(self, case_id, type_name, expression, line_number=0):
         super().__init__(line_number)
         self.id = case_id
         self.typeName = type_name
@@ -107,14 +107,14 @@ class CaseBranchNode(StatementNode):
 
 
 class NewStatementNode(StatementNode):
-    def __init__(self, type_name, line_number):
+    def __init__(self, type_name, line_number=0):
         super().__init__(line_number)
         self.typeName = type_name
         self.lineNumber = line_number
 
 
 class FunctionCallStatement(StatementNode):
-    def __init__(self, instance, dispatch_type, function, args, line_number):
+    def __init__(self, instance, dispatch_type, function, args, line_number=0):
         super().__init__(line_number)
         self.instance = instance
         self.dispatchType = dispatch_type
@@ -127,7 +127,7 @@ class ExpressionNode(Node):
 
 
 class AtomicNode(ExpressionNode):
-    def __init__(self, lex, line_number):
+    def __init__(self, lex, line_number=0):
         super().__init__(line_number)
         self.lex = lex
 

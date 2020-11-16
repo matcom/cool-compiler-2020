@@ -2,8 +2,7 @@ import argparse
 from lexer import make_lexer
 from parser import make_parser
 from semantic import check_semantic
-
-from visitor import *
+from code_generation import generate_code
 
 
 def create_arg_parser():
@@ -58,47 +57,54 @@ def main():
         arg_parser.print_usage()
         exit(1)
 
-    try:
-        with open(str(p)) as file:
-            while True:
-                i = file.read(1)
-                if not i:
-                    break
-                if i == '\0':
-                    cool_program_code += r'\0'
-                else:
-                    cool_program_code += i
-            s = cool_program_code
+    #try:
+    with open(str(p)) as file:
+        while True:
+            i = file.read(1)
+            if not i:
+                break
+            if i == '\0':
+                cool_program_code += r'\0'
+            else:
+                cool_program_code += i
+        s = cool_program_code
+            
+        lexer, errors = make_lexer(cool_program_code)
 
-            lexer, errors = make_lexer(cool_program_code)
+        # Print lexer errors
+        if len(errors) > 0:
+            for er in errors:
+                print(er)
+            exit(1)
+            
+        ast, errors = make_parser(s)
+            
+        # Print parser errors
+        if len(errors) > 0:
+            for er in errors:
+                print(er)
+            exit(1)
+            
+            
+        errors, types = check_semantic(ast)
 
-            # Print lexer errors
-            if len(errors) > 0:
-                for er in errors:
-                    print(er)
-                exit(1)
+        # Print semantic errors
+        if len(errors) > 0:
+            for er in errors:
+                print(er)
+            exit(1)
 
-            ast, errors = make_parser(s)
+        #cil, mips = generate_code(types)
+        cil = generate_code(types)
 
-            # Print parser errors
-            if len(errors) > 0:
-                for er in errors:
-                    print(er)
-                exit(1)
+        print(cil)
 
-            errors = check_semantic(ast)
-            # Print semantic errors
-            if len(errors) > 0:
-                for er in errors:
-                    print(er)
-                exit(1)
-
-    except (IOError, FileNotFoundError):
-        print(f"Error! File {program} not found.")
-        exit(1)
-    except Exception as e:
-        print(f'An unexpected error occurred! {e}')
-        exit(1)
+    #except (IOError, FileNotFoundError):
+    #    print(f"Error! File {program} not found.")
+    #    exit(1)
+    #except Exception as e:
+    #    print(f'An unexpected error occurred! {e}')
+    #    exit(1)
 
 
 if __name__ == "__main__":
