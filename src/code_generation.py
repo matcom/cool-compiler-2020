@@ -1,5 +1,6 @@
 from ast import *
 from type_defined import *
+from visitor import *
 
 TYPES = {}
 DATA = {}
@@ -16,9 +17,9 @@ def generate_cil(ast):
     result += generate_cil_types(ast)
     result += "END\n\n"
     
-    #result += "DATA\n\n"
-    #result += generate_cil_data(ast)
-    #result += "END\n\n"
+    result += "DATA\n\n"
+    result += generate_cil_data(ast)
+    result += "END\n\n"
     
     #result += "CODE\n\n"
     #result += generate_cil_code(ast)
@@ -50,7 +51,26 @@ def generate_cil_types(ast):
         
 
 def generate_cil_data(ast):
-    pass
+    result = ""
+    vis = FormatVisitor()
+    for val in ast.values():
+        for attr in val.attributes.values():
+            if attr.attribute_name != "self" and attr.expression:
+                for s in vis.visit(attr.expression):
+                    DATA[s] = s.lex
+        for method in val.methods.values():
+            if method.expression:
+                for s in vis.visit(method.expression):
+                    DATA[s] = s.lex[0:-1]
+
+    i = 0
+    for s in DATA.values():
+        result += "data_" + str(i) + " \"" + s + "\"\n"
+        i += 1
+
+    result += "\n"  
+    return result 
+
 
 def generate_cil_code(ast):
     pass

@@ -4,8 +4,6 @@ from parser import make_parser
 from semantic import check_semantic
 from code_generation import generate_code
 
-from visitor import *
-
 
 def create_arg_parser():
     arg_parser = argparse.ArgumentParser(prog="pycoolc")

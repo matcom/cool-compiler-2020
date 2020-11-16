@@ -9,364 +9,130 @@ class FormatVisitor(object):
     
     @when(ProgramNode)
     def visit(self, node, tabs=0):  
-        buff = ""
-        buff += "ProgramNode"
-        for child in node.classes:
-            buff += "\n"
-            buff += self.visit(child, tabs + 1)
-        
-        return buff
+        result = []
+        for c in node.classes:
+            result += self.visit(c)
+        return c
     
     @when(ClassNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "ClassNode"
-        buff += " " + node.typeName
-        
-        for feature in node.features:
-            buff += "\n"
-            buff += self.visit(feature, tabs + 1)
-        
-        return buff
+        result = []
+        for f in node.features:
+            result += self.visit(f)
+        return result
     
     @when(AttributeFeatureNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "AttributeFeatureNode " + node.id
-        if node.expression != None:
-            buff += "\n"
-            buff += self.visit(node.expression, tabs + 1)
-
-        return buff
+        return self.visit(node.expression)
 
     @when(FunctionFeatureNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "FunctionFeatureNode " + node.id
-        for parameter in node.parameters:
-            buff += "\n"
-            buff += self.visit(parameter, tabs + 1)
-        buff += "\n"
-        buff += self.visit(node.statement, tabs + 1)
-
-        return buff
+        return self.visit(node.statement)
 
     @when(ParameterNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "ParameterNode " + node.id
-
-        return buff
+        return []
 
     @when(AssignStatementNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "AssignStatementNode"
-        if node.expression != None:
-            buff += "\n"
-            buff += self.visit(node.expression, tabs + 1)
-
-        return buff
+        return self.visit(node.expression)
 
     @when(ConditionalStatementNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "ConditionalStatementNode"
-        if node.evalExpr != None:
-            buff += "\n"
-            buff += self.visit(node.evalExpr, tabs + 1)
-        if node.ifExpr != None:
-            buff += "\n"
-            buff += self.visit(node.ifExpr, tabs + 1)
-        if node.elseExpr != None:
-            buff += "\n"
-            buff += self.visit(node.elseExpr, tabs + 1)
-
-        return buff
+        return self.visit(node.evalExpr) + self.visit(node.ifExpr) + self.visit(node.elseExpr)
 
     @when(LoopStatementNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "LoopStatementNode"
-
-        if node.evalExpr != None:
-            buff += "\n"
-            buff += self.visit(node.evalExpr, tabs + 1)
-        if node.loopExpr != None:
-            buff += "\n"
-            buff += self.visit(node.loopExpr, tabs + 1)
-
-        return buff
+        return self.visit(node.evalExpr) + self.visit(node.loopExpr)
 
     @when(BlockStatementNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "BlockStatementNode"
-
-        for expression in node.expressions:
-            buff += "\n"
-            buff += self.visit(expression, tabs + 1)
-
-        return buff
+        result = []
+        for e in node.expressions:
+            result += self.visit(e)
+        return result
     
     @when(LetStatementNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "LetStatementNode"
-
-        for variable in node.variables:
-            buff += "\n"
-            buff += self.visit(variable, tabs + 1)
-        
-        if node.expression != None:
-            buff += "\n"
-            buff += self.visit(node.expression, tabs + 1)
-
-        return buff
+        result = []
+        for v in node.variables:
+            result += self.visit(v)
+        return result + self.visit(node.expression)
 
     @when(CaseStatementNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "CaseStatementNode"
-
-        if node.expression != None:
-            buff += "\n"
-            buff += self.visit(node.expression, tabs + 1)
-
-        for case in node.cases:
-            buff += "\n"
-            buff += self.visit(case, tabs + 1)
-
-        return buff
+        result = []
+        for cs in node.body:
+            result += self.visit(cs)
+        return self.visit(node.expression) + result
 
     @when(CaseBranchNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "CaseBranchNode"
-
-        if node.expression != None:
-            buff += "\n"
-            buff += self.visit(node.expression, tabs + 1)
-
-        return buff
+        return self.visit(node.expression)
 
     @when(NewStatementNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "NewStatementNode"
-
-        return buff
+        return []
 
     @when(FunctionCallStatement)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "FunctionCallStatement"
-
-        if node.instance != None:
-            buff += "\n"
-            buff += self.visit(node.instance, tabs + 1)
-
-        return buff
+        result = []
+        for arg in node.args:
+            result += self.visit(arg)
+        return self.visit(node.instance) + result
 
     @when(ConstantNumericNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "ConstantNumericNode"
-
-        return buff
+        return []
 
     @when(ConstantStringNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "ConstantStringNode"
-
-        return buff
+        return [node]
 
     @when(ConstantBoolNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "ConstantBoolNode"
-
-        return buff
+        return []
 
     @when(VariableNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "VariableNode"
-
-        return buff
+        return []
 
     @when(NotNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "NotNode"
-
-        buff += "\n"
-        buff += self.visit(node.expression, tabs + 1)
-
-        return buff
+        return self.visit(node.expression)
     
     @when(IsVoidNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "IsVoidNode"
-
-        buff += "\n"
-        buff += self.visit(node.expression, tabs + 1)
-
-        return buff
+        return self.visit(node.expression)
 
     @when(ComplementNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "ComplementNode"
-
-        buff += "\n"
-        buff += self.visit(node.expression, tabs + 1)
-
-        return buff
+        return self.visit(node.expression)
 
     @when(LessEqualNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "LessEqualNode"
-
-        buff += "\n"
-        buff += self.visit(node.left, tabs + 1)
-
-        buff += "\n"
-        buff += self.visit(node.right, tabs + 1)
-
-        return buff
+        return self.visit(node.left) + self.visit(node.right)
 
     @when(LessNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "LessNode"
-
-        buff += "\n"
-        buff += self.visit(node.left, tabs + 1)
-
-        buff += "\n"
-        buff += self.visit(node.right, tabs + 1)
-
-        return buff
+        return self.visit(node.left) + self.visit(node.right)
     
     @when(EqualNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "EqualNode"
-
-        buff += "\n"
-        buff += self.visit(node.left, tabs + 1)
-
-        buff += "\n"
-        buff += self.visit(node.right, tabs + 1)
-
-        return buff
+        return self.visit(node.left) + self.visit(node.right)
 
     @when(PlusNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "PlusNode"
-
-        buff += "\n"
-        buff += self.visit(node.left, tabs + 1)
-
-        buff += "\n"
-        buff += self.visit(node.right, tabs + 1)
-
-        return buff
+        return self.visit(node.left) + self.visit(node.right)
 
     @when(MinusNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "MinusNode"
-
-        buff += "\n"
-        buff += self.visit(node.left, tabs + 1)
-
-        buff += "\n"
-        buff += self.visit(node.right, tabs + 1)
-
-        return buff
+        return self.visit(node.left) + self.visit(node.right)
 
     @when(TimesNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "TimesNode"
-
-        buff += "\n"
-        buff += self.visit(node.left, tabs + 1)
-
-        buff += "\n"
-        buff += self.visit(node.right, tabs + 1)
-
-        return buff
+        return self.visit(node.left) + self.visit(node.right)
 
     @when(DivideNode)
     def visit(self, node, tabs=0):
-        buff = ""
-        for i in range(0, tabs):
-            buff += "    "
-        buff += "DivideNode"
-
-        buff += "\n"
-        buff += self.visit(node.left, tabs + 1)
-
-        buff += "\n"
-        buff += self.visit(node.right, tabs + 1)
-
-        return buff
+        return self.visit(node.left) + self.visit(node.right)
