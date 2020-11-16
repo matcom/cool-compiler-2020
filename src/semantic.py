@@ -88,8 +88,8 @@ def check_features(ast: ProgramNode):
                     if len(class_methods[k].args) != len(class_inherited_methods[k].args):
                         return "Child overriding function must have the same params count as father overrided function"
                     for counter in range(0, len(class_methods[k].args)):
-                        if (class_methods[k].args[counter])[1].name != (class_inherited_methods[k].args[counter])[
-                            1].name:
+                        if (class_methods[k].args[counter])[1].name != \
+                                (class_inherited_methods[k].args[counter])[1].name:
                             return "Child overriding function's params must have same type as father overrided function's params"
 
             left_check = left_check - 1
@@ -103,7 +103,7 @@ def check_expressions(ast: ProgramNode):
         for feature in cls.features:
             if type(feature) is AttributeFeatureNode:
                 feature_type = feature.typeName
-                error, expression_type = GetExpressionReturnType(feature.expression, False, {}, {}, {}, False, {})
+                error, expression_type = get_expression_return_type(feature.expression, False, {}, {}, {}, False, {})
                 if len(error) > 0:
                     return error
                 if feature_type != expression_type:
@@ -119,9 +119,9 @@ def check_expressions(ast: ProgramNode):
                 for parameter in feature.parameters:
                     params[parameter.id] = parameter.typeName
 
-                error, expression_type = GetExpressionReturnType(feature.expression, True, attributes, functions,
-                                                                 params,
-                                                                 False, {})
+                error, expression_type = get_expression_return_type(feature.expression, True, attributes, functions,
+                                                                    params,
+                                                                    False, {})
                 if len(error) > 0:
                     return error
                 if feature_type != expression_type:
@@ -133,63 +133,63 @@ def check_expressions(ast: ProgramNode):
 def GetFirstCommonAncestor(types):
     result = types[0]
     for i in range(1, len(types)):
-        result = GetFirstCommonAncestor(result, types[i])
+        result = get_first_common_ancestor(result, types[i])
 
     return result
 
 
-def GetFirstCommonAncestor(typeA, typeB):
-    if IsAncestor(typeA, typeB):
+def get_first_common_ancestor(typeA, typeB):
+    if is_ancestor(typeA, typeB):
         return typeA
-    if IsAncestor(typeB, typeA):
+    if is_ancestor(typeB, typeA):
         return typeB
-    return GetFirstCommonAncestor(typeA.parent_type, typeB.parent_type)
+    return get_first_common_ancestor(typeA.parent_type, typeB.parent_type)
 
 
-def IsAncestor(olderNode, youngerNode):
+def is_ancestor(olderNode, youngerNode):
     if olderNode.name == youngerNode.name:
         return True
-    return IsAncestor(olderNode, youngerNode.parent_type)
+    return is_ancestor(olderNode, youngerNode.parent_type)
 
 
-def GetExpressionReturnType(expression, insideFunction, attributes, functions, parameters, insideLet, letVars,
-                            insideCase=False, caseVar={}):
+def get_expression_return_type(expression, insideFunction, attributes, functions, parameters, insideLet, letVars,
+                               insideCase=False, caseVar={}):
     if type(expression) is AssignStatementNode:
-        error1, type1 = GetExpressionReturnType(expression.expression, insideFunction, attributes, functions,
-                                                parameters, insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
+                                                   parameters, insideLet, letVars, insideCase, caseVar)
         if len(error1) > 0:
             return error1, ""
         return [], type1
 
     elif type(expression) is ConditionalStatementNode:
-        error1, type1 = GetExpressionReturnType(expression.evalExpr, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.evalExpr, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error1) > 0:
             return error1, ""
         if type1 != "Bool":
             return "Conditional predicate must be boolean", ""
-        error2, type2 = GetExpressionReturnType(expression.ifExpr, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error2, type2 = get_expression_return_type(expression.ifExpr, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error2) > 0:
             return error2, ""
-        error3, type3 = GetExpressionReturnType(expression.elseExpr, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error3, type3 = get_expression_return_type(expression.elseExpr, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error3) > 0:
             return error3, ""
 
         thenType = AllTypes[type2]
         elseType = AllTypes[type3]
-        return [], GetFirstCommonAncestor(thenType, elseType)
+        return [], get_first_common_ancestor(thenType, elseType)
 
     elif type(expression) is LoopStatementNode:
-        error1, type1 = GetExpressionReturnType(expression.evalExpr, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.evalExpr, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error1) > 0:
             return error1, ""
         if type1 != "Bool":
             return "Loop predicate must be boolean", ""
-        error2, type2 = GetExpressionReturnType(expression.loopExpr, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error2, type2 = get_expression_return_type(expression.loopExpr, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error2) > 0:
             return error2, ""
         return [], "Object"
@@ -197,14 +197,13 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
     elif type(expression) is BlockStatementNode:
         lastType = ""
         for expr in expression.expressions:
-            eError, eType = GetExpressionReturnType(expr, insideFunction, attributes, functions, parameters, insideLet,
-                                                    letVars, insideCase, caseVar)
+            eError, eType = get_expression_return_type(expr, insideFunction, attributes, functions, parameters, insideLet,
+                                                       letVars, insideCase, caseVar)
             if len(eError) > 0:
                 return "Error in block expression: " + eError, ""
             lastType = eType
 
         return [], lastType
-
 
     elif type(expression) is LetStatementNode:
         letVariables = letVars
@@ -212,30 +211,29 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
             if not (variable.typeName in AllTypes):
                 return "Self variable type not defined", ""
             if variable.expression != None:
-                error0, type0 = GetExpressionReturnType(variable.expression, insideFunction, attributes, functions,
-                                                        parameters, True, letVariables, insideCase, caseVar)
+                error0, type0 = get_expression_return_type(variable.expression, insideFunction, attributes, functions,
+                                                           parameters, True, letVariables, insideCase, caseVar)
                 if len(error0) > 0:
                     return "Error in let variable initialization expression", ""
                 if type0 != variable.typeName:
                     return "Let variables types and corresponding initialization expressions types must match", ""
             letVariables[variable.id] = variable.typeName
 
-        errorLet, typeLet = GetExpressionReturnType(expression.expression, insideFunction, attributes, functions,
-                                                    parameters, True, letVariables, insideCase, caseVar)
+        errorLet, typeLet = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
+                                                       parameters, True, letVariables, insideCase, caseVar)
         if len(errorLet) > 0:
             return errorLet, ""
         return [], typeLet
 
-
     elif type(expression) is CaseStatementNode:
-        eError, eType = GetExpressionReturnType(expression.expression, insideFunction, attributes, functions,
-                                                parameters, insideLet, letVars, insideCase, caseVar)
+        eError, eType = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
+                                                   parameters, insideLet, letVars, insideCase, caseVar)
         if len(eError) > 0:
             return eError, ""
         caseBranchesTypes = []
         for caseBranch in expression.body:
-            error0, type0 = GetExpressionReturnType(caseBranch, insideFunction, attributes, functions, parameters,
-                                                    insideLet, letVars, insideCase, caseVar)
+            error0, type0 = get_expression_return_type(caseBranch, insideFunction, attributes, functions, parameters,
+                                                       insideLet, letVars, insideCase, caseVar)
             if len(error0) > 0:
                 return error0, ""
             inList = False
@@ -246,15 +244,14 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
             if not inList:
                 inList.append(AllTypes[type0])
 
-        return [], GetFirstCommonAncestor(caseBranchesTypes)
-
+        return [], get_first_common_ancestor(caseBranchesTypes)
 
     elif type(expression) is CaseBranchNode:
         if not (expression.typeName in AllTypes):
             return "Case branch type not defined", ""
-        error0, type0 = GetExpressionReturnType(expression.expression, insideFunction, attributes, functions,
-                                                parameters, insideLet, letVars, True,
-                                                {expression.id: expression.typeName})
+        error0, type0 = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
+                                                   parameters, insideLet, letVars, True,
+                                                   {expression.id: expression.typeName})
         if len(error0) > 0:
             return error0, ""
 
@@ -267,24 +264,24 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
             return "New statement type not defined", ""
 
     elif type(expression) is FunctionCallStatement:
-        e, t = GetExpressionReturnType(expression.instance, insideFunction, attributes, functions, parameters,
-                                       insideLet, insideCase, caseVar)
+        e, t = get_expression_return_type(expression.instance, insideFunction, attributes, functions, parameters,
+                                          insideLet, insideCase, caseVar)
         if len(e) > 0:
             return e, ""
-        if expression.dispatchType != None:
+        if expression.dispatchType is not None:
             if not (expression.dispatchType in AllTypes):
                 return "Ancestor class type not defined", ""
             expType = AllTypes[t]
             ancType = AllTypes[expression.dispatchType]
-            if IsAncestor(ancType, expType):
+            if is_ancestor(ancType, expType):
                 methods = ancType.get_methods()
                 if expression.function in methods:
                     if len(methods[expression.function].args) != len(expression.args):
                         return "Argument count does not match in function call", ""
                     i = 0
                     for arg in expression.args:
-                        aError, aType = GetExpressionReturnType(arg, insideFunction, attributes, functions, parameters,
-                                                                insideLet, insideCase, caseVar)
+                        aError, aType = get_expression_return_type(arg, insideFunction, attributes, functions, parameters,
+                                                                   insideLet, insideCase, caseVar)
                         if len(aError) > 0:
                             return aError, ""
                         if aType != ((methods[expression.function]).args[i])[1].name:
@@ -303,8 +300,8 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
                 return "Argument count does not match in function call", ""
             i = 0
             for arg in expression.args:
-                aError, aType = GetExpressionReturnType(arg, insideFunction, attributes, functions, parameters,
-                                                        insideLet, insideCase, caseVar)
+                aError, aType = get_expression_return_type(arg, insideFunction, attributes, functions, parameters,
+                                                           insideLet, insideCase, caseVar)
                 if len(aError) > 0:
                     return aError, ""
                 if aType != ((methods[expression.function]).args[i])[1].name:
@@ -313,7 +310,6 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
             return [], methods[expression.function].return_type
         else:
             return "Function not defined", ""
-
 
     elif type(expression) is ConstantNumericNode:
         return [], "Int"
@@ -338,8 +334,8 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
         return "Variable " + expression.lex + "not defined"
 
     elif type(expression) is NotNode:
-        error1, type1 = GetExpressionReturnType(expression.expression, insideFunction, attributes, functions,
-                                                parameters, insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
+                                                   parameters, insideLet, letVars, insideCase, caseVar)
         if len(error1) > 0:
             return error1, ""
         if type1 != "Bool":
@@ -347,15 +343,15 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
         return [], "Bool"
 
     elif type(expression) is IsVoidNode:
-        error1, type1 = GetExpressionReturnType(expression.expression, insideFunction, attributes, functions,
-                                                parameters, insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
+                                                   parameters, insideLet, letVars, insideCase, caseVar)
         if len(error1) > 0:
             return error1, ""
         return [], "Bool"
 
     elif type(expression) is ComplementNode:
-        error1, type1 = GetExpressionReturnType(expression.expression, insideFunction, attributes, functions,
-                                                parameters, insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
+                                                   parameters, insideLet, letVars, insideCase, caseVar)
         if len(error1) > 0:
             return error1, ""
         if type1 != "Int":
@@ -363,12 +359,12 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
         return [], "Int"
 
     elif type(expression) is LessEqualNode:
-        error1, type1 = GetExpressionReturnType(expression.left, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error1) > 0:
             return error1, ""
-        error2, type2 = GetExpressionReturnType(expression.right, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
@@ -376,12 +372,12 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
         return [], "Int"
 
     elif type(expression) is LessNode:
-        error1, type1 = GetExpressionReturnType(expression.left, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error1) > 0:
             return error1, ""
-        error2, type2 = GetExpressionReturnType(expression.right, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
@@ -389,12 +385,12 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
         return [], "Int"
 
     elif type(expression) is EqualNode:
-        error1, type1 = GetExpressionReturnType(expression.left, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error1) > 0:
             return error1, ""
-        error2, type2 = GetExpressionReturnType(expression.right, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error2) > 0:
             return error2, ""
         if type1 != type2:
@@ -402,12 +398,12 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
         return [], type1
 
     elif type(expression) is PlusNode:
-        error1, type1 = GetExpressionReturnType(expression.left, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error1) > 0:
             return error1, ""
-        error2, type2 = GetExpressionReturnType(expression.right, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
@@ -415,12 +411,12 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
         return [], "Int"
 
     elif type(expression) is MinusNode:
-        error1, type1 = GetExpressionReturnType(expression.left, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error1) > 0:
             return error1, ""
-        error2, type2 = GetExpressionReturnType(expression.right, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
@@ -428,12 +424,12 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
         return [], "Int"
 
     elif type(expression) is TimesNode:
-        error1, type1 = GetExpressionReturnType(expression.left, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error1) > 0:
             return error1, ""
-        error2, type2 = GetExpressionReturnType(expression.right, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
@@ -441,12 +437,12 @@ def GetExpressionReturnType(expression, insideFunction, attributes, functions, p
         return [], "Int"
 
     elif type(expression) is DivideNode:
-        error1, type1 = GetExpressionReturnType(expression.left, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error1) > 0:
             return error1, ""
-        error2, type2 = GetExpressionReturnType(expression.right, insideFunction, attributes, functions, parameters,
-                                                insideLet, letVars, insideCase, caseVar)
+        error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
+                                                   insideLet, letVars, insideCase, caseVar)
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
@@ -542,15 +538,15 @@ def check_semantic(ast: ProgramNode):
         return errors
 
     # Check expressions types
-    # expressions_check_output = check_expressions(ast)
-    # if len(expressions_check_output) > 0:
-    #    errors.append(expressions_check_output)
-    #    return errors
+    expressions_check_output = check_expressions(ast)
+    if len(expressions_check_output) > 0:
+        errors.append(expressions_check_output)
+        return errors
 
     # Check Main unity
-    # if 'Main' not in AllTypes:
-    #    # Update Error message
-    #    errors.append('Main not declared')
-    #    return errors
+    if 'Main' not in AllTypes:
+        # Update Error message
+        errors.append('Main not declared')
+        return errors
 
     return []
