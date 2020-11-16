@@ -125,8 +125,8 @@ class BaseCOOLToCILVisitor:
         f3 = FunctionNode("function_copy_Object",f3_params,f3_localVars,f3_intructions)
 
         f4_params = [ParamNode("self", 'IO'), ParamNode("word", 'String')]
-        f4_localVars = [LocalNode("local_out_string_self_0"),LocalNode("local_out_string_word_1")]
-        f4_intructions = [cil.AssignNode(f4_localVars[0].name,f4_params[0].name, self.index),cil.LoadNode(f4_localVars[1].name,f4_params[1].name, self.index),cil.OutStringNode(f4_localVars[1].name, self.index),cil.ReturnNode(f4_localVars[0].name, self.index)]
+        f4_localVars = [LocalNode("local_out_string_self_0")]
+        f4_intructions = [cil.AssignNode(f4_localVars[0].name, f4_params[0].name, self.index),cil.OutStringNode(f4_params[1].name, self.index),cil.ReturnNode(f4_localVars[0].name, self.index)]
         f4 = FunctionNode("function_out_string_IO",f4_params,f4_localVars,f4_intructions)
 
         f5_params = [ParamNode("self", 'IO'),ParamNode("number", 'Int')]
@@ -145,21 +145,21 @@ class BaseCOOLToCILVisitor:
         f7 = FunctionNode("function_in_string_IO",f7_params,f7_localVars,f7_intructions)
 
         f8_params = [ParamNode("self", 'String')]
-        f8_localVars = [LocalNode("local_length_word_0"),LocalNode("local_length_result_1")]
-        f8_intructions = [cil.LoadNode(f8_localVars[0].name,f8_params[0].name, self.index),cil.LengthNode(f8_localVars[1].name,f8_localVars[0].name, self.index),cil.ReturnNode(f8_localVars[1].name, self.index)]
+        f8_localVars = [LocalNode("local_length_result_0")]
+        f8_intructions = [cil.LengthNode(f8_localVars[0].name,f8_params[0].name, self.index),cil.ReturnNode(f8_localVars[0].name, self.index)]
         f8 = FunctionNode("function_length_String",f8_params,f8_localVars,f8_intructions)
 
         f9_params = [ParamNode("self", 'String'),ParamNode("word", 'String')]
-        f9_localVars = [LocalNode("local_concat_word_0"),LocalNode("local_concat_word_1"),LocalNode("local_concat_result_2")]
-        f9_intructions = [cil.LoadNode(f9_localVars[0].name,f9_params[0].name, self.index),cil.LoadNode(f9_localVars[1].name,f9_params[1].name, self.index),cil.ConcatNode(f9_localVars[2].name,f9_localVars[0].name,f9_localVars[1].name, self.index),cil.ReturnNode(f9_localVars[2].name, self.index)]
+        f9_localVars = [LocalNode("local_concat_result_0")]
+        f9_intructions = [cil.ConcatNode(f9_localVars[0].name,f9_params[0].name,f9_params[1].name, self.index),cil.ReturnNode(f9_localVars[0].name, self.index)]
         f9 = FunctionNode("function_concat_String",f9_params,f9_localVars,f9_intructions)
 
         f10_params = [ParamNode("self", 'String'),ParamNode("begin", 'Int'),ParamNode("end", 'Int')]
-        f10_localVars = [LocalNode("local_substr_word_0"),LocalNode("local_substr_result_1")]
-        f10_intructions = [cil.LoadNode(f10_localVars[0].name,f10_params[0].name, self.index), cil.SubstringNode(f10_localVars[1].name,f10_localVars[0].name,f10_params[1].name,f10_params[2].name, self.index), cil.ReturnNode(f10_localVars[0].name)]
+        f10_localVars = [LocalNode("local_substr_result_0")]
+        f10_intructions = [cil.SubstringNode(f10_localVars[0].name,f10_params[0].name,f10_params[1].name,f10_params[2].name, self.index), cil.ReturnNode(f10_localVars[0].name, self.index)]
         f10 = FunctionNode("function_substr_String",f10_params,f10_localVars,f10_intructions)
 
-        self.dotcode = [f1,f2,f3,f4,f5,f6,f7,f8,f9,f10]
+        self.dotcode += [f1,f2,f3,f4,f5,f6,f7,f8,f9,f10]
         self.dottypes += [TypeNode("Object", [], [('abort', f1.name), ('type_of', f2.name), ('copy', f3.name)]), 
                 TypeNode("IO", [], [('out_string', f4.name), ('out_int', f5.name), ('in_int', f6.name), ('in_string', f7.name)]) , 
                 TypeNode("String", [], [('length', f8.name), ('concat', f9.name), ('substr', f10.name)]), 

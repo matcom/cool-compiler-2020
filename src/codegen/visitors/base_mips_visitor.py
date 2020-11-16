@@ -6,9 +6,9 @@ from typing import List
 
 class BaseCILToMIPSVisitor:
     def __init__(self):
-        self.code: list = ['.text', '.globl main']
+        self.code: list = ['.text', '.globl main', 'main:']
         self.initialize_data_code()
-        self.initialize_built_in_types()
+        # self.initialize_built_in_types()
         self.symbol_table = SymbolTable()
         # temp registers: t9, voy a usarlo para llevarlo de temporal en expresiones aritmeticas 
         # Not sure if i should only use local registers
@@ -34,12 +34,12 @@ class BaseCILToMIPSVisitor:
     def initialize_data_code(self):
         self.data_code = ['.data'] 
     
-    def initialize_built_in_types(self):
-        self.data_code.append(f"type_String: .asciiz \"String\"")     # guarda el nombre de la variable en la memoria            
-        self.data_code.append(f"type_Int: .asciiz \"Int\"")     # guarda el nombre de la variable en la memoria            
-        self.data_code.append(f"type_Bool: .asciiz \"Bool\"")     # guarda el nombre de la variable en la memoria            
-        self.data_code.append(f"type_Object: .asciiz \"Object\"")     # guarda el nombre de la variable en la memoria            
-        self.data_code.append(f"type_IO: .asciiz \"IO\"")     # guarda el nombre de la variable en la memoria            
+    # def initialize_built_in_types(self):
+    #     self.data_code.append(f"type_String: .asciiz \"String\"")     # guarda el nombre de la variable en la memoria            
+    #     self.data_code.append(f"type_Int: .asciiz \"Int\"")     # guarda el nombre de la variable en la memoria            
+    #     self.data_code.append(f"type_Bool: .asciiz \"Bool\"")     # guarda el nombre de la variable en la memoria            
+    #     self.data_code.append(f"type_Object: .asciiz \"Object\"")     # guarda el nombre de la variable en la memoria            
+    #     self.data_code.append(f"type_IO: .asciiz \"IO\"")     # guarda el nombre de la variable en la memoria            
         
 
     def get_basic_blocks(self, instructions: List[InstructionNode]):
@@ -210,18 +210,19 @@ class BaseCILToMIPSVisitor:
             self.code.append('addiu $sp, $sp, 4')
             self.code.append(f'lw ${reg}, ($sp)')
 
-    def empty_registers(self):
+    def empty_registers(self, save=True):
         "Empty all used registers and saves there values to memory"
         registers = self.reg_desc.used_registers()
         for reg, var in registers: 
-            self.save_var_code(var)
+            if save:
+                self.save_var_code(var)
             self.addr_desc.set_var_reg(var, None)
             self.reg_desc.insert_register(reg, None)     
 
     def push_register(self, register):
         "Pushes the register to the stack"
-        self.code.append('addiu $sp, $sp, -4')
         self.code.append(f'sw ${register}, ($sp)')    
+        self.code.append('addiu $sp, $sp, -4')
 
     def pop_register(self, register):
         "Popes the register from the stack"
@@ -263,14 +264,14 @@ class BaseCILToMIPSVisitor:
             return AddrType.STR
         return AddrType.REF
 
-    def save_reg_if_occupied(reg):
+    def save_reg_if_occupied(self, reg):
         var = self.reg_desc.get_content(reg)
         if var is not None:
             self.code.append(f'# Saving content of {reg} to memory to use that register')
             self.save_var_code(var)
         return var
     
-    def load_var_if_occupied(var):
+    def load_var_if_occupied(self, var):
         if var is not None:
             self.code.append(f'# Restore the variable of {var}')
             self.load_var_code(var)

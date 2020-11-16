@@ -248,11 +248,11 @@ class PrefixNode(InstructionNode):
         self.in2 = n
 
 class SubstringNode(InstructionNode):
-    def __init__(self, word, dest, begin, end, idx=None):
+    def __init__(self, dest, word, begin, end, idx=None):
         super().__init__(idx)
         self.dest = dest
-        self.word = word
         self.begin = begin
+        self.word = word
         self.end = end
 
         self.out = dest
