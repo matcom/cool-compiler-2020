@@ -478,7 +478,7 @@ if __name__ == '__main__':
     lexer = Lexer()
     parser = Parser()
 
-    sys.argv.append('test.cl')
+    sys.argv.append('arith.cl')
 
     if len(sys.argv) > 1:
 

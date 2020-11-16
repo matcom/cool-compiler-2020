@@ -508,12 +508,18 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         for t, action in reversed(action_lst):
             self.register_instruction(CIL_AST.Label(label))
             label = self.get_label()
+
             action_type = self.context.get_type(action.action_type) 
             self.register_instruction(CIL_AST.Action(case_expr, action_type.tag, action_type.max_tag, label))
-            #TODO Assign expr to id  
-            expr_result = self.visit(action.body, scope)
+
+            action_scope = scope.create_child()
+            action_id = self.define_internal_local(scope=action_scope, name=action.name, cool_var_name=action.name)
+            self.register_instruction(CIL_AST.Assign(action_id, case_expr))
+            expr_result = self.visit(action.body, action_scope)
+
             self.register_instruction(CIL_AST.Assign(result_local, expr_result))
             self.register_instruction(CIL_AST.Goto(exit_label))
+            
         #TODO last label with runtime error when does not conform with any type
         self.register_instruction(CIL_AST.Label(exit_label))
         return result_local
