@@ -499,13 +499,16 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         self.register_instruction(CIL_AST.Case(case_expr, label))
         
-        action_lst = []
+        tag_lst = []
+        action_dict = {}
         for action in node.actions:
             tag = self.context.get_type(action.action_type).tag
-            action_lst.append((tag, action))
-        action_lst.sort()
+            tag_lst.append(tag)
+            action_dict[tag] = action
+        tag_lst.sort()
 
-        for t, action in reversed(action_lst):
+        for t in reversed(tag_lst):
+            action = action_dict[t]
             self.register_instruction(CIL_AST.Label(label))
             label = self.get_label()
 
