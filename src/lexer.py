@@ -361,6 +361,9 @@ def t_COMMENT_error(t):
     t.lexer.star = False
     t.lexer.lparen = False
 
+def t_COMMENT_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
 
 def t_newline(t):
     r'\n+'
