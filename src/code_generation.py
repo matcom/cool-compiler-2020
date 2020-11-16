@@ -1,6 +1,6 @@
 from ast import *
 from type_defined import *
-from visitor import *
+from data_visitor import *
 
 TYPES = {}
 DATA = {}
@@ -34,18 +34,18 @@ def generate_cil_types(ast):
     for key in ast.keys():
         if key == "SELF_TYPE":
             continue
-        result += "type " + key + " {"
+        result += "\ttype " + key + " {"
         
         ATTRIBUTES = ast[key].get_attribute_owner()
         METHODS = ast[key].get_method_owner()
         
         for key in ATTRIBUTES.keys():
-            result += "\n\tattribute " + key + ":" + ATTRIBUTES[key]
+            result += "\n\t\tattribute " + key + ":" + ATTRIBUTES[key]
 
         for key in METHODS.keys():
-            result += "\n\tmethod " + key + ":" + METHODS[key]
+            result += "\n\t\tmethod " + key + ":" + METHODS[key]
 
-        result += "\n}\n\n"
+        result += "\n\t}\n\n"
 
     return result
         
@@ -65,7 +65,7 @@ def generate_cil_data(ast):
 
     i = 0
     for s in DATA.values():
-        result += "data_" + str(i) + " \"" + s + "\"\n"
+        result += "\tdata_" + str(i) + " \"" + s + "\"\n"
         i += 1
 
     result += "\n"  
