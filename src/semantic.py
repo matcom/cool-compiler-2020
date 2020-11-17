@@ -8,8 +8,7 @@ def check_type_declaration(ast: ProgramNode):
         if cls.typeName in BasicTypes:
             return f'({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Redefinition of basic class {cls.typeName}.'
         if cls.typeName in AllTypes:
-            # TODO Update return error message
-            return 'Re-declaring class'
+            return f'({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Classes may not be redefined'
 
         AllTypes[cls.typeName] = CoolType(cls.typeName, None)
     return []
@@ -66,15 +65,23 @@ def check_features(ast: ProgramNode):
                         parameters_name.append(arg.id)
                         parameters_type.append(arg.typeName)
                     method_added = class_type.add_method(feature.id, parameters_type, parameters_name, feature.typeName, feature.statement)
-                    if len(method_added) > 0:
+                    if len(method_added) == 2:
                         return f'({feature.parameters[method_added[1]].getLineNumber()}, ' \
                                f'{feature.parameters[method_added[1]].getColumnNumber()}) ' \
+                               f'{method_added[0]}'
+                    elif len(method_added) == 1:
+                        return f'({feature.getLineNumber()}, ' \
+                               f'{feature.getColumnNumber()}) ' \
                                f'{method_added[0]}'
                     continue
                 if type(feature) is AttributeFeatureNode:
                     feature_added_error = class_type.add_attribute(feature.id, feature.typeName, feature.expression)
-                    if len(feature_added_error) > 0:
-                        return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) {feature_added_error}'
+                    if len(feature_added_error) == 1:
+                        return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) {feature_added_error[0]}'
+                    elif len(feature_added_error) == 2:
+                        # TODO Update column
+                        return f'({feature.getLineNumber()}, {feature.getColumnNumber() + len(feature.id) + 2}) ' \
+                               f'{feature_added_error[0]}'
                     continue
                 return 'Unknown attribute or Method'
 
@@ -542,10 +549,10 @@ def check_semantic(ast: ProgramNode):
         return errors, AllTypes
 
     # Check expressions types
-    expressions_check_output = check_expressions(ast)
-    if len(expressions_check_output) > 0:
-        errors.append(expressions_check_output)
-        return errors, AllTypes
+    # expressions_check_output = check_expressions(ast)
+    # if len(expressions_check_output) > 0:
+    #     errors.append(expressions_check_output)
+    #     return errors, AllTypes
 
     # Check Main unity
     if 'Main' not in AllTypes:
