@@ -106,24 +106,24 @@ def p_let_body(p):
                 | ATTRIBUTEID COLON CLASSID COMMA let_body
                 | ATTRIBUTEID COLON CLASSID ASSIGNATION expression COMMA let_body'''
     if len(p) == 4:
-        p[0] = [AttributeFeatureNode(p[1], p[3], None, [GetPosition(p, 1), GetPosition(p, 3)])]
+        p[0] = [AttributeFeatureNode(p[1], p[3], None, [GetPosition(p, 3)])]
     else:
         if len(p) == 8:
-            p[0] = [AttributeFeatureNode(p[1], p[3], p[5], [GetPosition(p, 1), GetPosition(p, 3)])] + p[7]
+            p[0] = [AttributeFeatureNode(p[1], p[3], p[5], [GetPosition(p, 3)])] + p[7]
         else:
             if p[4] == "<-":
-                p[0] = [AttributeFeatureNode(p[1], p[3], p[5], [GetPosition(p, 1), GetPosition(p, 3)])]
+                p[0] = [AttributeFeatureNode(p[1], p[3], p[5], [GetPosition(p, 3)])]
             else:
-                p[0] = [AttributeFeatureNode(p[1], p[3], None, [GetPosition(p, 1), GetPosition(p, 3)])] + p[5]
+                p[0] = [AttributeFeatureNode(p[1], p[3], None, [GetPosition(p, 3)])] + p[5]
 
 
 def p_case_body(p):
     '''case_body : ATTRIBUTEID COLON CLASSID ARROW expression SEMICOLON case_body
                 | ATTRIBUTEID COLON CLASSID ARROW expression SEMICOLON'''
     if (len(p) == 7):
-        p[0] = [CaseBranchNode(p[1], p[3], p[5], [GetPosition(p, 1), GetPosition(p, 3)])]
+        p[0] = [CaseBranchNode(p[1], p[3], p[5], [GetPosition(p, 3)])]
     else:
-        p[0] = [CaseBranchNode(p[1], p[3], p[5], [GetPosition(p, 1), GetPosition(p, 3)])] + p[7]
+        p[0] = [CaseBranchNode(p[1], p[3], p[5], [GetPosition(p, 3)])] + p[7]
 
 
 def p_expression(p):
@@ -165,9 +165,9 @@ def p_arithmetic_expression(p):
         p[0] = p[1]
     else:
         if p[2] == "+":
-            p[0] = PlusNode(p[1], p[3])
+            p[0] = PlusNode(p[1], p[3], [GetPosition(p, 2)])
         else:
-            p[0] = MinusNode(p[1], p[3])
+            p[0] = MinusNode(p[1], p[3], [GetPosition(p, 2)])
 
 
 def p_term(p):
@@ -178,9 +178,9 @@ def p_term(p):
         p[0] = p[1]
     else:
         if p[2] == "*":
-            p[0] = TimesNode(p[1], p[3])
+            p[0] = TimesNode(p[1], p[3], GetPosition(p, 3))
         else:
-            p[0] = DivideNode(p[1], p[3])
+            p[0] = DivideNode(p[1], p[3], [GetPosition(p, 3)])
 
 
 def p_factor(p):
