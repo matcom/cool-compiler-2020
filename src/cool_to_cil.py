@@ -191,12 +191,19 @@ class BaseCOOLToCILVisitor:
         self.current_function = self.register_function(self.to_function_name('concat', 'String'))
         self.register_param(VariableInfo('self', None))
         self.register_param(VariableInfo('s', None))
+
         str1 = self.define_internal_local(scope=scope, name="str1")
         self.register_instruction(CIL_AST.GetAttr(str1, 'self','value','String'))
+        len1 = self.define_internal_local(scope=scope, name="len1")
+        self.register_instruction(CIL_AST.Call(len1, 'String.length', [CIL_AST.Arg(str1)], 'String'))
+        
         str2 = self.define_internal_local(scope=scope, name="str2")
         self.register_instruction(CIL_AST.GetAttr(str2, 's', 'value', 'String'))
+        len2 = self.define_internal_local(scope=scope, name="len2")
+        self.register_instruction(CIL_AST.Call(len2, 'String.length', [CIL_AST.Arg(str2)], 'String'))
+
         concat_result = self.define_internal_local(scope=scope, name="concat")
-        self.register_instruction(CIL_AST.Concat(str1, str2, concat_result))
+        self.register_instruction(CIL_AST.Concat(str1, len1, str2, len2, concat_result))
         instance = self.define_internal_local(scope=scope, name="instance")
         self.register_instruction(CIL_AST.Allocate('String', instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
