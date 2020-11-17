@@ -54,16 +54,24 @@ class CILTranspiler:
         self.attrib={}
         for c in classes:
             misatributos={}
+            atributosordenadosname=[]
 
             if c.parent != None:
                 for elemento in self.attrib[c.parent]:
                     misatributos[elemento.name]=elemento
+                    atributosordenadosname.append(elemento.name)
 
 
             for at in c.attributes:
                 misatributos[at.name]=at
+                if not (at.name in misatributos.keys()):
+                    atributosordenadosname.append(at.name)
+            
+            listaAtributos=[]
+            for name in atributosordenadosname:
+                listaAtributos.append(misatributos[name])
 
-            self.attrib[c.name]=misatributos.values()
+            self.attrib[c.name]=listaAtributos
 
         return self.attrib
 
@@ -152,12 +160,12 @@ class CILTranspiler:
             #Inicialización de atributos
             initInstructions=self.GenerarInit(c,scope)
             initName=metodosglobalesdic[c.name+"#"+"$init"]
-            globalInit=CILGlobalMethod(initName,["self"],scope.locals,initInstructions)
+            globalInit=CILGlobalMethod(initName,["self"],scope.locals,initInstructions, c.name)
             metodosGlobalesCIL[globalInit.name]=globalInit
 
             atributosCIL=[]
             for element in atributosAST:
-                nuevoCIL=CILAttribute(element.name)
+                nuevoCIL=CILAttribute(element.name, element.type)
                 atributosCIL.append(nuevoCIL)
 
             metodosClaseCIL=[]
@@ -264,7 +272,7 @@ class CILTranspiler:
         
         retorno=CILReturn([ultimoDestino])
         
-        return CILGlobalMethod(None,parameters,locales,instructions)
+        return CILGlobalMethod(None,parameters,locales,instructions, scope.class_name)
 
     @visitor.when(AssignNode)
     def visit(self, node: AssignNode, scope:Scope):
@@ -339,6 +347,9 @@ class CILTranspiler:
     @visitor.when(DispatchNode)
     def visit(self, node:DispatchNode, scope:Scope):
         instructions=[]
+        if node.left_expression==None:
+            node.left_expression=VariableNode("self")
+            node.left_type=scope.class_name
         leftInstructions=self.visit(node.left_expression, scope)
         instructions.extend(leftInstructions)
 
@@ -351,7 +362,7 @@ class CILTranspiler:
 
         instructions.append(CILArgument(params=[node.left_type,leftInstructions[len(leftInstructions)-1].destination]))
         resultVariable=self.GenerarNombreVariable(scope)
-        llamada=CILCall(resultVariable,[node.func_id])
+        llamada=CILCall(resultVariable,[node.left_type,node.func_id])
         instructions.append(llamada)
 
         return instructions

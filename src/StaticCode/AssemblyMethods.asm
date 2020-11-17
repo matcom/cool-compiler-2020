@@ -156,10 +156,10 @@
      #Salvando registros
      addi $sp, $sp, -20
      
-     move 4($sp), $s0
-     move 8($sp), $s1
-     move 12($sp), $s2
-     move 16($sp), $s3
+     sw  $s0, 4($sp)
+     sw  $s1, 8($sp)
+     sw  $s2, 12($sp)
+     sw  $s3, 16($sp)
 
      move $s0, $a0
      move $s1, $a1
@@ -204,14 +204,17 @@
      StrFinCopia:
      sb zero, $t0
 
-     sw $v0, $s2
+     #sw $v0, $s2
 
+     move $a0, $s0
+     move $a1, $s1
+     move $a2, $s2
      move $ra, $s3
 
-     move $s0, 4($sp)
-     move $s1, 8($sp)
-     move $s2, 12($sp)
-     move $s3, 16($sp)
+     lw $s0, 4($sp)
+     lw $s1, 8($sp)
+     lw $s2, 12($sp)
+     lw $s3, 16($sp)
 
      addi $sp, $sp, 20
 
@@ -223,10 +226,10 @@
 
      addi $sp, $sp, -20
      
-     move 4($sp), $s0
-     move 8($sp), $s1
-     move 12($sp), $s2
-     move 16($sp), $s3
+     sw  $s0 4($sp)
+     sw  $s1 8($sp)
+     sw  $s2 12($sp)
+     sw  $s3 16$sp)
 
      move $s0, $a0
      move $s1, $a1
@@ -263,10 +266,14 @@
 
      move $ra, $s3
 
-     move $s0, 4($sp)
-     move $s1, 8($sp)
-     move $s2, 12($sp)
-     move $s3, 16($sp)
+     move $a0, $s0
+     move $a1, $s1
+     move $a2, $s2
+
+     lw $s0, 4($sp)
+     lw $s1, 8($sp)
+     lw $s2, 12($sp)
+     lw $s3, 16($sp)
 
      addi $sp, $sp, 20
 

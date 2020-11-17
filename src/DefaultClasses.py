@@ -4,7 +4,7 @@ from CIL import *
 #TODO Definir en CIL algunos métodos predefinidos
 class Defaults:
     def ObjectClass():
-        selfattribute=AttributeNode("self","Int",IntegerNode(0))
+        #selfattribute=AttributeNode("self","Int",IntegerNode(0))
         typeString=AttributeNode("$type","String",StringNode("Object"))
         # identifier=AttributeNode("type#","Int",IntegerNode(0))
         abort=MethodNode("abort",[],"Object",[])

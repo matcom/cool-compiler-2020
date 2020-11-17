@@ -90,7 +90,7 @@ class CILOutInt(CILIOInstruction):
 class CILInString(CILIOInstruction):
     pass
 class CILInInt(CILIOInstruction):
-
+    pass
 class CILAbort(CILInstructionNode):
     pass
 
@@ -104,8 +104,9 @@ class CILClassMethod:
         self.globalname=globalname
 
 class CILAttribute:
-    def __init__(name):
+    def __init__(name, attributeType="Object"):
         self.name=name
+        self.attributeType=attributeType
 
 class CILClass:
     def __init__(name,listaAtributos=[], listaMetodos=[]):
@@ -119,11 +120,12 @@ class CILDataDeclaration:
         self.valorString=valorString
 
 class CILGlobalMethod:
-    def __init__(nombre, params=[], locals=[], intrucciones=[]):
+    def __init__(nombre, params=[], locals=[], intrucciones=[], originclass="Object"):
         self.nombre=nombre
         self.params=params
         self.locals=locals
         self.intrucciones=intrucciones
+        self.originclass=originclass
 
 class CILProgram:
     def __init__(Types=[],Data=[],Methods=[]):
