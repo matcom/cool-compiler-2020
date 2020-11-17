@@ -39,7 +39,7 @@ class CoolType:
         attr = []
         while node:
             for attrs in node.attributes.values():
-                attr[attrs.attribute_name] = attrs
+                attr.append(attrs)
             node = node.parent_type
         return attr
 
