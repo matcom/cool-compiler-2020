@@ -122,6 +122,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     def visit(self, node: CallNode, scope: Scope):
         obj, otype = self.visit(node.obj, scope)
         
+        if isinstance(obj, VariableInfo):
+            obj = obj.name
+
         args = [self.visit(arg, scope)[0] for arg in node.args]
         args_node = [cil.ArgNode(obj, self.index)] + [cil.ArgNode(arg, self.index) for arg in args]
  
@@ -139,6 +142,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     def visit(self, node: BaseCallNode, scope: Scope):
         obj, otype = self.visit(node.obj, scope)
         
+        if isinstance(obj, VariableInfo):
+            obj = obj.name
+
         args = [self.visit(arg, scope)[0] for arg in node.args]
         args_node = [cil.ArgNode(obj, self.index)] + [cil.ArgNode(arg, self.index) for arg in args]
         
@@ -156,7 +162,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     def visit(self, node: StaticCallNode, scope: Scope):
         
         args = [self.visit(arg, scope)[0] for arg in node.args]
-        args_node = [cil.ArgNode(VariableInfo('self', self.current_type))] + [cil.ArgNode(arg, self.index) for arg in args]
+        args_node = [cil.ArgNode('self')] + [cil.ArgNode(arg, self.index) for arg in args]
        
         name = self.to_function_name(node.id, self.current_type.name)
         rtype = self.current_type.get_method(node.id, node.pos).return_type

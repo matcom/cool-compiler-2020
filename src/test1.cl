@@ -1,6 +1,6 @@
-class Main {
+class Main inherits IO {
 
-    main(): Int {
-        1 + 2
+    main(): Object {
+        out_string(type_name())
     };
 };

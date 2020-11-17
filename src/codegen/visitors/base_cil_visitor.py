@@ -67,7 +67,10 @@ class BaseCOOLToCILVisitor:
             m = self.name_regex.match(node.name).groups()[0]
             if  m == var_name:
                 return node.name
-        return ''
+        for node in self.params:
+            if node.name == var_name:
+                return var_name
+        return None
         
     def register_function(self, function_name):
         function_node = FunctionNode(function_name, [], [], [], self.index)

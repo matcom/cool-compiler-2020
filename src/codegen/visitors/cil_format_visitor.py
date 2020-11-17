@@ -63,6 +63,18 @@ def get_formatter():
         def visit(self, node: DivNode):
             return f'{node.dest} = {node.left} / {node.right}'
 
+        @visitor.when(LessEqNode)
+        def visit(self, node: LessEqNode):
+            return f'{node.dest} = {node.left} <= {node.right}'
+
+        @visitor.when(LessNode)
+        def visit(self, node: LessNode):
+            return f'{node.dest} = {node.left} < {node.right}'
+
+        @visitor.when(EqualNode)
+        def visit(self, node: StarNode):
+            return f'{node.dest} = {node.left} = {node.right}'
+
         @visitor.when(AllocateNode)
         def visit(self, node: AllocateNode):
             return f'{node.dest} = ALLOCATE {node.type}'
@@ -70,6 +82,18 @@ def get_formatter():
         @visitor.when(TypeOfNode)
         def visit(self, node: TypeOfNode):
             return f'{node.dest} = TYPEOF {node.obj}'
+
+        @visitor.when(GotoNode)
+        def visit(self, node: GotoNode):
+            return f'GOTO {node.label}'
+
+        @visitor.when(GotoIfNode)
+        def visit(self, node: GotoIfNode):
+            return f'IF {node.cond} GOTO {node.label}'
+
+        @visitor.when(LabelNode)
+        def visit(self, node: LabelNode):
+            return f'LABEL {node.label}'
 
         @visitor.when(StaticCallNode)
         def visit(self, node: StaticCallNode):

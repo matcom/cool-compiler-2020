@@ -147,7 +147,7 @@ class BaseCILToMIPSVisitor:
 
 
     def get_reg_var(self, var):
-        curr_inst = self.block[0]
+        curr_inst = self.inst
         register = self.addr_desc.get_var_reg(var)
         if register is not None:   # ya la variable está en un registro
             return 
@@ -235,7 +235,7 @@ class BaseCILToMIPSVisitor:
             self.code.append(f'li $t9, {expr}')
             return 't9'
         elif self.is_variable(expr):
-            return self.addr_desc.get_var_reg(expr.name)
+            return self.addr_desc.get_var_reg(expr)
 
     def get_attr_offset(self, attr_name:str, type_name:str):
         return self.obj_table[type_name].attr_offset(attr_name)
