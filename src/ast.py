@@ -10,13 +10,13 @@ class Node:
 
 
 class ProgramNode(Node):
-    def __init__(self, classes, line_number=0):
+    def __init__(self, classes, line_number=[]):
         super().__init__(line_number)
         self.classes = classes
 
 
 class ClassNode(Node):
-    def __init__(self, type_name, features, father_type_name, line_number=0):
+    def __init__(self, type_name, features, father_type_name, line_number=[]):
         super().__init__(line_number)
         self.typeName = type_name
         self.features = features
@@ -28,7 +28,7 @@ class FeatureNode(Node):
 
 
 class AttributeFeatureNode(FeatureNode):
-    def __init__(self, attr_id, type_name, expression, line_number=0):
+    def __init__(self, attr_id, type_name, expression, line_number=[]):
         super().__init__(line_number)
         self.id = attr_id
         self.typeName = type_name
@@ -36,7 +36,7 @@ class AttributeFeatureNode(FeatureNode):
 
 
 class FunctionFeatureNode(FeatureNode):
-    def __init__(self, func_id, parameters, type_name, statement, line_number=0):
+    def __init__(self, func_id, parameters, type_name, statement, line_number=[]):
         super().__init__(line_number)
         self.id = func_id
         self.parameters = parameters
@@ -45,7 +45,7 @@ class FunctionFeatureNode(FeatureNode):
 
 
 class ParameterNode(Node):
-    def __init__(self, param_id, type_name, line_number=0):
+    def __init__(self, param_id, type_name, line_number=[]):
         super().__init__(line_number)
         self.id = param_id
         self.typeName = type_name
@@ -56,7 +56,7 @@ class StatementNode(Node):
 
 
 class AssignStatementNode(StatementNode):
-    def __init__(self, assign_id, expression, line_number=0):
+    def __init__(self, assign_id, expression, line_number=[]):
         super().__init__(line_number)
         self.id = assign_id
         self.expression = expression
@@ -64,7 +64,7 @@ class AssignStatementNode(StatementNode):
 
 class ConditionalStatementNode(StatementNode):
     def __init__(self, eval_expr, if_expr, else_expr):
-        super().__init__(0)
+        super().__init__([])
         self.evalExpr = eval_expr
         self.ifExpr = if_expr
         self.elseExpr = else_expr
@@ -72,33 +72,33 @@ class ConditionalStatementNode(StatementNode):
 
 class LoopStatementNode(StatementNode):
     def __init__(self, eval_expr, loop_expr):
-        super().__init__(0)
+        super().__init__([])
         self.evalExpr = eval_expr
         self.loopExpr = loop_expr
 
 
 class BlockStatementNode(StatementNode):
     def __init__(self, expressions):
-        super().__init__(0)
+        super().__init__([])
         self.expressions = expressions
 
 
 class LetStatementNode(StatementNode):
     def __init__(self, variables, expression):
-        super().__init__(0)
+        super().__init__([])
         self.variables = variables
         self.expression = expression
 
 
 class CaseStatementNode(StatementNode):
     def __init__(self, expression, body):
-        super().__init__(0)
+        super().__init__([])
         self.expression = expression
         self.body = body
 
 
 class CaseBranchNode(StatementNode):
-    def __init__(self, case_id, type_name, expression, line_number=0):
+    def __init__(self, case_id, type_name, expression, line_number=[]):
         super().__init__(line_number)
         self.id = case_id
         self.typeName = type_name
@@ -107,14 +107,14 @@ class CaseBranchNode(StatementNode):
 
 
 class NewStatementNode(StatementNode):
-    def __init__(self, type_name, line_number=0):
+    def __init__(self, type_name, line_number=[]):
         super().__init__(line_number)
         self.typeName = type_name
         self.lineNumber = line_number
 
 
 class FunctionCallStatement(StatementNode):
-    def __init__(self, instance, dispatch_type, function, args, line_number=0):
+    def __init__(self, instance, dispatch_type, function, args, line_number=[]):
         super().__init__(line_number)
         self.instance = instance
         self.dispatchType = dispatch_type
@@ -127,7 +127,7 @@ class ExpressionNode(Node):
 
 
 class AtomicNode(ExpressionNode):
-    def __init__(self, lex, line_number=0):
+    def __init__(self, lex, line_number=[]):
         super().__init__(line_number)
         self.lex = lex
 
@@ -139,8 +139,8 @@ class UnaryNode(ExpressionNode):
 
 
 class BinaryNode(ExpressionNode):
-    def __init__(self, left, right):
-        super().__init__(0)
+    def __init__(self, left, right, line_number):
+        super().__init__(line_number)
         self.left = left
         self.right = right
 
