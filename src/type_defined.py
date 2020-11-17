@@ -32,7 +32,7 @@ class CoolType:
             return []
         else:
             # TODO Update error
-            return 'method already defined'
+            return [f'- SemanticError: Method {method_name} is multiply defined.']
 
     def get_attributes(self):
         node = self
@@ -94,17 +94,19 @@ class CoolType:
         return None, error_message
 
     def add_attribute(self, attribute_name, attribute_type, expression):
-        attr = self.get_attribute(attribute_name)
+        attr = self.get_attribute_inherited(attribute_name)
         if attr is not None:
-            return f'- SemanticError: Attribute {attribute_name} is an attribute of an inherited class.'
+            return [f'- SemanticError: Attribute {attribute_name} is an attribute of an inherited class.']
+        if attribute_name in self.attributes.keys():
+            return [f'- SemanticError: Attribute {attribute_name} is multiply defined in class.']
         class_attr_type = get_type_by_name(attribute_type)
         if not class_attr_type:
-            return f'- SemanticError: Attribute {attribute_name} does not have a defined type.'
+            return [f'- TypeError: Class {attribute_type} of attribute {attribute_name} is undefined.', 1]
         self.attributes[attribute_name] = CoolAttribute(attribute_name, class_attr_type, expression)
         return []
 
-    def get_attribute(self, attribute_name):
-        t = self
+    def get_attribute_inherited(self, attribute_name):
+        t = self.parent_type
         while t is not None:
             if attribute_name in t.attributes:
                 return t.attributes[attribute_name]
