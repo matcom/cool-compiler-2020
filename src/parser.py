@@ -74,7 +74,7 @@ def p_function_feature(p):
     if len(p) == 10:
         p[0] = FunctionFeatureNode(p[1], [], p[5], p[7], [GetPosition(p, 5)])
     else:
-        p[0] = FunctionFeatureNode(p[1], p[3], p[6], p[8], [GetPosition(p, 6)])
+        p[0] = FunctionFeatureNode(p[1], p[3], p[6], p[8], [GetPosition(p, 5)])
 
 
 def p_parameter_list(p):
