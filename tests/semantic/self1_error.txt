@@ -1,0 +1,1 @@
+(10, 30) - SemanticError: Cannot assign to 'self'.

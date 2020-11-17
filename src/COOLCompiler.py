@@ -11,14 +11,16 @@ from Visitors import  TypeCOOLVisitor
 from Visitors import  SemanticCOOLVisitor
 from Visitors import CodegenVisitor
 from collections import deque
+from NoTabsFileStream import NoTabsFileStream
+
 
 def main(argv):
     if not os.path.isfile(argv[1]):
         print("invalid input filename: " + argv[1])
         return sys.exit(errno.EPERM)
 
-    input = FileStream(argv[1])
-
+    input = NoTabsFileStream(argv[1])
+    s = ""
     lexer = COOLLexer(input)
     lexer.removeErrorListeners()
     lexer.addErrorListener(COOLLexerErrorListener())
@@ -44,8 +46,8 @@ def main(argv):
     codegenerator = CodegenVisitor(typeTree, consTble, visitor.Counter)
     semanticAnalizer.visitProgram(tree)
 
-    outFilename = os.path.splitext(argv[1])[0] + ".s"
-    codegenerator.visitProgram(tree, outFilename)
+  #  outFilename = os.path.splitext(argv[1])[0] + ".s"
+  #  codegenerator.visitProgram(tree, outFilename)
     none = typeTree["Object"]
 
 
