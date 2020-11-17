@@ -226,7 +226,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                 if type0 != variable.typeName:
                     return "Let variables types and corresponding initialization expressions types must match", ""
             letVariables[variable.id] = variable.typeName
-
+            print(letVariables.keys())
         errorLet, typeLet = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
                                                        parameters, True, letVariables, insideCase, caseVar)
         if len(errorLet) > 0:
@@ -331,18 +331,19 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
 
     elif type(expression) is VariableNode:
         if insideFunction:
+            if expression.lex in parameters:
+                return [], parameters[expression.lex]
+            if expression.lex in attributes:
+                return [], attributes[expression.lex].attribute_type.name
+        else:
             if insideLet:
                 if expression.lex in letVars:
                     return [], letVars[expression.lex]
             if insideCase:
                 if expression.lex in caseVar:
                     return [], caseVar[expression.lex]
-            if expression.lex in parameters:
-                return [], parameters[expression.lex]
-            if expression.lex in attributes:
-                return [], (attributes[expression.lex].attribute_type).name
-
-        return "Variable " + expression.lex + "not defined"
+        print(expression.lex)
+        return "Variable " + expression.lex + " not defined", ""
 
     elif type(expression) is NotNode:
         error1, type1 = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
@@ -379,7 +380,8 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
-            return "Only integers can be compared with <=", ""
+            return f'({expression.getLineNumber()}, {expression.getColumnName()}) - TypeError: non-Int arguments: ' \
+                   f'{type1} + {type2}', ''
         return [], "Bool"
 
     elif type(expression) is LessNode:
@@ -418,7 +420,8 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
-            return "Only integers can be added", ""
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: non-Int arguments: ' \
+                   f'{type1} + {type2}', ''
         return [], "Int"
 
     elif type(expression) is MinusNode:
@@ -431,7 +434,8 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
-            return "Only integers can be substracted", ""
+            return f'({expression.getLineNumber()}, {expression.getColumnName()}) - TypeError: non-Int arguments: ' \
+                   f'{type1} + {type2}', ''
         return [], "Int"
 
     elif type(expression) is TimesNode:
@@ -549,10 +553,10 @@ def check_semantic(ast: ProgramNode):
         return errors, AllTypes
 
     # Check expressions types
-    # expressions_check_output = check_expressions(ast)
-    # if len(expressions_check_output) > 0:
-    #     errors.append(expressions_check_output)
-    #     return errors, AllTypes
+    expressions_check_output = check_expressions(ast)
+    if len(expressions_check_output) > 0:
+        errors.append(expressions_check_output)
+        return errors, AllTypes
 
     # Check Main unity
     if 'Main' not in AllTypes:
