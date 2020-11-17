@@ -52,9 +52,8 @@ class FunctionNode(Node):
             result += "\t\t" + p.GetCode() + "\n"
         for l in self.locals:
             result += "\t\t" + l.GetCode() + "\n"
-        result += "\t\tREST OF THE CODE HERE ...\n"
         for s in self.body:
-            result += "\t" + s.GetCode() + "\n"
+            result += "\t\t" + s.GetCode() + "\n"
 
         result += "\t}"
 
