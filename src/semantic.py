@@ -62,9 +62,13 @@ def check_features(ast: ProgramNode):
                     parameters_type = []
                     parameters_name = []
                     for arg in feature.parameters:
+                        if arg.id == 'self':
+                            return f'({arg.getLineNumber()}, {arg.getColumnNumber()}) - SemanticError: \'self\' ' \
+                                   f'cannot be the name of a formal parameter.'
                         parameters_name.append(arg.id)
                         parameters_type.append(arg.typeName)
-                    method_added = class_type.add_method(feature.id, parameters_type, parameters_name, feature.typeName, feature.statement)
+                    method_added = class_type.add_method(feature.id, parameters_type, parameters_name, feature.typeName,
+                                                         feature.statement)
                     if len(method_added) == 2:
                         return f'({feature.parameters[method_added[1]].getLineNumber()}, ' \
                                f'{feature.parameters[method_added[1]].getColumnNumber()}) ' \
@@ -75,6 +79,9 @@ def check_features(ast: ProgramNode):
                                f'{method_added[0]}'
                     continue
                 if type(feature) is AttributeFeatureNode:
+                    if feature.id == 'self':
+                        return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) - SemanticError: \'self\' ' \
+                               f'cannot be the name of an attribute.'
                     feature_added_error = class_type.add_attribute(feature.id, feature.typeName, feature.expression)
                     if len(feature_added_error) == 1:
                         return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) {feature_added_error[0]}'
@@ -92,11 +99,11 @@ def check_features(ast: ProgramNode):
                 if k in class_inherited_methods:
                     if class_methods[k].return_type != class_inherited_methods[k].return_type:
                         return "Child overriding function must have the same return type as father overrided function"
-                    if len(class_methods[k].args) != len(class_inherited_methods[k].args):
+                    if len(class_methods[k].args_types) != len(class_inherited_methods[k].args_types):
                         return "Child overriding function must have the same params count as father overrided function"
-                    for counter in range(0, len(class_methods[k].args)):
-                        if (class_methods[k].args[counter])[1].name != \
-                                (class_inherited_methods[k].args[counter])[1].name:
+                    for counter in range(0, len(class_methods[k].args_types)):
+                        if (class_methods[k].args_types[counter]).name != \
+                                (class_inherited_methods[k].args_types[counter]).name:
                             return "Child overriding function's params must have same type as father overrided function's params"
 
             left_check = left_check - 1
@@ -107,17 +114,30 @@ def check_features(ast: ProgramNode):
 
 def check_expressions(ast: ProgramNode):
     for cls in ast.classes:
+        attrs = {}
+        cls_type = AllTypes[cls.typeName]
+        attrs_type = cls_type.get_attributes()
+        for attr in attrs_type:
+            attrs[attr.attribute_name] = attr.attribute_type.name
         for feature in cls.features:
             if type(feature) is AttributeFeatureNode:
                 feature_type = feature.typeName
                 if feature.expression:
-                    error, expression_type = get_expression_return_type(feature.expression, False, {}, {}, {}, False, {})
+                    error, expression_type = get_expression_return_type(feature.expression, False, attrs, {}, {}, False,
+                                                                        {})
                     if len(error) > 0:
                         return error
-                    if feature_type != expression_type:
-                        return "Invalid expression returning type"
+                    fathers = []
+                    t = AllTypes[expression_type]
+                    while t:
+                        fathers.append(t.name)
+                        t = t.parent_type
 
-        attributes = AllTypes[cls.typeName].get_attributes()
+                    if feature_type not in fathers:
+                        return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) - TypeError: Inferred type ' \
+                               f'{expression_type} of initialization of attribute test ' \
+                               f'does not conform to declared type {feature_type}.'
+
         functions = AllTypes[cls.typeName].get_methods()
 
         for feature in cls.features:
@@ -126,23 +146,24 @@ def check_expressions(ast: ProgramNode):
                 params = {}
                 for parameter in feature.parameters:
                     params[parameter.id] = parameter.typeName
-                error, expression_type = get_expression_return_type(feature.statement, True, attributes, functions,
+                error, expression_type = get_expression_return_type(feature.statement, True, attrs, functions,
                                                                     params,
                                                                     False, {})
                 if len(error) > 0:
                     return error
-                if feature_type != expression_type:
-                    return "Invalid expression returning type"
+                if not is_ancestor(AllTypes[expression_type], AllTypes[feature_type]):
+                    return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) - SemanticError: ' \
+                           f'Cannot assign to \'self\'.'
 
     return []
 
 
 def GetFirstCommonAncestor(types):
-    result = types[0].name
+    result = types[0]
     for i in range(1, len(types)):
-        result = get_first_common_ancestor(result, types[i])
+        result = AllTypes[get_first_common_ancestor(result, types[i])]
 
-    return result
+    return result.name
 
 
 def get_first_common_ancestor(typeA, typeB):
@@ -154,34 +175,39 @@ def get_first_common_ancestor(typeA, typeB):
 
 
 def is_ancestor(olderNode, youngerNode):
+    if olderNode is None or youngerNode is None:
+        return False
     if olderNode.name == youngerNode.name:
         return True
     return is_ancestor(olderNode, youngerNode.parent_type)
 
 
 def get_expression_return_type(expression, insideFunction, attributes, functions, parameters, insideLet, letVars,
-                               insideCase=False, caseVar={}):
+                               insideCase=False, caseVar={}, inside_loop=False):
     if type(expression) is AssignStatementNode:
         error1, type1 = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
-                                                   parameters, insideLet, letVars, insideCase, caseVar)
+                                                   parameters, insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
         return [], type1
 
     elif type(expression) is ConditionalStatementNode:
-        error1, type1 = get_expression_return_type(expression.evalExpr, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.evalExpr, insideFunction, attributes, functions,
+                                                   parameters,
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
         if type1 != "Bool":
-            return "Conditional predicate must be boolean", ""
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: Predicate of \'if\' ' \
+                   f'does not have type Bool.', ""
 
         error2, type2 = get_expression_return_type(expression.ifExpr, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error2) > 0:
             return error2, ""
-        error3, type3 = get_expression_return_type(expression.elseExpr, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+        error3, type3 = get_expression_return_type(expression.elseExpr, insideFunction, attributes, functions,
+                                                   parameters,
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error3) > 0:
             return error3, ""
 
@@ -190,14 +216,17 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
         return [], get_first_common_ancestor(thenType, elseType)
 
     elif type(expression) is LoopStatementNode:
-        error1, type1 = get_expression_return_type(expression.evalExpr, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+        error1, type1 = get_expression_return_type(expression.evalExpr, insideFunction, attributes, functions,
+                                                   parameters,
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop=True)
         if len(error1) > 0:
             return error1, ""
         if type1 != "Bool":
-            return "Loop predicate must be boolean", ""
-        error2, type2 = get_expression_return_type(expression.loopExpr, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - ' \
+                   f'TypeError: Loop condition does not have type Bool.', ''
+        error2, type2 = get_expression_return_type(expression.loopExpr, insideFunction, attributes, functions,
+                                                   parameters,
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop=True)
         if len(error2) > 0:
             return error2, ""
         return [], "Object"
@@ -205,58 +234,77 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
     elif type(expression) is BlockStatementNode:
         lastType = ""
         for expr in expression.expressions:
-            eError, eType = get_expression_return_type(expr, insideFunction, attributes, functions, parameters, insideLet,
-                                                       letVars, insideCase, caseVar)
+            eError, eType = get_expression_return_type(expr, insideFunction, attributes, functions, parameters,
+                                                       insideLet,
+                                                       letVars, insideCase, caseVar, inside_loop)
             if len(eError) > 0:
-                return "Error in block expression: " + eError, ""
+                return eError, ""
             lastType = eType
 
         return [], lastType
 
     elif type(expression) is LetStatementNode:
         letVariables = letVars
+        for item in attributes.keys():
+            letVars[item] = attributes[item]
         for variable in expression.variables:
+            if variable.id == 'self':
+                return f'({variable.getLineNumber()}, {variable.getColumnNumber()}) - SemanticError: \'self\' cannot ' \
+                       f'be bound in a \'let\' expression.', ''
             if not (variable.typeName in AllTypes):
-                return "Self variable type not defined", ""
-            if variable.expression != None:
+                return f"({variable.getLineNumber()}, {variable.getColumnNumber()}) - TypeError: Class " \
+                       f"{variable.typeName} of let-bound identifier {variable.id} is undefined.", ""
+            if variable.expression is not None:
                 error0, type0 = get_expression_return_type(variable.expression, insideFunction, attributes, functions,
-                                                           parameters, True, letVariables, insideCase, caseVar)
+                                                           parameters, True, letVariables, insideCase, caseVar,
+                                                           inside_loop)
                 if len(error0) > 0:
                     return "Error in let variable initialization expression", ""
-                if type0 != variable.typeName:
-                    return "Let variables types and corresponding initialization expressions types must match", ""
+                if not is_ancestor(AllTypes[variable.typeName], AllTypes[type0]):
+                    return f'({variable.getLineNumber()}, {variable.getColumnNumber()}) - TypeError: ' \
+                           f'Inferred type {type0} of initialization of {variable.id} does not conform to ' \
+                           f'identifier\'s declared type {variable.typeName}. ', ''
             letVariables[variable.id] = variable.typeName
-            print(letVariables.keys())
         errorLet, typeLet = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
-                                                       parameters, True, letVariables, insideCase, caseVar)
+                                                       parameters, True, letVariables, insideCase, caseVar, inside_loop)
         if len(errorLet) > 0:
             return errorLet, ""
         return [], typeLet
 
     elif type(expression) is CaseStatementNode:
         eError, eType = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
-                                                   parameters, insideLet, letVars, insideCase, caseVar)
+                                                   parameters, insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(eError) > 0:
             return eError, ""
         caseBranchesTypes = []
+        case_branch_type_name = []
         for caseBranch in expression.body:
+            if caseBranch.typeName in case_branch_type_name:
+                return f'({caseBranch.getLineNumber()}, {caseBranch.getColumnNumber()}) - SemanticError: ' \
+                       f'Duplicate branch {caseBranch.typeName} in case statement.', ''
+            case_branch_type_name.append(caseBranch.typeName)
+
             error0, type0 = get_expression_return_type(caseBranch, insideFunction, attributes, functions, parameters,
-                                                       insideLet, letVars, insideCase, caseVar)
+                                                       insideLet, letVars, insideCase, caseVar, inside_loop)
             if len(error0) > 0:
-                return error0, ""
-            inList = False
+                return f'({caseBranch.getLineNumber()}, {caseBranch.getColumnNumber()}) - {error0}', ""
+            duplicated_type = False
             for t in caseBranchesTypes:
                 if t.name == type0:
-                    inList = True
+                    duplicated_type = True
                     break
-            if not inList:
-                inList.append(AllTypes[type0])
+            if not duplicated_type:
+                caseBranchesTypes.append(AllTypes[type0])
+                case_branch_type_name.append(caseBranch)
+            elif duplicated_type:
+                return f'({caseBranch.getLineNumber()}, {caseBranch.getColumnNumber()}) - SemanticError: ' \
+                       f'Duplicate branch {type0} in case statement.', ''
 
-        return [], get_first_common_ancestor(caseBranchesTypes)
+        return [], GetFirstCommonAncestor(caseBranchesTypes)
 
     elif type(expression) is CaseBranchNode:
         if not (expression.typeName in AllTypes):
-            return "Case branch type not defined", ""
+            return f"TypeError: Class {expression.typeName} of case branch is undefined.", ""
         error0, type0 = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
                                                    parameters, insideLet, letVars, True,
                                                    {expression.id: expression.typeName})
@@ -269,12 +317,13 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
         if expression.typeName in AllTypes:
             return [], AllTypes[expression.typeName].name
         else:
-            return "New statement type not defined", ""
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: \'new\' used ' \
+                   f'with undefined class {expression.typeName}.', ''
 
     elif type(expression) is FunctionCallStatement:
 
         e, t = get_expression_return_type(expression.instance, insideFunction, attributes, functions, parameters,
-                                          insideLet, insideCase, caseVar)
+                                          insideLet, insideCase, caseVar, inside_loop)
         if len(e) > 0:
             return e, ""
         if expression.dispatchType is not None:
@@ -286,41 +335,51 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                 methods = ancType.get_methods()
                 if expression.function in methods:
                     if len(methods[expression.function].args_names) != len(expression.args):
-                        return "Argument count does not match in function call", ""
+                        return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - SemanticError: ' \
+                               f'Method {expression.function} called with wrong number of arguments.', ''
                     i = 0
                     for arg in expression.args:
-                        aError, aType = get_expression_return_type(arg, insideFunction, attributes, functions, parameters,
-                                                                   insideLet, insideCase, caseVar)
+                        aError, aType = get_expression_return_type(arg, insideFunction, attributes, functions,
+                                                                   parameters,
+                                                                   insideLet, insideCase, caseVar, inside_loop)
 
                         if len(aError) > 0:
                             return aError, ""
                         if aType != ((methods[expression.function]).args_types[i]).name:
-                            return "Some argument type in function call doesn't match with functions argument type", ""
+                            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: ' \
+                                   f'In call of method {expression.function}, type B of parameter c ' \
+                                   f'does not conform to declared type C. ', ''
                         i = i + 1
                     return [], methods[expression.function].return_type.name
                 else:
-                    return "Function not defined", ""
+                    return f'({1}, {1}) - AttributeError: Dispatch to undefined method {1}.', ''
 
             else:
-                return "Type " + aType.name + " is not ancestor of type " + eType.name, ""
+                return f'({expression.instance.getLineNumber()}, {expression.instance.getColumnNumber()}) - TypeError: ' \
+                       f'Expression type {expType.name} does not conform to declared static dispatch type ' \
+                       f'{ancType.name}.', ''
 
         methods = AllTypes[t].get_methods()
         if expression.function in methods:
             if len(methods[expression.function].args_names) != len(expression.args):
-                return "Argument count does not match in function call", ""
+                return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - SemanticError: ' \
+                       f'Method {expression.function} called with wrong number of arguments.', ''
             i = 0
             for arg in expression.args:
                 aError, aType = get_expression_return_type(arg, insideFunction, attributes, functions, parameters,
-                                                           insideLet, insideCase, caseVar)
+                                                           insideLet, letVars, insideCase, caseVar, inside_loop)
                 if len(aError) > 0:
                     return aError, ""
-                if aType != ((methods[expression.function]).args_types[i]).name:
-                    return "Some argument type in function call doesn't match with functions argument type", ""
+                if not is_ancestor(AllTypes[((methods[expression.function]).args_types[i]).name], AllTypes[aType]):
+                    return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: ' \
+                           f'In call of method {expression.function}, type B of parameter c ' \
+                           f'does not conform to declared type C. ', ''
                 i = i + 1
 
             return [], methods[expression.function].return_type.name
         else:
-            return "Function not defined", ""
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - AttributeError: ' \
+                   f'Dispatch to undefined method {expression.function}.', ''
 
     elif type(expression) is ConstantNumericNode:
         return [], "Int"
@@ -330,93 +389,98 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
         return [], "Bool"
 
     elif type(expression) is VariableNode:
-        if insideFunction:
+
+        if insideLet:
+            if expression.lex in letVars:
+                return [], letVars[expression.lex]
+        if insideCase:
+            if expression.lex in caseVar:
+                return [], caseVar[expression.lex]
+        if insideFunction or inside_loop:
             if expression.lex in parameters:
                 return [], parameters[expression.lex]
-            if expression.lex in attributes:
-                return [], attributes[expression.lex].attribute_type.name
-        else:
-            if insideLet:
-                if expression.lex in letVars:
-                    return [], letVars[expression.lex]
-            if insideCase:
-                if expression.lex in caseVar:
-                    return [], caseVar[expression.lex]
-        print(expression.lex)
-        return "Variable " + expression.lex + " not defined", ""
+        if expression.lex in attributes:
+            return [], attributes[expression.lex]
+        return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - NameError: ' \
+               f'Undeclared identifier {expression.lex}.', ''
 
     elif type(expression) is NotNode:
         error1, type1 = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
-                                                   parameters, insideLet, letVars, insideCase, caseVar)
+                                                   parameters, insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
         if type1 != "Bool":
-            return "Expressions for not operator must be boolean", ""
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: Argument of \'not\' has type {type1} instead of Bool.', ''
         return [], "Bool"
 
     elif type(expression) is IsVoidNode:
         error1, type1 = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
-                                                   parameters, insideLet, letVars, insideCase, caseVar)
+                                                   parameters, insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
         return [], "Bool"
 
     elif type(expression) is ComplementNode:
         error1, type1 = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
-                                                   parameters, insideLet, letVars, insideCase, caseVar)
+                                                   parameters, insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
         if type1 != "Int":
-            return "Expressions for complement must be an integer", ""
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: Argument of \'~\' ' \
+                   f'has type {type1} instead of Int.', ''
         return [], "Int"
 
     elif type(expression) is LessEqualNode:
         error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
         error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
-            return f'({expression.getLineNumber()}, {expression.getColumnName()}) - TypeError: non-Int arguments: ' \
-                   f'{type1} + {type2}', ''
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: non-Int arguments: ' \
+                   f'{type1} <= {type2}', ''
         return [], "Bool"
 
     elif type(expression) is LessNode:
         error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
         error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
-            return "Only integers can be compared with <", ""
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: non-Int arguments: ' \
+                   f'{type1} < {type2}', ''
         return [], "Bool"
 
     elif type(expression) is EqualNode:
         error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
         error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error2) > 0:
             return error2, ""
+        if type1 not in BasicTypes and type2 not in BasicTypes:
+            return [], 'Bool'
         if type1 != type2:
-            return "Expressions must be of same type", ""
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: ' \
+                   f'Illegal comparison with a basic type.', ''
         return [], "Bool"
 
     elif type(expression) is PlusNode:
         error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
         error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
@@ -426,42 +490,44 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
 
     elif type(expression) is MinusNode:
         error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
         error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
-            return f'({expression.getLineNumber()}, {expression.getColumnName()}) - TypeError: non-Int arguments: ' \
-                   f'{type1} + {type2}', ''
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: non-Int arguments: ' \
+                   f'{type1} - {type2}', ''
         return [], "Int"
 
     elif type(expression) is TimesNode:
         error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
         error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
-            return "Only integers can be multiplied", ""
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: non-Int arguments: ' \
+                   f'{type1} * {type2}', ''
         return [], "Int"
 
     elif type(expression) is DivideNode:
         error1, type1 = get_expression_return_type(expression.left, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
         error2, type2 = get_expression_return_type(expression.right, insideFunction, attributes, functions, parameters,
-                                                   insideLet, letVars, insideCase, caseVar)
+                                                   insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error2) > 0:
             return error2, ""
         if type1 != "Int" or type2 != "Int":
-            return "Only integers can be divided", ""
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: non-Int arguments: ' \
+                   f'{type1} / {type2}', ''
         return [], "Int"
 
 
