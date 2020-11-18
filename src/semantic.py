@@ -414,7 +414,8 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
         if len(error1) > 0:
             return error1, ""
         if type1 != "Bool":
-            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: Argument of \'not\' has type {type1} instead of Bool', ''
+            return f'({expression.expression.getLineNumber()}, {expression.expression.getColumnNumber()}) - TypeError: ' \
+                   f'Argument of \'not\' has type {type1} instead of Bool', ''
         return [], "Bool"
 
     elif type(expression) is IsVoidNode:
@@ -515,8 +516,11 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                                                    insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error2) > 0:
             return error2, ""
-        if type1 != "Int" or type2 != "Int":
-            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: non-Int arguments: ' \
+        if type1 != "Int":
+            return f'({expression.left.getLineNumber()}, {expression.left.getColumnNumber()}) - TypeError: non-Int arguments: ' \
+                   f'{type1} * {type2}', ''
+        if type2 != "Int":
+            return f'({expression.right.getLineNumber()}, {expression.right.getColumnNumber()}) - TypeError: non-Int arguments: ' \
                    f'{type1} * {type2}', ''
         return [], "Int"
 
