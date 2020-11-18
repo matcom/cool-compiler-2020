@@ -431,7 +431,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
         if len(error1) > 0:
             return error1, ""
         if type1 != "Int":
-            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: Argument of \'~\' ' \
+            return f'({expression.expression.getLineNumber()}, {expression.expression.getColumnNumber()}) - TypeError: Argument of \'~\' ' \
                    f'has type {type1} instead of Int', ''
         return [], "Int"
 
@@ -516,11 +516,8 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                                                    insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error2) > 0:
             return error2, ""
-        if type1 != "Int":
-            return f'({expression.left.getLineNumber()}, {expression.left.getColumnNumber()}) - TypeError: non-Int arguments: ' \
-                   f'{type1} * {type2}', ''
-        if type2 != "Int":
-            return f'({expression.right.getLineNumber()}, {expression.right.getColumnNumber()}) - TypeError: non-Int arguments: ' \
+        if type1 != "Int" or type2 != "Int":
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: non-Int arguments: ' \
                    f'{type1} * {type2}', ''
         return [], "Int"
 
