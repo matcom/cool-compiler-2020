@@ -143,7 +143,7 @@ def check_expressions(ast: ProgramNode):
         for feature in cls.features:
             if type(feature) is FunctionFeatureNode:
                 feature_type = feature.typeName
-                params = {}
+                params = { "self" : cls.typeName }
                 for parameter in feature.parameters:
                     params[parameter.id] = parameter.typeName
                 error, expression_type = get_expression_return_type(feature.statement, True, attrs, functions,
@@ -495,6 +495,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                                                    insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error2) > 0:
             return error2, ""
+        
         if type1 not in BasicTypes and type2 not in BasicTypes:
             return [], 'Bool'
         if type1 != type2:
