@@ -127,15 +127,24 @@ def p_case_body(p):
 
 
 def p_expression(p):
-    '''expression : mixed_expression'''
+    '''expression : arithmetic_expression_form'''
     p[0] = p[1]
 
 
+def p_arithmetic_expression_form(p):
+    '''arithmetic_expression_form : NOT mixed_expression
+                                    | mixed_expression'''
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = NotNode(p[2], [GetPosition(p, 2)])
+
+
 def p_mixed_expression(p):
-    '''mixed_expression : mixed_expression LESSEQUAL arithmetic_expression_form
-                        | mixed_expression LESS arithmetic_expression_form
-                        | mixed_expression EQUAL arithmetic_expression_form
-                        | arithmetic_expression_form'''
+    '''mixed_expression : mixed_expression LESSEQUAL arithmetic_expression
+                        | mixed_expression LESS arithmetic_expression
+                        | mixed_expression EQUAL arithmetic_expression
+                        | arithmetic_expression'''
     if len(p) > 2:
         if p[2] == "<":
             p[0] = LessNode(p[1], p[3], [GetPosition(p, 3)])
@@ -146,15 +155,6 @@ def p_mixed_expression(p):
                 p[0] = LessEqualNode(p[1], p[3], [GetPosition(p, 2)])
     else:
         p[0] = p[1]
-
-
-def p_arithmetic_expression_form(p):
-    '''arithmetic_expression_form : NOT arithmetic_expression
-                                    | arithmetic_expression'''
-    if len(p) == 2:
-        p[0] = p[1]
-    else:
-        p[0] = NotNode(p[2], [GetPosition(p, 2)])
 
 
 def p_arithmetic_expression(p):
