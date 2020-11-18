@@ -1,11 +1,11 @@
-import ast
+import ast as ast
 from type_defined import *
 from data_visitor import *
 from cil_ast import *
 from semantic import *
 
 TYPES = []
-DATA = []
+DATA = {}
 CODE = []
 
 def generate_code(ast):
@@ -22,7 +22,7 @@ def generate_cil(ast):
     result += "DATA -->\n\n"
     result += generate_cil_data(ast)
     result += "END <--\n\n"
-    
+
     result += "CODE -->\n\n"
     result += generate_cil_code(ast)
     result += "END <--"
@@ -48,6 +48,7 @@ def generate_cil_types(ast):
         
 
 def generate_cil_data(ast):
+    global DATA
     result = ""
     vis = FormatVisitor()
     data = {}
@@ -55,16 +56,20 @@ def generate_cil_data(ast):
         for attr in val.attributes.values():
             if attr.attribute_name != "self" and attr.expression:
                 for s in vis.visit(attr.expression):
-                    data[s] = s.lex
+                    if len(s.lex) == 1:
+                        s.lex = "\\n\n"
+                    data[s] = s.lex[0:-1]
         for method in val.methods.values():
             if method.expression:
                 for s in vis.visit(method.expression):
+                    if len(s.lex) == 1:
+                        s.lex = "\\n\n"
                     data[s] = s.lex[0:-1]
 
     i = 0
     for s in data.values():
         new_data = DataNode("data_" + str(i), s)
-        DATA.append(new_data)
+        DATA[s] = new_data
         result += new_data.GetCode() + "\n"
         i += 1
 
@@ -87,7 +92,7 @@ def generate_built_in_functions():
     code = [FunctionNode("IO_out_string", [ParamNode('self'), ParamNode('str')], [], [PrintNode('str'), 
                                                                                       ReturnNode('self')]),
 
-            FunctionNode('IO_out_int', [ParamNode('self'), ParamNode('int')], [LocalNode('str')], [StrNode('int', 'str'), 
+            FunctionNode('IO_out_int', [ParamNode('self'), ParamNode('int')], [LocalNode('str')], [ToStrNode('int', 'str'), 
                                                                                                    PrintNode('str'), 
                                                                                                    ReturnNode('self')]),
 
@@ -98,19 +103,19 @@ def generate_built_in_functions():
                                                                                 ReturnNode('int')]),
 
             FunctionNode('Object_type_name', [ParamNode('self')], [LocalNode('type'), LocalNode('str')], [TypeOfNode('type', 'self'), 
-                                                                                                          StrNode('type', 'str'),
+                                                                                                          ToStrNode('type', 'str'),
                                                                                                           ReturnNode('str')]),
 
             FunctionNode('Object_copy', [ParamNode('self')], [LocalNode('copy')], [CopyNode('self', 'copy'), 
                                                                                    ReturnNode('copy')]),
 
-            FunctionNode('String_length', [ParamNode('self')], [LocalNode('result')], [LengthNode('self', 'result'), 
+            FunctionNode('String_length', [ParamNode('self')], [LocalNode('result')], [StrlenNode('self', 'result'), 
                                                                                        ReturnNode('result')]),
 
-            FunctionNode('String_concat', [ParamNode('self'), ParamNode('str')], [LocalNode('result')], [ConcatNode('self', 'str', 'result'), 
-                                                                                                       ReturnNode('result')]),
+            FunctionNode('String_concat', [ParamNode('self'), ParamNode('str')], [LocalNode('result')], [StrcatNode('self', 'str', 'result'), 
+                                                                                                         ReturnNode('result')]),
 
-            FunctionNode('String_substr', [ParamNode('self'), ParamNode('from'), ParamNode('to')], [LocalNode('result')], [SubStringNode('self', 'from', 'to', 'result'), 
+            FunctionNode('String_substr', [ParamNode('self'), ParamNode('from'), ParamNode('to')], [LocalNode('result')], [StrsubNode('self', 'from', 'to', 'result'), 
                                                                                                                            ReturnNode('result')])
             ]
 
@@ -124,22 +129,29 @@ def generate_built_in_functions():
 
 
 C_ATTRIBUTES = {}
+F_PARAM = {}
 F_LOCALS = {}
+LET_LOCALS = {}
 D_LOCALS = {}
 V_TYPE = {}
-CURR_TYPE = []
+CURR_TYPE = ""
 LABEL_COUNTER = 0
 
 
-def create_local(id = None):
+def get_local(id = None):
+    global F_LOCALS
     if id is None:
-        id = "local_" + len(F_LOCALS)
+        id = "local_" + str(len(F_LOCALS))
+    
+    if id in F_PARAM:
+        return F_PARAM[id]
 
     local = LocalNode(id)
     F_LOCALS[id] = local
     return local
 
-def create_label():
+def get_label():
+    global LABEL_COUNTER
     LABEL_COUNTER += 1
     return "label_" + str(LABEL_COUNTER)
 
@@ -153,130 +165,138 @@ def generate_function(type_name, method):
 
     f_name = type_name + "_" + method.name
 
-    parameters = [ParamNode("self")]
-    for p in method.args_names:
-        parameters.append(ParamNode(p))
-
-    result += "\t" + f_name + " {\n"
-    for p in parameters:
-        result += "\t\t" + p.GetCode() + "\n" 
-
+    global F_PARAM, F_LOCALS, LABEL_COUNTER, D_LOCALS, V_TYPE, CURR_TYPE, C_ATTRIBUTES, LET_LOCALS
+    C_ATTRIBUTES = {}
     F_LOCALS = {}
     LABEL_COUNTER = 0
     D_LOCALS = {}
     V_TYPE = {}
-    CURR_TYPE = [f_name]
-
+    LET_LOCALS = {}
+    CURR_TYPE = f_name
     statements = []
+    F_PARAM = {}
+
+    parameters = [ParamNode("self")]
+    F_PARAM["self"] = ParamNode("self")
+    for p in method.args_names:
+        node = ParamNode(p)
+        parameters.append(node) 
+        F_PARAM[node.id] = node
+    
+
+    for attr in AllTypes[type_name].get_attributes().values():
+        C_ATTRIBUTES[attr.attribute_name] = attr.attribute_name
 
     instruction = convert_expression(method.expression)
     statements += instruction.node
 
-    statements.append(ReturnNode(instruction.value))
+    statements.append(ReturnNode(instruction.result))
 
     _locals = F_LOCALS.copy()
     locals_aux = []
     for key in _locals.keys():
-        locals_aux += _locals[key]
+        locals_aux += [_locals[key]]
 
     CODE.append(FunctionNode(f_name, parameters, locals_aux, statements))
+
+    result += CODE[-1].GetCode() + "\n\n"
 
     return result
 
 def convert_expression(expression):
     if type(expression) is AssignStatementNode:
-        convert_assign(expression)
+        return convert_assign(expression)
 
     elif type(expression) is ConditionalStatementNode:
-        convert_conditional(expression)
+        return convert_conditional(expression)
 
     elif type(expression) is LoopStatementNode:
-        convert_loop(expression)
+        return convert_loop(expression)
 
     elif type(expression) is BlockStatementNode:
-        convert_block(expression)
+        return convert_block(expression)
 
     elif type(expression) is LetStatementNode:
-        convert_let(expression)
+        return convert_let(expression)
 
     elif type(expression) is CaseStatementNode:
-        convert_case(expression)
+        return convert_case(expression)
 
     elif type(expression) is CaseBranchNode:
-        convert_case_branch(expression)
+        return convert_case_branch(expression)
 
     elif type(expression) is NewStatementNode:
-        convert_new(expression)
+        return convert_new(expression)
 
     elif type(expression) is FunctionCallStatement:
-        convert_function_call(expression)
+        return convert_function_call(expression)
 
     elif type(expression) is ConstantNumericNode:
-        convert_integer(expression)
+        return convert_integer(expression)
 
     elif type(expression) is ConstantStringNode:
-        convert_string(expression)
+        return convert_string(expression)
 
     elif type(expression) is ConstantBoolNode:
-        convert_bool(expression)
+        return convert_bool(expression)
 
     elif type(expression) is VariableNode:
-        convert_variable(expression)
+        return convert_variable(expression)
 
     elif type(expression) is NotNode:
-        convert_not(expression)
+        return convert_not(expression)
 
     elif type(expression) is IsVoidNode:
-        convert_is_void(expression)
+        return convert_is_void(expression)
 
     elif type(expression) is ComplementNode:
-        convert_complement(expression)
+        return convert_complement(expression)
 
     elif type(expression) is LessEqualNode:
-        convert_less_equal(expression)
+        return convert_less_equal(expression)
 
     elif type(expression) is LessNode:
-        convert_less(expression)
+        return convert_less(expression)
 
     elif type(expression) is EqualNode:
-        convert_equal(expression)
+        return convert_equal(expression)
 
     elif type(expression) is PlusNode:
-        convert_binary_arithmetic_operation(expression)
+        return convert_binary_arithmetic_operation(expression)
 
     elif type(expression) is MinusNode:
-        convert_binary_arithmetic_operation(expression)
+        return convert_binary_arithmetic_operation(expression)
 
     elif type(expression) is TimesNode:
-        convert_binary_arithmetic_operation(expression)
+        return convert_binary_arithmetic_operation(expression)
 
     elif type(expression) is DivideNode:
-        convert_binary_arithmetic_operation(expression)
+        return convert_binary_arithmetic_operation(expression)
 
 def convert_case(case):
     nodes = []
     expr = convert_expression(case.expr)
     nodes += expr.node
-    aux_local = create_local()
+    aux_local = get_local()
     nodes.append(TypeOfNode(aux_local, expr.result))
-    expr_type_local = create_local()
+    expr_type_local = get_local()
     nodes.append(StrNode(aux_local, expr_type_local))
     
     case_types = []
     case_labels = []
     
     for c in case.body:
-        case_types.append(create_local())
-        case_labels.append(create_label())
+        case_types.append(get_local())
+        case_labels.append(get_label())
         
     result = None
 
     for i, case_branch in enumerate(case.body):
-        predicate = create_local()
+        predicate = get_local()
         nodes.append(MinusNode(expr_type_local, case_types[i], predicate))
-        nodes.append(ConditionalGotoNode(predicate, case_labels[i]))
-        case_local = create_local(case_branch.id)
-        nodes.append(AssignNode(case_local, expr.result))
+        nodes.append(IfGotoNode(predicate, case_labels[i]))
+        case_local = get_local(case_branch.id)
+        nodes.append(MovNode(case_local, expr.result))
         branch = convert_expression(case_branch.expr)
         nodes += branch.node
         result = branch.result
@@ -286,36 +306,43 @@ def convert_case(case):
 
 
 def convert_assign(assign):        
+    global C_ATTRIBUTES
     expr = convert_expression(assign.expression)
 
-    if assign.id in C_ATTRIBUTES[CURR_TYPE[-1]]:
-        node = expr.node + [SetAttrNode("self", assign.id, expr.result)]
+    if assign.id in C_ATTRIBUTES:
+        node = expr.node + [SetAttributeNode("self", assign.id, expr.result)]
         return Node_Result(node, expr.result)
-
+    
     else:
-        result = create_local(assign.id)
-        node = node.node + [AssignNode(result, expr.result)]
+        result = get_local(assign.id)
+        node = expr.node + [MovNode(result, expr.result)]
         return Node_Result(node, result)
-
-
+    
+    
 def convert_binary_arithmetic_operation(op):
     left = convert_expression(op.left)
     right = convert_expression(op.right)
 
-    result = create_local()
+    if type(left.result) == LocalNode:
+        result = left.result
+    else:
+        if type(right.result) == LocalNode:
+            result = right.result
+        else:
+            result = get_local()
 
     node = left.node + right.node
 
     if type(op) == ast.PlusNode:
-        node.append(PlusNode(left.result, right.result, result))
+        node.append(AddNode(left.result, right.result, result))
 
     elif type(op) == ast.MinusNode:
-        node.append(MinusNode(left.result, right.result, result))
+        node.append(SusNode(left.result, right.result, result))
 
-    elif type(op) == ast.StarNode:
-        node.append(StarNode(left.result, right.result, result))
+    elif type(op) == ast.TimesNode:
+        node.append(MulNode(left.result, right.result, result))
 
-    elif type(op) == ast.DivNode:
+    elif type(op) == ast.DivideNode:
         node.append(DivNode(left.result, right.result, result))
 
     return Node_Result(node, result)
@@ -328,18 +355,15 @@ def convert_conditional(expression):
 
     else_expr = convert_expression(expression.elseExpr)
 
-    label_if = create_label()
-    label_else = create_label()
-    result = create_local()
+    label_if = get_label()
+    label_else = get_label()
+    result = get_local()
 
-    node = predicate.node + [
-           ConditionalGotoNode(predicate.result, label_if)] + 
-           else_expr.node + [
-           AssignNode(result, else_expr.result), 
+    node = predicate.node + [IfGotoNode(predicate.result, label_if)] + else_expr.node + [
+           MovNode(result, else_expr.result), 
            GotoNode(label_else), 
-           LabelNode(label_if)] + 
-           if_expr.node + [
-           AssignNode(result, if_expr.result), cil.LabelNode(label_else)]
+           LabelNode(label_if)] + if_expr.node + [
+           MovNode(result, if_expr.result), LabelNode(label_else)]
 
     return Node_Result(node, result)
 
@@ -349,39 +373,28 @@ def convert_loop(loop):
 
     expr = convert_expression(loop.loopExpr)
 
-    result = add_local()
+    predicate_label = get_label()
+    expr_label = get_label()
+    end_label = get_label()
 
-    predicate_label = create_label()
-    expr_label = create_label()
-    end_label = create_label()
-
-    node = [LabelNode(predicate_label)] + 
-            predicate.node + 
-            [ConditionalGotoNode(predicate.result, expr_label), 
+    node = [LabelNode(predicate_label)] + predicate.node + [
+            IfGotoNode(predicate.result, expr_label), 
             GotoNode(end_label),
-            LabelNode(expr_label)] + 
-            expr.node + [
+            LabelNode(expr_label)] + expr.node + [
             GotoNode(predicate_label),
-            LabelNode(end_label), 
-            AssignNode(result, 0)]
+            LabelNode(end_label), ]
 
-    return Node_Result(node, result)
+    return Node_Result(node, None)
 
 
 def convert_equal(equal):
     left = convert_expression(equal.left)
     right = convert_expression(equal.right)
 
-    sus_result = create_local()
-    end_label = create_label()
-    result = create_local()
-
-    node = left.node + right.node + [MinusNode(left.result, r.result, sus_result), 
-                                     AssignNode(result, 0),
-                                     ConditionalGotoNode(sus_result, end_label), 
-                                     AssignNode(result, 1),
-                                     LabelNode(end_label)]
-
+    result = get_local()
+    
+    node = left.node + right.node + [ENode(left.result, right.result, result)]
+    
     return Node_Result(node, result)
 
 
@@ -389,9 +402,9 @@ def convert_less(l):
     left = convert_expression(l.left)
     right = convert_expression(l.right)
 
-    result = create_local()
+    result = get_local()
     
-    node = left.node + right.node + [LessNode(left.result, right.result, result)]
+    node = left.node + right.node + [LNode(left.result, right.result, result)]
     
     return Node_Result(node, result)
 
@@ -400,9 +413,9 @@ def convert_less_equal(le):
     left = convert_expression(le.left)
     right = convert_expression(le.right)
 
-    result = create_local()
+    result = get_local()
     
-    node = left.node + right.node + [LessEqualNode(left.result, right.result, result)]
+    node = left.node + right.node + [LENode(left.result, right.result, result)]
     
     return Node_Result(node, result)
 
@@ -412,34 +425,33 @@ def convert_integer(integer):
 
 
 def convert_bool(bool):
-    if bool.lex == "True":
+    if bool.lex == "true":
         return Node_Result([], 1)
     else:
         return Node_Result([], 0)
 
 
-def convert_id(id):
-    if id.lex in C_ATTRIBUTES[CURR_TYPE[-1]]:
-        result = create_local()
+def convert_variable(id):
+    global F_LOCALS, C_ATTRIBUTES, LET_LOCALS, F_PARAM
+
+    if id.lex in LET_LOCALS:
+        return Node_Result([], LET_LOCALS[id.lex])
+    
+    if id.lex in F_PARAM:
+        return Node_Result([], F_PARAM[id.lex])
+
+    if id.lex in C_ATTRIBUTES:
+        result = get_local()
         return Node_Result([GetAttributeNode("self", id.lex, result)], result)
 
-    try:
-        result = F_LOCALS[id.lex]
-        return Node_Result([], result)
-
-    except:
-        return Node_Result([], id.lex)
+    return Node_Result([], get_local(id.lex))
 
 def convert_new(new_node):
-    result = create_local()
+    result = get_local()
     nodes = []
 
     if new_node.typeName == "SELF_TYPE":
-        if new_node.typeName not in V_TYPE:
-            type_local = create_local()
-            V_TYPE[new_node.typeName] = type_local
-            if need_typeof:
-                nodes.append(TypeOfNode(new_node.typeName, "self"))
+        new_node.typeName = CURR_TYPE
 
     nodes.append(AllocateNode(new_node.typeName, result))
     
@@ -453,19 +465,9 @@ def convert_new(new_node):
     return Node_Result(nodes, result)
 
 
-def convert_is_void(isvoid):
-    expr = convert_expression(isvoid.expression)
-
-    node = expr.node
-
-    if not expr.value:
-        return Node_Result(node, 1)
-    else:
-        return Node_Result(node, 0)
-
-
 def convert_string(s):
-    in_data = DATA[s]
+    global DATA
+    in_data = DATA[s.lex[0:-1]]
 
     already_loaded = False
     result = None
@@ -473,26 +475,28 @@ def convert_string(s):
         already_loaded = True
         result = D_LOCALS[in_data]
     else:
-        result = create_local()
+        result = get_local()
         D_LOCALS[in_data] = result
 
-    if already_loaded:
-        node = [LoadNode(in_data, result)]
+    if not already_loaded:
+        node = [LoadNode(DATA[s.lex[0:-1]].id, result)]
     else:
         node = []
 
-    return CIL_block(node, result)
+    return Node_Result(node, result)
 
 
 def convert_let(let):
+    global LET_LOCALS
     nodes = []
-
+    
     for attr in let.variables:
         if attr.expression:
             a = convert_expression(attr.expression)
             nodes += a.node
-            local = create_local(attr.id)
-            nodes.append(AssignNode(local, a.result))
+            local = get_local()
+            nodes.append(MovNode(local, a.result))
+            LET_LOCALS[a.id] = local
 
     expr = convert_expression(let.expression)
     nodes += expr.node
@@ -503,12 +507,9 @@ def convert_let(let):
 def convert_complement(complement_node):
     expr = convert_expression(complement_node.expression)
 
-    result = create_local()
-    end_label = create_label()
+    result = get_local()
 
-    node = expr.node + [AssignNode(result, 0), 
-                        ConditionalGotoNode(expr.result, end_label),
-                        AssignNode(result, 1), LabelNode(end_label)]
+    node = expr.node + [CmpNode(expr.result, result)]
 
     return Node_Result(node, result)
 
@@ -516,12 +517,26 @@ def convert_complement(complement_node):
 def convert_not(not_node):
     expr = convert_expression(not_node.expression)
 
-    result = create_local()
+    result = get_local()
 
-    node = expr.body + [NotNode(expr.value, value)]
+    node = expr.body + [NotNode(expr.result, result)]
 
-    return Node_Result(node, expr)
+    return Node_Result(node, result)
 
+def convert_is_void(isvoid):
+    expr = convert_expression(isvoid.expression)
+
+    result = get_local()
+
+    if type(expr.result == ParamNode):
+        e = expr.result.id
+    else:
+        e = expr.result
+
+    node = expr.node + [VDNode(e, result)]
+
+    
+    return Node_Result(node, result)
 
 def convert_block(block):
     nodes = []
@@ -529,52 +544,49 @@ def convert_block(block):
 
     for e in block.expressions:
         expr = convert_expression(e)
-        nodes += expr.body
-        result = expr.value
+        nodes += expr.node
+        result = expr.result
 
     return Node_Result(nodes, result)
 
 
 def convert_function_call(call):
+    global V_TYPE, CURR_TYPE
     nodes = []
 
-    if call.instance:
+    instance_is_self = type(call.instance) == VariableNode and call.instance.lex == "self"
+
+    if not instance_is_self:
         ins = convert_expression(call.instance)
         nodes += ins.node
         instance = ins.result
     else:
         instance = "self"
+    
+    if type(instance) == ParamNode or type(instance) == LocalNode:
+        instance = instance.id
 
     arguments = []
 
     for a in call.args:
         arg = convert_expression(a)
-        nodes += a.node
+        nodes += arg.node
         arguments.append(arg.result)
 
-    def get_typeof(obj):
-        try:
-            return __TYPEOF__[obj], False
-        except KeyError:
-            type_local = add_local()
-            __TYPEOF__[obj] = type_local
-            return type_local, True
-
-    t, need_typeof = get_typeof(instance)
-    
     if instance in V_TYPE:
         ins_type = V_TYPE[instance]
     else:
-        local = create_local()
-        V_TYPE[instance] = local
-        nodes.append(TypeOfNode(local, instance))
+        type_local = get_local()
+        V_TYPE[instance] = type_local
+        ins_type = type_local
+        nodes.append(TypeOfNode(type_local, instance))
 
     nodes.append(ArgNode(instance))
 
     for a in arguments:
         nodes.append(ArgNode(a))
 
-    result = create_local()
+    result = get_local()
     if not call.dispatchType:
         nodes.append(VCAllNode(ins_type, call.function, result))
     else:

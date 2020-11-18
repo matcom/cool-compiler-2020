@@ -549,10 +549,10 @@ def check_semantic(ast: ProgramNode):
         return errors, AllTypes
 
     # Check expressions types
-    # expressions_check_output = check_expressions(ast)
-    # if len(expressions_check_output) > 0:
-    #     errors.append(expressions_check_output)
-    #     return errors, AllTypes
+    expressions_check_output = check_expressions(ast)
+    if len(expressions_check_output) > 0:
+        errors.append(expressions_check_output)
+        return errors, AllTypes
 
     # Check Main unity
     if 'Main' not in AllTypes:

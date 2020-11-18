@@ -224,7 +224,7 @@ def p_program_atom_id(p):
 
 def p_program_atom_parentesis(p):
     '''program_atom : LPAREN expression RPAREN'''
-    p[0] = p[1]
+    p[0] = p[2]
 
 
 def p_program_atom_new(p):
