@@ -134,7 +134,7 @@ def check_expressions(ast: ProgramNode):
                     if len(error) > 0:
                         return error
                     if expression_type != feature.typeName:
-                        return f'({feature.expression.getLineNumber()}, {feature.expression.getColumnNumber()}) - TypeError: Inferred type ' \
+                        return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) - TypeError: Inferred type ' \
                                f'{expression_type} of initialization of attribute test ' \
                                f'does not conform to declared type {feature_type}.'
 
@@ -229,7 +229,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
         if len(error1) > 0:
             return error1, ""
         if type1 != "Bool":
-            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - ' \
+            return f'({expression.loopExpr.getLineNumber()}, {expression.loopExpr.getColumnNumber()}) - ' \
                    f'TypeError: Loop condition does not have type Bool.', ''
         error2, type2 = get_expression_return_type(expression.loopExpr, insideFunction, attributes, functions,
                                                    parameters,
