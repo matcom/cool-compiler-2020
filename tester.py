@@ -23,8 +23,15 @@ def main():
     for i in range(0, len(tests_obtained)):
         obtained = tests_obtained[i]
         expected = tests_expected[i]
-        if obtained[:9] != expected[:9] and obtained[10:] == expected[10:]:
-            print([tests_path[i], expected[:9], obtained[:9]])
+        i_expected = expected.index('-')
+        try:
+            i_obtained = obtained.index('-')
+        except ValueError:
+            i_obtained = 9
+        # print([i_obtained, i_expected])
+        if obtained[:i_obtained] != expected[:i_expected] \
+                and obtained[i_obtained:] == expected[i_expected:]:
+            print([tests_path[i], expected[:i_expected], obtained[:i_obtained]])
             continue
         if obtained != expected:
             print([tests_path[i], expected, obtained])
