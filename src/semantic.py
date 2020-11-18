@@ -104,7 +104,9 @@ def check_features(ast: ProgramNode):
                     for counter in range(0, len(class_methods[k].args_types)):
                         if (class_methods[k].args_types[counter]).name != \
                                 (class_inherited_methods[k].args_types[counter]).name:
-                            return "Child overriding function's params must have same type as father overrided function's params"
+                            return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) - SemanticError: ' \
+                                   f'In redefined method {feature.id}, parameter type {(class_methods[k].args_types[counter]).name} is different ' \
+                                   f'from original type {(class_inherited_methods[k].args_types[counter]).name}.'
 
             left_check = left_check - 1
             checked_types[i] = True
@@ -136,7 +138,7 @@ def check_expressions(ast: ProgramNode):
                     if feature_type not in fathers:
                         return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) - TypeError: Inferred type ' \
                                f'{expression_type} of initialization of attribute test ' \
-                               f'does not conform to declared type {feature_type}.'
+                               f'does not conform to declared type {feature_type}'
 
         functions = AllTypes[cls.typeName].get_methods()
 
@@ -263,7 +265,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                 if not is_ancestor(AllTypes[variable.typeName], AllTypes[type0]):
                     return f'({variable.getLineNumber()}, {variable.getColumnNumber()}) - TypeError: ' \
                            f'Inferred type {type0} of initialization of {variable.id} does not conform to ' \
-                           f'identifier\'s declared type {variable.typeName}. ', ''
+                           f'identifier\'s declared type {variable.typeName}', ''
             letVariables[variable.id] = variable.typeName
         errorLet, typeLet = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
                                                        parameters, True, letVariables, insideCase, caseVar, inside_loop)
@@ -485,7 +487,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
             return error2, ""
         if type1 != "Int" or type2 != "Int":
             return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: non-Int arguments: ' \
-                   f'{type1} + {type2}', ''
+                   f'{type1} + {type2} ', ''
         return [], "Int"
 
     elif type(expression) is MinusNode:
