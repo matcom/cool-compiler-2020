@@ -137,7 +137,7 @@ def p_arithmetic_expression_form(p):
     if len(p) == 2:
         p[0] = p[1]
     else:
-        p[0] = NotNode(p[2], [GetPosition(p, 2)])
+        p[0] = NotNode(p[2], [GetPosition(p, 1)])
 
 
 def p_mixed_expression(p):
@@ -147,7 +147,7 @@ def p_mixed_expression(p):
                         | arithmetic_expression'''
     if len(p) > 2:
         if p[2] == "<":
-            p[0] = LessNode(p[1], p[3], [GetPosition(p, 3)])
+            p[0] = LessNode(p[1], p[3], [GetPosition(p, 2)])
         else:
             if p[2] == "=":
                 p[0] = EqualNode(p[1], p[3], [GetPosition(p, 2)])
@@ -178,9 +178,9 @@ def p_term(p):
         p[0] = p[1]
     else:
         if p[2] == "*":
-            p[0] = TimesNode(p[1], p[3], GetPosition(p, 3))
+            p[0] = TimesNode(p[1], p[3], [GetPosition(p, 2)])
         else:
-            p[0] = DivideNode(p[1], p[3], [GetPosition(p, 3)])
+            p[0] = DivideNode(p[1], p[3], [GetPosition(p, 2)])
 
 
 def p_factor(p):
@@ -198,7 +198,7 @@ def p_factor_extra(p):
     if len(p) == 2:
         p[0] = p[1]
     else:
-        p[0] = ComplementNode(p[2], [GetPosition(p, 2)])
+        p[0] = ComplementNode(p[2], [GetPosition(p, 1)])
 
 
 def p_program_atom_boolean(p):
@@ -229,7 +229,7 @@ def p_program_atom_parentesis(p):
 
 def p_program_atom_new(p):
     '''program_atom : NEW CLASSID'''
-    p[0] = NewStatementNode(p[2], [GetPosition(p, 2)])
+    p[0] = NewStatementNode(p[2], [GetPosition(p, 1)])
 
 
 def p_program_atom_member(p):
@@ -239,7 +239,7 @@ def p_program_atom_member(p):
 
 def p_program_atom_function(p):
     '''program_atom : program_atom function_call'''
-    p[0] = FunctionCallStatement(p[1], (p[2])[0], (p[2])[1], (p[2])[2], [GetPosition(p, 2)])
+    p[0] = FunctionCallStatement(p[1], (p[2])[0], (p[2])[1], (p[2])[2], p[1].lineNumber)
 
 
 def p_program_atom_assign(p):
