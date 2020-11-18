@@ -2,7 +2,10 @@ import itertools as itt
 import core.cmp.visitor as visitor
 import core.cmp.cil as cil
 import core.cmp.mips as mips
+from random import choice
+from collections import defaultdict
 from core.cmp.utils import CountDict
+from pprint import pprint
 
 
 USED   = 1
@@ -180,6 +183,15 @@ class CILToMIPSVisitor:
     @visitor.when(cil.FunctionNode)
     def visit(self, node):
         used_regs_finder = UsedRegisterFinder()
+        div = RegistersAllocator()
+        for ins in enumerate(node.instructions):
+            print(ins)
+        pprint(div.get_registers_for_variables(node.instructions, node.params, 4))
+        #div.numered_instructions(node.instructions)
+        #div.mark_leaders(node.instructions)
+        #basic_blocks = div.divide_basics_blocks(node.instructions)
+        #ady_list = div.create_flow_graph(basic_blocks)
+        #div.liveness_analysis((basic_blocks, ady_list), node.params)
 
         label = self._name_func_map[node.name]
         params = [param.name for param in node.params]
@@ -291,8 +303,6 @@ class CILToMIPSVisitor:
         elif node.source.isnumeric():
             load_value = mips.LoadInmediateNode(reg, int(node.source))
             instructions.append(load_value)
-        elif type(node.source) == cil.VoidNode:
-            instructions.append(mips.LoadInmediateNode(reg, 0))
         else:
             value_location = self.get_var_location(node.source)
             load_value = mips.LoadWordNode(reg, value_location)
@@ -998,46 +1008,299 @@ class UsedRegisterFinder:
 
 
 #Change Name
-class FunctionDivider:
+class RegistersAllocator:
     def __init__(self):
-        self.mark
+        self.mark = False
         
-        
-    def divide_basics_blocks(self, intructions):
+    def get_registers_for_variables(self, instructions, params, n):
+        self.numered_instructions(instructions)
+        self.mark_leaders(instructions)
+        basic_blocks = self.divide_basics_blocks(instructions)
+        flow_graph = RegistersAllocator.create_flow_graph(basic_blocks)
+        gk, io = self.liveness_analysis((basic_blocks, flow_graph), params)
+        interference = RegistersAllocator.interference_compute(gk, io)
+        return RegistersAllocator.assign_registers(interference, n)
+
+    def divide_basics_blocks(self, instructions):
         self.mark = True
         for instruction in instructions:
             self.mark_leaders(instruction)
 
         blocks = []
 
-        for instruction in instrucctions:
+        for instruction in instructions:
             if instruction.leader:
-                block.append([instruction])
-            block[-1].append(instruction)
+                blocks.append([instruction])
+            else:
+                blocks[-1].append(instruction)
         
         return blocks
 
-    def create_flow_graph(blocks): #graph between blocks in a same function does not include relations between functions
+    def liveness_analysis(self, graph, params):
+        blocks, ady_list = graph
+
+        instructions = []
+        for block in blocks:
+            instructions.extend(block)
+        instructions_total = len(instructions)
+
+        suc = [ 0 for _ in range(instructions_total) ]
+        for block_index, block in enumerate(blocks):
+            for ins_index, instruction in enumerate(block):
+                if ins_index == len(block) - 1:
+                    ady = [ i for i in range(len(blocks)) if ady_list[block_index][i] == 1 ]
+                    suc[instruction.number] = [ blocks[b][0].number for b in ady ]
+                else:
+                    suc[instruction.number] = [ block[ins_index + 1].number ]
+        
+        gk = [self.gen_kill(inst) for inst in instructions] 
+        io = RegistersAllocator.out_in_compute(suc, gk)
+        gk = [([], [param.name for param in params ] )] + gk
+        io = [([], io[0][0])] + io
+
+        return gk, io
+        interference = RegistersAllocator.interference_compute(gk, oi)
+        
+        RegistersAllocator.assign_registers(interference, 4)
+
+    @staticmethod
+    def interference_compute(gk, in_out):
+        neigs = defaultdict(set)
+        for i,(_, k) in enumerate(gk):
+            for v in k:
+                neigs[v].update(in_out[i][1])
+
+        for k, v in neigs.items():
+            for n in v:
+                neigs[n].add(k)
+
+        for k, v in neigs.items():
+            neigs[k] = list(v.difference([k]))
+
+        return neigs
+
+    @staticmethod
+    def assign_registers(interference_graph, n):
+        stack = []
+        print(type(n)) 
+        var_registers = defaultdict(lambda : -1)
+        nodes = set(interference_graph.keys())
+
+        def myLen(l):
+            count = 0
+            for v in l:
+                if v in nodes:
+                    count += 1
+            return count
+
+        #remove nodes with less than n edges
+        while nodes:
+            to_remove = None 
+            for node in nodes:
+                if myLen(interference_graph[node]) < n:
+                    stack.append((node, interference_graph[node]))
+                    to_remove = node
+                    break
+            
+            if to_remove:
+                nodes.remove(to_remove)
+            else:
+                selection = choice(list(nodes))
+                stack.append((selection, interference_graph[selection]))
+                nodes.remove(selection)
+        
+        while stack:
+            node, ady = stack.pop()
+            regs = set(range(n))
+            for neig in ady:
+                reg = var_registers[neig]
+                if reg != -1:
+                    try:
+                        regs.remove(reg)
+                    except:
+                        pass
+            if regs:
+                var_registers[node] = min(regs)    
+            else:
+                var_registers[node] = -1
+        
+        return var_registers 
+
+    @staticmethod
+    def out_in_compute(suc, gk):
+        n_instructions = len(gk)
+        in_out = [(set(), set()) for _ in range(n_instructions)]
+        next_in_out = [(set(), set()) for _ in range(n_instructions)]
+
+        def add(set1, set2):
+            new = not set1 == set2
+            set1.update(set2)
+            return new
+
+        changed = True
+        while changed:
+            changed = False
+            for i in range(n_instructions)[::-1]:
+                for i_suc in suc[i]:
+                    if i_suc < i:
+                        changed = add(next_in_out[i][1], in_out[i_suc][0])
+                    else:
+                        changed = add(next_in_out[i][1], next_in_out[i_suc][0])
+                g_i = set(gk[i][0])
+                k_i = set(gk[i][1])
+                new = g_i.union(next_in_out[i][1].difference(k_i))
+                changed = add(next_in_out[i][0], new)
+            in_out = next_in_out
+        
+        return in_out
+
+    @staticmethod
+    def create_flow_graph(blocks, debug = False): #graph between blocks in a same function does not include relations between functions
         graph = [[-1 for _ in range(len(blocks))] for _ in range(len(blocks)) ]
-        labels = {b.name : i for i, b in enumerate(blocks) if type(b[0]) == cil.LabelNode}
+        labels = {b[0].label : i for i, b in enumerate(blocks) if isinstance(b[0], cil.LabelNode)}
 
         for i, block in enumerate(blocks):
-            tp = type(block[-1])
-            if tp == cil.GotoNode:
+            if isinstance(block[-1], cil.GotoNode):
                 graph[i][labels[block[-1].label]] = 1
-
-            elif tp == cil.GotoIfNode:
+            elif isinstance(block[-1], cil.GotoIfNode):
                 graph[i][labels[block[-1].label]] = 1
-                graph[i][min(len(blocks)-1, i+1)] = 1
+                graph[i][i + 1] = 1 if i + 1 < len(blocks) else -1
+        return graph            
 
-            elif tp == cil.DynamicCallNode:
-                pass #analize what to do with function calls
-            elif tp == cil.StaticCallNode:
-                pass #analize what to do with function calls
+    @staticmethod
+    def numered_instructions(instructions):
+        for i, instr in enumerate(instructions):
+            instr.number = i
 
-            return graph            
+    @visitor.on('instruction')
+    def gen_kill(self, instruction):
+        pass
+    
+    @visitor.when(cil.ArgNode)
+    def gen_kill(self, instruction):
+        if isinstance(instruction.name, int):
+            return ([], [])
+        return ([instruction.name], [])
 
+    @visitor.when(cil.StaticCallNode)
+    def gen_kill(self, instruction):
+        return ([], [instruction.dest])
+    
+    @visitor.when(cil.AssignNode)
+    def gen_kill(self, instruction):
+        gen = []
+        if isinstance(instruction.source, str):
+            if not instruction.source.isnumeric():
+                gen = [ instruction.source ]
+        return (gen, [ instruction.dest ]) 
 
+    @visitor.when(cil.AllocateNode)
+    def gen_kill(self, instruction):
+        return ([], [ instruction.dest ])
+    
+    @visitor.when(cil.ReturnNode)
+    def gen_kill(self, instruction):
+        gen = [ instruction.value ] if isinstance(instruction.value, str) else []
+        return (gen, [])
+    
+    @visitor.when(cil.LoadNode)
+    def gen_kill(self, instruction):
+        return ([], [instruction.dest])
+    
+    @visitor.when(cil.PrintIntNode)
+    def gen_kill(self, instruction):
+        return ([ instruction.value ], []) 
+    
+    @visitor.when(cil.PrintStrNode)
+    def gen_kill(self, instruction):
+        return ([ instruction.value ], [])
+    
+    @visitor.when(cil.TypeNameNode)
+    def gen_kill(self, instruction):
+        return ([ instruction.source ], [ instruction.dest ])
+    
+    @visitor.when(cil.ExitNode)
+    def gen_kill(self, instruction):
+        return ( [], [])
+    
+    @visitor.when(cil.GetAttribNode)
+    def gen_kill(self, instruction):
+        return ([ instruction.obj ], [ instruction.dest ])
+        
+    @visitor.when(cil.SetAttribNode)
+    def gen_kill(self, instruction):
+        gen = [ instruction.obj ]
+        if not isinstance(instruction.value, int):
+            gen.append(instruction.value)
+        return (gen, [])
+    
+    @visitor.when(cil.CopyNode)
+    def gen_kill(self, instruction):
+        return ([ instruction.source ], [ instruction.dest ])
+    
+    @visitor.when(cil.ArithmeticNode)
+    def gen_kill(self, instruction):
+        gen = [x for x in [instruction.left, instruction.right] if isinstance(x, str)]
+        return (gen, [instruction.dest])
+        
+    @visitor.when(cil.GotoIfNode)
+    def gen_kill(self, instruction):
+        return ([ instruction.condition ], [])
+    
+    @visitor.when(cil.GotoNode)
+    def gen_kill(self, instruction):
+        return ([], [])
+
+    @visitor.when(cil.TypeOfNode)
+    def gen_kill(self, instruction):
+        return ([instruction.obj], [instruction.dest])
+
+    @visitor.when(cil.DynamicCallNode)
+    def gen_kill(self, instruction):
+        return ([], [instruction.dest])
+
+    @visitor.when(cil.NameNode)
+    def gen_kill(self, instruction):
+        return ([], [instruction.dest])
+
+    @visitor.when(cil.ComplementNode)
+    def gen_kill(self, instruction):
+        gen = [ instruction.obj ] if isinstance(instruction.obj, str) else []
+        return (gen, [ instruction.dest ])
+
+    @visitor.when(cil.ReadStrNode)
+    def gen_kill(self, instruction):
+        return ([], [ instruction.dest ])
+
+    @visitor.when(cil.LengthNode)
+    def gen_kill(self, instruction):
+        return ([ instruction.source ], [ instruction.dest ])
+
+    @visitor.when(cil.ReadIntNode)
+    def gen_kill(self, instruction):
+        return ([], [ instruction.dest ])
+
+    @visitor.when(cil.ConcatNode)
+    def gen_kill(self, instruction):
+        return ( [ instruction.prefix, instruction.suffix ], [ instruction.dest ])
+
+    @visitor.when(cil.SubstringNode)
+    def gen_kill(self, instruction):
+        gen = [ instruction.str_value ]
+        if isinstance(instruction.index, str):
+            gen.append(instruction.index)
+        if isinstance(instruction.length, str):
+            gen.append(instruction.length)
+
+        return (gen, [ instruction.dest ])
+    
+    @visitor.when(cil.LabelNode)
+    def gen_kill(self, instruction):
+        return ([], [])
+    
+    @visitor.when(cil.ErrorNode)
+    def gen_kill(self, instruction):
+        return ([], [])
 
     @visitor.on('instruction')
     def mark_leaders(self, instruction):
@@ -1050,18 +1313,12 @@ class FunctionDivider:
 
     @visitor.when(cil.GotoNode)
     def mark_leaders(self, instruction):
+        instruction.leader = self.mark
         self.mark = True
 
     @visitor.when(cil.GotoIfNode)
     def mark_leaders(self, instruction):
-        self.mark = True
-    
-    @visitor.when(cil.DynamicCallNode)
-    def mark_leaders(self, instruction):
-        self.mark = True
-
-    @visitor.when(cil.StaticCallNode)
-    def mark_leaders(self, instruction):
+        instruction.leader = self.mark
         self.mark = True
     
     @visitor.when(cil.InstructionNode)
@@ -1070,10 +1327,6 @@ class FunctionDivider:
         self.mark = False
 
      
-
-
-
-
 
 
 
