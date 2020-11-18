@@ -72,9 +72,9 @@ def p_function_feature(p):
     '''function_feature : ATTRIBUTEID LPAREN parameters_list RPAREN COLON CLASSID LBRACE expression RBRACE SEMICOLON
                         | ATTRIBUTEID LPAREN RPAREN COLON CLASSID LBRACE expression RBRACE SEMICOLON'''
     if len(p) == 10:
-        p[0] = FunctionFeatureNode(p[1], [], p[5], p[7], [GetPosition(p, 5)])
+        p[0] = FunctionFeatureNode(p[1], [], p[5], p[7], [GetPosition(p, 1)])
     else:
-        p[0] = FunctionFeatureNode(p[1], p[3], p[6], p[8], [GetPosition(p, 5)])
+        p[0] = FunctionFeatureNode(p[1], p[3], p[6], p[8], [GetPosition(p, 1)])
 
 
 def p_parameter_list(p):
