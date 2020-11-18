@@ -125,6 +125,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
         self.TypeTable = typeTable
         self.ScopeManager = COOLScopeManager()
         self.actualClass = "Object"
+        self.hasNoError = True
 
     # Visit a parse tree produced by COOL#program.
     def visitProgram(self, ctx:COOL.ProgramContext):
@@ -147,6 +148,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             else:
                 error = f"({line}, {column}) - SemanticError: Classes may not be redefined"
             print(error)
+            self.hasNoError = False
         elif ctx.getChild(2).symbol.text == "inherits":
             classParent = ctx.getChild(3).symbol
             if (self.TypeTable.keys().__contains__(classParent.text)):
@@ -155,11 +157,13 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                     column = str(classParent.column + 1)
                     error = f"({line}, {column}) - SemanticError: Class {coolClass.text} cannot inherit class {classParent.text}"
                     print(error)
+                    self.hasNoError = False
                 elif not (self.TypeTable[coolClass.text].Deep > self.TypeTable[classParent.text].Deep):
                     line = str(classParent.line)
                     column = str(classParent.column + 1)
                     error = f"({line}, {column}) - SemanticError: Class {coolClass.text}, or an ancestor of {coolClass.text}, is involved in an inheritance cycle."
                     print(error)
+                    self.hasNoError = False
                 else:
                     self.TypeTable[coolClass.text].Created = True
                     self.TypeTable[coolClass.text].Sealed = False
@@ -174,6 +178,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                 column = str(classParent.column + 1)
                 error = f"({line}, {column}) - TypeError: Class {coolClass.text} inherits from an undefined class {classParent.text}."
                 print(error)
+                self.hasNoError = False
         else:
             self.TypeTable[coolClass.text].Created = True
             self.TypeTable[coolClass.text].Sealed = False
@@ -194,6 +199,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(0).symbol.column + 1)
             error = f"({line}, {column}) - SemanticError: Method {methodName} is multiply defined."
             print(error)
+            self.hasNoError = False
             return
         if self.searchMethod(self.TypeTable[coolClass].Parent, methodName):
             ancestorMethod = self.searchMethodInfo(self.TypeTable[coolClass].Parent,methodName)
@@ -202,12 +208,14 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                 column = str(ctx.getChild(0).symbol.column + 1)
                 error = f"({line}, {column}) SemanticError: Incompatible number of formal parameters in redefined method {methodName}."
                 print(error)
+                self.hasNoError = False
                 return
             if ancestorMethod.Type != methodType.text:
                 line = str(methodType.line)
                 column = str(methodType.column + 1)
                 error = f"({line}, {column}) SemanticError: In redefined method {methodName}, return type {methodType.text} is different from original return type {ancestorMethod.Type}."
                 print(error)
+                self.hasNoError = False
                 return
         if self.TypeTable.keys().__contains__(self.TypeTable[coolClass].Methods[methodName].Type) or methodType.text == "SELF_TYPE":
             self.ScopeManager.addIdentifier(methodName, methodType.text)
@@ -223,6 +231,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                 column = str(ctx.getChild(len(ctx.children) - 2).start.column + 1)
                 error =  f"({line}, {column}) - TypeError: Inferred return type {methodValue} of method {methodName} does not conform to declared return type {methodType.text}."
                 print(error)
+                self.hasNoError = False
             self.ScopeManager.deleteScope()
             return
         else:
@@ -230,6 +239,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(methodType.column + 1)
             error = f"({line}, {column}) - TypeError: Undefined return type {methodType.text} in method {methodName}."
             print(error)
+            self.hasNoError = False
 
     # Visit a parse tree produced by COOL#property.
     def visitProperty(self, ctx:COOL.PropertyContext):
@@ -241,24 +251,28 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(0).symbol.column + 1)
             error = f"({line}, {column}) - SemanticError: Attribute {atributeName} is multiply defined in class."
             print(error)
+            self.hasNoError = False
             return "None"
         elif atributeName == "self":
             line = str(ctx.getChild(0).symbol.line)
             column = str(ctx.getChild(0).symbol.column + 1)
             error = f"({line}, {column}) - SemanticError: 'self' cannot be the name of an atribute."
             print(error)
+            self.hasNoError = False
             return
         elif not(self.TypeTable.keys().__contains__(atributeType) or atributeType == "SELF_TYPE"):
             line = str(ctx.getChild(2).symbol.line)
             column = str(ctx.getChild(2).symbol.column + 1)
             error = f"({line}, {column}) - TypeError: Class {atributeType} of attribute {atributeName} is undefined."
             print(error)
+            self.hasNoError = False
             return "None"
         elif self.TypeTable[self.TypeTable[coolClass].Parent].Atributes.keys().__contains__(atributeName):
             line = str(ctx.getChild(0).symbol.line)
             column = str(ctx.getChild(0).symbol.column + 1)
             error = f"({line}, {column}) - SemanticError: Attribute {atributeName} is an attribute of an inherited class."
             print(error)
+            self.hasNoError = False
             return "None"
         elif len(ctx.children) == 5:
             atributeValue = ctx.getChild(4).accept(self)
@@ -267,6 +281,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                 column = str(ctx.getChild(4).start.column + 1)
                 error =  f"({line}, {column}) - TypeError: Inferred type {atributeValue} of initialization of attribute {atributeName} does not conform to declared type {atributeType}."
                 print(error)
+                self.hasNoError = False
                 return "None"
             else:
                 self.ScopeManager.addIdentifier(atributeName, atributeType)
@@ -289,12 +304,14 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(0).symbol.column + 1)
             error = f"({line}, {column}) - SemanticError: 'self' cannot be the name of a formal parameter."
             print(error)
+            self.hasNoError = False
             return
         if self.ScopeManager.searchScope(paramName):
             line = str(ctx.getChild(0).symbol.line)
             column = str(ctx.getChild(0).symbol.column + 1)
             error = f"({line}, {column}) - SemanticError: Formal parameter {paramName} is multiply defined."
             print(error)
+            self.hasNoError = False
             return
         if self.searchMethod(self.TypeTable[coolClass].Parent, methodName):
             ancestorMethod = self.searchMethodInfo(self.TypeTable[coolClass].Parent,methodName)
@@ -310,6 +327,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                         column = str(ctx.getChild(0).symbol.column + 1)
                         error = f"({line}, {column}) - SemanticError: In redefined method {methodName}, parameter type {paramType} is different from original type {acType}."
                         print(error)
+                        self.hasNoError = False
                         return
                     i += 1
             if not exist:
@@ -317,6 +335,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                 column = str(ctx.getChild(0).symbol.column + 1)
                 error = f"({line}, {column}) - SemanticError: In ancestor method {methodName}, dont exist param {paramName}."
                 print(error)
+                self.hasNoError = False
                 return
         if self.TypeTable.keys().__contains__(paramType):
              self.ScopeManager.addIdentifier(paramName, paramType)
@@ -326,6 +345,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(2).symbol.column + 1)
             error = f"({line}, {column}) - TypeError: Class {paramType} of formal parameter {paramName} is undefined."
             print(error)
+            self.hasNoError = False
 
     # Visit a parse tree produced by COOL#int.
     def visitInt(self, ctx: COOL.IntContext):
@@ -353,6 +373,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(1).symbol.column + 1)
             error = f"({line}, {column}) - TypeError: non-Int arguments: {leftValue} + {rightValue}"
             print(error)
+            self.hasNoError = False
             addValue = "None"
         return addValue
 
@@ -366,6 +387,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(1).symbol.column + 1)
             error = f"({line}, {column}) - TypeError: non-Int arguments: {leftValue} - {rightValue}"
             print(error)
+            self.hasNoError = False
             minusValue = "None"
         return minusValue
 
@@ -379,6 +401,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(1).symbol.column + 1)
             error = f"({line}, {column}) - TypeError: non-Int arguments: {leftValue} * {rightValue}"
             print(error)
+            self.hasNoError = False
             mulValue = "None"
         return mulValue
 
@@ -392,6 +415,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(1).symbol.column + 1)
             error = f"({line}, {column}) - TypeError: non-Int arguments: {leftValue} / {rightValue}"
             print(error)
+            self.hasNoError = False
             divValue = "None"
         return divValue
 
@@ -402,9 +426,10 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             return "Int"
         else:
             line = str(ctx.getChild(1).start.line)
-            column = str(ctx.getChild(1).start.column)
+            column = str(ctx.getChild(1).start.column + 1)
             error = f"({line}, {column}) - TypeError: Argument of '~' has type {expressValue} instead of Int."
             print(error)
+            self.hasNoError = False
             return "None"
 
     # Visit a parse tree produced by COOL#isvoid.
@@ -422,6 +447,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(1).start.column + 1)
             error = f"({line}, {column}) - TypeError: Argument of 'not' has type {expressValue} instead of Bool."
             print(error)
+            self.hasNoError = False
             return "None"
 
     # Visit a parse tree produced by COOL#lessThan.
@@ -434,6 +460,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(1).symbol.column + 1)
             error = f"({line}, {column}) - TypeError: non-Int arguments: {leftValue} < {rightValue}"
             print(error)
+            self.hasNoError = False
             lessValue = "None"
         return lessValue
 
@@ -447,6 +474,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(1).symbol.column + 1)
             error = f"({line}, {column}) - TypeError: non-Int arguments: {leftValue} <= {rightValue}"
             print(error)
+            self.hasNoError = False
             lessEqualValue = "None"
         return lessEqualValue
 
@@ -463,12 +491,14 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(1).symbol.column + 1)
             error = f"({line}, {column}) - TypeError: Illegal comparison with a basic type."
             print(error)
+            self.hasNoError = False
             return "None"
         elif rightValue == "String" or rightValue == "Int" or rightValue == "Bool":
             line = str(ctx.getChild(1).symbol.line)
             column = str(ctx.getChild(1).symbol.column + 1)
             error = f"({line}, {column}) - TypeError: Illegal comparison with a basic type."
             print(error)
+            self.hasNoError = False
             return "None"
         else:
             return "Bool"
@@ -486,6 +516,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                 column = str(ctx.getChild(0).symbol.column + 1)
                 error = f"({line}, {column}) - NameError: Undeclared identifier {variableName}."
                 print(error)
+                self.hasNoError = False
                 return "None"
         if variableType == "SELF_TYPE":
             variableType = self.actualClass
@@ -494,12 +525,14 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(2).start.column + 1)
             error = f"({line}, {column}) - TypeError: Cannot assign {asignValue} expression to {variableType} identifier."
             print(error)
+            self.hasNoError = False
             return "None"
         if variableName == "self":
             line = str(ctx.getChild(1).symbol.line)
             column = str(ctx.getChild(1).symbol.column + 1)
             error = f"({line}, {column}) - SemanticError: Cannot assign to 'self'."
             print(error)
+            self.hasNoError = False
             return "None"
         return asignValue
 
@@ -518,6 +551,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
         column = str(ctx.getChild(0).symbol.column + 1)
         error = f"({line}, {column}) - NameError: Undeclared identifier {IdValue}."
         print(error)
+        self.hasNoError = False
         return "None"
 
     # Visit a parse tree produced by COOL#if.
@@ -532,6 +566,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(1).start.column + 1)
             error = f"({line}, {column}) - TypeError: Predicate of 'if' does not have type Bool."
             print(error)
+            self.hasNoError = False
             return self.join(thenValue, elseValue)
 
     # Visit a parse tree produced by COOL#while.
@@ -545,6 +580,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(1).start.column + 1)
             error = f"({line}, {column}) - TypeError: Loop condition does not have type Bool."
             print(error)
+            self.hasNoError = False
             return "Object"
 
     # Visit a parse tree produced by COOL#block.
@@ -573,11 +609,13 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                 column = str(ctx.getChild(count).symbol.column + 1)
                 error = f"({line}, {column}) - TypeError: Class {idType} of case branch is undefined."
                 print(error)
+                self.hasNoError = False
             if typeList.__contains__(idType):
                 line = str(ctx.getChild(count).symbol.line)
                 column = str(ctx.getChild(count).symbol.column + 1)
                 error = f"({line}, {column}) - SemanticError: Duplicate branch {idType} in case statement."
                 print(error)
+                self.hasNoError = False
             count = count + 2
             typeList.append(idType)
             self.ScopeManager.addScope()
@@ -598,6 +636,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(1).symbol.column + 1)
             error = f"({line}, {column}) - TypeError: 'new' used with undefined class {typeName}."
             print(error)
+            self.hasNoError = False
         return typeName
 
     # Visit a parse tree produced by COOL#ownMethodCall.
@@ -614,12 +653,14 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                 column = str(ctx.getChild(1).symbol.column + 1)
                 error = f"({line}, {column}) - SemanticError: Method {ctx.getChild(1).symbol.text} called with wrong number of arguments."
                 print(error)
+                self.hasNoError = False
                 methodType = "None"
             elif len(ctx.children) != methodInfo.ParamsNumber * 2 + 2 and methodInfo.ParamsNumber != 0:
                 line = str(ctx.getChild(1).symbol.line)
                 column = str(ctx.getChild(1).symbol.column + 1)
                 error = f"({line}, {column}) - SemanticError: Method {ctx.getChild(1).symbol.text} called with wrong number of arguments."
                 print(error)
+                self.hasNoError = False
                 methodType = "None"
             else:
                 count = 2
@@ -631,6 +672,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                         column = str(ctx.getChild(count).start.column + 1)
                         error = f"({line}, {column}) - TypeError: In call of method {ctx.getChild(1).symbol.text}, type {requestType} of parameter {paramName} does not conform to declared type {paramType}."
                         print(error)
+                        self.hasNoError = False
                         methodType = "None"
                     count = count + 2
         else:
@@ -638,6 +680,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(0).symbol.column + 1)
             error = f"({line}, {column}) AttributeError: Dispatch to undefined method {ctx.getChild(0).symbol.text}."
             print(error)
+            self.hasNoError = False
         return methodType
 
     # Visit a parse tree produced by COOL#methodCall.
@@ -655,6 +698,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                 column = str(ctx.getChild(1).symbol.column)
                 error = f"({line}, {column}) - SemanticError: Expression type {currentClass} does not conform to declared static dispatch type {parent}."
                 print(error)
+                self.hasNoError = False
                 return methodType
         if self.searchMethod(currentClass, ctx.getChild(length - 3).symbol.text):
             methodInfo = self.searchMethodInfo(currentClass, ctx.getChild(length - 3).symbol.text)
@@ -667,12 +711,14 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                 column = str(ctx.getChild(2).symbol.column + 1)
                 error = f"({line}, {column}) - SemanticError: Method {ctx.getChild(2).symbol.text} called with wrong number of arguments."
                 print(error)
+                self.hasNoError = False
                 methodType = "None"
             elif (len(ctx.children) != methodInfo.ParamsNumber * 2 + length - 1) and methodInfo.ParamsNumber > 0:
                 line = str(ctx.getChild(2).symbol.line)
                 column = str(ctx.getChild(2).symbol.column + 1)
                 error = f"({line}, {column}) - SemanticError: Method {ctx.getChild(2).symbol.text} called with wrong number of arguments."
                 print(error)
+                self.hasNoError = False
                 methodType = "None"
             else:
                 count = length - 1
@@ -684,6 +730,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                         column = str(ctx.getChild(count).start.column + 1)
                         error = f"({line}, {column}) - TypeError: In call of method {ctx.getChild(2).symbol.text}, type {requestType} of parameter {paramName} does not conform to declared type {paramType}."
                         print(error)
+                        self.hasNoError = False
                         methodType = "None"
                     count = count + 2
         else:
@@ -691,6 +738,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             column = str(ctx.getChild(length - 3).symbol.column + 1)
             error = f"({line}, {column}) AttributeError: Dispatch to undefined method {ctx.getChild(length - 3).symbol.text}."
             print(error)
+            self.hasNoError = False
         return methodType
 
     # Visit a parse tree produced by COOL#letIn.
@@ -705,6 +753,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                 column = str(ctx.getChild(count + 1).symbol.column + 1)
                 error = f"({line}, {column}) - SemanticError: 'self' cannot be bound in a 'let' expression."
                 print(error)
+                self.hasNoError = False
                 return "None"
             count = count + 2
             idType = ctx.getChild(count + 1).symbol.text
@@ -714,6 +763,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                 column = str(ctx.getChild(count + 1).symbol.column + 1)
                 error = f"({line}, {column}) - TypeError: Class {idType} of let-bound identifier {idName} is undefined."
                 print(error)
+                self.hasNoError = False
                 return "None"
             self.ScopeManager.addIdentifier(idName, idType)
             count = count + 2
@@ -726,6 +776,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                     column = str(ctx.getChild(count - 1).start.column + 1)
                     error = f"({line}, {column}) - TypeError: Inferred type of {idValue} initialization of {idName} does not conform to identifier's declared type {idType}."
                     print(error)
+                    self.hasNoError = False
                     return "None"
 
         temp = ctx.getChild(count + 1).accept(self)

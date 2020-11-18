@@ -45,9 +45,9 @@ def main(argv):
     semanticAnalizer = SemanticCOOLVisitor(typeTree)
     codegenerator = CodegenVisitor(typeTree, consTble, visitor.Counter)
     semanticAnalizer.visitProgram(tree)
-
-  #  outFilename = os.path.splitext(argv[1])[0] + ".s"
-  #  codegenerator.visitProgram(tree, outFilename)
+    if semanticAnalizer.hasNoError:
+        outFilename = os.path.splitext(argv[1])[0] + ".s"
+        codegenerator.visitProgram(tree, outFilename)
     none = typeTree["Object"]
 
 
