@@ -284,7 +284,6 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                 error0, type0 = get_expression_return_type(variable.expression, insideFunction, attributes, functions,
                                                            parameters, True, letVariables, insideCase, caseVar,
                                                            inside_loop)
-                print(variable.expression)
                 if len(error0) > 0:
                     return "Error in let variable initialization expression", ""
                 if not is_ancestor(AllTypes[variable.typeName], AllTypes[type0]):
