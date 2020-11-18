@@ -58,7 +58,6 @@ def t_INLINECOMMENT(t):
     r'--.*'
     pass
 
-
 def t_start_comment(t):
     r'\(\*'
     t.lexer.push_state("COMMENT")

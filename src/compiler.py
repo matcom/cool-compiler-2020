@@ -66,6 +66,9 @@ def main():
             if i == '\0':
                 cool_program_code += r'\0'
             else:
+                if i == "\t":
+                    cool_program_code += "    "
+                    continue
                 cool_program_code += i
         s = cool_program_code
             
@@ -84,8 +87,7 @@ def main():
             for er in errors:
                 print(er)
             exit(1)
-            
-            
+               
         errors, types = check_semantic(ast)
 
         # Print semantic errors
@@ -97,7 +99,7 @@ def main():
         #cil, mips = generate_code(types)
         cil = generate_code(types)
 
-        print(cil)
+        #print(cil)
 
     #except (IOError, FileNotFoundError):
     #    print(f"Error! File {program} not found.")

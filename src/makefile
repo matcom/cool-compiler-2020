@@ -7,5 +7,5 @@ clean:
 	rm -rf build/*
 
 test:
-	pytest ../tests -v --tb=short -m=${TAG}
+	python3 -m pytest ../tests -v --tb=short -m=${TAG}
 
