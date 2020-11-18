@@ -78,16 +78,20 @@ def main():
 
         i = 0
         while i < len(data):
-            if data[i] == '(' and i < len(data) and data[i + 1] == '*':
+            if data[i] == '(' and i < len(data) - 1 and data[i + 1] == '*':
                 counter = 0
                 j = i + 2
+                newData += "  "
                 paster = ""
                 matched = False
                 while j < len(data) - 1:
                     if data[j] == '(' and data[j + 1] == '*':
                         counter += 1
-                        j += 1
+                        j += 2
+                        newData += "  "
+                        continue
                     if data[j] == '*' and data[j + 1] == ')':
+                        newData += "  "
                         if counter == 0:
                             matched = True
                             break
@@ -96,6 +100,7 @@ def main():
                     if data[j] == '\n':
                         paster += '\n'
                     j += 1
+                    newData += " "
                 if matched:
                     newData += paster
                     i = j + 2
