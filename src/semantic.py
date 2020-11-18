@@ -189,6 +189,9 @@ def is_ancestor(olderNode, youngerNode):
 def get_expression_return_type(expression, insideFunction, attributes, functions, parameters, insideLet, letVars,
                                insideCase=False, caseVar={}, inside_loop=False):
     if type(expression) is AssignStatementNode:
+        if expression.id == 'self':
+            return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - SemanticError: ' \
+                   f'Cannot assign to \'self\'.', ''
         error1, type1 = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
                                                    parameters, insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
