@@ -487,7 +487,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
             return error2, ""
         if type1 != "Int" or type2 != "Int":
             return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: non-Int arguments: ' \
-                   f'{type1} + {type2} ', ''
+                   f'{type1} + {type2}', ''
         return [], "Int"
 
     elif type(expression) is MinusNode:
