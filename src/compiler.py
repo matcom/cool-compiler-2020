@@ -65,13 +65,46 @@ def main():
                 break
             if i == '\0':
                 cool_program_code += r'\0'
+                continue
             else:
                 if i == "\t":
                     cool_program_code += "    "
                     continue
                 cool_program_code += i
-        s = cool_program_code
             
+        data = cool_program_code
+
+        newData = ""
+
+        i = 0
+        while i < len(data):
+            if data[i] == '(' and i < len(data) and data[i + 1] == '*':
+                counter = 0
+                j = i + 2
+                paster = ""
+                matched = False
+                while j < len(data) - 1:
+                    if data[j] == '(' and data[j + 1] == '*':
+                        counter += 1
+                        j += 1
+                    if data[j] == '*' and data[j + 1] == ')':
+                        if counter == 0:
+                            matched = True
+                            break
+                        else:
+                            counter -= 1
+                    if data[j] == '\n':
+                        paster += '\n'
+                    j += 1
+                if matched:
+                    newData += paster
+                    i = j + 2
+                    continue
+            newData += data[i]
+            i += 1
+
+        s = newData
+        
         lexer, errors = make_lexer(cool_program_code)
 
         # Print lexer errors

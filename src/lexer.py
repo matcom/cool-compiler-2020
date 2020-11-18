@@ -403,38 +403,11 @@ def t_error(t):
 
 
 def make_lexer(data):
-    newData = ""
     global errors
     errors = []
-    i = 0
-    while i < len(data):
-        if data[i] == '(' and i < len(data) and data[i + 1] == '*':
-            counter = 0
-            j = i + 2
-            paster = ""
-            matched = False
-            while j < len(data) - 1:
-                if data[j] == '(' and data[j + 1] == '*':
-                    counter += 1
-                    j += 1
-                if data[j] == '*' and data[j + 1] == ')':
-                    if counter == 0:
-                        matched = True
-                        break
-                    else:
-                        counter -= 1
-                if data[j] == '\n':
-                    paster += '\n'
-                j += 1
-            if matched:
-                newData += paster
-                i = j + 2
-                continue
-        newData += data[i]
-        i += 1
 
-    newData = newData + '$'
-    lexer.input(newData)
+    data = data + '$'
+    lexer.input(data)
     while True:
         tok = lexer.token()
         if not tok:
