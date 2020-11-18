@@ -98,7 +98,7 @@ def main():
                         else:
                             counter -= 1
                     if data[j] == '\n':
-                        paster += '\n'
+                        paster += "\n"
                     j += 1
                     newData += " "
                 if matched:
@@ -110,7 +110,7 @@ def main():
 
         s = newData
         
-        lexer, errors = make_lexer(cool_program_code)
+        lexer, errors = make_lexer(s)
 
         # Print lexer errors
         if len(errors) > 0:
@@ -137,7 +137,7 @@ def main():
         #cil, mips = generate_code(types)
         cil = generate_code(types)
 
-        #print(cil)
+        print(cil)
 
     #except (IOError, FileNotFoundError):
     #    print(f"Error! File {program} not found.")

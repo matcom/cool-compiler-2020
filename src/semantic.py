@@ -125,6 +125,7 @@ def check_expressions(ast: ProgramNode):
         attrs_type = cls_type.get_attributes()
         for attr in attrs_type:
             attrs[attr.attribute_name] = attr.attribute_type.name
+        attrs["self"] = cls.typeName
         for feature in cls.features:
             if type(feature) is AttributeFeatureNode:
                 feature_type = feature.typeName
@@ -188,6 +189,7 @@ def is_ancestor(olderNode, youngerNode):
 
 def get_expression_return_type(expression, insideFunction, attributes, functions, parameters, insideLet, letVars,
                                insideCase=False, caseVar={}, inside_loop=False):
+
     if type(expression) is AssignStatementNode:
         if expression.id == 'self':
             return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - SemanticError: ' \
@@ -303,28 +305,22 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
         if len(eError) > 0:
             return eError, ""
         caseBranchesTypes = []
-        case_branch_type_name = []
+
         for caseBranch in expression.body:
-            if caseBranch.typeName in case_branch_type_name:
-                return f'({caseBranch.getLineNumber()}, {caseBranch.getColumnNumber()}) - SemanticError: ' \
-                       f'Duplicate branch {caseBranch.typeName} in case statement.', ''
-            case_branch_type_name.append(caseBranch.typeName)
 
             error0, type0 = get_expression_return_type(caseBranch, insideFunction, attributes, functions, parameters,
                                                        insideLet, letVars, insideCase, caseVar, inside_loop)
             if len(error0) > 0:
                 return f'({caseBranch.getLineNumber()}, {caseBranch.getColumnNumber()}) - {error0}', ""
+            
             duplicated_type = False
             for t in caseBranchesTypes:
                 if t.name == type0:
                     duplicated_type = True
                     break
+
             if not duplicated_type:
                 caseBranchesTypes.append(AllTypes[type0])
-                case_branch_type_name.append(caseBranch)
-            elif duplicated_type:
-                return f'({caseBranch.getLineNumber()}, {caseBranch.getColumnNumber()}) - SemanticError: ' \
-                       f'Duplicate branch {type0} in case statement.', ''
 
         return [], GetFirstCommonAncestor(caseBranchesTypes)
 
@@ -349,7 +345,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
     elif type(expression) is FunctionCallStatement:
 
         e, t = get_expression_return_type(expression.instance, insideFunction, attributes, functions, parameters,
-                                          insideLet, insideCase, caseVar, inside_loop)
+                                          insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(e) > 0:
             return e, ""
         if expression.dispatchType is not None:
@@ -415,7 +411,6 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
         return [], "Bool"
 
     elif type(expression) is VariableNode:
-
         if insideLet:
             if expression.lex in letVars:
                 return [], letVars[expression.lex]

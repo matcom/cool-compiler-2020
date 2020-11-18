@@ -110,7 +110,7 @@ class UnaryOpNode(InstructionNode):
         self.check_local(value)
         self.check_local(result)
 
-class NotNode(UnaryOpNode):
+class NtNode(UnaryOpNode):
     def GetCode(self):
         a = self.result
         if type(a) == LocalNode:
@@ -377,7 +377,7 @@ class ArrayNode(InstructionNode):
         return "ARRAY " + self.result + " " + self.lenght
 
 
-class VCAllNode(InstructionNode):
+class DispatchCallNode(InstructionNode):
     def __init__(self, type_name, method, result):
         super().__init__()
         self.method = method
@@ -509,7 +509,13 @@ class ToStrNode(InstructionNode):
         self.check_local(result)
 
     def GetCode(self):
-        return "TOSTR " + self.result + " " + self.value
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.GetCode()
+        b = self.value
+        if type(b) == LocalNode:
+            b = b.GetCode()
+        return "TOSTR " + str(a) + " " + str(b)
 
 class ReadNode(InstructionNode):
     def __init__(self, result):

@@ -89,6 +89,8 @@ def generate_cil_code(ast):
     return result
 
 def generate_built_in_functions():
+    main_instance = "local_0"
+    main_result = "local_1"
     code = [FunctionNode("IO_out_string", [ParamNode('self'), ParamNode('str')], [], [PrintNode('str'), 
                                                                                       ReturnNode('self')]),
 
@@ -116,7 +118,11 @@ def generate_built_in_functions():
                                                                                                          ReturnNode('result')]),
 
             FunctionNode('String_substr', [ParamNode('self'), ParamNode('from'), ParamNode('to')], [LocalNode('result')], [StrsubNode('self', 'from', 'to', 'result'), 
-                                                                                                                           ReturnNode('result')])
+                                                                                                                           ReturnNode('result')]),
+            FunctionNode('Program_entry', [], [LocalNode("local_0"), LocalNode("local_1")],
+                                 [AllocateNode('Main', "local_0"),
+                                  ArgNode("local_0"),
+                                  DispatchCallNode('Main', 'main', "local_1")])
             ]
 
     CODE = [] + code
@@ -275,12 +281,12 @@ def convert_expression(expression):
 
 def convert_case(case):
     nodes = []
-    expr = convert_expression(case.expr)
+    expr = convert_expression(case.expression)
     nodes += expr.node
     aux_local = get_local()
     nodes.append(TypeOfNode(aux_local, expr.result))
     expr_type_local = get_local()
-    nodes.append(StrNode(aux_local, expr_type_local))
+    nodes.append(ToStrNode(aux_local, expr_type_local))
     
     case_types = []
     case_labels = []
@@ -293,11 +299,11 @@ def convert_case(case):
 
     for i, case_branch in enumerate(case.body):
         predicate = get_local()
-        nodes.append(MinusNode(expr_type_local, case_types[i], predicate))
+        nodes.append(SusNode(expr_type_local, case_types[i], predicate))
         nodes.append(IfGotoNode(predicate, case_labels[i]))
         case_local = get_local(case_branch.id)
         nodes.append(MovNode(case_local, expr.result))
-        branch = convert_expression(case_branch.expr)
+        branch = convert_expression(case_branch.expression)
         nodes += branch.node
         result = branch.result
         nodes.append(LabelNode(case_labels[i]))
@@ -457,10 +463,12 @@ def convert_new(new_node):
     
     attr = AllTypes[new_node.typeName].get_attributes()
     for a in attr:
+        if a.attribute_name == "self":
+            continue
         if a.expression:
             expr = convert_expression(a.expression)
             nodes += expr.node
-            nodes.append(SetAttrNode(result, a.id, expr.result))
+            nodes.append(SetAttributeNode(result, a.attribute_name, expr.result))
 
     return Node_Result(nodes, result)
 
@@ -496,7 +504,7 @@ def convert_let(let):
             nodes += a.node
             local = get_local()
             nodes.append(MovNode(local, a.result))
-            LET_LOCALS[a.id] = local
+            LET_LOCALS[attr.id] = local
 
     expr = convert_expression(let.expression)
     nodes += expr.node
@@ -519,7 +527,7 @@ def convert_not(not_node):
 
     result = get_local()
 
-    node = expr.body + [NotNode(expr.result, result)]
+    node = expr.node + [NtNode(expr.result, result)]
 
     return Node_Result(node, result)
 
@@ -588,9 +596,9 @@ def convert_function_call(call):
 
     result = get_local()
     if not call.dispatchType:
-        nodes.append(VCAllNode(ins_type, call.function, result))
+        nodes.append(DispatchCallNode(ins_type, call.function, result))
     else:
-        nodes.append(VCAllNode(call.dispatchType, call.function, result))
+        nodes.append(DispatchCallNode(call.dispatchType, call.function, result))
 
     return Node_Result(nodes, result)
 
