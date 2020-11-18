@@ -244,7 +244,7 @@ def p_program_atom_function(p):
 
 def p_program_atom_assign(p):
     '''program_atom : ATTRIBUTEID ASSIGNATION expression'''
-    p[0] = AssignStatementNode(p[1], p[3], [GetPosition(p, 2)])
+    p[0] = AssignStatementNode(p[1], p[3], [GetPosition(p, 1)])
 
 
 def p_program_atom_case(p):

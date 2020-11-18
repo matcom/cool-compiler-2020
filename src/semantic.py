@@ -133,7 +133,7 @@ def check_expressions(ast: ProgramNode):
                                                                         {})
                     if len(error) > 0:
                         return error
-                    if expression_type != feature.typeName:
+                    if expression_type != feature.typeName and not is_ancestor(AllTypes[feature_type], AllTypes[expression_type]):
                         return f'({feature.expression.getLineNumber()}, {feature.expression.getColumnNumber()}) - TypeError: Inferred type ' \
                                f'{expression_type} of initialization of attribute test ' \
                                f'does not conform to declared type {feature_type}.'
@@ -154,7 +154,7 @@ def check_expressions(ast: ProgramNode):
                 if feature_type not in AllTypes:
                     return f'({feature.statement.getLineNumber()}, {feature.statement.getColumnNumber()}) - TypeError: ' \
                            f'Undefined return type {feature_type} in method test.'
-                if not is_ancestor(AllTypes[expression_type], AllTypes[feature_type]):
+                if not is_ancestor(AllTypes[feature_type], AllTypes[expression_type]):
                     return f'({feature.statement.getLineNumber()}, {feature.statement.getColumnNumber()}) - TypeError: ' \
                            f'Inferred return type {expression_type} of method {feature.id} does not conform to declared ' \
                            f'return type {feature_type}.'
@@ -188,15 +188,35 @@ def is_ancestor(olderNode, youngerNode):
 
 def get_expression_return_type(expression, insideFunction, attributes, functions, parameters, insideLet, letVars,
                                insideCase=False, caseVar={}, inside_loop=False):
+    
     if type(expression) is AssignStatementNode:
         if expression.id == 'self':
             return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - SemanticError: ' \
                    f'Cannot assign to \'self\'.', ''
+
         error1, type1 = get_expression_return_type(expression.expression, insideFunction, attributes, functions,
                                                    parameters, insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
+        
+        if insideLet:
+            if expression.id in letVars and not is_ancestor(AllTypes[letVars[expression.id]], AllTypes[type1]):
+                return "Errorrrrrrrr asigning another type to a let variable"
+            
+
+        if insideCase:
+            if expression.id in caseVar and not is_ancestor(AllTypes[caseVar[expression.id]], AllTypes[type1]):
+                return "Errorrrrrrrr asigning another type to a case variable"
+            
+
+        if insideFunction:
+            if expression.id in parameters and not is_ancestor(AllTypes[parameters[expression.id]], AllTypes[type1]):
+                return "Errorrrrrrrr asigning another type to a parameter"
+            if expression.id in attributes and not is_ancestor(AllTypes[attributes[expression.id]], AllTypes[type1]):
+                return "Errorrrrrrrr asigning another type to an attribute"
+            
         return [], type1
+
 
     elif type(expression) is ConditionalStatementNode:
         error1, type1 = get_expression_return_type(expression.evalExpr, insideFunction, attributes, functions,
