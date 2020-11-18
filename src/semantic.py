@@ -133,14 +133,8 @@ def check_expressions(ast: ProgramNode):
                                                                         {})
                     if len(error) > 0:
                         return error
-                    fathers = []
-                    t = AllTypes[expression_type]
-                    while t:
-                        fathers.append(t.name)
-                        t = t.parent_type
-
-                    if feature_type not in fathers:
-                        return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) - TypeError: Inferred type ' \
+                    if expression_type != feature.typeName:
+                        return f'({feature.expression.getLineNumber()}, {feature.expression.getColumnNumber()}) - TypeError: Inferred type ' \
                                f'{expression_type} of initialization of attribute test ' \
                                f'does not conform to declared type {feature_type}.'
 
