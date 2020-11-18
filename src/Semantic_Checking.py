@@ -243,6 +243,8 @@ class Semantics_Checker:
             for param in node.parameters:
                 param_types.append(self.visit(param,scope))
             dtype = self.visit(node.left_expression,scope)
+            if dtype != None:
+                node.left_type=dtype.name
             if not scope.exists_type_method(dtype,node.func_id):
                 print('('+str(node.line)+', '+str(node.index)+') - AttributeError: Dispatch to undefined method '+node.func_id+'.')
             else:
@@ -478,6 +480,8 @@ class Semantics_Checker:
     def visit(self, node: EqualNode, scope: Scope):
         ltype = self.visit(node.left, scope)
         rtype = self.visit(node.right, scope)
+        if ltype!=None:
+            node.isString=ltype.name=='String'
         if node.operator == '=':
             if ltype.name in ['Int','Bool','String'] or rtype.name in ['Int','Bool','String']:
                 if not ltype.name == rtype.name:

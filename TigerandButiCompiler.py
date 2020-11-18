@@ -4,6 +4,8 @@ import os
 import sys
 from src.AST import *
 from src.Semantic_Checking import *
+from src.ASTtoCIL import *
+from src.CILtoMIPS import *
 
 LexerError=False
 
@@ -613,7 +615,7 @@ def p_comparison(p):
 def p_parenexpression(p):
     '''parenexpression : lparen expression rparen'''
     p[0] = p[2]
-    p[0].type=p[2].type
+    # p[0].type=p[2].type Esto lo comenté, tiró error
     pass
 
 def p_constantexp(p):
@@ -678,14 +680,14 @@ def p_error(p):
 
     
 if True:
-    tests = [(file) for file in os.listdir('tests\\semantic') if file.endswith('.cl')]
-    errors=[(file) for file in os.listdir('tests\\semantic') if file.endswith('_error.txt')]
+    tests = [(file) for file in os.listdir('tests\\codegen') if file.endswith('.cl')]
+    errors=[(file) for file in os.listdir('tests\\codegen') if file.endswith('_error.txt')]
     for i in range(len(tests)):
         LexerError=False
         mylex.lineno=0
         te=tests[i]
         print(te)
-        archivo=open("tests\\semantic\\"+te,encoding='utf-8')
+        archivo=open("tests\\codegen\\"+te,encoding='utf-8')
         texto=archivo.read()
         respuesta=elimina_comentarios2(texto)
         # respuesta=elimina_comentarios_fin_de_linea(respuesta)
@@ -700,12 +702,16 @@ if True:
             #         print(classc.name+'--'+foo.name)
             semantic = Semantics_Checker()
             semantic.visit(ast,None)
+            tocil=CILTranspiler()
+            programaCIL=tocil.visit(ast,None)
+
+
         else:
             LexerError=False
-        er=errors[i]
-        print(er)
-        archivoerror=open("tests\\semantic\\"+er,encoding='utf-8')
-        print(archivoerror.read())
+        # er=errors[i]
+        # print(er)
+        # archivoerror=open("tests\\semantic\\"+er,encoding='utf-8')
+        # print(archivoerror.read())
 
 #archivo=open("tests\\parser\\program1.cl",encoding='utf-8')
 #texto=archivo.read()

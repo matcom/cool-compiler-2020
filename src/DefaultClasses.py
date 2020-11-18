@@ -1,5 +1,5 @@
-from AST import *
-from CIL import *
+from src.AST import *
+from src.CIL import *
 
 #TODO Definir en CIL algunos métodos predefinidos
 class Defaults:
@@ -56,21 +56,21 @@ class Defaults:
         return CILGlobalMethod('out_int',params=["self","x"],locals=["$result"],instrucciones=instrucciones)
 
     def in_string_CIL():
-        instrucciones=[CILInString("$result",params=[]))]
+        instrucciones=[CILInString("$result",params=[])]
         return CILGlobalMethod('in_string',params=["self"],locals=["$result"],instrucciones=instrucciones)
 
     def in_int_CIL():
-        instrucciones=[CILInString("$result",params=[]))]
+        instrucciones=[CILInString("$result",params=[])]
         return CILGlobalMethod('in_int',params=["self"],locals=["$result"],instrucciones=instrucciones)
 
     def len_string_CIL():
-        instrucciones=[CILStringLenght("$result",params=["self"]))]
+        instrucciones=[CILStringLenght("$result",params=["self"])]
         return CILGlobalMethod('length',params=["self"],locals=["$result"],instrucciones=instrucciones)
 
     def concat_string_CIL():
-        instrucciones=[CILStringConcat("$result",params=["self","s"]))]
+        instrucciones=[CILStringConcat("$result",params=["self","s"])]
         return CILGlobalMethod('concat',params=["self, s"],locals=["$result"],instrucciones=instrucciones)
 
     def substring_string_CIL():
-        instrucciones=[CILStringConcat("$result",params=["self","x"]))]
+        instrucciones=[CILStringConcat("$result",params=["self","x"])]
         return CILGlobalMethod('substr',params=["self, x"],locals=["$result"],instrucciones=instrucciones)

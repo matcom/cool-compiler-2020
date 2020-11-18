@@ -1,12 +1,12 @@
-from AST import *
-from CIL import *
-from ScopeMIPS import *
-import visitor as visitor
+from src.AST import *
+from src.CIL import *
+from src.ScopeMIPS import *
+import src.visitor as visitor
 
-class MIPSClass:
-    def __init__(self, cantidadatributos, etiquetasfunciones):
-        self.cantidadatributos=cantidadatributos
-        self.etiquetasfunciones=etiquetasfunciones
+# class MIPSClass:
+#     def __init__(self, cantidadatributos, etiquetasfunciones):
+#         self.cantidadatributos=cantidadatributos
+#         self.etiquetasfunciones=etiquetasfunciones
 
 class MIPSCompiler:
     def __init__(self):
@@ -87,7 +87,7 @@ class MIPSCompiler:
     def visit(self, node, scope:ScopeMIPS):
         pass
 
-    @visitor.on(CILProgram)
+    @visitor.when(CILProgram)
     def visit(self, node:CILProgram, _):
         datainstructions=".data\n"
         for element in node.Data:
@@ -120,7 +120,7 @@ class MIPSCompiler:
         for element in node.Methods:
             instrucciones.append(self.visit(element, scope))
 
-    @visitor.on(CILGlobalMethod)
+    @visitor.when(CILGlobalMethod)
     def visit(self, node:CILGlobalMethod, scope:ScopeMIPS):
         instrucciones=""
         instrucciones+=node.nombre+":\n"
@@ -171,12 +171,12 @@ class MIPSCompiler:
 
         return instrucciones
 
-    @visitor.on(CILAbort)
+    @visitor.when(CILAbort)
     def visit(self, node:CILAbort, scope:ScopeMIPS):
         instrucciones="jal .Object.abort\n"
         return instrucciones
 
-    @visitor.on(CILAssign)
+    @visitor.when(CILAssign)
     def visit(self, node:CILAssign, scope:ScopeMIPS):
         instrucciones=""
         instrucciones+=self.load(node,scope)
@@ -187,7 +187,7 @@ class MIPSCompiler:
 
         return instrucciones
 
-    @visitor.on(CILPlus)
+    @visitor.when(CILPlus)
     def visit(self, node:CILPlus, scope:ScopeMIPS):
         instrucciones=""
         instrucciones+=self.load(CILPlus)
@@ -198,24 +198,24 @@ class MIPSCompiler:
         
         return instrucciones
 
-    @visitor.on(CILMinus)
+    @visitor.when(CILMinus)
     def visit(self, node:CILMinus, scope:ScopeMIPS):
         instrucciones="sub $v0, $t0, $t1\n"
         return self.loadAndSaveAndInstructions(node,instrucciones,scope)
 
-    @visitor.on(CILMult)
+    @visitor.when(CILMult)
     def visit(self, node:CILMult, scope:ScopeMIPS):
         instrucciones="mult $t0, $t1\n"
         instrucciones+="mflo $v0\n"
         return self.loadAndSaveAndInstructions(node,instrucciones,scope)
 
-    @visitor.on(CILDiv)
+    @visitor.when(CILDiv)
     def visit(self, node:CILDiv, scope:ScopeMIPS):
         instrucciones="div $t0, $t1\n"
         instrucciones+="mflo $v0\n"
         return self.loadAndSaveAndInstructions(node,instrucciones,scope)
 
-    @visitor.on(CILEqual)
+    @visitor.when(CILEqual)
     def visit(self, node:CILEqual, scope:ScopeMIPS):
         instrucciones="move s0, $a0\n"
         instrucciones+="move s1, $a1\n"
@@ -226,12 +226,12 @@ class MIPSCompiler:
         instrucciones+="move $a1, $s1\n"
         return self.loadAndSaveAndInstructions(node, instrucciones, scope)
 
-    @visitor.on(CILLabel)
+    @visitor.when(CILLabel)
     def visit(self, node:CILLabel, scope:ScopeMIPS):
         instrucciones=node.params[0]+"\n"
         return instrucciones
 
-    @visitor.on(CILArgument)
+    @visitor.when(CILArgument)
     def visit(self, node:CILArgument, scope:ScopeMIPS):
         instrucciones=self.load(node,scope)
         if scope.paramcount<4:
@@ -242,7 +242,7 @@ class MIPSCompiler:
         
         return instrucciones
 
-    @visitor.on(CILAllocate)
+    @visitor.when(CILAllocate)
     def visit(self, node:CILAllocate, scope:ScopeMIPS):
         instrucciones=""
         tipo=node.params[0]
@@ -267,7 +267,7 @@ class MIPSCompiler:
 
         return instrucciones+self.save(node.destination,scope)
 
-    @visitor.on(CILVirtualCall)
+    @visitor.when(CILVirtualCall)
     def visit(self, node:CILVirtualCall, scope:ScopeMIPS):
         tipo=node.params[0]
         func_id=node.params[1]
@@ -290,7 +290,7 @@ class MIPSCompiler:
         
         return instrucciones
 
-    @visitor.on(CILCall)
+    @visitor.when(CILCall)
     def visit(self, node:CILCall, scope:ScopeMIPS):
         tipo=node.params[0]
         func_id=node.params[1]
@@ -312,7 +312,7 @@ class MIPSCompiler:
         
         return instrucciones
 
-    @visitor.on(CILArgument)
+    @visitor.when(CILArgument)
     def visit(self, node:CILArgument, scope:ScopeMIPS):
         instrucciones=""
         instrucciones+=self.load(CILArgument,scope)
@@ -325,14 +325,14 @@ class MIPSCompiler:
         
         return instrucciones
 
-    @visitor.on(CILStringLoad)
+    @visitor.when(CILStringLoad)
     def visit(self, node:CILStringLoad, scope:ScopeMIPS):
         nombrestring=node.params[0]
         instrucciones+="la $v0, "+nombrestring
         instrucciones+=self.save(node.destino,scope)
         return instrucciones
 
-    @visitor.on(CILStringEqual)
+    @visitor.when(CILStringEqual)
     def visit(self, node:CILStringEqual, scope:ScopeMIPS):
         instrucciones=""
         instrucciones+="addi $sp, $sp, -12\n"
@@ -351,7 +351,7 @@ class MIPSCompiler:
         
         return self.loadAndSaveAndInstructions(node,instrucciones,scope)
 
-    @visitor.on(CILStringConcat)
+    @visitor.when(CILStringConcat)
     def visit(self, node:CILStringEqual, scope:ScopeMIPS):
         instrucciones=""
         instrucciones+="addi $sp, $sp, -12\n"
@@ -370,7 +370,7 @@ class MIPSCompiler:
         
         return self.loadAndSaveAndInstructions(node,instrucciones,scope)
     
-    @visitor.on(CILStringLenght)
+    @visitor.when(CILStringLenght)
     def visit(self, node:CILStringLenght, scope:ScopeMIPS):
         instrucciones=""
         instrucciones+="addi $sp, $sp, -8\n"
@@ -386,7 +386,7 @@ class MIPSCompiler:
         
         return self.loadAndSaveAndInstructions(node,instrucciones,scope)
 
-    @visitor.on(CILOutString)
+    @visitor.when(CILOutString)
     def visit(self, node:CILOutString, scope:ScopeMIPS):
         instrucciones=""
         instrucciones+="addi $sp, $sp, -8\n"
