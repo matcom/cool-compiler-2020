@@ -2,6 +2,8 @@ import ply.lex as lex
 import ply.yacc as yacc
 import os
 import sys
+from src.AST import *
+from src.Semantic_Checking import *
 
 LexerError=False
 
@@ -24,6 +26,9 @@ reserverd=('not','class', 'else', 'false', 'if','fi', 'in', 'inherits', 'isvoid'
 def find_column(input, token):
     line_start=input.rfind('\n',0,token.lexpos)
     return (token.lexpos-line_start)
+def find_column2(input, token):
+    line_start=input.rfind('\n',0,token.lexpos(1))
+    return (token.lexpos(1)-line_start)
 
 def elimina_comentarios2(text):
     acumulado=0
@@ -38,22 +43,26 @@ def elimina_comentarios2(text):
                 respuesta+='\n'
             continue
 
-        if(text[indice]=='-' and text[indice+1]=='-' and acumulado == 0):
+        if(text[indice]=='-' and text[indice+1]=='-' and acumulado == 0 and not (indice>0 and text[indice-1]=='<')):
             finlinea=True
+            respuesta+=' '
             continue
 
         if bypass:
             bypass=False
+            respuesta+=' '
             continue
 
         if text[indice]=='(' and text[indice+1]=='*':
             acumulado+=1
             bypass=True
+            respuesta+=' '
             continue
         
         if  acumulado>0 and text[indice]=='*' and text[indice+1]==')':
             acumulado-=1
             bypass=True
+            respuesta+=' '
             continue
 
         if acumulado==0 or text[indice]=='\n':
@@ -63,13 +72,11 @@ def elimina_comentarios2(text):
 
     if acumulado>0:
         respuesta+=' ###EOFCOMMENT###'
-    else:
+    elif not bypass:
         respuesta+=text[len(text)-1]
     
     return respuesta
 
-
-    
 
 def elimina_comentarios(text):
     count=0
@@ -90,31 +97,13 @@ def elimina_comentarios(text):
             faltan-=1
             if text.find('\n',i,i+1)>=0:
                 respuesta+='\n'
+            else:
+                respuesta+=' '
     if count>0:
         
-        for i in range(max(len(text)-text.rfind('\n')-1,0)):
-            respuesta+=' '
+       # for i in range(max(len(text)-text.rfind('\n')-1,0)):
+       #     respuesta+=' '
         respuesta+='###EOFCOMMENT###'
-    return respuesta
-
-
-def elimina_comentarios_fin_de_linea(text):
-    lista=[]
-    result=0
-    encontrado=False
-    respuesta=''
-    while result>=0:
-        lista.append(result)
-        if encontrado:
-            result=text.find('\n',result)
-            encontrado=False
-        else:
-            result=text.find('--',result)
-            encontrado=True
-    for i in range(1,len(lista),2):
-        respuesta+=text[lista[i-1]:lista[i]]
-    if len(lista)%2!=0:
-        respuesta+=text[lista[len(lista)-1]:]
     return respuesta
 
 
@@ -140,7 +129,6 @@ def t_eofcomment(t):
 
 t_class=r'class'
 t_else=r'else'
-t_false=r'false'
 t_fi=r'fi'
 t_if=r'if'
 t_in=r'in'
@@ -155,7 +143,6 @@ t_case=r'case'
 t_esac=r'esac'
 t_new=r'new'
 t_of=r'of'
-t_true=r'true'
 
 t_lparen=r'\('
 t_rparen=r'\)'
@@ -181,6 +168,15 @@ t_equal=r'\='
 t_intnot=r'~'
 t_not=r'not'
 
+def t_true(t):
+    r'true'
+    t.lexer.ty="Bool"
+    return t
+
+def t_false(t):
+    r'false'
+    t.lexer.ty="Bool"
+    return t
 
 def t_type(t):
     r'[A-Z][a-zA-Z_0-9]*'
@@ -204,6 +200,7 @@ def t_number(t):
     r'[0-9]+'
     #t.type='constant'
     t.value=int(t.value)
+    t.lexer.ty = "Int"
     return t
 
 def t_newline(t):
@@ -225,10 +222,10 @@ def t_string(t):
             if t.lexer.lexdata[i]=='\n':
                 linea+=1
         outstr="({0}, {1}) - LexicographicError: String contains null character".format(linea, columna)
+        global LexerError
+        LexerError=True
         print(outstr)#'('+str(t.lexer.lineno)+','+str(columna)+') - LexicographicError: String contains null character')
-    t.type='string'
-    global LexerError
-    LexerError=True
+    t.lexer.ty = "String"
     return t
 
 
@@ -269,7 +266,7 @@ def t_unfinished_string(t):
             if todavia:
                 columna=pos-1
                 todavia=False
-    outstr="({0}, {1}) - LexicographicError: Unterminated string constant".format(linea+1, columna)
+    outstr="({0}, {1}) - LexicographicError: Unterminated string constant".format(linea, columna)
     print(outstr)#'('+str(linea)+','+str(columna)+') - LexicographicError: Unterminated string constant')
     global LexerError
     LexerError=True
@@ -302,9 +299,26 @@ mylex=lex.lex(debug=False)
 #for t in mylex:
 #    print('el token =>'+str(t))
 
+def posicion(p):
+    linea=1
+    for i in range(p.lexpos(1)):
+        if p.lexer.lexdata[i]=='\n':
+            linea+=1
+    columna=find_column2(p.lexer.lexdata, p)
+    return (linea,columna)
+
+
 def p_program(p):
     '''program : classdec program
                | classdec'''
+    if len(p) == 3:
+        p[2].classes.insert(0,p[1])
+        p[0] = ProgramNode(classes = p[2].classes)
+    else:
+        p[0] = ProgramNode(classes = [p[1]])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_empty(p):
@@ -314,16 +328,29 @@ def p_empty(p):
 def p_classdec(p):
     '''classdec : class type lbracket featurelist rbracket pcoma
                 | class type inherits type lbracket featurelist rbracket pcoma'''
+    if len(p)== 7:
+        p[0] = ClassNode(name = p[2], parent = "Object", features = p[4])
+    else:
+        p[0] = ClassNode(name = p[2], parent = p[4], features = p[6])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_featurelist(p):
     '''featurelist : feature featurelist
                    | empty'''
+    if len(p) == 3:
+        p[2].insert(0,p[1])
+        p[0] = p[2]
+    else:
+        p[0] = []
     pass
 
 def p_feature(p):
     '''feature : attribute pcoma
                | methoddef pcoma'''
+    p[0] = p[1]
     pass
 
 def p_expression(p):
@@ -341,34 +368,70 @@ def p_expression(p):
                   | aritmetica
                   | comparison
                   | parenexpression'''
+    p[0] = p[1]
     pass
 
 def p_methoddef(p):
     '''methoddef : id lparen rparen dpoint type lbracket expression rbracket
                  | id lparen param paramslistdef rparen dpoint type lbracket expression rbracket'''
+    if len(p) == 9:
+        p[0] = MethodNode(name = p[1], parameters = [], return_type = p[5], body = p[7])
+    else:
+        p[4].insert( 0, p[3])
+        p[0] = MethodNode(name = p[1], parameters = p[4], return_type = p[7], body = p[9])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_expressionlist(p):
     '''expressionlist : expression pcoma expressionlist
                       | empty'''
+    if len(p)==4:
+        p[3].insert(0,p[1])
+        p[0] = p[3]
+    else:
+        p[0] = []
     pass
 
 def p_param(p):
     '''param : id dpoint type'''
+    p[0] = ParameterNode(name = p[1], param_type = p[3])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_attribute(p):
     '''attribute : id dpoint type
                  | id dpoint type assign expression'''
+    if len(p)==4:
+        p[0] = AttributeNode(name = p[1], attr_type = p[3], value = None)
+    else:
+        p[0] = AttributeNode(name = p[1], attr_type = p[3], value = p[5])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_letattributelist(p):
     '''letattributelist : coma attribute letattributelist
                         | empty'''
+    if len(p)==4:
+        p[3].insert(0,p[2])
+        p[0] = p[3]
+    else:
+        p[0] = []
+    pass
 
 def p_paramslistdef(p):
     '''paramslistdef : coma param paramslistdef
                      | empty'''
+    if len(p)==4:
+        p[3].insert(0,p[2])
+        p[0] = p[3]
+    else:
+        p[0] = []
     pass
 
 def p_dispatch(p):
@@ -378,57 +441,121 @@ def p_dispatch(p):
                 | expression point id lparen expression expressionparams rparen
                 | expression arroba type point id lparen rparen
                 | expression arroba type point id lparen expression expressionparams rparen'''
+    if p[3] == ')':
+        p[0] = DispatchNode(func_id = p[1], parameters = [], left_expr = None)
+    elif p[2] == '(':
+        p[4].insert(0,p[3])
+        p[0] = DispatchNode(func_id = p[1], parameters = p[4], left_expr = None)
+    elif p[5] == ')':
+        p[0] = DispatchNode(func_id = p[3], parameters = [], left_expr = p[1])
+    elif p[2] == '.':
+        p[6].insert(0,p[5])
+        p[0] = DispatchNode(func_id = p[3], parameters = p[6], left_expr = p[1])
+    elif len(p) == 7:
+        p[0] = StaticDispatchNode(func_id = p[5], parent_id = p[3] ,parameters = [], left_expr = p[1])
+    else:
+        p[8].insert(0,p[7])
+        p[0] = StaticDispatchNode(func_id = p[5], parent_id = p[3] ,parameters = p[8], left_expr = p[1])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 precedence=(
     #('left','expression'),
     ('nonassoc','assign'),
+    ('right','not'),
     ('nonassoc','less','lesse','equal'),
     ('left','plus','minus'),
     ('left','mult','div'),
-    ('right','intnot','not'),
+    ('right','isvoid'),
+    ('right','intnot'),
+    ('left','arroba'),
+    ('left','point'),
     )
 
 def p_expressionparams(p):
     '''expressionparams : coma expression expressionparams
                         | empty'''
+    if len(p)==4:
+        p[3].insert(0,p[2])
+        p[0] = p[3]
+    else:
+        p[0] = []
     pass
 
 def p_conditional(p):
     '''conditional : if expression then expression else expression fi'''
+    p[0] = ConditionalNode(predicate = p[2], then_body = p[4], else_body = p[6])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_loopexp(p):
     '''loopexp : while expression loop expression pool'''
+    p[0] = LoopNode(predicate = p[2], body = p[4])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_blockexp(p):
     '''blockexp : lbracket expressionlist rbracket'''#'''blockexp : lbracket expression pcoma expressionlist rbracket'''
+    p[0] = BlockNode(expressions = p[2])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_letexp(p):
     '''letexp : let attribute letattributelist in expression'''
+    p[3].insert(0,p[2])
+    p[0] = LetNode(declarations = p[3], in_body = p[5])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_caseexp(p):
     '''caseexp : case expression of subcase listcase esac'''
+    p[5].insert(0,p[4]) 
+    p[0] = CaseNode(expression = p[2], subcases = p[5])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_listcase(p):
     '''listcase : subcase listcase
                 | empty'''
+    if len(p)==3:
+        p[2].insert(0,p[1])
+        p[0] = p[2]
+    else:
+        p[0] = []
+    pass
     pass
 
 def p_subcase(p):
     '''subcase : id dpoint type implica expression pcoma'''
+    p[0] = SubCaseNode(name = p[1], sub_type = p[3], expression = p[5])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_newexp(p):
     '''newexp : new type'''
+    p[0] = NewNode(new_type = p[2])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_isvoidexp(p):
     '''isvoidexp : isvoid expression'''
+    p[0] = IsVoidNode(expr = p[2])
     pass
 
 def p_aritmetica(p):
@@ -437,6 +564,25 @@ def p_aritmetica(p):
                   | expression mult expression
                   | expression div expression
                   | intnot expression'''
+    if p[2] == '+':
+        p[0] = PlusNode(left = p[1], right = p[3])
+        p[0].operator = p[2]
+    elif p[2] == '-':
+        p[0] = MinusNode(left = p[1], right = p[3])
+        p[0].operator = p[2]
+    elif p[2] == '*':
+        p[0] = MultNode(left = p[1], right = p[3])
+        p[0].operator = p[2]
+    elif p[2] == '/':
+        p[0] = DivNode(left = p[1], right = p[3])
+        p[0].operator = p[2]
+    else:
+        p[0] = IntComplementNode(right = p[2])
+        p[0].operator = p[1]
+    
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_comparison(p):
@@ -444,10 +590,30 @@ def p_comparison(p):
                   | expression lesse expression
                   | expression equal expression
                   | not expression'''
+    if p[2] == '<':
+        p[0] = LesserNode(left = p[1], right = p[3])
+        p[0].operator = p[2]
+    elif p[2] == '<=':
+        p[0] = LesserEqualNode(left = p[1], right = p[3])
+        p[0].operator = p[2]
+    elif p[2] == '=':
+        p[0] = EqualNode(left = p[1], right = p[3])
+        p[0].operator = p[2]
+    else:
+        p[0] = BoolComplementNode(right = p[2])
+        p[0].operator = p[1]
+
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
+    pass
+
     pass
 
 def p_parenexpression(p):
     '''parenexpression : lparen expression rparen'''
+    p[0] = p[2]
+    p[0].type=p[2].type
     pass
 
 def p_constantexp(p):
@@ -455,14 +621,31 @@ def p_constantexp(p):
                 | string
                 | true
                 | false'''
+    if p.lexer.ty == "Int":
+        p[0] = IntegerNode(value = p[1])
+    elif p.lexer.ty == "String":
+        p[0] = StringNode(value = p[1])
+    elif p.lexer.ty == "Bool":
+        p[0] = BoolNode(value = p[1])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_identifier(p):
     '''identifier : id'''
+    p[0] = VariableNode(var_id = p[1])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_assignment(p):
     '''assignment : id assign expression'''
+    p[0] = AssignNode(variable = p[1], expr = p[3])
+    (linea,columna) = posicion(p)
+    p[0].index = columna
+    p[0].line = linea
     pass
 
 def p_error(p):
@@ -478,97 +661,50 @@ def p_error(p):
     print('('+str(linea)+', '+str(columna)+') - SyntacticError: ERROR at or near "'+ str(token)+'"')
     return
 
-eliminado=elimina_comentarios2('''
-(*(*(*
-Comments may also be written by enclosing
-text in (∗ . . . ∗). The latter form of comment may be nested.
-Comments cannot cross file boundaries.
-*)*)*)
+# archivo=open(sys.argv[1],encoding='utf-8')
+# texto=archivo.read()
+# respuesta=elimina_comentarios2(texto)
+# # respuesta=elimina_comentarios_fin_de_linea(respuesta)
 
-class Error() {
+# LexerError=False
+# mylex.input(respuesta)
+# for t in mylex:
+#     pass
 
-        (* There was once a comment,
-         that was quite long.
-         But, the reader soon discovered that
-         the comment was indeed longer than
-         previously assumed. Now, the reader
-         was in a real dilemma; is the comment
-         ever gonna end? If I stop reading, will
-         it end?
-         He started imagining all sorts of things.
-         He thought about heisenberg's cat and how
-         how that relates to the end of the sentence.
-         He thought to himself "I'm gonna stop reading".
-         "If I keep reading this comment, I'm gonna know
-         the fate of this sentence; That will be disastorous."
-         He knew that such a comment was gonna extend to
-         another file. It was too awesome to be contained in
-         a single file. And he would have kept reading too...
-         if only...
-         cool wasn't a super-duper-fab-awesomest language;
-         but cool is that language;
-         "This comment shall go not cross this file" said cool.
-         Alas! The reader could read no more.
-         There was once a comment,
-         that was quite long.
-         But, the reader soon discovered that
-         the comment was indeed longer than
-         previously assumed. Now, the reader
-         was in a real dilemma; is the comment
-         ever gonna end? If I stop reading, will
-         it end?
-         He started imagining all sorts of things.
-         He thought about heisenberg's cat and how
-         how that relates to the end of the sentence.
-         He thought to himself "I'm gonna stop reading".
-         "If I keep reading this comment, I'm gonna know
-         the fate of this sentence; That will be disastorous."
-         He knew that such a comment was gonna extend to
-         another file. It was too awesome to be contained in
-         a single file. And he would have kept reading too...
-         if only...
-         cool wasn't a super-duper-fab-awesomest language;
-         but cool is that language;
-         "This comment shall go not cross this file" said cool.
-         Alas! The reader could read no more.''')
-print(eliminado)
-
-archivo=open(sys.argv[1],encoding='utf-8')
-texto=archivo.read()
-respuesta=elimina_comentarios2(texto)
-respuesta=elimina_comentarios_fin_de_linea(respuesta)
-
-mylex.input(respuesta)
-for t in mylex:
-    pass
-
-parser=yacc.yacc()
-if not LexerError:
-    parser.parse(respuesta,lexer=mylex, debug=False)
-# return 1
+# parser=yacc.yacc()
+# if not LexerError:
+#     parser.parse(respuesta,lexer=mylex, debug=False)
+# exit(1)
 
     
-if False:
-    tests = [(file) for file in os.listdir('tests\\lexer') if file.endswith('.cl')]
-    errors=[(file) for file in os.listdir('tests\\lexer') if file.endswith('_error.txt')]
+if True:
+    tests = [(file) for file in os.listdir('tests\\semantic') if file.endswith('.cl')]
+    errors=[(file) for file in os.listdir('tests\\semantic') if file.endswith('_error.txt')]
     for i in range(len(tests)):
+        LexerError=False
         mylex.lineno=0
         te=tests[i]
         print(te)
-        archivo=open("tests\\lexer\\"+te,encoding='utf-8')
+        archivo=open("tests\\semantic\\"+te,encoding='utf-8')
         texto=archivo.read()
-        respuesta=elimina_comentarios(texto)
-        respuesta=elimina_comentarios_fin_de_linea(respuesta)
+        respuesta=elimina_comentarios2(texto)
+        # respuesta=elimina_comentarios_fin_de_linea(respuesta)
         mylex.input(respuesta)
         for t in mylex:
             pass
         if not LexerError:
-            parser.parse(respuesta,lexer=mylex, debug=False)
+            parser=yacc.yacc()
+            ast = parser.parse(respuesta,lexer=mylex, tracking=True, debug = False)
+            # for classc in ast.classes:
+            #     for foo in classc.methods:
+            #         print(classc.name+'--'+foo.name)
+            semantic = Semantics_Checker()
+            semantic.visit(ast,None)
         else:
             LexerError=False
         er=errors[i]
         print(er)
-        archivoerror=open("tests\\lexer\\"+er,encoding='utf-8')
+        archivoerror=open("tests\\semantic\\"+er,encoding='utf-8')
         print(archivoerror.read())
 
 #archivo=open("tests\\parser\\program1.cl",encoding='utf-8')
