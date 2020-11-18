@@ -52,9 +52,8 @@ class FunctionNode(Node):
             result += "\t\t" + p.GetCode() + "\n"
         for l in self.locals:
             result += "\t\t" + l.GetCode() + "\n"
-        result += "\t\tREST OF THE CODE HERE ...\n"
         for s in self.body:
-            result += "\t" + s.GetCode() + "\n"
+            result += "\t\t" + s.GetCode() + "\n"
 
         result += "\t}"
 
@@ -85,17 +84,23 @@ class ParamNode(Node):
         return "PARAM " + self.id
 
 
-class AssignNode(InstructionNode):
+class MovNode(InstructionNode):
     def __init__(self, result, value):
         super().__init__()
         self.result = result
         self.value = value
         self.check_local(result)
-        self.check_local(val)
+        self.check_local(value)
 
     def GetCode(self):
-        return "MOV " + self.result + " " + self.value
-        
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.value
+        if type(b) == LocalNode:
+            b = b.id
+        return "MOV " + str(a) + " " + str(b)
+    
 
 class UnaryOpNode(InstructionNode):
     def __init__(self, value, result):
@@ -107,7 +112,33 @@ class UnaryOpNode(InstructionNode):
 
 class NotNode(UnaryOpNode):
     def GetCode(self):
-        return "NOT " + self.result + " " + self.value
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.value
+        if type(b) == LocalNode:
+            b = b.id
+        return "NOT " + str(a) + " " + str(b)
+
+class CmpNode(UnaryOpNode):
+    def GetCode(self):
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.value
+        if type(b) == LocalNode:
+            b = b.id
+        return "CMP " + str(a) + " " + str(b)
+
+class VDNode(UnaryOpNode):
+    def GetCode(self):
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.value
+        if type(b) == LocalNode:
+            b = b.id
+        return "VD " + str(a) + " " + str(b)
 
 class BinaryOpNode(InstructionNode):
     def __init__(self, left, right, result):
@@ -120,34 +151,99 @@ class BinaryOpNode(InstructionNode):
         self.check_local(result)
 
 
-class PlusNode(BinaryOpNode):
+class AddNode(BinaryOpNode):
     def GetCode(self):
-        return "ADD " + self.result + " " + self.left + self.right
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.left
+        if type(b) == LocalNode:
+            b = b.id
+        c = self.right
+        if type(c) == LocalNode:
+            c = c.id
+        return "ADD " + str(a) + " " + str(b) + " " + str(c)
 
 
-class MinusNode(BinaryOpNode):
+class SusNode(BinaryOpNode):
     def GetCode(self):
-        return "SUS " + self.result + " " + self.left + self.right
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.left
+        if type(b) == LocalNode:
+            b = b.id
+        c = self.right
+        if type(c) == LocalNode:
+            c = c.id
+        return "SUS " + str(a) + " " + str(b) + " " + str(c)
 
 
-class StarNode(BinaryOpNode):
+class MulNode(BinaryOpNode):
     def GetCode(self):
-        return "MUL " + self.result + " " + self.left + self.right
-
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.left
+        if type(b) == LocalNode:
+            b = b.id
+        c = self.right
+        if type(c) == LocalNode:
+            c = c.id
+        return "MUL " + str(a) + " " + str(b) + " " + str(c)
 
 class DivNode(BinaryOpNode):
     def GetCode(self):
-        return "DIV " + self.result + " " + self.left + self.right
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.left
+        if type(b) == LocalNode:
+            b = b.id
+        c = self.right
+        if type(c) == LocalNode:
+            c = c.id
+        return "DIV " + str(a) + " " + str(b) + " " + str(c)
 
 
-class LessEqNode(BinaryOpNode):
+class LENode(BinaryOpNode):
     def GetCode(self):
-        return "LE " + self.result + " " + self.left + self.right
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.left
+        if type(b) == LocalNode:
+            b = b.id
+        c = self.right
+        if type(c) == LocalNode:
+            c = c.id
+        return "LE " + str(a) + " " + str(b) + " " + str(c)
 
-
-class LessNode(BinaryOpNode):
+class LNode(BinaryOpNode):
     def GetCode(self):
-        return "L " + self.result + " " + self.left + self.right
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.left
+        if type(b) == LocalNode:
+            b = b.id
+        c = self.right
+        if type(c) == LocalNode:
+            c = c.id
+        return "L " + str(a) + " " + str(b) + " " + str(c)
+
+class ENode(BinaryOpNode):
+    def GetCode(self):
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.left
+        if type(b) == LocalNode:
+            b = b.id
+        c = self.right
+        if type(c) == LocalNode:
+            c = c.id
+        return "E " + str(a) + " " + str(b) + " " + str(c)
 
 
 class GetAttributeNode(InstructionNode):
@@ -160,7 +256,16 @@ class GetAttributeNode(InstructionNode):
         self.check_local(result)
 
     def GetCode(self):
-        return "GATTR " + self.result + " " + self.value + self.attr
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.value
+        if type(b) == LocalNode:
+            b = b.id
+        c = self.attr
+        if type(c) == LocalNode:
+            c = c.id
+        return "GATTR " + str(a) + " " + str(b) + " " + str(c)
 
 
 class SetAttributeNode(InstructionNode):
@@ -169,11 +274,21 @@ class SetAttributeNode(InstructionNode):
         self.value = value
         self.instance = instance
         self.attr = attr
+        self.check_local(instance)
         self.check_local(value)
-        self.check_local(val)
 
     def GetCode(self):
-        return "SATTR " + self.instance + " " + self.attr + self.value
+        a = self.instance
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.attr
+        if type(b) == LocalNode:
+            b = b.id
+        c = self.value
+        if type(c) == LocalNode:
+            c = c.id
+        
+        return "SATTR " + str(a) + " " + str(b) + " " + str(c)
         
 
 class SetIndexNode(InstructionNode):
@@ -204,7 +319,13 @@ class AllocateNode(InstructionNode):
         self.check_local(result)
 
     def GetCode(self):
-        return "ALLOC " + self.result + " " + self.type
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.type
+        if type(b) == LocalNode:
+            b = b.id
+        return "ALLOC " + str(a) + " " + str(b)
 
 
 class AbortNode(InstructionNode):
@@ -238,7 +359,13 @@ class TypeOfNode(InstructionNode):
         self.check_local(variable)
 
     def GetCode(self):
-        return "TYPE " + self.result + " " + self.variable
+        a = self.result
+        if type(a) == LocalNode:
+            a = self.result.id
+        b = self.variable
+        if type(b) == LocalNode:
+            b = self.result.id
+        return "TYPE " + str(a) + " " + str(b)
 
 
 class ArrayNode(InstructionNode):
@@ -248,15 +375,6 @@ class ArrayNode(InstructionNode):
 
     def GetCode(self):
         return "ARRAY " + self.result + " " + self.lenght
-
-
-class CallNode(InstructionNode):
-    def __init__(self, method, result):
-        self.method = method
-        self.result = result
-
-    def GetCode(self):
-        return "CALL " + self.result + " " + self.method
 
 
 class VCAllNode(InstructionNode):
@@ -269,7 +387,13 @@ class VCAllNode(InstructionNode):
         self.check_local(type_name)
 
     def GetCode(self):
-        return "VCALL " + self.result + " " + self.type_name + " " + self.method
+        a = self.result
+        if type(a) == LocalNode:
+            a = self.result.id
+        b = self.type_name
+        if type(b) == LocalNode:
+            b = self.type_name.id
+        return "VCALL " + a + " " + b + " " + self.method
 
 
 class ArgNode(InstructionNode):
@@ -279,10 +403,13 @@ class ArgNode(InstructionNode):
         self.check_local(value)
 
     def GetCode(self):
-        return "ARG " + self.value
+        a = self.value
+        if type(a) == LocalNode:
+            a = a.id
+        return "ARG " + str(a)
 
 
-class ConditionalGotoNode(InstructionNode):
+class IfGotoNode(InstructionNode):
     def __init__(self, predicate, label):
         super().__init__()
         self.predicate = predicate
@@ -290,7 +417,10 @@ class ConditionalGotoNode(InstructionNode):
         self.check_local(predicate)
     
     def GetCode(self):
-        return "IF " + self.predicate + " GOTO " + self.label
+        a = self.predicate
+        if type(a) == LocalNode:
+            a = a.id
+        return "IF " + str(a) + " GOTO " + self.label
 
 
 class GotoNode(InstructionNode):
@@ -318,7 +448,10 @@ class ReturnNode(InstructionNode):
         self.check_local(ret_value)
 
     def GetCode(self):
-        return "RETURN " + self.ret_value
+        a = self.ret_value
+        if type(a) == LocalNode:
+            a = a.id
+        return "RETURN " + str(a)
 
 
 class LoadNode(InstructionNode):
@@ -329,10 +462,16 @@ class LoadNode(InstructionNode):
         self.check_local(result)
 
     def GetCode(self):
-        return "LOAD " + self.result + " " + self.addr
+        a = self.result
+        if type(a) == LocalNode:
+            a = a.id
+        b = self.addr
+        if type(b) == LocalNode:
+            b = b.id
+        return "LOAD " + str(a) + " " + str(b)
 
 
-class LengthNode(InstructionNode):
+class StrlenNode(InstructionNode):
     def __init__(self, str, result):
         self.result = result
         self.str = str
@@ -341,7 +480,7 @@ class LengthNode(InstructionNode):
         return "STRLEN " + self.result + " " + self.str
 
 
-class ConcatNode(InstructionNode):
+class StrcatNode(InstructionNode):
     def __init__(self, str_a, str_b, result):
         self.result = result
         self.str_a = str_a
@@ -351,7 +490,7 @@ class ConcatNode(InstructionNode):
         return "STRCAT " + self.result + " " + self.str_a + " " + self.str_b
 
 
-class SubStringNode(InstructionNode):
+class StrsubNode(InstructionNode):
     def __init__(self, str, i, len, result):
         self.result = result
         self.i = i
@@ -361,7 +500,7 @@ class SubStringNode(InstructionNode):
     def GetCode(self):
         return "STRSUB " + self.result + " " + self.str + " " + self.i + " " + self.len
 
-class StrNode(InstructionNode):
+class ToStrNode(InstructionNode):
     def __init__(self, value, result):
         super().__init__()
         self.result = result
