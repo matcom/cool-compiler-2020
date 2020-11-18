@@ -17,7 +17,7 @@ def GetPosition(p, x):
 
 def p_program(p):
     '''program : class_list'''
-    p[0] = ProgramNode(p[1])
+    p[0] = ProgramNode(p[1], GetPosition(p, 1))
 
 
 def p_class_list(p):
@@ -138,12 +138,12 @@ def p_mixed_expression(p):
                         | arithmetic_expression_form'''
     if len(p) > 2:
         if p[2] == "<":
-            p[0] = LessNode(p[1], p[3])
+            p[0] = LessNode(p[1], p[3], [GetPosition(p, 3)])
         else:
             if p[2] == "=":
-                p[0] = EqualNode(p[1], p[3])
+                p[0] = EqualNode(p[1], p[3], [GetPosition(p, 2)])
             else:
-                p[0] = LessEqualNode(p[1], p[3])
+                p[0] = LessEqualNode(p[1], p[3], [GetPosition(p, 2)])
     else:
         p[0] = p[1]
 
@@ -154,7 +154,7 @@ def p_arithmetic_expression_form(p):
     if len(p) == 2:
         p[0] = p[1]
     else:
-        p[0] = NotNode(p[2])
+        p[0] = NotNode(p[2], [GetPosition(p, 2)])
 
 
 def p_arithmetic_expression(p):
@@ -189,7 +189,7 @@ def p_factor(p):
     if len(p) == 2:
         p[0] = p[1]
     else:
-        p[0] = IsVoidNode(p[2])
+        p[0] = IsVoidNode(p[2], [GetPosition(p, 1)])
 
 
 def p_factor_extra(p):
@@ -198,7 +198,7 @@ def p_factor_extra(p):
     if len(p) == 2:
         p[0] = p[1]
     else:
-        p[0] = ComplementNode(p[2])
+        p[0] = ComplementNode(p[2], [GetPosition(p, 2)])
 
 
 def p_program_atom_boolean(p):
@@ -224,7 +224,7 @@ def p_program_atom_id(p):
 
 def p_program_atom_parentesis(p):
     '''program_atom : LPAREN expression RPAREN'''
-    p[0] = p[1]
+    p[0] = p[2]
 
 
 def p_program_atom_new(p):
@@ -239,37 +239,37 @@ def p_program_atom_member(p):
 
 def p_program_atom_function(p):
     '''program_atom : program_atom function_call'''
-    p[0] = FunctionCallStatement(p[1], (p[2])[0], (p[2])[1], (p[2])[2])
+    p[0] = FunctionCallStatement(p[1], (p[2])[0], (p[2])[1], (p[2])[2], [GetPosition(p, 2)])
 
 
 def p_program_atom_assign(p):
     '''program_atom : ATTRIBUTEID ASSIGNATION expression'''
-    p[0] = AssignStatementNode(p[1], p[3], [GetPosition(p, 1)])
+    p[0] = AssignStatementNode(p[1], p[3], [GetPosition(p, 2)])
 
 
 def p_program_atom_case(p):
     '''program_atom : CASE expression OF case_body ESAC'''
-    p[0] = CaseStatementNode(p[2], p[4])
+    p[0] = CaseStatementNode(p[2], p[4], GetPosition(p, 1))
 
 
 def p_program_atom_let(p):
     '''program_atom : LET let_body IN expression'''
-    p[0] = LetStatementNode(p[2], p[4])
+    p[0] = LetStatementNode(p[2], p[4], [GetPosition(p, 1)])
 
 
 def p_program_atom_block(p):
     '''program_atom : LBRACE expression_list RBRACE'''
-    p[0] = BlockStatementNode(p[2])
+    p[0] = BlockStatementNode(p[2], [GetPosition(p, 1)])
 
 
 def p_program_atom_while(p):
     '''program_atom : WHILE expression LOOP expression POOL'''
-    p[0] = LoopStatementNode(p[2], p[4])
+    p[0] = LoopStatementNode(p[2], p[4], [GetPosition(p, 2)])
 
 
 def p_program_atom_if(p):
     '''program_atom : IF expression THEN expression ELSE expression FI'''
-    p[0] = ConditionalStatementNode(p[2], p[4], p[6])
+    p[0] = ConditionalStatementNode(p[2], p[4], p[6], [GetPosition(p, 1)])
 
 
 def p_function_call(p):
@@ -335,6 +335,7 @@ def p_error(p):
 
 
 parser = yacc.yacc(debug=1)
+
 
 def make_parser(code):
     global errors
