@@ -18,7 +18,7 @@ class CoolType:
             for i, arg in enumerate(args_types):
                 type_of_arg = get_type_by_name(arg)
                 if type_of_arg is None:
-                    return 'Type should be defined'
+                    return [f'- TypeError: Class {arg} of formal parameter b is undefined.']
                 if len(args_names) > i:
                     final_args_type.append(type_of_arg)
                 if args_names[i] in names_added:
