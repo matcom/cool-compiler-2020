@@ -309,7 +309,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
         for caseBranch in expression.body:
             for s in case_types:
                 if s == caseBranch.typeName:
-                    return f'({caseBranch.getLineNumber()}, {caseBranch.getColumnNumber()}) - Semantic Error: Duplicate branch {caseBranch.typeName} in case statement', ""
+                    return f'({caseBranch.getLineNumber()}, {caseBranch.getColumnNumber()}) - SemanticError: Duplicate branch {caseBranch.typeName} in case statement', ""
             
             case_types.append(caseBranch.typeName)
             error0, type0 = get_expression_return_type(caseBranch, insideFunction, attributes, functions, parameters,
