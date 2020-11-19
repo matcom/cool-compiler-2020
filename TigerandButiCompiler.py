@@ -453,7 +453,7 @@ def p_dispatch(p):
     elif p[2] == '.':
         p[6].insert(0,p[5])
         p[0] = DispatchNode(func_id = p[3], parameters = p[6], left_expr = p[1])
-    elif len(p) == 7:
+    elif p[7] == ")":
         p[0] = StaticDispatchNode(func_id = p[5], parent_id = p[3] ,parameters = [], left_expr = p[1])
     else:
         p[8].insert(0,p[7])
