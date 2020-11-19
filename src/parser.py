@@ -133,7 +133,7 @@ def p_expression(p):
 
 
 def p_not_form(p):
-    '''not_form : NOT expression'''
+    '''not_form : NOT mixed_expression'''
     if len(p) == 2:
         p[0] = p[1]
     else:
@@ -141,9 +141,9 @@ def p_not_form(p):
 
 
 def p_mixed_expression(p):
-    '''mixed_expression : mixed_expression LESSEQUAL arithmetic_expression
-                        | mixed_expression LESS arithmetic_expression
-                        | mixed_expression EQUAL arithmetic_expression
+    '''mixed_expression : mixed_expression LESSEQUAL expression
+                        | mixed_expression LESS expression
+                        | mixed_expression EQUAL expression
                         | arithmetic_expression'''
     if len(p) > 2:
         if p[2] == "<":
