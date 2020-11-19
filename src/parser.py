@@ -141,8 +141,8 @@ def p_not_form(p):
 
 
 def p_mixed_expression(p):
-    '''mixed_expression : mixed_expression LESSEQUAL expression
-                        | mixed_expression LESS expression
+    '''mixed_expression : mixed_expression LESSEQUAL arithmetic_expression
+                        | mixed_expression LESS arithmetic_expression
                         | mixed_expression EQUAL expression
                         | arithmetic_expression'''
     if len(p) > 2:
