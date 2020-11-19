@@ -615,6 +615,3 @@ def convert_function_call(call):
 
     return Node_Result(nodes, result)
 
-
-def generate_mips():
-    pass
