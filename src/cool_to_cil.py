@@ -12,6 +12,9 @@ class BaseCOOLToCILVisitor:
         self.current_method = None
         self.current_function = None
         self.context = context
+        self.label_count = 0
+        self.context.set_type_tags()
+        self.context.set_type_max_tags()
     
     @property
     def params(self):
@@ -25,6 +28,10 @@ class BaseCOOLToCILVisitor:
     def instructions(self):
         return self.current_function.instructions
     
+    def get_label(self):
+        self.label_count += 1
+        return f'label_{self.label_count}'
+
     def register_param(self, vinfo):
         param_node = CIL_AST.ParamDec(vinfo.name)
         self.params.append(param_node)
@@ -110,7 +117,7 @@ class BaseCOOLToCILVisitor:
         type_name = self.define_internal_local(scope=scope, name = "type_name" )
         self.register_instruction(CIL_AST.TypeOf('self', type_name))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(CIL_AST.Allocate('String', instance))
+        self.register_instruction(CIL_AST.Allocate('String',self.context.get_type('String').tag ,instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'String_init', [CIL_AST.Arg(type_name),CIL_AST.Arg(instance)],"String"))
         self.register_instruction(CIL_AST.Return(instance))
@@ -152,7 +159,7 @@ class BaseCOOLToCILVisitor:
         msg = self.define_internal_local(scope=scope, name="read_str")
         self.register_instruction(CIL_AST.ReadString(msg))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(CIL_AST.Allocate('String', instance))
+        self.register_instruction(CIL_AST.Allocate('String',self.context.get_type('String').tag ,instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'String_init', [CIL_AST.Arg(msg),CIL_AST.Arg(instance)],"String"))
         self.register_instruction(CIL_AST.Return(instance))
@@ -163,7 +170,7 @@ class BaseCOOLToCILVisitor:
         number = self.define_internal_local(scope=scope, name ="read_int")
         self.register_instruction(CIL_AST.ReadInteger(number))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(CIL_AST.Allocate('Int', instance))
+        self.register_instruction(CIL_AST.Allocate('Int', self.context.get_type('Int').tag,instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'Int_init', [ CIL_AST.Arg(number), CIL_AST.Arg(instance)], "Int"))
         self.register_instruction(CIL_AST.Return(instance))
@@ -182,7 +189,7 @@ class BaseCOOLToCILVisitor:
         length_result = self.define_internal_local(scope=scope, name="length")
         self.register_instruction(CIL_AST.Length('self', length_result))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(CIL_AST.Allocate('Int', instance))
+        self.register_instruction(CIL_AST.Allocate('Int', self.context.get_type('Int').tag,instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init,'Int_init', [CIL_AST.Arg(length_result),CIL_AST.Arg(instance)], "Int"))
         self.register_instruction(CIL_AST.Return(length_result))
@@ -205,7 +212,7 @@ class BaseCOOLToCILVisitor:
         concat_result = self.define_internal_local(scope=scope, name="concat")
         self.register_instruction(CIL_AST.Concat(str1, len1, str2, len2, concat_result))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(CIL_AST.Allocate('String', instance))
+        self.register_instruction(CIL_AST.Allocate('String',self.context.get_type('String').tag ,instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'String_init', [CIL_AST.Arg(concat_result), CIL_AST.Arg(instance)],"String"))
         self.register_instruction(CIL_AST.Return(instance))
@@ -223,7 +230,7 @@ class BaseCOOLToCILVisitor:
         subs_result=self.define_internal_local(scope=scope, name="subs_result")
         self.register_instruction(CIL_AST.SubStr(i_value, l_value, 'self', subs_result))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(CIL_AST.Allocate('String', instance))
+        self.register_instruction(CIL_AST.Allocate('String', self.context.get_type('String').tag,instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'String_init', [CIL_AST.Arg(subs_result),CIL_AST.Arg(instance)],"String"))
         self.register_instruction(CIL_AST.Return(instance))
@@ -256,7 +263,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_function = self.register_function('main')
         instance = self.define_internal_local(scope = scope, name = "instance")
         result = self.define_internal_local(scope = scope, name = "result")
-        self.register_instruction(CIL_AST.Allocate('Main', instance))
+        self.register_instruction(CIL_AST.Allocate('Main',self.context.get_type('Main').tag, instance))
         # self.register_instruction(CIL_AST.Arg(instance))
         self.register_instruction(CIL_AST.Call(result, 'Main_init', [CIL_AST.Arg(instance)],"Main"))
         # self.register_instruction(CIL_AST.Arg(instance))
@@ -296,7 +303,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_function = self.register_function(f'{node.name}_init')
         self.register_param(VariableInfo('instance', None))
         instance = self.define_internal_local(scope=scope, name="instance", class_type=self.current_type.name)
-        self.register_instruction(CIL_AST.Allocate(node.name, instance))
+        self.register_instruction(CIL_AST.Allocate(node.name, self.context.get_type(node.name).tag,instance))
         self.current_type.instance = instance
 
         #Init parents recursively
@@ -337,14 +344,14 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         if node.type in ['Int', 'Bool']:
             instance = self.define_internal_local(scope=scope, name="instance")
-            self.register_instruction(CIL_AST.Allocate(node.type, instance))
+            self.register_instruction(CIL_AST.Allocate(node.type,self.context.get_type(node.type).tag, instance))
             value = self.define_internal_local(scope=scope, name="value")
             self.register_instruction(CIL_AST.LoadInt(0,value))
             result_init = self.define_internal_local(scope=scope, name="result_init")
             self.register_instruction(CIL_AST.Call(result_init, f'{node.type}_init', [ CIL_AST.Arg(value), CIL_AST.Arg(instance)], node.type))
         elif node.type == 'String':
             instance = self.define_internal_local(scope=scope, name="instance")
-            self.register_instruction(CIL_AST.Allocate(node.type, instance))
+            self.register_instruction(CIL_AST.Allocate(node.type,self.context.get_type(node.type).tag ,instance))
             value = self.define_internal_local(scope=scope, name="value")
             self.register_instruction(CIL_AST.LoadStr('empty_str',value))
             result_init = self.define_internal_local(scope=scope, name="result_init")
@@ -382,27 +389,19 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
                  
     @visitor.when(COOL_AST.If)
     def visit(self, node, scope):
-        
         result_local = self.define_internal_local(scope=scope, name = "result")
-        cond_local = self.define_internal_local(scope=scope, name = "predicate")
-        then_local = self.define_internal_local(scope= scope, name = "then_value")
-        else_local = self.define_internal_local(scope=scope, name="else_value")
 
         cond_value = self.visit(node.predicate, scope)
-        self.register_instruction(CIL_AST.Assign(cond_local, cond_value))
-        
-        self.register_instruction(CIL_AST.IfGoto(cond_local, "if_then"))
+        self.register_instruction(CIL_AST.IfGoto(cond_value, "if_then"))
 
         else_value = self.visit(node.else_body, scope)
-        self.register_instruction(CIL_AST.Assign(else_local, else_value))
-        self.register_instruction(CIL_AST.Assign(result_local, else_local))
+        self.register_instruction(CIL_AST.Assign(result_local, else_value))
       
         self.register_instruction(CIL_AST.Goto("endif"))
 
         self.register_instruction(CIL_AST.Label("if_then"))
         then_value = self.visit(node.then_body, scope)
-        self.register_instruction(CIL_AST.Assign(then_local, then_value))
-        self.register_instruction(CIL_AST.Assign(result_local, then_local))
+        self.register_instruction(CIL_AST.Assign(result_local, then_value))
         self.register_instruction(CIL_AST.Label("endif"))
 
         return result_local
@@ -460,7 +459,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         #     self.register_instruction(CIL_AST.Arg(p))
 
         static_instance = self.define_internal_local(scope=scope, name='static_instance')
-        self.register_instruction(CIL_AST.Allocate(node.static_type, static_instance))
+        self.register_instruction(CIL_AST.Allocate(node.static_type,self.context.get_type(node.static_type).tag ,static_instance))
         
         self.register_instruction(CIL_AST.VCall(result_local, node.method, call_args, node.static_type, static_instance))
         return result_local
@@ -492,8 +491,42 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     
     @visitor.when(COOL_AST.Case)
     def visit(self, node, scope):
-        pass
+        result_local = self.define_internal_local(scope = scope, name = "result")
+        case_expr = self.visit(node.expr, scope)
+
+        exit_label = self.get_label()
+        label = self.get_label()
+
+        self.register_instruction(CIL_AST.Case(case_expr, label))
         
+        tag_lst = []
+        action_dict = {}
+        for action in node.actions:
+            tag = self.context.get_type(action.action_type).tag
+            tag_lst.append(tag)
+            action_dict[tag] = action
+        tag_lst.sort()
+
+        for t in reversed(tag_lst):
+            action = action_dict[t]
+            self.register_instruction(CIL_AST.Label(label))
+            label = self.get_label()
+
+            action_type = self.context.get_type(action.action_type) 
+            self.register_instruction(CIL_AST.Action(case_expr, action_type.tag, action_type.max_tag, label))
+
+            action_scope = scope.create_child()
+            action_id = self.define_internal_local(scope=action_scope, name=action.name, cool_var_name=action.name)
+            self.register_instruction(CIL_AST.Assign(action_id, case_expr))
+            expr_result = self.visit(action.body, action_scope)
+
+            self.register_instruction(CIL_AST.Assign(result_local, expr_result))
+            self.register_instruction(CIL_AST.Goto(exit_label))
+            
+        #TODO last label with runtime error when does not conform with any type
+        self.register_instruction(CIL_AST.Label(exit_label))
+        return result_local
+
     @visitor.when(COOL_AST.Action)
     def visit(self, node, scope):
         pass
@@ -506,11 +539,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         if node.type == "SELF_TYPE":
             # get_type_local = self.define_internal_local(scope = scope, name = "type_name")
             # self.register_instruction(CIL_AST.TypeOf("self", get_type_local))
-            self.register_instruction(CIL_AST.Allocate(self.current_type.name, result_local))
+            self.register_instruction(CIL_AST.Allocate(self.current_type.name,self.current_type.tag ,result_local))
             # self.register_instruction(CIL_AST.Arg(result_local))
             self.register_instruction(CIL_AST.Call(result_init, f'{self.current_type.name}_init', [result_local], self.current_type.name))
         else:
-            self.register_instruction(CIL_AST.Allocate(node.type, result_local))
+            self.register_instruction(CIL_AST.Allocate(node.type,self.context.get_type(node.type).tag ,result_local))
             # self.register_instruction(CIL_AST.Arg(result_local))
             self.register_instruction(CIL_AST.Call(result_init,f'{node.type}_init' ,[result_local], self.current_type.name ))
 
@@ -522,7 +555,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result_local = self.define_internal_local(scope=scope, name ="isvoid_result")
         self.register_instruction(CIL_AST.IsVoid(result_local, expre_value))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(CIL_AST.Allocate('Bool', instance))
+        self.register_instruction(CIL_AST.Allocate('Bool',self.context.get_type('Bool').tag, instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'Bool_init', [CIL_AST.Arg(result_local),CIL_AST.Arg(instance)], "Bool"))
         return instance
@@ -543,7 +576,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "+"))
 
         # Allocate Int result
-        self.register_instruction(CIL_AST.Allocate('Int', result_local))
+        self.register_instruction(CIL_AST.Allocate('Int',self.context.get_type('Int').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'Int_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
@@ -565,7 +598,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "-"))
 
         # Allocate Int result
-        self.register_instruction(CIL_AST.Allocate('Int', result_local))
+        self.register_instruction(CIL_AST.Allocate('Int',self.context.get_type('Int').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'Int_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
@@ -587,7 +620,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "*"))
 
         # Allocate Int result
-        self.register_instruction(CIL_AST.Allocate('Int', result_local))
+        self.register_instruction(CIL_AST.Allocate('Int', self.context.get_type('Int').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'Int_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
@@ -609,7 +642,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "/"))
 
         # Allocate Int result
-        self.register_instruction(CIL_AST.Allocate('Int', result_local))
+        self.register_instruction(CIL_AST.Allocate('Int', self.context.get_type('Int').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'Int_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
@@ -627,7 +660,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.UnaryOperator(op_local, expr_local, "~"))
 
         # Allocate Int result
-        self.register_instruction(CIL_AST.Allocate('Int', result_local))
+        self.register_instruction(CIL_AST.Allocate('Int', self.context.get_type('Int').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'Int_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Int"))
 
@@ -645,7 +678,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.UnaryOperator(op_local, expr_local, "not"))
 
         # Allocate Bool result
-        self.register_instruction(CIL_AST.Allocate('Bool', result_local))
+        self.register_instruction(CIL_AST.Allocate('Bool',self.context.get_type('Bool').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'Bool_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
 
@@ -667,7 +700,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "<"))
 
         # Allocate Bool result
-        self.register_instruction(CIL_AST.Allocate('Bool', result_local))
+        self.register_instruction(CIL_AST.Allocate('Bool',self.context.get_type('Bool').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'Bool_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
 
@@ -689,7 +722,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "<="))
 
         # Allocate Bool result
-        self.register_instruction(CIL_AST.Allocate('Bool', result_local))
+        self.register_instruction(CIL_AST.Allocate('Bool',self.context.get_type('Bool').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'Bool_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
 
@@ -715,7 +748,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.BinaryOperator(op_local, left_local, right_local, "="))
 
         # Allocate Bool result
-        self.register_instruction(CIL_AST.Allocate('Bool', result_local))
+        self.register_instruction(CIL_AST.Allocate('Bool',self.context.get_type('Bool').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'Bool_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
 
@@ -735,7 +768,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(COOL_AST.INTEGER)
     def visit(self, node, scope):
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(CIL_AST.Allocate('Int', instance))
+        self.register_instruction(CIL_AST.Allocate('Int',self.context.get_type('Int').tag, instance))
         value = self.define_internal_local(scope=scope, name="value")
         self.register_instruction(CIL_AST.LoadInt(node.value,value))
         result_init = self.define_internal_local(scope=scope, name="result_init")
@@ -755,7 +788,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result_local = self.define_internal_local(scope=scope)
         self.register_instruction(CIL_AST.LoadStr(str_name, result_local))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(CIL_AST.Allocate('String', instance))
+        self.register_instruction(CIL_AST.Allocate('String',self.context.get_type('String').tag, instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init, 'String_init', [CIL_AST.Arg(result_local),CIL_AST.Arg(instance)], "String"))
         return instance
@@ -766,7 +799,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         if str(node.value) == "true":
             boolean = 1
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(CIL_AST.Allocate('Bool', instance))
+        self.register_instruction(CIL_AST.Allocate('Bool',self.context.get_type('Bool').tag, instance))
         value = self.define_internal_local(scope=scope, name="value")
         self.register_instruction(CIL_AST.LoadInt(boolean, value))
         result_init = self.define_internal_local(scope=scope, name="result_init")

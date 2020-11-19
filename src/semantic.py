@@ -58,6 +58,8 @@ class Type:
         self.attributes = []
         self.methods = {}
         self.parent = None
+        self.tag = None 
+        self.max_tag = None # biggest tag reachable in dfs from this type
 
     def set_parent(self, parent):
         if self.parent is not None:
@@ -327,11 +329,30 @@ class Context:
         except KeyError:
             raise SemanticException(f'Type "{name}" is not defined.')
 
+    def set_type_tags(self, node='Object', tag=0):
+        self.types[node].tag = tag
+        for t in self.graph[node]:
+            self.set_type_tags(t, tag + 1)
+            
+    def set_type_max_tags(self, node='Object'):
+        if not self.graph[node]:
+            self.types[node].max_tag = self.types[node].tag
+        else:
+            for t in self.graph[node]:
+                self.set_type_max_tags(t)
+            maximum = 0
+            for t in self.graph[node]:
+                maximum = max(maximum, self.types[t].max_tag)
+            self.types[node].max_tag = maximum
+            
+
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
 
     def __repr__(self):
         return str(self)
+
+    
 
 
 class VariableInfo:

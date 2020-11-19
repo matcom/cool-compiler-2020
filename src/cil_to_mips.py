@@ -80,8 +80,9 @@ class CILToMIPSVisitor():
         self.text += f'{node.name}:\n'
         # self.text += f'move $fp, $sp\n'  #save frame pointer of current function
         
-        for local_node in reversed(node.localvars): #save space for locals 
-            self.visit(local_node)
+        # for local_node in reversed(node.localvars): #save space for locals 
+        #     self.visit(local_node)
+        self.text += f'addi $sp, $sp, {-4 * len(node.localvars)}\n'
         
         self.text += 'addi $sp, $sp, -4\n' # save return address
         self.text += 'sw $ra, 0($sp)\n'
@@ -137,10 +138,8 @@ class CILToMIPSVisitor():
         self.text += f'move $t0, $v0\n'
         
         #Initialize Object Layout
-
-        # Set tag here in the future
-        # self.text += f'la $t1, {node.type}_name\n' #tag
-        # self.text += f'sw $t1, 0($t0)\n'
+        self.text += f'li $t1, {node.tag}\n' #tag
+        self.text += f'sw $t1, 0($t0)\n'
         self.text += f'la $t1, {node.type}_name\n' #type_name
         self.text += f'sw $t1, 4($t0)\n'
         self.text += f'li $t1, {amount}\n' #size
@@ -157,8 +156,9 @@ class CILToMIPSVisitor():
 
     @visitor.when(CIL_AST.LocalDec)
     def visit(self, node):
-        self.text += 'addi $sp, $sp, -4\n'
-        self.text += 'sw $zero, 0($sp)\n'
+        # self.text += 'addi $sp, $sp, -4\n'
+        # self.text += 'sw $zero, 0($sp)\n'
+        pass
 
     @visitor.when(CIL_AST.GetAttr)
     def visit(self, node):
@@ -219,6 +219,20 @@ class CILToMIPSVisitor():
             self.visit(arg)
 
         self.text += f'jal {node.function}\n'
+
+    @visitor.when(CIL_AST.Case)
+    def visit(self, node):
+        offset = self.var_offset[self.current_function.name][node.local_expr]
+        self.text += f'lw $t0, {offset}($sp)\n'
+        self.text += f'lw $t1, 0($t0)\n'
+        self.text += 'la $a0, void\n'
+        self.text += f'bne	$t1 $a0 {node.first_label}\n'
+        #TODO runtime error when is void
+
+    @visitor.when(CIL_AST.Action)
+    def visit(self, node):
+        self.text += f'blt	$t1 {node.tag} {node.next_label}\n'
+        self.text += f'bgt	$t1 {node.max_tag} {node.next_label}\n'
 
 
     @visitor.when(CIL_AST.BinaryOperator)
@@ -466,7 +480,7 @@ if __name__ == '__main__':
     lexer = Lexer()
     parser = Parser()
 
-    sys.argv.append('test.cl')
+    sys.argv.append('arith.cl')
 
     if len(sys.argv) > 1:
 
@@ -497,10 +511,10 @@ if __name__ == '__main__':
         cool_to_cil = COOLToCILVisitor(context)
         cil_ast = cool_to_cil.visit(cool_ast, scope)
         
-        formatter = CIL_AST.get_formatter()
-        cil_code = formatter(cil_ast)
-        with open(f'{sys.argv[1][:-3]}.cil', 'w') as f:
-            f.write(f'{cil_code}')
+        # formatter = CIL_AST.get_formatter()
+        # cil_code = formatter(cil_ast)
+        # with open(f'{sys.argv[1][:-3]}.cil', 'w') as f:
+        #     f.write(f'{cil_code}')
 
         cil_to_mips = CILToMIPSVisitor()
         mips_code = cil_to_mips.visit(cil_ast)
