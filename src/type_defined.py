@@ -34,6 +34,15 @@ class CoolType:
             # TODO Update error
             return [f'- SemanticError: Method {method_name} is multiply defined.']
 
+    def get_attributes_as_dict(self):
+        node = self
+        attr = {}
+        while node:
+            for attrs in node.attributes.keys():
+                attr[attrs] = node.attributes[attrs]
+            node = node.parent_type
+        return attr
+ 
     def get_attributes(self):
         node = self
         attr = []
