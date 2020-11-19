@@ -134,20 +134,22 @@ class Semantics_Checker:
         elif not scope.exists_type(node.type):
             print('('+str(node.line)+', '+str(node.index)+') - TypeError: Class '+node.type+' of attribute '+node.name+' is undefined.')
         else:
+            node.static_type = scope.get_type(node.type)
+            t_value = node.static_type
             if node.value:
                 t_value = self.visit(node.value,scope)
-                node.static_type = scope.get_type(node.type)
-                if scope.local:
-                    if not scope.define_variable(node.name, node.static_type, True, node.value):
-                         print('('+str(node.line)+', '+str(node.index)+") - SemanticError: 'self' cannot be bound in a 'let' expression.")
-                    elif not scope.lower_than(t_value, node.static_type):
-                        print('('+str(node.line)+', '+str(node.index)+') - TypeError: Inferred type '+ t_value.name + ' of initialization of '+ node.name + ' does not conform to identifiers declared type ' + node.type)
-                else:
-                    if node.name == 'self':
-                        print('('+str(node.line)+', '+str(node.index)+") - SemanticError: 'self' cannot be the name of an attribute")
-                    elif t_value and not scope.lower_than(t_value, node.static_type):
-                        print('('+str(node.line)+', '+str(node.index)+') - TypeError: Inferred type '+ t_value.name + ' of initialization of attribute '+ node.name + ' does not conform to declared type ' + node.type)
-                return scope.get_type(node.type)
+            if scope.local:
+                if not scope.define_variable(node.name, node.static_type, True, node.value):
+                    print('('+str(node.line)+', '+str(node.index)+") - SemanticError: 'self' cannot be bound in a 'let' expression.")
+                elif not scope.lower_than(t_value, node.static_type):
+                    print('('+str(node.line)+', '+str(node.index)+') - TypeError: Inferred type '+ t_value.name + ' of initialization of '+ node.name + ' does not conform to identifiers declared type ' + node.type)
+            else:
+                if node.name == 'self':
+                    print('('+str(node.line)+', '+str(node.index)+") - SemanticError: 'self' cannot be the name of an attribute")
+                elif t_value and not scope.lower_than(t_value, node.static_type):
+                    print('('+str(node.line)+', '+str(node.index)+') - TypeError: Inferred type '+ t_value.name + ' of initialization of attribute '+ node.name + ' does not conform to declared type ' + node.type)
+            return scope.get_type(node.type)
+            
     
     @visitor.when(MethodNode)
     def visit(self, node: MethodNode, scope: Scope):
@@ -241,10 +243,14 @@ class Semantics_Checker:
         if node.left_expression:
             param_types = []
             for param in node.parameters:
-                param_types.append(self.visit(param,scope))
+                param_type = self.visit(param,scope)
+                if param_type.name == "SELF_TYPE":
+                    param_type = scope.get_type(scope.class_name)
+                param_types.append(param_type)
             dtype = self.visit(node.left_expression,scope)
-            if dtype != None:
-                node.left_type=dtype.name
+            if dtype.name == "SELF_TYPE":
+                dtype = scope.get_type(scope.class_name)
+            node.left_type=dtype.name
             if not scope.exists_type_method(dtype,node.func_id):
                 print('('+str(node.line)+', '+str(node.index)+') - AttributeError: Dispatch to undefined method '+node.func_id+'.')
             else:
@@ -283,8 +289,13 @@ class Semantics_Checker:
     def visit(self, node: StaticDispatchNode, scope: Scope):
             param_types = []
             for param in node.parameters:
-                param_types.append(self.visit(param,scope)) 
-            dtype = self.visit(node.left_expression,scope)         
+                param_type = self.visit(param, scope)
+                if param_type.name == "SELF_TYPE":
+                    param_type = scope.get_type(scope.class_name)
+                param_types.append(param_type)
+            dtype = self.visit(node.left_expression,scope)
+            if dtype.name == "SELF_TYPE":
+                dtype = scope.get_type(scope.class_name)         
             parent_type = scope.get_type(node.parent_id)
             if not scope.lower_than(dtype, parent_type):
                 print('('+str(node.line)+', '+str(node.index)+') - TypeError: Expression type '+ dtype.name +' does not conform to declared static dispatch type '+ parent_type.name +'.')
@@ -480,9 +491,9 @@ class Semantics_Checker:
     def visit(self, node: EqualNode, scope: Scope):
         ltype = self.visit(node.left, scope)
         rtype = self.visit(node.right, scope)
-        if ltype!=None:
-            node.isString=ltype.name=='String'
         if node.operator == '=':
+            if ltype.name == 'String':
+                node.isString=True
             if ltype.name in ['Int','Bool','String'] or rtype.name in ['Int','Bool','String']:
                 if not ltype.name == rtype.name:
                      print('('+str(node.line)+', '+str(node.index)+') - TypeError: Illegal comparison with a basic type.')

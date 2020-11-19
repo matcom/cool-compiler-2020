@@ -2,7 +2,7 @@ class CILObject:
     pass
 
 class CILInstructionNode:
-    def __init__(destination=None, params=[]):
+    def __init__(self,destination=None, params=[]):
         self.destination=destination
         self.params=params
 
@@ -101,37 +101,37 @@ class CILCopy(CILInstructionNode):
     pass
 
 
-class CILClassMethod(CILObject):
-    def __init__(localname,globalname):
+class CILClassMethod:
+    def __init__(self,localname,globalname):
         self.localname=localname
         self.globalname=globalname
 
-class CILAttribute(CILObject):
-    def __init__(name, attributeType="Object"):
+class CILAttribute:
+    def __init__(self,name, attributeType="Object"):
         self.name=name
         self.attributeType=attributeType
 
-class CILClass(CILObject):
-    def __init__(name,listaAtributos=[], listaMetodos=[]):
+class CILClass:
+    def __init__(self,name,listaAtributos=[], listaMetodos=[]):
         self.name=name
         self.listaAtributos=listaAtributos
         self.listaMetodos=listaMetodos
 
-class CILDataDeclaration(CILObject):
-    def __init__(nombre, valorString):
+class CILDataDeclaration:
+    def __init__(self,nombre:str, valorString:str):
         self.nombre=nombre
         self.valorString=valorString
 
-class CILGlobalMethod(CILObject):
-    def __init__(nombre, params=[], locals=[], intrucciones=[], originclass="Object"):
+class CILGlobalMethod:
+    def __init__(self,nombre, params=[], locals=[], intrucciones=[], originclass="Object"):
         self.nombre=nombre
         self.params=params
         self.locals=locals
         self.intrucciones=intrucciones
         self.originclass=originclass
 
-class CILProgram(CILObject):
-    def __init__(Types=[],Data=[],Methods=[]):
+class CILProgram:
+    def __init__(self,Types=[],Data=[],Methods=[]):
         self.Types=Types
         self.Data=Data
         self.Methods=Methods

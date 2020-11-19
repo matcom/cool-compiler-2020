@@ -32,8 +32,8 @@ class CILTranspiler:
         ordenados=grafo[actual].copy()
         nuevos=[]
         for elemento in ordenados:
-            nuevos.append(elemento)
-            nuevos.extend(self.OrdenarClasesPorHerenciaHelper(elemento.nombre))
+            # nuevos.append(elemento)
+            nuevos.extend(self.OrdenarClasesPorHerenciaHelper(elemento.name))
         
         ordenados.extend(nuevos)
         return ordenados
@@ -63,9 +63,9 @@ class CILTranspiler:
 
 
             for at in c.attributes:
-                misatributos[at.name]=at
                 if not (at.name in misatributos.keys()):
                     atributosordenadosname.append(at.name)
+                misatributos[at.name]=at
             
             listaAtributos=[]
             for name in atributosordenadosname:
@@ -86,16 +86,23 @@ class CILTranspiler:
                 for elemento in self.methods[c.parent]:
                     mismetodos[elemento.name]=elemento
                     if elemento.name == '$init' or elemento.name == 'type_name':
-                        self.globalnames[c.name+"#"+met.name]="$f"+str(counter)
+                        self.globalnames[c.name+"#"+elemento.name]="$f"+str(counter)
                         counter+=1
                     else:
                         self.globalnames[c.name+"#"+elemento.name]=self.globalnames[c.parent+"#"+elemento.name]
-                    
+
+            else:
+                mismetodos["$init"]=MethodNode("$init",[],None,[])
+                mismetodos["type_name"]=MethodNode("$init",[],None,[])
+                self.globalnames[c.name+"#"+"$init"]="$f"+str(counter)
+                counter+=1
+                self.globalnames[c.name+"#"+"type_name"]="$f"+str(counter)
+                counter+=1
             
             for met in c.methods:
-                if c.name+"#"+met.name in self.globalnames.keys:
-                    self.globalnames[c.name+"#"+met.name]="$f"+str(counter)
-                    counter+=1
+                # if c.name+"#"+met.name in self.globalnames.keys():
+                self.globalnames[c.name+"#"+met.name]="$f"+str(counter)
+                counter+=1
                     
                 mismetodos[met.name]=met
 
@@ -103,12 +110,12 @@ class CILTranspiler:
 
         return (self.methods, self.globalnames)
 
-    def GenerarNombreVariable(self):
+    def GenerarNombreVariableBase(self):
         self.variablecount+=1
         return "var#"+str(self.variablecount)
 
     def GenerarNombreVariable(self, scope:Scope):
-        variable=self.GenerarNombreVariable()
+        variable=self.GenerarNombreVariableBase()
         scope.locals.append(variable)
         return variable
 
@@ -161,7 +168,7 @@ class CILTranspiler:
             initInstructions=self.GenerarInit(c,scope)
             initName=metodosglobalesdic[c.name+"#"+"$init"]
             globalInit=CILGlobalMethod(initName,["self"],scope.locals,initInstructions, c.name)
-            metodosGlobalesCIL[globalInit.name]=globalInit
+            metodosGlobalesCIL[globalInit.nombre]=globalInit
 
             atributosCIL=[]
             for element in atributosAST:
@@ -173,16 +180,17 @@ class CILTranspiler:
                 nuevoCIL=CILClassMethod(element.name,metodosglobalesdic[c.name+"#"+element.name])
                 metodosClaseCIL.append(nuevoCIL)
             
-            for m in c.methods:
-                globalMethod=self.visit(m, scope)
-                globalMethod.name=metodosglobalesdic[c.name+"#"+m.name]
-                metodosGlobalesCIL[globalMethod.name]=globalMethod
+            if not (c.name in ["Object", "IO", "String"]):
+                for m in c.methods:
+                    globalMethod=self.visit(m, scope)
+                    globalMethod.name=metodosglobalesdic[c.name+"#"+m.name]
+                    metodosGlobalesCIL[globalMethod.name]=globalMethod
                 
 
             claseCIL=CILClass(c.name,atributosCIL, metodosClaseCIL)
             classesCIL.append(claseCIL)
 
-            return CILProgram(classesCIL,self.data.values(), metodosGlobalesCIL.values())
+        return CILProgram(classesCIL,self.data.values(), metodosGlobalesCIL.values())
 
     @visitor.when(StringNode)
     def visit(self, node: StringNode, scope:Scope):
@@ -268,21 +276,31 @@ class CILTranspiler:
         # for element in node.body:
         instructions.extend(self.visit(node.body,scope))
         
-        ultimoDestino=instructions[len(instructions)-1].destination
-        
-        retorno=CILReturn([ultimoDestino])
+        # retorno=CILReturn([])
+        # if len(instructions)>0:
+        #     ultimoDestino=instructions[len(instructions)-1].destination
+        #     retorno=CILReturn([ultimoDestino])
         
         return CILGlobalMethod(None,parameters,locales,instructions, scope.class_name)
 
     @visitor.when(AssignNode)
     def visit(self, node: AssignNode, scope:Scope):
-        if node.variable.id not in self.attrib[scope.class_name] and node.variable.id not in scope.params and node.variable.id not in scope.locals:
-            scope.locals.append(node.variable.id)
+        if node.variable not in self.attrib[scope.class_name] and node.variable not in scope.params and node.variable not in scope.locals:
+            scope.locals.append(node.variable)
 
         instrucciones=self.visit(node.expression,scope)
         
+        nombrevariable=node.variable#self.GenerarNombreVariable(scope)
+        asignacion=CILAssign(nombrevariable,[instrucciones[len(instrucciones)-1].destination])
+        instrucciones.append(asignacion)
+
+        return instrucciones
+
+    @visitor.when(VariableNode)
+    def visit(self, node: VariableNode, scope:Scope):
+        instrucciones=[]
         nombrevariable=self.GenerarNombreVariable(scope)
-        asignacion=CILAssign(nombrevariable,instrucciones[len(instrucciones)-1].destination)
+        asignacion=CILAssign(nombrevariable,[node.id])
         instrucciones.append(asignacion)
 
         return instrucciones
@@ -295,19 +313,19 @@ class CILTranspiler:
         derecha=instrucciones[len(instrucciones)-1].destination
 
         nombrevariable=self.GenerarNombreVariable(scope)
-        if node is PlusNode:
+        if isinstance(node, PlusNode):
             nuevoCIL=CILPlus(nombrevariable,[izquierda,derecha])
-        elif node is MinusNode:
+        elif isinstance(node, MinusNode):
             nuevoCIL=CILMinus(nombrevariable,[izquierda,derecha])
-        elif node is MultNode:
+        elif isinstance(node, MultNode):
             nuevoCIL=CILMult(nombrevariable,[izquierda,derecha])
-        elif node is DivNode:
+        elif isinstance(node, DivNode):
             nuevoCIL=CILDiv(nombrevariable,[izquierda,derecha])
-        elif node is LesserNode:
+        elif isinstance(node, LesserNode):
             nuevoCIL=CILLesser(nombrevariable,[izquierda,derecha])
-        elif node is LesserEqualNode:
+        elif isinstance(node, LesserEqualNode):
             nuevoCIL=CILLesserEqual(nombrevariable,[izquierda,derecha])
-        elif node is EqualNode:
+        elif isinstance(node, EqualNode):
             if node.isString:
                 nuevoCIL=CILStringEqual(nombrevariable,[izquierda,derecha])
             else:
