@@ -127,13 +127,13 @@ def p_case_body(p):
 
 
 def p_expression(p):
-    '''expression : arithmetic_expression_form'''
+    '''expression : not_form
+                    | mixed_expression'''
     p[0] = p[1]
 
 
-def p_arithmetic_expression_form(p):
-    '''arithmetic_expression_form : NOT mixed_expression
-                                    | mixed_expression'''
+def p_not_form(p):
+    '''not_form : NOT expression'''
     if len(p) == 2:
         p[0] = p[1]
     else:
@@ -141,9 +141,9 @@ def p_arithmetic_expression_form(p):
 
 
 def p_mixed_expression(p):
-    '''mixed_expression : mixed_expression LESSEQUAL arithmetic_expression
-                        | mixed_expression LESS arithmetic_expression
-                        | mixed_expression EQUAL arithmetic_expression
+    '''mixed_expression : expression LESSEQUAL expression
+                        | expression LESS expression
+                        | expression EQUAL expression
                         | arithmetic_expression'''
     if len(p) > 2:
         if p[2] == "<":
@@ -158,9 +158,9 @@ def p_mixed_expression(p):
 
 
 def p_arithmetic_expression(p):
-    '''arithmetic_expression : arithmetic_expression PLUS term
-                            | arithmetic_expression MINUS term
-                            | term'''
+    '''arithmetic_expression : expression PLUS expression
+                             | expression MINUS expression
+                             | term'''
     if len(p) == 2:
         p[0] = p[1]
     else:
@@ -171,9 +171,9 @@ def p_arithmetic_expression(p):
 
 
 def p_term(p):
-    '''term : term TIMES factor
-            | term DIVIDE factor
-            | factor'''
+    '''term : expression TIMES expression
+            | expression DIVIDE expression
+            | isvoid_form'''
     if len(p) == 2:
         p[0] = p[1]
     else:
@@ -183,18 +183,18 @@ def p_term(p):
             p[0] = DivideNode(p[1], p[3], [GetPosition(p, 2)])
 
 
-def p_factor(p):
-    '''factor : ISVOID factor_extra
-                | factor_extra'''
+def p_isvoid_form(p):
+    '''isvoid_form : ISVOID expression
+                    | complement_form'''
     if len(p) == 2:
         p[0] = p[1]
     else:
         p[0] = IsVoidNode(p[2], [GetPosition(p, 1)])
 
 
-def p_factor_extra(p):
-    '''factor_extra : COMPLEMENT program_atom
-                    | program_atom'''
+def p_complement_form(p):
+    '''complement_form : COMPLEMENT expression
+                        | program_atom'''
     if len(p) == 2:
         p[0] = p[1]
     else:

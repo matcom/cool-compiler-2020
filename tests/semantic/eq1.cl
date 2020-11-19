@@ -10,8 +10,8 @@ class B inherits A { };
 class Main inherits IO {
 	main(): IO { out_string("Hello World!")};
 
-	x: Bool <- 1 = 2;
-	test: Bool <- 1 = new A;
-	y: Bool <- "1" = "2";
-	z: Bool <- true = not false;
+    x: Bool <- 1 = 2;
+    test: Bool <- 1 = new A;
+    y: Bool <- "1" = "2";
+    z: Bool <- true = not false;
 };  
