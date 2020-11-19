@@ -184,7 +184,7 @@ def generate_function(type_name, method):
         F_PARAM[node.id] = node
     
 
-    for attr in AllTypes[type_name].get_attributes().values():
+    for attr in AllTypes[type_name].get_attributes_as_dict().values():
         C_ATTRIBUTES[attr.attribute_name] = attr.attribute_name
 
     instruction = convert_expression(method.expression)
