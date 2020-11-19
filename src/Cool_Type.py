@@ -62,7 +62,7 @@ def get_basic_types():
             MethodNode(name = "out_string", parameters = [ParameterNode(name = "x_1", param_type = "String")], return_type = "SELF_TYPE" , body = None),
             MethodNode(name = "out_int", parameters = [ParameterNode(name = "x_1", param_type = "Int")], return_type = "SELF_TYPE" , body = None),
             MethodNode(name = "in_string", parameters = [], return_type = "String" , body = None),
-            MethodNode(name = "in_string", parameters = [], return_type = "Int" , body = None)
+            MethodNode(name = "in_int", parameters = [], return_type = "Int" , body = None)
     )
     String.add_methods(
             MethodNode(name = "length", parameters = [], return_type = "Int" , body = None),
