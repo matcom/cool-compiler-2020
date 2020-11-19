@@ -197,12 +197,12 @@ AllTypes = {
 object_type.add_method('abort', [], [], 'Object')
 object_type.add_method('type_name', [], [], 'String')
 object_type.add_method('copy', [], [], 'Object')
-io_type.add_method('out_string', ['String'], [], 'IO')
-io_type.add_method('out_int', ['Int'], [], 'IO')
+io_type.add_method('out_string', ['String'], ['s'], 'IO')
+io_type.add_method('out_int', ['Int'], ['i'], 'IO')
 io_type.add_method('in_string', [], [], 'String')
 io_type.add_method('in_int', [], [], 'Int')
 string_type.add_method('length', [], [], 'Int')
-string_type.add_method('concat', ['String'], [], 'String')
-string_type.add_method('substr', ['Int', 'Int'], [], 'String')
+string_type.add_method('concat', ['String'], ['s'], 'String')
+string_type.add_method('substr', ['Int', 'Int'], ['a', 'b'], 'String')
 
 BasicTypes = ['Object', 'SELF_TYPE', 'IO', 'String', 'Int', 'Bool']

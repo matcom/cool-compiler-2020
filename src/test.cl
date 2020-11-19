@@ -1,9 +1,13 @@
+class A {
+    i : Int;
+
+     geti() : Int {
+	i
+};
+};
+
 class Main inherits IO {
     main() : IO {
-	{
-	    out_string((new Object).type_name().substr(4,1)).
-	    out_string((isvoid self).type_name().substr(1,3));	-- demonstrates the dispatch rules.
-	    out_string("\n");
-	}
+	let x : A <- new A in out_int(x.geti())
     };
 };

@@ -137,7 +137,7 @@ def main():
         #cil, mips = generate_code(types)
         cil = generate_code(types)
 
-        #print(cil)
+        print(cil)
 
     #except (IOError, FileNotFoundError):
     #    print(f"Error! File {program} not found.")

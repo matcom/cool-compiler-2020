@@ -469,6 +469,8 @@ def convert_new(new_node):
             expr = convert_expression(a.expression)
             nodes += expr.node
             nodes.append(SetAttributeNode(result, a.attribute_name, expr.result))
+        else:
+            nodes.append(SetAttributeNode(result, a.attribute_name, 0))
 
     return Node_Result(nodes, result)
 

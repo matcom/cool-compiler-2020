@@ -373,8 +373,8 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                             return aError, ""
                         if aType != ((methods[expression.function]).args_types[i]).name:
                             return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: ' \
-                                   f'In call of method {expression.function}, type B of parameter c ' \
-                                   f'does not conform to declared type C. ', ''
+                                   f'In call of method {expression.function}, type {((methods[expression.function]).args_types[i]).name} of parameter {((methods[expression.function]).args_names[i])} ' \
+                                   f'does not conform to declared type {aType}. ', ''
                         i = i + 1
                     return [], methods[expression.function].return_type.name
                 else:
@@ -398,8 +398,8 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                     return aError, ""
                 if not is_ancestor(AllTypes[((methods[expression.function]).args_types[i]).name], AllTypes[aType]):
                     return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: ' \
-                           f'In call of method {expression.function}, type B of parameter c ' \
-                           f'does not conform to declared type C. ', ''
+                           f'In call of method {expression.function}, type {((methods[expression.function]).args_types[i]).name} of parameter {(methods[expression.function]).args_names[i]} ' \
+                           f'does not conform to declared type {aType}. ', ''
                 i = i + 1
 
             return [], methods[expression.function].return_type.name
