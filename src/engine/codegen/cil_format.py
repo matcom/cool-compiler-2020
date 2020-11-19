@@ -4,14 +4,14 @@ from .cil_ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, 
     , SubstringNode, ToStrNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, IfGotoNode    \
     , DataNode, ToIntNode
 
-from ..cp.visitor import on, when 
+from ..cp import visitor
 
 class CIL_FORMATTER(object):
-    @on('node')
+    @visitor.on('node')
     def visit(self, node):
         pass
 
-    @when(ProgramNode)
+    @visitor.when(ProgramNode)
     def visit(self, node: ProgramNode):
         dottypes = '\n'.join(self.visit(t) for t in node.dottypes)
         dotdata = '\n'.join(self.visit(t) for t in node.dotdata)
@@ -19,18 +19,18 @@ class CIL_FORMATTER(object):
 
         return f'.TYPES\n{dottypes}\n\n.DATA\n{dotdata}\n\n.CODE\n{dotcode}'
 
-    @when(DataNode)
+    @visitor.when(DataNode)
     def visit(self, node: DataNode):
         return f'{node.name} = "{node.value}"'
 
-    @when(TypeNode)
+    @visitor.when(TypeNode)
     def visit(self, node: TypeNode):
         attributes = '\n\t'.join(f'attribute {x}' for x in node.attributes)
         methods = '\n\t'.join(f'method {x}: {y}' for x,y in node.methods)
 
         return f'type {node.name} {{\n\t{attributes}\n\n\t{methods}\n}}'
 
-    @when(FunctionNode)
+    @visitor.when(FunctionNode)
     def visit(self, node: FunctionNode):
         params = '\n\t'.join(self.visit(x) for x in node.params)
         localvars = '\n\t'.join(self.visit(x) for x in node.localvars)
@@ -38,157 +38,158 @@ class CIL_FORMATTER(object):
 
         return f'function {node.name} {{\n\t{params}\n\n\t{localvars}\n\n\t{instructions}\n}}'
 
-    @when(ParamNode)
+    @visitor.when(ParamNode)
     def visit(self, node: ParamNode):
         return f'PARAM {node.name}'
 
-    @when(LocalNode)
+    @visitor.when(LocalNode)
     def visit(self, node: LocalNode):
         return f'LOCAL {node.name}'
 
-    @when(AssignNode)
+    @visitor.when(AssignNode)
     def visit(self, node: AssignNode):
         return f'{node.dest} = {node.source}'
 
-    @when(EqualNode)
-    def visit(self, node: EqualNode):
-        return f'{node.dest} = {node.left} == {node.right}'
 
-    @when(PlusNode)
+    @visitor.when(PlusNode)
     def visit(self, node: PlusNode):
         return f'{node.dest} = {node.left} + {node.right}'
 
-    @when(MinusNode)
+    @visitor.when(MinusNode)
     def visit(self, node: MinusNode):
         return f'{node.dest} = {node.left} - {node.right}'
 
-    @when(StarNode)
+    @visitor.when(StarNode)
     def visit(self, node: StarNode):
         return f'{node.dest} = {node.left} * {node.right}'
 
-    @when(DivNode)
+    @visitor.when(DivNode)
     def visit(self, node: DivNode):
         return f'{node.dest} = {node.left} / {node.right}'
 
-    @when(AllocateNode)
+    @visitor.when(AllocateNode)
     def visit(self, node: AllocateNode):
         return f'{node.dest} = ALLOCATE {node.type}'
 
-    @when(TypeOfNode)
+    @visitor.when(TypeOfNode)
     def visit(self, node: TypeOfNode):
         return f'{node.dest} = TYPEOF {node.obj}'
 
-    @when(StaticCallNode)
+    @visitor.when(StaticCallNode)
     def visit(self, node: StaticCallNode):
         return f'{node.dest} = CALL {node.function}'
 
-    @when(DynamicCallNode)
+    @visitor.when(DynamicCallNode)
     def visit(self, node: DynamicCallNode):
         return f'{node.dest} = VCALL {node.type} {node.method}'
 
-    @when(ArgNode)
+    @visitor.when(ArgNode)
     def visit(self, node: ArgNode):
         return f'ARG {node.name}'
 
-    @when(ReturnNode)
+    @visitor.when(ReturnNode)
     def visit(self, node: ReturnNode):
         return f'RETURN {node.value if node.value is not None else ""}'
 
-    @when(ReadNode)
+    @visitor.when(ReadNode)
     def visit(self, node: ReadNode):
         return f'{node.dest} = READ'
 
-    @when(PrintNode)
+    @visitor.when(PrintNode)
     def visit(self, node: PrintNode):
         return f'PRINT {node.str_addr}'
 
-    @when(LoadNode)
+    @visitor.when(LoadNode)
     def visit(self, node: LoadNode):
         return f'{node.dest} = LOAD {node.msg}'
     
-    @when(LengthNode)
+    @visitor.when(LengthNode)
     def visit(self, node: LengthNode):
         return f'{node.dest} = LENGTH {node.msg}'
     
-    @when(ConcatNode)
+    @visitor.when(ConcatNode)
     def visit(self, node: ConcatNode):
         return f'{node.dest} = CONCAT {node.msg1} {node.msg2}'
 
-    @when(PrefixNode)
+    @visitor.when(PrefixNode)
     def visit(self, node: PrefixNode):
         return f'{node.dest} = PREFIX {node.msg1} {node.msg2}'
 
-    @when(SubstringNode)
+    @visitor.when(SubstringNode)
     def visit(self, node: SubstringNode):
         return f'{node.dest} = SUBSTRING {node.msg1} {node.start} {node.length}'
 
-    @when(ToStrNode)
+    @visitor.when(ToStrNode)
     def visit(self, node: ToStrNode):
         return f'{node.dest} = STR {node.ivalue}'
 
-    @when(ToIntNode)
+    @visitor.when(ToIntNode)
     def visit(self, node: ToIntNode):
         return f'{node.dest} = INT {node.msg}'
 
-    @when(GetAttribNode)
+    @visitor.when(GetAttribNode)
     def visit(self, node: GetAttribNode):
         return f'{node.dest} = GETATTR {node.obj} {node.attrib}'
 
-    @when(SetAttribNode)
+    @visitor.when(SetAttribNode)
     def visit(self, node: SetAttribNode):
         return f'SETATTR {node.obj} {node.attrib} {node.value}'
 
-    @when(LabelNode)
+    @visitor.when(LabelNode)
     def visit(self, node: LabelNode):
         return f'LABEL {node.label}'
 
-    @when(GotoNode)
+    @visitor.when(GotoNode)
     def visit(self, node: GotoNode):
         return f'GOTO {node.label}'
 
-    @when(IfGotoNode)
+    @visitor.when(IfGotoNode)
     def visit(self, node: IfGotoNode):
         return f'IF {node.value} GOTO {node.label}'
 
 ###################### nodes to throw #######################
 
-    # @when(ErrorNode)
+    # @visitor.when(EqualNode)
+    # def visit(self, node: EqualNode):
+    #     return f'{node.dest} = {node.left} == {node.right}'
+
+    # @visitor.when(ErrorNode)
     # def visit(self, node: ErrorNode):
     #     return f'ERROR {node.error}'
 
-    # @when(ConformNode)
+    # @visitor.when(ConformNode)
     # def visit(self, node: ConformNode):
     #     return f'{node.dest} = COMFORM {node.obj} {node.type}'
 
-    # @when(ComplementNode)
+    # @visitor.when(ComplementNode)
     # def visit(self, node: ComplementNode):
     #     return f'{node.dest} = COMPLEMENT {node.body}'
 
-    # @when(LessNode)
+    # @visitor.when(LessNode)
     # def visit(self, node: LessNode):
     #     return f'{node.dest} = {node.left} < {node.right}'
     
-    # @when(IsVoidNode)
+    # @visitor.when(IsVoidNode)
     # def visit(self, node: IsVoidNode):
     #     return f'{node.dest} = ISVOID {node.body}'
 
-    # @when(LessEqNode)
+    # @visitor.when(LessEqNode)
     # def visit(self, node: LessEqNode):
     #     return f'{node.dest} = {node.left} <= {node.right}'
 
-    # @when(CleanArgsNode)
+    # @visitor.when(CleanArgsNode)
     # def visit(self, node:CleanArgsNode):
     #     return f'CLEANARG {node.nargs}'
 
-    # @when(StringEqualNode)
+    # @visitor.when(StringEqualNode)
     # def visit(self, node: StringEqualNode):
     #     return f'{node.dest} = STREQ {node.msg1} {node.msg2}'
 
-    # @when(CopyNode)
+    # @visitor.when(CopyNode)
     # def visit(self, node: CopyNode):
     #     return f'{node.dest} = COPY {node.obj}'
 
-    # @when(TypeNameNode)
+    # @visitor.when(TypeNameNode)
     # def visit(self, node: TypeNameNode):
     #     return f'{node.dest} = TYPENAME {node.type}'
 
