@@ -348,7 +348,7 @@ t_STRING_ignore = ''
 
 def t_STRING_error(t):
     t.lexer.string_containsNull = True
-    t.lexer.string_nullrow = t.lineno
+    t.lexer.string_nullrow = t.lineno + 1
     t.lexer.string_nullcol = find_column(t.lexer.lexdata, t) - 1
 
 
