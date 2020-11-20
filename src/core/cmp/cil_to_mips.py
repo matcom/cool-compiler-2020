@@ -5,7 +5,6 @@ import core.cmp.mips as mips
 from random import choice
 from collections import defaultdict
 from core.cmp.utils import CountDict
-from pprint import pprint
 
 
 USED   = 1
@@ -39,13 +38,9 @@ class SimpleRegistersManager:
         return str(len([0 for r in self.registers if self.registers[r] == USED ]))
 
 class MemoryManager:
-    def __init__(self, registers, vars_with_addresses, function_for_assign):
+    def __init__(self, registers, function_for_assign):
         self.registers = registers
         self.func = function_for_assign
-        self.place_in_memory = dict(vars_with_addresses)
-        self.updated_in_mem = {var : True for var, _ in vars_with_addresses} 
-        self.vars_in_reg = { reg : [] for reg in registers }
-        self.locked = []
     
 
     def get_reg_for_var(self, var):
@@ -213,8 +208,7 @@ class CILToMIPSVisitor:
         localvars = [local.name for local in node.localvars]
         size_for_locals = len(localvars) * mips.ATTR_SIZE
 
-        for ins in enumerate(node.instructions):
-            print(ins)
+        
         
         new_func = mips.FunctionNode(label, params, localvars)
         self.register_function(node.name, new_func)
@@ -222,12 +216,8 @@ class CILToMIPSVisitor:
 
         ra = RegistersAllocator()
         reg_for_var = ra.get_registers_for_variables(node.instructions, node.params, len(mips.REGISTERS))
-
-        vars_with_addresses = []
-        for var in params + localvars:
-            vars_with_addresses.append((var, self.get_var_location(var)))
         
-        self.memory_manager = MemoryManager(mips.REGISTERS, vars_with_addresses, lambda x : reg_for_var[x])
+        self.memory_manager = MemoryManager(mips.REGISTERS, lambda x : reg_for_var[x])
         
 
 
@@ -266,12 +256,8 @@ class CILToMIPSVisitor:
         final_instructions = []
 
         for param in params:
-            if "main" in node.name:
-                print(param)
             reg = self.memory_manager.get_reg_for_var(param)
             if reg is not None:
-                if "main" in node.name:
-                    print(f"{param} in {reg}")
                 code_instructions.insert(0,mips.LoadWordNode(reg, self.get_var_location(param)))
         
         if not self.in_entry_function():
@@ -296,9 +282,6 @@ class CILToMIPSVisitor:
         
         func_instructions = list(itt.chain(initial_instructions, code_instructions, final_instructions))
         new_func.add_instructions(func_instructions)
-        #print(mips.PrintVisitor().visit(new_func))
-        if "main" in node.name:
-            input()
 
         self.finish_functions() 
         
@@ -846,7 +829,7 @@ class CILToMIPSVisitor:
         instructions.append(mips.AddUnsignedNode(mips.ARG_REGISTERS[1], mips.ARG_REGISTERS[1], mips.ARG_REGISTERS[2]))
         instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], mips.RegisterRelativeLocation(mips.ARG_REGISTERS[1], 0)))
         instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], mips.RegisterRelativeLocation(mips.ARG_REGISTERS[1], 8)))
-        instructions.append(mips.AddInmediateUnsignedNode(mips.ARG_REGISTERS[0], mips.ARG_REGISTERS[0], method_index * 4))
+        instructions.append(mips.AddInmediateUnsignedNode(mips.ARG_REGISTERS[1], mips.ARG_REGISTERS[1], method_index * 4))
         instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], mips.RegisterRelativeLocation(mips.ARG_REGISTERS[1], 0)))
         instructions.append(mips.JumpRegisterAndLinkNode(mips.ARG_REGISTERS[1]))
 
@@ -1199,7 +1182,7 @@ class CILToMIPSVisitor:
             else:
                 instructions.append(mips.MoveNode(mips.ARG_REGISTERS[1], reg))
         
-        instructions.append(mips.JumpAndLinkNode('lessl'))
+        instructions.append(mips.JumpAndLinkNode('less'))
         #dest_location = self.get_var_location(node.dest)
         #instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
         reg = self.memory_manager.get_reg_for_var(node.dest)
@@ -1583,7 +1566,7 @@ class RegistersAllocator:
         return in_out
 
     @staticmethod
-    def create_flow_graph(blocks, debug = False): #graph between blocks in a same function does not include relations between functions
+    def create_flow_graph(blocks): #graph between blocks in a same function does not include relations between functions
         graph = [[-1 for _ in range(len(blocks))] for _ in range(len(blocks)) ]
         labels = {b[0].label : i for i, b in enumerate(blocks) if isinstance(b[0], cil.LabelNode)}
 
@@ -1593,6 +1576,9 @@ class RegistersAllocator:
             elif isinstance(block[-1], cil.GotoIfNode):
                 graph[i][labels[block[-1].label]] = 1
                 graph[i][i + 1] = 1 if i + 1 < len(blocks) else -1
+            elif i != len(blocks) - 1:
+                graph[i][i + 1] = 1
+                
         return graph            
 
     @staticmethod
