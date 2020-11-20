@@ -2,7 +2,7 @@ import argparse
 from lexer import make_lexer
 from parser import make_parser
 from semantic import check_semantic
-from code_generation import generate_code
+from cil_generator import generate_code
 
 
 def create_arg_parser():
