@@ -49,6 +49,17 @@ class ArithmeticNode(InstructionNode):
         self.left = left
         self.right = right
 
+class UnaryNode(InstructionNode):
+    def __init__(self,dest, expression):
+        self.dest = dest
+        self.expression = expression
+
+class ComplementNode(UnaryNode):
+    pass
+
+class IsVoidNode(UnaryNode):
+    pass
+
 class PlusNode(ArithmeticNode):
     pass
 
@@ -62,6 +73,12 @@ class DivNode(ArithmeticNode):
     pass
 
 class EqualNode(ArithmeticNode):
+    pass
+
+class LessNode(ArithmeticNode):
+    pass
+
+class LessEqNode(ArithmeticNode):
     pass
 
 class GetAttribNode(InstructionNode):
@@ -200,22 +217,7 @@ class PrintNode(InstructionNode):
 #         self.obj = obj
 #         self.type = typex
 
-# class ComplementNode(InstructionNode):
-#     def __init__(self, dest, body):
-#         self.dest = dest
-#         self.body = body
 
-# class IsVoidNode(InstructionNode):
-#     def __init__(self, dest, body):
-#         self.dest = dest
-#         self.body = body
-
-# class LessNode(ArithmeticNode):
-#     pass
-
-
-# class LessEqNode(ArithmeticNode):
-#     pass
 
 # class CleanArgsNode(InstructionNode):
 #     def __init__(self, nargs):

@@ -38,14 +38,15 @@ context = builder.context
 checker = Checker(context)
 checker.visit(ast)
 
+cil = COOL_TO_CIL(checker.context)
 # cil = COOL_TO_CIL_VISITOR(checker.context)
 
-# cil_ast = cil.visit(ast)
-
-# f_ast = CIL_FORMATTER().visit(cil_ast)
-# string_formatted = str(f_ast)
-# output_file.write(string_formatted)
-# output_file.close()
+cil_ast = cil.visit(ast)
+# f_ast = Format().visit(ast)
+f_ast = CIL_FORMATTER().visit(cil_ast)
+string_formatted = str(f_ast)
+output_file.write(string_formatted)
+output_file.close()
 
 
 if not operations:

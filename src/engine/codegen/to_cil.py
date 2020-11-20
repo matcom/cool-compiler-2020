@@ -1,4 +1,4 @@
-from ...engine import parser as cool
+from engine import parser as cool
 from .cil_ast import *
 from ..cp import visitor
 from ..cp.semantic import VariableInfo , Scope
@@ -7,9 +7,19 @@ from .cil import BASE_COOL_CIL_TRANSFORM
 
 class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
 
-    def __init__(self):
-        pass
+    def define_binary_node(self, node: cool.BinaryNode, scope: Scope, cil_node: Node):
+        result = self.define_internal_local()
+        left, typex = self.visit(node.left, scope)
+        right, typex = self.visit( node.right, scope) 
+        self.register_instruction(cil_node(result, left, right)) 
+        return result, typex
     
+    def define_unary_node(self, node: cool.UnaryNode, scope: Scope, cil_node: Node):
+        result = self.define_internal_local()
+        expr ,typex = self.visit(node.expression, scope)
+        self.register_instruction(cil_node(result, expr)) 
+        return result, typex
+
     @visitor.on('node')
     def visit(self,node,scope):
         pass
@@ -115,53 +125,73 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(AssignNode(result,body))
         return result, btype
 
+    @visitor.when(cool.BlockNode)
+    def visit(self,node: cool.BlockNode,scope: Scope):
+        result = self.define_internal_local()
+        for expr in node.expressions:
+            val, typex = self.visit(expr, scope)
+        self.register_instruction(AssignNode(result,val))
+        return result, typex
+
+    @visitor.when(cool.LetInNode)
+    def visit(self,node: cool.LetInNode,scope: Scope):
+        let_scope = scope.create_child()
+        for let in node.let_body:
+            self.visit(let,let_scope)
+
+        result = self.define_internal_local()
+        expr, typex = self.visit(node.in_body,let_scope)
+        self.register_instruction(AssignNode(result,expr))
+        return result,typex
+
+    @visitor.when(cool.CaseOfNode)
+    def visit(self,node: cool.CaseOfNode,scope: Scope):
+        expr, typex = self.visit(node.expression, scope)
+        result = self.define_internal_local()
+        exptype = self.define_internal_local()
+        end_label = LabelNode('END')
+        self.register_instruction(TypeOfNode(expr,exptype))
+
+        for i ,case, child_scope in enumerate(zip(node.branches, scope.children)):
+            expr_n, type_n = self.visit(case,child_scope)
+            self.register_instruction(AssignNode(result,expr_n))
+            self.register_instruction(GotoNode(end_label))
+            self.register_instruction(LabelNode(f'CASE_{i}'))
+        self.register_instruction(end_label)
+
+        return result, typex
+
     @visitor.when(cool.PlusNode)
     def visit(self, node:cool.PlusNode, scope:Scope):
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
-        result = self.define_internal_local()
-
-        self.register_instruction(PlusNode(result, left, right))
-        return result
+        self.define_binary_node(node,scope,PlusNode)
 
     @visitor.when(cool.MinusNode)
     def visit(self, node:cool.MinusNode, scope:Scope):
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
-        result = self.define_internal_local()
-
-        self.register_instruction(MinusNode(result, left, right))
-        return result
+        self.define_binary_node(node,scope,MinusNode)
 
     @visitor.when(cool.StarNode)
     def visit(self, node:cool.StarNode, scope:Scope):
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
-        result = self.define_internal_local()
-
-        self.register_instruction(StarNode(result, left, right))
-        return result
+        self.define_binary_node(node,scope,StarNode)
 
     @visitor.when(cool.DivNode)
     def visit(self, node:cool.DivNode, scope:Scope):
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
-        result = self.define_internal_local()
+        self.define_binary_node(node,scope,DivNode)
 
-        self.register_instruction(DivNode(result, left, right))
-        return result
-        
-    @visitor.when(cool.BlockNode)
-    def visit(self,node,scope):
-        pass
+    @visitor.when(cool.LessNode)
+    def visit(self, node:cool.LessNode, scope: Scope):
+        self.define_binary_node(node,scope,MinusNode)
 
-    @visitor.when(cool.LetInNode)
-    def visit(self,node,scope):
-        pass
+    @visitor.when(cool.EqualNode)
+    def visit(self, node: cool.EqualNode, scope: Scope):
+        self.define_binary_node(node,scope,MinusNode)
 
-    @visitor.when(cool.CaseOfNode)
-    def visit(self,node,scope):
-        pass
+    @visitor.when(cool.IsVoidNode)
+    def visit(self, node: cool.IsVoidNode, scope: Scope):
+        self.define_unary_node(node, scope, IsVoidNode)
+    
+    @visitor.when(cool.ComplementNode)
+    def visit(self, node: cool.ComplementNode, scope: Scope):
+        self.define_unary_node(node, scope, ComplementNode)
 
     @visitor.when(cool.FunctionCallNode)
     def visit(self,node,scope):

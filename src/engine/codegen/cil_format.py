@@ -1,8 +1,4 @@
-from .cil_ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, AssignNode, PlusNode \
-    , MinusNode, StarNode, DivNode, AllocateNode, TypeOfNode, StaticCallNode, DynamicCallNode    \
-    , ArgNode, ReturnNode, ReadNode, PrintNode, LoadNode, LengthNode, ConcatNode, PrefixNode     \
-    , SubstringNode, ToStrNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, IfGotoNode    \
-    , DataNode, ToIntNode
+from .cil_ast import *
 
 from ..cp import visitor
 
@@ -147,6 +143,22 @@ class CIL_FORMATTER(object):
     def visit(self, node: IfGotoNode):
         return f'IF {node.value} GOTO {node.label}'
 
+    @visitor.when(ComplementNode)
+    def visit(self, node: ComplementNode):
+        return f'{node.dest} = COMPLEMENT {node.body}'
+
+    @visitor.when(LessNode)
+    def visit(self, node: LessNode):
+        return f'{node.dest} = {node.left} < {node.right}'
+    
+    @visitor.when(IsVoidNode)
+    def visit(self, node: IsVoidNode):
+        return f'{node.dest} = ISVOID {node.body}'
+
+    @visitor.when(LessEqNode)
+    def visit(self, node: LessEqNode):
+        return f'{node.dest} = {node.left} <= {node.right}'
+        
 ###################### nodes to throw #######################
 
     # @visitor.when(EqualNode)
@@ -161,21 +173,6 @@ class CIL_FORMATTER(object):
     # def visit(self, node: ConformNode):
     #     return f'{node.dest} = COMFORM {node.obj} {node.type}'
 
-    # @visitor.when(ComplementNode)
-    # def visit(self, node: ComplementNode):
-    #     return f'{node.dest} = COMPLEMENT {node.body}'
-
-    # @visitor.when(LessNode)
-    # def visit(self, node: LessNode):
-    #     return f'{node.dest} = {node.left} < {node.right}'
-    
-    # @visitor.when(IsVoidNode)
-    # def visit(self, node: IsVoidNode):
-    #     return f'{node.dest} = ISVOID {node.body}'
-
-    # @visitor.when(LessEqNode)
-    # def visit(self, node: LessEqNode):
-    #     return f'{node.dest} = {node.left} <= {node.right}'
 
     # @visitor.when(CleanArgsNode)
     # def visit(self, node:CleanArgsNode):
