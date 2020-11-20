@@ -7,6 +7,7 @@ from semantic import *
 TYPES = []
 DATA = {}
 CODE = []
+CILCODE = ""
 
 def generate_code(ast):
     cil = generate_cil(ast)
