@@ -374,10 +374,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.register_instruction(CIL_AST.Assign(node.name, expr_local))
         elif self.current_type.has_attr(node.name):
             cil_type_name = 'self'
-            self.register_instruction(CIL_AST.SetAttr(cil_type_name, cil_node_name, expr_local, self.current_type.name ))
-            print(cil_node_name)
+            self.register_instruction(CIL_AST.SetAttr(cil_type_name, node.name, expr_local, self.current_type.name ))
         else:
-            cil_node_name = scope.find_cil_local(node.name)
             self.register_instruction(CIL_AST.Assign(cil_node_name, expr_local))
         return expr_local
 
