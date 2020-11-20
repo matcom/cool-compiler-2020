@@ -39,6 +39,8 @@ class MIPSCompiler:
             instrucciones+="move $t0,"+scope.registerparameters[parametro0]+"\n"
         elif parametro0 in nombresAtributos:
             instrucciones+="lw $t0,"+str(nombresAtributos.index(parametro0)*4+4)+"($a0)\n"
+        elif parametro0 in self.data.keys():
+            instrucciones+="la $t0,"+parametro0+"\n"
         else:
             assert False
 
@@ -91,7 +93,7 @@ class MIPSCompiler:
     def visit(self, node:CILProgram, _):
         datainstructions=".data\n"
         for element in node.Data:
-            datainstructions+=element.nombre+': asciiz "'+element.valorString+'"\n'
+            datainstructions+=element.nombre+': asciiz '+element.valorString+'\n'
             self.data[element.nombre]=element.valorString
 
         scope=ScopeMIPS()
@@ -118,7 +120,7 @@ class MIPSCompiler:
 
         instrucciones=""
         for element in node.Methods:
-            instrucciones.append(self.visit(element, scope))
+            instrucciones+=(self.visit(element, scope))
 
     @visitor.when(CILGlobalMethod)
     def visit(self, node:CILGlobalMethod, scope:ScopeMIPS):
@@ -298,7 +300,7 @@ class MIPSCompiler:
         instrucciones+="lw $t0,"+str(scope.classmethods[tipo].index(func_id)*4)+"($t0)\n"
         instrucciones+="addi $sp, $sp, -4\n"
         instrucciones+="sw $ra, 0($sp)\n"
-        instrucciones+="jal $t0\n"
+        instrucciones+="jalr $t0, $ra\n"
         instrucciones+="lw $ra, 0($sp)\n"
 
         for i in range(scope.paramcount):

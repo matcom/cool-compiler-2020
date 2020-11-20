@@ -704,6 +704,8 @@ if True:
             semantic.visit(ast,None)
             tocil=CILTranspiler()
             programaCIL=tocil.visit(ast,None)
+            toMIPS=MIPSCompiler()
+            toMIPS.visit(programaCIL, None)
 
 
         else:

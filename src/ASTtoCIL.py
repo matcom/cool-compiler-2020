@@ -170,6 +170,14 @@ class CILTranspiler:
             globalInit=CILGlobalMethod(initName,["self"],scope.locals,initInstructions, c.name)
             metodosGlobalesCIL[globalInit.nombre]=globalInit
 
+            #Metodo type_name
+            metodotypename=MethodNode("type_name",[],"String",StringNode(c.name))
+            nombreTypeName=metodosglobalesdic[c.name+"#"+"type_name"]
+            metodoglobal=self.visit(metodotypename, scope)
+            metodoglobal.nombre=nombreTypeName
+            metodosGlobalesCIL[nombreTypeName]=metodoglobal
+            
+
             atributosCIL=[]
             for element in atributosAST:
                 nuevoCIL=CILAttribute(element.name, element.type)
@@ -183,9 +191,56 @@ class CILTranspiler:
             if not (c.name in ["Object", "IO", "String"]):
                 for m in c.methods:
                     globalMethod=self.visit(m, scope)
-                    globalMethod.name=metodosglobalesdic[c.name+"#"+m.name]
-                    metodosGlobalesCIL[globalMethod.name]=globalMethod
-                
+                    globalMethod.nombre=metodosglobalesdic[c.name+"#"+m.name]
+                    metodosGlobalesCIL[globalMethod.nombre]=globalMethod
+
+            elif c.name == "Object":
+                #copy
+                globalMethod=Defaults.copy_CIL(len(c.attributes))
+                globalMethod.nombre=metodosglobalesdic[c.name+"#"+globalMethod.nombre]
+                metodosGlobalesCIL[globalMethod.nombre]=globalMethod
+
+                #abort
+                globalMethod=Defaults.abort_CIL()
+                globalMethod.nombre=metodosglobalesdic[c.name+"#"+globalMethod.nombre]
+                metodosGlobalesCIL[globalMethod.nombre]=globalMethod
+
+            elif c.name == "IO":
+                #out_string
+                globalMethod=Defaults.out_string_CIL()
+                globalMethod.nombre=metodosglobalesdic[c.name+"#"+globalMethod.nombre]
+                metodosGlobalesCIL[globalMethod.nombre]=globalMethod
+
+                #out_int
+                globalMethod=Defaults.out_int_CIL()
+                globalMethod.nombre=metodosglobalesdic[c.name+"#"+globalMethod.nombre]
+                metodosGlobalesCIL[globalMethod.nombre]=globalMethod
+
+                #in_string
+                globalMethod=Defaults.in_string_CIL()
+                globalMethod.nombre=metodosglobalesdic[c.name+"#"+globalMethod.nombre]
+                metodosGlobalesCIL[globalMethod.nombre]=globalMethod
+
+                #in_int
+                globalMethod=Defaults.in_int_CIL()
+                globalMethod.nombre=metodosglobalesdic[c.name+"#"+globalMethod.nombre]
+                metodosGlobalesCIL[globalMethod.nombre]=globalMethod
+
+            elif c.name == "String":
+                #length
+                globalMethod=Defaults.len_string_CIL()
+                globalMethod.nombre=metodosglobalesdic[c.name+"#"+globalMethod.nombre]
+                metodosGlobalesCIL[globalMethod.nombre]=globalMethod
+
+                #concat
+                globalMethod=Defaults.concat_string_CIL()
+                globalMethod.nombre=metodosglobalesdic[c.name+"#"+globalMethod.nombre]
+                metodosGlobalesCIL[globalMethod.nombre]=globalMethod
+
+                #substring
+                globalMethod=Defaults.substring_string_CIL()
+                globalMethod.nombre=metodosglobalesdic[c.name+"#"+globalMethod.nombre]
+                metodosGlobalesCIL[globalMethod.nombre]=globalMethod
 
             claseCIL=CILClass(c.name,atributosCIL, metodosClaseCIL)
             classesCIL.append(claseCIL)

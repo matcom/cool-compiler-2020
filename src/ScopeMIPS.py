@@ -1,5 +1,5 @@
 class ScopeMIPS:
-    def __init__():
+    def __init__(self):
         self.classmethods={}
         self.methodname=""
         self.locals={}
