@@ -47,6 +47,8 @@ class CILUnaryOperator(CILInstructionNode):
     pass
 class CILNot(CILUnaryOperator):
     pass
+class CILIntComplement(CILUnaryOperator):
+    pass
 class CILComplement(CILUnaryOperator):
     pass
 class CILIsVoid(CILUnaryOperator):

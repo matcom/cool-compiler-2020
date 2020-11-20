@@ -337,6 +337,32 @@ class CILTranspiler:
         scope.locals.append(nuevoCIL.destination)
         return instrucciones
 
+    @visitor.when(UnaryOperatorNode)
+    def visit(self, node: UnaryOperatorNode, scope:Scope):
+        instrucciones=[]
+        if isinstance(node, IsVoidNode):
+            instrucciones.extend(self.visit(node.expression, scope))
+        else:
+            instrucciones.extend(self.visit(node.right, scope))
+        
+        destinoExpresion=instrucciones[len(instrucciones)-1].destination
+
+        nombrevariable=self.GenerarNombreVariable(scope)
+        nuevoCIL=CILInstructionNode()
+        if isinstance(node, IsVoidNode):
+            nuevoCIL=CILIsVoid(nombrevariable, [destinoExpresion])
+        elif isinstance(node, IntComplementNode):
+            nuevoCIL=CILIntComplement(nombrevariable, [destinoExpresion])
+        elif isinstance(node, BoolComplementNode):
+            nuevoCIL=CILComplement(nombrevariable, [destinoExpresion])
+        else:
+            assert False
+
+        instrucciones.append(nuevoCIL)
+        return instrucciones
+        
+
+
     @visitor.when(LoopNode)
     def visit(self, node: LoopNode, scope:Scope):
         label=CILLabel(params=["Lbl"+str(self.labelcount)])
@@ -437,7 +463,7 @@ class CILTranspiler:
 
         for sub in node.subcases:
             nueva=self.GenerarNombreVariable(scope)
-            subInstructions=self.visit(sub, case)
+            subInstructions=self.visit(sub, scope)
             instructions.extend(subInstructions)
 
         self.caseResultStack.pop(-1)
@@ -497,8 +523,10 @@ class CILTranspiler:
     def visit(self, node:AttributeNode, scope:Scope):
         instructions=[]
         instructions.extend(self.visit(node.value, scope))
-        
-        final=CILAssign(node.name,[instructions[len(instructions)-1].destination])
+        if len(instructions)>0:
+            final=CILAssign(node.name,[instructions[len(instructions)-1].destination])
+        else:
+            final=CILAssign(node.name,[0])
         instructions.append(final)
 
         return instructions
