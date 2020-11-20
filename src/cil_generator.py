@@ -10,6 +10,7 @@ CODE = []
 CILCODE = ""
 
 
+
 def generate_code(ast):
     cil = generate_cil(ast)
     # mips = generate_mips()
