@@ -1,9 +1,10 @@
 from lexer import CoolLexer
 from Parser import CoolParser
-from semantic import CoolSemantic
+from semantic import CoolSemantic, Scope
+import cil
 import sys
 
-file = open("/media/karl/Datos/cool-compiler-2020/src/test.cl", 'r')
+file = open("F:/cool-compiler-2020/src/test.cl", 'r')
 cool_lexer = CoolLexer()
 errors_lexer = cool_lexer.tokenize(file.read())
 # errors_lexer = cool_lexer.tokenize('''''')
@@ -22,9 +23,11 @@ if len(errors_parser) > 0:
         exit(1)
 
 cool_sematic= CoolSemantic(ast)
-semantics_error = cool_sematic.check_semantics()
+semantics_error, context, scope = cool_sematic.check_semantics()
 
 if len(semantics_error) > 0:
     for error in semantics_error:
         print(error.text)
     exit(1)
+
+

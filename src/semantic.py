@@ -303,10 +303,11 @@ class CoolSemantic:
         builder = TypeBuilder(context,errors)
         builder.visit(self.ast)
         typechecking = TypeChecking (context,errors)
-        typechecking.visit(self.ast)
-        print('Context:')
-        print(context)
-        return errors
+        scope = Scope()
+        typechecking.visit(self.ast, scope)
+        #print('Context:')
+        #print(context)
+        return errors, context , scope
 
     def check_for_cycles(self , context):
         visited = set()
@@ -418,7 +419,7 @@ class TypeBuilder:
     @visitor.when(AttrDeclarationNode)
     def visit(self, node):        
         try:
-            attr_type = self.context.get_type(node.type,node.line)
+            attr_type = SELF_TYPE() if node.type == "SELF_TYPE" else self.context.get_type(node.type,node.line)
             if node.id == "self":
                     raise SemanticError('Trying to assign value to self' ,node.line)  
             self.current_type.define_attribute(node.id, attr_type, node.line)
@@ -457,7 +458,6 @@ class TypeChecking:
 
     @visitor.when(ProgramNode)
     def visit(self, node:ProgramNode, scope=None):
-        scope = Scope()
         for dec in node.declarations:
             try:
                 self.visit(dec,scope.create_child())
@@ -473,8 +473,8 @@ class TypeChecking:
             self.errors.append(e)
 
         self.current_type = typex
-        for at in typex.all_attributes():
-            scope.define_variable(at[0].name, at[0].type,node.line)
+        #for at in typex.all_attributes():
+        #    scope.define_variable(at[0].name, at[0].type,node.line)
         scope.define_variable("self",typex,node.line)
         for feat in node.features:
             self.visit(feat,scope.create_child())
@@ -602,9 +602,19 @@ class TypeChecking:
         self.visit(node.expression, scope.create_child())
         try:
             if node.id == "self":
-                raise SemanticError('Trying to assign value to self' ,node.line)    
+                raise SemanticError('Trying to assign value to self' ,node.line)
+                
             var = scope.find_variable(node.id)
-            self.context.check_type(node.expression.type, var.type, node.line)
+            
+            if var is None:
+                try:
+                    at =  [ at[0] for at in self.current_type.all_attributes() if at[0].name == node.id]
+                    var = at[0]
+                except:
+                    raise NameError(f"Variable {node.id} not defined",node.line)
+
+            typex = self.current_type if isinstance(var.type , SELF_TYPE) else var.type
+            self.context.check_type(node.expression.type, typex, node.line)
             node.type = node.expression.type
         except SemanticError as e:
             self.errors.append(e)
@@ -634,14 +644,15 @@ class TypeChecking:
             if not init[2] is None:
                 self.visit(init[2],sc)
                 try:
-                    self.context.check_type(init[2].type,self.context.get_type(init[1],node.line),node.line)
+                    typex = self.context.get_type(init[1],node.line) if  init[1] != "SELF_TYPE" else self.current_type
+                    self.context.check_type(init[2].type,typex,node.line)
                 except SemanticError as e:
                     self.errors.append(e)
 
             sc = sc.create_child()
             typex= None
             try:
-                typex = self.context.get_type(init[1],node.line)
+                typex = self.context.get_type(init[1],node.line) if  init[1] != "SELF_TYPE" else self.current_type
             except SemanticError as e:
                 self.errors.append(e)
                 typex = ErrorType()
@@ -749,8 +760,12 @@ class TypeChecking:
     
         x = scope.find_variable(node.token)
         if x is None:
-            node.type = ErrorType()
-            self.errors.append(NameError(f"Variable {node.token} not defined",node.line))
-            return
-        node.type = x.type
+            try:
+                at =  [ at[0] for at in self.current_type.all_attributes() if at[0].name == node.token]
+                x = at[0]
+            except:    
+                node.type = ErrorType()
+                self.errors.append(NameError(f"Variable {node.token} not defined",node.line))
+                return
+        node.type = x.type if not isinstance(x.type , SELF_TYPE) else self.current_type
        

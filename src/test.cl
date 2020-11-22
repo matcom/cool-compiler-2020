@@ -1,14 +1,21 @@
---The predicate must have static type Bool.
+class Main
+{
+   a : Int <- "Hello";
+   main():Object
+   {
+      a
+   };
+};
 
-class A { };
-class B inherits A { };
-class C inherits B { };
-class D inherits B { };
-class E inherits B { }; 
-class F inherits A { }; 
+class A
+{
+	x:Int;
 
-class Main inherits IO {
-	main(): IO { out_string("Hello World!")};
+   suma (a:Int, b:Int) : Int
+   {
+	  a
 
-	a: A <- if new F then new D else new C fi; 
+   };
+     
+	
 };
