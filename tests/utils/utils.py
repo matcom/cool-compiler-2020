@@ -65,7 +65,7 @@ Copyright .+\, James R\. Larus\.
 All Rights Reserved\.
 See the file README for a full copyright notice\.
 (?:Loaded: .+\n)*'''
-def compare_outputs(compiler_path: str, cool_file_path: str, output_file_path: str, timeout=100):
+def compare_outputs(compiler_path: str, cool_file_path: str, input_file_path: str, output_file_path: str, timeout=100):
     try:
         sp = subprocess.run(['bash', compiler_path, cool_file_path], capture_output=True, timeout=timeout)
         assert sp.returncode == 0, TEST_MUST_COMPILE % get_file_name(cool_file_path)
@@ -75,7 +75,9 @@ def compare_outputs(compiler_path: str, cool_file_path: str, output_file_path: s
     spim_file = cool_file_path[:-2] + 'mips'
 
     try:
-        sp = subprocess.run(['spim', '-file', spim_file], capture_output=True, timeout=timeout)
+        fd = open(input_file_path, 'rb')
+        sp = subprocess.run(['spim', '-file', spim_file], input=fd.read(), capture_output=True, timeout=timeout)
+        fd.close()
         mo = re.match(SPIM_HEADER, sp.stdout.decode())
         if mo:
             output = mo.string[mo.end():]
