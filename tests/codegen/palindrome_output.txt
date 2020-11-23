@@ -1,2 +1,0 @@
-enter a string
-that was a palindrome

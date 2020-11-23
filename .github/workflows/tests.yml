@@ -1,6 +1,10 @@
 name: Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ tests, cbermudez ]
+  pull_request:
+    branches: [ tests, cbermudez ]
 
 jobs:
   lexer:
@@ -59,4 +63,3 @@ jobs:
           make clean
           make
           make test TAG=semantic
-
