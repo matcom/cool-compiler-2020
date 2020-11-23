@@ -30,18 +30,18 @@ ast = evaluate_reverse_parse(parse,operations,tokens)
 
 collect = Collector()
 collect.visit(ast)
-
 context = collect.context
 builder = Builder(context)
 builder.visit(ast)
 context = builder.context
 checker = Checker(context)
-checker.visit(ast)
+scope = checker.visit(ast)
+
 
 cil = COOL_TO_CIL(checker.context)
 # cil = COOL_TO_CIL_VISITOR(checker.context)
-
-cil_ast = cil.visit(ast)
+# sc = Scope()
+cil_ast = cil.visit(ast,scope)
 # f_ast = Format().visit(ast)
 f_ast = CIL_FORMATTER().visit(cil_ast)
 string_formatted = str(f_ast)

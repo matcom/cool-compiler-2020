@@ -1,6 +1,7 @@
 from .lexer import tokenizer
 from .parser import *
 from .cp import evaluate_reverse_parse
+from .cp.semantic import Scope
 from .visitors import Builder
 from .visitors import Checker
 from .visitors import Collector

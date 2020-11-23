@@ -60,6 +60,9 @@ class ComplementNode(UnaryNode):
 class IsVoidNode(UnaryNode):
     pass
 
+class NotNode(UnaryNode):
+    pass
+
 class PlusNode(ArithmeticNode):
     pass
 
@@ -81,29 +84,6 @@ class LessNode(ArithmeticNode):
 class LessEqNode(ArithmeticNode):
     pass
 
-class GetAttribNode(InstructionNode):
-    def __init__(self, dest, obj, attrib):
-        self.dest = dest
-        self.obj = obj
-        self.attrib = attrib
-
-class SetAttribNode(InstructionNode):
-    def __init__(self, obj, attrib, value):
-        self.obj = obj
-        self.attrib = attrib
-        self.value = value
-
-class GetIndexNode(InstructionNode):
-    def __init__(self, dest, array, index):
-        self.dest = dest
-        self.array = array
-        self.index = index
-
-class SetIndexNode(InstructionNode):
-    def __init__(self, array, index, value):
-        self.array = array
-        self.index = index
-        self.value = value
 
 class AllocateNode(InstructionNode):
     def __init__(self, dest, itype):
@@ -143,6 +123,20 @@ class ArgNode(InstructionNode):
     def __init__(self, name):
         self.name = name
 
+class ErrorNode(InstructionNode):
+    def __init__(self, error=0):
+        self.error = error
+
+class CopyNode(InstructionNode):
+    def __init__(self, dest, obj):
+        self.dest = dest
+        self.obj  = obj
+
+class TypeNameNode(InstructionNode):
+    def __init__(self, dest, typex):
+        self.dest = dest
+        self.type = typex
+
 class ReturnNode(InstructionNode):
     def __init__(self, value=None):
         self.value = value
@@ -163,11 +157,6 @@ class ConcatNode(InstructionNode):
         self.msg1 = msg1
         self.msg2 = msg2
 
-class PrefixNode(InstructionNode):
-    def __init__(self, dest, msg1, msg2):
-        self.dest = dest
-        self.msg1 = msg1
-        self.msg2 = msg2
 
 class SubstringNode(InstructionNode):
     def __init__(self, dest, msg1, start, length):
@@ -196,19 +185,35 @@ class PrintNode(InstructionNode):
 
 ################# nodes que me tengo que definir ##############
 
-# class ErrorNode(InstructionNode):
-#     def __init__(self, error=1):
-#         self.error = error
-
-# class CopyNode(InstructionNode):
-#     def __init__(self, dest, obj):
+# class GetAttribNode(InstructionNode):
+#     def __init__(self, dest, obj, attrib):
 #         self.dest = dest
-#         self.obj  = obj
+#         self.obj = obj
+#         self.attrib = attrib
 
-# class TypeNameNode(InstructionNode):
-#     def __init__(self, dest, typex):
+# class SetAttribNode(InstructionNode):
+#     def __init__(self, obj, attrib, value):
+#         self.obj = obj
+#         self.attrib = attrib
+#         self.value = value
+
+# class GetIndexNode(InstructionNode):
+#     def __init__(self, dest, array, index):
 #         self.dest = dest
-#         self.type = typex
+#         self.array = array
+#         self.index = index
+
+# class SetIndexNode(InstructionNode):
+#     def __init__(self, array, index, value):
+#         self.array = array
+#         self.index = index
+#         self.value = value
+
+# class PrefixNode(InstructionNode):
+#     def __init__(self, dest, msg1, msg2):
+#         self.dest = dest
+#         self.msg1 = msg1
+#         self.msg2 = msg2
 
 
 # class ConformNode(InstructionNode):

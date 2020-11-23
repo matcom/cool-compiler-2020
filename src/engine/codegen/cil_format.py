@@ -107,9 +107,9 @@ class CIL_FORMATTER(object):
     def visit(self, node: ConcatNode):
         return f'{node.dest} = CONCAT {node.msg1} {node.msg2}'
 
-    @visitor.when(PrefixNode)
-    def visit(self, node: PrefixNode):
-        return f'{node.dest} = PREFIX {node.msg1} {node.msg2}'
+    # @visitor.when(PrefixNode)
+    # def visit(self, node: PrefixNode):
+    #     return f'{node.dest} = PREFIX {node.msg1} {node.msg2}'
 
     @visitor.when(SubstringNode)
     def visit(self, node: SubstringNode):
@@ -123,13 +123,13 @@ class CIL_FORMATTER(object):
     def visit(self, node: ToIntNode):
         return f'{node.dest} = INT {node.msg}'
 
-    @visitor.when(GetAttribNode)
-    def visit(self, node: GetAttribNode):
-        return f'{node.dest} = GETATTR {node.obj} {node.attrib}'
+    # @visitor.when(GetAttribNode)
+    # def visit(self, node: GetAttribNode):
+    #     return f'{node.dest} = GETATTR {node.obj} {node.attrib}'
 
-    @visitor.when(SetAttribNode)
-    def visit(self, node: SetAttribNode):
-        return f'SETATTR {node.obj} {node.attrib} {node.value}'
+    # @visitor.when(SetAttribNode)
+    # def visit(self, node: SetAttribNode):
+    #     return f'SETATTR {node.obj} {node.attrib} {node.value}'
 
     @visitor.when(LabelNode)
     def visit(self, node: LabelNode):
@@ -161,32 +161,32 @@ class CIL_FORMATTER(object):
         
 ###################### nodes to throw #######################
 
-    # @visitor.when(EqualNode)
-    # def visit(self, node: EqualNode):
-    #     return f'{node.dest} = {node.left} == {node.right}'
+    @visitor.when(EqualNode)
+    def visit(self, node: EqualNode):
+        return f'{node.dest} = {node.left} == {node.right}'
 
-    # @visitor.when(ErrorNode)
-    # def visit(self, node: ErrorNode):
-    #     return f'ERROR {node.error}'
+    @visitor.when(ErrorNode)
+    def visit(self, node: ErrorNode):
+        return f'ERROR {node.error}'
 
     # @visitor.when(ConformNode)
     # def visit(self, node: ConformNode):
     #     return f'{node.dest} = COMFORM {node.obj} {node.type}'
 
 
-    # @visitor.when(CleanArgsNode)
-    # def visit(self, node:CleanArgsNode):
-    #     return f'CLEANARG {node.nargs}'
+    @visitor.when(NotNode)
+    def visit(self, node:NotNode):
+        return f'{node.dest} = NOT {node.body}'
 
     # @visitor.when(StringEqualNode)
     # def visit(self, node: StringEqualNode):
     #     return f'{node.dest} = STREQ {node.msg1} {node.msg2}'
 
-    # @visitor.when(CopyNode)
-    # def visit(self, node: CopyNode):
-    #     return f'{node.dest} = COPY {node.obj}'
+    @visitor.when(CopyNode)
+    def visit(self, node: CopyNode):
+        return f'{node.dest} = COPY {node.obj}'
 
-    # @visitor.when(TypeNameNode)
-    # def visit(self, node: TypeNameNode):
-    #     return f'{node.dest} = TYPENAME {node.type}'
+    @visitor.when(TypeNameNode)
+    def visit(self, node: TypeNameNode):
+        return f'{node.dest} = TYPENAME {node.type}'
 
