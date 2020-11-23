@@ -3,8 +3,9 @@ from Parser import CoolParser
 from semantic import CoolSemantic, Scope
 import cil
 import sys
+from COOLToCILVisitor import *
 
-file = open("F:/cool-compiler-2020/src/test.cl", 'r')
+file = open("/home/hi/Desktop/cool-compiler-2020/src/test.cl", 'r')
 cool_lexer = CoolLexer()
 errors_lexer = cool_lexer.tokenize(file.read())
 # errors_lexer = cool_lexer.tokenize('''''')
@@ -30,4 +31,7 @@ if len(semantics_error) > 0:
         print(error.text)
     exit(1)
 
-
+# 
+cool2cil = COOLToCILVisitor(context)
+f = cil.get_formatter()
+print(f(cool2cil.visit(ast, scope)))

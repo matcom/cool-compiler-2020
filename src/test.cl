@@ -1,9 +1,9 @@
 class Main
 {
-   a : Int <- "Hello";
+   a : Int <- 2;
    main():Object
    {
-      a
+      3+4+a
    };
 };
 
@@ -13,7 +13,15 @@ class A
 
    suma (a:Int, b:Int) : Int
    {
-	  a
+      {
+         x = 2;
+
+         x < 3;
+
+         x <= 4;
+
+         a+b+x;
+      }
 
    };
      

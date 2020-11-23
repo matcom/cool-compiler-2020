@@ -242,9 +242,10 @@ class Context:
         return str(self)
 
 class VariableInfo:
-    def __init__(self, name, vtype):
+    def __init__(self, name, vtype, cilName=''):
         self.name = name
         self.type = vtype
+        self.cilName = cilName
 
 class Scope:
     def __init__(self, parent=None):

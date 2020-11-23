@@ -22,11 +22,12 @@ class DataNode(Node):
         self.value = value
 
 class FunctionNode(Node):
-    def __init__(self, fname, params, localvars, instructions):
+    def __init__(self, fname, params, localvars, instructions, labels):
         self.name = fname
         self.params = params
         self.localvars = localvars
         self.instructions = instructions
+        self.labels = labels
 
 class ParamNode(Node):
     def __init__(self, name):
@@ -100,13 +101,17 @@ class TypeOfNode(InstructionNode):
         self.dest = dest
 
 class LabelNode(InstructionNode):
-    pass
+    def __init__(self, name):
+        self.name = name
 
 class GotoNode(InstructionNode):
-    pass
+    def __init__(self, name):
+        self.name = name
 
 class GotoIfNode(InstructionNode):
-    pass
+    def __init__(self, name, condition):
+        self.name = name
+        self.condition = condition
 
 class StaticCallNode(InstructionNode):
     def __init__(self, function, dest):
@@ -201,19 +206,15 @@ def get_formatter():
 
         @visitor.when(GetAttribNode)
         def visit(self, node:GetAttribNode):
-           return f'{node.dest} = GETATTR {node.ins} {node.att.name}' 
+           return f'{node.dest} = GETATTR {node.ins} {node.att}' 
+
+        @visitor.when(SetAttribNode)
+        def visit(self, node:SetAttribNode):
+           return f'SETATTR {node.ins} {node.att} {node.value}' 
 
         @visitor.when(PlusNode)
         def visit(self, node):
-            return f'{node.dest} = {node.left} + {node.right}'
-        
-        @visitor.when(LessEqualNode)
-        def visit(self, node):
-            return f'{node.dest} = {node.left} <= {node.right}'   
-
-        @visitor.when(LessNode)
-        def visit(self, node):
-            return f'{node.dest} = {node.left} < {node.right}'          
+            return f'{node.dest} = {node.left} + {node.right}'        
 
         @visitor.when(MinusNode)
         def visit(self, node):
@@ -227,9 +228,29 @@ def get_formatter():
         def visit(self, node):
             return f'{node.dest} = {node.left} / {node.right}'
 
+        @visitor.when(LessEqualNode)
+        def visit(self, node):
+            return f'{node.dest} = {node.left} <= {node.right}'
+
+        @visitor.when(LessNode)
+        def visit(self, node):
+            return f'{node.dest} = {node.left} < {node.right}'
+
         @visitor.when(AllocateNode)
         def visit(self, node):
             return f'{node.dest} = ALLOCATE {node.type}'
+
+        @visitor.when(LabelNode)
+        def visit(self, node):
+            return f'LABEL {node.name}'
+
+        @visitor.when(GotoNode)
+        def visit(self, node):
+            return f'GOTO {node.name}'
+
+        @visitor.when(GotoIfNode)
+        def visit(self, node):
+            return f'IF {node.condition} GOTO {node.name}'
 
         @visitor.when(TypeOfNode)
         def visit(self, node):
