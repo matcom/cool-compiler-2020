@@ -1,0 +1,7 @@
+title:      The Top 100 CD_ROMs
+author:     Ulanoff
+periodical:  PC Magazine
+- dynamic type was Article -
+title:      Compilers, Principles, Techniques, and Tools
+author:     Aho, Sethi, and Ullman
+- dynamic type was Book -
