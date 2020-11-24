@@ -1,0 +1,1 @@
+(6, 18) - TypeError: Inferred type String of initialization of attribute test does not conform to declared type Int.
