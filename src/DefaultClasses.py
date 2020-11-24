@@ -14,6 +14,10 @@ class Defaults:
         clase=ClassNode("Object",None,[abort,typename,copy])
 
         return clase
+
+    def BoolClass():
+        clase=ClassNode("Bool","Object",[])
+        return clase
     
     def IOClass():
         #typeString=AttributeNode("$type","String",StringNode("IO"))
@@ -50,11 +54,11 @@ class Defaults:
         return CILGlobalMethod('copy',[ParameterNode("self","SELF_TYPE")],["$result"],instrucciones)
 
     def out_string_CIL():
-        instrucciones=[CILOutString(["x"]),CILAssign("$result",["self"])]
+        instrucciones=[CILOutString("x"),CILAssign("$result",["self"])]
         return CILGlobalMethod('out_string',[ParameterNode("self","SELF_TYPE"),ParameterNode("x","String")],["$result"],instrucciones)
 
     def out_int_CIL():
-        instrucciones=[CILOutInt(["x"]),CILAssign("$result",["self"])]
+        instrucciones=[CILOutInt("x"),CILAssign("$result",["self"])]
         return CILGlobalMethod('out_int',[ParameterNode("self","SELF_TYPE"),ParameterNode("x","Int")],["$result"],instrucciones)
 
     def in_string_CIL():

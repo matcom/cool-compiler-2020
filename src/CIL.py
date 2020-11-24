@@ -5,6 +5,9 @@ class CILInstructionNode:
     def __init__(self,destination=None, params=[]):
         self.destination=destination
         self.params=params
+        
+    def instructionPrint(self):
+        print(str(type(self))+" "+str(self.destination)+"<-"+str(self.params))
 
 class CILTypeCheck(CILInstructionNode): #Devuelve True si el tipo es correcto, se le pasa una variable y una variable con string
     pass

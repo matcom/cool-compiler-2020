@@ -285,3 +285,31 @@
      syscall
      li $v0, 10
      syscall
+     
+     #En este método violé la regla usual de que los parámetros van en los registros a, y se encuentran en los t.
+     #Esto se realizó ya que este método solo se usa en un lugar y atendiendo a la estructura del conversor a MIPS
+     .Object.Copy:
+     addi $sp, $sp, -8
+
+     sw $s0, 0($sp)
+     sw $s1, 4($sp)
+     move $s0, $t0
+     move $s1, $t1
+     addi $s1, 1
+     move $a0, $s1
+     li $v0, 9
+     syscall
+     move $t1, $v0
+     $ciclocopia:
+     beq $s1, zero, $finciclocopia
+     lw $t0, $s0
+     sw $t0, $t1
+     addi $s0, 4
+     addi $t1, 4
+     addi $s1, -1
+     b $ciclocopia
+     $finciclocopia:
+     lw $s0, 0($sp)
+     lw $s1, 4($sp)
+     addi $sp, 8
+     jr $ra

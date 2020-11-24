@@ -240,6 +240,8 @@ class Semantics_Checker:
 
     @visitor.when(DispatchNode)
     def visit(self, node: DispatchNode, scope: Scope):
+        if node.line==95:
+            print()
         if node.left_expression:
             param_types = []
             for param in node.parameters:
@@ -251,6 +253,8 @@ class Semantics_Checker:
             if dtype.name == "SELF_TYPE":
                 dtype = scope.get_type(scope.class_name)
             node.left_type=dtype.name
+            if node.left_type==None:
+                print()
             if not scope.exists_type_method(dtype,node.func_id):
                 print('('+str(node.line)+', '+str(node.index)+') - AttributeError: Dispatch to undefined method '+node.func_id+'.')
             else:
@@ -270,6 +274,9 @@ class Semantics_Checker:
             for param in node.parameters:
                 param_types.append(self.visit(param,scope)) 
             dtype = scope.get_type(scope.class_name)
+            node.left_type=dtype.name
+            if node.left_type==None:
+                print()
             if not scope.exists_type_method(dtype,node.func_id):
                 print('('+str(node.line)+', '+str(node.index)+') - AttributeError: Dispatch to undefined method '+node.func_id)
             else:
@@ -295,7 +302,8 @@ class Semantics_Checker:
                 param_types.append(param_type)
             dtype = self.visit(node.left_expression,scope)
             if dtype.name == "SELF_TYPE":
-                dtype = scope.get_type(scope.class_name)         
+                dtype = scope.get_type(scope.class_name)
+            node.left_type=dtype.name         
             parent_type = scope.get_type(node.parent_id)
             if not scope.lower_than(dtype, parent_type):
                 print('('+str(node.line)+', '+str(node.index)+') - TypeError: Expression type '+ dtype.name +' does not conform to declared static dispatch type '+ parent_type.name +'.')
@@ -367,6 +375,7 @@ class Semantics_Checker:
     @visitor.when(CaseNode)
     def visit(self, node: CaseNode, scope: Scope):
         sub_types = []
+        dtype = self.visit(node.expression,scope)
         for subcase in node.subcases:
             if not subcase.type in sub_types:
                 sub_types.append(subcase.type)

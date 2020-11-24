@@ -123,7 +123,7 @@ class CILTranspiler:
         instructions=[]
         if clase.parent!=None:
             dumb=self.GenerarNombreVariable(scope)
-            instructions.append(CILArgument(["self"]))
+            instructions.append(CILArgument(params=["self"]))
             instructions.append(CILVirtualCall(dumb,[clase.parent,"$init"]))
         
         for a in clase.attributes:
@@ -144,9 +144,10 @@ class CILTranspiler:
         claseObject=Defaults.ObjectClass()
         claseIO=Defaults.IOClass()
         claseString=Defaults.StringClass()
+        claseBool=Defaults.BoolClass()
 
         clasescompletas=node.classes.copy()
-        clasescompletas.extend([claseObject,claseIO,claseString])
+        clasescompletas.extend([claseObject,claseIO,claseString,claseBool])
 
         classes=self.OrdenarClasesPorHerencia(clasescompletas)
         atributosdic=self.GenerarDiccionarioAtributos(classes)
@@ -163,6 +164,7 @@ class CILTranspiler:
 
             scope=Scope(c.name, c.parent)
             scope.attributes=atributosAST
+            scope.class_name=c.name
 
             #Inicialización de atributos
             initInstructions=self.GenerarInit(c,scope)
@@ -254,6 +256,7 @@ class CILTranspiler:
         self.datacount+=1
         self.data[datadeclaration.nombre]=datadeclaration
         destino=self.GenerarNombreVariable(scope)
+        scope.locals.append(destino)
         return [CILStringLoad(destino, [nombrestring])]
 
 
@@ -294,7 +297,7 @@ class CILTranspiler:
         finalLabel=CILLabel(params=["Lbl"+str(self.labelcount)])
         self.labelcount+=1
         
-        resultadoPredicado=predicateCode[len(predicateCode)-1]
+        resultadoPredicado=predicateCode[len(predicateCode)-1].destination
         conditinalJump=CILConditionalJump(params=[resultadoPredicado,thenLabel.params[0]])
         saltoalfinal=CILJump(params=[finalLabel.params[0]])
 
@@ -322,6 +325,7 @@ class CILTranspiler:
     def visit(self, node: MethodNode, scope:Scope):
         parameters=["self"]
         locales=[]
+        scope.locals=locales
         for param in node.parameters:
             parameters.append(param.name)
 
@@ -330,6 +334,7 @@ class CILTranspiler:
         instructions=[]
         # for element in node.body:
         instructions.extend(self.visit(node.body,scope))
+        locales=scope.locals
         
         # retorno=CILReturn([])
         # if len(instructions)>0:
@@ -403,6 +408,7 @@ class CILTranspiler:
         destinoExpresion=instrucciones[len(instrucciones)-1].destination
 
         nombrevariable=self.GenerarNombreVariable(scope)
+        scope.locals.append(nombrevariable)
         nuevoCIL=CILInstructionNode()
         if isinstance(node, IsVoidNode):
             nuevoCIL=CILIsVoid(nombrevariable, [destinoExpresion])
@@ -429,7 +435,8 @@ class CILTranspiler:
         instructions.extend(self.visit(node.predicate,scope))
         
         negado=self.GenerarNombreVariable(scope)
-        instructions.append(CILNot(negado,[instructions[len(instructions)-1]]))
+        scope.locals.append(negado)
+        instructions.append(CILComplement(negado,[instructions[len(instructions)-1].destination]))
 
         instructions.append(CILConditionalJump(params=[negado,finalciclo.params[0]]))
 
@@ -438,6 +445,10 @@ class CILTranspiler:
         instructions.append(CILJump(params=[label.params[0]]))
         
         instructions.append(finalciclo)
+
+        resultado=self.GenerarNombreVariable(scope)
+        scope.locals.append(resultado)
+        instructions.append(CILAssign(resultado,[0]))
 
         return instructions
 
@@ -459,8 +470,10 @@ class CILTranspiler:
             paramInstruction.append(CILArgument(params=[paramInstruction[len(paramInstruction)-1].destination]))
             instructions.extend(paramInstruction)
 
-        instructions.append(CILArgument(params=[node.left_type,leftInstructions[len(leftInstructions)-1].destination]))
+        instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))#Removido de los params: node.left_type,
         resultVariable=self.GenerarNombreVariable(scope)
+        if(node.left_type==None):
+            print()
         llamada=CILCall(resultVariable,[node.left_type,node.func_id])
         instructions.append(llamada)
 
@@ -525,7 +538,7 @@ class CILTranspiler:
         self.caseExpresionStack.pop(-1)
         self.caseEndStack.append(saltofinal)
 
-        instructions.append(CILLabel([saltofinal]))
+        instructions.append(CILLabel(params=[saltofinal]))
         
         resultadofinal=self.GenerarNombreVariable(scope)
         instructions.append(CILAssign(resultadofinal,[resultado1]))
@@ -542,12 +555,15 @@ class CILTranspiler:
         expresion0=self.caseExpresionStack.pop(-1)
         self.caseExpresionStack.append(expresion0)
 
+        if not node.name in scope.locals:
+            scope.locals.append(node.name)
+
         tipoResult=self.GenerarNombreVariable(scope)
         chequeo=CILTypeCheck(tipoResult,[expresion0, node.type])
         instructions.append(chequeo)
 
         labelfinal=self.GenerarNombreVariable(scope)
-        salto=CILConditionalJump([tipoResult,labelfinal])
+        salto=CILConditionalJump(params=[tipoResult,labelfinal])
         instructions.append(salto)
 
         asignacion=CILAssign(node.name, [expresion0])
@@ -570,7 +586,7 @@ class CILTranspiler:
 
         # scope.class_name=prevName
 
-        instructions.append(CILLabel([labelfinal]))
+        instructions.append(CILLabel(params=[labelfinal]))
         
         return instructions
     
