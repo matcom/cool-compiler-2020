@@ -480,7 +480,7 @@ if __name__ == '__main__':
     lexer = Lexer()
     parser = Parser()
 
-    sys.argv.append('arith.cl')
+    sys.argv.append('hello_world.cl')
 
     if len(sys.argv) > 1:
 
