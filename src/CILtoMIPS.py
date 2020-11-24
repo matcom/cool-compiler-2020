@@ -134,9 +134,11 @@ class MIPSCompiler:
 
             datainstructions+="\n"
 
-        instrucciones=""
+        instrucciones=".text\n"
         for element in node.Methods:
             instrucciones+=(self.visit(element, scope))
+
+        return datainstructions+instrucciones
 
     @visitor.when(CILGlobalMethod)
     def visit(self, node:CILGlobalMethod, scope:ScopeMIPS):
