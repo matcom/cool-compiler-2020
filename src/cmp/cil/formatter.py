@@ -26,10 +26,9 @@ class CIL_FORMATTER(object):
 
     @when(TypeNode)
     def visit(self, node: TypeNode):
-        attributes = '\n\t'.join(f'attribute {x}' for x in node.attributes)
-        methods = '\n\t'.join(f'method {x}: {y}' for x,y in node.methods)
-
-        return f'type {node.name} {{\n\t{attributes}\n\n\t{methods}\n}}'
+        features = '\n\t'.join(f'attribute {feature}' if isinstance(feature, str) else f'method {feature[0]}: {feature[1]}' for feature in node.features)
+        
+        return f'type {node.name} {{\n\t{features}\n}}'
 
     @when(FunctionNode)
     def visit(self, node: FunctionNode):

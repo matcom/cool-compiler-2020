@@ -128,6 +128,25 @@ class Type:
         for method in self.methods.values():
             if method.name in done: continue
             yield (method, self)
+    
+    def get_all_features(self):
+        done = set()
+        if self.parent:
+            for feature in self.parent.get_all_features():
+                if not isinstance(feature, Attribute):
+                    method, typex = feature
+                    if method.name in self.methods:
+                        done.add(method.name)
+                        yield (self.methods[method.name], self)
+                    else:
+                        yield (method, typex)
+                else:
+                    yield feature
+        for attr in self.attributes:
+            yield attr
+        for method in self.methods.values():
+            if method.name in done: continue
+            yield (method, self)
 
     def is_subtype(self, otype): # check if self is subtype of otype
         actual = self
