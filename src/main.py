@@ -38,11 +38,15 @@ def main():
     cv.visit(ast)
     print('Done transpilator')
     print(len(cv.code))
+
+    # for c in cv.code:
+    #     print(str(c))
+
     mips = MIPS(cv.code, cv.data)
     
-    mips.start()
+    code = mips.start()
     print('Done mips')
-    for code in mips.code:
+    for line in code:
         print(code)
 # except:
 #     pass

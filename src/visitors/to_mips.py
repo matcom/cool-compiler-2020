@@ -23,16 +23,19 @@ class MIPS:
         for node in self.il_data:
             self.visit(node)
 
+        for c in self.data:
+            code += (c)
+
         code += "\n.globl main\n"
-        code+= ".text\n"
+        code += ".text\n"
 
         code += self._loadfrom(os.path.join('code_generation/statics', 'IO.s'))
         code += self._loadfrom(os.path.join('code_generation/statics', 'Object.s'))
         code += self._loadfrom(os.path.join('code_generation/statics', 'String.s'))
         code += self._loadfrom(os.path.join('code_generation/statics', 'inherit.s'))
 
-        for c in self.code:
-            code += (c + "\n")
+        for c in self.il_code:
+            self.visit(c)
 
         code += "li $v0, 10\n"
         code += "syscall\n"
@@ -47,8 +50,8 @@ class MIPS:
 
     @visitor.when(BinaryOperationIL)
     def visit(self, node):
-        self.code.append("lw $a0, " + node.label + "\n")
-        self.code.append("lw $a1, {}($sp)".format(-4 * node.var))
+        self.code.append("lw $a0, " + str(node.leftOp) + "\n")
+        self.code.append("lw $a1, {}($sp)".format(-4 * node.rightOp))
 
         if node.symbol == '+':
             self.code.append("add $a0, $a0, $a1\n")
@@ -100,7 +103,7 @@ class MIPS:
     #assignment
     @visitor.when(VarToVarIL)
     def visit(self, node):
-        self.code.append("lw $a0, {}($sp)\n".format(-4 * node.rigth))
+        self.code.append("lw $a0, {}($sp)\n".format(-4 * node.right))
         self.code.append("sw $a0, {}($sp)\n".format(-4 * node.left))
 
     @visitor.when(VarToMemoIL)
@@ -145,16 +148,16 @@ class MIPS:
 
     @visitor.when(HierarchyIL)
     def visit(self, node):
-        self.code.append(node.node + "_INH:\n")
-        self.code.append(".word {}_INH\n".format(node.parent))
+        self.data.append(node.node + "_INH:\n")
+        self.data.append(".word {}_INH\n".format(node.parent))
 
     @visitor.when(VirtualTableIL)
     def visit(self, node):
-        self.code.append(node.name + "_VT:\n")
-        self.code.append(".word {}_INH\n".format(node.name))
+        self.data.append(node.name + "_VT:\n")
+        self.data.append(".word {}_INH\n".format(node.name))
         
         for m in node.methods:
-            self.code.append(".word " + str(m) + "\n")
+            self.data.append(".word " + str(m) + "\n")
 
     @visitor.when(PushIL)
     def visit(self, node):
@@ -182,7 +185,7 @@ class MIPS:
         self.code.append("addiu $a0, $a0, {}\n".format(-4 * node.offset))
         self.code.append("lw $v0, ($a0)\n")
         self.code.append("jalr $ra, $v0\n")
-        self.code.append("sw $v0, {}($sp)\n".format(-4 * node.res))
+        self.code.append("sw $v0, {}($sp)\n".format(-4 * node.result))
 
 
     @visitor.when(DispatchParentIL)
@@ -201,7 +204,7 @@ class MIPS:
 
     @visitor.when(StringIL)
     def visit(self, node):
-        self.code.append("{}: .asciiz {}\n".format(node.label, node.string))
+        self.data.append("{}: .asciiz {}\n".format(node.label, node.string))
 
     @visitor.when(PrintIL)
     def visit(self, node):

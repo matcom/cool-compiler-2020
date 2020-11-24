@@ -9,7 +9,7 @@ class VirtualTable:
         
         if not A in self.methods:
             self.methods[A] = []
-            self.methos[A].append((B, args))
+            self.methods[A].append((B, args))
         else:
             add = True
             for name, arguments in self.methods[A]:
@@ -35,14 +35,22 @@ class VirtualTable:
             self.attributes[claSS].append(a)
 
     def get_method_id(self, claSS, method):
-        pass
+        if claSS in self.methods.keys():
+            for i in range(len(self.methods[claSS])):
+                b, args = self.methods[claSS][i]
+                if b == method:
+                    return i + 1
+        return -1
 
     def get_attributes(self, claSS):
         return self.attributes[claSS]
 
     def get_attributes_id(self, claSS, attr):
-        pass
-
+        attrs = self.attributes[claSS]
+        for i in range(len(attrs)):
+            if attr == attrs[i]:
+                return i + 1
+        return -1
 
 
 
