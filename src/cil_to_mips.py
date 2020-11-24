@@ -155,7 +155,7 @@ class CILToMIPSVisitor():
         self.text += f'li $a0, {amount * 4}\n' 
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
-        # self.text += 'ble $v0, $sp heap_error\n'
+        self.text += 'bge $v0, $sp heap_error\n'
         self.text += f'move $t0, $v0\n'
         
         #Initialize Object Layout
@@ -364,7 +364,7 @@ class CILToMIPSVisitor():
         self.text += f'lw $a0, 8($t0)\n'  # get self size
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
-        # self.text += 'ble $v0, $sp heap_error\n'
+        self.text += 'bge $v0, $sp heap_error\n'
         self.text += f'move $t1, $v0\n'
 
         # Copy All Slots inlcuding Tag, Size, methods ptr and each atrribute 
@@ -426,7 +426,7 @@ class CILToMIPSVisitor():
         self.text += 'addi $a0, $a0, 1\n' # reserve 1 more byte for '\0'
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
-        # self.text += 'ble $v0, $sp heap_error\n'
+        self.text += 'bge $v0, $sp heap_error\n'
         # the beginning of new reserved address is in $v0
 
         self.text += f'lw $t0, {offset_str1}($sp)\n'
@@ -466,7 +466,7 @@ class CILToMIPSVisitor():
         self.text += 'addi $a0, $a0, 1\n' # reserve 1 more byte for '\0'
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
-        # self.text += 'ble $v0, $sp heap_error\n'
+        self.text += 'bge $v0, $sp heap_error\n'
         # the beginning of new reserved address is in $v0
         
         self.text += f'lw $t0, {offset_idx}($sp)\n'
