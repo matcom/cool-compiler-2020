@@ -3,12 +3,11 @@ from code_generation import *
 import visitors.visitor as visitor
 
 class MIPS:
-    def __init__(self, il_code, il_data):
+    def __init__(self, il_code, il_data,):
         self.code = []
         self.data = []
         self.il_code = il_code
         self.il_data = il_data
-        self.path = path
 
     def _loadfrom(self, file):
         fd = open(file)
