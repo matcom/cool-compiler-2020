@@ -43,6 +43,9 @@ def main():
 
     for code in mips.code:
         print(code)
+
+    print(cv.code)
+    print(mips.code)
 # except:
 #     pass
 
