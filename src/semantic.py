@@ -477,9 +477,13 @@ class TypeChecking:
         #for at in typex.all_attributes():
         #    scope.define_variable(at[0].name, at[0].type,node.line)
         scope.define_variable("self",typex,node.line)
+        mscope = scope.create_child()
+        ascope = scope.create_child()
         for feat in node.features:
-            self.visit(feat,scope.create_child())
-       
+            if isinstance(feat, FuncDeclarationNode):
+                self.visit(feat,mscope.create_child())
+            else:
+                self.visit(feat, ascope.create_child())
 
     @visitor.when(AttrDeclarationNode)
     def visit(self, node:AttrDeclarationNode,scope:Scope):
@@ -664,6 +668,7 @@ class TypeChecking:
             except SemanticError as e:
                 self.errors.append(e)
         
+        sc = sc.create_child()
         self.visit(node.in_body,sc)
         node.type = node.in_body.type
         

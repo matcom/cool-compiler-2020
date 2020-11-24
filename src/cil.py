@@ -51,6 +51,11 @@ class ArithmeticNode(InstructionNode):
         self.left = left
         self.right = right
 
+class ComplementNode(InstructionNode):
+    def __init__(self, expression, dest):
+        self.expression = expression
+        self.dest = dest
+
 class PlusNode(ArithmeticNode):
     pass
 
@@ -96,6 +101,11 @@ class ArrayNode(InstructionNode):
     pass
 
 class TypeOfNode(InstructionNode):
+    def __init__(self, obj, dest):
+        self.obj = obj
+        self.dest = dest
+
+class IsVoidNode(InstructionNode):
     def __init__(self, obj, dest):
         self.obj = obj
         self.dest = dest

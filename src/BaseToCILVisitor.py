@@ -34,10 +34,10 @@ class BaseCOOLToCILVisitor:
         return vinfo.cilName
     
     def register_local(self, vinfo):
-        vinfo.name = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
-        local_node = cil.LocalNode(vinfo.name)
+        vinfo.cilName = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
+        local_node = cil.LocalNode(vinfo.cilName)
         self.localvars.append(local_node)
-        return vinfo.name
+        return vinfo.cilName
     
     def register_label(self):
         name = f'label_{self.current_function.name[9:]}_{len(self.labels)}'
@@ -69,6 +69,10 @@ class BaseCOOLToCILVisitor:
         return type_node
 
     def register_data(self, value):
+        for dataNode in self.dotdata:
+            if dataNode.value == value:
+                return dataNode
+    
         vname = f'data_{len(self.dotdata)}'
         data_node = cil.DataNode(vname, value)
         self.dotdata.append(data_node)
