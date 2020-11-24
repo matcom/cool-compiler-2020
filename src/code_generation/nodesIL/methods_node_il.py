@@ -2,8 +2,8 @@ from .node_il import NodeIL
 
 class LabelIL(NodeIL):
     
-    def __init__(self, first, second, func):
-        self.label = first + '_' + second
+    def __init__(self, first, second, func = False):
+        self.label = str(first) + '_' + str(second)
         self.first = first
         self.second = second
         self.func = func
@@ -37,7 +37,7 @@ class IfJumpIL(NodeIL):
 
 class PopIL(NodeIL):
     
-    def __init__(self, size):
+    def __init__(self, size = 1):
         self.size = size
     
     def __str__(self):

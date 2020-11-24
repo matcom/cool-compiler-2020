@@ -48,7 +48,7 @@ class MIPS:
     @visitor.when(BinaryOperationIL)
     def visit(self, node):
         self.code.append("lw $a0, " + node.label + "\n")
-        self,code,append("lw $a1, {}($sp)".format(-4 * node.var))
+        self.code.append("lw $a1, {}($sp)".format(-4 * node.var))
 
         if node.symbol == '+':
             self.code.append("add $a0, $a0, $a1\n")

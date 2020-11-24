@@ -18,8 +18,10 @@ class Variables:
     def add_temp(self):
         name = len(self.stack) + 1
         self.add_var('tmp_' + str(name))
+        return str('tmp_' + str(name))
 
     def peek_last(self):
+        print(self.vars)
         return self.vars[-1]
 
     def get_stack(self):
@@ -32,5 +34,7 @@ class Variables:
         vars_copy = Variables()
         vars_copy.stack = self.stack.copy()
         vars_copy.vars = self.vars.copy()
+        print('get copy')
+        print(vars_copy.vars)
         return vars_copy
 

@@ -13,7 +13,7 @@ class BinaryOperationIL(NodeIL):
 
 class UnaryOperationIL(NodeIL):
     
-    def __init__(self, var, op, symb):
+    def __init__(self, var, op, symbol):
         self.var = var
         self.op = op
         self.symbol = symbol

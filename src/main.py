@@ -36,10 +36,12 @@ def main():
     
     cv = codeVisitor()
     cv.visit(ast)
+    print('Done transpilator')
+    print(len(cv.code))
     mips = MIPS(cv.code, cv.data)
-
+    
     mips.start()
-
+    print('Done mips')
     for code in mips.code:
         print(code)
 # except:
