@@ -8,6 +8,7 @@ tests = [(file) for file in os.listdir(tests_dir) if file.endswith('.cl')]
 # @pytest.mark.lexer
 # @pytest.mark.parser
 # @pytest.mark.semantic
+@pytest.mark.codegen
 @pytest.mark.ok
 @pytest.mark.run(order=4)
 @pytest.mark.parametrize("cool_file", tests)

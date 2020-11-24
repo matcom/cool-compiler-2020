@@ -2,8 +2,8 @@ from ..cool_lang import ast as cool
 
 from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, AssignNode, PlusNode \
     , MinusNode, StarNode, DivNode, AllocateNode, TypeOfNode, StaticCallNode, DynamicCallNode    \
-    , ArgNode, ReturnNode, ReadNode, PrintNode, LoadNode, LengthNode, ConcatNode, PrefixNode     \
-    , SubstringNode, ToStrNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
+    , ArgNode, ReturnNode, LengthNode, ConcatNode, PrefixNode     \
+    , SubstringNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
     , DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ConformNode         \
     , CleanArgsNode, ErrorNode, StringEqualNode
 from .utils import Scope

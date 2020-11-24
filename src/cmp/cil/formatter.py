@@ -1,9 +1,9 @@
 from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, AssignNode, PlusNode \
     , MinusNode, StarNode, DivNode, AllocateNode, TypeOfNode, StaticCallNode, DynamicCallNode    \
-    , ArgNode, ReturnNode, ReadNode, PrintNode, LoadNode, LengthNode, ConcatNode, PrefixNode     \
-    , SubstringNode, ToStrNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
+    , ArgNode, ReturnNode, ReadStrNode, ReadIntNode, PrintStrNode, PrintIntNode, LengthNode, ConcatNode, PrefixNode     \
+    , SubstringNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
     , DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ConformNode         \
-    , CleanArgsNode, ErrorNode, CopyNode, TypeNameNode, ToIntNode, StringEqualNode
+    , CleanArgsNode, ErrorNode, CopyNode, TypeNameNode, StringEqualNode
 from .utils import on, when
 
 
@@ -131,18 +131,22 @@ class CIL_FORMATTER(object):
     def visit(self, node: ReturnNode):
         return f'RETURN {node.value if node.value is not None else ""}'
 
-    @when(ReadNode)
-    def visit(self, node: ReadNode):
-        return f'{node.dest} = READ'
+    @when(ReadIntNode)
+    def visit(self, node: ReadIntNode):
+        return f'{node.dest} = READINT'
 
-    @when(PrintNode)
-    def visit(self, node: PrintNode):
-        return f'PRINT {node.str_addr}'
+    @when(ReadStrNode)
+    def visit(self, node: ReadStrNode):
+        return f'{node.dest} = READSTR'
 
-    @when(LoadNode)
-    def visit(self, node: LoadNode):
-        return f'{node.dest} = LOAD {node.msg}'
-    
+    @when(PrintIntNode)
+    def visit(self, node: PrintIntNode):
+        return f'PRINTINT {node.str_addr}'
+
+    @when(PrintStrNode)
+    def visit(self, node: PrintStrNode):
+        return f'PRINTSTR {node.str_addr}'
+
     @when(LengthNode)
     def visit(self, node: LengthNode):
         return f'{node.dest} = LENGTH {node.msg}'
@@ -162,14 +166,6 @@ class CIL_FORMATTER(object):
     @when(StringEqualNode)
     def visit(self, node: StringEqualNode):
         return f'{node.dest} = STREQ {node.msg1} {node.msg2}'
-
-    @when(ToStrNode)
-    def visit(self, node: ToStrNode):
-        return f'{node.dest} = STR {node.ivalue}'
-
-    @when(ToIntNode)
-    def visit(self, node: ToIntNode):
-        return f'{node.dest} = INT {node.msg}'
 
     @when(GetAttribNode)
     def visit(self, node: GetAttribNode):

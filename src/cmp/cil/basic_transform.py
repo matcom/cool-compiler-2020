@@ -1,9 +1,9 @@
 from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, AssignNode, PlusNode \
     , MinusNode, StarNode, DivNode, AllocateNode, TypeOfNode, StaticCallNode, DynamicCallNode    \
-    , ArgNode, ReturnNode, ReadNode, PrintNode, LoadNode, LengthNode, ConcatNode, PrefixNode     \
-    , SubstringNode, ToStrNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
+    , ArgNode, ReturnNode, ReadStrNode, ReadIntNode, PrintIntNode, PrintStrNode, LengthNode, ConcatNode, PrefixNode     \
+    , SubstringNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
     , DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ConformNode         \
-    , CleanArgsNode, ErrorNode, CopyNode, TypeNameNode, ToIntNode, StringEqualNode
+    , CleanArgsNode, ErrorNode, CopyNode, TypeNameNode, StringEqualNode
 from .utils import Scope
 
 
@@ -137,7 +137,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
         _ = self.register_param(VariableInfo('self', None))
         result_msg = self.define_internal_local()
-        self.register_instruction(ReadNode(result_msg))
+        self.register_instruction(ReadStrNode(result_msg))
         self.register_instruction(ReturnNode(result_msg))
         self.current_method = self.current_function = None
         ### out_string
@@ -146,7 +146,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
         self_local = self.register_param(VariableInfo('self', None))
         out_msg = self.register_param(VariableInfo('x', None))
-        self.register_instruction(PrintNode(out_msg))
+        self.register_instruction(PrintStrNode(out_msg))
         self.register_instruction(ReturnNode(self_local))
         self.current_method = self.current_function = None
         ### in_int
@@ -154,10 +154,8 @@ class BASE_COOL_CIL_TRANSFORM:
         type_name = self.current_type.name
         self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
         _ = self.register_param(VariableInfo('self', None))
-        result_msg = self.define_internal_local()
         result_int = self.define_internal_local()
-        self.register_instruction(ReadNode(result_msg))
-        self.register_instruction(ToIntNode(result_int, result_msg))
+        self.register_instruction(ReadIntNode(result_int))
         self.register_instruction(ReturnNode(result_int))
         self.current_method = self.current_function = None
         ### out_int
@@ -166,9 +164,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.current_function = self.register_function(self.to_function_name(self.current_method.name, type_name))
         self_local = self.register_param(VariableInfo('self', None))
         out_int = self.register_param(VariableInfo('x', None))
-        out_msg = self.define_internal_local()
-        self.register_instruction(ToStrNode(out_msg, out_int))
-        self.register_instruction(PrintNode(out_msg))
+        self.register_instruction(PrintIntNode(out_int))
         self.register_instruction(ReturnNode(self_local))
         self.current_method = self.current_function = None
         self.current_type = None

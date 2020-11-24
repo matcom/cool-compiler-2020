@@ -173,11 +173,6 @@ class ReturnNode(InstructionNode):
     def __init__(self, value=None):
         self.value = value
 
-class LoadNode(InstructionNode):
-    def __init__(self, dest, msg):
-        self.dest = dest
-        self.msg = msg
-
 class LengthNode(InstructionNode):
     def __init__(self, dest, msg):
         self.dest = dest
@@ -209,20 +204,18 @@ class StringEqualNode(InstructionNode):
         self.msg1 = msg1
         self.msg2 = msg2
 
-class ToStrNode(InstructionNode):
-    def __init__(self, dest, ivalue):
-        self.dest = dest
-        self.ivalue = ivalue
-
-class ToIntNode(InstructionNode):
-    def __init__(self, dest, msg):
-        self.dest = dest
-        self.msg = msg
-
-class ReadNode(InstructionNode):
+class ReadIntNode(InstructionNode):
     def __init__(self, dest):
         self.dest = dest
 
-class PrintNode(InstructionNode):
+class ReadStrNode(InstructionNode):
+    def __init__(self, dest):
+        self.dest = dest
+
+class PrintIntNode(InstructionNode):
+    def __init__(self, str_addr):
+        self.str_addr = str_addr
+
+class PrintStrNode(InstructionNode):
     def __init__(self, str_addr):
         self.str_addr = str_addr
