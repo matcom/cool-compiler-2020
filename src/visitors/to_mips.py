@@ -20,16 +20,16 @@ class MIPS:
         code += ".space 65536\n"
         code += "\n"
 
-        for node in il_data:
+        for node in self.il_data:
             self.visit(node)
 
         code += "\n.globl main\n"
         code+= ".text\n"
 
-        code += _loadfrom(path.join('code_generation/statics', 'IO.s'))
-        code += _loadfrom(path.join('code_generation/statics', 'Object.s'))
-        code += _loadfrom(path.join('code_generation/statics', 'String.s'))
-        code += _loadfrom(path.join('code_generation/statics', 'inherit.s'))
+        code += self._loadfrom(os.path.join('code_generation/statics', 'IO.s'))
+        code += self._loadfrom(os.path.join('code_generation/statics', 'Object.s'))
+        code += self._loadfrom(os.path.join('code_generation/statics', 'String.s'))
+        code += self._loadfrom(os.path.join('code_generation/statics', 'inherit.s'))
 
         for c in self.code:
             code += (c + "\n")

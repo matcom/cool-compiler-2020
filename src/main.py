@@ -31,15 +31,14 @@ def main():
 
     if pipeline.pipeline_errors:
         exit(1)
-
+    print(ast)
     print('Done ast')
     
     cv = codeVisitor()
     cv.visit(ast)
     mips = MIPS(cv.code, cv.data)
 
-    for code in cv.code:
-        mips.visit(code)
+    mips.start()
 
     for code in mips.code:
         print(code)

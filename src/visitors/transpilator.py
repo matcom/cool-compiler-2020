@@ -157,6 +157,7 @@ class codeVisitor:
     #declarations
     @visitor.when(ClassDeclarationNode)
     def visit(self, node):
+        print('ClassDeclarationNode')
         self.current_class = node.idx.value
 
         attributes = []
