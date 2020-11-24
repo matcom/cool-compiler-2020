@@ -117,8 +117,9 @@ class CILAttribute:
         self.attributeType=attributeType
 
 class CILClass:
-    def __init__(self,name,listaAtributos=[], listaMetodos=[]):
+    def __init__(self,name,listaAtributos=[], listaMetodos=[],parent=None):
         self.name=name
+        self.parent=parent
         self.listaAtributos=listaAtributos
         self.listaMetodos=listaMetodos
 

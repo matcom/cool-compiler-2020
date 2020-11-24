@@ -109,7 +109,7 @@ class MIPSCompiler:
     def visit(self, node:CILProgram, _):
         datainstructions=".data\n"
         for element in node.Data:
-            datainstructions+=element.nombre+': asciiz '+element.valorString+'\n'
+            datainstructions+=element.nombre+': .asciiz '+element.valorString+'\n'
             self.data[element.nombre]=element.valorString
 
         scope=ScopeMIPS()
@@ -124,7 +124,7 @@ class MIPSCompiler:
             
             scope.classmethods[element.name]=metodosnombre
             
-            datainstructions+=element.name+"$clase: word "
+            datainstructions+=element.name+"clase: .word "
 
             for i in range(len(element.listaMetodos)):
                 if i>0:
@@ -304,7 +304,7 @@ class MIPSCompiler:
         instrucciones+="li $a0,"+str(tamanno)+"\n"
         instrucciones+="syscall\n"
         
-        instrucciones+="la $t0, "+tipo+"$clase\n"
+        instrucciones+="la $t0, "+tipo+"clase\n"
         instrucciones+="sw $t0, 0($v0)\n"
 
         #Poniendo en 0 todos los elementos
@@ -324,7 +324,7 @@ class MIPSCompiler:
         tipo=node.params[0]
         func_id=node.params[1]
         instrucciones=""
-        instrucciones+="la $t0,"+tipo+"$clase\n"
+        instrucciones+="la $t0,"+tipo+"clase\n"
         instrucciones+="lw $t0,"+str(scope.classmethods[tipo].index(func_id)*4)+"($t0)\n"
         instrucciones+="addi $sp, $sp, -4\n"
         instrucciones+="sw $ra, 0($sp)\n"
@@ -371,7 +371,7 @@ class MIPSCompiler:
         instrucciones+="addi $sp, $sp, -4\n"
         if scope.paramcount<4:
             instrucciones+="sw $a"+str(scope.paramcount)+", 0($sp)\n"
-            instrucciones+="move $a"+str(scope.paramcount)+",$t0"
+            instrucciones+="move $a"+str(scope.paramcount)+",$t0\n"
         else:
             instrucciones+="sw $t0, 0($sp)\n"
         
@@ -380,7 +380,7 @@ class MIPSCompiler:
     @visitor.when(CILStringLoad)
     def visit(self, node:CILStringLoad, scope:ScopeMIPS):
         nombrestring=node.params[0]
-        instrucciones="la $v0, "+nombrestring
+        instrucciones="la $v0, "+nombrestring+"\n"
         instrucciones+=self.save(node.destination,scope)
         return instrucciones
 

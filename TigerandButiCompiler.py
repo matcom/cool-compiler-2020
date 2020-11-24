@@ -710,7 +710,11 @@ if True:
             #    for instruccion in metodo.intrucciones:
             #        instruccion.instructionPrint()
             toMIPS=MIPSCompiler()
-            toMIPS.visit(programaCIL, None)
+            resultado=toMIPS.visit(programaCIL, None)
+            file=open("tests\\codegen\\"+te+".asm",mode="w")
+            file.write(resultado)
+            file.flush()
+            file.close()
 
 
         else:

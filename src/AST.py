@@ -125,8 +125,9 @@ class UnaryOperatorNode(ExpressionNode):
     pass
 
 class IsVoidNode(UnaryOperatorNode):
-    def __init__(self, expr):
+    def __init__(self, expr, tipo="Class"):
         self.expression = expr
+        self.tipo=tipo
 
 class IntComplementNode(UnaryOperatorNode):
     def __init__(self, right):

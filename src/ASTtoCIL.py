@@ -86,7 +86,7 @@ class CILTranspiler:
                 for elemento in self.methods[c.parent]:
                     mismetodos[elemento.name]=elemento
                     if elemento.name == '$init' or elemento.name == 'type_name':
-                        self.globalnames[c.name+"#"+elemento.name]="$f"+str(counter)
+                        self.globalnames[c.name+"#"+elemento.name]="f"+str(counter)
                         counter+=1
                     else:
                         self.globalnames[c.name+"#"+elemento.name]=self.globalnames[c.parent+"#"+elemento.name]
@@ -94,14 +94,14 @@ class CILTranspiler:
             else:
                 mismetodos["$init"]=MethodNode("$init",[],None,[])
                 mismetodos["type_name"]=MethodNode("$init",[],None,[])
-                self.globalnames[c.name+"#"+"$init"]="$f"+str(counter)
+                self.globalnames[c.name+"#"+"$init"]="f"+str(counter)
                 counter+=1
-                self.globalnames[c.name+"#"+"type_name"]="$f"+str(counter)
+                self.globalnames[c.name+"#"+"type_name"]="f"+str(counter)
                 counter+=1
             
             for met in c.methods:
                 # if c.name+"#"+met.name in self.globalnames.keys():
-                self.globalnames[c.name+"#"+met.name]="$f"+str(counter)
+                self.globalnames[c.name+"#"+met.name]="f"+str(counter)
                 counter+=1
                     
                 mismetodos[met.name]=met
@@ -173,7 +173,7 @@ class CILTranspiler:
             metodosGlobalesCIL[globalInit.nombre]=globalInit
 
             #Metodo type_name
-            metodotypename=MethodNode("type_name",[],"String",StringNode(c.name))
+            metodotypename=MethodNode("type_name",[],"String",StringNode('"'+c.name+'"'))
             nombreTypeName=metodosglobalesdic[c.name+"#"+"type_name"]
             metodoglobal=self.visit(metodotypename, scope)
             metodoglobal.nombre=nombreTypeName
@@ -244,7 +244,7 @@ class CILTranspiler:
                 globalMethod.nombre=metodosglobalesdic[c.name+"#"+globalMethod.nombre]
                 metodosGlobalesCIL[globalMethod.nombre]=globalMethod
 
-            claseCIL=CILClass(c.name,atributosCIL, metodosClaseCIL)
+            claseCIL=CILClass(c.name,atributosCIL, metodosClaseCIL, c.parent)
             classesCIL.append(claseCIL)
 
         return CILProgram(classesCIL,self.data.values(), metodosGlobalesCIL.values())
@@ -411,7 +411,10 @@ class CILTranspiler:
         scope.locals.append(nombrevariable)
         nuevoCIL=CILInstructionNode()
         if isinstance(node, IsVoidNode):
-            nuevoCIL=CILIsVoid(nombrevariable, [destinoExpresion])
+            if node.tipo in ["Bool","Int","String"]:
+                nuevoCIL=CILAssign(nombrevariable, 0)
+            else:
+                nuevoCIL=CILIsVoid(nombrevariable, [destinoExpresion])
         elif isinstance(node, IntComplementNode):
             nuevoCIL=CILIntComplement(nombrevariable, [destinoExpresion])
         elif isinstance(node, BoolComplementNode):
@@ -460,6 +463,12 @@ class CILTranspiler:
         if node.left_expression==None:
             node.left_expression=VariableNode("self")
             node.left_type=scope.class_name
+        if node.left_type in ["Int", "Bool", "String"]: #Caso de los tipos básicos
+            if node.func_id=="type_name":
+                elstring=StringNode('"'+node.left_type+'"')
+                instructions.extend(self.visit(elstring, scope))
+                return instructions
+
         leftInstructions=self.visit(node.left_expression, scope)
         instructions.extend(leftInstructions)
 

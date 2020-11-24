@@ -210,6 +210,7 @@ class Semantics_Checker:
     def visit(self, node: IsVoidNode, scope: Scope):
         node.static_type = scope.get_type('Bool')
         t_value = self.visit(node.expression, scope)
+        node.tipo=t_value.name
         # if not scope.lower_than(t_value, node.static_type):
         #     pass
         #     #Agregar error de tipo invalido en la expresion
