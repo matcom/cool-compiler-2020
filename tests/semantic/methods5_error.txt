@@ -1,0 +1,1 @@
+(12, 24) - SemanticError: In redefined method f, return type Object is different from original return type Int.
