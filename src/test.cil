@@ -38,8 +38,6 @@ TYPES -->
 	}
 
 	type Main {
-		attribute i:Main
-		method pal:Main_pal
 		method main:Main_main
 		method out_string:IO_out_string
 		method out_int:IO_out_int
@@ -54,9 +52,7 @@ END <--
 
 DATA -->
 
-	data_0 "enter a string\n"
-	data_1 "that was a palindrome\n"
-	data_2 "that was not a palindrome\n"
+	data_0 "\n"
 
 END <--
 
@@ -137,9 +133,13 @@ CODE -->
 		RETURN local_7
 	}
 
-	function Main_pal {
+	function Object_abort {
 		PARAM self
-		PARAM s
+		EXIT
+	}
+
+	function Main_main {
+		PARAM self
 		LOCAL local_8
 		LOCAL local_9
 		LOCAL local_10
@@ -154,149 +154,47 @@ CODE -->
 		LOCAL local_19
 		LOCAL local_20
 		LOCAL local_21
-		LOCAL local_22
-		LOCAL local_23
-		LOCAL local_24
-		LOCAL local_25
-		LOCAL local_26
-		LOCAL local_27
-		LOCAL local_28
-		LOCAL local_29
-		LOCAL local_30
-		LOCAL local_31
-		LOCAL local_32
-		ALLOC local_32 Bool
-		ALLOC local_10 Bool
-		ARG s
-		CALL local_8 String length
-		ALLOC local_9 Int
-		MOV local_9 0
-		E local_10 local_8 local_9
-		IF local_10 GOTO label_5
-		ALLOC local_31 Bool
-		ALLOC local_14 Bool
-		ARG s
-		CALL local_12 String length
-		ALLOC local_13 Int
-		MOV local_13 1
-		E local_14 local_12 local_13
-		IF local_14 GOTO label_3
-		ALLOC local_30 Bool
-		ALLOC local_23 Bool
+		ALLOC local_8 Object
+		ARG local_8
+		CALL local_9 Object type_name
+		ALLOC local_10 Int
+		MOV local_10 4
+		ALLOC local_11 Int
+		MOV local_11 1
+		ARG local_9
+		ARG local_10
+		ARG local_11
+		CALL local_12 String substr
+		ARG self
+		ARG local_12
+		CALL local_13 IO out_string
+		VD local_14 self
+		ARG local_14
+		CALL local_15 Object type_name
 		ALLOC local_16 Int
-		MOV local_16 0
+		MOV local_16 1
 		ALLOC local_17 Int
-		MOV local_17 1
-		ARG s
+		MOV local_17 3
+		ARG local_15
 		ARG local_16
 		ARG local_17
 		CALL local_18 String substr
-		ARG s
-		CALL local_19 String length
-		ALLOC local_20 Int
-		MOV local_20 1
-		SUB local_19 local_19 local_20
-		ALLOC local_21 Int
-		MOV local_21 1
-		ARG s
-		ARG local_19
-		ARG local_21
-		CALL local_22 String substr
-		E local_23 local_18 local_22
-		IF local_23 GOTO label_1
-		ALLOC local_29 Bool
-		MOV local_29 0
-		MOV local_30 local_29
-		GOTO label_2
-		LABEL label_1
-		ALLOC local_24 Int
-		MOV local_24 1
-		ARG s
-		CALL local_25 String length
-		ALLOC local_26 Int
-		MOV local_26 2
-		SUB local_25 local_25 local_26
-		ARG s
-		ARG local_24
-		ARG local_25
-		CALL local_27 String substr
+		ARG local_13
+		ARG local_18
+		CALL local_19 IO out_string
+		ALLOC local_20 String
+		LDATA local_20 data_0
 		ARG self
-		ARG local_27
-		CALL local_28 Main pal
-		MOV local_30 local_28
-		LABEL label_2
-		MOV local_31 local_30
-		GOTO label_4
-		LABEL label_3
-		ALLOC local_15 Bool
-		MOV local_15 1
-		MOV local_31 local_15
-		LABEL label_4
-		MOV local_32 local_31
-		GOTO label_6
-		LABEL label_5
-		ALLOC local_11 Bool
-		MOV local_11 1
-		MOV local_32 local_11
-		LABEL label_6
-		RETURN local_32
-	}
-
-	function Main_main {
-		PARAM self
-		LOCAL local_33
-		LOCAL local_34
-		LOCAL local_35
-		LOCAL local_36
-		LOCAL local_37
-		LOCAL local_38
-		LOCAL local_39
-		LOCAL local_40
-		LOCAL local_41
-		LOCAL local_42
-		LOCAL local_43
-		ALLOC local_34 Int
-		ALLOC local_33 Int
-		MOV local_33 1
-		CMP local_34 local_33
-		SATTR self i local_34
-		ALLOC local_35 String
-		LDATA local_35 data_0
-		ARG self
-		ARG local_35
-		CALL local_36 IO out_string
-		ALLOC local_43 Bool
-		ARG self
-		CALL local_37 IO in_string
-		ARG self
-		ARG local_37
-		CALL local_38 Main pal
-		IF local_38 GOTO label_7
-		ALLOC local_41 String
-		LDATA local_41 data_2
-		ARG self
-		ARG local_41
-		CALL local_42 IO out_string
-		MOV local_43 local_42
-		GOTO label_8
-		LABEL label_7
-		ALLOC local_39 String
-		LDATA local_39 data_1
-		ARG self
-		ARG local_39
-		CALL local_40 IO out_string
-		MOV local_43 local_40
-		LABEL label_8
-		RETURN local_43
+		ARG local_20
+		CALL local_21 IO out_string
+		RETURN local_21
 	}
 
 	function main {
-		LOCAL local_44
-		ALLOC local_44 Main
-		ALLOC local_46 Int
-		SATTR local_44 i local_46
-		ARG local_44
-		CALL local_45 Main main
+		LOCAL local_22
+		ALLOC local_22 Main
+		ARG local_22
+		CALL local_23 Main main
 	}
 
 END <--
