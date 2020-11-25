@@ -3,6 +3,7 @@ from cil_ast import *
 DATA = []
 CIL_TYPES = {}
 LABELS_COUNT = 0
+PARAM_COUNT = 0
 
 def next_label():
     global LABELS_COUNT
@@ -54,23 +55,32 @@ def generate_data(data, locals, max_param_count):
 
 PARAMS = {}
 CURR_PARAM_COUNT = 0
+PARAMS_LOAD = ""
 
 def generate_code(functions_code):
     result = ".text\n\n"
 
-    global PARAMS, CURR_PARAM_COUNT
+    global PARAMS, CURR_PARAM_COUNT, PARAM_COUNT, PARAMS_LOAD
 
     for f in functions_code:
         CURR_PARAM_COUNT = 0
+        PARAMS_LOAD = ""
 
         result += f.name + ":\n"
 
         counter = len(f.params)
+
+        
         for p in f.params:
-            param_name = "param_" + str(len(f.params) - counter)
+            param_name = "param_" + str(PARAM_COUNT)
+            PARAM_COUNT += 1
             PARAMS[p.id] = param_name
             result += "lw $t0, -" + str(4 * counter) + "($sp)\n"
             result += "sw $t0, " + param_name + "\n"
+            
+            PARAMS_LOAD += "lw $t0, -" + str(4 * counter + 4) + "($sp)\n"
+            PARAMS_LOAD += "sw $t0, " + param_name + "\n"
+
             counter -= 1
             CURR_PARAM_COUNT += 1
         
@@ -233,6 +243,18 @@ def convert_ReadNode(instruction):
     result += "li $v0, 8\n"
     result += "syscall\n"
 
+    read_node_loop_start = next_label()
+    read_node_loop_end = next_label()
+
+    result += read_node_loop_start + ":\n"
+    result += "lb $t0, ($a0)\n"
+    result += "beq $t0, 10, " + read_node_loop_end + "\n"
+    result += "addi $a0, $a0, 1\n"
+    result += "j " + read_node_loop_start + "\n"
+    result += read_node_loop_end + ":\n"
+    result += "li $t0, 0\n"
+    result += "sb $t0, ($a0)\n"
+
     return result
 
 
@@ -302,7 +324,7 @@ def convert_ReturnNode(instruction):
     global CURR_PARAM_COUNT
 
     result += "lw $ra, -4($sp)\n"
-    result += "addi $sp, $sp -" + str(4 * (CURR_PARAM_COUNT + 1)) + "\n"
+    result += "addi $sp, $sp, -" + str(4 * (CURR_PARAM_COUNT + 1)) + "\n"
 
     result += "jr $ra\n"
 
@@ -491,7 +513,7 @@ def convert_StrlenNode(instruction):
     # aumentamos uno a la direccion en memoria
     result += "addi $t0, $t0, 1\n"
     # actualizamos t2 con el siguiente caracter
-    result += "lw $t2, ($t0)\n"
+    result += "lb $t2, ($t0)\n"
     result += "j " + strlen_loop_start_label + "\n"
     result += strlen_loop_end_label + ":\n"
 
@@ -594,7 +616,7 @@ def convert_StrsubNode(instruction):
     result += "lw $t1, ($t1)\n"
 
     # en t1 dejamos la direccion del final de la subcadena
-    result += "add $t1, $t0, $t1 \n"
+    result += "add $t1, $t0, $t1\n"
 
     if instruction.result in DATA:
         dest = instruction.result
@@ -773,7 +795,7 @@ def convert_ArgNode(instruction):
 def convert_DispatchCallNode(instruction):
     result = ""
 
-    global DATA, PARAMS
+    global DATA, PARAMS, PARAMS_LOAD
 
     result += "jal " + instruction.type_name + "_" + instruction.method + "\n"
 
@@ -784,6 +806,8 @@ def convert_DispatchCallNode(instruction):
     
 
     result += "sw $v0, " + dest + "\n"
+
+    result += PARAMS_LOAD
 
     return result
 
@@ -830,13 +854,13 @@ def convert_SetAttributeNode(instruction):
     # copiamos el valor de la direccion t0 a t1
     sattr_string_copy_start_label = next_label()
 
-    if attr_type == "String":
+    if attr_type.name == "String":
         result += sattr_string_copy_start_label + ":\n"
         result += "lb $t3, ($t1)\n"
         result += "sb $t3, ($t0)\n"
         result += "addi $t0, $t0, 1\n"
         result += "addi $t1, $t1, 1\n"
-        result += "bne $t3, $0, " + sattr_string_copy_start_label + "\n"
+        result += "bne $t3, 0, " + sattr_string_copy_start_label + "\n"
     else:
         result += "lw $t3, ($t1)\n"
         result += "sw $t3, ($t0)\n"
@@ -850,7 +874,8 @@ def convert_GetAttributeNode(instruction):
     global CIL_TYPES, DATA, PARAMS
 
     offset = 12
-    for a in CIL_TYPES[instruction.type_name].attributes.value():
+
+    for a in CIL_TYPES[instruction.type_name].attributes.values():
         if a.attribute_name == "self":
             continue
         if a.attribute_name == instruction.attr:
@@ -885,7 +910,7 @@ def convert_GetAttributeNode(instruction):
     # copiamos el valor de la direccion t0 a t1
     gattr_string_copy_start_label = next_label()
 
-    if attr_type == "String":
+    if attr_type.name == "String":
         result += gattr_string_copy_start_label + ":\n"
         result += "lb $t3, ($t0)\n"
         result += "sb $t3, ($t1)\n"
@@ -921,12 +946,12 @@ def convert_ENode(instruction):
     result += "lw $t1, " + right + "\n"
 
     if instruction.result in DATA:
-        result = instruction.result
+        dest = instruction.result
     elif instruction.result in PARAMS:
-        result = PARAMS[instruction.result]
+        dest = PARAMS[instruction.result]
     
     # poner en t2 la direccion donde se pondra 0 o 1
-    result += "lw $t2, " + result + "\n"
+    result += "lw $t2, " + dest + "\n"
     result += "addi $t2, $t2, 4\n"
 
     result += "li $t4, 0\n"
@@ -948,8 +973,8 @@ def convert_ENode(instruction):
     result += equal_not_object_label + ":\n"
     result += "bne $t3, 'S', " + equal_not_string_label + "\n"
     # aqui checkeamos q si son strings sean iguales
-    result += "addi $t0, $t0, 4\n"
-    result += "addi $t1, $t1, 4\n"
+    result += "addi $t0, $t0, 3\n"
+    result += "addi $t1, $t1, 3\n"
     result += equal_string_comparison_start_label + ":\n"
     result += "addi $t0, $t0, 1\n"
     result += "addi $t1, $t1, 1\n"
@@ -1010,11 +1035,11 @@ def convert_LNode(instruction):
     result += "addi $t1, $t1, 4\n"
 
     if instruction.result in DATA:
-        result = instruction.result
+        dest = instruction.result
     elif instruction.result in PARAMS:
-        result = PARAMS[instruction.result]
+        dest = PARAMS[instruction.result]
     
-    result += "lw $t2, " + result + "\n"
+    result += "lw $t2, " + dest + "\n"
     result += "addi $t2, $t2, 4\n"
 
     result += "lw $t0, ($t0)\n"
@@ -1047,11 +1072,11 @@ def convert_LENode(instruction):
     result += "addi $t1, $t1, 4\n"
 
     if instruction.result in DATA:
-        result = instruction.result
+        dest = instruction.result
     elif instruction.result in PARAMS:
-        result = PARAMS[instruction.result]
+        dest = PARAMS[instruction.result]
     
-    result += "lw $t2, " + result + "\n"
+    result += "lw $t2, " + dest + "\n"
     result += "addi $t2, $t2, 4\n"
 
     result += "lw $t0, ($t0)\n"
@@ -1084,11 +1109,11 @@ def convert_DivNode(instruction):
     result += "addi $t1, $t1, 4\n"
 
     if instruction.result in DATA:
-        result = instruction.result
+        dest = instruction.result
     elif instruction.result in PARAMS:
-        result = PARAMS[instruction.result]
+        dest = PARAMS[instruction.result]
     
-    result += "lw $t2, " + result + "\n"
+    result += "lw $t2, " + dest + "\n"
     result += "addi $t2, $t2, 4\n"
 
     result += "lw $t0, ($t0)\n"
@@ -1121,11 +1146,11 @@ def convert_MulNode(instruction):
     result += "addi $t1, $t1, 4\n"
 
     if instruction.result in DATA:
-        result = instruction.result
+        dest = instruction.result
     elif instruction.result in PARAMS:
-        result = PARAMS[instruction.result]
+        dest = PARAMS[instruction.result]
     
-    result += "lw $t2, " + result + "\n"
+    result += "lw $t2, " + dest + "\n"
     result += "addi $t2, $t2, 4\n"
 
     result += "lw $t0, ($t0)\n"
@@ -1159,11 +1184,11 @@ def convert_SubNode(instruction):
     result += "addi $t1, $t1, 4\n"
 
     if instruction.result in DATA:
-        result = instruction.result
+        dest = instruction.result
     elif instruction.result in PARAMS:
-        result = PARAMS[instruction.result]
+        dest = PARAMS[instruction.result]
     
-    result += "lw $t2, " + result + "\n"
+    result += "lw $t2, " + dest + "\n"
     result += "addi $t2, $t2, 4\n"
 
     result += "lw $t0, ($t0)\n"
@@ -1196,11 +1221,11 @@ def convert_AddNode(instruction):
     result += "addi $t1, $t1, 4\n"
 
     if instruction.result in DATA:
-        result = instruction.result
+        dest = instruction.result
     elif instruction.result in PARAMS:
-        result = PARAMS[instruction.result]
+        dest = PARAMS[instruction.result]
     
-    result += "lw $t2, " + result + "\n"
+    result += "lw $t2, " + dest + "\n"
     result += "addi $t2, $t2, 4\n"
 
     result += "lw $t0, ($t0)\n"
@@ -1294,13 +1319,13 @@ def convert_NtNode(instruction):
 def convert_MovNode(instruction):
     result = ""
 
-    if type(instruction.value) == LocalNode:
-        result += "lw $t0, " + instruction.value.id + "\n"
-        result += "sw $t0, " + instruction.result.id + "\n"
-    else:
+    if type(instruction.value) == type(5):
         result += "li $t0, " + str(instruction.value) + "\n"
-        result += "lw $t1, " + instruction.result.id + "\n"
+        result += "lw $t1, " + instruction.result + "\n"
         result += "sw $t0, 4($t1)\n"
+    else:
+        result += "lw $t0, " + instruction.value + "\n"
+        result += "sw $t0, " + instruction.result + "\n"
 
     return result
 
@@ -1420,6 +1445,7 @@ def convert_IfGotoNode(instruction):
         pred = PARAMS[instruction.predicate]
 
     result += "lw $t0, " + pred + "\n"
+    result += "lw $t0, 4($t0)\n"
     result += "beq $t0, 1, " + instruction.label + "\n"
 
     return result

@@ -256,7 +256,7 @@ class GotoNode(InstructionNode):
 
 class LabelNode(InstructionNode):
     def __init__(self, label_name):
-        self.label_name = label_name.id
+        self.label_name = label_name
 
     def GetCode(self):
         return "LABEL " + self.label_name

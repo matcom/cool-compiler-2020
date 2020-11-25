@@ -385,6 +385,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                        f'Expression type {expType.name} does not conform to declared static dispatch type ' \
                        f'{ancType.name}. ', ''
 
+
         methods = AllTypes[t].get_methods()
         if expression.function in methods:
             if len(methods[expression.function].args_names) != len(expression.args):
@@ -402,7 +403,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                            f'does not conform to declared type {aType}. ', ''
                 i = i + 1
 
-            expression.instance_type = methods[expression.function].return_type.name
+            expression.instance_type = AllTypes[t].get_owner(expression.function)
             return [], methods[expression.function].return_type.name
         else:
             return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - AttributeError: ' \

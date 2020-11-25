@@ -64,6 +64,22 @@ class CoolType:
             node = node.parent_type
         return methods
 
+    def get_owner(self, func):
+        mine = self.get_self_methods()
+
+        if func in mine:
+            return self.name
+        
+        owner = ""
+        node = self.parent_type
+        while node:
+            for methodName in node.methods.keys():
+                if func in node.methods:
+                    return node.name
+            node = node.parent_type
+        
+        return owner
+
     def get_methods(self):
         selfMethods = self.get_self_methods()
         inheritedMethods = self.get_methods_inherited()
