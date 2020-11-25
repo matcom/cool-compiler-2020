@@ -8,6 +8,8 @@ LEXER_ERRORS = []
 PARSER_ERRORS = []
 SEMANTIC_ERRORS = []
 
+ERR_TYPE = "TypeError"
+
 
 def add_lexer_error(line, column, message):
     LEXER_ERRORS.append(f'({line}, {column}) - LexicographicError: {message}')
@@ -18,4 +20,4 @@ def add_parser_error(line, column, message):
 
 
 def add_semantic_error(line, column, message):
-    SEMANTIC_ERRORS.append(f'({line}, {column}) - SemanticError: {message}')
+    SEMANTIC_ERRORS.append(f'({line}, {column}) - {message}')

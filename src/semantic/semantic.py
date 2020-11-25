@@ -6,7 +6,7 @@ COOL compiler project
 
 import cool_types as CT
 from lexer_parser.ast import *
-from errors import add_semantic_error
+from errors import *
 
 
 def program_visitor(program: ProgramNode):
@@ -30,7 +30,8 @@ def program_visitor(program: ProgramNode):
         return
 
     # 4)
-    types_already_check = [CT.ObjectType, CT.IntType, CT.StringType, CT.BoolType, CT.IOType]
+    types_already_check = [CT.ObjectType, CT.IntType,
+                           CT.StringType, CT.BoolType, CT.IOType]
     classes = program.classes.copy()
     while len(classes) != 0:
         c: DefClassNode = classes.pop()
@@ -439,13 +440,13 @@ def arithmetic_operator_visitor(operator: BinaryNode, current_class: CT.CoolType
         operator.lvalue, current_class, local_scope)
     if lvalue_type != CT.IntType and lvalue_type is not None:
         add_semantic_error(operator.lvalue.lineno, operator.lvalue.colno,
-                           f'invalid left value type {lvalue_type}, must be a {CT.IntType}')
+                           f'{ERR_TYPE}: non-Int arguments: {lvalue_type} + {CT.IntType}')
     # 2)
     rvalue_type = expression_visitor(
         operator.rvalue, current_class, local_scope)
     if rvalue_type != CT.IntType and rvalue_type is not None:
         add_semantic_error(operator.rvalue.lineno, operator.rvalue.colno,
-                           f'invalid left value type {rvalue_type}, must be a {CT.IntType}')
+                           f'{ERR_TYPE}: non-Int arguments: {CT.IntType} + {rvalue_type}')
     # 3)
     operator.returned_type = CT.IntType
     return CT.IntType
