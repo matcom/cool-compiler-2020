@@ -1,9 +1,12 @@
-import pytest
 import os
-from utils import compare_errors
 
-tests_dir = __file__.rpartition('/')[0] + '/codegen/'
-tests = [(file) for file in os.listdir(tests_dir) if file.endswith('.cl')]
+import pytest
+
+from utils import compare_errors  # type: ignore
+
+tests_dir = __file__.rpartition("/")[0] + "/codegen/"
+tests = [(file) for file in os.listdir(tests_dir) if file.endswith(".cl")]
+
 
 # @pytest.mark.lexer
 # @pytest.mark.parser
