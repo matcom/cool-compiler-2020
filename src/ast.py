@@ -118,6 +118,7 @@ class FunctionCallStatement(StatementNode):
         self.dispatchType = dispatch_type
         self.function = function
         self.args = args
+        self.instance_type = ""
 
 
 class ExpressionNode(Node):

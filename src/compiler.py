@@ -2,8 +2,8 @@ import argparse
 from lexer import make_lexer
 from parser import make_parser
 from semantic import check_semantic
-from cil_generator import generate_code
-
+from cil_generator import generate_cil
+from mips_generator import generate_mips
 
 def create_arg_parser():
     arg_parser = argparse.ArgumentParser(prog="pycoolc")
@@ -57,7 +57,6 @@ def main():
         arg_parser.print_usage()
         exit(1)
 
-    #try:
     with open(str(p)) as file:
         while True:
             i = file.read(1)
@@ -134,18 +133,15 @@ def main():
                 print(er)
             exit(1)
 
-        #cil, mips = generate_code(types)
-        cil = generate_code(types)
+        cil = generate_cil(types)
+        
+        with open("test.cil", "w") as p:
+            p.write(cil[5])
 
-        print(cil.DATA)
-
-    #except (IOError, FileNotFoundError):
-    #    print(f"Error! File {program} not found.")
-    #    exit(1)
-    #except Exception as e:
-    #    print(f'An unexpected error occurred! {e}')
-    #    exit(1)
-
+        mips = generate_mips(cil)
+        
+        with open("test.mips", "w") as p:
+            p.write(mips)
 
 if __name__ == "__main__":
     main()

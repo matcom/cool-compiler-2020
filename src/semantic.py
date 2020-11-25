@@ -402,6 +402,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                            f'does not conform to declared type {aType}. ', ''
                 i = i + 1
 
+            expression.instance_type = methods[expression.function].return_type.name
             return [], methods[expression.function].return_type.name
         else:
             return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - AttributeError: ' \
@@ -444,6 +445,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                                                    parameters, insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error1) > 0:
             return error1, ""
+
         return [], "Bool"
 
     elif type(expression) is ComplementNode:

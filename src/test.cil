@@ -1,0 +1,158 @@
+TYPES -->
+
+	type Object {
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type IO {
+		method out_string:IO_out_string
+		method out_int:IO_out_int
+		method in_string:IO_in_string
+		method in_int:IO_in_int
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type String {
+		method length:String_length
+		method concat:String_concat
+		method substr:String_substr
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type Int {
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type Bool {
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type Main {
+		attribute i:Main
+		method main:Main_main
+		method out_string:IO_out_string
+		method out_int:IO_out_int
+		method in_string:IO_in_string
+		method in_int:IO_in_int
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+END <--
+
+DATA -->
+
+	data_0 "asasd\n"
+
+END <--
+
+CODE -->
+
+	function IO_out_string {
+		PARAM self
+		PARAM str
+		PRINT str
+		RETURN self
+	}
+
+	function IO_out_int {
+		PARAM self
+		PARAM int
+		LOCAL local_0
+		ALLOC local_0 String
+		TOSTR local_0 int
+		PRINT local_0
+		RETURN self
+	}
+
+	function IO_in_string {
+		PARAM self
+		LOCAL local_1
+		ALLOC local_1 String
+		READ local_1
+		RETURN local_1
+	}
+
+	function IO_in_int {
+		PARAM self
+		LOCAL local_2
+		ALLOC local_2 Int
+		RINT local_2
+		RETURN local_2
+	}
+
+	function Object_type_name {
+		PARAM self
+		LOCAL local_3
+		ALLOC local_3 String
+		TYPE local_3 self
+		RETURN local_3
+	}
+
+	function Object_copy {
+		PARAM self
+		LOCAL local_4
+		COPY local_4 self
+		RETURN local_4
+	}
+
+	function String_length {
+		PARAM self
+		LOCAL local_5
+		ALLOC local_5 Int
+		STRLEN local_5 self
+		RETURN local_5
+	}
+
+	function String_concat {
+		PARAM self
+		PARAM str
+		LOCAL local_6
+		ALLOC local_6 String
+		STRCAT local_6 self str
+		RETURN local_6
+	}
+
+	function String_substr {
+		PARAM self
+		PARAM from
+		PARAM to
+		LOCAL local_7
+		ALLOC local_7 String
+		STRSUB local_7 self from to
+		RETURN local_7
+	}
+
+	function Main_main {
+		PARAM self
+		LOCAL local_8
+		LOCAL local_9
+		ALLOC local_8 String
+		LDATA local_8 data_0
+		ARG self
+		ARG local_8
+		CALL local_9 IO out_string
+		RETURN local_9
+	}
+
+	function main {
+		LOCAL local_10
+		ALLOC local_10 Main
+		ALLOC local_12 Int
+		SATTR local_10 i local_12
+		ARG local_10
+		CALL local_11 Main main
+	}
+
+END <--

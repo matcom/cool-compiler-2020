@@ -1,0 +1,453 @@
+.data
+
+type_Object: .asciiz "Object"
+type_IO: .asciiz "IO"
+type_Main: .asciiz "Main"
+local_0: .word 0
+local_1: .word 0
+local_2: .word 0
+local_3: .word 0
+local_4: .word 0
+local_5: .word 0
+local_6: .word 0
+local_7: .word 0
+local_8: .word 0
+local_9: .word 0
+local_10: .word 0
+local_11: .word 0
+local_12: .word 0
+data_0: .asciiz "asasd\n"
+param_0: .word 0
+param_1: .word 0
+param_2: .word 0
+
+
+.text
+
+IO_out_string:
+lw $t0, -8($sp)
+sw $t0, param_0
+lw $t0, -4($sp)
+sw $t0, param_1
+sw $ra, ($sp)
+addi $sp, $sp, 4
+lw $a0, param_1
+addi $a0, $a0, 4
+li $v0, 4
+syscall
+lw $v0, param_0
+lw $ra, -4($sp)
+addi $sp, $sp -12
+jr $ra
+
+
+IO_out_int:
+lw $t0, -8($sp)
+sw $t0, param_0
+lw $t0, -4($sp)
+sw $t0, param_1
+sw $ra, ($sp)
+addi $sp, $sp, 4
+li $a0, 1028
+li $v0, 9
+syscall
+sw $v0, local_0
+li $t0, 'S'
+sb $t0, ($v0)
+li $t0, 0
+sw $t0, 4($v0)
+lw $t0, param_1
+addi $t0, $t0, 4
+lw $t0, ($t0)
+lw $t1, local_0
+addi $t1, $t1, 4
+li $t2, '0'
+custom_label_0:
+div $t0, $t0, 10
+mfhi $t3
+add $t3, $t3, $t2
+sb $t3, ($t1)
+addi $t1, $t1, 1
+bne $t0, 0, custom_label_0
+li $t3, 0
+sb $t3, ($t1)
+addi $t1, $t1, -1
+lw $t2, local_0
+addi $t2, $t2, 4
+custom_label_1:
+ble $t1, $t2, custom_label_2
+lb $t0, ($t2)
+lb $t3, ($t1)
+sb $t3, ($t2)
+sb $t0, ($t1)
+addi $t1, $t1, -1
+addi $t2, $t2, 1
+j custom_label_1
+custom_label_2:
+lw $a0, local_0
+addi $a0, $a0, 4
+li $v0, 4
+syscall
+lw $v0, param_0
+lw $ra, -4($sp)
+addi $sp, $sp -12
+jr $ra
+
+
+IO_in_string:
+lw $t0, -4($sp)
+sw $t0, param_0
+sw $ra, ($sp)
+addi $sp, $sp, 4
+li $a0, 1028
+li $v0, 9
+syscall
+sw $v0, local_1
+li $t0, 'S'
+sb $t0, ($v0)
+li $t0, 0
+sw $t0, 4($v0)
+lw $a0, local_1
+addi $a0, $a0, 4
+li $v0, 8
+syscall
+lw $v0, local_1
+lw $ra, -4($sp)
+addi $sp, $sp -8
+jr $ra
+
+
+IO_in_int:
+lw $t0, -4($sp)
+sw $t0, param_0
+sw $ra, ($sp)
+addi $sp, $sp, 4
+li $a0, 8
+li $v0, 9
+syscall
+sw $v0, local_2
+li $t0, 'I'
+sb $t0, ($v0)
+li $t0, 0
+sw $t0, 4($v0)
+li $v0, 5
+syscall
+lw $t0, local_2
+li $t1, 'I'
+sw $t1, ($t0)
+sw $v0, 4($t0)
+lw $v0, local_2
+lw $ra, -4($sp)
+addi $sp, $sp -8
+jr $ra
+
+
+Object_type_name:
+lw $t0, -4($sp)
+sw $t0, param_0
+sw $ra, ($sp)
+addi $sp, $sp, 4
+li $a0, 1028
+li $v0, 9
+syscall
+sw $v0, local_3
+li $t0, 'S'
+sb $t0, ($v0)
+li $t0, 0
+sw $t0, 4($v0)
+lw $t0, param_0
+lw $t1, local_3
+addi $t1, $t1, 4
+li $t2, 0
+lb $t2, ($t0)
+beq $t2, 'I', custom_label_3
+beq $t2, 'B', custom_label_4
+beq $t2, 'S', custom_label_5
+addi $t2, $t2, 4
+lw $t2, ($t2)
+custom_label_6:
+lb $t3, ($t2)
+sb $t3, ($t1)
+beq $t3, 0, custom_label_7
+addi $t2, $t2, 1
+j custom_label_6
+custom_label_3:
+li $t2, 'I'
+sb $t2, ($t1)
+addi $t1, $t1, 1
+li $t2, 'n'
+sb $t2, ($t1)
+addi $t1, $t1, 1
+li $t2, 't'
+sb $t2, ($t1)
+addi $t1, $t1, 1
+li $t2, 0
+sb $t2, ($t1)
+j custom_label_7
+custom_label_4:
+li $t2, 'B'
+sb $t2, ($t1)
+addi $t1, $t1, 1
+li $t2, 'o'
+sb $t2, ($t1)
+addi $t1, $t1, 1
+li $t2, 'o'
+sb $t2, ($t1)
+addi $t1, $t1, 1
+li $t2, 'l'
+sb $t2, ($t1)
+addi $t1, $t1, 1
+li $t2, 0
+sb $t2, ($t1)
+j custom_label_7
+custom_label_5:
+li $t2, 'S'
+sb $t2, ($t1)
+addi $t1, $t1, 1
+li $t2, 't'
+sb $t2, ($t1)
+addi $t1, $t1, 1
+li $t2, 'r'
+sb $t2, ($t1)
+addi $t1, $t1, 1
+li $t2, 'i'
+sb $t2, ($t1)
+addi $t1, $t1, 1
+li $t2, 'n'
+sb $t2, ($t1)
+addi $t1, $t1, 1
+li $t2, 'g'
+sb $t2, ($t1)
+addi $t1, $t1, 1
+li $t2, 0
+sb $t2, ($t1)
+custom_label_7:
+lw $v0, local_3
+lw $ra, -4($sp)
+addi $sp, $sp -8
+jr $ra
+
+
+Object_copy:
+lw $t0, -4($sp)
+sw $t0, param_0
+sw $ra, ($sp)
+addi $sp, $sp, 4
+lw $t0, param_0
+addi $t2, $t0, 8
+lw $t2, ($t2)
+addi $a0, $t2, 0
+li $v0, 9
+syscall
+sw $v0, local_4
+addi $t1, $v0, 0
+add $t2, $t0, $t2
+custom_label_8:
+lb $t3, ($t0)
+sb $t3, ($t1)
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+bne $t0, $t2, custom_label_8
+lw $v0, local_4
+lw $ra, -4($sp)
+addi $sp, $sp -8
+jr $ra
+
+
+String_length:
+lw $t0, -4($sp)
+sw $t0, param_0
+sw $ra, ($sp)
+addi $sp, $sp, 4
+li $a0, 8
+li $v0, 9
+syscall
+sw $v0, local_5
+li $t0, 'I'
+sb $t0, ($v0)
+li $t0, 0
+sw $t0, 4($v0)
+lw $t0, param_0
+addi $t0, $t0, 4
+lw $t1, local_5
+addi $t1, $t1, 4
+li $t2, 0
+lb $t2, ($t0)
+li $t3, 0
+custom_label_9:
+beq $t2, 0, custom_label_10
+addi $t3, $t3, 1
+addi $t0, $t0, 1
+lw $t2, ($t0)
+j custom_label_9
+custom_label_10:
+sw $t3, ($t1)
+lw $v0, local_5
+lw $ra, -4($sp)
+addi $sp, $sp -8
+jr $ra
+
+
+String_concat:
+lw $t0, -8($sp)
+sw $t0, param_0
+lw $t0, -4($sp)
+sw $t0, param_1
+sw $ra, ($sp)
+addi $sp, $sp, 4
+li $a0, 1028
+li $v0, 9
+syscall
+sw $v0, local_6
+li $t0, 'S'
+sb $t0, ($v0)
+li $t0, 0
+sw $t0, 4($v0)
+lw $t0, param_0
+addi $t0, $t0, 4
+lw $t1, param_1
+addi $t1, $t1, 4
+lw $t2, local_6
+addi $t2, $t2, 4
+custom_label_11:
+lb $t3, ($t0)
+beq $t3, $0, custom_label_12
+sb $t3, ($t2)
+addi $t0, $t0, 1
+addi $t2, $t2, 1
+j custom_label_11
+custom_label_12:
+custom_label_13:
+lb $t3, ($t1)
+sb $t3, ($t2)
+addi $t1, $t1, 1
+addi $t2, $t2, 1
+bne $t3, $0, custom_label_13
+lw $v0, local_6
+lw $ra, -4($sp)
+addi $sp, $sp -12
+jr $ra
+
+
+String_substr:
+lw $t0, -12($sp)
+sw $t0, param_0
+lw $t0, -8($sp)
+sw $t0, param_1
+lw $t0, -4($sp)
+sw $t0, param_2
+sw $ra, ($sp)
+addi $sp, $sp, 4
+li $a0, 1028
+li $v0, 9
+syscall
+sw $v0, local_7
+li $t0, 'S'
+sb $t0, ($v0)
+li $t0, 0
+sw $t0, 4($v0)
+lw $t0, param_0
+addi $t0, $t0, 4
+lw $t1, param_1
+addi $t1, $t1, 4
+lw $t1, ($t1)
+add $t0, $t0, $t1
+lw $t1, param_2
+addi $t1, $t1, 4
+lw $t1, ($t1)
+add $t1, $t0, $t1 
+lw $t2, local_7
+li $t3, 'S'
+sb $t3, ($t2)
+addi $t2, $t2, 4
+custom_label_14:
+beq $t0, $t1, custom_label_15
+lb $t3, ($t0)
+sb $t3, ($t2)
+addi $t0, $t0, 1
+addi $t2, $t2, 1
+j custom_label_14
+custom_label_15:
+li $t3, 0
+sb $t3, ($t2)
+lw $v0, local_7
+lw $ra, -4($sp)
+addi $sp, $sp -16
+jr $ra
+
+
+Main_main:
+lw $t0, -4($sp)
+sw $t0, param_0
+sw $ra, ($sp)
+addi $sp, $sp, 4
+li $a0, 1028
+li $v0, 9
+syscall
+sw $v0, local_8
+li $t0, 'S'
+sb $t0, ($v0)
+li $t0, 0
+sw $t0, 4($v0)
+la $t0, data_0
+lw $t1, local_8
+addi $t1, $t1, 4
+li $t3, 0
+custom_label_16:
+lb $t3, ($t0)
+sb $t3, ($t1)
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+bne $t3, 0, custom_label_16
+lw $t0, param_0
+sw $t0, ($sp)
+addi $sp, $sp, 4
+lw $t0, local_8
+sw $t0, ($sp)
+addi $sp, $sp, 4
+jal IO_out_string
+sw $v0, local_9
+lw $v0, local_9
+lw $ra, -4($sp)
+addi $sp, $sp -8
+jr $ra
+
+
+main:
+li $a0, 20
+li $v0, 9
+syscall
+sw $v0, local_10
+li $t0, 'O'
+sb $t0, ($v0)
+addi $v0, $v0, 4
+la $t0, type_Main
+sw $t0, ($v0)
+addi $v0, $v0, 4
+li $t0, 20
+sw $t0, ($v0)
+addi $v0, $v0, 4
+li $t0, 'I'
+sb $t0, ($v0)
+addi $v0, $v0, 8
+li $a0, 8
+li $v0, 9
+syscall
+sw $v0, local_12
+li $t0, 'I'
+sb $t0, ($v0)
+li $t0, 0
+sw $t0, 4($v0)
+lw $t0, local_10
+addi $t0, $t0, 16
+lw $t1, local_12
+addi $t1, $t1, 4
+lw $t3, ($t1)
+sw $t3, ($t0)
+lw $t0, local_10
+sw $t0, ($sp)
+addi $sp, $sp, 4
+jal Main_main
+sw $v0, local_11
+li $v0, 10
+syscall
