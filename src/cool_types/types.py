@@ -177,12 +177,13 @@ def check_type_hierarchy(node):
                     while type_x:
                         if type_x:
                             if type_x == cType:
-                                add_semantic_error(c.lineno, c.colno,f'{ERR_SEMANTIC}: Class {cType.name}, or an ancestor of {cType.name}, is involved in an inheritance cycle.')
+                                add_semantic_error(
+                                    c.lineno, c.colno, f'{ERR_SEMANTIC}: Class {cType.name}, or an ancestor of {cType.name}, is involved in an inheritance cycle.')
                                 return False
                             type_x = type_x.parent
                 else:
                     add_semantic_error(
-                        c.lineno, c.colno, f'can\'t be inherit from class {parentType.name}')
+                        c.lineno, c.colno, f'{ERR_SEMANTIC}: Class {cType} cannot inherit class {parentType.name}.')
                     return False
             except KeyError:
                 add_semantic_error(c.lineno, c.colno,
