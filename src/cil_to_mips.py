@@ -24,6 +24,8 @@ class CILToMIPSVisitor():
         self.attr_offset = {}
         self.method_offset = {}
         self.var_offset = {}
+        self.runtime_errors = {}
+        self.register_runtime_errors()
 
     def search_var_offset(self, name):
         for i, local in enumerate(self.current_function.localvars + self.current_function.params):
@@ -44,6 +46,24 @@ class CILToMIPSVisitor():
     def is_param(self, name):
         return name in self.current_function.params
         
+    def register_runtime_errors(self):
+        self.runtime_errors['dispatch_void'] = 'Runtime Error: A dispatch (static or dynamic) on void'
+        self.runtime_errors['case_void'] = 'Runtime Error: A case on void'
+        self.runtime_errors['case_no_match'] = 'Runtime Error: Execution of a case statement without a matching branch'
+        self.runtime_errors['div_zero'] = 'Runtime Error: Division by zero'
+        self.runtime_errors['substr'] = 'Runtime Error: Substring out of range'
+        self.runtime_errors['heap'] = 'Runtime Error: Heap overflow'
+        for error in self.runtime_errors:
+            self.data += f'{error}: .asciiz "{self.runtime_errors[error]}"\n'
+            self.generate_runtime_error(error)
+
+    def generate_runtime_error(self, error):
+        self.text += f'{error}_error:\n'
+        self.text += f'la $a0 {error}\n'
+        self.text += f'li $v0, 4\n'
+        self.text += 'syscall\n'
+        self.text += 'li $v0, 10\n'
+        self.text += 'syscall\n'
 
     @visitor.on('node')
     def visit(self, node):
@@ -135,6 +155,7 @@ class CILToMIPSVisitor():
         self.text += f'li $a0, {amount * 4}\n' 
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
+        self.text += 'bge $v0, $sp heap_error\n'
         self.text += f'move $t0, $v0\n'
         
         #Initialize Object Layout
@@ -202,7 +223,9 @@ class CILToMIPSVisitor():
 
         value_offset = self.var_offset[self.current_function.name][node.instance]  
         self.text += f'lw $t1, {value_offset}($t0)\n'  # get instance from local
-
+        self.text += 'la $t0, void\n'
+        self.text += 'beq $t1, $t0, dispatch_void_error\n'
+        
         self.text += f'lw $t2, 12($t1)\n' #get dispatch table address
 
         method_offset = self.method_offset[node.dynamic_type][node.function]
@@ -227,7 +250,7 @@ class CILToMIPSVisitor():
         self.text += f'lw $t1, 0($t0)\n'
         self.text += 'la $a0, void\n'
         self.text += f'bne	$t1 $a0 {node.first_label}\n'
-        #TODO runtime error when is void
+        self.text += 'b case_void_error'
 
     @visitor.when(CIL_AST.Action)
     def visit(self, node):
@@ -242,6 +265,8 @@ class CILToMIPSVisitor():
         right_offset = self.var_offset[self.current_function.name][node.right]
         self.text += f'lw $a0, {left_offset}($sp)\n'
         self.text += f'lw $t1, {right_offset}($sp)\n'
+        if node.op == '/':
+            self.text += 'beq $t1, 0, div_zero_error\n'
         self.text += f'{mips_comm} $a0, $t1, $a0\n'
         result_offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $a0, {result_offset}($sp)\n'
@@ -339,6 +364,7 @@ class CILToMIPSVisitor():
         self.text += f'lw $a0, 8($t0)\n'  # get self size
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
+        self.text += 'bge $v0, $sp heap_error\n'
         self.text += f'move $t1, $v0\n'
 
         # Copy All Slots inlcuding Tag, Size, methods ptr and each atrribute 
@@ -358,7 +384,8 @@ class CILToMIPSVisitor():
         blt Rsrc1, Src2, label (Branch on Less Than)
         Conditionally branch to the instruction at the label if the contents of register Rsrc1 are less than Src2.
         '''
-        self.text += 'blt $a0, 8($t0), copy_object_word\n' # 8($t0) is the orginal object size
+        self.text += 'lw $t3, 8($t0)\n'
+        self.text += 'blt $a0, $t3, copy_object_word\n' # 8($t0) is the orginal object size
 
         offset = self.var_offset[self.current_function.name][node.local_dest]
         # $t1 is pointing at the end of the object
@@ -369,7 +396,7 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.Length)
     def visit(self, node):
         offset = self.var_offset[self.current_function.name][node.variable]
-        self.text += f'move $t0, {offset}($sp)\n'
+        self.text += f'lw $t0, {offset}($sp)\n'
         self.text += 'li $a0, 0\n'
         self.text += 'count_char:\n'
         self.text += 'lb $t1, ($t0)\n' # loading current char
@@ -395,10 +422,11 @@ class CILToMIPSVisitor():
         self.text += f'lw $t0, {offset_len2}($sp)\n'
         # add Rdest, Rsrc1, Src2 Addition (with overflow)
         # is similar to addi but 2do summand can be a register
-        self.text += 'add $a0, $a0, t0\n'
+        self.text += 'add $a0, $a0, $t0\n'
         self.text += 'addi $a0, $a0, 1\n' # reserve 1 more byte for '\0'
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
+        self.text += 'bge $v0, $sp heap_error\n'
         # the beginning of new reserved address is in $v0
 
         self.text += f'lw $t0, {offset_str1}($sp)\n'
@@ -438,18 +466,22 @@ class CILToMIPSVisitor():
         self.text += 'addi $a0, $a0, 1\n' # reserve 1 more byte for '\0'
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
+        self.text += 'bge $v0, $sp heap_error\n'
         # the beginning of new reserved address is in $v0
         
         self.text += f'lw $t0, {offset_idx}($sp)\n'
         self.text += f'lw $t1, {offset_len}($sp)\n'
         self.text += f'lw $t2, {offset_str}($sp)\n'
 
+        self.text += 'bltz $t0, substr_error\n'
+
         # jump first i chars
         self.text += 'li $a0, 0\n'
         self.text += 'jump_str_char:\n'
         self.text += f'beq $a0, $t0, finish_index_jump\n' # finish if we are at index i
         self.text += 'addi $a0, $a0, 1\n' # chars count
-        self.text += 'addi $t2, $t2, 1\n' # move to the next char
+        self.text += 'addi $t2, $t2, 1\n'  # move to the next char
+        self.text += 'beq $t2, $zero, substr_error\n'
         self.text += 'j jump_str_char\n'
         self.text += 'finish_index_jump:\n'
         self.text += 'li $a0, 0\n' # reset $a0 to count the length
@@ -459,7 +491,8 @@ class CILToMIPSVisitor():
         self.text += 'beq $a0, $t1 finish_substr_copy\n' # finish if the chars count is equals to length
         self.text += 'lb $t0, ($t2)\n' # loading current char from string
         self.text += 'sb $t0, ($v0)\n' # storing current char into result_str end
-        self.text += 'addi $t2, $t2, 1\n' # move to the next char
+        self.text += 'addi $t2, $t2, 1\n'  # move to the next char
+        self.text += 'beq $t2, $zero, substr_error\n'
         self.text += 'addi $v0, $v0, 1\n' # move to the next available byte
         self.text += 'addi $a0, $a0, 1\n' # chars count
         self.text += 'j copy_substr_char\n'

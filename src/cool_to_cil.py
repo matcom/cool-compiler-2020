@@ -521,7 +521,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.register_instruction(CIL_AST.Assign(result_local, expr_result))
             self.register_instruction(CIL_AST.Goto(exit_label))
             
-        #TODO last label with runtime error when does not conform with any type
+        self.register_instruction(CIL_AST.Label(label))
+        self.register_instruction(CIL_AST.Goto('case_no_match_error'))
         self.register_instruction(CIL_AST.Label(exit_label))
         return result_local
 
