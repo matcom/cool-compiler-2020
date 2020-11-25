@@ -4,7 +4,7 @@ Copyright (c) 2020 School of Math and Computer Science, University of Havana
 COOL compiler project
 """
 
-from errors import add_semantic_error
+from errors import *
 
 
 class CoolType:
@@ -14,6 +14,7 @@ class CoolType:
         self.attributes = {}
         self.methods = {}
         self.inherit = inherit
+        self.childs = []
 
     def __can_be_define__(self, id):
         if id in self.methods.keys():
@@ -172,6 +173,13 @@ def check_type_hierarchy(node):
                 parentType = TypesByName[c.parent_type]
                 if parentType.inherit:
                     cType.parent = parentType
+                    type_x = parentType
+                    while type_x:
+                        if type_x:
+                            if type_x == cType:
+                                add_semantic_error(c.lineno, c.colno,f'{ERR_SEMANTIC}: Class {cType.name}, or an ancestor of {cType.name}, is involved in an inheritance cycle.')
+                                return False
+                            type_x = type_x.parent
                 else:
                     add_semantic_error(
                         c.lineno, c.colno, f'can\'t be inherit from class {parentType.name}')
@@ -218,6 +226,7 @@ TypesByName = {
     'Bool': BoolType
 }
 
+ObjectType.childs = [IOType, IntType, StringType, BoolType]
 ObjectType.add_method('abort', [], 'Object')
 ObjectType.add_method('type_name', [], 'String')
 ObjectType.add_method('copy', [], 'SELF_TYPE')
