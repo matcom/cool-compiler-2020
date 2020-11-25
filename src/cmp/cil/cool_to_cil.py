@@ -1,4 +1,5 @@
 from ..cool_lang import ast as cool
+from ..cool_lang.semantics.semantic_utils import Attribute
 
 from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, AssignNode, PlusNode \
     , MinusNode, StarNode, DivNode, AllocateNode, TypeOfNode, StaticCallNode, DynamicCallNode    \
@@ -98,6 +99,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         type_node = self.register_type(node.id)
         type_node.attributes = [ attr.name for attr in self.current_type.get_all_attributes() ]
         type_node.methods = [ (method.name, self.to_function_name(method.name, typex.name))  for method, typex in self.current_type.get_all_methods() ]
+        type_node.features = [ feature.name if isinstance(feature, Attribute) else (feature[0].name, self.to_function_name(feature[0].name, feature[1].name)) for feature in self.current_type.get_all_features()]
 
         for feature in node.features:
             if isinstance(feature, cool.FuncDeclarationNode):
@@ -197,7 +199,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         cond = self.define_internal_local()
         not_cond = self.define_internal_local()
         case_label = self.to_label_name(f'case_{node.type}')
-        self.register_instruction(ConformNode(cond, typex, node.type))
+        self.register_instruction(EqualNode(cond, typex, node.type))
         self.register_instruction(ComplementNode(not_cond, cond))
         self.register_instruction(GotoIfNode(not_cond, case_label))
         case_scope = Scope(parent=scope)

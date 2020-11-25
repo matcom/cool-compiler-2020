@@ -12,6 +12,7 @@ class TypeNode(Node):
         self.name = name
         self.attributes = []
         self.methods = []
+        self.features = []
 
 class DataNode(Node):
     def __init__(self, vname, value):
