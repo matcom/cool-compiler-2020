@@ -135,13 +135,11 @@ def main():
 
         cil = generate_cil(types)
         
-        with open("test.cil", "w") as p:
-            p.write(cil[5])
-
         mips = generate_mips(cil)
-        
-        with open("test.mips", "w") as p:
+
+        with open(p[:-2] + "mips", "w") as p:
             p.write(mips)
+
 
 if __name__ == "__main__":
     main()
