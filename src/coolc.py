@@ -3,7 +3,7 @@ import argparse
 from cmp.cool_lang.lexer import COOL_LEXER
 from cmp.cool_lang.parser import COOL_PARSER
 from cmp.cool_lang.semantics import COOL_CHECKER
-from cmp.cil import COOL_TO_CIL_VISITOR, CIL_FORMATTER
+from cmp.cil import COOL_TO_CIL_VISITOR, CIL_FORMATTER, CIL_TO_MIPS
 
 
 parser = argparse.ArgumentParser(description='COOL Compiler')
@@ -50,5 +50,12 @@ cil_ast = ctc.visit(program)
 if GEN_CIL:
     with open(OUTPUT_FILE[:-4] + 'cil', 'w') as out_fd :
         out_fd.write(CIL_FORMATTER().visit(cil_ast))
+
+ctm = CIL_TO_MIPS()
+ctm.visit(cil_ast)
+mips_code = ctm.compile()
+
+open(OUTPUT_FILE, 'w', encoding="utf8").write(mips_code)
+
 
 exit(0)
