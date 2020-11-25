@@ -9,7 +9,6 @@ class Collector:
 
         #Tipos especiales
         self.context.add_type(SelfType())
-        self.context.add_type(AutoType())
 
         #Tipos Buit-In
         self.context.create_type('Object',builtin = True)
