@@ -102,12 +102,17 @@ COOL es un pequeño lenguaje orientado a objetos, con tipado estático, herencia s
 El propósito de la asignatura Complementos de Compilación es desarrollar durante el curso un compilador para el lenguaje COOL que sea capaz de convertir programas escritos en Cool en programas escritos en MIPS.
 
 \section{Arquitectura del compilador}
+De manera general la estructura de nuestro compilador se divide en varios módulos, pertenecientes a cada una de las fases por las que atravesó la implementación del mismo. A continuación se explicarán las fases mencionadas y a su vez los módulos correspondientes.
 \subsection{Análisis Lexicográfico y Sintáctico}
 En estas dos fases se emplearon las herramientas de construcción de compiladores lex y yacc a través del paquete de \textit{Python} \lstinline|ply|. El mismo incluye la compatibilidad con el análisis sintáctico LALR(1), así como la validación de entrada, informes de errores y resulta ser bastante exigente con la especificación de reglas gramaticales y de tokens.
 
-PLY consta de dos módulos separados: \lstinline|lex.py| y \lstinline|yacc.py|. El primero se utiliza par dividir el texto de entrada en una colección de tokens especificados por una colección de reglas en forma de expresiones regulares(\textit{tokenización}), mientras que el segundo se utiliza para reconocer la sintaxis del lenguaje que se ha especificado en forma de gramática libre del contexto. Las dos herramientas están diseñadas para trabajar juntas. 
+PLY consta de dos módulos separados: \lstinline|lex.py| y \lstinline|yacc.py|. El primero se utiliza par dividir el texto de entrada en una colección de tokens especificados por una colección de reglas en forma de expresiones regulares(\textit{tokenización}), mientras que el segundo se utiliza para reconocer la sintaxis del lenguaje que se ha especificado en forma de gramática libre del contexto. Las dos herramientas están diseñadas para trabajar juntas.
 
 El módulo \lstinline|yacc.py| implementa la componente de \textit{parsing} de PLY teniendo como salida un árbol de sintaxis abstracta representativo del programa de entrada. Yacc utiliza la técnica de análisis sintáctico LR o \textit{shift-reduce}. Es importante señalar que tiene como requisito la especificación de la sintaxis en términos de una gramática BNF(notación de Backus-Naur). Esta notación es utilizada para expresar gramáticas libres del contexto. En \lstinline|grammar.md| se encuentra especificada la gramática utilizada en el proyecto.
+
+ El lexer y el parser del proyecto se encuentran implementados en los módulos \lstinline|lexer.py| y \lstinline|cparser.py| respectivamente, además \lstinline|ast_nodes.py| ofrece la jerarquía del AST de COOL propuesta.
+
+
 
 \subsection{Análisis Semántico}
 Durante esta fase se analiza el cumplimiento de todos los predicados semánticos del lenguaje, y por tanto, el uso correcto de los tipos declarados. A continuación centraremos la atención en el problema de la verificación de dichos tipos.
@@ -136,8 +141,6 @@ Posteriormente se pasa a construir los tipos como tal, con sus definiciones de a
 Por último tenemos un \lstinline|TypeChecker | que verificará la consistencia de tipos en todos los nodos del \textit{AST}. El mismo recibe el contexto construido anteriormente y procesa por completo el \textit{AST}. A lo largo de este recorrido fue esencial el uso del concepto \lstinline|Scope|, el cual permite gestionar las variables definidas en los distintos niveles de visibilidad, así como saber con qué tipo se definieron. Cada clase tiene su propio ámbito o \textit{Scope} y a su vez cada método definido en esta. No obstante, la importancia de este concepto también se demuestra en el chequeo de las expresiones $Let$ y $Case$, pues ambas poseen un ámbito interno para nuevas variables locales que podrían definir, por tanto, el \textit{Scope} "hijo" que se le pasa a estos nodos permite desambiguar entre todas las variables declaradas.
 
 Para manejar los errores de forma consistente, cada una de las clases anteriores posee como atributo una lista de errores de tipo \lstinline|ErrorSemantic|. De modo que ante cualquier error de chequeo de tipos, simplemente se crea una instancia de esta clase y se añade a la lista. Aclarar que a cada error se le pasa la línea y columna del nodo del \textit{AST} correspondiente.
-
-
 
 
 \subsection{Generación de Código}
