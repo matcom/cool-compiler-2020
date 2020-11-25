@@ -246,6 +246,9 @@ class CILToMIPSVisitor():
 
         self.text += f'jal {node.function}\n'
 
+        result_offset = self.var_offset[self.current_function.name][node.local_dest]
+        self.text += f'sw $a1, {result_offset}($sp)\n'
+
     @visitor.when(CIL_AST.Return)
     def visit(self, node):
         if node.value:
