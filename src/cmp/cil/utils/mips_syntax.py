@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import List
 
 
 class Register(str, Enum):
@@ -56,45 +57,51 @@ syscall = "syscall"
 Reg = Register
 
 
+def autowrite(func):
+    """
+    Autowrite a instruction when execute string return function
+    """
+
+    def inner(*args, **kwargs):
+        instructions = func(*args, **kwargs)
+        if instructions is list:
+            for instruction in instructions:
+                args[0].write_inst(instruction)
+        else:
+            args[0].write_inst(instructions)
+
+    return inner
+
+
+def autowritedata(func):
+    """
+    Autowrite a instruction when execute string return function
+    """
+
+    def inner(*args, **kwargs):
+        instructions = func(*args, **kwargs)
+        if instructions is list:
+            for instruction in instructions:
+                args[0].write_data(instruction)
+        else:
+            args[0].write_data(instructions)
+
+    return inner
+
+
 class Mips:
     def __init__(self):
-        self.DOTTEXT = []
-        self.DOTDATA = []
+        self.DOTTEXT: List[str] = []
+        self.DOTDATA: List[str] = []
 
-    def autowrite(func):
-        """
-        Autowrite a instruction when execute string return function
-        """
-        def inner(*args, **kwargs):
-            instructions = func(*args, **kwargs)
-            if instructions is list:
-                for instruction in instructions:
-                    args[0].write_inst(instruction)
-            else:
-                args[0].write_inst(instructions)
-        return inner
+    def write_inst(self, instruction: str, tabs: int = 0):
+        self.DOTTEXT.append(f"{instruction}")
 
-    def autowritedata(func):
-        """
-        Autowrite a instruction when execute string return function
-        """
-        def inner(*args, **kwargs):
-            instructions = func(*args, **kwargs)
-            if instructions is list:
-                for instruction in instructions:
-                    args[0].write_data(instruction)
-            else:
-                args[0].write_data(instructions)
-        return inner
-
-    def write_inst(self, instruction: str, tabs=0):
-        self.DOTTEXT.append(f'{instruction}')
-
-    def write_data(self, data: str, tabs=0):
-        self.DOTDATA.append(f'{data}')
+    def write_data(self, data: str, tabs: int = 0):
+        self.DOTDATA.append(f"{data}")
 
     def compile(self):
-        return '\n'.join(['.data'] + self.DOTDATA + ['.text'] + self.DOTTEXT)
+        return "\n".join([".data"] + self.DOTDATA + [".text"] + self.DOTTEXT)
 
     def push(self, register: Register):
         self.addi(Register.sp, Register.sp, -8)
@@ -274,10 +281,7 @@ class Mips:
     # System Calls
     @autowrite
     def syscall(self, code: int):
-        return [
-            self.li(Register.v0, 1),
-            self.syscall
-        ]
+        return [self.li(Register.v0, 1), self.syscall]
 
     def print_int(self):
         return self.syscall(1)
