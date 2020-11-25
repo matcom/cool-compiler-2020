@@ -30,10 +30,38 @@ class CIL_TO_MIPS(object):
         return '\n'.join([ '.data'] + self.DOTDATA + ['.text'] + self.DOTTEXT)
 
     def write_push(self, register:str):
-        pass
+        """
+        `add $sp , $sp , -8`
+        
+        And then write to address `0($sp)`
+        """
+        self.write_inst(f"add $sp , $sp , -8")
+        self.write_store_memory(register,"0($sp)")
 
     def write_pop(self, register:str):
-        pass
+        """
+        First, load from to address `0($sp)` and then write `add $sp , $sp , 8` to restore the stack pointer
+        """
+        self.write_load_memory(register,"0($sp)")
+        self.write_inst(f"add $sp , $sp , 8")
+
+    def write_load_memory(self, register:str , address: str):
+        """
+        Load from a specific address a 32 bits register
+        """
+        self.write_inst(f"lw $t0 , {address}")
+        self.write_inst(f"sll $t0 , $t0 , 16")
+        self.write_inst(f"lw $t1, {address} + 4")
+        self.write_inst(f"or {register} ,$t0 , $t1")
+
+    def write_store_memory(self, register:str, address: str):
+        """
+        Write to a specific address a 32 bits register
+        """
+        self.write_inst(f"sw $t1 , {address} + 4")
+        self.write_inst(f"srl $t1 , $t1 , 16")
+        self.write_inst(f"sw $t0 , {address}")
+        self.write_inst(f"or {register} ,$t0 , $t1")
 
     @on('node')
     def visit(self, node):
@@ -92,7 +120,7 @@ class CIL_TO_MIPS(object):
         # self.load_registers()
 
         for _ in node.localvars:
-            self.write_inst('addi $sp, $sp, 4')
+            self.write_inst('addi $sp, $sp, 8')
         self.write_pop('$fp')
         self.write_inst('jr $ra')
         self.write_inst('')
