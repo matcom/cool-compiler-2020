@@ -1,4 +1,4 @@
-from engine.cp import visitor, ErrorType, SelfType, AutoType, SemanticError, Scope
+from engine.cp import visitor, ErrorType, SelfType, SemanticError, Scope
 from engine.parser import ProgramNode, ClassDeclarationNode, AttrDeclarationNode, FuncDeclarationNode
 from engine.parser import IfThenElseNode, WhileLoopNode, BlockNode, LetInNode, CaseOfNode
 from engine.parser import AssignNode, UnaryNode, BinaryNode, LessEqualNode, LessNode, EqualNode, ArithmeticNode

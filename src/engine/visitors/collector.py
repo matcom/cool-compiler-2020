@@ -1,4 +1,4 @@
-from engine.cp import SemanticError, visitor, Context, SelfType, AutoType
+from engine.cp import SemanticError, visitor, Context, SelfType
 from engine.parser import ProgramNode, ClassDeclarationNode
 from engine.semantic_errors import ERROR_ON_LN_COL
 

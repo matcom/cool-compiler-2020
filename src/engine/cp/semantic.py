@@ -186,14 +186,19 @@ class ErrorType(Type):
 class Context:
     def __init__(self):
         self.types = {}
+        self.basic_types = ['Object', 'IO', 'Int', 'String', 'Bool']
 
     def create_type(self, name:str, builtin = False):
+        if name in self.basic_types and name in self.types:
+            raise SemanticError(f'SemanticError: Redefinition of basic class {name}.')
         if name in self.types:
             raise SemanticError(f'Type with the same name ({name}) already in context.')
         typex = self.types[name] = Type(name,built_in=builtin)
         return typex
 
     def add_type(self, typex):
+        if typex.name in self.basic_types:
+            raise SemanticError(f'SemanticError: Redefinition of basic class {typex.name}.')
         if typex.name in self.types:
             raise SemanticError(f'Type with the same name ({typex.name}) already in context.')
         self.types[typex.name] = typex
