@@ -67,6 +67,8 @@ See the file README for a full copyright notice\.
 (?:Loaded: .+\n)*'''
 def compare_outputs(compiler_path: str, cool_file_path: str, input_file_path: str, output_file_path: str, timeout=100):
     try:
+        print(compiler_path)
+        print(cool_file_path)
         sp = subprocess.run(['bash', compiler_path, cool_file_path], capture_output=True, timeout=timeout)
         assert sp.returncode == 0, TEST_MUST_COMPILE % get_file_name(cool_file_path)
     except subprocess.TimeoutExpired:

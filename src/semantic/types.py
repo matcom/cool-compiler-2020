@@ -67,14 +67,22 @@ class Type:
                 raise AttributesError(error_text, *pos)
 
     def define_attribute(self, name:str, typex, pos):
+        if name == 'self':
+            raise SemanticError(SemanticError.SELF_ATTR, *pos)
         try:
-            self.get_attribute(name, pos)
-        except AttributesError:
+            self.attributes[name]
+        except KeyError:
+            try:
+                self.get_attribute(name, pos)
+            except SemanticError:
+                error_text = AttributesError.ATTR_DEFINED_PARENT % name
+                raise AttributesError(error_text, *pos)
+
             self.attributes[name] = attribute = Attribute(name, typex, len(self.attributes))
             # self.attributes.append(attribute)
             return attribute
         else:
-            error_text = AttributesError.ATTRIBUTE_ALREADY_DEFINED %(name, self.name)
+            error_text = AttributesError.ATTRIBUTE_ALREADY_DEFINED % name
             raise AttributesError(error_text, *pos)
 
     def get_method(self, name:str, pos) -> Method:
@@ -91,7 +99,7 @@ class Type:
 
     def define_method(self, name:str, param_names:list, param_types:list, return_type):
         if name in self.methods:
-            error_text = AttributesError.METHOD_ALREADY_DEFINED % (name, self.name)
+            error_text = AttributesError.METHOD_ALREADY_DEFINED % name
             raise AttributesError(error_text, *pos)
 
         method = self.methods[name] = Method(name, param_names, param_types, return_type)

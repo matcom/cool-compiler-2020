@@ -36,9 +36,10 @@ class TypeChecker:
             return typex.get_method(name, pos)
         except SemanticError as e:
             if type(typex) != ErrorType and type(typex) != AutoType:
-                self.errors.append(e)
+                error_text = AttributesError.DISPATCH_UNDEFINED % name
+                self.errors.append(AttributesError(error_text, *pos))
             return MethodError(name, [], [], ErrorType())
-
+ 
 
     @visitor.when(ClassDeclarationNode)
     def visit(self, node:ClassDeclarationNode, scope:Scope):
@@ -65,7 +66,7 @@ class TypeChecker:
         self.current_index = None
 
         if not typex.conforms_to(vartype):
-            error_text = TypesError.INCOMPATIBLE_TYPES %(typex.name, vartype.name)
+            error_text = TypesError.ATTR_TYPE_ERROR %(typex.name, attr.name, vartype.name)
             self.errors.append(TypesError(error_text, *node.pos))
             return ErrorType()
         return typex
@@ -74,17 +75,21 @@ class TypeChecker:
     @visitor.when(FuncDeclarationNode)
     def visit(self, node:FuncDeclarationNode, scope:Scope):
         parent = self.current_type.parent 
-        ptypes = [param[1] for param in node.params]
         
         self.current_method = method = self.current_type.get_method(node.id, node.pos)
         if parent is not None:
             try:
                 old_meth = parent.get_method(node.id, node.pos)
-                error_text = AttributesError.WRONG_SIGNATURE % (node.id, parent.name)
                 if old_meth.return_type.name != method.return_type.name:
-                        self.errors.append(AttributesError(error_text, *node.pos))
-                elif any(type1.name != type2.name for name, type1, type2 in zip(ptypes, method.param_types, old_meth.param_types)):
-                        self.errors.append(AttributesError(error_text, *node.pos))
+                    error_text = AttributesError.WRONG_SIGNATURE_RETURN % (node.id, method.return_type.name, old_meth.return_type.name)
+                    self.errors.append(AttributesError(error_text, *node.type_pos))
+                if len(method.param_names) != len(old_meth.param_names):
+                    error_text = AttributesError.WRONG_NUMBER_PARAM % node.id
+                    self.errors.append(AttributesError(error_text, *node.pos))
+                for name, type1, type2 in zip(method.param_names, method.param_types, old_meth.param_types):
+                    if type1.name != type2.name:
+                        error_text = AttributesError.WRONG_SIGNATURE_PARAMETER % (name, type1.name, type2.name)  
+                        self.errors.append(AttributesError(error_text, *name.pos))
             except SemanticError:
                 pass
             
@@ -93,7 +98,7 @@ class TypeChecker:
         return_type = get_type(method.return_type, self.current_type)
 
         if not result.conforms_to(return_type):
-            error_text = TypesError.INCOMPATIBLE_TYPES %(return_type.name, result.name)
+            error_text = TypesError.RETURN_TYPE_ERROR %(result.name, return_type.name)
             self.errors.append(TypesError(error_text, *node.type_pos))
 
     
@@ -106,7 +111,7 @@ class TypeChecker:
         if node.expr != None:
             typex = self.visit(node.expr, scope)
             if not typex.conforms_to(vtype):
-                error_text = TypesError.INCOMPATIBLE_TYPES %(vtype.name, typex.name)            
+                error_text = TypesError.UNCONFORMS_TYPE %(typex.name, node.id, vtype.name)            
                 self.errors.append(TypesError(error_text, *node.type_pos))
             return typex
         return vtype
@@ -120,7 +125,7 @@ class TypeChecker:
         typex = self.visit(node.expr, scope)
 
         if not typex.conforms_to(vtype):
-            error_text = TypesError.INCOMPATIBLE_TYPES %(vtype.name, typex.name)            
+            error_text = TypesError.UNCONFORMS_TYPE %(typex.name, node.id, vtype.name)            
             self.errors.append(TypesError(error_text, *node.pos))
         return typex
             
@@ -129,16 +134,16 @@ class TypeChecker:
         arg_types = [self.visit(arg, scope) for arg in args]
         
         if len(arg_types) > len(meth.param_types):
-            error_text = SemanticError.TOO_MANY_ARGUMENTS % meth.name
+            error_text = SemanticError.ARGUMENT_ERROR % meth.name
             self.errors.append(SemanticError(error_text, *pos))
         elif len(arg_types) < len(meth.param_types):
             for arg, arg_info in zip(meth.param_names[len(arg_types):], args[len(arg_types):]):
-                error_text = SemanticError.MISSING_PARAMETER % (arg, meth.name)
+                error_text = SemanticError.ARGUMENT_ERROR % (meth.name)
                 self.errors.append(SemanticError(error_text, *arg_info.pos))
 
         for atype, ptype, arg_info in zip(arg_types, meth.param_types, args):
             if not atype.conforms_to(ptype):
-                error_text = TypesError.INCOMPATIBLE_TYPES % (ptype.name, atype.name)
+                error_text = TypesError.INCOSISTENT_ARG_TYPE % (meth.name, atype.name, arg_info.name, ptype.name)
                 self.errors.append(TypesError(error_text, *arg_info.pos))
         
 
@@ -159,7 +164,7 @@ class TypeChecker:
         typex = self._get_type(node.type, node.type_pos)
 
         if not obj.conforms_to(typex):
-            error_text = TypesError.INCOMPATIBLE_TYPES % (typex.name, obj.name)
+            error_text = TypesError.INCOMPATIBLE_TYPES_DISPATCH % (typex.name, obj.name)
             self.errors.append(TypesError(error_text, *node.type_pos))
             return ErrorType()
         
@@ -215,7 +220,14 @@ class TypeChecker:
 
     @visitor.when(InstantiateNode)
     def visit(self, node:InstantiateNode, scope:Scope):
-        return get_type(self._get_type(node.lex, node.pos), self.current_type)
+        try:
+            type_ = self.context.get_type(node.lex, node.pos)
+        except SemanticError:
+            type_ = ErrorType()
+            error_text = TypesError.NEW_UNDEFINED_CLASS % node.lex
+            self.errors.append(TypesError(error_text, *node.pos))
+
+        return get_type(type_, self.current_type)
 
     
     @visitor.when(WhileNode)
@@ -223,7 +235,7 @@ class TypeChecker:
         cond = self.visit(node.cond, scope)
         
         if cond.name != 'Bool':
-            self.errors.append(INCORRECT_TYPE % (cond.name, 'Bool'))   
+            self.errors.append(TypesError(TypesError.LOOP_CONDITION_ERROR, *node.pos))   
         self.visit(node.expr, scope)
         return VoidType()
 
@@ -238,7 +250,7 @@ class TypeChecker:
         cond = self.visit(node.cond, scope)
 
         if cond.name != 'Bool':
-            error_text = TypesError.INCORRECT_TYPE % (cond.name, 'Bool')
+            error_text = TypesError.PREDICATE_ERROR % ('if', 'Bool')
             self.errors.append(TypesError(error_text, node.pos))
         
         true_type = self.visit(node.stm, scope)
@@ -297,46 +309,72 @@ class TypeChecker:
         typex = self.visit(node.expr, scope)
         return typex, var_info.type
 
-            
-    @visitor.when(BinaryArithNode)
-    def visit(self, node:BinaryArithNode, scope:Scope):
+
+    def binary_operation(self, node, operator):
         ltype = self.visit(node.left, scope)
         rtype = self.visit(node.right, scope)
-        if ltype != rtype != IntType():
-            error_text = TypesError.BOPERATION_NOT_DEFINED %('Arithmetic', ltype.name, rtype.name)
+        int_type = IntType()
+        if ltype != int_type or rtype != int_type:
+            error_text = TypesError.BOPERATION_NOT_DEFINED %(ltype.name, operator, rtype.name)
             self.errors.append(TypesError(error_text, *node.pos))
             return ErrorType()
-        return IntType()
+        if opertor == '<' or operator == '<=':
+            return BoolType()
+        return int_type
+
+    @visitor.when(PlusNode)
+    def visit(self, node:PlusNode, scope:Scope):
+        return self.binary_operation(node, '+')
+    
+    @visitor.when(MinusNode)
+    def visit(self, node:MinusNode, scope:Scope):
+        return self.binary_operation(node, '-')
+    
+    @visitor.when(StarNode)
+    def visit(self, node:StarNode, scope:Scope):
+        return self.binary_operation(node, '*')
+    
+    @visitor.when(DivNode)
+    def visit(self, node:DivNode, scope:Scope):
+        return self.binary_operation(node, '/')
+    
+    @visitor.when(LessEqNode)
+    def visit(self, node:DivNode, scope:Scope):
+        return self.binary_operation(node, '<=')
+
+    @visitor.when(LessNode)
+    def visit(self, node:DivNode, scope:Scope):
+        return self.binary_operation(node, '<')
 
 
-    @visitor.when(BinaryLogicalNode)
-    def visit(self, node:BinaryLogicalNode, scope:Scope):
+    @visitor.when(EqualNode)
+    def visit(self, node:EqualNode, scope:Scope):
         ltype = self.visit(node.left, scope)
         rtype = self.visit(node.right, scope)
-        if ltype != rtype != IntType():
-            error_text = TypesError.BOPERATION_NOT_DEFINED %('Logical', ltype.name, rtype.name)
+        if ltype == rtype and  (ltype == IntType() or ltype == StringType() or ltype == BoolType()):
+            error_text = TypesError.COMPARISON_ERROR
             self.errors.append(TypesError(error_text, *node.pos))
             return ErrorType()
-
         return BoolType()
 
 
-    @visitor.when(UnaryLogicalNode)
-    def visit(self, node:UnaryLogicalNode, scope:Scope):
+    @visitor.when(NotNode)
+    def visit(self, node:NotNode, scope:Scope):
         ltype = self.visit(node.expr, scope)
-        if ltype != BoolType():
-            error_text = TypesError.UOPERATION_NOT_DEFINED %('Logical', ltype.name)
+        typex = BoolType()
+        if ltype != typex:
+            error_text = TypesError.UOPERATION_NOT_DEFINED %('not', ltype.name, typex.name)
             self.errors.append(TypesError(error_text, *node.pos))
             return ErrorType()
+        return typex
 
-        return BoolType()
 
-
-    @visitor.when(UnaryArithNode)
-    def visit(self, node:UnaryArithNode, scope:Scope):
+    @visitor.when(BinaryNotNode)
+    def visit(self, node:BinaryNotNode, scope:Scope):
         ltype = self.visit(node.expr, scope)
-        if ltype != IntType():
-            error_text = TypesError.UOPERATION_NOT_DEFINED %('Arithmetic', ltype.name)
+        int_type = IntType()
+        if ltype != int_type:
+            error_text = TypesError.UOPERATION_NOT_DEFINED %('~', ltype.name, int_type.name)
             self.errors.append(TypesError(error_text, *node.pos))
             return ErrorType()
-        return IntType()
+        return int_type

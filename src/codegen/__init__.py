@@ -3,12 +3,14 @@ from codegen.visitors.cil_format_visitor import get_formatter
 from codegen.visitors.mips_visitor import CILToMIPSVistor
 
 
-def codegen_pipeline(context, ast, scope):
-    print('============= TRANSFORMING TO CIL =============')
+def codegen_pipeline(context, ast, scope, debug=False):
+    if debug:
+        print('============= TRANSFORMING TO CIL =============')
     cool_to_cil = COOLToCILVisitor(context)
     cil_ast = cool_to_cil.visit(ast, scope)
-    formatter = get_formatter()
-    print(formatter(cil_ast))
+    if debug:
+        formatter = get_formatter()
+        print(formatter(cil_ast))
     data_code, text_code = CILToMIPSVistor().visit(cil_ast)
     save_code(data_code, text_code)
     return ast, context, scope, cil_ast

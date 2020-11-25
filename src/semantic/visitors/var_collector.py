@@ -85,6 +85,8 @@ class VarCollector:
 
         # Añadir las variables de argumento
         for pname, ptype in node.params:
+            if pname == 'self':
+                self.errors.append(SemanticError.SELF_PARAM, pname.pos) 
             new_scope.define_variable(pname, self._get_type(ptype.value, ptype.pos))
             
         self.visit(node.body, new_scope)
@@ -101,7 +103,7 @@ class VarCollector:
     @visitor.when(VarDeclarationNode)
     def visit(self, node:VarDeclarationNode, scope:Scope):
         if node.id == 'self':
-            error_text = SemanticError.SELF_IS_READONLY
+            error_text = SemanticError.SELF_IN_LET
             self.errors.append(SemanticError(error_text, *node.pos))
             return
         
@@ -111,6 +113,13 @@ class VarCollector:
                 error_text = SemanticError.LOCAL_ALREADY_DEFINED %(node.id, self.current_method.name) 
                 self.errors.append(SemanticError(error_text, *node.pos))        
             return
+
+        try:
+            vtype = self.context.get_type(node.type, node.pos)
+        except SemanticError:
+            error_text = TypesError.UNDEFINED_TYPE_LET % (node.type, node.id)
+            self.errors.append(TypesError(error_text, *node.type_pos))
+            vtype = ErrorType()
 
         vtype = self._get_type(node.type, node.type_pos)
         var_info = scope.define_variable(node.id, vtype)
@@ -130,7 +139,7 @@ class VarCollector:
     
         vinfo = scope.find_variable(node.id)
         if vinfo is None:
-            error_text = NamesError.VARIABLE_NOT_DEFINED %(node.id, self.current_method.name)  
+            error_text = NamesError.VARIABLE_NOT_DEFINED %(node.id)  
             self.errors.append(NamesError(error_text, *node.pos))
             vtype = ErrorType()
             scope.define_variable(node.id, vtype)
@@ -160,7 +169,7 @@ class VarCollector:
         self.visit(node.left, scope)
         self.visit(node.right, scope)
 
-    
+     
     @visitor.when(UnaryNode)
     def visit(self, node:UnaryNode, scope:Scope):
         self.visit(node.expr, scope)
@@ -172,7 +181,7 @@ class VarCollector:
             return self.current_type.get_attribute(node.lex, node.pos).type
         except AttributesError:
             if not scope.is_defined(node.lex):
-                error_text = NamesError.VARIABLE_NOT_DEFINED %(node.lex, self.current_method.name)
+                error_text = NamesError.VARIABLE_NOT_DEFINED %(node.lex)
                 self.errors.append(NamesError(error_text, *node.pos))
                 vinfo = scope.define_variable(node.lex, ErrorType(node.pos))
             else:
@@ -229,8 +238,12 @@ class VarCollector:
 
     @visitor.when(OptionNode)
     def visit(self, node:OptionNode, scope:Scope):
-        typex = self.context.get_type(node.typex, node.type_pos)
-        
+        try:
+            typex = self.context.get_type(node.typex, node.type_pos)
+        except TypesError:
+            error_txt = TypesError.CLASS_CASE_BRANCH_UNDEFINED % node.typex
+            self.errors.append(TypesError(error_txt, *node.type_pos))
+
         self.visit(node.expr, scope)
         scope.define_variable(node.id, typex)
 

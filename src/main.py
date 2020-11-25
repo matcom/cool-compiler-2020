@@ -19,12 +19,12 @@ def run_pipeline(input):
         if p.errors:
             raise Exception()
         
-        ast, errors, context, scope = semantic_analysis(ast)
+        ast, errors, context, scope = semantic_analysis(ast, debug=False)
         if errors:
             for err in errors:
                 print(err)
-        else:
-            ast, context, scope, cil_ast = codegen_pipeline(context, ast, scope)
+        # else:
+        #     ast, context, scope, cil_ast = codegen_pipeline(context, ast, scope, debug=False)
 
     except FileNotFoundError:
         error_text = CompilerError.UNKNOWN_FILE % input_
@@ -32,7 +32,7 @@ def run_pipeline(input):
 
 
 if __name__ == "__main__":
-    # input_ = sys.argv[1]
-    input_ = f'test1.cl' 
+    input_ = sys.argv[1]
+    # input_ = f'test1.cl' 
     # output_ = args.output
     run_pipeline(input_)

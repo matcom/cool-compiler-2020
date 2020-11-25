@@ -8,7 +8,7 @@ class Context:
 
     def create_type(self, name:str, pos) -> Type:
         if name in self.types:
-            error_text = TypesError.TYPE_ALREADY_DEFINED % name
+            error_text = TypesError.TYPE_ALREADY_DEFINED
             raise TypesError(error_text, *pos)
         typex = self.types[name] = Type(name, pos)
         return typex

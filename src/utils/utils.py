@@ -33,3 +33,6 @@ def get_common_basetype(types):
 
 def get_type(typex: Type, current_type: Type) -> Type:
     return current_type if typex == SelfType() else typex
+
+def is_basic_type(type_name:str):
+    return type_name in ['String', 'Int', 'Object', 'Bool', 'SELF_TYPE', 'IO']

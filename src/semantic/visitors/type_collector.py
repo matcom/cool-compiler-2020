@@ -11,7 +11,7 @@ class TypeCollector(object):
     
     @visitor.on('node')
     def visit(self, node):
-        pass
+        pass 
     
     @visitor.when(ProgramNode)
     def visit(self, node:ProgramNode):
@@ -28,6 +28,9 @@ class TypeCollector(object):
 
     @visitor.when(ClassDeclarationNode)
     def visit(self, node:ClassDeclarationNode):
+        if node.id in ['String', 'Int', 'Object', 'Bool', 'SELF_TYPE', 'IO']:
+            error = SemanticError.REDEFINITION_ERROR % node.id
+            self.errors.append(SemanticError(error, *node.pos))
         try:
             self.context.create_type(node.id, node.pos)
         except SemanticError as e:
