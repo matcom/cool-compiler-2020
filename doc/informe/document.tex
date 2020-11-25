@@ -102,8 +102,13 @@ COOL es un pequeño lenguaje orientado a objetos, con tipado estático, herencia s
 El propósito de la asignatura Complementos de Compilación es desarrollar durante el curso un compilador para el lenguaje COOL que sea capaz de convertir programas escritos en Cool en programas escritos en MIPS.
 
 \section{Arquitectura del compilador}
-\subsection{Análisis Lexicográfico}
-\subsection{Análisis Sintáctico}
+\subsection{Análisis Lexicográfico y Sintáctico}
+En estas dos fases se emplearon las herramientas de construcción de compiladores lex y yacc a través del paquete de \textit{Python} \lstinline|ply|. El mismo incluye la compatibilidad con el análisis sintáctico LALR(1), así como la validación de entrada, informes de errores y resulta ser bastante exigente con la especificación de reglas gramaticales y de tokens.
+
+PLY consta de dos módulos separados: \lstinline|lex.py| y \lstinline|yacc.py|. El primero se utiliza par dividir el texto de entrada en una colección de tokens especificados por una colección de reglas en forma de expresiones regulares(\textit{tokenización}), mientras que el segundo se utiliza para reconocer la sintaxis del lenguaje que se ha especificado en forma de gramática libre del contexto. Las dos herramientas están diseñadas para trabajar juntas. 
+
+El módulo \lstinline|yacc.py| implementa la componente de \textit{parsing} de PLY teniendo como salida un árbol de sintaxis abstracta representativo del programa de entrada. Yacc utiliza la técnica de análisis sintáctico LR o \textit{shift-reduce}. Es importante señalar que tiene como requisito la especificación de la sintaxis en términos de una gramática BNF(notación de Backus-Naur). Esta notación es utilizada para expresar gramáticas libres del contexto. En \lstinline|grammar.md| se encuentra especificada la gramática utilizada en el proyecto.
+
 \subsection{Análisis Semántico}
 Durante esta fase se analiza el cumplimiento de todos los predicados semánticos del lenguaje, y por tanto, el uso correcto de los tipos declarados. A continuación centraremos la atención en el problema de la verificación de dichos tipos.
 
