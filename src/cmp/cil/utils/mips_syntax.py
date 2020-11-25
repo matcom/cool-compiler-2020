@@ -53,6 +53,7 @@ class Directive(str, Enum):
 
 
 syscall = "syscall"
+Reg = Register
 
 
 class Mips:
@@ -95,35 +96,36 @@ class Mips:
     def compile(self):
         return '\n'.join(['.data'] + self.DOTDATA + ['.text'] + self.DOTTEXT)
 
-    def write_push(self, register: str):
+    def push(self, register: Register):
         self.addi(Register.sp, Register.sp, -8)
-        self.write_store_memory(register, self.reg_offset(Register.sp))
+        self.store_memory(register, self.offset(Register.sp))
 
-    def write_pop(self, register: str):
+    def pop(self, register: Register):
         """
-        First, load from to address `0($sp)` and then write `add $sp , $sp , 8`
+        First, load from to address `0($sp)`
+        and then write `addi $sp , $sp , 8`
         to restore the stack pointer
         """
-        self.write_load_memory(register, "0($sp)")
-        self.write_inst("add $sp , $sp , 8")
+        self.load_memory(register, self.offset(Reg.sp))
+        self.addi(Reg.sp, Reg.sp, 8)
 
-    def write_load_memory(self, register: str, address: str):
+    def load_memory(self, register: Register, address: str):
         """
         Load from a specific address a 32 bits register
         """
-        self.write_inst(f"lw $t0 , {address}")
-        self.write_inst("sll $t0 , $t0 , 16")
-        self.write_inst(f"lw $t1, {address} + 4")
-        self.write_inst(f"or {register} ,$t0 , $t1")
+        self.lw(Reg.t0, address)
+        self.sll(Reg.t0, Reg.t0, 16)
+        self.lw(Reg.t1, f"{address} + 4")
+        self.orr(register, Reg.t0, Reg.t1)
 
-    def write_store_memory(self, register: str, address: str):
+    def store_memory(self, register: Register, address: str):
         """
         Write to a specific address a 32 bits register
         """
-        self.write_inst(f"sw $t1 , {address} + 4")
-        self.write_inst("srl $t1 , $t1 , 16")
-        self.write_inst(f"sw $t0 , {address}")
-        self.write_inst(f"or {register} ,$t0 , $t1")
+        self.sw(Reg.t1, f"{address} + 4")
+        self.srl(Reg.t1, Reg.t1, 16)
+        self.sw(Reg.t0, address)
+        self.orr(register, Reg.t0, Reg.t1)
 
     # Arithmetics
     @autowrite
@@ -305,20 +307,24 @@ class Mips:
 
     @autowritedata
     def ascii(self, string: str):
-        return f"{Directive.ascii} \"{string}\""
+        return f'{Directive.ascii} "{string}"'
 
     @autowrite
     def asciiz(self, string: str):
-        return f"{Directive.asciiz} \"{string}\""
+        return f'{Directive.asciiz} "{string}"'
 
     # Utilities
-    def reg_offset(self, r: Register, offset: int = 0):
+    def offset(self, r: Register, offset: int = 0):
         return f"{offset}({r})"
 
     @autowritedata
     def var_label(self, name: str):
         return f"{name}:"
-    
+
     @autowrite
     def label(self, name: str):
         return f"{name}:"
+
+    @autowrite
+    def empty_line(self):
+        return ""

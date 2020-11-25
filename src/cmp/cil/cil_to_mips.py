@@ -42,7 +42,7 @@ from .ast import (
     StringEqualNode,
 )
 from .utils import on, when
-from .utils.mips_syntax import Mips, Register as Reg # noqa
+from .utils.mips_syntax import Mips, Register as Reg
 
 
 class CIL_TO_MIPS(object):
@@ -58,7 +58,7 @@ class CIL_TO_MIPS(object):
         pass
 
     @when(ProgramNode)
-    def visit(self, node: ProgramNode): # noqa
+    def visit(self, node: ProgramNode):  # noqa
         self.types = node.dottypes
         self.build_types_data(self.types)
 
@@ -76,7 +76,8 @@ class CIL_TO_MIPS(object):
 
     @when(DataNode)
     def visit(self, node: DataNode):  # noqa
-        self.mips.write_data(f'{node.name}: .asciiz "{node.value}"')
+        self.mips.var_label(node.name)
+        self.mips.asciiz(node.value)
 
     @when(TypeNode)
     def visit(self, node: TypeNode):  # noqa
@@ -84,35 +85,34 @@ class CIL_TO_MIPS(object):
 
     @when(FunctionNode)
     def visit(self, node: FunctionNode):  # noqa
-        self.write_inst("")
-        self.write_inst(f"{node.name}: ;")
-        self.write_push("$fp")
-        self.write_inst("add $fp, $0, $sp")
+        self.mips.empty_line()
+        self.mips.label(node.name)
+        self.mips.push(Reg.fp)
+        self.mips.add(Reg.fp, Reg.zero, Reg.sp)
         self.actual_args = dict()
 
-        self.write_inst("")
+        self.mips.empty_line()
         for idx, param in enumerate(node.params):
             self.visit(param, index=idx)
 
-        self.write_inst("")
+        self.mips.empty_line()
         for idx, local in enumerate(node.localvars):
             self.visit(local, index=idx)
 
-        self.write_inst("")
+        self.mips.empty_line()
         # self.store_registers()
-        self.write_inst("")
+        self.mips.empty_line()
         for instruction in node.instructions:
             self.visit(instruction)
 
         self.actual_args = None
-        self.write_inst("")
+        self.mips.empty_line()
         # self.load_registers()
 
-        for _ in node.localvars:
-            self.write_inst("addi $sp, $sp, 8")
-        self.write_pop("$fp")
-        self.write_inst("jr $ra")
-        self.write_inst("")
+        self.mips.addi(Reg.sp, Reg.sp, len(node.localvars) * 8)
+        self.mips.pop(Reg.fp)
+        self.mips.jr(Reg.ra)
+        self.mips.empty_line()
 
     @when(ParamNode)
     def visit(self, node: ParamNode, index=0):  # noqa
@@ -120,7 +120,7 @@ class CIL_TO_MIPS(object):
 
     @when(LocalNode)
     def visit(self, node: LocalNode, index=0):  # noqa
-        self.write_push("$zero")
+        self.mips.push(Reg.zero)
         assert node.name not in self.local_vars_offsets, \
             f"Impossible {node.name}..."
         self.local_vars_offsets[node.name] = index
