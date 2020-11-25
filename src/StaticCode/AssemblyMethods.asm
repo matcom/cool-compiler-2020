@@ -64,7 +64,7 @@
      lw $t1, $a0
      lw $t2, $a1
      blt $t1, $t2, LesserTrue
-     move $v0, zero
+     move $v0, $zero
      b LesserEnd
      LesserTrue:
      li $v0, 1
@@ -86,7 +86,7 @@
 
      .Int.not:
      lw $t1, $a0
-     move $t2, zero
+     move $t2, $zero
      beq $t1, $t2, FalseBool
      li $v0, 0
      b NotBool
@@ -110,13 +110,13 @@
 
      .Str.stringlength:
      lw $t1, $a0
-     move $v0, zero
-     move $t2, zero
+     move $v0, $zero
+     move $t2, $zero
 
      InicioStrLen:
      add $t0, $t1, $vo
      lb $t2, $t0
-     beq $t2, zero, FinStrLen
+     beq $t2, $zero, FinStrLen
      addi $v0, $v0, 1
      b InicioStrLen
 
@@ -132,10 +132,10 @@
      .Str.stringcomparison:
      lw $t1, $a0
      lw $t2, $a1
-     move $v0, zero
-     move $t3, zero
-     move $t4, zero
-     move $v0, zero
+     move $v0, $zero
+     move $t3, $zero
+     move $t4, $zero
+     move $v0, $zero
 
      StrCompCiclo:
      add $t0, $t1, $v0
@@ -143,7 +143,7 @@
      add $t0, $t2, $v0
      lb $t4, $to
      bne $t3, $t4, StrDiferentes
-     beq $t3, zero, StrIguales
+     beq $t3, $zero, StrIguales
      b StrCompCiclo
 
      StrDiferentes:
@@ -185,24 +185,24 @@
 
      move $t0, $v0
      move $t1, $s0
-     move $t2, zero
-     move $t3, zero
+     move $t2, $zero
+     move $t3, $zero
      
      StrCicloCopia:
      lb $t2, $t1
      addi $t1, 1
      addi $t0, 1
      
-     bne $t2, zero, StrCicloCopia
+     bne $t2, $zero, StrCicloCopia
      sb $t2, $t0
 
-     bne $t3, zero, StrFinCopia
+     bne $t3, $zero, StrFinCopia
      move $t1, $s1
 
      b StrCicloCopia
 
      StrFinCopia:
-     sb zero, $t0
+     sb $zero, $t0
 
      #sw $v0, $s2
 
@@ -222,7 +222,7 @@
 
 
      .Str.substring:
-     blt $a1, zero, SubStrWrongIndex
+     blt $a1, $zero, SubStrWrongIndex
 
      addi $sp, $sp, -20
      
@@ -250,7 +250,7 @@
 
      move $t0, $v0
      move $t1, $s0
-     move $t2, zero
+     move $t2, $zero
 
      StrInicioCopiaSubStr:
      lb $t3, $t1
@@ -260,7 +260,7 @@
      addi $t2, $t2, 1
      ble $t2, $s1, StrInicioCopiaSubStr
 
-     sb zero, $t0
+     sb $zero, $t0
      
      sw $v0, $s2
 
@@ -301,7 +301,7 @@
      syscall
      move $t1, $v0
      $ciclocopia:
-     beq $s1, zero, $finciclocopia
+     beq $s1, $zero, $finciclocopia
      lw $t0, $s0
      sw $t0, $t1
      addi $s0, 4

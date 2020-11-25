@@ -186,7 +186,8 @@ addi $sp, $sp, -8
 sw $a0, 0($sp)
 sw $ra, 4($sp)
 move $a0, $t0
-jal .Str.stringlengthlw $a0, 0($sp)
+jal .Str.stringlength
+lw $a0, 0($sp)
 lw $ra, 4($sp)
 addi $sp, $sp, 8
 sw $v0,4($sp)
@@ -205,7 +206,8 @@ sw $a1, 4($sp)
 sw $ra, 8($sp)
 move $a0, $t0
 move $a1, $t1
-jal .Str.stringconcatlw $a0, 0($sp)
+jal .Str.stringconcat
+lw $a0, 0($sp)
 lw $a1, 4($sp)
 lw $ra, 8($sp)
 addi $sp, $sp, 12
@@ -225,7 +227,8 @@ sw $a1, 4($sp)
 sw $ra, 8($sp)
 move $a0, $t0
 move $a1, $t1
-jal .Str.stringconcatlw $a0, 0($sp)
+jal .Str.stringconcat
+lw $a0, 0($sp)
 lw $a1, 4($sp)
 lw $ra, 8($sp)
 addi $sp, $sp, 12
@@ -294,7 +297,8 @@ lw $t0,8($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0, $a0lw $t0,16($t0)
+lw $t0, 0($a0)
+lw $t0,16($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
 jalr $t0, $ra
@@ -323,13 +327,14 @@ lw $t0,32($sp)
 move $v0, $t0
 sw $v0,16($a0)
 Lbl0:
-move $t0, zero
+move $t0, $zero
 move $v0, $t0
 sw $v0,36($sp)
 lw $t0,36($sp)
 addi $v0 ,$t0, 1
 li $t1, 2
-rem $v0, $v0, $t1sw $v0,44($sp)
+rem $v0, $v0, $t1
+sw $v0,44($sp)
 lw $t0,44($sp)
 bgtz $t0, Lbl1
 lw $t0,48($sp)
@@ -403,8 +408,8 @@ move $v0, $t0
 sw $v0,148($sp)
 lw $t0,144($sp)
 lw $t1,148($sp)
-move s0, $a0
-move s1, $a1
+move $s0, $a0
+move $s1, $a1
 move $a0, $t0
 move $a1, $t1
 jal .Int.igual
@@ -413,7 +418,7 @@ move $a1, $s1
 sw $v0,156($sp)
 lw $t0,156($sp)
 bgtz $t0, Lbl4
-move $t0, zero
+move $t0, $zero
 move $v0, $t0
 sw $v0,164($sp)
 lw $t0,164($sp)
@@ -449,7 +454,8 @@ sw $v0,180($sp)
 lw $t0,180($sp)
 addi $v0 ,$t0, 1
 li $t1, 2
-rem $v0, $v0, $t1sw $v0,188($sp)
+rem $v0, $v0, $t1
+sw $v0,188($sp)
 lw $t0,188($sp)
 bgtz $t0, Lbl3
 lw $t0,68($sp)
@@ -522,7 +528,8 @@ lw $t0,252($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0, $a0lw $t0,20($t0)
+lw $t0, 0($a0)
+lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
 jalr $t0, $ra
@@ -546,7 +553,8 @@ lw $t0,264($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0, $a0lw $t0,16($t0)
+lw $t0, 0($a0)
+lw $t0,16($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
 jalr $t0, $ra
@@ -589,7 +597,8 @@ lw $t0,312($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0, $a0lw $t0,8($t0)
+lw $t0, 0($a0)
+lw $t0,8($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
 jalr $t0, $ra

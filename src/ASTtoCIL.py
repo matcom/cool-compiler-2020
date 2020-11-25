@@ -112,7 +112,7 @@ class CILTranspiler:
 
     def GenerarNombreVariableBase(self):
         self.variablecount+=1
-        return "var#"+str(self.variablecount)
+        return "var.var"+str(self.variablecount)
 
     def GenerarNombreVariable(self, scope:Scope):
         variable=self.GenerarNombreVariableBase()
