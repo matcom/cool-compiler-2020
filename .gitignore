@@ -415,3 +415,6 @@ dmypy.json
 src/test.cl
 # Generated CIL files
 *.cil
+
+# Generated Mips files
+*.mips
