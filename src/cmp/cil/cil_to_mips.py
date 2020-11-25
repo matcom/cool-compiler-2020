@@ -29,6 +29,12 @@ class CIL_TO_MIPS(object):
     def compile(self):
         return '\n'.join([ '.data'] + self.DOTDATA + ['.text'] + self.DOTTEXT)
 
+    def write_push(self, register:str):
+        pass
+
+    def write_pop(self, register:str):
+        pass
+
     @on('node')
     def visit(self, node):
         pass
