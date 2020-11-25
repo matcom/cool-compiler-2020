@@ -8,8 +8,8 @@ class Context:
 
     def create_type(self, name:str, pos) -> Type:
         if name in self.types:
-            error_text = TypesError.TYPE_ALREADY_DEFINED
-            raise TypesError(error_text, *pos)
+            error_text = SemanticError.TYPE_ALREADY_DEFINED
+            raise SemanticError(error_text, *pos)
         typex = self.types[name] = Type(name, pos)
         return typex
 
@@ -80,7 +80,8 @@ class Scope:
 
     def define_variable(self, vname, vtype) -> VariableInfo:
         info = VariableInfo(vname, vtype)
-        self.locals.append(info)
+        if info not in self.locals:
+            self.locals.append(info)
         return info
 
     def find_variable(self, vname, index=None) -> VariableInfo:
@@ -103,7 +104,7 @@ class Scope:
         try:
             return next(x for x in locals if x.name == vname)
         except StopIteration:
-            return self.parent.find_attribute(vname, self.index) if self.parent else None
+            return self.parent.find_attribute(vname, index) if self.parent else None
 
 
     def get_class_scope(self):

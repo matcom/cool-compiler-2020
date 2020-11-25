@@ -42,8 +42,8 @@ class TypeBuilder:
                 current = parent
                 while current is not None:
                     if current.name == self.current_type.name:
-                        error_text = TypesError.CIRCULAR_DEPENDENCY %(self.current_type.name, self.current_type.name) 
-                        raise TypesError(error_text, *node.pos)
+                        error_text = SemanticError.CIRCULAR_DEPENDENCY %(self.current_type.name, self.current_type.name) 
+                        raise SemanticError(error_text, *node.pos)
                     current = current.parent
             except SemanticError as e:
                 parent = ErrorType()
@@ -60,14 +60,14 @@ class TypeBuilder:
         args_types = []
         for name, type_ in node.params:
             if name in args_names:
-                error_text = TypesError.PARAMETER_MULTY_DEFINED % name
-                self.errors.append(TypesError(error_text, *name.pos))
+                error_text = SemanticError.PARAMETER_MULTY_DEFINED % name
+                self.errors.append(SemanticError(error_text, *type_.pos))
             args_names.append(name)
             
             try:
                 arg_type = self.context.get_type(type_.value, type_.pos)
             except SemanticError:
-                error_text = TypesError.PARAMETER_UNDEFINED % type_.value
+                error_text = TypesError.PARAMETER_UNDEFINED % (type_.value, type_.value)
                 self.errors.append(TypesError(error_text, *type_.pos))
                 arg_type = ErrorType()
             args_types.append(arg_type)
@@ -80,7 +80,7 @@ class TypeBuilder:
             return_type = ErrorType(node.type_pos)
     
         try:
-            self.current_type.define_method(node.id, args_names, args_types, return_type)
+            self.current_type.define_method(node.id, args_names, args_types, return_type, node.pos)
         except SemanticError as e:
             self.errors.append(e)
     
@@ -93,6 +93,9 @@ class TypeBuilder:
             attr_type = ErrorType(node.type_pos)
             self.errors.append(TypesError(error_text, *node.type_pos))
         
+        if node.id == 'self':
+            self.errors.append(SemanticError(SemanticError.SELF_ATTR, *node.pos)) 
+
         try:
             self.current_type.define_attribute(node.id, attr_type, node.pos)
         except SemanticError as e:

@@ -47,7 +47,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             # definiendo el constructor en el tipo para analizar
             func_declarations = [constructor]
             self.constructors.append(node.id)
-            self.current_type.define_method(self.current_type.name, [], [], self.current_type)
+            self.current_type.define_method(self.current_type.name, [], [], self.current_type, node.pos)
             scopes = [scope] + scope.children
         else:
             func_declarations = []

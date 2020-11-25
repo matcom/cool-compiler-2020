@@ -3,8 +3,7 @@ from semantic.tools import *
 from semantic.types import *
 from utils.ast import *
 from utils.errors import SemanticError, AttributesError, TypesError, NamesError
-# from utils.utils import get_type, get_common_basetype
-from utils import get_type
+from utils import get_type, get_common_basetype
 
 
 class TypeChecker:
@@ -24,7 +23,7 @@ class TypeChecker:
         for declaration, new_scope in zip(node.declarations, scope.children):
             self.visit(declaration, new_scope)
     
-    def _get_type(self, ntype:Type, pos):
+    def _get_type(self, ntype:str, pos):
         try:
             return self.context.get_type(ntype, pos)
         except SemanticError as e:
@@ -81,15 +80,15 @@ class TypeChecker:
             try:
                 old_meth = parent.get_method(node.id, node.pos)
                 if old_meth.return_type.name != method.return_type.name:
-                    error_text = AttributesError.WRONG_SIGNATURE_RETURN % (node.id, method.return_type.name, old_meth.return_type.name)
-                    self.errors.append(AttributesError(error_text, *node.type_pos))
+                    error_text = SemanticError.WRONG_SIGNATURE_RETURN % (node.id, method.return_type.name, old_meth.return_type.name)
+                    self.errors.append(SemanticError(error_text, *node.type_pos))
                 if len(method.param_names) != len(old_meth.param_names):
-                    error_text = AttributesError.WRONG_NUMBER_PARAM % node.id
-                    self.errors.append(AttributesError(error_text, *node.pos))
-                for name, type1, type2 in zip(method.param_names, method.param_types, old_meth.param_types):
+                    error_text = SemanticError.WRONG_NUMBER_PARAM % node.id
+                    self.errors.append(SemanticError(error_text, *node.pos))
+                for (name, param), type1, type2 in zip(node.params, method.param_types, old_meth.param_types):
                     if type1.name != type2.name:
-                        error_text = AttributesError.WRONG_SIGNATURE_PARAMETER % (name, type1.name, type2.name)  
-                        self.errors.append(AttributesError(error_text, *name.pos))
+                        error_text = SemanticError.WRONG_SIGNATURE_PARAMETER % (name, type1.name, type2.name)  
+                        self.errors.append(SemanticError(error_text, *param.pos))
             except SemanticError:
                 pass
             
@@ -105,8 +104,9 @@ class TypeChecker:
     @visitor.when(VarDeclarationNode)
     def visit(self, node:VarDeclarationNode, scope:Scope):
 
-        var_info = self.find_variable(scope, node.id)
-        vtype = get_type(var_info.type, self.current_type)
+        vtype =  self._get_type(node.type, node.type_pos)
+        # var_info = self.find_variable(scope, node.id)
+        vtype = get_type(vtype, self.current_type)
 
         if node.expr != None:
             typex = self.visit(node.expr, scope)
@@ -141,10 +141,10 @@ class TypeChecker:
                 error_text = SemanticError.ARGUMENT_ERROR % (meth.name)
                 self.errors.append(SemanticError(error_text, *arg_info.pos))
 
-        for atype, ptype, arg_info in zip(arg_types, meth.param_types, args):
+        for atype, ptype, param_name in zip(arg_types, meth.param_types, meth.param_names):
             if not atype.conforms_to(ptype):
-                error_text = TypesError.INCOSISTENT_ARG_TYPE % (meth.name, atype.name, arg_info.name, ptype.name)
-                self.errors.append(TypesError(error_text, *arg_info.pos))
+                error_text = TypesError.INCOSISTENT_ARG_TYPE % (meth.name, atype.name, param_name, ptype.name)
+                self.errors.append(TypesError(error_text, *pos))
         
 
     @visitor.when(CallNode)
@@ -205,11 +205,11 @@ class TypeChecker:
         return VoidType(node.pos)
 
     def find_variable(self, scope, lex):
-        var_info = scope.find_attribute(lex, self.current_index)
+        var_info = scope.find_local(lex)
+        if var_info is None:
+            var_info = scope.find_attribute(lex, self.current_index)
         if lex in self.current_type.attributes and var_info is None:
             return VariableInfo(lex, VoidType())
-        if var_info is None:
-            var_info = scope.find_local(lex)
         return var_info
 
     @visitor.when(VariableNode)
@@ -236,8 +236,9 @@ class TypeChecker:
         
         if cond.name != 'Bool':
             self.errors.append(TypesError(TypesError.LOOP_CONDITION_ERROR, *node.pos))   
+        
         self.visit(node.expr, scope)
-        return VoidType()
+        return ObjectType()
 
     @visitor.when(IsVoidNode)
     def visit(self, node:IsVoidNode, scope:Scope):
@@ -251,19 +252,20 @@ class TypeChecker:
 
         if cond.name != 'Bool':
             error_text = TypesError.PREDICATE_ERROR % ('if', 'Bool')
-            self.errors.append(TypesError(error_text, node.pos))
+            self.errors.append(TypesError(error_text, *node.pos))
         
         true_type = self.visit(node.stm, scope)
         false_type = self.visit(node.else_stm, scope)
       
-        if true_type.conforms_to(false_type):
-            return false_type
-        elif false_type.conforms_to(true_type):
-            return true_type
-        else:
-            error_text = TypesError.INCOMPATIBLE_TYPES % (false_type.name, true_type.name)
-            self.errors.append(TypesError(error_text, node.pos))
-            return ErrorType()
+        return get_common_basetype([false_type, true_type])
+        # if true_type.conforms_to(false_type):
+        #     return false_type
+        # elif false_type.conforms_to(true_type):
+        #     return true_type
+        # else:
+        #     error_text = TypesError.INCOMPATIBLE_TYPES % (false_type.name, true_type.name)
+        #     self.errors.append(TypesError(error_text, *node.pos))
+        #     return ErrorType()
         
 
     @visitor.when(BlockNode)
@@ -290,15 +292,19 @@ class TypeChecker:
         types = []
         var_types = []
         for case, c_scope in zip(node.case_list, new_scope.children):
+            case: OptionNode
             t, vt = self.visit(case, c_scope)
             types.append(t)
-            var_types.append(vt)
+            if case.typex in var_types:
+                error_text = SemanticError.DUPLICATE_CASE_BRANCH % case.typex
+                self.errors.append(SemanticError(error_text, *case.type_pos))
+            var_types.append(case.typex)
 
-        for t in var_types:
-            if not type_expr.conforms_to(t):
-                error_text = TypesError.INCOMPATIBLE_TYPES % (t.name, type_expr.name)
-                self.errors.append(TypesError(error_text, *node.pos))
-                return ErrorType()
+        # for t in var_types:
+        #     if not type_expr.conforms_to(t):
+        #         error_text = TypesError.INCOMPATIBLE_TYPES % (t.name, type_expr.name)
+        #         self.errors.append(TypesError(error_text, *node.pos))
+        #         return ErrorType()
 
         return get_common_basetype(types)
         
@@ -310,7 +316,7 @@ class TypeChecker:
         return typex, var_info.type
 
 
-    def binary_operation(self, node, operator):
+    def binary_operation(self, node, scope, operator):
         ltype = self.visit(node.left, scope)
         rtype = self.visit(node.right, scope)
         int_type = IntType()
@@ -318,44 +324,45 @@ class TypeChecker:
             error_text = TypesError.BOPERATION_NOT_DEFINED %(ltype.name, operator, rtype.name)
             self.errors.append(TypesError(error_text, *node.pos))
             return ErrorType()
-        if opertor == '<' or operator == '<=':
+        if operator == '<' or operator == '<=':
             return BoolType()
         return int_type
 
     @visitor.when(PlusNode)
     def visit(self, node:PlusNode, scope:Scope):
-        return self.binary_operation(node, '+')
+        return self.binary_operation(node, scope, '+')
     
     @visitor.when(MinusNode)
     def visit(self, node:MinusNode, scope:Scope):
-        return self.binary_operation(node, '-')
+        return self.binary_operation(node, scope, '-')
     
     @visitor.when(StarNode)
     def visit(self, node:StarNode, scope:Scope):
-        return self.binary_operation(node, '*')
+        return self.binary_operation(node, scope, '*')
     
     @visitor.when(DivNode)
     def visit(self, node:DivNode, scope:Scope):
-        return self.binary_operation(node, '/')
+        return self.binary_operation(node, scope, '/')
     
     @visitor.when(LessEqNode)
     def visit(self, node:DivNode, scope:Scope):
-        return self.binary_operation(node, '<=')
+        return self.binary_operation(node, scope, '<=')
 
     @visitor.when(LessNode)
     def visit(self, node:DivNode, scope:Scope):
-        return self.binary_operation(node, '<')
+        return self.binary_operation(node, scope, '<')
 
 
     @visitor.when(EqualNode)
     def visit(self, node:EqualNode, scope:Scope):
         ltype = self.visit(node.left, scope)
         rtype = self.visit(node.right, scope)
-        if ltype == rtype and  (ltype == IntType() or ltype == StringType() or ltype == BoolType()):
+        if (ltype == IntType() or rtype == IntType() or ltype == StringType() or rtype == StringType() or ltype == BoolType() or rtype == BoolType()) and ltype != rtype:
             error_text = TypesError.COMPARISON_ERROR
             self.errors.append(TypesError(error_text, *node.pos))
             return ErrorType()
-        return BoolType()
+        else:
+            return BoolType()
 
 
     @visitor.when(NotNode)

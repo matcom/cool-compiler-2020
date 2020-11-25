@@ -28,7 +28,7 @@ class VarCollector:
     def copy_scope(self, scope:Scope, parent:Type):
         if parent is None:
             return
-        for attr in parent.attributes:
+        for attr in parent.attributes.values():
             if scope.find_variable(attr.name) is None:
                 scope.define_attribute(attr)
         self.copy_scope(scope, parent.parent)
@@ -43,7 +43,10 @@ class VarCollector:
             if isinstance(feat, AttrDeclarationNode):
                 self.visit(feat, scope)
         
-        self.copy_scope(scope, self.current_type.parent)
+        for attr, _ in self.current_type.all_attributes():
+            if scope.find_attribute(attr.name) is None:
+                scope.define_attribute(attr)
+        # self.copy_scope(scope, self.current_type.parent)
         
         for feat in node.features:
             if isinstance(feat, FuncDeclarationNode):
@@ -86,7 +89,7 @@ class VarCollector:
         # Añadir las variables de argumento
         for pname, ptype in node.params:
             if pname == 'self':
-                self.errors.append(SemanticError.SELF_PARAM, pname.pos) 
+                self.errors.append(SemanticError(SemanticError.SELF_PARAM, *ptype.pos)) 
             new_scope.define_variable(pname, self._get_type(ptype.value, ptype.pos))
             
         self.visit(node.body, new_scope)
@@ -107,12 +110,12 @@ class VarCollector:
             self.errors.append(SemanticError(error_text, *node.pos))
             return
         
-        if scope.is_defined(node.id):
-            var = scope.find_variable(node.id)
-            if var.type != ErrorType():
-                error_text = SemanticError.LOCAL_ALREADY_DEFINED %(node.id, self.current_method.name) 
-                self.errors.append(SemanticError(error_text, *node.pos))        
-            return
+        # if scope.is_defined(node.id):
+        #     var = scope.find_variable(node.id)
+        #     if var.type != ErrorType():
+        #         error_text = SemanticError.LOCAL_ALREADY_DEFINED %(node.id, self.current_method.name) 
+        #         self.errors.append(SemanticError(error_text, *node.pos))        
+        #     return
 
         try:
             vtype = self.context.get_type(node.type, node.pos)
@@ -243,6 +246,7 @@ class VarCollector:
         except TypesError:
             error_txt = TypesError.CLASS_CASE_BRANCH_UNDEFINED % node.typex
             self.errors.append(TypesError(error_txt, *node.type_pos))
+            typex = ErrorType()
 
         self.visit(node.expr, scope)
         scope.define_variable(node.id, typex)
