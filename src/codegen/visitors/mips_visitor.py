@@ -204,7 +204,10 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
     @visitor.when(EqualNode)
     def visit(self, node:MinusNode):
         self.code.append(f'# {node.dest} <- {node.left} = {node.right}')
-        self._code_to_comp(node, 'seq', lambda x, y: x == y)
+        if self.is_variable(node.left) and self.is_variable(node.right) and self.var_address[node.left] == AddrType.STR and self.var_address[node.right] == AddrType.STR:
+            self.compare_strings(node)
+        else:
+            self._code_to_comp(node, 'seq', lambda x, y: x == y)
 
     def _code_to_comp(self, node, op, func_op):
         rdest = self.addr_desc.get_var_reg(node.dest)
@@ -535,6 +538,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append(f'j {loop}')
         self.code.append(f'{end}:')
         self.load_var_if_occupied(var)
+        self.loop_idx += 1
 
 
     @visitor.when(OutStringNode)

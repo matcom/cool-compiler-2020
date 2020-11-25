@@ -275,3 +275,37 @@ class BaseCILToMIPSVisitor:
         if var is not None:
             self.code.append(f'# Restore the variable of {var}')
             self.load_var_code(var)
+
+    def compare_strings(self, node: EqualNode):
+        rdest = self.addr_desc.get_var_reg(node.dest)
+        rleft = self.addr_desc.get_var_reg(node.left)
+        rright = self.addr_desc.get_var_reg(node.right)
+
+        var1 = self.save_reg_if_occupied('a0')
+        var2 = self.save_reg_if_occupied('a1')
+        loop_idx = self.loop_idx
+        
+        self.code.append(f'move $t8, ${rleft}')                  # counter
+        self.code.append(f'move $t9, ${rright}')
+        self.code.append(f'loop_{loop_idx}:')
+        self.code.append(f'lb $a0, ($t8)')                      # load byte from each string
+        self.code.append(f'lb $a1, ($t9)')
+        self.code.append(f'beqz $a0, check_{loop_idx}')         # str1 ended  
+        self.code.append(f'beqz $a1, mismatch_{loop_idx}')      # str2 ended when str1 hasnt ended
+        self.code.append('seq $v0, $a0, $a1')                   # compare two bytes
+        self.code.append(f'beqz $v0, mismatch_{loop_idx}')      # bytes are different
+        self.code.append('addi $t8, $t8, 1')                    # Point to the next byte of str
+        self.code.append('addi $t9, $t9, 1')                        
+        self.code.append(f'j loop_{loop_idx}')
+        
+        self.code.append(f'mismatch_{loop_idx}:')
+        self.code.append('li $v0, 0')
+        self.code.append(f'j end_{loop_idx}')
+        self.code.append(f'check_{loop_idx}:')
+        self.code.append(f'bnez $a1, mismatch_{loop_idx}')
+        self.code.append('li $v0, 1')
+        self.code.append(f'end_{loop_idx}:')
+        self.code.append(f'move ${rdest}, $v0')
+        self.load_var_if_occupied(var1)
+        self.load_var_if_occupied(var2)
+        self.loop_idx += 1

@@ -21,12 +21,12 @@ def run_pipeline(input):
             raise Exception()
         
         ast, errors, context, scope = semantic_analysis(ast, debug=False)
-        if errors:
-            for err in errors:
-                print(err)
-            raise Exception()
+        # if errors:
+        #     for err in errors:
+        #         print(err)
+        #     raise Exception()
         # else:
-        #     ast, context, scope, cil_ast = codegen_pipeline(context, ast, scope, debug=False)
+        ast, context, scope, cil_ast = codegen_pipeline(context, ast, scope, debug=False)
 
     except FileNotFoundError:
         error_text = CompilerError.UNKNOWN_FILE % input_
@@ -34,8 +34,8 @@ def run_pipeline(input):
 
 
 if __name__ == "__main__":
-    input_ = sys.argv[1]
+    # input_ = sys.argv[1]
     # print(input_)
-    # input_ = f'arithmetic1.cl' 
+    input_ = f'test1.cl' 
     # output_ = args.output
     run_pipeline(input_)

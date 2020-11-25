@@ -6124,1276 +6124,257 @@
    yacc.py: 362:PLY: PARSE DEBUG START
    yacc.py: 410:
    yacc.py: 411:State  : 0
-   yacc.py: 435:Stack  : . LexToken(class,'class',13,377)
+   yacc.py: 435:Stack  : . LexToken(class,'class',1,0)
    yacc.py: 445:Action : Shift and goto state 5
    yacc.py: 410:
    yacc.py: 411:State  : 5
-   yacc.py: 435:Stack  : class . LexToken(type,'A2I',13,383)
+   yacc.py: 435:Stack  : class . LexToken(type,'Main',1,6)
    yacc.py: 445:Action : Shift and goto state 8
    yacc.py: 410:
    yacc.py: 411:State  : 8
-   yacc.py: 435:Stack  : class type . LexToken(ocur,'{',13,387)
-   yacc.py: 445:Action : Shift and goto state 10
+   yacc.py: 435:Stack  : class type . LexToken(inherits,'inherits',1,11)
+   yacc.py: 445:Action : Shift and goto state 11
    yacc.py: 410:
-   yacc.py: 411:State  : 10
-   yacc.py: 435:Stack  : class type ocur . LexToken(id,'c2i',15,395)
+   yacc.py: 411:State  : 11
+   yacc.py: 435:Stack  : class type inherits . LexToken(type,'IO',1,20)
+   yacc.py: 445:Action : Shift and goto state 20
+   yacc.py: 410:
+   yacc.py: 411:State  : 20
+   yacc.py: 435:Stack  : class type inherits type . LexToken(ocur,'{',1,23)
+   yacc.py: 445:Action : Shift and goto state 33
+   yacc.py: 410:
+   yacc.py: 411:State  : 33
+   yacc.py: 435:Stack  : class type inherits type ocur . LexToken(id,'main',3,30)
    yacc.py: 445:Action : Shift and goto state 19
    yacc.py: 410:
    yacc.py: 411:State  : 19
-   yacc.py: 435:Stack  : class type ocur id . LexToken(opar,'(',15,398)
+   yacc.py: 435:Stack  : class type inherits type ocur id . LexToken(opar,'(',3,34)
    yacc.py: 445:Action : Shift and goto state 32
    yacc.py: 410:
    yacc.py: 411:State  : 32
-   yacc.py: 435:Stack  : class type ocur id opar . LexToken(id,'char',15,399)
-   yacc.py: 445:Action : Shift and goto state 46
+   yacc.py: 435:Stack  : class type inherits type ocur id opar . LexToken(cpar,')',3,35)
+   yacc.py: 474:Action : Reduce rule [epsilon -> <empty>] with [] and goto state 45
+   yacc.py: 548:Result : <NoneType @ 0x563f82bde0f0> (None)
    yacc.py: 410:
-   yacc.py: 411:State  : 46
-   yacc.py: 435:Stack  : class type ocur id opar id . LexToken(colon,':',15,404)
-   yacc.py: 445:Action : Shift and goto state 61
+   yacc.py: 411:State  : 45
+   yacc.py: 430:Defaulted state 45: Reduce using 34
+   yacc.py: 435:Stack  : class type inherits type ocur id opar epsilon . LexToken(cpar,')',3,35)
+   yacc.py: 471:Action : Reduce rule [param_list_empty -> epsilon] with [None] and goto state 43
+   yacc.py: 506:Result : <list @ 0x7f8cbcab9c48> ([])
    yacc.py: 410:
-   yacc.py: 411:State  : 61
-   yacc.py: 435:Stack  : class type ocur id opar id colon . LexToken(type,'String',15,406)
-   yacc.py: 445:Action : Shift and goto state 96
-   yacc.py: 410:
-   yacc.py: 411:State  : 96
-   yacc.py: 435:Stack  : class type ocur id opar id colon type . LexToken(cpar,')',15,412)
-   yacc.py: 471:Action : Reduce rule [param -> id colon type] with ['char',':','String'] and goto state 44
-   yacc.py: 506:Result : <tuple @ 0x7f4b0c5c5c48> ((LexToken(id,'char',15,399), LexToken(ty ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 44
-   yacc.py: 435:Stack  : class type ocur id opar param . LexToken(cpar,')',15,412)
-   yacc.py: 471:Action : Reduce rule [param_list -> param] with [<tuple @ 0x7f4b0c5c5c48>] and goto state 42
-   yacc.py: 506:Result : <list @ 0x7f4b0c606d08> ([(LexToken(id,'char',15,399), LexToken(t ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 42
-   yacc.py: 430:Defaulted state 42: Reduce using 30
-   yacc.py: 435:Stack  : class type ocur id opar param_list . LexToken(cpar,')',15,412)
-   yacc.py: 471:Action : Reduce rule [formals -> param_list] with [<list @ 0x7f4b0c606d08>] and goto state 51
-   yacc.py: 506:Result : <list @ 0x7f4b0c606d08> ([(LexToken(id,'char',15,399), LexToken(t ...)
+   yacc.py: 411:State  : 43
+   yacc.py: 430:Defaulted state 43: Reduce using 31
+   yacc.py: 435:Stack  : class type inherits type ocur id opar param_list_empty . LexToken(cpar,')',3,35)
+   yacc.py: 471:Action : Reduce rule [formals -> param_list_empty] with [[]] and goto state 51
+   yacc.py: 506:Result : <list @ 0x7f8cbcab9c48> ([])
    yacc.py: 410:
    yacc.py: 411:State  : 51
-   yacc.py: 435:Stack  : class type ocur id opar formals . LexToken(cpar,')',15,412)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals . LexToken(cpar,')',3,35)
    yacc.py: 445:Action : Shift and goto state 64
    yacc.py: 410:
    yacc.py: 411:State  : 64
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar . LexToken(colon,':',15,414)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar . LexToken(colon,':',3,36)
    yacc.py: 445:Action : Shift and goto state 100
    yacc.py: 410:
    yacc.py: 411:State  : 100
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon . LexToken(type,'Int',15,416)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon . LexToken(type,'Object',3,38)
    yacc.py: 445:Action : Shift and goto state 138
    yacc.py: 410:
    yacc.py: 411:State  : 138
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type . LexToken(ocur,'{',15,420)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type . LexToken(ocur,'{',3,45)
    yacc.py: 445:Action : Shift and goto state 181
    yacc.py: 410:
    yacc.py: 411:State  : 181
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur . LexToken(if,'if',16,423)
-   yacc.py: 445:Action : Shift and goto state 86
-   yacc.py: 410:
-   yacc.py: 411:State  : 86
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if . LexToken(id,'char',16,426)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur . LexToken(id,'out_int',4,55)
    yacc.py: 445:Action : Shift and goto state 72
    yacc.py: 410:
    yacc.py: 411:State  : 72
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if id . LexToken(equal,'=',16,431)
-   yacc.py: 471:Action : Reduce rule [atom -> id] with ['char'] and goto state 79
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e14e0> (<utils.ast.VariableNode object at 0x7f4b ...)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id . LexToken(opar,'(',4,62)
+   yacc.py: 445:Action : Shift and goto state 113
    yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if atom . LexToken(equal,'=',16,431)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<VariableNode @ 0x7f4b0c6e14e0>] and goto state 77
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e14e0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if factor . LexToken(equal,'=',16,431)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<VariableNode @ 0x7f4b0c6e14e0>] and goto state 76
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e14e0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if base_call . LexToken(equal,'=',16,431)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<VariableNode @ 0x7f4b0c6e14e0>] and goto state 75
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e14e0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if term . LexToken(equal,'=',16,431)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<VariableNode @ 0x7f4b0c6e14e0>] and goto state 74
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e14e0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if op . LexToken(equal,'=',16,431)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<VariableNode @ 0x7f4b0c6e14e0>] and goto state 73
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e14e0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if comp . LexToken(equal,'=',16,431)
-   yacc.py: 445:Action : Shift and goto state 116
-   yacc.py: 410:
-   yacc.py: 411:State  : 116
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if comp equal . LexToken(string,'0',16,435)
+   yacc.py: 411:State  : 113
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar . LexToken(string,'Ho',4,66)
    yacc.py: 445:Action : Shift and goto state 93
    yacc.py: 410:
    yacc.py: 411:State  : 93
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if comp equal string . LexToken(then,'then',16,437)
-   yacc.py: 471:Action : Reduce rule [atom -> string] with ['0'] and goto state 79
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1860> (<utils.ast.ConstantStrNode object at 0x7 ...)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar string . LexToken(equal,'=',4,68)
+   yacc.py: 471:Action : Reduce rule [atom -> string] with ['Ho'] and goto state 79
+   yacc.py: 506:Result : <ConstantStrNode @ 0x7f8cbcb9f160> (<utils.ast.ConstantStrNode object at 0x7 ...)
    yacc.py: 410:
    yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if comp equal atom . LexToken(then,'then',16,437)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantStrNode @ 0x7f4b0c6e1860>] and goto state 77
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1860> (<utils.ast.ConstantStrNode object at 0x7 ...)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar atom . LexToken(equal,'=',4,68)
+   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantStrNode @ 0x7f8cbcb9f160>] and goto state 77
+   yacc.py: 506:Result : <ConstantStrNode @ 0x7f8cbcb9f160> (<utils.ast.ConstantStrNode object at 0x7 ...)
    yacc.py: 410:
    yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if comp equal factor . LexToken(then,'then',16,437)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantStrNode @ 0x7f4b0c6e1860>] and goto state 76
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1860> (<utils.ast.ConstantStrNode object at 0x7 ...)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar factor . LexToken(equal,'=',4,68)
+   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantStrNode @ 0x7f8cbcb9f160>] and goto state 76
+   yacc.py: 506:Result : <ConstantStrNode @ 0x7f8cbcb9f160> (<utils.ast.ConstantStrNode object at 0x7 ...)
    yacc.py: 410:
    yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if comp equal base_call . LexToken(then,'then',16,437)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantStrNode @ 0x7f4b0c6e1860>] and goto state 75
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1860> (<utils.ast.ConstantStrNode object at 0x7 ...)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar base_call . LexToken(equal,'=',4,68)
+   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantStrNode @ 0x7f8cbcb9f160>] and goto state 75
+   yacc.py: 506:Result : <ConstantStrNode @ 0x7f8cbcb9f160> (<utils.ast.ConstantStrNode object at 0x7 ...)
    yacc.py: 410:
    yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if comp equal term . LexToken(then,'then',16,437)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantStrNode @ 0x7f4b0c6e1860>] and goto state 158
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1860> (<utils.ast.ConstantStrNode object at 0x7 ...)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar term . LexToken(equal,'=',4,68)
+   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantStrNode @ 0x7f8cbcb9f160>] and goto state 74
+   yacc.py: 506:Result : <ConstantStrNode @ 0x7f8cbcb9f160> (<utils.ast.ConstantStrNode object at 0x7 ...)
+   yacc.py: 410:
+   yacc.py: 411:State  : 74
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar op . LexToken(equal,'=',4,68)
+   yacc.py: 471:Action : Reduce rule [comp -> op] with [<ConstantStrNode @ 0x7f8cbcb9f160>] and goto state 73
+   yacc.py: 506:Result : <ConstantStrNode @ 0x7f8cbcb9f160> (<utils.ast.ConstantStrNode object at 0x7 ...)
+   yacc.py: 410:
+   yacc.py: 411:State  : 73
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar comp . LexToken(equal,'=',4,68)
+   yacc.py: 445:Action : Shift and goto state 116
+   yacc.py: 410:
+   yacc.py: 411:State  : 116
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar comp equal . LexToken(string,'Ho',4,73)
+   yacc.py: 445:Action : Shift and goto state 93
+   yacc.py: 410:
+   yacc.py: 411:State  : 93
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar comp equal string . LexToken(cpar,')',4,74)
+   yacc.py: 471:Action : Reduce rule [atom -> string] with ['Ho'] and goto state 79
+   yacc.py: 506:Result : <ConstantStrNode @ 0x7f8cbcb12e10> (<utils.ast.ConstantStrNode object at 0x7 ...)
+   yacc.py: 410:
+   yacc.py: 411:State  : 79
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar comp equal atom . LexToken(cpar,')',4,74)
+   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantStrNode @ 0x7f8cbcb12e10>] and goto state 77
+   yacc.py: 506:Result : <ConstantStrNode @ 0x7f8cbcb12e10> (<utils.ast.ConstantStrNode object at 0x7 ...)
+   yacc.py: 410:
+   yacc.py: 411:State  : 77
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar comp equal factor . LexToken(cpar,')',4,74)
+   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantStrNode @ 0x7f8cbcb12e10>] and goto state 76
+   yacc.py: 506:Result : <ConstantStrNode @ 0x7f8cbcb12e10> (<utils.ast.ConstantStrNode object at 0x7 ...)
+   yacc.py: 410:
+   yacc.py: 411:State  : 76
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar comp equal base_call . LexToken(cpar,')',4,74)
+   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantStrNode @ 0x7f8cbcb12e10>] and goto state 75
+   yacc.py: 506:Result : <ConstantStrNode @ 0x7f8cbcb12e10> (<utils.ast.ConstantStrNode object at 0x7 ...)
+   yacc.py: 410:
+   yacc.py: 411:State  : 75
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar comp equal term . LexToken(cpar,')',4,74)
+   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantStrNode @ 0x7f8cbcb12e10>] and goto state 158
+   yacc.py: 506:Result : <ConstantStrNode @ 0x7f8cbcb12e10> (<utils.ast.ConstantStrNode object at 0x7 ...)
    yacc.py: 410:
    yacc.py: 411:State  : 158
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if comp equal op . LexToken(then,'then',16,437)
-   yacc.py: 471:Action : Reduce rule [comp -> comp equal op] with [<VariableNode @ 0x7f4b0c6e14e0>,'=',<ConstantStrNode @ 0x7f4b0c6e1860>] and goto state 73
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c6fbef0> (<utils.ast.EqualNode object at 0x7f4b0c6 ...)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar comp equal op . LexToken(cpar,')',4,74)
+   yacc.py: 471:Action : Reduce rule [comp -> comp equal op] with [<ConstantStrNode @ 0x7f8cbcb9f160>,'=',<ConstantStrNode @ 0x7f8cbcb12e10>] and goto state 73
+   yacc.py: 506:Result : <EqualNode @ 0x7f8cbcbac0b8> (<utils.ast.EqualNode object at 0x7f8cbcb ...)
    yacc.py: 410:
    yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if comp . LexToken(then,'then',16,437)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<EqualNode @ 0x7f4b0c6fbef0>] and goto state 132
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c6fbef0> (<utils.ast.EqualNode object at 0x7f4b0c6 ...)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar comp . LexToken(cpar,')',4,74)
+   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<EqualNode @ 0x7f8cbcbac0b8>] and goto state 155
+   yacc.py: 506:Result : <EqualNode @ 0x7f8cbcbac0b8> (<utils.ast.EqualNode object at 0x7f8cbcb ...)
    yacc.py: 410:
-   yacc.py: 411:State  : 132
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr . LexToken(then,'then',16,437)
-   yacc.py: 445:Action : Shift and goto state 175
+   yacc.py: 411:State  : 155
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar expr . LexToken(cpar,')',4,74)
+   yacc.py: 471:Action : Reduce rule [arg_list -> expr] with [<EqualNode @ 0x7f8cbcbac0b8>] and goto state 148
+   yacc.py: 506:Result : <list @ 0x7f8cbcab9808> ([<utils.ast.EqualNode object at 0x7f8cbc ...)
    yacc.py: 410:
-   yacc.py: 411:State  : 175
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then . LexToken(num,0.0,16,442)
-   yacc.py: 445:Action : Shift and goto state 88
+   yacc.py: 411:State  : 148
+   yacc.py: 430:Defaulted state 148: Reduce using 91
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar arg_list . LexToken(cpar,')',4,74)
+   yacc.py: 471:Action : Reduce rule [args -> arg_list] with [<list @ 0x7f8cbcab9808>] and goto state 153
+   yacc.py: 506:Result : <list @ 0x7f8cbcab9808> ([<utils.ast.EqualNode object at 0x7f8cbc ...)
    yacc.py: 410:
-   yacc.py: 411:State  : 88
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then num . LexToken(else,'else',16,444)
-   yacc.py: 471:Action : Reduce rule [atom -> num] with [0.0] and goto state 79
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e18d0> (<utils.ast.ConstantNumNode object at 0x7 ...)
+   yacc.py: 411:State  : 153
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar args . LexToken(cpar,')',4,74)
+   yacc.py: 445:Action : Shift and goto state 191
    yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then atom . LexToken(else,'else',16,444)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantNumNode @ 0x7f4b0c6e18d0>] and goto state 77
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e18d0> (<utils.ast.ConstantNumNode object at 0x7 ...)
+   yacc.py: 411:State  : 191
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur id opar args cpar . LexToken(ccur,'}',5,80)
+   yacc.py: 471:Action : Reduce rule [func_call -> id opar args cpar] with ['out_int','(',<list @ 0x7f8cbcab9808>,')'] and goto state 78
+   yacc.py: 506:Result : <tuple @ 0x7f8cbca78548> ((LexToken(id,'out_int',4,55), [<utils.as ...)
+   yacc.py: 410:
+   yacc.py: 411:State  : 78
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur func_call . LexToken(ccur,'}',5,80)
+   yacc.py: 471:Action : Reduce rule [factor -> func_call] with [<tuple @ 0x7f8cbca78548>] and goto state 77
+   yacc.py: 506:Result : <StaticCallNode @ 0x7f8cbcb12cc0> (<utils.ast.StaticCallNode object at 0x7f ...)
    yacc.py: 410:
    yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then factor . LexToken(else,'else',16,444)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantNumNode @ 0x7f4b0c6e18d0>] and goto state 76
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e18d0> (<utils.ast.ConstantNumNode object at 0x7 ...)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur factor . LexToken(ccur,'}',5,80)
+   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<StaticCallNode @ 0x7f8cbcb12cc0>] and goto state 76
+   yacc.py: 506:Result : <StaticCallNode @ 0x7f8cbcb12cc0> (<utils.ast.StaticCallNode object at 0x7f ...)
    yacc.py: 410:
    yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then base_call . LexToken(else,'else',16,444)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantNumNode @ 0x7f4b0c6e18d0>] and goto state 75
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e18d0> (<utils.ast.ConstantNumNode object at 0x7 ...)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur base_call . LexToken(ccur,'}',5,80)
+   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<StaticCallNode @ 0x7f8cbcb12cc0>] and goto state 75
+   yacc.py: 506:Result : <StaticCallNode @ 0x7f8cbcb12cc0> (<utils.ast.StaticCallNode object at 0x7f ...)
    yacc.py: 410:
    yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then term . LexToken(else,'else',16,444)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantNumNode @ 0x7f4b0c6e18d0>] and goto state 74
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e18d0> (<utils.ast.ConstantNumNode object at 0x7 ...)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur term . LexToken(ccur,'}',5,80)
+   yacc.py: 471:Action : Reduce rule [op -> term] with [<StaticCallNode @ 0x7f8cbcb12cc0>] and goto state 74
+   yacc.py: 506:Result : <StaticCallNode @ 0x7f8cbcb12cc0> (<utils.ast.StaticCallNode object at 0x7f ...)
    yacc.py: 410:
    yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then op . LexToken(else,'else',16,444)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<ConstantNumNode @ 0x7f4b0c6e18d0>] and goto state 73
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e18d0> (<utils.ast.ConstantNumNode object at 0x7 ...)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur op . LexToken(ccur,'}',5,80)
+   yacc.py: 471:Action : Reduce rule [comp -> op] with [<StaticCallNode @ 0x7f8cbcb12cc0>] and goto state 73
+   yacc.py: 506:Result : <StaticCallNode @ 0x7f8cbcb12cc0> (<utils.ast.StaticCallNode object at 0x7f ...)
    yacc.py: 410:
    yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then comp . LexToken(else,'else',16,444)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<ConstantNumNode @ 0x7f4b0c6e18d0>] and goto state 203
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e18d0> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 203
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr . LexToken(else,'else',16,444)
-   yacc.py: 445:Action : Shift and goto state 219
-   yacc.py: 410:
-   yacc.py: 411:State  : 219
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else . LexToken(if,'if',17,450)
-   yacc.py: 445:Action : Shift and goto state 86
-   yacc.py: 410:
-   yacc.py: 411:State  : 86
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if . LexToken(id,'char',17,453)
-   yacc.py: 445:Action : Shift and goto state 72
-   yacc.py: 410:
-   yacc.py: 411:State  : 72
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if id . LexToken(equal,'=',17,458)
-   yacc.py: 471:Action : Reduce rule [atom -> id] with ['char'] and goto state 79
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1940> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if atom . LexToken(equal,'=',17,458)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<VariableNode @ 0x7f4b0c6e1940>] and goto state 77
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1940> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if factor . LexToken(equal,'=',17,458)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<VariableNode @ 0x7f4b0c6e1940>] and goto state 76
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1940> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if base_call . LexToken(equal,'=',17,458)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<VariableNode @ 0x7f4b0c6e1940>] and goto state 75
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1940> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if term . LexToken(equal,'=',17,458)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<VariableNode @ 0x7f4b0c6e1940>] and goto state 74
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1940> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if op . LexToken(equal,'=',17,458)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<VariableNode @ 0x7f4b0c6e1940>] and goto state 73
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1940> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if comp . LexToken(equal,'=',17,458)
-   yacc.py: 445:Action : Shift and goto state 116
-   yacc.py: 410:
-   yacc.py: 411:State  : 116
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if comp equal . LexToken(string,'1',17,462)
-   yacc.py: 445:Action : Shift and goto state 93
-   yacc.py: 410:
-   yacc.py: 411:State  : 93
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if comp equal string . LexToken(then,'then',17,464)
-   yacc.py: 471:Action : Reduce rule [atom -> string] with ['1'] and goto state 79
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1b38> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if comp equal atom . LexToken(then,'then',17,464)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantStrNode @ 0x7f4b0c6e1b38>] and goto state 77
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1b38> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if comp equal factor . LexToken(then,'then',17,464)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantStrNode @ 0x7f4b0c6e1b38>] and goto state 76
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1b38> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if comp equal base_call . LexToken(then,'then',17,464)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantStrNode @ 0x7f4b0c6e1b38>] and goto state 75
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1b38> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if comp equal term . LexToken(then,'then',17,464)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantStrNode @ 0x7f4b0c6e1b38>] and goto state 158
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1b38> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 158
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if comp equal op . LexToken(then,'then',17,464)
-   yacc.py: 471:Action : Reduce rule [comp -> comp equal op] with [<VariableNode @ 0x7f4b0c6e1940>,'=',<ConstantStrNode @ 0x7f4b0c6e1b38>] and goto state 73
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c6e1908> (<utils.ast.EqualNode object at 0x7f4b0c6 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if comp . LexToken(then,'then',17,464)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<EqualNode @ 0x7f4b0c6e1908>] and goto state 132
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c6e1908> (<utils.ast.EqualNode object at 0x7f4b0c6 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 132
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr . LexToken(then,'then',17,464)
-   yacc.py: 445:Action : Shift and goto state 175
-   yacc.py: 410:
-   yacc.py: 411:State  : 175
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then . LexToken(num,1.0,17,469)
-   yacc.py: 445:Action : Shift and goto state 88
-   yacc.py: 410:
-   yacc.py: 411:State  : 88
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then num . LexToken(else,'else',17,471)
-   yacc.py: 471:Action : Reduce rule [atom -> num] with [1.0] and goto state 79
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1ba8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then atom . LexToken(else,'else',17,471)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantNumNode @ 0x7f4b0c6e1ba8>] and goto state 77
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1ba8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then factor . LexToken(else,'else',17,471)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantNumNode @ 0x7f4b0c6e1ba8>] and goto state 76
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1ba8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then base_call . LexToken(else,'else',17,471)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantNumNode @ 0x7f4b0c6e1ba8>] and goto state 75
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1ba8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then term . LexToken(else,'else',17,471)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantNumNode @ 0x7f4b0c6e1ba8>] and goto state 74
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1ba8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then op . LexToken(else,'else',17,471)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<ConstantNumNode @ 0x7f4b0c6e1ba8>] and goto state 73
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1ba8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then comp . LexToken(else,'else',17,471)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<ConstantNumNode @ 0x7f4b0c6e1ba8>] and goto state 203
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1ba8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 203
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr . LexToken(else,'else',17,471)
-   yacc.py: 445:Action : Shift and goto state 219
-   yacc.py: 410:
-   yacc.py: 411:State  : 219
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else . LexToken(if,'if',18,477)
-   yacc.py: 445:Action : Shift and goto state 86
-   yacc.py: 410:
-   yacc.py: 411:State  : 86
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if . LexToken(id,'char',18,480)
-   yacc.py: 445:Action : Shift and goto state 72
-   yacc.py: 410:
-   yacc.py: 411:State  : 72
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if id . LexToken(equal,'=',18,485)
-   yacc.py: 471:Action : Reduce rule [atom -> id] with ['char'] and goto state 79
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1c18> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if atom . LexToken(equal,'=',18,485)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<VariableNode @ 0x7f4b0c6e1c18>] and goto state 77
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1c18> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if factor . LexToken(equal,'=',18,485)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<VariableNode @ 0x7f4b0c6e1c18>] and goto state 76
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1c18> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if base_call . LexToken(equal,'=',18,485)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<VariableNode @ 0x7f4b0c6e1c18>] and goto state 75
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1c18> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if term . LexToken(equal,'=',18,485)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<VariableNode @ 0x7f4b0c6e1c18>] and goto state 74
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1c18> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if op . LexToken(equal,'=',18,485)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<VariableNode @ 0x7f4b0c6e1c18>] and goto state 73
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1c18> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if comp . LexToken(equal,'=',18,485)
-   yacc.py: 445:Action : Shift and goto state 116
-   yacc.py: 410:
-   yacc.py: 411:State  : 116
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if comp equal . LexToken(string,'2',18,489)
-   yacc.py: 445:Action : Shift and goto state 93
-   yacc.py: 410:
-   yacc.py: 411:State  : 93
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if comp equal string . LexToken(then,'then',18,491)
-   yacc.py: 471:Action : Reduce rule [atom -> string] with ['2'] and goto state 79
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1e10> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if comp equal atom . LexToken(then,'then',18,491)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantStrNode @ 0x7f4b0c6e1e10>] and goto state 77
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1e10> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if comp equal factor . LexToken(then,'then',18,491)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantStrNode @ 0x7f4b0c6e1e10>] and goto state 76
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1e10> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if comp equal base_call . LexToken(then,'then',18,491)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantStrNode @ 0x7f4b0c6e1e10>] and goto state 75
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1e10> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if comp equal term . LexToken(then,'then',18,491)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantStrNode @ 0x7f4b0c6e1e10>] and goto state 158
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c6e1e10> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 158
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if comp equal op . LexToken(then,'then',18,491)
-   yacc.py: 471:Action : Reduce rule [comp -> comp equal op] with [<VariableNode @ 0x7f4b0c6e1c18>,'=',<ConstantStrNode @ 0x7f4b0c6e1e10>] and goto state 73
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c6e1be0> (<utils.ast.EqualNode object at 0x7f4b0c6 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if comp . LexToken(then,'then',18,491)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<EqualNode @ 0x7f4b0c6e1be0>] and goto state 132
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c6e1be0> (<utils.ast.EqualNode object at 0x7f4b0c6 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 132
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr . LexToken(then,'then',18,491)
-   yacc.py: 445:Action : Shift and goto state 175
-   yacc.py: 410:
-   yacc.py: 411:State  : 175
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then . LexToken(num,2.0,18,496)
-   yacc.py: 445:Action : Shift and goto state 88
-   yacc.py: 410:
-   yacc.py: 411:State  : 88
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then num . LexToken(else,'else',18,498)
-   yacc.py: 471:Action : Reduce rule [atom -> num] with [2.0] and goto state 79
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1e80> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then atom . LexToken(else,'else',18,498)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantNumNode @ 0x7f4b0c6e1e80>] and goto state 77
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1e80> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then factor . LexToken(else,'else',18,498)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantNumNode @ 0x7f4b0c6e1e80>] and goto state 76
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1e80> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then base_call . LexToken(else,'else',18,498)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantNumNode @ 0x7f4b0c6e1e80>] and goto state 75
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1e80> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then term . LexToken(else,'else',18,498)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantNumNode @ 0x7f4b0c6e1e80>] and goto state 74
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1e80> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then op . LexToken(else,'else',18,498)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<ConstantNumNode @ 0x7f4b0c6e1e80>] and goto state 73
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1e80> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then comp . LexToken(else,'else',18,498)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<ConstantNumNode @ 0x7f4b0c6e1e80>] and goto state 203
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c6e1e80> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 203
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr . LexToken(else,'else',18,498)
-   yacc.py: 445:Action : Shift and goto state 219
-   yacc.py: 410:
-   yacc.py: 411:State  : 219
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else . LexToken(if,'if',19,511)
-   yacc.py: 445:Action : Shift and goto state 86
-   yacc.py: 410:
-   yacc.py: 411:State  : 86
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if . LexToken(id,'char',19,514)
-   yacc.py: 445:Action : Shift and goto state 72
-   yacc.py: 410:
-   yacc.py: 411:State  : 72
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if id . LexToken(equal,'=',19,519)
-   yacc.py: 471:Action : Reduce rule [atom -> id] with ['char'] and goto state 79
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1ef0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if atom . LexToken(equal,'=',19,519)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<VariableNode @ 0x7f4b0c6e1ef0>] and goto state 77
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1ef0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if factor . LexToken(equal,'=',19,519)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<VariableNode @ 0x7f4b0c6e1ef0>] and goto state 76
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1ef0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if base_call . LexToken(equal,'=',19,519)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<VariableNode @ 0x7f4b0c6e1ef0>] and goto state 75
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1ef0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if term . LexToken(equal,'=',19,519)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<VariableNode @ 0x7f4b0c6e1ef0>] and goto state 74
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1ef0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if op . LexToken(equal,'=',19,519)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<VariableNode @ 0x7f4b0c6e1ef0>] and goto state 73
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c6e1ef0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if comp . LexToken(equal,'=',19,519)
-   yacc.py: 445:Action : Shift and goto state 116
-   yacc.py: 410:
-   yacc.py: 411:State  : 116
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if comp equal . LexToken(string,'3',19,523)
-   yacc.py: 445:Action : Shift and goto state 93
-   yacc.py: 410:
-   yacc.py: 411:State  : 93
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if comp equal string . LexToken(then,'then',19,525)
-   yacc.py: 471:Action : Reduce rule [atom -> string] with ['3'] and goto state 79
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6128> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if comp equal atom . LexToken(then,'then',19,525)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantStrNode @ 0x7f4b0c5f6128>] and goto state 77
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6128> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if comp equal factor . LexToken(then,'then',19,525)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantStrNode @ 0x7f4b0c5f6128>] and goto state 76
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6128> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if comp equal base_call . LexToken(then,'then',19,525)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantStrNode @ 0x7f4b0c5f6128>] and goto state 75
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6128> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if comp equal term . LexToken(then,'then',19,525)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantStrNode @ 0x7f4b0c5f6128>] and goto state 158
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6128> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 158
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if comp equal op . LexToken(then,'then',19,525)
-   yacc.py: 471:Action : Reduce rule [comp -> comp equal op] with [<VariableNode @ 0x7f4b0c6e1ef0>,'=',<ConstantStrNode @ 0x7f4b0c5f6128>] and goto state 73
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c6e1eb8> (<utils.ast.EqualNode object at 0x7f4b0c6 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if comp . LexToken(then,'then',19,525)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<EqualNode @ 0x7f4b0c6e1eb8>] and goto state 132
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c6e1eb8> (<utils.ast.EqualNode object at 0x7f4b0c6 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 132
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr . LexToken(then,'then',19,525)
-   yacc.py: 445:Action : Shift and goto state 175
-   yacc.py: 410:
-   yacc.py: 411:State  : 175
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then . LexToken(num,3.0,19,530)
-   yacc.py: 445:Action : Shift and goto state 88
-   yacc.py: 410:
-   yacc.py: 411:State  : 88
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then num . LexToken(else,'else',19,532)
-   yacc.py: 471:Action : Reduce rule [atom -> num] with [3.0] and goto state 79
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6198> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then atom . LexToken(else,'else',19,532)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantNumNode @ 0x7f4b0c5f6198>] and goto state 77
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6198> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then factor . LexToken(else,'else',19,532)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantNumNode @ 0x7f4b0c5f6198>] and goto state 76
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6198> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then base_call . LexToken(else,'else',19,532)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantNumNode @ 0x7f4b0c5f6198>] and goto state 75
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6198> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then term . LexToken(else,'else',19,532)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantNumNode @ 0x7f4b0c5f6198>] and goto state 74
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6198> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then op . LexToken(else,'else',19,532)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<ConstantNumNode @ 0x7f4b0c5f6198>] and goto state 73
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6198> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then comp . LexToken(else,'else',19,532)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<ConstantNumNode @ 0x7f4b0c5f6198>] and goto state 203
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6198> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 203
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr . LexToken(else,'else',19,532)
-   yacc.py: 445:Action : Shift and goto state 219
-   yacc.py: 410:
-   yacc.py: 411:State  : 219
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else . LexToken(if,'if',20,545)
-   yacc.py: 445:Action : Shift and goto state 86
-   yacc.py: 410:
-   yacc.py: 411:State  : 86
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if . LexToken(id,'char',20,548)
-   yacc.py: 445:Action : Shift and goto state 72
-   yacc.py: 410:
-   yacc.py: 411:State  : 72
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if id . LexToken(equal,'=',20,553)
-   yacc.py: 471:Action : Reduce rule [atom -> id] with ['char'] and goto state 79
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6208> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if atom . LexToken(equal,'=',20,553)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<VariableNode @ 0x7f4b0c5f6208>] and goto state 77
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6208> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if factor . LexToken(equal,'=',20,553)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<VariableNode @ 0x7f4b0c5f6208>] and goto state 76
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6208> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if base_call . LexToken(equal,'=',20,553)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<VariableNode @ 0x7f4b0c5f6208>] and goto state 75
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6208> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if term . LexToken(equal,'=',20,553)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<VariableNode @ 0x7f4b0c5f6208>] and goto state 74
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6208> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if op . LexToken(equal,'=',20,553)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<VariableNode @ 0x7f4b0c5f6208>] and goto state 73
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6208> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp . LexToken(equal,'=',20,553)
-   yacc.py: 445:Action : Shift and goto state 116
-   yacc.py: 410:
-   yacc.py: 411:State  : 116
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal . LexToken(string,'4',20,557)
-   yacc.py: 445:Action : Shift and goto state 93
-   yacc.py: 410:
-   yacc.py: 411:State  : 93
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal string . LexToken(then,'then',20,559)
-   yacc.py: 471:Action : Reduce rule [atom -> string] with ['4'] and goto state 79
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6400> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal atom . LexToken(then,'then',20,559)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantStrNode @ 0x7f4b0c5f6400>] and goto state 77
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6400> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal factor . LexToken(then,'then',20,559)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantStrNode @ 0x7f4b0c5f6400>] and goto state 76
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6400> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal base_call . LexToken(then,'then',20,559)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantStrNode @ 0x7f4b0c5f6400>] and goto state 75
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6400> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal term . LexToken(then,'then',20,559)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantStrNode @ 0x7f4b0c5f6400>] and goto state 158
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6400> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 158
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal op . LexToken(then,'then',20,559)
-   yacc.py: 471:Action : Reduce rule [comp -> comp equal op] with [<VariableNode @ 0x7f4b0c5f6208>,'=',<ConstantStrNode @ 0x7f4b0c5f6400>] and goto state 73
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c5f61d0> (<utils.ast.EqualNode object at 0x7f4b0c5 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp . LexToken(then,'then',20,559)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<EqualNode @ 0x7f4b0c5f61d0>] and goto state 132
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c5f61d0> (<utils.ast.EqualNode object at 0x7f4b0c5 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 132
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr . LexToken(then,'then',20,559)
-   yacc.py: 445:Action : Shift and goto state 175
-   yacc.py: 410:
-   yacc.py: 411:State  : 175
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then . LexToken(num,4.0,20,564)
-   yacc.py: 445:Action : Shift and goto state 88
-   yacc.py: 410:
-   yacc.py: 411:State  : 88
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then num . LexToken(else,'else',20,566)
-   yacc.py: 471:Action : Reduce rule [atom -> num] with [4.0] and goto state 79
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6470> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then atom . LexToken(else,'else',20,566)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantNumNode @ 0x7f4b0c5f6470>] and goto state 77
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6470> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then factor . LexToken(else,'else',20,566)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantNumNode @ 0x7f4b0c5f6470>] and goto state 76
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6470> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then base_call . LexToken(else,'else',20,566)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantNumNode @ 0x7f4b0c5f6470>] and goto state 75
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6470> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then term . LexToken(else,'else',20,566)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantNumNode @ 0x7f4b0c5f6470>] and goto state 74
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6470> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then op . LexToken(else,'else',20,566)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<ConstantNumNode @ 0x7f4b0c5f6470>] and goto state 73
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6470> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then comp . LexToken(else,'else',20,566)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<ConstantNumNode @ 0x7f4b0c5f6470>] and goto state 203
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6470> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 203
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr . LexToken(else,'else',20,566)
-   yacc.py: 445:Action : Shift and goto state 219
-   yacc.py: 410:
-   yacc.py: 411:State  : 219
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else . LexToken(if,'if',21,579)
-   yacc.py: 445:Action : Shift and goto state 86
-   yacc.py: 410:
-   yacc.py: 411:State  : 86
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if . LexToken(id,'char',21,582)
-   yacc.py: 445:Action : Shift and goto state 72
-   yacc.py: 410:
-   yacc.py: 411:State  : 72
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if id . LexToken(equal,'=',21,587)
-   yacc.py: 471:Action : Reduce rule [atom -> id] with ['char'] and goto state 79
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f64e0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if atom . LexToken(equal,'=',21,587)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<VariableNode @ 0x7f4b0c5f64e0>] and goto state 77
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f64e0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if factor . LexToken(equal,'=',21,587)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<VariableNode @ 0x7f4b0c5f64e0>] and goto state 76
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f64e0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if base_call . LexToken(equal,'=',21,587)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<VariableNode @ 0x7f4b0c5f64e0>] and goto state 75
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f64e0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if term . LexToken(equal,'=',21,587)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<VariableNode @ 0x7f4b0c5f64e0>] and goto state 74
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f64e0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if op . LexToken(equal,'=',21,587)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<VariableNode @ 0x7f4b0c5f64e0>] and goto state 73
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f64e0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp . LexToken(equal,'=',21,587)
-   yacc.py: 445:Action : Shift and goto state 116
-   yacc.py: 410:
-   yacc.py: 411:State  : 116
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal . LexToken(string,'5',21,591)
-   yacc.py: 445:Action : Shift and goto state 93
-   yacc.py: 410:
-   yacc.py: 411:State  : 93
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal string . LexToken(then,'then',21,593)
-   yacc.py: 471:Action : Reduce rule [atom -> string] with ['5'] and goto state 79
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f66d8> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal atom . LexToken(then,'then',21,593)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantStrNode @ 0x7f4b0c5f66d8>] and goto state 77
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f66d8> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal factor . LexToken(then,'then',21,593)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantStrNode @ 0x7f4b0c5f66d8>] and goto state 76
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f66d8> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal base_call . LexToken(then,'then',21,593)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantStrNode @ 0x7f4b0c5f66d8>] and goto state 75
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f66d8> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal term . LexToken(then,'then',21,593)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantStrNode @ 0x7f4b0c5f66d8>] and goto state 158
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f66d8> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 158
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal op . LexToken(then,'then',21,593)
-   yacc.py: 471:Action : Reduce rule [comp -> comp equal op] with [<VariableNode @ 0x7f4b0c5f64e0>,'=',<ConstantStrNode @ 0x7f4b0c5f66d8>] and goto state 73
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c5f64a8> (<utils.ast.EqualNode object at 0x7f4b0c5 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp . LexToken(then,'then',21,593)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<EqualNode @ 0x7f4b0c5f64a8>] and goto state 132
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c5f64a8> (<utils.ast.EqualNode object at 0x7f4b0c5 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 132
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr . LexToken(then,'then',21,593)
-   yacc.py: 445:Action : Shift and goto state 175
-   yacc.py: 410:
-   yacc.py: 411:State  : 175
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then . LexToken(num,5.0,21,598)
-   yacc.py: 445:Action : Shift and goto state 88
-   yacc.py: 410:
-   yacc.py: 411:State  : 88
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then num . LexToken(else,'else',21,600)
-   yacc.py: 471:Action : Reduce rule [atom -> num] with [5.0] and goto state 79
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6748> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then atom . LexToken(else,'else',21,600)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantNumNode @ 0x7f4b0c5f6748>] and goto state 77
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6748> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then factor . LexToken(else,'else',21,600)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantNumNode @ 0x7f4b0c5f6748>] and goto state 76
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6748> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then base_call . LexToken(else,'else',21,600)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantNumNode @ 0x7f4b0c5f6748>] and goto state 75
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6748> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then term . LexToken(else,'else',21,600)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantNumNode @ 0x7f4b0c5f6748>] and goto state 74
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6748> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then op . LexToken(else,'else',21,600)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<ConstantNumNode @ 0x7f4b0c5f6748>] and goto state 73
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6748> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then comp . LexToken(else,'else',21,600)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<ConstantNumNode @ 0x7f4b0c5f6748>] and goto state 203
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6748> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 203
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr . LexToken(else,'else',21,600)
-   yacc.py: 445:Action : Shift and goto state 219
-   yacc.py: 410:
-   yacc.py: 411:State  : 219
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else . LexToken(if,'if',22,613)
-   yacc.py: 445:Action : Shift and goto state 86
-   yacc.py: 410:
-   yacc.py: 411:State  : 86
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if . LexToken(id,'char',22,616)
-   yacc.py: 445:Action : Shift and goto state 72
-   yacc.py: 410:
-   yacc.py: 411:State  : 72
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if id . LexToken(equal,'=',22,621)
-   yacc.py: 471:Action : Reduce rule [atom -> id] with ['char'] and goto state 79
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f67b8> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if atom . LexToken(equal,'=',22,621)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<VariableNode @ 0x7f4b0c5f67b8>] and goto state 77
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f67b8> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if factor . LexToken(equal,'=',22,621)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<VariableNode @ 0x7f4b0c5f67b8>] and goto state 76
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f67b8> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if base_call . LexToken(equal,'=',22,621)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<VariableNode @ 0x7f4b0c5f67b8>] and goto state 75
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f67b8> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if term . LexToken(equal,'=',22,621)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<VariableNode @ 0x7f4b0c5f67b8>] and goto state 74
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f67b8> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if op . LexToken(equal,'=',22,621)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<VariableNode @ 0x7f4b0c5f67b8>] and goto state 73
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f67b8> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp . LexToken(equal,'=',22,621)
-   yacc.py: 445:Action : Shift and goto state 116
-   yacc.py: 410:
-   yacc.py: 411:State  : 116
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal . LexToken(string,'6',22,625)
-   yacc.py: 445:Action : Shift and goto state 93
-   yacc.py: 410:
-   yacc.py: 411:State  : 93
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal string . LexToken(then,'then',22,627)
-   yacc.py: 471:Action : Reduce rule [atom -> string] with ['6'] and goto state 79
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f69b0> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal atom . LexToken(then,'then',22,627)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantStrNode @ 0x7f4b0c5f69b0>] and goto state 77
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f69b0> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal factor . LexToken(then,'then',22,627)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantStrNode @ 0x7f4b0c5f69b0>] and goto state 76
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f69b0> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal base_call . LexToken(then,'then',22,627)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantStrNode @ 0x7f4b0c5f69b0>] and goto state 75
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f69b0> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal term . LexToken(then,'then',22,627)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantStrNode @ 0x7f4b0c5f69b0>] and goto state 158
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f69b0> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 158
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal op . LexToken(then,'then',22,627)
-   yacc.py: 471:Action : Reduce rule [comp -> comp equal op] with [<VariableNode @ 0x7f4b0c5f67b8>,'=',<ConstantStrNode @ 0x7f4b0c5f69b0>] and goto state 73
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c5f6780> (<utils.ast.EqualNode object at 0x7f4b0c5 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp . LexToken(then,'then',22,627)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<EqualNode @ 0x7f4b0c5f6780>] and goto state 132
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c5f6780> (<utils.ast.EqualNode object at 0x7f4b0c5 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 132
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr . LexToken(then,'then',22,627)
-   yacc.py: 445:Action : Shift and goto state 175
-   yacc.py: 410:
-   yacc.py: 411:State  : 175
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then . LexToken(num,6.0,22,632)
-   yacc.py: 445:Action : Shift and goto state 88
-   yacc.py: 410:
-   yacc.py: 411:State  : 88
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then num . LexToken(else,'else',22,634)
-   yacc.py: 471:Action : Reduce rule [atom -> num] with [6.0] and goto state 79
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6a20> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then atom . LexToken(else,'else',22,634)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantNumNode @ 0x7f4b0c5f6a20>] and goto state 77
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6a20> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then factor . LexToken(else,'else',22,634)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantNumNode @ 0x7f4b0c5f6a20>] and goto state 76
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6a20> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then base_call . LexToken(else,'else',22,634)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantNumNode @ 0x7f4b0c5f6a20>] and goto state 75
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6a20> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then term . LexToken(else,'else',22,634)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantNumNode @ 0x7f4b0c5f6a20>] and goto state 74
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6a20> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then op . LexToken(else,'else',22,634)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<ConstantNumNode @ 0x7f4b0c5f6a20>] and goto state 73
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6a20> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then comp . LexToken(else,'else',22,634)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<ConstantNumNode @ 0x7f4b0c5f6a20>] and goto state 203
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6a20> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 203
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr . LexToken(else,'else',22,634)
-   yacc.py: 445:Action : Shift and goto state 219
-   yacc.py: 410:
-   yacc.py: 411:State  : 219
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else . LexToken(if,'if',23,647)
-   yacc.py: 445:Action : Shift and goto state 86
-   yacc.py: 410:
-   yacc.py: 411:State  : 86
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if . LexToken(id,'char',23,650)
-   yacc.py: 445:Action : Shift and goto state 72
-   yacc.py: 410:
-   yacc.py: 411:State  : 72
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if id . LexToken(equal,'=',23,655)
-   yacc.py: 471:Action : Reduce rule [atom -> id] with ['char'] and goto state 79
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6a90> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if atom . LexToken(equal,'=',23,655)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<VariableNode @ 0x7f4b0c5f6a90>] and goto state 77
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6a90> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if factor . LexToken(equal,'=',23,655)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<VariableNode @ 0x7f4b0c5f6a90>] and goto state 76
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6a90> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if base_call . LexToken(equal,'=',23,655)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<VariableNode @ 0x7f4b0c5f6a90>] and goto state 75
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6a90> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if term . LexToken(equal,'=',23,655)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<VariableNode @ 0x7f4b0c5f6a90>] and goto state 74
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6a90> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if op . LexToken(equal,'=',23,655)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<VariableNode @ 0x7f4b0c5f6a90>] and goto state 73
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6a90> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp . LexToken(equal,'=',23,655)
-   yacc.py: 445:Action : Shift and goto state 116
-   yacc.py: 410:
-   yacc.py: 411:State  : 116
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal . LexToken(string,'7',23,659)
-   yacc.py: 445:Action : Shift and goto state 93
-   yacc.py: 410:
-   yacc.py: 411:State  : 93
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal string . LexToken(then,'then',23,661)
-   yacc.py: 471:Action : Reduce rule [atom -> string] with ['7'] and goto state 79
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6c88> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal atom . LexToken(then,'then',23,661)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantStrNode @ 0x7f4b0c5f6c88>] and goto state 77
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6c88> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal factor . LexToken(then,'then',23,661)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantStrNode @ 0x7f4b0c5f6c88>] and goto state 76
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6c88> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal base_call . LexToken(then,'then',23,661)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantStrNode @ 0x7f4b0c5f6c88>] and goto state 75
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6c88> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal term . LexToken(then,'then',23,661)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantStrNode @ 0x7f4b0c5f6c88>] and goto state 158
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6c88> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 158
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal op . LexToken(then,'then',23,661)
-   yacc.py: 471:Action : Reduce rule [comp -> comp equal op] with [<VariableNode @ 0x7f4b0c5f6a90>,'=',<ConstantStrNode @ 0x7f4b0c5f6c88>] and goto state 73
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c5f6a58> (<utils.ast.EqualNode object at 0x7f4b0c5 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp . LexToken(then,'then',23,661)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<EqualNode @ 0x7f4b0c5f6a58>] and goto state 132
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c5f6a58> (<utils.ast.EqualNode object at 0x7f4b0c5 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 132
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr . LexToken(then,'then',23,661)
-   yacc.py: 445:Action : Shift and goto state 175
-   yacc.py: 410:
-   yacc.py: 411:State  : 175
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then . LexToken(num,7.0,23,666)
-   yacc.py: 445:Action : Shift and goto state 88
-   yacc.py: 410:
-   yacc.py: 411:State  : 88
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then num . LexToken(else,'else',23,668)
-   yacc.py: 471:Action : Reduce rule [atom -> num] with [7.0] and goto state 79
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6cf8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then atom . LexToken(else,'else',23,668)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantNumNode @ 0x7f4b0c5f6cf8>] and goto state 77
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6cf8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then factor . LexToken(else,'else',23,668)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantNumNode @ 0x7f4b0c5f6cf8>] and goto state 76
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6cf8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then base_call . LexToken(else,'else',23,668)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantNumNode @ 0x7f4b0c5f6cf8>] and goto state 75
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6cf8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then term . LexToken(else,'else',23,668)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantNumNode @ 0x7f4b0c5f6cf8>] and goto state 74
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6cf8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then op . LexToken(else,'else',23,668)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<ConstantNumNode @ 0x7f4b0c5f6cf8>] and goto state 73
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6cf8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then comp . LexToken(else,'else',23,668)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<ConstantNumNode @ 0x7f4b0c5f6cf8>] and goto state 203
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6cf8> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 203
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr . LexToken(else,'else',23,668)
-   yacc.py: 445:Action : Shift and goto state 219
-   yacc.py: 410:
-   yacc.py: 411:State  : 219
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else . LexToken(if,'if',24,681)
-   yacc.py: 445:Action : Shift and goto state 86
-   yacc.py: 410:
-   yacc.py: 411:State  : 86
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if . LexToken(id,'char',24,684)
-   yacc.py: 445:Action : Shift and goto state 72
-   yacc.py: 410:
-   yacc.py: 411:State  : 72
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if id . LexToken(equal,'=',24,689)
-   yacc.py: 471:Action : Reduce rule [atom -> id] with ['char'] and goto state 79
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6d68> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if atom . LexToken(equal,'=',24,689)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<VariableNode @ 0x7f4b0c5f6d68>] and goto state 77
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6d68> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if factor . LexToken(equal,'=',24,689)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<VariableNode @ 0x7f4b0c5f6d68>] and goto state 76
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6d68> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if base_call . LexToken(equal,'=',24,689)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<VariableNode @ 0x7f4b0c5f6d68>] and goto state 75
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6d68> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if term . LexToken(equal,'=',24,689)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<VariableNode @ 0x7f4b0c5f6d68>] and goto state 74
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6d68> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if op . LexToken(equal,'=',24,689)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<VariableNode @ 0x7f4b0c5f6d68>] and goto state 73
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6d68> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp . LexToken(equal,'=',24,689)
-   yacc.py: 445:Action : Shift and goto state 116
-   yacc.py: 410:
-   yacc.py: 411:State  : 116
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal . LexToken(string,'8',24,693)
-   yacc.py: 445:Action : Shift and goto state 93
-   yacc.py: 410:
-   yacc.py: 411:State  : 93
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal string . LexToken(then,'then',24,695)
-   yacc.py: 471:Action : Reduce rule [atom -> string] with ['8'] and goto state 79
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6f60> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal atom . LexToken(then,'then',24,695)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantStrNode @ 0x7f4b0c5f6f60>] and goto state 77
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6f60> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal factor . LexToken(then,'then',24,695)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantStrNode @ 0x7f4b0c5f6f60>] and goto state 76
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6f60> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal base_call . LexToken(then,'then',24,695)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantStrNode @ 0x7f4b0c5f6f60>] and goto state 75
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6f60> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal term . LexToken(then,'then',24,695)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantStrNode @ 0x7f4b0c5f6f60>] and goto state 158
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5f6f60> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 158
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal op . LexToken(then,'then',24,695)
-   yacc.py: 471:Action : Reduce rule [comp -> comp equal op] with [<VariableNode @ 0x7f4b0c5f6d68>,'=',<ConstantStrNode @ 0x7f4b0c5f6f60>] and goto state 73
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c5f6d30> (<utils.ast.EqualNode object at 0x7f4b0c5 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp . LexToken(then,'then',24,695)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<EqualNode @ 0x7f4b0c5f6d30>] and goto state 132
-   yacc.py: 506:Result : <EqualNode @ 0x7f4b0c5f6d30> (<utils.ast.EqualNode object at 0x7f4b0c5 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 132
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr . LexToken(then,'then',24,695)
-   yacc.py: 445:Action : Shift and goto state 175
-   yacc.py: 410:
-   yacc.py: 411:State  : 175
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then . LexToken(num,8.0,24,700)
-   yacc.py: 445:Action : Shift and goto state 88
-   yacc.py: 410:
-   yacc.py: 411:State  : 88
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then num . LexToken(else,'else',24,702)
-   yacc.py: 471:Action : Reduce rule [atom -> num] with [8.0] and goto state 79
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6fd0> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then atom . LexToken(else,'else',24,702)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantNumNode @ 0x7f4b0c5f6fd0>] and goto state 77
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6fd0> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then factor . LexToken(else,'else',24,702)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<ConstantNumNode @ 0x7f4b0c5f6fd0>] and goto state 76
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6fd0> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then base_call . LexToken(else,'else',24,702)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<ConstantNumNode @ 0x7f4b0c5f6fd0>] and goto state 75
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6fd0> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then term . LexToken(else,'else',24,702)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<ConstantNumNode @ 0x7f4b0c5f6fd0>] and goto state 74
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6fd0> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then op . LexToken(else,'else',24,702)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<ConstantNumNode @ 0x7f4b0c5f6fd0>] and goto state 73
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6fd0> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then comp . LexToken(else,'else',24,702)
-   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<ConstantNumNode @ 0x7f4b0c5f6fd0>] and goto state 203
-   yacc.py: 506:Result : <ConstantNumNode @ 0x7f4b0c5f6fd0> (<utils.ast.ConstantNumNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 203
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr . LexToken(else,'else',24,702)
-   yacc.py: 445:Action : Shift and goto state 219
-   yacc.py: 410:
-   yacc.py: 411:State  : 219
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else . LexToken(if,'if',25,715)
-   yacc.py: 445:Action : Shift and goto state 86
-   yacc.py: 410:
-   yacc.py: 411:State  : 86
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if . LexToken(id,'char',25,718)
-   yacc.py: 445:Action : Shift and goto state 72
-   yacc.py: 410:
-   yacc.py: 411:State  : 72
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if id . LexToken(equal,'=',25,723)
-   yacc.py: 471:Action : Reduce rule [atom -> id] with ['char'] and goto state 79
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6ef0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if atom . LexToken(equal,'=',25,723)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<VariableNode @ 0x7f4b0c5f6ef0>] and goto state 77
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6ef0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if factor . LexToken(equal,'=',25,723)
-   yacc.py: 471:Action : Reduce rule [base_call -> factor] with [<VariableNode @ 0x7f4b0c5f6ef0>] and goto state 76
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6ef0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 76
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if base_call . LexToken(equal,'=',25,723)
-   yacc.py: 471:Action : Reduce rule [term -> base_call] with [<VariableNode @ 0x7f4b0c5f6ef0>] and goto state 75
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6ef0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 75
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if term . LexToken(equal,'=',25,723)
-   yacc.py: 471:Action : Reduce rule [op -> term] with [<VariableNode @ 0x7f4b0c5f6ef0>] and goto state 74
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6ef0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 74
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if op . LexToken(equal,'=',25,723)
-   yacc.py: 471:Action : Reduce rule [comp -> op] with [<VariableNode @ 0x7f4b0c5f6ef0>] and goto state 73
-   yacc.py: 506:Result : <VariableNode @ 0x7f4b0c5f6ef0> (<utils.ast.VariableNode object at 0x7f4b ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 73
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp . LexToken(equal,'=',25,723)
-   yacc.py: 445:Action : Shift and goto state 116
-   yacc.py: 410:
-   yacc.py: 411:State  : 116
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal . LexToken(string,'9',25,727)
-   yacc.py: 445:Action : Shift and goto state 93
-   yacc.py: 410:
-   yacc.py: 411:State  : 93
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal string . LexToken(then,'then',25,729)
-   yacc.py: 471:Action : Reduce rule [atom -> string] with ['9'] and goto state 79
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5d6278> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 79
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal atom . LexToken(then,'then',25,729)
-   yacc.py: 471:Action : Reduce rule [factor -> atom] with [<ConstantStrNode @ 0x7f4b0c5d6278>] and goto state 77
-   yacc.py: 506:Result : <ConstantStrNode @ 0x7f4b0c5d6278> (<utils.ast.ConstantStrNode object at 0x7 ...)
-   yacc.py: 410:
-   yacc.py: 411:State  : 77
-   yacc.py: 435:Stack  : class type ocur id opar formals cpar colon type ocur if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if expr then expr else if comp equal factor . LexToken(then,'then',25,729)
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur comp . LexToken(ccur,'}',5,80)
+   yacc.py: 471:Action : Reduce rule [expr -> comp] with [<StaticCallNode @ 0x7f8cbcb12cc0>] and goto state 206
+   yacc.py: 506:Result : <StaticCallNode @ 0x7f8cbcb12cc0> (<utils.ast.StaticCallNode object at 0x7f ...)
+   yacc.py: 410:
+   yacc.py: 411:State  : 206
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur expr . LexToken(ccur,'}',5,80)
+   yacc.py: 445:Action : Shift and goto state 222
+   yacc.py: 410:
+   yacc.py: 411:State  : 222
+   yacc.py: 430:Defaulted state 222: Reduce using 25
+   yacc.py: 435:Stack  : class type inherits type ocur id opar formals cpar colon type ocur expr ccur . None
+   yacc.py: 471:Action : Reduce rule [def_func -> id opar formals cpar colon type ocur expr ccur] with ['main','(',[],')',':','Object','{',<StaticCallNode @ 0x7f8cbcb12cc0>,'}'] and goto state 18
+   yacc.py: 506:Result : <FuncDeclarationNode @ 0x7f8cbcb12e80> (<utils.ast.FuncDeclarationNode object at ...)
+   yacc.py: 410:
+   yacc.py: 411:State  : 18
+   yacc.py: 435:Stack  : class type inherits type ocur def_func . LexToken(semi,';',5,81)
+   yacc.py: 445:Action : Shift and goto state 30
+   yacc.py: 410:
+   yacc.py: 411:State  : 30
+   yacc.py: 435:Stack  : class type inherits type ocur def_func semi . LexToken(ccur,'}',6,83)
+   yacc.py: 474:Action : Reduce rule [epsilon -> <empty>] with [] and goto state 16
+   yacc.py: 548:Result : <NoneType @ 0x563f82bde0f0> (None)
+   yacc.py: 410:
+   yacc.py: 411:State  : 16
+   yacc.py: 430:Defaulted state 16: Reduce using 14
+   yacc.py: 435:Stack  : class type inherits type ocur def_func semi epsilon . LexToken(ccur,'}',6,83)
+   yacc.py: 471:Action : Reduce rule [feature_list -> epsilon] with [None] and goto state 48
+   yacc.py: 506:Result : <list @ 0x7f8cbcab9c08> ([])
+   yacc.py: 410:
+   yacc.py: 411:State  : 48
+   yacc.py: 430:Defaulted state 48: Reduce using 16
+   yacc.py: 435:Stack  : class type inherits type ocur def_func semi feature_list . LexToken(ccur,'}',6,83)
+   yacc.py: 471:Action : Reduce rule [feature_list -> def_func semi feature_list] with [<FuncDeclarationNode @ 0x7f8cbcb12e80>,';',[]] and goto state 53
+   yacc.py: 506:Result : <list @ 0x7f8cbcab9788> ([<utils.ast.FuncDeclarationNode object a ...)
+   yacc.py: 410:
+   yacc.py: 411:State  : 53
+   yacc.py: 435:Stack  : class type inherits type ocur feature_list . LexToken(ccur,'}',6,83)
+   yacc.py: 445:Action : Shift and goto state 66
+   yacc.py: 410:
+   yacc.py: 411:State  : 66
+   yacc.py: 435:Stack  : class type inherits type ocur feature_list ccur . LexToken(semi,';',6,84)
+   yacc.py: 445:Action : Shift and goto state 102
+   yacc.py: 410:
+   yacc.py: 411:State  : 102
+   yacc.py: 435:Stack  : class type inherits type ocur feature_list ccur semi . $end
+   yacc.py: 471:Action : Reduce rule [def_class -> class type inherits type ocur feature_list ccur semi] with ['class','Main','inherits','IO','{',<list @ 0x7f8cbcab9788>,'}',';'] and goto state 3
+   yacc.py: 506:Result : <ClassDeclarationNode @ 0x7f8cbcb9fda0> (<utils.ast.ClassDeclarationNode object a ...)
+   yacc.py: 410:
+   yacc.py: 411:State  : 3
+   yacc.py: 435:Stack  : def_class . $end
+   yacc.py: 471:Action : Reduce rule [class_list -> def_class] with [<ClassDeclarationNode @ 0x7f8cbcb9fda0>] and goto state 2
+   yacc.py: 506:Result : <list @ 0x7f8cbcab9bc8> ([<utils.ast.ClassDeclarationNode object  ...)
+   yacc.py: 410:
+   yacc.py: 411:State  : 2
+   yacc.py: 430:Defaulted state 2: Reduce using 1
+   yacc.py: 435:Stack  : class_list . $end
+   yacc.py: 471:Action : Reduce rule [program -> class_list] with [<list @ 0x7f8cbcab9bc8>] and goto state 1
+   yacc.py: 506:Result : <ProgramNode @ 0x7f8cbcbaceb8> (<utils.ast.ProgramNode object at 0x7f8cb ...)
+   yacc.py: 410:
+   yacc.py: 411:State  : 1
+   yacc.py: 435:Stack  : program . $end
+   yacc.py: 571:Done   : Returning <ProgramNode @ 0x7f8cbcbaceb8> (<utils.ast.ProgramNode object at 0x7f8cb ...)
+   yacc.py: 572:PLY: PARSE DEBUG END

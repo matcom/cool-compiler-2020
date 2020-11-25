@@ -421,63 +421,60 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_2 to the stack
 addiu $sp, $sp, -4
-lw $t0, -4($fp)
-# Saves in local_main_Main_internal_0 data_0
-la $t0, data_0
-lw $t1, -8($fp)
-# Static Dispatch of the method substr
-sw $fp, ($sp)
+# Updates stack pointer pushing local_main_Main_internal_3 to the stack
 addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-li $t9, 3
-sw $t9, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-li $t9, 1
-sw $t9, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-sw $t0, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -4($fp)
-sw $t1, -8($fp)
-# This function will consume the arguments
-jal function_substr_String
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
 lw $t0, -8($fp)
-# saves the return value
-move $t0, $v0
-lw $t1, -0($fp)
-lw $t2, -12($fp)
+# Saves in local_main_Main_internal_1 data_0
+la $t0, data_0
+lw $t1, -12($fp)
+# Saves in local_main_Main_internal_2 data_1
+la $t1, data_1
+lw $t2, -4($fp)
+# local_main_Main_internal_0 <- local_main_Main_internal_1 = local_main_Main_internal_2
+move $t8, $t0
+move $t9, $t1
+loop_4:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_4
+beqz $a1, mismatch_4
+seq $v0, $a0, $a1
+beqz $v0, mismatch_4
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_4
+mismatch_4:
+li $v0, 0
+j end_4
+check_4:
+bnez $a1, mismatch_4
+li $v0, 1
+end_4:
+move $t2, $v0
+lw $t3, -0($fp)
+lw $t4, -16($fp)
 # Find the actual name in the dispatch table
 # Gets in t9 the actual direction of the dispatch table
-lw $t9, 8($t1)
-# Saves in t9 the direction of function_out_string_IO
-lw $t8, 12($t9)
+lw $t9, 8($t3)
+# Saves in t9 the direction of function_out_int_IO
+lw $t8, 16($t9)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t0, ($sp)
+sw $t2, ($sp)
 addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
-sw $t1, ($sp)
+sw $t3, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
 sw $t0, -8($fp)
-sw $t1, -0($fp)
-sw $t2, -12($fp)
+sw $t1, -12($fp)
+sw $t2, -4($fp)
+sw $t3, -0($fp)
+sw $t4, -16($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -486,13 +483,13 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -12($fp)
+lw $t0, -16($fp)
 # saves the return value
 move $t0, $v0
 move $v0, $t0
 # Empty all used registers and saves them to memory
 # Removing all locals from stack
-addiu $sp, $sp, 16
+addiu $sp, $sp, 20
 jr $ra
 
 .data
@@ -502,7 +499,8 @@ type_String: .asciiz "String"
 type_Int: .asciiz "Int"
 type_Bool: .asciiz "Bool"
 type_Main: .asciiz "Main"
-data_0: .asciiz "Hello"
+data_0: .asciiz "Ho"
+data_1: .asciiz "Ho"
 methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 local_in_string_result_0: .space 20
 local_concat_result_0: .space 20
