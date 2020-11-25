@@ -97,6 +97,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         self.current_type = self.context.get_type(node.id)
 
         type_node = self.register_type(node.id)
+        type_node.name_dir = self.register_data(node.id).name
         type_node.attributes = [ attr.name for attr in self.current_type.get_all_attributes() ]
         type_node.methods = [ (method.name, self.to_function_name(method.name, typex.name))  for method, typex in self.current_type.get_all_methods() ]
         type_node.features = [ feature.name if isinstance(feature, Attribute) else (feature[0].name, self.to_function_name(feature[0].name, feature[1].name)) for feature in self.current_type.get_all_features()]

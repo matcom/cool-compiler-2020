@@ -95,6 +95,7 @@ class BASE_COOL_CIL_TRANSFORM:
     def build_basic_object(self):
         self.current_type = self.context.get_type('Object')
         type_node = self.register_type('Object')
+        type_node.name_dir = self.register_data('Object').name
         type_node.attributes = [ attr.name for attr in self.current_type.get_all_attributes() ]
         type_node.methods = [ (method.name, self.to_function_name(method.name, typex.name))  for method, typex in self.current_type.get_all_methods() ]
         ### abort function
@@ -129,6 +130,7 @@ class BASE_COOL_CIL_TRANSFORM:
     def build_basic_io(self):
         self.current_type = self.context.get_type('IO')
         type_node = self.register_type('IO')
+        type_node.name_dir = self.register_data('IO').name
         type_node.attributes = [ attr.name for attr in self.current_type.get_all_attributes() ]
         type_node.methods = [ (method.name, self.to_function_name(method.name, typex.name))  for method, typex in self.current_type.get_all_methods() ]
         ### in_string
@@ -172,6 +174,7 @@ class BASE_COOL_CIL_TRANSFORM:
     def build_basic_string(self):
         self.current_type = self.context.get_type('String')
         type_node = self.register_type('String')
+        type_node.name_dir = self.register_data('String').name
         type_node.attributes = [ attr.name for attr in self.current_type.get_all_attributes() ]
         type_node.methods = [ (method.name, self.to_function_name(method.name, typex.name))  for method, typex in self.current_type.get_all_methods() ]
         ### length
