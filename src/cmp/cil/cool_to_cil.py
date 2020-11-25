@@ -76,7 +76,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node:cool.ProgramNode=None, scope:Scope=None):
         scope = Scope()
         self.build_attr_init(node)
-        self.current_function = self.register_function('main')
+        self.current_function = self.register_function('entry')
         instance = self.define_internal_local()
         result = self.define_internal_local()
         self.register_instruction(AllocateNode(instance, 'Main'))
