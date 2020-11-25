@@ -1,0 +1,1 @@
+(7, 18) - SemanticError: Class A cannot inherit class Int. 
