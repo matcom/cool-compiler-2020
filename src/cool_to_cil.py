@@ -96,8 +96,8 @@ class BaseCOOLToCILVisitor:
         #----------------Object---------------------
         #init
         self.current_function = self.register_function('Object_init')
-        self.register_param(VariableInfo('instance', None))
-        self.register_instruction(CIL_AST.Return(0))
+        self.register_param(VariableInfo('self', None))
+        self.register_instruction(CIL_AST.Return(None))
 
         #abort
         self.current_function = self.register_function(self.to_function_name('abort', 'Object'))
@@ -132,8 +132,8 @@ class BaseCOOLToCILVisitor:
         #----------------IO---------------------
         #init
         self.current_function = self.register_function('IO_init')
-        self.register_param(VariableInfo('instance', None))
-        self.register_instruction(CIL_AST.Return(0))        
+        self.register_param(VariableInfo('self', None))
+        self.register_instruction(CIL_AST.Return(None))        
 
         #out_string
         self.current_function = self.register_function(self.to_function_name('out_string', 'IO'))
@@ -178,10 +178,10 @@ class BaseCOOLToCILVisitor:
         # ----------------String---------------------
         #init
         self.current_function=self.register_function('String_init')
-        self.register_param(VariableInfo('instance', None))
+        self.register_param(VariableInfo('self', None))
         self.register_param(VariableInfo('v', None))
-        self.register_instruction(CIL_AST.SetAttr('instance', 'value', 'v', 'String'))
-        self.register_instruction(CIL_AST.Return(0))   
+        self.register_instruction(CIL_AST.SetAttr('self', 'value', 'v', 'String'))
+        self.register_instruction(CIL_AST.Return(None))   
 
         #length
         self.current_function = self.register_function(self.to_function_name('length', 'String'))
@@ -238,18 +238,18 @@ class BaseCOOLToCILVisitor:
         #----------------Bool---------------------
         #init
         self.current_function=self.register_function('Bool_init')
-        self.register_param(VariableInfo('instance', None))
+        self.register_param(VariableInfo('self', None))
         self.register_param(VariableInfo('v', None))
-        self.register_instruction(CIL_AST.SetAttr('instance', 'value', 'v', 'Bool'))
-        self.register_instruction(CIL_AST.Return(0))
+        self.register_instruction(CIL_AST.SetAttr('self', 'value', 'v', 'Bool'))
+        self.register_instruction(CIL_AST.Return(None))
         
         #----------------Int---------------------
         #init
         self.current_function=self.register_function('Int_init')
-        self.register_param(VariableInfo('instance', None))
+        self.register_param(VariableInfo('self', None))
         self.register_param(VariableInfo('v', None))
-        self.register_instruction(CIL_AST.SetAttr('instance', 'value', 'v', 'Int'))
-        self.register_instruction(CIL_AST.Return(0)) 
+        self.register_instruction(CIL_AST.SetAttr('self', 'value', 'v', 'Int'))
+        self.register_instruction(CIL_AST.Return(None)) 
 
 class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.on('node')
@@ -268,7 +268,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.Call(result, 'Main_init', [CIL_AST.Arg(instance)],"Main"))
         # self.register_instruction(CIL_AST.Arg(instance))
         self.register_instruction(CIL_AST.Call(result, self.to_function_name('main', 'Main'), [CIL_AST.Arg(instance)],"Main"))
-        self.register_instruction(CIL_AST.Return(0))
+        self.register_instruction(CIL_AST.Return(None))
         self.current_function = None
 
         self.register_data('Execution aborted')
@@ -291,26 +291,26 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         cil_type.attributes = [f'{attr.name}' for c, attr in self.current_type.get_all_attributes()]
         cil_type.methods = {f'{m}':f'{c}.{m}' for c, m  in self.current_type.get_all_methods()}
 
-        scope.define_cil_local("self", self.current_type, self.current_type.name)
+        scope.define_cil_local("self", self.current_type.name, self.current_type)
 
-        func_declarations = (f for f in node.features if isinstance(f, COOL_AST.ClassMethod))
-        attr_declarations = (a for a in node.features if not isinstance(a, COOL_AST.ClassMethod))
+        func_declarations = [f for f in node.features if isinstance(f, COOL_AST.ClassMethod)]
+        attr_declarations = [a for a in node.features if not isinstance(a, COOL_AST.ClassMethod)]
         for attr in attr_declarations:
             scope.define_cil_local(attr.name, attr.name, node.name)
 
 
         #-------------------------Init---------------------------------
         self.current_function = self.register_function(f'{node.name}_init')
-        self.register_param(VariableInfo('instance', None))
-        instance = self.define_internal_local(scope=scope, name="instance", class_type=self.current_type.name)
-        self.register_instruction(CIL_AST.Allocate(node.name, self.context.get_type(node.name).tag,instance))
-        self.current_type.instance = instance
+        self.register_param(VariableInfo('self', None))
+        # instance = self.define_internal_local(scope=scope, name="instance", class_type=self.current_type.name)
+        # self.register_instruction(CIL_AST.Allocate(node.name, self.context.get_type(node.name).tag,instance))
+        # self.current_type.instance = instance
 
         #Init parents recursively
         result = self.define_internal_local(scope=scope, name = "result")
         # self.register_instruction(CIL_AST.Arg('instance'))
-        self.register_instruction(CIL_AST.Call(result, f'{node.parent}_init',[CIL_AST.Arg('instance')], node.parent))
-        self.register_instruction(CIL_AST.Return(0))
+        self.register_instruction(CIL_AST.Call(result, f'{node.parent}_init',[CIL_AST.Arg('self')], node.parent))
+        self.register_instruction(CIL_AST.Return(None))
 
         for attr in attr_declarations:
             self.visit(attr, scope)
@@ -357,12 +357,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             result_init = self.define_internal_local(scope=scope, name="result_init")
             self.register_instruction(CIL_AST.Call(result_init, f'{node.type}_init', [CIL_AST.Arg(value),CIL_AST.Arg(instance)], node.type))
 
-        self.register_instruction(CIL_AST.SetAttr('instance', node.name,instance, node.type))
+        self.register_instruction(CIL_AST.SetAttr('self', node.name,instance, self.current_type.name))
     
     @visitor.when(COOL_AST.AttributeInit)
     def visit(self, node, scope):
         expr = self.visit(node.expr, scope)
-        self.register_instruction(CIL_AST.SetAttr('instance', node.name, expr, node.type))
+        self.register_instruction(CIL_AST.SetAttr('self', node.name, expr, self.current_type.name))
 
     @visitor.when(COOL_AST.AssignExpr)
     def visit(self, node, scope):
@@ -390,33 +390,38 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result_local = self.define_internal_local(scope=scope, name = "result")
 
         cond_value = self.visit(node.predicate, scope)
-        self.register_instruction(CIL_AST.IfGoto(cond_value, "if_then"))
+        if_then_label = self.get_label()
+        self.register_instruction(CIL_AST.IfGoto(cond_value, if_then_label))
 
         else_value = self.visit(node.else_body, scope)
         self.register_instruction(CIL_AST.Assign(result_local, else_value))
       
-        self.register_instruction(CIL_AST.Goto("endif"))
+        end_if_label = self.get_label()
+        self.register_instruction(CIL_AST.Goto(end_if_label))
 
-        self.register_instruction(CIL_AST.Label("if_then"))
+        self.register_instruction(CIL_AST.Label(if_then_label))
         then_value = self.visit(node.then_body, scope)
         self.register_instruction(CIL_AST.Assign(result_local, then_value))
-        self.register_instruction(CIL_AST.Label("endif"))
+        self.register_instruction(CIL_AST.Label(end_if_label))
 
         return result_local
 
     @visitor.when(COOL_AST.While)
     def visit(self, node, scope):
         result_local = self.define_internal_local(scope = scope, name = "result")
-
-        self.register_instruction(CIL_AST.Label("loop_init"))
-        pred_value = self.visit(node.predicate, scope)
-        self.register_instruction(CIL_AST.IfGoto(pred_value, "loop_body"))
-        self.register_instruction(CIL_AST.Goto("loop_end"))
         
-        self.register_instruction(CIL_AST.Label("loop_body"))
+        loop_init_label = self.get_label()
+        loop_body_label = self.get_label()
+        loop_end_label = self.get_label()
+        self.register_instruction(CIL_AST.Label(loop_init_label))
+        pred_value = self.visit(node.predicate, scope)
+        self.register_instruction(CIL_AST.IfGoto(pred_value, loop_body_label))
+        self.register_instruction(CIL_AST.Goto(loop_end_label))
+        
+        self.register_instruction(CIL_AST.Label(loop_body_label))
         body_value = self.visit(node.body, scope)
-        self.register_instruction(CIL_AST.Goto("loop_init"))
-        self.register_instruction(CIL_AST.Label("loop_end"))
+        self.register_instruction(CIL_AST.Goto(loop_init_label))
+        self.register_instruction(CIL_AST.Label(loop_end_label))
 
         self.register_instruction(CIL_AST.LoadVoid(result_local))
         return result_local
@@ -544,7 +549,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         else:
             self.register_instruction(CIL_AST.Allocate(node.type,self.context.get_type(node.type).tag ,result_local))
             # self.register_instruction(CIL_AST.Arg(result_local))
-            self.register_instruction(CIL_AST.Call(result_init,f'{node.type}_init' ,[result_local], self.current_type.name ))
+            self.register_instruction(CIL_AST.Call(result_init,f'{node.type}_init' ,[CIL_AST.Arg(result_local)], self.current_type.name ))
 
         return result_local
         

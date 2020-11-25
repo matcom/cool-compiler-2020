@@ -233,6 +233,9 @@ class CILToMIPSVisitor():
         
         self.text += 'jal $t3\n'
 
+        result_offset = self.var_offset[self.current_function.name][node.local_dest]
+        self.text += f'sw $a1, {result_offset}($sp)\n'
+
 
     @visitor.when(CIL_AST.Call)
     def visit(self, node):
@@ -243,6 +246,14 @@ class CILToMIPSVisitor():
 
         self.text += f'jal {node.function}\n'
 
+    @visitor.when(CIL_AST.Return)
+    def visit(self, node):
+        if node.value:
+            offset = self.var_offset[self.current_function.name][node.value]
+            self.text += f'lw $a1, {offset}($sp)\n'
+        else:
+            self.text += f'move $a1, $zero\n'
+
     @visitor.when(CIL_AST.Case)
     def visit(self, node):
         offset = self.var_offset[self.current_function.name][node.local_expr]
@@ -250,7 +261,7 @@ class CILToMIPSVisitor():
         self.text += f'lw $t1, 0($t0)\n'
         self.text += 'la $a0, void\n'
         self.text += f'bne	$t1 $a0 {node.first_label}\n'
-        self.text += 'b case_void_error'
+        self.text += 'b case_void_error\n'
 
     @visitor.when(CIL_AST.Action)
     def visit(self, node):
@@ -513,7 +524,7 @@ if __name__ == '__main__':
     lexer = Lexer()
     parser = Parser()
 
-    sys.argv.append('arith.cl')
+    sys.argv.append('graph.cl')
 
     if len(sys.argv) > 1:
 
@@ -552,5 +563,5 @@ if __name__ == '__main__':
         cil_to_mips = CILToMIPSVisitor()
         mips_code = cil_to_mips.visit(cil_ast)
        
-        with open(f'{sys.argv[1][:-3]}.s', 'w') as f:
+        with open(f'{sys.argv[1][:-3]}.mips', 'w') as f:
             f.write(f'{mips_code}')
