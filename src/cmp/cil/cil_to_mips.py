@@ -4,7 +4,7 @@ from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, Assi
     , SubstringNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
     , DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ConformNode         \
     , CleanArgsNode, ErrorNode, CopyNode, TypeNameNode, StringEqualNode
-from .utils import on, when
+from .utils import on, when, TypeData
 
 
 class CIL_TO_MIPS(object):
@@ -19,6 +19,10 @@ class CIL_TO_MIPS(object):
     
     def write_data(self, data:str, tabs=0):
         self.DOTDATA.append(f'{data}\n')
+
+    def build_types_data(self, types):
+        for idx, typex in types:
+            self.types_offsets[typex.name] = TypeData(idx, typex)
 
     def compile(self):
         return '\n'.join([ '.data'] + self.DOTDATA + ['.text'] + self.DOTTEXT)
