@@ -3,19 +3,21 @@ import argparse
 from cmp.cool_lang.lexer import COOL_LEXER
 from cmp.cool_lang.parser import COOL_PARSER
 from cmp.cool_lang.semantics import COOL_CHECKER
-from cmp.cil import COOL_TO_CIL_VISITOR, CIL_FORMATTER
+from cmp.cil import COOL_TO_CIL_VISITOR, CIL_FORMATTER, CIL_TO_MIPS
 
 
 parser = argparse.ArgumentParser(description='COOL Compiler')
 parser.add_argument('INPUT_FILE', help='file to compile.', type=str)
 parser.add_argument('OUTPUT_FILE', help='compiled file.', type=str)
-parser.add_argument('-v', '--verbose', help='execute in verbose mode', action="store_true")
+parser.add_argument('-v', '--verbose', help='execute in verbose mode.', action="store_true")
+parser.add_argument('--cil', help='compile to cil file.', action="store_true")
 
 args = parser.parse_args()
 
 INPUT_FILE = args.INPUT_FILE
 OUTPUT_FILE = args.OUTPUT_FILE
 VERBOSE = args.verbose
+GEN_CIL = args.cil
 
 code = open(INPUT_FILE, encoding="utf8").read()
 
@@ -45,7 +47,15 @@ if not cchecker.check_semantics(program, verbose=VERBOSE):
 ctc = COOL_TO_CIL_VISITOR(cchecker.context)
 cil_ast = ctc.visit(program)
 
-if VERBOSE:
-    print(CIL_FORMATTER().visit(cil_ast))
+if GEN_CIL:
+    with open(OUTPUT_FILE[:-4] + 'cil', 'w') as out_fd :
+        out_fd.write(CIL_FORMATTER().visit(cil_ast))
+
+ctm = CIL_TO_MIPS()
+ctm.visit(cil_ast)
+mips_code = ctm.compile()
+
+open(OUTPUT_FILE, 'w', encoding="utf8").write(mips_code)
+
 
 exit(0)

@@ -43,7 +43,15 @@ class Type:
         self.attributes = []
         self.methods = {}
         self.parent = None
+        self.children = []
+        self.finish_time = 0
         self._visited = False
+
+    def compute_finish_time_recursively(self, ref_int):
+        for child in self.children:
+            child.compute_finish_time_recursively(ref_int)
+        self.finish_time = ref_int['value']
+        ref_int['value'] += 1
 
     def set_parent(self, parent):
         if self.parent is not None:
@@ -51,6 +59,8 @@ class Type:
         if parent.name in ['Int', 'String', 'Bool']:
             raise SemanticException(f'Cannot inherit from basic type {parent.name}.')
         self.parent = parent
+        if all(map(lambda x: x.name != self.name, parent.children)):
+            parent.children.append(self)
 
     def get_attribute(self, name:str):
         try:
@@ -98,6 +108,45 @@ class Type:
                     raise SemanticException(f'Invalid override of method "{name}" in type {self.name}.')
         method = self.methods[name] = Method(name, param_names, param_types, return_type)
         return method
+
+    def get_all_attributes(self):
+        if self.parent:
+            for attr in self.parent.get_all_attributes():
+                yield attr
+        for attr in self.attributes:
+            yield attr
+
+    def get_all_methods(self):
+        done = set()
+        if self.parent:
+            for method, typex in self.parent.get_all_methods():
+                if method.name in self.methods:
+                    done.add(method.name)
+                    yield (self.methods[method.name], self)
+                else:
+                    yield (method, typex)
+        for method in self.methods.values():
+            if method.name in done: continue
+            yield (method, self)
+    
+    def get_all_features(self):
+        done = set()
+        if self.parent:
+            for feature in self.parent.get_all_features():
+                if not isinstance(feature, Attribute):
+                    method, typex = feature
+                    if method.name in self.methods:
+                        done.add(method.name)
+                        yield (self.methods[method.name], self)
+                    else:
+                        yield (method, typex)
+                else:
+                    yield feature
+        for attr in self.attributes:
+            yield attr
+        for method in self.methods.values():
+            if method.name in done: continue
+            yield (method, self)
 
     def is_subtype(self, otype): # check if self is subtype of otype
         actual = self
@@ -173,6 +222,10 @@ class Context:
             return self.types[name]
         except KeyError:
             raise SemanticException(f'Type "{name}" is not defined.')
+
+    def compute_finish_time(self):
+        root = self.types['Object']
+        root.compute_finish_time_recursively({'value': 0})
 
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'

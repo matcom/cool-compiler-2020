@@ -44,6 +44,7 @@ class COOL_TYPE_BUILDER(object):
         self.build_basic_types()
         for class_def in node.classes:
             self.visit(class_def)
+        self.context.compute_finish_time()
         try:
             self.context.get_type('Main')
             try:
