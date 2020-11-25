@@ -11,17 +11,19 @@ class CIL_TO_MIPS(object):
     def __init__(self):
         self.DOTTEXT = []
         self.DOTDATA = []
+        self.types = []
         self.types_offsets = dict()
         self.local_vars_offsets = dict()
+        self.actual_args = dict()
 
     def write_inst(self, instruction:str, tabs=0):
-        self.DOTTEXT.append(f'{instruction}\n')
+        self.DOTTEXT.append(f'{instruction}')
     
     def write_data(self, data:str, tabs=0):
-        self.DOTDATA.append(f'{data}\n')
+        self.DOTDATA.append(f'{data}')
 
     def build_types_data(self, types):
-        for idx, typex in types:
+        for idx, typex in enumerate(types):
             self.types_offsets[typex.name] = TypeData(idx, typex)
 
     def compile(self):
@@ -33,11 +35,18 @@ class CIL_TO_MIPS(object):
 
     @when(ProgramNode)
     def visit(self, node: ProgramNode):
-        pass
+        self.types = node.dottypes
+        self.build_types_data(self.types)
+
+        for datanode in node.dotdata:
+            self.visit(datanode)
+
+        for function in node.dotcode:
+            self.visit(function)
 
     @when(DataNode)
     def visit(self, node: DataNode):
-        pass
+        self.write_data(f'{node.name}: .asciiz "{node.value}"')
 
     @when(TypeNode)
     def visit(self, node: TypeNode):
