@@ -398,6 +398,7 @@ src/class.cl
 *.cl
 *.cil
 *.s
+*.mips
 
 ### VisualStudioCode ###
 .vscode/*
@@ -417,3 +418,4 @@ src/class.cl
 # Ignore every file who start with __
 __*
 
+.vscode/settings.json
