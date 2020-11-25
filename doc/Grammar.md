@@ -21,7 +21,7 @@ The following BNF grammar is based on the *COOL-2012* language specification (se
                           |   <feature> ;
 
 <feature>                 ::= ID ( <formal_params_list_opt> ) : TYPE { <expression> }
-                          |   <formal>
+                          |   <attribute_init>
 
 <formal_params_list_opt>  ::= <formal_params_list>
                           |   <empty>
@@ -31,7 +31,10 @@ The following BNF grammar is based on the *COOL-2012* language specification (se
 
 <formal_param>            ::= ID : TYPE
 
-<formal>                  ::= ID : TYPE <- <expression>
+<attribute_init>          ::= ID : TYPE <- <expression>
+                          | <attribute_def>
+
+<attribute_def>           ::= ID : TYPE
 
 <expression>              ::= ID <- <expr>
                           |   <expression>.ID( <arguments_list_opt> )
