@@ -5,8 +5,11 @@ import abstract.semantics as semantic
 import abstract.tree as coolAst
 from abstract.semantics import Scope, SemanticError, Type
 from abstract.tree import IsVoidNode, SelfNode
-from travels.context_actions import (update_attr_type, update_method_param,
-                                     update_scope_variable)
+from travels.context_actions import (
+    update_attr_type,
+    update_method_param,
+    update_scope_variable,
+)
 
 void = semantic.VoidType()
 
@@ -30,15 +33,16 @@ class TypeInferer:
     BOLEAN entonces el tipo de la expresión completa sera el Ancestro Común Mas Cercano  a los tipos T1 y T2, o en otras palabras,
     el menor tipo T3 tal que T1 se conforme en T3 y T2 se conforme en T3.
     """
+
     def __init__(self, context: semantic.Context, errors=[]):
         self.context: semantic.Context = context
         self.current_type: Optional[semantic.Type] = None
-        self.INTEGER = self.context.get_type('Int')
-        self.OBJECT = self.context.get_type('Object')
-        self.STRING = self.context.get_type('String')
-        self.BOOL = self.context.get_type('Bool')
-        self.AUTO_TYPE = self.context.get_type('AUTO_TYPE')
-        self.SELF_TYPE = self.context.get_type('SELF_TYPE')
+        self.INTEGER = self.context.get_type("Int")
+        self.OBJECT = self.context.get_type("Object")
+        self.STRING = self.context.get_type("String")
+        self.BOOL = self.context.get_type("Bool")
+        self.AUTO_TYPE = self.context.get_type("AUTO_TYPE")
+        self.SELF_TYPE = self.context.get_type("SELF_TYPE")
         self.errors = errors
         self.current_method: Optional[semantic.Method] = None
 
@@ -46,7 +50,7 @@ class TypeInferer:
     def visit(self, node, scope, infered_type=None) -> Type:
         # Devolver un tipo por defecto, en verdad
         # no importa ya que este metodo nunca sera llamado.
-        return Type('')
+        return Type("")
 
     # --------------------------------------------------------------------------------------------------------------------------#
     # -----------------------------------------------------EXPRESIONES----------------------------------------------------------#
@@ -56,18 +60,13 @@ class TypeInferer:
     # Calcular todos los tipos en el contexto del programa.        |
     # ---------------------------------------------------------------
     @visit.register
-    def _(self,
-          node: coolAst.ProgramNode,
-          scope=None,
-          infered_type=None,
-          deep=1):  # noqa: F811
+    def _(self, node: coolAst.ProgramNode, scope=None, infered_type=None, deep=1):
         program_scope = semantic.Scope() if scope is None else scope
         if deep == 1:
             for class_ in node.class_list:
                 self.visit(class_, program_scope.create_child())
         else:
-            for class_, child_scope in zip(node.class_list,
-                                           program_scope.children):
+            for class_, child_scope in zip(node.class_list, program_scope.children):
                 self.visit(class_, child_scope, deep=deep)
         return program_scope
 
@@ -77,11 +76,9 @@ class TypeInferer:
     # ya todos los atributos estén definidos en el scope.             |
     # -----------------------------------------------------------------
     @visit.register
-    def _(self,
-          node: coolAst.ClassDef,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):
+    def _(
+        self, node: coolAst.ClassDef, scope: semantic.Scope, infered_type=None, deep=1
+    ):
         self.current_type = self.context.get_type(node.idx)
         # Definir los atributos heredados
         for attribute in self.current_type.attributes:
@@ -95,8 +92,7 @@ class TypeInferer:
                 if isinstance(feature, coolAst.MethodDef):
                     self.visit(feature, scope.create_child(), deep=deep)
         else:
-            methods = (f for f in node.features
-                       if isinstance(f, coolAst.MethodDef))
+            methods = (f for f in node.features if isinstance(f, coolAst.MethodDef))
             for feature, child_scope in zip(methods, scope.children):
                 self.visit(feature, child_scope, deep=deep)
 
@@ -104,27 +100,29 @@ class TypeInferer:
     # Definir un atributo en el scope.                        |
     # ---------------------------------------------------------
     @visit.register
-    def _(self,
-          node: coolAst.AttributeDef,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):
+    def _(
+        self,
+        node: coolAst.AttributeDef,
+        scope: semantic.Scope,
+        infered_type=None,
+        deep=1,
+    ):
         atrib = self.current_type.get_attribute(node.idx)
 
         # Checkear que el valor de retorno de la expresion
         # de inicializacion del atributo (si existe) se
         # conforme con el tipo del atributo
         if node.default_value is not None:
-            return_type = self.visit(node.default_value, scope, infered_type,
-                                     deep)
+            return_type = self.visit(node.default_value, scope, infered_type, deep)
 
             if atrib.type == self.AUTO_TYPE:
                 # Inferir el tipo del atributo segun su expresion de inicializacion
                 atrib.type = return_type
             elif not return_type.conforms_to(atrib.type):
                 self.errors.append(
-                    f'Attribute {node.idx} of type {atrib.type.name} can not be initialized with \
-                    an expression of type {return_type.name}'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        )
+                    f"Attribute {node.idx} of type {atrib.type.name} can not be initialized with \
+                    an expression of type {return_type.name}"
+                )
 
     # ---------------------------------------------------------------------
     # Si el método no tiene un tipo definido, entonces tratar de inferir  |
@@ -141,21 +139,18 @@ class TypeInferer:
             self.visit(param, scope, deep=deep)
 
         last = self.visit(node.statements, scope, deep=deep)
-        if last.name == 'SELF_TYPE':
+        if last.name == "SELF_TYPE":
             last = self.current_type
         if not method.return_type != self.AUTO_TYPE:
             method.return_type = last
         else:
             if not last.conforms_to(method.return_type):
-                self.errors.append(
-                    f'Method {method.name} cannot return {last}')
+                self.errors.append(f"Method {method.name} cannot return {last}")
 
     @visit.register
-    def _(self,
-          node: coolAst.BlockNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):
+    def _(
+        self, node: coolAst.BlockNode, scope: semantic.Scope, infered_type=None, deep=1
+    ):
         # Visitar cada expr del bloque, el tipo del bloque es el tipo de la ultima expresion
         last = None
         for expr in node.expressions:
@@ -163,11 +158,7 @@ class TypeInferer:
         return last
 
     @visit.register
-    def _(self,
-          node: coolAst.Param,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):
+    def _(self, node: coolAst.Param, scope: semantic.Scope, infered_type=None, deep=1):
         type_ = self.context.get_type(node.type)
         if deep == 1:
             scope.define_variable(node.id, type_, "PARAM")
@@ -179,11 +170,9 @@ class TypeInferer:
     # trario asignarle a la variable el tipo de retorno de la expresión.      |
     # -------------------------------------------------------------------------
     @visit.register
-    def _(self,
-          node: coolAst.AssignNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):
+    def _(
+        self, node: coolAst.AssignNode, scope: semantic.Scope, infered_type=None, deep=1
+    ):
         var_info = scope.find_variable(node.idx)
         assert self.current_type is not None
         if var_info:
@@ -191,56 +180,65 @@ class TypeInferer:
             if var_info.type == self.AUTO_TYPE:
                 var_info.type = e
                 if not scope.is_local(var_info.name):
-                    update_attr_type(self.current_type, var_info.name,
-                                     var_info.type)
+                    update_attr_type(self.current_type, var_info.name, var_info.type)
                 else:
-                    update_method_param(self.current_type,
-                                        self.current_method.name,
-                                        var_info.name, var_info.type)
+                    update_method_param(
+                        self.current_type,
+                        self.current_method.name,
+                        var_info.name,
+                        var_info.type,
+                    )
                 update_scope_variable(var_info.name, e, scope)
                 return void
             else:
                 if not e.conforms_to(var_info.type):
                     self.errors.append(
-                        f'Expresion of type {e.name} cannot be assigned to variable {var_info.name} of type {var_info.type.name}'
+                        f"Expresion of type {e.name} cannot be assigned to variable {var_info.name} of type {var_info.type.name}"
                     )
                 return void
         else:
-            self.errors.append(f'Undefined variable name: {node.idx}')
+            self.errors.append(f"Undefined variable name: {node.idx}")
 
     @visit.register
-    def _(self,
-          node: coolAst.VariableCall,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):
+    def _(
+        self,
+        node: coolAst.VariableCall,
+        scope: semantic.Scope,
+        infered_type=None,
+        deep=1,
+    ):
         var_info = scope.find_variable(node.idx)
         assert self.current_type is not None
         if var_info:
             if infered_type and var_info.type == self.AUTO_TYPE:
                 var_info.type = infered_type
                 if scope.is_local(var_info.name):
-                    update_method_param(self.current_type,
-                                        self.current_method.name,
-                                        var_info.name, var_info.type)
+                    update_method_param(
+                        self.current_type,
+                        self.current_method.name,
+                        var_info.name,
+                        var_info.type,
+                    )
                 update_scope_variable(var_info.name, infered_type, scope)
             return var_info.type
         else:
-            self.errors.append(f'Name {node.idx} is not define.')
-            raise SemanticError(f'Name {node.idx} is not define in {scope}')
+            self.errors.append(f"Name {node.idx} is not define.")
+            raise SemanticError(f"Name {node.idx} is not define in {scope}")
 
     @visit.register
-    def _(self,
-          node: coolAst.IfThenElseNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):
+    def _(
+        self,
+        node: coolAst.IfThenElseNode,
+        scope: semantic.Scope,
+        infered_type=None,
+        deep=1,
+    ):
         cond = self.visit(node.cond, scope, infered_type, deep)
         e1 = self.visit(node.expr1, scope, infered_type, deep)
         e2 = self.visit(node.expr2, scope, infered_type, deep)
         if cond != self.BOOL:
             self.errors.append(
-                f'Se esperaba una expresion de tipo bool y se obtuvo una de tipo {cond}.'
+                f"Se esperaba una expresion de tipo bool y se obtuvo una de tipo {cond}."
             )
         if e1.conforms_to(e2):
             return e2
@@ -255,11 +253,13 @@ class TypeInferer:
             return e1_parent
 
     @visit.register
-    def _(self,
-          node: coolAst.VariableDeclaration,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):  # noqa: F811
+    def _(
+        self,
+        node: coolAst.VariableDeclaration,
+        scope: semantic.Scope,
+        infered_type=None,
+        deep=1,
+    ):
         for var_id, var_type, var_init_expr in node.var_list:
             type_ = self.context.get_type(var_type)
             # Revisar que la expresion de inicializacion (de existir) se conforme con el tipo
@@ -274,7 +274,8 @@ class TypeInferer:
             #   y su tipo se deja a inferir por el contexto.
             if var_init_expr:
                 init_expr_type: Optional[Type] = self.visit(
-                    var_init_expr, scope, infered_type, deep)
+                    var_init_expr, scope, infered_type, deep
+                )
                 if type_ != self.AUTO_TYPE:
                     if not init_expr_type.conforms_to(type_):
                         self.errors.append(
@@ -293,20 +294,18 @@ class TypeInferer:
                     scope.define_variable(var_id, type_, "LOCAL")
 
         # Visitar la expresion asociada.
-        return_type = self.visit(node.block_statements, scope, infered_type,
-                                 deep)
+        return_type = self.visit(node.block_statements, scope, infered_type, deep)
         return return_type
 
     @visit.register
-    def _(self,
-          node: coolAst.FunCall,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):
+    def _(
+        self, node: coolAst.FunCall, scope: semantic.Scope, infered_type=None, deep=1
+    ):
         assert self.current_type is not None
         # Detectar el tipo estatico de la expr0.
-        static_expr0_type: semantic.Type = self.visit(node.obj, scope,
-                                                      infered_type, deep)
+        static_expr0_type: semantic.Type = self.visit(
+            node.obj, scope, infered_type, deep
+        )
 
         if static_expr0_type.name == "SELF_TYPE":
             static_expr0_type = self.current_type
@@ -315,8 +314,9 @@ class TypeInferer:
         method: semantic.Method = static_expr0_type.get_method(node.id)
 
         # Iterar por cada parametro del metodo y chequear que cada expresion corresponda en tipo.
-        for expr_i, type_i, param_name in zip(node.args, method.param_types,
-                                              method.param_names):
+        for expr_i, type_i, param_name in zip(
+            node.args, method.param_types, method.param_names
+        ):
             type_expr_i = self.visit(expr_i, scope, infered_type, deep)
             if not type_expr_i.conforms_to(type_i):
                 raise semantic.SemanticError(
@@ -333,23 +333,33 @@ class TypeInferer:
             return self.AUTO_TYPE
 
     @visit.register
-    def _(self,
-          node: coolAst.InstantiateClassNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):  # noqa: F811
+    def _(
+        self,
+        node: coolAst.InstantiateClassNode,
+        scope: semantic.Scope,
+        infered_type=None,
+        deep=1,
+    ):
         ret_type = self.context.get_type(node.type_)
-        if ret_type in (self.AUTO_TYPE, void, self.STRING, self.INTEGER,
-                        self.OBJECT, self.BOOL):
-            self.errors.append(f'Cannot instantiate {ret_type.name}')
+        if ret_type in (
+            self.AUTO_TYPE,
+            void,
+            self.STRING,
+            self.INTEGER,
+            self.OBJECT,
+            self.BOOL,
+        ):
+            self.errors.append(f"Cannot instantiate {ret_type.name}")
         return ret_type
 
     @visit.register
-    def _(self,
-          node: coolAst.WhileBlockNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):  # noqa: F811
+    def _(
+        self,
+        node: coolAst.WhileBlockNode,
+        scope: semantic.Scope,
+        infered_type=None,
+        deep=1,
+    ):
         ret_type = self.visit(node.statements, scope, infered_type, deep)
         return ret_type
 
@@ -357,71 +367,58 @@ class TypeInferer:
     # ---------------------------------------OPERACIONES ARITMÉTICAS-------------------------------------------------------------#
     # ---------------------------------------------------------------------------------------------------------------------------#
 
-
-# -------------------------------------------------------------------------------------------------
-# Todas las operaciones aritméticas estan definidas solamente para los enteros, luego, de checkeo|
-# de cada operación se realiza evaluando sus operandos y viendo si sus tipos son consistentes con|
-# INTEGER.                                                                                       |
-# -------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------------------
+    # Todas las operaciones aritméticas estan definidas solamente para los enteros, luego, de checkeo|
+    # de cada operación se realiza evaluando sus operandos y viendo si sus tipos son consistentes con|
+    # INTEGER.                                                                                       |
+    # -------------------------------------------------------------------------------------------------
 
     @visit.register
-    def _(self,
-          node: coolAst.PlusNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):  # noqa: F811
+    def _(
+        self, node: coolAst.PlusNode, scope: semantic.Scope, infered_type=None, deep=1
+    ):
         left = self.visit(node.left, scope, self.INTEGER, deep)
         right = self.visit(node.right, scope, self.INTEGER, deep)
         if left.conforms_to(self.INTEGER) and right.conforms_to(self.INTEGER):
             return self.INTEGER
         else:
-            self.errors.append(
-                f'Invalid operation :{left.name} + {right.name}')
+            self.errors.append(f"Invalid operation :{left.name} + {right.name}")
             return self.INTEGER
 
     @visit.register
-    def _(self,
-          node: coolAst.DifNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):  # noqa: F811
+    def _(
+        self, node: coolAst.DifNode, scope: semantic.Scope, infered_type=None, deep=1
+    ):
         left = self.visit(node.left, scope, self.INTEGER, deep)
         right = self.visit(node.right, scope, self.INTEGER, deep)
         if left.conforms_to(self.INTEGER) and right.conforms_to(self.INTEGER):
             return self.INTEGER
         else:
-            self.errors.append(
-                f'Invalid operation :{left.name} - {right.name}')
+            self.errors.append(f"Invalid operation :{left.name} - {right.name}")
             return self.INTEGER
 
     @visit.register
-    def _(self,
-          node: coolAst.DivNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):  # noqa: F811
+    def _(
+        self, node: coolAst.DivNode, scope: semantic.Scope, infered_type=None, deep=1
+    ):
         left = self.visit(node.left, scope, self.INTEGER, deep)
         right = self.visit(node.right, scope, self.INTEGER, deep)
         if left.conforms_to(self.INTEGER) and right.conforms_to(self.INTEGER):
             return self.INTEGER
         else:
-            self.errors.append(
-                f'Invalid operation :{left.name} / {right.name}')
+            self.errors.append(f"Invalid operation :{left.name} / {right.name}")
             return self.INTEGER
 
     @visit.register
-    def _(self,
-          node: coolAst.MulNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):  # noqa: F811
+    def _(
+        self, node: coolAst.MulNode, scope: semantic.Scope, infered_type=None, deep=1
+    ):
         left = self.visit(node.left, scope, self.INTEGER, deep)
         right = self.visit(node.right, scope, self.INTEGER, deep)
         if left.conforms_to(self.INTEGER) and right.conforms_to(self.INTEGER):
             return self.INTEGER
         else:
-            self.errors.append(
-                f'Invalid operation :{left.name} * {right.name}')
+            self.errors.append(f"Invalid operation :{left.name} * {right.name}")
             return self.INTEGER
 
     # -------------------------------------------------------------------------------------------#
@@ -433,91 +430,90 @@ class TypeInferer:
     # toda operación comparativa es BOOLEAN.                                                     |
     # ---------------------------------------------------------------------------------------------
     @visit.register
-    def _(self,
-          node: coolAst.GreaterThanNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):  # noqa: F811
+    def _(
+        self,
+        node: coolAst.GreaterThanNode,
+        scope: semantic.Scope,
+        infered_type=None,
+        deep=1,
+    ):
         left = self.visit(node.left, scope, infered_type, deep)
         right = self.visit(node.right, scope, infered_type, deep)
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(
-                f'Invalid operation: {left.name} > {right.name}')
+            self.errors.append(f"Invalid operation: {left.name} > {right.name}")
             return self.BOOL
 
     @visit.register
-    def _(self,
-          node: coolAst.GreaterEqualNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):  # noqa: F811
+    def _(
+        self,
+        node: coolAst.GreaterEqualNode,
+        scope: semantic.Scope,
+        infered_type=None,
+        deep=1,
+    ):
         left = self.visit(node.left, scope, infered_type, deep)
         right = self.visit(node.right, scope, infered_type, deep)
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(
-                f'Invalid operation: {left.name} >= {right.name}')
+            self.errors.append(f"Invalid operation: {left.name} >= {right.name}")
             return self.BOOL
 
     @visit.register
-    def _(self,
-          node: coolAst.LowerThanNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):  # noqa: F811
+    def _(
+        self,
+        node: coolAst.LowerThanNode,
+        scope: semantic.Scope,
+        infered_type=None,
+        deep=1,
+    ):
         left = self.visit(node.left, scope, infered_type, deep)
         right = self.visit(node.right, scope, infered_type, deep)
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(
-                f'Invalid operation: {left.name} < {right.name}')
+            self.errors.append(f"Invalid operation: {left.name} < {right.name}")
             return self.BOOL
 
     @visit.register
-    def _(self,
-          node: coolAst.LowerEqual,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1):  # noqa: F811
+    def _(
+        self, node: coolAst.LowerEqual, scope: semantic.Scope, infered_type=None, deep=1
+    ):
         left = self.visit(node.left, scope, infered_type, deep)
         right = self.visit(node.right, scope, infered_type, deep)
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(
-                f'Invalid operation: {left.name} <= {right.name}')
+            self.errors.append(f"Invalid operation: {left.name} <= {right.name}")
             return self.BOOL
 
     @visit.register
-    def _(self,
-          node: coolAst.EqualToNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1) -> Type:
+    def _(
+        self,
+        node: coolAst.EqualToNode,
+        scope: semantic.Scope,
+        infered_type=None,
+        deep=1,
+    ) -> Type:
         left = self.visit(node.left, scope, infered_type, deep)
         right = self.visit(node.right, scope, infered_type, deep)
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(
-                f'Invalid operation: {left.name} == {right.name}')
+            self.errors.append(f"Invalid operation: {left.name} == {right.name}")
             return self.BOOL
 
     @visit.register
-    def _(self,
-          node: coolAst.NegNode,
-          scope: semantic.Scope,
-          infered_type=None,
-          deep=1) -> Type:
+    def _(
+        self, node: coolAst.NegNode, scope: semantic.Scope, infered_type=None, deep=1
+    ) -> Type:
         val_type = self.visit(node.lex, scope, infered_type, deep)
         if val_type == self.AUTO_TYPE or val_type == self.BOOL:
             return self.BOOL
         else:
-            self.errors.append(f'Invalid operation: ! {val_type.name}')
+            self.errors.append(f"Invalid operation: ! {val_type.name}")
             return self.BOOL
 
     # -----------------------------------------------------------------------------------------------------------------------#

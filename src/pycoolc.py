@@ -18,7 +18,7 @@ def pipeline(program: str, deep: int, file_name: str) -> None:
         program = find_comments(program)
         # Tratar los \t en el programa como 4 espacios por comodidad
         # a la hora de reportar errores de fila y columna
-        program = program.replace('\t', ' ' * 4)
+        program = program.replace("\t", " " * 4)
     except AssertionError as e:
         print(e)
         sys.exit(1)
@@ -77,10 +77,10 @@ def pipeline(program: str, deep: int, file_name: str) -> None:
         f.write(file_str)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument('file', type=str, help="Cool source file.")
-    parser.add_argument('--deep', type=int)
+    parser.add_argument("file", type=str, help="Cool source file.")
+    parser.add_argument("--deep", type=int)
     args = parser.parse_args()
     deep = 3 if args.deep is None else args.deep
     with open(args.file, "r") as f:

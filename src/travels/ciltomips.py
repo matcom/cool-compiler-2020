@@ -1,12 +1,28 @@
 from abstract.semantics import Type
 from cil.nodes import LocalNode
 from mips.arithmetic import ADD, DIV, MUL, NOR, SUB, SUBU
-from mips.baseMipsVisitor import (BaseCilToMipsVisitor, DotDataDirective,
-                                  DotTextDirective,
-                                  locate_attribute_in_type_hierarchy)
+from mips.baseMipsVisitor import (
+    BaseCilToMipsVisitor,
+    DotDataDirective,
+    DotTextDirective,
+    locate_attribute_in_type_hierarchy,
+)
 import cil.nodes as cil
-from mips.instruction import (FixedData, Label, MOVE, REG_TO_STR, SYSCALL, a0,
-                              s0, sp, ra, v0, a1, zero, s1)
+from mips.instruction import (
+    FixedData,
+    Label,
+    MOVE,
+    REG_TO_STR,
+    SYSCALL,
+    a0,
+    s0,
+    sp,
+    ra,
+    v0,
+    a1,
+    zero,
+    s1,
+)
 import mips.branch as branchNodes
 from functools import singledispatchmethod
 
@@ -60,8 +76,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Los punteros a funciones estaran definidos en el orden en que aparecen declaradas en las clases
         # de modo que la VTABLE sea indexable y podamos efectuar VCALL en O(1).
         self.register_instruction(
-            FixedData(f'{node.name}_vtable',
-                      ", ".join(x[1] for x in node.methods)))
+            FixedData(f"{node.name}_vtable", ", ".join(x[1] for x in node.methods))
+        )
 
         self.comment("\n\n")
 
@@ -80,18 +96,20 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Registrar un puntero a la VTABLE del tipo.
         self.register_instruction(
-            FixedData(f'{node.name}_vtable_pointer', f"{node.name}_vtable"))
+            FixedData(f"{node.name}_vtable_pointer", f"{node.name}_vtable")
+        )
 
         # Declarar los atributos: Si los atributos son de tipo string, guardarlos como asciiz
         # de lo contrario son o numeros o punteros y se inicializan como .words
         for attrib in node.attributes:
             if attrib.type.name == "String":
                 self.register_instruction(
-                    FixedData(f'{node.name}_attrib_{attrib.name}', r"",
-                              'asciiz'))
+                    FixedData(f"{node.name}_attrib_{attrib.name}", r"", "asciiz")
+                )
             else:
                 self.register_instruction(
-                    FixedData(f'{node.name}_attrib_{attrib.name}', 0))
+                    FixedData(f"{node.name}_attrib_{attrib.name}", 0)
+                )
 
         # Registrar la direccion de memoria donde termina el tipo para calcular facilmente
         # sizeof
@@ -105,7 +123,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(DotDataDirective())
         if isinstance(node.value, str):
             self.register_instruction(
-                FixedData(node.name, f"{node.value}", type_='asciiz'))
+                FixedData(node.name, f"{node.value}", type_="asciiz")
+            )
         elif isinstance(node.value, dict):
             # Lo unico que puede ser un diccionario es la TDT. Me parece..... mehh !!??
             # La TDT contiene para cada par (typo1, tipo2), la distancia entre tipo1 y tipo2
@@ -114,7 +133,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             # programa los tipos son unicos).
             for (type1, type2), distance in node.value.items():
                 self.register_instruction(
-                    FixedData(f"__{type1}_{type2}_tdt_entry__", distance))
+                    FixedData(f"__{type1}_{type2}_tdt_entry__", distance)
+                )
         elif isinstance(node.value, int):
             self.register_instruction(FixedData(node.name, node.value))
 
@@ -347,8 +367,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(SW(dest=reg, src="0($v0)"))
 
         # Cargar el puntero a la VTABLE
-        self.register_instruction(
-            LA(dest=reg, src=f"{instance_type.name}_start"))
+        self.register_instruction(LA(dest=reg, src=f"{instance_type.name}_start"))
         self.register_instruction(SW(dest=reg, src="4($v0)"))
 
         self.register_instruction(MOVE(temp, v0))
@@ -356,14 +375,16 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Los atributos comienzan en el indice 8($v0)
         for i, attribute in enumerate(instance_type.attributes):
             attrib_type_name = locate_attribute_in_type_hierarchy(
-                attribute, instance_type)
+                attribute, instance_type
+            )
             # llamar la funcion de inicializacion del atributo
             self.register_instruction(
-                branchNodes.JAL(
-                    f"__{attrib_type_name}__attrib__{attribute.name}__init"))
+                branchNodes.JAL(f"__{attrib_type_name}__attrib__{attribute.name}__init")
+            )
             # El valor de retorno viene en v0
             self.register_instruction(
-                SW(dest=v0, src=f"{8 + i*4}(${REG_TO_STR[temp]})"))
+                SW(dest=v0, src=f"{8 + i*4}(${REG_TO_STR[temp]})")
+            )
 
         # mover la direccion que almacena la instancia hacia dest
         self.register_instruction(SW(temp, dest))
@@ -465,7 +486,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         reg1 = self.get_available_register()
         reg2 = self.get_available_register()
         reg3 = self.get_available_register()
-        assert reg1 is not None and reg2 is not None and reg3 is not None, "out of registers"
+        assert (
+            reg1 is not None and reg2 is not None and reg3 is not None
+        ), "out of registers"
 
         # Salvar el puntero a self en a1
         self.comment("Save current self pointer in $a1")
@@ -597,7 +620,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # almacenado en $a0
         # Cargar el entero en $a0
         self.register_instruction(LW(a0, src))
-        # $v0 = 1; syscall 1
+        # syscall 1 = print_int
         self.register_instruction(LI(v0, 1))
         self.register_instruction(SYSCALL())
 
@@ -654,6 +677,7 @@ class MipsCodeGenerator(CilToMipsVisitor):
     plano del AST de MIPS, la cual se puede escribir a un archivo de salida y debe estar
     lista para ejecutarse en SPIM.
     """
+
     def __call__(self, ast: cil.CilProgramNode) -> str:
         self.visit(ast)
         return self.to_str()
@@ -663,12 +687,12 @@ class MipsCodeGenerator(CilToMipsVisitor):
         indent = 0
         for instr in self.program:
             line = str(instr)
-            if '.data' in line or '.text' in line:
+            if ".data" in line or ".text" in line:
                 indent = 0
             program += "\n" + " " * (3 * indent) + line
-            if '#' not in line and (':' in line and 'end' not in line):
-                if 'word' not in line and 'asciiz' not in line and 'byte' not in line:
+            if "#" not in line and (":" in line and "end" not in line):
+                if "word" not in line and "asciiz" not in line and "byte" not in line:
                     indent += 1
-            if '#' not in line and ("END" in line or "end" in line):
+            if "#" not in line and ("END" in line or "end" in line):
                 indent -= 1
         return program

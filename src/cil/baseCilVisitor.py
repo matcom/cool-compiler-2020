@@ -1,7 +1,16 @@
 from typing import List, Optional, Any, Dict, Tuple
 import cil.nodes as nodes
 from abstract.semantics import VariableInfo, Context, Type, Method
-from cil.nodes import CopyNode, PrintIntNode, PrintNode, ReadIntNode, ReadNode, ReturnNode, SelfNode, TypeNode
+from cil.nodes import (
+    CopyNode,
+    PrintIntNode,
+    PrintNode,
+    ReadIntNode,
+    ReadNode,
+    ReturnNode,
+    SelfNode,
+    TypeNode,
+)
 
 TDT = Dict[Tuple[str, str], int]
 
@@ -43,8 +52,12 @@ class InheritanceGraph:
         # Para realizar este calculo nos basamos en el arbol
         # construido por el DFS, y tenemos en cuenta los tiempos
         # de descubrimiento y finalizacion
-        return self._discover[node_x] < self._discover[
-            node_y] < self._finalization[node_y] < self._finalization[node_x]
+        return (
+            self._discover[node_x]
+            < self._discover[node_y]
+            < self._finalization[node_y]
+            < self._finalization[node_x]
+        )
 
     def __distance_from(self, node_x: str, node_y: str) -> int:
         # Si x es ancestro de y, entonces la distancia entre ellos
@@ -75,7 +88,7 @@ class InheritanceGraph:
         visited = {node: False for node in self._adytable}
 
         # Realizar un recorrido dfs para inicializar los array d y f
-        root = 'Object'
+        root = "Object"
         self.__dfs(root, visited)
 
         # Construir la tabla
@@ -84,14 +97,14 @@ class InheritanceGraph:
                 if nodey == nodex:
                     self.tdt[(nodex, nodey)] = 0
                 else:
-                    self.tdt[(nodex,
-                              nodey)] = self.__distance_from(nodex, nodey)
+                    self.tdt[(nodex, nodey)] = self.__distance_from(nodex, nodey)
 
 
 class BaseCoolToCilVisitor:
     """
     Clase base para el visitor que transforma un AST de COOL en un AST de CIL.
     """
+
     def __init__(self, context: Context):
         self.dot_types: List[nodes.TypeNode] = []
         self.dot_data: List[Any] = []
@@ -126,27 +139,30 @@ class BaseCoolToCilVisitor:
     def register_params(self, vinfo: VariableInfo) -> nodes.ParamNode:
         # Registra un parametro en la funcion en construccion y devuelve el nombre procesado del parametro
         assert self.current_function is not None
-        name = f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
+        name = f"param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}"
         param_node: nodes.ParamNode = nodes.ParamNode(name)
         self.params.append(param_node)
         return param_node
 
     def register_local(self, vinfo: VariableInfo) -> nodes.LocalNode:
         assert self.current_function is not None
-        name = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
+        name = (
+            f"local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}"
+        )
         local_node = nodes.LocalNode(name)
         self.localvars.append(local_node)
         return local_node
 
     def define_internal_local(self) -> nodes.LocalNode:
-        vinfo = VariableInfo('internal')
+        vinfo = VariableInfo("internal")
         return self.register_local(vinfo)
 
     def to_function_name(self, method_name: str, type_name: str) -> str:
         return f"function_{method_name}_at_{type_name}"
 
     def register_instruction(
-            self, instruction: nodes.InstructionNode) -> nodes.InstructionNode:
+        self, instruction: nodes.InstructionNode
+    ) -> nodes.InstructionNode:
         self.instructions.append(instruction)
         return instruction
 
@@ -161,7 +177,7 @@ class BaseCoolToCilVisitor:
         return type_node
 
     def register_data(self, value: Any) -> nodes.DataNode:
-        vname = f'data_{len(self.dot_data)}'
+        vname = f"data_{len(self.dot_data)}"
         data_node = nodes.DataNode(vname, value)
         self.dot_data.append(data_node)
         return data_node
@@ -183,8 +199,9 @@ class BaseCoolToCilVisitor:
         graph = InheritanceGraph()
         for itype in self.context.types:
             if self.context.types[itype].parent is not None:
-                graph.add_edge(self.context.types[itype].parent.name,
-                               itype)  # type: ignore
+                graph.add_edge(
+                    self.context.types[itype].parent.name, itype
+                )  # type: ignore
 
         # Crear la TDT
         graph.build_tdt()
@@ -195,10 +212,10 @@ class BaseCoolToCilVisitor:
 
     def __implement_out_string(self):
         # Registrar el parametro que espera la funcion
-        self.current_function = self.register_function(
-            'function_out_string_at_IO')
+        self.current_function = self.register_function("function_out_string_at_IO")
         param = self.register_params(
-            VariableInfo('x', self.context.get_type('String'), 'PARAM'))
+            VariableInfo("x", self.context.get_type("String"), "PARAM")
+        )
         # Esta funcion espera que se llame con un argumento que apunta
         # a la direccion de memoria de un string, luego solo realiza
         # los procedimientos necesarios para imprimir en consola
@@ -211,10 +228,10 @@ class BaseCoolToCilVisitor:
     def __implement_out_int(self):
         # Registrar el parametro que espera la funcion y la
         # funcion como tal
-        self.current_function = self.register_function(
-            'function_out_int_at_IO')
+        self.current_function = self.register_function("function_out_int_at_IO")
         param = self.register_params(
-            VariableInfo('x', self.context.get_type('Int'), 'PARAM'))
+            VariableInfo("x", self.context.get_type("Int"), "PARAM")
+        )
 
         # Espera como unico parametro un entero.
         self.register_instruction(PrintIntNode(param))
@@ -223,8 +240,7 @@ class BaseCoolToCilVisitor:
 
     def __implement_in_string(self):
         # Registrar la funcion
-        self.current_function = self.register_function(
-            'function_in_string_at_IO')
+        self.current_function = self.register_function("function_in_string_at_IO")
         # Declarar una variable para devolver el valor
         return_vm_holder = self.define_internal_local()
         # Registrar el nodo que realiza el trabajo en MIPS
@@ -234,7 +250,7 @@ class BaseCoolToCilVisitor:
 
     def __implement_in_int(self):
         # Registrar la funcion
-        self.current_function = self.register_function('function_in_int_at_IO')
+        self.current_function = self.register_function("function_in_int_at_IO")
         # Declarar una variable para devolver el valor
         return_vm_holder = self.define_internal_local()
         self.register_instruction(ReadIntNode(return_vm_holder))
@@ -244,8 +260,7 @@ class BaseCoolToCilVisitor:
     def __implement_abort(self):
         # la funcion abort no recibe ningun paramentro
         # Simplemente llama trap y le pasa la causa "abortion"
-        self.current_function = self.register_function(
-            'function_abort_at_Object')
+        self.current_function = self.register_function("function_abort_at_Object")
         # TODO: Implementarlo
         self.current_function = None
         pass
@@ -255,8 +270,7 @@ class BaseCoolToCilVisitor:
         # para obtener una copia superficial de la misma,
         # o sea, que se copia el propio objeto, pero no
         # recursivamente algun objeto que este pueda contener
-        self.current_function = self.register_function(
-            'function_copy_at_Object')
+        self.current_function = self.register_function("function_copy_at_Object")
         # Obtener una referencia al objeto que queremos clonar
         self_vm_holder = self.define_internal_local()
         clone_vm_holder = self.define_internal_local()
