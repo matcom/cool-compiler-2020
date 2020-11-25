@@ -11,12 +11,16 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     
     @visitor.when(ProgramNode)
     def visit(self, node, scope):
-        self.current_function = self.register_function('entry')
+        self.current_function = self.register_function('main')
         instance = self.define_internal_local()
         result = self.define_internal_local()
+        result2 = self.define_internal_local()
+
         self.register_instruction(cil.AllocateNode('Main', instance))
-        self.register_instruction(cil.ArgNode(instance))
-        self.register_instruction(cil.StaticCallNode('entry', result))
+        self.register_instruction(cil.ArgsNode([instance]))
+        self.register_instruction(cil.DynamicCallNode('Main', self.to_function_name('Ctr', 'Main'), result))
+        self.register_instruction(cil.ArgsNode([result]))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('main', 'Main'), result2))
         self.register_instruction(cil.ReturnNode(0))
         self.current_function = None
         
@@ -51,11 +55,17 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         name = self.to_function_name("Ctr", self.current_type.name)
         self.current_function = self.register_function(name)
         self.register_param(VariableInfo('self', self.current_type))
+
+        parentResult = self.define_internal_local()
+        self.register_instruction(cil.ArgsNode(['self']))
+        self.register_instruction(cil.DynamicCallNode(self.current_type.name, self.to_function_name('Ctr', self.current_type.parent.name), parentResult))
+
+
         nodeatt = [x for x in node.features if isinstance(x, AttrDeclarationNode)]
         for feature, child_scope in zip(nodeatt, scope.children[1].children):
             self.visit(feature, child_scope)
         
-        self.register_instruction(cil.ReturnNode(0))
+        self.register_instruction(cil.ReturnNode('self'))
 
         self.current_type = None
     
@@ -212,9 +222,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         if node.typex is None:
             node.typex = node.obj.type.name
 
-        self.register_instruction(cil.ArgNode(obj))
-        for arg in valuesArgs:
-            self.register_instruction(cil.ArgNode(arg))
+        self.register_instruction(cil.ArgsNode( list[reversed(valuesArgs)] + ['self']))
 
         self.register_instruction(cil.DynamicCallNode(node.typex, self.to_function_name(node.id, node.typex), result))
         return result
@@ -227,10 +235,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         for arg, child in zip(node.args, scope.children):
             valuesArgs.append(self.visit(arg, child))
 
-        self.register_instruction(cil.ArgNode('self'))
-        for arg in valuesArgs:
-            self.register_instruction(cil.ArgNode(arg))
-
+        self.register_instruction(cil.ArgsNode( list[reversed(valuesArgs)] + ['self']))
         self.register_instruction(cil.StaticCallNode(self.to_function_name(node.id, self.current_type.name), result))
         return result
 
@@ -259,7 +264,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             result = self.define_internal_local()
             self.register_instruction(cil.GetAttribNode('self', self.to_attribute_name(node.token, self.current_type.name), result))
             return result
-        
+
         return vinfo.cilName
 
 

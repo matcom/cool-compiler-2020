@@ -4,7 +4,7 @@ from semantic import VariableInfo, Scope
 class BaseCOOLToCILVisitor:
     def __init__(self, context):
         self.dottypes = []
-        self.dotdata = []
+        self.dotdata = [ cil.DataNode('_empty', '')]
         self.dotcode = []
         self.current_type = None
         self.current_method = None
@@ -28,7 +28,7 @@ class BaseCOOLToCILVisitor:
         return self.current_function.labels
 
     def register_param(self, vinfo):
-        vinfo.cilName = f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
+        vinfo.cilName = vinfo.name # f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
         param_node = cil.ParamNode(vinfo.cilName)
         self.params.append(param_node)
         return vinfo.cilName

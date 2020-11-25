@@ -134,9 +134,9 @@ class DynamicCallNode(InstructionNode):
         self.method = method
         self.dest = dest
 
-class ArgNode(InstructionNode):
-    def __init__(self, name):
-        self.name = name
+class ArgsNode(InstructionNode):
+    def __init__(self, names):
+        self.names = names
 
 class ReturnNode(InstructionNode):
     def __init__(self, value=None):
@@ -186,6 +186,10 @@ def get_formatter():
             dotcode = '\n'.join(self.visit(t) for t in node.dotcode)
 
             return f'.TYPES\n{dottypes}\n\n.DATA\n{dotdata}\n\n.CODE\n{dotcode}'
+
+        @visitor.when(DataNode)
+        def visit(self, node):
+            return f'{node.name}:  "{node.value}"'
 
         @visitor.when(TypeNode)
         def visit(self, node):
@@ -274,9 +278,9 @@ def get_formatter():
         def visit(self, node):
             return f'{node.dest} = VCALL {node.type} {node.method}'
 
-        @visitor.when(ArgNode)
+        @visitor.when(ArgsNode)
         def visit(self, node):
-            return f'ARG {node.name}'
+            return '\n\t'.join(f'ARG {x}' for x in node.names)
 
         @visitor.when(ReturnNode)
         def visit(self, node):

@@ -4,6 +4,8 @@ from semantic import CoolSemantic, Scope
 import cil
 import sys
 from COOLToCILVisitor import *
+from CILtoMIPSVisitor import *
+import mips
 
 file = open("/home/hi/Desktop/cool-compiler-2020/src/test.cl", 'r')
 cool_lexer = CoolLexer()
@@ -34,4 +36,11 @@ if len(semantics_error) > 0:
 # 
 cool2cil = COOLToCILVisitor(context)
 f = cil.get_formatter()
-print(f(cool2cil.visit(ast, scope)))
+c = cool2cil.visit(ast, scope)
+# print(f(c))
+
+cil2mips = CILtoMIPSVisitor()
+d = cil2mips.visit(c)
+e = mips.get_formatter()
+
+print(e(d))
