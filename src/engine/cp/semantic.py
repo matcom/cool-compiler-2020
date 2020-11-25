@@ -165,23 +165,6 @@ class SelfType(Type):
     def __eq__(self, other):
         return isinstance(other, SelfType)
 
-class AutoType(Type):
-    def __init__(self):
-        Type.__init__(self, 'AUTO_TYPE')
-        self.sealed = True
-
-    def union_type(self, other):
-        return self
-
-    def conforms_to(self, other):
-        return True
-
-    def bypass(self):
-        return True
-
-    def __eq__(self, other):
-        return isinstance(other, Type)
-
 class ErrorType(Type):
     def __init__(self, message = ""):
         Type.__init__(self, '<error>')
@@ -232,13 +215,11 @@ class VariableInfo:
     def __init__(self, name, vtype):
         self.name = name
         self.type = vtype
-        self.infered = not isinstance(vtype, AutoType)
         self.calls = []
         self.assigns = []
 
     def set_calls(self, typex):
-        if not self.infered and not isinstance(typex, AutoType):
-            self.calls.append(typex)
+        self.calls.append(typex)
 
     def set_assigns(self, typex):
         if not self.infered:
@@ -269,10 +250,6 @@ class VariableInfo:
                 else:
                     self.type = call
 
-                if not self.type or isinstance(self.type, ErrorType):
-                    self.type = AutoType()
-
-                self.infered = not isinstance(self.type, AutoType)
                 self.calls = []
                 self.assigns = []
 
