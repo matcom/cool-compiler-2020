@@ -7,6 +7,10 @@ class VirtualTable:
 
     def add_method(self, A, B, args):
         
+        if not A in self.classes:
+            self.classes[A] = []
+        if not A in self.attributes:
+            self.attributes[A] = []
         if not A in self.methods:
             self.methods[A] = []
             self.methods[A].append((B, args))
@@ -26,7 +30,8 @@ class VirtualTable:
                 self.methods[A].append((B, args))                        
 
     def get_index(self, c):
-        return len(self.attr[c]) + 1
+        # print('classes', self.classes.keys())
+        return len(self.attributes[c]) + 1
 
     def add_attr(self, claSS, args):
         if not claSS in self.attributes:

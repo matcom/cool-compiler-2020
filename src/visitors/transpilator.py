@@ -6,7 +6,7 @@ from cl_ast import *
 
 class codeVisitor:
 
-    def __init__(self):
+    def __init__(self, context):
         #code IL
         self.code = []
         self.data = []
@@ -18,75 +18,62 @@ class codeVisitor:
 
         self.depth = {}
 
+        self.collectTypes(context)
+        self.setInitialCode()
+
     def getInt(self):
         self.count = self.count + 1
         return self.count 
 
-    def collectTypes(self, classes):
-        types = {'Object' : None, 'IO' : 'Object', 'Int' : 'Object', 'Bool' : 'Object', 'String' : 'Object'}
-        methods = {'Object' : ['abort', 'type_name', 'copy'],'IO' : ['out_string', 'out_int', 'in_string', 'in_int'],'String' : ['length', 'concat', 'substr'],'Int' : [], 'Bool' : [] }
-        
-        attr = dict([ (x, []) for x in types ])
+    def collectTypes(self, context):
+        # print('collecting types')
+        types = {}
+        methods = {}
+        attr = {}
 
-        for node in classes:
-            types[node.idx] = node.parent.value
-
-            for f in node.features:
-                if type(f) == AttrDeclarationNode:
-                    if not node.idx in attr:
-                        attr[node.idx] = []
-                    attr[node.idx].append(f.name.value)
-                else:
-                    if not node.idx in methods:
-                        methods[node.idx] = []
-                    methods[node.idx].append(f.name.value)
-        
-        for t in types.keys():
-            nodes = [t]
-            x = t
-
-            while types[x] != None:
-                x = types[x]
-                nodes.append(x)
-            
-            nodes.reverse()
-
-            for n in nodes:
-                try:
-                    self.virtual_table.add_method(t, n, methods[n])
-                except:
-                    pass
-                try:
-                    self.virtual_table.add_attr(t, attr[n])
-                except:
-                    pass
-
+        for t in context.types:
+            t_str = str(t)
+            # print('----------------Typessssss-------------------------')
+            # print(t_str)
+            if context.types[t].parent is not None:
+                types[t_str] = context.types[t].parent
+            methods[t_str] = []
+            attr[t_str] = context.types[t].attributes
+            if len(context.types[t].attributes):
+                for atr in context.types[t].attributes:
+                    self.virtual_table.add_attr(t_str, atr)
+            else:
+                self.virtual_table.add_method(t_str, '-', [])
+            for m in context.types[t].methods.keys():
+                methods[t_str] = (context.types[t].methods[m])
+                self.virtual_table.add_method(t_str, (context.types[t].methods[m]).name, (context.types[t].methods[m]).param_names)
+        # print('-------------------------------')
         for t in types:
             self.data.append(HierarchyIL(t, types[t]))
 
         for m in self.virtual_table.methods:
-            self.data.append(VirtualTableIL(c, self.virtual_table.methods[m]))
+            self.data.append(VirtualTableIL(m, self.virtual_table.methods[m]))
 
-        depth = dict([(x, len(types) + 2) for x in types])
+        depth = dict([(types[x].name, len(types) + 2) for x in types])
         depth['Object'] = 0
-
-        for _ in types:
-            for c in types:
-                if c == 'Object':
-                    continue
-                p = types[c]
-                depth[c] = min(depth[c], depth[p] + 1)
-        self.depth = depth
+        # TODO set some depth features for simplicity
+        # for _ in types:
+        #     for c in types:
+        #         if c is None:
+        #             continue
+        #         p = types[c]
+        #         depth[c.name] = min(depth[c.name], depth[p] + 1)
+        # self.depth = depth
 
     def setInitialCode(self):
         self.code.append(CommentIL('--------------Initial Code---------------'))
         self.code.append(LabelIL("main", ""))
         
-        self.append(PushIL())
-        self.append(PushIL())
-        self.append(PushIL())
+        self.code.append(PushIL())
+        self.code.append(PushIL())
+        self.code.append(PushIL())
 
-        self.code.append(AllocateIL(1, self.vt.get_index('Main'), 'Main'))
+        self.code.append(AllocateIL(1, self.virtual_table.get_index('Main'), 'Main'))
         self.code.append(DispatchParentIL(2, 1, 'Main.Constructor'))
 
         self.code.append(DispatchIL(3,1,self.virtual_table.get_method_id('Main', 'main')))
@@ -152,14 +139,14 @@ class codeVisitor:
     #program
     @visitor.when(ProgramNode)
     def visit(self, node):
-        print('ProgramNode')
+        # print('ProgramNode')
         for n in node.declarations:
             self.visit(n)
     
     #declarations
     @visitor.when(ClassDeclarationNode)
     def visit(self, node):
-        print('ClassDeclarationNode')
+        # print('ClassDeclarationNode')
         self.current_class = node.id
 
         attributes = []
@@ -247,7 +234,7 @@ class codeVisitor:
     def visit(self, node, variables):
         self.code.append(PushIL())
         result = variables.add_temp()
-        print(node.id)
+        # print(node.id)
         if node.id in variables.stack:
             self.code.append(VarToVarIL(variables.id(result), variables.id(node.id)))
         else:

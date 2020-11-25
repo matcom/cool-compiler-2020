@@ -190,7 +190,7 @@ class MIPS:
 
     @visitor.when(DispatchParentIL)
     def visit(self, node):
-        self.code.append("la $v0, " + node.method + "\n")
+        self.code.append("la $v0, " + str(node.method) + "\n")
         self.code.append("jalr $ra, $v0\n")
         self.code.append("sw $v0, {}($sp)".format(-4 * node.result))
 

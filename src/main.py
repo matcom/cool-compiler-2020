@@ -31,13 +31,15 @@ def main():
 
     if pipeline.pipeline_errors:
         exit(1)
-    print(ast)
-    print('Done ast')
-    
-    cv = codeVisitor()
+    # print(ast)
+    # print('Done ast')
+    # for t in context.types:
+    #     print(t)
+    #     print('methods: ', context.types[t])
+    cv = codeVisitor(context)
     cv.visit(ast)
-    print('Done transpilator')
-    print(len(cv.code))
+    # print('Done transpilator')
+    # print(len(cv.code))
 
     # for c in cv.code:
     #     print(str(c))
@@ -45,7 +47,7 @@ def main():
     mips = MIPS(cv.code, cv.data)
     
     code = mips.start()
-    print('Done mips')
+    # print('-------------------Done mips-------------------------------')
     for line in code:
         print(code)
 # except:
