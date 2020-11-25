@@ -52,205 +52,265 @@ class Directive(str,Enum):
 syscall = "syscall"
 
 class Mips:
+    def __init__(self):
+        self.DOTTEXT = []
+        self.DOTDATA = []
+
     
+    def autowrite(func):
+        """
+        Autowrite a instruction when execute string return function
+        """
+        def inner(*args, **kwargs):
+            instruction = func(*args, **kwargs)
+            args[0].write_inst(instruction)
+        return inner
+
+
+    def write_inst(self, instruction: str, tabs=0):
+        self.DOTTEXT.append(f'{instruction}')
+
+    def write_data(self, data: str, tabs=0):
+        self.DOTDATA.append(f'{data}')
+
+    def compile(self):
+        return '\n'.join(['.data'] + self.DOTDATA + ['.text'] + self.DOTTEXT)
+
+    def write_push(self, register: str):
+        """
+        `add $sp , $sp , -8`
+        And then write to address `0($sp)`
+        """
+        self.addi(Reg.sp, Reg.sp, -8))
+        self.write_store_memory(register, self.reg_offset(Reg.sp))
+
+
+    def write_pop(self, register: str):
+        """
+        First, load from to address `0($sp)` and then write `add $sp , $sp , 8` to restore the stack pointer
+        """
+        self.write_load_memory(register, "0($sp)")
+        self.write_inst(f"add $sp , $sp , 8")
+
+    def write_load_memory(self, register: str, address: str):
+        """
+        Load from a specific address a 32 bits register
+        """
+        self.write_inst(f"lw $t0 , {address}")
+        self.write_inst(f"sll $t0 , $t0 , 16")
+        self.write_inst(f"lw $t1, {address} + 4")
+        self.write_inst(f"or {register} ,$t0 , $t1")
+
+    def write_store_memory(self, register: str, address: str):
+        """
+        Write to a specific address a 32 bits register
+        """
+        self.write_inst(f"sw $t1 , {address} + 4")
+        self.write_inst(f"srl $t1 , $t1 , 16")
+        self.write_inst(f"sw $t0 , {address}")
+        self.write_inst(f"or {register} ,$t0 , $t1")
+
+
+
 # Arithmetics
 
-    @staticmethod
-    def add( dst:Register,rl:Register,rr:Register):
+    @autowrite
+    def add(self, dst:Register,rl:Register,rr:Register):
         return f"add {dst},{rl},{rr}"
     
-    @staticmethod
-    def sub( dst:Register,rl:Register,rr:Register):
+    @autowrite
+    def sub(self, dst:Register,rl:Register,rr:Register):
         return f"sub {dst},{rl},{rr}"
     
-    @staticmethod
-    def addi( dst:Register,rl:Register,value:int):
+    @autowrite
+    def addi(self, dst:Register,rl:Register,value:int):
         return f"addi {dst},{rl},{value}"
     
-    @staticmethod
-    def addu( dst:Register,rl:Register,rr:Register):
+    @autowrite
+    def addu(self, dst:Register,rl:Register,rr:Register):
         return f"addu {dst},{rl},{rr}"
     
-    @staticmethod
-    def subu( dst:Register,rl:Register,rr:Register):
+    @autowrite
+    def subu(self, dst:Register,rl:Register,rr:Register):
         return f"subu {dst},{rl},{rr}"
 
-    @staticmethod
-    def addiu( dst:Register,rl:Register,value:int):
+    @autowrite
+    def addiu( self, dst:Register,rl:Register,value:int):
         return f"addiu {dst},{rl},{value}"
     
-    @staticmethod
-    def mul( dst:Register,rl:Register,rr:Register):
+    @autowrite
+    def mul(self, dst:Register,rl:Register,rr:Register):
         return f"mul {dst},{rl},{rr}"
 
-    @staticmethod
-    def mult( rl:Register,rr:Register):
+    @autowrite
+    def mult(self, rl:Register,rr:Register):
         return f"mult {rl},{rr}"
 
-    @staticmethod
-    def div( rl:Register,rr:Register):
+    @autowrite
+    def div(self, rl:Register,rr:Register):
         return f"div {rl},{rr}"
 
 
 # Logical:
     
-    @staticmethod
-    def and( dst:Register,rl:Register,rr:Register):
+    @autowrite
+    def and(self, dst:Register,rl:Register,rr:Register):
         return f"and {dst},{rl},{rr}"
     
-    @staticmethod
-    def or( dst:Register,rl:Register,rr:Register):
+    @autowrite
+    def or(self, dst:Register,rl:Register,rr:Register):
         return f"or {dst},{rl},{rr}"
     
-    @staticmethod
-    def andi( dst:Register,rl:Register,value:int):
+    @autowrite
+    def andi(self, dst:Register,rl:Register,value:int):
         return f"andi {dst},{rl},{value}"
 
     #TODO: Check this instrucction
-    @staticmethod
-    def ori( dst:Register,rl:Register,value:int):
+    @autowrite
+    def ori(self, dst:Register,rl:Register,value:int):
         return f"or {dst},{rl},{value}"
 
-    @staticmethod
-    def sll( dst:Register,rl:Register,value:int):
+    @autowrite
+    def sll(self, dst:Register,rl:Register,value:int):
         return f"sll {dst},{rl},{value}"
     
-    @staticmethod
-    def srl( dst:Register,rl:Register,value:int):
+    @autowrite
+    def srl(self, dst:Register,rl:Register,value:int):
         return f"srl {dst},{rl},{value}"
 
 # DataTransfer:
 
-    @staticmethod
-    def lw( dst:Register, address : str):
+    @autowrite
+    def lw(self, dst:Register, address : str):
         return f"lw {dst},{address}"
 
-    @staticmethod
-    def sw( dst:Register, address : str):
+    @autowrite
+    def sw(self, dst:Register, address : str):
         return f"sw {dst},{address}"
 
-    @staticmethod
-    def lui( dst:Register, value : int):
+    @autowrite
+    def lui(self, dst:Register, value : int):
         return f"lw {dst},{value}"
 
-    @staticmethod
-    def la( dst:Register, label : str):
+    @autowrite
+    def la(self, dst:Register, label : str):
         return f"la {dst},{label}"
 
-    @staticmethod
-    def li( dst:Register, value : int):
+    @autowrite
+    def li(self, dst:Register, value : int):
         return f"li {dst},{value}"
     
-    @staticmethod
-    def mfhi( dst:Register):
+    @autowrite
+    def mfhi(self, dst:Register):
         return f"mfhi {dst}"
     
-    @staticmethod
-    def mflo( dst:Register):
+    @autowrite
+    def mflo(self, dst:Register):
         return f"mflo {dst}"
     
-    @staticmethod
-    def move( dst:Register , rl:Register):
+    @autowrite
+    def move(self, dst:Register , rl:Register):
         return f"move {dst},{rl}"
      
 # Brancing 
 
-    @staticmethod
-    def beq(rl:Register, rr :Register,address:str):
+    @autowrite
+    def beq(self, rl:Register, rr :Register,address:str):
         return f"beq {rl},{rr},{address}"
     
-    @staticmethod
-    def bne(rl:Register, rr :Register,address:str):
+    @autowrite
+    def bne(self, rl:Register, rr :Register,address:str):
         return f"bne {rl},{rr},{address}"
     
-    @staticmethod
-    def bgt(rl:Register, rr :Register,address:str):
+    @autowrite
+    def bgt(self, rl:Register, rr :Register,address:str):
         return f"bgt {rl},{rr},{address}"
     
-    @staticmethod
-    def bge(rl:Register, rr :Register,address:str):
+    @autowrite
+    def bge(self, rl:Register, rr :Register,address:str):
         return f"bge {rl},{rr},{address}"
     
-    @staticmethod
-    def blt(rl:Register, rr :Register,address:str):
+    @autowrite
+    def blt(self, rl:Register, rr :Register,address:str):
         return f"blt {rl},{rr},{address}"
     
-    @staticmethod
-    def ble(rl:Register, rr :Register,address:str):
+    @autowrite
+    def ble(self,rl:Register, rr :Register,address:str):
         return f"ble {rl},{rr},{address}"
     
 # Comparison
 
-    @staticmethod
-    def slt(dest:Register,rl:Register, rr :Register):
+    @autowrite
+    def slt(self, dest:Register,rl:Register, rr :Register):
         return f"slt {dest},{rl},{rr}"
 
-    @staticmethod
-    def slti(dest:Register,rl:Register, value:int):
+    @autowrite
+    def slti(self, dest:Register,rl:Register, value:int):
         return f"slt {dest},{rl},{value}"
 
         
 # Unconditional Jump
 
-    @staticmethod
-    def j(address:str):
+    @autowrite
+    def j(self, address:str):
         return f"j {address}"
 
-    @staticmethod
-    def jr(r:Register):
+    @autowrite
+    def jr(self, r:Register):
         return f"jr {r}"
     
-    @staticmethod
-    def jal(address:str):
+    @autowrite
+    def jal(self, address:str):
         return f"jal {address}"
 
 # System Calls
-    @staticmethod
-    def syscall(code:int):
+    @autowrite
+    def syscall(self, code:int):
         return [
-            Mips.li(Register.v0,1),
-            syscall   
+            self.li(Register.v0,1),
+            self.syscall   
         ] 
     
-    @staticmethod
-    def print_int():
-        return syscall(1)
+    def print_int(self):
+        return self.syscall(1)
     
-    @staticmethod
-    def print_string():
-        return syscall(4)
+    def print_string(self):
+        return self.syscall(4)
 
-    @staticmethod
-    def read_int():
-        return syscall(5)
+    def read_int(self):
+        return self.syscall(5)
     
-    @staticmethod
-    def read_string():
-        return syscall(8)
+    def read_string(self):
+        return self.syscall(8)
     
-    @staticmethod
     def sbrk():
-        return syscall(9)
+        return self.syscall(9)
     
-    @staticmethod
-    def exit():
-        return syscall(10)
+    def exit(self):
+        return self.syscall(10)
 
-    @staticmethod
-    def print_char():
-        return syscall(11)
+    def print_char(self):
+        return self.syscall(11)
 
-    @staticmethod
-    def read_char():
-        return syscall(12)
+    def read_char(self):
+        return self.syscall(12)
     
     
 # Data Section
 
-    @staticmethod
-    def ascii(string:str):
+    @autowrite
+    def ascii(self,string:str):
         return f"{Directive.ascii} \"{string}\""
         
-    @staticmethod
-    def asciiz(string:str):
+    @autowrite
+    def asciiz(self, string:str):
         return f"{Directive.asciiz} \"{string}\""
+
+# Utilities
+
+    def reg_offset(self, r:Register,offset:int = 0):
+        return f"{offset}({r})"
+
+    @autowrite
+    def label(self,name:str):
+        return f"{name}:"

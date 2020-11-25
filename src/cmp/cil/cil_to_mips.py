@@ -1,13 +1,8 @@
-from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, AssignNode, PlusNode \
-    , MinusNode, StarNode, DivNode, AllocateNode, TypeOfNode, StaticCallNode, DynamicCallNode    \
-    , ArgNode, ReturnNode, ReadStrNode, ReadIntNode, PrintStrNode, PrintIntNode, LengthNode, ConcatNode, PrefixNode     \
-    , SubstringNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode    \
-    , DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ConformNode         \
-    , CleanArgsNode, ErrorNode, CopyNode, TypeNameNode, StringEqualNode
-from .utils import on, when, TypeData
+from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, AssignNode, PlusNode, MinusNode, StarNode, DivNode, AllocateNode, TypeOfNode, StaticCallNode, DynamicCallNode, ArgNode, ReturnNode, ReadStrNode, ReadIntNode, PrintStrNode, PrintIntNode, LengthNode, ConcatNode, PrefixNode, SubstringNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode, DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ConformNode, CleanArgsNode, ErrorNode, CopyNode, TypeNameNode, StringEqualNode
+from .utils.mips_syntax import Mips, Register as Reg
 
 
-class CIL_TO_MIPS(object):
+class CIL_TO_MIPS(Mips):
     def __init__(self):
         self.DOTTEXT = []
         self.DOTDATA = []
@@ -16,10 +11,10 @@ class CIL_TO_MIPS(object):
         self.local_vars_offsets = dict()
         self.actual_args = dict()
 
-    def write_inst(self, instruction:str, tabs=0):
+    def write_inst(self, instruction: str, tabs=0):
         self.DOTTEXT.append(f'{instruction}')
-    
-    def write_data(self, data:str, tabs=0):
+
+    def write_data(self, data: str, tabs=0):
         self.DOTDATA.append(f'{data}')
 
     def build_types_data(self, types):
@@ -27,25 +22,26 @@ class CIL_TO_MIPS(object):
             self.types_offsets[typex.name] = TypeData(idx, typex)
 
     def compile(self):
-        return '\n'.join([ '.data'] + self.DOTDATA + ['.text'] + self.DOTTEXT)
+        return '\n'.join(['.data'] + self.DOTDATA + ['.text'] + self.DOTTEXT)
 
-    def write_push(self, register:str):
+    def write_push(self, register: str):
         """
         `add $sp , $sp , -8`
-        
+
         And then write to address `0($sp)`
         """
-        self.write_inst(f"add $sp , $sp , -8")
-        self.write_store_memory(register,"0($sp)")
+        self.write_inst(Mips.addi(Reg.sp, Reg.sp, -8))
+        self.write_store_memory(register, Mips.reg_offset(Reg.sp))
 
-    def write_pop(self, register:str):
+
+    def write_pop(self, register: str):
         """
         First, load from to address `0($sp)` and then write `add $sp , $sp , 8` to restore the stack pointer
         """
-        self.write_load_memory(register,"0($sp)")
+        self.write_load_memory(register, "0($sp)")
         self.write_inst(f"add $sp , $sp , 8")
 
-    def write_load_memory(self, register:str , address: str):
+    def write_load_memory(self, register: str, address: str):
         """
         Load from a specific address a 32 bits register
         """
@@ -54,7 +50,7 @@ class CIL_TO_MIPS(object):
         self.write_inst(f"lw $t1, {address} + 4")
         self.write_inst(f"or {register} ,$t0 , $t1")
 
-    def write_store_memory(self, register:str, address: str):
+    def write_store_memory(self, register: str, address: str):
         """
         Write to a specific address a 32 bits register
         """
@@ -80,7 +76,7 @@ class CIL_TO_MIPS(object):
         self.write_inst(f'jal entry')
 
         self.write_inst('li $v0, 10')
-        self.write_inst('syscall')        
+        self.write_inst('syscall')
 
         for function in node.dotcode:
             self.visit(function)
@@ -166,7 +162,7 @@ class CIL_TO_MIPS(object):
     @when(LessNode)
     def visit(self, node: LessNode):
         pass
-        
+
     @when(EqualNode)
     def visit(self, node: EqualNode):
         pass
@@ -212,7 +208,7 @@ class CIL_TO_MIPS(object):
         pass
 
     @when(CleanArgsNode)
-    def visit(self, node:CleanArgsNode):
+    def visit(self, node: CleanArgsNode):
         pass
 
     @when(ReturnNode)
@@ -234,11 +230,11 @@ class CIL_TO_MIPS(object):
     @when(PrintStrNode)
     def visit(self, node: PrintStrNode):
         pass
-    
+
     @when(LengthNode)
     def visit(self, node: LengthNode):
         pass
-    
+
     @when(ConcatNode)
     def visit(self, node: ConcatNode):
         pass
