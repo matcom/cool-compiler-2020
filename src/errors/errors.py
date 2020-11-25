@@ -9,6 +9,7 @@ PARSER_ERRORS = []
 SEMANTIC_ERRORS = []
 
 ERR_TYPE = "TypeError"
+ERR_SEMANTIC = "SemanticError"
 
 
 def add_lexer_error(line, column, message):

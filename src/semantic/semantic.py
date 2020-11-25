@@ -356,6 +356,9 @@ def let_visitor(let: LetNode, current_class: CT.CoolType, local_scope: dict):
     local_scope = local_scope.copy()
     # 1)
     for attribute in let.let_attrs:
+        if attribute.id == 'self':
+            add_semantic_error(
+                attribute.lineno, attribute.colno, f'{ERR_SEMANTIC}: \'self\' cannot be bound in a \'let\' expression.')
         attribute_type = expression_visitor(
             attribute, current_class, local_scope)
         if attribute_type is None:

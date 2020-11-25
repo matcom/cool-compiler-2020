@@ -71,7 +71,7 @@ def p_def_attr_declaration(p):
     except IndexError:
         p[0] = DefAttrNode(p[1], p[3])
 
-    p[0].add_location(p.lineno(3), find_column(p.lexer.lexdata, p.lexpos(3)))
+    p[0].add_location(p.lineno(0), find_column(p.lexer.lexdata, p.lexpos(0)))
 
 
 def p_def_func(p):
