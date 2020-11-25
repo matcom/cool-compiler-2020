@@ -108,6 +108,27 @@ class Type:
         method = self.methods[name] = Method(name, param_names, param_types, return_type)
         return method
 
+    def all_attributes(self):
+        if self.parent:
+            for attr in self.parent.all_attributes():
+                yield attr
+        for attr in self.attributes:
+            yield attr
+
+    def all_methods(self):
+        done = set()
+        if self.parent:
+            for method, typex in self.parent.all_methods():
+                if method.name in self.methods:
+                    done.add(method.name)
+                    yield (self.methods[method.name], self)
+                else:
+                    yield (method, typex)
+        for method in self.methods.values():
+            if method.name in done: continue
+            yield (method, self)
+
+
     def conforms_to(self, other):
         return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
 
