@@ -97,7 +97,7 @@ def def_attr_class_visitor(attr: DefAttrNode, current_class: CT.CoolType, local_
         # 2)
         if attr_type is not None and not CT.check_inherits(expr_type, attr_type):
             add_semantic_error(
-                attr.lineno, attr.colno, f'cannot save type \'{expr_type}\' inside type \'{attr_type}\'')
+                attr.lineno, attr.expr.colno, f'{ERR_TYPE}: Inferred type {expr_type} of initialization of attribute d does not conform to declared type {attr_type}.')
         else:
             return attr_type
 
