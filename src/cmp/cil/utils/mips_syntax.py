@@ -153,8 +153,8 @@ class Mips:
         return f"addiu {dst},{rl},{value}"
 
     @autowrite
-    def mul(self, dst: Register, rl: Register, rr: Register):
-        return f"mul {dst},{rl},{rr}"
+    def multu(self, dst: Register, rl: Register, rr: Register):
+        return f"multu {dst},{rl},{rr}"
 
     @autowrite
     def mult(self, rl: Register, rr: Register):

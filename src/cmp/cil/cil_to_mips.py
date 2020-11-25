@@ -40,6 +40,7 @@ from .ast import (
     CopyNode,
     TypeNameNode,
     StringEqualNode,
+    ArithmeticNode
 )
 from .utils import on, when
 from .utils.mips_syntax import Mips, Register as Reg
@@ -153,36 +154,74 @@ class CIL_TO_MIPS(object):
     def visit(self, node: ComplementNode):  # noqa
         pass
 
+    def load_arithmetic(self, node: ArithmeticNode):
+        self.mips.load_memory(Reg.t0, node.left.address)
+        self.mips.load_memory(Reg.t1, node.right.address)
+
     @when(LessNode)
     def visit(self, node: LessNode):  # noqa
-        pass
+        self.load_arithmetic(node)
+        self.mips.slt(Reg.v0, Reg.t0, Reg.t1)
+
+        self.mips.store_memory(Reg.v0, node.dest.address)
 
     @when(EqualNode)
     def visit(self, node: EqualNode):  # noqa
-        pass
+        """
+        ((a < b) + (b < a)) < 1  -> ==
+        """
+        self.load_arithmetic(node)
+        self.mips.slt(Reg.t2, Reg.t0, Reg.t1)
+        self.mips.slt(Reg.t3, Reg.t1, Reg.t0)
+
+        self.mips.add(Reg.t0, Reg.t2, Reg.t3)
+        self.mips.slti(Reg.t1, Reg.t0, 1)
+
+        self.mips.store_memory(Reg.t1, node.dest.address)
 
     @when(LessEqNode)
     def visit(self, node: LessEqNode):  # noqa
-        pass
+        """
+         a <= b -> ! b < a -> 1 - (b < a)
+        """
+        self.load_arithmetic(node)
+        self.mips.slt(Reg.t2, Reg.t1, Reg.t0)
+        self.mips.li(Reg.t3, 1)
+        self.mips.sub(Reg.t0, Reg.t3, Reg.t2)
+
+        self.mips.store_memory(Reg.t0, node.dest.address)
 
     @when(PlusNode)
     def visit(self, node: PlusNode):  # noqa
-        pass
+        self.load_arithmetic(node)
+        self.mips.add(Reg.t2, Reg.t0, Reg.t1)
+
+        self.mips.store_memory(Reg.t2, node.dest.address)
 
     @when(MinusNode)
     def visit(self, node: MinusNode):  # noqa
-        pass
+        self.load_arithmetic(node)
+        self.mips.sub(Reg.t2, Reg.t0, Reg.t1)
+
+        self.mips.store_memory(Reg.t2, node.dest.address)
 
     @when(StarNode)
     def visit(self, node: StarNode):  # noqa
-        pass
+        self.load_arithmetic(node)
+        self.mips.mult(Reg.t2, Reg.t0, Reg.t1)
+        self.mips.mflo(Reg.t0)
+        self.mips.store_memory(Reg.t0, node.dest.address)
 
     @when(DivNode)
     def visit(self, node: DivNode):  # noqa
-        pass
+        self.load_arithmetic(node)
+        self.mips.div(Reg.t2, Reg.t0, Reg.t1)
+        self.mips.mflo(Reg.t0)
+        self.mips.store_memory(Reg.t0, node.dest.address)
 
     @when(AllocateNode)
     def visit(self, node: AllocateNode):  # noqa
+        node.type
         pass
 
     @when(TypeOfNode)
@@ -211,6 +250,7 @@ class CIL_TO_MIPS(object):
 
     @when(ReadIntNode)
     def visit(self, node: ReadIntNode):  # noqa
+        node.name
         pass
 
     @when(ReadStrNode)

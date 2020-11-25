@@ -9,6 +9,7 @@ class Var:
     def __repr__(self):
         return str(self)
 
+
 class Scope:
     def __init__(self, parent=None):
         self.parent = parent
@@ -20,12 +21,12 @@ class Scope:
     def define_var(self, name, local_name):
         var = self.vars[name] = Var(name, local_name)
         return var
-    
+
     def get_var(self, name):
         try:
             return self.vars[name]
         except KeyError:
-            if not self.parent is None:
+            if self.parent is not None:
                 return self.parent.get_var(name)
             return None
 
