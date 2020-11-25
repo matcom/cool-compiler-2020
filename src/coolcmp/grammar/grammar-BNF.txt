@@ -1,0 +1,83 @@
+# Legend:
+# Terminals (tokens) are all upper case
+# Non Terminals are all lower case
+# epsilon is empty production
+
+program ::= class ; program
+|   class ;
+
+class ::= CLASS TYPE inherits { feature_list }
+
+inherits ::= INHERITS TYPE
+|   epsilon
+
+feature_list ::= feature ; feature_list
+|   epsilon
+
+feature ::= ID ( formal_params ) : TYPE { expr }
+|	attribute
+
+formal_params ::= formal_list
+|   epsilon
+
+formal ::= ID : TYPE
+
+formal_list ::= formal formal_list_helper
+
+formal_list_helper ::= , formal formal_list_helper
+|	epsilon
+
+expr_list_semicolon ::= expr ; expr_list_semicolon
+| expr ;
+
+expr_params ::= expr_list_comma
+|	epsilon
+
+expr_list_comma ::= expr expr_list_comma_helper
+
+expr_list_comma_helper ::= , expr expr_list_comma_helper
+|	epsilon
+
+attribute ::= ID : TYPE opt_expr_init
+
+let_var ::= ID : TYPE opt_expr_init
+
+let_list ::= let_var let_list_helper
+
+let_list_helper ::= , let_var let_list_helper
+|	epsilon
+
+opt_expr_init ::= <- expr
+|	epsilon
+
+case_var ::= ID : TYPE
+
+case_list ::= case_var => expr ; case_list
+|   case_var => expr ;
+
+expr ::= ID <- expr
+| 	expr @ TYPE . ID ( expr_params )
+|   expr . ID ( expr_params )
+| 	ID ( expr_params )
+| 	IF expr THEN expr ELSE expr FI
+| 	WHILE expr LOOP expr POOL
+| 	{ expr_list_semicolon }
+| 	LET let_list IN expr
+| 	CASE expr OF case_list ESAC
+| 	NEW TYPE
+| 	ISVOID expr
+| 	expr + expr
+| 	expr - expr
+|	expr * expr
+| 	expr / expr
+| 	~ expr
+| 	expr < expr
+| 	expr <= expr
+| 	expr = expr
+| 	NOT expr
+| 	( expr )
+| 	ID
+| 	INT
+| 	STRING
+| 	BOOL
+

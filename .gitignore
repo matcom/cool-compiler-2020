@@ -10,7 +10,6 @@
 *.log
 *.lot
 *.fls
-*.out
 *.toc
 *.fmt
 *.fot
@@ -407,4 +406,9 @@ dmypy.json
 # End of https://www.gitignore.io/api/visualstudiocode,linux,latex,python
 
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
-
+*.out
+*.old
+/src/extra
+/src/coolcmp/cmp_utils/parsetab.py
+.vscode/
+*.mips

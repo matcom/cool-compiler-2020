@@ -1,0 +1,1 @@
+from coolcmp.main import *
