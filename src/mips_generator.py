@@ -1324,8 +1324,18 @@ def convert_MovNode(instruction):
         result += "lw $t1, " + instruction.result + "\n"
         result += "sw $t0, 4($t1)\n"
     else:
-        result += "lw $t0, " + instruction.value + "\n"
-        result += "sw $t0, " + instruction.result + "\n"
+        if instruction.value in DATA:
+            val = instruction.value
+        elif instruction.value in PARAMS:
+            val = PARAMS[instruction.value]
+        
+        if instruction.result in DATA:
+            res = instruction.result
+        elif instruction.result in PARAMS:
+            res = PARAMS[instruction.result]
+
+        result += "lw $t0, " + val + "\n"
+        result += "sw $t0, " + res + "\n"
 
     return result
 

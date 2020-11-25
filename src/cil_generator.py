@@ -136,7 +136,7 @@ def generate_cil_code(ast):
 
 def get_local():
     
-    global T_LOCALS, F_LOCALS
+    global T_LOCALS, F_LOCALS, F_PARAM
     
     id = "local_" + str(len(T_LOCALS))
 
@@ -203,10 +203,12 @@ def generate_built_in_functions():
             FunctionNode('String_substr', [ParamNode('self'), ParamNode('from'), ParamNode('to')], [get_local()], 
                 [AllocateNode("String", "local_7"),
                 StrsubNode('self', 'from', 'to', 'local_7'),
-                ReturnNode('local_7')])]
+                ReturnNode('local_7')]),
+            FunctionNode("Object_abort", [ParamNode('self')], [], 
+                [AbortNode()])]
 
     global MAX_PARAM_COUNT
-    MAX_PARAM_COUNT += 14
+    MAX_PARAM_COUNT += 15
 
     global CODE
     CODE = CODE + code
@@ -394,6 +396,19 @@ def convert_assign(assign):
     global C_ATTRIBUTES, CURR_TYPE
     expr = convert_expression(assign.expression)
 
+    
+
+    if assign.id in LET_LOCALS:
+        node = expr.node + [MovNode(LET_LOCALS[assign.id].id, expr.result.id)]
+
+        return Node_Result(node, LET_LOCALS[assign.id])
+
+    if assign.id in F_PARAM:
+        node = expr.node + [MovNode(F_PARAM[assign.id].id, expr.result.id)]
+
+        return Node_Result(node, F_PARAM[assign.id])
+
+
     if assign.id in C_ATTRIBUTES:
         node = expr.node + [SetAttributeNode(CURR_TYPE, "self", assign.id, expr.result.id)]
         return Node_Result(node, expr.result)
@@ -408,9 +423,9 @@ def convert_binary_arithmetic_operation(op):
 
     node = []
 
-    result = left.result
+    result = get_local()
 
-    node = left.node + right.node
+    node = left.node + right.node + [AllocateNode("Int", result.id)]
 
     if type(op) == ast.PlusNode:
         node.append(AddNode(left.result.id, right.result.id, result.id))
@@ -450,6 +465,7 @@ def convert_conditional(expression):
 
 
 def convert_loop(loop):
+
     predicate = convert_expression(loop.evalExpr)
 
     expr = convert_expression(loop.loopExpr)
@@ -607,6 +623,10 @@ def convert_let(let):
             nodes.append(AllocateNode(attr.typeName, local.id))
             nodes.append(MovNode(local.id, a.result.id))
             LET_LOCALS[attr.id] = local
+        else:
+            local = get_local()
+            nodes.append(AllocateNode(attr.typeName, local.id))
+            LET_LOCALS[attr.id] = local
 
     expr = convert_expression(let.expression)
     nodes += expr.node
@@ -639,7 +659,7 @@ def convert_is_void(isvoid):
 
     result = get_local()
 
-    node = expr.node + [VDNode(expr.result.id, result)]
+    node = expr.node + [VDNode(expr.result.id, result.id)]
 
     return Node_Result(node, result)
 
