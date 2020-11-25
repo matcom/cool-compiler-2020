@@ -439,13 +439,13 @@ def arithmetic_operator_visitor(operator: BinaryNode, current_class: CT.CoolType
     lvalue_type = expression_visitor(
         operator.lvalue, current_class, local_scope)
     if lvalue_type != CT.IntType and lvalue_type is not None:
-        add_semantic_error(operator.lvalue.lineno, operator.lvalue.colno,
+        add_semantic_error(operator.lineno, operator.colno,
                            f'{ERR_TYPE}: non-Int arguments: {lvalue_type} + {CT.IntType}')
     # 2)
     rvalue_type = expression_visitor(
         operator.rvalue, current_class, local_scope)
     if rvalue_type != CT.IntType and rvalue_type is not None:
-        add_semantic_error(operator.rvalue.lineno, operator.rvalue.colno,
+        add_semantic_error(operator.lineno, operator.colno,
                            f'{ERR_TYPE}: non-Int arguments: {CT.IntType} + {rvalue_type}')
     # 3)
     operator.returned_type = CT.IntType
