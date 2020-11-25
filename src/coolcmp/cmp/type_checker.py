@@ -70,7 +70,7 @@ class TypeChecker:
             return default_type
 
         if node.type.value not in self.cls_refs:
-            raise SemanticError(node.type.line, node.type.col, f'{Class(node.type)} doesnt exists')
+            raise TypeError(node.type.line, node.type.col, f'{Class(node.type)} doesnt exists')
 
         return self.cls_refs[node.type.value]
 
@@ -173,12 +173,12 @@ class TypeChecker:
                 raise SemanticError(node.opt_type.line, node.opt_type.col, f'Cant perform static dispatch on {node.opt_type}')
 
             if node.opt_type.value not in self.cls_refs:
-                raise SemanticError(node.opt_type.line, node.opt_type.col, f'{Class(node.opt_type, None)} doesnt exists')
+                raise TypeError(node.opt_type.line, node.opt_type.col, f'{Class(node.opt_type, None)} doesnt exists')
 
             cls = self.cls_refs[node.opt_type.value]
 
             if not self._conforms(node.expr.static_type, cls):
-                raise SemanticError(node.line, node.col, f'Dispatch failed, {node.expr} with {node.expr.static_type} doenst conform to {cls}')
+                raise TypeError(node.line, node.col, f'Dispatch failed, {node.expr} with {node.expr.static_type} doenst conform to {cls}')
 
         else:
             cls = node.expr.static_type

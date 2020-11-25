@@ -40,7 +40,10 @@ try:
     mips_code = source_code.genMIPSCode(cil_root)
     
     if not args.no_mips:
-        with open(f'{path.stem}.mips', 'w') as f:
+        towrite = Path('../tests/codegen') / f'{path.stem}.mips'
+        towrite.resolve()
+
+        with open(towrite, 'w') as f:
             print(mips_code, file=f)
 
 except CmpErrors as err:

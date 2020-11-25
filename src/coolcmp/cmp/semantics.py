@@ -18,6 +18,9 @@ class SemanticAnalyzer:
 
             cls_refs[cls.type.value] = cls
 
+        self.ast_root.cls_list = list(self.ast_root.cls_list)
+        self.ast_root.cls_list.sort(key=lambda x: x.type.line, reverse=True)
+
         for cls in native_classes:
             self.ast_root.cls_list.append(cls)
 
@@ -42,7 +45,7 @@ class SemanticAnalyzer:
 
             if name not in cls_refs:
                 assert cls.opt_inherits
-                raise SemanticError(cls.opt_inherits.line, cls.opt_inherits.col, f'Tried to inherit from <Class {cls.opt_inherits}> who doesnt exists')
+                raise TypeError(cls.opt_inherits.line, cls.opt_inherits.col, f'Tried to inherit from <Class {cls.opt_inherits}> who doesnt exists')
 
             parent = cls_refs[name]
 
@@ -52,7 +55,7 @@ class SemanticAnalyzer:
             parent.children.append(cls)
 
         if 'Main' not in cls_refs:
-            raise SemanticError(1, 1, f'<Class {Type("Main")}> doesnt exist')
+            raise TypeError(1, 1, f'<Class {Type("Main")}> doesnt exist')
 
         main_class = cls_refs['Main']
 
