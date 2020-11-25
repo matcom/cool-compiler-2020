@@ -47,6 +47,13 @@ class CIL_TO_MIPS(object):
         for datanode in node.dotdata:
             self.visit(datanode)
 
+        self.write_inst(f'main: ;')
+
+        self.write_inst(f'jal entry')
+
+        self.write_inst('li $v0, 10')
+        self.write_inst('syscall')        
+
         for function in node.dotcode:
             self.visit(function)
 
@@ -60,15 +67,45 @@ class CIL_TO_MIPS(object):
 
     @when(FunctionNode)
     def visit(self, node: FunctionNode):
-        pass
+        self.write_inst('')
+        self.write_inst(f'{node.name}: ;')
+        self.write_push('$fp')
+        self.write_inst('add $fp, $0, $sp')
+        self.actual_args = dict()
+
+        self.write_inst('')
+        for idx, param in enumerate(node.params):
+            self.visit(param, index=idx)
+
+        self.write_inst('')
+        for idx, local in enumerate(node.localvars):
+            self.visit(local, index=idx)
+
+        self.write_inst('')
+        # self.store_registers()
+        self.write_inst('')
+        for instruction in node.instructions:
+            self.visit(instruction)
+
+        self.actual_args = None
+        self.write_inst('')
+        # self.load_registers()
+
+        for _ in node.localvars:
+            self.write_inst('addi $sp, $sp, 4')
+        self.write_pop('$fp')
+        self.write_inst('jr $ra')
+        self.write_inst('')
 
     @when(ParamNode)
-    def visit(self, node: ParamNode):
-        pass
+    def visit(self, node: ParamNode, index=0):
+        self.actual_args[node.name] = index
 
     @when(LocalNode)
-    def visit(self, node: LocalNode):
-        pass
+    def visit(self, node: LocalNode, index=0):
+        self.write_push('$zero')
+        assert not node.name in self.local_vars_offsets, f'Impossible {node.name}...'
+        self.local_vars_offsets[node.name] = index
 
     @when(CopyNode)
     def visit(self, node: CopyNode):
