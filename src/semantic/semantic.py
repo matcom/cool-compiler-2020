@@ -118,7 +118,7 @@ def def_attribute_visitor(def_attr: DefAttrNode, current_class: CT.CoolType, loc
     id_type = CT.type_by_name(def_attr.type)
     if id_type is None:
         add_semantic_error(def_attr.lineno, def_attr.colno,
-                           f'unknown type \'{def_attr.type}\'')
+                           f'{ERR_TYPE}: Class {def_attr.type} of let-bound identifier {def_attr.id} is undefined')
     # 2)
     if def_attr.expr:
         # 2.1)
