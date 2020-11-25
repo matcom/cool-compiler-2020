@@ -70,9 +70,8 @@ class Expr(AST):
     def __init__(self):
         super(Expr, self).__init__()
         self.computed_type = None
+        
 # <expression> ::= ID <- <expr>
-
-
 class AssignExpr(Expr):
     def __init__(self, instance, expr, line, column):
         super(AssignExpr, self).__init__()

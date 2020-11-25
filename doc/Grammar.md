@@ -20,7 +20,7 @@ The following BNF grammar is based on the *COOL-2012* language specification (se
 <features_list>           ::= <features_list> <feature> ;
                           |   <feature> ;
 
-<feature>                 ::= ID ( <formal_params_list_opt> ) : TYPE { <expression> }
+<feature>                 ::= ID ( <formal_params_list> ) : TYPE { <expression> }
                           |   <attribute_init>
 
 <formal_params_list_opt>  ::= <formal_params_list>
@@ -85,11 +85,14 @@ The following BNF grammar is based on the *COOL-2012* language specification (se
 <block_list>              ::= <block_list> <expression> ;
                           |   <expression> ;
 
-<let_expression>          ::= let <formal> in <expression>
-                          |   <nested_lets> , <formal>
+<let_expression>          ::= let <nested_vars> in <expression>
 
-<nested_lets>             ::= <formal> IN <expression>
-                          |   <nested_lets> , <formal>
+<nested_vars>             ::= <let_var_init>
+                          |   <nested_vars> , <let_var_def>
+
+<let_var_init>            ::= ID : TYPE <- <expression> | <let_var_def>
+
+<let_var_def>             ::= ID : TYPE
 
 <empty>                   ::=
 ```
