@@ -1,4 +1,4 @@
-ERROR_ON_LN_COL = 'Line %d, Column %d: '
+ERROR_ON_LN_COL = '(%d, %d) - '
 WRONG_SIGNATURE = 'Method "%s" of "%s" already defined in "%s" with a different signature.'
 SELF_IS_READONLY = 'Variable "self" is read-only.'
 LOCAL_ALREADY_DEFINED = 'Variable "%s" is already defined in method "%s".'
