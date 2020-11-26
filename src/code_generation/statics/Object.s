@@ -20,3 +20,5 @@ jr $ra
 Object.abort:
 li $v0, 10
 syscall
+
+Object.type_name:

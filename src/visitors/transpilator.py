@@ -19,7 +19,9 @@ class codeVisitor:
         self.depth = {}
 
         self.collectTypes(context)
-        self.setInitialCode()
+        self.setBuiltInTypes()
+        # self.setClassConstructor()
+        # self.setInitialCode()
 
     def getInt(self):
         self.count = self.count + 1
@@ -80,16 +82,17 @@ class codeVisitor:
         self.code.append(DispatchIL(3,1,self.virtual_table.get_method_id('Main', 'main')))
 
         self.code.append(GotoIL("Object.abort"))
+        self.code.append(CommentIL('--------------End Initial Code---------------'))
 
     def setBuiltInTypes(self):
         built_in = ['Object', 'IO', 'Bool', 'String']
         for t in built_in:
             self.code.append(LabelIL(t, 'Constructor', True))
             self.code.append(PushIL())
-            self.append(ReturnIL())
+            self.code.append(ReturnIL())
 
     def setClassConstructor(self, attributes):
-        self.code.append(LabelIL(self.current_class, 'Constructor', True))
+        self.data.append(LabelIL(self.current_class, 'Constructor', True))
 
         vars = Variables()
         vars.add_var('self')
@@ -101,10 +104,10 @@ class codeVisitor:
             self.visit(node.value, vars)
             p = vars.peek_last()
             index = self.virtual_table.get_attributes_id(self.current_class, node.name.value)
-            self.code.append(VarToMemoIL(vars.id('self'), vars.id(p), index))
+            self.data.append(VarToMemoIL(vars.id('self'), vars.id(p), index))
 
-        self.code.append(PushIL())
-        self.code.append(ReturnIL())
+        self.data.append(PushIL())
+        self.data.append(ReturnIL())
 
 
     def handleBinaryOps(self, node, variables, symbol):
@@ -166,7 +169,7 @@ class codeVisitor:
 
     @visitor.when(FuncDeclarationNode)
     def visit(self, node):
-        self.code.append(LabelIL(self.current_class, node.id, True))
+        self.data.append(LabelIL(self.current_class, node.id, True))
 
         variables = Variables()
         variables.add_var('self')
@@ -177,7 +180,7 @@ class codeVisitor:
         variables.add_temp()
 
         self.visit(node.body, variables)
-        self.code.append(ReturnIL())
+        self.data.append(ReturnIL())
 
     @visitor.when(VarDeclarationNode)
     def visit(self, node, variables):

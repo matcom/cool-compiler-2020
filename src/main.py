@@ -36,20 +36,37 @@ def main():
     # for t in context.types:
     #     print(t)
     #     print('methods: ', context.types[t])
-    cv = codeVisitor(context)
-    cv.visit(ast)
     # print('Done transpilator')
     # print(len(cv.code))
 
     # for c in cv.code:
     #     print(str(c))
+    
+    cv = codeVisitor(context)
+    cv.visit(ast)
 
     mips = MIPS(cv.code, cv.data)
-    
     code = mips.start()
-    # print('-------------------Done mips-------------------------------')
+
+    path = program[:-1]
+    path = path[:-1]
+    path += 'mips'
+    print(path)
+    f = open(path, "w+")
+
     for line in code:
-        print(code)
+        f.write(line)
+    
+    f.close()
+
+    # except:
+    #     pass
+
+    
+
+    # print('-------------------Done mips-------------------------------')
+    # for line in code:
+    #     print(code)
 # except:
 #     pass
 

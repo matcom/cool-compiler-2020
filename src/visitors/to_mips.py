@@ -14,33 +14,40 @@ class MIPS:
         return fd.read()
 
     def start(self):
+
         self.code.append(".data\n")
         self.code.append("buffer:\n")
         self.code.append(".space 65536\n")
+        self.code.append("strsubstrexception: .asciiz \"{}\"\n".format("Substring index exception\n"))
         self.code.append("\n")
 
-        for node in self.il_data:
-            self.visit(node)
-
-        for c in self.data:
-            self.code.append(c)
-
-        self.code.append("\n.globl main\n")
-        self.code.append(".text\n")
 
         self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'IO.s')) + "\n")
         self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'Object.s')) + "\n")
         self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'String.s')) + "\n")
         self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'inherit.s')) + "\n")
 
+        for node in self.il_data:
+            self.visit(node)
+        
+        self.code.append("Object_INH: .word 0\n")
+        for c in self.data:
+            self.code.append(c)
+
+        self.code.append("\n.globl main_\n")
+        self.code.append(".text\n")
         print('code_len', len(self.code))
         for c in self.il_code:
             # print(str(c))
             self.visit(c)
 
+
         print('code_len', len(self.code))
         self.code += "li $v0, 10\n"
         self.code += "syscall\n"
+        
+
+        
 
         return self.code
 
@@ -150,16 +157,16 @@ class MIPS:
 
     @visitor.when(HierarchyIL)
     def visit(self, node):
-        self.data.append(node.node + "_INH:\n")
+        self.data.append(node.node + "_INH: ")
         self.data.append(".word {}_INH\n".format(node.parent))
 
     @visitor.when(VirtualTableIL)
     def visit(self, node):
-        self.data.append(node.name + "_VT:\n")
+        self.data.append(node.name + "_VT: ")
         self.data.append(".word {}_INH\n".format(node.name))
         
         for n,m in node.methods:
-            self.data.append(".word " + n + "\n")
+            self.data.append(".word " + node.name + '.' + n + "\n")
 
     @visitor.when(PushIL)
     def visit(self, node):

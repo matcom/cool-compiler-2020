@@ -3,7 +3,10 @@ from .node_il import NodeIL
 class LabelIL(NodeIL):
     
     def __init__(self, first, second, func = False):
-        self.label = str(first) + '_' + str(second)
+        if not func:
+            self.label = str(first) + '_' + str(second)
+        else:
+            self.label = str(first) + '.' + str(second)
         self.first = first
         self.second = second
         self.func = func
