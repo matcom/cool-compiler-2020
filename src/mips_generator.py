@@ -31,8 +31,6 @@ def generate_data(data, locals, max_param_count):
     result = ".data\n\n"
 
     for t in CIL_TYPES.values():
-        if t.type_name == "Int" or t.type_name == "Bool" or t.type_name == "String":
-            continue
         result += "type_" + t.type_name + ": .asciiz \"" + t.type_name + "\"\n"
 
     for l in locals.values():
@@ -363,13 +361,14 @@ def convert_TypeOfNode(instruction):
     result += "beq $t2, 'B', " + typeof_bool_case_label + "\n"
     result += "beq $t2, 'S', " + typeof_string_case_label + "\n"
     # aqui se llegaria si el valor no fuera de ningun tipo basico
-    result += "addi $t2, $t2, 4\n"
-    result += "lw $t2, ($t2)\n"
+    result += "addi $t0, $t0, 4\n"
+    result += "lw $t2, ($t0)\n"
     result += typeof_string_copy_start_label + ":\n"
     result += "lb $t3, ($t2)\n"
     result += "sb $t3, ($t1)\n"
     result += "beq $t3, 0, " + typeof_end_label + "\n"
     result += "addi $t2, $t2, 1\n"
+    result += "addi $t1, $t1, 1\n"
     result += "j " + typeof_string_copy_start_label + "\n"
     # si el valor es de tipo entero
     result += typeof_int_case_label + ":\n"
@@ -658,7 +657,7 @@ def convert_AllocateNode(instruction):
 
     # los datos Int y Bool toman 5 bytes, 1 para la letra inicial I o B
     # y los restantes 4 para el valor
-    if instruction.type == "Int" or instruction.type == "Bool":
+    if instruction.type == "Int" or instruction.type == "Bool" or instruction.type == "Pointer":
         result += "li $a0, 8\n"
         result += "li $v0, 9\n"
         result += "syscall\n"
@@ -674,8 +673,10 @@ def convert_AllocateNode(instruction):
         # ponemos la letra correspondiente
         if instruction.type == "Int":
             result += "li $t0, 'I'\n"
-        else:
+        elif instruction.type == "Bool":
             result +=   "li $t0, 'B'\n"
+        else:
+            result +=   "li $t0, 'P'\n"
 
         result += "sb $t0, ($v0)\n"
         
@@ -795,19 +796,91 @@ def convert_ArgNode(instruction):
 def convert_DispatchCallNode(instruction):
     result = ""
 
-    global DATA, PARAMS, PARAMS_LOAD
+    global DATA, PARAMS, PARAMS_LOAD, CIL_TYPES
 
-    result += "jal " + instruction.type_name + "_" + instruction.method + "\n"
+    if instruction.type_name in DATA:
+        tp = instruction.type_name
+    else:
+        tp = PARAMS[instruction.type_name]
 
     if instruction.result in DATA:
         dest = instruction.result
     else:
         dest = PARAMS[instruction.result]
-    
 
-    result += "sw $v0, " + dest + "\n"
+    dispatch_after_call_label = next_label()
 
-    result += PARAMS_LOAD
+    # tenemos que buscar a q funcion llamar dependiendo del tipo de la instancia
+    # que se obtiene en ejecucion
+    for t in CIL_TYPES.values():
+
+        if not (instruction.method in t.methods):
+            continue
+
+        result += "la $t0, type_" + t.methods[instruction.method] + "\n"
+        
+        result += "lw $t1, " + tp + "\n"
+        result += "addi $t1, $t1, 4\n"
+
+        # en t0 estara el tipo actual y en t1 el tipo del metodo a llamar
+
+        dispatch_string_comparison_start_label = next_label()
+        dispatch_string_first_ended = next_label()
+        dispatch_string_false = next_label()
+        dispatch_end_label = next_label()
+
+        result += dispatch_string_comparison_start_label + ":\n"
+
+        result += "li $t3, 0\n"
+        result += "li $t4, 0\n"
+
+        result += "lb $t3, ($t0)\n"
+        result += "lb $t4, ($t1)\n"
+        
+        result += "beq $t3, 0, " + dispatch_string_first_ended + "\n"
+
+        # si el segundo llega a su final y el primero no ha llegado
+        # entonces no son iguales
+        result += "beq $t4, 0, " + dispatch_string_false + "\n"
+
+        result += "addi $t0, $t0, 1\n"
+        result += "addi $t1, $t1, 1\n"
+
+        result += "beq $t3, $t4, " + dispatch_string_comparison_start_label + "\n"
+
+        # si los dos caracteres comparados no son iguales entonces
+        # los strings no son iguales
+        result += dispatch_string_false + ":\n"
+        result += "li $t3, 0\n"
+        result += "j " + dispatch_end_label + "\n"
+        result += dispatch_string_first_ended + ":\n"
+
+        # si el primero llega al final y el segundo no ha llegado
+        # entonces los strings no son iguales
+        result += "bne $t4, 0, " + dispatch_string_false + "\n"
+
+        # aqui solamente se llega si los dos strings tuvieron los mismos
+        # caracteres y llegaron al final a la misma vez
+        result += "li $t3, 1\n"
+        result += "j " + dispatch_end_label + "\n"
+
+        # en este punto si en t3 se encuentra la igualdad o no del tipo actual
+        # y del tipo de la instancia
+
+        result += dispatch_end_label + ":\n"
+
+        dispatch_continue_label = next_label()
+
+        result += "bne $t3, 1, " + dispatch_continue_label + "\n"
+
+        result += "jal " + t.methods[instruction.method] + "_" + instruction.method + "\n"
+
+        result += "sw $v0, " + dest + "\n"
+        result += PARAMS_LOAD
+        result += "j " + dispatch_after_call_label + "\n"
+        result += dispatch_continue_label + ":\n"
+
+    result += dispatch_after_call_label + ":\n"
 
     return result
 

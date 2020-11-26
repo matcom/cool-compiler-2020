@@ -1,9 +1,29 @@
-class Main inherits IO {
-    main() : IO {
-	{
-	    out_string((new Object).type_name().substr(4,1)).
-	    out_string((isvoid self).type_name().substr(1,3));	-- demonstrates the dispatch rules.
-	    out_string("\n");
-	}
-    };
+
+class A {
+
+message() : String{
+	"A\n"
 };
+
+};
+
+
+class B inherits A {
+
+message() : String{
+	"B\n"
+};
+
+};
+
+
+class Main inherits IO {
+
+	main() : IO {
+	out_string((new B).message())
+};
+
+};
+
+
+

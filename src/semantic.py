@@ -118,47 +118,72 @@ def check_features(ast: ProgramNode):
     return []
 
 
+CURR_TYPE = ""
+
 def check_expressions(ast: ProgramNode):
-    for cls in ast.classes:
-        attrs = {}
-        cls_type = AllTypes[cls.typeName]
-        attrs_type = cls_type.get_attributes()
-        for attr in attrs_type:
-            attrs[attr.attribute_name] = attr.attribute_type.name
-        attrs["self"] = cls.typeName
-        for feature in cls.features:
-            if type(feature) is AttributeFeatureNode:
-                feature_type = feature.typeName
-                if feature.expression:
-                    error, expression_type = get_expression_return_type(feature.expression, False, attrs, {}, {}, False,
-                                                                        {})
+    global CURR_TYPE, TYPE_CHANGES
+
+    change = True
+
+    while change:
+
+        change = False
+
+        for cls in ast.classes:
+            attrs = {}
+            cls_type = AllTypes[cls.typeName]
+            CURR_TYPE = cls_type.name
+            attrs_type = cls_type.get_attributes()
+
+            for attr in attrs_type:
+                attrs[attr.attribute_name] = attr.attribute_type.name
+            attrs["self"] = cls.typeName
+
+            for feature in cls.features:
+                if type(feature) is AttributeFeatureNode:
+                    feature_type = feature.typeName
+                    if feature.expression:
+                        error, expression_type = get_expression_return_type(feature.expression, False, attrs, {}, {}, False,
+                                                                            {})
+                        if len(error) > 0:
+                            return error
+                        if expression_type != feature.typeName and not is_ancestor(AllTypes[feature_type], AllTypes[expression_type]):
+                            return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) - TypeError: Inferred type ' \
+                                f'{expression_type} of initialization of attribute test ' \
+                                f'does not conform to declared type {feature_type}.'
+                        
+                        if feature_type != expression_type and is_ancestor(AllTypes[feature_type], AllTypes[expression_type]):
+                            feature.typeName = expression_type
+                            cls_type.attributes[feature.id].attribute_type = AllTypes[expression_type]
+                            change = True
+
+            functions = AllTypes[cls.typeName].get_methods()
+
+            for feature in cls.features:
+                if type(feature) is FunctionFeatureNode:
+                    feature_type = feature.typeName
+
+                    params = { "self" : cls.typeName }
+                    for parameter in feature.parameters:
+                        params[parameter.id] = parameter.typeName
+                    error, expression_type = get_expression_return_type(feature.statement, True, attrs, functions,
+                                                                        params,
+                                                                        False, {})
+
                     if len(error) > 0:
                         return error
-                    if expression_type != feature.typeName and not is_ancestor(AllTypes[feature_type], AllTypes[expression_type]):
-                        return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) - TypeError: Inferred type ' \
-                               f'{expression_type} of initialization of attribute test ' \
-                               f'does not conform to declared type {feature_type}.'
-
-        functions = AllTypes[cls.typeName].get_methods()
-
-        for feature in cls.features:
-            if type(feature) is FunctionFeatureNode:
-                feature_type = feature.typeName
-                params = { "self" : cls.typeName }
-                for parameter in feature.parameters:
-                    params[parameter.id] = parameter.typeName
-                error, expression_type = get_expression_return_type(feature.statement, True, attrs, functions,
-                                                                    params,
-                                                                    False, {})
-                if len(error) > 0:
-                    return error
-                if feature_type not in AllTypes:
-                    return f'({feature.statement.getLineNumber()}, {feature.statement.getColumnNumber()}) - TypeError: ' \
-                           f'Undefined return type {feature_type} in method test.'
-                if not is_ancestor(AllTypes[feature_type], AllTypes[expression_type]):
-                    return f'({feature.statement.getLineNumber()}, {feature.statement.getColumnNumber()}) - TypeError: ' \
-                           f'Inferred return type {expression_type} of method {feature.id} does not conform to declared ' \
-                           f'return type {feature_type}.'
+                    if feature_type not in AllTypes:
+                        return f'({feature.statement.getLineNumber()}, {feature.statement.getColumnNumber()}) - TypeError: ' \
+                            f'Undefined return type {feature_type} in method test.'
+                    if not is_ancestor(AllTypes[feature_type], AllTypes[expression_type]):
+                        return f'({feature.statement.getLineNumber()}, {feature.statement.getColumnNumber()}) - TypeError: ' \
+                            f'Inferred return type {expression_type} of method {feature.id} does not conform to declared ' \
+                            f'return type {feature_type}.'
+                    
+                    if feature_type != expression_type and is_ancestor(AllTypes[feature_type], AllTypes[expression_type]):
+                        feature.typeName = expression_type
+                        (cls_type.get_methods())[feature.id].return_type = AllTypes[expression_type]
+                        change = True
 
     return []
 
@@ -189,7 +214,6 @@ def is_ancestor(olderNode, youngerNode):
 
 def get_expression_return_type(expression, insideFunction, attributes, functions, parameters, insideLet, letVars,
                                insideCase=False, caseVar={}, inside_loop=False):
-
     if type(expression) is AssignStatementNode:
         if expression.id == 'self':
             return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - SemanticError: ' \
@@ -350,6 +374,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
 
         e, t = get_expression_return_type(expression.instance, insideFunction, attributes, functions, parameters,
                                           insideLet, letVars, insideCase, caseVar, inside_loop)
+        
         if len(e) > 0:
             return e, ""
         if expression.dispatchType is not None:
@@ -403,7 +428,6 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                            f'does not conform to declared type {aType}. ', ''
                 i = i + 1
 
-            expression.instance_type = AllTypes[t].get_owner(expression.function)
             return [], methods[expression.function].return_type.name
         else:
             return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - AttributeError: ' \
@@ -589,16 +613,7 @@ def check_cyclic_inheritance(ast):
     return [] if graph.dfs('Object') else get_cyclic_class(graph, ast)
 
 
-def check_attributes_inheritance(ast):
-    for cls in ast.classes:
-        type_cls = AllTypes[cls.typeName]
-        attr_inherited = type_cls.get_attributes()
-        for attr in cls.features:
-            if type(attr) is AttributeFeatureNode:
-                if attr.id in attr_inherited:
-                    print(attr)
-        return ''
-    return []
+
 
 
 def check_methods_params(ast):
@@ -628,12 +643,6 @@ def check_semantic(ast: ProgramNode):
     inheritance_check_output = check_type_inheritance(ast)
     if len(inheritance_check_output) > 0:
         errors.append(inheritance_check_output)
-        return errors, AllTypes
-
-    # Check illegal redefinition of methods
-    attr_inheritance_redefinition = check_attributes_inheritance(ast)
-    if len(attr_inheritance_redefinition) > 0:
-        errors.append(attr_inheritance_redefinition)
         return errors, AllTypes
 
     # Check cyclic inheritance

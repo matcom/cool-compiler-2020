@@ -37,6 +37,20 @@ TYPES -->
 		method copy:Object_copy
 	}
 
+	type A {
+		method message:A_message
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type B {
+		method message:B_message
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
 	type Main {
 		method main:Main_main
 		method out_string:IO_out_string
@@ -52,7 +66,8 @@ END <--
 
 DATA -->
 
-	data_0 "\n"
+	data_0 "A\n"
+	data_1 "B\n"
 
 END <--
 
@@ -138,63 +153,51 @@ CODE -->
 		EXIT
 	}
 
-	function Main_main {
+	function A_message {
 		PARAM self
 		LOCAL local_8
+		ALLOC local_8 String
+		LDATA local_8 data_0
+		RETURN local_8
+	}
+
+	function B_message {
+		PARAM self
 		LOCAL local_9
+		ALLOC local_9 String
+		LDATA local_9 data_1
+		RETURN local_9
+	}
+
+	function Main_main {
+		PARAM self
 		LOCAL local_10
 		LOCAL local_11
 		LOCAL local_12
 		LOCAL local_13
 		LOCAL local_14
 		LOCAL local_15
-		LOCAL local_16
-		LOCAL local_17
-		LOCAL local_18
-		LOCAL local_19
-		LOCAL local_20
-		LOCAL local_21
-		ALLOC local_8 Object
-		ARG local_8
-		CALL local_9 Object type_name
-		ALLOC local_10 Int
-		MOV local_10 4
-		ALLOC local_11 Int
-		MOV local_11 1
-		ARG local_9
-		ARG local_10
+		ALLOC local_10 IO
+		ALLOC local_11 B
 		ARG local_11
-		CALL local_12 String substr
+		ALLOC local_13 String
+		TYPE local_13 local_11
+		CALL local_12 local_13 message
 		ARG self
 		ARG local_12
-		CALL local_13 IO out_string
-		VD local_14 self
-		ARG local_14
-		CALL local_15 Object type_name
-		ALLOC local_16 Int
-		MOV local_16 1
-		ALLOC local_17 Int
-		MOV local_17 3
-		ARG local_15
-		ARG local_16
-		ARG local_17
-		CALL local_18 String substr
-		ARG local_13
-		ARG local_18
-		CALL local_19 IO out_string
-		ALLOC local_20 String
-		LDATA local_20 data_0
-		ARG self
-		ARG local_20
-		CALL local_21 IO out_string
-		RETURN local_21
+		ALLOC local_15 String
+		TYPE local_15 local_10
+		CALL local_14 local_15 out_string
+		RETURN local_14
 	}
 
 	function main {
-		LOCAL local_22
-		ALLOC local_22 Main
-		ARG local_22
-		CALL local_23 Main main
+		LOCAL local_16
+		ALLOC local_16 Main
+		ARG local_16
+		ALLOC local_18 String
+		SETSTR local_18 Main
+		CALL local_17 local_18 main
 	}
 
 END <--

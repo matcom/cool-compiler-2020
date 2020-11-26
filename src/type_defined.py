@@ -39,6 +39,8 @@ class CoolType:
         attr = {}
         while node:
             for attrs in node.attributes.keys():
+                if attrs in attr:
+                    continue
                 attr[attrs] = node.attributes[attrs]
             node = node.parent_type
         return attr
@@ -48,6 +50,8 @@ class CoolType:
         attr = []
         while node:
             for attrs in node.attributes.values():
+                if attrs in attr:
+                    continue
                 attr.append(attrs)
             node = node.parent_type
         return attr
@@ -145,6 +149,8 @@ class CoolType:
             for attrs in node.attributes.values():
                 if attrs.attribute_name == "self":
                     continue
+                if attrs.attribute_name in AO:
+                    continue
                 AO[attrs.attribute_name] = node.name
             node = node.parent_type
         return AO
@@ -155,6 +161,8 @@ class CoolType:
         MO = {}
         while node:
             for method in node.methods.values():
+                if method.name in MO:
+                    continue
                 MO[method.name] = node.name
             node = node.parent_type
         return MO
@@ -212,7 +220,7 @@ AllTypes = {
 # Set methods for basic types
 object_type.add_method('abort', [], [], 'Object')
 object_type.add_method('type_name', [], [], 'String')
-object_type.add_method('copy', [], [], 'Object')
+object_type.add_method('copy', [], [], 'SELF_TYPE')
 io_type.add_method('out_string', ['String'], ['s'], 'IO')
 io_type.add_method('out_int', ['Int'], ['i'], 'IO')
 io_type.add_method('in_string', [], [], 'String')
