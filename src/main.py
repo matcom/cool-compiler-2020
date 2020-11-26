@@ -27,12 +27,12 @@ def run_pipeline(input_, outpt):
             raise Exception()
         else:
             mips_code = codegen_pipeline(context, ast, scope, debug=False)
-            
+            with open(outpt, 'w+') as f:
+                f.write(mips_code)
 
     except FileNotFoundError:
         error_text = CompilerError.UNKNOWN_FILE % input_
         print(CompilerError(error_text, 0, 0))
-
 
 if __name__ == "__main__":
     input_ = sys.argv[1]
