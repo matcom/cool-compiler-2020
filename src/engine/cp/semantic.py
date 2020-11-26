@@ -222,6 +222,7 @@ class VariableInfo:
         self.type = vtype
         self.calls = []
         self.assigns = []
+        self.infered = False
 
     def set_calls(self, typex):
         self.calls.append(typex)

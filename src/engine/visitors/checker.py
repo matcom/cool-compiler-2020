@@ -146,6 +146,10 @@ class Checker:
                 node_type = ErrorType()
             
             id_type = self.current_type if isinstance(node_type, SelfType) else node_type
+            
+            if idx.lex == 'self':
+                self.errors.append(ERROR_ON_LN_COL % (expr.line, expr.column) + "SemanticError: " + "'self' cannot be bound in a 'let' expression.")
+
             child = scope.create_child()
 
             if expr:
