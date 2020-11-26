@@ -284,18 +284,20 @@ class pyCoolParser:
         """
         expression : CASE expression OF actions_list ESAC
         """        
-        
+        p[0]= NodeCase(expr=p[2], actions=p[4])
+
     def p_actions_list(self, p):
         """
         actions_list : actions_list action
                      | action
         """        
-        
+        p[0]= (p[1],) if len(p) == 2 else p[1] + (p[2],)
+
     def p_action_expr(self, p):
         """
         action : ID COLON TYPE ARROW expression SEMICOLON
-        """        
-    
+        """
+        p[0] = (p[1], p[3], p[5])
 
     # ######################### METHODS DISPATCH ######################################
     
@@ -303,31 +305,36 @@ class pyCoolParser:
         """
         expression : expression DOT ID LPAREN arguments_list_opt RPAREN
         """        
-    
+        p[0] = NodeDynamicDispatch(instance=p[1], 
+        method=p[3], arguments=p[5])
+
     def p_arguments_list_opt(self, p):
         """
         arguments_list_opt : arguments_list
                            | empty
         """        
-
+        p[0] = tuple() if p.slice[1].type == "empty" else p[1]
     
     def p_arguments_list(self, p):
         """
         arguments_list : arguments_list COMMA expression
                        | expression
         """        
-            
+        p[0]= (p[1], ) if len(p) == 2 else p[1] + (p[2], )
+
     def p_expression_static_dispatch(self, p):
         """
         expression : expression AT TYPE DOT ID LPAREN arguments_list_opt RPAREN
         """        
-        
+        p[0] = NodeStaticDispatch(instance=p[1],
+        dispatch_type=p[3], method=p[5], arguments=p[7])
     
     def p_expression_self_dispatch(self, p):
         """
         expression : ID LPAREN arguments_list_opt RPAREN
         """        
-
+        p[0] = NodeDynamicDispatch(instance=NodeSelf(),
+        method=p[1], arguments=p[3])
 
 
     # ######################### ################## ###################################
@@ -336,6 +343,7 @@ class pyCoolParser:
         """
         empty :
         """
+        p[0]= None
 
     def findColumn(self, trackedRow):
         for i in range(len(self.parser.symstack) -1, 1, -1):
