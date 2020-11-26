@@ -159,6 +159,10 @@ class MIPSCompiler:
         instrucciones+=".globl main\n"
         instrucciones+="main:\n"
         instrucciones+=self.MainInstruction()
+        archivo=open("src\\StaticCode\\AssemblyMethods",encoding='utf-8')
+        metodosdefault=archivo.read()
+        instrucciones+=metodosdefault
+        archivo.close()
         for element in node.Methods:
             instrucciones+=(self.visit(element, scope))
 

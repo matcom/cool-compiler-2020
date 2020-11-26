@@ -129,6 +129,10 @@ class CILTranspiler:
         for a in clase.attributes:
             inits=self.visit(a,scope)
             instructions.extend(inits)
+
+        final=self.GenerarNombreVariable(scope)
+
+        result=CILAssign(final,['self'])
         
         return instructions
 
@@ -285,7 +289,8 @@ class CILTranspiler:
     def visit(self, node: NewNode, scope:Scope):
         destino=self.GenerarNombreVariable(scope)
         instruccion=CILAllocate(destino,[node.type])
-        return [instruccion]
+        init=CILCall(destino,[node.type,"$init"])
+        return [instruccion, init]
 
     @visitor.when(BlockNode)
     def visit(self, node: BlockNode, scope:Scope):
