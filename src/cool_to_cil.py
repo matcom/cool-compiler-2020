@@ -390,6 +390,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result_local = self.define_internal_local(scope=scope, name = "result")
 
         cond_value = self.visit(node.predicate, scope)
+
         if_then_label = self.get_label()
         self.register_instruction(CIL_AST.IfGoto(cond_value, if_then_label))
 

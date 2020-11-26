@@ -16,8 +16,6 @@ class CILToMIPSVisitor():
             '<' : 'slt',
             '<=' : 'sle',
             '=' : 'seq',
-            '~' : 'neg',
-            'not': 'not'
         }
         self.current_function = None
         self.types = None
@@ -287,10 +285,12 @@ class CILToMIPSVisitor():
     
     @visitor.when(CIL_AST.UnaryOperator)
     def visit(self, node):
-        mips_comm = self.mips_comm_for_operators[node.op]
         expr_offset = self.var_offset[self.current_function.name][node.expr_value]
         self.text += f'lw $t1, {expr_offset}($sp)\n'
-        self.text += f'{mips_comm} $a0, $t1 \n'
+        if node.op == 'not':
+            self.text += f'xor $a0, $t1, 1\n'
+        else:
+            self.text += f'neg $a0, $t1 \n'
       
         result_offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $a0, {result_offset}($sp)\n'
@@ -298,7 +298,8 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.IfGoto)
     def visit(self, node):
         predicate_offset = self.var_offset[self.current_function.name][node.variable]
-        self.text += f'lw $a0, {predicate_offset}($sp)\n'
+        self.text += f'lw $t0, {predicate_offset}($sp)\n'
+        self.text += f'lw $a0, 16($t0)\n'  #get value attribute
         self.text += f'bnez $a0, {node.label}\n'
     
     @visitor.when(CIL_AST.Goto)
@@ -565,5 +566,5 @@ if __name__ == '__main__':
         cil_to_mips = CILToMIPSVisitor()
         mips_code = cil_to_mips.visit(cil_ast)
        
-        with open(f'{sys.argv[1][:-3]}.mips', 'w') as f:
+        with open(f'{sys.argv[1][:-3]}.s', 'w') as f:
             f.write(f'{mips_code}')
