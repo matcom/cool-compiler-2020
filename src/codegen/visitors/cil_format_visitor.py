@@ -46,6 +46,14 @@ def get_formatter():
         @visitor.when(AssignNode)
         def visit(self, node: AssignNode):
             return f'{node.dest} = {node.source}'
+        
+        @visitor.when(NotNode)
+        def visit(self, node: NotNode):
+            return f'{node.dest} = ~{node.expr}'
+
+        @visitor.when(LogicalNotNode)
+        def visit(self, node: LogicalNotNode):
+            return f'{node.dest} = NOT {node.expr}'
 
         @visitor.when(PlusNode)
         def visit(self, node: PlusNode):
@@ -164,6 +172,10 @@ def get_formatter():
         @visitor.when(CopyNode)
         def visit(self, node: CopyNode):
             return f'{node.dest} = COPY {node.source}'
+
+        @visitor.when(ConformsNode)
+        def visit(self, node: ConformsNode):
+            return f'{node.dest} = CONFORMS {node.expr} {node.type}'
 
 
     printer = PrintVisitor()

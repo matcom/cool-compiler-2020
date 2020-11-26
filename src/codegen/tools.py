@@ -164,7 +164,7 @@ class ObjTabEntry:
         return 2
 
     def attr_offset(self, attr):
-        return self.attrs.index(attr) + 3
+        return self.attrs.index(attr) + 4
 
     def method_offset(self, meth):
         "Method offset in dispatch table"

@@ -2,7 +2,7 @@ from codegen.cil_ast import ParamNode, LocalNode, FunctionNode, TypeNode, DataNo
 from semantic.tools import VariableInfo, Scope, Context
 from semantic.types import Type, StringType, ObjectType, IOType, Method, Attribute
 from codegen import cil_ast as cil
-from utils.ast import BinaryNode, UnaryNode, AssignNode
+from utils.ast import BinaryNode, UnaryNode, AssignNode, ProgramNode
 import re
 
 class BaseCOOLToCILVisitor:
@@ -17,6 +17,8 @@ class BaseCOOLToCILVisitor:
         self.idx = 0
         self.name_regex = re.compile('local_.+_(.+)_\d+')
         self.constructors = []
+        self.class_depth = {}
+        self.inherit_graph = {}
 
     @property
     def index(self):
@@ -168,3 +170,8 @@ class BaseCOOLToCILVisitor:
                 TypeNode("String", [], [('length', f8.name), ('concat', f9.name), ('substr', f10.name)]), 
                 TypeNode('Int'),
                 TypeNode('Bool')]
+
+    def sort_option_nodes_by_type(self, case_list, children_scope):
+        "Sort option nodes from specific types to more general types"
+        return sorted(zip(case_list, children_scope), reverse=True,
+                    key=lambda x: self.context.get_depth(x[0].typex))

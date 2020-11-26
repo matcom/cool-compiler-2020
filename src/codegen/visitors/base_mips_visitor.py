@@ -5,7 +5,7 @@ from semantic.types import Attribute
 from typing import List
 
 class BaseCILToMIPSVisitor:
-    def __init__(self):
+    def __init__(self, inherit_graph):
         self.code: list = ['.text', '.globl main', 'main:']
         self.initialize_data_code()
         # self.initialize_built_in_types()
@@ -20,9 +20,11 @@ class BaseCILToMIPSVisitor:
         self.initialize_methods()
         # Will hold the type of any of the vars
         self.var_address = {'self': AddrType.REF}
-        self.strings = {}
+       
         self.loop_idx = 0   # to count the generic loops in the app
         self.first_defined = {'strcopier': True}   # bool to keep in account when the first defined string function was defined  
+        
+        self.inherit_graph = inherit_graph
 
     def initialize_methods(self):
         self.methods = [] 
@@ -33,7 +35,8 @@ class BaseCILToMIPSVisitor:
 
     def initialize_data_code(self):
         self.data_code = ['.data'] 
-    
+
+
     # def initialize_built_in_types(self):
     #     self.data_code.append(f"type_String: .asciiz \"String\"")     # guarda el nombre de la variable en la memoria            
     #     self.data_code.append(f"type_Int: .asciiz \"Int\"")     # guarda el nombre de la variable en la memoria            
@@ -254,6 +257,42 @@ class BaseCILToMIPSVisitor:
             self.code.append(f'la $t9, {meth}')
             self.code.append(f'sw $t9, {4*i}($v0)')
 
+    def save_types_addr(self, type_nodes: List[FunctionNode]):
+        "Saves the structure where the type information is stored"
+        words = 'types: .word ' + ', '.join(map(lambda x: '0', self.inherit_graph))
+        self.data_code.append(words)
+        self.code.append('# Save types directions in the types array')
+        self.code.append('la $t9, types')
+        self.types = []
+        self.code.append('# Save space to locate the type info')
+        for i, (ntype, nparent) in enumerate(self.inherit_graph.items()):
+            self.code.append('# Allocating memory')
+            self.code.append('li $v0, 9')
+            self.code.append(f'li $a0, 8')      
+            self.code.append('syscall')
+            self.types.append(ntype)
+
+            self.code.append('# Filling table methods')
+            self.code.append(f'la $t8, type_{ntype}')
+            self.code.append(f'sw $t8, 0($v0)')
+
+            self.code.append('# Copying direction to array')
+            self.code.append(f'sw $v0, {4*i}($t9)')
+
+        # self.code.append('la $t9, types')
+        self.code.append('# Copying parents')
+        for i, ntype in enumerate(self.types):
+            self.code.append(f'lw $v0, {4*i}($t9)')
+            # self.code.append('lw $v0, 0($t8)')
+            nparent = self.inherit_graph[ntype]
+            if nparent is not None:
+                parent_idx = self.types.index(nparent)
+
+                self.code.append(f'lw $t8, {4*parent_idx}($t9)')
+            else:
+                self.code.append('li $t8, 0')
+            self.code.append('sw $t8, 4($v0)')
+
     def get_type(self, xtype):
         'Return the var address type according to its static type'
         if xtype == 'Int':
@@ -308,4 +347,26 @@ class BaseCILToMIPSVisitor:
         self.code.append(f'move ${rdest}, $v0')
         self.load_var_if_occupied(var1)
         self.load_var_if_occupied(var2)
+        self.loop_idx += 1
+
+    def conforms_to(self, rsrc, rdest, type_name):
+        "Returns if the object in rsrc conforms to type_name"
+        self.code.append(f'la $t9, type_{type_name}')
+
+        loop_idx = self.loop_idx
+        self.code.append(f'lw $v0, 12(${rsrc})')     # saves the direction to the type info table
+        self.code.append(f'loop_{loop_idx}:')
+        self.code.append(f'move $t8, $v0')         # Saves parent addr
+        self.code.append(f'beqz $t8, false_{loop_idx}')
+        self.code.append('lw $v1, 0($t8)')
+        self.code.append(f'beq $t9, $v1, true_{loop_idx}')
+        self.code.append('lw $v0, 4($t8)')
+        self.code.append(f'j loop_{loop_idx}')
+
+        self.code.append(f'true_{loop_idx}:')
+        self.code.append(f'li ${rdest}, 1')
+        self.code.append(f'j end_{loop_idx}')
+        self.code.append(f'false_{loop_idx}:')
+        self.code.append(f'li ${rdest}, 0')
+        self.code.append(f'end_{loop_idx}:')
         self.loop_idx += 1

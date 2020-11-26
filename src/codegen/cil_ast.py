@@ -64,11 +64,13 @@ class UnaryNode(InstructionNode):
         self.expr = expr
 
         self.in1 = expr
-        self.dest = dest
+        self.out = dest
 
 class NotNode(UnaryNode):
     pass
 
+class LogicalNotNode(UnaryNode):
+    pass
 
 class BinaryNode(InstructionNode):
     def __init__(self, dest, left, right, idx=None):
@@ -311,3 +313,15 @@ class CopyNode(InstructionNode):
 
         self.out = dest
         self.in1 = source
+
+class ConformsNode(InstructionNode):
+    "Checks if the type of expr conforms to type2"
+    def __init__(self, dest, expr, type2, idx=None):
+        super().__init__(idx)
+        self.dest = dest
+        self.expr = expr
+        self.type = type2
+
+        self.out = dest
+        self.in1 = expr    # is a string, so is always a variable
+        

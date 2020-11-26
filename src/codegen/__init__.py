@@ -1,7 +1,7 @@
 from codegen.visitors.cil_visitor import COOLToCILVisitor
 from codegen.visitors.cil_format_visitor import get_formatter
 from codegen.visitors.mips_visitor import CILToMIPSVistor
-
+from pprint import pprint
 
 def codegen_pipeline(context, ast, scope, debug=False):
     if debug:
@@ -11,12 +11,15 @@ def codegen_pipeline(context, ast, scope, debug=False):
     if debug:
         formatter = get_formatter()
         print(formatter(cil_ast))
-    data_code, text_code = CILToMIPSVistor().visit(cil_ast)
-    save_code(data_code, text_code)
+    inherit_graph = context.build_inheritance_graph()
+    # pprint(inherit_graph)
+    data_code, text_code = CILToMIPSVistor(inherit_graph).visit(cil_ast)
+    save_code(data_code, text_code, False)
     return ast, context, scope, cil_ast
 
-def save_code(data_code, text_code):
+def save_code(data_code, text_code, debug):
     text = '\n'.join(text_code) + '\n' + '\n'.join(data_code)
-    print(text)
+    if debug:
+        print(text)
     with open('test.asm', 'w+') as fd:
         fd.write(text)

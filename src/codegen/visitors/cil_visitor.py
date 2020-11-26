@@ -18,16 +18,17 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         instance = self.define_internal_local()
         result = self.define_internal_local()
 
-        self.register_instruction(cil.AllocateNode('Main', instance))        
-        # self.register_instruction(cil.ArgNode(instance))
-
+        self.register_instruction(cil.AllocateNode('Main', instance)) 
+        typex = self.context.get_type('Main', (0,0))
+        if typex.all_attributes():
+            self.register_instruction(cil.StaticCallNode(typex.name, typex.name, None, [cil.ArgNode(instance)], typex.name))
+        
         name = self.to_function_name('main', 'Main')
         self.register_instruction(cil.StaticCallNode('Main', 'main', result, [cil.ArgNode(instance)], 'Object'))
         self.register_instruction(cil.ReturnNode(0))
         self.current_function = None
 
         self.create_built_in()
-
         for declaration, child_scope in zip(node.declarations, scope.children):
             self.visit(declaration, child_scope)
 
@@ -250,7 +251,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         end_label = cil.LabelNode(f'end_{self.idx}')
         
         result = self.define_internal_local()
-        self.register_instruction(cil.AssignNode(result, 'void'))
+        # self.register_instruction(cil.AssignNode(result, 'void'))
         self.register_instruction(start_label)
 
         cond, _ = self.visit(node.cond, scope)
@@ -316,40 +317,40 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     def visit(self, node: CaseNode, scope: Scope):
         expr, typex = self.visit(node.expr, scope)
         result = self.define_internal_local()
-        etype = self.define_internal_local()
+        # etype = self.define_internal_local()
         end_label = cil.LabelNode(f'end_{self.idx}')
-        self.register_instruction(cil.TypeOfNode(expr, etype))
+        # self.register_instruction(cil.TypeOfNode(expr, etype))
 
         new_scope = scope.expr_dict[node]
-        for i, (case, c_scope) in enumerate(zip(node.case_list, new_scope.children)):
+        sorted_case_list = self.sort_option_nodes_by_type(node.case_list, new_scope.children)
+        for i, (case, c_scope) in enumerate(sorted_case_list):
             next_label = cil.LabelNode(f'next_{self.idx}_{i}')
-            expr_i, label = self.visit(case, c_scope, expr, etype, next_label)
+            expr_i = self.visit(case, c_scope, expr, next_label)
             self.register_instruction(cil.AssignNode(result, expr_i))
             self.register_instruction(cil.GotoNode(end_label.label))
-            self.register_instruction(label)
+            self.register_instruction(next_label)
         self.register_instruction(end_label)
         return result, typex
 
     @visitor.when(OptionNode)
-    def visit(self, node: OptionNode, scope: Scope, expr, expr_type, next_label):
+    def visit(self, node: OptionNode, scope: Scope, expr, next_label):
         aux = self.define_internal_local()
-        # TODO: Buscar una forma de representar conforms in cil
-        self.register_instruction(cil.MinusNode(aux, expr_type, node.typex))
-
+        self.register_instruction(cil.ConformsNode(aux, expr, node.typex))
+        self.register_instruction(cil.LogicalNotNode(aux, aux))
         self.register_instruction(cil.GotoIfNode(aux, next_label.label))
         var_info = scope.find_variable(node.id)
         local_var = self.register_local(var_info.name)
         self.register_instruction(cil.AssignNode(local_var, expr))
 
         expr_i, typex = self.visit(node.expr, scope)
-        return exp_i, next_label
+        return expr_i
 
     @visitor.when(NotNode)
     def visit(self, node: NotNode, scope: Scope):
-        return self._define_unary_node(node, scope, cil.NotNode)
+        return self._define_unary_node(node, scope, cil.LogicalNotNode)
 
     @visitor.when(BinaryNotNode)
-    def visit(self, node: NotNode, scope: Scope):
+    def visit(self, node: BinaryNotNode, scope: Scope):
         return self._define_unary_node(node, scope, cil.NotNode)
 
 

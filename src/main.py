@@ -26,7 +26,7 @@ def run_pipeline(input):
         #         print(err)
         #     raise Exception()
         # else:
-        ast, context, scope, cil_ast = codegen_pipeline(context, ast, scope, debug=False)
+        ast, context, scope, cil_ast = codegen_pipeline(context, ast, scope, debug=True)
 
     except FileNotFoundError:
         error_text = CompilerError.UNKNOWN_FILE % input_

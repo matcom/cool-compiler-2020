@@ -38,6 +38,8 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         # visit TypeNodes
         for type_ in node.dottypes:
             self.visit(type_)
+        # guardo las direcciones de cada tipo
+        self.save_types_addr(node.dottypes)
         # visit DataNodes
         for data in node.dotdata:
             self.visit(data)
@@ -108,15 +110,31 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         elif self.is_int(node.source):
             self.code.append(f'li ${rdest}, {node.source}')
             self.var_address[node.dest] = AddrType.INT
+        self.save_var_code(node.dest)
         # elif isinstance(node.source, str):  # esto nunca se debe ejecutar (se llama a load node)
         #     self.code.append(f'la ${rdest}, {self.strings[node.source]}')
 
     @visitor.when(NotNode)
     def visit(self, node:NotNode):
         rdest = self.addr_desc.get_var_reg(node.dest)
-        rscr = self.save_to_register(node.expr)
+        rsrc = self.save_to_register(node.expr)
+        self.code.append(f'# {node.dest} <- ~{node.expr}')
+        self.code.append(f'not ${rdest}, ${rsrc}')
+        self.var_address[node.dest] = AddrType.INT
+
+
+    @visitor.when(LogicalNotNode)
+    def visit(self, node:LogicalNotNode):
+        rdest = self.addr_desc.get_var_reg(node.dest)
+        rsrc = self.save_to_register(node.expr)
         self.code.append(f'# {node.dest} <- not {node.expr}')
-        self.code.append(f'not {rdest}, {rsrc}')
+        self.code.append(f'beqz ${rsrc}, false_{self.loop_idx}')
+        self.code.append(f'li ${rdest}, 0')
+        self.code.append(f'j end_{self.loop_idx}')
+        self.code.append(f'false_{self.loop_idx}:')
+        self.code.append(f'li ${rdest}, 1')
+        self.code.append(f'end_{self.loop_idx}:')
+        self.loop_idx += 1
         self.var_address[node.dest] = AddrType.BOOL
 
 
@@ -225,13 +243,13 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
             elif self.is_variable(node.right):
                 rright = self.addr_desc.get_var_reg(node.right)
                 self.code.append(f"li $t9, {node.left}")
-                self.code.append(f"{op} ${rdest}, $t9, {rright}")
+                self.code.append(f"{op} ${rdest}, $t9, ${rright}")
         self.var_address[node.dest] = AddrType.BOOL
 
 
     @visitor.when(GetAttribNode)
     def visit(self, node:GetAttribNode):
-        self.code.append(f'# {node.dest} <- GET {node.obj} . {node.type_name}')
+        self.code.append(f'# {node.dest} <- GET {node.obj} . {node.attr}')
         rdest = self.addr_desc.get_var_reg(node.dest)
         self.var_address[node.dest] = self.get_type(node.attr_type)
         rsrc = self.addr_desc.get_var_reg(node.obj)
@@ -280,7 +298,12 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
 
         self.create_dispatch_table(node.type)               # memory of dispatch table in v0
         self.code.append(f'sw $v0, 8(${rdest})')            # save a pointer of the dispatch table in the 3th position
-       
+        
+        idx = self.types.index(node.type)
+        self.code.append('# Adding Type Info addr')
+        self.code.append('la $t8, types')
+        self.code.append(f'lw $v0, {4*idx}($t8)')
+        self.code.append(f'sw $v0, 12(${rdest})')
         self.load_var_if_occupied(var)
       
     def create_dispatch_table(self, type_name):
@@ -353,7 +376,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append(f'lw $t9, 8(${reg})')          # obtiene en t9 la dirección del dispatch table
         function = self.dispatch_table.find_full_name(node.type, node.method)       
         index = 4*self.dispatch_table.get_offset(node.type, function)      # guarda el offset del me
-        self.code.append(f'# Saves in t9 the direction of {function}')
+        self.code.append(f'# Saves in t8 the direction of {function}')
         self.code.append(f'lw $t8, {index}($t9)')       # guarda en $t8 la dirección de la función a llamar 
         # Call function
         self._code_to_function_call(node.args, '$t8', node.dest)
@@ -638,3 +661,20 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append(f'j loop_{self.loop_idx}')
         self.code.append(f'exit_{self.loop_idx}:')
         self.loop_idx += 1
+
+    @visitor.when(ConformsNode)
+    def visit(self, node: ConformsNode):
+        rdest = self.addr_desc.get_var_reg(node.dest)
+        
+        if self.is_variable(node.expr):
+            rsrc = self.addr_desc.get_var_reg(node.expr)
+            if self.var_address[node.expr] == AddrType.REF:
+                self.conforms_to(rsrc, rdest, node.type)
+            elif self.var_address[node.expr] == AddrType.STR:
+                self.code.append(f'li ${rdest}, 0')
+            elif self.var_address[node.expr] == AddrType.INT:
+                self.code.append(f'li ${rdest}, 0')
+            elif self.var_address[node.expr] == AddrType.BOOL:
+                self.code.append(f'li ${rdest}, 0')
+        elif self.is_int(node.expr):
+            self.code.append(f'li ${rdest}, 0')        
