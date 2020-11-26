@@ -25,62 +25,66 @@ class pyCoolParser:
         ('left', 'AT'),
         ('left', 'DOT')
     )
-    
     def p_program(self, p):
         """
         program : class_list
-        """        
+        """
         p[0] = NodeProgram(p[1])
 
     def p_class_list(self, p):
         """
         class_list : class_list class SEMICOLON
                    | class SEMICOLON
-        """        
+        """
         p[0] = NodeClassTuple((p[1],) if len(p) == 3 else p[1] + (p[2], ))
 
     def p_class(self, p):
         """
         class : CLASS TYPE LBRACE features_list_opt RBRACE
-        """        
-        p[0] = NodeClass(idName = p[2], feature_list= p[4], parent = "Object")
+        """
+        p[0] = NodeClass(idName = p[2], methods= p[4]['methods'], attributes= p[4]['attributes'], parent = "Object")
 
     def p_class_inherits(self, p):
         """
         class : CLASS TYPE INHERITS TYPE LBRACE features_list_opt RBRACE
-        """        
-        p[0] = NodeClass(idName = p[2], feature_list = p[6], parent = p[4] )
+        """
+        p[0] = NodeClass(idName = p[2],
+                        methods= p[6]['methods'],
+                        attributes= p[6]['attributes'],
+                        parent = p[4])
 
     def p_feature_list_opt(self, p):
         """
         features_list_opt : features_list
                           | empty
         """
+        p[0] = p[1] if p[1] else { 'methods': (), 'attributes': () }
 
     def p_feature_list(self, p):
         """
         features_list : features_list feature SEMICOLON
                       | feature SEMICOLON
         """
-        p[0] = { 'methods': (), 'attributes': () }
         if len(p) == 3:
+            p[0] = { 'methods': (), 'attributes': () }
             key = 'methods' if type(p[1]) is NodeClassMethod else 'attributes'
             p[0][key] += (p[1], )
         else:
-            p[0]['methods'] = p[1]['methods'] + p[2]['methods']
-            p[0]['attributes'] = p[1]['attributes'] + p[2]['attributes']
+            key = 'methods' if type(p[2]) is NodeClassMethod else 'attributes'
+            p[1][key] += (p[2], )
+            p[0] = p[1]
 
     def p_feature_method(self, p):
         """
         feature : ID LPAREN formal_params_list RPAREN COLON TYPE LBRACE expression RBRACE
-        """        
-        p[0] = NodeClassMethod(idName=p[1], formal_params=p[3], return_type=p[6], body=p[8])
+        """
+        p[0] = NodeClassMethod(idName=p[1], argNames = [ x[0] for x in p[3] ], argTypesNames = [ x[1] for x in p[3] ], return_type=p[6], body=p[8])
 
     def p_feature_method_no_formals(self, p):
         """
         feature : ID LPAREN RPAREN COLON TYPE LBRACE expression RBRACE
         """
-        p[0] = NodeClassMethod(idName=p[1], formal_params=[], return_type=p[5], body=p[7])
+        p[0] = NodeClassMethod(idName=p[1], argNames = [], argTypesNames = [], return_type=p[5], body=p[7])
 
     def p_feature_attr_initialized(self, p):
         """
@@ -91,7 +95,7 @@ class pyCoolParser:
     def p_feature_attr(self, p):
         """
         feature : ID COLON TYPE
-        """        
+        """
         p[0] = NodeAttr(idName= p[1], attr_type= p[3], expr= None)
 
     def p_formal_list_many(self, p):
@@ -99,74 +103,90 @@ class pyCoolParser:
         formal_params_list  : formal_params_list COMMA formal_param
                             | formal_param
         """
+        p[0] = (p[1], ) if len(p) == 2 else p[1] + (p[3], ) 
 
     def p_formal(self, p):
         """
         formal_param : ID COLON TYPE
-        """        
+        """
+        p[0] = NodeFormalParam(idName=p[1], param_type=p[3])
 
     def p_expression_object_identifier(self, p):
         """
         expression : ID
-        """        
+        """
+        p[0]= NodeObject(idName= p[1]) 
         
     def p_expression_integer_constant(self, p):
         """
         expression : INTEGER
-        """        
-        
+        """
+        p[0]= NodeInteger(content= p[1])
+
     def p_expression_boolean_constant(self, p):
         """
         expression : BOOLEAN
-        """        
-        
+        """
+        p[0]= NodeBoolean(content= p[1])
+
     def p_expression_string_constant(self, p):
         """
         expression : STRING
-        """        
-    
+        """
+        p[0]= NodeString(content= p[1])
+
     def p_expr_self(self, p):
         """
         expression  : SELF
-        """        
-            
+        """
+        p[0]= NodeSelf()
+
     def p_expression_block(self, p):
         """
         expression : LBRACE block_list RBRACE
         """        
-            
+        p[0]= NodeBlock(expr_list= p[2])        
+
     def p_block_list(self, p):
         """
         block_list : block_list expression SEMICOLON
                    | expression SEMICOLON
         """        
-    
+        p[0]= (p[1], ) if len(p) == 3 else p[1] + (p[2], )
+
     def p_expression_assignment(self, p):
         """
         expression : ID ASSIGN expression
         """        
+        p[0] = NodeAssignment(instance= NodeObject(idName= p[1]), expr= p[3])
 
 # ######################### UNARY OPERATIONS #######################################
     
     def p_expression_new(self, p):
         """
         expression : NEW TYPE
-        """        
-        
+        """
+        p[0] = NodeNewObject(new_type= p[2])
+
+
     def p_expression_isvoid(self, p):
         """
         expression : ISVOID expression
-        """        
+        """
+        p[0] = NodeIsVoid(expr= p[2])
         
     def p_expression_integer_complement(self, p):
         """
         expression : INT_COMP expression
-        """        
+        """
+        p[0] = NodeIntegerComplement(p[2])        
         
+
     def p_expression_boolean_complement(self, p):
         """
         expression : NOT expression
-        """        
+        """
+        p[0] = NodeBooleanComplement(p[2])        
     
     # ######################### PARENTHESIZED, MATH & COMPARISONS #####################
     
@@ -177,53 +197,86 @@ class pyCoolParser:
                    | expression MULTIPLY expression
                    | expression DIVIDE expression
         """        
-        
+        if p[2] == '+':
+            p[0] = NodeAddition(first=p[1], second=p[3])
+        elif p[2] == '-':
+            p[0] = NodeSubtraction(first=p[1], second=p[3])
+        elif p[2] == '*':
+            p[0] = NodeMultiplication(first=p[1], second=p[3])
+        elif p[2] == '/':
+            p[0] = NodeDivision(first=p[1], second=p[3])
+
     def p_expression_math_comparisons(self, p):
         """
         expression : expression LT expression
                    | expression LTEQ expression
                    | expression EQ expression
-        """        
+        """    
+        if p[2] == '<':
+            p[0] = NodeLessThan(first=p[1], second=p[3])
+        elif p[2] == '<=':
+            p[0] = NodeLessThanOrEqual(first=p[1], second=p[3])
+        elif p[2] == '=':
+            p[0] = NodeEqual(first=p[1], second=p[3])    
         
     def p_expression_with_parenthesis(self, p):
         """
         expression : LPAREN expression RPAREN
         """        
-    
+        p[0] = p[2]
+
     # ######################### CONTROL FLOW EXPRESSIONS ##############################
     
     def p_expression_if_conditional(self, p):
         """
         expression : IF expression THEN expression ELSE expression FI
         """        
-        
+        p[0]= NodeIf(predicate=p[2], then_body=p[4], else_body=p[6])
+
     def p_expression_while_loop(self, p):
         """
         expression : WHILE expression LOOP expression POOL
         """        
-    
+        p[0] = NodeWhileLoop(predicate=p[2], body=p[4])
+
     ## ######################### LET EXPRESSIONS ########################################
-    def p_expression_let(self, p):
+    def p_expression_let(self, parse):
         """
          expression : let_expression
-        """        
-        
-    def p_expression_let_simple(self, p):
         """
-        let_expression : LET nested_lets IN expression
-        """
+        parse[0] = parse[1]
 
-    def p_nested_lets_simple(self, p):
+    def p_expression_let_simple(self, parse):
         """
-        nested_lets : ID COLON TYPE
+        let_expression : LET ID COLON TYPE IN expression
+                       | nested_lets COMMA LET ID COLON TYPE
+        """
+        parse[0] = AST.Let(instance=parse[2],
+        return_type=parse[4], init_expr=None, body=parse[6])
+
+    def p_expression_let_initialized(self, parse):
+        """
+        let_expression : LET ID COLON TYPE ASSIGN expression IN expression
+                       | nested_lets COMMA LET ID COLON TYPE ASSIGN expression
+        """
+        parse[0] = AST.Let(instance=parse[2],
+        return_type=parse[4], init_expr=parse[6], body=parse[8])
+
+    def p_inner_lets_simple(self, parse):
+        """
+        nested_lets : ID COLON TYPE IN expression
                     | nested_lets COMMA ID COLON TYPE
         """
+        parse[0] = AST.Let(instance=parse[1], 
+        return_type=parse[3], init_expr=None, body=parse[5])
 
-    def p_nested_lets_initialize(self, p):
+    def p_inner_lets_initialized(self, parse):
         """
-        nested_lets : ID COLON TYPE ASSIGN expression
+        nested_lets : ID COLON TYPE ASSIGN expression IN expression
                     | nested_lets COMMA ID COLON TYPE ASSIGN expression
         """
+        parse[0] = AST.Let(instance=parse[1], 
+        return_type=parse[3], init_expr=parse[5], body=parse[7])
 
     # ######################### CASE EXPRESSION ########################################
     
@@ -282,7 +335,7 @@ class pyCoolParser:
     def p_empty(self, p):
         """
         empty :
-        """        
+        """
 
     def findColumn(self, trackedRow):
         for i in range(len(self.parser.symstack) -1, 1, -1):
@@ -299,21 +352,17 @@ class pyCoolParser:
             error(message= "Error at or near %s" %p.value,
             error_type="SyntacticError",
             row_and_col= (p.lineno, self.real_col[str(p)] )))
-            
+
         else:
             self.errors_parser.append(
             error(message= "EOF in string",
             error_type="SyntacticError",
             row_and_col= (0, 0 )))
-            
-        
-
 
 def run_parser(tokens, source_program, real_col):
-    #print(source_program)
+    #print("The source_program ", source_program)
     parserCool = pyCoolParser(tokens, real_col)
     lexer.lineno = 1
     ast_result = parserCool.parser.parse(source_program, lexer=lexer)
-    print(ast_result)
+    #print("The ast_result ", ast_result)
     return ast_result, parserCool.errors_parser
-
