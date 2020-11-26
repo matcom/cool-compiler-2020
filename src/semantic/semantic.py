@@ -269,7 +269,8 @@ def func_call_visitor(func_call: FuncCallNode, current_class: CT.CoolType, local
                     method.returnedType = specific_type
             else:
                 add_semantic_error(func_call.lineno, func_call.colno,
-                                   f'type {object_type} not inherits from {specific_type}')
+                                   f'{ERR_TYPE}: Expression type {object_type} does not conform to declared static dispatch type {specific_type}.')
+                return None
         else:
             method, _, msg = object_type.get_method(func_call.id, args_types)
             if method is not None and method.returnedType == CT.SelfType:
@@ -420,7 +421,7 @@ def case_expr_visitor(case: CaseNode, current_class: CT.CoolType, local_scope: d
     temp = local_scope.copy()
     if branch_0_type is None:
         add_semantic_error(branch_0.line, branch_0.column,
-                           f"unknow type \"{branch_0.type}\"")
+                           f'{ERR_TYPE}: Class {branch_0.type} of case branch is undefined.')
     else:
         # 2.2)
         temp[branch_0.id] = branch_0_type
@@ -437,7 +438,7 @@ def case_expr_visitor(case: CaseNode, current_class: CT.CoolType, local_scope: d
         branch_type = CT.type_by_name(branch.type)
         if branch_type is None:
             add_semantic_error(branch.lineno, branch.colno,
-                               f"unknow type \"{branch.type}\"")
+                               f'{ERR_TYPE}: Class {branch.type} of case branch is undefined.')
         # 3.2)
         temp[branch.id] = branch_type
         # 3.3)
@@ -540,7 +541,7 @@ def negation_visitor(negation: NegationNode, current_class: CT.CoolType, local_s
     # 2)
     if value_type != CT.IntType and value_type is not None:
         add_semantic_error(negation.lineno, negation.colno,
-                           f'type {value_type} invalid. The \'~\' operator can only be used with type {CT.IntType}')
+                           f'{ERR_TYPE}: Argument of \'~\' has type {value_type} instead of {CT.IntType}.')
     # 3)
     return CT.IntType
 
@@ -561,7 +562,7 @@ def logic_negation_visitor(negation: LogicNegationNode, current_class: CT.CoolTy
     # 2)
     if value_type != CT.BoolType and value_type is not None:
         add_semantic_error(negation.lineno, negation.colno,
-                           f'type {value_type} invalid. The \'not\' operator can only be used with type {CT.BoolType}')
+                           f'{ERR_TYPE}: Argument of \'not\' has type {CT.IntType} instead of {value_type}.')
     # 3)
     return CT.BoolType
 
@@ -621,7 +622,7 @@ def new_expr_visitor(new: NewNode, current_class: CT.CoolType, local_scope: dict
     t = CT.type_by_name(new.type)
     if not t:
         add_semantic_error(
-            new.lineno, new.colno, f'Type {new.type} does not exist. Cannot create instance.')
+            new.lineno, new.colno, f'{ERR_TYPE}:  \'new\' used with undefined class {new.type}.')
     # 2)
     if t == CT.SelfType:
         new.returned_type = current_class

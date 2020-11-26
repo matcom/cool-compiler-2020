@@ -18,10 +18,26 @@ class CoolType:
 
     def __can_be_define__(self, id):
         if id in self.methods.keys():
-            return False, f'method {id} already declared in class {self.name}'
+            return False, f'{ERR_SEMANTIC}: Method {id} is multiply defined.'
         return True, None
 
     def add_method(self, id, arg_types_name, returned_type):
+        current_type = self
+        while current_type:
+            try:
+                m = current_type.methods[id]
+                if len(m.args) != len(arg_types_name):
+                    return False, f'{ERR_SEMANTIC}: invalid redefinition of {id}'
+                for i in range(0, len(arg_types_name)):
+                    current_type = TypesByName[arg_types_name[i]]
+                    if current_type != m.args[i]:
+                        return False, f'{ERR_SEMANTIC}: In redefined method {id}, parameter type {current_type} is different from original type {m.args[i]}.'
+                _returned_type = type_by_name(returned_type)
+                if m.returnedType != _returned_type:
+                    return False, f'{ERR_SEMANTIC}: In redefined method {id}, return type {_returned_type} is different from original return type {m.returnedType}.'
+                break
+            except KeyError:
+                current_type = current_type.parent
         ok, msg = self.__can_be_define__(id)
         if ok:
             arg_types = []
@@ -32,7 +48,7 @@ class CoolType:
                 arg_types.append(arg_type)
             _returned_type = type_by_name(returned_type)
             if _returned_type is None:
-                return False, f'unknown type \'{returned_type}\''
+                return False, f'{ERR_TYPE}: Undefined return type {returned_type} in method {id}.'
             self.methods[id] = CoolTypeMethod(id, arg_types, _returned_type)
             return True, None
         else:
@@ -95,7 +111,7 @@ class CoolType:
         except KeyError:
             _attr_type = type_by_name(attr_type)
             if _attr_type is None:
-                return False, f'unknown type \'{attr_type}\''
+                return False, f'{ERR_TYPE}: Class {attr_type} of attribute {id} is undefined.'
             self.attributes[id] = CoolTypeAttribute(id, _attr_type, expression)
             return True, None
 
