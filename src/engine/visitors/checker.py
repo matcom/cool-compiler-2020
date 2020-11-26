@@ -4,7 +4,7 @@ from engine.parser import IfThenElseNode, WhileLoopNode, BlockNode, LetInNode, C
 from engine.parser import AssignNode, UnaryNode, BinaryNode, LessEqualNode, LessNode, EqualNode, ArithmeticNode
 from engine.parser import NotNode, IsVoidNode, ComplementNode, FunctionCallNode, MemberCallNode, NewNode, AtomicNode
 from engine.parser import IntegerNode, IdNode, StringNode, BoolNode
-from engine.semantic_errors import ERROR_ON_LN_COL, WRONG_SIGNATURE, SELF_IS_READONLY, LOCAL_ALREADY_DEFINED, INCOMPATIBLE_TYPES, VARIABLE_NOT_DEFINED, INVALID_OPERATION, CYCLIC_HERITAGE
+from engine.semantic_errors import NON_TYPE_ARGUMENTS, ERROR_ON_LN_COL, WRONG_SIGNATURE, SELF_IS_READONLY, LOCAL_ALREADY_DEFINED, INCOMPATIBLE_TYPES, VARIABLE_NOT_DEFINED, INVALID_OPERATION, CYCLIC_HERITAGE
 
 class Checker:
     def __init__(self, context, errors=[]):
@@ -293,7 +293,7 @@ class Checker:
         right_type = node.right.static_type
         
         if not left_type.conforms_to(self.int_type) or not right_type.conforms_to(self.int_type):
-            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + INVALID_OPERATION % (left_type.name, right_type.name))
+            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "TypeError: " + INVALID_OPERATION % (left_type.name, right_type.name))
             
         node.static_type = self.int_type
 
