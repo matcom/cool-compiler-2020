@@ -485,7 +485,8 @@ class CILToMIPSVisitor():
         
         self.text += f'lw $t0, {offset_idx}($sp)\n'
         self.text += f'lw $t1, {offset_len}($sp)\n'
-        self.text += f'lw $t2, {offset_str}($sp)\n'
+        self.text += f'lw $t4, {offset_str}($sp)\n'
+        self.text += f'lw $t2, 16($t4)\n'
 
         self.text += 'bltz $t0, substr_error\n'
 
@@ -505,8 +506,8 @@ class CILToMIPSVisitor():
         self.text += 'copy_substr_char:\n'
         self.text += 'beq $a0, $t1 finish_substr_copy\n' # finish if the chars count is equals to length
         self.text += 'li $t0, 0\n' # reset $t0 before loading bytes
-        self.text += 'lb $t0, ($t2)\n' # loading current char from string
-        self.text += 'sb $t0, ($v0)\n' # storing current char into result_str end
+        self.text += 'lb $t0, 0($t2)\n' # loading current char from string
+        self.text += 'sb $t0, 0($v0)\n' # storing current char into result_str end
         self.text += 'addi $t2, $t2, 1\n'  # move to the next char
         self.text += 'beq $t2, $zero, substr_error\n'
         self.text += 'addi $v0, $v0, 1\n' # move to the next available byte
