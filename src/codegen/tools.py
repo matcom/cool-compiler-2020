@@ -49,7 +49,8 @@ class AddrType(Enum):
     REF = 1,
     STR = 2,
     BOOL = 3,
-    INT = 4
+    INT = 4,
+    VOID = 5
 
 class AddressDescriptor:
     'Stores the location of each variable'

@@ -17,7 +17,7 @@ class BaseCOOLToCILVisitor:
         self.idx = 0
         self.name_regex = re.compile('local_.+_(.+)_\d+')
         self.constructors = []
-        self.class_depth = {}
+        self.void_data = None
         self.inherit_graph = {}
 
     @property
@@ -112,6 +112,8 @@ class BaseCOOLToCILVisitor:
             constructor.body.expr_list.append(AssignNode(attr.name, ConstantBoolNode(False)))
         elif attr.type == 'String':
             constructor.body.expr_list.append(AssignNode(attr.name, ConstantStrNode("")))
+        else:
+            constructor.body.expr_list.append(AssignNode(attr.name, ConstantVoidNode(atrr.name)))
 
     def create_built_in(self):
         f1_params = [ParamNode("self", 'Object')]
@@ -175,3 +177,13 @@ class BaseCOOLToCILVisitor:
         "Sort option nodes from specific types to more general types"
         return sorted(zip(case_list, children_scope), reverse=True,
                     key=lambda x: self.context.get_depth(x[0].typex))
+
+    def check_void(self, expr):
+        result = self.define_internal_local()
+        self.register_instruction(cil.TypeOfNode(expr, result))
+        
+        void_expr = self.define_internal_local()
+        self.register_instruction(cil.LoadNode(void_expr, self.void_data))
+        self.register_instruction(cil.EqualNode(result, result, void_expr))
+        return result
+        

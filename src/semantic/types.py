@@ -158,9 +158,11 @@ class ErrorType(Type):
     def __ne__(self, other):
         return not isinstance(other, ErrorType)
 
+VOID_NAME = 'Void'
+
 class VoidType(Type):
     def __init__(self, pos=(0, 0)):
-        Type.__init__(self, 'Void', pos)
+        Type.__init__(self, VOID_NAME, pos)
 
     def conforms_to(self, other):
         return True

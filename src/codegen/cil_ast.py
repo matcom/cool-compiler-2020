@@ -173,6 +173,14 @@ class GotoIfNode(InstructionNode):
 
         self.in1 = cond
 
+class GotoIfFalseNode(InstructionNode):
+    def __init__(self, cond, label, idx=None):
+        super().__init__(idx)
+        self.cond = cond
+        self.label = label
+
+        self.in1 = cond
+
 class StaticCallNode(InstructionNode):
     def __init__(self, xtype, function, dest, args, return_type, idx=None):
         super().__init__(idx)
@@ -325,3 +333,16 @@ class ConformsNode(InstructionNode):
         self.out = dest
         self.in1 = expr    # is a string, so is always a variable
         
+class VoidConstantNode(InstructionNode):
+    def __init__(self, obj, idx=None):
+        super().__init__(idx)
+        self.obj = obj
+
+        self.out = obj
+
+class ErrorNode(InstructionNode):
+    "Generic class to report errors in mips"
+    def __init__(self, typex, idx=None):
+        super().__init__(idx)
+        self.type = typex
+

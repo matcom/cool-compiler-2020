@@ -185,8 +185,8 @@ class ConstantStrNode(AtomicNode):
     pass
 
 class ConstantVoidNode(AtomicNode):
-    def __init__(self):
-        super().__init__('void')
+    def __init__(self, obj):
+        super().__init__(obj)
 
 class SelfNode(Node):
     pass

@@ -36,7 +36,26 @@ class BaseCILToMIPSVisitor:
     def initialize_data_code(self):
         self.data_code = ['.data'] 
 
+    def initialize_runtime_errors(self):
+        self.code.append('# Raise exception method')
+        self.code.append('.raise:')
+        # Waits in $a0 error msg
+        self.code.append('li $v0, 4')
+        # Prints error message
+        self.code.append('syscall')
 
+        self.code.append('li $v0, 17')
+        self.code.append('li $a0, 1')
+        # Exists
+        self.code.append('syscall\n')
+
+        self.data_code.append('zero_error: .asciiz \"Division by zero error\n\"')
+        self.data_code.append('case_void_error: .asciiz \"Case on void error\n\"')
+        self.data_code.append('dispatch_error: .asciiz \"Dispatch on void error\n\"'  )
+        self.data_code.append('case_error: .asciiz \"Case statement without a matching branch error\n\"'  )
+        self.data_code.append('index_error: .asciiz \"Substring out of range error\n\"')
+        self.data_code.append('heap_error: .asciiz \"Heap overflow error\n\"')    # no idea how to check for this
+   
     # def initialize_built_in_types(self):
     #     self.data_code.append(f"type_String: .asciiz \"String\"")     # guarda el nombre de la variable en la memoria            
     #     self.data_code.append(f"type_Int: .asciiz \"Int\"")     # guarda el nombre de la variable en la memoria            
@@ -67,6 +86,9 @@ class BaseCILToMIPSVisitor:
 
     def is_int(self, expr):
         return isinstance(expr, int)
+
+    def is_void(self, expr):
+        return isinstance(expr, VoidConstantNode)
 
     def add_entry_symb_tab(self, name):
         "Method to add a entry in the symbol table. (Local)"

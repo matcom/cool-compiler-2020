@@ -61,7 +61,7 @@ class VarCollector:
             elif typex == BoolType():
                 node.expr = ConstantBoolNode('false')
             else:
-                node.expr = ConstantVoidNode()
+                node.expr = ConstantVoidNode(node.id)
         
     @visitor.when(AttrDeclarationNode)
     def visit(self, node:AttrDeclarationNode, scope:Scope):

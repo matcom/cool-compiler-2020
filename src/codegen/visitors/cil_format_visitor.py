@@ -55,6 +55,10 @@ def get_formatter():
         def visit(self, node: LogicalNotNode):
             return f'{node.dest} = NOT {node.expr}'
 
+        @visitor.when(VoidConstantNode)
+        def visit(self, node: VoidConstantNode):
+            return f'{node.obj} = Void'
+
         @visitor.when(PlusNode)
         def visit(self, node: PlusNode):
             return f'{node.dest} = {node.left} + {node.right}'
@@ -98,6 +102,10 @@ def get_formatter():
         @visitor.when(GotoIfNode)
         def visit(self, node: GotoIfNode):
             return f'IF {node.cond} GOTO {node.label}'
+
+        @visitor.when(GotoIfFalseNode)
+        def visit(self, node: GotoIfFalseNode):
+            return f'IF NOT {node.cond} GOTO {node.label}'
 
         @visitor.when(LabelNode)
         def visit(self, node: LabelNode):
@@ -177,6 +185,9 @@ def get_formatter():
         def visit(self, node: ConformsNode):
             return f'{node.dest} = CONFORMS {node.expr} {node.type}'
 
+        @visitor.when(ErrorNode)
+        def visit(self, node: ErrorNode):
+            return f'ERROR {node.type}'
 
     printer = PrintVisitor()
     return lambda ast: printer.visit(ast)

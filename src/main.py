@@ -6,7 +6,7 @@ from cool_parser import CoolParser
 from ply.lex import LexToken
 import sys
 
-def run_pipeline(input):
+def run_pipeline(input_, outpt):
     try:
         with open(input_) as f:
             text = f.read()
@@ -21,12 +21,13 @@ def run_pipeline(input):
             raise Exception()
         
         ast, errors, context, scope = semantic_analysis(ast, debug=False)
-        # if errors:
-        #     for err in errors:
-        #         print(err)
-        #     raise Exception()
-        # else:
-        ast, context, scope, cil_ast = codegen_pipeline(context, ast, scope, debug=True)
+        if errors:
+            for err in errors:
+                print(err)
+            raise Exception()
+        else:
+            mips_code = codegen_pipeline(context, ast, scope, debug=False)
+            
 
     except FileNotFoundError:
         error_text = CompilerError.UNKNOWN_FILE % input_
@@ -34,8 +35,9 @@ def run_pipeline(input):
 
 
 if __name__ == "__main__":
-    # input_ = sys.argv[1]
+    input_ = sys.argv[1]
+    output = sys.argv[2]
     # print(input_)
-    input_ = f'test1.cl' 
+    # input_ = f'test1.cl' 
     # output_ = args.output
-    run_pipeline(input_)
+    run_pipeline(input_, output)

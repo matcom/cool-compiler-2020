@@ -3,6 +3,7 @@ from utils import visitor
 from codegen.visitors.base_mips_visitor import BaseCILToMIPSVisitor
 from codegen.tools import SymbolTable, AddressDescriptor, RegisterDescriptor, AddrType
 from semantic.tools import VariableInfo
+from semantic.types import VOID_NAME
 from pprint import pprint
 
 class CILToMIPSVistor(BaseCILToMIPSVisitor):
@@ -38,6 +39,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         # visit TypeNodes
         for type_ in node.dottypes:
             self.visit(type_)
+        self.data_code.append(f"type_Void: .asciiz \"Void\"")     # guarda el nombre de Void Type                    
         # guardo las direcciones de cada tipo
         self.save_types_addr(node.dottypes)
         # visit DataNodes
@@ -48,6 +50,9 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         # visit code instrunctions
         for code in node.dotcode:
             self.visit(code)
+        
+        self.initialize_runtime_errors()
+
         return self.data_code, self.code
 
     @visitor.when(TypeNode)
@@ -57,7 +62,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
 
     @visitor.when(DataNode)
     def visit(self, node:DataNode):
-        self.data_code.append(f"{node.name}: .asciiz \"{node.value}\"")    
+        self.data_code.append(f"{node.name}: .asciiz \"{node.value}\"")     
 
     @visitor.when(FunctionNode)
     def visit(self, node:FunctionNode):
@@ -111,9 +116,8 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
             self.code.append(f'li ${rdest}, {node.source}')
             self.var_address[node.dest] = AddrType.INT
         self.save_var_code(node.dest)
-        # elif isinstance(node.source, str):  # esto nunca se debe ejecutar (se llama a load node)
-        #     self.code.append(f'la ${rdest}, {self.strings[node.source]}')
-
+        
+        
     @visitor.when(NotNode)
     def visit(self, node:NotNode):
         rdest = self.addr_desc.get_var_reg(node.dest)
@@ -180,34 +184,40 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
     @visitor.when(StarNode)
     def visit(self, node:StarNode):
         self.code.append(f'# {node.dest} <- {node.left} * {node.right}')
-        self._code_to_mult_div(node, op='mult')
+        self._code_to_mult_div(node, op='mult', func_op=lambda x, y: x*y)
 
     @visitor.when(DivNode)
     def visit(self, node:DivNode):
         self.code.append(f'# {node.dest} <- {node.left} / {node.right}')
-        self._code_to_mult_div(node, op='div')
+        self._code_to_mult_div(node, op='div', func_op=lambda x, y: int(x / y))
 
-    def _code_to_mult_div(self, node, op:str):
+    def _code_to_mult_div(self, node, op:str, func_op):
         rdest = self.addr_desc.get_var_reg(node.dest)
-        if self.is_variable(node.left):
-            rleft = self.addr_desc.get_var_reg(node.left)
-            if self.is_variable(node.right):
-                rright = self.addr_desc.get_var_reg(node.right)
-                self.code.append(f"{op} ${rleft}, ${rright}")
-                self.code.append(f"mflo ${rdest}")
-            elif self.is_int(node.right):
-                self.code.append(f"li $t9, {node.right}")
-                self.code.append(f"{op} ${rleft}, $t9")
-                self.code.append(f"mflo ${rdest}")
-        elif self.is_int(node.left):
-            if self.is_int(node.right):
-                self.code.append(f"li ${rdest}, {node.left / node.right}")
-            elif self.is_variable(node.right):
+        if self.is_int(node.left) and self.is_int(node.right):
+            try:
+                self.code.append(f"li ${rdest}, {func_op(node.left, node.right)}")
+            except ZeroDivisionError:
+                self.code.append('la $a0, zero_error')
+                self.code.append('j .raise')
+        else:
+            if self.is_variable(node.left):
+                rleft = self.addr_desc.get_var_reg(node.left)
+                if self.is_variable(node.right):
+                    rright = self.addr_desc.get_var_reg(node.right)
+                elif self.is_int(node.right):
+                    self.code.append(f"li $t9, {node.right}")
+                    rright = 't9'
+            elif self.is_int(node.left):
+                # right es una variable porque falló el primer if
                 rright = self.addr_desc.get_var_reg(node.right)
                 self.code.append(f"li $t9, {node.left}")
-                self.code.append(f"{op} $t9, ${rright}")
-                self.code.append(f"mflo ${rdest}")
+            if op == 'div':
+                self.code.append('la $a0, zero_error')
+                self.code.append(f'beqz ${rright}, .raise')
+            self.code.append(f"{op} $t9, ${rright}")
+            self.code.append(f"mflo ${rdest}")
         self.var_address[node.dest] = AddrType.INT
+
 
     @visitor.when(LessNode)
     def visit(self, node:LessNode):
@@ -267,6 +277,9 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         elif self.is_int(node.value):
             self.code.append(f'li $t9, {node.value}')
             rsrc = 't9'
+        elif self.is_void(node.value):
+            self.code.append(f'la $t9, type_{VOID_NAME}')
+            rsrc = 't9'
         self.code.append(f'sw ${rsrc}, {attr_offset}(${rdest})') # saves the new value in the attr offset
 
 
@@ -284,8 +297,8 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append('syscall')
         # in v0 is the address of the new memory
         addrs_stack = self.addr_desc.get_var_addr(node.dest)
-        self.code.append('# Save the address in the stack')
-        self.code.append(f'sw $v0, -{addrs_stack}($fp)')     # save the address in the stack (where is the local variable)
+        # self.code.append('# Save the address in the stack')
+        # self.code.append(f'sw $v0, -{addrs_stack}($fp)')     # save the address in the stack (where is the local variable)
 
         self.code.append('# Loads the name of the variable and saves the name like the first field')
         self.code.append(f'la $t9, type_{node.type}')       # loads the name of the variable
@@ -337,13 +350,19 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
             if self.var_address[node.obj] == AddrType.REF:
                 self.code.append(f'lw ${rdest}, 0(${rsrc})')    # como en el offset 0 está el nombre del tipo this is ok
             elif self.var_address[node.obj] == AddrType.STR:
-                self.code.append(f'lw ${rdest}, type_String')
+                self.code.append(f'la ${rdest}, type_String')
             elif self.var_address[node.obj] == AddrType.INT:
-                self.code.append(f'lw ${rdest}, type_Int')
+                self.code.append(f'la ${rdest}, type_Int')
             elif self.var_address[node.obj] == AddrType.BOOL:
-                self.code.append(f'lw ${rdest}, type_Bool')
+                self.code.append(f'la ${rdest}, type_Bool')
+            # elif self.var_address[node.obj] == AddrType.VOID:
+            #     self.code.append(f'lw ${rdest}, type_{VOID_NAME}')
         elif self.is_int(node.obj):
             self.code.append(f'la ${rdest}, type_Int')
+        # elif self.is_void(node.obj):
+        #     self.code.append(f'la ${rdest}, type_{VOID_NAME}')
+
+        self.var_address[node.dest] = AddrType.STR
 
     @visitor.when(LabelNode)
     def visit(self, node:LabelNode):
@@ -358,6 +377,12 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         reg = self.save_to_register(node.cond)
         self.code.append(f'# If {node.cond} goto {node.label}')
         self.code.append(f'bnez ${reg}, {node.label}')
+
+    @visitor.when(GotoIfFalseNode)
+    def visit(self, node:GotoIfNode):
+        reg = self.save_to_register(node.cond)
+        self.code.append(f'# If not {node.cond} goto {node.label}')
+        self.code.append(f'beqz ${reg}, {node.label}')
 
     @visitor.when(StaticCallNode)
     def visit(self, node:StaticCallNode):
@@ -466,7 +491,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append(f'addi $t8, $t8, 1')
         self.code.append(f'j {loop}')
         self.code.append(f'{end}:')
-        #? This my be multiplied by 4
+
         self.code.append(f'sub ${rdest}, $t8, ${reg}')
         self.loop_idx += 1
 
@@ -541,8 +566,20 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append("# Getting the substring of a node")
         # Moves to the first position of the string
         # self.code.append(f'sll $t9, ${rstart}, 2')      # multiplicar por 4
-        self.code.append(f'add $t8, ${rself}, ${rstart}')
+        start = f'start_{self.loop_idx}'
+        error = f'error_{self.loop_idx}'
+        
+        self.code.append('# Move to the first position in the string')
+        self.code.append('li $v0, 0')
 
+        self.code.append(f'move $t8, ${rself}')
+        self.code.append(f'{start}:')
+        self.code.append('lb $t9, 0($t8)')
+        self.code.append(f'beqz $t9, {error}')
+        self.code.append('addi $v0, 1')
+        self.code.append(f'addi $t8, 1')
+        self.code.append(f'blt $v0, ${rstart}, {start}')
+        
         self.code.append('# Saving dest to iterate over him')
         self.code.append(f'move $v0, ${rdest}')
 
@@ -550,15 +587,18 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         end = f'end_{self.loop_idx}'
         # Loops moving the bytes until reaching to end
         self.code.append(f'{loop}:')
-        self.code.append(f'sub $t9, $v0, ${rdest}') # i should check: if this rest is negative runtime error generated
-        # self.code.append('srl $t9, $t9, 2')         # dividir entre 4
+        self.code.append(f'sub $t9, $v0, ${rdest}') 
+
         self.code.append(f'beq $t9, ${rend}, {end}')
         self.code.append(f'lb $t9, 0($t8)')
+        self.code.append(f'beqz $t9, {error}')  # if $t9 is zero error cause havent finished       
         self.code.append(f'sb $t9, 0($v0)')
-        
         self.code.append('addi $t8, $t8, 1')
         self.code.append(f'addi $v0, $v0, 1')
         self.code.append(f'j {loop}')
+        self.code.append(f'{error}:')
+        self.code.append('la $a0, index_error')
+        self.code.append('j .raise')
         self.code.append(f'{end}:')
         self.load_var_if_occupied(var)
         self.loop_idx += 1
@@ -678,3 +718,23 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
                 self.code.append(f'li ${rdest}, 0')
         elif self.is_int(node.expr):
             self.code.append(f'li ${rdest}, 0')        
+
+    @visitor.when(ErrorNode)
+    def visit(self, node: ErrorNode):
+        self.code.append(f'la $a0, {node.type}')
+        self.code.append('j .raise')
+
+    @visitor.when(VoidConstantNode)
+    def visit(self, node:VoidConstantNode):
+        rdest = self.addr_desc.get_var_reg(node.out)
+        var = self.save_reg_if_occupied('a0')
+        self.code.append('# Initialize void node')
+        self.code.append(f'li $a0, 4')                    # argument (size)
+        self.code.append('li $v0, 9')                       # code to request memory
+        self.code.append('syscall')
+        self.code.append('# Loads the name of the variable and saves the name like the first field')
+        self.code.append(f'la $t9, type_{VOID_NAME}')       # loads the name of the variable
+        self.code.append('sw $t9, 0($v0)')                  # saves the name like the first field 
+        self.code.append(f'move ${rdest}, $v0')
+        self.load_var_if_occupied(var)
+        self.var_address[node.obj] = AddrType.REF

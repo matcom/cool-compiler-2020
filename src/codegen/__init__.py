@@ -14,12 +14,12 @@ def codegen_pipeline(context, ast, scope, debug=False):
     inherit_graph = context.build_inheritance_graph()
     # pprint(inherit_graph)
     data_code, text_code = CILToMIPSVistor(inherit_graph).visit(cil_ast)
-    save_code(data_code, text_code, False)
-    return ast, context, scope, cil_ast
+    return get_code(data_code, text_code, debug)
 
-def save_code(data_code, text_code, debug):
+def get_code(data_code, text_code, debug):
     text = '\n'.join(text_code) + '\n' + '\n'.join(data_code)
     if debug:
         print(text)
-    with open('test.asm', 'w+') as fd:
-        fd.write(text)
+        with open('test.asm', 'w+') as fd:
+            fd.write(text)
+    return text
