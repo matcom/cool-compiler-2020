@@ -194,9 +194,6 @@ class AllocateNode(InstructionNode):
 
 
 class AbortNode(InstructionNode):
-    def __init__(self, val):
-        self.val = val
-
     def GetCode(self):
         return "EXIT"
 
