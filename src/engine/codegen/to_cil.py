@@ -18,14 +18,25 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         result = self.define_internal_local()
         expr ,typex = self.visit(node.expression, scope)
         self.register_instruction(cil_node(result, expr)) 
-        return result, typex
+        return result
+
+    def save_attr_init(self, node:cool.ProgramNode):
+        self.attr_init = dict()
+        for declaration in node.declarations if isinstance(declaration, cool.ClassDeclarationNode):
+            self.attr_init[declaration.id.lex] = []
+            if dec.parent and not classx.parent in ['IO', 'Object']:
+                self.attr_init[classx.id] += self.attr_init[classx.parent]
+            for feature in classx.features:
+                if type(feature) is cool.AttrDeclarationNode:
+                    self.attr_init[classx.id].append(feature)
 
     @visitor.on('node')
     def visit(self,node,scope):
         pass
 
     @visitor.when(cool.ProgramNode)
-    def visit(self,node: cool.ProgramNode, scope):
+    def visit(self,node: cool.ProgramNode, scope = None):
+        scope = Scope()
         self.current_function = self.register_function('entry')
         instance = self.define_internal_local()
         result = self.define_internal_local()
@@ -36,12 +47,12 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(ReturnNode(0))
         self.current_function = None
 
-        for declaration, child_scope in zip(node.declarations,scope.children):
-            self.visit(declaration,child_scope)
+        classes = [declaration for declaration in node.declarations if isinstance(declaration, cool.ClassDeclarationNode)]:
+            self.visit(declaration,scope)
 
         return ProgramNode(self.dottypes,self.dotdata,self.dotcode)
 
-    @visitor.when(cool.ClassDeclarationNode)
+    @visitor.when(cool.ClassDeclarationNode) 
     def visit(self,node: cool.ClassDeclarationNode,scope):
         self.current_type = self.context.get_type(node.id.lex)
         type_node = self.register_type(node.id.lex)
@@ -49,56 +60,69 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         type_node.methods = [(method.name, self.to_function_name(method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
         
         fun_declarations = (f for f in node.features if isinstance(f,cool.FuncDeclarationNode))
-        for feature, child_scope in zip(fun_declarations,scope.children):
-            self.visit(feature,child_scope)
+        for feature in fun_declarations:
+            self.visit(feature,scope)
 
         self.current_type = None
 
     @visitor.when(cool.FuncDeclarationNode)
-    def visit(self,node: cool.FuncDeclarationNode,scope):
+    def visit(self,node: cool.FuncDeclarationNode,scope: Scope):
+        fun_scope = Scope(parent=scope)
         self.current_method = self.current_type.get_method(node.id.lex)
         type_name = self.current_type.name
         
         self.current_function = self.register_function(self.to_function_name(node.id.lex, type_name))
+        self_local = self.register_param(VariableInfo('self', None))
+        func_scope.define_variable('self', self_local)
         for param_name, param_type in node.params:
             self.register_param(VariableInfo(param_name, param_type))
 
-        body = self.visit(node.body,scope)
+        body = self.visit(node.body,func_scope)
 
         self.register_instruction(ReturnNode(body))
         self.current_method = None
 
     @visitor.when(cool.AttrDeclarationNode)
     def visit(self,node: cool.AttrDeclarationNode,scope):
-        attr_info = scope.find_variable(node.id.lex)
-        vtype = get_type(attr_info.type)
-        local_attr = self.register_local(VariableInfo(attr_info.name,vtype))
-
-        expr, _ = self.visit(node.expression,scope)
-        self.register_instruction(AssignNode(local_attr,expr))
-        return local_attr,vtype
+        result = self.visit(node.expression, scope) if node.expression else 0
+        self_inst = scope.find_variable('self').name
+        self.register_instruction(SetAttribNode(self_inst, node.id.lex, result))
 
     @visitor.when(cool.AssignNode)
     def visit(self,node: cool.AssignNode,scope):
-        vinfo = scope.find_variable(node.id.lex)
-        vname = self.register_local(VariableInfo(node.id.lex,get_type(vinfo.type)))
         expr = self.visit(node.expression,scope)
-        return self.register_instruction(AssignNode(vname,expr))
+        attr_info = scope.find_variable(node.id.lex)
+        if not attr_info:
+            selfx = scope.find_variable('self').name
+            self.register_instruction(SetAttribNode(selfx, node.id.lex, expr))
+        else:
+            attr_info = attr_info.name
+            self.register_instruction(AssignNode(attr_info, value))
+        return 0
+
+    @visitor.when(cool.NewNode)
+    def visit(self,node: cool.NewNode,scope):
+        new_local = self.define_internal_local()
+        typex = self.context.get_type(node.type.lex)
+        self.register_instruction(AllocateNode(new_local, typex))
+
+        return new_local
 
     @visitor.when(cool.IfThenElseNode)
     def visit(self,node:cool.IfThenElseNode,scope):
-        cond, _ = self.visit(node.condition, scope)
+        cond = self.visit(node.condition, scope)
+        child_scope = Scope(parent=scope)
         true_label = LabelNode('TRUE')
         end_label = LabelNode('END')
         result = self.define_internal_local()
         self.register_instruction(IfGotoNode(cond,self.to_label_name(true_label.label)))
         
-        false_expr = self.visit(node.else_body, scope)
+        false_expr = self.visit(node.else_body, child_scope)
         self.register_instruction(AssignNode(result,false_expr))
         self.register_instruction(GotoNode(self.to_label_name(end_label.label)))
         self.register_instruction(true_label)
 
-        true_expr = self.visit(node.if_body, scope)
+        true_expr = self.visit(node.if_body, child_scope)
         self.register_instruction(AssignNode(result,true_expr))
         self.register_instruction(end_label)
 
@@ -106,23 +130,24 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         
     @visitor.when(cool.WhileLoopNode)
     def visit(self,node:cool.WhileLoopNode,scope):
+        while_scope = Scope(parent=None)
         start_label = LabelNode('START')
         continue_label = LabelNode('CONTINUE')
         end_label = LabelNode('END')
 
-        result = self.define_internal_local()
+        # result = self.define_internal_local()
         self.register_instruction(start_label)
 
-        cond, _ = self.visit(node.condition,scope)
+        cond = self.visit(node.condition,scope)
         self.register_instruction(IfGotoNode(cond, continue_label))
         self.register_instruction(GotoNode(end_label))
         self.register_instruction(continue_label)
-        body, btype = self.visit(node.body, scope)
+        self.visit(node.body, while_scope)
         self.register_instruction(GotoNode(start_label))
         self.register_instruction(end_label)
 
-        self.register_instruction(AssignNode(result,body))
-        return result, btype
+        # self.register_instruction(AssignNode(result,body))
+        return 0
 
     @visitor.when(cool.CaseOfNode)
     def visit(self,node: cool.CaseOfNode,scope):
@@ -198,7 +223,6 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         
         return result
 
-
     @visitor.when(cool.PlusNode)
     def visit(self, node:cool.PlusNode, scope):
         return self.define_binary_node(node,scope,PlusNode)
@@ -219,9 +243,21 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node:cool.LessNode, scope):
         return self.define_binary_node(node,scope,LessNode)
 
+    @visitor.when(cool.LessEqualNode)
+    def visit(self, node: cool.LessEqualNode, scope):
+        return self.define_binary_node(node, scope, LessEqNode)
+
     @visitor.when(cool.EqualNode)
     def visit(self, node: cool.EqualNode, scope):
-        return self.define_binary_node(node,scope,EqualNode)
+        left = self.visit(node.left, scope)
+        right = self.visit(node.right, scope)
+        result = self.define_internal_local()
+
+        if node.left.static_type == self.context.get_type('String'):
+            self.register_instruction(StringEqualNode(result, left, right))
+        else:
+            self.register_instruction(EqualNode(result, left, right))
+        return result        
 
     @visitor.when(cool.IsVoidNode)
     def visit(self, node: cool.IsVoidNode, scope):
@@ -237,29 +273,30 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
 
     @visitor.when(cool.IdNode)
     def visit(self, node: cool.IdNode, scope: Scope):
-        typex = scope.find_variable(node.token.lex).type
-        return node.token.lex, typex
+        nvar = scope.find_variable(node.token.lex)
+        if not nvar:
+            selfx = scope.find_variable('self').name
+            nvar = self.define_internal_local()
+            self.register_instruction(GetAttribNode(nvar, selfx, node.token.lex))
+        else:
+            nvar = nvar.name
+        return nvar
 
     @visitor.when(cool.BoolNode)
     def visit(self, node:cool.BoolNode, scope):
-        typex = self.context.get_type('Bool').name
-        return (1, typex) if node.token.lex else (0, typex)
+        return 1 if node.token.lex else 0
 
     @visitor.when(cool.IntegerNode)
     def visit(self, node:cool.IntegerNode, scope):
-        return int(node.token.lex), self.context.get_type('Int').name
+        return int(node.token.lex)
 
     @visitor.when(cool.StringNode)
     def visit(self, node:cool.StringNode, scope):
         string = self.register_data(node.token.lex)
-        return string.value, string.name
+        dest = self.define_internal_local()
+        self.register_instruction(LoadNode(dest,string.name))
+        return dest
 
-    @visitor.when(cool.NewNode)
-    def visit(self,node: cool.NewNode,scope):
-        new_local = self.define_internal_local()
-        typex = self.context.get_type(node.type.lex)
-        self.register_instruction(AllocateNode(new_local, typex))
-        return new_local, typex
 
 
 
