@@ -71,17 +71,17 @@ class CoolType:
             if self.parent:
                 return self.parent.get_method(id, args_types)
             else:
-                return None, f'{ERR_ATTRIBUTE}: Dispatch to undefined method {id}.'
+                return None, None, f'{ERR_ATTRIBUTE}: Dispatch to undefined method {id}.'
 
     def get_method_without_hierarchy(self, id, args_types):
         try:
             method = self.methods[id]
             if len(args_types) != len(method.args):
-                return None, f'{ERR_SEMANTIC}: Method {id} called with wrong number of arguments.'
+                return None, None, f'{ERR_SEMANTIC}: Method {id} called with wrong number of arguments.'
             for i, a in enumerate(args_types):
                 if not check_inherits(a, method.args[i]):
-                    return None, f'{ERR_TYPE}: In call of method {id}, type {a} does not conform to declared type {method.args[i]}.'
-            return method, None
+                    return None, None, f'{ERR_TYPE}: In call of method {id}, type {a} does not conform to declared type {method.args[i]}.'
+            return method, self, None
         except KeyError:
             raise Exception(f'type {self.name} don\'t have a method {id}')
 

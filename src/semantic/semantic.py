@@ -262,7 +262,7 @@ def func_call_visitor(func_call: FuncCallNode, current_class: CT.CoolType, local
                     func_call.lineno, func_call.colno, f'unknown type \'{func_call.type}\'')
             # 2.2.2)
             elif CT.check_inherits(object_type, specific_type):
-                method, msg = specific_type.get_method_without_hierarchy(
+                method, _, msg = specific_type.get_method_without_hierarchy(
                     func_call.id, args_types)
                 # 2.2.3)
                 if method is not None and method.returnedType == CT.SelfType:
@@ -271,12 +271,12 @@ def func_call_visitor(func_call: FuncCallNode, current_class: CT.CoolType, local
                 add_semantic_error(func_call.lineno, func_call.colno,
                                    f'type {object_type} not inherits from {specific_type}')
         else:
-            method, msg = object_type.get_method(func_call.id, args_types)
+            method, _, msg = object_type.get_method(func_call.id, args_types)
             if method is not None and method.returnedType == CT.SelfType:
                 method.returnedType = object_type
     # 3)
     else:
-        method, msg = current_class.get_method(func_call.id, args_types)
+        method, _, msg = current_class.get_method(func_call.id, args_types)
     if method is None and msg is not None:
         add_semantic_error(func_call.lineno, func_call.colno, msg)
     # 3.1)
