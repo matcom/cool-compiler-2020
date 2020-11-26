@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import List, Optional, Tuple, Union
 
 from abstract.semantics import SemanticError
@@ -47,16 +48,24 @@ class ProgramNode(Node):
         errors = type_builder.errors
         scope = None
         if not errors:
-            inferer = inference.TypeInferer(type_builder.context, errors=errors)
-            for d in range(1, deep + 1):
-                scope = inferer.visit(self, scope=scope, deep=d)
+            try:
+                inferer = inference.TypeInferer(type_builder.context, errors=errors)
+                for d in range(1, deep + 1):
+                    scope = inferer.visit(self, scope=scope, deep=d)
+            except SemanticError as e:
+                errors.append(e.text)
         # reportar los errores
         return errors, type_builder.context, scope
 
 
 class Param(DeclarationNode):
-    def __init__(self, idx, typex):
+    def __init__(self, idx, typex, line, column):
         self.id, self.type = idx, typex
+        self.line = line
+        self.column = column - len(idx)
+
+    def __eq__(self, o: Param) -> bool:
+        return self.id == o.id
 
 
 class MethodDef(DeclarationNode):
@@ -93,9 +102,11 @@ class VariableDeclaration(ExpressionNode):
 
 
 class BinaryNode(ExpressionNode):
-    def __init__(self, left, right):
+    def __init__(self, left, right, line, column):
         self.left: ExpressionNode = left
         self.right: ExpressionNode = right
+        self.line = line
+        self.column = column
 
 
 class AtomicNode(ExpressionNode):
@@ -111,30 +122,32 @@ class IfThenElseNode(ExpressionNode):
 
 
 class PlusNode(BinaryNode):
-    def __init__(self, left, right):
-        super(PlusNode, self).__init__(left, right)
+    def __init__(self, left, right, line, column):
+        super(PlusNode, self).__init__(left, right, line, column)
 
 
 class DifNode(BinaryNode):
-    def __init__(self, left, right):
-        super(DifNode, self).__init__(left, right)
+    def __init__(self, left, right, line, column):
+        super(DifNode, self).__init__(left, right, line, column)
 
 
 class MulNode(BinaryNode):
-    def __init__(self, left, right):
-        super(MulNode, self).__init__(left, right)
+    def __init__(self, left, right, line, column):
+        super(MulNode, self).__init__(left, right, line, column)
 
 
 class DivNode(BinaryNode):
-    def __init__(self, left, right):
-        super(DivNode, self).__init__(left, right)
+    def __init__(self, left, right, line, column):
+        super(DivNode, self).__init__(left, right, line, column)
 
 
 class FunCall(ExpressionNode):
-    def __init__(self, obj, idx, arg_list):
+    def __init__(self, obj, idx, arg_list, line, column):
         self.obj: Union[str, ExpressionNode] = obj
         self.id: str = idx
         self.args: List[ExpressionNode] = arg_list
+        self.line = line
+        self.column = column - len(idx)
 
 
 class ParentFuncCall(ExpressionNode):
@@ -146,9 +159,11 @@ class ParentFuncCall(ExpressionNode):
 
 
 class AssignNode(ExpressionNode):
-    def __init__(self, idx, expr):
+    def __init__(self, idx, expr, line, column):
         self.idx: str = idx
         self.expr: ExpressionNode = expr
+        self.line = line
+        self.column = column - len(idx)
 
 
 class IntegerConstant(AtomicNode):
@@ -202,40 +217,44 @@ class VoidTypeNode(TypeNode):
 
 
 class ClassDef(DeclarationNode):
-    def __init__(self, idx, features, parent="Object"):
+    def __init__(self, idx, features, line, colum, parent="Object"):
         self.idx: str = idx
         self.features: List[Union[MethodDef, AttributeDef]] = features
         self.parent: str = parent
+        self.line = line
+        self.column = colum - len(idx)
 
 
 class VariableCall(ExpressionNode):
-    def __init__(self, idx):
+    def __init__(self, idx, line, column):
         self.idx: str = idx
+        self.line = line
+        self.column = column - len(idx)
 
 
 class GreaterThanNode(BinaryNode):
-    def __init__(self, left, right):
-        super(GreaterThanNode, self).__init__(left, right)
+    def __init__(self, left, right, line, column):
+        super(GreaterThanNode, self).__init__(left, right, line, column)
 
 
 class LowerThanNode(BinaryNode):
-    def __init__(self, left, right):
-        super(LowerThanNode, self).__init__(left, right)
+    def __init__(self, left, right, line, column):
+        super(LowerThanNode, self).__init__(left, right, line, column)
 
 
 class EqualToNode(BinaryNode):
-    def __init__(self, left, right):
-        super().__init__(left, right)
+    def __init__(self, left, right, line, column):
+        super().__init__(left, right, line, column)
 
 
 class LowerEqual(BinaryNode):
-    def __init__(self, left, right):
-        super().__init__(left, right)
+    def __init__(self, left, right, line, column):
+        super().__init__(left, right, line, column)
 
 
 class GreaterEqualNode(BinaryNode):
-    def __init__(self, left, right):
-        super().__init__(left, right)
+    def __init__(self, left, right, line, column):
+        super().__init__(left, right, line, column)
 
 
 class NotNode(AtomicNode):

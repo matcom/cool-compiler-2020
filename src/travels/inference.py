@@ -14,6 +14,10 @@ from travels.context_actions import (
 void = semantic.VoidType()
 
 
+def TypeError(s, l, c):
+    return f"({l}, {c}) - TypeError: {s}"
+
+
 class TypeInferer:
     """
     Para inferir los tipos en un programa se aprovecha el AST devuelto al evaluar el parse de dicho programa.
@@ -119,9 +123,12 @@ class TypeInferer:
                 # Inferir el tipo del atributo segun su expresion de inicializacion
                 atrib.type = return_type
             elif not return_type.conforms_to(atrib.type):
-                self.errors.append(
-                    f"Attribute {node.idx} of type {atrib.type.name} can not be initialized with \
-                    an expression of type {return_type.name}"
+                raise SemanticError(
+                    TypeError(
+                        f"Attribute {node.idx} of type {atrib.type.name} can not be initialized with an expression of type {return_type.name}",
+                        node.default_value.line,
+                        node.default_value.column - node.column,
+                    )
                 )
 
     # ---------------------------------------------------------------------
@@ -135,8 +142,16 @@ class TypeInferer:
         assert self.current_type is not None
         method = self.current_type.get_method(node.idx)
         self.current_method = method
+        params = []
         for param in node.param_list:
+            if param in params:
+                raise SemanticError(
+                    TypeError(
+                        f"Param {param.id} multiply defined.", param.line, param.column
+                    )
+                )
             self.visit(param, scope, deep=deep)
+            params.append(param)
 
         last = self.visit(node.statements, scope, deep=deep)
         if last.name == "SELF_TYPE":
@@ -145,7 +160,7 @@ class TypeInferer:
             method.return_type = last
         else:
             if not last.conforms_to(method.return_type):
-                self.errors.append(f"Method {method.name} cannot return {last}")
+                raise SemanticError(f"Method {method.name} cannot return {last}")
 
     @visit.register
     def _(
@@ -192,12 +207,12 @@ class TypeInferer:
                 return void
             else:
                 if not e.conforms_to(var_info.type):
-                    self.errors.append(
+                    raise SemanticError(
                         f"Expresion of type {e.name} cannot be assigned to variable {var_info.name} of type {var_info.type.name}"
                     )
                 return void
         else:
-            self.errors.append(f"Undefined variable name: {node.idx}")
+            raise SemanticError(f"Undefined variable name: {node.idx}")
 
     @visit.register
     def _(
@@ -222,7 +237,6 @@ class TypeInferer:
                 update_scope_variable(var_info.name, infered_type, scope)
             return var_info.type
         else:
-            self.errors.append(f"Name {node.idx} is not define.")
             raise SemanticError(f"Name {node.idx} is not define in {scope}")
 
     @visit.register
@@ -237,7 +251,7 @@ class TypeInferer:
         e1 = self.visit(node.expr1, scope, infered_type, deep)
         e2 = self.visit(node.expr2, scope, infered_type, deep)
         if cond != self.BOOL:
-            self.errors.append(
+            raise SemanticError(
                 f"Se esperaba una expresion de tipo bool y se obtuvo una de tipo {cond}."
             )
         if e1.conforms_to(e2):
@@ -278,7 +292,7 @@ class TypeInferer:
                 )
                 if type_ != self.AUTO_TYPE:
                     if not init_expr_type.conforms_to(type_):
-                        self.errors.append(
+                        raise SemanticError(
                             f"Init expression of {var_id} must conform to type {type_}"
                         )
                     else:
@@ -382,8 +396,13 @@ class TypeInferer:
         if left.conforms_to(self.INTEGER) and right.conforms_to(self.INTEGER):
             return self.INTEGER
         else:
-            self.errors.append(f"Invalid operation :{left.name} + {right.name}")
-            return self.INTEGER
+            raise SemanticError(
+                TypeError(
+                    f"Invalid operation: {left.name} + {right.name}",
+                    node.line,
+                    node.column,
+                )
+            )
 
     @visit.register
     def _(
@@ -394,8 +413,13 @@ class TypeInferer:
         if left.conforms_to(self.INTEGER) and right.conforms_to(self.INTEGER):
             return self.INTEGER
         else:
-            self.errors.append(f"Invalid operation :{left.name} - {right.name}")
-            return self.INTEGER
+            raise SemanticError(
+                TypeError(
+                    f"Invalid operation: {left.name} - {right.name}",
+                    node.line,
+                    node.column,
+                )
+            )
 
     @visit.register
     def _(
@@ -406,8 +430,13 @@ class TypeInferer:
         if left.conforms_to(self.INTEGER) and right.conforms_to(self.INTEGER):
             return self.INTEGER
         else:
-            self.errors.append(f"Invalid operation :{left.name} / {right.name}")
-            return self.INTEGER
+            raise SemanticError(
+                TypeError(
+                    f"Invalid operation: {left.name} / {right.name}",
+                    node.line,
+                    node.column,
+                )
+            )
 
     @visit.register
     def _(
@@ -418,8 +447,13 @@ class TypeInferer:
         if left.conforms_to(self.INTEGER) and right.conforms_to(self.INTEGER):
             return self.INTEGER
         else:
-            self.errors.append(f"Invalid operation :{left.name} * {right.name}")
-            return self.INTEGER
+            raise SemanticError(
+                TypeError(
+                    f"Invalid operation: {left.name} * {right.name}",
+                    node.line,
+                    node.column,
+                )
+            )
 
     # -------------------------------------------------------------------------------------------#
     # -----------------------------------OPERACIONES COMPARATIVAS -------------------------------#
@@ -442,8 +476,13 @@ class TypeInferer:
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(f"Invalid operation: {left.name} > {right.name}")
-            return self.BOOL
+            raise SemanticError(
+                TypeError(
+                    f"Invalid operation: {left.name} > {right.name}",
+                    node.line,
+                    node.column,
+                )
+            )
 
     @visit.register
     def _(
@@ -458,8 +497,13 @@ class TypeInferer:
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(f"Invalid operation: {left.name} >= {right.name}")
-            return self.BOOL
+            raise SemanticError(
+                TypeError(
+                    f"Invalid operation: {left.name} >= {right.name}",
+                    node.line,
+                    node.column,
+                )
+            )
 
     @visit.register
     def _(
@@ -474,8 +518,13 @@ class TypeInferer:
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(f"Invalid operation: {left.name} < {right.name}")
-            return self.BOOL
+            raise SemanticError(
+                TypeError(
+                    f"Invalid operation: {left.name} < {right.name}",
+                    node.line,
+                    node.column,
+                )
+            )
 
     @visit.register
     def _(
@@ -486,8 +535,13 @@ class TypeInferer:
         if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
             return self.BOOL
         else:
-            self.errors.append(f"Invalid operation: {left.name} <= {right.name}")
-            return self.BOOL
+            raise SemanticError(
+                TypeError(
+                    f"Invalid operation: {left.name} <= {right.name}",
+                    node.line,
+                    node.column,
+                )
+            )
 
     @visit.register
     def _(
@@ -499,10 +553,22 @@ class TypeInferer:
     ) -> Type:
         left = self.visit(node.left, scope, infered_type, deep)
         right = self.visit(node.right, scope, infered_type, deep)
-        if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
-            return self.BOOL
+        if left in (self.BOOL, self.INTEGER, self.STRING) or left in (
+            self.BOOL,
+            self.INTEGER,
+            self.STRING,
+        ):
+            if left == right or left == self.AUTO_TYPE or right == self.AUTO_TYPE:
+                return self.BOOL
+            else:
+                raise SemanticError(
+                    TypeError(
+                        f"Invalid operation: {left.name} = {right.name}",
+                        node.line,
+                        node.column,
+                    )
+                )
         else:
-            self.errors.append(f"Invalid operation: {left.name} == {right.name}")
             return self.BOOL
 
     @visit.register
@@ -513,8 +579,7 @@ class TypeInferer:
         if val_type == self.AUTO_TYPE or val_type == self.BOOL:
             return self.BOOL
         else:
-            self.errors.append(f"Invalid operation: ! {val_type.name}")
-            return self.BOOL
+            raise SemanticError(f"Invalid operation: ! {val_type.name}")
 
     # -----------------------------------------------------------------------------------------------------------------------#
     # --------------------------------------------------CONSTANTES-----------------------------------------------------------#

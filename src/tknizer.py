@@ -85,7 +85,7 @@ class Tokenizer:
                 # with the full list, so next code should do
                 # the work.
                 self.line += len(newlines) - 1
-                self.column = len(newlines[-1])
+                self.column += len(newlines[-1])
             else:
                 self.column += len(suffix)
             yield suffix, token_type

@@ -23,7 +23,7 @@ class Token:
         self.token_line = token_line
 
     def __str__(self):
-        return f'{self.token_type}: {self.lex}'
+        return f'{(self.token_line, self.token_column)} - {self.token_type}: {self.lex}'
 
     def __repr__(self):
         return str(self)

@@ -1,14 +1,15 @@
 from typing import Any
-'''
+
+"""
 Process a source file removing coments.
 Because coments in COOL can be nested, there is
 no regular expresion to represet them, so we have
 to preprocess the file and strip them out.
-'''
+"""
 
 
 def find_comments(program: Any) -> str:
-    '''
+    """
     This functions detects every comment in a Cool program\
     and replace it with empty lines. This is done in a way\
     so is posible for the other components of the\
@@ -17,7 +18,7 @@ def find_comments(program: Any) -> str:
     In Cool a comment can be of the form (*...*) or -- ending\
     with a newline. Comments can be nested, so there is no regular\
     expression to detect them.
-    '''
+    """
     pairs = []
     stack = []
     line = 1
@@ -28,30 +29,29 @@ def find_comments(program: Any) -> str:
         try:
             i, char = next(iter_char)
             column += 1
-            if char == '\n':
+            if char == "\n":
                 line += 1
                 column = 1
-            elif char == '(':
+            elif char == "(":
                 i, char = next(iter_char)
                 column += 1
-                if char == '*':
+                if char == "*":
                     stack.append(i - 1)
-                elif char == '\n':
+                elif char == "\n":
                     line += 1
                     column = 1
-            elif char == '*':
+            elif char == "*":
                 i, char = next(iter_char)
                 column += 1
-                if char == ')':
+                if char == ")":
                     first = stack.pop()
                     pairs.append((first, i))
-                elif char == '\n':
+                elif char == "\n":
                     line += 1
                     column = 1
         except StopIteration:
             break
-    assert not stack, "(%d, %d) - LexicographicError: EOF in comment" % (
-        line, column)
+    assert not stack, "(%d, %d) - LexicographicError: EOF in comment" % (line, column)
     iter_char = iter(enumerate(program))
     column = 1
     line = 1
@@ -59,18 +59,29 @@ def find_comments(program: Any) -> str:
         try:
             i, char = next(iter_char)
             column += 1
-            if char == '-' and i > 0 and program[i - 1] != '<':
+            if char == "-" and i > 0 and program[i - 1] != "<":
                 i, char = next(iter_char)
                 column += 1
-                if char == '-':
+                if char == "-":
                     stack.append(i - 1)
-                elif char == '\n':
+                elif char == "\n":
                     if stack:
                         first = stack.pop()
                         pairs.append((first, i))
                         column = 1
                         line += 1
-            elif char == '\n':
+            elif char == '-' and i == 0:
+                i, char = next(iter_char)
+                column += 1
+                if char == "-":
+                    stack.append(i - 1)
+                elif char == "\n":
+                    if stack:
+                        first = stack.pop()
+                        pairs.append((first, i))
+                        column = 1
+                        line += 1
+            elif char == "\n":
                 if stack:
                     first = stack.pop()
                     pairs.append((first, i))
@@ -81,6 +92,6 @@ def find_comments(program: Any) -> str:
     while pairs:
         i, j = pairs.pop()
         for k in range(i, j + 1):
-            if not program[k] == '\n':
-                program[k] = ' '
-    return ''.join(program)
+            if not program[k] == "\n":
+                program[k] = " "
+    return "".join(program)

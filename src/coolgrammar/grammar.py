@@ -100,12 +100,18 @@ def build_cool_grammar():
 
     class_def %= (
         class_keyword + classid + obrack + empty_feature_list + cbrack,
-        lambda s: ClassDef(s[2].lex, s[4]),
+        lambda s: ClassDef(s[2].lex, s[4], s[2].token_line, s[2].token_column),
     )
 
     class_def %= (
-        class_keyword + classid + inherits + typex + obrack + empty_feature_list + cbrack,
-        lambda s: ClassDef(s[2].lex, s[6], s[4]),
+        class_keyword
+        + classid
+        + inherits
+        + typex
+        + obrack
+        + empty_feature_list
+        + cbrack,
+        lambda s: ClassDef(s[2].lex, s[6], s[2].token_line, s[2].token_column, s[4]),
     )
 
     feature_list %= meod_def + dot_comma, lambda s: [s[1]]
@@ -148,7 +154,9 @@ def build_cool_grammar():
     param_list %= param, lambda s: [s[1]]
     param_list %= param + coma + param_list, lambda s: [s[1]] + s[3]
 
-    param %= idx + dd + typex, lambda s: Param(s[1].lex, s[3])
+    param %= idx + dd + typex, lambda s: Param(
+        s[1].lex, s[3], s[1].token_line, s[1].token_column
+    )
 
     statement_list %= exp, lambda s: s[1]
 
@@ -165,9 +173,7 @@ def build_cool_grammar():
         lambda s: [(s[1].lex, s[3], None)] + s[5],
     )
 
-    nested_lets %= idx + dd + typex + assign + exp, lambda s: [
-        (s[1].lex, s[3], s[5])
-    ]
+    nested_lets %= idx + dd + typex + assign + exp, lambda s: [(s[1].lex, s[3], s[5])]
 
     nested_lets %= (
         idx + dd + typex + assign + exp + coma + nested_lets,
@@ -185,7 +191,7 @@ def build_cool_grammar():
     loop_statements %= exp + dot_comma, lambda s: [s[1]]
     loop_statements %= exp + dot_comma + loop_statements, lambda s: [s[1]] + s[3]
 
-    exp %= idx + assign + exp, lambda s: AssignNode(s[1].lex, s[3])
+    exp %= idx + assign + exp, lambda s: AssignNode(s[1].lex, s[3], s[2].token_line, s[2].token_column)
 
     exp %= while_ + exp + loop + statement_list + pool, lambda s: WhileBlockNode(
         s[2], s[4]
@@ -205,15 +211,15 @@ def build_cool_grammar():
 
     block %= obrack + loop_statements + cbrack, lambda s: BlockNode(s[2])
 
-    arith %= arith + plus + term, lambda s: PlusNode(s[1], s[3])
+    arith %= arith + plus + term, lambda s: PlusNode(s[1], s[3], s[2].token_line, s[2].token_column - 1)
 
-    arith %= arith + minus + term, lambda s: DifNode(s[1], s[3])
+    arith %= arith + minus + term, lambda s: DifNode(s[1], s[3], s[2].token_line, s[2].token_column - 1)
 
     arith %= term, lambda s: s[1]
 
-    term %= term + star + factor, lambda s: MulNode(s[1], s[3])
+    term %= term + star + factor, lambda s: MulNode(s[1], s[3], s[2].token_line, s[2].token_column - 1)
 
-    term %= term + div + factor, lambda s: DivNode(s[1], s[3])
+    term %= term + div + factor, lambda s: DivNode(s[1], s[3], s[2].token_line, s[2].token_column - 1)
 
     term %= factor, lambda s: s[1]
 
@@ -229,18 +235,18 @@ def build_cool_grammar():
 
     factor %= num, lambda s: IntegerConstant(s[1].lex)
 
-    factor %= idx, lambda s: VariableCall(s[1].lex)
+    factor %= idx, lambda s: VariableCall(s[1].lex, s[1].token_line, s[1].token_column)
 
     factor %= true, lambda s: TrueConstant()
 
     factor %= factor + period + idx + opar + args_list_empty + cpar, lambda s: FunCall(
-        s[1], s[3].lex, s[5]
+        s[1], s[3].lex, s[5], s[3].token_line, s[3].token_column
     )
 
     factor %= string_const, lambda s: s[1]
 
     factor %= idx + opar + args_list_empty + cpar, lambda s: FunCall(
-        SelfNode(), s[1].lex, s[3]
+        SelfNode(), s[1].lex, s[3], s[1].token_line, s[1].token_column
     )
 
     factor %= (
@@ -252,13 +258,13 @@ def build_cool_grammar():
 
     factor %= instantiation, lambda s: s[1]
 
-    atom %= arith + lt + arith, lambda s: LowerThanNode(s[1], s[3])
+    atom %= arith + lt + arith, lambda s: LowerThanNode(s[1], s[3], s[2].token_line, s[2].token_column - 1)
 
-    atom %= arith + eq + arith, lambda s: EqualToNode(s[1], s[3])
+    atom %= arith + eq + arith, lambda s: EqualToNode(s[1], s[3], s[2].token_line, s[2].token_column - 1)
 
-    atom %= arith + ge + arith, lambda s: GreaterEqualNode(s[1], s[3])
+    atom %= arith + ge + arith, lambda s: GreaterEqualNode(s[1], s[3], s[2].token_line, s[2].token_column - 2)
 
-    atom %= arith + le + arith, lambda s: LowerEqual(s[1], s[3])
+    atom %= arith + le + arith, lambda s: LowerEqual(s[1], s[3], s[2].token_line, s[2].token_column - 2)
 
     atom %= arith, lambda s: s[1]
 

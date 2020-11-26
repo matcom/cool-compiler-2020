@@ -32,7 +32,7 @@ def bootstrap_string(obj: StringType):
         method_name = "concat"
         param_names = ["s"]
         params_types: List[Type] = [StringType()]
-        return_type = IntegerType()
+        return_type = obj
 
         return Method(method_name, param_names, params_types, return_type)
 
@@ -40,7 +40,7 @@ def bootstrap_string(obj: StringType):
         method_name = "substr"
         param_names = ["i", "l"]
         params_types: List[Type] = [IntegerType(), IntegerType()]
-        return_type = IntegerType()
+        return_type = obj
 
         return Method(method_name, param_names, params_types, return_type)
 
@@ -49,7 +49,7 @@ def bootstrap_string(obj: StringType):
     obj.methods["substr"] = substr()
 
 
-def bootstrap_io(io: IoType):
+def bootstrap_io(io: IoType, strType: StringType):
     def out_string() -> Method:
         method_name = "out_string"
         param_names = ["x"]
@@ -70,7 +70,7 @@ def bootstrap_io(io: IoType):
         method_name = "in_string"
         param_names = []
         params_types = []
-        return_type = StringType()
+        return_type = strType
 
         return Method(method_name, param_names, params_types, return_type)
 
@@ -89,12 +89,12 @@ def bootstrap_io(io: IoType):
     io.methods["in_int"] = in_int()
 
 
-def bootstrap_object(obj: ObjectType):
+def bootstrap_object(obj: ObjectType, strType: StringType):
     def abort() -> Method:
         method_name = "abort"
         param_names = []
         params_types = []
-        return_type = ObjectType()
+        return_type = obj
 
         return Method(method_name, param_names, params_types, return_type)
 
@@ -102,7 +102,7 @@ def bootstrap_object(obj: ObjectType):
         method_name = "type_name"
         param_names = []
         params_types = []
-        return_type = StringType()
+        return_type = strType
 
         return Method(method_name, param_names, params_types, return_type)
 
@@ -143,8 +143,8 @@ class TypeCollector:
 
         # Agregar los metodos builtin
         bootstrap_string(STRING)
-        bootstrap_io(ioType)
-        bootstrap_object(OBJECT)
+        bootstrap_io(ioType, STRING)
+        bootstrap_object(OBJECT, STRING)
 
         INTEGER.set_parent(OBJECT)
         STRING.set_parent(OBJECT)
