@@ -38,6 +38,18 @@ class LocalNode(Node):
 class InstructionNode(Node):
     pass
 
+class GetAttribNode(InstructionNode):
+    def __init__(self, dest, obj, attrib):
+        self.dest = dest
+        self.obj = obj
+        self.attrib = attrib
+
+class SetAttribNode(InstructionNode):
+    def __init__(self, obj, attrib, value):
+        self.obj = obj
+        self.attrib = attrib
+        self.value = value
+        
 class AssignNode(InstructionNode):
     def __init__(self, dest, source):
         self.dest = dest
@@ -157,6 +169,11 @@ class ConcatNode(InstructionNode):
         self.msg1 = msg1
         self.msg2 = msg2
 
+class StringEqualNode(InstructionNode):
+    def __init__(self, dest, msg1, msg2):
+        self.dest = dest
+        self.msg1 = msg1
+        self.msg2 = msg2
 
 class SubstringNode(InstructionNode):
     def __init__(self, dest, msg1, start, length):
@@ -185,17 +202,6 @@ class PrintNode(InstructionNode):
 
 ################# nodes que me tengo que definir ##############
 
-# class GetAttribNode(InstructionNode):
-#     def __init__(self, dest, obj, attrib):
-#         self.dest = dest
-#         self.obj = obj
-#         self.attrib = attrib
-
-# class SetAttribNode(InstructionNode):
-#     def __init__(self, obj, attrib, value):
-#         self.obj = obj
-#         self.attrib = attrib
-#         self.value = value
 
 # class GetIndexNode(InstructionNode):
 #     def __init__(self, dest, array, index):
@@ -227,10 +233,4 @@ class PrintNode(InstructionNode):
 # class CleanArgsNode(InstructionNode):
 #     def __init__(self, nargs):
 #         self.nargs = nargs
-
-# class StringEqualNode(InstructionNode):
-#     def __init__(self, dest, msg1, msg2):
-#         self.dest = dest
-#         self.msg1 = msg1
-#         self.msg2 = msg2
 
