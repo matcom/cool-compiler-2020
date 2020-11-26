@@ -462,12 +462,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(COOL_AST.StaticCall)
     def visit(self, node, scope):
         result_local = self.define_internal_local(scope = scope, name = "result")
+        expr_value = self.visit(node.instance, scope)
 
         call_args = []
         for arg in reversed(node.args):
             param_local = self.visit(arg, scope)
             call_args.append(CIL_AST.Arg(param_local))
-        call_args.append(CIL_AST.Arg('self'))
+        call_args.append(CIL_AST.Arg(expr_value))
 
         # for p in call_args:
         #     self.register_instruction(CIL_AST.Arg(p))

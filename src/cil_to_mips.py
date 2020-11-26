@@ -527,7 +527,7 @@ if __name__ == '__main__':
     lexer = Lexer()
     parser = Parser()
 
-    sys.argv.append('graph.cl')
+    sys.argv.append('hairyscary.cl')
 
     if len(sys.argv) > 1:
 
