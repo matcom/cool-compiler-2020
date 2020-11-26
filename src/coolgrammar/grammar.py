@@ -1,56 +1,112 @@
-'''
+"""
 Contenedor para la funcion que construye la gramatica de cool.
-'''
+"""
 from grammar.grammar import Grammar
-from abstract.tree import ProgramNode, ClassDef, MethodDef, AttributeDef, Param, SelfNode, VariableDeclaration
+from abstract.tree import (
+    ProgramNode,
+    ClassDef,
+    MethodDef,
+    AttributeDef,
+    Param,
+    SelfNode,
+    VariableDeclaration,
+)
 from abstract.tree import PlusNode, DivNode, MulNode, DifNode, IntegerConstant, FunCall
 from abstract.tree import VariableCall, FalseConstant, StringConstant, TrueConstant
-from abstract.tree import GreaterEqualNode, LowerThanNode, LowerEqual, AssignNode, IfThenElseNode
+from abstract.tree import (
+    GreaterEqualNode,
+    LowerThanNode,
+    LowerEqual,
+    AssignNode,
+    IfThenElseNode,
+)
 from abstract.tree import NotNode, WhileBlockNode, EqualToNode, InstantiateClassNode
 from abstract.tree import ActionNode, CaseNode, ParentFuncCall, BlockNode, IsVoidNode
 from abstract.tree import NegNode
+
 # from lexer.tokenizer import Lexer
 from tknizer import Tokenizer
 
 
 def build_cool_grammar():
     G = Grammar()
-    program = G.NonTerminal('<program>', True)
+    program = G.NonTerminal("<program>", True)
 
-    class_list, class_def, empty_feature_list, feature_list, meod_def = G.NonTerminals('<class_list> <class_def> <empty_feature_list> <feature_list> <meod_def>')
+    class_list, class_def, empty_feature_list, feature_list, meod_def = G.NonTerminals(
+        "<class_list> <class_def> <empty_feature_list> <feature_list> <meod_def>"
+    )
 
-    attr_def, param_list, param, statement_list = G.NonTerminals('<attr_def> <param_list> <param> <statement_list>')
+    attr_def, param_list, param, statement_list = G.NonTerminals(
+        "<attr_def> <param_list> <param> <statement_list>"
+    )
 
-    var_dec, args_list, instantiation = G.NonTerminals('<var_dec> <args_list> <instantiation>')
+    var_dec, args_list, instantiation = G.NonTerminals(
+        "<var_dec> <args_list> <instantiation>"
+    )
 
-    exp, typex, term, factor, nested_lets, loop_statements = G.NonTerminals('<exp> <type> <term> <factor> <nested_lets> <loop_statements>')
+    exp, typex, term, factor, nested_lets, loop_statements = G.NonTerminals(
+        "<exp> <type> <term> <factor> <nested_lets> <loop_statements>"
+    )
 
-    arith, atom, actions, action, block = G.NonTerminals('<arith> <atom> <actions> <action> <block>')
+    arith, atom, actions, action, block = G.NonTerminals(
+        "<arith> <atom> <actions> <action> <block>"
+    )
 
-    args_list_empty, param_list_empty, case_statement, string_const = G.NonTerminals('<args_list_empty> <param_list_empty> <case> <string_const>')
+    args_list_empty, param_list_empty, case_statement, string_const = G.NonTerminals(
+        "<args_list_empty> <param_list_empty> <case> <string_const>"
+    )
 
-    class_keyword, def_keyword, in_keyword = G.Terminals('class def in')
+    class_keyword, def_keyword, in_keyword = G.Terminals("class def in")
 
-    coma, period, dot_comma, opar, cpar, obrack, cbrack, plus, minus, star, div, dd = G.Terminals(', . ; ( ) { } + - * / :')
+    (
+        coma,
+        period,
+        dot_comma,
+        opar,
+        cpar,
+        obrack,
+        cbrack,
+        plus,
+        minus,
+        star,
+        div,
+        dd,
+    ) = G.Terminals(", . ; ( ) { } + - * / :")
 
-    idx, let, intx, string, num, true, false, boolean, objectx, classid = G.Terminals('id let int string num true false bool object classid')
+    idx, let, intx, string, num, true, false, boolean, objectx, classid = G.Terminals(
+        "id let int string num true false bool object classid"
+    )
 
-    tilde_string_const, quoted_string_const, void, auto = G.Terminals('tilde_string_const quoted_string_const void AUTO_TYPE')
+    tilde_string_const, quoted_string_const, void, auto = G.Terminals(
+        "tilde_string_const quoted_string_const void AUTO_TYPE"
+    )
 
-    if_, then, else_, assign, new, case, of, esac = G.Terminals('if then else assign new case of esac')
+    if_, then, else_, assign, new, case, of, esac = G.Terminals(
+        "if then else assign new case of esac"
+    )
 
-    gt, lt, ge, le, eq, not_, implies, isvoid, not_operator = G.Terminals('> < >= <= = ~ => isvoid not')
+    gt, lt, ge, le, eq, not_, implies, isvoid, not_operator = G.Terminals(
+        "> < >= <= = ~ => isvoid not"
+    )
 
-    while_, do, inherits, arroba, fi, pool, loop = G.Terminals('while do inherits @ fi pool loop')
+    while_, do, inherits, arroba, fi, pool, loop = G.Terminals(
+        "while do inherits @ fi pool loop"
+    )
 
     program %= class_list, lambda s: ProgramNode(s[1])
 
     class_list %= class_def + dot_comma, lambda s: [s[1]]
     class_list %= class_def + dot_comma + class_list, lambda s: [s[1]] + s[3]
 
-    class_def %= class_keyword + classid + obrack + feature_list + cbrack, lambda s: ClassDef(s[2], s[4])
+    class_def %= (
+        class_keyword + classid + obrack + empty_feature_list + cbrack,
+        lambda s: ClassDef(s[2].lex, s[4]),
+    )
 
-    class_def %= class_keyword + classid + inherits + typex + obrack + feature_list + cbrack, lambda s: ClassDef(s[2], s[6], s[4])
+    class_def %= (
+        class_keyword + classid + inherits + typex + obrack + empty_feature_list + cbrack,
+        lambda s: ClassDef(s[2].lex, s[6], s[4]),
+    )
 
     feature_list %= meod_def + dot_comma, lambda s: [s[1]]
 
@@ -60,11 +116,31 @@ def build_cool_grammar():
 
     feature_list %= attr_def + dot_comma + feature_list, lambda s: [s[1]] + s[3]
 
-    meod_def %= idx + opar + param_list_empty + cpar + dd + typex + obrack + statement_list + cbrack , lambda s: MethodDef(s[1], s[3], s[6], s[8])
+    empty_feature_list %= G.Epsilon, lambda s: []
+    empty_feature_list %= feature_list, lambda s: s[1]
 
-    attr_def %= idx + dd + typex, lambda s: AttributeDef(s[1], s[3])
+    meod_def %= (
+        idx
+        + opar
+        + param_list_empty
+        + cpar
+        + dd
+        + typex
+        + obrack
+        + statement_list
+        + cbrack,
+        lambda s: MethodDef(
+            s[1].lex, s[3], s[6], s[1].token_line, s[1].token_column, s[8]
+        ),
+    )
 
-    attr_def %= idx + dd + typex + assign + exp, lambda s: AttributeDef(s[1], s[3], s[5])
+    attr_def %= idx + dd + typex, lambda s: AttributeDef(
+        s[1].lex, s[3], s[1].token_line, s[1].token_column
+    )
+
+    attr_def %= idx + dd + typex + assign + exp, lambda s: AttributeDef(
+        s[1].lex, s[3], s[1].token_line, s[1].token_column, s[5]
+    )
 
     param_list_empty %= param_list, lambda s: s[1]
     param_list_empty %= G.Epsilon, lambda s: []
@@ -72,43 +148,54 @@ def build_cool_grammar():
     param_list %= param, lambda s: [s[1]]
     param_list %= param + coma + param_list, lambda s: [s[1]] + s[3]
 
-    param %= idx + dd + typex, lambda s: Param(s[1], s[3])
+    param %= idx + dd + typex, lambda s: Param(s[1].lex, s[3])
 
     statement_list %= exp, lambda s: s[1]
 
     # statement_list %= exp + dot_comma + statement_list, lambda s: [s[1]] + s[3]
 
-    var_dec %= let + nested_lets + in_keyword + exp, lambda s: VariableDeclaration(s[2], s[4])
+    var_dec %= let + nested_lets + in_keyword + exp, lambda s: VariableDeclaration(
+        s[2], s[4]
+    )
 
-    nested_lets %= idx + dd + typex, lambda s: [(s[1], s[3], None)]
+    nested_lets %= idx + dd + typex, lambda s: [(s[1].lex, s[3], None)]
 
-    nested_lets %= idx + dd + typex + coma + nested_lets, lambda s: [(s[1], s[3], None)] + s[5]
+    nested_lets %= (
+        idx + dd + typex + coma + nested_lets,
+        lambda s: [(s[1].lex, s[3], None)] + s[5],
+    )
 
-    nested_lets %= idx + dd + typex + assign + exp, lambda s: [(s[1], s[3], s[5])]
+    nested_lets %= idx + dd + typex + assign + exp, lambda s: [
+        (s[1].lex, s[3], s[5])
+    ]
 
-    nested_lets %= idx + dd + typex + assign + exp + coma + nested_lets, lambda s: [(s[1], s[3], s[5])] + s[7]
+    nested_lets %= (
+        idx + dd + typex + assign + exp + coma + nested_lets,
+        lambda s: [(s[1].lex, s[3], s[5])] + s[7],
+    )
 
     exp %= var_dec, lambda s: s[1]
 
-    string_const %= quoted_string_const, lambda s: StringConstant(s[1])
+    string_const %= quoted_string_const, lambda s: StringConstant(s[1].lex)
 
-    string_const %= tilde_string_const, lambda s: StringConstant(s[1])
+    string_const %= tilde_string_const, lambda s: StringConstant(s[1].lex)
 
     instantiation %= new + typex, lambda s: InstantiateClassNode(s[2], [])
 
     loop_statements %= exp + dot_comma, lambda s: [s[1]]
     loop_statements %= exp + dot_comma + loop_statements, lambda s: [s[1]] + s[3]
 
-    exp %= idx + assign + exp, lambda s: AssignNode(s[1], s[3])
+    exp %= idx + assign + exp, lambda s: AssignNode(s[1].lex, s[3])
 
     exp %= while_ + exp + loop + statement_list + pool, lambda s: WhileBlockNode(
-        s[2], s[4])
+        s[2], s[4]
+    )
 
     exp %= atom, lambda s: s[1]
 
-    #exp %= opar + atom + cpar, lambda s: s[2]
+    # exp %= opar + atom + cpar, lambda s: s[2]
 
-    #exp %= arith, lambda s: s[1]
+    # exp %= arith, lambda s: s[1]
 
     exp %= block, lambda s: s[1]
 
@@ -134,24 +221,32 @@ def build_cool_grammar():
 
     term %= not_operator + factor, lambda s: NegNode(s[2])
 
-    factor %= if_ + exp + then + exp + else_ + exp + fi, lambda s: IfThenElseNode(s[2], s[4], s[6])
+    factor %= if_ + exp + then + exp + else_ + exp + fi, lambda s: IfThenElseNode(
+        s[2], s[4], s[6]
+    )
 
     factor %= opar + atom + cpar, lambda s: s[2]
 
-    factor %= num, lambda s: IntegerConstant(s[1])
+    factor %= num, lambda s: IntegerConstant(s[1].lex)
 
-    factor %= idx, lambda s: VariableCall(s[1])
+    factor %= idx, lambda s: VariableCall(s[1].lex)
 
     factor %= true, lambda s: TrueConstant()
 
-    factor %= factor + period + idx + opar + args_list_empty + cpar, lambda s: FunCall(s[1], s[3], s[5])
+    factor %= factor + period + idx + opar + args_list_empty + cpar, lambda s: FunCall(
+        s[1], s[3].lex, s[5]
+    )
 
     factor %= string_const, lambda s: s[1]
 
     factor %= idx + opar + args_list_empty + cpar, lambda s: FunCall(
-        SelfNode(), s[1], s[3])
+        SelfNode(), s[1].lex, s[3]
+    )
 
-    factor %= factor + arroba + typex + period + idx + opar + args_list_empty + cpar, lambda s: ParentFuncCall(s[1], s[3], s[5], s[7])
+    factor %= (
+        factor + arroba + typex + period + idx + opar + args_list_empty + cpar,
+        lambda s: ParentFuncCall(s[1], s[3], s[5].lex, s[7]),
+    )
 
     factor %= false, lambda s: FalseConstant()
 
@@ -167,19 +262,19 @@ def build_cool_grammar():
 
     atom %= arith, lambda s: s[1]
 
-    typex %= intx, lambda s: 'Int'
+    typex %= intx, lambda s: "Int"
 
-    typex %= boolean, lambda s: 'Bool'
+    typex %= boolean, lambda s: "Bool"
 
-    typex %= string, lambda s: 'String'
+    typex %= string, lambda s: "String"
 
-    typex %= objectx, lambda s: 'Object'
+    typex %= objectx, lambda s: "Object"
 
-    typex %= classid, lambda s: s[1]
+    typex %= classid, lambda s: s[1].lex
 
-    typex %= auto, lambda s: 'AUTO_TYPE'
+    typex %= auto, lambda s: "AUTO_TYPE"
 
-    typex %= void, lambda s: 'Void'
+    typex %= void, lambda s: "Void"
 
     args_list_empty %= args_list, lambda s: s[1]
 
@@ -193,65 +288,67 @@ def build_cool_grammar():
 
     actions %= action + actions, lambda s: [s[1]] + s[2]
 
-    action %= idx + dd + typex + implies + exp + dot_comma, lambda s: ActionNode(s[1], s[3], s[5])
+    action %= idx + dd + typex + implies + exp + dot_comma, lambda s: ActionNode(
+        s[1].lex, s[3], s[5]
+    )
 
     case_statement %= case + exp + of + actions + esac, lambda s: CaseNode(s[2], s[4])
 
     table = [
-        (class_keyword, r'(?i)class'),
-        (def_keyword, r'(?i)def'),
-        (in_keyword, r'(?i)in'),
-        (intx, r'Int'),
-        (boolean, r'Bool'),
-        (objectx, r'Object'),
-        (string, r'String'),
-        (true, r'true'),
-        (false, r'false'),
-        (auto, r'AUTO_TYPE'),
-        (if_, r'(?i)if'),
-        (then, r'(?i)then'),
-        (else_, r'(?i)else'),
-        (new, r'(?i)new'),
-        (while_, r'(?i)while'),
-        (do, r'(?i)do'),
-        (esac, r'(?i)esac'),
-        (case, r'(?i)case'),
-        (of, r'(?i)of'),
-        (inherits, r'(?i)inherits'),
-        (coma, r','),
-        (period, r'\.'),
-        (dd, r'\:'),
-        (dot_comma, r';'),
-        (arroba, r'@'),
-        (assign, r'<-'),
-        (not_operator, r'(?i)not'),
-        (lt, r'<'),
-        (gt, r'>'),
-        (ge, r'>='),
-        (le, r'<='),
-        (eq, r'='),
-        (not_, r'\~'),
-        (opar, r'\('),
-        (cpar, r'\)'),
-        (obrack, r'\{'),
-        (cbrack, r'\}'),
-        (plus, r'\+'),
-        (minus, r'\-'),
-        (implies, r'=>'),
-        (div, '/'),
-        (star, r'\*'),
-        (let, r'(?i) let'),
-        (fi, r'(?i)fi'),
-        (pool, r'(?i)pool'),
-        (loop, r'(?i)loop'),
-        (isvoid, r'(?i)isvoid'),
-        (idx, r'[a-z]\w*'),
-        (num, r'\d+'),
+        (class_keyword, r"(?i)class"),
+        (def_keyword, r"(?i)def"),
+        (in_keyword, r"(?i)in"),
+        (intx, r"Int"),
+        (boolean, r"Bool"),
+        (objectx, r"Object"),
+        (string, r"String"),
+        (true, r"true"),
+        (false, r"false"),
+        (auto, r"AUTO_TYPE"),
+        (if_, r"(?i)if"),
+        (then, r"(?i)then"),
+        (else_, r"(?i)else"),
+        (new, r"(?i)new"),
+        (while_, r"(?i)while"),
+        (do, r"(?i)do"),
+        (esac, r"(?i)esac"),
+        (case, r"(?i)case"),
+        (of, r"(?i)of"),
+        (inherits, r"(?i)inherits"),
+        (coma, r","),
+        (period, r"\."),
+        (dd, r"\:"),
+        (dot_comma, r";"),
+        (arroba, r"@"),
+        (assign, r"<-"),
+        (not_operator, r"(?i)not"),
+        (lt, r"<"),
+        (gt, r">"),
+        (ge, r">="),
+        (le, r"<="),
+        (eq, r"="),
+        (not_, r"\~"),
+        (opar, r"\("),
+        (cpar, r"\)"),
+        (obrack, r"\{"),
+        (cbrack, r"\}"),
+        (plus, r"\+"),
+        (minus, r"\-"),
+        (implies, r"=>"),
+        (div, "/"),
+        (star, r"\*"),
+        (let, r"(?i) let"),
+        (fi, r"(?i)fi"),
+        (pool, r"(?i)pool"),
+        (loop, r"(?i)loop"),
+        (isvoid, r"(?i)isvoid"),
+        (idx, r"[a-z]\w*"),
+        (num, r"\d+"),
         (tilde_string_const, r"('(?:[^'\\]|\\'|\\|\\\n)*')"),
         (quoted_string_const, r'("(?:[^\n"\\]|\\"|\\|\\\n)*")'),
-        (classid, r'[A-Z]\w*'),
+        (classid, r"[A-Z]\w*"),
         ("StringError", r'("(?:[^"\\]|\\|\\"|\\\n)*\n)'),
-        ("StringEOF", r'("(?:[^\n"\\]|\\\n|\\"|\\)*)')
+        ("StringEOF", r'("(?:[^\n"\\]|\\\n|\\"|\\)*)'),
     ]
     lexer = Tokenizer(table, G.EOF)
     return G, lexer

@@ -8,7 +8,7 @@ import sys
 
 
 def report(errors: list):
-    for error in errors:
+    for error in set(errors):
         print(error)
 
 
@@ -60,35 +60,22 @@ def pipeline(program: str, deep: int) -> None:
     print(source)
 
 
-text = r"""
+text = r"""(*
+The comparison = is a special
+case. If either <expr1> or <expr2> has static type Int, Bool, or String, then the other must have the
+same static type. Any other types, including SELF TYPE, may be freely compared.
+*)
+
+class A { };
+class B inherits A { };
+
 class Main inherits IO {
-	-- the class has features. Only methods in this case.
-	main(): Object {
-		{
-			out_string("Enter n to find nth fibonacci number!\n");
-			out_int(fib(in_int()));
-			out_string("\n");
-		}
-	};
+	main(): IO { out_string("Hello World!")};
 
-	fib(i : Int) : Int {	-- list of formals. And the return type of the method.
-			let a : Int <- 1,
-					b : Int <- 0,
-					c : Int <- 0
-			in
-			{
-			while (not (i = 0)) loop	-- expressions are nested.
-			{
-				c <- a + b;
-				i <- i - 1;
-				b <- a;
-				a <- c;
-			}
-			pool;
-			c;
-			}
-	};
+	x: Bool <- 1 = 2;
+	y: Bool <- "1" = "2";
+	test: Bool <- "1" = new B;
+	z: Bool <- true = not false;
 };
-
 """
 pipeline(text, 5)

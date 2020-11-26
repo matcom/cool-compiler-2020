@@ -59,7 +59,7 @@ class TypeBuilder:
                 node.typex, str) else node.typex
 
             # Definir el atributo en el tipo actual
-            self.current_type.define_attribute(node.idx, attr_type)
+            self.current_type.define_attribute(node.idx, attr_type, node.line, node.column)
         except SemanticError as e:
             self.errors.append(e.text)
 
@@ -78,7 +78,7 @@ class TypeBuilder:
                                                     str) else node.return_type
                 try:
                     self.current_type.define_method(node.idx, params,
-                                                    params_type, return_type)
+                                                    params_type, return_type, node.line, node.column)
                 except SemanticError as e:
                     self.errors.append(e.text)
 

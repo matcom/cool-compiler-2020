@@ -10,15 +10,17 @@ class SemanticError(Exception):
 
 
 class Type:
-    def __init__(self, name: str):
+    def __init__(self, name: str, line=0, column=0):
         self.name = name
         self.attributes: List[Attribute] = []
         self.methods: Dict[str, Method] = {}
         self.parent: Optional[Type] = None
+        self.line = line
+        self.column = column - len(self.name)
 
     def set_parent(self, parent) -> None:
         if self.parent is not None:
-            raise SemanticError(f'Parent type is already set for {self.name}.')
+            raise SemanticError(f'({self.line}, {self.column}) - SemanticError: Parent type is already set for {self.name}.')
         self.parent = parent
 
     def get_attribute(self, name):
@@ -27,14 +29,14 @@ class Type:
         except StopIteration:
             if self.parent is None:
                 raise SemanticError(
-                    f'Attribute "{name}" is not defined in {self.name}.')
+                    f'({self.line}, {self.column}) - SemanticError: Attribute "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_attribute(name)
             except SemanticError:
                 raise SemanticError(
-                    f'Attribute "{name}" is not defined in {self.name}.')
+                    f'({self.line}, {self.column}) - SemanticError: Attribute "{name}" is not defined in {self.name}.')
 
-    def define_attribute(self, name, typex):
+    def define_attribute(self, name, typex, line, column):
         try:
             self.get_attribute(name)
         except SemanticError:
@@ -43,7 +45,7 @@ class Type:
             return attribute
         else:
             raise SemanticError(
-                f'Attribute "{name}" is already defined in {self.name}.')
+                f'({line}, {column}) - SemanticError: Attribute "{name}" is already defined in {self.name}.')
 
     def get_method(self, name):
         try:
@@ -51,17 +53,17 @@ class Type:
         except KeyError:
             if self.parent is None:
                 raise SemanticError(
-                    f'Method "{name}" is not defined in {self.name}.')
+                    f'({self.line}, {self.column}) - SemanticError: Method "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_method(name)
             except SemanticError:
                 raise SemanticError(
-                    f'Method "{name}" is not defined in {self.name}.')
+                    f'({self.line}, {self.column}) - SemanticError: Method "{name}" is not defined in {self.name}.')
 
-    def define_method(self, name, param_names, param_types, return_type):
+    def define_method(self, name, param_names, param_types, return_type, line, column):
         if name in self.methods:
             raise SemanticError(
-                f'Method "{name}" already defined in {self.name}.')
+                f'({line}, {column}) - SemanticError: Method "{name}" already defined in {self.name}.')
 
         method = self.methods[name] = Method(name, param_names, param_types,
                                              return_type)

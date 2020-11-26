@@ -16,15 +16,15 @@ class Tokenizer:
 
     def _build_regexs(self, regex_table):
         regexs = regex_table
-        fixed_line_token = '\n'
-        fixed_space_token = ' '
+        fixed_line_token = "\n"
+        fixed_space_token = " "
 
         regexs.append(("Line", fixed_line_token))
         regexs.append(("Space", fixed_space_token))
         return regexs
 
     def _walk(self, string: str):
-        matched_suffix = ''
+        matched_suffix = ""
         tt = None
 
         for token_type, regex in self.regexs:
@@ -44,8 +44,9 @@ class Tokenizer:
             if token_type is None:
                 next_token = string.split()[0]
                 raise SyntaxError(
-                    f'({self.line},{self.column}) - LexicographicError: Unexpected Token %s'
-                    % next_token)
+                    f"({self.line},{self.column}) - LexicographicError: Unexpected Token %s"
+                    % next_token
+                )
             elif token_type in ("StringError", "StringEOF"):
                 newlines = re.split(r"\\\n|\n", suffix.strip())
                 if len(newlines) > 1:
@@ -54,7 +55,7 @@ class Tokenizer:
                 else:
                     self.column += len(newlines[0])
                 raise SyntaxError(
-                    f'({self.line},{self.column}) - LexicographicError: {token_type} {suffix}'
+                    f"({self.line},{self.column}) - LexicographicError: {token_type} {suffix}"
                 )
             elif token_type == "Line":
                 self.column = 1
@@ -62,14 +63,16 @@ class Tokenizer:
             elif token_type == "Space":
                 self.column += 1
             elif isinstance(token_type, Terminal) and token_type.Name in (
-                    "quoted_string_const", "tilde_string_const"):
-                if '\0' in suffix:
+                "quoted_string_const",
+                "tilde_string_const",
+            ):
+                if "\0" in suffix:
                     newlines = re.split(r"\\\n", suffix)
                     for line in newlines:
-                        if '\0' in line:
-                            self.column = line.index('\0') + 1
+                        if "\0" in line:
+                            self.column = line.index("\0") + 1
                             raise SyntaxError(
-                                f'({self.line},{self.column}) - LexicographicError: String contains null character'
+                                f"({self.line},{self.column}) - LexicographicError: String contains null character"
                             )
                         newlines += 1
                 # Strings may have some troubles with rows and columns
@@ -86,8 +89,8 @@ class Tokenizer:
             else:
                 self.column += len(suffix)
             yield suffix, token_type
-            text = text[len(suffix):]
-        yield '$', self.eof
+            text = text[len(suffix) :]
+        yield "$", self.eof
 
     def __call__(self, text):
         tokens = []
