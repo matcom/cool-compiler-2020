@@ -90,10 +90,11 @@ class Checker:
             if pname == 'self':
                 self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + "Wrong use of self as method parameter")
             
-            try:
-                scope.define_variable(pname, ptype)
-            except SemanticError:
+            if scope.is_defined(pname):
                 self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + f"Parameter {pname} can only be used once")
+            else:
+                scope.define_variable(pname, ptype)
+                
             
         body = node.body
         self.visit(body, scope.create_child())
