@@ -39,8 +39,8 @@ main:
 	@echo 1 >> .builds
 
 clean:
-	rm -rf build
-	rm -rf dist
+	rm -rf build/*
+	rm -rf ../tests/*/*.mips
 
 test:
 	pytest ../tests -v --tb=short -m=${TAG}
