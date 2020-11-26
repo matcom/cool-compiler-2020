@@ -441,15 +441,16 @@ class CILToMIPSVisitor():
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
         self.text += 'bge $v0, $sp heap_error\n'
-        # the beginning of new reserved address is in $v0
+        self.text += 'move $t3, $v0\n'
+        # the beginning of new reserved address is in $v0 and save in $t3
 
         self.text += f'lw $t0, {offset_str1}($sp)\n'
         self.text += f'lw $t1, {offset_str2}($sp)\n'
-
+      
         # copy str1 starting in $t0 to $v0
         self.text += 'copy_str1_char:\n'
-        self.text += 'lb $t2, ($t0)\n' # loading current char from str1
-        self.text += 'sb $t2, ($v0)\n' # storing current char into result_str end
+        self.text += 'lb $t2, 0($t0)\n' # loading current char from str1
+        self.text += 'sb $t2, 0($v0)\n' # storing current char into result_str end
         self.text += 'beqz $t2, concat_str2_char\n' # finish if a zero is found
         self.text += 'addi $t0, $t0, 1\n' # move to the next char
         self.text += 'addi $v0, $v0, 1\n' # move to the next available byte
@@ -457,8 +458,8 @@ class CILToMIPSVisitor():
 
         # concat str2 starting in $t1 to $v0
         self.text += 'concat_str2_char:\n'
-        self.text += 'lb $t2, ($t0)\n' # loading current char from str1
-        self.text += 'sb $t2, ($v0)\n' # storing current char into result_str end
+        self.text += 'lb $t2, 0($t1)\n' # loading current char from str1
+        self.text += 'sb $t2, 0($v0)\n' # storing current char into result_str end
         self.text += 'beqz $t2, finish_str2_concat\n' # finish if a zero is found
         self.text += 'addi $t1, $t1, 1\n' # move to the next char
         self.text += 'addi $v0, $v0, 1\n' # move to the next available byte
@@ -467,7 +468,7 @@ class CILToMIPSVisitor():
         self.text += 'sb $0, ($v0)\n' # put '\0' at the end
         
         offset = self.var_offset[self.current_function.name][node.result]
-        self.text += f'sw $v0, {offset}($sp)\n'  # store length count address in local
+        self.text += f'sw $t3, {offset}($sp)\n'  # store length count address in local
 
     @visitor.when(CIL_AST.SubStr)
     def visit(self, node):
@@ -569,5 +570,5 @@ if __name__ == '__main__':
         cil_to_mips = CILToMIPSVisitor()
         mips_code = cil_to_mips.visit(cil_ast)
        
-        with open(f'{sys.argv[1][:-3]}.mips', 'w') as f:
+        with open(f'{sys.argv[1][:-3]}.s', 'w') as f:
             f.write(f'{mips_code}')
