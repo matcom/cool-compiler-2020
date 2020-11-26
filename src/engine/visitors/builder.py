@@ -63,7 +63,10 @@ class Builder:
                 parent_type = self.context.get_type(parent.lex)
                 self.current_type.set_parent(parent_type)
             except SemanticError as se:
-                self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + se.text)
+                if self.current_type and parent_type.sealed:
+                    self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + se.text)
+                else:
+                    self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "TypeError: " + se.text)
                 self.current_type.set_parent(self.object_type)
         else:
             self.current_type.set_parent(self.object_type)
