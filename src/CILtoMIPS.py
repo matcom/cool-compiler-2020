@@ -105,9 +105,19 @@ class MIPSCompiler:
 
     def loadAndSaveAndInstructions(self,node:CILInstructionNode, instructions:str, scope:ScopeMIPS):
         return self.load(node,scope)+instructions+self.save(node.destination,scope)
+
+    def MainInstruction(self):
+        instrucctions=""
+        instrucciones+="addi $sp ,$sp, -4\n"
+        instrucciones+="lw $ra, 0($sp)\n"
+        instrucciones+="jal Main.Special\n"
+        instrucciones+="sw $ra, 0($sp)\n"
+        instrucciones+="addi $sp ,$sp, 4\n"
+        instrucciones+="jr $ra"
+        return instructions
     
     @visitor.on('node')
-    def visit(self, node, scope:ScopeMIPS):
+    def visit(self, node, sope:ScopeMIPS):
         pass
 
     @visitor.when(CILProgram)
@@ -146,6 +156,9 @@ class MIPSCompiler:
             datainstructions+="\n"
 
         instrucciones=".text\n"
+        instrucciones+=".globl main\n"
+        instrucciones+="main:\n"
+        instrucciones+=self.MainInstruction()
         for element in node.Methods:
             instrucciones+=(self.visit(element, scope))
 

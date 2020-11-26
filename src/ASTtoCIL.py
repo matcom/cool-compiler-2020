@@ -132,6 +132,11 @@ class CILTranspiler:
         
         return instructions
 
+    def CILMainInstructions(self):
+        nuevo=NewNode("Main")
+        instruction=DispatchNode("main",[],nuevo,"Main")
+        scope=Scope("Main.special","Object")
+        result=self.visit(MethodNode("main",[],"SELF_TYPE",instruction),scope)
 
 
 
@@ -165,6 +170,10 @@ class CILTranspiler:
             scope=Scope(c.name, c.parent)
             scope.attributes=atributosAST
             scope.class_name=c.name
+
+            main=self.CILMainInstructions()
+            main.nombre="Main.Special"
+            metodosGlobalesCIL[main.nombre]=main
 
             #Inicialización de atributos
             initInstructions=self.GenerarInit(c,scope)
