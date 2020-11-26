@@ -78,7 +78,11 @@ class pyCoolParser:
         """
         feature : ID LPAREN formal_params_list RPAREN COLON TYPE LBRACE expression RBRACE
         """
-        p[0] = NodeClassMethod(idName=p[1], argNames = [ x[0] for x in p[3] ], argTypesNames = [ x[1] for x in p[3] ], return_type=p[6], body=p[8])
+        p[0] = NodeClassMethod(idName=p[1],
+        argNames = [ x.idName for x in p[3] ],
+        argTypesNames = [ x.paramType for x in p[3] ],
+        return_type=p[6],
+        body=p[8])
 
     def p_feature_method_no_formals(self, p):
         """
@@ -243,40 +247,31 @@ class pyCoolParser:
     def p_expression_let(self, p):
         """
          expression : let_expression
-        """
-        p[0] = p[1]
+        """        
+        p[0]= p[1]
 
     def p_expression_let_simple(self, p):
         """
-        let_expression : LET ID COLON TYPE IN expression
-                       | nested_lets COMMA LET ID COLON TYPE
+        let_expression : LET nested_lets IN expression
         """
-        p[0] = NodeLet(instance=p[2],
-        return_type=p[4], init_expr=None, body=p[6])
+        p[0]= NodeLetComplex(nested_lets= p[2], body= p[4])
 
-    def p_expression_let_initialized(self, p):
+    def p_nested_lets_simple(self, p):
         """
-        let_expression : LET ID COLON TYPE ASSIGN expression IN expression
-                       | nested_lets COMMA LET ID COLON TYPE ASSIGN expression
-        """
-        p[0] = NodeLet(instance=p[2],
-        return_type=p[4], init_expr=p[6], body=p[8])
-
-    def p_inner_lets_simple(self, p):
-        """
-        nested_lets : ID COLON TYPE IN expression
+        nested_lets : ID COLON TYPE
                     | nested_lets COMMA ID COLON TYPE
         """
-        p[0] = NodeLet(instance=p[1], 
-        return_type=p[3], init_expr=None, body=p[5])
+        p[0]= NodeLet(instance= p[1], return_type= p[3],
+        body = None)
 
-    def p_inner_lets_initialized(self, p):
+    def p_nested_lets_initialize(self, p):
         """
-        nested_lets : ID COLON TYPE ASSIGN expression IN expression
+        nested_lets : ID COLON TYPE ASSIGN expression
                     | nested_lets COMMA ID COLON TYPE ASSIGN expression
         """
-        p[0] = NodeLet(instance=p[1], 
-        return_type=p[3], init_expr=p[5], body=p[7])
+        p[0]= NodeLet(instance= p[1],
+        return_type= p[3],
+        body= p[5])
 
     # ######################### CASE EXPRESSION ########################################
     
