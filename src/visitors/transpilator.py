@@ -21,7 +21,7 @@ class codeVisitor:
         self.collectTypes(context)
         self.setBuiltInTypes()
         # self.setClassConstructor()
-        # self.setInitialCode()
+        self.setInitialCode()
 
     def getInt(self):
         self.count = self.count + 1
@@ -92,7 +92,7 @@ class codeVisitor:
             self.code.append(ReturnIL())
 
     def setClassConstructor(self, attributes):
-        self.data.append(LabelIL(self.current_class, 'Constructor', True))
+        self.code.append(LabelIL(self.current_class, 'Constructor', True))
 
         vars = Variables()
         vars.add_var('self')
@@ -104,10 +104,10 @@ class codeVisitor:
             self.visit(node.value, vars)
             p = vars.peek_last()
             index = self.virtual_table.get_attributes_id(self.current_class, node.name.value)
-            self.data.append(VarToMemoIL(vars.id('self'), vars.id(p), index))
+            self.code.append(VarToMemoIL(vars.id('self'), vars.id(p), index))
 
-        self.data.append(PushIL())
-        self.data.append(ReturnIL())
+        self.code.append(PushIL())
+        self.code.append(ReturnIL())
 
 
     def handleBinaryOps(self, node, variables, symbol):
@@ -169,7 +169,7 @@ class codeVisitor:
 
     @visitor.when(FuncDeclarationNode)
     def visit(self, node):
-        self.data.append(LabelIL(self.current_class, node.id, True))
+        self.code.append(LabelIL(self.current_class, node.id, True))
 
         variables = Variables()
         variables.add_var('self')
@@ -180,7 +180,7 @@ class codeVisitor:
         variables.add_temp()
 
         self.visit(node.body, variables)
-        self.data.append(ReturnIL())
+        self.code.append(ReturnIL())
 
     @visitor.when(VarDeclarationNode)
     def visit(self, node, variables):

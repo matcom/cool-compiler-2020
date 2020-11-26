@@ -16,9 +16,8 @@ class MIPS:
     def start(self):
 
         self.code.append(".data\n")
-        self.code.append("buffer:\n")
-        self.code.append(".space 65536\n")
-        self.code.append("strsubstrexception: .asciiz \"{}\"\n".format("Substring index exception\n"))
+        self.code.append("buffer: .space 65536\n")
+        self.code.append("strsubstrexception: .asciiz \"{}\"\n".format("Substring index exception"))
         self.code.append("\n")
 
 
@@ -34,21 +33,27 @@ class MIPS:
         for c in self.data:
             self.code.append(c)
 
-        self.code.append("\n.globl main_\n")
+        self.code.append("\n.globl main\n")
         self.code.append(".text\n")
+        # self.code.append("main:\n")
+        # self.code.append("addi $sp, $sp, -8\n")
+        # self.code.append("addi $sp, $sp, -4\n")
+        # self.code.append("sw $ra, 0($sp)\n")
+        # self.code.append("lw $a0, string_1\n")
+        # self.code.append("li $v0, 5\n")
+        # self.code.append("syscall\n")
+        # self.code.append('j Main.main\n')
         print('code_len', len(self.code))
         for c in self.il_code:
             # print(str(c))
             self.visit(c)
 
-
-        print('code_len', len(self.code))
         self.code += "li $v0, 10\n"
         self.code += "syscall\n"
-        
 
+        print('code_len', len(self.code))
         
-
+        
         return self.code
 
     @visitor.on('node')
@@ -60,7 +65,7 @@ class MIPS:
     @visitor.when(BinaryOperationIL)
     def visit(self, node):
         self.code.append("lw $a0, " + str(node.leftOp) + "\n")
-        self.code.append("lw $a1, {}($sp)".format(-4 * node.rightOp))
+        self.code.append("lw $a1, {}($sp)\n".format(-4 * node.rightOp))
 
         if node.symbol == '+':
             self.code.append("add $a0, $a0, $a1\n")
@@ -201,7 +206,7 @@ class MIPS:
     def visit(self, node):
         self.code.append("la $v0, " + str(node.method) + "\n")
         self.code.append("jalr $ra, $v0\n")
-        self.code.append("sw $v0, {}($sp)".format(-4 * node.result))
+        self.code.append("sw $v0, {}($sp)\n".format(-4 * node.result))
 
     @visitor.when(InheritIL)
     def visit(self, node):
@@ -213,7 +218,7 @@ class MIPS:
 
     @visitor.when(StringIL)
     def visit(self, node):
-        self.data.append("{}: .asciiz {}\n".format(node.label, node.string))
+        self.code.append("{}: .asciiz \"{}\"\n".format(node.label, node.string))
 
     @visitor.when(PrintIL)
     def visit(self, node):

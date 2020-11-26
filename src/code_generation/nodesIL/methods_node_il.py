@@ -3,7 +3,9 @@ from .node_il import NodeIL
 class LabelIL(NodeIL):
     
     def __init__(self, first, second, func = False):
-        if not func:
+        if first == 'main':
+            self.label = 'main'
+        elif not func:
             self.label = str(first) + '_' + str(second)
         else:
             self.label = str(first) + '.' + str(second)
