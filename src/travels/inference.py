@@ -160,7 +160,13 @@ class TypeInferer:
             method.return_type = last
         else:
             if not last.conforms_to(method.return_type):
-                raise SemanticError(f"Method {method.name} cannot return {last}")
+                raise SemanticError(
+                    TypeError(
+                        f"Inferred return type {last.name} of method {node.idx} does not conform to declared return type {method.return_type.name}",
+                        node.statements.line,
+                        node.statements.column,
+                    )
+                )
 
     @visit.register
     def _(

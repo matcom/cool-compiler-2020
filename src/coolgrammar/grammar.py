@@ -186,12 +186,16 @@ def build_cool_grammar():
 
     string_const %= tilde_string_const, lambda s: StringConstant(s[1].lex)
 
-    instantiation %= new + typex, lambda s: InstantiateClassNode(s[2], [])
+    instantiation %= new + typex, lambda s: InstantiateClassNode(
+        s[2], s[1].token_line, s[1].token_column - 3, []
+    )
 
     loop_statements %= exp + dot_comma, lambda s: [s[1]]
     loop_statements %= exp + dot_comma + loop_statements, lambda s: [s[1]] + s[3]
 
-    exp %= idx + assign + exp, lambda s: AssignNode(s[1].lex, s[3], s[2].token_line, s[2].token_column)
+    exp %= idx + assign + exp, lambda s: AssignNode(
+        s[1].lex, s[3], s[2].token_line, s[2].token_column
+    )
 
     exp %= while_ + exp + loop + statement_list + pool, lambda s: WhileBlockNode(
         s[2], s[4]
@@ -209,17 +213,27 @@ def build_cool_grammar():
 
     exp %= isvoid + exp, lambda s: IsVoidNode(s[2])
 
-    block %= obrack + loop_statements + cbrack, lambda s: BlockNode(s[2])
+    block %= obrack + loop_statements + cbrack, lambda s: BlockNode(
+        s[2], s[1].token_line, s[1].token_column - 1
+    )
 
-    arith %= arith + plus + term, lambda s: PlusNode(s[1], s[3], s[2].token_line, s[2].token_column - 1)
+    arith %= arith + plus + term, lambda s: PlusNode(
+        s[1], s[3], s[2].token_line, s[2].token_column - 1
+    )
 
-    arith %= arith + minus + term, lambda s: DifNode(s[1], s[3], s[2].token_line, s[2].token_column - 1)
+    arith %= arith + minus + term, lambda s: DifNode(
+        s[1], s[3], s[2].token_line, s[2].token_column - 1
+    )
 
     arith %= term, lambda s: s[1]
 
-    term %= term + star + factor, lambda s: MulNode(s[1], s[3], s[2].token_line, s[2].token_column - 1)
+    term %= term + star + factor, lambda s: MulNode(
+        s[1], s[3], s[2].token_line, s[2].token_column - 1
+    )
 
-    term %= term + div + factor, lambda s: DivNode(s[1], s[3], s[2].token_line, s[2].token_column - 1)
+    term %= term + div + factor, lambda s: DivNode(
+        s[1], s[3], s[2].token_line, s[2].token_column - 1
+    )
 
     term %= factor, lambda s: s[1]
 
@@ -258,13 +272,21 @@ def build_cool_grammar():
 
     factor %= instantiation, lambda s: s[1]
 
-    atom %= arith + lt + arith, lambda s: LowerThanNode(s[1], s[3], s[2].token_line, s[2].token_column - 1)
+    atom %= arith + lt + arith, lambda s: LowerThanNode(
+        s[1], s[3], s[2].token_line, s[2].token_column - 1
+    )
 
-    atom %= arith + eq + arith, lambda s: EqualToNode(s[1], s[3], s[2].token_line, s[2].token_column - 1)
+    atom %= arith + eq + arith, lambda s: EqualToNode(
+        s[1], s[3], s[2].token_line, s[2].token_column - 1
+    )
 
-    atom %= arith + ge + arith, lambda s: GreaterEqualNode(s[1], s[3], s[2].token_line, s[2].token_column - 2)
+    atom %= arith + ge + arith, lambda s: GreaterEqualNode(
+        s[1], s[3], s[2].token_line, s[2].token_column - 2
+    )
 
-    atom %= arith + le + arith, lambda s: LowerEqual(s[1], s[3], s[2].token_line, s[2].token_column - 2)
+    atom %= arith + le + arith, lambda s: LowerEqual(
+        s[1], s[3], s[2].token_line, s[2].token_column - 2
+    )
 
     atom %= arith, lambda s: s[1]
 

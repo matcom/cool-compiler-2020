@@ -268,9 +268,11 @@ class NegNode(AtomicNode):
 
 
 class InstantiateClassNode(ExpressionNode):
-    def __init__(self, type_, args=None):
+    def __init__(self, type_, line, column, args=None):
         self.type_: str = type_
         self.args = args
+        self.line = line
+        self.column = column
 
 
 class WhileBlockNode(ExpressionNode):
@@ -293,8 +295,10 @@ class CaseNode(ExpressionNode):
 
 
 class BlockNode(ExpressionNode):
-    def __init__(self, expressions):
+    def __init__(self, expressions, line, column):
         self.expressions: List[ExpressionNode] = expressions
+        self.line = line
+        self.column = column
 
 
 class IsVoidNode(ExpressionNode):

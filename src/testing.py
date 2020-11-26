@@ -60,7 +60,7 @@ def pipeline(program: str, deep: int) -> None:
     print(source)
 
 
-text = r"""--The identifiers used in the formal parameter list must be distinct
+text = r"""--The type of the method body must conform to the declared return type.
 
 class A { };
 class B inherits A { };
@@ -70,7 +70,7 @@ class D inherits B { };
 class Main inherits IO {
 	main(): IO { out_string("Hello World!")};
 
-	test(a: A, a: B): Int { 4 };
+	test(a: A, b: B): C { new D };
 };
 """
 pipeline(text, 5)
