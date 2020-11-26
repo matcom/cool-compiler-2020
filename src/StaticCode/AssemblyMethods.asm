@@ -313,3 +313,17 @@
      lw $s1, 4($sp)
      addi $sp, 8
      jr $ra
+
+     .TypeCheck:
+     lw $t0, 0($t0)
+     InicioChequeo:
+     lw $t0, 0($t0)
+     beq $t0, $zero, ChequeoFalse
+     beq $t0, $t1, ChequeoTrue
+     b InicioChequeo
+     ChequeoFalse:
+     move $v0, $zero
+     jr $ra
+     ChequeoTrue:
+     li $v0, 1
+     jr $ra

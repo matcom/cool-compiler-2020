@@ -18,6 +18,7 @@ class MIPSCompiler:
         self.locals={}
         self.registerparams={}
         self.params={}
+        self.parents={}
 
     def load(self, node:CILInstructionNode,scope:ScopeMIPS, soloelprimero=False):
         instrucciones=""
@@ -45,6 +46,8 @@ class MIPSCompiler:
             instrucciones+="lw $t0,"+str(nombresAtributos.index(parametro0)*4+4)+"($a0)\n"
         elif parametro0 in self.data.keys():
             instrucciones+="la $t0,"+parametro0+"\n"
+        elif parametro0 in self.clases:
+            instrucciones+="la $t0,"+parametro0+"clase"
         else:
             node.instructionPrint()
             assert False
@@ -68,6 +71,8 @@ class MIPSCompiler:
             instrucciones+="move $t1,"+scope.registerparameters[parametro1]+"\n"
         elif parametro1 in nombresAtributos:           
             instrucciones+="lw $t1,"+str(nombresAtributos.index(parametro1)*4+4)+"($a0)\n"
+        elif parametro1 in self.clases:
+            instrucciones+="la $t1,"+parametro1+"clase"
         else:
             assert False
 
@@ -118,6 +123,7 @@ class MIPSCompiler:
             self.clases.append(element.name)
             self.atributos[element.name]=element.listaAtributos
             self.metodos[element.name]=element.listaMetodos
+            self.parents[element.name]=element.parent
             metodosnombre=[]
             for met in element.listaMetodos:
                 metodosnombre.append(met.localname)
@@ -126,9 +132,14 @@ class MIPSCompiler:
             
             datainstructions+=element.name+"clase: .word "
 
+            if element.name==None:
+                datainstructions+= "0"
+            else:
+                datainstructions+=element.parent+"clase"
+
+
             for i in range(len(element.listaMetodos)):
-                if i>0:
-                    datainstructions+=","
+                datainstructions+=","
                 datainstructions+=element.listaMetodos[i].globalname
                 self.metodosglobales[element.name+"#"+element.listaMetodos[i].localname]=element.listaMetodos[i].globalname
 
@@ -308,7 +319,7 @@ class MIPSCompiler:
         instrucciones+="sw $t0, 0($v0)\n"
 
         #Poniendo en 0 todos los elementos
-        if not tipo in ['Int','Bool']:
+        if not tipo in ['Int','Bool',"String"]:
             for i in range(len(self.atributos[tipo])):
                 instrucciones+="sw $zero, "+str(i*4+4)+"($v0)\n"
 
@@ -325,7 +336,7 @@ class MIPSCompiler:
         func_id=node.params[1]
         instrucciones=""
         instrucciones+="la $t0,"+tipo+"clase\n"
-        instrucciones+="lw $t0,"+str(scope.classmethods[tipo].index(func_id)*4)+"($t0)\n"
+        instrucciones+="lw $t0,"+str(scope.classmethods[tipo].index(func_id)*4+4)+"($t0)\n"
         instrucciones+="addi $sp, $sp, -4\n"
         instrucciones+="sw $ra, 0($sp)\n"
         instrucciones+="jal $t0\n"
@@ -347,7 +358,7 @@ class MIPSCompiler:
         tipo=node.params[0]
         func_id=node.params[1]
         instrucciones="lw $t0, 0($a0)\n"
-        instrucciones+="lw $t0,"+str(scope.classmethods[tipo].index(func_id)*4)+"($t0)\n"
+        instrucciones+="lw $t0,"+str(scope.classmethods[tipo].index(func_id)*4+4)+"($t0)\n"
         instrucciones+="addi $sp, $sp, -4\n"
         instrucciones+="sw $ra, 0($sp)\n"
         instrucciones+="jalr $t0, $ra\n"
@@ -505,12 +516,12 @@ class MIPSCompiler:
         
         return instrucciones+self.save(node.destination,scope)
 
-    @visitor.when(CILTypeCheck)
-    def visit(self, node:CILTypeCheck, scope:ScopeMIPS):
-        instrucciones=""
-        instrucciones+="li $v0, 1\n"
+    # @visitor.when(CILTypeCheck)
+    # def visit(self, node:CILTypeCheck, scope:ScopeMIPS):
+    #     instrucciones=""
+    #     instrucciones+="li $v0, 1\n"
         
-        return instrucciones + self.save(node.destination, scope)
+    #     return instrucciones + self.save(node.destination, scope)
 
 
     @visitor.when(CILCopy)
@@ -535,6 +546,17 @@ class MIPSCompiler:
         instrucciones+="li $t1, 2\n"
         instrucciones+="rem $v0, $v0, $t1\n"
         return self.loadAndSaveAndInstructions(node,instrucciones,scope)
+
+    @visitor.when(CILTypeCheck)
+    def visit(self, node:CILTypeCheck, scope:ScopeMIPS):
+        intermedio=CILTypeCheckIntermediate(node.destination,[node.params[0]])
+        instrucciones=""
+        instrucciones+="addi $sp ,$sp, -4\n"
+        instrucciones+="lw $ra, 0($sp)\n"
+        instrucciones+="jal .TypeCheck\n"
+        instrucciones+="sw $ra, 0($sp)\n"
+        instrucciones+="addi $sp ,$sp, 4\n"
+        return self.loadAndSaveAndInstructions(node, instrucciones, scope)
 
     @visitor.when(CILIsVoid)
     def visit(self, node:CILIsVoid, scope:ScopeMIPS):
