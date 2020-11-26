@@ -50,7 +50,7 @@ class MIPSCompiler:
         elif parametro0 in self.data.keys():
             instrucciones+="la $t0,"+parametro0+"\n"
         elif parametro0 in self.clases:
-            instrucciones+="la $t0,"+parametro0+"clase"
+            instrucciones+="la $t0,"+parametro0+"clase\n"
         else:
             node.instructionPrint()
             assert False
@@ -75,7 +75,7 @@ class MIPSCompiler:
         elif parametro1 in nombresAtributos:           
             instrucciones+="lw $t1,"+str(nombresAtributos.index(parametro1)*4+4)+"($a0)\n"
         elif parametro1 in self.clases:
-            instrucciones+="la $t1,"+parametro1+"clase"
+            instrucciones+="la $t1,"+parametro1+"clase\n"
         else:
             assert False
 
