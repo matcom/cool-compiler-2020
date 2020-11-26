@@ -193,8 +193,6 @@ class Checker:
     @visitor.when(AssignNode)
     def visit(self, node, scope):
         expression = node.expression
-        self.visit(expression, scope.create_child())
-        expr_type = expression.static_type
         
         if scope.is_defined(node.id.lex):
             var = scope.find_variable(node.id.lex)
@@ -202,11 +200,15 @@ class Checker:
             
             if var.name == 'self':
                 self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + SELF_IS_READONLY)
-            elif not expr_type.conforms_to(node_type):
-                self.errors.append(ERROR_ON_LN_COL % (expression.line, expression.column) + "TypeError: " + INCOMPATIBLE_TYPES % (expr_type.name, node_type.name))
         else:
             self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "NameError: " + VARIABLE_NOT_DEFINED % (node.id.lex, self.current_method.name))
-        
+
+        self.visit(expression, scope.create_child())
+        expr_type = expression.static_type
+
+        if not expr_type.conforms_to(node_type):
+            self.errors.append(ERROR_ON_LN_COL % (expression.line, expression.column) + "TypeError: " + INCOMPATIBLE_TYPES % (expr_type.name, node_type.name))
+
         node.static_type = expr_type
 
     @visitor.when(NotNode)
@@ -305,6 +307,7 @@ class Checker:
                 except SemanticError as ex:
                     self.errors.append(ERROR_ON_LN_COL % (node.type.line, node.type.column) + "TypeError: " + ex.text)
                     node_type = ErrorType()
+                    return
                 else:
                     if isinstance(node_type, SelfType):
                         self.errors.append(ERROR_ON_LN_COL % (node.type.line, node.type.column) + "SemanticError: " + f'Type "{node_type}" cannot be used as type dispatch')
@@ -321,20 +324,19 @@ class Checker:
         except SemanticError as ex:
             self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "AttributeError: " + ex.text)
             node_type = ErrorType()
-            obj_method = None
+            obj_method = None            
 
-        for arg in node.args:
-            self.visit(arg, scope.create_child())
-
-        if obj_method and len(node.args) == len(obj_method.param_types):
-            for arg, param_type in zip(node.args, obj_method.param_types):
-                arg_type = arg.static_type
-                    
-                if not arg_type.conforms_to(param_type):
-                    self.errors.append(ERROR_ON_LN_COL % (arg.line, arg.column) + "TypeError: " + INCOMPATIBLE_TYPES % (arg_type.name, param_type.name))
         else:
-           self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + f'Method "{node.id.lex}" can not be dispatched') 
-    
+            if obj_method and len(node.args) == len(obj_method.param_types):
+                for arg, param_type in zip(node.args, obj_method.param_types):
+                    self.visit(arg, scope.create_child())
+                    arg_type = arg.static_type
+
+                    if not arg_type.conforms_to(param_type):
+                        self.errors.append(ERROR_ON_LN_COL % (arg.line, arg.column) + "TypeError: " + INCOMPATIBLE_TYPES % (arg_type.name, param_type.name))
+            else:
+                self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + f'Method "{node.id.lex}" can not be dispatched') 
+        
         node.static_type = node_type
 
     @visitor.when(MemberCallNode)
@@ -350,18 +352,17 @@ class Checker:
             node_type = ErrorType()
             obj_method = None
 
-        for arg in node.args:
-            self.visit(arg, scope.create_child())
-
-        if obj_method and len(node.args) == len(obj_method.param_types):
-            for arg, param_type in zip(node.args, obj_method.param_types):
-                arg_type = arg.static_type
-                    
-                if not arg_type.conforms_to(param_type):
-                    self.errors.append(ERROR_ON_LN_COL % (arg.line, arg.column) + "TypeError: " + INCOMPATIBLE_TYPES % (arg_type.name, param_type.name))
         else:
-           self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + f'Method "{node.id.lex}" canot be dispatched')
-            
+            if obj_method and len(node.args) == len(obj_method.param_types):
+                for arg, param_type in zip(node.args, obj_method.param_types):
+                    self.visit(arg, scope.create_child())
+                    arg_type = arg.static_type
+                        
+                    if not arg_type.conforms_to(param_type):
+                        self.errors.append(ERROR_ON_LN_COL % (arg.line, arg.column) + "TypeError: " + INCOMPATIBLE_TYPES % (arg_type.name, param_type.name))
+            else:
+                self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + f'Method "{node.id.lex}" can not be dispatched')
+                
         node.static_type = node_type
 
     @visitor.when(NewNode)
