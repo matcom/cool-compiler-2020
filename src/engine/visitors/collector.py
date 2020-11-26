@@ -1,4 +1,4 @@
-from engine.cp import SemanticError, visitor, Context, SelfType, AutoType
+from engine.cp import SemanticError, visitor, Context, SelfType
 from engine.parser import ProgramNode, ClassDeclarationNode
 from engine.semantic_errors import ERROR_ON_LN_COL
 
@@ -9,7 +9,6 @@ class Collector:
 
         #Tipos especiales
         self.context.add_type(SelfType())
-        self.context.add_type(AutoType())
 
         #Tipos Buit-In
         self.context.create_type('Object',builtin = True)
@@ -32,4 +31,4 @@ class Collector:
         try:
             self.context.create_type(node.id.lex)
         except SemanticError as se:
-            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + se.text)
+            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + se.text)
