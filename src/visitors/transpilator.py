@@ -42,18 +42,19 @@ class codeVisitor:
             if len(context.types[t].attributes):
                 for atr in context.types[t].attributes:
                     self.virtual_table.add_attr(t_str, atr)
-            else:
-                self.virtual_table.add_method(t_str, '-', [])
+            # else:
+            #     self.virtual_table.add_method(t_str, '-', [])
             for m in context.types[t].methods.keys():
                 methods[t_str] = (context.types[t].methods[m])
+                # print("class {} method_name {} params {}".format(t_str,(context.types[t].methods[m]).name, (context.types[t].methods[m]).param_names))
                 self.virtual_table.add_method(t_str, (context.types[t].methods[m]).name, (context.types[t].methods[m]).param_names)
+        # print(str(self.virtual_table))
         # print('-------------------------------')
         for t in types:
-            self.data.append(HierarchyIL(t, types[t]))
+            self.data.append(HierarchyIL(t, types[t].name))
 
-        for m in self.virtual_table.methods:
+        for m in self.virtual_table.methods.keys():
             self.data.append(VirtualTableIL(m, self.virtual_table.methods[m]))
-
         depth = dict([(types[x].name, len(types) + 2) for x in types])
         depth['Object'] = 0
         # TODO set some depth features for simplicity

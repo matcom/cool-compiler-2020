@@ -14,33 +14,35 @@ class MIPS:
         return fd.read()
 
     def start(self):
-        code = ""
-        code += ".data\n"
-        code += "buffer:\n"
-        code += ".space 65536\n"
-        code += "\n"
+        self.code.append(".data\n")
+        self.code.append("buffer:\n")
+        self.code.append(".space 65536\n")
+        self.code.append("\n")
 
         for node in self.il_data:
             self.visit(node)
 
         for c in self.data:
-            code += (c)
+            self.code.append(c)
 
-        code += "\n.globl main\n"
-        code += ".text\n"
+        self.code.append("\n.globl main\n")
+        self.code.append(".text\n")
 
-        code += self._loadfrom(os.path.join('code_generation/statics', 'IO.s'))
-        code += self._loadfrom(os.path.join('code_generation/statics', 'Object.s'))
-        code += self._loadfrom(os.path.join('code_generation/statics', 'String.s'))
-        code += self._loadfrom(os.path.join('code_generation/statics', 'inherit.s'))
+        self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'IO.s')) + "\n")
+        self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'Object.s')) + "\n")
+        self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'String.s')) + "\n")
+        self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'inherit.s')) + "\n")
 
+        print('code_len', len(self.code))
         for c in self.il_code:
+            # print(str(c))
             self.visit(c)
 
-        code += "li $v0, 10\n"
-        code += "syscall\n"
+        print('code_len', len(self.code))
+        self.code += "li $v0, 10\n"
+        self.code += "syscall\n"
 
-        return code
+        return self.code
 
     @visitor.on('node')
     def visit(self, node):
@@ -139,7 +141,7 @@ class MIPS:
 
     @visitor.when(CommentIL)
     def visit(self, node):
-        self.code.append(str(node))
+        self.code.append(str(node) + "\n")
 
     @visitor.when(IfJumpIL)
     def visit(self, node):
@@ -156,8 +158,8 @@ class MIPS:
         self.data.append(node.name + "_VT:\n")
         self.data.append(".word {}_INH\n".format(node.name))
         
-        for m in node.methods:
-            self.data.append(".word " + str(m) + "\n")
+        for n,m in node.methods:
+            self.data.append(".word " + n + "\n")
 
     @visitor.when(PushIL)
     def visit(self, node):
