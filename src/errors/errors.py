@@ -10,6 +10,8 @@ SEMANTIC_ERRORS = []
 
 ERR_TYPE = "TypeError"
 ERR_SEMANTIC = "SemanticError"
+ERR_ATTRIBUTE = "AttributeError"
+ERR_NAME = "NameError"
 
 
 def add_lexer_error(line, column, message):

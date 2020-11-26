@@ -28,7 +28,7 @@ class CoolType:
             for arg in arg_types_name:
                 arg_type = type_by_name(arg)
                 if arg_type is None:
-                    return False, f'unknown type \'{arg}\''
+                    return False, f'{ERR_TYPE}: Class {arg} of formal parameter is undefined.'
                 arg_types.append(arg_type)
             _returned_type = type_by_name(returned_type)
             if _returned_type is None:
@@ -71,18 +71,16 @@ class CoolType:
             if self.parent:
                 return self.parent.get_method(id, args_types)
             else:
-                return None, f'unknown method \'{id}\''
+                return None, f'{ERR_ATTRIBUTE}: Dispatch to undefined method {id}.'
 
     def get_method_without_hierarchy(self, id, args_types):
         try:
             method = self.methods[id]
             if len(args_types) != len(method.args):
-                return None, f'method \'{self.name}.{id}\' formal parameter count ({len(method.args)}) ' \
-                             f'does not match actual parameter count ({len(args_types)})'
+                return None, f'{ERR_SEMANTIC}: Method {id} called with wrong number of arguments.'
             for i, a in enumerate(args_types):
                 if not check_inherits(a, method.args[i]):
-                    return None, f'method \'{self.name}.{id}\' parameter #{i} type mismatch. Actual: \'{a}\' should ' \
-                                 f'be a subtype of \'{method.args[i]}\' '
+                    return None, f'{ERR_TYPE}: In call of method {id}, type {a} does not conform to declared type {method.args[i]}.'
             return method, None
         except KeyError:
             raise Exception(f'type {self.name} don\'t have a method {id}')
@@ -90,10 +88,10 @@ class CoolType:
     def add_attr(self, id, attr_type, expression):
         attribute, owner_type = get_attribute(self, id)
         if attribute is not None:
-            return False, f'attribute \'{id}\' already declared in class \'{owner_type.name}\''
+            return False, f'{ERR_SEMANTIC}: Attribute {id} is an attribute of an inherited class.'
         try:
             _ = self.attributes[id]
-            return False, f'attribute \'{id}\' already declared in class \'{self.name}\''
+            return False, f'{ERR_SEMANTIC}: Attribute {id} is an attribute of an inherited class.'
         except KeyError:
             _attr_type = type_by_name(attr_type)
             if _attr_type is None:
@@ -158,7 +156,7 @@ def check_type_declaration(node):
         try:
             _ = TypesByName[c.type]
             add_semantic_error(c.lineno, c.colno,
-                               f'duplicated declaration of type \'{c.type}\'')
+                               f'{ERR_SEMANTIC}: Redefinition of basic class {c.type}.')
             return False
         except KeyError:
             TypesByName[c.type] = CoolType(c.type, None)
@@ -187,7 +185,7 @@ def check_type_hierarchy(node):
                     return False
             except KeyError:
                 add_semantic_error(c.lineno, c.colno,
-                                   f'unknown parent type {c.parent_type}')
+                                   f'{ERR_TYPE}: Class {cType} inherits from an undefined class {c.parent_type}.')
                 return False
         else:
             cType.parent = ObjectType

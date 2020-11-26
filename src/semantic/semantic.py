@@ -90,6 +90,9 @@ def def_attr_class_visitor(attr: DefAttrNode, current_class: CT.CoolType, local_
     1) Check EXPR
     2) Check type(EXPR) <= TYPE
     '''
+    if attr.id == 'self':
+        add_semantic_error(attr.lineno, attr.colno,
+                           f'{ERR_SEMANTIC}: \'self\' cannot be the name of an attribute.')
     if attr.expr:
         # 1)
         expr_type = expression_visitor(attr.expr, current_class, local_scope)
@@ -127,7 +130,7 @@ def def_attribute_visitor(def_attr: DefAttrNode, current_class: CT.CoolType, loc
         # 2.2)
         if not CT.check_inherits(expr_type, id_type) and id_type is not None and expr_type is not None:
             add_semantic_error(def_attr.lineno, def_attr.colno,
-                               f'Type \'{expr_type}\' cannot be stored in type \'{id_type}\'')
+                               f'{ERR_TYPE}: Inferred type {expr_type} of initialization of {def_attr.id} does not conform to identifier\'s declared type {id_type}.')
     # 3)
     return id_type
 
@@ -147,7 +150,16 @@ def def_func_visitor(function: DefFuncNode, current_class: CT.CoolType, local_sc
     '''
     local_scope = local_scope.copy()
     # 1)
+    arg_names = set()
     for arg in function.params:
+        if arg[0] == 'self':
+            add_semantic_error(function.lineno, function.colno,
+                               f'{ERR_SEMANTIC}: \'self\' cannot be the name of a formal parameter.')
+        if arg[0] in arg_names:
+            add_semantic_error(
+                function.lineno, function.colno, f'{ERR_SEMANTIC}: Formal parameter {arg[0]} is multiply defined.')
+            return
+        arg_names.add(arg[0])
         local_scope[arg[0]] = CT.type_by_name(arg[1])
     # 2)
     body_type = expression_visitor(
@@ -161,7 +173,7 @@ def def_func_visitor(function: DefFuncNode, current_class: CT.CoolType, local_sc
         return return_type
     elif body_type is not None:
         add_semantic_error(function.lineno, function.colno,
-                           f'invalid returned type \'{function.return_type}\'')
+                           f'{ERR_TYPE}: Inferred return type {body_type} of method {function.id} does not conform to declared return type {return_type}.')
 
 
 def assignment_visitor(assign: AssignNode, current_class: CT.CoolType, local_scope: dict):
@@ -177,6 +189,9 @@ def assignment_visitor(assign: AssignNode, current_class: CT.CoolType, local_sco
     3) Check type(EXPR) <= type(ID)
     4) Type of assigment is type(EXPR)
     '''
+    if assign.id == 'self':
+        add_semantic_error(assign.lineno, assign.colno,
+                           f'{ERR_SEMANTIC}: Cannot assign to \'self\'.')
     # 1)
     try:
         # 1.1)
@@ -186,7 +201,7 @@ def assignment_visitor(assign: AssignNode, current_class: CT.CoolType, local_sco
         attr, _ = CT.get_attribute(current_class, assign.id)
         if attr is None:
             add_semantic_error(assign.id.lineno, assign.id.colno,
-                               f'unknown variable \'{assign.id}\'')
+                               f'{ERR_NAME}: Undeclared identifier {assign.id}.')
             id_type = None
         else:
             id_type = attr.attrType
@@ -195,7 +210,7 @@ def assignment_visitor(assign: AssignNode, current_class: CT.CoolType, local_sco
     # 3)
     if not CT.check_inherits(expr_type, id_type) and id_type is not None and expr_type is not None:
         add_semantic_error(assign.expr.lineno, assign.expr.colno,
-                           f'Type \'{expr_type}\' cannot be stored in type \'{id_type}\'')
+                           f'{ERR_TYPE}: Inferred type {expr_type} of initialization of {assign.id} does not conform to identifier\'s declared type {id_type}.')
     # 4)
     assign.returned_type = expr_type
     return expr_type
@@ -289,7 +304,7 @@ def if_visitor(if_struct: IfNode, current_class: CT.CoolType, local_scope: dict)
         if_struct.if_expr, current_class, local_scope)
     if predicate_type != CT.BoolType and predicate_type is not None:
         add_semantic_error(if_struct.if_expr.lineno, if_struct.if_expr.colno,
-                           f'\'if\' condition must be a {CT.BoolType}')
+                           f'{ERR_TYPE}: Predicate of \'if\' does not have type {CT.BoolType}.')
     # 2)
     then_type = expression_visitor(
         if_struct.then_expr, current_class, local_scope)
@@ -315,7 +330,7 @@ def loop_expr_visitor(loop: WhileNode, current_class: CT.CoolType, local_scope: 
     predicate_type = expression_visitor(loop.cond, current_class, local_scope)
     if predicate_type != CT.BoolType and predicate_type is not None:
         add_semantic_error(loop.cond.lineno, loop.cond.colno,
-                           f'\"loop\" condition must be a {CT.BoolType}')
+                           f'{ERR_TYPE}: Loop condition does not have type {CT.BoolType}.')
     # 2)
     expression_visitor(loop.body, current_class, local_scope)
     # 3)
@@ -393,11 +408,13 @@ def case_expr_visitor(case: CaseNode, current_class: CT.CoolType, local_scope: d
     4) Type of case is the pronounced join of all branch expressions types, then is the current type at final of step 3)
     '''
 
+    branch_types = set()
     # 1)
     expr_0 = expression_visitor(case.expr, current_class, local_scope)
 
     # 2)
     branch_0 = case.case_list[0]
+    branch_types.add(branch_0.type)
     # 2.1)
     branch_0_type = CT.type_by_name(branch_0.type)
     temp = local_scope.copy()
@@ -412,11 +429,14 @@ def case_expr_visitor(case: CaseNode, current_class: CT.CoolType, local_scope: d
 
     # 3)
     for branch in case.case_list[1:]:
+        if branch.type in branch_types:
+            add_semantic_error(branch.lineno, branch.colno,
+                               f'{ERR_SEMANTIC}: Duplicate branch {branch.type} in case statement.')
         temp = local_scope.copy()
         # 3.1)
         branch_type = CT.type_by_name(branch.type)
         if branch_type is None:
-            add_semantic_error(branch_0.line, branch_0.column,
+            add_semantic_error(branch.lineno, branch.colno,
                                f"unknow type \"{branch.type}\"")
         # 3.2)
         temp[branch.id] = branch_type
@@ -469,12 +489,12 @@ def comparison_visitor(cmp: BinaryNode, current_class: CT.CoolType, local_scope:
     lvalue_type = expression_visitor(cmp.lvalue, current_class, local_scope)
     if lvalue_type != CT.IntType and lvalue_type is not None:
         add_semantic_error(cmp.lvalue.lineno, cmp.lvalue.colno,
-                           f'lvalue type must be a {CT.IntType}')
+                           f'{ERR_TYPE}: non-{CT.IntType} arguments: {lvalue_type} < {CT.IntType}')
     # 2)
     rvalue_type = expression_visitor(cmp.rvalue, current_class, local_scope)
     if rvalue_type != CT.IntType and rvalue_type is not None:
         add_semantic_error(cmp.rvalue.lineno, cmp.rvalue.colno,
-                           f'rvalue type must be a {CT.IntType}')
+                           f'{ERR_TYPE}: non-{CT.IntType} arguments: {CT.IntType} < {rvalue_type}')
     # 3)
     cmp.returned_type = CT.BoolType
     return CT.BoolType
@@ -499,7 +519,7 @@ def equal_visitor(equal: EqNode, current_class: CT.CoolType, local_scope: dict):
     static_types = [CT.IntType, CT.BoolType, CT.StringType]
     if (lvalue_type in static_types or rvalue_type in static_types) and lvalue_type != rvalue_type:
         add_semantic_error(equal.lineno, equal.colno,
-                           f'impossible compare {lvalue_type} and {rvalue_type} types')
+                           f'{ERR_TYPE}: Illegal comparison with a basic type.')
     # 4)
     equal.returned_type = CT.BoolType
     return CT.BoolType
@@ -582,7 +602,7 @@ def var_visitor(var: VarNode, current_class: CT.CoolType, local_scope: dict):
             var.returned_type = attribute.attrType
         else:
             add_semantic_error(var.lineno, var.colno,
-                               f'unknown variable \'{var.id}\'')
+                               f'{ERR_NAME}: Undeclared identifier {var.id}.')
     # 3)
     return var.returned_type
 
