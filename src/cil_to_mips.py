@@ -299,8 +299,7 @@ class CILToMIPSVisitor():
     def visit(self, node):
         predicate_offset = self.var_offset[self.current_function.name][node.variable]
         self.text += f'lw $a0, {predicate_offset}($sp)\n'
-        self.text += f'li $t1, 1\n'
-        self.text += f'beq $a0, $t1 {node.label}\n'
+        self.text += f'bnez $a0, {node.label}\n'
     
     @visitor.when(CIL_AST.Goto)
     def visit(self, node):
