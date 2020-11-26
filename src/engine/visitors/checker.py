@@ -107,7 +107,7 @@ class Checker:
                 pass
             else:
                 if parent_method.param_types != self.current_method.param_types or parent_method.return_type != self.current_method.return_type:
-                     self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + WRONG_SIGNATURE % (self.current_method.name, self.current_type.name, parent.name))
+                     self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + WRONG_SIGNATURE % (self.current_method.name, self.current_type.name, parent.name))
         
         scope.define_variable('self', self.current_type)
         
@@ -121,7 +121,7 @@ class Checker:
         return_type = self.current_type if isinstance(self.current_method.return_type, SelfType) else self.current_method.return_type
         
         if not body_type.conforms_to(return_type):
-            self.errors.append(ERROR_ON_LN_COL % (body.line, body.column) + INCOMPATIBLE_TYPES % (body_type.name, return_type.name))
+            self.errors.append(ERROR_ON_LN_COL % (body.line, body.column) + "TypeError: " + INCOMPATIBLE_TYPES % (body_type.name, return_type.name))
 
     @visitor.when(IfThenElseNode)
     def visit(self, node, scope):
