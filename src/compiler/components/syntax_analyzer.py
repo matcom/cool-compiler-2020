@@ -240,43 +240,43 @@ class pyCoolParser:
         p[0] = NodeWhileLoop(predicate=p[2], body=p[4])
 
     ## ######################### LET EXPRESSIONS ########################################
-    def p_expression_let(self, parse):
+    def p_expression_let(self, p):
         """
          expression : let_expression
         """
-        parse[0] = parse[1]
+        p[0] = p[1]
 
-    def p_expression_let_simple(self, parse):
+    def p_expression_let_simple(self, p):
         """
         let_expression : LET ID COLON TYPE IN expression
                        | nested_lets COMMA LET ID COLON TYPE
         """
-        parse[0] = AST.Let(instance=parse[2],
-        return_type=parse[4], init_expr=None, body=parse[6])
+        p[0] = NodeLet(instance=p[2],
+        return_type=p[4], init_expr=None, body=p[6])
 
-    def p_expression_let_initialized(self, parse):
+    def p_expression_let_initialized(self, p):
         """
         let_expression : LET ID COLON TYPE ASSIGN expression IN expression
                        | nested_lets COMMA LET ID COLON TYPE ASSIGN expression
         """
-        parse[0] = AST.Let(instance=parse[2],
-        return_type=parse[4], init_expr=parse[6], body=parse[8])
+        p[0] = NodeLet(instance=p[2],
+        return_type=p[4], init_expr=p[6], body=p[8])
 
-    def p_inner_lets_simple(self, parse):
+    def p_inner_lets_simple(self, p):
         """
         nested_lets : ID COLON TYPE IN expression
                     | nested_lets COMMA ID COLON TYPE
         """
-        parse[0] = AST.Let(instance=parse[1], 
-        return_type=parse[3], init_expr=None, body=parse[5])
+        p[0] = NodeLet(instance=p[1], 
+        return_type=p[3], init_expr=None, body=p[5])
 
-    def p_inner_lets_initialized(self, parse):
+    def p_inner_lets_initialized(self, p):
         """
         nested_lets : ID COLON TYPE ASSIGN expression IN expression
                     | nested_lets COMMA ID COLON TYPE ASSIGN expression
         """
-        parse[0] = AST.Let(instance=parse[1], 
-        return_type=parse[3], init_expr=parse[5], body=parse[7])
+        p[0] = NodeLet(instance=p[1], 
+        return_type=p[3], init_expr=p[5], body=p[7])
 
     # ######################### CASE EXPRESSION ########################################
     
