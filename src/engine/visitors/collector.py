@@ -31,4 +31,4 @@ class Collector:
         try:
             self.context.create_type(node.id.lex)
         except SemanticError as se:
-            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + se.text)
+            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + se.text)
