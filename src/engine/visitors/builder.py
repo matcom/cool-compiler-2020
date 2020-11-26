@@ -51,7 +51,7 @@ class Builder:
         try:
             self.context.get_type('Main').get_method('main')
         except SemanticError:
-            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "Class Main and feature main needed")
+            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: Class Main and feature main needed")
 
     @visitor.when(ClassDeclarationNode)
     def visit(self, node):
