@@ -23,7 +23,10 @@ class MIPSCompiler:
     def load(self, node:CILInstructionNode,scope:ScopeMIPS, soloelprimero=False):
         instrucciones=""
         parametro0=node.params[0]
-        atributos=self.atributos[scope.methodclass]
+        if scope.methodclass != "Main.special":
+            atributos=self.atributos[scope.methodclass]
+        else:
+            atributos=[]
         DicNombreAtributos={}
         nombresAtributos=[]
         for at in atributos:
@@ -79,7 +82,10 @@ class MIPSCompiler:
         return instrucciones
 
     def save(self, destino:str,scope:ScopeMIPS):
-        atributos=self.atributos[scope.methodclass]
+        if scope.methodclass!="Main.special":
+            atributos=self.atributos[scope.methodclass]
+        else:
+            atributos=[]
         instrucciones=""
         nombresAtributos=[]
         for at in atributos:
@@ -107,14 +113,14 @@ class MIPSCompiler:
         return self.load(node,scope)+instructions+self.save(node.destination,scope)
 
     def MainInstruction(self):
-        instrucctions=""
+        instrucciones=""
         instrucciones+="addi $sp ,$sp, -4\n"
         instrucciones+="lw $ra, 0($sp)\n"
         instrucciones+="jal Main.Special\n"
         instrucciones+="sw $ra, 0($sp)\n"
         instrucciones+="addi $sp ,$sp, 4\n"
-        instrucciones+="jr $ra"
-        return instructions
+        instrucciones+="jr $ra\n"
+        return instrucciones
     
     @visitor.on('node')
     def visit(self, node, sope:ScopeMIPS):
@@ -142,7 +148,7 @@ class MIPSCompiler:
             
             datainstructions+=element.name+"clase: .word "
 
-            if element.name==None:
+            if element.parent==None:
                 datainstructions+= "0"
             else:
                 datainstructions+=element.parent+"clase"
@@ -159,7 +165,7 @@ class MIPSCompiler:
         instrucciones+=".globl main\n"
         instrucciones+="main:\n"
         instrucciones+=self.MainInstruction()
-        archivo=open("src\\StaticCode\\AssemblyMethods",encoding='utf-8')
+        archivo=open("src\\StaticCode\\AssemblyMethods.asm",encoding='utf-8')
         metodosdefault=archivo.read()
         instrucciones+=metodosdefault
         archivo.close()
@@ -566,7 +572,7 @@ class MIPSCompiler:
 
     @visitor.when(CILTypeCheck)
     def visit(self, node:CILTypeCheck, scope:ScopeMIPS):
-        intermedio=CILTypeCheckIntermediate(node.destination,[node.params[0]])
+        # intermedio=CILTypeCheckIntermediate(node.destination,[node.params[0]])
         instrucciones=""
         instrucciones+="addi $sp ,$sp, -4\n"
         instrucciones+="lw $ra, 0($sp)\n"

@@ -141,6 +141,7 @@ class CILTranspiler:
         instruction=DispatchNode("main",[],nuevo,"Main")
         scope=Scope("Main.special","Object")
         result=self.visit(MethodNode("main",[],"SELF_TYPE",instruction),scope)
+        return result
 
 
 
@@ -289,8 +290,11 @@ class CILTranspiler:
     def visit(self, node: NewNode, scope:Scope):
         destino=self.GenerarNombreVariable(scope)
         instruccion=CILAllocate(destino,[node.type])
-        init=CILCall(destino,[node.type,"$init"])
-        return [instruccion, init]
+        if not node.type in ['Int','Bool']:
+            init=CILCall(destino,[node.type,"$init"])
+            return [instruccion, init]
+        else:
+            return [instruccion]
 
     @visitor.when(BlockNode)
     def visit(self, node: BlockNode, scope:Scope):
@@ -493,7 +497,7 @@ class CILTranspiler:
             paramInstruction.append(CILArgument(params=[paramInstruction[len(paramInstruction)-1].destination]))
             instructions.extend(paramInstruction)
 
-        instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))#Removido de los params: node.left_type,
+        # instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))#Removido de los params: node.left_type,
         resultVariable=self.GenerarNombreVariable(scope)
         if(node.left_type==None):
             print()
