@@ -499,10 +499,12 @@ class CILToMIPSVisitor():
         self.text += 'j jump_str_char\n'
         self.text += 'finish_index_jump:\n'
         self.text += 'li $a0, 0\n' # reset $a0 to count the length
+        self.text += 'move $t3, $v0\n' # save start of substring
 
         # coping chars from string $t2 (starting in $t0 index) until length $t1 to $v0
         self.text += 'copy_substr_char:\n'
         self.text += 'beq $a0, $t1 finish_substr_copy\n' # finish if the chars count is equals to length
+        self.text += 'li $t0, 0\n' # reset $t0 before loading bytes
         self.text += 'lb $t0, ($t2)\n' # loading current char from string
         self.text += 'sb $t0, ($v0)\n' # storing current char into result_str end
         self.text += 'addi $t2, $t2, 1\n'  # move to the next char
@@ -514,7 +516,7 @@ class CILToMIPSVisitor():
         self.text += 'sb $0, ($v0)\n' # put '\0' at the end
         
         offset = self.var_offset[self.current_function.name][node.result]
-        self.text += f'sw $v0, {offset}($sp)\n'  # store length count address in local
+        self.text += f'sw $t3, {offset}($sp)\n'  # store length count address in local
 
 
 if __name__ == '__main__':
@@ -527,7 +529,7 @@ if __name__ == '__main__':
     lexer = Lexer()
     parser = Parser()
 
-    sys.argv.append('hairyscary.cl')
+    sys.argv.append('test.cl')
 
     if len(sys.argv) > 1:
 
@@ -566,5 +568,5 @@ if __name__ == '__main__':
         cil_to_mips = CILToMIPSVisitor()
         mips_code = cil_to_mips.visit(cil_ast)
        
-        with open(f'{sys.argv[1][:-3]}.mips', 'w') as f:
+        with open(f'{sys.argv[1][:-3]}.s', 'w') as f:
             f.write(f'{mips_code}')
