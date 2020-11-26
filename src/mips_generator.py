@@ -445,7 +445,19 @@ def convert_CopyNode(instruction):
     else:
         dest = PARAMS[instruction.result]
 
+    
+    copy_object_start_label = next_label()
+    copy_string_start_label = next_label()
+    copy_other_start_label = next_label()
+    copy_end_label = next_label()
+
+    result += "li $t1, 0\n"
+    result += "lb $t1, ($t0)\n"
+    result += "beq $t1, 'O', " + copy_object_start_label + "\n"
+    result += "beq $t1, 'S', " + copy_string_start_label + "\n"
+    result += "j " + copy_other_start_label + "\n"
     # ponemos en t2 el tamanyo del objeto a copiar
+    result += copy_object_start_label + ":\n"
     result += "addi $t2, $t0, 8\n"
     result += "lw $t2, ($t2)\n"
 
@@ -460,14 +472,56 @@ def convert_CopyNode(instruction):
     result += "add $t2, $t0, $t2\n"
 
     # copiamos desde t0 a t2 todo en el destino (t1)
-    copy_loop_start_label = next_label()
+    copy_object_loop_start_label = next_label()
 
-    result += copy_loop_start_label + ":\n"
+    result += copy_object_loop_start_label + ":\n"
     result += "lb $t3, ($t0)\n"
     result += "sb $t3, ($t1)\n"
     result += "addi $t0, $t0, 1\n"
     result += "addi $t1, $t1, 1\n"
-    result += "bne $t0, $t2, " + copy_loop_start_label + "\n"
+    result += "bne $t0, $t2, " + copy_object_loop_start_label + "\n"
+
+    result += "j " + copy_end_label + "\n"
+
+
+    # aqui es si el valor es string
+    result += copy_string_start_label + ":\n"
+
+    result += "li $a0, 1028\n"
+    result += "li $v0, 9\n"
+    result += "syscall\n"
+
+    result += "sw $v0, " + dest + "\n"
+    result += "addi $t1, $v0, 0\n"
+
+
+    # ponemos en t2 la direccion hasta donde se debe copiar
+    result += "addi $t2, $t0, 1028\n"
+
+    # copiamos desde t0 a t2 todo en el destino (t1)
+    copy_string_loop_start_label = next_label()
+
+    result += copy_string_loop_start_label + ":\n"
+    result += "lb $t3, ($t0)\n"
+    result += "sb $t3, ($t1)\n"
+    result += "addi $t0, $t0, 1\n"
+    result += "addi $t1, $t1, 1\n"
+    result += "bne $t0, $t2, " + copy_string_loop_start_label + "\n"
+    result += "j " + copy_end_label + "\n"
+
+    result += copy_other_start_label + ":\n"
+    
+    result += "li $a0, 8\n"
+    result += "li $v0, 9\n"
+    result += "syscall\n"
+    result += "sw $v0, " + dest + "\n"
+
+    result += "lw $t3, ($t0)\n"
+    result += "sw $t3, ($v0)\n"
+    result += "lw $t3, 4($t0)\n"
+    result += "sw $t3, 4($v0)\n"
+
+    result += copy_end_label + ":\n"
 
     return result  
 
