@@ -14,26 +14,26 @@ parser_input.add_argument("--parser", help = 'Select the lexer that you could us
 parser_input.add_argument("--output", help = 'Put the info of the selected components in the standard output.', choices = ['l','p','t'])
  """
 
-args = parser_input.parse_args()
-file = open(args.files_for_compile[0])
-working_input = file.read()
+args= parser_input.parse_args()
+file= open(args.files_for_compile[0])
+working_input= file.read()
 
-all_errors = []
-token_errors, tokens_for_input, real_col = tokenizer(working_input)
+all_errors= []
+token_errors, tokens_for_input, real_col= tokenizer(working_input)
 
 
-ast_result, parser_errors = run_parser(tokens, working_input, real_col)
+ast_result, parser_errors= run_parser(tokens, working_input, real_col)
+#if parser_errors: print("In the parser_errors ", parser_errors)
 
+#sa = semanticAnalyzer(ast_result)
+
+#sa.run_visits()
+#print('context of the input %s' %programContext)
+#print('errors %s' %sa.errors)
 all_errors += token_errors + parser_errors
-
-sa = semanticAnalyzer(ast_result)
-
-sa.run_visits()
-print('context of the input %s' %programContext.types)
-print('errors %s' %sa.errors)
+#+ sa.errors
 
 if all_errors:
     for error in all_errors:
         print(error)
     exit(1)
-
