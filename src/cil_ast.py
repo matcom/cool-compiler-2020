@@ -37,7 +37,10 @@ class DataNode(Node):
         self.value = value
 
     def GetCode(self):
-        new_value = self.value.replace("\n", "\\n")
+        if type(self.value) == type("asd"):
+            new_value = self.value.replace("\n", "\\n")
+        else:
+            new_value = str(self.value)
         return "\t" + self.id + " \"" + new_value + "\""
 
 
@@ -148,9 +151,11 @@ class LENode(BinaryOpNode):
     def GetCode(self):
         return "LE " + str(self.result) + " " + str(self.left) + " " + str(self.right)
 
+
 class LNode(BinaryOpNode):
     def GetCode(self):
         return "L " + str(self.result) + " " + str(self.left) + " " + str(self.right)
+
 
 class ENode(BinaryOpNode):
     def GetCode(self):
@@ -189,6 +194,9 @@ class AllocateNode(InstructionNode):
 
 
 class AbortNode(InstructionNode):
+    def __init__(self, val):
+        self.val = val
+
     def GetCode(self):
         return "EXIT"
 
@@ -287,6 +295,14 @@ class StrcatNode(InstructionNode):
 
     def GetCode(self):
         return "STRCAT " + str(self.result) + " " + str(self.str_a) + " " + str(self.str_b)
+
+class LoadIntNode(InstructionNode):
+    def __init__(self, result, data):
+        self.data = data
+        self.result = result
+
+    def GetCode(self):
+        return "LDATAI " + str(self.result) + " " + str(self.data)
 
 class LoadDataNode(InstructionNode):
     def __init__(self, result, data):

@@ -16,20 +16,19 @@ def generate_mips(cil):
     LABELS_COUNT = 0
     CIL_TYPES = cil[0]
 
-    data = generate_data(cil[1], cil[3], cil[4])
+    data = generate_data(cil[1], cil[3], cil[4], cil[6])
     code = generate_code(cil[2])
 
     return data + code
 
 
-def generate_data(data, locals, max_param_count):
-    global DATA, CIL_TYPES
-    
-    if len(data) == 0 and len(locals) == 0:
-        return ""
+def generate_data(data, locals, max_param_count, integers):
+    global DATA, DATAI, CIL_TYPES
 
     result = ".data\n\n"
 
+    result += "abort_message: .asciiz \"Abort called from class \"\n"
+    result += "end_line: .asciiz \"\\n\"\n"
     for t in CIL_TYPES.values():
         result += "type_" + t.type_name + ": .asciiz \"" + t.type_name + "\"\n"
 
@@ -40,6 +39,10 @@ def generate_data(data, locals, max_param_count):
     for d in data.values():
         DATA.append(d.id)
         result += d.id + ": .asciiz \"" + d.value.replace("\n", "\\n") + "\"\n"
+
+    for d in integers.values():
+        DATA.append(d.id)
+        result += d.id + ": .word " + str(d.value) + "\n"
 
     global PARAMS
     
@@ -193,10 +196,12 @@ def convert_cil_instruction(instruction):
     elif type(instruction) == LoadDataNode:
         return convert_LoadDataNode(instruction)
 
+    elif type(instruction) == LoadIntNode:
+        return convert_LoadIntNode(instruction)
+
     else:
         print(str(type(instruction)) + " doesn't have convert method")
         return ""
-
 
 def convert_LoadDataNode(instruction):
     result = ""
@@ -224,6 +229,27 @@ def convert_LoadDataNode(instruction):
     result += "bne $t3, 0, " + load_data_loop_start_label + "\n"
 
     return result
+
+def convert_LoadIntNode(instruction):
+    result = ""
+
+    result += "lw $t0, " + instruction.data + "\n"
+
+    global DATA, PARAMS
+
+    if instruction.result in DATA:
+        dest = instruction.result
+    else:
+        dest = PARAMS[instruction.result]
+
+    result += "lw $t1, " + dest + "\n"
+    result += "addi $t1, $t1, 4\n"
+    result += "sw $t0, ($t1)\n"
+
+    
+
+    return result
+
 
 def convert_ReadNode(instruction):
     result = ""
@@ -762,6 +788,14 @@ def convert_AllocateNode(instruction):
         result += "sw $t0, 4($v0)\n" 
 
     elif instruction.type == "void":
+        if instruction.result in DATA:
+            dest = instruction.result
+        else:
+            dest = PARAMS[instruction.result]
+
+        result += "li $t0, 0\n"
+        result += "sw $t0, " + dest + "\n"
+
         return result
 
     else:
@@ -871,7 +905,7 @@ def convert_DispatchCallNode(instruction):
         if not (instruction.method in t.methods):
             continue
 
-        result += "la $t0, type_" + t.methods[instruction.method] + "\n"
+        result += "la $t0, type_" + t.type_name + "\n"
         
         result += "lw $t1, " + tp + "\n"
         result += "addi $t1, $t1, 4\n"
@@ -1382,6 +1416,7 @@ def convert_VDNode(instruction):
 
     result += "lw $t1, " + dest + "\n"
     result += "addi $t1, $t1, 4\n"
+
     result += "seq $t2, $t0, 0\n"
     result += "sw $t2, ($t1)\n"
 
@@ -1565,7 +1600,29 @@ def convert_ToStrNode(instruction):
     return result
 
 def convert_AbortNode(instruction):
-    result = "li $v0, 10\n"
+    result = ""
+
+    global DATA, PARAMS
+
+    if instruction.val in DATA:
+        val = instruction.val
+    else:
+        val = PARAMS[instruction.val]
+    
+    result += "la $a0, abort_message\n"
+    result += "li $v0, 4\n"
+    result += "syscall\n"
+
+    result += "lw $a0, " + val + "\n"
+    result += "addi $a0, $a0, 4\n"
+    result += "li $v0, 4\n"
+    result += "syscall\n"
+
+    result += "la $a0, end_line\n"
+    result += "li $v0, 4\n"
+    result += "syscall\n"
+
+    result += "li $v0, 10\n"
     result += "syscall\n"
 
     return result
