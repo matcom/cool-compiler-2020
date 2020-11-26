@@ -76,13 +76,13 @@ class Builder:
         try:
             attr_type = self.context.get_type(node.type.lex)
         except SemanticError as se:
-            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + se.text)
+            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "TypeError: " + se.text)
             attr_type = ErrorType()
 
         try:
             self.current_type.define_attribute(node.id.lex, attr_type)
         except SemanticError as se:
-            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + se.text)
+            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + se.text)
 
     @visitor.when(FuncDeclarationNode)
     def visit(self, node):
@@ -91,11 +91,11 @@ class Builder:
             try:
                 arg_type = self.context.get_type(types.lex)
             except SemanticError as se:
-                self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + se.text)
+                self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "TypeError: " + se.text)
                 arg_type = ErrorType()
             else:
                 if isinstance(arg_type, SelfType):
-                    self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + f'Type "{arg_type.name}" can not be used as a parameter type')
+                    self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + f'Type "{arg_type.name}" can not be used as a parameter type')
                     arg_type = ErrorType()
             
             arg_names.append(ids.lex)
@@ -104,10 +104,10 @@ class Builder:
         try:
             ret_type = self.context.get_type(node.type.lex)
         except SemanticError as se:
-            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + se.text)
+            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "TypeError: " + se.text)
             ret_type = ErrorType()
         
         try:
             self.current_type.define_method(node.id.lex, arg_names, arg_types, ret_type)
         except SemanticError as se:
-            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + se.text)
+            self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + se.text)
