@@ -100,9 +100,9 @@ Mainclase: .word IOclase,f48,f49,f2,f4,f24,f25,f26,f27,f50,f51,f52,f53,f54,f55,f
 .globl main
 main:
 addi $sp ,$sp, -4
-lw $ra, 0($sp)
-jal Main.Special
 sw $ra, 0($sp)
+jal Main.Special
+lw $ra, 0($sp)
 addi $sp ,$sp, 4
 jr $ra
      #$a0 debe ser el string
@@ -501,10 +501,10 @@ jr $ra
      jr $ra
 Main.Special:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,20
+li $v0, 9
 syscall
 la $t0, Mainclase
 sw $t0, 0($v0)
@@ -515,11 +515,15 @@ sw $zero, 16($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
+lw $t0,4($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
@@ -531,55 +535,49 @@ lw $t0, 0($a0)
 lw $t0,60($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f0:
 addi $sp, $sp, -8
-sw $ra, 0($sp)
-lw $ra, 0($sp)
+move $t0,$a0
+move $v0, $t0
+sw $v0,4($sp)
+lw $v0, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f3:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 la $v0, st0
 sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f4:
 addi $sp, $sp, -8
-sw $ra, 0($sp)
 move $t0,$a0
 li $t1,0
 addi $sp ,$sp, -4
-lw $ra, 0($sp)
-jal .Object.Copy
 sw $ra, 0($sp)
+jal .Object.Copy
+lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,4($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f2:
 addi $sp, $sp, -8
-sw $ra, 0($sp)
 jal .Object.abort
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f5:
 addi $sp, $sp, -16
-sw $ra, 0($sp)
 move $t0,$a0
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -598,32 +596,29 @@ sw $v0,8($sp)
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,4($a0)
+move $t0,$a0
+move $v0, $t0
+sw $v0,12($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 16
 jr $ra
 f6:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 la $v0, st1
 sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f7:
 addi $sp, $sp, -8
-sw $ra, 0($sp)
 lw $t0,4($a0)
 move $v0, $t0
 sw $v0,4($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f8:
 addi $sp, $sp, -16
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,8($sp)
@@ -634,22 +629,18 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,12($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 16
 jr $ra
 f9:
 addi $sp, $sp, -8
-sw $ra, 0($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f10:
 addi $sp, $sp, -36
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,8($sp)
@@ -666,6 +657,7 @@ sw $v0,4($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Bclase
 sw $t0, 0($v0)
@@ -673,11 +665,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,24($sp)
+lw $t0,24($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,24($sp)
@@ -696,17 +692,15 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,32($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 36
 jr $ra
 f11:
 addi $sp, $sp, -32
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,8($sp)
@@ -719,6 +713,7 @@ sw $v0,4($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Cclase
 sw $t0, 0($v0)
@@ -726,11 +721,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,20($sp)
+lw $t0,20($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,20($sp)
@@ -749,17 +748,15 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,28($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 32
 jr $ra
 f12:
 addi $sp, $sp, -88
-sw $ra, 0($sp)
 move $t0,$a2
 move $v0, $t0
 sw $v0,4($sp)
@@ -788,6 +785,7 @@ sw $v0,20($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Dclase
 sw $t0, 0($v0)
@@ -795,11 +793,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,68($sp)
+lw $t0,68($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,68($sp)
@@ -818,7 +820,7 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,76($sp)
@@ -843,6 +845,7 @@ sw $v0,20($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Dclase
 sw $t0, 0($v0)
@@ -850,11 +853,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,40($sp)
+lw $t0,40($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,40($sp)
@@ -873,7 +880,7 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,48($sp)
@@ -885,12 +892,10 @@ lw $t0,80($sp)
 move $v0, $t0
 sw $v0,84($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 88
 jr $ra
 f13:
 addi $sp, $sp, -96
-sw $ra, 0($sp)
 li $t0,1
 move $v0, $t0
 sw $v0,8($sp)
@@ -950,6 +955,7 @@ sw $v0,80($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Eclase
 sw $t0, 0($v0)
@@ -957,11 +963,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,84($sp)
+lw $t0,84($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,84($sp)
@@ -980,17 +990,15 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,92($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 96
 jr $ra
 f14:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 move $t0,$a0
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -1003,22 +1011,21 @@ jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
+move $t0,$a0
+move $v0, $t0
+sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f15:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 la $v0, st2
 sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f16:
 addi $sp, $sp, -336
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,4($sp)
@@ -1240,7 +1247,7 @@ lw $t0, 0($a0)
 lw $t0,12($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,248($sp)
@@ -1398,12 +1405,10 @@ lw $t0,328($sp)
 move $v0, $t0
 sw $v0,332($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 336
 jr $ra
 f17:
 addi $sp, $sp, -340
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,4($sp)
@@ -1595,7 +1600,7 @@ lw $t0, 0($a0)
 lw $t0,12($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,248($sp)
@@ -1742,12 +1747,10 @@ lw $t0,332($sp)
 move $v0, $t0
 sw $v0,336($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 340
 jr $ra
 f18:
 addi $sp, $sp, -216
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,4($sp)
@@ -1759,7 +1762,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
@@ -1803,7 +1806,7 @@ lw $t0, 0($a0)
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,40($sp)
@@ -1850,7 +1853,7 @@ lw $t0, 0($a0)
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,120($sp)
@@ -1890,7 +1893,7 @@ lw $t0, 0($a0)
 lw $t0,32($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,188($sp)
@@ -1931,7 +1934,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,156($sp)
@@ -1950,7 +1953,7 @@ lw $t0, 0($a0)
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,172($sp)
@@ -1962,7 +1965,7 @@ lw $t0, 0($a0)
 lw $t0,32($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,176($sp)
@@ -2010,7 +2013,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,76($sp)
@@ -2029,7 +2032,7 @@ lw $t0, 0($a0)
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,92($sp)
@@ -2041,7 +2044,7 @@ lw $t0, 0($a0)
 lw $t0,32($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,96($sp)
@@ -2071,12 +2074,10 @@ lw $t0,208($sp)
 move $v0, $t0
 sw $v0,212($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 216
 jr $ra
 f19:
 addi $sp, $sp, -132
-sw $ra, 0($sp)
 li $t0,0
 move $v0, $t0
 sw $v0,8($sp)
@@ -2091,7 +2092,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,20($sp)
@@ -2159,7 +2160,7 @@ lw $t0, 0($a0)
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,88($sp)
@@ -2171,7 +2172,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,92($sp)
@@ -2204,12 +2205,10 @@ lw $t0,4($sp)
 move $v0, $t0
 sw $v0,128($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 132
 jr $ra
 f20:
 addi $sp, $sp, -116
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,4($sp)
@@ -2275,7 +2274,7 @@ lw $t0, 0($a0)
 lw $t0,40($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,92($sp)
@@ -2287,7 +2286,7 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,96($sp)
@@ -2314,7 +2313,7 @@ lw $t0, 0($a0)
 lw $t0,40($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,52($sp)
@@ -2340,12 +2339,10 @@ lw $t0,108($sp)
 move $v0, $t0
 sw $v0,112($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 116
 jr $ra
 f21:
 addi $sp, $sp, -108
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,4($sp)
@@ -2393,7 +2390,7 @@ lw $t0, 0($a0)
 lw $t0,40($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,56($sp)
@@ -2434,7 +2431,7 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,92($sp)
@@ -2446,7 +2443,7 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,96($sp)
@@ -2465,12 +2462,10 @@ lw $t0,100($sp)
 move $v0, $t0
 sw $v0,104($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 108
 jr $ra
 f22:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 move $t0,$a0
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -2483,22 +2478,21 @@ jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
+move $t0,$a0
+move $v0, $t0
+sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f23:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 la $v0, st29
 sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f24:
 addi $sp, $sp, -8
-sw $ra, 0($sp)
 addi $sp, $sp, -8
 sw $a0, 0($sp)
 sw $ra, 4($sp)
@@ -2512,12 +2506,10 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f25:
 addi $sp, $sp, -8
-sw $ra, 0($sp)
 addi $sp, $sp, -8
 sw $a0, 0($sp)
 sw $ra, 4($sp)
@@ -2531,12 +2523,10 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f26:
 addi $sp, $sp, -8
-sw $ra, 0($sp)
 addi $sp, $sp, -8
 sw $a0, 0($sp)
 sw $ra, 4($sp)
@@ -2547,12 +2537,10 @@ lw $ra, 4($sp)
 addi $sp, $sp, 8
 sw $v0,4($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f27:
 addi $sp, $sp, -8
-sw $ra, 0($sp)
 addi $sp, $sp, -8
 sw $a0, 0($sp)
 sw $ra, 4($sp)
@@ -2563,12 +2551,10 @@ lw $ra, 4($sp)
 addi $sp, $sp, 8
 sw $v0,4($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f28:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 move $t0,$a0
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -2581,22 +2567,21 @@ jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
+move $t0,$a0
+move $v0, $t0
+sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f29:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 la $v0, st30
 sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f30:
 addi $sp, $sp, -8
-sw $ra, 0($sp)
 move $t0,$a0
 addi $sp, $sp, -8
 sw $a0, 0($sp)
@@ -2608,12 +2593,10 @@ lw $ra, 4($sp)
 addi $sp, $sp, 8
 sw $v0,4($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f31:
 addi $sp, $sp, -8
-sw $ra, 0($sp)
 move $t0,$a0
 move $t1,$a1
 addi $sp, $sp, -12
@@ -2629,12 +2612,10 @@ lw $ra, 8($sp)
 addi $sp, $sp, 12
 sw $v0,4($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f32:
 addi $sp, $sp, -8
-sw $ra, 0($sp)
 move $t0,$a0
 move $t1,$a1
 addi $sp, $sp, -12
@@ -2650,12 +2631,10 @@ lw $ra, 8($sp)
 addi $sp, $sp, 12
 sw $v0,4($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f33:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 move $t0,$a0
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -2668,22 +2647,21 @@ jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
+move $t0,$a0
+move $v0, $t0
+sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f34:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 la $v0, st31
 sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f35:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 move $t0,$a0
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -2696,22 +2674,21 @@ jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
+move $t0,$a0
+move $v0, $t0
+sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f36:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 la $v0, st32
 sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f37:
 addi $sp, $sp, -36
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,8($sp)
@@ -2729,6 +2706,7 @@ sw $v0,4($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Eclase
 sw $t0, 0($v0)
@@ -2736,11 +2714,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,24($sp)
+lw $t0,24($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,24($sp)
@@ -2759,17 +2741,15 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,32($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 36
 jr $ra
 f38:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 move $t0,$a0
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -2782,22 +2762,21 @@ jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
+move $t0,$a0
+move $v0, $t0
+sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f39:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 la $v0, st33
 sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f40:
 addi $sp, $sp, -32
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,8($sp)
@@ -2810,6 +2789,7 @@ sw $v0,4($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Aclase
 sw $t0, 0($v0)
@@ -2817,11 +2797,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,20($sp)
+lw $t0,20($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,20($sp)
@@ -2840,17 +2824,15 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,28($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 32
 jr $ra
 f41:
 addi $sp, $sp, -48
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,8($sp)
@@ -2876,6 +2858,7 @@ sw $v0,4($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Eclase
 sw $t0, 0($v0)
@@ -2883,11 +2866,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,36($sp)
+lw $t0,36($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,36($sp)
@@ -2906,17 +2893,15 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,44($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 48
 jr $ra
 f42:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 move $t0,$a0
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -2929,22 +2914,21 @@ jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
+move $t0,$a0
+move $v0, $t0
+sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f43:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 la $v0, st34
 sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f44:
 addi $sp, $sp, -164
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,8($sp)
@@ -3039,7 +3023,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,128($sp)
@@ -3114,7 +3098,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,44($sp)
@@ -3126,12 +3110,10 @@ lw $t0,156($sp)
 move $v0, $t0
 sw $v0,160($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 164
 jr $ra
 f45:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 move $t0,$a0
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -3144,22 +3126,21 @@ jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
+move $t0,$a0
+move $v0, $t0
+sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f46:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 la $v0, st35
 sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f47:
 addi $sp, $sp, -36
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,8($sp)
@@ -3177,6 +3158,7 @@ sw $v0,4($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Aclase
 sw $t0, 0($v0)
@@ -3184,11 +3166,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,24($sp)
+lw $t0,24($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,24($sp)
@@ -3207,17 +3193,15 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,32($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 36
 jr $ra
 f48:
 addi $sp, $sp, -16
-sw $ra, 0($sp)
 move $t0,$a0
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -3245,22 +3229,21 @@ sw $v0,8($sp)
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,16($a0)
+move $t0,$a0
+move $v0, $t0
+sw $v0,12($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 16
 jr $ra
 f49:
 addi $sp, $sp, -12
-sw $ra, 0($sp)
 la $v0, st36
 sw $v0,8($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f50:
 addi $sp, $sp, -396
-sw $ra, 0($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
@@ -3278,7 +3261,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,16($sp)
@@ -3300,7 +3283,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,28($sp)
@@ -3321,7 +3304,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,44($sp)
@@ -3342,7 +3325,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,60($sp)
@@ -3364,7 +3347,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,72($sp)
@@ -3385,7 +3368,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,88($sp)
@@ -3406,7 +3389,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,104($sp)
@@ -3428,7 +3411,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,116($sp)
@@ -3449,7 +3432,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,132($sp)
@@ -3470,7 +3453,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,148($sp)
@@ -3492,7 +3475,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,160($sp)
@@ -3513,7 +3496,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,176($sp)
@@ -3534,7 +3517,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,192($sp)
@@ -3556,7 +3539,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,204($sp)
@@ -3577,7 +3560,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,220($sp)
@@ -3598,7 +3581,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,236($sp)
@@ -3620,7 +3603,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,248($sp)
@@ -3641,7 +3624,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,264($sp)
@@ -3662,7 +3645,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,280($sp)
@@ -3684,7 +3667,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,292($sp)
@@ -3705,7 +3688,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,308($sp)
@@ -3726,7 +3709,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,324($sp)
@@ -3748,7 +3731,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,336($sp)
@@ -3769,7 +3752,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,352($sp)
@@ -3790,7 +3773,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,368($sp)
@@ -3811,7 +3794,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,384($sp)
@@ -3826,17 +3809,15 @@ lw $t0, 0($a0)
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,392($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 396
 jr $ra
 f51:
 addi $sp, $sp, -44
-sw $ra, 0($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
@@ -3854,7 +3835,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,16($sp)
@@ -3875,7 +3856,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,32($sp)
@@ -3890,31 +3871,34 @@ lw $t0, 0($a0)
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,40($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 44
 jr $ra
 f52:
 addi $sp, $sp, -36
-sw $ra, 0($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,4
+li $v0, 9
 syscall
 la $t0, A2Iclase
 sw $t0, 0($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
+lw $t0,8($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
@@ -3929,7 +3913,7 @@ lw $t0, 0($a0)
 lw $t0,40($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,20($sp)
@@ -3951,17 +3935,15 @@ lw $t0, 0($a0)
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,32($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 36
 jr $ra
 f53:
 addi $sp, $sp, -136
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,8($sp)
@@ -4038,7 +4020,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,108($sp)
@@ -4098,7 +4080,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,44($sp)
@@ -4110,21 +4092,19 @@ lw $t0,128($sp)
 move $v0, $t0
 sw $v0,132($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 136
 jr $ra
 f54:
 addi $sp, $sp, -236
-sw $ra, 0($sp)
 move $t0,$a1
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
 la $t1,Aclase
 addi $sp ,$sp, -4
-lw $ra, 0($sp)
-jal .TypeCheck
 sw $ra, 0($sp)
+jal .TypeCheck
+lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,24($sp)
 lw $t0,24($sp)
@@ -4149,7 +4129,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,44($sp)
@@ -4163,9 +4143,9 @@ var.var581:
 lw $t0,4($sp)
 la $t1,Bclase
 addi $sp ,$sp, -4
-lw $ra, 0($sp)
-jal .TypeCheck
 sw $ra, 0($sp)
+jal .TypeCheck
+lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,60($sp)
 lw $t0,60($sp)
@@ -4190,7 +4170,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,80($sp)
@@ -4204,9 +4184,9 @@ var.var588:
 lw $t0,4($sp)
 la $t1,Cclase
 addi $sp ,$sp, -4
-lw $ra, 0($sp)
-jal .TypeCheck
 sw $ra, 0($sp)
+jal .TypeCheck
+lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,96($sp)
 lw $t0,96($sp)
@@ -4231,7 +4211,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,116($sp)
@@ -4245,9 +4225,9 @@ var.var595:
 lw $t0,4($sp)
 la $t1,Dclase
 addi $sp ,$sp, -4
-lw $ra, 0($sp)
-jal .TypeCheck
 sw $ra, 0($sp)
+jal .TypeCheck
+lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,132($sp)
 lw $t0,132($sp)
@@ -4272,7 +4252,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,152($sp)
@@ -4286,9 +4266,9 @@ var.var602:
 lw $t0,4($sp)
 la $t1,Eclase
 addi $sp ,$sp, -4
-lw $ra, 0($sp)
-jal .TypeCheck
 sw $ra, 0($sp)
+jal .TypeCheck
+lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,168($sp)
 lw $t0,168($sp)
@@ -4313,7 +4293,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,188($sp)
@@ -4327,9 +4307,9 @@ var.var609:
 lw $t0,4($sp)
 la $t1,Objectclase
 addi $sp ,$sp, -4
-lw $ra, 0($sp)
-jal .TypeCheck
 sw $ra, 0($sp)
+jal .TypeCheck
+lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,204($sp)
 lw $t0,204($sp)
@@ -4354,7 +4334,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,224($sp)
@@ -4370,26 +4350,29 @@ lw $t0,8($sp)
 move $v0, $t0
 sw $v0,232($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 236
 jr $ra
 f55:
 addi $sp, $sp, -52
-sw $ra, 0($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,4
+li $v0, 9
 syscall
 la $t0, A2Iclase
 sw $t0, 0($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
+lw $t0,8($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
@@ -4418,7 +4401,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,24($sp)
@@ -4430,7 +4413,7 @@ lw $t0, 0($a0)
 lw $t0,36($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,28($sp)
@@ -4442,7 +4425,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,32($sp)
@@ -4463,20 +4446,19 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,48($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 52
 jr $ra
 f56:
 addi $sp, $sp, -1004
-sw $ra, 0($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Aclase
 sw $t0, 0($v0)
@@ -4484,11 +4466,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
+lw $t0,8($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
@@ -4523,7 +4509,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,36($sp)
@@ -4545,7 +4531,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,48($sp)
@@ -4567,7 +4553,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,60($sp)
@@ -4579,7 +4565,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,64($sp)
@@ -4602,7 +4588,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,96($sp)
@@ -4628,7 +4614,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,80($sp)
@@ -4657,7 +4643,7 @@ lw $t0, 0($a0)
 lw $t0,52($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,116($sp)
@@ -4672,7 +4658,7 @@ lw $t0, 0($a0)
 lw $t0,36($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,128($sp)
@@ -4892,6 +4878,7 @@ bgtz $t0, Lbl78
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Aclase
 sw $t0, 0($v0)
@@ -4899,11 +4886,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,900($sp)
+lw $t0,900($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,900($sp)
@@ -4922,7 +4913,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,908($sp)
@@ -4934,7 +4925,7 @@ lw $t0, 0($a0)
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,912($sp)
@@ -4967,6 +4958,7 @@ Lbl80:
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Aclase
 sw $t0, 0($v0)
@@ -4974,11 +4966,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,868($sp)
+lw $t0,868($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,868($sp)
@@ -5000,6 +4996,7 @@ Lbl82:
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Eclase
 sw $t0, 0($v0)
@@ -5007,11 +5004,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,676($sp)
+lw $t0,676($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,676($sp)
@@ -5030,7 +5031,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,684($sp)
@@ -5042,7 +5043,7 @@ lw $t0, 0($a0)
 lw $t0,52($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,688($sp)
@@ -5060,7 +5061,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,700($sp)
@@ -5075,7 +5076,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,708($sp)
@@ -5108,7 +5109,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,744($sp)
@@ -5130,7 +5131,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,756($sp)
@@ -5151,7 +5152,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,772($sp)
@@ -5173,7 +5174,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,784($sp)
@@ -5194,24 +5195,29 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,800($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,4
+li $v0, 9
 syscall
 la $t0, A2Iclase
 sw $t0, 0($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,804($sp)
+lw $t0,804($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,804($sp)
@@ -5240,7 +5246,7 @@ lw $t0, 0($a0)
 lw $t0,36($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,820($sp)
@@ -5252,7 +5258,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,824($sp)
@@ -5273,7 +5279,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,840($sp)
@@ -5298,6 +5304,7 @@ Lbl84:
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Dclase
 sw $t0, 0($v0)
@@ -5305,11 +5312,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,540($sp)
+lw $t0,540($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,540($sp)
@@ -5328,7 +5339,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,548($sp)
@@ -5340,7 +5351,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,552($sp)
@@ -5363,7 +5374,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,612($sp)
@@ -5385,7 +5396,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,624($sp)
@@ -5406,7 +5417,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,640($sp)
@@ -5432,7 +5443,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,568($sp)
@@ -5454,7 +5465,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,580($sp)
@@ -5475,7 +5486,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,596($sp)
@@ -5501,6 +5512,7 @@ Lbl86:
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Cclase
 sw $t0, 0($v0)
@@ -5508,11 +5520,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,504($sp)
+lw $t0,504($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,504($sp)
@@ -5531,7 +5547,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,512($sp)
@@ -5569,6 +5585,7 @@ Lbl88:
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Cclase
 sw $t0, 0($v0)
@@ -5576,11 +5593,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,468($sp)
+lw $t0,468($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,468($sp)
@@ -5599,7 +5620,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,476($sp)
@@ -5637,6 +5658,7 @@ Lbl90:
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Cclase
 sw $t0, 0($v0)
@@ -5644,11 +5666,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,432($sp)
+lw $t0,432($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,432($sp)
@@ -5667,7 +5693,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,440($sp)
@@ -5705,6 +5731,7 @@ Lbl92:
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Aclase
 sw $t0, 0($v0)
@@ -5712,11 +5739,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,372($sp)
+lw $t0,372($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,372($sp)
@@ -5735,7 +5766,7 @@ lw $t0, 0($a0)
 lw $t0,44($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,380($sp)
@@ -5747,7 +5778,7 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,384($sp)
@@ -5757,6 +5788,7 @@ sw $v0,152($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Dclase
 sw $t0, 0($v0)
@@ -5764,11 +5796,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,388($sp)
+lw $t0,388($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,388($sp)
@@ -5787,7 +5823,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,396($sp)
@@ -5806,7 +5842,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,404($sp)
@@ -5818,7 +5854,7 @@ lw $t0, 0($a0)
 lw $t0,40($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,408($sp)
@@ -5843,9 +5879,9 @@ sw $v0,216($sp)
 lw $t0,216($sp)
 la $t1,Cclase
 addi $sp ,$sp, -4
-lw $ra, 0($sp)
-jal .TypeCheck
 sw $ra, 0($sp)
+jal .TypeCheck
+lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,236($sp)
 lw $t0,236($sp)
@@ -5871,7 +5907,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,252($sp)
@@ -5883,7 +5919,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,256($sp)
@@ -5900,9 +5936,9 @@ var.var681:
 lw $t0,216($sp)
 la $t1,Aclase
 addi $sp ,$sp, -4
-lw $ra, 0($sp)
-jal .TypeCheck
 sw $ra, 0($sp)
+jal .TypeCheck
+lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,272($sp)
 lw $t0,272($sp)
@@ -5928,7 +5964,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,288($sp)
@@ -5940,7 +5976,7 @@ lw $t0, 0($a0)
 lw $t0,36($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,292($sp)
@@ -5957,9 +5993,9 @@ var.var689:
 lw $t0,216($sp)
 la $t1,Objectclase
 addi $sp ,$sp, -4
-lw $ra, 0($sp)
-jal .TypeCheck
 sw $ra, 0($sp)
+jal .TypeCheck
+lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,308($sp)
 lw $t0,308($sp)
@@ -5984,7 +6020,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,328($sp)
@@ -5999,7 +6035,7 @@ lw $t0, 0($a0)
 lw $t0,12($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,336($sp)
@@ -6032,6 +6068,7 @@ Lbl96:
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Aclase
 sw $t0, 0($v0)
@@ -6039,11 +6076,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,156($sp)
+lw $t0,156($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,156($sp)
@@ -6062,7 +6103,7 @@ lw $t0, 0($a0)
 lw $t0,44($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,164($sp)
@@ -6074,7 +6115,7 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,168($sp)
@@ -6084,6 +6125,7 @@ sw $v0,152($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
+li $v0, 9
 syscall
 la $t0, Bclase
 sw $t0, 0($v0)
@@ -6091,11 +6133,15 @@ sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,172($sp)
+lw $t0,172($sp)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
 lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,172($sp)
@@ -6114,7 +6160,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,180($sp)
@@ -6133,7 +6179,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,188($sp)
@@ -6145,7 +6191,7 @@ lw $t0, 0($a0)
 lw $t0,32($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $t0, $ra
+jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 sw $v0,192($sp)
@@ -6165,6 +6211,5 @@ li $t0,0
 move $v0, $t0
 sw $v0,1000($sp)
 lw $v0, 0($sp)
-lw $ra, 0($sp)
 addi $sp, $sp, 1004
 jr $ra

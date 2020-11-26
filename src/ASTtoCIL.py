@@ -133,6 +133,8 @@ class CILTranspiler:
         final=self.GenerarNombreVariable(scope)
 
         result=CILAssign(final,['self'])
+
+        instructions.append(result)
         
         return instructions
 
@@ -291,8 +293,9 @@ class CILTranspiler:
         destino=self.GenerarNombreVariable(scope)
         instruccion=CILAllocate(destino,[node.type])
         if not node.type in ['Int','Bool']:
+            argument=CILArgument(params=[destino])
             init=CILCall(destino,[node.type,"$init"])
-            return [instruccion, init]
+            return [instruccion, argument,init]
         else:
             return [instruccion]
 

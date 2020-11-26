@@ -115,9 +115,9 @@ class MIPSCompiler:
     def MainInstruction(self):
         instrucciones=""
         instrucciones+="addi $sp ,$sp, -4\n"
-        instrucciones+="lw $ra, 0($sp)\n"
-        instrucciones+="jal Main.Special\n"
         instrucciones+="sw $ra, 0($sp)\n"
+        instrucciones+="jal Main.Special\n"
+        instrucciones+="lw $ra, 0($sp)\n"
         instrucciones+="addi $sp ,$sp, 4\n"
         instrucciones+="jr $ra\n"
         return instrucciones
@@ -212,7 +212,7 @@ class MIPSCompiler:
             
         #Inicalizando variables locales
         instrucciones+="addi $sp, $sp, -"+str(4*len(node.locals)+4)+"\n"
-        instrucciones+="sw $ra, 0($sp)\n"
+        # instrucciones+="sw $ra, 0($sp)\n" Al parecer sobra
 
         for i in range(len(node.intrucciones)):
             if not isinstance(node.intrucciones[i],str):
@@ -228,7 +228,7 @@ class MIPSCompiler:
             instrucciones+="lw $v0, 0($sp)\n"
 
 
-        instrucciones+="lw $ra, 0($sp)\n"
+        # instrucciones+="lw $ra, 0($sp)\n" Al parecer sobra
         instrucciones+="addi $sp, $sp, "+str(4*len(node.locals)+4)+"\n"
         instrucciones+="jr $ra\n"
 
@@ -314,14 +314,14 @@ class MIPSCompiler:
         instrucciones=node.params[0]+":\n"
         return instrucciones
 
-    @visitor.when(CILArgument)
-    def visit(self, node:CILArgument, scope:ScopeMIPS):
-        instrucciones=self.load(node,scope)
-        if scope.paramcount<4:
-            instrucciones+="move $a"+str(scope.paramcount)+", $t0\n"
-        else:
-            instrucciones+="addi $sp, $sp, -4\n"
-            instrucciones+="sw $t0, 0($sp)\n"
+    # @visitor.when(CILArgument)
+    # def visit(self, node:CILArgument, scope:ScopeMIPS):
+    #     instrucciones=self.load(node,scope)
+    #     if scope.paramcount<4:
+    #         instrucciones+="move $a"+str(scope.paramcount)+", $t0\n"
+    #     else:
+    #         instrucciones+="addi $sp, $sp, -4\n"
+    #         instrucciones+="sw $t0, 0($sp)\n"
         
         return instrucciones
 
@@ -336,6 +336,7 @@ class MIPSCompiler:
         instrucciones+="sw $a0, 0($sp)\n"
 
         instrucciones+="li $a0,"+str(tamanno)+"\n"
+        instrucciones+="li $v0, 9\n"
         instrucciones+="syscall\n"
         
         instrucciones+="la $t0, "+tipo+"clase\n"
@@ -384,7 +385,7 @@ class MIPSCompiler:
         instrucciones+="lw $t0,"+str(scope.classmethods[tipo].index(func_id)*4+4)+"($t0)\n"
         instrucciones+="addi $sp, $sp, -4\n"
         instrucciones+="sw $ra, 0($sp)\n"
-        instrucciones+="jalr $t0, $ra\n"
+        instrucciones+="jalr $ra,$t0\n"
         instrucciones+="lw $ra, 0($sp)\n"
 
         for i in range(scope.paramcount):
@@ -551,9 +552,9 @@ class MIPSCompiler:
     def visit(self, node:CILCopy, scope:ScopeMIPS):
         instrucciones=""
         instrucciones+="addi $sp ,$sp, -4\n"
-        instrucciones+="lw $ra, 0($sp)\n"
-        instrucciones+="jal .Object.Copy\n"
         instrucciones+="sw $ra, 0($sp)\n"
+        instrucciones+="jal .Object.Copy\n"
+        instrucciones+="lw $ra, 0($sp)\n"
         instrucciones+="addi $sp ,$sp, 4\n"
         return self.loadAndSaveAndInstructions(node,instrucciones,scope)
 
@@ -575,9 +576,9 @@ class MIPSCompiler:
         # intermedio=CILTypeCheckIntermediate(node.destination,[node.params[0]])
         instrucciones=""
         instrucciones+="addi $sp ,$sp, -4\n"
-        instrucciones+="lw $ra, 0($sp)\n"
-        instrucciones+="jal .TypeCheck\n"
         instrucciones+="sw $ra, 0($sp)\n"
+        instrucciones+="jal .TypeCheck\n"
+        instrucciones+="lw $ra, 0($sp)\n"
         instrucciones+="addi $sp ,$sp, 4\n"
         return self.loadAndSaveAndInstructions(node, instrucciones, scope)
 
