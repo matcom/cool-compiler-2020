@@ -56,35 +56,6 @@ class Checker:
         for f in node.features:
             self.visit(f, scope.create_child())
 
-    @visitor.when(FuncDeclarationNode)
-    def visit(self, node, scope):
-        self.current_method = self.current_type.get_method(node.id.lex)
-
-        #Verificar funciones redefinidas 
-        parent = self.current_type.parent
-        if parent:
-            try:
-                p_method = parent.get_method(node.id.lex)
-            except SemanticError:
-                pass
-            else:
-                if p_method.return_type != self.current_method.return_type or p_method.param_types != self.current_method.param_types:
-                    self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " +WRONG_SIGNATURE % (self.current_method.name, self.current_type.name, parent.name))
-
-        scope.define_variable('self', self.current_type)
-        
-        for pname, ptype in zip(self.current_method.param_names, self.current_method.param_types):
-            scope.define_variable(pname, ptype)
-        
-        body = node.body
-        self.visit(body, scope.create_child())
-            
-        body_type = body.static_type
-        return_type = self.current_type if isinstance(self.current_method.return_type, SelfType) else self.current_method.return_type
-        
-        if not body_type.conforms_to(return_type):
-            self.errors.append(ERROR_ON_LN_COL % (body.line, body.column) + "TypeError: " + INCOMPATIBLE_TYPES % (body_type.name, return_type.name))
-    
     @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope):
         expr = node.expression
@@ -111,11 +82,13 @@ class Checker:
                 pass
             else:
                 if parent_method.param_types != self.current_method.param_types or parent_method.return_type != self.current_method.return_type:
-                     self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + WRONG_SIGNATURE % (self.current_method.name, self.current_type.name, parent.name))
+                    self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + WRONG_SIGNATURE % (self.current_method.name, self.current_type.name, parent.name))
         
         scope.define_variable('self', self.current_type)
         
         for pname, ptype in zip(self.current_method.param_names, self.current_method.param_types):
+            if pname == 'self':
+                self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + "Wrong use of self as method parameter")
             scope.define_variable(pname, ptype)
             
         body = node.body
