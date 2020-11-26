@@ -2,7 +2,7 @@ from visitor_helper import *
 from ast import *
 
 
-class FormatVisitor(object):
+class FormatVisitorS(object):
     @on('node')
     def visit(self, node, tabs):
         pass
