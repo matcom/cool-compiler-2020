@@ -165,23 +165,6 @@ class SelfType(Type):
     def __eq__(self, other):
         return isinstance(other, SelfType)
 
-class AutoType(Type):
-    def __init__(self):
-        Type.__init__(self, 'AUTO_TYPE')
-        self.sealed = True
-
-    def union_type(self, other):
-        return self
-
-    def conforms_to(self, other):
-        return True
-
-    def bypass(self):
-        return True
-
-    def __eq__(self, other):
-        return isinstance(other, Type)
-
 class ErrorType(Type):
     def __init__(self, message = ""):
         Type.__init__(self, '<error>')
@@ -203,14 +186,19 @@ class ErrorType(Type):
 class Context:
     def __init__(self):
         self.types = {}
+        self.basic_types = ['Object', 'IO', 'Int', 'String', 'Bool']
 
     def create_type(self, name:str, builtin = False):
+        if name in self.basic_types and name in self.types:
+            raise SemanticError(f'SemanticError: Redefinition of basic class {name}.')
         if name in self.types:
             raise SemanticError(f'Type with the same name ({name}) already in context.')
         typex = self.types[name] = Type(name,built_in=builtin)
         return typex
 
     def add_type(self, typex):
+        if typex.name in self.basic_types:
+            raise SemanticError(f'SemanticError: Redefinition of basic class {typex.name}.')
         if typex.name in self.types:
             raise SemanticError(f'Type with the same name ({typex.name}) already in context.')
         self.types[typex.name] = typex
@@ -232,13 +220,12 @@ class VariableInfo:
     def __init__(self, name, vtype):
         self.name = name
         self.type = vtype
-        self.infered = not isinstance(vtype, AutoType)
         self.calls = []
         self.assigns = []
+        self.infered = False
 
     def set_calls(self, typex):
-        if not self.infered and not isinstance(typex, AutoType):
-            self.calls.append(typex)
+        self.calls.append(typex)
 
     def set_assigns(self, typex):
         if not self.infered:
@@ -269,10 +256,6 @@ class VariableInfo:
                 else:
                     self.type = call
 
-                if not self.type or isinstance(self.type, ErrorType):
-                    self.type = AutoType()
-
-                self.infered = not isinstance(self.type, AutoType)
                 self.calls = []
                 self.assigns = []
 
