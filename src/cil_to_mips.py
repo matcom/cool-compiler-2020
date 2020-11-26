@@ -411,9 +411,11 @@ class CILToMIPSVisitor():
     def visit(self, node):
         offset = self.var_offset[self.current_function.name][node.variable]
         self.text += f'lw $t0, {offset}($sp)\n'
+        self.text += f'lw $t0, 16($t0)\n'
+        
         self.text += 'li $a0, 0\n'
         self.text += 'count_char:\n'
-        self.text += 'lb $t1, ($t0)\n' # loading current char
+        self.text += 'lb $t1, 0($t0)\n' # loading current char
         self.text += 'beqz $t1, finish_chars_count\n' # finish if a zero is found
         self.text += 'addi $t0, $t0, 1\n' # move to the next char
         self.text += 'addi $a0, $a0, 1\n' # length_count += 1
@@ -570,5 +572,5 @@ if __name__ == '__main__':
         cil_to_mips = CILToMIPSVisitor()
         mips_code = cil_to_mips.visit(cil_ast)
        
-        with open(f'{sys.argv[1][:-3]}.s', 'w') as f:
+        with open(f'{sys.argv[1][:-3]}.mips', 'w') as f:
             f.write(f'{mips_code}')

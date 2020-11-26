@@ -201,7 +201,7 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(CIL_AST.Allocate('Int', self.context.get_type('Int').tag,instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(CIL_AST.Call(result_init,'Int_init', [CIL_AST.Arg(length_result),CIL_AST.Arg(instance)], "Int"))
-        self.register_instruction(CIL_AST.Return(length_result))
+        self.register_instruction(CIL_AST.Return(instance))
 
         #concat
         self.current_function = self.register_function(self.to_function_name('concat', 'String'))
