@@ -123,13 +123,13 @@ class CIL_FORMATTER(object):
     def visit(self, node: ToIntNode):
         return f'{node.dest} = INT {node.msg}'
 
-    # @visitor.when(GetAttribNode)
-    # def visit(self, node: GetAttribNode):
-    #     return f'{node.dest} = GETATTR {node.obj} {node.attrib}'
+    @visitor.when(GetAttribNode)
+    def visit(self, node: GetAttribNode):
+        return f'{node.dest} = GETATTR {node.obj} {node.attrib}'
 
-    # @visitor.when(SetAttribNode)
-    # def visit(self, node: SetAttribNode):
-    #     return f'SETATTR {node.obj} {node.attrib} {node.value}'
+    @visitor.when(SetAttribNode)
+    def visit(self, node: SetAttribNode):
+        return f'SETATTR {node.obj} {node.attrib} {node.value}'
 
     @visitor.when(LabelNode)
     def visit(self, node: LabelNode):
@@ -178,9 +178,9 @@ class CIL_FORMATTER(object):
     def visit(self, node:NotNode):
         return f'{node.dest} = NOT {node.body}'
 
-    # @visitor.when(StringEqualNode)
-    # def visit(self, node: StringEqualNode):
-    #     return f'{node.dest} = STREQ {node.msg1} {node.msg2}'
+    @visitor.when(StringEqualNode)
+    def visit(self, node: StringEqualNode):
+        return f'{node.dest} = STREQ {node.msg1} {node.msg2}'
 
     @visitor.when(CopyNode)
     def visit(self, node: CopyNode):
