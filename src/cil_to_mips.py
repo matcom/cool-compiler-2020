@@ -279,7 +279,7 @@ class CILToMIPSVisitor():
         self.text += f'lw $t1, {right_offset}($sp)\n'
         if node.op == '/':
             self.text += 'beq $t1, 0, div_zero_error\n'
-        self.text += f'{mips_comm} $a0, $t1, $a0\n'
+        self.text += f'{mips_comm} $a0, $a0, $t1\n'
         result_offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $a0, {result_offset}($sp)\n'
     
@@ -566,5 +566,5 @@ if __name__ == '__main__':
         cil_to_mips = CILToMIPSVisitor()
         mips_code = cil_to_mips.visit(cil_ast)
        
-        with open(f'{sys.argv[1][:-3]}.s', 'w') as f:
+        with open(f'{sys.argv[1][:-3]}.mips', 'w') as f:
             f.write(f'{mips_code}')

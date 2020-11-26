@@ -105,10 +105,19 @@ class BaseCOOLToCILVisitor:
         msg = self.define_internal_local(scope=scope, name="msg")
         key_msg = ''
         for s in self.dotdata.keys():
-            if self.dotdata[s] == 'Execution aborted':
+            if self.dotdata[s] == 'Abort called from class ':
                 key_msg = s
         self.register_instruction(CIL_AST.LoadStr(key_msg, msg))
         self.register_instruction(CIL_AST.PrintString(msg))
+        type_name = self.define_internal_local(scope=scope, name = "type_name" )
+        self.register_instruction(CIL_AST.TypeOf('self', type_name))
+        self.register_instruction(CIL_AST.PrintString(type_name))
+        eol_local = self.define_internal_local(scope=scope, name="eol")
+        for s in self.dotdata.keys():
+            if self.dotdata[s] == '\n':
+                eol = s
+        self.register_instruction(CIL_AST.LoadStr(eol, eol_local))
+        self.register_instruction(CIL_AST.PrintString(eol_local))
         self.register_instruction(CIL_AST.Halt())
 
         #type_name
@@ -271,7 +280,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.Return(None))
         self.current_function = None
 
-        self.register_data('Execution aborted')
+        self.register_data('Abort called from class ')
+        self.register_data('\n')
         self.dotdata['empty_str'] = ''
         
         #Add built-in types in .TYPES section
