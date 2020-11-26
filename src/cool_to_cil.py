@@ -105,10 +105,19 @@ class BaseCOOLToCILVisitor:
         msg = self.define_internal_local(scope=scope, name="msg")
         key_msg = ''
         for s in self.dotdata.keys():
-            if self.dotdata[s] == 'Execution aborted':
+            if self.dotdata[s] == 'Abort called from class ':
                 key_msg = s
         self.register_instruction(CIL_AST.LoadStr(key_msg, msg))
         self.register_instruction(CIL_AST.PrintString(msg))
+        type_name = self.define_internal_local(scope=scope, name = "type_name" )
+        self.register_instruction(CIL_AST.TypeOf('self', type_name))
+        self.register_instruction(CIL_AST.PrintString(type_name))
+        eol_local = self.define_internal_local(scope=scope, name="eol")
+        for s in self.dotdata.keys():
+            if self.dotdata[s] == '\n':
+                eol = s
+        self.register_instruction(CIL_AST.LoadStr(eol, eol_local))
+        self.register_instruction(CIL_AST.PrintString(eol_local))
         self.register_instruction(CIL_AST.Halt())
 
         #type_name
@@ -271,7 +280,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(CIL_AST.Return(None))
         self.current_function = None
 
-        self.register_data('Execution aborted')
+        self.register_data('Abort called from class ')
+        self.register_data('\n')
         self.dotdata['empty_str'] = ''
         
         #Add built-in types in .TYPES section
@@ -390,6 +400,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result_local = self.define_internal_local(scope=scope, name = "result")
 
         cond_value = self.visit(node.predicate, scope)
+
         if_then_label = self.get_label()
         self.register_instruction(CIL_AST.IfGoto(cond_value, if_then_label))
 
@@ -451,12 +462,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(COOL_AST.StaticCall)
     def visit(self, node, scope):
         result_local = self.define_internal_local(scope = scope, name = "result")
+        expr_value = self.visit(node.instance, scope)
 
         call_args = []
         for arg in reversed(node.args):
             param_local = self.visit(arg, scope)
             call_args.append(CIL_AST.Arg(param_local))
-        call_args.append(CIL_AST.Arg('self'))
+        call_args.append(CIL_AST.Arg(expr_value))
 
         # for p in call_args:
         #     self.register_instruction(CIL_AST.Arg(p))

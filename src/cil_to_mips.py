@@ -16,8 +16,6 @@ class CILToMIPSVisitor():
             '<' : 'slt',
             '<=' : 'sle',
             '=' : 'seq',
-            '~' : 'neg',
-            'not': 'not'
         }
         self.current_function = None
         self.types = None
@@ -281,16 +279,18 @@ class CILToMIPSVisitor():
         self.text += f'lw $t1, {right_offset}($sp)\n'
         if node.op == '/':
             self.text += 'beq $t1, 0, div_zero_error\n'
-        self.text += f'{mips_comm} $a0, $t1, $a0\n'
+        self.text += f'{mips_comm} $a0, $a0, $t1\n'
         result_offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $a0, {result_offset}($sp)\n'
     
     @visitor.when(CIL_AST.UnaryOperator)
     def visit(self, node):
-        mips_comm = self.mips_comm_for_operators[node.op]
         expr_offset = self.var_offset[self.current_function.name][node.expr_value]
         self.text += f'lw $t1, {expr_offset}($sp)\n'
-        self.text += f'{mips_comm} $a0, $t1 \n'
+        if node.op == 'not':
+            self.text += f'xor $a0, $t1, 1\n'
+        else:
+            self.text += f'neg $a0, $t1 \n'
       
         result_offset = self.var_offset[self.current_function.name][node.local_dest]
         self.text += f'sw $a0, {result_offset}($sp)\n'
@@ -298,9 +298,9 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.IfGoto)
     def visit(self, node):
         predicate_offset = self.var_offset[self.current_function.name][node.variable]
-        self.text += f'lw $a0, {predicate_offset}($sp)\n'
-        self.text += f'li $t1, 1\n'
-        self.text += f'beq $a0, $t1 {node.label}\n'
+        self.text += f'lw $t0, {predicate_offset}($sp)\n'
+        self.text += f'lw $a0, 16($t0)\n'  #get value attribute
+        self.text += f'bnez $a0, {node.label}\n'
     
     @visitor.when(CIL_AST.Goto)
     def visit(self, node):
@@ -499,10 +499,12 @@ class CILToMIPSVisitor():
         self.text += 'j jump_str_char\n'
         self.text += 'finish_index_jump:\n'
         self.text += 'li $a0, 0\n' # reset $a0 to count the length
+        self.text += 'move $t3, $v0\n' # save start of substring
 
         # coping chars from string $t2 (starting in $t0 index) until length $t1 to $v0
         self.text += 'copy_substr_char:\n'
         self.text += 'beq $a0, $t1 finish_substr_copy\n' # finish if the chars count is equals to length
+        self.text += 'li $t0, 0\n' # reset $t0 before loading bytes
         self.text += 'lb $t0, ($t2)\n' # loading current char from string
         self.text += 'sb $t0, ($v0)\n' # storing current char into result_str end
         self.text += 'addi $t2, $t2, 1\n'  # move to the next char
@@ -514,7 +516,7 @@ class CILToMIPSVisitor():
         self.text += 'sb $0, ($v0)\n' # put '\0' at the end
         
         offset = self.var_offset[self.current_function.name][node.result]
-        self.text += f'sw $v0, {offset}($sp)\n'  # store length count address in local
+        self.text += f'sw $t3, {offset}($sp)\n'  # store length count address in local
 
 
 if __name__ == '__main__':
@@ -527,7 +529,7 @@ if __name__ == '__main__':
     lexer = Lexer()
     parser = Parser()
 
-    sys.argv.append('hello_world.cl')
+    sys.argv.append('test.cl')
 
     if len(sys.argv) > 1:
 
@@ -566,5 +568,5 @@ if __name__ == '__main__':
         cil_to_mips = CILToMIPSVisitor()
         mips_code = cil_to_mips.visit(cil_ast)
        
-        with open(f'{sys.argv[1][:-3]}.mips', 'w') as f:
+        with open(f'{sys.argv[1][:-3]}.s', 'w') as f:
             f.write(f'{mips_code}')

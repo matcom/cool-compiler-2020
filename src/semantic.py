@@ -114,6 +114,7 @@ class Type:
                 raise SemanticException(
                     f'Method "{name}" is not defined in {self.name}.')
 
+
     def define_method(self, name: str, param_names: list, param_types: list, return_type):
         try:
             method = self.get_method(name)
@@ -128,6 +129,8 @@ class Type:
                 if method.return_type != return_type or method.param_types != param_types:
                     raise SemanticException(
                         f'Method "{name}" is already defined in {self.name} with a different signature')
+                else:
+                    self.methods[name] = Method(name, param_names, param_types, return_type)
             else:
                 raise SemanticException(
                     f'Method "{name}" is already defined in {self.name}')
