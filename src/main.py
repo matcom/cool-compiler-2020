@@ -34,7 +34,7 @@ collect.visit(ast)
 
 if len(collect_errors):
     #print("coolector")
-    for e in collect_errors:
+    for e in collect_errors[::-1]:
         print(e)
     exit(1)
 
@@ -45,7 +45,7 @@ builder.visit(ast)
 
 if len(builder_errors):
     #print("builder")
-    for e in builder_errors:
+    for e in builder_errors[::-1]:
         print(e)
     exit(1)
 
@@ -56,7 +56,7 @@ scope = checker.visit(ast)
 
 if len(checker_errors):
     #print("checker")
-    for e in checker_errors:
+    for e in checker_errors[::-1]:
         print(e)
     exit(1)
 
