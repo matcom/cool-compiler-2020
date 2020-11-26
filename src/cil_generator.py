@@ -593,7 +593,7 @@ def convert_variable(id):
 
     if id.lex in C_ATTRIBUTES:
         result = get_local()
-        return Node_Result([AllocateNode(C_ATTRIBUTES[id.lex].attribute_type.name, result.id), GetAttributeNode(CURR_TYPE, "self", id.lex, result.id)], result.id)
+        return Node_Result([AllocateNode(C_ATTRIBUTES[id.lex].attribute_type.name, result.id), GetAttributeNode(CURR_TYPE, "self", id.lex, result.id)], result)
     
     result = get_local()
     

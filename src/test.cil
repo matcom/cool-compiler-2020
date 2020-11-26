@@ -37,9 +37,48 @@ TYPES -->
 		method copy:Object_copy
 	}
 
+	type A {
+		attribute io:A
+		method out_a:A_out_a
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type B {
+		attribute io:A
+		method out_b:B_out_b
+		method out_a:A_out_a
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type C {
+		method out_c:C_out_c
+		method out_string:IO_out_string
+		method out_int:IO_out_int
+		method in_string:IO_in_string
+		method in_int:IO_in_int
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type D {
+		method out_d:D_out_d
+		method out_c:C_out_c
+		method out_string:IO_out_string
+		method out_int:IO_out_int
+		method in_string:IO_in_string
+		method in_int:IO_in_int
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
 	type Main {
 		method main:Main_main
-		method fib:Main_fib
 		method out_string:IO_out_string
 		method out_int:IO_out_int
 		method in_string:IO_in_string
@@ -53,8 +92,11 @@ END <--
 
 DATA -->
 
-	data_0 "Enter n to find nth fibonacci number!\n"
-	data_1 "\n"
+	data_0 "A: Hello world\n"
+	data_1 "B: Hello world\n"
+	data_2 "C: Hello world\n"
+	data_3 "D: Hello world\n"
+	data_4 "Done.\n"
 
 END <--
 
@@ -140,64 +182,79 @@ CODE -->
 		EXIT
 	}
 
-	function Main_main {
+	function A_out_a {
 		PARAM self
 		LOCAL local_8
 		LOCAL local_9
 		LOCAL local_10
 		LOCAL local_11
-		LOCAL local_12
-		LOCAL local_13
-		LOCAL local_14
-		LOCAL local_15
-		LOCAL local_16
-		LOCAL local_17
-		LOCAL local_18
-		LOCAL local_19
-		LOCAL local_20
-		LOCAL local_21
-		LOCAL local_22
-		LOCAL local_23
-		LOCAL local_24
 		ALLOC local_8 IO
+		GATTR local_8 self io
 		ALLOC local_9 String
 		LDATA local_9 data_0
-		ARG self
+		ARG local_8
 		ARG local_9
 		ALLOC local_11 String
 		TYPE local_11 local_8
 		CALL local_10 local_11 out_string
-		ALLOC local_12 IO
-		ALLOC local_13 Main
-		ALLOC local_14 IO
-		ARG self
-		ALLOC local_16 String
-		TYPE local_16 local_14
-		CALL local_15 local_16 in_int
-		ARG self
-		ARG local_15
-		ALLOC local_18 String
-		TYPE local_18 local_13
-		CALL local_17 local_18 fib
-		ARG self
-		ARG local_17
-		ALLOC local_20 String
-		TYPE local_20 local_12
-		CALL local_19 local_20 out_int
-		ALLOC local_21 IO
-		ALLOC local_22 String
-		LDATA local_22 data_1
-		ARG self
-		ARG local_22
-		ALLOC local_24 String
-		TYPE local_24 local_21
-		CALL local_23 local_24 out_string
-		RETURN local_23
+		RETURN local_10
 	}
 
-	function Main_fib {
+	function B_out_b {
 		PARAM self
-		PARAM i
+		LOCAL local_12
+		LOCAL local_13
+		LOCAL local_14
+		LOCAL local_15
+		ALLOC local_12 IO
+		GATTR local_12 self io
+		ALLOC local_13 String
+		LDATA local_13 data_1
+		ARG local_12
+		ARG local_13
+		ALLOC local_15 String
+		TYPE local_15 local_12
+		CALL local_14 local_15 out_string
+		RETURN local_14
+	}
+
+	function C_out_c {
+		PARAM self
+		LOCAL local_16
+		LOCAL local_17
+		LOCAL local_18
+		LOCAL local_19
+		ALLOC local_16 IO
+		ALLOC local_17 String
+		LDATA local_17 data_2
+		ARG self
+		ARG local_17
+		ALLOC local_19 String
+		TYPE local_19 local_16
+		CALL local_18 local_19 out_string
+		RETURN local_18
+	}
+
+	function D_out_d {
+		PARAM self
+		LOCAL local_20
+		LOCAL local_21
+		LOCAL local_22
+		LOCAL local_23
+		ALLOC local_20 IO
+		ALLOC local_21 String
+		LDATA local_21 data_3
+		ARG self
+		ARG local_21
+		ALLOC local_23 String
+		TYPE local_23 local_20
+		CALL local_22 local_23 out_string
+		RETURN local_22
+	}
+
+	function Main_main {
+		PARAM self
+		LOCAL local_24
 		LOCAL local_25
 		LOCAL local_26
 		LOCAL local_27
@@ -211,51 +268,52 @@ CODE -->
 		LOCAL local_35
 		LOCAL local_36
 		LOCAL local_37
-		ALLOC local_25 Int
-		MOV local_25 1
-		ALLOC local_26 Int
-		MOV local_26 local_25
-		ALLOC local_27 Int
-		MOV local_27 0
-		ALLOC local_28 Int
-		MOV local_28 local_27
-		ALLOC local_29 Int
-		MOV local_29 0
-		ALLOC local_30 Int
-		MOV local_30 local_29
-		ALLOC local_37 void
-		LABEL label_1
-		ALLOC local_33 Bool
-		ALLOC local_32 Bool
-		ALLOC local_31 Int
-		MOV local_31 0
-		E local_32 i local_31
-		NOT local_33 local_32
-		IF local_33 GOTO label_2
-		GOTO label_3
-		LABEL label_2
-		ALLOC local_34 Int
-		ADD local_34 local_26 local_28
-		COPY local_30 local_34
-		ALLOC local_35 Int
-		MOV local_35 1
-		ALLOC local_36 Int
-		SUB local_36 i local_35
-		COPY i local_36
-		COPY local_28 local_26
-		COPY local_26 local_30
-		GOTO label_1
-		LABEL label_3
-		RETURN local_30
+		LOCAL local_38
+		LOCAL local_39
+		LOCAL local_40
+		LOCAL local_41
+		ALLOC local_24 A
+		ALLOC local_25 IO
+		SATTR local_24 io local_25
+		ARG local_24
+		ALLOC local_27 String
+		TYPE local_27 local_24
+		CALL local_26 local_27 out_a
+		ALLOC local_28 B
+		ALLOC local_29 IO
+		SATTR local_28 io local_29
+		ARG local_28
+		ALLOC local_31 String
+		TYPE local_31 local_28
+		CALL local_30 local_31 out_b
+		ALLOC local_32 C
+		ARG local_32
+		ALLOC local_34 String
+		TYPE local_34 local_32
+		CALL local_33 local_34 out_c
+		ALLOC local_35 D
+		ARG local_35
+		ALLOC local_37 String
+		TYPE local_37 local_35
+		CALL local_36 local_37 out_d
+		ALLOC local_38 IO
+		ALLOC local_39 String
+		LDATA local_39 data_4
+		ARG self
+		ARG local_39
+		ALLOC local_41 String
+		TYPE local_41 local_38
+		CALL local_40 local_41 out_string
+		RETURN local_40
 	}
 
 	function main {
-		LOCAL local_38
-		ALLOC local_38 Main
-		ARG local_38
-		ALLOC local_40 String
-		SETSTR local_40 Main
-		CALL local_39 local_40 main
+		LOCAL local_42
+		ALLOC local_42 Main
+		ARG local_42
+		ALLOC local_44 String
+		SETSTR local_44 Main
+		CALL local_43 local_44 main
 	}
 
 END <--
