@@ -47,6 +47,10 @@ class Checker:
             parent = parent.parent
 
         for a in self.current_type.attributes:
+            if a.name == 'self':
+                line, column = [ (attrib.line, attrib.column) for attrib in node.features if type(attrib) is AttrDeclarationNode and attrib.id.lex == 'self'][0]
+                self.errors.append(ERROR_ON_LN_COL % (line, column) + "SemanticError: " + "Incorrect use of self in attribute declaration")
+
             scope.define_variable(a.name, a.type)
 
         for f in node.features:
