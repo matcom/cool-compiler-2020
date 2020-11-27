@@ -169,7 +169,7 @@ def build_cool_grammar():
     # statement_list %= exp + dot_comma + statement_list, lambda s: [s[1]] + s[3]
 
     var_dec %= let + nested_lets + in_keyword + exp, lambda s: VariableDeclaration(
-        s[2], s[4]
+        s[2], s[1].token_line, s[1].token_column - 3, s[4]
     )
 
     nested_lets %= idx + dd + typex, lambda s: [(s[1].lex, s[3], None)]
@@ -243,7 +243,7 @@ def build_cool_grammar():
 
     term %= factor, lambda s: s[1]
 
-    term %= not_ + factor, lambda s: NotNode(s[2])
+    term %= not_ + factor, lambda s: NotNode(s[2], s[1].token_line, s[1].token_column)
 
     term %= not_operator + factor, lambda s: NegNode(s[2])
 

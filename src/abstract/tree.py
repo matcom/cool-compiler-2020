@@ -98,9 +98,11 @@ class AttributeDef(DeclarationNode):
 
 
 class VariableDeclaration(ExpressionNode):
-    def __init__(self, var_list, block_statements=None):
+    def __init__(self, var_list, line, column, block_statements=None):
         self.var_list: List[Tuple[str, str, Optional[ExpressionNode]]] = var_list
         self.block_statements: Optional[ExpressionNode] = block_statements
+        self.line = line
+        self.column = column
 
 
 class BinaryNode(ExpressionNode):
@@ -260,8 +262,10 @@ class GreaterEqualNode(BinaryNode):
 
 
 class NotNode(AtomicNode):
-    def __init__(self, lex):
+    def __init__(self, lex, line, column):
         super().__init__(lex)
+        self.line = line
+        self.column = column
 
 
 class NegNode(AtomicNode):

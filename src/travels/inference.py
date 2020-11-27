@@ -127,7 +127,7 @@ class TypeInferer:
                     TypeError(
                         f"Attribute {node.idx} of type {atrib.type.name} can not be initialized with an expression of type {return_type.name}",
                         node.default_value.line,
-                        node.default_value.column - node.column,
+                        node.default_value.column,
                     )
                 )
 
@@ -299,7 +299,11 @@ class TypeInferer:
                 if type_ != self.AUTO_TYPE:
                     if not init_expr_type.conforms_to(type_):
                         raise SemanticError(
-                            f"Init expression of {var_id} must conform to type {type_}"
+                            TypeError(
+                                f"Declared type {init_expr_type.name} does not conform to type {type_.name} in var {var_id}.",
+                                node.line,
+                                node.column
+                            )
                         )
                     else:
                         if deep == 1:
@@ -345,7 +349,7 @@ class TypeInferer:
 
         # Procesar el tipo de retorno de la funcion
         if method.return_type != self.AUTO_TYPE:
-            return static_expr0_type
+            return method.return_type
         elif infered_type:
             method.return_type = infered_type
             return infered_type
@@ -576,6 +580,20 @@ class TypeInferer:
                 )
         else:
             return self.BOOL
+
+    @visit.register
+    def _(self, node: coolAst.NotNode, scope: semantic.Scope, infered_type=None, deep=1):
+        val_type = self.visit(node.lex, scope, infered_type, deep)
+        if val_type == self.AUTO_TYPE or val_type == self.INTEGER:
+            return self.INTEGER
+        else:
+            raise SemanticError(
+            TypeError(
+                f"Argument of ~ has type {val_type.name} instead of Int.",
+                node.line,
+                node.column
+            )
+        )
 
     @visit.register
     def _(
