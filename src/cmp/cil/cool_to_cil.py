@@ -91,9 +91,11 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
 
     def build_attr_init(self, node: cool.ProgramNode):
         self.attr_init = dict()
+        self.attr_init["IO"] = []
+        self.attr_init["Object"] = []
         for classx in node.classes:
             self.attr_init[classx.id] = []
-            if classx.parent and not classx.parent in ["IO", "Object"]:
+            if classx.parent:
                 self.attr_init[classx.id] += self.attr_init[classx.parent]
             for feature in classx.features:
                 if type(feature) is cool.AttrDeclarationNode:
