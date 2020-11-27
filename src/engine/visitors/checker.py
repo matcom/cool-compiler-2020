@@ -177,10 +177,16 @@ class Checker:
         self.visit(node.expression, scope.create_child())
 
         node.static_type = None
+        
+        case_types = []
 
         for idx, typex, expr in node.branches:
             try:
                 node_type = self.context.get_type(typex.lex)
+                if node_type in case_types:
+                    self.errors.append(ERROR_ON_LN_COL % (typex.line, typex.column) + "SemanticError: " + f"Duplicate Branch {node_type} in case declaration")
+                else:
+                    case_types.append(node_type)
             except SemanticError as ex:
                 self.errors.append(ERROR_ON_LN_COL % (typex.line, typex.column) + "TypeError: " + ex.text)
                 node_type = ErrorType()
