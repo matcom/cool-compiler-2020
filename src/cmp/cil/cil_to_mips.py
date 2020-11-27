@@ -370,13 +370,13 @@ class CIL_TO_MIPS(object):
     def visit(self, node: DynamicCallNode):  # noqa: F811
         self.mips.comment("DynamicCallNode")
         type_data = self.types_offsets[node.type]
-        offset = type_data.func_offsets[node.method]
+        offset = type_data.func_offsets[node.method] * self.data_size
         self.load_memory(Reg.t0, node.obj)
         self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
         label_get_pc = self.get_pc(Reg.t2)
         self.mips.jal(label_get_pc)
         self.mips.move(Reg.ra, Reg.t2)
-        self.mips.addi(Reg.ra, 12)
+        self.mips.addi(Reg.ra, Reg.ra, 12)
         self.mips.jr(Reg.t1)
         self.mips.empty()
 
@@ -456,7 +456,7 @@ class CIL_TO_MIPS(object):
         self.mips.comment("GetAttribNode")
         self.load_memory(Reg.t0, node.obj)
         type_data = self.types_offsets[node.type]
-        offset = type_data.attr_offsets[node.attrib]
+        offset = type_data.attr_offsets[node.attrib] * self.data_size
         self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
         self.store_memory(Reg.t1, node.dest)
         self.mips.empty()
@@ -466,7 +466,7 @@ class CIL_TO_MIPS(object):
         self.mips.comment("SetAttribNode")
         self.load_memory(Reg.t0, node.obj)
         type_data = self.types_offsets[node.type]
-        offset = type_data.attr_offsets[node.attrib]
+        offset = type_data.attr_offsets[node.attrib] * self.data_size
         if node.value in self.local_vars_offsets:
             self.mips.comment(f"Seting local var {node.value}")
             self.load_memory(Reg.t1, node.value)
