@@ -125,14 +125,18 @@ class Mips:
         """
         self.lw(Reg.t8, address)
         self.sll(Reg.t8, Reg.t8, 16)
-        self.lw(Reg.t9, f"{address} + 4")
+        self.la(Reg.t7, address)
+        self.addi(Reg.t7, Reg.t7, 4)
+        self.lw(Reg.t9, self.offset(Reg.t7))
         self.orr(register, Reg.t8, Reg.t9)
 
     def store_memory(self, register: Register, address: str):
         """
         Write to a specific address a 32 bits register
         """
-        self.sw(Reg.t9, f"{address} + 4")
+        self.la(Reg.t7, address)
+        self.addi(Reg.t7, Reg.t7, 4)
+        self.sw(Reg.t9, self.offset(Reg.t7))
         self.srl(Reg.t9, Reg.t9, 16)
         self.sw(Reg.t8, address)
         self.orr(register, Reg.t8, Reg.t9)
