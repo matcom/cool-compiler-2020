@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 from lexer import tokens
-from ast import *
+from ast_hierarchy import *
 
 start = 'program'
 errors = []

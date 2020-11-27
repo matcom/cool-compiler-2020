@@ -120,6 +120,8 @@ class FunctionCallStatement(StatementNode):
 class ExpressionNode(Node):
     pass
 
+
+
 class AtomicNode(ExpressionNode):
     def __init__(self, lex, line_number):
         super().__init__(line_number)
@@ -136,6 +138,12 @@ class BinaryNode(ExpressionNode):
         super().__init__(0)
         self.left = left
         self.right = right
+
+class BoolBinaryNode(BinaryNode):
+    pass
+
+class IntBinaryNode(BinaryNode):
+    pass
 
 class ConstantNumericNode(AtomicNode):
     pass
@@ -158,23 +166,23 @@ class IsVoidNode(UnaryNode):
 class ComplementNode(UnaryNode):
     pass
 
-class LessEqualNode(BinaryNode):
+class LessEqualNode(BoolBinaryNode):
     pass
 
-class LessNode(BinaryNode):
+class LessNode(BoolBinaryNode):
     pass
 
-class EqualNode(BinaryNode):
+class EqualNode(BoolBinaryNode):
     pass
 
-class PlusNode(BinaryNode):
+class PlusNode(IntBinaryNode):
     pass
 
-class MinusNode(BinaryNode):
+class MinusNode(IntBinaryNode):
     pass
 
-class TimesNode(BinaryNode):
+class TimesNode(IntBinaryNode):
     pass
 
-class DivideNode(BinaryNode):
+class DivideNode(IntBinaryNode):
     pass
