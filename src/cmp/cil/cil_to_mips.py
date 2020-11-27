@@ -157,7 +157,6 @@ class CIL_TO_MIPS(object):
         for instruction in node.instructions:
             self.visit(instruction)
 
-        self.actual_args = None
         self.mips.empty()
         self.load_registers()
 
@@ -167,6 +166,7 @@ class CIL_TO_MIPS(object):
             Reg.sp,
             len(node.localvars) * self.data_size,
         )
+        self.actual_args = None
         self.mips.comment("Return")
         self.mips.pop(Reg.fp)
         self.mips.jr(Reg.ra)
@@ -400,6 +400,7 @@ class CIL_TO_MIPS(object):
     @when(ReturnNode)
     def visit(self, node: ReturnNode):  # noqa: F811
         self.mips.comment("ReturnNode")
+        self.mips.comment(f"Returning {node.value}")
         self.load_memory(Reg.v0, node.value)
         self.mips.empty()
 
@@ -482,7 +483,7 @@ class CIL_TO_MIPS(object):
             except ValueError:
                 self.mips.comment(f"Seting data {node.value}")
                 self.mips.la(Reg.t1, node.value)
-        self.mips.store_memory(Reg.t1, self.mips.offset(Reg.t0, offset*self.data_size))
+        self.mips.store_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
         self.mips.empty()
 
     @when(LabelNode)
