@@ -21,20 +21,22 @@ class MIPS:
         self.code.append("\n")
 
 
-        self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'IO.s')) + "\n")
-        self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'Object.s')) + "\n")
-        self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'String.s')) + "\n")
-        self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'inherit.s')) + "\n")
 
         for node in self.il_data:
             self.visit(node)
         
-        self.code.append("Object_INH: .word 0\n")
+        self.code.append("Object_INH:\n")
         for c in self.data:
             self.code.append(c)
 
         self.code.append("\n.globl main\n")
         self.code.append(".text\n")
+        
+        self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'IO.s')) + "\n")
+        self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'Object.s')) + "\n")
+        self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'String.s')) + "\n")
+        self.code.append(self._loadfrom(os.path.join('code_generation/statics', 'inherit.s')) + "\n")
+        
         # self.code.append("main:\n")
         # self.code.append("addi $sp, $sp, -8\n")
         # self.code.append("addi $sp, $sp, -4\n")
@@ -43,6 +45,7 @@ class MIPS:
         # self.code.append("li $v0, 5\n")
         # self.code.append("syscall\n")
         # self.code.append('j Main.main\n')
+        
         print('code_len', len(self.code))
         for c in self.il_code:
             # print(str(c))
@@ -147,7 +150,7 @@ class MIPS:
     def visit(self, node):
         self.code.append(node.label + ':\n')
         if node.func:
-            self.code.append("sw $ra, ($sp)\n")
+            self.code.append("sw $ra, 0($sp)\n")
             self.code.append("addiu $sp, $sp, 4\n")
 
 
@@ -166,12 +169,12 @@ class MIPS:
 
     @visitor.when(HierarchyIL)
     def visit(self, node):
-        self.data.append(node.node + "_INH: ")
+        self.data.append(node.node + "_INH:\n")
         self.data.append(".word {}_INH\n".format(node.parent))
 
     @visitor.when(VirtualTableIL)
     def visit(self, node):
-        self.data.append(node.name + "_VT: ")
+        self.data.append(node.name + "_VT:\n")
         self.data.append(".word {}_INH\n".format(node.name))
         
         for n,m in node.methods:
@@ -202,14 +205,14 @@ class MIPS:
         self.code.append("lw $a0, ($a0)\n")
         self.code.append("addiu $a0, $a0, {}\n".format(4 * node.offset))
         self.code.append("lw $v0, ($a0)\n")
-        self.code.append("jalr $ra, $v0\n")
+        self.code.append("jalr $ra\n")
         self.code.append("sw $v0, {}($sp)\n".format(-4 * node.result))
 
 
     @visitor.when(DispatchParentIL)
     def visit(self, node):
         self.code.append("la $v0, " + str(node.method) + "\n")
-        self.code.append("jalr $ra, $v0\n")
+        self.code.append("jalr $ra\n")
         self.code.append("sw $v0, {}($sp)\n".format(-4 * node.result))
 
     @visitor.when(InheritIL)
