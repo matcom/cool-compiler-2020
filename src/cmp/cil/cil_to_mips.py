@@ -307,7 +307,7 @@ class CIL_TO_MIPS(object):
         self.mips.comment(str(type_data))
 
         length = len(type_data.attr_offsets) + len(type_data.func_offsets) + 2
-        length *= self.data_size / 2
+        length *= self.data_size
         self.mips.li(Reg.a0, length)
         self.mips.sbrk()
         self.store_memory(Reg.v0, node.dest)
@@ -452,18 +452,21 @@ class CIL_TO_MIPS(object):
         type_data = self.types_offsets[node.type]
         offset = type_data.attr_offsets[node.attrib]
         if node.value in self.local_vars_offsets:
+            self.mips.comment(f"Seting local var {node.value}")
             self.load_memory(Reg.t1, node.value)
         else:
             try:
                 value = int(node.value)
                 high = value >> 16
+                self.mips.comment(f"Seting literal int {node.value}")
                 self.mips.li(Reg.t2, high)
                 self.mips.li(Reg.t3, value)
                 self.mips.sll(Reg.t4, Reg.t2, 16)
-                self.mips.orr(Reg.t1, Reg.t2, Reg.t4)
+                self.mips.orr(Reg.t1, Reg.t3, Reg.t4)
             except ValueError:
+                self.mips.comment(f"Seting data {node.value}")
                 self.mips.la(Reg.t1, node.value)
-        self.mips.store_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
+        self.mips.store_memory(Reg.t1, self.mips.offset(Reg.t0, offset*self.data_size))
         self.mips.empty()
 
     @when(LabelNode)
