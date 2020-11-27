@@ -1,49 +1,50 @@
 from .ast import (
-    ProgramNode,
-    TypeNode,
-    FunctionNode,
-    ParamNode,
-    LocalNode,
-    AssignNode,
-    PlusNode,
-    MinusNode,
-    StarNode,
-    DivNode,
     AllocateNode,
-    TypeOfNode,
-    StaticCallNode,
-    DynamicCallNode,
     ArgNode,
-    ReturnNode,
-    ReadStrNode,
-    ReadIntNode,
-    PrintStrNode,
-    PrintIntNode,
-    LengthNode,
-    ConcatNode,
-    PrefixNode,
-    SubstringNode,
-    GetAttribNode,
-    SetAttribNode,
-    LabelNode,
-    GotoNode,
-    GotoIfNode,
-    DataNode,
-    LessNode,
-    LessEqNode,
-    ComplementNode,
-    IsVoidNode,
-    EqualNode,
-    ConformNode,
+    ArithmeticNode,
+    AssignNode,
     CleanArgsNode,
-    ErrorNode,
+    ComplementNode,
+    ConcatNode,
+    ConformNode,
     CopyNode,
-    TypeNameNode,
+    DataNode,
+    DivNode,
+    DynamicCallNode,
+    EqualNode,
+    ErrorNode,
+    FunctionNode,
+    GetAttribNode,
+    GotoIfNode,
+    GotoNode,
+    IsVoidNode,
+    LabelNode,
+    LengthNode,
+    LessEqNode,
+    LessNode,
+    LocalNode,
+    MinusNode,
+    ParamNode,
+    PlusNode,
+    PrefixNode,
+    PrintIntNode,
+    PrintStrNode,
+    ProgramNode,
+    ReadIntNode,
+    ReadStrNode,
+    ReturnNode,
+    SetAttribNode,
+    StarNode,
+    StaticCallNode,
     StringEqualNode,
-    ArithmeticNode
+    SubstringNode,
+    TypeNameNode,
+    TypeNode,
+    TypeOfNode,
 )
-from .utils import on, when
-from .utils.mips_syntax import Mips, Register as Reg
+from .utils import TypeData, on, when
+from .utils.mips_syntax import Mips
+from .utils.mips_syntax import Register as Reg
 
 
 class CIL_TO_MIPS(object):
@@ -53,6 +54,10 @@ class CIL_TO_MIPS(object):
         self.local_vars_offsets = dict()
         self.actual_args = dict()
         self.mips = Mips()
+
+    def build_types_data(self, types):
+        for idx, typex in types:
+            self.types_offsets[typex.name] = TypeData(idx, typex)
 
     @on("node")
     def visit(self, node):
@@ -122,8 +127,7 @@ class CIL_TO_MIPS(object):
     @when(LocalNode)
     def visit(self, node: LocalNode, index=0):  # noqa
         self.mips.push(Reg.zero)
-        assert node.name not in self.local_vars_offsets, \
-            f"Impossible {node.name}..."
+        assert node.name not in self.local_vars_offsets, f"Impossible {node.name}..."
         self.local_vars_offsets[node.name] = index
 
     @when(CopyNode)
@@ -182,7 +186,7 @@ class CIL_TO_MIPS(object):
     @when(LessEqNode)
     def visit(self, node: LessEqNode):  # noqa
         """
-         a <= b -> ! b < a -> 1 - (b < a)
+        a <= b -> ! b < a -> 1 - (b < a)
         """
         self.load_arithmetic(node)
         self.mips.slt(Reg.t2, Reg.t1, Reg.t0)
