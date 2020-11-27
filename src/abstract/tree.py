@@ -77,6 +77,7 @@ class MethodDef(DeclarationNode):
         line,
         column,
         statements: List[ExpressionNode],
+        ret_col
     ):
         self.idx: str = idx
         self.param_list: List[Param] = param_list
@@ -84,6 +85,7 @@ class MethodDef(DeclarationNode):
         self.statements: List[ExpressionNode] = statements
         self.line = line
         self.column = column - len(self.idx)
+        self.ret_col = ret_col
 
 
 class AttributeDef(DeclarationNode):

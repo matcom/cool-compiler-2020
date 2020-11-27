@@ -345,7 +345,7 @@ class TypeInferer:
 
         # Procesar el tipo de retorno de la funcion
         if method.return_type != self.AUTO_TYPE:
-            return method.return_type
+            return static_expr0_type
         elif infered_type:
             method.return_type = infered_type
             return infered_type

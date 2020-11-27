@@ -85,16 +85,34 @@ class TypeBuilder:
                     else node.return_type
                 )
                 try:
-                    # Manejar la redefinicion de metodos
-                    if node.idx in self.current_type.parent.methods:
+                     # Manejar la redefinicion de metodos
+                    try:
+                        m = self.current_type.parent.get_method(node.idx)
+                        redefined = True
+                    except SemanticError:
+                        redefined = False
+
+                    if redefined:
+                        # verificar la cantidad de parametros
+                        if len(node.param_list) != len(m.param_types):
+                            raise SemanticError(f"({node.line}, {node.column}) - SemanticError: Incompatible number of formal parameters in redefined method {node.idx}.")
+                        # Verificar el tipo de los parametros
                         for param, parent_param in zip(
                             node.param_list,
-                            self.current_type.parent.methods[node.idx].param_types,
+                            m.param_types,
                         ):
                             if param.type != parent_param.name:
                                 raise SemanticError(
                                     f"({param.line}, {param.column}) - SemanticError: In redefined method {node.idx}, parameter type {param.type} is different from original type {parent_param.name}."
                                 )
+                        # Verificar el tipo de retorno
+                        if (
+                            return_type.name
+                            != m.return_type.name
+                        ):
+                            raise SemanticError(
+                                f"({node.line}, {node.ret_col}) - SemanticError: In redefined method {node.idx}, return type {return_type.name} is different from original return type {m.return_type.name}"
+                            )
                     self.current_type.define_method(
                         node.idx,
                         params,
@@ -107,7 +125,12 @@ class TypeBuilder:
                     self.errors.append(e.text)
 
             except SemanticError as e:
-                self.errors.append(e.text)
+                self.errors.append(f"({node.line}, {node.ret_col}) - TypeError: Undefined return type {node.return_type} in method {node.idx}.")
 
         except SemanticError as e:
-            self.errors.append(e.text)
+            for param in node.param_list:
+                if isinstance(param.type, str):
+                    try:
+                        self.context.get_type(param.type)
+                    except:
+                        self.errors.append(f"({param.line}, {param.column + len(param.id) + 2}) - TypeError: Class {param.type} of formal parameter {param.id} is undefined")

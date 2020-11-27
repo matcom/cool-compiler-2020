@@ -32,7 +32,7 @@ def build_cool_grammar():
     G = Grammar()
     program = G.NonTerminal("<program>", True)
 
-    class_list, class_def, empty_feature_list, feature_list, meod_def = G.NonTerminals(
+    class_list, class_def, empty_feature_list, feature_list, method_def = G.NonTerminals(
         "<class_list> <class_def> <empty_feature_list> <feature_list> <meod_def>"
     )
 
@@ -114,18 +114,18 @@ def build_cool_grammar():
         lambda s: ClassDef(s[2].lex, s[6], s[2].token_line, s[2].token_column, s[4]),
     )
 
-    feature_list %= meod_def + dot_comma, lambda s: [s[1]]
+    feature_list %= method_def + dot_comma, lambda s: [s[1]]
 
     feature_list %= attr_def + dot_comma, lambda s: [s[1]]
 
-    feature_list %= meod_def + dot_comma + feature_list, lambda s: [s[1]] + s[3]
+    feature_list %= method_def + dot_comma + feature_list, lambda s: [s[1]] + s[3]
 
     feature_list %= attr_def + dot_comma + feature_list, lambda s: [s[1]] + s[3]
 
     empty_feature_list %= G.Epsilon, lambda s: []
     empty_feature_list %= feature_list, lambda s: s[1]
 
-    meod_def %= (
+    method_def %= (
         idx
         + opar
         + param_list_empty
@@ -136,7 +136,13 @@ def build_cool_grammar():
         + statement_list
         + cbrack,
         lambda s: MethodDef(
-            s[1].lex, s[3], s[6], s[1].token_line, s[1].token_column, s[8]
+            s[1].lex,
+            s[3],
+            s[6],
+            s[1].token_line,
+            s[1].token_column,
+            s[8],
+            s[7].token_column - (len(s[6]) + 2)
         ),
     )
 
