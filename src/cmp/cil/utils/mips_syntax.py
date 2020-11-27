@@ -119,7 +119,7 @@ class Mips:
         self.load_memory(register, self.offset(Reg.sp))
         self.addi(Reg.sp, Reg.sp, 8)
 
-    def load_memory(self, register: Register, address: str):
+    def load_memory(self, dst: Register, address: str):
         """
         Load from a specific address a 32 bits register
         """
@@ -128,18 +128,18 @@ class Mips:
         self.la(Reg.t7, address)
         self.addi(Reg.t7, Reg.t7, 4)
         self.lw(Reg.t9, self.offset(Reg.t7))
-        self.orr(register, Reg.t8, Reg.t9)
+        self.orr(dst, Reg.t8, Reg.t9)
 
-    def store_memory(self, register: Register, address: str):
+    def store_memory(self, src: Register, address: str):
         """
         Write to a specific address a 32 bits register
         """
-        self.la(Reg.t7, address)
-        self.addi(Reg.t7, Reg.t7, 4)
-        self.sw(Reg.t9, self.offset(Reg.t7))
-        self.srl(Reg.t9, Reg.t9, 16)
-        self.sw(Reg.t8, address)
-        self.orr(register, Reg.t8, Reg.t9)
+        self.la(Reg.t8, address)
+
+        self.srl(Reg.t9, src, 16)
+
+        self.sw(Reg.t9, self.offset(Reg.t8))  # store high bits
+        self.sw(src, self.offset(Reg.t8, 4))  # store low bits
 
     # Arithmetics
     @autowrite
