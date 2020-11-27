@@ -153,8 +153,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     @when(cool.AttrDeclarationNode)
     def visit(self, node: cool.AttrDeclarationNode, scope: Scope):
         result = self.visit(node.expression, scope) if node.expression else 0
-        self_inst = scope.get_var("self").local_name
-        self.register_instruction(SetAttribNode(self_inst, node.id, result))
+        self_inst = scope.get_var('self').local_name
+        self.register_instruction(SetAttribNode(self_inst, node.id, result, self.current_type.name))
 
     @when(cool.FuncDeclarationNode)
     def visit(self, node: cool.FuncDeclarationNode, scope: Scope):
@@ -331,10 +331,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         return result
 
     @when(cool.NewNode)
-    def visit(
-        self, node: cool.NewNode, scope: Scope
-    ):  # Remember attributes initialization
-        result = self.define_internal_local()
+    def visit(self, node: cool.NewNode, scope: Scope): 
+        result = self.define_internal_local() # TODO: attributes initialization
         self.register_instruction(AllocateNode(result, node.type))
         self.init_class_attr(scope, node.type, result)
 
@@ -343,91 +341,150 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     @when(cool.IsVoidNode)
     def visit(self, node: cool.IsVoidNode, scope: Scope):
         body = self.visit(node.expression, scope)
+        result_raw = self.define_internal_local()
         result = self.define_internal_local()
-
-        self.register_instruction(IsVoidNode(result, body))
+        self.register_instruction(IsVoidNode(result_raw, body))
+        self.register_instruction(AllocateNode(result, "Bool"))
+        self.register_instruction(SetAttribNode(result, "value", result_raw, "Bool"))
         return result
 
     @when(cool.NotNode)
     def visit(self, node: cool.NotNode, scope: Scope):
-        value = self.visit(node.expression, scope)
+        value_result = self.visit(node.expression, scope)
+        result_raw = self.define_internal_local()
+        value = self.define_internal_local()
         result = self.define_internal_local()
-
-        self.register_instruction(ComplementNode(result, value))
+        self.register_instruction(GetAttribNode(value, value_result, "value", "Bool"))
+        self.register_instruction(ComplementNode(result_raw, value))
+        self.register_instruction(AllocateNode(result, "Bool"))
+        self.register_instruction(SetAttribNode(result, "value", result_raw, "Bool"))
         return result
 
     @when(cool.ComplementNode)
     def visit(self, node: cool.ComplementNode, scope: Scope):
-        value = self.visit(node.expression, scope)
+        value_result = self.visit(node.expression, scope)
+        result_raw = self.define_internal_local()
+        value = self.define_internal_local()
         result = self.define_internal_local()
-
-        self.register_instruction(ComplementNode(result, value))
+        self.register_instruction(GetAttribNode(value, value_result, "value", "Int"))
+        self.register_instruction(ComplementNode(result_raw, value))
+        self.register_instruction(AllocateNode(result, "Int"))
+        self.register_instruction(SetAttribNode(result, "value", result_raw, "Int"))
         return result
 
     @when(cool.PlusNode)
     def visit(self, node: cool.PlusNode, scope: Scope):
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
+        left = self.define_internal_local()
+        right = self.define_internal_local()
+        left_result = self.visit(node.left, scope)
+        right_result = self.visit(node.right, scope)
+        self.register_instruction(GetAttribNode(left, left_result, "value", "Int"))
+        self.register_instruction(GetAttribNode(right, right_result, "value", "Int"))
+        result_raw = self.define_internal_local()
         result = self.define_internal_local()
 
-        self.register_instruction(PlusNode(result, left, right))
+        self.register_instruction(PlusNode(result_raw, left, right))
+        self.register_instruction(AllocateNode(result, "Int"))
+        self.register_instruction(SetAttribNode(result, "value", result_raw, "Int"))
         return result
 
     @when(cool.MinusNode)
     def visit(self, node: cool.MinusNode, scope: Scope):
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
+        left = self.define_internal_local()
+        right = self.define_internal_local()
+        left_result = self.visit(node.left, scope)
+        right_result = self.visit(node.right, scope)
+        self.register_instruction(GetAttribNode(left, left_result, "value", "Int"))
+        self.register_instruction(GetAttribNode(right, right_result, "value", "Int"))
+        result_raw = self.define_internal_local()
         result = self.define_internal_local()
 
-        self.register_instruction(MinusNode(result, left, right))
+        self.register_instruction(MinusNode(result_raw, left, right))
+        self.register_instruction(AllocateNode(result, "Int"))
+        self.register_instruction(SetAttribNode(result, "value", result_raw, "Int"))
         return result
 
     @when(cool.StarNode)
     def visit(self, node: cool.StarNode, scope: Scope):
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
+        left = self.define_internal_local()
+        right = self.define_internal_local()
+        left_result = self.visit(node.left, scope)
+        right_result = self.visit(node.right, scope)
+        self.register_instruction(GetAttribNode(left, left_result, "value", "Int"))
+        self.register_instruction(GetAttribNode(right, right_result, "value", "Int"))
+        result_raw = self.define_internal_local()
         result = self.define_internal_local()
 
-        self.register_instruction(StarNode(result, left, right))
+        self.register_instruction(StarNode(result_raw, left, right))
+        self.register_instruction(AllocateNode(result, "Int"))
+        self.register_instruction(SetAttribNode(result, "value", result_raw, "Int"))
         return result
 
     @when(cool.DivNode)
     def visit(self, node: cool.DivNode, scope: Scope):
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
+        left = self.define_internal_local()
+        right = self.define_internal_local()
+        left_result = self.visit(node.left, scope)
+        right_result = self.visit(node.right, scope)
+        self.register_instruction(GetAttribNode(left, left_result, "value", "Int"))
+        self.register_instruction(GetAttribNode(right, right_result, "value", "Int"))
+        result_raw = self.define_internal_local()
         result = self.define_internal_local()
 
-        self.register_instruction(DivNode(result, left, right))
+        self.register_instruction(DivNode(result_raw, left, right))
+        self.register_instruction(AllocateNode(result, "Int"))
+        self.register_instruction(SetAttribNode(result, "value", result_raw, "Int"))
         return result
 
     @when(cool.EqualNode)
     def visit(self, node: cool.EqualNode, scope: Scope):
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
+        left_result = self.visit(node.left, scope)
+        right_result = self.visit(node.right, scope)
+        left = self.define_internal_local()
+        right = self.define_internal_local()
+        result_raw = self.define_internal_local()
         result = self.define_internal_local()
 
-        if node.left.static_type == self.context.get_type("String"):
-            self.register_instruction(StringEqualNode(result, left, right))
+        if node.left.static_type == self.context.get_type('String'):
+            self.register_instruction(GetAttribNode(left, left_result, "value", "String"))
+            self.register_instruction(GetAttribNode(right, right_result, "value", "String"))
+            self.register_instruction(StringEqualNode(result_raw, left, right))
         else:
-            self.register_instruction(EqualNode(result, left, right))
+            self.register_instruction(GetAttribNode(left, left_result, "value", "Int"))
+            self.register_instruction(GetAttribNode(right, right_result, "value", "Int"))
+            self.register_instruction(EqualNode(result_raw, left, right))
+        self.register_instruction(AllocateNode(result, "Bool"))
+        self.register_instruction(SetAttribNode(result, "value", result_raw, "Bool"))
         return result
 
     @when(cool.LessNode)
     def visit(self, node: cool.LessNode, scope: Scope):
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
+        left = self.define_internal_local()
+        right = self.define_internal_local()
+        left_result = self.visit(node.left, scope)
+        right_result = self.visit(node.right, scope)
+        self.register_instruction(GetAttribNode(left, left_result, "value", "Int"))
+        self.register_instruction(GetAttribNode(right, right_result, "value", "Int"))
+        result_bool = self.define_internal_local()
         result = self.define_internal_local()
-
-        self.register_instruction(LessNode(result, left, right))
+        self.register_instruction(LessNode(result_bool, left, right))
+        self.register_instruction(AllocateNode(result, "Bool"))
+        self.register_instruction(SetAttribNode(result, "value", result_bool, "Bool"))
         return result
 
     @when(cool.LessEqualNode)
     def visit(self, node: cool.LessEqualNode, scope: Scope):
-        left = self.visit(node.left, scope)
-        right = self.visit(node.right, scope)
+        left = self.define_internal_local()
+        right = self.define_internal_local()
+        left_result = self.visit(node.left, scope)
+        right_result = self.visit(node.right, scope)
+        self.register_instruction(GetAttribNode(left, left_result, "value", "Int"))
+        self.register_instruction(GetAttribNode(right, right_result, "value", "Int"))
+        result_bool = self.define_internal_local()
         result = self.define_internal_local()
-
-        self.register_instruction(LessEqNode(result, left, right))
+        self.register_instruction(LessEqNode(result_bool, left, right))
+        self.register_instruction(AllocateNode(result, "Bool"))
+        self.register_instruction(SetAttribNode(result, "value", result_bool, "Bool"))
         return result
 
     @when(cool.IdNode)
@@ -436,22 +493,32 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         if not pvar:
             selfx = scope.get_var("self").local_name
             pvar = self.define_internal_local()
-
-            # Perhaps GetAttribNode could need info about self type, this is know in self.current_type variable
-            self.register_instruction(GetAttribNode(pvar, selfx, node.token))
+            self.register_instruction(GetAttribNode(pvar, selfx, node.token, self.current_type.name))
         else:
             pvar = pvar.local_name
         return pvar
 
     @when(cool.BoolNode)
     def visit(self, node: cool.BoolNode, scope: Scope):
-        return 1 if node.token.lower() == "true" else 0
+        value = 1 if node.token.lower() == 'true' else 0
+        bool_inst = self.define_internal_local()
+        self.register_instruction(AllocateNode(bool_inst, "Bool"))
+        self.register_instruction(SetAttribNode(bool_inst, "value", value, "Bool"))
+        return bool_inst
 
     @when(cool.IntegerNode)
     def visit(self, node: cool.IntegerNode, scope: Scope):
-        return int(node.token)
+        value = int(node.token)
+        int_inst = self.define_internal_local()
+        self.register_instruction(AllocateNode(int_inst, "Int"))
+        self.register_instruction(SetAttribNode(int_inst, "value", value, "Int"))
+        return int_inst
 
     @when(cool.StringNode)
     def visit(self, node: cool.StringNode, scope: Scope):
         string = self.register_data(node.token[1:-1])
-        return string.name
+        value = string.name
+        string_inst = self.define_internal_local()
+        self.register_instruction(AllocateNode(string_inst, "String"))
+        self.register_instruction(SetAttribNode(string_inst, "value", value, "String"))
+        return string_inst

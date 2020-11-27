@@ -129,8 +129,34 @@ class BASE_COOL_CIL_TRANSFORM:
 
     def build_basics(self):
         self.build_basic_object()
+        self.build_basic_int()
+        self.build_basic_bool()
         self.build_basic_string()
         self.build_basic_io()
+
+    def build_basic_int(self):
+        self.current_type = self.context.get_type("Int")
+        type_node = self.register_type("Int")
+        type_node.name_dir = self.register_data("Int").name
+        type_node.attributes = [
+            attr.name for attr in self.current_type.get_all_attributes()
+        ] + ["value"]
+        type_node.methods = [
+            (method.name, self.to_function_name(method.name, typex.name))
+            for method, typex in self.current_type.get_all_methods()
+        ]
+
+    def build_basic_bool(self):
+        self.current_type = self.context.get_type("Bool")
+        type_node = self.register_type("Bool")
+        type_node.name_dir = self.register_data("Bool").name
+        type_node.attributes = [
+            attr.name for attr in self.current_type.get_all_attributes()
+        ] + ["value"]
+        type_node.methods = [
+            (method.name, self.to_function_name(method.name, typex.name))
+            for method, typex in self.current_type.get_all_methods()
+        ]
 
     def build_basic_object(self):
         self.current_type = self.context.get_type("Object")
@@ -170,10 +196,8 @@ class BASE_COOL_CIL_TRANSFORM:
             self.to_function_name(self.current_method.name, type_name)
         )
         self_local = self.register_param(VariableInfo("self", None))
-        obj_type = self.define_internal_local()
         type_name_inst = self.define_internal_local()
-        self.register_instruction(TypeOfNode(self_local, obj_type))
-        self.register_instruction(TypeNameNode(type_name_inst, obj_type))
+        self.register_instruction(TypeNameNode(type_name_inst, self_local))
         self.register_instruction(ReturnNode(type_name_inst))
         self.current_method = self.current_function = None
         self.current_type = None
@@ -241,7 +265,7 @@ class BASE_COOL_CIL_TRANSFORM:
         type_node.name_dir = self.register_data("String").name
         type_node.attributes = [
             attr.name for attr in self.current_type.get_all_attributes()
-        ]
+        ] + ["value"]
         type_node.methods = [
             (method.name, self.to_function_name(method.name, typex.name))
             for method, typex in self.current_type.get_all_methods()
