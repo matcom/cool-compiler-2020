@@ -40,6 +40,7 @@ from .ast import (
     TypeOfNode,
 )
 from .utils import Scope
+from ..cool_lang.semantics.semantic_utils import Attribute
 
 
 class VariableInfo:
@@ -145,6 +146,15 @@ class BASE_COOL_CIL_TRANSFORM:
             (method.name, self.to_function_name(method.name, typex.name))
             for method, typex in self.current_type.get_all_methods()
         ]
+        type_node.features = [
+            feature.name
+            if isinstance(feature, Attribute)
+            else (
+                feature[0].name,
+                self.to_function_name(feature[0].name, feature[1].name),
+            )
+            for feature in self.current_type.get_all_features()
+        ] + ["value"]
 
     def build_basic_bool(self):
         self.current_type = self.context.get_type("Bool")
@@ -157,6 +167,15 @@ class BASE_COOL_CIL_TRANSFORM:
             (method.name, self.to_function_name(method.name, typex.name))
             for method, typex in self.current_type.get_all_methods()
         ]
+        type_node.features = [
+            feature.name
+            if isinstance(feature, Attribute)
+            else (
+                feature[0].name,
+                self.to_function_name(feature[0].name, feature[1].name),
+            )
+            for feature in self.current_type.get_all_features()
+        ] + ["value"]
 
     def build_basic_object(self):
         self.current_type = self.context.get_type("Object")
@@ -168,6 +187,15 @@ class BASE_COOL_CIL_TRANSFORM:
         type_node.methods = [
             (method.name, self.to_function_name(method.name, typex.name))
             for method, typex in self.current_type.get_all_methods()
+        ]
+        type_node.features = [
+            feature.name
+            if isinstance(feature, Attribute)
+            else (
+                feature[0].name,
+                self.to_function_name(feature[0].name, feature[1].name),
+            )
+            for feature in self.current_type.get_all_features()
         ]
         ### abort function
         self.current_method = self.current_type.get_method("abort")
@@ -212,6 +240,15 @@ class BASE_COOL_CIL_TRANSFORM:
         type_node.methods = [
             (method.name, self.to_function_name(method.name, typex.name))
             for method, typex in self.current_type.get_all_methods()
+        ]
+        type_node.features = [
+            feature.name
+            if isinstance(feature, Attribute)
+            else (
+                feature[0].name,
+                self.to_function_name(feature[0].name, feature[1].name),
+            )
+            for feature in self.current_type.get_all_features()
         ]
         ### in_string
         self.current_method = self.current_type.get_method("in_string")
@@ -280,6 +317,15 @@ class BASE_COOL_CIL_TRANSFORM:
             (method.name, self.to_function_name(method.name, typex.name))
             for method, typex in self.current_type.get_all_methods()
         ]
+        type_node.features = [
+            feature.name
+            if isinstance(feature, Attribute)
+            else (
+                feature[0].name,
+                self.to_function_name(feature[0].name, feature[1].name),
+            )
+            for feature in self.current_type.get_all_features()
+        ] + ["value"]
         ### length
         self.current_method = self.current_type.get_method("length")
         type_name = self.current_type.name
