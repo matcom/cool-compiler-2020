@@ -224,7 +224,10 @@ class BASE_COOL_CIL_TRANSFORM:
         _ = self.register_param(VariableInfo("self", None))
         result_msg = self.define_internal_local()
         self.register_instruction(ReadStrNode(result_msg))
-        self.register_instruction(ReturnNode(result_msg))
+        string_inst = self.define_internal_local()
+        self.register_instruction(AllocateNode(string_inst, "String"))
+        self.register_instruction(SetAttribNode(string_inst, "value", result_msg, "String"))
+        self.register_instruction(ReturnNode(string_inst))
         self.current_method = self.current_function = None
         ### out_string
         self.current_method = self.current_type.get_method("out_string")
@@ -233,7 +236,9 @@ class BASE_COOL_CIL_TRANSFORM:
             self.to_function_name(self.current_method.name, type_name)
         )
         self_local = self.register_param(VariableInfo("self", None))
-        out_msg = self.register_param(VariableInfo("x", None))
+        string_inst = self.register_param(VariableInfo("x", None))
+        out_msg = self.define_internal_local()
+        self.register_instruction(GetAttribNode(out_msg, string_inst, "value", "String"))
         self.register_instruction(PrintStrNode(out_msg))
         self.register_instruction(ReturnNode(self_local))
         self.current_method = self.current_function = None
@@ -246,7 +251,10 @@ class BASE_COOL_CIL_TRANSFORM:
         _ = self.register_param(VariableInfo("self", None))
         result_int = self.define_internal_local()
         self.register_instruction(ReadIntNode(result_int))
-        self.register_instruction(ReturnNode(result_int))
+        result = self.define_internal_local()
+        self.register_instruction(AllocateNode(result, "Int"))
+        self.register_instruction(SetAttribNode(result, "value", result_int, "Int"))
+        self.register_instruction(ReturnNode(result))
         self.current_method = self.current_function = None
         ### out_int
         self.current_method = self.current_type.get_method("out_int")
@@ -255,7 +263,9 @@ class BASE_COOL_CIL_TRANSFORM:
             self.to_function_name(self.current_method.name, type_name)
         )
         self_local = self.register_param(VariableInfo("self", None))
-        out_int = self.register_param(VariableInfo("x", None))
+        int_inst = self.register_param(VariableInfo("x", None))
+        out_int = self.define_internal_local()
+        self.register_instruction(GetAttribNode(out_int, int_inst, "value", "Int"))
         self.register_instruction(PrintIntNode(out_int))
         self.register_instruction(ReturnNode(self_local))
         self.current_method = self.current_function = None
@@ -281,7 +291,10 @@ class BASE_COOL_CIL_TRANSFORM:
         self_local = self.register_param(VariableInfo("self", None))
         length_var = self.define_internal_local()
         self.register_instruction(LengthNode(length_var, self_local))
-        self.register_instruction(ReturnNode(length_var))
+        length = self.define_internal_local()
+        self.register_instruction(AllocateNode(length, "Int"))
+        self.register_instruction(SetAttribNode(length, "value", length_var, "Int"))
+        self.register_instruction(ReturnNode(length))
         self.current_method = self.current_function = None
         ### concat
         self.current_method = self.current_type.get_method("concat")
@@ -293,7 +306,10 @@ class BASE_COOL_CIL_TRANSFORM:
         param_local = self.register_param(VariableInfo("s", None))
         result_msg = self.define_internal_local()
         self.register_instruction(ConcatNode(result_msg, self_local, param_local))
-        self.register_instruction(ReturnNode(result_msg))
+        string_inst = self.define_internal_local()
+        self.register_instruction(AllocateNode(string_inst, "String"))
+        self.register_instruction(SetAttribNode(string_inst, "value", result_msg, "String"))
+        self.register_instruction(ReturnNode(string_inst))
         self.current_method = self.current_function = None
         ### substr
         self.current_method = self.current_type.get_method("substr")
@@ -338,6 +354,9 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(
             SubstringNode(result_msg, self_local, start_parm, length_param)
         )
-        self.register_instruction(ReturnNode(result_msg))
+        string_inst = self.define_internal_local()
+        self.register_instruction(AllocateNode(string_inst, "String"))
+        self.register_instruction(SetAttribNode(string_inst, "value", result_msg, "String"))
+        self.register_instruction(ReturnNode(string_inst))
         self.current_method = self.current_function = None
         self.current_type = None
