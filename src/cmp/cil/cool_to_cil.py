@@ -114,6 +114,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         if node.expression:
             result = self.visit(node.expression, scope)
         else:
+            result = self.define_internal_local()
             self.register_instruction(AllocateNode(result, "Int"))
             self.register_instruction(SetAttribNode(result, "value", 0, "Int"))
         self_inst = scope.get_var('self').local_name
@@ -288,7 +289,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         result = self.define_internal_local() # TODO: attributes initialization
         self.register_instruction(AllocateNode(result, node.type))
         self.init_class_attr(scope, node.type, result)
-
         return result
 
     @when(cool.IsVoidNode)
