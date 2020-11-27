@@ -448,15 +448,18 @@ class CIL_TO_MIPS(object):
         self.load_memory(Reg.t0, node.obj)
         type_data = self.types_offsets[node.type]
         offset = type_data.attr_offsets[node.attrib]
-        try:
-            value = int(node.value)
-            high = value >> 16
-            self.mips.li(Reg.t2, high)
-            self.mips.li(Reg.t3, value)
-            self.mips.sll(Reg.t4, Reg.t2, 16)
-            self.mips.orr(Reg.t1, Reg.t2, Reg.t4)
-        except ValueError:
+        if node.value in self.local_vars_offsets:
             self.load_memory(Reg.t1, node.value)
+        else:
+            try:
+                value = int(node.value)
+                high = value >> 16
+                self.mips.li(Reg.t2, high)
+                self.mips.li(Reg.t3, value)
+                self.mips.sll(Reg.t4, Reg.t2, 16)
+                self.mips.orr(Reg.t1, Reg.t2, Reg.t4)
+            except ValueError:
+                self.mips.la(Reg.t1, node.value)
         self.mips.store_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
         self.mips.empty()
 
