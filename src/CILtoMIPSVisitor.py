@@ -198,6 +198,19 @@ class CILtoMIPSVisitor:
 
         self.register_instruction(MipsSWNode('$t1', pos_dest))
 
+    @visitor.when(GotoNode)
+    def visit(self, node):
+        self.register_instruction(MipsJumpNode(node.name))
+
+    @visitor.when(GotoIfNode)
+    def visit(self, node):
+        pos = self.request_pos(node.condition)
+        self.register_instruction(MipsLWNode('$a0', pos))
+        self.register_instruction(MipsBEQNode('$a0', '$zero', node.name))
+
+    @visitor.when(LabelNode)
+    def visit(self, node):
+        self.register_instruction(MipsLabelNode(node.name))
 
     @visitor.when(PlusNode)
     def visit(self, node:PlusNode):        
@@ -216,6 +229,25 @@ class CILtoMIPSVisitor:
             self.register_instruction(MipsLINode('$a0', node.right))
         
         self.register_instruction(MipsAddNode('$a0', '$a0', '$t1'))
+        self.register_instruction(MipsSWNode('$a0', pos_dest))
+
+    @visitor.when(MinusNode)
+    def visit(self, node):
+        pos_dest = self.request_pos(node.dest)
+        pos_left = self.request_pos(node.left)
+        pos_right = self.request_pos(node.right)
+
+        if not pos_left is None:
+            self.register_instruction(MipsLWNode('$t1', pos_left))
+        else:
+            self.register_instruction(MipsLINode('$t1', node.left))
+
+        if not pos_right is None:
+            self.register_instruction(MipsLWNode('$a0', pos_right))
+        else:
+            self.register_instruction(MipsLINode('$a0', node.right))
+        
+        self.register_instruction(MipsMinusNode('$a0', '$a0', '$t1'))
         self.register_instruction(MipsSWNode('$a0', pos_dest))
 
     # registers

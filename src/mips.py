@@ -65,17 +65,34 @@ class MipsMoveNode(MipsNode):
 
 
 # arithmetic
-class MipsAddNode(MipsNode):
+class MipsArithmeticNode:
     def __init__(self, param1, param2, param3):
         self.param1 = param1
         self.param2 = param2
         self.param3 = param3
 
-class MipsAddiuNode(MipsNode):
-    def __init__(self, param1, param2, param3):
+class MipsAddNode(MipsArithmeticNode):
+    pass
+
+class MipsAddiuNode(MipsArithmeticNode):
+    pass
+
+class MipsMinusNode(MipsArithmeticNode):
+    pass
+
+
+# comp
+class MipsComparerNode(MipsNode):
+    def __init__(self, param1, param2, label):
         self.param1 = param1
         self.param2 = param2
-        self.param3 = param3
+        self.label = label
+
+class MipsBEQNode(MipsComparerNode):
+    pass
+
+class MipsBNENode(MipsComparerNode):
+    pass
 
 # label
 class MipsLabelNode(MipsNode):
@@ -477,6 +494,18 @@ function_in_string_at_IO:
         def visit(self, node):
             return f'\t\t\taddiu {node.param1}, {node.param2}, {node.param3}'
 
+        @visitor.when(MipsMinusNode)
+        def visit(self, node):
+            return f'\t\t\tsub {node.param1}, {node.param2}, {node.param3}'
+
+        # comp
+        @visitor.when(MipsBNENode)
+        def visit(self, node):
+            return f'\t\t\tbne {node.param1}, {node.param2}, {node.label}'
+
+        @visitor.when(MipsBEQNode)
+        def visit(self, node):
+            return f'\t\t\tbeq {node.param1}, {node.param2}, {node.label}'
 
         # label
         @visitor.when(MipsLabelNode)
