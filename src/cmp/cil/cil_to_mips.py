@@ -444,31 +444,26 @@ class CIL_TO_MIPS(object):
         self.mips.empty()
 
     def copy_str(self, src: Reg, dst: Reg, result: Reg):
-        """
-        # String copier function
-        strcopier:
-        loop:
-        lb $t2, 0($t0)
-        beq $t2, $zero, end
-        addiu $t0, $t0, 1
-        sb $t2, 0($t1)
-        addiu $t1, $t1, 1
-        b loop
-
-
-        end:
-        move $v0, $t1 # Return last position on result buffer
-        jr $ra
-        """
         loop = self.get_label()
         end = self.get_label()
 
-        self.mips.move(Reg.t0, dst)
+        self.mips.move(Reg.t0, src)
+        self.mips.move(Reg.t1, dst)
 
         self.mips.label(loop)
+
         self.mips.lb(Reg.t2, self.mips.offset(Reg.t0))
+        self.mips.sb(Reg.t2, self.mips.offset(Reg.t1))
+
         self.mips.beqz(Reg.t2, end)
+
+        self.mips.addi(Reg.t0, Reg.t0, 1)
+        self.mips.addi(Reg.t1, Reg.t1, 1)
+
+        self.mips.j(loop)
         self.mips.label(end)
+
+        self.mips.move(result, Reg.t1)
 
     @when(ConcatNode)
     def visit(self, node: ConcatNode):  # noqa
