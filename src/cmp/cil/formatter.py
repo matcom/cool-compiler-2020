@@ -24,7 +24,6 @@ from .ast import (
     MinusNode,
     ParamNode,
     PlusNode,
-    PrefixNode,
     PrintIntNode,
     PrintStrNode,
     ProgramNode,
@@ -192,10 +191,6 @@ class CIL_FORMATTER(object):
     @when(ConcatNode)
     def visit(self, node: ConcatNode):  # noqa:F811
         return f"{node.dest} = CONCAT {node.msg1} {node.msg2}"
-
-    @when(PrefixNode)
-    def visit(self, node: PrefixNode):  # noqa:F811
-        return f"{node.dest} = PREFIX {node.msg1} {node.msg2}"
 
     @when(SubstringNode)
     def visit(self, node: SubstringNode):  # noqa:F811

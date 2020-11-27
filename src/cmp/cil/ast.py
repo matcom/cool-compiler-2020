@@ -219,13 +219,6 @@ class ConcatNode(InstructionNode):
         self.msg2 = msg2
 
 
-class PrefixNode(InstructionNode):
-    def __init__(self, dest, msg1, msg2):
-        self.dest = dest
-        self.msg1 = msg1
-        self.msg2 = msg2
-
-
 class SubstringNode(InstructionNode):
     def __init__(self, dest, msg1, start, length):
         self.dest = dest

@@ -25,7 +25,6 @@ from .ast import (
     MinusNode,
     ParamNode,
     PlusNode,
-    PrefixNode,
     ProgramNode,
     ReturnNode,
     SetAttribNode,
@@ -41,7 +40,7 @@ from .utils import Scope, on, when
 
 
 class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
-    @on('node')
+    @on("node")
     def visit(self, node, scope: Scope):
         pass
 
@@ -56,8 +55,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
                 set_types.add(item.name)
                 list_types.append(item)
             queue += item.children
-        list_types_for_sorted = [(item.finish_time, item)
-                                 for item in list_types]
+        list_types_for_sorted = [(item.finish_time, item) for item in list_types]
         list_types_for_sorted.sort()
         list_types_for_sorted = [item for _, item in list_types_for_sorted]
         result = []
@@ -88,14 +86,14 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         attr_nodes = self.attr_init[class_id]
         for attr in attr_nodes:
             attr_scope = Scope(parent=scope)
-            attr_scope.define_var('self', self_inst)
+            attr_scope.define_var("self", self_inst)
             self.visit(attr, attr_scope)
 
     def build_attr_init(self, node: cool.ProgramNode):
         self.attr_init = dict()
         for classx in node.classes:
             self.attr_init[classx.id] = []
-            if classx.parent and not classx.parent in ['IO', 'Object']:
+            if classx.parent and not classx.parent in ["IO", "Object"]:
                 self.attr_init[classx.id] += self.attr_init[classx.parent]
             for feature in classx.features:
                 if type(feature) is cool.AttrDeclarationNode:
@@ -105,14 +103,15 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node: cool.ProgramNode = None, scope: Scope = None):
         scope = Scope()
         self.build_attr_init(node)
-        self.current_function = self.register_function('entry')
+        self.current_function = self.register_function("entry")
         instance = self.define_internal_local()
         result = self.define_internal_local()
-        self.register_instruction(AllocateNode(instance, 'Main'))
-        self.init_class_attr(scope, 'Main', instance)
+        self.register_instruction(AllocateNode(instance, "Main"))
+        self.init_class_attr(scope, "Main", instance)
         self.register_instruction(ArgNode(instance))
-        self.register_instruction(StaticCallNode(
-            self.to_function_name('main', 'Main'), result))
+        self.register_instruction(
+            StaticCallNode(self.to_function_name("main", "Main"), result)
+        )
         self.register_instruction(CleanArgsNode(1))
         self.register_instruction(ReturnNode(0))
         self.current_function = None
@@ -129,11 +128,21 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         type_node = self.register_type(node.id)
         type_node.name_dir = self.register_data(node.id).name
         type_node.attributes = [
-            attr.name for attr in self.current_type.get_all_attributes()]
-        type_node.methods = [(method.name, self.to_function_name(
-            method.name, typex.name)) for method, typex in self.current_type.get_all_methods()]
-        type_node.features = [feature.name if isinstance(feature, Attribute) else (feature[0].name, self.to_function_name(
-            feature[0].name, feature[1].name)) for feature in self.current_type.get_all_features()]
+            attr.name for attr in self.current_type.get_all_attributes()
+        ]
+        type_node.methods = [
+            (method.name, self.to_function_name(method.name, typex.name))
+            for method, typex in self.current_type.get_all_methods()
+        ]
+        type_node.features = [
+            feature.name
+            if isinstance(feature, Attribute)
+            else (
+                feature[0].name,
+                self.to_function_name(feature[0].name, feature[1].name),
+            )
+            for feature in self.current_type.get_all_features()
+        ]
 
         for feature in node.features:
             if isinstance(feature, cool.FuncDeclarationNode):
@@ -144,7 +153,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     @when(cool.AttrDeclarationNode)
     def visit(self, node: cool.AttrDeclarationNode, scope: Scope):
         result = self.visit(node.expression, scope) if node.expression else 0
-        self_inst = scope.get_var('self').local_name
+        self_inst = scope.get_var("self").local_name
         self.register_instruction(SetAttribNode(self_inst, node.id, result))
 
     @when(cool.FuncDeclarationNode)
@@ -154,9 +163,10 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         type_name = self.current_type.name
 
         self.current_function = self.register_function(
-            self.to_function_name(self.current_method.name, type_name))
-        self_local = self.register_param(VariableInfo('self', None))
-        func_scope.define_var('self', self_local)
+            self.to_function_name(self.current_method.name, type_name)
+        )
+        self_local = self.register_param(VariableInfo("self", None))
+        func_scope.define_var("self", self_local)
         for param_name in self.current_method.param_names:
             param_local = self.register_param(VariableInfo(param_name, None))
             func_scope.define_var(param_name, param_local)
@@ -171,8 +181,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         if_scope = Scope(parent=scope)
         cond_result = self.visit(node.condition, scope)
         result = self.define_internal_local()
-        true_label = self.to_label_name('if_true')
-        end_label = self.to_label_name('end_if')
+        true_label = self.to_label_name("if_true")
+        end_label = self.to_label_name("end_if")
         self.register_instruction(GotoIfNode(cond_result, true_label))
         false_result = self.visit(node.else_body, if_scope)
         self.register_instruction(AssignNode(result, false_result))
@@ -187,9 +197,9 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     @when(cool.WhileLoopNode)
     def visit(self, node: cool.WhileLoopNode, scope: Scope):
         while_scope = Scope(parent=scope)
-        loop_label = self.to_label_name('loop')
-        body_label = self.to_label_name('body')
-        end_label = self.to_label_name('pool')
+        loop_label = self.to_label_name("loop")
+        body_label = self.to_label_name("body")
+        end_label = self.to_label_name("pool")
         self.register_instruction(LabelNode(loop_label))
         condition = self.visit(node.condition, scope)
         self.register_instruction(GotoIfNode(condition, body_label))
@@ -226,10 +236,17 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         return result
 
     @when(cool.CaseNode)
-    def visit(self, node: cool.CaseNode, scope: Scope, typex=None, result_inst=None, end_label=None):
+    def visit(
+        self,
+        node: cool.CaseNode,
+        scope: Scope,
+        typex=None,
+        result_inst=None,
+        end_label=None,
+    ):
         cond = self.define_internal_local()
         not_cond = self.define_internal_local()
-        case_label = self.to_label_name(f'case_{node.type}')
+        case_label = self.to_label_name(f"case_{node.type}")
         self.register_instruction(EqualNode(cond, typex, node.type))
         self.register_instruction(ComplementNode(not_cond, cond))
         self.register_instruction(GotoIfNode(not_cond, case_label))
@@ -244,8 +261,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     @when(cool.CaseOfNode)
     def visit(self, node: cool.CaseOfNode, scope: Scope):
         order_cases = self.order_caseof(node)
-        end_label = self.to_label_name('end')
-        error_label = self.to_label_name('error')
+        end_label = self.to_label_name("end")
+        error_label = self.to_label_name("error")
         result = self.define_internal_local()
         type_inst = self.define_internal_local()
         is_void = self.define_internal_local()
@@ -266,7 +283,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         value = self.visit(node.expression, scope)
         pvar = scope.get_var(node.id)
         if not pvar:
-            selfx = scope.get_var('self').local_name
+            selfx = scope.get_var("self").local_name
             self.register_instruction(SetAttribNode(selfx, node.id, value))
         else:
             pvar = pvar.local_name
@@ -283,19 +300,18 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             rev_args = [arg_value] + rev_args
         for arg_value in rev_args:
             self.register_instruction(ArgNode(arg_value))
-        self_inst = scope.get_var('self').local_name
+        self_inst = scope.get_var("self").local_name
         self.register_instruction(ArgNode(self_inst))
         self.register_instruction(DynamicCallNode(type_name, node.id, result))
-        self.register_instruction(CleanArgsNode(len(node.args)+1))
+        self.register_instruction(CleanArgsNode(len(node.args) + 1))
 
         return result
 
     @when(cool.FunctionCallNode)
     def visit(self, node: cool.FunctionCallNode, scope: Scope):
         typex = None if not node.type else self.context.get_type(node.type)
-        type_name = self.find_type_name(typex, node.id) if typex else ''
-        func_name = self.to_function_name(
-            node.id, type_name) if type_name else ''
+        type_name = self.find_type_name(typex, node.id) if typex else ""
+        func_name = self.to_function_name(node.id, type_name) if type_name else ""
         result = self.define_internal_local()
         rev_args = []
         for arg in node.args:
@@ -305,14 +321,19 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             self.register_instruction(ArgNode(arg_value))
         obj_inst = self.visit(node.obj, scope)
         self.register_instruction(ArgNode(obj_inst))
-        self.register_instruction(StaticCallNode(func_name, result)) if func_name else self.register_instruction(
-            DynamicCallNode(node.obj.static_type.name, node.id, result))
-        self.register_instruction(CleanArgsNode(len(node.args)+1))
+        self.register_instruction(
+            StaticCallNode(func_name, result)
+        ) if func_name else self.register_instruction(
+            DynamicCallNode(node.obj.static_type.name, node.id, result)
+        )
+        self.register_instruction(CleanArgsNode(len(node.args) + 1))
 
         return result
 
     @when(cool.NewNode)
-    def visit(self, node: cool.NewNode, scope: Scope):  # Remember attributes initialization
+    def visit(
+        self, node: cool.NewNode, scope: Scope
+    ):  # Remember attributes initialization
         result = self.define_internal_local()
         self.register_instruction(AllocateNode(result, node.type))
         self.init_class_attr(scope, node.type, result)
@@ -385,7 +406,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         right = self.visit(node.right, scope)
         result = self.define_internal_local()
 
-        if node.left.static_type == self.context.get_type('String'):
+        if node.left.static_type == self.context.get_type("String"):
             self.register_instruction(StringEqualNode(result, left, right))
         else:
             self.register_instruction(EqualNode(result, left, right))
@@ -413,7 +434,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node: cool.IdNode, scope: Scope):
         pvar = scope.get_var(node.token)
         if not pvar:
-            selfx = scope.get_var('self').local_name
+            selfx = scope.get_var("self").local_name
             pvar = self.define_internal_local()
 
             # Perhaps GetAttribNode could need info about self type, this is know in self.current_type variable
@@ -424,7 +445,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
 
     @when(cool.BoolNode)
     def visit(self, node: cool.BoolNode, scope: Scope):
-        return 1 if node.token.lower() == 'true' else 0
+        return 1 if node.token.lower() == "true" else 0
 
     @when(cool.IntegerNode)
     def visit(self, node: cool.IntegerNode, scope: Scope):

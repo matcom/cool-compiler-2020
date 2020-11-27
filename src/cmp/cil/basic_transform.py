@@ -24,7 +24,6 @@ from .ast import (
     MinusNode,
     ParamNode,
     PlusNode,
-    PrefixNode,
     PrintIntNode,
     PrintStrNode,
     ProgramNode,

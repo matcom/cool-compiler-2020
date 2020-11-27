@@ -184,6 +184,10 @@ class Mips:
         return f"or {dst}, {rl}, {rr}"
 
     @autowrite
+    def nor(self, dst: Register, rl: Register, rr: Register):
+        return f"nor {dst}, {rl}, {rr}"
+
+    @autowrite
     def andi(self, dst: Register, rl: Register, value: int):
         return f"andi {dst}, {rl}, {value}"
 
