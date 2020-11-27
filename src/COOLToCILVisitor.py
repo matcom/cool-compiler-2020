@@ -60,6 +60,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(cil.ArgsNode(['self']))
         self.register_instruction(cil.DynamicCallNode(self.current_type.name, self.to_function_name('Ctr', self.current_type.parent.name), parentResult))
 
+        self.register_instruction(cil.LoadNode('self', f'{self.current_type.name}_name'))
+        self.register_instruction(cil.LoadIntNode('self', f'{self.current_type.name}_size', 4))
 
         nodeatt = [x for x in node.features if isinstance(x, AttrDeclarationNode)]
         for feature, child_scope in zip(nodeatt, scope.children[1].children):
@@ -97,15 +99,25 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     def visit(self, node, scope):
         if not node.expression is None:
             value = self.visit(node.expression, scope.children[0])
+
+            if  node.type == 'Object' and node.expression.type.name in ['Int', 'Bool', 'String']:
+                obj_internal = self.define_internal_local()
+                self.register_instruction(cil.AllocateNode( node.expression.type.name, obj_internal))
+                self.register_instruction(cil.SetAttribNode(obj_internal, 'value', obj_internal))
+                value = obj_internal
+            
         else:
             if node.type == 'String':
-                value = '_empty'
+                internal = self.define_internal_local()
+                self.register_instruction(cil.LoadAddressNode(internal, "_empty"))
+                value = internal
             elif node.type == 'Bool' or node.type == 'Int':
                 value = 0
             else:
                 value = '_void'
 
-        self.register_instruction(cil.SetAttribNode('self', self.to_attribute_name(node.id, self.current_type.name), value))
+        attrib = self.get_attr(self.current_type.name, node.id)
+        self.register_instruction(cil.SetAttribNode('self', attrib, value))
 
     @visitor.when(LetInNode)
     def visit(self, node, scope):
@@ -123,7 +135,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
                 value = self.visit(init[2], scopeOpen)
             else:
                 if init[1] == 'String':
-                    value = '_empty'
+                    internal = self.define_internal_local()
+                    self.register_instruction(cil.LoadAddressNode(internal, "_empty"))
+                    value = internal
                 elif init[1] == 'Bool' or init[1] == 'Int':
                     value = 0
                 else:
@@ -198,7 +212,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         value = self.visit(node.expression, scope.children[0])
 
         if vinfo is None:
-            self.register_instruction(cil.SetAttribNode('self', self.to_attribute_name(node.id, self.current_type.name), value))
+            attrib = self.get_attr(self.current_type.name, node.id)
+            self.register_instruction(cil.SetAttribNode('self', attrib, value))
         else:
             self.register_instruction(cil.AssignNode(vinfo.cilName, value))
         
@@ -206,25 +221,75 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(FunctionCallNode)
     def visit(self, node, scope):
-        ###############################
-        # node.obj -> AtomicNode
-        # node.id -> str
-        # node.args -> [ ExpressionNode ... ]
-        ###############################
         result = self.define_internal_local()
-
         obj = self.visit(node.obj, scope.children[0])
         
+        if node.obj.type.name in ['Int', 'Bool', 'String']:
+            if node.id in ['abort', 'type_name', 'copy']:
+                obj_internal = self.define_internal_local()
+                self.register_instruction(cil.AllocateNode(node.obj.type.name, obj_internal))
+                self.register_instruction(cil.SetAttribNode(obj_internal, self.to_attribute_name('value', node.obj.type.name), obj))
+                self.register_instruction(cil.LoadNode(obj_internal, f'{node.obj.type.name}_name'))
+                self.register_instruction(cil.LoadIntNode(obj_internal, f'{node.obj.type.name}_size', 4))
+                obj = obj_internal
+
         valuesArgs = []
         for arg, child in zip(node.args, scope.children[1:]):
-            valuesArgs.append(self.visit(arg, child))
+            value = self.visit(arg, child)
+
+            if self.request_pos(value):
+                valuesArgs.append(value)
+            else:
+                internal = self.define_internal_local()
+                if isinstance(arg, IntegerNode):
+                    method = self.context.get_type(node.typex).get_method(node.id)
+                    param_type =  method.param_types[node.args.index(arg)]
+
+                    if param_type.name == 'Object':
+                        self.register_instruction(cil.AllocateNode('Int', internal))
+                        self.register_instruction(cil.SetAttribNode(internal, self.to_attribute_name('value', 'Int'), value))
+                        self.register_instruction(cil.LoadNode(internal, 'Int_name'))
+                        self.register_instruction(cil.LoadIntNode(internal, 'Int_size', 4))
+
+                        
+                        valuesArgs.append(internal)
+                    else:
+                        valuesArgs.append(value)
+
+                elif isinstance(arg, StringNode):
+                    method = self.context.get_type(node.typex).get_method(node.id)
+                    param_type =  method.param_types[node.args.index(arg)]
+
+                    if param_type.name == 'Object':
+                        self.register_instruction(cil.AllocateNode('String', internal))
+                        self.register_instruction(cil.SetAttribNode(internal, self.to_attribute_name('value', 'String'), value))
+                        self.register_instruction(cil.LoadNode(internal, 'String_name'))
+                        self.register_instruction(cil.LoadIntNode(internal, 'String_size', 4))
+                        valuesArgs.append(internal)
+                    else:
+                        valuesArgs.append(value)
+
+                else:
+                    method = self.context.get_type(node.typex).get_method(node.id)
+                    param_type =  method.param_types[node.args.index(arg)]
+
+                    if param_type.name == 'Object':
+                        self.register_instruction(cil.AllocateNode('Bool', internal))
+                        self.register_instruction(cil.SetAttribNode(internal, self.to_attribute_name('value', 'Bool'), value))
+                        self.register_instruction(cil.LoadNode(internal, 'Bool_name'))
+                        self.register_instruction(cil.LoadIntNode(internal, 'Bool_size', 4))
+                        valuesArgs.append(internal)
+                    else:
+                        valuesArgs.append(value)
 
         if node.typex is None:
             node.typex = node.obj.type.name
 
-        self.register_instruction(cil.ArgsNode( list[reversed(valuesArgs)] + ['self']))
+        self.register_instruction(cil.ArgsNode( list(reversed(valuesArgs)) + [obj]))
+        
+        realMethod = self.get_method(node.typex, node.id)
 
-        self.register_instruction(cil.DynamicCallNode(node.typex, self.to_function_name(node.id, node.typex), result))
+        self.register_instruction(cil.DynamicCallNode(node.typex, realMethod, result))
         return result
 
     @visitor.when(MemberCallNode)
@@ -235,8 +300,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         for arg, child in zip(node.args, scope.children):
             valuesArgs.append(self.visit(arg, child))
 
-        self.register_instruction(cil.ArgsNode( list[reversed(valuesArgs)] + ['self']))
-        self.register_instruction(cil.StaticCallNode(self.to_function_name(node.id, self.current_type.name), result))
+        self.register_instruction(cil.ArgsNode( list(reversed(valuesArgs)) + ['self']))
+
+        realMethod = self.get_method(self.current_type.name, node.id)
+        self.register_instruction(cil.StaticCallNode(realMethod, result))
         return result
 
     @visitor.when(IntegerNode)
@@ -253,16 +320,24 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(StringNode)
     def visit(self, node, scope):
-        return self.register_data(node.token).name
+        msg = self.register_data(node.token).name
+        internal = self.define_internal_local()
+        self.register_instruction(cil.LoadAddressNode(internal, msg))
+        return internal
 
 
     @visitor.when(IdNode)
     def visit(self, node:IdNode, scope):
+        if node.token == 'self':
+            return 'self'
+
         vinfo = scope.find_variable(node.token)
 
         if vinfo is None:
             result = self.define_internal_local()
-            self.register_instruction(cil.GetAttribNode('self', self.to_attribute_name(node.token, self.current_type.name), result))
+            attrib = self.get_attr(self.current_type.name, node.token)
+
+            self.register_instruction(cil.GetAttribNode('self', attrib, result))
             return result
 
         return vinfo.cilName
@@ -274,8 +349,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result = self.define_internal_local()
         self.register_instruction(cil.AllocateNode(node.type.name, instance))
         
-        self.register_instruction(cil.ArgNode(instance))
-        self.register_instruction(cil.DynamicCallNode(node.type, self.to_function_name('Ctr', node.type), result))
+        self.register_instruction(cil.ArgsNode([instance]))
+        self.register_instruction(cil.DynamicCallNode(node.type.name, self.to_function_name('Ctr', node.type.name), result))
         return instance
 
 
@@ -372,3 +447,15 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         self.register_instruction(cil.IsVoidNode(expression, result))
         return result
+
+
+    # utils
+    def request_pos(self, name):
+        if name in [x.name for x in self.current_function.localvars]:
+            numb = int( name.split('_')[-1])
+            return f'-{(numb+1) * 4}($fp)'
+        elif name in [x.name for x in self.current_function.params]:
+            numb = [param.name for param in self.function.params].index(name)
+            return f'{(numb + 1) * 4}($fp)'
+        else:
+            return None

@@ -10,6 +10,7 @@ class BaseCOOLToCILVisitor:
         self.current_method = None
         self.current_function = None
         self.context = context
+        self.basic_types()
     
     @property
     def params(self):
@@ -26,6 +27,15 @@ class BaseCOOLToCILVisitor:
     @property
     def labels(self):
         return self.current_function.labels
+
+    def basic_types(self):
+        for basicType in ['Int', 'String', 'Bool']:
+            cil_type = self.register_type(basicType)
+            cil_type.attributes.append(self.to_attribute_name('value', basicType))
+        
+            for method , typeMethod in self.context.get_type(basicType).all_methods():
+                cil_type.methods.append((method.name, self.to_function_name(method.name, typeMethod.name)))
+
 
     def register_param(self, vinfo):
         vinfo.cilName = vinfo.name # f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
@@ -77,3 +87,26 @@ class BaseCOOLToCILVisitor:
         data_node = cil.DataNode(vname, value)
         self.dotdata.append(data_node)
         return data_node
+
+
+    def get_attr(self, function_name, attribute):
+        for dottype in self.dottypes:
+            if dottype.name == function_name:
+                break
+
+        for attrib in dottype.attributes:
+            if attrib.split('_')[-1] == attribute:
+                break
+
+        return attrib
+
+    def get_method(self, type_name, method_name):
+        for typeContext in self.context.types:
+            if typeContext == type_name:
+                break
+
+        for method, methodType in self.context.types[typeContext].all_methods():
+            if method.name == method_name:
+                break
+
+        return self.to_function_name(method.name, methodType.name) 

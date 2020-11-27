@@ -143,9 +143,19 @@ class ReturnNode(InstructionNode):
         self.value = value
 
 class LoadNode(InstructionNode):
-    def __init__(self, dest, msg):
+    def __init__(self, dest, msg, desp=0):
         self.dest = dest
         self.msg = msg
+        self.desp = desp
+
+class LoadAddressNode(LoadNode):
+    pass
+
+class LoadIntNode(InstructionNode):
+    def __init__(self, dest, msg, desp):
+        self.dest = dest
+        self.msg = msg
+        self.desp = desp
 
 class LengthNode(InstructionNode):
     pass
@@ -285,6 +295,18 @@ def get_formatter():
         @visitor.when(ReturnNode)
         def visit(self, node):
             return f'RETURN {node.value if node.value is not None else ""}'
+
+        @visitor.when(LoadNode)
+        def visit(self, node):
+            return f'LOAD {node.dest} {node.msg} {node.desp}'
+        
+        @visitor.when(LoadAddressNode)
+        def visit(self, node):
+            return f'LOAD_ADDRESS {node.dest} {node.msg} {node.desp}'
+
+        @visitor.when(LoadIntNode)
+        def visit(self, node):
+            return f'LOAD_INT {node.dest} {node.msg} {node.desp}'
 
     printer = PrintVisitor()
     return (lambda ast: printer.visit(ast))

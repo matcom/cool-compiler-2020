@@ -189,15 +189,17 @@ class Context:
         Object.define_method("copy",[],[],SELF_TYPE(),0)
         self.types["Object"] =Object
 
-        IO.define_method("out_string",["x"],[String],SELF_TYPE(),0)
-        IO.define_method("out_int",['x'],[Int],SELF_TYPE(),0)
-        IO.define_method("in_int",[],[],Int,0)
-        self.types['IO']= IO
-
         String.define_method("length",[],[],Int,0)    
         String.define_method("concat",['s'],[String],String,0) 
         String.define_method("substr",['i','l'],[Int,Int],SELF_TYPE(),0)   
         self.types["String"] = String
+
+        IO.define_method("out_string",["x"],[String],SELF_TYPE(),0)
+        IO.define_method("out_int",['x'],[Int],SELF_TYPE(),0)
+        IO.define_method("in_int",[],[],Int,0)
+        IO.define_method("in_string",[], [], String, 0)
+        self.types['IO']= IO
+
 
     def check_type(self,x:Type,y:Type,pos):
         if not x.conforms_to(y) :
@@ -514,8 +516,32 @@ class TypeChecking:
             self.errors.append(e)
         
 
-       
-    
+    @visitor.when(CaseOfNode)
+    def visit(self, node:CaseOfNode, scope:Scope):
+        node.type = ErrorType()
+        sce = scope.create_child()
+        self.visit(node.expression, sce)
+        scb = scope.create_child()
+        common_type = None
+        for branches in node.branches:
+            tmpscope = scb.create_child()
+            try :
+                typex = self.context.get_type(branches[1],node.line)
+                if common_type is None:
+                    common_type = typex
+                else:
+                    common_type = self.context.closest_common_antecesor(common_type,typex)
+            except SemanticError as e:
+                self.errors.append(e)
+            tmpscope.define_variable(branches[0],typex,node.line)
+            self.visit(branches[2],tmpscope)
+        
+        node.type = common_type
+        
+        
+
+
+
     @visitor.when(FunctionCallNode)
     def visit(self, node:FunctionCallNode, scope:Scope):    
         self.visit(node.obj,scope.create_child())
