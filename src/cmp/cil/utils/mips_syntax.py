@@ -307,23 +307,12 @@ class Mips:
     def read_char(self):
         return self.syscall(12)
 
-    # Data Section
-
-    @autowritedata
-    def ascii(self, string: str):
-        return f'{Directive.ascii} "{string}"'
-
-    @autowrite
-    def asciiz(self, string: str):
-        return f'{Directive.asciiz} "{string}"'
+    def exit2(self):
+        return self.syscall(17)
 
     # Utilities
     def offset(self, r: Register, offset: int = 0):
         return f"{offset}({r})"
-
-    @autowritedata
-    def var_label(self, name: str):
-        return f"{name}:"
 
     @autowrite
     def label(self, name: str):
@@ -332,3 +321,21 @@ class Mips:
     @autowrite
     def empty_line(self):
         return ""
+
+    # Data Section
+
+    @autowrite
+    def data_empty_line(self):
+        return ""
+
+    @autowritedata
+    def data_label(self, name: str):
+        return f"{name}:"
+
+    @autowritedata
+    def ascii(self, string: str):
+        return f'{Directive.ascii} "{string}"'
+
+    @autowrite
+    def asciiz(self, string: str):
+        return f'{Directive.asciiz} "{string}"'
