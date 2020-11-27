@@ -53,7 +53,6 @@ class Directive(str, Enum):
     aling = ".align"
 
 
-syscall = "syscall"
 Reg = Register
 
 
@@ -281,7 +280,8 @@ class Mips:
     # System Calls
     @autowrite
     def syscall(self, code: int):
-        return [self.li(Register.v0, 1), self.syscall]
+        self.li(Register.v0, code)
+        return "syscall"
 
     def print_int(self):
         return self.syscall(1)
@@ -336,6 +336,6 @@ class Mips:
     def ascii(self, string: str):
         return f'{Directive.ascii} "{string}"'
 
-    @autowrite
+    @autowritedata
     def asciiz(self, string: str):
         return f'{Directive.asciiz} "{string}"'
