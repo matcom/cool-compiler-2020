@@ -214,11 +214,11 @@ class CIL_FORMATTER(object):
 
     @when(GetAttribNode)
     def visit(self, node: GetAttribNode):  # noqa:F811
-        return f"{node.dest} = GETATTR {node.obj} {node.attrib}"
+        return f"{node.dest} = GETATTR {node.obj} {node.attrib} {node.type}"
 
     @when(SetAttribNode)
     def visit(self, node: SetAttribNode):  # noqa:F811
-        return f"SETATTR {node.obj} {node.attrib} {node.value}"
+        return f"SETATTR {node.obj} {node.attrib} {node.value} {node.type}"
 
     @when(LabelNode)
     def visit(self, node: LabelNode):  # noqa:F811
