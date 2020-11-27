@@ -754,7 +754,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         left_value = self.visit(node.left, scope)
         right_value = self.visit(node.right, scope)
 
-        if node.left.computed_type.name in ['Int', 'Bool']:
+        if node.left.computed_type.name in ['Int', 'Bool', 'String']:
             self.register_instruction(CIL_AST.GetAttr(left_local, left_value, "value", node.left.computed_type.name))
             self.register_instruction(CIL_AST.GetAttr(right_local, right_value, "value", node.right.computed_type.name))
         else:
