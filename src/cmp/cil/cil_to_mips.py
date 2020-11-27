@@ -307,7 +307,6 @@ class CIL_TO_MIPS(object):
         length *= self.data_size / 2
         self.mips.li(Reg.a0, length)
         self.mips.sbrk()
-        self.mips.syscall()
         self.store_memory(Reg.v0, node.dest)
 
         self.mips.li(Reg.t0, type_data.type)
@@ -387,17 +386,15 @@ class CIL_TO_MIPS(object):
     @when(ReadIntNode)
     def visit(self, node: ReadIntNode):  # noqa: F811
         self.mips.comment("ReadIntNode")
-        self.mips.read_int()
         self.load_memory(Reg.a0, node.dest)
-        self.mips.syscall()
+        self.mips.read_int()
         self.mips.empty()
 
     @when(ReadStrNode)
     def visit(self, node: ReadStrNode):  # noqa: F811
         self.mips.comment("ReadStrNode")
-        self.mips.read_string()
         self.load_memory(Reg.a0, node.dest)
-        self.mips.syscall()
+        self.mips.read_string()
         self.mips.empty()
 
     @when(PrintIntNode)
@@ -405,7 +402,6 @@ class CIL_TO_MIPS(object):
         self.mips.comment("PrintIntNode")
         self.load_memory(Reg.a0, node.str_addr)
         self.mips.print_int()
-        self.mips.syscall()
         self.mips.empty()
 
     @when(PrintStrNode)
@@ -413,7 +409,6 @@ class CIL_TO_MIPS(object):
         self.mips.comment("PrintStrNode")
         self.load_memory(Reg.a0, node.str_addr)
         self.mips.print_string()
-        self.mips.syscall()
         self.mips.empty()
 
     @when(LengthNode)
