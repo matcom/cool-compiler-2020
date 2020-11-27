@@ -254,6 +254,7 @@ class Scope:
         self.locals = []
         self.parent = parent
         self.children = []
+        self.id = 0
         self.index = 0 if parent is None else len(parent)
 
     def __len__(self):
@@ -261,6 +262,7 @@ class Scope:
 
     def create_child(self):
         child = Scope(self)
+        child.id = self.id*10 +len(self.children)
         self.children.append(child)
         return child
 
@@ -695,6 +697,7 @@ class TypeChecking:
                 self.errors.append(e)
         
         sc = sc.create_child()
+        node.body_scope=sc
         self.visit(node.in_body,sc)
         node.type = node.in_body.type
         

@@ -110,3 +110,11 @@ class BaseCOOLToCILVisitor:
                 break
 
         return self.to_function_name(method.name, methodType.name) 
+
+    def box(self, typeName, value):
+        obj_internal = self.define_internal_local()
+        self.register_instruction(cil.AllocateNode(typeName, obj_internal))
+        self.register_instruction(cil.SetAttribNode(obj_internal, self.to_attribute_name('value', typeName), value))
+        self.register_instruction(cil.LoadNode(obj_internal, f'{typeName}_name'))
+        self.register_instruction(cil.LoadIntNode(obj_internal, f'{typeName}_size', 4))
+        return obj_internal

@@ -114,25 +114,25 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             elif node.type == 'Bool' or node.type == 'Int':
                 value = 0
             else:
-                value = '_void'
+                internal = self.define_internal_local()
+                self.register_instruction(cil.LoadAddressNode(internal, "_void"))
+                value = internal
 
         attrib = self.get_attr(self.current_type.name, node.id)
         self.register_instruction(cil.SetAttribNode('self', attrib, value))
 
     @visitor.when(LetInNode)
     def visit(self, node, scope):
-        ###############################
-        # node.id -> str
-        # node.type -> str
-        # node.expr -> ExpressionNode
-        ###############################
-       
         scopeOpen = scope.children[0]
         
         value = None
         for init in node.let_body:
             if not init[2] is None:
                 value = self.visit(init[2], scopeOpen)
+
+                if init[2].type.name in ['Int', 'Bool', 'String'] and init[1]== 'Object':
+                    value = self.box(init[2].type.name, value)
+
             else:
                 if init[1] == 'String':
                     internal = self.define_internal_local()
@@ -141,9 +141,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
                 elif init[1] == 'Bool' or init[1] == 'Int':
                     value = 0
                 else:
-                    value = '_void'
+                    internal = self.define_internal_local()
+                    self.register_instruction(cil.LoadAddressNode(internal, "_void"))
+                    value = internal
 
-            scopeOpen = scopeOpen.children[0]
+            scopeOpen = scopeOpen.children[-1]
             vinfo = scopeOpen.find_variable(init[0])
             vname = self.register_local(vinfo)
             self.register_instruction(cil.AssignNode(vname, value))
@@ -198,7 +200,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(cil.LabelNode(labelWhileBreak))
 
         result = self.define_internal_local()
-        self.register_instruction(cil.AssignNode(result, '_void'))
+        self.register_instruction(cil.LoadAddressNode(result, "_void"))
         return result
 
     @visitor.when(AssignNode)
@@ -226,62 +228,22 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         if node.obj.type.name in ['Int', 'Bool', 'String']:
             if node.id in ['abort', 'type_name', 'copy']:
-                obj_internal = self.define_internal_local()
-                self.register_instruction(cil.AllocateNode(node.obj.type.name, obj_internal))
-                self.register_instruction(cil.SetAttribNode(obj_internal, self.to_attribute_name('value', node.obj.type.name), obj))
-                self.register_instruction(cil.LoadNode(obj_internal, f'{node.obj.type.name}_name'))
-                self.register_instruction(cil.LoadIntNode(obj_internal, f'{node.obj.type.name}_size', 4))
-                obj = obj_internal
+                obj = self.box(node.obj.type.name, obj)
 
         valuesArgs = []
         for arg, child in zip(node.args, scope.children[1:]):
             value = self.visit(arg, child)
 
-            if self.request_pos(value):
-                valuesArgs.append(value)
-            else:
-                internal = self.define_internal_local()
-                if isinstance(arg, IntegerNode):
-                    method = self.context.get_type(node.typex).get_method(node.id)
-                    param_type =  method.param_types[node.args.index(arg)]
+            if arg.type.name in ['Int', 'Bool', 'String']:
+                method = self.context.get_type(node.typex).get_method(node.id)
+                param_type =  method.param_types[node.args.index(arg)]
 
-                    if param_type.name == 'Object':
-                        self.register_instruction(cil.AllocateNode('Int', internal))
-                        self.register_instruction(cil.SetAttribNode(internal, self.to_attribute_name('value', 'Int'), value))
-                        self.register_instruction(cil.LoadNode(internal, 'Int_name'))
-                        self.register_instruction(cil.LoadIntNode(internal, 'Int_size', 4))
+                if param_type.name == 'Object':
+                    valuesArgs.append(self.box(arg.type.name, value))
+                    continue
 
-                        
-                        valuesArgs.append(internal)
-                    else:
-                        valuesArgs.append(value)
-
-                elif isinstance(arg, StringNode):
-                    method = self.context.get_type(node.typex).get_method(node.id)
-                    param_type =  method.param_types[node.args.index(arg)]
-
-                    if param_type.name == 'Object':
-                        self.register_instruction(cil.AllocateNode('String', internal))
-                        self.register_instruction(cil.SetAttribNode(internal, self.to_attribute_name('value', 'String'), value))
-                        self.register_instruction(cil.LoadNode(internal, 'String_name'))
-                        self.register_instruction(cil.LoadIntNode(internal, 'String_size', 4))
-                        valuesArgs.append(internal)
-                    else:
-                        valuesArgs.append(value)
-
-                else:
-                    method = self.context.get_type(node.typex).get_method(node.id)
-                    param_type =  method.param_types[node.args.index(arg)]
-
-                    if param_type.name == 'Object':
-                        self.register_instruction(cil.AllocateNode('Bool', internal))
-                        self.register_instruction(cil.SetAttribNode(internal, self.to_attribute_name('value', 'Bool'), value))
-                        self.register_instruction(cil.LoadNode(internal, 'Bool_name'))
-                        self.register_instruction(cil.LoadIntNode(internal, 'Bool_size', 4))
-                        valuesArgs.append(internal)
-                    else:
-                        valuesArgs.append(value)
-
+            valuesArgs.append(value)
+                                        
         if node.typex is None:
             node.typex = node.obj.type.name
 
@@ -298,7 +260,17 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         valuesArgs = []
         for arg, child in zip(node.args, scope.children):
-            valuesArgs.append(self.visit(arg, child))
+            value = self.visit(arg, child)
+
+            if arg.type.name in ['Int', 'Bool', 'String']:
+                method = self.current_type.get_method(node.id)
+                param_type =  method.param_types[node.args.index(arg)]
+
+                if param_type.name == 'Object':
+                    valuesArgs.append(self.box(arg.type.name, value))
+                    continue
+
+            valuesArgs.append(value)
 
         self.register_instruction(cil.ArgsNode( list(reversed(valuesArgs)) + ['self']))
 
@@ -393,8 +365,23 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result = self.define_internal_local()
         left = self.visit(node.left, scope.children[0])
         right = self.visit(node.right, scope.children[1])
-        self.register_instruction(cil.MinusNode(result, left, right))
-        
+
+        if node.left.type.name == 'String':
+            self.register_instruction(cil.StringComparer(result, left, right))
+        else:
+            labelEquals = self.register_label()
+            labelsEnd = self.register_label()
+
+            resultComparer = self.define_internal_local()
+            self.register_instruction(cil.MinusNode(resultComparer, left, right))
+
+            self.register_instruction(cil.GotoIfNode(labelEquals, resultComparer))
+            self.register_instruction(cil.AssignNode(result, 1))
+            self.register_instruction(cil.GotoNode(labelsEnd))
+            self.register_instruction(cil.LabelNode(labelEquals))
+            self.register_instruction(cil.AssignNode(result, 0))
+            self.register_instruction(cil.LabelNode(labelsEnd))
+
         return result
         
     @visitor.when(LessNode)
@@ -402,8 +389,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result = self.define_internal_local()
         left = self.visit(node.left, scope.children[0])
         right = self.visit(node.right, scope.children[1])
-        self.register_instruction(cil.LessNode(result, left, right))
 
+        labelTrue = self.register_label()
+        labelEnd = self.register_label()
+
+        self.register_instruction(cil.LessNode(result, left, right, labelTrue, labelEnd))
         return result
 
     @visitor.when(LessEqualNode)
@@ -411,8 +401,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result = self.define_internal_local()
         left = self.visit(node.left, scope.children[0])
         right = self.visit(node.right, scope.children[1])
-        self.register_instruction(cil.LessEqualNode(result, left, right))
 
+        labelTrue = self.register_label()
+        labelEnd = self.register_label()
+
+        self.register_instruction(cil.LessEqualNode(result, left, right, labelTrue,labelEnd))
         return result  
 
     @visitor.when(NotNode)

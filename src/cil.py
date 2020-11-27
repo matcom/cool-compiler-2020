@@ -68,11 +68,21 @@ class StarNode(ArithmeticNode):
 class DivNode(ArithmeticNode):
     pass
 
-class LessNode(ArithmeticNode):
-    pass
+class LessNode(InstructionNode):
+    def __init__(self, result, left, right, labelTrue, labelEnd):
+        self.result = result
+        self.left = left
+        self.right =right
+        self.labelTrue = labelTrue
+        self.labelEnd = labelEnd
 
 class LessEqualNode(ArithmeticNode):
-    pass
+    def __init__(self, result, left, right, labelTrue, labelEnd):
+        self.result = result
+        self.left = left
+        self.right =right
+        self.labelTrue = labelTrue
+        self.labelEnd = labelEnd
 
 class GetAttribNode(InstructionNode):
     def __init__(self, ins,att,dest):
@@ -168,6 +178,12 @@ class PrefixNode(InstructionNode):
 
 class SubstringNode(InstructionNode):
     pass
+
+class StringComparer(InstructionNode):
+    def __init__(self, result, left, right):
+        self.result = result
+        self.left = left
+        self.right = right
 
 class ToStrNode(InstructionNode):
     def __init__(self, dest, ivalue):

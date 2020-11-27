@@ -152,7 +152,7 @@ class CoolParser():
     def p_arith_2_1(self, p):
         r'arith : NOT arith2'
         p[0]=NotNode(p[2])
-        p[0].line = p.lineno(2)
+        p[0].line = p.lineno(1)
 
     def p_arith_2_2(self, p):
         r'arith : arith2'

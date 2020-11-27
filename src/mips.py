@@ -80,6 +80,16 @@ class MipsAddiuNode(MipsArithmeticNode):
 class MipsMinusNode(MipsArithmeticNode):
     pass
 
+class MipsStarNode(MipsArithmeticNode):
+    pass
+
+class MipsDivNode(MipsArithmeticNode):
+    pass
+
+class MipsNEGNode(MipsNode):
+    def __init__(self, dest, src):
+        self.dest = dest
+        self.src = src
 
 # comp
 class MipsComparerNode(MipsNode):
@@ -93,6 +103,14 @@ class MipsBEQNode(MipsComparerNode):
 
 class MipsBNENode(MipsComparerNode):
     pass
+
+class MipsBLTNode(MipsComparerNode):
+    pass
+
+class MipsBLENode(MipsComparerNode):
+    pass
+
+
 
 # label
 class MipsLabelNode(MipsNode):
@@ -115,7 +133,12 @@ def get_formatter():
             dotdata = '\n'.join(self.visit(t) for t in node.dotdata)
             dotdata += '''
             _error1:    .asciiz     "Halt program because abort"
+            IO_name:    .asciiz     "IO"
+            IO_size:    .word       8
+            Object_name:    .asciiz     "Object"
+            Object_size:    .word       8
             _buffer:    .space      1024
+            _void:      .asciiz       ""
              '''    
             
             dotcode = '\n'.join(self.visit(t) for t in node.dotcode)
@@ -341,6 +364,60 @@ function_substr_at_String:
             jr $ra 
 
 
+function_comparer_string:
+            move $fp, $sp
+            sw $ra, 0($sp)
+            addiu $sp, $sp, -4
+
+            lw $s1, 4($fp)
+            sw $fp, 0($sp)
+            addiu $sp, $sp, -4
+            sw $s1, 0($sp)
+            addiu $sp, $sp, -4
+            jal function_length_at_String
+            
+            sw $a0, 0($sp)
+            addiu $sp, $sp, -4
+
+            lw $s1, 8($fp)
+            sw $fp, 0($sp)
+            addiu $sp, $sp, -4
+            sw $s1, 0($sp)
+            addiu $sp, $sp, -4
+            jal function_length_at_String
+
+            lw $t7, 4($sp)
+            addiu $sp, $sp, 4
+
+            bne $t7, $a0, not_equals_strings
+
+            lw $t7, 4($fp)
+            lw $a0, 8($fp)
+
+        equal_chart:
+            lb $t1, ($t7)
+            lb $t2, ($a0)
+            addiu $t7, $t7, 1
+            addiu $a0, $a0, 1
+            bne $t1, $t2, not_equals_strings
+            beq $t1, $zero, equals_strings
+            j equal_chart
+
+        not_equals_strings:
+            li $a0, 0
+            j end_equal_string
+
+        equals_strings:
+            li $a0, 1
+
+        end_equal_string:
+            lw $ra, 0($fp)
+            addiu $sp, $sp, 16
+            lw $fp, 0($sp)
+            jr $ra 
+
+
+
 function_out_string_at_IO:
             move $fp, $sp
             sw $ra, 0($sp)
@@ -485,6 +562,7 @@ function_in_string_at_IO:
             return f'\t\t\tmove {node.dest}, {node.src}'
 
 
+
         # arithmetic
         @visitor.when(MipsAddNode)
         def visit(self, node):
@@ -498,6 +576,18 @@ function_in_string_at_IO:
         def visit(self, node):
             return f'\t\t\tsub {node.param1}, {node.param2}, {node.param3}'
 
+        @visitor.when(MipsArithmeticNode)
+        def visit(self, node):
+            return f'\t\t\tmul {node.param1} {node.param2} {node.param3}'
+
+        @visitor.when(MipsNEGNode)
+        def visit(self, node):
+            return f'\t\t\tneg {node.dest}, {node.src}'
+
+        @visitor.when(MipsDivNode)
+        def visit(self, node):
+            return f'\t\t\tdiv {node.param1}, {node.param2}, {node.param3}'
+
         # comp
         @visitor.when(MipsBNENode)
         def visit(self, node):
@@ -506,6 +596,16 @@ function_in_string_at_IO:
         @visitor.when(MipsBEQNode)
         def visit(self, node):
             return f'\t\t\tbeq {node.param1}, {node.param2}, {node.label}'
+
+        @visitor.when(MipsBLTNode)
+        def visit(self, node):
+            return f'\t\t\tblt {node.param1}, {node.param2}, {node.label}'
+
+        @visitor.when(MipsBLENode)
+        def visit(self, node):
+            return f'\t\t\tble {node.param1}, {node.param2}, {node.label}'
+
+
 
         # label
         @visitor.when(MipsLabelNode)

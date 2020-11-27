@@ -80,6 +80,7 @@ class CILtoMIPSVisitor:
             self.register_instruction(MipsAddiuNode('$sp', '$sp', '-4'))
 
 
+
     @visitor.when(ReturnNode)
     def visit(self, node:ReturnNode):
         self.register_instruction(MipsCommentNode('retornando el valor'))
@@ -102,6 +103,7 @@ class CILtoMIPSVisitor:
         self.register_instruction(MipsCommentNode('end allocate'))
 
 
+
     @visitor.when(StaticCallNode)
     def visit(self, node:StaticCallNode):
         self.register_instruction(MipsJumpAtAddressNode(node.function))
@@ -118,6 +120,7 @@ class CILtoMIPSVisitor:
         num = int(node.dest.split('_')[-1])
         self.register_instruction(MipsSWNode('$a0', f'-{(num+1) * 4}($fp)'))
         self.register_instruction(MipsCommentNode('fin llamada dinamica'))
+
 
 
     @visitor.when(SetAttribNode)
@@ -164,6 +167,7 @@ class CILtoMIPSVisitor:
         self.register_instruction(MipsSWNode('$a0', pos_result))
         
 
+
     @visitor.when(LoadNode)
     def visit(self, node):
         self.register_instruction(MipsCommentNode('LOAD inicia'))
@@ -186,6 +190,8 @@ class CILtoMIPSVisitor:
         self.register_instruction(MipsLWNode("$t2",dest))
         self.register_instruction(MipsSWNode('$t1', f"{node.desp}($t2)"))
 
+
+
     @visitor.when(AssignNode)
     def visit(self, node:AssignNode):
         pos_dest = self.request_pos(node.dest)
@@ -205,12 +211,19 @@ class CILtoMIPSVisitor:
     @visitor.when(GotoIfNode)
     def visit(self, node):
         pos = self.request_pos(node.condition)
-        self.register_instruction(MipsLWNode('$a0', pos))
-        self.register_instruction(MipsBEQNode('$a0', '$zero', node.name))
+
+        if not pos is None:
+            self.register_instruction(MipsLWNode('$a0', pos))
+        else:
+            self.register_instruction(MipsLINode('$a0', node.condition))
+
+        self.register_instruction(MipsBNENode('$a0', '$zero', node.name))
 
     @visitor.when(LabelNode)
     def visit(self, node):
         self.register_instruction(MipsLabelNode(node.name))
+
+
 
     @visitor.when(PlusNode)
     def visit(self, node:PlusNode):        
@@ -247,8 +260,133 @@ class CILtoMIPSVisitor:
         else:
             self.register_instruction(MipsLINode('$a0', node.right))
         
-        self.register_instruction(MipsMinusNode('$a0', '$a0', '$t1'))
+        self.register_instruction(MipsMinusNode('$a0', '$t1', '$a0'))
         self.register_instruction(MipsSWNode('$a0', pos_dest))
+
+
+    @visitor.when(StarNode)
+    def visit(self, node):
+        pos_dest = self.request_pos(node.dest)
+        pos_left = self.request_pos(node.left)
+        pos_right = self.request_pos(node.right)
+
+        if not pos_left is None:
+            self.register_instruction(MipsLWNode('$t1', pos_left))
+        else:
+            self.register_instruction(MipsLINode('$t1', node.left))
+
+        if not pos_right is None:
+            self.register_instruction(MipsLWNode('$a0', pos_right))
+        else:
+            self.register_instruction(MipsLINode('$a0', node.right))
+        
+        self.register_instruction(MipsStarNode('$a0', '$t1', '$a0'))
+        self.register_instruction(MipsSWNode('$a0', pos_dest))
+    
+    @visitor.when(DivNode)
+    def visit(self, node):
+        pos_dest = self.request_pos(node.dest)
+        pos_left = self.request_pos(node.left)
+        pos_right = self.request_pos(node.right)
+
+        if not pos_left is None:
+            self.register_instruction(MipsLWNode('$t1', pos_left))
+        else:
+            self.register_instruction(MipsLINode('$t1', node.left))
+
+        if not pos_right is None:
+            self.register_instruction(MipsLWNode('$a0', pos_right))
+        else:
+            self.register_instruction(MipsLINode('$a0', node.right))
+        
+        self.register_instruction(MipsDivNode('$a0', '$t1', '$a0'))
+        self.register_instruction(MipsSWNode('$a0', pos_dest))
+
+    @visitor.when(ComplementNode)
+    def visit(self, node):
+        pos_dest = self.request_pos(node.dest)
+        pos_expression = self.request_pos(node.expression)
+
+        if not pos_expression is None:
+            self.register_instruction(MipsLWNode('$t1', pos_expression))
+        else:
+            self.register_instruction(MipsLINode('$t1', node.expression))
+
+        self.register_instruction(MipsAddiuNode('$t1', '$t1', 1))
+        self.register_instruction(MipsNEGNode('$t1', '$t1'))
+        self.register_instruction(MipsSWNode('$t1', pos_dest))
+
+
+    @visitor.when(LessNode)
+    def visit(self, node):
+        pos_dest = self.request_pos(node.result)
+        pos_left = self.request_pos(node.left)
+        pos_right = self.request_pos(node.right)
+
+        if not pos_left is None:
+            self.register_instruction(MipsLWNode('$t1', pos_left))
+        else:
+            self.register_instruction(MipsLINode('$t1', node.left))
+
+        if not pos_right is None:
+            self.register_instruction(MipsLWNode('$a0', pos_right))
+        else:
+            self.register_instruction(MipsLINode('$a0', node.right))
+
+        self.register_instruction(MipsBLTNode('$t1', '$a0', node.labelTrue))
+        self.register_instruction(MipsLINode('$a0', 0))
+        self.register_instruction(MipsJumpNode(node.labelEnd))
+        self.register_instruction(MipsLabelNode(node.labelTrue))
+        self.register_instruction(MipsLINode('$a0', 1))
+        self.register_instruction(MipsLabelNode(node.labelEnd))
+        self.register_instruction(MipsSWNode('$a0', pos_dest))
+
+    @visitor.when(LessEqualNode)
+    def visit(self, node):
+        pos_dest = self.request_pos(node.result)
+        pos_left = self.request_pos(node.left)
+        pos_right = self.request_pos(node.right)
+
+        if not pos_left is None:
+            self.register_instruction(MipsLWNode('$t1', pos_left))
+        else:
+            self.register_instruction(MipsLINode('$t1', node.left))
+
+        if not pos_right is None:
+            self.register_instruction(MipsLWNode('$a0', pos_right))
+        else:
+            self.register_instruction(MipsLINode('$a0', node.right))
+
+        self.register_instruction(MipsBLENode('$t1', '$a0', node.labelTrue))
+        self.register_instruction(MipsLINode('$a0', 0))
+        self.register_instruction(MipsJumpNode(node.labelEnd))
+        self.register_instruction(MipsLabelNode(node.labelTrue))
+        self.register_instruction(MipsLINode('$a0', 1))
+        self.register_instruction(MipsLabelNode(node.labelEnd))
+        self.register_instruction(MipsSWNode('$a0', pos_dest))
+
+    @visitor.when(StringComparer)
+    def visit(self, node):
+        pos_dest = self.request_pos(node.result)
+        pos_left = self.request_pos(node.left)
+        pos_right = self.request_pos(node.right)
+
+        self.register_instruction(MipsSWNode('$fp', '0($sp)'))
+        self.register_instruction(MipsAddiuNode('$sp', '$sp' ,'-4'))
+
+        self.register_instruction(MipsLWNode('$a0', pos_left))            
+        self.register_instruction(MipsSWNode('$a0', '0($sp)'))
+        self.register_instruction(MipsAddiuNode('$sp', '$sp', '-4'))
+
+        self.register_instruction(MipsLWNode('$a0', pos_right))            
+        self.register_instruction(MipsSWNode('$a0', '0($sp)'))
+        self.register_instruction(MipsAddiuNode('$sp', '$sp', '-4'))
+
+        self.register_instruction(MipsJumpAtAddressNode('function_comparer_string'))
+        self.register_instruction(MipsSWNode('$a0', pos_dest))
+
+
+
 
     # registers
     def register_data(self, instruction):
