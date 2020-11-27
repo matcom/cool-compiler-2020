@@ -6,7 +6,6 @@ from .ast import (
     CleanArgsNode,
     ComplementNode,
     ConcatNode,
-    ConformNode,
     CopyNode,
     DataNode,
     DivNode,
@@ -71,7 +70,7 @@ class CIL_TO_MIPS(object):
             self.mips.load_memory(dst, self.mips.offset(Reg.fp, offset))
         else:
             raise Exception(f"The direction {arg} isn't an address")
-        self.mips.empty_line
+        self.mips.empty
 
     @on("node")
     def visit(self, node):
@@ -105,7 +104,7 @@ class CIL_TO_MIPS(object):
 
     @when(FunctionNode)
     def visit(self, node: FunctionNode):  # noqa
-        self.mips.empty_line()
+        self.mips.empty()
         self.mips.label(node.name)
 
         self.mips.comment("Set stack frame")
@@ -117,20 +116,20 @@ class CIL_TO_MIPS(object):
         for idx, param in enumerate(node.params):
             self.visit(param, index=idx)
 
-        self.mips.empty_line()
+        self.mips.empty()
         self.mips.comment("Allocate memory for Local variables")
         for idx, local in enumerate(node.localvars):
             self.visit(local, index=idx)
 
-        self.mips.empty_line()
+        self.mips.empty()
         # self.store_registers()
-        self.mips.empty_line()
+        self.mips.empty()
         self.mips.comment("Generating body code")
         for instruction in node.instructions:
             self.visit(instruction)
 
         self.actual_args = None
-        self.mips.empty_line()
+        self.mips.empty()
         # self.load_registers()
 
         self.mips.comment("Clean stack variable space")
@@ -142,7 +141,7 @@ class CIL_TO_MIPS(object):
         self.mips.comment("Return")
         self.mips.pop(Reg.fp)
         self.mips.jr(Reg.ra)
-        self.mips.empty_line()
+        self.mips.empty()
 
     @when(ParamNode)
     def visit(self, node: ParamNode, index=0):  # noqa
@@ -160,19 +159,25 @@ class CIL_TO_MIPS(object):
 
     @when(TypeNameNode)
     def visit(self, node: TypeNameNode):  # noqa
-        pass
+        self.mips.comment("TypeNameNode")
+        self.mips.la(Reg.t0, node.type)
+        self.load_memory(Reg.t1, self.mips.offset(Reg.t0, self.data_size))
+        self.mips.store_memory(Reg.t1, node.dest)
+        self.mips.empty()
 
     @when(ErrorNode)
     def visit(self, node: ErrorNode):  # noqa
-        pass
+        self.mips.comment("ErrorNode")
+        self.mips.li(Reg.a0, 1)
+        self.mips.exit2()
+        self.mips.empty()
 
     @when(AssignNode)
     def visit(self, node: AssignNode):  # noqa
-        pass
-
-    @when(ConformNode)
-    def visit(self, node: ConformNode):  # noqa
-        pass
+        self.mips.comment("AssignNode")
+        self.mips.load_memory(Reg.t0, node.source)
+        self.mips.store_memory(Reg.t0, node.dest)
+        self.mips.empty()
 
     @when(IsVoidNode)
     def visit(self, node: IsVoidNode):  # noqa

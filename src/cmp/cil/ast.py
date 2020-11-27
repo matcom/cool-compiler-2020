@@ -12,7 +12,7 @@ class ProgramNode(Node):
 class TypeNode(Node):
     def __init__(self, name):
         self.name = name
-        self.name_dir = ''
+        self.name_dir = ""
         self.attributes = []
         self.methods = []
         self.features = []
@@ -67,13 +67,6 @@ class AssignNode(InstructionNode):
     def __init__(self, dest, source):
         self.dest = dest
         self.source = source
-
-
-class ConformNode(InstructionNode):
-    def __init__(self, dest, obj, typex):
-        self.dest = dest
-        self.obj = obj
-        self.type = typex
 
 
 class ComplementNode(InstructionNode):

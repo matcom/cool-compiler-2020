@@ -5,7 +5,6 @@ from .ast import (
     CleanArgsNode,
     ComplementNode,
     ConcatNode,
-    ConformNode,
     CopyNode,
     DataNode,
     DivNode,

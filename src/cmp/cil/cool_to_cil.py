@@ -1,10 +1,43 @@
 from ..cool_lang import ast as cool
 from ..cool_lang.semantics.semantic_utils import Attribute
-
-from .ast import ProgramNode, TypeNode, FunctionNode, ParamNode, LocalNode, AssignNode, PlusNode, MinusNode, StarNode, DivNode, AllocateNode, TypeOfNode, StaticCallNode, DynamicCallNode, ArgNode, ReturnNode, LengthNode, ConcatNode, PrefixNode, SubstringNode, GetAttribNode, SetAttribNode, LabelNode, GotoNode, GotoIfNode, DataNode, LessNode, LessEqNode, ComplementNode, IsVoidNode, EqualNode, ConformNode, CleanArgsNode, ErrorNode, StringEqualNode
-from .utils import Scope
+from .ast import (
+    AllocateNode,
+    ArgNode,
+    AssignNode,
+    CleanArgsNode,
+    ComplementNode,
+    ConcatNode,
+    DataNode,
+    DivNode,
+    DynamicCallNode,
+    EqualNode,
+    ErrorNode,
+    FunctionNode,
+    GetAttribNode,
+    GotoIfNode,
+    GotoNode,
+    IsVoidNode,
+    LabelNode,
+    LengthNode,
+    LessEqNode,
+    LessNode,
+    LocalNode,
+    MinusNode,
+    ParamNode,
+    PlusNode,
+    PrefixNode,
+    ProgramNode,
+    ReturnNode,
+    SetAttribNode,
+    StarNode,
+    StaticCallNode,
+    StringEqualNode,
+    SubstringNode,
+    TypeNode,
+    TypeOfNode,
+)
 from .basic_transform import BASE_COOL_CIL_TRANSFORM, VariableInfo
-from .utils import when, on
+from .utils import Scope, on, when
 
 
 class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):

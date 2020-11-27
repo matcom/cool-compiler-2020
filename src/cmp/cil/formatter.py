@@ -5,7 +5,6 @@ from .ast import (
     CleanArgsNode,
     ComplementNode,
     ConcatNode,
-    ConformNode,
     CopyNode,
     DataNode,
     DivNode,
@@ -105,10 +104,6 @@ class CIL_FORMATTER(object):
     @when(AssignNode)
     def visit(self, node: AssignNode):  # noqa:F811
         return f"{node.dest} = {node.source}"
-
-    @when(ConformNode)
-    def visit(self, node: ConformNode):  # noqa:F811
-        return f"{node.dest} = COMFORM {node.obj} {node.type}"
 
     @when(IsVoidNode)
     def visit(self, node: IsVoidNode):  # noqa:F811

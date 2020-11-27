@@ -327,13 +327,13 @@ class Mips:
         return f"{name}:"
 
     @autowrite
-    def empty_line(self):
+    def empty(self):
         return ""
 
     # Data Section
 
     @autowrite
-    def data_empty_line(self):
+    def data_empty(self):
         return ""
 
     @autowritedata
