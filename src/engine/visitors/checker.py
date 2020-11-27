@@ -67,7 +67,7 @@ class Checker:
             node_type = attr.type
             node_type = self.current_type if isinstance(node_type, SelfType) else node_type
             if not expr_type.conforms_to(node_type):
-                self.errors.append(ERROR_ON_LN_COL % (expr.line, expr.column) + "TypeError: " + INCOMPATIBLE_TYPES % (expr_type.name, node_type.name))
+                self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "TypeError: " + INCOMPATIBLE_TYPES % (expr_type.name, node_type.name))
 
     @visitor.when(FuncDeclarationNode)
     def visit(self, node, scope):
