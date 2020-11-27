@@ -227,7 +227,7 @@ class Mips:
 
     @autowrite
     def li(self, dst: Register, value: int):
-        return f"li {dst}, {value}"
+        return f"li {dst}, {int(value)}"
 
     @autowrite
     def mfhi(self, dst: Register):
