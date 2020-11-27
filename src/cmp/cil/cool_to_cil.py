@@ -81,7 +81,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(StaticCallNode(
             self.to_function_name('main', 'Main'), result))
         self.register_instruction(CleanArgsNode(1))
-        self.register_instruction(ReturnNode(0))
+        # self.register_instruction(ReturnNode(0))
         self.current_function = None
 
         for classx in node.classes:
@@ -110,7 +110,12 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
 
     @when(cool.AttrDeclarationNode)
     def visit(self, node: cool.AttrDeclarationNode, scope: Scope):
-        result = self.visit(node.expression, scope) if node.expression else 0
+        result = None
+        if node.expression:
+            result = self.visit(node.expression, scope)
+        else:
+            self.register_instruction(AllocateNode(result, "Int"))
+            self.register_instruction(SetAttribNode(result, "value", 0, "Int"))
         self_inst = scope.get_var('self').local_name
         self.register_instruction(SetAttribNode(self_inst, node.id, result, self.current_type.name))
 
