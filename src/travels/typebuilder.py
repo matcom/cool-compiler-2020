@@ -3,7 +3,7 @@ import abstract.tree as coolAst
 from abstract.semantics import Method, ObjectType, SemanticError, Type, Context
 from functools import singledispatchmethod
 
-INHERITABLES = ('Int', 'Bool', 'String', 'AUTO_TYPE')
+INHERITABLES = ("Int", "Bool", "String", "AUTO_TYPE")
 
 
 class TypeBuilder:
@@ -34,7 +34,7 @@ class TypeBuilder:
         # Detectar dependencias circulares
         if parent.conforms_to(self.current_type):
             self.errors.append(
-                f'Circular dependency: class {self.current_type.name} cannot inherit from {parent.name}'
+                f"Circular dependency: class {self.current_type.name} cannot inherit from {parent.name}"
             )
         else:
             self.current_type.set_parent(parent)
@@ -55,11 +55,16 @@ class TypeBuilder:
         # anteriormente
         try:
             # Extraer el tipo del atributo del contexto
-            attr_type = self.context.get_type(node.typex) if isinstance(
-                node.typex, str) else node.typex
+            attr_type = (
+                self.context.get_type(node.typex)
+                if isinstance(node.typex, str)
+                else node.typex
+            )
 
             # Definir el atributo en el tipo actual
-            self.current_type.define_attribute(node.idx, attr_type, node.line, node.column)
+            self.current_type.define_attribute(
+                node.idx, attr_type, node.line, node.column
+            )
         except SemanticError as e:
             self.errors.append(e.text)
 
@@ -68,17 +73,36 @@ class TypeBuilder:
         params = [param.id for param in node.param_list]
         try:
             params_type = [
-                self.context.get_type(param.type) if isinstance(
-                    param.type, str) else param.type
+                self.context.get_type(param.type)
+                if isinstance(param.type, str)
+                else param.type
                 for param in node.param_list
             ]
             try:
-                return_type = self.context.get_type(
-                    node.return_type) if isinstance(node.return_type,
-                                                    str) else node.return_type
+                return_type = (
+                    self.context.get_type(node.return_type)
+                    if isinstance(node.return_type, str)
+                    else node.return_type
+                )
                 try:
-                    self.current_type.define_method(node.idx, params,
-                                                    params_type, return_type, node.line, node.column)
+                    # Manejar la redefinicion de metodos
+                    if node.idx in self.current_type.parent.methods:
+                        for param, parent_param in zip(
+                            node.param_list,
+                            self.current_type.parent.methods[node.idx].param_types,
+                        ):
+                            if param.type != parent_param.name:
+                                raise SemanticError(
+                                    f"({param.line}, {param.column}) - SemanticError: In redefined method {node.idx}, parameter type {param.type} is different from original type {parent_param.name}."
+                                )
+                    self.current_type.define_method(
+                        node.idx,
+                        params,
+                        params_type,
+                        return_type,
+                        node.line,
+                        node.column,
+                    )
                 except SemanticError as e:
                     self.errors.append(e.text)
 
