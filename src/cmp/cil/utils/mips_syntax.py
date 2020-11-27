@@ -123,19 +123,19 @@ class Mips:
         """
         Load from a specific address a 32 bits register
         """
-        self.lw(Reg.t0, address)
-        self.sll(Reg.t0, Reg.t0, 16)
-        self.lw(Reg.t1, f"{address} + 4")
-        self.orr(register, Reg.t0, Reg.t1)
+        self.lw(Reg.t8, address)
+        self.sll(Reg.t8, Reg.t8, 16)
+        self.lw(Reg.t9, f"{address} + 4")
+        self.orr(register, Reg.t8, Reg.t9)
 
     def store_memory(self, register: Register, address: str):
         """
         Write to a specific address a 32 bits register
         """
-        self.sw(Reg.t1, f"{address} + 4")
-        self.srl(Reg.t1, Reg.t1, 16)
-        self.sw(Reg.t0, address)
-        self.orr(register, Reg.t0, Reg.t1)
+        self.sw(Reg.t9, f"{address} + 4")
+        self.srl(Reg.t9, Reg.t9, 16)
+        self.sw(Reg.t8, address)
+        self.orr(register, Reg.t8, Reg.t9)
 
     # Arithmetics
     @autowrite

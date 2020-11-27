@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from .ast import (
     AllocateNode,
@@ -56,6 +56,7 @@ class CIL_TO_MIPS(object):
         self.mips = Mips()
         self.data_size = data_size
         self.label_count = -1
+        self.registers_to_save: List[Reg] = [Reg.ra]
 
     def build_types_data(self, types):
         for idx, typex in enumerate(types):
@@ -89,6 +90,14 @@ class CIL_TO_MIPS(object):
     def load_arithmetic(self, node: ArithmeticNode):
         self.load_memory(Reg.t0, node.left)
         self.load_memory(Reg.t1, node.right)
+
+    def store_registers(self):
+        for reg in self.registers_to_save:
+            self.mips.push(reg)
+
+    def load_registers(self):
+        for reg in reversed(self.registers_to_save):
+            self.mips.pop(reg)
 
     @on("node")
     def visit(self, node):
@@ -142,8 +151,7 @@ class CIL_TO_MIPS(object):
             self.visit(local, index=idx)
 
         self.mips.empty()
-        # self.store_registers()
-        # TODO: Implement methods
+        self.store_registers()
         self.mips.empty()
         self.mips.comment("Generating body code")
         for instruction in node.instructions:
@@ -151,7 +159,7 @@ class CIL_TO_MIPS(object):
 
         self.actual_args = None
         self.mips.empty()
-        # self.load_registers()
+        self.load_registers()
 
         self.mips.comment("Clean stack variable space")
         self.mips.addi(
@@ -292,8 +300,42 @@ class CIL_TO_MIPS(object):
 
     @when(AllocateNode)
     def visit(self, node: AllocateNode):  # noqa: F811
-        # TODO: Implement visitor
-        pass
+        self.mips.comment("AllocateNode")
+
+        type_data = self.types_offsets[node.type]
+        length = len(type_data.attr_offsets) + len(type_data.func_offsets) + 2
+        length *= self.data_size / 2
+        self.mips.li(Reg.a0, length)
+        self.mips.sbrk()
+        self.mips.syscall()
+        self.store_memory(Reg.v0, node.dest)
+
+        self.mips.li(Reg.t0, type_data.type)
+        self.mips.store_memory(Reg.t0, self.mips.offset(Reg.v0))
+
+        self.mips.la(Reg.t0, type_data.str)
+        self.mips.store_memory(Reg.t0, self.mips.offset(Reg.v0, 1 * self.data_size))
+
+        for offset in type_data.attr_offsets.values():
+            self.mips.store_memory(
+                Reg.zero,
+                self.mips.offset(
+                    Reg.v0,
+                    offset * self.data_size,
+                ),
+            )
+
+        for name, offset in type_data.func_offsets.items():
+            self.mips.la(Reg.t0, name)
+            self.mips.store_memory(
+                Reg.t0,
+                self.mips.offset(
+                    Reg.v0,
+                    offset * self.data_size,
+                ),
+            )
+
+        self.mips.empty()
 
     @when(TypeOfNode)
     def visit(self, node: TypeOfNode):  # noqa: F811

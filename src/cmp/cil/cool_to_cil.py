@@ -159,8 +159,10 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             result = self.define_internal_local()
             self.register_instruction(AllocateNode(result, "Int"))
             self.register_instruction(SetAttribNode(result, "value", 0, "Int"))
-        self_inst = scope.get_var('self').local_name
-        self.register_instruction(SetAttribNode(self_inst, node.id, result, self.current_type.name))
+        self_inst = scope.get_var("self").local_name
+        self.register_instruction(
+            SetAttribNode(self_inst, node.id, result, self.current_type.name)
+        )
 
     @when(cool.FuncDeclarationNode)
     def visit(self, node: cool.FuncDeclarationNode, scope: Scope):
@@ -308,8 +310,10 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             self.register_instruction(ArgNode(arg_value))
         self_inst = scope.get_var("self").local_name
         self.register_instruction(ArgNode(self_inst))
-        self.register_instruction(DynamicCallNode(self_inst, type_name, node.id, result))
-        self.register_instruction(CleanArgsNode(len(node.args)+1))
+        self.register_instruction(
+            DynamicCallNode(self_inst, type_name, node.id, result)
+        )
+        self.register_instruction(CleanArgsNode(len(node.args) + 1))
 
         return result
 
@@ -327,15 +331,18 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             self.register_instruction(ArgNode(arg_value))
         obj_inst = self.visit(node.obj, scope)
         self.register_instruction(ArgNode(obj_inst))
-        self.register_instruction(StaticCallNode(func_name, result)) if func_name else self.register_instruction(
-            DynamicCallNode(obj_inst,node.obj.static_type.name, node.id, result))
-        self.register_instruction(CleanArgsNode(len(node.args)+1))
+        self.register_instruction(
+            StaticCallNode(func_name, result)
+        ) if func_name else self.register_instruction(
+            DynamicCallNode(obj_inst, node.obj.static_type.name, node.id, result)
+        )
+        self.register_instruction(CleanArgsNode(len(node.args) + 1))
 
         return result
 
     @when(cool.NewNode)
     def visit(self, node: cool.NewNode, scope: Scope):
-        result = self.define_internal_local()  # TODO: attributes initialization
+        result = self.define_internal_local()
         self.register_instruction(AllocateNode(result, node.type))
         self.init_class_attr(scope, node.type, result)
         return result
