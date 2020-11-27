@@ -258,7 +258,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             self.register_instruction(ArgNode(arg_value))
         self_inst = scope.get_var('self').local_name
         self.register_instruction(ArgNode(self_inst))
-        self.register_instruction(DynamicCallNode(type_name, node.id, result))
+        self.register_instruction(DynamicCallNode(self_inst, type_name, node.id, result))
         self.register_instruction(CleanArgsNode(len(node.args)+1))
 
         return result
@@ -279,7 +279,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         obj_inst = self.visit(node.obj, scope)
         self.register_instruction(ArgNode(obj_inst))
         self.register_instruction(StaticCallNode(func_name, result)) if func_name else self.register_instruction(
-            DynamicCallNode(node.obj.static_type.name, node.id, result))
+            DynamicCallNode(obj_inst,node.obj.static_type.name, node.id, result))
         self.register_instruction(CleanArgsNode(len(node.args)+1))
 
         return result

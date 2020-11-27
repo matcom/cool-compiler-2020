@@ -194,7 +194,8 @@ class StaticCallNode(InstructionNode):
 
 
 class DynamicCallNode(InstructionNode):
-    def __init__(self, xtype, method, dest):
+    def __init__(self, obj, xtype, method, dest):
+        self.obj = obj
         self.type = xtype
         self.method = method
         self.dest = dest
