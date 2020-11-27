@@ -48,16 +48,30 @@ from .utils.mips_syntax import Register as Reg
 
 
 class CIL_TO_MIPS(object):
-    def __init__(self):
+    def __init__(self, data_size: int = 8):
         self.types = []
         self.types_offsets = dict()
         self.local_vars_offsets = dict()
         self.actual_args = dict()
         self.mips = Mips()
+        self.data_size = data_size
 
     def build_types_data(self, types):
         for idx, typex in enumerate(types):
             self.types_offsets[typex.name] = TypeData(idx, typex)
+
+    def load_memory(self, dst: Reg, arg: str):
+        if arg in self.actual_args or arg in self.local_vars_offsets:
+            offset = (
+                self.actual_args[arg] + 1
+                if arg in self.actual_args
+                else -self.local_vars_offsets[arg]
+            ) * self.data_size
+
+            self.mips.load_memory(dst, self.mips.offset(Reg.fp, offset))
+        else:
+            raise Exception(f"The direction {arg} isn't an address")
+        self.mips.empty_line
 
     @on("node")
     def visit(self, node):
@@ -93,21 +107,25 @@ class CIL_TO_MIPS(object):
     def visit(self, node: FunctionNode):  # noqa
         self.mips.empty_line()
         self.mips.label(node.name)
+
+        self.mips.comment("Set stack frame")
         self.mips.push(Reg.fp)
-        self.mips.add(Reg.fp, Reg.zero, Reg.sp)
+        self.mips.move(Reg.fp, Reg.sp)
+
         self.actual_args = dict()
 
-        self.mips.empty_line()
         for idx, param in enumerate(node.params):
             self.visit(param, index=idx)
 
         self.mips.empty_line()
+        self.mips.comment("Allocate memory for Local variables")
         for idx, local in enumerate(node.localvars):
             self.visit(local, index=idx)
 
         self.mips.empty_line()
         # self.store_registers()
         self.mips.empty_line()
+        self.mips.comment("Generating body code")
         for instruction in node.instructions:
             self.visit(instruction)
 
@@ -115,7 +133,13 @@ class CIL_TO_MIPS(object):
         self.mips.empty_line()
         # self.load_registers()
 
-        self.mips.addi(Reg.sp, Reg.sp, len(node.localvars) * 8)
+        self.mips.comment("Clean stack variable space")
+        self.mips.addi(
+            Reg.sp,
+            Reg.sp,
+            len(node.localvars) * self.data_size,
+        )
+        self.mips.comment("Return")
         self.mips.pop(Reg.fp)
         self.mips.jr(Reg.ra)
         self.mips.empty_line()
@@ -159,8 +183,8 @@ class CIL_TO_MIPS(object):
         pass
 
     def load_arithmetic(self, node: ArithmeticNode):
-        self.mips.load_memory(Reg.t0, node.left)
-        self.mips.load_memory(Reg.t1, node.right)
+        self.load_memory(Reg.t0, node.left)
+        self.load_memory(Reg.t1, node.right)
 
     @when(LessNode)
     def visit(self, node: LessNode):  # noqa

@@ -51,6 +51,8 @@ class Directive(str, Enum):
     asciiz = ".asciiz"
     space = ".space"
     aling = ".align"
+    text = ".text"
+    data = ".data"
 
 
 Reg = Register
@@ -100,7 +102,9 @@ class Mips:
         self.DOTDATA.append(f"{data}")
 
     def compile(self):
-        return "\n".join([".data"] + self.DOTDATA + [".text"] + self.DOTTEXT)
+        return "\n".join(
+            [Directive.data] + self.DOTDATA + [] + [Directive.text] + self.DOTTEXT
+        )
 
     def push(self, register: Register):
         self.addi(Register.sp, Register.sp, -8)
@@ -108,8 +112,8 @@ class Mips:
 
     def pop(self, register: Register):
         """
-        First, load from to address `0($sp)`
-        and then write `addi $sp , $sp , 8`
+        First,  load from to address `0($sp)`
+        and then write `addi $sp ,  $sp ,  8`
         to restore the stack pointer
         """
         self.load_memory(register, self.offset(Reg.sp))
@@ -136,86 +140,86 @@ class Mips:
     # Arithmetics
     @autowrite
     def add(self, dst: Register, rl: Register, rr: Register):
-        return f"add {dst},{rl},{rr}"
+        return f"add {dst}, {rl}, {rr}"
 
     @autowrite
     def sub(self, dst: Register, rl: Register, rr: Register):
-        return f"sub {dst},{rl},{rr}"
+        return f"sub {dst}, {rl}, {rr}"
 
     @autowrite
     def addi(self, dst: Register, rl: Register, value: int):
-        return f"addi {dst},{rl},{value}"
+        return f"addi {dst}, {rl}, {value}"
 
     @autowrite
     def addu(self, dst: Register, rl: Register, rr: Register):
-        return f"addu {dst},{rl},{rr}"
+        return f"addu {dst}, {rl}, {rr}"
 
     @autowrite
     def subu(self, dst: Register, rl: Register, rr: Register):
-        return f"subu {dst},{rl},{rr}"
+        return f"subu {dst}, {rl}, {rr}"
 
     @autowrite
     def addiu(self, dst: Register, rl: Register, value: int):
-        return f"addiu {dst},{rl},{value}"
+        return f"addiu {dst}, {rl}, {value}"
 
     @autowrite
     def multu(self, dst: Register, rl: Register, rr: Register):
-        return f"multu {dst},{rl},{rr}"
+        return f"multu {dst}, {rl}, {rr}"
 
     @autowrite
     def mult(self, rl: Register, rr: Register):
-        return f"mult {rl},{rr}"
+        return f"mult {rl}, {rr}"
 
     @autowrite
     def div(self, rl: Register, rr: Register):
-        return f"div {rl},{rr}"
+        return f"div {rl}, {rr}"
 
     # Logical:
     @autowrite
     def andd(self, dst: Register, rl: Register, rr: Register):
-        return f"and {dst},{rl},{rr}"
+        return f"and {dst}, {rl}, {rr}"
 
     @autowrite
     def orr(self, dst: Register, rl: Register, rr: Register):
-        return f"or {dst},{rl},{rr}"
+        return f"or {dst}, {rl}, {rr}"
 
     @autowrite
     def andi(self, dst: Register, rl: Register, value: int):
-        return f"andi {dst},{rl},{value}"
+        return f"andi {dst}, {rl}, {value}"
 
     # TODO: Check this instrucction
     @autowrite
     def ori(self, dst: Register, rl: Register, value: int):
-        return f"or {dst},{rl},{value}"
+        return f"or {dst}, {rl}, {value}"
 
     @autowrite
     def sll(self, dst: Register, rl: Register, value: int):
-        return f"sll {dst},{rl},{value}"
+        return f"sll {dst}, {rl}, {value}"
 
     @autowrite
     def srl(self, dst: Register, rl: Register, value: int):
-        return f"srl {dst},{rl},{value}"
+        return f"srl {dst}, {rl}, {value}"
 
     # DataTransfer:
     @autowrite
     def lw(self, dst: Register, address: str):
-        return f"lw {dst},{address}"
+        return f"lw {dst}, {address}"
 
     @autowrite
     def sw(self, dst: Register, address: str):
-        return f"sw {dst},{address}"
+        return f"sw {dst}, {address}"
 
     @autowrite
     def lui(self, dst: Register, value: int):
-        return f"lw {dst},{value}"
+        return f"lw {dst}, {value}"
 
     @autowrite
     def la(self, dst: Register, label: str):
-        return f"la {dst},{label}"
+        return f"la {dst}, {label}"
 
     @autowrite
     def li(self, dst: Register, value: int):
-        return f"li {dst},{value}"
+        return f"li {dst}, {value}"
 
     @autowrite
     def mfhi(self, dst: Register):
@@ -227,41 +231,41 @@ class Mips:
 
     @autowrite
     def move(self, dst: Register, rl: Register):
-        return f"move {dst},{rl}"
+        return f"move {dst},  {rl}"
 
     # Brancing
     @autowrite
     def beq(self, rl: Register, rr: Register, address: str):
-        return f"beq {rl},{rr},{address}"
+        return f"beq {rl},  {rr},  {address}"
 
     @autowrite
     def bne(self, rl: Register, rr: Register, address: str):
-        return f"bne {rl},{rr},{address}"
+        return f"bne {rl},  {rr},  {address}"
 
     @autowrite
     def bgt(self, rl: Register, rr: Register, address: str):
-        return f"bgt {rl},{rr},{address}"
+        return f"bgt {rl}, {rr}, {address}"
 
     @autowrite
     def bge(self, rl: Register, rr: Register, address: str):
-        return f"bge {rl},{rr},{address}"
+        return f"bge {rl}, {rr}, {address}"
 
     @autowrite
     def blt(self, rl: Register, rr: Register, address: str):
-        return f"blt {rl},{rr},{address}"
+        return f"blt {rl}, {rr}, {address}"
 
     @autowrite
     def ble(self, rl: Register, rr: Register, address: str):
-        return f"ble {rl},{rr},{address}"
+        return f"ble {rl}, {rr}, {address}"
 
     # Comparison
     @autowrite
     def slt(self, dest: Register, rl: Register, rr: Register):
-        return f"slt {dest},{rl},{rr}"
+        return f"slt {dest}, {rl}, {rr}"
 
     @autowrite
     def slti(self, dest: Register, rl: Register, value: int):
-        return f"slt {dest},{rl},{value}"
+        return f"slt {dest}, {rl}, {value}"
 
     # Unconditional Jump
 
@@ -315,6 +319,10 @@ class Mips:
         return f"{offset}({r})"
 
     @autowrite
+    def comment(self, text: str):
+        return f"# {text}"
+
+    @autowrite
     def label(self, name: str):
         return f"{name}:"
 
@@ -339,3 +347,7 @@ class Mips:
     @autowritedata
     def asciiz(self, string: str):
         return f'{Directive.asciiz} "{string}"'
+
+    @autowritedata
+    def data_comment(self, text: str):
+        return f"#{text}"
