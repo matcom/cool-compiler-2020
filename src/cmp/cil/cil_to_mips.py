@@ -325,7 +325,8 @@ class CIL_TO_MIPS(object):
             )
 
         for name, offset in type_data.func_offsets.items():
-            self.mips.la(Reg.t0, name)
+            direct_name = type_data.func_names[name]
+            self.mips.la(Reg.t0, direct_name)
             self.mips.store_memory(
                 Reg.t0,
                 self.mips.offset(
