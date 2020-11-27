@@ -1,3 +1,5 @@
+from typing import Dict
+
 from .ast import (
     AllocateNode,
     ArgNode,
@@ -48,7 +50,7 @@ from .utils.mips_syntax import Register as Reg
 class CIL_TO_MIPS(object):
     def __init__(self, data_size: int = 8):
         self.types = []
-        self.types_offsets = dict()
+        self.types_offsets: Dict[str, TypeData] = dict()
         self.local_vars_offsets = dict()
         self.actual_args = dict()
         self.mips = Mips()
@@ -84,12 +86,16 @@ class CIL_TO_MIPS(object):
             raise Exception(f"store_memory: The direction {arg} isn't an address")
         self.mips.empty()
 
+    def load_arithmetic(self, node: ArithmeticNode):
+        self.load_memory(Reg.t0, node.left)
+        self.load_memory(Reg.t1, node.right)
+
     @on("node")
     def visit(self, node):
         pass
 
     @when(ProgramNode)
-    def visit(self, node: ProgramNode):  # noqa
+    def visit(self, node: ProgramNode):  # noqa: F811
         self.types = node.dottypes
         self.build_types_data(self.types)
 
@@ -105,17 +111,19 @@ class CIL_TO_MIPS(object):
         for function in node.dotcode:
             self.visit(function)
 
+        self.mips.empty()
+
     @when(DataNode)
-    def visit(self, node: DataNode):  # noqa
+    def visit(self, node: DataNode):  # noqa: F811
         self.mips.data_label(node.name)
         self.mips.asciiz(node.value)
 
     @when(TypeNode)
-    def visit(self, node: TypeNode):  # noqa
+    def visit(self, node: TypeNode):  # noqa: F811
         pass
 
     @when(FunctionNode)
-    def visit(self, node: FunctionNode):  # noqa
+    def visit(self, node: FunctionNode):  # noqa: F811
         self.mips.empty()
         self.mips.label(node.name)
 
@@ -135,6 +143,7 @@ class CIL_TO_MIPS(object):
 
         self.mips.empty()
         # self.store_registers()
+        # TODO: Implement methods
         self.mips.empty()
         self.mips.comment("Generating body code")
         for instruction in node.instructions:
@@ -156,21 +165,22 @@ class CIL_TO_MIPS(object):
         self.mips.empty()
 
     @when(ParamNode)
-    def visit(self, node: ParamNode, index=0):  # noqa
+    def visit(self, node: ParamNode, index=0):  # noqa: F811
         self.actual_args[node.name] = index
 
     @when(LocalNode)
-    def visit(self, node: LocalNode, index=0):  # noqa
+    def visit(self, node: LocalNode, index=0):  # noqa: F811
         self.mips.push(Reg.zero)
         assert node.name not in self.local_vars_offsets, f"Impossible {node.name}..."
         self.local_vars_offsets[node.name] = index
 
     @when(CopyNode)
-    def visit(self, node: CopyNode):  # noqa
+    def visit(self, node: CopyNode):  # noqa: F811
+        # TODO: Implement visitor
         pass
 
     @when(TypeNameNode)
-    def visit(self, node: TypeNameNode):  # noqa
+    def visit(self, node: TypeNameNode):  # noqa: F811
         self.mips.comment("TypeNameNode")
         self.mips.la(Reg.t0, node.type)
         self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, self.data_size))
@@ -178,21 +188,21 @@ class CIL_TO_MIPS(object):
         self.mips.empty()
 
     @when(ErrorNode)
-    def visit(self, node: ErrorNode):  # noqa
+    def visit(self, node: ErrorNode):  # noqa: F811
         self.mips.comment("ErrorNode")
         self.mips.li(Reg.a0, 1)
         self.mips.exit2()
         self.mips.empty()
 
     @when(AssignNode)
-    def visit(self, node: AssignNode):  # noqa
+    def visit(self, node: AssignNode):  # noqa: F811
         self.mips.comment("AssignNode")
         self.load_memory(Reg.t0, node.source)
         self.store_memory(Reg.t0, node.dest)
         self.mips.empty()
 
     @when(IsVoidNode)
-    def visit(self, node: IsVoidNode):  # noqa
+    def visit(self, node: IsVoidNode):  # noqa: F811
         self.mips.comment("IsVoidNode")
         self.load_memory(Reg.t0, node.body)
 
@@ -207,7 +217,7 @@ class CIL_TO_MIPS(object):
         self.mips.empty()
 
     @when(ComplementNode)
-    def visit(self, node: ComplementNode):  # noqa
+    def visit(self, node: ComplementNode):  # noqa: F811
         self.mips.comment("ComplementNode")
 
         self.load_memory(Reg.t0, node.body)
@@ -216,18 +226,15 @@ class CIL_TO_MIPS(object):
 
         self.mips.empty()
 
-    def load_arithmetic(self, node: ArithmeticNode):
-        self.load_memory(Reg.t0, node.left)
-        self.load_memory(Reg.t1, node.right)
-
     @when(LessNode)
-    def visit(self, node: LessNode):  # noqa
+    def visit(self, node: LessNode):  # noqa: F811
         self.load_arithmetic(node)
         self.mips.slt(Reg.t2, Reg.t0, Reg.t1)
         self.store_memory(Reg.t2, node.dest)
+        self.mips.empty()
 
     @when(EqualNode)
-    def visit(self, node: EqualNode):  # noqa
+    def visit(self, node: EqualNode):  # noqa: F811
         """
         ((a < b) + (b < a)) < 1  -> ==
         """
@@ -239,9 +246,10 @@ class CIL_TO_MIPS(object):
         self.mips.slti(Reg.t1, Reg.t0, 1)
 
         self.store_memory(Reg.t1, node.dest)
+        self.mips.empty()
 
     @when(LessEqNode)
-    def visit(self, node: LessEqNode):  # noqa
+    def visit(self, node: LessEqNode):  # noqa: F811
         """
         a <= b -> ! b < a -> 1 - (b < a)
         """
@@ -250,39 +258,45 @@ class CIL_TO_MIPS(object):
         self.mips.li(Reg.t3, 1)
         self.mips.sub(Reg.t0, Reg.t3, Reg.t2)
         self.store_memory(Reg.t0, node.dest)
+        self.mips.empty()
 
     @when(PlusNode)
-    def visit(self, node: PlusNode):  # noqa
+    def visit(self, node: PlusNode):  # noqa: F811
         self.load_arithmetic(node)
         self.mips.add(Reg.t2, Reg.t0, Reg.t1)
         self.store_memory(Reg.t2, node.dest)
+        self.mips.empty()
 
     @when(MinusNode)
-    def visit(self, node: MinusNode):  # noqa
+    def visit(self, node: MinusNode):  # noqa: F811
         self.load_arithmetic(node)
         self.mips.sub(Reg.t2, Reg.t0, Reg.t1)
         self.store_memory(Reg.t2, node.dest)
+        self.mips.empty()
 
     @when(StarNode)
-    def visit(self, node: StarNode):  # noqa
+    def visit(self, node: StarNode):  # noqa: F811
         self.load_arithmetic(node)
         self.mips.mult(Reg.t2, Reg.t0, Reg.t1)
         self.mips.mflo(Reg.t0)
         self.store_memory(Reg.t0, node.dest)
+        self.mips.empty()
 
     @when(DivNode)
-    def visit(self, node: DivNode):  # noqa
+    def visit(self, node: DivNode):  # noqa: F811
         self.load_arithmetic(node)
         self.mips.div(Reg.t2, Reg.t0, Reg.t1)
         self.mips.mflo(Reg.t0)
         self.store_memory(Reg.t0, node.dest)
+        self.mips.empty()
 
     @when(AllocateNode)
-    def visit(self, node: AllocateNode):  # noqa
+    def visit(self, node: AllocateNode):  # noqa: F811
+        # TODO: Implement visitor
         pass
 
     @when(TypeOfNode)
-    def visit(self, node: TypeOfNode):  # noqa
+    def visit(self, node: TypeOfNode):  # noqa: F811
         self.mips.comment("TypeOfNode")
         self.mips.la(Reg.t0, node.obj)
         self.load_memory(Reg.t1, self.mips.offset(Reg.t0))
@@ -290,79 +304,140 @@ class CIL_TO_MIPS(object):
         self.mips.empty()
 
     @when(StaticCallNode)
-    def visit(self, node: StaticCallNode):  # noqa
-        pass
+    def visit(self, node: StaticCallNode):  # noqa: F811
+        self.mips.comment("StaticCallNode")
+        self.mips.jal(node.function)
+        self.mips.empty()
 
     @when(DynamicCallNode)
-    def visit(self, node: DynamicCallNode):  # noqa
-        pass
+    def visit(self, node: DynamicCallNode):  # noqa: F811
+        self.mips.comment("DynamicCallNode")
+        type_data = self.types_offsets[node.type]
+        offset = type_data.func_offsets[node.method]
+        self.load_memory(Reg.t0, node.obj)
+        self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
+        self.mips.jal(self.mips.offset(Reg.t1))
+        self.mips.empty()
 
     @when(ArgNode)
-    def visit(self, node: ArgNode):  # noqa
-        pass
+    def visit(self, node: ArgNode):  # noqa: F811
+        self.mips.comment("ArgNode")
+        self.load_memory(Reg.t0, node.name)
+        self.mips.push(Reg.t0)
+        self.mips.empty()
 
     @when(CleanArgsNode)
-    def visit(self, node: CleanArgsNode):  # noqa
-        pass
+    def visit(self, node: CleanArgsNode):  # noqa: F811
+        self.mips.comment("CleanArgsNode")
+        self.mips.addi(
+            Reg.sp,
+            Reg.sp,
+            node.nargs * self.data_size,
+        )
+        self.mips.empty()
 
     @when(ReturnNode)
-    def visit(self, node: ReturnNode):  # noqa
+    def visit(self, node: ReturnNode):  # noqa: F811
         self.mips.comment("ReturnNode")
         self.load_memory(Reg.v0, node.value)
+        self.mips.empty()
 
     @when(ReadIntNode)
-    def visit(self, node: ReadIntNode):  # noqa
-        pass
+    def visit(self, node: ReadIntNode):  # noqa: F811
+        self.mips.comment("ReadIntNode")
+        self.mips.read_int()
+        self.load_memory(Reg.a0, node.dest)
+        self.mips.syscall()
+        self.mips.empty()
 
     @when(ReadStrNode)
-    def visit(self, node: ReadStrNode):  # noqa
-        pass
+    def visit(self, node: ReadStrNode):  # noqa: F811
+        self.mips.comment("ReadStrNode")
+        self.mips.read_string()
+        self.load_memory(Reg.a0, node.dest)
+        self.mips.syscall()
+        self.mips.empty()
 
     @when(PrintIntNode)
-    def visit(self, node: PrintIntNode):  # noqa
-        pass
+    def visit(self, node: PrintIntNode):  # noqa: F811
+        self.mips.comment("PrintIntNode")
+        self.load_memory(Reg.a0, node.str_addr)
+        self.mips.print_int()
+        self.mips.syscall()
+        self.mips.empty()
 
     @when(PrintStrNode)
-    def visit(self, node: PrintStrNode):  # noqa
-        pass
+    def visit(self, node: PrintStrNode):  # noqa: F811
+        self.mips.comment("PrintStrNode")
+        self.load_memory(Reg.a0, node.str_addr)
+        self.mips.print_string()
+        self.mips.syscall()
+        self.mips.empty()
 
     @when(LengthNode)
-    def visit(self, node: LengthNode):  # noqa
+    def visit(self, node: LengthNode):  # noqa: F811
+        # TODO: Implement visitor
         pass
 
     @when(ConcatNode)
-    def visit(self, node: ConcatNode):  # noqa
+    def visit(self, node: ConcatNode):  # noqa: F811
+        # TODO: Implement visitor
         pass
 
     @when(SubstringNode)
-    def visit(self, node: SubstringNode):  # noqa
+    def visit(self, node: SubstringNode):  # noqa: F811
+        # TODO: Implement visitor
         pass
 
     @when(StringEqualNode)
-    def visit(self, node: StringEqualNode):  # noqa
+    def visit(self, node: StringEqualNode):  # noqa: F811
+        # TODO: Implement visitor
         pass
 
     @when(GetAttribNode)
-    def visit(self, node: GetAttribNode):  # noqa
-        pass
+    def visit(self, node: GetAttribNode):  # noqa: F811
+        self.mips.comment("GetAttribNode")
+        self.load_memory(Reg.t0, node.obj)
+        type_data = self.types_offsets[node.type]
+        offset = type_data.attr_offsets[node.attrib]
+        self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
+        self.store_memory(Reg.t1, node.dest)
+        self.mips.empty()
 
     @when(SetAttribNode)
-    def visit(self, node: SetAttribNode):  # noqa
-        pass
+    def visit(self, node: SetAttribNode):  # noqa: F811
+        self.mips.comment("SetAttribNode")
+        self.load_memory(Reg.t0, node.obj)
+        type_data = self.types_offsets[node.type]
+        offset = type_data.attr_offsets[node.attrib]
+        try:
+            value = int(node.value)
+            high = value >> 16
+            self.mips.li(Reg.t2, high)
+            self.mips.li(Reg.t3, value)
+            self.mips.sll(Reg.t4, Reg.t2, 16)
+            self.mips.orr(Reg.t1, Reg.t2, Reg.t4)
+        except TypeError:
+            self.load_memory(Reg.t1, node.value)
+        self.mips.store_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
+        self.mips.empty()
 
     @when(LabelNode)
-    def visit(self, node: LabelNode):  # noqa
+    def visit(self, node: LabelNode):  # noqa: F811
         self.mips.comment("LabelNode")
         self.mips.label(node.label)
+        self.mips.empty()
 
     @when(GotoNode)
-    def visit(self, node: GotoNode):  # noqa
+    def visit(self, node: GotoNode):  # noqa: F811
         self.mips.comment("GotoNode")
         self.mips.j(node.label)
+        self.mips.empty()
 
     @when(GotoIfNode)
-    def visit(self, node: GotoIfNode):  # noqa
+    def visit(self, node: GotoIfNode):  # noqa: F811: F811
         self.mips.comment("GotoIfNode")
         self.load_memory(Reg.t0, node.value)
         self.mips.li(Reg.t1, 0)
         self.mips.bne(Reg.t0, Reg.t1, node.label)
+        self.mips.empty()
