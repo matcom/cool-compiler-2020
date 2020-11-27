@@ -300,9 +300,12 @@ class CIL_TO_MIPS(object):
 
     @when(AllocateNode)
     def visit(self, node: AllocateNode):  # noqa: F811
-        self.mips.comment("AllocateNode")
+        self.mips.comment(f"AllocateNode: dest: {node.dest}, type: {node.type}")
 
         type_data = self.types_offsets[node.type]
+
+        self.mips.comment(str(type_data))
+
         length = len(type_data.attr_offsets) + len(type_data.func_offsets) + 2
         length *= self.data_size / 2
         self.mips.li(Reg.a0, length)

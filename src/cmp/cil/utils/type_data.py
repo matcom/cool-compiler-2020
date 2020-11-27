@@ -22,3 +22,11 @@ class TypeData:
                 func_name, long_name = feature
                 self.func_offsets[func_name] = idx + 2
                 self.func_names[func_name] = long_name
+
+    def __str__(self) -> str:
+        return (
+            f"TypeData-> type: {self.type}, str: {self.str}, "
+            + f"attr_offsets: {self.attr_offsets}, "
+            + f"func_offsets: {self.func_offsets}, "
+            + f"func_names: {self.func_names}"
+        )
