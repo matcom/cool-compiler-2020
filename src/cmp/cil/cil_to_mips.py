@@ -454,7 +454,7 @@ class CIL_TO_MIPS(object):
             self.mips.li(Reg.t3, value)
             self.mips.sll(Reg.t4, Reg.t2, 16)
             self.mips.orr(Reg.t1, Reg.t2, Reg.t4)
-        except TypeError:
+        except ValueError:
             self.load_memory(Reg.t1, node.value)
         self.mips.store_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
         self.mips.empty()

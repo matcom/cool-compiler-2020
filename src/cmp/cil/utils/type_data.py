@@ -9,6 +9,7 @@ class TypeData:
         self.str: str = typex.name_dir
         self.attr_offsets: Dict[str, int] = dict()
         self.func_offsets: Dict[str, int] = dict()
+        self.func_names: Dict[str, str] = dict()
 
         # Calculate offsets for attributes and functions
         for idx, feature in enumerate(typex.features):
@@ -18,5 +19,6 @@ class TypeData:
                 # Also enumerate starts with 0
                 self.attr_offsets[feature] = idx + 2
             else:
-                func_name, _ = feature
+                func_name, long_name = feature
                 self.func_offsets[func_name] = idx + 2
+                self.func_names[func_name] = long_name
