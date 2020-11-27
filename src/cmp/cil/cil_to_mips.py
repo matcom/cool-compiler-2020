@@ -354,6 +354,18 @@ class CIL_TO_MIPS(object):
         self.mips.jal(node.function)
         self.mips.empty()
 
+    def get_pc(self, dst: Reg):
+        label = self.get_label()
+        end = self.get_label()
+
+        self.mips.j(end)
+        self.mips.label(label)
+        self.mips.move(dst, Reg.ra)
+        self.mips.jr(Reg.ra)
+        self.mips.label(end)
+
+        return label
+
     @when(DynamicCallNode)
     def visit(self, node: DynamicCallNode):  # noqa: F811
         self.mips.comment("DynamicCallNode")
@@ -361,7 +373,11 @@ class CIL_TO_MIPS(object):
         offset = type_data.func_offsets[node.method]
         self.load_memory(Reg.t0, node.obj)
         self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
-        self.mips.jal(self.mips.offset(Reg.t1))
+        label_get_pc = self.get_pc(Reg.t2)
+        self.mips.jal(label_get_pc)
+        self.mips.move(Reg.ra, Reg.t2)
+        self.mips.addi(Reg.ra, 12)
+        self.mips.jr(Reg.t1)
         self.mips.empty()
 
     @when(ArgNode)
