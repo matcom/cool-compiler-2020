@@ -103,9 +103,9 @@ def program_to_cil_visitor(program):
 	    main_result = VCALL Main main ;
     }
     """
-    main_instance = '__main__'
-    main_result = 'main_result'
-    main_function = CilAST.FuncNode('main', [], [CilAST.LocalNode(main_instance),  CilAST.LocalNode(main_result)],
+    main_instance = add_local('__main__')
+    main_result = add_local('main_result')
+    main_function = CilAST.FuncNode('main', [], [CilAST.LocalNode('__main__'),  CilAST.LocalNode('main_result')],
                                     [CilAST.AllocateNode('Main', main_instance),
                                      CilAST.ArgNode(main_instance),
                                      CilAST.VCAllNode('Main', 'main', main_result)])
@@ -398,13 +398,24 @@ def new_to_cil_visitor(new_node):
     body.append(CilAST.AllocateNode(t, value))
     init_attr = CT.TypesByName[t].get_all_attributes()
 
+    #
+    t_data=add_str_data(t)
+    t_local=add_local()
+    #
+    
+    
+    body.append(CilAST.LoadNode(t_data, t_local))
+    body.append(CilAST.SetAttrNode(value, '@type', t_data))
+    body.append(CilAST.SetAttrNode(value, '@size', (len(init_attr)+2)*4))
+
+    
     for index, attr in enumerate(init_attr):
         if attr.expression:
             attr_cil = expression_to_cil_visitor(
                 attr.expression)
             body += attr_cil.body
             body.append(CilAST.SetAttrNode(
-                value, attr.id, attr_cil.value, index))
+                value, attr.id, attr_cil.value, index+2))
 
     return CIL_block(body, value)
 
@@ -489,7 +500,7 @@ def func_call_to_cil_visitor(call):
             call.object)
         body += obj_cil.body
         obj = obj_cil.value
-        t = call.object.returned_type.name
+        _, t, _ = call.object.returned_type.get_method(call.id, [arg.returned_type for arg in call.args])
     else:
         obj = 'self'
         t = __CURRENT_TYPE__

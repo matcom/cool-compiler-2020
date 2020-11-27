@@ -245,13 +245,13 @@ def allocate_to_mips_visitor(allocate: cil.AllocateNode):
     CIL:
         x  = ALLOCATE T
     MIPS:
-        li      $a0, [syze(T)]
+        li      $a0, [size(T)]
         li      $v0, 9
         syscall
         sw      $v0, [addr(x)]
     """
     size = get_type(allocate.type).size_mips
-    address = CURRENT_FUNCTION.ADDR[allocate.result]
+    address = CURRENT_FUNCTION.get_address(allocate.result.id)
     code = [
         mips.Comment(str(allocate)),
         mips.LiInstruction('$a0', size),
@@ -260,6 +260,22 @@ def allocate_to_mips_visitor(allocate: cil.AllocateNode):
         mips.SwInstruction('$v0', address)
     ]
     return code
+
+def type_of_to_mips_visitor(typeof: cil.TypeOfNode):
+    """
+    CIL:
+        t  = TYPEOF x
+    MIPS:
+        lw $t0, [addr(x)]
+        sw ($t0), [addr(t)]
+    """
+    x_addr = CURRENT_FUNCTION.get_address(str(typeof.var))
+    t_addr = CURRENT_FUNCTION.get_address(str(typeof.result))
+    return [
+        mips.Comment(str(typeof)),
+        mips.LwInstruction('$t0', x_addr),
+        mips.SwInstruction('($t0)', t_addr)
+    ]
 
 
 def copy_to_mips_visitor(copy: cil.CopyNode):
@@ -275,7 +291,22 @@ def copy_to_mips_visitor(copy: cil.CopyNode):
     return [
         mips.Comment(str(copy)),
         mips.LwInstruction('$t0', y_addr),
-        mips.SwInstruction('$t0', x_addr)
+        mips.LwInstruction('$t1', '4($t0)'),
+        mips.MoveInstruction('$a0', '$t1'),
+        mips.LiInstruction('$v0', 9),
+        mips.SyscallInstruction(),
+        mips.SwInstruction('$v0', x_addr),
+        mips.LiInstruction('$t2', '0'),
+        mips.MIPSLabel('length_loop'),
+        mips.BeqInstruction('$t1', '$t2','end_length_loop'),
+        
+        mips.MoveInstruction('$t3',x_addr),
+        mips.AdduInstruction('$t3', '$t3', '$t2'),
+        mips.MoveInstruction(x_addr, '$t3'),
+        
+        mips.AdduInstruction('$t2', '$t2', 4),
+        mips.BInstruction('length_loop'),
+        mips.MIPSLabel('end_length_loop'),
     ]
 
 
@@ -307,8 +338,9 @@ def setattr_to_mips_visitor(setattr: cil.SetAttrNode):
     MIPS:
         lw  $t0, [addr(x)]
         lw  $t1, [addr(y)]
-        sw  $t0, [attr_shift($t0)]
+        sw  $t0, [attr_shift($t1)]
     """
+    
     x_addr = CURRENT_FUNCTION.get_address(str(setattr.val))
     y_addr = CURRENT_FUNCTION.get_address(str(setattr.obj))
     attr_shift = (setattr.attr_index + 1) * 4
@@ -525,6 +557,23 @@ def vcal_to_mips_visitor(vcall: cil.VCAllNode):
     instructios.extend(free_stack(size))
     return instructios
 
+def assign_to_mips_visitor(assign:cil.AssignNode):
+    """
+    CIL:
+        x = y
+    MIPS:
+        lw $t0, [y_addr]
+        sw $t0, [x_addr]
+    """
+    y_addr= CURRENT_FUNCTION.get_address(assign.val.id)
+    x_addr=CURRENT_FUNCTION.get_address(assign.result.id)
+    
+    return [
+        mips.Comment(str(assign)),
+        mips.LwInstruction('$t0', y_addr),
+        mips.SwInstruction('$t0', x_addr)
+    ]
+
 
 __visitors__ = {
     cil.ArgNode: arg_to_mips_visitor,
@@ -547,5 +596,7 @@ __visitors__ = {
     cil.ConcatNode: concat_to_mips_visitor,
     cil.LoadNode: load_to_mips_visitor,
     cil.SubStringNode: substring_to_mips_visitor,
-    cil.VCAllNode: vcal_to_mips_visitor
+    cil.VCAllNode: vcal_to_mips_visitor, 
+    cil.AssignNode: assign_to_mips_visitor, 
+    cil.TypeOfNode:type_of_to_mips_visitor
 }
