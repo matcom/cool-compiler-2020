@@ -173,7 +173,7 @@ class CIL_TO_MIPS(object):
     def visit(self, node: TypeNameNode):  # noqa
         self.mips.comment("TypeNameNode")
         self.mips.la(Reg.t0, node.type)
-        self.load_memory(Reg.t1, self.mips.offset(Reg.t0, self.data_size))
+        self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, self.data_size))
         self.store_memory(Reg.t1, node.dest)
         self.mips.empty()
 

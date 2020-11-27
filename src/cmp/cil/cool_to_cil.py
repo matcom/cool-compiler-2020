@@ -336,8 +336,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         return result
 
     @when(cool.NewNode)
-    def visit(self, node: cool.NewNode, scope: Scope): 
-        result = self.define_internal_local() # TODO: attributes initialization
+    def visit(self, node: cool.NewNode, scope: Scope):
+        result = self.define_internal_local()  # TODO: attributes initialization
         self.register_instruction(AllocateNode(result, node.type))
         self.init_class_attr(scope, node.type, result)
 
@@ -450,13 +450,19 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         result_raw = self.define_internal_local()
         result = self.define_internal_local()
 
-        if node.left.static_type == self.context.get_type('String'):
-            self.register_instruction(GetAttribNode(left, left_result, "value", "String"))
-            self.register_instruction(GetAttribNode(right, right_result, "value", "String"))
+        if node.left.static_type == self.context.get_type("String"):
+            self.register_instruction(
+                GetAttribNode(left, left_result, "value", "String")
+            )
+            self.register_instruction(
+                GetAttribNode(right, right_result, "value", "String")
+            )
             self.register_instruction(StringEqualNode(result_raw, left, right))
         else:
             self.register_instruction(GetAttribNode(left, left_result, "value", "Int"))
-            self.register_instruction(GetAttribNode(right, right_result, "value", "Int"))
+            self.register_instruction(
+                GetAttribNode(right, right_result, "value", "Int")
+            )
             self.register_instruction(EqualNode(result_raw, left, right))
         self.register_instruction(AllocateNode(result, "Bool"))
         self.register_instruction(SetAttribNode(result, "value", result_raw, "Bool"))
@@ -498,14 +504,16 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         if not pvar:
             selfx = scope.get_var("self").local_name
             pvar = self.define_internal_local()
-            self.register_instruction(GetAttribNode(pvar, selfx, node.token, self.current_type.name))
+            self.register_instruction(
+                GetAttribNode(pvar, selfx, node.token, self.current_type.name)
+            )
         else:
             pvar = pvar.local_name
         return pvar
 
     @when(cool.BoolNode)
     def visit(self, node: cool.BoolNode, scope: Scope):
-        value = 1 if node.token.lower() == 'true' else 0
+        value = 1 if node.token.lower() == "true" else 0
         bool_inst = self.define_internal_local()
         self.register_instruction(AllocateNode(bool_inst, "Bool"))
         self.register_instruction(SetAttribNode(bool_inst, "value", value, "Bool"))
