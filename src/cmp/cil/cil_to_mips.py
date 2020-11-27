@@ -352,6 +352,8 @@ class CIL_TO_MIPS(object):
     def visit(self, node: StaticCallNode):  # noqa: F811
         self.mips.comment("StaticCallNode")
         self.mips.jal(node.function)
+        self.mips.comment(f"Returning {node.dest}")
+        self.store_memory(Reg.v0, node.dest)
         self.mips.empty()
 
     def get_pc(self, dst: Reg):
@@ -373,11 +375,15 @@ class CIL_TO_MIPS(object):
         offset = type_data.func_offsets[node.method] * self.data_size
         self.load_memory(Reg.t0, node.obj)
         self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
+        
         label_get_pc = self.get_pc(Reg.t2)
         self.mips.jal(label_get_pc)
         self.mips.move(Reg.ra, Reg.t2)
         self.mips.addi(Reg.ra, Reg.ra, 12)
         self.mips.jr(Reg.t1)
+
+        self.mips.comment(f"Returning {node.dest}")
+        self.store_memory(Reg.v0, node.dest)
         self.mips.empty()
 
     @when(ArgNode)
