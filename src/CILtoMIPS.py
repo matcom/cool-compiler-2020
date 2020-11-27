@@ -20,7 +20,7 @@ class MIPSCompiler:
         self.params={}
         self.parents={}
 
-    def load(self, node:CILInstructionNode,scope:ScopeMIPS, soloelprimero=False):
+    def load(self, node:CILInstructionNode,scope:ScopeMIPS, soloelprimero=False, desplazamiento=0):
         instrucciones=""
         parametro0=node.params[0]
         if scope.methodclass != "Main.special":
@@ -40,9 +40,9 @@ class MIPSCompiler:
         elif parametro0 == 'true':
             instrucciones+="move $t0, $zero\n"
         elif parametro0 in scope.locals.keys():
-            instrucciones+="lw $t0,"+scope.locals[parametro0]+"\n"
+            instrucciones+="lw $t0,"+str(scope.locals[parametro0]+desplazamiento)+"($sp)\n"
         elif parametro0 in scope.parameters.keys():
-            instrucciones+="lw $t0,"+scope.parameters[parametro0]+"\n"
+            instrucciones+="lw $t0,"+str(scope.parameters[parametro0]+desplazamiento)+"($sp)\n"
         elif parametro0 in scope.registerparameters.keys():
             instrucciones+="move $t0,"+scope.registerparameters[parametro0]+"\n"
         elif parametro0 in nombresAtributos:
@@ -67,9 +67,9 @@ class MIPSCompiler:
         elif parametro1 == 'true':
             instrucciones+="move $t1, $zero\n"
         elif parametro1 in scope.locals.keys():
-            instrucciones+="lw $t1,"+scope.locals[parametro1]+"\n"
+            instrucciones+="lw $t1,"+str(scope.locals[parametro1]+desplazamiento)+"($sp)\n"
         elif parametro1 in scope.parameters.keys():
-            instrucciones+="lw $t1,"+scope.parameters[parametro1]+"\n"
+            instrucciones+="lw $t1,"+str(scope.parameters[parametro1]+desplazamiento)+"($sp)\n"
         elif parametro1 in scope.registerparameters.keys():
             instrucciones+="move $t1,"+scope.registerparameters[parametro1]+"\n"
         elif parametro1 in nombresAtributos:           
@@ -81,7 +81,7 @@ class MIPSCompiler:
 
         return instrucciones
 
-    def save(self, destino:str,scope:ScopeMIPS):
+    def save(self, destino:str,scope:ScopeMIPS, desplazamiento=0):
         if scope.methodclass!="Main.special":
             atributos=self.atributos[scope.methodclass]
         else:
@@ -92,9 +92,9 @@ class MIPSCompiler:
             nombresAtributos.append(at.name)
 
         if destino in scope.locals.keys():
-            instrucciones+="sw $v0,"+scope.locals[destino]+"\n"
+            instrucciones+="sw $v0,"+str(scope.locals[destino]+desplazamiento)+"($sp)\n"
         elif destino in scope.parameters.keys():
-            instrucciones+="sw $v0,"+scope.parameters[destino]+"\n"
+            instrucciones+="sw $v0,"+str(scope.parameters[destino]+desplazamiento)+"($sp)\n"
         elif destino in scope.registerparameters.keys():
             instrucciones+="move "+scope.registerparameters[destino]+",$t0\n"
         elif destino in nombresAtributos:
@@ -120,6 +120,8 @@ class MIPSCompiler:
         instrucciones+="lw $ra, 0($sp)\n"
         instrucciones+="addi $sp ,$sp, 4\n"
         instrucciones+="jr $ra\n"
+        instrucciones+="li $v0, 10\n"
+        instrucciones+="syscall\n"
         return instrucciones
     
     @visitor.on('node')
@@ -186,7 +188,7 @@ class MIPSCompiler:
 
         localespropias={}
         for i in range(len(node.locals)):
-            localespropias[node.locals[i]]=str(i*(4)+4)+"($sp)"
+            localespropias[node.locals[i]]=(i*(4)+4)#+"($sp)"
 
         scope.locals=localespropias
         
@@ -197,14 +199,14 @@ class MIPSCompiler:
         for i in range(len(node.params)):
             if i<4:
                 if isinstance(node.params[i], str):
-                    misregisterparams[node.params[i]]="$a"+str(i)
+                    misregisterparams[node.params[i]]="$a"+str(i)#$a
                 else:
                     misregisterparams[node.params[i].name]="$a"+str(i)
             else:
                 if isinstance(node.params[i], str):
-                    misotrosparams[node.params[i]]=str((i-4+len(node.locals))*4)+"($sp)"
+                    misotrosparams[node.params[i]]=((i-4+len(node.locals)+1)*4)#+"($sp)"   Puse el más 1 porque siempre antes de llamar un método se guarda $ra en la pila, por lo que los parámetros estarían desplazados
                 else:
-                    misotrosparams[node.params[i].name]=str((i-4+len(node.locals))*4)+"($sp)"
+                    misotrosparams[node.params[i].name]=((i-4+len(node.locals)+1)*4)#+"($sp)"
 
         scope.registerparameters=misregisterparams
         scope.parameters=misotrosparams
@@ -226,8 +228,8 @@ class MIPSCompiler:
             ultimainstruccion=node.intrucciones[len(node.intrucciones)-1]
             retorno=ultimainstruccion.destination
         
-        if retorno != None:
-            instrucciones+="lw $v0, 0($sp)\n"
+        # if retorno != None:
+        #     instrucciones+="lw $v0, 0($sp)\n"
 
 
         # instrucciones+="lw $ra, 0($sp)\n" Al parecer sobra
@@ -412,13 +414,17 @@ class MIPSCompiler:
     @visitor.when(CILArgument)
     def visit(self, node:CILArgument, scope:ScopeMIPS):
         instrucciones=""
-        instrucciones+=self.load(node,scope)
+        if scope.methodname in ["main","f7"]:
+            print("este")
+        instrucciones+=self.load(node,scope,desplazamiento=scope.paramcount*4)
         instrucciones+="addi $sp, $sp, -4\n"
         if scope.paramcount<4:
             instrucciones+="sw $a"+str(scope.paramcount)+", 0($sp)\n"
             instrucciones+="move $a"+str(scope.paramcount)+",$t0\n"
         else:
             instrucciones+="sw $t0, 0($sp)\n"
+
+        scope.paramcount+=1
         
         return instrucciones
 
@@ -493,12 +499,13 @@ class MIPSCompiler:
         instrucciones+="sw $a0, 0($sp)\n"
         instrucciones+="sw $ra, 4($sp)\n"
 
-        instrucciones+="move $a0, $t0\n"
+        instrucciones+="move $a0, $a1\n"
         instrucciones+="jal .IO.out_string\n"
 
         instrucciones+="lw $a0, 0($sp)\n"
         instrucciones+="lw $ra, 4($sp)\n"
         instrucciones+="addi $sp, $sp, 8\n"
+        instrucciones+="move $v0, $a0\n"
         
         return instrucciones+self.save(node.destination,scope)
 
@@ -525,12 +532,13 @@ class MIPSCompiler:
         instrucciones+="sw $a0, 0($sp)\n"
         instrucciones+="sw $ra, 4($sp)\n"
 
-        instrucciones+="move $a0, $t0\n"
+        instrucciones+="move $a0, $a1\n"
         instrucciones+="jal .IO.out_int\n"
 
         instrucciones+="lw $a0, 0($sp)\n"
         instrucciones+="lw $ra, 4($sp)\n"
         instrucciones+="addi $sp, $sp, 8\n"
+        instrucciones+="move $v0, $a0\n"
         
         return instrucciones+self.save(node.destination,scope)
 

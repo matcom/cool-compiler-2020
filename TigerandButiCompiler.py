@@ -687,10 +687,10 @@ if True:
         mylex.lineno=0
         te=tests[i]
         print(te)
-        if(te=="helloworld.cl"):
-            print("here")
-        else:
-            continue
+        # if(te=="helloworld.cl"):
+        #     print("here")
+        # else:
+        #     continue
         archivo=open("tests\\codegen\\"+te,encoding='utf-8')
         texto=archivo.read()
         respuesta=elimina_comentarios2(texto)
@@ -711,11 +711,11 @@ if True:
             tipos=[]
             for tipo in programaCIL.Types:
                 tipos.append(tipo)
-                print("este")
+                # print("este")
             metodos=[]
             for met in programaCIL.Methods:
                 metodos.append(met)
-                print("este")
+                # print("este")
             #for metodo in programaCIL.Methods:
             #    for instruccion in metodo.intrucciones:
             #        instruccion.instructionPrint()

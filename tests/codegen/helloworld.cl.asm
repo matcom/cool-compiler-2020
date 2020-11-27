@@ -19,6 +19,8 @@ jal Main.Special
 lw $ra, 0($sp)
 addi $sp ,$sp, 4
 jr $ra
+li $v0, 10
+syscall
      #$a0 debe ser el string
      .IO.out_string:
      li $v0, 4
@@ -372,8 +374,8 @@ jr $ra
      li $v0, 10
      syscall
      
-     #En este mï¿½todo violï¿½ la regla usual de que los parï¿½metros van en los registros a, y se encuentran en los t.
-     #Esto se realizï¿½ ya que este mï¿½todo solo se usa en un lugar y atendiendo a la estructura del conversor a MIPS
+     #En este método violé la regla usual de que los parámetros van en los registros a, y se encuentran en los t.
+     #Esto se realizó ya que este método solo se usa en un lugar y atendiendo a la estructura del conversor a MIPS
      .Object.Copy:
      addi $sp, $sp, -8
 
@@ -436,7 +438,8 @@ sw $ra, 0($sp)
 jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
-addi $sp, $sp, 0
+lw $a0, 0($sp)
+addi $sp, $sp, 4
 sw $v0,4($sp)
 lw $t0,4($sp)
 addi $sp, $sp, -4
@@ -449,9 +452,9 @@ sw $ra, 0($sp)
 jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
-addi $sp, $sp, 0
+lw $a0, 0($sp)
+addi $sp, $sp, 4
 sw $v0,8($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f0:
@@ -459,14 +462,12 @@ addi $sp, $sp, -8
 move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f3:
 addi $sp, $sp, -12
 la $v0, st0
 sw $v0,8($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f4:
@@ -479,13 +480,11 @@ jal .Object.Copy
 lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,4($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f2:
 addi $sp, $sp, -8
 jal .Object.abort
-lw $v0, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f5:
@@ -501,19 +500,18 @@ sw $ra, 0($sp)
 jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
-addi $sp, $sp, 0
+lw $a0, 0($sp)
+addi $sp, $sp, 4
 sw $v0,4($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,8($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f6:
 addi $sp, $sp, -12
 la $v0, st1
 sw $v0,8($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f7:
@@ -539,18 +537,19 @@ sw $ra, 0($sp)
 jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
-addi $sp, $sp, 0
+lw $a0, 0($sp)
+addi $sp, $sp, 4
 sw $v0,4($sp)
+la $v0, st2
+sw $v0,12($sp)
 lw $t0,4($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-la $v0, st2
-sw $v0,12($sp)
-lw $t0,12($sp)
+lw $t0,16($sp)
 addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
+sw $a1, 0($sp)
+move $a1,$t0
 lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
@@ -558,9 +557,10 @@ sw $ra, 0($sp)
 jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
-addi $sp, $sp, 0
+lw $a1, 0($sp)
+lw $a0, 4($sp)
+addi $sp, $sp, 8
 sw $v0,16($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 20
 jr $ra
 f8:
@@ -576,19 +576,18 @@ sw $ra, 0($sp)
 jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
-addi $sp, $sp, 0
+lw $a0, 0($sp)
+addi $sp, $sp, 4
 sw $v0,4($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,8($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f9:
 addi $sp, $sp, -12
 la $v0, st3
 sw $v0,8($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f10:
@@ -596,16 +595,16 @@ addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
 sw $ra, 4($sp)
-move $a0, $t0
+move $a0, $a1
 jal .IO.out_string
 lw $a0, 0($sp)
 lw $ra, 4($sp)
 addi $sp, $sp, 8
+move $v0, $a0
 move $a1,$t0
 move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f11:
@@ -613,16 +612,16 @@ addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
 sw $ra, 4($sp)
-move $a0, $t0
+move $a0, $a1
 jal .IO.out_int
 lw $a0, 0($sp)
 lw $ra, 4($sp)
 addi $sp, $sp, 8
+move $v0, $a0
 move $a1,$t0
 move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f12:
@@ -636,7 +635,6 @@ lw $a0, 0($sp)
 lw $ra, 4($sp)
 addi $sp, $sp, 8
 sw $v0,4($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f13:
@@ -650,7 +648,6 @@ lw $a0, 0($sp)
 lw $ra, 4($sp)
 addi $sp, $sp, 8
 sw $v0,4($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f14:
@@ -666,19 +663,18 @@ sw $ra, 0($sp)
 jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
-addi $sp, $sp, 0
+lw $a0, 0($sp)
+addi $sp, $sp, 4
 sw $v0,4($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,8($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f15:
 addi $sp, $sp, -12
 la $v0, st4
 sw $v0,8($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f16:
@@ -693,7 +689,6 @@ lw $a0, 0($sp)
 lw $ra, 4($sp)
 addi $sp, $sp, 8
 sw $v0,4($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f17:
@@ -712,7 +707,6 @@ lw $a1, 4($sp)
 lw $ra, 8($sp)
 addi $sp, $sp, 12
 sw $v0,4($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f18:
@@ -731,7 +725,6 @@ lw $a1, 4($sp)
 lw $ra, 8($sp)
 addi $sp, $sp, 12
 sw $v0,4($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 8
 jr $ra
 f19:
@@ -747,18 +740,17 @@ sw $ra, 0($sp)
 jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
-addi $sp, $sp, 0
+lw $a0, 0($sp)
+addi $sp, $sp, 4
 sw $v0,4($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,8($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 f20:
 addi $sp, $sp, -12
 la $v0, st5
 sw $v0,8($sp)
-lw $v0, 0($sp)
 addi $sp, $sp, 12
 jr $ra

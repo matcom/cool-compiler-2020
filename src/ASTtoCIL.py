@@ -493,12 +493,19 @@ class CILTranspiler:
         leftInstructions=self.visit(node.left_expression, scope)
         instructions.extend(leftInstructions)
 
-        instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
+        # instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
 
+        destinos=[]
         for p in node.parameters:
             paramInstruction=self.visit(p, scope)
-            paramInstruction.append(CILArgument(params=[paramInstruction[len(paramInstruction)-1].destination]))
+            destinos.append(paramInstruction[len(paramInstruction)-1].destination)
+            # paramInstruction.append(CILArgument(params=[paramInstruction[len(paramInstruction)-1].destination]))
             instructions.extend(paramInstruction)
+
+        instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
+        
+        for dest in destinos:
+            instructions.append(CILArgument(params=[dest]))
 
         # instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))#Removido de los params: node.left_type,
         resultVariable=self.GenerarNombreVariable(scope)
@@ -516,14 +523,21 @@ class CILTranspiler:
         leftInstructions=self.visit(node.left_expression, scope)
         instructions.extend(leftInstructions)
 
-        instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
+        # instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
 
+        destinos=[]
         for p in node.parameters:
             paramInstruction=self.visit(p, scope)
-            paramInstruction.append(CILArgument(params=[paramInstruction[len(paramInstruction)-1].destination]))
-            instructions.extend(paramInstruction)        
+            destinos.append(paramInstruction[len(paramInstruction)-1].destination)
+            # paramInstruction.append(CILArgument(params=[paramInstruction[len(paramInstruction)-1].destination]))
+            instructions.extend(paramInstruction)   
 
         instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
+
+        for dest in destinos:
+            instructions.append(CILArgument(params=[dest]))     
+
+        # instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
         resultVariable=self.GenerarNombreVariable(scope)
         llamada=CILVirtualCall(resultVariable,[node.parent_id,node.func_id])
         instructions.append(llamada)
