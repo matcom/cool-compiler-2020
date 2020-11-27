@@ -161,11 +161,8 @@ class CIL_TO_MIPS(object):
         self.load_registers()
 
         self.mips.comment("Clean stack variable space")
-        self.mips.addi(
-            Reg.sp,
-            Reg.sp,
-            len(node.localvars) * self.data_size,
-        )
+        for _ in node.localvars:
+            self.mips.pop(Reg.t0)
         self.actual_args = None
         self.mips.comment("Return")
         self.mips.pop(Reg.fp)
@@ -390,11 +387,8 @@ class CIL_TO_MIPS(object):
     @when(CleanArgsNode)
     def visit(self, node: CleanArgsNode):  # noqa: F811
         self.mips.comment("CleanArgsNode")
-        self.mips.addi(
-            Reg.sp,
-            Reg.sp,
-            node.nargs * self.data_size,
-        )
+        for _ in range(node.nargs):
+            self.mips.pop(Reg.t0)
         self.mips.empty()
 
     @when(ReturnNode)
