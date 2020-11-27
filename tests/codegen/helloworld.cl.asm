@@ -372,8 +372,8 @@ jr $ra
      li $v0, 10
      syscall
      
-     #En este método violé la regla usual de que los parámetros van en los registros a, y se encuentran en los t.
-     #Esto se realizó ya que este método solo se usa en un lugar y atendiendo a la estructura del conversor a MIPS
+     #En este mï¿½todo violï¿½ la regla usual de que los parï¿½metros van en los registros a, y se encuentran en los t.
+     #Esto se realizï¿½ ya que este mï¿½todo solo se usa en un lugar y atendiendo a la estructura del conversor a MIPS
      .Object.Copy:
      addi $sp, $sp, -8
 
@@ -436,6 +436,7 @@ sw $ra, 0($sp)
 jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
+addi $sp, $sp, 0
 sw $v0,4($sp)
 lw $t0,4($sp)
 addi $sp, $sp, -4
@@ -448,6 +449,7 @@ sw $ra, 0($sp)
 jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
+addi $sp, $sp, 0
 sw $v0,8($sp)
 lw $v0, 0($sp)
 addi $sp, $sp, 12
@@ -499,6 +501,7 @@ sw $ra, 0($sp)
 jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
+addi $sp, $sp, 0
 sw $v0,4($sp)
 move $t0,$a0
 move $v0, $t0
@@ -536,6 +539,7 @@ sw $ra, 0($sp)
 jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
+addi $sp, $sp, 0
 sw $v0,4($sp)
 lw $t0,4($sp)
 addi $sp, $sp, -4
@@ -554,6 +558,7 @@ sw $ra, 0($sp)
 jalr $ra,$t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
+addi $sp, $sp, 0
 sw $v0,16($sp)
 lw $v0, 0($sp)
 addi $sp, $sp, 20
@@ -571,6 +576,7 @@ sw $ra, 0($sp)
 jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
+addi $sp, $sp, 0
 sw $v0,4($sp)
 move $t0,$a0
 move $v0, $t0
@@ -660,6 +666,7 @@ sw $ra, 0($sp)
 jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
+addi $sp, $sp, 0
 sw $v0,4($sp)
 move $t0,$a0
 move $v0, $t0
@@ -740,6 +747,7 @@ sw $ra, 0($sp)
 jal $t0
 lw $ra, 0($sp)
 addi $sp, $sp, 4
+addi $sp, $sp, 0
 sw $v0,4($sp)
 move $t0,$a0
 move $v0, $t0

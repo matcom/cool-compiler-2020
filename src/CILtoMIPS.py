@@ -170,6 +170,8 @@ class MIPSCompiler:
         instrucciones+=metodosdefault
         archivo.close()
         for element in node.Methods:
+            # if element.nombre=="f56":
+            #     print()
             instrucciones+=(self.visit(element, scope))
 
         return datainstructions+instrucciones
@@ -365,12 +367,16 @@ class MIPSCompiler:
         instrucciones+="sw $ra, 0($sp)\n"
         instrucciones+="jal $t0\n"
         instrucciones+="lw $ra, 0($sp)\n"
+        instrucciones+="addi $sp, $sp, 4\n"
+
+        if scope.paramcount>4:
+            instrucciones+="addi $sp, $sp, "+str((scope.paramcount-4)*4)+"\n"
+            scope.paramcount=4
         
         for i in range(scope.paramcount):
-            if scope.paramcount-1-i<4:
-                instrucciones+="lw $a"+str(scope.paramcount-1-i)+", "+str(i*4+4)+"($sp)\n"
+            instrucciones+="lw $a"+str(scope.paramcount-1-i)+", "+str(i*4)+"($sp)\n"
 
-        instrucciones+="addi $sp, $sp, "+str(scope.paramcount*4+4)+"\n"
+        instrucciones+="addi $sp, $sp, "+str(scope.paramcount*4)+"\n"
         instrucciones+=self.save(node.destination,scope)
 
         scope.paramcount=0
@@ -387,12 +393,16 @@ class MIPSCompiler:
         instrucciones+="sw $ra, 0($sp)\n"
         instrucciones+="jalr $ra,$t0\n"
         instrucciones+="lw $ra, 0($sp)\n"
+        instrucciones+="addi $sp, $sp, 4\n"
 
+        if scope.paramcount>4:
+            instrucciones+="addi $sp, $sp, "+str((scope.paramcount-4)*4)+"\n"
+            scope.paramcount=4
+        
         for i in range(scope.paramcount):
-            if scope.paramcount-1-i<4:
-                instrucciones+="lw $a"+str(scope.paramcount-1-i)+", "+str(i*4+4)+"($sp)\n"
+            instrucciones+="lw $a"+str(scope.paramcount-1-i)+", "+str(i*4)+"($sp)\n"
 
-        instrucciones+="addi $sp, $sp, "+str(scope.paramcount*4+4)+"\n"
+        instrucciones+="addi $sp, $sp, "+str(scope.paramcount*4)+"\n"
         instrucciones+=self.save(node.destination,scope)
 
         scope.paramcount=0

@@ -687,8 +687,10 @@ if True:
         mylex.lineno=0
         te=tests[i]
         print(te)
-        if(te=="book_list.cl"):
+        if(te=="helloworld.cl"):
             print("here")
+        else:
+            continue
         archivo=open("tests\\codegen\\"+te,encoding='utf-8')
         texto=archivo.read()
         respuesta=elimina_comentarios2(texto)
@@ -706,6 +708,14 @@ if True:
             semantic.visit(ast,None)
             tocil=CILTranspiler()
             programaCIL=tocil.visit(ast,None)
+            tipos=[]
+            for tipo in programaCIL.Types:
+                tipos.append(tipo)
+                print("este")
+            metodos=[]
+            for met in programaCIL.Methods:
+                metodos.append(met)
+                print("este")
             #for metodo in programaCIL.Methods:
             #    for instruccion in metodo.intrucciones:
             #        instruccion.instructionPrint()
