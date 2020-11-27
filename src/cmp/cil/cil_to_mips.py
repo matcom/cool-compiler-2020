@@ -161,11 +161,8 @@ class CIL_TO_MIPS(object):
         self.load_registers()
 
         self.mips.comment("Clean stack variable space")
-        self.mips.addi(
-            Reg.sp,
-            Reg.sp,
-            len(node.localvars) * self.data_size,
-        )
+        for _ in node.localvars:
+            self.mips.pop(Reg.t0)
         self.actual_args = None
         self.mips.comment("Return")
         self.mips.pop(Reg.fp)
@@ -396,11 +393,8 @@ class CIL_TO_MIPS(object):
     @when(CleanArgsNode)
     def visit(self, node: CleanArgsNode):  # noqa: F811
         self.mips.comment("CleanArgsNode")
-        self.mips.addi(
-            Reg.sp,
-            Reg.sp,
-            node.nargs * self.data_size,
-        )
+        for _ in range(node.nargs):
+            self.mips.pop(Reg.t0)
         self.mips.empty()
 
     @when(ReturnNode)
@@ -438,15 +432,72 @@ class CIL_TO_MIPS(object):
         self.mips.print_string()
         self.mips.empty()
 
+    def get_string_length(self, src: Reg, dst: Reg):
+        self.mips.comment("get string length")
+        loop = self.get_label()
+        end = self.get_label()
+
+        self.mips.move(Reg.t0, src)
+        self.mips.li(Reg.t1, 0)
+
+        self.mips.label(loop)
+
+        self.mips.lb(Reg.t3, self.mips.offset(Reg.t0))
+        self.mips.beqz(Reg.t3, end)
+
+        self.mips.addi(Reg.t1, Reg.t1, 1)
+        self.mips.addi(Reg.t0, Reg.t0, 1)
+
+        self.mips.label(end)
+
+        self.mips.move(dst, Reg.t1)
+
     @when(LengthNode)
-    def visit(self, node: LengthNode):  # noqa: F811
-        # TODO: Implement visitor
-        pass
+    def visit(self, node: LengthNode):  # noqa
+        self.mips.comment("LengthNode")
+        self.load_memory(Reg.a0, node.msg)
+        self.get_string_length(Reg.a0, Reg.v0)
+        self.store_memory(Reg.v0, node.dest)
+        self.mips.empty()
+
+    def copy_str(self, src: Reg, dst: Reg, result: Reg):
+        loop = self.get_label()
+        end = self.get_label()
+
+        self.mips.move(Reg.t0, src)
+        self.mips.move(Reg.t1, dst)
+
+        self.mips.label(loop)
+
+        self.mips.lb(Reg.t2, self.mips.offset(Reg.t0))
+        self.mips.sb(Reg.t2, self.mips.offset(Reg.t1))
+
+        self.mips.beqz(Reg.t2, end)
+
+        self.mips.addi(Reg.t0, Reg.t0, 1)
+        self.mips.addi(Reg.t1, Reg.t1, 1)
+
+        self.mips.j(loop)
+        self.mips.label(end)
+
+        self.mips.move(result, Reg.t1)
 
     @when(ConcatNode)
-    def visit(self, node: ConcatNode):  # noqa: F811
-        # TODO: Implement visitor
-        pass
+    def visit(self, node: ConcatNode):  # noqa
+        self.load_memory(Reg.s0, node.msg1)
+        self.load_memory(Reg.s1, node.msg2)
+
+        self.get_string_length(Reg.s0, Reg.t0)
+        self.get_string_length(Reg.s1, Reg.t1)
+
+        self.mips.add(Reg.a0, Reg.t0, Reg.t1)  # TODO: Divide in 2, from half to byte
+        self.mips.sbrk()
+        self.mips.move(Reg.s3, Reg.v0)  # The new space reserved
+
+        self.copy_str(Reg.s0, Reg.s3, Reg.v0)
+        self.copy_str(Reg.s1, Reg.v0, Reg.v0)
+
+        self.store_memory(Reg.s3, node.dest)
 
     @when(SubstringNode)
     def visit(self, node: SubstringNode):  # noqa: F811

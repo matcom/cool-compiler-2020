@@ -214,12 +214,20 @@ class Mips:
         return f"lw {dst}, {address}"
 
     @autowrite
+    def lb(self, dst: Register, address: str):
+        return f"lb {dst}, {address}"
+
+    @autowrite
     def sw(self, dst: Register, address: str):
         return f"sw {dst}, {address}"
 
     @autowrite
+    def sb(self, dst: Register, address: str):
+        return f"sb {dst}, {address}"
+
+    @autowrite
     def lui(self, dst: Register, value: int):
-        return f"lw {dst}, {value}"
+        return f"lui {dst}, {value}"
 
     @autowrite
     def la(self, dst: Register, label: str):
@@ -249,6 +257,10 @@ class Mips:
     @autowrite
     def bne(self, rl: Register, rr: Register, address: str):
         return f"bne {rl},  {rr},  {address}"
+
+    @autowrite
+    def beqz(self, rl: Register, address: str):
+        return f"beqz {rl},  {address}"
 
     @autowrite
     def bgt(self, rl: Register, rr: Register, address: str):
