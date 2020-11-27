@@ -506,8 +506,41 @@ class CIL_TO_MIPS(object):
 
     @when(StringEqualNode)
     def visit(self, node: StringEqualNode):  # noqa: F811
-        # TODO: Implement visitor
-        pass
+        end_label = self.get_label()
+        end_ok_label = self.get_label()
+        loop_label = self.get_label()
+
+        self.load_memory(Reg.s0, node.msg1)  # load string address
+        self.load_memory(Reg.s1, node.msg2)
+
+        self.get_string_length(Reg.s0, Reg.t0)  # load size of string
+        self.get_string_length(Reg.s1, Reg.t1)
+
+        self.mips.move(Reg.v0, Reg.zero)  # return 0
+        self.mips.bne(Reg.t0, Reg.t1, end_label)  # end and return 0 if size not equal
+
+        self.mips.move(Reg.t0, Reg.s0)  # lets use temporal register
+        self.mips.move(Reg.t1, Reg.s1)
+
+        self.mips.label(loop_label)
+
+        self.mips.lb(Reg.t2, self.mips.offset(Reg.t0))  # load string character
+        self.mips.lb(Reg.t3, self.mips.offset(Reg.t1))
+
+        self.mips.bne(Reg.t2, Reg.t3, end_label)  # if no equal then return 0
+
+        self.mips.addi(Reg.t0, Reg.t0, 1)  # move next character
+        self.mips.addi(Reg.t1, Reg.t1, 1)
+
+        self.mips.beqz(
+            Reg.t2, end_ok_label
+        )  # if end the string return 1 (they are equal)
+        self.mips.j(loop_label)  # continue loop
+
+        self.mips.label(end_ok_label)
+        self.mips.li(Reg.v0, 1)  # return 1
+        self.mips.label(end_label)
+        self.mips.store_memory(Reg.v0, node.dest)  # store value in dst
 
     @when(GetAttribNode)
     def visit(self, node: GetAttribNode):  # noqa: F811
