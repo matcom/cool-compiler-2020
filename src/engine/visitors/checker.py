@@ -90,10 +90,10 @@ class Checker:
             if pname == 'self':
                 self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + "Wrong use of self as method parameter")
             
-            if scope.is_defined(pname):
-                self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + f"Parameter {pname} can only be used once")
-            else:
+            try:
                 scope.define_variable(pname, ptype)
+            except SemanticError:
+                self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + f"Parameter {pname} can only be used once")
                 
             
         body = node.body
@@ -163,7 +163,10 @@ class Checker:
                 if not expr_type.conforms_to(id_type):
                     self.errors.append(ERROR_ON_LN_COL % (expr.line, expr.column) + "TypeError: " + INCOMPATIBLE_TYPES % (expr_type.name, id_type.name))
 
-            scope.define_variable(idx.lex, id_type)
+            try:
+                scope.define_variable(idx.lex, id_type)
+            except SemanticError as e:
+                self.errors.append(ERROR_ON_LN_COL % (idx.line, idx.column) + "SemanticError: " + e.text)
 
         self.visit(node.in_body, scope.create_child())
 
