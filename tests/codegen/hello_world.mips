@@ -1,0 +1,518 @@
+.data
+buffer: .space 65536
+strsubstrexception: .asciiz "Substring index exception"
+
+IO.out_int:
+addi $sp, $sp, -4
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 12($sp)
+lw $t1, 16($t0)
+sw $t1, 4($sp)
+li $v0 , 1
+lw $a0 , 4($sp)
+syscall
+lw $a1, 8($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 16
+jr $ra
+
+IO.out_string:
+addi $sp, $sp, -4
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 12($sp)
+lw $t1, 16($t0)
+sw $t1, 4($sp)
+lw $a0, 4($sp)
+li $v0, 4
+syscall
+lw $a1, 8($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 16
+jr $ra
+
+
+IO.in_string:
+addi $sp, $sp, -12
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+li $a0, 20
+li $v0, 9
+syscall
+# bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+# la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_VT
+sw $t1, 12($t0)
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_VT
+sw $a1, 12($sp)
+lw $a1, 8($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 20
+jr $ra
+
+
+
+IO.in_int:
+addi $sp, $sp, -12
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+li $v0, 5
+syscall
+sw $v0, 4($sp)
+li $a0, 20
+li $v0, 9
+syscall
+# bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+# la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, IO_VT
+sw $t1, 12($t0)
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal IO.Constructor
+sw $a1, 12($sp)
+lw $a1, 8($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 20
+jr $ra
+Object.copy:
+addi $sp, $sp, -4
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 8($sp)
+lw $a0, 8($t0)
+li $v0, 9
+syscall
+# bge $v0, $sp heap_error
+move $t1, $v0
+li $a0, 0
+copy_object_word:
+lw $t2, ($t0)
+sw $t2, ($t1)
+addi $t0, $t0, 4
+addi $t1, $t1, 4
+addi $a0, $a0, 4
+lw $t3, 8($t0)
+blt $a0, $t3, copy_object_word
+sw $v0, 4($sp)
+lw $a1, 4($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 12
+jr $ra
+
+Object.abort:
+addi $sp, $sp, -4
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+la $t0, s_0
+sw $t0, 4($sp)
+lw $a0, 4($sp)
+li $v0, 4
+syscall
+li $v0, 10
+syscall
+lw $ra, 0($sp)
+addi $sp, $sp, 12
+jr $ra
+
+Object.type_name:
+
+
+String.length:
+addi $sp, $sp, -12
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 16($sp)
+li $a0, 0
+count_char:
+lb $t1, ($t0)
+beqz $t1, finish_chars_count
+addi $t0, $t0, 1
+addi $a0, $a0, 1
+j count_char
+finish_chars_count:
+sw $a0, 4($sp)
+li $a0, 20
+li $v0, 9
+syscall
+# bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, IO_VT
+sw $t1, 12($t0)
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal IO_VT
+sw $a1, 12($sp)
+lw $a1, 4($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 20
+jr $ra
+
+
+String.concat:
+addi $sp, $sp, -28
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 32($sp)
+lw $t1, 16($t0)
+sw $t1, 4($sp)
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String.length
+sw $a1, 8($sp)
+lw $t0, 36($sp)
+lw $t1, 16($t0)
+sw $t1, 12($sp)
+move $t0, $sp
+lw $t1, 12($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String.length
+sw $a1, 16($sp)
+lw $a0, 8($sp)
+lw $t0, 16($sp)
+add $a0, $a0, $t0
+addi $a0, $a0, 1
+li $v0, 9
+syscall
+# bge $v0, $sp heap_error
+lw $t0, 4($sp)
+lw $t1, 12($sp)
+copy_str1_char:
+lb $t2, ($t0)
+sb $t2, ($v0)
+beqz $t2, concat_str2_char
+addi $t0, $t0, 1
+addi $v0, $v0, 1
+j copy_str1_char
+concat_str2_char:
+lb $t2, ($t0)
+sb $t2, ($v0)
+beqz $t2, finish_str2_concat
+addi $t1, $t1, 1
+addi $v0, $v0, 1
+j concat_str2_char
+finish_str2_concat:
+sb $0, ($v0)
+sw $v0, 20($sp)
+li $a0, 20
+li $v0, 9
+syscall
+# bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+# la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_VT
+sw $t1, 12($t0)
+sw $t0, 24($sp)
+move $t0, $sp
+lw $t1, 20($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 24($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String.Constructor
+sw $a1, 28($sp)
+lw $a1, 24($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 40
+jr $ra
+
+
+String.substr:
+addi $sp, $sp, -20
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 28($sp)
+lw $t1, 16($t0)
+sw $t1, 4($sp)
+lw $t0, 32($sp)
+lw $t1, 16($t0)
+sw $t1, 8($sp)
+lw $a0, 8($sp)
+addi $a0, $a0, 1
+li $v0, 9
+syscall
+# bge $v0, $sp heap_error
+lw $t0, 4($sp)
+lw $t1, 8($sp)
+lw $t2, 24($sp)
+bltz $t0, strsubstrexception
+li $a0, 0
+jump_str_char:
+beq $a0, $t0, finish_index_jump
+addi $a0, $a0, 1
+addi $t2, $t2, 1
+beq $t2, $zero, strsubstrexception
+j jump_str_char
+finish_index_jump:
+li $a0, 0
+copy_substr_char:
+beq $a0, $t1 finish_substr_copy
+lb $t0, ($t2)
+sb $t0, ($v0)
+addi $t2, $t2, 1
+beq $t2, $zero, strsubstrexception
+addi $v0, $v0, 1
+addi $a0, $a0, 1
+j copy_substr_char
+finish_substr_copy:
+sb $0, ($v0)
+sw $v0, 12($sp)
+li $a0, 20
+li $v0, 9
+syscall
+# bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+# la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_VT
+sw $t1, 12($t0)
+sw $t0, 16($sp)
+move $t0, $sp
+lw $t1, 12($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 16($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String.Constructor
+sw $a1, 20($sp)
+lw $a1, 16($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 36
+jr $ra
+
+
+
+_substrexception:
+la $a0, strsubstrexception
+li $v0, 4
+syscall
+li $v0, 10
+syscall
+
+
+_stringcmp:
+li $v0, 1
+_stringcmp.loop:
+lb $a2, 0($a0)
+lb $a3, 0($a1)
+beqz $a2, _stringcmp.end
+beq $a2, $zero, _stringcmp.end
+beq $a3, $zero, _stringcmp.end
+bne $a2, $a3, _stringcmp.differents
+addiu $a0, $a0, 1
+addiu $a1, $a1, 1
+j _stringcmp.loop
+_stringcmp.end:
+beq $a2, $a3, _stringcmp.equals
+_stringcmp.differents:
+li $v0, 0
+jr $ra
+_stringcmp.equals:
+li $v0, 1
+jr $ra
+inherit:
+beq $a0, $a1, inherit_true
+beq $a0, $zero, inherit_false
+lw $a0, ($a0)
+j inherit
+
+inherit_true:
+li $v0, 1
+jr $ra
+
+inherit_false:
+li $v0, 0
+jr $ra
+string_1: .asciiz "Hello, World.\n"
+Object_INH: .word 0
+String_INH: .word Object_INH
+Int_INH: .word Object_INH
+Bool_INH: .word Object_INH
+IO_INH: .word Object_INH
+SELF_TYPE_INH: .word Object_INH
+Main_INH: .word IO_INH
+String_VT: .word String_INH
+.word String.length
+.word String.concat
+.word String.substr
+Object_VT: .word Object_INH
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+IO_VT: .word IO_INH
+.word IO.out_string
+.word IO.out_int
+.word IO.in_string
+.word IO.in_int
+Main_VT: .word Main_INH
+.word Main.main
+
+.globl main
+.text
+Object.Constructor:
+sw $ra, ($sp)
+addiu $sp, $sp, 4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $v0, -4($sp)
+addiu $sp, $sp, -4
+lw $ra, -4($sp)
+addiu $sp, $sp, -4
+jr $ra
+IO.Constructor:
+sw $ra, ($sp)
+addiu $sp, $sp, 4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $v0, -4($sp)
+addiu $sp, $sp, -4
+lw $ra, -4($sp)
+addiu $sp, $sp, -4
+jr $ra
+Bool.Constructor:
+sw $ra, ($sp)
+addiu $sp, $sp, 4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $v0, -4($sp)
+addiu $sp, $sp, -4
+lw $ra, -4($sp)
+addiu $sp, $sp, -4
+jr $ra
+String.Constructor:
+sw $ra, ($sp)
+addiu $sp, $sp, 4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $v0, -4($sp)
+addiu $sp, $sp, -4
+lw $ra, -4($sp)
+addiu $sp, $sp, -4
+jr $ra
+#--------------Initial Code---------------
+main:
+sub $a0, $a0, $a0
+sub $a1, $a1, $a1
+sub $a2, $a2, $a2
+sub $a3, $a3, $a3
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+li $v0, 9
+li $a0, 4
+syscall
+sw $v0, -4($sp)
+la $a1, Main_VT
+sw $a1, ($v0)
+la $v0, 1
+jalr $ra, $v0
+sw $v0, ($sp)
+lw $a0, -12($sp)
+lw $a0, ($a0)
+addiu $a0, $a0, 4
+lw $v0, ($a0)
+jalr $ra, $v0
+sw $v0, -4($sp)
+j Object.abort
+#--------------End Initial Code---------------
+Main.Constructor:
+sw $ra, ($sp)
+addiu $sp, $sp, 4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $v0, -4($sp)
+addiu $sp, $sp, -4
+lw $ra, -4($sp)
+addiu $sp, $sp, -4
+jr $ra
+Main.main:
+sw $ra, ($sp)
+addiu $sp, $sp, 4
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Args: 0
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+la $a0, string_1
+sw $a0, -4($sp)
+lw $a0, -8($sp)
+lw $a0, ($a0)
+addiu $a0, $a0, 16
+lw $v0, ($a0)
+jalr $ra, $v0
+sw $v0, 4($sp)
+addiu $sp, $sp, -8
+lw $v0, -4($sp)
+addiu $sp, $sp, -4
+lw $ra, -4($sp)
+addiu $sp, $sp, -4
+jr $ra
+li $v0, 10
+syscall

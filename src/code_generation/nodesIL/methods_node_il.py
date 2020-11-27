@@ -16,6 +16,10 @@ class LabelIL(NodeIL):
     def __str__(self):
         return 'label {}:'.format(self.label)
 
+class CustomLineIL(NodeIL):
+    def __init__(self, statement):
+        self.statement = statement
+
 class LoadLabelIL(NodeIL):
     def __init__(self, var, label):
         self.var = var

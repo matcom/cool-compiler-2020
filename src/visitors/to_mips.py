@@ -59,7 +59,11 @@ class MIPS:
     @visitor.on('node')
     def visit(self, node):
         pass
-
+    
+    #custom
+    @visitor.when(CustomLineIL)
+    def visit(self, node):
+        self.code.append(node.statement)
     #operations
 
     @visitor.when(BinaryOperationIL)
@@ -196,7 +200,7 @@ class MIPS:
     def visit(self, node):
         self.code.append("lw $a0, {}($sp)\n".format(-4 * node.obj))
         self.code.append("lw $a0, ($a0)\n")
-        self.code.append("addiu $a0, $a0, {}\n".format(-4 * node.offset))
+        self.code.append("addiu $a0, $a0, {}\n".format(4 * node.offset))
         self.code.append("lw $v0, ($a0)\n")
         self.code.append("jalr $ra, $v0\n")
         self.code.append("sw $v0, {}($sp)\n".format(-4 * node.result))

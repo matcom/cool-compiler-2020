@@ -72,6 +72,11 @@ class codeVisitor:
         self.code.append(CommentIL('--------------Initial Code---------------'))
         self.code.append(LabelIL("main", ""))
         
+        self.code.append(CustomLineIL("sub $a0, $a0, $a0\n"))
+        self.code.append(CustomLineIL("sub $a1, $a1, $a1\n"))
+        self.code.append(CustomLineIL("sub $a2, $a2, $a2\n"))
+        self.code.append(CustomLineIL("sub $a3, $a3, $a3\n"))
+
         self.code.append(PushIL())
         self.code.append(PushIL())
         self.code.append(PushIL())
