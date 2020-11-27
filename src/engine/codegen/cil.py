@@ -28,7 +28,6 @@ class BASE_COOL_CIL_TRANSFORM:
     
     def register_param(self, vinfo):
         param_node = ParamNode(vinfo.name)
-        # vinfo.name = f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
         self.params.append(param_node)
         return vinfo.name
     

@@ -95,6 +95,7 @@ function function_abort_at_Object {
 	
 
 	ERROR 0
+	RETURN 0
 }
 function function_copy_at_Object {
 	PARAM self
@@ -102,6 +103,7 @@ function function_copy_at_Object {
 	LOCAL local_copy_at_Object_internal_0
 
 	local_copy_at_Object_internal_0 = COPY self
+	RETURN local_copy_at_Object_internal_0
 }
 function function_type_name_at_Object {
 	PARAM self
@@ -111,6 +113,7 @@ function function_type_name_at_Object {
 
 	local_type_name_at_Object_internal_1 = TYPEOF self
 	local_type_name_at_Object_internal_0 = TYPENAME local_type_name_at_Object_internal_1
+	RETURN local_type_name_at_Object_internal_0
 }
 function function_length_at_String {
 	PARAM self
@@ -140,40 +143,39 @@ function function_substr_at_String {
 	RETURN local_substr_at_String_internal_0
 }
 function function_out_string_at_IO {
-	PARAM self
+	
 
 	LOCAL local_out_string_at_IO_internal_0
 
 	PRINT local_out_string_at_IO_internal_0
-	RETURN self
+	RETURN 0
 }
 function function_in_string_at_IO {
-	PARAM self
+	
 
 	LOCAL local_in_string_at_IO_internal_0
 
 	local_in_string_at_IO_internal_0 = READ
-	RETURN self
+	RETURN local_in_string_at_IO_internal_0
 }
 function function_out_int_at_IO {
-	PARAM self
 	PARAM int_val
 
 	LOCAL local_out_int_at_IO_internal_0
 
 	local_out_int_at_IO_internal_0 = STR int_val
 	PRINT local_out_int_at_IO_internal_0
-	RETURN self
+	RETURN 0
 }
 function function_in_int_at_IO {
-	PARAM self
+	
 
 	LOCAL local_in_int_at_IO_internal_0
 	LOCAL local_in_int_at_IO_internal_1
 
 	local_in_int_at_IO_internal_0 = READ
 	local_in_int_at_IO_internal_1 = INT local_in_int_at_IO_internal_0
-	RETURN self
+	RETURN local_in_int_at_IO_internal_1
 }
 function entry {
 	
@@ -187,7 +189,7 @@ function entry {
 	RETURN 0
 }
 function function_main_at_Main {
-	
+	PARAM self
 
 	LOCAL local_main_at_Main_internal_0
 	LOCAL local_main_at_Main_internal_1
@@ -206,21 +208,15 @@ function function_main_at_Main {
 	LOCAL local_main_at_Main_internal_14
 	LOCAL local_main_at_Main_internal_15
 
-	local_main_at_Main_internal_1 = ALLOCATE type E : D {
-	[method] f(): String;
-}
-
-	ARG ('x', 'E')
+	local_main_at_Main_internal_1 = ALLOCATE E
+	ARG x
+	local_main_at_Main_internal_3 = CALL function_f_at_E
+	ARG x
 	local_main_at_Main_internal_4 = CALL function_f_at_E
-	ARG ('x', 'E')
-	local_main_at_Main_internal_5 = CALL function_f_at_E
-	local_main_at_Main_internal_3 = local_main_at_Main_internal_4 == local_main_at_Main_internal_5
-	local_main_at_Main_internal_2 = local_main_at_Main_internal_3
-	local_main_at_Main_internal_6 = ALLOCATE type B : A {
-	[method] m(): String;
-}
-
-	ARG ('x', 'E')
+	local_main_at_Main_internal_5 = STREQ local_main_at_Main_internal_3 local_main_at_Main_internal_4
+	local_main_at_Main_internal_2 = local_main_at_Main_internal_5
+	local_main_at_Main_internal_6 = ALLOCATE B
+	ARG x
 	local_main_at_Main_internal_10 = CALL function_f_at_A
 	ARG local_main_at_Main_internal_10
 	local_main_at_Main_internal_9 = CALL function_m_at_A
@@ -228,12 +224,8 @@ function function_main_at_Main {
 	ARG self
 	local_main_at_Main_internal_8 = VCALL Main out_string
 	local_main_at_Main_internal_7 = local_main_at_Main_internal_8
-	local_main_at_Main_internal_11 = ALLOCATE type A : Object {
-	[method] m(): String;
-	[method] f(): A;
-}
-
-	ARG ('x', 'E')
+	local_main_at_Main_internal_11 = ALLOCATE A
+	ARG x
 	local_main_at_Main_internal_15 = CALL function_f_at_A
 	ARG local_main_at_Main_internal_15
 	local_main_at_Main_internal_14 = CALL function_m_at_A
@@ -245,46 +237,42 @@ function function_main_at_Main {
 	RETURN local_main_at_Main_internal_0
 }
 function function_m_at_A {
-	
+	PARAM self
 
-	
+	LOCAL local_m_at_A_internal_0
 
-	RETURN ('A', 'data_0')
+	local_m_at_A_internal_0 = LOAD data_0
+	RETURN local_m_at_A_internal_0
 }
 function function_f_at_A {
-	
+	PARAM self
 
 	LOCAL local_f_at_A_internal_0
 
-	local_f_at_A_internal_0 = ALLOCATE type A : Object {
-	[method] m(): String;
-	[method] f(): A;
-}
-
-	RETURN ('local_f_at_A_internal_0', type A : Object {
-	[method] m(): String;
-	[method] f(): A;
-}
-)
+	local_f_at_A_internal_0 = ALLOCATE A
+	RETURN local_f_at_A_internal_0
 }
 function function_m_at_B {
-	
+	PARAM self
 
-	
+	LOCAL local_m_at_B_internal_0
 
-	RETURN ('B', 'data_1')
+	local_m_at_B_internal_0 = LOAD data_1
+	RETURN local_m_at_B_internal_0
 }
 function function_f_at_C {
-	
+	PARAM self
 
-	
+	LOCAL local_f_at_C_internal_0
 
-	RETURN ('C', 'data_2')
+	local_f_at_C_internal_0 = LOAD data_2
+	RETURN local_f_at_C_internal_0
 }
 function function_f_at_E {
-	
+	PARAM self
 
-	
+	LOCAL local_f_at_E_internal_0
 
-	RETURN ('E', 'data_3')
+	local_f_at_E_internal_0 = LOAD data_3
+	RETURN local_f_at_E_internal_0
 }

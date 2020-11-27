@@ -145,7 +145,7 @@ class CIL_FORMATTER(object):
 
     @visitor.when(ComplementNode)
     def visit(self, node: ComplementNode):
-        return f'{node.dest} = COMPLEMENT {node.body}'
+        return f'{node.dest} = COMPLEMENT {node.expression}'
 
     @visitor.when(LessNode)
     def visit(self, node: LessNode):
@@ -176,7 +176,7 @@ class CIL_FORMATTER(object):
 
     @visitor.when(NotNode)
     def visit(self, node:NotNode):
-        return f'{node.dest} = NOT {node.body}'
+        return f'{node.dest} = NOT {node.expression}'
 
     @visitor.when(StringEqualNode)
     def visit(self, node: StringEqualNode):

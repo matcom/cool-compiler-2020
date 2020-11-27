@@ -202,35 +202,10 @@ class PrintNode(InstructionNode):
 
 ################# nodes que me tengo que definir ##############
 
-
-# class GetIndexNode(InstructionNode):
-#     def __init__(self, dest, array, index):
-#         self.dest = dest
-#         self.array = array
-#         self.index = index
-
-# class SetIndexNode(InstructionNode):
-#     def __init__(self, array, index, value):
-#         self.array = array
-#         self.index = index
-#         self.value = value
-
-# class PrefixNode(InstructionNode):
-#     def __init__(self, dest, msg1, msg2):
-#         self.dest = dest
-#         self.msg1 = msg1
-#         self.msg2 = msg2
-
-
 # class ConformNode(InstructionNode):
 #     def __init__(self, dest, obj, typex):
 #         self.dest = dest
 #         self.obj = obj
 #         self.type = typex
 
-
-
-# class CleanArgsNode(InstructionNode):
-#     def __init__(self, nargs):
-#         self.nargs = nargs
 

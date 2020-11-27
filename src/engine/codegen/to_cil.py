@@ -16,7 +16,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
     
     def define_unary_node(self, node: cool.UnaryNode, scope, cil_node: Node):
         result = self.define_internal_local()
-        expr ,typex = self.visit(node.expression, scope)
+        expr = self.visit(node.expression, scope)
         self.register_instruction(cil_node(result, expr)) 
         return result
 
@@ -86,7 +86,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self_local = self.register_param(VariableInfo('self', None))
         fun_scope.define_variable('self', self_local)
         for param_name, param_type in node.params:
-            self.register_param(VariableInfo(param_name, param_type))
+            self.register_param(VariableInfo(param_name.lex, param_type.lex))
 
         body = self.visit(node.body,fun_scope)
 
@@ -108,7 +108,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             self.register_instruction(SetAttribNode(selfx, node.id.lex, expr))
         else:
             attr_info = attr_info.name
-            self.register_instruction(AssignNode(attr_info, value))
+            self.register_instruction(AssignNode(attr_info, expr))
         return 0
 
     @visitor.when(cool.NewNode)
@@ -141,41 +141,40 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         
     @visitor.when(cool.WhileLoopNode)
     def visit(self,node:cool.WhileLoopNode,scope):
-        while_scope = Scope(parent=None)
+        while_scope = Scope(parent=scope)
         start_label = LabelNode('START')
         continue_label = LabelNode('CONTINUE')
         end_label = LabelNode('END')
 
-        # result = self.define_internal_local()
         self.register_instruction(start_label)
 
         cond = self.visit(node.condition,scope)
-        self.register_instruction(IfGotoNode(cond, continue_label))
-        self.register_instruction(GotoNode(end_label))
+        self.register_instruction(IfGotoNode(cond, continue_label.label))
+        self.register_instruction(GotoNode(end_label.label))
         self.register_instruction(continue_label)
         self.visit(node.body, while_scope)
-        self.register_instruction(GotoNode(start_label))
+        self.register_instruction(GotoNode(start_label.label))
         self.register_instruction(end_label)
 
-        # self.register_instruction(AssignNode(result,body))
         return 0
 
     @visitor.when(cool.CaseOfNode)
     def visit(self,node: cool.CaseOfNode,scope):
-        expr, typex = self.visit(node.expression, scope)
+        expr = self.visit(node.expression, scope)
         result = self.define_internal_local()
         exptype = self.define_internal_local()
         end_label = LabelNode('END')
         self.register_instruction(TypeOfNode(expr,exptype))
 
-        for i ,case, child_scope in enumerate(zip(node.branches, scope.children)):
-            expr_n, type_n = self.visit(case,child_scope)
+        for i ,case in enumerate(node.branches):
+            child_scope = Scope(parent=scope)
+            expr_n = self.visit(case,child_scope)
             self.register_instruction(AssignNode(result,expr_n))
-            self.register_instruction(GotoNode(end_label))
+            self.register_instruction(GotoNode(end_label.label))
             self.register_instruction(LabelNode(f'CASE_{i}'))
         self.register_instruction(end_label)
 
-        return result, typex
+        return result
 
     @visitor.when(cool.LetInNode)
     def visit(self,node: cool.LetInNode,scope: Scope):
