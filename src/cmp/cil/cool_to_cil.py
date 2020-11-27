@@ -87,7 +87,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         for attr in attr_nodes:
             attr_scope = Scope(parent=scope)
             attr_scope.define_var("self", self_inst)
-            self.visit(attr, attr_scope)
+            self.visit(attr, attr_scope, class_id)
 
     def build_attr_init(self, node: cool.ProgramNode):
         self.attr_init = dict()
@@ -153,7 +153,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         self.current_type = None
 
     @when(cool.AttrDeclarationNode)
-    def visit(self, node: cool.AttrDeclarationNode, scope: Scope):
+    def visit(self, node: cool.AttrDeclarationNode, scope: Scope, typex: str = None):
         result = None
         if node.expression:
             result = self.visit(node.expression, scope)
@@ -162,9 +162,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             self.register_instruction(AllocateNode(result, "Int"))
             self.register_instruction(SetAttribNode(result, "value", 0, "Int"))
         self_inst = scope.get_var("self").local_name
-        self.register_instruction(
-            SetAttribNode(self_inst, node.id, result, self.current_type.name)
-        )
+        assert typex, "AttrDeclarationNode: typex"
+        self.register_instruction(SetAttribNode(self_inst, node.id, result, typex))
 
     @when(cool.FuncDeclarationNode)
     def visit(self, node: cool.FuncDeclarationNode, scope: Scope):
@@ -294,7 +293,14 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         pvar = scope.get_var(node.id)
         if not pvar:
             selfx = scope.get_var("self").local_name
-            self.register_instruction(SetAttribNode(selfx, node.id, value))
+            self.register_instruction(
+                SetAttribNode(
+                    selfx,
+                    node.id,
+                    value,
+                    self.current_type.name,
+                )
+            )
         else:
             pvar = pvar.local_name
             self.register_instruction(AssignNode(pvar, value))

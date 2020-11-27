@@ -67,6 +67,7 @@ class CIL_TO_MIPS(object):
         return f"mip_label_{self.label_count}"
 
     def load_memory(self, dst: Reg, arg: str):
+        self.mips.comment(f"load memory {arg} to {dst}")
         if arg in self.actual_args or arg in self.local_vars_offsets:
             offset = (
                 self.actual_args[arg] + 1
@@ -80,6 +81,7 @@ class CIL_TO_MIPS(object):
         self.mips.empty()
 
     def store_memory(self, dst: Reg, arg: str):
+        self.mips.comment(f"store memory {dst} to {arg}")
         if arg in self.local_vars_offsets:
             offset = -self.local_vars_offsets[arg] * self.data_size
             self.mips.store_memory(dst, self.mips.offset(Reg.fp, offset))

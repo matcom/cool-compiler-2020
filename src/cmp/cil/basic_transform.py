@@ -1,3 +1,4 @@
+from ..cool_lang.semantics.semantic_utils import Attribute
 from .ast import (
     AllocateNode,
     ArgNode,
@@ -40,7 +41,6 @@ from .ast import (
     TypeOfNode,
 )
 from .utils import Scope
-from ..cool_lang.semantics.semantic_utils import Attribute
 
 
 class VariableInfo:
@@ -261,7 +261,9 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(ReadStrNode(result_msg))
         string_inst = self.define_internal_local()
         self.register_instruction(AllocateNode(string_inst, "String"))
-        self.register_instruction(SetAttribNode(string_inst, "value", result_msg, "String"))
+        self.register_instruction(
+            SetAttribNode(string_inst, "value", result_msg, "String")
+        )
         self.register_instruction(ReturnNode(string_inst))
         self.current_method = self.current_function = None
         ### out_string
@@ -273,7 +275,9 @@ class BASE_COOL_CIL_TRANSFORM:
         self_local = self.register_param(VariableInfo("self", None))
         string_inst = self.register_param(VariableInfo("x", None))
         out_msg = self.define_internal_local()
-        self.register_instruction(GetAttribNode(out_msg, string_inst, "value", "String"))
+        self.register_instruction(
+            GetAttribNode(out_msg, string_inst, "value", "String")
+        )
         self.register_instruction(PrintStrNode(out_msg))
         self.register_instruction(ReturnNode(self_local))
         self.current_method = self.current_function = None
@@ -352,7 +356,9 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(ConcatNode(result_msg, self_local, param_local))
         string_inst = self.define_internal_local()
         self.register_instruction(AllocateNode(string_inst, "String"))
-        self.register_instruction(SetAttribNode(string_inst, "value", result_msg, "String"))
+        self.register_instruction(
+            SetAttribNode(string_inst, "value", result_msg, "String")
+        )
         self.register_instruction(ReturnNode(string_inst))
         self.current_method = self.current_function = None
         ### substr
@@ -400,7 +406,9 @@ class BASE_COOL_CIL_TRANSFORM:
         )
         string_inst = self.define_internal_local()
         self.register_instruction(AllocateNode(string_inst, "String"))
-        self.register_instruction(SetAttribNode(string_inst, "value", result_msg, "String"))
+        self.register_instruction(
+            SetAttribNode(string_inst, "value", result_msg, "String")
+        )
         self.register_instruction(ReturnNode(string_inst))
         self.current_method = self.current_function = None
         self.current_type = None
