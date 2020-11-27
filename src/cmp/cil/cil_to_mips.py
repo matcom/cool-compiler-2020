@@ -461,6 +461,7 @@ class CIL_TO_MIPS(object):
         self.mips.empty()
 
     def copy_str(self, src: Reg, dst: Reg, result: Reg):
+        self.mips.comment("Auxiliar - Copy string")
         loop = self.get_label()
         end = self.get_label()
 
@@ -501,6 +502,7 @@ class CIL_TO_MIPS(object):
         self.store_memory(Reg.s3, node.dest)
 
     def copy_substr(self, src: Reg, dst: Reg, length: int):
+        self.mips.comment("Auxiliar - Copy substring")
         loop = self.get_label()
         end = self.get_label()
 
