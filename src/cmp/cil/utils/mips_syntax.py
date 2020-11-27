@@ -251,6 +251,10 @@ class Mips:
         return f"bne {rl},  {rr},  {address}"
 
     @autowrite
+    def beqz(self, rl: Register, address: str):
+        return f"beqz {rl},  {address}"
+
+    @autowrite
     def bgt(self, rl: Register, rr: Register, address: str):
         return f"bgt {rl}, {rr}, {address}"
 
