@@ -160,7 +160,7 @@ El módulo correspondiente a la generación del código intermedio es \lstinline|co
 	\item Los métodos \lstinline|register_function| y \lstinline|register_type| almacenan instancias de cil.FunctionNode y cil.TypeNode en las variables \lstinline|dotcode| y \lstinline|dottypes| respectivamente.
 \end{itemize}
 
-
+ 
 \subsubsection{MIPS}
 Puntualizar:
 
@@ -172,6 +172,55 @@ Puntualizar:
 
 
 
+En el m\'odulo \texttt{cil\_to\_mips.py} se encapsula el proceso de generar c\'odigo MIPS. Se tiene la clase \texttt{CILToMIPSVisitor} que se encarga de recorrer el \textit{AST} de \textit{CIL} generado anteriormente.
+
+\begin{itemize}
+	
+	\item \textbf{Objetos}\\
+	A la hora de generar c\'odigo MIPS es necesario establecer ciertos convenios, y uno de los m\'as importantes es la forma en que se van a organizar los objetos en memoria. Para mostrar el dise\~no utilizado se va a hacer uso de las clases declaradas en la Figura \ref{classes}. 
+	
+	En la Figura \ref{layouts} a la izquierda se muestra como quedar\'ian dispuestos en memoria los objetos de tipo A, B y C definidos en la Figura \ref{classes}. Para cada objeto se va a tener que, a partir de su direcci\'on de memoria, en el \textit{offset} 0 se va a encontrar un tag que va a ser un n\'umero \'unico para cada clase. Este n\'umero se va a corresponder con el orden en que se visita cada clase en un recorrido de tipo \textit{DFS} sobre el \'arbol que representa la jerarqu\'ia de clases comenzando por la clase \texttt{Object} que siempre tendr\'ia tag 0. A continuaci\'on en el \textit{offset} 4 se tiene un puntero que apunta a una direcci\'on del segmento de datos donde se encuentra alamacenado el nombre de la clase. En el \textit{offset} 8 va a estar contenido un n\'umero que representa el tama\~no de la clase, lo cual se podr\'ia ver como cu\'antos cuadros ocupa. Le sigue en el \textit{offset} 12 un puntero que apunta a una direcci\'on donde van a estar dispuestas las funciones declaradas por la clase o heredadas, lo cual se puede apreciar en el cuadro que se muestra a la derecha y se explicar\'a con m\'as detalle luego. Por \'ultimo a partir del \textit{offset} 16 se van a encontrar el valor de los atributos declarados por la clase o heredados. Estos atributos van a aparecer en el orden en que fueron declarados, empezando por los pertenecientes al ancestro m\'as lejano hasta llegar a los declarados por la propia clase.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics{a.png}
+		\includegraphics{b.png}
+		\includegraphics{c.png}
+		\caption{Declaraci\'on de clases de ejemplo en Cool.}
+		\label{classes}
+	\end{figure}
+	
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=4in,height=1.6in]{object_layout.png}
+		\includegraphics[width=2 in,height=1.6in]{dispatch_table.png}
+		\caption{Forma de colocar los objetos en memoria.}
+		\label{layouts}
+	\end{figure}
+	
+	En el cuadro que se encuentra en la parte derecha de la Figura \ref{layouts} se tiene c\'omo se van a organizar las funciones pertenecientes a una clase. Como se puede observar se va a seguir el mismo criterio de orden que en los atributos. La diferencia es que una clase puede redefinir las funciones heredadas y esto se va a reflejar como una sustituci\'on en el \textit{offset} que le corresponde a la funci\'on heredada,como se muestra en el ejemplo, que B redefine la funci\'on f y por tanto en ese \textit{offset} va a apuntar a su propia definici\'on, al contario que C que va apuntar a la definida por A.
+	
+	Este dise\~no est\'a pensado para lograr el poliformismo en los objetos pues, tanto para atributos como funciones, siempre los heredados van a estar en el mismo \textit{offset} que en los ancestros, lo que beneficia que en los casos que un clase quiera sustituir a un ancestro sus atributos y funciones van a tener la misma forma de buscarse.   	
+
+	En el caso de las clases \textit{built-in} tambi\'en se va a hacer uso del dise\~no explicado y los valores de estas van a estar almacenados como un atributo. El valor \texttt{void} va a estar representado como una direcci\'on est\'atica en memoria.
+
+	\item \textbf{Funciones}
+	
+	La forma en que se resuelven los llamados a funciones incluye otros de los convenios utilizados. Uno de los principales problemas a resolver fue d\'onde se iban a almacenar los par\'ametros que recibe una funci\'on. Para esto se decidi\'o hacer uso de la pila,  de forma que cuando se ejecuta la primera instrucci\'on de una funci\'on los par\'ametros van a estar colocados en la pila en orden contrario al que fueron declarados y se podr\'a acceder a ellos usando como referencia el registro \texttt{\$sp}. 
+	
+	Otra situaci\'on a resolver es que para llevar a cabo cualquier operaci\'on es necesario almacenar valores temporales, que denominaremos \textit{locals} de una funci\'on. Estos valores tambi\'en van a estar almacenados en la pila. Desde CIL se tiene conocimiento de cu\'antos \textit{locals} se van a necesitar y lo primero que va a hacer una funci\'on es "salvar"  \ espacio en la pila para guardarlos y se va a tener conocimiento del \textit{offset} que va a corresponder a cada \textit{local} que tambi\'en van a ser referenciados usando \texttt{\$sp}.
+	
+	Al final de la ejecuci\'on de una funci\'on el valor que esta retorna se va a almacenar siempre en el registro \texttt{\$a1}. Por \'ultimo la funci\'on se encarga de sacar de la pila tanto los \textit{locals} como los par\'ametros.
+	
+	
+	
+\end{itemize}
+
+
+
+
+
 \section{Problemas técnicos}
 Mencionar quizás:
 
@@ -180,6 +229,8 @@ Mencionar quizás:
  . herencia
  
  . lowest commun ancestor
+
+Uno de los problemas m\'as interesantes que se present\'o fue la implementaci\'on de la funcionalidad que provee la expresi\'on \texttt{case}. Es necesario dado un tipo \texttt{T} determinar, en tiempo de ejecuci\'on, entre un conjunto de tipos $T_i, 1< i \leq n$ cu\'al es el menor tipo con el que \texttt{T} se conforma. Para resolver esto se le asign\'o a cada tipo un tag, el cual se va a corresponder con el orden en que se visita cada clase en un recorrido de tipo \textit{DFS} sobre el \'arbol que representa la jerarqu\'ia de clases comenzando por la clase \texttt{Object} que siempre tendr\'ia tag 0. Adem\'as cada tipo \texttt{T} va a saber cu\'al es el tipo con mayor tag \textit{max\_tag}(T) al que se puede llegar en un recorrido \textit{DFS} desde \'el. Por la forma en que est\'a definido el tag se puede decir que un tipo \texttt{T} se conforma con un tipo \texttt{A} si $\mathtt{tag_A \leq tag_T \leq \mathit{max\_tag}(\mathtt{A})}$. Por tanto si se chequean los tipos $T_i$ ordenados de mayor a menor seg\'un el tag el primero que cumpla dicha condici\'on va a ser el tipo buscado. 
 
 \section{Uso del compilador}
 
