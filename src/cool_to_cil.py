@@ -773,9 +773,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         right_value = self.visit(node.right, scope)
 
         if node.left.computed_type.name == 'String':
-            self.register_instruction(CIL_AST.GetAttr(left_local, left_value, "value", node.left.computed_type.name))
-            self.register_instruction(CIL_AST.GetAttr(right_local, right_value, "value", node.right.computed_type.name))
-
             self.register_instruction(CIL_AST.Call(op_local, 'String_equals', [CIL_AST.Arg(right_value), CIL_AST.Arg(left_value)], 'String'))
 
             # Allocate Bool result
