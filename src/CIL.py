@@ -129,12 +129,13 @@ class CILDataDeclaration:
         self.valorString=valorString
 
 class CILGlobalMethod:
-    def __init__(self,nombre, params=[], locals=[], intrucciones=[], originclass="Object"):
+    def __init__(self,nombre, params=[], locals=[], intrucciones=[], originclass="Object",comments="None"):
         self.nombre=nombre
         self.params=params
         self.locals=locals
         self.intrucciones=intrucciones
         self.originclass=originclass
+        self.comments=comments
 
 class CILProgram:
     def __init__(self,Types=[],Data=[],Methods=[]):

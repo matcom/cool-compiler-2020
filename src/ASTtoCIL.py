@@ -187,7 +187,7 @@ class CILTranspiler:
             #Inicialización de atributos
             initInstructions=self.GenerarInit(c,scope)
             initName=metodosglobalesdic[c.name+"#"+"$init"]
-            globalInit=CILGlobalMethod(initName,["self"],scope.locals,initInstructions, c.name)
+            globalInit=CILGlobalMethod(initName,["self"],scope.locals,initInstructions, c.name,c.name+".$init")
             metodosGlobalesCIL[globalInit.nombre]=globalInit
 
             #Metodo type_name
@@ -364,7 +364,7 @@ class CILTranspiler:
         #     ultimoDestino=instructions[len(instructions)-1].destination
         #     retorno=CILReturn([ultimoDestino])
         
-        return CILGlobalMethod(None,parameters,locales,instructions, scope.class_name)
+        return CILGlobalMethod(None,parameters,locales,instructions, scope.class_name, scope.class_name+"."+node.name)
 
     @visitor.when(AssignNode)
     def visit(self, node: AssignNode, scope:Scope):

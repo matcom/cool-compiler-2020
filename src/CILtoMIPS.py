@@ -211,7 +211,7 @@ class MIPSCompiler:
         if scope.methodclass in ["CellularAutomaton", '"CellularAutomaton"']:
             print("here")
         instrucciones=""
-        instrucciones+=node.nombre+":\n"
+        instrucciones+=node.nombre+": \n"#+node.comments+"\n"
 
         scope.methodname=node.nombre
         scope.methodclass=node.originclass
@@ -636,7 +636,7 @@ class MIPSCompiler:
     @visitor.when(CILComplement)
     def visit(self, node:CILComplement, scope:ScopeMIPS):
         instrucciones=""
-        instrucciones+="sne $v0, $t0, $zero\n"
+        instrucciones+="seq $v0, $t0, $zero\n"
         # instrucciones+="addi $v0 ,$t0, 1\n"
         # instrucciones+="li $t1, 2\n"
         # instrucciones+="rem $v0, $v0, $t1\n"

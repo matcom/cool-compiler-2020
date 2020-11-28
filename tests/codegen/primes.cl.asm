@@ -465,7 +465,7 @@ syscall
      ChequeoTrue:
      li $v0, 1
      jr $ra
-Main.Special:
+Main.Special: 
 addi $sp, $sp, -12
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -512,20 +512,20 @@ addi $sp, $sp, 4
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f0:
+f0: 
 addi $sp, $sp, -8
 move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f3:
+f3: 
 addi $sp, $sp, -12
 la $v0, st0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f4:
+f4: 
 addi $sp, $sp, -8
 move $t0,$a0
 li $t1,0
@@ -537,12 +537,12 @@ addi $sp ,$sp, 4
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f2:
+f2: 
 addi $sp, $sp, -8
 jal .Object.abort
 addi $sp, $sp, 8
 jr $ra
-f5:
+f5: 
 addi $sp, $sp, -12
 move $t0,$a0
 addi $sp, $sp, -4
@@ -563,13 +563,13 @@ move $v0, $t0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f6:
+f6: 
 addi $sp, $sp, -12
 la $v0, st1
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f7:
+f7: 
 addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
@@ -586,7 +586,7 @@ move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f8:
+f8: 
 addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
@@ -603,7 +603,7 @@ move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f9:
+f9: 
 addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
@@ -616,7 +616,7 @@ addi $sp, $sp, 8
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f10:
+f10: 
 addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
@@ -629,7 +629,7 @@ addi $sp, $sp, 8
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f11:
+f11: 
 addi $sp, $sp, -12
 move $t0,$a0
 addi $sp, $sp, -4
@@ -650,13 +650,13 @@ move $v0, $t0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f12:
+f12: 
 addi $sp, $sp, -12
 la $v0, st2
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f13:
+f13: 
 addi $sp, $sp, -8
 move $t0,$a0
 addi $sp, $sp, -8
@@ -670,7 +670,7 @@ addi $sp, $sp, 8
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f14:
+f14: 
 addi $sp, $sp, -8
 move $t0,$a0
 move $t1,$a1
@@ -688,7 +688,7 @@ addi $sp, $sp, 12
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f15:
+f15: 
 addi $sp, $sp, -8
 move $t0,$a0
 move $t1,$a1
@@ -710,7 +710,7 @@ addi $sp, $sp, 16
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f16:
+f16: 
 addi $sp, $sp, -12
 move $t0,$a0
 addi $sp, $sp, -4
@@ -731,13 +731,13 @@ move $v0, $t0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f17:
+f17: 
 addi $sp, $sp, -12
 la $v0, st3
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f18:
+f18: 
 addi $sp, $sp, -348
 move $t0,$a0
 addi $sp, $sp, -4
@@ -803,7 +803,7 @@ li $t0,1
 move $v0, $t0
 sw $v0,36($sp)
 lw $t0,36($sp)
-sne $v0, $t0, $zero
+seq $v0, $t0, $zero
 sw $v0,44($sp)
 lw $t0,44($sp)
 bgtz $t0, Lbl1
@@ -916,7 +916,7 @@ lw $t0,176($sp)
 move $v0, $t0
 sw $v0,180($sp)
 lw $t0,180($sp)
-sne $v0, $t0, $zero
+seq $v0, $t0, $zero
 sw $v0,188($sp)
 lw $t0,188($sp)
 bgtz $t0, Lbl3
@@ -1083,13 +1083,13 @@ move $v0, $t0
 sw $v0,344($sp)
 addi $sp, $sp, 348
 jr $ra
-f19:
+f19: 
 addi $sp, $sp, -12
 la $v0, st8
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f20:
+f20: 
 addi $sp, $sp, -8
 li $t0,0
 move $v0, $t0
