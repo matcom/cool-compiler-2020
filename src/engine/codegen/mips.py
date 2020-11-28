@@ -48,7 +48,9 @@ class ArithmOperations(Enum):
 class MipsCode:
     def __init__(self):
         pass
+    # Data Segmente
 
+    # IO
     def print_str(self, _str):
         '''
         $v0
@@ -94,6 +96,7 @@ class MipsCode:
 
     def add(self, rdest, rsrc, src):
         '''
+
         Addition (with overflow)
         '''
         return f'add {rdest}, {rsrc}, {src}'
