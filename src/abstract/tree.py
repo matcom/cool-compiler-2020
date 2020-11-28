@@ -301,16 +301,20 @@ class WhileBlockNode(ExpressionNode):
 
 
 class ActionNode(ExpressionNode):
-    def __init__(self, idx, typex, expresion):
+    def __init__(self, idx, typex, expresion, line, column):
         self.actions: ExpressionNode = expresion
         self.idx: str = idx
         self.typex: str = typex
+        self.line = line
+        self.column = column
 
 
 class CaseNode(ExpressionNode):
-    def __init__(self, expression, actions):
+    def __init__(self, expression, actions, line, column):
         self.expression: ExpressionNode = expression
         self.actions: List[ActionNode] = actions
+        self.line = line
+        self.column = column
 
 
 class BlockNode(ExpressionNode):

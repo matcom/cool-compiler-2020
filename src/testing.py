@@ -60,44 +60,28 @@ def pipeline(program: str, deep: int) -> None:
     print(source)
 
 
-text = r"""--Attributes are local to the class in which they are defined or inherited.
+text = r"""-- Missing type
 
-class A {
-	a: Int <- 5;
-};
-class B inherits A {
-	b: Bool <- true;
-	test(x1: Int, y1: Int): Int {
-		let x: Int <- x1, y: Int <-y1 in {
-			x <- x + a;
-			y <- y + a;
-			if b then x + y else x - y fi;
-		}
-	};
-};
-class D inherits B {
-	d: IO <- new Main.main();
-	test3(x1: Int, y1: Int): IO {
-		let x: Int <- x1, y: Int <-y1, c: String <- "C" in {
-			x <- x + a;
-			y <- y + a;
-			if b then new IO.out_string(c) else d fi;
-		}
-	};
-};
-class C inherits B {
-	c: String <- "C";
-	test2(x1: Int, y1: Int): IO {
-		let x: Int <- x1, y: Int <-y1 in {
-			x <- x + a;
-			y <- y + a;
-			if b then new IO.out_string(c) else d fi;
-		}
-	};
-};
+class A { };
+class B inherits A { };
+class C inherits B { };
+class D inherits B { };
+class E inherits B { }; 
+class F inherits A { }; 
 
 class Main inherits IO {
-	main(): IO { out_string("Hello World!") };
+	main(): IO { out_string("Hello World!")};
+
+	b: B <- case "true" of
+				i: Int => New C;
+				b: Bool => New D;
+				s: String => New E;
+			esac;
+
+	test: A <- case 0 of
+				b: Bool => new F;
+				i: Ball => new E;
+			esac;
 };
 """
 pipeline(text, 5)

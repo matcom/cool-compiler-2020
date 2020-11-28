@@ -1,10 +1,10 @@
 from functools import singledispatchmethod
-from typing import Optional
+from typing import List, Optional
 
 import abstract.semantics as semantic
 import abstract.tree as coolAst
 from abstract.semantics import Scope, SemanticError, Type
-from abstract.tree import IsVoidNode, SelfNode
+from abstract.tree import ActionNode, CaseNode, IsVoidNode, SelfNode
 from travels.context_actions import (
     update_attr_type,
     update_method_param,
@@ -12,6 +12,30 @@ from travels.context_actions import (
 )
 
 void = semantic.VoidType()
+
+
+def find_common_parent(e1, e2):
+    if e1.conforms_to(e2):
+        return e2
+    elif e2.conforms_to(e1):
+        return e1
+    else:
+        e1_types: List[Type] = []
+        while e1:
+            e1_types.append(e1.parent)
+            e1 = e1.parent
+
+        while e2 not in e1_types:
+            e2 = e2.parent
+        return e2
+        # e1_parent = e1.parent
+        # e2_parent = e2.parent
+        # while e2_parent != e1_parent:
+        #     if e1_parent.name != "Object":
+        #         e1_parent = e1_parent.parent
+        #     if e2_parent.name != "Object":
+        #         e2_parent = e2_parent.parent
+        # return e1_parent
 
 
 def TypeError(s, l, c):
@@ -260,17 +284,39 @@ class TypeInferer:
             raise SemanticError(
                 f"Se esperaba una expresion de tipo bool y se obtuvo una de tipo {cond}."
             )
-        if e1.conforms_to(e2):
-            return e2
-        elif e2.conforms_to(e1):
-            return e1
+        return find_common_parent(e1, e2)
+
+    @visit.register
+    def _(self, node: CaseNode, scope: Scope, infered_type=None, deep=1):
+        types: List[Type] = [
+            self.visit(action, scope, infered_type, deep) for action in node.actions
+        ]
+
+        actions_types = [action.typex for action in node.actions]
+
+        for i, action in enumerate(node.actions):
+            try:
+                self.context.get_type(action.typex)
+            except SemanticError:
+                raise SemanticError(f"{action.line, action.column} - TypeError: Class {action.typex} of case branch is undefined.")
+            if action.typex in actions_types[:i]:
+                raise SemanticError(
+                    f"{action.line, action.column} - SemanticError: Duplicate branch {action.typex} in case statement."
+                )
+
+        if len(types) == 1:
+            return types[0]
+        elif len(types) == 2:
+            return find_common_parent(types[0], types[1])
         else:
-            e1_parent = e1.parent
-            e2_parent = e2.parent
-            while e2_parent != e1_parent:
-                e1_parent = e1_parent.parent
-                e2_parent = e2_parent.parent
-            return e1_parent
+            common = find_common_parent(*types[:2])
+            for type_ in types[2:]:
+                common = find_common_parent(type_, common)
+            return common
+
+    @visit.register
+    def _(self, node: ActionNode, scope: Scope, infered_type=None, deep=1):
+        return self.visit(node.actions, scope, infered_type, deep)
 
     @visit.register
     def _(

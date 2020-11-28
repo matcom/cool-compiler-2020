@@ -167,7 +167,7 @@ class TypeCollector:
             self.visit(class_)
 
     @visit.register
-    def _(self, node: coolAst.ClassDef):  # noqa: F811
+    def _(self, node: coolAst.ClassDef):
         try:
             if node.idx in BUILTINS:
                 raise SemanticError(

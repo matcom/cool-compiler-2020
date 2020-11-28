@@ -110,14 +110,10 @@ def build_cool_grammar():
     )
 
     class_def %= (
-        class_keyword
-        + typex
-        + inherits
-        + typex
-        + obrack
-        + empty_feature_list
-        + cbrack,
-        lambda s: ClassDef(s[2].lex, s[6], s[2].token_line, s[2].token_column, s[4].lex),
+        class_keyword + typex + inherits + typex + obrack + empty_feature_list + cbrack,
+        lambda s: ClassDef(
+            s[2].lex, s[6], s[2].token_line, s[2].token_column, s[4].lex
+        ),
     )
 
     feature_list %= method_def + dot_comma, lambda s: [s[1]]
@@ -196,9 +192,13 @@ def build_cool_grammar():
 
     exp %= var_dec, lambda s: s[1]
 
-    string_const %= quoted_string_const, lambda s: StringConstant(s[1].lex, s[1].token_line, s[1].token_column - len(s[1].lex))
+    string_const %= quoted_string_const, lambda s: StringConstant(
+        s[1].lex, s[1].token_line, s[1].token_column - len(s[1].lex)
+    )
 
-    string_const %= tilde_string_const, lambda s: StringConstant(s[1].lex, s[1].token_line, s[1].token_column - len(s[1].lex))
+    string_const %= tilde_string_const, lambda s: StringConstant(
+        s[1].lex, s[1].token_line, s[1].token_column - len(s[1].lex)
+    )
 
     instantiation %= new + typex, lambda s: InstantiateClassNode(
         s[2].lex, s[1].token_line, s[1].token_column - 3, []
@@ -271,7 +271,9 @@ def build_cool_grammar():
 
     factor %= num, lambda s: IntegerConstant(s[1].lex)
 
-    factor %= idx, lambda s: VariableCall(s[1].lex, s[1].token_line, s[1].token_column - len(s[1].lex))
+    factor %= idx, lambda s: VariableCall(
+        s[1].lex, s[1].token_line, s[1].token_column - len(s[1].lex)
+    )
 
     factor %= true, lambda s: TrueConstant()
 
@@ -355,10 +357,12 @@ def build_cool_grammar():
     actions %= action + actions, lambda s: [s[1]] + s[2]
 
     action %= idx + dd + typex + implies + exp + dot_comma, lambda s: ActionNode(
-        s[1].lex, s[3].lex, s[5]
+        s[1].lex, s[3].lex, s[5], s[3].token_line, s[3].token_column - len(s[3].lex)
     )
 
-    case_statement %= case + exp + of + actions + esac, lambda s: CaseNode(s[2], s[4])
+    case_statement %= case + exp + of + actions + esac, lambda s: CaseNode(
+        s[2], s[4], s[1].token_line, s[1].token_column - 4
+    )
 
     table = [
         (class_keyword, r"(?i)class"),

@@ -96,6 +96,9 @@ class Type:
     def __eq__(self, other):
         return isinstance(other, Type) and other.name == self.name
 
+    def __hash__(self) -> int:
+        return hash(self.name)
+
 
 class Method:
     def __init__(self, name: str, param_names: List[str],
