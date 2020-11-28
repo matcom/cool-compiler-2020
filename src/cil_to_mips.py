@@ -346,6 +346,21 @@ class CILToMIPSVisitor():
         self.text += f'li $a1, 2048\n'
         self.text += f'li $v0, 8\n'
         self.text += f'syscall\n'
+
+        # Remove last char (it should be a '\n')
+        self.text += 'move $t0, $a0\n'
+        self.text += 'jump_read_str_char:\n'
+        self.text += 'li $t1, 0\n'
+        self.text += 'lb $t1, 0($t0)\n'
+        self.text += 'beqz $t1, finish_jump_read_str_char\n' # finish if the final of string is found
+        self.text += 'addi $t0, $t0, 1\n'
+        self.text += 'addi $t0, $t0, 1\n'
+        self.text += 'j jump_read_str_char\n'
+
+        self.text += 'finish_jump_read_str_char:\n'
+        self.text += 'addi $t0, $t0, -1\n' # go to char at length - 1
+        self.text += 'sb $0, 0($t0)\n' # remove last char
+
         self.text += f'sw $a0, {read_offset}($sp)\n'
 
     @visitor.when(CIL_AST.LoadStr)
