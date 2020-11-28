@@ -522,6 +522,31 @@ class CILToMIPSVisitor():
         offset = self.var_offset[self.current_function.name][node.result]
         self.text += f'sw $t3, {offset}($sp)\n'  # store length count address in local
 
+    @visitor.when(CIL_AST.StringEquals)
+    def visit(self, node):
+        offset_str1 = self.var_offset[self.current_function.name][node.s1]
+        offset_str2 = self.var_offset[self.current_function.name][node.s2]
+        
+        self.text += f'lw $t1, {offset_str1}($sp)\n'
+        self.text += f'lw $t2, {offset_str2}($sp)\n'
+
+        # comparing char by char
+        self.text += 'compare_str_char:\n'
+        self.text += 'li $t3, 0\n' # reset $t3 before loading byte
+        self.text += 'lb $t3, 0($t1)\n' # loading current char from string1
+        self.text += 'li $t4, 0\n' # reset $t4 before loading byte
+        self.text += 'lb $t4, 0($t2)\n' # loading current char from string2
+        self.text += 'seq $a0, $t3, $t4\n' # comparing current bytes
+        self.text += 'beqz $a0, finish_compare_str\n' # finish if current chars are not equals
+        self.text += 'beqz $t3, finish_compare_str\n' # finish if the final of string1 is found
+        self.text += 'beqz $t4, finish_compare_str\n' # finish if the final of string2 is found
+        self.text += 'addi $t1, $t1, 1\n' # move to the next char in string1
+        self.text += 'addi $t2, $t2, 1\n' # move to the next char in string2
+        self.text += 'j compare_str_char\n'
+        self.text += 'finish_compare_str:\n'
+
+        offset = self.var_offset[self.current_function.name][node.result]
+        self.text += f'sw $a0, {offset}($sp)\n'  # store comparison result in local
 
 if __name__ == '__main__':
     import sys
@@ -532,8 +557,6 @@ if __name__ == '__main__':
 
     lexer = Lexer()
     parser = Parser()
-
-    sys.argv.append('test.cl')
 
     if len(sys.argv) > 1:
 

@@ -274,6 +274,12 @@ class SubStr(Expr):
         self.string = string
         self.result = result
 
+class StringEquals(Expr):
+    def __init__(self, s1, s2, result):
+        self.s1 = s1
+        self.s2 = s2
+        self.result = result
+
 class Read(Expr):
     def __init__(self, result):
         self.result = result
@@ -437,6 +443,10 @@ def get_formatter():
         @visitor.when(SubStr)
         def visit(self, node):
             return f'{node.result} = SUBSTR {node.i}  {node.length}  {node.string}'
+        
+        @visitor.when(StringEquals)
+        def visit(self, node):
+            return f'{node.result} = {node.s1} = {node.s2}'
 
         @visitor.when(Read)
         def visit(self, node):
