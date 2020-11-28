@@ -2,6 +2,7 @@ from .cil_ast import *
 from ..cp import visitor
 from .mips import MipsCode as mips
 from .mips import Registers as reg
+from .mips import MipsLabel as label
 
 
 class CIL_TO_MIPS:
@@ -18,11 +19,11 @@ class CIL_TO_MIPS:
         self.visit(node.left)
         self.visit(node.right)
 
-        self._write(mips.lw(reg.t0, 8, reg.sp))
-        self._write(mips.lw(reg.t0, 4, reg.sp))
+        self._write(mips.lw(reg.t0, reg.sp, offset=8))
+        self._write(mips.lw(reg.t0, reg.sp, offset=4))
 
-        self._write(mips.lw(reg.a0, 8, reg.sp))
-        self._write(mips.lw(reg.a1, 8, reg.sp))
+        self._write(mips.lw(reg.a0, reg.sp, offset=8))
+        self._write(mips.lw(reg.a1, reg.sp, offset=8))
 
         self._write(mips.addiu(reg.sp, reg.sp, 8))
         # Operation
@@ -33,37 +34,37 @@ class CIL_TO_MIPS:
         elif isinstance(node, StarNode):
             self._write(mips.mult(reg.a0, reg.a1))
         elif isinstance(node, DivNode):
-            self._write("la $t0, zero_error")
-            self._write("sw $t0, ($sp)")
-            self._write("subu $sp, $sp, 4")
-            self._write(mips.beqz(reg.a1, ))
-            self._write("beqz $a1, .raise")
+            self._write(mips.la(reg.t0, label.zero_error))
+            self._write(mips.sw(reg.t0, reg.sp))
+            self._write(mips.subiu(reg.sp, reg.sp, 4))
+            self._write(mips.beqz(reg.a1, label.raise_))
             self._write(mips.addiu(reg.sp, reg.sp, 4))
             self._write(mips.div(reg.a0, reg.a1))
             self._write(mips.mflo(reg.a1))
         elif isinstance(node, LessNode):
-            self._write("slt $a1, $a0, $a1")
+            self._write(mips.slt(reg.a1, reg.a0, reg.a1))
         elif isinstance(node, LessEqNode):
-            self._write("sle $a1, $a0, $a1")
+            self._write(mips.sle(reg.a1, reg.a0, reg.a1))
 
         # Return
-        self._write("li $v0, 9")
-        self._write("li $a0, 12")
-        self._write("syscall")
-        if isinstance(node, EqualNode) or isinstance(node, LessNode):
-            self._write("la $t0, Bool")
+        self._write(mips.li(reg.v0, 9))
+        self._write(mips.li(reg.a0, 12))
+        self._write(mips.syscall)
+
+        if isinstance(node, EqualNode) or isinstance(node, LessNode) or isinstance(node, LessEqNode):
+            self._write(mips.la(reg.t0, 'Bool'))
         else:
-            self._write("la $t0, Int")
+            self._write(mips.la(reg.t0, 'Int'))
 
-        self._write("sw $t0, ($v0)")
+        self._write(mips.sw(reg.t0, reg.v0))
 
-        self._write("li $t0, 1")
-        self._write("sw $t0, 4($v0)")
+        self._write(mips.li(reg.t0, 1))
+        self._write(mips.sw(reg.t0, reg.v0, offset=4))
 
-        self._write("sw $a1, 8($v0)")
-        self._write("sw $v0, ($sp)")
+        self._write(mips.sw(reg.a1, reg.v0, offset=8))
+        self._write(mips.sw(reg.v0, reg.sp))
 
-        self._write("subu $sp, $sp, 4")
+        self._write(mips.subiu(reg.sp, reg.sp, 4))
 
     @visitor.on('node')
     def visit(self, node):
@@ -71,9 +72,6 @@ class CIL_TO_MIPS:
 
     @visitor.when(ProgramNode)
     def visit(self, node: ProgramNode):
-
-        for typex in node.dottypes:
-            self.visit(typex)
 
         for data in node.dotdata:
             self.visit(data)
@@ -91,8 +89,9 @@ class CIL_TO_MIPS:
         pass
 
     @visitor.when(DataNode)
-    def visit(self, node):
-        pass
+    def visit(self, node: DataNode):
+        self._write('.data')
+        self._write()
 
     @visitor.when(ParamNode)
     def visit(self, node):
@@ -115,39 +114,56 @@ class CIL_TO_MIPS:
         pass
 
     @visitor.when(ComplementNode)
-    def visit(self, node):
-        pass
+    def visit(self, node: ComplementNode):
+        self.visit(node.expression)
 
-    @visitor.when(NotNode)
-    def visit(self, node):
-        pass
+        self._write(mips.lw(reg.t0, reg.sp, offset=4))
+
+        self._write(mips.lw(reg.a0, reg.sp, offset=8))
+
+        self._write(mips.nor(reg.a1, reg.a0))
+
+        self._write(mips.li(reg.v0, 9))
+        self._write(mips.li(reg.a0, 12))
+        self._write(mips.syscall)
+
+        self._write(mips.la(reg.t0, 'Int'))
+
+        self._write(mips.sw(reg.t0, reg.v0))
+        self._write(mips.li(reg.t0, 1))
+        self._write(mips.sw(reg.t0, reg.v0, offset=4))
+
+        self._write(mips.sw(reg.a1, reg.v0, offset=8))
+        self._write(mips.sw(reg.v0, reg.sp))
+
+        self._write(mips.subiu(reg.sp, reg.sp, 4))
 
     @visitor.when(PlusNode)
     def visit(self, node: PlusNode):
         self.visit_ArithNode(node)
 
     @visitor.when(MinusNode)
-    def visit(self, node):
+    def visit(self, node: MinusNode):
         self.visit_ArithNode(node)
 
     @visitor.when(StarNode)
-    def visit(self, node):
+    def visit(self, node: StarNode):
         self.visit_ArithNode(node)
 
     @visitor.when(DivNode)
-    def visit(self, node):
+    def visit(self, node: DivNode):
         self.visit_ArithNode(node)
 
     @visitor.when(EqualNode)
-    def visit(self, node):
+    def visit(self, node: EqualNode):
         self.visit_ArithNode(node)
 
     @visitor.when(LessEqNode)
-    def visit(self, node):
+    def visit(self, node: LessEqNode):
         self.visit_ArithNode(node)
 
     @visitor.when(LessNode)
-    def visit(self, node):
+    def visit(self, node: LessNode):
         self.visit_ArithNode(node)
 
     @visitor.when(AllocateNode)
@@ -167,7 +183,7 @@ class CIL_TO_MIPS:
         pass
 
     @visitor.when(IfGotoNode)
-    def visit(self, node):
+    def visit(self, node: IfGotoNode):
         pass
 
     @visitor.when(StaticCallNode)
