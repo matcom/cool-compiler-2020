@@ -68,7 +68,7 @@ class CIL_TO_MIPS(object):
         self.label_count += 1
         return f"mip_label_{self.label_count}"
 
-    def get_offset(self, arg:str):
+    def get_offset(self, arg: str):
         if arg in self.actual_args or arg in self.local_vars_offsets:
             offset = (
                 self.actual_args[arg]
@@ -78,7 +78,6 @@ class CIL_TO_MIPS(object):
             return self.mips.offset(Reg.fp, offset)
         else:
             raise Exception(f"load_memory: The direction {arg} isn't an address")
-        
 
     def load_memory(self, dst: Reg, arg: str):
         self.mips.comment(f"load memory {arg} to {dst}")
@@ -424,7 +423,7 @@ class CIL_TO_MIPS(object):
     @when(ReadIntNode)
     def visit(self, node: ReadIntNode):  # noqa: F811
         self.mips.comment("ReadIntNode")
-        self.mips.la(Reg.a0, self.get_offset(node.arg))
+        self.mips.la(Reg.a0, self.get_offset(node.dest))
         self.mips.read_int()
         self.mips.empty()
 
