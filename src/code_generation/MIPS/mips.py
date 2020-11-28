@@ -258,7 +258,7 @@ def arg_to_mips_visitor(arg: cil.ArgNode):
     2) Pushes the arg value in the stack\n
     '''
     addr = CURRENT_FUNCTION.offset[str(arg.val)]
-    return [mips.Comment(str(arg))] + mips.SubuInstruction('$sp', '$sp', 4) + mips.LwInstruction('$t0', f'{offset}($fp)') + mips.SwInstruction('$t0','($sp)')
+    return [mips.Comment(str(arg))] + mips.LwInstruction('$t0', f'{offset}($fp)')+ mips.SubuInstruction('$sp', '$sp', 4) + mips.SwInstruction('$t0','($sp)')
 
 
 def allocate_to_mips_visitor(allocate: cil.AllocateNode):
