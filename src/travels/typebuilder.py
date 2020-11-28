@@ -59,13 +59,13 @@ class TypeBuilder:
                 if isinstance(node.typex, str)
                 else node.typex
             )
+        except SemanticError:
+            raise SemanticError(f"{node.line, node.column + len(node.idx) + 2} - TypeError: Class {node.typex} of attribute {node.idx} is undefined.")
 
-            # Definir el atributo en el tipo actual
-            self.current_type.define_attribute(
-                node.idx, attr_type, node.line, node.column
-            )
-        except SemanticError as e:
-            self.errors.append(e.text)
+        # Definir el atributo en el tipo actual
+        self.current_type.define_attribute(
+            node.idx, attr_type, node.line, node.column
+        )
 
     @visit.register
     def _(self, node: coolAst.MethodDef):

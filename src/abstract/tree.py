@@ -13,7 +13,9 @@ class DeclarationNode(Node):
 
 
 class ExpressionNode(Node):
-    pass
+    def __init__(self, line, column) -> None:
+        self.line = line
+        self.column = column
 
 
 class ProgramNode(Node):
@@ -85,13 +87,13 @@ class MethodDef(DeclarationNode):
         return_type: str,
         line,
         column,
-        statements: List[ExpressionNode],
+        statements: ExpressionNode,
         ret_col
     ):
         self.idx: str = idx
         self.param_list: List[Param] = param_list
         self.return_type: str = return_type
-        self.statements: List[ExpressionNode] = statements
+        self.statements: ExpressionNode = statements
         self.line = line
         self.column = column - len(self.idx)
         self.ret_col = ret_col
