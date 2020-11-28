@@ -428,7 +428,7 @@ class CIL_TO_MIPS(object):
         self.mips.empty()
 
     def get_string_length(self, src: Reg, dst: Reg):
-        self.mips.comment("get string length")
+        self.mips.comment("Auxiliar - Get string length")
         loop = self.get_label()
         end = self.get_label()
 
@@ -456,6 +456,7 @@ class CIL_TO_MIPS(object):
         self.mips.empty()
 
     def copy_str(self, src: Reg, dst: Reg, result: Reg):
+        self.mips.comment("Auxiliar - Copy string")
         loop = self.get_label()
         end = self.get_label()
 
@@ -479,6 +480,7 @@ class CIL_TO_MIPS(object):
 
     @when(ConcatNode)
     def visit(self, node: ConcatNode):  # noqa
+        self.mips.comment("ConcatNode")
         self.load_memory(Reg.s0, node.msg1)
         self.load_memory(Reg.s1, node.msg2)
 
@@ -494,13 +496,49 @@ class CIL_TO_MIPS(object):
 
         self.store_memory(Reg.s3, node.dest)
 
+    def copy_substr(self, src: Reg, dst: Reg, length: int):
+        self.mips.comment("Auxiliar - Copy substring")
+        loop = self.get_label()
+        end = self.get_label()
+
+        self.mips.move(Reg.t0, src)
+        self.mips.move(Reg.t1, dst)
+
+        self.mips.li(Reg.t3, length)  # i = length
+
+        self.mips.label(loop)
+
+        self.mips.lb(Reg.t2, self.mips.offset(Reg.t0))
+        self.mips.sb(Reg.t2, self.mips.offset(Reg.t1))
+
+        self.mips.addi(Reg.t0, Reg.t0, 1)
+        self.mips.addi(Reg.t1, Reg.t1, 1)
+
+        self.mips.addi(Reg.t3, Reg.t3, -1)  # i --
+
+        self.mips.beqz(Reg.t3, end)
+        self.mips.j(loop)
+
+        self.mips.label(end)
+
+        self.mips.move(Reg.t2, Reg.zero)
+        self.mips.sb(Reg.t2, self.mips.offset(Reg.t1))  # copy zero to the end
+
     @when(SubstringNode)
     def visit(self, node: SubstringNode):  # noqa: F811
-        # TODO: Implement visitor
-        pass
+        self.mips.comment("SubstringNode")
+        self.load_memory(Reg.s0, node.msg1)
+        self.mips.addi(Reg.s0, Reg.s0, node.start)
+
+        self.mips.li(Reg.a0, node.length)  # allocate heap memory
+        self.mips.sbrk()
+        self.copy_substr(Reg.s0, Reg.v0, node.length)
+
+        self.store_memory(Reg.v0, node.dest)
 
     @when(StringEqualNode)
     def visit(self, node: StringEqualNode):  # noqa: F811
+        self.mips.comment("StringEqualNode")
         end_label = self.get_label()
         end_ok_label = self.get_label()
         loop_label = self.get_label()
