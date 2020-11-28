@@ -1,21 +1,90 @@
 from .cil_ast import *
 from ..cp import visitor
+from .mips import *
 
 class CIL_TO_MIPS:
+
+    def __init__(self):
+        self.data_code = []
+        self.mips_code = []
+        self.reg = Registers
+        self.code = MipsCode
+        
+    def visit_ArithNode(self, node: ArithmeticNode ):
+        # Setting
+        self.visit(node.left)
+        self.visit(node.right)
+
+        self.mips_code.append("lw $t0, 8($sp)")
+        self.mips_code.append("lw $t1, 4($sp)")
+
+        self.mips_code.append("lw $a0, 8($t0)")
+        self.mips_code.append("lw $a1, 8($t1)")
+
+        self.mips_code.append("addiu $sp, $sp, 8")
+        # Operation
+        if isinstance(node, PlusNode):
+            self.mips_code.append("add $a1, $a0, $a1")
+        elif isinstance(node, MinusNode):
+            self.mips_code.append("sub $a1, $a0, $a1")
+        elif isinstance(node, StarNode):
+            self.mips_code.append("mult $a0, $a1")
+            self.mips_code.append("mflo $a1")
+        elif isinstance(node, DivNode):
+            self.mips_code.append("la $t0, zero_error")
+            self.mips_code.append("sw $t0, ($sp)")
+            self.mips_code.append("subu $sp, $sp, 4")
+            self.mips_code.append("beqz $a1, .raise")
+            self.mips_code.append("addu $sp, $sp, 4")
+            self.mips_code.append("div $a0, $a1")
+            self.mips_code.append("mflo $a1")
+        elif isinstance(node, LessNode):
+            self.mips_code.append("slt $a1, $a0, $a1")
+        elif isinstance(node, LessEqNode):
+            self.mips_code.append("sle $a1, $a0, $a1")
+
+        # Return 
+        self.mips_code.append("li $v0, 9")
+        self.mips_code.append("li $a0, 12")
+        self.mips_code.append("syscall")
+        if isinstance(node, EqualNode) or isinstance(node, LessNode):
+            self.mips_code.append("la $t0, Bool")
+        else:
+            self.mips_code.append("la $t0, Int")
+            
+        self.mips_code.append("sw $t0, ($v0)")
+
+        self.mips_code.append("li $t0, 1")
+        self.mips_code.append("sw $t0, 4($v0)")
+
+        self.mips_code.append("sw $a1, 8($v0)")
+        self.mips_code.append("sw $v0, ($sp)")
+
+        self.mips_code.append("subu $sp, $sp, 4")
 
     @visitor.on('node')
     def visit(self,node):
         pass
 
     @visitor.when(ProgramNode)
-    def visit(self,node):
-        pass
-
-    @visitor.when(FunctionNode)
-    def visit(self,node):
-        pass
+    def visit(self,node: ProgramNode):
+        
+        for typex in node.dottypes:
+            self.visit(typex)
+        
+        for data in node.dotdata:
+            self.visit(data)
+        
+        for code in node.dotcode:
+            self.visit(code)
+        
+        return self.data_code, self.code
 
     @visitor.when(TypeNode)
+    def visit(self,node):
+
+
+    @visitor.when(FunctionNode)
     def visit(self,node):
         pass
 
@@ -52,32 +121,32 @@ class CIL_TO_MIPS:
         pass
 
     @visitor.when(PlusNode)
-    def visit(self,node):
-        pass
+    def visit(self,node : PlusNode):
+        self.visit_ArithNode(node)
 
     @visitor.when(MinusNode)
     def visit(self,node):
-        pass
+        self.visit_ArithNode(node)
 
     @visitor.when(StarNode)
     def visit(self,node):
-        pass
+        self.visit_ArithNode(node)
 
     @visitor.when(DivNode)
     def visit(self,node):
-        pass
+        self.visit_ArithNode(node)
 
     @visitor.when(EqualNode)
     def visit(self,node):
-        pass
+        self.visit_ArithNode(node)
 
     @visitor.when(LessEqNode)
     def visit(self,node):
-        pass
+        self.visit_ArithNode(node)
 
     @visitor.when(LessNode)
     def visit(self,node):
-        pass
+        self.visit_ArithNode(node)
 
     @visitor.when(AllocateNode)
     def visit(self,node):
@@ -166,4 +235,3 @@ class CIL_TO_MIPS:
     @visitor.when(ReturnNode)
     def visit(self,node):
         pass
-    
