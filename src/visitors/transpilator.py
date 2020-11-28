@@ -524,7 +524,7 @@ class codeVisitor:
             i += 1
             self.visit(p, variables)
         
-        method = node.id + '.' + node.obj.id
+        method = node.id + '.' + node.obj.type
         
         self.code.append(DispatchParentIL(variables.id(result), variables.id(name), method))
 

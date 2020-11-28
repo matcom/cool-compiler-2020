@@ -14,8 +14,9 @@ class Variables:
         return len(self.stack) - self.stack[name] + 1
 
     def pop_var(self):
-        self.stack.pop(self.vars[-1])
-        self.vars.pop()
+        if not len(self.vars):
+            self.stack.pop(self.vars[-1])
+            self.vars.pop()
 
     def add_temp(self):
         name = len(self.stack) + 1
