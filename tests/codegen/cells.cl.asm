@@ -46,7 +46,6 @@ syscall
      .IO.in_int:
      li $v0, 5
      syscall
-     sw $v0, 0($a0)
      jr $ra
 
      .IO.in_string:
@@ -54,12 +53,12 @@ syscall
      move $s0, $a0
      li $a0, 1024
      syscall
-     move $s1, $v0
+     move $t1, $v0
      move $a0, $v0
-     li $a0, 1024
+     li $a1, 1024
      li $v0, 8
      syscall
-     sw $s1, 0($s0)
+     move $v0, $t1
      jr $ra
 
      #Los numeros como argumentos $a0 y $a1, y $a2 como donde guardar el resultado
@@ -662,7 +661,7 @@ lw $t1,44($sp)
 slt $v0, $t0, $t1
 sw $v0,52($sp)
 lw $t0,52($sp)
-sgt $v0, $t0, $zero
+sne $v0, $t0, $zero
 sw $v0,60($sp)
 lw $t0,60($sp)
 bgtz $t0, Lbl1
@@ -1548,7 +1547,7 @@ lw $t1,36($sp)
 slt $v0, $t0, $t1
 sw $v0,44($sp)
 lw $t0,44($sp)
-sgt $v0, $t0, $zero
+sne $v0, $t0, $zero
 sw $v0,52($sp)
 lw $t0,52($sp)
 bgtz $t0, Lbl15

@@ -636,7 +636,7 @@ class MIPSCompiler:
     @visitor.when(CILComplement)
     def visit(self, node:CILComplement, scope:ScopeMIPS):
         instrucciones=""
-        instrucciones+="sgt $v0, $t0, $zero\n"
+        instrucciones+="sne $v0, $t0, $zero\n"
         # instrucciones+="addi $v0 ,$t0, 1\n"
         # instrucciones+="li $t1, 2\n"
         # instrucciones+="rem $v0, $v0, $t1\n"
