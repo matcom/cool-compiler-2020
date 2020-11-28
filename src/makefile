@@ -1,5 +1,9 @@
 .PHONY: clean
 
+debug:
+	python coolc.py --cil test.cl test.mips
+	spim -file test.mips
+
 main:
 	# Compiling the compiler :)
 

@@ -84,8 +84,12 @@ class CIL_TO_MIPS(object):
 
     def store_memory(self, dst: Reg, arg: str):
         self.mips.comment(f"store memory {dst} to {arg}")
-        if arg in self.local_vars_offsets:
-            offset = self.local_vars_offsets[arg] * DATA_SIZE
+        if arg in self.actual_args or arg in self.local_vars_offsets:
+            offset = (
+                self.actual_args[arg]
+                if arg in self.actual_args
+                else self.local_vars_offsets[arg]
+            ) * DATA_SIZE
             self.mips.store_memory(dst, self.mips.offset(Reg.fp, offset))
         else:
             raise Exception(f"store_memory: The direction {arg} isn't an address")
@@ -164,7 +168,7 @@ class CIL_TO_MIPS(object):
         self.mips.empty()
         self.mips.comment("Generating body code")
         for instruction in node.instructions:
-            # if type(instruction) == ReturnNode and instruction.value == 0:
+            # if type(instruction) == AssignNode:
             #     print(node.name)
             #     print("     \n".join(map(lambda x: str(x), node.instructions)))
             self.visit(instruction)
@@ -243,8 +247,12 @@ class CIL_TO_MIPS(object):
         self.mips.comment("ComplementNode")
 
         self.load_memory(Reg.t0, node.body)
+        self.mips.move(Reg.a0, Reg.t0)
+        self.mips.print_int()
         self.mips.nor(Reg.t1, Reg.t0, Reg.t0)
         self.store_memory(Reg.t1, node.dest)
+        self.mips.move(Reg.a0, Reg.t1)
+        self.mips.print_int()
 
         self.mips.empty()
 
@@ -261,11 +269,18 @@ class CIL_TO_MIPS(object):
         ((a < b) + (b < a)) < 1  -> ==
         """
         self.load_arithmetic(node)
+        # self.mips.move(Reg.a0, Reg.t0)
+        # self.mips.print_int()
+        # self.mips.move(Reg.a0, Reg.t1)
+        # self.mips.print_int()
         self.mips.slt(Reg.t2, Reg.t0, Reg.t1)
         self.mips.slt(Reg.t3, Reg.t1, Reg.t0)
 
         self.mips.add(Reg.t0, Reg.t2, Reg.t3)
         self.mips.slti(Reg.t1, Reg.t0, 1)
+
+        # self.mips.move(Reg.a0, Reg.t1)
+        # self.mips.print_int()
 
         self.store_memory(Reg.t1, node.dest)
         self.mips.empty()

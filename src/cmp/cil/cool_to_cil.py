@@ -25,6 +25,7 @@ from .ast import (
     MinusNode,
     ParamNode,
     PlusNode,
+    PrintIntNode,
     ProgramNode,
     ReturnNode,
     SetAttribNode,
@@ -216,7 +217,12 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         end_label = self.to_label_name("pool")
         self.register_instruction(LabelNode(loop_label))
         condition = self.visit(node.condition, scope)
-        self.register_instruction(GotoIfNode(condition, body_label))
+        condition_raw = self.define_internal_local()
+        self.register_instruction(
+            GetAttribNode(condition_raw, condition, "value", "Bool")
+        )
+        # self.register_instruction(PrintIntNode(condition_raw))
+        self.register_instruction(GotoIfNode(condition_raw, body_label))
         self.register_instruction(GotoNode(end_label))
         self.register_instruction(LabelNode(body_label))
         self.visit(node.body, while_scope)
@@ -388,12 +394,17 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
 
     @when(cool.NotNode)
     def visit(self, node: cool.NotNode, scope: Scope):
-        value_result = self.visit(node.expression, scope)
-        result_raw = self.define_internal_local()
-        value = self.define_internal_local()
+        value = self.visit(node.expression, scope)
+        value_raw = self.define_internal_local()
+        one = self.define_internal_local()
+        one_raw = self.define_internal_local()
         result = self.define_internal_local()
-        self.register_instruction(GetAttribNode(value, value_result, "value", "Bool"))
-        self.register_instruction(ComplementNode(result_raw, value))
+        result_raw = self.define_internal_local()
+        self.register_instruction(AllocateNode(one, "Int"))
+        self.register_instruction(SetAttribNode(one, "value", 1, "Int"))
+        self.register_instruction(GetAttribNode(one_raw, one, "value", "Int"))
+        self.register_instruction(GetAttribNode(value_raw, value, "value", "Bool"))
+        self.register_instruction(MinusNode(result_raw, one_raw, value_raw))
         self.register_instruction(AllocateNode(result, "Bool"))
         self.register_instruction(SetAttribNode(result, "value", result_raw, "Bool"))
         return result
