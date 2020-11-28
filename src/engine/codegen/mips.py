@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Registers:
     zero = '$zero'  # Constant 0
     at = '$at'  # Reserved for assembler
@@ -53,7 +54,7 @@ class MipsCode:
         '''
         code = [
             'li $v0, 4   # system call code for print_str',
-            f'la $a0, {_str} # address of string to print' ,
+            f'la $a0, {_str} # address of string to print',
             'syscall     # print the string',
         ]
         return code
@@ -65,7 +66,7 @@ class MipsCode:
         '''
         code = [
             'li $v0, 1   # system call code for print_int',
-            f'la $a0, {_int}  # address of string to print' ,
+            f'la $a0, {_int}  # address of string to print',
             'syscall     # print the string',
         ]
         return code
@@ -87,5 +88,5 @@ class MipsCode:
 
     def add(self, rdest, rsrc, src):
         '''
-        
+
         '''
