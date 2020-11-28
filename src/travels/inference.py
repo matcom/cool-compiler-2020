@@ -241,7 +241,9 @@ class TypeInferer:
                 update_scope_variable(var_info.name, infered_type, scope)
             return var_info.type
         else:
-            raise SemanticError(f"Name {node.idx} is not define in {scope}")
+            raise SemanticError(
+                f"{node.line, node.column} - NameError: Undeclared identifier {node.idx}."
+            )
 
     @visit.register
     def _(
@@ -346,6 +348,8 @@ class TypeInferer:
                 )
 
         # Procesar el tipo de retorno de la funcion
+        if method.return_type == self.SELF_TYPE:
+            return static_expr0_type
         if method.return_type != self.AUTO_TYPE:
             return method.return_type
         elif infered_type:
@@ -603,7 +607,9 @@ class TypeInferer:
         if val_type == self.AUTO_TYPE or val_type == self.BOOL:
             return self.BOOL
         else:
-            raise SemanticError(f"{node.line, node.column} - TypeError: Argument of 'not' has type {val_type.name} instead of Bool.")
+            raise SemanticError(
+                f"{node.line, node.column} - TypeError: Argument of 'not' has type {val_type.name} instead of Bool."
+            )
 
     # -----------------------------------------------------------------------------------------------------------------------#
     # --------------------------------------------------CONSTANTES-----------------------------------------------------------#

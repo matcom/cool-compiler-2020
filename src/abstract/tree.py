@@ -244,7 +244,7 @@ class VariableCall(ExpressionNode):
     def __init__(self, idx, line, column):
         self.idx: str = idx
         self.line = line
-        self.column = column - len(idx)
+        self.column = column
 
 
 class GreaterThanNode(BinaryNode):

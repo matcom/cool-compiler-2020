@@ -271,7 +271,7 @@ def build_cool_grammar():
 
     factor %= num, lambda s: IntegerConstant(s[1].lex)
 
-    factor %= idx, lambda s: VariableCall(s[1].lex, s[1].token_line, s[1].token_column)
+    factor %= idx, lambda s: VariableCall(s[1].lex, s[1].token_line, s[1].token_column - len(s[1].lex))
 
     factor %= true, lambda s: TrueConstant()
 
