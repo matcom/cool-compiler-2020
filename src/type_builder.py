@@ -35,10 +35,10 @@ class TypeBuilderVisitor:
     @visitor.when(ast_hierarchy.AttributeFeatureNode)
     def visit(self, node):
         #attribute can be self type?
-        attribute_type = self.context.GetType(node.id)
+        attribute_type = self.context.GetType(node.typeName)
         if attribute_type is None:
             #error
-            pass   
+            pass 
         ans = self.current_type.DefineAttr(node.id, node.typeName)
         if ans is None:
             #error

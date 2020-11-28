@@ -1,7 +1,11 @@
 from sys import argv
 
 from lexer import make_lexer
-from parser import parse
+from . import parser
+
+import type_checker
+import type_builder
+import type_collector
 
 tokens = ""
 
@@ -13,7 +17,8 @@ def main():
     cool_program_code = ""
 
     # Name of the file
-    p = args[1]
+    p = args[2]
+    print(str(p))
     if not str(p).endswith(".cl"):
         print("Cool program files must end with a \`.cl\` extension.\r\n")
         exit(1)
@@ -37,12 +42,31 @@ def main():
                 exit(1)
         
             
-            ast, errors = parse(s)
+            ast, errors = parser.parse(s)
             
             if len(errors) > 0:
                 for er in errors:
                     print(er)
-                exit(1)            
+                exit(1)   
+
+            #recolectar los tipos
+            _type_collector = type_collector.TypeCollectorVisitor()
+            _type_collector.visit(ast)
+
+            #construir los tipos
+            _type_builder = type_builder.TypeBuilderVisitor()
+            _type_builder.visit(ast, _type_collector.context)
+
+            #chequear tipos
+            _type_checker = type_checker.TypeCheckerCollector()
+            errors = []
+            _type_checker.visit(ast, _type_builder.context, errors)
+            if len(errors) > 0:
+                for er in errors:
+                    print(er)
+                exit(1)
+
+                    
 
     except (IOError, FileNotFoundError):
         print(f"Error! File {p} not found.")
