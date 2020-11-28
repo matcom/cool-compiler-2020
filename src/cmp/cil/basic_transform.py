@@ -1,46 +1,31 @@
-from ..cool_lang.semantics.semantic_utils import Attribute
+from typing import Union
+
+from ..cool_lang.semantics.semantic_utils import Attribute, Type
 from .ast import (
     AllocateNode,
-    ArgNode,
-    AssignNode,
-    CleanArgsNode,
-    ComplementNode,
     ConcatNode,
     CopyNode,
     DataNode,
-    DivNode,
-    DynamicCallNode,
-    EqualNode,
     ErrorNode,
     FunctionNode,
     GetAttribNode,
     GotoIfNode,
-    GotoNode,
-    IsVoidNode,
     LabelNode,
     LengthNode,
     LessEqNode,
-    LessNode,
     LocalNode,
-    MinusNode,
     ParamNode,
     PlusNode,
     PrintIntNode,
     PrintStrNode,
-    ProgramNode,
     ReadIntNode,
     ReadStrNode,
     ReturnNode,
     SetAttribNode,
-    StarNode,
-    StaticCallNode,
-    StringEqualNode,
     SubstringNode,
     TypeNameNode,
     TypeNode,
-    TypeOfNode,
 )
-from .utils import Scope
 
 
 class VariableInfo:
@@ -78,6 +63,30 @@ class BASE_COOL_CIL_TRANSFORM:
         self.params.append(param_node)
         return vinfo.name
 
+    def unpack_type_by_value(self, value: str, static_type: Union[Type, str]):
+        arg = static_type if isinstance(static_type, str) else static_type.name
+        if arg in ["Int", "String", "Bool"]:
+            raw_value = self.define_internal_local()
+            self.register_instruction(
+                GetAttribNode(
+                    raw_value,
+                    value,
+                    "value",
+                    arg,
+                )
+            )
+            return raw_value
+        return value
+
+    def pack_type_by_value(self, value: str, static_type: Union[Type, str]):
+        arg = static_type if isinstance(static_type, str) else static_type.name
+        if arg in ["Int", "Bool", "String"]:
+            packed = self.define_internal_local()
+            self.register_instruction(AllocateNode(packed, arg))
+            self.register_instruction(SetAttribNode(packed, "value", value, arg))
+            return packed
+        return value
+
     def register_local(self, vinfo):
         vinfo.name = (
             f"local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}"
@@ -93,7 +102,7 @@ class BASE_COOL_CIL_TRANSFORM:
     def register_instruction(self, instruction):
         self.instructions.append(instruction)
         return instruction
-        ###############################
+        ###########
 
     def to_function_name(self, method_name, type_name):
         return f"function_{method_name}_at_{type_name}"
@@ -126,7 +135,7 @@ class BASE_COOL_CIL_TRANSFORM:
             self.dotdata.append(data_node)
         return data_node
 
-    ###################################
+    ######################################################
 
     def build_basics(self):
         self.build_basic_object()
@@ -197,7 +206,7 @@ class BASE_COOL_CIL_TRANSFORM:
             )
             for feature in self.current_type.get_all_features()
         ]
-        ### abort function
+        # abort function
         self.current_method = self.current_type.get_method("abort")
         type_name = self.current_type.name
         self.current_function = self.register_function(
@@ -206,7 +215,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self_local = self.register_param(VariableInfo("self", None))
         self.register_instruction(ErrorNode(0))
         self.current_method = self.current_function = None
-        ### copy function
+        # copy function
         self.current_method = self.current_type.get_method("copy")
         type_name = self.current_type.name
         self.current_function = self.register_function(
@@ -217,7 +226,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(CopyNode(copy_inst, self_local))
         self.register_instruction(ReturnNode(copy_inst))
         self.current_method = self.current_function = None
-        ### type_name
+        # type_name
         self.current_method = self.current_type.get_method("type_name")
         type_name = self.current_type.name
         self.current_function = self.register_function(
@@ -250,7 +259,7 @@ class BASE_COOL_CIL_TRANSFORM:
             )
             for feature in self.current_type.get_all_features()
         ]
-        ### in_string
+        # in_string
         self.current_method = self.current_type.get_method("in_string")
         type_name = self.current_type.name
         self.current_function = self.register_function(
@@ -266,7 +275,7 @@ class BASE_COOL_CIL_TRANSFORM:
         )
         self.register_instruction(ReturnNode(string_inst))
         self.current_method = self.current_function = None
-        ### out_string
+        # out_string
         self.current_method = self.current_type.get_method("out_string")
         type_name = self.current_type.name
         self.current_function = self.register_function(
@@ -281,7 +290,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(PrintStrNode(out_msg))
         self.register_instruction(ReturnNode(self_local))
         self.current_method = self.current_function = None
-        ### in_int
+        # in_int
         self.current_method = self.current_type.get_method("in_int")
         type_name = self.current_type.name
         self.current_function = self.register_function(
@@ -295,7 +304,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(SetAttribNode(result, "value", result_int, "Int"))
         self.register_instruction(ReturnNode(result))
         self.current_method = self.current_function = None
-        ### out_int
+        # out_int
         self.current_method = self.current_type.get_method("out_int")
         type_name = self.current_type.name
         self.current_function = self.register_function(
@@ -330,7 +339,7 @@ class BASE_COOL_CIL_TRANSFORM:
             )
             for feature in self.current_type.get_all_features()
         ] + ["value"]
-        ### length
+        # length
         self.current_method = self.current_type.get_method("length")
         type_name = self.current_type.name
         self.current_function = self.register_function(
@@ -346,7 +355,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(SetAttribNode(length, "value", length_var, "Int"))
         self.register_instruction(ReturnNode(length))
         self.current_method = self.current_function = None
-        ### concat
+        # concat
         self.current_method = self.current_type.get_method("concat")
         type_name = self.current_type.name
         self.current_function = self.register_function(
@@ -369,7 +378,7 @@ class BASE_COOL_CIL_TRANSFORM:
         )
         self.register_instruction(ReturnNode(string_inst))
         self.current_method = self.current_function = None
-        ### substr
+        # substr
         self.current_method = self.current_type.get_method("substr")
         type_name = self.current_type.name
         self.current_function = self.register_function(
