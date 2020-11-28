@@ -208,13 +208,13 @@ class TypeInferer:
                         var_info.type,
                     )
                 update_scope_variable(var_info.name, e, scope)
-                return void
+                return e
             else:
                 if not e.conforms_to(var_info.type):
                     raise SemanticError(
                         f"Expresion of type {e.name} cannot be assigned to variable {var_info.name} of type {var_info.type.name}"
                     )
-                return void
+                return e
         else:
             raise SemanticError(f"Undefined variable name: {node.idx}")
 

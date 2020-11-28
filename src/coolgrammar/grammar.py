@@ -208,7 +208,7 @@ def build_cool_grammar():
     loop_statements %= exp + dot_comma + loop_statements, lambda s: [s[1]] + s[3]
 
     exp %= idx + assign + exp, lambda s: AssignNode(
-        s[1].lex, s[3], s[2].token_line, s[2].token_column
+        s[1].lex, s[3], s[1].token_line, s[1].token_column
     )
 
     exp %= while_ + exp + loop + statement_list + pool, lambda s: WhileBlockNode(

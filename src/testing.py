@@ -60,13 +60,18 @@ def pipeline(program: str, deep: int) -> None:
     print(source)
 
 
-text = r"""--The static type of the expression must conform to the declared type of the identifier
+text = r"""--The static type of an assignment is the static type of <expr>.
+
+class A { };
+class B inherits A { };
+class C inherits B { };
+class D inherits B { };
 
 class Main inherits IO {
 	main(): IO { out_string("Hello World!")};
 
-	test: Int <- "String";
+	test(a: A): B { a <- new C };
+	test2(a: A): D { a <- new C };
 }; 
-
 """
 pipeline(text, 5)
