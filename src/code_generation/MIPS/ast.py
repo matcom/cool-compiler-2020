@@ -38,32 +38,47 @@ class MIPSLabel:
         return f'{self.name}:\n'
 
 
+class Recipient:
+    def __init__(self, register: str, shift: int = 0):
+        self.register = register
+        self.shift = shift
+
+    def __call__(self) -> str:
+        # Get content
+        if self.shift != 0:
+            return f'{self.shift}({self.register})'
+        return f'({self.register})'
+
+    def __str__(self):
+        return self.register
+
+
+LOCATION_REG = 'register'
+LCOATION_ADDR = 'address'
+
+
 class MIPSFunction:
     def __init__(self, name, params, locals):
         self.name = name
-        self.ADDR = {}
         self.init_instructions = []
         self.instructions = []
         self.end_instructions = []
         self.caller_saved_reg = set()
         self.callee_saved_reg = set()
 
+        self.args_count = 0
+        self.offset = {}
+
         self.init_instructions.append(MoveInstruction('$fp', '$sp'))
 
         self.params_count = len(params)
-        # Store first 4 arguments in $a0 - $a3 registers
-        i = 0
-        while i < self.params_count and i < 4:
-            p = params[i]
-            self.ADDR[p.id] = f'$a{i}'
-            i += 1
-        # Save the rest on the stack
-        if i < self.params_count:
-            for j, p in enumerate(params[i:]):
-                self.ADDR[p.id] = f'{j * 4}($fp)'
+
+        # Save args on the stack
+        for i, p in enumerate(params):
+            self.offset[p.id] = i*4
 
         for i, l in enumerate(locals, 1):
-            self.ADDR[str(l)] = f'-{i * 4}($fp)'
+            self.offset[str(l)] = -i * 4
 
         self.fp_shift = len(locals)
         self.init_instructions.append(
@@ -93,15 +108,6 @@ class MIPSFunction:
             '$sp', '$sp', f'{self.fp_shift * 4}'))
         self.end_instructions.append(AdduInstruction(
             '$sp', '$sp', f'{self.fp_shift * 4}'))
-
-    def get_address(self, id):
-        """
-        Return thememory address where it store the \"id\" identifier of CIL
-        """
-        try:
-            return self.ADDR[id]
-        except KeyError:
-            raise Exception(f'Unsaved id {id}')
 
     def __update_callee_saved_reg__(self, registers: set):
         diff = registers.difference(self.callee_saved_reg)

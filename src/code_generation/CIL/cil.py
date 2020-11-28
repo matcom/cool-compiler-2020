@@ -143,8 +143,8 @@ def out_int_to_cil():
 
 
 def in_string_to_cil():
-    str = CilAST.LocalNode('str')
-    return CilAST.FuncNode('IO_in_string', [CilAST.ParamNode('self')], [str], [CilAST.ReadNode(str),   CilAST.ReturnNode(str)])
+    _str = CilAST.LocalNode('str')
+    return CilAST.FuncNode('IO_in_string', [CilAST.ParamNode('self')], [_str], [CilAST.ReadNode(_str),   CilAST.ReturnNode(_str)])
 
 
 def in_int_to_cil():

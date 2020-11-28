@@ -38,12 +38,7 @@ def free_stack(bytes):
 
 
 def push_stack(src, pos):
-    code = []
-    if src[0] != '$':
-        code = peek_stack('$t0', src)
-        return code+[mips.SwInstruction('$t0', pos)]
-    else:
-        return code+[mips.SwInstruction(src, pos)]
+    return peek_stack('$t0', src)+[mips.SwInstruction('$t0', pos)]
 
 
 def peek_stack(src, pos):
