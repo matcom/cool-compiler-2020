@@ -50,11 +50,11 @@ class Type:
             return next(attr for attr in self.attributes if attr.name == name)
         except StopIteration:
             if self.parent is None:
-                raise SemanticError(f'Attribute "{name}" is not defined in {self.name}.')
+                raise AttributeError(f'Attribute "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_attribute(name)
-            except SemanticError:
-                raise SemanticError(f'Attribute "{name}" is not defined in {self.name}.')
+            except AttributeError:
+                raise AttributeError(f'Attribute "{name}" is not defined in {self.name}.')
 
     def define_attribute(self, name:str, typex):
         try:
@@ -71,11 +71,11 @@ class Type:
             return self.methods[name]
         except KeyError:
             if self.parent is None:
-                raise SemanticError(f'Method "{name}" is not defined in {self.name}.')
+                raise AttributeError(f'Method "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_method(name)
-            except SemanticError:
-                raise SemanticError(f'Method "{name}" is not defined in {self.name}.')
+            except AttributeError:
+                raise AttributeError(f'Method "{name}" is not defined in {self.name}.')
 
     def define_method(self, name:str, param_names:list, param_types:list, return_type):
         # //TODO: Remove the below if clause
@@ -230,7 +230,7 @@ class Context:
         try:
             return self.types[name]
         except KeyError:
-            raise SemanticError(f'Type "{name}" is not defined.')
+            raise TypeError(f'Type "{name}" is not defined.')
 
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
