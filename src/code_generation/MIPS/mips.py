@@ -300,38 +300,6 @@ def type_of_to_mips_visitor(typeof: cil.TypeOfNode):
     ]
 
 
-# def copy_to_mips_visitor(copy: cil.CopyNode):
-#     """
-#     CIL:
-#         x = COPY y
-#     MIPS:
-#         lw  $t0, [addr(y)]
-#         sw  $t0, [addr(x)]
-#     """
-#     x_addr = CURRENT_FUNCTION.get_address(str(copy.result))
-#     y_addr = CURRENT_FUNCTION.get_address(copy.val)
-#     return [
-#         mips.Comment(str(copy)),
-#         mips.LwInstruction('$t0', y_addr),
-#         mips.LwInstruction('$t1', '4($t0)'),
-#         mips.MoveInstruction('$a0', '$t1'),
-#         mips.LiInstruction('$v0', 9),
-#         mips.SyscallInstruction(),
-#         mips.SwInstruction('$v0', x_addr),
-#         mips.LiInstruction('$t2', '0'),
-#         mips.MIPSLabel('length_loop'),
-#         mips.BeqInstruction('$t1', '$t2', 'end_length_loop'),
-
-#         mips.MoveInstruction('$t3', x_addr),
-#         mips.AdduInstruction('$t3', '$t3', '$t2'),
-#         mips.MoveInstruction(x_addr, '$t3'),
-
-#         mips.AdduInstruction('$t2', '$t2', 4),
-#         mips.BInstruction('length_loop'),
-#         mips.MIPSLabel('end_length_loop'),
-#     ]
-
-
 def getattr_to_mips_visitor(getattr: cil.GetAttrNode):
     """
     CIL:
@@ -342,14 +310,14 @@ def getattr_to_mips_visitor(getattr: cil.GetAttrNode):
         sw  $t1, [addr(x)]
     """
 
-    x_addr = CURRENT_FUNCTION[str(getattr.result)]
-    y_addr = CURRENT_FUNCTION[str(getattr.obj)]
+    x_addr = CURRENT_FUNCTION.offset[str(getattr.result)]
+    y_addr = CURRENT_FUNCTION.offset[str(getattr.obj)]
     attr_shift = (getattr.attr_index + 1) * 4
     return [
         mips.Comment(str(getattr)),
-        mips.LwInstruction('$t0', y_addr()),
+        mips.LwInstruction('$t0', f'{y_addr}($fp)'),
         mips.LwInstruction('$t1', f'{attr_shift}($t0)'),
-        mips.SwInstruction('$t1', x_addr())
+        mips.SwInstruction('$t1', f'{x_addr}($fp)')
     ]
 
 
