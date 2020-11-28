@@ -73,6 +73,25 @@ class CIL_TO_MIPS(object):
         self.label_count += 1
         return f"mip_label_{self.label_count}"
 
+    def print_debug(self, msg: str):
+        self.mips.empty()
+        self.mips.comment("DEBUG PRINT")
+        self.mips.push(Reg.a0)
+        self.mips.push(Reg.v0)
+
+        data_label = self.get_label
+
+        self.mips.data_label(data_label)
+        self.mips.asciiz(msg)
+
+        self.mips.la(Reg.a0, data_label)
+        self.mips.print_string()
+
+        self.mips.pop(Reg.v0)
+        self.mips.pop(Reg.a0)
+        self.mips.comment("END DEBUG")
+        self.mips.empty()
+
     def get_offset(self, arg: str):
         if arg in self.actual_args or arg in self.local_vars_offsets:
             offset = (
