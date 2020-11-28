@@ -62,15 +62,15 @@ if len(checker_errors):
 
 
 
-cil = COOL_TO_CIL(checker.context)
-# # cil = COOL_TO_CIL_VISITOR(checker.context)
-# # sc = Scope()
-cil_ast = cil.visit(ast)
+# cil = COOL_TO_CIL(checker.context)
+# cil = COOL_TO_CIL_VISITOR(checker.context)
+# sc = Scope()
+# cil_ast = cil.visit(ast)
 # f_ast = Format().visit(ast)
-f_ast = CIL_FORMATTER().visit(cil_ast)
-string_formatted = str(f_ast)
-output_file.write(string_formatted)
-# output_file.write(str(collect_errors))
+# f_ast = CIL_FORMATTER().visit(cil_ast)
+# string_formatted = str(f_ast)
+# output_file.write(string_formatted)
+output_file.write(str(collect_errors))
 #print(str(collect_errors))
 #output_file.write(str(builder_errors))
 #output_file.write(str(checker_errors))
