@@ -522,6 +522,40 @@ class CILToMIPSVisitor():
         offset = self.var_offset[self.current_function.name][node.result]
         self.text += f'sw $t3, {offset}($sp)\n'  # store length count address in local
 
+    @visitor.when(CIL_AST.StringEquals)
+    def visit(self, node):
+        offset_str1 = self.var_offset[self.current_function.name][node.s1]
+        offset_str2 = self.var_offset[self.current_function.name][node.s2]
+        
+        self.text += f'lw $t0, {offset_str1}($sp)\n'
+        self.text += f'lw $t1, 16($t0)\n'
+        self.text += f'lw $t0, {offset_str2}($sp)\n'
+        self.text += f'lw $t2, 16($t0)\n'
+
+        # comparing char by char
+        self.text += 'compare_str_char:\n'
+        self.text += 'li $t3, 0\n' # reset $t3 before loading byte
+        self.text += 'lb $t3, 0($t1)\n' # loading current char from string1
+        self.text += 'li $t4, 0\n' # reset $t4 before loading byte
+        self.text += 'lb $t4, 0($t2)\n' # loading current char from string2
+        self.text += 'add $a0, $t3, $t4\n' # adding bytes if both are 0 then $a0 will be 0
+        self.text += 'beqz $a0, compare_str_results_true\n' # finish if both current chars are '\0'
+        self.text += 'bne $t3, $t4, compare_str_results_false\n' # finish if current chars are not equals
+        self.text += 'addi $t0, $t0, 1\n' # move to the next char in string1
+        self.text += 'addi $t1, $t1, 1\n' # move to the next char in string2
+        self.text += 'j compare_str_char\n'
+        
+        self.text += 'compare_str_results_false:\n'
+        self.text += 'li $a0, 0\n'
+        self.text += 'j finish_compare_str\n'
+
+        self.text += 'compare_str_results_true:\n'
+        self.text += 'li $a0, 1\n'
+
+        self.text += 'finish_compare_str:\n'
+
+        offset = self.var_offset[self.current_function.name][node.result]
+        self.text += f'sw $a0, {offset}($sp)\n'  # store comparison result in local
 
 if __name__ == '__main__':
     import sys
@@ -533,7 +567,7 @@ if __name__ == '__main__':
     lexer = Lexer()
     parser = Parser()
 
-    sys.argv.append('test.cl')
+    sys.argv.append('src/test.cl')
 
     if len(sys.argv) > 1:
 
@@ -564,13 +598,13 @@ if __name__ == '__main__':
         cool_to_cil = COOLToCILVisitor(context)
         cil_ast = cool_to_cil.visit(cool_ast, scope)
         
-        # formatter = CIL_AST.get_formatter()
-        # cil_code = formatter(cil_ast)
-        # with open(f'{sys.argv[1][:-3]}.cil', 'w') as f:
-        #     f.write(f'{cil_code}')
+        formatter = CIL_AST.get_formatter()
+        cil_code = formatter(cil_ast)
+        with open(f'{sys.argv[1][:-3]}.cil', 'w') as f:
+            f.write(f'{cil_code}')
 
         cil_to_mips = CILToMIPSVisitor()
         mips_code = cil_to_mips.visit(cil_ast)
        
-        with open(f'{sys.argv[1][:-3]}.mips', 'w') as f:
+        with open(f'{sys.argv[1][:-3]}.s', 'w') as f:
             f.write(f'{mips_code}')

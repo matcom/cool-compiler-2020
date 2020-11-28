@@ -260,6 +260,21 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(CIL_AST.SetAttr('self', 'value', 'v', 'Int'))
         self.register_instruction(CIL_AST.Return(None)) 
 
+    def build_string_equals_function(self, scope):
+        self.current_function = self.register_function('String_equals')
+        self.register_param(VariableInfo('str1', None))
+        self.register_param(VariableInfo('str2', None))
+        
+        str1 = self.define_internal_local(scope=scope, name="str1")
+        self.register_instruction(CIL_AST.GetAttr(str1, 'str1', 'value','String'))
+        
+        str2 = self.define_internal_local(scope=scope, name="str2")
+        self.register_instruction(CIL_AST.GetAttr(str2, 'str2', 'value', 'String'))
+        
+        result = self.define_internal_local(scope=scope, name="comparison_result")
+        self.register_instruction(CIL_AST.StringEquals(str1, str2, result))
+        self.register_instruction(CIL_AST.Return(result))
+
 class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.on('node')
     def visit(self, node, scope):
@@ -286,6 +301,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         #Add built-in types in .TYPES section
         self.register_builtin_types(scope)
+
+        #Add string equals function
+        self.build_string_equals_function(scope)
         
         for klass in node.classes:
             self.visit(klass, scope.create_child())
@@ -754,7 +772,20 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         left_value = self.visit(node.left, scope)
         right_value = self.visit(node.right, scope)
 
-        if node.left.computed_type.name in ['Int', 'Bool', 'String']:
+        if node.left.computed_type.name == 'String':
+            self.register_instruction(CIL_AST.GetAttr(left_local, left_value, "value", node.left.computed_type.name))
+            self.register_instruction(CIL_AST.GetAttr(right_local, right_value, "value", node.right.computed_type.name))
+
+            self.register_instruction(CIL_AST.Call(op_local, 'String_equals', [CIL_AST.Arg(right_value), CIL_AST.Arg(left_value)], 'String'))
+
+            # Allocate Bool result
+            self.register_instruction(CIL_AST.Allocate('Bool',self.context.get_type('Bool').tag, result_local))
+            result_init = self.define_internal_local(scope=scope, name="result_init")
+            self.register_instruction(CIL_AST.Call(result_init, 'Bool_init', [CIL_AST.Arg(op_local), CIL_AST.Arg(result_local)], "Bool"))
+
+            return result_local
+
+        elif node.left.computed_type.name in ['Int', 'Bool']:
             self.register_instruction(CIL_AST.GetAttr(left_local, left_value, "value", node.left.computed_type.name))
             self.register_instruction(CIL_AST.GetAttr(right_local, right_value, "value", node.right.computed_type.name))
         else:
