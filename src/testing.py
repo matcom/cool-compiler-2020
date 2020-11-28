@@ -60,7 +60,10 @@ def pipeline(program: str, deep: int) -> None:
     print(source)
 
 
-text = r"""-- Missing type
+text = r"""(*
+Let T and F be the static types of the branches of the conditional. Then the static type of the
+conditional is T t F. (think: Walk towards Object from each of T and F until the paths meet.)
+*)
 
 class A { };
 class B inherits A { };
@@ -72,16 +75,14 @@ class F inherits A { };
 class Main inherits IO {
 	main(): IO { out_string("Hello World!")};
 
-	b: B <- case "true" of
-				i: Int => New C;
-				b: Bool => New D;
-				s: String => New E;
-			esac;
+	b: B <- if true then 
+				new C 
+			else 
+				if false then new D 
+				else new E fi
+			fi;
 
-	test: A <- case 0 of
-				b: Bool => new F;
-				i: Ball => new E;
-			esac;
-};
+	test: B <- if not true then new F else new E fi;
+}; 
 """
 pipeline(text, 5)

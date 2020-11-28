@@ -128,10 +128,12 @@ class AtomicNode(ExpressionNode):
 
 
 class IfThenElseNode(ExpressionNode):
-    def __init__(self, cond, expr1, expr2):
+    def __init__(self, cond, expr1, expr2, line, column):
         self.cond: ExpressionNode = cond
         self.expr1: ExpressionNode = expr1
         self.expr2: ExpressionNode = expr2
+        self.line = line
+        self.column = column
 
 
 class PlusNode(BinaryNode):

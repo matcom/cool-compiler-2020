@@ -256,7 +256,7 @@ def build_cool_grammar():
     # term %= not_operator + factor, lambda s: NegNode(s[2], s[1].token_line, s[1].token_column + 1)
 
     factor %= if_ + exp + then + exp + else_ + exp + fi, lambda s: IfThenElseNode(
-        s[2], s[4], s[6]
+        s[2], s[4], s[6], s[1].token_line, s[1].token_column - 2
     )
 
     exp %= not_operator + exp, lambda s: NegNode(

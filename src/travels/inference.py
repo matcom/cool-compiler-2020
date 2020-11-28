@@ -282,7 +282,7 @@ class TypeInferer:
         e2 = self.visit(node.expr2, scope, infered_type, deep)
         if cond != self.BOOL:
             raise SemanticError(
-                f"Se esperaba una expresion de tipo bool y se obtuvo una de tipo {cond}."
+                f"{node.cond.line, node.cond.column} - TypeError: Predicate of 'if' does not have type Bool."
             )
         return find_common_parent(e1, e2)
 

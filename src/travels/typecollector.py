@@ -175,4 +175,4 @@ class TypeCollector:
             )
             self.context.create_type(node.idx)
         except SemanticError as e:
-            self.errors.append(e.text)
+            raise SemanticError(f"{node.line, node.column - 2} - SemanticError: Classes may not be redefined")
