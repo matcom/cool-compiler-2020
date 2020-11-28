@@ -9,19 +9,22 @@ st6: .asciiz "PC Magazine"
 st7: .asciiz "IO"
 st8: .asciiz "String"
 st9: .asciiz "Bool"
-st10: .asciiz "Book"
-st11: .asciiz "title:      "
-st12: .asciiz "\n"
-st13: .asciiz "author:     "
+st10: .asciiz ""
+st11: .asciiz ""
+st12: .asciiz "Book"
+st13: .asciiz "title:      "
 st14: .asciiz "\n"
-st15: .asciiz "BookList"
-st16: .asciiz "Article"
-st17: .asciiz "periodical:  "
-st18: .asciiz "\n"
-st19: .asciiz "Cons"
-st20: .asciiz "- dynamic type was Book -\n"
-st21: .asciiz "- dynamic type was Article -\n"
-st22: .asciiz "Nil"
+st15: .asciiz "author:     "
+st16: .asciiz "\n"
+st17: .asciiz "BookList"
+st18: .asciiz ""
+st19: .asciiz "Article"
+st20: .asciiz "periodical:  "
+st21: .asciiz "\n"
+st22: .asciiz "Cons"
+st23: .asciiz "- dynamic type was Book -\n"
+st24: .asciiz "- dynamic type was Article -\n"
+st25: .asciiz "Nil"
 Objectclase: .word 0,f0,f3,f2,f4
 Mainclase: .word Objectclase,f5,f6,f2,f4,f7
 IOclase: .word Objectclase,f8,f9,f2,f4,f10,f11,f12,f13
@@ -998,7 +1001,7 @@ sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
 f21:
-addi $sp, $sp, -12
+addi $sp, $sp, -28
 move $t0,$a0
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -1013,20 +1016,24 @@ addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
-li $t0,0
+la $v0, st10
+sw $v0,12($sp)
+lw $t0,12($sp)
 move $v0, $t0
 sw $v0,4($a0)
-li $t0,0
+la $v0, st11
+sw $v0,20($sp)
+lw $t0,20($sp)
 move $v0, $t0
 sw $v0,8($a0)
 move $t0,$a0
 move $v0, $t0
-sw $v0,8($sp)
-addi $sp, $sp, 12
+sw $v0,24($sp)
+addi $sp, $sp, 28
 jr $ra
 f22:
 addi $sp, $sp, -12
-la $v0, st10
+la $v0, st12
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
@@ -1054,7 +1061,7 @@ addi $sp, $sp, -80
 move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
-la $v0, st11
+la $v0, st13
 sw $v0,12($sp)
 lw $t0,4($sp)
 addi $sp, $sp, -4
@@ -1097,7 +1104,7 @@ lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
 sw $v0,24($sp)
-la $v0, st12
+la $v0, st14
 sw $v0,32($sp)
 lw $t0,24($sp)
 addi $sp, $sp, -4
@@ -1121,7 +1128,7 @@ sw $v0,36($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,40($sp)
-la $v0, st13
+la $v0, st15
 sw $v0,48($sp)
 lw $t0,40($sp)
 addi $sp, $sp, -4
@@ -1164,7 +1171,7 @@ lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
 sw $v0,60($sp)
-la $v0, st14
+la $v0, st16
 sw $v0,68($sp)
 lw $t0,60($sp)
 addi $sp, $sp, -4
@@ -1213,7 +1220,7 @@ addi $sp, $sp, 12
 jr $ra
 f26:
 addi $sp, $sp, -12
-la $v0, st15
+la $v0, st17
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
@@ -1421,7 +1428,7 @@ sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
 f32:
-addi $sp, $sp, -12
+addi $sp, $sp, -20
 move $t0,$a0
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -1436,17 +1443,19 @@ addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
-li $t0,0
+la $v0, st18
+sw $v0,12($sp)
+lw $t0,12($sp)
 move $v0, $t0
 sw $v0,12($a0)
 move $t0,$a0
 move $v0, $t0
-sw $v0,8($sp)
-addi $sp, $sp, 12
+sw $v0,16($sp)
+addi $sp, $sp, 20
 jr $ra
 f33:
 addi $sp, $sp, -12
-la $v0, st16
+la $v0, st19
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
@@ -1518,7 +1527,7 @@ sw $v0,8($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,12($sp)
-la $v0, st17
+la $v0, st20
 sw $v0,20($sp)
 lw $t0,12($sp)
 addi $sp, $sp, -4
@@ -1561,7 +1570,7 @@ lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
 sw $v0,32($sp)
-la $v0, st18
+la $v0, st21
 sw $v0,40($sp)
 lw $t0,32($sp)
 addi $sp, $sp, -4
@@ -1616,7 +1625,7 @@ addi $sp, $sp, 12
 jr $ra
 f37:
 addi $sp, $sp, -12
-la $v0, st19
+la $v0, st22
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
@@ -1688,14 +1697,14 @@ lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,28($sp)
 lw $t0,28($sp)
-bgtz $t0, var.var123
+bgtz $t0, var.var126
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,24($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,36($sp)
-la $v0, st20
+la $v0, st23
 sw $v0,44($sp)
 lw $t0,36($sp)
 addi $sp, $sp, -4
@@ -1722,7 +1731,7 @@ sw $v0,52($sp)
 lw $t0,52($sp)
 move $v0, $t0
 sw $v0,12($sp)
-var.var123:
+var.var126:
 lw $t0,8($sp)
 la $t1,Articleclase
 addi $sp ,$sp, -4
@@ -1732,14 +1741,14 @@ lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,60($sp)
 lw $t0,60($sp)
-bgtz $t0, var.var130
+bgtz $t0, var.var133
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,24($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,68($sp)
-la $v0, st21
+la $v0, st24
 sw $v0,76($sp)
 lw $t0,68($sp)
 addi $sp, $sp, -4
@@ -1766,8 +1775,8 @@ sw $v0,84($sp)
 lw $t0,84($sp)
 move $v0, $t0
 sw $v0,12($sp)
-var.var130:
-var.var120:
+var.var133:
+var.var123:
 lw $t0,12($sp)
 move $v0, $t0
 sw $v0,88($sp)
@@ -1813,7 +1822,7 @@ addi $sp, $sp, 12
 jr $ra
 f44:
 addi $sp, $sp, -12
-la $v0, st22
+la $v0, st25
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra

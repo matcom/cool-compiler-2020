@@ -648,6 +648,9 @@ class CILTranspiler:
     @visitor.when(AttributeNode)
     def visit(self, node:AttributeNode, scope:Scope):
         instructions=[]
+        if node.value==None:
+            if node.type=="String":
+                node.value=StringNode('""')
         instructions.extend(self.visit(node.value, scope))
         if len(instructions)>0:
             final=CILAssign(node.name,[instructions[len(instructions)-1].destination])

@@ -5,13 +5,14 @@ st2: .asciiz "         X         "
 st3: .asciiz "IO"
 st4: .asciiz "String"
 st5: .asciiz "Bool"
-st6: .asciiz "CellularAutomaton"
-st7: .asciiz "\n"
-st8: .asciiz "X"
+st6: .asciiz ""
+st7: .asciiz "CellularAutomaton"
+st8: .asciiz "\n"
 st9: .asciiz "X"
 st10: .asciiz "X"
 st11: .asciiz "X"
-st12: .asciiz "."
+st12: .asciiz "X"
+st13: .asciiz "."
 Objectclase: .word 0,f0,f3,f2,f4
 Mainclase: .word Objectclase,f5,f6,f2,f4,f7
 IOclase: .word Objectclase,f8,f9,f2,f4,f10,f11,f12,f13
@@ -917,7 +918,7 @@ sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
 f21:
-addi $sp, $sp, -12
+addi $sp, $sp, -20
 move $t0,$a0
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -932,17 +933,19 @@ addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
-li $t0,0
+la $v0, st6
+sw $v0,12($sp)
+lw $t0,12($sp)
 move $v0, $t0
 sw $v0,4($a0)
 move $t0,$a0
 move $v0, $t0
-sw $v0,8($sp)
-addi $sp, $sp, 12
+sw $v0,16($sp)
+addi $sp, $sp, 20
 jr $ra
 f22:
 addi $sp, $sp, -12
-la $v0, st6
+la $v0, st7
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
@@ -967,7 +970,7 @@ sw $v0,4($sp)
 lw $t0,4($a0)
 move $v0, $t0
 sw $v0,8($sp)
-la $v0, st7
+la $v0, st8
 sw $v0,16($sp)
 lw $t0,8($sp)
 addi $sp, $sp, -4
@@ -1309,7 +1312,7 @@ lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
 sw $v0,12($sp)
-la $v0, st8
+la $v0, st9
 sw $v0,20($sp)
 lw $t0,12($sp)
 lw $t1,20($sp)
@@ -1370,7 +1373,7 @@ lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
 sw $v0,56($sp)
-la $v0, st9
+la $v0, st10
 sw $v0,64($sp)
 lw $t0,56($sp)
 lw $t1,64($sp)
@@ -1435,7 +1438,7 @@ lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
 sw $v0,108($sp)
-la $v0, st10
+la $v0, st11
 sw $v0,116($sp)
 lw $t0,108($sp)
 lw $t1,116($sp)
@@ -1484,14 +1487,14 @@ seq $v0 ,$t0, $t1
 sw $v0,160($sp)
 lw $t0,160($sp)
 bgtz $t0, Lbl12
-la $v0, st12
+la $v0, st13
 sw $v0,176($sp)
 lw $t0,176($sp)
 move $v0, $t0
 sw $v0,180($sp)
 b Lbl13
 Lbl12:
-la $v0, st11
+la $v0, st12
 sw $v0,168($sp)
 lw $t0,168($sp)
 move $v0, $t0
