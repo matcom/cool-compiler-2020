@@ -272,13 +272,13 @@ def allocate_to_mips_visitor(allocate: cil.AllocateNode):
         sw      $v0, [addr(x)]
     """
     size = get_type(allocate.type).size_mips
-    address = CURRENT_FUNCTION[str(allocate.result)]
+    address = CURRENT_FUNCTION.offset[str(allocate.result)]
     code = [
         mips.Comment(str(allocate)),
         mips.LiInstruction('$a0', size),
         mips.LiInstruction('$v0', 9),
         mips.SyscallInstruction(),
-        mips.SwInstruction('$v0', address())
+        mips.SwInstruction('$v0', f'{address}($fp)')
     ]
     return code
 
