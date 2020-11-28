@@ -109,15 +109,7 @@ def compare_outputs(
     try:
         fd = open(input_file_path, "rb")
         sp = subprocess.run(
-            [
-                "spim",
-                "-ldata",
-                "100000000",
-                "-lstack",
-                "10000000000",
-                "-file",
-                spim_file,
-            ],
+            ["spim", "-file", spim_file],
             input=fd.read(),
             capture_output=True,
             timeout=timeout,

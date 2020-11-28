@@ -1,11 +1,11 @@
 .PHONY: clean
 
+main:
+	# Compiling the compiler :)
+
 debug:
 	python coolc.py --cil test.cl test.mips
 	spim -file test.mips
-
-main:
-	# Compiling the compiler :)
 
 clean:
 	rm -rf build/*

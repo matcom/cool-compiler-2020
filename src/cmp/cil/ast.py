@@ -81,6 +81,11 @@ class IsVoidNode(InstructionNode):
         self.body = body
 
 
+class VoidNode(InstructionNode):
+    def __init__(self, dest):
+        self.dest = dest
+
+
 class ArithmeticNode(InstructionNode):
     def __init__(self, dest, left, right):
         self.dest = dest

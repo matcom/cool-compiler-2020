@@ -41,6 +41,7 @@ from .ast import (
     TypeNameNode,
     TypeNode,
     TypeOfNode,
+    VoidNode,
 )
 from .utils import TypeData, on, when
 from .utils.mips_syntax import DATA_SIZE, Mips
@@ -228,6 +229,11 @@ class CIL_TO_MIPS(object):
         self.load_memory(Reg.t0, node.source)
         self.store_memory(Reg.t0, node.dest)
         self.mips.empty()
+
+    @when(VoidNode)
+    def visit(self, node: VoidNode):
+        self.mips.comment("VoidNode")
+        self.store_memory(Reg.zero, node.dest)
 
     @when(IsVoidNode)
     def visit(self, node: IsVoidNode):  # noqa: F811

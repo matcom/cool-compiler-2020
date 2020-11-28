@@ -35,6 +35,7 @@ from .ast import (
     SubstringNode,
     TypeNode,
     TypeOfNode,
+    VoidNode,
 )
 from .basic_transform import BASE_COOL_CIL_TRANSFORM, VariableInfo
 from .utils import Scope, on, when
@@ -84,6 +85,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         return self.find_type_name(typex.parent, func_name)
 
     def init_class_attr(self, scope: Scope, class_id, self_inst):
+        # print(self.attr_init)
+        # print("==============================")
         attr_nodes = self.attr_init[class_id]
         for attr in attr_nodes:
             attr_scope = Scope(parent=scope)
@@ -94,6 +97,11 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         self.attr_init = dict()
         self.attr_init["IO"] = []
         self.attr_init["Object"] = []
+        self.attr_init["Int"] = [cool.AttrDeclarationNode("value", "Int", None, 0, 0)]
+        self.attr_init["Bool"] = [cool.AttrDeclarationNode("value", "Bool", None, 0, 0)]
+        self.attr_init["String"] = [
+            cool.AttrDeclarationNode("value", "String", None, 0, 0)
+        ]
         for classx in node.classes:
             self.attr_init[classx.id] = []
             if classx.parent:
@@ -158,10 +166,13 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         result = None
         if node.expression:
             result = self.visit(node.expression, scope)
+        elif typex in ["Int", "Bool", "String"]:
+            result = self.define_internal_local()
+            self.register_instruction(AllocateNode(result, typex))
+            self.register_instruction(SetAttribNode(result, "value", 0, typex))
         else:
             result = self.define_internal_local()
-            self.register_instruction(AllocateNode(result, "Int"))
-            self.register_instruction(SetAttribNode(result, "value", 0, "Int"))
+            self.register_instruction(VoidNode(result))
         self_inst = scope.get_var("self").local_name
         assert typex, "AttrDeclarationNode: typex"
         self.register_instruction(SetAttribNode(self_inst, node.id, result, typex))
@@ -236,9 +247,9 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     @when(cool.BlockNode)
     def visit(self, node: cool.BlockNode, scope: Scope):
         result = None
+        assert node.expressions, "BlockNode empty"
         for expr in node.expressions:
             result = self.visit(expr, scope)
-
         return result
 
     @when(cool.LetNode)

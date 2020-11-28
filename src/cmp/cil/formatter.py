@@ -38,6 +38,7 @@ from .ast import (
     TypeNameNode,
     TypeNode,
     TypeOfNode,
+    VoidNode,
 )
 from .utils import on, when
 
@@ -107,6 +108,10 @@ class CIL_FORMATTER(object):
     @when(IsVoidNode)
     def visit(self, node: IsVoidNode):  # noqa:F811
         return f"{node.dest} = ISVOID {node.body}"
+
+    @when(VoidNode)
+    def visit(self, node: VoidNode):  # noqa:F811
+        return f"{node.dest} = VOID"
 
     @when(ComplementNode)
     def visit(self, node: ComplementNode):  # noqa:F811
