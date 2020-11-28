@@ -1,0 +1,1 @@
+(15, 18) - SemanticError: Class B, or an ancestor of B, is involved in an inheritance cycle.
