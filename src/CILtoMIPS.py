@@ -39,14 +39,14 @@ class MIPSCompiler:
             instrucciones+="li $t0,1\n"
         elif parametro0 == 'false':
             instrucciones+="move $t0, $zero\n"
+        elif parametro0 in nombresAtributos:
+            instrucciones+="lw $t0,"+str(nombresAtributos.index(parametro0)*4+4)+"($a0)\n"
         elif parametro0 in scope.locals.keys():
             instrucciones+="lw $t0,"+str(scope.locals[parametro0]+desplazamiento)+"($sp)\n"
         elif parametro0 in scope.parameters.keys():
             instrucciones+="lw $t0,"+str(scope.parameters[parametro0]+desplazamiento)+"($sp)\n"
         elif parametro0 in scope.registerparameters.keys():
             instrucciones+="move $t0,"+scope.registerparameters[parametro0]+"\n"
-        elif parametro0 in nombresAtributos:
-            instrucciones+="lw $t0,"+str(nombresAtributos.index(parametro0)*4+4)+"($a0)\n"
         elif parametro0 in self.data.keys():
             instrucciones+="la $t0,"+parametro0+"\n"
         elif parametro0 in self.clases:
@@ -66,6 +66,8 @@ class MIPSCompiler:
             instrucciones+="li $t1,1\n"
         elif parametro1 == 'false':
             instrucciones+="move $t1, $zero\n"
+        elif parametro1 in nombresAtributos:           
+            instrucciones+="lw $t1,"+str(nombresAtributos.index(parametro1)*4+4)+"($a0)\n"
         elif parametro1 in scope.locals.keys():
             instrucciones+="lw $t1,"+str(scope.locals[parametro1]+desplazamiento)+"($sp)\n"
         elif parametro1 in scope.parameters.keys():
@@ -90,14 +92,14 @@ class MIPSCompiler:
             instrucciones+="li $t2,1\n"
         elif parametro2 == 'false':
             instrucciones+="move $t2, $zero\n"
+        elif parametro2 in nombresAtributos:           
+            instrucciones+="lw $t2,"+str(nombresAtributos.index(parametro2)*4+4)+"($a0)\n"
         elif parametro2 in scope.locals.keys():
             instrucciones+="lw $t2,"+str(scope.locals[parametro2]+desplazamiento)+"($sp)\n"
         elif parametro2 in scope.parameters.keys():
             instrucciones+="lw $t2,"+str(scope.parameters[parametro2]+desplazamiento)+"($sp)\n"
         elif parametro2 in scope.registerparameters.keys():
             instrucciones+="move $t2,"+scope.registerparameters[parametro2]+"\n"
-        elif parametro2 in nombresAtributos:           
-            instrucciones+="lw $t2,"+str(nombresAtributos.index(parametro2)*4+4)+"($a0)\n"
         elif parametro2 in self.clases:
             instrucciones+="la $t2,"+parametro2+"clase\n"
         else:
@@ -115,14 +117,14 @@ class MIPSCompiler:
         for at in atributos:
             nombresAtributos.append(at.name)
 
-        if destino in scope.locals.keys():
+        if destino in nombresAtributos:
+            instrucciones+="sw $v0,"+str(nombresAtributos.index(destino)*4+4)+"($a0)\n"
+        elif destino in scope.locals.keys():
             instrucciones+="sw $v0,"+str(scope.locals[destino]+desplazamiento)+"($sp)\n"
         elif destino in scope.parameters.keys():
             instrucciones+="sw $v0,"+str(scope.parameters[destino]+desplazamiento)+"($sp)\n"
         elif destino in scope.registerparameters.keys():
             instrucciones+="move "+scope.registerparameters[destino]+",$t0\n"
-        elif destino in nombresAtributos:
-            instrucciones+="sw $v0,"+str(nombresAtributos.index(destino)*4+4)+"($a0)\n"
         else:
             print(destino)
             print(scope.locals.keys())
@@ -205,6 +207,8 @@ class MIPSCompiler:
     @visitor.when(CILGlobalMethod)
     def visit(self, node:CILGlobalMethod, scope:ScopeMIPS):
         if node.nombre in ["f9","a2i"]:
+            print("here")
+        if scope.methodclass in ["CellularAutomaton", '"CellularAutomaton"']:
             print("here")
         instrucciones=""
         instrucciones+=node.nombre+":\n"

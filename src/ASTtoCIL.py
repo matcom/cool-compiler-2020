@@ -120,6 +120,8 @@ class CILTranspiler:
         return variable
 
     def GenerarInit(self, clase:ClassNode, scope:Scope):
+        if clase.name in ["CellularAutomaton",'"CellularAutomaton"']:
+            print("here")
         instructions=[]
         if clase.parent!=None:
             dumb=self.GenerarNombreVariable(scope)
@@ -557,6 +559,9 @@ class CILTranspiler:
         for at in node.declarations:
             if at.name not in scope.locals:
                 scope.locals.append(at.name)
+            if at.type=="String":
+                if at.value==None:
+                    at.value=StringNode('""')
             delcaracionExp=self.visit(at.value,scope)
             instructions.extend(delcaracionExp)
             if len(delcaracionExp)>0:

@@ -785,8 +785,8 @@ addi $sp, $sp, 8
 sw $v0,88($sp)
 lw $t0,88($sp)
 move $v0, $t0
-sw $v0,68($sp)
-lw $t0,68($sp)
+sw $v0,4($a0)
+lw $t0,4($a0)
 move $v0, $t0
 sw $v0,92($sp)
 lw $t0,92($sp)
@@ -1044,13 +1044,13 @@ move $v0, $t0
 sw $v0,8($sp)
 lw $t0,8($sp)
 move $v0, $t0
-sw $v0,4($sp)
+sw $v0,4($a0)
 move $t0,$a2
 move $v0, $t0
 sw $v0,16($sp)
 lw $t0,16($sp)
 move $v0, $t0
-sw $v0,12($sp)
+sw $v0,8($a0)
 move $t0,$a0
 move $v0, $t0
 sw $v0,20($sp)
@@ -1499,7 +1499,7 @@ move $v0, $t0
 sw $v0,24($sp)
 lw $t0,24($sp)
 move $v0, $t0
-sw $v0,20($sp)
+sw $v0,12($a0)
 move $t0,$a0
 move $v0, $t0
 sw $v0,28($sp)
@@ -1643,13 +1643,13 @@ move $v0, $t0
 sw $v0,8($sp)
 lw $t0,8($sp)
 move $v0, $t0
-sw $v0,4($sp)
+sw $v0,4($a0)
 move $t0,$a2
 move $v0, $t0
 sw $v0,16($sp)
 lw $t0,16($sp)
 move $v0, $t0
-sw $v0,12($sp)
+sw $v0,8($a0)
 move $t0,$a0
 move $v0, $t0
 sw $v0,20($sp)

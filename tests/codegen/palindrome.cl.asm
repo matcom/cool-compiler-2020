@@ -1053,7 +1053,7 @@ not $v0, $t0
 sw $v0,16($sp)
 lw $t0,16($sp)
 move $v0, $t0
-sw $v0,4($sp)
+sw $v0,4($a0)
 move $t0,$a0
 move $v0, $t0
 sw $v0,20($sp)

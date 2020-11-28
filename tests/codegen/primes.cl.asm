@@ -783,16 +783,16 @@ move $v0, $t0
 sw $v0,24($sp)
 lw $t0,24($sp)
 move $v0, $t0
-sw $v0,244($sp)
-lw $t0,244($sp)
+sw $v0,4($a0)
+lw $t0,4($a0)
 move $v0, $t0
 sw $v0,28($sp)
 lw $t0,28($sp)
 move $v0, $t0
-sw $v0,48($sp)
+sw $v0,8($a0)
 li $t0,0
 move $v0, $t0
-sw $v0,68($sp)
+sw $v0,12($a0)
 li $t0,500
 move $v0, $t0
 sw $v0,32($sp)
@@ -808,7 +808,7 @@ sgt $v0, $t0, $zero
 sw $v0,44($sp)
 lw $t0,44($sp)
 bgtz $t0, Lbl1
-lw $t0,48($sp)
+lw $t0,8($a0)
 move $v0, $t0
 sw $v0,52($sp)
 li $t0,1
@@ -820,21 +820,21 @@ add $v0, $t0, $t1
 sw $v0,64($sp)
 lw $t0,64($sp)
 move $v0, $t0
-sw $v0,48($sp)
+sw $v0,8($a0)
 li $t0,2
 move $v0, $t0
 sw $v0,72($sp)
 lw $t0,72($sp)
 move $v0, $t0
-sw $v0,68($sp)
+sw $v0,12($a0)
 Lbl2:
-lw $t0,48($sp)
+lw $t0,8($a0)
 move $v0, $t0
 sw $v0,76($sp)
-lw $t0,68($sp)
+lw $t0,12($a0)
 move $v0, $t0
 sw $v0,80($sp)
-lw $t0,68($sp)
+lw $t0,12($a0)
 move $v0, $t0
 sw $v0,84($sp)
 lw $t0,80($sp)
@@ -848,16 +848,16 @@ slt $v0, $t0, $t1
 sw $v0,100($sp)
 lw $t0,100($sp)
 bgtz $t0, Lbl6
-lw $t0,48($sp)
+lw $t0,8($a0)
 move $v0, $t0
 sw $v0,108($sp)
-lw $t0,68($sp)
+lw $t0,12($a0)
 move $v0, $t0
 sw $v0,112($sp)
-lw $t0,48($sp)
+lw $t0,8($a0)
 move $v0, $t0
 sw $v0,116($sp)
-lw $t0,68($sp)
+lw $t0,12($a0)
 move $v0, $t0
 sw $v0,120($sp)
 lw $t0,116($sp)
@@ -921,7 +921,7 @@ sgt $v0, $t0, $zero
 sw $v0,188($sp)
 lw $t0,188($sp)
 bgtz $t0, Lbl3
-lw $t0,68($sp)
+lw $t0,12($a0)
 move $v0, $t0
 sw $v0,192($sp)
 li $t0,1
@@ -933,19 +933,19 @@ add $v0, $t0, $t1
 sw $v0,204($sp)
 lw $t0,204($sp)
 move $v0, $t0
-sw $v0,68($sp)
+sw $v0,12($a0)
 b Lbl2
 Lbl3:
 li $t0,0
 move $v0, $t0
 sw $v0,212($sp)
-lw $t0,48($sp)
+lw $t0,8($a0)
 move $v0, $t0
 sw $v0,216($sp)
-lw $t0,68($sp)
+lw $t0,12($a0)
 move $v0, $t0
 sw $v0,220($sp)
-lw $t0,68($sp)
+lw $t0,12($a0)
 move $v0, $t0
 sw $v0,224($sp)
 lw $t0,220($sp)
@@ -967,16 +967,16 @@ move $v0, $t0
 sw $v0,284($sp)
 b Lbl9
 Lbl8:
-lw $t0,48($sp)
+lw $t0,8($a0)
 move $v0, $t0
 sw $v0,248($sp)
 lw $t0,248($sp)
 move $v0, $t0
-sw $v0,244($sp)
+sw $v0,4($a0)
 move $t0,$a0
 move $v0, $t0
 sw $v0,252($sp)
-lw $t0,244($sp)
+lw $t0,4($a0)
 move $v0, $t0
 sw $v0,256($sp)
 lw $t0,252($sp)
@@ -1032,7 +1032,7 @@ sw $v0,288($sp)
 lw $t0,16($a0)
 move $v0, $t0
 sw $v0,292($sp)
-lw $t0,48($sp)
+lw $t0,8($a0)
 move $v0, $t0
 sw $v0,296($sp)
 lw $t0,292($sp)

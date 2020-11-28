@@ -1180,13 +1180,13 @@ addi $sp, $sp, 20
 jr $ra
 f24:
 addi $sp, $sp, -36
-lw $t0,12($sp)
+lw $t0,4($a0)
 move $v0, $t0
 sw $v0,8($sp)
 lw $t0,8($sp)
 move $v0, $t0
-sw $v0,4($sp)
-lw $t0,12($sp)
+sw $v0,12($a0)
+lw $t0,4($a0)
 move $v0, $t0
 sw $v0,16($sp)
 li $t0,1
@@ -1198,8 +1198,8 @@ add $v0, $t0, $t1
 sw $v0,28($sp)
 lw $t0,28($sp)
 move $v0, $t0
-sw $v0,12($sp)
-lw $t0,4($sp)
+sw $v0,4($a0)
+lw $t0,12($a0)
 move $v0, $t0
 sw $v0,32($sp)
 addi $sp, $sp, 36
@@ -1453,13 +1453,13 @@ addi $sp, $sp, 12
 jr $ra
 f27:
 addi $sp, $sp, -36
-lw $t0,12($sp)
+lw $t0,4($a0)
 move $v0, $t0
 sw $v0,8($sp)
 lw $t0,8($sp)
 move $v0, $t0
-sw $v0,4($sp)
-lw $t0,12($sp)
+sw $v0,12($a0)
+lw $t0,4($a0)
 move $v0, $t0
 sw $v0,16($sp)
 li $t0,2
@@ -1471,8 +1471,8 @@ add $v0, $t0, $t1
 sw $v0,28($sp)
 lw $t0,28($sp)
 move $v0, $t0
-sw $v0,12($sp)
-lw $t0,4($sp)
+sw $v0,4($a0)
+lw $t0,12($a0)
 move $v0, $t0
 sw $v0,32($sp)
 addi $sp, $sp, 36
