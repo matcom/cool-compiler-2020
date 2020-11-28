@@ -423,14 +423,18 @@ class CIL_TO_MIPS(object):
     @when(ReadIntNode)
     def visit(self, node: ReadIntNode):  # noqa: F811
         self.mips.comment("ReadIntNode")
-        self.mips.la(Reg.a0, self.get_offset(node.dest))
         self.mips.read_int()
+        self.store_memory(Reg.v0, node.dest)
         self.mips.empty()
 
     @when(ReadStrNode)
     def visit(self, node: ReadStrNode):  # noqa: F811
         self.mips.comment("ReadStrNode")
-        self.load_memory(Reg.a0, node.dest)
+        self.mips.li(Reg.a0, 128)
+        self.mips.sbrk()
+        self.mips.move(Reg.a0, Reg.v0)
+        self.store_memory(Reg.v0, node.dest)
+        self.mips.li(Reg.a1, 128)  # Change this later
         self.mips.read_string()
         self.mips.empty()
 
