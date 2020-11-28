@@ -186,7 +186,6 @@ def substring_to_mips_visitor(ss: cil.SubStringNode):
     return code
 
 
-# TODO: Check
 def read_int_to_mips_visitor(read: cil.ReadIntNode):
     addr = CURRENT_FUNCTION.get_address(str(read.result))
     code = [
@@ -258,17 +257,8 @@ def arg_to_mips_visitor(arg: cil.ArgNode):
     1) Allocates a 4-bytes space in stack\n
     2) Pushes the arg value in the stack\n
     '''
-    addr = CURRENT_FUNCTION[str(arg.val)]
-    location = CURRENT_FUNCTION.location[str(arg.val)]
-    mips_code = [mips.Comment(str(arg))]
-    if CURRENT_FUNCTION.args_count < 4:
-        mips_code.append(mips.LwInstruction(
-            f'$a{CURRENT_FUNCTION.args_count}', addr()))
-    else:
-        mips_code += allocate_stack(4) + push_stack(addr(), '($sp)')
-        pass
-    CURRENT_FUNCTION.args_count += 1
-    return [mips.Comment(str(arg))] + allocate_stack(4) + push_stack(addr, '($sp)')
+    addr = CURRENT_FUNCTION.offset[str(arg.val)]
+    return [mips.Comment(str(arg))] + mips.SubuInstruction('$sp', '$sp', 4) + mips.LwInstruction('$t0', f'{offset}($fp)') + mips.SwInstruction('$t0','($sp)')
 
 
 def allocate_to_mips_visitor(allocate: cil.AllocateNode):
