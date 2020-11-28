@@ -216,29 +216,34 @@ def length_to_mips_visitor(length: cil.LengthNode):
     return code
 
 
-# TODO: Check
 def concat_to_mips_visitor(concat: cil.ConcatNode):
     __DATA__.append(mips.MIPSDataItem(concat.result.id,
                                       mips.SpaceInst(2 * __BUFFSIZE__)))
-    save_address(concat.result, concat.result.id)
-    a = CURRENT_FUNCTION.offset[str(concat.str_a)]
-    b = CURRENT_FUNCTION.offset[str(concat.str_b)]
+    result_offset = CURRENT_FUNCTION.offset[concat.result.id]
+    a_offset = CURRENT_FUNCTION.offset[concat.str_a]
+    b_offset = CURRENT_FUNCTION.offset[concat.str_b]
 
-    code = [
+    return [
         mips.Comment(str(concat)),
-        mips.LwInstruction('$t0', f'{a}($fp)'),
-        mips.SwInstruction('$t0', concat.result),
-        mips.LbInstruction('$t1', concat.result),
-        mips.MIPSLabel('length_loop'),
-        mips.BeqzInstruction('$t1', 'end_length_loop'),
+        mips.LaInstruction('$t0', 0),
+        mips.LaInstruction('$t1', 0),
+        mips.LaInstruction('$t2', 0),
+        mips.MIPSLabel('concat_loop_a'),
+        mips.LbInstruction('$a0', '($t1)'),
+        mips.BeqzInstruction('$a0', 'concat_loop_b'),
+        mips.SbInstruction('$a0', '($t0)'),
+        mips.AdduInstruction('$t0', '$t0', 1),
         mips.AdduInstruction('$t1', '$t1', 1),
-        mips.BInstruction('length_loop'),
-        mips.MIPSLabel('end_length_loop'),
-        mips.LwInstruction('$t2', f'{b}($fp)'),
-        mips.SwInstruction('$t2', '($t1)')
+        mips.BInstruction('concat_loop_a'),
+        mips.MIPSLabel('concat_loop_b'),
+        mips.LbInstruction('$a0', '($t2)'),
+        mips.BeqzInstruction('$a0', 'end_concat'),
+        mips.SbInstruction('$a0', '($t0)'),
+        mips.AdduInstruction('$t0', '$t0', 1),
+        mips.AdduInstruction('$t2', '$t2', 1),
+        mips.BInstruction('concat_loop_b'),
+        mips.MIPSLabel('end_concat')
     ]
-
-    return code
 
 
 def load_to_mips_visitor(load: cil.LoadNode):
