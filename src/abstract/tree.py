@@ -331,7 +331,8 @@ class BlockNode(ExpressionNode):
 
 
 class IsVoidNode(ExpressionNode):
-    def __init__(self, expr):
+    def __init__(self, expr, line, column):
+        super().__init__(line, column)
         self.expr: ExpressionNode = expr
 
 

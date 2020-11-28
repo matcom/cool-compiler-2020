@@ -225,7 +225,7 @@ def build_cool_grammar():
 
     exp %= case_statement, lambda s: s[1]
 
-    exp %= isvoid + exp, lambda s: IsVoidNode(s[2])
+    exp %= isvoid + exp, lambda s: IsVoidNode(s[2], s[1].token_line, s[1].token_column - 6)
 
     block %= obrack + loop_statements + cbrack, lambda s: BlockNode(
         s[2], s[1].token_line, s[1].token_column - 1
