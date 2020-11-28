@@ -501,7 +501,7 @@ class CIL_TO_MIPS(object):
 
         self.store_memory(Reg.s3, node.dest)
 
-    def copy_substr(self, src: Reg, dst: Reg, length: int):
+    def copy_substr(self, src: Reg, dst: Reg, length: Reg):
         self.mips.comment("Auxiliar - Copy substring")
         loop = self.get_label()
         end = self.get_label()
@@ -509,7 +509,7 @@ class CIL_TO_MIPS(object):
         self.mips.move(Reg.t0, src)
         self.mips.move(Reg.t1, dst)
 
-        self.mips.li(Reg.t3, length)  # i = length
+        self.mips.move(Reg.t3, length)  # i = length
 
         self.mips.label(loop)
 
@@ -533,11 +533,14 @@ class CIL_TO_MIPS(object):
     def visit(self, node: SubstringNode):  # noqa: F811
         self.mips.comment("SubstringNode")
         self.load_memory(Reg.s0, node.msg1)
-        self.mips.addi(Reg.s0, Reg.s0, node.start)
+        self.load_memory(Reg.s1, node.length)
+        self.load_memory(Reg.s3, node.start)
 
-        self.mips.li(Reg.a0, node.length)  # allocate heap memory
+        self.mips.add(Reg.s0, Reg.s0, Reg.s3)
+
+        self.mips.move(Reg.a0, Reg.s1)  # allocate heap memory
         self.mips.sbrk()
-        self.copy_substr(Reg.s0, Reg.v0, node.length)
+        self.copy_substr(Reg.s0, Reg.v0, Reg.s1)
 
         self.store_memory(Reg.v0, node.dest)
 
