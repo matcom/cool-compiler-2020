@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import List
 
+DATA_SIZE = 4
+
 
 class Register(str, Enum):
     # stores value 0; cannot be modified
@@ -103,12 +105,16 @@ class Mips:
 
     def compile(self):
         return "\n".join(
-            [Directive.data] + self.DOTDATA + [] + [Directive.text] + self.DOTTEXT
+            [Directive.data.value]
+            + self.DOTDATA
+            + []
+            + [Directive.text.value]
+            + self.DOTTEXT
         )
 
     def push(self, register: Register):
-        self.addi(Register.sp, Register.sp, -8)
-        self.store_memory(register, self.offset(Register.sp))
+        self.addi(Reg.sp, Reg.sp, -DATA_SIZE)
+        self.store_memory(register, self.offset(Reg.sp))
 
     def pop(self, register: Register):
         """
@@ -117,29 +123,31 @@ class Mips:
         to restore the stack pointer
         """
         self.load_memory(register, self.offset(Reg.sp))
-        self.addi(Reg.sp, Reg.sp, 8)
+        self.addi(Reg.sp, Reg.sp, DATA_SIZE)
 
     def load_memory(self, dst: Register, address: str):
         """
         Load from a specific address a 32 bits register
         """
-        self.lw(Reg.t8, address)
-        self.sll(Reg.t8, Reg.t8, 16)
-        self.la(Reg.t7, address)
-        self.addi(Reg.t7, Reg.t7, 4)
-        self.lw(Reg.t9, self.offset(Reg.t7))
-        self.orr(dst, Reg.t8, Reg.t9)
+        self.lw(dst, address)
+        # self.lw(Reg.t8, address)
+        # self.sll(Reg.t8, Reg.t8, 16)
+        # self.la(Reg.t7, address)
+        # self.addi(Reg.t7, Reg.t7, 4)
+        # self.lw(Reg.t9, self.offset(Reg.t7))
+        # self.orr(dst, Reg.t8, Reg.t9)
 
     def store_memory(self, src: Register, address: str):
         """
         Write to a specific address a 32 bits register
         """
-        self.la(Reg.t8, address)
+        self.sw(src, address)
+        # self.la(Reg.t8, address)
 
-        self.srl(Reg.t9, src, 16)
+        # self.srl(Reg.t9, src, 16)
 
-        self.sw(Reg.t9, self.offset(Reg.t8))  # store high bits
-        self.sw(src, self.offset(Reg.t8, 4))  # store low bits
+        # self.sw(Reg.t9, self.offset(Reg.t8))  # store high bits
+        # self.sw(src, self.offset(Reg.t8, 4))  # store low bits
 
     # Arithmetics
     @autowrite
@@ -300,6 +308,10 @@ class Mips:
     @autowrite
     def jal(self, address: str):
         return f"jal {address}"
+
+    @autowrite
+    def jalr(self, dest: Register):
+        return f"jalr {dest}"
 
     # System Calls
     @autowrite
