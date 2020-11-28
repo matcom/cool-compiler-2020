@@ -57,8 +57,8 @@ class CIL_TO_MIPS(object):
         self.label_count = -1
         self.registers_to_save: List[Reg] = [Reg.ra]
 
-        self.mips.write_data("eol:")
-        self.mips.asciiz("\n")
+        # self.mips.write_data("eol:")
+        # self.mips.asciiz("\\n")
 
     def build_types_data(self, types):
         for idx, typex in enumerate(types):
@@ -164,6 +164,9 @@ class CIL_TO_MIPS(object):
         self.mips.empty()
         self.mips.comment("Generating body code")
         for instruction in node.instructions:
+            # if type(instruction) == ReturnNode and instruction.value == 0:
+            #     print(node.name)
+            #     print("     \n".join(map(lambda x: str(x), node.instructions)))
             self.visit(instruction)
 
         self.mips.empty()
@@ -296,7 +299,7 @@ class CIL_TO_MIPS(object):
     @when(StarNode)
     def visit(self, node: StarNode):  # noqa: F811
         self.load_arithmetic(node)
-        self.mips.mult(Reg.t2, Reg.t0, Reg.t1)
+        self.mips.mult(Reg.t0, Reg.t1)
         self.mips.mflo(Reg.t0)
         self.store_memory(Reg.t0, node.dest)
         self.mips.empty()
@@ -304,7 +307,7 @@ class CIL_TO_MIPS(object):
     @when(DivNode)
     def visit(self, node: DivNode):  # noqa: F811
         self.load_arithmetic(node)
-        self.mips.div(Reg.t2, Reg.t0, Reg.t1)
+        self.mips.div(Reg.t0, Reg.t1)
         self.mips.mflo(Reg.t0)
         self.store_memory(Reg.t0, node.dest)
         self.mips.empty()
@@ -355,7 +358,7 @@ class CIL_TO_MIPS(object):
     def visit(self, node: TypeOfNode):  # noqa: F811
         self.mips.comment("TypeOfNode")
         self.mips.la(Reg.t0, node.obj)
-        self.load_memory(Reg.t1, self.mips.offset(Reg.t0))
+        self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0))
         self.store_memory(Reg.t1, node.dest)
         self.mips.empty()
 
@@ -444,6 +447,7 @@ class CIL_TO_MIPS(object):
         self.mips.addi(Reg.t1, Reg.t1, 1)
         self.mips.addi(Reg.t0, Reg.t0, 1)
 
+        self.mips.j(loop)
         self.mips.label(end)
 
         self.mips.move(dst, Reg.t1)
@@ -451,9 +455,9 @@ class CIL_TO_MIPS(object):
     @when(LengthNode)
     def visit(self, node: LengthNode):  # noqa
         self.mips.comment("LengthNode")
-        self.load_memory(Reg.a0, node.msg)
-        self.get_string_length(Reg.a0, Reg.v0)
-        self.store_memory(Reg.v0, node.dest)
+        self.load_memory(Reg.s1, node.msg)
+        self.get_string_length(Reg.s1, Reg.s0)
+        self.store_memory(Reg.s0, node.dest)
         self.mips.empty()
 
     def copy_str(self, src: Reg, dst: Reg, result: Reg):

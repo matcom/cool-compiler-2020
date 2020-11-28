@@ -181,6 +181,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             func_scope.define_var(param_name, param_local)
 
         body = self.visit(node.expression, func_scope)
+        # print(body, type(body), node.expression, "==================================")
         self.register_instruction(ReturnNode(body))
 
         self.current_method = self.current_function = None
@@ -194,10 +195,14 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         end_label = self.to_label_name("end_if")
         self.register_instruction(GotoIfNode(cond_result, true_label))
         false_result = self.visit(node.else_body, if_scope)
+        # if false_result == "0" or false_result == 0:
+        #     print(type(node.else_body), "IfThenElseNode")
         self.register_instruction(AssignNode(result, false_result))
         self.register_instruction(GotoNode(end_label))
         self.register_instruction(LabelNode(true_label))
         true_result = self.visit(node.if_body, if_scope)
+        # if true_result == "0" or true_result == 0:
+        #     print(type(node.if_body), "IfThenElseNode")
         self.register_instruction(AssignNode(result, true_result))
         self.register_instruction(LabelNode(end_label))
 
@@ -215,9 +220,12 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(GotoNode(end_label))
         self.register_instruction(LabelNode(body_label))
         self.visit(node.body, while_scope)
+        self.register_instruction(GotoNode(loop_label))
         self.register_instruction(LabelNode(end_label))
-
-        return 0
+        zero = self.define_internal_local()
+        self.register_instruction(AllocateNode(zero, "Int"))
+        self.register_instruction(SetAttribNode(zero, "value", 0, "Int"))
+        return zero
 
     @when(cool.BlockNode)
     def visit(self, node: cool.BlockNode, scope: Scope):
@@ -232,7 +240,10 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         var_name = self.register_local(VariableInfo(node.id, None))
         scope.define_var(node.id, var_name)
         result = self.visit(node.expression, scope) if node.expression else 0
-
+        if result == 0:
+            result = self.define_internal_local()
+            self.register_instruction(AllocateNode(result, "Int"))
+            self.register_instruction(SetAttribNode(result, "value", 0, "Int"))
         self.register_instruction(AssignNode(var_name, result))
 
     @when(cool.LetInNode)
@@ -256,13 +267,21 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         cond = self.define_internal_local()
         not_cond = self.define_internal_local()
         case_label = self.to_label_name(f"case_{node.type}")
-        self.register_instruction(EqualNode(cond, typex, node.type))
+        # print(node.type, type(node.type))
+        temp_type = self.define_internal_local()
+        type_val = self.define_internal_local()
+        # WARNING: attr initialization isn't done
+        self.register_instruction(AllocateNode(temp_type, node.type))
+        self.register_instruction(TypeOfNode(temp_type, type_val))
+        self.register_instruction(EqualNode(cond, typex, type_val))
         self.register_instruction(ComplementNode(not_cond, cond))
         self.register_instruction(GotoIfNode(not_cond, case_label))
         case_scope = Scope(parent=scope)
         case_var = self.register_local(VariableInfo(node.id, None))
         case_scope.define_var(node.id, case_var)
         case_result = self.visit(node.expression, case_scope)
+        # if case_result == "0" or case_result == 0:
+        #     print(type(node.expression), "CaseNode")
         self.register_instruction(AssignNode(result_inst, case_result))
         self.register_instruction(GotoNode(end_label))
         self.register_instruction(LabelNode(case_label))
@@ -303,8 +322,10 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             )
         else:
             pvar = pvar.local_name
+            # if value == "0" or value == 0:
+            #     print(type(node.expression), "AssignNode")
             self.register_instruction(AssignNode(pvar, value))
-        return 0
+        return value
 
     @when(cool.MemberCallNode)
     def visit(self, node: cool.MemberCallNode, scope: Scope):
