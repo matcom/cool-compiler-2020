@@ -71,6 +71,7 @@ class CILToMIPSVisitor():
     def visit(self, node):
         self.types = node.dottypes
         
+        self.data += 'temp_string: .space 2048\n' 
         self.data += 'void: .word 0\n'
         
         for node_type in node.dottypes.values():
@@ -337,6 +338,15 @@ class CILToMIPSVisitor():
         self.text += f'li $v0, 5\n'
         self.text += f'syscall\n'
         self.text += f'sw $v0, {read_offset}($sp)\n'
+
+    @visitor.when(CIL_AST.ReadString)
+    def visit(self, node):
+        read_offset = self.var_offset[self.current_function.name][node.result]
+        self.text += f'la $a0, temp_string\n'
+        self.text += f'li $a1, 2048\n'
+        self.text += f'li $v0, 8\n'
+        self.text += f'syscall\n'
+        self.text += f'sw $a0, {read_offset}($sp)\n'
 
     @visitor.when(CIL_AST.LoadStr)
     def visit(self, node):
