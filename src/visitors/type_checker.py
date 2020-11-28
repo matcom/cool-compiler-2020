@@ -321,7 +321,8 @@ class TypeChecker(State):
 
     @visitor.when(IsVoidNode)
     def visit(self, node, scope):
-        self.visit(node.expr, scope)
+        etype = self.visit(node.expr, scope)
+        self.context.exprs_dict[node.expr] = etype
         return BoolType()
 
     @visitor.when(VariableNode)
