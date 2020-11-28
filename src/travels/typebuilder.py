@@ -24,7 +24,10 @@ class TypeBuilder:
     @visit.register
     def _(self, node: coolAst.ClassDef):
         self.current_type = self.context.get_type(node.idx)
-        parent = self.context.get_type(node.parent)
+        try:
+            parent = self.context.get_type(node.parent)
+        except SemanticError:
+            raise SemanticError(f"{node.line, node.column + len(node.idx) + 10} - TypeError: Cannot inherit from undefined {node.parent}")
 
         # No se puede heredar de Int ni de BOOL ni de AutoType ni de String
         if parent.name in INHERITABLES:
@@ -32,8 +35,8 @@ class TypeBuilder:
 
         # Detectar dependencias circulares
         if parent.conforms_to(self.current_type):
-            self.errors.append(
-                f"Circular dependency: class {self.current_type.name} cannot inherit from {parent.name}"
+            raise SemanticError(
+                f"{node.line, node.column + len(node.idx) + 10} - SemanticError: Circular dependency. Class {node.idx} can not inherit from {parent.name}"
             )
         else:
             self.current_type.set_parent(parent)
