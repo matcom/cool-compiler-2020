@@ -237,8 +237,7 @@ class TypeChecker:
         if cond.name != 'Bool':
             self.errors.append(TypesError(TypesError.LOOP_CONDITION_ERROR, *node.pos))   
         
-        self.visit(node.expr, scope)
-        return ObjectType()
+        return self.visit(node.expr, scope)
 
     @visitor.when(IsVoidNode)
     def visit(self, node:IsVoidNode, scope:Scope):

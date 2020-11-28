@@ -23,8 +23,8 @@ class BaseCILToMIPSVisitor:
        
         self.loop_idx = 0   # to count the generic loops in the app
         self.first_defined = {'strcopier': True}   # bool to keep in account when the first defined string function was defined  
-        
         self.inherit_graph = inherit_graph
+        self.space_idx = 0
 
     def initialize_methods(self):
         self.methods = [] 
@@ -185,31 +185,53 @@ class BaseCILToMIPSVisitor:
             return 
 
         # Choose a register that requires the minimal number of load and store instructions
-        score = {}          # keeps the score of each variable (the amount of times a variable in a register is used) 
+        score = self.initialize_score()          # keeps the score of each variable (the amount of times a variable in a register is used) 
         for inst in self.block[1:]:
             inst: InstructionNode
-            if inst.in1 and inst.in1 != curr_inst.in1 and curr_inst.in2 != inst.in1 and curr_inst.out != inst.in1:
-                _update_score(score, inst.in1) 
-            if inst.in2 and inst.in2 != curr_inst.in1 and curr_inst.in2 != inst.in2 and curr_inst.out != inst.in2:
-                _update_score(score, inst.in2)
-            if inst.out and inst.out != curr_inst.in1 and inst.out != curr_inst.in2 and inst.out != curr_inst.out:
-                _update_score(score, inst.out)
+            if self.is_variable(inst.in1):
+                self._update_score(score, inst.in1) 
+            if self.is_variable(inst.in2):
+                self._update_score(score, inst.in2)
+            if self.is_variable(inst.out):
+                self._update_score(score, inst.out)
+        
         # Chooses the one that is used less
-        n_var = min(score, key=lambda x: score[x])
+        register = min(score, key=lambda x: score[x])
     
-        register, memory, _ = self.addr_desc.get_var_storage(n_var)
+        # register, memory, _ = self.addr_desc.get_var_storage(n_var)
 
-        update_register(var, register)
+        self.update_register(var, register)
         self.load_var_code(var)
 
+    def initialize_score(self):
+        score = {}
+        for reg in self.reg_desc.registers:
+            score[reg] = 0
+        try:
+            reg = self.addr_desc.get_var_reg(self.inst.in1) 
+            if reg:
+                score[reg] = 999
+        except: pass
+        try:
+            reg = self.addr_desc.get_var_reg(self.inst.in2) 
+            if reg:
+                score[reg] = 999
+        except: pass
+        try:
+            reg = self.addr_desc.get_var_reg(self.inst.out) 
+            if reg:
+                score[reg] = 999
+        except: pass
+        return score        
 
     def _update_score(self, score, var):
-        if self.addr_desc.get_var_reg(var) is None:
+        reg = self.addr_desc.get_var_reg(var) 
+        if reg is None:
             return
         try:
-            score[var]+= 1
+            score[reg] += 1
         except:
-            score[var] = 1
+            score[reg] = 1
 
     def update_register(self, var, register):
         content = self.reg_desc.get_content(register)
@@ -392,3 +414,14 @@ class BaseCILToMIPSVisitor:
         self.code.append(f'li ${rdest}, 0')
         self.code.append(f'end_{loop_idx}:')
         self.loop_idx += 1
+
+    def create_new_space(self, obj):
+        self.code.append("# Loading new space and pushing it to the stack")
+        label_name = f'{obj}_{self.space_idx}'
+        self.data_code.append(f'{label_name}: .space 536')
+        self.get_reg_var(obj)
+        reg = self.addr_desc.get_var_reg(obj)
+        self.code.append(f'la ${reg}, {label_name}')
+        self.code.append(f'sw ${reg}, ($sp)')
+        self.code.append('addiu $sp, $sp, -4')
+        self.space_idx += 1

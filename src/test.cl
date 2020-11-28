@@ -1,40 +1,97 @@
-class Main {
-
-    main(): Object {
-        (new Alpha).print()
-    };
-};
-
-class Test {
-    test1: Int;
-    test2: Int <- test3;
-    
-    testing1(): Int {
-        2 - 2
-    };
-
-
-    test3: String <- "1";
-
-    testing2(a: Alpha, b: Int): Int {
-        let count: Int, pow: Int <- 1 -- Initialization must be an expression
-        in {
-            count <- 0;
+(* models one-dimensional cellular automaton on a circle of finite radius
+   arrays are faked as Strings,
+   X's respresent live cells, dots represent dead cells,
+   no error checking is done *)
+class CellularAutomaton inherits IO {
+    population_map : String;
+   
+    init(map : String) : CellularAutomaton {
+        {
+            population_map <- map;
+            self;
         }
     };
-
-    testing3(): Int {
-        testing2(new Alpha, 2)
+   
+    print() : CellularAutomaton {
+        {
+            out_string(population_map.concat("\n"));
+            self;
+        }
     };
-
-    testing4(): Int {
-        test1 <- ~(1 + 2 + 3 + 4 + 5) -- The left side must be an expression
+   
+    num_cells() : Int {
+        population_map.length()
+    };
+   
+    cell(position : Int) : String {
+        population_map.substr(position, 1)
+    };
+   
+    cell_left_neighbor(position : Int) : String {
+        if position = 0 then
+            cell(num_cells() - 1)
+        else
+            cell(position - 1)
+        fi
+    };
+   
+    cell_right_neighbor(position : Int) : String {
+        if position = num_cells() - 1 then
+            cell(0)
+        else
+            cell(position + 1)
+        fi
+    };
+   
+    (* a cell will live if exactly 1 of itself and it's immediate
+       neighbors are alive *)
+    cell_at_next_evolution(position : Int) : String {
+        if (if cell(position) = "X" then 1 else 0 fi
+            + if cell_left_neighbor(position) = "X" then 1 else 0 fi
+            + if cell_right_neighbor(position) = "X" then 1 else 0 fi
+            = 1)
+        then
+            "X"
+        else
+            "."
+        fi
+    };
+   
+    evolve() : CellularAutomaton {
+        (let position : Int in
+        (let num : Int <- num_cells() in
+        (let temp : String in
+            {
+                while position < num loop
+                    {
+                        temp <- temp.concat(cell_at_next_evolution(position));
+                        position <- position + 1;
+                    }
+                pool;
+                population_map <- temp;
+                self;
+            }
+        ) ) )
     };
 };
 
-class Alpha inherits IO {
-    x : Int <- 0;
-    print() : Object {
-        out_string("reached!!\n")
+class Main {
+    cells : CellularAutomaton;
+   
+    main() : Main {
+        {
+            cells <- (new CellularAutomaton).init("         X         ");
+            cells.print();
+            (let countdown : Int <- 20 in
+                while 0 < countdown loop
+                    {
+                        cells.evolve();
+                        cells.print();
+                        countdown <- countdown - 1;
+                    }
+                pool
+            );
+            self;
+        }
     };
 };

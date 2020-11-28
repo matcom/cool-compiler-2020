@@ -14,7 +14,7 @@ def codegen_pipeline(context, ast, scope, debug=False):
     inherit_graph = context.build_inheritance_graph()
     # pprint(inherit_graph)
     data_code, text_code = CILToMIPSVistor(inherit_graph).visit(cil_ast)
-    return get_code(data_code, text_code, debug)
+    return get_code(data_code, text_code, False)
 
 def get_code(data_code, text_code, debug):
     text = '\n'.join(text_code) + '\n' + '\n'.join(data_code)

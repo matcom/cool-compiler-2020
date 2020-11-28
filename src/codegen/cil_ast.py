@@ -193,16 +193,17 @@ class StaticCallNode(InstructionNode):
         self.out = dest
 
 class DynamicCallNode(InstructionNode):
-    def __init__(self, xtype, method, dest, args, return_type, idx=None):
+    def __init__(self, xtype, obj, method, dest, args, return_type, idx=None):
         super().__init__(idx)
         self.type = xtype
         self.method = method
         self.dest = dest
         self.args = args
         self.return_type = return_type
-        
+        self.obj = obj
+
         self.out = dest
-        self.in1 = 'self'
+        self.in1 = obj
 
 class ArgNode(InstructionNode):
     def __init__(self, name, idx=None):

@@ -110,21 +110,21 @@ class Scope:
         try:
             return next(x for x in locals if x.name == vname)
         except StopIteration:
-            return self.parent.find_variable(vname, self.index) if self.parent else None
+            return self.parent.find_variable(vname, index) if self.parent is not None else None
 
     def find_local(self, vname, index=None) -> VariableInfo:
         locals = self.locals if index is None else itt.islice(self.locals, index)
         try:
             return next(x for x in locals if x.name == vname)
         except StopIteration:
-            return self.parent.find_local(vname, self.index) if self.parent else None
+            return self.parent.find_local(vname, self.index) if self.parent is not None else None
 
     def find_attribute(self, vname, index=None):
         locals = self.attributes if index is None else itt.islice(self.attributes, index)
         try:
             return next(x for x in locals if x.name == vname)
         except StopIteration:
-            return self.parent.find_attribute(vname, index) if self.parent else None
+            return self.parent.find_attribute(vname, index) if self.parent is not None else None
 
 
     def get_class_scope(self):

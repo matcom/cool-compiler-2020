@@ -15,7 +15,7 @@ class BaseCOOLToCILVisitor:
         self.current_function = None
         self.context: Context = context
         self.idx = 0
-        self.name_regex = re.compile('local_.+_(.+)_\d+')
+        self.name_regex = re.compile('local_[^_]+_[^_]+_(.+)_\d+')
         self.constructors = []
         self.void_data = None
         self.inherit_graph = {}
@@ -146,9 +146,9 @@ class BaseCOOLToCILVisitor:
         f6_intructions = [cil.ReadIntNode(f6_localVars[0].name, self.index),cil.ReturnNode(f6_localVars[0].name, self.index)]
         f6 = FunctionNode("function_in_int_IO",f6_params,f6_localVars,f6_intructions)
 
-        f7_params = [ParamNode("self", 'IO')]
-        f7_localVars = [LocalNode("local_in_string_result_0")]
-        f7_intructions = [cil.ReadStringNode(f7_localVars[0].name, self.index),cil.ReturnNode(f7_localVars[0].name, self.index)]
+        f7_params = [ParamNode("self", 'IO'), ParamNode('dest', "String")]
+        f7_localVars = []
+        f7_intructions = [cil.ReadStringNode(f7_params[1].name, self.index),cil.ReturnNode(f7_params[1].name, self.index)]
         f7 = FunctionNode("function_in_string_IO",f7_params,f7_localVars,f7_intructions)
 
         f8_params = [ParamNode("self", 'String')]
@@ -156,14 +156,14 @@ class BaseCOOLToCILVisitor:
         f8_intructions = [cil.LengthNode(f8_localVars[0].name,f8_params[0].name, self.index),cil.ReturnNode(f8_localVars[0].name, self.index)]
         f8 = FunctionNode("function_length_String",f8_params,f8_localVars,f8_intructions)
 
-        f9_params = [ParamNode("self", 'String'),ParamNode("word", 'String')]
-        f9_localVars = [LocalNode("local_concat_result_0")]
-        f9_intructions = [cil.ConcatNode(f9_localVars[0].name,f9_params[0].name,f9_params[1].name, self.index),cil.ReturnNode(f9_localVars[0].name, self.index)]
+        f9_params = [ParamNode("self", 'String'),ParamNode("word", 'String'), ParamNode('dest', 'String')]
+        f9_localVars = []
+        f9_intructions = [cil.ConcatNode(f9_params[2].name,f9_params[0].name,f9_params[1].name, self.index),cil.ReturnNode(f9_params[2].name, self.index)]
         f9 = FunctionNode("function_concat_String",f9_params,f9_localVars,f9_intructions)
 
-        f10_params = [ParamNode("self", 'String'),ParamNode("begin", 'Int'),ParamNode("end", 'Int')]
-        f10_localVars = [LocalNode("local_substr_result_0")]
-        f10_intructions = [cil.SubstringNode(f10_localVars[0].name,f10_params[0].name,f10_params[1].name,f10_params[2].name, self.index), cil.ReturnNode(f10_localVars[0].name, self.index)]
+        f10_params = [ParamNode("self", 'String'),ParamNode("begin", 'Int'),ParamNode("end", 'Int'),ParamNode('dest', 'String')]
+        f10_localVars = []
+        f10_intructions = [cil.SubstringNode(f10_params[3].name,f10_params[0].name,f10_params[1].name,f10_params[2].name, self.index), cil.ReturnNode(f10_params[3].name, self.index)]
         f10 = FunctionNode("function_substr_String",f10_params,f10_localVars,f10_intructions)
 
         self.dotcode += [f1,f2,f3,f4,f5,f6,f7,f8,f9,f10]

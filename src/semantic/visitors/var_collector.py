@@ -109,13 +109,6 @@ class VarCollector:
             error_text = SemanticError.SELF_IN_LET
             self.errors.append(SemanticError(error_text, *node.pos))
             return
-        
-        # if scope.is_defined(node.id):
-        #     var = scope.find_variable(node.id)
-        #     if var.type != ErrorType():
-        #         error_text = SemanticError.LOCAL_ALREADY_DEFINED %(node.id, self.current_method.name) 
-        #         self.errors.append(SemanticError(error_text, *node.pos))        
-        #     return
 
         try:
             vtype = self.context.get_type(node.type, node.pos)
@@ -142,12 +135,12 @@ class VarCollector:
     
         vinfo = scope.find_variable(node.id)
         if vinfo is None:
-            error_text = NamesError.VARIABLE_NOT_DEFINED %(node.id)  
-            self.errors.append(NamesError(error_text, *node.pos))
-            vtype = ErrorType()
-            scope.define_variable(node.id, vtype)
-        else:
-            vtype = vinfo.type
+            var_info = scope.find_attribute(node.id)
+            if var_info is None:
+                error_text = NamesError.VARIABLE_NOT_DEFINED %(node.id)  
+                self.errors.append(NamesError(error_text, *node.pos))
+                vtype = ErrorType()
+                scope.define_variable(node.id, vtype)
             
         self.visit(node.expr, scope)
     
@@ -248,8 +241,8 @@ class VarCollector:
             self.errors.append(TypesError(error_txt, *node.type_pos))
             typex = ErrorType()
 
-        self.visit(node.expr, scope)
         scope.define_variable(node.id, typex)
+        self.visit(node.expr, scope)
 
 
     

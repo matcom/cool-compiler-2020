@@ -81,9 +81,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_function = self.register_function(name)
      
         # Handle PARAMS
-        self.register_param('self', self.current_type)
+        self.register_param('self', self.current_type.name)
         for p_name, p_type in node.params:
-            self.register_param(p_name, p_type)
+            self.register_param(p_name, p_type.value)
         
         value, _ = self.visit(node.body, scope)
         
@@ -137,14 +137,17 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         else: 
             result = self.define_internal_local()
 
-        continue_label = cil.LabelNode(f'continue__{self.index}') 
-        isvoid = self.check_void(obj)
-        self.register_instruction(cil.GotoIfFalseNode(isvoid, continue_label.label))
-        self.register_instruction(cil.ErrorNode('dispatch_error'))
-        self.register_instruction(continue_label)
+        # continue_label = cil.LabelNode(f'continue__{self.index}') 
+        # isvoid = self.check_void(obj)
+        # self.register_instruction(cil.GotoIfFalseNode(isvoid, continue_label.label))
+        # self.register_instruction(cil.ErrorNode('dispatch_error'))
+        # self.register_instruction(continue_label)
 
         # name = self.to_function_name(node.id, otype.name)
-        self.register_instruction(cil.StaticCallNode(otype.name, node.id, result, args_node, rtype.name))
+        if otype == StringType():
+            self.register_instruction(cil.StaticCallNode(otype.name, node.id, result, args_node, rtype.name))
+        else:
+            self.register_instruction(cil.DynamicCallNode(otype.name, obj, node.id, result, args_node, rtype.name))
         return result, self._return_type(otype, node)
 
     @visitor.when(BaseCallNode)
@@ -163,11 +166,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         else: 
             result = self.define_internal_local()
         
-        continue_label = cil.LabelNode(f'continue__{self.index}') 
-        isvoid = self.check_void(obj)
-        self.register_instruction(cil.GotoIfFalseNode(isvoid, continue_label.label))
-        self.register_instruction(cil.ErrorNode('dispatch_error'))
-        self.register_instruction(continue_label)
+        # continue_label = cil.LabelNode(f'continue__{self.index}') 
+        # isvoid = self.check_void(obj)
+        # self.register_instruction(cil.GotoIfFalseNode(isvoid, continue_label.label))
+        # self.register_instruction(cil.ErrorNode('dispatch_error'))
+        # self.register_instruction(continue_label)
         
         # name = self.to_function_name(node.id, node.type)
         self.register_instruction(cil.StaticCallNode(node.type, node.id, result, args_node, rtype.name))
@@ -186,7 +189,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         else: 
             result = self.define_internal_local()
 
-        self.register_instruction(cil.DynamicCallNode(self.current_type.name, node.id, result, args_node, rtype.name))
+        self.register_instruction(cil.DynamicCallNode(self.current_type.name, 'self', node.id, result, args_node, rtype.name))
         return result, self._return_type(self.current_type, node)
 
     @visitor.when(ConstantNumNode)
@@ -238,7 +241,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # calling the constructor to load all attributes
         # Si tiene atributos entonces tendrá constructor (esto se deberia optimizar mas)
         if typex.all_attributes():
-            self.register_instruction(cil.StaticCallNode(typex.name, typex.name, None, [cil.ArgNode(instance)], typex.name))
+            self.register_instruction(cil.StaticCallNode(typex.name, typex.name, instance, [cil.ArgNode(instance)], typex.name))
         
         return instance, typex
 
@@ -247,15 +250,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     def visit(self, node: WhileNode, scope: Scope):
         '''
         LABEL start
-        IF <cond> GOTO continue
-        GOTO end
-        LABEL continue
+        IF NOT <cond> GOTO end
         res = <expr>
         GOTO start
         LABEL end
         '''
         start_label = cil.LabelNode(f'start__{self.idx}')
-        continue_label = cil.LabelNode(f'continue__{self.idx}')
         end_label = cil.LabelNode(f'end__{self.idx}')
         
         result = self.define_internal_local()
@@ -263,9 +263,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(start_label)
 
         cond, _ = self.visit(node.cond, scope)
-        self.register_instruction(cil.GotoIfNode(cond, continue_label.label))
-        self.register_instruction(cil.GotoNode(end_label.label))
-        self.register_instruction(continue_label)
+        self.register_instruction(cil.GotoIfFalseNode(cond, end_label.label))
         expr, typex = self.visit(node.expr, scope)
         self.register_instruction(cil.AssignNode(result, expr))
         self.register_instruction(cil.GotoNode(start_label.label))
@@ -317,9 +315,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.visit(init, child_scope)
         
         expr, typex = self.visit(node.expr, child_scope)
-        result = self.define_internal_local()
-        self.register_instruction(cil.AssignNode(result, expr))
-        return result, typex
+        # result = self.define_internal_local()
+        # self.register_instruction(cil.AssignNode(result, expr))
+        return expr, typex
 
 
     @visitor.when(CaseNode) 
