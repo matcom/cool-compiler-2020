@@ -14,6 +14,7 @@ class TypeChecker(State):
     def run(self, inputx):
         ast, context, scope = inputx
         self.context = context
+        self.context.exprs_dict = {}
         self.visit(ast, scope)
         return ast, context, scope
 
@@ -94,6 +95,7 @@ class TypeChecker(State):
         vinfo = scope.get_attribute(node.id)
         if node.expr:
             etype = self.visit(node.expr, ascope)
+            self.context.exprs_dict[node.expr] = etype
             if not etype.conforms_to(vinfo.type):
                 self.errors.append(CTypeError(node.expr.row, node.expr.col, INCOMPATIBLE_TYPES %(etype.name, vinfo.type.name)))
                 return ErrorType()
@@ -108,21 +110,9 @@ class TypeChecker(State):
     def visit(self, node, scope):
         fscope = scope.func_scopes[node.id]
         parent = self.current_type.parent
-        # ptypes = [param[1] for param in node.params]
-
+        
         self.current_method = meth = self.current_type.get_method(node.id)
 
-        # while parent:
-        #     try:
-        #         old_meth = parent.get_method(node.id)
-        #         if old_meth.return_type.name != meth.return_type.name and node.type != 'SELF_TYPE':
-        #             self.errors.append(CSemanticError(node.row, node.col, WRONG_SIGNATURE % (node.id, parent.name)))
-        #         elif any(type1.name != type2.name for name, type1, type2 in zip(ptypes, meth.param_types, old_meth.param_types)):
-        #             self.errors.append(CSemanticError(node.row, node.col, WRONG_SIGNATURE % (node.id, parent.name)))
-        #         break
-        #     except SemanticError:
-        #         parent = parent.parent
-        
         res = self.visit(node.body, fscope)
 
         if not res.conforms_to(meth.return_type):
@@ -135,6 +125,7 @@ class TypeChecker(State):
 
         if node.expr:
             etype = self.visit(node.expr, scope)
+            self.context.exprs_dict[node.expr] = etype
             if not etype.conforms_to(vtype):
                 self.errors.append(CTypeError(node.row, node.col, INCOMPATIBLE_TYPES %(vtype.name, etype.name)))
             return etype
@@ -147,6 +138,7 @@ class TypeChecker(State):
         vtype = vinfo.type
         
         rtype = self.visit(node.expr, scope)
+        self.context.exprs_dict[node.expr] = rtype
 
         if not rtype.conforms_to(vtype):
             self.errors.append(CTypeError(node.expr.row, node.expr.col, INCOMPATIBLE_TYPES %(vtype.name, rtype.name)))
@@ -156,6 +148,7 @@ class TypeChecker(State):
     @visitor.when(ExprCallNode)
     def visit(self, node, scope):
         otype = self.visit(node.obj, scope)
+        self.context.exprs_dict[node.obj] = otype
 
         meth = self._get_method(node, otype, node.id)
         self._check_args(node, meth, scope, node.args)
@@ -185,7 +178,7 @@ class TypeChecker(State):
     @visitor.when(WhileNode)
     def visit(self, node, scope):
         ctype = self.visit(node.cond, scope)
-
+        
         if ctype.name != 'Bool':
             self.errors.append(CTypeError(node.cond.row, node.cond.col, INCORRECT_TYPE %(ctype.name, 'Bool')))
         
@@ -217,6 +210,7 @@ class TypeChecker(State):
     @visitor.when(CaseNode)
     def visit(self, node, scope):
         etype = self.visit(node.expr, scope)
+        self.context.exprs_dict[node.expr] = etype
         new_scope = scope.expr_dict[node]
         
         types = []
@@ -236,6 +230,7 @@ class TypeChecker(State):
         var_info = scope.find_variable(node.id)
         
         typex = self.visit(node.expr, scope)
+        self.context.exprs_dict[node.expr] = typex
         return typex, var_info.type
 
     @visitor.when(LetNode)
@@ -248,7 +243,9 @@ class TypeChecker(State):
             self.visit(init, iscope)
             iscope = iscope.children[0]
 
-        return self.visit(node.expr, iscope)
+        etype = self.visit(node.expr, iscope)
+        self.context.exprs_dict[node.expr] = etype
+        return etype   
 
     @visitor.when(LetDeclarationNode)
     def visit(self, node, scope):
@@ -257,6 +254,7 @@ class TypeChecker(State):
 
         if node.expr:
             etype = self.visit(node.expr, scope)
+            self.context.exprs_dict[node.expr] = etype
             if not etype.conforms_to(vtype):
                 self.errors.append(CTypeError(node.expr.row, node.expr.col, INCOMPATIBLE_TYPES %(vtype.name, etype.name)))
             return etype
