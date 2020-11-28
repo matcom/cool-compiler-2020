@@ -357,7 +357,7 @@ class CILToMIPSVisitor():
         self.text += 'addi $t0, $t0, 1\n'
         self.text += 'j jump_read_str_char\n'
 
-        self.text += 'finish_jump_read_str_char\n'
+        self.text += 'finish_jump_read_str_char:\n'
         self.text += 'addi $t0, $t0, -1\n' # go to char at length - 1
         self.text += 'sb $0, 0($t0)\n' # remove last char
 
