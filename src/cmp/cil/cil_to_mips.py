@@ -357,7 +357,7 @@ class CIL_TO_MIPS(object):
     @when(TypeOfNode)
     def visit(self, node: TypeOfNode):  # noqa: F811
         self.mips.comment("TypeOfNode")
-        self.mips.la(Reg.t0, node.obj)
+        self.load_memory(Reg.t0, node.obj)
         self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0))
         self.store_memory(Reg.t1, node.dest)
         self.mips.empty()
@@ -489,10 +489,10 @@ class CIL_TO_MIPS(object):
         self.load_memory(Reg.s0, node.msg1)
         self.load_memory(Reg.s1, node.msg2)
 
-        self.get_string_length(Reg.s0, Reg.t0)
-        self.get_string_length(Reg.s1, Reg.t1)
+        self.get_string_length(Reg.s0, Reg.s4)
+        self.get_string_length(Reg.s1, Reg.s5)
 
-        self.mips.add(Reg.a0, Reg.t0, Reg.t1)  # WARNING: Divide in 2, from half to byte
+        self.mips.add(Reg.a0, Reg.s4, Reg.s5)  # WARNING: Divide in 2, from half to byte
         self.mips.sbrk()
         self.mips.move(Reg.s3, Reg.v0)  # The new space reserved
 
@@ -532,6 +532,8 @@ class CIL_TO_MIPS(object):
     @when(SubstringNode)
     def visit(self, node: SubstringNode):  # noqa: F811
         self.mips.comment("SubstringNode")
+        self.mips.li(Reg.a0, 10)
+        self.mips.print_int()
         self.load_memory(Reg.s0, node.msg1)
         self.load_memory(Reg.s1, node.length)
         self.load_memory(Reg.s3, node.start)
@@ -539,6 +541,7 @@ class CIL_TO_MIPS(object):
         self.mips.add(Reg.s0, Reg.s0, Reg.s3)
 
         self.mips.move(Reg.a0, Reg.s1)  # allocate heap memory
+        self.mips.print_int()
         self.mips.sbrk()
         self.copy_substr(Reg.s0, Reg.v0, Reg.s1)
 
@@ -599,7 +602,7 @@ class CIL_TO_MIPS(object):
         self.load_memory(Reg.t0, node.obj)
         type_data = self.types_offsets[node.type]
         offset = type_data.attr_offsets[node.attrib] * DATA_SIZE
-        if node.value in self.local_vars_offsets:
+        if node.value in self.local_vars_offsets or node.value in self.actual_args:
             self.mips.comment(f"Seting local var {node.value}")
             self.load_memory(Reg.t1, node.value)
         else:
@@ -613,7 +616,7 @@ class CIL_TO_MIPS(object):
                 # self.mips.orr(Reg.t1, Reg.t3, Reg.t4)
                 self.mips.li(Reg.t1, value)
             except ValueError:
-                self.mips.comment(f"Seting data {node.value}")
+                self.mips.comment(f"Setting data {node.value}")
                 self.mips.la(Reg.t1, node.value)
         self.mips.store_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
         self.mips.empty()
