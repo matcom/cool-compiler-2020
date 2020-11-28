@@ -32,7 +32,13 @@ def build_cool_grammar():
     G = Grammar()
     program = G.NonTerminal("<program>", True)
 
-    class_list, class_def, empty_feature_list, feature_list, method_def = G.NonTerminals(
+    (
+        class_list,
+        class_def,
+        empty_feature_list,
+        feature_list,
+        method_def,
+    ) = G.NonTerminals(
         "<class_list> <class_def> <empty_feature_list> <feature_list> <meod_def>"
     )
 
@@ -48,8 +54,8 @@ def build_cool_grammar():
         "<exp> <type> <term> <factor> <nested_lets> <loop_statements>"
     )
 
-    arith, atom, actions, action, block = G.NonTerminals(
-        "<arith> <atom> <actions> <action> <block>"
+    arith, atom, actions, action, block, postfix = G.NonTerminals(
+        "<arith> <atom> <actions> <action> <block> <postfix>"
     )
 
     args_list_empty, param_list_empty, case_statement, string_const = G.NonTerminals(
@@ -99,19 +105,19 @@ def build_cool_grammar():
     class_list %= class_def + dot_comma + class_list, lambda s: [s[1]] + s[3]
 
     class_def %= (
-        class_keyword + classid + obrack + empty_feature_list + cbrack,
+        class_keyword + typex + obrack + empty_feature_list + cbrack,
         lambda s: ClassDef(s[2].lex, s[4], s[2].token_line, s[2].token_column),
     )
 
     class_def %= (
         class_keyword
-        + classid
+        + typex
         + inherits
         + typex
         + obrack
         + empty_feature_list
         + cbrack,
-        lambda s: ClassDef(s[2].lex, s[6], s[2].token_line, s[2].token_column, s[4]),
+        lambda s: ClassDef(s[2].lex, s[6], s[2].token_line, s[2].token_column, s[4].lex),
     )
 
     feature_list %= method_def + dot_comma, lambda s: [s[1]]
@@ -138,20 +144,20 @@ def build_cool_grammar():
         lambda s: MethodDef(
             s[1].lex,
             s[3],
-            s[6],
+            s[6].lex,
             s[1].token_line,
             s[1].token_column,
             s[8],
-            s[7].token_column - (len(s[6]) + 2)
+            s[7].token_column - (len(s[6].lex) + 2),
         ),
     )
 
     attr_def %= idx + dd + typex, lambda s: AttributeDef(
-        s[1].lex, s[3], s[1].token_line, s[1].token_column
+        s[1].lex, s[3].lex, s[1].token_line, s[1].token_column
     )
 
     attr_def %= idx + dd + typex + assign + exp, lambda s: AttributeDef(
-        s[1].lex, s[3], s[1].token_line, s[1].token_column, s[5]
+        s[1].lex, s[3].lex, s[1].token_line, s[1].token_column, s[5]
     )
 
     param_list_empty %= param_list, lambda s: s[1]
@@ -161,7 +167,7 @@ def build_cool_grammar():
     param_list %= param + coma + param_list, lambda s: [s[1]] + s[3]
 
     param %= idx + dd + typex, lambda s: Param(
-        s[1].lex, s[3], s[1].token_line, s[1].token_column
+        s[1].lex, s[3].lex, s[1].token_line, s[1].token_column
     )
 
     statement_list %= exp, lambda s: s[1]
@@ -172,18 +178,20 @@ def build_cool_grammar():
         s[2], s[1].token_line, s[1].token_column - 3, s[4]
     )
 
-    nested_lets %= idx + dd + typex, lambda s: [(s[1].lex, s[3], None)]
+    nested_lets %= idx + dd + typex, lambda s: [(s[1].lex, s[3].lex, None)]
 
     nested_lets %= (
         idx + dd + typex + coma + nested_lets,
-        lambda s: [(s[1].lex, s[3], None)] + s[5],
+        lambda s: [(s[1].lex, s[3].lex, None)] + s[5],
     )
 
-    nested_lets %= idx + dd + typex + assign + exp, lambda s: [(s[1].lex, s[3], s[5])]
+    nested_lets %= idx + dd + typex + assign + exp, lambda s: [
+        (s[1].lex, s[3].lex, s[5])
+    ]
 
     nested_lets %= (
         idx + dd + typex + assign + exp + coma + nested_lets,
-        lambda s: [(s[1].lex, s[3], s[5])] + s[7],
+        lambda s: [(s[1].lex, s[3].lex, s[5])] + s[7],
     )
 
     exp %= var_dec, lambda s: s[1]
@@ -193,7 +201,7 @@ def build_cool_grammar():
     string_const %= tilde_string_const, lambda s: StringConstant(s[1].lex)
 
     instantiation %= new + typex, lambda s: InstantiateClassNode(
-        s[2], s[1].token_line, s[1].token_column - 3, []
+        s[2].lex, s[1].token_line, s[1].token_column - 3, []
     )
 
     loop_statements %= exp + dot_comma, lambda s: [s[1]]
@@ -243,15 +251,29 @@ def build_cool_grammar():
 
     term %= factor, lambda s: s[1]
 
-    term %= not_ + factor, lambda s: NotNode(s[2], s[1].token_line, s[1].token_column)
+    # term %= not_ + factor, lambda s: NotNode(s[2], s[1].token_line, s[1].token_column)
 
-    term %= not_operator + factor, lambda s: NegNode(s[2])
+    # term %= not_operator + factor, lambda s: NegNode(s[2], s[1].token_line, s[1].token_column + 1)
 
     factor %= if_ + exp + then + exp + else_ + exp + fi, lambda s: IfThenElseNode(
         s[2], s[4], s[6]
     )
 
-    factor %= opar + atom + cpar, lambda s: s[2]
+    exp %= not_operator + exp, lambda s: NegNode(
+        s[2], s[1].token_line, s[1].token_column + 1
+    )
+
+    exp %= not_ + exp, lambda s: NotNode(s[2], s[1].token_line, s[1].token_column)
+
+    postfix %= not_ + factor, lambda s: NotNode(
+        s[2], s[1].token_line, s[1].token_column
+    )
+
+    postfix %= not_operator + atom, lambda s: NegNode(
+        s[2], s[1].token_line, s[1].token_column + 1
+    )
+
+    factor %= opar + exp + cpar, lambda s: s[2]
 
     factor %= num, lambda s: IntegerConstant(s[1].lex)
 
@@ -271,44 +293,60 @@ def build_cool_grammar():
 
     factor %= (
         factor + arroba + typex + period + idx + opar + args_list_empty + cpar,
-        lambda s: ParentFuncCall(s[1], s[3], s[5].lex, s[7]),
+        lambda s: ParentFuncCall(s[1], s[3].lex, s[5].lex, s[7]),
     )
 
     factor %= false, lambda s: FalseConstant()
 
     factor %= instantiation, lambda s: s[1]
 
-    atom %= arith + lt + arith, lambda s: LowerThanNode(
+    exp %= atom + lt + atom, lambda s: LowerThanNode(
         s[1], s[3], s[2].token_line, s[2].token_column - 1
     )
 
-    atom %= arith + eq + arith, lambda s: EqualToNode(
+    exp %= atom + eq + atom, lambda s: EqualToNode(
         s[1], s[3], s[2].token_line, s[2].token_column - 1
     )
 
-    atom %= arith + ge + arith, lambda s: GreaterEqualNode(
+    exp %= atom + ge + atom, lambda s: GreaterEqualNode(
         s[1], s[3], s[2].token_line, s[2].token_column - 2
     )
 
-    atom %= arith + le + arith, lambda s: LowerEqual(
+    exp %= atom + le + atom, lambda s: LowerEqual(
+        s[1], s[3], s[2].token_line, s[2].token_column - 2
+    )
+
+    exp %= atom + lt + postfix, lambda s: LowerThanNode(
+        s[1], s[3], s[2].token_line, s[2].token_column - 1
+    )
+
+    exp %= atom + eq + postfix, lambda s: EqualToNode(
+        s[1], s[3], s[2].token_line, s[2].token_column - 1
+    )
+
+    exp %= atom + ge + postfix, lambda s: GreaterEqualNode(
+        s[1], s[3], s[2].token_line, s[2].token_column - 2
+    )
+
+    exp %= atom + le + postfix, lambda s: LowerEqual(
         s[1], s[3], s[2].token_line, s[2].token_column - 2
     )
 
     atom %= arith, lambda s: s[1]
 
-    typex %= intx, lambda s: "Int"
+    typex %= intx, lambda s: s[1]
 
-    typex %= boolean, lambda s: "Bool"
+    typex %= boolean, lambda s: s[1]
 
-    typex %= string, lambda s: "String"
+    typex %= string, lambda s: s[1]
 
-    typex %= objectx, lambda s: "Object"
+    typex %= objectx, lambda s: s[1]
 
-    typex %= classid, lambda s: s[1].lex
+    typex %= classid, lambda s: s[1]
 
-    typex %= auto, lambda s: "AUTO_TYPE"
+    typex %= auto, lambda s: s[1]
 
-    typex %= void, lambda s: "Void"
+    typex %= void, lambda s: s[1]
 
     args_list_empty %= args_list, lambda s: s[1]
 
@@ -323,7 +361,7 @@ def build_cool_grammar():
     actions %= action + actions, lambda s: [s[1]] + s[2]
 
     action %= idx + dd + typex + implies + exp + dot_comma, lambda s: ActionNode(
-        s[1].lex, s[3], s[5]
+        s[1].lex, s[3].lex, s[5]
     )
 
     case_statement %= case + exp + of + actions + esac, lambda s: CaseNode(s[2], s[4])

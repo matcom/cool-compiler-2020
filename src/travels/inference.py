@@ -146,9 +146,7 @@ class TypeInferer:
         for param in node.param_list:
             if param in params:
                 raise SemanticError(
-                    TypeError(
-                        f"Param {param.id} multiply defined.", param.line, param.column
-                    )
+                    f"({param.line}, {param.column}) - SemanticError: Param {param.id} multiply defined."
                 )
             self.visit(param, scope, deep=deep)
             params.append(param)
@@ -302,7 +300,7 @@ class TypeInferer:
                             TypeError(
                                 f"Declared type {init_expr_type.name} does not conform to type {type_.name} in var {var_id}.",
                                 node.line,
-                                node.column
+                                node.column,
                             )
                         )
                     else:
@@ -582,18 +580,20 @@ class TypeInferer:
             return self.BOOL
 
     @visit.register
-    def _(self, node: coolAst.NotNode, scope: semantic.Scope, infered_type=None, deep=1):
+    def _(
+        self, node: coolAst.NotNode, scope: semantic.Scope, infered_type=None, deep=1
+    ):
         val_type = self.visit(node.lex, scope, infered_type, deep)
         if val_type == self.AUTO_TYPE or val_type == self.INTEGER:
             return self.INTEGER
         else:
             raise SemanticError(
-            TypeError(
-                f"Argument of ~ has type {val_type.name} instead of Int.",
-                node.line,
-                node.column
+                TypeError(
+                    f"Argument of ~ has type {val_type.name} instead of Int.",
+                    node.line,
+                    node.column,
+                )
             )
-        )
 
     @visit.register
     def _(
@@ -603,7 +603,7 @@ class TypeInferer:
         if val_type == self.AUTO_TYPE or val_type == self.BOOL:
             return self.BOOL
         else:
-            raise SemanticError(f"Invalid operation: ! {val_type.name}")
+            raise SemanticError(f"{node.line, node.column} - TypeError: Argument of 'not' has type {val_type.name} instead of Bool.")
 
     # -----------------------------------------------------------------------------------------------------------------------#
     # --------------------------------------------------CONSTANTES-----------------------------------------------------------#

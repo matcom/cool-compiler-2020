@@ -28,8 +28,7 @@ class TypeBuilder:
 
         # No se puede heredar de Int ni de BOOL ni de AutoType ni de String
         if parent.name in INHERITABLES:
-            self.errors.append(f"Cannot inherit from builtin {parent.name}")
-            return
+            raise SemanticError(f"{node.line, node.column + len(node.idx) + 10} - SemanticError: Cannot inherit from builtin {parent.name}")
 
         # Detectar dependencias circulares
         if parent.conforms_to(self.current_type):

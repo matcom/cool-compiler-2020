@@ -170,7 +170,9 @@ class TypeCollector:
     def _(self, node: coolAst.ClassDef):  # noqa: F811
         try:
             if node.idx in BUILTINS:
-                raise SemanticError(f"Cannot redefine class {node.idx}")
+                raise SemanticError(
+                f"{node.line, node.column} - SemanticError: Redefinition of basic class {node.idx}."
+            )
             self.context.create_type(node.idx)
         except SemanticError as e:
             self.errors.append(e.text)

@@ -60,20 +60,14 @@ def pipeline(program: str, deep: int) -> None:
     print(source)
 
 
-text = r"""(*
-The expression ~<expr> is the integer
-complement of <expr>. The expression <expr> must have static type Int and the entire expression
-has static type Int.
-*)
-
-class A { };
-class B inherits A { };
-class C inherits B { };
+text = r"""-- It is an error to inherit from or redefine String.
 
 class Main inherits IO {
 	main(): IO { out_string("Hello World!")};
-	test: Int <- let x: Bool <- 1 / 2 - 3 + 4 < new A.type_name().concat(new B.type_name().concat(new C.type_name())).length()
-				in 1 + ~new A.type_name().concat(new B.type_name().concat(new C.type_name()));
+}; 
+ 
+class A inherits String {
+	is_palindrome(): Bool { false };
 };
 """
 pipeline(text, 5)

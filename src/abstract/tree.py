@@ -25,14 +25,23 @@ class ProgramNode(Node):
 
         # recolectar los tipos
         type_collector = typecollector.TypeCollector()
-        type_collector.visit(self)
+        try:
+            type_collector.visit(self)
+        except SemanticError as e:
+            type_collector.errors.append(e.text)
+
+        if type_collector.errors:
+            return type_collector.errors, type_collector.context, None
 
         # Construir los tipos detectados en el contexto
         assert type_collector.context is not None
         type_builder = typebuilder.TypeBuilder(
             type_collector.context, type_collector.errors
         )
-        type_builder.visit(self)
+        try:
+            type_builder.visit(self)
+        except SemanticError as e:
+            type_builder.errors.append(e.text)
 
         # Garantizar que exista un tipo Main que contenga un
         # metodo main
@@ -269,8 +278,10 @@ class NotNode(AtomicNode):
 
 
 class NegNode(AtomicNode):
-    def __init__(self, lex):
+    def __init__(self, lex, line, column):
         super().__init__(lex)
+        self.line = line
+        self.column = column
 
 
 class InstantiateClassNode(ExpressionNode):
