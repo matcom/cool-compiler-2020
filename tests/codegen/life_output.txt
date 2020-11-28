@@ -1,0 +1,778 @@
+Welcome to the Game of Life.
+There are many initial states to choose from. 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+ XX  
+XXXX 
+XXXX 
+ XX  
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+    X
+   X 
+  X  
+ X   
+X    
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+X    
+ X   
+  X  
+   X 
+    X
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+X   X
+ X X 
+  X  
+ X X 
+X   X
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+X    
+ X   
+  X  
+ X   
+X    
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+    X
+   X 
+  X  
+   X 
+    X
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+X  X 
+ X  X
+X  X 
+     
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+ X  X
+X  X 
+ X  X
+     
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+X   X
+ X X 
+  X  
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+  X  
+ X X 
+X   X
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+X X X
+ X X 
+X X X
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+XXXXX
+XXXXX
+XXXXX
+XXXXX
+XXXXX
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+XXXXX
+  X  
+  X  
+  X  
+  X  
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+  X  
+  X  
+XXXXX
+  X  
+  X  
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+X     X
+ X X X 
+  X X  
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+  X X  
+ X X X 
+X     X
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+XXXX
+X   
+X   
+XXXX
+X   
+X   
+XXXX
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+XXX 
+   X
+   X
+  X 
+   X
+   X
+XXX 
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+ XX 
+X  X
+X  X
+ XX 
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+ XX 
+X  X
+X  X
+ XX 
+X  X
+X  X
+ XX 
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
+Please chose a number:
+	1: A cross
+	2: A slash from the upper left to lower right
+	3: A slash from the upper right to lower left
+	4: An X
+	5: A greater than sign 
+	6: A less than sign
+	7: Two greater than signs
+	8: Two less than signs
+	9: A 'V'
+	10: An inverse 'V'
+	11: Numbers 9 and 10 combined
+	12: A full grid
+	13: A 'T'
+	14: A plus '+'
+	15: A 'W'
+	16: An 'M'
+	17: An 'E'
+	18: A '3'
+	19: An 'O'
+	20: An '8'
+	21: An 'S'
+Your choice => 
+
+ XXX
+X   
+X   
+ XX 
+   X
+   X
+XXX 
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+-XX-
+X-X-
+X---
+-XX-
+---X
+-X-X
+-XX-
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+-XX-
+X-X-
+X-X-
+-XX-
+-X-X
+-X-X
+-XX-
+
+Would you like to continue with the next generation? 
+Please use lowercase y or n for your answer [y]: 
+
+
+Would you like to choose a background pattern? 
+Please use lowercase y or n for your answer [n]: 
