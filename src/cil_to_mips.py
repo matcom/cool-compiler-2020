@@ -541,8 +541,8 @@ class CILToMIPSVisitor():
         self.text += 'add $a0, $t3, $t4\n' # adding bytes if both are 0 then $a0 will be 0
         self.text += 'beqz $a0, compare_str_results_true\n' # finish if both current chars are '\0'
         self.text += 'bne $t3, $t4, compare_str_results_false\n' # finish if current chars are not equals
-        self.text += 'addi $t0, $t0, 1\n' # move to the next char in string1
-        self.text += 'addi $t1, $t1, 1\n' # move to the next char in string2
+        self.text += 'addi $t1, $t1, 1\n' # move to the next char in string1
+        self.text += 'addi $t2, $t2, 1\n' # move to the next char in string2
         self.text += 'j compare_str_char\n'
         
         self.text += 'compare_str_results_false:\n'
