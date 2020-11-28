@@ -46,6 +46,7 @@ def peek_stack(src, pos):
 
 
 def save_address(key, value):
+    
     if type(value) is int:
         if value:
             __ADDRS__[key] = f'{value}($sp)'

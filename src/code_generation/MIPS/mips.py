@@ -93,20 +93,20 @@ def print_to_mips_visitor(p: cil.PrintNode):
     CIL:
         PRINT z;
     MIPS if z is str:
-        move $a0, $fp
-        addu $a0, $a0, shift(z)
-        li  $v0, 4
-        syscall
+        lw $a0, shift(z)
+        li $v0, 4
+        syscall 
     MIPS if z is int:
-        move $a0, $fp
-        addu $a0, $a0, shift(z)
-        li  $v0, 1
-        syscall
+        lw $a0, 4($sp)
+        li $v0, 4
+        syscall 
     """
+    
+    
+    
     offset = CURRENT_FUNCTION.offset(p.str)
     code = [mips.Comment(str(p)),
-            mips.MoveInstruction('$a0', '$fp'),
-            mips.AdduInstruction('$a0', '$a0', offset)]
+            mips.LwInstruction('$a0', f'{offset}(fp)')]
     if p.str == 'int':
         code.append(mips.LiInstruction('$v0', 1))  # li    $v0, 1
     elif p.str == 'str':
@@ -134,20 +134,27 @@ def read_to_mips_visitor(read: cil.ReadNode):
     CIL:
         x = READ ;
     MIPS:
-        addu $a0, $fp, shift(x)
-        li   $a1, 1024
-        li   $v0, 8
-        syscall
-        subu $sp, $a0, 1024
+    
+        .data
+            x:  .space 1024
+        .text
+            la   $a0, x
+            li   $a1, 1024
+            li   $v0, 8
+            syscall
+            sw   $a0, shift(x)
+              
+            
     """
     offset = CURRENT_FUNCTION.offset(str(read.result))
-
+    __DATA__.append(mips.MIPSDataItem(read.result, mips.SpaceInst(1024)))
+    
     return [
-        mips.AdduInstruction('$a0', '$fp', offset),
+        mips.LaInstruction('$a0', str(read.result)),
         mips.LiInstruction('$a1', 1024),
         mips.LiInstruction('$v0', 8),
         mips.SyscallInstruction(),
-        mips.SubuInstruction('$sp', '$a0', 1024)
+        mips.SwInstruction('$a0', f'{offset}($fp)')
     ]
 
 
@@ -237,8 +244,12 @@ def concat_to_mips_visitor(concat: cil.ConcatNode):
 
 
 def load_to_mips_visitor(load: cil.LoadNode):
-    save_address(load.result, load.addr)
-    return []
+    offset=CURRENT_FUNCTION.offset[load.result]
+    return [
+        mips.Comment(str(load)),
+        mips.LaInstruction('$t0', load.addr),
+        mips.SwInstruction('$t0', f'{offset}($sp)')
+    ]
 
 
 def arg_to_mips_visitor(arg: cil.ArgNode):
