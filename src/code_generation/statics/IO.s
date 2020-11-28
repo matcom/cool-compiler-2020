@@ -1,6 +1,5 @@
 IO.out_string:
 li $v0, 4
-lw $a0, -4($sp)
 syscall
 jr $ra
 

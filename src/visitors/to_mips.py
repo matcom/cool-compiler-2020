@@ -16,7 +16,7 @@ class MIPS:
     def start(self):
 
         self.code.append(".data\n")
-        self.code.append("buffer: .space 65536\n")
+        self.code.append("buffer: .space 80\n")
         self.code.append("strsubstrexception: .asciiz \"{}\"\n".format("Substring index exception"))
         self.code.append("\n")
 
@@ -87,16 +87,16 @@ class MIPS:
         elif node.symbol == '=':
             self.code.append("seq $a0, $a0, $a1\n")
         elif node.symbol == '>':
-            self.code.append("li $a2, 1\n")
-            self.code.append("add $a1, $a1, $a2\n")
+            self.code.append("li $t0, 1\n")
+            self.code.append("add $a1, $a1, $t0\n")
             self.code.append("sge $a0, $a0, $a1\n")
         elif node.symbol == '>=':
             self.code.append("sge $a0, $a0, $a1\n")
         elif node.symbol == '<=':
             self.code.append("add $a0, $a1, $a0\n")
         elif node.symbol == '<':
-            self.code.append("li $a2, 1\n")
-            self.code.append("add $a0, $a0, $a2\n")
+            self.code.append("li $t0, 1\n")
+            self.code.append("add $a0, $a0, $t0\n")
             self.code.append("sge $a0, $a1, $a0\n")
         self.code.append("sw $a0, {}($sp)\n".format(-4*node.var))
 
@@ -135,15 +135,15 @@ class MIPS:
 
     @visitor.when(MemoToVarIL)
     def visit(self, node):
-        self.code.append("lw $a0, {}($sp)\n".format(-4 * node.right))
-        self.code.append("lw $a1, {}($a0)\n".format(4*node.offset))
+        self.code.append("lw $t0, {}($sp)\n".format(-4 * node.right))
+        self.code.append("lw $a1, {}($t0)\n".format(4*node.offset))
         self.code.append("sw $a1, {}($sp)\n".format(-4*node.left))
 
     @visitor.when(ConstToMemoIL)
     def visit(self, node):
-        self.code.append("lw $a0, {}($sp)\n".format(-4 * node.left))
+        self.code.append("lw $t0, {}($sp)\n".format(-4 * node.left))
         self.code.append("li $a1, {}\n".format(node.right))
-        self.code.append("sw $a1, {}($a0)\n".format(4*node.offset))
+        self.code.append("sw $a1, {}($t0)\n".format(4*node.offset))
 
     #methods
     @visitor.when(LabelIL)
@@ -201,19 +201,36 @@ class MIPS:
 
     @visitor.when(DispatchIL)
     def visit(self, node):
-        self.code.append("lw $a0, {}($sp)\n".format(-4 * node.obj))
-        self.code.append("lw $a0, ($a0)\n")
-        self.code.append("addiu $a0, $a0, {}\n".format(4 * node.offset))
-        self.code.append("lw $v0, ($a0)\n")
-        self.code.append("jalr $ra\n")
-        self.code.append("sw $v0, {}($sp)\n".format(-4 * node.result))
+        self.code.append("#Dispatch in place\n")
+        self.code.append("#obj {} offset {}  result {}\n".format(node.obj, node.offset, node.result))
+#         move $t0, $sp
+        # lw $t1, 4($t0)
+        # addi $sp, $sp, -4
+        # sw $t1, 0($sp)
+#           jal Main_init
+        self.code.append("move $t0, $sp\n")
+        self.code.append("lw $t1, 4($t0)\n")
+        self.code.append("addi $sp, $sp, {}\n".format(4))
+        self.code.append("sw $t1, 0($sp)\n")
+        if node.result == -1:
+            # self.code.append("jalr $ra, $v0\n")
+            self.code.append("jal IO.out_string\n")
+        else:
+            self.code.append("jal {}\n".format(node.result))
+        self.code.append("sw $a1, {}($sp)\n".format(-4 * node.result))
 
 
     @visitor.when(DispatchParentIL)
     def visit(self, node):
+        self.code.append("#DispatchParent in place\n")
+        self.code.append("#obj {} offset {}  result {}\n".format(node.obj, node.method, node.result))
         self.code.append("la $v0, " + str(node.method) + "\n")
-        self.code.append("jalr $ra\n")
-        self.code.append("sw $v0, {}($sp)\n".format(-4 * node.result))
+        if node.result == -1:
+            # self.code.append("jalr $ra, $v0\n")
+            self.code.append("jal IO.out_string\n")
+        else:
+            self.code.append("jal {}\n".format(node.result))
+        self.code.append("sw $a1, {}($sp)\n".format(-4 * node.result))
 
     @visitor.when(InheritIL)
     def visit(self, node):

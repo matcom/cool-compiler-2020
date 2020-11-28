@@ -90,7 +90,7 @@ class codeVisitor:
         self.code.append(CommentIL('--------------End Initial Code---------------'))
 
     def setBuiltInTypes(self):
-        built_in = ['Object', 'IO', 'Bool', 'String']
+        built_in = ['Object','Int', 'IO', 'Bool', 'String']
         for t in built_in:
             self.code.append(LabelIL(t, 'Constructor', True))
             self.code.append(PushIL())
@@ -157,7 +157,7 @@ class codeVisitor:
     def visit(self, node):
         # print('ClassDeclarationNode')
         self.current_class = node.id
-
+        print('--current_class {}\n'.format(node.id))
         attributes = []
         for f in node.features:
             if type(f) == AttrDeclarationNode:
@@ -453,7 +453,7 @@ class codeVisitor:
 
         result = variables.add_temp()
         self.code.append(PushIL())
-
+        print('----------node {}---------'.format(node))
         index = self.virtual_table.get_method_id(node.obj, node.id)
 
         self.code.append(CommentIL('push object'))
@@ -480,7 +480,7 @@ class codeVisitor:
 
         result = variables.add_temp()
         self.code.append(PushIL())
-
+        print('----------node {}---------'.format(node))
         index = self.virtual_table.get_method_id(self.current_class, node.id)
 
         if self.current_class != 'Main':

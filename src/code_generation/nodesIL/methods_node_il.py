@@ -121,8 +121,8 @@ class VirtualTableIL(NodeIL):
         to_return = ''
         to_return += 'VirtualTable: ' + self.name + '\n'
         to_return += '------Methods---------\n'
-        for m in self.methods:
-            to_return += m + '\n'
+        for n,m in self.methods:
+            to_return += n + '\n'
         return to_return
 
 class DispatchIL(NodeIL):
