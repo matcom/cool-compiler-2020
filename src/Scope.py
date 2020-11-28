@@ -12,8 +12,16 @@ class Scope:
         self.locals=[]
         self.params={}
         self.local = local
+        self.valid = True
         if not parent:
             self.cool_types = {cool_type.name: cool_type for cool_type in get_basic_types()}
+
+    def invalidate(self):
+        scope = self
+        while scope:
+            if not scope.parent:
+                scope.valid = False
+            scope = scope.parent
 
     def get_type(self, type_name: str):
         scope = self
