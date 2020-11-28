@@ -557,8 +557,8 @@ def assign_to_mips_visitor(assign: cil.AssignNode):
         lw $t0, [y_addr]
         sw $t0, [x_addr]
     """
-    y_addr = CURRENT_FUNCTION.get_address(assign.val.id)
-    x_addr = CURRENT_FUNCTION.get_address(assign.result.id)
+    y_addr = CURRENT_FUNCTION.offset[str(assign.val)]
+    x_addr = CURRENT_FUNCTION[str(assign.result)]
 
     return [
         mips.Comment(str(assign)),
