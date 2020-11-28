@@ -58,25 +58,24 @@ class Directive(str, Enum):
 Reg = Register
 
 
-def autowrite(func):
-    """
-    Autowrite a instruction when execute string return function
-    """
+def autowrite(tabs: int = 1):
+    def inner(func):
+        """
+        autowrite a instruction when execute string return function
+        """
 
-    def inner(*args, **kwargs):
-        instructions = func(*args, **kwargs)
-        if instructions is list:
-            for instruction in instructions:
-                args[0].write_inst(instruction)
-        else:
-            args[0].write_inst(instructions)
+        def wrapper(*args, **kwargs):
+            instruction = func(*args, **kwargs)
+            args[0].write_inst(instruction, tabs)
+
+        return wrapper
 
     return inner
 
 
 def autowritedata(func):
     """
-    Autowrite a instruction when execute string return function
+    autowrite() a instruction when execute string return function
     """
 
     def inner(*args, **kwargs):
@@ -96,7 +95,10 @@ class Mips:
         self.DOTDATA: List[str] = []
 
     def write_inst(self, instruction: str, tabs: int = 0):
-        self.DOTTEXT.append(f"{instruction}")
+        tabstr = ""
+        for _ in range(tabs):
+            tabstr += "\t"
+        self.DOTTEXT.append(f"{tabstr}{instruction}")
 
     def write_data(self, data: str, tabs: int = 0):
         self.DOTDATA.append(f"{data}")
@@ -142,167 +144,167 @@ class Mips:
         self.sw(src, self.offset(Reg.t8, 4))  # store low bits
 
     # Arithmetics
-    @autowrite
+    @autowrite()
     def add(self, dst: Register, rl: Register, rr: Register):
         return f"add {dst}, {rl}, {rr}"
 
-    @autowrite
+    @autowrite()
     def sub(self, dst: Register, rl: Register, rr: Register):
         return f"sub {dst}, {rl}, {rr}"
 
-    @autowrite
+    @autowrite()
     def addi(self, dst: Register, rl: Register, value: int):
         return f"addi {dst}, {rl}, {value}"
 
-    @autowrite
+    @autowrite()
     def addu(self, dst: Register, rl: Register, rr: Register):
         return f"addu {dst}, {rl}, {rr}"
 
-    @autowrite
+    @autowrite()
     def subu(self, dst: Register, rl: Register, rr: Register):
         return f"subu {dst}, {rl}, {rr}"
 
-    @autowrite
+    @autowrite()
     def addiu(self, dst: Register, rl: Register, value: int):
         return f"addiu {dst}, {rl}, {value}"
 
-    @autowrite
+    @autowrite()
     def multu(self, dst: Register, rl: Register, rr: Register):
         return f"multu {dst}, {rl}, {rr}"
 
-    @autowrite
+    @autowrite()
     def mult(self, rl: Register, rr: Register):
         return f"mult {rl}, {rr}"
 
-    @autowrite
+    @autowrite()
     def div(self, rl: Register, rr: Register):
         return f"div {rl}, {rr}"
 
     # Logical:
-    @autowrite
+    @autowrite()
     def andd(self, dst: Register, rl: Register, rr: Register):
         return f"and {dst}, {rl}, {rr}"
 
-    @autowrite
+    @autowrite()
     def orr(self, dst: Register, rl: Register, rr: Register):
         return f"or {dst}, {rl}, {rr}"
 
-    @autowrite
+    @autowrite()
     def nor(self, dst: Register, rl: Register, rr: Register):
         return f"nor {dst}, {rl}, {rr}"
 
-    @autowrite
+    @autowrite()
     def andi(self, dst: Register, rl: Register, value: int):
         return f"andi {dst}, {rl}, {value}"
 
     # TODO: Check this instrucction
-    @autowrite
+    @autowrite()
     def ori(self, dst: Register, rl: Register, value: int):
         return f"or {dst}, {rl}, {value}"
 
-    @autowrite
+    @autowrite()
     def sll(self, dst: Register, rl: Register, value: int):
         return f"sll {dst}, {rl}, {value}"
 
-    @autowrite
+    @autowrite()
     def srl(self, dst: Register, rl: Register, value: int):
         return f"srl {dst}, {rl}, {value}"
 
     # DataTransfer:
-    @autowrite
+    @autowrite()
     def lw(self, dst: Register, address: str):
         return f"lw {dst}, {address}"
 
-    @autowrite
+    @autowrite()
     def lb(self, dst: Register, address: str):
         return f"lb {dst}, {address}"
 
-    @autowrite
+    @autowrite()
     def sw(self, dst: Register, address: str):
         return f"sw {dst}, {address}"
 
-    @autowrite
+    @autowrite()
     def sb(self, dst: Register, address: str):
         return f"sb {dst}, {address}"
 
-    @autowrite
+    @autowrite()
     def lui(self, dst: Register, value: int):
         return f"lui {dst}, {value}"
 
-    @autowrite
+    @autowrite()
     def la(self, dst: Register, label: str):
         return f"la {dst}, {label}"
 
-    @autowrite
+    @autowrite()
     def li(self, dst: Register, value: int):
         return f"li {dst}, {int(value)}"
 
-    @autowrite
+    @autowrite()
     def mfhi(self, dst: Register):
         return f"mfhi {dst}"
 
-    @autowrite
+    @autowrite()
     def mflo(self, dst: Register):
         return f"mflo {dst}"
 
-    @autowrite
+    @autowrite()
     def move(self, dst: Register, rl: Register):
         return f"move {dst},  {rl}"
 
     # Brancing
-    @autowrite
+    @autowrite()
     def beq(self, rl: Register, rr: Register, address: str):
         return f"beq {rl},  {rr},  {address}"
 
-    @autowrite
+    @autowrite()
     def bne(self, rl: Register, rr: Register, address: str):
         return f"bne {rl},  {rr},  {address}"
 
-    @autowrite
+    @autowrite()
     def beqz(self, rl: Register, address: str):
         return f"beqz {rl},  {address}"
 
-    @autowrite
+    @autowrite()
     def bgt(self, rl: Register, rr: Register, address: str):
         return f"bgt {rl}, {rr}, {address}"
 
-    @autowrite
+    @autowrite()
     def bge(self, rl: Register, rr: Register, address: str):
         return f"bge {rl}, {rr}, {address}"
 
-    @autowrite
+    @autowrite()
     def blt(self, rl: Register, rr: Register, address: str):
         return f"blt {rl}, {rr}, {address}"
 
-    @autowrite
+    @autowrite()
     def ble(self, rl: Register, rr: Register, address: str):
         return f"ble {rl}, {rr}, {address}"
 
     # Comparison
-    @autowrite
+    @autowrite()
     def slt(self, dest: Register, rl: Register, rr: Register):
         return f"slt {dest}, {rl}, {rr}"
 
-    @autowrite
+    @autowrite()
     def slti(self, dest: Register, rl: Register, value: int):
         return f"slt {dest}, {rl}, {value}"
 
     # Unconditional Jump
 
-    @autowrite
+    @autowrite()
     def j(self, address: str):
         return f"j {address}"
 
-    @autowrite
+    @autowrite()
     def jr(self, r: Register):
         return f"jr {r}"
 
-    @autowrite
+    @autowrite()
     def jal(self, address: str):
         return f"jal {address}"
 
     # System Calls
-    @autowrite
+    @autowrite()
     def syscall(self, code: int):
         self.li(Register.v0, code)
         return "syscall"
@@ -338,21 +340,21 @@ class Mips:
     def offset(self, r: Register, offset: int = 0):
         return f"{offset}({r})"
 
-    @autowrite
+    @autowrite()
     def comment(self, text: str):
         return f"# {text}"
 
-    @autowrite
+    @autowrite(0)
     def label(self, name: str):
         return f"{name}:"
 
-    @autowrite
+    @autowrite()
     def empty(self):
         return ""
 
     # Data Section
 
-    @autowrite
+    @autowrite()
     def data_empty(self):
         return ""
 
