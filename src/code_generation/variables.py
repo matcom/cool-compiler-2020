@@ -9,6 +9,8 @@ class Variables:
         self.vars.append(name)
 
     def id(self, name):
+        if not name in self.stack:
+            self.add_var(name)
         return len(self.stack) - self.stack[name] + 1
 
     def pop_var(self):

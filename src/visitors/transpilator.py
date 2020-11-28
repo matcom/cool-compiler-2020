@@ -104,11 +104,11 @@ class codeVisitor:
         vars.add_temp()
 
         for node in attributes:
-            if node.value == None:
+            if node.expr == None:
                 continue
-            self.visit(node.value, vars)
+            self.visit(node.expr, vars)
             p = vars.peek_last()
-            index = self.virtual_table.get_attributes_id(self.current_class, node.name.value)
+            index = self.virtual_table.get_attributes_id(self.current_class, node.id)
             self.code.append(VarToMemoIL(vars.id('self'), vars.id(p), index))
 
         self.code.append(PushIL())
@@ -260,11 +260,11 @@ class codeVisitor:
         self.code.append(PushIL())
         p = variables.add_temp()
 
-        size = self.virtual_table.get_index(node.type.value)
-        self.code.append(AllocateIL(variables.id(p), size, node.type.value))
+        size = self.virtual_table.get_index(node.type)
+        self.code.append(AllocateIL(variables.id(p), size, node.type))
 
         self.code.append(VarToVarIL(variables.id(result), variables.id(p)))
-        self.code.append(DispatchParentIL(variables.id(dispatch), variables.id(p), node.type.value + '.Constructor'))
+        self.code.append(DispatchParentIL(variables.id(dispatch), variables.id(p), node.type + '.Constructor'))
 
         self.code.append(PopIL(2))
         variables.pop_var()
@@ -380,7 +380,8 @@ class codeVisitor:
 
     @visitor.when(CaseNode)
     def visit(self, node, variables):
-        node.case_list.sort(key = lambda x : self.depth[x.type], reverse = True)
+        print(node.case_list)
+        # node.case_list.sort(key = lambda x : self.depth[x.typex], reverse = True)
 
         result = variables.add_temp()
         self.code.append(PushIL())
@@ -389,24 +390,24 @@ class codeVisitor:
         p = variables.peek_last()
 
         labels = []
-        for b in node.branches:
+        for b in node.case_list:
             labels.append(LabelIL('branch', self.getInt()))
 
         index = 0
-        for b in node.branches:
+        for b in node.case_list:
             tmp = variables.add_temp()
-            self.code.apppend(PushIL())
+            self.code.append(PushIL())
 
             self.code.append(InheritIL(variables.id(p), b.typex, variables.id(tmp)))
             
-            self.code.append(IfJumpIL(variables.id(tmp), labels[i].label))
+            self.code.append(IfJumpIL(variables.id(tmp), labels[index].label))
             self.code.append(PopIL(1))
             variables.pop_var()
-            i += 1
+            index += 1
 
         end_label = LabelIL('esac', self.getInt())
         i = 0
-        for b in node.branches:
+        for b in node.case_list:
             self.code.append(labels[i])
             i += 1
             variables.pop_var()
@@ -443,7 +444,7 @@ class codeVisitor:
             self.code.append(VarToMemoIL(variables.id('self'), variables.id(p), self.virtual_table.get_attributes_id(self.current_class, node.id)))
 
     @visitor.when(IsVoidNode)
-    def visit(self, node):
+    def visit(self, node, vars):
         pass
 
     #expression: complex->dispatch
@@ -457,6 +458,7 @@ class codeVisitor:
         index = self.virtual_table.get_method_id(node.obj, node.id)
 
         self.code.append(CommentIL('push object'))
+        # print('-------obj-------- ',node.obj)
         self.visit(node.obj, variables)
 
         name = variables.peek_last()
@@ -522,7 +524,7 @@ class codeVisitor:
             i += 1
             self.visit(p, variables)
         
-        method = node.idx + '.' + node.obj.idx
+        method = node.id + '.' + node.obj.id
         
         self.code.append(DispatchParentIL(variables.id(result), variables.id(name), method))
 

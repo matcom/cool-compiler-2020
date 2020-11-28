@@ -31,13 +31,14 @@ class VirtualTable:
 
     def get_index(self, c):
         # print('classes', self.classes.keys())
+        if not c in self.attributes:
+            return 90000
         return len(self.attributes[c]) + 1
 
     def add_attr(self, claSS, args):
         if not claSS in self.attributes:
             self.attributes[claSS] = []
-        for arg in args:
-            self.attributes[claSS].append(a)
+        self.attributes[claSS].append(args.name)    
 
     def get_method_id(self, claSS, method):
         if claSS in self.methods.keys():
