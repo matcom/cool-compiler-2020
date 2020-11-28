@@ -4,7 +4,7 @@ from typing import List, Optional
 import abstract.semantics as semantic
 import abstract.tree as coolAst
 from abstract.semantics import Scope, SemanticError, Type
-from abstract.tree import ActionNode, CaseNode, IsVoidNode, SelfNode
+from abstract.tree import ActionNode, CaseNode, IsVoidNode, ParentFuncCall, SelfNode
 from travels.context_actions import (
     update_attr_type,
     update_method_param,
@@ -270,6 +270,10 @@ class TypeInferer:
             )
 
     @visit.register
+    def _(self, node: SelfNode, scope: Scope, infered_type=None, deep=1):
+        return self.current_type
+
+    @visit.register
     def _(
         self,
         node: coolAst.IfThenElseNode,
@@ -298,7 +302,9 @@ class TypeInferer:
             try:
                 self.context.get_type(action.typex)
             except SemanticError:
-                raise SemanticError(f"{action.line, action.column} - TypeError: Class {action.typex} of case branch is undefined.")
+                raise SemanticError(
+                    f"{action.line, action.column} - TypeError: Class {action.typex} of case branch is undefined."
+                )
             if action.typex in actions_types[:i]:
                 raise SemanticError(
                     f"{action.line, action.column} - SemanticError: Duplicate branch {action.typex} in case statement."
@@ -368,6 +374,63 @@ class TypeInferer:
         return return_type
 
     @visit.register
+    def _(self, node: ParentFuncCall, scope: Scope, infered_type=None, deep=1):
+        assert self.current_type is not None
+
+        # Encontrar el tipo que hace el dispatch
+        try:
+            dispatch_type = self.context.get_type(node.parent_type)
+        except SemanticError:
+            raise SemanticError(
+                f"{node.line, node.column} - TypeError: Type {node.parent_type} is undefined."
+            )
+
+        # Evaluar la expresion sobre la que se hace el dispatch
+        static_expr0_type = self.visit(node.obj, scope, infered_type, deep)
+
+        if static_expr0_type.name == "SELF_TYPE":
+            static_expr0_type = self.current_type
+
+        if not static_expr0_type.conforms_to(dispatch_type):
+            raise SemanticError(
+                f"{node.line, node.column} - TypeError: Expression type {static_expr0_type.name} does not conform to declared static dispatch type {dispatch_type.name}."
+            )
+
+        # Encontrar el metodo en el tipo.
+        try:
+            method: semantic.Method = dispatch_type.get_method(node.idx)
+        except SemanticError:
+            raise SemanticError(
+                f"{node.line, node.column} - AttributeError: Dispatch to undefined method {node.idx}."
+            )
+
+        if len(method.param_names) != len(node.arg_list):
+            raise SemanticError(
+                f"{node.line, node.column} - SemanticError: Method {node.idx} called with wrong number of arguments."
+            )
+
+        # Iterar por cada parametro del metodo y chequear que cada expresion corresponda en tipo.
+        for expr_i, type_i, param_name in zip(
+            node.arg_list, method.param_types, method.param_names
+        ):
+            type_expr_i = self.visit(expr_i, scope, infered_type, deep)
+            if not type_expr_i.conforms_to(type_i):
+                raise semantic.SemanticError(
+                    f"{expr_i.line, expr_i.column} - TypeError: Expression corresponding to param {param_name} in call to {node.idx} must conform to {type_i.name}"
+                )
+
+        # Procesar el tipo de retorno de la funcion
+        if method.return_type == self.SELF_TYPE:
+            return static_expr0_type
+        if method.return_type != self.AUTO_TYPE:
+            return method.return_type
+        elif infered_type:
+            method.return_type = infered_type
+            return infered_type
+        else:
+            return self.AUTO_TYPE
+
+    @visit.register
     def _(
         self, node: coolAst.FunCall, scope: semantic.Scope, infered_type=None, deep=1
     ):
@@ -381,7 +444,17 @@ class TypeInferer:
             static_expr0_type = self.current_type
 
         # Encontrar el metodo en el tipo.
-        method: semantic.Method = static_expr0_type.get_method(node.id)
+        try:
+            method: semantic.Method = static_expr0_type.get_method(node.id)
+        except SemanticError:
+            raise SemanticError(
+                f"{node.line, node.column} - AttributeError: Dispatch to undefined method {node.id}."
+            )
+
+        if len(method.param_names) != len(node.args):
+            raise SemanticError(
+                f"{node.line, node.column} - SemanticError: Method {node.id} called with wrong number of arguments."
+            )
 
         # Iterar por cada parametro del metodo y chequear que cada expresion corresponda en tipo.
         for expr_i, type_i, param_name in zip(
@@ -390,7 +463,7 @@ class TypeInferer:
             type_expr_i = self.visit(expr_i, scope, infered_type, deep)
             if not type_expr_i.conforms_to(type_i):
                 raise semantic.SemanticError(
-                    f"Expression corresponding to param {param_name} in call to {node.id} must conform to {type_i}"
+                    f"{expr_i.line, expr_i.column} - TypeError: Expression corresponding to param {param_name} in call to {node.id} must conform to {type_i.name}"
                 )
 
         # Procesar el tipo de retorno de la funcion

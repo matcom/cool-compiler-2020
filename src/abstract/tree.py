@@ -162,15 +162,17 @@ class FunCall(ExpressionNode):
         self.id: str = idx
         self.args: List[ExpressionNode] = arg_list
         self.line = line
-        self.column = column - len(idx)
+        self.column = column
 
 
 class ParentFuncCall(ExpressionNode):
-    def __init__(self, obj, parent_type, idx, arg_list):
+    def __init__(self, obj, parent_type, idx, arg_list, line, column):
         self.obj: ExpressionNode = obj
         self.parent_type: str = parent_type
         self.idx: str = idx
         self.arg_list: List[ExpressionNode] = arg_list
+        self.line = line
+        self.column = column
 
 
 class AssignNode(ExpressionNode):
@@ -332,4 +334,6 @@ class IsVoidNode(ExpressionNode):
 
 
 class SelfNode(ExpressionNode):
-    pass
+    def __init__(self, line, column) -> None:
+        self.line = line
+        self.column = column

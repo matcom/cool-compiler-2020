@@ -62,7 +62,7 @@ def build_cool_grammar():
         "<args_list_empty> <param_list_empty> <case> <string_const>"
     )
 
-    class_keyword, def_keyword, in_keyword = G.Terminals("class def in")
+    class_keyword, def_keyword, in_keyword, self_ = G.Terminals("class def in self")
 
     (
         coma,
@@ -278,18 +278,22 @@ def build_cool_grammar():
     factor %= true, lambda s: TrueConstant()
 
     factor %= factor + period + idx + opar + args_list_empty + cpar, lambda s: FunCall(
-        s[1], s[3].lex, s[5], s[3].token_line, s[3].token_column
+        s[1], s[3].lex, s[5], s[1].line, s[1].column
     )
 
     factor %= string_const, lambda s: s[1]
 
     factor %= idx + opar + args_list_empty + cpar, lambda s: FunCall(
-        SelfNode(), s[1].lex, s[3], s[1].token_line, s[1].token_column
+        SelfNode(s[1].token_line, s[1].token_column - len(s[1].lex)),
+        s[1].lex,
+        s[3],
+        s[1].token_line,
+        s[1].token_column,
     )
 
     factor %= (
         factor + arroba + typex + period + idx + opar + args_list_empty + cpar,
-        lambda s: ParentFuncCall(s[1], s[3].lex, s[5].lex, s[7]),
+        lambda s: ParentFuncCall(s[1], s[3].lex, s[5].lex, s[7], s[1].line, s[1].column),
     )
 
     factor %= false, lambda s: FalseConstant()
@@ -327,6 +331,8 @@ def build_cool_grammar():
     exp %= atom + le + postfix, lambda s: LowerEqual(
         s[1], s[3], s[2].token_line, s[2].token_column - 2
     )
+
+    factor %= self_, lambda s: SelfNode(s[1].token_line, s[1].token_column - len(s[1].lex))
 
     atom %= arith, lambda s: s[1]
 
@@ -366,6 +372,7 @@ def build_cool_grammar():
 
     table = [
         (class_keyword, r"(?i)class"),
+        (self_, r"(?i)self"),
         (def_keyword, r"(?i)def"),
         (in_keyword, r"(?i)in"),
         (intx, r"Int"),
