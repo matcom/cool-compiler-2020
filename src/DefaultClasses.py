@@ -78,5 +78,5 @@ class Defaults:
         return CILGlobalMethod('concat',[ParameterNode("self","SELF_TYPE"),ParameterNode("s","String")],["$result"],instrucciones)
 
     def substring_string_CIL():
-        instrucciones=[CILStringConcat("$result",["self","x"])]
-        return CILGlobalMethod('substr',[ParameterNode("self","SELF_TYPE"),ParameterNode("x","Int")],["$result"],instrucciones)
+        instrucciones=[CILStringSubstring("$result",["self","i","l"])]
+        return CILGlobalMethod('substr',[ParameterNode("self","SELF_TYPE"),ParameterNode("i","Int"),ParameterNode("l","Int")],["$result"],instrucciones)

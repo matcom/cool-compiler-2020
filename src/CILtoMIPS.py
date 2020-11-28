@@ -35,9 +35,9 @@ class MIPSCompiler:
 
         if isinstance(parametro0, int):
             instrucciones+="li $t0,"+str(parametro0)+"\n"
-        elif parametro0 == 'false':
-            instrucciones+="li $t0,1\n"
         elif parametro0 == 'true':
+            instrucciones+="li $t0,1\n"
+        elif parametro0 == 'false':
             instrucciones+="move $t0, $zero\n"
         elif parametro0 in scope.locals.keys():
             instrucciones+="lw $t0,"+str(scope.locals[parametro0]+desplazamiento)+"($sp)\n"
@@ -62,9 +62,9 @@ class MIPSCompiler:
 
         if isinstance(parametro1, int):
             instrucciones+="li $t1,"+str(parametro1)+"\n"
-        elif parametro1 == 'false':
-            instrucciones+="li $t1,1\n"
         elif parametro1 == 'true':
+            instrucciones+="li $t1,1\n"
+        elif parametro1 == 'false':
             instrucciones+="move $t1, $zero\n"
         elif parametro1 in scope.locals.keys():
             instrucciones+="lw $t1,"+str(scope.locals[parametro1]+desplazamiento)+"($sp)\n"
@@ -76,6 +76,30 @@ class MIPSCompiler:
             instrucciones+="lw $t1,"+str(nombresAtributos.index(parametro1)*4+4)+"($a0)\n"
         elif parametro1 in self.clases:
             instrucciones+="la $t1,"+parametro1+"clase\n"
+        else:
+            assert False
+
+        if len(node.params)<3 or soloelprimero:
+            return instrucciones
+
+        parametro2=node.params[2]
+
+        if isinstance(parametro2, int):
+            instrucciones+="li $t2,"+str(parametro2)+"\n"
+        elif parametro2 == 'true':
+            instrucciones+="li $t2,1\n"
+        elif parametro2 == 'false':
+            instrucciones+="move $t2, $zero\n"
+        elif parametro2 in scope.locals.keys():
+            instrucciones+="lw $t2,"+str(scope.locals[parametro2]+desplazamiento)+"($sp)\n"
+        elif parametro2 in scope.parameters.keys():
+            instrucciones+="lw $t2,"+str(scope.parameters[parametro2]+desplazamiento)+"($sp)\n"
+        elif parametro2 in scope.registerparameters.keys():
+            instrucciones+="move $t2,"+scope.registerparameters[parametro2]+"\n"
+        elif parametro2 in nombresAtributos:           
+            instrucciones+="lw $t2,"+str(nombresAtributos.index(parametro2)*4+4)+"($a0)\n"
+        elif parametro2 in self.clases:
+            instrucciones+="la $t2,"+parametro2+"clase\n"
         else:
             assert False
 
@@ -180,6 +204,8 @@ class MIPSCompiler:
 
     @visitor.when(CILGlobalMethod)
     def visit(self, node:CILGlobalMethod, scope:ScopeMIPS):
+        if node.nombre in ["f9","a2i"]:
+            print("here")
         instrucciones=""
         instrucciones+=node.nombre+":\n"
 
@@ -295,13 +321,13 @@ class MIPSCompiler:
 
     @visitor.when(CILEqual)
     def visit(self, node:CILEqual, scope:ScopeMIPS):
-        instrucciones="move $s0, $a0\n"
-        instrucciones+="move $s1, $a1\n"
-        instrucciones+="move $a0, $t0\n"
-        instrucciones+="move $a1, $t1\n"
-        instrucciones+="jal .Int.igual\n"
-        instrucciones+="move $a0, $s0\n"
-        instrucciones+="move $a1, $s1\n"
+        # instrucciones="move $s0, $a0\n"
+        # instrucciones+="move $s1, $a1\n"
+        # instrucciones+="move $a0, $t0\n"
+        # instrucciones+="move $a1, $t1\n"
+        instrucciones="seq $v0 ,$t0, $t1\n"
+        # instrucciones+="move $a0, $s0\n"
+        # instrucciones+="move $a1, $s1\n"
         return self.loadAndSaveAndInstructions(node, instrucciones, scope)
     @visitor.when(CILLesser)
     def visit(self, node:CILLesser, scope:ScopeMIPS):
@@ -454,6 +480,28 @@ class MIPSCompiler:
         
         return self.loadAndSaveAndInstructions(node,instrucciones,scope)
 
+    @visitor.when(CILStringSubstring)
+    def visit(self, node:CILStringSubstring, scope:ScopeMIPS):
+        instrucciones=""
+        instrucciones+="addi $sp, $sp, -16\n"
+        instrucciones+="sw $a0, 0($sp)\n"
+        instrucciones+="sw $a1, 4($sp)\n"
+        instrucciones+="sw $a2, 8($sp)\n"
+        instrucciones+="sw $ra, 12($sp)\n"
+
+        instrucciones+="move $a0, $t0\n"
+        instrucciones+="move $a1, $t1\n"
+        instrucciones+="move $a2, $t2\n"
+        instrucciones+="jal .Str.substring\n"
+
+        instrucciones+="lw $a0, 0($sp)\n"
+        instrucciones+="lw $a1, 4($sp)\n"
+        instrucciones+="lw $a2, 8($sp)\n"
+        instrucciones+="lw $ra, 12($sp)\n"
+        instrucciones+="addi $sp, $sp, 16\n"
+        
+        return self.loadAndSaveAndInstructions(node,instrucciones,scope)
+
     @visitor.when(CILStringConcat)
     def visit(self, node:CILStringEqual, scope:ScopeMIPS):
         instrucciones=""
@@ -584,9 +632,10 @@ class MIPSCompiler:
     @visitor.when(CILComplement)
     def visit(self, node:CILComplement, scope:ScopeMIPS):
         instrucciones=""
-        instrucciones+="addi $v0 ,$t0, 1\n"
-        instrucciones+="li $t1, 2\n"
-        instrucciones+="rem $v0, $v0, $t1\n"
+        instrucciones+="sgt $v0, $t0, $zero\n"
+        # instrucciones+="addi $v0 ,$t0, 1\n"
+        # instrucciones+="li $t1, 2\n"
+        # instrucciones+="rem $v0, $v0, $t1\n"
         return self.loadAndSaveAndInstructions(node,instrucciones,scope)
 
     @visitor.when(CILTypeCheck)

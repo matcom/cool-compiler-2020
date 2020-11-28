@@ -8,3 +8,4 @@ class ScopeMIPS:
         self.parameters={}
         self.paramcount=0
         self.methodclass=""
+        self.labelcount=0

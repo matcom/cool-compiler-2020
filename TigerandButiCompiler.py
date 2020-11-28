@@ -687,7 +687,7 @@ if True:
         mylex.lineno=0
         te=tests[i]
         print(te)
-        # if(te=="helloworld.cl"):
+        # if(te=="atoi.cl"):
         #     print("here")
         # else:
         #     continue

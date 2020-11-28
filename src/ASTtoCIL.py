@@ -484,14 +484,18 @@ class CILTranspiler:
         if node.left_expression==None:
             node.left_expression=VariableNode("self")
             node.left_type=scope.class_name
-        if node.left_type in ["Int", "Bool", "String"]: #Caso de los tipos básicos
+
+        leftInstructions=self.visit(node.left_expression, scope)
+        instructions.extend(leftInstructions)
+
+        virtual=node.left_type in ["Int", "Bool", "String"] 
+
+        if virtual: #Caso de los tipos básicos
             if node.func_id=="type_name":
                 elstring=StringNode('"'+node.left_type+'"')
                 instructions.extend(self.visit(elstring, scope))
                 return instructions
-
-        leftInstructions=self.visit(node.left_expression, scope)
-        instructions.extend(leftInstructions)
+                
 
         # instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))
 
@@ -511,7 +515,10 @@ class CILTranspiler:
         resultVariable=self.GenerarNombreVariable(scope)
         if(node.left_type==None):
             print()
-        llamada=CILCall(resultVariable,[node.left_type,node.func_id])
+        if virtual:
+            llamada=CILVirtualCall(resultVariable,[node.left_type,node.func_id])
+        else:
+            llamada=CILCall(resultVariable,[node.left_type,node.func_id])
         instructions.append(llamada)
 
         return instructions
@@ -552,6 +559,10 @@ class CILTranspiler:
                 scope.locals.append(at.name)
             delcaracionExp=self.visit(at.value,scope)
             instructions.extend(delcaracionExp)
+            if len(delcaracionExp)>0:
+                instructions.append(CILAssign(at.name,[delcaracionExp[len(delcaracionExp)-1].destination]))
+            else:
+                instructions.append(CILAssign(at.name,[0]))
         
         bodyExp=self.visit(node.body,scope)
 
