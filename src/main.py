@@ -71,8 +71,8 @@ def main(args):
             errors.append(e)
     
     if errors:
-        for (msg, token) in errors:
-            print(f"({token.row},{token.column}) - SemanticError: {msg}")
+        for (ex, token) in errors:
+            print(f"({token.row},{token.column}) - {type(ex).__name__}: {str(ex)}")
         exit(1)
     # else:
     #     print(FormatVisitor().visit(ast))
