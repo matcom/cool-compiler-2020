@@ -137,12 +137,14 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.Assign)
     def visit(self, node):
         offset = self.var_offset[self.current_function.name][node.local_dest]
-        
-        if isinstance(node.right_expr, int):
-            self.text += f'li $t1, {node.right_expr}\n'
+        if node.right_expr:
+            if isinstance(node.right_expr, int):
+                self.text += f'li $t1, {node.right_expr}\n'
+            else:
+                right_offset = self.var_offset[self.current_function.name][node.right_expr]
+                self.text += f'lw $t1, {right_offset}($sp)\n'
         else:
-            right_offset = self.var_offset[self.current_function.name][node.right_expr]
-            self.text += f'lw $t1, {right_offset}($sp)\n'
+            self.text += f'la $t1, void\n'
 
         self.text += f'sw $t1, {offset}($sp)\n'
 
