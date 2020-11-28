@@ -141,8 +141,8 @@ class VarCollector(State):
             self.errors.append(CTypeError( node.row, node.col, e.text))
             typex = ErrorType()
 
-        self.visit(node.expr, scope)
         scope.define_variable(node.id, typex)
+        self.visit(node.expr, scope)
 
     @visitor.when(BinaryOperationNode)
     def visit(self, node, scope):
