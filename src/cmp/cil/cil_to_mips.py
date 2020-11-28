@@ -255,12 +255,12 @@ class CIL_TO_MIPS(object):
         self.mips.comment("ComplementNode")
 
         self.load_memory(Reg.t0, node.body)
-        self.mips.move(Reg.a0, Reg.t0)
-        self.mips.print_int()
+        # self.mips.move(Reg.a0, Reg.t0)
+        # self.mips.print_int()
         self.mips.nor(Reg.t1, Reg.t0, Reg.t0)
         self.store_memory(Reg.t1, node.dest)
-        self.mips.move(Reg.a0, Reg.t1)
-        self.mips.print_int()
+        # self.mips.move(Reg.a0, Reg.t1)
+        # self.mips.print_int()
 
         self.mips.empty()
 
@@ -559,8 +559,8 @@ class CIL_TO_MIPS(object):
     @when(SubstringNode)
     def visit(self, node: SubstringNode):  # noqa: F811
         self.mips.comment("SubstringNode")
-        self.mips.li(Reg.a0, 10)
-        self.mips.print_int()
+        # self.mips.li(Reg.a0, 10)
+        # self.mips.print_int()
         self.load_memory(Reg.s0, node.msg1)
         self.load_memory(Reg.s1, node.length)
         self.load_memory(Reg.s3, node.start)
@@ -568,7 +568,7 @@ class CIL_TO_MIPS(object):
         self.mips.add(Reg.s0, Reg.s0, Reg.s3)
 
         self.mips.move(Reg.a0, Reg.s1)  # allocate heap memory
-        self.mips.print_int()
+        # self.mips.print_int()
         self.mips.sbrk()
         self.copy_substr(Reg.s0, Reg.v0, Reg.s1)
 
