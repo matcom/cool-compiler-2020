@@ -160,7 +160,7 @@ class Mips:
 
     @autowrite
     def addi(self, dst: Register, rl: Register, value: int):
-        return f"addi {dst}, {rl}, {value}"
+        return f"addi {dst}, {rl}, {int(value)}"
 
     @autowrite
     def addu(self, dst: Register, rl: Register, rr: Register):
@@ -172,7 +172,7 @@ class Mips:
 
     @autowrite
     def addiu(self, dst: Register, rl: Register, value: int):
-        return f"addiu {dst}, {rl}, {value}"
+        return f"addiu {dst}, {rl}, {int(value)}"
 
     @autowrite
     def multu(self, dst: Register, rl: Register, rr: Register):
@@ -201,20 +201,20 @@ class Mips:
 
     @autowrite
     def andi(self, dst: Register, rl: Register, value: int):
-        return f"andi {dst}, {rl}, {value}"
+        return f"andi {dst}, {rl}, {int(value)}"
 
     # TODO: Check this instrucction
     @autowrite
     def ori(self, dst: Register, rl: Register, value: int):
-        return f"or {dst}, {rl}, {value}"
+        return f"or {dst}, {rl}, {int(value)}"
 
     @autowrite
     def sll(self, dst: Register, rl: Register, value: int):
-        return f"sll {dst}, {rl}, {value}"
+        return f"sll {dst}, {rl}, {int(value)}"
 
     @autowrite
     def srl(self, dst: Register, rl: Register, value: int):
-        return f"srl {dst}, {rl}, {value}"
+        return f"srl {dst}, {rl}, {int(value)}"
 
     # DataTransfer:
     @autowrite
@@ -235,7 +235,7 @@ class Mips:
 
     @autowrite
     def lui(self, dst: Register, value: int):
-        return f"lui {dst}, {value}"
+        return f"lui {dst}, {int(value)}"
 
     @autowrite
     def la(self, dst: Register, label: str):
@@ -293,7 +293,7 @@ class Mips:
 
     @autowrite
     def slti(self, dest: Register, rl: Register, value: int):
-        return f"slt {dest}, {rl}, {value}"
+        return f"slt {dest}, {rl}, {int(value)}"
 
     # Unconditional Jump
 
@@ -348,7 +348,7 @@ class Mips:
 
     # Utilities
     def offset(self, r: Register, offset: int = 0):
-        return f"{offset}({r})"
+        return f"{int(offset)}({r})"
 
     @autowrite
     def comment(self, text: str):
