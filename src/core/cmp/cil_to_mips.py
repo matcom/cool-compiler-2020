@@ -356,14 +356,14 @@ class CILToMIPSVisitor:
             reg1 = self.memory_manager.get_reg_for_var(node.source)
             if reg1 is None:
                 reg1 = mips.ARG_REGISTERS[0]
-                instructions.append(LoadWordNode(reg1, self.get_var_location(node.source)))
+                instructions.append(mips.LoadWordNode(reg1, self.get_var_location(node.source)))
 
         #location = self.get_var_location(node.dest)
         #instructions.append(mips.StoreWordNode(reg2, location))
         #self.free_reg(reg)
         reg2 = self.memory_manager.get_reg_for_var(node.dest)
         if reg2 is None:
-            instructions.append(mips.StoreWordNode(reg1, self.get_var_locations(node.dest)))
+            instructions.append(mips.StoreWordNode(reg1, self.get_var_location(node.dest)))
         else:
             instructions.append(mips.MoveNode(reg2, reg1))
 
