@@ -60,20 +60,15 @@ def pipeline(program: str, deep: int) -> None:
     print(source)
 
 
-text = r"""--The type of let is the type of the body.
-
-class A { };
-class B inherits A { };
-class C inherits B { };
-class D inherits B { };
-class E inherits B { }; 
-class F inherits A { }; 
+text = r"""(*
+But it is an error to assign to self or to bind self in a let, a
+case, or as a formal parameter. It is also illegal to have attributes named self.
+*)
 
 class Main inherits IO {
 	main(): IO { out_string("Hello World!")};
 
-	b: B <- let a: Bool, a: Int <- 5, a: String, a: A <- new F, b: B <- new E in b;
-	test: B <- let a: Bool, a: Int <- 5, a: String, a: A <- new F, b: A <- new E in b;
-};
+	test(): IO { let self: Main <- new Main in self };
+};  
 """
 pipeline(text, 5)

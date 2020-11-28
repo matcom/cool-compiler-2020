@@ -334,8 +334,15 @@ class TypeInferer:
     ):
         if deep == 1:
             scope = scope.create_child()
-        for var_id, var_type, var_init_expr in node.var_list:
-            type_ = self.context.get_type(var_type)
+        for var_id, var_type, var_init_expr, l , c in node.var_list:
+            try:
+                type_ = self.context.get_type(var_type)
+            except SemanticError:
+                raise SemanticError(TypeError(
+                f"Class {var_type} of let-bound identifier b is undefined.",
+                l,
+                c
+            ))
             # Revisar que la expresion de inicializacion (de existir) se conforme con el tipo
             # de la variable.
             # Se pueden dar varios casos:
@@ -487,7 +494,10 @@ class TypeInferer:
         infered_type=None,
         deep=1,
     ):
-        ret_type = self.context.get_type(node.type_)
+        try:
+            ret_type = self.context.get_type(node.type_)
+        except SemanticError:
+            raise SemanticError(f"{node.line, node.column + 4} - TypeError: 'new' used with undefined class {node.type_}.")
         if ret_type in (
             self.AUTO_TYPE,
             void,
@@ -507,8 +517,11 @@ class TypeInferer:
         infered_type=None,
         deep=1,
     ):
+        cond_type = self.visit(node.cond, scope, infered_type, deep)
+        if cond_type != self.BOOL:
+            raise SemanticError(f"{node.cond.line, node.cond.column} - TypeError: Loop condition does not have type Bool.")
         ret_type = self.visit(node.statements, scope, infered_type, deep)
-        return ret_type
+        return self.OBJECT
 
     # ---------------------------------------------------------------------------------------------------------------------------#
     # ---------------------------------------OPERACIONES ARITMÉTICAS-------------------------------------------------------------#

@@ -174,20 +174,28 @@ def build_cool_grammar():
         s[2], s[1].token_line, s[1].token_column - 3, s[4]
     )
 
-    nested_lets %= idx + dd + typex, lambda s: [(s[1].lex, s[3].lex, None)]
+    nested_lets %= idx + dd + typex, lambda s: [
+        (s[1].lex, s[3].lex, None, s[3].token_line, s[3].token_column - len(s[3].lex))
+    ]
 
     nested_lets %= (
         idx + dd + typex + coma + nested_lets,
-        lambda s: [(s[1].lex, s[3].lex, None)] + s[5],
+        lambda s: [
+            (s[1].lex, s[3].lex, None, s[3].token_line, s[3].token_column - len(s[3].lex))
+        ]
+        + s[5],
     )
 
     nested_lets %= idx + dd + typex + assign + exp, lambda s: [
-        (s[1].lex, s[3].lex, s[5])
+        (s[1].lex, s[3].lex, s[5], s[3].token_line, s[3].token_column - len(s[3].lex))
     ]
 
     nested_lets %= (
         idx + dd + typex + assign + exp + coma + nested_lets,
-        lambda s: [(s[1].lex, s[3].lex, s[5])] + s[7],
+        lambda s: [
+            (s[1].lex, s[3].lex, s[5], s[3].token_line, s[3].token_column - len(s[3].lex))
+        ]
+        + s[7],
     )
 
     exp %= var_dec, lambda s: s[1]
@@ -212,7 +220,7 @@ def build_cool_grammar():
     )
 
     exp %= while_ + exp + loop + statement_list + pool, lambda s: WhileBlockNode(
-        s[2], s[4]
+        s[2], s[4], s[1].token_line, s[1].token_column - 5
     )
 
     exp %= atom, lambda s: s[1]
@@ -225,7 +233,9 @@ def build_cool_grammar():
 
     exp %= case_statement, lambda s: s[1]
 
-    exp %= isvoid + exp, lambda s: IsVoidNode(s[2], s[1].token_line, s[1].token_column - 6)
+    exp %= isvoid + exp, lambda s: IsVoidNode(
+        s[2], s[1].token_line, s[1].token_column - 6
+    )
 
     block %= obrack + loop_statements + cbrack, lambda s: BlockNode(
         s[2], s[1].token_line, s[1].token_column - 1
@@ -293,7 +303,9 @@ def build_cool_grammar():
 
     factor %= (
         factor + arroba + typex + period + idx + opar + args_list_empty + cpar,
-        lambda s: ParentFuncCall(s[1], s[3].lex, s[5].lex, s[7], s[1].line, s[1].column),
+        lambda s: ParentFuncCall(
+            s[1], s[3].lex, s[5].lex, s[7], s[1].line, s[1].column
+        ),
     )
 
     factor %= false, lambda s: FalseConstant()
@@ -332,7 +344,9 @@ def build_cool_grammar():
         s[1], s[3], s[2].token_line, s[2].token_column - 2
     )
 
-    factor %= self_, lambda s: SelfNode(s[1].token_line, s[1].token_column - len(s[1].lex))
+    factor %= self_, lambda s: SelfNode(
+        s[1].token_line, s[1].token_column - len(s[1].lex)
+    )
 
     atom %= arith, lambda s: s[1]
 

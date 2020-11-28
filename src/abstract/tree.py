@@ -88,7 +88,7 @@ class MethodDef(DeclarationNode):
         line,
         column,
         statements: ExpressionNode,
-        ret_col
+        ret_col,
     ):
         self.idx: str = idx
         self.param_list: List[Param] = param_list
@@ -110,7 +110,9 @@ class AttributeDef(DeclarationNode):
 
 class VariableDeclaration(ExpressionNode):
     def __init__(self, var_list, line, column, block_statements=None):
-        self.var_list: List[Tuple[str, str, Optional[ExpressionNode]]] = var_list
+        self.var_list: List[
+            Tuple[str, str, Optional[ExpressionNode], int, int]
+        ] = var_list
         self.block_statements: Optional[ExpressionNode] = block_statements
         self.line = line
         self.column = column
@@ -301,7 +303,8 @@ class InstantiateClassNode(ExpressionNode):
 
 
 class WhileBlockNode(ExpressionNode):
-    def __init__(self, cond, statements):
+    def __init__(self, cond, statements, line, column):
+        super().__init__(line, column)
         self.cond: ExpressionNode = cond
         self.statements: ExpressionNode = statements
 
