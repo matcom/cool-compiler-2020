@@ -1,6 +1,7 @@
 class Main inherits IO {
-   x : Int <- 1;
+   x : Int <- let x : Int <- 5, y : Int <- 4 in (x + y);
 
+   y : Bool <- true;
    sqrt (x : Int) : Int
    {
         x * x
@@ -8,13 +9,14 @@ class Main inherits IO {
 
    main(): IO {
        {
-       out_string("Hello, World (");
-       out_int(x * 2);
-       x <- 0 -7;
-       x <- sqrt(x);
-       out_string(", ");
+       (*while x < 10 loop{
        out_int(x);
-        out_string(").\n");
+       out_string("\n");
+       x <- x + 1;
+       } pool;*)
+       case x of y : Int => y <- 10 ;esac;
+       out_int(x);
+
        }
    };
 };

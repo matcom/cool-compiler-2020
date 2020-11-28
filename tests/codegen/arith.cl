@@ -338,7 +338,13 @@ class Main inherits IO {
 
    main() : Object {
       {
-         avar <- (new A);
+         --avar <- (new A);
+
+         avar <- (new C)@A.method5(avar.value());
+
+         -- print(avar);
+
+(*
          while flag loop
             {
 	       -- avar <- (new A).set_var(get_int());
@@ -423,7 +429,9 @@ class Main inherits IO {
                   fi fi fi fi fi fi fi fi fi fi;
             }
          pool;
+*)
        }
+
    };
 
 };
