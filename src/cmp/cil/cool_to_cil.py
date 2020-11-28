@@ -97,11 +97,9 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         self.attr_init = dict()
         self.attr_init["IO"] = []
         self.attr_init["Object"] = []
-        self.attr_init["Int"] = [cool.AttrDeclarationNode("value", "Int", None, 0, 0)]
-        self.attr_init["Bool"] = [cool.AttrDeclarationNode("value", "Bool", None, 0, 0)]
-        self.attr_init["String"] = [
-            cool.AttrDeclarationNode("value", "String", None, 0, 0)
-        ]
+        self.attr_init["Int"] = [cool.AttrDeclarationNode("value", None, None, 0, 0)]
+        self.attr_init["Bool"] = [cool.AttrDeclarationNode("value", None, None, 0, 0)]
+        self.attr_init["String"] = [cool.AttrDeclarationNode("value", None, None, 0, 0)]
         for classx in node.classes:
             self.attr_init[classx.id] = []
             if classx.parent:
@@ -166,13 +164,15 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         result = None
         if node.expression:
             result = self.visit(node.expression, scope)
-        elif typex in ["Int", "Bool", "String"]:
-            result = self.define_internal_local()
-            self.register_instruction(AllocateNode(result, typex))
-            self.register_instruction(SetAttribNode(result, "value", 0, typex))
+        # elif typex in ["Int", "Bool", "String"]:
+        #     print("------------------------------")
+        #     result = self.define_internal_local()
+        #     self.register_instruction(AllocateNode(result, typex))
+        #     self.register_instruction(SetAttribNode(result, "value", 0, typex))
         else:
             result = self.define_internal_local()
             self.register_instruction(VoidNode(result))
+            # self.register_instruction(PrintIntNode(result))
         self_inst = scope.get_var("self").local_name
         assert typex, "AttrDeclarationNode: typex"
         self.register_instruction(SetAttribNode(self_inst, node.id, result, typex))

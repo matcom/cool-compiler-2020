@@ -67,7 +67,7 @@ if GEN_CIL:
     with open(OUTPUT_FILE[:-4] + "cil", "w") as out_fd:
         out_fd.write(CIL_FORMATTER().visit(cil_ast))
 
-ctm = CIL_TO_MIPS()
+ctm = CIL_TO_MIPS(cchecker.context)
 ctm.visit(cil_ast)
 mips_code = ctm.mips.compile()
 

@@ -398,9 +398,9 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(
             GetAttribNode(length_raw, length_param, "value", "Int")
         )
-        self.register_instruction(PrintIntNode(start_raw))
-        self.register_instruction(PrintIntNode(length_raw))
-        self.register_instruction(PrintStrNode(start_raw))
+        # self.register_instruction(PrintIntNode(start_raw))
+        # self.register_instruction(PrintIntNode(length_raw))
+        # self.register_instruction(PrintStrNode(start_raw))
         self.register_instruction(LengthNode(length_var, str_raw))
         # start param negative
         self.register_instruction(LessEqNode(cmp_var1, zero, start_raw))
