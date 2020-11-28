@@ -163,17 +163,17 @@ def copy_to_cil():
 
 
 def length_to_cil():
-    result = CilAST.LocalNode('result')
+    result = CilAST.LocalNode('len_result')
     return CilAST.FuncNode('length_String', [CilAST.ParamNode('self')], [result], [CilAST.LengthNode('self', result),   CilAST.ReturnNode(result)])
 
 
 def concat_to_cil():
-    result = CilAST.LocalNode('result')
+    result = CilAST.LocalNode('concat_result')
     return CilAST.FuncNode('concat_String', [CilAST.ParamNode('self'),   CilAST.ParamNode('x')], [result], [CilAST.ConcatNode('self', 'x', result),   CilAST.ReturnNode(result)])
 
 
 def substring_to_cil():
-    result = CilAST.LocalNode('result')
+    result = CilAST.LocalNode('substring_result')
     return CilAST.FuncNode('substr_String', [CilAST.ParamNode('self'),   CilAST.ParamNode('i'),   CilAST.ParamNode('l')], [result], [CilAST.SubStringNode('self', 'i', 'l', result),   CilAST.ReturnNode(result)])
 
 
