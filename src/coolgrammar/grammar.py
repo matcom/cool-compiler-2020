@@ -196,9 +196,9 @@ def build_cool_grammar():
 
     exp %= var_dec, lambda s: s[1]
 
-    string_const %= quoted_string_const, lambda s: StringConstant(s[1].lex)
+    string_const %= quoted_string_const, lambda s: StringConstant(s[1].lex, s[1].token_line, s[1].token_column)
 
-    string_const %= tilde_string_const, lambda s: StringConstant(s[1].lex)
+    string_const %= tilde_string_const, lambda s: StringConstant(s[1].lex, s[1].token_line, s[1].token_column)
 
     instantiation %= new + typex, lambda s: InstantiateClassNode(
         s[2].lex, s[1].token_line, s[1].token_column - 3, []
@@ -251,7 +251,7 @@ def build_cool_grammar():
 
     term %= factor, lambda s: s[1]
 
-    # term %= not_ + factor, lambda s: NotNode(s[2], s[1].token_line, s[1].token_column)
+    term %= not_ + factor, lambda s: NotNode(s[2], s[1].token_line, s[1].token_column)
 
     # term %= not_operator + factor, lambda s: NegNode(s[2], s[1].token_line, s[1].token_column + 1)
 
@@ -261,12 +261,6 @@ def build_cool_grammar():
 
     exp %= not_operator + exp, lambda s: NegNode(
         s[2], s[1].token_line, s[1].token_column + 1
-    )
-
-    exp %= not_ + exp, lambda s: NotNode(s[2], s[1].token_line, s[1].token_column)
-
-    postfix %= not_ + factor, lambda s: NotNode(
-        s[2], s[1].token_line, s[1].token_column
     )
 
     postfix %= not_operator + atom, lambda s: NegNode(

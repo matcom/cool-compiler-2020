@@ -185,8 +185,10 @@ class IntegerConstant(AtomicNode):
 
 
 class StringConstant(AtomicNode):
-    def __init__(self, lex):
+    def __init__(self, lex, line, column):
         super(StringConstant, self).__init__(lex)
+        self.line = line
+        self.column = column
 
 
 class TypeNode(AtomicNode):
