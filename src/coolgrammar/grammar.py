@@ -196,9 +196,9 @@ def build_cool_grammar():
 
     exp %= var_dec, lambda s: s[1]
 
-    string_const %= quoted_string_const, lambda s: StringConstant(s[1].lex, s[1].token_line, s[1].token_column)
+    string_const %= quoted_string_const, lambda s: StringConstant(s[1].lex, s[1].token_line, s[1].token_column - len(s[1].lex))
 
-    string_const %= tilde_string_const, lambda s: StringConstant(s[1].lex, s[1].token_line, s[1].token_column)
+    string_const %= tilde_string_const, lambda s: StringConstant(s[1].lex, s[1].token_line, s[1].token_column - len(s[1].lex))
 
     instantiation %= new + typex, lambda s: InstantiateClassNode(
         s[2].lex, s[1].token_line, s[1].token_column - 3, []
