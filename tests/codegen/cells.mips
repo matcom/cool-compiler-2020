@@ -407,22 +407,22 @@ addiu $sp, $sp, 4
 la $a0, string_1
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 3 offset 2  result -1
+#obj 3 offset 2  result String.concat
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.concat
+sw $a1, ($sp)
 addiu $sp, $sp, -8
 #Dispatch in place
-#obj 3 offset 6  result -1
+#obj 3 offset 6  result IO.out_string
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
 jal IO.out_string
-sw $a1, 4($sp)
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
@@ -452,13 +452,13 @@ lw $t0, -16($sp)
 lw $a1, 4($t0)
 sw $a1, -4($sp)
 #Dispatch in place
-#obj 2 offset 1  result -1
+#obj 2 offset 1  result String.length
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.length
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 lw $v0, -4($sp)
 addiu $sp, $sp, -4
@@ -491,13 +491,13 @@ li $a0, 1
 sw $a0, ($sp)
 addiu $sp, $sp, 4
 #Dispatch in place
-#obj 4 offset 3  result -1
+#obj 4 offset 3  result String.substr
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.substr
+sw $a1, ($sp)
 addiu $sp, $sp, -12
 lw $v0, -4($sp)
 addiu $sp, $sp, -4
@@ -1110,13 +1110,13 @@ jal CellularAutomaton.cell_at_next_evolution
 sw $a1, ($sp)
 addiu $sp, $sp, -4
 #Dispatch in place
-#obj 4 offset 3  result -1
+#obj 4 offset 3  result String.concat
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.concat
+sw $a1, ($sp)
 addiu $sp, $sp, -8
 lw $a0, -4($sp)
 lw $a1, -56($sp)

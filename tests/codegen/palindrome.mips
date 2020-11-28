@@ -2,7 +2,9 @@
 buffer: .space 80
 strsubstrexception: .asciiz "Substring index exception"
 
-string_1: .asciiz "\n"
+string_4: .asciiz "enter a string\n"
+string_6: .asciiz "that was not a palindrome\n"
+string_7: .asciiz "that was a palindrome\n"
 Object_INH:
 String_INH:
 .word Object_INH
@@ -34,6 +36,7 @@ IO_VT:
 .word IO.in_int
 Main_VT:
 .word Main_INH
+.word Main.pal
 .word Main.main
 
 .globl main
@@ -292,7 +295,7 @@ li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, 4
 li $v0, 9
-li $a0, 4
+li $a0, 8
 syscall
 sw $v0, -4($sp)
 la $a1, Main_VT
@@ -323,10 +326,14 @@ addiu $sp, $sp, -4
 lw $ra, -4($sp)
 addiu $sp, $sp, -4
 jr $ra
-Main.main:
+Main.pal:
 sw $ra, 0($sp)
 addiu $sp, $sp, 4
-#Block
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Binary
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, 4
@@ -335,56 +342,90 @@ li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, 4
 #push object
-#Self-Dispatch
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, 4
-#Args: 0
-#Point-Dispatch
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, 4
-#push object
-#Point-Dispatch
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, 4
-#push object
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, 4
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, 4
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, 4
-li $v0, 9
-li $a0, 4
-syscall
-sw $v0, -4($sp)
-la $a1, Object_VT
-sw $a1, ($v0)
-lw $a0, -4($sp)
-sw $a0, -12($sp)
-#DispatchParent in place
-#obj 2 offset 1  result Object.Constructor
-la $v0, 1
-jal Object.Constructor
-sw $a1, ($sp)
-addiu $sp, $sp, -8
+lw $a0, -24($sp)
+sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 1  result Object.type_name
+#obj 2 offset 1  result String.length
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal Object.type_name
+jal String.length
 sw $a1, ($sp)
 addiu $sp, $sp, -4
+#Integer
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $a0, 2
+lw $a1, -4($sp)
+seq $a0, $a0, $a1
+sw $a0, -12($sp)
+addiu $sp, $sp, -8
+lw $a0, -4($sp)
+bnez $a0, _if_1
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#push object
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $a0, -32($sp)
+sw $a0, -4($sp)
+#Dispatch in place
+#obj 2 offset 1  result String.length
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, 4
+sw $t1, 0($sp)
+jal String.length
+sw $a1, ($sp)
+addiu $sp, $sp, -4
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $a0, 2
+lw $a1, -4($sp)
+seq $a0, $a0, $a1
+sw $a0, -12($sp)
+addiu $sp, $sp, -8
+lw $a0, -4($sp)
+bnez $a0, _if_2
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#push object
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $a0, -40($sp)
+sw $a0, -4($sp)
 #Args: 0
 #Integer
-li $a0, 4
+li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, 4
 #Args: 1
@@ -401,47 +442,132 @@ sw $t1, 0($sp)
 jal String.substr
 sw $a1, ($sp)
 addiu $sp, $sp, -12
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#push object
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $a0, -44($sp)
+sw $a0, -4($sp)
+#Args: 0
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#push object
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $a0, -56($sp)
+sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 6  result IO.out_string
+#obj 2 offset 1  result String.length
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
+jal String.length
 sw $a1, ($sp)
+addiu $sp, $sp, -4
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $a0, 2
+lw $a1, -4($sp)
+sub $a0, $a0, $a1
+sw $a0, -12($sp)
 addiu $sp, $sp, -8
+#Args: 1
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Dispatch in place
+#obj 4 offset 3  result String.substr
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, 4
+sw $t1, 0($sp)
+jal String.substr
+sw $a1, ($sp)
+addiu $sp, $sp, -12
+lw $a0, 2
+lw $a1, -4($sp)
+seq $a0, $a0, $a1
+sw $a0, -12($sp)
+addiu $sp, $sp, -8
+lw $a0, -4($sp)
+bnez $a0, _if_3
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $a0, -4($sp)
+sw $a0, -12($sp)
+j _fi_3
+_if_3:
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
 #Args: 0
 #Point-Dispatch
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, 4
 #push object
-#Point-Dispatch
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, 4
-#push object
-#Dispatch in place
-#obj 1 offset 1  result Object.type_name
-move $t0, $sp
-lw $t1, 4($t0)
-addi $sp, $sp, 4
-sw $t1, 0($sp)
-jal Object.type_name
-sw $a1, ($sp)
-addiu $sp, $sp, -4
+lw $a0, -48($sp)
+sw $a0, -4($sp)
 #Args: 0
 #Integer
 li $a0, 1
 sw $a0, ($sp)
 addiu $sp, $sp, 4
 #Args: 1
-#Integer
-li $a0, 3
+#Binary
+li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, 4
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#push object
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $a0, -64($sp)
+sw $a0, -4($sp)
 #Dispatch in place
-#obj 3 offset 3  result String.substr
+#obj 2 offset 1  result String.length
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, 4
+sw $t1, 0($sp)
+jal String.length
+sw $a1, ($sp)
+addiu $sp, $sp, -4
+#Integer
+li $a0, 2
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $a0, 2
+lw $a1, -4($sp)
+sub $a0, $a0, $a1
+sw $a0, -12($sp)
+addiu $sp, $sp, -8
+#Dispatch in place
+#obj 4 offset 3  result String.substr
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
@@ -450,14 +576,67 @@ jal String.substr
 sw $a1, ($sp)
 addiu $sp, $sp, -12
 #Dispatch in place
-#obj 1 offset 1  result IO.out_string
+#obj 2 offset 12  result Main.pal
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
+jal Main.pal
 sw $a1, ($sp)
 addiu $sp, $sp, -8
+lw $a0, -4($sp)
+sw $a0, -12($sp)
+_fi_3:
+addiu $sp, $sp, -8
+lw $a0, -4($sp)
+sw $a0, -12($sp)
+j _fi_2
+_if_2:
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $a0, -4($sp)
+sw $a0, -16($sp)
+_fi_2:
+addiu $sp, $sp, -8
+lw $a0, -4($sp)
+sw $a0, -16($sp)
+j _fi_1
+_if_1:
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $a0, -4($sp)
+sw $a0, -20($sp)
+_fi_1:
+addiu $sp, $sp, -8
+lw $v0, -4($sp)
+addiu $sp, $sp, -4
+lw $ra, -4($sp)
+addiu $sp, $sp, -4
+jr $ra
+Main.main:
+sw $ra, 0($sp)
+addiu $sp, $sp, 4
+#Block
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Assignment
+#Unary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+lw $a0, -4($sp)
+not $a0, $a0
+sw $a0, -8($sp)
+lw $a0, -4($sp)
+lw $a1, -20($sp)
+sw $a0, 4($a1)
 #Self-Dispatch
 li $a0, 0
 sw $a0, ($sp)
@@ -467,10 +646,63 @@ addiu $sp, $sp, 4
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, 4
-la $a0, string_1
+la $a0, string_4
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 4  result IO.out_string
+#obj 2 offset 7  result IO.out_string
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, 4
+sw $t1, 0($sp)
+jal IO.out_string
+sw $a1, ($sp)
+addiu $sp, $sp, -8
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Args: 0
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Dispatch in place
+#obj 1 offset 8  result IO.in_string
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, 4
+sw $t1, 0($sp)
+jal IO.in_string
+sw $a1, ($sp)
+addiu $sp, $sp, -4
+#Dispatch in place
+#obj 1 offset 7  result Main.pal
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, 4
+sw $t1, 0($sp)
+jal Main.pal
+sw $a1, ($sp)
+addiu $sp, $sp, -8
+lw $a0, -4($sp)
+bnez $a0, _if_5
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Args: 0
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+la $a0, string_6
+sw $a0, -4($sp)
+#Dispatch in place
+#obj 2 offset 7  result IO.out_string
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
@@ -480,7 +712,35 @@ sw $a1, ($sp)
 addiu $sp, $sp, -8
 lw $a0, -8($sp)
 sw $a0, -4($sp)
+j _fi_5
+_if_5:
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+#Args: 0
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, 4
+la $a0, string_7
+sw $a0, -4($sp)
+#Dispatch in place
+#obj 2 offset 8  result IO.out_string
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, 4
+sw $t1, 0($sp)
+jal IO.out_string
+sw $a1, ($sp)
 addiu $sp, $sp, -8
+lw $a0, -4($sp)
+sw $a0, -4($sp)
+_fi_5:
+addiu $sp, $sp, -8
+lw $a0, -4($sp)
+sw $a0, -8($sp)
+addiu $sp, $sp, -12
 lw $v0, -4($sp)
 addiu $sp, $sp, -4
 lw $ra, -4($sp)

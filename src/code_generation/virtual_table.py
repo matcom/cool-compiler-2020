@@ -40,13 +40,18 @@ class VirtualTable:
             self.attributes[claSS] = []
         self.attributes[claSS].append(args.name)    
 
-    def get_method_id(self, claSS, method):
+    def get_method_id(self, claSS, method, rec = False):
         if claSS in self.methods.keys():
             for i in range(len(self.methods[claSS])):
                 b, args = self.methods[claSS][i]
                 if b == method:
                     return claSS + '.' + method
-        # print('VT: class: {} method: {}'.format(claSS, method))
+        built_in = ['Object','Int', 'IO', 'Bool', 'String']
+        if not rec:
+            for t in built_in:
+                ret = self.get_method_id(t, method, rec=True)
+                if ret != -1:
+                    return ret
         return -1
 
     def get_attributes(self, claSS):
