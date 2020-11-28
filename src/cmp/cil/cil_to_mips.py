@@ -72,9 +72,9 @@ class CIL_TO_MIPS(object):
         self.mips.comment(f"load memory {arg} to {dst}")
         if arg in self.actual_args or arg in self.local_vars_offsets:
             offset = (
-                self.actual_args[arg] + 1
+                self.actual_args[arg]
                 if arg in self.actual_args
-                else -self.local_vars_offsets[arg]
+                else self.local_vars_offsets[arg]
             ) * DATA_SIZE
 
             self.mips.load_memory(dst, self.mips.offset(Reg.fp, offset))
@@ -85,7 +85,7 @@ class CIL_TO_MIPS(object):
     def store_memory(self, dst: Reg, arg: str):
         self.mips.comment(f"store memory {dst} to {arg}")
         if arg in self.local_vars_offsets:
-            offset = -self.local_vars_offsets[arg] * DATA_SIZE
+            offset = self.local_vars_offsets[arg] * DATA_SIZE
             self.mips.store_memory(dst, self.mips.offset(Reg.fp, offset))
         else:
             raise Exception(f"store_memory: The direction {arg} isn't an address")
@@ -185,13 +185,13 @@ class CIL_TO_MIPS(object):
 
     @when(ParamNode)
     def visit(self, node: ParamNode, index=0):  # noqa: F811
-        self.actual_args[node.name] = index
+        self.actual_args[node.name] = index + 1
 
     @when(LocalNode)
     def visit(self, node: LocalNode, index=0):  # noqa: F811
         self.mips.push(Reg.zero)
         assert node.name not in self.local_vars_offsets, f"Impossible {node.name}..."
-        self.local_vars_offsets[node.name] = index - 1
+        self.local_vars_offsets[node.name] = -(index + 1)
 
     @when(CopyNode)
     def visit(self, node: CopyNode):  # noqa: F811
@@ -488,7 +488,7 @@ class CIL_TO_MIPS(object):
         self.get_string_length(Reg.s0, Reg.t0)
         self.get_string_length(Reg.s1, Reg.t1)
 
-        self.mips.add(Reg.a0, Reg.t0, Reg.t1)  # TODO: Divide in 2, from half to byte
+        self.mips.add(Reg.a0, Reg.t0, Reg.t1)  # WARNING: Divide in 2, from half to byte
         self.mips.sbrk()
         self.mips.move(Reg.s3, Reg.v0)  # The new space reserved
 
