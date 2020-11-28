@@ -60,7 +60,7 @@ def pipeline(program: str, deep: int) -> None:
     print(source)
 
 
-text = r"""--evaluates to true if expr is void and evaluates to false if expr is not void.
+text = r"""--The type of let is the type of the body.
 
 class A { };
 class B inherits A { };
@@ -72,19 +72,8 @@ class F inherits A { };
 class Main inherits IO {
 	main(): IO { out_string("Hello World!")};
 
-	b: B <- if isvoid new F then 
-				new C 
-			else 
-				if false then new D 
-				else new E fi
-			fi;
-
-	test: B <- isvoid if isvoid new F then 
-				new C 
-			else 
-				if false then new D 
-				else new E fi
-			fi;
+	b: B <- let a: Bool, a: Int <- 5, a: String, a: A <- new F, b: B <- new E in b;
+	test: B <- let a: Bool, a: Int <- 5, a: String, a: A <- new F, b: A <- new E in b;
 };
 """
 pipeline(text, 5)

@@ -332,6 +332,8 @@ class TypeInferer:
         infered_type=None,
         deep=1,
     ):
+        if deep == 1:
+            scope = scope.create_child()
         for var_id, var_type, var_init_expr in node.var_list:
             type_ = self.context.get_type(var_type)
             # Revisar que la expresion de inicializacion (de existir) se conforme con el tipo
