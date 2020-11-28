@@ -558,8 +558,6 @@ if __name__ == '__main__':
     lexer = Lexer()
     parser = Parser()
 
-    sys.argv.append('src/test.cl')
-
     if len(sys.argv) > 1:
 
         input_file = sys.argv[1]
@@ -589,13 +587,13 @@ if __name__ == '__main__':
         cool_to_cil = COOLToCILVisitor(context)
         cil_ast = cool_to_cil.visit(cool_ast, scope)
         
-        formatter = CIL_AST.get_formatter()
-        cil_code = formatter(cil_ast)
-        with open(f'{sys.argv[1][:-3]}.cil', 'w') as f:
-            f.write(f'{cil_code}')
+        # formatter = CIL_AST.get_formatter()
+        # cil_code = formatter(cil_ast)
+        # with open(f'{sys.argv[1][:-3]}.cil', 'w') as f:
+        #     f.write(f'{cil_code}')
 
         cil_to_mips = CILToMIPSVisitor()
         mips_code = cil_to_mips.visit(cil_ast)
        
-        with open(f'{sys.argv[1][:-3]}.s', 'w') as f:
+        with open(f'{sys.argv[1][:-3]}.mips', 'w') as f:
             f.write(f'{mips_code}')
