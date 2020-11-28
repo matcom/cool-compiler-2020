@@ -566,12 +566,32 @@ def assign_to_mips_visitor(assign: cil.AssignNode):
     ]
 
 def copy_to_mips_visitor(copy: cil.CopyNode):
+    x_addr = CURRENT_FUNCTION.offset[str(copy.val)]
+    y_addr=CURRENT_FUNCTION.offset[str(copy.result)]
+    return [
+        mips.Comment(str(copy)),
+        mips.LwInstruction('$a0', f'{x_addr+8}($fp)', x_addr+8),
+        mips.LiInstruction('$v0', 9),
+        mips.SyscallInstruction(),
+        mips.SwInstruction('$v0', f'{y_addr}($fp)'),
+        mips.AdduInstruction('$t1','$fp',x_addr),
+        mips.AdduInstruction('$t2', '$fp', y_addr),
+        mips.MIPSLabel('copy_loop'),
+        mips.LwInstruction('$t0', '($t1)'),
+        mips.SwInstruction('$t0', '($t2)'),
+        mips.AdduInstruction('$t1', '$t1', 4),
+        mips.AdduInstruction('$t2', '$t2', 4),
+        mips.SubuInstruction('$a0', '$a0', 4),
+        mips.BeqzInstruction('$a0', 'end_copy_loop'),
+        mips.BInstruction('copy_loop'),
+        mips.MIPSLabel('end_copy_loop')
+    ]
     return []
 
 __visitors__ = {
     cil.ArgNode: arg_to_mips_visitor,
     cil.AllocateNode: allocate_to_mips_visitor,
-    # cil.CopyNode: copy_to_mips_visitor,
+    cil.CopyNode: copy_to_mips_visitor,
     cil.GetAttrNode: getattr_to_mips_visitor,
     cil.SetAttrNode: setattr_to_mips_visitor,
     cil.PlusNode: plus_to_mips_visitor,
