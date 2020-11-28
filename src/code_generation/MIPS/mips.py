@@ -291,12 +291,12 @@ def type_of_to_mips_visitor(typeof: cil.TypeOfNode):
         lw $t0, [addr(x)]
         sw ($t0), [addr(t)]
     """
-    x_addr = CURRENT_FUNCTION[str(typeof.var)]
-    t_addr = CURRENT_FUNCTION[str(typeof.result)]
+    x_addr = CURRENT_FUNCTION.offset[str(typeof.var)]
+    t_addr = CURRENT_FUNCTION.offset[str(typeof.result)]
     return [
         mips.Comment(str(typeof)),
-        mips.LwInstruction('$t0', x_addr()),
-        mips.SwInstruction('$t0', t_addr())
+        mips.LwInstruction('$t0', f'{x_addr}($fp)'),
+        mips.SwInstruction('$t0', f'{t_addr}($fp)')
     ]
 
 
