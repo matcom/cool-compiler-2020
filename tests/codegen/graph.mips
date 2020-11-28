@@ -785,13 +785,13 @@ lw $t0, -24($sp)
 lw $a1, 4($t0)
 sw $a1, -4($sp)
 #Dispatch in place
-#obj 3 offset 6  result -1
+#obj 3 offset 6  result IO.out_int
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal IO.out_int
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 #Point-Dispatch
 li $a0, 0
@@ -904,13 +904,13 @@ addiu $sp, $sp, 4
 la $a0, string_1
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 3 offset 6  result -1
+#obj 3 offset 6  result IO.out_string
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
 jal IO.out_string
-sw $a1, 4($sp)
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 #Self-Dispatch
 li $a0, 0
@@ -930,13 +930,13 @@ lw $t0, -32($sp)
 lw $a1, 4($t0)
 sw $a1, -4($sp)
 #Dispatch in place
-#obj 3 offset 8  result -1
+#obj 3 offset 8  result IO.out_int
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal IO.out_int
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 #Self-Dispatch
 li $a0, 0
@@ -956,13 +956,13 @@ addiu $sp, $sp, 4
 la $a0, string_2
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 3 offset 10  result -1
+#obj 3 offset 10  result IO.out_string
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
 jal IO.out_string
-sw $a1, 4($sp)
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 #Self-Dispatch
 li $a0, 0
@@ -982,13 +982,13 @@ lw $t0, -48($sp)
 lw $a1, 8($t0)
 sw $a1, -4($sp)
 #Dispatch in place
-#obj 3 offset 12  result -1
+#obj 3 offset 12  result IO.out_int
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal IO.out_int
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 #Self-Dispatch
 li $a0, 0
@@ -1008,13 +1008,13 @@ addiu $sp, $sp, 4
 la $a0, string_3
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 3 offset 14  result -1
+#obj 3 offset 14  result IO.out_string
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
 jal IO.out_string
-sw $a1, 4($sp)
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 #Self-Dispatch
 li $a0, 0
@@ -1034,13 +1034,13 @@ lw $t0, -64($sp)
 lw $a1, 12($t0)
 sw $a1, -4($sp)
 #Dispatch in place
-#obj 3 offset 16  result -1
+#obj 3 offset 16  result IO.out_int
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal IO.out_int
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 lw $a0, -4($sp)
 sw $a0, -52($sp)
@@ -1090,13 +1090,13 @@ addiu $sp, $sp, 4
 lw $a0, -20($sp)
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 5  result -1
+#obj 2 offset 5  result Object.abort
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal Object.abort
+sw $a1, ($sp)
 addiu $sp, $sp, 0
 li $a0, 0
 sw $a0, ($sp)
@@ -1130,13 +1130,13 @@ addiu $sp, $sp, 4
 lw $a0, -20($sp)
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 5  result -1
+#obj 2 offset 5  result Object.abort
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal Object.abort
+sw $a1, ($sp)
 addiu $sp, $sp, 0
 li $a0, 0
 sw $a0, ($sp)
@@ -1348,13 +1348,13 @@ addiu $sp, $sp, 4
 la $a0, string_5
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 3 offset 5  result -1
+#obj 3 offset 5  result IO.out_string
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
 jal IO.out_string
-sw $a1, 4($sp)
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 lw $v0, -4($sp)
 addiu $sp, $sp, -4
@@ -1544,13 +1544,13 @@ addiu $sp, $sp, 4
 lw $a0, -20($sp)
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 5  result -1
+#obj 2 offset 5  result Object.abort
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal Object.abort
+sw $a1, ($sp)
 addiu $sp, $sp, 0
 li $a0, 0
 sw $a0, ($sp)
@@ -1584,13 +1584,13 @@ addiu $sp, $sp, 4
 lw $a0, -20($sp)
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 5  result -1
+#obj 2 offset 5  result Object.abort
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal Object.abort
+sw $a1, ($sp)
 addiu $sp, $sp, 0
 li $a0, 0
 sw $a0, ($sp)
@@ -1683,13 +1683,13 @@ addiu $sp, $sp, 4
 la $a0, string_6
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 3 offset 5  result -1
+#obj 3 offset 5  result IO.out_string
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
 jal IO.out_string
-sw $a1, 4($sp)
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 lw $v0, -4($sp)
 addiu $sp, $sp, -4
@@ -2043,13 +2043,13 @@ addiu $sp, $sp, 4
 lw $a0, -64($sp)
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 16  result -1
+#obj 2 offset 16  result IO.in_string
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal IO.in_string
+sw $a1, ($sp)
 addiu $sp, $sp, 0
 lw $a0, -4($sp)
 lw $a1, -64($sp)
@@ -2116,13 +2116,13 @@ lw $t0, -44($sp)
 lw $a1, 8($t0)
 sw $a1, -4($sp)
 #Dispatch in place
-#obj 2 offset 1  result -1
+#obj 2 offset 1  result String.length
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.length
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 #Integer
 li $a0, 0
@@ -2553,13 +2553,13 @@ addiu $sp, $sp, 4
 lw $a0, -104($sp)
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 26  result -1
+#obj 2 offset 26  result Object.abort
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal Object.abort
+sw $a1, ($sp)
 addiu $sp, $sp, 0
 #Integer
 li $a0, 0
@@ -2715,13 +2715,13 @@ addiu $sp, $sp, 4
 lw $a0, -24($sp)
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 1  result -1
+#obj 2 offset 1  result String.length
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.length
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 #Integer
 li $a0, 0
@@ -2763,13 +2763,13 @@ li $a0, 1
 sw $a0, ($sp)
 addiu $sp, $sp, 4
 #Dispatch in place
-#obj 4 offset 3  result -1
+#obj 4 offset 3  result String.substr
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.substr
+sw $a1, ($sp)
 addiu $sp, $sp, -12
 #loading label
 li $a0, 0
@@ -2813,13 +2813,13 @@ li $a0, 1
 sw $a0, ($sp)
 addiu $sp, $sp, 4
 #Dispatch in place
-#obj 4 offset 3  result -1
+#obj 4 offset 3  result String.substr
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.substr
+sw $a1, ($sp)
 addiu $sp, $sp, -12
 #loading label
 li $a0, 0
@@ -2905,13 +2905,13 @@ addiu $sp, $sp, 4
 lw $a0, -72($sp)
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 1  result -1
+#obj 2 offset 1  result String.length
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.length
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 #Integer
 li $a0, 1
@@ -2923,13 +2923,13 @@ sub $a0, $a0, $a1
 sw $a0, -12($sp)
 addiu $sp, $sp, -8
 #Dispatch in place
-#obj 4 offset 3  result -1
+#obj 4 offset 3  result String.substr
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.substr
+sw $a1, ($sp)
 addiu $sp, $sp, -12
 #Dispatch in place
 #obj 3 offset 14  result Parse.a2i
@@ -2994,13 +2994,13 @@ addiu $sp, $sp, 4
 lw $a0, -76($sp)
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 1  result -1
+#obj 2 offset 1  result String.length
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.length
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 #Integer
 li $a0, 1
@@ -3012,13 +3012,13 @@ sub $a0, $a0, $a1
 sw $a0, -12($sp)
 addiu $sp, $sp, -8
 #Dispatch in place
-#obj 4 offset 3  result -1
+#obj 4 offset 3  result String.substr
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.substr
+sw $a1, ($sp)
 addiu $sp, $sp, -12
 #Dispatch in place
 #obj 3 offset 15  result Parse.a2i_aux
@@ -3225,13 +3225,13 @@ li $a0, 1
 sw $a0, ($sp)
 addiu $sp, $sp, 4
 #Dispatch in place
-#obj 4 offset 3  result -1
+#obj 4 offset 3  result String.substr
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.substr
+sw $a1, ($sp)
 addiu $sp, $sp, -12
 #Dispatch in place
 #obj 3 offset 24  result Parse.c2i
@@ -3386,13 +3386,13 @@ addiu $sp, $sp, 4
 lw $a0, -112($sp)
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 1  result -1
+#obj 2 offset 1  result String.length
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.length
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
@@ -3415,13 +3415,13 @@ sub $a0, $a0, $a1
 sw $a0, -12($sp)
 addiu $sp, $sp, -8
 #Dispatch in place
-#obj 4 offset 3  result -1
+#obj 4 offset 3  result String.substr
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.substr
+sw $a1, ($sp)
 addiu $sp, $sp, -12
 lw $a0, -4($sp)
 lw $a1, -92($sp)
@@ -3502,13 +3502,13 @@ addiu $sp, $sp, 4
 lw $a0, -108($sp)
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 1  result -1
+#obj 2 offset 1  result String.length
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.length
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
@@ -3531,13 +3531,13 @@ sub $a0, $a0, $a1
 sw $a0, -12($sp)
 addiu $sp, $sp, -8
 #Dispatch in place
-#obj 4 offset 3  result -1
+#obj 4 offset 3  result String.substr
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal IO.out_string
-sw $a1, 4($sp)
+jal String.substr
+sw $a1, ($sp)
 addiu $sp, $sp, -12
 lw $a0, -4($sp)
 lw $a1, -88($sp)
