@@ -46,7 +46,7 @@ class MIPS:
         # self.code.append("syscall\n")
         # self.code.append('j Main.main\n')
         
-        print('code_len', len(self.code))
+        # print('code_len', len(self.code))
         for c in self.il_code:
             # print(str(c))
             self.visit(c)
@@ -54,7 +54,7 @@ class MIPS:
         self.code += "li $v0, 10\n"
         self.code += "syscall\n"
 
-        print('code_len', len(self.code))
+        # print('code_len', len(self.code))
         
         
         return self.code

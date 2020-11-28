@@ -25,47 +25,40 @@ def main():
     pipeline.submit_state(TypeChecker('TChecker'))
 
     #temporal
-    ast, context, scope = pipeline.run_pipeline(program)
-    
+    try:
+        ast, context, scope = pipeline.run_pipeline(program)
+    except Exception as e:
+        pass
+
     pipeline.report_errors()
 
     if pipeline.pipeline_errors:
         exit(1)
-    # print(ast)
-    # print('Done ast')
-    # for t in context.types:
-    #     print(t)
-    #     print('methods: ', context.types[t])
-    # print('Done transpilator')
-    # print(len(cv.code))
+    else:
+        cv = codeVisitor(context)
+        cv.visit(ast)
 
-    # for c in cv.code:
-    #     print(str(c))
-    
-    cv = codeVisitor(context)
-    cv.visit(ast)
+        mips = MIPS(cv.code, cv.data)
+        code = mips.start()
 
-    mips = MIPS(cv.code, cv.data)
-    code = mips.start()
+        # for c in cv.data:
+        #     print(str(c))
+        # for c in cv.code:
+        #     print(str(c))
 
-    for c in cv.data:
-        print(str(c))
-    for c in cv.code:
-        print(str(c))
+        path = program[:-1]
+        path = path[:-1]
+        path += 'mips'
+        # print(path)
+        f = open(path, "w+")
 
-    path = program[:-1]
-    path = path[:-1]
-    path += 'mips'
-    print(path)
-    f = open(path, "w+")
+        for line in code:
+            f.write(line)
+        
+        f.close()
 
-    for line in code:
-        f.write(line)
-    
-    f.close()
-
-    # except:
-    #     pass
+        # except:
+        #     pass
 
     
 

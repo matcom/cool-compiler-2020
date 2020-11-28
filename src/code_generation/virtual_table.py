@@ -46,7 +46,7 @@ class VirtualTable:
                 b, args = self.methods[claSS][i]
                 if b == method:
                     return claSS + '.' + method
-        print('VT: class: {} method: {}'.format(claSS, method))
+        # print('VT: class: {} method: {}'.format(claSS, method))
         return -1
 
     def get_attributes(self, claSS):

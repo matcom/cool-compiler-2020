@@ -157,7 +157,7 @@ class codeVisitor:
     def visit(self, node):
         # print('ClassDeclarationNode')
         self.current_class = node.id
-        print('--current_class {}\n'.format(node.id))
+        # print('--current_class {}\n'.format(node.id))
         attributes = []
         for f in node.features:
             if type(f) == AttrDeclarationNode:
@@ -380,7 +380,7 @@ class codeVisitor:
 
     @visitor.when(CaseNode)
     def visit(self, node, variables):
-        print(node.case_list)
+        # print(node.case_list)
         # node.case_list.sort(key = lambda x : self.depth[x.typex], reverse = True)
 
         result = variables.add_temp()
@@ -454,7 +454,7 @@ class codeVisitor:
 
         result = variables.add_temp()
         self.code.append(PushIL())
-        print('----------node {}---------'.format(node))
+        # print('----------node {}---------'.format(node))
         index = self.virtual_table.get_method_id(node.obj, node.id)
 
         self.code.append(CommentIL('push object'))
@@ -482,7 +482,7 @@ class codeVisitor:
 
         result = variables.add_temp()
         self.code.append(PushIL())
-        print('----------node {}---------'.format(node))
+        # print('----------node {}---------'.format(node))
         index = self.virtual_table.get_method_id(self.current_class, node.id)
 
         if self.current_class != 'Main':
