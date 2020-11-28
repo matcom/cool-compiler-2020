@@ -331,14 +331,14 @@ def setattr_to_mips_visitor(setattr: cil.SetAttrNode):
         sw  $t0, [attr_shift($t1)]
     """
 
-    x_addr = CURRENT_FUNCTION[str(setattr.val)]
-    y_addr = CURRENT_FUNCTION[str(setattr.obj)]
+    x_addr = CURRENT_FUNCTION.offset[str(setattr.val)]
+    y_addr = CURRENT_FUNCTION.offset[str(setattr.obj)]
     attr_shift = (setattr.attr_index + 1) * 4
     return [
         mips.Comment(str(setattr)),
-        mips.LwInstruction('$t0', x_addr()),
-        mips.LwInstruction('$t1', y_addr()),
-        mips.SwInstruction('$t0', f'{attr_shift}($t0)')
+        mips.LwInstruction('$t0', f'{x_addr}($fp)'),
+        mips.LwInstruction('$t1', f'{y_addr}($fp)'),
+        mips.SwInstruction('$t0', f'{attr_shift}($t1)')
     ]
 
 
