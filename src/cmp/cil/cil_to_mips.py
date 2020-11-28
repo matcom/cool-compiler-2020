@@ -57,6 +57,9 @@ class CIL_TO_MIPS(object):
         self.label_count = -1
         self.registers_to_save: List[Reg] = [Reg.ra]
 
+        self.mips.write_data("eol:")
+        self.mips.asciiz("\n")
+
     def build_types_data(self, types):
         for idx, typex in enumerate(types):
             self.types_offsets[typex.name] = TypeData(idx, typex)
@@ -151,6 +154,11 @@ class CIL_TO_MIPS(object):
         for idx, local in enumerate(node.localvars):
             self.visit(local, index=idx)
 
+        # self.mips.move(Reg.a0, Reg.ra)
+        # self.mips.print_int()
+        # self.mips.la(Reg.a0, "eol")
+        # self.mips.print_string()
+
         self.mips.empty()
         self.store_registers()
         self.mips.empty()
@@ -160,6 +168,11 @@ class CIL_TO_MIPS(object):
 
         self.mips.empty()
         self.load_registers()
+
+        # self.mips.move(Reg.a0, Reg.ra)
+        # self.mips.print_int()
+        # self.mips.la(Reg.a0, "eol")
+        # self.mips.print_string()
 
         self.mips.comment("Clean stack variable space")
         for _ in node.localvars:
@@ -178,7 +191,7 @@ class CIL_TO_MIPS(object):
     def visit(self, node: LocalNode, index=0):  # noqa: F811
         self.mips.push(Reg.zero)
         assert node.name not in self.local_vars_offsets, f"Impossible {node.name}..."
-        self.local_vars_offsets[node.name] = index
+        self.local_vars_offsets[node.name] = index - 1
 
     @when(CopyNode)
     def visit(self, node: CopyNode):  # noqa: F811
@@ -353,18 +366,6 @@ class CIL_TO_MIPS(object):
         self.mips.comment(f"Returning {node.dest}")
         self.store_memory(Reg.v0, node.dest)
         self.mips.empty()
-
-    def get_pc(self, dst: Reg):
-        label = self.get_label()
-        end = self.get_label()
-
-        self.mips.j(end)
-        self.mips.label(label)
-        self.mips.move(dst, Reg.ra)
-        self.mips.jr(Reg.ra)
-        self.mips.label(end)
-
-        return label
 
     @when(DynamicCallNode)
     def visit(self, node: DynamicCallNode):  # noqa: F811
