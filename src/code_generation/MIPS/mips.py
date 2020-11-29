@@ -482,15 +482,15 @@ def lesseq_to_mips_visitor(lesseq: cil.LessEqNode):
         sw  $t0, [addr(x)]
     """
 
-    x_addr = CURRENT_FUNCTION.get_address(lesseq.result)
-    y_addr = CURRENT_FUNCTION.get_address(lesseq.left)
-    z_addr = CURRENT_FUNCTION.get_address(lesseq.right)
+    x_offset = CURRENT_FUNCTION.offset[str(lesseq.result)]
+    y_offset = CURRENT_FUNCTION.offset[str(lesseq.left)]
+    z_offset = CURRENT_FUNCTION.offset[str(lesseq.right)]
     return [
         mips.Comment(str(lesseq)),
-        mips.LwInstruction('$t1', y_addr),
-        mips.LwInstruction('$t2', z_addr),
+        mips.LwInstruction('$t1', f'{y_offset}($fp)'),
+        mips.LwInstruction('$t2', f'{z_offset}($fp)'),
         mips.SleInstruction('$t0', '$t1', '$t2'),
-        mips.SwInstruction('$t0', x_addr)
+        mips.SwInstruction('$t0', f'{x_offset}($fp)')
     ]
 
 
@@ -510,10 +510,10 @@ def less_to_mips_visitor(less: cil.LessNode):
     z_addr = CURRENT_FUNCTION.offset[str(less.right)]
     return [
         mips.Comment(str(less)),
-        mips.LwInstruction('$t1', y_addr),
-        mips.LwInstruction('$t2', z_addr),
+        mips.LwInstruction('$t1', f'{y_offset}($fp)'),
+        mips.LwInstruction('$t2', f'{z_offset}($fp)'),
         mips.SleInstruction('$t0', '$t1', '$t2'),
-        mips.SwInstruction('$t0', x_addr)
+        mips.SwInstruction('$t0', f'{y_offset}($fp)')
     ]
 
 
@@ -526,13 +526,13 @@ def not_to_mips_visitor(notn: cil.NotNode):
         not $t0, $t1
         sw  $t0, [addr(x)]
     """
-    x_addr = CURRENT_FUNCTION.get_address(notn.result)
-    y_addr = CURRENT_FUNCTION.get_address(notn.value)
+    x_offset = CURRENT_FUNCTION.offset[str(notn.result)]
+    y_offset = CURRENT_FUNCTION.offset[str(notn.value)]
     return [
         mips.Comment(str(notn)),
-        mips.LwInstruction('$t1', y_addr),
+        mips.LwInstruction('$t1', f'{x_offset}($fp)'),
         mips.NotInstruction('$t0', '$t1'),
-        mips.SwInstruction('$t0', x_addr)
+        mips.SwInstruction('$t0', f'{y_offset}($fp)')
     ]
 
 

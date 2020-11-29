@@ -94,28 +94,19 @@ def program_to_cil_visitor(program):
 
     """
     Building main function
-
-    function main {
-	    LOCAL __main__ ;
-	    LOCAL main_result ;
-	    __main__ = ALLOCATE Main ;
-	    ARG __main__ ;
-	    main_result = VCALL Main main ;
-    }
     """
-    main_instance = add_local('__main__')
+    main_init = new_to_cil_visitor(CoolAST.NewNode('Main'))
+    body = main_init.body
     main_result = add_local('main_result')
-        #
-    t_data=add_str_data('Main')
-    t_local=add_local()
-    #
-    main_function = CilAST.FuncNode('main', [], [t_local,CilAST.LocalNode('__main__'),  CilAST.LocalNode('main_result')],
-                                    [
-                                        CilAST.LoadNode(t_data, t_local),
-                                        CilAST.AllocateNode('Main', main_instance),
-                                        CilAST.SetAttrNode(main_instance, '@type', t_local),
-                                        CilAST.ArgNode(main_instance),
-                                        CilAST.VCAllNode('Main', 'main', main_result)])
+    body.append(CilAST.ArgNode(main_init.value))
+    body.append(CilAST.VCAllNode('Main', 'main', main_result))
+
+    main_instance = add_local('__main__')
+    main_type = add_local('main_type')
+    t_data = add_str_data('Main')
+
+    main_function = CilAST.FuncNode(
+        'main', [], [__LOCALS__[k] for k in __LOCALS__.keys()], body)
     built_in_code.append(main_function)
 
     # completing .CODE and .DATA sections
@@ -183,6 +174,11 @@ def concat_to_cil():
 def substring_to_cil():
     result = CilAST.LocalNode('substring_result')
     return CilAST.FuncNode('String_substr', [CilAST.ParamNode('self'),   CilAST.ParamNode('i'),   CilAST.ParamNode('l')], [result], [CilAST.SubStringNode('self', 'i', 'l', result),   CilAST.ReturnNode(result)])
+
+
+def abort_to_cil():
+    result = CilAST.LocalNode('abort_result')
+    return CilAST.FuncNode('Object_abort', [CilAST.ParamNode('self')], [result], CilAST.ReturnNode(result))
 
 
 def func_to_cil_visitor(type_name, func):
@@ -393,6 +389,7 @@ def id_to_cil_visitor(id):
 
 
 def new_to_cil_visitor(new_node):
+    global __CURRENT_TYPE__
     value = add_local()
     t = new_node.type
     body = []
@@ -406,18 +403,18 @@ def new_to_cil_visitor(new_node):
     init_attr = CT.TypesByName[t].get_all_attributes()
 
     #
-    t_data=add_str_data(t)
-    t_local=add_local()
-    size_local=add_local()
+    t_data = add_str_data(t)
+    t_local = add_local()
+    size_local = add_local()
     #
-    
-    
+
     body.append(CilAST.LoadNode(t_data, t_local))
     body.append(CilAST.SetAttrNode(value, '@type', t_local))
-    body.append(CilAST.AssignNode(size_local,(len(init_attr)+2)*4))
+    body.append(CilAST.AssignNode(size_local, (len(init_attr)+2)*4))
     body.append(CilAST.SetAttrNode(value, '@size', size_local))
 
-    
+    old_current_type = __CURRENT_TYPE__
+    __CURRENT_TYPE__ = new_node.type
     for index, attr in enumerate(init_attr):
         if attr.expression:
             attr_cil = expression_to_cil_visitor(
@@ -425,7 +422,7 @@ def new_to_cil_visitor(new_node):
             body += attr_cil.body
             body.append(CilAST.SetAttrNode(
                 value, attr.id, attr_cil.value, index+2))
-
+    __CURRENT_TYPE__ = old_current_type
     return CIL_block(body, value)
 
 
@@ -509,7 +506,8 @@ def func_call_to_cil_visitor(call):
             call.object)
         body += obj_cil.body
         obj = obj_cil.value
-        _, t, _ = call.object.returned_type.get_method(call.id, [arg.returned_type for arg in call.args])
+        _, t, _ = call.object.returned_type.get_method(
+            call.id, [arg.returned_type for arg in call.args])
     else:
         obj = 'self'
         t = __CURRENT_TYPE__
@@ -520,7 +518,6 @@ def func_call_to_cil_visitor(call):
         arg_cil = expression_to_cil_visitor(arg)
         body += arg_cil.body
         arg_values.append(arg_cil.value)
-
 
     body.append(CilAST.ArgNode(obj))
 
