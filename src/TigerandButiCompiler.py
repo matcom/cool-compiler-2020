@@ -665,6 +665,9 @@ def p_error(p):
 
 if __name__=='__main__':
     nombrearchivo=sys.argv[1]
+    # nombrearchivo="c/hola/f.txt"
+    # archivoescritura=nombrearchivo[:-3]
+    # archivoescritura=archivoescritura[archivoescritura.rfind('/'):]
     archivo=open(nombrearchivo,encoding='utf-8')
     texto=archivo.read()
     respuesta=elimina_comentarios2(texto)
@@ -692,7 +695,9 @@ if __name__=='__main__':
                 
         toMIPS=MIPSCompiler()
         instrucciones=toMIPS.visit(codigoCIL, None)
-        archivoResultado=open(nombrearchivo[:-3]+'.mips',mode="w",encoding='utf-8')
+        archivoescritura=nombrearchivo[:-3]
+        archivoescritura=archivoescritura[archivoescritura.rfind('/'):]
+        archivoResultado=open("../tests/codegen"+archivoescritura+'.mips',mode="w",encoding='utf-8')
         archivoResultado.write(instrucciones)
         archivoResultado.flush()
         archivoResultado.close()
