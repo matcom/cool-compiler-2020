@@ -1477,7 +1477,13 @@ class RegistersAllocator:
 
     @staticmethod
     def interference_compute(gk, in_out):
-        neigs = defaultdict(set)
+        neigs = {}
+        for g, k in gk:
+            for v in g:
+                neigs[v] = set()
+            for v in k:
+                neigs[v] = set()
+
         for i,(_, k) in enumerate(gk):
             for v in k:
                 neigs[v].update(in_out[i][1])
