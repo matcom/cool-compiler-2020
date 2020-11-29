@@ -3,6 +3,7 @@ from typing import Dict, List
 from ..cool_lang.semantics.semantic_utils import Context
 from .ast import (
     AllocateNode,
+    AbortNode,
     ArgNode,
     ArithmeticNode,
     AssignNode,
@@ -250,8 +251,14 @@ class CIL_TO_MIPS(object):
     @when(ErrorNode)
     def visit(self, node: ErrorNode):  # noqa: F811
         self.mips.comment("ErrorNode")
-        self.mips.li(Reg.a0, 1)
+        self.mips.li(Reg.a0, int(node.error))
         self.mips.exit2()
+        self.mips.empty()
+
+    @when(AbortNode)
+    def visit(self, node: AbortNode):  # noqa: F811
+        self.mips.comment("AbortNode")
+        self.mips.exit()
         self.mips.empty()
 
     @when(AssignNode)
