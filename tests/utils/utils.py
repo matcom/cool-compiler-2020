@@ -45,7 +45,7 @@ def get_file_name(path: str):
 
 def compare_errors(compiler_path: str, cool_file_path: str, error_file_path: str, cmp=first_error, timeout=100):
     try:
-        sp = subprocess.run(['bash', compiler_path, cool_file_path], capture_output=True, timeout=timeout)
+        sp = subprocess.run(['sh', compiler_path, cool_file_path], capture_output=True, timeout=timeout)
         return_code, output = sp.returncode, sp.stdout.decode()
     except subprocess.TimeoutExpired:
         assert False, COMPILER_TIMEOUT
@@ -67,7 +67,7 @@ See the file README for a full copyright notice\.
 (?:Loaded: .+\n)*'''
 def compare_outputs(compiler_path: str, cool_file_path: str, input_file_path: str, output_file_path: str, timeout=100):
     try:
-        sp = subprocess.run(['bash', compiler_path, cool_file_path], capture_output=True, timeout=timeout)
+        sp = subprocess.run(['sh', compiler_path, cool_file_path], capture_output=True, timeout=timeout)
         assert sp.returncode == 0, TEST_MUST_COMPILE % get_file_name(cool_file_path)
     except subprocess.TimeoutExpired:
         assert False, COMPILER_TIMEOUT

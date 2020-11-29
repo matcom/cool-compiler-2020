@@ -715,7 +715,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
         else:
             line = str(ctx.getChild(0).symbol.line)
             column = str(ctx.getChild(0).symbol.column + 1)
-            error = f"({line}, {column}) AttributeError: Dispatch to undefined method {ctx.getChild(0).symbol.text}."
+            error = f"({line}, {column}) - AttributeError: Dispatch to undefined method {ctx.getChild(0).symbol.text}."
             print(error)
             self.hasNoError = False
         return methodType
@@ -773,7 +773,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
         else:
             line = str(ctx.getChild(length - 3).symbol.line)
             column = str(ctx.getChild(length - 3).symbol.column + 1)
-            error = f"({line}, {column}) AttributeError: Dispatch to undefined method {ctx.getChild(length - 3).symbol.text}."
+            error = f"({line}, {column}) - AttributeError: Dispatch to undefined method {ctx.getChild(length - 3).symbol.text}."
             print(error)
             self.hasNoError = False
         return methodType
