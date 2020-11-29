@@ -163,9 +163,12 @@ class CoolLexer:
         self.add_line_column(t)
         return t
 
-    
-    def t_strings_newline(self, t):
+    def t_strings_newline1(self, t):
         r'\\n'
+        self.string += '\n'
+    
+    def t_strings_newline2(self, t):
+        r'\\\n'
         t.lexer.lineno+=1
         self.string += '\n'
 
