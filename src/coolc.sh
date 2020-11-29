@@ -11,4 +11,4 @@ echo "Copyright © 2020: Lázaro Raúl Iglesias Vera, Miguel Tenorio Potrony, Ma
 
 # Compile and Run
 #echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
-python main.py -f $INPUT_FILE
+python3 main.py -f $INPUT_FILE

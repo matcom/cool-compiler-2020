@@ -1,4 +1,5 @@
 import itertools as itt
+from collections import OrderedDict
 
 class SemanticError(Exception):
     @property
@@ -58,7 +59,7 @@ class Type:
     def define_attribute(self, name:str, typex):
         try:
             self.get_attribute(name)
-        except SemanticError:
+        except AttributeError:
             attribute = Attribute(name, typex)
             self.attributes.append(attribute)
             return attribute
@@ -82,7 +83,7 @@ class Type:
             raise SemanticError(f'Method "{name}" already defined in {self.name}')
         try:
             method = self.get_method(name)
-        except SemanticError:
+        except AttributeError:
             pass
         else:
             if method.return_type != return_type or method.param_types != param_types:
@@ -90,6 +91,18 @@ class Type:
 
         method = self.methods[name] = Method(name, param_names, param_types, return_type)
         return method
+
+    def all_attributes(self, clean=True):
+        plain = OrderedDict() if self.parent is None else self.parent.all_attributes(False)
+        for attr in self.attributes:
+            plain[attr.name] = (attr, self)
+        return plain.values() if clean else plain
+
+    def all_methods(self, clean=True):
+        plain = OrderedDict() if self.parent is None else self.parent.all_methods(False)
+        for method in self.methods.values():
+            plain[method.name] = (method, self)
+        return plain.values() if clean else plain
 
     def conforms_to(self, other):
         return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)

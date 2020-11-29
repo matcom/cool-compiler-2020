@@ -201,7 +201,7 @@ class TypeCollector:
             self.visit(def_class)
              
         # comparison for sort node.declarations
-        def get_type_level(typex):
+        def get_type_level(typex, error_token=empty_token):
             try:
                 parent = self.type_level[typex]
             except KeyError:
@@ -210,12 +210,12 @@ class TypeCollector:
             if parent == 0:
                 node = self.parent[typex]
                 node.parent = "Object"
-                self.errors.append(SemanticError('Cyclic heritage.'), node.tparent)
+                self.errors.append((SemanticError('Cyclic heritage.'), error_token))
             elif type(parent) is not int:
                 self.type_level[typex] = 0 if parent else 1
                 if type(parent) is str:
-                    self.type_level[typex] = get_type_level(parent) + 1
-                
+                    self.type_level[typex] = get_type_level(parent, self.parent[typex].tid) + 1
+            
             return self.type_level[typex]
         
         node.declarations.sort(key = lambda node: get_type_level(node.id))               
@@ -269,7 +269,7 @@ class TypeBuilder:
             tmethod = self.methods['Main']['main']
             if method.param_names:
                 self.errors.append((SemanticError('Method "main" must takes no formal parameters'), tmethod))
-        except SemanticError:
+        except TypeError:
             self.errors.append((SemanticError('No definition for class "Main"'), empty_token))
         except KeyError:
             self.errors.append((SemanticError('Class "Main" must have a method "main"'), main_token))         
@@ -301,6 +301,8 @@ class TypeBuilder:
         node.attr_type = attr_type
 
         try:
+            if node.id == 'self':
+                raise SemanticError(SELF_IS_READONLY)
             attr = self.current_type.define_attribute(node.id, attr_type)
             attr.node = node
             node.attr = attr
@@ -321,7 +323,11 @@ class TypeBuilder:
             except AssertionError:
                 self.errors.append((SemanticError(INVALID_PARAMETER % (idx)), node.params[i].ttype))
                 arg_type = ErrorType()
-                
+
+            if idx == 'self':
+                self.errors.append((SemanticError('"self" cannot be the name of a formal parameter'), node.params[i].ttype))
+            if idx in arg_names:
+                self.errors.append((SemanticError(f'Formal parameter {idx} redefined'), node.params[i].ttype))
             arg_names.append(idx)
             arg_types.append(arg_type)
             arg_nodes.append(arg)
@@ -339,6 +345,8 @@ class TypeBuilder:
         node.arg_nodes = arg_nodes
 
         try:
+            if node.id == 'self':
+                raise SemanticError('"self" is an invalid method name')
             method = self.current_type.define_method(node.id, arg_names, arg_types, ret_type)
             method.nodes = arg_nodes
             method.ret_node = node
@@ -527,21 +535,24 @@ class TypeChecker:
             self.errors.append((SemanticError(INVALID_BRANCH % node.id), node.ttype))
             branch_type = ErrorType()
         node.branch_type = branch_type
-
-        var = scope.define_variable(node.id, branch_type)
-        var.node = node
+        
+        if node.id == 'self':
+            self.errors.append((SemanticError(SELF_IS_READONLY), node.id))
+        else:
+            var = scope.define_variable(node.id, branch_type)
+            var.node = node
         self.visit(node.expr, scope)
         node.computed_type = node.expr.computed_type
             
     @visitor.when(LetInNode)
     def visit(self, node, scope):
-        child = scope.create_child()
-        node.scope = child
+        node.scope = scope
         
         for expr in node.let_body:
-            self.visit(expr, child)
+            node.scope = node.scope.create_child()
+            self.visit(expr, node.scope)
         
-        self.visit(node.in_body, child)
+        self.visit(node.in_body, node.scope)
         node.computed_type = node.in_body.computed_type
 
     @visitor.when(LetAttributeNode)
@@ -556,10 +567,6 @@ class TypeChecker:
         node.attr_type = node_type
         node.scope = None
         
-        correct_declaration = not scope.is_local(node.id)
-        if not correct_declaration:
-            self.errors.append((SemanticError(LOCAL_ALREADY_DEFINED % (node.id, self.current_method)), node.tid))
-        
         if node.expr:
             self.visit(node.expr, scope)
             expr_type = node.expr.computed_type
@@ -567,8 +574,9 @@ class TypeChecker:
 
             if not expr_type.conforms_to(node_type): 
                 self.errors.append((TypeError(INCOMPATIBLE_TYPES % (expr_type.name, node_type.name)), node.arrow))
-
-        if correct_declaration:
+        if node.id == 'self':
+            self.errors.append((SemanticError(SELF_IS_READONLY), node.tid))
+        else:
             var = scope.define_variable(node.id, node_type)
             var.node = node
         
@@ -578,7 +586,7 @@ class TypeChecker:
         node.cond_type = node.condition.computed_type
 
         if not node.cond_type.conforms_to(BOOL):
-            self.errors.append((TypeError(CONDITION_NOT_BOOL % ('If', cond_type.name)), node.token))
+            self.errors.append((TypeError(CONDITION_NOT_BOOL % ('If', node.cond_type.name)), node.token))
 
         self.visit(node.if_body, scope)
         if_type = node.if_body.computed_type
@@ -601,7 +609,7 @@ class TypeChecker:
         node.cond_type = node.condition.computed_type
 
         if not node.cond_type.conforms_to(BOOL):
-            self.errors.append((TypeError(CONDITION_NOT_BOOL % ('While', cond_type.name)), node.token))
+            self.errors.append((TypeError(CONDITION_NOT_BOOL % ('While', node.cond_type.name)), node.token))
 
         self.visit(node.body, scope)
         node.computed_type = OBJ
@@ -889,7 +897,7 @@ class InferenceVisitor(TypeChecker):
 
     @visitor.when(ProgramNode)
     def visit(self, node, scope=None):
-        super().visit(node, scope) 
+        scope = super().visit(node, scope) 
 
         infered = 0
         pending = []
@@ -914,7 +922,7 @@ class InferenceVisitor(TypeChecker):
                 auto.type = OBJ.name
                 self.context_update(auto, OBJ)
         self.variable.clear()
-        return infered
+        return infered, scope
     
     @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope):

@@ -1,0 +1,1 @@
+(13, 24) - TypeError: Argument of 'not' has type Int instead of Bool.

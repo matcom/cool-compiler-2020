@@ -247,7 +247,7 @@ class ShiftReduceParser:
 
             # Your code here!!! (Detect error)
             if state not in self.action or lookahead not in self.action[state]:
-                return None, (True, w[cursor]) #TODO: Build the correct error using `w[cursor]`
+                return None, (True, w[cursor]) #//TODO: Build the correct error using `w[cursor]`
 
             action, tag = list(self.action[state][lookahead])[0]
             # Your code here!!! (Shift case)
@@ -269,6 +269,24 @@ class ShiftReduceParser:
             else:
                 raise ValueError
 
+class CountDict():
+    def __init__(self):
+        self._dict = {}
+        self._count = 0
+    
+    def add(self, key, value):
+        try:
+            oldv = self._dict[key]
+        except:
+            self._count += 1
+        self._dict[key] = value
+    
+    def get(self, key):
+        return self._dict[key]
+        
+    def __len__(self):
+        return self._count
+        
 class InferenceSets:
     def __init__(self):
         self.D = []

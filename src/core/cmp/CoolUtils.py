@@ -402,7 +402,8 @@ def format_tokens(tokens):
     return txt
 
 # Example text
-_text = '''
+#//TODO: [stdevMauricio1802] Add COOL codes here
+_text1 = '''
 class Main {
     main ( console : IO ) : AUTO_TYPE {
         let x : AUTO_TYPE <- 3 + 2 in {
@@ -428,4 +429,15 @@ class Main inherits IO {
         fi
     };
 };
+'''
+
+_text3 = '''
+class B : A {
+    c : int ;
+    def f ( d : int , a : A ) : void {
+        let f : int = 8 ;
+        let c = new A ( ) . suma ( 5 , f ) ;
+        c ;
+    }
+}
 '''

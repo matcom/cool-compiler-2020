@@ -165,7 +165,7 @@ class CoolLexer:
 
     
     def t_strings_newline(self, t):
-        r'\\\n'
+        r'\\n'
         t.lexer.lineno+=1
         self.string += '\n'
 
