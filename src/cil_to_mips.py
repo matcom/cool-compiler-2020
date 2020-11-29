@@ -71,6 +71,7 @@ class CILToMIPSVisitor():
     def visit(self, node):
         self.types = node.dottypes
         
+        self.data += 'temp_string: .space 2048\n' 
         self.data += 'void: .word 0\n'
         
         for node_type in node.dottypes.values():
@@ -137,12 +138,14 @@ class CILToMIPSVisitor():
     @visitor.when(CIL_AST.Assign)
     def visit(self, node):
         offset = self.var_offset[self.current_function.name][node.local_dest]
-        
-        if isinstance(node.right_expr, int):
-            self.text += f'li $t1, {node.right_expr}\n'
+        if node.right_expr:
+            if isinstance(node.right_expr, int):
+                self.text += f'li $t1, {node.right_expr}\n'
+            else:
+                right_offset = self.var_offset[self.current_function.name][node.right_expr]
+                self.text += f'lw $t1, {right_offset}($sp)\n'
         else:
-            right_offset = self.var_offset[self.current_function.name][node.right_expr]
-            self.text += f'lw $t1, {right_offset}($sp)\n'
+            self.text += f'la $t1, void\n'
 
         self.text += f'sw $t1, {offset}($sp)\n'
 
@@ -335,6 +338,30 @@ class CILToMIPSVisitor():
         self.text += f'li $v0, 5\n'
         self.text += f'syscall\n'
         self.text += f'sw $v0, {read_offset}($sp)\n'
+
+    @visitor.when(CIL_AST.ReadString)
+    def visit(self, node):
+        read_offset = self.var_offset[self.current_function.name][node.result]
+        self.text += f'la $a0, temp_string\n'
+        self.text += f'li $a1, 2048\n'
+        self.text += f'li $v0, 8\n'
+        self.text += f'syscall\n'
+
+        # Remove last char (it should be a '\n')
+        self.text += 'move $t0, $a0\n'
+        self.text += 'jump_read_str_char:\n'
+        self.text += 'li $t1, 0\n'
+        self.text += 'lb $t1, 0($t0)\n'
+        self.text += 'beqz $t1, finish_jump_read_str_char\n' # finish if the final of string is found
+        self.text += 'addi $t0, $t0, 1\n'
+        self.text += 'addi $t0, $t0, 1\n'
+        self.text += 'j jump_read_str_char\n'
+
+        self.text += 'finish_jump_read_str_char:\n'
+        self.text += 'addi $t0, $t0, -1\n' # go to char at length - 1
+        self.text += 'sb $0, 0($t0)\n' # remove last char
+
+        self.text += f'sw $a0, {read_offset}($sp)\n'
 
     @visitor.when(CIL_AST.LoadStr)
     def visit(self, node):

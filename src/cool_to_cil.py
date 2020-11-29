@@ -522,8 +522,25 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(COOL_AST.LetVarDef)
     def visit(self, node, scope):
+        instance = None
+
+        if node.type in ['Int', 'Bool']:
+            instance = self.define_internal_local(scope=scope, name="instance")
+            self.register_instruction(CIL_AST.Allocate(node.type,self.context.get_type(node.type).tag, instance))
+            value = self.define_internal_local(scope=scope, name="value")
+            self.register_instruction(CIL_AST.LoadInt(0,value))
+            result_init = self.define_internal_local(scope=scope, name="result_init")
+            self.register_instruction(CIL_AST.Call(result_init, f'{node.type}_init', [ CIL_AST.Arg(value), CIL_AST.Arg(instance)], node.type))
+        elif node.type == 'String':
+            instance = self.define_internal_local(scope=scope, name="instance")
+            self.register_instruction(CIL_AST.Allocate(node.type,self.context.get_type(node.type).tag ,instance))
+            value = self.define_internal_local(scope=scope, name="value")
+            self.register_instruction(CIL_AST.LoadStr('empty_str',value))
+            result_init = self.define_internal_local(scope=scope, name="result_init")
+            self.register_instruction(CIL_AST.Call(result_init, f'{node.type}_init', [CIL_AST.Arg(value), CIL_AST.Arg(instance)], node.type))
+            
         var_def = self.define_internal_local(scope = scope, name = node.name, cool_var_name=node.name)
-        self.register_instruction(CIL_AST.Assign(var_def, 0))
+        self.register_instruction(CIL_AST.Assign(var_def, instance))
         return var_def
     
     
