@@ -258,7 +258,6 @@ class CIL_TO_MIPS(object):
 
         self.mips.move(Reg.t0, src)
         self.mips.move(Reg.t1, dst)
-
         self.mips.move(Reg.t3, length)  # i = length
 
         self.mips.label(loop)
@@ -279,15 +278,11 @@ class CIL_TO_MIPS(object):
     @mips_comment("CopyNode")
     @when(CopyNode)
     def visit(self, node: CopyNode):  # noqa: F811
-        # TODO: Fill src and length values
-        length = 0
-
-        # reserve heap space
-        self.mips.addi(Reg.a0, length)
-        self.mips.sbrk()
-        self.mips.move(Reg.s1, Reg.v0)
+        dst = self.get_offset(node.dest)
+        length = 0  # TODO: donde saco el size este?
+        self.mips.la(Reg.s1, dst)
         # copy data raw byte to byte
-        self.mips.li(Reg.s3, len)
+        self.mips.li(Reg.s3, length)
         self.copy_data(Reg.s0, Reg.s1, Reg.s3)
 
     @mips_comment("TypeNameNode")
