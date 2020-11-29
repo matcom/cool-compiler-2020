@@ -513,7 +513,7 @@ def less_to_mips_visitor(less: cil.LessNode):
         mips.LwInstruction('$t1', f'{y_addr}($fp)'),
         mips.LwInstruction('$t2', f'{z_addr}($fp)'),
         mips.SleInstruction('$t0', '$t1', '$t2'),
-        mips.SwInstruction('$t0', f'{y_addr}($fp)')
+        mips.SwInstruction('$t0', f'{x_addr}($fp)')
     ]
 
 
@@ -618,7 +618,6 @@ def copy_to_mips_visitor(copy: cil.CopyNode):
         mips.BInstruction('copy_loop'),
         mips.MIPSLabel('end_copy_loop')
     ]
-    return []
 
 def conditional_goto_to_mips_visitor(goto:cil.ConditionalGotoNode):
     predicate_addr =CURRENT_FUNCTION.offset[str(goto.predicate)]

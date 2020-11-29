@@ -420,7 +420,7 @@ def case_expr_visitor(case: CaseNode, current_class: CT.CoolType, local_scope: d
     branch_0_type = CT.type_by_name(branch_0.type)
     temp = local_scope.copy()
     if branch_0_type is None:
-        add_semantic_error(branch_0.line, branch_0.column,
+        add_semantic_error(branch_0.lineno, branch_0.colno,
                            f'{ERR_TYPE}: Class {branch_0.type} of case branch is undefined.')
     else:
         # 2.2)
