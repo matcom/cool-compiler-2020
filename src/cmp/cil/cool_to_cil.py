@@ -339,12 +339,11 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         value = self.unpack_type_by_value(value, node.expression.static_type)
         if not pvar:
             selfx = scope.get_var("self").local_name
-            value_raw = self.unpack_type_by_value(value, node.expression.static_type)
             self.register_instruction(
                 SetAttribNode(
                     selfx,
                     node.id,
-                    value_raw,
+                    value,
                     self.current_type.name,
                 )
             )
