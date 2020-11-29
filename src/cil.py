@@ -22,11 +22,12 @@ class DataNode(Node):
         self.value = value
 
 class FunctionNode(Node):
-    def __init__(self, fname, params, localvars, instructions):
+    def __init__(self, fname, params, localvars, instructions, labels):
         self.name = fname
         self.params = params
         self.localvars = localvars
         self.instructions = instructions
+        self.labels = labels
 
 class ParamNode(Node):
     def __init__(self, name):
@@ -50,6 +51,11 @@ class ArithmeticNode(InstructionNode):
         self.left = left
         self.right = right
 
+class ComplementNode(InstructionNode):
+    def __init__(self, expression, dest):
+        self.expression = expression
+        self.dest = dest
+
 class PlusNode(ArithmeticNode):
     pass
 
@@ -62,11 +68,21 @@ class StarNode(ArithmeticNode):
 class DivNode(ArithmeticNode):
     pass
 
-class LessNode(ArithmeticNode):
-    pass
+class LessNode(InstructionNode):
+    def __init__(self, result, left, right, labelTrue, labelEnd):
+        self.result = result
+        self.left = left
+        self.right =right
+        self.labelTrue = labelTrue
+        self.labelEnd = labelEnd
 
 class LessEqualNode(ArithmeticNode):
-    pass
+    def __init__(self, result, left, right, labelTrue, labelEnd):
+        self.result = result
+        self.left = left
+        self.right =right
+        self.labelTrue = labelTrue
+        self.labelEnd = labelEnd
 
 class GetAttribNode(InstructionNode):
     def __init__(self, ins,att,dest):
@@ -91,6 +107,11 @@ class AllocateNode(InstructionNode):
         self.type = itype
         self.dest = dest
 
+class JumpNode(InstructionNode):
+    def __init__(self, method, dest):
+        self.method = method
+        self.dest = dest
+
 class ArrayNode(InstructionNode):
     pass
 
@@ -99,14 +120,30 @@ class TypeOfNode(InstructionNode):
         self.obj = obj
         self.dest = dest
 
+class IsVoidNode(InstructionNode):
+    def __init__(self, obj, dest, label):
+        self.obj = obj
+        self.dest = dest
+        self.label = label
+
+class CaseOption(InstructionNode):
+    def __init__(self, expression, label, typex):
+        self.expression = expression
+        self.label = label
+        self.typex = typex
+
 class LabelNode(InstructionNode):
-    pass
+    def __init__(self, name):
+        self.name = name
 
 class GotoNode(InstructionNode):
-    pass
+    def __init__(self, name):
+        self.name = name
 
 class GotoIfNode(InstructionNode):
-    pass
+    def __init__(self, name, condition):
+        self.name = name
+        self.condition = condition
 
 class StaticCallNode(InstructionNode):
     def __init__(self, function, dest):
@@ -114,23 +151,34 @@ class StaticCallNode(InstructionNode):
         self.dest = dest
 
 class DynamicCallNode(InstructionNode):
-    def __init__(self, xtype, method, dest):
+    def __init__(self, xtype, method, dest,ins):
         self.type = xtype
         self.method = method
         self.dest = dest
+        self.ins = ins
 
-class ArgNode(InstructionNode):
-    def __init__(self, name):
-        self.name = name
+class ArgsNode(InstructionNode):
+    def __init__(self, names):
+        self.names = names
 
 class ReturnNode(InstructionNode):
     def __init__(self, value=None):
         self.value = value
 
 class LoadNode(InstructionNode):
-    def __init__(self, dest, msg):
+    def __init__(self, dest, msg, desp=0):
         self.dest = dest
         self.msg = msg
+        self.desp = desp
+
+class LoadAddressNode(LoadNode):
+    pass
+
+class LoadIntNode(InstructionNode):
+    def __init__(self, dest, msg, desp):
+        self.dest = dest
+        self.msg = msg
+        self.desp = desp
 
 class LengthNode(InstructionNode):
     pass
@@ -143,6 +191,12 @@ class PrefixNode(InstructionNode):
 
 class SubstringNode(InstructionNode):
     pass
+
+class StringComparer(InstructionNode):
+    def __init__(self, result, left, right):
+        self.result = result
+        self.left = left
+        self.right = right
 
 class ToStrNode(InstructionNode):
     def __init__(self, dest, ivalue):
@@ -172,6 +226,10 @@ def get_formatter():
 
             return f'.TYPES\n{dottypes}\n\n.DATA\n{dotdata}\n\n.CODE\n{dotcode}'
 
+        @visitor.when(DataNode)
+        def visit(self, node):
+            return f'{node.name}:  "{node.value}"'
+
         @visitor.when(TypeNode)
         def visit(self, node):
             attributes = '\n\t'.join(f'attribute {x}' for x in node.attributes)
@@ -187,6 +245,10 @@ def get_formatter():
 
             return f'function {node.name} {{\n\t{params}\n\n\t{localvars}\n\n\t{instructions}\n}}'
 
+        # @visitor.when(Node)
+        # def visit(self, node):
+        #     return f'----------------------------------{node.__class__.__name__}'
+
         @visitor.when(ParamNode)
         def visit(self, node):
             return f'PARAM {node.name}'
@@ -201,19 +263,15 @@ def get_formatter():
 
         @visitor.when(GetAttribNode)
         def visit(self, node:GetAttribNode):
-           return f'{node.dest} = GETATTR {node.ins} {node.att.name}' 
+           return f'{node.dest} = GETATTR {node.ins} {node.att}' 
+
+        @visitor.when(SetAttribNode)
+        def visit(self, node:SetAttribNode):
+           return f'SETATTR {node.ins} {node.att} {node.value}' 
 
         @visitor.when(PlusNode)
         def visit(self, node):
-            return f'{node.dest} = {node.left} + {node.right}'
-        
-        @visitor.when(LessEqualNode)
-        def visit(self, node):
-            return f'{node.dest} = {node.left} <= {node.right}'   
-
-        @visitor.when(LessNode)
-        def visit(self, node):
-            return f'{node.dest} = {node.left} < {node.right}'          
+            return f'{node.dest} = {node.left} + {node.right}'        
 
         @visitor.when(MinusNode)
         def visit(self, node):
@@ -227,9 +285,33 @@ def get_formatter():
         def visit(self, node):
             return f'{node.dest} = {node.left} / {node.right}'
 
+        @visitor.when(LessEqualNode)
+        def visit(self, node):
+            return f'{node.dest} = {node.left} <= {node.right}'
+
+        @visitor.when(LessNode)
+        def visit(self, node):
+            return f'{node.result} = {node.left} < {node.right}'
+
         @visitor.when(AllocateNode)
         def visit(self, node):
             return f'{node.dest} = ALLOCATE {node.type}'
+
+        @visitor.when(LabelNode)
+        def visit(self, node):
+            return f'LABEL {node.name}'
+
+        @visitor.when(JumpNode)
+        def visit(self, node):
+            return f'JUMP {node.method}'
+
+        @visitor.when(GotoNode)
+        def visit(self, node):
+            return f'GOTO {node.name}'
+
+        @visitor.when(GotoIfNode)
+        def visit(self, node):
+            return f'IF {node.condition} GOTO {node.name}'
 
         @visitor.when(TypeOfNode)
         def visit(self, node):
@@ -243,13 +325,29 @@ def get_formatter():
         def visit(self, node):
             return f'{node.dest} = VCALL {node.type} {node.method}'
 
-        @visitor.when(ArgNode)
+        @visitor.when(ArgsNode)
         def visit(self, node):
-            return f'ARG {node.name}'
+            return '\n\t'.join(f'ARG {x}' for x in node.names)
 
         @visitor.when(ReturnNode)
         def visit(self, node):
             return f'RETURN {node.value if node.value is not None else ""}'
+
+        @visitor.when(LoadNode)
+        def visit(self, node):
+            return f'LOAD {node.dest} {node.msg} {node.desp}'
+        
+        @visitor.when(LoadAddressNode)
+        def visit(self, node):
+            return f'LOAD_ADDRESS {node.dest} {node.msg} {node.desp}'
+
+        @visitor.when(LoadIntNode)
+        def visit(self, node):
+            return f'LOAD_INT {node.dest} {node.msg} {node.desp}'
+
+        @visitor.when(StringComparer)
+        def visit(self,node):
+            return f'STRCOMP {node.result}, {node.left}, {node.right}'
 
     printer = PrintVisitor()
     return (lambda ast: printer.visit(ast))

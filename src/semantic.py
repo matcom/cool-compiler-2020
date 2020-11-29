@@ -189,15 +189,17 @@ class Context:
         Object.define_method("copy",[],[],SELF_TYPE(),0)
         self.types["Object"] =Object
 
-        IO.define_method("out_string",["x"],[String],SELF_TYPE(),0)
-        IO.define_method("out_int",['x'],[Int],SELF_TYPE(),0)
-        IO.define_method("in_int",[],[],Int,0)
-        self.types['IO']= IO
-
         String.define_method("length",[],[],Int,0)    
         String.define_method("concat",['s'],[String],String,0) 
         String.define_method("substr",['i','l'],[Int,Int],SELF_TYPE(),0)   
         self.types["String"] = String
+
+        IO.define_method("out_string",["x"],[String],SELF_TYPE(),0)
+        IO.define_method("out_int",['x'],[Int],SELF_TYPE(),0)
+        IO.define_method("in_int",[],[],Int,0)
+        IO.define_method("in_string",[], [], String, 0)
+        self.types['IO']= IO
+
 
     def check_type(self,x:Type,y:Type,pos):
         if not x.conforms_to(y) :
@@ -242,15 +244,17 @@ class Context:
         return str(self)
 
 class VariableInfo:
-    def __init__(self, name, vtype):
+    def __init__(self, name, vtype, cilName=''):
         self.name = name
         self.type = vtype
+        self.cilName = cilName
 
 class Scope:
     def __init__(self, parent=None):
         self.locals = []
         self.parent = parent
         self.children = []
+        self.id = 0
         self.index = 0 if parent is None else len(parent)
 
     def __len__(self):
@@ -258,6 +262,7 @@ class Scope:
 
     def create_child(self):
         child = Scope(self)
+        child.id = self.id*10 +len(self.children)
         self.children.append(child)
         return child
 
@@ -476,9 +481,13 @@ class TypeChecking:
         #for at in typex.all_attributes():
         #    scope.define_variable(at[0].name, at[0].type,node.line)
         scope.define_variable("self",typex,node.line)
+        mscope = scope.create_child()
+        ascope = scope.create_child()
         for feat in node.features:
-            self.visit(feat,scope.create_child())
-       
+            if isinstance(feat, FuncDeclarationNode):
+                self.visit(feat,mscope.create_child())
+            else:
+                self.visit(feat, ascope.create_child())
 
     @visitor.when(AttrDeclarationNode)
     def visit(self, node:AttrDeclarationNode,scope:Scope):
@@ -509,13 +518,37 @@ class TypeChecking:
             self.errors.append(e)
         
 
-       
-    
+    @visitor.when(CaseOfNode)
+    def visit(self, node:CaseOfNode, scope:Scope):
+        node.type = ErrorType()
+        sce = scope.create_child()
+        self.visit(node.expression, sce)
+        scb = scope.create_child()
+        common_type = None
+        for branches in node.branches:
+            tmpscope = scb.create_child()
+            try :
+                typex = self.context.get_type(branches[1],node.line)
+            except SemanticError as e:
+                self.errors.append(e)
+            tmpscope.define_variable(branches[0],typex,node.line)
+            self.visit(branches[2],tmpscope)
+            if common_type is None:
+                common_type = branches[2].type
+            else:
+                common_type = self.context.closest_common_antecesor(common_type,branches[2].type)
+        
+        node.type = common_type
+        
+        
+
+
+
     @visitor.when(FunctionCallNode)
     def visit(self, node:FunctionCallNode, scope:Scope):    
         self.visit(node.obj,scope.create_child())
         node.type = ErrorType()
-
+        node.typexa = node.typex
         for i in range(len(node.args)):
             self.visit(node.args[i],scope.create_child())
 
@@ -663,6 +696,8 @@ class TypeChecking:
             except SemanticError as e:
                 self.errors.append(e)
         
+        sc = sc.create_child()
+        node.body_scope=sc
         self.visit(node.in_body,sc)
         node.type = node.in_body.type
         

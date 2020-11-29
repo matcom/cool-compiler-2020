@@ -133,6 +133,8 @@ class CoolParser():
         'comp_expr : arith'
         p[0]= p[1]
 
+
+
     # <arith>       ???
 
     def p_arith_1(self, p):
@@ -150,9 +152,9 @@ class CoolParser():
         p[0]=p[1]
 
     def p_arith_2_1(self, p):
-        r'arith : NOT arith2'
+        r'arith : NOT comp_expr'
         p[0]=NotNode(p[2])
-        p[0].line = p.lineno(2)
+        p[0].line = p.lineno(1)
 
     def p_arith_2_2(self, p):
         r'arith : arith2'

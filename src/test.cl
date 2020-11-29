@@ -1,21 +1,15 @@
-class Main
+class Main inherits IO
 {
-   a : Int <- "Hello";
+   s : String;
+   a : Int <- 2;
    main():Object
    {
-      a
+      {
+         s <- in_string();
+         out_int(s.length());
+                  s <- in_string();
+         out_int(s.length());
+      }
    };
-};
 
-class A
-{
-	x:Int;
-
-   suma (a:Int, b:Int) : Int
-   {
-	  a
-
-   };
-     
-	
 };
