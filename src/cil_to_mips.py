@@ -410,7 +410,8 @@ class CILToMIPSVisitor():
         # offset = self.var_offset[self.current_function.name][self.current_function.params[0].name] 
         self_offset = self.var_offset[self.current_function.name][node.type]
         self.text += f'lw $t0, {self_offset}($sp)\n'  # get self address
-        self.text += f'lw $a0, 8($t0)\n'  # get self size
+        self.text += f'lw $a0, 8($t0)\n'  # get self size {amount}
+        self.text += f'mul $a0, $a0, 4\n' # {amount * 4}
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
         self.text += 'bge $v0, $sp heap_error\n'
@@ -422,19 +423,19 @@ class CILToMIPSVisitor():
         # hasta q se haga el VCALL por lo el ciclo hayq  hacerlo en MIPS)
 
         self.text += 'li $a0, 0\n'
+        self.text += 'lw $t3, 8($t0)\n'
         self.text += 'copy_object_word:\n'
-        self.text += 'lw $t2, ($t0)\n' # load current object word
-        self.text += 'sw $t2, ($t1)\n' # store word in copy object
+        self.text += 'lw $t2, 0($t0)\n' # load current object word
+        self.text += 'sw $t2, 0($t1)\n' # store word in copy object
         self.text += 'addi $t0, $t0, 4\n' # move to the next word in orginal object
         self.text += 'addi $t1, $t1, 4\n' # move to the next word in copy object
-        self.text += 'addi $a0, $a0, 4\n' # size count
+        self.text += 'addi $a0, $a0, 1\n' # size count
         '''
         Src2 can either be a register or an immediate value (a 16 bit integer).
         blt Rsrc1, Src2, label (Branch on Less Than)
         Conditionally branch to the instruction at the label if the contents of register Rsrc1 are less than Src2.
         '''
-        self.text += 'lw $t3, 8($t0)\n'
-        self.text += 'blt $a0, $t3, copy_object_word\n' # 8($t0) is the orginal object size
+        self.text += 'blt $a0, $t3, copy_object_word\n' # $t3 is the orginal object size
 
         offset = self.var_offset[self.current_function.name][node.local_dest]
         # $t1 is pointing at the end of the object
