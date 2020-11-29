@@ -259,10 +259,7 @@ class LR1Parser(ShiftReduceParser):
                         self.ok &= upd_table(self.goto, idx, next_symbol, node[next_symbol.Name][0].idx)
 
 def get_token(node):
-    try:
-        return node.tid
-    except AttributeError:
-        try:
-            return node.token
-        except AttributeError:
-            return node.ttype
+    for attr in ['tid', 'token', 'ttype', 'symbol']:
+        if hasattr(node, attr):
+            return getattr(node, attr)
+    raise Exception(f'{node} has no token')
