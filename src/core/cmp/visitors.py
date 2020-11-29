@@ -546,13 +546,13 @@ class TypeChecker:
             
     @visitor.when(LetInNode)
     def visit(self, node, scope):
-        child = scope.create_child()
-        node.scope = child
+        node.scope = scope
         
         for expr in node.let_body:
-            self.visit(expr, child)
+            node.scope = node.scope.create_child()
+            self.visit(expr, node.scope)
         
-        self.visit(node.in_body, child)
+        self.visit(node.in_body, node.scope)
         node.computed_type = node.in_body.computed_type
 
     @visitor.when(LetAttributeNode)
@@ -566,10 +566,6 @@ class TypeChecker:
             node_type = ErrorType()
         node.attr_type = node_type
         node.scope = None
-        
-        correct_declaration = not scope.is_local(node.id)
-        if not correct_declaration:
-            self.errors.append((SemanticError(LOCAL_ALREADY_DEFINED % (node.id, self.current_method)), node.tid))
         
         if node.expr:
             self.visit(node.expr, scope)
