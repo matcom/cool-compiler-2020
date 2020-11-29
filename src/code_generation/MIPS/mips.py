@@ -120,11 +120,13 @@ def return_to_mips_visitor(ret: cil.ReturnNode):
     MIPS:
         lw $v0, shift(x)
     """
-    offset = CURRENT_FUNCTION.offset[str(ret.ret_value)]
-    return [
-        mips.Comment(str(ret)),
-        mips.LwInstruction('$v0', f'{offset}($fp)')
-    ]
+    code= [mips.Comment(str(ret))]
+    if isinstance(ret.ret_value, int):
+        code.append(mips.LiInstruction('$v0', ret.ret_value))
+    else:
+        offset = CURRENT_FUNCTION.offset[str(ret.ret_value)]
+        code.append(mips.LwInstruction('$v0', f'{offset}($fp)'))
+    return code
 
 
 def read_to_mips_visitor(read: cil.ReadNode):
@@ -361,26 +363,23 @@ def plus_to_mips_visitor(plus: cil.PlusNode):
         add $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
-
-    x_addr = CURRENT_FUNCTION.offset[str(plus.result)]
-    y_addr = CURRENT_FUNCTION.offset[str(plus.left)]
-    z_addr = CURRENT_FUNCTION.offset[str(plus.right)]
-    instructions = [
-        mips.Comment(str(plus))
-    ]
-    if not is_register(y_addr):
-        instructions.append(mips.LwInstruction('$t1', y_addr))
-        y_addr = '$t1'
-    if not is_register(z_addr):
-        instructions.append(mips.LwInstruction('$t2', z_addr))
-        z_addr = '$t2'
-    if is_register(x_addr):
-        instructions.append(mips.AddInstruction(x_addr, y_addr, z_addr))
+    code=[mips.Comment(str(plus))]
+    if isinstance(plus.left, int):
+        code.append(mips.LiInstruction('$t0', plus.left))
     else:
-        instructions.append(mips.AddInstruction('$t0', y_addr, z_addr))
-        instructions.append(mips.SwInstruction('$t0', x_addr))
+        x_addr = CURRENT_FUNCTION.offset[str(plus.left)]
+        code.append(mips.LwInstruction('$t0', f'{x_addr}($fp)'))
+    
+    
+    if isinstance(plus.right, int):
+        code.append(mips.LiInstruction('$t1', plus.right))
+    else:
+        y_addr = CURRENT_FUNCTION.offset[str(plus.right)]
+        code.append(mips.LwInstruction('$t1', f'{y_addr}($fp)'))
+    
+    z_addr = CURRENT_FUNCTION.offset[str(plus.result)]
+    return code + [mips.AddInstruction('$t2', '$t0', '$t1'), mips.SwInstruction('$t2', f'{z_addr}($fp)')]
 
-    return instructions
 
 
 def minus_to_mips_visitor(minus: cil.MinusNode):
@@ -393,25 +392,23 @@ def minus_to_mips_visitor(minus: cil.MinusNode):
         sub $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
-    x_addr = CURRENT_FUNCTION.offset[str(minus.result)]
-    y_addr = CURRENT_FUNCTION.offset[str(minus.left)]
-    z_addr = CURRENT_FUNCTION.offset[str(minus.right)]
-    instructions = [
-        mips.Comment(str(minus))
-    ]
-    if not is_register(y_addr):
-        instructions.append(mips.LwInstruction('$t1', y_addr))
-        y_addr = '$t1'
-    if not is_register(z_addr):
-        instructions.append(mips.LwInstruction('$t2', z_addr))
-        z_addr = '$t2'
-    if is_register(x_addr):
-        instructions.append(mips.SubInstruction(x_addr, y_addr, z_addr))
+    code=[mips.Comment(str(plus))]
+    if isinstance(plus.left, int):
+        code.append(mips.LiInstruction('$t0', plus.left))
     else:
-        instructions.append(mips.SubInstruction('$t0', y_addr, z_addr))
-        instructions.append(mips.SwInstruction('$t0', x_addr))
+        x_addr = CURRENT_FUNCTION.offset[str(plus.left)]
+        code.append(mips.LwInstruction('$t0', f'{x_addr}($fp)'))
+    
+    
+    if isinstance(plus.right, int):
+        code.append(mips.LiInstruction('$t1', plus.right))
+    else:
+        y_addr = CURRENT_FUNCTION.offset[str(plus.right)]
+        code.append(mips.LwInstruction('$t1', f'{y_addr}($fp)'))
+    
+    z_addr = CURRENT_FUNCTION.offset[str(plus.result)]
+    return code + [mips.SubInstruction('$t2', '$t0', '$t1'), mips.SwInstruction('$t2', f'{z_addr}($fp)')]
 
-    return instructions
 
 
 def star_to_mips_visitor(star: cil.StarNode):
@@ -424,16 +421,24 @@ def star_to_mips_visitor(star: cil.StarNode):
         mult $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
-    x_addr = CURRENT_FUNCTION.get_address(star.result)
-    y_addr = CURRENT_FUNCTION.get_address(star.left)
-    z_addr = CURRENT_FUNCTION.get_address(star.right)
-    return [
-        mips.Comment(str(star)),
-        mips.LwInstruction('$t1', y_addr),
-        mips.LwInstruction('$t2', z_addr),
-        mips.MultInstruction('$t0', '$t1', '$t2'),
-        mips.SwInstruction('$t0', x_addr)
-    ]
+    code=[mips.Comment(str(plus))]
+    if isinstance(plus.left, int):
+        code.append(mips.LiInstruction('$t0', plus.left))
+    else:
+        x_addr = CURRENT_FUNCTION.offset[str(plus.left)]
+        code.append(mips.LwInstruction('$t0', f'{x_addr}($fp)'))
+    
+    
+    if isinstance(plus.right, int):
+        code.append(mips.LiInstruction('$t1', plus.right))
+    else:
+        y_addr = CURRENT_FUNCTION.offset[str(plus.right)]
+        code.append(mips.LwInstruction('$t1', f'{y_addr}($fp)'))
+    
+    z_addr = CURRENT_FUNCTION.offset[str(plus.result)]
+    return code + [mips.MultInstruction('$t0', '$t1', '$t2'), mips.SwInstruction('$t2', f'{z_addr}($fp)')]
+
+
 
 
 def div_to_mips_visitor(div: cil.DivNode):
@@ -446,16 +451,24 @@ def div_to_mips_visitor(div: cil.DivNode):
         div $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
-    x_addr = CURRENT_FUNCTION.get_address(div.result)
-    y_addr = CURRENT_FUNCTION.get_address(div.left)
-    z_addr = CURRENT_FUNCTION.get_address(div.right)
-    return [
-        mips.Comment(str(div)),
-        mips.LwInstruction('$t1', y_addr),
-        mips.LwInstruction('$t2', z_addr),
-        mips.DivInstruction('$t0', '$t1', '$t2'),
-        mips.SwInstruction('$t0', x_addr)
-    ]
+    code=[mips.Comment(str(plus))]
+    if isinstance(plus.left, int):
+        code.append(mips.LiInstruction('$t0', plus.left))
+    else:
+        x_addr = CURRENT_FUNCTION.offset[str(plus.left)]
+        code.append(mips.LwInstruction('$t0', f'{x_addr}($fp)'))
+    
+    
+    if isinstance(plus.right, int):
+        code.append(mips.LiInstruction('$t1', plus.right))
+    else:
+        y_addr = CURRENT_FUNCTION.offset[str(plus.right)]
+        code.append(mips.LwInstruction('$t1', f'{y_addr}($fp)'))
+    
+    z_addr = CURRENT_FUNCTION.offset[str(plus.result)]
+    return code + [mips.DivInstruction('$t0', '$t1', '$t2'), mips.SwInstruction('$t2', f'{z_addr}($fp)')]
+
+
 
 
 def lesseq_to_mips_visitor(lesseq: cil.LessEqNode):
@@ -492,9 +505,9 @@ def less_to_mips_visitor(less: cil.LessNode):
         sw  $t0, [addr(x)]
     """
 
-    x_addr = CURRENT_FUNCTION.get_address(less.result)
-    y_addr = CURRENT_FUNCTION.get_address(less.left)
-    z_addr = CURRENT_FUNCTION.get_address(less.right)
+    x_addr = CURRENT_FUNCTION.offset[str(less.result)]
+    y_addr = CURRENT_FUNCTION.offset[str(less.left)]
+    z_addr = CURRENT_FUNCTION.offset[str(less.right)]
     return [
         mips.Comment(str(less)),
         mips.LwInstruction('$t1', y_addr),
@@ -580,7 +593,7 @@ def assign_to_mips_visitor(assign: cil.AssignNode):
         code.append(mips.LwInstruction('$t0', f'{y_addr}($fp)'))
 
     return code+[
-        mips.SwInstruction('$t0', f'{x_addr}($sp)')
+        mips.SwInstruction('$t0', f'{x_addr}($fp)')
     ]
 
 
@@ -607,8 +620,30 @@ def copy_to_mips_visitor(copy: cil.CopyNode):
     ]
     return []
 
+def conditional_goto_to_mips_visitor(goto:cil.ConditionalGotoNode):
+    predicate_addr =CURRENT_FUNCTION.offset[str(goto.predicate)]
+    return [
+        mips.Comment(str(goto)),
+        mips.LwInstruction('$t0', f'{predicate_addr}($fp)'),
+        mips.BnezInstruction('$t0', goto.label)
+    ]
+
+def goto_to_mips_visitor(goto:cil.GotoNode):
+    return [
+        mips.Comment(str(goto)),
+        mips.BInstruction(goto.label)
+    ]
+    
+def label_to_mips_visitor(label:cil.LabelNode):
+    return [
+        mips.Comment(str(label)),
+        mips.MIPSLabel(label.label_name)
+    ]
 
 __visitors__ = {
+    cil.LabelNode: label_to_mips_visitor,
+    cil.GotoNode: goto_to_mips_visitor,
+    cil.ConditionalGotoNode:conditional_goto_to_mips_visitor,
     cil.ArgNode: arg_to_mips_visitor,
     cil.AllocateNode: allocate_to_mips_visitor,
     cil.CopyNode: copy_to_mips_visitor,
