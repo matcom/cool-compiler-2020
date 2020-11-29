@@ -218,10 +218,11 @@ class MoveFromLowNode(InstructionNode):
 
 
 class MIPSType:
-    def __init__(self, label, name_addr, attributes, methods, index):
+    def __init__(self, label, name_addr, attributes, methods, index, default = []):
         self._label = label
         self._name = name_addr
         self._attributes = attributes
+        self._default_attributes = dict(default) 
         self._methods = methods
         self._index = index
         
@@ -383,7 +384,7 @@ class PrintVisitor:
         methods = "\n".join([f"\t.word\t {node.methods[k]}" for k in node.methods])
         dispatch_table = f"{node.label}_dispatch:\n{methods}"
         proto_begin = f"{node.label}_proto:\n\t.word\t{node.index}\n\t.word\t{node.size}\n\t.word\t{node.label}_dispatch"
-        proto_attr = "\n".join(['\t.word\t0' for _ in node.attributes])
+        proto_attr = "\n".join([f'\t.word\t{node._default_attributes.get(attr, "0")}' for attr in node.attributes])
         proto_end = f"\t.word\t{OBJECT_MARK}"
         proto = f"{proto_begin}\n{proto_attr}\n{proto_end}" if proto_attr != "" else f"{proto_begin}\n{proto_end}"
         

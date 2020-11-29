@@ -169,7 +169,8 @@ class CILToMIPSVisitor:
     def visit(self, node):
         #Get functions names
         self.collect_func_names(node)
-        
+
+        self._data_section["default_str"] = mips.StringConst("default_str", "") 
         #Convert CIL ProgramNode to MIPS ProgramNode
         for tp in node.dottypes:
             self.visit(tp)
@@ -189,7 +190,10 @@ class CILToMIPSVisitor:
 
         type_label = self.generate_type_label()
         methods = {key: self._name_func_map[value] for key, value in node.methods}
-        new_type = mips.MIPSType(type_label, name_label, node.attributes, methods, len(self._types))
+        defaults = []
+        if node.name == "String":
+            defaults = [('value', 'default_str')]
+        new_type = mips.MIPSType(type_label, name_label, node.attributes, methods, len(self._types), default=defaults)
 
         self._types[node.name] = new_type
     
@@ -219,7 +223,7 @@ class CILToMIPSVisitor:
         if len(node.instructions):
             reg_for_var = ra.get_registers_for_variables(node.instructions, node.params, len(mips.REGISTERS))
         
-        self.memory_manager = MemoryManager(mips.REGISTERS, lambda x : reg_for_var[x])
+            self.memory_manager = MemoryManager(mips.REGISTERS, lambda x : reg_for_var[x])
         
 
 
