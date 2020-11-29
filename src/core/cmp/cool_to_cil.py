@@ -944,7 +944,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             param_names = [pn.name for pn in self.current_function.params]
             if node.lex in param_names:
                 for n in param_names:
-                    if node.lex in n.split("_"):
+                    if node.lex in n:
                         scope.ret_expr = n
                         break
             else:
