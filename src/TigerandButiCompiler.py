@@ -685,20 +685,21 @@ if __name__=='__main__':
     if parser.errorok:
         semantic=Semantics_Checker()
         semanticvalid=semantic.visit(ast,None)
+        if semanticvalid:
+            tocil=CILTranspiler()
+            codigoCIL=tocil.visit(ast, None)
+                
+            toMIPS=MIPSCompiler()
+            instrucciones=toMIPS.visit(codigoCIL, None)
+            with open(f'{sys.argv[1][:-3]}.mips', 'w') as f:
+                f.write(instrucciones)
+        else:
+            exit(1)
     else:
         exit(1)
     # else:
     #     exit(1)
-    if semanticvalid:
-        tocil=CILTranspiler()
-        codigoCIL=tocil.visit(ast, None)
-                
-        toMIPS=MIPSCompiler()
-        instrucciones=toMIPS.visit(codigoCIL, None)
-        with open(f'{sys.argv[1][:-3]}.mips', 'w') as f:
-            f.write(instrucciones)
-    else:
-        exit(1)
+    
         # else:
         #     exit(1)
 # else:
