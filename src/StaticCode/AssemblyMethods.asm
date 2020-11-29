@@ -26,6 +26,18 @@
      li $v0, 8
      syscall
      move $v0, $t1
+     #Buscando y arreglando posible salto de linea
+     move $t0, $v0
+     move $t1, $zero
+     li $t2, 10
+     Iniciochequeofinlinea:
+     lb $t1, 0($t0)
+     beq $t1, $t2, Cambiafinlinea
+     addi $t0, $t0, 1
+     bne $t1, $zero, Iniciochequeofinlinea
+     jr $ra
+     Cambiafinlinea:
+     sb $zero, 0($t0)
      jr $ra
 
      #Los numeros como argumentos $a0 y $a1, y $a2 como donde guardar el resultado

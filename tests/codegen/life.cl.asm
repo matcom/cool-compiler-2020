@@ -143,6 +143,18 @@ syscall
      li $v0, 8
      syscall
      move $v0, $t1
+     #Buscando y arreglando posible salto de linea
+     move $t0, $v0
+     move $t1, $zero
+     li $t2, 10
+     Iniciochequeofinlinea:
+     lb $t1, 0($t0)
+     beq $t1, $t2, Cambiafinlinea
+     addi $t0, $t0, 1
+     bne $t1, $zero, Iniciochequeofinlinea
+     jr $ra
+     Cambiafinlinea:
+     sb $zero, 0($t0)
      jr $ra
 
      #Los numeros como argumentos $a0 y $a1, y $a2 como donde guardar el resultado
@@ -574,6 +586,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var787
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -581,13 +594,14 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var787<-['Main', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var787
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -595,7 +609,7 @@ lw $t0, 0($a0)
 lw $t0,116($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var788<-['Main', 'main']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -636,6 +650,7 @@ jr $ra
 f5: #IO.$init
 addi $sp, $sp, -12
 move $t0,$a0
+#Argument self
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -643,7 +658,7 @@ la $t0,Objectclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var7<-['Object', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -723,6 +738,7 @@ jr $ra
 f11: #String.$init
 addi $sp, $sp, -12
 move $t0,$a0
+#Argument self
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -730,7 +746,7 @@ la $t0,Objectclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var12<-['Object', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -804,6 +820,7 @@ jr $ra
 f16: #Bool.$init
 addi $sp, $sp, -12
 move $t0,$a0
+#Argument self
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -811,7 +828,7 @@ la $t0,Objectclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var17<-['Object', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -831,6 +848,7 @@ jr $ra
 f18: #Board.$init
 addi $sp, $sp, -12
 move $t0,$a0
+#Argument self
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -838,7 +856,7 @@ la $t0,IOclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var22<-['IO', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -870,6 +888,7 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var25
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -877,7 +896,7 @@ la $t0,Stringclase
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var26<-['String', 'length']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -886,7 +905,7 @@ sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
 f21: #Board.board_init
-addi $sp, $sp, -268
+addi $sp, $sp, -276
 move $t0,$a0
 move $v0, $t0
 sw $v0,8($sp)
@@ -894,10 +913,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,12($sp)
 lw $t0,8($sp)
+#Argument var.var27
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,16($sp)
+#Argument var.var28
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -905,7 +926,7 @@ lw $t0, 0($a0)
 lw $t0,36($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var29<-['Board', 'size_of_board']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1191,14 +1212,21 @@ sw $v0,260($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,264($sp)
+lw $t0,264($sp)
+move $v0, $t0
+sw $v0,268($sp)
 lw $t0,20($sp)
 move $v0, $t0
 sw $v0,4($sp)
-addi $sp, $sp, 268
+lw $t0,268($sp)
+move $v0, $t0
+sw $v0,272($sp)
+addi $sp, $sp, 276
 jr $ra
 f22: #CellularAutomaton.$init
 addi $sp, $sp, -20
 move $t0,$a0
+#Argument self
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1206,7 +1234,7 @@ la $t0,Boardclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var93<-['Board', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1243,10 +1271,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,16($sp)
 lw $t0,12($sp)
+#Argument var.var98
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,20($sp)
+#Argument var.var99
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1254,7 +1284,7 @@ lw $t0, 0($a0)
 lw $t0,40($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var100<-['CellularAutomaton', 'board_init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1267,7 +1297,7 @@ sw $v0,24($sp)
 addi $sp, $sp, 28
 jr $ra
 f25: #CellularAutomaton.print
-addi $sp, $sp, -152
+addi $sp, $sp, -168
 li $t0,0
 move $v0, $t0
 sw $v0,8($sp)
@@ -1292,10 +1322,12 @@ sw $v0,28($sp)
 la $v0, st7
 sw $v0,36($sp)
 lw $t0,28($sp)
+#Argument var.var106
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,40($sp)
+#Argument var.var107
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1303,7 +1335,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var108<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1339,14 +1371,17 @@ lw $t0,8($a0)
 move $v0, $t0
 sw $v0,80($sp)
 lw $t0,72($sp)
+#Argument var.var115
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,80($sp)
+#Argument var.var116
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
 lw $t0,88($sp)
+#Argument var.var117
 addi $sp, $sp, -4
 sw $a2, 0($sp)
 move $a2,$t0
@@ -1354,7 +1389,7 @@ la $t0,Stringclase
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var118<-['String', 'substr']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a2, 0($sp)
@@ -1363,10 +1398,12 @@ lw $a0, 8($sp)
 addi $sp, $sp, 12
 sw $v0,84($sp)
 lw $t0,68($sp)
+#Argument var.var114
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,88($sp)
+#Argument var.var118
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1374,7 +1411,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var119<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1387,10 +1424,12 @@ sw $v0,92($sp)
 la $v0, st8
 sw $v0,100($sp)
 lw $t0,92($sp)
+#Argument var.var120
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,104($sp)
+#Argument var.var121
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1398,7 +1437,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var122<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1429,10 +1468,12 @@ sw $v0,132($sp)
 la $v0, st9
 sw $v0,140($sp)
 lw $t0,132($sp)
+#Argument var.var128
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,144($sp)
+#Argument var.var129
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1440,7 +1481,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var130<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1450,13 +1491,25 @@ sw $v0,144($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,148($sp)
+lw $t0,148($sp)
+move $v0, $t0
+sw $v0,152($sp)
 lw $t0,24($sp)
 move $v0, $t0
 sw $v0,16($sp)
+lw $t0,152($sp)
+move $v0, $t0
+sw $v0,156($sp)
+lw $t0,156($sp)
+move $v0, $t0
+sw $v0,160($sp)
 lw $t0,12($sp)
 move $v0, $t0
 sw $v0,4($sp)
-addi $sp, $sp, 152
+lw $t0,160($sp)
+move $v0, $t0
+sw $v0,164($sp)
+addi $sp, $sp, 168
 jr $ra
 f26: #CellularAutomaton.num_cells
 addi $sp, $sp, -12
@@ -1464,6 +1517,7 @@ lw $t0,16($a0)
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var136
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1471,7 +1525,7 @@ la $t0,Stringclase
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var137<-['String', 'length']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1510,14 +1564,17 @@ li $t0,1
 move $v0, $t0
 sw $v0,48($sp)
 lw $t0,40($sp)
+#Argument var.var146
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,48($sp)
+#Argument var.var147
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
 lw $t0,56($sp)
+#Argument var.var148
 addi $sp, $sp, -4
 sw $a2, 0($sp)
 move $a2,$t0
@@ -1525,7 +1582,7 @@ la $t0,Stringclase
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var149<-['String', 'substr']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a2, 0($sp)
@@ -1584,10 +1641,12 @@ lw $t1,48($sp)
 sub $v0, $t0, $t1
 sw $v0,56($sp)
 lw $t0,40($sp)
+#Argument var.var160
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,60($sp)
+#Argument var.var163
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1595,7 +1654,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var165<-['CellularAutomaton', 'cell']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1653,10 +1712,12 @@ lw $t1,48($sp)
 add $v0, $t0, $t1
 sw $v0,56($sp)
 lw $t0,40($sp)
+#Argument var.var176
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,60($sp)
+#Argument var.var179
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1664,7 +1725,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var181<-['CellularAutomaton', 'cell']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1745,10 +1806,12 @@ lw $t1,84($sp)
 add $v0, $t0, $t1
 sw $v0,92($sp)
 lw $t0,76($sp)
+#Argument var.var201
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,96($sp)
+#Argument var.var204
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1756,7 +1819,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var206<-['CellularAutomaton', 'cell']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1835,10 +1898,12 @@ lw $t1,84($sp)
 sub $v0, $t0, $t1
 sw $v0,92($sp)
 lw $t0,76($sp)
+#Argument var.var225
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,96($sp)
+#Argument var.var228
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1846,7 +1911,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var230<-['CellularAutomaton', 'cell']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1946,10 +2011,12 @@ lw $t1,96($sp)
 sub $v0, $t0, $t1
 sw $v0,104($sp)
 lw $t0,88($sp)
+#Argument var.var254
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,108($sp)
+#Argument var.var257
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1957,7 +2024,7 @@ lw $t0, 0($a0)
 lw $t0,60($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var259<-['CellularAutomaton', 'north']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2071,10 +2138,12 @@ lw $t1,120($sp)
 add $v0, $t0, $t1
 sw $v0,128($sp)
 lw $t0,112($sp)
+#Argument var.var289
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,132($sp)
+#Argument var.var292
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2082,7 +2151,7 @@ lw $t0, 0($a0)
 lw $t0,60($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var294<-['CellularAutomaton', 'north']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2196,10 +2265,12 @@ lw $t1,120($sp)
 add $v0, $t0, $t1
 sw $v0,128($sp)
 lw $t0,112($sp)
+#Argument var.var324
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,132($sp)
+#Argument var.var327
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2207,7 +2278,7 @@ lw $t0, 0($a0)
 lw $t0,64($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var329<-['CellularAutomaton', 'south']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2307,10 +2378,12 @@ lw $t1,96($sp)
 sub $v0, $t0, $t1
 sw $v0,104($sp)
 lw $t0,88($sp)
+#Argument var.var353
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,108($sp)
+#Argument var.var356
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2318,7 +2391,7 @@ lw $t0, 0($a0)
 lw $t0,64($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var358<-['CellularAutomaton', 'south']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2364,10 +2437,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,8($sp)
 lw $t0,4($sp)
+#Argument var.var363
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,12($sp)
+#Argument var.var364
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2375,7 +2450,7 @@ lw $t0, 0($a0)
 lw $t0,60($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var365<-['CellularAutomaton', 'north']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2425,10 +2500,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,52($sp)
 lw $t0,48($sp)
+#Argument var.var373
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,56($sp)
+#Argument var.var374
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2436,7 +2513,7 @@ lw $t0, 0($a0)
 lw $t0,64($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var375<-['CellularAutomaton', 'south']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2490,10 +2567,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,104($sp)
 lw $t0,100($sp)
+#Argument var.var385
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,108($sp)
+#Argument var.var386
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2501,7 +2580,7 @@ lw $t0, 0($a0)
 lw $t0,68($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var387<-['CellularAutomaton', 'east']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2555,10 +2634,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,156($sp)
 lw $t0,152($sp)
+#Argument var.var397
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,160($sp)
+#Argument var.var398
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2566,7 +2647,7 @@ lw $t0, 0($a0)
 lw $t0,72($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var399<-['CellularAutomaton', 'west']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2620,10 +2701,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,208($sp)
 lw $t0,204($sp)
+#Argument var.var409
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,212($sp)
+#Argument var.var410
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2631,7 +2714,7 @@ lw $t0, 0($a0)
 lw $t0,80($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var411<-['CellularAutomaton', 'northeast']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2685,10 +2768,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,260($sp)
 lw $t0,256($sp)
+#Argument var.var421
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,264($sp)
+#Argument var.var422
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2696,7 +2781,7 @@ lw $t0, 0($a0)
 lw $t0,76($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var423<-['CellularAutomaton', 'northwest']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2750,10 +2835,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,312($sp)
 lw $t0,308($sp)
+#Argument var.var433
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,316($sp)
+#Argument var.var434
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2761,7 +2848,7 @@ lw $t0, 0($a0)
 lw $t0,84($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var435<-['CellularAutomaton', 'southeast']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2815,10 +2902,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,364($sp)
 lw $t0,360($sp)
+#Argument var.var445
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,368($sp)
+#Argument var.var446
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2826,7 +2915,7 @@ lw $t0, 0($a0)
 lw $t0,88($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var447<-['CellularAutomaton', 'southwest']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2884,10 +2973,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,8($sp)
 lw $t0,4($sp)
+#Argument var.var457
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,12($sp)
+#Argument var.var458
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2895,7 +2986,7 @@ lw $t0, 0($a0)
 lw $t0,92($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var459<-['CellularAutomaton', 'neighbors']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2918,10 +3009,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,40($sp)
 lw $t0,36($sp)
+#Argument var.var464
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,44($sp)
+#Argument var.var465
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2929,7 +3022,7 @@ lw $t0, 0($a0)
 lw $t0,92($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var466<-['CellularAutomaton', 'neighbors']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -2959,10 +3052,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,64($sp)
 lw $t0,60($sp)
+#Argument var.var470
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,68($sp)
+#Argument var.var471
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -2970,7 +3065,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var472<-['CellularAutomaton', 'cell']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3035,7 +3130,7 @@ sw $v0,132($sp)
 addi $sp, $sp, 136
 jr $ra
 f38: #CellularAutomaton.evolve
-addi $sp, $sp, -128
+addi $sp, $sp, -152
 li $t0,0
 move $v0, $t0
 sw $v0,8($sp)
@@ -3049,6 +3144,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,20($sp)
 lw $t0,20($sp)
+#Argument var.var487
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -3056,7 +3152,7 @@ lw $t0, 0($a0)
 lw $t0,52($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var488<-['CellularAutomaton', 'num_cells']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -3102,10 +3198,12 @@ lw $t0,4($sp)
 move $v0, $t0
 sw $v0,80($sp)
 lw $t0,76($sp)
+#Argument var.var498
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,84($sp)
+#Argument var.var499
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3113,7 +3211,7 @@ lw $t0, 0($a0)
 lw $t0,96($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var500<-['CellularAutomaton', 'cell_at_next_evolution']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3121,10 +3219,12 @@ lw $a0, 4($sp)
 addi $sp, $sp, 8
 sw $v0,84($sp)
 lw $t0,72($sp)
+#Argument var.var497
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,88($sp)
+#Argument var.var500
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3132,7 +3232,7 @@ la $t0,Stringclase
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var501<-['String', 'concat']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3169,19 +3269,37 @@ sw $v0,16($a0)
 move $t0,$a0
 move $v0, $t0
 sw $v0,124($sp)
+lw $t0,124($sp)
+move $v0, $t0
+sw $v0,128($sp)
 lw $t0,44($sp)
 move $v0, $t0
 sw $v0,32($sp)
+lw $t0,128($sp)
+move $v0, $t0
+sw $v0,132($sp)
+lw $t0,132($sp)
+move $v0, $t0
+sw $v0,136($sp)
 lw $t0,28($sp)
 move $v0, $t0
 sw $v0,16($sp)
+lw $t0,136($sp)
+move $v0, $t0
+sw $v0,140($sp)
+lw $t0,140($sp)
+move $v0, $t0
+sw $v0,144($sp)
 lw $t0,12($sp)
 move $v0, $t0
 sw $v0,4($sp)
-addi $sp, $sp, 128
+lw $t0,144($sp)
+move $v0, $t0
+sw $v0,148($sp)
+addi $sp, $sp, 152
 jr $ra
 f39: #CellularAutomaton.option
-addi $sp, $sp, -1088
+addi $sp, $sp, -1096
 li $t0,0
 move $v0, $t0
 sw $v0,8($sp)
@@ -3197,10 +3315,12 @@ sw $v0,16($sp)
 la $v0, st38
 sw $v0,24($sp)
 lw $t0,16($sp)
+#Argument var.var517
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,28($sp)
+#Argument var.var518
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3208,7 +3328,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var519<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3221,10 +3341,12 @@ sw $v0,32($sp)
 la $v0, st39
 sw $v0,40($sp)
 lw $t0,32($sp)
+#Argument var.var520
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,44($sp)
+#Argument var.var521
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3232,7 +3354,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var522<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3245,10 +3367,12 @@ sw $v0,48($sp)
 la $v0, st40
 sw $v0,56($sp)
 lw $t0,48($sp)
+#Argument var.var523
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,60($sp)
+#Argument var.var524
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3256,7 +3380,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var525<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3269,10 +3393,12 @@ sw $v0,64($sp)
 la $v0, st41
 sw $v0,72($sp)
 lw $t0,64($sp)
+#Argument var.var526
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,76($sp)
+#Argument var.var527
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3280,7 +3406,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var528<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3293,10 +3419,12 @@ sw $v0,80($sp)
 la $v0, st42
 sw $v0,88($sp)
 lw $t0,80($sp)
+#Argument var.var529
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,92($sp)
+#Argument var.var530
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3304,7 +3432,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var531<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3317,10 +3445,12 @@ sw $v0,96($sp)
 la $v0, st43
 sw $v0,104($sp)
 lw $t0,96($sp)
+#Argument var.var532
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,108($sp)
+#Argument var.var533
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3328,7 +3458,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var534<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3341,10 +3471,12 @@ sw $v0,112($sp)
 la $v0, st44
 sw $v0,120($sp)
 lw $t0,112($sp)
+#Argument var.var535
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,124($sp)
+#Argument var.var536
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3352,7 +3484,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var537<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3365,10 +3497,12 @@ sw $v0,128($sp)
 la $v0, st45
 sw $v0,136($sp)
 lw $t0,128($sp)
+#Argument var.var538
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,140($sp)
+#Argument var.var539
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3376,7 +3510,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var540<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3389,10 +3523,12 @@ sw $v0,144($sp)
 la $v0, st46
 sw $v0,152($sp)
 lw $t0,144($sp)
+#Argument var.var541
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,156($sp)
+#Argument var.var542
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3400,7 +3536,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var543<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3413,10 +3549,12 @@ sw $v0,160($sp)
 la $v0, st47
 sw $v0,168($sp)
 lw $t0,160($sp)
+#Argument var.var544
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,172($sp)
+#Argument var.var545
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3424,7 +3562,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var546<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3437,10 +3575,12 @@ sw $v0,176($sp)
 la $v0, st48
 sw $v0,184($sp)
 lw $t0,176($sp)
+#Argument var.var547
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,188($sp)
+#Argument var.var548
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3448,7 +3588,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var549<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3461,10 +3601,12 @@ sw $v0,192($sp)
 la $v0, st49
 sw $v0,200($sp)
 lw $t0,192($sp)
+#Argument var.var550
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,204($sp)
+#Argument var.var551
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3472,7 +3614,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var552<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3485,10 +3627,12 @@ sw $v0,208($sp)
 la $v0, st50
 sw $v0,216($sp)
 lw $t0,208($sp)
+#Argument var.var553
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,220($sp)
+#Argument var.var554
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3496,7 +3640,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var555<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3509,10 +3653,12 @@ sw $v0,224($sp)
 la $v0, st51
 sw $v0,232($sp)
 lw $t0,224($sp)
+#Argument var.var556
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,236($sp)
+#Argument var.var557
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3520,7 +3666,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var558<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3533,10 +3679,12 @@ sw $v0,240($sp)
 la $v0, st52
 sw $v0,248($sp)
 lw $t0,240($sp)
+#Argument var.var559
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,252($sp)
+#Argument var.var560
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3544,7 +3692,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var561<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3557,10 +3705,12 @@ sw $v0,256($sp)
 la $v0, st53
 sw $v0,264($sp)
 lw $t0,256($sp)
+#Argument var.var562
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,268($sp)
+#Argument var.var563
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3568,7 +3718,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var564<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3581,10 +3731,12 @@ sw $v0,272($sp)
 la $v0, st54
 sw $v0,280($sp)
 lw $t0,272($sp)
+#Argument var.var565
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,284($sp)
+#Argument var.var566
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3592,7 +3744,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var567<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3605,10 +3757,12 @@ sw $v0,288($sp)
 la $v0, st55
 sw $v0,296($sp)
 lw $t0,288($sp)
+#Argument var.var568
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,300($sp)
+#Argument var.var569
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3616,7 +3770,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var570<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3629,10 +3783,12 @@ sw $v0,304($sp)
 la $v0, st56
 sw $v0,312($sp)
 lw $t0,304($sp)
+#Argument var.var571
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,316($sp)
+#Argument var.var572
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3640,7 +3796,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var573<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3653,10 +3809,12 @@ sw $v0,320($sp)
 la $v0, st57
 sw $v0,328($sp)
 lw $t0,320($sp)
+#Argument var.var574
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,332($sp)
+#Argument var.var575
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3664,7 +3822,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var576<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3677,10 +3835,12 @@ sw $v0,336($sp)
 la $v0, st58
 sw $v0,344($sp)
 lw $t0,336($sp)
+#Argument var.var577
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,348($sp)
+#Argument var.var578
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3688,7 +3848,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var579<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3701,10 +3861,12 @@ sw $v0,352($sp)
 la $v0, st59
 sw $v0,360($sp)
 lw $t0,352($sp)
+#Argument var.var580
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,364($sp)
+#Argument var.var581
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3712,7 +3874,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var582<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3725,10 +3887,12 @@ sw $v0,368($sp)
 la $v0, st60
 sw $v0,376($sp)
 lw $t0,368($sp)
+#Argument var.var583
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,380($sp)
+#Argument var.var584
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3736,7 +3900,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var585<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -3747,6 +3911,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,384($sp)
 lw $t0,384($sp)
+#Argument var.var586
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -3754,7 +3919,7 @@ lw $t0, 0($a0)
 lw $t0,32($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var587<-['CellularAutomaton', 'in_int']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -3769,10 +3934,12 @@ sw $v0,392($sp)
 la $v0, st61
 sw $v0,400($sp)
 lw $t0,392($sp)
+#Argument var.var588
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,404($sp)
+#Argument var.var589
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -3780,7 +3947,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var590<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -4335,13 +4502,19 @@ Lbl107:
 lw $t0,1080($sp)
 move $v0, $t0
 sw $v0,1084($sp)
+lw $t0,1084($sp)
+move $v0, $t0
+sw $v0,1088($sp)
 lw $t0,12($sp)
 move $v0, $t0
 sw $v0,4($sp)
-addi $sp, $sp, 1088
+lw $t0,1088($sp)
+move $v0, $t0
+sw $v0,1092($sp)
+addi $sp, $sp, 1096
 jr $ra
 f40: #CellularAutomaton.prompt
-addi $sp, $sp, -112
+addi $sp, $sp, -120
 la $v0, st84
 sw $v0,12($sp)
 lw $t0,4($sp)
@@ -4356,10 +4529,12 @@ sw $v0,20($sp)
 la $v0, st85
 sw $v0,28($sp)
 lw $t0,20($sp)
+#Argument var.var743
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,32($sp)
+#Argument var.var744
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4367,7 +4542,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var745<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -4380,10 +4555,12 @@ sw $v0,36($sp)
 la $v0, st86
 sw $v0,44($sp)
 lw $t0,36($sp)
+#Argument var.var746
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,48($sp)
+#Argument var.var747
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4391,7 +4568,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var748<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -4402,6 +4579,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,52($sp)
 lw $t0,52($sp)
+#Argument var.var749
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -4409,7 +4587,7 @@ lw $t0, 0($a0)
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var750<-['CellularAutomaton', 'in_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -4424,10 +4602,12 @@ sw $v0,60($sp)
 la $v0, st87
 sw $v0,68($sp)
 lw $t0,60($sp)
+#Argument var.var751
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,72($sp)
+#Argument var.var752
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4435,7 +4615,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var753<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -4481,13 +4661,19 @@ Lbl109:
 lw $t0,104($sp)
 move $v0, $t0
 sw $v0,108($sp)
+lw $t0,108($sp)
+move $v0, $t0
+sw $v0,112($sp)
 lw $t0,16($sp)
 move $v0, $t0
 sw $v0,4($sp)
-addi $sp, $sp, 112
+lw $t0,112($sp)
+move $v0, $t0
+sw $v0,116($sp)
+addi $sp, $sp, 120
 jr $ra
 f41: #CellularAutomaton.prompt2
-addi $sp, $sp, -112
+addi $sp, $sp, -120
 la $v0, st89
 sw $v0,12($sp)
 lw $t0,4($sp)
@@ -4502,10 +4688,12 @@ sw $v0,20($sp)
 la $v0, st90
 sw $v0,28($sp)
 lw $t0,20($sp)
+#Argument var.var766
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,32($sp)
+#Argument var.var767
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4513,7 +4701,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var768<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -4526,10 +4714,12 @@ sw $v0,36($sp)
 la $v0, st91
 sw $v0,44($sp)
 lw $t0,36($sp)
+#Argument var.var769
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,48($sp)
+#Argument var.var770
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4537,7 +4727,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var771<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -4550,10 +4740,12 @@ sw $v0,52($sp)
 la $v0, st92
 sw $v0,60($sp)
 lw $t0,52($sp)
+#Argument var.var772
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,64($sp)
+#Argument var.var773
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4561,7 +4753,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var774<-['CellularAutomaton', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -4572,6 +4764,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,68($sp)
 lw $t0,68($sp)
+#Argument var.var775
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -4579,7 +4772,7 @@ lw $t0, 0($a0)
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var776<-['CellularAutomaton', 'in_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -4627,14 +4820,21 @@ Lbl111:
 lw $t0,104($sp)
 move $v0, $t0
 sw $v0,108($sp)
+lw $t0,108($sp)
+move $v0, $t0
+sw $v0,112($sp)
 lw $t0,16($sp)
 move $v0, $t0
 sw $v0,4($sp)
-addi $sp, $sp, 112
+lw $t0,112($sp)
+move $v0, $t0
+sw $v0,116($sp)
+addi $sp, $sp, 120
 jr $ra
 f42: #Main.$init
 addi $sp, $sp, -12
 move $t0,$a0
+#Argument self
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -4642,7 +4842,7 @@ la $t0,CellularAutomatonclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var789<-['CellularAutomaton', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -4663,7 +4863,7 @@ sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
 f44: #Main.main
-addi $sp, $sp, -184
+addi $sp, $sp, -200
 move $t0, $zero
 move $v0, $t0
 sw $v0,8($sp)
@@ -4687,10 +4887,12 @@ sw $v0,32($sp)
 la $v0, st96
 sw $v0,40($sp)
 lw $t0,32($sp)
+#Argument var.var796
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,44($sp)
+#Argument var.var797
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4698,7 +4900,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var798<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -4711,10 +4913,12 @@ sw $v0,48($sp)
 la $v0, st97
 sw $v0,56($sp)
 lw $t0,48($sp)
+#Argument var.var799
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,60($sp)
+#Argument var.var800
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4722,7 +4926,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var801<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -4734,6 +4938,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,64($sp)
 lw $t0,64($sp)
+#Argument var.var802
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -4741,7 +4946,7 @@ lw $t0, 0($a0)
 lw $t0,112($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var803<-['Main', 'prompt2']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -4762,6 +4967,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,84($sp)
 lw $t0,84($sp)
+#Argument var.var806
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -4769,7 +4975,7 @@ lw $t0, 0($a0)
 lw $t0,104($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var807<-['Main', 'option']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -4793,6 +4999,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,96($sp)
 lw $t0,96($sp)
+#Argument var.var808
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -4800,7 +5007,7 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var808<-['CellularAutomaton', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -4810,10 +5017,12 @@ lw $t0,16($sp)
 move $v0, $t0
 sw $v0,100($sp)
 lw $t0,96($sp)
+#Argument var.var808
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,104($sp)
+#Argument var.var809
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4821,7 +5030,7 @@ lw $t0, 0($a0)
 lw $t0,44($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var810<-['CellularAutomaton', 'init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -4835,6 +5044,7 @@ lw $t0,20($a0)
 move $v0, $t0
 sw $v0,108($sp)
 lw $t0,108($sp)
+#Argument var.var811
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -4842,7 +5052,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var812<-['CellularAutomaton', 'print']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -4861,6 +5071,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,128($sp)
 lw $t0,128($sp)
+#Argument var.var815
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -4868,7 +5079,7 @@ lw $t0, 0($a0)
 lw $t0,108($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var816<-['Main', 'prompt']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -4891,6 +5102,7 @@ lw $t0,20($a0)
 move $v0, $t0
 sw $v0,136($sp)
 lw $t0,136($sp)
+#Argument var.var817
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -4898,7 +5110,7 @@ lw $t0, 0($a0)
 lw $t0,100($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var818<-['CellularAutomaton', 'evolve']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -4908,6 +5120,7 @@ lw $t0,20($a0)
 move $v0, $t0
 sw $v0,144($sp)
 lw $t0,144($sp)
+#Argument var.var819
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -4915,7 +5128,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var820<-['CellularAutomaton', 'print']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -4941,11 +5154,23 @@ sw $v0,176($sp)
 move $t0,$a0
 move $v0, $t0
 sw $v0,180($sp)
+lw $t0,180($sp)
+move $v0, $t0
+sw $v0,184($sp)
 lw $t0,28($sp)
 move $v0, $t0
 sw $v0,16($sp)
+lw $t0,184($sp)
+move $v0, $t0
+sw $v0,188($sp)
+lw $t0,188($sp)
+move $v0, $t0
+sw $v0,192($sp)
 lw $t0,12($sp)
 move $v0, $t0
 sw $v0,4($sp)
-addi $sp, $sp, 184
+lw $t0,192($sp)
+move $v0, $t0
+sw $v0,196($sp)
+addi $sp, $sp, 200
 jr $ra

@@ -56,6 +56,18 @@ syscall
      li $v0, 8
      syscall
      move $v0, $t1
+     #Buscando y arreglando posible salto de linea
+     move $t0, $v0
+     move $t1, $zero
+     li $t2, 10
+     Iniciochequeofinlinea:
+     lb $t1, 0($t0)
+     beq $t1, $t2, Cambiafinlinea
+     addi $t0, $t0, 1
+     bne $t1, $zero, Iniciochequeofinlinea
+     jr $ra
+     Cambiafinlinea:
+     sb $zero, 0($t0)
      jr $ra
 
      #Los numeros como argumentos $a0 y $a1, y $a2 como donde guardar el resultado
@@ -150,7 +162,7 @@ syscall
      b InicioStrLen
 
      FinStrLen:
-     #sw $v0, 0($a1) El protocolo cambiï¿½
+     #sw $v0, 0($a1) El protocolo cambió
      jr $ra
 
      .Object.abort:
@@ -428,8 +440,8 @@ syscall
      li $v0, 10
      syscall
      
-     #En este mï¿½todo violï¿½ la regla usual de que los parï¿½metros van en los registros a, y se encuentran en los t.
-     #Esto se realizï¿½ ya que este mï¿½todo solo se usa en un lugar y atendiendo a la estructura del conversor a MIPS
+     #En este método violé la regla usual de que los parámetros van en los registros a, y se encuentran en los t.
+     #Esto se realizó ya que este método solo se usa en un lugar y atendiendo a la estructura del conversor a MIPS
      .Object.Copy:
      addi $sp, $sp, -8
 
@@ -483,6 +495,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var136
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -490,13 +503,14 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var136<-['Main', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var136
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -504,7 +518,7 @@ lw $t0, 0($a0)
 lw $t0,40($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var137<-['Main', 'main']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -545,6 +559,7 @@ jr $ra
 f5: #IO.$init
 addi $sp, $sp, -12
 move $t0,$a0
+#Argument self
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -552,7 +567,7 @@ la $t0,Objectclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var7<-['Object', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -632,6 +647,7 @@ jr $ra
 f11: #String.$init
 addi $sp, $sp, -12
 move $t0,$a0
+#Argument self
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -639,7 +655,7 @@ la $t0,Objectclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var12<-['Object', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -713,6 +729,7 @@ jr $ra
 f16: #Bool.$init
 addi $sp, $sp, -12
 move $t0,$a0
+#Argument self
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -720,7 +737,7 @@ la $t0,Objectclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var17<-['Object', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -740,6 +757,7 @@ jr $ra
 f18: #List.$init
 addi $sp, $sp, -12
 move $t0,$a0
+#Argument self
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -747,7 +765,7 @@ la $t0,IOclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var22<-['IO', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -770,6 +788,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var25
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -777,7 +796,7 @@ lw $t0, 0($a0)
 lw $t0,12($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var26<-['List', 'abort']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -789,7 +808,7 @@ sw $v0,12($sp)
 addi $sp, $sp, 16
 jr $ra
 f21: #List.cons
-addi $sp, $sp, -32
+addi $sp, $sp, -40
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,12
@@ -803,6 +822,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
 lw $t0,8($sp)
+#Argument var.var28
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -810,7 +830,7 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var28<-['Cons', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -832,14 +852,17 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,24($sp)
 lw $t0,16($sp)
+#Argument var.var30
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,24($sp)
+#Argument var.var31
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
 lw $t0,32($sp)
+#Argument var.var32
 addi $sp, $sp, -4
 sw $a2, 0($sp)
 move $a2,$t0
@@ -847,7 +870,7 @@ lw $t0, 0($a0)
 lw $t0,72($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var33<-['Cons', 'init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a2, 0($sp)
@@ -855,10 +878,16 @@ lw $a1, 4($sp)
 lw $a0, 8($sp)
 addi $sp, $sp, 12
 sw $v0,28($sp)
+lw $t0,28($sp)
+move $v0, $t0
+sw $v0,32($sp)
 lw $t0,12($sp)
 move $v0, $t0
 sw $v0,4($sp)
-addi $sp, $sp, 32
+lw $t0,32($sp)
+move $v0, $t0
+sw $v0,36($sp)
+addi $sp, $sp, 40
 jr $ra
 f22: #List.car
 addi $sp, $sp, -16
@@ -866,6 +895,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var36
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -873,7 +903,7 @@ lw $t0, 0($a0)
 lw $t0,12($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var37<-['List', 'abort']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -897,6 +927,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var39
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -904,7 +935,7 @@ lw $t0, 0($a0)
 lw $t0,12($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var40<-['List', 'abort']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -921,6 +952,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,12($sp)
 lw $t0,12($sp)
+#Argument var.var41
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -928,7 +960,7 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var41<-['List', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -942,6 +974,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var42
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -949,7 +982,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var43<-['List', 'cdr']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -963,6 +996,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var44
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -970,7 +1004,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var45<-['List', 'cdr']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -984,6 +1018,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var46
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -991,7 +1026,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var47<-['List', 'cdr']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1005,6 +1040,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var48
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1012,7 +1048,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var49<-['List', 'cdr']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1026,6 +1062,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var50
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1033,7 +1070,7 @@ lw $t0, 0($a0)
 lw $t0,12($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var51<-['List', 'abort']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1044,6 +1081,7 @@ jr $ra
 f29: #Main.$init
 addi $sp, $sp, -12
 move $t0,$a0
+#Argument self
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1051,7 +1089,7 @@ la $t0,IOclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var54<-['IO', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1072,7 +1110,7 @@ sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
 f31: #Main.iota
-addi $sp, $sp, -92
+addi $sp, $sp, -100
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,4
@@ -1084,6 +1122,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
 lw $t0,8($sp)
+#Argument var.var57
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1091,7 +1130,7 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var57<-['Nil', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1138,6 +1177,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,48($sp)
 lw $t0,48($sp)
+#Argument var.var65
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1145,7 +1185,7 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var65<-['Cons', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1158,14 +1198,17 @@ lw $t0,4($a0)
 move $v0, $t0
 sw $v0,56($sp)
 lw $t0,48($sp)
+#Argument var.var65
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,56($sp)
+#Argument var.var66
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
 lw $t0,64($sp)
+#Argument var.var67
 addi $sp, $sp, -4
 sw $a2, 0($sp)
 move $a2,$t0
@@ -1173,7 +1216,7 @@ lw $t0, 0($a0)
 lw $t0,72($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var68<-['Cons', 'init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a2, 0($sp)
@@ -1202,13 +1245,19 @@ Lbl1:
 li $t0,0
 move $v0, $t0
 sw $v0,84($sp)
+lw $t0,84($sp)
+move $v0, $t0
+sw $v0,88($sp)
 lw $t0,20($sp)
 move $v0, $t0
 sw $v0,12($sp)
+lw $t0,88($sp)
+move $v0, $t0
+sw $v0,92($sp)
 lw $t0,4($a0)
 move $v0, $t0
-sw $v0,88($sp)
-addi $sp, $sp, 92
+sw $v0,96($sp)
+addi $sp, $sp, 100
 jr $ra
 f32: #Main.main
 addi $sp, $sp, -48
@@ -1218,10 +1267,12 @@ sw $v0,4($sp)
 la $v0, st6
 sw $v0,12($sp)
 lw $t0,4($sp)
+#Argument var.var77
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,16($sp)
+#Argument var.var78
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1229,7 +1280,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var79<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1243,6 +1294,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,24($sp)
 lw $t0,24($sp)
+#Argument var.var81
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1250,17 +1302,19 @@ lw $t0, 0($a0)
 lw $t0,32($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var82<-['Main', 'in_int']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,28($sp)
 lw $t0,20($sp)
+#Argument var.var80
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,32($sp)
+#Argument var.var82
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1268,7 +1322,7 @@ lw $t0, 0($a0)
 lw $t0,36($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var83<-['Main', 'iota']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1276,6 +1330,7 @@ lw $a0, 4($sp)
 addi $sp, $sp, 8
 sw $v0,32($sp)
 lw $t0,32($sp)
+#Argument var.var83
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1283,13 +1338,14 @@ lw $t0, 0($a0)
 lw $t0,52($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var84<-['List', 'rev']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,36($sp)
 lw $t0,36($sp)
+#Argument var.var84
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1297,13 +1353,14 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var85<-['List', 'sort']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,40($sp)
 lw $t0,40($sp)
+#Argument var.var85
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1311,7 +1368,7 @@ lw $t0, 0($a0)
 lw $t0,68($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var86<-['List', 'print_list']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1322,6 +1379,7 @@ jr $ra
 f33: #Cons.$init
 addi $sp, $sp, -12
 move $t0,$a0
+#Argument self
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1329,7 +1387,7 @@ la $t0,Listclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var89<-['List', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1398,6 +1456,7 @@ lw $t0,8($a0)
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var98
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1405,7 +1464,7 @@ lw $t0, 0($a0)
 lw $t0,52($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var99<-['List', 'rev']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1415,10 +1474,12 @@ lw $t0,4($a0)
 move $v0, $t0
 sw $v0,12($sp)
 lw $t0,8($sp)
+#Argument var.var99
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,16($sp)
+#Argument var.var100
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1426,7 +1487,7 @@ lw $t0, 0($a0)
 lw $t0,64($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var101<-['List', 'rcons']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1441,6 +1502,7 @@ lw $t0,8($a0)
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var102
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1448,7 +1510,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var103<-['List', 'sort']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1458,10 +1520,12 @@ lw $t0,4($a0)
 move $v0, $t0
 sw $v0,12($sp)
 lw $t0,8($sp)
+#Argument var.var103
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,16($sp)
+#Argument var.var104
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1469,7 +1533,7 @@ lw $t0, 0($a0)
 lw $t0,60($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var105<-['List', 'insert']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1505,6 +1569,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,36($sp)
 lw $t0,36($sp)
+#Argument var.var114
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1512,7 +1577,7 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var114<-['Cons', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1528,10 +1593,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,48($sp)
 lw $t0,44($sp)
+#Argument var.var116
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,52($sp)
+#Argument var.var117
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1539,7 +1606,7 @@ lw $t0, 0($a0)
 lw $t0,60($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var118<-['List', 'insert']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1547,14 +1614,17 @@ lw $a0, 4($sp)
 addi $sp, $sp, 8
 sw $v0,52($sp)
 lw $t0,36($sp)
+#Argument var.var114
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,44($sp)
+#Argument var.var115
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
 lw $t0,60($sp)
+#Argument var.var118
 addi $sp, $sp, -4
 sw $a2, 0($sp)
 move $a2,$t0
@@ -1562,7 +1632,7 @@ lw $t0, 0($a0)
 lw $t0,72($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var119<-['Cons', 'init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a2, 0($sp)
@@ -1588,6 +1658,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,20($sp)
 lw $t0,20($sp)
+#Argument var.var110
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1595,7 +1666,7 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var110<-['Cons', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1608,14 +1679,17 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,28($sp)
 lw $t0,20($sp)
+#Argument var.var110
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,28($sp)
+#Argument var.var111
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
 lw $t0,36($sp)
+#Argument var.var112
 addi $sp, $sp, -4
 sw $a2, 0($sp)
 move $a2,$t0
@@ -1623,7 +1697,7 @@ lw $t0, 0($a0)
 lw $t0,72($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var113<-['Cons', 'init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a2, 0($sp)
@@ -1655,6 +1729,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var122
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1662,7 +1737,7 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var122<-['Cons', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1678,10 +1753,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,16($sp)
 lw $t0,12($sp)
+#Argument var.var124
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,20($sp)
+#Argument var.var125
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1689,7 +1766,7 @@ lw $t0, 0($a0)
 lw $t0,64($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var126<-['List', 'rcons']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1697,14 +1774,17 @@ lw $a0, 4($sp)
 addi $sp, $sp, 8
 sw $v0,20($sp)
 lw $t0,4($sp)
+#Argument var.var122
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,12($sp)
+#Argument var.var123
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
 lw $t0,28($sp)
+#Argument var.var126
 addi $sp, $sp, -4
 sw $a2, 0($sp)
 move $a2,$t0
@@ -1712,7 +1792,7 @@ lw $t0, 0($a0)
 lw $t0,72($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var127<-['Cons', 'init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a2, 0($sp)
@@ -1731,10 +1811,12 @@ lw $t0,4($a0)
 move $v0, $t0
 sw $v0,8($sp)
 lw $t0,4($sp)
+#Argument var.var128
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,12($sp)
+#Argument var.var129
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1742,7 +1824,7 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var130<-['Cons', 'out_int']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1755,10 +1837,12 @@ sw $v0,16($sp)
 la $v0, st8
 sw $v0,24($sp)
 lw $t0,16($sp)
+#Argument var.var131
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,28($sp)
+#Argument var.var132
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1766,7 +1850,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var133<-['Cons', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1777,6 +1861,7 @@ lw $t0,8($a0)
 move $v0, $t0
 sw $v0,32($sp)
 lw $t0,32($sp)
+#Argument var.var134
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1784,7 +1869,7 @@ lw $t0, 0($a0)
 lw $t0,68($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var135<-['List', 'print_list']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1795,6 +1880,7 @@ jr $ra
 f44: #Nil.$init
 addi $sp, $sp, -12
 move $t0,$a0
+#Argument self
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1802,7 +1888,7 @@ la $t0,Listclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0
+jal $t0 #var.var138<-['List', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1849,10 +1935,12 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,8($sp)
 lw $t0,4($sp)
+#Argument var.var144
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,12($sp)
+#Argument var.var145
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1860,7 +1948,7 @@ lw $t0, 0($a0)
 lw $t0,64($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var146<-['Nil', 'rcons']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -1884,6 +1972,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
 lw $t0,4($sp)
+#Argument var.var147
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1891,7 +1980,7 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var147<-['Cons', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1904,14 +1993,17 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,12($sp)
 lw $t0,4($sp)
+#Argument var.var147
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,12($sp)
+#Argument var.var148
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
 lw $t0,20($sp)
+#Argument var.var149
 addi $sp, $sp, -4
 sw $a2, 0($sp)
 move $a2,$t0
@@ -1919,7 +2011,7 @@ lw $t0, 0($a0)
 lw $t0,72($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0
+jalr $ra,$t0 #var.var150<-['Cons', 'init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a2, 0($sp)

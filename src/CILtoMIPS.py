@@ -397,7 +397,7 @@ class MIPSCompiler:
         instrucciones+="lw $t0,"+str(scope.classmethods[tipo].index(func_id)*4+4)+"($t0)\n"
         instrucciones+="addi $sp, $sp, -4\n"
         instrucciones+="sw $ra, 0($sp)\n"
-        instrucciones+="jal $t0\n"
+        instrucciones+="jal $t0 #"+str(node.destination)+"<-"+str(node.params)+"\n"
         instrucciones+="lw $ra, 0($sp)\n"
         instrucciones+="addi $sp, $sp, 4\n"
 
@@ -423,7 +423,7 @@ class MIPSCompiler:
         instrucciones+="lw $t0,"+str(scope.classmethods[tipo].index(func_id)*4+4)+"($t0)\n"
         instrucciones+="addi $sp, $sp, -4\n"
         instrucciones+="sw $ra, 0($sp)\n"
-        instrucciones+="jalr $ra,$t0\n"
+        instrucciones+="jalr $ra,$t0 #"+str(node.destination)+"<-"+str(node.params)+"\n"
         instrucciones+="lw $ra, 0($sp)\n"
         instrucciones+="addi $sp, $sp, 4\n"
 
@@ -447,6 +447,7 @@ class MIPSCompiler:
         if scope.methodname in ["main","f7"]:
             print("este")
         instrucciones+=self.load(node,scope,desplazamiento=scope.paramcount*4)
+        instrucciones+="#Argument "+str(node.params[0])+"\n"
         instrucciones+="addi $sp, $sp, -4\n"
         if scope.paramcount<4:
             instrucciones+="sw $a"+str(scope.paramcount)+", 0($sp)\n"

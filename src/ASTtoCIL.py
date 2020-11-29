@@ -582,9 +582,16 @@ class CILTranspiler:
 
         instructions.extend(bodyExp)
 
+        varintermedia=self.GenerarNombreVariable(scope)
+
+        instructions.append(CILAssign(varintermedia,[bodyExp[len(bodyExp)-1].destination]))
+
         for inst in asignacionessalva:
             restauracion=CILAssign(inst.params[0],[inst.destination])
             instructions.append(restauracion)
+
+        resultado=self.GenerarNombreVariable(scope)
+        instructions.append(CILAssign(resultado,[varintermedia]))
 
         return instructions
 
@@ -637,6 +644,7 @@ class CILTranspiler:
 
         labelfinal=self.GenerarNombreVariable(scope)
         salto=CILConditionalJump(params=[tipoResult,labelfinal])
+        
         instructions.append(salto)
 
         asignacion=CILAssign(node.name, [expresion0])
