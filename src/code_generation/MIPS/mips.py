@@ -342,12 +342,16 @@ def setattr_to_mips_visitor(setattr: cil.SetAttrNode):
         sw  $t0, [attr_shift($t1)]
     """
 
-    x_addr = CURRENT_FUNCTION.offset[str(setattr.val)]
+    code=[mips.Comment(str(setattr))]
+    if isinstance(setattr.val ,int):
+        code.append(mips.LiInstruction('$t0', setattr.val))
+    else:
+        x_addr = CURRENT_FUNCTION.offset[str(setattr.val)]
+        mips.LwInstruction('$t0', f'{x_addr}($fp)')
+
     y_addr = CURRENT_FUNCTION.offset[str(setattr.obj)]
     attr_shift = (setattr.attr_index + 1) * 4
-    return [
-        mips.Comment(str(setattr)),
-        mips.LwInstruction('$t0', f'{x_addr}($fp)'),
+    return code + [
         mips.LwInstruction('$t1', f'{y_addr}($fp)'),
         mips.SwInstruction('$t0', f'{attr_shift}($t1)')
     ]
@@ -505,15 +509,15 @@ def less_to_mips_visitor(less: cil.LessNode):
         sw  $t0, [addr(x)]
     """
 
-    x_addr = CURRENT_FUNCTION.offset[str(less.result)]
-    y_addr = CURRENT_FUNCTION.offset[str(less.left)]
-    z_addr = CURRENT_FUNCTION.offset[str(less.right)]
+    x_offset = CURRENT_FUNCTION.offset[str(less.result)]
+    y_offset = CURRENT_FUNCTION.offset[str(less.left)]
+    z_offset = CURRENT_FUNCTION.offset[str(less.right)]
     return [
         mips.Comment(str(less)),
-        mips.LwInstruction('$t1', f'{y_addr}($fp)'),
-        mips.LwInstruction('$t2', f'{z_addr}($fp)'),
+        mips.LwInstruction('$t1', f'{y_offset}($fp)'),
+        mips.LwInstruction('$t2', f'{z_offset}($fp)'),
         mips.SleInstruction('$t0', '$t1', '$t2'),
-        mips.SwInstruction('$t0', f'{x_addr}($fp)')
+        mips.SwInstruction('$t0', f'{x_offset}($fp)')
     ]
 
 
@@ -619,7 +623,7 @@ def copy_to_mips_visitor(copy: cil.CopyNode):
         mips.MIPSLabel('end_copy_loop')
     ]
 
-def conditional_goto_to_mips_visitor(goto:cil.ConditionalGotoNode):
+def conditional_goto_to_mips_visitor(goto: cil.ConditionalGotoNode):
     predicate_addr =CURRENT_FUNCTION.offset[str(goto.predicate)]
     return [
         mips.Comment(str(goto)),
@@ -627,13 +631,13 @@ def conditional_goto_to_mips_visitor(goto:cil.ConditionalGotoNode):
         mips.BnezInstruction('$t0', goto.label)
     ]
 
-def goto_to_mips_visitor(goto:cil.GotoNode):
+def goto_to_mips_visitor(goto: cil.GotoNode):
     return [
         mips.Comment(str(goto)),
         mips.BInstruction(goto.label)
     ]
     
-def label_to_mips_visitor(label:cil.LabelNode):
+def label_to_mips_visitor(label: cil.LabelNode):
     return [
         mips.Comment(str(label)),
         mips.MIPSLabel(label.label_name)
@@ -642,7 +646,7 @@ def label_to_mips_visitor(label:cil.LabelNode):
 __visitors__ = {
     cil.LabelNode: label_to_mips_visitor,
     cil.GotoNode: goto_to_mips_visitor,
-    cil.ConditionalGotoNode:conditional_goto_to_mips_visitor,
+    cil.ConditionalGotoNode: conditional_goto_to_mips_visitor,
     cil.ArgNode: arg_to_mips_visitor,
     cil.AllocateNode: allocate_to_mips_visitor,
     cil.CopyNode: copy_to_mips_visitor,
