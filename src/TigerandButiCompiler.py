@@ -678,25 +678,25 @@ if __name__=='__main__':
         ast=parser.parse(respuesta,lexer=mylex, debug=False)
     else:
         exit(1)
-        if parser.errorok:
-            semantic=Semantics_Checker()
-            semanticvalid=semantic.visit(ast,None)
-        else:
-            exit(1)
+    if parser.errorok:
+        semantic=Semantics_Checker()
+        semanticvalid=semantic.visit(ast,None)
+    else:
+        exit(1)
     # else:
     #     exit(1)
-            if semanticvalid:
-                tocil=CILTranspiler()
-                codigoCIL=tocil.visit(ast, None)
+    if semanticvalid:
+        tocil=CILTranspiler()
+        codigoCIL=tocil.visit(ast, None)
                 
-                toMIPS=MIPSCompiler()
-                instrucciones=toMIPS.visit(codigoCIL, None)
-                archivoResultado=open(sys.argv[1][:3]+'.mips',encoding='utf-8')
-                archivoResultado.write(instrucciones)
-                archivoResultado.flush()
-                archivoResultado.close()
-            else:
-                exit(1)
+        toMIPS=MIPSCompiler()
+        instrucciones=toMIPS.visit(codigoCIL, None)
+        archivoResultado=open(sys.argv[1][:3]+'.mips',encoding='utf-8')
+        archivoResultado.write(instrucciones)
+        archivoResultado.flush()
+        archivoResultado.close()
+    else:
+        exit(1)
         # else:
         #     exit(1)
 # else:
