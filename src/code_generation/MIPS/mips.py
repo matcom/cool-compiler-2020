@@ -260,8 +260,14 @@ def arg_to_mips_visitor(arg: cil.ArgNode):
     1) Allocates a 4-bytes space in stack\n
     2) Pushes the arg value in the stack\n
     '''
-    addr = CURRENT_FUNCTION.offset[str(arg.val)]
-    return [mips.Comment(str(arg)), mips.LwInstruction('$t0', f'{addr}($fp)'), mips.SubuInstruction('$sp', '$sp', 4), mips.SwInstruction('$t0', '($sp)')]
+    code= [mips.Comment(str(arg))]
+    if isinstance(arg.val, int):
+       code.append(mips.LiInstruction('$t0', arg.val))
+    else:
+        addr = CURRENT_FUNCTION.offset[str(arg.val)]
+        code.append(mips.LwInstruction('$t0', f'{addr}($fp)'))
+        
+    return code+ [mips.SubuInstruction('$sp', '$sp', 4), mips.SwInstruction('$t0', '($sp)')]
 
 
 def allocate_to_mips_visitor(allocate: cil.AllocateNode):
@@ -387,9 +393,9 @@ def minus_to_mips_visitor(minus: cil.MinusNode):
         sub $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
-    x_addr = CURRENT_FUNCTION.get_address(str(minus.result))
-    y_addr = CURRENT_FUNCTION.get_address(str(minus.left))
-    z_addr = CURRENT_FUNCTION.get_address(str(minus.right))
+    x_addr = CURRENT_FUNCTION.offset[str(minus.result)]
+    y_addr = CURRENT_FUNCTION.offset[str(minus.left)]
+    z_addr = CURRENT_FUNCTION.offset[str(minus.right)]
     instructions = [
         mips.Comment(str(minus))
     ]
@@ -530,8 +536,6 @@ def vcal_to_mips_visitor(vcall: cil.VCAllNode):
         4 - Restore the caller-saved registers.
         5 - Extract the return value, if any, from register $v0.
     """
-    CURRENT_FUNCTION.args_count = 0
-    t = get_type(vcall.type)
     instructios = []
     instructios.append(mips.Comment(str(vcall)))
     # 1
@@ -544,7 +548,7 @@ def vcal_to_mips_visitor(vcall: cil.VCAllNode):
         instructios.append(mips.SwInstruction(f'${reg}', f'{s}($sp)'))
         #instructios.extend(push_stack(f'${reg}', f'{s}($sp)'))
     # 2
-    instructios.append(mips.JalInstruction(__VT__[(vcall.type, vcall.method)]))
+    instructios.append(mips.JalInstruction(__VT__[(str(vcall.type), str(vcall.method))]))
     # 4
     s = size
     for reg in CURRENT_FUNCTION.caller_saved_reg:
@@ -564,13 +568,20 @@ def assign_to_mips_visitor(assign: cil.AssignNode):
         lw $t0, [y_addr]
         sw $t0, [x_addr]
     """
-    y_addr = CURRENT_FUNCTION.offset[str(assign.val)]
-    x_addr = CURRENT_FUNCTION[str(assign.result)]
+    
+    code=[mips.Comment(str(assign))]
+    x_addr = CURRENT_FUNCTION.offset[str(assign.result)]
+    
+        
+        
+    if isinstance(assign.val, int):
+        code.append(mips.LiInstruction('$t0', assign.val))
+    else:
+        y_addr = CURRENT_FUNCTION.offset[str(assign.val)]
+        code.append(mips.LwInstruction('$t0', f'{y_addr}($fp)'))
 
-    return [
-        mips.Comment(str(assign)),
-        mips.LwInstruction('$t0', y_addr),
-        mips.SwInstruction('$t0', x_addr)
+    return code+[
+        mips.SwInstruction('$t0', f'{x_addr}($sp)')
     ]
 
 

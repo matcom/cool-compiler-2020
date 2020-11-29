@@ -105,10 +105,17 @@ def program_to_cil_visitor(program):
     """
     main_instance = add_local('__main__')
     main_result = add_local('main_result')
-    main_function = CilAST.FuncNode('main', [], [CilAST.LocalNode('__main__'),  CilAST.LocalNode('main_result')],
-                                    [CilAST.AllocateNode('Main', main_instance),
-                                     CilAST.ArgNode(main_instance),
-                                     CilAST.VCAllNode('Main', 'main', main_result)])
+        #
+    t_data=add_str_data('Main')
+    t_local=add_local()
+    #
+    main_function = CilAST.FuncNode('main', [], [t_local,CilAST.LocalNode('__main__'),  CilAST.LocalNode('main_result')],
+                                    [
+                                        CilAST.LoadNode(t_data, t_local),
+                                        CilAST.AllocateNode('Main', main_instance),
+                                        CilAST.SetAttrNode(main_instance, '@type', t_local),
+                                        CilAST.ArgNode(main_instance),
+                                        CilAST.VCAllNode('Main', 'main', main_result)])
     built_in_code.append(main_function)
 
     # completing .CODE and .DATA sections
@@ -164,17 +171,17 @@ def copy_to_cil():
 
 def length_to_cil():
     result = CilAST.LocalNode('len_result')
-    return CilAST.FuncNode('length_String', [CilAST.ParamNode('self')], [result], [CilAST.LengthNode('self', result),   CilAST.ReturnNode(result)])
+    return CilAST.FuncNode('String_length', [CilAST.ParamNode('self')], [result], [CilAST.LengthNode('self', result),   CilAST.ReturnNode(result)])
 
 
 def concat_to_cil():
     result = CilAST.LocalNode('concat_result')
-    return CilAST.FuncNode('concat_String', [CilAST.ParamNode('self'),   CilAST.ParamNode('x')], [result], [CilAST.ConcatNode('self', 'x', result),   CilAST.ReturnNode(result)])
+    return CilAST.FuncNode('String_concat', [CilAST.ParamNode('self'),   CilAST.ParamNode('x')], [result], [CilAST.ConcatNode('self', 'x', result),   CilAST.ReturnNode(result)])
 
 
 def substring_to_cil():
     result = CilAST.LocalNode('substring_result')
-    return CilAST.FuncNode('substr_String', [CilAST.ParamNode('self'),   CilAST.ParamNode('i'),   CilAST.ParamNode('l')], [result], [CilAST.SubStringNode('self', 'i', 'l', result),   CilAST.ReturnNode(result)])
+    return CilAST.FuncNode('String_substr', [CilAST.ParamNode('self'),   CilAST.ParamNode('i'),   CilAST.ParamNode('l')], [result], [CilAST.SubStringNode('self', 'i', 'l', result),   CilAST.ReturnNode(result)])
 
 
 def func_to_cil_visitor(type_name, func):
@@ -401,12 +408,14 @@ def new_to_cil_visitor(new_node):
     #
     t_data=add_str_data(t)
     t_local=add_local()
+    size_local=add_local()
     #
     
     
     body.append(CilAST.LoadNode(t_data, t_local))
-    body.append(CilAST.SetAttrNode(value, '@type', t_data))
-    body.append(CilAST.SetAttrNode(value, '@size', (len(init_attr)+2)*4))
+    body.append(CilAST.SetAttrNode(value, '@type', t_local))
+    body.append(CilAST.AssignNode(size_local,(len(init_attr)+2)*4))
+    body.append(CilAST.SetAttrNode(value, '@size', size_local))
 
     
     for index, attr in enumerate(init_attr):
