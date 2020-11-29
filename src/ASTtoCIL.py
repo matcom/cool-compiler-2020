@@ -129,8 +129,8 @@ class CILTranspiler:
         return variable
 
     def GenerarInit(self, clase:ClassNode, scope:Scope):
-        if clase.name in ["CellularAutomaton",'"CellularAutomaton"']:
-            print("here")
+        # if clase.name in ["CellularAutomaton",'"CellularAutomaton"']:
+        #     print("here")
         instructions=[]
         if clase.parent!=None:
             dumb=self.GenerarNombreVariable(scope)
@@ -525,8 +525,8 @@ class CILTranspiler:
 
         # instructions.append(CILArgument(params=[leftInstructions[len(leftInstructions)-1].destination]))#Removido de los params: node.left_type,
         resultVariable=self.GenerarNombreVariable(scope)
-        if(node.left_type==None):
-            print()
+        # if(node.left_type==None):
+        #     print()
         if virtual:
             llamada=CILVirtualCall(resultVariable,[node.left_type,node.func_id])
         else:

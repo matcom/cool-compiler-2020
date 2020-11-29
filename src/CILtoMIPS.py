@@ -23,8 +23,8 @@ class MIPSCompiler:
     def load(self, node:CILInstructionNode,scope:ScopeMIPS, soloelprimero=False, desplazamiento=0):
         instrucciones=""
         parametro0=node.params[0]
-        if isinstance(node, CILTypeCheck):
-            print("here")
+        # if isinstance(node, CILTypeCheck):
+        #     print("here")
         if scope.methodclass != "Main.special":
             atributos=self.atributos[scope.methodclass]
         else:
@@ -128,12 +128,12 @@ class MIPSCompiler:
         elif destino in scope.registerparameters.keys():
             instrucciones+="move "+scope.registerparameters[destino]+",$t0\n"
         else:
-            print(destino)
-            print(scope.locals.keys())
-            print(scope.parameters.keys())
-            print(scope.registerparameters.keys())
-            print(nombresAtributos)
-            print(self.data.keys())
+            # print(destino)
+            # print(scope.locals.keys())
+            # print(scope.parameters.keys())
+            # print(scope.registerparameters.keys())
+            # print(nombresAtributos)
+            # print(self.data.keys())
             assert False
         return instrucciones
 
@@ -209,10 +209,10 @@ class MIPSCompiler:
 
     @visitor.when(CILGlobalMethod)
     def visit(self, node:CILGlobalMethod, scope:ScopeMIPS):
-        if node.nombre in ["f9","a2i"]:
-            print("here")
-        if scope.methodclass in ["CellularAutomaton", '"CellularAutomaton"']:
-            print("here")
+        # if node.nombre in ["f9","a2i"]:
+        #     print("here")
+        # if scope.methodclass in ["CellularAutomaton", '"CellularAutomaton"']:
+        #     print("here")
         instrucciones=""
         instrucciones+=node.nombre+": #"+node.comments+"\n"
 
@@ -252,8 +252,8 @@ class MIPSCompiler:
         # instrucciones+="sw $ra, 0($sp)\n" Al parecer sobra
 
         for i in range(len(node.intrucciones)):
-            if not isinstance(node.intrucciones[i],str):
-                print(node.intrucciones[i])
+            # if not isinstance(node.intrucciones[i],str):
+            #     print(node.intrucciones[i])
             instrucciones+=self.visit(node.intrucciones[i], scope)
             
         retorno=None
@@ -447,8 +447,8 @@ class MIPSCompiler:
     @visitor.when(CILArgument)
     def visit(self, node:CILArgument, scope:ScopeMIPS):
         instrucciones=""
-        if scope.methodname in ["main","f7"]:
-            print("este")
+        # if scope.methodname in ["main","f7"]:
+        #     print("este")
         instrucciones+=self.load(node,scope,desplazamiento=scope.paramcount*4)
         instrucciones+="#Argument "+str(node.params[0])+"\n"
         instrucciones+="addi $sp, $sp, -4\n"
