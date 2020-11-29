@@ -260,14 +260,14 @@ def arg_to_mips_visitor(arg: cil.ArgNode):
     1) Allocates a 4-bytes space in stack\n
     2) Pushes the arg value in the stack\n
     '''
-    code= [mips.Comment(str(arg))]
+    code = [mips.Comment(str(arg))]
     if isinstance(arg.val, int):
-       code.append(mips.LiInstruction('$t0', arg.val))
+        code.append(mips.LiInstruction('$t0', arg.val))
     else:
         addr = CURRENT_FUNCTION.offset[str(arg.val)]
         code.append(mips.LwInstruction('$t0', f'{addr}($fp)'))
-        
-    return code+ [mips.SubuInstruction('$sp', '$sp', 4), mips.SwInstruction('$t0', '($sp)')]
+
+    return code + [mips.SubuInstruction('$sp', '$sp', 4), mips.SwInstruction('$t0', '($sp)')]
 
 
 def allocate_to_mips_visitor(allocate: cil.AllocateNode):
@@ -541,14 +541,15 @@ def vcal_to_mips_visitor(vcall: cil.VCAllNode):
     # 1
     size = len(CURRENT_FUNCTION.caller_saved_reg) * 4
     instructios.append(mips.SubuInstruction('$sp', '$sp', size))
-    #instructios.extend(allocate_stack(size))
+    # instructios.extend(allocate_stack(size))
     s = size
     for reg in CURRENT_FUNCTION.caller_saved_reg:
         s -= 4
         instructios.append(mips.SwInstruction(f'${reg}', f'{s}($sp)'))
         #instructios.extend(push_stack(f'${reg}', f'{s}($sp)'))
     # 2
-    instructios.append(mips.JalInstruction(__VT__[(str(vcall.type), str(vcall.method))]))
+    instructios.append(mips.JalInstruction(
+        __VT__[(str(vcall.type), str(vcall.method))]))
     # 4
     s = size
     for reg in CURRENT_FUNCTION.caller_saved_reg:
@@ -556,7 +557,7 @@ def vcal_to_mips_visitor(vcall: cil.VCAllNode):
         instructios.append(mips.LwInstruction(f'${reg}', f'{s}($sp)'))
         #instructios.extend(peek_stack(f'${reg}', f'{s}($sp)'))
     instructios.append(mips.AdduInstruction('$sp', '$sp', size))
-    #instructios.extend(free_stack(size))
+    # instructios.extend(free_stack(size))
     return instructios
 
 
@@ -568,12 +569,10 @@ def assign_to_mips_visitor(assign: cil.AssignNode):
         lw $t0, [y_addr]
         sw $t0, [x_addr]
     """
-    
-    code=[mips.Comment(str(assign))]
+
+    code = [mips.Comment(str(assign))]
     x_addr = CURRENT_FUNCTION.offset[str(assign.result)]
-    
-        
-        
+
     if isinstance(assign.val, int):
         code.append(mips.LiInstruction('$t0', assign.val))
     else:
