@@ -1,0 +1,1 @@
+(35, 16) - TypeError: Inferred type B of initialization of attribute test does not conform to declared type D.

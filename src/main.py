@@ -4,6 +4,13 @@ from core.cmp.visitors import *
 from core.cmp.lex import CoolLexer
 from core.cmp.evaluation import evaluate_reverse_parse
 from core.cmp.CoolUtils import tokenize_text, CoolParser
+from core.cmp.lex import CoolLexer
+from core.cmp.evaluation import *
+from core.cmp.cil import get_formatter
+from pprint import pprint
+from core.cmp.cool_to_cil import COOLToCILVisitor
+from core.cmp.cil_to_mips import CILToMIPSVisitor
+from core.cmp.mips import PrintVisitor
 
 
 def main(args):
@@ -59,9 +66,9 @@ def main(args):
 
     # Checking types
     inferencer = InferenceVisitor(context)
-    while inferencer.visit(ast): pass
+    while inferencer.visit(ast)[0]: pass
     inferencer.errors.clear()
-    inferencer.visit(ast)
+    _, scope = inferencer.visit(ast)
     errors.extend(inferencer.errors)
 
     verifier = TypeVerifier(context)
@@ -71,12 +78,29 @@ def main(args):
             errors.append(e)
     
     if errors:
-        for (msg, token) in errors:
-            print(f"({token.row},{token.column}) - SemanticError: {msg}")
+        for (ex, token) in errors:
+            print(f"({token.row},{token.column}) - {type(ex).__name__}: {str(ex)}")
         exit(1)
     # else:
     #     print(FormatVisitor().visit(ast))
 
+    #CIL Transformation
+    cool_to_cil = COOLToCILVisitor(context)
+    cil_ast = cool_to_cil.visit(ast, scope)
+    # formatter = get_formatter()
+    # ast_cil = formatter(cil_ast)
+    # print(ast_cil)
+
+    cil_to_mips = CILToMIPSVisitor()
+    mips_ast = cil_to_mips.visit(cil_ast)
+    printer = PrintVisitor()
+    mips_code = printer.visit(mips_ast)
+
+    with open("compiled.asm", 'w') as f:
+        f.write(mips_code)
+        with open("./core/cmp/mips_lib.asm") as f2:
+            f.write("".join(f2.readlines()))
+    
     exit(0)
 
 
@@ -89,3 +113,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(args)
 
+    # test()
