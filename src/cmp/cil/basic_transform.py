@@ -1,3 +1,5 @@
+import re
+
 from typing import Union
 
 from ..cool_lang.semantics.semantic_utils import Attribute, Type
@@ -88,8 +90,11 @@ class BASE_COOL_CIL_TRANSFORM:
         return value
 
     def register_local(self, vinfo):
+        func_name = re.findall(r"^function_(.+)$", self.current_function.name)
+        if func_name: func_name = func_name[0]
+        else: func_name = self.current_function.name
         vinfo.name = (
-            f"local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}"
+            f"local_{func_name}_{vinfo.name}_{len(self.localvars)}"
         )
         local_node = LocalNode(vinfo.name)
         self.localvars.append(local_node)

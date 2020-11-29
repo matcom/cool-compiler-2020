@@ -87,10 +87,15 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     def build_attr_init(self, node: cool.ProgramNode):
         self.attr_init = dict()
         self.attr_init["IO"] = []
+        self.build_init_type_func("IO")
         self.attr_init["Object"] = []
+        self.build_init_type_func("Object")
         self.attr_init["Int"] = [cool.AttrDeclarationNode("value", None, None, 0, 0)]
+        self.build_init_type_func("Int")
         self.attr_init["Bool"] = [cool.AttrDeclarationNode("value", None, None, 0, 0)]
+        self.build_init_type_func("Bool")
         self.attr_init["String"] = [cool.AttrDeclarationNode("value", None, None, 0, 0)]
+        self.build_init_type_func("String")
         for classx in node.classes:
             self.attr_init[classx.id] = []
             if classx.parent:
@@ -98,6 +103,17 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             for feature in classx.features:
                 if type(feature) is cool.AttrDeclarationNode:
                     self.attr_init[classx.id].append(feature)
+            self.build_init_type_func(classx.id)
+
+    def build_init_type_func(self, typex):
+        self.current_type = self.context.get_type(typex)
+        self.current_function = self.register_function(f"init_{typex}")
+        result = self.define_internal_local()
+        self.register_instruction(AllocateNode(result, typex))
+        self.init_class_attr(Scope(), typex, result)
+        self.current_type = None
+        self.register_instruction(ReturnNode(result))
+        self.current_type = None
 
     @when(cool.ProgramNode)
     def visit(self, node: cool.ProgramNode = None, scope: Scope = None):  # noqa:F811
@@ -402,8 +418,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     @when(cool.NewNode)
     def visit(self, node: cool.NewNode, scope: Scope):  # noqa:F811
         result = self.define_internal_local()
-        self.register_instruction(AllocateNode(result, node.type))
-        self.init_class_attr(scope, node.type, result)
+        self.register_instruction(StaticCallNode(f"init_{node.type}", result))
         return result
 
     @when(cool.IsVoidNode)
