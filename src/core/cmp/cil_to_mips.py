@@ -422,8 +422,10 @@ class CILToMIPSVisitor:
 
         if node.value is None:
             instructions.append(mips.LoadInmediateNode(mips.V0_REG, 0))
-        elif type(node.value) == int:
+        elif isinstance(node.value, int):
             instructions.append(mips.LoadInmediateNode(mips.V0_REG, node.value))
+        elif isinstance(node.value, cil.VoidNode):
+            instructions.append(mips.LoadInmediateNode(mips.V0_REG, 0))
         else:
             #location = self.get_var_location(node.value)
             #instructions.append(mips.LoadWordNode(mips.V0_REG, location))
