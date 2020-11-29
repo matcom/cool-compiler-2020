@@ -334,8 +334,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node: cool.AssignNode, scope: Scope):  # noqa:F811
         value = self.visit(node.expression, scope)
         pvar = scope.get_var(node.id)
-        value = self.unpack_type_by_value(value, node.expression.static_type)
         if not pvar:
+            value = self.unpack_type_by_value(value, node.expression.static_type)
             selfx = scope.get_var("self").local_name
             self.register_instruction(
                 SetAttribNode(
