@@ -16,22 +16,32 @@ SELF_TYPE_INH:
 .word Object_INH
 Main_INH:
 .word IO_INH
+Int_name: .asciiz "Int"
+Int_VT:
+.word Int_INH
+Bool_name: .asciiz "Bool"
+Bool_VT:
+.word Bool_INH
+String_name: .asciiz "String"
 String_VT:
 .word String_INH
 .word String.length
 .word String.concat
 .word String.substr
+Object_name: .asciiz "Object"
 Object_VT:
 .word Object_INH
 .word Object.abort
 .word Object.type_name
 .word Object.copy
+IO_name: .asciiz "IO"
 IO_VT:
 .word IO_INH
 .word IO.out_string
 .word IO.out_int
 .word IO.in_string
 .word IO.in_int
+Main_name: .asciiz "Main"
 Main_VT:
 .word Main_INH
 .word Main.main
@@ -109,8 +119,6 @@ jr $ra
 Object.abort:
 li $v0, 10
 syscall
-
-Object.type_name:
 
 
 String.length:
@@ -233,8 +241,13 @@ sw $a0, ($sp)
 addiu $sp, $sp, 4
 lw $v0, -4($sp)
 addiu $sp, $sp, -4
-lw $ra, -4($sp)
 addiu $sp, $sp, -4
+jr $ra
+Object.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, 4
+sw $a1, ($sp)
+la $a0, Object_name
 jr $ra
 Int.Constructor:
 sw $ra, 0($sp)
@@ -244,8 +257,13 @@ sw $a0, ($sp)
 addiu $sp, $sp, 4
 lw $v0, -4($sp)
 addiu $sp, $sp, -4
-lw $ra, -4($sp)
 addiu $sp, $sp, -4
+jr $ra
+Int.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, 4
+sw $a1, ($sp)
+la $a0, Int_name
 jr $ra
 IO.Constructor:
 sw $ra, 0($sp)
@@ -255,8 +273,13 @@ sw $a0, ($sp)
 addiu $sp, $sp, 4
 lw $v0, -4($sp)
 addiu $sp, $sp, -4
-lw $ra, -4($sp)
 addiu $sp, $sp, -4
+jr $ra
+IO.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, 4
+sw $a1, ($sp)
+la $a0, IO_name
 jr $ra
 Bool.Constructor:
 sw $ra, 0($sp)
@@ -266,8 +289,13 @@ sw $a0, ($sp)
 addiu $sp, $sp, 4
 lw $v0, -4($sp)
 addiu $sp, $sp, -4
-lw $ra, -4($sp)
 addiu $sp, $sp, -4
+jr $ra
+Bool.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, 4
+sw $a1, ($sp)
+la $a0, Bool_name
 jr $ra
 String.Constructor:
 sw $ra, 0($sp)
@@ -277,8 +305,13 @@ sw $a0, ($sp)
 addiu $sp, $sp, 4
 lw $v0, -4($sp)
 addiu $sp, $sp, -4
-lw $ra, -4($sp)
 addiu $sp, $sp, -4
+jr $ra
+String.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, 4
+sw $a1, ($sp)
+la $a0, String_name
 jr $ra
 #--------------Initial Code---------------
 main:
@@ -320,8 +353,13 @@ sw $a0, ($sp)
 addiu $sp, $sp, 4
 lw $v0, -4($sp)
 addiu $sp, $sp, -4
-lw $ra, -4($sp)
 addiu $sp, $sp, -4
+jr $ra
+Main.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, 4
+sw $a1, ($sp)
+la $a0, Main_name
 jr $ra
 Main.main:
 sw $ra, 0($sp)
@@ -374,7 +412,7 @@ jal Object.Constructor
 sw $a1, ($sp)
 addiu $sp, $sp, -8
 #Dispatch in place
-#obj 2 offset 1  result Object.type_name
+#obj 4 offset 1  result Object.type_name
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
@@ -393,7 +431,7 @@ li $a0, 1
 sw $a0, ($sp)
 addiu $sp, $sp, 4
 #Dispatch in place
-#obj 4 offset 3  result String.substr
+#obj 7 offset 3  result String.substr
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
@@ -402,7 +440,7 @@ jal String.substr
 sw $a1, ($sp)
 addiu $sp, $sp, -12
 #Dispatch in place
-#obj 2 offset 6  result IO.out_string
+#obj 8 offset 12  result IO.out_string
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
@@ -422,12 +460,12 @@ sw $a0, ($sp)
 addiu $sp, $sp, 4
 #push object
 #Dispatch in place
-#obj 1 offset 1  result Object.type_name
+#obj 1 offset 1  result self.type_name
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
 sw $t1, 0($sp)
-jal Object.type_name
+jal self.type_name
 sw $a1, ($sp)
 addiu $sp, $sp, -4
 #Args: 0
@@ -441,7 +479,7 @@ li $a0, 3
 sw $a0, ($sp)
 addiu $sp, $sp, 4
 #Dispatch in place
-#obj 3 offset 3  result String.substr
+#obj 4 offset 3  result String.substr
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
@@ -450,7 +488,7 @@ jal String.substr
 sw $a1, ($sp)
 addiu $sp, $sp, -12
 #Dispatch in place
-#obj 1 offset 1  result IO.out_string
+#obj 13 offset 5  result IO.out_string
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
@@ -470,7 +508,7 @@ addiu $sp, $sp, 4
 la $a0, string_1
 sw $a0, -4($sp)
 #Dispatch in place
-#obj 2 offset 4  result IO.out_string
+#obj 2 offset 18  result IO.out_string
 move $t0, $sp
 lw $t1, 4($t0)
 addi $sp, $sp, 4
@@ -478,12 +516,11 @@ sw $t1, 0($sp)
 jal IO.out_string
 sw $a1, ($sp)
 addiu $sp, $sp, -8
-lw $a0, -8($sp)
-sw $a0, -4($sp)
+lw $a0, -4($sp)
+sw $a0, -64($sp)
 addiu $sp, $sp, -8
 lw $v0, -4($sp)
 addiu $sp, $sp, -4
-lw $ra, -4($sp)
 addiu $sp, $sp, -4
 jr $ra
 li $v0, 10

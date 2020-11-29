@@ -174,6 +174,7 @@ class MIPS:
 
     @visitor.when(VirtualTableIL)
     def visit(self, node):
+        self.data.append(node.name + "_name: .asciiz " +'"'+ node.name + '"\n')
         self.data.append(node.name + "_VT:\n")
         self.data.append(".word {}_INH\n".format(node.name))
         
@@ -195,7 +196,7 @@ class MIPS:
     def visit(self, node):
         self.code.append("lw $v0, -4($sp)\n")
         self.code.append("addiu $sp, $sp, -4\n")
-        self.code.append("lw $ra, -4($sp)\n")
+        # self.code.append("lw $ra, -4($sp)\n")
         self.code.append("addiu $sp, $sp, -4\n")
         self.code.append("jr $ra\n")
 
@@ -235,7 +236,7 @@ class MIPS:
     @visitor.when(InheritIL)
     def visit(self, node):
         self.code.append("lw $a0, {}($sp)\n".format(-4 * node.child))
-        self.code.append("la $a1, " + node.parent + "\n")
+        self.code.append("la $a1, " + node.parent + "_VT\n")
         self.code.append("la $t0, inherit\n")
         self.code.append("jalr $ra, $t0\n")
         self.code.append("sw $v0, {}($sp)\n".format(-4*node.result))
