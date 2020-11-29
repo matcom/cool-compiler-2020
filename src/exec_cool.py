@@ -7,7 +7,7 @@ from COOLToCILVisitor import *
 from CILtoMIPSVisitor import *
 import mips
 
-file = file = open(sys.argv[1], 'r')
+file = open(sys.argv[1].split("\r")[0], 'r')
 cool_lexer = CoolLexer()
 errors_lexer = cool_lexer.tokenize(file.read())
 # errors_lexer = cool_lexer.tokenize('''''')

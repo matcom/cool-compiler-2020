@@ -9,4 +9,4 @@ echo "Copyright (c) 2019: Karl Lewis Sosa Justiz, Juan David Menendez del Cueto"
 
 # Llamar al compilador
 #echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
-python3.7 exec_cool.py $INPUT_FILE
+python3 exec_cool.py $INPUT_FILE
