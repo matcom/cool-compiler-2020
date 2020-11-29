@@ -25,22 +25,6 @@ class CILToMIPSVisitor():
         self.runtime_errors = {}
         self.register_runtime_errors()
 
-    def search_var_offset(self, name):
-        for i, local in enumerate(self.current_function.localvars + self.current_function.params):
-            if local.name == name:
-                return (i + 1)*4
-
-
-    def search_attr_offset(self,type_name, attr_name):
-        for i, attr in enumerate(self.types[type_name].attributes):
-            if attr == attr_name:
-                return i * 4
-                
-    def search_method_offset(self, type_name, method_name):
-        for i, method in enumerate(self.types[type_name].methods):
-            if method == method_name:
-                return i*4
-
     def is_param(self, name):
         return name in self.current_function.params
         
