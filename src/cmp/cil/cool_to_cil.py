@@ -265,9 +265,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             else:
                 self.register_instruction(VoidNode(var_name))
         else:
-            result = self.unpack_type_by_value(result, node.expression.static_type)
             self.register_instruction(AssignNode(var_name, result))
-            var_name = self.pack_type_by_value(var_name, node.expression.static_type)
         scope.define_var(node.id, var_name)
 
     @when(cool.LetInNode)
