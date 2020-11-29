@@ -335,12 +335,6 @@ class Identifier(Expr):
         self.column = column
 
 
-# <expression> ::= SELF
-# class SELF(Identifier):
-#     def __init__(self, line, column):
-#         super(SELF, self).__init__("self", line, column)
-
-
 # <expression> ::= INTEGER
 class INTEGER(Expr):
     def __init__(self, value, line, column):
@@ -359,7 +353,6 @@ class STRING(Expr):
         self.column = column
 
 # <expression> ::= TRUE | FALSE
-
 
 class Boolean(Expr):
     def __init__(self, value, line, column):
