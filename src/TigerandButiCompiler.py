@@ -676,9 +676,13 @@ if __name__=='__main__':
     parser=yacc.yacc()
     if not LexerError:
         ast=parser.parse(respuesta,lexer=mylex, debug=False)
+    else:
+        exit(1)
         if parser.errorok:
             semantic=Semantics_Checker()
             semanticvalid=semantic.visit(ast,None)
+        else:
+            exit(1)
     # else:
     #     exit(1)
             if semanticvalid:
@@ -691,6 +695,8 @@ if __name__=='__main__':
                 archivoResultado.write(instrucciones)
                 archivoResultado.flush()
                 archivoResultado.close()
+            else:
+                exit(1)
         # else:
         #     exit(1)
 # else:
