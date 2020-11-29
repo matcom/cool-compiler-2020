@@ -301,6 +301,8 @@ class TypeBuilder:
         node.attr_type = attr_type
 
         try:
+            if node.id == 'self':
+                raise SemanticError(SELF_IS_READONLY)
             attr = self.current_type.define_attribute(node.id, attr_type)
             attr.node = node
             node.attr = attr
@@ -322,6 +324,8 @@ class TypeBuilder:
                 self.errors.append((SemanticError(INVALID_PARAMETER % (idx)), node.params[i].ttype))
                 arg_type = ErrorType()
                 
+            if idx == 'self':
+                self.errors.append((SemanticError('"self" cannot be the name of a formal parameter'), node.params[i].ttype))
             arg_names.append(idx)
             arg_types.append(arg_type)
             arg_nodes.append(arg)
@@ -339,6 +343,8 @@ class TypeBuilder:
         node.arg_nodes = arg_nodes
 
         try:
+            if node.id == 'self':
+                raise SemanticError('"self" is an invalid method name')
             method = self.current_type.define_method(node.id, arg_names, arg_types, ret_type)
             method.nodes = arg_nodes
             method.ret_node = node
@@ -527,9 +533,12 @@ class TypeChecker:
             self.errors.append((SemanticError(INVALID_BRANCH % node.id), node.ttype))
             branch_type = ErrorType()
         node.branch_type = branch_type
-
-        var = scope.define_variable(node.id, branch_type)
-        var.node = node
+        
+        if node.id == 'self':
+            self.errors.append((SemanticError(SELF_IS_READONLY), node.id))
+        else:
+            var = scope.define_variable(node.id, branch_type)
+            var.node = node
         self.visit(node.expr, scope)
         node.computed_type = node.expr.computed_type
             
@@ -567,8 +576,9 @@ class TypeChecker:
 
             if not expr_type.conforms_to(node_type): 
                 self.errors.append((TypeError(INCOMPATIBLE_TYPES % (expr_type.name, node_type.name)), node.arrow))
-
-        if correct_declaration:
+        if node.id == 'self':
+            self.errors.append((SemanticError(SELF_IS_READONLY), node.tid))
+        else:
             var = scope.define_variable(node.id, node_type)
             var.node = node
         
