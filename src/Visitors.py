@@ -13,7 +13,7 @@ class COOLClass:
         self.Methods = {}
         self.VisitedMethods = list()
         self.VisitedAtributes = list()
-        self.TagMethods = list()
+        self.TagMethods = {}
         self.Atributes = {}
         self.Tag = 0
         self.TagAtributes = list()
@@ -260,7 +260,10 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
                 ctx.getChild(i).accept(self)
                 i += 2
             methodValue = ctx.getChild(len(ctx.children) - 2).accept(self)
-            if self.join(methodType.text, methodValue) != methodType.text:
+            mType = methodType.text
+            if mType == "SELF_TYPE":
+                mType = coolClass
+            if self.join(mType, methodValue) !=mType:
                 line = str(ctx.getChild(len(ctx.children) - 2).start.line)
                 column = str(ctx.getChild(len(ctx.children) - 2).start.column + 1)
                 error =  f"({line}, {column}) - TypeError: Inferred return type {methodValue} of method {methodName} does not conform to declared return type {methodType.text}."
@@ -847,11 +850,11 @@ class TypeCOOLVisitor(ParseTreeVisitor):
         self.TypeTable["IO"].Methods["out_string"].Params.append(("x", "String"))
         self.TypeTable["IO"].Methods["out_int"] = COOLMethod("out_int", "SELF_TYPE", 1, None)
         self.TypeTable["IO"].Methods["out_int"].Params.append(("x", "Int"))
-        self.ConstantTable.append(("", "String", "str_const0"))
+        self.ConstantTable.append(("", "String", "string_const0"))
         self.ConstantTable.append((0, "Int", "int_const0"))
         self.ConstantTable.append(("false", "Bool", "bool_const0"))
         self.ConstantTable.append(("true", "Bool", "bool_const1"))
-        self.ConstantTable.append((fileName, "String", "str_const1"))
+        self.ConstantTable.append((fileName, "String", "string_const1"))
         self.ConstantTable.append((len(fileName), "Int", F"int_const{len(fileName)}"))
         self.Counter = 2
         return self.visitChildren(ctx)
@@ -934,7 +937,7 @@ class TypeCOOLVisitor(ParseTreeVisitor):
             if consName == constantName and consType == "String":
                 return self.visitChildren(ctx)
 
-        self.ConstantTable.append((constantName, "String", f"str_const{self.Counter}"))
+        self.ConstantTable.append((constantName, "String", f"string_const{self.Counter}"))
         self.Counter = self.Counter + 1
         length = len(constantName)
         for cons in self.ConstantTable:
@@ -1140,25 +1143,19 @@ class CodegenVisitor(ParseTreeVisitor):
             if constName == name and constType == "String":
                 return constLabel
 
-    def genMethodNames(self, coolClass: str, coolMethods: list, className: str):
-        if coolClass == "None":
-            return ""
-        temp = ""
-        for method in self.TypeTable[coolClass].Methods:
-            if not (coolMethods.__contains__(method)):
-                temp = temp + f"\t.word   {coolClass}.{method}\n"
-                coolMethods.append(method)
+    def genMethodNames(self, coolClass: str):
+        code = ""
+        for method in self.TypeTable[coolClass].TagMethods.values():
+                code += f"\t.word   {method}\n"
 
-        code = self.genMethodNames(self.TypeTable[coolClass].Parent, coolMethods, className)
-        return code + temp
+        return code
 
-    def genMethodTags(self, coolClass: str, coolMethods: list, className: str):
+    def genMethodTags(self, coolClass: str, coolMethods: dict):
         if coolClass == "None":
             return coolMethods
-        coolMethods = self.genMethodTags(self.TypeTable[coolClass].Parent, coolMethods, className)
+        coolMethods = self.genMethodTags(self.TypeTable[coolClass].Parent, coolMethods,)
         for method in self.TypeTable[coolClass].Methods:
-            if not (coolMethods.__contains__(method)):
-                coolMethods.append(method)
+            coolMethods[method] = f"{coolClass}.{method}"
         return coolMethods
 
     def genAtributeNames(self, coolClass: str, coolAtributes: list):
@@ -1189,7 +1186,7 @@ class CodegenVisitor(ParseTreeVisitor):
         counter = 0
         for className in self.TypeTable:
             classNameTab = classNameTab + f"\t.word   {self.findLabel(className)}\n"
-            temp = self.genMethodNames(className, list(), className)
+            temp = self.genMethodNames(className)
             class_objTab = class_objTab + \
                            f"\t.word   {className}_protObj\n" \
                            f"\t.word   {className}_init\n"
@@ -1239,7 +1236,7 @@ class CodegenVisitor(ParseTreeVisitor):
     def visitProgram(self, ctx: COOL.ProgramContext, outFilename: str):
         for className in self.TypeTable:
             constantName = className
-            self.ConstantTable.append((constantName, "String", f"str_const{self.Counter}"))
+            self.ConstantTable.append((constantName, "String", f"string_const{self.Counter}"))
             self.Counter = self.Counter + 1
             length = len(constantName)
             contain = True
@@ -1249,8 +1246,8 @@ class CodegenVisitor(ParseTreeVisitor):
                     contain = False
             if contain:
                 self.ConstantTable.append((length, "Int", f"int_const{length}"))
-            self.TypeTable[className].TagMethods = self.genMethodTags(className,list(),className)
-        self.ConstantTable.append(("SELF_TYPE", "String", f"str_const{self.Counter}"))
+            self.TypeTable[className].TagMethods = self.genMethodTags(className,{})
+        self.ConstantTable.append(("SELF_TYPE", "String", f"string_const{self.Counter}"))
         contain = True
         length = len("SELF_TYPE")
         for cons in self.ConstantTable:
@@ -1276,6 +1273,10 @@ class CodegenVisitor(ParseTreeVisitor):
             self.CurrentClass = self.TypeTable[className]
             self.CurrentType = className
             self.CurrentMethod = "None"
+            self.CurrentClass = self.TypeTable[className]
+            self.ScopeManager.addScope()
+            for atribute in self.CurrentClass.TagAtributes:
+                self.ScopeManager.addIdentifier(atribute, self.searchAtributeInfo(className, atribute))
             code = code + f"{className}_init:\n"
             temp = self.genClassAtributes(className)
             if len(temp) != 0:
@@ -1294,12 +1295,13 @@ class CodegenVisitor(ParseTreeVisitor):
                        "\tlw     $ra 4($sp)\n" \
                        "\taddiu  $sp $sp 12\n"
             code = code + "\tjr     $ra\n"
+            self.ScopeManager.deleteScope()
         for className in self.TypeTable:
             if not(className == "Object" or className == "String" or className == "Int" or className == "Bool" or className == "IO"):
                 self.CurrentClass = self.TypeTable[className]
                 self.ScopeManager.addScope()
                 for atribute in self.CurrentClass.TagAtributes:
-                    self.ScopeManager.addIdentifier(atribute,self.searchAtributeInfo(className, atribute))
+                    self.ScopeManager.addIdentifier(atribute, self.searchAtributeInfo(className, atribute))
                 for methodName in self.CurrentClass.Methods:
                     self.CurrentMethod = self.CurrentClass.Methods[methodName]
                     self.CurrentType = self.CurrentMethod.Type
@@ -1430,17 +1432,18 @@ class CodegenVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by COOL#while.
     def visitWhile(self, ctx: COOL.WhileContext):
-        code = f"while_label{self.Counter}:\n"
+        labelCounter = self.Counter
+        self.Counter += 1
+        code = f"while_label{labelCounter}:\n"
         code += ctx.getChild(1).accept(self)
         code += "\tlw     $t1 12($a0)\n" + \
-               f"\tbgtz   $t1 loop_label{self.Counter}\n" + \
-               f"\tb      pool_label{self.Counter}\n" + \
-               f"loop_label{self.Counter}:\n"
+               f"\tbgtz   $t1 loop_label{labelCounter}\n" + \
+               f"\tb      pool_label{labelCounter}\n" + \
+               f"loop_label{labelCounter}:\n"
         code += ctx.getChild(3).accept(self)
-        code += f"\tb      while_label{self.Counter}\n" + \
-                f"pool_label{self.Counter}:\n"
+        code += f"\tb      while_label{labelCounter}\n" + \
+                f"pool_label{labelCounter}:\n"
         self.CurrentType = "None"
-        self.Counter += 1
         return code
 
     # Visit a parse tree produced by COOL#division.
@@ -1469,21 +1472,19 @@ class CodegenVisitor(ParseTreeVisitor):
             "\tjal    Object.copy\n" \
             "\tlw     $t1 12($a0)\n" \
             "\tnegu   $t1 $t1\n" \
-            "\tsw     $t1 12($a0)\n" \
-            "\tsw     $a0 0($sp)\n"
+            "\tsw     $t1 12($a0)\n"
         return code
 
     # Visit a parse tree produced by COOL#boolNot.
     def visitBoolNot(self, ctx: COOL.BoolNotContext):
-        self.CurrentType = "Bool"
         code = ctx.getChild(1).accept(self)
         code += \
             "\tjal    Object.copy\n" \
             "\tlw     $t1 12($a0)\n" \
             "\tnegu   $t2 $t1\n" \
-            "\taddiu  $t3 $t2 1\n"\
-            "\tsw     $t3 12($a0)\n" \
-            "\tsw     $a0 0($sp)\n"
+            "\taddiu  $t1 $t2 1\n" \
+            "\tsw     $t1 12($a0)\n"
+        self.CurrentType = "Bool"
         return code
 
     # Visit a parse tree produced by COOL#lessThan.
@@ -1521,10 +1522,10 @@ class CodegenVisitor(ParseTreeVisitor):
         varName = ctx.getChild(0).symbol.text
         if varName == "self":
             self.CurrentType = self.CurrentClass.Name
-            return "\tlw     $a0 ($s0)\n"
+            return "\tmove   $a0 $s0\n"
         self.CurrentType = self.ScopeManager.searchType(varName)
         option = self.ScopeManager.searchIdentifier(varName)
-        if option == 0 and self.CurrentMethod != "None":
+        if option == 0:
             return self.propertyId(ctx)
         elif option == 1 and self.CurrentMethod != "None":
             return self.formalId(ctx)
@@ -1588,6 +1589,8 @@ class CodegenVisitor(ParseTreeVisitor):
                ctx.getChild(3).accept(self) + \
                f"\tb      fi_label{counter}\n" + \
                f"else_label{counter}:\n"
+        if self.CurrentType == "SELF_TYPE":
+            self.CurrentType = self.CurrentClass.Name
         tempType = self.CurrentType
         code = code +\
                ctx.getChild(5).accept(self) + \
@@ -1614,6 +1617,8 @@ class CodegenVisitor(ParseTreeVisitor):
             count = count + 2
             self.ScopeManager.addScope()
             self.ScopeManager.addIdentifier(idName, idType)
+            if idType == "Object":
+                code += f"\tb      {idType}_case{counter}\n"
             code += \
                 f"\tlw     $t1 0($a0)\n" \
                 f"\tli     $t2 {self.TypeTable[idType].Tag}\n" \
@@ -1650,7 +1655,7 @@ class CodegenVisitor(ParseTreeVisitor):
                        f"\tsw     $a0 0($sp)\n" \
                        f"\taddiu  $sp $sp -4\n"
                 count = count + 2
-        methodIdx = self.CurrentClass.TagMethods.index(ctx.getChild(0).symbol.text)
+        methodIdx = list(self.CurrentClass.TagMethods).index(ctx.getChild(0).symbol.text)
         self.CurrentType = self.searchMethodInfo(self.CurrentClass.Name, ctx.getChild(0).symbol.text)
         code += "\tmove   $a0 $s0\n" \
                 "\tlw     $t1 8($a0)\n" \
@@ -1690,7 +1695,7 @@ class CodegenVisitor(ParseTreeVisitor):
     def visitAssignment(self, ctx: COOL.AssignmentContext):
         varName = ctx.getChild(0).symbol.text
         option = self.ScopeManager.searchIdentifier(varName)
-        if option == 0 and self.CurrentMethod != "None":
+        if option == 0:
             return self.propertyAssignament(ctx)
         elif option == 1 and self.CurrentMethod != "None":
             return self.formalAssignament(ctx)
@@ -1710,7 +1715,7 @@ class CodegenVisitor(ParseTreeVisitor):
         varType = self.ScopeManager.Stack[1][varName]
         pos = self.CurrentMethod.Params.index((varName, varType))
         total = self.CurrentMethod.ParamsNumber
-        code = code + f"\tsw     $a0 {(pos - (total + 2)) * 4}($fp)\n"
+        code = code + f"\tsw     $a0 {((total + 2) - pos) * 4}($fp)\n"
         return code
 
     def variableAssignament(self, ctx: COOL.AssignmentContext):
@@ -1750,10 +1755,15 @@ class CodegenVisitor(ParseTreeVisitor):
         code += \
             "\tmove    $t2 $a0\n" \
             "\tlw     $t1 4($sp)\n" \
-            "\taddiu  $sp $sp 4\n" \
+            "\taddiu  $sp $sp 4\n"\
             "\tla     $a0 bool_const1\n" \
-            "\tla     $a1 bool_const0\n" \
-            "\tjal    equality_test\n"
+            "\tla     $a1 bool_const0\n"
+        if self.CurrentType == "String" or self.CurrentType == "Int" or self.CurrentType == "Bool":
+            code += "\tjal    equality_test\n"
+        else:
+            code += \
+                "\tsub    $t3 $t2 $t1\n"\
+                "\tmovn   $a0 $a1 $t3\n"
         self.CurrentType = "Bool"
         return code
 
@@ -1790,6 +1800,8 @@ class CodegenVisitor(ParseTreeVisitor):
         methodPos = 2
         objCode = ctx.getChild(0).accept(self)
         code = ""
+        if self.CurrentType == "SELF_TYPE":
+            self.CurrentType = self.CurrentClass.Name
         classId = self.CurrentType
         if ctx.getChild(1).symbol.text == "@":
             length += 2
@@ -1804,12 +1816,18 @@ class CodegenVisitor(ParseTreeVisitor):
                         f"\tsw     $a0 0($sp)\n" \
                         f"\taddiu  $sp $sp -4\n"
                 count = count + 2
-        methodIdx = self.TypeTable[classId].TagMethods.index(ctx.getChild(methodPos).symbol.text)
+        methodIdx = list(self.TypeTable[classId].TagMethods).index(ctx.getChild(methodPos).symbol.text)
         self.CurrentType = self.searchMethodInfo(classId, ctx.getChild(methodPos).symbol.text)
-        code += objCode + \
-                "\tlw     $t1 8($a0)\n" \
-                f"\tlw     $t1 {methodIdx * 4}($t1)\n" \
-                "\tjalr   $t1\n"
+        if ctx.getChild(1).symbol.text == "@":
+            code += objCode + \
+                    f"\tla     $t1 {classId}_dispTab\n" \
+                    f"\tlw     $t1 {methodIdx * 4}($t1)\n" \
+                    "\tjalr   $t1\n"
+        else:
+            code += objCode + \
+                    f"\tlw     $t1 8($a0)\n" \
+                    f"\tlw     $t1 {methodIdx * 4}($t1)\n" \
+                    "\tjalr   $t1\n"
         return code
 
     RuntimeMessages = """
