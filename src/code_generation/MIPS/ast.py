@@ -53,10 +53,6 @@ class Recipient:
         return self.register
 
 
-LOCATION_REG = 'register'
-LCOATION_ADDR = 'address'
-
-
 class MIPSFunction:
     def __init__(self, name, params, locals):
         self.name = name

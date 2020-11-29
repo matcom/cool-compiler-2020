@@ -33,7 +33,7 @@ def program_to_mips_visitor(program: cil.ProgramNode):
 
     # Build .data section
     # vt_space_code = reserve_virtual_tables_space(program)
-    __DATA__ = [mips.MIPSDataItem(d.id, mips.AsciizInst(d.val))
+    __DATA__ = [mips.MIPSDataItem(d.id, mips.AsciizInst(f'"{d.val}"'))
                 for d in program.data]
     data_section = mips.MIPSDataSection(__DATA__)
 
@@ -104,7 +104,7 @@ def print_to_mips_visitor(p: cil.PrintNode):
 
     offset = CURRENT_FUNCTION.offset[str(p.str)]
     code = [mips.Comment(str(p)),
-            mips.LwInstruction('$a0', f'{offset}(fp)')]
+            mips.LwInstruction('$a0', f'{offset}($fp)')]
     if p.str == 'int':
         code.append(mips.LiInstruction('$v0', 1))  # li    $v0, 1
     elif p.str == 'str':
@@ -250,7 +250,7 @@ def load_to_mips_visitor(load: cil.LoadNode):
     return [
         mips.Comment(str(load)),
         mips.LaInstruction('$t0', load.addr),
-        mips.SwInstruction('$t0', f'{offset}($sp)')
+        mips.SwInstruction('$t0', f'{offset}($fp)')
     ]
 
 
@@ -536,19 +536,23 @@ def vcal_to_mips_visitor(vcall: cil.VCAllNode):
     instructios.append(mips.Comment(str(vcall)))
     # 1
     size = len(CURRENT_FUNCTION.caller_saved_reg) * 4
-    instructios.extend(allocate_stack(size))
+    instructios.append(mips.SubuInstruction('$sp', '$sp', size))
+    #instructios.extend(allocate_stack(size))
     s = size
     for reg in CURRENT_FUNCTION.caller_saved_reg:
         s -= 4
-        instructios.extend(push_stack(f'${reg}', f'{s}($sp)'))
+        instructios.append(mips.SwInstruction(f'${reg}', f'{s}($sp)'))
+        #instructios.extend(push_stack(f'${reg}', f'{s}($sp)'))
     # 2
     instructios.append(mips.JalInstruction(__VT__[(vcall.type, vcall.method)]))
     # 4
     s = size
     for reg in CURRENT_FUNCTION.caller_saved_reg:
         s -= 4
-        instructios.extend(peek_stack(f'${reg}', f'{s}($sp)'))
-    instructios.extend(free_stack(size))
+        instructios.append(mips.LwInstruction(f'${reg}', f'{s}($sp)'))
+        #instructios.extend(peek_stack(f'${reg}', f'{s}($sp)'))
+    instructios.append(mips.AdduInstruction('$sp', '$sp', size))
+    #instructios.extend(free_stack(size))
     return instructios
 
 
@@ -575,7 +579,7 @@ def copy_to_mips_visitor(copy: cil.CopyNode):
     y_addr = CURRENT_FUNCTION.offset[str(copy.result)]
     return [
         mips.Comment(str(copy)),
-        mips.LwInstruction('$a0', f'{x_addr+8}($fp)', x_addr+8),
+        mips.LwInstruction('$a0', f'{x_addr+8}($fp)'),
         mips.LiInstruction('$v0', 9),
         mips.SyscallInstruction(),
         mips.SwInstruction('$v0', f'{y_addr}($fp)'),
