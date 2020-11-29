@@ -26,7 +26,7 @@ def run_pipeline(input_, outpt):
                 print(err)
             raise Exception()
         else:
-            mips_code = codegen_pipeline(context, ast, scope, debug=True)
+            mips_code = codegen_pipeline(context, ast, scope, debug=False)
             with open(outpt, 'w+') as f:
                 f.write(mips_code)
 
@@ -39,5 +39,5 @@ if __name__ == "__main__":
     output_ = sys.argv[2]
     # print(input_)
     # input_ = f'test.cl' 
-    # output_ = 'test.asm'
+    # output_ = 'test.mips'
     run_pipeline(input_, output_)

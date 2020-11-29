@@ -308,11 +308,13 @@ class ReadIntNode(InstructionNode):
         self.out = dest
 
 class ExitNode(InstructionNode):
-    def __init__(self, value=0, idx=None):
+    def __init__(self, classx, value=0, idx=None):
         super().__init__(idx)
+        self.classx = classx        # instance of the method that called the class
         self.value = value
 
         self.in1 = value
+        self.in2 = classx
 
 class CopyNode(InstructionNode):
     def __init__(self, dest, source, idx=None):

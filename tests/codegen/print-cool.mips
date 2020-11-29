@@ -113,8 +113,14 @@ la $t9, function_type_name_Bool
 sw $t9, 60($v0)
 la $t9, function_copy_Bool
 sw $t9, 64($v0)
-la $t9, function_main_Main
+la $t9, function_abort_String
 sw $t9, 68($v0)
+la $t9, function_abort_Int
+sw $t9, 72($v0)
+la $t9, function_abort_Bool
+sw $t9, 76($v0)
+la $t9, function_main_Main
+sw $t9, 80($v0)
 
 entry:
 # Gets the params from the stack
@@ -172,7 +178,7 @@ lw $t9, 24($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 28($v0)
 # Save the direction of the method function_main_Main in t9
-lw $t9, 68($t8)
+lw $t9, 80($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 32($v0)
 sw $v0, 8($t0)
@@ -227,8 +233,15 @@ move $t1, $t0
 sw $t1, -4($fp)
 # Exiting the program
 li $t8, 0
-li $v0, 1
-li $a0, 1
+# Printing abort message
+li $v0, 4
+la $a0, abort_msg
+syscall
+li $v0, 4
+lw $a0, 0($t0)
+syscall
+li $v0, 4
+la $a0, new_line
 syscall
 li $v0, 17
 move $a0, $t8
@@ -401,7 +414,7 @@ move $t0, $v0
 # Putting buffer in a0
 move $a0, $t0
 # Putting length of string in a1
-li $a1, 20
+li $a1, 356
 li $v0, 8
 syscall
 # Walks to eliminate the newline
@@ -757,6 +770,72 @@ addiu $sp, $sp, 8
 jr $ra
 
 
+function_abort_String:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_abort_String_msg_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# Saves in self string_abort
+la $t0, string_abort
+# Printing a string
+li $v0, 4
+move $a0, $t0
+syscall
+# Exiting the program
+li $t8, 0
+li $v0, 17
+move $a0, $t8
+syscall
+sw $t0, -0($fp)
+
+function_abort_Int:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_abort_Int_msg_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# Saves in self int_abort
+la $t0, int_abort
+# Printing a string
+li $v0, 4
+move $a0, $t0
+syscall
+# Exiting the program
+li $t8, 0
+li $v0, 17
+move $a0, $t8
+syscall
+sw $t0, -0($fp)
+
+function_abort_Bool:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_abort_Bool_msg_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# Saves in self bool_abort
+la $t0, bool_abort
+# Printing a string
+li $v0, 4
+move $a0, $t0
+syscall
+# Exiting the program
+li $t8, 0
+li $v0, 17
+move $a0, $t8
+syscall
+sw $t0, -0($fp)
+
 function_main_Main:
 # Gets the params from the stack
 move $fp, $sp
@@ -769,16 +848,66 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_2 to the stack
 addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_3 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_4 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_5 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_6 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_7 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_8 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_9 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_10 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_11 to the stack
+addiu $sp, $sp, -4
 lw $t0, -4($fp)
-# local_main_Main_internal_0 <- 34 / 10
-li $t0, 3
-lw $t1, -0($fp)
-lw $t2, -8($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 12
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Object
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 12
+sw $t9, 4($v0)
+move $t0, $v0
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 16
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $t8, methods
+# Save the direction of the method function_abort_Object in t9
+lw $t9, 4($t8)
+# Save the direction of the method in his position in the dispatch table
+sw $t9, 4($v0)
+# Save the direction of the method function_type_name_Object in t9
+lw $t9, 8($t8)
+# Save the direction of the method in his position in the dispatch table
+sw $t9, 8($v0)
+# Save the direction of the method function_copy_Object in t9
+lw $t9, 12($t8)
+# Save the direction of the method in his position in the dispatch table
+sw $t9, 12($v0)
+sw $v0, 8($t0)
+# Adding Type Info addr
+la $t8, types
+lw $v0, 8($t8)
+sw $v0, 12($t0)
+lw $t1, -8($fp)
 # Find the actual name in the dispatch table
 # Gets in t9 the actual direction of the dispatch table
-lw $t9, 8($t1)
-# Saves in t8 the direction of function_out_int_IO
-lw $t8, 20($t9)
+lw $t9, 8($t0)
+# Saves in t8 the direction of function_type_name_Object
+lw $t8, 8($t9)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -787,13 +916,9 @@ addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
 sw $t0, ($sp)
 addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-sw $t1, ($sp)
-addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
 sw $t0, -4($fp)
-sw $t1, -0($fp)
-sw $t2, -8($fp)
+sw $t1, -8($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -806,15 +931,237 @@ lw $t0, -8($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -12($fp)
-# Moving local_main_Main_internal_1 to local_main_Main_internal_2
-move $t1, $t0
-sw $t1, -12($fp)
-move $v0, $t1
+# Static Dispatch of the method substr
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+li $t9, 1
+sw $t9, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+li $t9, 4
+sw $t9, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
 sw $t0, -8($fp)
 sw $t1, -12($fp)
+# This function will consume the arguments
+jal function_substr_String
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -12($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -0($fp)
+lw $t2, -16($fp)
+# Find the actual name in the dispatch table
+# Gets in t9 the actual direction of the dispatch table
+lw $t9, 8($t1)
+# Saves in t8 the direction of function_out_string_IO
+lw $t8, 16($t9)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -12($fp)
+sw $t1, -0($fp)
+sw $t2, -16($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -16($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -0($fp)
+lw $t2, -20($fp)
+# local_main_Main_internal_4 <- Type of self
+lw $t2, 0($t1)
+lw $t3, -24($fp)
+# Saves in local_main_Main_internal_5 data_0
+la $t3, data_0
+# local_main_Main_internal_4 <- local_main_Main_internal_4 = local_main_Main_internal_5
+move $t8, $t2
+move $t9, $t3
+loop_7:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_7
+beqz $a1, mismatch_7
+seq $v0, $a0, $a1
+beqz $v0, mismatch_7
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_7
+mismatch_7:
+li $v0, 0
+j end_7
+check_7:
+bnez $a1, mismatch_7
+li $v0, 1
+end_7:
+move $t2, $v0
+lw $t4, -28($fp)
+# Static Dispatch of the method type_name
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -16($fp)
+sw $t1, -0($fp)
+sw $t2, -20($fp)
+sw $t3, -24($fp)
+sw $t4, -28($fp)
+# This function will consume the arguments
+jal function_type_name_Bool
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -28($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -32($fp)
+# Static Dispatch of the method substr
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+li $t9, 3
+sw $t9, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+li $t9, 1
+sw $t9, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -28($fp)
+sw $t1, -32($fp)
+# This function will consume the arguments
+jal function_substr_String
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -32($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -16($fp)
+lw $t2, -36($fp)
+# Find the actual name in the dispatch table
+# Gets in t9 the actual direction of the dispatch table
+lw $t9, 8($t1)
+# Saves in t8 the direction of function_out_string_IO
+lw $t8, 16($t9)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -32($fp)
+sw $t1, -16($fp)
+sw $t2, -36($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -36($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -40($fp)
+# Saves in local_main_Main_internal_9 data_1
+la $t1, data_1
+lw $t2, -0($fp)
+lw $t3, -44($fp)
+# Find the actual name in the dispatch table
+# Gets in t9 the actual direction of the dispatch table
+lw $t9, 8($t2)
+# Saves in t8 the direction of function_out_string_IO
+lw $t8, 16($t9)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -36($fp)
+sw $t1, -40($fp)
+sw $t2, -0($fp)
+sw $t3, -44($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -44($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -48($fp)
+# Moving local_main_Main_internal_10 to local_main_Main_internal_11
+move $t1, $t0
+sw $t1, -48($fp)
+move $v0, $t1
+# Empty all used registers and saves them to memory
+sw $t0, -44($fp)
+sw $t1, -48($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 16
+addiu $sp, $sp, 52
 jr $ra
 
 # Raise exception method
@@ -826,6 +1173,15 @@ li $a0, 1
 syscall
 
 .data
+abort_msg: .asciiz "Abort called from class "
+new_line: .asciiz "
+"
+string_abort: .asciiz "Abort called from class String
+"
+int_abort: .asciiz "Abort called from class Int
+"
+bool_abort: .asciiz "Abort called from class Bool
+"
 type_Object: .asciiz "Object"
 type_IO: .asciiz "IO"
 type_String: .asciiz "String"
@@ -835,7 +1191,9 @@ type_Main: .asciiz "Main"
 type_Void: .asciiz "Void"
 types: .word 0, 0, 0, 0, 0, 0
 data_0: .asciiz "Void"
-methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+data_1: .asciiz "
+"
+methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 zero_error: .asciiz "Division by zero error
 "
 case_void_error: .asciiz "Case on void error

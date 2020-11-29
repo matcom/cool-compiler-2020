@@ -18,6 +18,7 @@ class BaseCILToMIPSVisitor:
         self.dispatch_table: DispatchTable = DispatchTable()
         self.obj_table: ObjTable = ObjTable(self.dispatch_table)
         self.initialize_methods()
+        self.load_abort_messages()
         # Will hold the type of any of the vars
         self.var_address = {'self': AddrType.REF}
        
@@ -55,14 +56,15 @@ class BaseCILToMIPSVisitor:
         self.data_code.append('case_error: .asciiz \"Case statement without a matching branch error\n\"'  )
         self.data_code.append('index_error: .asciiz \"Substring out of range error\n\"')
         self.data_code.append('heap_error: .asciiz \"Heap overflow error\n\"')    # no idea how to check for this
-   
-    # def initialize_built_in_types(self):
-    #     self.data_code.append(f"type_String: .asciiz \"String\"")     # guarda el nombre de la variable en la memoria            
-    #     self.data_code.append(f"type_Int: .asciiz \"Int\"")     # guarda el nombre de la variable en la memoria            
-    #     self.data_code.append(f"type_Bool: .asciiz \"Bool\"")     # guarda el nombre de la variable en la memoria            
-    #     self.data_code.append(f"type_Object: .asciiz \"Object\"")     # guarda el nombre de la variable en la memoria            
-    #     self.data_code.append(f"type_IO: .asciiz \"IO\"")     # guarda el nombre de la variable en la memoria            
-        
+
+
+    def load_abort_messages(self):
+        self.data_code.append("abort_msg: .asciiz \"Abort called from class \"")     # guarda el nombre de Void Type                    
+        self.data_code.append(f"new_line: .asciiz \"\n\"")     # guarda el nombre de Void Type                    
+        self.data_code.append('string_abort: .asciiz \"Abort called from class String\n\"')
+        self.data_code.append('int_abort: .asciiz \"Abort called from class Int\n\"')
+        self.data_code.append('bool_abort: .asciiz \"Abort called from class Bool\n\"')
+
 
     def get_basic_blocks(self, instructions: List[InstructionNode]):
         leaders = self.find_leaders(instructions)
@@ -414,14 +416,3 @@ class BaseCILToMIPSVisitor:
         self.code.append(f'li ${rdest}, 0')
         self.code.append(f'end_{loop_idx}:')
         self.loop_idx += 1
-
-    def create_new_space(self, obj):
-        self.code.append("# Loading new space and pushing it to the stack")
-        label_name = f'{obj}_{self.space_idx}'
-        self.data_code.append(f'{label_name}: .space 536')
-        self.get_reg_var(obj)
-        reg = self.addr_desc.get_var_reg(obj)
-        self.code.append(f'la ${reg}, {label_name}')
-        self.code.append(f'sw ${reg}, ($sp)')
-        self.code.append('addiu $sp, $sp, -4')
-        self.space_idx += 1

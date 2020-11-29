@@ -40,8 +40,6 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         for type_ in node.dottypes:
             self.visit(type_)
         self.data_code.append(f"type_Void: .asciiz \"Void\"")     # guarda el nombre de Void Type                    
-        self.data_code.append("abort_msj: .asciiz \"Abort called from class \"")     # guarda el nombre de Void Type                    
-        self.data_code.append(f"new_line: .asciiz \"\n\"")     # guarda el nombre de Void Type                    
         # guardo las direcciones de cada tipo
         self.save_types_addr(node.dottypes)
         # visit DataNodes
@@ -708,11 +706,22 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
             reg = 't8'
             self.code.append(f'li $t8, {node.value}')
 
-        'Abort called from class String'
+        rself = self.addr_desc.get_var_reg(node.classx)
         
-        # self.code.append('li $v0, 1')
-        # self.code.append('li $a0, 1')
-        # self.code.append('syscall')
+        'Abort called from class String'
+        if self.var_address[node.classx] == AddrType.REF: 
+            self.code.append('# Printing abort message')
+            self.code.append('li $v0, 4')
+            self.code.append(f'la $a0, abort_msg')
+            self.code.append('syscall')
+
+            self.code.append('li $v0, 4')
+            self.code.append(f'lw $a0, 0(${rself})')
+            self.code.append('syscall')    
+            self.code.append('li $v0, 4')
+            self.code.append(f'la $a0, new_line')
+            self.code.append('syscall')
+            
         self.code.append('li $v0, 17')
         self.code.append(f'move $a0, ${reg}')
         self.code.append('syscall')

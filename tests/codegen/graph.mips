@@ -221,102 +221,108 @@ la $t9, function_type_name_Bool
 sw $t9, 60($v0)
 la $t9, function_copy_Bool
 sw $t9, 64($v0)
-la $t9, function_Graph_Graph
+la $t9, function_abort_String
 sw $t9, 68($v0)
-la $t9, function_add_vertice_Graph
+la $t9, function_abort_Int
 sw $t9, 72($v0)
-la $t9, function_print_E_Graph
+la $t9, function_abort_Bool
 sw $t9, 76($v0)
-la $t9, function_print_V_Graph
+la $t9, function_Graph_Graph
 sw $t9, 80($v0)
-la $t9, function_Vertice_Vertice
+la $t9, function_add_vertice_Graph
 sw $t9, 84($v0)
-la $t9, function_outgoing_Vertice
+la $t9, function_print_E_Graph
 sw $t9, 88($v0)
-la $t9, function_number_Vertice
+la $t9, function_print_V_Graph
 sw $t9, 92($v0)
-la $t9, function_init_Vertice
+la $t9, function_Vertice_Vertice
 sw $t9, 96($v0)
-la $t9, function_add_out_Vertice
+la $t9, function_outgoing_Vertice
 sw $t9, 100($v0)
-la $t9, function_print_Vertice
+la $t9, function_number_Vertice
 sw $t9, 104($v0)
-la $t9, function_Edge_Edge
+la $t9, function_init_Vertice
 sw $t9, 108($v0)
-la $t9, function_init_Edge
+la $t9, function_add_out_Vertice
 sw $t9, 112($v0)
-la $t9, function_print_Edge
+la $t9, function_print_Vertice
 sw $t9, 116($v0)
-la $t9, function_EList_EList
+la $t9, function_Edge_Edge
 sw $t9, 120($v0)
-la $t9, function_isNil_EList
+la $t9, function_init_Edge
 sw $t9, 124($v0)
-la $t9, function_head_EList
+la $t9, function_print_Edge
 sw $t9, 128($v0)
-la $t9, function_tail_EList
+la $t9, function_EList_EList
 sw $t9, 132($v0)
-la $t9, function_cons_EList
+la $t9, function_isNil_EList
 sw $t9, 136($v0)
-la $t9, function_append_EList
+la $t9, function_head_EList
 sw $t9, 140($v0)
-la $t9, function_print_EList
+la $t9, function_tail_EList
 sw $t9, 144($v0)
-la $t9, function_ECons_ECons
+la $t9, function_cons_EList
 sw $t9, 148($v0)
-la $t9, function_isNil_ECons
+la $t9, function_append_EList
 sw $t9, 152($v0)
-la $t9, function_head_ECons
+la $t9, function_print_EList
 sw $t9, 156($v0)
-la $t9, function_tail_ECons
+la $t9, function_ECons_ECons
 sw $t9, 160($v0)
-la $t9, function_init_ECons
+la $t9, function_isNil_ECons
 sw $t9, 164($v0)
-la $t9, function_print_ECons
+la $t9, function_head_ECons
 sw $t9, 168($v0)
-la $t9, function_VList_VList
+la $t9, function_tail_ECons
 sw $t9, 172($v0)
-la $t9, function_isNil_VList
+la $t9, function_init_ECons
 sw $t9, 176($v0)
-la $t9, function_head_VList
+la $t9, function_print_ECons
 sw $t9, 180($v0)
-la $t9, function_tail_VList
+la $t9, function_VList_VList
 sw $t9, 184($v0)
-la $t9, function_cons_VList
+la $t9, function_isNil_VList
 sw $t9, 188($v0)
-la $t9, function_print_VList
+la $t9, function_head_VList
 sw $t9, 192($v0)
-la $t9, function_VCons_VCons
+la $t9, function_tail_VList
 sw $t9, 196($v0)
-la $t9, function_isNil_VCons
+la $t9, function_cons_VList
 sw $t9, 200($v0)
-la $t9, function_head_VCons
+la $t9, function_print_VList
 sw $t9, 204($v0)
-la $t9, function_tail_VCons
+la $t9, function_VCons_VCons
 sw $t9, 208($v0)
-la $t9, function_init_VCons
+la $t9, function_isNil_VCons
 sw $t9, 212($v0)
-la $t9, function_print_VCons
+la $t9, function_head_VCons
 sw $t9, 216($v0)
-la $t9, function_Parse_Parse
+la $t9, function_tail_VCons
 sw $t9, 220($v0)
-la $t9, function_read_input_Parse
+la $t9, function_init_VCons
 sw $t9, 224($v0)
-la $t9, function_parse_line_Parse
+la $t9, function_print_VCons
 sw $t9, 228($v0)
-la $t9, function_c2i_Parse
+la $t9, function_Parse_Parse
 sw $t9, 232($v0)
-la $t9, function_a2i_Parse
+la $t9, function_read_input_Parse
 sw $t9, 236($v0)
-la $t9, function_a2i_aux_Parse
+la $t9, function_parse_line_Parse
 sw $t9, 240($v0)
-la $t9, function_Main_Main
+la $t9, function_c2i_Parse
 sw $t9, 244($v0)
-la $t9, function_main_Main
+la $t9, function_a2i_Parse
 sw $t9, 248($v0)
-la $t9, function_and_BoolOp
+la $t9, function_a2i_aux_Parse
 sw $t9, 252($v0)
-la $t9, function_or_BoolOp
+la $t9, function_Main_Main
 sw $t9, 256($v0)
+la $t9, function_main_Main
+sw $t9, 260($v0)
+la $t9, function_and_BoolOp
+sw $t9, 264($v0)
+la $t9, function_or_BoolOp
+sw $t9, 268($v0)
 
 entry:
 # Gets the params from the stack
@@ -374,35 +380,35 @@ lw $t9, 24($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 28($v0)
 # Save the direction of the method function_read_input_Parse in t9
-lw $t9, 224($t8)
+lw $t9, 236($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 32($v0)
 # Save the direction of the method function_parse_line_Parse in t9
-lw $t9, 228($t8)
+lw $t9, 240($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 36($v0)
 # Save the direction of the method function_c2i_Parse in t9
-lw $t9, 232($t8)
+lw $t9, 244($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 40($v0)
 # Save the direction of the method function_a2i_Parse in t9
-lw $t9, 236($t8)
+lw $t9, 248($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 44($v0)
 # Save the direction of the method function_a2i_aux_Parse in t9
-lw $t9, 240($t8)
+lw $t9, 252($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 48($v0)
 # Save the direction of the method function_Parse_Parse in t9
-lw $t9, 220($t8)
+lw $t9, 232($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 52($v0)
 # Save the direction of the method function_main_Main in t9
-lw $t9, 248($t8)
+lw $t9, 260($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 56($v0)
 # Save the direction of the method function_Main_Main in t9
-lw $t9, 244($t8)
+lw $t9, 256($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 60($v0)
 sw $v0, 8($t0)
@@ -477,6 +483,16 @@ move $t1, $t0
 sw $t1, -4($fp)
 # Exiting the program
 li $t8, 0
+# Printing abort message
+li $v0, 4
+la $a0, abort_msg
+syscall
+li $v0, 4
+lw $a0, 0($t0)
+syscall
+li $v0, 4
+la $a0, new_line
+syscall
 li $v0, 17
 move $a0, $t8
 syscall
@@ -648,7 +664,7 @@ move $t0, $v0
 # Putting buffer in a0
 move $a0, $t0
 # Putting length of string in a1
-li $a1, 20
+li $a1, 356
 li $v0, 8
 syscall
 # Walks to eliminate the newline
@@ -1004,6 +1020,72 @@ addiu $sp, $sp, 8
 jr $ra
 
 
+function_abort_String:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_abort_String_msg_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# Saves in self string_abort
+la $t0, string_abort
+# Printing a string
+li $v0, 4
+move $a0, $t0
+syscall
+# Exiting the program
+li $t8, 0
+li $v0, 17
+move $a0, $t8
+syscall
+sw $t0, -0($fp)
+
+function_abort_Int:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_abort_Int_msg_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# Saves in self int_abort
+la $t0, int_abort
+# Printing a string
+li $v0, 4
+move $a0, $t0
+syscall
+# Exiting the program
+li $t8, 0
+li $v0, 17
+move $a0, $t8
+syscall
+sw $t0, -0($fp)
+
+function_abort_Bool:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_abort_Bool_msg_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# Saves in self bool_abort
+la $t0, bool_abort
+# Printing a string
+li $v0, 4
+move $a0, $t0
+syscall
+# Exiting the program
+li $t8, 0
+li $v0, 17
+move $a0, $t8
+syscall
+sw $t0, -0($fp)
+
 function_Graph_Graph:
 # Gets the params from the stack
 move $fp, $sp
@@ -1064,27 +1146,27 @@ lw $t9, 24($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 28($v0)
 # Save the direction of the method function_isNil_VList in t9
-lw $t9, 176($t8)
+lw $t9, 188($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 32($v0)
 # Save the direction of the method function_head_VList in t9
-lw $t9, 180($t8)
+lw $t9, 192($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 36($v0)
 # Save the direction of the method function_tail_VList in t9
-lw $t9, 184($t8)
+lw $t9, 196($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 40($v0)
 # Save the direction of the method function_cons_VList in t9
-lw $t9, 188($t8)
+lw $t9, 200($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 44($v0)
 # Save the direction of the method function_print_VList in t9
-lw $t9, 192($t8)
+lw $t9, 204($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 48($v0)
 # Save the direction of the method function_VList_VList in t9
-lw $t9, 172($t8)
+lw $t9, 184($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 52($v0)
 sw $v0, 8($t0)
@@ -1165,31 +1247,31 @@ lw $t9, 24($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 28($v0)
 # Save the direction of the method function_isNil_EList in t9
-lw $t9, 124($t8)
+lw $t9, 136($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 32($v0)
 # Save the direction of the method function_head_EList in t9
-lw $t9, 128($t8)
+lw $t9, 140($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 36($v0)
 # Save the direction of the method function_tail_EList in t9
-lw $t9, 132($t8)
+lw $t9, 144($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 40($v0)
 # Save the direction of the method function_cons_EList in t9
-lw $t9, 136($t8)
+lw $t9, 148($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 44($v0)
 # Save the direction of the method function_append_EList in t9
-lw $t9, 140($t8)
+lw $t9, 152($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 48($v0)
 # Save the direction of the method function_print_EList in t9
-lw $t9, 144($t8)
+lw $t9, 156($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 52($v0)
 # Save the direction of the method function_EList_EList in t9
-lw $t9, 120($t8)
+lw $t9, 132($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 56($v0)
 sw $v0, 8($t2)
@@ -1546,31 +1628,31 @@ lw $t9, 24($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 28($v0)
 # Save the direction of the method function_isNil_EList in t9
-lw $t9, 124($t8)
+lw $t9, 136($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 32($v0)
 # Save the direction of the method function_head_EList in t9
-lw $t9, 128($t8)
+lw $t9, 140($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 36($v0)
 # Save the direction of the method function_tail_EList in t9
-lw $t9, 132($t8)
+lw $t9, 144($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 40($v0)
 # Save the direction of the method function_cons_EList in t9
-lw $t9, 136($t8)
+lw $t9, 148($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 44($v0)
 # Save the direction of the method function_append_EList in t9
-lw $t9, 140($t8)
+lw $t9, 152($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 48($v0)
 # Save the direction of the method function_print_EList in t9
-lw $t9, 144($t8)
+lw $t9, 156($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 52($v0)
 # Save the direction of the method function_EList_EList in t9
-lw $t9, 120($t8)
+lw $t9, 132($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 56($v0)
 sw $v0, 8($t1)
@@ -2416,39 +2498,39 @@ lw $t9, 24($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 28($v0)
 # Save the direction of the method function_isNil_ECons in t9
-lw $t9, 152($t8)
+lw $t9, 164($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 32($v0)
 # Save the direction of the method function_head_ECons in t9
-lw $t9, 156($t8)
+lw $t9, 168($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 36($v0)
 # Save the direction of the method function_tail_ECons in t9
-lw $t9, 160($t8)
+lw $t9, 172($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 40($v0)
 # Save the direction of the method function_cons_EList in t9
-lw $t9, 136($t8)
+lw $t9, 148($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 44($v0)
 # Save the direction of the method function_append_EList in t9
-lw $t9, 140($t8)
+lw $t9, 152($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 48($v0)
 # Save the direction of the method function_print_ECons in t9
-lw $t9, 168($t8)
+lw $t9, 180($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 52($v0)
 # Save the direction of the method function_EList_EList in t9
-lw $t9, 120($t8)
+lw $t9, 132($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 56($v0)
 # Save the direction of the method function_init_ECons in t9
-lw $t9, 164($t8)
+lw $t9, 176($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 60($v0)
 # Save the direction of the method function_ECons_ECons in t9
-lw $t9, 148($t8)
+lw $t9, 160($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 64($v0)
 sw $v0, 8($t0)
@@ -2573,9 +2655,9 @@ lw $fp, ($sp)
 lw $t0, -8($fp)
 # saves the return value
 move $t0, $v0
-# If local_append_EList_internal_0 goto true__250
+# If local_append_EList_internal_0 goto true__256
 sw $t0, -8($fp)
-bnez $t0, true__250
+bnez $t0, true__256
 lw $t0, -4($fp)
 lw $t1, -16($fp)
 # Find the actual name in the dispatch table
@@ -2707,8 +2789,8 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -28($fp)
 sw $t1, -12($fp)
-j end__250
-true__250:
+j end__256
+true__256:
 lw $t0, -0($fp)
 lw $t1, -12($fp)
 # Moving l to local_append_EList_internal_1
@@ -2716,7 +2798,7 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -0($fp)
 sw $t1, -12($fp)
-end__250:
+end__256:
 lw $t0, -12($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -3238,35 +3320,35 @@ lw $t9, 24($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 28($v0)
 # Save the direction of the method function_isNil_VCons in t9
-lw $t9, 200($t8)
+lw $t9, 212($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 32($v0)
 # Save the direction of the method function_head_VCons in t9
-lw $t9, 204($t8)
+lw $t9, 216($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 36($v0)
 # Save the direction of the method function_tail_VCons in t9
-lw $t9, 208($t8)
+lw $t9, 220($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 40($v0)
 # Save the direction of the method function_cons_VList in t9
-lw $t9, 188($t8)
+lw $t9, 200($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 44($v0)
 # Save the direction of the method function_print_VCons in t9
-lw $t9, 216($t8)
+lw $t9, 228($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 48($v0)
 # Save the direction of the method function_VList_VList in t9
-lw $t9, 172($t8)
+lw $t9, 184($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 52($v0)
 # Save the direction of the method function_init_VCons in t9
-lw $t9, 212($t8)
+lw $t9, 224($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 56($v0)
 # Save the direction of the method function_VCons_VCons in t9
-lw $t9, 196($t8)
+lw $t9, 208($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 60($v0)
 sw $v0, 8($t0)
@@ -3675,11 +3757,11 @@ lw $t9, 12($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 12($v0)
 # Save the direction of the method function_and_BoolOp in t9
-lw $t9, 252($t8)
+lw $t9, 264($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 16($v0)
 # Save the direction of the method function_or_BoolOp in t9
-lw $t9, 256($t8)
+lw $t9, 268($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 20($v0)
 sw $v0, 8($t0)
@@ -3753,7 +3835,6 @@ addiu $sp, $sp, -4
 # Updates stack pointer pushing local_read_input_Parse_internal_17 to the stack
 addiu $sp, $sp, -4
 lw $t0, -8($fp)
-
 # Syscall to allocate memory of the object entry in heap
 li $v0, 9
 li $a0, 20
@@ -3785,19 +3866,19 @@ lw $t9, 12($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 12($v0)
 # Save the direction of the method function_add_vertice_Graph in t9
-lw $t9, 72($t8)
+lw $t9, 84($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 16($v0)
 # Save the direction of the method function_print_E_Graph in t9
-lw $t9, 76($t8)
+lw $t9, 88($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 20($v0)
 # Save the direction of the method function_print_V_Graph in t9
-lw $t9, 80($t8)
+lw $t9, 92($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 24($v0)
 # Save the direction of the method function_Graph_Graph in t9
-lw $t9, 68($t8)
+lw $t9, 80($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 28($v0)
 sw $v0, 8($t0)
@@ -3816,7 +3897,6 @@ sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
 sw $t0, -8($fp)
-
 # This function will consume the arguments
 jal function_Graph_Graph
 # Pop ra register of return function of the stack
@@ -3852,7 +3932,6 @@ sw $t0, -8($fp)
 sw $t1, -4($fp)
 sw $t2, -0($fp)
 sw $t3, -16($fp)
-
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -3864,7 +3943,6 @@ lw $fp, ($sp)
 lw $t0, -16($fp)
 # saves the return value
 move $t0, $v0
-
 lw $t1, -12($fp)
 # Moving local_read_input_Parse_internal_3 to local_read_input_Parse_line_2
 move $t1, $t0
@@ -3881,7 +3959,7 @@ move $t2, $v0
 sw $t0, -16($fp)
 sw $t1, -12($fp)
 sw $t2, -20($fp)
-start__446:
+start__452:
 lw $t0, -0($fp)
 lw $t1, -24($fp)
 # local_read_input_Parse_boolop_5 <- GET self . boolop
@@ -3995,9 +4073,9 @@ lw $fp, ($sp)
 lw $t0, -52($fp)
 # saves the return value
 move $t0, $v0
-# If not local_read_input_Parse_internal_12 goto end__446
+# If not local_read_input_Parse_internal_12 goto end__452
 sw $t0, -52($fp)
-beqz $t0, end__446
+beqz $t0, end__452
 lw $t0, -0($fp)
 lw $t1, -56($fp)
 # Find the actual name in the dispatch table
@@ -4084,7 +4162,6 @@ addiu $sp, $sp, -4
 sw $t0, -60($fp)
 sw $t1, -0($fp)
 sw $t2, -64($fp)
-
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -4096,7 +4173,6 @@ lw $fp, ($sp)
 lw $t0, -64($fp)
 # saves the return value
 move $t0, $v0
-
 lw $t1, -12($fp)
 # Moving local_read_input_Parse_internal_15 to local_read_input_Parse_line_2
 move $t1, $t0
@@ -4113,8 +4189,8 @@ sw $t0, -64($fp)
 sw $t1, -12($fp)
 sw $t2, -68($fp)
 sw $t3, -20($fp)
-j start__446
-end__446:
+j start__452
+end__452:
 lw $t0, -4($fp)
 lw $t1, -72($fp)
 # Moving local_read_input_Parse_g_0 to local_read_input_Parse_internal_17
@@ -4180,7 +4256,6 @@ addiu $sp, $sp, -4
 # Updates stack pointer pushing local_parse_line_Parse_internal_20 to the stack
 addiu $sp, $sp, -4
 lw $t0, -12($fp)
-
 # Syscall to allocate memory of the object entry in heap
 li $v0, 9
 li $a0, 20
@@ -4228,31 +4303,30 @@ lw $t9, 24($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 28($v0)
 # Save the direction of the method function_outgoing_Vertice in t9
-lw $t9, 88($t8)
+lw $t9, 100($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 32($v0)
 # Save the direction of the method function_number_Vertice in t9
-lw $t9, 92($t8)
+lw $t9, 104($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 36($v0)
 # Save the direction of the method function_init_Vertice in t9
-lw $t9, 96($t8)
+lw $t9, 108($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 40($v0)
 # Save the direction of the method function_add_out_Vertice in t9
-lw $t9, 100($t8)
+lw $t9, 112($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 44($v0)
 # Save the direction of the method function_print_Vertice in t9
-lw $t9, 104($t8)
+lw $t9, 116($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 48($v0)
 # Save the direction of the method function_Vertice_Vertice in t9
-lw $t9, 84($t8)
+lw $t9, 96($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 52($v0)
 sw $v0, 8($t0)
-
 # Adding Type Info addr
 la $t8, types
 lw $v0, 24($t8)
@@ -4363,7 +4437,7 @@ move $t2, $v0
 sw $t0, -20($fp)
 sw $t1, -8($fp)
 sw $t2, -24($fp)
-start__504:
+start__510:
 lw $t0, -4($fp)
 lw $t1, -36($fp)
 # local_parse_line_Parse_rest_7 <- GET self . rest
@@ -4405,11 +4479,11 @@ j end_11
 false_11:
 li $t2, 1
 end_11:
-# If not local_parse_line_Parse_internal_5 goto end__504
+# If not local_parse_line_Parse_internal_5 goto end__510
 sw $t0, -40($fp)
 sw $t1, -32($fp)
 sw $t2, -28($fp)
-beqz $t2, end__504
+beqz $t2, end__510
 lw $t0, -4($fp)
 lw $t1, -48($fp)
 # local_parse_line_Parse_rest_10 <- GET self . rest
@@ -4540,15 +4614,15 @@ lw $t9, 24($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 28($v0)
 # Save the direction of the method function_init_Edge in t9
-lw $t9, 112($t8)
+lw $t9, 124($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 32($v0)
 # Save the direction of the method function_print_Edge in t9
-lw $t9, 116($t8)
+lw $t9, 128($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 36($v0)
 # Save the direction of the method function_Edge_Edge in t9
-lw $t9, 108($t8)
+lw $t9, 120($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 40($v0)
 sw $v0, 8($t2)
@@ -4697,8 +4771,8 @@ sw $t2, -24($fp)
 sw $t0, -80($fp)
 sw $t1, -84($fp)
 sw $t2, -24($fp)
-j start__504
-end__504:
+j start__510
+end__510:
 lw $t0, -8($fp)
 lw $t1, -88($fp)
 # Moving local_parse_line_Parse_v_0 to local_parse_line_Parse_internal_20
@@ -4811,11 +4885,11 @@ bnez $a1, mismatch_12
 li $v0, 1
 end_12:
 move $t2, $v0
-# If local_c2i_Parse_internal_0 goto true__563
+# If local_c2i_Parse_internal_0 goto true__569
 sw $t0, -12($fp)
 sw $t1, -0($fp)
 sw $t2, -8($fp)
-bnez $t2, true__563
+bnez $t2, true__569
 lw $t0, -24($fp)
 # Saves in local_c2i_Parse_internal_4 data_10
 la $t0, data_10
@@ -4842,11 +4916,11 @@ bnez $a1, mismatch_13
 li $v0, 1
 end_13:
 move $t2, $v0
-# If local_c2i_Parse_internal_3 goto true__570
+# If local_c2i_Parse_internal_3 goto true__576
 sw $t0, -24($fp)
 sw $t1, -0($fp)
 sw $t2, -20($fp)
-bnez $t2, true__570
+bnez $t2, true__576
 lw $t0, -36($fp)
 # Saves in local_c2i_Parse_internal_7 data_11
 la $t0, data_11
@@ -4873,11 +4947,11 @@ bnez $a1, mismatch_14
 li $v0, 1
 end_14:
 move $t2, $v0
-# If local_c2i_Parse_internal_6 goto true__577
+# If local_c2i_Parse_internal_6 goto true__583
 sw $t0, -36($fp)
 sw $t1, -0($fp)
 sw $t2, -32($fp)
-bnez $t2, true__577
+bnez $t2, true__583
 lw $t0, -48($fp)
 # Saves in local_c2i_Parse_internal_10 data_12
 la $t0, data_12
@@ -4904,11 +4978,11 @@ bnez $a1, mismatch_15
 li $v0, 1
 end_15:
 move $t2, $v0
-# If local_c2i_Parse_internal_9 goto true__584
+# If local_c2i_Parse_internal_9 goto true__590
 sw $t0, -48($fp)
 sw $t1, -0($fp)
 sw $t2, -44($fp)
-bnez $t2, true__584
+bnez $t2, true__590
 lw $t0, -60($fp)
 # Saves in local_c2i_Parse_internal_13 data_13
 la $t0, data_13
@@ -4935,11 +5009,11 @@ bnez $a1, mismatch_16
 li $v0, 1
 end_16:
 move $t2, $v0
-# If local_c2i_Parse_internal_12 goto true__591
+# If local_c2i_Parse_internal_12 goto true__597
 sw $t0, -60($fp)
 sw $t1, -0($fp)
 sw $t2, -56($fp)
-bnez $t2, true__591
+bnez $t2, true__597
 lw $t0, -72($fp)
 # Saves in local_c2i_Parse_internal_16 data_14
 la $t0, data_14
@@ -4966,11 +5040,11 @@ bnez $a1, mismatch_17
 li $v0, 1
 end_17:
 move $t2, $v0
-# If local_c2i_Parse_internal_15 goto true__598
+# If local_c2i_Parse_internal_15 goto true__604
 sw $t0, -72($fp)
 sw $t1, -0($fp)
 sw $t2, -68($fp)
-bnez $t2, true__598
+bnez $t2, true__604
 lw $t0, -84($fp)
 # Saves in local_c2i_Parse_internal_19 data_15
 la $t0, data_15
@@ -4997,11 +5071,11 @@ bnez $a1, mismatch_18
 li $v0, 1
 end_18:
 move $t2, $v0
-# If local_c2i_Parse_internal_18 goto true__605
+# If local_c2i_Parse_internal_18 goto true__611
 sw $t0, -84($fp)
 sw $t1, -0($fp)
 sw $t2, -80($fp)
-bnez $t2, true__605
+bnez $t2, true__611
 lw $t0, -96($fp)
 # Saves in local_c2i_Parse_internal_22 data_16
 la $t0, data_16
@@ -5028,11 +5102,11 @@ bnez $a1, mismatch_19
 li $v0, 1
 end_19:
 move $t2, $v0
-# If local_c2i_Parse_internal_21 goto true__612
+# If local_c2i_Parse_internal_21 goto true__618
 sw $t0, -96($fp)
 sw $t1, -0($fp)
 sw $t2, -92($fp)
-bnez $t2, true__612
+bnez $t2, true__618
 lw $t0, -108($fp)
 # Saves in local_c2i_Parse_internal_25 data_17
 la $t0, data_17
@@ -5059,11 +5133,11 @@ bnez $a1, mismatch_20
 li $v0, 1
 end_20:
 move $t2, $v0
-# If local_c2i_Parse_internal_24 goto true__619
+# If local_c2i_Parse_internal_24 goto true__625
 sw $t0, -108($fp)
 sw $t1, -0($fp)
 sw $t2, -104($fp)
-bnez $t2, true__619
+bnez $t2, true__625
 lw $t0, -120($fp)
 # Saves in local_c2i_Parse_internal_28 data_18
 la $t0, data_18
@@ -5090,11 +5164,11 @@ bnez $a1, mismatch_21
 li $v0, 1
 end_21:
 move $t2, $v0
-# If local_c2i_Parse_internal_27 goto true__626
+# If local_c2i_Parse_internal_27 goto true__632
 sw $t0, -120($fp)
 sw $t1, -0($fp)
 sw $t2, -116($fp)
-bnez $t2, true__626
+bnez $t2, true__632
 lw $t0, -4($fp)
 lw $t1, -128($fp)
 # Find the actual name in the dispatch table
@@ -5135,14 +5209,14 @@ sw $t2, -124($fp)
 sw $t0, -128($fp)
 sw $t1, -132($fp)
 sw $t2, -124($fp)
-j end__626
-true__626:
+j end__632
+true__632:
 lw $t0, -124($fp)
 # Moving 9 to local_c2i_Parse_internal_29
 li $t0, 9
 sw $t0, -124($fp)
 sw $t0, -124($fp)
-end__626:
+end__632:
 lw $t0, -124($fp)
 lw $t1, -112($fp)
 # Moving local_c2i_Parse_internal_29 to local_c2i_Parse_internal_26
@@ -5150,14 +5224,14 @@ move $t1, $t0
 sw $t1, -112($fp)
 sw $t0, -124($fp)
 sw $t1, -112($fp)
-j end__619
-true__619:
+j end__625
+true__625:
 lw $t0, -112($fp)
 # Moving 8 to local_c2i_Parse_internal_26
 li $t0, 8
 sw $t0, -112($fp)
 sw $t0, -112($fp)
-end__619:
+end__625:
 lw $t0, -112($fp)
 lw $t1, -100($fp)
 # Moving local_c2i_Parse_internal_26 to local_c2i_Parse_internal_23
@@ -5165,14 +5239,14 @@ move $t1, $t0
 sw $t1, -100($fp)
 sw $t0, -112($fp)
 sw $t1, -100($fp)
-j end__612
-true__612:
+j end__618
+true__618:
 lw $t0, -100($fp)
 # Moving 7 to local_c2i_Parse_internal_23
 li $t0, 7
 sw $t0, -100($fp)
 sw $t0, -100($fp)
-end__612:
+end__618:
 lw $t0, -100($fp)
 lw $t1, -88($fp)
 # Moving local_c2i_Parse_internal_23 to local_c2i_Parse_internal_20
@@ -5180,14 +5254,14 @@ move $t1, $t0
 sw $t1, -88($fp)
 sw $t0, -100($fp)
 sw $t1, -88($fp)
-j end__605
-true__605:
+j end__611
+true__611:
 lw $t0, -88($fp)
 # Moving 6 to local_c2i_Parse_internal_20
 li $t0, 6
 sw $t0, -88($fp)
 sw $t0, -88($fp)
-end__605:
+end__611:
 lw $t0, -88($fp)
 lw $t1, -76($fp)
 # Moving local_c2i_Parse_internal_20 to local_c2i_Parse_internal_17
@@ -5195,14 +5269,14 @@ move $t1, $t0
 sw $t1, -76($fp)
 sw $t0, -88($fp)
 sw $t1, -76($fp)
-j end__598
-true__598:
+j end__604
+true__604:
 lw $t0, -76($fp)
 # Moving 5 to local_c2i_Parse_internal_17
 li $t0, 5
 sw $t0, -76($fp)
 sw $t0, -76($fp)
-end__598:
+end__604:
 lw $t0, -76($fp)
 lw $t1, -64($fp)
 # Moving local_c2i_Parse_internal_17 to local_c2i_Parse_internal_14
@@ -5210,14 +5284,14 @@ move $t1, $t0
 sw $t1, -64($fp)
 sw $t0, -76($fp)
 sw $t1, -64($fp)
-j end__591
-true__591:
+j end__597
+true__597:
 lw $t0, -64($fp)
 # Moving 4 to local_c2i_Parse_internal_14
 li $t0, 4
 sw $t0, -64($fp)
 sw $t0, -64($fp)
-end__591:
+end__597:
 lw $t0, -64($fp)
 lw $t1, -52($fp)
 # Moving local_c2i_Parse_internal_14 to local_c2i_Parse_internal_11
@@ -5225,14 +5299,14 @@ move $t1, $t0
 sw $t1, -52($fp)
 sw $t0, -64($fp)
 sw $t1, -52($fp)
-j end__584
-true__584:
+j end__590
+true__590:
 lw $t0, -52($fp)
 # Moving 3 to local_c2i_Parse_internal_11
 li $t0, 3
 sw $t0, -52($fp)
 sw $t0, -52($fp)
-end__584:
+end__590:
 lw $t0, -52($fp)
 lw $t1, -40($fp)
 # Moving local_c2i_Parse_internal_11 to local_c2i_Parse_internal_8
@@ -5240,14 +5314,14 @@ move $t1, $t0
 sw $t1, -40($fp)
 sw $t0, -52($fp)
 sw $t1, -40($fp)
-j end__577
-true__577:
+j end__583
+true__583:
 lw $t0, -40($fp)
 # Moving 2 to local_c2i_Parse_internal_8
 li $t0, 2
 sw $t0, -40($fp)
 sw $t0, -40($fp)
-end__577:
+end__583:
 lw $t0, -40($fp)
 lw $t1, -28($fp)
 # Moving local_c2i_Parse_internal_8 to local_c2i_Parse_internal_5
@@ -5255,14 +5329,14 @@ move $t1, $t0
 sw $t1, -28($fp)
 sw $t0, -40($fp)
 sw $t1, -28($fp)
-j end__570
-true__570:
+j end__576
+true__576:
 lw $t0, -28($fp)
 # Moving 1 to local_c2i_Parse_internal_5
 li $t0, 1
 sw $t0, -28($fp)
 sw $t0, -28($fp)
-end__570:
+end__576:
 lw $t0, -28($fp)
 lw $t1, -16($fp)
 # Moving local_c2i_Parse_internal_5 to local_c2i_Parse_internal_2
@@ -5270,14 +5344,14 @@ move $t1, $t0
 sw $t1, -16($fp)
 sw $t0, -28($fp)
 sw $t1, -16($fp)
-j end__563
-true__563:
+j end__569
+true__569:
 lw $t0, -16($fp)
 # Moving 0 to local_c2i_Parse_internal_2
 li $t0, 0
 sw $t0, -16($fp)
 sw $t0, -16($fp)
-end__563:
+end__569:
 lw $t0, -16($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -5366,10 +5440,10 @@ lw $t1, -8($fp)
 # local_a2i_Parse_internal_0 <- local_a2i_Parse_internal_1 = 0
 li $t9, 0
 seq $t1, $t0, $t9
-# If local_a2i_Parse_internal_0 goto true__691
+# If local_a2i_Parse_internal_0 goto true__697
 sw $t0, -12($fp)
 sw $t1, -8($fp)
-bnez $t1, true__691
+bnez $t1, true__697
 lw $t0, -24($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
@@ -5428,11 +5502,11 @@ bnez $a1, mismatch_22
 li $v0, 1
 end_22:
 move $t2, $v0
-# If local_a2i_Parse_internal_3 goto true__703
+# If local_a2i_Parse_internal_3 goto true__709
 sw $t0, -24($fp)
 sw $t1, -28($fp)
 sw $t2, -20($fp)
-bnez $t2, true__703
+bnez $t2, true__709
 lw $t0, -40($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
@@ -5491,11 +5565,11 @@ bnez $a1, mismatch_23
 li $v0, 1
 end_23:
 move $t2, $v0
-# If local_a2i_Parse_internal_7 goto true__715
+# If local_a2i_Parse_internal_7 goto true__721
 sw $t0, -40($fp)
 sw $t1, -44($fp)
 sw $t2, -36($fp)
-bnez $t2, true__715
+bnez $t2, true__721
 lw $t0, -4($fp)
 lw $t1, -52($fp)
 # Find the actual name in the dispatch table
@@ -5536,8 +5610,8 @@ move $t1, $t0
 sw $t1, -48($fp)
 sw $t0, -52($fp)
 sw $t1, -48($fp)
-j end__715
-true__715:
+j end__721
+true__721:
 lw $t0, -60($fp)
 # Static Dispatch of the method length
 sw $fp, ($sp)
@@ -5639,7 +5713,7 @@ move $t1, $t0
 sw $t1, -48($fp)
 sw $t0, -68($fp)
 sw $t1, -48($fp)
-end__715:
+end__721:
 lw $t0, -48($fp)
 lw $t1, -32($fp)
 # Moving local_a2i_Parse_internal_10 to local_a2i_Parse_internal_6
@@ -5647,8 +5721,8 @@ move $t1, $t0
 sw $t1, -32($fp)
 sw $t0, -48($fp)
 sw $t1, -32($fp)
-j end__703
-true__703:
+j end__709
+true__709:
 lw $t0, -80($fp)
 # Static Dispatch of the method length
 sw $fp, ($sp)
@@ -5755,7 +5829,7 @@ sw $t2, -32($fp)
 sw $t0, -88($fp)
 sw $t1, -72($fp)
 sw $t2, -32($fp)
-end__703:
+end__709:
 lw $t0, -32($fp)
 lw $t1, -16($fp)
 # Moving local_a2i_Parse_internal_6 to local_a2i_Parse_internal_2
@@ -5763,14 +5837,14 @@ move $t1, $t0
 sw $t1, -16($fp)
 sw $t0, -32($fp)
 sw $t1, -16($fp)
-j end__691
-true__691:
+j end__697
+true__697:
 lw $t0, -16($fp)
 # Moving 0 to local_a2i_Parse_internal_2
 li $t0, 0
 sw $t0, -16($fp)
 sw $t0, -16($fp)
-end__691:
+end__697:
 lw $t0, -16($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -5913,17 +5987,17 @@ sw $t0, -16($fp)
 sw $t1, -12($fp)
 sw $t2, -20($fp)
 sw $t3, -24($fp)
-start__776:
+start__782:
 lw $t0, -20($fp)
 lw $t1, -12($fp)
 lw $t2, -28($fp)
 # local_a2i_aux_Parse_internal_5 <- local_a2i_aux_Parse_i_3 < local_a2i_aux_Parse_j_1
 slt $t2, $t0, $t1
-# If not local_a2i_aux_Parse_internal_5 goto end__776
+# If not local_a2i_aux_Parse_internal_5 goto end__782
 sw $t0, -20($fp)
 sw $t1, -12($fp)
 sw $t2, -28($fp)
-beqz $t2, end__776
+beqz $t2, end__782
 lw $t0, -36($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
@@ -5987,12 +6061,12 @@ bnez $a1, mismatch_24
 li $v0, 1
 end_24:
 move $t3, $v0
-# If local_a2i_aux_Parse_internal_8 goto true__794
+# If local_a2i_aux_Parse_internal_8 goto true__800
 sw $t0, -36($fp)
 sw $t1, -32($fp)
 sw $t2, -44($fp)
 sw $t3, -40($fp)
-bnez $t3, true__794
+bnez $t3, true__800
 lw $t0, -56($fp)
 # Saves in local_a2i_aux_Parse_internal_12 data_22
 la $t0, data_22
@@ -6019,11 +6093,11 @@ bnez $a1, mismatch_25
 li $v0, 1
 end_25:
 move $t2, $v0
-# If local_a2i_aux_Parse_internal_11 goto true__801
+# If local_a2i_aux_Parse_internal_11 goto true__807
 sw $t0, -56($fp)
 sw $t1, -32($fp)
 sw $t2, -52($fp)
-bnez $t2, true__801
+bnez $t2, true__807
 lw $t0, -8($fp)
 lw $t1, -68($fp)
 # local_a2i_aux_Parse_internal_15 <- local_a2i_aux_Parse_int_0 * 10
@@ -6118,7 +6192,7 @@ lw $t6, -12($fp)
 lw $t7, -84($fp)
 # local_a2i_aux_Parse_internal_19 <- local_a2i_aux_Parse_i_3 = local_a2i_aux_Parse_j_1
 seq $t7, $t4, $t6
-# If local_a2i_aux_Parse_internal_19 goto true__821
+# If local_a2i_aux_Parse_internal_19 goto true__827
 sw $t0, -76($fp)
 sw $t1, -68($fp)
 sw $t2, -64($fp)
@@ -6127,7 +6201,7 @@ sw $t4, -20($fp)
 sw $t5, -80($fp)
 sw $t6, -12($fp)
 sw $t7, -84($fp)
-bnez $t7, true__821
+bnez $t7, true__827
 lw $t0, -92($fp)
 # Saves in local_a2i_aux_Parse_internal_21 data_23
 la $t0, data_23
@@ -6137,8 +6211,8 @@ move $t1, $t0
 sw $t1, -88($fp)
 sw $t0, -92($fp)
 sw $t1, -88($fp)
-j end__821
-true__821:
+j end__827
+true__827:
 lw $t0, -96($fp)
 # Saves in local_a2i_aux_Parse_internal_22 data_24
 la $t0, data_24
@@ -6152,7 +6226,7 @@ sw $t2, -88($fp)
 sw $t0, -96($fp)
 sw $t1, -4($fp)
 sw $t2, -88($fp)
-end__821:
+end__827:
 lw $t0, -88($fp)
 lw $t1, -100($fp)
 # Moving local_a2i_aux_Parse_internal_20 to local_a2i_aux_Parse_internal_23
@@ -6165,8 +6239,8 @@ sw $t2, -60($fp)
 sw $t0, -88($fp)
 sw $t1, -100($fp)
 sw $t2, -60($fp)
-j end__801
-true__801:
+j end__807
+true__807:
 lw $t0, -20($fp)
 lw $t1, -104($fp)
 # local_a2i_aux_Parse_internal_24 <- local_a2i_aux_Parse_i_3 + 1
@@ -6264,7 +6338,7 @@ sw $t2, -12($fp)
 sw $t3, -20($fp)
 sw $t4, -124($fp)
 sw $t5, -60($fp)
-end__801:
+end__807:
 lw $t0, -60($fp)
 lw $t1, -48($fp)
 # Moving local_a2i_aux_Parse_internal_13 to local_a2i_aux_Parse_internal_10
@@ -6272,8 +6346,8 @@ move $t1, $t0
 sw $t1, -48($fp)
 sw $t0, -60($fp)
 sw $t1, -48($fp)
-j end__794
-true__794:
+j end__800
+true__800:
 lw $t0, -20($fp)
 lw $t1, -128($fp)
 # local_a2i_aux_Parse_internal_30 <- local_a2i_aux_Parse_i_3 + 1
@@ -6371,7 +6445,7 @@ sw $t2, -12($fp)
 sw $t3, -20($fp)
 sw $t4, -148($fp)
 sw $t5, -48($fp)
-end__794:
+end__800:
 lw $t0, -48($fp)
 lw $t1, -24($fp)
 # Moving local_a2i_aux_Parse_internal_10 to local_a2i_aux_Parse_internal_4
@@ -6379,8 +6453,8 @@ move $t1, $t0
 sw $t1, -24($fp)
 sw $t0, -48($fp)
 sw $t1, -24($fp)
-j start__776
-end__776:
+j start__782
+end__782:
 lw $t0, -8($fp)
 lw $t1, -152($fp)
 # Moving local_a2i_aux_Parse_int_0 to local_a2i_aux_Parse_internal_36
@@ -6441,11 +6515,11 @@ lw $t9, 12($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 12($v0)
 # Save the direction of the method function_and_BoolOp in t9
-lw $t9, 252($t8)
+lw $t9, 264($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 16($v0)
 # Save the direction of the method function_or_BoolOp in t9
-lw $t9, 256($t8)
+lw $t9, 268($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 20($v0)
 sw $v0, 8($t0)
@@ -6617,16 +6691,16 @@ addiu $fp, $fp, 4
 # Updates stack pointer pushing local_and_BoolOp_internal_0 to the stack
 addiu $sp, $sp, -4
 lw $t0, -4($fp)
-# If b1 goto true__923
+# If b1 goto true__929
 sw $t0, -4($fp)
-bnez $t0, true__923
+bnez $t0, true__929
 lw $t0, -12($fp)
 # Moving 0 to local_and_BoolOp_internal_0
 li $t0, 0
 sw $t0, -12($fp)
 sw $t0, -12($fp)
-j end__923
-true__923:
+j end__929
+true__929:
 lw $t0, -0($fp)
 lw $t1, -12($fp)
 # Moving b2 to local_and_BoolOp_internal_0
@@ -6634,7 +6708,7 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -0($fp)
 sw $t1, -12($fp)
-end__923:
+end__929:
 lw $t0, -12($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -6657,9 +6731,9 @@ addiu $fp, $fp, 4
 # Updates stack pointer pushing local_or_BoolOp_internal_0 to the stack
 addiu $sp, $sp, -4
 lw $t0, -4($fp)
-# If b1 goto true__935
+# If b1 goto true__941
 sw $t0, -4($fp)
-bnez $t0, true__935
+bnez $t0, true__941
 lw $t0, -0($fp)
 lw $t1, -12($fp)
 # Moving b2 to local_or_BoolOp_internal_0
@@ -6667,14 +6741,14 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -0($fp)
 sw $t1, -12($fp)
-j end__935
-true__935:
+j end__941
+true__941:
 lw $t0, -12($fp)
 # Moving 1 to local_or_BoolOp_internal_0
 li $t0, 1
 sw $t0, -12($fp)
 sw $t0, -12($fp)
-end__935:
+end__941:
 lw $t0, -12($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -6692,6 +6766,15 @@ li $a0, 1
 syscall
 
 .data
+abort_msg: .asciiz "Abort called from class "
+new_line: .asciiz "
+"
+string_abort: .asciiz "Abort called from class String
+"
+int_abort: .asciiz "Abort called from class Int
+"
+bool_abort: .asciiz "Abort called from class Bool
+"
 type_Object: .asciiz "Object"
 type_IO: .asciiz "IO"
 type_String: .asciiz "String"
@@ -6738,7 +6821,7 @@ data_22: .asciiz ","
 data_23: .asciiz ""
 data_24: .asciiz ""
 data_25: .asciiz ""
-methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 zero_error: .asciiz "Division by zero error
 "
 case_void_error: .asciiz "Case on void error
