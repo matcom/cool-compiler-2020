@@ -222,7 +222,6 @@ class CILToMIPSVisitor:
 
         if len(node.instructions):
             reg_for_var = ra.get_registers_for_variables(node.instructions, node.params, len(mips.REGISTERS))
-        
             self.memory_manager = MemoryManager(mips.REGISTERS, lambda x : reg_for_var[x])
         
 
