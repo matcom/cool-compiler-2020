@@ -439,7 +439,7 @@
      jr $ra
 
      .TypeCheck:
-     lw $t0, 0($t0)
+     #lw $t0, 0($t0)
      InicioChequeo:
      lw $t0, 0($t0)
      beq $t0, $zero, ChequeoFalse

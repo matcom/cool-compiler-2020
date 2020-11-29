@@ -487,7 +487,7 @@ syscall
      jr $ra
 
      .TypeCheck:
-     lw $t0, 0($t0)
+     #lw $t0, 0($t0)
      InicioChequeo:
      lw $t0, 0($t0)
      beq $t0, $zero, ChequeoFalse
@@ -513,7 +513,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
 lw $t0,4($sp)
-#Argument var.var150
+#Argument var.var154
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -521,14 +521,14 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var150<-['Main', '$init']
+jalr $ra,$t0 #var.var154<-['Main', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,4($sp)
 lw $t0,4($sp)
-#Argument var.var150
+#Argument var.var154
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -536,7 +536,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var151<-['Main', 'main']
+jalr $ra,$t0 #var.var155<-['Main', 'main']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -1774,7 +1774,7 @@ sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
 f42: #Cons.print_list
-addi $sp, $sp, -100
+addi $sp, $sp, -116
 lw $t0,4($a0)
 move $v0, $t0
 sw $v0,4($sp)
@@ -1802,22 +1802,28 @@ lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,28($sp)
 lw $t0,28($sp)
-bgtz $t0, var.var135
+seq $v0, $t0, $zero
+sw $v0,32($sp)
+lw $t0,32($sp)
+bgtz $t0, var.var136
+lw $t0,24($sp)
+move $v0, $t0
+sw $v0,40($sp)
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,24($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,36($sp)
-la $v0, st23
 sw $v0,44($sp)
-lw $t0,36($sp)
-#Argument var.var136
+la $v0, st23
+sw $v0,52($sp)
+lw $t0,44($sp)
+#Argument var.var138
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,48($sp)
-#Argument var.var137
+lw $t0,56($sp)
+#Argument var.var139
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1825,20 +1831,24 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var138<-['Cons', 'out_string']
+jalr $ra,$t0 #var.var140<-['Cons', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,48($sp)
-lw $t0,48($sp)
+sw $v0,56($sp)
+lw $t0,56($sp)
 move $v0, $t0
-sw $v0,52($sp)
-lw $t0,52($sp)
+sw $v0,60($sp)
+lw $t0,40($sp)
+move $v0, $t0
+sw $v0,24($sp)
+lw $t0,60($sp)
 move $v0, $t0
 sw $v0,12($sp)
-var.var135:
+b var.var132
+var.var136:
 lw $t0,8($sp)
 la $t1,Articleclase
 addi $sp ,$sp, -4
@@ -1846,24 +1856,30 @@ sw $ra, 0($sp)
 jal .TypeCheck
 lw $ra, 0($sp)
 addi $sp ,$sp, 4
-sw $v0,60($sp)
-lw $t0,60($sp)
-bgtz $t0, var.var142
+sw $v0,68($sp)
+lw $t0,68($sp)
+seq $v0, $t0, $zero
+sw $v0,72($sp)
+lw $t0,72($sp)
+bgtz $t0, var.var145
+lw $t0,24($sp)
+move $v0, $t0
+sw $v0,80($sp)
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,24($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,68($sp)
+sw $v0,84($sp)
 la $v0, st24
-sw $v0,76($sp)
-lw $t0,68($sp)
-#Argument var.var143
+sw $v0,92($sp)
+lw $t0,84($sp)
+#Argument var.var147
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,80($sp)
-#Argument var.var144
+lw $t0,96($sp)
+#Argument var.var148
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -1871,29 +1887,33 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var145<-['Cons', 'out_string']
+jalr $ra,$t0 #var.var149<-['Cons', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,80($sp)
+sw $v0,96($sp)
+lw $t0,96($sp)
+move $v0, $t0
+sw $v0,100($sp)
 lw $t0,80($sp)
 move $v0, $t0
-sw $v0,84($sp)
-lw $t0,84($sp)
+sw $v0,24($sp)
+lw $t0,100($sp)
 move $v0, $t0
 sw $v0,12($sp)
-var.var142:
+b var.var132
+var.var145:
 var.var132:
 lw $t0,12($sp)
 move $v0, $t0
-sw $v0,88($sp)
+sw $v0,104($sp)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,92($sp)
-lw $t0,92($sp)
-#Argument var.var148
+sw $v0,108($sp)
+lw $t0,108($sp)
+#Argument var.var152
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1901,13 +1921,13 @@ lw $t0, 0($a0)
 lw $t0,52($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var149<-['BookList', 'print_list']
+jalr $ra,$t0 #var.var153<-['BookList', 'print_list']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,96($sp)
-addi $sp, $sp, 100
+sw $v0,112($sp)
+addi $sp, $sp, 116
 jr $ra
 f43: #Nil.$init
 addi $sp, $sp, -12
@@ -1920,7 +1940,7 @@ la $t0,BookListclase
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0 #var.var152<-['BookList', '$init']
+jal $t0 #var.var156<-['BookList', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)

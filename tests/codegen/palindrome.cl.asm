@@ -464,7 +464,7 @@ syscall
      jr $ra
 
      .TypeCheck:
-     lw $t0, 0($t0)
+     #lw $t0, 0($t0)
      InicioChequeo:
      lw $t0, 0($t0)
      beq $t0, $zero, ChequeoFalse
@@ -1081,7 +1081,7 @@ li $t0,1
 move $v0, $t0
 sw $v0,8($sp)
 lw $t0,8($sp)
-not $v0, $t0
+neg $v0, $t0
 sw $v0,16($sp)
 lw $t0,16($sp)
 move $v0, $t0

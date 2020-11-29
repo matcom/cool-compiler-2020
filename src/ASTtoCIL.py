@@ -614,8 +614,8 @@ class CILTranspiler:
             subInstructions=self.visit(sub, scope)
             instructions.extend(subInstructions)
 
-        self.caseResultStack.pop(-1)
-        self.caseExpresionStack.pop(-1)
+        self.caseResultStack.pop()
+        self.caseExpresionStack.pop()
         self.caseEndStack.append(saltofinal)
 
         instructions.append(CILLabel(params=[saltofinal]))
@@ -632,41 +632,61 @@ class CILTranspiler:
         # prevName=scope.class_name
         # scope.class_name=node.type
 
-        expresion0=self.caseExpresionStack.pop(-1)
+        expresion0=self.caseExpresionStack.pop()
         self.caseExpresionStack.append(expresion0)
 
         if not node.name in scope.locals:
             scope.locals.append(node.name)
 
+        
+        #tipoResult=Si es de ese tipo
         tipoResult=self.GenerarNombreVariable(scope)
         chequeo=CILTypeCheck(tipoResult,[expresion0, node.type])
         instructions.append(chequeo)
 
+        #falloeltipo=not tiporesult
+        falloeltipo=self.GenerarNombreVariable(scope)
+        instructions.append(CILComplement(falloeltipo,[tipoResult]))
+
+        #goto labelfinal if falloeltipo
         labelfinal=self.GenerarNombreVariable(scope)
-        salto=CILConditionalJump(params=[tipoResult,labelfinal])
-        
+        salto=CILConditionalJump(params=[falloeltipo,labelfinal])
+
         instructions.append(salto)
 
+        #Salvo la variable node.name
+        temporal=self.GenerarNombreVariable(scope)
+        salva=CILAssign(temporal,[node.name])
+        instructions.append(salva)
+
+        #No falló, entonces node.name=expresion0
         asignacion=CILAssign(node.name, [expresion0])
         instructions.append(asignacion)
 
+        #Evalua la expresion del subcase
         instructions.extend(self.visit(node.expression,scope))
 
+        #resultVariable=resultado de la expresión
         resultVariable=self.GenerarNombreVariable(scope)
         asignacion=CILAssign(resultVariable,[instructions[len(instructions)-1].destination])
 
-        resultHolder=self.caseResultStack.pop(-1)
+        #Restaurando node.name
+        restauracion=CILAssign(node.name,[temporal])
+
+        #Buscar donde hay que guardar el resultado y guardarlo
+        resultHolder=self.caseResultStack.pop()
         self.caseResultStack.append(resultHolder)
         final=CILAssign(resultHolder,[resultVariable])
 
-        instructions.extend([asignacion,final])
+        instructions.extend([asignacion, restauracion,final])
 
-        saltofinal=self.caseEndStack.pop(-1)
+        #Goto al final de la expresion case
+        saltofinal=self.caseEndStack.pop()
         self.caseEndStack.append(saltofinal)
-        CILJump([saltofinal])
+        instructions.append(CILJump(params=[saltofinal]))
 
         # scope.class_name=prevName
-
+        #Label por si da falso el tipo
         instructions.append(CILLabel(params=[labelfinal]))
         
         return instructions

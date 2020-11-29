@@ -23,6 +23,8 @@ class MIPSCompiler:
     def load(self, node:CILInstructionNode,scope:ScopeMIPS, soloelprimero=False, desplazamiento=0):
         instrucciones=""
         parametro0=node.params[0]
+        if isinstance(node, CILTypeCheck):
+            print("here")
         if scope.methodclass != "Main.special":
             atributos=self.atributos[scope.methodclass]
         else:
@@ -631,7 +633,7 @@ class MIPSCompiler:
 
     @visitor.when(CILIntComplement)
     def visit(self, node:CILIntComplement, scope:ScopeMIPS):
-        instrucciones="not $v0, $t0\n"
+        instrucciones="neg $v0, $t0\n"
         return self.loadAndSaveAndInstructions(node,instrucciones,scope)
     
     @visitor.when(CILComplement)

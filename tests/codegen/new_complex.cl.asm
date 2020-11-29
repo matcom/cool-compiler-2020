@@ -469,7 +469,7 @@ syscall
      jr $ra
 
      .TypeCheck:
-     lw $t0, 0($t0)
+     #lw $t0, 0($t0)
      InicioChequeo:
      lw $t0, 0($t0)
      beq $t0, $zero, ChequeoFalse
@@ -1326,7 +1326,7 @@ lw $t0,4($a0)
 move $v0, $t0
 sw $v0,8($sp)
 lw $t0,8($sp)
-not $v0, $t0
+neg $v0, $t0
 sw $v0,16($sp)
 lw $t0,4($sp)
 lw $t1,16($sp)
@@ -1339,7 +1339,7 @@ lw $t0,8($a0)
 move $v0, $t0
 sw $v0,32($sp)
 lw $t0,32($sp)
-not $v0, $t0
+neg $v0, $t0
 sw $v0,40($sp)
 lw $t0,28($sp)
 lw $t1,40($sp)
@@ -1359,7 +1359,7 @@ lw $t0,8($a0)
 move $v0, $t0
 sw $v0,8($sp)
 lw $t0,8($sp)
-not $v0, $t0
+neg $v0, $t0
 sw $v0,16($sp)
 lw $t0,4($sp)
 lw $t1,16($sp)
@@ -1379,7 +1379,7 @@ lw $t0,4($a0)
 move $v0, $t0
 sw $v0,8($sp)
 lw $t0,8($sp)
-not $v0, $t0
+neg $v0, $t0
 sw $v0,16($sp)
 lw $t0,4($sp)
 lw $t1,16($sp)

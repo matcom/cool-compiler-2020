@@ -549,7 +549,7 @@ syscall
      jr $ra
 
      .TypeCheck:
-     lw $t0, 0($t0)
+     #lw $t0, 0($t0)
      InicioChequeo:
      lw $t0, 0($t0)
      beq $t0, $zero, ChequeoFalse
@@ -800,7 +800,7 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,16($sp)
 lw $t0,16($sp)
-not $v0, $t0
+neg $v0, $t0
 sw $v0,24($sp)
 lw $t0,24($sp)
 move $v0, $t0
@@ -2237,7 +2237,7 @@ lw $a0, 4($sp)
 addi $sp, $sp, 8
 sw $v0,96($sp)
 lw $t0,96($sp)
-not $v0, $t0
+neg $v0, $t0
 sw $v0,104($sp)
 lw $t0,104($sp)
 move $v0, $t0
@@ -2489,7 +2489,7 @@ li $t0,1
 move $v0, $t0
 sw $v0,72($sp)
 lw $t0,72($sp)
-not $v0, $t0
+neg $v0, $t0
 sw $v0,80($sp)
 lw $t0,68($sp)
 lw $t1,80($sp)
@@ -3094,7 +3094,7 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,16($sp)
 lw $t0,16($sp)
-not $v0, $t0
+neg $v0, $t0
 sw $v0,24($sp)
 lw $t0,24($sp)
 move $v0, $t0
@@ -3432,7 +3432,7 @@ lw $t0,4($sp)
 move $v0, $t0
 sw $v0,36($sp)
 lw $t0,36($sp)
-not $v0, $t0
+neg $v0, $t0
 sw $v0,44($sp)
 lw $t0,32($sp)
 #Argument var.var447
@@ -4639,7 +4639,7 @@ lw $t0,4($sp)
 move $v0, $t0
 sw $v0,36($sp)
 lw $t0,36($sp)
-not $v0, $t0
+neg $v0, $t0
 sw $v0,44($sp)
 lw $t0,32($sp)
 #Argument var.var611
@@ -4681,7 +4681,7 @@ sw $v0,144($sp)
 addi $sp, $sp, 148
 jr $ra
 f54: #Main.class_type
-addi $sp, $sp, -236
+addi $sp, $sp, -284
 move $t0,$a1
 move $v0, $t0
 sw $v0,4($sp)
@@ -4694,22 +4694,28 @@ lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,24($sp)
 lw $t0,24($sp)
-bgtz $t0, var.var644
+seq $v0, $t0, $zero
+sw $v0,28($sp)
+lw $t0,28($sp)
+bgtz $t0, var.var645
+lw $t0,20($sp)
+move $v0, $t0
+sw $v0,36($sp)
 lw $t0,4($sp)
 move $v0, $t0
 sw $v0,20($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,32($sp)
-la $v0, st58
 sw $v0,40($sp)
-lw $t0,32($sp)
-#Argument var.var645
+la $v0, st58
+sw $v0,48($sp)
+lw $t0,40($sp)
+#Argument var.var647
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,44($sp)
-#Argument var.var646
+lw $t0,52($sp)
+#Argument var.var648
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4717,20 +4723,24 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var647<-['Main', 'out_string']
+jalr $ra,$t0 #var.var649<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,44($sp)
-lw $t0,44($sp)
+sw $v0,52($sp)
+lw $t0,52($sp)
 move $v0, $t0
-sw $v0,48($sp)
-lw $t0,48($sp)
+sw $v0,56($sp)
+lw $t0,36($sp)
+move $v0, $t0
+sw $v0,20($sp)
+lw $t0,56($sp)
 move $v0, $t0
 sw $v0,8($sp)
-var.var644:
+b var.var641
+var.var645:
 lw $t0,4($sp)
 la $t1,Bclase
 addi $sp ,$sp, -4
@@ -4738,24 +4748,30 @@ sw $ra, 0($sp)
 jal .TypeCheck
 lw $ra, 0($sp)
 addi $sp ,$sp, 4
-sw $v0,60($sp)
-lw $t0,60($sp)
-bgtz $t0, var.var651
+sw $v0,68($sp)
+lw $t0,68($sp)
+seq $v0, $t0, $zero
+sw $v0,72($sp)
+lw $t0,72($sp)
+bgtz $t0, var.var654
+lw $t0,64($sp)
+move $v0, $t0
+sw $v0,80($sp)
 lw $t0,4($sp)
 move $v0, $t0
-sw $v0,56($sp)
+sw $v0,64($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,68($sp)
+sw $v0,84($sp)
 la $v0, st59
-sw $v0,76($sp)
-lw $t0,68($sp)
-#Argument var.var652
+sw $v0,92($sp)
+lw $t0,84($sp)
+#Argument var.var656
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,80($sp)
-#Argument var.var653
+lw $t0,96($sp)
+#Argument var.var657
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4763,20 +4779,24 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var654<-['Main', 'out_string']
+jalr $ra,$t0 #var.var658<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,80($sp)
+sw $v0,96($sp)
+lw $t0,96($sp)
+move $v0, $t0
+sw $v0,100($sp)
 lw $t0,80($sp)
 move $v0, $t0
-sw $v0,84($sp)
-lw $t0,84($sp)
+sw $v0,64($sp)
+lw $t0,100($sp)
 move $v0, $t0
 sw $v0,8($sp)
-var.var651:
+b var.var641
+var.var654:
 lw $t0,4($sp)
 la $t1,Cclase
 addi $sp ,$sp, -4
@@ -4784,24 +4804,30 @@ sw $ra, 0($sp)
 jal .TypeCheck
 lw $ra, 0($sp)
 addi $sp ,$sp, 4
-sw $v0,96($sp)
-lw $t0,96($sp)
-bgtz $t0, var.var658
+sw $v0,112($sp)
+lw $t0,112($sp)
+seq $v0, $t0, $zero
+sw $v0,116($sp)
+lw $t0,116($sp)
+bgtz $t0, var.var663
+lw $t0,108($sp)
+move $v0, $t0
+sw $v0,124($sp)
 lw $t0,4($sp)
 move $v0, $t0
-sw $v0,92($sp)
+sw $v0,108($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,104($sp)
+sw $v0,128($sp)
 la $v0, st60
-sw $v0,112($sp)
-lw $t0,104($sp)
-#Argument var.var659
+sw $v0,136($sp)
+lw $t0,128($sp)
+#Argument var.var665
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,116($sp)
-#Argument var.var660
+lw $t0,140($sp)
+#Argument var.var666
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4809,20 +4835,24 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var661<-['Main', 'out_string']
+jalr $ra,$t0 #var.var667<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,116($sp)
-lw $t0,116($sp)
+sw $v0,140($sp)
+lw $t0,140($sp)
 move $v0, $t0
-sw $v0,120($sp)
-lw $t0,120($sp)
+sw $v0,144($sp)
+lw $t0,124($sp)
+move $v0, $t0
+sw $v0,108($sp)
+lw $t0,144($sp)
 move $v0, $t0
 sw $v0,8($sp)
-var.var658:
+b var.var641
+var.var663:
 lw $t0,4($sp)
 la $t1,Dclase
 addi $sp ,$sp, -4
@@ -4830,24 +4860,30 @@ sw $ra, 0($sp)
 jal .TypeCheck
 lw $ra, 0($sp)
 addi $sp ,$sp, 4
-sw $v0,132($sp)
-lw $t0,132($sp)
-bgtz $t0, var.var665
+sw $v0,156($sp)
+lw $t0,156($sp)
+seq $v0, $t0, $zero
+sw $v0,160($sp)
+lw $t0,160($sp)
+bgtz $t0, var.var672
+lw $t0,152($sp)
+move $v0, $t0
+sw $v0,168($sp)
 lw $t0,4($sp)
 move $v0, $t0
-sw $v0,128($sp)
+sw $v0,152($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,140($sp)
+sw $v0,172($sp)
 la $v0, st61
-sw $v0,148($sp)
-lw $t0,140($sp)
-#Argument var.var666
+sw $v0,180($sp)
+lw $t0,172($sp)
+#Argument var.var674
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,152($sp)
-#Argument var.var667
+lw $t0,184($sp)
+#Argument var.var675
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4855,20 +4891,24 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var668<-['Main', 'out_string']
+jalr $ra,$t0 #var.var676<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,152($sp)
-lw $t0,152($sp)
+sw $v0,184($sp)
+lw $t0,184($sp)
 move $v0, $t0
-sw $v0,156($sp)
-lw $t0,156($sp)
+sw $v0,188($sp)
+lw $t0,168($sp)
+move $v0, $t0
+sw $v0,152($sp)
+lw $t0,188($sp)
 move $v0, $t0
 sw $v0,8($sp)
-var.var665:
+b var.var641
+var.var672:
 lw $t0,4($sp)
 la $t1,Eclase
 addi $sp ,$sp, -4
@@ -4876,24 +4916,30 @@ sw $ra, 0($sp)
 jal .TypeCheck
 lw $ra, 0($sp)
 addi $sp ,$sp, 4
-sw $v0,168($sp)
-lw $t0,168($sp)
-bgtz $t0, var.var672
+sw $v0,200($sp)
+lw $t0,200($sp)
+seq $v0, $t0, $zero
+sw $v0,204($sp)
+lw $t0,204($sp)
+bgtz $t0, var.var681
+lw $t0,196($sp)
+move $v0, $t0
+sw $v0,212($sp)
 lw $t0,4($sp)
 move $v0, $t0
-sw $v0,164($sp)
+sw $v0,196($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,176($sp)
+sw $v0,216($sp)
 la $v0, st62
-sw $v0,184($sp)
-lw $t0,176($sp)
-#Argument var.var673
+sw $v0,224($sp)
+lw $t0,216($sp)
+#Argument var.var683
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,188($sp)
-#Argument var.var674
+lw $t0,228($sp)
+#Argument var.var684
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4901,20 +4947,24 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var675<-['Main', 'out_string']
+jalr $ra,$t0 #var.var685<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,188($sp)
-lw $t0,188($sp)
+sw $v0,228($sp)
+lw $t0,228($sp)
 move $v0, $t0
-sw $v0,192($sp)
-lw $t0,192($sp)
+sw $v0,232($sp)
+lw $t0,212($sp)
+move $v0, $t0
+sw $v0,196($sp)
+lw $t0,232($sp)
 move $v0, $t0
 sw $v0,8($sp)
-var.var672:
+b var.var641
+var.var681:
 lw $t0,4($sp)
 la $t1,Objectclase
 addi $sp ,$sp, -4
@@ -4922,24 +4972,30 @@ sw $ra, 0($sp)
 jal .TypeCheck
 lw $ra, 0($sp)
 addi $sp ,$sp, 4
-sw $v0,204($sp)
-lw $t0,204($sp)
-bgtz $t0, var.var679
+sw $v0,244($sp)
+lw $t0,244($sp)
+seq $v0, $t0, $zero
+sw $v0,248($sp)
+lw $t0,248($sp)
+bgtz $t0, var.var690
+lw $t0,240($sp)
+move $v0, $t0
+sw $v0,256($sp)
 lw $t0,4($sp)
 move $v0, $t0
-sw $v0,200($sp)
+sw $v0,240($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,212($sp)
+sw $v0,260($sp)
 la $v0, st63
-sw $v0,220($sp)
-lw $t0,212($sp)
-#Argument var.var680
+sw $v0,268($sp)
+lw $t0,260($sp)
+#Argument var.var692
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,224($sp)
-#Argument var.var681
+lw $t0,272($sp)
+#Argument var.var693
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -4947,25 +5003,29 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var682<-['Main', 'out_string']
+jalr $ra,$t0 #var.var694<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,224($sp)
-lw $t0,224($sp)
+sw $v0,272($sp)
+lw $t0,272($sp)
 move $v0, $t0
-sw $v0,228($sp)
-lw $t0,228($sp)
+sw $v0,276($sp)
+lw $t0,256($sp)
+move $v0, $t0
+sw $v0,240($sp)
+lw $t0,276($sp)
 move $v0, $t0
 sw $v0,8($sp)
-var.var679:
+b var.var641
+var.var690:
 var.var641:
 lw $t0,8($sp)
 move $v0, $t0
-sw $v0,232($sp)
-addi $sp, $sp, 236
+sw $v0,280($sp)
+addi $sp, $sp, 284
 jr $ra
 f55: #Main.print
 addi $sp, $sp, -64
@@ -4980,7 +5040,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
 lw $t0,8($sp)
-#Argument var.var685
+#Argument var.var697
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -4988,7 +5048,7 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var685<-['A2I', '$init']
+jalr $ra,$t0 #var.var697<-['A2I', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -5010,7 +5070,7 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,24($sp)
 lw $t0,24($sp)
-#Argument var.var689
+#Argument var.var701
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -5018,19 +5078,19 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var690<-['A', 'value']
+jalr $ra,$t0 #var.var702<-['A', 'value']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,28($sp)
 lw $t0,20($sp)
-#Argument var.var688
+#Argument var.var700
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,32($sp)
-#Argument var.var690
+#Argument var.var702
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5038,7 +5098,7 @@ lw $t0, 0($a0)
 lw $t0,36($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var691<-['A2I', 'i2a']
+jalr $ra,$t0 #var.var703<-['A2I', 'i2a']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -5046,12 +5106,12 @@ lw $a0, 4($sp)
 addi $sp, $sp, 8
 sw $v0,32($sp)
 lw $t0,16($sp)
-#Argument var.var687
+#Argument var.var699
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,36($sp)
-#Argument var.var691
+#Argument var.var703
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5059,7 +5119,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var692<-['Main', 'out_string']
+jalr $ra,$t0 #var.var704<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -5072,12 +5132,12 @@ sw $v0,40($sp)
 la $v0, st64
 sw $v0,48($sp)
 lw $t0,40($sp)
-#Argument var.var693
+#Argument var.var705
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,52($sp)
-#Argument var.var694
+#Argument var.var706
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5085,7 +5145,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var695<-['Main', 'out_string']
+jalr $ra,$t0 #var.var707<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -5104,7 +5164,7 @@ sw $v0,60($sp)
 addi $sp, $sp, 64
 jr $ra
 f56: #Main.main
-addi $sp, $sp, -1044
+addi $sp, $sp, -1068
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
@@ -5117,7 +5177,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
 lw $t0,8($sp)
-#Argument var.var698
+#Argument var.var710
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -5125,7 +5185,7 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var698<-['A', '$init']
+jalr $ra,$t0 #var.var710<-['A', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -5149,12 +5209,12 @@ sw $v0,24($sp)
 la $v0, st65
 sw $v0,32($sp)
 lw $t0,24($sp)
-#Argument var.var701
+#Argument var.var713
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,36($sp)
-#Argument var.var702
+#Argument var.var714
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5162,7 +5222,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var703<-['Main', 'out_string']
+jalr $ra,$t0 #var.var715<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -5176,12 +5236,12 @@ lw $t0,8($a0)
 move $v0, $t0
 sw $v0,44($sp)
 lw $t0,40($sp)
-#Argument var.var704
+#Argument var.var716
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,48($sp)
-#Argument var.var705
+#Argument var.var717
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5189,7 +5249,7 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var706<-['Main', 'print']
+jalr $ra,$t0 #var.var718<-['Main', 'print']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -5203,7 +5263,7 @@ lw $t0,8($a0)
 move $v0, $t0
 sw $v0,56($sp)
 lw $t0,56($sp)
-#Argument var.var708
+#Argument var.var720
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -5211,19 +5271,19 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var709<-['A', 'value']
+jalr $ra,$t0 #var.var721<-['A', 'value']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,60($sp)
 lw $t0,52($sp)
-#Argument var.var707
+#Argument var.var719
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,64($sp)
-#Argument var.var709
+#Argument var.var721
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5231,7 +5291,7 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var710<-['Main', 'is_even']
+jalr $ra,$t0 #var.var722<-['Main', 'is_even']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -5246,12 +5306,12 @@ sw $v0,84($sp)
 la $v0, st67
 sw $v0,92($sp)
 lw $t0,84($sp)
-#Argument var.var714
+#Argument var.var726
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,96($sp)
-#Argument var.var715
+#Argument var.var727
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5259,7 +5319,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var716<-['Main', 'out_string']
+jalr $ra,$t0 #var.var728<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -5277,12 +5337,12 @@ sw $v0,68($sp)
 la $v0, st66
 sw $v0,76($sp)
 lw $t0,68($sp)
-#Argument var.var711
+#Argument var.var723
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,80($sp)
-#Argument var.var712
+#Argument var.var724
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5290,7 +5350,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var713<-['Main', 'out_string']
+jalr $ra,$t0 #var.var725<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -5311,12 +5371,12 @@ lw $t0,8($a0)
 move $v0, $t0
 sw $v0,112($sp)
 lw $t0,108($sp)
-#Argument var.var719
+#Argument var.var731
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,116($sp)
-#Argument var.var720
+#Argument var.var732
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5324,7 +5384,7 @@ lw $t0, 0($a0)
 lw $t0,52($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var721<-['Main', 'class_type']
+jalr $ra,$t0 #var.var733<-['Main', 'class_type']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -5335,7 +5395,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,124($sp)
 lw $t0,124($sp)
-#Argument var.var722
+#Argument var.var734
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -5343,7 +5403,7 @@ lw $t0, 0($a0)
 lw $t0,36($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var723<-['Main', 'menu']
+jalr $ra,$t0 #var.var735<-['Main', 'menu']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -5396,11 +5456,11 @@ lw $t0,212($sp)
 bgtz $t0, Lbl94
 lw $t0,4($a0)
 move $v0, $t0
-sw $v0,352($sp)
+sw $v0,376($sp)
 la $v0, st71
-sw $v0,360($sp)
-lw $t0,352($sp)
-lw $t1,360($sp)
+sw $v0,384($sp)
+lw $t0,376($sp)
+lw $t1,384($sp)
 addi $sp, $sp, -12
 sw $a0, 0($sp)
 sw $a1, 4($sp)
@@ -5412,16 +5472,16 @@ lw $a0, 0($sp)
 lw $a1, 4($sp)
 lw $ra, 8($sp)
 addi $sp, $sp, 12
-sw $v0,368($sp)
-lw $t0,368($sp)
+sw $v0,392($sp)
+lw $t0,392($sp)
 bgtz $t0, Lbl92
 lw $t0,4($a0)
 move $v0, $t0
-sw $v0,412($sp)
+sw $v0,436($sp)
 la $v0, st72
-sw $v0,420($sp)
-lw $t0,412($sp)
-lw $t1,420($sp)
+sw $v0,444($sp)
+lw $t0,436($sp)
+lw $t1,444($sp)
 addi $sp, $sp, -12
 sw $a0, 0($sp)
 sw $a1, 4($sp)
@@ -5433,16 +5493,16 @@ lw $a0, 0($sp)
 lw $a1, 4($sp)
 lw $ra, 8($sp)
 addi $sp, $sp, 12
-sw $v0,428($sp)
-lw $t0,428($sp)
+sw $v0,452($sp)
+lw $t0,452($sp)
 bgtz $t0, Lbl90
 lw $t0,4($a0)
 move $v0, $t0
-sw $v0,448($sp)
+sw $v0,472($sp)
 la $v0, st73
-sw $v0,456($sp)
-lw $t0,448($sp)
-lw $t1,456($sp)
+sw $v0,480($sp)
+lw $t0,472($sp)
+lw $t1,480($sp)
 addi $sp, $sp, -12
 sw $a0, 0($sp)
 sw $a1, 4($sp)
@@ -5454,16 +5514,16 @@ lw $a0, 0($sp)
 lw $a1, 4($sp)
 lw $ra, 8($sp)
 addi $sp, $sp, 12
-sw $v0,464($sp)
-lw $t0,464($sp)
+sw $v0,488($sp)
+lw $t0,488($sp)
 bgtz $t0, Lbl88
 lw $t0,4($a0)
 move $v0, $t0
-sw $v0,484($sp)
+sw $v0,508($sp)
 la $v0, st74
-sw $v0,492($sp)
-lw $t0,484($sp)
-lw $t1,492($sp)
+sw $v0,516($sp)
+lw $t0,508($sp)
+lw $t1,516($sp)
 addi $sp, $sp, -12
 sw $a0, 0($sp)
 sw $a1, 4($sp)
@@ -5475,16 +5535,16 @@ lw $a0, 0($sp)
 lw $a1, 4($sp)
 lw $ra, 8($sp)
 addi $sp, $sp, 12
-sw $v0,500($sp)
-lw $t0,500($sp)
+sw $v0,524($sp)
+lw $t0,524($sp)
 bgtz $t0, Lbl86
 lw $t0,4($a0)
 move $v0, $t0
-sw $v0,520($sp)
+sw $v0,544($sp)
 la $v0, st75
-sw $v0,528($sp)
-lw $t0,520($sp)
-lw $t1,528($sp)
+sw $v0,552($sp)
+lw $t0,544($sp)
+lw $t1,552($sp)
 addi $sp, $sp, -12
 sw $a0, 0($sp)
 sw $a1, 4($sp)
@@ -5496,16 +5556,16 @@ lw $a0, 0($sp)
 lw $a1, 4($sp)
 lw $ra, 8($sp)
 addi $sp, $sp, 12
-sw $v0,536($sp)
-lw $t0,536($sp)
+sw $v0,560($sp)
+lw $t0,560($sp)
 bgtz $t0, Lbl84
 lw $t0,4($a0)
 move $v0, $t0
-sw $v0,652($sp)
+sw $v0,676($sp)
 la $v0, st80
-sw $v0,660($sp)
-lw $t0,652($sp)
-lw $t1,660($sp)
+sw $v0,684($sp)
+lw $t0,676($sp)
+lw $t1,684($sp)
 addi $sp, $sp, -12
 sw $a0, 0($sp)
 sw $a1, 4($sp)
@@ -5517,34 +5577,13 @@ lw $a0, 0($sp)
 lw $a1, 4($sp)
 lw $ra, 8($sp)
 addi $sp, $sp, 12
-sw $v0,668($sp)
-lw $t0,668($sp)
+sw $v0,692($sp)
+lw $t0,692($sp)
 bgtz $t0, Lbl82
 lw $t0,4($a0)
 move $v0, $t0
-sw $v0,888($sp)
-la $v0, st85
-sw $v0,896($sp)
-lw $t0,888($sp)
-lw $t1,896($sp)
-addi $sp, $sp, -12
-sw $a0, 0($sp)
-sw $a1, 4($sp)
-sw $ra, 8($sp)
-move $a0, $t0
-move $a1, $t1
-jal .Str.stringcomparison
-lw $a0, 0($sp)
-lw $a1, 4($sp)
-lw $ra, 8($sp)
-addi $sp, $sp, 12
-sw $v0,904($sp)
-lw $t0,904($sp)
-bgtz $t0, Lbl80
-lw $t0,4($a0)
-move $v0, $t0
 sw $v0,912($sp)
-la $v0, st86
+la $v0, st85
 sw $v0,920($sp)
 lw $t0,912($sp)
 lw $t1,920($sp)
@@ -5561,6 +5600,27 @@ lw $ra, 8($sp)
 addi $sp, $sp, 12
 sw $v0,928($sp)
 lw $t0,928($sp)
+bgtz $t0, Lbl80
+lw $t0,4($a0)
+move $v0, $t0
+sw $v0,936($sp)
+la $v0, st86
+sw $v0,944($sp)
+lw $t0,936($sp)
+lw $t1,944($sp)
+addi $sp, $sp, -12
+sw $a0, 0($sp)
+sw $a1, 4($sp)
+sw $ra, 8($sp)
+move $a0, $t0
+move $a1, $t1
+jal .Str.stringcomparison
+lw $a0, 0($sp)
+lw $a1, 4($sp)
+lw $ra, 8($sp)
+addi $sp, $sp, 12
+sw $v0,952($sp)
+lw $t0,952($sp)
 bgtz $t0, Lbl78
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -5572,9 +5632,9 @@ sw $t0, 0($v0)
 sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,940($sp)
-lw $t0,940($sp)
-#Argument var.var900
+sw $v0,964($sp)
+lw $t0,964($sp)
+#Argument var.var918
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -5582,17 +5642,17 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var900<-['A', '$init']
+jalr $ra,$t0 #var.var918<-['A', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,940($sp)
+sw $v0,964($sp)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,944($sp)
-lw $t0,944($sp)
-#Argument var.var901
+sw $v0,968($sp)
+lw $t0,968($sp)
+#Argument var.var919
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -5600,19 +5660,19 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var902<-['A', 'value']
+jalr $ra,$t0 #var.var920<-['A', 'value']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,948($sp)
-lw $t0,940($sp)
-#Argument var.var900
+sw $v0,972($sp)
+lw $t0,964($sp)
+#Argument var.var918
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,952($sp)
-#Argument var.var902
+lw $t0,976($sp)
+#Argument var.var920
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5620,37 +5680,37 @@ lw $t0, 0($a0)
 lw $t0,28($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var903<-['A', 'method1']
+jalr $ra,$t0 #var.var921<-['A', 'method1']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,952($sp)
-lw $t0,952($sp)
+sw $v0,976($sp)
+lw $t0,976($sp)
 move $v0, $t0
 sw $v0,8($a0)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,956($sp)
+sw $v0,980($sp)
 b Lbl79
 Lbl78:
 move $t0, $zero
 move $v0, $t0
-sw $v0,936($sp)
-lw $t0,936($sp)
+sw $v0,960($sp)
+lw $t0,960($sp)
 move $v0, $t0
 sw $v0,16($a0)
 lw $t0,16($a0)
 move $v0, $t0
-sw $v0,956($sp)
+sw $v0,980($sp)
 Lbl79:
-lw $t0,956($sp)
+lw $t0,980($sp)
 move $v0, $t0
-sw $v0,960($sp)
-lw $t0,960($sp)
+sw $v0,984($sp)
+lw $t0,984($sp)
 move $v0, $t0
-sw $v0,964($sp)
+sw $v0,988($sp)
 b Lbl81
 Lbl80:
 addi $sp, $sp, -4
@@ -5663,9 +5723,9 @@ sw $t0, 0($v0)
 sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,908($sp)
-lw $t0,908($sp)
-#Argument var.var894
+sw $v0,932($sp)
+lw $t0,932($sp)
+#Argument var.var912
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -5673,36 +5733,36 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var894<-['A', '$init']
+jalr $ra,$t0 #var.var912<-['A', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,908($sp)
-lw $t0,908($sp)
+sw $v0,932($sp)
+lw $t0,932($sp)
 move $v0, $t0
 sw $v0,8($a0)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,964($sp)
+sw $v0,988($sp)
 Lbl81:
-lw $t0,964($sp)
+lw $t0,988($sp)
 move $v0, $t0
-sw $v0,968($sp)
-lw $t0,968($sp)
+sw $v0,992($sp)
+lw $t0,992($sp)
 move $v0, $t0
-sw $v0,972($sp)
+sw $v0,996($sp)
 b Lbl83
 Lbl82:
 li $t0,0
 move $v0, $t0
-sw $v0,676($sp)
-lw $t0,672($sp)
+sw $v0,700($sp)
+lw $t0,696($sp)
 move $v0, $t0
-sw $v0,680($sp)
-lw $t0,676($sp)
+sw $v0,704($sp)
+lw $t0,700($sp)
 move $v0, $t0
-sw $v0,672($sp)
+sw $v0,696($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,8
@@ -5713,9 +5773,9 @@ sw $t0, 0($v0)
 sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,684($sp)
-lw $t0,684($sp)
-#Argument var.var844
+sw $v0,708($sp)
+lw $t0,708($sp)
+#Argument var.var862
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -5723,17 +5783,17 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var844<-['E', '$init']
+jalr $ra,$t0 #var.var862<-['E', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,684($sp)
+sw $v0,708($sp)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,688($sp)
-lw $t0,688($sp)
-#Argument var.var845
+sw $v0,712($sp)
+lw $t0,712($sp)
+#Argument var.var863
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -5741,19 +5801,19 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var846<-['A', 'value']
+jalr $ra,$t0 #var.var864<-['A', 'value']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,692($sp)
-lw $t0,684($sp)
-#Argument var.var844
+sw $v0,716($sp)
+lw $t0,708($sp)
+#Argument var.var862
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,696($sp)
-#Argument var.var846
+lw $t0,720($sp)
+#Argument var.var864
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5761,21 +5821,39 @@ lw $t0, 0($a0)
 lw $t0,52($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var847<-['E', 'method6']
+jalr $ra,$t0 #var.var865<-['E', 'method6']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
+sw $v0,720($sp)
+lw $t0,720($sp)
+move $v0, $t0
 sw $v0,696($sp)
+lw $t0,8($a0)
+move $v0, $t0
+sw $v0,728($sp)
+lw $t0,728($sp)
+#Argument var.var866
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
+lw $t0, 0($a0)
+lw $t0,20($t0)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jalr $ra,$t0 #var.var867<-['A', 'value']
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+lw $a0, 0($sp)
+addi $sp, $sp, 4
+sw $v0,732($sp)
 lw $t0,696($sp)
 move $v0, $t0
-sw $v0,672($sp)
-lw $t0,8($a0)
-move $v0, $t0
-sw $v0,704($sp)
-lw $t0,704($sp)
-#Argument var.var848
+sw $v0,736($sp)
+lw $t0,736($sp)
+#Argument var.var868
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -5783,113 +5861,42 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var849<-['A', 'value']
+jalr $ra,$t0 #var.var869<-['A', 'value']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,708($sp)
-lw $t0,672($sp)
-move $v0, $t0
-sw $v0,712($sp)
-lw $t0,712($sp)
-#Argument var.var850
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
-lw $t0, 0($a0)
-lw $t0,20($t0)
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-jalr $ra,$t0 #var.var851<-['A', 'value']
-lw $ra, 0($sp)
-addi $sp, $sp, 4
-lw $a0, 0($sp)
-addi $sp, $sp, 4
-sw $v0,716($sp)
+sw $v0,740($sp)
 li $t0,8
 move $v0, $t0
-sw $v0,720($sp)
-lw $t0,716($sp)
-lw $t1,720($sp)
+sw $v0,744($sp)
+lw $t0,740($sp)
+lw $t1,744($sp)
 mult $t0, $t1
 mflo $v0
-sw $v0,728($sp)
-lw $t0,708($sp)
-lw $t1,728($sp)
-sub $v0, $t0, $t1
-sw $v0,736($sp)
-lw $t0,700($sp)
-move $v0, $t0
-sw $v0,740($sp)
-lw $t0,736($sp)
-move $v0, $t0
-sw $v0,700($sp)
-move $t0,$a0
-move $v0, $t0
-sw $v0,744($sp)
-la $v0, st81
 sw $v0,752($sp)
-lw $t0,744($sp)
-#Argument var.var858
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
-lw $t0,756($sp)
-#Argument var.var859
-addi $sp, $sp, -4
-sw $a1, 0($sp)
-move $a1,$t0
-lw $t0, 0($a0)
-lw $t0,20($t0)
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-jalr $ra,$t0 #var.var860<-['Main', 'out_string']
-lw $ra, 0($sp)
-addi $sp, $sp, 4
-lw $a1, 0($sp)
-lw $a0, 4($sp)
-addi $sp, $sp, 8
-sw $v0,756($sp)
-move $t0,$a0
-move $v0, $t0
+lw $t0,732($sp)
+lw $t1,752($sp)
+sub $v0, $t0, $t1
 sw $v0,760($sp)
-lw $t0,8($a0)
+lw $t0,724($sp)
 move $v0, $t0
 sw $v0,764($sp)
 lw $t0,760($sp)
-#Argument var.var861
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
-lw $t0,768($sp)
-#Argument var.var862
-addi $sp, $sp, -4
-sw $a1, 0($sp)
-move $a1,$t0
-lw $t0, 0($a0)
-lw $t0,56($t0)
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-jalr $ra,$t0 #var.var863<-['Main', 'print']
-lw $ra, 0($sp)
-addi $sp, $sp, 4
-lw $a1, 0($sp)
-lw $a0, 4($sp)
-addi $sp, $sp, 8
-sw $v0,768($sp)
+move $v0, $t0
+sw $v0,724($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,772($sp)
-la $v0, st82
-sw $v0,780($sp)
-lw $t0,772($sp)
-#Argument var.var864
+sw $v0,768($sp)
+la $v0, st81
+sw $v0,776($sp)
+lw $t0,768($sp)
+#Argument var.var876
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,784($sp)
-#Argument var.var865
+lw $t0,780($sp)
+#Argument var.var877
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5897,26 +5904,26 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var866<-['Main', 'out_string']
+jalr $ra,$t0 #var.var878<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,784($sp)
+sw $v0,780($sp)
 move $t0,$a0
+move $v0, $t0
+sw $v0,784($sp)
+lw $t0,8($a0)
 move $v0, $t0
 sw $v0,788($sp)
-lw $t0,672($sp)
-move $v0, $t0
-sw $v0,792($sp)
-lw $t0,788($sp)
-#Argument var.var867
+lw $t0,784($sp)
+#Argument var.var879
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,796($sp)
-#Argument var.var868
+lw $t0,792($sp)
+#Argument var.var880
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5924,25 +5931,25 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var869<-['Main', 'print']
+jalr $ra,$t0 #var.var881<-['Main', 'print']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,796($sp)
+sw $v0,792($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,800($sp)
-la $v0, st83
-sw $v0,808($sp)
-lw $t0,800($sp)
-#Argument var.var870
+sw $v0,796($sp)
+la $v0, st82
+sw $v0,804($sp)
+lw $t0,796($sp)
+#Argument var.var882
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,812($sp)
-#Argument var.var871
+lw $t0,808($sp)
+#Argument var.var883
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -5950,13 +5957,66 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var872<-['Main', 'out_string']
+jalr $ra,$t0 #var.var884<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
+sw $v0,808($sp)
+move $t0,$a0
+move $v0, $t0
 sw $v0,812($sp)
+lw $t0,696($sp)
+move $v0, $t0
+sw $v0,816($sp)
+lw $t0,812($sp)
+#Argument var.var885
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
+lw $t0,820($sp)
+#Argument var.var886
+addi $sp, $sp, -4
+sw $a1, 0($sp)
+move $a1,$t0
+lw $t0, 0($a0)
+lw $t0,56($t0)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jalr $ra,$t0 #var.var887<-['Main', 'print']
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+lw $a1, 0($sp)
+lw $a0, 4($sp)
+addi $sp, $sp, 8
+sw $v0,820($sp)
+move $t0,$a0
+move $v0, $t0
+sw $v0,824($sp)
+la $v0, st83
+sw $v0,832($sp)
+lw $t0,824($sp)
+#Argument var.var888
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
+lw $t0,836($sp)
+#Argument var.var889
+addi $sp, $sp, -4
+sw $a1, 0($sp)
+move $a1,$t0
+lw $t0, 0($a0)
+lw $t0,20($t0)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jalr $ra,$t0 #var.var890<-['Main', 'out_string']
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+lw $a1, 0($sp)
+lw $a0, 4($sp)
+addi $sp, $sp, 8
+sw $v0,836($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,4
@@ -5966,9 +6026,9 @@ la $t0, A2Iclase
 sw $t0, 0($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,816($sp)
-lw $t0,816($sp)
-#Argument var.var873
+sw $v0,840($sp)
+lw $t0,840($sp)
+#Argument var.var891
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -5976,34 +6036,34 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var873<-['A2I', '$init']
+jalr $ra,$t0 #var.var891<-['A2I', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,816($sp)
-lw $t0,268($sp)
+sw $v0,840($sp)
+lw $t0,276($sp)
 move $v0, $t0
-sw $v0,820($sp)
-lw $t0,816($sp)
+sw $v0,844($sp)
+lw $t0,840($sp)
 move $v0, $t0
-sw $v0,268($sp)
+sw $v0,276($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,824($sp)
-lw $t0,268($sp)
+sw $v0,848($sp)
+lw $t0,276($sp)
 move $v0, $t0
-sw $v0,828($sp)
-lw $t0,700($sp)
+sw $v0,852($sp)
+lw $t0,724($sp)
 move $v0, $t0
-sw $v0,832($sp)
-lw $t0,828($sp)
-#Argument var.var876
+sw $v0,856($sp)
+lw $t0,852($sp)
+#Argument var.var894
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,836($sp)
-#Argument var.var877
+lw $t0,860($sp)
+#Argument var.var895
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6011,20 +6071,20 @@ lw $t0, 0($a0)
 lw $t0,36($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var878<-['A2I', 'i2a']
+jalr $ra,$t0 #var.var896<-['A2I', 'i2a']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,836($sp)
-lw $t0,824($sp)
-#Argument var.var875
+sw $v0,860($sp)
+lw $t0,848($sp)
+#Argument var.var893
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,840($sp)
-#Argument var.var878
+lw $t0,864($sp)
+#Argument var.var896
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6032,25 +6092,25 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var879<-['Main', 'out_string']
+jalr $ra,$t0 #var.var897<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,840($sp)
+sw $v0,864($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,844($sp)
+sw $v0,868($sp)
 la $v0, st84
-sw $v0,852($sp)
-lw $t0,844($sp)
-#Argument var.var880
+sw $v0,876($sp)
+lw $t0,868($sp)
+#Argument var.var898
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,856($sp)
-#Argument var.var881
+lw $t0,880($sp)
+#Argument var.var899
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6058,56 +6118,56 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var882<-['Main', 'out_string']
+jalr $ra,$t0 #var.var900<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,856($sp)
-lw $t0,856($sp)
+sw $v0,880($sp)
+lw $t0,880($sp)
 move $v0, $t0
-sw $v0,860($sp)
-lw $t0,820($sp)
+sw $v0,884($sp)
+lw $t0,844($sp)
 move $v0, $t0
-sw $v0,268($sp)
-lw $t0,860($sp)
+sw $v0,276($sp)
+lw $t0,884($sp)
 move $v0, $t0
-sw $v0,864($sp)
-lw $t0,864($sp)
+sw $v0,888($sp)
+lw $t0,888($sp)
 move $v0, $t0
-sw $v0,868($sp)
-lw $t0,740($sp)
+sw $v0,892($sp)
+lw $t0,764($sp)
 move $v0, $t0
-sw $v0,700($sp)
-lw $t0,868($sp)
+sw $v0,724($sp)
+lw $t0,892($sp)
 move $v0, $t0
-sw $v0,872($sp)
-lw $t0,672($sp)
+sw $v0,896($sp)
+lw $t0,696($sp)
 move $v0, $t0
-sw $v0,876($sp)
-lw $t0,876($sp)
+sw $v0,900($sp)
+lw $t0,900($sp)
 move $v0, $t0
 sw $v0,8($a0)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,880($sp)
-lw $t0,680($sp)
+sw $v0,904($sp)
+lw $t0,704($sp)
 move $v0, $t0
-sw $v0,672($sp)
-lw $t0,880($sp)
+sw $v0,696($sp)
+lw $t0,904($sp)
 move $v0, $t0
-sw $v0,884($sp)
-lw $t0,884($sp)
+sw $v0,908($sp)
+lw $t0,908($sp)
 move $v0, $t0
-sw $v0,972($sp)
+sw $v0,996($sp)
 Lbl83:
-lw $t0,972($sp)
+lw $t0,996($sp)
 move $v0, $t0
-sw $v0,976($sp)
-lw $t0,976($sp)
+sw $v0,1000($sp)
+lw $t0,1000($sp)
 move $v0, $t0
-sw $v0,980($sp)
+sw $v0,1004($sp)
 b Lbl85
 Lbl84:
 addi $sp, $sp, -4
@@ -6120,9 +6180,9 @@ sw $t0, 0($v0)
 sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,540($sp)
-lw $t0,540($sp)
-#Argument var.var814
+sw $v0,564($sp)
+lw $t0,564($sp)
+#Argument var.var832
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -6130,17 +6190,17 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var814<-['D', '$init']
+jalr $ra,$t0 #var.var832<-['D', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,540($sp)
+sw $v0,564($sp)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,544($sp)
-lw $t0,544($sp)
-#Argument var.var815
+sw $v0,568($sp)
+lw $t0,568($sp)
+#Argument var.var833
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -6148,19 +6208,19 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var816<-['A', 'value']
+jalr $ra,$t0 #var.var834<-['A', 'value']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,548($sp)
-lw $t0,540($sp)
-#Argument var.var814
+sw $v0,572($sp)
+lw $t0,564($sp)
+#Argument var.var832
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,552($sp)
-#Argument var.var816
+lw $t0,576($sp)
+#Argument var.var834
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6168,27 +6228,27 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var817<-['D', 'method7']
+jalr $ra,$t0 #var.var835<-['D', 'method7']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,552($sp)
-lw $t0,552($sp)
+sw $v0,576($sp)
+lw $t0,576($sp)
 bgtz $t0, Lbl76
 move $t0,$a0
 move $v0, $t0
-sw $v0,600($sp)
+sw $v0,624($sp)
 la $v0, st78
-sw $v0,608($sp)
-lw $t0,600($sp)
-#Argument var.var827
+sw $v0,632($sp)
+lw $t0,624($sp)
+#Argument var.var845
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,612($sp)
-#Argument var.var828
+lw $t0,636($sp)
+#Argument var.var846
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6196,26 +6256,26 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var829<-['Main', 'out_string']
+jalr $ra,$t0 #var.var847<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,612($sp)
+sw $v0,636($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,616($sp)
+sw $v0,640($sp)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,620($sp)
-lw $t0,616($sp)
-#Argument var.var830
+sw $v0,644($sp)
+lw $t0,640($sp)
+#Argument var.var848
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,624($sp)
-#Argument var.var831
+lw $t0,648($sp)
+#Argument var.var849
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6223,25 +6283,25 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var832<-['Main', 'print']
+jalr $ra,$t0 #var.var850<-['Main', 'print']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,624($sp)
+sw $v0,648($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,628($sp)
+sw $v0,652($sp)
 la $v0, st79
-sw $v0,636($sp)
-lw $t0,628($sp)
-#Argument var.var833
+sw $v0,660($sp)
+lw $t0,652($sp)
+#Argument var.var851
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,640($sp)
-#Argument var.var834
+lw $t0,664($sp)
+#Argument var.var852
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6249,30 +6309,30 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var835<-['Main', 'out_string']
+jalr $ra,$t0 #var.var853<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,640($sp)
-lw $t0,640($sp)
+sw $v0,664($sp)
+lw $t0,664($sp)
 move $v0, $t0
-sw $v0,644($sp)
+sw $v0,668($sp)
 b Lbl77
 Lbl76:
 move $t0,$a0
 move $v0, $t0
-sw $v0,556($sp)
+sw $v0,580($sp)
 la $v0, st76
-sw $v0,564($sp)
-lw $t0,556($sp)
-#Argument var.var818
+sw $v0,588($sp)
+lw $t0,580($sp)
+#Argument var.var836
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,568($sp)
-#Argument var.var819
+lw $t0,592($sp)
+#Argument var.var837
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6280,26 +6340,26 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var820<-['Main', 'out_string']
+jalr $ra,$t0 #var.var838<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,568($sp)
+sw $v0,592($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,572($sp)
+sw $v0,596($sp)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,576($sp)
-lw $t0,572($sp)
-#Argument var.var821
+sw $v0,600($sp)
+lw $t0,596($sp)
+#Argument var.var839
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,580($sp)
-#Argument var.var822
+lw $t0,604($sp)
+#Argument var.var840
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6307,25 +6367,25 @@ lw $t0, 0($a0)
 lw $t0,56($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var823<-['Main', 'print']
+jalr $ra,$t0 #var.var841<-['Main', 'print']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,580($sp)
+sw $v0,604($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,584($sp)
+sw $v0,608($sp)
 la $v0, st77
-sw $v0,592($sp)
-lw $t0,584($sp)
-#Argument var.var824
+sw $v0,616($sp)
+lw $t0,608($sp)
+#Argument var.var842
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,596($sp)
-#Argument var.var825
+lw $t0,620($sp)
+#Argument var.var843
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6333,30 +6393,30 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var826<-['Main', 'out_string']
+jalr $ra,$t0 #var.var844<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,596($sp)
-lw $t0,596($sp)
+sw $v0,620($sp)
+lw $t0,620($sp)
 move $v0, $t0
-sw $v0,644($sp)
+sw $v0,668($sp)
 Lbl77:
-lw $t0,644($sp)
+lw $t0,668($sp)
 move $v0, $t0
-sw $v0,648($sp)
-lw $t0,648($sp)
+sw $v0,672($sp)
+lw $t0,672($sp)
 move $v0, $t0
-sw $v0,980($sp)
+sw $v0,1004($sp)
 Lbl85:
-lw $t0,980($sp)
+lw $t0,1004($sp)
 move $v0, $t0
-sw $v0,984($sp)
-lw $t0,984($sp)
+sw $v0,1008($sp)
+lw $t0,1008($sp)
 move $v0, $t0
-sw $v0,988($sp)
+sw $v0,1012($sp)
 b Lbl87
 Lbl86:
 addi $sp, $sp, -4
@@ -6369,9 +6429,9 @@ sw $t0, 0($v0)
 sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,504($sp)
-lw $t0,504($sp)
-#Argument var.var806
+sw $v0,528($sp)
+lw $t0,528($sp)
+#Argument var.var824
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -6379,17 +6439,17 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var806<-['C', '$init']
+jalr $ra,$t0 #var.var824<-['C', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,504($sp)
+sw $v0,528($sp)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,508($sp)
-lw $t0,508($sp)
-#Argument var.var807
+sw $v0,532($sp)
+lw $t0,532($sp)
+#Argument var.var825
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -6397,19 +6457,19 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var808<-['A', 'value']
+jalr $ra,$t0 #var.var826<-['A', 'value']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,512($sp)
-lw $t0,504($sp)
-#Argument var.var806
+sw $v0,536($sp)
+lw $t0,528($sp)
+#Argument var.var824
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,516($sp)
-#Argument var.var808
+lw $t0,540($sp)
+#Argument var.var826
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6417,26 +6477,26 @@ la $t0,Cclase
 lw $t0,44($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jal $t0 #var.var809<-['C', 'method5']
+jal $t0 #var.var827<-['C', 'method5']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,516($sp)
-lw $t0,516($sp)
+sw $v0,540($sp)
+lw $t0,540($sp)
 move $v0, $t0
 sw $v0,8($a0)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,988($sp)
+sw $v0,1012($sp)
 Lbl87:
-lw $t0,988($sp)
+lw $t0,1012($sp)
 move $v0, $t0
-sw $v0,992($sp)
-lw $t0,992($sp)
+sw $v0,1016($sp)
+lw $t0,1016($sp)
 move $v0, $t0
-sw $v0,996($sp)
+sw $v0,1020($sp)
 b Lbl89
 Lbl88:
 addi $sp, $sp, -4
@@ -6449,8 +6509,236 @@ sw $t0, 0($v0)
 sw $zero, 4($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
+sw $v0,492($sp)
+lw $t0,492($sp)
+#Argument var.var816
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
+lw $t0, 0($a0)
+lw $t0,4($t0)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jalr $ra,$t0 #var.var816<-['C', '$init']
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+lw $a0, 0($sp)
+addi $sp, $sp, 4
+sw $v0,492($sp)
+lw $t0,8($a0)
+move $v0, $t0
+sw $v0,496($sp)
+lw $t0,496($sp)
+#Argument var.var817
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
+lw $t0, 0($a0)
+lw $t0,20($t0)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jalr $ra,$t0 #var.var818<-['A', 'value']
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+lw $a0, 0($sp)
+addi $sp, $sp, 4
+sw $v0,500($sp)
+lw $t0,492($sp)
+#Argument var.var816
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
+lw $t0,504($sp)
+#Argument var.var818
+addi $sp, $sp, -4
+sw $a1, 0($sp)
+move $a1,$t0
+la $t0,Bclase
+lw $t0,44($t0)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jal $t0 #var.var819<-['B', 'method5']
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+lw $a1, 0($sp)
+lw $a0, 4($sp)
+addi $sp, $sp, 8
+sw $v0,504($sp)
+lw $t0,504($sp)
+move $v0, $t0
+sw $v0,8($a0)
+lw $t0,8($a0)
+move $v0, $t0
+sw $v0,1020($sp)
+Lbl89:
+lw $t0,1020($sp)
+move $v0, $t0
+sw $v0,1024($sp)
+lw $t0,1024($sp)
+move $v0, $t0
+sw $v0,1028($sp)
+b Lbl91
+Lbl90:
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+li $a0,8
+li $v0, 9
+syscall
+la $t0, Cclase
+sw $t0, 0($v0)
+sw $zero, 4($v0)
+lw $a0, 0($sp)
+addi $sp, $sp, 4
+sw $v0,456($sp)
+lw $t0,456($sp)
+#Argument var.var808
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
+lw $t0, 0($a0)
+lw $t0,4($t0)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jalr $ra,$t0 #var.var808<-['C', '$init']
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+lw $a0, 0($sp)
+addi $sp, $sp, 4
+sw $v0,456($sp)
+lw $t0,8($a0)
+move $v0, $t0
+sw $v0,460($sp)
+lw $t0,460($sp)
+#Argument var.var809
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
+lw $t0, 0($a0)
+lw $t0,20($t0)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jalr $ra,$t0 #var.var810<-['A', 'value']
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+lw $a0, 0($sp)
+addi $sp, $sp, 4
+sw $v0,464($sp)
+lw $t0,456($sp)
+#Argument var.var808
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
+lw $t0,468($sp)
+#Argument var.var810
+addi $sp, $sp, -4
+sw $a1, 0($sp)
+move $a1,$t0
+la $t0,Aclase
+lw $t0,44($t0)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jal $t0 #var.var811<-['A', 'method5']
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+lw $a1, 0($sp)
+lw $a0, 4($sp)
+addi $sp, $sp, 8
 sw $v0,468($sp)
 lw $t0,468($sp)
+move $v0, $t0
+sw $v0,8($a0)
+lw $t0,8($a0)
+move $v0, $t0
+sw $v0,1028($sp)
+Lbl91:
+lw $t0,1028($sp)
+move $v0, $t0
+sw $v0,1032($sp)
+lw $t0,1032($sp)
+move $v0, $t0
+sw $v0,1036($sp)
+b Lbl93
+Lbl92:
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+li $a0,8
+li $v0, 9
+syscall
+la $t0, Aclase
+sw $t0, 0($v0)
+sw $zero, 4($v0)
+lw $a0, 0($sp)
+addi $sp, $sp, 4
+sw $v0,396($sp)
+lw $t0,396($sp)
+#Argument var.var794
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
+lw $t0, 0($a0)
+lw $t0,4($t0)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jalr $ra,$t0 #var.var794<-['A', '$init']
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+lw $a0, 0($sp)
+addi $sp, $sp, 4
+sw $v0,396($sp)
+move $t0,$a0
+move $v0, $t0
+sw $v0,400($sp)
+lw $t0,400($sp)
+#Argument var.var795
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
+lw $t0, 0($a0)
+lw $t0,44($t0)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jalr $ra,$t0 #var.var796<-['Main', 'get_int']
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+lw $a0, 0($sp)
+addi $sp, $sp, 4
+sw $v0,404($sp)
+lw $t0,396($sp)
+#Argument var.var794
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
+lw $t0,408($sp)
+#Argument var.var796
+addi $sp, $sp, -4
+sw $a1, 0($sp)
+move $a1,$t0
+lw $t0, 0($a0)
+lw $t0,24($t0)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jalr $ra,$t0 #var.var797<-['A', 'set_var']
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+lw $a1, 0($sp)
+lw $a0, 4($sp)
+addi $sp, $sp, 8
+sw $v0,408($sp)
+lw $t0,408($sp)
+move $v0, $t0
+sw $v0,12($a0)
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+li $a0,8
+li $v0, 9
+syscall
+la $t0, Dclase
+sw $t0, 0($v0)
+sw $zero, 4($v0)
+lw $a0, 0($sp)
+addi $sp, $sp, 4
+sw $v0,412($sp)
+lw $t0,412($sp)
 #Argument var.var798
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -6459,16 +6747,16 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var798<-['C', '$init']
+jalr $ra,$t0 #var.var798<-['D', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,468($sp)
+sw $v0,412($sp)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,472($sp)
-lw $t0,472($sp)
+sw $v0,416($sp)
+lw $t0,416($sp)
 #Argument var.var799
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -6482,265 +6770,37 @@ lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,476($sp)
-lw $t0,468($sp)
+sw $v0,420($sp)
+lw $t0,12($a0)
+move $v0, $t0
+sw $v0,424($sp)
+lw $t0,424($sp)
+#Argument var.var801
+addi $sp, $sp, -4
+sw $a0, 0($sp)
+move $a0,$t0
+lw $t0, 0($a0)
+lw $t0,20($t0)
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+jalr $ra,$t0 #var.var802<-['A', 'value']
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+lw $a0, 0($sp)
+addi $sp, $sp, 4
+sw $v0,428($sp)
+lw $t0,412($sp)
 #Argument var.var798
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,480($sp)
+lw $t0,424($sp)
 #Argument var.var800
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
-la $t0,Bclase
-lw $t0,44($t0)
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-jal $t0 #var.var801<-['B', 'method5']
-lw $ra, 0($sp)
-addi $sp, $sp, 4
-lw $a1, 0($sp)
-lw $a0, 4($sp)
-addi $sp, $sp, 8
-sw $v0,480($sp)
-lw $t0,480($sp)
-move $v0, $t0
-sw $v0,8($a0)
-lw $t0,8($a0)
-move $v0, $t0
-sw $v0,996($sp)
-Lbl89:
-lw $t0,996($sp)
-move $v0, $t0
-sw $v0,1000($sp)
-lw $t0,1000($sp)
-move $v0, $t0
-sw $v0,1004($sp)
-b Lbl91
-Lbl90:
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-li $a0,8
-li $v0, 9
-syscall
-la $t0, Cclase
-sw $t0, 0($v0)
-sw $zero, 4($v0)
-lw $a0, 0($sp)
-addi $sp, $sp, 4
-sw $v0,432($sp)
-lw $t0,432($sp)
-#Argument var.var790
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
-lw $t0, 0($a0)
-lw $t0,4($t0)
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-jalr $ra,$t0 #var.var790<-['C', '$init']
-lw $ra, 0($sp)
-addi $sp, $sp, 4
-lw $a0, 0($sp)
-addi $sp, $sp, 4
-sw $v0,432($sp)
-lw $t0,8($a0)
-move $v0, $t0
-sw $v0,436($sp)
 lw $t0,436($sp)
-#Argument var.var791
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
-lw $t0, 0($a0)
-lw $t0,20($t0)
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-jalr $ra,$t0 #var.var792<-['A', 'value']
-lw $ra, 0($sp)
-addi $sp, $sp, 4
-lw $a0, 0($sp)
-addi $sp, $sp, 4
-sw $v0,440($sp)
-lw $t0,432($sp)
-#Argument var.var790
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
-lw $t0,444($sp)
-#Argument var.var792
-addi $sp, $sp, -4
-sw $a1, 0($sp)
-move $a1,$t0
-la $t0,Aclase
-lw $t0,44($t0)
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-jal $t0 #var.var793<-['A', 'method5']
-lw $ra, 0($sp)
-addi $sp, $sp, 4
-lw $a1, 0($sp)
-lw $a0, 4($sp)
-addi $sp, $sp, 8
-sw $v0,444($sp)
-lw $t0,444($sp)
-move $v0, $t0
-sw $v0,8($a0)
-lw $t0,8($a0)
-move $v0, $t0
-sw $v0,1004($sp)
-Lbl91:
-lw $t0,1004($sp)
-move $v0, $t0
-sw $v0,1008($sp)
-lw $t0,1008($sp)
-move $v0, $t0
-sw $v0,1012($sp)
-b Lbl93
-Lbl92:
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-li $a0,8
-li $v0, 9
-syscall
-la $t0, Aclase
-sw $t0, 0($v0)
-sw $zero, 4($v0)
-lw $a0, 0($sp)
-addi $sp, $sp, 4
-sw $v0,372($sp)
-lw $t0,372($sp)
-#Argument var.var776
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
-lw $t0, 0($a0)
-lw $t0,4($t0)
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-jalr $ra,$t0 #var.var776<-['A', '$init']
-lw $ra, 0($sp)
-addi $sp, $sp, 4
-lw $a0, 0($sp)
-addi $sp, $sp, 4
-sw $v0,372($sp)
-move $t0,$a0
-move $v0, $t0
-sw $v0,376($sp)
-lw $t0,376($sp)
-#Argument var.var777
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
-lw $t0, 0($a0)
-lw $t0,44($t0)
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-jalr $ra,$t0 #var.var778<-['Main', 'get_int']
-lw $ra, 0($sp)
-addi $sp, $sp, 4
-lw $a0, 0($sp)
-addi $sp, $sp, 4
-sw $v0,380($sp)
-lw $t0,372($sp)
-#Argument var.var776
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
-lw $t0,384($sp)
-#Argument var.var778
-addi $sp, $sp, -4
-sw $a1, 0($sp)
-move $a1,$t0
-lw $t0, 0($a0)
-lw $t0,24($t0)
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-jalr $ra,$t0 #var.var779<-['A', 'set_var']
-lw $ra, 0($sp)
-addi $sp, $sp, 4
-lw $a1, 0($sp)
-lw $a0, 4($sp)
-addi $sp, $sp, 8
-sw $v0,384($sp)
-lw $t0,384($sp)
-move $v0, $t0
-sw $v0,12($a0)
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-li $a0,8
-li $v0, 9
-syscall
-la $t0, Dclase
-sw $t0, 0($v0)
-sw $zero, 4($v0)
-lw $a0, 0($sp)
-addi $sp, $sp, 4
-sw $v0,388($sp)
-lw $t0,388($sp)
-#Argument var.var780
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
-lw $t0, 0($a0)
-lw $t0,4($t0)
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-jalr $ra,$t0 #var.var780<-['D', '$init']
-lw $ra, 0($sp)
-addi $sp, $sp, 4
-lw $a0, 0($sp)
-addi $sp, $sp, 4
-sw $v0,388($sp)
-lw $t0,8($a0)
-move $v0, $t0
-sw $v0,392($sp)
-lw $t0,392($sp)
-#Argument var.var781
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
-lw $t0, 0($a0)
-lw $t0,20($t0)
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-jalr $ra,$t0 #var.var782<-['A', 'value']
-lw $ra, 0($sp)
-addi $sp, $sp, 4
-lw $a0, 0($sp)
-addi $sp, $sp, 4
-sw $v0,396($sp)
-lw $t0,12($a0)
-move $v0, $t0
-sw $v0,400($sp)
-lw $t0,400($sp)
-#Argument var.var783
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
-lw $t0, 0($a0)
-lw $t0,20($t0)
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-jalr $ra,$t0 #var.var784<-['A', 'value']
-lw $ra, 0($sp)
-addi $sp, $sp, 4
-lw $a0, 0($sp)
-addi $sp, $sp, 4
-sw $v0,404($sp)
-lw $t0,388($sp)
-#Argument var.var780
-addi $sp, $sp, -4
-sw $a0, 0($sp)
-move $a0,$t0
-lw $t0,400($sp)
-#Argument var.var782
-addi $sp, $sp, -4
-sw $a1, 0($sp)
-move $a1,$t0
-lw $t0,412($sp)
-#Argument var.var784
+#Argument var.var802
 addi $sp, $sp, -4
 sw $a2, 0($sp)
 move $a2,$t0
@@ -6748,27 +6808,27 @@ lw $t0, 0($a0)
 lw $t0,40($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var785<-['D', 'method4']
+jalr $ra,$t0 #var.var803<-['D', 'method4']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a2, 0($sp)
 lw $a1, 4($sp)
 lw $a0, 8($sp)
 addi $sp, $sp, 12
-sw $v0,408($sp)
-lw $t0,408($sp)
+sw $v0,432($sp)
+lw $t0,432($sp)
 move $v0, $t0
 sw $v0,8($a0)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,1012($sp)
+sw $v0,1036($sp)
 Lbl93:
-lw $t0,1012($sp)
+lw $t0,1036($sp)
 move $v0, $t0
-sw $v0,1016($sp)
-lw $t0,1016($sp)
+sw $v0,1040($sp)
+lw $t0,1040($sp)
 move $v0, $t0
-sw $v0,1020($sp)
+sw $v0,1044($sp)
 b Lbl95
 Lbl94:
 lw $t0,8($a0)
@@ -6783,18 +6843,24 @@ lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,236($sp)
 lw $t0,236($sp)
-bgtz $t0, var.var747
+seq $v0, $t0, $zero
+sw $v0,240($sp)
+lw $t0,240($sp)
+bgtz $t0, var.var760
+lw $t0,232($sp)
+move $v0, $t0
+sw $v0,248($sp)
 lw $t0,216($sp)
 move $v0, $t0
 sw $v0,232($sp)
 lw $t0,232($sp)
 move $v0, $t0
-sw $v0,244($sp)
+sw $v0,252($sp)
 lw $t0,232($sp)
 move $v0, $t0
-sw $v0,248($sp)
-lw $t0,248($sp)
-#Argument var.var749
+sw $v0,256($sp)
+lw $t0,256($sp)
+#Argument var.var763
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -6802,19 +6868,19 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var750<-['C', 'value']
+jalr $ra,$t0 #var.var764<-['C', 'value']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,252($sp)
-lw $t0,244($sp)
-#Argument var.var748
+sw $v0,260($sp)
+lw $t0,252($sp)
+#Argument var.var762
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,256($sp)
-#Argument var.var750
+lw $t0,264($sp)
+#Argument var.var764
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6822,23 +6888,27 @@ lw $t0, 0($a0)
 lw $t0,48($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var751<-['C', 'method6']
+jalr $ra,$t0 #var.var765<-['C', 'method6']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,256($sp)
-lw $t0,256($sp)
+sw $v0,264($sp)
+lw $t0,264($sp)
 move $v0, $t0
 sw $v0,8($a0)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,260($sp)
-lw $t0,260($sp)
+sw $v0,268($sp)
+lw $t0,248($sp)
+move $v0, $t0
+sw $v0,232($sp)
+lw $t0,268($sp)
 move $v0, $t0
 sw $v0,220($sp)
-var.var747:
+b var.var756
+var.var760:
 lw $t0,216($sp)
 la $t1,Aclase
 addi $sp ,$sp, -4
@@ -6846,20 +6916,26 @@ sw $ra, 0($sp)
 jal .TypeCheck
 lw $ra, 0($sp)
 addi $sp ,$sp, 4
-sw $v0,272($sp)
-lw $t0,272($sp)
-bgtz $t0, var.var755
-lw $t0,216($sp)
-move $v0, $t0
-sw $v0,268($sp)
-lw $t0,268($sp)
-move $v0, $t0
 sw $v0,280($sp)
-lw $t0,268($sp)
-move $v0, $t0
+lw $t0,280($sp)
+seq $v0, $t0, $zero
 sw $v0,284($sp)
 lw $t0,284($sp)
-#Argument var.var757
+bgtz $t0, var.var770
+lw $t0,276($sp)
+move $v0, $t0
+sw $v0,292($sp)
+lw $t0,216($sp)
+move $v0, $t0
+sw $v0,276($sp)
+lw $t0,276($sp)
+move $v0, $t0
+sw $v0,296($sp)
+lw $t0,276($sp)
+move $v0, $t0
+sw $v0,300($sp)
+lw $t0,300($sp)
+#Argument var.var773
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -6867,19 +6943,19 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var758<-['A', 'value']
+jalr $ra,$t0 #var.var774<-['A', 'value']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,288($sp)
-lw $t0,280($sp)
-#Argument var.var756
+sw $v0,304($sp)
+lw $t0,296($sp)
+#Argument var.var772
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,292($sp)
-#Argument var.var758
+lw $t0,308($sp)
+#Argument var.var774
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6887,23 +6963,27 @@ lw $t0, 0($a0)
 lw $t0,36($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var759<-['A', 'method3']
+jalr $ra,$t0 #var.var775<-['A', 'method3']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,292($sp)
-lw $t0,292($sp)
+sw $v0,308($sp)
+lw $t0,308($sp)
 move $v0, $t0
 sw $v0,8($a0)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,296($sp)
-lw $t0,296($sp)
+sw $v0,312($sp)
+lw $t0,292($sp)
+move $v0, $t0
+sw $v0,276($sp)
+lw $t0,312($sp)
 move $v0, $t0
 sw $v0,220($sp)
-var.var755:
+b var.var756
+var.var770:
 lw $t0,216($sp)
 la $t1,Objectclase
 addi $sp ,$sp, -4
@@ -6911,24 +6991,30 @@ sw $ra, 0($sp)
 jal .TypeCheck
 lw $ra, 0($sp)
 addi $sp ,$sp, 4
-sw $v0,308($sp)
-lw $t0,308($sp)
-bgtz $t0, var.var763
+sw $v0,324($sp)
+lw $t0,324($sp)
+seq $v0, $t0, $zero
+sw $v0,328($sp)
+lw $t0,328($sp)
+bgtz $t0, var.var780
+lw $t0,320($sp)
+move $v0, $t0
+sw $v0,336($sp)
 lw $t0,216($sp)
 move $v0, $t0
-sw $v0,304($sp)
+sw $v0,320($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,316($sp)
+sw $v0,340($sp)
 la $v0, st70
-sw $v0,324($sp)
-lw $t0,316($sp)
-#Argument var.var764
+sw $v0,348($sp)
+lw $t0,340($sp)
+#Argument var.var782
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,328($sp)
-#Argument var.var765
+lw $t0,352($sp)
+#Argument var.var783
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -6936,18 +7022,18 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var766<-['Main', 'out_string']
+jalr $ra,$t0 #var.var784<-['Main', 'out_string']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
 lw $a0, 4($sp)
 addi $sp, $sp, 8
-sw $v0,328($sp)
+sw $v0,352($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,332($sp)
-lw $t0,332($sp)
-#Argument var.var767
+sw $v0,356($sp)
+lw $t0,356($sp)
+#Argument var.var785
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -6955,36 +7041,40 @@ lw $t0, 0($a0)
 lw $t0,12($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var768<-['Main', 'abort']
+jalr $ra,$t0 #var.var786<-['Main', 'abort']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,336($sp)
+sw $v0,360($sp)
 li $t0,0
 move $v0, $t0
-sw $v0,340($sp)
-lw $t0,340($sp)
+sw $v0,364($sp)
+lw $t0,364($sp)
 move $v0, $t0
-sw $v0,344($sp)
-lw $t0,344($sp)
+sw $v0,368($sp)
+lw $t0,336($sp)
+move $v0, $t0
+sw $v0,320($sp)
+lw $t0,368($sp)
 move $v0, $t0
 sw $v0,220($sp)
-var.var763:
-var.var744:
+b var.var756
+var.var780:
+var.var756:
 lw $t0,220($sp)
 move $v0, $t0
-sw $v0,348($sp)
-lw $t0,348($sp)
+sw $v0,372($sp)
+lw $t0,372($sp)
 move $v0, $t0
-sw $v0,1020($sp)
+sw $v0,1044($sp)
 Lbl95:
-lw $t0,1020($sp)
+lw $t0,1044($sp)
 move $v0, $t0
-sw $v0,1024($sp)
-lw $t0,1024($sp)
+sw $v0,1048($sp)
+lw $t0,1048($sp)
 move $v0, $t0
-sw $v0,1028($sp)
+sw $v0,1052($sp)
 b Lbl97
 Lbl96:
 addi $sp, $sp, -4
@@ -6999,7 +7089,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,156($sp)
 lw $t0,156($sp)
-#Argument var.var728
+#Argument var.var740
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -7007,7 +7097,7 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var728<-['A', '$init']
+jalr $ra,$t0 #var.var740<-['A', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -7017,7 +7107,7 @@ move $t0,$a0
 move $v0, $t0
 sw $v0,160($sp)
 lw $t0,160($sp)
-#Argument var.var729
+#Argument var.var741
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -7025,19 +7115,19 @@ lw $t0, 0($a0)
 lw $t0,44($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var730<-['Main', 'get_int']
+jalr $ra,$t0 #var.var742<-['Main', 'get_int']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,164($sp)
 lw $t0,156($sp)
-#Argument var.var728
+#Argument var.var740
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,168($sp)
-#Argument var.var730
+#Argument var.var742
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
@@ -7045,7 +7135,7 @@ lw $t0, 0($a0)
 lw $t0,24($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var731<-['A', 'set_var']
+jalr $ra,$t0 #var.var743<-['A', 'set_var']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a1, 0($sp)
@@ -7067,7 +7157,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,172($sp)
 lw $t0,172($sp)
-#Argument var.var732
+#Argument var.var744
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -7075,7 +7165,7 @@ lw $t0, 0($a0)
 lw $t0,4($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var732<-['B', '$init']
+jalr $ra,$t0 #var.var744<-['B', '$init']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -7085,7 +7175,7 @@ lw $t0,8($a0)
 move $v0, $t0
 sw $v0,176($sp)
 lw $t0,176($sp)
-#Argument var.var733
+#Argument var.var745
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -7093,7 +7183,7 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var734<-['A', 'value']
+jalr $ra,$t0 #var.var746<-['A', 'value']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
@@ -7103,7 +7193,7 @@ lw $t0,12($a0)
 move $v0, $t0
 sw $v0,184($sp)
 lw $t0,184($sp)
-#Argument var.var735
+#Argument var.var747
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -7111,24 +7201,24 @@ lw $t0, 0($a0)
 lw $t0,20($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var736<-['A', 'value']
+jalr $ra,$t0 #var.var748<-['A', 'value']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,188($sp)
 lw $t0,172($sp)
-#Argument var.var732
+#Argument var.var744
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
 lw $t0,184($sp)
-#Argument var.var734
+#Argument var.var746
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
 lw $t0,196($sp)
-#Argument var.var736
+#Argument var.var748
 addi $sp, $sp, -4
 sw $a2, 0($sp)
 move $a2,$t0
@@ -7136,7 +7226,7 @@ lw $t0, 0($a0)
 lw $t0,32($t0)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-jalr $ra,$t0 #var.var737<-['B', 'method2']
+jalr $ra,$t0 #var.var749<-['B', 'method2']
 lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a2, 0($sp)
@@ -7149,15 +7239,15 @@ move $v0, $t0
 sw $v0,8($a0)
 lw $t0,8($a0)
 move $v0, $t0
-sw $v0,1028($sp)
+sw $v0,1052($sp)
 Lbl97:
-lw $t0,1028($sp)
+lw $t0,1052($sp)
 move $v0, $t0
-sw $v0,1032($sp)
+sw $v0,1056($sp)
 b Lbl72
 Lbl73:
 li $t0,0
 move $v0, $t0
-sw $v0,1040($sp)
-addi $sp, $sp, 1044
+sw $v0,1064($sp)
+addi $sp, $sp, 1068
 jr $ra
