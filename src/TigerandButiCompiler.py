@@ -679,6 +679,8 @@ if not LexerError:
     if parser.errorok:
         semantic=Semantics_Checker()
         semanticvalid=semantic.visit(ast,None)
+    else:
+        exit(1)
         if semanticvalid:
             tocil=CILTranspiler()
             codigoCIL=tocil.visit(ast, None)
@@ -689,7 +691,10 @@ if not LexerError:
             archivoResultado.write(instrucciones)
             archivoResultado.flush()
             archivoResultado.close()
-# exit(1)
+        else:
+            exit(1)
+else:
+    exit(1)
 
     
 if False:
