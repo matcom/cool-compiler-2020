@@ -334,7 +334,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         #init_attr
         self.current_function = self.register_function(self.to_function_name('init_attr', node.id))
-        if node.parent != 'Object':
+        if node.parent != 'Object' and node.parent != 'IO':
             self.register_instruction(cil.ArgNode(instance))
             self.register_instruction(cil.StaticCallNode(self.to_function_name('init_attr', node.parent), vtemp))
         attr_declarations = (f for f in node.features if isinstance(f, cool.AttrDeclarationNode))
