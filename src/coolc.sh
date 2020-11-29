@@ -9,4 +9,4 @@ echo "Copyright (c) 2020: Jose Gabriel Navarro Comabella, Alberto Helguera Fleit
 
 # Llamar al compilador
 
-python3.7 TigerandButiCompiler.py $INPUT_FILE
+python TigerandButiCompiler.py $INPUT_FILE

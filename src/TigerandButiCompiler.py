@@ -690,7 +690,7 @@ if not LexerError:
 
             toMIPS=MIPSCompiler()
             instrucciones=toMIPS.visit(codigoCIL, None)
-            archivoResultado=open(sys.argv[2],encoding='utf-8')
+            archivoResultado=open(sys.argv[1][:3]+'.mips',encoding='utf-8')
             archivoResultado.write(instrucciones)
             archivoResultado.flush()
             archivoResultado.close()
