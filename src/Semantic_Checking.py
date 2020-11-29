@@ -86,7 +86,7 @@ class Semantics_Checker:
     
     @visitor.when(ProgramNode)
     def visit(self, node: ProgramNode, _):
-        rscope = Scope(None, None)
+        rscope = Scope(None)
         if self.check_inheritance(node.classes,rscope):
             for c_class in node.classes:
                 cool_type = Cool_Type(c_class.name, c_class.parent, c_class.attributes, c_class.methods)
