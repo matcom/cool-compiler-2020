@@ -808,6 +808,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(cil.AssignNode(value, scope.ret_expr))
         result = self.define_internal_local()
         self.register_instruction(cil.EqualNode(result, value, void))
+        self.register_instruction(cil.ArgNode(result))
+        self.register_instruction(cil.StaticCallNode(self.init_name("Bool"), result))
         scope.ret_expr = result
 
     @visitor.when(cool.ComplementNode)
