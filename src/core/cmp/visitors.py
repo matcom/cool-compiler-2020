@@ -578,7 +578,7 @@ class TypeChecker:
         node.cond_type = node.condition.computed_type
 
         if not node.cond_type.conforms_to(BOOL):
-            self.errors.append((TypeError(CONDITION_NOT_BOOL % ('If', cond_type.name)), node.token))
+            self.errors.append((TypeError(CONDITION_NOT_BOOL % ('If', node.cond_type.name)), node.token))
 
         self.visit(node.if_body, scope)
         if_type = node.if_body.computed_type
@@ -601,7 +601,7 @@ class TypeChecker:
         node.cond_type = node.condition.computed_type
 
         if not node.cond_type.conforms_to(BOOL):
-            self.errors.append((TypeError(CONDITION_NOT_BOOL % ('While', cond_type.name)), node.token))
+            self.errors.append((TypeError(CONDITION_NOT_BOOL % ('While', node.cond_type.name)), node.token))
 
         self.visit(node.body, scope)
         node.computed_type = OBJ
