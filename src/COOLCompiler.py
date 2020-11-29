@@ -15,8 +15,12 @@ from NoTabsFileStream import NoTabsFileStream
 
 
 def main(argv):
+    if len(argv) < 2:
+        print("ERROR: no input filename")
+        return sys.exit(errno.EPERM)
+
     if not os.path.isfile(argv[1]):
-        print("invalid input filename: " + argv[1])
+        print("ERROR: invalid input filename: " + argv[1])
         return sys.exit(errno.EPERM)
 
     input = NoTabsFileStream(argv[1])
@@ -46,8 +50,14 @@ def main(argv):
     codegenerator = CodegenVisitor(typeTree, consTble, visitor.Counter)
     semanticAnalizer.visitProgram(tree)
     if semanticAnalizer.hasNoError:
-        outFilename = os.path.splitext(argv[1])[0] + ".s"
+        if len(argv) > 2:
+            outFilename = argv[2]
+        else:
+            outFilename = os.path.splitext(argv[1])[0] + ".s"
         codegenerator.visitProgram(tree, outFilename)
+    else:
+        return sys.exit(errno.EPERM)
+
     none = typeTree["Object"]
 
 

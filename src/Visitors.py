@@ -240,14 +240,14 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             if ancestorMethod.ParamsNumber != self.TypeTable[coolClass].Methods[methodName].ParamsNumber:
                 line = str(ctx.getChild(0).symbol.line)
                 column = str(ctx.getChild(0).symbol.column + 1)
-                error = f"({line}, {column}) SemanticError: Incompatible number of formal parameters in redefined method {methodName}."
+                error = f"({line}, {column}) - SemanticError: Incompatible number of formal parameters in redefined method {methodName}."
                 print(error)
                 self.hasNoError = False
                 return
             if ancestorMethod.Type != methodType.text:
                 line = str(methodType.line)
                 column = str(methodType.column + 1)
-                error = f"({line}, {column}) SemanticError: In redefined method {methodName}, return type {methodType.text} is different from original return type {ancestorMethod.Type}."
+                error = f"({line}, {column}) - SemanticError: In redefined method {methodName}, return type {methodType.text} is different from original return type {ancestorMethod.Type}."
                 print(error)
                 self.hasNoError = False
                 return

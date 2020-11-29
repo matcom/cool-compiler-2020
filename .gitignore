@@ -412,3 +412,4 @@ dmypy.json
 /gen
 /grammar/antlr_cool.bat
 /tests/codegen/*.s
+/tests/codegen/*.mips
