@@ -170,7 +170,9 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             # self.register_instruction(PrintIntNode(result))
         self_inst = scope.get_var("self").local_name
         assert typex, f"AttrDeclarationNode: {typex}"
-        result = self.unpack_type_by_value(result, node.expression.static_type if node.expression else "Void")
+        result = self.unpack_type_by_value(
+            result, node.expression.static_type if node.expression else "Void"
+        )
         self.register_instruction(SetAttribNode(self_inst, node.id, result, typex))
 
     @when(cool.FuncDeclarationNode)
@@ -449,8 +451,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
 
     @when(cool.MinusNode)
     def visit(self, node: cool.MinusNode, scope: Scope):  # noqa:F811
-        left = self.define_internal_local()
-        right = self.define_internal_local()
+        left = self.visit(node.left, scope)
+        right = self.visit(node.right, scope)
         left = self.unpack_type_by_value(left, node.left.static_type)
         right = self.unpack_type_by_value(right, node.right.static_type)
         result = self.define_internal_local()
@@ -460,8 +462,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
 
     @when(cool.StarNode)
     def visit(self, node: cool.StarNode, scope: Scope):  # noqa:F811
-        left = self.define_internal_local()
-        right = self.define_internal_local()
+        left = self.visit(node.left, scope)
+        right = self.visit(node.right, scope)
         left = self.unpack_type_by_value(left, node.left.static_type)
         right = self.unpack_type_by_value(right, node.right.static_type)
         result = self.define_internal_local()
@@ -471,8 +473,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
 
     @when(cool.DivNode)
     def visit(self, node: cool.DivNode, scope: Scope):  # noqa:F811
-        left = self.define_internal_local()
-        right = self.define_internal_local()
+        left = self.visit(node.left, scope)
+        right = self.visit(node.right, scope)
         left = self.unpack_type_by_value(left, node.left.static_type)
         right = self.unpack_type_by_value(right, node.right.static_type)
         result = self.define_internal_local()
@@ -496,8 +498,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
 
     @when(cool.LessNode)
     def visit(self, node: cool.LessNode, scope: Scope):  # noqa:F811
-        left = self.define_internal_local()
-        right = self.define_internal_local()
+        left = self.visit(node.left, scope)
+        right = self.visit(node.right, scope)
         left = self.unpack_type_by_value(left, node.left.static_type)
         right = self.unpack_type_by_value(right, node.right.static_type)
         result = self.define_internal_local()
@@ -507,8 +509,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
 
     @when(cool.LessEqualNode)
     def visit(self, node: cool.LessEqualNode, scope: Scope):  # noqa:F811
-        left = self.define_internal_local()
-        right = self.define_internal_local()
+        left = self.visit(node.left, scope)
+        right = self.visit(node.right, scope)
         left = self.unpack_type_by_value(left, node.left.static_type)
         right = self.unpack_type_by_value(right, node.right.static_type)
         result = self.define_internal_local()
@@ -526,7 +528,9 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
                 GetAttribNode(pvar, selfx, node.token, self.current_type.name)
             )
             vattrbs = [
-                item for item in self.current_type.get_all_attributes() if item.name == node.token
+                item
+                for item in self.current_type.get_all_attributes()
+                if item.name == node.token
             ]
             assert vattrbs, "IdNode: attributes is empty"
             vattr: Attribute = vattrbs[0]
