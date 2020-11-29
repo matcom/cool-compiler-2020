@@ -325,9 +325,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_function = self.register_function(self.to_function_name('init', node.id))
         #allocate
         instance = self.register_local(VariableInfo('instance', None))
-        self.register_instruction(cil.AllocateNode(node.id, instance))
-        
-        scope.ret_expr = instance   
+        self.register_instruction(cil.AllocateNode(node.id, instance))  
 
         func = self.current_function
         vtemp = self.define_internal_local()
@@ -336,7 +334,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.current_function = self.register_function(self.to_function_name('init_attr', node.id))
         self.register_param(self.vself)
         if node.parent != 'Object' and node.parent != 'IO':
-            self.register_instruction(cil.ArgNode(self.vself))
+            self.register_instruction(cil.ArgNode(self.vself.name))
             self.register_instruction(cil.StaticCallNode(self.to_function_name('init_attr', node.parent), vtemp))
         attr_declarations = (f for f in node.features if isinstance(f, cool.AttrDeclarationNode))
         for feature in attr_declarations:
@@ -358,15 +356,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.type -> str
         # node.expr -> ExpressionNode
         ###############################
-        instance = scope.ret_expr
         if node.expr:
             self.visit(node.expr, scope)
-            self.register_instruction(cil.SetAttribNode(instance, node.id, scope.ret_expr, self.current_type))
+            self.register_instruction(cil.SetAttribNode(self.vself.name, node.id, scope.ret_expr, self.current_type))
         elif node.type in self.value_types:
             vtemp = self.define_internal_local()
             self.register_instruction(cil.AllocateNode(node.type, vtemp))
-            self.register_instruction(cil.SetAttribNode(instance, node.id, vtemp, self.current_type))
-        scope.ret_expr = instance
+            self.register_instruction(cil.SetAttribNode(self.vself.name, node.id, vtemp, self.current_type))
                 
     @visitor.when(cool.FuncDeclarationNode)
     def visit(self, node, scope):
@@ -575,7 +571,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         try:
             self.current_type.get_attribute(node.id)
-            self.register_instruction(cil.SetAttribNode(self.vself, node.id, scope.ret_expr, self.current_type.name))
+            self.register_instruction(cil.SetAttribNode(self.vself.name, node.id, scope.ret_expr, self.current_type.name))
         except AttributeError:
             vname = None
             param_names = [pn.name for pn in self.current_function.params]
@@ -907,7 +903,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         
         if node.type == 'SELF_TYPE':
             vtype = self.define_internal_local()
-            self.register_instruction(cil.TypeOfNode(self.vself, vtype))
+            self.register_instruction(cil.TypeOfNode(self.vself.name, vtype))
             self.register_instruction(cil.AllocateNode(vtype, instance))
         elif node.type == 'Int' or node.type == 'Bool':
             self.register_instruction(cil.ArgNode(0))
