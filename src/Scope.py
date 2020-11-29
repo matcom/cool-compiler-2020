@@ -1,5 +1,5 @@
-from src.Cool_Type import *
-from src.AST import *
+from Cool_Type import *
+from AST import *
 
 class Scope:
     def __init__(self, class_name, parent=None, local=False):

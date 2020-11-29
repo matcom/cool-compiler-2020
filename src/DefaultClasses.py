@@ -1,5 +1,5 @@
-from src.AST import *
-from src.CIL import *
+from AST import *
+from CIL import *
 
 #TODO Definir en CIL algunos métodos predefinidos
 class Defaults:

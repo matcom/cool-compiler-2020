@@ -1,8 +1,8 @@
-from src.AST import *
-from src.CIL import *
-from src.Scope import *
-import src.visitor as visitor
-from src.DefaultClasses import *
+from AST import *
+from CIL import *
+from Scope import *
+import visitor as visitor
+from DefaultClasses import *
 
 
 class CILTranspiler:

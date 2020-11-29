@@ -2,10 +2,10 @@ import ply.lex as lex
 import ply.yacc as yacc
 import os
 import sys
-from src.AST import *
-from src.Semantic_Checking import *
-from src.ASTtoCIL import *
-from src.CILtoMIPS import *
+from AST import *
+from Semantic_Checking import *
+from ASTtoCIL import *
+from CILtoMIPS import *
 
 LexerError=False
 

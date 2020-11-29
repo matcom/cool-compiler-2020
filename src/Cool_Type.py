@@ -1,4 +1,4 @@
-from src.AST import *
+from AST import *
 
 class Cool_Type:
     def __init__(self, name:str, parent:str=None, attributes = None, methods = None):

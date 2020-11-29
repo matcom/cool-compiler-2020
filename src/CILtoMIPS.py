@@ -1,7 +1,7 @@
-from src.AST import *
-from src.CIL import *
-from src.ScopeMIPS import *
-import src.visitor as visitor
+from AST import *
+from CIL import *
+from ScopeMIPS import *
+import visitor as visitor
 
 # class MIPSClass:
 #     def __init__(self, cantidadatributos, etiquetasfunciones):

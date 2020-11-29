@@ -1,7 +1,7 @@
-from src.AST import *
-from src.Scope import *
-from src.Cool_Type import *
-import src.visitor as visitor
+from AST import *
+from Scope import *
+from Cool_Type import *
+import visitor as visitor
 
 class Semantics_Checker:
     
