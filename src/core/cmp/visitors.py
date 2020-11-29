@@ -201,7 +201,7 @@ class TypeCollector:
             self.visit(def_class)
              
         # comparison for sort node.declarations
-        def get_type_level(typex):
+        def get_type_level(typex, error_token=empty_token):
             try:
                 parent = self.type_level[typex]
             except KeyError:
@@ -210,12 +210,12 @@ class TypeCollector:
             if parent == 0:
                 node = self.parent[typex]
                 node.parent = "Object"
-                self.errors.append(SemanticError('Cyclic heritage.'), node.tparent)
+                self.errors.append((SemanticError('Cyclic heritage.'), error_token))
             elif type(parent) is not int:
                 self.type_level[typex] = 0 if parent else 1
                 if type(parent) is str:
-                    self.type_level[typex] = get_type_level(parent) + 1
-                
+                    self.type_level[typex] = get_type_level(parent, self.parent[typex].tid) + 1
+            
             return self.type_level[typex]
         
         node.declarations.sort(key = lambda node: get_type_level(node.id))               
