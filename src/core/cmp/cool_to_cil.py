@@ -575,7 +575,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         try:
             self.current_type.get_attribute(node.id)
             self.register_instruction(cil.SetAttribNode(self.vself, node.id, scope.ret_expr, self.current_type.name))
-        except SemanticError:
+        except AttributeError:
             vname = None
             param_names = [pn.name for pn in self.current_function.params]
             if node.id in param_names:
@@ -818,10 +818,13 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         vname = self.define_internal_local()
         value = self.define_internal_local()
+        instance = self.define_internal_local()
         self.visit(node.expr, scope)
         self.register_instruction(cil.GetAttribNode(value, scope.ret_expr, 'value', 'Int'))
         self.register_instruction(cil.ComplementNode(vname, value))
-        scope.ret_expr = vname
+        self.register_instruction(cil.ArgNode(vname))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init', 'Int'), instance))
+        scope.ret_expr = instance
 
     @visitor.when(cool.FunctionCallNode)
     def visit(self, node, scope):
@@ -936,7 +939,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             attr = self.register_local(VariableInfo(node.lex, None))
             self.register_instruction(cil.GetAttribNode(attr, self.vself.name, node.lex, self.current_type.name))
             scope.ret_expr = attr
-        except SemanticError:
+        except AttributeError:
             param_names = [pn.name for pn in self.current_function.params]
             if node.lex in param_names:
                 for n in param_names:
