@@ -107,7 +107,9 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         instance = self.define_internal_local()
         result = self.define_internal_local()
         self.register_instruction(AllocateNode(instance, "Main"))
+        self.current_type = self.context.get_type("Main")
         self.init_class_attr(scope, "Main", instance)
+        self.current_type = None
         self.register_instruction(ArgNode(instance))
         self.register_instruction(
             StaticCallNode(self.to_function_name("main", "Main"), result)
@@ -418,7 +420,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     @when(cool.NotNode)
     def visit(self, node: cool.NotNode, scope: Scope):  # noqa:F811
         value = self.visit(node.expression, scope)
-        value = self.unpack_type_by_value()
         one = self.define_internal_local()
         result = self.define_internal_local()
         self.register_instruction(AllocateNode(one, "Int"))
@@ -527,7 +528,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
                 GetAttribNode(pvar, selfx, node.token, self.current_type.name)
             )
             vattrbs = [
-                item for item in self.current_type.attributes if item.name == node.token
+                item for item in self.current_type.get_all_attributes() if item.name == node.token
             ]
             assert vattrbs, "IdNode: attributes is empty"
             vattr: Attribute = vattrbs[0]
