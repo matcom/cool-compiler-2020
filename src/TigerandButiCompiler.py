@@ -676,7 +676,7 @@ if __name__=='__main__':
     
     parser=yacc.yacc()
     if not LexerError:
-        ast=parser.parse(respuesta,lexer=mylex, debug=False)
+        ast=parser.parse(respuesta,lexer=mylex, tracking=True,debug=False)
     else:
         exit(1)
     if parser.errorok:
