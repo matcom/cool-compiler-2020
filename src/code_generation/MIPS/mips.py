@@ -356,9 +356,9 @@ def plus_to_mips_visitor(plus: cil.PlusNode):
         sw  $t0, [addr(x)]
     """
 
-    x_addr = CURRENT_FUNCTION[str(plus.result)]
-    y_addr = CURRENT_FUNCTION[str(plus.left)]
-    z_addr = CURRENT_FUNCTION[str(plus.right)]
+    x_addr = CURRENT_FUNCTION.offset[str(plus.result)]
+    y_addr = CURRENT_FUNCTION.offset[str(plus.left)]
+    z_addr = CURRENT_FUNCTION.offset[str(plus.right)]
     instructions = [
         mips.Comment(str(plus))
     ]

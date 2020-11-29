@@ -38,21 +38,6 @@ class MIPSLabel:
         return f'{self.name}:\n'
 
 
-class Recipient:
-    def __init__(self, register: str, shift: int = 0):
-        self.register = register
-        self.shift = shift
-
-    def __call__(self) -> str:
-        # Get content
-        if self.shift != 0:
-            return f'{self.shift}({self.register})'
-        return f'({self.register})'
-
-    def __str__(self):
-        return self.register
-
-
 class MIPSFunction:
     def __init__(self, name, params, locals):
         self.name = name
@@ -104,6 +89,9 @@ class MIPSFunction:
             '$sp', '$sp', f'{self.fp_shift * 4}'))
         self.end_instructions.append(AdduInstruction(
             '$sp', '$sp', f'{self.fp_shift * 4}'))
+        
+        if(self.name!='Main_main'):
+            self.end_instructions.append(JrInstruction('$ra'))
 
     def __update_callee_saved_reg__(self, registers: set):
         diff = registers.difference(self.callee_saved_reg)
