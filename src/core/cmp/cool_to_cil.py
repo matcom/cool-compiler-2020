@@ -489,7 +489,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ##############################################
         vexpr  = self.register_local(VariableInfo('case_expr_value', None))
         vtype  = self.register_local(VariableInfo('typeName_value', None))
-        vequal = self.register_local(VariableInfo('equal_node_value', None))
         vcond  = self.register_local(VariableInfo('equal_value', None))
         vret   = self.register_local(VariableInfo('case_value', None))
         self.visit(node.expr, scope)
@@ -519,8 +518,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             for t in h:
                 vbranch_type_name = self.register_local(VariableInfo('branch_type_name', None))
                 self.register_instruction(cil.NameNode(vbranch_type_name, t))
-                self.register_instruction(cil.EqualNode(vequal, vtype, vbranch_type_name))
-                self.register_instruction(cil.GetAttribNode(vcond, vequal, 'value', 'Bool'))
+                self.register_instruction(cil.EqualNode(vcond, vtype, vbranch_type_name))
                 self.register_instruction(cil.GotoIfNode(vcond, labels[-1].label))
 
         #Raise runtime error if no Goto was executed
@@ -662,7 +660,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         type_bool = self.define_internal_local()
         type_string = self.define_internal_local()
         equal_result = self.define_internal_local()
-        equal_value = self.define_internal_local()
         left_value = self.define_internal_local()
         right_value = self.define_internal_local()
         instance = self.define_internal_local()
@@ -682,14 +679,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         reference_node = self.register_label('reference_label')
         continue_node = self.register_label('continue_label')
         self.register_instruction(cil.EqualNode(equal_result, type_left, type_int))
-        self.register_instruction(cil.GetAttribNode(equal_value, equal_result, 'value', 'Bool'))
-        self.register_instruction(cil.GotoIfNode(equal_value, int_node.label))
+        self.register_instruction(cil.GotoIfNode(equal_result, int_node.label))
         self.register_instruction(cil.EqualNode(equal_result, type_left, type_bool))
-        self.register_instruction(cil.GetAttribNode(equal_value, equal_result, 'value', 'Bool'))
-        self.register_instruction(cil.GotoIfNode(equal_value, int_node.label))
+        self.register_instruction(cil.GotoIfNode(equal_result, int_node.label))
         self.register_instruction(cil.EqualNode(equal_result, type_left, type_string))
-        self.register_instruction(cil.GetAttribNode(equal_value, equal_result, 'value', 'Bool'))
-        self.register_instruction(cil.GotoIfNode(equal_value, string_node.label))
+        self.register_instruction(cil.GotoIfNode(equal_result, string_node.label))
         self.register_instruction(cil.GotoNode(reference_node.label))
 
         self.register_instruction(int_node)
