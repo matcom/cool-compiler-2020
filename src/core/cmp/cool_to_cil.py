@@ -324,7 +324,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         #init
         self.current_function = self.register_function(self.to_function_name('init', node.id))
         #allocate
-        instance = self.define_internal_local()
+        instance = self.register_local(VariableInfo('instance', None))
         self.register_instruction(cil.AllocateNode(node.id, instance))
         
         scope.ret_expr = instance   
@@ -334,8 +334,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         #init_attr
         self.current_function = self.register_function(self.to_function_name('init_attr', node.id))
+        self.register_param(self.vself)
         if node.parent != 'Object' and node.parent != 'IO':
-            self.register_instruction(cil.ArgNode(instance))
+            self.register_instruction(cil.ArgNode(self.vself))
             self.register_instruction(cil.StaticCallNode(self.to_function_name('init_attr', node.parent), vtemp))
         attr_declarations = (f for f in node.features if isinstance(f, cool.AttrDeclarationNode))
         for feature in attr_declarations:
