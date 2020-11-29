@@ -42,241 +42,322 @@ class ArithmOperations(Enum):
     Mul = 3
     Div = 4
 
+
 # class MipsLabel:
+
+#     word = ".word"
+#     half = ".half"
+#     byte = ".byte"
+#     ascii_ = ".ascii"
+#     asciiz = ".asciiz"
+#     space = ".space"
+#     aling = ".align"
+#     text = ".text"
+#     data = ".data"
+
+
+Reg = Registers
 
 
 class MipsCode:
     def __init__(self):
-        pass
+        self.dotdata = []
+        self.dotcode = []
     # Data Segmente
+    # Meta Functions
 
-    # IO
+    def _write(self, line):
+        self.dotcode.append(line)
+
+    def _write_data(self, line):
+        self.dotdata.append(line)
+
+    def data_label(self, lname):
+        self._write_data(f'{lname}')
+
+    def asciiz(self, string):
+        self._write_data(f'.asciiz "{string}"')
+
+    def push(self, register: Register):
+        self.addi(Register.sp, Register.sp, -8)
+        self.store_memory(register, self.offset(Register.sp))
+
+    def pop(self, register: Register):
+        """
+        First,  load from to address `0($sp)`
+        and then write `addi $sp ,  $sp ,  8`
+        to restore the stack pointer
+        """
+        self.load_memory(register, self.offset(Reg.sp))
+        self.addi(Reg.sp, Reg.sp, 8)
+
+    def load_memory(self, dst: Register, address: str):
+        """
+        Load from a specific address a 32 bits register
+        """
+        self.lw(Reg.t8, address)
+        self.sll(Reg.t8, Reg.t8, 16)
+        self.la(Reg.t7, address)
+        self.addi(Reg.t7, Reg.t7, 4)
+        self.lw(Reg.t9, self.offset(Reg.t7))
+        self.or_(dst, Reg.t8, Reg.t9)
+
+    def store_memory(self, src: Registers, address: str):
+        """
+        Write to a specific address a 32 bits register
+        """
+        self.la(Reg.t8, address)
+
+        self.srl(Reg.t9, src, 16)
+
+        self.sw(Reg.t9, self.offset(Reg.t8))  # store high bits
+        self.sw(src, self.offset(Reg.t8, 4))  # store low bits
+
+    # System Calls
+
+    def syscall(self, code: int):
+        self.li(Registers.v0, code)
+        self._write('syscall')
+
+    def offset(self, r: Register, offset: int = 0):
+        return f"{offset}({r})"
+
+    def comment(self, text: str):
+        self._write(f"# {text}")
+
+    def label(self, name: str):
+        self._write(f"{name.upper()}:")
+
     def print_str(self, _str):
-        '''
-        $v0
-        $a0
-        '''
-        code = [
-            'li $v0, 4   # system call code for print_str',
-            f'la $a0, {_str} # address of string to print',
-            'syscall     # print the string',
-        ]
-        return code
+        return self.syscall(4)
 
     def print_int(self, _int):
-        '''
-        $v0
-        $a0
-        '''
-        code = [
-            'li $v0, 1   # system call code for print_int',
-            f'la $a0, {_int}  # address of string to print',
-            'syscall     # print the string',
-        ]
-        return code
+        return self.syscall(1)
+
+    def read_int(self):
+        return self.syscall(5)
+
+    def read_string(self):
+        return self.syscall(8)
+
+    def sbrk(self):
+        return self.syscall(9)
+
+    def exit(self):
+        return self.syscall(10)
 
     # Arithmetic and Logical Operations
     def abs(self, rdest, rsrc):
         '''
         Absolute Value
         '''
-        return f'abs {rdest}, {rsrc}'
+        self._write(f'abs {rdest}, {rsrc}')
 
     def addiu(self, rdest, rsrc, constant):
         '''
         Addition Immediate (without overflow)
         '''
-        return f'addiu {rdest}, {rsrc}, {constant}'
+        self._write(f'addiu {rdest}, {rsrc}, {constant}')
 
     def addi(self, rdest, rsrc, constant):
         '''
         Addition Immediate (with overflow)
         '''
-        return f'addi {rdest}, {rsrc}, {constant}'
+        self._write(f'addi {rdest}, {rsrc}, {constant}')
 
     def add(self, rdest, rsrc, src):
         '''
 
         Addition (with overflow)
         '''
-        return f'add {rdest}, {rsrc}, {src}'
+        self._write(f'add {rdest}, {rsrc}, {src}')
 
     def addu(self, rdest, rsrc, src):
         '''
         Addition (without overflow)
         '''
-        return f'addu {rdest}, {rsrc}, {src}'
+        self._write(f'addu {rdest}, {rsrc}, {src}')
 
     def and_(self, rdest, rsrc1, rsrc2):
         '''
         AND
         '''
-        return f'and {rdest}, {rsrc1}, {rsrc2}'
+        self._write(f'and {rdest}, {rsrc1}, {rsrc2}')
 
     def andi(self, rdest, rsrc, constant):
         '''
         ANDI Inmediate
         '''
-        return f'andi {rdest}, {rsrc}, {constant}'
+        self._write(f'andi {rdest}, {rsrc}, {constant}')
 
     def div(self, rdest_src, rsrc1, rsrc2=None):
         '''
         Divide (signed)
         '''
         if rsrc2 is None:
-            return f'div {rdest_src}, {rsrc1}'
+            self._write(f'div {rdest_src}, {rsrc1}')
         else:
-            return f'div {rdest_src}, {rsrc1}, {rsrc2}'
+            self._write(f'div {rdest_src}, {rsrc1}, {rsrc2}')
 
     def divu(self, rdest_src, rsrc1, rsrc2=None):
         '''
         Divide (unsigned)
         '''
         if rsrc2 is None:
-            return f'divu {rdest_src}, {rsrc1}'
+            self._write(f'divu {rdest_src}, {rsrc1}')
         else:
-            return f'divu {rdest_src}, {rsrc1}, {rsrc2}'
+            self._write(f'divu {rdest_src}, {rsrc1}, {rsrc2}')
 
     def mult(self, rdest, rsrc1):
         '''
         Multiply
         '''
-        return f'mult {rdest}, {rsrc1}'
+        self._write(f'mult {rdest}, {rsrc1}')
 
     def neg(self, rdest, rsrc):
         '''
         Negate Value (with overflow)
         '''
-        return f'neg {rdest}, {rsrc}'
+        self._write(f'neg {rdest}, {rsrc}')
 
     def negu(self, rdest, rsrc):
         '''
         Negate Value (without overflow)
         '''
-        return f'negu {rdest}, {rsrc}'
+        self._write(f'negu {rdest}, {rsrc}')
 
     def not_(self, rdest, rsrc):
         '''
         Not
         '''
-        return 'or {rdest}, {rsrc}'
+        self._write(f'or {rdest}, {rsrc}')
 
     def or_(self, rdest, rsrc1, src2):
         '''
         Or
         '''
-        return 'or {rdest}, {rsrc1}, {rsrc2}'
+        self._write(f'or {rdest}, {rsrc1}, {rsrc2}')
 
     def nor(self, rdest, rsrc1, src2):
         '''
         Nor
         '''
-        return 'nor {rdest}, {rsrc1}, {rsrc2}'
+        self._write(f'nor {rdest}, {rsrc1}, {rsrc2}')
 
     def ori(self, rdest, rsrc1, constant):
         '''
         Or Immediate
         '''
-        return 'ori {rdest}, {rsrc1}, {constant}'
+        self._write(f'ori {rdest}, {rsrc1}, {constant}')
 
     def rem(self, rdest, rsrc1, src2):
         '''
         Remainder
         '''
-        return f'rem {rdest}, {rsrc1}, {src2}'
+        self._write(f'rem {rdest}, {rsrc1}, {src2}')
 
     def remu(self, rdest, rsrc1, src2):
         '''
         Unsigned Remainder
         '''
-        return f'remu {rdest}, {rsrc1}, {src2}'
+        self._write(f'remu {rdest}, {rsrc1}, {src2}')
 
     def sub(self, rdest, rsrc1, src2):
         '''
         Substract (with overflow)
         '''
-        return f'sub {rdest}, {rsrc1}, {src2}'
+        self._write(f'sub {rdest}, {rsrc1}, {src2}')
 
     def subu(self, rdest, rsrc1, src2):
         '''
         Substract (without overflow)
         '''
-        return f'subu {rdest}, {rsrc1}, {src2}'
+        self._write(f'subu {rdest}, {rsrc1}, {src2}')
+
+    def sll(self, dst, rl, value: int):
+        self._write(f"sll {dst}, {rl}, {value}")
 
     # Constant Manipulating
     def li(self, rdest, constant):
         '''
         Load Immediate 
         '''
-        return f'li {rdest}, {constant}'
+        self._write(f'li {rdest}, {int(constant)}')
 
     # Comparison Instructions
     def seq(self, rdest, rsrc1, src2):
         '''
         Set Equal
         '''
-        return f'seq {rdest}, {rsrc1}, {src2}'
+        self._write(f'seq {rdest}, {rsrc1}, {src2}')
 
     def sge(self, rdest, rsrc1, src2):
         '''
         Set Greater Than Equal er Than Equal Unsigned 
         '''
-        return f'sge {rdest}, {rsrc1}, {src2}'
+        self._write(f'sge {rdest}, {rsrc1}, {src2}')
 
     def sle(self, rdest, rsrc1, src2):
         '''
         Set Less Than Equal Than Equal Unsigned 
         '''
-        return f'sle {rdest}, {rsrc1}, {src2}'
+        self._write(f'sle {rdest}, {rsrc1}, {src2}')
 
     def slt(self, rdest, rsrc1, src2):
         '''
         Set Less Than
         '''
-        return f'slt {rdest}, {rsrc1}, {src2}'
+        self._write(f'slt {rdest}, {rsrc1}, {src2}')
+
+    def slti(self, rdest, rsrc1, value):
+        '''
+        Set Less Than Immediate
+        '''
+        self._write(f'slti {rdest}, {rsrc1}, {value}')
+
     # Branch and Jump
 
     def b(self, label):
         '''
         Branch instruction
         '''
-        return f'b {label}'
+        self._write(f'b {label}')
 
     def beq(self, rsrc1, src2, label):
         '''
         Branch on Equal
         '''
-        return f'beq {rsrc1}, {src2}, {label}'
+        self._write(f'beq {rsrc1}, {src2}, {label}')
 
     def beqz(self, rsrc1, src2, label):
         '''
         Branch on Equal Zero
         '''
-        return f'beqz {rsrc1}, {src2}, {label}'
+        self._write(f'beqz {rsrc1}, {src2}, {label}')
 
     def bne(self, rsrc1, src2, label):
         '''
         Branch on Not Equal Zero
         '''
-        return f'bne {rsrc1}, {src2}, {label}'
+        self._write(f'bne {rsrc1}, {src2}, {label}')
 
     def j(self, label):
         '''
         Jump
         '''
-        return f'j {label}'
+        self._write(f'j {label}')
 
     def jal(self, label):
         '''
         Jump and Link
         '''
-        return f'jal {label}'
+        self._write(f'jal {label}')
 
     def jr(self, rsrc):
         '''
         Jump Register
         '''
-        return f'jr {rsrc}'
+        self._write(f'jr {rsrc}')
 
     # Load Instructions
     def la(self, rdest, address):
@@ -289,70 +370,54 @@ class MipsCode:
         '''
         Load Byte
         '''
-        return f'la {rdest}, {address}'
+        self._write(f'lb {rdest}, {address}')
 
-    def lw(self, reg, memory, offset):
+    def lw(self, reg, address):
         '''
         Load Word
         '''
-        return f'lw {reg}, {offset}({reg})'
+        self._write(f'lw {reg}, {address}')
 
     def ld(self, rdest, address):
         '''
         Load Double-Word
         '''
-        return f'la {rdest}, {address}'
+        self._write(f'la {rdest}, {address}')
 
     # Store Instructions
     def sb(self, rsrc, address):
         '''
         Store Byte
         '''
-        return f'sb {rsrc}, {address}'
+        self._write(f'sb {rsrc}, {address}')
 
     def sw(self, rsrc, address):
         '''
         Store Word
         '''
-        return f'sw {rsrc}, {address}'
+        self._write(f'sw {rsrc}, {address}')
 
     def sd(self, rsrc, address):
         '''
         Store Double-Word
         '''
-        return f'sd {rsrc}, {address}'
+        self._write(f'sd {rsrc}, {address}')
 
     # Data Movement Instructions
     def move(self, rdest, rsrc):
         '''
         Move
         '''
-        return f'move {rdest}, {rsrc}'
+        self._write(f'move {rdest}, {rsrc}')
 
     def mfhi(self, rdest):
         '''
         Move from `hi`
         '''
-        return f'mfhi {rdest}'
+        self._write(f'mfhi {rdest}')
 
     def mflo(self, rdest):
         '''
         Move from `lo`
         '''
-        return f'mflo {rdest}'
-
-    def syscall(self):
-        '''
-        Syscall
-        '''
-        return 'syscall'
-
-
-
-
-
-
-
-
-
-
+        self._write(f'mflo {rdest}')
