@@ -327,11 +327,24 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         instance = self.define_internal_local()
         self.register_instruction(cil.AllocateNode(node.id, instance))
         
-        scope.ret_expr = instance
+        scope.ret_expr = instance   
 
+        func = self.current_function
+        vtemp = self.define_internal_local()
+
+        #init_attr
+        self.current_function = self.register_function(self.to_function_name('init_attr', node.id))
+        if node.parent != 'object':
+            self.register_instruction(cil.ArgNode(instance))
+            self.register_instruction(cil.StaticCallNode(self.to_function_name('init_attr', node.parent), vtemp))
         attr_declarations = (f for f in node.features if isinstance(f, cool.AttrDeclarationNode))
         for feature in attr_declarations:
             self.visit(feature, scope)
+        
+        self.current_function = func
+        self.register_instruction(cil.ArgNode(instance))
+        self.register_instruction(cil.StaticCallNode(self.to_function_name('init_attr', node.id), vtemp))
+
         self.register_instruction(cil.ReturnNode(instance))
         self.current_function = None
                 
@@ -379,7 +392,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # (Handle RETURN)
         if scope.ret_expr is None:
             self.register_instruction(cil.ReturnNode(''))
-        elif self.current_function.name is 'entry':
+        elif self.current_function.name == 'entry':
             self.register_instruction(cil.ReturnNode(0))
         else:
             self.register_instruction(cil.ReturnNode(scope.ret_expr))
@@ -957,7 +970,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         # node.lex -> str
         ###############################
-        if node.lex is 'true':
+        if node.lex == 'true':
             scope.ret_expr = 1
         else:
             scope.ret_expr = 0
