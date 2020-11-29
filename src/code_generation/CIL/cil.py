@@ -100,11 +100,7 @@ def program_to_cil_visitor(program):
     main_result = add_local('main_result')
     body.append(CilAST.ArgNode(main_init.value))
     body.append(CilAST.VCAllNode('Main', 'main', main_result))
-
-    main_instance = add_local('__main__')
-    main_type = add_local('main_type')
-    t_data = add_str_data('Main')
-
+    
     main_function = CilAST.FuncNode(
         'main', [], [__LOCALS__[k] for k in __LOCALS__.keys()], body)
     built_in_code.append(main_function)
