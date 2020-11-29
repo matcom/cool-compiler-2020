@@ -235,6 +235,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self_local = self.register_param(VariableInfo("self", None))
         type_name_inst = self.define_internal_local()
         self.register_instruction(TypeNameNode(type_name_inst, self_local))
+        type_name_inst = self.pack_type_by_value(type_name_inst, "String")
         self.register_instruction(ReturnNode(type_name_inst))
         self.current_method = self.current_function = None
         self.current_type = None
@@ -268,11 +269,7 @@ class BASE_COOL_CIL_TRANSFORM:
         _ = self.register_param(VariableInfo("self", None))
         result_msg = self.define_internal_local()
         self.register_instruction(ReadStrNode(result_msg))
-        string_inst = self.define_internal_local()
-        self.register_instruction(AllocateNode(string_inst, "String"))
-        self.register_instruction(
-            SetAttribNode(string_inst, "value", result_msg, "String")
-        )
+        string_inst = self.pack_type_by_value(result_msg, "String")
         self.register_instruction(ReturnNode(string_inst))
         self.current_method = self.current_function = None
         # out_string
@@ -283,10 +280,7 @@ class BASE_COOL_CIL_TRANSFORM:
         )
         self_local = self.register_param(VariableInfo("self", None))
         string_inst = self.register_param(VariableInfo("x", None))
-        out_msg = self.define_internal_local()
-        self.register_instruction(
-            GetAttribNode(out_msg, string_inst, "value", "String")
-        )
+        out_msg = self.unpack_type_by_value(string_inst, "String")
         self.register_instruction(PrintStrNode(out_msg))
         self.register_instruction(ReturnNode(self_local))
         self.current_method = self.current_function = None
@@ -299,9 +293,7 @@ class BASE_COOL_CIL_TRANSFORM:
         _ = self.register_param(VariableInfo("self", None))
         result_int = self.define_internal_local()
         self.register_instruction(ReadIntNode(result_int))
-        result = self.define_internal_local()
-        self.register_instruction(AllocateNode(result, "Int"))
-        self.register_instruction(SetAttribNode(result, "value", result_int, "Int"))
+        result = self.pack_type_by_value(result_int, "Int")
         self.register_instruction(ReturnNode(result))
         self.current_method = self.current_function = None
         # out_int
@@ -312,8 +304,7 @@ class BASE_COOL_CIL_TRANSFORM:
         )
         self_local = self.register_param(VariableInfo("self", None))
         int_inst = self.register_param(VariableInfo("x", None))
-        out_int = self.define_internal_local()
-        self.register_instruction(GetAttribNode(out_int, int_inst, "value", "Int"))
+        out_int = self.unpack_type_by_value(int_inst, "Int")
         self.register_instruction(PrintIntNode(out_int))
         self.register_instruction(ReturnNode(self_local))
         self.current_method = self.current_function = None
@@ -347,12 +338,9 @@ class BASE_COOL_CIL_TRANSFORM:
         )
         self_local = self.register_param(VariableInfo("self", None))
         length_var = self.define_internal_local()
-        str_raw = self.define_internal_local()
-        self.register_instruction(GetAttribNode(str_raw, self_local, "value", "String"))
+        str_raw = self.unpack_type_by_value(self_local, "String")
         self.register_instruction(LengthNode(length_var, str_raw))
-        length = self.define_internal_local()
-        self.register_instruction(AllocateNode(length, "Int"))
-        self.register_instruction(SetAttribNode(length, "value", length_var, "Int"))
+        length = self.pack_type_by_value(length_var, "Int")
         self.register_instruction(ReturnNode(length))
         self.current_method = self.current_function = None
         # concat
@@ -363,19 +351,11 @@ class BASE_COOL_CIL_TRANSFORM:
         )
         self_local = self.register_param(VariableInfo("self", None))
         param_local = self.register_param(VariableInfo("s", None))
-        str_raw = self.define_internal_local()
-        self.register_instruction(GetAttribNode(str_raw, self_local, "value", "String"))
-        str_raw2 = self.define_internal_local()
-        self.register_instruction(
-            GetAttribNode(str_raw2, param_local, "value", "String")
-        )
+        str_raw = self.unpack_type_by_value(self_local, "String")
+        str_raw2 = self.unpack_type_by_value(param_local, "String")
         result_msg = self.define_internal_local()
         self.register_instruction(ConcatNode(result_msg, str_raw, str_raw2))
-        string_inst = self.define_internal_local()
-        self.register_instruction(AllocateNode(string_inst, "String"))
-        self.register_instruction(
-            SetAttribNode(string_inst, "value", result_msg, "String")
-        )
+        string_inst = self.pack_type_by_value(result_msg, "String")
         self.register_instruction(ReturnNode(string_inst))
         self.current_method = self.current_function = None
         # substr
@@ -397,16 +377,11 @@ class BASE_COOL_CIL_TRANSFORM:
         no_error_label1 = self.to_label_name("error1")
         no_error_label2 = self.to_label_name("error2")
         no_error_label3 = self.to_label_name("error3")
-        str_raw = self.define_internal_local()
-        self.register_instruction(GetAttribNode(str_raw, self_local, "value", "String"))
+        str_raw = self.unpack_type_by_value(self_local, "String")
         self.register_instruction(AllocateNode(zero, "Int"))
         self.register_instruction(SetAttribNode(zero, "value", 0, "Int"))
-        start_raw = self.define_internal_local()
-        self.register_instruction(GetAttribNode(start_raw, start_parm, "value", "Int"))
-        length_raw = self.define_internal_local()
-        self.register_instruction(
-            GetAttribNode(length_raw, length_param, "value", "Int")
-        )
+        start_raw = self.unpack_type_by_value(start_parm, "Int")
+        length_raw = self.unpack_type_by_value(length_param, "Int")
         # self.register_instruction(PrintIntNode(start_raw))
         # self.register_instruction(PrintIntNode(length_raw))
         # self.register_instruction(PrintStrNode(start_raw))
@@ -430,11 +405,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(
             SubstringNode(result_msg, str_raw, start_raw, length_raw)
         )
-        string_inst = self.define_internal_local()
-        self.register_instruction(AllocateNode(string_inst, "String"))
-        self.register_instruction(
-            SetAttribNode(string_inst, "value", result_msg, "String")
-        )
+        string_inst = self.unpack_type_by_value(result_msg, "String")
         self.register_instruction(ReturnNode(string_inst))
         self.current_method = self.current_function = None
         self.current_type = None
