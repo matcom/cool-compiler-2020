@@ -14,7 +14,7 @@ class TypeCollectorVisitor:
 
     @visitor.when(ast_hierarchy.ProgramNode)
     def visit(self, node):
-        self.Context = Context()
+        self.Context = context.Context(None)
 
         for _class in node.classes:
             self.visit(_class)

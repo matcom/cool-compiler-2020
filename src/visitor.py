@@ -39,7 +39,7 @@ def when(param_type):
     dispatcher = frame.f_locals[func_name]
     if not isinstance(dispatcher, Dispatcher):
       dispatcher = dispatcher.dispatcher
-      dispatcher.add_target(param_type, fn)
+    dispatcher.add_target(param_type, fn)
 
     def ff(*args, **kw):
       return dispatcher(*args, **kw)

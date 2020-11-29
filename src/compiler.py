@@ -1,7 +1,7 @@
 from sys import argv
 
 from lexer import make_lexer
-from . import parser
+import my_parser
 
 import type_checker
 import type_builder
@@ -17,13 +17,14 @@ def main():
     cool_program_code = ""
 
     # Name of the file
-    p = args[2]
+    #p = args[2]
+    p = "D:\\112720\\112420\\cool-compiler-2020\\tests\\semantic\\arithmetic1.cl"
     print(str(p))
     if not str(p).endswith(".cl"):
         print("Cool program files must end with a \`.cl\` extension.\r\n")
         exit(1)
 
-    try:
+    if True:
         with open(str(p)) as file:
             while True:
                 i = file.read(1)
@@ -42,7 +43,7 @@ def main():
                 exit(1)
         
             
-            ast, errors = parser.parse(s)
+            ast, errors = my_parser.parse(s)
             
             if len(errors) > 0:
                 for er in errors:
@@ -54,11 +55,11 @@ def main():
             _type_collector.visit(ast)
 
             #construir los tipos
-            _type_builder = type_builder.TypeBuilderVisitor()
-            _type_builder.visit(ast, _type_collector.context)
+            _type_builder = type_builder.TypeBuilderVisitor(_type_collector.Context)
+            _type_builder.visit(ast)
 
             #chequear tipos
-            _type_checker = type_checker.TypeCheckerCollector()
+            _type_checker = type_checker.TypeCheckerVisitor()
             errors = []
             _type_checker.visit(ast, _type_builder.context, errors)
             if len(errors) > 0:
@@ -68,12 +69,12 @@ def main():
 
                     
 
-    except (IOError, FileNotFoundError):
+    '''except (IOError, FileNotFoundError):
         print(f"Error! File {p} not found.")
         exit(1)
     except Exception as e:
         print(f"An unexpected error occurred! {e}")
-        exit(1)
+        exit(1)'''
 
 
 if __name__ == "__main__":

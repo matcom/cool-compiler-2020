@@ -22,7 +22,7 @@ class TypeCheckerVisitor:
         and it's main method.
         '''
         # build the types_graph
-        context.BuilTypesGraph()
+        context.BuildTypesHierarchy()
         # check if Program has a clas Main with a local method main
         context.CheckMain()
         # check if are not cycles in the inheritance graph

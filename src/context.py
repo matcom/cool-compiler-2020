@@ -86,7 +86,7 @@ class Attribute:
         self.Type = attr_type
 
 class Method:
-    def __init__(self,meth_name, return_type, params_name, params_type, rename):
+    def __init__(self,meth_name,  params_name, params_type,return_type, rename):
         self.Name = meth_name
         self.ReturnType = return_type
         self.ParamsName = params_name
@@ -101,7 +101,7 @@ class Variable:
 
 class Context:
     def __init__(self, parent):
-        if Parent == None:
+        if parent is None:
             self.buildin = self.__GetBuildIn()
         # self.Hierarchy = {"Object":Type("Object",None)}
         # self.HierarchyNode = Type("Object",None)
@@ -111,7 +111,6 @@ class Context:
         self.Children = []
         self.CurrentClass = None
         self.OrderClasses = []
-        self.Hierarchy = {}
 
     '''def DefineVar(var_name, var_type, value = None):
         if (__IsDefineVar(var_name)):
@@ -140,17 +139,17 @@ class Context:
         typeInt =  Type("Int","Object")
         typeIO =  Type("IO","Object")
 
-        typeObject.methodlist["abort"] = (Method("abort",[],[],"Object",None))
-        typeObject.methodlist["type_name"] =(Method("type_name",[],[],"String",None))
+        typeObject.MethList["abort"] = (Method("abort",[],[],"Object",None))
+        typeObject.MethList["type_name"] =(Method("type_name",[],[],"String",None))
         
-        typeIO.methodlist["in_string"] =(Method("in_string",[],[],"String",None))
-        typeIO.methodlist["in_int"] =(Method("in_int",[],[],"Int",None))
-        typeIO.methodlist["out_string"] = (Method("out_string", ["x"], ["String"], "IO", None))
-        typeIO.methodlist["out_int"] = (Method("out_int", ["x"], ["Int"], "IO", None))
+        typeIO.MethList["in_string"] =(Method("in_string",[],[],"String",None))
+        typeIO.MethList["in_int"] =(Method("in_int",[],[],"Int",None))
+        typeIO.MethList["out_string"] = (Method("out_string", ["x"], ["String"], "IO", None))
+        typeIO.MethList["out_int"] = (Method("out_int", ["x"], ["Int"], "IO", None))
 
-        typeString.methodlist["length"] =(Method("length",[],[],"Int",None))
-        typeString.methodlist["concat"] =(Method("concat",["s"],["String"],"String",None))
-        typeString.methodlist["substr"] =(Method("substr",["i","l"],["Int","Int"],"String",None))
+        typeString.MethList["length"] =(Method("length",[],[],"Int",None))
+        typeString.MethList["concat"] =(Method("concat",["s"],["String"],"String",None))
+        typeString.MethList["substr"] =(Method("substr",["i","l"],["Int","Int"],"String",None))
         
         typeInt.default = 0
         typeBool.default = "false"
@@ -204,11 +203,11 @@ class Context:
         return None
 
     def LinkTypes(self,errors):
-        values = list(self.hierarchy.values())
+        values = list(self.Hierarchy.values())
         # for item in values:
         #     print(item.name)
         # print("values1",values1)
-        # a = self.hierarchy["String"]
+        # a = self.Hierarchy["String"]
         # print("a",a.name)
         # values = values1.remove(a)
         # print("values",values)
@@ -252,15 +251,15 @@ class Context:
 
     def NotExistCicle(self,errors):
         # self.order_classes = []
-        self._NotExistCicle( self.hierarchy["Object"],self.order_classes)
-        # print("No Hay ciclo", len(self.order_classes) == len(self.hierarchy))
+        self._NotExistCicle( self.Hierarchy["Object"],self.order_classes)
+        # print("No Hay ciclo", len(self.order_classes) == len(self.Hierarchy))
         # print(self.order_classes)
-        if len(self.order_classes) == len(self.hierarchy):
+        if len(self.order_classes) == len(self.Hierarchy):
             self.sorted = self.order_classes
             return True
         errors.append("(0,0) - SemanticError: No pueden existir ciclos en la herencia")
         return False
-        # return len(self.order_classes) == len(self.hierarchy)
+        # return len(self.order_classes) == len(self.Hierarchy)
 
     def _NotExistCicle(self, a: Type, types: list):
         # print("aciclicos",a.name)
@@ -279,15 +278,15 @@ class Context:
         # print("------------")
         
         # print("HOLA")
-        io = self.hierarchy["IO"]
+        io = self.Hierarchy["IO"]
         succ = io.children 
         # print("----cosita",io.children)
-        # print("----cosita2",io.children[0].methodlist)
+        # print("----cosita2",io.children[0].MethList)
         # print("succ ", succ)
         while len(succ):
             item = succ.pop()
-            # print("metodos", item.methodlist.values())
-            for m in item.methodlist.values():
+            # print("metodos", item.MethList.values())
+            for m in item.MethList.values():
                 if m.name == "in_string" or m.name == "in_int" or m.name == "out_string" or m.name == "out_int":
                     return False
             succ = succ + item.children
@@ -337,7 +336,7 @@ class Context:
     def IsDefineVariable(self,vname):
         vinfo = self.GetVinfo(vname)
         if vinfo == None:
-            vtype = self.hierarchy[self.currentClass]._IsDefineAttributeInParent(vname)
+            vtype = self.Hierarchy[self.currentClass]._IsDefineAttributeInParent(vname)
             if vtype == None:
                 return None
             return vtype
@@ -353,7 +352,7 @@ class Context:
 
     def CreateChildContext(self):
         childContext = Context(self)
-        childContext.hierarchy = self.hierarchy
+        childContext.Hierarchy = self.Hierarchy
         childContext.currentClass = self.currentClass
         return childContext
 
@@ -361,9 +360,9 @@ class Context:
         '''
         directed graph
         '''
-        graph = [[] for i in range(len(self.Hierarchy.keys))]
+        graph = [[] for i in range(len(self.Hierarchy))]
 
-        for _type in self.Hierarchy.keys:
+        for _type in self.Hierarchy:
             u = self.Hierarchy[_type.Parent]
             v = self.Hierarchy[_type.Name]
             graph[u].append(v)

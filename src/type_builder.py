@@ -21,13 +21,14 @@ class TypeBuilderVisitor:
     def visit(self, node):
         self.current_type = self.context.GetType(node.typeName)
 
-        parent_type = self.context.GetType(node.parent)
-        if parent_type is None and node.name != "Object":
+        parent_type = self.context.GetType(node.fatherTypeName)
+        if (parent_type is None and node.typeName != "Object"):
             #errors.throw_error(errors.TypeError(text=f"In class '{self.current_type.name}' parent type '{node.parent}' is missing.", line=node.line, column=node.column))
-            pass
-        if parent_type.name in ['Int', 'String', 'Bool']:
+            print("F")
+            return
+        if (parent_type.Name in ['Int', 'String', 'Bool']):
             #errors.throw_error(errors.SemanticError(text=f"In class '{self.current_type.name}' it is an error to inherit from basic class '{node.parent}'.", line=node.line, column=node.column))
-            pass 
+            return
         for f in node.features:
             self.visit(f)
 
@@ -35,11 +36,11 @@ class TypeBuilderVisitor:
     @visitor.when(ast_hierarchy.AttributeFeatureNode)
     def visit(self, node):
         #attribute can be self type?
-        attribute_type = self.context.GetType(node.typeName)
+        attribute_type = self.context.GetType(node.Name)
         if attribute_type is None:
             #error
             pass 
-        ans = self.current_type.DefineAttr(node.id, node.typeName)
+        ans = self.current_type.DefineAttr(node.id, node.Name)
         if ans is None:
             #error
             pass
@@ -47,7 +48,7 @@ class TypeBuilderVisitor:
     @visitor.when(ast_hierarchy.FunctionFeatureNode)
     def visit(self, node):
         # return can be self type?
-        return_type = self.context.get_type(node.return_type_method)
+        return_type = self.context.GetType(node.)
         if return_type is not None:
             argument_list = []
             for parameter in node.parameters:
