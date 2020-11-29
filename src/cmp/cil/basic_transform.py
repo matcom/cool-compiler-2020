@@ -5,6 +5,7 @@ from typing import Union
 from ..cool_lang.semantics.semantic_utils import Attribute, Type
 from .ast import (
     AllocateNode,
+    AbortNode,
     ConcatNode,
     CopyNode,
     DataNode,
@@ -218,7 +219,13 @@ class BASE_COOL_CIL_TRANSFORM:
             self.to_function_name(self.current_method.name, type_name)
         )
         self_local = self.register_param(VariableInfo("self", None))
-        self.register_instruction(ErrorNode(0))
+        type_name = self.define_internal_local()
+        abort_msg = self.register_data("Abort called from class ").name
+        msg = self.define_internal_local()
+        self.register_instruction(TypeNameNode(type_name, self_local))
+        self.register_instruction(ConcatNode(msg, abort_msg, type_name))
+        self.register_instruction(PrintStrNode(msg))
+        self.register_instruction(AbortNode())
         self.current_method = self.current_function = None
         # copy function
         self.current_method = self.current_type.get_method("copy")

@@ -199,6 +199,10 @@ class DynamicCallNode(InstructionNode):
         self.dest = dest
 
 
+class AbortNode(InstructionNode):
+    pass
+
+
 class ArgNode(InstructionNode):
     def __init__(self, name):
         self.name = name

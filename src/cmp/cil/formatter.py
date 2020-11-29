@@ -1,6 +1,7 @@
 from .ast import (
     AllocateNode,
     ArgNode,
+    AbortNode,
     AssignNode,
     CleanArgsNode,
     ComplementNode,
@@ -226,3 +227,7 @@ class CIL_FORMATTER(object):
     @when(GotoIfNode)
     def visit(self, node: GotoIfNode):  # noqa:F811
         return f"IF {node.value} GOTO {node.label}"
+
+    @when(AbortNode)
+    def visit(self, node: AbortNode): # noqa:F811
+        return f"ABORT"
