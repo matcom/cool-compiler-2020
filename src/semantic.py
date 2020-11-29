@@ -525,10 +525,14 @@ class TypeChecking:
         self.visit(node.expression, sce)
         scb = scope.create_child()
         common_type = None
+        typesbr = set()
         for branches in node.branches:
             tmpscope = scb.create_child()
+            if branches[1 ]in typesbr:
+                self.errors.append(SemanticError("Type in more than one branch",branches[2].line))
+            typesbr.add(branches[1])
             try :
-                typex = self.context.get_type(branches[1],node.line)
+                typex = self.context.get_type(branches[1],branches[2].line)
             except SemanticError as e:
                 self.errors.append(e)
             tmpscope.define_variable(branches[0],typex,node.line)
