@@ -560,7 +560,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         try:
             self.current_type.get_attribute(node.id)
             self.register_instruction(cil.SetAttribNode(self.vself, node.id, scope.ret_expr, self.current_type.name))
-        except SemanticError:
+        except AttributeError:
             vname = None
             param_names = [pn.name for pn in self.current_function.params]
             if node.id in param_names:
@@ -920,7 +920,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             attr = self.register_local(VariableInfo(node.lex, None))
             self.register_instruction(cil.GetAttribNode(attr, self.vself.name, node.lex, self.current_type.name))
             scope.ret_expr = attr
-        except SemanticError:
+        except AttributeError:
             param_names = [pn.name for pn in self.current_function.params]
             if node.lex in param_names:
                 for n in param_names:

@@ -59,7 +59,7 @@ class Type:
     def define_attribute(self, name:str, typex):
         try:
             self.get_attribute(name)
-        except SemanticError:
+        except AttributeError:
             attribute = Attribute(name, typex)
             self.attributes.append(attribute)
             return attribute
@@ -83,7 +83,7 @@ class Type:
             raise SemanticError(f'Method "{name}" already defined in {self.name}')
         try:
             method = self.get_method(name)
-        except SemanticError:
+        except AttributeError:
             pass
         else:
             if method.return_type != return_type or method.param_types != param_types:
