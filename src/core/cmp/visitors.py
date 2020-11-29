@@ -323,9 +323,11 @@ class TypeBuilder:
             except AssertionError:
                 self.errors.append((SemanticError(INVALID_PARAMETER % (idx)), node.params[i].ttype))
                 arg_type = ErrorType()
-                
+
             if idx == 'self':
                 self.errors.append((SemanticError('"self" cannot be the name of a formal parameter'), node.params[i].ttype))
+            if idx in arg_names:
+                self.errors.append((SemanticError(f'Formal parameter {idx} redefined'), node.params[i].ttype))
             arg_names.append(idx)
             arg_types.append(arg_type)
             arg_nodes.append(arg)
