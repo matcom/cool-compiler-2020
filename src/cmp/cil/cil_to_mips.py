@@ -53,6 +53,7 @@ class CIL_TO_MIPS(object):
     def __init__(self, context=Context):
         self.types = []
         self.types_offsets: Dict[str, TypeData] = dict()
+        self.labels: List[str] = []
         self.local_vars_offsets = dict()
         self.actual_args = dict()
         self.mips = Mips()
@@ -113,7 +114,17 @@ class CIL_TO_MIPS(object):
 
     def load_memory(self, dst: Reg, arg: str):
         self.mips.comment(f"load memory {arg} to {dst}")
-        self.mips.load_memory(dst, self.get_offset(arg))
+        if arg in self.actual_args or arg in self.local_vars_offsets:
+            offset = (
+                self.actual_args[arg]
+                if arg in self.actual_args
+                else self.local_vars_offsets[arg]
+            ) * DATA_SIZE
+            self.mips.load_memory(dst, self.mips.offset(Reg.fp, offset))
+        elif arg in self.labels:
+            self.mips.load_memory(dst, arg)
+        else:
+            raise Exception(f"load_memory: The direction {arg} isn't an address")
         self.mips.empty()
 
     def store_memory(self, dst: Reg, arg: str):
@@ -151,6 +162,7 @@ class CIL_TO_MIPS(object):
         self.build_types_data(self.types)
 
         for datanode in node.dotdata:
+            self.labels.append(datanode.name)
             self.visit(datanode)
 
         self.mips.label("main")
@@ -705,8 +717,11 @@ class CIL_TO_MIPS(object):
                 # self.mips.orr(Reg.s1, Reg.s3, Reg.s4)
                 self.mips.li(Reg.s1, value)
             except ValueError:
-                self.mips.comment(f"Setting data {node.value}")
-                self.mips.la(Reg.s1, node.value)
+                if node.value in self.labels:
+                    self.mips.comment(f"Setting data {node.value}")
+                    self.mips.la(Reg.s1, node.value)
+                else:
+                    raise Exception(f"SetAttribNode: label {node.value} not found.")
         self.mips.store_memory(Reg.s1, self.mips.offset(Reg.s0, offset))
         self.mips.empty()
 
