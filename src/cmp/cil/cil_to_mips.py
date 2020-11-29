@@ -54,7 +54,7 @@ from .utils.mips_syntax import Register as Reg
 def mips_comment(msg: str):
     def inner(fn):
         @wraps(fn)
-        def wrapped(self: CIL_TO_MIPS, *args, **kwargs):
+        def wrapped(self, *args, **kwargs):
             self.mips.comment("")
             result = fn(self, *args, **kwargs)
             self.mips.empty()
