@@ -420,6 +420,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     @when(cool.NotNode)
     def visit(self, node: cool.NotNode, scope: Scope):  # noqa:F811
         value = self.visit(node.expression, scope)
+        value = self.unpack_type_by_value(value, node.expression.static_type)
         one = self.define_internal_local()
         result = self.define_internal_local()
         self.register_instruction(AllocateNode(one, "Int"))
