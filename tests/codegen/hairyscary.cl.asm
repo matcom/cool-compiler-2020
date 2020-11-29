@@ -470,7 +470,7 @@ syscall
      ChequeoTrue:
      li $v0, 1
      jr $ra
-Main.Special: 
+Main.Special: #Main.special.main
 addi $sp, $sp, -12
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -516,20 +516,20 @@ addi $sp, $sp, 4
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f0: 
+f0: #Object.$init
 addi $sp, $sp, -8
 move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f3: 
+f3: #Object.type_name
 addi $sp, $sp, -12
 la $v0, st0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f4: 
+f4: #Object.Copy
 addi $sp, $sp, -8
 move $t0,$a0
 li $t1,0
@@ -541,12 +541,12 @@ addi $sp ,$sp, 4
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f2: 
+f2: #Object.Abort
 addi $sp, $sp, -8
 jal .Object.abort
 addi $sp, $sp, 8
 jr $ra
-f5: 
+f5: #Main.$init
 addi $sp, $sp, -28
 move $t0,$a0
 addi $sp, $sp, -4
@@ -699,19 +699,19 @@ move $v0, $t0
 sw $v0,24($sp)
 addi $sp, $sp, 28
 jr $ra
-f6: 
+f6: #Main.type_name
 addi $sp, $sp, -12
 la $v0, st1
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f7: 
+f7: #Main.main
 addi $sp, $sp, -12
 la $v0, st2
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f8: 
+f8: #IO.$init
 addi $sp, $sp, -12
 move $t0,$a0
 addi $sp, $sp, -4
@@ -732,13 +732,13 @@ move $v0, $t0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f9: 
+f9: #IO.type_name
 addi $sp, $sp, -12
 la $v0, st3
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f10: 
+f10: #IO.out_string
 addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
@@ -755,7 +755,7 @@ move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f11: 
+f11: #IO.out_int
 addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
@@ -772,7 +772,7 @@ move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f12: 
+f12: #IO.in_string
 addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
@@ -785,20 +785,20 @@ addi $sp, $sp, 8
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f13: 
+f13: #IO.in_int
 addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
 sw $ra, 4($sp)
 move $a0, $t0
-jal .IO.in_string
+jal .IO.in_int
 lw $a0, 0($sp)
 lw $ra, 4($sp)
 addi $sp, $sp, 8
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f14: 
+f14: #String.$init
 addi $sp, $sp, -12
 move $t0,$a0
 addi $sp, $sp, -4
@@ -819,13 +819,13 @@ move $v0, $t0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f15: 
+f15: #String.type_name
 addi $sp, $sp, -12
 la $v0, st4
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f16: 
+f16: #String.Length
 addi $sp, $sp, -8
 move $t0,$a0
 addi $sp, $sp, -8
@@ -839,7 +839,7 @@ addi $sp, $sp, 8
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f17: 
+f17: #String.Concat
 addi $sp, $sp, -8
 move $t0,$a0
 move $t1,$a1
@@ -857,7 +857,7 @@ addi $sp, $sp, 12
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f18: 
+f18: #String.Substring
 addi $sp, $sp, -8
 move $t0,$a0
 move $t1,$a1
@@ -879,7 +879,7 @@ addi $sp, $sp, 16
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f19: 
+f19: #Bool.$init
 addi $sp, $sp, -12
 move $t0,$a0
 addi $sp, $sp, -4
@@ -900,13 +900,13 @@ move $v0, $t0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f20: 
+f20: #Bool.type_name
 addi $sp, $sp, -12
 la $v0, st5
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f21: 
+f21: #Bazz.$init
 addi $sp, $sp, -124
 move $t0,$a0
 addi $sp, $sp, -4
@@ -1139,13 +1139,13 @@ move $v0, $t0
 sw $v0,120($sp)
 addi $sp, $sp, 124
 jr $ra
-f22: 
+f22: #Bazz.type_name
 addi $sp, $sp, -12
 la $v0, st6
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f23: 
+f23: #Bazz.printh
 addi $sp, $sp, -20
 move $t0,$a0
 move $v0, $t0
@@ -1177,33 +1177,39 @@ move $v0, $t0
 sw $v0,16($sp)
 addi $sp, $sp, 20
 jr $ra
-f24: 
-addi $sp, $sp, -36
+f24: #Bazz.doh
+addi $sp, $sp, -40
 lw $t0,4($a0)
 move $v0, $t0
 sw $v0,8($sp)
+lw $t0,12($a0)
+move $v0, $t0
+sw $v0,12($sp)
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,12($a0)
 lw $t0,4($a0)
 move $v0, $t0
-sw $v0,16($sp)
+sw $v0,20($sp)
 li $t0,1
 move $v0, $t0
-sw $v0,20($sp)
-lw $t0,16($sp)
-lw $t1,20($sp)
+sw $v0,24($sp)
+lw $t0,20($sp)
+lw $t1,24($sp)
 add $v0, $t0, $t1
-sw $v0,28($sp)
-lw $t0,28($sp)
+sw $v0,32($sp)
+lw $t0,32($sp)
 move $v0, $t0
 sw $v0,4($a0)
 lw $t0,12($a0)
 move $v0, $t0
-sw $v0,32($sp)
-addi $sp, $sp, 36
+sw $v0,36($sp)
+lw $t0,12($sp)
+move $v0, $t0
+sw $v0,12($a0)
+addi $sp, $sp, 40
 jr $ra
-f25: 
+f25: #Foo.$init
 addi $sp, $sp, -148
 move $t0,$a0
 addi $sp, $sp, -4
@@ -1231,7 +1237,7 @@ lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,28($sp)
 lw $t0,28($sp)
-bgtz $t0, var.var80
+bgtz $t0, var.var81
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,24($sp)
@@ -1274,7 +1280,7 @@ sw $v0,40($sp)
 lw $t0,40($sp)
 move $v0, $t0
 sw $v0,12($sp)
-var.var80:
+var.var81:
 lw $t0,8($sp)
 la $t1,Fooclase
 addi $sp ,$sp, -4
@@ -1284,7 +1290,7 @@ lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,48($sp)
 lw $t0,48($sp)
-bgtz $t0, var.var85
+bgtz $t0, var.var86
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,24($sp)
@@ -1325,7 +1331,7 @@ sw $v0,60($sp)
 lw $t0,60($sp)
 move $v0, $t0
 sw $v0,12($sp)
-var.var85:
+var.var86:
 lw $t0,8($sp)
 la $t1,Barclase
 addi $sp ,$sp, -4
@@ -1335,7 +1341,7 @@ lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,68($sp)
 lw $t0,68($sp)
-bgtz $t0, var.var90
+bgtz $t0, var.var91
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,24($sp)
@@ -1348,8 +1354,8 @@ sw $v0,80($sp)
 lw $t0,80($sp)
 move $v0, $t0
 sw $v0,12($sp)
-var.var90:
-var.var77:
+var.var91:
+var.var78:
 lw $t0,12($sp)
 move $v0, $t0
 sw $v0,84($sp)
@@ -1444,39 +1450,45 @@ move $v0, $t0
 sw $v0,144($sp)
 addi $sp, $sp, 148
 jr $ra
-f26: 
+f26: #Foo.type_name
 addi $sp, $sp, -12
 la $v0, st7
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f27: 
-addi $sp, $sp, -36
+f27: #Foo.doh
+addi $sp, $sp, -40
 lw $t0,4($a0)
 move $v0, $t0
 sw $v0,8($sp)
+lw $t0,12($a0)
+move $v0, $t0
+sw $v0,12($sp)
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,12($a0)
 lw $t0,4($a0)
 move $v0, $t0
-sw $v0,16($sp)
+sw $v0,20($sp)
 li $t0,2
 move $v0, $t0
-sw $v0,20($sp)
-lw $t0,16($sp)
-lw $t1,20($sp)
+sw $v0,24($sp)
+lw $t0,20($sp)
+lw $t1,24($sp)
 add $v0, $t0, $t1
-sw $v0,28($sp)
-lw $t0,28($sp)
+sw $v0,32($sp)
+lw $t0,32($sp)
 move $v0, $t0
 sw $v0,4($a0)
 lw $t0,12($a0)
 move $v0, $t0
-sw $v0,32($sp)
-addi $sp, $sp, 36
+sw $v0,36($sp)
+lw $t0,12($sp)
+move $v0, $t0
+sw $v0,12($a0)
+addi $sp, $sp, 40
 jr $ra
-f28: 
+f28: #Razz.$init
 addi $sp, $sp, -144
 move $t0,$a0
 addi $sp, $sp, -4
@@ -1504,7 +1516,7 @@ lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,28($sp)
 lw $t0,28($sp)
-bgtz $t0, var.var124
+bgtz $t0, var.var126
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,24($sp)
@@ -1547,7 +1559,7 @@ sw $v0,40($sp)
 lw $t0,40($sp)
 move $v0, $t0
 sw $v0,12($sp)
-var.var124:
+var.var126:
 lw $t0,8($sp)
 la $t1,Barclase
 addi $sp ,$sp, -4
@@ -1557,7 +1569,7 @@ lw $ra, 0($sp)
 addi $sp ,$sp, 4
 sw $v0,48($sp)
 lw $t0,48($sp)
-bgtz $t0, var.var129
+bgtz $t0, var.var131
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,24($sp)
@@ -1570,8 +1582,8 @@ sw $v0,60($sp)
 lw $t0,60($sp)
 move $v0, $t0
 sw $v0,12($sp)
-var.var129:
-var.var121:
+var.var131:
+var.var123:
 lw $t0,12($sp)
 move $v0, $t0
 sw $v0,64($sp)
@@ -1687,13 +1699,13 @@ move $v0, $t0
 sw $v0,140($sp)
 addi $sp, $sp, 144
 jr $ra
-f29: 
+f29: #Razz.type_name
 addi $sp, $sp, -12
 la $v0, st8
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f30: 
+f30: #Bar.$init
 addi $sp, $sp, -28
 move $t0,$a0
 addi $sp, $sp, -4
@@ -1754,7 +1766,7 @@ move $v0, $t0
 sw $v0,24($sp)
 addi $sp, $sp, 28
 jr $ra
-f31: 
+f31: #Bar.type_name
 addi $sp, $sp, -12
 la $v0, st9
 sw $v0,8($sp)

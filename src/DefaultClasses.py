@@ -47,36 +47,36 @@ class Defaults:
     #     return CILGlobalMethod('typename',params=["self"],locals=["$result"],instrucciones=instrucciones)
     def abort_CIL():
         instrucciones=[CILAbort("$result",[])]
-        return CILGlobalMethod('abort',[ParameterNode("self","SELF_TYPE")],["$result"],instrucciones)
+        return CILGlobalMethod('abort',[ParameterNode("self","SELF_TYPE")],["$result"],instrucciones,comments="Object.Abort")
 
     def copy_CIL(cantidadatributos):
         instrucciones=[CILCopy("$result",["self",cantidadatributos])]
-        return CILGlobalMethod('copy',[ParameterNode("self","SELF_TYPE")],["$result"],instrucciones)
+        return CILGlobalMethod('copy',[ParameterNode("self","SELF_TYPE")],["$result"],instrucciones,comments="Object.Copy")
 
     def out_string_CIL():
         instrucciones=[CILOutString("x"),CILAssign("$result",["self"])]
-        return CILGlobalMethod('out_string',[ParameterNode("self","SELF_TYPE"),ParameterNode("x","String")],["$result"],instrucciones)
+        return CILGlobalMethod('out_string',[ParameterNode("self","SELF_TYPE"),ParameterNode("x","String")],["$result"],instrucciones,comments="IO.out_string")
 
     def out_int_CIL():
         instrucciones=[CILOutInt("x"),CILAssign("$result",["self"])]
-        return CILGlobalMethod('out_int',[ParameterNode("self","SELF_TYPE"),ParameterNode("x","Int")],["$result"],instrucciones)
+        return CILGlobalMethod('out_int',[ParameterNode("self","SELF_TYPE"),ParameterNode("x","Int")],["$result"],instrucciones,comments="IO.out_int")
 
     def in_string_CIL():
         instrucciones=[CILInString("$result",[])]
-        return CILGlobalMethod('in_string',[ParameterNode("self","SELF_TYPE")],["$result"],instrucciones)
+        return CILGlobalMethod('in_string',[ParameterNode("self","SELF_TYPE")],["$result"],instrucciones,comments="IO.in_string")
 
     def in_int_CIL():
-        instrucciones=[CILInString("$result",[])]
-        return CILGlobalMethod('in_int',[ParameterNode("self","SELF_TYPE")],["$result"],instrucciones)
+        instrucciones=[CILInInt("$result",[])]
+        return CILGlobalMethod('in_int',[ParameterNode("self","SELF_TYPE")],["$result"],instrucciones,comments="IO.in_int")
 
     def len_string_CIL():
         instrucciones=[CILStringLenght("$result",["self"])]
-        return CILGlobalMethod('length',[ParameterNode("self","SELF_TYPE")],["$result"],instrucciones)
+        return CILGlobalMethod('length',[ParameterNode("self","SELF_TYPE")],["$result"],instrucciones,comments="String.Length")
 
     def concat_string_CIL():
         instrucciones=[CILStringConcat("$result",["self","s"])]
-        return CILGlobalMethod('concat',[ParameterNode("self","SELF_TYPE"),ParameterNode("s","String")],["$result"],instrucciones)
+        return CILGlobalMethod('concat',[ParameterNode("self","SELF_TYPE"),ParameterNode("s","String")],["$result"],instrucciones,comments="String.Concat")
 
     def substring_string_CIL():
         instrucciones=[CILStringSubstring("$result",["self","i","l"])]
-        return CILGlobalMethod('substr',[ParameterNode("self","SELF_TYPE"),ParameterNode("i","Int"),ParameterNode("l","Int")],["$result"],instrucciones)
+        return CILGlobalMethod('substr',[ParameterNode("self","SELF_TYPE"),ParameterNode("i","Int"),ParameterNode("l","Int")],["$result"],instrucciones,comments="String.Substring")

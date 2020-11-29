@@ -211,7 +211,7 @@ class MIPSCompiler:
         if scope.methodclass in ["CellularAutomaton", '"CellularAutomaton"']:
             print("here")
         instrucciones=""
-        instrucciones+=node.nombre+": \n"#+node.comments+"\n"
+        instrucciones+=node.nombre+": #"+node.comments+"\n"
 
         scope.methodname=node.nombre
         scope.methodclass=node.originclass

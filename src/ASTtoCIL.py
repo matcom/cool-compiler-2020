@@ -556,15 +556,24 @@ class CILTranspiler:
     @visitor.when(LetNode)
     def visit(self, node:LetNode, scope:Scope):
         instructions=[]
+        asignacionessalva=[]
         for at in node.declarations:
             if at.name not in scope.locals:
                 scope.locals.append(at.name)
-            if at.type=="String":
-                if at.value==None:
+            if at.value==None:
+                if at.type=="String":
                     at.value=StringNode('""')
+                elif at.type=="Bool":
+                    at.value=BoolNode("false")
+                else:
+                    at.value=IntegerNode(0)
             delcaracionExp=self.visit(at.value,scope)
             instructions.extend(delcaracionExp)
             if len(delcaracionExp)>0:
+                temp=self.GenerarNombreVariable(scope)
+                salva=CILAssign(temp,[at.name])
+                asignacionessalva.append(salva)
+                instructions.append(salva)
                 instructions.append(CILAssign(at.name,[delcaracionExp[len(delcaracionExp)-1].destination]))
             else:
                 instructions.append(CILAssign(at.name,[0]))
@@ -572,6 +581,10 @@ class CILTranspiler:
         bodyExp=self.visit(node.body,scope)
 
         instructions.extend(bodyExp)
+
+        for inst in asignacionessalva:
+            restauracion=CILAssign(inst.params[0],[inst.destination])
+            instructions.append(restauracion)
 
         return instructions
 

@@ -150,7 +150,7 @@ syscall
      b InicioStrLen
 
      FinStrLen:
-     #sw $v0, 0($a1) El protocolo cambió
+     #sw $v0, 0($a1) El protocolo cambiï¿½
      jr $ra
 
      .Object.abort:
@@ -428,8 +428,8 @@ syscall
      li $v0, 10
      syscall
      
-     #En este método violé la regla usual de que los parámetros van en los registros a, y se encuentran en los t.
-     #Esto se realizó ya que este método solo se usa en un lugar y atendiendo a la estructura del conversor a MIPS
+     #En este mï¿½todo violï¿½ la regla usual de que los parï¿½metros van en los registros a, y se encuentran en los t.
+     #Esto se realizï¿½ ya que este mï¿½todo solo se usa en un lugar y atendiendo a la estructura del conversor a MIPS
      .Object.Copy:
      addi $sp, $sp, -8
 
@@ -469,7 +469,7 @@ syscall
      ChequeoTrue:
      li $v0, 1
      jr $ra
-Main.Special: 
+Main.Special: #Main.special.main
 addi $sp, $sp, -12
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -512,20 +512,20 @@ addi $sp, $sp, 4
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f0: 
+f0: #Object.$init
 addi $sp, $sp, -8
 move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f3: 
+f3: #Object.type_name
 addi $sp, $sp, -12
 la $v0, st0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f4: 
+f4: #Object.Copy
 addi $sp, $sp, -8
 move $t0,$a0
 li $t1,0
@@ -537,12 +537,12 @@ addi $sp ,$sp, 4
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f2: 
+f2: #Object.Abort
 addi $sp, $sp, -8
 jal .Object.abort
 addi $sp, $sp, 8
 jr $ra
-f5: 
+f5: #IO.$init
 addi $sp, $sp, -12
 move $t0,$a0
 addi $sp, $sp, -4
@@ -563,13 +563,13 @@ move $v0, $t0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f6: 
+f6: #IO.type_name
 addi $sp, $sp, -12
 la $v0, st1
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f7: 
+f7: #IO.out_string
 addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
@@ -586,7 +586,7 @@ move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f8: 
+f8: #IO.out_int
 addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
@@ -603,7 +603,7 @@ move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f9: 
+f9: #IO.in_string
 addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
@@ -616,20 +616,20 @@ addi $sp, $sp, 8
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f10: 
+f10: #IO.in_int
 addi $sp, $sp, -8
 addi $sp, $sp, -8
 sw $a0, 0($sp)
 sw $ra, 4($sp)
 move $a0, $t0
-jal .IO.in_string
+jal .IO.in_int
 lw $a0, 0($sp)
 lw $ra, 4($sp)
 addi $sp, $sp, 8
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f11: 
+f11: #String.$init
 addi $sp, $sp, -12
 move $t0,$a0
 addi $sp, $sp, -4
@@ -650,13 +650,13 @@ move $v0, $t0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f12: 
+f12: #String.type_name
 addi $sp, $sp, -12
 la $v0, st2
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f13: 
+f13: #String.Length
 addi $sp, $sp, -8
 move $t0,$a0
 addi $sp, $sp, -8
@@ -670,7 +670,7 @@ addi $sp, $sp, 8
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f14: 
+f14: #String.Concat
 addi $sp, $sp, -8
 move $t0,$a0
 move $t1,$a1
@@ -688,7 +688,7 @@ addi $sp, $sp, 12
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f15: 
+f15: #String.Substring
 addi $sp, $sp, -8
 move $t0,$a0
 move $t1,$a1
@@ -710,7 +710,7 @@ addi $sp, $sp, 16
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f16: 
+f16: #Bool.$init
 addi $sp, $sp, -12
 move $t0,$a0
 addi $sp, $sp, -4
@@ -731,13 +731,13 @@ move $v0, $t0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f17: 
+f17: #Bool.type_name
 addi $sp, $sp, -12
 la $v0, st3
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f18: 
+f18: #List.$init
 addi $sp, $sp, -12
 move $t0,$a0
 addi $sp, $sp, -4
@@ -758,13 +758,13 @@ move $v0, $t0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f19: 
+f19: #List.type_name
 addi $sp, $sp, -12
 la $v0, st4
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f20: 
+f20: #List.isNil
 addi $sp, $sp, -16
 move $t0,$a0
 move $v0, $t0
@@ -788,8 +788,8 @@ move $v0, $t0
 sw $v0,12($sp)
 addi $sp, $sp, 16
 jr $ra
-f21: 
-addi $sp, $sp, -28
+f21: #List.cons
+addi $sp, $sp, -32
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,12
@@ -816,27 +816,30 @@ addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
+lw $t0,4($sp)
+move $v0, $t0
+sw $v0,12($sp)
 lw $t0,8($sp)
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
 move $v0, $t0
-sw $v0,12($sp)
+sw $v0,16($sp)
 move $t0,$a1
 move $v0, $t0
-sw $v0,16($sp)
+sw $v0,20($sp)
 move $t0,$a0
 move $v0, $t0
-sw $v0,20($sp)
-lw $t0,12($sp)
+sw $v0,24($sp)
+lw $t0,16($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,20($sp)
+lw $t0,24($sp)
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
-lw $t0,28($sp)
+lw $t0,32($sp)
 addi $sp, $sp, -4
 sw $a2, 0($sp)
 move $a2,$t0
@@ -851,10 +854,13 @@ lw $a2, 0($sp)
 lw $a1, 4($sp)
 lw $a0, 8($sp)
 addi $sp, $sp, 12
-sw $v0,24($sp)
-addi $sp, $sp, 28
+sw $v0,28($sp)
+lw $t0,12($sp)
+move $v0, $t0
+sw $v0,4($sp)
+addi $sp, $sp, 32
 jr $ra
-f22: 
+f22: #List.car
 addi $sp, $sp, -16
 move $t0,$a0
 move $v0, $t0
@@ -885,7 +891,7 @@ addi $sp, $sp, 4
 sw $v0,12($sp)
 addi $sp, $sp, 16
 jr $ra
-f23: 
+f23: #List.cdr
 addi $sp, $sp, -16
 move $t0,$a0
 move $v0, $t0
@@ -930,7 +936,7 @@ addi $sp, $sp, 4
 sw $v0,12($sp)
 addi $sp, $sp, 16
 jr $ra
-f24: 
+f24: #List.rev
 addi $sp, $sp, -12
 move $t0,$a0
 move $v0, $t0
@@ -951,7 +957,7 @@ addi $sp, $sp, 4
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f25: 
+f25: #List.sort
 addi $sp, $sp, -12
 move $t0,$a0
 move $v0, $t0
@@ -972,7 +978,7 @@ addi $sp, $sp, 4
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f26: 
+f26: #List.insert
 addi $sp, $sp, -12
 move $t0,$a0
 move $v0, $t0
@@ -993,7 +999,7 @@ addi $sp, $sp, 4
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f27: 
+f27: #List.rcons
 addi $sp, $sp, -12
 move $t0,$a0
 move $v0, $t0
@@ -1014,7 +1020,7 @@ addi $sp, $sp, 4
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f28: 
+f28: #List.print_list
 addi $sp, $sp, -12
 move $t0,$a0
 move $v0, $t0
@@ -1035,7 +1041,7 @@ addi $sp, $sp, 4
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f29: 
+f29: #Main.$init
 addi $sp, $sp, -12
 move $t0,$a0
 addi $sp, $sp, -4
@@ -1059,14 +1065,14 @@ move $v0, $t0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f30: 
+f30: #Main.type_name
 addi $sp, $sp, -12
 la $v0, st5
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f31: 
-addi $sp, $sp, -88
+f31: #Main.iota
+addi $sp, $sp, -92
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 li $a0,4
@@ -1097,24 +1103,27 @@ sw $v0,4($a0)
 li $t0,0
 move $v0, $t0
 sw $v0,16($sp)
+lw $t0,12($sp)
+move $v0, $t0
+sw $v0,20($sp)
 lw $t0,16($sp)
 move $v0, $t0
 sw $v0,12($sp)
 Lbl0:
 lw $t0,12($sp)
 move $v0, $t0
-sw $v0,20($sp)
+sw $v0,24($sp)
 move $t0,$a1
 move $v0, $t0
-sw $v0,24($sp)
-lw $t0,20($sp)
-lw $t1,24($sp)
+sw $v0,28($sp)
+lw $t0,24($sp)
+lw $t1,28($sp)
 slt $v0, $t0, $t1
-sw $v0,32($sp)
-lw $t0,32($sp)
+sw $v0,36($sp)
+lw $t0,36($sp)
 seq $v0, $t0, $zero
-sw $v0,40($sp)
-lw $t0,40($sp)
+sw $v0,44($sp)
+lw $t0,44($sp)
 bgtz $t0, Lbl1
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -1127,8 +1136,8 @@ sw $zero, 4($v0)
 sw $zero, 8($v0)
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,44($sp)
-lw $t0,44($sp)
+sw $v0,48($sp)
+lw $t0,48($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
@@ -1141,22 +1150,22 @@ lw $ra, 0($sp)
 addi $sp, $sp, 4
 lw $a0, 0($sp)
 addi $sp, $sp, 4
-sw $v0,44($sp)
+sw $v0,48($sp)
 lw $t0,12($sp)
 move $v0, $t0
-sw $v0,48($sp)
+sw $v0,52($sp)
 lw $t0,4($a0)
 move $v0, $t0
-sw $v0,52($sp)
-lw $t0,44($sp)
+sw $v0,56($sp)
+lw $t0,48($sp)
 addi $sp, $sp, -4
 sw $a0, 0($sp)
 move $a0,$t0
-lw $t0,52($sp)
+lw $t0,56($sp)
 addi $sp, $sp, -4
 sw $a1, 0($sp)
 move $a1,$t0
-lw $t0,60($sp)
+lw $t0,64($sp)
 addi $sp, $sp, -4
 sw $a2, 0($sp)
 move $a2,$t0
@@ -1171,34 +1180,37 @@ lw $a2, 0($sp)
 lw $a1, 4($sp)
 lw $a0, 8($sp)
 addi $sp, $sp, 12
-sw $v0,56($sp)
-lw $t0,56($sp)
+sw $v0,60($sp)
+lw $t0,60($sp)
 move $v0, $t0
 sw $v0,4($a0)
 lw $t0,12($sp)
 move $v0, $t0
-sw $v0,60($sp)
+sw $v0,64($sp)
 li $t0,1
 move $v0, $t0
-sw $v0,64($sp)
-lw $t0,60($sp)
-lw $t1,64($sp)
+sw $v0,68($sp)
+lw $t0,64($sp)
+lw $t1,68($sp)
 add $v0, $t0, $t1
-sw $v0,72($sp)
-lw $t0,72($sp)
+sw $v0,76($sp)
+lw $t0,76($sp)
 move $v0, $t0
 sw $v0,12($sp)
 b Lbl0
 Lbl1:
 li $t0,0
 move $v0, $t0
-sw $v0,80($sp)
+sw $v0,84($sp)
+lw $t0,20($sp)
+move $v0, $t0
+sw $v0,12($sp)
 lw $t0,4($a0)
 move $v0, $t0
-sw $v0,84($sp)
-addi $sp, $sp, 88
+sw $v0,88($sp)
+addi $sp, $sp, 92
 jr $ra
-f32: 
+f32: #Main.main
 addi $sp, $sp, -48
 move $t0,$a0
 move $v0, $t0
@@ -1307,7 +1319,7 @@ addi $sp, $sp, 4
 sw $v0,44($sp)
 addi $sp, $sp, 48
 jr $ra
-f33: 
+f33: #Cons.$init
 addi $sp, $sp, -12
 move $t0,$a0
 addi $sp, $sp, -4
@@ -1334,20 +1346,20 @@ move $v0, $t0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f34: 
+f34: #Cons.type_name
 addi $sp, $sp, -12
 la $v0, st7
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f35: 
+f35: #Cons.isNil
 addi $sp, $sp, -8
 move $t0, $zero
 move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f36: 
+f36: #Cons.init
 addi $sp, $sp, -24
 move $t0,$a1
 move $v0, $t0
@@ -1366,21 +1378,21 @@ move $v0, $t0
 sw $v0,20($sp)
 addi $sp, $sp, 24
 jr $ra
-f37: 
+f37: #Cons.car
 addi $sp, $sp, -8
 lw $t0,4($a0)
 move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f38: 
+f38: #Cons.cdr
 addi $sp, $sp, -8
 lw $t0,8($a0)
 move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f39: 
+f39: #Cons.rev
 addi $sp, $sp, -20
 lw $t0,8($a0)
 move $v0, $t0
@@ -1423,7 +1435,7 @@ addi $sp, $sp, 8
 sw $v0,16($sp)
 addi $sp, $sp, 20
 jr $ra
-f40: 
+f40: #Cons.sort
 addi $sp, $sp, -20
 lw $t0,8($a0)
 move $v0, $t0
@@ -1466,7 +1478,7 @@ addi $sp, $sp, 8
 sw $v0,16($sp)
 addi $sp, $sp, 20
 jr $ra
-f41: 
+f41: #Cons.insert
 addi $sp, $sp, -68
 move $t0,$a1
 move $v0, $t0
@@ -1628,7 +1640,7 @@ move $v0, $t0
 sw $v0,64($sp)
 addi $sp, $sp, 68
 jr $ra
-f42: 
+f42: #Cons.rcons
 addi $sp, $sp, -28
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -1710,7 +1722,7 @@ addi $sp, $sp, 12
 sw $v0,24($sp)
 addi $sp, $sp, 28
 jr $ra
-f43: 
+f43: #Cons.print_list
 addi $sp, $sp, -40
 move $t0,$a0
 move $v0, $t0
@@ -1780,7 +1792,7 @@ addi $sp, $sp, 4
 sw $v0,36($sp)
 addi $sp, $sp, 40
 jr $ra
-f44: 
+f44: #Nil.$init
 addi $sp, $sp, -12
 move $t0,$a0
 addi $sp, $sp, -4
@@ -1801,34 +1813,34 @@ move $v0, $t0
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f45: 
+f45: #Nil.type_name
 addi $sp, $sp, -12
 la $v0, st9
 sw $v0,8($sp)
 addi $sp, $sp, 12
 jr $ra
-f46: 
+f46: #Nil.isNil
 addi $sp, $sp, -8
 li $t0,1
 move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f47: 
+f47: #Nil.rev
 addi $sp, $sp, -8
 move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f48: 
+f48: #Nil.sort
 addi $sp, $sp, -8
 move $t0,$a0
 move $v0, $t0
 sw $v0,4($sp)
 addi $sp, $sp, 8
 jr $ra
-f49: 
+f49: #Nil.insert
 addi $sp, $sp, -16
 move $t0,$a0
 move $v0, $t0
@@ -1857,7 +1869,7 @@ addi $sp, $sp, 8
 sw $v0,12($sp)
 addi $sp, $sp, 16
 jr $ra
-f50: 
+f50: #Nil.rcons
 addi $sp, $sp, -20
 addi $sp, $sp, -4
 sw $a0, 0($sp)
@@ -1917,7 +1929,7 @@ addi $sp, $sp, 12
 sw $v0,16($sp)
 addi $sp, $sp, 20
 jr $ra
-f51: 
+f51: #Nil.print_list
 addi $sp, $sp, -8
 li $t0,1
 move $v0, $t0
