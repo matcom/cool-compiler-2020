@@ -485,14 +485,22 @@ def lesseq_to_mips_visitor(lesseq: cil.LessEqNode):
         sle $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
+    instructions = [mips.Comment(str(lesseq))]
+    if isinstance(lesseq.left, int):
+        instructions.append(mips.LiInstruction('$t1', lesseq.left))
+    else:
+        y_offset = CURRENT_FUNCTION.offset[str(lesseq.left)]
+        instructions.append(mips.LwInstruction('$t1', f'{y_offset}($fp)'))
+
+    if isinstance(lesseq.right, int):
+        instructions.append(mips.LiInstruction('$t2', lesseq.right))
+    else:
+        z_offset = CURRENT_FUNCTION.offset[str(lesseq.right)]
+        instructions.append(mips.LwInstruction('$t2', f'{z_offset}($fp)'))
 
     x_offset = CURRENT_FUNCTION.offset[str(lesseq.result)]
-    y_offset = CURRENT_FUNCTION.offset[str(lesseq.left)]
-    z_offset = CURRENT_FUNCTION.offset[str(lesseq.right)]
-    return [
-        mips.Comment(str(lesseq)),
-        mips.LwInstruction('$t1', f'{y_offset}($fp)'),
-        mips.LwInstruction('$t2', f'{z_offset}($fp)'),
+
+    return instructions + [
         mips.SleInstruction('$t0', '$t1', '$t2'),
         mips.SwInstruction('$t0', f'{x_offset}($fp)')
     ]
@@ -508,14 +516,22 @@ def less_to_mips_visitor(less: cil.LessNode):
         slt $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
+    instructions = [mips.Comment(str(less))]
+    if isinstance(less.left, int):
+        instructions.append(mips.LiInstruction('$t1', less.left))
+    else:
+        y_offset = CURRENT_FUNCTION.offset[str(less.left)]
+        instructions.append(mips.LwInstruction('$t1', f'{y_offset}($fp)'))
+
+    if isinstance(less.right, int):
+        instructions.append(mips.LiInstruction('$t2', less.right))
+    else:
+        z_offset = CURRENT_FUNCTION.offset[str(less.right)]
+        instructions.append(mips.LwInstruction('$t2', f'{z_offset}($fp)'))
 
     x_offset = CURRENT_FUNCTION.offset[str(less.result)]
-    y_offset = CURRENT_FUNCTION.offset[str(less.left)]
-    z_offset = CURRENT_FUNCTION.offset[str(less.right)]
-    return [
-        mips.Comment(str(less)),
-        mips.LwInstruction('$t1', f'{y_offset}($fp)'),
-        mips.LwInstruction('$t2', f'{z_offset}($fp)'),
+
+    return instructions + [
         mips.SleInstruction('$t0', '$t1', '$t2'),
         mips.SwInstruction('$t0', f'{x_offset}($fp)')
     ]
