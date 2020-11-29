@@ -89,8 +89,8 @@ class MIPSFunction:
             '$sp', '$sp', f'{self.fp_shift * 4}'))
         self.end_instructions.append(AdduInstruction(
             '$sp', '$sp', f'{self.fp_shift * 4}'))
-        
-        if(self.name!='Main_main'):
+
+        if(self.name != 'Main_main'):
             self.end_instructions.append(JrInstruction('$ra'))
 
     def __update_callee_saved_reg__(self, registers: set):
@@ -233,6 +233,11 @@ class AddInstruction(Instruction):
 class AdduInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('addu', *arguments)
+
+
+class MulInstruction(Instruction):
+    def __init__(self, *arguments):
+        super().__init__('mul', *arguments)
 
 
 class MultInstruction(Instruction):
