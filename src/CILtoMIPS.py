@@ -237,7 +237,7 @@ class MIPSCompiler:
                     misregisterparams[node.params[i].name]="$a"+str(i)
             else:
                 if isinstance(node.params[i], str):
-                    misotrosparams[node.params[i]]=((i-4+len(node.locals)+1)*4)#+"($sp)"   Puse el más 1 porque siempre antes de llamar un método se guarda $ra en la pila, por lo que los parámetros estarían desplazados
+                    misotrosparams[node.params[i]]=((i-4+len(node.locals)+1)*4)#+"($sp)"   Puse el mas 1 porque siempre antes de llamar un metodo se guarda $ra en la pila, por lo que los parametros estarian desplazados
                 else:
                     misotrosparams[node.params[i].name]=((i-4+len(node.locals)+1)*4)#+"($sp)"
 

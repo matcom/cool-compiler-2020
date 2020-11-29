@@ -1,6 +1,3 @@
-#!/user/bin/env python
-# -*- coding: utf-8 -*-
-
 import ply.lex as lex
 import ply.yacc as yacc
 import os
@@ -12,7 +9,7 @@ from CILtoMIPS import *
 
 LexerError=False
 
-#Welcome='Tiger and Buti Compiler 2020 0.2.0\nCopyright (c) 2019: José Gabriel Navarro Comabella, Alberto Helguera Fleitas'
+#Welcome='Tiger and Buti Compiler 2020 0.2.0\nCopyright (c) 2019: Jose Gabriel Navarro Comabella, Alberto Helguera Fleitas'
 
 #print(Welcome)
 
@@ -618,7 +615,7 @@ def p_comparison(p):
 def p_parenexpression(p):
     '''parenexpression : lparen expression rparen'''
     p[0] = p[2]
-    # p[0].type=p[2].type Esto lo comenté, tiró error
+    # p[0].type=p[2].type Esto lo comente, tiro error
     pass
 
 def p_constantexp(p):
@@ -666,34 +663,34 @@ def p_error(p):
     print('('+str(linea)+', '+str(columna)+') - SyntacticError: ERROR at or near "'+ str(token)+'"')
     return
 
-archivo=open(sys.argv[1],encoding='utf-8')
-texto=archivo.read()
-respuesta=elimina_comentarios2(texto)
+if __name__=='__main__':
+    archivo=open(sys.argv[1],encoding='utf-8')
+    texto=archivo.read()
+    respuesta=elimina_comentarios2(texto)
 # respuesta=elimina_comentarios_fin_de_linea(respuesta)
-
-LexerError=False
-mylex.input(respuesta)
-for t in mylex:
-    pass
-
-parser=yacc.yacc()
-if not LexerError:
-    ast=parser.parse(respuesta,lexer=mylex, debug=False)
-    if parser.errorok:
-        semantic=Semantics_Checker()
-        semanticvalid=semantic.visit(ast,None)
+    LexerError=False
+    mylex.input(respuesta)
+    for t in mylex:
+        pass
+    
+    parser=yacc.yacc()
+    if not LexerError:
+        ast=parser.parse(respuesta,lexer=mylex, debug=False)
+        if parser.errorok:
+            semantic=Semantics_Checker()
+            semanticvalid=semantic.visit(ast,None)
     # else:
     #     exit(1)
-        if semanticvalid:
-            tocil=CILTranspiler()
-            codigoCIL=tocil.visit(ast, None)
-
-            toMIPS=MIPSCompiler()
-            instrucciones=toMIPS.visit(codigoCIL, None)
-            archivoResultado=open(sys.argv[1][:3]+'.mips',encoding='utf-8')
-            archivoResultado.write(instrucciones)
-            archivoResultado.flush()
-            archivoResultado.close()
+            if semanticvalid:
+                tocil=CILTranspiler()
+                codigoCIL=tocil.visit(ast, None)
+                
+                toMIPS=MIPSCompiler()
+                instrucciones=toMIPS.visit(codigoCIL, None)
+                archivoResultado=open(sys.argv[1][:3]+'.mips',encoding='utf-8')
+                archivoResultado.write(instrucciones)
+                archivoResultado.flush()
+                archivoResultado.close()
         # else:
         #     exit(1)
 # else:

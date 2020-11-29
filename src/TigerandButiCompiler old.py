@@ -61,7 +61,7 @@ class ElementoClase():
 nodosDefinidos["Object"]=ElementoClase("Object",None,0,0,"Object")
 
 
-#Welcome='Tiger and Buti Compiler 2020 0.2.0\nCopyright (c) 2019: José Gabriel Navarro Comabella, Alberto Helguera Fleitas'
+#Welcome='Tiger and Buti Compiler 2020 0.2.0\nCopyright (c) 2019: Jose Gabriel Navarro Comabella, Alberto Helguera Fleitas'
 
 #print(Welcome)
 

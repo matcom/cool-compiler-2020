@@ -181,7 +181,7 @@ class CILTranspiler:
         metodosGlobalesCIL={}
 
         for c in classes:
-            #Generando los Types e información de clase
+            #Generando los Types e informacion de clase
             atributosAST=atributosdic[c.name]
             metodosAST=metodosdic[c.name]
             self.classidcount+=1
@@ -194,7 +194,7 @@ class CILTranspiler:
             main.nombre="Main.Special"
             metodosGlobalesCIL[main.nombre]=main
 
-            #Inicialización de atributos
+            #Inicializacion de atributos
             initInstructions=self.GenerarInit(c,scope)
             initName=metodosglobalesdic[c.name+"#"+"$init"]
             globalInit=CILGlobalMethod(initName,["self"],scope.locals,initInstructions, c.name,c.name+".$init")
@@ -502,7 +502,7 @@ class CILTranspiler:
 
         virtual=node.left_type in ["Int", "Bool", "String"] 
 
-        if virtual: #Caso de los tipos básicos
+        if virtual: #Caso de los tipos basicos
             if node.func_id=="type_name":
                 elstring=StringNode('"'+node.left_type+'"')
                 instructions.extend(self.visit(elstring, scope))
@@ -672,14 +672,14 @@ class CILTranspiler:
         salva=CILAssign(temporal,[node.name])
         instructions.append(salva)
 
-        #No falló, entonces node.name=expresion0
+        #No fallo, entonces node.name=expresion0
         asignacion=CILAssign(node.name, [expresion0])
         instructions.append(asignacion)
 
         #Evalua la expresion del subcase
         instructions.extend(self.visit(node.expression,scope))
 
-        #resultVariable=resultado de la expresión
+        #resultVariable=resultado de la expresion
         resultVariable=self.GenerarNombreVariable(scope)
         asignacion=CILAssign(resultVariable,[instructions[len(instructions)-1].destination])
 

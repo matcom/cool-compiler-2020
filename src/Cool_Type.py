@@ -8,7 +8,7 @@ class Cool_Type:
         self.methods = methods
     
     def __eq__(self, other ):
-        return  self.name == other.name #Aquí para arreglar le pondría al inicio self!=None and other !=None and
+        return  self.name == other.name #Aqui para arreglar le pondria al inicio self!=None and other !=None and
 
 
 

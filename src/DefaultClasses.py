@@ -1,7 +1,7 @@
 from AST import *
 from CIL import *
 
-#TODO Definir en CIL algunos métodos predefinidos
+#TODO Definir en CIL algunos metodos predefinidos
 class Defaults:
     def ObjectClass():
         #selfattribute=AttributeNode("self","Int",IntegerNode(0))

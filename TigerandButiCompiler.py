@@ -9,7 +9,7 @@ from CILtoMIPS import *
 
 LexerError=False
 
-#Welcome='Tiger and Buti Compiler 2020 0.2.0\nCopyright (c) 2019: José Gabriel Navarro Comabella, Alberto Helguera Fleitas'
+#Welcome='Tiger and Buti Compiler 2020 0.2.0\nCopyright (c) 2019: Jose Gabriel Navarro Comabella, Alberto Helguera Fleitas'
 
 #print(Welcome)
 
@@ -615,7 +615,7 @@ def p_comparison(p):
 def p_parenexpression(p):
     '''parenexpression : lparen expression rparen'''
     p[0] = p[2]
-    # p[0].type=p[2].type Esto lo comenté, tiró error
+    # p[0].type=p[2].type Esto lo comente, tiro error
     pass
 
 def p_constantexp(p):

@@ -2733,15 +2733,13 @@ state 91
     (59) comparison -> expression . lesse expression
     (60) comparison -> expression . equal expression
 
-  ! shift/reduce conflict for point resolved as shift
-  ! shift/reduce conflict for arroba resolved as shift
-  ! shift/reduce conflict for plus resolved as shift
-  ! shift/reduce conflict for minus resolved as shift
-  ! shift/reduce conflict for mult resolved as shift
-  ! shift/reduce conflict for div resolved as shift
-  ! shift/reduce conflict for less resolved as shift
-  ! shift/reduce conflict for lesse resolved as shift
-  ! shift/reduce conflict for equal resolved as shift
+    plus            reduce using rule 52 (isvoidexp -> isvoid expression .)
+    minus           reduce using rule 52 (isvoidexp -> isvoid expression .)
+    mult            reduce using rule 52 (isvoidexp -> isvoid expression .)
+    div             reduce using rule 52 (isvoidexp -> isvoid expression .)
+    less            reduce using rule 52 (isvoidexp -> isvoid expression .)
+    lesse           reduce using rule 52 (isvoidexp -> isvoid expression .)
+    equal           reduce using rule 52 (isvoidexp -> isvoid expression .)
     pcoma           reduce using rule 52 (isvoidexp -> isvoid expression .)
     coma            reduce using rule 52 (isvoidexp -> isvoid expression .)
     in              reduce using rule 52 (isvoidexp -> isvoid expression .)
@@ -2755,23 +2753,16 @@ state 91
     fi              reduce using rule 52 (isvoidexp -> isvoid expression .)
     point           shift and go to state 72
     arroba          shift and go to state 73
-    plus            shift and go to state 74
-    minus           shift and go to state 75
-    mult            shift and go to state 76
-    div             shift and go to state 77
-    less            shift and go to state 78
-    lesse           shift and go to state 79
-    equal           shift and go to state 80
 
   ! point           [ reduce using rule 52 (isvoidexp -> isvoid expression .) ]
   ! arroba          [ reduce using rule 52 (isvoidexp -> isvoid expression .) ]
-  ! plus            [ reduce using rule 52 (isvoidexp -> isvoid expression .) ]
-  ! minus           [ reduce using rule 52 (isvoidexp -> isvoid expression .) ]
-  ! mult            [ reduce using rule 52 (isvoidexp -> isvoid expression .) ]
-  ! div             [ reduce using rule 52 (isvoidexp -> isvoid expression .) ]
-  ! less            [ reduce using rule 52 (isvoidexp -> isvoid expression .) ]
-  ! lesse           [ reduce using rule 52 (isvoidexp -> isvoid expression .) ]
-  ! equal           [ reduce using rule 52 (isvoidexp -> isvoid expression .) ]
+  ! plus            [ shift and go to state 74 ]
+  ! minus           [ shift and go to state 75 ]
+  ! mult            [ shift and go to state 76 ]
+  ! div             [ shift and go to state 77 ]
+  ! less            [ shift and go to state 78 ]
+  ! lesse           [ shift and go to state 79 ]
+  ! equal           [ shift and go to state 80 ]
 
 
 state 92
@@ -2789,8 +2780,6 @@ state 92
     (59) comparison -> expression . lesse expression
     (60) comparison -> expression . equal expression
 
-    point           reduce using rule 57 (aritmetica -> intnot expression .)
-    arroba          reduce using rule 57 (aritmetica -> intnot expression .)
     plus            reduce using rule 57 (aritmetica -> intnot expression .)
     minus           reduce using rule 57 (aritmetica -> intnot expression .)
     mult            reduce using rule 57 (aritmetica -> intnot expression .)
@@ -2809,9 +2798,11 @@ state 92
     else            reduce using rule 57 (aritmetica -> intnot expression .)
     pool            reduce using rule 57 (aritmetica -> intnot expression .)
     fi              reduce using rule 57 (aritmetica -> intnot expression .)
+    point           shift and go to state 72
+    arroba          shift and go to state 73
 
-  ! point           [ shift and go to state 72 ]
-  ! arroba          [ shift and go to state 73 ]
+  ! point           [ reduce using rule 57 (aritmetica -> intnot expression .) ]
+  ! arroba          [ reduce using rule 57 (aritmetica -> intnot expression .) ]
   ! plus            [ shift and go to state 74 ]
   ! minus           [ shift and go to state 75 ]
   ! mult            [ shift and go to state 76 ]
@@ -2836,15 +2827,6 @@ state 93
     (59) comparison -> expression . lesse expression
     (60) comparison -> expression . equal expression
 
-    point           reduce using rule 61 (comparison -> not expression .)
-    arroba          reduce using rule 61 (comparison -> not expression .)
-    plus            reduce using rule 61 (comparison -> not expression .)
-    minus           reduce using rule 61 (comparison -> not expression .)
-    mult            reduce using rule 61 (comparison -> not expression .)
-    div             reduce using rule 61 (comparison -> not expression .)
-    less            reduce using rule 61 (comparison -> not expression .)
-    lesse           reduce using rule 61 (comparison -> not expression .)
-    equal           reduce using rule 61 (comparison -> not expression .)
     pcoma           reduce using rule 61 (comparison -> not expression .)
     coma            reduce using rule 61 (comparison -> not expression .)
     in              reduce using rule 61 (comparison -> not expression .)
@@ -2856,16 +2838,25 @@ state 93
     else            reduce using rule 61 (comparison -> not expression .)
     pool            reduce using rule 61 (comparison -> not expression .)
     fi              reduce using rule 61 (comparison -> not expression .)
+    point           shift and go to state 72
+    arroba          shift and go to state 73
+    plus            shift and go to state 74
+    minus           shift and go to state 75
+    mult            shift and go to state 76
+    div             shift and go to state 77
+    less            shift and go to state 78
+    lesse           shift and go to state 79
+    equal           shift and go to state 80
 
-  ! point           [ shift and go to state 72 ]
-  ! arroba          [ shift and go to state 73 ]
-  ! plus            [ shift and go to state 74 ]
-  ! minus           [ shift and go to state 75 ]
-  ! mult            [ shift and go to state 76 ]
-  ! div             [ shift and go to state 77 ]
-  ! less            [ shift and go to state 78 ]
-  ! lesse           [ shift and go to state 79 ]
-  ! equal           [ shift and go to state 80 ]
+  ! point           [ reduce using rule 61 (comparison -> not expression .) ]
+  ! arroba          [ reduce using rule 61 (comparison -> not expression .) ]
+  ! plus            [ reduce using rule 61 (comparison -> not expression .) ]
+  ! minus           [ reduce using rule 61 (comparison -> not expression .) ]
+  ! mult            [ reduce using rule 61 (comparison -> not expression .) ]
+  ! div             [ reduce using rule 61 (comparison -> not expression .) ]
+  ! less            [ reduce using rule 61 (comparison -> not expression .) ]
+  ! lesse           [ reduce using rule 61 (comparison -> not expression .) ]
+  ! equal           [ reduce using rule 61 (comparison -> not expression .) ]
 
 
 state 94
@@ -2976,8 +2967,6 @@ state 97
     (59) comparison -> expression . lesse expression
     (60) comparison -> expression . equal expression
 
-    point           reduce using rule 68 (assignment -> id assign expression .)
-    arroba          reduce using rule 68 (assignment -> id assign expression .)
     pcoma           reduce using rule 68 (assignment -> id assign expression .)
     coma            reduce using rule 68 (assignment -> id assign expression .)
     in              reduce using rule 68 (assignment -> id assign expression .)
@@ -2989,6 +2978,8 @@ state 97
     else            reduce using rule 68 (assignment -> id assign expression .)
     pool            reduce using rule 68 (assignment -> id assign expression .)
     fi              reduce using rule 68 (assignment -> id assign expression .)
+    point           shift and go to state 72
+    arroba          shift and go to state 73
     plus            shift and go to state 74
     minus           shift and go to state 75
     mult            shift and go to state 76
@@ -2997,6 +2988,8 @@ state 97
     lesse           shift and go to state 79
     equal           shift and go to state 80
 
+  ! point           [ reduce using rule 68 (assignment -> id assign expression .) ]
+  ! arroba          [ reduce using rule 68 (assignment -> id assign expression .) ]
   ! plus            [ reduce using rule 68 (assignment -> id assign expression .) ]
   ! minus           [ reduce using rule 68 (assignment -> id assign expression .) ]
   ! mult            [ reduce using rule 68 (assignment -> id assign expression .) ]
@@ -3004,8 +2997,6 @@ state 97
   ! less            [ reduce using rule 68 (assignment -> id assign expression .) ]
   ! lesse           [ reduce using rule 68 (assignment -> id assign expression .) ]
   ! equal           [ reduce using rule 68 (assignment -> id assign expression .) ]
-  ! point           [ shift and go to state 72 ]
-  ! arroba          [ shift and go to state 73 ]
 
 
 state 98
@@ -3098,8 +3089,6 @@ state 102
     (59) comparison -> expression . lesse expression
     (60) comparison -> expression . equal expression
 
-    point           reduce using rule 53 (aritmetica -> expression plus expression .)
-    arroba          reduce using rule 53 (aritmetica -> expression plus expression .)
     plus            reduce using rule 53 (aritmetica -> expression plus expression .)
     minus           reduce using rule 53 (aritmetica -> expression plus expression .)
     less            reduce using rule 53 (aritmetica -> expression plus expression .)
@@ -3116,13 +3105,15 @@ state 102
     else            reduce using rule 53 (aritmetica -> expression plus expression .)
     pool            reduce using rule 53 (aritmetica -> expression plus expression .)
     fi              reduce using rule 53 (aritmetica -> expression plus expression .)
+    point           shift and go to state 72
+    arroba          shift and go to state 73
     mult            shift and go to state 76
     div             shift and go to state 77
 
+  ! point           [ reduce using rule 53 (aritmetica -> expression plus expression .) ]
+  ! arroba          [ reduce using rule 53 (aritmetica -> expression plus expression .) ]
   ! mult            [ reduce using rule 53 (aritmetica -> expression plus expression .) ]
   ! div             [ reduce using rule 53 (aritmetica -> expression plus expression .) ]
-  ! point           [ shift and go to state 72 ]
-  ! arroba          [ shift and go to state 73 ]
   ! plus            [ shift and go to state 74 ]
   ! minus           [ shift and go to state 75 ]
   ! less            [ shift and go to state 78 ]
@@ -3145,8 +3136,6 @@ state 103
     (59) comparison -> expression . lesse expression
     (60) comparison -> expression . equal expression
 
-    point           reduce using rule 54 (aritmetica -> expression minus expression .)
-    arroba          reduce using rule 54 (aritmetica -> expression minus expression .)
     plus            reduce using rule 54 (aritmetica -> expression minus expression .)
     minus           reduce using rule 54 (aritmetica -> expression minus expression .)
     less            reduce using rule 54 (aritmetica -> expression minus expression .)
@@ -3163,13 +3152,15 @@ state 103
     else            reduce using rule 54 (aritmetica -> expression minus expression .)
     pool            reduce using rule 54 (aritmetica -> expression minus expression .)
     fi              reduce using rule 54 (aritmetica -> expression minus expression .)
+    point           shift and go to state 72
+    arroba          shift and go to state 73
     mult            shift and go to state 76
     div             shift and go to state 77
 
+  ! point           [ reduce using rule 54 (aritmetica -> expression minus expression .) ]
+  ! arroba          [ reduce using rule 54 (aritmetica -> expression minus expression .) ]
   ! mult            [ reduce using rule 54 (aritmetica -> expression minus expression .) ]
   ! div             [ reduce using rule 54 (aritmetica -> expression minus expression .) ]
-  ! point           [ shift and go to state 72 ]
-  ! arroba          [ shift and go to state 73 ]
   ! plus            [ shift and go to state 74 ]
   ! minus           [ shift and go to state 75 ]
   ! less            [ shift and go to state 78 ]
@@ -3192,8 +3183,6 @@ state 104
     (59) comparison -> expression . lesse expression
     (60) comparison -> expression . equal expression
 
-    point           reduce using rule 55 (aritmetica -> expression mult expression .)
-    arroba          reduce using rule 55 (aritmetica -> expression mult expression .)
     plus            reduce using rule 55 (aritmetica -> expression mult expression .)
     minus           reduce using rule 55 (aritmetica -> expression mult expression .)
     mult            reduce using rule 55 (aritmetica -> expression mult expression .)
@@ -3212,9 +3201,11 @@ state 104
     else            reduce using rule 55 (aritmetica -> expression mult expression .)
     pool            reduce using rule 55 (aritmetica -> expression mult expression .)
     fi              reduce using rule 55 (aritmetica -> expression mult expression .)
+    point           shift and go to state 72
+    arroba          shift and go to state 73
 
-  ! point           [ shift and go to state 72 ]
-  ! arroba          [ shift and go to state 73 ]
+  ! point           [ reduce using rule 55 (aritmetica -> expression mult expression .) ]
+  ! arroba          [ reduce using rule 55 (aritmetica -> expression mult expression .) ]
   ! plus            [ shift and go to state 74 ]
   ! minus           [ shift and go to state 75 ]
   ! mult            [ shift and go to state 76 ]
@@ -3239,8 +3230,6 @@ state 105
     (59) comparison -> expression . lesse expression
     (60) comparison -> expression . equal expression
 
-    point           reduce using rule 56 (aritmetica -> expression div expression .)
-    arroba          reduce using rule 56 (aritmetica -> expression div expression .)
     plus            reduce using rule 56 (aritmetica -> expression div expression .)
     minus           reduce using rule 56 (aritmetica -> expression div expression .)
     mult            reduce using rule 56 (aritmetica -> expression div expression .)
@@ -3259,9 +3248,11 @@ state 105
     else            reduce using rule 56 (aritmetica -> expression div expression .)
     pool            reduce using rule 56 (aritmetica -> expression div expression .)
     fi              reduce using rule 56 (aritmetica -> expression div expression .)
+    point           shift and go to state 72
+    arroba          shift and go to state 73
 
-  ! point           [ shift and go to state 72 ]
-  ! arroba          [ shift and go to state 73 ]
+  ! point           [ reduce using rule 56 (aritmetica -> expression div expression .) ]
+  ! arroba          [ reduce using rule 56 (aritmetica -> expression div expression .) ]
   ! plus            [ shift and go to state 74 ]
   ! minus           [ shift and go to state 75 ]
   ! mult            [ shift and go to state 76 ]
@@ -3286,8 +3277,6 @@ state 106
     (59) comparison -> expression . lesse expression
     (60) comparison -> expression . equal expression
 
-    point           reduce using rule 58 (comparison -> expression less expression .)
-    arroba          reduce using rule 58 (comparison -> expression less expression .)
     less            reduce using rule 58 (comparison -> expression less expression .)
     lesse           reduce using rule 58 (comparison -> expression less expression .)
     equal           reduce using rule 58 (comparison -> expression less expression .)
@@ -3302,17 +3291,19 @@ state 106
     else            reduce using rule 58 (comparison -> expression less expression .)
     pool            reduce using rule 58 (comparison -> expression less expression .)
     fi              reduce using rule 58 (comparison -> expression less expression .)
+    point           shift and go to state 72
+    arroba          shift and go to state 73
     plus            shift and go to state 74
     minus           shift and go to state 75
     mult            shift and go to state 76
     div             shift and go to state 77
 
+  ! point           [ reduce using rule 58 (comparison -> expression less expression .) ]
+  ! arroba          [ reduce using rule 58 (comparison -> expression less expression .) ]
   ! plus            [ reduce using rule 58 (comparison -> expression less expression .) ]
   ! minus           [ reduce using rule 58 (comparison -> expression less expression .) ]
   ! mult            [ reduce using rule 58 (comparison -> expression less expression .) ]
   ! div             [ reduce using rule 58 (comparison -> expression less expression .) ]
-  ! point           [ shift and go to state 72 ]
-  ! arroba          [ shift and go to state 73 ]
   ! less            [ shift and go to state 78 ]
   ! lesse           [ shift and go to state 79 ]
   ! equal           [ shift and go to state 80 ]
@@ -3333,8 +3324,6 @@ state 107
     (59) comparison -> expression . lesse expression
     (60) comparison -> expression . equal expression
 
-    point           reduce using rule 59 (comparison -> expression lesse expression .)
-    arroba          reduce using rule 59 (comparison -> expression lesse expression .)
     less            reduce using rule 59 (comparison -> expression lesse expression .)
     lesse           reduce using rule 59 (comparison -> expression lesse expression .)
     equal           reduce using rule 59 (comparison -> expression lesse expression .)
@@ -3349,17 +3338,19 @@ state 107
     else            reduce using rule 59 (comparison -> expression lesse expression .)
     pool            reduce using rule 59 (comparison -> expression lesse expression .)
     fi              reduce using rule 59 (comparison -> expression lesse expression .)
+    point           shift and go to state 72
+    arroba          shift and go to state 73
     plus            shift and go to state 74
     minus           shift and go to state 75
     mult            shift and go to state 76
     div             shift and go to state 77
 
+  ! point           [ reduce using rule 59 (comparison -> expression lesse expression .) ]
+  ! arroba          [ reduce using rule 59 (comparison -> expression lesse expression .) ]
   ! plus            [ reduce using rule 59 (comparison -> expression lesse expression .) ]
   ! minus           [ reduce using rule 59 (comparison -> expression lesse expression .) ]
   ! mult            [ reduce using rule 59 (comparison -> expression lesse expression .) ]
   ! div             [ reduce using rule 59 (comparison -> expression lesse expression .) ]
-  ! point           [ shift and go to state 72 ]
-  ! arroba          [ shift and go to state 73 ]
   ! less            [ shift and go to state 78 ]
   ! lesse           [ shift and go to state 79 ]
   ! equal           [ shift and go to state 80 ]
@@ -3380,8 +3371,6 @@ state 108
     (59) comparison -> expression . lesse expression
     (60) comparison -> expression . equal expression
 
-    point           reduce using rule 60 (comparison -> expression equal expression .)
-    arroba          reduce using rule 60 (comparison -> expression equal expression .)
     less            reduce using rule 60 (comparison -> expression equal expression .)
     lesse           reduce using rule 60 (comparison -> expression equal expression .)
     equal           reduce using rule 60 (comparison -> expression equal expression .)
@@ -3396,17 +3385,19 @@ state 108
     else            reduce using rule 60 (comparison -> expression equal expression .)
     pool            reduce using rule 60 (comparison -> expression equal expression .)
     fi              reduce using rule 60 (comparison -> expression equal expression .)
+    point           shift and go to state 72
+    arroba          shift and go to state 73
     plus            shift and go to state 74
     minus           shift and go to state 75
     mult            shift and go to state 76
     div             shift and go to state 77
 
+  ! point           [ reduce using rule 60 (comparison -> expression equal expression .) ]
+  ! arroba          [ reduce using rule 60 (comparison -> expression equal expression .) ]
   ! plus            [ reduce using rule 60 (comparison -> expression equal expression .) ]
   ! minus           [ reduce using rule 60 (comparison -> expression equal expression .) ]
   ! mult            [ reduce using rule 60 (comparison -> expression equal expression .) ]
   ! div             [ reduce using rule 60 (comparison -> expression equal expression .) ]
-  ! point           [ shift and go to state 72 ]
-  ! arroba          [ shift and go to state 73 ]
   ! less            [ shift and go to state 78 ]
   ! lesse           [ shift and go to state 79 ]
   ! equal           [ shift and go to state 80 ]
@@ -5003,15 +4994,6 @@ state 164
 WARNING: 
 WARNING: Conflicts:
 WARNING: 
-WARNING: shift/reduce conflict for point in state 91 resolved as shift
-WARNING: shift/reduce conflict for arroba in state 91 resolved as shift
-WARNING: shift/reduce conflict for plus in state 91 resolved as shift
-WARNING: shift/reduce conflict for minus in state 91 resolved as shift
-WARNING: shift/reduce conflict for mult in state 91 resolved as shift
-WARNING: shift/reduce conflict for div in state 91 resolved as shift
-WARNING: shift/reduce conflict for less in state 91 resolved as shift
-WARNING: shift/reduce conflict for lesse in state 91 resolved as shift
-WARNING: shift/reduce conflict for equal in state 91 resolved as shift
 WARNING: shift/reduce conflict for point in state 141 resolved as shift
 WARNING: shift/reduce conflict for arroba in state 141 resolved as shift
 WARNING: shift/reduce conflict for plus in state 141 resolved as shift

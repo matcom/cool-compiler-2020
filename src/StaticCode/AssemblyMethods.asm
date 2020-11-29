@@ -132,7 +132,7 @@
      b InicioStrLen
 
      FinStrLen:
-     #sw $v0, 0($a1) El protocolo cambió
+     #sw $v0, 0($a1) El protocolo cambio
      jr $ra
 
      .Object.abort:
@@ -413,8 +413,8 @@
      li $v0, 10
      syscall
      
-     #En este método violé la regla usual de que los parámetros van en los registros a, y se encuentran en los t.
-     #Esto se realizó ya que este método solo se usa en un lugar y atendiendo a la estructura del conversor a MIPS
+     #En este metodo viole la regla usual de que los parametros van en los registros a, y se encuentran en los t.
+     #Esto se realizo ya que este metodo solo se usa en un lugar y atendiendo a la estructura del conversor a MIPS
      .Object.Copy:
      addi $sp, $sp, -8
 
