@@ -7,7 +7,7 @@ from COOLToCILVisitor import *
 from CILtoMIPSVisitor import *
 import mips
 
-file = open("/media/karl/Datos/cool-compiler-2020/src/test.cl", 'r')
+file = file = open(sys.argv[1], 'r')
 cool_lexer = CoolLexer()
 errors_lexer = cool_lexer.tokenize(file.read())
 # errors_lexer = cool_lexer.tokenize('''''')
@@ -42,5 +42,4 @@ c = cool2cil.visit(ast, scope)
 cil2mips = CILtoMIPSVisitor()
 d = cil2mips.visit(c)
 e = mips.get_formatter()
-
-print(e(d))
+open(sys.argv[1].split(".")[0]+".mips", 'w').write(e(d))
