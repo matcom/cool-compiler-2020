@@ -101,9 +101,7 @@ def print_to_mips_visitor(p: cil.PrintNode):
         li $v0, 4
         syscall 
     """
-    
-    
-    
+
     offset = CURRENT_FUNCTION.offset[str(p.str)]
     code = [mips.Comment(str(p)),
             mips.LwInstruction('$a0', f'{offset}(fp)')]
@@ -147,8 +145,9 @@ def read_to_mips_visitor(read: cil.ReadNode):
 
     """
     offset = CURRENT_FUNCTION.offset[str(read.result)]
-    __DATA__.append(mips.MIPSDataItem(read.result, mips.SpaceInst(__BUFFSIZE__)))
-    
+    __DATA__.append(mips.MIPSDataItem(
+        read.result, mips.SpaceInst(__BUFFSIZE__)))
+
     return [
         mips.LaInstruction('$a0', str(read.result)),
         mips.LiInstruction('$a1', __BUFFSIZE__),
@@ -160,9 +159,9 @@ def read_to_mips_visitor(read: cil.ReadNode):
 
 # TODO: Check
 def substring_to_mips_visitor(ss: cil.SubStringNode):
-    addr = CURRENT_FUNCTION.offset[str(ss.str)]
-    i = CURRENT_FUNCTION.offset[str(ss.i)]
-    l = CURRENT_FUNCTION.offset[str(ss.len)]
+    str_offset = CURRENT_FUNCTION.offset[str(ss.str)]
+    i_offset = CURRENT_FUNCTION.offset[str(ss.i)]
+    len_offset = CURRENT_FUNCTION.offset[str(ss.len)]
     __DATA__.append(mips.MIPSDataItem(
         ss.result.id, mips.SpaceInst(__BUFFSIZE__)))
     save_address(ss.result, ss.result.id)
@@ -247,7 +246,7 @@ def concat_to_mips_visitor(concat: cil.ConcatNode):
 
 
 def load_to_mips_visitor(load: cil.LoadNode):
-    offset=CURRENT_FUNCTION.offset[str(load.result)]
+    offset = CURRENT_FUNCTION.offset[str(load.result)]
     return [
         mips.Comment(str(load)),
         mips.LaInstruction('$t0', load.addr),
@@ -262,7 +261,7 @@ def arg_to_mips_visitor(arg: cil.ArgNode):
     2) Pushes the arg value in the stack\n
     '''
     addr = CURRENT_FUNCTION.offset[str(arg.val)]
-    return [mips.Comment(str(arg)),mips.LwInstruction('$t0', f'{addr}($fp)'),mips.SubuInstruction('$sp', '$sp', 4) , mips.SwInstruction('$t0','($sp)')]
+    return [mips.Comment(str(arg)), mips.LwInstruction('$t0', f'{addr}($fp)'), mips.SubuInstruction('$sp', '$sp', 4), mips.SwInstruction('$t0', '($sp)')]
 
 
 def allocate_to_mips_visitor(allocate: cil.AllocateNode):
@@ -570,16 +569,17 @@ def assign_to_mips_visitor(assign: cil.AssignNode):
         mips.SwInstruction('$t0', x_addr)
     ]
 
+
 def copy_to_mips_visitor(copy: cil.CopyNode):
     x_addr = CURRENT_FUNCTION.offset[str(copy.val)]
-    y_addr=CURRENT_FUNCTION.offset[str(copy.result)]
+    y_addr = CURRENT_FUNCTION.offset[str(copy.result)]
     return [
         mips.Comment(str(copy)),
         mips.LwInstruction('$a0', f'{x_addr+8}($fp)', x_addr+8),
         mips.LiInstruction('$v0', 9),
         mips.SyscallInstruction(),
         mips.SwInstruction('$v0', f'{y_addr}($fp)'),
-        mips.AdduInstruction('$t1','$fp',x_addr),
+        mips.AdduInstruction('$t1', '$fp', x_addr),
         mips.AdduInstruction('$t2', '$fp', y_addr),
         mips.MIPSLabel('copy_loop'),
         mips.LwInstruction('$t0', '($t1)'),
@@ -592,6 +592,7 @@ def copy_to_mips_visitor(copy: cil.CopyNode):
         mips.MIPSLabel('end_copy_loop')
     ]
     return []
+
 
 __visitors__ = {
     cil.ArgNode: arg_to_mips_visitor,
