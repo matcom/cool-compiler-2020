@@ -77,15 +77,11 @@ class CILToMIPSVisitor():
         self.var_offset.__setitem__(self.current_function.name, {})
        
         for idx, var in enumerate(self.current_function.localvars + self.current_function.params):
-            self.var_offset[self.current_function.name][var.name] = (idx + 1)*4
-         
+            self.var_offset[self.current_function.name][var.name] = (idx + 1)*4 
 
         self.text += f'{node.name}:\n'
-        # self.text += f'move $fp, $sp\n'  #save frame pointer of current function
-        
-        # for local_node in reversed(node.localvars): #save space for locals 
-        #     self.visit(local_node)
-        self.text += f'addi $sp, $sp, {-4 * len(node.localvars)}\n'
+         
+        self.text += f'addi $sp, $sp, {-4 * len(node.localvars)}\n' #save space for locals
         
         self.text += 'addi $sp, $sp, -4\n' # save return address
         self.text += 'sw $ra, 0($sp)\n'
@@ -96,7 +92,6 @@ class CILToMIPSVisitor():
         self.text += 'lw $ra, 0($sp)\n'  #recover return address
         total = 4 * len(node.localvars) + 4 * len(node.params) + 4
         self.text += f'addi $sp, $sp, {total}\n' #pop locals,parameters,return address from the stack
-        # self.text += 'lw $fp, 0($sp)\n' # recover caller function frame pointer
         self.text += 'jr $ra\n' 
 
     @visitor.when(CIL_AST.Type)
@@ -162,8 +157,6 @@ class CILToMIPSVisitor():
 
     @visitor.when(CIL_AST.LocalDec)
     def visit(self, node):
-        # self.text += 'addi $sp, $sp, -4\n'
-        # self.text += 'sw $zero, 0($sp)\n'
         pass
 
     @visitor.when(CIL_AST.GetAttr)
@@ -391,7 +384,6 @@ class CILToMIPSVisitor():
     
     @visitor.when(CIL_AST.Copy)
     def visit(self, node):
-        # offset = self.var_offset[self.current_function.name][self.current_function.params[0].name] 
         self_offset = self.var_offset[self.current_function.name][node.type]
         self.text += f'lw $t0, {self_offset}($sp)\n'  # get self address
         self.text += f'lw $a0, 8($t0)\n'  # get self size {amount}

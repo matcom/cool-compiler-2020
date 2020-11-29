@@ -293,9 +293,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         instance = self.define_internal_local(scope = scope, name = "instance")
         result = self.define_internal_local(scope = scope, name = "result")
         self.register_instruction(CIL_AST.Allocate('Main',self.context.get_type('Main').tag, instance))
-        # self.register_instruction(CIL_AST.Arg(instance))
         self.register_instruction(CIL_AST.Call(result, 'Main_init', [CIL_AST.Arg(instance)],"Main"))
-        # self.register_instruction(CIL_AST.Arg(instance))
         self.register_instruction(CIL_AST.Call(result, self.to_function_name('main', 'Main'), [CIL_AST.Arg(instance)],"Main"))
         self.register_instruction(CIL_AST.Return(None))
         self.current_function = None
@@ -335,13 +333,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         #-------------------------Init---------------------------------
         self.current_function = self.register_function(f'{node.name}_init')
         self.register_param(VariableInfo('self', None))
-        # instance = self.define_internal_local(scope=scope, name="instance", class_type=self.current_type.name)
-        # self.register_instruction(CIL_AST.Allocate(node.name, self.context.get_type(node.name).tag,instance))
-        # self.current_type.instance = instance
 
         #Init parents recursively
         result = self.define_internal_local(scope=scope, name = "result")
-        # self.register_instruction(CIL_AST.Arg('instance'))
         self.register_instruction(CIL_AST.Call(result, f'{node.parent}_init',[CIL_AST.Arg('self')], node.parent))
         self.register_instruction(CIL_AST.Return(None))
 
@@ -470,12 +464,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             param_local = self.visit(arg, scope)
             call_args.append(CIL_AST.Arg(param_local))
         call_args.append(CIL_AST.Arg(expr_value))
-        
-        # dynamic_type = self.define_internal_local(scope= scope, name="dyn_type")
-        # self.register_instruction(CIL_AST.TypeOf(expr_value, dynamic_type))
-
-        # for arg in call_args:
-        #     self.register_instruction(CIL_AST.Arg(arg))
 
         dynamic_type = node.instance.computed_type.name
         self.register_instruction(CIL_AST.VCall(result_local, node.method, call_args, dynamic_type, expr_value))
@@ -492,9 +480,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             param_local = self.visit(arg, scope)
             call_args.append(CIL_AST.Arg(param_local))
         call_args.append(CIL_AST.Arg(expr_value))
-
-        # for p in call_args:
-        #     self.register_instruction(CIL_AST.Arg(p))
 
         static_instance = self.define_internal_local(scope=scope, name='static_instance')
         self.register_instruction(CIL_AST.Allocate(node.static_type,self.context.get_type(node.static_type).tag ,static_instance))
@@ -593,14 +578,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         result_init = self.define_internal_local(scope=scope, name="init")
         
         if node.type == "SELF_TYPE":
-            # get_type_local = self.define_internal_local(scope = scope, name = "type_name")
-            # self.register_instruction(CIL_AST.TypeOf("self", get_type_local))
             self.register_instruction(CIL_AST.Allocate(self.current_type.name,self.current_type.tag ,result_local))
-            # self.register_instruction(CIL_AST.Arg(result_local))
             self.register_instruction(CIL_AST.Call(result_init, f'{self.current_type.name}_init', [result_local], self.current_type.name))
         else:
             self.register_instruction(CIL_AST.Allocate(node.type,self.context.get_type(node.type).tag ,result_local))
-            # self.register_instruction(CIL_AST.Arg(result_local))
             self.register_instruction(CIL_AST.Call(result_init,f'{node.type}_init' ,[CIL_AST.Arg(result_local)], self.current_type.name ))
 
         return result_local
@@ -878,8 +859,6 @@ if __name__ == '__main__':
     from semantic_analyzer import SemanticAnalyzer
 
     parser = Parser()
-
-    sys.argv.append('test.cl')
 
     if len(sys.argv) > 1:
 
