@@ -549,10 +549,10 @@ def not_to_mips_visitor(notn: cil.NotNode):
     """
     instructions = [mips.Comment(str(notn))]
 
-    if isinstance(notn.val, int):
-        instructions.append(mips.LiInstruction('$t0', notn.val))
+    if isinstance(notn.value, int):
+        instructions.append(mips.LiInstruction('$t0', notn.value))
     else:
-        y_offset = CURRENT_FUNCTION.offset[str(notn.val)]
+        y_offset = CURRENT_FUNCTION.offset[str(notn.value)]
         mips.LwInstruction('$t0', f'{y_offset}($fp)')
 
     x_offset = CURRENT_FUNCTION.offset[str(notn.result)]
