@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 DATA_SIZE = 4
 
@@ -118,13 +118,14 @@ class Mips:
         self.addi(Reg.sp, Reg.sp, -DATA_SIZE)
         self.store_memory(register, self.offset(Reg.sp))
 
-    def pop(self, register: Register):
+    def pop(self, register: Optional[Register]):
         """
         First,  load from to address `0($sp)`
         and then write `addi $sp ,  $sp ,  8`
         to restore the stack pointer
         """
-        self.load_memory(register, self.offset(Reg.sp))
+        if register:
+            self.load_memory(register, self.offset(Reg.sp))
         self.addi(Reg.sp, Reg.sp, DATA_SIZE)
 
     def load_memory(self, dst: Register, address: str):

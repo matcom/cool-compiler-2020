@@ -57,7 +57,17 @@ class CIL_TO_MIPS(object):
         self.actual_args = dict()
         self.mips = Mips()
         self.label_count = -1
-        self.registers_to_save: List[Reg] = [Reg.ra]
+        self.registers_to_save: List[Reg] = [
+            Reg.ra,
+            Reg.s0,
+            Reg.s1,
+            Reg.s2,
+            Reg.s3,
+            Reg.s4,
+            Reg.s5,
+            Reg.s6,
+            Reg.s7,
+        ]
         self.context: Context = context
 
         self.mips.write_data("eol:")
@@ -120,8 +130,8 @@ class CIL_TO_MIPS(object):
         self.mips.empty()
 
     def load_arithmetic(self, node: ArithmeticNode):
-        self.load_memory(Reg.t0, node.left)
-        self.load_memory(Reg.t1, node.right)
+        self.load_memory(Reg.s0, node.left)
+        self.load_memory(Reg.s1, node.right)
 
     def store_registers(self):
         for reg in self.registers_to_save:
@@ -207,7 +217,7 @@ class CIL_TO_MIPS(object):
 
         self.mips.comment("Clean stack variable space")
         for _ in node.localvars:
-            self.mips.pop(Reg.t0)
+            self.mips.pop(None)
         self.actual_args = None
         self.mips.comment("Return")
         self.mips.pop(Reg.fp)
@@ -232,9 +242,9 @@ class CIL_TO_MIPS(object):
     @when(TypeNameNode)
     def visit(self, node: TypeNameNode):  # noqa: F811
         self.mips.comment("TypeNameNode")
-        self.load_memory(Reg.t0, node.type)
-        self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, DATA_SIZE))
-        self.store_memory(Reg.t1, node.dest)
+        self.load_memory(Reg.s0, node.type)
+        self.mips.load_memory(Reg.s1, self.mips.offset(Reg.s0, DATA_SIZE))
+        self.store_memory(Reg.s1, node.dest)
         self.mips.empty()
 
     @when(ErrorNode)
@@ -247,8 +257,8 @@ class CIL_TO_MIPS(object):
     @when(AssignNode)
     def visit(self, node: AssignNode):  # noqa: F811
         self.mips.comment("AssignNode")
-        self.load_memory(Reg.t0, node.source)
-        self.store_memory(Reg.t0, node.dest)
+        self.load_memory(Reg.s0, node.source)
+        self.store_memory(Reg.s0, node.dest)
         self.mips.empty()
 
     @when(VoidNode)
@@ -259,15 +269,15 @@ class CIL_TO_MIPS(object):
     @when(IsVoidNode)
     def visit(self, node: IsVoidNode):  # noqa: F811
         self.mips.comment("IsVoidNode")
-        self.load_memory(Reg.t0, node.body)
+        self.load_memory(Reg.s0, node.body)
 
         label = self.get_label()
 
-        self.mips.li(Reg.t1, 0)
-        self.mips.bne(Reg.t0, Reg.t1, label)
-        self.mips.li(Reg.t1, 1)
+        self.mips.li(Reg.s1, 0)
+        self.mips.bne(Reg.s0, Reg.s1, label)
+        self.mips.li(Reg.s1, 1)
         self.mips.label(label)
-        self.store_memory(Reg.t1, node.dest)
+        self.store_memory(Reg.s1, node.dest)
 
         self.mips.empty()
 
@@ -275,13 +285,13 @@ class CIL_TO_MIPS(object):
     def visit(self, node: ComplementNode):  # noqa: F811
         self.mips.comment("ComplementNode")
 
-        self.load_memory(Reg.t0, node.body)
-        # self.mips.move(Reg.a0, Reg.t0)
+        self.load_memory(Reg.s0, node.body)
+        # self.mips.move(Reg.a0, Reg.s0)
         # self.mips.print_int()
-        self.mips.move(Reg.t1, Reg.t0)
-        self.mips.nor(Reg.t2, Reg.t1, Reg.t0)
-        self.store_memory(Reg.t2, node.dest)
-        # self.mips.move(Reg.a0, Reg.t1)
+        self.mips.move(Reg.s1, Reg.s0)
+        self.mips.nor(Reg.s2, Reg.s1, Reg.s0)
+        self.store_memory(Reg.s2, node.dest)
+        # self.mips.move(Reg.a0, Reg.s1)
         # self.mips.print_int()
 
         self.mips.empty()
@@ -289,8 +299,8 @@ class CIL_TO_MIPS(object):
     @when(LessNode)
     def visit(self, node: LessNode):  # noqa: F811
         self.load_arithmetic(node)
-        self.mips.slt(Reg.t2, Reg.t0, Reg.t1)
-        self.store_memory(Reg.t2, node.dest)
+        self.mips.slt(Reg.s2, Reg.s0, Reg.s1)
+        self.store_memory(Reg.s2, node.dest)
         self.mips.empty()
 
     @when(EqualNode)
@@ -299,20 +309,20 @@ class CIL_TO_MIPS(object):
         ((a < b) + (b < a)) < 1  -> ==
         """
         self.load_arithmetic(node)
-        # self.mips.move(Reg.a0, Reg.t0)
+        # self.mips.move(Reg.a0, Reg.s0)
         # self.mips.print_int()
-        # self.mips.move(Reg.a0, Reg.t1)
+        # self.mips.move(Reg.a0, Reg.s1)
         # self.mips.print_int()
-        self.mips.slt(Reg.t2, Reg.t0, Reg.t1)
-        self.mips.slt(Reg.t3, Reg.t1, Reg.t0)
+        self.mips.slt(Reg.s2, Reg.s0, Reg.s1)
+        self.mips.slt(Reg.s3, Reg.s1, Reg.s0)
 
-        self.mips.add(Reg.t0, Reg.t2, Reg.t3)
-        self.mips.slti(Reg.t1, Reg.t0, 1)
+        self.mips.add(Reg.s0, Reg.s2, Reg.s3)
+        self.mips.slti(Reg.s1, Reg.s0, 1)
 
-        # self.mips.move(Reg.a0, Reg.t1)
+        # self.mips.move(Reg.a0, Reg.s1)
         # self.mips.print_int()
 
-        self.store_memory(Reg.t1, node.dest)
+        self.store_memory(Reg.s1, node.dest)
         self.mips.empty()
 
     @when(LessEqNode)
@@ -321,40 +331,40 @@ class CIL_TO_MIPS(object):
         a <= b -> ! b < a -> 1 - (b < a)
         """
         self.load_arithmetic(node)
-        self.mips.slt(Reg.t2, Reg.t1, Reg.t0)
-        self.mips.li(Reg.t3, 1)
-        self.mips.sub(Reg.t0, Reg.t3, Reg.t2)
-        self.store_memory(Reg.t0, node.dest)
+        self.mips.slt(Reg.s2, Reg.s1, Reg.s0)
+        self.mips.li(Reg.s3, 1)
+        self.mips.sub(Reg.s0, Reg.s3, Reg.s2)
+        self.store_memory(Reg.s0, node.dest)
         self.mips.empty()
 
     @when(PlusNode)
     def visit(self, node: PlusNode):  # noqa: F811
         self.load_arithmetic(node)
-        self.mips.add(Reg.t2, Reg.t0, Reg.t1)
-        self.store_memory(Reg.t2, node.dest)
+        self.mips.add(Reg.s2, Reg.s0, Reg.s1)
+        self.store_memory(Reg.s2, node.dest)
         self.mips.empty()
 
     @when(MinusNode)
     def visit(self, node: MinusNode):  # noqa: F811
         self.load_arithmetic(node)
-        self.mips.sub(Reg.t2, Reg.t0, Reg.t1)
-        self.store_memory(Reg.t2, node.dest)
+        self.mips.sub(Reg.s2, Reg.s0, Reg.s1)
+        self.store_memory(Reg.s2, node.dest)
         self.mips.empty()
 
     @when(StarNode)
     def visit(self, node: StarNode):  # noqa: F811
         self.load_arithmetic(node)
-        self.mips.mult(Reg.t0, Reg.t1)
-        self.mips.mflo(Reg.t0)
-        self.store_memory(Reg.t0, node.dest)
+        self.mips.mult(Reg.s0, Reg.s1)
+        self.mips.mflo(Reg.s0)
+        self.store_memory(Reg.s0, node.dest)
         self.mips.empty()
 
     @when(DivNode)
     def visit(self, node: DivNode):  # noqa: F811
         self.load_arithmetic(node)
-        self.mips.div(Reg.t0, Reg.t1)
-        self.mips.mflo(Reg.t0)
-        self.store_memory(Reg.t0, node.dest)
+        self.mips.div(Reg.s0, Reg.s1)
+        self.mips.mflo(Reg.s0)
+        self.store_memory(Reg.s0, node.dest)
         self.mips.empty()
 
     @when(AllocateNode)
@@ -369,28 +379,28 @@ class CIL_TO_MIPS(object):
         length *= DATA_SIZE
         self.mips.li(Reg.a0, length)
         self.mips.sbrk()
-        self.mips.move(Reg.t1, Reg.v0)
-        self.store_memory(Reg.t1, node.dest)
+        self.mips.move(Reg.s1, Reg.v0)
+        self.store_memory(Reg.s1, node.dest)
 
-        self.mips.li(Reg.t0, type_data.type)
-        self.mips.store_memory(Reg.t0, self.mips.offset(Reg.t1))
+        self.mips.li(Reg.s0, type_data.type)
+        self.mips.store_memory(Reg.s0, self.mips.offset(Reg.s1))
 
-        self.mips.la(Reg.t0, type_data.str)
-        self.mips.store_memory(Reg.t0, self.mips.offset(Reg.t1, DATA_SIZE))
+        self.mips.la(Reg.s0, type_data.str)
+        self.mips.store_memory(Reg.s0, self.mips.offset(Reg.s1, DATA_SIZE))
 
         for offset in type_data.attr_offsets.values():
             self.mips.store_memory(
                 Reg.zero,
-                self.mips.offset(Reg.t1, offset * DATA_SIZE),
+                self.mips.offset(Reg.s1, offset * DATA_SIZE),
             )
 
         for name, offset in type_data.func_offsets.items():
             direct_name = type_data.func_names[name]
-            self.mips.la(Reg.t0, direct_name)
+            self.mips.la(Reg.s0, direct_name)
             self.mips.store_memory(
-                Reg.t0,
+                Reg.s0,
                 self.mips.offset(
-                    Reg.t1,
+                    Reg.s1,
                     offset * DATA_SIZE,
                 ),
             )
@@ -400,9 +410,9 @@ class CIL_TO_MIPS(object):
     @when(TypeOfNode)
     def visit(self, node: TypeOfNode):  # noqa: F811
         self.mips.comment("TypeOfNode")
-        self.load_memory(Reg.t0, node.obj)
-        self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0))
-        self.store_memory(Reg.t1, node.dest)
+        self.load_memory(Reg.s0, node.obj)
+        self.mips.load_memory(Reg.s1, self.mips.offset(Reg.s0))
+        self.store_memory(Reg.s1, node.dest)
         self.mips.empty()
 
     @when(StaticCallNode)
@@ -418,9 +428,9 @@ class CIL_TO_MIPS(object):
         self.mips.comment("DynamicCallNode")
         type_data = self.types_offsets[node.type]
         offset = type_data.func_offsets[node.method] * DATA_SIZE
-        self.load_memory(Reg.t0, node.obj)
-        self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
-        self.mips.jalr(Reg.t1)
+        self.load_memory(Reg.s0, node.obj)
+        self.mips.load_memory(Reg.s1, self.mips.offset(Reg.s0, offset))
+        self.mips.jalr(Reg.s1)
         self.mips.comment(f"Returning {node.dest}")
         self.store_memory(Reg.v0, node.dest)
         self.mips.empty()
@@ -428,15 +438,15 @@ class CIL_TO_MIPS(object):
     @when(ArgNode)
     def visit(self, node: ArgNode):  # noqa: F811
         self.mips.comment("ArgNode")
-        self.load_memory(Reg.t0, node.name)
-        self.mips.push(Reg.t0)
+        self.load_memory(Reg.s0, node.name)
+        self.mips.push(Reg.s0)
         self.mips.empty()
 
     @when(CleanArgsNode)
     def visit(self, node: CleanArgsNode):  # noqa: F811
         self.mips.comment("CleanArgsNode")
         for _ in range(node.nargs):
-            self.mips.pop(Reg.t0)
+            self.mips.pop(None)
         self.mips.empty()
 
     @when(ReturnNode)
@@ -467,10 +477,10 @@ class CIL_TO_MIPS(object):
     @when(PrintIntNode)
     def visit(self, node: PrintIntNode):  # noqa: F811
         self.mips.comment("PrintIntNode")
-        # self.load_memory(Reg.t0, node.str_addr)
+        # self.load_memory(Reg.s0, node.str_addr)
         # type_data = self.types_offsets["Int"]
         # offset = type_data.attr_offsets["value"] * DATA_SIZE
-        # self.mips.load_memory(Reg.a0, self.mips.offset(Reg.t0, offset))
+        # self.mips.load_memory(Reg.a0, self.mips.offset(Reg.s0, offset))
         self.load_memory(Reg.a0, node.str_addr)
         self.mips.print_int()
         self.mips.empty()
@@ -608,27 +618,27 @@ class CIL_TO_MIPS(object):
         self.load_memory(Reg.s0, node.msg1)  # load string address
         self.load_memory(Reg.s1, node.msg2)
 
-        self.get_string_length(Reg.s0, Reg.t0)  # load size of string
-        self.get_string_length(Reg.s1, Reg.t1)
+        self.get_string_length(Reg.s0, Reg.s2)  # load size of string
+        self.get_string_length(Reg.s1, Reg.s3)
 
         self.mips.move(Reg.v0, Reg.zero)  # return 0
-        self.mips.bne(Reg.t0, Reg.t1, end_label)  # end and return 0 if size not equal
+        self.mips.bne(Reg.s2, Reg.s3, end_label)  # end and return 0 if size not equal
 
-        self.mips.move(Reg.t0, Reg.s0)  # lets use temporal register
-        self.mips.move(Reg.t1, Reg.s1)
+        self.mips.move(Reg.s2, Reg.s0)  # lets use temporal register
+        self.mips.move(Reg.s3, Reg.s1)
 
         self.mips.label(loop_label)
 
-        self.mips.lb(Reg.t2, self.mips.offset(Reg.t0))  # load string character
-        self.mips.lb(Reg.t3, self.mips.offset(Reg.t1))
+        self.mips.lb(Reg.s4, self.mips.offset(Reg.s2))  # load string character
+        self.mips.lb(Reg.s5, self.mips.offset(Reg.s3))
 
-        self.mips.bne(Reg.t2, Reg.t3, end_label)  # if no equal then return 0
+        self.mips.bne(Reg.s4, Reg.s5, end_label)  # if no equal then return 0
 
-        self.mips.addi(Reg.t0, Reg.t0, 1)  # move next character
-        self.mips.addi(Reg.t1, Reg.t1, 1)
+        self.mips.addi(Reg.s2, Reg.s2, 1)  # move next character
+        self.mips.addi(Reg.s3, Reg.s3, 1)
 
         self.mips.beqz(
-            Reg.t2, end_ok_label
+            Reg.s4, end_ok_label
         )  # if end the string return 1 (they are equal)
         self.mips.j(loop_label)  # continue loop
 
@@ -640,11 +650,11 @@ class CIL_TO_MIPS(object):
     @when(GetAttribNode)
     def visit(self, node: GetAttribNode):  # noqa: F811
         self.mips.comment("GetAttribNode")
-        self.load_memory(Reg.t0, node.obj)
+        self.load_memory(Reg.s0, node.obj)
 
         type_data = self.types_offsets[node.type]
         offset = type_data.attr_offsets[node.attrib] * DATA_SIZE
-        self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
+        self.mips.load_memory(Reg.s1, self.mips.offset(Reg.s0, offset))
 
         # label = self.get_label()
         # tag = f"{label}_{node.type}_{node.attrib}"
@@ -654,23 +664,23 @@ class CIL_TO_MIPS(object):
         # self.mips.print_string()
         # self.mips.la(Reg.a0, "eol")
         # self.mips.print_string()
-        # self.mips.move(Reg.a0, Reg.t1)
+        # self.mips.move(Reg.a0, Reg.s1)
         # self.mips.print_int()
         # self.mips.la(Reg.a0, "eol")
         # self.mips.print_string()
 
-        self.store_memory(Reg.t1, node.dest)
+        self.store_memory(Reg.s1, node.dest)
         self.mips.empty()
 
     @when(SetAttribNode)
     def visit(self, node: SetAttribNode):  # noqa: F811
         self.mips.comment("SetAttribNode")
-        self.load_memory(Reg.t0, node.obj)
+        self.load_memory(Reg.s0, node.obj)
         type_data = self.types_offsets[node.type]
         offset = type_data.attr_offsets[node.attrib] * DATA_SIZE
         if node.value in self.local_vars_offsets or node.value in self.actual_args:
             self.mips.comment(f"Setting local var {node.value}")
-            self.load_memory(Reg.t1, node.value)
+            self.load_memory(Reg.s1, node.value)
 
             # label = self.get_label()
             # tag = f"{label}_{node.type}_{node.attrib}"
@@ -680,7 +690,7 @@ class CIL_TO_MIPS(object):
             # self.mips.print_string()
             # self.mips.la(Reg.a0, "eol")
             # self.mips.print_string()
-            # self.mips.move(Reg.a0, Reg.t1)
+            # self.mips.move(Reg.a0, Reg.s1)
             # self.mips.print_int()
             # self.mips.la(Reg.a0, "eol")
             # self.mips.print_string()
@@ -689,15 +699,15 @@ class CIL_TO_MIPS(object):
                 value = int(node.value)
                 # high = value >> 16
                 # self.mips.comment(f"Seting literal int {node.value}")
-                # self.mips.li(Reg.t2, high)
-                # self.mips.li(Reg.t3, value)
-                # self.mips.sll(Reg.t4, Reg.t2, 16)
-                # self.mips.orr(Reg.t1, Reg.t3, Reg.t4)
-                self.mips.li(Reg.t1, value)
+                # self.mips.li(Reg.s2, high)
+                # self.mips.li(Reg.s3, value)
+                # self.mips.sll(Reg.s4, Reg.s2, 16)
+                # self.mips.orr(Reg.s1, Reg.s3, Reg.s4)
+                self.mips.li(Reg.s1, value)
             except ValueError:
                 self.mips.comment(f"Setting data {node.value}")
-                self.mips.la(Reg.t1, node.value)
-        self.mips.store_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
+                self.mips.la(Reg.s1, node.value)
+        self.mips.store_memory(Reg.s1, self.mips.offset(Reg.s0, offset))
         self.mips.empty()
 
     @when(LabelNode)
@@ -715,7 +725,7 @@ class CIL_TO_MIPS(object):
     @when(GotoIfNode)
     def visit(self, node: GotoIfNode):  # noqa: F811: F811
         self.mips.comment("GotoIfNode")
-        self.load_memory(Reg.t0, node.value)
-        self.mips.li(Reg.t1, 0)
-        self.mips.bne(Reg.t0, Reg.t1, node.label)
+        self.load_memory(Reg.s0, node.value)
+        self.mips.li(Reg.s1, 0)
+        self.mips.bne(Reg.s0, Reg.s1, node.label)
         self.mips.empty()
