@@ -189,7 +189,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
 
         body = self.visit(node.expression, func_scope)
         # print(body, type(body), node.expression, "==================================")
-        body = self.unpack_type_by_value(body, node.expression.static_type)
         self.register_instruction(ReturnNode(body))
 
         self.current_method = self.current_function = None
@@ -370,7 +369,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             DynamicCallNode(self_inst, type_name, node.id, result)
         )
         self.register_instruction(CleanArgsNode(len(node.args) + 1))
-        self.pack_type_by_value(result, node.static_type)
         return result
 
     @when(cool.FunctionCallNode)
@@ -398,7 +396,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
                     result,
                 )
             )
-        result = self.pack_type_by_value(result, node.static_type)
         self.register_instruction(CleanArgsNode(len(node.args) + 1))
         return result
 
