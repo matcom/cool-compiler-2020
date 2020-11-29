@@ -125,8 +125,8 @@ def compare_outputs(
     eoutput = fd.read()
     fd.close()
 
-    assert output == eoutput, UNEXPECTED_OUTPUT % (
+    assert output == eoutput, UNEXPECTED_OUTPUT % (  # type: ignore
         spim_file,
-        repr(output),
+        repr(output),  # type: ignore
         repr(eoutput),
     )
