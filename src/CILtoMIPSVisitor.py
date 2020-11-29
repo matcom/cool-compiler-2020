@@ -30,14 +30,24 @@ class CILtoMIPSVisitor:
 
 
     @visitor.when(TypeNode)
-    def visit(self, node):
+    def visit(self, node:TypeNode):
         self.data.append(MipsStringNode(f'{node.name}_name', node.name))
-        self.data.append(MipsWordNode(f'{node.name}_size', 4*(len(node.attributes) + 2)))
+        self.data.append(MipsWordNode(f'{node.name}_size', 4*(len(node.attributes) + 3)))
+        self.data.append(MipsTableNode(node.name , [ met[1] for met in node.methods]))
 
 
     @visitor.when(DataNode)
     def visit(self, node):
         self.data.append(MipsStringNode(node.name, node.value))
+
+    @visitor.when(JumpNode)
+    def visit(self, node:DynamicCallNode):
+        self.register_instruction(MipsCommentNode('comienzo llamada al constructor'))
+        self.register_instruction(MipsJumpAtAddressNode(node.method))
+        
+        num = int(node.dest.split('_')[-1])
+        self.register_instruction(MipsSWNode('$a0', f'-{(num+1) * 4}($fp)'))
+        self.register_instruction(MipsCommentNode('fin llamada dinamica'))
 
 
     @visitor.when(FunctionNode)
@@ -78,6 +88,8 @@ class CILtoMIPSVisitor:
             
             self.register_instruction(MipsSWNode('$a0', '0($sp)'))
             self.register_instruction(MipsAddiuNode('$sp', '$sp', '-4'))
+        self.register_instruction(MipsCommentNode(' fin guardando los parametros'))
+        
 
 
 
@@ -106,16 +118,27 @@ class CILtoMIPSVisitor:
 
     @visitor.when(StaticCallNode)
     def visit(self, node:StaticCallNode):
-        self.register_instruction(MipsJumpAtAddressNode(node.function))
+        self.register_instruction(MipsLWNode('$a0', '4($fp)'))
+        self.register_instruction(MipsLWNode('$a0', '8($a0)'))
+        self.register_instruction(MipsLWNode('$a0', f'{node.function * 4}($a0)'))
+        self.register_instruction(MipsJALRNode('$a0'))
 
         num = int(node.dest.split('_')[-1])
         self.register_instruction(MipsSWNode('$a0', f'-{(num+1) * 4}($fp)'))
-        self.register_instruction(MipsCommentNode('fin llamada dinamica'))
 
     @visitor.when(DynamicCallNode)
     def visit(self, node:DynamicCallNode):
         self.register_instruction(MipsCommentNode('comienzo llamada dinamica'))
-        self.register_instruction(MipsJumpAtAddressNode(node.method))
+
+        if node.type is None:
+            pos = self.request_pos(node.ins)
+            self.register_instruction(MipsLWNode('$a0', pos))
+            self.register_instruction(MipsLWNode('$a0', '8($a0)'))
+        else:
+            self.register_instruction(MipsLANode('$a0', f'__virtual_table__{node.type}'))
+
+        self.register_instruction(MipsLWNode('$a0', f'{node.method * 4}($a0)'))
+        self.register_instruction(MipsJALRNode('$a0'))
         
         num = int(node.dest.split('_')[-1])
         self.register_instruction(MipsSWNode('$a0', f'-{(num+1) * 4}($fp)'))
@@ -130,21 +153,22 @@ class CILtoMIPSVisitor:
         pos = self.request_pos(node.ins)
         self.register_instruction(MipsLWNode('$a0', pos))
         
-        nameType = node.att.split('_')[1]
-        num = -1
+        # nameType = node.att.split('_')[1]
+        # num = -1
 
-        for typeAct in self.types:
-            if typeAct.name == nameType:
-                num = typeAct.attributes.index(node.att)
-                break
-        
+        # for typeAct in self.types:
+        #     if typeAct.name == nameType:
+        #         num = typeAct.attributes.index(node.att)
+        #         break
+            
+
         pos = self.request_pos(node.value)
         if not pos is None: 
             self.register_instruction(MipsLWNode('$t1', pos))
         else:
             self.register_instruction(MipsLINode('$t1', node.value))
 
-        self.register_instruction(MipsSWNode('$t1', f'{num * 4 + 8}($a0)'))
+        self.register_instruction(MipsSWNode('$t1', f'{node.att * 4 + 12}($a0)'))
         self.register_instruction(MipsCommentNode('end set attribute'))
     
     @visitor.when(GetAttribNode)
@@ -155,15 +179,16 @@ class CILtoMIPSVisitor:
         pos = self.request_pos(node.ins)
         self.register_instruction(MipsLWNode('$a0', pos))
 
-        nameType = node.att.split('_')[1]
-        num = -1
+        # nameType = node.att.split('_')[1]
+        # num = -1
 
-        for typeAct in self.types:
-            if typeAct.name == nameType:
-                num = typeAct.attributes.index(node.att)
-                break
+        # for typeAct in self.types:
+        #     if typeAct.name == nameType:
+        #         num = typeAct.attributes.index(node.att)
+        #         break
 
-        self.register_instruction(MipsLWNode('$a0', f'{num * 4 + 8}($a0)'))
+
+        self.register_instruction(MipsLWNode('$a0', f'{node.att * 4 + 12}($a0)'))
         self.register_instruction(MipsSWNode('$a0', pos_result))
         
 
@@ -316,6 +341,23 @@ class CILtoMIPSVisitor:
         self.register_instruction(MipsNEGNode('$t1', '$t1'))
         self.register_instruction(MipsSWNode('$t1', pos_dest))
 
+    @visitor.when(IsVoidNode)
+    def visit(self, node):
+        pos_obj = self.request_pos(node.obj)
+        pos_dest = self.request_pos(node.dest)
+
+        if not pos_obj is None:
+            self.register_instruction(MipsLWNode('$t1', pos_obj))
+        else:
+            self.register_instruction(MipsLINode('$a0', 1))
+            self.register_instruction(MipsJumpNode(node.label))
+
+        self.register_instruction(MipsLINode('$a0', 1))
+        self.register_instruction(MipsLANode('$t2', '_void'))
+        self.register_instruction(MipsBNENode('$t1', '$t2', node.label))
+        self.register_instruction(MipsLINode('$a0', 0))
+        self.register_instruction(MipsLabelNode(node.label))
+        self.register_instruction(MipsSWNode('$a0', pos_dest))
 
     @visitor.when(LessNode)
     def visit(self, node):
@@ -386,7 +428,17 @@ class CILtoMIPSVisitor:
         self.register_instruction(MipsSWNode('$a0', pos_dest))
 
 
+    @visitor.when(CaseOption)
+    def visit(self, node):
+        pos_expression = self.request_pos(node.expression)
 
+        if not pos_expression is None:
+            self.register_instruction(MipsLANode('$a0', f'{node.typex.name}_name'))
+            self.register_instruction(MipsLWNode('$t1', pos_expression))
+            self.register_instruction(MipsLWNode('$t1', '0($t1)'))
+            self.register_instruction(MipsBEQNode('$t1', '$a0', node.label))
+        else:
+            pass
 
     # registers
     def register_data(self, instruction):

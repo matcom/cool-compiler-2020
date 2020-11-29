@@ -1,5 +1,6 @@
 import cil
 from semantic import VariableInfo, Scope
+import queue
 
 class BaseCOOLToCILVisitor:
     def __init__(self, context):
@@ -36,6 +37,11 @@ class BaseCOOLToCILVisitor:
             for method , typeMethod in self.context.get_type(basicType).all_methods():
                 cil_type.methods.append((method.name, self.to_function_name(method.name, typeMethod.name)))
 
+        for basicType in ['Object', 'IO']:
+            cil_type = self.register_type(basicType)
+            for method , typeMethod in self.context.get_type(basicType).all_methods():
+                cil_type.methods.append((method.name, self.to_function_name(method.name, typeMethod.name)))
+
 
     def register_param(self, vinfo):
         vinfo.cilName = vinfo.name # f'param_{self.current_function.name[9:]}_{vinfo.name}_{len(self.params)}'
@@ -66,7 +72,7 @@ class BaseCOOLToCILVisitor:
         return f'function_{method_name}_at_{type_name}'
     
     def to_attribute_name(self, attr_name, attr_type):
-        return f'attribute_{attr_type}_{attr_name}'
+        return f'attribute_{attr_name}'
 
     def register_function(self, function_name):
         function_node = cil.FunctionNode(function_name, [], [], [], [])
@@ -93,28 +99,58 @@ class BaseCOOLToCILVisitor:
         for dottype in self.dottypes:
             if dottype.name == function_name:
                 break
+        
+        
+        # for attrib in dottype.attributes:
+        #     if self.to_attribute_name(attribute, None) == attrib:
+        #         break
 
-        for attrib in dottype.attributes:
-            if attrib.split('_')[-1] == attribute:
-                break
-
-        return attrib
+        return dottype.attributes.index(self.to_attribute_name(attribute,None))
 
     def get_method(self, type_name, method_name):
         for typeContext in self.context.types:
             if typeContext == type_name:
                 break
+        
+        methods = list(self.context.types[typeContext].all_methods())
 
-        for method, methodType in self.context.types[typeContext].all_methods():
-            if method.name == method_name:
+        for m in methods:
+            if m[0].name == method_name:
                 break
 
-        return self.to_function_name(method.name, methodType.name) 
+        return methods.index(m)
+
+    def sort_types(self, types):
+        q = queue.deque()
+        lst = []
+        for tp1 in types:
+            if not any ([x for x in types if x!= tp1 and x.conforms_to(tp1) ]):
+                q.append(tp1)
+
+        while len(q) != 0:
+            tp = q.popleft()
+            if tp in types and not tp in lst:
+                lst.append(tp)
+            if not tp.parent is None and  not tp.parent in q:
+                q.append(tp.parent)
+
+        return lst   
+
+    def get_preordenTypes(self, typex):
+        ret_lis = []
+
+        for son in typex.sons:
+            ret_lis.extend(self.get_preordenTypes(son))
+
+        ret_lis.append(typex)
+        return ret_lis
+
 
     def box(self, typeName, value):
         obj_internal = self.define_internal_local()
         self.register_instruction(cil.AllocateNode(typeName, obj_internal))
-        self.register_instruction(cil.SetAttribNode(obj_internal, self.to_attribute_name('value', typeName), value))
+        self.register_instruction(cil.SetAttribNode(obj_internal, 0, value))
         self.register_instruction(cil.LoadNode(obj_internal, f'{typeName}_name'))
         self.register_instruction(cil.LoadIntNode(obj_internal, f'{typeName}_size', 4))
+        self.register_instruction(cil.LoadNode(obj_internal, f'__virtual_table__{typeName}', 8))
         return obj_internal

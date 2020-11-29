@@ -19,6 +19,11 @@ class MipsWordNode(MipsNode):
         self.name = name
         self.value = value
 
+class MipsTableNode(MipsNode):
+    def __init__(self , type_name,methods):
+        self.type_name = type_name
+        self.methods = methods
+
 # jumps
 class MipsJumpNode(MipsNode):
     def __init__(self, label):
@@ -29,6 +34,10 @@ class MipsJumpAtAddressNode(MipsJumpNode):
 
 class MipsJRNode(MipsJumpNode):
     pass
+
+class MipsJALRNode(MipsJumpNode):
+    pass
+
 
 # stack
 class MipsLWNode(MipsNode):
@@ -133,11 +142,7 @@ def get_formatter():
             dotdata = '\n'.join(self.visit(t) for t in node.dotdata)
             dotdata += '''
             _error1:    .asciiz     "Halt program because abort"
-            IO_name:    .asciiz     "IO"
-            IO_size:    .word       8
-            Object_name:    .asciiz     "Object"
-            Object_size:    .word       8
-            _buffer:    .space      1024
+            _buffer:    .space      2048
             _void:      .asciiz       ""
              '''    
             
@@ -148,6 +153,32 @@ function_Ctr_at_Object:
             move $fp, $sp
             sw $ra, 0($sp)
             addiu $sp, $sp, -4
+            
+            la $t1, Object_name
+			lw $t2, 4($fp)
+			sw $t1, 0($t2)
+
+			lw $t1, Object_size
+			lw $t2, 4($fp)
+			sw $t1, 4($t2)
+
+			la $t1, __virtual_table__Object
+			lw $t2, 4($fp)
+			sw $t1, 8($t2)
+
+
+            lw $a0, 4($fp)
+
+            lw $ra, 0($fp)
+            addiu $sp, $sp, 12
+            lw $fp, 0($sp)
+            jr $ra 
+
+function_Init_at_Object:
+            move $fp, $sp
+            sw $ra, 0($sp)
+            addiu $sp, $sp, -4
+            
             lw $a0, 4($fp)
 
             lw $ra, 0($fp)
@@ -159,6 +190,32 @@ function_Ctr_at_IO:
             move $fp, $sp
             sw $ra, 0($sp)
             addiu $sp, $sp, -4
+
+            la $t1, IO_name
+			lw $t2, 4($fp)
+			sw $t1, 0($t2)
+
+			lw $t1, IO_size
+			lw $t2, 4($fp)
+			sw $t1, 4($t2)
+
+			la $t1, __virtual_table__IO
+			lw $t2, 4($fp)
+			sw $t1, 8($t2)
+
+
+            lw $a0, 4($fp)
+
+            lw $ra, 0($fp)
+            addiu $sp, $sp, 12
+            lw $fp, 0($sp)
+            jr $ra 
+
+function_Init_at_IO:
+            move $fp, $sp
+            sw $ra, 0($sp)
+            addiu $sp, $sp, -4
+
             lw $a0, 4($fp)
 
             lw $ra, 0($fp)
@@ -519,6 +576,10 @@ function_in_string_at_IO:
         def visit(self, node):
             return f'\t\t\t{node.name}:     .word     {node.value}'
 
+        @visitor.when(MipsTableNode)
+        def visit(self , node:MipsTableNode):
+            return f'__virtual_table__{node.type_name}:\n' + '\n'.join( f"\t\t\t .word {m}" for m in node.methods)
+            
         # jumps
         @visitor.when(MipsJumpNode)
         def visit(self, node):
@@ -531,6 +592,10 @@ function_in_string_at_IO:
         @visitor.when(MipsJRNode)
         def visit(self, node):
             return f'\t\t\tjr {node.label}'
+
+        @visitor.when(MipsJALRNode)
+        def visit(self, node):
+            return f'\t\t\tjalr {node.label}'
 
         # stack
         @visitor.when(MipsLWNode)
@@ -576,7 +641,7 @@ function_in_string_at_IO:
         def visit(self, node):
             return f'\t\t\tsub {node.param1}, {node.param2}, {node.param3}'
 
-        @visitor.when(MipsArithmeticNode)
+        @visitor.when(MipsStarNode)
         def visit(self, node):
             return f'\t\t\tmul {node.param1} {node.param2} {node.param3}'
 

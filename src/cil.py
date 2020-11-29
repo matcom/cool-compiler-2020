@@ -107,6 +107,11 @@ class AllocateNode(InstructionNode):
         self.type = itype
         self.dest = dest
 
+class JumpNode(InstructionNode):
+    def __init__(self, method, dest):
+        self.method = method
+        self.dest = dest
+
 class ArrayNode(InstructionNode):
     pass
 
@@ -116,9 +121,16 @@ class TypeOfNode(InstructionNode):
         self.dest = dest
 
 class IsVoidNode(InstructionNode):
-    def __init__(self, obj, dest):
+    def __init__(self, obj, dest, label):
         self.obj = obj
         self.dest = dest
+        self.label = label
+
+class CaseOption(InstructionNode):
+    def __init__(self, expression, label, typex):
+        self.expression = expression
+        self.label = label
+        self.typex = typex
 
 class LabelNode(InstructionNode):
     def __init__(self, name):
@@ -139,10 +151,11 @@ class StaticCallNode(InstructionNode):
         self.dest = dest
 
 class DynamicCallNode(InstructionNode):
-    def __init__(self, xtype, method, dest):
+    def __init__(self, xtype, method, dest,ins):
         self.type = xtype
         self.method = method
         self.dest = dest
+        self.ins = ins
 
 class ArgsNode(InstructionNode):
     def __init__(self, names):
@@ -232,6 +245,10 @@ def get_formatter():
 
             return f'function {node.name} {{\n\t{params}\n\n\t{localvars}\n\n\t{instructions}\n}}'
 
+        # @visitor.when(Node)
+        # def visit(self, node):
+        #     return f'----------------------------------{node.__class__.__name__}'
+
         @visitor.when(ParamNode)
         def visit(self, node):
             return f'PARAM {node.name}'
@@ -274,7 +291,7 @@ def get_formatter():
 
         @visitor.when(LessNode)
         def visit(self, node):
-            return f'{node.dest} = {node.left} < {node.right}'
+            return f'{node.result} = {node.left} < {node.right}'
 
         @visitor.when(AllocateNode)
         def visit(self, node):
@@ -283,6 +300,10 @@ def get_formatter():
         @visitor.when(LabelNode)
         def visit(self, node):
             return f'LABEL {node.name}'
+
+        @visitor.when(JumpNode)
+        def visit(self, node):
+            return f'JUMP {node.method}'
 
         @visitor.when(GotoNode)
         def visit(self, node):
@@ -323,6 +344,10 @@ def get_formatter():
         @visitor.when(LoadIntNode)
         def visit(self, node):
             return f'LOAD_INT {node.dest} {node.msg} {node.desp}'
+
+        @visitor.when(StringComparer)
+        def visit(self,node):
+            return f'STRCOMP {node.result}, {node.left}, {node.right}'
 
     printer = PrintVisitor()
     return (lambda ast: printer.visit(ast))

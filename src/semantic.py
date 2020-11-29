@@ -529,14 +529,14 @@ class TypeChecking:
             tmpscope = scb.create_child()
             try :
                 typex = self.context.get_type(branches[1],node.line)
-                if common_type is None:
-                    common_type = typex
-                else:
-                    common_type = self.context.closest_common_antecesor(common_type,typex)
             except SemanticError as e:
                 self.errors.append(e)
             tmpscope.define_variable(branches[0],typex,node.line)
             self.visit(branches[2],tmpscope)
+            if common_type is None:
+                common_type = branches[2].type
+            else:
+                common_type = self.context.closest_common_antecesor(common_type,branches[2].type)
         
         node.type = common_type
         
@@ -548,7 +548,7 @@ class TypeChecking:
     def visit(self, node:FunctionCallNode, scope:Scope):    
         self.visit(node.obj,scope.create_child())
         node.type = ErrorType()
-
+        node.typexa = node.typex
         for i in range(len(node.args)):
             self.visit(node.args[i],scope.create_child())
 
