@@ -13,7 +13,7 @@ def run_pipeline(input_, outpt):
 
         lexer = CoolLexer()
         tokens = lexer.run(text)
-
+    
         p = CoolParser(lexer)
 
         ast = p.parse(text, debug=True)
@@ -21,23 +21,23 @@ def run_pipeline(input_, outpt):
             raise Exception()
         
         ast, errors, context, scope = semantic_analysis(ast, debug=False)
-        # if errors:
-        #     for err in errors:
-        #         print(err)
-        #     raise Exception()
-        # else:
-        mips_code = codegen_pipeline(context, ast, scope, debug=True)
-        with open(outpt, 'w+') as f:
-            f.write(mips_code)
+        if errors:
+            for err in errors:
+                print(err)
+            raise Exception()
+        else:
+            mips_code = codegen_pipeline(context, ast, scope, debug=True)
+            with open(outpt, 'w+') as f:
+                f.write(mips_code)
 
     except FileNotFoundError:
         error_text = CompilerError.UNKNOWN_FILE % input_
         print(CompilerError(error_text, 0, 0))
 
 if __name__ == "__main__":
-    # input_ = sys.argv[1]
-    # output_ = sys.argv[2]
+    input_ = sys.argv[1]
+    output_ = sys.argv[2]
     # print(input_)
-    input_ = f'test1.cl' 
-    output_ = 'test1.mips'
+    # input_ = f'test.cl' 
+    # output_ = 'test.asm'
     run_pipeline(input_, output_)

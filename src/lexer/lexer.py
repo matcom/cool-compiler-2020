@@ -204,7 +204,7 @@ class CoolLexer:
     def t_nox(self, t):
         r'~'
         self._update_column(t)
-        return
+        return t
  
     def t_equal(self, t):
         r'='

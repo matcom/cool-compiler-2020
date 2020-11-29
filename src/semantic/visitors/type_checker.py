@@ -50,7 +50,7 @@ class TypeChecker:
             if isinstance(feat, AttrDeclarationNode):
                 self.visit(feat, scope)
 
-        for feat, child_scope in zip(fd, scope.children):
+        for feat, child_scope in zip(fd, scope.functions.values()):
             self.visit(feat, child_scope)  
         
 
@@ -207,7 +207,7 @@ class TypeChecker:
     def find_variable(self, scope, lex):
         var_info = scope.find_local(lex)
         if var_info is None:
-            var_info = scope.find_attribute(lex, self.current_index)
+            var_info = scope.find_attribute(lex)
         if lex in self.current_type.attributes and var_info is None:
             return VariableInfo(lex, VoidType())
         return var_info

@@ -10,7 +10,8 @@ def codegen_pipeline(context, ast, scope, debug=False):
     cil_ast = cool_to_cil.visit(ast, scope)
     if debug:
         formatter = get_formatter()
-        print(formatter(cil_ast))
+        with open('test.cil', 'w+') as fd:
+            fd.write(formatter(cil_ast))
     inherit_graph = context.build_inheritance_graph()
     # pprint(inherit_graph)
     data_code, text_code = CILToMIPSVistor(inherit_graph).visit(cil_ast)

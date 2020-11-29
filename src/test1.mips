@@ -101,10 +101,20 @@ la $t9, function_concat_String
 sw $t9, 36($v0)
 la $t9, function_substr_String
 sw $t9, 40($v0)
-la $t9, function_main_Main
+la $t9, function_type_name_String
 sw $t9, 44($v0)
-la $t9, function_compare_Main
+la $t9, function_copy_String
 sw $t9, 48($v0)
+la $t9, function_type_name_Int
+sw $t9, 52($v0)
+la $t9, function_copy_Int
+sw $t9, 56($v0)
+la $t9, function_type_name_Bool
+sw $t9, 60($v0)
+la $t9, function_copy_Bool
+sw $t9, 64($v0)
+la $t9, function_main_Main
+sw $t9, 68($v0)
 
 entry:
 # Gets the params from the stack
@@ -136,37 +146,33 @@ la $t8, methods
 # Save the direction of the method function_abort_Object in t9
 lw $t9, 4($t8)
 # Save the direction of the method in his position in the dispatch table
-sw $t9, 0($v0)
+sw $t9, 4($v0)
 # Save the direction of the method function_type_name_Object in t9
 lw $t9, 8($t8)
 # Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
+sw $t9, 8($v0)
 # Save the direction of the method function_copy_Object in t9
 lw $t9, 12($t8)
 # Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
+sw $t9, 12($v0)
 # Save the direction of the method function_out_string_IO in t9
 lw $t9, 16($t8)
 # Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
+sw $t9, 16($v0)
 # Save the direction of the method function_out_int_IO in t9
 lw $t9, 20($t8)
 # Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
+sw $t9, 20($v0)
 # Save the direction of the method function_in_string_IO in t9
 lw $t9, 28($t8)
 # Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
+sw $t9, 24($v0)
 # Save the direction of the method function_in_int_IO in t9
 lw $t9, 24($t8)
 # Save the direction of the method in his position in the dispatch table
-sw $t9, 24($v0)
-# Save the direction of the method function_main_Main in t9
-lw $t9, 44($t8)
-# Save the direction of the method in his position in the dispatch table
 sw $t9, 28($v0)
-# Save the direction of the method function_compare_Main in t9
-lw $t9, 48($t8)
+# Save the direction of the method function_main_Main in t9
+lw $t9, 68($t8)
 # Save the direction of the method in his position in the dispatch table
 sw $t9, 32($v0)
 sw $v0, 8($t0)
@@ -212,11 +218,11 @@ move $fp, $sp
 # Pops the register with the param value self
 addiu $fp, $fp, 4
 # Gets the frame pointer from the stack
-# Updates stack pointer pushing local_abort_self_0 to the stack
+# Updates stack pointer pushing local_abort_Object_self_0 to the stack
 addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
-# Moving self to local_abort_self_0
+# Moving self to local_abort_Object_self_0
 move $t1, $t0
 sw $t1, -4($fp)
 # Exiting the program
@@ -242,11 +248,11 @@ move $fp, $sp
 # Pops the register with the param value self
 addiu $fp, $fp, 4
 # Gets the frame pointer from the stack
-# Updates stack pointer pushing local_type_name_result_0 to the stack
+# Updates stack pointer pushing local_type_name_Object_result_0 to the stack
 addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
-# local_type_name_result_0 <- Type of self
+# local_type_name_Object_result_0 <- Type of self
 lw $t1, 0($t0)
 move $v0, $t1
 # Empty all used registers and saves them to memory
@@ -263,7 +269,7 @@ move $fp, $sp
 # Pops the register with the param value self
 addiu $fp, $fp, 4
 # Gets the frame pointer from the stack
-# Updates stack pointer pushing local_copy_result_0 to the stack
+# Updates stack pointer pushing local_copy_Object_result_0 to the stack
 addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
@@ -304,11 +310,11 @@ addiu $fp, $fp, 4
 # Pops the register with the param value word
 addiu $fp, $fp, 4
 # Gets the frame pointer from the stack
-# Updates stack pointer pushing local_out_string_self_0 to the stack
+# Updates stack pointer pushing local_out_string_String_self_0 to the stack
 addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -8($fp)
-# Moving self to local_out_string_self_0
+# Moving self to local_out_string_String_self_0
 move $t1, $t0
 sw $t1, -8($fp)
 lw $t2, -0($fp)
@@ -334,11 +340,11 @@ addiu $fp, $fp, 4
 # Pops the register with the param value number
 addiu $fp, $fp, 4
 # Gets the frame pointer from the stack
-# Updates stack pointer pushing local_out_int_self_0 to the stack
+# Updates stack pointer pushing local_out_int_IO_self_0 to the stack
 addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -8($fp)
-# Moving self to local_out_int_self_0
+# Moving self to local_out_int_IO_self_0
 move $t1, $t0
 sw $t1, -8($fp)
 lw $t2, -0($fp)
@@ -362,7 +368,7 @@ move $fp, $sp
 # Pops the register with the param value self
 addiu $fp, $fp, 4
 # Gets the frame pointer from the stack
-# Updates stack pointer pushing local_in_int_result_0 to the stack
+# Updates stack pointer pushing local_in_int_IO_result_0 to the stack
 addiu $sp, $sp, -4
 lw $t0, -4($fp)
 # Reading a int
@@ -382,10 +388,15 @@ function_in_string_IO:
 move $fp, $sp
 # Pops the register with the param value self
 addiu $fp, $fp, 4
-# Pops the register with the param value dest
-addiu $fp, $fp, 4
 # Gets the frame pointer from the stack
-lw $t0, -0($fp)
+# Updates stack pointer pushing local_in_string_IO_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Allocating memory for the buffer
+li $a0, 356
+li $v0, 9
+syscall
+move $t0, $v0
 # Reading a string
 # Putting buffer in a0
 move $a0, $t0
@@ -405,7 +416,7 @@ addiu $t9, $t9, -1
 sb $0, ($t9)
 move $v0, $t0
 # Empty all used registers and saves them to memory
-sw $t0, -0($fp)
+sw $t0, -4($fp)
 # Removing all locals from stack
 addiu $sp, $sp, 8
 jr $ra
@@ -417,7 +428,7 @@ move $fp, $sp
 # Pops the register with the param value self
 addiu $fp, $fp, 4
 # Gets the frame pointer from the stack
-# Updates stack pointer pushing local_length_result_0 to the stack
+# Updates stack pointer pushing local_length_String_result_0 to the stack
 addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
@@ -446,12 +457,17 @@ move $fp, $sp
 addiu $fp, $fp, 4
 # Pops the register with the param value word
 addiu $fp, $fp, 4
-# Pops the register with the param value dest
-addiu $fp, $fp, 4
 # Gets the frame pointer from the stack
-lw $t0, -8($fp)
-lw $t1, -4($fp)
-lw $t2, -0($fp)
+# Updates stack pointer pushing local_concat_String_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+lw $t1, -0($fp)
+lw $t2, -8($fp)
+# Allocating memory for the buffer
+li $a0, 356
+li $v0, 9
+syscall
+move $t2, $v0
 # Copy the first string to dest
 move $a0, $t0
 move $a1, $t2
@@ -482,9 +498,9 @@ jr $ra
 finish_3:
 move $v0, $t2
 # Empty all used registers and saves them to memory
-sw $t0, -8($fp)
-sw $t1, -4($fp)
-sw $t2, -0($fp)
+sw $t0, -4($fp)
+sw $t1, -0($fp)
+sw $t2, -8($fp)
 # Removing all locals from stack
 addiu $sp, $sp, 12
 jr $ra
@@ -499,13 +515,18 @@ addiu $fp, $fp, 4
 addiu $fp, $fp, 4
 # Pops the register with the param value end
 addiu $fp, $fp, 4
-# Pops the register with the param value dest
-addiu $fp, $fp, 4
 # Gets the frame pointer from the stack
-lw $t0, -8($fp)
-lw $t1, -4($fp)
-lw $t2, -0($fp)
-lw $t3, -12($fp)
+# Updates stack pointer pushing local_substr_String_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+lw $t1, -0($fp)
+lw $t2, -12($fp)
+# Allocating memory for the buffer
+li $a0, 356
+li $v0, 9
+syscall
+move $t2, $v0
+lw $t3, -8($fp)
 # Getting the substring of a node
 # Move to the first position in the string
 li $v0, 0
@@ -545,12 +566,194 @@ end_4:
 sb $0, 0($v0)
 move $v0, $t2
 # Empty all used registers and saves them to memory
-sw $t0, -8($fp)
-sw $t1, -4($fp)
-sw $t2, -0($fp)
-sw $t3, -12($fp)
+sw $t0, -4($fp)
+sw $t1, -0($fp)
+sw $t2, -12($fp)
+sw $t3, -8($fp)
 # Removing all locals from stack
 addiu $sp, $sp, 16
+jr $ra
+
+
+function_type_name_String:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_type_name_String_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Saves in local_type_name_String_result_0 type_String
+la $t0, type_String
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_copy_String:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_copy_String_result_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_copy_String_result_1 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_copy_String_result_2 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -8($fp)
+move $t8, $t0
+# Determining the length of a string
+loop_5:
+lb $t9, 0($t8)
+beq $t9, $zero, end_5
+addi $t8, $t8, 1
+j loop_5
+end_5:
+sub $t1, $t8, $t0
+lw $t2, -12($fp)
+# local_copy_String_result_2 <- local_copy_String_result_1 - 1
+addi $t2, $t1, -1
+lw $t3, -4($fp)
+# Allocating memory for the buffer
+li $a0, 356
+li $v0, 9
+syscall
+move $t3, $v0
+li $t8, 0
+# Getting the substring of a node
+# Move to the first position in the string
+li $v0, 0
+move $t8, $t0
+start_6:
+lb $t9, 0($t8)
+beqz $t9, error_6
+addi $v0, 1
+bgt $v0, $t8, end_len_6
+addi $t8, 1
+j start_6
+end_len_6:
+# Saving dest to iterate over him
+move $v0, $t3
+loop_6:
+sub $t9, $v0, $t3
+beq $t9, $t2, end_6
+lb $t9, 0($t8)
+beqz $t9, error_6
+sb $t9, 0($v0)
+addi $t8, $t8, 1
+addi $v0, $v0, 1
+j loop_6
+error_6:
+la $a0, index_error
+li $v0, 4
+move $a0, $t0
+syscall
+li $v0, 1
+move $a0, $t8
+syscall
+li $v0, 1
+move $a0, $t2
+syscall
+j .raise
+end_6:
+sb $0, 0($v0)
+move $v0, $t3
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -8($fp)
+sw $t2, -12($fp)
+sw $t3, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 16
+jr $ra
+
+
+function_type_name_Int:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_type_name_Int_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Saves in local_type_name_Int_result_0 type_Int
+la $t0, type_Int
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_copy_Int:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_copy_Int_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -4($fp)
+# Moving self to local_copy_Int_result_0
+move $t1, $t0
+sw $t1, -4($fp)
+move $v0, $t1
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_type_name_Bool:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_type_name_Bool_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Saves in local_type_name_Bool_result_0 type_Bool
+la $t0, type_Bool
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_copy_Bool:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_copy_result_Bool_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -4($fp)
+# Moving self to local_copy_result_Bool_0
+move $t1, $t0
+sw $t1, -4($fp)
+move $v0, $t1
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
 jr $ra
 
 
@@ -566,46 +769,16 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_2 to the stack
 addiu $sp, $sp, -4
-lw $t0, -0($fp)
-lw $t1, -4($fp)
-# Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
-lw $t9, 8($t0)
-# Saves in t8 the direction of function_in_string_IO
-lw $t8, 20($t9)
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# Loading new space and pushing it to the stack
-la $t1, local_main_Main_internal_0_0
-sw $t1, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-sw $t0, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -0($fp)
-sw $t1, -4($fp)
-# This function will consume the arguments
-jal $t8
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
 lw $t0, -4($fp)
-# saves the return value
-move $t0, $v0
+# local_main_Main_internal_0 <- 34 / 10
+li $t0, 3
 lw $t1, -0($fp)
 lw $t2, -8($fp)
 # Find the actual name in the dispatch table
 # Gets in t9 the actual direction of the dispatch table
 lw $t9, 8($t1)
-# Saves in t8 the direction of function_out_string_IO
-lw $t8, 12($t9)
+# Saves in t8 the direction of function_out_int_IO
+lw $t8, 20($t9)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -644,89 +817,6 @@ sw $t1, -12($fp)
 addiu $sp, $sp, 16
 jr $ra
 
-
-function_compare_Main:
-# Gets the params from the stack
-move $fp, $sp
-# Pops the register with the param value self
-addiu $fp, $fp, 4
-# Pops the register with the param value a
-addiu $fp, $fp, 4
-# Gets the frame pointer from the stack
-# Updates stack pointer pushing local_compare_Main_internal_0 to the stack
-addiu $sp, $sp, -4
-# Updates stack pointer pushing local_compare_Main_internal_1 to the stack
-addiu $sp, $sp, -4
-# Updates stack pointer pushing local_compare_Main_internal_2 to the stack
-addiu $sp, $sp, -4
-lw $t0, -12($fp)
-# Saves in local_compare_Main_internal_1 data_1
-la $t0, data_1
-lw $t1, -0($fp)
-lw $t2, -8($fp)
-# local_compare_Main_internal_0 <- a = local_compare_Main_internal_1
-move $t8, $t1
-move $t9, $t0
-loop_5:
-lb $a0, ($t8)
-lb $a1, ($t9)
-beqz $a0, check_5
-beqz $a1, mismatch_5
-seq $v0, $a0, $a1
-beqz $v0, mismatch_5
-addi $t8, $t8, 1
-addi $t9, $t9, 1
-j loop_5
-mismatch_5:
-li $v0, 0
-j end_5
-check_5:
-bnez $a1, mismatch_5
-li $v0, 1
-end_5:
-move $t2, $v0
-lw $t3, -4($fp)
-lw $t4, -16($fp)
-# Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
-lw $t9, 8($t3)
-# Saves in t8 the direction of function_out_int_IO
-lw $t8, 16($t9)
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-sw $t2, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-sw $t3, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -12($fp)
-sw $t1, -0($fp)
-sw $t2, -8($fp)
-sw $t3, -4($fp)
-sw $t4, -16($fp)
-# This function will consume the arguments
-jal $t8
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
-lw $t0, -16($fp)
-# saves the return value
-move $t0, $v0
-move $v0, $t0
-# Empty all used registers and saves them to memory
-sw $t0, -16($fp)
-# Removing all locals from stack
-addiu $sp, $sp, 20
-jr $ra
-
 # Raise exception method
 .raise:
 li $v0, 4
@@ -745,9 +835,7 @@ type_Main: .asciiz "Main"
 type_Void: .asciiz "Void"
 types: .word 0, 0, 0, 0, 0, 0
 data_0: .asciiz "Void"
-data_1: .asciiz "a"
-methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-local_main_Main_internal_0_0: .space 536
+methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 zero_error: .asciiz "Division by zero error
 "
 case_void_error: .asciiz "Case on void error

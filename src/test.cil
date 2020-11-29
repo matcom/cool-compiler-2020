@@ -1,0 +1,450 @@
+.TYPES
+type Object {
+	
+
+	method abort: function_abort_Object
+	method type_name: function_type_name_Object
+	method copy: function_copy_Object
+}
+type IO {
+	
+
+	method abort: function_abort_Object
+	method type_name: function_type_name_Object
+	method copy: function_copy_Object
+	method out_string: function_out_string_IO
+	method out_int: function_out_int_IO
+	method in_int: function_in_int_IO
+	method in_string: function_in_string_IO
+}
+type String {
+	
+
+	method length: function_length_String
+	method concat: function_concat_String
+	method substr: function_substr_String
+	method abort: function_abort_Object
+	method type_name: function_type_name_String
+	method copy: function_copy_String
+}
+type Int {
+	
+
+	method abort: function_abort_Object
+	method type_name: function_type_name_Int
+	method copy: function_copy_Int
+}
+type Bool {
+	
+
+	method abort: function_abort_Object
+	method type_name: function_type_name_Bool
+	method copy: function_copy_Bool
+}
+type List {
+	
+
+	method abort: function_abort_Object
+	method type_name: function_type_name_Object
+	method copy: function_copy_Object
+	method isNil: function_isNil_List
+	method head: function_head_List
+	method tail: function_tail_List
+	method cons: function_cons_List
+}
+type Cons {
+	attribute car: attribute_car_Cons
+	attribute cdr: attribute_cdr_Cons
+
+	method abort: function_abort_Object
+	method type_name: function_type_name_Object
+	method copy: function_copy_Object
+	method isNil: function_isNil_Cons
+	method head: function_head_Cons
+	method tail: function_tail_Cons
+	method cons: function_cons_List
+	method init: function_init_Cons
+	method Cons: function_Cons_Cons
+}
+type Main {
+	attribute mylist: attribute_mylist_Main
+
+	method abort: function_abort_Object
+	method type_name: function_type_name_Object
+	method copy: function_copy_Object
+	method out_string: function_out_string_IO
+	method out_int: function_out_int_IO
+	method in_string: function_in_string_IO
+	method in_int: function_in_int_IO
+	method print_list: function_print_list_Main
+	method main: function_main_Main
+	method Main: function_Main_Main
+}
+
+.DATA
+data_0 = "Void"
+data_1 = " "
+data_2 = "
+"
+
+.CODE
+function entry {
+	
+
+	LOCAL local__internal_0
+	LOCAL local__internal_1
+
+	local__internal_0 = ALLOCATE Main
+	ARG local__internal_0
+	None = CALL Main
+	ARG local__internal_0
+	local__internal_1 = CALL main
+	RETURN 0
+}
+function function_abort_Object {
+	PARAM self
+
+	LOCAL local_abort_Object_self_0
+
+	local_abort_Object_self_0 = self
+	EXIT 0
+	RETURN local_abort_Object_self_0
+}
+function function_type_name_Object {
+	PARAM self
+
+	LOCAL local_type_name_Object_result_0
+
+	local_type_name_Object_result_0 = TYPEOF self
+	RETURN local_type_name_Object_result_0
+}
+function function_copy_Object {
+	PARAM self
+
+	LOCAL local_copy_Object_result_0
+
+	local_copy_Object_result_0 = COPY self
+	RETURN local_copy_Object_result_0
+}
+function function_out_string_IO {
+	PARAM self
+	PARAM word
+
+	LOCAL local_out_string_String_self_0
+
+	local_out_string_String_self_0 = self
+	OUT_STR word
+	RETURN local_out_string_String_self_0
+}
+function function_out_int_IO {
+	PARAM self
+	PARAM number
+
+	LOCAL local_out_int_IO_self_0
+
+	local_out_int_IO_self_0 = self
+	OUT_INT number
+	RETURN local_out_int_IO_self_0
+}
+function function_in_int_IO {
+	PARAM self
+
+	LOCAL local_in_int_IO_result_0
+
+	local_in_int_IO_result_0 = READ_INT
+	RETURN local_in_int_IO_result_0
+}
+function function_in_string_IO {
+	PARAM self
+
+	LOCAL local_in_string_IO_result_0
+
+	local_in_string_IO_result_0 = READ_STR
+	RETURN local_in_string_IO_result_0
+}
+function function_length_String {
+	PARAM self
+
+	LOCAL local_length_String_result_0
+
+	local_length_String_result_0 = LENGTH self
+	RETURN local_length_String_result_0
+}
+function function_concat_String {
+	PARAM self
+	PARAM word
+
+	LOCAL local_concat_String_result_0
+
+	local_concat_String_result_0 = CONCAT self word
+	RETURN local_concat_String_result_0
+}
+function function_substr_String {
+	PARAM self
+	PARAM begin
+	PARAM end
+
+	LOCAL local_substr_String_result_0
+
+	local_substr_String_result_0 = SUBSTRING self begin end
+	RETURN local_substr_String_result_0
+}
+function function_type_name_String {
+	PARAM self
+
+	LOCAL local_type_name_String_result_0
+
+	local_type_name_String_result_0 = LOAD type_String
+	RETURN local_type_name_String_result_0
+}
+function function_copy_String {
+	PARAM self
+
+	LOCAL local_copy_String_result_0
+	LOCAL local_copy_String_result_1
+	LOCAL local_copy_String_result_2
+
+	local_copy_String_result_1 = LENGTH self
+	local_copy_String_result_2 = local_copy_String_result_1 - 1
+	local_copy_String_result_0 = SUBSTRING self 0 local_copy_String_result_2
+	RETURN local_copy_String_result_0
+}
+function function_type_name_Int {
+	PARAM self
+
+	LOCAL local_type_name_Int_result_0
+
+	local_type_name_Int_result_0 = LOAD type_Int
+	RETURN local_type_name_Int_result_0
+}
+function function_copy_Int {
+	PARAM self
+
+	LOCAL local_copy_Int_result_0
+
+	local_copy_Int_result_0 = self
+	RETURN local_copy_Int_result_0
+}
+function function_type_name_Bool {
+	PARAM self
+
+	LOCAL local_type_name_Bool_result_0
+
+	local_type_name_Bool_result_0 = LOAD type_Bool
+	RETURN local_type_name_Bool_result_0
+}
+function function_copy_Bool {
+	PARAM self
+
+	LOCAL local_copy_result_Bool_0
+
+	local_copy_result_Bool_0 = self
+	RETURN local_copy_result_Bool_0
+}
+function function_isNil_List {
+	PARAM self
+
+	
+
+	RETURN 1
+}
+function function_head_List {
+	PARAM self
+
+	LOCAL local_head_List_internal_0
+	LOCAL local_head_List_internal_1
+
+	ARG self
+	local_head_List_internal_0 = VCALL List abort
+	local_head_List_internal_1 = 0
+	RETURN local_head_List_internal_1
+}
+function function_tail_List {
+	PARAM self
+
+	LOCAL local_tail_List_internal_0
+	LOCAL local_tail_List_internal_1
+
+	ARG self
+	local_tail_List_internal_0 = VCALL List abort
+	local_tail_List_internal_1 = self
+	RETURN local_tail_List_internal_1
+}
+function function_cons_List {
+	PARAM self
+	PARAM i
+
+	LOCAL local_cons_List_internal_0
+	LOCAL local_cons_List_internal_1
+
+	local_cons_List_internal_0 = ALLOCATE Cons
+	ARG local_cons_List_internal_0
+	local_cons_List_internal_0 = CALL Cons
+	ARG local_cons_List_internal_0
+	ARG i
+	ARG self
+	local_cons_List_internal_1 = VCALL Cons init
+	RETURN local_cons_List_internal_1
+}
+function function_Cons_Cons {
+	PARAM self
+
+	LOCAL local_Cons_Cons_cdr_0
+	LOCAL local_Cons_Cons_internal_1
+
+	SETATTR self car = 0
+	local_Cons_Cons_cdr_0 = Void
+	SETATTR self cdr = local_Cons_Cons_cdr_0
+	local_Cons_Cons_internal_1 = self
+	RETURN local_Cons_Cons_internal_1
+}
+function function_isNil_Cons {
+	PARAM self
+
+	
+
+	RETURN 0
+}
+function function_head_Cons {
+	PARAM self
+
+	LOCAL local_head_Cons_car_0
+
+	local_head_Cons_car_0 = GETATTR self car
+	RETURN local_head_Cons_car_0
+}
+function function_tail_Cons {
+	PARAM self
+
+	LOCAL local_tail_Cons_cdr_0
+
+	local_tail_Cons_cdr_0 = GETATTR self cdr
+	RETURN local_tail_Cons_cdr_0
+}
+function function_init_Cons {
+	PARAM self
+	PARAM i
+	PARAM rest
+
+	LOCAL local_init_Cons_internal_0
+
+	SETATTR self car = i
+	SETATTR self cdr = rest
+	local_init_Cons_internal_0 = self
+	RETURN local_init_Cons_internal_0
+}
+function function_Main_Main {
+	PARAM self
+
+	LOCAL local_Main_Main_mylist_0
+	LOCAL local_Main_Main_internal_1
+
+	local_Main_Main_mylist_0 = Void
+	SETATTR self mylist = local_Main_Main_mylist_0
+	local_Main_Main_internal_1 = self
+	RETURN local_Main_Main_internal_1
+}
+function function_print_list_Main {
+	PARAM self
+	PARAM l
+
+	LOCAL local_print_list_Main_internal_0
+	LOCAL local_print_list_Main_internal_1
+	LOCAL local_print_list_Main_internal_2
+	LOCAL local_print_list_Main_internal_3
+	LOCAL local_print_list_Main_internal_4
+	LOCAL local_print_list_Main_internal_5
+	LOCAL local_print_list_Main_internal_6
+	LOCAL local_print_list_Main_internal_7
+	LOCAL local_print_list_Main_internal_8
+	LOCAL local_print_list_Main_internal_9
+	LOCAL local_print_list_Main_internal_10
+
+	ARG l
+	local_print_list_Main_internal_0 = VCALL List isNil
+	IF local_print_list_Main_internal_0 GOTO true__115
+	ARG l
+	local_print_list_Main_internal_2 = VCALL List head
+	ARG self
+	ARG local_print_list_Main_internal_2
+	local_print_list_Main_internal_3 = VCALL Main out_int
+	local_print_list_Main_internal_4 = LOAD data_1
+	ARG self
+	ARG local_print_list_Main_internal_4
+	local_print_list_Main_internal_5 = VCALL Main out_string
+	ARG l
+	local_print_list_Main_internal_6 = VCALL List tail
+	ARG self
+	ARG local_print_list_Main_internal_6
+	local_print_list_Main_internal_7 = VCALL Main print_list
+	local_print_list_Main_internal_8 = local_print_list_Main_internal_7
+	local_print_list_Main_internal_1 = local_print_list_Main_internal_8
+	GOTO end__115
+	LABEL true__115
+	local_print_list_Main_internal_9 = LOAD data_2
+	ARG self
+	ARG local_print_list_Main_internal_9
+	local_print_list_Main_internal_10 = VCALL Main out_string
+	local_print_list_Main_internal_1 = local_print_list_Main_internal_10
+	LABEL end__115
+	RETURN local_print_list_Main_internal_1
+}
+function function_main_Main {
+	PARAM self
+
+	LOCAL local_main_Main_internal_0
+	LOCAL local_main_Main_internal_1
+	LOCAL local_main_Main_internal_2
+	LOCAL local_main_Main_internal_3
+	LOCAL local_main_Main_internal_4
+	LOCAL local_main_Main_internal_5
+	LOCAL local_main_Main_internal_6
+	LOCAL local_main_Main_internal_7
+	LOCAL local_main_Main_mylist_8
+	LOCAL local_main_Main_internal_9
+	LOCAL local_main_Main_mylist_10
+	LOCAL local_main_Main_internal_11
+	LOCAL local_main_Main_mylist_12
+	LOCAL local_main_Main_internal_13
+	LOCAL local_main_Main_internal_14
+	LOCAL local_main_Main_internal_15
+
+	local_main_Main_internal_0 = ALLOCATE List
+	ARG local_main_Main_internal_0
+	ARG 1
+	local_main_Main_internal_1 = VCALL List cons
+	ARG local_main_Main_internal_1
+	ARG 2
+	local_main_Main_internal_2 = VCALL List cons
+	ARG local_main_Main_internal_2
+	ARG 3
+	local_main_Main_internal_3 = VCALL List cons
+	ARG local_main_Main_internal_3
+	ARG 4
+	local_main_Main_internal_4 = VCALL List cons
+	ARG local_main_Main_internal_4
+	ARG 5
+	local_main_Main_internal_5 = VCALL List cons
+	SETATTR self mylist = local_main_Main_internal_5
+	local_main_Main_internal_6 = Void
+	LABEL start__174
+	local_main_Main_mylist_8 = GETATTR self mylist
+	ARG local_main_Main_mylist_8
+	local_main_Main_internal_9 = VCALL List isNil
+	local_main_Main_internal_7 = NOT local_main_Main_internal_9
+	IF NOT local_main_Main_internal_7 GOTO end__174
+	local_main_Main_mylist_10 = GETATTR self mylist
+	ARG self
+	ARG local_main_Main_mylist_10
+	local_main_Main_internal_11 = VCALL Main print_list
+	local_main_Main_mylist_12 = GETATTR self mylist
+	ARG local_main_Main_mylist_12
+	local_main_Main_internal_13 = VCALL List tail
+	SETATTR self mylist = local_main_Main_internal_13
+	local_main_Main_internal_14 = local_main_Main_internal_13
+	local_main_Main_internal_6 = local_main_Main_internal_14
+	GOTO start__174
+	LABEL end__174
+	local_main_Main_internal_15 = local_main_Main_internal_6
+	RETURN local_main_Main_internal_15
+}

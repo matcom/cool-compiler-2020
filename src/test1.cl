@@ -1,10 +1,6 @@
 class Main inherits IO {
-	main(): IO { {
-		out_string(in_string());
+	main(): Object { {
+		out_int(34/10);
 	}
-	};
-
-	compare(a : String) : IO {
-		out_int(a = "a")
 	};
 };

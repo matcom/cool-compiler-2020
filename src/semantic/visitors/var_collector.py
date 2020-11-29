@@ -42,7 +42,7 @@ class VarCollector:
         for feat in node.features:
             if isinstance(feat, AttrDeclarationNode):
                 self.visit(feat, scope)
-        
+                
         for attr, _ in self.current_type.all_attributes():
             if scope.find_attribute(attr.name) is None:
                 scope.define_attribute(attr)
@@ -51,6 +51,7 @@ class VarCollector:
         for feat in node.features:
             if isinstance(feat, FuncDeclarationNode):
                 self.visit(feat, scope)
+        
 
 
     def _define_default_value(self, typex, node):

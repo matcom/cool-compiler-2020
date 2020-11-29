@@ -180,6 +180,15 @@ class BoolType(Type):
         self.methods = {}
         self.parent = None
         self.pos = pos
+        self.init_methods()
+
+    def init_methods(self):
+        self.define_method('abort', [], [], self)
+        self.define_method('type_name', [], [], StringType())
+        self.define_method('copy', [], [], SelfType())
+
+    def conforms_to(self, other):
+        return other.name == 'Object' or other.name == self.name
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, BoolType)
@@ -210,6 +219,15 @@ class IntType(Type):
         self.methods = {}
         self.parent = None
         self.pos = pos
+        self.init_methods()
+
+    def init_methods(self):
+        self.define_method('abort', [], [], self)
+        # self.define_method('type_name', [], [], Type('String', (0, 0)))
+        self.define_method('copy', [], [], SelfType())
+
+    def conforms_to(self, other):
+        return other.name == 'Object' or other.name == self.name
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, IntType)
@@ -228,9 +246,15 @@ class StringType(Type):
         self.init_methods()
 
     def init_methods(self):
+        self.define_method('abort', [], [], self)
+        self.define_method('type_name', [], [], self)
+        self.define_method('copy', [], [], SelfType())
         self.define_method('length', [], [], IntType())
         self.define_method('concat', ['s'], [self], self)
         self.define_method('substr', ['i', 'l'], [IntType(), IntType()], self)
+    
+    def conforms_to(self, other):
+        return other.name == 'Object' or other.name == self.name
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, StringType)
