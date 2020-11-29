@@ -108,7 +108,7 @@ En estas dos fases se emplearon las herramientas de construcción de compiladores
 
 PLY consta de dos módulos separados: \lstinline|lex.py| y \lstinline|yacc.py|. El primero se utiliza para dividir el texto de entrada en una colección de tokens especificados por una colección de reglas en forma de expresiones regulares(\textit{tokenización}), mientras que el segundo se utiliza para reconocer la sintaxis del lenguaje que se ha especificado en forma de gramática libre del contexto. Las dos herramientas están diseñadas para trabajar juntas.
 
-El módulo \lstinline|yacc.py| implementa la componente de \textit{parsing} de PLY teniendo como salida un árbol de sintaxis abstracta representativo del programa de entrada. Yacc utiliza la técnica de análisis sintáctico LR o \textit{shift-reduce}. Tanto lex como yacc proveen formas de manejar los errores lexicográficos  y sintácticos, que se determinan cuando fallan las reglas que les fueron definidas. Es importante señalar que tiene como requisito la especificación de la sintaxis en términos de una gramática BNF(notación de Backus-Naur). Esta notación es utilizada para expresar gramáticas libres del contexto. En \lstinline|grammar.md| se encuentra especificada la gramática utilizada en el proyecto.
+El módulo \lstinline|yacc.py| implementa la componente de \textit{parsing} de PLY teniendo como salida un árbol de sintaxis abstracta representativo del programa de entrada. Yacc utiliza la técnica de análisis sintáctico LR o \textit{shift-reduce}. Tanto lex como yacc proveen formas de manejar los errores lexicográficos y sintácticos, que se determinan cuando fallan las reglas que les fueron definidas. Es importante señalar que tiene como requisito la especificación de la sintaxis en términos de una gramática BNF(notación de Backus-Naur). Esta notación es utilizada para expresar gramáticas libres del contexto. En \lstinline|grammar.md| se encuentra especificada la gramática utilizada en el proyecto.
 
  El lexer y el parser del proyecto se encuentran implementados en los módulos \lstinline|lexer.py| y \lstinline|cparser.py| respectivamente, además \lstinline|ast_nodes.py| ofrece la jerarquía del AST de COOL propuesta.
 
@@ -117,7 +117,7 @@ El módulo \lstinline|yacc.py| implementa la componente de \textit{parsing} de PL
 \subsection{Análisis Semántico}
 Durante esta fase se analiza el cumplimiento de todos los predicados semánticos del lenguaje y, por tanto, el uso correcto de los tipos declarados. A continuación centraremos la atención en el problema de la verificación de dichos tipos.
 
-Primeramente tenemos que hacer un recorrido por todo el \textit{AST} para encontrar las definiciones de tipos, las cuales serán almacenadas en el concepto \lstinline|Context|. Esto lo haremos utilizando el patrón \textit{visitor}, el mismo será utilizado en las siguientes pasadas al \textit{AST}. Es importante conocer los nombres de las clases definidas de antemano , ya que podemos tener una declaración de un tipo $A$ con un atributo de tipo $B$, donde la declaración del tipo $B$ aparece luego de la de $A$. Con la clase \lstinline|TypeCollector| se logra crear un contexto inicial que solo contendrá los nombres de los tipos, por eso es que solo visita los nodos del \textit{AST} de tipo \lstinline|Program| y \lstinline|Class|.
+Primeramente tenemos que hacer un recorrido por todo el \textit{AST} para encontrar las definiciones de tipos, las cuales serán almacenadas en el concepto \lstinline|Context|. Esto lo haremos utilizando el patrón \textit{visitor}, el mismo será utilizado en las siguientes pasadas al \textit{AST}. Es importante conocer los nombres de las clases definidas de antemano, ya que podemos tener una declaración de un tipo $A$ con un atributo de tipo $B$, donde la declaración del tipo $B$ aparece luego de la de $A$. Con la clase \lstinline|TypeCollector| se logra crear un contexto inicial que solo contendrá los nombres de los tipos, por eso es que solo visita los nodos del \textit{AST} de tipo \lstinline|Program| y \lstinline|Class|.
 
 \begin{lstlisting}
 class TypeCollector(object):
@@ -190,17 +190,17 @@ En el m\'odulo \texttt{cil\_to\_mips.py} se encapsula el proceso de generar c\'o
 		\label{layouts}
 	\end{figure}
 	
-	En el cuadro que se encuentra en la parte derecha de la Figura \ref{layouts} se tiene c\'omo se van a organizar las funciones pertenecientes a una clase. Como se puede observar se va a seguir el mismo criterio de orden que en los atributos. La diferencia es que una clase puede redefinir las funciones heredadas y esto se va a reflejar como una sustituci\'on en el \textit{offset} que le corresponde a la funci\'on heredada,como se muestra en el ejemplo, que B redefine la funci\'on f y por tanto en ese \textit{offset} va a apuntar a su propia definici\'on, al contario que C que va apuntar a la definida por A.
+	En el cuadro que se encuentra en la parte derecha de la Figura \ref{layouts} se tiene c\'omo se van a organizar las funciones pertenecientes a una clase. Como se puede observar se va a seguir el mismo criterio de orden que en los atributos. La diferencia es que una clase puede redefinir las funciones heredadas y esto se va a reflejar como una sustituci\'on en el \textit{offset} que le corresponde a la funci\'on heredada, como se muestra en el ejemplo, que B redefine la funci\'on f y por tanto en ese \textit{offset} va a apuntar a su propia definici\'on, al contrario de C que va apuntar a la definida por A.
 	
-	Este dise\~no est\'a pensado para lograr el poliformismo en los objetos pues, tanto para atributos como funciones, siempre los heredados van a estar en el mismo \textit{offset} que en los ancestros, lo que beneficia que en los casos que un clase quiera sustituir a un ancestro sus atributos y funciones van a tener la misma forma de buscarse.   	
+	Este dise\~no est\'a pensado para lograr el polimorfismo en los objetos pues, tanto para atributos como funciones, siempre los heredados van a estar en el mismo \textit{offset} que en los ancestros, lo que beneficia que en los casos que un clase quiera sustituir a un ancestro sus atributos y funciones van a tener la misma forma de buscarse. 	
 
 	En el caso de las clases \textit{built-in} tambi\'en se va a hacer uso del dise\~no explicado y los valores de estas van a estar almacenados como un atributo. El valor \texttt{void} va a estar representado como una direcci\'on est\'atica en memoria.
 
 	\item \textbf{Funciones}
 	
-	La forma en que se resuelven los llamados a funciones incluye otros de los convenios utilizados. Uno de los principales problemas a resolver fue d\'onde se iban a almacenar los par\'ametros que recibe una funci\'on. Para esto se decidi\'o hacer uso de la pila,  de forma que cuando se ejecuta la primera instrucci\'on de una funci\'on los par\'ametros van a estar colocados en la pila en orden contrario al que fueron declarados y se podr\'a acceder a ellos usando como referencia el registro \texttt{\$sp}. 
+	La forma en que se resuelven los llamados a funciones incluye otros de los convenios utilizados. Uno de los principales problemas a resolver fue d\'onde se iban a almacenar los par\'ametros que recibe una funci\'on. Para esto se decidi\'o hacer uso de la pila, de forma que cuando se ejecuta la primera instrucci\'on de una funci\'on los par\'ametros van a estar colocados en la pila en orden contrario al que fueron declarados y se podr\'a acceder a ellos usando como referencia el registro \texttt{\$sp}. 
 	
-	Otra situaci\'on a resolver es que para llevar a cabo cualquier operaci\'on es necesario almacenar valores temporales, que denominaremos \textit{locals} de una funci\'on. Estos valores tambi\'en van a estar almacenados en la pila. Desde CIL se tiene conocimiento de cu\'antos \textit{locals} se van a necesitar y lo primero que va a hacer una funci\'on es "salvar"  \ espacio en la pila para guardarlos y se va a tener conocimiento del \textit{offset} que va a corresponder a cada \textit{local} que tambi\'en van a ser referenciados usando \texttt{\$sp}.
+	Otra situaci\'on a resolver es que para llevar a cabo cualquier operaci\'on es necesario almacenar valores temporales, que denominaremos \textit{locals} de una funci\'on. Estos valores tambi\'en van a estar almacenados en la pila. Desde CIL se tiene conocimiento de cu\'antos \textit{locals} se van a necesitar y lo primero que va a hacer una funci\'on es "salvar" \ espacio en la pila para guardarlos y se va a tener conocimiento del \textit{offset} que va a corresponder a cada \textit{local} que tambi\'en van a ser referenciados usando \texttt{\$sp}.
 	
 	Al final de la ejecuci\'on de una funci\'on el valor que esta retorna se va a almacenar siempre en el registro \texttt{\$a1}. Por \'ultimo la funci\'on se encarga de sacar de la pila tanto los \textit{locals} como los par\'ametros.
 	
@@ -228,9 +228,6 @@ Uno de los problemas m\'as interesantes que se present\'o fue la implementaci\'o
 
 \section{Uso del compilador}
 
-Cómo se ejecuta
-
-
-
+Para usar el compilador es necesario tener instalado Python 3.7 o superior. Como requisito est\'a el paquete ply el cual puede ser instalado usando pip. Si se quiere hacer uso de los tests autom\'aticos adem\'as de PLY es necesario instalar pytest y pytest-ordering. Todos los requerimientos pueden ser instalados ejecutando \texttt{python -m pip install -r requeriments.txt} desde la ra\'iz del proyecto. El m\'odulo que contiene toda la l\'ogica del compilador es \texttt{cil\_to\_mips.py}. Para utilizarlo el path relativo a \texttt{cil\_to\_mips.py} o un path absoluto de un fichero con c\'odigo fuente de COOL se debe pasar como argumento al m\'odulo, por ejemplo, ejecutar \texttt{python cil\_to\_mips.py <path>}. Un archivo en el mismo path del c\'odigo fuente ser\'a creado, con el mismo nombre, pero con extensi\'on .mips. Este fichero contendr\'a código MIPS con pseudo instrucciones y se puede probar en cualquier implementaci\'on del simulador SPIM, como por ejemplo, QtSpim.
 
 \end{document}
