@@ -96,26 +96,26 @@
 \tableofcontents
 \newpage
 
-\section{Introducción}
-COOL es un pequeño lenguaje orientado a objetos, con tipado estático, herencia simple, polimorfismo, recolección automática de basura y un sistema de tipos unificado. Admite control de flujo condicional e iterativo, además de la coincidencia de patrones. Todo en COOL es una expresión.
+%\section{Introducción}
+%COOL es un pequeño lenguaje orientado a objetos, con tipado estático, herencia simple, polimorfismo, recolección automática de basura y un sistema de tipos unificado. Admite control de flujo condicional e iterativo, además de la coincidencia de patrones. Todo en COOL es una expresión.
 
-El propósito de la asignatura Complementos de Compilación es desarrollar durante el curso un compilador para el lenguaje COOL que sea capaz de convertir programas escritos en Cool en programas escritos en MIPS.
+%El propósito de la asignatura Complementos de Compilación es desarrollar durante el curso un compilador para el lenguaje COOL que sea capaz de convertir programas escritos en Cool en programas escritos en MIPS.
 
 \section{Arquitectura del compilador}
-De manera general la estructura de nuestro compilador se divide en varios módulos, pertenecientes a cada una de las fases por las que atravesó la implementación del mismo. A continuación se explicarán las fases mencionadas y a su vez los módulos correspondientes.
+De manera general la estructura de nuestro compilador se divide en varios módulos, pertenecientes a cada una de las fases por las que atravesó la implementación del mismo. A continuación se explicarán las fases mencionadas y, a su vez, los módulos correspondientes.
 \subsection{Análisis Lexicográfico y Sintáctico}
 En estas dos fases se emplearon las herramientas de construcción de compiladores lex y yacc a través del paquete de \textit{Python} \lstinline|ply|. El mismo incluye la compatibilidad con el análisis sintáctico LALR(1), así como la validación de entrada, informes de errores y resulta ser bastante exigente con la especificación de reglas gramaticales y de tokens.
 
-PLY consta de dos módulos separados: \lstinline|lex.py| y \lstinline|yacc.py|. El primero se utiliza par dividir el texto de entrada en una colección de tokens especificados por una colección de reglas en forma de expresiones regulares(\textit{tokenización}), mientras que el segundo se utiliza para reconocer la sintaxis del lenguaje que se ha especificado en forma de gramática libre del contexto. Las dos herramientas están diseñadas para trabajar juntas.
+PLY consta de dos módulos separados: \lstinline|lex.py| y \lstinline|yacc.py|. El primero se utiliza para dividir el texto de entrada en una colección de tokens especificados por una colección de reglas en forma de expresiones regulares(\textit{tokenización}), mientras que el segundo se utiliza para reconocer la sintaxis del lenguaje que se ha especificado en forma de gramática libre del contexto. Las dos herramientas están diseñadas para trabajar juntas.
 
-El módulo \lstinline|yacc.py| implementa la componente de \textit{parsing} de PLY teniendo como salida un árbol de sintaxis abstracta representativo del programa de entrada. Yacc utiliza la técnica de análisis sintáctico LR o \textit{shift-reduce}. Es importante señalar que tiene como requisito la especificación de la sintaxis en términos de una gramática BNF(notación de Backus-Naur). Esta notación es utilizada para expresar gramáticas libres del contexto. En \lstinline|grammar.md| se encuentra especificada la gramática utilizada en el proyecto.
+El módulo \lstinline|yacc.py| implementa la componente de \textit{parsing} de PLY teniendo como salida un árbol de sintaxis abstracta representativo del programa de entrada. Yacc utiliza la técnica de análisis sintáctico LR o \textit{shift-reduce}. Tanto lex como yacc proveen formas de manejar los errores lexicográficos  y sintácticos, que se determinan cuando fallan las reglas que les fueron definidas. Es importante señalar que tiene como requisito la especificación de la sintaxis en términos de una gramática BNF(notación de Backus-Naur). Esta notación es utilizada para expresar gramáticas libres del contexto. En \lstinline|grammar.md| se encuentra especificada la gramática utilizada en el proyecto.
 
  El lexer y el parser del proyecto se encuentran implementados en los módulos \lstinline|lexer.py| y \lstinline|cparser.py| respectivamente, además \lstinline|ast_nodes.py| ofrece la jerarquía del AST de COOL propuesta.
 
 
 
 \subsection{Análisis Semántico}
-Durante esta fase se analiza el cumplimiento de todos los predicados semánticos del lenguaje, y por tanto, el uso correcto de los tipos declarados. A continuación centraremos la atención en el problema de la verificación de dichos tipos.
+Durante esta fase se analiza el cumplimiento de todos los predicados semánticos del lenguaje y, por tanto, el uso correcto de los tipos declarados. A continuación centraremos la atención en el problema de la verificación de dichos tipos.
 
 Primeramente tenemos que hacer un recorrido por todo el \textit{AST} para encontrar las definiciones de tipos, las cuales serán almacenadas en el concepto \lstinline|Context|. Esto lo haremos utilizando el patrón \textit{visitor}, el mismo será utilizado en las siguientes pasadas al \textit{AST}. Es importante conocer los nombres de las clases definidas de antemano , ya que podemos tener una declaración de un tipo $A$ con un atributo de tipo $B$, donde la declaración del tipo $B$ aparece luego de la de $A$. Con la clase \lstinline|TypeCollector| se logra crear un contexto inicial que solo contendrá los nombres de los tipos, por eso es que solo visita los nodos del \textit{AST} de tipo \lstinline|Program| y \lstinline|Class|.
 
@@ -162,15 +162,6 @@ El módulo correspondiente a la generación del código intermedio es \lstinline|co
 
  
 \subsubsection{MIPS}
-Puntualizar:
-
-.Object Layout
-
-.Polimorfismo
-
-.LLamado a funciones
-
-
 
 En el m\'odulo \texttt{cil\_to\_mips.py} se encapsula el proceso de generar c\'odigo MIPS. Se tiene la clase \texttt{CILToMIPSVisitor} que se encarga de recorrer el \textit{AST} de \textit{CIL} generado anteriormente.
 
@@ -178,8 +169,6 @@ En el m\'odulo \texttt{cil\_to\_mips.py} se encapsula el proceso de generar c\'o
 	
 	\item \textbf{Objetos}\\
 	A la hora de generar c\'odigo MIPS es necesario establecer ciertos convenios, y uno de los m\'as importantes es la forma en que se van a organizar los objetos en memoria. Para mostrar el dise\~no utilizado se va a hacer uso de las clases declaradas en la Figura \ref{classes}. 
-	
-	En la Figura \ref{layouts} a la izquierda se muestra como quedar\'ian dispuestos en memoria los objetos de tipo A, B y C definidos en la Figura \ref{classes}. Para cada objeto se va a tener que, a partir de su direcci\'on de memoria, en el \textit{offset} 0 se va a encontrar un tag que va a ser un n\'umero \'unico para cada clase. Este n\'umero se va a corresponder con el orden en que se visita cada clase en un recorrido de tipo \textit{DFS} sobre el \'arbol que representa la jerarqu\'ia de clases comenzando por la clase \texttt{Object} que siempre tendr\'ia tag 0. A continuaci\'on en el \textit{offset} 4 se tiene un puntero que apunta a una direcci\'on del segmento de datos donde se encuentra alamacenado el nombre de la clase. En el \textit{offset} 8 va a estar contenido un n\'umero que representa el tama\~no de la clase, lo cual se podr\'ia ver como cu\'antos cuadros ocupa. Le sigue en el \textit{offset} 12 un puntero que apunta a una direcci\'on donde van a estar dispuestas las funciones declaradas por la clase o heredadas, lo cual se puede apreciar en el cuadro que se muestra a la derecha y se explicar\'a con m\'as detalle luego. Por \'ultimo a partir del \textit{offset} 16 se van a encontrar el valor de los atributos declarados por la clase o heredados. Estos atributos van a aparecer en el orden en que fueron declarados, empezando por los pertenecientes al ancestro m\'as lejano hasta llegar a los declarados por la propia clase.
 	
 	\begin{figure}[h]
 		\centering
@@ -189,6 +178,8 @@ En el m\'odulo \texttt{cil\_to\_mips.py} se encapsula el proceso de generar c\'o
 		\caption{Declaraci\'on de clases de ejemplo en Cool.}
 		\label{classes}
 	\end{figure}
+	
+	En la Figura \ref{layouts} a la izquierda se muestra como quedar\'ian dispuestos en memoria los objetos de tipo A, B y C definidos en la Figura \ref{classes}. Para cada objeto se va a tener que, a partir de su direcci\'on de memoria, en el \textit{offset} 0 se va a encontrar un tag que va a ser un n\'umero \'unico para cada clase. Este n\'umero se va a corresponder con el orden en que se visita cada clase en un recorrido de tipo \textit{DFS} sobre el \'arbol que representa la jerarqu\'ia de clases comenzando por la clase \texttt{Object} que siempre tendr\'ia tag 0. A continuaci\'on en el \textit{offset} 4 se tiene un puntero que apunta a una direcci\'on del segmento de datos donde se encuentra alamacenado el nombre de la clase. En el \textit{offset} 8 va a estar contenido un n\'umero que representa el tama\~no de la clase, lo cual se podr\'ia ver como cu\'antos cuadros ocupa. Le sigue en el \textit{offset} 12 un puntero que apunta a una direcci\'on donde van a estar dispuestas las funciones declaradas por la clase o heredadas, lo cual se puede apreciar en el cuadro que se muestra a la derecha y se explicar\'a con m\'as detalle luego. Por \'ultimo a partir del \textit{offset} 16 se van a encontrar el valor de los atributos declarados por la clase o heredados. Estos atributos van a aparecer en el orden en que fueron declarados, empezando por los pertenecientes al ancestro m\'as lejano hasta llegar a los declarados por la propia clase.
 	
 	
 	\begin{figure}[h!]
@@ -222,14 +213,17 @@ En el m\'odulo \texttt{cil\_to\_mips.py} se encapsula el proceso de generar c\'o
 
 
 \section{Problemas técnicos}
+\subsection{Análisis Lexicográfico y Sintáctico}
+Durante la fase lexicográfica el mayor reto enfrentado fue la tokenizaci\'on de \textit{strings} y comentarios de m\'ultiples l\'ineas. Esto fue resuelto mediante el uso del concepto de estado que provee la herramienta \texttt{ply}. Cuando se detecta \texttt{"} o $\backslash \ast$ el lexer entra en un nuevo estado en el que solo se regir\'ia por las reglas definidas para dicho estado. Este comportamiento se mantendr\'ia hasta que se detecte \texttt{"} o $\ast \backslash$ y se regresa al procesamiento normal. En el caso de los comentarios se mantiene un contador de los $\backslash \ast$ encontrados para manejar los comentarios anidados.
+
+
+\subsection{Análisis Semántico}
 Mencionar quizás:
 
- . comentario múltiple
- 
- . herencia
- 
- . lowest commun ancestor
+. herencia
 
+. lowest commun ancestor
+\subsection{Generación de Código}
 Uno de los problemas m\'as interesantes que se present\'o fue la implementaci\'on de la funcionalidad que provee la expresi\'on \texttt{case}. Es necesario dado un tipo \texttt{T} determinar, en tiempo de ejecuci\'on, entre un conjunto de tipos $T_i, 1< i \leq n$ cu\'al es el menor tipo con el que \texttt{T} se conforma. Para resolver esto se le asign\'o a cada tipo un tag, el cual se va a corresponder con el orden en que se visita cada clase en un recorrido de tipo \textit{DFS} sobre el \'arbol que representa la jerarqu\'ia de clases comenzando por la clase \texttt{Object} que siempre tendr\'ia tag 0. Adem\'as cada tipo \texttt{T} va a saber cu\'al es el tipo con mayor tag \textit{max\_tag}(T) al que se puede llegar en un recorrido \textit{DFS} desde \'el. Por la forma en que est\'a definido el tag se puede decir que un tipo \texttt{T} se conforma con un tipo \texttt{A} si $\mathtt{tag_A \leq tag_T \leq \mathit{max\_tag}(\mathtt{A})}$. Por tanto si se chequean los tipos $T_i$ ordenados de mayor a menor seg\'un el tag el primero que cumpla dicha condici\'on va a ser el tipo buscado. 
 
 \section{Uso del compilador}
