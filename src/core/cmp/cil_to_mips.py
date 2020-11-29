@@ -356,14 +356,14 @@ class CILToMIPSVisitor:
             reg1 = self.memory_manager.get_reg_for_var(node.source)
             if reg1 is None:
                 reg1 = mips.ARG_REGISTERS[0]
-                instructions.append(LoadWordNode(reg1, self.get_var_location(node.source)))
+                instructions.append(mips.LoadWordNode(reg1, self.get_var_location(node.source)))
 
         #location = self.get_var_location(node.dest)
         #instructions.append(mips.StoreWordNode(reg2, location))
         #self.free_reg(reg)
         reg2 = self.memory_manager.get_reg_for_var(node.dest)
         if reg2 is None:
-            instructions.append(mips.StoreWordNode(reg1, self.get_var_locations(node.dest)))
+            instructions.append(mips.StoreWordNode(reg1, self.get_var_location(node.dest)))
         else:
             instructions.append(mips.MoveNode(reg2, reg1))
 
@@ -1477,7 +1477,13 @@ class RegistersAllocator:
 
     @staticmethod
     def interference_compute(gk, in_out):
-        neigs = defaultdict(set)
+        neigs = {}
+        for g, k in gk:
+            for v in g:
+                neigs[v] = set()
+            for v in k:
+                neigs[v] = set()
+
         for i,(_, k) in enumerate(gk):
             for v in k:
                 neigs[v].update(in_out[i][1])
