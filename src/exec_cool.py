@@ -7,7 +7,7 @@ from COOLToCILVisitor import *
 from CILtoMIPSVisitor import *
 import mips
 
-file = open("/home/hi/Desktop/cool-compiler-2020/src/test.cl", 'r')
+file = open("/media/karl/Datos/cool-compiler-2020/src/test.cl", 'r')
 cool_lexer = CoolLexer()
 errors_lexer = cool_lexer.tokenize(file.read())
 # errors_lexer = cool_lexer.tokenize('''''')

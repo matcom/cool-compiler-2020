@@ -337,7 +337,7 @@ class CILtoMIPSVisitor:
         else:
             self.register_instruction(MipsLINode('$t1', node.expression))
 
-        self.register_instruction(MipsAddiuNode('$t1', '$t1', 1))
+        #self.register_instruction(MipsAddiuNode('$t1', '$t1', 1))
         self.register_instruction(MipsNEGNode('$t1', '$t1'))
         self.register_instruction(MipsSWNode('$t1', pos_dest))
 
