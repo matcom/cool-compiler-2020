@@ -107,7 +107,9 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         instance = self.define_internal_local()
         result = self.define_internal_local()
         self.register_instruction(AllocateNode(instance, "Main"))
+        self.current_type = self.context.get_type("Main")
         self.init_class_attr(scope, "Main", instance)
+        self.current_type = None
         self.register_instruction(ArgNode(instance))
         self.register_instruction(
             StaticCallNode(self.to_function_name("main", "Main"), result)
@@ -157,17 +159,18 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         result = None
         if node.expression:
             result = self.visit(node.expression, scope)
-        elif typex in ["Int", "Bool", "String"]:
-            # print("------------------------------")
-            result = self.define_internal_local()
-            self.register_instruction(AllocateNode(result, typex))
-            self.register_instruction(SetAttribNode(result, "value", 0, typex))
+        # elif typex in ["Int", "Bool", "String"]:
+        #     # print("------------------------------")
+        #     result = self.define_internal_local()
+        #     self.register_instruction(AllocateNode(result, typex))
+        #     self.register_instruction(SetAttribNode(result, "value", 0, typex))
         else:
             result = self.define_internal_local()
             self.register_instruction(VoidNode(result))
             # self.register_instruction(PrintIntNode(result))
         self_inst = scope.get_var("self").local_name
         assert typex, f"AttrDeclarationNode: {typex}"
+        result = self.unpack_type_by_value(result, node.expression.static_type if node.expression else "Void")
         self.register_instruction(SetAttribNode(self_inst, node.id, result, typex))
 
     @when(cool.FuncDeclarationNode)
@@ -187,7 +190,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
 
         body = self.visit(node.expression, func_scope)
         # print(body, type(body), node.expression, "==================================")
-        body = self.unpack_type_by_value(body, node.expression.static_type)
         self.register_instruction(ReturnNode(body))
 
         self.current_method = self.current_function = None
@@ -368,7 +370,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             DynamicCallNode(self_inst, type_name, node.id, result)
         )
         self.register_instruction(CleanArgsNode(len(node.args) + 1))
-        self.pack_type_by_value(result, node.static_type)
         return result
 
     @when(cool.FunctionCallNode)
@@ -396,7 +397,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
                     result,
                 )
             )
-        result = self.pack_type_by_value(result, node.static_type)
         self.register_instruction(CleanArgsNode(len(node.args) + 1))
         return result
 
@@ -418,7 +418,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     @when(cool.NotNode)
     def visit(self, node: cool.NotNode, scope: Scope):  # noqa:F811
         value = self.visit(node.expression, scope)
-        value = self.unpack_type_by_value()
         one = self.define_internal_local()
         result = self.define_internal_local()
         self.register_instruction(AllocateNode(one, "Int"))
@@ -527,7 +526,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
                 GetAttribNode(pvar, selfx, node.token, self.current_type.name)
             )
             vattrbs = [
-                item for item in self.current_type.attributes if item.name == node.token
+                item for item in self.current_type.get_all_attributes() if item.name == node.token
             ]
             assert vattrbs, "IdNode: attributes is empty"
             vattr: Attribute = vattrbs[0]
