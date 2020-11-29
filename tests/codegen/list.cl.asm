@@ -1,4 +1,5 @@
 .data
+StringAbort: .asciiz "Abort called from class String\n"
 st0: .asciiz "Object"
 st1: .asciiz "List"
 st2: .asciiz "IO"
@@ -164,6 +165,9 @@ syscall
      jr $ra
 
      .Object.abort:
+     li $v0, 4
+     la $a0, StringAbort
+     syscall
      li $v0, 10
      syscall
      jr $ra

@@ -136,6 +136,9 @@
      jr $ra
 
      .Object.abort:
+     li $v0, 4
+     la $a0, StringAbort
+     syscall
      li $v0, 10
      syscall
      jr $ra
