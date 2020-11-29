@@ -347,13 +347,12 @@ class CILToMIPSVisitor():
         self.text += f'li $v0, 8\n'
         self.text += f'syscall\n'
 
-        # Remove last char (it should be a '\n')
+        # Remove last chars (if they are '\n' or '\r\n')
         self.text += 'move $t0, $a0\n'
         self.text += 'jump_read_str_char:\n'
         self.text += 'li $t1, 0\n'
         self.text += 'lb $t1, 0($t0)\n'
         self.text += 'beqz $t1, analize_str_end\n' # finish if the final of string is found
-        self.text += 'addi $t0, $t0, 1\n'
         self.text += 'addi $t0, $t0, 1\n'
         self.text += 'j jump_read_str_char\n'
 
@@ -361,10 +360,14 @@ class CILToMIPSVisitor():
         self.text += 'addi $t0, $t0, -1\n' # go to char at length - 1
         self.text += 'li $t1, 0\n'
         self.text += 'lb $t1, 0($t0)\n'
-        self.text += 'bne $t1, 10, finish_jump_read_str_char\n' # remove last char only if it is '\n'
-        self.text += 'sb $0, 0($t0)\n' # remove last char
+        self.text += 'bne $t1, 10, finish_jump_read_str_char\n' # remove char only if it is '\n'
+        self.text += 'sb $0, 0($t0)\n' # remove '\r\n'
+        self.text += 'addi $t0, $t0, -1\n' # go to char at length - 2
+        self.text += 'lb $t1, 0($t0)\n'
+        self.text += 'bne $t1, 13, finish_jump_read_str_char\n' # remove char only if it is '\r'
+        self.text += 'sb $0, 0($t0)\n' # remove '\r\n'
+        self.text += 'j analize_str_end\n'
         self.text += 'finish_jump_read_str_char:\n'
-        
 
         self.text += f'sw $a0, {read_offset}($sp)\n'
 
