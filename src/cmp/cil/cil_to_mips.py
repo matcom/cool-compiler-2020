@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from ..cool_lang.semantics.semantic_utils import Attribute, Context, Type
+from ..cool_lang.semantics.semantic_utils import Context
 from .ast import (
     AllocateNode,
     ArgNode,
