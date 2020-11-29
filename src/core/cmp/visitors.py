@@ -269,7 +269,7 @@ class TypeBuilder:
             tmethod = self.methods['Main']['main']
             if method.param_names:
                 self.errors.append((SemanticError('Method "main" must takes no formal parameters'), tmethod))
-        except SemanticError:
+        except TypeError:
             self.errors.append((SemanticError('No definition for class "Main"'), empty_token))
         except KeyError:
             self.errors.append((SemanticError('Class "Main" must have a method "main"'), main_token))         
