@@ -159,17 +159,18 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         result = None
         if node.expression:
             result = self.visit(node.expression, scope)
-        elif typex in ["Int", "Bool", "String"]:
-            # print("------------------------------")
-            result = self.define_internal_local()
-            self.register_instruction(AllocateNode(result, typex))
-            self.register_instruction(SetAttribNode(result, "value", 0, typex))
+        # elif typex in ["Int", "Bool", "String"]:
+        #     # print("------------------------------")
+        #     result = self.define_internal_local()
+        #     self.register_instruction(AllocateNode(result, typex))
+        #     self.register_instruction(SetAttribNode(result, "value", 0, typex))
         else:
             result = self.define_internal_local()
             self.register_instruction(VoidNode(result))
             # self.register_instruction(PrintIntNode(result))
         self_inst = scope.get_var("self").local_name
         assert typex, f"AttrDeclarationNode: {typex}"
+        result = self.unpack_type_by_value(result, node.expression.static_type if node.expression else None)
         self.register_instruction(SetAttribNode(self_inst, node.id, result, typex))
 
     @when(cool.FuncDeclarationNode)
