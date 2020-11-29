@@ -6,9 +6,8 @@ COMPILER_TIMEOUT = 'El compilador tarda mucho en responder.'
 SPIM_TIMEOUT = 'El spim tarda mucho en responder.'
 TEST_MUST_FAIL = 'El test %s debe fallar al compilar'
 TEST_MUST_COMPILE = 'El test %s debe compilar'
-# BAD_ERROR_FORMAT = '''El error no esta en formato: (<línea>,<columna>) - <tipo_de_error>: <texto_del_error>
-#                        o no se encuentra en la 3ra linea\n\n%s'''
-BAD_ERROR_FORMAT = '''El error no esta en formato: [%s]'''
+BAD_ERROR_FORMAT = '''El error no esta en formato: (<línea>,<columna>) - <tipo_de_error>: <texto_del_error>
+                       o no se encuentra en la 3ra linea\n\n%s'''
 UNEXPECTED_ERROR = 'Se esperaba un %s en (%d, %d). Su error fue un %s en (%d, %d)'
 UNEXPECTED_OUTPUT = 'La salida de %s no es la esperada:\n%s\nEsperada:\n%s'
 

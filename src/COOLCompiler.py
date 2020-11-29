@@ -6,11 +6,9 @@ from COOLLexer import COOLLexer
 from COOLLexerErrorListener import COOLLexerErrorListener
 from COOLParser import COOLParser
 from COOLParserErrorListener import COOLParserErrorListener
-from COOLListener import COOLListener
 from Visitors import  TypeCOOLVisitor
 from Visitors import  SemanticCOOLVisitor
 from Visitors import CodegenVisitor
-from collections import deque
 from NoTabsFileStream import NoTabsFileStream
 
 
