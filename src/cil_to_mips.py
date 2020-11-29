@@ -352,14 +352,19 @@ class CILToMIPSVisitor():
         self.text += 'jump_read_str_char:\n'
         self.text += 'li $t1, 0\n'
         self.text += 'lb $t1, 0($t0)\n'
-        self.text += 'beqz $t1, finish_jump_read_str_char\n' # finish if the final of string is found
+        self.text += 'beqz $t1, analize_str_end\n' # finish if the final of string is found
         self.text += 'addi $t0, $t0, 1\n'
         self.text += 'addi $t0, $t0, 1\n'
         self.text += 'j jump_read_str_char\n'
 
-        self.text += 'finish_jump_read_str_char:\n'
+        self.text += 'analize_str_end:\n'
         self.text += 'addi $t0, $t0, -1\n' # go to char at length - 1
+        self.text += 'li $t1, 0\n'
+        self.text += 'lb $t1, 0($t0)\n'
+        self.text += 'bne $t1, 10, finish_jump_read_str_char\n' # remove last char only if it is '\n'
         self.text += 'sb $0, 0($t0)\n' # remove last char
+        self.text += 'finish_jump_read_str_char:\n'
+        
 
         self.text += f'sw $a0, {read_offset}($sp)\n'
 
