@@ -341,13 +341,16 @@ def setattr_to_mips_visitor(setattr: cil.SetAttrNode):
         lw  $t1, [addr(y)]
         sw  $t0, [attr_shift($t1)]
     """
-
-    x_addr = CURRENT_FUNCTION.offset[str(setattr.val)]
+    code=[mips.Comment(str(setattr))]
+    if isinstance(setattr.val ,int):
+        code.append(mips.LiInstruction('$t0', setattr.val))
+    else:
+        x_addr = CURRENT_FUNCTION.offset[str(setattr.val)]
+        mips.LwInstruction('$t0', f'{x_addr}($fp)'),
+        
     y_addr = CURRENT_FUNCTION.offset[str(setattr.obj)]
     attr_shift = (setattr.attr_index + 1) * 4
-    return [
-        mips.Comment(str(setattr)),
-        mips.LwInstruction('$t0', f'{x_addr}($fp)'),
+    return code + [
         mips.LwInstruction('$t1', f'{y_addr}($fp)'),
         mips.SwInstruction('$t0', f'{attr_shift}($t1)')
     ]
@@ -510,10 +513,10 @@ def less_to_mips_visitor(less: cil.LessNode):
     z_addr = CURRENT_FUNCTION.offset[str(less.right)]
     return [
         mips.Comment(str(less)),
-        mips.LwInstruction('$t1', f'{y_offset}($fp)'),
-        mips.LwInstruction('$t2', f'{z_offset}($fp)'),
+        mips.LwInstruction('$t1', f'{x_addr}($fp)'),
+        mips.LwInstruction('$t2', f'{z_addr}($fp)'),
         mips.SleInstruction('$t0', '$t1', '$t2'),
-        mips.SwInstruction('$t0', f'{y_offset}($fp)')
+        mips.SwInstruction('$t0', f'{y_addr}($fp)')
     ]
 
 

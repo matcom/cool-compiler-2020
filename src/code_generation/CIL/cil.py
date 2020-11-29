@@ -269,7 +269,7 @@ def assign_to_cil_visitor(assign):
     if assign.id in __ATTR__[__CURRENT_TYPE__]:
         index = __ATTR__[__CURRENT_TYPE__].index(assign.id)
         body = expr.body + \
-            [CilAST.SetAttrNode('self', assign.id, expr.value, index)]
+            [CilAST.SetAttrNode('self', assign.id, expr.value, index+2)]
         return CIL_block(body, expr.value)
     else:
         val = add_local(assign.id)
@@ -380,7 +380,7 @@ def id_to_cil_visitor(id):
     if id.id in __ATTR__[__CURRENT_TYPE__]:
         result = add_local()
         index = __ATTR__[__CURRENT_TYPE__].index(id.id)
-        return CIL_block([CilAST.GetAttrNode('self', id.id, result, index)], result)
+        return CIL_block([CilAST.GetAttrNode('self', id.id, result, index+2)], result)
     try:
         val = __LOCALS__[id.id]
         return CIL_block([], val)
@@ -411,17 +411,17 @@ def new_to_cil_visitor(new_node):
     body.append(CilAST.LoadNode(t_data, t_local))
     body.append(CilAST.SetAttrNode(value, '@type', t_local))
     body.append(CilAST.AssignNode(size_local, (len(init_attr)+2)*4))
-    body.append(CilAST.SetAttrNode(value, '@size', size_local))
+    body.append(CilAST.SetAttrNode(value, '@size', size_local, 1))
 
     old_current_type = __CURRENT_TYPE__
     __CURRENT_TYPE__ = new_node.type
-    for index, attr in enumerate(init_attr):
+    for index, attr in enumerate(init_attr, 2):
         if attr.expression:
             attr_cil = expression_to_cil_visitor(
                 attr.expression)
             body += attr_cil.body
             body.append(CilAST.SetAttrNode(
-                value, attr.id, attr_cil.value, index+2))
+                value, attr.id, attr_cil.value, index))
     __CURRENT_TYPE__ = old_current_type
     return CIL_block(body, value)
 
