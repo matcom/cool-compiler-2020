@@ -289,8 +289,8 @@ special_term %= term + div  + unary_expr, lambda h, s: DivNode(s[1], s[3], s[2])
 special_term %= unary_expr, lambda h, s: s[1]
 
 # <unary>
-unary_expr %= isvoid + unary_expr, lambda h, s: IsVoidNode(s[1], s[3], s[2])
-unary_expr %= compl  + unary_expr, lambda h, s: ComplementNode(s[1], s[3], s[2])
+unary_expr %= isvoid + unary_expr, lambda h, s: IsVoidNode(s[2], s[1])
+unary_expr %= compl  + unary_expr, lambda h, s: ComplementNode(s[2], s[1])
 unary_expr %= final_expr, lambda h, s: s[1]
 
 # <final>
