@@ -49,6 +49,7 @@ class MIPSFunction:
 
         self.args_count = 0
         self.offset = {}
+        self.args_code = []
 
         self.init_instructions.append(MoveInstruction('$fp', '$sp'))
 
