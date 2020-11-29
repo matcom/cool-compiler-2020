@@ -1,7 +1,5 @@
 from typing import Dict, List
 
-from cmp.cool_lang import semantics
-
 from ..cool_lang.semantics.semantic_utils import Attribute, Context, Type
 from .ast import (
     AllocateNode,
@@ -79,7 +77,7 @@ class CIL_TO_MIPS(object):
         self.mips.push(Reg.a0)
         self.mips.push(Reg.v0)
 
-        data_label = self.get_label
+        data_label = self.get_label()
 
         self.mips.data_label(data_label)
         self.mips.asciiz(msg)
@@ -254,7 +252,7 @@ class CIL_TO_MIPS(object):
         self.mips.empty()
 
     @when(VoidNode)
-    def visit(self, node: VoidNode):
+    def visit(self, node: VoidNode):  # noqa: F811
         self.mips.comment("VoidNode")
         self.store_memory(Reg.zero, node.dest)
 
@@ -280,8 +278,9 @@ class CIL_TO_MIPS(object):
         self.load_memory(Reg.t0, node.body)
         # self.mips.move(Reg.a0, Reg.t0)
         # self.mips.print_int()
-        self.mips.nor(Reg.t1, Reg.t0, Reg.t0)
-        self.store_memory(Reg.t1, node.dest)
+        self.mips.move(Reg.t1, Reg.t0)
+        self.mips.nor(Reg.t2, Reg.t1, Reg.t0)
+        self.store_memory(Reg.t2, node.dest)
         # self.mips.move(Reg.a0, Reg.t1)
         # self.mips.print_int()
 
@@ -370,21 +369,19 @@ class CIL_TO_MIPS(object):
         length *= DATA_SIZE
         self.mips.li(Reg.a0, length)
         self.mips.sbrk()
-        self.store_memory(Reg.v0, node.dest)
+        self.mips.move(Reg.t1, Reg.v0)
+        self.store_memory(Reg.t1, node.dest)
 
         self.mips.li(Reg.t0, type_data.type)
-        self.mips.store_memory(Reg.t0, self.mips.offset(Reg.v0))
+        self.mips.store_memory(Reg.t0, self.mips.offset(Reg.t1))
 
         self.mips.la(Reg.t0, type_data.str)
-        self.mips.store_memory(Reg.t0, self.mips.offset(Reg.v0, 1 * DATA_SIZE))
+        self.mips.store_memory(Reg.t0, self.mips.offset(Reg.t1, DATA_SIZE))
 
         for offset in type_data.attr_offsets.values():
             self.mips.store_memory(
                 Reg.zero,
-                self.mips.offset(
-                    Reg.v0,
-                    offset * DATA_SIZE,
-                ),
+                self.mips.offset(Reg.t1, offset * DATA_SIZE),
             )
 
         for name, offset in type_data.func_offsets.items():
@@ -393,7 +390,7 @@ class CIL_TO_MIPS(object):
             self.mips.store_memory(
                 Reg.t0,
                 self.mips.offset(
-                    Reg.v0,
+                    Reg.t1,
                     offset * DATA_SIZE,
                 ),
             )
@@ -459,11 +456,11 @@ class CIL_TO_MIPS(object):
     @when(ReadStrNode)
     def visit(self, node: ReadStrNode):  # noqa: F811
         self.mips.comment("ReadStrNode")
-        self.mips.li(Reg.a0, 128)
+        self.mips.li(Reg.a0, 1024)
         self.mips.sbrk()
         self.mips.move(Reg.a0, Reg.v0)
         self.store_memory(Reg.v0, node.dest)
-        self.mips.li(Reg.a1, 128)  # Change this later
+        self.mips.li(Reg.a1, 1024)  # Change this later
         self.mips.read_string()
         self.mips.empty()
 
@@ -643,60 +640,26 @@ class CIL_TO_MIPS(object):
     @when(GetAttribNode)
     def visit(self, node: GetAttribNode):  # noqa: F811
         self.mips.comment("GetAttribNode")
-        vtype: Type = self.context.get_type(node.type)
-        vattributes: List[Attribute] = vtype.attributes
-        vattribs = [item for item in vattributes if item.name == node.attrib]
-        if vattribs and vattribs[0].is_by_value():
-            self.mips.comment("GetAtrribNode of atrtib with type by value")
-            vattrib = vattribs[0]
-            allocate_node = AllocateNode(node.dest, vattrib.type.name)
-            self.visit(allocate_node)
+        self.load_memory(Reg.t0, node.obj)
 
-            self.load_memory(Reg.t0, node.obj)
+        type_data = self.types_offsets[node.type]
+        offset = type_data.attr_offsets[node.attrib] * DATA_SIZE
+        self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
 
-            type_data = self.types_offsets[node.type]
-            offset = type_data.attr_offsets[node.attrib] * DATA_SIZE
-            self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
+        # label = self.get_label()
+        # tag = f"{label}_{node.type}_{node.attrib}"
+        # self.mips.write_data(tag + ":")
+        # self.mips.asciiz(f"{node.attrib}, {node.type}")
+        # self.mips.la(Reg.a0, tag)
+        # self.mips.print_string()
+        # self.mips.la(Reg.a0, "eol")
+        # self.mips.print_string()
+        # self.mips.move(Reg.a0, Reg.t1)
+        # self.mips.print_int()
+        # self.mips.la(Reg.a0, "eol")
+        # self.mips.print_string()
 
-            # label = self.get_label()
-            # tag = f"{label}_{node.type}_{node.attrib}"
-            # self.mips.write_data(tag + ":")
-            # self.mips.asciiz(vattrib)
-            # self.mips.la(Reg.a0, tag)
-            # self.mips.print_string()
-            # self.mips.la(Reg.a0, "eol")
-            # self.mips.print_string()
-            # self.mips.move(Reg.a0, Reg.t1)
-            # self.mips.print_int()
-            # self.mips.la(Reg.a0, "eol")
-            # self.mips.print_string()
-
-            self.load_memory(Reg.t0, node.dest)  # Reference to instance
-            type_data = self.types_offsets[vattrib.type.name]
-            offset = type_data.attr_offsets["value"] * DATA_SIZE
-            self.mips.store_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
-        else:
-            self.mips.comment("GetAtrribNode of atrtib with type by reference")
-            self.load_memory(Reg.t0, node.obj)
-
-            type_data = self.types_offsets[node.type]
-            offset = type_data.attr_offsets[node.attrib] * DATA_SIZE
-            self.mips.load_memory(Reg.t1, self.mips.offset(Reg.t0, offset))
-
-            # label = self.get_label()
-            # tag = f"{label}_{node.type}_{node.attrib}"
-            # self.mips.write_data(tag + ":")
-            # self.mips.asciiz(f"{node.attrib}, {node.type}")
-            # self.mips.la(Reg.a0, tag)
-            # self.mips.print_string()
-            # self.mips.la(Reg.a0, "eol")
-            # self.mips.print_string()
-            # self.mips.move(Reg.a0, Reg.t1)
-            # self.mips.print_int()
-            # self.mips.la(Reg.a0, "eol")
-            # self.mips.print_string()
-
-            self.store_memory(Reg.t1, node.dest)
+        self.store_memory(Reg.t1, node.dest)
         self.mips.empty()
 
     @when(SetAttribNode)
