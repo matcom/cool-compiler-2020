@@ -57,11 +57,11 @@ st54: .asciiz "\tTo get a new number...enter j:\n"
 st55: .asciiz "\tTo quit...enter q:\n\n"
 st56: .asciiz "\n"
 st57: .asciiz "Please enter a number...  "
-st58: .asciiz "Class type is now A\n"
-st59: .asciiz "Class type is now B\n"
+st58: .asciiz "Class type is now E\n"
+st59: .asciiz "Class type is now D\n"
 st60: .asciiz "Class type is now C\n"
-st61: .asciiz "Class type is now D\n"
-st62: .asciiz "Class type is now E\n"
+st61: .asciiz "Class type is now B\n"
+st62: .asciiz "Class type is now A\n"
 st63: .asciiz "Oooops\n"
 st64: .asciiz " "
 st65: .asciiz "number "
@@ -4686,7 +4686,7 @@ move $t0,$a1
 move $v0, $t0
 sw $v0,4($sp)
 lw $t0,4($sp)
-la $t1,Aclase
+la $t1,Eclase
 addi $sp ,$sp, -4
 sw $ra, 0($sp)
 jal .TypeCheck
@@ -4742,7 +4742,7 @@ sw $v0,8($sp)
 b var.var641
 var.var645:
 lw $t0,4($sp)
-la $t1,Bclase
+la $t1,Dclase
 addi $sp ,$sp, -4
 sw $ra, 0($sp)
 jal .TypeCheck
@@ -4854,7 +4854,7 @@ sw $v0,8($sp)
 b var.var641
 var.var663:
 lw $t0,4($sp)
-la $t1,Dclase
+la $t1,Bclase
 addi $sp ,$sp, -4
 sw $ra, 0($sp)
 jal .TypeCheck
@@ -4910,7 +4910,7 @@ sw $v0,8($sp)
 b var.var641
 var.var672:
 lw $t0,4($sp)
-la $t1,Eclase
+la $t1,Aclase
 addi $sp ,$sp, -4
 sw $ra, 0($sp)
 jal .TypeCheck

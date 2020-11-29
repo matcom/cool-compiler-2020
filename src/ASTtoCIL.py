@@ -15,9 +15,12 @@ class CILTranspiler:
         self.caseResultStack=[]
         self.caseEndStack=[]
         self.caseExpresionStack=[]
+        # self.clasesordenadas=[]
+        self.clasesdiccionario={}
     def GenerarGrafoDeHerencia(self,classes:list):
         grafo={}
         for c in classes:
+            self.clasesdiccionario[c.name]=c
             if c.parent in grafo.keys():
                 grafo[c.parent].append(c)
             else:
@@ -48,6 +51,12 @@ class CILTranspiler:
         #     ordenados.extend(self.OrdenarClasesPorHerenciaHelper("IO"))
         
         return ordenados
+
+    def Profundidad(self, tipo):
+        if tipo=="Object":
+            return 0
+        este=self.clasesdiccionario[tipo]
+        return 1+self.Profundidad(este.parent)
             
     
     def GenerarDiccionarioAtributos(self, classes:list):
@@ -164,6 +173,7 @@ class CILTranspiler:
         clasescompletas.extend([claseObject,claseIO,claseString,claseBool])
 
         classes=self.OrdenarClasesPorHerencia(clasescompletas)
+        # self.clasesordenadas=classes
         atributosdic=self.GenerarDiccionarioAtributos(classes)
         metodosdic,metodosglobalesdic=self.GenerarDiccionarioMetodos(classes)
 
@@ -609,7 +619,10 @@ class CILTranspiler:
         self.caseExpresionStack.append(destinoExpresion0)
         self.caseEndStack.append(saltofinal)
 
-        for sub in node.subcases:
+        subcasos=sorted(node.subcases,key=lambda subcaso: self.Profundidad(subcaso.type))
+        subcasos.reverse()
+
+        for sub in subcasos:
             nueva=self.GenerarNombreVariable(scope)
             subInstructions=self.visit(sub, scope)
             instructions.extend(subInstructions)

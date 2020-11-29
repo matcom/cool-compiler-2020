@@ -22,8 +22,8 @@ st19: .asciiz "Article"
 st20: .asciiz "periodical:  "
 st21: .asciiz "\n"
 st22: .asciiz "Cons"
-st23: .asciiz "- dynamic type was Book -\n"
-st24: .asciiz "- dynamic type was Article -\n"
+st23: .asciiz "- dynamic type was Article -\n"
+st24: .asciiz "- dynamic type was Book -\n"
 st25: .asciiz "Nil"
 Objectclase: .word 0,f0,f3,f2,f4
 Mainclase: .word Objectclase,f5,f6,f2,f4,f7
@@ -1794,7 +1794,7 @@ lw $a0, 0($sp)
 addi $sp, $sp, 4
 sw $v0,8($sp)
 lw $t0,8($sp)
-la $t1,Bookclase
+la $t1,Articleclase
 addi $sp ,$sp, -4
 sw $ra, 0($sp)
 jal .TypeCheck
@@ -1850,7 +1850,7 @@ sw $v0,12($sp)
 b var.var132
 var.var136:
 lw $t0,8($sp)
-la $t1,Articleclase
+la $t1,Bookclase
 addi $sp ,$sp, -4
 sw $ra, 0($sp)
 jal .TypeCheck
