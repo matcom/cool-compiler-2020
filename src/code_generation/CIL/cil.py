@@ -133,6 +133,7 @@ def program_to_cil_visitor(program):
 
     cil_program = CilAST.ProgramNode(types, data, code, built_in_code)
     remove_unused_locals(cil_program)
+    #aqui se esta perdiendo un vcall
     optimization_locals(cil_program)
     return cil_program
 
@@ -197,7 +198,6 @@ def func_to_cil_visitor(type_name, func):
     params = [CilAST.ParamNode('self')]
     params += [CilAST.ParamNode(id) for (id, t) in func.params]
     __LOCALS__ = {}
-    labels_count = 0
     __DATA_LOCALS__ = {}
     __TYPEOF__ = {}
     __CURRENT_TYPE__ = type_name

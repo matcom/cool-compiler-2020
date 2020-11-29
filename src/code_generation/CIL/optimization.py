@@ -69,7 +69,7 @@ def remove_unused_locals(program: ProgramNode):
         for instruction in function.body:
             for local in instruction.locals:
                 try:
-                    if instruction.result.id==local.id and local not in used_locals and type(InstructionNode)!=VCAllNode and type(InstructionNode)!=CallNode:
+                    if instruction.result.id==local.id and local not in used_locals and not isinstance(instruction, VCAllNode):
                         body.remove(instruction)
                 except:
                     pass

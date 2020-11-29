@@ -192,7 +192,7 @@ def read_int_to_mips_visitor(read: cil.ReadIntNode):
         mips.Comment(str(read)),
         mips.LiInstruction('$v0', 5),
         mips.SyscallInstruction(),
-        mips.SwInstruction('$v0', addr)
+        mips.SwInstruction('$v0', f'{addr}($fp)')
     ]
     return code
 
