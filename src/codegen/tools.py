@@ -94,7 +94,7 @@ class RegisterType(Enum):
 class RegisterDescriptor:
     'Stores the contents of each register'
     def __init__(self):
-        registers = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 'a0', 'a1', 'a2', 'a3', \
+        registers = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 'a1', 'a2', 'a3', \
                     's0', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 'v1']
         self.registers = {reg: None for reg in registers}
 
@@ -165,7 +165,7 @@ class ObjTabEntry:
         return 2
 
     def attr_offset(self, attr):
-        return self.attrs.index(attr) + 4
+        return self.attrs.index(attr) + 3
 
     def method_offset(self, meth):
         "Method offset in dispatch table"

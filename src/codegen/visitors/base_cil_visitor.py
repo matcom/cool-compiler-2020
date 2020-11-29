@@ -191,10 +191,8 @@ class BaseCOOLToCILVisitor:
         f11 = FunctionNode("function_type_name_String",f11_params,f11_localVars,f11_intructions)
 
         f12_params = [ParamNode("self", 'String')]
-        f12_localVars = [LocalNode("local_copy_String_result_0"), LocalNode("local_copy_String_result_1"), LocalNode("local_copy_String_result_2")]
-        f12_intructions = [cil.LengthNode(f12_localVars[1].name, f12_params[0].name), 
-                           cil.MinusNode(f12_localVars[2].name, f12_localVars[1].name, 1), 
-                           cil.SubstringNode(f12_localVars[0].name, f12_params[0].name, 0, f12_localVars[2].name),
+        f12_localVars = [LocalNode("local_copy_String_result_0")]
+        f12_intructions = [cil.ConcatNode(f12_localVars[0].name, f12_params[0].name, None, self.index),
                            cil.ReturnNode(f12_localVars[0].name, self.index)]
         f12 = FunctionNode("function_copy_String",f12_params,f12_localVars,f12_intructions)
 
@@ -202,9 +200,7 @@ class BaseCOOLToCILVisitor:
         f17_localVars = [LocalNode('local_abort_String_msg_0')]
         f17_intructions = [cil.LoadNode(f17_params[0].name, 'string_abort'), 
                            cil.OutStringNode(f17_params[0].name, self.index),
-                        #    cil.AssignNode(f1_localVars[0].name,f1_params[0].name, self.index),
                            cil.ExitNode(f17_params[0].name, idx=self.index)]
-                        #    cil.ReturnNode(f17_localVars[0].name, self.index)]
         f17 = FunctionNode("function_abort_String",f17_params,f17_localVars,f17_intructions)
 
         # ---------------------------------- Int Functions ---------------------------------- #

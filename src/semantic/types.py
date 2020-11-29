@@ -38,13 +38,14 @@ class MethodError(Method):
         return f'[method] {self.name} ERROR'
 
 class Type:
-    def __init__(self, name:str, pos):
+    def __init__(self, name:str, pos, parent=True):
         if name == 'ObjectType':
             return ObjectType(pos)
         self.name = name
         self.attributes = {}
         self.methods = {}
-        self.parent = ObjectType(pos)
+        if parent:
+            self.parent = ObjectType(pos)
         self.pos = pos
 
     def set_parent(self, parent):
@@ -223,7 +224,7 @@ class IntType(Type):
 
     def init_methods(self):
         self.define_method('abort', [], [], self)
-        # self.define_method('type_name', [], [], Type('String', (0, 0)))
+        self.define_method('type_name', [], [], Type('String', (0, 0), False))
         self.define_method('copy', [], [], SelfType())
 
     def conforms_to(self, other):

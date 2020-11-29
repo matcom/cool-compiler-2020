@@ -39,14 +39,15 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         # visit TypeNodes
         for type_ in node.dottypes:
             self.visit(type_)
+
+        # guardo las direcciones de cada método
+        self.save_meth_addr(node.dotcode)
         self.data_code.append(f"type_Void: .asciiz \"Void\"")     # guarda el nombre de Void Type                    
         # guardo las direcciones de cada tipo
         self.save_types_addr(node.dottypes)
         # visit DataNodes
         for data in node.dotdata:
             self.visit(data)
-        # guardo las direcciones de cada método
-        self.save_meth_addr(node.dotcode)
         # visit code instrunctions
         for code in node.dotcode:
             self.visit(code)
@@ -291,7 +292,6 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         size = 4*self.obj_table.size_of_entry(node.type)      # size of the table entry of the new type
         self.var_address[node.dest] = AddrType.REF
         # syscall to allocate memory of the object entry in heap
-        var = self.save_reg_if_occupied('a0')
         
         self.code.append('# Syscall to allocate memory of the object entry in heap')
         self.code.append('li $v0, 9')                         # code to request memory
@@ -311,36 +311,35 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append(f'sw $t9, 4($v0)')                 # this is the second file of the table offset
         self.code.append(f'move ${rdest}, $v0')             # guarda la nueva dirección de la variable en el registro destino
 
-        self.create_dispatch_table(node.type)               # memory of dispatch table in v0
-        self.code.append(f'sw $v0, 8(${rdest})')            # save a pointer of the dispatch table in the 3th position
+        # self.create_dispatch_table(node.type)               # memory of dispatch table in v0
+        # self.code.append(f'sw $v0, 8(${rdest})')            # save a pointer of the dispatch table in the 3th position
         
         idx = self.types.index(node.type)
         self.code.append('# Adding Type Info addr')
         self.code.append('la $t8, types')
         self.code.append(f'lw $v0, {4*idx}($t8)')
-        self.code.append(f'sw $v0, 12(${rdest})')
-        self.load_var_if_occupied(var)
+        self.code.append(f'sw $v0, 8(${rdest})')
       
-    def create_dispatch_table(self, type_name):
-        # Get methods of the dispatch table
-        methods = self.dispatch_table.get_methods(type_name)
-        # Allocate the dispatch table in the heap
-        self.code.append('# Allocate dispatch table in the heap')
-        self.code.append('li $v0, 9')                       # code to request memory
-        dispatch_table_size = 4*len(methods)
-        self.code.append(f'li $a0, {dispatch_table_size+4}')
-        self.code.append('syscall')                         # Memory of the dispatch table in v0
+    # def create_dispatch_table(self, type_name):
+    #     # Get methods of the dispatch table
+    #     methods = self.dispatch_table.get_methods(type_name)
+    #     # Allocate the dispatch table in the heap
+    #     self.code.append('# Allocate dispatch table in the heap')
+    #     self.code.append('li $v0, 9')                       # code to request memory
+    #     dispatch_table_size = 4*len(methods)
+    #     self.code.append(f'li $a0, {dispatch_table_size+4}')
+    #     self.code.append('syscall')                         # Memory of the dispatch table in v0
         
-        self.code.append(f'# I save the offset of every one of the methods of this type')
-        self.code.append('# Save the direction of methods')
-        self.code.append('la $t8, methods')             # cargo la dirección de methods
-        for i, meth in enumerate(methods, 1):
-            # guardo el offset de cada uno de los métodos de este tipo
-            offset = 4*self.methods.index(meth)
-            self.code.append(f'# Save the direction of the method {meth} in t9')
-            self.code.append(f'lw $t9, {offset}($t8)')      # cargo la dirección del método en t9
-            self.code.append('# Save the direction of the method in his position in the dispatch table')
-            self.code.append(f'sw $t9, {4*i}($v0)')         # guardo la direccion del metodo en su posicion en el dispatch table        
+    #     self.code.append(f'# I save the offset of every one of the methods of this type')
+    #     self.code.append('# Save the direction of methods')
+    #     self.code.append('la $t8, methods')             # cargo la dirección de methods
+    #     for i, meth in enumerate(methods, 1):
+    #         # guardo el offset de cada uno de los métodos de este tipo
+    #         offset = 4*self.methods.index(meth)
+    #         self.code.append(f'# Save the direction of the method {meth} in t9')
+    #         self.code.append(f'lw $t9, {offset}($t8)')      # cargo la dirección del método en t9
+    #         self.code.append('# Save the direction of the method in his position in the dispatch table')
+    #         self.code.append(f'sw $t9, {4*i}($v0)')         # guardo la direccion del metodo en su posicion en el dispatch table        
 
 
     @visitor.when(TypeOfNode)
@@ -403,12 +402,13 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append('# Find the actual name in the dispatch table')
         reg = self.addr_desc.get_var_reg(node.obj)        # obtiene la instancia actual
         
-        self.code.append('# Gets in t9 the actual direction of the dispatch table')
+        self.code.append('# Gets in a0 the actual direction of the dispatch table')
         self.code.append(f'lw $t9, 8(${reg})')          # obtiene en t9 la dirección del dispatch table
+        self.code.append('lw $a0, 8($t9)')
         function = self.dispatch_table.find_full_name(node.type, node.method)       
         index = 4*self.dispatch_table.get_offset(node.type, function) + 4     # guarda el offset del me
         self.code.append(f'# Saves in t8 the direction of {function}')
-        self.code.append(f'lw $t8, {index}($t9)')       # guarda en $t8 la dirección de la función a llamar 
+        self.code.append(f'lw $t8, {index}($a0)')       # guarda en $t8 la dirección de la función a llamar 
         # Call function
         self._code_to_function_call(node.args, '$t8', node.dest, function)
         
@@ -503,20 +503,21 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
     
 
         rsrc1 = self.addr_desc.get_var_reg(node.arg1)
-        rsrc2 = self.addr_desc.get_var_reg(node.arg2)
+        if node.arg2 is not None:
+            rsrc2 = self.addr_desc.get_var_reg(node.arg2)
         
         self.code.append('# Copy the first string to dest')
-        var1 = self.save_reg_if_occupied('a0')
-        var2 = self.save_reg_if_occupied('a1')
+        var = self.save_reg_if_occupied('a1')
         self.code.append(f'move $a0, ${rsrc1}')
         self.code.append(f'move $a1, ${rdest}')
         self.push_register('ra')
         self.code.append('jal strcopier')
 
-        self.code.append('# Concatenate second string on result buffer')
-        self.code.append(f'move $a0, ${rsrc2}')
-        self.code.append(f'move $a1, $v0')
-        self.code.append('jal strcopier')
+        if node.arg2 is not None:
+            self.code.append('# Concatenate second string on result buffer')
+            self.code.append(f'move $a0, ${rsrc2}')
+            self.code.append(f'move $a1, $v0')
+            self.code.append('jal strcopier')
         self.code.append('sb $0, 0($v0)')
         self.pop_register('ra')
         self.code.append(f'j finish_{self.loop_idx}')
@@ -538,8 +539,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
             self.first_defined['strcopier'] = False
         
         self.code.append(f'finish_{self.loop_idx}:')
-        self.load_var_if_occupied(var1)
-        self.load_var_if_occupied(var2)
+        self.load_var_if_occupied(var)
         self.loop_idx += 1
 
     @visitor.when(SubstringNode)
@@ -630,10 +630,8 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         reg = self.addr_desc.get_var_reg(node.value)
         self.code.append('# Printing a string')
         self.code.append('li $v0, 4')
-        var = self.save_reg_if_occupied('a0')
         self.code.append(f'move $a0, ${reg}')
         self.code.append('syscall')
-        self.load_var_if_occupied(var)
 
     @visitor.when(OutIntNode)
     def visit(self, node: OutIntNode):
@@ -645,10 +643,8 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
 
         self.code.append('# Printing an int')
         self.code.append('li $v0, 1')
-        var = self.save_reg_if_occupied('a0')
         self.code.append(f'move $a0, ${reg}')
         self.code.append('syscall')
-        self.load_var_if_occupied(var)
     
 
     @visitor.when(ReadStringNode)
@@ -663,8 +659,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         # self.code.append(f'sb $0, 0(${rdest})')
 
         self.code.append('# Reading a string')
-        var1 = self.save_reg_if_occupied('a0')
-        var2 = self.save_reg_if_occupied('a1')
+        var = self.save_reg_if_occupied('a1')
         self.code.append('# Putting buffer in a0')
         self.code.append(f'move $a0, ${rdest}')     # Get length of the string
         self.code.append('# Putting length of string in a1')
@@ -686,6 +681,7 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append('addiu $t9, $t9, -1')
         self.code.append('sb $0, ($t9)') # overwrites the newline with zero
         self.loop_idx += 1
+        self.load_var_if_occupied(var)
 
 
     @visitor.when(ReadIntNode)
@@ -729,13 +725,11 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
     @visitor.when(CopyNode)
     def visit(self, node: CopyNode):
         rdest = self.addr_desc.get_var_reg(node.dest)
-        #? Source is always a var... it should be
         rsrc = self.addr_desc.get_var_reg(node.source)
 
         self.code.append(f'lw $t9, 4(${rsrc})')             # getting the size of the object
         self.code.append('# Syscall to allocate memory of the object entry in heap')
         self.code.append('li $v0, 9')                       # code to request memory
-        var = self.save_reg_if_occupied('a0')
         self.code.append(f'move $a0, $t9')                  # argument (size)
         self.code.append('syscall')
 
@@ -786,7 +780,6 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
     @visitor.when(VoidConstantNode)
     def visit(self, node:VoidConstantNode):
         rdest = self.addr_desc.get_var_reg(node.out)
-        var = self.save_reg_if_occupied('a0')
         self.code.append('# Initialize void node')
         self.code.append(f'li $a0, 4')                    # argument (size)
         self.code.append('li $v0, 9')                       # code to request memory
@@ -795,6 +788,5 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append(f'la $t9, type_{VOID_NAME}')       # loads the name of the variable
         self.code.append('sw $t9, 0($v0)')                  # saves the name like the first field 
         self.code.append(f'move ${rdest}, $v0')
-        self.load_var_if_occupied(var)
         self.var_address[node.obj] = AddrType.REF
      

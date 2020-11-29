@@ -1,190 +1,6 @@
 .text
 .globl main
 main:
-# Save types directions in the types array
-la $t9, types
-# Save space to locate the type info
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_String
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 0($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_Int
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 4($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_Object
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 8($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_Bool
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 12($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_IO
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 16($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_Graph
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 20($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_Vertice
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 24($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_Edge
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 28($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_EList
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 32($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_ECons
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 36($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_VList
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 40($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_VCons
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 44($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_Parse
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 48($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_Main
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 52($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_BoolOp
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 56($t9)
-# Copying parents
-lw $v0, 0($t9)
-li $t8, 0
-sw $t8, 4($v0)
-lw $v0, 4($t9)
-li $t8, 0
-sw $t8, 4($v0)
-lw $v0, 8($t9)
-li $t8, 0
-sw $t8, 4($v0)
-lw $v0, 12($t9)
-li $t8, 0
-sw $t8, 4($v0)
-lw $v0, 16($t9)
-lw $t8, 8($t9)
-sw $t8, 4($v0)
-lw $v0, 20($t9)
-lw $t8, 8($t9)
-sw $t8, 4($v0)
-lw $v0, 24($t9)
-lw $t8, 16($t9)
-sw $t8, 4($v0)
-lw $v0, 28($t9)
-lw $t8, 16($t9)
-sw $t8, 4($v0)
-lw $v0, 32($t9)
-lw $t8, 16($t9)
-sw $t8, 4($v0)
-lw $v0, 36($t9)
-lw $t8, 32($t9)
-sw $t8, 4($v0)
-lw $v0, 40($t9)
-lw $t8, 16($t9)
-sw $t8, 4($v0)
-lw $v0, 44($t9)
-lw $t8, 40($t9)
-sw $t8, 4($v0)
-lw $v0, 48($t9)
-lw $t8, 16($t9)
-sw $t8, 4($v0)
-lw $v0, 52($t9)
-lw $t8, 48($t9)
-sw $t8, 4($v0)
-lw $v0, 56($t9)
-lw $t8, 8($t9)
-sw $t8, 4($v0)
 # Save method directions in the methods array
 la $v0, methods
 la $t9, entry
@@ -323,6 +139,927 @@ la $t9, function_and_BoolOp
 sw $t9, 264($v0)
 la $t9, function_or_BoolOp
 sw $t9, 268($v0)
+# Save types directions in the types array
+la $t9, types
+# Save space to locate the type info
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_String
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 0($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 28
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_length_String in a0
+lw $a0, 32($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_concat_String in a0
+lw $a0, 36($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_substr_String in a0
+lw $a0, 40($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_abort_String in a0
+lw $a0, 68($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_type_name_String in a0
+lw $a0, 44($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_copy_String in a0
+lw $a0, 48($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Int
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 4($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 16
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Int in a0
+lw $a0, 72($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Int in a0
+lw $a0, 52($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Int in a0
+lw $a0, 56($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Object
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 8($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 16
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Bool
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 12($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 16
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Bool in a0
+lw $a0, 76($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Bool in a0
+lw $a0, 60($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Bool in a0
+lw $a0, 64($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_IO
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 16($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 32
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Graph
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 20($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 32
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_add_vertice_Graph in a0
+lw $a0, 84($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_print_E_Graph in a0
+lw $a0, 88($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_print_V_Graph in a0
+lw $a0, 92($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_Graph_Graph in a0
+lw $a0, 80($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Vertice
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 24($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 56
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_outgoing_Vertice in a0
+lw $a0, 100($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_number_Vertice in a0
+lw $a0, 104($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_init_Vertice in a0
+lw $a0, 108($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+# Save the direction of the method function_add_out_Vertice in a0
+lw $a0, 112($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 44($v0)
+# Save the direction of the method function_print_Vertice in a0
+lw $a0, 116($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 48($v0)
+# Save the direction of the method function_Vertice_Vertice in a0
+lw $a0, 96($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 52($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Edge
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 28($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 44
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_init_Edge in a0
+lw $a0, 124($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_print_Edge in a0
+lw $a0, 128($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_Edge_Edge in a0
+lw $a0, 120($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_EList
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 32($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 60
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_isNil_EList in a0
+lw $a0, 136($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_head_EList in a0
+lw $a0, 140($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_tail_EList in a0
+lw $a0, 144($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+# Save the direction of the method function_cons_EList in a0
+lw $a0, 148($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 44($v0)
+# Save the direction of the method function_append_EList in a0
+lw $a0, 152($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 48($v0)
+# Save the direction of the method function_print_EList in a0
+lw $a0, 156($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 52($v0)
+# Save the direction of the method function_EList_EList in a0
+lw $a0, 132($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 56($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_ECons
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 36($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 68
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_isNil_ECons in a0
+lw $a0, 164($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_head_ECons in a0
+lw $a0, 168($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_tail_ECons in a0
+lw $a0, 172($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+# Save the direction of the method function_cons_EList in a0
+lw $a0, 148($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 44($v0)
+# Save the direction of the method function_append_EList in a0
+lw $a0, 152($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 48($v0)
+# Save the direction of the method function_print_ECons in a0
+lw $a0, 180($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 52($v0)
+# Save the direction of the method function_EList_EList in a0
+lw $a0, 132($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 56($v0)
+# Save the direction of the method function_init_ECons in a0
+lw $a0, 176($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 60($v0)
+# Save the direction of the method function_ECons_ECons in a0
+lw $a0, 160($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 64($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_VList
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 40($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 56
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_isNil_VList in a0
+lw $a0, 188($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_head_VList in a0
+lw $a0, 192($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_tail_VList in a0
+lw $a0, 196($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+# Save the direction of the method function_cons_VList in a0
+lw $a0, 200($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 44($v0)
+# Save the direction of the method function_print_VList in a0
+lw $a0, 204($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 48($v0)
+# Save the direction of the method function_VList_VList in a0
+lw $a0, 184($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 52($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_VCons
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 44($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 64
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_isNil_VCons in a0
+lw $a0, 212($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_head_VCons in a0
+lw $a0, 216($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_tail_VCons in a0
+lw $a0, 220($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+# Save the direction of the method function_cons_VList in a0
+lw $a0, 200($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 44($v0)
+# Save the direction of the method function_print_VCons in a0
+lw $a0, 228($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 48($v0)
+# Save the direction of the method function_VList_VList in a0
+lw $a0, 184($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 52($v0)
+# Save the direction of the method function_init_VCons in a0
+lw $a0, 224($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 56($v0)
+# Save the direction of the method function_VCons_VCons in a0
+lw $a0, 208($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 60($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Parse
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 48($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 56
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_read_input_Parse in a0
+lw $a0, 236($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_parse_line_Parse in a0
+lw $a0, 240($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_c2i_Parse in a0
+lw $a0, 244($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+# Save the direction of the method function_a2i_Parse in a0
+lw $a0, 248($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 44($v0)
+# Save the direction of the method function_a2i_aux_Parse in a0
+lw $a0, 252($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 48($v0)
+# Save the direction of the method function_Parse_Parse in a0
+lw $a0, 232($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 52($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Main
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 52($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 64
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_read_input_Parse in a0
+lw $a0, 236($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_parse_line_Parse in a0
+lw $a0, 240($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_c2i_Parse in a0
+lw $a0, 244($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+# Save the direction of the method function_a2i_Parse in a0
+lw $a0, 248($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 44($v0)
+# Save the direction of the method function_a2i_aux_Parse in a0
+lw $a0, 252($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 48($v0)
+# Save the direction of the method function_Parse_Parse in a0
+lw $a0, 232($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 52($v0)
+# Save the direction of the method function_main_Main in a0
+lw $a0, 260($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 56($v0)
+# Save the direction of the method function_Main_Main in a0
+lw $a0, 256($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 60($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_BoolOp
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 56($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 24
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_and_BoolOp in a0
+lw $a0, 264($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_or_BoolOp in a0
+lw $a0, 268($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+sw $v0, 8($t8)
+# Copying parents
+lw $v0, 0($t9)
+li $t8, 0
+sw $t8, 4($v0)
+lw $v0, 4($t9)
+li $t8, 0
+sw $t8, 4($v0)
+lw $v0, 8($t9)
+li $t8, 0
+sw $t8, 4($v0)
+lw $v0, 12($t9)
+li $t8, 0
+sw $t8, 4($v0)
+lw $v0, 16($t9)
+lw $t8, 8($t9)
+sw $t8, 4($v0)
+lw $v0, 20($t9)
+lw $t8, 8($t9)
+sw $t8, 4($v0)
+lw $v0, 24($t9)
+lw $t8, 16($t9)
+sw $t8, 4($v0)
+lw $v0, 28($t9)
+lw $t8, 16($t9)
+sw $t8, 4($v0)
+lw $v0, 32($t9)
+lw $t8, 16($t9)
+sw $t8, 4($v0)
+lw $v0, 36($t9)
+lw $t8, 32($t9)
+sw $t8, 4($v0)
+lw $v0, 40($t9)
+lw $t8, 16($t9)
+sw $t8, 4($v0)
+lw $v0, 44($t9)
+lw $t8, 40($t9)
+sw $t8, 4($v0)
+lw $v0, 48($t9)
+lw $t8, 16($t9)
+sw $t8, 4($v0)
+lw $v0, 52($t9)
+lw $t8, 48($t9)
+sw $t8, 4($v0)
+lw $v0, 56($t9)
+lw $t8, 8($t9)
+sw $t8, 4($v0)
 
 entry:
 # Gets the params from the stack
@@ -344,78 +1081,10 @@ sw $t9, 0($v0)
 li $t9, 24
 sw $t9, 4($v0)
 move $t0, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 64
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 4($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 8($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 12($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-# Save the direction of the method function_out_string_IO in t9
-lw $t9, 16($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
-# Save the direction of the method function_out_int_IO in t9
-lw $t9, 20($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
-# Save the direction of the method function_in_string_IO in t9
-lw $t9, 28($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 24($v0)
-# Save the direction of the method function_in_int_IO in t9
-lw $t9, 24($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 28($v0)
-# Save the direction of the method function_read_input_Parse in t9
-lw $t9, 236($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 32($v0)
-# Save the direction of the method function_parse_line_Parse in t9
-lw $t9, 240($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 36($v0)
-# Save the direction of the method function_c2i_Parse in t9
-lw $t9, 244($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 40($v0)
-# Save the direction of the method function_a2i_Parse in t9
-lw $t9, 248($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 44($v0)
-# Save the direction of the method function_a2i_aux_Parse in t9
-lw $t9, 252($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 48($v0)
-# Save the direction of the method function_Parse_Parse in t9
-lw $t9, 232($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 52($v0)
-# Save the direction of the method function_main_Main in t9
-lw $t9, 260($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 56($v0)
-# Save the direction of the method function_Main_Main in t9
-lw $t9, 256($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 60($v0)
-sw $v0, 8($t0)
 # Adding Type Info addr
 la $t8, types
 lw $v0, 52($t8)
-sw $v0, 12($t0)
+sw $v0, 8($t0)
 # Static Dispatch of the method Main
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -865,76 +1534,30 @@ addiu $fp, $fp, 4
 # Gets the frame pointer from the stack
 # Updates stack pointer pushing local_copy_String_result_0 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_copy_String_result_1 to the stack
-addiu $sp, $sp, -4
-# Updates stack pointer pushing local_copy_String_result_2 to the stack
-addiu $sp, $sp, -4
 lw $t0, -0($fp)
-lw $t1, -8($fp)
-move $t8, $t0
-# Determining the length of a string
-loop_5:
-lb $t9, 0($t8)
-beq $t9, $zero, end_5
-addi $t8, $t8, 1
-j loop_5
-end_5:
-sub $t1, $t8, $t0
-lw $t2, -12($fp)
-# local_copy_String_result_2 <- local_copy_String_result_1 - 1
-addi $t2, $t1, -1
-lw $t3, -4($fp)
+lw $t1, -4($fp)
 # Allocating memory for the buffer
 li $a0, 356
 li $v0, 9
 syscall
-move $t3, $v0
-li $t8, 0
-# Getting the substring of a node
-# Move to the first position in the string
-li $v0, 0
-move $t8, $t0
-start_6:
-lb $t9, 0($t8)
-beqz $t9, error_6
-addi $v0, 1
-bgt $v0, $t8, end_len_6
-addi $t8, 1
-j start_6
-end_len_6:
-# Saving dest to iterate over him
-move $v0, $t3
-loop_6:
-sub $t9, $v0, $t3
-beq $t9, $t2, end_6
-lb $t9, 0($t8)
-beqz $t9, error_6
-sb $t9, 0($v0)
-addi $t8, $t8, 1
-addi $v0, $v0, 1
-j loop_6
-error_6:
-la $a0, index_error
-li $v0, 4
+move $t1, $v0
+# Copy the first string to dest
 move $a0, $t0
-syscall
-li $v0, 1
-move $a0, $t8
-syscall
-li $v0, 1
-move $a0, $t2
-syscall
-j .raise
-end_6:
+move $a1, $t1
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+jal strcopier
 sb $0, 0($v0)
-move $v0, $t3
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+j finish_5
+finish_5:
+move $v0, $t1
 # Empty all used registers and saves them to memory
 sw $t0, -0($fp)
-sw $t1, -8($fp)
-sw $t2, -12($fp)
-sw $t3, -4($fp)
+sw $t1, -4($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 16
+addiu $sp, $sp, 8
 jr $ra
 
 
@@ -1110,70 +1733,10 @@ sw $t9, 0($v0)
 li $t9, 16
 sw $t9, 4($v0)
 move $t0, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 56
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 4($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 8($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 12($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-# Save the direction of the method function_out_string_IO in t9
-lw $t9, 16($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
-# Save the direction of the method function_out_int_IO in t9
-lw $t9, 20($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
-# Save the direction of the method function_in_string_IO in t9
-lw $t9, 28($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 24($v0)
-# Save the direction of the method function_in_int_IO in t9
-lw $t9, 24($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 28($v0)
-# Save the direction of the method function_isNil_VList in t9
-lw $t9, 188($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 32($v0)
-# Save the direction of the method function_head_VList in t9
-lw $t9, 192($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 36($v0)
-# Save the direction of the method function_tail_VList in t9
-lw $t9, 196($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 40($v0)
-# Save the direction of the method function_cons_VList in t9
-lw $t9, 200($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 44($v0)
-# Save the direction of the method function_print_VList in t9
-lw $t9, 204($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 48($v0)
-# Save the direction of the method function_VList_VList in t9
-lw $t9, 184($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 52($v0)
-sw $v0, 8($t0)
 # Adding Type Info addr
 la $t8, types
 lw $v0, 40($t8)
-sw $v0, 12($t0)
+sw $v0, 8($t0)
 # Static Dispatch of the method VList
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -1198,7 +1761,7 @@ lw $t0, -4($fp)
 move $t0, $v0
 lw $t1, -0($fp)
 # self . vertices <- SET local_Graph_Graph_internal_0
-sw $t0, 16($t1)
+sw $t0, 12($t1)
 lw $t2, -8($fp)
 # Syscall to allocate memory of the object entry in heap
 li $v0, 9
@@ -1211,74 +1774,10 @@ sw $t9, 0($v0)
 li $t9, 16
 sw $t9, 4($v0)
 move $t2, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 60
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 4($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 8($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 12($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-# Save the direction of the method function_out_string_IO in t9
-lw $t9, 16($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
-# Save the direction of the method function_out_int_IO in t9
-lw $t9, 20($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
-# Save the direction of the method function_in_string_IO in t9
-lw $t9, 28($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 24($v0)
-# Save the direction of the method function_in_int_IO in t9
-lw $t9, 24($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 28($v0)
-# Save the direction of the method function_isNil_EList in t9
-lw $t9, 136($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 32($v0)
-# Save the direction of the method function_head_EList in t9
-lw $t9, 140($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 36($v0)
-# Save the direction of the method function_tail_EList in t9
-lw $t9, 144($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 40($v0)
-# Save the direction of the method function_cons_EList in t9
-lw $t9, 148($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 44($v0)
-# Save the direction of the method function_append_EList in t9
-lw $t9, 152($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 48($v0)
-# Save the direction of the method function_print_EList in t9
-lw $t9, 156($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 52($v0)
-# Save the direction of the method function_EList_EList in t9
-lw $t9, 132($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 56($v0)
-sw $v0, 8($t2)
 # Adding Type Info addr
 la $t8, types
 lw $v0, 32($t8)
-sw $v0, 12($t2)
+sw $v0, 8($t2)
 # Static Dispatch of the method EList
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -1305,7 +1804,7 @@ lw $t0, -8($fp)
 move $t0, $v0
 lw $t1, -0($fp)
 # self . edges <- SET local_Graph_Graph_internal_1
-sw $t0, 20($t1)
+sw $t0, 16($t1)
 lw $t2, -12($fp)
 # Moving self to local_Graph_Graph_internal_2
 move $t2, $t1
@@ -1343,10 +1842,11 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -8($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_outgoing_Vertice
-lw $t8, 32($t9)
+lw $t8, 32($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1372,13 +1872,14 @@ move $t0, $v0
 lw $t1, -4($fp)
 lw $t2, -12($fp)
 # local_add_vertice_Graph_edges_1 <- GET self . edges
-lw $t2, 20($t1)
+lw $t2, 16($t1)
 lw $t3, -16($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_append_EList
-lw $t8, 48($t9)
+lw $t8, 48($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1408,16 +1909,17 @@ lw $t0, -16($fp)
 move $t0, $v0
 lw $t1, -4($fp)
 # self . edges <- SET local_add_vertice_Graph_internal_2
-sw $t0, 20($t1)
+sw $t0, 16($t1)
 lw $t2, -20($fp)
 # local_add_vertice_Graph_vertices_3 <- GET self . vertices
-lw $t2, 16($t1)
+lw $t2, 12($t1)
 lw $t3, -24($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_cons_VList
-lw $t8, 44($t9)
+lw $t8, 44($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1449,7 +1951,7 @@ lw $t0, -24($fp)
 move $t0, $v0
 lw $t1, -4($fp)
 # self . vertices <- SET local_add_vertice_Graph_internal_4
-sw $t0, 16($t1)
+sw $t0, 12($t1)
 lw $t2, -28($fp)
 # Moving local_add_vertice_Graph_internal_4 to local_add_vertice_Graph_internal_5
 move $t2, $t0
@@ -1477,13 +1979,14 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_print_E_Graph_edges_0 <- GET self . edges
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 lw $t2, -8($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_print_EList
-lw $t8, 52($t9)
+lw $t8, 52($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1528,13 +2031,14 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_print_V_Graph_vertices_0 <- GET self . vertices
-lw $t1, 16($t0)
+lw $t1, 12($t0)
 lw $t2, -8($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_print_VList
-lw $t8, 48($t9)
+lw $t8, 48($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1579,7 +2083,7 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 # self . num <- SET 0
 li $t9, 0
-sw $t9, 16($t0)
+sw $t9, 12($t0)
 lw $t1, -4($fp)
 # Syscall to allocate memory of the object entry in heap
 li $v0, 9
@@ -1592,74 +2096,10 @@ sw $t9, 0($v0)
 li $t9, 16
 sw $t9, 4($v0)
 move $t1, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 60
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 4($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 8($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 12($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-# Save the direction of the method function_out_string_IO in t9
-lw $t9, 16($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
-# Save the direction of the method function_out_int_IO in t9
-lw $t9, 20($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
-# Save the direction of the method function_in_string_IO in t9
-lw $t9, 28($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 24($v0)
-# Save the direction of the method function_in_int_IO in t9
-lw $t9, 24($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 28($v0)
-# Save the direction of the method function_isNil_EList in t9
-lw $t9, 136($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 32($v0)
-# Save the direction of the method function_head_EList in t9
-lw $t9, 140($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 36($v0)
-# Save the direction of the method function_tail_EList in t9
-lw $t9, 144($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 40($v0)
-# Save the direction of the method function_cons_EList in t9
-lw $t9, 148($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 44($v0)
-# Save the direction of the method function_append_EList in t9
-lw $t9, 152($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 48($v0)
-# Save the direction of the method function_print_EList in t9
-lw $t9, 156($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 52($v0)
-# Save the direction of the method function_EList_EList in t9
-lw $t9, 132($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 56($v0)
-sw $v0, 8($t1)
 # Adding Type Info addr
 la $t8, types
 lw $v0, 32($t8)
-sw $v0, 12($t1)
+sw $v0, 8($t1)
 # Static Dispatch of the method EList
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -1685,7 +2125,7 @@ lw $t0, -4($fp)
 move $t0, $v0
 lw $t1, -0($fp)
 # self . out <- SET local_Vertice_Vertice_internal_0
-sw $t0, 20($t1)
+sw $t0, 16($t1)
 lw $t2, -8($fp)
 # Moving self to local_Vertice_Vertice_internal_1
 move $t2, $t1
@@ -1711,7 +2151,7 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_outgoing_Vertice_out_0 <- GET self . out
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 move $v0, $t1
 # Empty all used registers and saves them to memory
 sw $t0, -0($fp)
@@ -1732,7 +2172,7 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_number_Vertice_num_0 <- GET self . num
-lw $t1, 16($t0)
+lw $t1, 12($t0)
 move $v0, $t1
 # Empty all used registers and saves them to memory
 sw $t0, -0($fp)
@@ -1755,7 +2195,7 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # self . num <- SET n
-sw $t0, 16($t1)
+sw $t0, 12($t1)
 lw $t2, -8($fp)
 # Moving self to local_init_Vertice_internal_0
 move $t2, $t1
@@ -1787,13 +2227,14 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -8($fp)
 # local_add_out_Vertice_out_0 <- GET self . out
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 lw $t2, -12($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_cons_EList
-lw $t8, 44($t9)
+lw $t8, 44($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1824,7 +2265,7 @@ lw $t0, -12($fp)
 move $t0, $v0
 lw $t1, -4($fp)
 # self . out <- SET local_add_out_Vertice_internal_1
-sw $t0, 20($t1)
+sw $t0, 16($t1)
 lw $t2, -16($fp)
 # Moving self to local_add_out_Vertice_internal_2
 move $t2, $t1
@@ -1858,13 +2299,14 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_print_Vertice_num_0 <- GET self . num
-lw $t1, 16($t0)
+lw $t1, 12($t0)
 lw $t2, -8($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_int_IO
-lw $t8, 20($t9)
+lw $t8, 20($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1894,13 +2336,14 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -12($fp)
 # local_print_Vertice_out_2 <- GET self . out
-lw $t2, 20($t1)
+lw $t2, 16($t1)
 lw $t3, -16($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_print_EList
-lw $t8, 52($t9)
+lw $t8, 52($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1949,13 +2392,13 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 # self . from <- SET 0
 li $t9, 0
-sw $t9, 16($t0)
+sw $t9, 12($t0)
 # self . to <- SET 0
 li $t9, 0
-sw $t9, 20($t0)
+sw $t9, 16($t0)
 # self . weight <- SET 0
 li $t9, 0
-sw $t9, 24($t0)
+sw $t9, 20($t0)
 lw $t1, -4($fp)
 # Moving self to local_Edge_Edge_internal_0
 move $t1, $t0
@@ -1986,13 +2429,13 @@ addiu $sp, $sp, -4
 lw $t0, -8($fp)
 lw $t1, -12($fp)
 # self . from <- SET f
-sw $t0, 16($t1)
+sw $t0, 12($t1)
 lw $t2, -4($fp)
 # self . to <- SET t
-sw $t2, 20($t1)
+sw $t2, 16($t1)
 lw $t3, -0($fp)
 # self . weight <- SET w
-sw $t3, 24($t1)
+sw $t3, 20($t1)
 lw $t4, -16($fp)
 # Moving self to local_init_Edge_internal_0
 move $t4, $t1
@@ -2047,10 +2490,11 @@ la $t0, data_1
 lw $t1, -0($fp)
 lw $t2, -8($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2080,13 +2524,14 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -12($fp)
 # local_print_Edge_from_2 <- GET self . from
-lw $t2, 16($t1)
+lw $t2, 12($t1)
 lw $t3, -16($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_int_IO
-lw $t8, 20($t9)
+lw $t8, 20($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2120,10 +2565,11 @@ la $t1, data_2
 lw $t2, -0($fp)
 lw $t3, -24($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2154,13 +2600,14 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -28($fp)
 # local_print_Edge_to_6 <- GET self . to
-lw $t2, 20($t1)
+lw $t2, 16($t1)
 lw $t3, -32($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_int_IO
-lw $t8, 20($t9)
+lw $t8, 20($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2194,10 +2641,11 @@ la $t1, data_3
 lw $t2, -0($fp)
 lw $t3, -40($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2228,13 +2676,14 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -44($fp)
 # local_print_Edge_weight_10 <- GET self . weight
-lw $t2, 24($t1)
+lw $t2, 20($t1)
 lw $t3, -48($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_int_IO
-lw $t8, 20($t9)
+lw $t8, 20($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2296,7 +2745,7 @@ sw $t9, 0($v0)
 move $t0, $v0
 lw $t1, -0($fp)
 # self . car <- SET local_EList_EList_car_0
-sw $t0, 16($t1)
+sw $t0, 12($t1)
 lw $t2, -8($fp)
 # Moving self to local_EList_EList_internal_1
 move $t2, $t1
@@ -2339,10 +2788,11 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_abort_Object
-lw $t8, 4($t9)
+lw $t8, 4($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2368,7 +2818,7 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -8($fp)
 # local_head_EList_car_1 <- GET self . car
-lw $t2, 16($t1)
+lw $t2, 12($t1)
 lw $t3, -12($fp)
 # Moving local_head_EList_car_1 to local_head_EList_internal_2
 move $t3, $t2
@@ -2397,10 +2847,11 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_abort_Object
-lw $t8, 4($t9)
+lw $t8, 4($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2462,82 +2913,10 @@ sw $t9, 0($v0)
 li $t9, 20
 sw $t9, 4($v0)
 move $t0, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 68
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 4($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 8($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 12($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-# Save the direction of the method function_out_string_IO in t9
-lw $t9, 16($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
-# Save the direction of the method function_out_int_IO in t9
-lw $t9, 20($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
-# Save the direction of the method function_in_string_IO in t9
-lw $t9, 28($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 24($v0)
-# Save the direction of the method function_in_int_IO in t9
-lw $t9, 24($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 28($v0)
-# Save the direction of the method function_isNil_ECons in t9
-lw $t9, 164($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 32($v0)
-# Save the direction of the method function_head_ECons in t9
-lw $t9, 168($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 36($v0)
-# Save the direction of the method function_tail_ECons in t9
-lw $t9, 172($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 40($v0)
-# Save the direction of the method function_cons_EList in t9
-lw $t9, 148($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 44($v0)
-# Save the direction of the method function_append_EList in t9
-lw $t9, 152($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 48($v0)
-# Save the direction of the method function_print_ECons in t9
-lw $t9, 180($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 52($v0)
-# Save the direction of the method function_EList_EList in t9
-lw $t9, 132($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 56($v0)
-# Save the direction of the method function_init_ECons in t9
-lw $t9, 176($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 60($v0)
-# Save the direction of the method function_ECons_ECons in t9
-lw $t9, 160($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 64($v0)
-sw $v0, 8($t0)
 # Adding Type Info addr
 la $t8, types
 lw $v0, 36($t8)
-sw $v0, 12($t0)
+sw $v0, 8($t0)
 # Static Dispatch of the method ECons
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -2562,10 +2941,11 @@ lw $t0, -8($fp)
 move $t0, $v0
 lw $t1, -12($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_init_ECons
-lw $t8, 60($t9)
+lw $t8, 60($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2629,10 +3009,11 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -8($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_isNil_EList
-lw $t8, 32($t9)
+lw $t8, 32($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2655,16 +3036,17 @@ lw $fp, ($sp)
 lw $t0, -8($fp)
 # saves the return value
 move $t0, $v0
-# If local_append_EList_internal_0 goto true__256
+# If local_append_EList_internal_0 goto true__257
 sw $t0, -8($fp)
-bnez $t0, true__256
+bnez $t0, true__257
 lw $t0, -4($fp)
 lw $t1, -16($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_tail_EList
-lw $t8, 40($t9)
+lw $t8, 40($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2689,10 +3071,11 @@ lw $t0, -16($fp)
 move $t0, $v0
 lw $t1, -20($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_append_EList
-lw $t8, 48($t9)
+lw $t8, 48($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2723,10 +3106,11 @@ move $t0, $v0
 lw $t1, -4($fp)
 lw $t2, -24($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_head_EList
-lw $t8, 36($t9)
+lw $t8, 36($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2753,10 +3137,11 @@ move $t0, $v0
 lw $t1, -20($fp)
 lw $t2, -28($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_cons_EList
-lw $t8, 44($t9)
+lw $t8, 44($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2789,8 +3174,8 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -28($fp)
 sw $t1, -12($fp)
-j end__256
-true__256:
+j end__257
+true__257:
 lw $t0, -0($fp)
 lw $t1, -12($fp)
 # Moving l to local_append_EList_internal_1
@@ -2798,7 +3183,7 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -0($fp)
 sw $t1, -12($fp)
-end__256:
+end__257:
 lw $t0, -12($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -2824,10 +3209,11 @@ la $t0, data_4
 lw $t1, -0($fp)
 lw $t2, -8($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2885,7 +3271,7 @@ sw $t9, 0($v0)
 move $t0, $v0
 lw $t1, -0($fp)
 # self . car <- SET local_ECons_ECons_car_0
-sw $t0, 16($t1)
+sw $t0, 12($t1)
 lw $t2, -8($fp)
 # Initialize void node
 li $a0, 4
@@ -2896,7 +3282,7 @@ la $t9, type_Void
 sw $t9, 0($v0)
 move $t2, $v0
 # self . cdr <- SET local_ECons_ECons_cdr_1
-sw $t2, 20($t1)
+sw $t2, 16($t1)
 lw $t3, -12($fp)
 # Moving self to local_ECons_ECons_internal_2
 move $t3, $t1
@@ -2936,7 +3322,7 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_head_ECons_car_0 <- GET self . car
-lw $t1, 16($t0)
+lw $t1, 12($t0)
 move $v0, $t1
 # Empty all used registers and saves them to memory
 sw $t0, -0($fp)
@@ -2957,7 +3343,7 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_tail_ECons_cdr_0 <- GET self . cdr
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 move $v0, $t1
 # Empty all used registers and saves them to memory
 sw $t0, -0($fp)
@@ -2982,10 +3368,10 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -8($fp)
 # self . car <- SET e
-sw $t0, 16($t1)
+sw $t0, 12($t1)
 lw $t2, -0($fp)
 # self . cdr <- SET rest
-sw $t2, 20($t1)
+sw $t2, 16($t1)
 lw $t3, -12($fp)
 # Moving self to local_init_ECons_internal_0
 move $t3, $t1
@@ -3020,13 +3406,14 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_print_ECons_car_0 <- GET self . car
-lw $t1, 16($t0)
+lw $t1, 12($t0)
 lw $t2, -8($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_print_Edge
-lw $t8, 36($t9)
+lw $t8, 36($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3053,13 +3440,14 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -12($fp)
 # local_print_ECons_cdr_2 <- GET self . cdr
-lw $t2, 20($t1)
+lw $t2, 16($t1)
 lw $t3, -16($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_print_EList
-lw $t8, 52($t9)
+lw $t8, 52($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3118,7 +3506,7 @@ sw $t9, 0($v0)
 move $t0, $v0
 lw $t1, -0($fp)
 # self . car <- SET local_VList_VList_car_0
-sw $t0, 16($t1)
+sw $t0, 12($t1)
 lw $t2, -8($fp)
 # Moving self to local_VList_VList_internal_1
 move $t2, $t1
@@ -3161,10 +3549,11 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_abort_Object
-lw $t8, 4($t9)
+lw $t8, 4($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3190,7 +3579,7 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -8($fp)
 # local_head_VList_car_1 <- GET self . car
-lw $t2, 16($t1)
+lw $t2, 12($t1)
 lw $t3, -12($fp)
 # Moving local_head_VList_car_1 to local_head_VList_internal_2
 move $t3, $t2
@@ -3219,10 +3608,11 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_abort_Object
-lw $t8, 4($t9)
+lw $t8, 4($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3284,78 +3674,10 @@ sw $t9, 0($v0)
 li $t9, 20
 sw $t9, 4($v0)
 move $t0, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 64
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 4($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 8($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 12($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-# Save the direction of the method function_out_string_IO in t9
-lw $t9, 16($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
-# Save the direction of the method function_out_int_IO in t9
-lw $t9, 20($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
-# Save the direction of the method function_in_string_IO in t9
-lw $t9, 28($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 24($v0)
-# Save the direction of the method function_in_int_IO in t9
-lw $t9, 24($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 28($v0)
-# Save the direction of the method function_isNil_VCons in t9
-lw $t9, 212($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 32($v0)
-# Save the direction of the method function_head_VCons in t9
-lw $t9, 216($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 36($v0)
-# Save the direction of the method function_tail_VCons in t9
-lw $t9, 220($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 40($v0)
-# Save the direction of the method function_cons_VList in t9
-lw $t9, 200($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 44($v0)
-# Save the direction of the method function_print_VCons in t9
-lw $t9, 228($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 48($v0)
-# Save the direction of the method function_VList_VList in t9
-lw $t9, 184($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 52($v0)
-# Save the direction of the method function_init_VCons in t9
-lw $t9, 224($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 56($v0)
-# Save the direction of the method function_VCons_VCons in t9
-lw $t9, 208($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 60($v0)
-sw $v0, 8($t0)
 # Adding Type Info addr
 la $t8, types
 lw $v0, 44($t8)
-sw $v0, 12($t0)
+sw $v0, 8($t0)
 # Static Dispatch of the method VCons
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -3380,10 +3702,11 @@ lw $t0, -8($fp)
 move $t0, $v0
 lw $t1, -12($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_init_VCons
-lw $t8, 56($t9)
+lw $t8, 56($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3440,10 +3763,11 @@ la $t0, data_5
 lw $t1, -0($fp)
 lw $t2, -8($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3501,7 +3825,7 @@ sw $t9, 0($v0)
 move $t0, $v0
 lw $t1, -0($fp)
 # self . car <- SET local_VCons_VCons_car_0
-sw $t0, 16($t1)
+sw $t0, 12($t1)
 lw $t2, -8($fp)
 # Initialize void node
 li $a0, 4
@@ -3512,7 +3836,7 @@ la $t9, type_Void
 sw $t9, 0($v0)
 move $t2, $v0
 # self . cdr <- SET local_VCons_VCons_cdr_1
-sw $t2, 20($t1)
+sw $t2, 16($t1)
 lw $t3, -12($fp)
 # Moving self to local_VCons_VCons_internal_2
 move $t3, $t1
@@ -3552,7 +3876,7 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_head_VCons_car_0 <- GET self . car
-lw $t1, 16($t0)
+lw $t1, 12($t0)
 move $v0, $t1
 # Empty all used registers and saves them to memory
 sw $t0, -0($fp)
@@ -3573,7 +3897,7 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_tail_VCons_cdr_0 <- GET self . cdr
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 move $v0, $t1
 # Empty all used registers and saves them to memory
 sw $t0, -0($fp)
@@ -3598,10 +3922,10 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -8($fp)
 # self . car <- SET v
-sw $t0, 16($t1)
+sw $t0, 12($t1)
 lw $t2, -0($fp)
 # self . cdr <- SET rest
-sw $t2, 20($t1)
+sw $t2, 16($t1)
 lw $t3, -12($fp)
 # Moving self to local_init_VCons_internal_0
 move $t3, $t1
@@ -3636,13 +3960,14 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_print_VCons_car_0 <- GET self . car
-lw $t1, 16($t0)
+lw $t1, 12($t0)
 lw $t2, -8($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_print_Vertice
-lw $t8, 48($t9)
+lw $t8, 48($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3669,13 +3994,14 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -12($fp)
 # local_print_VCons_cdr_2 <- GET self . cdr
-lw $t2, 20($t1)
+lw $t2, 16($t1)
 lw $t3, -16($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_print_VList
-lw $t8, 48($t9)
+lw $t8, 48($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3737,46 +4063,18 @@ sw $t9, 0($v0)
 li $t9, 12
 sw $t9, 4($v0)
 move $t0, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 24
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 4($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 8($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 12($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-# Save the direction of the method function_and_BoolOp in t9
-lw $t9, 264($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
-# Save the direction of the method function_or_BoolOp in t9
-lw $t9, 268($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
-sw $v0, 8($t0)
 # Adding Type Info addr
 la $t8, types
 lw $v0, 56($t8)
-sw $v0, 12($t0)
+sw $v0, 8($t0)
 lw $t1, -0($fp)
 # self . boolop <- SET local_Parse_Parse_internal_0
-sw $t0, 16($t1)
+sw $t0, 12($t1)
 lw $t2, -8($fp)
 # Saves in local_Parse_Parse_internal_1 data_6
 la $t2, data_6
 # self . rest <- SET local_Parse_Parse_internal_1
-sw $t2, 20($t1)
+sw $t2, 16($t1)
 lw $t3, -12($fp)
 # Moving self to local_Parse_Parse_internal_2
 move $t3, $t1
@@ -3846,46 +4144,10 @@ sw $t9, 0($v0)
 li $t9, 20
 sw $t9, 4($v0)
 move $t0, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 32
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 4($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 8($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 12($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-# Save the direction of the method function_add_vertice_Graph in t9
-lw $t9, 84($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
-# Save the direction of the method function_print_E_Graph in t9
-lw $t9, 88($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
-# Save the direction of the method function_print_V_Graph in t9
-lw $t9, 92($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 24($v0)
-# Save the direction of the method function_Graph_Graph in t9
-lw $t9, 80($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 28($v0)
-sw $v0, 8($t0)
 # Adding Type Info addr
 la $t8, types
 lw $v0, 20($t8)
-sw $v0, 12($t0)
+sw $v0, 8($t0)
 # Static Dispatch of the method Graph
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -3915,10 +4177,11 @@ sw $t1, -4($fp)
 lw $t2, -0($fp)
 lw $t3, -16($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_in_string_IO
-lw $t8, 24($t9)
+lw $t8, 24($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3959,11 +4222,11 @@ move $t2, $v0
 sw $t0, -16($fp)
 sw $t1, -12($fp)
 sw $t2, -20($fp)
-start__452:
+start__453:
 lw $t0, -0($fp)
 lw $t1, -24($fp)
 # local_read_input_Parse_boolop_5 <- GET self . boolop
-lw $t1, 16($t0)
+lw $t1, 12($t0)
 lw $t2, -36($fp)
 # Saves in local_read_input_Parse_internal_8 data_7
 la $t2, data_7
@@ -3972,32 +4235,32 @@ lw $t4, -32($fp)
 # local_read_input_Parse_internal_7 <- local_read_input_Parse_line_2 = local_read_input_Parse_internal_8
 move $t8, $t3
 move $t9, $t2
-loop_7:
+loop_6:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_7
-beqz $a1, mismatch_7
+beqz $a0, check_6
+beqz $a1, mismatch_6
 seq $v0, $a0, $a1
-beqz $v0, mismatch_7
+beqz $v0, mismatch_6
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_7
-mismatch_7:
+j loop_6
+mismatch_6:
 li $v0, 0
-j end_7
-check_7:
-bnez $a1, mismatch_7
+j end_6
+check_6:
+bnez $a1, mismatch_6
 li $v0, 1
-end_7:
+end_6:
 move $t4, $v0
 lw $t5, -28($fp)
 # local_read_input_Parse_internal_6 <- not local_read_input_Parse_internal_7
-beqz $t4, false_8
+beqz $t4, false_7
 li $t5, 0
-j end_8
-false_8:
+j end_7
+false_7:
 li $t5, 1
-end_8:
+end_7:
 lw $t6, -48($fp)
 # Saves in local_read_input_Parse_internal_11 data_8
 la $t6, data_8
@@ -4005,45 +4268,46 @@ lw $t7, -44($fp)
 # local_read_input_Parse_internal_10 <- local_read_input_Parse_line_2 = local_read_input_Parse_internal_11
 move $t8, $t3
 move $t9, $t6
-loop_9:
+loop_8:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_9
-beqz $a1, mismatch_9
+beqz $a0, check_8
+beqz $a1, mismatch_8
 seq $v0, $a0, $a1
-beqz $v0, mismatch_9
+beqz $v0, mismatch_8
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_9
-mismatch_9:
+j loop_8
+mismatch_8:
 li $v0, 0
-j end_9
-check_9:
-bnez $a1, mismatch_9
+j end_8
+check_8:
+bnez $a1, mismatch_8
 li $v0, 1
-end_9:
+end_8:
 move $t7, $v0
-lw $a0, -40($fp)
+lw $a1, -40($fp)
 # local_read_input_Parse_internal_9 <- not local_read_input_Parse_internal_10
-beqz $t7, false_10
-li $a0, 0
-j end_10
-false_10:
-li $a0, 1
-end_10:
-lw $a1, -52($fp)
+beqz $t7, false_9
+li $a1, 0
+j end_9
+false_9:
+li $a1, 1
+end_9:
+lw $a2, -52($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_and_BoolOp
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $a0, ($sp)
+sw $a1, ($sp)
 addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
 sw $t5, ($sp)
@@ -4060,8 +4324,8 @@ sw $t4, -32($fp)
 sw $t5, -28($fp)
 sw $t6, -48($fp)
 sw $t7, -44($fp)
-sw $a0, -40($fp)
-sw $a1, -52($fp)
+sw $a1, -40($fp)
+sw $a2, -52($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -4073,16 +4337,17 @@ lw $fp, ($sp)
 lw $t0, -52($fp)
 # saves the return value
 move $t0, $v0
-# If not local_read_input_Parse_internal_12 goto end__452
+# If not local_read_input_Parse_internal_12 goto end__453
 sw $t0, -52($fp)
-beqz $t0, end__452
+beqz $t0, end__453
 lw $t0, -0($fp)
 lw $t1, -56($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_parse_line_Parse
-lw $t8, 36($t9)
+lw $t8, 36($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4113,10 +4378,11 @@ move $t0, $v0
 lw $t1, -4($fp)
 lw $t2, -60($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_add_vertice_Graph
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4146,10 +4412,11 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -64($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_in_string_IO
-lw $t8, 24($t9)
+lw $t8, 24($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4189,8 +4456,8 @@ sw $t0, -64($fp)
 sw $t1, -12($fp)
 sw $t2, -68($fp)
 sw $t3, -20($fp)
-j start__452
-end__452:
+j start__453
+end__453:
 lw $t0, -4($fp)
 lw $t1, -72($fp)
 # Moving local_read_input_Parse_g_0 to local_read_input_Parse_internal_17
@@ -4267,70 +4534,10 @@ sw $t9, 0($v0)
 li $t9, 20
 sw $t9, 4($v0)
 move $t0, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 56
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 4($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 8($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 12($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-# Save the direction of the method function_out_string_IO in t9
-lw $t9, 16($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
-# Save the direction of the method function_out_int_IO in t9
-lw $t9, 20($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
-# Save the direction of the method function_in_string_IO in t9
-lw $t9, 28($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 24($v0)
-# Save the direction of the method function_in_int_IO in t9
-lw $t9, 24($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 28($v0)
-# Save the direction of the method function_outgoing_Vertice in t9
-lw $t9, 100($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 32($v0)
-# Save the direction of the method function_number_Vertice in t9
-lw $t9, 104($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 36($v0)
-# Save the direction of the method function_init_Vertice in t9
-lw $t9, 108($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 40($v0)
-# Save the direction of the method function_add_out_Vertice in t9
-lw $t9, 112($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 44($v0)
-# Save the direction of the method function_print_Vertice in t9
-lw $t9, 116($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 48($v0)
-# Save the direction of the method function_Vertice_Vertice in t9
-lw $t9, 96($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 52($v0)
-sw $v0, 8($t0)
 # Adding Type Info addr
 la $t8, types
 lw $v0, 24($t8)
-sw $v0, 12($t0)
+sw $v0, 8($t0)
 # Static Dispatch of the method Vertice
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -4356,10 +4563,11 @@ move $t0, $v0
 lw $t1, -4($fp)
 lw $t2, -16($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_a2i_Parse
-lw $t8, 44($t9)
+lw $t8, 44($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4391,10 +4599,11 @@ move $t0, $v0
 lw $t1, -12($fp)
 lw $t2, -20($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_init_Vertice
-lw $t8, 40($t9)
+lw $t8, 40($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4437,11 +4646,11 @@ move $t2, $v0
 sw $t0, -20($fp)
 sw $t1, -8($fp)
 sw $t2, -24($fp)
-start__510:
+start__511:
 lw $t0, -4($fp)
 lw $t1, -36($fp)
 # local_parse_line_Parse_rest_7 <- GET self . rest
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 lw $t2, -40($fp)
 # Static Dispatch of the method length
 sw $fp, ($sp)
@@ -4473,27 +4682,28 @@ li $t9, 0
 seq $t1, $t0, $t9
 lw $t2, -28($fp)
 # local_parse_line_Parse_internal_5 <- not local_parse_line_Parse_internal_6
-beqz $t1, false_11
+beqz $t1, false_10
 li $t2, 0
-j end_11
-false_11:
+j end_10
+false_10:
 li $t2, 1
-end_11:
-# If not local_parse_line_Parse_internal_5 goto end__510
+end_10:
+# If not local_parse_line_Parse_internal_5 goto end__511
 sw $t0, -40($fp)
 sw $t1, -32($fp)
 sw $t2, -28($fp)
-beqz $t2, end__510
+beqz $t2, end__511
 lw $t0, -4($fp)
 lw $t1, -48($fp)
 # local_parse_line_Parse_rest_10 <- GET self . rest
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 lw $t2, -52($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_a2i_Parse
-lw $t8, 44($t9)
+lw $t8, 44($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4527,13 +4737,14 @@ sw $t1, -44($fp)
 lw $t2, -4($fp)
 lw $t3, -60($fp)
 # local_parse_line_Parse_rest_13 <- GET self . rest
-lw $t3, 20($t2)
+lw $t3, 16($t2)
 lw $t4, -64($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_a2i_Parse
-lw $t8, 44($t9)
+lw $t8, 44($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4578,58 +4789,10 @@ sw $t9, 0($v0)
 li $t9, 24
 sw $t9, 4($v0)
 move $t2, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 44
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 4($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 8($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 12($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-# Save the direction of the method function_out_string_IO in t9
-lw $t9, 16($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
-# Save the direction of the method function_out_int_IO in t9
-lw $t9, 20($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
-# Save the direction of the method function_in_string_IO in t9
-lw $t9, 28($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 24($v0)
-# Save the direction of the method function_in_int_IO in t9
-lw $t9, 24($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 28($v0)
-# Save the direction of the method function_init_Edge in t9
-lw $t9, 124($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 32($v0)
-# Save the direction of the method function_print_Edge in t9
-lw $t9, 128($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 36($v0)
-# Save the direction of the method function_Edge_Edge in t9
-lw $t9, 120($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 40($v0)
-sw $v0, 8($t2)
 # Adding Type Info addr
 la $t8, types
 lw $v0, 28($t8)
-sw $v0, 12($t2)
+sw $v0, 8($t2)
 # Static Dispatch of the method Edge
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -4657,10 +4820,11 @@ move $t0, $v0
 lw $t1, -8($fp)
 lw $t2, -72($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_number_Vertice
-lw $t8, 36($t9)
+lw $t8, 36($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4687,10 +4851,11 @@ move $t0, $v0
 lw $t1, -68($fp)
 lw $t2, -76($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_init_Edge
-lw $t8, 32($t9)
+lw $t8, 32($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4730,10 +4895,11 @@ move $t0, $v0
 lw $t1, -8($fp)
 lw $t2, -80($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_add_out_Vertice
-lw $t8, 44($t9)
+lw $t8, 44($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4771,8 +4937,8 @@ sw $t2, -24($fp)
 sw $t0, -80($fp)
 sw $t1, -84($fp)
 sw $t2, -24($fp)
-j start__510
-end__510:
+j start__511
+end__511:
 lw $t0, -8($fp)
 lw $t1, -88($fp)
 # Moving local_parse_line_Parse_v_0 to local_parse_line_Parse_internal_20
@@ -4867,6 +5033,37 @@ lw $t2, -8($fp)
 # local_c2i_Parse_internal_0 <- char = local_c2i_Parse_internal_1
 move $t8, $t1
 move $t9, $t0
+loop_11:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_11
+beqz $a1, mismatch_11
+seq $v0, $a0, $a1
+beqz $v0, mismatch_11
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_11
+mismatch_11:
+li $v0, 0
+j end_11
+check_11:
+bnez $a1, mismatch_11
+li $v0, 1
+end_11:
+move $t2, $v0
+# If local_c2i_Parse_internal_0 goto true__570
+sw $t0, -12($fp)
+sw $t1, -0($fp)
+sw $t2, -8($fp)
+bnez $t2, true__570
+lw $t0, -24($fp)
+# Saves in local_c2i_Parse_internal_4 data_10
+la $t0, data_10
+lw $t1, -0($fp)
+lw $t2, -20($fp)
+# local_c2i_Parse_internal_3 <- char = local_c2i_Parse_internal_4
+move $t8, $t1
+move $t9, $t0
 loop_12:
 lb $a0, ($t8)
 lb $a1, ($t9)
@@ -4885,17 +5082,17 @@ bnez $a1, mismatch_12
 li $v0, 1
 end_12:
 move $t2, $v0
-# If local_c2i_Parse_internal_0 goto true__569
-sw $t0, -12($fp)
+# If local_c2i_Parse_internal_3 goto true__577
+sw $t0, -24($fp)
 sw $t1, -0($fp)
-sw $t2, -8($fp)
-bnez $t2, true__569
-lw $t0, -24($fp)
-# Saves in local_c2i_Parse_internal_4 data_10
-la $t0, data_10
+sw $t2, -20($fp)
+bnez $t2, true__577
+lw $t0, -36($fp)
+# Saves in local_c2i_Parse_internal_7 data_11
+la $t0, data_11
 lw $t1, -0($fp)
-lw $t2, -20($fp)
-# local_c2i_Parse_internal_3 <- char = local_c2i_Parse_internal_4
+lw $t2, -32($fp)
+# local_c2i_Parse_internal_6 <- char = local_c2i_Parse_internal_7
 move $t8, $t1
 move $t9, $t0
 loop_13:
@@ -4916,17 +5113,17 @@ bnez $a1, mismatch_13
 li $v0, 1
 end_13:
 move $t2, $v0
-# If local_c2i_Parse_internal_3 goto true__576
-sw $t0, -24($fp)
+# If local_c2i_Parse_internal_6 goto true__584
+sw $t0, -36($fp)
 sw $t1, -0($fp)
-sw $t2, -20($fp)
-bnez $t2, true__576
-lw $t0, -36($fp)
-# Saves in local_c2i_Parse_internal_7 data_11
-la $t0, data_11
+sw $t2, -32($fp)
+bnez $t2, true__584
+lw $t0, -48($fp)
+# Saves in local_c2i_Parse_internal_10 data_12
+la $t0, data_12
 lw $t1, -0($fp)
-lw $t2, -32($fp)
-# local_c2i_Parse_internal_6 <- char = local_c2i_Parse_internal_7
+lw $t2, -44($fp)
+# local_c2i_Parse_internal_9 <- char = local_c2i_Parse_internal_10
 move $t8, $t1
 move $t9, $t0
 loop_14:
@@ -4947,17 +5144,17 @@ bnez $a1, mismatch_14
 li $v0, 1
 end_14:
 move $t2, $v0
-# If local_c2i_Parse_internal_6 goto true__583
-sw $t0, -36($fp)
+# If local_c2i_Parse_internal_9 goto true__591
+sw $t0, -48($fp)
 sw $t1, -0($fp)
-sw $t2, -32($fp)
-bnez $t2, true__583
-lw $t0, -48($fp)
-# Saves in local_c2i_Parse_internal_10 data_12
-la $t0, data_12
+sw $t2, -44($fp)
+bnez $t2, true__591
+lw $t0, -60($fp)
+# Saves in local_c2i_Parse_internal_13 data_13
+la $t0, data_13
 lw $t1, -0($fp)
-lw $t2, -44($fp)
-# local_c2i_Parse_internal_9 <- char = local_c2i_Parse_internal_10
+lw $t2, -56($fp)
+# local_c2i_Parse_internal_12 <- char = local_c2i_Parse_internal_13
 move $t8, $t1
 move $t9, $t0
 loop_15:
@@ -4978,17 +5175,17 @@ bnez $a1, mismatch_15
 li $v0, 1
 end_15:
 move $t2, $v0
-# If local_c2i_Parse_internal_9 goto true__590
-sw $t0, -48($fp)
+# If local_c2i_Parse_internal_12 goto true__598
+sw $t0, -60($fp)
 sw $t1, -0($fp)
-sw $t2, -44($fp)
-bnez $t2, true__590
-lw $t0, -60($fp)
-# Saves in local_c2i_Parse_internal_13 data_13
-la $t0, data_13
+sw $t2, -56($fp)
+bnez $t2, true__598
+lw $t0, -72($fp)
+# Saves in local_c2i_Parse_internal_16 data_14
+la $t0, data_14
 lw $t1, -0($fp)
-lw $t2, -56($fp)
-# local_c2i_Parse_internal_12 <- char = local_c2i_Parse_internal_13
+lw $t2, -68($fp)
+# local_c2i_Parse_internal_15 <- char = local_c2i_Parse_internal_16
 move $t8, $t1
 move $t9, $t0
 loop_16:
@@ -5009,17 +5206,17 @@ bnez $a1, mismatch_16
 li $v0, 1
 end_16:
 move $t2, $v0
-# If local_c2i_Parse_internal_12 goto true__597
-sw $t0, -60($fp)
+# If local_c2i_Parse_internal_15 goto true__605
+sw $t0, -72($fp)
 sw $t1, -0($fp)
-sw $t2, -56($fp)
-bnez $t2, true__597
-lw $t0, -72($fp)
-# Saves in local_c2i_Parse_internal_16 data_14
-la $t0, data_14
+sw $t2, -68($fp)
+bnez $t2, true__605
+lw $t0, -84($fp)
+# Saves in local_c2i_Parse_internal_19 data_15
+la $t0, data_15
 lw $t1, -0($fp)
-lw $t2, -68($fp)
-# local_c2i_Parse_internal_15 <- char = local_c2i_Parse_internal_16
+lw $t2, -80($fp)
+# local_c2i_Parse_internal_18 <- char = local_c2i_Parse_internal_19
 move $t8, $t1
 move $t9, $t0
 loop_17:
@@ -5040,17 +5237,17 @@ bnez $a1, mismatch_17
 li $v0, 1
 end_17:
 move $t2, $v0
-# If local_c2i_Parse_internal_15 goto true__604
-sw $t0, -72($fp)
+# If local_c2i_Parse_internal_18 goto true__612
+sw $t0, -84($fp)
 sw $t1, -0($fp)
-sw $t2, -68($fp)
-bnez $t2, true__604
-lw $t0, -84($fp)
-# Saves in local_c2i_Parse_internal_19 data_15
-la $t0, data_15
+sw $t2, -80($fp)
+bnez $t2, true__612
+lw $t0, -96($fp)
+# Saves in local_c2i_Parse_internal_22 data_16
+la $t0, data_16
 lw $t1, -0($fp)
-lw $t2, -80($fp)
-# local_c2i_Parse_internal_18 <- char = local_c2i_Parse_internal_19
+lw $t2, -92($fp)
+# local_c2i_Parse_internal_21 <- char = local_c2i_Parse_internal_22
 move $t8, $t1
 move $t9, $t0
 loop_18:
@@ -5071,17 +5268,17 @@ bnez $a1, mismatch_18
 li $v0, 1
 end_18:
 move $t2, $v0
-# If local_c2i_Parse_internal_18 goto true__611
-sw $t0, -84($fp)
+# If local_c2i_Parse_internal_21 goto true__619
+sw $t0, -96($fp)
 sw $t1, -0($fp)
-sw $t2, -80($fp)
-bnez $t2, true__611
-lw $t0, -96($fp)
-# Saves in local_c2i_Parse_internal_22 data_16
-la $t0, data_16
+sw $t2, -92($fp)
+bnez $t2, true__619
+lw $t0, -108($fp)
+# Saves in local_c2i_Parse_internal_25 data_17
+la $t0, data_17
 lw $t1, -0($fp)
-lw $t2, -92($fp)
-# local_c2i_Parse_internal_21 <- char = local_c2i_Parse_internal_22
+lw $t2, -104($fp)
+# local_c2i_Parse_internal_24 <- char = local_c2i_Parse_internal_25
 move $t8, $t1
 move $t9, $t0
 loop_19:
@@ -5102,17 +5299,17 @@ bnez $a1, mismatch_19
 li $v0, 1
 end_19:
 move $t2, $v0
-# If local_c2i_Parse_internal_21 goto true__618
-sw $t0, -96($fp)
+# If local_c2i_Parse_internal_24 goto true__626
+sw $t0, -108($fp)
 sw $t1, -0($fp)
-sw $t2, -92($fp)
-bnez $t2, true__618
-lw $t0, -108($fp)
-# Saves in local_c2i_Parse_internal_25 data_17
-la $t0, data_17
+sw $t2, -104($fp)
+bnez $t2, true__626
+lw $t0, -120($fp)
+# Saves in local_c2i_Parse_internal_28 data_18
+la $t0, data_18
 lw $t1, -0($fp)
-lw $t2, -104($fp)
-# local_c2i_Parse_internal_24 <- char = local_c2i_Parse_internal_25
+lw $t2, -116($fp)
+# local_c2i_Parse_internal_27 <- char = local_c2i_Parse_internal_28
 move $t8, $t1
 move $t9, $t0
 loop_20:
@@ -5133,49 +5330,19 @@ bnez $a1, mismatch_20
 li $v0, 1
 end_20:
 move $t2, $v0
-# If local_c2i_Parse_internal_24 goto true__625
-sw $t0, -108($fp)
-sw $t1, -0($fp)
-sw $t2, -104($fp)
-bnez $t2, true__625
-lw $t0, -120($fp)
-# Saves in local_c2i_Parse_internal_28 data_18
-la $t0, data_18
-lw $t1, -0($fp)
-lw $t2, -116($fp)
-# local_c2i_Parse_internal_27 <- char = local_c2i_Parse_internal_28
-move $t8, $t1
-move $t9, $t0
-loop_21:
-lb $a0, ($t8)
-lb $a1, ($t9)
-beqz $a0, check_21
-beqz $a1, mismatch_21
-seq $v0, $a0, $a1
-beqz $v0, mismatch_21
-addi $t8, $t8, 1
-addi $t9, $t9, 1
-j loop_21
-mismatch_21:
-li $v0, 0
-j end_21
-check_21:
-bnez $a1, mismatch_21
-li $v0, 1
-end_21:
-move $t2, $v0
-# If local_c2i_Parse_internal_27 goto true__632
+# If local_c2i_Parse_internal_27 goto true__633
 sw $t0, -120($fp)
 sw $t1, -0($fp)
 sw $t2, -116($fp)
-bnez $t2, true__632
+bnez $t2, true__633
 lw $t0, -4($fp)
 lw $t1, -128($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_abort_Object
-lw $t8, 4($t9)
+lw $t8, 4($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5209,14 +5376,14 @@ sw $t2, -124($fp)
 sw $t0, -128($fp)
 sw $t1, -132($fp)
 sw $t2, -124($fp)
-j end__632
-true__632:
+j end__633
+true__633:
 lw $t0, -124($fp)
 # Moving 9 to local_c2i_Parse_internal_29
 li $t0, 9
 sw $t0, -124($fp)
 sw $t0, -124($fp)
-end__632:
+end__633:
 lw $t0, -124($fp)
 lw $t1, -112($fp)
 # Moving local_c2i_Parse_internal_29 to local_c2i_Parse_internal_26
@@ -5224,14 +5391,14 @@ move $t1, $t0
 sw $t1, -112($fp)
 sw $t0, -124($fp)
 sw $t1, -112($fp)
-j end__625
-true__625:
+j end__626
+true__626:
 lw $t0, -112($fp)
 # Moving 8 to local_c2i_Parse_internal_26
 li $t0, 8
 sw $t0, -112($fp)
 sw $t0, -112($fp)
-end__625:
+end__626:
 lw $t0, -112($fp)
 lw $t1, -100($fp)
 # Moving local_c2i_Parse_internal_26 to local_c2i_Parse_internal_23
@@ -5239,14 +5406,14 @@ move $t1, $t0
 sw $t1, -100($fp)
 sw $t0, -112($fp)
 sw $t1, -100($fp)
-j end__618
-true__618:
+j end__619
+true__619:
 lw $t0, -100($fp)
 # Moving 7 to local_c2i_Parse_internal_23
 li $t0, 7
 sw $t0, -100($fp)
 sw $t0, -100($fp)
-end__618:
+end__619:
 lw $t0, -100($fp)
 lw $t1, -88($fp)
 # Moving local_c2i_Parse_internal_23 to local_c2i_Parse_internal_20
@@ -5254,14 +5421,14 @@ move $t1, $t0
 sw $t1, -88($fp)
 sw $t0, -100($fp)
 sw $t1, -88($fp)
-j end__611
-true__611:
+j end__612
+true__612:
 lw $t0, -88($fp)
 # Moving 6 to local_c2i_Parse_internal_20
 li $t0, 6
 sw $t0, -88($fp)
 sw $t0, -88($fp)
-end__611:
+end__612:
 lw $t0, -88($fp)
 lw $t1, -76($fp)
 # Moving local_c2i_Parse_internal_20 to local_c2i_Parse_internal_17
@@ -5269,14 +5436,14 @@ move $t1, $t0
 sw $t1, -76($fp)
 sw $t0, -88($fp)
 sw $t1, -76($fp)
-j end__604
-true__604:
+j end__605
+true__605:
 lw $t0, -76($fp)
 # Moving 5 to local_c2i_Parse_internal_17
 li $t0, 5
 sw $t0, -76($fp)
 sw $t0, -76($fp)
-end__604:
+end__605:
 lw $t0, -76($fp)
 lw $t1, -64($fp)
 # Moving local_c2i_Parse_internal_17 to local_c2i_Parse_internal_14
@@ -5284,14 +5451,14 @@ move $t1, $t0
 sw $t1, -64($fp)
 sw $t0, -76($fp)
 sw $t1, -64($fp)
-j end__597
-true__597:
+j end__598
+true__598:
 lw $t0, -64($fp)
 # Moving 4 to local_c2i_Parse_internal_14
 li $t0, 4
 sw $t0, -64($fp)
 sw $t0, -64($fp)
-end__597:
+end__598:
 lw $t0, -64($fp)
 lw $t1, -52($fp)
 # Moving local_c2i_Parse_internal_14 to local_c2i_Parse_internal_11
@@ -5299,14 +5466,14 @@ move $t1, $t0
 sw $t1, -52($fp)
 sw $t0, -64($fp)
 sw $t1, -52($fp)
-j end__590
-true__590:
+j end__591
+true__591:
 lw $t0, -52($fp)
 # Moving 3 to local_c2i_Parse_internal_11
 li $t0, 3
 sw $t0, -52($fp)
 sw $t0, -52($fp)
-end__590:
+end__591:
 lw $t0, -52($fp)
 lw $t1, -40($fp)
 # Moving local_c2i_Parse_internal_11 to local_c2i_Parse_internal_8
@@ -5314,14 +5481,14 @@ move $t1, $t0
 sw $t1, -40($fp)
 sw $t0, -52($fp)
 sw $t1, -40($fp)
-j end__583
-true__583:
+j end__584
+true__584:
 lw $t0, -40($fp)
 # Moving 2 to local_c2i_Parse_internal_8
 li $t0, 2
 sw $t0, -40($fp)
 sw $t0, -40($fp)
-end__583:
+end__584:
 lw $t0, -40($fp)
 lw $t1, -28($fp)
 # Moving local_c2i_Parse_internal_8 to local_c2i_Parse_internal_5
@@ -5329,14 +5496,14 @@ move $t1, $t0
 sw $t1, -28($fp)
 sw $t0, -40($fp)
 sw $t1, -28($fp)
-j end__576
-true__576:
+j end__577
+true__577:
 lw $t0, -28($fp)
 # Moving 1 to local_c2i_Parse_internal_5
 li $t0, 1
 sw $t0, -28($fp)
 sw $t0, -28($fp)
-end__576:
+end__577:
 lw $t0, -28($fp)
 lw $t1, -16($fp)
 # Moving local_c2i_Parse_internal_5 to local_c2i_Parse_internal_2
@@ -5344,14 +5511,14 @@ move $t1, $t0
 sw $t1, -16($fp)
 sw $t0, -28($fp)
 sw $t1, -16($fp)
-j end__569
-true__569:
+j end__570
+true__570:
 lw $t0, -16($fp)
 # Moving 0 to local_c2i_Parse_internal_2
 li $t0, 0
 sw $t0, -16($fp)
 sw $t0, -16($fp)
-end__569:
+end__570:
 lw $t0, -16($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -5440,10 +5607,10 @@ lw $t1, -8($fp)
 # local_a2i_Parse_internal_0 <- local_a2i_Parse_internal_1 = 0
 li $t9, 0
 seq $t1, $t0, $t9
-# If local_a2i_Parse_internal_0 goto true__697
+# If local_a2i_Parse_internal_0 goto true__698
 sw $t0, -12($fp)
 sw $t1, -8($fp)
-bnez $t1, true__697
+bnez $t1, true__698
 lw $t0, -24($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
@@ -5484,29 +5651,29 @@ lw $t2, -20($fp)
 # local_a2i_Parse_internal_3 <- local_a2i_Parse_internal_4 = local_a2i_Parse_internal_5
 move $t8, $t0
 move $t9, $t1
-loop_22:
+loop_21:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_22
-beqz $a1, mismatch_22
+beqz $a0, check_21
+beqz $a1, mismatch_21
 seq $v0, $a0, $a1
-beqz $v0, mismatch_22
+beqz $v0, mismatch_21
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_22
-mismatch_22:
+j loop_21
+mismatch_21:
 li $v0, 0
-j end_22
-check_22:
-bnez $a1, mismatch_22
+j end_21
+check_21:
+bnez $a1, mismatch_21
 li $v0, 1
-end_22:
+end_21:
 move $t2, $v0
-# If local_a2i_Parse_internal_3 goto true__709
+# If local_a2i_Parse_internal_3 goto true__710
 sw $t0, -24($fp)
 sw $t1, -28($fp)
 sw $t2, -20($fp)
-bnez $t2, true__709
+bnez $t2, true__710
 lw $t0, -40($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
@@ -5547,36 +5714,37 @@ lw $t2, -36($fp)
 # local_a2i_Parse_internal_7 <- local_a2i_Parse_internal_8 = local_a2i_Parse_internal_9
 move $t8, $t0
 move $t9, $t1
-loop_23:
+loop_22:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_23
-beqz $a1, mismatch_23
+beqz $a0, check_22
+beqz $a1, mismatch_22
 seq $v0, $a0, $a1
-beqz $v0, mismatch_23
+beqz $v0, mismatch_22
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_23
-mismatch_23:
+j loop_22
+mismatch_22:
 li $v0, 0
-j end_23
-check_23:
-bnez $a1, mismatch_23
+j end_22
+check_22:
+bnez $a1, mismatch_22
 li $v0, 1
-end_23:
+end_22:
 move $t2, $v0
-# If local_a2i_Parse_internal_7 goto true__721
+# If local_a2i_Parse_internal_7 goto true__722
 sw $t0, -40($fp)
 sw $t1, -44($fp)
 sw $t2, -36($fp)
-bnez $t2, true__721
+bnez $t2, true__722
 lw $t0, -4($fp)
 lw $t1, -52($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_a2i_aux_Parse
-lw $t8, 48($t9)
+lw $t8, 48($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5610,8 +5778,8 @@ move $t1, $t0
 sw $t1, -48($fp)
 sw $t0, -52($fp)
 sw $t1, -48($fp)
-j end__721
-true__721:
+j end__722
+true__722:
 lw $t0, -60($fp)
 # Static Dispatch of the method length
 sw $fp, ($sp)
@@ -5677,10 +5845,11 @@ move $t0, $v0
 lw $t1, -4($fp)
 lw $t2, -68($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_a2i_Parse
-lw $t8, 44($t9)
+lw $t8, 44($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5713,7 +5882,7 @@ move $t1, $t0
 sw $t1, -48($fp)
 sw $t0, -68($fp)
 sw $t1, -48($fp)
-end__721:
+end__722:
 lw $t0, -48($fp)
 lw $t1, -32($fp)
 # Moving local_a2i_Parse_internal_10 to local_a2i_Parse_internal_6
@@ -5721,8 +5890,8 @@ move $t1, $t0
 sw $t1, -32($fp)
 sw $t0, -48($fp)
 sw $t1, -32($fp)
-j end__709
-true__709:
+j end__710
+true__710:
 lw $t0, -80($fp)
 # Static Dispatch of the method length
 sw $fp, ($sp)
@@ -5788,10 +5957,11 @@ move $t0, $v0
 lw $t1, -4($fp)
 lw $t2, -88($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_a2i_aux_Parse
-lw $t8, 48($t9)
+lw $t8, 48($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5829,7 +5999,7 @@ sw $t2, -32($fp)
 sw $t0, -88($fp)
 sw $t1, -72($fp)
 sw $t2, -32($fp)
-end__709:
+end__710:
 lw $t0, -32($fp)
 lw $t1, -16($fp)
 # Moving local_a2i_Parse_internal_6 to local_a2i_Parse_internal_2
@@ -5837,14 +6007,14 @@ move $t1, $t0
 sw $t1, -16($fp)
 sw $t0, -32($fp)
 sw $t1, -16($fp)
-j end__697
-true__697:
+j end__698
+true__698:
 lw $t0, -16($fp)
 # Moving 0 to local_a2i_Parse_internal_2
 li $t0, 0
 sw $t0, -16($fp)
 sw $t0, -16($fp)
-end__697:
+end__698:
 lw $t0, -16($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -5987,17 +6157,17 @@ sw $t0, -16($fp)
 sw $t1, -12($fp)
 sw $t2, -20($fp)
 sw $t3, -24($fp)
-start__782:
+start__783:
 lw $t0, -20($fp)
 lw $t1, -12($fp)
 lw $t2, -28($fp)
 # local_a2i_aux_Parse_internal_5 <- local_a2i_aux_Parse_i_3 < local_a2i_aux_Parse_j_1
 slt $t2, $t0, $t1
-# If not local_a2i_aux_Parse_internal_5 goto end__782
+# If not local_a2i_aux_Parse_internal_5 goto end__783
 sw $t0, -20($fp)
 sw $t1, -12($fp)
 sw $t2, -28($fp)
-beqz $t2, end__782
+beqz $t2, end__783
 lw $t0, -36($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
@@ -6043,6 +6213,38 @@ lw $t3, -40($fp)
 # local_a2i_aux_Parse_internal_8 <- local_a2i_aux_Parse_c_6 = local_a2i_aux_Parse_internal_9
 move $t8, $t1
 move $t9, $t2
+loop_23:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_23
+beqz $a1, mismatch_23
+seq $v0, $a0, $a1
+beqz $v0, mismatch_23
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_23
+mismatch_23:
+li $v0, 0
+j end_23
+check_23:
+bnez $a1, mismatch_23
+li $v0, 1
+end_23:
+move $t3, $v0
+# If local_a2i_aux_Parse_internal_8 goto true__801
+sw $t0, -36($fp)
+sw $t1, -32($fp)
+sw $t2, -44($fp)
+sw $t3, -40($fp)
+bnez $t3, true__801
+lw $t0, -56($fp)
+# Saves in local_a2i_aux_Parse_internal_12 data_22
+la $t0, data_22
+lw $t1, -32($fp)
+lw $t2, -52($fp)
+# local_a2i_aux_Parse_internal_11 <- local_a2i_aux_Parse_c_6 = local_a2i_aux_Parse_internal_12
+move $t8, $t1
+move $t9, $t0
 loop_24:
 lb $a0, ($t8)
 lb $a1, ($t9)
@@ -6060,44 +6262,12 @@ check_24:
 bnez $a1, mismatch_24
 li $v0, 1
 end_24:
-move $t3, $v0
-# If local_a2i_aux_Parse_internal_8 goto true__800
-sw $t0, -36($fp)
-sw $t1, -32($fp)
-sw $t2, -44($fp)
-sw $t3, -40($fp)
-bnez $t3, true__800
-lw $t0, -56($fp)
-# Saves in local_a2i_aux_Parse_internal_12 data_22
-la $t0, data_22
-lw $t1, -32($fp)
-lw $t2, -52($fp)
-# local_a2i_aux_Parse_internal_11 <- local_a2i_aux_Parse_c_6 = local_a2i_aux_Parse_internal_12
-move $t8, $t1
-move $t9, $t0
-loop_25:
-lb $a0, ($t8)
-lb $a1, ($t9)
-beqz $a0, check_25
-beqz $a1, mismatch_25
-seq $v0, $a0, $a1
-beqz $v0, mismatch_25
-addi $t8, $t8, 1
-addi $t9, $t9, 1
-j loop_25
-mismatch_25:
-li $v0, 0
-j end_25
-check_25:
-bnez $a1, mismatch_25
-li $v0, 1
-end_25:
 move $t2, $v0
-# If local_a2i_aux_Parse_internal_11 goto true__807
+# If local_a2i_aux_Parse_internal_11 goto true__808
 sw $t0, -56($fp)
 sw $t1, -32($fp)
 sw $t2, -52($fp)
-bnez $t2, true__807
+bnez $t2, true__808
 lw $t0, -8($fp)
 lw $t1, -68($fp)
 # local_a2i_aux_Parse_internal_15 <- local_a2i_aux_Parse_int_0 * 10
@@ -6143,10 +6313,11 @@ move $t0, $v0
 lw $t1, -4($fp)
 lw $t2, -76($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_c2i_Parse
-lw $t8, 40($t9)
+lw $t8, 40($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6192,7 +6363,7 @@ lw $t6, -12($fp)
 lw $t7, -84($fp)
 # local_a2i_aux_Parse_internal_19 <- local_a2i_aux_Parse_i_3 = local_a2i_aux_Parse_j_1
 seq $t7, $t4, $t6
-# If local_a2i_aux_Parse_internal_19 goto true__827
+# If local_a2i_aux_Parse_internal_19 goto true__828
 sw $t0, -76($fp)
 sw $t1, -68($fp)
 sw $t2, -64($fp)
@@ -6201,7 +6372,7 @@ sw $t4, -20($fp)
 sw $t5, -80($fp)
 sw $t6, -12($fp)
 sw $t7, -84($fp)
-bnez $t7, true__827
+bnez $t7, true__828
 lw $t0, -92($fp)
 # Saves in local_a2i_aux_Parse_internal_21 data_23
 la $t0, data_23
@@ -6211,14 +6382,14 @@ move $t1, $t0
 sw $t1, -88($fp)
 sw $t0, -92($fp)
 sw $t1, -88($fp)
-j end__827
-true__827:
+j end__828
+true__828:
 lw $t0, -96($fp)
 # Saves in local_a2i_aux_Parse_internal_22 data_24
 la $t0, data_24
 lw $t1, -4($fp)
 # self . rest <- SET local_a2i_aux_Parse_internal_22
-sw $t0, 20($t1)
+sw $t0, 16($t1)
 lw $t2, -88($fp)
 # Moving local_a2i_aux_Parse_internal_22 to local_a2i_aux_Parse_internal_20
 move $t2, $t0
@@ -6226,7 +6397,7 @@ sw $t2, -88($fp)
 sw $t0, -96($fp)
 sw $t1, -4($fp)
 sw $t2, -88($fp)
-end__827:
+end__828:
 lw $t0, -88($fp)
 lw $t1, -100($fp)
 # Moving local_a2i_aux_Parse_internal_20 to local_a2i_aux_Parse_internal_23
@@ -6239,8 +6410,8 @@ sw $t2, -60($fp)
 sw $t0, -88($fp)
 sw $t1, -100($fp)
 sw $t2, -60($fp)
-j end__807
-true__807:
+j end__808
+true__808:
 lw $t0, -20($fp)
 lw $t1, -104($fp)
 # local_a2i_aux_Parse_internal_24 <- local_a2i_aux_Parse_i_3 + 1
@@ -6318,7 +6489,7 @@ lw $t0, -120($fp)
 move $t0, $v0
 lw $t1, -4($fp)
 # self . rest <- SET local_a2i_aux_Parse_internal_28
-sw $t0, 20($t1)
+sw $t0, 16($t1)
 lw $t2, -12($fp)
 lw $t3, -20($fp)
 # Moving local_a2i_aux_Parse_j_1 to local_a2i_aux_Parse_i_3
@@ -6338,7 +6509,7 @@ sw $t2, -12($fp)
 sw $t3, -20($fp)
 sw $t4, -124($fp)
 sw $t5, -60($fp)
-end__807:
+end__808:
 lw $t0, -60($fp)
 lw $t1, -48($fp)
 # Moving local_a2i_aux_Parse_internal_13 to local_a2i_aux_Parse_internal_10
@@ -6346,8 +6517,8 @@ move $t1, $t0
 sw $t1, -48($fp)
 sw $t0, -60($fp)
 sw $t1, -48($fp)
-j end__800
-true__800:
+j end__801
+true__801:
 lw $t0, -20($fp)
 lw $t1, -128($fp)
 # local_a2i_aux_Parse_internal_30 <- local_a2i_aux_Parse_i_3 + 1
@@ -6425,7 +6596,7 @@ lw $t0, -144($fp)
 move $t0, $v0
 lw $t1, -4($fp)
 # self . rest <- SET local_a2i_aux_Parse_internal_34
-sw $t0, 20($t1)
+sw $t0, 16($t1)
 lw $t2, -12($fp)
 lw $t3, -20($fp)
 # Moving local_a2i_aux_Parse_j_1 to local_a2i_aux_Parse_i_3
@@ -6445,7 +6616,7 @@ sw $t2, -12($fp)
 sw $t3, -20($fp)
 sw $t4, -148($fp)
 sw $t5, -48($fp)
-end__800:
+end__801:
 lw $t0, -48($fp)
 lw $t1, -24($fp)
 # Moving local_a2i_aux_Parse_internal_10 to local_a2i_aux_Parse_internal_4
@@ -6453,8 +6624,8 @@ move $t1, $t0
 sw $t1, -24($fp)
 sw $t0, -48($fp)
 sw $t1, -24($fp)
-j start__782
-end__782:
+j start__783
+end__783:
 lw $t0, -8($fp)
 lw $t1, -152($fp)
 # Moving local_a2i_aux_Parse_int_0 to local_a2i_aux_Parse_internal_36
@@ -6495,52 +6666,25 @@ sw $t9, 0($v0)
 li $t9, 12
 sw $t9, 4($v0)
 move $t0, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 24
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 4($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 8($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 12($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-# Save the direction of the method function_and_BoolOp in t9
-lw $t9, 264($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
-# Save the direction of the method function_or_BoolOp in t9
-lw $t9, 268($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
-sw $v0, 8($t0)
 # Adding Type Info addr
 la $t8, types
 lw $v0, 56($t8)
-sw $v0, 12($t0)
+sw $v0, 8($t0)
 lw $t1, -0($fp)
 # self . boolop <- SET local_Main_Main_internal_0
-sw $t0, 16($t1)
+sw $t0, 12($t1)
 lw $t2, -8($fp)
 # Saves in local_Main_Main_internal_1 data_25
 la $t2, data_25
 # self . rest <- SET local_Main_Main_internal_1
-sw $t2, 20($t1)
+sw $t2, 16($t1)
 lw $t3, -12($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_read_input_Parse
-lw $t8, 32($t9)
+lw $t8, 32($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6567,7 +6711,7 @@ lw $t0, -12($fp)
 move $t0, $v0
 lw $t1, -0($fp)
 # self . g <- SET local_Main_Main_internal_2
-sw $t0, 24($t1)
+sw $t0, 20($t1)
 lw $t2, -16($fp)
 # Moving self to local_Main_Main_internal_3
 move $t2, $t1
@@ -6601,13 +6745,14 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_main_Main_g_0 <- GET self . g
-lw $t1, 24($t0)
+lw $t1, 20($t0)
 lw $t2, -8($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_print_V_Graph
-lw $t8, 24($t9)
+lw $t8, 24($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6634,13 +6779,14 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -12($fp)
 # local_main_Main_g_2 <- GET self . g
-lw $t2, 24($t1)
+lw $t2, 20($t1)
 lw $t3, -16($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_print_E_Graph
-lw $t8, 20($t9)
+lw $t8, 20($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6691,16 +6837,16 @@ addiu $fp, $fp, 4
 # Updates stack pointer pushing local_and_BoolOp_internal_0 to the stack
 addiu $sp, $sp, -4
 lw $t0, -4($fp)
-# If b1 goto true__929
+# If b1 goto true__930
 sw $t0, -4($fp)
-bnez $t0, true__929
+bnez $t0, true__930
 lw $t0, -12($fp)
 # Moving 0 to local_and_BoolOp_internal_0
 li $t0, 0
 sw $t0, -12($fp)
 sw $t0, -12($fp)
-j end__929
-true__929:
+j end__930
+true__930:
 lw $t0, -0($fp)
 lw $t1, -12($fp)
 # Moving b2 to local_and_BoolOp_internal_0
@@ -6708,7 +6854,7 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -0($fp)
 sw $t1, -12($fp)
-end__929:
+end__930:
 lw $t0, -12($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -6731,9 +6877,9 @@ addiu $fp, $fp, 4
 # Updates stack pointer pushing local_or_BoolOp_internal_0 to the stack
 addiu $sp, $sp, -4
 lw $t0, -4($fp)
-# If b1 goto true__941
+# If b1 goto true__942
 sw $t0, -4($fp)
-bnez $t0, true__941
+bnez $t0, true__942
 lw $t0, -0($fp)
 lw $t1, -12($fp)
 # Moving b2 to local_or_BoolOp_internal_0
@@ -6741,14 +6887,14 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -0($fp)
 sw $t1, -12($fp)
-j end__941
-true__941:
+j end__942
+true__942:
 lw $t0, -12($fp)
 # Moving 1 to local_or_BoolOp_internal_0
 li $t0, 1
 sw $t0, -12($fp)
 sw $t0, -12($fp)
-end__941:
+end__942:
 lw $t0, -12($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -6790,6 +6936,7 @@ type_VCons: .asciiz "VCons"
 type_Parse: .asciiz "Parse"
 type_Main: .asciiz "Main"
 type_BoolOp: .asciiz "BoolOp"
+methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 type_Void: .asciiz "Void"
 types: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 data_0: .asciiz "Void"
@@ -6821,7 +6968,6 @@ data_22: .asciiz ","
 data_23: .asciiz ""
 data_24: .asciiz ""
 data_25: .asciiz ""
-methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 zero_error: .asciiz "Division by zero error
 "
 case_void_error: .asciiz "Case on void error

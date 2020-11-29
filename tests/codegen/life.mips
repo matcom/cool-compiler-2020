@@ -1,106 +1,6 @@
 .text
 .globl main
 main:
-# Save types directions in the types array
-la $t9, types
-# Save space to locate the type info
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_String
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 0($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_Int
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 4($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_Object
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 8($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_Bool
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 12($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_IO
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 16($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_Board
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 20($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_CellularAutomaton
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 24($t9)
-# Allocating memory
-li $v0, 9
-li $a0, 8
-syscall
-# Filling table methods
-la $t8, type_Main
-sw $t8, 0($v0)
-# Copying direction to array
-sw $v0, 28($t9)
-# Copying parents
-lw $v0, 0($t9)
-li $t8, 0
-sw $t8, 4($v0)
-lw $v0, 4($t9)
-li $t8, 0
-sw $t8, 4($v0)
-lw $v0, 8($t9)
-li $t8, 0
-sw $t8, 4($v0)
-lw $v0, 12($t9)
-li $t8, 0
-sw $t8, 4($v0)
-lw $v0, 16($t9)
-lw $t8, 8($t9)
-sw $t8, 4($v0)
-lw $v0, 20($t9)
-lw $t8, 16($t9)
-sw $t8, 4($v0)
-lw $v0, 24($t9)
-lw $t8, 20($t9)
-sw $t8, 4($v0)
-lw $v0, 28($t9)
-lw $t8, 24($t9)
-sw $t8, 4($v0)
 # Save method directions in the methods array
 la $v0, methods
 la $t9, entry
@@ -191,6 +91,562 @@ la $t9, function_Main_Main
 sw $t9, 168($v0)
 la $t9, function_main_Main
 sw $t9, 172($v0)
+# Save types directions in the types array
+la $t9, types
+# Save space to locate the type info
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_String
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 0($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 28
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_length_String in a0
+lw $a0, 32($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_concat_String in a0
+lw $a0, 36($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_substr_String in a0
+lw $a0, 40($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_abort_String in a0
+lw $a0, 68($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_type_name_String in a0
+lw $a0, 44($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_copy_String in a0
+lw $a0, 48($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Int
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 4($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 16
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Int in a0
+lw $a0, 72($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Int in a0
+lw $a0, 52($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Int in a0
+lw $a0, 56($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Object
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 8($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 16
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Bool
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 12($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 16
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Bool in a0
+lw $a0, 76($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Bool in a0
+lw $a0, 60($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Bool in a0
+lw $a0, 64($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_IO
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 16($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 32
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Board
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 20($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 44
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_size_of_board_Board in a0
+lw $a0, 84($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_board_init_Board in a0
+lw $a0, 88($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_Board_Board in a0
+lw $a0, 80($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_CellularAutomaton
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 24($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 120
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_size_of_board_Board in a0
+lw $a0, 84($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_board_init_Board in a0
+lw $a0, 88($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_Board_Board in a0
+lw $a0, 80($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+# Save the direction of the method function_init_CellularAutomaton in a0
+lw $a0, 96($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 44($v0)
+# Save the direction of the method function_print_CellularAutomaton in a0
+lw $a0, 100($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 48($v0)
+# Save the direction of the method function_num_cells_CellularAutomaton in a0
+lw $a0, 104($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 52($v0)
+# Save the direction of the method function_cell_CellularAutomaton in a0
+lw $a0, 108($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 56($v0)
+# Save the direction of the method function_north_CellularAutomaton in a0
+lw $a0, 112($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 60($v0)
+# Save the direction of the method function_south_CellularAutomaton in a0
+lw $a0, 116($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 64($v0)
+# Save the direction of the method function_east_CellularAutomaton in a0
+lw $a0, 120($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 68($v0)
+# Save the direction of the method function_west_CellularAutomaton in a0
+lw $a0, 124($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 72($v0)
+# Save the direction of the method function_northwest_CellularAutomaton in a0
+lw $a0, 128($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 76($v0)
+# Save the direction of the method function_northeast_CellularAutomaton in a0
+lw $a0, 132($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 80($v0)
+# Save the direction of the method function_southeast_CellularAutomaton in a0
+lw $a0, 136($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 84($v0)
+# Save the direction of the method function_southwest_CellularAutomaton in a0
+lw $a0, 140($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 88($v0)
+# Save the direction of the method function_neighbors_CellularAutomaton in a0
+lw $a0, 144($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 92($v0)
+# Save the direction of the method function_cell_at_next_evolution_CellularAutomaton in a0
+lw $a0, 148($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 96($v0)
+# Save the direction of the method function_evolve_CellularAutomaton in a0
+lw $a0, 152($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 100($v0)
+# Save the direction of the method function_option_CellularAutomaton in a0
+lw $a0, 156($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 104($v0)
+# Save the direction of the method function_prompt_CellularAutomaton in a0
+lw $a0, 160($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 108($v0)
+# Save the direction of the method function_prompt2_CellularAutomaton in a0
+lw $a0, 164($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 112($v0)
+# Save the direction of the method function_CellularAutomaton_CellularAutomaton in a0
+lw $a0, 92($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 116($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Main
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 28($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 128
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_size_of_board_Board in a0
+lw $a0, 84($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_board_init_Board in a0
+lw $a0, 88($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_Board_Board in a0
+lw $a0, 80($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+# Save the direction of the method function_init_CellularAutomaton in a0
+lw $a0, 96($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 44($v0)
+# Save the direction of the method function_print_CellularAutomaton in a0
+lw $a0, 100($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 48($v0)
+# Save the direction of the method function_num_cells_CellularAutomaton in a0
+lw $a0, 104($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 52($v0)
+# Save the direction of the method function_cell_CellularAutomaton in a0
+lw $a0, 108($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 56($v0)
+# Save the direction of the method function_north_CellularAutomaton in a0
+lw $a0, 112($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 60($v0)
+# Save the direction of the method function_south_CellularAutomaton in a0
+lw $a0, 116($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 64($v0)
+# Save the direction of the method function_east_CellularAutomaton in a0
+lw $a0, 120($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 68($v0)
+# Save the direction of the method function_west_CellularAutomaton in a0
+lw $a0, 124($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 72($v0)
+# Save the direction of the method function_northwest_CellularAutomaton in a0
+lw $a0, 128($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 76($v0)
+# Save the direction of the method function_northeast_CellularAutomaton in a0
+lw $a0, 132($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 80($v0)
+# Save the direction of the method function_southeast_CellularAutomaton in a0
+lw $a0, 136($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 84($v0)
+# Save the direction of the method function_southwest_CellularAutomaton in a0
+lw $a0, 140($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 88($v0)
+# Save the direction of the method function_neighbors_CellularAutomaton in a0
+lw $a0, 144($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 92($v0)
+# Save the direction of the method function_cell_at_next_evolution_CellularAutomaton in a0
+lw $a0, 148($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 96($v0)
+# Save the direction of the method function_evolve_CellularAutomaton in a0
+lw $a0, 152($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 100($v0)
+# Save the direction of the method function_option_CellularAutomaton in a0
+lw $a0, 156($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 104($v0)
+# Save the direction of the method function_prompt_CellularAutomaton in a0
+lw $a0, 160($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 108($v0)
+# Save the direction of the method function_prompt2_CellularAutomaton in a0
+lw $a0, 164($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 112($v0)
+# Save the direction of the method function_CellularAutomaton_CellularAutomaton in a0
+lw $a0, 92($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 116($v0)
+# Save the direction of the method function_main_Main in a0
+lw $a0, 172($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 120($v0)
+# Save the direction of the method function_Main_Main in a0
+lw $a0, 168($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 124($v0)
+sw $v0, 8($t8)
+# Copying parents
+lw $v0, 0($t9)
+li $t8, 0
+sw $t8, 4($v0)
+lw $v0, 4($t9)
+li $t8, 0
+sw $t8, 4($v0)
+lw $v0, 8($t9)
+li $t8, 0
+sw $t8, 4($v0)
+lw $v0, 12($t9)
+li $t8, 0
+sw $t8, 4($v0)
+lw $v0, 16($t9)
+lw $t8, 8($t9)
+sw $t8, 4($v0)
+lw $v0, 20($t9)
+lw $t8, 16($t9)
+sw $t8, 4($v0)
+lw $v0, 24($t9)
+lw $t8, 20($t9)
+sw $t8, 4($v0)
+lw $v0, 28($t9)
+lw $t8, 24($t9)
+sw $t8, 4($v0)
 
 entry:
 # Gets the params from the stack
@@ -212,142 +668,10 @@ sw $t9, 0($v0)
 li $t9, 32
 sw $t9, 4($v0)
 move $t0, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 128
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 4($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 8($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 12($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-# Save the direction of the method function_out_string_IO in t9
-lw $t9, 16($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
-# Save the direction of the method function_out_int_IO in t9
-lw $t9, 20($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
-# Save the direction of the method function_in_string_IO in t9
-lw $t9, 28($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 24($v0)
-# Save the direction of the method function_in_int_IO in t9
-lw $t9, 24($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 28($v0)
-# Save the direction of the method function_size_of_board_Board in t9
-lw $t9, 84($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 32($v0)
-# Save the direction of the method function_board_init_Board in t9
-lw $t9, 88($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 36($v0)
-# Save the direction of the method function_Board_Board in t9
-lw $t9, 80($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 40($v0)
-# Save the direction of the method function_init_CellularAutomaton in t9
-lw $t9, 96($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 44($v0)
-# Save the direction of the method function_print_CellularAutomaton in t9
-lw $t9, 100($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 48($v0)
-# Save the direction of the method function_num_cells_CellularAutomaton in t9
-lw $t9, 104($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 52($v0)
-# Save the direction of the method function_cell_CellularAutomaton in t9
-lw $t9, 108($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 56($v0)
-# Save the direction of the method function_north_CellularAutomaton in t9
-lw $t9, 112($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 60($v0)
-# Save the direction of the method function_south_CellularAutomaton in t9
-lw $t9, 116($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 64($v0)
-# Save the direction of the method function_east_CellularAutomaton in t9
-lw $t9, 120($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 68($v0)
-# Save the direction of the method function_west_CellularAutomaton in t9
-lw $t9, 124($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 72($v0)
-# Save the direction of the method function_northwest_CellularAutomaton in t9
-lw $t9, 128($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 76($v0)
-# Save the direction of the method function_northeast_CellularAutomaton in t9
-lw $t9, 132($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 80($v0)
-# Save the direction of the method function_southeast_CellularAutomaton in t9
-lw $t9, 136($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 84($v0)
-# Save the direction of the method function_southwest_CellularAutomaton in t9
-lw $t9, 140($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 88($v0)
-# Save the direction of the method function_neighbors_CellularAutomaton in t9
-lw $t9, 144($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 92($v0)
-# Save the direction of the method function_cell_at_next_evolution_CellularAutomaton in t9
-lw $t9, 148($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 96($v0)
-# Save the direction of the method function_evolve_CellularAutomaton in t9
-lw $t9, 152($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 100($v0)
-# Save the direction of the method function_option_CellularAutomaton in t9
-lw $t9, 156($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 104($v0)
-# Save the direction of the method function_prompt_CellularAutomaton in t9
-lw $t9, 160($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 108($v0)
-# Save the direction of the method function_prompt2_CellularAutomaton in t9
-lw $t9, 164($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 112($v0)
-# Save the direction of the method function_CellularAutomaton_CellularAutomaton in t9
-lw $t9, 92($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 116($v0)
-# Save the direction of the method function_main_Main in t9
-lw $t9, 172($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 120($v0)
-# Save the direction of the method function_Main_Main in t9
-lw $t9, 168($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 124($v0)
-sw $v0, 8($t0)
 # Adding Type Info addr
 la $t8, types
 lw $v0, 28($t8)
-sw $v0, 12($t0)
+sw $v0, 8($t0)
 # Static Dispatch of the method Main
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -797,76 +1121,30 @@ addiu $fp, $fp, 4
 # Gets the frame pointer from the stack
 # Updates stack pointer pushing local_copy_String_result_0 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_copy_String_result_1 to the stack
-addiu $sp, $sp, -4
-# Updates stack pointer pushing local_copy_String_result_2 to the stack
-addiu $sp, $sp, -4
 lw $t0, -0($fp)
-lw $t1, -8($fp)
-move $t8, $t0
-# Determining the length of a string
-loop_5:
-lb $t9, 0($t8)
-beq $t9, $zero, end_5
-addi $t8, $t8, 1
-j loop_5
-end_5:
-sub $t1, $t8, $t0
-lw $t2, -12($fp)
-# local_copy_String_result_2 <- local_copy_String_result_1 - 1
-addi $t2, $t1, -1
-lw $t3, -4($fp)
+lw $t1, -4($fp)
 # Allocating memory for the buffer
 li $a0, 356
 li $v0, 9
 syscall
-move $t3, $v0
-li $t8, 0
-# Getting the substring of a node
-# Move to the first position in the string
-li $v0, 0
-move $t8, $t0
-start_6:
-lb $t9, 0($t8)
-beqz $t9, error_6
-addi $v0, 1
-bgt $v0, $t8, end_len_6
-addi $t8, 1
-j start_6
-end_len_6:
-# Saving dest to iterate over him
-move $v0, $t3
-loop_6:
-sub $t9, $v0, $t3
-beq $t9, $t2, end_6
-lb $t9, 0($t8)
-beqz $t9, error_6
-sb $t9, 0($v0)
-addi $t8, $t8, 1
-addi $v0, $v0, 1
-j loop_6
-error_6:
-la $a0, index_error
-li $v0, 4
+move $t1, $v0
+# Copy the first string to dest
 move $a0, $t0
-syscall
-li $v0, 1
-move $a0, $t8
-syscall
-li $v0, 1
-move $a0, $t2
-syscall
-j .raise
-end_6:
+move $a1, $t1
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+jal strcopier
 sb $0, 0($v0)
-move $v0, $t3
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+j finish_5
+finish_5:
+move $v0, $t1
 # Empty all used registers and saves them to memory
 sw $t0, -0($fp)
-sw $t1, -8($fp)
-sw $t2, -12($fp)
-sw $t3, -4($fp)
+sw $t1, -4($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 16
+addiu $sp, $sp, 8
 jr $ra
 
 
@@ -1029,13 +1307,13 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 # self . rows <- SET 0
 li $t9, 0
-sw $t9, 16($t0)
+sw $t9, 12($t0)
 # self . columns <- SET 0
 li $t9, 0
-sw $t9, 20($t0)
+sw $t9, 16($t0)
 # self . board_size <- SET 0
 li $t9, 0
-sw $t9, 24($t0)
+sw $t9, 20($t0)
 lw $t1, -4($fp)
 # Moving self to local_Board_Board_internal_0
 move $t1, $t0
@@ -1147,10 +1425,11 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -12($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_size_of_board_Board
-lw $t8, 32($t9)
+lw $t8, 32($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1186,66 +1465,66 @@ lw $t2, -16($fp)
 # local_board_init_Board_internal_2 <- local_board_init_Board_size_0 = 15
 li $t9, 15
 seq $t2, $t1, $t9
-# If local_board_init_Board_internal_2 goto true__72
+# If local_board_init_Board_internal_2 goto true__73
 sw $t0, -12($fp)
 sw $t1, -8($fp)
 sw $t2, -16($fp)
-bnez $t2, true__72
+bnez $t2, true__73
 lw $t0, -8($fp)
 lw $t1, -24($fp)
 # local_board_init_Board_internal_4 <- local_board_init_Board_size_0 = 16
 li $t9, 16
 seq $t1, $t0, $t9
-# If local_board_init_Board_internal_4 goto true__76
+# If local_board_init_Board_internal_4 goto true__77
 sw $t0, -8($fp)
 sw $t1, -24($fp)
-bnez $t1, true__76
+bnez $t1, true__77
 lw $t0, -8($fp)
 lw $t1, -32($fp)
 # local_board_init_Board_internal_6 <- local_board_init_Board_size_0 = 20
 li $t9, 20
 seq $t1, $t0, $t9
-# If local_board_init_Board_internal_6 goto true__80
+# If local_board_init_Board_internal_6 goto true__81
 sw $t0, -8($fp)
 sw $t1, -32($fp)
-bnez $t1, true__80
+bnez $t1, true__81
 lw $t0, -8($fp)
 lw $t1, -40($fp)
 # local_board_init_Board_internal_8 <- local_board_init_Board_size_0 = 21
 li $t9, 21
 seq $t1, $t0, $t9
-# If local_board_init_Board_internal_8 goto true__84
+# If local_board_init_Board_internal_8 goto true__85
 sw $t0, -8($fp)
 sw $t1, -40($fp)
-bnez $t1, true__84
+bnez $t1, true__85
 lw $t0, -8($fp)
 lw $t1, -48($fp)
 # local_board_init_Board_internal_10 <- local_board_init_Board_size_0 = 25
 li $t9, 25
 seq $t1, $t0, $t9
-# If local_board_init_Board_internal_10 goto true__88
+# If local_board_init_Board_internal_10 goto true__89
 sw $t0, -8($fp)
 sw $t1, -48($fp)
-bnez $t1, true__88
+bnez $t1, true__89
 lw $t0, -8($fp)
 lw $t1, -56($fp)
 # local_board_init_Board_internal_12 <- local_board_init_Board_size_0 = 28
 li $t9, 28
 seq $t1, $t0, $t9
-# If local_board_init_Board_internal_12 goto true__92
+# If local_board_init_Board_internal_12 goto true__93
 sw $t0, -8($fp)
 sw $t1, -56($fp)
-bnez $t1, true__92
+bnez $t1, true__93
 lw $t0, -4($fp)
 # self . rows <- SET 5
 li $t9, 5
-sw $t9, 16($t0)
+sw $t9, 12($t0)
 # self . columns <- SET 5
 li $t9, 5
-sw $t9, 20($t0)
+sw $t9, 16($t0)
 lw $t1, -8($fp)
 # self . board_size <- SET local_board_init_Board_size_0
-sw $t1, 24($t0)
+sw $t1, 20($t0)
 lw $t2, -64($fp)
 # Moving local_board_init_Board_size_0 to local_board_init_Board_internal_14
 move $t2, $t1
@@ -1258,18 +1537,18 @@ sw $t0, -4($fp)
 sw $t1, -8($fp)
 sw $t2, -64($fp)
 sw $t3, -60($fp)
-j end__92
-true__92:
+j end__93
+true__93:
 lw $t0, -4($fp)
 # self . rows <- SET 7
 li $t9, 7
-sw $t9, 16($t0)
+sw $t9, 12($t0)
 # self . columns <- SET 4
 li $t9, 4
-sw $t9, 20($t0)
+sw $t9, 16($t0)
 lw $t1, -8($fp)
 # self . board_size <- SET local_board_init_Board_size_0
-sw $t1, 24($t0)
+sw $t1, 20($t0)
 lw $t2, -68($fp)
 # Moving local_board_init_Board_size_0 to local_board_init_Board_internal_15
 move $t2, $t1
@@ -1282,7 +1561,7 @@ sw $t0, -4($fp)
 sw $t1, -8($fp)
 sw $t2, -68($fp)
 sw $t3, -60($fp)
-end__92:
+end__93:
 lw $t0, -60($fp)
 lw $t1, -52($fp)
 # Moving local_board_init_Board_internal_13 to local_board_init_Board_internal_11
@@ -1290,18 +1569,18 @@ move $t1, $t0
 sw $t1, -52($fp)
 sw $t0, -60($fp)
 sw $t1, -52($fp)
-j end__88
-true__88:
+j end__89
+true__89:
 lw $t0, -4($fp)
 # self . rows <- SET 5
 li $t9, 5
-sw $t9, 16($t0)
+sw $t9, 12($t0)
 # self . columns <- SET 5
 li $t9, 5
-sw $t9, 20($t0)
+sw $t9, 16($t0)
 lw $t1, -8($fp)
 # self . board_size <- SET local_board_init_Board_size_0
-sw $t1, 24($t0)
+sw $t1, 20($t0)
 lw $t2, -72($fp)
 # Moving local_board_init_Board_size_0 to local_board_init_Board_internal_16
 move $t2, $t1
@@ -1314,7 +1593,7 @@ sw $t0, -4($fp)
 sw $t1, -8($fp)
 sw $t2, -72($fp)
 sw $t3, -52($fp)
-end__88:
+end__89:
 lw $t0, -52($fp)
 lw $t1, -44($fp)
 # Moving local_board_init_Board_internal_11 to local_board_init_Board_internal_9
@@ -1322,18 +1601,18 @@ move $t1, $t0
 sw $t1, -44($fp)
 sw $t0, -52($fp)
 sw $t1, -44($fp)
-j end__84
-true__84:
+j end__85
+true__85:
 lw $t0, -4($fp)
 # self . rows <- SET 3
 li $t9, 3
-sw $t9, 16($t0)
+sw $t9, 12($t0)
 # self . columns <- SET 7
 li $t9, 7
-sw $t9, 20($t0)
+sw $t9, 16($t0)
 lw $t1, -8($fp)
 # self . board_size <- SET local_board_init_Board_size_0
-sw $t1, 24($t0)
+sw $t1, 20($t0)
 lw $t2, -76($fp)
 # Moving local_board_init_Board_size_0 to local_board_init_Board_internal_17
 move $t2, $t1
@@ -1346,7 +1625,7 @@ sw $t0, -4($fp)
 sw $t1, -8($fp)
 sw $t2, -76($fp)
 sw $t3, -44($fp)
-end__84:
+end__85:
 lw $t0, -44($fp)
 lw $t1, -36($fp)
 # Moving local_board_init_Board_internal_9 to local_board_init_Board_internal_7
@@ -1354,18 +1633,18 @@ move $t1, $t0
 sw $t1, -36($fp)
 sw $t0, -44($fp)
 sw $t1, -36($fp)
-j end__80
-true__80:
+j end__81
+true__81:
 lw $t0, -4($fp)
 # self . rows <- SET 4
 li $t9, 4
-sw $t9, 16($t0)
+sw $t9, 12($t0)
 # self . columns <- SET 5
 li $t9, 5
-sw $t9, 20($t0)
+sw $t9, 16($t0)
 lw $t1, -8($fp)
 # self . board_size <- SET local_board_init_Board_size_0
-sw $t1, 24($t0)
+sw $t1, 20($t0)
 lw $t2, -80($fp)
 # Moving local_board_init_Board_size_0 to local_board_init_Board_internal_18
 move $t2, $t1
@@ -1378,7 +1657,7 @@ sw $t0, -4($fp)
 sw $t1, -8($fp)
 sw $t2, -80($fp)
 sw $t3, -36($fp)
-end__80:
+end__81:
 lw $t0, -36($fp)
 lw $t1, -28($fp)
 # Moving local_board_init_Board_internal_7 to local_board_init_Board_internal_5
@@ -1386,18 +1665,18 @@ move $t1, $t0
 sw $t1, -28($fp)
 sw $t0, -36($fp)
 sw $t1, -28($fp)
-j end__76
-true__76:
+j end__77
+true__77:
 lw $t0, -4($fp)
 # self . rows <- SET 4
 li $t9, 4
-sw $t9, 16($t0)
+sw $t9, 12($t0)
 # self . columns <- SET 4
 li $t9, 4
-sw $t9, 20($t0)
+sw $t9, 16($t0)
 lw $t1, -8($fp)
 # self . board_size <- SET local_board_init_Board_size_0
-sw $t1, 24($t0)
+sw $t1, 20($t0)
 lw $t2, -84($fp)
 # Moving local_board_init_Board_size_0 to local_board_init_Board_internal_19
 move $t2, $t1
@@ -1410,7 +1689,7 @@ sw $t0, -4($fp)
 sw $t1, -8($fp)
 sw $t2, -84($fp)
 sw $t3, -28($fp)
-end__76:
+end__77:
 lw $t0, -28($fp)
 lw $t1, -20($fp)
 # Moving local_board_init_Board_internal_5 to local_board_init_Board_internal_3
@@ -1418,18 +1697,18 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -28($fp)
 sw $t1, -20($fp)
-j end__72
-true__72:
+j end__73
+true__73:
 lw $t0, -4($fp)
 # self . rows <- SET 3
 li $t9, 3
-sw $t9, 16($t0)
+sw $t9, 12($t0)
 # self . columns <- SET 5
 li $t9, 5
-sw $t9, 20($t0)
+sw $t9, 16($t0)
 lw $t1, -8($fp)
 # self . board_size <- SET local_board_init_Board_size_0
-sw $t1, 24($t0)
+sw $t1, 20($t0)
 lw $t2, -88($fp)
 # Moving local_board_init_Board_size_0 to local_board_init_Board_internal_20
 move $t2, $t1
@@ -1442,7 +1721,7 @@ sw $t0, -4($fp)
 sw $t1, -8($fp)
 sw $t2, -88($fp)
 sw $t3, -20($fp)
-end__72:
+end__73:
 lw $t0, -4($fp)
 lw $t1, -92($fp)
 # Moving self to local_board_init_Board_internal_21
@@ -1470,18 +1749,18 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 # self . rows <- SET 0
 li $t9, 0
-sw $t9, 16($t0)
+sw $t9, 12($t0)
 # self . columns <- SET 0
 li $t9, 0
-sw $t9, 20($t0)
+sw $t9, 16($t0)
 # self . board_size <- SET 0
 li $t9, 0
-sw $t9, 24($t0)
+sw $t9, 20($t0)
 lw $t1, -4($fp)
 # Saves in local_CellularAutomaton_CellularAutomaton_internal_0 data_1
 la $t1, data_1
 # self . population_map <- SET local_CellularAutomaton_CellularAutomaton_internal_0
-sw $t1, 28($t0)
+sw $t1, 24($t0)
 lw $t2, -8($fp)
 # Moving self to local_CellularAutomaton_CellularAutomaton_internal_1
 move $t2, $t0
@@ -1511,13 +1790,14 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # self . population_map <- SET map
-sw $t0, 28($t1)
+sw $t0, 24($t1)
 lw $t2, -8($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_board_init_Board
-lw $t8, 36($t9)
+lw $t8, 36($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1610,7 +1890,7 @@ sw $t0, -4($fp)
 lw $t1, -0($fp)
 lw $t2, -12($fp)
 # local_print_CellularAutomaton_board_size_2 <- GET self . board_size
-lw $t2, 24($t1)
+lw $t2, 20($t1)
 lw $t3, -8($fp)
 # Moving local_print_CellularAutomaton_board_size_2 to local_print_CellularAutomaton_num_1
 move $t3, $t2
@@ -1620,10 +1900,11 @@ lw $t4, -16($fp)
 la $t4, data_2
 lw $t5, -20($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1664,24 +1945,24 @@ sw $t9, 0($v0)
 move $t1, $v0
 sw $t0, -20($fp)
 sw $t1, -24($fp)
-start__198:
+start__199:
 lw $t0, -4($fp)
 lw $t1, -8($fp)
 lw $t2, -28($fp)
 # local_print_CellularAutomaton_internal_6 <- local_print_CellularAutomaton_i_0 < local_print_CellularAutomaton_num_1
 slt $t2, $t0, $t1
-# If not local_print_CellularAutomaton_internal_6 goto end__198
+# If not local_print_CellularAutomaton_internal_6 goto end__199
 sw $t0, -4($fp)
 sw $t1, -8($fp)
 sw $t2, -28($fp)
-beqz $t2, end__198
+beqz $t2, end__199
 lw $t0, -0($fp)
 lw $t1, -32($fp)
 # local_print_CellularAutomaton_population_map_7 <- GET self . population_map
-lw $t1, 28($t0)
+lw $t1, 24($t0)
 lw $t2, -36($fp)
 # local_print_CellularAutomaton_columns_8 <- GET self . columns
-lw $t2, 20($t0)
+lw $t2, 16($t0)
 lw $t3, -40($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
@@ -1719,10 +2000,11 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -44($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1755,10 +2037,11 @@ la $t1, data_3
 lw $t2, -0($fp)
 lw $t3, -52($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1789,7 +2072,7 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -60($fp)
 # local_print_CellularAutomaton_columns_14 <- GET self . columns
-lw $t2, 20($t1)
+lw $t2, 16($t1)
 lw $t3, -4($fp)
 lw $t4, -56($fp)
 # local_print_CellularAutomaton_internal_13 <- local_print_CellularAutomaton_i_0 + local_print_CellularAutomaton_columns_14
@@ -1812,18 +2095,19 @@ sw $t3, -4($fp)
 sw $t4, -56($fp)
 sw $t5, -64($fp)
 sw $t6, -24($fp)
-j start__198
-end__198:
+j start__199
+end__199:
 lw $t0, -68($fp)
 # Saves in local_print_CellularAutomaton_internal_16 data_4
 la $t0, data_4
 lw $t1, -0($fp)
 lw $t2, -72($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -1878,7 +2162,7 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_num_cells_CellularAutomaton_population_map_0 <- GET self . population_map
-lw $t1, 28($t0)
+lw $t1, 24($t0)
 lw $t2, -8($fp)
 # Static Dispatch of the method length
 sw $fp, ($sp)
@@ -1937,7 +2221,7 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -16($fp)
 # local_cell_CellularAutomaton_board_size_2 <- GET self . board_size
-lw $t1, 24($t0)
+lw $t1, 20($t0)
 lw $t2, -12($fp)
 # local_cell_CellularAutomaton_internal_1 <- local_cell_CellularAutomaton_board_size_2 - 1
 addi $t2, $t1, -1
@@ -1945,17 +2229,17 @@ lw $t3, -0($fp)
 lw $t4, -8($fp)
 # local_cell_CellularAutomaton_internal_0 <- local_cell_CellularAutomaton_internal_1 < position
 slt $t4, $t2, $t3
-# If local_cell_CellularAutomaton_internal_0 goto true__258
+# If local_cell_CellularAutomaton_internal_0 goto true__259
 sw $t0, -4($fp)
 sw $t1, -16($fp)
 sw $t2, -12($fp)
 sw $t3, -0($fp)
 sw $t4, -8($fp)
-bnez $t4, true__258
+bnez $t4, true__259
 lw $t0, -4($fp)
 lw $t1, -24($fp)
 # local_cell_CellularAutomaton_population_map_4 <- GET self . population_map
-lw $t1, 28($t0)
+lw $t1, 24($t0)
 lw $t2, -28($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
@@ -1996,8 +2280,8 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -28($fp)
 sw $t1, -20($fp)
-j end__258
-true__258:
+j end__259
+true__259:
 lw $t0, -32($fp)
 # Saves in local_cell_CellularAutomaton_internal_6 data_5
 la $t0, data_5
@@ -2007,7 +2291,7 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -32($fp)
 sw $t1, -20($fp)
-end__258:
+end__259:
 lw $t0, -20($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -2044,7 +2328,7 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -16($fp)
 # local_north_CellularAutomaton_columns_2 <- GET self . columns
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 lw $t2, -0($fp)
 lw $t3, -12($fp)
 # local_north_CellularAutomaton_internal_1 <- position - local_north_CellularAutomaton_columns_2
@@ -2053,27 +2337,28 @@ lw $t4, -8($fp)
 # local_north_CellularAutomaton_internal_0 <- local_north_CellularAutomaton_internal_1 < 0
 li $t9, 0
 slt $t4, $t3, $t9
-# If local_north_CellularAutomaton_internal_0 goto true__285
+# If local_north_CellularAutomaton_internal_0 goto true__286
 sw $t0, -4($fp)
 sw $t1, -16($fp)
 sw $t2, -0($fp)
 sw $t3, -12($fp)
 sw $t4, -8($fp)
-bnez $t4, true__285
+bnez $t4, true__286
 lw $t0, -4($fp)
 lw $t1, -28($fp)
 # local_north_CellularAutomaton_columns_5 <- GET self . columns
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 lw $t2, -0($fp)
 lw $t3, -24($fp)
 # local_north_CellularAutomaton_internal_4 <- position - local_north_CellularAutomaton_columns_5
 sub $t3, $t2, $t1
 lw $t4, -32($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_cell_CellularAutomaton
-lw $t8, 56($t9)
+lw $t8, 56($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2108,8 +2393,8 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -32($fp)
 sw $t1, -20($fp)
-j end__285
-true__285:
+j end__286
+true__286:
 lw $t0, -36($fp)
 # Saves in local_north_CellularAutomaton_internal_7 data_6
 la $t0, data_6
@@ -2119,7 +2404,7 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -36($fp)
 sw $t1, -20($fp)
-end__285:
+end__286:
 lw $t0, -20($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -2158,10 +2443,10 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -12($fp)
 # local_south_CellularAutomaton_board_size_1 <- GET self . board_size
-lw $t1, 24($t0)
+lw $t1, 20($t0)
 lw $t2, -20($fp)
 # local_south_CellularAutomaton_columns_3 <- GET self . columns
-lw $t2, 20($t0)
+lw $t2, 16($t0)
 lw $t3, -0($fp)
 lw $t4, -16($fp)
 # local_south_CellularAutomaton_internal_2 <- position + local_south_CellularAutomaton_columns_3
@@ -2169,28 +2454,29 @@ add $t4, $t3, $t2
 lw $t5, -8($fp)
 # local_south_CellularAutomaton_internal_0 <- local_south_CellularAutomaton_board_size_1 < local_south_CellularAutomaton_internal_2
 slt $t5, $t1, $t4
-# If local_south_CellularAutomaton_internal_0 goto true__314
+# If local_south_CellularAutomaton_internal_0 goto true__315
 sw $t0, -4($fp)
 sw $t1, -12($fp)
 sw $t2, -20($fp)
 sw $t3, -0($fp)
 sw $t4, -16($fp)
 sw $t5, -8($fp)
-bnez $t5, true__314
+bnez $t5, true__315
 lw $t0, -4($fp)
 lw $t1, -32($fp)
 # local_south_CellularAutomaton_columns_6 <- GET self . columns
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 lw $t2, -0($fp)
 lw $t3, -28($fp)
 # local_south_CellularAutomaton_internal_5 <- position + local_south_CellularAutomaton_columns_6
 add $t3, $t2, $t1
 lw $t4, -36($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_cell_CellularAutomaton
-lw $t8, 56($t9)
+lw $t8, 56($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2225,8 +2511,8 @@ move $t1, $t0
 sw $t1, -24($fp)
 sw $t0, -36($fp)
 sw $t1, -24($fp)
-j end__314
-true__314:
+j end__315
+true__315:
 lw $t0, -40($fp)
 # Saves in local_south_CellularAutomaton_internal_8 data_7
 la $t0, data_7
@@ -2236,7 +2522,7 @@ move $t1, $t0
 sw $t1, -24($fp)
 sw $t0, -40($fp)
 sw $t1, -24($fp)
-end__314:
+end__315:
 lw $t0, -24($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -2283,7 +2569,7 @@ addi $t1, $t0, 1
 lw $t2, -4($fp)
 lw $t3, -24($fp)
 # local_east_CellularAutomaton_columns_4 <- GET self . columns
-lw $t3, 20($t2)
+lw $t3, 16($t2)
 lw $t4, -16($fp)
 # local_east_CellularAutomaton_internal_2 <- local_east_CellularAutomaton_internal_3 / local_east_CellularAutomaton_columns_4
 la $a0, zero_error
@@ -2292,7 +2578,7 @@ div $t1, $t3
 mflo $t4
 lw $t5, -28($fp)
 # local_east_CellularAutomaton_columns_5 <- GET self . columns
-lw $t5, 20($t2)
+lw $t5, 16($t2)
 lw $t6, -12($fp)
 # local_east_CellularAutomaton_internal_1 <- local_east_CellularAutomaton_internal_2 * local_east_CellularAutomaton_columns_5
 mult $t4, $t5
@@ -2300,10 +2586,10 @@ mflo $t6
 lw $t7, -32($fp)
 # local_east_CellularAutomaton_internal_6 <- position + 1
 addi $t7, $t0, 1
-lw $a0, -8($fp)
+lw $a1, -8($fp)
 # local_east_CellularAutomaton_internal_0 <- local_east_CellularAutomaton_internal_1 = local_east_CellularAutomaton_internal_6
-seq $a0, $t6, $t7
-# If local_east_CellularAutomaton_internal_0 goto true__349
+seq $a1, $t6, $t7
+# If local_east_CellularAutomaton_internal_0 goto true__350
 sw $t0, -0($fp)
 sw $t1, -20($fp)
 sw $t2, -4($fp)
@@ -2312,8 +2598,8 @@ sw $t4, -16($fp)
 sw $t5, -28($fp)
 sw $t6, -12($fp)
 sw $t7, -32($fp)
-sw $a0, -8($fp)
-bnez $a0, true__349
+sw $a1, -8($fp)
+bnez $a1, true__350
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # local_east_CellularAutomaton_internal_8 <- position + 1
@@ -2321,10 +2607,11 @@ addi $t1, $t0, 1
 lw $t2, -4($fp)
 lw $t3, -44($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_cell_CellularAutomaton
-lw $t8, 56($t9)
+lw $t8, 56($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2358,8 +2645,8 @@ move $t1, $t0
 sw $t1, -36($fp)
 sw $t0, -44($fp)
 sw $t1, -36($fp)
-j end__349
-true__349:
+j end__350
+true__350:
 lw $t0, -48($fp)
 # Saves in local_east_CellularAutomaton_internal_10 data_8
 la $t0, data_8
@@ -2369,7 +2656,7 @@ move $t1, $t0
 sw $t1, -36($fp)
 sw $t0, -48($fp)
 sw $t1, -36($fp)
-end__349:
+end__350:
 lw $t0, -36($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -2416,14 +2703,14 @@ lw $t1, -8($fp)
 # local_west_CellularAutomaton_internal_0 <- position = 0
 li $t9, 0
 seq $t1, $t0, $t9
-# If local_west_CellularAutomaton_internal_0 goto true__370
+# If local_west_CellularAutomaton_internal_0 goto true__371
 sw $t0, -0($fp)
 sw $t1, -8($fp)
-bnez $t1, true__370
+bnez $t1, true__371
 lw $t0, -4($fp)
 lw $t1, -28($fp)
 # local_west_CellularAutomaton_columns_5 <- GET self . columns
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 lw $t2, -0($fp)
 lw $t3, -24($fp)
 # local_west_CellularAutomaton_internal_4 <- position / local_west_CellularAutomaton_columns_5
@@ -2433,7 +2720,7 @@ div $t2, $t1
 mflo $t3
 lw $t4, -32($fp)
 # local_west_CellularAutomaton_columns_6 <- GET self . columns
-lw $t4, 20($t0)
+lw $t4, 16($t0)
 lw $t5, -20($fp)
 # local_west_CellularAutomaton_internal_3 <- local_west_CellularAutomaton_internal_4 * local_west_CellularAutomaton_columns_6
 mult $t3, $t4
@@ -2441,7 +2728,7 @@ mflo $t5
 lw $t6, -16($fp)
 # local_west_CellularAutomaton_internal_2 <- local_west_CellularAutomaton_internal_3 = position
 seq $t6, $t5, $t2
-# If local_west_CellularAutomaton_internal_2 goto true__382
+# If local_west_CellularAutomaton_internal_2 goto true__383
 sw $t0, -4($fp)
 sw $t1, -28($fp)
 sw $t2, -0($fp)
@@ -2449,7 +2736,7 @@ sw $t3, -24($fp)
 sw $t4, -32($fp)
 sw $t5, -20($fp)
 sw $t6, -16($fp)
-bnez $t6, true__382
+bnez $t6, true__383
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # local_west_CellularAutomaton_internal_8 <- position - 1
@@ -2457,10 +2744,11 @@ addi $t1, $t0, -1
 lw $t2, -4($fp)
 lw $t3, -44($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_cell_CellularAutomaton
-lw $t8, 56($t9)
+lw $t8, 56($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2494,8 +2782,8 @@ move $t1, $t0
 sw $t1, -36($fp)
 sw $t0, -44($fp)
 sw $t1, -36($fp)
-j end__382
-true__382:
+j end__383
+true__383:
 lw $t0, -48($fp)
 # Saves in local_west_CellularAutomaton_internal_10 data_9
 la $t0, data_9
@@ -2505,7 +2793,7 @@ move $t1, $t0
 sw $t1, -36($fp)
 sw $t0, -48($fp)
 sw $t1, -36($fp)
-end__382:
+end__383:
 lw $t0, -36($fp)
 lw $t1, -12($fp)
 # Moving local_west_CellularAutomaton_internal_7 to local_west_CellularAutomaton_internal_1
@@ -2513,8 +2801,8 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -36($fp)
 sw $t1, -12($fp)
-j end__370
-true__370:
+j end__371
+true__371:
 lw $t0, -52($fp)
 # Saves in local_west_CellularAutomaton_internal_11 data_10
 la $t0, data_10
@@ -2524,7 +2812,7 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -52($fp)
 sw $t1, -12($fp)
-end__370:
+end__371:
 lw $t0, -12($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -2573,7 +2861,7 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -16($fp)
 # local_northwest_CellularAutomaton_columns_2 <- GET self . columns
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 lw $t2, -0($fp)
 lw $t3, -12($fp)
 # local_northwest_CellularAutomaton_internal_1 <- position - local_northwest_CellularAutomaton_columns_2
@@ -2582,17 +2870,17 @@ lw $t4, -8($fp)
 # local_northwest_CellularAutomaton_internal_0 <- local_northwest_CellularAutomaton_internal_1 < 0
 li $t9, 0
 slt $t4, $t3, $t9
-# If local_northwest_CellularAutomaton_internal_0 goto true__415
+# If local_northwest_CellularAutomaton_internal_0 goto true__416
 sw $t0, -4($fp)
 sw $t1, -16($fp)
 sw $t2, -0($fp)
 sw $t3, -12($fp)
 sw $t4, -8($fp)
-bnez $t4, true__415
+bnez $t4, true__416
 lw $t0, -4($fp)
 lw $t1, -36($fp)
 # local_northwest_CellularAutomaton_columns_7 <- GET self . columns
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 lw $t2, -0($fp)
 lw $t3, -32($fp)
 # local_northwest_CellularAutomaton_internal_6 <- position / local_northwest_CellularAutomaton_columns_7
@@ -2602,7 +2890,7 @@ div $t2, $t1
 mflo $t3
 lw $t4, -40($fp)
 # local_northwest_CellularAutomaton_columns_8 <- GET self . columns
-lw $t4, 20($t0)
+lw $t4, 16($t0)
 lw $t5, -28($fp)
 # local_northwest_CellularAutomaton_internal_5 <- local_northwest_CellularAutomaton_internal_6 * local_northwest_CellularAutomaton_columns_8
 mult $t3, $t4
@@ -2610,7 +2898,7 @@ mflo $t5
 lw $t6, -24($fp)
 # local_northwest_CellularAutomaton_internal_4 <- local_northwest_CellularAutomaton_internal_5 = position
 seq $t6, $t5, $t2
-# If local_northwest_CellularAutomaton_internal_4 goto true__427
+# If local_northwest_CellularAutomaton_internal_4 goto true__428
 sw $t0, -4($fp)
 sw $t1, -36($fp)
 sw $t2, -0($fp)
@@ -2618,7 +2906,7 @@ sw $t3, -32($fp)
 sw $t4, -40($fp)
 sw $t5, -28($fp)
 sw $t6, -24($fp)
-bnez $t6, true__427
+bnez $t6, true__428
 lw $t0, -0($fp)
 lw $t1, -48($fp)
 # local_northwest_CellularAutomaton_internal_10 <- position - 1
@@ -2626,10 +2914,11 @@ addi $t1, $t0, -1
 lw $t2, -4($fp)
 lw $t3, -52($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_north_CellularAutomaton
-lw $t8, 60($t9)
+lw $t8, 60($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2663,8 +2952,8 @@ move $t1, $t0
 sw $t1, -44($fp)
 sw $t0, -52($fp)
 sw $t1, -44($fp)
-j end__427
-true__427:
+j end__428
+true__428:
 lw $t0, -56($fp)
 # Saves in local_northwest_CellularAutomaton_internal_12 data_11
 la $t0, data_11
@@ -2674,7 +2963,7 @@ move $t1, $t0
 sw $t1, -44($fp)
 sw $t0, -56($fp)
 sw $t1, -44($fp)
-end__427:
+end__428:
 lw $t0, -44($fp)
 lw $t1, -20($fp)
 # Moving local_northwest_CellularAutomaton_internal_9 to local_northwest_CellularAutomaton_internal_3
@@ -2682,8 +2971,8 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -44($fp)
 sw $t1, -20($fp)
-j end__415
-true__415:
+j end__416
+true__416:
 lw $t0, -60($fp)
 # Saves in local_northwest_CellularAutomaton_internal_13 data_12
 la $t0, data_12
@@ -2693,7 +2982,7 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -60($fp)
 sw $t1, -20($fp)
-end__415:
+end__416:
 lw $t0, -20($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -2746,7 +3035,7 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -16($fp)
 # local_northeast_CellularAutomaton_columns_2 <- GET self . columns
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 lw $t2, -0($fp)
 lw $t3, -12($fp)
 # local_northeast_CellularAutomaton_internal_1 <- position - local_northeast_CellularAutomaton_columns_2
@@ -2755,13 +3044,13 @@ lw $t4, -8($fp)
 # local_northeast_CellularAutomaton_internal_0 <- local_northeast_CellularAutomaton_internal_1 < 0
 li $t9, 0
 slt $t4, $t3, $t9
-# If local_northeast_CellularAutomaton_internal_0 goto true__460
+# If local_northeast_CellularAutomaton_internal_0 goto true__461
 sw $t0, -4($fp)
 sw $t1, -16($fp)
 sw $t2, -0($fp)
 sw $t3, -12($fp)
 sw $t4, -8($fp)
-bnez $t4, true__460
+bnez $t4, true__461
 lw $t0, -0($fp)
 lw $t1, -36($fp)
 # local_northeast_CellularAutomaton_internal_7 <- position + 1
@@ -2769,7 +3058,7 @@ addi $t1, $t0, 1
 lw $t2, -4($fp)
 lw $t3, -40($fp)
 # local_northeast_CellularAutomaton_columns_8 <- GET self . columns
-lw $t3, 20($t2)
+lw $t3, 16($t2)
 lw $t4, -32($fp)
 # local_northeast_CellularAutomaton_internal_6 <- local_northeast_CellularAutomaton_internal_7 / local_northeast_CellularAutomaton_columns_8
 la $a0, zero_error
@@ -2778,7 +3067,7 @@ div $t1, $t3
 mflo $t4
 lw $t5, -44($fp)
 # local_northeast_CellularAutomaton_columns_9 <- GET self . columns
-lw $t5, 20($t2)
+lw $t5, 16($t2)
 lw $t6, -28($fp)
 # local_northeast_CellularAutomaton_internal_5 <- local_northeast_CellularAutomaton_internal_6 * local_northeast_CellularAutomaton_columns_9
 mult $t4, $t5
@@ -2786,10 +3075,10 @@ mflo $t6
 lw $t7, -48($fp)
 # local_northeast_CellularAutomaton_internal_10 <- position + 1
 addi $t7, $t0, 1
-lw $a0, -24($fp)
+lw $a1, -24($fp)
 # local_northeast_CellularAutomaton_internal_4 <- local_northeast_CellularAutomaton_internal_5 = local_northeast_CellularAutomaton_internal_10
-seq $a0, $t6, $t7
-# If local_northeast_CellularAutomaton_internal_4 goto true__476
+seq $a1, $t6, $t7
+# If local_northeast_CellularAutomaton_internal_4 goto true__477
 sw $t0, -0($fp)
 sw $t1, -36($fp)
 sw $t2, -4($fp)
@@ -2798,8 +3087,8 @@ sw $t4, -32($fp)
 sw $t5, -44($fp)
 sw $t6, -28($fp)
 sw $t7, -48($fp)
-sw $a0, -24($fp)
-bnez $a0, true__476
+sw $a1, -24($fp)
+bnez $a1, true__477
 lw $t0, -0($fp)
 lw $t1, -56($fp)
 # local_northeast_CellularAutomaton_internal_12 <- position + 1
@@ -2807,10 +3096,11 @@ addi $t1, $t0, 1
 lw $t2, -4($fp)
 lw $t3, -60($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_north_CellularAutomaton
-lw $t8, 60($t9)
+lw $t8, 60($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -2844,8 +3134,8 @@ move $t1, $t0
 sw $t1, -52($fp)
 sw $t0, -60($fp)
 sw $t1, -52($fp)
-j end__476
-true__476:
+j end__477
+true__477:
 lw $t0, -64($fp)
 # Saves in local_northeast_CellularAutomaton_internal_14 data_13
 la $t0, data_13
@@ -2855,7 +3145,7 @@ move $t1, $t0
 sw $t1, -52($fp)
 sw $t0, -64($fp)
 sw $t1, -52($fp)
-end__476:
+end__477:
 lw $t0, -52($fp)
 lw $t1, -20($fp)
 # Moving local_northeast_CellularAutomaton_internal_11 to local_northeast_CellularAutomaton_internal_3
@@ -2863,8 +3153,8 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -52($fp)
 sw $t1, -20($fp)
-j end__460
-true__460:
+j end__461
+true__461:
 lw $t0, -68($fp)
 # Saves in local_northeast_CellularAutomaton_internal_15 data_14
 la $t0, data_14
@@ -2874,7 +3164,7 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -68($fp)
 sw $t1, -20($fp)
-end__460:
+end__461:
 lw $t0, -20($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -2929,10 +3219,10 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -12($fp)
 # local_southeast_CellularAutomaton_board_size_1 <- GET self . board_size
-lw $t1, 24($t0)
+lw $t1, 20($t0)
 lw $t2, -20($fp)
 # local_southeast_CellularAutomaton_columns_3 <- GET self . columns
-lw $t2, 20($t0)
+lw $t2, 16($t0)
 lw $t3, -0($fp)
 lw $t4, -16($fp)
 # local_southeast_CellularAutomaton_internal_2 <- position + local_southeast_CellularAutomaton_columns_3
@@ -2940,14 +3230,14 @@ add $t4, $t3, $t2
 lw $t5, -8($fp)
 # local_southeast_CellularAutomaton_internal_0 <- local_southeast_CellularAutomaton_board_size_1 < local_southeast_CellularAutomaton_internal_2
 slt $t5, $t1, $t4
-# If local_southeast_CellularAutomaton_internal_0 goto true__511
+# If local_southeast_CellularAutomaton_internal_0 goto true__512
 sw $t0, -4($fp)
 sw $t1, -12($fp)
 sw $t2, -20($fp)
 sw $t3, -0($fp)
 sw $t4, -16($fp)
 sw $t5, -8($fp)
-bnez $t5, true__511
+bnez $t5, true__512
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # local_southeast_CellularAutomaton_internal_8 <- position + 1
@@ -2955,7 +3245,7 @@ addi $t1, $t0, 1
 lw $t2, -4($fp)
 lw $t3, -44($fp)
 # local_southeast_CellularAutomaton_columns_9 <- GET self . columns
-lw $t3, 20($t2)
+lw $t3, 16($t2)
 lw $t4, -36($fp)
 # local_southeast_CellularAutomaton_internal_7 <- local_southeast_CellularAutomaton_internal_8 / local_southeast_CellularAutomaton_columns_9
 la $a0, zero_error
@@ -2964,7 +3254,7 @@ div $t1, $t3
 mflo $t4
 lw $t5, -48($fp)
 # local_southeast_CellularAutomaton_columns_10 <- GET self . columns
-lw $t5, 20($t2)
+lw $t5, 16($t2)
 lw $t6, -32($fp)
 # local_southeast_CellularAutomaton_internal_6 <- local_southeast_CellularAutomaton_internal_7 * local_southeast_CellularAutomaton_columns_10
 mult $t4, $t5
@@ -2972,10 +3262,10 @@ mflo $t6
 lw $t7, -52($fp)
 # local_southeast_CellularAutomaton_internal_11 <- position + 1
 addi $t7, $t0, 1
-lw $a0, -28($fp)
+lw $a1, -28($fp)
 # local_southeast_CellularAutomaton_internal_5 <- local_southeast_CellularAutomaton_internal_6 = local_southeast_CellularAutomaton_internal_11
-seq $a0, $t6, $t7
-# If local_southeast_CellularAutomaton_internal_5 goto true__527
+seq $a1, $t6, $t7
+# If local_southeast_CellularAutomaton_internal_5 goto true__528
 sw $t0, -0($fp)
 sw $t1, -40($fp)
 sw $t2, -4($fp)
@@ -2984,8 +3274,8 @@ sw $t4, -36($fp)
 sw $t5, -48($fp)
 sw $t6, -32($fp)
 sw $t7, -52($fp)
-sw $a0, -28($fp)
-bnez $a0, true__527
+sw $a1, -28($fp)
+bnez $a1, true__528
 lw $t0, -0($fp)
 lw $t1, -60($fp)
 # local_southeast_CellularAutomaton_internal_13 <- position + 1
@@ -2993,10 +3283,11 @@ addi $t1, $t0, 1
 lw $t2, -4($fp)
 lw $t3, -64($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_south_CellularAutomaton
-lw $t8, 64($t9)
+lw $t8, 64($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3030,8 +3321,8 @@ move $t1, $t0
 sw $t1, -56($fp)
 sw $t0, -64($fp)
 sw $t1, -56($fp)
-j end__527
-true__527:
+j end__528
+true__528:
 lw $t0, -68($fp)
 # Saves in local_southeast_CellularAutomaton_internal_15 data_15
 la $t0, data_15
@@ -3041,7 +3332,7 @@ move $t1, $t0
 sw $t1, -56($fp)
 sw $t0, -68($fp)
 sw $t1, -56($fp)
-end__527:
+end__528:
 lw $t0, -56($fp)
 lw $t1, -24($fp)
 # Moving local_southeast_CellularAutomaton_internal_12 to local_southeast_CellularAutomaton_internal_4
@@ -3049,8 +3340,8 @@ move $t1, $t0
 sw $t1, -24($fp)
 sw $t0, -56($fp)
 sw $t1, -24($fp)
-j end__511
-true__511:
+j end__512
+true__512:
 lw $t0, -72($fp)
 # Saves in local_southeast_CellularAutomaton_internal_16 data_16
 la $t0, data_16
@@ -3060,7 +3351,7 @@ move $t1, $t0
 sw $t1, -24($fp)
 sw $t0, -72($fp)
 sw $t1, -24($fp)
-end__511:
+end__512:
 lw $t0, -24($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -3111,10 +3402,10 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -12($fp)
 # local_southwest_CellularAutomaton_board_size_1 <- GET self . board_size
-lw $t1, 24($t0)
+lw $t1, 20($t0)
 lw $t2, -20($fp)
 # local_southwest_CellularAutomaton_columns_3 <- GET self . columns
-lw $t2, 20($t0)
+lw $t2, 16($t0)
 lw $t3, -0($fp)
 lw $t4, -16($fp)
 # local_southwest_CellularAutomaton_internal_2 <- position + local_southwest_CellularAutomaton_columns_3
@@ -3122,18 +3413,18 @@ add $t4, $t3, $t2
 lw $t5, -8($fp)
 # local_southwest_CellularAutomaton_internal_0 <- local_southwest_CellularAutomaton_board_size_1 < local_southwest_CellularAutomaton_internal_2
 slt $t5, $t1, $t4
-# If local_southwest_CellularAutomaton_internal_0 goto true__562
+# If local_southwest_CellularAutomaton_internal_0 goto true__563
 sw $t0, -4($fp)
 sw $t1, -12($fp)
 sw $t2, -20($fp)
 sw $t3, -0($fp)
 sw $t4, -16($fp)
 sw $t5, -8($fp)
-bnez $t5, true__562
+bnez $t5, true__563
 lw $t0, -4($fp)
 lw $t1, -40($fp)
 # local_southwest_CellularAutomaton_columns_8 <- GET self . columns
-lw $t1, 20($t0)
+lw $t1, 16($t0)
 lw $t2, -0($fp)
 lw $t3, -36($fp)
 # local_southwest_CellularAutomaton_internal_7 <- position / local_southwest_CellularAutomaton_columns_8
@@ -3143,7 +3434,7 @@ div $t2, $t1
 mflo $t3
 lw $t4, -44($fp)
 # local_southwest_CellularAutomaton_columns_9 <- GET self . columns
-lw $t4, 20($t0)
+lw $t4, 16($t0)
 lw $t5, -32($fp)
 # local_southwest_CellularAutomaton_internal_6 <- local_southwest_CellularAutomaton_internal_7 * local_southwest_CellularAutomaton_columns_9
 mult $t3, $t4
@@ -3151,7 +3442,7 @@ mflo $t5
 lw $t6, -28($fp)
 # local_southwest_CellularAutomaton_internal_5 <- local_southwest_CellularAutomaton_internal_6 = position
 seq $t6, $t5, $t2
-# If local_southwest_CellularAutomaton_internal_5 goto true__574
+# If local_southwest_CellularAutomaton_internal_5 goto true__575
 sw $t0, -4($fp)
 sw $t1, -40($fp)
 sw $t2, -0($fp)
@@ -3159,7 +3450,7 @@ sw $t3, -36($fp)
 sw $t4, -44($fp)
 sw $t5, -32($fp)
 sw $t6, -28($fp)
-bnez $t6, true__574
+bnez $t6, true__575
 lw $t0, -0($fp)
 lw $t1, -52($fp)
 # local_southwest_CellularAutomaton_internal_11 <- position - 1
@@ -3167,10 +3458,11 @@ addi $t1, $t0, -1
 lw $t2, -4($fp)
 lw $t3, -56($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_south_CellularAutomaton
-lw $t8, 64($t9)
+lw $t8, 64($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3204,8 +3496,8 @@ move $t1, $t0
 sw $t1, -48($fp)
 sw $t0, -56($fp)
 sw $t1, -48($fp)
-j end__574
-true__574:
+j end__575
+true__575:
 lw $t0, -60($fp)
 # Saves in local_southwest_CellularAutomaton_internal_13 data_17
 la $t0, data_17
@@ -3215,7 +3507,7 @@ move $t1, $t0
 sw $t1, -48($fp)
 sw $t0, -60($fp)
 sw $t1, -48($fp)
-end__574:
+end__575:
 lw $t0, -48($fp)
 lw $t1, -24($fp)
 # Moving local_southwest_CellularAutomaton_internal_10 to local_southwest_CellularAutomaton_internal_4
@@ -3223,8 +3515,8 @@ move $t1, $t0
 sw $t1, -24($fp)
 sw $t0, -48($fp)
 sw $t1, -24($fp)
-j end__562
-true__562:
+j end__563
+true__563:
 lw $t0, -64($fp)
 # Saves in local_southwest_CellularAutomaton_internal_14 data_18
 la $t0, data_18
@@ -3234,7 +3526,7 @@ move $t1, $t0
 sw $t1, -24($fp)
 sw $t0, -64($fp)
 sw $t1, -24($fp)
-end__562:
+end__563:
 lw $t0, -24($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -3335,10 +3627,11 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -40($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_north_CellularAutomaton
-lw $t8, 60($t9)
+lw $t8, 60($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3373,49 +3666,50 @@ lw $t2, -36($fp)
 # local_neighbors_CellularAutomaton_internal_7 <- local_neighbors_CellularAutomaton_internal_8 = local_neighbors_CellularAutomaton_internal_9
 move $t8, $t0
 move $t9, $t1
-loop_7:
+loop_6:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_7
-beqz $a1, mismatch_7
+beqz $a0, check_6
+beqz $a1, mismatch_6
 seq $v0, $a0, $a1
-beqz $v0, mismatch_7
+beqz $v0, mismatch_6
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_7
-mismatch_7:
+j loop_6
+mismatch_6:
 li $v0, 0
-j end_7
-check_7:
-bnez $a1, mismatch_7
+j end_6
+check_6:
+bnez $a1, mismatch_6
 li $v0, 1
-end_7:
+end_6:
 move $t2, $v0
-# If local_neighbors_CellularAutomaton_internal_7 goto true__616
+# If local_neighbors_CellularAutomaton_internal_7 goto true__617
 sw $t0, -40($fp)
 sw $t1, -44($fp)
 sw $t2, -36($fp)
-bnez $t2, true__616
+bnez $t2, true__617
 lw $t0, -48($fp)
 # Moving 0 to local_neighbors_CellularAutomaton_internal_10
 li $t0, 0
 sw $t0, -48($fp)
 sw $t0, -48($fp)
-j end__616
-true__616:
+j end__617
+true__617:
 lw $t0, -48($fp)
 # Moving 1 to local_neighbors_CellularAutomaton_internal_10
 li $t0, 1
 sw $t0, -48($fp)
 sw $t0, -48($fp)
-end__616:
+end__617:
 lw $t0, -4($fp)
 lw $t1, -56($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_south_CellularAutomaton
-lw $t8, 64($t9)
+lw $t8, 64($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3450,42 +3744,42 @@ lw $t2, -52($fp)
 # local_neighbors_CellularAutomaton_internal_11 <- local_neighbors_CellularAutomaton_internal_12 = local_neighbors_CellularAutomaton_internal_13
 move $t8, $t0
 move $t9, $t1
-loop_8:
+loop_7:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_8
-beqz $a1, mismatch_8
+beqz $a0, check_7
+beqz $a1, mismatch_7
 seq $v0, $a0, $a1
-beqz $v0, mismatch_8
+beqz $v0, mismatch_7
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_8
-mismatch_8:
+j loop_7
+mismatch_7:
 li $v0, 0
-j end_8
-check_8:
-bnez $a1, mismatch_8
+j end_7
+check_7:
+bnez $a1, mismatch_7
 li $v0, 1
-end_8:
+end_7:
 move $t2, $v0
-# If local_neighbors_CellularAutomaton_internal_11 goto true__631
+# If local_neighbors_CellularAutomaton_internal_11 goto true__632
 sw $t0, -56($fp)
 sw $t1, -60($fp)
 sw $t2, -52($fp)
-bnez $t2, true__631
+bnez $t2, true__632
 lw $t0, -64($fp)
 # Moving 0 to local_neighbors_CellularAutomaton_internal_14
 li $t0, 0
 sw $t0, -64($fp)
 sw $t0, -64($fp)
-j end__631
-true__631:
+j end__632
+true__632:
 lw $t0, -64($fp)
 # Moving 1 to local_neighbors_CellularAutomaton_internal_14
 li $t0, 1
 sw $t0, -64($fp)
 sw $t0, -64($fp)
-end__631:
+end__632:
 lw $t0, -48($fp)
 lw $t1, -64($fp)
 lw $t2, -32($fp)
@@ -3494,10 +3788,11 @@ add $t2, $t0, $t1
 lw $t3, -4($fp)
 lw $t4, -72($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_east_CellularAutomaton
-lw $t8, 68($t9)
+lw $t8, 68($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3535,42 +3830,42 @@ lw $t2, -68($fp)
 # local_neighbors_CellularAutomaton_internal_15 <- local_neighbors_CellularAutomaton_internal_16 = local_neighbors_CellularAutomaton_internal_17
 move $t8, $t0
 move $t9, $t1
-loop_9:
+loop_8:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_9
-beqz $a1, mismatch_9
+beqz $a0, check_8
+beqz $a1, mismatch_8
 seq $v0, $a0, $a1
-beqz $v0, mismatch_9
+beqz $v0, mismatch_8
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_9
-mismatch_9:
+j loop_8
+mismatch_8:
 li $v0, 0
-j end_9
-check_9:
-bnez $a1, mismatch_9
+j end_8
+check_8:
+bnez $a1, mismatch_8
 li $v0, 1
-end_9:
+end_8:
 move $t2, $v0
-# If local_neighbors_CellularAutomaton_internal_15 goto true__647
+# If local_neighbors_CellularAutomaton_internal_15 goto true__648
 sw $t0, -72($fp)
 sw $t1, -76($fp)
 sw $t2, -68($fp)
-bnez $t2, true__647
+bnez $t2, true__648
 lw $t0, -80($fp)
 # Moving 0 to local_neighbors_CellularAutomaton_internal_18
 li $t0, 0
 sw $t0, -80($fp)
 sw $t0, -80($fp)
-j end__647
-true__647:
+j end__648
+true__648:
 lw $t0, -80($fp)
 # Moving 1 to local_neighbors_CellularAutomaton_internal_18
 li $t0, 1
 sw $t0, -80($fp)
 sw $t0, -80($fp)
-end__647:
+end__648:
 lw $t0, -32($fp)
 lw $t1, -80($fp)
 lw $t2, -28($fp)
@@ -3579,10 +3874,11 @@ add $t2, $t0, $t1
 lw $t3, -4($fp)
 lw $t4, -88($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_west_CellularAutomaton
-lw $t8, 72($t9)
+lw $t8, 72($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3620,42 +3916,42 @@ lw $t2, -84($fp)
 # local_neighbors_CellularAutomaton_internal_19 <- local_neighbors_CellularAutomaton_internal_20 = local_neighbors_CellularAutomaton_internal_21
 move $t8, $t0
 move $t9, $t1
-loop_10:
+loop_9:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_10
-beqz $a1, mismatch_10
+beqz $a0, check_9
+beqz $a1, mismatch_9
 seq $v0, $a0, $a1
-beqz $v0, mismatch_10
+beqz $v0, mismatch_9
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_10
-mismatch_10:
+j loop_9
+mismatch_9:
 li $v0, 0
-j end_10
-check_10:
-bnez $a1, mismatch_10
+j end_9
+check_9:
+bnez $a1, mismatch_9
 li $v0, 1
-end_10:
+end_9:
 move $t2, $v0
-# If local_neighbors_CellularAutomaton_internal_19 goto true__663
+# If local_neighbors_CellularAutomaton_internal_19 goto true__664
 sw $t0, -88($fp)
 sw $t1, -92($fp)
 sw $t2, -84($fp)
-bnez $t2, true__663
+bnez $t2, true__664
 lw $t0, -96($fp)
 # Moving 0 to local_neighbors_CellularAutomaton_internal_22
 li $t0, 0
 sw $t0, -96($fp)
 sw $t0, -96($fp)
-j end__663
-true__663:
+j end__664
+true__664:
 lw $t0, -96($fp)
 # Moving 1 to local_neighbors_CellularAutomaton_internal_22
 li $t0, 1
 sw $t0, -96($fp)
 sw $t0, -96($fp)
-end__663:
+end__664:
 lw $t0, -28($fp)
 lw $t1, -96($fp)
 lw $t2, -24($fp)
@@ -3664,10 +3960,11 @@ add $t2, $t0, $t1
 lw $t3, -4($fp)
 lw $t4, -104($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_northeast_CellularAutomaton
-lw $t8, 80($t9)
+lw $t8, 80($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3705,42 +4002,42 @@ lw $t2, -100($fp)
 # local_neighbors_CellularAutomaton_internal_23 <- local_neighbors_CellularAutomaton_internal_24 = local_neighbors_CellularAutomaton_internal_25
 move $t8, $t0
 move $t9, $t1
-loop_11:
+loop_10:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_11
-beqz $a1, mismatch_11
+beqz $a0, check_10
+beqz $a1, mismatch_10
 seq $v0, $a0, $a1
-beqz $v0, mismatch_11
+beqz $v0, mismatch_10
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_11
-mismatch_11:
+j loop_10
+mismatch_10:
 li $v0, 0
-j end_11
-check_11:
-bnez $a1, mismatch_11
+j end_10
+check_10:
+bnez $a1, mismatch_10
 li $v0, 1
-end_11:
+end_10:
 move $t2, $v0
-# If local_neighbors_CellularAutomaton_internal_23 goto true__679
+# If local_neighbors_CellularAutomaton_internal_23 goto true__680
 sw $t0, -104($fp)
 sw $t1, -108($fp)
 sw $t2, -100($fp)
-bnez $t2, true__679
+bnez $t2, true__680
 lw $t0, -112($fp)
 # Moving 0 to local_neighbors_CellularAutomaton_internal_26
 li $t0, 0
 sw $t0, -112($fp)
 sw $t0, -112($fp)
-j end__679
-true__679:
+j end__680
+true__680:
 lw $t0, -112($fp)
 # Moving 1 to local_neighbors_CellularAutomaton_internal_26
 li $t0, 1
 sw $t0, -112($fp)
 sw $t0, -112($fp)
-end__679:
+end__680:
 lw $t0, -24($fp)
 lw $t1, -112($fp)
 lw $t2, -20($fp)
@@ -3749,10 +4046,11 @@ add $t2, $t0, $t1
 lw $t3, -4($fp)
 lw $t4, -120($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_northwest_CellularAutomaton
-lw $t8, 76($t9)
+lw $t8, 76($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3790,42 +4088,42 @@ lw $t2, -116($fp)
 # local_neighbors_CellularAutomaton_internal_27 <- local_neighbors_CellularAutomaton_internal_28 = local_neighbors_CellularAutomaton_internal_29
 move $t8, $t0
 move $t9, $t1
-loop_12:
+loop_11:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_12
-beqz $a1, mismatch_12
+beqz $a0, check_11
+beqz $a1, mismatch_11
 seq $v0, $a0, $a1
-beqz $v0, mismatch_12
+beqz $v0, mismatch_11
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_12
-mismatch_12:
+j loop_11
+mismatch_11:
 li $v0, 0
-j end_12
-check_12:
-bnez $a1, mismatch_12
+j end_11
+check_11:
+bnez $a1, mismatch_11
 li $v0, 1
-end_12:
+end_11:
 move $t2, $v0
-# If local_neighbors_CellularAutomaton_internal_27 goto true__695
+# If local_neighbors_CellularAutomaton_internal_27 goto true__696
 sw $t0, -120($fp)
 sw $t1, -124($fp)
 sw $t2, -116($fp)
-bnez $t2, true__695
+bnez $t2, true__696
 lw $t0, -128($fp)
 # Moving 0 to local_neighbors_CellularAutomaton_internal_30
 li $t0, 0
 sw $t0, -128($fp)
 sw $t0, -128($fp)
-j end__695
-true__695:
+j end__696
+true__696:
 lw $t0, -128($fp)
 # Moving 1 to local_neighbors_CellularAutomaton_internal_30
 li $t0, 1
 sw $t0, -128($fp)
 sw $t0, -128($fp)
-end__695:
+end__696:
 lw $t0, -20($fp)
 lw $t1, -128($fp)
 lw $t2, -16($fp)
@@ -3834,10 +4132,11 @@ add $t2, $t0, $t1
 lw $t3, -4($fp)
 lw $t4, -136($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_southeast_CellularAutomaton
-lw $t8, 84($t9)
+lw $t8, 84($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3875,42 +4174,42 @@ lw $t2, -132($fp)
 # local_neighbors_CellularAutomaton_internal_31 <- local_neighbors_CellularAutomaton_internal_32 = local_neighbors_CellularAutomaton_internal_33
 move $t8, $t0
 move $t9, $t1
-loop_13:
+loop_12:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_13
-beqz $a1, mismatch_13
+beqz $a0, check_12
+beqz $a1, mismatch_12
 seq $v0, $a0, $a1
-beqz $v0, mismatch_13
+beqz $v0, mismatch_12
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_13
-mismatch_13:
+j loop_12
+mismatch_12:
 li $v0, 0
-j end_13
-check_13:
-bnez $a1, mismatch_13
+j end_12
+check_12:
+bnez $a1, mismatch_12
 li $v0, 1
-end_13:
+end_12:
 move $t2, $v0
-# If local_neighbors_CellularAutomaton_internal_31 goto true__711
+# If local_neighbors_CellularAutomaton_internal_31 goto true__712
 sw $t0, -136($fp)
 sw $t1, -140($fp)
 sw $t2, -132($fp)
-bnez $t2, true__711
+bnez $t2, true__712
 lw $t0, -144($fp)
 # Moving 0 to local_neighbors_CellularAutomaton_internal_34
 li $t0, 0
 sw $t0, -144($fp)
 sw $t0, -144($fp)
-j end__711
-true__711:
+j end__712
+true__712:
 lw $t0, -144($fp)
 # Moving 1 to local_neighbors_CellularAutomaton_internal_34
 li $t0, 1
 sw $t0, -144($fp)
 sw $t0, -144($fp)
-end__711:
+end__712:
 lw $t0, -16($fp)
 lw $t1, -144($fp)
 lw $t2, -12($fp)
@@ -3919,10 +4218,11 @@ add $t2, $t0, $t1
 lw $t3, -4($fp)
 lw $t4, -152($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_southwest_CellularAutomaton
-lw $t8, 88($t9)
+lw $t8, 88($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -3960,42 +4260,42 @@ lw $t2, -148($fp)
 # local_neighbors_CellularAutomaton_internal_35 <- local_neighbors_CellularAutomaton_internal_36 = local_neighbors_CellularAutomaton_internal_37
 move $t8, $t0
 move $t9, $t1
-loop_14:
+loop_13:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_14
-beqz $a1, mismatch_14
+beqz $a0, check_13
+beqz $a1, mismatch_13
 seq $v0, $a0, $a1
-beqz $v0, mismatch_14
+beqz $v0, mismatch_13
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_14
-mismatch_14:
+j loop_13
+mismatch_13:
 li $v0, 0
-j end_14
-check_14:
-bnez $a1, mismatch_14
+j end_13
+check_13:
+bnez $a1, mismatch_13
 li $v0, 1
-end_14:
+end_13:
 move $t2, $v0
-# If local_neighbors_CellularAutomaton_internal_35 goto true__727
+# If local_neighbors_CellularAutomaton_internal_35 goto true__728
 sw $t0, -152($fp)
 sw $t1, -156($fp)
 sw $t2, -148($fp)
-bnez $t2, true__727
+bnez $t2, true__728
 lw $t0, -160($fp)
 # Moving 0 to local_neighbors_CellularAutomaton_internal_38
 li $t0, 0
 sw $t0, -160($fp)
 sw $t0, -160($fp)
-j end__727
-true__727:
+j end__728
+true__728:
 lw $t0, -160($fp)
 # Moving 1 to local_neighbors_CellularAutomaton_internal_38
 li $t0, 1
 sw $t0, -160($fp)
 sw $t0, -160($fp)
-end__727:
+end__728:
 lw $t0, -12($fp)
 lw $t1, -160($fp)
 lw $t2, -8($fp)
@@ -4055,10 +4355,11 @@ addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -12($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_neighbors_CellularAutomaton
-lw $t8, 92($t9)
+lw $t8, 92($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4090,17 +4391,18 @@ lw $t1, -8($fp)
 # local_cell_at_next_evolution_CellularAutomaton_internal_0 <- local_cell_at_next_evolution_CellularAutomaton_internal_1 = 3
 li $t9, 3
 seq $t1, $t0, $t9
-# If local_cell_at_next_evolution_CellularAutomaton_internal_0 goto true__746
+# If local_cell_at_next_evolution_CellularAutomaton_internal_0 goto true__747
 sw $t0, -12($fp)
 sw $t1, -8($fp)
-bnez $t1, true__746
+bnez $t1, true__747
 lw $t0, -4($fp)
 lw $t1, -24($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_neighbors_CellularAutomaton
-lw $t8, 92($t9)
+lw $t8, 92($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4132,10 +4434,10 @@ lw $t1, -20($fp)
 # local_cell_at_next_evolution_CellularAutomaton_internal_3 <- local_cell_at_next_evolution_CellularAutomaton_internal_4 = 2
 li $t9, 2
 seq $t1, $t0, $t9
-# If local_cell_at_next_evolution_CellularAutomaton_internal_3 goto true__753
+# If local_cell_at_next_evolution_CellularAutomaton_internal_3 goto true__754
 sw $t0, -24($fp)
 sw $t1, -20($fp)
-bnez $t1, true__753
+bnez $t1, true__754
 lw $t0, -32($fp)
 # Saves in local_cell_at_next_evolution_CellularAutomaton_internal_6 data_27
 la $t0, data_27
@@ -4145,15 +4447,16 @@ move $t1, $t0
 sw $t1, -28($fp)
 sw $t0, -32($fp)
 sw $t1, -28($fp)
-j end__753
-true__753:
+j end__754
+true__754:
 lw $t0, -4($fp)
 lw $t1, -40($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_cell_CellularAutomaton
-lw $t8, 56($t9)
+lw $t8, 56($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4188,29 +4491,29 @@ lw $t2, -36($fp)
 # local_cell_at_next_evolution_CellularAutomaton_internal_7 <- local_cell_at_next_evolution_CellularAutomaton_internal_8 = local_cell_at_next_evolution_CellularAutomaton_internal_9
 move $t8, $t0
 move $t9, $t1
-loop_15:
+loop_14:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_15
-beqz $a1, mismatch_15
+beqz $a0, check_14
+beqz $a1, mismatch_14
 seq $v0, $a0, $a1
-beqz $v0, mismatch_15
+beqz $v0, mismatch_14
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_15
-mismatch_15:
+j loop_14
+mismatch_14:
 li $v0, 0
-j end_15
-check_15:
-bnez $a1, mismatch_15
+j end_14
+check_14:
+bnez $a1, mismatch_14
 li $v0, 1
-end_15:
+end_14:
 move $t2, $v0
-# If local_cell_at_next_evolution_CellularAutomaton_internal_7 goto true__769
+# If local_cell_at_next_evolution_CellularAutomaton_internal_7 goto true__770
 sw $t0, -40($fp)
 sw $t1, -44($fp)
 sw $t2, -36($fp)
-bnez $t2, true__769
+bnez $t2, true__770
 lw $t0, -52($fp)
 # Saves in local_cell_at_next_evolution_CellularAutomaton_internal_11 data_29
 la $t0, data_29
@@ -4220,8 +4523,8 @@ move $t1, $t0
 sw $t1, -48($fp)
 sw $t0, -52($fp)
 sw $t1, -48($fp)
-j end__769
-true__769:
+j end__770
+true__770:
 lw $t0, -56($fp)
 # Saves in local_cell_at_next_evolution_CellularAutomaton_internal_12 data_30
 la $t0, data_30
@@ -4231,7 +4534,7 @@ move $t1, $t0
 sw $t1, -48($fp)
 sw $t0, -56($fp)
 sw $t1, -48($fp)
-end__769:
+end__770:
 lw $t0, -48($fp)
 lw $t1, -28($fp)
 # Moving local_cell_at_next_evolution_CellularAutomaton_internal_10 to local_cell_at_next_evolution_CellularAutomaton_internal_5
@@ -4239,7 +4542,7 @@ move $t1, $t0
 sw $t1, -28($fp)
 sw $t0, -48($fp)
 sw $t1, -28($fp)
-end__753:
+end__754:
 lw $t0, -28($fp)
 lw $t1, -16($fp)
 # Moving local_cell_at_next_evolution_CellularAutomaton_internal_5 to local_cell_at_next_evolution_CellularAutomaton_internal_2
@@ -4247,8 +4550,8 @@ move $t1, $t0
 sw $t1, -16($fp)
 sw $t0, -28($fp)
 sw $t1, -16($fp)
-j end__746
-true__746:
+j end__747
+true__747:
 lw $t0, -60($fp)
 # Saves in local_cell_at_next_evolution_CellularAutomaton_internal_13 data_31
 la $t0, data_31
@@ -4258,7 +4561,7 @@ move $t1, $t0
 sw $t1, -16($fp)
 sw $t0, -60($fp)
 sw $t1, -16($fp)
-end__746:
+end__747:
 lw $t0, -16($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -4305,10 +4608,11 @@ sw $t0, -4($fp)
 lw $t1, -0($fp)
 lw $t2, -12($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_num_cells_CellularAutomaton
-lw $t8, 52($t9)
+lw $t8, 52($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4357,24 +4661,25 @@ sw $t1, -8($fp)
 sw $t2, -20($fp)
 sw $t3, -16($fp)
 sw $t4, -24($fp)
-start__806:
+start__807:
 lw $t0, -4($fp)
 lw $t1, -8($fp)
 lw $t2, -28($fp)
 # local_evolve_CellularAutomaton_internal_6 <- local_evolve_CellularAutomaton_position_0 < local_evolve_CellularAutomaton_num_1
 slt $t2, $t0, $t1
-# If not local_evolve_CellularAutomaton_internal_6 goto end__806
+# If not local_evolve_CellularAutomaton_internal_6 goto end__807
 sw $t0, -4($fp)
 sw $t1, -8($fp)
 sw $t2, -28($fp)
-beqz $t2, end__806
+beqz $t2, end__807
 lw $t0, -0($fp)
 lw $t1, -32($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_cell_at_next_evolution_CellularAutomaton
-lw $t8, 96($t9)
+lw $t8, 96($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4456,12 +4761,12 @@ sw $t2, -4($fp)
 sw $t3, -40($fp)
 sw $t4, -44($fp)
 sw $t5, -24($fp)
-j start__806
-end__806:
+j start__807
+end__807:
 lw $t0, -16($fp)
 lw $t1, -0($fp)
 # self . population_map <- SET local_evolve_CellularAutomaton_temp_3
-sw $t0, 28($t1)
+sw $t0, 24($t1)
 lw $t2, -48($fp)
 # Moving self to local_evolve_CellularAutomaton_internal_11
 move $t2, $t1
@@ -4724,10 +5029,11 @@ la $t1, data_33
 lw $t2, -0($fp)
 lw $t3, -12($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4761,10 +5067,11 @@ la $t1, data_34
 lw $t2, -0($fp)
 lw $t3, -20($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4798,10 +5105,11 @@ la $t1, data_35
 lw $t2, -0($fp)
 lw $t3, -28($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4835,10 +5143,11 @@ la $t1, data_36
 lw $t2, -0($fp)
 lw $t3, -36($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4872,10 +5181,11 @@ la $t1, data_37
 lw $t2, -0($fp)
 lw $t3, -44($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4909,10 +5219,11 @@ la $t1, data_38
 lw $t2, -0($fp)
 lw $t3, -52($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4946,10 +5257,11 @@ la $t1, data_39
 lw $t2, -0($fp)
 lw $t3, -60($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -4983,10 +5295,11 @@ la $t1, data_40
 lw $t2, -0($fp)
 lw $t3, -68($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5020,10 +5333,11 @@ la $t1, data_41
 lw $t2, -0($fp)
 lw $t3, -76($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5057,10 +5371,11 @@ la $t1, data_42
 lw $t2, -0($fp)
 lw $t3, -84($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5094,10 +5409,11 @@ la $t1, data_43
 lw $t2, -0($fp)
 lw $t3, -92($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5131,10 +5447,11 @@ la $t1, data_44
 lw $t2, -0($fp)
 lw $t3, -100($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5168,10 +5485,11 @@ la $t1, data_45
 lw $t2, -0($fp)
 lw $t3, -108($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5205,10 +5523,11 @@ la $t1, data_46
 lw $t2, -0($fp)
 lw $t3, -116($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5242,10 +5561,11 @@ la $t1, data_47
 lw $t2, -0($fp)
 lw $t3, -124($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5279,10 +5599,11 @@ la $t1, data_48
 lw $t2, -0($fp)
 lw $t3, -132($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5316,10 +5637,11 @@ la $t1, data_49
 lw $t2, -0($fp)
 lw $t3, -140($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5353,10 +5675,11 @@ la $t1, data_50
 lw $t2, -0($fp)
 lw $t3, -148($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5390,10 +5713,11 @@ la $t1, data_51
 lw $t2, -0($fp)
 lw $t3, -156($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5427,10 +5751,11 @@ la $t1, data_52
 lw $t2, -0($fp)
 lw $t3, -164($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5464,10 +5789,11 @@ la $t1, data_53
 lw $t2, -0($fp)
 lw $t3, -172($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5501,10 +5827,11 @@ la $t1, data_54
 lw $t2, -0($fp)
 lw $t3, -180($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5538,10 +5865,11 @@ la $t1, data_55
 lw $t2, -0($fp)
 lw $t3, -188($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5572,10 +5900,11 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -192($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_in_int_IO
-lw $t8, 28($t9)
+lw $t8, 28($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5609,10 +5938,11 @@ la $t2, data_56
 lw $t3, -0($fp)
 lw $t4, -200($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -5646,191 +5976,191 @@ lw $t2, -204($fp)
 # local_option_CellularAutomaton_internal_50 <- local_option_CellularAutomaton_num_0 = 1
 li $t9, 1
 seq $t2, $t1, $t9
-# If local_option_CellularAutomaton_internal_50 goto true__985
+# If local_option_CellularAutomaton_internal_50 goto true__986
 sw $t0, -200($fp)
 sw $t1, -4($fp)
 sw $t2, -204($fp)
-bnez $t2, true__985
+bnez $t2, true__986
 lw $t0, -4($fp)
 lw $t1, -212($fp)
 # local_option_CellularAutomaton_internal_52 <- local_option_CellularAutomaton_num_0 = 2
 li $t9, 2
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_52 goto true__989
+# If local_option_CellularAutomaton_internal_52 goto true__990
 sw $t0, -4($fp)
 sw $t1, -212($fp)
-bnez $t1, true__989
+bnez $t1, true__990
 lw $t0, -4($fp)
 lw $t1, -220($fp)
 # local_option_CellularAutomaton_internal_54 <- local_option_CellularAutomaton_num_0 = 3
 li $t9, 3
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_54 goto true__993
+# If local_option_CellularAutomaton_internal_54 goto true__994
 sw $t0, -4($fp)
 sw $t1, -220($fp)
-bnez $t1, true__993
+bnez $t1, true__994
 lw $t0, -4($fp)
 lw $t1, -228($fp)
 # local_option_CellularAutomaton_internal_56 <- local_option_CellularAutomaton_num_0 = 4
 li $t9, 4
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_56 goto true__997
+# If local_option_CellularAutomaton_internal_56 goto true__998
 sw $t0, -4($fp)
 sw $t1, -228($fp)
-bnez $t1, true__997
+bnez $t1, true__998
 lw $t0, -4($fp)
 lw $t1, -236($fp)
 # local_option_CellularAutomaton_internal_58 <- local_option_CellularAutomaton_num_0 = 5
 li $t9, 5
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_58 goto true__1001
+# If local_option_CellularAutomaton_internal_58 goto true__1002
 sw $t0, -4($fp)
 sw $t1, -236($fp)
-bnez $t1, true__1001
+bnez $t1, true__1002
 lw $t0, -4($fp)
 lw $t1, -244($fp)
 # local_option_CellularAutomaton_internal_60 <- local_option_CellularAutomaton_num_0 = 6
 li $t9, 6
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_60 goto true__1005
+# If local_option_CellularAutomaton_internal_60 goto true__1006
 sw $t0, -4($fp)
 sw $t1, -244($fp)
-bnez $t1, true__1005
+bnez $t1, true__1006
 lw $t0, -4($fp)
 lw $t1, -252($fp)
 # local_option_CellularAutomaton_internal_62 <- local_option_CellularAutomaton_num_0 = 7
 li $t9, 7
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_62 goto true__1009
+# If local_option_CellularAutomaton_internal_62 goto true__1010
 sw $t0, -4($fp)
 sw $t1, -252($fp)
-bnez $t1, true__1009
+bnez $t1, true__1010
 lw $t0, -4($fp)
 lw $t1, -260($fp)
 # local_option_CellularAutomaton_internal_64 <- local_option_CellularAutomaton_num_0 = 8
 li $t9, 8
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_64 goto true__1013
+# If local_option_CellularAutomaton_internal_64 goto true__1014
 sw $t0, -4($fp)
 sw $t1, -260($fp)
-bnez $t1, true__1013
+bnez $t1, true__1014
 lw $t0, -4($fp)
 lw $t1, -268($fp)
 # local_option_CellularAutomaton_internal_66 <- local_option_CellularAutomaton_num_0 = 9
 li $t9, 9
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_66 goto true__1017
+# If local_option_CellularAutomaton_internal_66 goto true__1018
 sw $t0, -4($fp)
 sw $t1, -268($fp)
-bnez $t1, true__1017
+bnez $t1, true__1018
 lw $t0, -4($fp)
 lw $t1, -276($fp)
 # local_option_CellularAutomaton_internal_68 <- local_option_CellularAutomaton_num_0 = 10
 li $t9, 10
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_68 goto true__1021
+# If local_option_CellularAutomaton_internal_68 goto true__1022
 sw $t0, -4($fp)
 sw $t1, -276($fp)
-bnez $t1, true__1021
+bnez $t1, true__1022
 lw $t0, -4($fp)
 lw $t1, -284($fp)
 # local_option_CellularAutomaton_internal_70 <- local_option_CellularAutomaton_num_0 = 11
 li $t9, 11
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_70 goto true__1025
+# If local_option_CellularAutomaton_internal_70 goto true__1026
 sw $t0, -4($fp)
 sw $t1, -284($fp)
-bnez $t1, true__1025
+bnez $t1, true__1026
 lw $t0, -4($fp)
 lw $t1, -292($fp)
 # local_option_CellularAutomaton_internal_72 <- local_option_CellularAutomaton_num_0 = 12
 li $t9, 12
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_72 goto true__1029
+# If local_option_CellularAutomaton_internal_72 goto true__1030
 sw $t0, -4($fp)
 sw $t1, -292($fp)
-bnez $t1, true__1029
+bnez $t1, true__1030
 lw $t0, -4($fp)
 lw $t1, -300($fp)
 # local_option_CellularAutomaton_internal_74 <- local_option_CellularAutomaton_num_0 = 13
 li $t9, 13
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_74 goto true__1033
+# If local_option_CellularAutomaton_internal_74 goto true__1034
 sw $t0, -4($fp)
 sw $t1, -300($fp)
-bnez $t1, true__1033
+bnez $t1, true__1034
 lw $t0, -4($fp)
 lw $t1, -308($fp)
 # local_option_CellularAutomaton_internal_76 <- local_option_CellularAutomaton_num_0 = 14
 li $t9, 14
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_76 goto true__1037
+# If local_option_CellularAutomaton_internal_76 goto true__1038
 sw $t0, -4($fp)
 sw $t1, -308($fp)
-bnez $t1, true__1037
+bnez $t1, true__1038
 lw $t0, -4($fp)
 lw $t1, -316($fp)
 # local_option_CellularAutomaton_internal_78 <- local_option_CellularAutomaton_num_0 = 15
 li $t9, 15
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_78 goto true__1041
+# If local_option_CellularAutomaton_internal_78 goto true__1042
 sw $t0, -4($fp)
 sw $t1, -316($fp)
-bnez $t1, true__1041
+bnez $t1, true__1042
 lw $t0, -4($fp)
 lw $t1, -324($fp)
 # local_option_CellularAutomaton_internal_80 <- local_option_CellularAutomaton_num_0 = 16
 li $t9, 16
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_80 goto true__1045
+# If local_option_CellularAutomaton_internal_80 goto true__1046
 sw $t0, -4($fp)
 sw $t1, -324($fp)
-bnez $t1, true__1045
+bnez $t1, true__1046
 lw $t0, -4($fp)
 lw $t1, -332($fp)
 # local_option_CellularAutomaton_internal_82 <- local_option_CellularAutomaton_num_0 = 17
 li $t9, 17
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_82 goto true__1049
+# If local_option_CellularAutomaton_internal_82 goto true__1050
 sw $t0, -4($fp)
 sw $t1, -332($fp)
-bnez $t1, true__1049
+bnez $t1, true__1050
 lw $t0, -4($fp)
 lw $t1, -340($fp)
 # local_option_CellularAutomaton_internal_84 <- local_option_CellularAutomaton_num_0 = 18
 li $t9, 18
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_84 goto true__1053
+# If local_option_CellularAutomaton_internal_84 goto true__1054
 sw $t0, -4($fp)
 sw $t1, -340($fp)
-bnez $t1, true__1053
+bnez $t1, true__1054
 lw $t0, -4($fp)
 lw $t1, -348($fp)
 # local_option_CellularAutomaton_internal_86 <- local_option_CellularAutomaton_num_0 = 19
 li $t9, 19
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_86 goto true__1057
+# If local_option_CellularAutomaton_internal_86 goto true__1058
 sw $t0, -4($fp)
 sw $t1, -348($fp)
-bnez $t1, true__1057
+bnez $t1, true__1058
 lw $t0, -4($fp)
 lw $t1, -356($fp)
 # local_option_CellularAutomaton_internal_88 <- local_option_CellularAutomaton_num_0 = 20
 li $t9, 20
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_88 goto true__1061
+# If local_option_CellularAutomaton_internal_88 goto true__1062
 sw $t0, -4($fp)
 sw $t1, -356($fp)
-bnez $t1, true__1061
+bnez $t1, true__1062
 lw $t0, -4($fp)
 lw $t1, -364($fp)
 # local_option_CellularAutomaton_internal_90 <- local_option_CellularAutomaton_num_0 = 21
 li $t9, 21
 seq $t1, $t0, $t9
-# If local_option_CellularAutomaton_internal_90 goto true__1065
+# If local_option_CellularAutomaton_internal_90 goto true__1066
 sw $t0, -4($fp)
 sw $t1, -364($fp)
-bnez $t1, true__1065
+bnez $t1, true__1066
 lw $t0, -372($fp)
 # Saves in local_option_CellularAutomaton_internal_92 data_57
 la $t0, data_57
@@ -5840,8 +6170,8 @@ move $t1, $t0
 sw $t1, -368($fp)
 sw $t0, -372($fp)
 sw $t1, -368($fp)
-j end__1065
-true__1065:
+j end__1066
+true__1066:
 lw $t0, -376($fp)
 # Saves in local_option_CellularAutomaton_internal_93 data_58
 la $t0, data_58
@@ -5851,7 +6181,7 @@ move $t1, $t0
 sw $t1, -368($fp)
 sw $t0, -376($fp)
 sw $t1, -368($fp)
-end__1065:
+end__1066:
 lw $t0, -368($fp)
 lw $t1, -360($fp)
 # Moving local_option_CellularAutomaton_internal_91 to local_option_CellularAutomaton_internal_89
@@ -5859,8 +6189,8 @@ move $t1, $t0
 sw $t1, -360($fp)
 sw $t0, -368($fp)
 sw $t1, -360($fp)
-j end__1061
-true__1061:
+j end__1062
+true__1062:
 lw $t0, -380($fp)
 # Saves in local_option_CellularAutomaton_internal_94 data_59
 la $t0, data_59
@@ -5870,7 +6200,7 @@ move $t1, $t0
 sw $t1, -360($fp)
 sw $t0, -380($fp)
 sw $t1, -360($fp)
-end__1061:
+end__1062:
 lw $t0, -360($fp)
 lw $t1, -352($fp)
 # Moving local_option_CellularAutomaton_internal_89 to local_option_CellularAutomaton_internal_87
@@ -5878,8 +6208,8 @@ move $t1, $t0
 sw $t1, -352($fp)
 sw $t0, -360($fp)
 sw $t1, -352($fp)
-j end__1057
-true__1057:
+j end__1058
+true__1058:
 lw $t0, -384($fp)
 # Saves in local_option_CellularAutomaton_internal_95 data_60
 la $t0, data_60
@@ -5889,7 +6219,7 @@ move $t1, $t0
 sw $t1, -352($fp)
 sw $t0, -384($fp)
 sw $t1, -352($fp)
-end__1057:
+end__1058:
 lw $t0, -352($fp)
 lw $t1, -344($fp)
 # Moving local_option_CellularAutomaton_internal_87 to local_option_CellularAutomaton_internal_85
@@ -5897,8 +6227,8 @@ move $t1, $t0
 sw $t1, -344($fp)
 sw $t0, -352($fp)
 sw $t1, -344($fp)
-j end__1053
-true__1053:
+j end__1054
+true__1054:
 lw $t0, -388($fp)
 # Saves in local_option_CellularAutomaton_internal_96 data_61
 la $t0, data_61
@@ -5908,7 +6238,7 @@ move $t1, $t0
 sw $t1, -344($fp)
 sw $t0, -388($fp)
 sw $t1, -344($fp)
-end__1053:
+end__1054:
 lw $t0, -344($fp)
 lw $t1, -336($fp)
 # Moving local_option_CellularAutomaton_internal_85 to local_option_CellularAutomaton_internal_83
@@ -5916,8 +6246,8 @@ move $t1, $t0
 sw $t1, -336($fp)
 sw $t0, -344($fp)
 sw $t1, -336($fp)
-j end__1049
-true__1049:
+j end__1050
+true__1050:
 lw $t0, -392($fp)
 # Saves in local_option_CellularAutomaton_internal_97 data_62
 la $t0, data_62
@@ -5927,7 +6257,7 @@ move $t1, $t0
 sw $t1, -336($fp)
 sw $t0, -392($fp)
 sw $t1, -336($fp)
-end__1049:
+end__1050:
 lw $t0, -336($fp)
 lw $t1, -328($fp)
 # Moving local_option_CellularAutomaton_internal_83 to local_option_CellularAutomaton_internal_81
@@ -5935,8 +6265,8 @@ move $t1, $t0
 sw $t1, -328($fp)
 sw $t0, -336($fp)
 sw $t1, -328($fp)
-j end__1045
-true__1045:
+j end__1046
+true__1046:
 lw $t0, -396($fp)
 # Saves in local_option_CellularAutomaton_internal_98 data_63
 la $t0, data_63
@@ -5946,7 +6276,7 @@ move $t1, $t0
 sw $t1, -328($fp)
 sw $t0, -396($fp)
 sw $t1, -328($fp)
-end__1045:
+end__1046:
 lw $t0, -328($fp)
 lw $t1, -320($fp)
 # Moving local_option_CellularAutomaton_internal_81 to local_option_CellularAutomaton_internal_79
@@ -5954,8 +6284,8 @@ move $t1, $t0
 sw $t1, -320($fp)
 sw $t0, -328($fp)
 sw $t1, -320($fp)
-j end__1041
-true__1041:
+j end__1042
+true__1042:
 lw $t0, -400($fp)
 # Saves in local_option_CellularAutomaton_internal_99 data_64
 la $t0, data_64
@@ -5965,7 +6295,7 @@ move $t1, $t0
 sw $t1, -320($fp)
 sw $t0, -400($fp)
 sw $t1, -320($fp)
-end__1041:
+end__1042:
 lw $t0, -320($fp)
 lw $t1, -312($fp)
 # Moving local_option_CellularAutomaton_internal_79 to local_option_CellularAutomaton_internal_77
@@ -5973,8 +6303,8 @@ move $t1, $t0
 sw $t1, -312($fp)
 sw $t0, -320($fp)
 sw $t1, -312($fp)
-j end__1037
-true__1037:
+j end__1038
+true__1038:
 lw $t0, -404($fp)
 # Saves in local_option_CellularAutomaton_internal_100 data_65
 la $t0, data_65
@@ -5984,7 +6314,7 @@ move $t1, $t0
 sw $t1, -312($fp)
 sw $t0, -404($fp)
 sw $t1, -312($fp)
-end__1037:
+end__1038:
 lw $t0, -312($fp)
 lw $t1, -304($fp)
 # Moving local_option_CellularAutomaton_internal_77 to local_option_CellularAutomaton_internal_75
@@ -5992,8 +6322,8 @@ move $t1, $t0
 sw $t1, -304($fp)
 sw $t0, -312($fp)
 sw $t1, -304($fp)
-j end__1033
-true__1033:
+j end__1034
+true__1034:
 lw $t0, -408($fp)
 # Saves in local_option_CellularAutomaton_internal_101 data_66
 la $t0, data_66
@@ -6003,7 +6333,7 @@ move $t1, $t0
 sw $t1, -304($fp)
 sw $t0, -408($fp)
 sw $t1, -304($fp)
-end__1033:
+end__1034:
 lw $t0, -304($fp)
 lw $t1, -296($fp)
 # Moving local_option_CellularAutomaton_internal_75 to local_option_CellularAutomaton_internal_73
@@ -6011,8 +6341,8 @@ move $t1, $t0
 sw $t1, -296($fp)
 sw $t0, -304($fp)
 sw $t1, -296($fp)
-j end__1029
-true__1029:
+j end__1030
+true__1030:
 lw $t0, -412($fp)
 # Saves in local_option_CellularAutomaton_internal_102 data_67
 la $t0, data_67
@@ -6022,7 +6352,7 @@ move $t1, $t0
 sw $t1, -296($fp)
 sw $t0, -412($fp)
 sw $t1, -296($fp)
-end__1029:
+end__1030:
 lw $t0, -296($fp)
 lw $t1, -288($fp)
 # Moving local_option_CellularAutomaton_internal_73 to local_option_CellularAutomaton_internal_71
@@ -6030,8 +6360,8 @@ move $t1, $t0
 sw $t1, -288($fp)
 sw $t0, -296($fp)
 sw $t1, -288($fp)
-j end__1025
-true__1025:
+j end__1026
+true__1026:
 lw $t0, -416($fp)
 # Saves in local_option_CellularAutomaton_internal_103 data_68
 la $t0, data_68
@@ -6041,7 +6371,7 @@ move $t1, $t0
 sw $t1, -288($fp)
 sw $t0, -416($fp)
 sw $t1, -288($fp)
-end__1025:
+end__1026:
 lw $t0, -288($fp)
 lw $t1, -280($fp)
 # Moving local_option_CellularAutomaton_internal_71 to local_option_CellularAutomaton_internal_69
@@ -6049,8 +6379,8 @@ move $t1, $t0
 sw $t1, -280($fp)
 sw $t0, -288($fp)
 sw $t1, -280($fp)
-j end__1021
-true__1021:
+j end__1022
+true__1022:
 lw $t0, -420($fp)
 # Saves in local_option_CellularAutomaton_internal_104 data_69
 la $t0, data_69
@@ -6060,7 +6390,7 @@ move $t1, $t0
 sw $t1, -280($fp)
 sw $t0, -420($fp)
 sw $t1, -280($fp)
-end__1021:
+end__1022:
 lw $t0, -280($fp)
 lw $t1, -272($fp)
 # Moving local_option_CellularAutomaton_internal_69 to local_option_CellularAutomaton_internal_67
@@ -6068,8 +6398,8 @@ move $t1, $t0
 sw $t1, -272($fp)
 sw $t0, -280($fp)
 sw $t1, -272($fp)
-j end__1017
-true__1017:
+j end__1018
+true__1018:
 lw $t0, -424($fp)
 # Saves in local_option_CellularAutomaton_internal_105 data_70
 la $t0, data_70
@@ -6079,7 +6409,7 @@ move $t1, $t0
 sw $t1, -272($fp)
 sw $t0, -424($fp)
 sw $t1, -272($fp)
-end__1017:
+end__1018:
 lw $t0, -272($fp)
 lw $t1, -264($fp)
 # Moving local_option_CellularAutomaton_internal_67 to local_option_CellularAutomaton_internal_65
@@ -6087,8 +6417,8 @@ move $t1, $t0
 sw $t1, -264($fp)
 sw $t0, -272($fp)
 sw $t1, -264($fp)
-j end__1013
-true__1013:
+j end__1014
+true__1014:
 lw $t0, -428($fp)
 # Saves in local_option_CellularAutomaton_internal_106 data_71
 la $t0, data_71
@@ -6098,7 +6428,7 @@ move $t1, $t0
 sw $t1, -264($fp)
 sw $t0, -428($fp)
 sw $t1, -264($fp)
-end__1013:
+end__1014:
 lw $t0, -264($fp)
 lw $t1, -256($fp)
 # Moving local_option_CellularAutomaton_internal_65 to local_option_CellularAutomaton_internal_63
@@ -6106,8 +6436,8 @@ move $t1, $t0
 sw $t1, -256($fp)
 sw $t0, -264($fp)
 sw $t1, -256($fp)
-j end__1009
-true__1009:
+j end__1010
+true__1010:
 lw $t0, -432($fp)
 # Saves in local_option_CellularAutomaton_internal_107 data_72
 la $t0, data_72
@@ -6117,7 +6447,7 @@ move $t1, $t0
 sw $t1, -256($fp)
 sw $t0, -432($fp)
 sw $t1, -256($fp)
-end__1009:
+end__1010:
 lw $t0, -256($fp)
 lw $t1, -248($fp)
 # Moving local_option_CellularAutomaton_internal_63 to local_option_CellularAutomaton_internal_61
@@ -6125,8 +6455,8 @@ move $t1, $t0
 sw $t1, -248($fp)
 sw $t0, -256($fp)
 sw $t1, -248($fp)
-j end__1005
-true__1005:
+j end__1006
+true__1006:
 lw $t0, -436($fp)
 # Saves in local_option_CellularAutomaton_internal_108 data_73
 la $t0, data_73
@@ -6136,7 +6466,7 @@ move $t1, $t0
 sw $t1, -248($fp)
 sw $t0, -436($fp)
 sw $t1, -248($fp)
-end__1005:
+end__1006:
 lw $t0, -248($fp)
 lw $t1, -240($fp)
 # Moving local_option_CellularAutomaton_internal_61 to local_option_CellularAutomaton_internal_59
@@ -6144,8 +6474,8 @@ move $t1, $t0
 sw $t1, -240($fp)
 sw $t0, -248($fp)
 sw $t1, -240($fp)
-j end__1001
-true__1001:
+j end__1002
+true__1002:
 lw $t0, -440($fp)
 # Saves in local_option_CellularAutomaton_internal_109 data_74
 la $t0, data_74
@@ -6155,7 +6485,7 @@ move $t1, $t0
 sw $t1, -240($fp)
 sw $t0, -440($fp)
 sw $t1, -240($fp)
-end__1001:
+end__1002:
 lw $t0, -240($fp)
 lw $t1, -232($fp)
 # Moving local_option_CellularAutomaton_internal_59 to local_option_CellularAutomaton_internal_57
@@ -6163,8 +6493,8 @@ move $t1, $t0
 sw $t1, -232($fp)
 sw $t0, -240($fp)
 sw $t1, -232($fp)
-j end__997
-true__997:
+j end__998
+true__998:
 lw $t0, -444($fp)
 # Saves in local_option_CellularAutomaton_internal_110 data_75
 la $t0, data_75
@@ -6174,7 +6504,7 @@ move $t1, $t0
 sw $t1, -232($fp)
 sw $t0, -444($fp)
 sw $t1, -232($fp)
-end__997:
+end__998:
 lw $t0, -232($fp)
 lw $t1, -224($fp)
 # Moving local_option_CellularAutomaton_internal_57 to local_option_CellularAutomaton_internal_55
@@ -6182,8 +6512,8 @@ move $t1, $t0
 sw $t1, -224($fp)
 sw $t0, -232($fp)
 sw $t1, -224($fp)
-j end__993
-true__993:
+j end__994
+true__994:
 lw $t0, -448($fp)
 # Saves in local_option_CellularAutomaton_internal_111 data_76
 la $t0, data_76
@@ -6193,7 +6523,7 @@ move $t1, $t0
 sw $t1, -224($fp)
 sw $t0, -448($fp)
 sw $t1, -224($fp)
-end__993:
+end__994:
 lw $t0, -224($fp)
 lw $t1, -216($fp)
 # Moving local_option_CellularAutomaton_internal_55 to local_option_CellularAutomaton_internal_53
@@ -6201,8 +6531,8 @@ move $t1, $t0
 sw $t1, -216($fp)
 sw $t0, -224($fp)
 sw $t1, -216($fp)
-j end__989
-true__989:
+j end__990
+true__990:
 lw $t0, -452($fp)
 # Saves in local_option_CellularAutomaton_internal_112 data_77
 la $t0, data_77
@@ -6212,7 +6542,7 @@ move $t1, $t0
 sw $t1, -216($fp)
 sw $t0, -452($fp)
 sw $t1, -216($fp)
-end__989:
+end__990:
 lw $t0, -216($fp)
 lw $t1, -208($fp)
 # Moving local_option_CellularAutomaton_internal_53 to local_option_CellularAutomaton_internal_51
@@ -6220,8 +6550,8 @@ move $t1, $t0
 sw $t1, -208($fp)
 sw $t0, -216($fp)
 sw $t1, -208($fp)
-j end__985
-true__985:
+j end__986
+true__986:
 lw $t0, -456($fp)
 # Saves in local_option_CellularAutomaton_internal_113 data_78
 la $t0, data_78
@@ -6231,7 +6561,7 @@ move $t1, $t0
 sw $t1, -208($fp)
 sw $t0, -456($fp)
 sw $t1, -208($fp)
-end__985:
+end__986:
 lw $t0, -208($fp)
 lw $t1, -460($fp)
 # Moving local_option_CellularAutomaton_internal_51 to local_option_CellularAutomaton_internal_114
@@ -6298,10 +6628,11 @@ la $t2, data_80
 lw $t3, -0($fp)
 lw $t4, -16($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6336,10 +6667,11 @@ la $t1, data_81
 lw $t2, -0($fp)
 lw $t3, -24($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6370,10 +6702,11 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -28($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_in_string_IO
-lw $t8, 24($t9)
+lw $t8, 24($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6407,10 +6740,11 @@ la $t2, data_82
 lw $t3, -0($fp)
 lw $t4, -36($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6447,43 +6781,43 @@ lw $t3, -40($fp)
 # local_prompt_CellularAutomaton_internal_9 <- local_prompt_CellularAutomaton_ans_0 = local_prompt_CellularAutomaton_internal_10
 move $t8, $t2
 move $t9, $t1
-loop_16:
+loop_15:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_16
-beqz $a1, mismatch_16
+beqz $a0, check_15
+beqz $a1, mismatch_15
 seq $v0, $a0, $a1
-beqz $v0, mismatch_16
+beqz $v0, mismatch_15
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_16
-mismatch_16:
+j loop_15
+mismatch_15:
 li $v0, 0
-j end_16
-check_16:
-bnez $a1, mismatch_16
+j end_15
+check_15:
+bnez $a1, mismatch_15
 li $v0, 1
-end_16:
+end_15:
 move $t3, $v0
-# If local_prompt_CellularAutomaton_internal_9 goto true__1276
+# If local_prompt_CellularAutomaton_internal_9 goto true__1277
 sw $t0, -36($fp)
 sw $t1, -44($fp)
 sw $t2, -4($fp)
 sw $t3, -40($fp)
-bnez $t3, true__1276
+bnez $t3, true__1277
 lw $t0, -48($fp)
 # Moving 1 to local_prompt_CellularAutomaton_internal_11
 li $t0, 1
 sw $t0, -48($fp)
 sw $t0, -48($fp)
-j end__1276
-true__1276:
+j end__1277
+true__1277:
 lw $t0, -48($fp)
 # Moving 0 to local_prompt_CellularAutomaton_internal_11
 li $t0, 0
 sw $t0, -48($fp)
 sw $t0, -48($fp)
-end__1276:
+end__1277:
 lw $t0, -48($fp)
 lw $t1, -52($fp)
 # Moving local_prompt_CellularAutomaton_internal_11 to local_prompt_CellularAutomaton_internal_12
@@ -6548,10 +6882,11 @@ la $t2, data_85
 lw $t3, -0($fp)
 lw $t4, -16($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6586,10 +6921,11 @@ la $t1, data_86
 lw $t2, -0($fp)
 lw $t3, -24($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6623,10 +6959,11 @@ la $t1, data_87
 lw $t2, -0($fp)
 lw $t3, -32($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6657,10 +6994,11 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -36($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_in_string_IO
-lw $t8, 24($t9)
+lw $t8, 24($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6695,43 +7033,43 @@ lw $t3, -40($fp)
 # local_prompt2_CellularAutomaton_internal_9 <- local_prompt2_CellularAutomaton_ans_0 = local_prompt2_CellularAutomaton_internal_10
 move $t8, $t1
 move $t9, $t2
-loop_17:
+loop_16:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_17
-beqz $a1, mismatch_17
+beqz $a0, check_16
+beqz $a1, mismatch_16
 seq $v0, $a0, $a1
-beqz $v0, mismatch_17
+beqz $v0, mismatch_16
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_17
-mismatch_17:
+j loop_16
+mismatch_16:
 li $v0, 0
-j end_17
-check_17:
-bnez $a1, mismatch_17
+j end_16
+check_16:
+bnez $a1, mismatch_16
 li $v0, 1
-end_17:
+end_16:
 move $t3, $v0
-# If local_prompt2_CellularAutomaton_internal_9 goto true__1321
+# If local_prompt2_CellularAutomaton_internal_9 goto true__1322
 sw $t0, -36($fp)
 sw $t1, -4($fp)
 sw $t2, -44($fp)
 sw $t3, -40($fp)
-bnez $t3, true__1321
+bnez $t3, true__1322
 lw $t0, -48($fp)
 # Moving 0 to local_prompt2_CellularAutomaton_internal_11
 li $t0, 0
 sw $t0, -48($fp)
 sw $t0, -48($fp)
-j end__1321
-true__1321:
+j end__1322
+true__1322:
 lw $t0, -48($fp)
 # Moving 1 to local_prompt2_CellularAutomaton_internal_11
 li $t0, 1
 sw $t0, -48($fp)
 sw $t0, -48($fp)
-end__1321:
+end__1322:
 lw $t0, -48($fp)
 lw $t1, -52($fp)
 # Moving local_prompt2_CellularAutomaton_internal_11 to local_prompt2_CellularAutomaton_internal_12
@@ -6761,18 +7099,18 @@ addiu $sp, $sp, -4
 lw $t0, -0($fp)
 # self . rows <- SET 0
 li $t9, 0
-sw $t9, 16($t0)
+sw $t9, 12($t0)
 # self . columns <- SET 0
 li $t9, 0
-sw $t9, 20($t0)
+sw $t9, 16($t0)
 # self . board_size <- SET 0
 li $t9, 0
-sw $t9, 24($t0)
+sw $t9, 20($t0)
 lw $t1, -4($fp)
 # Saves in local_Main_Main_internal_0 data_89
 la $t1, data_89
 # self . population_map <- SET local_Main_Main_internal_0
-sw $t1, 28($t0)
+sw $t1, 24($t0)
 lw $t2, -8($fp)
 # Initialize void node
 li $a0, 4
@@ -6783,7 +7121,7 @@ la $t9, type_Void
 sw $t9, 0($v0)
 move $t2, $v0
 # self . cells <- SET local_Main_Main_cells_1
-sw $t2, 32($t0)
+sw $t2, 28($t0)
 lw $t3, -12($fp)
 # Moving self to local_Main_Main_internal_2
 move $t3, $t0
@@ -6872,10 +7210,11 @@ la $t3, data_91
 lw $t4, -0($fp)
 lw $t5, -20($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t4)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6911,10 +7250,11 @@ la $t1, data_92
 lw $t2, -0($fp)
 lw $t3, -28($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_out_string_IO
-lw $t8, 16($t9)
+lw $t8, 16($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6953,14 +7293,15 @@ sw $t9, 0($v0)
 move $t1, $v0
 sw $t0, -28($fp)
 sw $t1, -32($fp)
-start__1367:
+start__1368:
 lw $t0, -0($fp)
 lw $t1, -36($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_prompt2_CellularAutomaton
-lw $t8, 112($t9)
+lw $t8, 112($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -6983,9 +7324,9 @@ lw $fp, ($sp)
 lw $t0, -36($fp)
 # saves the return value
 move $t0, $v0
-# If not local_main_Main_internal_8 goto end__1367
+# If not local_main_Main_internal_8 goto end__1368
 sw $t0, -36($fp)
-beqz $t0, end__1367
+beqz $t0, end__1368
 lw $t0, -4($fp)
 # Moving 1 to local_main_Main_continue_0
 li $t0, 1
@@ -6993,10 +7334,11 @@ sw $t0, -4($fp)
 lw $t1, -0($fp)
 lw $t2, -40($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_option_CellularAutomaton
-lw $t8, 104($t9)
+lw $t8, 104($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -7036,134 +7378,10 @@ sw $t9, 0($v0)
 li $t9, 28
 sw $t9, 4($v0)
 move $t2, $v0
-# Allocate dispatch table in the heap
-li $v0, 9
-li $a0, 120
-syscall
-# I save the offset of every one of the methods of this type
-# Save the direction of methods
-la $t8, methods
-# Save the direction of the method function_abort_Object in t9
-lw $t9, 4($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 4($v0)
-# Save the direction of the method function_type_name_Object in t9
-lw $t9, 8($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 8($v0)
-# Save the direction of the method function_copy_Object in t9
-lw $t9, 12($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 12($v0)
-# Save the direction of the method function_out_string_IO in t9
-lw $t9, 16($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 16($v0)
-# Save the direction of the method function_out_int_IO in t9
-lw $t9, 20($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 20($v0)
-# Save the direction of the method function_in_string_IO in t9
-lw $t9, 28($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 24($v0)
-# Save the direction of the method function_in_int_IO in t9
-lw $t9, 24($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 28($v0)
-# Save the direction of the method function_size_of_board_Board in t9
-lw $t9, 84($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 32($v0)
-# Save the direction of the method function_board_init_Board in t9
-lw $t9, 88($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 36($v0)
-# Save the direction of the method function_Board_Board in t9
-lw $t9, 80($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 40($v0)
-# Save the direction of the method function_init_CellularAutomaton in t9
-lw $t9, 96($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 44($v0)
-# Save the direction of the method function_print_CellularAutomaton in t9
-lw $t9, 100($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 48($v0)
-# Save the direction of the method function_num_cells_CellularAutomaton in t9
-lw $t9, 104($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 52($v0)
-# Save the direction of the method function_cell_CellularAutomaton in t9
-lw $t9, 108($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 56($v0)
-# Save the direction of the method function_north_CellularAutomaton in t9
-lw $t9, 112($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 60($v0)
-# Save the direction of the method function_south_CellularAutomaton in t9
-lw $t9, 116($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 64($v0)
-# Save the direction of the method function_east_CellularAutomaton in t9
-lw $t9, 120($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 68($v0)
-# Save the direction of the method function_west_CellularAutomaton in t9
-lw $t9, 124($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 72($v0)
-# Save the direction of the method function_northwest_CellularAutomaton in t9
-lw $t9, 128($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 76($v0)
-# Save the direction of the method function_northeast_CellularAutomaton in t9
-lw $t9, 132($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 80($v0)
-# Save the direction of the method function_southeast_CellularAutomaton in t9
-lw $t9, 136($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 84($v0)
-# Save the direction of the method function_southwest_CellularAutomaton in t9
-lw $t9, 140($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 88($v0)
-# Save the direction of the method function_neighbors_CellularAutomaton in t9
-lw $t9, 144($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 92($v0)
-# Save the direction of the method function_cell_at_next_evolution_CellularAutomaton in t9
-lw $t9, 148($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 96($v0)
-# Save the direction of the method function_evolve_CellularAutomaton in t9
-lw $t9, 152($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 100($v0)
-# Save the direction of the method function_option_CellularAutomaton in t9
-lw $t9, 156($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 104($v0)
-# Save the direction of the method function_prompt_CellularAutomaton in t9
-lw $t9, 160($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 108($v0)
-# Save the direction of the method function_prompt2_CellularAutomaton in t9
-lw $t9, 164($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 112($v0)
-# Save the direction of the method function_CellularAutomaton_CellularAutomaton in t9
-lw $t9, 92($t8)
-# Save the direction of the method in his position in the dispatch table
-sw $t9, 116($v0)
-sw $v0, 8($t2)
 # Adding Type Info addr
 la $t8, types
 lw $v0, 24($t8)
-sw $v0, 12($t2)
+sw $v0, 8($t2)
 # Static Dispatch of the method CellularAutomaton
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -7190,10 +7408,11 @@ lw $t0, -44($fp)
 move $t0, $v0
 lw $t1, -48($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_init_CellularAutomaton
-lw $t8, 44($t9)
+lw $t8, 44($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -7223,16 +7442,17 @@ lw $t0, -48($fp)
 move $t0, $v0
 lw $t1, -0($fp)
 # self . cells <- SET local_main_Main_internal_11
-sw $t0, 32($t1)
+sw $t0, 28($t1)
 lw $t2, -52($fp)
 # local_main_Main_cells_12 <- GET self . cells
-lw $t2, 32($t1)
+lw $t2, 28($t1)
 lw $t3, -56($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_print_CellularAutomaton
-lw $t8, 48($t9)
+lw $t8, 48($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -7268,18 +7488,19 @@ sw $t9, 0($v0)
 move $t1, $v0
 sw $t0, -56($fp)
 sw $t1, -60($fp)
-start__1390:
+start__1391:
 lw $t0, -4($fp)
-# If not local_main_Main_continue_0 goto end__1390
+# If not local_main_Main_continue_0 goto end__1391
 sw $t0, -4($fp)
-beqz $t0, end__1390
+beqz $t0, end__1391
 lw $t0, -0($fp)
 lw $t1, -64($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_prompt_CellularAutomaton
-lw $t8, 108($t9)
+lw $t8, 108($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -7302,9 +7523,9 @@ lw $fp, ($sp)
 lw $t0, -64($fp)
 # saves the return value
 move $t0, $v0
-# If local_main_Main_internal_15 goto true__1396
+# If local_main_Main_internal_15 goto true__1397
 sw $t0, -64($fp)
-bnez $t0, true__1396
+bnez $t0, true__1397
 lw $t0, -4($fp)
 # Moving 0 to local_main_Main_continue_0
 li $t0, 0
@@ -7315,18 +7536,19 @@ li $t1, 0
 sw $t1, -68($fp)
 sw $t0, -4($fp)
 sw $t1, -68($fp)
-j end__1396
-true__1396:
+j end__1397
+true__1397:
 lw $t0, -0($fp)
 lw $t1, -72($fp)
 # local_main_Main_cells_17 <- GET self . cells
-lw $t1, 32($t0)
+lw $t1, 28($t0)
 lw $t2, -76($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_evolve_CellularAutomaton
-lw $t8, 100($t9)
+lw $t8, 100($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -7353,13 +7575,14 @@ move $t0, $v0
 lw $t1, -0($fp)
 lw $t2, -80($fp)
 # local_main_Main_cells_19 <- GET self . cells
-lw $t2, 32($t1)
+lw $t2, 28($t1)
 lw $t3, -84($fp)
 # Find the actual name in the dispatch table
-# Gets in t9 the actual direction of the dispatch table
+# Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
+lw $a0, 8($t9)
 # Saves in t8 the direction of function_print_CellularAutomaton
-lw $t8, 48($t9)
+lw $t8, 48($a0)
 sw $fp, ($sp)
 addiu $sp, $sp, -4
 sw $ra, ($sp)
@@ -7395,7 +7618,7 @@ sw $t2, -68($fp)
 sw $t0, -84($fp)
 sw $t1, -88($fp)
 sw $t2, -68($fp)
-end__1396:
+end__1397:
 lw $t0, -68($fp)
 lw $t1, -60($fp)
 # Moving local_main_Main_internal_16 to local_main_Main_internal_14
@@ -7403,8 +7626,8 @@ move $t1, $t0
 sw $t1, -60($fp)
 sw $t0, -68($fp)
 sw $t1, -60($fp)
-j start__1390
-end__1390:
+j start__1391
+end__1391:
 lw $t0, -60($fp)
 lw $t1, -92($fp)
 # Moving local_main_Main_internal_14 to local_main_Main_internal_22
@@ -7417,8 +7640,8 @@ sw $t2, -32($fp)
 sw $t0, -60($fp)
 sw $t1, -92($fp)
 sw $t2, -32($fp)
-j start__1367
-end__1367:
+j start__1368
+end__1368:
 lw $t0, -0($fp)
 lw $t1, -96($fp)
 # Moving self to local_main_Main_internal_23
@@ -7463,6 +7686,7 @@ type_Bool: .asciiz "Bool"
 type_Board: .asciiz "Board"
 type_CellularAutomaton: .asciiz "CellularAutomaton"
 type_Main: .asciiz "Main"
+methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 type_Void: .asciiz "Void"
 types: .word 0, 0, 0, 0, 0, 0, 0, 0
 data_0: .asciiz "Void"
@@ -7592,7 +7816,6 @@ data_91: .asciiz "Welcome to the Game of Life.
 "
 data_92: .asciiz "There are many initial states to choose from. 
 "
-methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 zero_error: .asciiz "Division by zero error
 "
 case_void_error: .asciiz "Case on void error

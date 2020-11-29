@@ -314,16 +314,23 @@ class BaseCILToMIPSVisitor:
         for i, (ntype, nparent) in enumerate(self.inherit_graph.items()):
             self.code.append('# Allocating memory')
             self.code.append('li $v0, 9')
-            self.code.append(f'li $a0, 8')      
+            self.code.append(f'li $a0, 12')      
             self.code.append('syscall')
             self.types.append(ntype)
 
             self.code.append('# Filling table methods')
             self.code.append(f'la $t8, type_{ntype}')
             self.code.append(f'sw $t8, 0($v0)')
-
+            
             self.code.append('# Copying direction to array')
             self.code.append(f'sw $v0, {4*i}($t9)')
+            
+            self.code.append('# Table addr is now stored in t8')
+            self.code.append('move $t8, $v0')
+            self.code.append('# Creating the dispatch table')
+            self.create_dispatch_table(ntype)   # table addr is stored in $v0
+            self.code.append('sw $v0, 8($t8)')
+
 
         # self.code.append('la $t9, types')
         self.code.append('# Copying parents')
@@ -338,6 +345,31 @@ class BaseCILToMIPSVisitor:
             else:
                 self.code.append('li $t8, 0')
             self.code.append('sw $t8, 4($v0)')
+
+    def create_dispatch_table(self, type_name):
+        # Get methods of the dispatch table
+        methods = self.dispatch_table.get_methods(type_name)
+        # Allocate the dispatch table in the heap
+        self.code.append('# Allocate dispatch table in the heap')
+        self.code.append('li $v0, 9')                       # code to request memory
+        dispatch_table_size = 4*len(methods)
+        self.code.append(f'li $a0, {dispatch_table_size+4}')
+        self.code.append('syscall')                         # Memory of the dispatch table in v0
+        
+        var = self.save_reg_if_occupied('v1')
+
+        self.code.append(f'# I save the offset of every one of the methods of this type')
+        self.code.append('# Save the direction of methods')
+        self.code.append('la $v1, methods')             # cargo la dirección de methods
+        for i, meth in enumerate(methods, 1):
+            # guardo el offset de cada uno de los métodos de este tipo
+
+            offset = 4*self.methods.index(meth)
+            self.code.append(f'# Save the direction of the method {meth} in a0')
+            self.code.append(f'lw $a0, {offset}($v1)')      # cargo la dirección del método en t9
+            self.code.append('# Save the direction of the method in his position in the dispatch table')
+            self.code.append(f'sw $a0, {4*i}($v0)')         # guardo la direccion del metodo en su posicion en el dispatch table        
+        self.load_var_if_occupied(var)
 
     def get_type(self, xtype):
         'Return the var address type according to its static type'
@@ -366,8 +398,7 @@ class BaseCILToMIPSVisitor:
         rleft = self.addr_desc.get_var_reg(node.left)
         rright = self.addr_desc.get_var_reg(node.right)
 
-        var1 = self.save_reg_if_occupied('a0')
-        var2 = self.save_reg_if_occupied('a1')
+        var = self.save_reg_if_occupied('a1')
         loop_idx = self.loop_idx
         
         self.code.append(f'move $t8, ${rleft}')                  # counter
@@ -391,8 +422,7 @@ class BaseCILToMIPSVisitor:
         self.code.append('li $v0, 1')
         self.code.append(f'end_{loop_idx}:')
         self.code.append(f'move ${rdest}, $v0')
-        self.load_var_if_occupied(var1)
-        self.load_var_if_occupied(var2)
+        self.load_var_if_occupied(var)
         self.loop_idx += 1
 
     def conforms_to(self, rsrc, rdest, type_name):
@@ -400,7 +430,7 @@ class BaseCILToMIPSVisitor:
         self.code.append(f'la $t9, type_{type_name}')
 
         loop_idx = self.loop_idx
-        self.code.append(f'lw $v0, 12(${rsrc})')     # saves the direction to the type info table
+        self.code.append(f'lw $v0, 8(${rsrc})')     # saves the direction to the type info table
         self.code.append(f'loop_{loop_idx}:')
         self.code.append(f'move $t8, $v0')         # Saves parent addr
         self.code.append(f'beqz $t8, false_{loop_idx}')
