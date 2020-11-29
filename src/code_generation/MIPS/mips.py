@@ -343,7 +343,8 @@ def setattr_to_mips_visitor(setattr: cil.SetAttrNode):
     """
 
     code=[mips.Comment(str(setattr))]
-    if isinstance(setattr.val ,int):
+    
+    if isinstance(setattr.val, int):
         code.append(mips.LiInstruction('$t0', setattr.val))
     else:
         x_addr = CURRENT_FUNCTION.offset[str(setattr.val)]
@@ -546,13 +547,19 @@ def not_to_mips_visitor(notn: cil.NotNode):
         not $t0, $t1
         sw  $t0, [addr(x)]
     """
+    instructions = [mips.Comment(str(notn))]
+
+    if isinstance(notn.val, int):
+        instructions.append(mips.LiInstruction('$t0', notn.val))
+    else:
+        y_offset = CURRENT_FUNCTION.offset[str(notn.val)]
+        mips.LwInstruction('$t0', f'{y_offset}($fp)')
+
     x_offset = CURRENT_FUNCTION.offset[str(notn.result)]
-    y_offset = CURRENT_FUNCTION.offset[str(notn.value)]
-    return [
-        mips.Comment(str(notn)),
-        mips.LwInstruction('$t1', f'{x_offset}($fp)'),
+
+    return instructions + [
         mips.NotInstruction('$t0', '$t1'),
-        mips.SwInstruction('$t0', f'{y_offset}($fp)')
+        mips.SwInstruction('$t0', f'{x_offset}($fp)')
     ]
 
 
