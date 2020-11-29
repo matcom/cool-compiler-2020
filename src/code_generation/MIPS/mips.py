@@ -323,7 +323,7 @@ def getattr_to_mips_visitor(getattr: cil.GetAttrNode):
 
     x_addr = CURRENT_FUNCTION.offset[str(getattr.result)]
     y_addr = CURRENT_FUNCTION.offset[str(getattr.obj)]
-    attr_shift = (getattr.attr_index + 1) * 4
+    attr_shift = getattr.attr_index * 4
     return [
         mips.Comment(str(getattr)),
         mips.LwInstruction('$t0', f'{y_addr}($fp)'),
@@ -349,7 +349,7 @@ def setattr_to_mips_visitor(setattr: cil.SetAttrNode):
         mips.LwInstruction('$t0', f'{x_addr}($fp)'),
         
     y_addr = CURRENT_FUNCTION.offset[str(setattr.obj)]
-    attr_shift = (setattr.attr_index + 1) * 4
+    attr_shift = setattr.attr_index * 4
     return code + [
         mips.LwInstruction('$t1', f'{y_addr}($fp)'),
         mips.SwInstruction('$t0', f'{attr_shift}($t1)')
