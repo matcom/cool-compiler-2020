@@ -133,15 +133,15 @@ def main():
                 print(er)
             exit(1)
 
-        cil = generate_cil(types)
+        #cil = generate_cil(types)
         
-        with open("test.cil", "w") as p:
-            p.write(cil[5])
+        #with open("test.cil", "w") as p:
+        #    p.write(cil[5])
 
-        mips = generate_mips(cil)
+        #mips = generate_mips(cil)
         
-        with open("test.mips", "w") as p:
-            p.write(mips)
+        #with open("test.mips", "w") as p:
+        #    p.write(mips)
 
 if __name__ == "__main__":
     main()
