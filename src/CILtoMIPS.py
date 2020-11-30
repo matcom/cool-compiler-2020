@@ -2,6 +2,7 @@ from AST import *
 from CIL import *
 from ScopeMIPS import *
 import visitor as visitor
+import os
 
 # class MIPSClass:
 #     def __init__(self, cantidadatributos, etiquetasfunciones):
@@ -196,7 +197,9 @@ class MIPSCompiler:
         instrucciones+=".globl main\n"
         instrucciones+="main:\n"
         instrucciones+=self.MainInstruction()
-        archivo=open("StaticCode\\AssemblyMethods.asm",encoding='utf-8')
+        file_dir = 'StaticCode'
+        files = [os.path.abspath(file) for file in os.listdir() if file.endswith('Code')]
+        archivo=open(os.path.join(files[0],"AssemblyMethods.asm"),encoding='utf-8')
         metodosdefault=archivo.read()
         instrucciones+=metodosdefault
         archivo.close()
