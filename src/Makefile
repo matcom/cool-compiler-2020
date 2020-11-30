@@ -2,8 +2,9 @@
 .PHONY: clean, info
 
 CODE 			:= code.cl
-COOLC_ASM		:= $(shell echo $(CODE) | cut -d '.' -f 1).s
-ASM 			:= compiled.asm
+FILE_NAME       := $(shell echo $(CODE) | cut -d '.' -f 1)
+COOLC_ASM		:= $(FILE_NAME).s
+ASM				:= $(FILE_NAME).mips
 ORG_NAME 		:= 2kodevs
 PROJECT_NAME 	:= CoolCompiler
 APP_VERSION		:= v0.1
