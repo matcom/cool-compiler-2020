@@ -46,6 +46,8 @@ class Type:
         self.methods = {}
         if parent:
             self.parent = ObjectType(pos)
+        else:
+            self.parent = None
         self.pos = pos
 
     def set_parent(self, parent):

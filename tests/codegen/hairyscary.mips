@@ -2132,9 +2132,7 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_doh_Foo_h_3 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_doh_Foo_i_4 to the stack
-addiu $sp, $sp, -4
-# Updates stack pointer pushing local_doh_Foo_internal_5 to the stack
+# Updates stack pointer pushing local_doh_Foo_internal_4 to the stack
 addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -8($fp)
@@ -2153,13 +2151,10 @@ addi $t4, $t3, 2
 # self . h <- SET local_doh_Foo_internal_2
 sw $t4, 12($t0)
 lw $t5, -20($fp)
-# local_doh_Foo_i_4 <- GET self . i
-lw $t5, 20($t0)
-lw $t6, -24($fp)
-# Moving local_doh_Foo_i_4 to local_doh_Foo_internal_5
-move $t6, $t5
-sw $t6, -24($fp)
-move $v0, $t6
+# Moving local_doh_Foo_i_0 to local_doh_Foo_internal_4
+move $t5, $t2
+sw $t5, -20($fp)
+move $v0, $t5
 # Empty all used registers and saves them to memory
 sw $t0, -0($fp)
 sw $t1, -8($fp)
@@ -2167,9 +2162,8 @@ sw $t2, -4($fp)
 sw $t3, -16($fp)
 sw $t4, -12($fp)
 sw $t5, -20($fp)
-sw $t6, -24($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 28
+addiu $sp, $sp, 24
 jr $ra
 
 
@@ -2350,11 +2344,11 @@ bnez $a1, mismatch_17
 li $v0, 1
 end_17:
 move $t1, $v0
-# If local_Bar_Bar_internal_1 goto error__215
+# If local_Bar_Bar_internal_1 goto error__213
 sw $t0, -0($fp)
 sw $t1, -8($fp)
 sw $t2, -12($fp)
-bnez $t1, error__215
+bnez $t1, error__213
 lw $t0, -0($fp)
 lw $t1, -16($fp)
 la $t9, type_Bar
@@ -2372,10 +2366,10 @@ j end_18
 false_18:
 li $t1, 0
 end_18:
-# If not local_Bar_Bar_internal_3 goto next__221_0
+# If not local_Bar_Bar_internal_3 goto next__219_0
 sw $t0, -0($fp)
 sw $t1, -16($fp)
-beqz $t1, next__221_0
+beqz $t1, next__219_0
 lw $t0, -0($fp)
 lw $t1, -20($fp)
 # Moving self to local_Bar_Bar_n_4
@@ -2388,8 +2382,8 @@ sw $t2, -4($fp)
 sw $t0, -0($fp)
 sw $t1, -20($fp)
 sw $t2, -4($fp)
-j end__215
-next__221_0:
+j end__213
+next__219_0:
 lw $t0, -0($fp)
 lw $t1, -24($fp)
 la $t9, type_Razz
@@ -2407,10 +2401,10 @@ j end_19
 false_19:
 li $t1, 0
 end_19:
-# If not local_Bar_Bar_internal_5 goto next__229_1
+# If not local_Bar_Bar_internal_5 goto next__227_1
 sw $t0, -0($fp)
 sw $t1, -24($fp)
-beqz $t1, next__229_1
+beqz $t1, next__227_1
 lw $t0, -0($fp)
 lw $t1, -28($fp)
 # Moving self to local_Bar_Bar_n_6
@@ -2462,8 +2456,8 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -32($fp)
 sw $t1, -4($fp)
-j end__215
-next__229_1:
+j end__213
+next__227_1:
 lw $t0, -0($fp)
 lw $t1, -36($fp)
 la $t9, type_Foo
@@ -2481,10 +2475,10 @@ j end_20
 false_20:
 li $t1, 0
 end_20:
-# If not local_Bar_Bar_internal_8 goto next__240_2
+# If not local_Bar_Bar_internal_8 goto next__238_2
 sw $t0, -0($fp)
 sw $t1, -36($fp)
-beqz $t1, next__240_2
+beqz $t1, next__238_2
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # Moving self to local_Bar_Bar_n_9
@@ -2536,8 +2530,8 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -44($fp)
 sw $t1, -4($fp)
-j end__215
-next__240_2:
+j end__213
+next__238_2:
 lw $t0, -0($fp)
 lw $t1, -48($fp)
 la $t9, type_Bazz
@@ -2555,10 +2549,10 @@ j end_21
 false_21:
 li $t1, 0
 end_21:
-# If not local_Bar_Bar_internal_11 goto next__251_3
+# If not local_Bar_Bar_internal_11 goto next__249_3
 sw $t0, -0($fp)
 sw $t1, -48($fp)
-beqz $t1, next__251_3
+beqz $t1, next__249_3
 lw $t0, -0($fp)
 lw $t1, -52($fp)
 # Moving self to local_Bar_Bar_n_12
@@ -2610,14 +2604,14 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -56($fp)
 sw $t1, -4($fp)
-j end__215
-next__251_3:
+j end__213
+next__249_3:
 la $a0, case_error
 j .raise
-error__215:
+error__213:
 la $a0, case_void_error
 j .raise
-end__215:
+end__213:
 lw $t0, -4($fp)
 lw $t1, -0($fp)
 # self . g <- SET local_Bar_Bar_internal_0
@@ -2697,13 +2691,13 @@ bnez $a1, mismatch_22
 li $v0, 1
 end_22:
 move $t3, $v0
-# If local_Bar_Bar_internal_17 goto error__274
+# If local_Bar_Bar_internal_17 goto error__272
 sw $t0, -60($fp)
 sw $t1, -64($fp)
 sw $t2, -0($fp)
 sw $t3, -72($fp)
 sw $t4, -76($fp)
-bnez $t3, error__274
+bnez $t3, error__272
 lw $t0, -0($fp)
 lw $t1, -80($fp)
 la $t9, type_Bar
@@ -2721,10 +2715,10 @@ j end_23
 false_23:
 li $t1, 0
 end_23:
-# If not local_Bar_Bar_internal_19 goto next__280_0
+# If not local_Bar_Bar_internal_19 goto next__278_0
 sw $t0, -0($fp)
 sw $t1, -80($fp)
-beqz $t1, next__280_0
+beqz $t1, next__278_0
 lw $t0, -0($fp)
 lw $t1, -84($fp)
 # Moving self to local_Bar_Bar_n_20
@@ -2737,8 +2731,8 @@ sw $t2, -68($fp)
 sw $t0, -0($fp)
 sw $t1, -84($fp)
 sw $t2, -68($fp)
-j end__274
-next__280_0:
+j end__272
+next__278_0:
 lw $t0, -0($fp)
 lw $t1, -88($fp)
 la $t9, type_Razz
@@ -2756,10 +2750,10 @@ j end_24
 false_24:
 li $t1, 0
 end_24:
-# If not local_Bar_Bar_internal_21 goto next__288_1
+# If not local_Bar_Bar_internal_21 goto next__286_1
 sw $t0, -0($fp)
 sw $t1, -88($fp)
-beqz $t1, next__288_1
+beqz $t1, next__286_1
 lw $t0, -0($fp)
 lw $t1, -92($fp)
 # Moving self to local_Bar_Bar_n_22
@@ -2811,8 +2805,8 @@ move $t1, $t0
 sw $t1, -68($fp)
 sw $t0, -96($fp)
 sw $t1, -68($fp)
-j end__274
-next__288_1:
+j end__272
+next__286_1:
 lw $t0, -0($fp)
 lw $t1, -100($fp)
 la $t9, type_Foo
@@ -2830,10 +2824,10 @@ j end_25
 false_25:
 li $t1, 0
 end_25:
-# If not local_Bar_Bar_internal_24 goto next__299_2
+# If not local_Bar_Bar_internal_24 goto next__297_2
 sw $t0, -0($fp)
 sw $t1, -100($fp)
-beqz $t1, next__299_2
+beqz $t1, next__297_2
 lw $t0, -0($fp)
 lw $t1, -104($fp)
 # Moving self to local_Bar_Bar_n_25
@@ -2885,14 +2879,14 @@ move $t1, $t0
 sw $t1, -68($fp)
 sw $t0, -108($fp)
 sw $t1, -68($fp)
-j end__274
-next__299_2:
+j end__272
+next__297_2:
 la $a0, case_error
 j .raise
-error__274:
+error__272:
 la $a0, case_void_error
 j .raise
-end__274:
+end__272:
 lw $t0, -68($fp)
 lw $t1, -0($fp)
 # self . a <- SET local_Bar_Bar_internal_16
@@ -2927,16 +2921,16 @@ bnez $a1, mismatch_26
 li $v0, 1
 end_26:
 move $t3, $v0
-# If not local_Bar_Bar_internal_32 goto continue__322
+# If not local_Bar_Bar_internal_32 goto continue__320
 sw $t0, -68($fp)
 sw $t1, -0($fp)
 sw $t2, -124($fp)
 sw $t3, -132($fp)
 sw $t4, -136($fp)
-beqz $t3, continue__322
+beqz $t3, continue__320
 la $a0, dispatch_error
 j .raise
-continue__322:
+continue__320:
 lw $t0, -124($fp)
 lw $t1, -128($fp)
 # Find the actual name in the dispatch table
@@ -2998,16 +2992,16 @@ bnez $a1, mismatch_27
 li $v0, 1
 end_27:
 move $t3, $v0
-# If not local_Bar_Bar_internal_36 goto continue__336
+# If not local_Bar_Bar_internal_36 goto continue__334
 sw $t0, -128($fp)
 sw $t1, -0($fp)
 sw $t2, -140($fp)
 sw $t3, -148($fp)
 sw $t4, -152($fp)
-beqz $t3, continue__336
+beqz $t3, continue__334
 la $a0, dispatch_error
 j .raise
-continue__336:
+continue__334:
 lw $t0, -140($fp)
 lw $t1, -144($fp)
 # Find the actual name in the dispatch table
@@ -3146,14 +3140,14 @@ bnez $a1, mismatch_28
 li $v0, 1
 end_28:
 move $t4, $v0
-# If local_Bar_Bar_internal_41 goto error__357
+# If local_Bar_Bar_internal_41 goto error__355
 sw $t0, -160($fp)
 sw $t1, -116($fp)
 sw $t2, -112($fp)
 sw $t3, -0($fp)
 sw $t4, -168($fp)
 sw $t5, -172($fp)
-bnez $t4, error__357
+bnez $t4, error__355
 lw $t0, -0($fp)
 lw $t1, -176($fp)
 la $t9, type_Bar
@@ -3171,10 +3165,10 @@ j end_29
 false_29:
 li $t1, 0
 end_29:
-# If not local_Bar_Bar_internal_43 goto next__363_0
+# If not local_Bar_Bar_internal_43 goto next__361_0
 sw $t0, -0($fp)
 sw $t1, -176($fp)
-beqz $t1, next__363_0
+beqz $t1, next__361_0
 lw $t0, -0($fp)
 lw $t1, -180($fp)
 # Moving self to local_Bar_Bar_n_44
@@ -3187,8 +3181,8 @@ sw $t2, -164($fp)
 sw $t0, -0($fp)
 sw $t1, -180($fp)
 sw $t2, -164($fp)
-j end__357
-next__363_0:
+j end__355
+next__361_0:
 lw $t0, -0($fp)
 lw $t1, -184($fp)
 la $t9, type_Razz
@@ -3206,10 +3200,10 @@ j end_30
 false_30:
 li $t1, 0
 end_30:
-# If not local_Bar_Bar_internal_45 goto next__371_1
+# If not local_Bar_Bar_internal_45 goto next__369_1
 sw $t0, -0($fp)
 sw $t1, -184($fp)
-beqz $t1, next__371_1
+beqz $t1, next__369_1
 lw $t0, -0($fp)
 lw $t1, -188($fp)
 # Moving self to local_Bar_Bar_n_46
@@ -3261,14 +3255,14 @@ move $t1, $t0
 sw $t1, -164($fp)
 sw $t0, -192($fp)
 sw $t1, -164($fp)
-j end__357
-next__371_1:
+j end__355
+next__369_1:
 la $a0, case_error
 j .raise
-error__357:
+error__355:
 la $a0, case_void_error
 j .raise
-end__357:
+end__355:
 lw $t0, -164($fp)
 lw $t1, -0($fp)
 # self . e <- SET local_Bar_Bar_internal_40
@@ -3303,16 +3297,16 @@ bnez $a1, mismatch_31
 li $v0, 1
 end_31:
 move $t3, $v0
-# If not local_Bar_Bar_internal_54 goto continue__395
+# If not local_Bar_Bar_internal_54 goto continue__393
 sw $t0, -164($fp)
 sw $t1, -0($fp)
 sw $t2, -212($fp)
 sw $t3, -220($fp)
 sw $t4, -224($fp)
-beqz $t3, continue__395
+beqz $t3, continue__393
 la $a0, dispatch_error
 j .raise
-continue__395:
+continue__393:
 lw $t0, -216($fp)
 # Static Dispatch of the method doh
 sw $fp, ($sp)
@@ -3369,16 +3363,16 @@ bnez $a1, mismatch_32
 li $v0, 1
 end_32:
 move $t3, $v0
-# If not local_Bar_Bar_internal_58 goto continue__409
+# If not local_Bar_Bar_internal_58 goto continue__407
 sw $t0, -216($fp)
 sw $t1, -0($fp)
 sw $t2, -228($fp)
 sw $t3, -236($fp)
 sw $t4, -240($fp)
-beqz $t3, continue__409
+beqz $t3, continue__407
 la $a0, dispatch_error
 j .raise
-continue__409:
+continue__407:
 lw $t0, -228($fp)
 lw $t1, -232($fp)
 # Find the actual name in the dispatch table
@@ -3444,7 +3438,7 @@ bnez $a1, mismatch_33
 li $v0, 1
 end_33:
 move $t5, $v0
-# If not local_Bar_Bar_internal_62 goto continue__424
+# If not local_Bar_Bar_internal_62 goto continue__422
 sw $t0, -232($fp)
 sw $t1, -216($fp)
 sw $t2, -208($fp)
@@ -3452,10 +3446,10 @@ sw $t3, -0($fp)
 sw $t4, -244($fp)
 sw $t5, -252($fp)
 sw $t6, -256($fp)
-beqz $t5, continue__424
+beqz $t5, continue__422
 la $a0, dispatch_error
 j .raise
-continue__424:
+continue__422:
 lw $t0, -244($fp)
 lw $t1, -248($fp)
 # Find the actual name in the dispatch table
@@ -3836,11 +3830,11 @@ bnez $a1, mismatch_34
 li $v0, 1
 end_34:
 move $t1, $v0
-# If local_Razz_Razz_internal_1 goto error__461
+# If local_Razz_Razz_internal_1 goto error__459
 sw $t0, -0($fp)
 sw $t1, -8($fp)
 sw $t2, -12($fp)
-bnez $t1, error__461
+bnez $t1, error__459
 lw $t0, -0($fp)
 lw $t1, -16($fp)
 la $t9, type_Bar
@@ -3858,10 +3852,10 @@ j end_35
 false_35:
 li $t1, 0
 end_35:
-# If not local_Razz_Razz_internal_3 goto next__467_0
+# If not local_Razz_Razz_internal_3 goto next__465_0
 sw $t0, -0($fp)
 sw $t1, -16($fp)
-beqz $t1, next__467_0
+beqz $t1, next__465_0
 lw $t0, -0($fp)
 lw $t1, -20($fp)
 # Moving self to local_Razz_Razz_n_4
@@ -3874,8 +3868,8 @@ sw $t2, -4($fp)
 sw $t0, -0($fp)
 sw $t1, -20($fp)
 sw $t2, -4($fp)
-j end__461
-next__467_0:
+j end__459
+next__465_0:
 lw $t0, -0($fp)
 lw $t1, -24($fp)
 la $t9, type_Razz
@@ -3893,10 +3887,10 @@ j end_36
 false_36:
 li $t1, 0
 end_36:
-# If not local_Razz_Razz_internal_5 goto next__475_1
+# If not local_Razz_Razz_internal_5 goto next__473_1
 sw $t0, -0($fp)
 sw $t1, -24($fp)
-beqz $t1, next__475_1
+beqz $t1, next__473_1
 lw $t0, -0($fp)
 lw $t1, -28($fp)
 # Moving self to local_Razz_Razz_n_6
@@ -3948,8 +3942,8 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -32($fp)
 sw $t1, -4($fp)
-j end__461
-next__475_1:
+j end__459
+next__473_1:
 lw $t0, -0($fp)
 lw $t1, -36($fp)
 la $t9, type_Foo
@@ -3967,10 +3961,10 @@ j end_37
 false_37:
 li $t1, 0
 end_37:
-# If not local_Razz_Razz_internal_8 goto next__486_2
+# If not local_Razz_Razz_internal_8 goto next__484_2
 sw $t0, -0($fp)
 sw $t1, -36($fp)
-beqz $t1, next__486_2
+beqz $t1, next__484_2
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # Moving self to local_Razz_Razz_n_9
@@ -4022,8 +4016,8 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -44($fp)
 sw $t1, -4($fp)
-j end__461
-next__486_2:
+j end__459
+next__484_2:
 lw $t0, -0($fp)
 lw $t1, -48($fp)
 la $t9, type_Bazz
@@ -4041,10 +4035,10 @@ j end_38
 false_38:
 li $t1, 0
 end_38:
-# If not local_Razz_Razz_internal_11 goto next__497_3
+# If not local_Razz_Razz_internal_11 goto next__495_3
 sw $t0, -0($fp)
 sw $t1, -48($fp)
-beqz $t1, next__497_3
+beqz $t1, next__495_3
 lw $t0, -0($fp)
 lw $t1, -52($fp)
 # Moving self to local_Razz_Razz_n_12
@@ -4096,14 +4090,14 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -56($fp)
 sw $t1, -4($fp)
-j end__461
-next__497_3:
+j end__459
+next__495_3:
 la $a0, case_error
 j .raise
-error__461:
+error__459:
 la $a0, case_void_error
 j .raise
-end__461:
+end__459:
 lw $t0, -4($fp)
 lw $t1, -0($fp)
 # self . g <- SET local_Razz_Razz_internal_0
@@ -4183,13 +4177,13 @@ bnez $a1, mismatch_39
 li $v0, 1
 end_39:
 move $t3, $v0
-# If local_Razz_Razz_internal_17 goto error__520
+# If local_Razz_Razz_internal_17 goto error__518
 sw $t0, -60($fp)
 sw $t1, -64($fp)
 sw $t2, -0($fp)
 sw $t3, -72($fp)
 sw $t4, -76($fp)
-bnez $t3, error__520
+bnez $t3, error__518
 lw $t0, -0($fp)
 lw $t1, -80($fp)
 la $t9, type_Bar
@@ -4207,10 +4201,10 @@ j end_40
 false_40:
 li $t1, 0
 end_40:
-# If not local_Razz_Razz_internal_19 goto next__526_0
+# If not local_Razz_Razz_internal_19 goto next__524_0
 sw $t0, -0($fp)
 sw $t1, -80($fp)
-beqz $t1, next__526_0
+beqz $t1, next__524_0
 lw $t0, -0($fp)
 lw $t1, -84($fp)
 # Moving self to local_Razz_Razz_n_20
@@ -4223,8 +4217,8 @@ sw $t2, -68($fp)
 sw $t0, -0($fp)
 sw $t1, -84($fp)
 sw $t2, -68($fp)
-j end__520
-next__526_0:
+j end__518
+next__524_0:
 lw $t0, -0($fp)
 lw $t1, -88($fp)
 la $t9, type_Razz
@@ -4242,10 +4236,10 @@ j end_41
 false_41:
 li $t1, 0
 end_41:
-# If not local_Razz_Razz_internal_21 goto next__534_1
+# If not local_Razz_Razz_internal_21 goto next__532_1
 sw $t0, -0($fp)
 sw $t1, -88($fp)
-beqz $t1, next__534_1
+beqz $t1, next__532_1
 lw $t0, -0($fp)
 lw $t1, -92($fp)
 # Moving self to local_Razz_Razz_n_22
@@ -4297,8 +4291,8 @@ move $t1, $t0
 sw $t1, -68($fp)
 sw $t0, -96($fp)
 sw $t1, -68($fp)
-j end__520
-next__534_1:
+j end__518
+next__532_1:
 lw $t0, -0($fp)
 lw $t1, -100($fp)
 la $t9, type_Foo
@@ -4316,10 +4310,10 @@ j end_42
 false_42:
 li $t1, 0
 end_42:
-# If not local_Razz_Razz_internal_24 goto next__545_2
+# If not local_Razz_Razz_internal_24 goto next__543_2
 sw $t0, -0($fp)
 sw $t1, -100($fp)
-beqz $t1, next__545_2
+beqz $t1, next__543_2
 lw $t0, -0($fp)
 lw $t1, -104($fp)
 # Moving self to local_Razz_Razz_n_25
@@ -4371,14 +4365,14 @@ move $t1, $t0
 sw $t1, -68($fp)
 sw $t0, -108($fp)
 sw $t1, -68($fp)
-j end__520
-next__545_2:
+j end__518
+next__543_2:
 la $a0, case_error
 j .raise
-error__520:
+error__518:
 la $a0, case_void_error
 j .raise
-end__520:
+end__518:
 lw $t0, -68($fp)
 lw $t1, -0($fp)
 # self . a <- SET local_Razz_Razz_internal_16
@@ -4413,16 +4407,16 @@ bnez $a1, mismatch_43
 li $v0, 1
 end_43:
 move $t3, $v0
-# If not local_Razz_Razz_internal_32 goto continue__568
+# If not local_Razz_Razz_internal_32 goto continue__566
 sw $t0, -68($fp)
 sw $t1, -0($fp)
 sw $t2, -124($fp)
 sw $t3, -132($fp)
 sw $t4, -136($fp)
-beqz $t3, continue__568
+beqz $t3, continue__566
 la $a0, dispatch_error
 j .raise
-continue__568:
+continue__566:
 lw $t0, -124($fp)
 lw $t1, -128($fp)
 # Find the actual name in the dispatch table
@@ -4484,16 +4478,16 @@ bnez $a1, mismatch_44
 li $v0, 1
 end_44:
 move $t3, $v0
-# If not local_Razz_Razz_internal_36 goto continue__582
+# If not local_Razz_Razz_internal_36 goto continue__580
 sw $t0, -128($fp)
 sw $t1, -0($fp)
 sw $t2, -140($fp)
 sw $t3, -148($fp)
 sw $t4, -152($fp)
-beqz $t3, continue__582
+beqz $t3, continue__580
 la $a0, dispatch_error
 j .raise
-continue__582:
+continue__580:
 lw $t0, -140($fp)
 lw $t1, -144($fp)
 # Find the actual name in the dispatch table
@@ -4632,14 +4626,14 @@ bnez $a1, mismatch_45
 li $v0, 1
 end_45:
 move $t4, $v0
-# If local_Razz_Razz_internal_41 goto error__603
+# If local_Razz_Razz_internal_41 goto error__601
 sw $t0, -160($fp)
 sw $t1, -116($fp)
 sw $t2, -112($fp)
 sw $t3, -0($fp)
 sw $t4, -168($fp)
 sw $t5, -172($fp)
-bnez $t4, error__603
+bnez $t4, error__601
 lw $t0, -0($fp)
 lw $t1, -176($fp)
 la $t9, type_Bar
@@ -4657,10 +4651,10 @@ j end_46
 false_46:
 li $t1, 0
 end_46:
-# If not local_Razz_Razz_internal_43 goto next__609_0
+# If not local_Razz_Razz_internal_43 goto next__607_0
 sw $t0, -0($fp)
 sw $t1, -176($fp)
-beqz $t1, next__609_0
+beqz $t1, next__607_0
 lw $t0, -0($fp)
 lw $t1, -180($fp)
 # Moving self to local_Razz_Razz_n_44
@@ -4673,8 +4667,8 @@ sw $t2, -164($fp)
 sw $t0, -0($fp)
 sw $t1, -180($fp)
 sw $t2, -164($fp)
-j end__603
-next__609_0:
+j end__601
+next__607_0:
 lw $t0, -0($fp)
 lw $t1, -184($fp)
 la $t9, type_Razz
@@ -4692,10 +4686,10 @@ j end_47
 false_47:
 li $t1, 0
 end_47:
-# If not local_Razz_Razz_internal_45 goto next__617_1
+# If not local_Razz_Razz_internal_45 goto next__615_1
 sw $t0, -0($fp)
 sw $t1, -184($fp)
-beqz $t1, next__617_1
+beqz $t1, next__615_1
 lw $t0, -0($fp)
 lw $t1, -188($fp)
 # Moving self to local_Razz_Razz_n_46
@@ -4747,14 +4741,14 @@ move $t1, $t0
 sw $t1, -164($fp)
 sw $t0, -192($fp)
 sw $t1, -164($fp)
-j end__603
-next__617_1:
+j end__601
+next__615_1:
 la $a0, case_error
 j .raise
-error__603:
+error__601:
 la $a0, case_void_error
 j .raise
-end__603:
+end__601:
 lw $t0, -164($fp)
 lw $t1, -0($fp)
 # self . e <- SET local_Razz_Razz_internal_40
@@ -4789,16 +4783,16 @@ bnez $a1, mismatch_48
 li $v0, 1
 end_48:
 move $t3, $v0
-# If not local_Razz_Razz_internal_54 goto continue__641
+# If not local_Razz_Razz_internal_54 goto continue__639
 sw $t0, -164($fp)
 sw $t1, -0($fp)
 sw $t2, -212($fp)
 sw $t3, -220($fp)
 sw $t4, -224($fp)
-beqz $t3, continue__641
+beqz $t3, continue__639
 la $a0, dispatch_error
 j .raise
-continue__641:
+continue__639:
 lw $t0, -216($fp)
 # Static Dispatch of the method doh
 sw $fp, ($sp)
@@ -4855,16 +4849,16 @@ bnez $a1, mismatch_49
 li $v0, 1
 end_49:
 move $t3, $v0
-# If not local_Razz_Razz_internal_58 goto continue__655
+# If not local_Razz_Razz_internal_58 goto continue__653
 sw $t0, -216($fp)
 sw $t1, -0($fp)
 sw $t2, -228($fp)
 sw $t3, -236($fp)
 sw $t4, -240($fp)
-beqz $t3, continue__655
+beqz $t3, continue__653
 la $a0, dispatch_error
 j .raise
-continue__655:
+continue__653:
 lw $t0, -228($fp)
 lw $t1, -232($fp)
 # Find the actual name in the dispatch table
@@ -4930,7 +4924,7 @@ bnez $a1, mismatch_50
 li $v0, 1
 end_50:
 move $t5, $v0
-# If not local_Razz_Razz_internal_62 goto continue__670
+# If not local_Razz_Razz_internal_62 goto continue__668
 sw $t0, -232($fp)
 sw $t1, -216($fp)
 sw $t2, -208($fp)
@@ -4938,10 +4932,10 @@ sw $t3, -0($fp)
 sw $t4, -244($fp)
 sw $t5, -252($fp)
 sw $t6, -256($fp)
-beqz $t5, continue__670
+beqz $t5, continue__668
 la $a0, dispatch_error
 j .raise
-continue__670:
+continue__668:
 lw $t0, -244($fp)
 lw $t1, -248($fp)
 # Find the actual name in the dispatch table
@@ -5140,11 +5134,11 @@ bnez $a1, mismatch_51
 li $v0, 1
 end_51:
 move $t1, $v0
-# If local_Bazz_Bazz_internal_1 goto error__697
+# If local_Bazz_Bazz_internal_1 goto error__695
 sw $t0, -0($fp)
 sw $t1, -8($fp)
 sw $t2, -12($fp)
-bnez $t1, error__697
+bnez $t1, error__695
 lw $t0, -0($fp)
 lw $t1, -16($fp)
 la $t9, type_Bar
@@ -5162,10 +5156,10 @@ j end_52
 false_52:
 li $t1, 0
 end_52:
-# If not local_Bazz_Bazz_internal_3 goto next__703_0
+# If not local_Bazz_Bazz_internal_3 goto next__701_0
 sw $t0, -0($fp)
 sw $t1, -16($fp)
-beqz $t1, next__703_0
+beqz $t1, next__701_0
 lw $t0, -0($fp)
 lw $t1, -20($fp)
 # Moving self to local_Bazz_Bazz_n_4
@@ -5178,8 +5172,8 @@ sw $t2, -4($fp)
 sw $t0, -0($fp)
 sw $t1, -20($fp)
 sw $t2, -4($fp)
-j end__697
-next__703_0:
+j end__695
+next__701_0:
 lw $t0, -0($fp)
 lw $t1, -24($fp)
 la $t9, type_Razz
@@ -5197,10 +5191,10 @@ j end_53
 false_53:
 li $t1, 0
 end_53:
-# If not local_Bazz_Bazz_internal_5 goto next__711_1
+# If not local_Bazz_Bazz_internal_5 goto next__709_1
 sw $t0, -0($fp)
 sw $t1, -24($fp)
-beqz $t1, next__711_1
+beqz $t1, next__709_1
 lw $t0, -0($fp)
 lw $t1, -28($fp)
 # Moving self to local_Bazz_Bazz_n_6
@@ -5252,8 +5246,8 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -32($fp)
 sw $t1, -4($fp)
-j end__697
-next__711_1:
+j end__695
+next__709_1:
 lw $t0, -0($fp)
 lw $t1, -36($fp)
 la $t9, type_Foo
@@ -5271,10 +5265,10 @@ j end_54
 false_54:
 li $t1, 0
 end_54:
-# If not local_Bazz_Bazz_internal_8 goto next__722_2
+# If not local_Bazz_Bazz_internal_8 goto next__720_2
 sw $t0, -0($fp)
 sw $t1, -36($fp)
-beqz $t1, next__722_2
+beqz $t1, next__720_2
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # Moving self to local_Bazz_Bazz_n_9
@@ -5326,8 +5320,8 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -44($fp)
 sw $t1, -4($fp)
-j end__697
-next__722_2:
+j end__695
+next__720_2:
 lw $t0, -0($fp)
 lw $t1, -48($fp)
 la $t9, type_Bazz
@@ -5345,10 +5339,10 @@ j end_55
 false_55:
 li $t1, 0
 end_55:
-# If not local_Bazz_Bazz_internal_11 goto next__733_3
+# If not local_Bazz_Bazz_internal_11 goto next__731_3
 sw $t0, -0($fp)
 sw $t1, -48($fp)
-beqz $t1, next__733_3
+beqz $t1, next__731_3
 lw $t0, -0($fp)
 lw $t1, -52($fp)
 # Moving self to local_Bazz_Bazz_n_12
@@ -5400,14 +5394,14 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -56($fp)
 sw $t1, -4($fp)
-j end__697
-next__733_3:
+j end__695
+next__731_3:
 la $a0, case_error
 j .raise
-error__697:
+error__695:
 la $a0, case_void_error
 j .raise
-end__697:
+end__695:
 lw $t0, -4($fp)
 lw $t1, -0($fp)
 # self . g <- SET local_Bazz_Bazz_internal_0
@@ -5551,9 +5545,7 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_doh_Bazz_h_3 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_doh_Bazz_i_4 to the stack
-addiu $sp, $sp, -4
-# Updates stack pointer pushing local_doh_Bazz_internal_5 to the stack
+# Updates stack pointer pushing local_doh_Bazz_internal_4 to the stack
 addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -8($fp)
@@ -5572,13 +5564,10 @@ addi $t4, $t3, 1
 # self . h <- SET local_doh_Bazz_internal_2
 sw $t4, 12($t0)
 lw $t5, -20($fp)
-# local_doh_Bazz_i_4 <- GET self . i
-lw $t5, 20($t0)
-lw $t6, -24($fp)
-# Moving local_doh_Bazz_i_4 to local_doh_Bazz_internal_5
-move $t6, $t5
-sw $t6, -24($fp)
-move $v0, $t6
+# Moving local_doh_Bazz_i_0 to local_doh_Bazz_internal_4
+move $t5, $t2
+sw $t5, -20($fp)
+move $v0, $t5
 # Empty all used registers and saves them to memory
 sw $t0, -0($fp)
 sw $t1, -8($fp)
@@ -5586,9 +5575,8 @@ sw $t2, -4($fp)
 sw $t3, -16($fp)
 sw $t4, -12($fp)
 sw $t5, -20($fp)
-sw $t6, -24($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 28
+addiu $sp, $sp, 24
 jr $ra
 
 

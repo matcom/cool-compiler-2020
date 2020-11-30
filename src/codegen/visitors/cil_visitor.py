@@ -222,17 +222,14 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(VariableNode)
     def visit(self, node: VariableNode, scope: Scope):
         try:
+            typex = scope.find_local(node.lex).type
+            name = self.to_var_name(node.lex)
+            return name, get_type(typex, self.current_type)
+        except:
             var_info = scope.find_attribute(node.lex)
             local_var = self.register_local(var_info.name)
             self.register_instruction(cil.GetAttribNode('self', var_info.name, self.current_type.name, local_var, var_info.type.name))
             return local_var, get_type(var_info.type, self.current_type)
-        except:
-            try:
-                typex = scope.find_local(node.lex).type
-            except:
-                typex = self.current_type
-            name = self.to_var_name(node.lex)
-            return name, get_type(typex, self.current_type)
 
     @visitor.when(InstantiateNode)
     def visit(self, node: InstantiateNode, scope: Scope):
@@ -339,7 +336,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         sorted_case_list = self.sort_option_nodes_by_type(node.case_list)
         for i, case in enumerate(sorted_case_list):
             next_label = cil.LabelNode(f'next__{self.idx}_{i}')
-            expr_i = self.visit(case, new_scope, expr, next_label)
+            expr_i = self.visit(case, new_scope.create_child(), expr, next_label, typex)
             self.register_instruction(cil.AssignNode(result, expr_i))
             self.register_instruction(cil.GotoNode(end_label.label))
             self.register_instruction(next_label)
@@ -351,18 +348,19 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         return result, typex
 
     @visitor.when(OptionNode)
-    def visit(self, node: OptionNode, scope:Scope, expr, next_label):
+    def visit(self, node: OptionNode, scope:Scope, expr, next_label, type_e):
         aux = self.define_internal_local()
         self.register_instruction(cil.ConformsNode(aux, expr, node.typex))
         self.register_instruction(cil.GotoIfFalseNode(aux, next_label.label))
-
+        
         local_var = self.register_local(node.id)
         typex = self.context.get_type(node.typex, node.type_pos)
         scope.define_variable(node.id, typex)
-        self.register_instruction(cil.AssignNode(local_var, expr))
+        if typex.name == 'Object' and type_e.name in ['String', 'Int', 'Bool']:
+            self.register_instruction(cil.BoxingNode(local_var, type_e.name))
+        else:
+            self.register_instruction(cil.AssignNode(local_var, expr))
         expr_i, type_expr = self.visit(node.expr, scope)
-        if typex.name == 'Object' and type_expr.name in ['String', 'Int', 'Bool']:
-            self.register_instruction(cil.BoxingNode(expr_i, type_expr.name))
         return expr_i
 
     @visitor.when(NotNode)

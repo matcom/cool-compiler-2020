@@ -728,20 +728,18 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
     @visitor.when(ConformsNode)
     def visit(self, node: ConformsNode):
         rdest = self.addr_desc.get_var_reg(node.dest)
-        
         if self.is_variable(node.expr):
             rsrc = self.addr_desc.get_var_reg(node.expr)
             if self.var_address[node.expr] == AddrType.REF:
                 self.conforms_to(rsrc, rdest, node.type)
             elif self.var_address[node.expr] == AddrType.STR:
-                self.code.append(f'li ${rdest}, 0')
+                self.value_conforms_to_obj(rdest, 'String', node.type)
             elif self.var_address[node.expr] == AddrType.INT:
-                self.code.append(f'li ${rdest}, 0')
+                self.value_conforms_to_obj(rdest, 'Int', node.type)
             elif self.var_address[node.expr] == AddrType.BOOL:
-                self.code.append(f'li ${rdest}, 0')
+                self.value_conforms_to_obj(rdest, 'Bool', node.type)
         elif self.is_int(node.expr):
-            self.code.append(f'li ${rdest}, 0')        
-     
+            self.value_conforms_to_obj(rdest, 'Int', node.type)
 
     @visitor.when(ErrorNode)
     def visit(self, node: ErrorNode):

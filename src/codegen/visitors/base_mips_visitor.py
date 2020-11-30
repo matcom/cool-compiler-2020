@@ -448,3 +448,19 @@ class BaseCILToMIPSVisitor:
         self.code.append(f'li ${rdest}, 0')
         self.code.append(f'end_{loop_idx}:')
         self.loop_idx += 1
+
+    def value_conforms_to_obj(self, rdest, typex, branch_type):
+        self.code.append('# Comparing value types in case node')
+        true_label = f'true_{self.loop_idx}'
+        end_label = f'end_{self.loop_idx}'
+        self.code.append('la $t9, type_Object')         # si es de tipo object entonces se conforma
+        self.code.append(f'la $t8, type_{branch_type}')
+        self.code.append(f'beq $t9, $t8, {true_label}')
+        self.code.append(f'la $t9, type_{typex}')       # si es del mismo tipo que él entonces se conforma
+        self.code.append(f'beq $t9, $t8, {true_label}')
+        self.code.append(f'li ${rdest}, 0')
+        self.code.append(f'j {end_label}')
+        self.code.append(f'{true_label}:')
+        self.code.append(f'li ${rdest}, 1')
+        self.code.append(f'{end_label}:')
+        self.loop_idx += 1

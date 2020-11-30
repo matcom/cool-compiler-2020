@@ -13,6 +13,7 @@ def path_to_objet(typex):
 
     while c_type:
         path.append(c_type)
+        
         c_type = c_type.parent
 
     path.reverse()

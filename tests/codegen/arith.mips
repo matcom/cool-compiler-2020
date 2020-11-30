@@ -12638,20 +12638,6 @@ lw $t1, -800($fp)
 # Moving 0 to local_main_Main_internal_199
 li $t1, 0
 sw $t1, -800($fp)
-# Initialize new node
-li $a0, 12
-li $v0, 9
-syscall
-la $t9, type_Int
-sw $t9, 0($v0)
-li $t9, 12
-sw $t9, 4($v0)
-move $t1, $v0
-# Saving the methods of object
-# Adding Type Info addr
-la $t8, types
-lw $v0, 8($t8)
-sw $v0, 8($t1)
 lw $t2, -704($fp)
 # Moving local_main_Main_internal_199 to local_main_Main_internal_175
 move $t2, $t1
@@ -12781,15 +12767,15 @@ bnez $a1, mismatch_86
 li $v0, 1
 end_86:
 move $t2, $v0
-# If not local_main_Main_internal_203 goto continue__2159
+# If not local_main_Main_internal_203 goto continue__2158
 sw $t0, -808($fp)
 sw $t1, -804($fp)
 sw $t2, -816($fp)
 sw $t3, -820($fp)
-beqz $t2, continue__2159
+beqz $t2, continue__2158
 la $a0, dispatch_error
 j .raise
-continue__2159:
+continue__2158:
 lw $t0, -804($fp)
 lw $t1, -812($fp)
 # Find the actual name in the dispatch table
@@ -12899,16 +12885,16 @@ bnez $a1, mismatch_87
 li $v0, 1
 end_87:
 move $t3, $v0
-# If not local_main_Main_internal_208 goto continue__2178
+# If not local_main_Main_internal_208 goto continue__2177
 sw $t0, -824($fp)
 sw $t1, -0($fp)
 sw $t2, -828($fp)
 sw $t3, -836($fp)
 sw $t4, -840($fp)
-beqz $t3, continue__2178
+beqz $t3, continue__2177
 la $a0, dispatch_error
 j .raise
-continue__2178:
+continue__2177:
 lw $t0, -828($fp)
 lw $t1, -832($fp)
 # Find the actual name in the dispatch table
@@ -12970,16 +12956,16 @@ bnez $a1, mismatch_88
 li $v0, 1
 end_88:
 move $t3, $v0
-# If not local_main_Main_internal_212 goto continue__2192
+# If not local_main_Main_internal_212 goto continue__2191
 sw $t0, -832($fp)
 sw $t1, -0($fp)
 sw $t2, -844($fp)
 sw $t3, -852($fp)
 sw $t4, -856($fp)
-beqz $t3, continue__2192
+beqz $t3, continue__2191
 la $a0, dispatch_error
 j .raise
-continue__2192:
+continue__2191:
 lw $t0, -844($fp)
 lw $t1, -848($fp)
 # Find the actual name in the dispatch table
@@ -13038,15 +13024,15 @@ bnez $a1, mismatch_89
 li $v0, 1
 end_89:
 move $t2, $v0
-# If not local_main_Main_internal_215 goto continue__2205
+# If not local_main_Main_internal_215 goto continue__2204
 sw $t0, -848($fp)
 sw $t1, -824($fp)
 sw $t2, -864($fp)
 sw $t3, -868($fp)
-beqz $t2, continue__2205
+beqz $t2, continue__2204
 la $a0, dispatch_error
 j .raise
-continue__2205:
+continue__2204:
 lw $t0, -824($fp)
 lw $t1, -860($fp)
 # Find the actual name in the dispatch table
