@@ -31,8 +31,7 @@ class MIPSDataSection:
 class MIPSLabel:
     def __init__(self, name):
         self.name = name
-        self.callee_saved_reg = set()
-        self.caller_saved_reg = set()
+        self.registers = set()
 
     def __str__(self):
         return f'{self.name}:\n'
@@ -44,8 +43,7 @@ class MIPSFunction:
         self.init_instructions = []
         self.instructions = []
         self.end_instructions = []
-        self.caller_saved_reg = set()
-        self.callee_saved_reg = set()
+        self.used_regs = set(['ra'])
 
         self.args_count = 0
         self.offset = {}
@@ -57,17 +55,18 @@ class MIPSFunction:
 
         # Save args on the stack
         for i, p in enumerate(params):
-            self.offset[p.id] = i*4
+            self.offset[p.id] = (len(params) - i - 1)*4
 
         for i, l in enumerate(locals, 1):
             self.offset[str(l)] = -i * 4
 
-        self.fp_shift = len(locals)
         self.init_instructions.append(
-            Comment(f'{self.fp_shift} LOCALS = {self.fp_shift * 4} bytes'))
-        self.fp_shift += 1
-        self.init_instructions.append(SwInstruction(
-            '$ra', f'-{self.fp_shift * 4}($fp)'))
+            SubuInstruction('$sp', '$sp', len(locals)*4))
+
+        self.end_instructions.append(
+            AdduInstruction('$sp', '$sp', len(locals)*4))
+        if(self.name != 'Main_main'):
+            self.end_instructions.append(JrInstruction('$ra'))
 
     def append_instruction(self, instruction):
         """
@@ -76,40 +75,15 @@ class MIPSFunction:
         were declared in CIL.
         """
         # Update used registers
-        self.__update_callee_saved_reg__(instruction.callee_saved_reg)
-        self.__update_caller_saved_reg__(instruction.caller_saved_reg)
+        self.update_used_reg(instruction.registers)
         # Update function instrcutions
         self.instructions.append(instruction)
 
-    def end(self):
-        """
-        It points the end of the CIL function, and adds the last necessary
-        actions.
-        """
-        self.init_instructions.append(SubuInstruction(
-            '$sp', '$sp', f'{self.fp_shift * 4}'))
-        self.end_instructions.append(AdduInstruction(
-            '$sp', '$sp', f'{self.fp_shift * 4}'))
-
-        if(self.name != 'Main_main'):
-            self.end_instructions.append(JrInstruction('$ra'))
-
-    def __update_callee_saved_reg__(self, registers: set):
-        diff = registers.difference(self.callee_saved_reg)
-        for reg in diff:
-            self.fp_shift += 1
-            self.init_instructions.append(SwInstruction(
-                f'${reg}', f'-{self.fp_shift * 4}($fp)'))
-            self.end_instructions.append(SwInstruction(
-                f'-{self.fp_shift * 4}($fp)', f'${reg}'))
-        self.callee_saved_reg.update(diff)
-
-    def __update_caller_saved_reg__(self, registers: set):
-        self.caller_saved_reg.update(registers)
+    def update_used_reg(self, registers: set):
+        self.used_regs.update(registers)
 
     def __str__(self):
-        instructions = self.init_instructions + \
-            self.instructions + self.end_instructions
+        instructions = self.init_instructions + self.instructions
         return '\n'.join([f'{self.name}:']+[f'\t{str(i)}' for i in instructions])
 
 
@@ -126,21 +100,16 @@ class Instruction:
     def __init__(self, name, *arguments):
         self.name = name
         self.arguments = arguments
-        self.caller_saved_reg = set()
-        self.callee_saved_reg = set()
+        self.registers = set()
         patterns = [re.compile(r'\$(?P<register>..)'),
-                    re.compile(r'[0-9]+\(\$(?P<register>..)\)')]
-        caller_pattern = re.compile(r't[0-9]')
-        callee_pattern = re.compile(r's[0-7]')
+                    re.compile(r'[0-9]+\(\$(?P<register>..)\)'),
+                    re.compile(r'\-[0-9]+\(\$(?P<register>..)\)')]
         for a in self.arguments:
             for p in patterns:
                 match = p.match(str(a))
                 if match:
                     reg = match.group('register')
-                    if caller_pattern.match(reg):
-                        self.caller_saved_reg.add(reg)
-                    elif callee_pattern.match(reg):
-                        self.callee_saved_reg.add(reg)
+                    self.registers.add(reg)
                     break
 
     def __str__(self):
@@ -447,7 +416,8 @@ class BltuInstruction(Instruction):
 class BeqzInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('beqz', *arguments)
-        
+
+
 class BnezInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('bnez', *arguments)

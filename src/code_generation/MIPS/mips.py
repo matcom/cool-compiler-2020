@@ -35,6 +35,7 @@ def program_to_mips_visitor(program: cil.ProgramNode):
     # vt_space_code = reserve_virtual_tables_space(program)
     __DATA__ = [mips.MIPSDataItem(d.id, mips.AsciizInst(f'"{d.val}"'))
                 for d in program.data]
+    __DATA__.append(mips.MIPSDataItem('new_line', mips.AsciizInst(f'"\\n"')))
     data_section = mips.MIPSDataSection(__DATA__)
 
     # Build .text section
@@ -72,8 +73,6 @@ def function_to_mips_visitor(function):
     for cil_inst in function.body:
         for mips_inst in instruction_to_mips_visitor(cil_inst):
             CURRENT_FUNCTION.append_instruction(mips_inst)
-    # 4
-    f.end()
     return f
 
 
@@ -81,6 +80,7 @@ def instruction_to_mips_visitor(inst):
     """
     Resolves visitor for each type
     """
+    return __visitors__[type(inst)](inst)
     try:
         return __visitors__[type(inst)](inst)
     except KeyError:
@@ -126,6 +126,7 @@ def return_to_mips_visitor(ret: cil.ReturnNode):
     else:
         offset = CURRENT_FUNCTION.offset[str(ret.ret_value)]
         code.append(mips.LwInstruction('$v0', f'{offset}($fp)'))
+    code.extend(CURRENT_FUNCTION.end_instructions)
     return code
 
 
@@ -221,14 +222,14 @@ def concat_to_mips_visitor(concat: cil.ConcatNode):
     __DATA__.append(mips.MIPSDataItem(concat.result.id,
                                       mips.SpaceInst(2 * __BUFFSIZE__)))
     result_offset = CURRENT_FUNCTION.offset[concat.result.id]
-    a_offset = CURRENT_FUNCTION.offset[concat.str_a]
-    b_offset = CURRENT_FUNCTION.offset[concat.str_b]
+    a_offset = CURRENT_FUNCTION.offset[str(concat.str_a)]
+    b_offset = CURRENT_FUNCTION.offset[str(concat.str_b)]
 
     return [
         mips.Comment(str(concat)),
-        mips.LaInstruction('$t0', 0),
-        mips.LaInstruction('$t1', 0),
-        mips.LaInstruction('$t2', 0),
+        mips.LwInstruction('$t0', f'{result_offset}($fp)'),
+        mips.LwInstruction('$t1', f'{a_offset}($fp)'),
+        mips.LwInstruction('$t2', f'{b_offset}($fp)'),
         mips.MIPSLabel('concat_loop_a'),
         mips.LbInstruction('$a0', '($t1)'),
         mips.BeqzInstruction('$a0', 'concat_loop_b'),
@@ -270,6 +271,7 @@ def arg_to_mips_visitor(arg: cil.ArgNode):
         code.append(mips.LwInstruction('$t0', f'{addr}($fp)'))
     CURRENT_FUNCTION.args_code.extend(
         code + [mips.SubuInstruction('$sp', '$sp', 4), mips.SwInstruction('$t0', '($sp)')])
+    CURRENT_FUNCTION.args_count += 1
     return []
 
 
@@ -348,7 +350,7 @@ def setattr_to_mips_visitor(setattr: cil.SetAttrNode):
         code.append(mips.LiInstruction('$t0', setattr.val))
     else:
         x_addr = CURRENT_FUNCTION.offset[str(setattr.val)]
-        mips.LwInstruction('$t0', f'{x_addr}($fp)')
+        code.append(mips.LwInstruction('$t0', f'{x_addr}($fp)'))
 
     y_addr = CURRENT_FUNCTION.offset[str(setattr.obj)]
     attr_shift = setattr.attr_index * 4
@@ -382,7 +384,7 @@ def plus_to_mips_visitor(plus: cil.PlusNode):
         code.append(mips.LwInstruction('$t1', f'{y_addr}($fp)'))
 
     z_addr = CURRENT_FUNCTION.offset[str(plus.result)]
-    return code + [mips.AddInstruction('$t2', '$t0', '$t1'), mips.SwInstruction('$t2', f'{z_addr}($fp)')]
+    return code + [mips.AddInstruction('$t0', '$t0', '$t1'), mips.SwInstruction('$t0', f'{z_addr}($fp)')]
 
 
 def minus_to_mips_visitor(minus: cil.MinusNode):
@@ -409,7 +411,7 @@ def minus_to_mips_visitor(minus: cil.MinusNode):
         code.append(mips.LwInstruction('$t1', f'{y_addr}($fp)'))
 
     z_addr = CURRENT_FUNCTION.offset[str(minus.result)]
-    return code + [mips.SubInstruction('$t2', '$t0', '$t1'), mips.SwInstruction('$t2', f'{z_addr}($fp)')]
+    return code + [mips.SubInstruction('$t0', '$t0', '$t1'), mips.SwInstruction('$t0', f'{z_addr}($fp)')]
 
 
 def star_to_mips_visitor(star: cil.StarNode):
@@ -436,7 +438,7 @@ def star_to_mips_visitor(star: cil.StarNode):
         code.append(mips.LwInstruction('$t1', f'{y_addr}($fp)'))
 
     z_addr = CURRENT_FUNCTION.offset[str(star.result)]
-    return code + [mips.MulInstruction('$t0', '$t1', '$t2'), mips.SwInstruction('$t2', f'{z_addr}($fp)')]
+    return code + [mips.MulInstruction('$t0', '$t0', '$t1'), mips.SwInstruction('$t0', f'{z_addr}($fp)')]
 
 
 def div_to_mips_visitor(div: cil.DivNode):
@@ -463,7 +465,7 @@ def div_to_mips_visitor(div: cil.DivNode):
         code.append(mips.LwInstruction('$t1', f'{y_addr}($fp)'))
 
     z_addr = CURRENT_FUNCTION.offset[str(div.result)]
-    return code + [mips.DivInstruction('$t0', '$t1', '$t2'), mips.SwInstruction('$t2', f'{z_addr}($fp)')]
+    return code + [mips.DivInstruction('$t0', '$t0', '$t1'), mips.SwInstruction('$t0', f'{z_addr}($fp)')]
 
 
 def lesseq_to_mips_visitor(lesseq: cil.LessEqNode):
@@ -478,21 +480,21 @@ def lesseq_to_mips_visitor(lesseq: cil.LessEqNode):
     """
     instructions = [mips.Comment(str(lesseq))]
     if isinstance(lesseq.left, int):
-        instructions.append(mips.LiInstruction('$t1', lesseq.left))
+        instructions.append(mips.LiInstruction('$t0', lesseq.left))
     else:
         y_offset = CURRENT_FUNCTION.offset[str(lesseq.left)]
-        instructions.append(mips.LwInstruction('$t1', f'{y_offset}($fp)'))
+        instructions.append(mips.LwInstruction('$t0', f'{y_offset}($fp)'))
 
     if isinstance(lesseq.right, int):
-        instructions.append(mips.LiInstruction('$t2', lesseq.right))
+        instructions.append(mips.LiInstruction('$t1', lesseq.right))
     else:
         z_offset = CURRENT_FUNCTION.offset[str(lesseq.right)]
-        instructions.append(mips.LwInstruction('$t2', f'{z_offset}($fp)'))
+        instructions.append(mips.LwInstruction('$t1', f'{z_offset}($fp)'))
 
     x_offset = CURRENT_FUNCTION.offset[str(lesseq.result)]
 
     return instructions + [
-        mips.SleInstruction('$t0', '$t1', '$t2'),
+        mips.SleInstruction('$t0', '$t0', '$t1'),
         mips.SwInstruction('$t0', f'{x_offset}($fp)')
     ]
 
@@ -509,21 +511,21 @@ def less_to_mips_visitor(less: cil.LessNode):
     """
     instructions = [mips.Comment(str(less))]
     if isinstance(less.left, int):
-        instructions.append(mips.LiInstruction('$t1', less.left))
+        instructions.append(mips.LiInstruction('$t0', less.left))
     else:
         y_offset = CURRENT_FUNCTION.offset[str(less.left)]
-        instructions.append(mips.LwInstruction('$t1', f'{y_offset}($fp)'))
+        instructions.append(mips.LwInstruction('$t0', f'{y_offset}($fp)'))
 
     if isinstance(less.right, int):
-        instructions.append(mips.LiInstruction('$t2', less.right))
+        instructions.append(mips.LiInstruction('$t1', less.right))
     else:
         z_offset = CURRENT_FUNCTION.offset[str(less.right)]
-        instructions.append(mips.LwInstruction('$t2', f'{z_offset}($fp)'))
+        instructions.append(mips.LwInstruction('$t1', f'{z_offset}($fp)'))
 
     x_offset = CURRENT_FUNCTION.offset[str(less.result)]
 
     return instructions + [
-        mips.SleInstruction('$t0', '$t1', '$t2'),
+        mips.SltInstruction('$t0', '$t0', '$t1'),
         mips.SwInstruction('$t0', f'{x_offset}($fp)')
     ]
 
@@ -548,12 +550,12 @@ def not_to_mips_visitor(notn: cil.NotNode):
     x_offset = CURRENT_FUNCTION.offset[str(notn.result)]
 
     return instructions + [
-        mips.NotInstruction('$t0', '$t1'),
+        mips.NotInstruction('$t0', '$t0'),
         mips.SwInstruction('$t0', f'{x_offset}($fp)')
     ]
 
 
-def vcal_to_mips_visitor(vcall: cil.VCAllNode):
+def vcall_to_mips_visitor(vcall: cil.VCAllNode):
     """
     CIL:
         result = VCALL [type] [method]
@@ -566,31 +568,38 @@ def vcal_to_mips_visitor(vcall: cil.VCAllNode):
         4 - Restore the caller-saved registers.
         5 - Extract the return value, if any, from register $v0.
     """
-    instructios = []
-    instructios.append(mips.Comment(str(vcall)))
-    # 1
-    size = len(CURRENT_FUNCTION.caller_saved_reg) * 4
-    instructios.append(mips.SubuInstruction('$sp', '$sp', size))
-    # instructios.extend(allocate_stack(size))
-    s = size
-    for reg in CURRENT_FUNCTION.caller_saved_reg:
-        s -= 4
-        instructios.append(mips.SwInstruction(f'${reg}', f'{s}($sp)'))
-        #instructios.extend(push_stack(f'${reg}', f'{s}($sp)'))
-    instructios.extend(CURRENT_FUNCTION.args_code)
+    instructions = []
+    instructions.append(mips.Comment(str(vcall)))
+    try:
+        CURRENT_FUNCTION.used_regs.remove('v0')
+    except KeyError:
+        pass
+    save_reg_space = len(CURRENT_FUNCTION.used_regs) * 4
+    instructions.append(mips.SubuInstruction('$sp', '$sp', save_reg_space))
+    for i, reg in enumerate(CURRENT_FUNCTION.used_regs):
+        instructions.append(mips.SwInstruction(f'${reg}', f'{i*4}($sp)'))
+
+    instructions.extend(CURRENT_FUNCTION.args_code)
     CURRENT_FUNCTION.args_code.clear()
-    # 2
-    instructios.append(mips.JalInstruction(
+
+    instructions.append(mips.JalInstruction(
         __VT__[(str(vcall.type), str(vcall.method))]))
-    # 4
-    s = size
-    for reg in CURRENT_FUNCTION.caller_saved_reg:
-        s -= 4
-        instructios.append(mips.LwInstruction(f'${reg}', f'{s}($sp)'))
-        #instructios.extend(peek_stack(f'${reg}', f'{s}($sp)'))
-    instructios.append(mips.AdduInstruction('$sp', '$sp', size))
-    # instructios.extend(free_stack(size))
-    return instructios
+
+    instructions.append(mips.AdduInstruction(
+        '$sp', '$sp', CURRENT_FUNCTION.args_count * 4))
+    CURRENT_FUNCTION.args_count = 0
+
+    for i, reg in enumerate(CURRENT_FUNCTION.used_regs):
+        instructions.append(mips.LwInstruction(f'${reg}', f'{i*4}($sp)'))
+    instructions.append(mips.AdduInstruction('$sp', '$sp', save_reg_space))
+
+    try:
+        ret_offset = CURRENT_FUNCTION.offset[str(vcall.result)]
+        instructions.append(mips.SwInstruction('$v0', f'{ret_offset}($fp)'))
+    except KeyError:
+        pass
+
+    return instructions
 
 
 def assign_to_mips_visitor(assign: cil.AssignNode):
@@ -664,6 +673,32 @@ def label_to_mips_visitor(label: cil.LabelNode):
     ]
 
 
+def abort_to_mips_visitor(abort: cil.AbortNode):
+    instructions = [
+        mips.Comment(str(abort)),
+        mips.LaInstruction('$a0', 'data_abort'),
+        mips.LiInstruction('$v0', 4),
+        mips.SyscallInstruction()
+    ]
+    if abort.type_name:
+        __DATA__.append(mips.MIPSDataItem(
+            f'abort_{abort.type_name}', mips.AsciizInst(f'"{abort.type_name}"')))
+        instructions.append(mips.LaInstruction(
+            '$a0', f'abort_{abort.type_name}'))
+    else:
+        instructions.append(mips.LwInstruction('$a0', f'($fp)'))
+
+    return instructions + [
+        mips.LiInstruction('$v0', 4),
+        mips.SyscallInstruction(),
+        mips.LaInstruction('$a0', 'new_line'),
+        mips.LiInstruction('$v0', 4),
+        mips.SyscallInstruction(),
+        mips.LiInstruction('$v0', 10),
+        mips.SyscallInstruction()
+    ]
+
+
 __visitors__ = {
     cil.LabelNode: label_to_mips_visitor,
     cil.GotoNode: goto_to_mips_visitor,
@@ -688,7 +723,8 @@ __visitors__ = {
     cil.ConcatNode: concat_to_mips_visitor,
     cil.LoadNode: load_to_mips_visitor,
     cil.SubStringNode: substring_to_mips_visitor,
-    cil.VCAllNode: vcal_to_mips_visitor,
+    cil.VCAllNode: vcall_to_mips_visitor,
     cil.AssignNode: assign_to_mips_visitor,
-    cil.TypeOfNode: type_of_to_mips_visitor
+    cil.TypeOfNode: type_of_to_mips_visitor,
+    cil.AbortNode: abort_to_mips_visitor,
 }
