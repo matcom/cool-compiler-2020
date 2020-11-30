@@ -377,9 +377,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.register_instruction(cil.AllocateNode(node.type.name, instance))
             self.register_instruction(cil.ArgsNode([instance]))
             self.register_instruction(cil.JumpNode(self.to_function_name('Ctr', node.type.name), result))
+            return instance
         else:
             return 0
-        return instance
+        
 
 
     @visitor.when(PlusNode)
