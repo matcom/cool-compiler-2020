@@ -9,7 +9,7 @@ import itertools as itt
 class SemanticError(Exception):
     @property
     def text(self):
-        return f'({self.args[1]},-1) - {self.__class__.__name__}: {self.args[0]}'
+        return f'({self.args[1]}, -1) - {self.__class__.__name__}: {self.args[0]}.'
 class TypeError(SemanticError):
     pass
 class NameError(SemanticError):
