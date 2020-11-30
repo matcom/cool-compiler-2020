@@ -136,7 +136,7 @@ class CIL_TO_MIPS(object):
             ) * DATA_SIZE
             self.mips.load_memory(dst, self.mips.offset(Reg.fp, offset))
         elif arg in self.labels:
-            self.mips.load_memory(dst, arg)
+            self.mips.la(dst, arg)
         else:
             raise Exception(f"load_memory: The direction {arg} isn't an address")
 
