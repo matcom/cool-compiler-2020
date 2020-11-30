@@ -7,9 +7,12 @@ from COOLToCILVisitor import *
 from CILtoMIPSVisitor import *
 import mips
 
-file = open(sys.argv[1].split("\r")[0], 'r')
+
+inputfile = sys.argv[1]
+with open(inputfile, encoding="utf_8")as file:
+    coolprogram =  file.read()
 cool_lexer = CoolLexer()
-errors_lexer = cool_lexer.tokenize(file.read())
+errors_lexer = cool_lexer.tokenize(coolprogram)
 # errors_lexer = cool_lexer.tokenize('''''')
 
 if len(errors_lexer) > 0:

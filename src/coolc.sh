@@ -3,10 +3,8 @@
 INPUT_FILE=$1
 OUTPUT_FILE=${INPUT_FILE:0: -2}mips
 
-# Si su compilador no lo hace ya, aquí puede imprimir la información de contacto
-echo "+COOL"        
-echo "Copyright (c) 2019: Karl Lewis Sosa Justiz, Juan David Menendez del Cueto"
+echo "Cool Compiler v0.1"
+echo "Copyright (c) 2020: Juan David Menendez del Cueto, Karl Lewis Sosa"
 
 # Llamar al compilador
-#echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
-python3 exec_cool.py $INPUT_FILE
+python3 exec_cool.py ${INPUT_FILE} 

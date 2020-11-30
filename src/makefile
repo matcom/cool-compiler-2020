@@ -8,6 +8,6 @@ clean:
 	rm -rf ../tests/*/*.mips
 
 test:
-	pytest-3 ../tests -v --tb=short -m=${TAG}
+	pytest ../tests -v --tb=short -m=${TAG}
 
 
