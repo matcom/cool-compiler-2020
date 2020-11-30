@@ -29,12 +29,11 @@ def main(argv):
     lexer = COOLLexer(input)
     lexer.removeErrorListeners()
     lexer.addErrorListener(COOLLexerErrorListener())
-    # token = lexer.nextToken()
-    # while token.type != Token.EOF:
-    #     #print(token.type)
-    #     token = lexer.nextToken()
-    # if lexer.hasErrors:
-    #     return sys.exit(errno.EPERM)
+    token = lexer.nextToken()
+    while token.type != Token.EOF:
+        token = lexer.nextToken()
+    if lexer.hasErrors:
+        return sys.exit(errno.EPERM)
     # lexer.reset()
     # stream = CommonTokenStream(lexer)
     # parser = COOLParser(stream)
