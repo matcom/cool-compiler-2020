@@ -34,7 +34,7 @@ def main(argv):
         token = lexer.nextToken()
     if lexer.hasErrors:
         return sys.exit(errno.EPERM)
-    lexer.reset();
+    lexer.reset()
     stream = CommonTokenStream(lexer)
     parser = COOLParser(stream)
     parser.removeErrorListeners()
