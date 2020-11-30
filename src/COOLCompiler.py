@@ -9,7 +9,7 @@ from COOLParserErrorListener import COOLParserErrorListener
 from Visitors import  TypeCOOLVisitor
 from Visitors import  SemanticCOOLVisitor
 from Visitors import CodegenVisitor
-import NoTabsFileStream
+from NoTabsFileStream import NoTabsFileStream
 
 
 def main(argv):
@@ -59,9 +59,7 @@ def main(argv):
     else:
         return sys.exit(errno.EPERM)
 
-
-
-
+    return 0
 
 if __name__ == '__main__':
     main(sys.argv)
