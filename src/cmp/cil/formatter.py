@@ -40,6 +40,7 @@ from .ast import (
     TypeNode,
     TypeOfNode,
     VoidNode,
+    NotNode,
 )
 from .utils import on, when
 
@@ -117,6 +118,10 @@ class CIL_FORMATTER(object):
     @when(ComplementNode)
     def visit(self, node: ComplementNode):  # noqa:F811
         return f"{node.dest} = COMPLEMENT {node.body}"
+
+    @when(NotNode)
+    def visit(self, node: NotNode):  # noqa:F811
+        return f"{node.dest} = NOT {node.body}"
 
     @when(LessNode)
     def visit(self, node: LessNode):  # noqa:F811

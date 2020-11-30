@@ -75,6 +75,12 @@ class ComplementNode(InstructionNode):
         self.body = body
 
 
+class NotNode(InstructionNode):
+    def __init__(self, dest, body):
+        self.dest = dest
+        self.body = body
+        
+
 class IsVoidNode(InstructionNode):
     def __init__(self, dest, body):
         self.dest = dest
