@@ -1,12 +1,7 @@
 class Main inherits IO {
 
     main () : Object {
-        {
-            let x:E <- new E in x.f() = x@E.f() ;
-            let x:A <- new B in out_string( x.f().m() );
-            let x:A <- new A in out_string( x.f().m() );
-        }
-        
+        "H"
     };
 };
 

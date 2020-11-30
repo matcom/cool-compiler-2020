@@ -2,6 +2,7 @@ from .cil_ast import *
 
 from ..cp import visitor
 
+
 class CIL_FORMATTER(object):
     @visitor.on('node')
     def visit(self, node):
@@ -22,7 +23,7 @@ class CIL_FORMATTER(object):
     @visitor.when(TypeNode)
     def visit(self, node: TypeNode):
         attributes = '\n\t'.join(f'attribute {x}' for x in node.attributes)
-        methods = '\n\t'.join(f'method {x}: {y}' for x,y in node.methods)
+        methods = '\n\t'.join(f'method {x}: {y}' for x, y in node.methods)
 
         return f'type {node.name} {{\n\t{attributes}\n\n\t{methods}\n}}'
 
@@ -45,7 +46,6 @@ class CIL_FORMATTER(object):
     @visitor.when(AssignNode)
     def visit(self, node: AssignNode):
         return f'{node.dest} = {node.source}'
-
 
     @visitor.when(PlusNode)
     def visit(self, node: PlusNode):
@@ -98,11 +98,11 @@ class CIL_FORMATTER(object):
     @visitor.when(LoadNode)
     def visit(self, node: LoadNode):
         return f'{node.dest} = LOAD {node.msg}'
-    
+
     @visitor.when(LengthNode)
     def visit(self, node: LengthNode):
         return f'{node.dest} = LENGTH {node.msg}'
-    
+
     @visitor.when(ConcatNode)
     def visit(self, node: ConcatNode):
         return f'{node.dest} = CONCAT {node.msg1} {node.msg2}'
@@ -123,13 +123,13 @@ class CIL_FORMATTER(object):
     def visit(self, node: ToIntNode):
         return f'{node.dest} = INT {node.msg}'
 
-    # @visitor.when(GetAttribNode)
-    # def visit(self, node: GetAttribNode):
-    #     return f'{node.dest} = GETATTR {node.obj} {node.attrib}'
+    @visitor.when(GetAttribNode)
+    def visit(self, node: GetAttribNode):
+        return f'{node.dest} = GETATTR {node.obj} {node.attrib}'
 
-    # @visitor.when(SetAttribNode)
-    # def visit(self, node: SetAttribNode):
-    #     return f'SETATTR {node.obj} {node.attrib} {node.value}'
+    @visitor.when(SetAttribNode)
+    def visit(self, node: SetAttribNode):
+        return f'SETATTR {node.obj} {node.attrib} {node.value}'
 
     @visitor.when(LabelNode)
     def visit(self, node: LabelNode):
@@ -145,12 +145,12 @@ class CIL_FORMATTER(object):
 
     @visitor.when(ComplementNode)
     def visit(self, node: ComplementNode):
-        return f'{node.dest} = COMPLEMENT {node.body}'
+        return f'{node.dest} = COMPLEMENT {node.expression}'
 
     @visitor.when(LessNode)
     def visit(self, node: LessNode):
         return f'{node.dest} = {node.left} < {node.right}'
-    
+
     @visitor.when(IsVoidNode)
     def visit(self, node: IsVoidNode):
         return f'{node.dest} = ISVOID {node.body}'
@@ -158,7 +158,7 @@ class CIL_FORMATTER(object):
     @visitor.when(LessEqNode)
     def visit(self, node: LessEqNode):
         return f'{node.dest} = {node.left} <= {node.right}'
-        
+
 ###################### nodes to throw #######################
 
     @visitor.when(EqualNode)
@@ -173,14 +173,13 @@ class CIL_FORMATTER(object):
     # def visit(self, node: ConformNode):
     #     return f'{node.dest} = COMFORM {node.obj} {node.type}'
 
-
     @visitor.when(NotNode)
-    def visit(self, node:NotNode):
-        return f'{node.dest} = NOT {node.body}'
+    def visit(self, node: NotNode):
+        return f'{node.dest} = NOT {node.expression}'
 
-    # @visitor.when(StringEqualNode)
-    # def visit(self, node: StringEqualNode):
-    #     return f'{node.dest} = STREQ {node.msg1} {node.msg2}'
+    @visitor.when(StringEqualNode)
+    def visit(self, node: StringEqualNode):
+        return f'{node.dest} = STREQ {node.msg1} {node.msg2}'
 
     @visitor.when(CopyNode)
     def visit(self, node: CopyNode):
@@ -189,4 +188,3 @@ class CIL_FORMATTER(object):
     @visitor.when(TypeNameNode)
     def visit(self, node: TypeNameNode):
         return f'{node.dest} = TYPENAME {node.type}'
-
