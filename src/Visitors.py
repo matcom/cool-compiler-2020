@@ -1862,7 +1862,8 @@ _dispatch_msg:  .asciiz ": Dispatch to void.\\n"
 _cabort_msg:	.asciiz "No match in case statement for Class "
 _cabort_msg2:   .asciiz "Match on void in case statement.\\n"
 _nl:		.asciiz "\\n"
-_term_msg:	.asciiz "\nCOOL program successfully executed\\n"
+#_term_msg:	.asciiz "\nCOOL program successfully executed\\n"
+_term_msg:	.asciiz ""
 _sabort_msg1:	.asciiz	"Index to substr is negative\\n"
 _sabort_msg2:	.asciiz	"Index to substr is too big\\n"
 _sabort_msg3:	.asciiz	"Length to substr too long\\n"
@@ -1887,8 +1888,8 @@ _GenGC_MAJORERROR:	.asciiz "GenGC: Error during major garbage collection.\\n"
 # Messages for the NoGC garabge collector
 #
 
-_NoGC_COLLECT:		.asciiz "Increasing heap...\\n"
-#_NoGC_COLLECT:		.asciiz ""    
+#_NoGC_COLLECT:		.asciiz "Increasing heap...\\n"
+_NoGC_COLLECT:		.asciiz ""    
 """
 
     MemManagerNoGCInit = """
@@ -1974,6 +1975,9 @@ main:
 	jal	Main_init		# initialize the Main object
 	jal	Main.main		# Invoke main method
 	addiu	$sp $sp 4		# restore the stack
+	#la	$a0 _term_msg		# show terminal message
+	li	$v0 4
+	syscall
 	li $v0 10
 	syscall				# syscall 10 (exit)
 
