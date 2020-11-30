@@ -1,7 +1,5 @@
 class Main inherits IO {
    main(): IO {
-       {
-       out_string("Hello".concat("World"));
-       }
+	out_string("Hello, World.\n")
    };
 };
