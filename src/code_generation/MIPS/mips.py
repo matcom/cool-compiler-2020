@@ -419,7 +419,7 @@ def star_to_mips_visitor(star: cil.StarNode):
     MIPS:
         lw  $t1, [addr(y)]
         lw  $t2, [addr(z)]
-        mult $t0, $t1, $t2
+        mul $t0, $t1, $t2
         sw  $t0, [addr(x)]
     """
     code = [mips.Comment(str(star))]
@@ -436,7 +436,7 @@ def star_to_mips_visitor(star: cil.StarNode):
         code.append(mips.LwInstruction('$t1', f'{y_addr}($fp)'))
 
     z_addr = CURRENT_FUNCTION.offset[str(star.result)]
-    return code + [mips.MultInstruction('$t0', '$t1', '$t2'), mips.SwInstruction('$t2', f'{z_addr}($fp)')]
+    return code + [mips.MulInstruction('$t0', '$t1', '$t2'), mips.SwInstruction('$t2', f'{z_addr}($fp)')]
 
 
 def div_to_mips_visitor(div: cil.DivNode):
