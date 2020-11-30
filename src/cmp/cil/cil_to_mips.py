@@ -704,7 +704,7 @@ class CIL_TO_MIPS(object):
         self.mips.label(end_ok_label)
         self.mips.li(Reg.v0, 1)  # return 1
         self.mips.label(end_label)
-        self.mips.store_memory(Reg.v0, node.dest)  # store value in dst
+        self.store_memory(Reg.v0, node.dest)  # store value in dst
 
     @when(GetAttribNode)
     @mips_comment("GetAttribNode")
