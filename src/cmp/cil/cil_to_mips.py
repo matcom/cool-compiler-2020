@@ -28,6 +28,7 @@ from .ast import (
     LessNode,
     LocalNode,
     MinusNode,
+    NotNode,
     ParamNode,
     PlusNode,
     PrintIntNode,
@@ -396,6 +397,14 @@ class CIL_TO_MIPS(object):
         self.mips.li(Reg.s3, 1)
         self.mips.sub(Reg.s0, Reg.s3, Reg.s2)
         self.store_memory(Reg.s0, node.dest)
+
+    @when(NotNode)
+    @mips_comment("NotNode")
+    def visit(self, node: NotNode):  # noqa: F811
+        self.load_memory(Reg.s0, node.body)
+        self.mips.li(Reg.s1, 1)
+        self.mips.sub(Reg.s2, Reg.s1, Reg.s0)  # 1 - body -> !body
+        self.store_memory(Reg.s2, node.dest)
 
     @when(PlusNode)
     @mips_comment("PlusNode")

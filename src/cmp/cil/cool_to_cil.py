@@ -29,6 +29,7 @@ from .ast import (
     StringEqualNode,
     TypeOfNode,
     VoidNode,
+    NotNode,
 )
 from .basic_transform import BASE_COOL_CIL_TRANSFORM, VariableInfo
 from .utils import Scope, on, when
@@ -322,7 +323,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(AllocateNode(temp_type, node.type))
         self.register_instruction(TypeOfNode(temp_type, type_val))
         self.register_instruction(EqualNode(cond, typex, type_val))
-        self.register_instruction(ComplementNode(not_cond, cond))
+        self.register_instruction(NotNode(not_cond, cond))
         self.register_instruction(GotoIfNode(not_cond, case_label))
         case_scope = Scope(parent=scope)
         case_var = self.register_local(VariableInfo(node.id, None))
@@ -442,12 +443,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node: cool.NotNode, scope: Scope):  # noqa:F811
         value = self.visit(node.expression, scope)
         value = self.unpack_type_by_value(value, node.expression.static_type)
-        one = self.define_internal_local()
         result = self.define_internal_local()
-        self.register_instruction(AllocateNode(one, "Int"))
-        self.register_instruction(SetAttribNode(one, "value", 1, "Int"))
-        one = self.unpack_type_by_value(one, "Int")
-        self.register_instruction(MinusNode(result, one, value))
+        self.register_instruction(NotNode(result, value))
         result = self.pack_type_by_value(result, node.static_type)
         return result
 
