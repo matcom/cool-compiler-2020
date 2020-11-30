@@ -523,7 +523,19 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         end_label = self.register_label('end_label')
         labels = []
         old = {}
-        for idx, b in enumerate(node.branches):
+
+        # sorting the branches
+        order = []
+        for b in node.branches:
+            count = 0
+            t1 = self.context.get_type(b.type)
+            for other in node.branches:
+                t2 = self.context.get_type(other.type)
+                count += t2.conforms_to(t1)
+            order.append((count, b))
+        order.sort(key=lambda x: x[0])
+
+        for idx, (_, b) in enumerate(order):
             labels.append(self.register_label(f'{idx}_label'))
             h = self.buildHierarchy(b.type)
             if not h:
@@ -544,9 +556,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         for idx, l in enumerate(labels):
             self.register_instruction(l)
-            vid = self.register_local(VariableInfo(node.branches[idx].id, None))
+            vid = self.register_local(VariableInfo(order[idx][1].id, None))
             self.register_instruction(cil.AssignNode(vid, vexpr))
-            self.visit(node.branches[idx], scope)
+            self.visit(order[idx][1], scope)
             self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
             self.register_instruction(cil.GotoNode(end_label.label))
 
