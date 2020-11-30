@@ -8,6 +8,8 @@ Oscar Luis Hernandez Solano | C411 | [@oschdez97](https://github.com/oschdez97)
 Harold Rosales Hernandez | C411 | [@hros18](https://github.com/hros18)
 Carlos Rafael Ortega Lezcano | C411 | [@CRafa97](https://github.com/CRafa97)
 
+> El informe escrito del compilador se encuentra en la carpeta `report` de este directorio
+
 ## Uso del Compilador
 
 Para instalar todas las dependencias del compilador ejecute desde el directorio raiz del proyecto
