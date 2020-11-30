@@ -141,7 +141,8 @@ def get_formatter():
         def visit(self, node):
             dotdata = '\n'.join(self.visit(t) for t in node.dotdata)
             dotdata += '''
-            _error1:    .asciiz     "Halt program because abort"
+            _error1:    .asciiz     "Abort called from class "
+            _salto_para_abort: .asciiz "\n"
             _buffer:    .space      2048
             _void:      .asciiz       ""
              '''    
@@ -239,6 +240,13 @@ function_abort_at_Object:
             sw $ra, 0($sp)
             addiu $sp, $sp, -4
             la $a0, _error1
+            li $v0, 4
+            syscall
+            lw $a0 4($fp)
+            lw $a0 ($a0)
+            li $v0, 4
+            syscall
+            la $a0, _salto_para_abort
             li $v0, 4
             syscall
             li $v0, 10
