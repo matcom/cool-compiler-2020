@@ -2,7 +2,10 @@
 buffer: .space 2048
 strsubstrexception: .asciiz "Substring index exception"
 
-string_1: .asciiz "\n"
+string_2: .asciiz "=(\n"
+string_3: .asciiz "=)\n"
+string_5: .asciiz "+"
+string_6: .asciiz "I"
 Object_INH:
 String_INH:
 .word Object_INH
@@ -15,6 +18,8 @@ IO_INH:
 SELF_TYPE_INH:
 .word Object_INH
 Main_INH:
+.word IO_INH
+Complex_INH:
 .word IO_INH
 Int_name: .asciiz "Int"
 Int_VT:
@@ -45,6 +50,14 @@ Main_name: .asciiz "Main"
 Main_VT:
 .word Main_INH
 .word Main.main
+Complex_name: .asciiz "Complex"
+Complex_VT:
+.word Complex_INH
+.word Complex.init
+.word Complex.print
+.word Complex.reflect_0
+.word Complex.reflect_X
+.word Complex.reflect_Y
 
 .globl main
 .text
@@ -360,7 +373,15 @@ jr $ra
 Main.main:
 sw $ra, 0($sp)
 addiu $sp, $sp, -4
-#Block
+#Let
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
@@ -369,16 +390,6 @@ li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 #push object
-#Self-Dispatch
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-#Args: 0
-#Point-Dispatch
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-#push object
 #Point-Dispatch
 li $a0, 0
 sw $a0, ($sp)
@@ -387,100 +398,48 @@ addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
+lw $t0, 36($sp)
+lw $t1, -4($t0)
+sw $t1, 4($sp)
+#Dispatch in place
+#obj 2 offset 1  result -1
+jal IO.out_string
+sw $a1, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 4($sp)
+addiu $sp, $sp, 4
+#Dispatch in place
+#obj 3 offset 1  result -1
+jal IO.out_string
+sw $a1, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 4($sp)
+addiu $sp, $sp, 4
+#Point-Dispatch
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
+#push object
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-li $v0, 9
-li $a0, 4
-syscall
-sw $v0, 4($sp)
-la $a1, Object_VT
-sw $a1, ($v0)
+lw $t0, 44($sp)
+lw $t1, -4($t0)
+sw $t1, 4($sp)
+#Dispatch in place
+#obj 2 offset 1  result -1
+jal IO.out_string
+sw $a1, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 4($sp)
+addiu $sp, $sp, 4
+lw $t0, 12($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 24($sp)
+addiu $sp, $sp, 8
 lw $t0, 4($sp)
-sw $t0, 12($sp)
-#DispatchParent in place
-#obj 2 offset 1  result Object.Constructor
-la $v0, 1
-jal Object.Constructor
-sw $a1, 0($sp)
-addi $sp, $sp, -4
-addiu $sp, $sp, 8
-#Dispatch in place
-#obj 4 offset 1  result Object.type_name
-jal Object.type_name
-sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
-addiu $sp, $sp, 4
-#Args: 0
-#Integer
-li $a0, 4
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-#Args: 1
-#Integer
-li $a0, 1
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-#Dispatch in place
-#obj 7 offset 3  result String.substr
-jal String.substr
-sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 12($sp)
-addiu $sp, $sp, 12
-#Dispatch in place
-#obj 8 offset 12  result IO.out_string
-jal IO.out_string
-sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 48($sp)
-addiu $sp, $sp, 8
-#Args: 0
-#Point-Dispatch
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-#push object
-#Point-Dispatch
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-#push object
-#Dispatch in place
-#obj 1 offset 1  result Bool.type_name
-jal Bool.type_name
-sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
-addiu $sp, $sp, 4
-#Args: 0
-#Integer
-li $a0, 1
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-#Args: 1
-#Integer
-li $a0, 3
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-#Dispatch in place
-#obj 4 offset 3  result String.substr
-jal String.substr
-sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 12($sp)
-addiu $sp, $sp, 12
-#Dispatch in place
-#obj 13 offset 5  result IO.out_string
-jal IO.out_string
-sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 20($sp)
-addiu $sp, $sp, 8
+bnez $t0, _if_1
 #Self-Dispatch
 li $a0, 0
 sw $a0, ($sp)
@@ -490,18 +449,435 @@ addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-la $a0, string_1
+la $a0, string_2
 sw $a0, 0($sp)
 addi $sp, $sp, -4
 #Dispatch in place
-#obj 2 offset 18  result IO.out_string
+#obj 2 offset 13  result IO.out_string
 jal IO.out_string
 sw $a1, 0($sp)
 addi $sp, $sp, 4
-lw $ra, 72($sp)
+lw $ra, 52($sp)
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
+sw $t0, 36($sp)
+j _fi_1
+_if_1:
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Args: 0
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_3
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+#Dispatch in place
+#obj 2 offset 15  result IO.out_string
+jal IO.out_string
+sw $a1, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 60($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 44($sp)
+_fi_1:
+addiu $sp, $sp, 8
+lw $t0, tmp_15tmp_15tmp_15tmp_15($sp)
+sw $t0, tmp_3tmp_3tmp_3tmp_3($sp)
+addiu $sp, $sp, 8
+lw $v0, 4($sp)
+addiu $sp, $sp, -4
+addiu $sp, $sp, -4
+jr $ra
+Complex.Constructor:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $v0, 4($sp)
+addiu $sp, $sp, -4
+addiu $sp, $sp, -4
+jr $ra
+Complex.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+la $a1, Complex_name
+jr $ra
+Complex.init:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+#Block
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 28($sp)
+lw $t1, 4($t0)
+sw $t1, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 28($sp)
+sw $t0, 4($sp)
+lw $t0, 8($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 40($sp)
+lw $t1, 8($t0)
+sw $t1, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 36($sp)
+sw $t0, 4($sp)
+lw $t0, 8($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 48($sp)
+sw $t0, 4($sp)
+lw $t0, 4($sp)
+sw $t0, 32($sp)
+addiu $sp, $sp, 12
+lw $v0, 4($sp)
+addiu $sp, $sp, -4
+addiu $sp, $sp, -4
+jr $ra
+Complex.print:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 20($sp)
+lw $t1, 8($t0)
+sw $t1, 4($sp)
+#Integer
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 8($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_4
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push object
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push object
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push object
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push self
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 44($sp)
+sw $t0, 4($sp)
+#Args: 0
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 48($sp)
+lw $t1, 4($t0)
+sw $t1, 4($sp)
+#Dispatch in place
+#obj 3 offset 12  result IO.out_int
+jal IO.out_int
+sw $a1, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 48($sp)
+addiu $sp, $sp, 4
+#Args: 0
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_5
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+#Dispatch in place
+#obj 5 offset 2  result IO.out_string
+jal IO.out_string
+sw $a1, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 8($sp)
+addiu $sp, $sp, 8
+#Args: 0
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 56($sp)
+lw $t1, 8($t0)
+sw $t1, 4($sp)
+#Dispatch in place
+#obj 7 offset 2  result IO.out_int
+jal IO.out_int
+sw $a1, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 8($sp)
+addiu $sp, $sp, 8
+#Args: 0
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_6
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+#Dispatch in place
+#obj 9 offset 2  result IO.out_string
+jal IO.out_string
+sw $a1, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 8($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 52($sp)
+j _fi_4
+_if_4:
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push self
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 68($sp)
+sw $t0, 4($sp)
+#Args: 0
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 72($sp)
+lw $t1, 4($t0)
+sw $t1, 4($sp)
+#Dispatch in place
+#obj 3 offset 18  result IO.out_int
+jal IO.out_int
+sw $a1, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 72($sp)
+addiu $sp, $sp, 4
+lw $t0, 4($sp)
 sw $t0, 64($sp)
+_fi_4:
+addiu $sp, $sp, 8
+lw $v0, 4($sp)
+addiu $sp, $sp, -4
+addiu $sp, $sp, -4
+jr $ra
+Complex.reflect_0:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+#Block
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 20($sp)
+lw $t1, 4($t0)
+sw $t1, 4($sp)
+#Unary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 28($sp)
+lw $t1, 4($t0)
+sw $t1, 4($sp)
+lw $t0, 4($sp)
+not $t0, $t0
+sw $t0, 8($sp)
+lw $t0, 12($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 16($sp)
+addiu $sp, $sp, 8
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 36($sp)
+lw $t1, 8($t0)
+sw $t1, 4($sp)
+#Unary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 44($sp)
+lw $t1, 8($t0)
+sw $t1, 4($sp)
+lw $t0, 4($sp)
+not $t0, $t0
+sw $t0, 8($sp)
+lw $t0, 12($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 16($sp)
+addiu $sp, $sp, 8
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 48($sp)
+sw $t0, 4($sp)
+lw $t0, 4($sp)
+sw $t0, 40($sp)
+addiu $sp, $sp, 12
+lw $v0, 4($sp)
+addiu $sp, $sp, -4
+addiu $sp, $sp, -4
+jr $ra
+Complex.reflect_X:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+#Block
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 20($sp)
+lw $t1, 8($t0)
+sw $t1, 4($sp)
+#Unary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 28($sp)
+lw $t1, 8($t0)
+sw $t1, 4($sp)
+lw $t0, 4($sp)
+not $t0, $t0
+sw $t0, 8($sp)
+lw $t0, 12($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 16($sp)
+addiu $sp, $sp, 8
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 32($sp)
+sw $t0, 4($sp)
+lw $t0, 4($sp)
+sw $t0, 24($sp)
+addiu $sp, $sp, 8
+lw $v0, 4($sp)
+addiu $sp, $sp, -4
+addiu $sp, $sp, -4
+jr $ra
+Complex.reflect_Y:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+#Block
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 20($sp)
+lw $t1, 4($t0)
+sw $t1, 4($sp)
+#Unary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 28($sp)
+lw $t1, 4($t0)
+sw $t1, 4($sp)
+lw $t0, 4($sp)
+not $t0, $t0
+sw $t0, 8($sp)
+lw $t0, 12($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 16($sp)
+addiu $sp, $sp, 8
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 32($sp)
+sw $t0, 4($sp)
+lw $t0, 4($sp)
+sw $t0, 24($sp)
 addiu $sp, $sp, 8
 lw $v0, 4($sp)
 addiu $sp, $sp, -4

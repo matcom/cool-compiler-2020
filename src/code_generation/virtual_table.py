@@ -48,11 +48,8 @@ class VirtualTable:
                     return claSS + '.' + method
         built_in = ['Object','Int', 'IO', 'Bool', 'String']
         if not rec:
-            if method == 'type_name':
-                try:
-                    return claSS.type + '.type_name'
-                except:
-                    return claSS.expr.id + '.type_name'
+            if claSS in built_in:
+                return claSS + '.' + method
             for t in built_in:
                 ret = self.get_method_id(t, method, rec=True)
                 if ret != -1:

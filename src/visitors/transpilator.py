@@ -121,8 +121,8 @@ class codeVisitor:
 
     def setClassTypeName(self, claSS):
         self.code.append(LabelIL(claSS, 'type_name', True))
-        self.code.append(CustomLineIL("sw $a1, ($sp)\n"))
-        self.code.append(CustomLineIL("la $a0, " + claSS + '_name\n' ))
+        # self.code.append(CustomLineIL("sw $a1, ($sp)\n"))
+        self.code.append(CustomLineIL("la $a1, " + claSS + '_name\n' ))
         self.code.append(CustomLineIL("jr $ra\n"))
 
 
@@ -457,9 +457,7 @@ class codeVisitor:
 
     @visitor.when(IsVoidNode)
     def visit(self, node, vars):
-        print('is_void: ', node.expr.id)
-        print('type: ', self.context.get_type(node))
-
+        pass
     #expression: complex->dispatch
     @visitor.when(ExprCallNode)
     def visit(self, node, variables):
@@ -469,7 +467,8 @@ class codeVisitor:
         self.code.append(PushIL())
         print('----------node {}---------'.format(node.id))
         index = self.virtual_table.get_method_id(node.obj, node.id)
-
+        if str(node.id) == 'type_name':
+            index = self.virtual_table.get_method_id(self.context.exprs_dict[node.obj].name, node.id)
         self.code.append(CommentIL('push object'))
         # print('-------obj-------- ',node.obj)
         self.visit(node.obj, variables)
@@ -481,7 +480,7 @@ class codeVisitor:
             self.code.append(CommentIL('Args: ' + str(i)))
             i += 1
             self.visit(p, variables)
-        
+        # ret = self.context.exprs_dict[node.obj].name
         self.code.append(DispatchIL(variables.id(result), variables.id(name), index))
 
         for i in range(0, len(node.args) + 1):
