@@ -300,8 +300,8 @@ class CIL_TO_MIPS(object):
         self.mips.lb(Reg.t2, self.mips.offset(Reg.t0))
         self.mips.sb(Reg.t2, self.mips.offset(Reg.t1))
 
-        self.mips.addi(Reg.t0, Reg.t0, 2)
-        self.mips.addi(Reg.t1, Reg.t1, 2)
+        self.mips.addi(Reg.t0, Reg.t0, 1)
+        self.mips.addi(Reg.t1, Reg.t1, 1)
 
         self.mips.addi(Reg.t3, Reg.t3, -1)  # i --
 
@@ -326,7 +326,6 @@ class CIL_TO_MIPS(object):
         self.store_memory(Reg.s1, node.dest)
 
         # copy data raw byte to byte
-        self.mips.srl(Reg.s3, Reg.s3, 1)
         self.copy_data(Reg.s0, Reg.s1, Reg.s3)
 
     @when(TypeNameNode)
