@@ -55,7 +55,7 @@ def mips_comment(msg: str):
     def inner(fn):
         @wraps(fn)
         def wrapped(self, *args, **kwargs):
-            self.mips.comment("")
+            self.mips.comment(msg)
             result = fn(self, *args, **kwargs)
             self.mips.empty()
             return result
