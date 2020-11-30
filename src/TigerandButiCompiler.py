@@ -693,7 +693,6 @@ if __name__=='__main__':
             instrucciones=toMIPS.visit(codigoCIL, None)
             with open(f'{sys.argv[1][:-3]}.mips', 'w') as f:
                 f.write(instrucciones)
-            exit()
         else:
             exit(1)
     else:
