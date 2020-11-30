@@ -85,10 +85,19 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         for p_name, p_type in node.params:
             self.register_param(p_name, p_type.value)
         
-        value, _ = self.visit(node.body, scope)
-        
+        value, typex = self.visit(node.body, scope)
+        if not isinstance(value, str):
+            result = self.define_internal_local()
+            self.register_instruction(cil.AssignNode(result, value))
+        else:
+            result = value
+
+        # Boxing if necessary
+        if (typex.name == 'Int' or typex.name == 'String' or typex.name == 'Bool') and self.current_method.return_type.name == 'Object':
+            self.register_instruction(cil.BoxingNode(result, typex.name))
+
         # Handle RETURN
-        self.register_instruction(cil.ReturnNode(value)) 
+        self.register_instruction(cil.ReturnNode(result)) 
         self.current_method = None
 
 
@@ -137,13 +146,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         else: 
             result = self.define_internal_local()
 
-        # continue_label = cil.LabelNode(f'continue__{self.index}') 
-        # isvoid = self.check_void(obj)
-        # self.register_instruction(cil.GotoIfFalseNode(isvoid, continue_label.label))
-        # self.register_instruction(cil.ErrorNode('dispatch_error'))
-        # self.register_instruction(continue_label)
+        continue_label = cil.LabelNode(f'continue__{self.index}') 
+        isvoid = self.check_void(obj)
+        self.register_instruction(cil.GotoIfFalseNode(isvoid, continue_label.label))
+        self.register_instruction(cil.ErrorNode('dispatch_error'))
+        self.register_instruction(continue_label)
 
-        # name = self.to_function_name(node.id, otype.name)
         if otype in [StringType(), IntType(), BoolType()]:
             self.register_instruction(cil.StaticCallNode(otype.name, node.id, result, args_node, rtype.name))
         else:
@@ -166,13 +174,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         else: 
             result = self.define_internal_local()
         
-        # continue_label = cil.LabelNode(f'continue__{self.index}') 
-        # isvoid = self.check_void(obj)
-        # self.register_instruction(cil.GotoIfFalseNode(isvoid, continue_label.label))
-        # self.register_instruction(cil.ErrorNode('dispatch_error'))
-        # self.register_instruction(continue_label)
+        continue_label = cil.LabelNode(f'continue__{self.index}') 
+        isvoid = self.check_void(obj)
+        self.register_instruction(cil.GotoIfFalseNode(isvoid, continue_label.label))
+        self.register_instruction(cil.ErrorNode('dispatch_error'))
+        self.register_instruction(continue_label)
         
-        # name = self.to_function_name(node.id, node.type)
         self.register_instruction(cil.StaticCallNode(node.type, node.id, result, args_node, rtype.name))
         return result, self._return_type(otype, node)
 
@@ -318,8 +325,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.visit(init, child_scope)
         
         expr, typex = self.visit(node.expr, child_scope)
-        # result = self.define_internal_local()
-        # self.register_instruction(cil.AssignNode(result, expr))
         return expr, typex
 
 

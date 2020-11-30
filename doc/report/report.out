@@ -1,0 +1,12 @@
+\BOOKMARK [1][-]{section.1}{Uso del compilador}{}% 1
+\BOOKMARK [1][-]{section.2}{Arquitectura del compilador}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{An\341lisis sint\341ctico}{section.2}% 3
+\BOOKMARK [3][-]{subsubsection.2.1.1}{An\341lisis l\351xico}{subsection.2.1}% 4
+\BOOKMARK [3][-]{subsubsection.2.1.2}{Parsing}{subsection.2.1}% 5
+\BOOKMARK [2][-]{subsection.2.2}{An\341lisis sem\341ntico}{section.2}% 6
+\BOOKMARK [2][-]{subsection.2.3}{Generaci\363n de c\363digo}{section.2}% 7
+\BOOKMARK [3][-]{subsubsection.2.3.1}{C\363digo Intermedio}{subsection.2.3}% 8
+\BOOKMARK [3][-]{subsubsection.2.3.2}{C\363digo de M\341quina}{subsection.2.3}% 9
+\BOOKMARK [1][-]{section.3}{Problemas t\351cnicos y te\363ricos}{}% 10
+\BOOKMARK [2][-]{subsection.3.1}{Tipos por valor y por referencia}{section.3}% 11
+\BOOKMARK [2][-]{subsection.3.2}{Valor Void en Mips}{section.3}% 12

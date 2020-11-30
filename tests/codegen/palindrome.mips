@@ -424,14 +424,8 @@ syscall
 li $v0, 17
 move $a0, $t8
 syscall
-move $v0, $t1
-# Empty all used registers and saves them to memory
 sw $t0, -0($fp)
 sw $t1, -4($fp)
-# Removing all locals from stack
-addiu $sp, $sp, 8
-jr $ra
-
 
 function_type_name_Object:
 # Gets the params from the stack
@@ -1033,6 +1027,70 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_pal_Main_internal_15 to the stack
 addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_16 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_17 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_18 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_19 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_20 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_21 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_22 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_23 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_24 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_25 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_26 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_27 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_28 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_pal_Main_internal_29 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -16($fp)
+# local_pal_Main_internal_2 <- Type of s
+la $t1, type_String
+lw $t2, -20($fp)
+# Saves in local_pal_Main_internal_3 data_0
+la $t2, data_0
+# local_pal_Main_internal_2 <- local_pal_Main_internal_2 = local_pal_Main_internal_3
+move $t8, $t1
+move $t9, $t2
+loop_6:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_6
+beqz $a1, mismatch_6
+seq $v0, $a0, $a1
+beqz $v0, mismatch_6
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_6
+mismatch_6:
+li $v0, 0
+j end_6
+check_6:
+bnez $a1, mismatch_6
+li $v0, 1
+end_6:
+move $t1, $v0
+# If not local_pal_Main_internal_2 goto continue__59
+sw $t0, -0($fp)
+sw $t1, -16($fp)
+sw $t2, -20($fp)
+beqz $t1, continue__59
+la $a0, dispatch_error
+j .raise
+continue__59:
 lw $t0, -12($fp)
 # Static Dispatch of the method length
 sw $fp, ($sp)
@@ -1062,11 +1120,47 @@ lw $t1, -8($fp)
 # local_pal_Main_internal_0 <- local_pal_Main_internal_1 = 0
 li $t9, 0
 seq $t1, $t0, $t9
-# If local_pal_Main_internal_0 goto true__62
+# If local_pal_Main_internal_0 goto true__70
 sw $t0, -12($fp)
 sw $t1, -8($fp)
-bnez $t1, true__62
-lw $t0, -24($fp)
+bnez $t1, true__70
+lw $t0, -0($fp)
+lw $t1, -36($fp)
+# local_pal_Main_internal_7 <- Type of s
+la $t1, type_String
+lw $t2, -40($fp)
+# Saves in local_pal_Main_internal_8 data_0
+la $t2, data_0
+# local_pal_Main_internal_7 <- local_pal_Main_internal_7 = local_pal_Main_internal_8
+move $t8, $t1
+move $t9, $t2
+loop_7:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_7
+beqz $a1, mismatch_7
+seq $v0, $a0, $a1
+beqz $v0, mismatch_7
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_7
+mismatch_7:
+li $v0, 0
+j end_7
+check_7:
+bnez $a1, mismatch_7
+li $v0, 1
+end_7:
+move $t1, $v0
+# If not local_pal_Main_internal_7 goto continue__75
+sw $t0, -0($fp)
+sw $t1, -36($fp)
+sw $t2, -40($fp)
+beqz $t1, continue__75
+la $a0, dispatch_error
+j .raise
+continue__75:
+lw $t0, -32($fp)
 # Static Dispatch of the method length
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -1078,7 +1172,7 @@ lw $t1, -0($fp)
 sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -24($fp)
+sw $t0, -32($fp)
 sw $t1, -0($fp)
 # This function will consume the arguments
 jal function_length_String
@@ -1088,18 +1182,54 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -24($fp)
+lw $t0, -32($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -20($fp)
-# local_pal_Main_internal_3 <- local_pal_Main_internal_4 = 1
+lw $t1, -28($fp)
+# local_pal_Main_internal_5 <- local_pal_Main_internal_6 = 1
 li $t9, 1
 seq $t1, $t0, $t9
-# If local_pal_Main_internal_3 goto true__69
-sw $t0, -24($fp)
-sw $t1, -20($fp)
-bnez $t1, true__69
-lw $t0, -36($fp)
+# If local_pal_Main_internal_5 goto true__86
+sw $t0, -32($fp)
+sw $t1, -28($fp)
+bnez $t1, true__86
+lw $t0, -0($fp)
+lw $t1, -56($fp)
+# local_pal_Main_internal_12 <- Type of s
+la $t1, type_String
+lw $t2, -60($fp)
+# Saves in local_pal_Main_internal_13 data_0
+la $t2, data_0
+# local_pal_Main_internal_12 <- local_pal_Main_internal_12 = local_pal_Main_internal_13
+move $t8, $t1
+move $t9, $t2
+loop_8:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_8
+beqz $a1, mismatch_8
+seq $v0, $a0, $a1
+beqz $v0, mismatch_8
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_8
+mismatch_8:
+li $v0, 0
+j end_8
+check_8:
+bnez $a1, mismatch_8
+li $v0, 1
+end_8:
+move $t1, $v0
+# If not local_pal_Main_internal_12 goto continue__93
+sw $t0, -0($fp)
+sw $t1, -56($fp)
+sw $t2, -60($fp)
+beqz $t1, continue__93
+la $a0, dispatch_error
+j .raise
+continue__93:
+lw $t0, -52($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -1119,7 +1249,7 @@ lw $t1, -0($fp)
 sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -36($fp)
+sw $t0, -52($fp)
 sw $t1, -0($fp)
 # This function will consume the arguments
 jal function_substr_String
@@ -1129,108 +1259,47 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -36($fp)
+lw $t0, -52($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -44($fp)
-# Static Dispatch of the method length
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-lw $t2, -0($fp)
-sw $t2, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -36($fp)
-sw $t1, -44($fp)
-sw $t2, -0($fp)
-# This function will consume the arguments
-jal function_length_String
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
-lw $t0, -44($fp)
-# saves the return value
-move $t0, $v0
-lw $t1, -40($fp)
-# local_pal_Main_internal_8 <- local_pal_Main_internal_9 - 1
-addi $t1, $t0, -1
-lw $t2, -48($fp)
-# Static Dispatch of the method substr
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-li $t9, 1
-sw $t9, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-sw $t1, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-lw $t3, -0($fp)
-sw $t3, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -44($fp)
-sw $t1, -40($fp)
-sw $t2, -48($fp)
-sw $t3, -0($fp)
-# This function will consume the arguments
-jal function_substr_String
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
-lw $t0, -48($fp)
-# saves the return value
-move $t0, $v0
-lw $t1, -36($fp)
-lw $t2, -32($fp)
-# local_pal_Main_internal_6 <- local_pal_Main_internal_7 = local_pal_Main_internal_10
-move $t8, $t1
-move $t9, $t0
-loop_6:
+lw $t1, -0($fp)
+lw $t2, -72($fp)
+# local_pal_Main_internal_16 <- Type of s
+la $t2, type_String
+lw $t3, -76($fp)
+# Saves in local_pal_Main_internal_17 data_0
+la $t3, data_0
+# local_pal_Main_internal_16 <- local_pal_Main_internal_16 = local_pal_Main_internal_17
+move $t8, $t2
+move $t9, $t3
+loop_9:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_6
-beqz $a1, mismatch_6
+beqz $a0, check_9
+beqz $a1, mismatch_9
 seq $v0, $a0, $a1
-beqz $v0, mismatch_6
+beqz $v0, mismatch_9
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_6
-mismatch_6:
+j loop_9
+mismatch_9:
 li $v0, 0
-j end_6
-check_6:
-bnez $a1, mismatch_6
+j end_9
+check_9:
+bnez $a1, mismatch_9
 li $v0, 1
-end_6:
+end_9:
 move $t2, $v0
-# If local_pal_Main_internal_6 goto true__88
-sw $t0, -48($fp)
-sw $t1, -36($fp)
-sw $t2, -32($fp)
-bnez $t2, true__88
-lw $t0, -52($fp)
-# Moving 0 to local_pal_Main_internal_11
-li $t0, 0
+# If not local_pal_Main_internal_16 goto continue__106
 sw $t0, -52($fp)
-sw $t0, -52($fp)
-j end__88
-true__88:
-lw $t0, -60($fp)
+sw $t1, -0($fp)
+sw $t2, -72($fp)
+sw $t3, -76($fp)
+beqz $t2, continue__106
+la $a0, dispatch_error
+j .raise
+continue__106:
+lw $t0, -68($fp)
 # Static Dispatch of the method length
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -1242,7 +1311,7 @@ lw $t1, -0($fp)
 sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -60($fp)
+sw $t0, -68($fp)
 sw $t1, -0($fp)
 # This function will consume the arguments
 jal function_length_String
@@ -1252,13 +1321,51 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -60($fp)
+lw $t0, -68($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -56($fp)
-# local_pal_Main_internal_12 <- local_pal_Main_internal_13 - 2
-addi $t1, $t0, -2
-lw $t2, -64($fp)
+lw $t1, -64($fp)
+# local_pal_Main_internal_14 <- local_pal_Main_internal_15 - 1
+addi $t1, $t0, -1
+lw $t2, -0($fp)
+lw $t3, -84($fp)
+# local_pal_Main_internal_19 <- Type of s
+la $t3, type_String
+lw $t4, -88($fp)
+# Saves in local_pal_Main_internal_20 data_0
+la $t4, data_0
+# local_pal_Main_internal_19 <- local_pal_Main_internal_19 = local_pal_Main_internal_20
+move $t8, $t3
+move $t9, $t4
+loop_10:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_10
+beqz $a1, mismatch_10
+seq $v0, $a0, $a1
+beqz $v0, mismatch_10
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_10
+mismatch_10:
+li $v0, 0
+j end_10
+check_10:
+bnez $a1, mismatch_10
+li $v0, 1
+end_10:
+move $t3, $v0
+# If not local_pal_Main_internal_19 goto continue__121
+sw $t0, -68($fp)
+sw $t1, -64($fp)
+sw $t2, -0($fp)
+sw $t3, -84($fp)
+sw $t4, -88($fp)
+beqz $t3, continue__121
+la $a0, dispatch_error
+j .raise
+continue__121:
+lw $t0, -80($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -1266,21 +1373,21 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t1, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
 li $t9, 1
 sw $t9, ($sp)
 addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
-lw $t3, -0($fp)
-sw $t3, ($sp)
+lw $t1, -64($fp)
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+lw $t2, -0($fp)
+sw $t2, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -60($fp)
-sw $t1, -56($fp)
-sw $t2, -64($fp)
-sw $t3, -0($fp)
+sw $t0, -80($fp)
+sw $t1, -64($fp)
+sw $t2, -0($fp)
 # This function will consume the arguments
 jal function_substr_String
 # Pop ra register of return function of the stack
@@ -1289,11 +1396,182 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -64($fp)
+lw $t0, -80($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -52($fp)
+lw $t2, -48($fp)
+# local_pal_Main_internal_10 <- local_pal_Main_internal_11 = local_pal_Main_internal_18
+move $t8, $t1
+move $t9, $t0
+loop_11:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_11
+beqz $a1, mismatch_11
+seq $v0, $a0, $a1
+beqz $v0, mismatch_11
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_11
+mismatch_11:
+li $v0, 0
+j end_11
+check_11:
+bnez $a1, mismatch_11
+li $v0, 1
+end_11:
+move $t2, $v0
+# If local_pal_Main_internal_10 goto true__132
+sw $t0, -80($fp)
+sw $t1, -52($fp)
+sw $t2, -48($fp)
+bnez $t2, true__132
+lw $t0, -92($fp)
+# Moving 0 to local_pal_Main_internal_21
+li $t0, 0
+sw $t0, -92($fp)
+sw $t0, -92($fp)
+j end__132
+true__132:
+lw $t0, -0($fp)
+lw $t1, -104($fp)
+# local_pal_Main_internal_24 <- Type of s
+la $t1, type_String
+lw $t2, -108($fp)
+# Saves in local_pal_Main_internal_25 data_0
+la $t2, data_0
+# local_pal_Main_internal_24 <- local_pal_Main_internal_24 = local_pal_Main_internal_25
+move $t8, $t1
+move $t9, $t2
+loop_12:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_12
+beqz $a1, mismatch_12
+seq $v0, $a0, $a1
+beqz $v0, mismatch_12
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_12
+mismatch_12:
+li $v0, 0
+j end_12
+check_12:
+bnez $a1, mismatch_12
+li $v0, 1
+end_12:
+move $t1, $v0
+# If not local_pal_Main_internal_24 goto continue__140
+sw $t0, -0($fp)
+sw $t1, -104($fp)
+sw $t2, -108($fp)
+beqz $t1, continue__140
+la $a0, dispatch_error
+j .raise
+continue__140:
+lw $t0, -100($fp)
+# Static Dispatch of the method length
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+lw $t1, -0($fp)
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -100($fp)
+sw $t1, -0($fp)
+# This function will consume the arguments
+jal function_length_String
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -100($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -96($fp)
+# local_pal_Main_internal_22 <- local_pal_Main_internal_23 - 2
+addi $t1, $t0, -2
+lw $t2, -0($fp)
+lw $t3, -116($fp)
+# local_pal_Main_internal_27 <- Type of s
+la $t3, type_String
+lw $t4, -120($fp)
+# Saves in local_pal_Main_internal_28 data_0
+la $t4, data_0
+# local_pal_Main_internal_27 <- local_pal_Main_internal_27 = local_pal_Main_internal_28
+move $t8, $t3
+move $t9, $t4
+loop_13:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_13
+beqz $a1, mismatch_13
+seq $v0, $a0, $a1
+beqz $v0, mismatch_13
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_13
+mismatch_13:
+li $v0, 0
+j end_13
+check_13:
+bnez $a1, mismatch_13
+li $v0, 1
+end_13:
+move $t3, $v0
+# If not local_pal_Main_internal_27 goto continue__155
+sw $t0, -100($fp)
+sw $t1, -96($fp)
+sw $t2, -0($fp)
+sw $t3, -116($fp)
+sw $t4, -120($fp)
+beqz $t3, continue__155
+la $a0, dispatch_error
+j .raise
+continue__155:
+lw $t0, -112($fp)
+# Static Dispatch of the method substr
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+lw $t1, -96($fp)
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+li $t9, 1
+sw $t9, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+lw $t2, -0($fp)
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -112($fp)
+sw $t1, -96($fp)
+sw $t2, -0($fp)
+# This function will consume the arguments
+jal function_substr_String
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -112($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -4($fp)
-lw $t2, -68($fp)
+lw $t2, -124($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
@@ -1312,9 +1590,9 @@ addiu $sp, $sp, -4
 sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -64($fp)
+sw $t0, -112($fp)
 sw $t1, -4($fp)
-sw $t2, -68($fp)
+sw $t2, -124($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -1323,52 +1601,52 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -68($fp)
+lw $t0, -124($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -52($fp)
-# Moving local_pal_Main_internal_15 to local_pal_Main_internal_11
+lw $t1, -92($fp)
+# Moving local_pal_Main_internal_29 to local_pal_Main_internal_21
 move $t1, $t0
-sw $t1, -52($fp)
-sw $t0, -68($fp)
-sw $t1, -52($fp)
-end__88:
-lw $t0, -52($fp)
-lw $t1, -28($fp)
-# Moving local_pal_Main_internal_11 to local_pal_Main_internal_5
+sw $t1, -92($fp)
+sw $t0, -124($fp)
+sw $t1, -92($fp)
+end__132:
+lw $t0, -92($fp)
+lw $t1, -44($fp)
+# Moving local_pal_Main_internal_21 to local_pal_Main_internal_9
 move $t1, $t0
-sw $t1, -28($fp)
-sw $t0, -52($fp)
-sw $t1, -28($fp)
-j end__69
-true__69:
-lw $t0, -28($fp)
-# Moving 1 to local_pal_Main_internal_5
+sw $t1, -44($fp)
+sw $t0, -92($fp)
+sw $t1, -44($fp)
+j end__86
+true__86:
+lw $t0, -44($fp)
+# Moving 1 to local_pal_Main_internal_9
 li $t0, 1
-sw $t0, -28($fp)
-sw $t0, -28($fp)
-end__69:
-lw $t0, -28($fp)
-lw $t1, -16($fp)
-# Moving local_pal_Main_internal_5 to local_pal_Main_internal_2
+sw $t0, -44($fp)
+sw $t0, -44($fp)
+end__86:
+lw $t0, -44($fp)
+lw $t1, -24($fp)
+# Moving local_pal_Main_internal_9 to local_pal_Main_internal_4
 move $t1, $t0
-sw $t1, -16($fp)
-sw $t0, -28($fp)
-sw $t1, -16($fp)
-j end__62
-true__62:
-lw $t0, -16($fp)
-# Moving 1 to local_pal_Main_internal_2
+sw $t1, -24($fp)
+sw $t0, -44($fp)
+sw $t1, -24($fp)
+j end__70
+true__70:
+lw $t0, -24($fp)
+# Moving 1 to local_pal_Main_internal_4
 li $t0, 1
-sw $t0, -16($fp)
-sw $t0, -16($fp)
-end__62:
-lw $t0, -16($fp)
+sw $t0, -24($fp)
+sw $t0, -24($fp)
+end__70:
+lw $t0, -24($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
-sw $t0, -16($fp)
+sw $t0, -24($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 72
+addiu $sp, $sp, 128
 jr $ra
 
 
@@ -1510,9 +1788,9 @@ lw $fp, ($sp)
 lw $t0, -20($fp)
 # saves the return value
 move $t0, $v0
-# If local_main_Main_internal_4 goto true__135
+# If local_main_Main_internal_4 goto true__197
 sw $t0, -20($fp)
-bnez $t0, true__135
+bnez $t0, true__197
 lw $t0, -28($fp)
 # Saves in local_main_Main_internal_6 data_2
 la $t0, data_2
@@ -1556,8 +1834,8 @@ move $t1, $t0
 sw $t1, -24($fp)
 sw $t0, -32($fp)
 sw $t1, -24($fp)
-j end__135
-true__135:
+j end__197
+true__197:
 lw $t0, -36($fp)
 # Saves in local_main_Main_internal_8 data_3
 la $t0, data_3
@@ -1601,7 +1879,7 @@ move $t1, $t0
 sw $t1, -24($fp)
 sw $t0, -40($fp)
 sw $t1, -24($fp)
-end__135:
+end__197:
 lw $t0, -24($fp)
 lw $t1, -44($fp)
 # Moving local_main_Main_internal_5 to local_main_Main_internal_10

@@ -676,14 +676,8 @@ syscall
 li $v0, 17
 move $a0, $t8
 syscall
-move $v0, $t1
-# Empty all used registers and saves them to memory
 sw $t0, -0($fp)
 sw $t1, -4($fp)
-# Removing all locals from stack
-addiu $sp, $sp, 8
-jr $ra
-
 
 function_type_name_Object:
 # Gets the params from the stack
@@ -1288,15 +1282,23 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Foo_Foo_internal_30 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Foo_Foo_g_31 to the stack
+# Updates stack pointer pushing local_Foo_Foo_internal_31 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Foo_Foo_internal_32 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Foo_Foo_internal_33 to the stack
+# Updates stack pointer pushing local_Foo_Foo_g_33 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Foo_Foo_internal_34 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Foo_Foo_internal_35 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_36 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_37 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_38 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_39 to the stack
 addiu $sp, $sp, -4
 lw $t0, -0($fp)
 # self . h <- SET 1
@@ -1329,11 +1331,11 @@ bnez $a1, mismatch_6
 li $v0, 1
 end_6:
 move $t1, $v0
-# If local_Foo_Foo_internal_1 goto error__52
+# If local_Foo_Foo_internal_1 goto error__51
 sw $t0, -0($fp)
 sw $t1, -8($fp)
 sw $t2, -12($fp)
-bnez $t1, error__52
+bnez $t1, error__51
 lw $t0, -0($fp)
 lw $t1, -16($fp)
 la $t9, type_Bar
@@ -1351,10 +1353,10 @@ j end_7
 false_7:
 li $t1, 0
 end_7:
-# If not local_Foo_Foo_internal_3 goto next__58_0
+# If not local_Foo_Foo_internal_3 goto next__57_0
 sw $t0, -0($fp)
 sw $t1, -16($fp)
-beqz $t1, next__58_0
+beqz $t1, next__57_0
 lw $t0, -0($fp)
 lw $t1, -20($fp)
 # Moving self to local_Foo_Foo_n_4
@@ -1367,8 +1369,8 @@ sw $t2, -4($fp)
 sw $t0, -0($fp)
 sw $t1, -20($fp)
 sw $t2, -4($fp)
-j end__52
-next__58_0:
+j end__51
+next__57_0:
 lw $t0, -0($fp)
 lw $t1, -24($fp)
 la $t9, type_Razz
@@ -1386,10 +1388,10 @@ j end_8
 false_8:
 li $t1, 0
 end_8:
-# If not local_Foo_Foo_internal_5 goto next__66_1
+# If not local_Foo_Foo_internal_5 goto next__65_1
 sw $t0, -0($fp)
 sw $t1, -24($fp)
-beqz $t1, next__66_1
+beqz $t1, next__65_1
 lw $t0, -0($fp)
 lw $t1, -28($fp)
 # Moving self to local_Foo_Foo_n_6
@@ -1441,8 +1443,8 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -32($fp)
 sw $t1, -4($fp)
-j end__52
-next__66_1:
+j end__51
+next__65_1:
 lw $t0, -0($fp)
 lw $t1, -36($fp)
 la $t9, type_Foo
@@ -1460,10 +1462,10 @@ j end_9
 false_9:
 li $t1, 0
 end_9:
-# If not local_Foo_Foo_internal_8 goto next__77_2
+# If not local_Foo_Foo_internal_8 goto next__76_2
 sw $t0, -0($fp)
 sw $t1, -36($fp)
-beqz $t1, next__77_2
+beqz $t1, next__76_2
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # Moving self to local_Foo_Foo_n_9
@@ -1515,8 +1517,8 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -44($fp)
 sw $t1, -4($fp)
-j end__52
-next__77_2:
+j end__51
+next__76_2:
 lw $t0, -0($fp)
 lw $t1, -48($fp)
 la $t9, type_Bazz
@@ -1534,10 +1536,10 @@ j end_10
 false_10:
 li $t1, 0
 end_10:
-# If not local_Foo_Foo_internal_11 goto next__88_3
+# If not local_Foo_Foo_internal_11 goto next__87_3
 sw $t0, -0($fp)
 sw $t1, -48($fp)
-beqz $t1, next__88_3
+beqz $t1, next__87_3
 lw $t0, -0($fp)
 lw $t1, -52($fp)
 # Moving self to local_Foo_Foo_n_12
@@ -1589,14 +1591,14 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -56($fp)
 sw $t1, -4($fp)
-j end__52
-next__88_3:
+j end__51
+next__87_3:
 la $a0, case_error
 j .raise
-error__52:
+error__51:
 la $a0, case_void_error
 j .raise
-end__52:
+end__51:
 lw $t0, -4($fp)
 lw $t1, -0($fp)
 # self . g <- SET local_Foo_Foo_internal_0
@@ -1661,12 +1663,12 @@ bnez $a1, mismatch_11
 li $v0, 1
 end_11:
 move $t2, $v0
-# If local_Foo_Foo_internal_16 goto error__108
+# If local_Foo_Foo_internal_16 goto error__107
 sw $t0, -60($fp)
 sw $t1, -0($fp)
 sw $t2, -68($fp)
 sw $t3, -72($fp)
-bnez $t2, error__108
+bnez $t2, error__107
 lw $t0, -0($fp)
 lw $t1, -76($fp)
 la $t9, type_Bar
@@ -1684,10 +1686,10 @@ j end_12
 false_12:
 li $t1, 0
 end_12:
-# If not local_Foo_Foo_internal_18 goto next__114_0
+# If not local_Foo_Foo_internal_18 goto next__113_0
 sw $t0, -0($fp)
 sw $t1, -76($fp)
-beqz $t1, next__114_0
+beqz $t1, next__113_0
 lw $t0, -0($fp)
 lw $t1, -80($fp)
 # Moving self to local_Foo_Foo_n_19
@@ -1700,8 +1702,8 @@ sw $t2, -64($fp)
 sw $t0, -0($fp)
 sw $t1, -80($fp)
 sw $t2, -64($fp)
-j end__108
-next__114_0:
+j end__107
+next__113_0:
 lw $t0, -0($fp)
 lw $t1, -84($fp)
 la $t9, type_Razz
@@ -1719,10 +1721,10 @@ j end_13
 false_13:
 li $t1, 0
 end_13:
-# If not local_Foo_Foo_internal_20 goto next__122_1
+# If not local_Foo_Foo_internal_20 goto next__121_1
 sw $t0, -0($fp)
 sw $t1, -84($fp)
-beqz $t1, next__122_1
+beqz $t1, next__121_1
 lw $t0, -0($fp)
 lw $t1, -88($fp)
 # Moving self to local_Foo_Foo_n_21
@@ -1774,8 +1776,8 @@ move $t1, $t0
 sw $t1, -64($fp)
 sw $t0, -92($fp)
 sw $t1, -64($fp)
-j end__108
-next__122_1:
+j end__107
+next__121_1:
 lw $t0, -0($fp)
 lw $t1, -96($fp)
 la $t9, type_Foo
@@ -1793,10 +1795,10 @@ j end_14
 false_14:
 li $t1, 0
 end_14:
-# If not local_Foo_Foo_internal_23 goto next__133_2
+# If not local_Foo_Foo_internal_23 goto next__132_2
 sw $t0, -0($fp)
 sw $t1, -96($fp)
-beqz $t1, next__133_2
+beqz $t1, next__132_2
 lw $t0, -0($fp)
 lw $t1, -100($fp)
 # Moving self to local_Foo_Foo_n_24
@@ -1848,14 +1850,14 @@ move $t1, $t0
 sw $t1, -64($fp)
 sw $t0, -104($fp)
 sw $t1, -64($fp)
-j end__108
-next__133_2:
+j end__107
+next__132_2:
 la $a0, case_error
 j .raise
-error__108:
+error__107:
 la $a0, case_void_error
 j .raise
-end__108:
+end__107:
 lw $t0, -64($fp)
 lw $t1, -0($fp)
 # self . a <- SET local_Foo_Foo_internal_15
@@ -1863,10 +1865,48 @@ sw $t0, 24($t1)
 lw $t2, -120($fp)
 # local_Foo_Foo_a_29 <- GET self . a
 lw $t2, 24($t1)
-lw $t3, -124($fp)
+lw $t3, -128($fp)
+# local_Foo_Foo_internal_31 <- Type of local_Foo_Foo_a_29
+lw $t3, 0($t2)
+lw $t4, -132($fp)
+# Saves in local_Foo_Foo_internal_32 data_0
+la $t4, data_0
+# local_Foo_Foo_internal_31 <- local_Foo_Foo_internal_31 = local_Foo_Foo_internal_32
+move $t8, $t3
+move $t9, $t4
+loop_15:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_15
+beqz $a1, mismatch_15
+seq $v0, $a0, $a1
+beqz $v0, mismatch_15
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_15
+mismatch_15:
+li $v0, 0
+j end_15
+check_15:
+bnez $a1, mismatch_15
+li $v0, 1
+end_15:
+move $t3, $v0
+# If not local_Foo_Foo_internal_31 goto continue__155
+sw $t0, -64($fp)
+sw $t1, -0($fp)
+sw $t2, -120($fp)
+sw $t3, -128($fp)
+sw $t4, -132($fp)
+beqz $t3, continue__155
+la $a0, dispatch_error
+j .raise
+continue__155:
+lw $t0, -120($fp)
+lw $t1, -124($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t2)
+lw $t9, 8($t0)
 lw $a0, 8($t9)
 # Saves in t8 the direction of function_doh_Foo
 lw $t8, 36($a0)
@@ -1876,13 +1916,11 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t2, ($sp)
+sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -64($fp)
-sw $t1, -0($fp)
-sw $t2, -120($fp)
-sw $t3, -124($fp)
+sw $t0, -120($fp)
+sw $t1, -124($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -1895,13 +1933,51 @@ lw $t0, -124($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -0($fp)
-lw $t2, -128($fp)
-# local_Foo_Foo_g_31 <- GET self . g
+lw $t2, -136($fp)
+# local_Foo_Foo_g_33 <- GET self . g
 lw $t2, 16($t1)
-lw $t3, -132($fp)
+lw $t3, -144($fp)
+# local_Foo_Foo_internal_35 <- Type of local_Foo_Foo_g_33
+lw $t3, 0($t2)
+lw $t4, -148($fp)
+# Saves in local_Foo_Foo_internal_36 data_0
+la $t4, data_0
+# local_Foo_Foo_internal_35 <- local_Foo_Foo_internal_35 = local_Foo_Foo_internal_36
+move $t8, $t3
+move $t9, $t4
+loop_16:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_16
+beqz $a1, mismatch_16
+seq $v0, $a0, $a1
+beqz $v0, mismatch_16
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_16
+mismatch_16:
+li $v0, 0
+j end_16
+check_16:
+bnez $a1, mismatch_16
+li $v0, 1
+end_16:
+move $t3, $v0
+# If not local_Foo_Foo_internal_35 goto continue__169
+sw $t0, -124($fp)
+sw $t1, -0($fp)
+sw $t2, -136($fp)
+sw $t3, -144($fp)
+sw $t4, -148($fp)
+beqz $t3, continue__169
+la $a0, dispatch_error
+j .raise
+continue__169:
+lw $t0, -136($fp)
+lw $t1, -140($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t2)
+lw $t9, 8($t0)
 lw $a0, 8($t9)
 # Saves in t8 the direction of function_doh_Foo
 lw $t8, 36($a0)
@@ -1911,13 +1987,11 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t2, ($sp)
+sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -124($fp)
-sw $t1, -0($fp)
-sw $t2, -128($fp)
-sw $t3, -132($fp)
+sw $t0, -136($fp)
+sw $t1, -140($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -1926,15 +2000,15 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -132($fp)
+lw $t0, -140($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -124($fp)
 lw $t2, -116($fp)
-# local_Foo_Foo_internal_28 <- local_Foo_Foo_internal_30 + local_Foo_Foo_internal_32
+# local_Foo_Foo_internal_28 <- local_Foo_Foo_internal_30 + local_Foo_Foo_internal_34
 add $t2, $t1, $t0
 lw $t3, -0($fp)
-lw $t4, -136($fp)
+lw $t4, -152($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
@@ -1950,11 +2024,11 @@ addiu $sp, $sp, -4
 sw $t3, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -132($fp)
+sw $t0, -140($fp)
 sw $t1, -124($fp)
 sw $t2, -116($fp)
 sw $t3, -0($fp)
-sw $t4, -136($fp)
+sw $t4, -152($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -1963,15 +2037,15 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -136($fp)
+lw $t0, -152($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -116($fp)
 lw $t2, -112($fp)
-# local_Foo_Foo_internal_27 <- local_Foo_Foo_internal_28 + local_Foo_Foo_internal_33
+# local_Foo_Foo_internal_27 <- local_Foo_Foo_internal_28 + local_Foo_Foo_internal_37
 add $t2, $t1, $t0
 lw $t3, -0($fp)
-lw $t4, -140($fp)
+lw $t4, -156($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
@@ -1987,11 +2061,11 @@ addiu $sp, $sp, -4
 sw $t3, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -136($fp)
+sw $t0, -152($fp)
 sw $t1, -116($fp)
 sw $t2, -112($fp)
 sw $t3, -0($fp)
-sw $t4, -140($fp)
+sw $t4, -156($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -2000,29 +2074,29 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -140($fp)
+lw $t0, -156($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -112($fp)
 lw $t2, -108($fp)
-# local_Foo_Foo_internal_26 <- local_Foo_Foo_internal_27 + local_Foo_Foo_internal_34
+# local_Foo_Foo_internal_26 <- local_Foo_Foo_internal_27 + local_Foo_Foo_internal_38
 add $t2, $t1, $t0
 lw $t3, -0($fp)
 # self . b <- SET local_Foo_Foo_internal_26
 sw $t2, 28($t3)
-lw $t4, -144($fp)
-# Moving self to local_Foo_Foo_internal_35
+lw $t4, -160($fp)
+# Moving self to local_Foo_Foo_internal_39
 move $t4, $t3
-sw $t4, -144($fp)
+sw $t4, -160($fp)
 move $v0, $t4
 # Empty all used registers and saves them to memory
-sw $t0, -140($fp)
+sw $t0, -156($fp)
 sw $t1, -112($fp)
 sw $t2, -108($fp)
 sw $t3, -0($fp)
-sw $t4, -144($fp)
+sw $t4, -160($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 148
+addiu $sp, $sp, 164
 jr $ra
 
 
@@ -2149,11 +2223,11 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_30 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Bar_Bar_g_31 to the stack
+# Updates stack pointer pushing local_Bar_Bar_internal_31 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_32 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Bar_Bar_internal_33 to the stack
+# Updates stack pointer pushing local_Bar_Bar_g_33 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_34 to the stack
 addiu $sp, $sp, -4
@@ -2165,31 +2239,31 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_38 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Bar_Bar_n_39 to the stack
+# Updates stack pointer pushing local_Bar_Bar_internal_39 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_40 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Bar_Bar_n_41 to the stack
+# Updates stack pointer pushing local_Bar_Bar_internal_41 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_42 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Bar_Bar_internal_43 to the stack
+# Updates stack pointer pushing local_Bar_Bar_n_43 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_44 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Bar_Bar_internal_45 to the stack
+# Updates stack pointer pushing local_Bar_Bar_n_45 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_46 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Bar_Bar_a_47 to the stack
+# Updates stack pointer pushing local_Bar_Bar_internal_47 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_48 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Bar_Bar_g_49 to the stack
+# Updates stack pointer pushing local_Bar_Bar_internal_49 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_50 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Bar_Bar_e_51 to the stack
+# Updates stack pointer pushing local_Bar_Bar_a_51 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_52 to the stack
 addiu $sp, $sp, -4
@@ -2197,11 +2271,31 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_54 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Bar_Bar_internal_55 to the stack
+# Updates stack pointer pushing local_Bar_Bar_g_55 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_56 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Bar_Bar_internal_57 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_58 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_e_59 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_60 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_61 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_62 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_63 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_64 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_65 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_66 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_67 to the stack
 addiu $sp, $sp, -4
 lw $t0, -0($fp)
 # self . h <- SET 1
@@ -2216,50 +2310,50 @@ la $t2, data_0
 # local_Bar_Bar_internal_1 <- local_Bar_Bar_internal_1 = local_Bar_Bar_internal_2
 move $t8, $t1
 move $t9, $t2
-loop_15:
+loop_17:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_15
-beqz $a1, mismatch_15
+beqz $a0, check_17
+beqz $a1, mismatch_17
 seq $v0, $a0, $a1
-beqz $v0, mismatch_15
+beqz $v0, mismatch_17
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_15
-mismatch_15:
+j loop_17
+mismatch_17:
 li $v0, 0
-j end_15
-check_15:
-bnez $a1, mismatch_15
+j end_17
+check_17:
+bnez $a1, mismatch_17
 li $v0, 1
-end_15:
+end_17:
 move $t1, $v0
-# If local_Bar_Bar_internal_1 goto error__193
+# If local_Bar_Bar_internal_1 goto error__210
 sw $t0, -0($fp)
 sw $t1, -8($fp)
 sw $t2, -12($fp)
-bnez $t1, error__193
+bnez $t1, error__210
 lw $t0, -0($fp)
 lw $t1, -16($fp)
 la $t9, type_Bar
 lw $v0, 8($t0)
-loop_16:
+loop_18:
 move $t8, $v0
-beqz $t8, false_16
+beqz $t8, false_18
 lw $v1, 0($t8)
-beq $t9, $v1, true_16
+beq $t9, $v1, true_18
 lw $v0, 4($t8)
-j loop_16
-true_16:
+j loop_18
+true_18:
 li $t1, 1
-j end_16
-false_16:
+j end_18
+false_18:
 li $t1, 0
-end_16:
-# If not local_Bar_Bar_internal_3 goto next__199_0
+end_18:
+# If not local_Bar_Bar_internal_3 goto next__216_0
 sw $t0, -0($fp)
 sw $t1, -16($fp)
-beqz $t1, next__199_0
+beqz $t1, next__216_0
 lw $t0, -0($fp)
 lw $t1, -20($fp)
 # Moving self to local_Bar_Bar_n_4
@@ -2272,29 +2366,29 @@ sw $t2, -4($fp)
 sw $t0, -0($fp)
 sw $t1, -20($fp)
 sw $t2, -4($fp)
-j end__193
-next__199_0:
+j end__210
+next__216_0:
 lw $t0, -0($fp)
 lw $t1, -24($fp)
 la $t9, type_Razz
 lw $v0, 8($t0)
-loop_17:
+loop_19:
 move $t8, $v0
-beqz $t8, false_17
+beqz $t8, false_19
 lw $v1, 0($t8)
-beq $t9, $v1, true_17
+beq $t9, $v1, true_19
 lw $v0, 4($t8)
-j loop_17
-true_17:
+j loop_19
+true_19:
 li $t1, 1
-j end_17
-false_17:
+j end_19
+false_19:
 li $t1, 0
-end_17:
-# If not local_Bar_Bar_internal_5 goto next__207_1
+end_19:
+# If not local_Bar_Bar_internal_5 goto next__224_1
 sw $t0, -0($fp)
 sw $t1, -24($fp)
-beqz $t1, next__207_1
+beqz $t1, next__224_1
 lw $t0, -0($fp)
 lw $t1, -28($fp)
 # Moving self to local_Bar_Bar_n_6
@@ -2346,29 +2440,29 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -32($fp)
 sw $t1, -4($fp)
-j end__193
-next__207_1:
+j end__210
+next__224_1:
 lw $t0, -0($fp)
 lw $t1, -36($fp)
 la $t9, type_Foo
 lw $v0, 8($t0)
-loop_18:
+loop_20:
 move $t8, $v0
-beqz $t8, false_18
+beqz $t8, false_20
 lw $v1, 0($t8)
-beq $t9, $v1, true_18
+beq $t9, $v1, true_20
 lw $v0, 4($t8)
-j loop_18
-true_18:
+j loop_20
+true_20:
 li $t1, 1
-j end_18
-false_18:
+j end_20
+false_20:
 li $t1, 0
-end_18:
-# If not local_Bar_Bar_internal_8 goto next__218_2
+end_20:
+# If not local_Bar_Bar_internal_8 goto next__235_2
 sw $t0, -0($fp)
 sw $t1, -36($fp)
-beqz $t1, next__218_2
+beqz $t1, next__235_2
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # Moving self to local_Bar_Bar_n_9
@@ -2420,29 +2514,29 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -44($fp)
 sw $t1, -4($fp)
-j end__193
-next__218_2:
+j end__210
+next__235_2:
 lw $t0, -0($fp)
 lw $t1, -48($fp)
 la $t9, type_Bazz
 lw $v0, 8($t0)
-loop_19:
+loop_21:
 move $t8, $v0
-beqz $t8, false_19
+beqz $t8, false_21
 lw $v1, 0($t8)
-beq $t9, $v1, true_19
+beq $t9, $v1, true_21
 lw $v0, 4($t8)
-j loop_19
-true_19:
+j loop_21
+true_21:
 li $t1, 1
-j end_19
-false_19:
+j end_21
+false_21:
 li $t1, 0
-end_19:
-# If not local_Bar_Bar_internal_11 goto next__229_3
+end_21:
+# If not local_Bar_Bar_internal_11 goto next__246_3
 sw $t0, -0($fp)
 sw $t1, -48($fp)
-beqz $t1, next__229_3
+beqz $t1, next__246_3
 lw $t0, -0($fp)
 lw $t1, -52($fp)
 # Moving self to local_Bar_Bar_n_12
@@ -2494,14 +2588,14 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -56($fp)
 sw $t1, -4($fp)
-j end__193
-next__229_3:
+j end__210
+next__246_3:
 la $a0, case_error
 j .raise
-error__193:
+error__210:
 la $a0, case_void_error
 j .raise
-end__193:
+end__210:
 lw $t0, -4($fp)
 lw $t1, -0($fp)
 # self . g <- SET local_Bar_Bar_internal_0
@@ -2548,51 +2642,51 @@ la $t3, data_0
 # local_Bar_Bar_internal_16 <- local_Bar_Bar_internal_16 = local_Bar_Bar_internal_17
 move $t8, $t2
 move $t9, $t3
-loop_20:
+loop_22:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_20
-beqz $a1, mismatch_20
+beqz $a0, check_22
+beqz $a1, mismatch_22
 seq $v0, $a0, $a1
-beqz $v0, mismatch_20
+beqz $v0, mismatch_22
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_20
-mismatch_20:
+j loop_22
+mismatch_22:
 li $v0, 0
-j end_20
-check_20:
-bnez $a1, mismatch_20
+j end_22
+check_22:
+bnez $a1, mismatch_22
 li $v0, 1
-end_20:
+end_22:
 move $t2, $v0
-# If local_Bar_Bar_internal_16 goto error__249
+# If local_Bar_Bar_internal_16 goto error__266
 sw $t0, -60($fp)
 sw $t1, -0($fp)
 sw $t2, -68($fp)
 sw $t3, -72($fp)
-bnez $t2, error__249
+bnez $t2, error__266
 lw $t0, -0($fp)
 lw $t1, -76($fp)
 la $t9, type_Bar
 lw $v0, 8($t0)
-loop_21:
+loop_23:
 move $t8, $v0
-beqz $t8, false_21
+beqz $t8, false_23
 lw $v1, 0($t8)
-beq $t9, $v1, true_21
+beq $t9, $v1, true_23
 lw $v0, 4($t8)
-j loop_21
-true_21:
+j loop_23
+true_23:
 li $t1, 1
-j end_21
-false_21:
+j end_23
+false_23:
 li $t1, 0
-end_21:
-# If not local_Bar_Bar_internal_18 goto next__255_0
+end_23:
+# If not local_Bar_Bar_internal_18 goto next__272_0
 sw $t0, -0($fp)
 sw $t1, -76($fp)
-beqz $t1, next__255_0
+beqz $t1, next__272_0
 lw $t0, -0($fp)
 lw $t1, -80($fp)
 # Moving self to local_Bar_Bar_n_19
@@ -2605,29 +2699,29 @@ sw $t2, -64($fp)
 sw $t0, -0($fp)
 sw $t1, -80($fp)
 sw $t2, -64($fp)
-j end__249
-next__255_0:
+j end__266
+next__272_0:
 lw $t0, -0($fp)
 lw $t1, -84($fp)
 la $t9, type_Razz
 lw $v0, 8($t0)
-loop_22:
+loop_24:
 move $t8, $v0
-beqz $t8, false_22
+beqz $t8, false_24
 lw $v1, 0($t8)
-beq $t9, $v1, true_22
+beq $t9, $v1, true_24
 lw $v0, 4($t8)
-j loop_22
-true_22:
+j loop_24
+true_24:
 li $t1, 1
-j end_22
-false_22:
+j end_24
+false_24:
 li $t1, 0
-end_22:
-# If not local_Bar_Bar_internal_20 goto next__263_1
+end_24:
+# If not local_Bar_Bar_internal_20 goto next__280_1
 sw $t0, -0($fp)
 sw $t1, -84($fp)
-beqz $t1, next__263_1
+beqz $t1, next__280_1
 lw $t0, -0($fp)
 lw $t1, -88($fp)
 # Moving self to local_Bar_Bar_n_21
@@ -2679,29 +2773,29 @@ move $t1, $t0
 sw $t1, -64($fp)
 sw $t0, -92($fp)
 sw $t1, -64($fp)
-j end__249
-next__263_1:
+j end__266
+next__280_1:
 lw $t0, -0($fp)
 lw $t1, -96($fp)
 la $t9, type_Foo
 lw $v0, 8($t0)
-loop_23:
+loop_25:
 move $t8, $v0
-beqz $t8, false_23
+beqz $t8, false_25
 lw $v1, 0($t8)
-beq $t9, $v1, true_23
+beq $t9, $v1, true_25
 lw $v0, 4($t8)
-j loop_23
-true_23:
+j loop_25
+true_25:
 li $t1, 1
-j end_23
-false_23:
+j end_25
+false_25:
 li $t1, 0
-end_23:
-# If not local_Bar_Bar_internal_23 goto next__274_2
+end_25:
+# If not local_Bar_Bar_internal_23 goto next__291_2
 sw $t0, -0($fp)
 sw $t1, -96($fp)
-beqz $t1, next__274_2
+beqz $t1, next__291_2
 lw $t0, -0($fp)
 lw $t1, -100($fp)
 # Moving self to local_Bar_Bar_n_24
@@ -2753,14 +2847,14 @@ move $t1, $t0
 sw $t1, -64($fp)
 sw $t0, -104($fp)
 sw $t1, -64($fp)
-j end__249
-next__274_2:
+j end__266
+next__291_2:
 la $a0, case_error
 j .raise
-error__249:
+error__266:
 la $a0, case_void_error
 j .raise
-end__249:
+end__266:
 lw $t0, -64($fp)
 lw $t1, -0($fp)
 # self . a <- SET local_Bar_Bar_internal_15
@@ -2768,10 +2862,48 @@ sw $t0, 24($t1)
 lw $t2, -120($fp)
 # local_Bar_Bar_a_29 <- GET self . a
 lw $t2, 24($t1)
-lw $t3, -124($fp)
+lw $t3, -128($fp)
+# local_Bar_Bar_internal_31 <- Type of local_Bar_Bar_a_29
+lw $t3, 0($t2)
+lw $t4, -132($fp)
+# Saves in local_Bar_Bar_internal_32 data_0
+la $t4, data_0
+# local_Bar_Bar_internal_31 <- local_Bar_Bar_internal_31 = local_Bar_Bar_internal_32
+move $t8, $t3
+move $t9, $t4
+loop_26:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_26
+beqz $a1, mismatch_26
+seq $v0, $a0, $a1
+beqz $v0, mismatch_26
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_26
+mismatch_26:
+li $v0, 0
+j end_26
+check_26:
+bnez $a1, mismatch_26
+li $v0, 1
+end_26:
+move $t3, $v0
+# If not local_Bar_Bar_internal_31 goto continue__314
+sw $t0, -64($fp)
+sw $t1, -0($fp)
+sw $t2, -120($fp)
+sw $t3, -128($fp)
+sw $t4, -132($fp)
+beqz $t3, continue__314
+la $a0, dispatch_error
+j .raise
+continue__314:
+lw $t0, -120($fp)
+lw $t1, -124($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t2)
+lw $t9, 8($t0)
 lw $a0, 8($t9)
 # Saves in t8 the direction of function_doh_Foo
 lw $t8, 36($a0)
@@ -2781,13 +2913,11 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t2, ($sp)
+sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -64($fp)
-sw $t1, -0($fp)
-sw $t2, -120($fp)
-sw $t3, -124($fp)
+sw $t0, -120($fp)
+sw $t1, -124($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -2800,13 +2930,51 @@ lw $t0, -124($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -0($fp)
-lw $t2, -128($fp)
-# local_Bar_Bar_g_31 <- GET self . g
+lw $t2, -136($fp)
+# local_Bar_Bar_g_33 <- GET self . g
 lw $t2, 16($t1)
-lw $t3, -132($fp)
+lw $t3, -144($fp)
+# local_Bar_Bar_internal_35 <- Type of local_Bar_Bar_g_33
+lw $t3, 0($t2)
+lw $t4, -148($fp)
+# Saves in local_Bar_Bar_internal_36 data_0
+la $t4, data_0
+# local_Bar_Bar_internal_35 <- local_Bar_Bar_internal_35 = local_Bar_Bar_internal_36
+move $t8, $t3
+move $t9, $t4
+loop_27:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_27
+beqz $a1, mismatch_27
+seq $v0, $a0, $a1
+beqz $v0, mismatch_27
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_27
+mismatch_27:
+li $v0, 0
+j end_27
+check_27:
+bnez $a1, mismatch_27
+li $v0, 1
+end_27:
+move $t3, $v0
+# If not local_Bar_Bar_internal_35 goto continue__328
+sw $t0, -124($fp)
+sw $t1, -0($fp)
+sw $t2, -136($fp)
+sw $t3, -144($fp)
+sw $t4, -148($fp)
+beqz $t3, continue__328
+la $a0, dispatch_error
+j .raise
+continue__328:
+lw $t0, -136($fp)
+lw $t1, -140($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t2)
+lw $t9, 8($t0)
 lw $a0, 8($t9)
 # Saves in t8 the direction of function_doh_Foo
 lw $t8, 36($a0)
@@ -2816,13 +2984,11 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t2, ($sp)
+sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -124($fp)
-sw $t1, -0($fp)
-sw $t2, -128($fp)
-sw $t3, -132($fp)
+sw $t0, -136($fp)
+sw $t1, -140($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -2831,15 +2997,15 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -132($fp)
+lw $t0, -140($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -124($fp)
 lw $t2, -116($fp)
-# local_Bar_Bar_internal_28 <- local_Bar_Bar_internal_30 + local_Bar_Bar_internal_32
+# local_Bar_Bar_internal_28 <- local_Bar_Bar_internal_30 + local_Bar_Bar_internal_34
 add $t2, $t1, $t0
 lw $t3, -0($fp)
-lw $t4, -136($fp)
+lw $t4, -152($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
@@ -2855,11 +3021,11 @@ addiu $sp, $sp, -4
 sw $t3, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -132($fp)
+sw $t0, -140($fp)
 sw $t1, -124($fp)
 sw $t2, -116($fp)
 sw $t3, -0($fp)
-sw $t4, -136($fp)
+sw $t4, -152($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -2868,15 +3034,15 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -136($fp)
+lw $t0, -152($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -116($fp)
 lw $t2, -112($fp)
-# local_Bar_Bar_internal_27 <- local_Bar_Bar_internal_28 + local_Bar_Bar_internal_33
+# local_Bar_Bar_internal_27 <- local_Bar_Bar_internal_28 + local_Bar_Bar_internal_37
 add $t2, $t1, $t0
 lw $t3, -0($fp)
-lw $t4, -140($fp)
+lw $t4, -156($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
@@ -2892,11 +3058,11 @@ addiu $sp, $sp, -4
 sw $t3, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -136($fp)
+sw $t0, -152($fp)
 sw $t1, -116($fp)
 sw $t2, -112($fp)
 sw $t3, -0($fp)
-sw $t4, -140($fp)
+sw $t4, -156($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -2905,113 +3071,113 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -140($fp)
+lw $t0, -156($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -112($fp)
 lw $t2, -108($fp)
-# local_Bar_Bar_internal_26 <- local_Bar_Bar_internal_27 + local_Bar_Bar_internal_34
+# local_Bar_Bar_internal_26 <- local_Bar_Bar_internal_27 + local_Bar_Bar_internal_38
 add $t2, $t1, $t0
 lw $t3, -0($fp)
 # self . b <- SET local_Bar_Bar_internal_26
 sw $t2, 28($t3)
-lw $t4, -148($fp)
-# local_Bar_Bar_internal_36 <- Type of self
+lw $t4, -164($fp)
+# local_Bar_Bar_internal_40 <- Type of self
 lw $t4, 0($t3)
-lw $t5, -152($fp)
-# Saves in local_Bar_Bar_internal_37 data_0
+lw $t5, -168($fp)
+# Saves in local_Bar_Bar_internal_41 data_0
 la $t5, data_0
-# local_Bar_Bar_internal_36 <- local_Bar_Bar_internal_36 = local_Bar_Bar_internal_37
+# local_Bar_Bar_internal_40 <- local_Bar_Bar_internal_40 = local_Bar_Bar_internal_41
 move $t8, $t4
 move $t9, $t5
-loop_24:
+loop_28:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_24
-beqz $a1, mismatch_24
+beqz $a0, check_28
+beqz $a1, mismatch_28
 seq $v0, $a0, $a1
-beqz $v0, mismatch_24
+beqz $v0, mismatch_28
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_24
-mismatch_24:
+j loop_28
+mismatch_28:
 li $v0, 0
-j end_24
-check_24:
-bnez $a1, mismatch_24
+j end_28
+check_28:
+bnez $a1, mismatch_28
 li $v0, 1
-end_24:
+end_28:
 move $t4, $v0
-# If local_Bar_Bar_internal_36 goto error__312
-sw $t0, -140($fp)
+# If local_Bar_Bar_internal_40 goto error__347
+sw $t0, -156($fp)
 sw $t1, -112($fp)
 sw $t2, -108($fp)
 sw $t3, -0($fp)
-sw $t4, -148($fp)
-sw $t5, -152($fp)
-bnez $t4, error__312
+sw $t4, -164($fp)
+sw $t5, -168($fp)
+bnez $t4, error__347
 lw $t0, -0($fp)
-lw $t1, -156($fp)
+lw $t1, -172($fp)
 la $t9, type_Bar
 lw $v0, 8($t0)
-loop_25:
+loop_29:
 move $t8, $v0
-beqz $t8, false_25
+beqz $t8, false_29
 lw $v1, 0($t8)
-beq $t9, $v1, true_25
+beq $t9, $v1, true_29
 lw $v0, 4($t8)
-j loop_25
-true_25:
+j loop_29
+true_29:
 li $t1, 1
-j end_25
-false_25:
+j end_29
+false_29:
 li $t1, 0
-end_25:
-# If not local_Bar_Bar_internal_38 goto next__318_0
+end_29:
+# If not local_Bar_Bar_internal_42 goto next__353_0
 sw $t0, -0($fp)
-sw $t1, -156($fp)
-beqz $t1, next__318_0
+sw $t1, -172($fp)
+beqz $t1, next__353_0
 lw $t0, -0($fp)
-lw $t1, -160($fp)
-# Moving self to local_Bar_Bar_n_39
+lw $t1, -176($fp)
+# Moving self to local_Bar_Bar_n_43
 move $t1, $t0
-sw $t1, -160($fp)
-lw $t2, -144($fp)
-# Moving local_Bar_Bar_n_39 to local_Bar_Bar_internal_35
+sw $t1, -176($fp)
+lw $t2, -160($fp)
+# Moving local_Bar_Bar_n_43 to local_Bar_Bar_internal_39
 move $t2, $t1
-sw $t2, -144($fp)
+sw $t2, -160($fp)
 sw $t0, -0($fp)
-sw $t1, -160($fp)
-sw $t2, -144($fp)
-j end__312
-next__318_0:
+sw $t1, -176($fp)
+sw $t2, -160($fp)
+j end__347
+next__353_0:
 lw $t0, -0($fp)
-lw $t1, -164($fp)
+lw $t1, -180($fp)
 la $t9, type_Razz
 lw $v0, 8($t0)
-loop_26:
+loop_30:
 move $t8, $v0
-beqz $t8, false_26
+beqz $t8, false_30
 lw $v1, 0($t8)
-beq $t9, $v1, true_26
+beq $t9, $v1, true_30
 lw $v0, 4($t8)
-j loop_26
-true_26:
+j loop_30
+true_30:
 li $t1, 1
-j end_26
-false_26:
+j end_30
+false_30:
 li $t1, 0
-end_26:
-# If not local_Bar_Bar_internal_40 goto next__326_1
+end_30:
+# If not local_Bar_Bar_internal_44 goto next__361_1
 sw $t0, -0($fp)
-sw $t1, -164($fp)
-beqz $t1, next__326_1
+sw $t1, -180($fp)
+beqz $t1, next__361_1
 lw $t0, -0($fp)
-lw $t1, -168($fp)
-# Moving self to local_Bar_Bar_n_41
+lw $t1, -184($fp)
+# Moving self to local_Bar_Bar_n_45
 move $t1, $t0
-sw $t1, -168($fp)
-lw $t2, -172($fp)
+sw $t1, -184($fp)
+lw $t2, -188($fp)
 # Syscall to allocate memory of the object entry in heap
 li $v0, 9
 li $a0, 48
@@ -3038,8 +3204,8 @@ sw $t2, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
 sw $t0, -0($fp)
-sw $t1, -168($fp)
-sw $t2, -172($fp)
+sw $t1, -184($fp)
+sw $t2, -188($fp)
 # This function will consume the arguments
 jal function_Bar_Bar
 # Pop ra register of return function of the stack
@@ -3048,31 +3214,68 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -172($fp)
+lw $t0, -188($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -144($fp)
-# Moving local_Bar_Bar_internal_42 to local_Bar_Bar_internal_35
+lw $t1, -160($fp)
+# Moving local_Bar_Bar_internal_46 to local_Bar_Bar_internal_39
 move $t1, $t0
-sw $t1, -144($fp)
-sw $t0, -172($fp)
-sw $t1, -144($fp)
-j end__312
-next__326_1:
+sw $t1, -160($fp)
+sw $t0, -188($fp)
+sw $t1, -160($fp)
+j end__347
+next__361_1:
 la $a0, case_error
 j .raise
-error__312:
+error__347:
 la $a0, case_void_error
 j .raise
-end__312:
-lw $t0, -144($fp)
+end__347:
+lw $t0, -160($fp)
 lw $t1, -0($fp)
-# self . e <- SET local_Bar_Bar_internal_35
+# self . e <- SET local_Bar_Bar_internal_39
 sw $t0, 32($t1)
-lw $t2, -192($fp)
-# local_Bar_Bar_a_47 <- GET self . a
+lw $t2, -208($fp)
+# local_Bar_Bar_a_51 <- GET self . a
 lw $t2, 24($t1)
-lw $t3, -196($fp)
+lw $t3, -216($fp)
+# local_Bar_Bar_internal_53 <- Type of local_Bar_Bar_a_51
+lw $t3, 0($t2)
+lw $t4, -220($fp)
+# Saves in local_Bar_Bar_internal_54 data_0
+la $t4, data_0
+# local_Bar_Bar_internal_53 <- local_Bar_Bar_internal_53 = local_Bar_Bar_internal_54
+move $t8, $t3
+move $t9, $t4
+loop_31:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_31
+beqz $a1, mismatch_31
+seq $v0, $a0, $a1
+beqz $v0, mismatch_31
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_31
+mismatch_31:
+li $v0, 0
+j end_31
+check_31:
+bnez $a1, mismatch_31
+li $v0, 1
+end_31:
+move $t3, $v0
+# If not local_Bar_Bar_internal_53 goto continue__385
+sw $t0, -160($fp)
+sw $t1, -0($fp)
+sw $t2, -208($fp)
+sw $t3, -216($fp)
+sw $t4, -220($fp)
+beqz $t3, continue__385
+la $a0, dispatch_error
+j .raise
+continue__385:
+lw $t0, -212($fp)
 # Static Dispatch of the method doh
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -3080,91 +3283,14 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t2, ($sp)
+lw $t1, -208($fp)
+sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -144($fp)
-sw $t1, -0($fp)
-sw $t2, -192($fp)
-sw $t3, -196($fp)
+sw $t0, -212($fp)
+sw $t1, -208($fp)
 # This function will consume the arguments
 jal function_doh_Bazz
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
-lw $t0, -196($fp)
-# saves the return value
-move $t0, $v0
-lw $t1, -0($fp)
-lw $t2, -200($fp)
-# local_Bar_Bar_g_49 <- GET self . g
-lw $t2, 16($t1)
-lw $t3, -204($fp)
-# Find the actual name in the dispatch table
-# Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t2)
-lw $a0, 8($t9)
-# Saves in t8 the direction of function_doh_Foo
-lw $t8, 36($a0)
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-sw $t2, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -196($fp)
-sw $t1, -0($fp)
-sw $t2, -200($fp)
-sw $t3, -204($fp)
-# This function will consume the arguments
-jal $t8
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
-lw $t0, -204($fp)
-# saves the return value
-move $t0, $v0
-lw $t1, -196($fp)
-lw $t2, -188($fp)
-# local_Bar_Bar_internal_46 <- local_Bar_Bar_internal_48 + local_Bar_Bar_internal_50
-add $t2, $t1, $t0
-lw $t3, -0($fp)
-lw $t4, -208($fp)
-# local_Bar_Bar_e_51 <- GET self . e
-lw $t4, 32($t3)
-lw $t5, -212($fp)
-# Find the actual name in the dispatch table
-# Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t4)
-lw $a0, 8($t9)
-# Saves in t8 the direction of function_doh_Foo
-lw $t8, 36($a0)
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-sw $t4, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -204($fp)
-sw $t1, -196($fp)
-sw $t2, -188($fp)
-sw $t3, -0($fp)
-sw $t4, -208($fp)
-sw $t5, -212($fp)
-# This function will consume the arguments
-jal $t8
 # Pop ra register of return function of the stack
 addiu $sp, $sp, 4
 lw $ra, ($sp)
@@ -3174,12 +3300,160 @@ lw $fp, ($sp)
 lw $t0, -212($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -188($fp)
-lw $t2, -184($fp)
-# local_Bar_Bar_internal_45 <- local_Bar_Bar_internal_46 + local_Bar_Bar_internal_52
+lw $t1, -0($fp)
+lw $t2, -224($fp)
+# local_Bar_Bar_g_55 <- GET self . g
+lw $t2, 16($t1)
+lw $t3, -232($fp)
+# local_Bar_Bar_internal_57 <- Type of local_Bar_Bar_g_55
+lw $t3, 0($t2)
+lw $t4, -236($fp)
+# Saves in local_Bar_Bar_internal_58 data_0
+la $t4, data_0
+# local_Bar_Bar_internal_57 <- local_Bar_Bar_internal_57 = local_Bar_Bar_internal_58
+move $t8, $t3
+move $t9, $t4
+loop_32:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_32
+beqz $a1, mismatch_32
+seq $v0, $a0, $a1
+beqz $v0, mismatch_32
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_32
+mismatch_32:
+li $v0, 0
+j end_32
+check_32:
+bnez $a1, mismatch_32
+li $v0, 1
+end_32:
+move $t3, $v0
+# If not local_Bar_Bar_internal_57 goto continue__399
+sw $t0, -212($fp)
+sw $t1, -0($fp)
+sw $t2, -224($fp)
+sw $t3, -232($fp)
+sw $t4, -236($fp)
+beqz $t3, continue__399
+la $a0, dispatch_error
+j .raise
+continue__399:
+lw $t0, -224($fp)
+lw $t1, -228($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -224($fp)
+sw $t1, -228($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -228($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -212($fp)
+lw $t2, -204($fp)
+# local_Bar_Bar_internal_50 <- local_Bar_Bar_internal_52 + local_Bar_Bar_internal_56
 add $t2, $t1, $t0
 lw $t3, -0($fp)
-lw $t4, -216($fp)
+lw $t4, -240($fp)
+# local_Bar_Bar_e_59 <- GET self . e
+lw $t4, 32($t3)
+lw $t5, -248($fp)
+# local_Bar_Bar_internal_61 <- Type of local_Bar_Bar_e_59
+lw $t5, 0($t4)
+lw $t6, -252($fp)
+# Saves in local_Bar_Bar_internal_62 data_0
+la $t6, data_0
+# local_Bar_Bar_internal_61 <- local_Bar_Bar_internal_61 = local_Bar_Bar_internal_62
+move $t8, $t5
+move $t9, $t6
+loop_33:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_33
+beqz $a1, mismatch_33
+seq $v0, $a0, $a1
+beqz $v0, mismatch_33
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_33
+mismatch_33:
+li $v0, 0
+j end_33
+check_33:
+bnez $a1, mismatch_33
+li $v0, 1
+end_33:
+move $t5, $v0
+# If not local_Bar_Bar_internal_61 goto continue__414
+sw $t0, -228($fp)
+sw $t1, -212($fp)
+sw $t2, -204($fp)
+sw $t3, -0($fp)
+sw $t4, -240($fp)
+sw $t5, -248($fp)
+sw $t6, -252($fp)
+beqz $t5, continue__414
+la $a0, dispatch_error
+j .raise
+continue__414:
+lw $t0, -240($fp)
+lw $t1, -244($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -240($fp)
+sw $t1, -244($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -244($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -204($fp)
+lw $t2, -200($fp)
+# local_Bar_Bar_internal_49 <- local_Bar_Bar_internal_50 + local_Bar_Bar_internal_60
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -256($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
@@ -3195,11 +3469,11 @@ addiu $sp, $sp, -4
 sw $t3, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -212($fp)
-sw $t1, -188($fp)
-sw $t2, -184($fp)
+sw $t0, -244($fp)
+sw $t1, -204($fp)
+sw $t2, -200($fp)
 sw $t3, -0($fp)
-sw $t4, -216($fp)
+sw $t4, -256($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -3208,15 +3482,15 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -216($fp)
+lw $t0, -256($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -184($fp)
-lw $t2, -180($fp)
-# local_Bar_Bar_internal_44 <- local_Bar_Bar_internal_45 + local_Bar_Bar_internal_53
+lw $t1, -200($fp)
+lw $t2, -196($fp)
+# local_Bar_Bar_internal_48 <- local_Bar_Bar_internal_49 + local_Bar_Bar_internal_63
 add $t2, $t1, $t0
 lw $t3, -0($fp)
-lw $t4, -220($fp)
+lw $t4, -260($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
@@ -3232,11 +3506,11 @@ addiu $sp, $sp, -4
 sw $t3, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -216($fp)
-sw $t1, -184($fp)
-sw $t2, -180($fp)
+sw $t0, -256($fp)
+sw $t1, -200($fp)
+sw $t2, -196($fp)
 sw $t3, -0($fp)
-sw $t4, -220($fp)
+sw $t4, -260($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -3245,17 +3519,17 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -220($fp)
+lw $t0, -260($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -180($fp)
-lw $t2, -176($fp)
-# local_Bar_Bar_internal_43 <- local_Bar_Bar_internal_44 + local_Bar_Bar_internal_54
+lw $t1, -196($fp)
+lw $t2, -192($fp)
+# local_Bar_Bar_internal_47 <- local_Bar_Bar_internal_48 + local_Bar_Bar_internal_64
 add $t2, $t1, $t0
 lw $t3, -0($fp)
-# self . f <- SET local_Bar_Bar_internal_43
+# self . f <- SET local_Bar_Bar_internal_47
 sw $t2, 36($t3)
-lw $t4, -224($fp)
+lw $t4, -264($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
@@ -3271,11 +3545,11 @@ addiu $sp, $sp, -4
 sw $t3, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -220($fp)
-sw $t1, -180($fp)
-sw $t2, -176($fp)
+sw $t0, -260($fp)
+sw $t1, -196($fp)
+sw $t2, -192($fp)
 sw $t3, -0($fp)
-sw $t4, -224($fp)
+sw $t4, -264($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -3284,13 +3558,13 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -224($fp)
+lw $t0, -264($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -0($fp)
-# self . c <- SET local_Bar_Bar_internal_55
+# self . c <- SET local_Bar_Bar_internal_65
 sw $t0, 40($t1)
-lw $t2, -228($fp)
+lw $t2, -268($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
@@ -3306,9 +3580,9 @@ addiu $sp, $sp, -4
 sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -224($fp)
+sw $t0, -264($fp)
 sw $t1, -0($fp)
-sw $t2, -228($fp)
+sw $t2, -268($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -3317,23 +3591,23 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -228($fp)
+lw $t0, -268($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -0($fp)
-# self . d <- SET local_Bar_Bar_internal_56
+# self . d <- SET local_Bar_Bar_internal_66
 sw $t0, 44($t1)
-lw $t2, -232($fp)
-# Moving self to local_Bar_Bar_internal_57
+lw $t2, -272($fp)
+# Moving self to local_Bar_Bar_internal_67
 move $t2, $t1
-sw $t2, -232($fp)
+sw $t2, -272($fp)
 move $v0, $t2
 # Empty all used registers and saves them to memory
-sw $t0, -228($fp)
+sw $t0, -268($fp)
 sw $t1, -0($fp)
-sw $t2, -232($fp)
+sw $t2, -272($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 236
+addiu $sp, $sp, 276
 jr $ra
 
 
@@ -3405,11 +3679,11 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Razz_Razz_internal_30 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Razz_Razz_g_31 to the stack
+# Updates stack pointer pushing local_Razz_Razz_internal_31 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Razz_Razz_internal_32 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Razz_Razz_internal_33 to the stack
+# Updates stack pointer pushing local_Razz_Razz_g_33 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Razz_Razz_internal_34 to the stack
 addiu $sp, $sp, -4
@@ -3421,31 +3695,31 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Razz_Razz_internal_38 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Razz_Razz_n_39 to the stack
+# Updates stack pointer pushing local_Razz_Razz_internal_39 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Razz_Razz_internal_40 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Razz_Razz_n_41 to the stack
+# Updates stack pointer pushing local_Razz_Razz_internal_41 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Razz_Razz_internal_42 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Razz_Razz_internal_43 to the stack
+# Updates stack pointer pushing local_Razz_Razz_n_43 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Razz_Razz_internal_44 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Razz_Razz_internal_45 to the stack
+# Updates stack pointer pushing local_Razz_Razz_n_45 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Razz_Razz_internal_46 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Razz_Razz_a_47 to the stack
+# Updates stack pointer pushing local_Razz_Razz_internal_47 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Razz_Razz_internal_48 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Razz_Razz_g_49 to the stack
+# Updates stack pointer pushing local_Razz_Razz_internal_49 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Razz_Razz_internal_50 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Razz_Razz_e_51 to the stack
+# Updates stack pointer pushing local_Razz_Razz_a_51 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Razz_Razz_internal_52 to the stack
 addiu $sp, $sp, -4
@@ -3453,7 +3727,27 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Razz_Razz_internal_54 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_Razz_Razz_internal_55 to the stack
+# Updates stack pointer pushing local_Razz_Razz_g_55 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_56 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_57 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_58 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_e_59 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_60 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_61 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_62 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_63 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_64 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_65 to the stack
 addiu $sp, $sp, -4
 lw $t0, -0($fp)
 # self . h <- SET 1
@@ -3468,50 +3762,50 @@ la $t2, data_0
 # local_Razz_Razz_internal_1 <- local_Razz_Razz_internal_1 = local_Razz_Razz_internal_2
 move $t8, $t1
 move $t9, $t2
-loop_27:
+loop_34:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_27
-beqz $a1, mismatch_27
+beqz $a0, check_34
+beqz $a1, mismatch_34
 seq $v0, $a0, $a1
-beqz $v0, mismatch_27
+beqz $v0, mismatch_34
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_27
-mismatch_27:
+j loop_34
+mismatch_34:
 li $v0, 0
-j end_27
-check_27:
-bnez $a1, mismatch_27
+j end_34
+check_34:
+bnez $a1, mismatch_34
 li $v0, 1
-end_27:
+end_34:
 move $t1, $v0
-# If local_Razz_Razz_internal_1 goto error__383
+# If local_Razz_Razz_internal_1 goto error__445
 sw $t0, -0($fp)
 sw $t1, -8($fp)
 sw $t2, -12($fp)
-bnez $t1, error__383
+bnez $t1, error__445
 lw $t0, -0($fp)
 lw $t1, -16($fp)
 la $t9, type_Bar
 lw $v0, 8($t0)
-loop_28:
+loop_35:
 move $t8, $v0
-beqz $t8, false_28
+beqz $t8, false_35
 lw $v1, 0($t8)
-beq $t9, $v1, true_28
+beq $t9, $v1, true_35
 lw $v0, 4($t8)
-j loop_28
-true_28:
+j loop_35
+true_35:
 li $t1, 1
-j end_28
-false_28:
+j end_35
+false_35:
 li $t1, 0
-end_28:
-# If not local_Razz_Razz_internal_3 goto next__389_0
+end_35:
+# If not local_Razz_Razz_internal_3 goto next__451_0
 sw $t0, -0($fp)
 sw $t1, -16($fp)
-beqz $t1, next__389_0
+beqz $t1, next__451_0
 lw $t0, -0($fp)
 lw $t1, -20($fp)
 # Moving self to local_Razz_Razz_n_4
@@ -3524,29 +3818,29 @@ sw $t2, -4($fp)
 sw $t0, -0($fp)
 sw $t1, -20($fp)
 sw $t2, -4($fp)
-j end__383
-next__389_0:
+j end__445
+next__451_0:
 lw $t0, -0($fp)
 lw $t1, -24($fp)
 la $t9, type_Razz
 lw $v0, 8($t0)
-loop_29:
+loop_36:
 move $t8, $v0
-beqz $t8, false_29
+beqz $t8, false_36
 lw $v1, 0($t8)
-beq $t9, $v1, true_29
+beq $t9, $v1, true_36
 lw $v0, 4($t8)
-j loop_29
-true_29:
+j loop_36
+true_36:
 li $t1, 1
-j end_29
-false_29:
+j end_36
+false_36:
 li $t1, 0
-end_29:
-# If not local_Razz_Razz_internal_5 goto next__397_1
+end_36:
+# If not local_Razz_Razz_internal_5 goto next__459_1
 sw $t0, -0($fp)
 sw $t1, -24($fp)
-beqz $t1, next__397_1
+beqz $t1, next__459_1
 lw $t0, -0($fp)
 lw $t1, -28($fp)
 # Moving self to local_Razz_Razz_n_6
@@ -3598,29 +3892,29 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -32($fp)
 sw $t1, -4($fp)
-j end__383
-next__397_1:
+j end__445
+next__459_1:
 lw $t0, -0($fp)
 lw $t1, -36($fp)
 la $t9, type_Foo
 lw $v0, 8($t0)
-loop_30:
+loop_37:
 move $t8, $v0
-beqz $t8, false_30
+beqz $t8, false_37
 lw $v1, 0($t8)
-beq $t9, $v1, true_30
+beq $t9, $v1, true_37
 lw $v0, 4($t8)
-j loop_30
-true_30:
+j loop_37
+true_37:
 li $t1, 1
-j end_30
-false_30:
+j end_37
+false_37:
 li $t1, 0
-end_30:
-# If not local_Razz_Razz_internal_8 goto next__408_2
+end_37:
+# If not local_Razz_Razz_internal_8 goto next__470_2
 sw $t0, -0($fp)
 sw $t1, -36($fp)
-beqz $t1, next__408_2
+beqz $t1, next__470_2
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # Moving self to local_Razz_Razz_n_9
@@ -3672,29 +3966,29 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -44($fp)
 sw $t1, -4($fp)
-j end__383
-next__408_2:
+j end__445
+next__470_2:
 lw $t0, -0($fp)
 lw $t1, -48($fp)
 la $t9, type_Bazz
 lw $v0, 8($t0)
-loop_31:
+loop_38:
 move $t8, $v0
-beqz $t8, false_31
+beqz $t8, false_38
 lw $v1, 0($t8)
-beq $t9, $v1, true_31
+beq $t9, $v1, true_38
 lw $v0, 4($t8)
-j loop_31
-true_31:
+j loop_38
+true_38:
 li $t1, 1
-j end_31
-false_31:
+j end_38
+false_38:
 li $t1, 0
-end_31:
-# If not local_Razz_Razz_internal_11 goto next__419_3
+end_38:
+# If not local_Razz_Razz_internal_11 goto next__481_3
 sw $t0, -0($fp)
 sw $t1, -48($fp)
-beqz $t1, next__419_3
+beqz $t1, next__481_3
 lw $t0, -0($fp)
 lw $t1, -52($fp)
 # Moving self to local_Razz_Razz_n_12
@@ -3746,14 +4040,14 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -56($fp)
 sw $t1, -4($fp)
-j end__383
-next__419_3:
+j end__445
+next__481_3:
 la $a0, case_error
 j .raise
-error__383:
+error__445:
 la $a0, case_void_error
 j .raise
-end__383:
+end__445:
 lw $t0, -4($fp)
 lw $t1, -0($fp)
 # self . g <- SET local_Razz_Razz_internal_0
@@ -3800,51 +4094,51 @@ la $t3, data_0
 # local_Razz_Razz_internal_16 <- local_Razz_Razz_internal_16 = local_Razz_Razz_internal_17
 move $t8, $t2
 move $t9, $t3
-loop_32:
+loop_39:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_32
-beqz $a1, mismatch_32
+beqz $a0, check_39
+beqz $a1, mismatch_39
 seq $v0, $a0, $a1
-beqz $v0, mismatch_32
+beqz $v0, mismatch_39
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_32
-mismatch_32:
+j loop_39
+mismatch_39:
 li $v0, 0
-j end_32
-check_32:
-bnez $a1, mismatch_32
+j end_39
+check_39:
+bnez $a1, mismatch_39
 li $v0, 1
-end_32:
+end_39:
 move $t2, $v0
-# If local_Razz_Razz_internal_16 goto error__439
+# If local_Razz_Razz_internal_16 goto error__501
 sw $t0, -60($fp)
 sw $t1, -0($fp)
 sw $t2, -68($fp)
 sw $t3, -72($fp)
-bnez $t2, error__439
+bnez $t2, error__501
 lw $t0, -0($fp)
 lw $t1, -76($fp)
 la $t9, type_Bar
 lw $v0, 8($t0)
-loop_33:
+loop_40:
 move $t8, $v0
-beqz $t8, false_33
+beqz $t8, false_40
 lw $v1, 0($t8)
-beq $t9, $v1, true_33
+beq $t9, $v1, true_40
 lw $v0, 4($t8)
-j loop_33
-true_33:
+j loop_40
+true_40:
 li $t1, 1
-j end_33
-false_33:
+j end_40
+false_40:
 li $t1, 0
-end_33:
-# If not local_Razz_Razz_internal_18 goto next__445_0
+end_40:
+# If not local_Razz_Razz_internal_18 goto next__507_0
 sw $t0, -0($fp)
 sw $t1, -76($fp)
-beqz $t1, next__445_0
+beqz $t1, next__507_0
 lw $t0, -0($fp)
 lw $t1, -80($fp)
 # Moving self to local_Razz_Razz_n_19
@@ -3857,29 +4151,29 @@ sw $t2, -64($fp)
 sw $t0, -0($fp)
 sw $t1, -80($fp)
 sw $t2, -64($fp)
-j end__439
-next__445_0:
+j end__501
+next__507_0:
 lw $t0, -0($fp)
 lw $t1, -84($fp)
 la $t9, type_Razz
 lw $v0, 8($t0)
-loop_34:
+loop_41:
 move $t8, $v0
-beqz $t8, false_34
+beqz $t8, false_41
 lw $v1, 0($t8)
-beq $t9, $v1, true_34
+beq $t9, $v1, true_41
 lw $v0, 4($t8)
-j loop_34
-true_34:
+j loop_41
+true_41:
 li $t1, 1
-j end_34
-false_34:
+j end_41
+false_41:
 li $t1, 0
-end_34:
-# If not local_Razz_Razz_internal_20 goto next__453_1
+end_41:
+# If not local_Razz_Razz_internal_20 goto next__515_1
 sw $t0, -0($fp)
 sw $t1, -84($fp)
-beqz $t1, next__453_1
+beqz $t1, next__515_1
 lw $t0, -0($fp)
 lw $t1, -88($fp)
 # Moving self to local_Razz_Razz_n_21
@@ -3931,29 +4225,29 @@ move $t1, $t0
 sw $t1, -64($fp)
 sw $t0, -92($fp)
 sw $t1, -64($fp)
-j end__439
-next__453_1:
+j end__501
+next__515_1:
 lw $t0, -0($fp)
 lw $t1, -96($fp)
 la $t9, type_Foo
 lw $v0, 8($t0)
-loop_35:
+loop_42:
 move $t8, $v0
-beqz $t8, false_35
+beqz $t8, false_42
 lw $v1, 0($t8)
-beq $t9, $v1, true_35
+beq $t9, $v1, true_42
 lw $v0, 4($t8)
-j loop_35
-true_35:
+j loop_42
+true_42:
 li $t1, 1
-j end_35
-false_35:
+j end_42
+false_42:
 li $t1, 0
-end_35:
-# If not local_Razz_Razz_internal_23 goto next__464_2
+end_42:
+# If not local_Razz_Razz_internal_23 goto next__526_2
 sw $t0, -0($fp)
 sw $t1, -96($fp)
-beqz $t1, next__464_2
+beqz $t1, next__526_2
 lw $t0, -0($fp)
 lw $t1, -100($fp)
 # Moving self to local_Razz_Razz_n_24
@@ -4005,14 +4299,14 @@ move $t1, $t0
 sw $t1, -64($fp)
 sw $t0, -104($fp)
 sw $t1, -64($fp)
-j end__439
-next__464_2:
+j end__501
+next__526_2:
 la $a0, case_error
 j .raise
-error__439:
+error__501:
 la $a0, case_void_error
 j .raise
-end__439:
+end__501:
 lw $t0, -64($fp)
 lw $t1, -0($fp)
 # self . a <- SET local_Razz_Razz_internal_15
@@ -4020,10 +4314,48 @@ sw $t0, 24($t1)
 lw $t2, -120($fp)
 # local_Razz_Razz_a_29 <- GET self . a
 lw $t2, 24($t1)
-lw $t3, -124($fp)
+lw $t3, -128($fp)
+# local_Razz_Razz_internal_31 <- Type of local_Razz_Razz_a_29
+lw $t3, 0($t2)
+lw $t4, -132($fp)
+# Saves in local_Razz_Razz_internal_32 data_0
+la $t4, data_0
+# local_Razz_Razz_internal_31 <- local_Razz_Razz_internal_31 = local_Razz_Razz_internal_32
+move $t8, $t3
+move $t9, $t4
+loop_43:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_43
+beqz $a1, mismatch_43
+seq $v0, $a0, $a1
+beqz $v0, mismatch_43
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_43
+mismatch_43:
+li $v0, 0
+j end_43
+check_43:
+bnez $a1, mismatch_43
+li $v0, 1
+end_43:
+move $t3, $v0
+# If not local_Razz_Razz_internal_31 goto continue__549
+sw $t0, -64($fp)
+sw $t1, -0($fp)
+sw $t2, -120($fp)
+sw $t3, -128($fp)
+sw $t4, -132($fp)
+beqz $t3, continue__549
+la $a0, dispatch_error
+j .raise
+continue__549:
+lw $t0, -120($fp)
+lw $t1, -124($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t2)
+lw $t9, 8($t0)
 lw $a0, 8($t9)
 # Saves in t8 the direction of function_doh_Foo
 lw $t8, 36($a0)
@@ -4033,13 +4365,11 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t2, ($sp)
+sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -64($fp)
-sw $t1, -0($fp)
-sw $t2, -120($fp)
-sw $t3, -124($fp)
+sw $t0, -120($fp)
+sw $t1, -124($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -4052,13 +4382,51 @@ lw $t0, -124($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -0($fp)
-lw $t2, -128($fp)
-# local_Razz_Razz_g_31 <- GET self . g
+lw $t2, -136($fp)
+# local_Razz_Razz_g_33 <- GET self . g
 lw $t2, 16($t1)
-lw $t3, -132($fp)
+lw $t3, -144($fp)
+# local_Razz_Razz_internal_35 <- Type of local_Razz_Razz_g_33
+lw $t3, 0($t2)
+lw $t4, -148($fp)
+# Saves in local_Razz_Razz_internal_36 data_0
+la $t4, data_0
+# local_Razz_Razz_internal_35 <- local_Razz_Razz_internal_35 = local_Razz_Razz_internal_36
+move $t8, $t3
+move $t9, $t4
+loop_44:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_44
+beqz $a1, mismatch_44
+seq $v0, $a0, $a1
+beqz $v0, mismatch_44
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_44
+mismatch_44:
+li $v0, 0
+j end_44
+check_44:
+bnez $a1, mismatch_44
+li $v0, 1
+end_44:
+move $t3, $v0
+# If not local_Razz_Razz_internal_35 goto continue__563
+sw $t0, -124($fp)
+sw $t1, -0($fp)
+sw $t2, -136($fp)
+sw $t3, -144($fp)
+sw $t4, -148($fp)
+beqz $t3, continue__563
+la $a0, dispatch_error
+j .raise
+continue__563:
+lw $t0, -136($fp)
+lw $t1, -140($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t2)
+lw $t9, 8($t0)
 lw $a0, 8($t9)
 # Saves in t8 the direction of function_doh_Foo
 lw $t8, 36($a0)
@@ -4068,13 +4436,11 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t2, ($sp)
+sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -124($fp)
-sw $t1, -0($fp)
-sw $t2, -128($fp)
-sw $t3, -132($fp)
+sw $t0, -136($fp)
+sw $t1, -140($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -4083,15 +4449,15 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -132($fp)
+lw $t0, -140($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -124($fp)
 lw $t2, -116($fp)
-# local_Razz_Razz_internal_28 <- local_Razz_Razz_internal_30 + local_Razz_Razz_internal_32
+# local_Razz_Razz_internal_28 <- local_Razz_Razz_internal_30 + local_Razz_Razz_internal_34
 add $t2, $t1, $t0
 lw $t3, -0($fp)
-lw $t4, -136($fp)
+lw $t4, -152($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
@@ -4107,11 +4473,11 @@ addiu $sp, $sp, -4
 sw $t3, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -132($fp)
+sw $t0, -140($fp)
 sw $t1, -124($fp)
 sw $t2, -116($fp)
 sw $t3, -0($fp)
-sw $t4, -136($fp)
+sw $t4, -152($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -4120,15 +4486,15 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -136($fp)
+lw $t0, -152($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -116($fp)
 lw $t2, -112($fp)
-# local_Razz_Razz_internal_27 <- local_Razz_Razz_internal_28 + local_Razz_Razz_internal_33
+# local_Razz_Razz_internal_27 <- local_Razz_Razz_internal_28 + local_Razz_Razz_internal_37
 add $t2, $t1, $t0
 lw $t3, -0($fp)
-lw $t4, -140($fp)
+lw $t4, -156($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
@@ -4144,11 +4510,11 @@ addiu $sp, $sp, -4
 sw $t3, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -136($fp)
+sw $t0, -152($fp)
 sw $t1, -116($fp)
 sw $t2, -112($fp)
 sw $t3, -0($fp)
-sw $t4, -140($fp)
+sw $t4, -156($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -4157,113 +4523,113 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -140($fp)
+lw $t0, -156($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -112($fp)
 lw $t2, -108($fp)
-# local_Razz_Razz_internal_26 <- local_Razz_Razz_internal_27 + local_Razz_Razz_internal_34
+# local_Razz_Razz_internal_26 <- local_Razz_Razz_internal_27 + local_Razz_Razz_internal_38
 add $t2, $t1, $t0
 lw $t3, -0($fp)
 # self . b <- SET local_Razz_Razz_internal_26
 sw $t2, 28($t3)
-lw $t4, -148($fp)
-# local_Razz_Razz_internal_36 <- Type of self
+lw $t4, -164($fp)
+# local_Razz_Razz_internal_40 <- Type of self
 lw $t4, 0($t3)
-lw $t5, -152($fp)
-# Saves in local_Razz_Razz_internal_37 data_0
+lw $t5, -168($fp)
+# Saves in local_Razz_Razz_internal_41 data_0
 la $t5, data_0
-# local_Razz_Razz_internal_36 <- local_Razz_Razz_internal_36 = local_Razz_Razz_internal_37
+# local_Razz_Razz_internal_40 <- local_Razz_Razz_internal_40 = local_Razz_Razz_internal_41
 move $t8, $t4
 move $t9, $t5
-loop_36:
+loop_45:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_36
-beqz $a1, mismatch_36
+beqz $a0, check_45
+beqz $a1, mismatch_45
 seq $v0, $a0, $a1
-beqz $v0, mismatch_36
+beqz $v0, mismatch_45
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_36
-mismatch_36:
+j loop_45
+mismatch_45:
 li $v0, 0
-j end_36
-check_36:
-bnez $a1, mismatch_36
+j end_45
+check_45:
+bnez $a1, mismatch_45
 li $v0, 1
-end_36:
+end_45:
 move $t4, $v0
-# If local_Razz_Razz_internal_36 goto error__502
-sw $t0, -140($fp)
+# If local_Razz_Razz_internal_40 goto error__582
+sw $t0, -156($fp)
 sw $t1, -112($fp)
 sw $t2, -108($fp)
 sw $t3, -0($fp)
-sw $t4, -148($fp)
-sw $t5, -152($fp)
-bnez $t4, error__502
+sw $t4, -164($fp)
+sw $t5, -168($fp)
+bnez $t4, error__582
 lw $t0, -0($fp)
-lw $t1, -156($fp)
+lw $t1, -172($fp)
 la $t9, type_Bar
 lw $v0, 8($t0)
-loop_37:
+loop_46:
 move $t8, $v0
-beqz $t8, false_37
+beqz $t8, false_46
 lw $v1, 0($t8)
-beq $t9, $v1, true_37
+beq $t9, $v1, true_46
 lw $v0, 4($t8)
-j loop_37
-true_37:
+j loop_46
+true_46:
 li $t1, 1
-j end_37
-false_37:
+j end_46
+false_46:
 li $t1, 0
-end_37:
-# If not local_Razz_Razz_internal_38 goto next__508_0
+end_46:
+# If not local_Razz_Razz_internal_42 goto next__588_0
 sw $t0, -0($fp)
-sw $t1, -156($fp)
-beqz $t1, next__508_0
+sw $t1, -172($fp)
+beqz $t1, next__588_0
 lw $t0, -0($fp)
-lw $t1, -160($fp)
-# Moving self to local_Razz_Razz_n_39
+lw $t1, -176($fp)
+# Moving self to local_Razz_Razz_n_43
 move $t1, $t0
-sw $t1, -160($fp)
-lw $t2, -144($fp)
-# Moving local_Razz_Razz_n_39 to local_Razz_Razz_internal_35
+sw $t1, -176($fp)
+lw $t2, -160($fp)
+# Moving local_Razz_Razz_n_43 to local_Razz_Razz_internal_39
 move $t2, $t1
-sw $t2, -144($fp)
+sw $t2, -160($fp)
 sw $t0, -0($fp)
-sw $t1, -160($fp)
-sw $t2, -144($fp)
-j end__502
-next__508_0:
+sw $t1, -176($fp)
+sw $t2, -160($fp)
+j end__582
+next__588_0:
 lw $t0, -0($fp)
-lw $t1, -164($fp)
+lw $t1, -180($fp)
 la $t9, type_Razz
 lw $v0, 8($t0)
-loop_38:
+loop_47:
 move $t8, $v0
-beqz $t8, false_38
+beqz $t8, false_47
 lw $v1, 0($t8)
-beq $t9, $v1, true_38
+beq $t9, $v1, true_47
 lw $v0, 4($t8)
-j loop_38
-true_38:
+j loop_47
+true_47:
 li $t1, 1
-j end_38
-false_38:
+j end_47
+false_47:
 li $t1, 0
-end_38:
-# If not local_Razz_Razz_internal_40 goto next__516_1
+end_47:
+# If not local_Razz_Razz_internal_44 goto next__596_1
 sw $t0, -0($fp)
-sw $t1, -164($fp)
-beqz $t1, next__516_1
+sw $t1, -180($fp)
+beqz $t1, next__596_1
 lw $t0, -0($fp)
-lw $t1, -168($fp)
-# Moving self to local_Razz_Razz_n_41
+lw $t1, -184($fp)
+# Moving self to local_Razz_Razz_n_45
 move $t1, $t0
-sw $t1, -168($fp)
-lw $t2, -172($fp)
+sw $t1, -184($fp)
+lw $t2, -188($fp)
 # Syscall to allocate memory of the object entry in heap
 li $v0, 9
 li $a0, 48
@@ -4290,8 +4656,8 @@ sw $t2, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
 sw $t0, -0($fp)
-sw $t1, -168($fp)
-sw $t2, -172($fp)
+sw $t1, -184($fp)
+sw $t2, -188($fp)
 # This function will consume the arguments
 jal function_Bar_Bar
 # Pop ra register of return function of the stack
@@ -4300,31 +4666,68 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -172($fp)
+lw $t0, -188($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -144($fp)
-# Moving local_Razz_Razz_internal_42 to local_Razz_Razz_internal_35
+lw $t1, -160($fp)
+# Moving local_Razz_Razz_internal_46 to local_Razz_Razz_internal_39
 move $t1, $t0
-sw $t1, -144($fp)
-sw $t0, -172($fp)
-sw $t1, -144($fp)
-j end__502
-next__516_1:
+sw $t1, -160($fp)
+sw $t0, -188($fp)
+sw $t1, -160($fp)
+j end__582
+next__596_1:
 la $a0, case_error
 j .raise
-error__502:
+error__582:
 la $a0, case_void_error
 j .raise
-end__502:
-lw $t0, -144($fp)
+end__582:
+lw $t0, -160($fp)
 lw $t1, -0($fp)
-# self . e <- SET local_Razz_Razz_internal_35
+# self . e <- SET local_Razz_Razz_internal_39
 sw $t0, 32($t1)
-lw $t2, -192($fp)
-# local_Razz_Razz_a_47 <- GET self . a
+lw $t2, -208($fp)
+# local_Razz_Razz_a_51 <- GET self . a
 lw $t2, 24($t1)
-lw $t3, -196($fp)
+lw $t3, -216($fp)
+# local_Razz_Razz_internal_53 <- Type of local_Razz_Razz_a_51
+lw $t3, 0($t2)
+lw $t4, -220($fp)
+# Saves in local_Razz_Razz_internal_54 data_0
+la $t4, data_0
+# local_Razz_Razz_internal_53 <- local_Razz_Razz_internal_53 = local_Razz_Razz_internal_54
+move $t8, $t3
+move $t9, $t4
+loop_48:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_48
+beqz $a1, mismatch_48
+seq $v0, $a0, $a1
+beqz $v0, mismatch_48
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_48
+mismatch_48:
+li $v0, 0
+j end_48
+check_48:
+bnez $a1, mismatch_48
+li $v0, 1
+end_48:
+move $t3, $v0
+# If not local_Razz_Razz_internal_53 goto continue__620
+sw $t0, -160($fp)
+sw $t1, -0($fp)
+sw $t2, -208($fp)
+sw $t3, -216($fp)
+sw $t4, -220($fp)
+beqz $t3, continue__620
+la $a0, dispatch_error
+j .raise
+continue__620:
+lw $t0, -212($fp)
 # Static Dispatch of the method doh
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -4332,91 +4735,14 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t2, ($sp)
+lw $t1, -208($fp)
+sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -144($fp)
-sw $t1, -0($fp)
-sw $t2, -192($fp)
-sw $t3, -196($fp)
+sw $t0, -212($fp)
+sw $t1, -208($fp)
 # This function will consume the arguments
 jal function_doh_Bazz
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
-lw $t0, -196($fp)
-# saves the return value
-move $t0, $v0
-lw $t1, -0($fp)
-lw $t2, -200($fp)
-# local_Razz_Razz_g_49 <- GET self . g
-lw $t2, 16($t1)
-lw $t3, -204($fp)
-# Find the actual name in the dispatch table
-# Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t2)
-lw $a0, 8($t9)
-# Saves in t8 the direction of function_doh_Foo
-lw $t8, 36($a0)
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-sw $t2, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -196($fp)
-sw $t1, -0($fp)
-sw $t2, -200($fp)
-sw $t3, -204($fp)
-# This function will consume the arguments
-jal $t8
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
-lw $t0, -204($fp)
-# saves the return value
-move $t0, $v0
-lw $t1, -196($fp)
-lw $t2, -188($fp)
-# local_Razz_Razz_internal_46 <- local_Razz_Razz_internal_48 + local_Razz_Razz_internal_50
-add $t2, $t1, $t0
-lw $t3, -0($fp)
-lw $t4, -208($fp)
-# local_Razz_Razz_e_51 <- GET self . e
-lw $t4, 32($t3)
-lw $t5, -212($fp)
-# Find the actual name in the dispatch table
-# Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t4)
-lw $a0, 8($t9)
-# Saves in t8 the direction of function_doh_Foo
-lw $t8, 36($a0)
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-sw $t4, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -204($fp)
-sw $t1, -196($fp)
-sw $t2, -188($fp)
-sw $t3, -0($fp)
-sw $t4, -208($fp)
-sw $t5, -212($fp)
-# This function will consume the arguments
-jal $t8
 # Pop ra register of return function of the stack
 addiu $sp, $sp, 4
 lw $ra, ($sp)
@@ -4426,12 +4752,160 @@ lw $fp, ($sp)
 lw $t0, -212($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -188($fp)
-lw $t2, -184($fp)
-# local_Razz_Razz_internal_45 <- local_Razz_Razz_internal_46 + local_Razz_Razz_internal_52
+lw $t1, -0($fp)
+lw $t2, -224($fp)
+# local_Razz_Razz_g_55 <- GET self . g
+lw $t2, 16($t1)
+lw $t3, -232($fp)
+# local_Razz_Razz_internal_57 <- Type of local_Razz_Razz_g_55
+lw $t3, 0($t2)
+lw $t4, -236($fp)
+# Saves in local_Razz_Razz_internal_58 data_0
+la $t4, data_0
+# local_Razz_Razz_internal_57 <- local_Razz_Razz_internal_57 = local_Razz_Razz_internal_58
+move $t8, $t3
+move $t9, $t4
+loop_49:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_49
+beqz $a1, mismatch_49
+seq $v0, $a0, $a1
+beqz $v0, mismatch_49
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_49
+mismatch_49:
+li $v0, 0
+j end_49
+check_49:
+bnez $a1, mismatch_49
+li $v0, 1
+end_49:
+move $t3, $v0
+# If not local_Razz_Razz_internal_57 goto continue__634
+sw $t0, -212($fp)
+sw $t1, -0($fp)
+sw $t2, -224($fp)
+sw $t3, -232($fp)
+sw $t4, -236($fp)
+beqz $t3, continue__634
+la $a0, dispatch_error
+j .raise
+continue__634:
+lw $t0, -224($fp)
+lw $t1, -228($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -224($fp)
+sw $t1, -228($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -228($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -212($fp)
+lw $t2, -204($fp)
+# local_Razz_Razz_internal_50 <- local_Razz_Razz_internal_52 + local_Razz_Razz_internal_56
 add $t2, $t1, $t0
 lw $t3, -0($fp)
-lw $t4, -216($fp)
+lw $t4, -240($fp)
+# local_Razz_Razz_e_59 <- GET self . e
+lw $t4, 32($t3)
+lw $t5, -248($fp)
+# local_Razz_Razz_internal_61 <- Type of local_Razz_Razz_e_59
+lw $t5, 0($t4)
+lw $t6, -252($fp)
+# Saves in local_Razz_Razz_internal_62 data_0
+la $t6, data_0
+# local_Razz_Razz_internal_61 <- local_Razz_Razz_internal_61 = local_Razz_Razz_internal_62
+move $t8, $t5
+move $t9, $t6
+loop_50:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_50
+beqz $a1, mismatch_50
+seq $v0, $a0, $a1
+beqz $v0, mismatch_50
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_50
+mismatch_50:
+li $v0, 0
+j end_50
+check_50:
+bnez $a1, mismatch_50
+li $v0, 1
+end_50:
+move $t5, $v0
+# If not local_Razz_Razz_internal_61 goto continue__649
+sw $t0, -228($fp)
+sw $t1, -212($fp)
+sw $t2, -204($fp)
+sw $t3, -0($fp)
+sw $t4, -240($fp)
+sw $t5, -248($fp)
+sw $t6, -252($fp)
+beqz $t5, continue__649
+la $a0, dispatch_error
+j .raise
+continue__649:
+lw $t0, -240($fp)
+lw $t1, -244($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -240($fp)
+sw $t1, -244($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -244($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -204($fp)
+lw $t2, -200($fp)
+# local_Razz_Razz_internal_49 <- local_Razz_Razz_internal_50 + local_Razz_Razz_internal_60
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -256($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
@@ -4447,11 +4921,11 @@ addiu $sp, $sp, -4
 sw $t3, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -212($fp)
-sw $t1, -188($fp)
-sw $t2, -184($fp)
+sw $t0, -244($fp)
+sw $t1, -204($fp)
+sw $t2, -200($fp)
 sw $t3, -0($fp)
-sw $t4, -216($fp)
+sw $t4, -256($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -4460,15 +4934,15 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -216($fp)
+lw $t0, -256($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -184($fp)
-lw $t2, -180($fp)
-# local_Razz_Razz_internal_44 <- local_Razz_Razz_internal_45 + local_Razz_Razz_internal_53
+lw $t1, -200($fp)
+lw $t2, -196($fp)
+# local_Razz_Razz_internal_48 <- local_Razz_Razz_internal_49 + local_Razz_Razz_internal_63
 add $t2, $t1, $t0
 lw $t3, -0($fp)
-lw $t4, -220($fp)
+lw $t4, -260($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t3)
@@ -4484,11 +4958,11 @@ addiu $sp, $sp, -4
 sw $t3, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -216($fp)
-sw $t1, -184($fp)
-sw $t2, -180($fp)
+sw $t0, -256($fp)
+sw $t1, -200($fp)
+sw $t2, -196($fp)
 sw $t3, -0($fp)
-sw $t4, -220($fp)
+sw $t4, -260($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -4497,29 +4971,29 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -220($fp)
+lw $t0, -260($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -180($fp)
-lw $t2, -176($fp)
-# local_Razz_Razz_internal_43 <- local_Razz_Razz_internal_44 + local_Razz_Razz_internal_54
+lw $t1, -196($fp)
+lw $t2, -192($fp)
+# local_Razz_Razz_internal_47 <- local_Razz_Razz_internal_48 + local_Razz_Razz_internal_64
 add $t2, $t1, $t0
 lw $t3, -0($fp)
-# self . f <- SET local_Razz_Razz_internal_43
+# self . f <- SET local_Razz_Razz_internal_47
 sw $t2, 36($t3)
-lw $t4, -224($fp)
-# Moving self to local_Razz_Razz_internal_55
+lw $t4, -264($fp)
+# Moving self to local_Razz_Razz_internal_65
 move $t4, $t3
-sw $t4, -224($fp)
+sw $t4, -264($fp)
 move $v0, $t4
 # Empty all used registers and saves them to memory
-sw $t0, -220($fp)
-sw $t1, -180($fp)
-sw $t2, -176($fp)
+sw $t0, -260($fp)
+sw $t1, -196($fp)
+sw $t2, -192($fp)
 sw $t3, -0($fp)
-sw $t4, -224($fp)
+sw $t4, -264($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 228
+addiu $sp, $sp, 268
 jr $ra
 
 
@@ -4574,50 +5048,50 @@ la $t2, data_0
 # local_Bazz_Bazz_internal_1 <- local_Bazz_Bazz_internal_1 = local_Bazz_Bazz_internal_2
 move $t8, $t1
 move $t9, $t2
-loop_39:
+loop_51:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_39
-beqz $a1, mismatch_39
+beqz $a0, check_51
+beqz $a1, mismatch_51
 seq $v0, $a0, $a1
-beqz $v0, mismatch_39
+beqz $v0, mismatch_51
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_39
-mismatch_39:
+j loop_51
+mismatch_51:
 li $v0, 0
-j end_39
-check_39:
-bnez $a1, mismatch_39
+j end_51
+check_51:
+bnez $a1, mismatch_51
 li $v0, 1
-end_39:
+end_51:
 move $t1, $v0
-# If local_Bazz_Bazz_internal_1 goto error__567
+# If local_Bazz_Bazz_internal_1 goto error__674
 sw $t0, -0($fp)
 sw $t1, -8($fp)
 sw $t2, -12($fp)
-bnez $t1, error__567
+bnez $t1, error__674
 lw $t0, -0($fp)
 lw $t1, -16($fp)
 la $t9, type_Bar
 lw $v0, 8($t0)
-loop_40:
+loop_52:
 move $t8, $v0
-beqz $t8, false_40
+beqz $t8, false_52
 lw $v1, 0($t8)
-beq $t9, $v1, true_40
+beq $t9, $v1, true_52
 lw $v0, 4($t8)
-j loop_40
-true_40:
+j loop_52
+true_52:
 li $t1, 1
-j end_40
-false_40:
+j end_52
+false_52:
 li $t1, 0
-end_40:
-# If not local_Bazz_Bazz_internal_3 goto next__573_0
+end_52:
+# If not local_Bazz_Bazz_internal_3 goto next__680_0
 sw $t0, -0($fp)
 sw $t1, -16($fp)
-beqz $t1, next__573_0
+beqz $t1, next__680_0
 lw $t0, -0($fp)
 lw $t1, -20($fp)
 # Moving self to local_Bazz_Bazz_n_4
@@ -4630,29 +5104,29 @@ sw $t2, -4($fp)
 sw $t0, -0($fp)
 sw $t1, -20($fp)
 sw $t2, -4($fp)
-j end__567
-next__573_0:
+j end__674
+next__680_0:
 lw $t0, -0($fp)
 lw $t1, -24($fp)
 la $t9, type_Razz
 lw $v0, 8($t0)
-loop_41:
+loop_53:
 move $t8, $v0
-beqz $t8, false_41
+beqz $t8, false_53
 lw $v1, 0($t8)
-beq $t9, $v1, true_41
+beq $t9, $v1, true_53
 lw $v0, 4($t8)
-j loop_41
-true_41:
+j loop_53
+true_53:
 li $t1, 1
-j end_41
-false_41:
+j end_53
+false_53:
 li $t1, 0
-end_41:
-# If not local_Bazz_Bazz_internal_5 goto next__581_1
+end_53:
+# If not local_Bazz_Bazz_internal_5 goto next__688_1
 sw $t0, -0($fp)
 sw $t1, -24($fp)
-beqz $t1, next__581_1
+beqz $t1, next__688_1
 lw $t0, -0($fp)
 lw $t1, -28($fp)
 # Moving self to local_Bazz_Bazz_n_6
@@ -4704,29 +5178,29 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -32($fp)
 sw $t1, -4($fp)
-j end__567
-next__581_1:
+j end__674
+next__688_1:
 lw $t0, -0($fp)
 lw $t1, -36($fp)
 la $t9, type_Foo
 lw $v0, 8($t0)
-loop_42:
+loop_54:
 move $t8, $v0
-beqz $t8, false_42
+beqz $t8, false_54
 lw $v1, 0($t8)
-beq $t9, $v1, true_42
+beq $t9, $v1, true_54
 lw $v0, 4($t8)
-j loop_42
-true_42:
+j loop_54
+true_54:
 li $t1, 1
-j end_42
-false_42:
+j end_54
+false_54:
 li $t1, 0
-end_42:
-# If not local_Bazz_Bazz_internal_8 goto next__592_2
+end_54:
+# If not local_Bazz_Bazz_internal_8 goto next__699_2
 sw $t0, -0($fp)
 sw $t1, -36($fp)
-beqz $t1, next__592_2
+beqz $t1, next__699_2
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # Moving self to local_Bazz_Bazz_n_9
@@ -4778,29 +5252,29 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -44($fp)
 sw $t1, -4($fp)
-j end__567
-next__592_2:
+j end__674
+next__699_2:
 lw $t0, -0($fp)
 lw $t1, -48($fp)
 la $t9, type_Bazz
 lw $v0, 8($t0)
-loop_43:
+loop_55:
 move $t8, $v0
-beqz $t8, false_43
+beqz $t8, false_55
 lw $v1, 0($t8)
-beq $t9, $v1, true_43
+beq $t9, $v1, true_55
 lw $v0, 4($t8)
-j loop_43
-true_43:
+j loop_55
+true_55:
 li $t1, 1
-j end_43
-false_43:
+j end_55
+false_55:
 li $t1, 0
-end_43:
-# If not local_Bazz_Bazz_internal_11 goto next__603_3
+end_55:
+# If not local_Bazz_Bazz_internal_11 goto next__710_3
 sw $t0, -0($fp)
 sw $t1, -48($fp)
-beqz $t1, next__603_3
+beqz $t1, next__710_3
 lw $t0, -0($fp)
 lw $t1, -52($fp)
 # Moving self to local_Bazz_Bazz_n_12
@@ -4852,14 +5326,14 @@ move $t1, $t0
 sw $t1, -4($fp)
 sw $t0, -56($fp)
 sw $t1, -4($fp)
-j end__567
-next__603_3:
+j end__674
+next__710_3:
 la $a0, case_error
 j .raise
-error__567:
+error__674:
 la $a0, case_void_error
 j .raise
-end__567:
+end__674:
 lw $t0, -4($fp)
 lw $t1, -0($fp)
 # self . g <- SET local_Bazz_Bazz_internal_0

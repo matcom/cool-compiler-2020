@@ -156,17 +156,17 @@ class BaseCILToMIPSVisitor:
 
     def get_reg(self, inst: InstructionNode):
         if self.is_variable(inst.in1):
-            self.get_reg_var(inst.in1)
+            in1_reg = self.get_reg_var(inst.in1)
         if self.is_variable(inst.in2):
-            self.get_reg_var(inst.in2) 
+            in2_reg = self.get_reg_var(inst.in2) 
         
         # Comprobar si se puede usar uno de estos registros tambien para el destino
         nu_entry = self.next_use[inst.index]
         if nu_entry.in1islive and nu_entry.in1nextuse < inst.index:
-            update_register(inst.out, in1_reg)
+            self.update_register(inst.out, in1_reg)
             return  
         if nu_entry.in2islive and nu_entry.in2nextuse < inst.index:
-            update_register(inst.out, in2_reg)
+            self.update_register(inst.out, in2_reg)
             return 
         # Si no buscar un registro para z por el otro procedimiento
         if self.is_variable(inst.out):
@@ -177,24 +177,25 @@ class BaseCILToMIPSVisitor:
         curr_inst = self.inst
         register = self.addr_desc.get_var_reg(var)
         if register is not None:   # ya la variable está en un registro
-            return 
+            return register
 
         var_st = self.symbol_table.lookup(var)
         register = self.reg_desc.find_empty_reg()
         if register is not None:
             self.update_register(var, register)
             self.load_var_code(var)
-            return 
+            return register
 
+        next_use = self.next_use[inst.index]
         # Choose a register that requires the minimal number of load and store instructions
         score = self.initialize_score()          # keeps the score of each variable (the amount of times a variable in a register is used) 
         for inst in self.block[1:]:
             inst: InstructionNode
-            if self.is_variable(inst.in1):
-                self._update_score(score, inst.in1) 
-            if self.is_variable(inst.in2):
+            if self.is_variable(inst.in1) and inst.in1 not in [curr_inst.in1, curr_inst.in2, curr_inst.out] and next_use.in1islive:
+                self._update_score(score, inst.in1)  
+            if self.is_variable(inst.in2) and inst.in2 not in [curr_inst.in1, curr_inst.in2, curr_inst.out] and next_use.in2islive:
                 self._update_score(score, inst.in2)
-            if self.is_variable(inst.out):
+            if self.is_variable(inst.out) and inst.out not in [curr_inst.in1, curr_inst.in2, curr_inst.out] and next_use.outislive:
                 self._update_score(score, inst.out)
         
         # Chooses the one that is used less
@@ -204,6 +205,7 @@ class BaseCILToMIPSVisitor:
 
         self.update_register(var, register)
         self.load_var_code(var)
+        return register
 
     def initialize_score(self):
         score = {}

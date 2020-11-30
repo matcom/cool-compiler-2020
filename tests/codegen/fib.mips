@@ -398,14 +398,8 @@ syscall
 li $v0, 17
 move $a0, $t8
 syscall
-move $v0, $t1
-# Empty all used registers and saves them to memory
 sw $t0, -0($fp)
 sw $t1, -4($fp)
-# Removing all locals from stack
-addiu $sp, $sp, 8
-jr $ra
-
 
 function_type_name_Object:
 # Gets the params from the stack
@@ -1204,7 +1198,7 @@ sw $t0, -8($fp)
 sw $t1, -12($fp)
 sw $t2, -16($fp)
 sw $t3, -20($fp)
-start__81:
+start__80:
 lw $t0, -0($fp)
 lw $t1, -28($fp)
 # local_fib_Main_internal_5 <- i = 0
@@ -1218,11 +1212,11 @@ j end_6
 false_6:
 li $t2, 1
 end_6:
-# If not local_fib_Main_internal_4 goto end__81
+# If not local_fib_Main_internal_4 goto end__80
 sw $t0, -0($fp)
 sw $t1, -28($fp)
 sw $t2, -24($fp)
-beqz $t2, end__81
+beqz $t2, end__80
 lw $t0, -8($fp)
 lw $t1, -12($fp)
 lw $t2, -32($fp)
@@ -1261,8 +1255,8 @@ sw $t4, -0($fp)
 sw $t5, -36($fp)
 sw $t6, -40($fp)
 sw $t7, -20($fp)
-j start__81
-end__81:
+j start__80
+end__80:
 lw $t0, -16($fp)
 lw $t1, -44($fp)
 # Moving local_fib_Main_c_2 to local_fib_Main_internal_9

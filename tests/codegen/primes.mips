@@ -418,14 +418,8 @@ syscall
 li $v0, 17
 move $a0, $t8
 syscall
-move $v0, $t1
-# Empty all used registers and saves them to memory
 sw $t0, -0($fp)
 sw $t1, -4($fp)
-# Removing all locals from stack
-addiu $sp, $sp, 8
-jr $ra
-
 
 function_type_name_Object:
 # Gets the params from the stack
@@ -1060,6 +1054,10 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_Main_Main_internal_45 to the stack
 addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Main_Main_internal_46 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Main_Main_internal_47 to the stack
+addiu $sp, $sp, -4
 lw $t0, -4($fp)
 # Saves in local_Main_Main_internal_0 data_1
 la $t0, data_1
@@ -1129,10 +1127,10 @@ sw $t1, -12($fp)
 sw $t2, -0($fp)
 sw $t3, -16($fp)
 sw $t4, -20($fp)
-start__64:
+start__63:
 li $t9, 1
-# If not 1 goto end__64
-beqz $t9, end__64
+# If not 1 goto end__63
+beqz $t9, end__63
 lw $t0, -0($fp)
 lw $t1, -28($fp)
 # local_Main_Main_testee_6 <- GET self . testee
@@ -1158,7 +1156,7 @@ sw $t0, -0($fp)
 sw $t1, -28($fp)
 sw $t2, -24($fp)
 sw $t3, -32($fp)
-start__74:
+start__73:
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # local_Main_Main_testee_9 <- GET self . testee
@@ -1176,14 +1174,14 @@ mflo $t4
 lw $t5, -36($fp)
 # local_Main_Main_internal_8 <- local_Main_Main_testee_9 < local_Main_Main_internal_10
 slt $t5, $t1, $t4
-# If local_Main_Main_internal_8 goto true__87
+# If local_Main_Main_internal_8 goto true__86
 sw $t0, -0($fp)
 sw $t1, -40($fp)
 sw $t2, -48($fp)
 sw $t3, -52($fp)
 sw $t4, -44($fp)
 sw $t5, -36($fp)
-bnez $t5, true__87
+bnez $t5, true__86
 lw $t0, -0($fp)
 lw $t1, -68($fp)
 # local_Main_Main_testee_16 <- GET self . testee
@@ -1214,7 +1212,7 @@ lw $a1, -60($fp)
 # local_Main_Main_internal_14 <- local_Main_Main_internal_15 = 0
 li $t9, 0
 seq $a1, $t7, $t9
-# If local_Main_Main_internal_14 goto true__105
+# If local_Main_Main_internal_14 goto true__104
 sw $t0, -0($fp)
 sw $t1, -68($fp)
 sw $t2, -76($fp)
@@ -1224,20 +1222,20 @@ sw $t5, -80($fp)
 sw $t6, -72($fp)
 sw $t7, -64($fp)
 sw $a1, -60($fp)
-bnez $a1, true__105
+bnez $a1, true__104
 lw $t0, -92($fp)
 # Moving 1 to local_Main_Main_internal_22
 li $t0, 1
 sw $t0, -92($fp)
 sw $t0, -92($fp)
-j end__105
-true__105:
+j end__104
+true__104:
 lw $t0, -92($fp)
 # Moving 0 to local_Main_Main_internal_22
 li $t0, 0
 sw $t0, -92($fp)
 sw $t0, -92($fp)
-end__105:
+end__104:
 lw $t0, -92($fp)
 lw $t1, -56($fp)
 # Moving local_Main_Main_internal_22 to local_Main_Main_internal_13
@@ -1245,18 +1243,18 @@ move $t1, $t0
 sw $t1, -56($fp)
 sw $t0, -92($fp)
 sw $t1, -56($fp)
-j end__87
-true__87:
+j end__86
+true__86:
 lw $t0, -56($fp)
 # Moving 0 to local_Main_Main_internal_13
 li $t0, 0
 sw $t0, -56($fp)
 sw $t0, -56($fp)
-end__87:
+end__86:
 lw $t0, -56($fp)
-# If not local_Main_Main_internal_13 goto end__74
+# If not local_Main_Main_internal_13 goto end__73
 sw $t0, -56($fp)
-beqz $t0, end__74
+beqz $t0, end__73
 lw $t0, -0($fp)
 lw $t1, -100($fp)
 # local_Main_Main_divisor_24 <- GET self . divisor
@@ -1274,8 +1272,8 @@ sw $t0, -0($fp)
 sw $t1, -100($fp)
 sw $t2, -96($fp)
 sw $t3, -32($fp)
-j start__74
-end__74:
+j start__73
+end__73:
 lw $t0, -0($fp)
 lw $t1, -108($fp)
 # local_Main_Main_testee_26 <- GET self . testee
@@ -1293,21 +1291,21 @@ mflo $t4
 lw $t5, -104($fp)
 # local_Main_Main_internal_25 <- local_Main_Main_testee_26 < local_Main_Main_internal_27
 slt $t5, $t1, $t4
-# If local_Main_Main_internal_25 goto true__136
+# If local_Main_Main_internal_25 goto true__135
 sw $t0, -0($fp)
 sw $t1, -108($fp)
 sw $t2, -116($fp)
 sw $t3, -120($fp)
 sw $t4, -112($fp)
 sw $t5, -104($fp)
-bnez $t5, true__136
+bnez $t5, true__135
 lw $t0, -124($fp)
 # Moving 0 to local_Main_Main_internal_30
 li $t0, 0
 sw $t0, -124($fp)
 sw $t0, -124($fp)
-j end__136
-true__136:
+j end__135
+true__135:
 lw $t0, -0($fp)
 lw $t1, -128($fp)
 # local_Main_Main_testee_31 <- GET self . testee
@@ -1400,7 +1398,7 @@ sw $t2, -124($fp)
 sw $t0, -144($fp)
 sw $t1, -148($fp)
 sw $t2, -124($fp)
-end__136:
+end__135:
 lw $t0, -0($fp)
 lw $t1, -156($fp)
 # local_Main_Main_stop_38 <- GET self . stop
@@ -1411,12 +1409,12 @@ lw $t2, 16($t0)
 lw $t3, -152($fp)
 # local_Main_Main_internal_37 <- local_Main_Main_stop_38 <= local_Main_Main_testee_39
 sle $t3, $t1, $t2
-# If local_Main_Main_internal_37 goto true__165
+# If local_Main_Main_internal_37 goto true__164
 sw $t0, -0($fp)
 sw $t1, -156($fp)
 sw $t2, -160($fp)
 sw $t3, -152($fp)
-bnez $t3, true__165
+bnez $t3, true__164
 lw $t0, -168($fp)
 # Saves in local_Main_Main_internal_41 data_3
 la $t0, data_3
@@ -1426,12 +1424,47 @@ move $t1, $t0
 sw $t1, -164($fp)
 sw $t0, -168($fp)
 sw $t1, -164($fp)
-j end__165
-true__165:
+j end__164
+true__164:
 lw $t0, -172($fp)
 # Saves in local_Main_Main_internal_42 data_4
 la $t0, data_4
-lw $t1, -176($fp)
+lw $t1, -180($fp)
+# local_Main_Main_internal_44 <- Type of local_Main_Main_internal_42
+la $t1, type_String
+lw $t2, -184($fp)
+# Saves in local_Main_Main_internal_45 data_0
+la $t2, data_0
+# local_Main_Main_internal_44 <- local_Main_Main_internal_44 = local_Main_Main_internal_45
+move $t8, $t1
+move $t9, $t2
+loop_6:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_6
+beqz $a1, mismatch_6
+seq $v0, $a0, $a1
+beqz $v0, mismatch_6
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_6
+mismatch_6:
+li $v0, 0
+j end_6
+check_6:
+bnez $a1, mismatch_6
+li $v0, 1
+end_6:
+move $t1, $v0
+# If not local_Main_Main_internal_44 goto continue__177
+sw $t0, -172($fp)
+sw $t1, -180($fp)
+sw $t2, -184($fp)
+beqz $t1, continue__177
+la $a0, dispatch_error
+j .raise
+continue__177:
+lw $t0, -176($fp)
 # Static Dispatch of the method abort
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -1439,11 +1472,12 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t0, ($sp)
+lw $t1, -172($fp)
+sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -172($fp)
-sw $t1, -176($fp)
+sw $t0, -176($fp)
+sw $t1, -172($fp)
 # This function will consume the arguments
 jal function_abort_String
 # Pop ra register of return function of the stack
@@ -1461,36 +1495,36 @@ move $t1, $t0
 sw $t1, -164($fp)
 sw $t0, -176($fp)
 sw $t1, -164($fp)
-end__165:
+end__164:
 lw $t0, -164($fp)
-lw $t1, -180($fp)
-# Moving local_Main_Main_internal_40 to local_Main_Main_internal_44
+lw $t1, -188($fp)
+# Moving local_Main_Main_internal_40 to local_Main_Main_internal_46
 move $t1, $t0
-sw $t1, -180($fp)
+sw $t1, -188($fp)
 lw $t2, -20($fp)
-# Moving local_Main_Main_internal_44 to local_Main_Main_internal_4
+# Moving local_Main_Main_internal_46 to local_Main_Main_internal_4
 move $t2, $t1
 sw $t2, -20($fp)
 sw $t0, -164($fp)
-sw $t1, -180($fp)
+sw $t1, -188($fp)
 sw $t2, -20($fp)
-j start__64
-end__64:
+j start__63
+end__63:
 lw $t0, -20($fp)
 lw $t1, -0($fp)
 # self . m <- SET local_Main_Main_internal_4
 sw $t0, 28($t1)
-lw $t2, -184($fp)
-# Moving self to local_Main_Main_internal_45
+lw $t2, -192($fp)
+# Moving self to local_Main_Main_internal_47
 move $t2, $t1
-sw $t2, -184($fp)
+sw $t2, -192($fp)
 move $v0, $t2
 # Empty all used registers and saves them to memory
 sw $t0, -20($fp)
 sw $t1, -0($fp)
-sw $t2, -184($fp)
+sw $t2, -192($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 188
+addiu $sp, $sp, 196
 jr $ra
 
 
@@ -1500,10 +1534,17 @@ move $fp, $sp
 # Pops the register with the param value self
 addiu $fp, $fp, 4
 # Gets the frame pointer from the stack
-li $v0, 0
+# Updates stack pointer pushing local_main_Main_internal_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Moving 0 to local_main_Main_internal_0
+li $t0, 0
+sw $t0, -4($fp)
+move $v0, $t0
 # Empty all used registers and saves them to memory
+sw $t0, -4($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 4
+addiu $sp, $sp, 8
 jr $ra
 
 # Raise exception method

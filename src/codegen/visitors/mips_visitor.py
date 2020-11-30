@@ -310,37 +310,13 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append(f'li $t9, {size}')                 # saves the size of the node
         self.code.append(f'sw $t9, 4($v0)')                 # this is the second file of the table offset
         self.code.append(f'move ${rdest}, $v0')             # guarda la nueva dirección de la variable en el registro destino
-
-        # self.create_dispatch_table(node.type)               # memory of dispatch table in v0
-        # self.code.append(f'sw $v0, 8(${rdest})')            # save a pointer of the dispatch table in the 3th position
-        
+      
         idx = self.types.index(node.type)
         self.code.append('# Adding Type Info addr')
         self.code.append('la $t8, types')
         self.code.append(f'lw $v0, {4*idx}($t8)')
         self.code.append(f'sw $v0, 8(${rdest})')
       
-    # def create_dispatch_table(self, type_name):
-    #     # Get methods of the dispatch table
-    #     methods = self.dispatch_table.get_methods(type_name)
-    #     # Allocate the dispatch table in the heap
-    #     self.code.append('# Allocate dispatch table in the heap')
-    #     self.code.append('li $v0, 9')                       # code to request memory
-    #     dispatch_table_size = 4*len(methods)
-    #     self.code.append(f'li $a0, {dispatch_table_size+4}')
-    #     self.code.append('syscall')                         # Memory of the dispatch table in v0
-        
-    #     self.code.append(f'# I save the offset of every one of the methods of this type')
-    #     self.code.append('# Save the direction of methods')
-    #     self.code.append('la $t8, methods')             # cargo la dirección de methods
-    #     for i, meth in enumerate(methods, 1):
-    #         # guardo el offset de cada uno de los métodos de este tipo
-    #         offset = 4*self.methods.index(meth)
-    #         self.code.append(f'# Save the direction of the method {meth} in t9')
-    #         self.code.append(f'lw $t9, {offset}($t8)')      # cargo la dirección del método en t9
-    #         self.code.append('# Save the direction of the method in his position in the dispatch table')
-    #         self.code.append(f'sw $t9, {4*i}($v0)')         # guardo la direccion del metodo en su posicion en el dispatch table        
-
 
     @visitor.when(TypeOfNode)
     def visit(self, node:TypeOfNode):
@@ -356,13 +332,8 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
                 self.code.append(f'la ${rdest}, type_Int')
             elif self.var_address[node.obj] == AddrType.BOOL:
                 self.code.append(f'la ${rdest}, type_Bool')
-            # elif self.var_address[node.obj] == AddrType.VOID:
-            #     self.code.append(f'lw ${rdest}, type_{VOID_NAME}')
         elif self.is_int(node.obj):
             self.code.append(f'la ${rdest}, type_Int')
-        # elif self.is_void(node.obj):
-        #     self.code.append(f'la ${rdest}, type_{VOID_NAME}')
-
         self.var_address[node.dest] = AddrType.STR
 
     @visitor.when(LabelNode)
@@ -790,3 +761,24 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append(f'move ${rdest}, $v0')
         self.var_address[node.obj] = AddrType.REF
      
+    @visitor.when(BoxingNode)
+    def visit(self, node:BoxingNode):
+        "Node to convert a value type into object"
+        rdest = self.addr_desc.get_var_reg(node.dest)
+        self.code.append('# Initialize new node')
+        self.code.append('li $a0, 12')
+        self.code.append('li $v0, 9')
+        self.code.append('syscall')
+
+        self.code.append(f'la $t9, type_{node.type}')
+        self.code.append('sw $t9, 0($v0)')            # saves the name like the first field 
+        self.code.append('li $t9, 12')
+        self.code.append('sw $t9, 4($v0)')            # saves the size like the second field 
+        self.code.append(f'move ${rdest}, $v0')
+        
+        self.code.append('# Saving the methods of object')
+        idx = self.types.index('Object')
+        self.code.append('# Adding Type Info addr')
+        self.code.append('la $t8, types')
+        self.code.append(f'lw $v0, {4*idx}($t8)')
+        self.code.append(f'sw $v0, 8(${rdest})')

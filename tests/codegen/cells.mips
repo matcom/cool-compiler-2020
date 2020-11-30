@@ -507,14 +507,8 @@ syscall
 li $v0, 17
 move $a0, $t8
 syscall
-move $v0, $t1
-# Empty all used registers and saves them to memory
 sw $t0, -0($fp)
 sw $t1, -4($fp)
-# Removing all locals from stack
-addiu $sp, $sp, 8
-jr $ra
-
 
 function_type_name_Object:
 # Gets the params from the stack
@@ -1125,6 +1119,10 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_print_CellularAutomaton_internal_4 to the stack
 addiu $sp, $sp, -4
+# Updates stack pointer pushing local_print_CellularAutomaton_internal_5 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_print_CellularAutomaton_internal_6 to the stack
+addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_print_CellularAutomaton_population_map_0 <- GET self . population_map
@@ -1132,7 +1130,44 @@ lw $t1, 12($t0)
 lw $t2, -8($fp)
 # Saves in local_print_CellularAutomaton_internal_1 data_2
 la $t2, data_2
-lw $t3, -12($fp)
+lw $t3, -16($fp)
+# local_print_CellularAutomaton_internal_3 <- Type of local_print_CellularAutomaton_population_map_0
+la $t3, type_String
+lw $t4, -20($fp)
+# Saves in local_print_CellularAutomaton_internal_4 data_0
+la $t4, data_0
+# local_print_CellularAutomaton_internal_3 <- local_print_CellularAutomaton_internal_3 = local_print_CellularAutomaton_internal_4
+move $t8, $t3
+move $t9, $t4
+loop_6:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_6
+beqz $a1, mismatch_6
+seq $v0, $a0, $a1
+beqz $v0, mismatch_6
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_6
+mismatch_6:
+li $v0, 0
+j end_6
+check_6:
+bnez $a1, mismatch_6
+li $v0, 1
+end_6:
+move $t3, $v0
+# If not local_print_CellularAutomaton_internal_3 goto continue__73
+sw $t0, -0($fp)
+sw $t1, -4($fp)
+sw $t2, -8($fp)
+sw $t3, -16($fp)
+sw $t4, -20($fp)
+beqz $t3, continue__73
+la $a0, dispatch_error
+j .raise
+continue__73:
+lw $t0, -12($fp)
 # Static Dispatch of the method concat
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -1140,16 +1175,17 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t2, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
+lw $t1, -8($fp)
 sw $t1, ($sp)
 addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+lw $t2, -4($fp)
+sw $t2, ($sp)
+addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -0($fp)
-sw $t1, -4($fp)
-sw $t2, -8($fp)
-sw $t3, -12($fp)
+sw $t0, -12($fp)
+sw $t1, -8($fp)
+sw $t2, -4($fp)
 # This function will consume the arguments
 jal function_concat_String
 # Pop ra register of return function of the stack
@@ -1162,7 +1198,7 @@ lw $t0, -12($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -0($fp)
-lw $t2, -16($fp)
+lw $t2, -24($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
@@ -1183,7 +1219,7 @@ addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
 sw $t0, -12($fp)
 sw $t1, -0($fp)
-sw $t2, -16($fp)
+sw $t2, -24($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -1192,21 +1228,21 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -16($fp)
+lw $t0, -24($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -0($fp)
-lw $t2, -20($fp)
-# Moving self to local_print_CellularAutomaton_internal_4
+lw $t2, -28($fp)
+# Moving self to local_print_CellularAutomaton_internal_6
 move $t2, $t1
-sw $t2, -20($fp)
+sw $t2, -28($fp)
 move $v0, $t2
 # Empty all used registers and saves them to memory
-sw $t0, -16($fp)
+sw $t0, -24($fp)
 sw $t1, -0($fp)
-sw $t2, -20($fp)
+sw $t2, -28($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 24
+addiu $sp, $sp, 32
 jr $ra
 
 
@@ -1220,11 +1256,51 @@ addiu $fp, $fp, 4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_num_cells_CellularAutomaton_internal_1 to the stack
 addiu $sp, $sp, -4
+# Updates stack pointer pushing local_num_cells_CellularAutomaton_internal_2 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_num_cells_CellularAutomaton_internal_3 to the stack
+addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -4($fp)
 # local_num_cells_CellularAutomaton_population_map_0 <- GET self . population_map
 lw $t1, 12($t0)
-lw $t2, -8($fp)
+lw $t2, -12($fp)
+# local_num_cells_CellularAutomaton_internal_2 <- Type of local_num_cells_CellularAutomaton_population_map_0
+la $t2, type_String
+lw $t3, -16($fp)
+# Saves in local_num_cells_CellularAutomaton_internal_3 data_0
+la $t3, data_0
+# local_num_cells_CellularAutomaton_internal_2 <- local_num_cells_CellularAutomaton_internal_2 = local_num_cells_CellularAutomaton_internal_3
+move $t8, $t2
+move $t9, $t3
+loop_7:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_7
+beqz $a1, mismatch_7
+seq $v0, $a0, $a1
+beqz $v0, mismatch_7
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_7
+mismatch_7:
+li $v0, 0
+j end_7
+check_7:
+bnez $a1, mismatch_7
+li $v0, 1
+end_7:
+move $t2, $v0
+# If not local_num_cells_CellularAutomaton_internal_2 goto continue__95
+sw $t0, -0($fp)
+sw $t1, -4($fp)
+sw $t2, -12($fp)
+sw $t3, -16($fp)
+beqz $t2, continue__95
+la $a0, dispatch_error
+j .raise
+continue__95:
+lw $t0, -8($fp)
 # Static Dispatch of the method length
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -1232,12 +1308,12 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
+lw $t1, -4($fp)
 sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -0($fp)
+sw $t0, -8($fp)
 sw $t1, -4($fp)
-sw $t2, -8($fp)
 # This function will consume the arguments
 jal function_length_String
 # Pop ra register of return function of the stack
@@ -1253,7 +1329,7 @@ move $v0, $t0
 # Empty all used registers and saves them to memory
 sw $t0, -8($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 12
+addiu $sp, $sp, 20
 jr $ra
 
 
@@ -1269,11 +1345,51 @@ addiu $fp, $fp, 4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_cell_CellularAutomaton_internal_1 to the stack
 addiu $sp, $sp, -4
+# Updates stack pointer pushing local_cell_CellularAutomaton_internal_2 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_cell_CellularAutomaton_internal_3 to the stack
+addiu $sp, $sp, -4
 lw $t0, -4($fp)
 lw $t1, -8($fp)
 # local_cell_CellularAutomaton_population_map_0 <- GET self . population_map
 lw $t1, 12($t0)
-lw $t2, -12($fp)
+lw $t2, -16($fp)
+# local_cell_CellularAutomaton_internal_2 <- Type of local_cell_CellularAutomaton_population_map_0
+la $t2, type_String
+lw $t3, -20($fp)
+# Saves in local_cell_CellularAutomaton_internal_3 data_0
+la $t3, data_0
+# local_cell_CellularAutomaton_internal_2 <- local_cell_CellularAutomaton_internal_2 = local_cell_CellularAutomaton_internal_3
+move $t8, $t2
+move $t9, $t3
+loop_8:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_8
+beqz $a1, mismatch_8
+seq $v0, $a0, $a1
+beqz $v0, mismatch_8
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_8
+mismatch_8:
+li $v0, 0
+j end_8
+check_8:
+bnez $a1, mismatch_8
+li $v0, 1
+end_8:
+move $t2, $v0
+# If not local_cell_CellularAutomaton_internal_2 goto continue__115
+sw $t0, -4($fp)
+sw $t1, -8($fp)
+sw $t2, -16($fp)
+sw $t3, -20($fp)
+beqz $t2, continue__115
+la $a0, dispatch_error
+j .raise
+continue__115:
+lw $t0, -12($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -1285,17 +1401,17 @@ li $t9, 1
 sw $t9, ($sp)
 addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
-lw $t3, -0($fp)
-sw $t3, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
+lw $t1, -0($fp)
 sw $t1, ($sp)
 addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+lw $t2, -8($fp)
+sw $t2, ($sp)
+addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -4($fp)
-sw $t1, -8($fp)
-sw $t2, -12($fp)
-sw $t3, -0($fp)
+sw $t0, -12($fp)
+sw $t1, -0($fp)
+sw $t2, -8($fp)
 # This function will consume the arguments
 jal function_substr_String
 # Pop ra register of return function of the stack
@@ -1311,7 +1427,7 @@ move $v0, $t0
 # Empty all used registers and saves them to memory
 sw $t0, -12($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 16
+addiu $sp, $sp, 24
 jr $ra
 
 
@@ -1342,10 +1458,10 @@ lw $t1, -8($fp)
 # local_cell_left_neighbor_CellularAutomaton_internal_0 <- position = 0
 li $t9, 0
 seq $t1, $t0, $t9
-# If local_cell_left_neighbor_CellularAutomaton_internal_0 goto true__105
+# If local_cell_left_neighbor_CellularAutomaton_internal_0 goto true__131
 sw $t0, -0($fp)
 sw $t1, -8($fp)
-bnez $t1, true__105
+bnez $t1, true__131
 lw $t0, -0($fp)
 lw $t1, -16($fp)
 # local_cell_left_neighbor_CellularAutomaton_internal_2 <- position - 1
@@ -1391,8 +1507,8 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -20($fp)
 sw $t1, -12($fp)
-j end__105
-true__105:
+j end__131
+true__131:
 lw $t0, -4($fp)
 lw $t1, -28($fp)
 # Find the actual name in the dispatch table
@@ -1467,7 +1583,7 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -32($fp)
 sw $t1, -12($fp)
-end__105:
+end__131:
 lw $t0, -12($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -1536,12 +1652,12 @@ lw $t2, -0($fp)
 lw $t3, -8($fp)
 # local_cell_right_neighbor_CellularAutomaton_internal_0 <- position = local_cell_right_neighbor_CellularAutomaton_internal_1
 seq $t3, $t2, $t1
-# If local_cell_right_neighbor_CellularAutomaton_internal_0 goto true__134
+# If local_cell_right_neighbor_CellularAutomaton_internal_0 goto true__160
 sw $t0, -16($fp)
 sw $t1, -12($fp)
 sw $t2, -0($fp)
 sw $t3, -8($fp)
-bnez $t3, true__134
+bnez $t3, true__160
 lw $t0, -0($fp)
 lw $t1, -24($fp)
 # local_cell_right_neighbor_CellularAutomaton_internal_4 <- position + 1
@@ -1587,8 +1703,8 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -28($fp)
 sw $t1, -20($fp)
-j end__134
-true__134:
+j end__160
+true__160:
 lw $t0, -4($fp)
 lw $t1, -32($fp)
 # Find the actual name in the dispatch table
@@ -1629,7 +1745,7 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -32($fp)
 sw $t1, -20($fp)
-end__134:
+end__160:
 lw $t0, -20($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -1725,42 +1841,42 @@ lw $t2, -20($fp)
 # local_cell_at_next_evolution_CellularAutomaton_internal_3 <- local_cell_at_next_evolution_CellularAutomaton_internal_4 = local_cell_at_next_evolution_CellularAutomaton_internal_5
 move $t8, $t0
 move $t9, $t1
-loop_6:
+loop_9:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_6
-beqz $a1, mismatch_6
+beqz $a0, check_9
+beqz $a1, mismatch_9
 seq $v0, $a0, $a1
-beqz $v0, mismatch_6
+beqz $v0, mismatch_9
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_6
-mismatch_6:
+j loop_9
+mismatch_9:
 li $v0, 0
-j end_6
-check_6:
-bnez $a1, mismatch_6
+j end_9
+check_9:
+bnez $a1, mismatch_9
 li $v0, 1
-end_6:
+end_9:
 move $t2, $v0
-# If local_cell_at_next_evolution_CellularAutomaton_internal_3 goto true__164
+# If local_cell_at_next_evolution_CellularAutomaton_internal_3 goto true__190
 sw $t0, -24($fp)
 sw $t1, -28($fp)
 sw $t2, -20($fp)
-bnez $t2, true__164
+bnez $t2, true__190
 lw $t0, -32($fp)
 # Moving 0 to local_cell_at_next_evolution_CellularAutomaton_internal_6
 li $t0, 0
 sw $t0, -32($fp)
 sw $t0, -32($fp)
-j end__164
-true__164:
+j end__190
+true__190:
 lw $t0, -32($fp)
 # Moving 1 to local_cell_at_next_evolution_CellularAutomaton_internal_6
 li $t0, 1
 sw $t0, -32($fp)
 sw $t0, -32($fp)
-end__164:
+end__190:
 lw $t0, -4($fp)
 lw $t1, -40($fp)
 # Find the actual name in the dispatch table
@@ -1803,42 +1919,42 @@ lw $t2, -36($fp)
 # local_cell_at_next_evolution_CellularAutomaton_internal_7 <- local_cell_at_next_evolution_CellularAutomaton_internal_8 = local_cell_at_next_evolution_CellularAutomaton_internal_9
 move $t8, $t0
 move $t9, $t1
-loop_7:
+loop_10:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_7
-beqz $a1, mismatch_7
+beqz $a0, check_10
+beqz $a1, mismatch_10
 seq $v0, $a0, $a1
-beqz $v0, mismatch_7
+beqz $v0, mismatch_10
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_7
-mismatch_7:
+j loop_10
+mismatch_10:
 li $v0, 0
-j end_7
-check_7:
-bnez $a1, mismatch_7
+j end_10
+check_10:
+bnez $a1, mismatch_10
 li $v0, 1
-end_7:
+end_10:
 move $t2, $v0
-# If local_cell_at_next_evolution_CellularAutomaton_internal_7 goto true__179
+# If local_cell_at_next_evolution_CellularAutomaton_internal_7 goto true__205
 sw $t0, -40($fp)
 sw $t1, -44($fp)
 sw $t2, -36($fp)
-bnez $t2, true__179
+bnez $t2, true__205
 lw $t0, -48($fp)
 # Moving 0 to local_cell_at_next_evolution_CellularAutomaton_internal_10
 li $t0, 0
 sw $t0, -48($fp)
 sw $t0, -48($fp)
-j end__179
-true__179:
+j end__205
+true__205:
 lw $t0, -48($fp)
 # Moving 1 to local_cell_at_next_evolution_CellularAutomaton_internal_10
 li $t0, 1
 sw $t0, -48($fp)
 sw $t0, -48($fp)
-end__179:
+end__205:
 lw $t0, -32($fp)
 lw $t1, -48($fp)
 lw $t2, -16($fp)
@@ -1889,42 +2005,42 @@ lw $t2, -52($fp)
 # local_cell_at_next_evolution_CellularAutomaton_internal_11 <- local_cell_at_next_evolution_CellularAutomaton_internal_12 = local_cell_at_next_evolution_CellularAutomaton_internal_13
 move $t8, $t0
 move $t9, $t1
-loop_8:
+loop_11:
 lb $a0, ($t8)
 lb $a1, ($t9)
-beqz $a0, check_8
-beqz $a1, mismatch_8
+beqz $a0, check_11
+beqz $a1, mismatch_11
 seq $v0, $a0, $a1
-beqz $v0, mismatch_8
+beqz $v0, mismatch_11
 addi $t8, $t8, 1
 addi $t9, $t9, 1
-j loop_8
-mismatch_8:
+j loop_11
+mismatch_11:
 li $v0, 0
-j end_8
-check_8:
-bnez $a1, mismatch_8
+j end_11
+check_11:
+bnez $a1, mismatch_11
 li $v0, 1
-end_8:
+end_11:
 move $t2, $v0
-# If local_cell_at_next_evolution_CellularAutomaton_internal_11 goto true__195
+# If local_cell_at_next_evolution_CellularAutomaton_internal_11 goto true__221
 sw $t0, -56($fp)
 sw $t1, -60($fp)
 sw $t2, -52($fp)
-bnez $t2, true__195
+bnez $t2, true__221
 lw $t0, -64($fp)
 # Moving 0 to local_cell_at_next_evolution_CellularAutomaton_internal_14
 li $t0, 0
 sw $t0, -64($fp)
 sw $t0, -64($fp)
-j end__195
-true__195:
+j end__221
+true__221:
 lw $t0, -64($fp)
 # Moving 1 to local_cell_at_next_evolution_CellularAutomaton_internal_14
 li $t0, 1
 sw $t0, -64($fp)
 sw $t0, -64($fp)
-end__195:
+end__221:
 lw $t0, -16($fp)
 lw $t1, -64($fp)
 lw $t2, -12($fp)
@@ -1934,12 +2050,12 @@ lw $t3, -8($fp)
 # local_cell_at_next_evolution_CellularAutomaton_internal_0 <- local_cell_at_next_evolution_CellularAutomaton_internal_1 = 1
 li $t9, 1
 seq $t3, $t2, $t9
-# If local_cell_at_next_evolution_CellularAutomaton_internal_0 goto true__204
+# If local_cell_at_next_evolution_CellularAutomaton_internal_0 goto true__230
 sw $t0, -16($fp)
 sw $t1, -64($fp)
 sw $t2, -12($fp)
 sw $t3, -8($fp)
-bnez $t3, true__204
+bnez $t3, true__230
 lw $t0, -72($fp)
 # Saves in local_cell_at_next_evolution_CellularAutomaton_internal_16 data_6
 la $t0, data_6
@@ -1949,8 +2065,8 @@ move $t1, $t0
 sw $t1, -68($fp)
 sw $t0, -72($fp)
 sw $t1, -68($fp)
-j end__204
-true__204:
+j end__230
+true__230:
 lw $t0, -76($fp)
 # Saves in local_cell_at_next_evolution_CellularAutomaton_internal_17 data_7
 la $t0, data_7
@@ -1960,7 +2076,7 @@ move $t1, $t0
 sw $t1, -68($fp)
 sw $t0, -76($fp)
 sw $t1, -68($fp)
-end__204:
+end__230:
 lw $t0, -68($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -1999,6 +2115,10 @@ addiu $sp, $sp, -4
 # Updates stack pointer pushing local_evolve_CellularAutomaton_internal_10 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_evolve_CellularAutomaton_internal_11 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_evolve_CellularAutomaton_internal_12 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_evolve_CellularAutomaton_internal_13 to the stack
 addiu $sp, $sp, -4
 lw $t0, -4($fp)
 # Moving 0 to local_evolve_CellularAutomaton_position_0
@@ -2060,17 +2180,17 @@ sw $t1, -8($fp)
 sw $t2, -20($fp)
 sw $t3, -16($fp)
 sw $t4, -24($fp)
-start__231:
+start__257:
 lw $t0, -4($fp)
 lw $t1, -8($fp)
 lw $t2, -28($fp)
 # local_evolve_CellularAutomaton_internal_6 <- local_evolve_CellularAutomaton_position_0 < local_evolve_CellularAutomaton_num_1
 slt $t2, $t0, $t1
-# If not local_evolve_CellularAutomaton_internal_6 goto end__231
+# If not local_evolve_CellularAutomaton_internal_6 goto end__257
 sw $t0, -4($fp)
 sw $t1, -8($fp)
 sw $t2, -28($fp)
-beqz $t2, end__231
+beqz $t2, end__257
 lw $t0, -0($fp)
 lw $t1, -32($fp)
 # Find the actual name in the dispatch table
@@ -2106,7 +2226,44 @@ lw $fp, ($sp)
 lw $t0, -32($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -36($fp)
+lw $t1, -16($fp)
+lw $t2, -40($fp)
+# local_evolve_CellularAutomaton_internal_9 <- Type of local_evolve_CellularAutomaton_temp_3
+la $t2, type_String
+lw $t3, -44($fp)
+# Saves in local_evolve_CellularAutomaton_internal_10 data_0
+la $t3, data_0
+# local_evolve_CellularAutomaton_internal_9 <- local_evolve_CellularAutomaton_internal_9 = local_evolve_CellularAutomaton_internal_10
+move $t8, $t2
+move $t9, $t3
+loop_12:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_12
+beqz $a1, mismatch_12
+seq $v0, $a0, $a1
+beqz $v0, mismatch_12
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_12
+mismatch_12:
+li $v0, 0
+j end_12
+check_12:
+bnez $a1, mismatch_12
+li $v0, 1
+end_12:
+move $t2, $v0
+# If not local_evolve_CellularAutomaton_internal_9 goto continue__269
+sw $t0, -32($fp)
+sw $t1, -16($fp)
+sw $t2, -40($fp)
+sw $t3, -44($fp)
+beqz $t2, continue__269
+la $a0, dispatch_error
+j .raise
+continue__269:
+lw $t0, -36($fp)
 # Static Dispatch of the method concat
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -2114,15 +2271,16 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t0, ($sp)
+lw $t1, -32($fp)
+sw $t1, ($sp)
 addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
 lw $t2, -16($fp)
 sw $t2, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -32($fp)
-sw $t1, -36($fp)
+sw $t0, -36($fp)
+sw $t1, -32($fp)
 sw $t2, -16($fp)
 # This function will consume the arguments
 jal function_concat_String
@@ -2140,43 +2298,43 @@ lw $t1, -16($fp)
 move $t1, $t0
 sw $t1, -16($fp)
 lw $t2, -4($fp)
-lw $t3, -40($fp)
-# local_evolve_CellularAutomaton_internal_9 <- local_evolve_CellularAutomaton_position_0 + 1
+lw $t3, -48($fp)
+# local_evolve_CellularAutomaton_internal_11 <- local_evolve_CellularAutomaton_position_0 + 1
 addi $t3, $t2, 1
-# Moving local_evolve_CellularAutomaton_internal_9 to local_evolve_CellularAutomaton_position_0
+# Moving local_evolve_CellularAutomaton_internal_11 to local_evolve_CellularAutomaton_position_0
 move $t2, $t3
 sw $t2, -4($fp)
-lw $t4, -44($fp)
-# Moving local_evolve_CellularAutomaton_internal_9 to local_evolve_CellularAutomaton_internal_10
+lw $t4, -52($fp)
+# Moving local_evolve_CellularAutomaton_internal_11 to local_evolve_CellularAutomaton_internal_12
 move $t4, $t3
-sw $t4, -44($fp)
+sw $t4, -52($fp)
 lw $t5, -24($fp)
-# Moving local_evolve_CellularAutomaton_internal_10 to local_evolve_CellularAutomaton_internal_5
+# Moving local_evolve_CellularAutomaton_internal_12 to local_evolve_CellularAutomaton_internal_5
 move $t5, $t4
 sw $t5, -24($fp)
 sw $t0, -36($fp)
 sw $t1, -16($fp)
 sw $t2, -4($fp)
-sw $t3, -40($fp)
-sw $t4, -44($fp)
+sw $t3, -48($fp)
+sw $t4, -52($fp)
 sw $t5, -24($fp)
-j start__231
-end__231:
+j start__257
+end__257:
 lw $t0, -16($fp)
 lw $t1, -0($fp)
 # self . population_map <- SET local_evolve_CellularAutomaton_temp_3
 sw $t0, 12($t1)
-lw $t2, -48($fp)
-# Moving self to local_evolve_CellularAutomaton_internal_11
+lw $t2, -56($fp)
+# Moving self to local_evolve_CellularAutomaton_internal_13
 move $t2, $t1
-sw $t2, -48($fp)
+sw $t2, -56($fp)
 move $v0, $t2
 # Empty all used registers and saves them to memory
 sw $t0, -16($fp)
 sw $t1, -0($fp)
-sw $t2, -48($fp)
+sw $t2, -56($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 52
+addiu $sp, $sp, 60
 jr $ra
 
 
@@ -2228,29 +2386,45 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_2 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_main_Main_cells_3 to the stack
+# Updates stack pointer pushing local_main_Main_internal_3 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_4 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_main_Main_countdown_5 to the stack
+# Updates stack pointer pushing local_main_Main_cells_5 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_6 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_7 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_main_Main_cells_8 to the stack
+# Updates stack pointer pushing local_main_Main_internal_8 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_main_Main_internal_9 to the stack
+# Updates stack pointer pushing local_main_Main_countdown_9 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_main_Main_cells_10 to the stack
+# Updates stack pointer pushing local_main_Main_internal_10 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_11 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_main_Main_internal_12 to the stack
+# Updates stack pointer pushing local_main_Main_cells_12 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_13 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_14 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_15 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_cells_16 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_17 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_18 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_19 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_20 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_21 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_22 to the stack
 addiu $sp, $sp, -4
 lw $t0, -4($fp)
 # Syscall to allocate memory of the object entry in heap
@@ -2293,7 +2467,44 @@ move $t0, $v0
 lw $t1, -8($fp)
 # Saves in local_main_Main_internal_1 data_9
 la $t1, data_9
-lw $t2, -12($fp)
+lw $t2, -16($fp)
+# local_main_Main_internal_3 <- Type of local_main_Main_internal_0
+lw $t2, 0($t0)
+lw $t3, -20($fp)
+# Saves in local_main_Main_internal_4 data_0
+la $t3, data_0
+# local_main_Main_internal_3 <- local_main_Main_internal_3 = local_main_Main_internal_4
+move $t8, $t2
+move $t9, $t3
+loop_13:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_13
+beqz $a1, mismatch_13
+seq $v0, $a0, $a1
+beqz $v0, mismatch_13
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_13
+mismatch_13:
+li $v0, 0
+j end_13
+check_13:
+bnez $a1, mismatch_13
+li $v0, 1
+end_13:
+move $t2, $v0
+# If not local_main_Main_internal_3 goto continue__311
+sw $t0, -4($fp)
+sw $t1, -8($fp)
+sw $t2, -16($fp)
+sw $t3, -20($fp)
+beqz $t2, continue__311
+la $a0, dispatch_error
+j .raise
+continue__311:
+lw $t0, -4($fp)
+lw $t1, -12($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
@@ -2306,15 +2517,16 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t1, ($sp)
+lw $t2, -8($fp)
+sw $t2, ($sp)
 addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
 sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
 sw $t0, -4($fp)
-sw $t1, -8($fp)
-sw $t2, -12($fp)
+sw $t1, -12($fp)
+sw $t2, -8($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -2329,13 +2541,51 @@ move $t0, $v0
 lw $t1, -0($fp)
 # self . cells <- SET local_main_Main_internal_2
 sw $t0, 12($t1)
-lw $t2, -16($fp)
-# local_main_Main_cells_3 <- GET self . cells
+lw $t2, -24($fp)
+# local_main_Main_cells_5 <- GET self . cells
 lw $t2, 12($t1)
-lw $t3, -20($fp)
+lw $t3, -32($fp)
+# local_main_Main_internal_7 <- Type of local_main_Main_cells_5
+lw $t3, 0($t2)
+lw $t4, -36($fp)
+# Saves in local_main_Main_internal_8 data_0
+la $t4, data_0
+# local_main_Main_internal_7 <- local_main_Main_internal_7 = local_main_Main_internal_8
+move $t8, $t3
+move $t9, $t4
+loop_14:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_14
+beqz $a1, mismatch_14
+seq $v0, $a0, $a1
+beqz $v0, mismatch_14
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_14
+mismatch_14:
+li $v0, 0
+j end_14
+check_14:
+bnez $a1, mismatch_14
+li $v0, 1
+end_14:
+move $t3, $v0
+# If not local_main_Main_internal_7 goto continue__326
+sw $t0, -12($fp)
+sw $t1, -0($fp)
+sw $t2, -24($fp)
+sw $t3, -32($fp)
+sw $t4, -36($fp)
+beqz $t3, continue__326
+la $a0, dispatch_error
+j .raise
+continue__326:
+lw $t0, -24($fp)
+lw $t1, -28($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t2)
+lw $t9, 8($t0)
 lw $a0, 8($t9)
 # Saves in t8 the direction of function_print_CellularAutomaton
 lw $t8, 36($a0)
@@ -2345,13 +2595,11 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t2, ($sp)
+sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -12($fp)
-sw $t1, -0($fp)
-sw $t2, -16($fp)
-sw $t3, -20($fp)
+sw $t0, -24($fp)
+sw $t1, -28($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -2360,14 +2608,14 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -20($fp)
+lw $t0, -28($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -24($fp)
-# Moving 20 to local_main_Main_countdown_5
+lw $t1, -40($fp)
+# Moving 20 to local_main_Main_countdown_9
 li $t1, 20
-sw $t1, -24($fp)
-lw $t2, -28($fp)
+sw $t1, -40($fp)
+lw $t2, -44($fp)
 # Initialize void node
 li $a0, 4
 li $v0, 9
@@ -2376,27 +2624,64 @@ syscall
 la $t9, type_Void
 sw $t9, 0($v0)
 move $t2, $v0
-sw $t0, -20($fp)
-sw $t1, -24($fp)
-sw $t2, -28($fp)
-start__285:
-lw $t0, -24($fp)
-lw $t1, -32($fp)
-# local_main_Main_internal_7 <- 0 < local_main_Main_countdown_5
+sw $t0, -28($fp)
+sw $t1, -40($fp)
+sw $t2, -44($fp)
+start__338:
+lw $t0, -40($fp)
+lw $t1, -48($fp)
+# local_main_Main_internal_11 <- 0 < local_main_Main_countdown_9
 li $t9, 0
 slt $t1, $t9, $t0
-# If not local_main_Main_internal_7 goto end__285
-sw $t0, -24($fp)
-sw $t1, -32($fp)
-beqz $t1, end__285
+# If not local_main_Main_internal_11 goto end__338
+sw $t0, -40($fp)
+sw $t1, -48($fp)
+beqz $t1, end__338
 lw $t0, -0($fp)
-lw $t1, -36($fp)
-# local_main_Main_cells_8 <- GET self . cells
+lw $t1, -52($fp)
+# local_main_Main_cells_12 <- GET self . cells
 lw $t1, 12($t0)
-lw $t2, -40($fp)
+lw $t2, -60($fp)
+# local_main_Main_internal_14 <- Type of local_main_Main_cells_12
+lw $t2, 0($t1)
+lw $t3, -64($fp)
+# Saves in local_main_Main_internal_15 data_0
+la $t3, data_0
+# local_main_Main_internal_14 <- local_main_Main_internal_14 = local_main_Main_internal_15
+move $t8, $t2
+move $t9, $t3
+loop_15:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_15
+beqz $a1, mismatch_15
+seq $v0, $a0, $a1
+beqz $v0, mismatch_15
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_15
+mismatch_15:
+li $v0, 0
+j end_15
+check_15:
+bnez $a1, mismatch_15
+li $v0, 1
+end_15:
+move $t2, $v0
+# If not local_main_Main_internal_14 goto continue__348
+sw $t0, -0($fp)
+sw $t1, -52($fp)
+sw $t2, -60($fp)
+sw $t3, -64($fp)
+beqz $t2, continue__348
+la $a0, dispatch_error
+j .raise
+continue__348:
+lw $t0, -52($fp)
+lw $t1, -56($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t1)
+lw $t9, 8($t0)
 lw $a0, 8($t9)
 # Saves in t8 the direction of function_evolve_CellularAutomaton
 lw $t8, 60($a0)
@@ -2406,12 +2691,11 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t1, ($sp)
+sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -0($fp)
-sw $t1, -36($fp)
-sw $t2, -40($fp)
+sw $t0, -52($fp)
+sw $t1, -56($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -2420,17 +2704,55 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -40($fp)
+lw $t0, -56($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -0($fp)
-lw $t2, -44($fp)
-# local_main_Main_cells_10 <- GET self . cells
+lw $t2, -68($fp)
+# local_main_Main_cells_16 <- GET self . cells
 lw $t2, 12($t1)
-lw $t3, -48($fp)
+lw $t3, -76($fp)
+# local_main_Main_internal_18 <- Type of local_main_Main_cells_16
+lw $t3, 0($t2)
+lw $t4, -80($fp)
+# Saves in local_main_Main_internal_19 data_0
+la $t4, data_0
+# local_main_Main_internal_18 <- local_main_Main_internal_18 = local_main_Main_internal_19
+move $t8, $t3
+move $t9, $t4
+loop_16:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_16
+beqz $a1, mismatch_16
+seq $v0, $a0, $a1
+beqz $v0, mismatch_16
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_16
+mismatch_16:
+li $v0, 0
+j end_16
+check_16:
+bnez $a1, mismatch_16
+li $v0, 1
+end_16:
+move $t3, $v0
+# If not local_main_Main_internal_18 goto continue__362
+sw $t0, -56($fp)
+sw $t1, -0($fp)
+sw $t2, -68($fp)
+sw $t3, -76($fp)
+sw $t4, -80($fp)
+beqz $t3, continue__362
+la $a0, dispatch_error
+j .raise
+continue__362:
+lw $t0, -68($fp)
+lw $t1, -72($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t2)
+lw $t9, 8($t0)
 lw $a0, 8($t9)
 # Saves in t8 the direction of function_print_CellularAutomaton
 lw $t8, 36($a0)
@@ -2440,13 +2762,11 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t2, ($sp)
+sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -40($fp)
-sw $t1, -0($fp)
-sw $t2, -44($fp)
-sw $t3, -48($fp)
+sw $t0, -68($fp)
+sw $t1, -72($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -2455,42 +2775,42 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -48($fp)
+lw $t0, -72($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -24($fp)
-lw $t2, -52($fp)
-# local_main_Main_internal_12 <- local_main_Main_countdown_5 - 1
+lw $t1, -40($fp)
+lw $t2, -84($fp)
+# local_main_Main_internal_20 <- local_main_Main_countdown_9 - 1
 addi $t2, $t1, -1
-# Moving local_main_Main_internal_12 to local_main_Main_countdown_5
+# Moving local_main_Main_internal_20 to local_main_Main_countdown_9
 move $t1, $t2
-sw $t1, -24($fp)
-lw $t3, -56($fp)
-# Moving local_main_Main_internal_12 to local_main_Main_internal_13
+sw $t1, -40($fp)
+lw $t3, -88($fp)
+# Moving local_main_Main_internal_20 to local_main_Main_internal_21
 move $t3, $t2
-sw $t3, -56($fp)
-lw $t4, -28($fp)
-# Moving local_main_Main_internal_13 to local_main_Main_internal_6
+sw $t3, -88($fp)
+lw $t4, -44($fp)
+# Moving local_main_Main_internal_21 to local_main_Main_internal_10
 move $t4, $t3
-sw $t4, -28($fp)
-sw $t0, -48($fp)
-sw $t1, -24($fp)
-sw $t2, -52($fp)
-sw $t3, -56($fp)
-sw $t4, -28($fp)
-j start__285
-end__285:
+sw $t4, -44($fp)
+sw $t0, -72($fp)
+sw $t1, -40($fp)
+sw $t2, -84($fp)
+sw $t3, -88($fp)
+sw $t4, -44($fp)
+j start__338
+end__338:
 lw $t0, -0($fp)
-lw $t1, -60($fp)
-# Moving self to local_main_Main_internal_14
+lw $t1, -92($fp)
+# Moving self to local_main_Main_internal_22
 move $t1, $t0
-sw $t1, -60($fp)
+sw $t1, -92($fp)
 move $v0, $t1
 # Empty all used registers and saves them to memory
 sw $t0, -0($fp)
-sw $t1, -60($fp)
+sw $t1, -92($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 64
+addiu $sp, $sp, 96
 jr $ra
 
 # Raise exception method

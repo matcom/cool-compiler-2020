@@ -122,8 +122,7 @@ class BaseCOOLToCILVisitor:
         f1_params = [ParamNode("self", 'Object')]
         f1_localVars = [LocalNode("local_abort_Object_self_0")]
         f1_intructions = [cil.AssignNode(f1_localVars[0].name,f1_params[0].name, self.index),
-                          cil.ExitNode(f1_params[0].name, idx=self.index),
-                          cil.ReturnNode(f1_localVars[0].name, self.index)]
+                          cil.ExitNode(f1_params[0].name, idx=self.index)]
         f1 = FunctionNode("function_abort_Object",f1_params,f1_localVars,f1_intructions)
 
         f2_params = [ParamNode("self", 'Object')]
@@ -271,3 +270,8 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.EqualNode(result, result, void_expr))
         return result
         
+    # def handle_arguments(self, args, scope, arg_type):
+    #     args_node = []
+    #     for arg, typex in self.visit(node.args):
+    #         if typex.name in ['String', 'Int', 'Bool']:
+                

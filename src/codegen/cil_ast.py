@@ -349,3 +349,10 @@ class ErrorNode(InstructionNode):
         super().__init__(idx)
         self.type = typex
 
+class BoxingNode(InstructionNode):
+    def __init__(self, dest, type_name, idx=None):
+        super().__init__(idx)
+        self.dest = dest
+        self.type = type_name
+
+        self.out = dest

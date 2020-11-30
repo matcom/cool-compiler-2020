@@ -463,14 +463,8 @@ syscall
 li $v0, 17
 move $a0, $t8
 syscall
-move $v0, $t1
-# Empty all used registers and saves them to memory
 sw $t0, -0($fp)
 sw $t1, -4($fp)
-# Removing all locals from stack
-addiu $sp, $sp, 8
-jr $ra
-
 
 function_type_name_Object:
 # Gets the params from the stack
@@ -1105,11 +1099,11 @@ bnez $a1, mismatch_6
 li $v0, 1
 end_6:
 move $t2, $v0
-# If local_c2i_A2I_internal_0 goto true__55
+# If local_c2i_A2I_internal_0 goto true__54
 sw $t0, -12($fp)
 sw $t1, -0($fp)
 sw $t2, -8($fp)
-bnez $t2, true__55
+bnez $t2, true__54
 lw $t0, -24($fp)
 # Saves in local_c2i_A2I_internal_4 data_2
 la $t0, data_2
@@ -1136,11 +1130,11 @@ bnez $a1, mismatch_7
 li $v0, 1
 end_7:
 move $t2, $v0
-# If local_c2i_A2I_internal_3 goto true__62
+# If local_c2i_A2I_internal_3 goto true__61
 sw $t0, -24($fp)
 sw $t1, -0($fp)
 sw $t2, -20($fp)
-bnez $t2, true__62
+bnez $t2, true__61
 lw $t0, -36($fp)
 # Saves in local_c2i_A2I_internal_7 data_3
 la $t0, data_3
@@ -1167,11 +1161,11 @@ bnez $a1, mismatch_8
 li $v0, 1
 end_8:
 move $t2, $v0
-# If local_c2i_A2I_internal_6 goto true__69
+# If local_c2i_A2I_internal_6 goto true__68
 sw $t0, -36($fp)
 sw $t1, -0($fp)
 sw $t2, -32($fp)
-bnez $t2, true__69
+bnez $t2, true__68
 lw $t0, -48($fp)
 # Saves in local_c2i_A2I_internal_10 data_4
 la $t0, data_4
@@ -1198,11 +1192,11 @@ bnez $a1, mismatch_9
 li $v0, 1
 end_9:
 move $t2, $v0
-# If local_c2i_A2I_internal_9 goto true__76
+# If local_c2i_A2I_internal_9 goto true__75
 sw $t0, -48($fp)
 sw $t1, -0($fp)
 sw $t2, -44($fp)
-bnez $t2, true__76
+bnez $t2, true__75
 lw $t0, -60($fp)
 # Saves in local_c2i_A2I_internal_13 data_5
 la $t0, data_5
@@ -1229,11 +1223,11 @@ bnez $a1, mismatch_10
 li $v0, 1
 end_10:
 move $t2, $v0
-# If local_c2i_A2I_internal_12 goto true__83
+# If local_c2i_A2I_internal_12 goto true__82
 sw $t0, -60($fp)
 sw $t1, -0($fp)
 sw $t2, -56($fp)
-bnez $t2, true__83
+bnez $t2, true__82
 lw $t0, -72($fp)
 # Saves in local_c2i_A2I_internal_16 data_6
 la $t0, data_6
@@ -1260,11 +1254,11 @@ bnez $a1, mismatch_11
 li $v0, 1
 end_11:
 move $t2, $v0
-# If local_c2i_A2I_internal_15 goto true__90
+# If local_c2i_A2I_internal_15 goto true__89
 sw $t0, -72($fp)
 sw $t1, -0($fp)
 sw $t2, -68($fp)
-bnez $t2, true__90
+bnez $t2, true__89
 lw $t0, -84($fp)
 # Saves in local_c2i_A2I_internal_19 data_7
 la $t0, data_7
@@ -1291,11 +1285,11 @@ bnez $a1, mismatch_12
 li $v0, 1
 end_12:
 move $t2, $v0
-# If local_c2i_A2I_internal_18 goto true__97
+# If local_c2i_A2I_internal_18 goto true__96
 sw $t0, -84($fp)
 sw $t1, -0($fp)
 sw $t2, -80($fp)
-bnez $t2, true__97
+bnez $t2, true__96
 lw $t0, -96($fp)
 # Saves in local_c2i_A2I_internal_22 data_8
 la $t0, data_8
@@ -1322,11 +1316,11 @@ bnez $a1, mismatch_13
 li $v0, 1
 end_13:
 move $t2, $v0
-# If local_c2i_A2I_internal_21 goto true__104
+# If local_c2i_A2I_internal_21 goto true__103
 sw $t0, -96($fp)
 sw $t1, -0($fp)
 sw $t2, -92($fp)
-bnez $t2, true__104
+bnez $t2, true__103
 lw $t0, -108($fp)
 # Saves in local_c2i_A2I_internal_25 data_9
 la $t0, data_9
@@ -1353,11 +1347,11 @@ bnez $a1, mismatch_14
 li $v0, 1
 end_14:
 move $t2, $v0
-# If local_c2i_A2I_internal_24 goto true__111
+# If local_c2i_A2I_internal_24 goto true__110
 sw $t0, -108($fp)
 sw $t1, -0($fp)
 sw $t2, -104($fp)
-bnez $t2, true__111
+bnez $t2, true__110
 lw $t0, -120($fp)
 # Saves in local_c2i_A2I_internal_28 data_10
 la $t0, data_10
@@ -1384,11 +1378,11 @@ bnez $a1, mismatch_15
 li $v0, 1
 end_15:
 move $t2, $v0
-# If local_c2i_A2I_internal_27 goto true__118
+# If local_c2i_A2I_internal_27 goto true__117
 sw $t0, -120($fp)
 sw $t1, -0($fp)
 sw $t2, -116($fp)
-bnez $t2, true__118
+bnez $t2, true__117
 lw $t0, -4($fp)
 lw $t1, -128($fp)
 # Find the actual name in the dispatch table
@@ -1430,14 +1424,14 @@ sw $t2, -124($fp)
 sw $t0, -128($fp)
 sw $t1, -132($fp)
 sw $t2, -124($fp)
-j end__118
-true__118:
+j end__117
+true__117:
 lw $t0, -124($fp)
 # Moving 9 to local_c2i_A2I_internal_29
 li $t0, 9
 sw $t0, -124($fp)
 sw $t0, -124($fp)
-end__118:
+end__117:
 lw $t0, -124($fp)
 lw $t1, -112($fp)
 # Moving local_c2i_A2I_internal_29 to local_c2i_A2I_internal_26
@@ -1445,14 +1439,14 @@ move $t1, $t0
 sw $t1, -112($fp)
 sw $t0, -124($fp)
 sw $t1, -112($fp)
-j end__111
-true__111:
+j end__110
+true__110:
 lw $t0, -112($fp)
 # Moving 8 to local_c2i_A2I_internal_26
 li $t0, 8
 sw $t0, -112($fp)
 sw $t0, -112($fp)
-end__111:
+end__110:
 lw $t0, -112($fp)
 lw $t1, -100($fp)
 # Moving local_c2i_A2I_internal_26 to local_c2i_A2I_internal_23
@@ -1460,14 +1454,14 @@ move $t1, $t0
 sw $t1, -100($fp)
 sw $t0, -112($fp)
 sw $t1, -100($fp)
-j end__104
-true__104:
+j end__103
+true__103:
 lw $t0, -100($fp)
 # Moving 7 to local_c2i_A2I_internal_23
 li $t0, 7
 sw $t0, -100($fp)
 sw $t0, -100($fp)
-end__104:
+end__103:
 lw $t0, -100($fp)
 lw $t1, -88($fp)
 # Moving local_c2i_A2I_internal_23 to local_c2i_A2I_internal_20
@@ -1475,14 +1469,14 @@ move $t1, $t0
 sw $t1, -88($fp)
 sw $t0, -100($fp)
 sw $t1, -88($fp)
-j end__97
-true__97:
+j end__96
+true__96:
 lw $t0, -88($fp)
 # Moving 6 to local_c2i_A2I_internal_20
 li $t0, 6
 sw $t0, -88($fp)
 sw $t0, -88($fp)
-end__97:
+end__96:
 lw $t0, -88($fp)
 lw $t1, -76($fp)
 # Moving local_c2i_A2I_internal_20 to local_c2i_A2I_internal_17
@@ -1490,14 +1484,14 @@ move $t1, $t0
 sw $t1, -76($fp)
 sw $t0, -88($fp)
 sw $t1, -76($fp)
-j end__90
-true__90:
+j end__89
+true__89:
 lw $t0, -76($fp)
 # Moving 5 to local_c2i_A2I_internal_17
 li $t0, 5
 sw $t0, -76($fp)
 sw $t0, -76($fp)
-end__90:
+end__89:
 lw $t0, -76($fp)
 lw $t1, -64($fp)
 # Moving local_c2i_A2I_internal_17 to local_c2i_A2I_internal_14
@@ -1505,14 +1499,14 @@ move $t1, $t0
 sw $t1, -64($fp)
 sw $t0, -76($fp)
 sw $t1, -64($fp)
-j end__83
-true__83:
+j end__82
+true__82:
 lw $t0, -64($fp)
 # Moving 4 to local_c2i_A2I_internal_14
 li $t0, 4
 sw $t0, -64($fp)
 sw $t0, -64($fp)
-end__83:
+end__82:
 lw $t0, -64($fp)
 lw $t1, -52($fp)
 # Moving local_c2i_A2I_internal_14 to local_c2i_A2I_internal_11
@@ -1520,14 +1514,14 @@ move $t1, $t0
 sw $t1, -52($fp)
 sw $t0, -64($fp)
 sw $t1, -52($fp)
-j end__76
-true__76:
+j end__75
+true__75:
 lw $t0, -52($fp)
 # Moving 3 to local_c2i_A2I_internal_11
 li $t0, 3
 sw $t0, -52($fp)
 sw $t0, -52($fp)
-end__76:
+end__75:
 lw $t0, -52($fp)
 lw $t1, -40($fp)
 # Moving local_c2i_A2I_internal_11 to local_c2i_A2I_internal_8
@@ -1535,14 +1529,14 @@ move $t1, $t0
 sw $t1, -40($fp)
 sw $t0, -52($fp)
 sw $t1, -40($fp)
-j end__69
-true__69:
+j end__68
+true__68:
 lw $t0, -40($fp)
 # Moving 2 to local_c2i_A2I_internal_8
 li $t0, 2
 sw $t0, -40($fp)
 sw $t0, -40($fp)
-end__69:
+end__68:
 lw $t0, -40($fp)
 lw $t1, -28($fp)
 # Moving local_c2i_A2I_internal_8 to local_c2i_A2I_internal_5
@@ -1550,14 +1544,14 @@ move $t1, $t0
 sw $t1, -28($fp)
 sw $t0, -40($fp)
 sw $t1, -28($fp)
-j end__62
-true__62:
+j end__61
+true__61:
 lw $t0, -28($fp)
 # Moving 1 to local_c2i_A2I_internal_5
 li $t0, 1
 sw $t0, -28($fp)
 sw $t0, -28($fp)
-end__62:
+end__61:
 lw $t0, -28($fp)
 lw $t1, -16($fp)
 # Moving local_c2i_A2I_internal_5 to local_c2i_A2I_internal_2
@@ -1565,14 +1559,14 @@ move $t1, $t0
 sw $t1, -16($fp)
 sw $t0, -28($fp)
 sw $t1, -16($fp)
-j end__55
-true__55:
+j end__54
+true__54:
 lw $t0, -16($fp)
 # Moving 0 to local_c2i_A2I_internal_2
 li $t0, 0
 sw $t0, -16($fp)
 sw $t0, -16($fp)
-end__55:
+end__54:
 lw $t0, -16($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -1661,91 +1655,91 @@ lw $t1, -8($fp)
 # local_i2c_A2I_internal_0 <- i = 0
 li $t9, 0
 seq $t1, $t0, $t9
-# If local_i2c_A2I_internal_0 goto true__180
+# If local_i2c_A2I_internal_0 goto true__179
 sw $t0, -0($fp)
 sw $t1, -8($fp)
-bnez $t1, true__180
+bnez $t1, true__179
 lw $t0, -0($fp)
 lw $t1, -16($fp)
 # local_i2c_A2I_internal_2 <- i = 1
 li $t9, 1
 seq $t1, $t0, $t9
-# If local_i2c_A2I_internal_2 goto true__184
+# If local_i2c_A2I_internal_2 goto true__183
 sw $t0, -0($fp)
 sw $t1, -16($fp)
-bnez $t1, true__184
+bnez $t1, true__183
 lw $t0, -0($fp)
 lw $t1, -24($fp)
 # local_i2c_A2I_internal_4 <- i = 2
 li $t9, 2
 seq $t1, $t0, $t9
-# If local_i2c_A2I_internal_4 goto true__188
+# If local_i2c_A2I_internal_4 goto true__187
 sw $t0, -0($fp)
 sw $t1, -24($fp)
-bnez $t1, true__188
+bnez $t1, true__187
 lw $t0, -0($fp)
 lw $t1, -32($fp)
 # local_i2c_A2I_internal_6 <- i = 3
 li $t9, 3
 seq $t1, $t0, $t9
-# If local_i2c_A2I_internal_6 goto true__192
+# If local_i2c_A2I_internal_6 goto true__191
 sw $t0, -0($fp)
 sw $t1, -32($fp)
-bnez $t1, true__192
+bnez $t1, true__191
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # local_i2c_A2I_internal_8 <- i = 4
 li $t9, 4
 seq $t1, $t0, $t9
-# If local_i2c_A2I_internal_8 goto true__196
+# If local_i2c_A2I_internal_8 goto true__195
 sw $t0, -0($fp)
 sw $t1, -40($fp)
-bnez $t1, true__196
+bnez $t1, true__195
 lw $t0, -0($fp)
 lw $t1, -48($fp)
 # local_i2c_A2I_internal_10 <- i = 5
 li $t9, 5
 seq $t1, $t0, $t9
-# If local_i2c_A2I_internal_10 goto true__200
+# If local_i2c_A2I_internal_10 goto true__199
 sw $t0, -0($fp)
 sw $t1, -48($fp)
-bnez $t1, true__200
+bnez $t1, true__199
 lw $t0, -0($fp)
 lw $t1, -56($fp)
 # local_i2c_A2I_internal_12 <- i = 6
 li $t9, 6
 seq $t1, $t0, $t9
-# If local_i2c_A2I_internal_12 goto true__204
+# If local_i2c_A2I_internal_12 goto true__203
 sw $t0, -0($fp)
 sw $t1, -56($fp)
-bnez $t1, true__204
+bnez $t1, true__203
 lw $t0, -0($fp)
 lw $t1, -64($fp)
 # local_i2c_A2I_internal_14 <- i = 7
 li $t9, 7
 seq $t1, $t0, $t9
-# If local_i2c_A2I_internal_14 goto true__208
+# If local_i2c_A2I_internal_14 goto true__207
 sw $t0, -0($fp)
 sw $t1, -64($fp)
-bnez $t1, true__208
+bnez $t1, true__207
 lw $t0, -0($fp)
 lw $t1, -72($fp)
 # local_i2c_A2I_internal_16 <- i = 8
 li $t9, 8
 seq $t1, $t0, $t9
-# If local_i2c_A2I_internal_16 goto true__212
+# If local_i2c_A2I_internal_16 goto true__211
 sw $t0, -0($fp)
 sw $t1, -72($fp)
-bnez $t1, true__212
+bnez $t1, true__211
 lw $t0, -0($fp)
 lw $t1, -80($fp)
 # local_i2c_A2I_internal_18 <- i = 9
 li $t9, 9
 seq $t1, $t0, $t9
-# If local_i2c_A2I_internal_18 goto true__216
+# If local_i2c_A2I_internal_18 goto true__215
 sw $t0, -0($fp)
 sw $t1, -80($fp)
-bnez $t1, true__216
+bnez $t1, true__215
 lw $t0, -4($fp)
 lw $t1, -88($fp)
 # Find the actual name in the dispatch table
@@ -1791,8 +1785,8 @@ sw $t0, -88($fp)
 sw $t1, -92($fp)
 sw $t2, -96($fp)
 sw $t3, -84($fp)
-j end__216
-true__216:
+j end__215
+true__215:
 lw $t0, -100($fp)
 # Saves in local_i2c_A2I_internal_23 data_12
 la $t0, data_12
@@ -1802,7 +1796,7 @@ move $t1, $t0
 sw $t1, -84($fp)
 sw $t0, -100($fp)
 sw $t1, -84($fp)
-end__216:
+end__215:
 lw $t0, -84($fp)
 lw $t1, -76($fp)
 # Moving local_i2c_A2I_internal_19 to local_i2c_A2I_internal_17
@@ -1810,8 +1804,8 @@ move $t1, $t0
 sw $t1, -76($fp)
 sw $t0, -84($fp)
 sw $t1, -76($fp)
-j end__212
-true__212:
+j end__211
+true__211:
 lw $t0, -104($fp)
 # Saves in local_i2c_A2I_internal_24 data_13
 la $t0, data_13
@@ -1821,7 +1815,7 @@ move $t1, $t0
 sw $t1, -76($fp)
 sw $t0, -104($fp)
 sw $t1, -76($fp)
-end__212:
+end__211:
 lw $t0, -76($fp)
 lw $t1, -68($fp)
 # Moving local_i2c_A2I_internal_17 to local_i2c_A2I_internal_15
@@ -1829,8 +1823,8 @@ move $t1, $t0
 sw $t1, -68($fp)
 sw $t0, -76($fp)
 sw $t1, -68($fp)
-j end__208
-true__208:
+j end__207
+true__207:
 lw $t0, -108($fp)
 # Saves in local_i2c_A2I_internal_25 data_14
 la $t0, data_14
@@ -1840,7 +1834,7 @@ move $t1, $t0
 sw $t1, -68($fp)
 sw $t0, -108($fp)
 sw $t1, -68($fp)
-end__208:
+end__207:
 lw $t0, -68($fp)
 lw $t1, -60($fp)
 # Moving local_i2c_A2I_internal_15 to local_i2c_A2I_internal_13
@@ -1848,8 +1842,8 @@ move $t1, $t0
 sw $t1, -60($fp)
 sw $t0, -68($fp)
 sw $t1, -60($fp)
-j end__204
-true__204:
+j end__203
+true__203:
 lw $t0, -112($fp)
 # Saves in local_i2c_A2I_internal_26 data_15
 la $t0, data_15
@@ -1859,7 +1853,7 @@ move $t1, $t0
 sw $t1, -60($fp)
 sw $t0, -112($fp)
 sw $t1, -60($fp)
-end__204:
+end__203:
 lw $t0, -60($fp)
 lw $t1, -52($fp)
 # Moving local_i2c_A2I_internal_13 to local_i2c_A2I_internal_11
@@ -1867,8 +1861,8 @@ move $t1, $t0
 sw $t1, -52($fp)
 sw $t0, -60($fp)
 sw $t1, -52($fp)
-j end__200
-true__200:
+j end__199
+true__199:
 lw $t0, -116($fp)
 # Saves in local_i2c_A2I_internal_27 data_16
 la $t0, data_16
@@ -1878,7 +1872,7 @@ move $t1, $t0
 sw $t1, -52($fp)
 sw $t0, -116($fp)
 sw $t1, -52($fp)
-end__200:
+end__199:
 lw $t0, -52($fp)
 lw $t1, -44($fp)
 # Moving local_i2c_A2I_internal_11 to local_i2c_A2I_internal_9
@@ -1886,8 +1880,8 @@ move $t1, $t0
 sw $t1, -44($fp)
 sw $t0, -52($fp)
 sw $t1, -44($fp)
-j end__196
-true__196:
+j end__195
+true__195:
 lw $t0, -120($fp)
 # Saves in local_i2c_A2I_internal_28 data_17
 la $t0, data_17
@@ -1897,7 +1891,7 @@ move $t1, $t0
 sw $t1, -44($fp)
 sw $t0, -120($fp)
 sw $t1, -44($fp)
-end__196:
+end__195:
 lw $t0, -44($fp)
 lw $t1, -36($fp)
 # Moving local_i2c_A2I_internal_9 to local_i2c_A2I_internal_7
@@ -1905,8 +1899,8 @@ move $t1, $t0
 sw $t1, -36($fp)
 sw $t0, -44($fp)
 sw $t1, -36($fp)
-j end__192
-true__192:
+j end__191
+true__191:
 lw $t0, -124($fp)
 # Saves in local_i2c_A2I_internal_29 data_18
 la $t0, data_18
@@ -1916,7 +1910,7 @@ move $t1, $t0
 sw $t1, -36($fp)
 sw $t0, -124($fp)
 sw $t1, -36($fp)
-end__192:
+end__191:
 lw $t0, -36($fp)
 lw $t1, -28($fp)
 # Moving local_i2c_A2I_internal_7 to local_i2c_A2I_internal_5
@@ -1924,8 +1918,8 @@ move $t1, $t0
 sw $t1, -28($fp)
 sw $t0, -36($fp)
 sw $t1, -28($fp)
-j end__188
-true__188:
+j end__187
+true__187:
 lw $t0, -128($fp)
 # Saves in local_i2c_A2I_internal_30 data_19
 la $t0, data_19
@@ -1935,7 +1929,7 @@ move $t1, $t0
 sw $t1, -28($fp)
 sw $t0, -128($fp)
 sw $t1, -28($fp)
-end__188:
+end__187:
 lw $t0, -28($fp)
 lw $t1, -20($fp)
 # Moving local_i2c_A2I_internal_5 to local_i2c_A2I_internal_3
@@ -1943,8 +1937,8 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -28($fp)
 sw $t1, -20($fp)
-j end__184
-true__184:
+j end__183
+true__183:
 lw $t0, -132($fp)
 # Saves in local_i2c_A2I_internal_31 data_20
 la $t0, data_20
@@ -1954,7 +1948,7 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -132($fp)
 sw $t1, -20($fp)
-end__184:
+end__183:
 lw $t0, -20($fp)
 lw $t1, -12($fp)
 # Moving local_i2c_A2I_internal_3 to local_i2c_A2I_internal_1
@@ -1962,8 +1956,8 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -20($fp)
 sw $t1, -12($fp)
-j end__180
-true__180:
+j end__179
+true__179:
 lw $t0, -136($fp)
 # Saves in local_i2c_A2I_internal_32 data_21
 la $t0, data_21
@@ -1973,7 +1967,7 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -136($fp)
 sw $t1, -12($fp)
-end__180:
+end__179:
 lw $t0, -12($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -2033,6 +2027,70 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_a2i_A2I_internal_20 to the stack
 addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_21 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_22 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_23 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_24 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_25 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_26 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_27 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_28 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_29 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_30 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_31 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_32 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_33 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_A2I_internal_34 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -16($fp)
+# local_a2i_A2I_internal_2 <- Type of s
+la $t1, type_String
+lw $t2, -20($fp)
+# Saves in local_a2i_A2I_internal_3 data_0
+la $t2, data_0
+# local_a2i_A2I_internal_2 <- local_a2i_A2I_internal_2 = local_a2i_A2I_internal_3
+move $t8, $t1
+move $t9, $t2
+loop_16:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_16
+beqz $a1, mismatch_16
+seq $v0, $a0, $a1
+beqz $v0, mismatch_16
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_16
+mismatch_16:
+li $v0, 0
+j end_16
+check_16:
+bnez $a1, mismatch_16
+li $v0, 1
+end_16:
+move $t1, $v0
+# If not local_a2i_A2I_internal_2 goto continue__311
+sw $t0, -0($fp)
+sw $t1, -16($fp)
+sw $t2, -20($fp)
+beqz $t1, continue__311
+la $a0, dispatch_error
+j .raise
+continue__311:
 lw $t0, -12($fp)
 # Static Dispatch of the method length
 sw $fp, ($sp)
@@ -2062,113 +2120,20 @@ lw $t1, -8($fp)
 # local_a2i_A2I_internal_0 <- local_a2i_A2I_internal_1 = 0
 li $t9, 0
 seq $t1, $t0, $t9
-# If local_a2i_A2I_internal_0 goto true__314
+# If local_a2i_A2I_internal_0 goto true__322
 sw $t0, -12($fp)
 sw $t1, -8($fp)
-bnez $t1, true__314
-lw $t0, -24($fp)
-# Static Dispatch of the method substr
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-li $t9, 1
-sw $t9, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-li $t9, 0
-sw $t9, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-lw $t1, -0($fp)
-sw $t1, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -24($fp)
-sw $t1, -0($fp)
-# This function will consume the arguments
-jal function_substr_String
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
-lw $t0, -24($fp)
-# saves the return value
-move $t0, $v0
-lw $t1, -28($fp)
-# Saves in local_a2i_A2I_internal_5 data_22
-la $t1, data_22
-lw $t2, -20($fp)
-# local_a2i_A2I_internal_3 <- local_a2i_A2I_internal_4 = local_a2i_A2I_internal_5
-move $t8, $t0
-move $t9, $t1
-loop_16:
-lb $a0, ($t8)
-lb $a1, ($t9)
-beqz $a0, check_16
-beqz $a1, mismatch_16
-seq $v0, $a0, $a1
-beqz $v0, mismatch_16
-addi $t8, $t8, 1
-addi $t9, $t9, 1
-j loop_16
-mismatch_16:
-li $v0, 0
-j end_16
-check_16:
-bnez $a1, mismatch_16
-li $v0, 1
-end_16:
-move $t2, $v0
-# If local_a2i_A2I_internal_3 goto true__326
-sw $t0, -24($fp)
-sw $t1, -28($fp)
-sw $t2, -20($fp)
-bnez $t2, true__326
-lw $t0, -40($fp)
-# Static Dispatch of the method substr
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-li $t9, 1
-sw $t9, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-li $t9, 0
-sw $t9, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-lw $t1, -0($fp)
-sw $t1, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -40($fp)
-sw $t1, -0($fp)
-# This function will consume the arguments
-jal function_substr_String
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
-lw $t0, -40($fp)
-# saves the return value
-move $t0, $v0
-lw $t1, -44($fp)
-# Saves in local_a2i_A2I_internal_9 data_23
-la $t1, data_23
-lw $t2, -36($fp)
-# local_a2i_A2I_internal_7 <- local_a2i_A2I_internal_8 = local_a2i_A2I_internal_9
-move $t8, $t0
-move $t9, $t1
+bnez $t1, true__322
+lw $t0, -0($fp)
+lw $t1, -36($fp)
+# local_a2i_A2I_internal_7 <- Type of s
+la $t1, type_String
+lw $t2, -40($fp)
+# Saves in local_a2i_A2I_internal_8 data_0
+la $t2, data_0
+# local_a2i_A2I_internal_7 <- local_a2i_A2I_internal_7 = local_a2i_A2I_internal_8
+move $t8, $t1
+move $t9, $t2
 loop_17:
 lb $a0, ($t8)
 lb $a1, ($t9)
@@ -2186,14 +2151,179 @@ check_17:
 bnez $a1, mismatch_17
 li $v0, 1
 end_17:
+move $t1, $v0
+# If not local_a2i_A2I_internal_7 goto continue__329
+sw $t0, -0($fp)
+sw $t1, -36($fp)
+sw $t2, -40($fp)
+beqz $t1, continue__329
+la $a0, dispatch_error
+j .raise
+continue__329:
+lw $t0, -32($fp)
+# Static Dispatch of the method substr
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+li $t9, 1
+sw $t9, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+li $t9, 0
+sw $t9, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+lw $t1, -0($fp)
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -32($fp)
+sw $t1, -0($fp)
+# This function will consume the arguments
+jal function_substr_String
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -32($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -44($fp)
+# Saves in local_a2i_A2I_internal_9 data_22
+la $t1, data_22
+lw $t2, -28($fp)
+# local_a2i_A2I_internal_5 <- local_a2i_A2I_internal_6 = local_a2i_A2I_internal_9
+move $t8, $t0
+move $t9, $t1
+loop_18:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_18
+beqz $a1, mismatch_18
+seq $v0, $a0, $a1
+beqz $v0, mismatch_18
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_18
+mismatch_18:
+li $v0, 0
+j end_18
+check_18:
+bnez $a1, mismatch_18
+li $v0, 1
+end_18:
 move $t2, $v0
-# If local_a2i_A2I_internal_7 goto true__338
-sw $t0, -40($fp)
+# If local_a2i_A2I_internal_5 goto true__343
+sw $t0, -32($fp)
 sw $t1, -44($fp)
-sw $t2, -36($fp)
-bnez $t2, true__338
+sw $t2, -28($fp)
+bnez $t2, true__343
+lw $t0, -0($fp)
+lw $t1, -60($fp)
+# local_a2i_A2I_internal_13 <- Type of s
+la $t1, type_String
+lw $t2, -64($fp)
+# Saves in local_a2i_A2I_internal_14 data_0
+la $t2, data_0
+# local_a2i_A2I_internal_13 <- local_a2i_A2I_internal_13 = local_a2i_A2I_internal_14
+move $t8, $t1
+move $t9, $t2
+loop_19:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_19
+beqz $a1, mismatch_19
+seq $v0, $a0, $a1
+beqz $v0, mismatch_19
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_19
+mismatch_19:
+li $v0, 0
+j end_19
+check_19:
+bnez $a1, mismatch_19
+li $v0, 1
+end_19:
+move $t1, $v0
+# If not local_a2i_A2I_internal_13 goto continue__350
+sw $t0, -0($fp)
+sw $t1, -60($fp)
+sw $t2, -64($fp)
+beqz $t1, continue__350
+la $a0, dispatch_error
+j .raise
+continue__350:
+lw $t0, -56($fp)
+# Static Dispatch of the method substr
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+li $t9, 1
+sw $t9, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+li $t9, 0
+sw $t9, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+lw $t1, -0($fp)
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -56($fp)
+sw $t1, -0($fp)
+# This function will consume the arguments
+jal function_substr_String
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -56($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -68($fp)
+# Saves in local_a2i_A2I_internal_15 data_23
+la $t1, data_23
+lw $t2, -52($fp)
+# local_a2i_A2I_internal_11 <- local_a2i_A2I_internal_12 = local_a2i_A2I_internal_15
+move $t8, $t0
+move $t9, $t1
+loop_20:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_20
+beqz $a1, mismatch_20
+seq $v0, $a0, $a1
+beqz $v0, mismatch_20
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_20
+mismatch_20:
+li $v0, 0
+j end_20
+check_20:
+bnez $a1, mismatch_20
+li $v0, 1
+end_20:
+move $t2, $v0
+# If local_a2i_A2I_internal_11 goto true__364
+sw $t0, -56($fp)
+sw $t1, -68($fp)
+sw $t2, -52($fp)
+bnez $t2, true__364
 lw $t0, -4($fp)
-lw $t1, -52($fp)
+lw $t1, -76($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
@@ -2214,7 +2344,7 @@ sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
 sw $t0, -4($fp)
-sw $t1, -52($fp)
+sw $t1, -76($fp)
 sw $t2, -0($fp)
 # This function will consume the arguments
 jal $t8
@@ -2224,18 +2354,54 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -52($fp)
+lw $t0, -76($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -48($fp)
-# Moving local_a2i_A2I_internal_11 to local_a2i_A2I_internal_10
+lw $t1, -72($fp)
+# Moving local_a2i_A2I_internal_17 to local_a2i_A2I_internal_16
 move $t1, $t0
-sw $t1, -48($fp)
-sw $t0, -52($fp)
-sw $t1, -48($fp)
-j end__338
-true__338:
-lw $t0, -60($fp)
+sw $t1, -72($fp)
+sw $t0, -76($fp)
+sw $t1, -72($fp)
+j end__364
+true__364:
+lw $t0, -0($fp)
+lw $t1, -88($fp)
+# local_a2i_A2I_internal_20 <- Type of s
+la $t1, type_String
+lw $t2, -92($fp)
+# Saves in local_a2i_A2I_internal_21 data_0
+la $t2, data_0
+# local_a2i_A2I_internal_20 <- local_a2i_A2I_internal_20 = local_a2i_A2I_internal_21
+move $t8, $t1
+move $t9, $t2
+loop_21:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_21
+beqz $a1, mismatch_21
+seq $v0, $a0, $a1
+beqz $v0, mismatch_21
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_21
+mismatch_21:
+li $v0, 0
+j end_21
+check_21:
+bnez $a1, mismatch_21
+li $v0, 1
+end_21:
+move $t1, $v0
+# If not local_a2i_A2I_internal_20 goto continue__375
+sw $t0, -0($fp)
+sw $t1, -88($fp)
+sw $t2, -92($fp)
+beqz $t1, continue__375
+la $a0, dispatch_error
+j .raise
+continue__375:
+lw $t0, -84($fp)
 # Static Dispatch of the method length
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -2247,159 +2413,10 @@ lw $t1, -0($fp)
 sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -60($fp)
+sw $t0, -84($fp)
 sw $t1, -0($fp)
 # This function will consume the arguments
 jal function_length_String
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
-lw $t0, -60($fp)
-# saves the return value
-move $t0, $v0
-lw $t1, -56($fp)
-# local_a2i_A2I_internal_12 <- local_a2i_A2I_internal_13 - 1
-addi $t1, $t0, -1
-lw $t2, -64($fp)
-# Static Dispatch of the method substr
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-sw $t1, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-li $t9, 1
-sw $t9, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-lw $t3, -0($fp)
-sw $t3, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -60($fp)
-sw $t1, -56($fp)
-sw $t2, -64($fp)
-sw $t3, -0($fp)
-# This function will consume the arguments
-jal function_substr_String
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
-lw $t0, -64($fp)
-# saves the return value
-move $t0, $v0
-lw $t1, -4($fp)
-lw $t2, -68($fp)
-# Find the actual name in the dispatch table
-# Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t1)
-lw $a0, 8($t9)
-# Saves in t8 the direction of function_a2i_aux_A2I
-lw $t8, 28($a0)
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-sw $t0, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-sw $t1, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -64($fp)
-sw $t1, -4($fp)
-sw $t2, -68($fp)
-# This function will consume the arguments
-jal $t8
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
-lw $t0, -68($fp)
-# saves the return value
-move $t0, $v0
-lw $t1, -48($fp)
-# Moving local_a2i_A2I_internal_15 to local_a2i_A2I_internal_10
-move $t1, $t0
-sw $t1, -48($fp)
-sw $t0, -68($fp)
-sw $t1, -48($fp)
-end__338:
-lw $t0, -48($fp)
-lw $t1, -32($fp)
-# Moving local_a2i_A2I_internal_10 to local_a2i_A2I_internal_6
-move $t1, $t0
-sw $t1, -32($fp)
-sw $t0, -48($fp)
-sw $t1, -32($fp)
-j end__326
-true__326:
-lw $t0, -80($fp)
-# Static Dispatch of the method length
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-lw $t1, -0($fp)
-sw $t1, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -80($fp)
-sw $t1, -0($fp)
-# This function will consume the arguments
-jal function_length_String
-# Pop ra register of return function of the stack
-addiu $sp, $sp, 4
-lw $ra, ($sp)
-# Pop fp register from the stack
-addiu $sp, $sp, 4
-lw $fp, ($sp)
-lw $t0, -80($fp)
-# saves the return value
-move $t0, $v0
-lw $t1, -76($fp)
-# local_a2i_A2I_internal_17 <- local_a2i_A2I_internal_18 - 1
-addi $t1, $t0, -1
-lw $t2, -84($fp)
-# Static Dispatch of the method substr
-sw $fp, ($sp)
-addiu $sp, $sp, -4
-sw $ra, ($sp)
-addiu $sp, $sp, -4
-# Push the arguments to the stack
-# The rest of the arguments are push into the stack
-sw $t1, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-li $t9, 1
-sw $t9, ($sp)
-addiu $sp, $sp, -4
-# The rest of the arguments are push into the stack
-lw $t3, -0($fp)
-sw $t3, ($sp)
-addiu $sp, $sp, -4
-# Empty all used registers and saves them to memory
-sw $t0, -80($fp)
-sw $t1, -76($fp)
-sw $t2, -84($fp)
-sw $t3, -0($fp)
-# This function will consume the arguments
-jal function_substr_String
 # Pop ra register of return function of the stack
 addiu $sp, $sp, 4
 lw $ra, ($sp)
@@ -2409,8 +2426,83 @@ lw $fp, ($sp)
 lw $t0, -84($fp)
 # saves the return value
 move $t0, $v0
+lw $t1, -80($fp)
+# local_a2i_A2I_internal_18 <- local_a2i_A2I_internal_19 - 1
+addi $t1, $t0, -1
+lw $t2, -0($fp)
+lw $t3, -100($fp)
+# local_a2i_A2I_internal_23 <- Type of s
+la $t3, type_String
+lw $t4, -104($fp)
+# Saves in local_a2i_A2I_internal_24 data_0
+la $t4, data_0
+# local_a2i_A2I_internal_23 <- local_a2i_A2I_internal_23 = local_a2i_A2I_internal_24
+move $t8, $t3
+move $t9, $t4
+loop_22:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_22
+beqz $a1, mismatch_22
+seq $v0, $a0, $a1
+beqz $v0, mismatch_22
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_22
+mismatch_22:
+li $v0, 0
+j end_22
+check_22:
+bnez $a1, mismatch_22
+li $v0, 1
+end_22:
+move $t3, $v0
+# If not local_a2i_A2I_internal_23 goto continue__390
+sw $t0, -84($fp)
+sw $t1, -80($fp)
+sw $t2, -0($fp)
+sw $t3, -100($fp)
+sw $t4, -104($fp)
+beqz $t3, continue__390
+la $a0, dispatch_error
+j .raise
+continue__390:
+lw $t0, -96($fp)
+# Static Dispatch of the method substr
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+lw $t1, -80($fp)
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+li $t9, 1
+sw $t9, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+lw $t2, -0($fp)
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -96($fp)
+sw $t1, -80($fp)
+sw $t2, -0($fp)
+# This function will consume the arguments
+jal function_substr_String
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -96($fp)
+# saves the return value
+move $t0, $v0
 lw $t1, -4($fp)
-lw $t2, -88($fp)
+lw $t2, -108($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
@@ -2429,9 +2521,9 @@ addiu $sp, $sp, -4
 sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -84($fp)
+sw $t0, -96($fp)
 sw $t1, -4($fp)
-sw $t2, -88($fp)
+sw $t2, -108($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -2440,42 +2532,228 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -88($fp)
+lw $t0, -108($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -72($fp)
-# local_a2i_A2I_internal_16 <- ~local_a2i_A2I_internal_20
+# Moving local_a2i_A2I_internal_25 to local_a2i_A2I_internal_16
+move $t1, $t0
+sw $t1, -72($fp)
+sw $t0, -108($fp)
+sw $t1, -72($fp)
+end__364:
+lw $t0, -72($fp)
+lw $t1, -48($fp)
+# Moving local_a2i_A2I_internal_16 to local_a2i_A2I_internal_10
+move $t1, $t0
+sw $t1, -48($fp)
+sw $t0, -72($fp)
+sw $t1, -48($fp)
+j end__343
+true__343:
+lw $t0, -0($fp)
+lw $t1, -124($fp)
+# local_a2i_A2I_internal_29 <- Type of s
+la $t1, type_String
+lw $t2, -128($fp)
+# Saves in local_a2i_A2I_internal_30 data_0
+la $t2, data_0
+# local_a2i_A2I_internal_29 <- local_a2i_A2I_internal_29 = local_a2i_A2I_internal_30
+move $t8, $t1
+move $t9, $t2
+loop_23:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_23
+beqz $a1, mismatch_23
+seq $v0, $a0, $a1
+beqz $v0, mismatch_23
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_23
+mismatch_23:
+li $v0, 0
+j end_23
+check_23:
+bnez $a1, mismatch_23
+li $v0, 1
+end_23:
+move $t1, $v0
+# If not local_a2i_A2I_internal_29 goto continue__412
+sw $t0, -0($fp)
+sw $t1, -124($fp)
+sw $t2, -128($fp)
+beqz $t1, continue__412
+la $a0, dispatch_error
+j .raise
+continue__412:
+lw $t0, -120($fp)
+# Static Dispatch of the method length
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+lw $t1, -0($fp)
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -120($fp)
+sw $t1, -0($fp)
+# This function will consume the arguments
+jal function_length_String
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -120($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -116($fp)
+# local_a2i_A2I_internal_27 <- local_a2i_A2I_internal_28 - 1
+addi $t1, $t0, -1
+lw $t2, -0($fp)
+lw $t3, -136($fp)
+# local_a2i_A2I_internal_32 <- Type of s
+la $t3, type_String
+lw $t4, -140($fp)
+# Saves in local_a2i_A2I_internal_33 data_0
+la $t4, data_0
+# local_a2i_A2I_internal_32 <- local_a2i_A2I_internal_32 = local_a2i_A2I_internal_33
+move $t8, $t3
+move $t9, $t4
+loop_24:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_24
+beqz $a1, mismatch_24
+seq $v0, $a0, $a1
+beqz $v0, mismatch_24
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_24
+mismatch_24:
+li $v0, 0
+j end_24
+check_24:
+bnez $a1, mismatch_24
+li $v0, 1
+end_24:
+move $t3, $v0
+# If not local_a2i_A2I_internal_32 goto continue__427
+sw $t0, -120($fp)
+sw $t1, -116($fp)
+sw $t2, -0($fp)
+sw $t3, -136($fp)
+sw $t4, -140($fp)
+beqz $t3, continue__427
+la $a0, dispatch_error
+j .raise
+continue__427:
+lw $t0, -132($fp)
+# Static Dispatch of the method substr
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+lw $t1, -116($fp)
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+li $t9, 1
+sw $t9, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+lw $t2, -0($fp)
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -132($fp)
+sw $t1, -116($fp)
+sw $t2, -0($fp)
+# This function will consume the arguments
+jal function_substr_String
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -132($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -4($fp)
+lw $t2, -144($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t1)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_a2i_aux_A2I
+lw $t8, 28($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -132($fp)
+sw $t1, -4($fp)
+sw $t2, -144($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -144($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -112($fp)
+# local_a2i_A2I_internal_26 <- ~local_a2i_A2I_internal_34
 not $t1, $t0
 addi $t1, $t1, 1
-lw $t2, -32($fp)
-# Moving local_a2i_A2I_internal_16 to local_a2i_A2I_internal_6
+lw $t2, -48($fp)
+# Moving local_a2i_A2I_internal_26 to local_a2i_A2I_internal_10
 move $t2, $t1
-sw $t2, -32($fp)
-sw $t0, -88($fp)
-sw $t1, -72($fp)
-sw $t2, -32($fp)
-end__326:
-lw $t0, -32($fp)
-lw $t1, -16($fp)
-# Moving local_a2i_A2I_internal_6 to local_a2i_A2I_internal_2
+sw $t2, -48($fp)
+sw $t0, -144($fp)
+sw $t1, -112($fp)
+sw $t2, -48($fp)
+end__343:
+lw $t0, -48($fp)
+lw $t1, -24($fp)
+# Moving local_a2i_A2I_internal_10 to local_a2i_A2I_internal_4
 move $t1, $t0
-sw $t1, -16($fp)
-sw $t0, -32($fp)
-sw $t1, -16($fp)
-j end__314
-true__314:
-lw $t0, -16($fp)
-# Moving 0 to local_a2i_A2I_internal_2
+sw $t1, -24($fp)
+sw $t0, -48($fp)
+sw $t1, -24($fp)
+j end__322
+true__322:
+lw $t0, -24($fp)
+# Moving 0 to local_a2i_A2I_internal_4
 li $t0, 0
-sw $t0, -16($fp)
-sw $t0, -16($fp)
-end__314:
-lw $t0, -16($fp)
+sw $t0, -24($fp)
+sw $t0, -24($fp)
+end__322:
+lw $t0, -24($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
-sw $t0, -16($fp)
+sw $t0, -24($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 92
+addiu $sp, $sp, 148
 jr $ra
 
 
@@ -2493,11 +2771,11 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_a2i_aux_A2I_internal_2 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_a2i_aux_A2I_i_3 to the stack
+# Updates stack pointer pushing local_a2i_aux_A2I_internal_3 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_a2i_aux_A2I_internal_4 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_a2i_aux_A2I_internal_5 to the stack
+# Updates stack pointer pushing local_a2i_aux_A2I_i_5 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_a2i_aux_A2I_internal_6 to the stack
 addiu $sp, $sp, -4
@@ -2513,11 +2791,56 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_a2i_aux_A2I_internal_12 to the stack
 addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_aux_A2I_internal_13 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_aux_A2I_internal_14 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_aux_A2I_internal_15 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_a2i_aux_A2I_internal_16 to the stack
+addiu $sp, $sp, -4
 lw $t0, -8($fp)
 # Moving 0 to local_a2i_aux_A2I_int_0
 li $t0, 0
 sw $t0, -8($fp)
-lw $t1, -16($fp)
+lw $t1, -0($fp)
+lw $t2, -20($fp)
+# local_a2i_aux_A2I_internal_3 <- Type of s
+la $t2, type_String
+lw $t3, -24($fp)
+# Saves in local_a2i_aux_A2I_internal_4 data_0
+la $t3, data_0
+# local_a2i_aux_A2I_internal_3 <- local_a2i_aux_A2I_internal_3 = local_a2i_aux_A2I_internal_4
+move $t8, $t2
+move $t9, $t3
+loop_25:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_25
+beqz $a1, mismatch_25
+seq $v0, $a0, $a1
+beqz $v0, mismatch_25
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_25
+mismatch_25:
+li $v0, 0
+j end_25
+check_25:
+bnez $a1, mismatch_25
+li $v0, 1
+end_25:
+move $t2, $v0
+# If not local_a2i_aux_A2I_internal_3 goto continue__457
+sw $t0, -8($fp)
+sw $t1, -0($fp)
+sw $t2, -20($fp)
+sw $t3, -24($fp)
+beqz $t2, continue__457
+la $a0, dispatch_error
+j .raise
+continue__457:
+lw $t0, -16($fp)
 # Static Dispatch of the method length
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -2525,13 +2848,12 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-lw $t2, -0($fp)
-sw $t2, ($sp)
+lw $t1, -0($fp)
+sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -8($fp)
-sw $t1, -16($fp)
-sw $t2, -0($fp)
+sw $t0, -16($fp)
+sw $t1, -0($fp)
 # This function will consume the arguments
 jal function_length_String
 # Pop ra register of return function of the stack
@@ -2547,11 +2869,11 @@ lw $t1, -12($fp)
 # Moving local_a2i_aux_A2I_internal_2 to local_a2i_aux_A2I_j_1
 move $t1, $t0
 sw $t1, -12($fp)
-lw $t2, -20($fp)
-# Moving 0 to local_a2i_aux_A2I_i_3
+lw $t2, -28($fp)
+# Moving 0 to local_a2i_aux_A2I_i_5
 li $t2, 0
-sw $t2, -20($fp)
-lw $t3, -24($fp)
+sw $t2, -28($fp)
+lw $t3, -32($fp)
 # Initialize void node
 li $a0, 4
 li $v0, 9
@@ -2562,26 +2884,64 @@ sw $t9, 0($v0)
 move $t3, $v0
 sw $t0, -16($fp)
 sw $t1, -12($fp)
-sw $t2, -20($fp)
-sw $t3, -24($fp)
-start__399:
-lw $t0, -20($fp)
-lw $t1, -12($fp)
-lw $t2, -28($fp)
-# local_a2i_aux_A2I_internal_5 <- local_a2i_aux_A2I_i_3 < local_a2i_aux_A2I_j_1
-slt $t2, $t0, $t1
-# If not local_a2i_aux_A2I_internal_5 goto end__399
-sw $t0, -20($fp)
-sw $t1, -12($fp)
 sw $t2, -28($fp)
-beqz $t2, end__399
+sw $t3, -32($fp)
+start__470:
+lw $t0, -28($fp)
+lw $t1, -12($fp)
+lw $t2, -36($fp)
+# local_a2i_aux_A2I_internal_7 <- local_a2i_aux_A2I_i_5 < local_a2i_aux_A2I_j_1
+slt $t2, $t0, $t1
+# If not local_a2i_aux_A2I_internal_7 goto end__470
+sw $t0, -28($fp)
+sw $t1, -12($fp)
+sw $t2, -36($fp)
+beqz $t2, end__470
 lw $t0, -8($fp)
-lw $t1, -36($fp)
-# local_a2i_aux_A2I_internal_7 <- local_a2i_aux_A2I_int_0 * 10
+lw $t1, -44($fp)
+# local_a2i_aux_A2I_internal_9 <- local_a2i_aux_A2I_int_0 * 10
 li $t9, 10
 mult $t0, $t9
 mflo $t1
-lw $t2, -40($fp)
+lw $t2, -0($fp)
+lw $t3, -52($fp)
+# local_a2i_aux_A2I_internal_11 <- Type of s
+la $t3, type_String
+lw $t4, -56($fp)
+# Saves in local_a2i_aux_A2I_internal_12 data_0
+la $t4, data_0
+# local_a2i_aux_A2I_internal_11 <- local_a2i_aux_A2I_internal_11 = local_a2i_aux_A2I_internal_12
+move $t8, $t3
+move $t9, $t4
+loop_26:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_26
+beqz $a1, mismatch_26
+seq $v0, $a0, $a1
+beqz $v0, mismatch_26
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_26
+mismatch_26:
+li $v0, 0
+j end_26
+check_26:
+bnez $a1, mismatch_26
+li $v0, 1
+end_26:
+move $t3, $v0
+# If not local_a2i_aux_A2I_internal_11 goto continue__483
+sw $t0, -8($fp)
+sw $t1, -44($fp)
+sw $t2, -0($fp)
+sw $t3, -52($fp)
+sw $t4, -56($fp)
+beqz $t3, continue__483
+la $a0, dispatch_error
+j .raise
+continue__483:
+lw $t0, -48($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -2593,19 +2953,17 @@ li $t9, 1
 sw $t9, ($sp)
 addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
-lw $t3, -20($fp)
-sw $t3, ($sp)
+lw $t1, -28($fp)
+sw $t1, ($sp)
 addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
-lw $t4, -0($fp)
-sw $t4, ($sp)
+lw $t2, -0($fp)
+sw $t2, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -8($fp)
-sw $t1, -36($fp)
-sw $t2, -40($fp)
-sw $t3, -20($fp)
-sw $t4, -0($fp)
+sw $t0, -48($fp)
+sw $t1, -28($fp)
+sw $t2, -0($fp)
 # This function will consume the arguments
 jal function_substr_String
 # Pop ra register of return function of the stack
@@ -2614,11 +2972,11 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -40($fp)
+lw $t0, -48($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -4($fp)
-lw $t2, -44($fp)
+lw $t2, -60($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
@@ -2637,9 +2995,9 @@ addiu $sp, $sp, -4
 sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -40($fp)
+sw $t0, -48($fp)
 sw $t1, -4($fp)
-sw $t2, -44($fp)
+sw $t2, -60($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -2648,53 +3006,53 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -44($fp)
+lw $t0, -60($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -36($fp)
-lw $t2, -32($fp)
-# local_a2i_aux_A2I_internal_6 <- local_a2i_aux_A2I_internal_7 + local_a2i_aux_A2I_internal_9
+lw $t1, -44($fp)
+lw $t2, -40($fp)
+# local_a2i_aux_A2I_internal_8 <- local_a2i_aux_A2I_internal_9 + local_a2i_aux_A2I_internal_13
 add $t2, $t1, $t0
 lw $t3, -8($fp)
-# Moving local_a2i_aux_A2I_internal_6 to local_a2i_aux_A2I_int_0
+# Moving local_a2i_aux_A2I_internal_8 to local_a2i_aux_A2I_int_0
 move $t3, $t2
 sw $t3, -8($fp)
-lw $t4, -20($fp)
-lw $t5, -48($fp)
-# local_a2i_aux_A2I_internal_10 <- local_a2i_aux_A2I_i_3 + 1
+lw $t4, -28($fp)
+lw $t5, -64($fp)
+# local_a2i_aux_A2I_internal_14 <- local_a2i_aux_A2I_i_5 + 1
 addi $t5, $t4, 1
-# Moving local_a2i_aux_A2I_internal_10 to local_a2i_aux_A2I_i_3
+# Moving local_a2i_aux_A2I_internal_14 to local_a2i_aux_A2I_i_5
 move $t4, $t5
-sw $t4, -20($fp)
-lw $t6, -52($fp)
-# Moving local_a2i_aux_A2I_internal_10 to local_a2i_aux_A2I_internal_11
+sw $t4, -28($fp)
+lw $t6, -68($fp)
+# Moving local_a2i_aux_A2I_internal_14 to local_a2i_aux_A2I_internal_15
 move $t6, $t5
-sw $t6, -52($fp)
-lw $t7, -24($fp)
-# Moving local_a2i_aux_A2I_internal_11 to local_a2i_aux_A2I_internal_4
+sw $t6, -68($fp)
+lw $t7, -32($fp)
+# Moving local_a2i_aux_A2I_internal_15 to local_a2i_aux_A2I_internal_6
 move $t7, $t6
-sw $t7, -24($fp)
-sw $t0, -44($fp)
-sw $t1, -36($fp)
-sw $t2, -32($fp)
+sw $t7, -32($fp)
+sw $t0, -60($fp)
+sw $t1, -44($fp)
+sw $t2, -40($fp)
 sw $t3, -8($fp)
-sw $t4, -20($fp)
-sw $t5, -48($fp)
-sw $t6, -52($fp)
-sw $t7, -24($fp)
-j start__399
-end__399:
+sw $t4, -28($fp)
+sw $t5, -64($fp)
+sw $t6, -68($fp)
+sw $t7, -32($fp)
+j start__470
+end__470:
 lw $t0, -8($fp)
-lw $t1, -56($fp)
-# Moving local_a2i_aux_A2I_int_0 to local_a2i_aux_A2I_internal_12
+lw $t1, -72($fp)
+# Moving local_a2i_aux_A2I_int_0 to local_a2i_aux_A2I_internal_16
 move $t1, $t0
-sw $t1, -56($fp)
+sw $t1, -72($fp)
 move $v0, $t1
 # Empty all used registers and saves them to memory
 sw $t0, -8($fp)
-sw $t1, -56($fp)
+sw $t1, -72($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 60
+addiu $sp, $sp, 76
 jr $ra
 
 
@@ -2728,24 +3086,28 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_i2a_A2I_internal_10 to the stack
 addiu $sp, $sp, -4
+# Updates stack pointer pushing local_i2a_A2I_internal_11 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_i2a_A2I_internal_12 to the stack
+addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -8($fp)
 # local_i2a_A2I_internal_0 <- i = 0
 li $t9, 0
 seq $t1, $t0, $t9
-# If local_i2a_A2I_internal_0 goto true__434
+# If local_i2a_A2I_internal_0 goto true__514
 sw $t0, -0($fp)
 sw $t1, -8($fp)
-bnez $t1, true__434
+bnez $t1, true__514
 lw $t0, -0($fp)
 lw $t1, -16($fp)
 # local_i2a_A2I_internal_2 <- 0 < i
 li $t9, 0
 slt $t1, $t9, $t0
-# If local_i2a_A2I_internal_2 goto true__438
+# If local_i2a_A2I_internal_2 goto true__518
 sw $t0, -0($fp)
 sw $t1, -16($fp)
-bnez $t1, true__438
+bnez $t1, true__518
 lw $t0, -24($fp)
 # Saves in local_i2a_A2I_internal_4 data_24
 la $t0, data_24
@@ -2796,7 +3158,44 @@ lw $fp, ($sp)
 lw $t0, -36($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -40($fp)
+lw $t1, -24($fp)
+lw $t2, -44($fp)
+# local_i2a_A2I_internal_9 <- Type of local_i2a_A2I_internal_4
+la $t2, type_String
+lw $t3, -48($fp)
+# Saves in local_i2a_A2I_internal_10 data_0
+la $t3, data_0
+# local_i2a_A2I_internal_9 <- local_i2a_A2I_internal_9 = local_i2a_A2I_internal_10
+move $t8, $t2
+move $t9, $t3
+loop_27:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_27
+beqz $a1, mismatch_27
+seq $v0, $a0, $a1
+beqz $v0, mismatch_27
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_27
+mismatch_27:
+li $v0, 0
+j end_27
+check_27:
+bnez $a1, mismatch_27
+li $v0, 1
+end_27:
+move $t2, $v0
+# If not local_i2a_A2I_internal_9 goto continue__533
+sw $t0, -36($fp)
+sw $t1, -24($fp)
+sw $t2, -44($fp)
+sw $t3, -48($fp)
+beqz $t2, continue__533
+la $a0, dispatch_error
+j .raise
+continue__533:
+lw $t0, -40($fp)
 # Static Dispatch of the method concat
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -2804,15 +3203,16 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t0, ($sp)
+lw $t1, -36($fp)
+sw $t1, ($sp)
 addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
 lw $t2, -24($fp)
 sw $t2, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -36($fp)
-sw $t1, -40($fp)
+sw $t0, -40($fp)
+sw $t1, -36($fp)
 sw $t2, -24($fp)
 # This function will consume the arguments
 jal function_concat_String
@@ -2831,10 +3231,10 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -40($fp)
 sw $t1, -20($fp)
-j end__438
-true__438:
+j end__518
+true__518:
 lw $t0, -4($fp)
-lw $t1, -44($fp)
+lw $t1, -52($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
@@ -2855,7 +3255,7 @@ sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
 sw $t0, -4($fp)
-sw $t1, -44($fp)
+sw $t1, -52($fp)
 sw $t2, -0($fp)
 # This function will consume the arguments
 jal $t8
@@ -2865,16 +3265,16 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -44($fp)
+lw $t0, -52($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -20($fp)
-# Moving local_i2a_A2I_internal_9 to local_i2a_A2I_internal_3
+# Moving local_i2a_A2I_internal_11 to local_i2a_A2I_internal_3
 move $t1, $t0
 sw $t1, -20($fp)
-sw $t0, -44($fp)
+sw $t0, -52($fp)
 sw $t1, -20($fp)
-end__438:
+end__518:
 lw $t0, -20($fp)
 lw $t1, -12($fp)
 # Moving local_i2a_A2I_internal_3 to local_i2a_A2I_internal_1
@@ -2882,24 +3282,24 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -20($fp)
 sw $t1, -12($fp)
-j end__434
-true__434:
-lw $t0, -48($fp)
-# Saves in local_i2a_A2I_internal_10 data_25
+j end__514
+true__514:
+lw $t0, -56($fp)
+# Saves in local_i2a_A2I_internal_12 data_25
 la $t0, data_25
 lw $t1, -12($fp)
-# Moving local_i2a_A2I_internal_10 to local_i2a_A2I_internal_1
+# Moving local_i2a_A2I_internal_12 to local_i2a_A2I_internal_1
 move $t1, $t0
 sw $t1, -12($fp)
-sw $t0, -48($fp)
+sw $t0, -56($fp)
 sw $t1, -12($fp)
-end__434:
+end__514:
 lw $t0, -12($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
 sw $t0, -12($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 52
+addiu $sp, $sp, 60
 jr $ra
 
 
@@ -2931,15 +3331,19 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_i2a_aux_A2I_internal_9 to the stack
 addiu $sp, $sp, -4
+# Updates stack pointer pushing local_i2a_aux_A2I_internal_10 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_i2a_aux_A2I_internal_11 to the stack
+addiu $sp, $sp, -4
 lw $t0, -0($fp)
 lw $t1, -8($fp)
 # local_i2a_aux_A2I_internal_0 <- i = 0
 li $t9, 0
 seq $t1, $t0, $t9
-# If local_i2a_aux_A2I_internal_0 goto true__476
+# If local_i2a_aux_A2I_internal_0 goto true__565
 sw $t0, -0($fp)
 sw $t1, -8($fp)
-bnez $t1, true__476
+bnez $t1, true__565
 lw $t0, -0($fp)
 lw $t1, -20($fp)
 # local_i2a_aux_A2I_internal_3 <- i / 10
@@ -3036,7 +3440,44 @@ lw $fp, ($sp)
 lw $t0, -36($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -40($fp)
+lw $t1, -24($fp)
+lw $t2, -44($fp)
+# local_i2a_aux_A2I_internal_9 <- Type of local_i2a_aux_A2I_internal_4
+la $t2, type_String
+lw $t3, -48($fp)
+# Saves in local_i2a_aux_A2I_internal_10 data_0
+la $t3, data_0
+# local_i2a_aux_A2I_internal_9 <- local_i2a_aux_A2I_internal_9 = local_i2a_aux_A2I_internal_10
+move $t8, $t2
+move $t9, $t3
+loop_28:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_28
+beqz $a1, mismatch_28
+seq $v0, $a0, $a1
+beqz $v0, mismatch_28
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_28
+mismatch_28:
+li $v0, 0
+j end_28
+check_28:
+bnez $a1, mismatch_28
+li $v0, 1
+end_28:
+move $t2, $v0
+# If not local_i2a_aux_A2I_internal_9 goto continue__584
+sw $t0, -36($fp)
+sw $t1, -24($fp)
+sw $t2, -44($fp)
+sw $t3, -48($fp)
+beqz $t2, continue__584
+la $a0, dispatch_error
+j .raise
+continue__584:
+lw $t0, -40($fp)
 # Static Dispatch of the method concat
 sw $fp, ($sp)
 addiu $sp, $sp, -4
@@ -3044,15 +3485,16 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t0, ($sp)
+lw $t1, -36($fp)
+sw $t1, ($sp)
 addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
 lw $t2, -24($fp)
 sw $t2, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -36($fp)
-sw $t1, -40($fp)
+sw $t0, -40($fp)
+sw $t1, -36($fp)
 sw $t2, -24($fp)
 # This function will consume the arguments
 jal function_concat_String
@@ -3071,24 +3513,24 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -40($fp)
 sw $t1, -12($fp)
-j end__476
-true__476:
-lw $t0, -44($fp)
-# Saves in local_i2a_aux_A2I_internal_9 data_26
+j end__565
+true__565:
+lw $t0, -52($fp)
+# Saves in local_i2a_aux_A2I_internal_11 data_26
 la $t0, data_26
 lw $t1, -12($fp)
-# Moving local_i2a_aux_A2I_internal_9 to local_i2a_aux_A2I_internal_1
+# Moving local_i2a_aux_A2I_internal_11 to local_i2a_aux_A2I_internal_1
 move $t1, $t0
 sw $t1, -12($fp)
-sw $t0, -44($fp)
+sw $t0, -52($fp)
 sw $t1, -12($fp)
-end__476:
+end__565:
 lw $t0, -12($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
 sw $t0, -12($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 48
+addiu $sp, $sp, 56
 jr $ra
 
 
@@ -3106,11 +3548,11 @@ addiu $sp, $sp, -4
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_3 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_main_Main_b_4 to the stack
+# Updates stack pointer pushing local_main_Main_internal_4 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_5 to the stack
 addiu $sp, $sp, -4
-# Updates stack pointer pushing local_main_Main_internal_6 to the stack
+# Updates stack pointer pushing local_main_Main_b_6 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_7 to the stack
 addiu $sp, $sp, -4
@@ -3125,6 +3567,14 @@ addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_12 to the stack
 addiu $sp, $sp, -4
 # Updates stack pointer pushing local_main_Main_internal_13 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_14 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_15 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_16 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_main_Main_internal_17 to the stack
 addiu $sp, $sp, -4
 lw $t0, -8($fp)
 # Syscall to allocate memory of the object entry in heap
@@ -3145,7 +3595,44 @@ sw $v0, 8($t0)
 lw $t1, -12($fp)
 # Saves in local_main_Main_internal_2 data_27
 la $t1, data_27
-lw $t2, -16($fp)
+lw $t2, -20($fp)
+# local_main_Main_internal_4 <- Type of local_main_Main_internal_1
+lw $t2, 0($t0)
+lw $t3, -24($fp)
+# Saves in local_main_Main_internal_5 data_0
+la $t3, data_0
+# local_main_Main_internal_4 <- local_main_Main_internal_4 = local_main_Main_internal_5
+move $t8, $t2
+move $t9, $t3
+loop_29:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_29
+beqz $a1, mismatch_29
+seq $v0, $a0, $a1
+beqz $v0, mismatch_29
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_29
+mismatch_29:
+li $v0, 0
+j end_29
+check_29:
+bnez $a1, mismatch_29
+li $v0, 1
+end_29:
+move $t2, $v0
+# If not local_main_Main_internal_4 goto continue__614
+sw $t0, -8($fp)
+sw $t1, -12($fp)
+sw $t2, -20($fp)
+sw $t3, -24($fp)
+beqz $t2, continue__614
+la $a0, dispatch_error
+j .raise
+continue__614:
+lw $t0, -8($fp)
+lw $t1, -16($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t0)
@@ -3158,15 +3645,16 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-sw $t1, ($sp)
+lw $t2, -12($fp)
+sw $t2, ($sp)
 addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
 sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
 sw $t0, -8($fp)
-sw $t1, -12($fp)
-sw $t2, -16($fp)
+sw $t1, -16($fp)
+sw $t2, -12($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -3182,7 +3670,7 @@ lw $t1, -4($fp)
 # Moving local_main_Main_internal_3 to local_main_Main_a_0
 move $t1, $t0
 sw $t1, -4($fp)
-lw $t2, -24($fp)
+lw $t2, -32($fp)
 # Syscall to allocate memory of the object entry in heap
 li $v0, 9
 li $a0, 12
@@ -3198,10 +3686,48 @@ move $t2, $v0
 la $t8, types
 lw $v0, 20($t8)
 sw $v0, 8($t2)
-lw $t3, -28($fp)
+lw $t3, -40($fp)
+# local_main_Main_internal_9 <- Type of local_main_Main_internal_7
+lw $t3, 0($t2)
+lw $t4, -44($fp)
+# Saves in local_main_Main_internal_10 data_0
+la $t4, data_0
+# local_main_Main_internal_9 <- local_main_Main_internal_9 = local_main_Main_internal_10
+move $t8, $t3
+move $t9, $t4
+loop_30:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_30
+beqz $a1, mismatch_30
+seq $v0, $a0, $a1
+beqz $v0, mismatch_30
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_30
+mismatch_30:
+li $v0, 0
+j end_30
+check_30:
+bnez $a1, mismatch_30
+li $v0, 1
+end_30:
+move $t3, $v0
+# If not local_main_Main_internal_9 goto continue__631
+sw $t0, -16($fp)
+sw $t1, -4($fp)
+sw $t2, -32($fp)
+sw $t3, -40($fp)
+sw $t4, -44($fp)
+beqz $t3, continue__631
+la $a0, dispatch_error
+j .raise
+continue__631:
+lw $t0, -32($fp)
+lw $t1, -36($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
-lw $t9, 8($t2)
+lw $t9, 8($t0)
 lw $a0, 8($t9)
 # Saves in t8 the direction of function_i2a_A2I
 lw $t8, 32($a0)
@@ -3215,13 +3741,11 @@ li $t9, 678987
 sw $t9, ($sp)
 addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
-sw $t2, ($sp)
+sw $t0, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -16($fp)
-sw $t1, -4($fp)
-sw $t2, -24($fp)
-sw $t3, -28($fp)
+sw $t0, -32($fp)
+sw $t1, -36($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -3230,15 +3754,15 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -28($fp)
+lw $t0, -36($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -20($fp)
-# Moving local_main_Main_internal_6 to local_main_Main_b_4
+lw $t1, -28($fp)
+# Moving local_main_Main_internal_8 to local_main_Main_b_6
 move $t1, $t0
-sw $t1, -20($fp)
+sw $t1, -28($fp)
 lw $t2, -0($fp)
-lw $t3, -32($fp)
+lw $t3, -48($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
@@ -3258,10 +3782,10 @@ addiu $sp, $sp, -4
 sw $t2, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -28($fp)
-sw $t1, -20($fp)
+sw $t0, -36($fp)
+sw $t1, -28($fp)
 sw $t2, -0($fp)
-sw $t3, -32($fp)
+sw $t3, -48($fp)
 sw $t4, -4($fp)
 # This function will consume the arguments
 jal $t8
@@ -3271,14 +3795,14 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -32($fp)
+lw $t0, -48($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -36($fp)
-# Saves in local_main_Main_internal_8 data_28
+lw $t1, -52($fp)
+# Saves in local_main_Main_internal_12 data_28
 la $t1, data_28
 lw $t2, -0($fp)
-lw $t3, -40($fp)
+lw $t3, -56($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
@@ -3297,10 +3821,10 @@ addiu $sp, $sp, -4
 sw $t2, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -32($fp)
-sw $t1, -36($fp)
+sw $t0, -48($fp)
+sw $t1, -52($fp)
 sw $t2, -0($fp)
-sw $t3, -40($fp)
+sw $t3, -56($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -3309,11 +3833,11 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -40($fp)
+lw $t0, -56($fp)
 # saves the return value
 move $t0, $v0
 lw $t1, -0($fp)
-lw $t2, -44($fp)
+lw $t2, -60($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t1)
@@ -3326,17 +3850,17 @@ sw $ra, ($sp)
 addiu $sp, $sp, -4
 # Push the arguments to the stack
 # The rest of the arguments are push into the stack
-lw $t3, -20($fp)
+lw $t3, -28($fp)
 sw $t3, ($sp)
 addiu $sp, $sp, -4
 # The rest of the arguments are push into the stack
 sw $t1, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -40($fp)
+sw $t0, -56($fp)
 sw $t1, -0($fp)
-sw $t2, -44($fp)
-sw $t3, -20($fp)
+sw $t2, -60($fp)
+sw $t3, -28($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -3345,14 +3869,14 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -44($fp)
+lw $t0, -60($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -48($fp)
-# Saves in local_main_Main_internal_11 data_29
+lw $t1, -64($fp)
+# Saves in local_main_Main_internal_15 data_29
 la $t1, data_29
 lw $t2, -0($fp)
-lw $t3, -52($fp)
+lw $t3, -68($fp)
 # Find the actual name in the dispatch table
 # Gets in a0 the actual direction of the dispatch table
 lw $t9, 8($t2)
@@ -3371,10 +3895,10 @@ addiu $sp, $sp, -4
 sw $t2, ($sp)
 addiu $sp, $sp, -4
 # Empty all used registers and saves them to memory
-sw $t0, -44($fp)
-sw $t1, -48($fp)
+sw $t0, -60($fp)
+sw $t1, -64($fp)
 sw $t2, -0($fp)
-sw $t3, -52($fp)
+sw $t3, -68($fp)
 # This function will consume the arguments
 jal $t8
 # Pop ra register of return function of the stack
@@ -3383,19 +3907,19 @@ lw $ra, ($sp)
 # Pop fp register from the stack
 addiu $sp, $sp, 4
 lw $fp, ($sp)
-lw $t0, -52($fp)
+lw $t0, -68($fp)
 # saves the return value
 move $t0, $v0
-lw $t1, -56($fp)
-# Moving local_main_Main_internal_12 to local_main_Main_internal_13
+lw $t1, -72($fp)
+# Moving local_main_Main_internal_16 to local_main_Main_internal_17
 move $t1, $t0
-sw $t1, -56($fp)
+sw $t1, -72($fp)
 move $v0, $t1
 # Empty all used registers and saves them to memory
-sw $t0, -52($fp)
-sw $t1, -56($fp)
+sw $t0, -68($fp)
+sw $t1, -72($fp)
 # Removing all locals from stack
-addiu $sp, $sp, 60
+addiu $sp, $sp, 76
 jr $ra
 
 # Raise exception method
