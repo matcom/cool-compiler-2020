@@ -338,8 +338,7 @@ addi $sp, $sp, -4
 #obj 3 offset 1  result Main.main
 jal Main.main
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
+addi $sp, $sp, -4
 j Object.abort
 #--------------End Initial Code---------------
 Main.Constructor:
@@ -376,8 +375,7 @@ addi $sp, $sp, -4
 #obj 2 offset 4  result IO.out_string
 jal IO.out_string
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 16($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 lw $v0, 4($sp)
 addiu $sp, $sp, -4

@@ -338,8 +338,7 @@ addi $sp, $sp, -4
 #obj 3 offset 1  result Main.main
 jal Main.main
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
+addi $sp, $sp, -4
 j Object.abort
 #--------------End Initial Code---------------
 Main.Constructor:
@@ -412,8 +411,7 @@ addiu $sp, $sp, 8
 #obj 4 offset 1  result Object.type_name
 jal Object.type_name
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 #Args: 0
 #Integer
@@ -429,15 +427,13 @@ addiu $sp, $sp, -4
 #obj 7 offset 3  result String.substr
 jal String.substr
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 12($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 12
 #Dispatch in place
 #obj 8 offset 12  result IO.out_string
 jal IO.out_string
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 48($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 #Args: 0
 #Point-Dispatch
@@ -454,8 +450,7 @@ addiu $sp, $sp, -4
 #obj 1 offset 1  result Bool.type_name
 jal Bool.type_name
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 #Args: 0
 #Integer
@@ -471,15 +466,13 @@ addiu $sp, $sp, -4
 #obj 4 offset 3  result String.substr
 jal String.substr
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 12($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 12
 #Dispatch in place
 #obj 13 offset 5  result IO.out_string
 jal IO.out_string
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 20($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 #Self-Dispatch
 li $a0, 0
@@ -497,8 +490,7 @@ addi $sp, $sp, -4
 #obj 2 offset 18  result IO.out_string
 jal IO.out_string
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 72($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
 sw $t0, 64($sp)

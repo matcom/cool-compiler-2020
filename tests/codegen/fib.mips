@@ -340,8 +340,7 @@ addi $sp, $sp, -4
 #obj 3 offset 1  result Main.main
 jal Main.main
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
+addi $sp, $sp, -4
 j Object.abort
 #--------------End Initial Code---------------
 Main.Constructor:
@@ -382,8 +381,7 @@ addi $sp, $sp, -4
 #obj 2 offset 5  result IO.out_string
 jal IO.out_string
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 20($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 #Self-Dispatch
 li $a0, 0
@@ -403,22 +401,19 @@ addiu $sp, $sp, -4
 #obj 1 offset 8  result IO.in_int
 jal IO.in_int
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 32($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 #Dispatch in place
 #obj 2 offset 8  result Main.fib
 jal Main.fib
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 32($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 #Dispatch in place
 #obj 3 offset 8  result IO.out_int
 jal IO.out_int
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 32($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 #Self-Dispatch
 li $a0, 0
@@ -436,8 +431,7 @@ addi $sp, $sp, -4
 #obj 2 offset 10  result IO.out_string
 jal IO.out_string
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 40($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
 sw $t0, 32($sp)
@@ -577,8 +571,8 @@ sw $t1, 4($sp)
 lw $t0, 4($sp)
 sw $t0, 64($sp)
 addiu $sp, $sp, 8
-lw $t0, tmp_21tmp_21tmp_21tmp_21($sp)
-sw $t0, tmp_4tmp_4tmp_4tmp_4($sp)
+lw $t0, 21212121($sp)
+sw $t0, 4444($sp)
 addiu $sp, $sp, 8
 lw $v0, 4($sp)
 addiu $sp, $sp, -4

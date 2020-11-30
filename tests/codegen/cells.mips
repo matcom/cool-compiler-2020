@@ -357,8 +357,7 @@ addi $sp, $sp, -4
 #obj 3 offset 1  result Main.main
 jal Main.main
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
+addi $sp, $sp, -4
 j Object.abort
 #--------------End Initial Code---------------
 CellularAutomaton.Constructor:
@@ -445,15 +444,13 @@ addi $sp, $sp, -4
 #obj 3 offset 2  result String.concat
 jal String.concat
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 8($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 #Dispatch in place
 #obj 5 offset 8  result IO.out_string
 jal IO.out_string
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 32($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 li $a0, 0
 sw $a0, ($sp)
@@ -485,8 +482,7 @@ sw $t1, 4($sp)
 #obj 2 offset 1  result String.length
 jal String.length
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 lw $v0, 4($sp)
 addiu $sp, $sp, -4
@@ -521,8 +517,7 @@ addiu $sp, $sp, -4
 #obj 4 offset 3  result String.substr
 jal String.substr
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 12($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 12
 lw $v0, 4($sp)
 addiu $sp, $sp, -4
@@ -588,8 +583,7 @@ addiu $sp, $sp, 8
 #obj 5 offset 12  result CellularAutomaton.cell
 jal CellularAutomaton.cell
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 48($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 lw $t0, 4($sp)
 sw $t0, 36($sp)
@@ -624,8 +618,7 @@ sw $t0, 4($sp)
 #obj 2 offset 17  result CellularAutomaton.num_cells
 jal CellularAutomaton.num_cells
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 68($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 0
 #Integer
 li $a0, 1
@@ -640,8 +633,7 @@ addiu $sp, $sp, 8
 #obj 6 offset 18  result CellularAutomaton.cell
 jal CellularAutomaton.cell
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 72($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 lw $t0, 4($sp)
 sw $t0, 60($sp)
@@ -685,8 +677,7 @@ sw $t0, 4($sp)
 #obj 2 offset 9  result CellularAutomaton.num_cells
 jal CellularAutomaton.num_cells
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 36($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 0
 #Integer
 li $a0, 1
@@ -737,8 +728,7 @@ addiu $sp, $sp, 8
 #obj 5 offset 15  result CellularAutomaton.cell
 jal CellularAutomaton.cell
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 60($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 lw $t0, 4($sp)
 sw $t0, 48($sp)
@@ -763,8 +753,7 @@ addiu $sp, $sp, -4
 #obj 3 offset 18  result CellularAutomaton.cell
 jal CellularAutomaton.cell
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 72($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 lw $t0, 4($sp)
 sw $t0, 60($sp)
@@ -821,8 +810,7 @@ sw $t0, 4($sp)
 #obj 3 offset 12  result CellularAutomaton.cell
 jal CellularAutomaton.cell
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 48($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 #loading label
 li $a0, 0
@@ -882,8 +870,7 @@ sw $t0, 4($sp)
 #obj 3 offset 20  result CellularAutomaton.cell_left_neighbor
 jal CellularAutomaton.cell_left_neighbor
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 80($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 #loading label
 li $a0, 0
@@ -948,8 +935,7 @@ sw $t0, 4($sp)
 #obj 3 offset 28  result CellularAutomaton.cell_right_neighbor
 jal CellularAutomaton.cell_right_neighbor
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 112($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 #loading label
 li $a0, 0
@@ -1112,15 +1098,13 @@ sw $t1, 4($sp)
 #obj 3 offset 19  result CellularAutomaton.cell_at_next_evolution
 jal CellularAutomaton.cell_at_next_evolution
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 76($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 #Dispatch in place
 #obj 5 offset 4  result String.concat
 jal String.concat
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 16($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
 lw $t1, 76($sp)
@@ -1172,14 +1156,14 @@ sw $t0, 4($sp)
 lw $t0, 4($sp)
 sw $t0, 64($sp)
 addiu $sp, $sp, 12
-lw $t0, tmp_24tmp_24tmp_24tmp_24($sp)
-sw $t0, tmp_7tmp_7tmp_7tmp_7($sp)
+lw $t0, 24242424($sp)
+sw $t0, 7777($sp)
 addiu $sp, $sp, 8
-lw $t0, tmp_8tmp_8tmp_8tmp_8($sp)
-sw $t0, tmp_5tmp_5tmp_5tmp_5($sp)
+lw $t0, 8888($sp)
+sw $t0, 5555($sp)
 addiu $sp, $sp, 8
-lw $t0, tmp_6tmp_6tmp_6tmp_6($sp)
-sw $t0, tmp_3tmp_3tmp_3tmp_3($sp)
+lw $t0, 6666($sp)
+sw $t0, 3333($sp)
 addiu $sp, $sp, 8
 lw $v0, 4($sp)
 addiu $sp, $sp, -4
@@ -1249,8 +1233,7 @@ addi $sp, $sp, -4
 #obj 5 offset 2  result -1
 jal IO.out_string
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 8($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
 lw $t1, 32($sp)
@@ -1270,8 +1253,7 @@ sw $t1, 4($sp)
 #obj 2 offset 1  result -1
 jal IO.out_string
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 #Let
 li $a0, 0
@@ -1326,8 +1308,7 @@ sw $t1, 4($sp)
 #obj 2 offset 1  result -1
 jal IO.out_string
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 #Point-Dispatch
 li $a0, 0
@@ -1344,8 +1325,7 @@ sw $t1, 4($sp)
 #obj 2 offset 1  result -1
 jal IO.out_string
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 #Assignment
 #Binary
@@ -1376,8 +1356,8 @@ addiu $sp, $sp, 12
 addiu $sp, $sp, 8
 j _loop_15
 _pool_15:
-lw $t0, tmp_24tmp_24tmp_24tmp_24($sp)
-sw $t0, tmp_11tmp_11tmp_11tmp_11($sp)
+lw $t0, 24242424($sp)
+sw $t0, 11111111($sp)
 addiu $sp, $sp, 8
 li $a0, 0
 sw $a0, ($sp)

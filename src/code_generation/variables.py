@@ -20,8 +20,8 @@ class Variables:
 
     def add_temp(self):
         name = len(self.stack) + 1
-        self.add_var('tmp_' + str(name))
-        return str('tmp_' + str(name))
+        self.add_var(str(name))
+        return str(str(name))
 
     def peek_last(self):
         # print(self.vars)

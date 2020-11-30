@@ -219,8 +219,8 @@ class MIPS:
         else:
             self.code.append("jal {}\n".format(node.result))
         self.code.append("sw $a1, {}($sp)\n".format(0))
-        self.code.append("addi $sp, $sp, 4\n")
-        self.code.append("lw $ra, {}($sp)\n".format(4 * node.offset))
+        self.code.append("addi $sp, $sp, -4\n")
+        # self.code.append("lw $ra, {}($sp)\n".format(4 * (int(node.offset) + 1)))
 
 
     @visitor.when(DispatchParentIL)
@@ -242,7 +242,7 @@ class MIPS:
         self.code.append("la $a1, " + node.parent + "_VT\n")
         self.code.append("la $t0, inherit\n")
         self.code.append("jalr $ra, $t0\n")
-        self.code.append("sw $v0, {}($sp)\n".format(4))
+        self.code.append("sw $v0, {}($sp)\n".format(4*node.result))
 
     @visitor.when(StringIL)
     def visit(self, node):

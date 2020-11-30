@@ -428,10 +428,9 @@ class codeVisitor:
             self.code.append(PushIL())
             result = variables.add_var(b.id)
             self.code.append(VarToVarIL(variables.id(result), variables.id(p)))
-
+            
             self.visit(b.expr, variables)
             m = variables.peek_last()
-
             self.code.append(VarToVarIL(variables.id(result), variables.id(m)))
             
             variables.pop_var()
