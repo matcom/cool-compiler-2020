@@ -289,7 +289,7 @@ def get_formatter():
         def visit(self, node):
             params = '\n\t'.join(self.visit(x) for x in node.params)
             localvars = '\n\t'.join(self.visit(x) for x in node.localvars)
-            instructions = '\n\t'.join(self.visit(x) for x in node.instructions)
+            instructions = '\n\t'.join(self.visit(x) for x in node.instructions if self.visit(x) != [])
 
             return f'function {node.name} {{\n\t{params}\n\n\t{localvars}\n\n\t{instructions}\n}}'
 

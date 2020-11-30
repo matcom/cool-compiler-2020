@@ -36,7 +36,10 @@ class BaseCOOLToCILVisitor:
         return vinfo.name
     
     def register_local(self, vinfo):
-        vinfo.name = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
+        if len(self.current_function.name) >= 8 and self.current_function.name[:8] == 'function':
+            vinfo.name = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
+        else:
+            vinfo.name = f'local_{self.current_function.name[5:]}_{vinfo.name}_{len(self.localvars)}'
         local_node = cil.LocalNode(vinfo.name)
         self.localvars.append(local_node)
         return vinfo.name
@@ -947,14 +950,31 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             param_names = [pn.name for pn in self.current_function.params]
             if node.lex in param_names:
                 for n in param_names:
-                    if node.lex in n:
+                    if node.lex == n:
                         scope.ret_expr = n
                         break
             else:
                 for n in [lv.name for lv in self.current_function.localvars]:
-                    if node.lex in n.split("_"):
-                        scope.ret_expr = n
-                        break
+                    n_splited = n.split("_")
+                    lex_splited = node.lex.split('_')
+                    i_lex = 0
+                    for s in range(len(n_splited)):
+                        if lex_splited[i_lex] == n_splited[s]:
+                            i_lex += 1
+                            if i_lex == len(lex_splited):
+                                scope.ret_expr = n
+                                break
+                        if not (i_lex + 1 < len(lex_splited) and s + 1 < len(n_splited) and lex_splited[i_lex + 1] == n_splited[s + 1]):
+                            i_lex = 0
+                        # if node.lex == s:
+                        #     scope.ret_expr = n
+                        #     break
+                    # if node.lex in n.split("_"):
+                    #     scope.ret_expr = n
+                    #     break
+                    # if node.lex in n:
+                    #     scope.ret_expr = n
+                    #     break
 
     @visitor.when(cool.StringNode)
     def visit(self, node, scope):
