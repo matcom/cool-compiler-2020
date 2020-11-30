@@ -126,7 +126,7 @@ def program_to_cil_visitor(program):
 
 
 def built_in_to_cil():
-    return [out_int_to_cil(), out_string_to_cil(), in_string_to_cil(), in_int_to_cil(), type_name_to_cil(), copy_to_cil(), length_to_cil(), concat_to_cil(), substring_to_cil()]
+    return [out_int_to_cil(), out_string_to_cil(), in_string_to_cil(), in_int_to_cil(), type_name_to_cil(), copy_to_cil(), length_to_cil(), concat_to_cil(), substring_to_cil(), abort_to_cil()]
 
 
 def out_string_to_cil():
@@ -174,7 +174,7 @@ def substring_to_cil():
 
 def abort_to_cil():
     result = CilAST.LocalNode('abort_result')
-    return CilAST.FuncNode('Object_abort', [CilAST.ParamNode('self')], [result], CilAST.ReturnNode(result))
+    return CilAST.FuncNode('Object_abort', [CilAST.ParamNode('self')], [result], [CilAST.ReturnNode(result)])
 
 
 def func_to_cil_visitor(type_name, func):
