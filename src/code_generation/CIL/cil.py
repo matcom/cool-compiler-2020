@@ -95,7 +95,7 @@ def program_to_cil_visitor(program):
     """
     Building main function
     """
-    main_init = new_to_cil_visitor(CoolAST.NewNode('Main'))
+    main_init = new_to_cil_visitor(CoolAST.NewNode('Main'), 'self')
     body = main_init.body
     main_result = add_local('main_result')
     body.append(CilAST.ArgNode(main_init.value))
@@ -384,9 +384,12 @@ def id_to_cil_visitor(id):
         return CIL_block([], id.id)
 
 
-def new_to_cil_visitor(new_node):
+def new_to_cil_visitor(new_node, value_id=None):
     global __CURRENT_TYPE__
-    value = add_local()
+    if value_id:
+        value = add_local(value_id)
+    else:
+        value = add_local()
     t = new_node.type
     body = []
 
