@@ -9,7 +9,7 @@ from COOLParserErrorListener import COOLParserErrorListener
 from Visitors import  TypeCOOLVisitor
 from Visitors import  SemanticCOOLVisitor
 from Visitors import CodegenVisitor
-from NoTabsFileStream import NoTabsFileStream
+
 
 
 def main(argv):
@@ -24,8 +24,7 @@ def main(argv):
         print("ERROR: invalid input filename: " + argv[1])
         return sys.exit(errno.EPERM)
 
-    input = NoTabsFileStream(argv[1])
-    s = ""
+    input = FileStream(argv[1], "utf-8")
     lexer = COOLLexer(input)
     lexer.removeErrorListeners()
     lexer.addErrorListener(COOLLexerErrorListener())
