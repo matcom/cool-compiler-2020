@@ -640,12 +640,14 @@ def copy_to_mips_visitor(copy: cil.CopyNode):
 
 
 def conditional_goto_to_mips_visitor(goto: cil.ConditionalGotoNode):
-    predicate_addr = CURRENT_FUNCTION.offset[str(goto.predicate)]
-    return [
-        mips.Comment(str(goto)),
-        mips.LwInstruction('$t0', f'{predicate_addr}($fp)'),
-        mips.BnezInstruction('$t0', goto.label)
-    ]
+    instructions = [mips.Comment(str(goto))]
+    if isinstance(goto.predicate, int):
+        instructions.append(mips.LiInstruction('$t0', goto.predicate))
+    else:
+        predicate_offset = CURRENT_FUNCTION.offset[str(goto.predicate)]
+        instructions.append(mips.LwInstruction(
+            '$t0', f'{predicate_offset}($fp)'))
+    return instructions + [mips.BnezInstruction('$t0', goto.label)]
 
 
 def goto_to_mips_visitor(goto: cil.GotoNode):
