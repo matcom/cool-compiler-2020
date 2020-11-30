@@ -1,9 +1,7 @@
 class Main inherits IO {
 
     main () : Object {
-        {
-			a <- 34;
-		}
+        "H"
     };
 };
 
