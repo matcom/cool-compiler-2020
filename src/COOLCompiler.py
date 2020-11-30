@@ -47,16 +47,16 @@ def main(argv):
     typeTree = visitor.TypeTable
     consTble = visitor.ConstantTable
     semanticAnalizer = SemanticCOOLVisitor(typeTree)
-    # codegenerator = CodegenVisitor(typeTree, consTble, visitor.Counter)
-    # semanticAnalizer.visitProgram(tree)
-    # if semanticAnalizer.hasNoError:
-    #     if len(argv) > 2:
-    #         outFilename = argv[2]
-    #     else:
-    #         outFilename = os.path.splitext(argv[1])[0] + ".s"
-    #     codegenerator.visitProgram(tree, outFilename)
-    # else:
-    #     return sys.exit(errno.EPERM)
+    codegenerator = CodegenVisitor(typeTree, consTble, visitor.Counter)
+    semanticAnalizer.visitProgram(tree)
+    if semanticAnalizer.hasNoError:
+        if len(argv) > 2:
+            outFilename = argv[2]
+        else:
+            outFilename = os.path.splitext(argv[1])[0] + ".s"
+        codegenerator.visitProgram(tree, outFilename)
+    else:
+        return sys.exit(errno.EPERM)
 
     return 0
 
