@@ -1,13 +1,14 @@
 
 String.length:
-lw $a0, -4($sp)
+lw $a0, 4($sp)
 _stringlength.loop:
-lb $a1, 0($a0)
+lb $a1, 0($sp)
 beqz $a1, _stringlength.end
 addiu $a0, $a0, 1
 j _stringlength.loop
 _stringlength.end:
-lw $a1, -4($sp)
+j Object.abort
+lw $a1, 4($sp)
 subu $v0, $a0, $a1
 jr $ra
 

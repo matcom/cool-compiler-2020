@@ -197,7 +197,10 @@ class codeVisitor:
         variables.add_temp()
 
         self.visit(node.body, variables)
-        self.code.append(ReturnIL())
+        if self.current_class == 'Main' and node.id == 'main':
+            self.code.append("j Object.abort\n")
+        else:
+            self.code.append(ReturnIL())
 
     @visitor.when(VarDeclarationNode)
     def visit(self, node, variables):
@@ -428,10 +431,9 @@ class codeVisitor:
             self.code.append(PushIL())
             result = variables.add_var(b.id)
             self.code.append(VarToVarIL(variables.id(result), variables.id(p)))
-
+            
             self.visit(b.expr, variables)
             m = variables.peek_last()
-
             self.code.append(VarToVarIL(variables.id(result), variables.id(m)))
             
             variables.pop_var()
@@ -535,8 +537,10 @@ class codeVisitor:
             self.code.append(CommentIL('Args: ' + str(i)))
             i += 1
             self.visit(p, variables)
-        
-        method = node.obj.type + '.' + node.id
+        if isinstance(node.obj,NewNode):
+            method = node.obj.type + '.' + node.id
+        else:
+            method = node.obj.id + '.' + node.id
         # print('--method: ', method)
         self.code.append(DispatchParentIL(variables.id(result), variables.id(name), method))
 

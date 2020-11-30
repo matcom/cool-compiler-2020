@@ -73,27 +73,29 @@ la $a0, buffer
 li $a1, 65536
 li $v0, 8
 syscall
+sw $a1, 0($sp)
 addiu $sp, $sp, -4
 sw $a0, 0($sp)
 jal String.length
 addiu $sp, $sp, 4
-move $a2, $v0
+move $a2, $sp
 addiu $a2, $a2, -1
 move $a0, $v0
 li $v0, 9
 syscall
 move $v1, $v0
 la $a0, buffer
+li $a2, 0
 _in_string.loop:
 beqz $a2, _in_string.end
-lb $a1, 0($a0)
-sb $a1, 0($v1)
+lb $a1, 4($sp)
+sb $a1, 4($sp)
 addiu $a0, $a0, 1
 addiu $v1, $v1, 1
 addiu $a2, $a2, -1
 j _in_string.loop
 _in_string.end:
-sb $zero, 0($v1)
+sb $zero, 0($sp)
 move $ra, $a3
 jr $ra
 
@@ -128,14 +130,15 @@ syscall
 
 
 String.length:
-lw $a0, -4($sp)
+lw $a0, 4($sp)
 _stringlength.loop:
-lb $a1, 0($a0)
+lb $a1, 0($sp)
 beqz $a1, _stringlength.end
 addiu $a0, $a0, 1
 j _stringlength.loop
 _stringlength.end:
-lw $a1, -4($sp)
+j Object.abort
+lw $a1, 4($sp)
 subu $v0, $a0, $a1
 jr $ra
 
@@ -246,8 +249,12 @@ li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 lw $v0, 4($sp)
-addiu $sp, $sp, -4
-addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
 jr $ra
 Object.type_name:
 sw $ra, 0($sp)
@@ -261,8 +268,12 @@ li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 lw $v0, 4($sp)
-addiu $sp, $sp, -4
-addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
 jr $ra
 Int.type_name:
 sw $ra, 0($sp)
@@ -276,8 +287,12 @@ li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 lw $v0, 4($sp)
-addiu $sp, $sp, -4
-addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
 jr $ra
 IO.type_name:
 sw $ra, 0($sp)
@@ -291,8 +306,12 @@ li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 lw $v0, 4($sp)
-addiu $sp, $sp, -4
-addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
 jr $ra
 Bool.type_name:
 sw $ra, 0($sp)
@@ -306,8 +325,12 @@ li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 lw $v0, 4($sp)
-addiu $sp, $sp, -4
-addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
 jr $ra
 String.type_name:
 sw $ra, 0($sp)
@@ -341,8 +364,7 @@ addi $sp, $sp, -4
 #obj 3 offset 1  result Main.main
 jal Main.main
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
+addi $sp, $sp, -4
 j Object.abort
 #--------------End Initial Code---------------
 Main.Constructor:
@@ -368,8 +390,7 @@ addi $sp, $sp, -4
 #obj 2 offset 5  result IO.out_string
 jal IO.out_string
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 20($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 #Integer
 li $a0, 2
@@ -379,24 +400,24 @@ lw $t0, 4($sp)
 sw $t0, 16($sp)
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
-lw $t1, 24($sp)
-sw $t1, 4($t0)
+lw $t1, 28($sp)
+sw $t1, 4($sp)
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 28($sp)
+lw $t0, 32($sp)
 lw $t1, 4($t0)
 sw $t1, 4($sp)
 lw $t0, 4($sp)
-lw $t1, 28($sp)
-sw $t1, 8($t0)
+lw $t1, 32($sp)
+sw $t1, 8($sp)
 #Integer
 li $a0, 500
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 lw $t0, 4($sp)
-lw $t1, 32($sp)
-sw $t1, 16($t0)
+lw $t1, 40($sp)
+sw $t1, 16($sp)
 #loop
 li $a0, 0
 sw $a0, ($sp)
@@ -421,84 +442,35 @@ addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 52($sp)
+lw $t0, 68($sp)
 lw $t1, 8($t0)
 sw $t1, 4($sp)
 #Integer
 li $a0, 1
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 8($sp)
+lw $t0, 4($sp)
 lw $t1, 4($sp)
 add $t0, $t0, $t1
 sw $t0, 12($sp)
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
-lw $t1, 56($sp)
-sw $t1, 8($t0)
+lw $t1, 80($sp)
+sw $t1, 8($sp)
 #Assignment
 #Integer
 li $a0, 2
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 lw $t0, 4($sp)
-lw $t1, 60($sp)
-sw $t1, 12($t0)
+lw $t1, 84($sp)
+sw $t1, 12($sp)
 #loop
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 _loop_3:
 #Condition
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-#Binary
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-lw $t0, 76($sp)
-lw $t1, 8($t0)
-sw $t1, 4($sp)
-#Binary
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-lw $t0, 84($sp)
-lw $t1, 12($t0)
-sw $t1, 4($sp)
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-lw $t0, 88($sp)
-lw $t1, 12($t0)
-sw $t1, 4($sp)
-lw $t0, 8($sp)
-lw $t1, 4($sp)
-mult $t0, $t1
-mflo $t0
-sw $t0, 12($sp)
-addiu $sp, $sp, 8
-lw $t0, 16($sp)
-lw $t1, 4($sp)
-li $t3, 1
-add $t0, $t0, $t3
-sge $t0, $t1, $t0
-sw $t0, 20($sp)
-addiu $sp, $sp, 8
-lw $t0, 4($sp)
-bnez $t0, _if_4
-#Condition
-li $a0, 0
-sw $a0, ($sp)
-addiu $sp, $sp, -4
-#Binary
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
@@ -522,6 +494,35 @@ addiu $sp, $sp, -4
 lw $t0, 112($sp)
 lw $t1, 12($t0)
 sw $t1, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 116($sp)
+lw $t1, 12($t0)
+sw $t1, 4($sp)
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+mult $t0, $t1
+mflo $t0
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+lw $t1, 8($sp)
+li $t3, 1
+add $t0, $t0, $t3
+sge $t0, $t1, $t0
+sw $t0, 28($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_4
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
 #Binary
 li $a0, 0
 sw $a0, ($sp)
@@ -529,31 +530,51 @@ addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 120($sp)
+lw $t0, 144($sp)
+lw $t1, 8($t0)
+sw $t1, 4($sp)
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 152($sp)
+lw $t1, 12($t0)
+sw $t1, 4($sp)
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 160($sp)
 lw $t1, 8($t0)
 sw $t1, 4($sp)
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 124($sp)
+lw $t0, 164($sp)
 lw $t1, 12($t0)
 sw $t1, 4($sp)
-lw $t0, 8($sp)
+lw $t0, 4($sp)
 lw $t1, 4($sp)
 div $t0, $t1
 mflo $t0
 sw $t0, 12($sp)
 addiu $sp, $sp, 8
-lw $t0, 16($sp)
-lw $t1, 4($sp)
+lw $t0, 4($sp)
+lw $t1, 8($sp)
 mult $t0, $t1
 mflo $t0
-sw $t0, 20($sp)
-addiu $sp, $sp, 8
-lw $t0, 24($sp)
-lw $t1, 4($sp)
-sub $t0, $t0, $t1
 sw $t0, 28($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+lw $t1, 8($sp)
+sub $t0, $t0, $t1
+sw $t0, 40($sp)
 addiu $sp, $sp, 8
 #Integer
 li $a0, 0
@@ -562,7 +583,7 @@ addiu $sp, $sp, -4
 lw $t0, 8($sp)
 lw $t1, 4($sp)
 seq $t0, $t0, $t1
-sw $t0, 36($sp)
+sw $t0, 52($sp)
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
 bnez $t0, _if_5
@@ -570,25 +591,25 @@ li $a0, 1
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 lw $t0, 4($sp)
-sw $t0, 44($sp)
+sw $t0, 64($sp)
 j _fi_5
 _if_5:
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 lw $t0, 4($sp)
-sw $t0, 48($sp)
+sw $t0, 72($sp)
 _fi_5:
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
-sw $t0, 72($sp)
+sw $t0, 112($sp)
 j _fi_4
 _if_4:
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 lw $t0, 4($sp)
-sw $t0, 76($sp)
+sw $t0, 116($sp)
 _fi_4:
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
@@ -603,21 +624,21 @@ addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 148($sp)
+lw $t0, 220($sp)
 lw $t1, 12($t0)
 sw $t1, 4($sp)
 #Integer
 li $a0, 1
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 8($sp)
+lw $t0, 4($sp)
 lw $t1, 4($sp)
 add $t0, $t0, $t1
 sw $t0, 12($sp)
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
-lw $t1, 152($sp)
-sw $t1, 12($t0)
+lw $t1, 232($sp)
+sw $t1, 12($sp)
 addiu $sp, $sp, 8
 j _loop_3
 _pool_3:
@@ -632,7 +653,7 @@ addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 164($sp)
+lw $t0, 244($sp)
 lw $t1, 8($t0)
 sw $t1, 4($sp)
 #Binary
@@ -642,27 +663,27 @@ addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 172($sp)
+lw $t0, 252($sp)
 lw $t1, 12($t0)
 sw $t1, 4($sp)
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 176($sp)
+lw $t0, 256($sp)
 lw $t1, 12($t0)
 sw $t1, 4($sp)
-lw $t0, 8($sp)
+lw $t0, 4($sp)
 lw $t1, 4($sp)
 mult $t0, $t1
 mflo $t0
 sw $t0, 12($sp)
 addiu $sp, $sp, 8
-lw $t0, 16($sp)
-lw $t1, 4($sp)
+lw $t0, 4($sp)
+lw $t1, 8($sp)
 li $t3, 1
 add $t0, $t0, $t3
 sge $t0, $t1, $t0
-sw $t0, 20($sp)
+sw $t0, 28($sp)
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
 bnez $t0, _if_6
@@ -671,7 +692,7 @@ li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 lw $t0, 4($sp)
-sw $t0, 28($sp)
+sw $t0, 40($sp)
 j _fi_6
 _if_6:
 #Block
@@ -682,12 +703,12 @@ addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 188($sp)
+lw $t0, 284($sp)
 lw $t1, 8($t0)
 sw $t1, 4($sp)
 lw $t0, 4($sp)
-lw $t1, 188($sp)
-sw $t1, 4($t0)
+lw $t1, 284($sp)
+sw $t1, 4($sp)
 #Self-Dispatch
 li $a0, 0
 sw $a0, ($sp)
@@ -696,15 +717,14 @@ addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 196($sp)
+lw $t0, 296($sp)
 lw $t1, 4($t0)
 sw $t1, 4($sp)
 #Dispatch in place
-#obj 2 offset 49  result IO.out_int
+#obj 2 offset 74  result IO.out_int
 jal IO.out_int
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 196($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 #Self-Dispatch
 li $a0, 0
@@ -719,17 +739,16 @@ la $a0, string_7
 sw $a0, 0($sp)
 addi $sp, $sp, -4
 #Dispatch in place
-#obj 2 offset 51  result IO.out_string
+#obj 2 offset 76  result IO.out_string
 jal IO.out_string
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 204($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
-sw $t0, 24($sp)
+sw $t0, 28($sp)
 addiu $sp, $sp, 12
 lw $t0, 4($sp)
-sw $t0, 52($sp)
+sw $t0, 76($sp)
 _fi_6:
 addiu $sp, $sp, 8
 #Condition
@@ -743,16 +762,16 @@ addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 216($sp)
+lw $t0, 320($sp)
 lw $t1, 16($t0)
 sw $t1, 4($sp)
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $t0, 220($sp)
+lw $t0, 324($sp)
 lw $t1, 8($t0)
 sw $t1, 4($sp)
-lw $t0, 8($sp)
+lw $t0, 4($sp)
 lw $t1, 4($sp)
 add $t0, $t1, $t0
 sw $t0, 12($sp)
@@ -767,7 +786,7 @@ la $a0, string_9
 sw $a0, 0($sp)
 addi $sp, $sp, -4
 lw $t0, 4($sp)
-sw $t0, 20($sp)
+sw $t0, 28($sp)
 j _fi_8
 _if_8:
 #Point-Dispatch
@@ -786,28 +805,31 @@ addi $sp, $sp, -4
 #obj 2 offset 1  result Object.abort
 jal Object.abort
 sw $a1, 0($sp)
-addi $sp, $sp, 4
-lw $ra, 4($sp)
+addi $sp, $sp, -4
 addiu $sp, $sp, 4
 lw $t0, 4($sp)
-sw $t0, 28($sp)
+sw $t0, 44($sp)
 _fi_8:
 addiu $sp, $sp, 8
 lw $t0, 4($sp)
-sw $t0, 192($sp)
+sw $t0, 296($sp)
 addiu $sp, $sp, 20
 addiu $sp, $sp, 8
 j _loop_2
 _pool_2:
 lw $t0, 4($sp)
-lw $t1, 232($sp)
-sw $t1, 20($t0)
+lw $t1, 352($sp)
+sw $t1, 20($sp)
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
 lw $v0, 4($sp)
-addiu $sp, $sp, -4
-addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
 jr $ra
 Main.type_name:
 sw $ra, 0($sp)
@@ -821,9 +843,5 @@ addiu $sp, $sp, -4
 li $a0, 0
 sw $a0, ($sp)
 addiu $sp, $sp, -4
-lw $v0, 4($sp)
-addiu $sp, $sp, -4
-addiu $sp, $sp, -4
-jr $ra
 li $v0, 10
 syscall
