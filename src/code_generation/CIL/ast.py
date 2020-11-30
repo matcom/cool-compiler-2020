@@ -230,8 +230,11 @@ class AllocateNode(InstructionNode):
 
 
 class AbortNode(InstructionNode):
+    def __init__(self, type_name: str = None):
+        self.type_name = type_name
+
     def __str__(self):
-        return 'ABORT ;'
+        return f'ABORT {self.type_name} ;'
 
 
 class ReadIntNode(InstructionNode):

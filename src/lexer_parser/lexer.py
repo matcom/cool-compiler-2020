@@ -97,7 +97,7 @@ def t_TYPE(t):
 
 def t_BOOL(t):
     r'f[Aa][Ll][Ss][Ee]|t[Rr][Uu][Ee]'
-    t.value = (t.value.lower == 'true')
+    t.value = (t.value.lower() == 'true')
     return t
 
 

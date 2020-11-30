@@ -100,7 +100,7 @@ def program_to_cil_visitor(program):
     main_result = add_local('main_result')
     body.append(CilAST.ArgNode(main_init.value))
     body.append(CilAST.VCAllNode('Main', 'main', main_result))
-    
+
     main_function = CilAST.FuncNode(
         'main', [], [__LOCALS__[k] for k in __LOCALS__.keys()], body)
     built_in_code.append(main_function)
@@ -118,15 +118,17 @@ def program_to_cil_visitor(program):
     data = [CilAST.DataNode(__DATA__[data_value], data_value)
             for data_value in __DATA__.keys()]
 
+    data.append(CilAST.DataNode('data_abort', 'Abort called from class '))
+
     cil_program = CilAST.ProgramNode(types, data, code, built_in_code)
     remove_unused_locals(cil_program)
-    #aqui se esta perdiendo un vcall
+    # aqui se esta perdiendo un vcall
     optimization_locals(cil_program)
     return cil_program
 
 
 def built_in_to_cil():
-    return [out_int_to_cil(), out_string_to_cil(), in_string_to_cil(), in_int_to_cil(), type_name_to_cil(), copy_to_cil(), length_to_cil(), concat_to_cil(), substring_to_cil(), abort_to_cil()]
+    return [out_int_to_cil(), out_string_to_cil(), in_string_to_cil(), in_int_to_cil(), type_name_to_cil(), copy_to_cil(), length_to_cil(), concat_to_cil(), substring_to_cil(), abort_to_cil(), abort_string_to_cil()]
 
 
 def out_string_to_cil():
@@ -173,8 +175,11 @@ def substring_to_cil():
 
 
 def abort_to_cil():
-    result = CilAST.LocalNode('abort_result')
-    return CilAST.FuncNode('Object_abort', [CilAST.ParamNode('self')], [result], [CilAST.ReturnNode(result)])
+    return CilAST.FuncNode('Object_abort', [CilAST.ParamNode('self')], [], [CilAST.AbortNode()])
+
+
+def abort_string_to_cil():
+    return CilAST.FuncNode('String_abort', [CilAST.ParamNode('self')], [], [CilAST.AbortNode('String')])
 
 
 def func_to_cil_visitor(type_name, func):
@@ -368,8 +373,8 @@ def integer_to_cil_visitor(integer):
     return CIL_block([], integer.value)
 
 
-def bool_to_cil_visitor(bool):
-    return CIL_block([], 1) if bool.value == 'true' else CIL_block([], 0)
+def bool_to_cil_visitor(b: CoolAST.BoolNode):
+    return CIL_block([], 1) if b.value else CIL_block([], 0)
 
 
 def id_to_cil_visitor(id):
