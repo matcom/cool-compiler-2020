@@ -733,7 +733,7 @@ class SemanticCOOLVisitor(ParseTreeVisitor):
             else:
                 line = str(ctx.getChild(1).symbol.line)
                 column = str(ctx.getChild(1).symbol.column)
-                error = f"({line}, {column}) - SemanticError: Expression type {currentClass} does not conform to declared static dispatch type {parent}."
+                error = f"({line}, {column}) - TypeError: Expression type {currentClass} does not conform to declared static dispatch type {parent}."
                 print(error)
                 self.hasNoError = False
                 return methodType
@@ -1062,6 +1062,16 @@ class CodegenVisitor(ParseTreeVisitor):
 
     CurrentType: str
 
+    def getTagChildren(self, className: str, classList: list):
+        tagList = list()
+        for coolClass in self.TypeTable.values():
+            if coolClass.Parent == className and not classList.__contains__(coolClass.Name):
+                tagList += self.getTagChildren(coolClass.Name, classList)
+        if not classList.__contains__(className):
+            tagList.append(self.TypeTable[className].Tag)
+        return tagList
+
+
     def join(self, class1: str, class2: str):
         if class1 == "None" or class2 == "None":
             return "None"
@@ -1124,8 +1134,9 @@ class CodegenVisitor(ParseTreeVisitor):
                     f"\t.word   Int_dispTab\n" \
                     f"\t.word   {constName}\n"
             else:
-                length = int(len(constName) / 4) + 3
-                if len(constName) % 4 != 0:
+                l = len(constName)+1
+                length = int(l / 4) + 4
+                if l % 4 != 0:
                     length = length + 1
                 sol = sol + \
                       f"\t.word   -1\n{constLabel}:\n" \
@@ -1153,7 +1164,7 @@ class CodegenVisitor(ParseTreeVisitor):
     def genMethodTags(self, coolClass: str, coolMethods: dict):
         if coolClass == "None":
             return coolMethods
-        coolMethods = self.genMethodTags(self.TypeTable[coolClass].Parent, coolMethods,)
+        coolMethods = self.genMethodTags(self.TypeTable[coolClass].Parent, coolMethods)
         for method in self.TypeTable[coolClass].Methods:
             coolMethods[method] = f"{coolClass}.{method}"
         return coolMethods
@@ -1610,37 +1621,46 @@ class CodegenVisitor(ParseTreeVisitor):
         tempCode = f"abort{counter}:\n" \
                 "\tjal    _case_abort2\n"
         count = 3
+        idTypeList = list()
         while lengt > count:
             idName = ctx.getChild(count).symbol.text
             count = count + 2
             idType = ctx.getChild(count).symbol.text
+            idTypeList.append(idType)
             count = count + 2
             self.ScopeManager.addScope()
             self.ScopeManager.addIdentifier(idName, idType)
-            if idType == "Object":
-                code += f"\tb      {idType}_case{counter}\n"
-            code += \
-                f"\tlw     $t1 0($a0)\n" \
-                f"\tli     $t2 {self.TypeTable[idType].Tag}\n" \
-                f"\tbeq    $t1 $t2 {idType}_case{counter}\n"
-            scope = self.ScopeManager.searchIdentifier(idName)
-            pos = list(self.ScopeManager.Stack[scope].keys()).index(idName) + 1
-            init = 2
-            if self.CurrentMethod == "None":
-                init = 0
-            for scope in list(self.ScopeManager.Stack)[init: scope]:
-                pos += len(list(scope.keys()))
+            code += "\tlw     $t1 0($a0)\n" \
+                   f"\tli     $t2 {self.TypeTable[idType].Tag}\n" \
+                   f"\tbeq    $t1 $t2 {idType}_case{counter}\n"
             tempCode +=\
                 f"{idType}_case{counter}:\n" \
-                f"\tsw     $a0 -{pos * 4}($fp)\n"
+                f"\tsw     $a0 0($sp)\n" \
+                f"\taddiu  $sp $sp -4\n"
             tempCode += ctx.getChild(count).accept(self)
             tempCode += f"\tb      esac{counter}\n"
             self.ScopeManager.deleteScope()
             count = count + 2
+        count = 5
+        objCase = ""
+        while lengt > count:
+            idType = ctx.getChild(count).symbol.text
+            count = count + 6
+            if idType == "Object":
+                objCase = f"\tb   Object_case{counter}\n"
+            else:
+                tagList = self.getTagChildren(idType, idTypeList)
+                for tag in tagList:
+                    code += \
+                        "\tlw     $t1 0($a0)\n"\
+                        f"\tli     $t2 {tag}\n" \
+                        f"\tbeq    $t1 $t2 {idType}_case{counter}\n"
+        code += objCase
         code = code + \
                "\tjal    _case_abort\n"
         code += tempCode +\
-               f"esac{counter}:\n"
+               f"esac{counter}:\n" \
+                "\taddiu  $sp $sp 4\n"
         return code
 
     # Visit a parse tree produced by COOL#ownMethodCall.
