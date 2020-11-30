@@ -161,6 +161,7 @@ class MIPSCompiler:
     def visit(self, node:CILProgram, _):
         datainstructions=".data\n"
         datainstructions+='StringAbort: .asciiz "Abort called from class String'+'\\'+'n'+'"\n'
+        datainstructions+='index_error: .asciiz "Wrong Index Detected'+'\\'+'n'+'"\n'
         for element in node.Data:
             datainstructions+=element.nombre+': .asciiz '+element.valorString+'\n'
             self.data[element.nombre]=element.valorString
