@@ -2,7 +2,7 @@ import sys
 import os.path
 import errno
 from antlr4 import *
-# from COOLLexer import COOLLexer
+from COOLLexer import COOLLexer
 # from COOLLexerErrorListener import COOLLexerErrorListener
 # from COOLParser import COOLParser
 # from COOLParserErrorListener import COOLParserErrorListener
@@ -26,7 +26,7 @@ def main(argv):
 
 
     input = FileStream(argv[1], "utf-8")
-    # lexer = COOLLexer(input)
+    lexer = COOLLexer(input)
     # lexer.removeErrorListeners()
     # lexer.addErrorListener(COOLLexerErrorListener())
     # token = lexer.nextToken()
