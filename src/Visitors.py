@@ -1,7 +1,7 @@
 from collections import deque
 from antlr4 import *
 from COOL import *
-from  src import COOLParser
+
 
 class COOLClass:
     def __init__(self, name: str, parent: str, created: bool, sealed: bool):
