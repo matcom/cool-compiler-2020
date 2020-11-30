@@ -1485,14 +1485,14 @@ bnez $a1, mismatch_9
 li $v0, 1
 end_9:
 move $t1, $v0
-# If not local_main_Main_internal_18 goto continue__114
+# If not local_main_Main_internal_18 goto continue__116
 sw $t0, -4($fp)
 sw $t1, -76($fp)
 sw $t2, -80($fp)
-beqz $t1, continue__114
+beqz $t1, continue__116
 la $a0, dispatch_error
 j .raise
-continue__114:
+continue__116:
 lw $t0, -4($fp)
 lw $t1, -72($fp)
 # Find the actual name in the dispatch table
@@ -1550,14 +1550,14 @@ bnez $a1, mismatch_10
 li $v0, 1
 end_10:
 move $t1, $v0
-# If not local_main_Main_internal_21 goto continue__126
+# If not local_main_Main_internal_21 goto continue__128
 sw $t0, -72($fp)
 sw $t1, -88($fp)
 sw $t2, -92($fp)
-beqz $t1, continue__126
+beqz $t1, continue__128
 la $a0, dispatch_error
 j .raise
-continue__126:
+continue__128:
 lw $t0, -72($fp)
 lw $t1, -84($fp)
 # Find the actual name in the dispatch table
@@ -1616,15 +1616,15 @@ bnez $a1, mismatch_11
 li $v0, 1
 end_11:
 move $t2, $v0
-# If not local_main_Main_internal_24 goto continue__138
+# If not local_main_Main_internal_24 goto continue__141
 sw $t0, -84($fp)
 sw $t1, -4($fp)
 sw $t2, -100($fp)
 sw $t3, -104($fp)
-beqz $t2, continue__138
+beqz $t2, continue__141
 la $a0, dispatch_error
 j .raise
-continue__138:
+continue__141:
 lw $t0, -4($fp)
 lw $t1, -96($fp)
 # Find the actual name in the dispatch table
@@ -1683,15 +1683,15 @@ bnez $a1, mismatch_12
 li $v0, 1
 end_12:
 move $t2, $v0
-# If not local_main_Main_internal_27 goto continue__151
+# If not local_main_Main_internal_27 goto continue__153
 sw $t0, -96($fp)
 sw $t1, -84($fp)
 sw $t2, -112($fp)
 sw $t3, -116($fp)
-beqz $t2, continue__151
+beqz $t2, continue__153
 la $a0, dispatch_error
 j .raise
-continue__151:
+continue__153:
 lw $t0, -84($fp)
 lw $t1, -108($fp)
 # Find the actual name in the dispatch table
@@ -1727,9 +1727,9 @@ lw $fp, ($sp)
 lw $t0, -108($fp)
 # saves the return value
 move $t0, $v0
-# If local_main_Main_internal_26 goto true__161
+# If local_main_Main_internal_26 goto true__163
 sw $t0, -108($fp)
-bnez $t0, true__161
+bnez $t0, true__163
 lw $t0, -124($fp)
 # Saves in local_main_Main_internal_30 data_3
 la $t0, data_3
@@ -1773,8 +1773,8 @@ move $t1, $t0
 sw $t1, -120($fp)
 sw $t0, -128($fp)
 sw $t1, -120($fp)
-j end__161
-true__161:
+j end__163
+true__163:
 lw $t0, -132($fp)
 # Saves in local_main_Main_internal_32 data_4
 la $t0, data_4
@@ -1818,7 +1818,7 @@ move $t1, $t0
 sw $t1, -120($fp)
 sw $t0, -136($fp)
 sw $t1, -120($fp)
-end__161:
+end__163:
 lw $t0, -120($fp)
 lw $t1, -140($fp)
 # Moving local_main_Main_internal_29 to local_main_Main_internal_34
@@ -1967,11 +1967,11 @@ lw $t2, -4($fp)
 # local_print_Complex_internal_0 <- local_print_Complex_y_1 = 0
 li $t9, 0
 seq $t2, $t1, $t9
-# If local_print_Complex_internal_0 goto true__211
+# If local_print_Complex_internal_0 goto true__215
 sw $t0, -0($fp)
 sw $t1, -8($fp)
 sw $t2, -4($fp)
-bnez $t2, true__211
+bnez $t2, true__215
 lw $t0, -0($fp)
 lw $t1, -16($fp)
 # local_print_Complex_x_3 <- GET self . x
@@ -2039,15 +2039,15 @@ bnez $a1, mismatch_13
 li $v0, 1
 end_13:
 move $t2, $v0
-# If not local_print_Complex_internal_7 goto continue__224
+# If not local_print_Complex_internal_7 goto continue__229
 sw $t0, -20($fp)
 sw $t1, -24($fp)
 sw $t2, -32($fp)
 sw $t3, -36($fp)
-beqz $t2, continue__224
+beqz $t2, continue__229
 la $a0, dispatch_error
 j .raise
-continue__224:
+continue__229:
 lw $t0, -20($fp)
 lw $t1, -28($fp)
 # Find the actual name in the dispatch table
@@ -2114,16 +2114,16 @@ bnez $a1, mismatch_14
 li $v0, 1
 end_14:
 move $t3, $v0
-# If not local_print_Complex_internal_11 goto continue__239
+# If not local_print_Complex_internal_11 goto continue__244
 sw $t0, -28($fp)
 sw $t1, -0($fp)
 sw $t2, -40($fp)
 sw $t3, -48($fp)
 sw $t4, -52($fp)
-beqz $t3, continue__239
+beqz $t3, continue__244
 la $a0, dispatch_error
 j .raise
-continue__239:
+continue__244:
 lw $t0, -28($fp)
 lw $t1, -44($fp)
 # Find the actual name in the dispatch table
@@ -2189,15 +2189,15 @@ bnez $a1, mismatch_15
 li $v0, 1
 end_15:
 move $t2, $v0
-# If not local_print_Complex_internal_15 goto continue__255
+# If not local_print_Complex_internal_15 goto continue__260
 sw $t0, -44($fp)
 sw $t1, -56($fp)
 sw $t2, -64($fp)
 sw $t3, -68($fp)
-beqz $t2, continue__255
+beqz $t2, continue__260
 la $a0, dispatch_error
 j .raise
-continue__255:
+continue__260:
 lw $t0, -44($fp)
 lw $t1, -60($fp)
 # Find the actual name in the dispatch table
@@ -2239,8 +2239,8 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -60($fp)
 sw $t1, -12($fp)
-j end__211
-true__211:
+j end__215
+true__215:
 lw $t0, -0($fp)
 lw $t1, -72($fp)
 # local_print_Complex_x_17 <- GET self . x
@@ -2284,7 +2284,7 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -76($fp)
 sw $t1, -12($fp)
-end__211:
+end__215:
 lw $t0, -12($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -2524,16 +2524,16 @@ bnez $a1, mismatch_16
 li $v0, 1
 end_16:
 move $t3, $v0
-# If not local_equal_Complex_internal_3 goto continue__331
+# If not local_equal_Complex_internal_3 goto continue__337
 sw $t0, -4($fp)
 sw $t1, -12($fp)
 sw $t2, -0($fp)
 sw $t3, -20($fp)
 sw $t4, -24($fp)
-beqz $t3, continue__331
+beqz $t3, continue__337
 la $a0, dispatch_error
 j .raise
-continue__331:
+continue__337:
 lw $t0, -0($fp)
 lw $t1, -16($fp)
 # Find the actual name in the dispatch table
@@ -2568,18 +2568,18 @@ lw $t1, -12($fp)
 lw $t2, -8($fp)
 # local_equal_Complex_internal_0 <- local_equal_Complex_x_1 = local_equal_Complex_internal_2
 seq $t2, $t1, $t0
-# If local_equal_Complex_internal_0 goto true__342
+# If local_equal_Complex_internal_0 goto true__348
 sw $t0, -16($fp)
 sw $t1, -12($fp)
 sw $t2, -8($fp)
-bnez $t2, true__342
+bnez $t2, true__348
 lw $t0, -28($fp)
 # Moving 0 to local_equal_Complex_internal_5
 li $t0, 0
 sw $t0, -28($fp)
 sw $t0, -28($fp)
-j end__342
-true__342:
+j end__348
+true__348:
 lw $t0, -4($fp)
 lw $t1, -36($fp)
 # local_equal_Complex_y_7 <- GET self . y
@@ -2612,16 +2612,16 @@ bnez $a1, mismatch_17
 li $v0, 1
 end_17:
 move $t3, $v0
-# If not local_equal_Complex_internal_9 goto continue__352
+# If not local_equal_Complex_internal_9 goto continue__358
 sw $t0, -4($fp)
 sw $t1, -36($fp)
 sw $t2, -0($fp)
 sw $t3, -44($fp)
 sw $t4, -48($fp)
-beqz $t3, continue__352
+beqz $t3, continue__358
 la $a0, dispatch_error
 j .raise
-continue__352:
+continue__358:
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # Find the actual name in the dispatch table
@@ -2656,24 +2656,24 @@ lw $t1, -36($fp)
 lw $t2, -32($fp)
 # local_equal_Complex_internal_6 <- local_equal_Complex_y_7 = local_equal_Complex_internal_8
 seq $t2, $t1, $t0
-# If local_equal_Complex_internal_6 goto true__363
+# If local_equal_Complex_internal_6 goto true__369
 sw $t0, -40($fp)
 sw $t1, -36($fp)
 sw $t2, -32($fp)
-bnez $t2, true__363
+bnez $t2, true__369
 lw $t0, -52($fp)
 # Moving 0 to local_equal_Complex_internal_11
 li $t0, 0
 sw $t0, -52($fp)
 sw $t0, -52($fp)
-j end__363
-true__363:
+j end__369
+true__369:
 lw $t0, -52($fp)
 # Moving 1 to local_equal_Complex_internal_11
 li $t0, 1
 sw $t0, -52($fp)
 sw $t0, -52($fp)
-end__363:
+end__369:
 lw $t0, -52($fp)
 lw $t1, -28($fp)
 # Moving local_equal_Complex_internal_11 to local_equal_Complex_internal_5
@@ -2681,7 +2681,7 @@ move $t1, $t0
 sw $t1, -28($fp)
 sw $t0, -52($fp)
 sw $t1, -28($fp)
-end__342:
+end__348:
 lw $t0, -28($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory

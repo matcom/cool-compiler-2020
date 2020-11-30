@@ -1661,14 +1661,14 @@ bnez $a1, mismatch_8
 li $v0, 1
 end_8:
 move $t1, $v0
-# If not local_main_Main_internal_2 goto continue__129
+# If not local_main_Main_internal_2 goto continue__131
 sw $t0, -4($fp)
 sw $t1, -12($fp)
 sw $t2, -16($fp)
-beqz $t1, continue__129
+beqz $t1, continue__131
 la $a0, dispatch_error
 j .raise
-continue__129:
+continue__131:
 lw $t0, -4($fp)
 lw $t1, -8($fp)
 # Find the actual name in the dispatch table
@@ -1765,14 +1765,14 @@ bnez $a1, mismatch_9
 li $v0, 1
 end_9:
 move $t1, $v0
-# If not local_main_Main_internal_6 goto continue__144
+# If not local_main_Main_internal_6 goto continue__146
 sw $t0, -20($fp)
 sw $t1, -28($fp)
 sw $t2, -32($fp)
-beqz $t1, continue__144
+beqz $t1, continue__146
 la $a0, dispatch_error
 j .raise
-continue__144:
+continue__146:
 lw $t0, -20($fp)
 lw $t1, -24($fp)
 # Find the actual name in the dispatch table
@@ -1846,15 +1846,15 @@ bnez $a1, mismatch_10
 li $v0, 1
 end_10:
 move $t2, $v0
-# If not local_main_Main_internal_10 goto continue__158
+# If not local_main_Main_internal_10 goto continue__160
 sw $t0, -24($fp)
 sw $t1, -36($fp)
 sw $t2, -44($fp)
 sw $t3, -48($fp)
-beqz $t2, continue__158
+beqz $t2, continue__160
 la $a0, dispatch_error
 j .raise
-continue__158:
+continue__160:
 lw $t0, -36($fp)
 lw $t1, -40($fp)
 # Find the actual name in the dispatch table
@@ -1928,15 +1928,15 @@ bnez $a1, mismatch_11
 li $v0, 1
 end_11:
 move $t2, $v0
-# If not local_main_Main_internal_14 goto continue__172
+# If not local_main_Main_internal_14 goto continue__174
 sw $t0, -40($fp)
 sw $t1, -52($fp)
 sw $t2, -60($fp)
 sw $t3, -64($fp)
-beqz $t2, continue__172
+beqz $t2, continue__174
 la $a0, dispatch_error
 j .raise
-continue__172:
+continue__174:
 lw $t0, -52($fp)
 lw $t1, -56($fp)
 # Find the actual name in the dispatch table

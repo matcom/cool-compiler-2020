@@ -107,8 +107,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         vtype = get_type(var_info.type, self.current_type)
         local_var = self.register_local(var_info.name)
 
-        value, _ = self.visit(node.expr, scope)
-        self.register_instruction(cil.AssignNode(local_var, value))
+        value, typex = self.visit(node.expr, scope)
+        if vtype.name == 'Object' and typex.name in ['String', 'Int', 'Bool']:
+            self.register_instruction(cil.BoxingNode(local_var, typex.name))
+        else:
+            self.register_instruction(cil.AssignNode(local_var, value))
         return local_var, vtype
 
 
@@ -119,11 +122,16 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         if var_info is None:
             var_info = scope.find_attribute(node.id)
             attributes = [attr.name for attr, a_type in self.current_type.all_attributes()]
-            offset = attributes.index(var_info.name)
+            if var_info.type.name == 'Object' and typex.name in ['String', 'Bool', 'Int']:
+                value = self.define_internal_local()
+                self.register_instruction(cil.BoxingNode(value, typex.name))
             self.register_instruction(cil.SetAttribNode('self', var_info.name, self.current_type.name, value))
         else:
             local_name = self.to_var_name(var_info.name)
-            self.register_instruction(cil.AssignNode(local_name, value))
+            if var_info.type.name == 'Object' and typex.name in ['String', 'Bool', 'Int']:
+                self.register_instruction(cil.BoxingNode(local_name, typex.name))
+            else:
+                self.register_instruction(cil.AssignNode(local_name, value))
         return value, typex
 
     def _return_type(self, typex: Type, node):
@@ -134,18 +142,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     def visit(self, node: CallNode, scope: Scope):
         obj, otype = self.visit(node.obj, scope)
         
-        if isinstance(obj, VariableInfo):
-            obj = obj.name
+        meth = otype.get_method(node.id, node.pos)
+        args_node = [cil.ArgNode(obj, self.index)] + self.handle_arguments(node.args, scope, meth.param_types)
 
-        args = [self.visit(arg, scope)[0] for arg in node.args]
-        args_node = [cil.ArgNode(obj, self.index)] + [cil.ArgNode(arg, self.index) for arg in args]
- 
-        rtype = otype.get_method(node.id, node.pos).return_type
-        if isinstance(rtype, VoidType):
-            result = None
-        else: 
-            result = self.define_internal_local()
-
+        rtype = meth.return_type
+        result = None if isinstance(rtype, VoidType) else self.define_internal_local()
+       
         continue_label = cil.LabelNode(f'continue__{self.index}') 
         isvoid = self.check_void(obj)
         self.register_instruction(cil.GotoIfFalseNode(isvoid, continue_label.label))
@@ -161,18 +163,12 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
     @visitor.when(BaseCallNode)
     def visit(self, node: BaseCallNode, scope: Scope):
         obj, otype = self.visit(node.obj, scope)
-        
-        if isinstance(obj, VariableInfo):
-            obj = obj.name
 
-        args = [self.visit(arg, scope)[0] for arg in node.args]
-        args_node = [cil.ArgNode(obj, self.index)] + [cil.ArgNode(arg, self.index) for arg in args]
-        
-        rtype = otype.get_method(node.id, node.pos).return_type
-        if isinstance(rtype, VoidType):
-            result = None
-        else: 
-            result = self.define_internal_local()
+        meth = otype.get_method(node.id, node.pos)
+        args_node = [cil.ArgNode(obj, self.index)] + self.handle_arguments(node.args, scope, meth.param_types)
+
+        rtype = meth.return_type
+        result = None if isinstance(rtype, VoidType) else self.define_internal_local()
         
         continue_label = cil.LabelNode(f'continue__{self.index}') 
         isvoid = self.check_void(obj)
@@ -185,12 +181,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
     @visitor.when(StaticCallNode)
     def visit(self, node: StaticCallNode, scope: Scope):
-        
-        args = [self.visit(arg, scope)[0] for arg in node.args]
-        args_node = [cil.ArgNode('self')] + [cil.ArgNode(arg, self.index) for arg in args]
-       
-        name = self.to_function_name(node.id, self.current_type.name)
-        rtype = self.current_type.get_method(node.id, node.pos).return_type
+        meth = self.current_type.get_method(node.id, node.pos)
+        args_node = [cil.ArgNode('self', self.index)] + self.handle_arguments(node.args, scope, meth.param_types)
+
+        rtype = meth.return_type
         if isinstance(rtype, VoidType):
             result = None
         else: 
@@ -230,7 +224,6 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         try:
             var_info = scope.find_attribute(node.lex)
             local_var = self.register_local(var_info.name)
-            # attributes = [attr.name for attr, a_type in self.current_type.all_attributes()]
             self.register_instruction(cil.GetAttribNode('self', var_info.name, self.current_type.name, local_var, var_info.type.name))
             return local_var, get_type(var_info.type, self.current_type)
         except:
@@ -279,7 +272,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         self.register_instruction(cil.GotoNode(start_label.label))
         self.register_instruction(end_label)
         
-        return result, typex
+        return result, ObjectType()
 
     @visitor.when(ConditionalNode)
     def visit(self, node: ConditionalNode, scope: Scope):
@@ -333,11 +326,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         expr, typex = self.visit(node.expr, scope)
         
         result = self.define_internal_local()
-        # etype = self.define_internal_local()
         end_label = cil.LabelNode(f'end__{self.idx}')
         error_label = cil.LabelNode(f'error__{self.idx}')
-        # self.register_instruction(cil.TypeOfNode(expr, etype))
-
+     
         isvoid = self.check_void(expr)
         self.register_instruction(cil.GotoIfNode(isvoid, error_label.label))
 
@@ -369,7 +360,9 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         typex = self.context.get_type(node.typex, node.type_pos)
         scope.define_variable(node.id, typex)
         self.register_instruction(cil.AssignNode(local_var, expr))
-        expr_i, typex = self.visit(node.expr, scope)
+        expr_i, type_expr = self.visit(node.expr, scope)
+        if typex.name == 'Object' and type_expr.name in ['String', 'Int', 'Bool']:
+            self.register_instruction(cil.BoxingNode(expr_i, type_expr.name))
         return expr_i
 
     @visitor.when(NotNode)

@@ -1,8 +1,9 @@
 class Main inherits IO {
-   main(): Object {
-      out_string(test().type_name())
+   main(): Object { 
+      out_int(test(self).length())
    };
-   test(): Int {
-      1
+
+   test(x : Object): String { 
+      x <- 
    };
 };

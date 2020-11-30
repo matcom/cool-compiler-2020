@@ -1127,10 +1127,10 @@ sw $t1, -12($fp)
 sw $t2, -0($fp)
 sw $t3, -16($fp)
 sw $t4, -20($fp)
-start__63:
+start__64:
 li $t9, 1
-# If not 1 goto end__63
-beqz $t9, end__63
+# If not 1 goto end__64
+beqz $t9, end__64
 lw $t0, -0($fp)
 lw $t1, -28($fp)
 # local_Main_Main_testee_6 <- GET self . testee
@@ -1156,7 +1156,7 @@ sw $t0, -0($fp)
 sw $t1, -28($fp)
 sw $t2, -24($fp)
 sw $t3, -32($fp)
-start__73:
+start__74:
 lw $t0, -0($fp)
 lw $t1, -40($fp)
 # local_Main_Main_testee_9 <- GET self . testee
@@ -1174,14 +1174,14 @@ mflo $t4
 lw $t5, -36($fp)
 # local_Main_Main_internal_8 <- local_Main_Main_testee_9 < local_Main_Main_internal_10
 slt $t5, $t1, $t4
-# If local_Main_Main_internal_8 goto true__86
+# If local_Main_Main_internal_8 goto true__87
 sw $t0, -0($fp)
 sw $t1, -40($fp)
 sw $t2, -48($fp)
 sw $t3, -52($fp)
 sw $t4, -44($fp)
 sw $t5, -36($fp)
-bnez $t5, true__86
+bnez $t5, true__87
 lw $t0, -0($fp)
 lw $t1, -68($fp)
 # local_Main_Main_testee_16 <- GET self . testee
@@ -1212,7 +1212,7 @@ lw $a1, -60($fp)
 # local_Main_Main_internal_14 <- local_Main_Main_internal_15 = 0
 li $t9, 0
 seq $a1, $t7, $t9
-# If local_Main_Main_internal_14 goto true__104
+# If local_Main_Main_internal_14 goto true__105
 sw $t0, -0($fp)
 sw $t1, -68($fp)
 sw $t2, -76($fp)
@@ -1222,20 +1222,20 @@ sw $t5, -80($fp)
 sw $t6, -72($fp)
 sw $t7, -64($fp)
 sw $a1, -60($fp)
-bnez $a1, true__104
+bnez $a1, true__105
 lw $t0, -92($fp)
 # Moving 1 to local_Main_Main_internal_22
 li $t0, 1
 sw $t0, -92($fp)
 sw $t0, -92($fp)
-j end__104
-true__104:
+j end__105
+true__105:
 lw $t0, -92($fp)
 # Moving 0 to local_Main_Main_internal_22
 li $t0, 0
 sw $t0, -92($fp)
 sw $t0, -92($fp)
-end__104:
+end__105:
 lw $t0, -92($fp)
 lw $t1, -56($fp)
 # Moving local_Main_Main_internal_22 to local_Main_Main_internal_13
@@ -1243,18 +1243,18 @@ move $t1, $t0
 sw $t1, -56($fp)
 sw $t0, -92($fp)
 sw $t1, -56($fp)
-j end__86
-true__86:
+j end__87
+true__87:
 lw $t0, -56($fp)
 # Moving 0 to local_Main_Main_internal_13
 li $t0, 0
 sw $t0, -56($fp)
 sw $t0, -56($fp)
-end__86:
+end__87:
 lw $t0, -56($fp)
-# If not local_Main_Main_internal_13 goto end__73
+# If not local_Main_Main_internal_13 goto end__74
 sw $t0, -56($fp)
-beqz $t0, end__73
+beqz $t0, end__74
 lw $t0, -0($fp)
 lw $t1, -100($fp)
 # local_Main_Main_divisor_24 <- GET self . divisor
@@ -1272,8 +1272,8 @@ sw $t0, -0($fp)
 sw $t1, -100($fp)
 sw $t2, -96($fp)
 sw $t3, -32($fp)
-j start__73
-end__73:
+j start__74
+end__74:
 lw $t0, -0($fp)
 lw $t1, -108($fp)
 # local_Main_Main_testee_26 <- GET self . testee
@@ -1291,21 +1291,21 @@ mflo $t4
 lw $t5, -104($fp)
 # local_Main_Main_internal_25 <- local_Main_Main_testee_26 < local_Main_Main_internal_27
 slt $t5, $t1, $t4
-# If local_Main_Main_internal_25 goto true__135
+# If local_Main_Main_internal_25 goto true__136
 sw $t0, -0($fp)
 sw $t1, -108($fp)
 sw $t2, -116($fp)
 sw $t3, -120($fp)
 sw $t4, -112($fp)
 sw $t5, -104($fp)
-bnez $t5, true__135
+bnez $t5, true__136
 lw $t0, -124($fp)
 # Moving 0 to local_Main_Main_internal_30
 li $t0, 0
 sw $t0, -124($fp)
 sw $t0, -124($fp)
-j end__135
-true__135:
+j end__136
+true__136:
 lw $t0, -0($fp)
 lw $t1, -128($fp)
 # local_Main_Main_testee_31 <- GET self . testee
@@ -1398,7 +1398,7 @@ sw $t2, -124($fp)
 sw $t0, -144($fp)
 sw $t1, -148($fp)
 sw $t2, -124($fp)
-end__135:
+end__136:
 lw $t0, -0($fp)
 lw $t1, -156($fp)
 # local_Main_Main_stop_38 <- GET self . stop
@@ -1409,12 +1409,12 @@ lw $t2, 16($t0)
 lw $t3, -152($fp)
 # local_Main_Main_internal_37 <- local_Main_Main_stop_38 <= local_Main_Main_testee_39
 sle $t3, $t1, $t2
-# If local_Main_Main_internal_37 goto true__164
+# If local_Main_Main_internal_37 goto true__167
 sw $t0, -0($fp)
 sw $t1, -156($fp)
 sw $t2, -160($fp)
 sw $t3, -152($fp)
-bnez $t3, true__164
+bnez $t3, true__167
 lw $t0, -168($fp)
 # Saves in local_Main_Main_internal_41 data_3
 la $t0, data_3
@@ -1424,8 +1424,8 @@ move $t1, $t0
 sw $t1, -164($fp)
 sw $t0, -168($fp)
 sw $t1, -164($fp)
-j end__164
-true__164:
+j end__167
+true__167:
 lw $t0, -172($fp)
 # Saves in local_Main_Main_internal_42 data_4
 la $t0, data_4
@@ -1456,14 +1456,14 @@ bnez $a1, mismatch_6
 li $v0, 1
 end_6:
 move $t1, $v0
-# If not local_Main_Main_internal_44 goto continue__177
+# If not local_Main_Main_internal_44 goto continue__180
 sw $t0, -172($fp)
 sw $t1, -180($fp)
 sw $t2, -184($fp)
-beqz $t1, continue__177
+beqz $t1, continue__180
 la $a0, dispatch_error
 j .raise
-continue__177:
+continue__180:
 lw $t0, -176($fp)
 # Static Dispatch of the method abort
 sw $fp, ($sp)
@@ -1495,7 +1495,7 @@ move $t1, $t0
 sw $t1, -164($fp)
 sw $t0, -176($fp)
 sw $t1, -164($fp)
-end__164:
+end__167:
 lw $t0, -164($fp)
 lw $t1, -188($fp)
 # Moving local_Main_Main_internal_40 to local_Main_Main_internal_46
@@ -1508,8 +1508,8 @@ sw $t2, -20($fp)
 sw $t0, -164($fp)
 sw $t1, -188($fp)
 sw $t2, -20($fp)
-j start__63
-end__63:
+j start__64
+end__64:
 lw $t0, -20($fp)
 lw $t1, -0($fp)
 # self . m <- SET local_Main_Main_internal_4

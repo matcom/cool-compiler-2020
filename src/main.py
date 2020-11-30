@@ -38,6 +38,6 @@ if __name__ == "__main__":
     input_ = sys.argv[1]
     output_ = sys.argv[2]
     # print(input_)
-    # input_ = f'test.cl' 
+    # input_ = f'hello_world.cl' 
     # output_ = 'test.mips'
     run_pipeline(input_, output_)

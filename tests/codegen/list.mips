@@ -1299,14 +1299,14 @@ bnez $a1, mismatch_6
 li $v0, 1
 end_6:
 move $t1, $v0
-# If not local_cons_List_internal_2 goto continue__76
+# If not local_cons_List_internal_2 goto continue__78
 sw $t0, -8($fp)
 sw $t1, -16($fp)
 sw $t2, -20($fp)
-beqz $t1, continue__76
+beqz $t1, continue__78
 la $a0, dispatch_error
 j .raise
-continue__76:
+continue__78:
 lw $t0, -8($fp)
 lw $t1, -12($fp)
 # Find the actual name in the dispatch table
@@ -1596,14 +1596,14 @@ bnez $a1, mismatch_7
 li $v0, 1
 end_7:
 move $t1, $v0
-# If not local_print_list_Main_internal_1 goto continue__133
+# If not local_print_list_Main_internal_1 goto continue__135
 sw $t0, -0($fp)
 sw $t1, -12($fp)
 sw $t2, -16($fp)
-beqz $t1, continue__133
+beqz $t1, continue__135
 la $a0, dispatch_error
 j .raise
-continue__133:
+continue__135:
 lw $t0, -0($fp)
 lw $t1, -8($fp)
 # Find the actual name in the dispatch table
@@ -1634,9 +1634,9 @@ lw $fp, ($sp)
 lw $t0, -8($fp)
 # saves the return value
 move $t0, $v0
-# If local_print_list_Main_internal_0 goto true__143
+# If local_print_list_Main_internal_0 goto true__145
 sw $t0, -8($fp)
-bnez $t0, true__143
+bnez $t0, true__145
 lw $t0, -0($fp)
 lw $t1, -28($fp)
 # local_print_list_Main_internal_5 <- Type of l
@@ -1665,14 +1665,14 @@ bnez $a1, mismatch_8
 li $v0, 1
 end_8:
 move $t1, $v0
-# If not local_print_list_Main_internal_5 goto continue__147
+# If not local_print_list_Main_internal_5 goto continue__150
 sw $t0, -0($fp)
 sw $t1, -28($fp)
 sw $t2, -32($fp)
-beqz $t1, continue__147
+beqz $t1, continue__150
 la $a0, dispatch_error
 j .raise
-continue__147:
+continue__150:
 lw $t0, -0($fp)
 lw $t1, -24($fp)
 # Find the actual name in the dispatch table
@@ -1803,15 +1803,15 @@ bnez $a1, mismatch_9
 li $v0, 1
 end_9:
 move $t2, $v0
-# If not local_print_list_Main_internal_11 goto continue__168
+# If not local_print_list_Main_internal_11 goto continue__173
 sw $t0, -44($fp)
 sw $t1, -0($fp)
 sw $t2, -52($fp)
 sw $t3, -56($fp)
-beqz $t2, continue__168
+beqz $t2, continue__173
 la $a0, dispatch_error
 j .raise
-continue__168:
+continue__173:
 lw $t0, -0($fp)
 lw $t1, -48($fp)
 # Find the actual name in the dispatch table
@@ -1887,8 +1887,8 @@ sw $t2, -20($fp)
 sw $t0, -60($fp)
 sw $t1, -64($fp)
 sw $t2, -20($fp)
-j end__143
-true__143:
+j end__145
+true__145:
 lw $t0, -68($fp)
 # Saves in local_print_list_Main_internal_15 data_2
 la $t0, data_2
@@ -1932,7 +1932,7 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -72($fp)
 sw $t1, -20($fp)
-end__143:
+end__145:
 lw $t0, -20($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
@@ -2051,14 +2051,14 @@ bnez $a1, mismatch_10
 li $v0, 1
 end_10:
 move $t1, $v0
-# If not local_main_Main_internal_2 goto continue__202
+# If not local_main_Main_internal_2 goto continue__208
 sw $t0, -4($fp)
 sw $t1, -12($fp)
 sw $t2, -16($fp)
-beqz $t1, continue__202
+beqz $t1, continue__208
 la $a0, dispatch_error
 j .raise
-continue__202:
+continue__208:
 lw $t0, -4($fp)
 lw $t1, -8($fp)
 # Find the actual name in the dispatch table
@@ -2120,14 +2120,14 @@ bnez $a1, mismatch_11
 li $v0, 1
 end_11:
 move $t1, $v0
-# If not local_main_Main_internal_5 goto continue__215
+# If not local_main_Main_internal_5 goto continue__221
 sw $t0, -8($fp)
 sw $t1, -24($fp)
 sw $t2, -28($fp)
-beqz $t1, continue__215
+beqz $t1, continue__221
 la $a0, dispatch_error
 j .raise
-continue__215:
+continue__221:
 lw $t0, -8($fp)
 lw $t1, -20($fp)
 # Find the actual name in the dispatch table
@@ -2189,14 +2189,14 @@ bnez $a1, mismatch_12
 li $v0, 1
 end_12:
 move $t1, $v0
-# If not local_main_Main_internal_8 goto continue__228
+# If not local_main_Main_internal_8 goto continue__234
 sw $t0, -20($fp)
 sw $t1, -36($fp)
 sw $t2, -40($fp)
-beqz $t1, continue__228
+beqz $t1, continue__234
 la $a0, dispatch_error
 j .raise
-continue__228:
+continue__234:
 lw $t0, -20($fp)
 lw $t1, -32($fp)
 # Find the actual name in the dispatch table
@@ -2258,14 +2258,14 @@ bnez $a1, mismatch_13
 li $v0, 1
 end_13:
 move $t1, $v0
-# If not local_main_Main_internal_11 goto continue__241
+# If not local_main_Main_internal_11 goto continue__247
 sw $t0, -32($fp)
 sw $t1, -48($fp)
 sw $t2, -52($fp)
-beqz $t1, continue__241
+beqz $t1, continue__247
 la $a0, dispatch_error
 j .raise
-continue__241:
+continue__247:
 lw $t0, -32($fp)
 lw $t1, -44($fp)
 # Find the actual name in the dispatch table
@@ -2327,14 +2327,14 @@ bnez $a1, mismatch_14
 li $v0, 1
 end_14:
 move $t1, $v0
-# If not local_main_Main_internal_14 goto continue__254
+# If not local_main_Main_internal_14 goto continue__260
 sw $t0, -44($fp)
 sw $t1, -60($fp)
 sw $t2, -64($fp)
-beqz $t1, continue__254
+beqz $t1, continue__260
 la $a0, dispatch_error
 j .raise
-continue__254:
+continue__260:
 lw $t0, -44($fp)
 lw $t1, -56($fp)
 # Find the actual name in the dispatch table
@@ -2384,7 +2384,7 @@ move $t2, $v0
 sw $t0, -56($fp)
 sw $t1, -0($fp)
 sw $t2, -68($fp)
-start__265:
+start__271:
 lw $t0, -0($fp)
 lw $t1, -76($fp)
 # local_main_Main_mylist_18 <- GET self . mylist
@@ -2416,15 +2416,15 @@ bnez $a1, mismatch_15
 li $v0, 1
 end_15:
 move $t2, $v0
-# If not local_main_Main_internal_20 goto continue__273
+# If not local_main_Main_internal_20 goto continue__279
 sw $t0, -0($fp)
 sw $t1, -76($fp)
 sw $t2, -84($fp)
 sw $t3, -88($fp)
-beqz $t2, continue__273
+beqz $t2, continue__279
 la $a0, dispatch_error
 j .raise
-continue__273:
+continue__279:
 lw $t0, -76($fp)
 lw $t1, -80($fp)
 # Find the actual name in the dispatch table
@@ -2463,10 +2463,10 @@ j end_16
 false_16:
 li $t1, 1
 end_16:
-# If not local_main_Main_internal_17 goto end__265
+# If not local_main_Main_internal_17 goto end__271
 sw $t0, -80($fp)
 sw $t1, -72($fp)
-beqz $t1, end__265
+beqz $t1, end__271
 lw $t0, -0($fp)
 lw $t1, -92($fp)
 # local_main_Main_mylist_22 <- GET self . mylist
@@ -2535,16 +2535,16 @@ bnez $a1, mismatch_17
 li $v0, 1
 end_17:
 move $t3, $v0
-# If not local_main_Main_internal_26 goto continue__294
+# If not local_main_Main_internal_26 goto continue__301
 sw $t0, -96($fp)
 sw $t1, -0($fp)
 sw $t2, -100($fp)
 sw $t3, -108($fp)
 sw $t4, -112($fp)
-beqz $t3, continue__294
+beqz $t3, continue__301
 la $a0, dispatch_error
 j .raise
-continue__294:
+continue__301:
 lw $t0, -100($fp)
 lw $t1, -104($fp)
 # Find the actual name in the dispatch table
@@ -2590,8 +2590,8 @@ sw $t0, -104($fp)
 sw $t1, -0($fp)
 sw $t2, -116($fp)
 sw $t3, -68($fp)
-j start__265
-end__265:
+j start__271
+end__271:
 lw $t0, -68($fp)
 lw $t1, -120($fp)
 # Moving local_main_Main_internal_16 to local_main_Main_internal_29

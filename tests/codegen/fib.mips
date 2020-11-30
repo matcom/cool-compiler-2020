@@ -1198,7 +1198,7 @@ sw $t0, -8($fp)
 sw $t1, -12($fp)
 sw $t2, -16($fp)
 sw $t3, -20($fp)
-start__80:
+start__85:
 lw $t0, -0($fp)
 lw $t1, -28($fp)
 # local_fib_Main_internal_5 <- i = 0
@@ -1212,11 +1212,11 @@ j end_6
 false_6:
 li $t2, 1
 end_6:
-# If not local_fib_Main_internal_4 goto end__80
+# If not local_fib_Main_internal_4 goto end__85
 sw $t0, -0($fp)
 sw $t1, -28($fp)
 sw $t2, -24($fp)
-beqz $t2, end__80
+beqz $t2, end__85
 lw $t0, -8($fp)
 lw $t1, -12($fp)
 lw $t2, -32($fp)
@@ -1255,8 +1255,8 @@ sw $t4, -0($fp)
 sw $t5, -36($fp)
 sw $t6, -40($fp)
 sw $t7, -20($fp)
-j start__80
-end__80:
+j start__85
+end__85:
 lw $t0, -16($fp)
 lw $t1, -44($fp)
 # Moving local_fib_Main_c_2 to local_fib_Main_internal_9

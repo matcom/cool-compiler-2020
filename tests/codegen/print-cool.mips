@@ -1023,14 +1023,14 @@ bnez $a1, mismatch_6
 li $v0, 1
 end_6:
 move $t1, $v0
-# If not local_main_Main_internal_2 goto continue__52
+# If not local_main_Main_internal_2 goto continue__53
 sw $t0, -4($fp)
 sw $t1, -12($fp)
 sw $t2, -16($fp)
-beqz $t1, continue__52
+beqz $t1, continue__53
 la $a0, dispatch_error
 j .raise
-continue__52:
+continue__53:
 lw $t0, -4($fp)
 lw $t1, -8($fp)
 # Find the actual name in the dispatch table
@@ -1088,14 +1088,14 @@ bnez $a1, mismatch_7
 li $v0, 1
 end_7:
 move $t1, $v0
-# If not local_main_Main_internal_5 goto continue__66
+# If not local_main_Main_internal_5 goto continue__67
 sw $t0, -8($fp)
 sw $t1, -24($fp)
 sw $t2, -28($fp)
-beqz $t1, continue__66
+beqz $t1, continue__67
 la $a0, dispatch_error
 j .raise
-continue__66:
+continue__67:
 lw $t0, -20($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
@@ -1218,17 +1218,17 @@ bnez $a1, mismatch_9
 li $v0, 1
 end_9:
 move $t4, $v0
-# If not local_main_Main_internal_11 goto continue__86
+# If not local_main_Main_internal_11 goto continue__88
 sw $t0, -32($fp)
 sw $t1, -0($fp)
 sw $t2, -36($fp)
 sw $t3, -40($fp)
 sw $t4, -48($fp)
 sw $t5, -52($fp)
-beqz $t4, continue__86
+beqz $t4, continue__88
 la $a0, dispatch_error
 j .raise
-continue__86:
+continue__88:
 lw $t0, -44($fp)
 # Static Dispatch of the method type_name
 sw $fp, ($sp)
@@ -1281,14 +1281,14 @@ bnez $a1, mismatch_10
 li $v0, 1
 end_10:
 move $t1, $v0
-# If not local_main_Main_internal_14 goto continue__100
+# If not local_main_Main_internal_14 goto continue__102
 sw $t0, -44($fp)
 sw $t1, -60($fp)
 sw $t2, -64($fp)
-beqz $t1, continue__100
+beqz $t1, continue__102
 la $a0, dispatch_error
 j .raise
-continue__100:
+continue__102:
 lw $t0, -56($fp)
 # Static Dispatch of the method substr
 sw $fp, ($sp)
@@ -1350,15 +1350,15 @@ bnez $a1, mismatch_11
 li $v0, 1
 end_11:
 move $t2, $v0
-# If not local_main_Main_internal_17 goto continue__113
+# If not local_main_Main_internal_17 goto continue__114
 sw $t0, -56($fp)
 sw $t1, -32($fp)
 sw $t2, -72($fp)
 sw $t3, -76($fp)
-beqz $t2, continue__113
+beqz $t2, continue__114
 la $a0, dispatch_error
 j .raise
-continue__113:
+continue__114:
 lw $t0, -32($fp)
 lw $t1, -68($fp)
 # Find the actual name in the dispatch table

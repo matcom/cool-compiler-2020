@@ -270,8 +270,15 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.EqualNode(result, result, void_expr))
         return result
         
-    # def handle_arguments(self, args, scope, arg_type):
-    #     args_node = []
-    #     for arg, typex in self.visit(node.args):
-    #         if typex.name in ['String', 'Int', 'Bool']:
-                
+    def handle_arguments(self, args, scope, param_types):
+        args_node = []
+        args = [self.visit(arg, scope) for arg in args]
+        
+        for (arg, typex), param_type in zip(args, param_types):
+            if typex.name in ['String', 'Int', 'Bool'] and param_type.name == 'Object':
+                auxiliar = self.define_internal_local()
+                self.register_instruction(cil.BoxingNode(auxiliar, typex.name))
+            else:
+                auxiliar = arg
+            args_node.append(cil.ArgNode(auxiliar, self.index))
+        return args_node

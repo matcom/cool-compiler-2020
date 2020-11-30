@@ -782,3 +782,4 @@ class CILToMIPSVistor(BaseCILToMIPSVisitor):
         self.code.append('la $t8, types')
         self.code.append(f'lw $v0, {4*idx}($t8)')
         self.code.append(f'sw $v0, 8(${rdest})')
+        self.var_address[node.dest] = AddrType.REF

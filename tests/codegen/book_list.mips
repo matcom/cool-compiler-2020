@@ -1521,16 +1521,16 @@ bnez $a1, mismatch_6
 li $v0, 1
 end_6:
 move $t3, $v0
-# If not local_print_Book_internal_4 goto continue__82
+# If not local_print_Book_internal_4 goto continue__83
 sw $t0, -8($fp)
 sw $t1, -0($fp)
 sw $t2, -12($fp)
 sw $t3, -20($fp)
 sw $t4, -24($fp)
-beqz $t3, continue__82
+beqz $t3, continue__83
 la $a0, dispatch_error
 j .raise
-continue__82:
+continue__83:
 lw $t0, -8($fp)
 lw $t1, -16($fp)
 # Find the actual name in the dispatch table
@@ -1596,15 +1596,15 @@ bnez $a1, mismatch_7
 li $v0, 1
 end_7:
 move $t2, $v0
-# If not local_print_Book_internal_8 goto continue__98
+# If not local_print_Book_internal_8 goto continue__99
 sw $t0, -16($fp)
 sw $t1, -28($fp)
 sw $t2, -36($fp)
 sw $t3, -40($fp)
-beqz $t2, continue__98
+beqz $t2, continue__99
 la $a0, dispatch_error
 j .raise
-continue__98:
+continue__99:
 lw $t0, -16($fp)
 lw $t1, -32($fp)
 # Find the actual name in the dispatch table
@@ -1709,16 +1709,16 @@ bnez $a1, mismatch_8
 li $v0, 1
 end_8:
 move $t3, $v0
-# If not local_print_Book_internal_14 goto continue__119
+# If not local_print_Book_internal_14 goto continue__121
 sw $t0, -48($fp)
 sw $t1, -0($fp)
 sw $t2, -52($fp)
 sw $t3, -60($fp)
 sw $t4, -64($fp)
-beqz $t3, continue__119
+beqz $t3, continue__121
 la $a0, dispatch_error
 j .raise
-continue__119:
+continue__121:
 lw $t0, -48($fp)
 lw $t1, -56($fp)
 # Find the actual name in the dispatch table
@@ -1784,15 +1784,15 @@ bnez $a1, mismatch_9
 li $v0, 1
 end_9:
 move $t2, $v0
-# If not local_print_Book_internal_18 goto continue__135
+# If not local_print_Book_internal_18 goto continue__137
 sw $t0, -56($fp)
 sw $t1, -68($fp)
 sw $t2, -76($fp)
 sw $t3, -80($fp)
-beqz $t2, continue__135
+beqz $t2, continue__137
 la $a0, dispatch_error
 j .raise
-continue__135:
+continue__137:
 lw $t0, -56($fp)
 lw $t1, -72($fp)
 # Find the actual name in the dispatch table
@@ -2026,14 +2026,14 @@ bnez $a1, mismatch_10
 li $v0, 1
 end_10:
 move $t1, $v0
-# If not local_print_Article_internal_1 goto continue__182
+# If not local_print_Article_internal_1 goto continue__185
 sw $t0, -0($fp)
 sw $t1, -8($fp)
 sw $t2, -12($fp)
-beqz $t1, continue__182
+beqz $t1, continue__185
 la $a0, dispatch_error
 j .raise
-continue__182:
+continue__185:
 lw $t0, -4($fp)
 # Static Dispatch of the method print
 sw $fp, ($sp)
@@ -2128,16 +2128,16 @@ bnez $a1, mismatch_11
 li $v0, 1
 end_11:
 move $t3, $v0
-# If not local_print_Article_internal_7 goto continue__203
+# If not local_print_Article_internal_7 goto continue__207
 sw $t0, -20($fp)
 sw $t1, -0($fp)
 sw $t2, -24($fp)
 sw $t3, -32($fp)
 sw $t4, -36($fp)
-beqz $t3, continue__203
+beqz $t3, continue__207
 la $a0, dispatch_error
 j .raise
-continue__203:
+continue__207:
 lw $t0, -20($fp)
 lw $t1, -28($fp)
 # Find the actual name in the dispatch table
@@ -2203,15 +2203,15 @@ bnez $a1, mismatch_12
 li $v0, 1
 end_12:
 move $t2, $v0
-# If not local_print_Article_internal_11 goto continue__219
+# If not local_print_Article_internal_11 goto continue__223
 sw $t0, -28($fp)
 sw $t1, -40($fp)
 sw $t2, -48($fp)
 sw $t3, -52($fp)
-beqz $t2, continue__219
+beqz $t2, continue__223
 la $a0, dispatch_error
 j .raise
-continue__219:
+continue__223:
 lw $t0, -28($fp)
 lw $t1, -44($fp)
 # Find the actual name in the dispatch table
@@ -2402,15 +2402,15 @@ bnez $a1, mismatch_13
 li $v0, 1
 end_13:
 move $t2, $v0
-# If not local_cons_BookList_internal_3 goto continue__251
+# If not local_cons_BookList_internal_3 goto continue__256
 sw $t0, -12($fp)
 sw $t1, -8($fp)
 sw $t2, -20($fp)
 sw $t3, -24($fp)
-beqz $t2, continue__251
+beqz $t2, continue__256
 la $a0, dispatch_error
 j .raise
-continue__251:
+continue__256:
 lw $t0, -8($fp)
 lw $t1, -16($fp)
 # Find the actual name in the dispatch table
@@ -2894,15 +2894,15 @@ bnez $a1, mismatch_14
 li $v0, 1
 end_14:
 move $t2, $v0
-# If not local_print_list_Cons_internal_2 goto continue__327
+# If not local_print_list_Cons_internal_2 goto continue__335
 sw $t0, -0($fp)
 sw $t1, -4($fp)
 sw $t2, -12($fp)
 sw $t3, -16($fp)
-beqz $t2, continue__327
+beqz $t2, continue__335
 la $a0, dispatch_error
 j .raise
-continue__327:
+continue__335:
 lw $t0, -4($fp)
 lw $t1, -8($fp)
 # Find the actual name in the dispatch table
@@ -2960,11 +2960,11 @@ bnez $a1, mismatch_15
 li $v0, 1
 end_15:
 move $t1, $v0
-# If local_print_list_Cons_internal_5 goto error__338
+# If local_print_list_Cons_internal_5 goto error__346
 sw $t0, -8($fp)
 sw $t1, -24($fp)
 sw $t2, -28($fp)
-bnez $t1, error__338
+bnez $t1, error__346
 lw $t0, -8($fp)
 lw $t1, -32($fp)
 la $t9, type_Article
@@ -2982,10 +2982,10 @@ j end_16
 false_16:
 li $t1, 0
 end_16:
-# If not local_print_list_Cons_internal_7 goto next__344_0
+# If not local_print_list_Cons_internal_7 goto next__352_0
 sw $t0, -8($fp)
 sw $t1, -32($fp)
-beqz $t1, next__344_0
+beqz $t1, next__352_0
 lw $t0, -8($fp)
 lw $t1, -36($fp)
 # Moving local_print_list_Cons_internal_1 to local_print_list_Cons_dummy_8
@@ -3036,8 +3036,8 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -44($fp)
 sw $t1, -20($fp)
-j end__338
-next__344_0:
+j end__346
+next__352_0:
 lw $t0, -8($fp)
 lw $t1, -48($fp)
 la $t9, type_Book
@@ -3055,10 +3055,10 @@ j end_17
 false_17:
 li $t1, 0
 end_17:
-# If not local_print_list_Cons_internal_11 goto next__358_1
+# If not local_print_list_Cons_internal_11 goto next__367_1
 sw $t0, -8($fp)
 sw $t1, -48($fp)
-beqz $t1, next__358_1
+beqz $t1, next__367_1
 lw $t0, -8($fp)
 lw $t1, -52($fp)
 # Moving local_print_list_Cons_internal_1 to local_print_list_Cons_dummy_12
@@ -3109,14 +3109,14 @@ move $t1, $t0
 sw $t1, -20($fp)
 sw $t0, -60($fp)
 sw $t1, -20($fp)
-j end__338
-next__358_1:
+j end__346
+next__367_1:
 la $a0, case_error
 j .raise
-error__338:
+error__346:
 la $a0, case_void_error
 j .raise
-end__338:
+end__346:
 lw $t0, -0($fp)
 lw $t1, -64($fp)
 # local_print_list_Cons_xcdr_15 <- GET self . xcdr
@@ -3148,15 +3148,15 @@ bnez $a1, mismatch_18
 li $v0, 1
 end_18:
 move $t2, $v0
-# If not local_print_list_Cons_internal_17 goto continue__380
+# If not local_print_list_Cons_internal_17 goto continue__390
 sw $t0, -0($fp)
 sw $t1, -64($fp)
 sw $t2, -72($fp)
 sw $t3, -76($fp)
-beqz $t2, continue__380
+beqz $t2, continue__390
 la $a0, dispatch_error
 j .raise
-continue__380:
+continue__390:
 lw $t0, -64($fp)
 lw $t1, -68($fp)
 # Find the actual name in the dispatch table
@@ -3421,16 +3421,16 @@ bnez $a1, mismatch_19
 li $v0, 1
 end_19:
 move $t3, $v0
-# If not local_main_Main_internal_5 goto continue__428
+# If not local_main_Main_internal_5 goto continue__438
 sw $t0, -8($fp)
 sw $t1, -12($fp)
 sw $t2, -16($fp)
 sw $t3, -24($fp)
 sw $t4, -28($fp)
-beqz $t3, continue__428
+beqz $t3, continue__438
 la $a0, dispatch_error
 j .raise
-continue__428:
+continue__438:
 lw $t0, -8($fp)
 lw $t1, -20($fp)
 # Find the actual name in the dispatch table
@@ -3551,17 +3551,17 @@ bnez $a1, mismatch_20
 li $v0, 1
 end_20:
 move $t4, $v0
-# If not local_main_Main_internal_13 goto continue__457
+# If not local_main_Main_internal_13 goto continue__467
 sw $t0, -36($fp)
 sw $t1, -40($fp)
 sw $t2, -44($fp)
 sw $t3, -48($fp)
 sw $t4, -56($fp)
 sw $t5, -60($fp)
-beqz $t4, continue__457
+beqz $t4, continue__467
 la $a0, dispatch_error
 j .raise
-continue__457:
+continue__467:
 lw $t0, -36($fp)
 lw $t1, -52($fp)
 # Find the actual name in the dispatch table
@@ -3654,16 +3654,16 @@ bnez $a1, mismatch_21
 li $v0, 1
 end_21:
 move $t3, $v0
-# If not local_main_Main_internal_17 goto continue__473
+# If not local_main_Main_internal_17 goto continue__483
 sw $t0, -52($fp)
 sw $t1, -32($fp)
 sw $t2, -64($fp)
 sw $t3, -72($fp)
 sw $t4, -76($fp)
-beqz $t3, continue__473
+beqz $t3, continue__483
 la $a0, dispatch_error
 j .raise
-continue__473:
+continue__483:
 lw $t0, -64($fp)
 lw $t1, -68($fp)
 # Find the actual name in the dispatch table
@@ -3726,14 +3726,14 @@ bnez $a1, mismatch_22
 li $v0, 1
 end_22:
 move $t1, $v0
-# If not local_main_Main_internal_20 goto continue__486
+# If not local_main_Main_internal_20 goto continue__496
 sw $t0, -68($fp)
 sw $t1, -84($fp)
 sw $t2, -88($fp)
-beqz $t1, continue__486
+beqz $t1, continue__496
 la $a0, dispatch_error
 j .raise
-continue__486:
+continue__496:
 lw $t0, -68($fp)
 lw $t1, -80($fp)
 # Find the actual name in the dispatch table
@@ -3802,16 +3802,16 @@ bnez $a1, mismatch_23
 li $v0, 1
 end_23:
 move $t3, $v0
-# If not local_main_Main_internal_24 goto continue__501
+# If not local_main_Main_internal_24 goto continue__511
 sw $t0, -80($fp)
 sw $t1, -0($fp)
 sw $t2, -92($fp)
 sw $t3, -100($fp)
 sw $t4, -104($fp)
-beqz $t3, continue__501
+beqz $t3, continue__511
 la $a0, dispatch_error
 j .raise
-continue__501:
+continue__511:
 lw $t0, -92($fp)
 lw $t1, -96($fp)
 # Find the actual name in the dispatch table

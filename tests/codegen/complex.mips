@@ -1617,11 +1617,11 @@ lw $t2, -4($fp)
 # local_print_Complex_internal_0 <- local_print_Complex_y_1 = 0
 li $t9, 0
 seq $t2, $t1, $t9
-# If local_print_Complex_internal_0 goto true__153
+# If local_print_Complex_internal_0 goto true__155
 sw $t0, -0($fp)
 sw $t1, -8($fp)
 sw $t2, -4($fp)
-bnez $t2, true__153
+bnez $t2, true__155
 lw $t0, -0($fp)
 lw $t1, -16($fp)
 # local_print_Complex_x_3 <- GET self . x
@@ -1689,15 +1689,15 @@ bnez $a1, mismatch_10
 li $v0, 1
 end_10:
 move $t2, $v0
-# If not local_print_Complex_internal_7 goto continue__166
+# If not local_print_Complex_internal_7 goto continue__169
 sw $t0, -20($fp)
 sw $t1, -24($fp)
 sw $t2, -32($fp)
 sw $t3, -36($fp)
-beqz $t2, continue__166
+beqz $t2, continue__169
 la $a0, dispatch_error
 j .raise
-continue__166:
+continue__169:
 lw $t0, -20($fp)
 lw $t1, -28($fp)
 # Find the actual name in the dispatch table
@@ -1764,16 +1764,16 @@ bnez $a1, mismatch_11
 li $v0, 1
 end_11:
 move $t3, $v0
-# If not local_print_Complex_internal_11 goto continue__181
+# If not local_print_Complex_internal_11 goto continue__184
 sw $t0, -28($fp)
 sw $t1, -0($fp)
 sw $t2, -40($fp)
 sw $t3, -48($fp)
 sw $t4, -52($fp)
-beqz $t3, continue__181
+beqz $t3, continue__184
 la $a0, dispatch_error
 j .raise
-continue__181:
+continue__184:
 lw $t0, -28($fp)
 lw $t1, -44($fp)
 # Find the actual name in the dispatch table
@@ -1839,15 +1839,15 @@ bnez $a1, mismatch_12
 li $v0, 1
 end_12:
 move $t2, $v0
-# If not local_print_Complex_internal_15 goto continue__197
+# If not local_print_Complex_internal_15 goto continue__200
 sw $t0, -44($fp)
 sw $t1, -56($fp)
 sw $t2, -64($fp)
 sw $t3, -68($fp)
-beqz $t2, continue__197
+beqz $t2, continue__200
 la $a0, dispatch_error
 j .raise
-continue__197:
+continue__200:
 lw $t0, -44($fp)
 lw $t1, -60($fp)
 # Find the actual name in the dispatch table
@@ -1889,8 +1889,8 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -60($fp)
 sw $t1, -12($fp)
-j end__153
-true__153:
+j end__155
+true__155:
 lw $t0, -0($fp)
 lw $t1, -72($fp)
 # local_print_Complex_x_17 <- GET self . x
@@ -1934,7 +1934,7 @@ move $t1, $t0
 sw $t1, -12($fp)
 sw $t0, -76($fp)
 sw $t1, -12($fp)
-end__153:
+end__155:
 lw $t0, -12($fp)
 move $v0, $t0
 # Empty all used registers and saves them to memory
