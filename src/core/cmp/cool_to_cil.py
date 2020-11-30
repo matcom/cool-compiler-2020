@@ -23,6 +23,10 @@ class BaseCOOLToCILVisitor:
     @property
     def localvars(self):
         return self.current_function.localvars
+
+    @property
+    def ids(self):
+        return self.current_function.ids
     
     @property
     def instructions(self):
@@ -35,14 +39,18 @@ class BaseCOOLToCILVisitor:
         self.params.append(param_node)
         return vinfo.name
     
-    def register_local(self, vinfo):
+    def register_local(self, vinfo, id=False):
+        new_vinfo = VariableInfo('', None)
         if len(self.current_function.name) >= 8 and self.current_function.name[:8] == 'function':
-            vinfo.name = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
+            new_vinfo.name = f'local_{self.current_function.name[9:]}_{vinfo.name}_{len(self.localvars)}'
         else:
-            vinfo.name = f'local_{self.current_function.name[5:]}_{vinfo.name}_{len(self.localvars)}'
-        local_node = cil.LocalNode(vinfo.name)
+            new_vinfo.name = f'local_{self.current_function.name[5:]}_{vinfo.name}_{len(self.localvars)}'
+
+        local_node = cil.LocalNode(new_vinfo.name)
+        if id:
+            self.ids[vinfo.name] = new_vinfo.name
         self.localvars.append(local_node)
-        return vinfo.name
+        return new_vinfo.name
 
     def define_internal_local(self):
         vinfo = VariableInfo('internal', None)
@@ -556,7 +564,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         for idx, l in enumerate(labels):
             self.register_instruction(l)
-            vid = self.register_local(VariableInfo(order[idx][1].id, None))
+            vid = self.register_local(VariableInfo(order[idx][1].id, None), id=True)
             self.register_instruction(cil.AssignNode(vid, vexpr))
             self.visit(order[idx][1], scope)
             self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
@@ -581,7 +589,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.type -> str
         # node.expr -> ExpressionNode
         ###############################
-        vname = self.register_local(VariableInfo(node.id, node.type))
+        vname = self.register_local(VariableInfo(node.id, node.type), id=True)
         if node.expr:
             self.visit(node.expr, scope)
             self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
@@ -860,11 +868,11 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
         args = []
         for arg in node.args:
-            vname = self.register_local(VariableInfo(f'{node.id}_arg', None))
+            vname = self.register_local(VariableInfo(f'{node.id}_arg', None), id=True)
             self.visit(arg, scope)
             self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
             args.append(cil.ArgNode(vname))
-        result = self.register_local(VariableInfo(f'return_value_of_{node.id}', None))
+        result = self.register_local(VariableInfo(f'return_value_of_{node.id}', None), id=True)
         
         vobj = self.define_internal_local()
         self.visit(node.obj, scope)
@@ -888,7 +896,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.register_instruction(cil.StaticCallNode(self.to_function_name(node.id, node.type), result))
         else:
             #Call of type <obj>.<id>(<expr>,...,<expr>)
-            type_of_node = self.register_local(VariableInfo(f'{node.id}_type', None))
+            type_of_node = self.register_local(VariableInfo(f'{node.id}_type', None), id=True)
             self.register_instruction(cil.TypeOfNode(vobj, type_of_node))
             computed_type = node.obj.computed_type
             if computed_type.name == 'SELF_TYPE':
@@ -959,7 +967,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         ###############################
         try:
             self.current_type.get_attribute(node.lex)
-            attr = self.register_local(VariableInfo(node.lex, None))
+            attr = self.register_local(VariableInfo(node.lex, None), id=True)
             self.register_instruction(cil.GetAttribNode(attr, self.vself.name, node.lex, self.current_type.name))
             scope.ret_expr = attr
         except AttributeError:
@@ -970,18 +978,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
                         scope.ret_expr = n
                         break
             else:
-                for n in [lv.name for lv in self.current_function.localvars]:
-                    n_splited = n.split("_")
-                    lex_splited = node.lex.split('_')
-                    i_lex = 0
-                    for s in range(len(n_splited)):
-                        if lex_splited[i_lex] == n_splited[s]:
-                            i_lex += 1
-                            if i_lex == len(lex_splited):
-                                scope.ret_expr = n
-                                break
-                        if not (i_lex < len(lex_splited) and s + 1 < len(n_splited) and lex_splited[i_lex] == n_splited[s + 1]):
-                            i_lex = 0
+                scope.ret_expr = self.ids[node.lex]
 
     @visitor.when(cool.StringNode)
     def visit(self, node, scope):
