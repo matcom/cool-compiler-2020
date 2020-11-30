@@ -365,12 +365,13 @@ class BASE_COOL_CIL_TRANSFORM:
         str_raw = self.unpack_type_by_value(self_local, "String")
         self.register_instruction(AllocateNode(zero, "Int"))
         self.register_instruction(SetAttribNode(zero, "value", 0, "Int"))
+        zero = self.unpack_type_by_value(zero, "Int")
         start_raw = self.unpack_type_by_value(start_parm, "Int")
         length_raw = self.unpack_type_by_value(length_param, "Int")
         # self.register_instruction(PrintIntNode(start_raw))
         # self.register_instruction(PrintIntNode(length_raw))
-        # self.register_instruction(PrintStrNode(start_raw))
         self.register_instruction(LengthNode(length_var, str_raw))
+        # self.register_instruction(PrintIntNode(length_var))
         # start param negative
         self.register_instruction(LessEqNode(cmp_var1, zero, start_raw))
         self.register_instruction(GotoIfNode(cmp_var1, no_error_label1))
@@ -390,7 +391,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(
             SubstringNode(result_msg, str_raw, start_raw, length_raw)
         )
-        string_inst = self.unpack_type_by_value(result_msg, "String")
+        string_inst = self.pack_type_by_value(result_msg, "String")
         self.register_instruction(ReturnNode(string_inst))
         self.current_method = self.current_function = None
         self.current_type = None

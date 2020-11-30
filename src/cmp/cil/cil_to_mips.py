@@ -661,7 +661,7 @@ class CIL_TO_MIPS(object):
         self.mips.add(Reg.s0, Reg.s0, Reg.s3)
 
         self.mips.move(Reg.a0, Reg.s1)  # allocate heap memory
-        # self.mips.print_int()
+        self.mips.addi(Reg.a0, Reg.a0, 1)
         self.mips.sbrk()
         self.copy_substr(Reg.s0, Reg.v0, Reg.s1)
 
