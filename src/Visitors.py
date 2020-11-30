@@ -1563,7 +1563,7 @@ class CodegenVisitor(ParseTreeVisitor):
         pos = list(self.ScopeManager.Stack[scope].keys()).index(varName) + 1
         init = 2
         if self.CurrentMethod == "None":
-            init = 0
+            init = 1
         for scope in list(self.ScopeManager.Stack)[init : scope]:
             pos += len(list(scope.keys()))
         code = f"\tlw     $a0 {-(pos * 4)}($fp)\n"
@@ -1744,7 +1744,7 @@ class CodegenVisitor(ParseTreeVisitor):
         pos = list(self.ScopeManager.Stack[scope].keys()).index(varName) + 1
         init = 2
         if self.CurrentMethod == "None":
-            init = 0
+            init = 1
         for scope in list(self.ScopeManager.Stack)[init: scope]:
             pos += len(list(scope.keys()))
         code = ctx.getChild(2).accept(self)
