@@ -1,6 +1,7 @@
 import sys
 import errno
 import os.path
+from NoTabsFileStream import NoTabsFileStream
 
 def main(argv):
     print("COOLCompiler 1.0.3")
