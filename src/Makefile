@@ -31,6 +31,9 @@ coolc: ## Run the code.cl file using coolc
 	@coolc $(CODE)
 	@coolc_spim $(COOLC_ASM)
 
+install: ## Install the project dependencies
+	pip install ../requeriments.txt
+
 save: ## Save the code.cl as a test
 	@cat code.cl > $(TEST_DIR)$(TEST).cl
 
