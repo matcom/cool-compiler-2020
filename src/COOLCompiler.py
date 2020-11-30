@@ -4,8 +4,8 @@ import errno
 from antlr4 import *
 from COOLLexer import COOLLexer
 from COOLLexerErrorListener import COOLLexerErrorListener
-# from COOLParser import COOLParser
-# from COOLParserErrorListener import COOLParserErrorListener
+from COOLParser import COOLParser
+from COOLParserErrorListener import COOLParserErrorListener
 # from Visitors import  TypeCOOLVisitor
 # from Visitors import  SemanticCOOLVisitor
 # from Visitors import CodegenVisitor
@@ -34,14 +34,14 @@ def main(argv):
         token = lexer.nextToken()
     if lexer.hasErrors:
         return sys.exit(errno.EPERM)
-    # lexer.reset()
-    # stream = CommonTokenStream(lexer)
-    # parser = COOLParser(stream)
-    # parser.removeErrorListeners()
-    # parser.addErrorListener(COOLParserErrorListener())
-    # tree = parser.program()
-    # if parser.getNumberOfSyntaxErrors() > 0:
-    #     return sys.exit(errno.EPERM)
+    lexer.reset()
+    stream = CommonTokenStream(lexer)
+    parser = COOLParser(stream)
+    parser.removeErrorListeners()
+    parser.addErrorListener(COOLParserErrorListener())
+    tree = parser.program()
+    if parser.getNumberOfSyntaxErrors() > 0:
+        return sys.exit(errno.EPERM)
     # visitor = TypeCOOLVisitor()
     # visitor.visitProgram(tree, argv[1])
     # typeTree = visitor.TypeTable
