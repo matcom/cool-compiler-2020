@@ -365,32 +365,44 @@ class BASE_COOL_CIL_TRANSFORM:
         str_raw = self.unpack_type_by_value(self_local, "String")
         self.register_instruction(AllocateNode(zero, "Int"))
         self.register_instruction(SetAttribNode(zero, "value", 0, "Int"))
+        zero = self.unpack_type_by_value(zero, "Int")
         start_raw = self.unpack_type_by_value(start_parm, "Int")
         length_raw = self.unpack_type_by_value(length_param, "Int")
         # self.register_instruction(PrintIntNode(start_raw))
         # self.register_instruction(PrintIntNode(length_raw))
-        # self.register_instruction(PrintStrNode(start_raw))
         self.register_instruction(LengthNode(length_var, str_raw))
+        # self.register_instruction(PrintIntNode(length_var))
+        eol = self.register_data("\n").name
+        msg_eol = self.define_internal_local()
         # start param negative
         self.register_instruction(LessEqNode(cmp_var1, zero, start_raw))
         self.register_instruction(GotoIfNode(cmp_var1, no_error_label1))
+        error_msg = self.register_data("Invalid substring start").name
+        self.register_instruction(ConcatNode(msg_eol, error_msg, eol))
+        self.register_instruction(PrintStrNode(msg_eol))
         self.register_instruction(ErrorNode())
         self.register_instruction(LabelNode(no_error_label1))
         # length param negative
         self.register_instruction(LessEqNode(cmp_var2, zero, length_raw))
         self.register_instruction(GotoIfNode(cmp_var2, no_error_label2))
+        error_msg = self.register_data("Invalid substring length").name
+        self.register_instruction(ConcatNode(msg_eol, error_msg, eol))
+        self.register_instruction(PrintStrNode(msg_eol))
         self.register_instruction(ErrorNode())
         self.register_instruction(LabelNode(no_error_label2))
         # substr larger than max length
         self.register_instruction(PlusNode(sum_var, start_raw, length_raw))
         self.register_instruction(LessEqNode(cmp_var3, sum_var, length_var))
         self.register_instruction(GotoIfNode(cmp_var3, no_error_label3))
+        error_msg = self.register_data("Invalid substring").name
+        self.register_instruction(ConcatNode(msg_eol, error_msg, eol))
+        self.register_instruction(PrintStrNode(msg_eol))
         self.register_instruction(ErrorNode())
         self.register_instruction(LabelNode(no_error_label3))
         self.register_instruction(
             SubstringNode(result_msg, str_raw, start_raw, length_raw)
         )
-        string_inst = self.unpack_type_by_value(result_msg, "String")
+        string_inst = self.pack_type_by_value(result_msg, "String")
         self.register_instruction(ReturnNode(string_inst))
         self.current_method = self.current_function = None
         self.current_type = None
