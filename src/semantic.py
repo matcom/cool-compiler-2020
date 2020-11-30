@@ -14,6 +14,8 @@ class TypeError(SemanticError):
     pass
 class NameError(SemanticError):
     pass 
+class AttributeError(SemanticError):
+    pass
 
 class Attribute:
     def __init__(self, name, typex):
@@ -83,11 +85,11 @@ class Type:
             return next(method for method in self.methods if method.name == name)
         except StopIteration:
             if self.parent is None:
-                raise SemanticError(f'Method "{name}" is not defined in {self.name}',pos)
+                raise AttributeError(f'Method "{name}" is not defined in {self.name}',pos)
             try:
                 return self.parent.get_method(name)
             except SemanticError:
-                raise SemanticError(f'Method "{name}" is not defined in {self.name}',pos)
+                raise AttributeError(f'Method "{name}" is not defined in {self.name}',pos)
 
     def define_method(self, name:str, param_names:list, param_types:list,  return_type, pos):
         try:
@@ -97,6 +99,9 @@ class Type:
         else:
             if method.return_type != return_type or method.param_types != param_types:
                 raise SemanticError(f'Method "{name}" already defined in {self.name} with a different signature.', pos)
+        for method in self.methods :
+            if method.name == name:
+                raise SemanticError(f'Method "{name}" already defined in {self.name} ', pos)
 
         method = Method(name, param_names, param_types, return_type)
         self.methods.append(method)
@@ -304,7 +309,7 @@ class CoolSemantic:
         cycles = self.check_for_cycles(context)
         for cycle in cycles :
             errors.append(SemanticError(f"Class {cycle[0][0]},  is involved in an inheritance cycle.",cycle[0][1]))
-            return errors
+            return errors , None, None
         builder = TypeBuilder(context,errors)
         builder.visit(self.ast)
         typechecking = TypeChecking (context,errors)
@@ -361,6 +366,8 @@ class TypeCollector(object):
         for dec_node in node.declarations:
             try:
                 if dec_node.parent is not None:
+                    if dec_node.parent in ["String","Int","Bool"]:
+                        self.errors.append(SemanticError("Basic type as parent", dec_node.line))
                     self.context.get_type(dec_node.id, dec_node.line).set_parent(self.context.get_type(dec_node.parent,dec_node.line),node.line)
             except SemanticError as e:
                 self.errors.append(e)
@@ -662,7 +669,7 @@ class TypeChecking:
     def visit(self , node:WhileLoopNode, scope:Scope):
         self.visit(node.condition, scope.create_child())
         if self.context.get_type("Bool",node.line) != node.condition.type:
-            self.errors.append(SemanticError("Expr should be boolean", node.line))
+            self.errors.append(TypeError("Expr should be boolean", node.line))
         self.visit(node.body, scope.create_child())
         node.type = self.context.get_type("Object",node.line)
           
