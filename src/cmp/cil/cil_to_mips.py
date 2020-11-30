@@ -115,6 +115,25 @@ class CIL_TO_MIPS(object):
         self.mips.pop(Reg.v0)
         self.mips.pop(Reg.a0)
 
+    @mips_comment("DEBUG PRINT")
+    def print_reg(self, reg: Reg):
+        self.mips.push(Reg.a0)
+        self.mips.push(Reg.v0)
+
+        self.mips.move(Reg.a0, reg)
+        self.mips.print_int()
+
+        data_label = self.get_label()
+
+        self.mips.data_label(data_label)
+        self.mips.asciiz("\\n")
+
+        self.mips.la(Reg.a0, data_label)
+        self.mips.print_string()
+
+        self.mips.pop(Reg.v0)
+        self.mips.pop(Reg.a0)
+
     def get_offset(self, arg: str):
         if arg in self.actual_args or arg in self.local_vars_offsets:
             offset = (
@@ -300,14 +319,15 @@ class CIL_TO_MIPS(object):
 
         # reserve heap space
         self.mips.load_memory(Reg.a0, self.mips.offset(Reg.s0, length))
+        self.mips.move(Reg.s3, Reg.a0)
         self.mips.sbrk()
         self.mips.move(Reg.s1, Reg.v0)
 
         self.store_memory(Reg.s1, node.dest)
 
         # copy data raw byte to byte
-        self.mips.li(Reg.s3, length)
-        # self.copy_data(Reg.s0, Reg.s1, Reg.s3)
+        self.mips.srl(Reg.s3, Reg.s3, 1)
+        self.copy_data(Reg.s0, Reg.s1, Reg.s3)
 
     @when(TypeNameNode)
     @mips_comment("TypeNameNode")
@@ -466,7 +486,7 @@ class CIL_TO_MIPS(object):
         self.mips.la(Reg.s0, type_data.str)
         self.mips.store_memory(Reg.s0, self.mips.offset(Reg.s1, DATA_SIZE))
 
-        self.mips.li(Reg.s0, type_data.length)
+        self.mips.li(Reg.s0, length)
         self.mips.store_memory(Reg.s0, self.mips.offset(Reg.s1, 2 * DATA_SIZE))
 
         for offset in type_data.attr_offsets.values():
