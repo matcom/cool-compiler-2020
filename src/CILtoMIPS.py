@@ -163,8 +163,9 @@ class MIPSCompiler:
         datainstructions+='StringAbort: .asciiz "Abort called from class String'+'\\'+'n'+'"\n'
         datainstructions+='index_error: .asciiz "Wrong Index Detected'+'\\'+'n'+'"\n'
         for element in node.Data:
-            datainstructions+=element.nombre+': .asciiz '+element.valorString+'\n'
-            self.data[element.nombre]=element.valorString
+            stringfinal=element.valorString.replace("\n","\\n")
+            datainstructions+=element.nombre+': .asciiz '+stringfinal+'\n'
+            self.data[element.nombre]=stringfinal
 
         scope=ScopeMIPS()
         
