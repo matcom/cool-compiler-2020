@@ -65,6 +65,8 @@ class Type:
         while t1[-2] == t2[-2]:
             t1.pop()
             t2.pop()
+            if len(t1) < 2 or len(t2) < 2:
+                break
 
         return t1[-1]
 
@@ -311,6 +313,9 @@ class Scope:
 
     def define_variable(self, vname, vtype):
         info = VariableInfo(vname, vtype)
+        for i in self.locals:
+            if i.name == vname:
+                raise SemanticError(f'Variable {vname} already exists in the current context')
         self.locals.append(info)
         return info
 

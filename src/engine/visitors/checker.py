@@ -67,7 +67,7 @@ class Checker:
             node_type = attr.type
             node_type = self.current_type if isinstance(node_type, SelfType) else node_type
             if not expr_type.conforms_to(node_type):
-                self.errors.append(ERROR_ON_LN_COL % (expr.line, expr.column) + "TypeError: " + INCOMPATIBLE_TYPES % (expr_type.name, node_type.name))
+                self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "TypeError: " + INCOMPATIBLE_TYPES % (expr_type.name, node_type.name))
 
     @visitor.when(FuncDeclarationNode)
     def visit(self, node, scope):
@@ -90,10 +90,10 @@ class Checker:
             if pname == 'self':
                 self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + "Wrong use of self as method parameter")
             
-            if scope.is_defined(pname):
-                self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + f"Parameter {pname} can only be used once")
-            else:
+            try:
                 scope.define_variable(pname, ptype)
+            except SemanticError:
+                self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + f"Parameter {pname} can only be used once")
                 
             
         body = node.body
@@ -163,7 +163,10 @@ class Checker:
                 if not expr_type.conforms_to(id_type):
                     self.errors.append(ERROR_ON_LN_COL % (expr.line, expr.column) + "TypeError: " + INCOMPATIBLE_TYPES % (expr_type.name, id_type.name))
 
-            scope.define_variable(idx.lex, id_type)
+            try:
+                scope.define_variable(idx.lex, id_type)
+            except SemanticError as e:
+                self.errors.append(ERROR_ON_LN_COL % (idx.line, idx.column) + "SemanticError: " + e.text)
 
         self.visit(node.in_body, scope.create_child())
 
@@ -174,10 +177,16 @@ class Checker:
         self.visit(node.expression, scope.create_child())
 
         node.static_type = None
+        
+        case_types = []
 
         for idx, typex, expr in node.branches:
             try:
                 node_type = self.context.get_type(typex.lex)
+                if node_type in case_types:
+                    self.errors.append(ERROR_ON_LN_COL % (typex.line, typex.column) + "SemanticError: " + f"Duplicate Branch {node_type} in case declaration")
+                else:
+                    case_types.append(node_type)
             except SemanticError as ex:
                 self.errors.append(ERROR_ON_LN_COL % (typex.line, typex.column) + "TypeError: " + ex.text)
                 node_type = ErrorType()
