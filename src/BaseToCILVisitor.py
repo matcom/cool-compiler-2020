@@ -124,16 +124,16 @@ class BaseCOOLToCILVisitor:
         q = queue.deque()
         lst = []
         for tp1 in types:
-            if not any ([x for x in types if x!= tp1 and x.conforms_to(tp1) ]):
+            if not any ([x for x in types if x!= tp1 and tp1.conforms_to(x) ]):
                 q.append(tp1)
 
         while len(q) != 0:
             tp = q.popleft()
-            if tp in types and not tp in lst:
+            if tp in types:
                 lst.append(tp)
-            if not tp.parent is None and  not tp.parent in q:
-                q.append(tp.parent)
-
+            for s in tp.sons:
+                q.append(s)
+        lst = list(reversed(lst))
         return lst   
 
     def get_preordenTypes(self, typex):
