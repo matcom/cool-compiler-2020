@@ -41,10 +41,10 @@ def main():
         mips = MIPS(cv.code, cv.data)
         code = mips.start()
 
-        # for c in cv.data:
-        #     print(str(c))
-        # for c in cv.code:
-        #     print(str(c))
+        for c in cv.data:
+            print(str(c))
+        for c in cv.code:
+            print(str(c))
 
         path = program[:-1]
         path = path[:-1]

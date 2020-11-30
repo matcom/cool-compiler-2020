@@ -1,5 +1,8 @@
 IO.out_string:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
 li $v0, 4
+lw $a0, 8($sp)
 syscall
 jr $ra
 

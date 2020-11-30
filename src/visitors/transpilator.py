@@ -10,6 +10,7 @@ class codeVisitor:
         #code IL
         self.code = []
         self.data = []
+        self.context = context
 
         self.count = 0
         self.current_class = 'Main'
@@ -55,6 +56,9 @@ class codeVisitor:
         for t in types:
             self.data.append(HierarchyIL(t, types[t].name))
 
+        self.data.append(VirtualTableIL('Int', []))
+        self.data.append(VirtualTableIL('Bool', []))
+
         for m in self.virtual_table.methods.keys():
             self.data.append(VirtualTableIL(m, self.virtual_table.methods[m]))
         depth = dict([(types[x].name, len(types) + 2) for x in types])
@@ -95,6 +99,7 @@ class codeVisitor:
             self.code.append(LabelIL(t, 'Constructor', True))
             self.code.append(PushIL())
             self.code.append(ReturnIL())
+            self.setClassTypeName(t)
 
     def setClassConstructor(self, attributes):
         self.code.append(LabelIL(self.current_class, 'Constructor', True))
@@ -113,6 +118,12 @@ class codeVisitor:
 
         self.code.append(PushIL())
         self.code.append(ReturnIL())
+
+    def setClassTypeName(self, claSS):
+        self.code.append(LabelIL(claSS, 'type_name', True))
+        # self.code.append(CustomLineIL("sw $a1, ($sp)\n"))
+        self.code.append(CustomLineIL("la $a1, " + claSS + '_name\n' ))
+        self.code.append(CustomLineIL("jr $ra\n"))
 
 
     def handleBinaryOps(self, node, variables, symbol):
@@ -164,6 +175,7 @@ class codeVisitor:
                 attributes.append(f)
         
         self.setClassConstructor(attributes)
+        self.setClassTypeName(self.current_class)
 
         for f in node.features:
             self.visit(f)
@@ -446,7 +458,6 @@ class codeVisitor:
     @visitor.when(IsVoidNode)
     def visit(self, node, vars):
         pass
-
     #expression: complex->dispatch
     @visitor.when(ExprCallNode)
     def visit(self, node, variables):
@@ -454,9 +465,10 @@ class codeVisitor:
 
         result = variables.add_temp()
         self.code.append(PushIL())
-        # print('----------node {}---------'.format(node))
+        print('----------node {}---------'.format(node.id))
         index = self.virtual_table.get_method_id(node.obj, node.id)
-
+        if str(node.id) == 'type_name':
+            index = self.virtual_table.get_method_id(self.context.exprs_dict[node.obj].name, node.id)
         self.code.append(CommentIL('push object'))
         # print('-------obj-------- ',node.obj)
         self.visit(node.obj, variables)
@@ -468,7 +480,7 @@ class codeVisitor:
             self.code.append(CommentIL('Args: ' + str(i)))
             i += 1
             self.visit(p, variables)
-        
+        # ret = self.context.exprs_dict[node.obj].name
         self.code.append(DispatchIL(variables.id(result), variables.id(name), index))
 
         for i in range(0, len(node.args) + 1):
@@ -524,8 +536,8 @@ class codeVisitor:
             i += 1
             self.visit(p, variables)
         
-        method = node.id + '.' + node.obj.type
-        
+        method = node.obj.type + '.' + node.id
+        # print('--method: ', method)
         self.code.append(DispatchParentIL(variables.id(result), variables.id(name), method))
 
         for i in range((len(node.args) + 1)):
