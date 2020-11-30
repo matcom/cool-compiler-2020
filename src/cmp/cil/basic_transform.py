@@ -221,10 +221,13 @@ class BASE_COOL_CIL_TRANSFORM:
         self_local = self.register_param(VariableInfo("self", None))
         type_name = self.define_internal_local()
         abort_msg = self.register_data("Abort called from class ").name
+        eol = self.register_data("\n").name
         msg = self.define_internal_local()
+        msg_eol = self.define_internal_local()
         self.register_instruction(TypeNameNode(type_name, self_local))
         self.register_instruction(ConcatNode(msg, abort_msg, type_name))
-        self.register_instruction(PrintStrNode(msg))
+        self.register_instruction(ConcatNode(msg_eol, msg, eol))
+        self.register_instruction(PrintStrNode(msg_eol))
         self.register_instruction(AbortNode())
         self.current_method = self.current_function = None
         # copy function
