@@ -20,6 +20,7 @@ from .ast import (
     LessEqNode,
     LessNode,
     MinusNode,
+    NotNode,
     PlusNode,
     ProgramNode,
     ReturnNode,
@@ -29,7 +30,6 @@ from .ast import (
     StringEqualNode,
     TypeOfNode,
     VoidNode,
-    NotNode,
 )
 from .basic_transform import BASE_COOL_CIL_TRANSFORM, VariableInfo
 from .utils import Scope, on, when
