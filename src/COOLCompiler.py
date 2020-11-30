@@ -1,14 +1,14 @@
 import sys
 import os.path
 import errno
-from antlr4 import *
-from COOLLexer import COOLLexer
-from COOLLexerErrorListener import COOLLexerErrorListener
-from COOLParser import COOLParser
-from COOLParserErrorListener import COOLParserErrorListener
-from Visitors import  TypeCOOLVisitor
-from Visitors import  SemanticCOOLVisitor
-from Visitors import CodegenVisitor
+# from antlr4 import *
+# from COOLLexer import COOLLexer
+# from COOLLexerErrorListener import COOLLexerErrorListener
+# from COOLParser import COOLParser
+# from COOLParserErrorListener import COOLParserErrorListener
+# from Visitors import  TypeCOOLVisitor
+# from Visitors import  SemanticCOOLVisitor
+# from Visitors import CodegenVisitor
 
 
 
