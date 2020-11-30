@@ -164,7 +164,7 @@ Los tipos built-in definidos en COOL, (Object, IO, Int, String, Bool) son defini
 
 Para generar el código de máquinas se usa una vez más el patrón visitor, recorriendo todos los nodos de CIL que fueron creados.
 
-Entre las instrucciones se trata de manera especial la igualdad entre strings, que es realizada comparando carácter por carácter.\\\\
+Entre las instrucciones se trata de manera especial la igualdad entre strings, que es realizada comparando carácter por carácter.\\
 
 \textbf{Register Allocation:}\\
 
@@ -209,7 +209,7 @@ Cada instrucción tiene: \texttt{out}, \texttt{in1}, \texttt{in2} para determina
 	\item Se elige entre los registros llenos aquel que contenga la variable que sea menos usada en las instrucciones restantes del bloque, salvándose primero en el stack el contenido del registro y se retorna dicho registro.
 \end{enumerate}
 
-Si se tiene una expresión del estilo \texttt{out = in1 op in2}, entonces notar que el registro de \texttt{out} puede usar uno de los registros de \texttt{in1} y \texttt{in2}, si ninguna de las instrucciones son usadas en las instrucciones siguientes. Se usa el \texttt{next\_use} de estas variables, comprobando que esta no haya sido usada en alguna instrucción siguiente y si esta \texttt{is\_live}, es decir, no se le reasigna un valor.\\\\
+Si se tiene una expresión del estilo \texttt{out = in1 op in2}, entonces notar que el registro de \texttt{out} puede usar uno de los registros de \texttt{in1} y \texttt{in2}, si ninguna de las instrucciones son usadas en las instrucciones siguientes. Se usa el \texttt{next\_use} de estas variables, comprobando que esta no haya sido usada en alguna instrucción siguiente y si esta \texttt{is\_live}, es decir, no se le reasigna un valor.\\
 
 \textbf{Representación de los Objetos}\\
 
@@ -242,6 +242,30 @@ Existen otros nodos que hacen uso de esta representación de objetos. \texttt{Ty
 
 \section{Problemas técnicos y teóricos}
 
+\subsection{Comentarios y strings en el lexer}
+
+En el proceso de tokenizacion de una cadena dos de los elementos más complicados resultan ser los comentarios y los strings. Para su procesamiento  se definieron 2 nuevos estados en Lexer: \texttt{comments:exclusive} y \texttt{strings:exclusive}.
+
+Por definición la libreria PLY contiene el estado \texttt{initial} , donde se agrupan todas las reglas y tokens definidas para el procesamiento normal. En la definición de un nuevo estado, se definen nuevas reglas para el procesamiento especializado, es decir ,que ciertos tokens dentro de estos estados pueden ser analizados de manera diferente a que si estuvieran en el estado \texttt{initial}. 
+De  esta manera cuando se entra en en uno de los estados todas las reglas que no correspondan al mismo son ignoradas.
+
+\textbf{Comentarios:}
+
+Tipo 1 (\texttt{--}): como es toda la línea no necesario entrar en un estado para procesarlo, con una expresión regular pudimos darle solución.
+
+Tipo 2 (\texttt{(*...*)}): con el primer \texttt{(*} entramos en el 
+estado de \texttt{commets}, así asumimos que a partir de ese momento todo es un comentario hasta q aparezca el \texttt{*)} que lo cierre, es decir, que cuando aparezca \texttt{*)}. No necesariamente regresamos al estado inicial donde las reglas que no son de comentarios no son ignoradas, sino que se tiene un control estricto de que comentario está cerrando dicho símbolo. Para esto se mantiene unos paréntesis balanceados con los inicios y finales de los comentarios y solo se regresa al estado inicial si el balance es igual a 0, lo que implica q ese \texttt{*)} cierra verdaderamente el inicio del comentario.
+
+\textbf{Strings:}
+
+En cuanto se analiza el carácter \texttt{"} desde el estado inicial del parser, se pasa al estado \texttt{strings}, donde definimos un conjunto de reglas especializadas para tokenizar de manera correcta el string. Entre dichas reglas se pueden destacar las siguientes:
+
+\begin{itemize}
+	\item \texttt{T\_strings\_newline}: encargada de analizar '\\n', carácter muy importante en los strings que representa el cambio de línea.
+	\item \texttt{T\_strings\_end}: Esta regla procesa el \texttt{"} dentro del estado \texttt{string}. Por defición si aparece dicho carácter en este estado significaría el fin del string en cuestión, a no ser esté antecedido por el carácter '\', en cuyo caso, se considera como parte del string.
+	
+\end{itemize}
+
 \subsection{Tipos por valor y por referencia}
 
 Una de las problemáticas en el desarrollo del compilador fue la representación de los objetos built-in, en especial: \texttt{Int}, \texttt{Bool} y \texttt{String} que en realidad no son representados como objetos; los dos primeros son tratados por valor mientras el último aunque es por referencia no tiene campos y es guardado en el la sección .data de Mips. Sin embargo, todos son descendientes de \texttt{Object} que es la raíz de todas las clases en COOL y por lo tanto, poseen los métodos que están definidos en ese tipo. Con el objetivo de optimizar la memoria ocupada en el heap estos objetos no son guardados allí y no poseen la estructura de los objetos explicada anteriormente.
@@ -254,12 +278,8 @@ Por otro lado, la única manera de tratar algún objeto tipo \texttt{String}, \t
 
 \subsection{Valor Void en Mips}
 
-Otro de los problemas que se tuvo en cuenta fue la representación del valor nulo en Mips. Para modelar este valor se creo un nuevo tipo, denominado \texttt{Void}, que lo único que contiene es como primer campo el nombre del tipo \texttt{Void}. Para comprobar que un valor es void, por lo tanto, simplemente se comprueba que el nombre del tipo dinámico de una variable sea igual a "texttt{Void}. Los errores de runtime ocasionados por intentar llamar estática o dinámicamente a una variable en void son controlado, así como la evaluación de una expresión en case, que de ser void ocasionaría un error al intentar buscar la información del tipo. Por lo tanto, lo único necesario para la representación de void fue ese campo de nombre del tipo. Comprobar si una expresión por lo tanto consiste solamente en determinar si su tipo es \texttt{Void}.
+Otro de los problemas que se tuvo en cuenta fue la representación del valor nulo en Mips. Para modelar este valor se creo un nuevo tipo, denominado \texttt{Void}, que lo único que contiene es como primer campo el nombre del tipo \texttt{Void}. Para comprobar que un valor es void, por lo tanto, simplemente se comprueba que el nombre del tipo dinámico de una variable sea igual a texttt{Void}. Los errores de runtime ocasionados por intentar llamar estática o dinámicamente a una variable en void son controlados, así como la evaluación de una expresión en case, que de ser void ocasionaría un error al intentar buscar la información del tipo. Por lo tanto, lo único necesario para la representación de void fue ese campo de nombre del tipo. Comprobar si una expresión por lo tanto consiste solamente en determinar si su tipo es \texttt{Void}.
 
-
-\begin{itemize}
-	\item Hablar de los comentarios y los strings en el lexer.
-\end{itemize}
 
 %----------------------------------------------------------------------------------------
 

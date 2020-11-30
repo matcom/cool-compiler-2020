@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.11.1)  29 NOV 2020 20:48
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.11.1)  29 NOV 2020 21:47
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1142,11 +1142,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 167--168
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 167--168
-
- []
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 169--170
 
  []
@@ -1168,11 +1163,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 212--213
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 212--213
-
- []
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 214--215
 
  []
@@ -1188,10 +1178,10 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 8897 strings out of 492982
- 132494 string characters out of 6134896
+ 8898 strings out of 492982
+ 132501 string characters out of 6134896
  310835 words of memory out of 5000000
- 12252 multiletter control sequences out of 15000+600000
+ 12253 multiletter control sequences out of 15000+600000
  100154 words of font info for 106 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  51i,7n,51p,8838b,1254s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1201,7 +1191,7 @@ ype1/adobe/utopia/putb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/adobe/u
 topia/putr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/adobe/utopia/putri8
 a.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfsx1095.pfb></usr/share/te
 xmf/fonts/type1/public/cm-super/sftt1095.pfb>
-Output written on report.pdf (8 pages, 152812 bytes).
+Output written on report.pdf (8 pages, 156672 bytes).
 PDF statistics:
  54 PDF objects out of 1000 (max. 8388607)
  37 compressed objects within 1 object stream
