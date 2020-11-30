@@ -603,6 +603,7 @@ class CIL_TO_MIPS(object):
         self.get_string_length(Reg.s1, Reg.s5)
 
         self.mips.add(Reg.a0, Reg.s4, Reg.s5)  # WARNING: Divide in 2, from half to byte
+        self.mips.addi(Reg.a0, Reg.a0, 1)
         self.mips.sbrk()
         self.mips.move(Reg.s3, Reg.v0)  # The new space reserved
 
