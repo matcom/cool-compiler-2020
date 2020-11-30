@@ -22,6 +22,7 @@ from mips.instruction import (
     a1,
     zero,
     s1,
+    at
 )
 import mips.branch as branchNodes
 from functools import singledispatchmethod
@@ -41,6 +42,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.types = node.dottypes
 
+        # Los tipos los definiremos en la seccion .data
+        self.register_instruction(DotDataDirective())
+
         # Generar los tipos
         self.create_type_array(node.dottypes)
 
@@ -56,6 +60,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.visit(data_node)
             self.comment("\n\n")
 
+        # El codigo referente a cada funcion debe ir en la seccion de texto.
+        self.register_instruction(DotTextDirective())
+
         self.define_entry_point()
 
         # Visitar cada nodo de la seccion .CODE
@@ -66,9 +73,6 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
     def _(self, node: cil.TypeNode):  # noqa: F811
         # registrar el tipo actual que estamos construyendo
         self.current_type = node
-
-        # Los tipos los definiremos en la seccion .data
-        self.register_instruction(DotDataDirective())
 
         # Construir la VTABLE para este tipo.
         self.comment(f" **** VTABLE for type {node.name} ****")
@@ -119,8 +123,6 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.DataNode):
-        # Registrar los DataNode en la seccion .data
-        self.register_instruction(DotDataDirective())
         if isinstance(node.value, str):
             self.register_instruction(
                 FixedData(node.name, f"{node.value}", type_="asciiz")
@@ -141,8 +143,6 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
     @visit.register
     def _(self, node: cil.FunctionNode):
         self.current_function = node
-        # El codigo referente a cada funcion debe ir en la seccion de texto.
-        self.register_instruction(DotTextDirective())
 
         # Documentar la signatura de la funcion (parametros que recibe, valor que devuelve)
         self.cil_func_signature(node)
@@ -159,6 +159,17 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.current_function = None
 
         self.comment("Function END\n\n")
+
+    @visit.register
+    def _(self, node: cil.InitSelfNode):
+        src =  self.visit(node.src)
+        assert src is not None
+
+        self.register_instruction(LW(s1, src))
+
+    @visit.register
+    def _(self, node: cil.SetAtAddress):
+        self.register_instruction(LI(at, 0))
 
     @visit.register
     def _(self, node: cil.LabelNode):
@@ -581,7 +592,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         reg = self.get_available_register()
         assert reg is not None, "Out of registers"
         self.add_source_line_comment(node)
-        self.register_instruction(LW(reg, node.message.name))
+        self.register_instruction(LA(reg, node.message.name))
         self.register_instruction(SW(reg, dest))
 
         self.used_registers[reg] = False
@@ -607,6 +618,18 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
     @visit.register
     def _(self, node: cil.ReadNode):
         pass
+
+    @visit.register
+    def _(self, node: cil.TypeName):
+        dest = self.visit(node.dest)
+        assert dest is not None
+
+        # Cargar el puntero al objeto que se esta llamando
+        reg = self.get_available_register()
+        assert reg is not None
+
+        self.register_instruction(LW(reg, f"0($s1)"))
+        self.register_instruction(SW(reg, dest))
 
     @visit.register
     def _(self, node: cil.PrintIntNode):
@@ -693,6 +716,6 @@ class MipsCodeGenerator(CilToMipsVisitor):
             if "#" not in line and (":" in line and "end" not in line):
                 if "word" not in line and "asciiz" not in line and "byte" not in line:
                     indent += 1
-            if "#" not in line and ("END" in line or "end" in line):
+            if "# Function END" in line:
                 indent -= 1
         return program

@@ -184,7 +184,7 @@ class AssignNode(ExpressionNode):
         self.idx: str = idx
         self.expr: ExpressionNode = expr
         self.line = line
-        self.column = column - len(idx)
+        self.column = column
 
 
 class IntegerConstant(AtomicNode):

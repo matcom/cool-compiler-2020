@@ -9,7 +9,7 @@ from mips import load_store
 from mips.branch import JAL, JALR
 import mips.instruction as instrNodes
 import mips.arithmetic as arithNodes
-from mips.instruction import LineComment, a0, fp, ra, sp, v0
+from mips.instruction import FixedData, LineComment, a0, fp, ra, sp, v0
 import mips.load_store as lsNodes
 from typing import List, Optional, Type, Union
 import time
@@ -217,12 +217,11 @@ class BaseCilToMipsVisitor:
         los distintos tipos del programa, de modo que se puedan referenciar en
         mips como mismo se referenciarian en una lista.
         """
-        self.register_instruction(DotDataDirective())
-
         # Generar por cada tipo, un label que lo identifique, en el mismo orden que aparecen
         # en la lista de tipos.
         for t in types:
-            self.register_instruction(instrNodes.Label(t.name))
+            self.register_instruction(FixedData(t.name, f"\"{t.name}\"", "asciiz"))
+            self.comment("Function END")
 
     def allocate_memory(self, bytes_num: int):
         """
@@ -336,7 +335,6 @@ class BaseCilToMipsVisitor:
             self.register_instruction(arithNodes.ADDU(sp, sp, 4 * args, True))
 
     def define_entry_point(self):
-        self.register_instruction(DotTextDirective())
         self.register_instruction(instrNodes.Label("main"))
         # Realizar un jump a entry
         self.register_instruction(JAL("entry"))
@@ -344,7 +342,7 @@ class BaseCilToMipsVisitor:
         self.comment("syscall code 10 is for exit")
         self.register_instruction(lsNodes.LI(v0, 10))
         self.register_instruction(instrNodes.SYSCALL())
-        self.comment("main END\n")
+        self.comment("Function END\n")
 
     def locate_attribute(self, attrname: str, attributes: List[Attribute]):
         # Para ubicar el atributo que vamos a manejar

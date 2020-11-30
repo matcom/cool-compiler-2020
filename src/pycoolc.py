@@ -73,7 +73,7 @@ def pipeline(program: str, deep: int, file_name: str) -> None:
     # en MIPS
     file_str = code_gen(cil_program)
 
-    with open(f"{file_name}.mips", "w+") as f:
+    with open(f"{file_name[: len(file_name) - 3]}.mips", "w+") as f:
         f.write(file_str)
 
 

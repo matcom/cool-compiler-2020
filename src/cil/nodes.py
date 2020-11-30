@@ -1,4 +1,5 @@
 from __future__ import annotations
+from time import clock_settime
 from typing import List, Tuple, Union
 from abstract.semantics import Attribute, Method, Type
 """
@@ -190,6 +191,14 @@ class LoadNode(InstructionNode):
         self.message = message
 
 
+class InitSelfNode(InstructionNode):
+    def __init__(self, src: LocalNode) -> None:
+        self.src = src
+
+
+class SetAtAddress(InstructionNode):
+    pass
+
 class LengthNode(BuiltInNode):
     pass
 
@@ -259,4 +268,9 @@ class NotNode(InstructionNode):
 class CopyNode(InstructionNode):
     def __init__(self, selfsrc: LocalNode, dest: LocalNode) -> None:
         self.selfsrc = selfsrc
+        self.dest = dest
+
+
+class TypeName(InstructionNode):
+    def __init__(self, dest: LocalNode) -> None:
         self.dest = dest

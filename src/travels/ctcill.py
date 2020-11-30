@@ -1,10 +1,9 @@
-import re
-from cloudpickle.cloudpickle import instance
+from abstract.semantics import Type
 from abstract.tree import EqualToNode, SelfNode
 import cil.baseCilVisitor as baseCilVisitor
 import abstract.tree as coolAst
 import abstract.semantics as semantics
-from typing import List, Optional, Tuple, no_type_check
+from typing import List, Optional, Tuple
 from functools import singledispatchmethod
 
 import cil.nodes
@@ -23,6 +22,7 @@ from cil.nodes import (
     GetAttributeNode,
     GetTypeIndex,
     IfZeroJump,
+    InitSelfNode,
     InstructionNode,
     JumpIfGreaterThanZeroNode,
     LabelNode,
@@ -39,6 +39,7 @@ from cil.nodes import (
     ReadIntNode,
     ReadNode,
     ReturnNode,
+    SetAtAddress,
     SetAttributeNode,
     StarNode,
     StaticCallNode,
@@ -48,6 +49,13 @@ from cil.nodes import (
     TypeOfNode,
     UnconditionalJump,
 )
+
+
+def find_method_in_parent(type_: Type, method: str):
+    if type_.parent is None or method not in type_.parent.methods:
+        return type_
+    return find_method_in_parent(type_.parent, method)
+
 
 ExpressionReturn = Tuple[List[InstructionNode], List[LocalNode]]
 Scope = semantics.Scope
@@ -73,7 +81,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Reservar memoria para el objeto Main
         main_type = self.context.get_type("Main")
         self.register_instruction(AllocateNode(main_type, instance))
-        self.register_instruction(ArgNode(instance))
+        self.register_instruction(InitSelfNode(instance))
 
         # Llamar al metodo main
         self.register_instruction(
@@ -110,7 +118,10 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
                         (
                             method,
                             self.to_function_name(
-                                method, self.current_type.parent.name
+                                method,
+                                find_method_in_parent(
+                                    self.current_type.parent, method
+                                ).name,
                             ),
                         )
                     )
@@ -125,16 +136,13 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # }                                                                 #
         #####################################################################
         for attribute in attributes:
-            new_type_node.attributes.append(attribute)
+            if attribute not in self.current_type.parent.attributes:
+                new_type_node.attributes.append(attribute)
 
         for method in methods:
             new_type_node.methods.append(
                 (method, self.to_function_name(method, node.idx))
             )
-
-        print(self.current_type)
-        print(new_type_node.attributes)
-        print(new_type_node.methods)
 
         # Visitar los atributos definidos en la clase para generar sus funciones
         # de inicializacion

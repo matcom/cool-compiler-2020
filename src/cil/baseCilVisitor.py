@@ -8,7 +8,7 @@ from cil.nodes import (
     ReadIntNode,
     ReadNode,
     ReturnNode,
-    SelfNode,
+    SelfNode, TypeName,
     TypeNode,
 )
 
@@ -113,7 +113,7 @@ class BaseCoolToCilVisitor:
         self.current_type: Optional[Type] = None
         self.current_method: Optional[Method] = None
         self.current_function: Optional[nodes.FunctionNode] = None
-        self.null = self.register_data("")
+        self.null = self.register_data('""')
         self.__labels_count: int = 0
         self.__build_CART()
         self.build_builtins()
@@ -279,10 +279,30 @@ class BaseCoolToCilVisitor:
         self.register_instruction(ReturnNode(clone_vm_holder))
         self.current_function = None
 
+    def __implement_type_name(self):
+        self.current_function = self.register_function("function_type_name_at_Object")
+        return_vm_holder = self.define_internal_local()
+        self.register_instruction(TypeName(return_vm_holder))
+        self.register_instruction(ReturnNode(return_vm_holder))
+
+
     def build_builtins(self):
+        
+        # Registrar el tipo IO como un tipo instanciable
+        io_typeNode = self.register_type("IO")
+
+        io_typeNode.methods.append(("in_string", "function_in_string_at_IO"))
+        io_typeNode.methods.append(("in_int", "function_in_int_at_IO"))
+        io_typeNode.methods.append(("out_string", "function_out_string_at_IO"))
+        io_typeNode.methods.append(("out_int", "function_out_int_at_IO"))
+        io_typeNode.methods.append(("abort", "function_abort_at_Object"))
+        io_typeNode.methods.append(("copy", "function_copy_at_Object"))
+        io_typeNode.methods.append(("type_name", "function_type_name_at_Object"))
+
         self.__implement_in_string()
         self.__implement_out_int()
         self.__implement_out_string()
         self.__implement_in_int()
         self.__implement_abort()
         self.__implement_copy()
+        self.__implement_type_name()
