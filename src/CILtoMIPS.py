@@ -196,7 +196,7 @@ class MIPSCompiler:
         instrucciones+=".globl main\n"
         instrucciones+="main:\n"
         instrucciones+=self.MainInstruction()
-        archivo=open("src\\StaticCode\\AssemblyMethods.asm",encoding='utf-8')
+        archivo=open("StaticCode\\AssemblyMethods.asm",encoding='utf-8')
         metodosdefault=archivo.read()
         instrucciones+=metodosdefault
         archivo.close()
