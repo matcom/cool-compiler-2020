@@ -911,21 +911,24 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.id -> str
         # node.args -> [ ExpressionNode ... ]
         ######################################
-        method = [self.to_function_name(method.name, xtype.name) for method, xtype in self.current_type.all_methods() if method.name == node.id][0]
+        #method = [self.to_function_name(method.name, xtype.name) for method, xtype in self.current_type.all_methods() if method.name == node.id][0]
         
         args = []
         for arg in node.args:
-            vname = self.register_local(VariableInfo(f'{node.id}_arg', None))
+            vname = self.register_local(VariableInfo(f'{node.id}_arg', None), id=True)
             self.visit(arg, scope)
             self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
             args.append(cil.ArgNode(vname))
-        result = self.register_local(VariableInfo(f'return_value_of_{node.id}', None))
+        result = self.register_local(VariableInfo(f'return_value_of_{node.id}', None), id=True)
 
         self.register_instruction(cil.ArgNode(self.vself.name))
         for arg in args:
             self.register_instruction(arg)
         
-        self.register_instruction(cil.StaticCallNode(method, result))
+        type_of_node = self.register_local(VariableInfo(f'{self.vself.name}_type', None))
+        self.register_instruction(cil.TypeOfNode(self.vself.name, type_of_node))
+        self.register_instruction(cil.DynamicCallNode(type_of_node, node.id, result, self.current_type.name))
+        #self.register_instruction(cil.StaticCallNode(method, result))
         scope.ret_expr = result
 
     @visitor.when(cool.NewNode)
