@@ -99,6 +99,9 @@ class BaseCOOLToCILVisitor:
         self.register_instruction(cil.PrintStrNode(vname))
         self.register_instruction(cil.TypeNameNode(vname, self.vself.name))
         self.register_instruction(cil.PrintStrNode(vname))
+        data_node = self.register_data('\n')
+        self.register_instruction(cil.LoadNode(vname, data_node))
+        self.register_instruction(cil.PrintStrNode(vname))
         self.register_instruction(cil.ExitNode())
         # No need for RETURN here right??
 
@@ -964,17 +967,8 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
                             if i_lex == len(lex_splited):
                                 scope.ret_expr = n
                                 break
-                        if not (i_lex + 1 < len(lex_splited) and s + 1 < len(n_splited) and lex_splited[i_lex + 1] == n_splited[s + 1]):
+                        if not (i_lex < len(lex_splited) and s + 1 < len(n_splited) and lex_splited[i_lex] == n_splited[s + 1]):
                             i_lex = 0
-                        # if node.lex == s:
-                        #     scope.ret_expr = n
-                        #     break
-                    # if node.lex in n.split("_"):
-                    #     scope.ret_expr = n
-                    #     break
-                    # if node.lex in n:
-                    #     scope.ret_expr = n
-                    #     break
 
     @visitor.when(cool.StringNode)
     def visit(self, node, scope):
