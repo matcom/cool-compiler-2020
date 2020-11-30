@@ -1,5 +1,7 @@
+from typing import List, Set
+
 from ..cool_lang import ast as cool
-from ..cool_lang.semantics.semantic_utils import Attribute
+from ..cool_lang.semantics.semantic_utils import Attribute, Type
 from .ast import (
     AllocateNode,
     ArgNode,
@@ -18,6 +20,7 @@ from .ast import (
     LessEqNode,
     LessNode,
     MinusNode,
+    NotNode,
     PlusNode,
     ProgramNode,
     ReturnNode,
@@ -27,7 +30,6 @@ from .ast import (
     StringEqualNode,
     TypeOfNode,
     VoidNode,
-    NotNode,
 )
 from .basic_transform import BASE_COOL_CIL_TRANSFORM, VariableInfo
 from .utils import Scope, on, when
@@ -40,9 +42,9 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
 
     def order_caseof(self, node: cool.CaseOfNode):
         ini_dict = {case.type: case for case in node.cases}
-        list_types = list()
-        set_types = set()
-        queue = [self.context.get_type(case.type) for case in node.cases]
+        list_types: List[Type] = list()
+        set_types: Set[str] = set()
+        queue: List[Type] = [self.context.get_type(case.type) for case in node.cases]
         while queue:
             item = queue.pop(0)
             if item.name not in set_types:
@@ -54,11 +56,11 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         list_types_for_sorted = [item for _, item in list_types_for_sorted]
         result = []
         for item in list_types_for_sorted:
-            node = item
+            temp = item
             while True:
-                assert node is not None, "Error in case of node generator"
-                if node.name in ini_dict:
-                    case = ini_dict[node.name]
+                assert temp is not None, "Error in case of node generator"
+                if temp.name in ini_dict:
+                    case = ini_dict[temp.name]
                     new_case = cool.CaseNode(
                         case.id,
                         item.name,
@@ -68,7 +70,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
                     )
                     result.append(new_case)
                     break
-                node = node.parent
+                temp = temp.parent
         return result
 
     def find_type_name(self, typex, func_name):
@@ -91,11 +93,17 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         self.build_init_type_func("IO")
         self.attr_init["Object"] = []
         self.build_init_type_func("Object")
-        self.attr_init["Int"] = [cool.AttrDeclarationNode("value", None, None, 0, 0)]
+        self.attr_init["Int"] = [
+            cool.AttrDeclarationNode("value", None, None, 0, 0)  # type:ignore
+        ]
         self.build_init_type_func("Int")
-        self.attr_init["Bool"] = [cool.AttrDeclarationNode("value", None, None, 0, 0)]
+        self.attr_init["Bool"] = [
+            cool.AttrDeclarationNode("value", None, None, 0, 0)  # type:ignore
+        ]
         self.build_init_type_func("Bool")
-        self.attr_init["String"] = [cool.AttrDeclarationNode("value", None, None, 0, 0)]
+        self.attr_init["String"] = [
+            cool.AttrDeclarationNode("value", None, None, 0, 0)  # type:ignore
+        ]
         self.build_init_type_func("String")
         for classx in node.classes:
             self.attr_init[classx.id] = []
@@ -119,6 +127,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     @when(cool.ProgramNode)
     def visit(self, node: cool.ProgramNode = None, scope: Scope = None):  # noqa:F811
         scope = Scope()
+        assert node is not None, "Node program is None"
         self.build_attr_init(node)
         self.current_function = self.register_function("entry")
         instance = self.define_internal_local()

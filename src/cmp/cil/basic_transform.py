@@ -1,5 +1,5 @@
 import re
-from typing import Union
+from typing import Any, Union, cast
 
 from ..cool_lang.semantics.semantic_utils import Attribute, Type
 from .ast import (
@@ -171,7 +171,7 @@ class BASE_COOL_CIL_TRANSFORM:
             (method.name, self.to_function_name(method.name, typex.name))
             for method, typex in self.current_type.get_all_methods()
         ]
-        type_node.features = self.get_features() + ["value"]
+        type_node.features = self.get_features() + [cast(Any, "value")]
 
     def build_basic_bool(self):
         self.current_type = self.context.get_type("Bool")
@@ -184,7 +184,7 @@ class BASE_COOL_CIL_TRANSFORM:
             (method.name, self.to_function_name(method.name, typex.name))
             for method, typex in self.current_type.get_all_methods()
         ]
-        type_node.features = self.get_features() + ["value"]
+        type_node.features = self.get_features() + [cast(Any, "value")]
 
     def build_basic_object(self):
         self.current_type = self.context.get_type("Object")
@@ -314,7 +314,7 @@ class BASE_COOL_CIL_TRANSFORM:
             (method.name, self.to_function_name(method.name, typex.name))
             for method, typex in self.current_type.get_all_methods()
         ]
-        type_node.features = self.get_features() + ["value"]
+        type_node.features = self.get_features() + [cast(Any, "value")]
         # length
         self.current_method = self.current_type.get_method("length")
         type_name = self.current_type.name
