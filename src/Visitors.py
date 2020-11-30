@@ -1862,7 +1862,7 @@ _dispatch_msg:  .asciiz ": Dispatch to void.\\n"
 _cabort_msg:	.asciiz "No match in case statement for Class "
 _cabort_msg2:   .asciiz "Match on void in case statement.\\n"
 _nl:		.asciiz "\\n"
-#_term_msg:	.asciiz "\nCOOL program successfully executed\\n"
+#_term_msg:	.asciiz "\\nCOOL program successfully executed\\n"
 _term_msg:	.asciiz ""
 _sabort_msg1:	.asciiz	"Index to substr is negative\\n"
 _sabort_msg2:	.asciiz	"Index to substr is too big\\n"
@@ -1888,7 +1888,7 @@ _GenGC_MAJORERROR:	.asciiz "GenGC: Error during major garbage collection.\\n"
 # Messages for the NoGC garabge collector
 #
 
-#_NoGC_COLLECT:		.asciiz "Increasing heap...\\n"
+# _NoGC_COLLECT:		.asciiz "Increasing heap...\\n"
 _NoGC_COLLECT:		.asciiz ""    
 """
 
