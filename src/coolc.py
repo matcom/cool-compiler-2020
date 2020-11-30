@@ -1,4 +1,5 @@
 import argparse
+import re
 
 from cmp.cil import CIL_FORMATTER, CIL_TO_MIPS, COOL_TO_CIL_VISITOR
 from cmp.cool_lang.lexer import COOL_LEXER
@@ -8,12 +9,12 @@ from cmp.cool_lang.semantics import COOL_CHECKER
 parser = argparse.ArgumentParser(description="COOL Compiler")
 parser.add_argument(
     "INPUT_FILE",
-    help="file to compile.",
+    help="cool file to compile.",
     type=str,
 )
 parser.add_argument(
     "OUTPUT_FILE",
-    help="compiled file.",
+    help="mips resultant file.",
     type=str,
 )
 parser.add_argument(
@@ -64,7 +65,7 @@ ctc = COOL_TO_CIL_VISITOR(cchecker.context)
 cil_ast = ctc.visit(program)
 
 if GEN_CIL:
-    with open(OUTPUT_FILE[:-4] + "cil", "w") as out_fd:
+    with open(re.findall(r"^(.+)\.(.*)$",OUTPUT_FILE)[0][0] + ".cil", "w") as out_fd:
         out_fd.write(CIL_FORMATTER().visit(cil_ast))
 
 ctm = CIL_TO_MIPS(cchecker.context)
