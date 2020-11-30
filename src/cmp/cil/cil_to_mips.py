@@ -141,17 +141,19 @@ class CIL_TO_MIPS(object):
             raise Exception(f"load_memory: The direction {arg} isn't an address")
 
     @mips_comment("STORE MEMORY")
-    def store_memory(self, dst: Reg, arg: str):
-        self.mips.comment(f"from {arg} to {dst}")
-        if arg in self.actual_args or arg in self.local_vars_offsets:
+    def store_memory(self, src: Reg, dst: str):
+        self.mips.comment(f"from src: {src} to dst: {dst}")
+        if dst in self.actual_args or dst in self.local_vars_offsets:
             offset = (
-                self.actual_args[arg]
-                if arg in self.actual_args
-                else self.local_vars_offsets[arg]
+                self.actual_args[dst]
+                if dst in self.actual_args
+                else self.local_vars_offsets[dst]
             ) * DATA_SIZE
-            self.mips.store_memory(dst, self.mips.offset(Reg.fp, offset))
+            offset = self.mips.offset(Reg.fp, offset)
+            self.mips.comment(f"store to memory src: {src} to offset: {offset}")
+            self.mips.store_memory(src, offset)
         else:
-            raise Exception(f"store_memory: The direction {arg} isn't an address")
+            raise Exception(f"store_memory: The direction {dst} isn't an address")
         self.mips.empty()
 
     def load_arithmetic(self, node: ArithmeticNode):
