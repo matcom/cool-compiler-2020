@@ -13,7 +13,16 @@ class CIL_TO_MIPS:
         self.arguments = {}
         self.local_vars = {}
         self.data_size = data_size
-        self.registers_to_save = [reg.ra]
+        self.registers_to_save = [
+            reg.ra,
+            reg.s0,
+            reg.s1,
+            reg.s2,
+            reg.s3,
+            reg.s4,
+            reg.s5,
+            reg.s6,
+            reg.s7, ]
         self.label_count = 0
         self.mips = MipsCode()
 
@@ -278,9 +287,9 @@ class CIL_TO_MIPS:
     @visitor.when(TypeOfNode)
     def visit(self, node: TypeOfNode):
         self.mips.comment("TypeOfNode")
-        self.mips.la(reg.t0, node.obj)
-        self.load_memory(reg.t1, reg.t0)
-        self.store_memory(reg.t1, node.dest)
+        self.load_memory(reg.s0, node.obj)
+        self.mips.load_memory(reg.s1, reg.s0)
+        self.store_memory(reg.s1, node.dest)
 
     @visitor.when(LabelNode)
     def visit(self, node: LabelNode):
@@ -302,6 +311,7 @@ class CIL_TO_MIPS:
     def visit(self, node: StaticCallNode):
         self.mips.comment("StaticCallNode")
         self.mips.jal(node.function)
+        self.store_memory(reg.v0, node.dest)
 
     @visitor.when(DynamicCallNode)
     def visit(self, node: DynamicCallNode):
@@ -319,8 +329,8 @@ class CIL_TO_MIPS:
     @visitor.when(ArgNode)
     def visit(self, node: ArgNode):
         self.mips.comment("ArgNode")
-        self.load_memory(reg.t0, node.name)
-        self.mips.push(reg.t0)
+        self.load_memory(reg.s0, node.name)
+        self.mips.push(reg.s0)
 
     @visitor.when(ErrorNode)
     def visit(self, node: ErrorNode):

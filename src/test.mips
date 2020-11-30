@@ -1,709 +1,424 @@
-.data
-data_0
-.asciiz "H"
-data_1
-.asciiz "A"
-data_2
-.asciiz "B"
-data_3
-.asciiz "C"
-data_4
-.asciiz "E"
-.text
-main:
-jal entry
+.TYPES
+type Object {
+	
 
-li $v0, 10
-syscall
-function_abort_at_Object:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+}
+type String {
+	
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-# ErrorNode
-li $a0, 1
-li $v0, 17
-syscall
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+	method length: function_length_at_String
+	method concat: function_concat_at_String
+	method substr: function_substr_at_String
+}
+type IO {
+	
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 0
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_copy_at_Object:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+	method out_string: function_out_string_at_IO
+	method out_int: function_out_int_at_IO
+	method in_string: function_in_string_at_IO
+	method in_int: function_in_int_at_IO
+}
+type Main {
+	
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-# ReturnNode
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $v0, $t8, $t9
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+	method out_string: function_out_string_at_IO
+	method out_int: function_out_int_at_IO
+	method in_string: function_in_string_at_IO
+	method in_int: function_in_int_at_IO
+	method main: function_main_at_Main
+}
+type Complex {
+	attribute x
+	attribute y
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 8
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_length_at_String:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+	method out_string: function_out_string_at_IO
+	method out_int: function_out_int_at_IO
+	method in_string: function_in_string_at_IO
+	method in_int: function_in_int_at_IO
+	method init: function_init_at_Complex
+	method print: function_print_at_Complex
+	method reflect_0: function_reflect_0_at_Complex
+	method reflect_X: function_reflect_X_at_Complex
+	method reflect_Y: function_reflect_Y_at_Complex
+	method equal: function_equal_at_Complex
+	method x_value: function_x_value_at_Complex
+	method y_value: function_y_value_at_Complex
+}
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-# ReturnNode
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $v0, $t8, $t9
+.DATA
+data_0 = "=(n"
+data_1 = "=)n"
+data_2 = "=(n"
+data_3 = "=)n"
+data_4 = "I"
+data_5 = "+"
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 8
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_concat_at_String:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+.CODE
+function function_abort_at_Object {
+	PARAM self
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-# ReturnNode
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $v0, $t8, $t9
+	
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 8
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_substr_at_String:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	ERROR 0
+}
+function function_copy_at_Object {
+	PARAM self
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-# ReturnNode
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $v0, $t8, $t9
+	LOCAL local_copy_at_Object_internal_0
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 8
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_out_string_at_IO:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	local_copy_at_Object_internal_0 = COPY self
+	RETURN local_copy_at_Object_internal_0
+}
+function function_type_name_at_Object {
+	PARAM self
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $a0, $t8, $t9
-li $v0, 4
-syscall
+	LOCAL local_type_name_at_Object_internal_0
+	LOCAL local_type_name_at_Object_internal_1
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 8
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_in_string_at_IO:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	local_type_name_at_Object_internal_1 = TYPEOF self
+	local_type_name_at_Object_internal_0 = TYPENAME local_type_name_at_Object_internal_1
+	RETURN local_type_name_at_Object_internal_0
+}
+function function_length_at_String {
+	PARAM self
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-# ReturnNode
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $v0, $t8, $t9
+	LOCAL local_length_at_String_internal_0
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 8
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_out_int_at_IO:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	local_length_at_String_internal_0 = LENGTH self
+	RETURN local_length_at_String_internal_0
+}
+function function_concat_at_String {
+	PARAM self
+	PARAM string
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $a0, $t8, $t9
-li $v0, 4
-syscall
+	LOCAL local_concat_at_String_internal_0
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 8
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_in_int_at_IO:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	local_concat_at_String_internal_0 = CONCAT self string
+	RETURN local_concat_at_String_internal_0
+}
+function function_substr_at_String {
+	PARAM self
+	PARAM start
+	PARAM length
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-# ReturnNode
-lw $t8, -8($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $v0, $t8, $t9
+	LOCAL local_substr_at_String_internal_0
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 16
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-entry:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	local_substr_at_String_internal_0 = SUBSTRING self start length
+	RETURN local_substr_at_String_internal_0
+}
+function function_out_string_at_IO {
+	
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-li $a0, 8
-li $v0, 9
-syscall
-srl $t9, $v0, 16
-sw $t9, 0($t8)
-sw $v0, 4($t8)
-li $t0, 3
-srl $t9, $t0, 16
-sw $t9, 0($t8)
-sw $t0, 4($t8)
-srl $t9, $t0, 16
-sw $t9, 0($t8)
-sw $t0, 4($t8)
-# ArgNode
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $t0, $t8, $t9
-addi $sp, $sp, -8
-srl $t9, $t0, 16
-sw $t9, 0($t8)
-sw $t0, 4($t8)
-# StaticCallNode
-jal function_main_at_Main
+	LOCAL local_out_string_at_IO_internal_0
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 16
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_main_at_Main:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	PRINT local_out_string_at_IO_internal_0
+}
+function function_in_string_at_IO {
+	
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-# ReturnNode
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $v0, $t8, $t9
+	LOCAL local_in_string_at_IO_internal_0
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 8
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_m_at_A:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	local_in_string_at_IO_internal_0 = READ
+	RETURN local_in_string_at_IO_internal_0
+}
+function function_out_int_at_IO {
+	PARAM int_val
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-# ReturnNode
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $v0, $t8, $t9
+	LOCAL local_out_int_at_IO_internal_0
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 8
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_f_at_A:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	local_out_int_at_IO_internal_0 = STR int_val
+	PRINT local_out_int_at_IO_internal_0
+}
+function function_in_int_at_IO {
+	
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-li $a0, 8
-li $v0, 9
-syscall
-srl $t9, $v0, 16
-sw $t9, 0($t8)
-sw $v0, 4($t8)
-li $t0, 4
-srl $t9, $t0, 16
-sw $t9, 0($t8)
-sw $t0, 4($t8)
-srl $t9, $t0, 16
-sw $t9, 0($t8)
-sw $t0, 4($t8)
-# ReturnNode
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $v0, $t8, $t9
+	LOCAL local_in_int_at_IO_internal_0
+	LOCAL local_in_int_at_IO_internal_1
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 8
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_m_at_B:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	local_in_int_at_IO_internal_0 = READ
+	local_in_int_at_IO_internal_1 = INT local_in_int_at_IO_internal_0
+	RETURN local_in_int_at_IO_internal_1
+}
+function entry {
+	
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-# ReturnNode
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $v0, $t8, $t9
+	LOCAL local__internal_0
+	LOCAL local__internal_1
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 8
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_f_at_C:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	local__internal_0 = ALLOCATE Main
+	ARG local__internal_0
+	local__internal_1 = CALL function_main_at_Main
+}
+function function_main_at_Main {
+	PARAM self
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-# ReturnNode
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $v0, $t8, $t9
+	LOCAL local_main_at_Main_internal_0
+	LOCAL local_main_at_Main_internal_1
+	LOCAL local_main_at_Main_internal_2
+	LOCAL local_main_at_Main_internal_3
+	LOCAL local_main_at_Main_internal_4
+	LOCAL local_main_at_Main_internal_5
+	LOCAL local_main_at_Main_internal_6
+	LOCAL local_main_at_Main_internal_7
+	LOCAL local_main_at_Main_internal_8
+	LOCAL local_main_at_Main_internal_9
+	LOCAL local_main_at_Main_internal_10
+	LOCAL local_main_at_Main_internal_11
+	LOCAL local_main_at_Main_internal_12
+	LOCAL local_main_at_Main_internal_13
+	LOCAL local_main_at_Main_internal_14
+	LOCAL local_main_at_Main_internal_15
+	LOCAL local_main_at_Main_internal_16
+	LOCAL local_main_at_Main_internal_17
+	LOCAL local_main_at_Main_internal_18
+	LOCAL local_main_at_Main_internal_19
+	LOCAL local_main_at_Main_internal_20
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 8
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra
-function_f_at_E:
-# Set stack frame
-addi $sp, $sp, -8
-srl $t9, $fp, 16
-sw $t9, 0($t8)
-sw $fp, 4($t8)
-move $fp, $sp
+	ARG 1
+	ARG 1
+	local_main_at_Main_internal_1 = ALLOCATE Complex
+	SETATTR self x 0
+	SETATTR self y 0
+	ARG local_main_at_Main_internal_1
+	local_main_at_Main_internal_0 = CALL function_init_at_Complex
+	ARG c
+	local_main_at_Main_internal_4 = CALL function_reflect_X_at_Complex
+	ARG c
+	local_main_at_Main_internal_5 = CALL function_reflect_0_at_Complex
+	local_main_at_Main_internal_6 = local_main_at_Main_internal_4 == local_main_at_Main_internal_5
+	IF local_main_at_Main_internal_6 GOTO TRUE
+	local_main_at_Main_internal_9 = LOAD data_0
+	ARG local_main_at_Main_internal_9
+	ARG self
+	local_main_at_Main_internal_8 = VCALL Main out_string
+	local_main_at_Main_internal_7 = local_main_at_Main_internal_8
+	GOTO END
+	LABEL TRUE
+	local_main_at_Main_internal_11 = LOAD data_1
+	ARG local_main_at_Main_internal_11
+	ARG self
+	local_main_at_Main_internal_10 = VCALL Main out_string
+	local_main_at_Main_internal_7 = local_main_at_Main_internal_10
+	LABEL END
+	ARG c
+	local_main_at_Main_internal_13 = CALL function_reflect_0_at_Complex
+	ARG local_main_at_Main_internal_13
+	ARG c
+	local_main_at_Main_internal_15 = CALL function_reflect_X_at_Complex
+	ARG local_main_at_Main_internal_15
+	local_main_at_Main_internal_14 = CALL function_reflect_Y_at_Complex
+	ARG local_main_at_Main_internal_14
+	local_main_at_Main_internal_12 = CALL function_equal_at_Complex
+	IF local_main_at_Main_internal_12 GOTO TRUE
+	local_main_at_Main_internal_18 = LOAD data_2
+	ARG local_main_at_Main_internal_18
+	ARG self
+	local_main_at_Main_internal_17 = VCALL Main out_string
+	local_main_at_Main_internal_16 = local_main_at_Main_internal_17
+	GOTO END
+	LABEL TRUE
+	local_main_at_Main_internal_20 = LOAD data_3
+	ARG local_main_at_Main_internal_20
+	ARG self
+	local_main_at_Main_internal_19 = VCALL Main out_string
+	local_main_at_Main_internal_16 = local_main_at_Main_internal_19
+	LABEL END
+	local_main_at_Main_internal_3 = local_main_at_Main_internal_16
+	local_main_at_Main_internal_2 = local_main_at_Main_internal_3
+	RETURN local_main_at_Main_internal_2
+}
+function function_init_at_Complex {
+	PARAM self
+	PARAM a
+	PARAM b
 
-# Allocate memory for Local variables
-addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
-srl $t9, $ra, 16
-sw $t9, 0($t8)
-sw $ra, 4($t8)
-# Generating body code
-# ReturnNode
-lw $t8, 0($fp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $v0, $t8, $t9
+	LOCAL local_init_at_Complex_internal_0
+	LOCAL local_init_at_Complex_internal_1
+	LOCAL local_init_at_Complex_internal_2
+	LOCAL local_init_at_Complex_internal_3
+	LOCAL local_init_at_Complex_internal_4
+	LOCAL local_init_at_Complex_internal_5
+	LOCAL local_init_at_Complex_internal_6
 
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $ra, $t8, $t9
-addi $sp, $sp, 8
-# Clean stack variable space
-addi $sp, $sp, 8
-# Return
-lw $t8, 0($sp)
-sll $t8, $t8, 16
-addi $t7, $t7, 4
-lw $t9, 0($t7)
-or $fp, $t8, $t9
-addi $sp, $sp, 8
-jr $ra[]
+	local_init_at_Complex_internal_1 = GETATTR self x
+	local_init_at_Complex_internal_2 = GETATTR self a
+	local_init_at_Complex_internal_3 = local_init_at_Complex_internal_1 == local_init_at_Complex_internal_2
+	local_init_at_Complex_internal_4 = GETATTR self y
+	local_init_at_Complex_internal_5 = GETATTR self b
+	local_init_at_Complex_internal_6 = local_init_at_Complex_internal_4 == local_init_at_Complex_internal_5
+	local_init_at_Complex_internal_0 = self
+	RETURN local_init_at_Complex_internal_0
+}
+function function_print_at_Complex {
+	PARAM self
+
+	LOCAL local_print_at_Complex_internal_0
+	LOCAL local_print_at_Complex_internal_1
+	LOCAL local_print_at_Complex_internal_2
+	LOCAL local_print_at_Complex_internal_3
+	LOCAL local_print_at_Complex_internal_4
+	LOCAL local_print_at_Complex_internal_5
+	LOCAL local_print_at_Complex_internal_6
+	LOCAL local_print_at_Complex_internal_7
+	LOCAL local_print_at_Complex_internal_8
+	LOCAL local_print_at_Complex_internal_9
+	LOCAL local_print_at_Complex_internal_10
+	LOCAL local_print_at_Complex_internal_11
+	LOCAL local_print_at_Complex_internal_12
+
+	local_print_at_Complex_internal_0 = GETATTR self y
+	local_print_at_Complex_internal_1 = local_print_at_Complex_internal_0 == 0
+	IF local_print_at_Complex_internal_1 GOTO TRUE
+	local_print_at_Complex_internal_4 = LOAD data_4
+	ARG local_print_at_Complex_internal_4
+	local_print_at_Complex_internal_6 = GETATTR self y
+	ARG local_print_at_Complex_internal_6
+	local_print_at_Complex_internal_8 = LOAD data_5
+	ARG local_print_at_Complex_internal_8
+	local_print_at_Complex_internal_10 = GETATTR self x
+	ARG local_print_at_Complex_internal_10
+	ARG self
+	local_print_at_Complex_internal_9 = VCALL Complex out_int
+	ARG local_print_at_Complex_internal_9
+	local_print_at_Complex_internal_7 = CALL function_out_string_at_Complex
+	ARG local_print_at_Complex_internal_7
+	local_print_at_Complex_internal_5 = CALL function_out_int_at_Complex
+	ARG local_print_at_Complex_internal_5
+	local_print_at_Complex_internal_3 = CALL function_out_string_at_Complex
+	local_print_at_Complex_internal_2 = local_print_at_Complex_internal_3
+	GOTO END
+	LABEL TRUE
+	local_print_at_Complex_internal_12 = GETATTR self x
+	ARG local_print_at_Complex_internal_12
+	ARG self
+	local_print_at_Complex_internal_11 = VCALL Complex out_int
+	local_print_at_Complex_internal_2 = local_print_at_Complex_internal_11
+	LABEL END
+	RETURN local_print_at_Complex_internal_2
+}
+function function_reflect_0_at_Complex {
+	PARAM self
+
+	LOCAL local_reflect_0_at_Complex_internal_0
+	LOCAL local_reflect_0_at_Complex_internal_1
+	LOCAL local_reflect_0_at_Complex_internal_2
+	LOCAL local_reflect_0_at_Complex_internal_3
+	LOCAL local_reflect_0_at_Complex_internal_4
+	LOCAL local_reflect_0_at_Complex_internal_5
+	LOCAL local_reflect_0_at_Complex_internal_6
+	LOCAL local_reflect_0_at_Complex_internal_7
+	LOCAL local_reflect_0_at_Complex_internal_8
+
+	local_reflect_0_at_Complex_internal_1 = GETATTR self x
+	local_reflect_0_at_Complex_internal_3 = GETATTR self x
+	local_reflect_0_at_Complex_internal_2 = COMPLEMENT local_reflect_0_at_Complex_internal_3
+	local_reflect_0_at_Complex_internal_4 = local_reflect_0_at_Complex_internal_1 == local_reflect_0_at_Complex_internal_2
+	local_reflect_0_at_Complex_internal_5 = GETATTR self y
+	local_reflect_0_at_Complex_internal_7 = GETATTR self y
+	local_reflect_0_at_Complex_internal_6 = COMPLEMENT local_reflect_0_at_Complex_internal_7
+	local_reflect_0_at_Complex_internal_8 = local_reflect_0_at_Complex_internal_5 == local_reflect_0_at_Complex_internal_6
+	local_reflect_0_at_Complex_internal_0 = self
+	RETURN local_reflect_0_at_Complex_internal_0
+}
+function function_reflect_X_at_Complex {
+	PARAM self
+
+	LOCAL local_reflect_X_at_Complex_internal_0
+	LOCAL local_reflect_X_at_Complex_internal_1
+	LOCAL local_reflect_X_at_Complex_internal_2
+	LOCAL local_reflect_X_at_Complex_internal_3
+	LOCAL local_reflect_X_at_Complex_internal_4
+
+	local_reflect_X_at_Complex_internal_1 = GETATTR self y
+	local_reflect_X_at_Complex_internal_3 = GETATTR self y
+	local_reflect_X_at_Complex_internal_2 = COMPLEMENT local_reflect_X_at_Complex_internal_3
+	local_reflect_X_at_Complex_internal_4 = local_reflect_X_at_Complex_internal_1 == local_reflect_X_at_Complex_internal_2
+	local_reflect_X_at_Complex_internal_0 = self
+	RETURN local_reflect_X_at_Complex_internal_0
+}
+function function_reflect_Y_at_Complex {
+	PARAM self
+
+	LOCAL local_reflect_Y_at_Complex_internal_0
+	LOCAL local_reflect_Y_at_Complex_internal_1
+	LOCAL local_reflect_Y_at_Complex_internal_2
+	LOCAL local_reflect_Y_at_Complex_internal_3
+	LOCAL local_reflect_Y_at_Complex_internal_4
+
+	local_reflect_Y_at_Complex_internal_1 = GETATTR self x
+	local_reflect_Y_at_Complex_internal_3 = GETATTR self x
+	local_reflect_Y_at_Complex_internal_2 = COMPLEMENT local_reflect_Y_at_Complex_internal_3
+	local_reflect_Y_at_Complex_internal_4 = local_reflect_Y_at_Complex_internal_1 == local_reflect_Y_at_Complex_internal_2
+	local_reflect_Y_at_Complex_internal_0 = self
+	RETURN local_reflect_Y_at_Complex_internal_0
+}
+function function_equal_at_Complex {
+	PARAM self
+	PARAM d
+
+	LOCAL local_equal_at_Complex_internal_0
+	LOCAL local_equal_at_Complex_internal_1
+	LOCAL local_equal_at_Complex_internal_2
+	LOCAL local_equal_at_Complex_internal_3
+	LOCAL local_equal_at_Complex_internal_4
+	LOCAL local_equal_at_Complex_internal_5
+	LOCAL local_equal_at_Complex_internal_6
+	LOCAL local_equal_at_Complex_internal_7
+	LOCAL local_equal_at_Complex_internal_8
+	LOCAL local_equal_at_Complex_internal_9
+
+	local_equal_at_Complex_internal_0 = GETATTR self x
+	local_equal_at_Complex_internal_2 = GETATTR self d
+	ARG local_equal_at_Complex_internal_2
+	local_equal_at_Complex_internal_1 = CALL function_x_value_at_Complex
+	local_equal_at_Complex_internal_3 = local_equal_at_Complex_internal_0 == local_equal_at_Complex_internal_1
+	IF local_equal_at_Complex_internal_3 GOTO TRUE
+	local_equal_at_Complex_internal_4 = 0
+	GOTO END
+	LABEL TRUE
+	local_equal_at_Complex_internal_5 = GETATTR self y
+	local_equal_at_Complex_internal_7 = GETATTR self d
+	ARG local_equal_at_Complex_internal_7
+	local_equal_at_Complex_internal_6 = CALL function_y_value_at_Complex
+	local_equal_at_Complex_internal_8 = local_equal_at_Complex_internal_5 == local_equal_at_Complex_internal_6
+	IF local_equal_at_Complex_internal_8 GOTO TRUE
+	local_equal_at_Complex_internal_9 = 0
+	GOTO END
+	LABEL TRUE
+	local_equal_at_Complex_internal_9 = 1
+	LABEL END
+	local_equal_at_Complex_internal_4 = local_equal_at_Complex_internal_9
+	LABEL END
+	RETURN local_equal_at_Complex_internal_4
+}
+function function_x_value_at_Complex {
+	PARAM self
+
+	LOCAL local_x_value_at_Complex_internal_0
+
+	local_x_value_at_Complex_internal_0 = GETATTR self x
+	RETURN local_x_value_at_Complex_internal_0
+}
+function function_y_value_at_Complex {
+	PARAM self
+
+	LOCAL local_y_value_at_Complex_internal_0
+
+	local_y_value_at_Complex_internal_0 = GETATTR self y
+	RETURN local_y_value_at_Complex_internal_0
+}

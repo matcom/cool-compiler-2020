@@ -92,6 +92,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self_local = self.register_param(VariableInfo('self', None))
         fun_scope.define_variable('self', self_local)
         for param_name, param_type in node.params:
+            fun_scope.define_variable(param_name.lex, param_type.lex)
             self.register_param(VariableInfo(param_name.lex, param_type.lex))
 
         body = self.visit(node.body, fun_scope)
@@ -104,7 +105,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         result = self.visit(node.expression, scope) if node.expression else 0
         self_inst = scope.find_variable('self').name
         self.register_instruction(
-            SetAttribNode(self_inst, node.id.lex, result))
+            SetAttribNode(self_inst, node.id.lex, result, self.current_type.name))
 
     @visitor.when(cool.AssignNode)
     def visit(self, node: cool.AssignNode, scope):
@@ -299,7 +300,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             selfx = scope.find_variable('self').name
             nvar = self.define_internal_local()
             self.register_instruction(
-                GetAttribNode(nvar, selfx, node.token.lex))
+                GetAttribNode(nvar, selfx, node.token.lex, self.current_type.name))
         else:
             nvar = nvar.name
         return nvar
