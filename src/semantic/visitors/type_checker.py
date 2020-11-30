@@ -57,7 +57,6 @@ class TypeChecker:
     @visitor.when(AttrDeclarationNode)
     def visit(self, node:AttrDeclarationNode, scope:Scope):
         attr = self.current_type.get_attribute(node.id, node.pos)
-        # varinfo = scope.find_variable(node.id)
         vartype = get_type(attr.type, self.current_type)
 
         self.current_index = attr.index
@@ -105,7 +104,6 @@ class TypeChecker:
     def visit(self, node:VarDeclarationNode, scope:Scope):
 
         vtype =  self._get_type(node.type, node.type_pos)
-        # var_info = self.find_variable(scope, node.id)
         vtype = get_type(vtype, self.current_type)
 
         if node.expr != None:
