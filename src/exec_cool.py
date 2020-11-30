@@ -33,7 +33,7 @@ semantics_error, context, scope = cool_sematic.check_semantics()
 
 if len(semantics_error) > 0:
     for error in semantics_error:
-        print(error.text)
+        print(error.text+"\n")
         exit(1)
 
 # 
