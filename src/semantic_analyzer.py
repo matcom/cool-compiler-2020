@@ -70,9 +70,7 @@ class TypeBuilder:
                 indeg[v] += 1
 
         roots = [key for key in indeg.keys() if indeg[key] == 0]
-        # if len(roots) > 1:
-        #     error = ErrorSemantic("The graph of types is not a tree", 0, 0, 'TypeError')
-        #     self.errors.append(error)
+
         for v in roots:
             self.visit_component(v)
         

@@ -212,12 +212,6 @@ class Parser():
         """
         parse[0] = AST.STRING(value=parse[1], line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
 
-    # def p_expr_self(self, parse):
-    #     """
-    #     expression  : SELF
-    #     """
-    #     parse[0] = AST.SELF(line=parse.lineno(1), column=lexer.find_column(parse.lexer.lexdata, parse.lexpos(1)))
-
     def p_expression_block(self, parse):
         """
         expression : LBRACE block_list RBRACE
