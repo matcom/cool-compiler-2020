@@ -294,12 +294,20 @@ class CIL_TO_MIPS(object):
     @when(CopyNode)
     @mips_comment("CopyNode")
     def visit(self, node: CopyNode):  # noqa: F811
-        dst = self.get_offset(node.dest)
-        length = 0  # TODO: donde saco el size este?
-        self.mips.la(Reg.s1, dst)
+        self.load_memory(Reg.s0, node.obj)
+
+        length = 2 * DATA_SIZE
+
+        # reserve heap space
+        self.mips.load_memory(Reg.a0, self.mips.offset(Reg.s0, length))
+        self.mips.sbrk()
+        self.mips.move(Reg.s1, Reg.v0)
+
+        self.store_memory(Reg.s1, node.dest)
+
         # copy data raw byte to byte
         self.mips.li(Reg.s3, length)
-        self.copy_data(Reg.s0, Reg.s1, Reg.s3)
+        # self.copy_data(Reg.s0, Reg.s1, Reg.s3)
 
     @when(TypeNameNode)
     @mips_comment("TypeNameNode")
@@ -445,7 +453,7 @@ class CIL_TO_MIPS(object):
 
         self.mips.comment(str(type_data))
 
-        length = len(type_data.attr_offsets) + len(type_data.func_offsets) + 2
+        length = type_data.length
         length *= DATA_SIZE
         self.mips.li(Reg.a0, length)
         self.mips.sbrk()
@@ -457,6 +465,9 @@ class CIL_TO_MIPS(object):
 
         self.mips.la(Reg.s0, type_data.str)
         self.mips.store_memory(Reg.s0, self.mips.offset(Reg.s1, DATA_SIZE))
+
+        self.mips.li(Reg.s0, type_data.length)
+        self.mips.store_memory(Reg.s0, self.mips.offset(Reg.s1, 2 * DATA_SIZE))
 
         for offset in type_data.attr_offsets.values():
             self.mips.store_memory(
