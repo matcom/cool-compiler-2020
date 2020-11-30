@@ -9,4 +9,4 @@ OUTPUT_FILE=${INPUT_FILE:0: -2}mips
 
 # Llamar al compilador
 #echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
-python COOLCompiler.py $INPUT_FILE $OUTPUT_FILE
+python MockCompiler.py $INPUT_FILE $OUTPUT_FILE
