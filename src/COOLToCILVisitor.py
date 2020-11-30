@@ -370,13 +370,15 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
 
 
     @visitor.when(NewNode)
-    def visit(self, node, scope):
-        instance = self.define_internal_local()
-        result = self.define_internal_local()
-        self.register_instruction(cil.AllocateNode(node.type.name, instance))
-        
-        self.register_instruction(cil.ArgsNode([instance]))
-        self.register_instruction(cil.JumpNode(self.to_function_name('Ctr', node.type.name), result))
+    def visit(self, node:NewNode, scope):
+        if not node.type.name == "Int":
+            instance = self.define_internal_local()
+            result = self.define_internal_local()
+            self.register_instruction(cil.AllocateNode(node.type.name, instance))
+            self.register_instruction(cil.ArgsNode([instance]))
+            self.register_instruction(cil.JumpNode(self.to_function_name('Ctr', node.type.name), result))
+        else:
+            return 0
         return instance
 
 
