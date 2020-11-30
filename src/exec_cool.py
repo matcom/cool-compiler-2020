@@ -34,7 +34,7 @@ semantics_error, context, scope = cool_sematic.check_semantics()
 if len(semantics_error) > 0:
     for error in semantics_error:
         print(error.text)
-    exit(1)
+        exit(1)
 
 # 
 cool2cil = COOLToCILVisitor(context)
