@@ -9,7 +9,7 @@ from COOLParserErrorListener import COOLParserErrorListener
 from Visitors import  TypeCOOLVisitor
 from Visitors import  SemanticCOOLVisitor
 from Visitors import CodegenVisitor
-from NoTabsFileStream import NoTabsFileStream
+import NoTabsFileStream
 
 
 def main(argv):
@@ -59,7 +59,6 @@ def main(argv):
     else:
         return sys.exit(errno.EPERM)
 
-    none = typeTree["Object"]
 
 
 
