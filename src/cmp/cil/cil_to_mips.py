@@ -314,8 +314,8 @@ class CIL_TO_MIPS(object):
         self.mips.exit2()
 
     @when(AbortNode)
+    @mips_comment("AbortNode")
     def visit(self, node: AbortNode):  # noqa: F811
-        self.mips.comment("AbortNode")
         self.mips.exit()
         self.mips.empty()
 
