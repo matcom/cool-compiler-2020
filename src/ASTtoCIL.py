@@ -168,9 +168,10 @@ class CILTranspiler:
         claseIO=Defaults.IOClass()
         claseString=Defaults.StringClass()
         claseBool=Defaults.BoolClass()
+        claseInt=Defaults.IntClass()
 
         clasescompletas=node.classes.copy()
-        clasescompletas.extend([claseObject,claseIO,claseString,claseBool])
+        clasescompletas.extend([claseObject,claseIO,claseString,claseBool,claseInt])
 
         classes=self.OrdenarClasesPorHerencia(clasescompletas)
         # self.clasesordenadas=classes

@@ -42,6 +42,10 @@ class Defaults:
         
         return clase
 
+    def IntClass():
+        clase=ClassNode("Int","Object",[])
+        return clase
+
     # def typename_CIL():
     #     instrucciones=[CILAssign("$result",["$type"])]
     #     return CILGlobalMethod('typename',params=["self"],locals=["$result"],instrucciones=instrucciones)
