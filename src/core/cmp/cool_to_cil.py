@@ -562,6 +562,7 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
             self.register_instruction(cil.AssignNode(vret, scope.ret_expr))
             self.register_instruction(cil.GotoNode(end_label.label))
 
+        scope.ret_expr = vret
         self.register_instruction(end_label)
 
     @visitor.when(cool.CaseExpressionNode)
