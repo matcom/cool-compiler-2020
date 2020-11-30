@@ -12,10 +12,13 @@ class Semantics_Checker:
             for i in range(len(node1.parameters)):
                 if node1.parameters[i].type != node2.parameters[i].type:
                     print('('+str(node1.line)+', '+str(node1.index)+') - SemanticError: In redifined method '+node1.name+', parameter type '+node1.parameters[i].type+' is different from original type '+node2.parameters[i].type +'.')
+                    scope.invalidate()
             if node1.return_type != node2.return_type:
                  print('('+str(node1.line)+', '+str(node1.index)+') - SemanticError: In redifined method '+node1.name+', return type '+node1.return_type+' is different from original return type '+node2.return_type +'.')
+                 scope.invalidate()
             return True
         print('('+str(node1.line)+', '+str(node1.index)+') - SemanticError: Incompatible number of formal parameters in redifined method '+node1.name+'.')
+        scope.invalidate()
         return False
     
     def params_for_method(self, node1:list, node2: MethodNode, scope:Scope):
@@ -41,6 +44,7 @@ class Semantics_Checker:
                 mask[mapper[cclass.name]]=2
             elif not cclass.parent in mapper:
                 print('('+str(cclass.line)+', '+str(cclass.index)+') - TypeError: Class '+ cclass.name +' inherits from an undefined class '+ cclass.parent +'.')
+                scope.invalidate()
                 cclass.parent = 'Object'            
         for i in range(len(classes)):
             cclass = classes[i]
