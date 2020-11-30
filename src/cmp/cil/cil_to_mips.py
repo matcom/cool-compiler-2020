@@ -55,7 +55,7 @@ def mips_comment(msg: str):
     def inner(fn):
         @wraps(fn)
         def wrapped(self, *args, **kwargs):
-            self.mips.comment("")
+            self.mips.comment(msg)
             result = fn(self, *args, **kwargs)
             self.mips.empty()
             return result
@@ -296,11 +296,11 @@ class CIL_TO_MIPS(object):
         length = 0
 
         # reserve heap space
-        self.mips.addi(Reg.a0, length)
+        self.mips.addi(Reg.a0, Reg.zero, length)
         self.mips.sbrk()
         self.mips.move(Reg.s1, Reg.v0)
         # copy data raw byte to byte
-        self.mips.li(Reg.s3, len)
+        self.mips.li(Reg.s3, length)
         self.copy_data(Reg.s0, Reg.s1, Reg.s3)
 
     @mips_comment("TypeNameNode")
