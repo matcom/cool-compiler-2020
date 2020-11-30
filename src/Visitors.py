@@ -1974,9 +1974,6 @@ main:
 	jal	Main_init		# initialize the Main object
 	jal	Main.main		# Invoke main method
 	addiu	$sp $sp 4		# restore the stack
-	la	$a0 _term_msg		# show terminal message
-	li	$v0 4
-	syscall
 	li $v0 10
 	syscall				# syscall 10 (exit)
 
