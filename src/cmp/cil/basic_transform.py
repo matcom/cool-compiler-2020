@@ -1,11 +1,10 @@
 import re
-
-from typing import Union
+from typing import Any, Union, cast
 
 from ..cool_lang.semantics.semantic_utils import Attribute, Type
 from .ast import (
-    AllocateNode,
     AbortNode,
+    AllocateNode,
     ConcatNode,
     CopyNode,
     DataNode,
@@ -92,11 +91,11 @@ class BASE_COOL_CIL_TRANSFORM:
 
     def register_local(self, vinfo):
         func_name = re.findall(r"^function_(.+)$", self.current_function.name)
-        if func_name: func_name = func_name[0]
-        else: func_name = self.current_function.name
-        vinfo.name = (
-            f"local_{func_name}_{vinfo.name}_{len(self.localvars)}"
-        )
+        if func_name:
+            func_name = func_name[0]
+        else:
+            func_name = self.current_function.name
+        vinfo.name = f"local_{func_name}_{vinfo.name}_{len(self.localvars)}"
         local_node = LocalNode(vinfo.name)
         self.localvars.append(local_node)
         return vinfo.name
@@ -169,7 +168,7 @@ class BASE_COOL_CIL_TRANSFORM:
                 self.to_function_name(feature[0].name, feature[1].name),
             )
             for feature in self.current_type.get_all_features()
-        ] + ["value"]
+        ] + [cast(Any, "value")]
 
     def build_basic_bool(self):
         self.current_type = self.context.get_type("Bool")
@@ -190,7 +189,7 @@ class BASE_COOL_CIL_TRANSFORM:
                 self.to_function_name(feature[0].name, feature[1].name),
             )
             for feature in self.current_type.get_all_features()
-        ] + ["value"]
+        ] + [cast(Any, "value")]
 
     def build_basic_object(self):
         self.current_type = self.context.get_type("Object")
@@ -344,7 +343,7 @@ class BASE_COOL_CIL_TRANSFORM:
                 self.to_function_name(feature[0].name, feature[1].name),
             )
             for feature in self.current_type.get_all_features()
-        ] + ["value"]
+        ] + [cast(Any, "value")]
         # length
         self.current_method = self.current_type.get_method("length")
         type_name = self.current_type.name
