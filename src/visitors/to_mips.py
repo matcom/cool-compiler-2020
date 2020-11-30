@@ -131,7 +131,7 @@ class MIPS:
     def visit(self, node):
         self.code.append("lw $t0, {}($sp)\n".format(4*node.right))
         self.code.append("lw $t1, {}($sp)\n".format(4*node.left))
-        self.code.append("sw $t1, {}($t0)\n".format(4*node.offset))
+        self.code.append("sw $t1, {}($sp)\n".format(4*node.offset))
 
     @visitor.when(MemoToVarIL)
     def visit(self, node):
@@ -195,9 +195,13 @@ class MIPS:
     @visitor.when(ReturnIL)
     def visit(self, node):
         self.code.append("lw $v0, 4($sp)\n")
-        self.code.append("addiu $sp, $sp, -4\n")
+        self.code.append("li $a0, 0\n")
+        self.code.append("sw $a0, ($sp)\n")
+        self.code.append("addi $sp, $sp, -4\n")
         # self.code.append("lw $ra, 4($sp)\n")
-        self.code.append("addiu $sp, $sp, -4\n")
+        self.code.append("li $a0, 0\n")
+        self.code.append("sw $a0, ($sp)\n")
+        self.code.append("addi $sp, $sp, -4\n")
         self.code.append("jr $ra\n")
 
     @visitor.when(DispatchIL)
@@ -220,7 +224,7 @@ class MIPS:
             self.code.append("jal {}\n".format(node.result))
         self.code.append("sw $a1, {}($sp)\n".format(0))
         self.code.append("addi $sp, $sp, -4\n")
-        # self.code.append("lw $ra, {}($sp)\n".format(4 * (int(node.offset) + 1)))
+        # self.code.append("lw $ra, {}($sp)\n".format(4))
 
 
     @visitor.when(DispatchParentIL)

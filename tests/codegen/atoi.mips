@@ -1,0 +1,2224 @@
+.data
+buffer: .space 2048
+strsubstrexception: .asciiz "Substring index exception"
+
+string_1: .asciiz "0"
+string_3: .asciiz "1"
+string_5: .asciiz "2"
+string_7: .asciiz "3"
+string_9: .asciiz "4"
+string_11: .asciiz "5"
+string_13: .asciiz "6"
+string_15: .asciiz "7"
+string_17: .asciiz "8"
+string_19: .asciiz "9"
+string_31: .asciiz ""
+string_32: .asciiz "9"
+string_33: .asciiz "8"
+string_34: .asciiz "7"
+string_35: .asciiz "6"
+string_36: .asciiz "5"
+string_37: .asciiz "4"
+string_38: .asciiz "3"
+string_39: .asciiz "2"
+string_40: .asciiz "1"
+string_41: .asciiz "0"
+string_43: .asciiz "-"
+string_45: .asciiz "+"
+string_50: .asciiz "-"
+string_51: .asciiz "0"
+string_53: .asciiz ""
+string_54: .asciiz " == "
+string_55: .asciiz "\n"
+Object_INH:
+String_INH:
+.word Object_INH
+Int_INH:
+.word Object_INH
+Bool_INH:
+.word Object_INH
+IO_INH:
+.word Object_INH
+SELF_TYPE_INH:
+.word Object_INH
+A2I_INH:
+.word Object_INH
+Main_INH:
+.word IO_INH
+Int_name: .asciiz "Int"
+Int_VT:
+.word Int_INH
+Bool_name: .asciiz "Bool"
+Bool_VT:
+.word Bool_INH
+String_name: .asciiz "String"
+String_VT:
+.word String_INH
+.word String.length
+.word String.concat
+.word String.substr
+Object_name: .asciiz "Object"
+Object_VT:
+.word Object_INH
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+IO_name: .asciiz "IO"
+IO_VT:
+.word IO_INH
+.word IO.out_string
+.word IO.out_int
+.word IO.in_string
+.word IO.in_int
+A2I_name: .asciiz "A2I"
+A2I_VT:
+.word A2I_INH
+.word A2I.c2i
+.word A2I.i2c
+.word A2I.a2i
+.word A2I.a2i_aux
+.word A2I.i2a
+.word A2I.i2a_aux
+Main_name: .asciiz "Main"
+Main_VT:
+.word Main_INH
+.word Main.main
+
+.globl main
+.text
+IO.out_string:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+li $v0, 4
+lw $a0, 8($sp)
+syscall
+jr $ra
+
+
+IO.out_int:
+li $v0, 1
+lw $a0, -4($sp)
+syscall
+jr $ra
+
+
+IO.in_string:
+move $a3, $ra
+la $a0, buffer
+li $a1, 65536
+li $v0, 8
+syscall
+sw $a1, 0($sp)
+addiu $sp, $sp, -4
+sw $a0, 0($sp)
+jal String.length
+addiu $sp, $sp, 4
+move $a2, $sp
+addiu $a2, $a2, -1
+move $a0, $v0
+li $v0, 9
+syscall
+move $v1, $v0
+la $a0, buffer
+li $a2, 0
+_in_string.loop:
+beqz $a2, _in_string.end
+lb $a1, 4($sp)
+sb $a1, 4($sp)
+addiu $a0, $a0, 1
+addiu $v1, $v1, 1
+addiu $a2, $a2, -1
+j _in_string.loop
+_in_string.end:
+sb $zero, 0($sp)
+move $ra, $a3
+jr $ra
+
+
+IO.in_int:
+li $v0, 5
+syscall
+jr $ra
+Object.copy:
+lw $a1, -4($sp)
+lw $a0, -8($sp)
+li $v0, 9
+syscall
+lw $a1, -4($sp)
+lw $a0, 4($a1)
+move $a3, $v0
+_copy.loop:
+lw $a2, 0($a1)
+sw $a2, 0($a3)
+addiu $a0, $a0, -1
+addiu $a1, $a1, 4
+addiu $a3, $a3, 4
+beq $a0, $zero, _copy.end
+j _copy.loop
+_copy.end:
+jr $ra
+
+
+Object.abort:
+li $v0, 10
+syscall
+
+
+String.length:
+lw $a0, 4($sp)
+_stringlength.loop:
+lb $a1, 0($sp)
+beqz $a1, _stringlength.end
+addiu $a0, $a0, 1
+j _stringlength.loop
+_stringlength.end:
+j Object.abort
+lw $a1, 4($sp)
+subu $v0, $a0, $a1
+jr $ra
+
+
+String.concat:
+move $a2, $ra
+jal String.length
+move $v1, $v0
+addiu $sp, $sp, -4
+jal String.length
+addiu $sp, $sp, 4
+add $v1, $v1, $v0
+addi $v1, $v1, 1
+li $v0, 9
+move $a0, $v1
+syscall
+move $v1, $v0
+lw $a0, 0($sp)
+_stringconcat.loop1:
+lb $a1, 0($a0)
+beqz $a1, _stringconcat.end1
+sb $a1, 0($v1)
+addiu $a0, $a0, 1
+addiu $v1, $v1, 1
+j _stringconcat.loop1
+_stringconcat.end1:
+lw $a0, -4($sp)
+_stringconcat.loop2:
+lb $a1, 0($a0)
+beqz $a1, _stringconcat.end2
+sb $a1, 0($v1)
+addiu $a0, $a0, 1
+addiu $v1, $v1, 1
+j _stringconcat.loop2
+_stringconcat.end2:
+sb $zero, 0($v1)
+move $ra, $a2
+jr $ra
+
+String.substr:
+lw $a0, -12($sp)
+addiu $a0, $a0, 1
+li $v0, 9
+syscall
+move $v1, $v0
+lw $a0, -4($sp)
+lw $a1, -8($sp)
+add $a0, $a0, $a1
+lw $a2, -12($sp)
+_stringsubstr.loop:
+beqz $a2, _stringsubstr.end
+lb $a1, 0($a0)
+beqz $a1, _substrexception
+sb $a1, 0($v1)
+addiu $a0, $a0, 1
+addiu $v1, $v1, 1
+addiu $a2, $a2, -1
+j _stringsubstr.loop
+_stringsubstr.end:
+sb $zero, 0($v1)
+jr $ra
+
+
+_substrexception:
+la $a0, strsubstrexception
+li $v0, 4
+syscall
+li $v0, 10
+syscall
+
+
+_stringcmp:
+li $v0, 1
+_stringcmp.loop:
+lb $a2, 0($a0)
+lb $a3, 0($a1)
+beqz $a2, _stringcmp.end
+beq $a2, $zero, _stringcmp.end
+beq $a3, $zero, _stringcmp.end
+bne $a2, $a3, _stringcmp.differents
+addiu $a0, $a0, 1
+addiu $a1, $a1, 1
+j _stringcmp.loop
+_stringcmp.end:
+beq $a2, $a3, _stringcmp.equals
+_stringcmp.differents:
+li $v0, 0
+jr $ra
+_stringcmp.equals:
+li $v0, 1
+jr $ra
+inherit:
+beq $a0, $a1, inherit_true
+beq $a0, $zero, inherit_false
+lw $a0, ($a0)
+j inherit
+inherit_true:
+li $v0, 1
+jr $ra
+inherit_false:
+li $v0, 0
+jr $ra
+
+Object.Constructor:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $v0, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+jr $ra
+Object.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+la $a1, Object_name
+jr $ra
+Int.Constructor:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $v0, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+jr $ra
+Int.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+la $a1, Int_name
+jr $ra
+IO.Constructor:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $v0, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+jr $ra
+IO.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+la $a1, IO_name
+jr $ra
+Bool.Constructor:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $v0, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+jr $ra
+Bool.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+la $a1, Bool_name
+jr $ra
+String.Constructor:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $v0, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+jr $ra
+String.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+la $a1, String_name
+jr $ra
+#--------------Initial Code---------------
+main:
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $v0, 9
+li $a0, 4
+syscall
+sw $v0, 4($sp)
+la $a1, Main_VT
+sw $a1, ($v0)
+#DispatchParent in place
+#obj 2 offset 1  result Main.Constructor
+la $v0, 1
+jal Main.Constructor
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+#Dispatch in place
+#obj 3 offset 1  result Main.main
+jal Main.main
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+j Object.abort
+#--------------End Initial Code---------------
+A2I.Constructor:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $v0, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+jr $ra
+A2I.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+la $a1, A2I_name
+jr $ra
+A2I.c2i:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 20($sp)
+sw $t0, 4($sp)
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_1
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_2
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 44($sp)
+sw $t0, 4($sp)
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_3
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_4
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 68($sp)
+sw $t0, 4($sp)
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_5
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_6
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 92($sp)
+sw $t0, 4($sp)
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_7
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_8
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 116($sp)
+sw $t0, 4($sp)
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_9
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_10
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 140($sp)
+sw $t0, 4($sp)
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_11
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_12
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 164($sp)
+sw $t0, 4($sp)
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_13
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_14
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 188($sp)
+sw $t0, 4($sp)
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_15
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_16
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 212($sp)
+sw $t0, 4($sp)
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_17
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_18
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 236($sp)
+sw $t0, 4($sp)
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_19
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_20
+#Block
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push self
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 264($sp)
+sw $t0, 4($sp)
+#Dispatch in place
+#obj 2 offset 66  result Object.abort
+jal Object.abort
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 0
+#Integer
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 16($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 44($sp)
+j _fi_20
+_if_20:
+#Integer
+li $a0, 9
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 48($sp)
+_fi_20:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 76($sp)
+j _fi_18
+_if_18:
+#Integer
+li $a0, 8
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 80($sp)
+_fi_18:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 108($sp)
+j _fi_16
+_if_16:
+#Integer
+li $a0, 7
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 112($sp)
+_fi_16:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 140($sp)
+j _fi_14
+_if_14:
+#Integer
+li $a0, 6
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 144($sp)
+_fi_14:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 172($sp)
+j _fi_12
+_if_12:
+#Integer
+li $a0, 5
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 176($sp)
+_fi_12:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 204($sp)
+j _fi_10
+_if_10:
+#Integer
+li $a0, 4
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 208($sp)
+_fi_10:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 236($sp)
+j _fi_8
+_if_8:
+#Integer
+li $a0, 3
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 240($sp)
+_fi_8:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 268($sp)
+j _fi_6
+_if_6:
+#Integer
+li $a0, 2
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 272($sp)
+_fi_6:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 300($sp)
+j _fi_4
+_if_4:
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 304($sp)
+_fi_4:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 332($sp)
+j _fi_2
+_if_2:
+#Integer
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 336($sp)
+_fi_2:
+addiu $sp, $sp, 8
+lw $v0, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+jr $ra
+A2I.i2c:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 20($sp)
+sw $t0, 4($sp)
+#Integer
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_21
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 44($sp)
+sw $t0, 4($sp)
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_22
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 68($sp)
+sw $t0, 4($sp)
+#Integer
+li $a0, 2
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_23
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 92($sp)
+sw $t0, 4($sp)
+#Integer
+li $a0, 3
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_24
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 116($sp)
+sw $t0, 4($sp)
+#Integer
+li $a0, 4
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_25
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 140($sp)
+sw $t0, 4($sp)
+#Integer
+li $a0, 5
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_26
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 164($sp)
+sw $t0, 4($sp)
+#Integer
+li $a0, 6
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_27
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 188($sp)
+sw $t0, 4($sp)
+#Integer
+li $a0, 7
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_28
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 212($sp)
+sw $t0, 4($sp)
+#Integer
+li $a0, 8
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_29
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 236($sp)
+sw $t0, 4($sp)
+#Integer
+li $a0, 9
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_30
+#Block
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push self
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 264($sp)
+sw $t0, 4($sp)
+#Dispatch in place
+#obj 2 offset 66  result Object.abort
+jal Object.abort
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 0
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_31
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 16($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 44($sp)
+j _fi_30
+_if_30:
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_32
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 48($sp)
+_fi_30:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 76($sp)
+j _fi_29
+_if_29:
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_33
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 80($sp)
+_fi_29:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 108($sp)
+j _fi_28
+_if_28:
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_34
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 112($sp)
+_fi_28:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 140($sp)
+j _fi_27
+_if_27:
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_35
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 144($sp)
+_fi_27:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 172($sp)
+j _fi_26
+_if_26:
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_36
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 176($sp)
+_fi_26:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 204($sp)
+j _fi_25
+_if_25:
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_37
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 208($sp)
+_fi_25:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 236($sp)
+j _fi_24
+_if_24:
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_38
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 240($sp)
+_fi_24:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 268($sp)
+j _fi_23
+_if_23:
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_39
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 272($sp)
+_fi_23:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 300($sp)
+j _fi_22
+_if_22:
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_40
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 304($sp)
+_fi_22:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 332($sp)
+j _fi_21
+_if_21:
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_41
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 336($sp)
+_fi_21:
+addiu $sp, $sp, 8
+lw $v0, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+jr $ra
+A2I.a2i:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push object
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 24($sp)
+sw $t0, 4($sp)
+#Dispatch in place
+#obj 2 offset 1  result String.length
+jal String.length
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 4
+#Integer
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 8($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 20($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_42
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push object
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 52($sp)
+sw $t0, 4($sp)
+#Args: 0
+#Integer
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Args: 1
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Dispatch in place
+#obj 4 offset 1  result String.substr
+jal String.substr
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 12
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_43
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 8($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 28($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_44
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push object
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 88($sp)
+sw $t0, 4($sp)
+#Args: 0
+#Integer
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Args: 1
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Dispatch in place
+#obj 4 offset 1  result String.substr
+jal String.substr
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 12
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_45
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 8($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 28($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_46
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push self
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 120($sp)
+sw $t0, 4($sp)
+#Args: 0
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 120($sp)
+sw $t0, 4($sp)
+#Dispatch in place
+#obj 3 offset 31  result A2I.a2i_aux
+jal A2I.a2i_aux
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 4
+lw $t0, 4($sp)
+sw $t0, 48($sp)
+j _fi_46
+_if_46:
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push self
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 136($sp)
+sw $t0, 4($sp)
+#Args: 0
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push object
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 140($sp)
+sw $t0, 4($sp)
+#Args: 0
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Args: 1
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push object
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 156($sp)
+sw $t0, 4($sp)
+#Dispatch in place
+#obj 2 offset 1  result String.length
+jal String.length
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 4
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 8($sp)
+lw $t1, 4($sp)
+sub $t0, $t0, $t1
+sw $t0, 20($sp)
+addiu $sp, $sp, 8
+#Dispatch in place
+#obj 9 offset 1  result String.substr
+jal String.substr
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 12
+#Dispatch in place
+#obj 12 offset 44  result A2I.a2i_aux
+jal A2I.a2i_aux
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 4
+lw $t0, 4($sp)
+sw $t0, 100($sp)
+_fi_46:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 136($sp)
+j _fi_44
+_if_44:
+#Unary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push self
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 188($sp)
+sw $t0, 4($sp)
+#Args: 0
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push object
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 192($sp)
+sw $t0, 4($sp)
+#Args: 0
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Args: 1
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push object
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 208($sp)
+sw $t0, 4($sp)
+#Dispatch in place
+#obj 2 offset 1  result String.length
+jal String.length
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 4
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 8($sp)
+lw $t1, 4($sp)
+sub $t0, $t0, $t1
+sw $t0, 20($sp)
+addiu $sp, $sp, 8
+#Dispatch in place
+#obj 9 offset 1  result String.substr
+jal String.substr
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 12
+#Dispatch in place
+#obj 12 offset 57  result A2I.a2i_aux
+jal A2I.a2i_aux
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 4
+lw $t0, 4($sp)
+not $t0, $t0
+sw $t0, 52($sp)
+lw $t0, 4($sp)
+sw $t0, 188($sp)
+_fi_44:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 216($sp)
+j _fi_42
+_if_42:
+#Integer
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 220($sp)
+_fi_42:
+addiu $sp, $sp, 8
+lw $v0, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+jr $ra
+A2I.a2i_aux:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+#Let
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Block
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Let
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Let
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#loop
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+_loop_47:
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 52($sp)
+lw $t1, -4($t0)
+sw $t1, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 56($sp)
+lw $t1, -4($t0)
+sw $t1, 4($sp)
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+li $t3, 1
+add $t0, $t0, $t3
+sge $t0, $t1, $t0
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _body_47
+j _pool_47
+_body_47:
+#Block
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Assignment
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 80($sp)
+lw $t1, -4($t0)
+sw $t1, 4($sp)
+#Integer
+li $a0, 10
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+mult $t0, $t1
+mflo $t0
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push self
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 100($sp)
+sw $t0, 4($sp)
+#Args: 0
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push object
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 104($sp)
+sw $t0, 4($sp)
+#Args: 0
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 112($sp)
+lw $t1, -4($t0)
+sw $t1, 4($sp)
+#Args: 1
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Dispatch in place
+#obj 4 offset 1  result String.substr
+jal String.substr
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 12
+#Dispatch in place
+#obj 7 offset 30  result A2I.c2i
+jal A2I.c2i
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 4
+lw $t0, 32($sp)
+lw $t1, 4($sp)
+add $t0, $t0, $t1
+sw $t0, 52($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+lw $t1, 120($sp)
+sw $t1, -4($sp)
+#Assignment
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 128($sp)
+lw $t1, -4($t0)
+sw $t1, 4($sp)
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+add $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+lw $t1, 140($sp)
+sw $t1, -4($sp)
+lw $t0, 4($sp)
+sw $t0, 76($sp)
+addiu $sp, $sp, 8
+addiu $sp, $sp, 8
+j _loop_47
+_pool_47:
+lw $t0, 132($sp)
+sw $t0, 9999($sp)
+addiu $sp, $sp, 8
+lw $t0, 40($sp)
+sw $t0, 7777($sp)
+addiu $sp, $sp, 8
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 36($sp)
+lw $t1, -4($t0)
+sw $t1, 4($sp)
+lw $t0, 4($sp)
+sw $t0, 16($sp)
+addiu $sp, $sp, 8
+lw $t0, 36($sp)
+sw $t0, 4444($sp)
+addiu $sp, $sp, 8
+lw $v0, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+jr $ra
+A2I.i2a:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 20($sp)
+sw $t0, 4($sp)
+#Integer
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_48
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Integer
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 48($sp)
+sw $t0, 4($sp)
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+li $t3, 1
+add $t0, $t0, $t3
+sge $t0, $t1, $t0
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_49
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push object
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_50
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+#Args: 0
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push self
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 76($sp)
+sw $t0, 4($sp)
+#Args: 0
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 80($sp)
+sw $t0, 4($sp)
+#Unary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Integer
+li $a0, 1
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+not $t0, $t0
+sw $t0, 8($sp)
+lw $t0, 4($sp)
+lw $t1, 8($sp)
+mult $t0, $t1
+mflo $t0
+sw $t0, 20($sp)
+addiu $sp, $sp, 8
+#Dispatch in place
+#obj 8 offset 25  result A2I.i2a_aux
+jal A2I.i2a_aux
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 4
+#Dispatch in place
+#obj 10 offset 1  result String.concat
+jal String.concat
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 68($sp)
+j _fi_49
+_if_49:
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push self
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 112($sp)
+sw $t0, 4($sp)
+#Args: 0
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 112($sp)
+sw $t0, 4($sp)
+#Dispatch in place
+#obj 3 offset 29  result A2I.i2a_aux
+jal A2I.i2a_aux
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 4
+lw $t0, 4($sp)
+sw $t0, 80($sp)
+_fi_49:
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 108($sp)
+j _fi_48
+_if_48:
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_51
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 112($sp)
+_fi_48:
+addiu $sp, $sp, 8
+lw $v0, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+jr $ra
+A2I.i2a_aux:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+#Condition
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 20($sp)
+sw $t0, 4($sp)
+#Integer
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+seq $t0, $t0, $t1
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+bnez $t0, _if_52
+#Let
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Point-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push object
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push self
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 56($sp)
+sw $t0, 4($sp)
+#Args: 0
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 60($sp)
+lw $t1, -4($t0)
+sw $t1, 4($sp)
+#Dispatch in place
+#obj 3 offset 15  result A2I.i2a_aux
+jal A2I.i2a_aux
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 4
+#Args: 0
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#push self
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 68($sp)
+sw $t0, 4($sp)
+#Args: 0
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 72($sp)
+sw $t0, 4($sp)
+#Binary
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 84($sp)
+lw $t1, -4($t0)
+sw $t1, 4($sp)
+#Integer
+li $a0, 10
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 4($sp)
+lw $t1, 4($sp)
+mult $t0, $t1
+mflo $t0
+sw $t0, 12($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+lw $t1, 8($sp)
+sub $t0, $t0, $t1
+sw $t0, 28($sp)
+addiu $sp, $sp, 8
+#Dispatch in place
+#obj 10 offset 25  result A2I.i2c
+jal A2I.i2c
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 4
+#Dispatch in place
+#obj 14 offset 1  result String.concat
+jal String.concat
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 8
+lw $t0, 60($sp)
+sw $t0, 10101010($sp)
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 32($sp)
+j _fi_52
+_if_52:
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_53
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+lw $t0, 4($sp)
+sw $t0, 40($sp)
+_fi_52:
+addiu $sp, $sp, 8
+lw $v0, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+jr $ra
+Main.Constructor:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $v0, 4($sp)
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+li $a0, 0
+sw $a0, ($sp)
+addi $sp, $sp, -4
+jr $ra
+Main.type_name:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+la $a1, Main_name
+jr $ra
+Main.main:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+#Let
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Block
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Args: 0
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 28($sp)
+lw $t1, -4($t0)
+sw $t1, 4($sp)
+#Dispatch in place
+#obj 2 offset 7  result IO.out_int
+jal IO.out_int
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 8
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Args: 0
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_54
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+#Dispatch in place
+#obj 2 offset 9  result IO.out_string
+jal IO.out_string
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 8
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Args: 0
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+lw $t0, 44($sp)
+lw $t1, -4($t0)
+sw $t1, 4($sp)
+#Dispatch in place
+#obj 2 offset 11  result IO.out_string
+jal IO.out_string
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 8
+#Self-Dispatch
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+#Args: 0
+#loading label
+li $a0, 0
+sw $a0, ($sp)
+addiu $sp, $sp, -4
+la $a0, string_55
+sw $a0, 0($sp)
+addi $sp, $sp, -4
+#Dispatch in place
+#obj 2 offset 13  result IO.out_string
+jal IO.out_string
+sw $a1, 0($sp)
+addi $sp, $sp, -4
+addiu $sp, $sp, 8
+lw $t0, 4($sp)
+sw $t0, 36($sp)
+addiu $sp, $sp, 16
+lw $t0, 52($sp)
+sw $t0, 3333($sp)
+addiu $sp, $sp, 8
+li $v0, 10
+syscall

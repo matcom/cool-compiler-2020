@@ -11,7 +11,7 @@ class Variables:
     def id(self, name):
         if not name in self.stack:
             self.add_var(name)
-        return len(self.stack) - self.stack[name] + 1
+        return int(len(self.stack) - self.stack[name] + 1)
 
     def pop_var(self):
         if not len(self.vars):
@@ -21,11 +21,11 @@ class Variables:
     def add_temp(self):
         name = len(self.stack) + 1
         self.add_var(str(name))
-        return str(str(name))
+        return str(name)
 
     def peek_last(self):
         # print(self.vars)
-        return self.vars[-1]
+        return int(self.vars[-1])
 
     def get_stack(self):
         stack = '|'
