@@ -18,6 +18,9 @@ object_expanded = -2
 reachable = 1
 new_line = 10
 str_size_treshold = 1024
+int_type = 0
+string_type = 0
+type_number = 0
 
     
 

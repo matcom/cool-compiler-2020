@@ -96,7 +96,11 @@ def main(args):
     printer = PrintVisitor()
     mips_code = printer.visit(mips_ast)
 
-    with open("compiled.asm", 'w') as f:
+    out_file = args.file.split(".")
+    out_file[-1] = "mips"
+    out_file = ".".join(out_file)
+
+    with open(out_file, 'w') as f:
         f.write(mips_code)
         with open("./core/cmp/mips_lib.asm") as f2:
             f.write("".join(f2.readlines()))
