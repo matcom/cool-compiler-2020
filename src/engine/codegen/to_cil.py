@@ -50,12 +50,12 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.current_function = self.register_function('entry')
         instance = self.define_internal_local()
         result = self.define_internal_local()
-        self.register_instruction(AllocateNode('Main', instance))
+        self.register_instruction(AllocateNode(instance, 'Main'))
         self.init_class_attr(scope, 'Main', instance)
         self.register_instruction(ArgNode(instance))
         name = self.to_function_name('main', 'Main')
         self.register_instruction(StaticCallNode(name, result))
-        self.register_instruction(ReturnNode(0))
+        # self.register_instruction(ReturnNode(0))
         self.current_function = None
 
         classes = [declaration for declaration in node.declarations if isinstance(

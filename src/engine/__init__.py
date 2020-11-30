@@ -10,3 +10,5 @@ from .visitors import Inferer
 from .errors import *
 from .codegen.to_cil import COOL_TO_CIL
 from .codegen.cil_format import CIL_FORMATTER
+from .codegen.to_mips import CIL_TO_MIPS
+from .codegen.mips import *

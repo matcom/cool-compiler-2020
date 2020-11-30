@@ -128,7 +128,7 @@ class BASE_COOL_CIL_TRANSFORM:
             self.to_function_name(self.current_method.name, type_name))
         str_val = self.define_internal_local()
         self.register_instruction(PrintNode(str_val))
-        self.register_instruction(ReturnNode(0))
+        # self.register_instruction(ReturnNode(0))
         self.current_method = self.current_function = None
 
         self.current_method = self.current_type.get_method('in_string')
@@ -148,7 +148,7 @@ class BASE_COOL_CIL_TRANSFORM:
         int_val = self.register_param(VariableInfo('int_val', None))
         self.register_instruction(ToStrNode(dest, int_val))
         self.register_instruction(PrintNode(dest))
-        self.register_instruction(ReturnNode(0))
+        # self.register_instruction(ReturnNode(0))
         self.current_method = self.current_function = None
 
         self.current_method = self.current_type.get_method('in_int')
@@ -177,7 +177,7 @@ class BASE_COOL_CIL_TRANSFORM:
             self.to_function_name(self.current_method.name, type_name))
         self_local = self.register_param(VariableInfo('self', None))
         self.register_instruction(ErrorNode())
-        self.register_instruction(ReturnNode(0))
+        # self.register_instruction(ReturnNode(0))
         self.current_method = self.current_function = None
 
         self.current_method = self.current_type.get_method('copy')
@@ -190,15 +190,15 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(ReturnNode(copy_inst))
         self.current_method = self.current_function = None
 
-        self.current_method = self.current_type.get_method('type_name')
-        type_name = self.current_type.name
-        self.current_function = self.register_function(
-            self.to_function_name(self.current_method.name, type_name))
-        self_local = self.register_param(VariableInfo('self', None))
-        type_name_inst = self.define_internal_local()
-        obj_type = self.define_internal_local()
-        self.register_instruction(TypeOfNode(self_local, obj_type))
-        self.register_instruction(TypeNameNode(type_name_inst, obj_type))
-        self.register_instruction(ReturnNode(type_name_inst))
-        self.current_method = self.current_function = None
-        self.current_type = None
+        # self.current_method = self.current_type.get_method('type_name')
+        # type_name = self.current_type.name
+        # self.current_function = self.register_function(
+        #     self.to_function_name(self.current_method.name, type_name))
+        # self_local = self.register_param(VariableInfo('self', None))
+        # type_name_inst = self.define_internal_local()
+        # obj_type = self.define_internal_local()
+        # self.register_instruction(TypeOfNode(self_local, obj_type))
+        # self.register_instruction(TypeNameNode(type_name_inst, obj_type))
+        # self.register_instruction(ReturnNode(type_name_inst))
+        # self.current_method = self.current_function = None
+        # self.current_type = None

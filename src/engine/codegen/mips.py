@@ -1,4 +1,6 @@
 from enum import Enum
+from typing import Dict, List
+from .cil_ast import TypeNode
 
 
 class Registers:
@@ -36,35 +38,52 @@ class Registers:
     ra = '$ra'  # Return address(used by function call)
 
 
-class ArithmOperations(Enum):
-    Add = 1
-    Sub = 2
-    Mul = 3
-    Div = 4
+class TypeData:
+    def __init__(self, type_number: int, typex: TypeNode):
+        self.type: int = type_number
+        self.str: str = typex.name_dir
+        self.attr_offsets: Dict[str, int] = dict()
+        self.func_offsets: Dict[str, int] = dict()
+        self.func_names: Dict[str, str] = dict()
+
+        # Calculate offsets for attributes and functions
+        for idx, feature in enumerate(typex.features):
+            if isinstance(feature, str):
+                # The plus 2 is because the two first elementes
+                # in the instance are the type_int and the type_str_dir.
+                # Also enumerate starts with 0
+                self.attr_offsets[feature] = idx + 2
+            else:
+                func_name, long_name = feature
+                self.func_offsets[func_name] = idx + 2
+                self.func_names[func_name] = long_name
 
 
-# class MipsLabel:
+class MipsLabel(str, Enum):
 
-#     word = ".word"
-#     half = ".half"
-#     byte = ".byte"
-#     ascii_ = ".ascii"
-#     asciiz = ".asciiz"
-#     space = ".space"
-#     aling = ".align"
-#     text = ".text"
-#     data = ".data"
+    word = ".word"
+    half = ".half"
+    byte = ".byte"
+    ascii_ = ".ascii"
+    asciiz = ".asciiz"
+    space = ".space"
+    aling = ".align"
+    text = ".text"
+    data = ".data"
 
 
-Reg = Registers
+reg = Registers
 
 
 class MipsCode:
     def __init__(self):
         self.dotdata = []
         self.dotcode = []
-    # Data Segmente
+
     # Meta Functions
+
+    def compile(self):
+        return '\n'.join([MipsLabel.data] + self.dotdata + [MipsLabel.text] + self.dotcode)
 
     def _write(self, line):
         self.dotcode.append(line)
@@ -75,43 +94,46 @@ class MipsCode:
     def data_label(self, lname):
         self._write_data(f'{lname}')
 
+    def empty_line(self):
+        self._write('')
+
     def asciiz(self, string):
         self._write_data(f'.asciiz "{string}"')
 
-    def push(self, register: Register):
-        self.addi(Register.sp, Register.sp, -8)
-        self.store_memory(register, self.offset(Register.sp))
+    def push(self, register: Registers):
+        self.addi(Registers.sp, Registers.sp, -8)
+        self.store_memory(register, self.offset(Registers.sp))
 
-    def pop(self, register: Register):
+    def pop(self, register: Registers):
         """
         First,  load from to address `0($sp)`
         and then write `addi $sp ,  $sp ,  8`
         to restore the stack pointer
         """
-        self.load_memory(register, self.offset(Reg.sp))
-        self.addi(Reg.sp, Reg.sp, 8)
+        self.load_memory(register, self.offset(reg.sp))
+        self.addi(reg.sp, reg.sp, 8)
 
-    def load_memory(self, dst: Register, address: str):
+    def load_memory(self, dst: Registers, address: str):
         """
         Load from a specific address a 32 bits register
         """
-        self.lw(Reg.t8, address)
-        self.sll(Reg.t8, Reg.t8, 16)
-        self.la(Reg.t7, address)
-        self.addi(Reg.t7, Reg.t7, 4)
-        self.lw(Reg.t9, self.offset(Reg.t7))
-        self.or_(dst, Reg.t8, Reg.t9)
+        self.lw(reg.t8, address)
+        self.sll(reg.t8, reg.t8, 16)
+        self.la(reg.t7, address)
+        self.addi(reg.t7, reg.t7, 4)
+        self.lw(reg.t9, self.offset(reg.t7))
+        self.or_(dst, reg.t8, reg.t9)
 
     def store_memory(self, src: Registers, address: str):
         """
         Write to a specific address a 32 bits register
         """
-        self.la(Reg.t8, address)
+        self.la(reg.t8, address)
 
-        self.srl(Reg.t9, src, 16)
+        self.srl(reg.t9, src, 16)
 
-        self.sw(Reg.t9, self.offset(Reg.t8))  # store high bits
-        self.sw(src, self.offset(Reg.t8, 4))  # store low bits
+        self.sw(reg.t9, self.offset(reg.t8))  # store high bits
+        self.sw(src, self.offset(reg.t8, 4))  # store low bits
 
     # System Calls
 
@@ -119,14 +141,14 @@ class MipsCode:
         self.li(Registers.v0, code)
         self._write('syscall')
 
-    def offset(self, r: Register, offset: int = 0):
+    def offset(self, r: Registers, offset: int = 0):
         return f"{offset}({r})"
 
     def comment(self, text: str):
         self._write(f"# {text}")
 
     def label(self, name: str):
-        self._write(f"{name.upper()}:")
+        self._write(f"{name}:")
 
     def print_str(self, _str):
         return self.syscall(4)
@@ -236,13 +258,13 @@ class MipsCode:
         '''
         Or
         '''
-        self._write(f'or {rdest}, {rsrc1}, {rsrc2}')
+        self._write(f'or {rdest}, {rsrc1}, {src2}')
 
     def nor(self, rdest, rsrc1, src2):
         '''
         Nor
         '''
-        self._write(f'nor {rdest}, {rsrc1}, {rsrc2}')
+        self._write(f'nor {rdest}, {rsrc1}, {src2}')
 
     def ori(self, rdest, rsrc1, constant):
         '''
@@ -315,7 +337,13 @@ class MipsCode:
         '''
         self._write(f'slti {rdest}, {rsrc1}, {value}')
 
-    # Branch and Jump
+    def srl(self, rdest, rsrc1, src2):
+        '''
+        Shift Right Logical
+        '''
+        self._write(f'srl {rdest}, {rsrc1}, {src2}')
+
+        # Branch and Jump
 
     def b(self, label):
         '''
@@ -355,7 +383,7 @@ class MipsCode:
 
     def jr(self, rsrc):
         '''
-        Jump Register
+        Jump Registers
         '''
         self._write(f'jr {rsrc}')
 

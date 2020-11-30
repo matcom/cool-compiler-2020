@@ -14,8 +14,10 @@ class ProgramNode(Node):
 class TypeNode(Node):
     def __init__(self, name):
         self.name = name
+        self.name_dir = ""
         self.attributes = []
         self.methods = []
+        self.features = []
 
 
 class DataNode(Node):
