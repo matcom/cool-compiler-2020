@@ -234,19 +234,19 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         false_result = self.visit(node.else_body, if_scope)
         # if false_result == "0" or false_result == 0:
         #     print(type(node.else_body), "IfThenElseNode")
-        false_result = self.unpack_type_by_value(
-            false_result, node.else_body.static_type
-        )
+        # false_result = self.unpack_type_by_value(
+        #     false_result, node.else_body.static_type
+        # )
         self.register_instruction(AssignNode(result, false_result))
-        result = self.pack_type_by_value(result, node.else_body.static_type)
+        # result = self.pack_type_by_value(result, node.else_body.static_type)
         self.register_instruction(GotoNode(end_label))
         self.register_instruction(LabelNode(true_label))
         true_result = self.visit(node.if_body, if_scope)
-        true_result = self.unpack_type_by_value(true_result, node.if_body.static_type)
+        # true_result = self.unpack_type_by_value(true_result, node.if_body.static_type)
         # if true_result == "0" or true_result == 0:
         #     print(type(node.if_body), "IfThenElseNode")
         self.register_instruction(AssignNode(result, true_result))
-        result = self.pack_type_by_value(result, node.if_body.static_type)
+        # result = self.pack_type_by_value(result, node.if_body.static_type)
         self.register_instruction(LabelNode(end_label))
 
         return result
