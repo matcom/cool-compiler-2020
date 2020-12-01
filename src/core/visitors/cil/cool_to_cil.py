@@ -1,8 +1,6 @@
-import core.cmp.visitor as visitor
-import core.cmp.cil as cil
-import core.cmp.CoolUtils as cool
-from core.cmp.semantic import Attribute, Method, Type, VariableInfo, SemanticError
-from core.cmp.functions import get_token
+from ..cil import cil
+from ...visitors import visitor
+from ...cmp import CoolUtils as cool, VariableInfo, get_token
 
 class BaseCOOLToCILVisitor:
     def __init__(self, context):

@@ -1,17 +1,10 @@
 from sys import exit
-from pprint import pprint
-from core.cmp.visitors import *
-from core.cmp.lex import CoolLexer
-from core.cmp.evaluation import evaluate_reverse_parse
-from core.cmp.CoolUtils import tokenize_text, CoolParser
-from core.cmp.lex import CoolLexer
-from core.cmp.evaluation import *
-from core.cmp.cil import get_formatter
-from pprint import pprint
-from core.cmp.cool_to_cil import COOLToCILVisitor
-from core.cmp.cil_to_mips import CILToMIPSVisitor
-from core.cmp.mips import PrintVisitor
 
+from core.cmp import evaluate_reverse_parse, CoolParser
+
+from core import CoolLexer
+from core import TypeBuilder, TypeCollector, TypeVerifier, InferenceVisitor, COOLToCILVisitor, CILToMIPSVisitor
+from core import PrintVisitor, FormatVisitor, get_formatter
 
 def main(args):
     # Read code
@@ -102,7 +95,7 @@ def main(args):
 
     with open(out_file, 'w') as f:
         f.write(mips_code)
-        with open("./core/cmp/mips_lib.asm") as f2:
+        with open("./core/visitors/mips/mips_lib.asm") as f2:
             f.write("".join(f2.readlines()))
     
     exit(0)
