@@ -29,13 +29,14 @@ def program_to_mips_visitor(program: cil.ProgramNode):
                     q.append(t)
 
     # Initialize Types
-    init_types(program.types)
+    size_vt=init_types(program.types)
 
     # Build .data section
-    # vt_space_code = reserve_virtual_tables_space(program)
+    vt_space_code = reserve_virtual_tables_space(program, size_vt)
     __DATA__ = [mips.MIPSDataItem(d.id, mips.AsciizInst(f'"{d.val}"'))
                 for d in program.data]
     __DATA__.append(mips.MIPSDataItem('new_line', mips.AsciizInst(f'"\\n"')))
+    __DATA__.extend(vt_space_code)
     data_section = mips.MIPSDataSection(__DATA__)
 
     # Build .text section
@@ -44,16 +45,40 @@ def program_to_mips_visitor(program: cil.ProgramNode):
     text_section = mips.MIPSTextSection(functions)
     return mips.MIPSProgram(data_section, text_section)
 
+__OFFSET_COUNT__= 0
+__OFFSET__={}
 
-def reserve_virtual_tables_space(program: cil.ProgramNode):
+def get_function_offset(function):
+    global __OFFSET_COUNT__
+    try:
+        return __OFFSET__[function]
+    except KeyError:
+        __OFFSET__[function]=__OFFSET_COUNT__
+        __OFFSET_COUNT__+=1
+        return __OFFSET__[function]
+
+def main_instructions():
+    instructions=[]
+    types=get_types()
+    for t in types.keys():
+        __OFFSET_COUNT__=0
+        for m in types[t].methods:
+            instructions.append(mips.LaInstruction('$t0', __VT__[(t, m)]))
+            instructions.append(mips.UswInstruction('$t0', f'vt_{t}+{get_function_offset(m)*4}'))
+    return instructions
+
+def reserve_virtual_tables_space(program: cil.ProgramNode, size_vt):
     """
     Each virtual table has a space in the .data section. The 
     space is 4 bytes for each function, where the address of 
     the real function is stored.
     """
-    code = [mips.MIPSDataItem(f'vt_{t.type}', mips.SpaceInst(t.size_vt))
+    code = [mips.MIPSDataItem(f'vt_{t.type}', mips.SpaceInst(size_vt))
             for t in program.types[1:]]
+    
+    
     return code
+
 
 
 def function_to_mips_visitor(function):
@@ -68,8 +93,12 @@ def function_to_mips_visitor(function):
     # 1
     f = mips.MIPSFunction(function.name, function.params, function.locals)
     # 2
+
     CURRENT_FUNCTION = f
     # 3
+    if f.name=='main':
+        for i in main_instructions():
+            CURRENT_FUNCTION.append_instruction(i)
     for cil_inst in function.body:
         for mips_inst in instruction_to_mips_visitor(cil_inst):
             CURRENT_FUNCTION.append_instruction(mips_inst)
@@ -289,10 +318,12 @@ def allocate_to_mips_visitor(allocate: cil.AllocateNode):
     address = CURRENT_FUNCTION.offset[str(allocate.result)]
     code = [
         mips.Comment(str(allocate)),
-        mips.LiInstruction('$a0', size),
+        mips.LiInstruction('$a0', size + 4),
         mips.LiInstruction('$v0', 9),
         mips.SyscallInstruction(),
-        mips.SwInstruction('$v0', f'{address}($fp)')
+        mips.SwInstruction('$v0', f'{address}($fp)'),
+        mips.LaInstruction('$t0', f'vt_{allocate.type}'),
+        mips.SwInstruction('$t0', f'8($v0)')
     ]
     return code
 
@@ -585,9 +616,14 @@ def vcall_to_mips_visitor(vcall: cil.VCAllNode):
 
     instructions.extend(CURRENT_FUNCTION.args_code)
     CURRENT_FUNCTION.args_code.clear()
-
-    instructions.append(mips.JalInstruction(
-        __VT__[(str(vcall.type), str(vcall.method))]))
+    
+    try:
+        type_local=CURRENT_FUNCTION.offset[str(vcall.type)]
+        instructions.append(mips.LwInstruction('$t0', f'{type_local}($fp)'))
+        instructions.append(mips.UlwInstruction('$t1', f'{__OFFSET__[vcall.method]*4}($t0)'))
+        instructions.append(mips.JalrInstruction('$t1'))
+    except KeyError:
+        instructions.append(mips.JalInstruction(__VT__[(str(vcall.type), str(vcall.method))]))
 
     instructions.append(mips.AdduInstruction(
         '$sp', '$sp', CURRENT_FUNCTION.args_count * 4))
@@ -605,6 +641,16 @@ def vcall_to_mips_visitor(vcall: cil.VCAllNode):
 
     return instructions
 
+
+def get_type_addr_to_mips_visitor(get_type:cil.GetTypeAddrNode):
+    x_addr = CURRENT_FUNCTION.offset[str(get_type.var)]
+    t_addr = CURRENT_FUNCTION.offset[str(get_type.result)]
+    return [
+        mips.Comment(str(get_type)),
+        mips.LwInstruction('$t1', f'{x_addr}($fp)'),
+        mips.LwInstruction('$t0', f'8($t1)'),
+        mips.SwInstruction('$t0', f'{t_addr}($fp)')
+    ]
 
 def assign_to_mips_visitor(assign: cil.AssignNode):
     """
@@ -731,4 +777,5 @@ __visitors__ = {
     cil.AssignNode: assign_to_mips_visitor,
     cil.TypeOfNode: type_of_to_mips_visitor,
     cil.AbortNode: abort_to_mips_visitor,
+    cil.GetTypeAddrNode: get_type_addr_to_mips_visitor
 }

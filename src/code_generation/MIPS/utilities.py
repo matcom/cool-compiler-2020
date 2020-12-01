@@ -12,15 +12,20 @@ def init_types(types):
     a unique number for each type which will be identified in MIPS (code_mips)\n
 
     """
+    size_vt=0
     for i, t in enumerate(types):
         t.code_mips = i
         t.size_mips = (len(t.attributes) + 2) * 4
-        t.size_vt = (len(t.methods) + 1) * 4
+        size_vt = max(size_vt, (len(t.methods) + 1) * 4)
         t.attr_index_mips = {}
         for i, a in enumerate(t.attributes):
             t.attr_index_mips[a] = i + 1
         __TYPES__[t.type] = t
+    return size_vt
 
+
+def get_types():
+    return __TYPES__
 
 def get_type(name):
     try:

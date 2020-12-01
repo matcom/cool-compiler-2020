@@ -49,6 +49,7 @@ class MIPSFunction:
         self.offset = {}
         self.args_code = []
 
+        
         self.init_instructions.append(MoveInstruction('$fp', '$sp'))
 
         self.params_count = len(params)
@@ -158,10 +159,21 @@ class SwInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('sw', *arguments)
 
+class UswInstruction(Instruction):
+    def __init__(self, *arguments):
+        super().__init__('usw', *arguments)
+
+
+
+
 
 class LwInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('lw', *arguments)
+
+class UlwInstruction(Instruction):
+    def __init__(self, *arguments):
+        super().__init__('ulw', *arguments)
 
 
 class LiInstruction(Instruction):

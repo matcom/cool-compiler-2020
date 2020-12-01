@@ -277,7 +277,7 @@ def assign_to_cil_visitor(assign):
     if assign.id in __ATTR__[__CURRENT_TYPE__]:
         index = __ATTR__[__CURRENT_TYPE__].index(assign.id)
         body = expr.body + \
-            [CilAST.SetAttrNode('self', assign.id, expr.value, index + 2)]
+            [CilAST.SetAttrNode('self', assign.id, expr.value, index + 3)]
         return CIL_block(body, expr.value)
     else:
         val = add_local(assign.id)
@@ -388,7 +388,7 @@ def id_to_cil_visitor(id):
     if id.id in __ATTR__[__CURRENT_TYPE__]:
         result = add_local()
         index = __ATTR__[__CURRENT_TYPE__].index(id.id)
-        return CIL_block([CilAST.GetAttrNode('self', id.id, result, index + 2)], result)
+        return CIL_block([CilAST.GetAttrNode('self', id.id, result, index + 3)], result)
     try:
         val = __LOCALS__[id.id]
         return CIL_block([], val)
@@ -421,12 +421,12 @@ def new_to_cil_visitor(new_node, value_id=None):
 
     body.append(CilAST.LoadNode(t_data, t_local))
     body.append(CilAST.SetAttrNode(value, '@type', t_local))
-    body.append(CilAST.AssignNode(size_local, (len(init_attr)+2)*4))
+    body.append(CilAST.AssignNode(size_local, (len(init_attr)+3)*4))
     body.append(CilAST.SetAttrNode(value, '@size', size_local, 1))
 
     old_current_type = __CURRENT_TYPE__
     __CURRENT_TYPE__ = new_node.type
-    for index, attr in enumerate(init_attr, 2):
+    for index, attr in enumerate(init_attr, 3):
         if attr.expression:
             attr_cil = expression_to_cil_visitor(
                 attr.expression)
@@ -511,17 +511,17 @@ def block_to_cil_visitor(block):
 
 def func_call_to_cil_visitor(call):
     body = []
-    t = None
+    t = add_local()
     if call.object:
         obj_cil = expression_to_cil_visitor(
             call.object)
         body += obj_cil.body
         obj = obj_cil.value
-        _, t, _ = call.object.returned_type.get_method(
-            call.id, [arg.returned_type for arg in call.args])
+        # _, t, _ = call.object.returned_type.get_method(
+        #     call.id, [arg.returned_type for arg in call.args])
     else:
         obj = 'self'
-        t = __CURRENT_TYPE__
+    body.append(CilAST.GetTypeAddrNode(t, obj))
 
     arg_values = []
 
