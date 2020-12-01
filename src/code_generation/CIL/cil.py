@@ -512,16 +512,20 @@ def block_to_cil_visitor(block):
 def func_call_to_cil_visitor(call):
     body = []
     t = add_local()
+    returned=None
     if call.object:
         obj_cil = expression_to_cil_visitor(
             call.object)
         body += obj_cil.body
         obj = obj_cil.value
-        # _, t, _ = call.object.returned_type.get_method(
-        #     call.id, [arg.returned_type for arg in call.args])
+        _, returned, _ = call.object.returned_type.get_method(
+            call.id, [arg.returned_type for arg in call.args])
     else:
         obj = 'self'
-    body.append(CilAST.GetTypeAddrNode(t, obj))
+    if returned and returned.name in ("String", "Int", "Bool"):
+        call.type=returned.name
+    else:
+        body.append(CilAST.GetTypeAddrNode(t, obj))
 
     arg_values = []
 

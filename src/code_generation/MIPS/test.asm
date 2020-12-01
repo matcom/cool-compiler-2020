@@ -423,11 +423,7 @@ main:
 	#          local_45 = LOAD data_4 ;
 	la         $t0, data_4
 	sw         $t0, -184($fp)
-	#          local_44 = GETTYPEADDR local_45 ;
-	lw         $t1, -184($fp)
-	lw         $t0, 8($t1)
-	sw         $t0, -180($fp)
-	#          local_46 = VCALL local_44 abort ;
+	#          local_46 = VCALL String abort ;
 	subu       $sp, $sp, 8
 	sw         $ra, 0($sp)
 	sw         $fp, 4($sp)
@@ -435,9 +431,7 @@ main:
 	lw         $t0, -184($fp)
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	lw         $t0, -180($fp)
-	ulw        $t1, 0($t0)
-	jalr       $t1
+	jal        String_abort
 	addu       $sp, $sp, 4
 	lw         $ra, 0($sp)
 	lw         $fp, 4($sp)
