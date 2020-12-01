@@ -1489,8 +1489,8 @@ class RegistersAllocator:
     @staticmethod
     def out_in_compute(suc, gk):
         n_instructions = len(gk)
-        in_out = [(set(), set()) for _ in range(n_instructions)]
-        next_in_out = [(set(), set()) for _ in range(n_instructions)]
+        in_out = [[set(), set()] for _ in range(n_instructions)]
+        next_in_out = [[set(), set()] for _ in range(n_instructions)]
 
         def add(set1, set2):
             return not set2.issubset(set1)
