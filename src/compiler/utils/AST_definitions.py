@@ -1,3 +1,4 @@
+from json import dumps
 class Node:
     @property
     def clsname(self):
@@ -12,10 +13,20 @@ class Node:
         return "{}".format(self.clsname)
 
     def __repr__(self):
-        return self.__str__()
+        return self.toJSON()
 
     def __str__(self):
         return str(self.to_readable())
+
+    def __getitem__(self, x):
+        return self.__dict__[x]
+    
+    def __setitem__(self, x, y):
+        self.__dict__[x]= y
+
+    def toJSON(self):
+        return dumps(self, default=lambda  o: o.__dict__,
+        sort_keys=True, indent=4, separators=(',', ': '))
 
 
 class NodeProgram(Node):
@@ -44,7 +55,8 @@ class NodeClass(Node):
 
     def to_readable(self):
         return "{}(name='{}', parent={}, methods={}, attributes={})".format(
-            self.clsname, self.idName, self.parent, self.methods, self.attributes)
+            self.clsname, self.idName, self.parent, 
+            self.methods, self.attributes)
 
 class NodeFeature(Node):
     def __init__(self):
@@ -68,7 +80,8 @@ class NodeClassMethod(NodeFeature):
 
     def to_readable(self):
         return "{}(name='{}', argNames={}, returnType={}, argTypesNames={}, body={})".format(
-            self.clsname, self.idName, self.argNames, self.returnType, self.argTypesNames, self.body
+            self.clsname, self.idName, self.argNames, 
+            self.returnType, self.argTypesNames, self.body
             )
 
 class NodeAttr(NodeFeature):
@@ -87,11 +100,12 @@ class NodeFormalParam(NodeFeature):
         return tuple([
             ("class_name", self.clsname),
             ("name", self.idNme),
-            ("param_type", self.param_type)
+            ("param_type", self.paramType)
         ])
 
     def to_readable(self):
-        return "{}(name='{}', param_type={})".format(self.clsname, self.idName, self.param_type)
+        return "{}(name='{}', param_type={})".format(self.clsname, 
+        self.idName, self.paramType)
 
 class NodeObject(Node):
     def __init__(self, idName):
@@ -109,7 +123,7 @@ class NodeObject(Node):
 
 class NodeSelf(NodeObject):
     def __init__(self):
-        super(Self, self).__init__("SELF")
+        super().__init__("SELF")
 
     def to_tuple(self):
         return tuple([
@@ -156,7 +170,7 @@ class NodeBoolean(NodeConstant):
 
 class NodeString(NodeConstant):
     def __init__(self, content):
-        super(String, self).__init__()
+        super().__init__()
         self.content = content
 
     def to_tuple(self):
@@ -171,6 +185,7 @@ class NodeString(NodeConstant):
 
 class NodeExpr(Node):
     def __init__(self):
+        self.value= None
         super().__init__()
 
 class NodeNewObject(NodeExpr):
@@ -204,25 +219,26 @@ class NodeIsVoid(NodeExpr):
 
 
 class NodeAssignment(NodeExpr):
-    def __init__(self, instance, expr):
+    def __init__(self, idName, expr):
         super().__init__()
-        self.instance = instance
+        self.idName = idName
         self.expr = expr
 
     def to_tuple(self):
         return tuple([
             ("class_name", self.clsname),
-            ("instance", self.instance),
+            ("idName", self.idName),
             ("expr", self.expr)
         ])
 
     def to_readable(self):
-        return "{}(instance={}, expr={})".format(self.clsname, self.instance, self.expr)
+        return "{}(idName={}, expr={})".format(self.clsname, 
+        self.idName, self.expr)
 
 
 class NodeBlock(NodeExpr):
     def __init__(self, expr_list):
-        super(Block, self).__init__()
+        super().__init__()
         self.expr_list = expr_list
 
     def to_tuple(self):
@@ -236,29 +252,29 @@ class NodeBlock(NodeExpr):
 
 
 class NodeDynamicDispatch(NodeExpr):
-    def __init__(self, instance, method, arguments):
+    def __init__(self, idName, method, arguments):
         super().__init__()
-        self.instance = instance
+        self.idName = idName
         self.method = method
         self.arguments = arguments if arguments is not None else tuple()
 
     def to_tuple(self):
         return tuple([
             ("class_name", self.clsname),
-            ("instance", self.instance),
+            ("idName", self.idName),
             ("method", self.method),
             ("arguments", self.arguments)
         ])
 
     def to_readable(self):
-        return "{}(instance={}, method={}, arguments={})".format(
-            self.clsname, self.instance, self.method, self.arguments)
+        return "{}(idName={}, method={}, arguments={})".format(
+            self.clsname, self.idName, self.method, self.arguments)
 
 
 class NodeStaticDispatch(NodeExpr):
-    def __init__(self, instance, dispatch_type, method, arguments):
+    def __init__(self, idName, dispatch_type, method, arguments):
         super().__init__()
-        self.instance = instance
+        self.idName = idName
         self.dispatch_type = dispatch_type
         self.method = method
         self.arguments = arguments if arguments is not None else tuple()
@@ -266,37 +282,57 @@ class NodeStaticDispatch(NodeExpr):
     def to_tuple(self):
         return tuple([
             ("class_name", self.clsname),
-            ("instance", self.instance),
+            ("idName", self.idName),
             ("dispatch_type", self.dispatch_type),
             ("method", self.method),
             ("arguments", self.arguments)
         ])
 
     def to_readable(self):
-        return "{}(instance={}, dispatch_type={}, method={}, arguments={})".format(
-            self.clsname, self.instance, self.dispatch_type, self.method, self.arguments)
+        return "{}(idName={}, dispatch_type={}, method={}, arguments={})".format(
+            self.clsname, self.idName, self.dispatch_type, 
+            self.method, self.arguments)
 
 
-class NodeLet(NodeExpr):
-    def __init__(self, instance, return_type, init_expr, body):
+class NodeLetComplex(NodeExpr):
+    def __init__(self, nested_lets, body):
         super().__init__()
-        self.instance = instance
-        self.return_type = return_type
-        self.init_expr = init_expr
-        self.body = body
+        self.nestedLets= nested_lets if type(nested_lets) is list else [nested_lets]
+        self.body= body
 
     def to_tuple(self):
         return tuple([
             ("class_name", self.clsname),
-            ("instance", self.instance),
-            ("return_type", self.return_type),
-            ("init_expr", self.init_expr),
+            ("nested_lets", self.nestedLets),
             ("body", self.body)
         ])
 
     def to_readable(self):
-        return "{}(instance={}, return_type={}, init_expr={}, body={})".format(
-            self.clsname, self.instance, self.return_type, self.init_expr, self.body)
+        return "{}(nested_lets={}, body={})".format(
+            self.clsname, self.nestedLets, self.body)
+
+
+class NodeLet(NodeExpr):
+    def __init__(self, idName, return_type, body):
+        super().__init__()
+        self.idName= idName
+        self.type= return_type
+        self.body= body
+        
+
+    def to_tuple(self):
+        return tuple([
+            ("class_name", self.clsname),
+            ("idName", self.idName),
+            ("return_type", self.type),
+            ("body", self.body),
+            ("value", self.value),
+        ])
+
+    def to_readable(self):
+        return "{}(idName={}, return_type={}, body={}, value={})".format(
+            self.clsname, self.idName, self.type,
+            self.body, self.value)
 
 
 class NodeIf(NodeExpr):
@@ -333,7 +369,8 @@ class NodeWhileLoop(NodeExpr):
         ])
 
     def to_readable(self):
-        return "{}(predicate={}, body={})".format(self.clsname, self.predicate, self.body)
+        return "{}(predicate={}, body={})".format(self.clsname, 
+        self.predicate, self.body)
 
 
 class NodeCase(NodeExpr):
@@ -350,13 +387,14 @@ class NodeCase(NodeExpr):
         ])
 
     def to_readable(self):
-        return "{}(expr={}, actions={})".format(self.clsname, self.expr, self.actions)
+        return "{}(expr={}, actions={})".format(self.clsname, 
+        self.expr, self.actions)
 
 
 # ############################## UNARY OPERATIONS ##################################
 
 
-class NodeNodeUnaryOperation(NodeExpr):
+class NodeUnaryOperation(NodeExpr):
     def __init__(self):
         super().__init__()
 
@@ -378,7 +416,7 @@ class NodeIntegerComplement(NodeUnaryOperation):
 
 class NodeBooleanComplement(NodeUnaryOperation):
     def __init__(self, boolean_expr):
-        super(BooleanComplement, self).__init__()
+        super().__init__()
         self.symbol = "!"
         self.boolean_expr = boolean_expr
 
@@ -412,7 +450,8 @@ class NodeAddition(NodeBinaryOperation):
         ])
 
     def to_readable(self):
-        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, 
+        self.first, self.second)
 
 
 class NodeSubtraction(NodeBinaryOperation):
@@ -430,7 +469,8 @@ class NodeSubtraction(NodeBinaryOperation):
         ])
 
     def to_readable(self):
-        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, 
+        self.first, self.second)
 
 
 class NodeMultiplication(NodeBinaryOperation):
@@ -448,7 +488,8 @@ class NodeMultiplication(NodeBinaryOperation):
         ])
 
     def to_readable(self):
-        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, 
+        self.first, self.second)
 
 
 class NodeDivision(NodeBinaryOperation):
@@ -466,7 +507,8 @@ class NodeDivision(NodeBinaryOperation):
         ])
 
     def to_readable(self):
-        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, 
+        self.first, self.second)
 
 
 class NodeEqual(NodeBinaryOperation):
@@ -484,7 +526,8 @@ class NodeEqual(NodeBinaryOperation):
         ])
 
     def to_readable(self):
-        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, 
+        self.first, self.second)
 
 
 class NodeLessThan(NodeBinaryOperation):
@@ -502,7 +545,8 @@ class NodeLessThan(NodeBinaryOperation):
         ])
 
     def to_readable(self):
-        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, 
+        self.first, self.second)
 
 
 class NodeLessThanOrEqual(NodeBinaryOperation):
@@ -520,5 +564,8 @@ class NodeLessThanOrEqual(NodeBinaryOperation):
         ])
 
     def to_readable(self):
-        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, 
+        self.first, self.second)
 
+
+#### A special class for instantiation

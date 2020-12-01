@@ -162,7 +162,7 @@ class pyCoolParser:
         """
         expression : ID ASSIGN expression
         """        
-        p[0] = NodeAssignment(instance= NodeObject(idName= p[1]), expr= p[3])
+        p[0] = NodeAssignment(idName= NodeObject(idName= p[1]), expr= p[3])
 
 # ######################### UNARY OPERATIONS #######################################
     
@@ -261,7 +261,7 @@ class pyCoolParser:
         nested_lets : ID COLON TYPE
                     | nested_lets COMMA ID COLON TYPE
         """
-        p[0]= NodeLet(instance= p[1], return_type= p[3],
+        p[0]= NodeLet(idName= p[1], return_type= p[3],
         body = None)
 
     def p_nested_lets_initialize(self, p):
@@ -269,7 +269,7 @@ class pyCoolParser:
         nested_lets : ID COLON TYPE ASSIGN expression
                     | nested_lets COMMA ID COLON TYPE ASSIGN expression
         """
-        p[0]= NodeLet(instance= p[1],
+        p[0]= NodeLet(idName= p[1],
         return_type= p[3],
         body= p[5])
 
@@ -300,7 +300,7 @@ class pyCoolParser:
         """
         expression : expression DOT ID LPAREN arguments_list_opt RPAREN
         """        
-        p[0] = NodeDynamicDispatch(instance=p[1], 
+        p[0] = NodeDynamicDispatch(idName=p[1], 
         method=p[3], arguments=p[5])
 
     def p_arguments_list_opt(self, p):
@@ -321,14 +321,14 @@ class pyCoolParser:
         """
         expression : expression AT TYPE DOT ID LPAREN arguments_list_opt RPAREN
         """        
-        p[0] = NodeStaticDispatch(instance=p[1],
+        p[0] = NodeStaticDispatch(idName=p[1],
         dispatch_type=p[3], method=p[5], arguments=p[7])
     
     def p_expression_self_dispatch(self, p):
         """
         expression : ID LPAREN arguments_list_opt RPAREN
         """        
-        p[0] = NodeDynamicDispatch(instance=NodeSelf(),
+        p[0] = NodeDynamicDispatch(idName=NodeSelf(),
         method=p[1], arguments=p[3])
 
 
