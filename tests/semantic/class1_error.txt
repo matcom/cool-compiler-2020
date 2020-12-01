@@ -1,2 +1,2 @@
-(7, 7) - SemanticError: Classes may not be redefined
+(7, 5) - SemanticError: Classes may not be redefined
  
