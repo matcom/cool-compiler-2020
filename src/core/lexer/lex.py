@@ -2,7 +2,7 @@ import ply.lex as lex
 import re
 
 from ..cmp import Token
-from ..cmp.CoolUtils import *
+from ..cmp.cool import grammar as G
 
 class CoolLexer:
 
@@ -34,49 +34,49 @@ class CoolLexer:
     }
 
     tokenType = {
-        "CLASS":        classx,
-        "ELSE":         elsex,
-        "FI":           fi,
-        "IF":           ifx,
-        "IN":           inx,
-        "INHERITS":     inherits,
-        "ISVOID":       isvoid,
-        "LET":          let,
-        "LOOP":         loop,
-        "POOL":         pool,    
-        "THEN":         then,    
-        "WHILE":        whilex,
-        "CASE":         case,    
-        "ESAC":         esac,    
-        "NEW":          new,     
-        "OF":           of,      
-        "NOT":          notx,
-        "OBJECTIDENTIFIER":   idx,
-        "TYPEIDENTIFIER": typex,
-        "LCBRA":        ocur,
-        "RCBRA":        ccur,
-        "LPAREN":       opar,
-        "RPAREN":       cpar,
-        "COLON":        colon,
-        "SEMICOLON":    semi, 
-        "NUMBER":       integer,    
-        "eof":          eof,
-        "PLUS":         plus,
-        "MINUS":        minus,
-        "DIVIDE":       div,
-        "TIMES":        star,
-        "LESS":         less,
-        "LESSEQ":       leq,
-        "EQUALS":       equal,
-        "TRUE":         boolx,
-        "FALSE":        boolx,  
-        "COMPLEMENT":   compl,
-        "RARROW":       rarrow,
-        "LARROW":       larrow,
-        "COMMA":        comma,
-        "DOT":          dot,
-        "AT":           at,
-        "STRING":       string,
+        "CLASS":              G.classx,
+        "ELSE":               G.elsex,
+        "FI":                 G.fi,
+        "IF":                 G.ifx,
+        "IN":                 G.inx,
+        "INHERITS":           G.inherits,
+        "ISVOID":             G.isvoid,
+        "LET":                G.let,
+        "LOOP":               G.loop,
+        "POOL":               G.pool,    
+        "THEN":               G.then,    
+        "WHILE":              G.whilex,
+        "CASE":               G.case,    
+        "ESAC":               G.esac,    
+        "NEW":                G.new,     
+        "OF":                 G.of,      
+        "NOT":                G.notx,
+        "OBJECTIDENTIFIER":   G.idx,
+        "TYPEIDENTIFIER":     G.typex,
+        "LCBRA":              G.ocur,
+        "RCBRA":              G.ccur,
+        "LPAREN":             G.opar,
+        "RPAREN":             G.cpar,
+        "COLON":              G.colon,
+        "SEMICOLON":          G.semi, 
+        "NUMBER":             G.integer,    
+        "eof":                G.eof,
+        "PLUS":               G.plus,
+        "MINUS":              G.minus,
+        "DIVIDE":             G.div,
+        "TIMES":              G.star,
+        "LESS":               G.less,
+        "LESSEQ":             G.leq,
+        "EQUALS":             G.equal,
+        "TRUE":               G.boolx,
+        "FALSE":              G.boolx,  
+        "COMPLEMENT":         G.compl,
+        "RARROW":             G.rarrow,
+        "LARROW":             G.larrow,
+        "COMMA":              G.comma,
+        "DOT":                G.dot,
+        "AT":                 G.at,
+        "STRING":             G.string,
     }
 
     tokens = [
@@ -388,7 +388,7 @@ class CoolLexer:
                 tokens.append(Token(token.value, self.tokenType[token.type]))
             tokens[-1].row = token.row
             tokens[-1].column = token.column
-        EOF = Token('$', eof)
+        EOF = Token('$', G.eof)
         EOF.row, EOF.column = self.lexer.eof
         return tokens + [EOF]
 

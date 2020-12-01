@@ -1,6 +1,6 @@
 from .utils import *
 from ...visitors import visitor
-from ...cmp import CoolUtils as cool, SemanticError, empty_token, ErrorType
+from ...cmp import cool_ast as cool, SemanticError, empty_token, ErrorType
 
 # Type Builder
 class TypeBuilder:

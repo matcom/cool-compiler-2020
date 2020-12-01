@@ -1,6 +1,6 @@
 from .utils import *
 from ...visitors import visitor
-from ...cmp import CoolUtils as cool, empty_token, Context, SemanticError
+from ...cmp import cool_ast as cool, empty_token, Context, SemanticError
 from ...cmp import IntType, StringType, BoolType, IOType, VoidType, AutoType, SelfType
 
 def define_built_in_types(context):

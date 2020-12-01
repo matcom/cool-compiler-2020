@@ -1,9 +1,8 @@
 from .utils import *
 from ...visitors import visitor
 from .checker import TypeChecker
-from ...cmp import CoolUtils as cool
-from ...cmp.utils import InferenceSets
-from ...cmp import SemanticError, AutoType, SelfType
+from ...cmp import cool_ast as cool
+from ...cmp import SemanticError, AutoType, SelfType, InferenceSets
 
 # Type Inference Visitor
 class InferenceVisitor(TypeChecker):

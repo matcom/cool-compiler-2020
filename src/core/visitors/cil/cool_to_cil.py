@@ -1,6 +1,7 @@
 from ..cil import cil
+from .utils import get_token
 from ...visitors import visitor
-from ...cmp import CoolUtils as cool, VariableInfo, get_token
+from ...cmp import cool_ast as cool, VariableInfo
 
 class BaseCOOLToCILVisitor:
     def __init__(self, context):
