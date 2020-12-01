@@ -114,8 +114,8 @@ def program_to_cil_visitor(program):
                 fun = func_to_cil_visitor(c.type, f)
                 code.append(fun)
 
-    built_in_code += built_in_to_cil()
 
+    built_in_code += built_in_to_cil()
     data = [CilAST.DataNode(__DATA__[data_value], data_value)
             for data_value in __DATA__.keys()]
 
@@ -129,7 +129,7 @@ def program_to_cil_visitor(program):
 
 
 def built_in_to_cil():
-    return [out_int_to_cil(), out_string_to_cil(), in_string_to_cil(), in_int_to_cil(), type_name_to_cil(), copy_to_cil(), length_to_cil(), concat_to_cil(), substring_to_cil(), abort_to_cil(), abort_string_to_cil()]
+    return [out_int_to_cil(), out_string_to_cil(), in_string_to_cil(), in_int_to_cil(), type_name_to_cil(), copy_to_cil(), length_to_cil(), concat_to_cil(), substring_to_cil(), abort_to_cil(), abort_string_to_cil(), abort_int_to_cil(), abort_bool_to_cil(), type_name_bool_to_cil(), type_name_int_to_cil(), type_name_string_to_cil()]
 
 
 def out_string_to_cil():
@@ -150,9 +150,41 @@ def in_int_to_cil():
     return CilAST.FuncNode('IO_in_int', [CilAST.ParamNode('self')], [i], [CilAST.ReadIntNode(i),   CilAST.ReturnNode(i)])
 
 
+def type_name_string_to_cil():
+    str_addr=add_str_data('String')  
+    t, need_load = add_data_local(str_addr)
+
+    if need_load:
+        body = [CilAST.LoadNode(str_addr, t)]
+    else:
+        body = []
+    
+    return CilAST.FuncNode('String_type_name', [CilAST.ParamNode('self')], [t], body+[CilAST.ReturnNode(t)])
+
+def type_name_int_to_cil():
+    str_addr=add_str_data('Int')  
+    t, need_load = add_data_local(str_addr)
+
+    if need_load:
+        body = [CilAST.LoadNode(str_addr, t)]
+    else:
+        body = []
+    return CilAST.FuncNode('Int_type_name', [CilAST.ParamNode('self')], [t], body+[CilAST.ReturnNode(t)])
+
+def type_name_bool_to_cil():
+    str_addr=add_str_data('Bool')  
+    t, need_load = add_data_local(str_addr)
+
+    if need_load:
+        body = [CilAST.LoadNode(str_addr, t)]
+    else:
+        body = []
+    return CilAST.FuncNode('Bool_type_name', [CilAST.ParamNode('self')], [t], body+[ CilAST.ReturnNode(t)])
+
 def type_name_to_cil():
     t = CilAST.LocalNode('type')
     return CilAST.FuncNode('Object_type_name', [CilAST.ParamNode('self')], [t], [CilAST.TypeOfNode(t, 'self'),   CilAST.ReturnNode(t)])
+
 
 
 def copy_to_cil():
@@ -182,6 +214,14 @@ def abort_to_cil():
 def abort_string_to_cil():
     return CilAST.FuncNode('String_abort', [CilAST.ParamNode('self')], [], [CilAST.AbortNode('String')])
 
+def abort_bool_to_cil():
+    return CilAST.FuncNode('Bool_abort', [CilAST.ParamNode('self')], [], [CilAST.AbortNode('Bool')])
+
+def abort_int_to_cil():
+    return CilAST.FuncNode('Int_abort', [CilAST.ParamNode('self')], [], [CilAST.AbortNode('Int')])
+
+
+    
 
 def func_to_cil_visitor(type_name, func):
     '''
@@ -518,8 +558,7 @@ def func_call_to_cil_visitor(call):
             call.object)
         body += obj_cil.body
         obj = obj_cil.value
-        _, returned, _ = call.object.returned_type.get_method(
-            call.id, [arg.returned_type for arg in call.args])
+        returned=call.object.returned_type
     else:
         obj = 'self'
     if returned and returned.name in ("String", "Int", "Bool"):

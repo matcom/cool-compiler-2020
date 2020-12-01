@@ -191,6 +191,7 @@ def read_to_mips_visitor(read: cil.ReadNode):
 
 # TODO: Check
 def substring_to_mips_visitor(ss: cil.SubStringNode):
+    result_offset=CURRENT_FUNCTION.offset[str(ss.result)]
     str_offset = CURRENT_FUNCTION.offset[str(ss.str)]
     i_offset = CURRENT_FUNCTION.offset[str(ss.i)]
     len_offset = CURRENT_FUNCTION.offset[str(ss.len)]
@@ -212,7 +213,9 @@ def substring_to_mips_visitor(ss: cil.SubStringNode):
         mips.AdduInstruction('$t0', '$t0', 1),
         mips.AdduInstruction('$t1', '$t1', 1),
         mips.BInstruction('substring_loop'),
-        mips.MIPSLabel('end_substring_loop')
+        mips.MIPSLabel('end_substring_loop'),
+        mips.LaInstruction('$t1', ss.result.id),
+        mips.SwInstruction('$t1', f'{result_offset}($fp)')
     ]
 
 
@@ -341,7 +344,8 @@ def type_of_to_mips_visitor(typeof: cil.TypeOfNode):
     return [
         mips.Comment(str(typeof)),
         mips.LwInstruction('$t0', f'{x_addr}($fp)'),
-        mips.SwInstruction('$t0', f'{t_addr}($fp)')
+        mips.LwInstruction('$t1', '($t0)'),
+        mips.SwInstruction('$t1', f'{t_addr}($fp)')
     ]
 
 

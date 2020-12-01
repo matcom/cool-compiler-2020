@@ -252,4 +252,11 @@ IOType.add_method('in_int', [], 'Int')
 StringType.add_method('length', [], 'Int')
 StringType.add_method('concat', ['String'], 'String')
 StringType.add_method('substr', ['Int', 'Int'], 'String')
+
+IntType.add_method('abort', [], 'Object')
+BoolType.add_method('abort', [], 'Object')
 StringType.add_method('abort', [], 'Object')
+
+StringType.add_method('type_name', [], 'String')
+IntType.add_method('type_name', [], 'String')
+BoolType.add_method('type_name', [], 'String')
