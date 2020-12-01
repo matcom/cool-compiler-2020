@@ -184,7 +184,6 @@ class SentenceList(object):
         if isinstance(other, Symbol):
             return self | Sentence(other)
 
-
 class Epsilon(Terminal, Sentence):
 
     def __init__(self, grammar):

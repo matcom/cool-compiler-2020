@@ -196,12 +196,3 @@ class State:
 
     def write_to(self, fname):
         return self.graph().write_svg(fname)
-
-def multiline_formatter(state):
-    return '\n'.join(str(item) for item in state)
-
-def lr0_formatter(state):
-    try:
-        return '\n'.join(str(item)[:-4] for item in state)
-    except TypeError:
-        return str(state)[:-4]
