@@ -9,7 +9,7 @@ ORG_NAME 		:= 2kodevs
 PROJECT_NAME 	:= CoolCompiler
 APP_VERSION		:= v0.1
 APP_DESCRIPTION := $(ORG_NAME) - $(PROJECT_NAME)$(APP_VERSION)
-DEVELOPERS		:= Lázaro Raúl Iglesias Vera, Miguel Tenorio Potrony, Mauricio Lázaro Perdomo Cortéz
+DEVELOPERS		:= Lázaro Raúl Iglesias Vera, Miguel Tenorio Potrony, Mauricio Lázaro Perdomo Cortés
 COPYRIGHT	 	:= Copyright © 2020: $(DEVELOPERS)
 TEST_DIR		:= core/cmp/Stuff/tests/
 TEST           	:= 
@@ -31,6 +31,9 @@ info: ## Display project description
 coolc: ## Run the code.cl file using coolc
 	@coolc $(CODE)
 	@coolc_spim $(COOLC_ASM)
+
+install: ## Install the project dependencies
+	pip install ../requeriments.txt
 
 save: ## Save the code.cl as a test
 	@cat code.cl > $(TEST_DIR)$(TEST).cl

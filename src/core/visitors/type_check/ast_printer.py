@@ -1,5 +1,5 @@
 from ...visitors import visitor
-from ...cmp import CoolUtils as cool
+from ...cmp import cool_ast as cool
 
 #AST Printer
 class FormatVisitor:

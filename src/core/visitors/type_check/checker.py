@@ -1,6 +1,6 @@
 from .utils import *
 from ...visitors import visitor
-from ...cmp import CoolUtils as cool
+from ...cmp import cool_ast as cool
 from ...cmp import IntType, BoolType, StringType, SemanticError, ErrorType, SelfType, Scope
 
 # Type Checker
