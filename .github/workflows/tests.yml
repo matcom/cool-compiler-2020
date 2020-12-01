@@ -1,10 +1,6 @@
 name: Tests
 
-on:
-  push:
-    branches: [ tests, cbermudez ]
-  pull_request:
-    branches: [ tests, cbermudez ]
+on: [push, pull_request]
 
 jobs:
   lexer:
@@ -63,3 +59,25 @@ jobs:
           make clean
           make
           make test TAG=semantic
+
+  codegen:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Install spim
+        run: sudo apt-get install spim
+
+      - name: Run tests
+        run: |
+          cd src
+          make clean
+          make
+          make test TAG=codegen

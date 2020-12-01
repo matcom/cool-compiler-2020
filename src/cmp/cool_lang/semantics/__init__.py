@@ -1,8 +1,8 @@
 from .formatter import COOL_FORMATTER
-from .type_collector import COOL_TYPE_COLLECTOR
 from .type_builder import COOL_TYPE_BUILDER
 from .type_checker import COOL_TYPE_CHECKER
-from ..errors import SemanticError
+from .type_collector import COOL_TYPE_COLLECTOR
+
 
 class COOL_CHECKER:
     def __init__(self):
@@ -16,7 +16,10 @@ class COOL_CHECKER:
             print(COOL_FORMATTER().visit(program, tabs=0))
         self.context = COOL_TYPE_COLLECTOR(errors=self.errors).visit(program)
         if len(self.errors) == 0:
-            COOL_TYPE_BUILDER(context=self.context, errors=self.errors).visit(program)
+            COOL_TYPE_BUILDER(
+                context=self.context,
+                errors=self.errors,
+            ).visit(program)
             COOL_TYPE_CHECKER(self.context, errors=self.errors).visit(program)
         if verbose:
             print(self.context)
