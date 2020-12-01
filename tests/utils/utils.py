@@ -14,6 +14,7 @@ UNEXPECTED_OUTPUT = 'La salida de %s no es la esperada:\n%s\nEsperada:\n%s'
 ERROR_FORMAT = r'^\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*-\s*(\w+)\s*:(.*)$'
 
 def parse_error(error: str):
+    print(error)
     merror = re.fullmatch(ERROR_FORMAT, error)
     assert merror, BAD_ERROR_FORMAT % error
 
