@@ -1,6 +1,6 @@
 
 class Type:
-    def __init__(self,className,parent="Object"):
+    def __init__(self,className,parent):
         self.Name = className
         self.AttrList = [Attribute("self",className)]
         self.MethList = {}
@@ -20,15 +20,15 @@ class Type:
         if (self.__IsDefineMeth(meth_name, params_type, return_type)):
             return False
         else:
-            self.MethList[meth_name] = Method(meth_name, return_type, params_name, params_type, rename)
+            self.MethList[meth_name] = Method(meth_name, params_name, params_type, return_type, rename)
 
     def __IsDefineAttr(self, attr_name):
-        attr = [ attr.Type for attr in self.AttrList if attr.Name == attrName]
+        attr = [ attr.Type for attr in self.AttrList if attr.Name == attr_name]
         if len(attr):
             return attr[0]
         if self.Parent == None:
             return None
-        return self.Parent._IsDefineAttribute(attrName)
+        return self.Parent.__IsDefineAttr(attr_name)
     
     def __IsDefineAttrParent(self, attr_name):
         type = self.Parent
@@ -36,13 +36,16 @@ class Type:
             return False
         return type.__IsDefineAttr(attr_name)
 
+
+
     def __IsDefineMeth(self, meth_name, params_type, return_type):
         for meth in self.MethList:
-            if (meth.Name == meth_name and params_type == meth.ParamsType and meth.ReturnType == return_type):
+            if (meth == meth_name and params_type == self.MethList[meth].ParamsType and self.MethList[meth].ReturnType == return_type):
                 return True
         if(self.Parent == None):
             return None
         else:
+
             return self.Parent.__IsDefineMeth(meth_name, params_type, return_type)
 
     def __IsDefineMethParent(self, meth_name, params_type, return_type):
@@ -68,12 +71,12 @@ class Type:
         return self.Parent.GetAttr(attr_name)
 
     def GetMeth(self, meth_name, params_type, return_type):
-        for meth in self.MethList.values:
-            if (meth.Name == meth_name and meth.ReturnType == return_type and len(params_type) == len(meth.ParamsType)):
-                for x in range(len(meth.ParamsType)):
-                    if (not meth.ParamsType[x] == params_type[x]):
+        for meth in self.MethList:
+            if (self.MethList[meth].Name == meth_name and self.MethList[meth].ReturnType == return_type and len(params_type) == len(self.MethList[meth].ParamsType)):
+                for x in range(len(self.MethList[meth].ParamsType)):
+                    if (not self.MethList[meth].ParamsType[x] == params_type[x]):
                         return None
-                return meth
+                return self.MethList[meth]
         parent = self.Parent
         if (parent is None):
             return None
@@ -133,11 +136,11 @@ class Context:
         typeObject =  Type("Object",parent = None)
         self.Hierarchy["Object"] = typeObject
 
-        typeString =  Type("String","Object")
+        typeString =  Type("String",typeObject)
         # typeObject =  Type("Object",self.Hierarchy["Object"])
-        typeBool =  Type("Bool","Object")
-        typeInt =  Type("Int","Object")
-        typeIO =  Type("IO","Object")
+        typeBool =  Type("Bool",typeObject)
+        typeInt =  Type("Int",typeObject)
+        typeIO =  Type("IO",typeObject)
 
         typeObject.MethList["abort"] = (Method("abort",[],[],"Object",None))
         typeObject.MethList["type_name"] =(Method("type_name",[],[],"String",None))
@@ -176,28 +179,32 @@ class Context:
         return meth.returnType
 
     def GetType(self,typeName): # devuelve el objeto
-        return self.Hierarchy.get(typeName)
+        return self.Hierarchy[typeName]
 
     def __IsDefineType(self,typeName):
-        return self.Hierarchy.__contains__(typeName)
+        if (self.Hierarchy.__contains__(typeName)):
+            return self.Hierarchy[typeName]
+        return None
+        #return self.Hierarchy.__contains__(typeName)
 
     def DefineType(self, type_name, type_parent):
         if(self.__IsDefineType(type_name)):
             return None
         else:
+            #parent = self.GetType(type_parent)
             t = Type(type_name, type_parent)
             self.Hierarchy[type_name] = t
             return t
     
     def DefineVar(self, var_name, var_type, value = None):
-        if (self.__IsDefineVar(var_name) is None):
+        if (self.__IsDefineVar(var_name, var_type) is None):
             v = Variable(var_name, var_type, value)
             self.Variables[var_name] = v
         else:
             return self.Variables[var_name]
             
     def __IsDefineVar(self, var_name, var_type):
-        if (var_name in self.Variables.keys):
+        if (var_name in self.Variables.keys()):
             v = self.Variables[var_name]
             return v.Type
         return None
@@ -336,7 +343,7 @@ class Context:
     def IsDefineVariable(self,vname):
         vinfo = self.GetVinfo(vname)
         if vinfo == None:
-            vtype = self.Hierarchy[self.currentClass]._IsDefineAttributeInParent(vname)
+            vtype = self.Hierarchy[self.CurrentClass]._IsDefineAttributeInParent(vname)
             if vtype == None:
                 return None
             return vtype
@@ -353,25 +360,27 @@ class Context:
     def CreateChildContext(self):
         childContext = Context(self)
         childContext.Hierarchy = self.Hierarchy
-        childContext.currentClass = self.currentClass
+        childContext.CurrentClass = self.CurrentClass
         return childContext
 
     def BuildTypesHierarchy(self):
         '''
         directed graph
         '''
-        graph = [[] for i in range(len(self.Hierarchy))]
-
+        graph = {}
         for _type in self.Hierarchy:
-            u = self.Hierarchy[_type.Parent]
-            v = self.Hierarchy[_type.Name]
-            graph[u].append(v)
+            graph[_type] = []
+        for _type in self.Hierarchy:
+            if _type != "Object":
+                u = self.Hierarchy[_type].Parent.Name
+                v = self.Hierarchy[_type].Name
+                graph[u].append(v)
         self.inheritance_graph = graph
 
     def CheckMain(self):
         _type = self.GetType("Main")
         if _type is not None: # checking if there is the program has a class Main 
-            method = _type.GetMeth("main") # the method main is not inherited because enviroment is None
+            method = _type.GetMeth("main", [], 'IO') # the method main is not inherited because enviroment is None
             if method is None: # checking if the a class Main has a method named main
                 #error
                 pass
@@ -387,8 +396,10 @@ class Context:
    
     def IsTree(self):
         #self.build_types_graph()
-        self.visited = [False]*len(self.Hierarchy.keys)
-        for u in range(len(self.Hierarchy.keys)):
+        self.visited = {}
+        for u in self.Hierarchy:
+            self.visited[u] = False
+        for u in self.Hierarchy:
             if not self.visited[u]:
                 if self.dfs_cycles(u):
                     #error
@@ -397,7 +408,7 @@ class Context:
 
     def dfs_cycles(self, u):
         self.visited[u] = True
-        for v in self.graph[u]:
+        for v in self.inheritance_graph[u]:
             if self.visited[v]:
                 return True
             if self.dfs_cycles(v):

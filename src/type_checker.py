@@ -30,9 +30,9 @@ class TypeCheckerVisitor:
         # check inheritance features and build LCA preprocessing
 
         # check if classes are ok
-        for _class in node.class_list:
+        for _class in node.classes:
             child_context = context.CreateChildContext()
-            self.visit(_class, child_context)
+            self.visit(_class, child_context, errors)
 
     # [Class]
     @visitor.when(ast_hierarchy.ClassNode)
@@ -41,55 +41,65 @@ class TypeCheckerVisitor:
 
         # adding to the current enviroment all the class attributes
         for attr in self.current_type.AttrList:    
-            context.DefineVar(attr.name, attr._type, None)
+            context.DefineVar(attr.Name, attr.Type, None)
 
         for _f in node.features:
-            self.visit(_f, context)
+            self.visit(_f, context, errors)
+
+
+    @visitor.when(ast_hierarchy.FunctionFeatureNode)
+    def visit(self, node, context, errors):
+            
+        pass
+
+    @visitor.when(ast_hierarchy.AttributeFeatureNode)
+    def visit(self, node, context, errors):
+        pass
 
     @visitor.when(ast_hierarchy.ConditionalStatementNode)
     def visit(self, node, context, errors):
-        self.visit(node.ifExpr)
-        self.visit(node.evalExpr)
-        self.visit(node.elseExpr)
+        self.visit(node.ifExpr, context, errors)
+        self.visit(node.evalExpr, context, errors)
+        self.visit(node.elseExpr, context, errors)
         if (node.ifExpr.ComputedType.Name != "Bool"):
             errors.append("TypeError: Predicate of 'if' does not have type Bool.")
             pass
 
     @visitor.when(ast_hierarchy.LoopStatementNode)
     def visit(self, node, context, errors):
-        self.visit(node.loopExpr, context)
-        self.visit(node.evalExpr, context)
+        self.visit(node.loopExpr, context, errors)
+        self.visit(node.evalExpr, context, errors)
 
     @visitor.when(ast_hierarchy.BlockStatementNode)
     def visit(self, node, context, errors):
         for _expr in node.expressions:
-            self.visit(_expr,context)
+            self.visit(_expr,context, errors)
     
     @visitor.when(ast_hierarchy.LetStatementNode)
     def visit(self, node, context, errors):
         for _var in self.variables:
-            self.visit(_var,context)
-        self.visit(node.expr,context)
+            self.visit(_var,context, errors)
+        self.visit(node.expr,context, errors)
 
     @visitor.when(ast_hierarchy.CaseStatementNode)
     def visit(self, node, context, errors):
-        self.visit(node.expression)
+        self.visit(node.expression, context, errors)
         #Implementar lo que pasara con el body
         for x in node.body:
-            self.visit(x, context)
+            self.visit(x, context, errors)
         #chaquear que el retorno no sea void
 
     @visitor.when(ast_hierarchy.CaseBranchNode)
     def visit(self, node, context, errors):
-        self.visit(node.expr, context)
+        self.visit(node.expr, context, errors)
         #Responder:
         #En que momento hacer chequeo de tipos
         #Quienes son id, type
 
     @visitor.when(ast_hierarchy.AssignStatementNode)
     def visit(self, node, context, errors):
-        self.visit(node.expr, context)
-        self.visit(node.id, context)
+        self.visit(node.expr, context, errors)
+        self.visit(node.id, context, errors)
         if (node.id.ComputedType == node.expr.ComputedType):
             #todoOK
             node.ComputedType = context.Hierarchy.get(node.id.ComputedType.Name)
@@ -104,7 +114,7 @@ class TypeCheckerVisitor:
     #Unary Operations
     @visitor.when(ast_hierarchy.ComplementNode)
     def visit(self, node, context, errors):
-        self.visit(node.expression)
+        self.visit(node.expression, errors)
         if (node.expression.ComputedType.Name != "Int"):
             errors.append("ypeError: Argument of '~' has type " + node.expression.ComputedType.Name + " instead of Int.")
         else:
@@ -112,7 +122,7 @@ class TypeCheckerVisitor:
 
     @visitor.when(ast_hierarchy.IsVoidNode)
     def visit(self,node, context, errors):
-        self.visit(node.expression)
+        self.visit(node.expression, context, errors)
         if (node.expression.ComputedType.Name != "Void"):
             #error
             pass
@@ -121,7 +131,7 @@ class TypeCheckerVisitor:
 
     @visitor.when(ast_hierarchy.NotNode)
     def visit(self, node, context, errors):
-        self.visit(node.expression, context)
+        self.visit(node.expression, context, errors)
         if (node.expression.ComputedType.Name != "Bool"):
             errors.append("TypeError: Argument of 'not' has type " + node.expression.ComputedType.Name +  " instead of Bool.")
             pass
@@ -133,8 +143,8 @@ class TypeCheckerVisitor:
     #Binary int expressions   
     @visitor.when(ast_hierarchy.PlusNode)
     def visit(self, node, context, errors):
-        self.visit(node.left, context)
-        self.visit(node.rigth, context)
+        self.visit(node.left, context, errors)
+        self.visit(node.rigth, context, errors)
         left_type = _left.ComputedType
         right_type = _right.ComputedType
         if (left_type.Name == "Int" and right_type.Name == "Int"):
@@ -144,8 +154,8 @@ class TypeCheckerVisitor:
 
     @visitor.when(ast_hierarchy.MinusNode)
     def visit(self, node, context, errors):
-        self.visit(node.left, context)
-        self.visit(node.rigth, context)
+        self.visit(node.left, context, errors)
+        self.visit(node.rigth, context, errors)
         left_type = _left.ComputedType
         right_type = _right.ComputedType
         if (left_type.Name == "Int" and right_type.Name == "Int"):
@@ -155,8 +165,8 @@ class TypeCheckerVisitor:
 
     @visitor.when(ast_hierarchy.TimesNode)
     def visit(self, node, context, errors):
-        self.visit(node.left, context)
-        self.visit(node.rigth, context)
+        self.visit(node.left, context, errors)
+        self.visit(node.rigth, context, errors)
         left_type = _left.ComputedType
         right_type = _right.ComputedType
         if (left_type.Name == "Int" and right_type.Name == "Int"):
@@ -166,8 +176,8 @@ class TypeCheckerVisitor:
 
     @visitor.when(ast_hierarchy.DivideNode)
     def visit(self, node, context, errors):
-        self.visit(node.left, context)
-        self.visit(node.rigth, context)
+        self.visit(node.left, context, errors)
+        self.visit(node.rigth, context, errors)
         left_type = _left.ComputedType
         right_type = _right.ComputedType
         if (left_type.Name == "Int" and right_type.Name == "Int"):
@@ -180,8 +190,8 @@ class TypeCheckerVisitor:
     #Binary bool expressions
     @visitor.when(ast_hierarchy.EqualNode)
     def visit(self, node, context, errors):
-        self.visit(node.left, context)
-        self.visit(node.rigth, context)
+        self.visit(node.left, context, errors)
+        self.visit(node.rigth, context, errors)
         left_type = _left.ComputedType
         right_type = _right.ComputedType
         if (left_type.Name == "Int" and right_type.Name == "Int"):
@@ -191,8 +201,8 @@ class TypeCheckerVisitor:
         
     @visitor.when(ast_hierarchy.LessNode)
     def visit(self, node, context, errors):
-        self.visit(node.left, context)
-        self.visit(node.rigth, context)
+        self.visit(node.left, context, errors)
+        self.visit(node.rigth, context, errors)
         left_type = _left.ComputedType
         right_type = _right.ComputedType
         if (left_type.Name == "Int" and right_type.Name == "Int"):
@@ -202,8 +212,8 @@ class TypeCheckerVisitor:
         
     @visitor.when(ast_hierarchy.LessEqualNode)
     def visit(self, node, context, errors):
-        self.visit(node.left, context)
-        self.visit(node.rigth, context)
+        self.visit(node.left, context, errors)
+        self.visit(node.rigth, context, errors)
         left_type = _left.ComputedType
         right_type = _right.ComputedType
         if (left_type.Name == "Int" and right_type.Name == "Int"):

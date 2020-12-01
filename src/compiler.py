@@ -18,7 +18,7 @@ def main():
 
     # Name of the file
     #p = args[2]
-    p = "D:\\112720\\112420\\cool-compiler-2020\\tests\\semantic\\arithmetic1.cl"
+    p = "D:\\112720\\112420\\cool-compiler-2020\\tests\\semantic\\loops1.cl"
     print(str(p))
     if not str(p).endswith(".cl"):
         print("Cool program files must end with a \`.cl\` extension.\r\n")
@@ -52,11 +52,11 @@ def main():
 
             #recolectar los tipos
             _type_collector = type_collector.TypeCollectorVisitor()
-            _type_collector.visit(ast)
+            _type_collector.visit(ast, errors)
 
             #construir los tipos
             _type_builder = type_builder.TypeBuilderVisitor(_type_collector.Context)
-            _type_builder.visit(ast)
+            _type_builder.visit(ast, errors)
 
             #chequear tipos
             _type_checker = type_checker.TypeCheckerVisitor()
