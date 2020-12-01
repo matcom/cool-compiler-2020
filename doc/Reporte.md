@@ -1,4 +1,4 @@
-# Reporte sobre el de desarrollo del compilador
+# Reporte sobre el desarrollo del compilador
 En este reporte expondremos los requerimientos y forma de uso de nuestro compilador, además daremos un repaso sobre el diseño del mismo y sus distintas fases.
 ## Formas de uso y requeriminetos
 Nuestro compilador fue desarrollado en el lenguaje **Python** y actualmente para ser usado solo necesita del uso de módulo **ply** del mismo.
@@ -28,3 +28,34 @@ Ya teniendo el AST de COOL se puede pasar a chequearlo semánticamente, este pro
 Durante todo este proceso de recorrido se van guardando las clases, variables, atributos y métodos mediante el concepto de Scope.  
 Por cada nodo del AST se intenta inferir un tipo estático el cual es guardado en el mismo. Los errores que pueden levantarse en este proceso han sido definidos según el Manual de COOL para lograr su correcta implementación.   
 Una problemática a destacar fue el caso de hallar las clases con herencia cíclica, este proceso se realiza al comienzo del chequeo tratando de por cada nodo de clase llegar al antecesor común ya definido, al comienzo este será Object, para luego definirse, si durante esta búsqueda se topa con un nodo que también está en medio del proceso significa que existe un ciclo por lo cual devolvemos el error. 
+
+### Codegen
+Usando el AST que ya pasó por el semántico y con cierta información de tipos estáticos agregada procedemos a la generación de código intermedio que más tarde se utilizará para producir código MIPS; todo mediante el uso del patrón visitor.
+
+#### CIL
+Los componentes del lenguaje CIL son bastante simples. Se encuentra integrado por:
+* Instrucciones de a lo sumo dos operadores y un destino.
+* Definición de Strings como Data:
+* Definición de métodos como globales, que contienen las instrucciones, una lista de parámetros y de variables locales.
+* Definición de clases con un mapeo de sus nombres de métodos a los globales, así como definición de sus atributos. En esta definición se incluyen elementos que le pertenecen a su padre antes de los propios, conservando el orden en que se encuentran en el padre.
+* Programa CIL, que contiene todo lo anterior.
+
+Con el patrón visitor se transforma del AST de entrada a un programa CIL de salida.  
+
+#### MIPS
+Dado el programa CIL se lleva a una transformación a MIPS.  
+Una parte importante para entender la estructura es la representación de las clases. Toda clase se guarda como una referencia a un conjunto de palabras, de las cuales la primera siempre es una referencia a su definición de clase y el resto son los atributos.
+
+##### Qué es la definición de clase?
+Se puede observar al inicio del programa con la forma *Nombreclase: .word Padreclase, f1, f2...*, que no es más que una ubicación en el heap donde se encuentra guardada la direccion de la definicion de su clase padre, seguida por las direcciones de sus métodos
+
+##### Llamada a un método
+La llamada a los métodos tiene un indicador de la posición relativa a su definición de clase. Cuando se llama un método se accede a dicha definición a través de la clase o no, dependiendo del tipo de Dispatch y se llama el método en la posición indicada. En el caso de tipos base, como Int, String y Bool siempre se realiza StaticDispatch al final.
+
+##### Estructura del programa
+* Datos y cadenas predefinidas
+* Strings
+* Definiciones de clase
+* Llamada al Main.Special desde el main
+* Métodos predefinidos
+* Métodos globales del programa
