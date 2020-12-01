@@ -516,10 +516,9 @@ class CIL_TO_MIPS:
 
         self.store_memory(reg.s3, node.dest)
 
-    # @visitor.when(LoadNode)
-    # def visit(self, node: LoadNode):
-    #     self.load_memory(reg.t0, node.msg)
-    #     self.store_memory(reg.t0, node.dest)
+    @visitor.when(LoadNode)
+    def visit(self, node: LoadNode):
+        self.load_memory(reg.t0, node.dest)
 
     def copy_substr(self, src, dst, length):
         loop = self.get_label()
@@ -565,22 +564,29 @@ class CIL_TO_MIPS:
 
         self.store_memory(reg.v0, node.dest)
 
-    @visitor.when(ToStrNode)
+    @visitor.when(ReadStrNode)
     def visit(self, node):
-        pass
+        self.mips.li(reg.a0, 1024)
+        self.mips.sbrk()
+        self.mips.move(reg.a0, reg.v0)
+        self.store_memory(reg.v0, node.dest)
+        self.mips.li(reg.a1, 1024)  # Change this later
+        self.mips.read_string()
 
-    @visitor.when(ToIntNode)
-    def visit(self, node):
-        pass
-
-    @visitor.when(ReadNode)
-    def visit(self, node):
-        pass
-
-    @visitor.when(PrintNode)
-    def visit(self, node: PrintNode):
+    @visitor.when(PrintStrNode)
+    def visit(self, node: PrintStrNode):  # noqa: F811
         self.load_memory(reg.a0, node.str_addr)
-        self.mips.print_str(node.str_addr)
+        self.mips.print_str()
+
+    @visitor.when(ReadIntNode)
+    def visit(self, node: ReadIntNode):
+        self.mips.read_int()
+        self.store_memory(reg.v0, node.dest)
+
+    @visitor.when(PrintIntNode)
+    def visit(self, node: PrintIntNode):
+        self.load_memory(reg.a0, node.str_addr)
+        self.mips.print_int()
 
     @visitor.when(ReturnNode)
     def visit(self, node: ReturnNode):

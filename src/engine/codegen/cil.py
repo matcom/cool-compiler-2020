@@ -127,7 +127,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.current_function = self.register_function(
             self.to_function_name(self.current_method.name, type_name))
         str_val = self.define_internal_local()
-        self.register_instruction(PrintNode(str_val))
+        self.register_instruction(PrintStrNode(str_val))
         # self.register_instruction(ReturnNode(0))
         self.current_method = self.current_function = None
 
@@ -136,7 +136,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.current_function = self.register_function(
             self.to_function_name(self.current_method.name, type_name))
         dest = self.define_internal_local()
-        self.register_instruction(ReadNode(dest))
+        self.register_instruction(ReadStrNode(dest))
         self.register_instruction(ReturnNode(dest))
         self.current_method = self.current_function = None
 
@@ -144,10 +144,8 @@ class BASE_COOL_CIL_TRANSFORM:
         type_name = self.current_type.name
         self.current_function = self.register_function(
             self.to_function_name(self.current_method.name, type_name))
-        dest = self.define_internal_local()
         int_val = self.register_param(VariableInfo('int_val', None))
-        self.register_instruction(ToStrNode(dest, int_val))
-        self.register_instruction(PrintNode(dest))
+        self.register_instruction(PrintIntNode(int_val))
         # self.register_instruction(ReturnNode(0))
         self.current_method = self.current_function = None
 
@@ -156,10 +154,8 @@ class BASE_COOL_CIL_TRANSFORM:
         self.current_function = self.register_function(
             self.to_function_name(self.current_method.name, type_name))
         dest = self.define_internal_local()
-        int_val = self.define_internal_local()
-        self.register_instruction(ReadNode(dest))
-        self.register_instruction(ToIntNode(int_val, dest))
-        self.register_instruction(ReturnNode(int_val))
+        self.register_instruction(ReadIntNode(dest))
+        self.register_instruction(ReturnNode(dest))
         self.current_method = self.current_function = None
         self.current_type = None
 
