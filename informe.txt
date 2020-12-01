@@ -1,0 +1,235 @@
+Lexer
+
+Se encuentra en lexer.py.
+Para la fase del analisis lexico se utilizo el utilisimo modulo ply que contiene la clase
+lex que permite construir de forma muy sencilla un analizador del texto de entrada(codigo) para
+separar los diferentes componentes en tokens que despues seran analizados en la
+fase de parsing.
+Los tipos de tokens se declaran mediante las estructuras reserved y tokens.
+El diccionario reserved contiene la lista de las palabras clave del lenguaje con 
+su denominacion en token, o sea, el nombre del token correspondiente (Ejemplos: 
+'class': 'CLASS', 'while': 'WHILE', etc...). La lista tokens es una simple lista
+que contiene los nombres de los restantes tipos de tokens como 'NUMBER' o 'DOT'.
+La diferencia entre los dos es que los tipos de token que estan en tokens necesitan
+de una funcion que defina, con una expresion regular, como es la forma de la cadena
+de entrada para que sea de el tipo correspondiente, pero como las palabras claves
+siempre tienen la misma forma no hace falta ningun tipo de expresion regular ni funcion,
+basta con tratar de machear con alguna llave del diccionario reserved.
+En esta fase se ignoran caracteres extraños de entrada como '\r' o '\v'.
+Luego se definen las expresiones regulares para cada tipo de token que esta en la lista
+tokens, por ejemplo un comentario de una linea es r'--.*', o sea '--.' y todo lo que venga
+delante hasta llegar a un salto de linea (estas expresiones son las que permiten 
+tomar los elementos del texto de entrada y separarlos en tokens). Asi mismo se definen
+las demas funciones con expresiones regulares de los demas simbolos. Es importante
+recalcar que por la forma en que esta implementado ply, si dos simbolos o tokens tienen
+expresiones regulares tales que una es prefijo de otra, entonces la funcion de la que tiene
+mayor tamaño de expresion regular debe ser puesta primero, ya que el texto de entrada
+se evalua con las funciones que declaras en el modulo de arriba hacia abajo.
+En este modulo tambien se implemento tambien, y gracias a facilidades que nos brinda ply,
+unas simples maquinas de estado para clasificar los strings ("algo entre comillas") y los
+comentarios multilinea, pues las expresiones regulares correspondientes eran un poco complicadas
+por el tema de los caracteres extraños o por el tema de los comentarios multilinea que 
+podian redefinirse dentro de ellos mismos (y habia que contar hasta que los simbolos de
+inicio y fin de este tipo de comentario quedaran balanceados). Estas maquinas de estado
+permiten que una vez que se inicia alguna se dejan de evaluar las demas funciones de los
+demas tokens,  por ejemplo, cuando se lee un '"' se entra en el estado inicial
+de "leer string" y se leen entonces (y se guardan) todos los caracteres hasta que aparece 
+otro '"' que no esta antecedido de un '\', entonces todo lo que se lee dentro no se evalua
+en las funciones de los tokens que no son STRING.
+Tambien ply nos permite dejar guardado en los tokens de salida la informacion referente a
+la la linea y la columna donde se encuentran en el texto de entrada, lo que es muy necesario
+despues cuando se necesita devolver un error y decir en que linea y columna esta.
+Por ultimo en este modulo se capturan y retornan los errores, que estos ocurren cuando algo de la entrada
+no se puede machear con las expresiones regulares que definimos previamente, o cuando detectamos
+simbolos como '\0' que constituyen errores.
+El unico metodo que se importa en compiler.py es make_lexer, en el cual le pasamos el texto de
+entrada y aqui devolvemos los todos los tokens sacados y los errores encontrados.
+
+
+Parser
+Se encuentra en parser.py y ast.py.
+En la fase de parsing se utilizo tambien el modulo ply que contiene tambien importantes mecanismos
+para esta parte y ademas la construccion del Arbol de Sintaxis Abstracta.
+Aqui primero hay que tener ya conformada la gramatica de nuestro lenguaje cool para definir despues
+las producciones a llevar a cabo. Nuestra gramatica quedo de la siguiente forma:
+
+program -> class_list
+
+class_list -> class_definition class_list
+            | class_definition
+
+class_definition: CLASS CLASSID LBRACE class_feature_list RBRACE SEMICOLON
+                | CLASS CLASSID INHERITS CLASSID LBRACE class_feature_list RBRACE SEMICOLON
+
+class_feature_list : feature class_feature_list
+                   | empty
+
+feature : attribute_feature
+        | function_feature
+
+attribute_feature : ATTRIBUTEID COLON CLASSID SEMICOLON
+                  | ATTRIBUTEID COLON CLASSID ASSIGNATION expression SEMICOLON
+
+function_feature : ATTRIBUTEID LPAREN parameters_list RPAREN COLON CLASSID LBRACE expression RBRACE SEMICOLON
+                 | ATTRIBUTEID LPAREN RPAREN COLON CLASSID LBRACE expression RBRACE SEMICOLON
+
+parameters_list : parameter COMMA parameters_list
+                | parameter
+
+parameter : ATTRIBUTEID COLON CLASSID
+
+let_body : ATTRIBUTEID COLON CLASSID
+         | ATTRIBUTEID COLON CLASSID ASSIGNATION expression
+         | ATTRIBUTEID COLON CLASSID COMMA let_body
+         | ATTRIBUTEID COLON CLASSID ASSIGNATION expression COMMA let_body
+
+case_body : ATTRIBUTEID COLON CLASSID ARROW expression SEMICOLON case_body
+          | ATTRIBUTEID COLON CLASSID ARROW expression SEMICOLON
+
+expression : not_form
+           | mixed_expression
+
+not_form : NOT mixed_expression
+
+mixed_expression : mixed_expression LESSEQUAL arithmetic_expression
+                 | mixed_expression LESS arithmetic_expression
+                 | mixed_expression EQUAL expression
+                 | arithmetic_expression
+
+arithmetic_expression : arithmetic_expression PLUS term
+                      | arithmetic_expression MINUS term
+                      | term
+
+term : term TIMES isvoid_form
+     | term DIVIDE isvoid_form
+     | isvoid_form
+
+isvoid_form : ISVOID expression
+            | complement_form
+
+complement_form : COMPLEMENT expression
+                | program_atom
+
+program_atom: boolean | string | int | id | parentesis | new | member | function | assign | case | let | block | while | if 
+
+boolean : TRUE
+        | FALSE
+
+string : STRING
+
+int : NUMBER
+
+id : ATTRIBUTEID
+
+parentesis : LPAREN expression RPAREN
+
+new : NEW CLASSID
+
+member: member_call
+
+function : program_atom function_call
+
+assign : ATTRIBUTEID ASSIGNATION expression
+
+case : CASE expression OF case_body ESAC
+
+let : LET let_body IN expression
+
+block : LBRACE expression_list RBRACE
+
+expression_list : expression SEMICOLON expression_list
+                | expression SEMICOLON
+
+while : WHILE expression LOOP expression POOL
+
+if : IF expression THEN expression ELSE expression FI
+
+function_call : DOT ATTRIBUTEID LPAREN argument_list RPAREN
+              | DOT ATTRIBUTEID LPAREN RPAREN
+              | DISPATCH CLASSID DOT ATTRIBUTEID LPAREN argument_list RPAREN
+              | DISPATCH CLASSID DOT ATTRIBUTEID LPAREN RPAREN
+
+argument_list : expression
+              | expression COMMA argument_list
+
+member_call : ATTRIBUTEID LPAREN RPAREN
+            | ATTRIBUTEID LPAREN argument_list RPAREN
+
+Ver que los simbolos terminales son los tipos de token que declaramos en lexer.py.
+Luego seria usar la clase yacc de ply para definir esta gramatica mediante funciones
+que contienen estas producciones como encabezado, y segun las producciones que se van
+tomando ir formando el Arbol de Sintaxis Abstracta.
+La estructura del arbol de sintaxis abstracta se encuentra en ast.py, y consiste en la
+coleccion de distintos tipos de nodo. A cada tipo de nodo se le pasa por el constructor
+la informacion referente al nodo, o sea, si es un nodo de definicion de clase se le deberian
+pasar el nombre de la clase, el padre si esta hereda, y la lista de atributos y metodos (features).
+Para seguir con este ejemplo si vamos a la funcion de la produccion:
+
+class_definition: CLASS CLASSID LBRACE class_feature_list RBRACE SEMICOLON
+                | CLASS CLASSID INHERITS CLASSID LBRACE class_feature_list RBRACE SEMICOLON
+
+Primero preguntamos cual de las producciones se tomo:
+
+if len(p) == 7:
+        p[0] = ClassNode(p[2], p[4], None, [GetPosition(p, 2)])
+    else:
+        p[0] = ClassNode(p[2], p[6], p[4], [GetPosition(p, 4)])
+
+Si p (que es la lista de elementos que contiene la produccion) tiene tamaño 7 entonces
+quiere decir que se tomo la produccion donde la clase no herada de nadie (la primera), luego
+retornar en esta produccion un nodo de tipo ClassNode pasandole los elementos correspondientes.
+Notar que si se le manda un elemento que en la produccion es un simbolo no terminal entonces este
+sera el nodo resultado de dicho simbolo no terminal cuando se evalue, de esta forma se va creando
+el arbol.
+Al final se define tambien una funcion para evaluar y retornar los errores que se van encontrando,
+asi como la linea y la columna correspondiente. Ver tambien que a cada nodo se le pasa la informacion
+de la fila y la columna donde se encuentra en el texto para ser utilizado posteriormente en el chequeo
+semantico.
+
+Semantic
+
+Se encuentra en semantic.py, graph.py y type_defined.py.
+La fase de analisis semantico se realizo sobre el ast que se devuelve en la fase del parsing.
+Aqui se llevaron a cabo los siguientes chequeos (en este orden):
+
+- Chequeo de tipos declarados
+- Chequeo de herencia de tipos
+- Chequeo de grafo de herencia
+- Chequeo de atributos y metodos de los tipos
+- Chequeo de expresiones
+- Chequeo de la existencia de la clase Main y metodo main
+
+En el chequeo de tipos declarados se comprueba que no hayan dos tipos con igual nombre y se guardan
+en un diccionario todos los tipos. Tambien se comprueba que no se haya declarado un tipo con el nombre
+de un tipo basico (ejemplo: Int).
+
+En el chequeo de herencia de tipos se busca que los tipos de los que se heredan sean tipos que estan definidos,
+ademas de que no se puedan heredar de los tipos basicos Int, Bool y String. Tambien se chequea el caso de
+que el tipo este heredando de si mismo.
+
+En el chequeo de grafo de herencia se analiza el grafo formado por los tipos y la herencia de estos en busqueda
+de ciclos. Como no existe la herencia multiple y todos los tipos heredan de la clase Object entonces basta con
+realizar una busqueda a lo largo (DFS) sobre el grafo empezando en Object y comprobando que se lleguen a todos
+los tipos y sin posibilidad de revisitar a nadie.
+
+En el chequeo de atributos y metodos de los tipos se comprueba que los atributos y los metodos dentro de los 
+tipos esten correctos, o sea, que devuelvan un tipo que este definido, que no se llamen 'self', y que si se
+redefine un metodo de una clase padre este tenga el mismo tipo de retorno y la misma cantidad de parametros
+(esta es una restriccion de COOL).
+
+En el chequeo de expresiones se analizan todas las expresiones de los atributos y metodos de los tipos, en busqueda
+de que no hayan conflictos de tipo en las operaciones, valores de retorno, parametros, entre otras. Tambien se comprueban
+que se esten llamando a atributos, argumentos o metodos que esten definidos dentro de la clase o en alguna clase padre.
+Se tiene bien en cuenta que los tipos de retorno de las expresiones no tiene que ser el mismo tipo que se define en su 
+inicializacion o definicion, sino que este puede ser de un tipo que hereda del esperado, en este caso se sobrescribe
+el tipo de retorno (nos ayuda un poco en la parte de generacion de codigo) por el tipo que se retorna en la expresion.
+
+En el chequeo de la existencia de la clase Main y el metodo main queda explicito lo que se hace.
+
+El codigo correspondiente al chequeo se encuentra en semantic.py y en graph.py se encuentra una pequeña clase 
+para el trabajo con grafos a la hora de buscar herencia ciclica. En type_defined.py se encuentran unas clases
+que se utilizaron para convertir el ast en algo mas compacto y declarar unas funciones para mayor comodidad en la busqueda
+de tipos y sus metodos y atributos, estas clases son CoolType, CoolAttribute y CoolMethod, ademas de que definieron los tipos 
+basicos y sus metodos.
+
+ 

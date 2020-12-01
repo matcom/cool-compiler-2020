@@ -133,7 +133,7 @@ def main():
                 print(er)
             exit(1)
 
-        cil = generate_cil(types)
+        #cil = generate_cil(types)
         
         mips = generate_mips(cil)
 
