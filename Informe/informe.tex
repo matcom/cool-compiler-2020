@@ -1,0 +1,179 @@
+%===================================================================================
+% JORNADA CIENTÍFICA ESTUDIANTIL - MATCOM, UH
+%===================================================================================
+% Esta plantilla ha sido diseñada para ser usada en los artículos de la
+% Jornada Científica Estudiantil, MatCom.
+%
+% Por favor, siga las instrucciones de esta plantilla y rellene en las secciones
+% correspondientes.
+%
+% NOTA: Necesitará el archivo 'jcematcom.sty' en la misma carpeta donde esté este
+%       archivo para poder utilizar esta plantila.
+%===================================================================================
+
+
+
+%===================================================================================
+% PREÁMBULO
+%-----------------------------------------------------------------------------------
+\documentclass[a4paper,10pt,twocolumn]{article}
+
+%===================================================================================
+% Paquetes
+%-----------------------------------------------------------------------------------
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{informe}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage[pdftex]{hyperref}
+%-----------------------------------------------------------------------------------
+% Configuración
+%-----------------------------------------------------------------------------------
+\hypersetup{colorlinks,%
+	    citecolor=black,%
+	    filecolor=black,%
+	    linkcolor=black,%
+	    urlcolor=blue}
+
+%===================================================================================
+
+
+
+%===================================================================================
+% Presentacion
+%-----------------------------------------------------------------------------------
+% Título
+%-----------------------------------------------------------------------------------
+\title{Informe de Entrega CoolCompiler 2020}
+
+%-----------------------------------------------------------------------------------
+% Autores
+%-----------------------------------------------------------------------------------
+\author{\\
+	\name  Jorge Daniel Valle Días \email \href{mailto:jorge.valle@estudiantes.matcom.uh.cu}{jorge.valle@estudiantes.matcom.uh.cu}
+	\\ \addr Grupo C412 \AND
+	\name Leonel Alejandro Garc\'ia L\'opez \email \href{mailto:l.garcia3@estudiantes.matcom.uh.cu}{l.garcia3@estudiantes.matcom.uh.cu}
+	\\ \addr Grupo C412 \AND
+	\name Roberto Marti Cede\~no \email \href{mailto:r.marti@estudiantes.matcom.uh.cu}{r.marti@estudiantes.matcom.uh.cu}
+	\\ \addr Grupo C412
+} 
+
+%-----------------------------------------------------------------------------------
+% Tutores
+%-----------------------------------------------------------------------------------
+\tutors{\\
+Msc. Alejandro Piad Morffis, \emph{Facultad de Matemática y Computación, Universidad de La Habana}}
+
+%-----------------------------------------------------------------------------------
+% Headings
+%-----------------------------------------------------------------------------------
+\jcematcomheading{\the\year}{1-\pageref{end}}{Jorge Daniel Valle Días, Leonel Alejandro Garc\'ia L\'opez, Roberto Marti Cede\~no}
+
+%-----------------------------------------------------------------------------------
+\ShortHeadings{Ejemplo JCE}{Autores}
+%===================================================================================
+
+
+
+%===================================================================================
+% DOCUMENTO
+%-----------------------------------------------------------------------------------
+\begin{document}
+
+%-----------------------------------------------------------------------------------
+% NO BORRAR ESTA LINEA!
+%-----------------------------------------------------------------------------------
+\twocolumn[
+%-----------------------------------------------------------------------------------
+
+\maketitle
+
+%===================================================================================
+% Resumen y Abstract
+%-----------------------------------------------------------------------------------
+\selectlanguage{spanish} % Para producir el documento en Español
+
+%-----------------------------------------------------------------------------------
+% Resumen en Español
+%-----------------------------------------------------------------------------------
+
+
+\vspace{0.5cm}
+
+%-----------------------------------------------------------------------------------
+% Palabras clave
+%-----------------------------------------------------------------------------------
+
+%-----------------------------------------------------------------------------------
+% Temas
+%-----------------------------------------------------------------------------------
+\begin{topics}
+	Compilación, Cool Language.
+\end{topics}
+
+
+%-----------------------------------------------------------------------------------
+% NO BORRAR ESTAS LINEAS!
+%-----------------------------------------------------------------------------------
+\vspace{0.8cm}
+]
+%-----------------------------------------------------------------------------------
+
+
+%===================================================================================
+
+%===================================================================================
+% Introducción
+%-----------------------------------------------------------------------------------
+\section{Introducción}\label{sec:intro}
+%-----------------------------------------------------------------------------------
+	El siguiente trabajo representa el informe sobre la confección del compilador. Para la confección del mismo se empleó el lenguaje python de programación. El proyecto se dividió en varias etapas: Análisis lexicográfico, sintáctico, semántico, código intermedio y generación de código de máquina. Es importante destacar que se reutilizaron en la medida de lo posible los archivos de clase práctica y los proyectos realizados en el curso previo de la asignatura.
+
+%===================================================================================
+
+
+
+%===================================================================================
+% Desarrollo
+%-----------------------------------------------------------------------------------
+\section{Lexer}\label{sec:dev}
+%-----------------------------------------------------------------------------------
+	En la fase de análisis lexicográfico se empleó la biblioteca ply, en especial su módulo lex. 
+	Salvo en el caso de las cadenas de caracteres y los comentarios multi-línea, el resto de los tokens fueron procesados mediante expresiones regulares. Para el caso de las cadenas de caracteres y los comentarios multi-líneas se emplearon estados especiales exclusivos. 
+	
+\section{Parser}
+	La fase de análisis sintáctico ha sido una de las fases mas controversiales a la hora de la realización del proyecto. Se empleó en una primera fase el parser LR1 tomado de clase práctica y los proyectos previos de la asignatura. La gramática que se definió durante la primera entrega del proyecto contenía ambigüedades, las cuales fueron detectada comprobando las pruebas correspondientes a la parte de semántica. 
+	
+	Dado el tiempo restante que se disponía para la entrega, el equipo decidió tratar de adelantar todas las funcionalidades posibles para minimizar los cambios después de la fecha de entrega. 
+	
+	Actualmente se esta valorando la posibilidad de emplear el módulo yacc de ply para definir la gramática y evitar las ambigüedades que se desprenden de nuestra implementación inicial.
+	
+\section{Análisis Semántico}
+
+	La fase de análisis semántico se compuso por 3 recorridos del árbol de sintaxis abstracta derivado de la fase de análisis sintáctico que siguen el patrón visitor.
+	
+	\begin{description}
+		\item [Recolector de tipos:] Primer recorrido del ast, en el cual se conforman los tipos nativos y los definidos en el archivo de código a procesar. En este mismo recorrido también se detectan los problemas relacionados con la herencia cíclica.
+		\item [Constructor de tipos:] Segundo recorrido del ast, en el cual se construyen los tipos, se definen sus métodos y atributos. 
+		\item [Verificador de tipos:] Tercer y ultimo recorrido del ast, en el cual se verifica la estructura de cada uno de los nodos del ast, este recorrido es el que mas abarca las reglas semánticas del lenguaje cool.
+	\end{description}
+
+\section{Código intermedio y código de máquina}
+
+	El equipo decidió realizar una representación intermedia del lenguaje cool antes de pasara a la generación de código de máquina. Para ello se definieron 2 nuevos recorridos a árboles de sintaxis.
+	
+	\begin{description}
+		\item [Árbol de representación intermedia:] Cuarto recorrido del ast, en el cual se conforma la representación intermedia del árbol de código intermedio de cool.
+		\item [Constructor de código Mips:] Ultimo recorrido, en este caso del árbol de sintaxis de representación intermedia. Mediante el cual se genera el código a ejecutar en el microprocesador con arquitectura MIPS.
+	\end{description}
+	
+
+
+
+\label{end}
+
+\end{document}
+
+%===================================================================================
