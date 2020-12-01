@@ -1,7 +1,7 @@
 # Datos Generales
 ## Autores
 - Miguel Tenorio Potrony
-- Mauricio Lázaro Perdomo Cortéz
+- Mauricio Lázaro Perdomo Cortés
 - Lázaro Raúl Iglesias Vera
 
 ## Sobre el proyecto
@@ -33,7 +33,14 @@ Como se puede apreciar en la etapa #6 del proceso, el chequeo e inferencia de ti
 **Pendig**
 
 ## Tokenización
-**Pendig**
+Para el proceso de tokenización se utilizó el paquete PLY, se creó un un lexer que consta de tres estados:
+
+   - INITIAL
+   - comments
+   - strings
+
+Para cada uno de estos estados se definieron las expresiones regulares que representan cada uno de los tokens posibles y se
+manejan otras variables que conforman el estado del lexer, como la línea actual.
 
 ## Parsing
 Para el proceso de parsing se utilizó el parser LR1 y la gramática de Cool que fueron implementados para el proyecto de 3er año sobre chequeo de tipos.
@@ -198,7 +205,53 @@ Esta fase surge dado que tras el proceso de inferencia puede haber ocurrido un e
 pending
 
 ## Traducción a MIPS
-pending
+En la fase de generación de código `MIPS` enfrentamos tres problemas fundamentales:
+
+   - Estructura de los objetos en memoria.
+   - Definición de tipos en memoria.
+   - Elección de registros.
+
+### Estructura de los objetos en memoria.
+Determinar el modelo que seguirían nuestros objetos en la memoria fue un paso fundamental para la toma de múltiples decisiones tanto en la generación de código `CIL` como `MIPS`. Los objetos en memoria siguen el siguiente modelo:
+
+```| Tipo | Tamaño  | Tabla de dispatch | -- Atributos -- | Marca de objeto |```
+ - Tipo: Esta sección tiene tamaño 1 `palabra`, el valor aquí encontrado se interpreta como un entero e indica el tipo del objeto.
+ - Tamaño: Esta sección tiene tamaño 1 `palabra`, el valor aquí encontrado se interpreta como un enter e indica el tamaño en `palabras` del objeto.
+ - Tabla de dispatch: Esta sección tiene tamaño 1 `palabra`, el valor aquí encontrado se interpreta como una dirección de memoria e indica el inicio de la tabla de dispatch del objeto. La tabla de dispatch del objeto es un segmento de la memoria donde interpretamos cada `palabra` como la dirección a uno de los métodos del objeto.
+ - Atributos: Esta sección tiene tamaño **N** `palabras` donde **N** será la cantidad de atributos que conforman el objeto, cada una de las `palabras` que conforman esta sección representa el valor de un atributo del objeto.
+ - Marca de objeto: Esta sección tiene tamaño 1 `palabra`, es un valor usado para marcar que esta zona de la memoria corresponde a un objeto, se añadió con el objetivo de hacer menos propenso a fallos la tarea de identificar objetos en memoria en el `Garbage Collector`.
+
+### Definición de tipos en memoria.
+Un tipo está representado por tres estructuras en la memoria:
+ - Una dirección a una cadena alfanumérica que representa el nombre del tipo.
+ - Un prototipo que es una especie de plantilla que utilizamos en la creación de los objetos. Cuando se crea un objeto este prototipo es copiado al segmento de memoria asignado al objeto. Un prototipo es un objeto válido por lo que tiene exactamente la misma estructura explicada anteriormente. El prototipo es también nuestra solución a los valores por defecto de los objetos.
+ - Una tabla de dispatch que como explicamos anteriormente contiene las direcciones de los métodos del objeto.
+Existe una tabla de prototipos (nombres) donde podemos encontrar el prototipo (nombre) de un tipo específico utilizando como índice el valor que representa al tipo.
+
+### Elección de registros.
+La elección de registros fue un proceso que decidimos optimizar para disminuir la utilización de las operaciones `lw` y `sw` en `MIPS` que como sabemos añaden una demora considerable a nuestros programas por el tiempo que tarda en realizarse un operación de escritura o lectura en la memoria.
+El proceso de elección de registros se realiza para cada función y consta de los siguientes pasos:
+ - Separación del código en bloques básicos:
+
+   Para obtener los bloques básicos primero se hace un recorrido por las instrucciones de la función marcando los líderes. Son considerados líderes las instrucciones de tipo `Label` y las instrucciones que tengan como predecesor un instrucción de tipo `Goto` o `Goto if`. Luego de tener marcado los líderes se obtienen los bloques que serán los conjuntos de instrucciones consecutivas que comienzan con un líder y terminan con la primera instrucción que sea predecesor de un líder (notar que un bloque puede estar formado por una sola instrucción).
+
+ - Creación del grafo de flujo:
+
+   Este es un grafo dirigido que indica los caminos posibles entre los bloques básicos, su elaboración es bastante sencilla, si la última instrucción de un bloque es un `Goto` entonces se añadirá una arista desde este bloque hacia el bloque iniciado por la instrucción `Label` a la que hace referencia el `Goto`; si la última instrucción es de tipo `Goto if` entonces se añadirán dos aristas una hacia el bloque que comienza con la instrucción `Label` a la que se hace referencia y otra hacia el bloque que comienza con la instrucción siguiente en la función; en el caso de que la última instrucción sea de cualquier otro tipo se colocará una sola arista desde el bloque actual hacia el bloque que comienza con la instrucción siguiente en la función.
+   
+ - Análisis de vida de las variables:
+
+   En este procedimiento computaremos cuatro conjuntos para cada instrucción **I**: `succ`, `gen`, `kill`, `in` y `out`. `succ` contiene las instrucciones que se pueden ejecutar inmediatamente después de la instrucción **I**; `gen` contiene las variables de las que se necesita el valor en la instrucción **I**; `kill` contiene las variables a las que se les asigna un valor en la instrucción **I**; `in` contiene las variables que están pueden estar vivas al llegar a la instrucción **I** y `out` contiene las variables que pueden estar vivas luego de ejecutada la instrucción **I**.
+ 
+ - Creación del grafo de interferencia:
+   
+   Los vértices de este grafo serán las variables que se utilizan en la función y existirá una arista entre los vértices **v** y **y** si las variables que representan esos nodos interfieren. Dos variables interfieren si existe alguna instrucción **i** tal que **x** pertenezca al `kill` de **i** y **y** pertenezca al `out` de **i**.
+
+ - Asignación de registros:
+
+   Contando con el grafo de interferencia asignaremos registros a las variables de forma tal que dos variables que interfieran no se les asigne el mismo registro, esto puede verse como el problema de colorear un grafo con **N** colores siendo **N** la cantidad de registros que tenemos. Es conocido que este problema es *NP* por lo que para asignar los registros usaremos una heurística muy sencilla que consistirá en lo siguiente:
+
+         Primero iremos eliminando del grafo y colocando en una pila cada nodo que tenga menos de N vecinos, notamos que todos estos elementos pueden ser coloreados sin problemas. Si en algún momento no existe nigún nodo con menos de N vecinos se tomará un nodo al azar; este proceso terminará cuando no nos queden nodos en el grafo. Luego iremos sacando cada nodo de la pila y le asignaremos un registro que no esté usado por ninguno de los nodos que eran vecinos de este en el momento en que se eliminó del grafo, en el caso de que existan más de un nodo posible le asignaremos el menor, en caso de que no exista nodo posible la variable no tendrá registro y su valor permanecerá en la memoria.
 
 # Ejecución
 Para ejectur el proyecto se necesita tener instalado python y el conjunto de dependencias listado en [requirements.txt](../../requirements.txt).
