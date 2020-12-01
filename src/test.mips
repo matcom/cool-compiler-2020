@@ -28,12 +28,92 @@ addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
 # ErrorNode
 li $a0, 1
 li $v0, 17
 syscall
 
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
 lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
@@ -67,7 +147,52 @@ addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
+li $s3, 0
+move $t0, $s0
+move $t1, $s1
+move $t3, $s3
+mip_label_0:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+addi $t0, $t0, 2
+addi $t1, $t1, 2
+addi $t3, $t3, -1
+beqz $t3, mip_label_0
+j mip_label_0
+mip_label_0:
 # ReturnNode
 lw $t8, 0($fp)
 sll $t8, $t8, 16
@@ -79,10 +204,211 @@ lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
 lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
 or $ra, $t8, $t9
 addi $sp, $sp, 8
 # Clean stack variable space
 addi $sp, $sp, 8
+# Return
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $fp, $t8, $t9
+addi $sp, $sp, 8
+jr $ra
+function_type_name_at_Object:
+# Set stack frame
+addi $sp, $sp, -8
+srl $t9, $fp, 16
+sw $t9, 0($t8)
+sw $fp, 4($t8)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, -8
+srl $t9, $zero, 16
+sw $t9, 0($t8)
+sw $zero, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $zero, 16
+sw $t9, 0($t8)
+sw $zero, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $ra, 16
+sw $t9, 0($t8)
+sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
+# Generating body code
+# TypeOfNode
+lw $t8, 8($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+lw $t8, $s0
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+# TypeNameNode
+lw $t8, -8($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $t0, $t8, $t9
+lw $t8, 8($t0)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $t1, $t8, $t9
+srl $t9, $t1, 16
+sw $t9, 0($t8)
+sw $t1, 4($t8)
+# ReturnNode
+lw $t8, 0($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $v0, $t8, $t9
+
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $ra, $t8, $t9
+addi $sp, $sp, 8
+# Clean stack variable space
+addi $sp, $sp, 16
 # Return
 lw $t8, 0($sp)
 sll $t8, $t8, 16
@@ -108,7 +434,58 @@ addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
+# LengthNode
+lw $t8, 8($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+move $t0, $s1
+li $t1, 0
+mip_label_0:
+lb $t3, 0($t0)
+beqz $t3, mip_label_0
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mip_label_0
+mip_label_0:
+move $s0, $t1
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
 # ReturnNode
 lw $t8, 0($fp)
 sll $t8, $t8, 16
@@ -116,6 +493,54 @@ addi $t7, $t7, 4
 lw $t9, 0($t7)
 or $v0, $t8, $t9
 
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
 lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
@@ -149,7 +574,98 @@ addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
+lw $t8, 8($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+lw $t8, 16($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+move $t0, $s0
+li $t1, 0
+mip_label_0:
+lb $t3, 0($t0)
+beqz $t3, mip_label_0
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mip_label_0
+mip_label_0:
+move $s4, $t1
+move $t0, $s1
+li $t1, 0
+mip_label_0:
+lb $t3, 0($t0)
+beqz $t3, mip_label_0
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mip_label_0
+mip_label_0:
+move $s5, $t1
+add $a0, $s4, $s5
+li $v0, 9
+syscall
+move $s3, $v0
+move $t0, $s0
+move $t1, $s3
+mip_label_0:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mip_label_0
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mip_label_0
+mip_label_0:
+move $v0, $t1
+move $t0, $s1
+move $t1, $v0
+mip_label_0:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mip_label_0
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mip_label_0
+mip_label_0:
+move $v0, $t1
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
 # ReturnNode
 lw $t8, 0($fp)
 sll $t8, $t8, 16
@@ -157,6 +673,54 @@ addi $t7, $t7, 4
 lw $t9, 0($t7)
 or $v0, $t8, $t9
 
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
 lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
@@ -190,7 +754,75 @@ addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
+lw $t8, 8($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+lw $t8, 24($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+lw $t8, 16($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+add $s0, $s0, $s3
+move $a0, $s1
+li $v0, 9
+syscall
+move $t0, $s0
+move $t1, $v0
+move $t3, $s1
+mip_label_0:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+addi $t3, $t3, -1
+beqz $t3, mip_label_0
+j mip_label_0
+mip_label_0:
+move $t2, $zero
+sb $t2, 0($t1)
+srl $t9, $v0, 16
+sw $t9, 0($t8)
+sw $v0, 4($t8)
 # ReturnNode
 lw $t8, 0($fp)
 sll $t8, $t8, 16
@@ -198,6 +830,54 @@ addi $t7, $t7, 4
 lw $t9, 0($t7)
 or $v0, $t8, $t9
 
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
 lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
@@ -231,15 +911,88 @@ addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
-lw $t8, 0($fp)
+
+lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
 lw $t9, 0($t7)
-or $a0, $t8, $t9
-li $v0, 4
-syscall
-
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
 lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
@@ -273,6 +1026,38 @@ addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
 # ReturnNode
 lw $t8, 0($fp)
@@ -281,6 +1066,54 @@ addi $t7, $t7, 4
 lw $t9, 0($t7)
 or $v0, $t8, $t9
 
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
 lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
@@ -307,15 +1140,43 @@ move $fp, $sp
 
 # Allocate memory for Local variables
 addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
-lw $t8, 0($fp)
+lw $t8, 8($fp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
 lw $t9, 0($t7)
@@ -327,10 +1188,58 @@ lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
 lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
 or $ra, $t8, $t9
 addi $sp, $sp, 8
 # Clean stack variable space
-addi $sp, $sp, 8
+addi $sp, $sp, 0
 # Return
 lw $t8, 0($sp)
 sll $t8, $t8, 16
@@ -353,16 +1262,54 @@ srl $t9, $zero, 16
 sw $t9, 0($t8)
 sw $zero, 4($t8)
 addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
+li $a0, 1024
+li $v0, 9
+syscall
+move $a0, $v0
+srl $t9, $v0, 16
+sw $t9, 0($t8)
+sw $v0, 4($t8)
+li $a1, 1024
+li $v0, 8
+syscall
 # ReturnNode
-lw $t8, -8($fp)
+lw $t8, 0($fp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
 lw $t9, 0($t7)
@@ -372,10 +1319,58 @@ lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
 lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
 or $ra, $t8, $t9
 addi $sp, $sp, 8
 # Clean stack variable space
-addi $sp, $sp, 16
+addi $sp, $sp, 8
 # Return
 lw $t8, 0($sp)
 sll $t8, $t8, 16
@@ -405,6 +1400,38 @@ addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
 li $a0, 8
 li $v0, 9
@@ -424,14 +1451,65 @@ lw $t8, 0($fp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
 lw $t9, 0($t7)
-or $t0, $t8, $t9
+or $s0, $t8, $t9
 addi $sp, $sp, -8
-srl $t9, $t0, 16
+srl $t9, $s0, 16
 sw $t9, 0($t8)
-sw $t0, 4($t8)
+sw $s0, 4($t8)
 # StaticCallNode
 jal function_main_at_Main
+srl $t9, $v0, 16
+sw $t9, 0($t8)
+sw $v0, 4($t8)
 
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
 lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
@@ -465,7 +1543,44 @@ addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
+lw $t8, 0($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $t0, $t8, $t9
 # ReturnNode
 lw $t8, 0($fp)
 sll $t8, $t8, 16
@@ -473,6 +1588,54 @@ addi $t7, $t7, 4
 lw $t9, 0($t7)
 or $v0, $t8, $t9
 
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
 lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
@@ -506,7 +1669,44 @@ addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
+lw $t8, 0($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $t0, $t8, $t9
 # ReturnNode
 lw $t8, 0($fp)
 sll $t8, $t8, 16
@@ -514,6 +1714,54 @@ addi $t7, $t7, 4
 lw $t9, 0($t7)
 or $v0, $t8, $t9
 
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
 lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
@@ -540,29 +1788,44 @@ move $fp, $sp
 
 # Allocate memory for Local variables
 addi $sp, $sp, -8
-srl $t9, $zero, 16
-sw $t9, 0($t8)
-sw $zero, 4($t8)
-addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
-li $a0, 8
-li $v0, 9
-syscall
-srl $t9, $v0, 16
-sw $t9, 0($t8)
-sw $v0, 4($t8)
-li $t0, 4
-srl $t9, $t0, 16
-sw $t9, 0($t8)
-sw $t0, 4($t8)
-srl $t9, $t0, 16
-sw $t9, 0($t8)
-sw $t0, 4($t8)
 # ReturnNode
-lw $t8, 0($fp)
+lw $t8, 16($fp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
 lw $t9, 0($t7)
@@ -572,10 +1835,58 @@ lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
 lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
 or $ra, $t8, $t9
 addi $sp, $sp, 8
 # Clean stack variable space
-addi $sp, $sp, 8
+addi $sp, $sp, 0
 # Return
 lw $t8, 0($sp)
 sll $t8, $t8, 16
@@ -601,7 +1912,44 @@ addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
+lw $t8, 0($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $t0, $t8, $t9
 # ReturnNode
 lw $t8, 0($fp)
 sll $t8, $t8, 16
@@ -609,6 +1957,54 @@ addi $t7, $t7, 4
 lw $t9, 0($t7)
 or $v0, $t8, $t9
 
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
 lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
@@ -642,7 +2038,44 @@ addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
+lw $t8, 0($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $t0, $t8, $t9
 # ReturnNode
 lw $t8, 0($fp)
 sll $t8, $t8, 16
@@ -650,6 +2083,54 @@ addi $t7, $t7, 4
 lw $t9, 0($t7)
 or $v0, $t8, $t9
 
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
 lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
@@ -683,7 +2164,44 @@ addi $sp, $sp, -8
 srl $t9, $ra, 16
 sw $t9, 0($t8)
 sw $ra, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s0, 16
+sw $t9, 0($t8)
+sw $s0, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s1, 16
+sw $t9, 0($t8)
+sw $s1, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s2, 16
+sw $t9, 0($t8)
+sw $s2, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s3, 16
+sw $t9, 0($t8)
+sw $s3, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s4, 16
+sw $t9, 0($t8)
+sw $s4, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s5, 16
+sw $t9, 0($t8)
+sw $s5, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s6, 16
+sw $t9, 0($t8)
+sw $s6, 4($t8)
+addi $sp, $sp, -8
+srl $t9, $s7, 16
+sw $t9, 0($t8)
+sw $s7, 4($t8)
 # Generating body code
+lw $t8, 0($fp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $t0, $t8, $t9
 # ReturnNode
 lw $t8, 0($fp)
 sll $t8, $t8, 16
@@ -691,6 +2209,54 @@ addi $t7, $t7, 4
 lw $t9, 0($t7)
 or $v0, $t8, $t9
 
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s7, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s6, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s5, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s4, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s3, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s2, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s1, $t8, $t9
+addi $sp, $sp, 8
+lw $t8, 0($sp)
+sll $t8, $t8, 16
+addi $t7, $t7, 4
+lw $t9, 0($t7)
+or $s0, $t8, $t9
+addi $sp, $sp, 8
 lw $t8, 0($sp)
 sll $t8, $t8, 16
 addi $t7, $t7, 4
@@ -706,4 +2272,4 @@ addi $t7, $t7, 4
 lw $t9, 0($t7)
 or $fp, $t8, $t9
 addi $sp, $sp, 8
-jr $ra[]
+jr $ra

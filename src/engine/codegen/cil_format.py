@@ -87,13 +87,13 @@ class CIL_FORMATTER(object):
     def visit(self, node: ReturnNode):
         return f'RETURN {node.value if node.value is not None else ""}'
 
-    @visitor.when(ReadNode)
-    def visit(self, node: ReadNode):
-        return f'{node.dest} = READ'
+    @visitor.when(ReadStrNode)
+    def visit(self, node: ReadStrNode):
+        return f'{node.dest} = READSTR'
 
-    @visitor.when(PrintNode)
-    def visit(self, node: PrintNode):
-        return f'PRINT {node.str_addr}'
+    @visitor.when(PrintStrNode)
+    def visit(self, node: PrintStrNode):
+        return f'PRINTSTR {node.str_addr}'
 
     @visitor.when(LoadNode)
     def visit(self, node: LoadNode):
@@ -115,13 +115,13 @@ class CIL_FORMATTER(object):
     def visit(self, node: SubstringNode):
         return f'{node.dest} = SUBSTRING {node.msg1} {node.start} {node.length}'
 
-    @visitor.when(ToStrNode)
-    def visit(self, node: ToStrNode):
-        return f'{node.dest} = STR {node.ivalue}'
+    @visitor.when(ReadIntNode)
+    def visit(self, node: ReadIntNode):
+        return f'{node.dest} = READINT'
 
-    @visitor.when(ToIntNode)
-    def visit(self, node: ToIntNode):
-        return f'{node.dest} = INT {node.msg}'
+    @visitor.when(PrintIntNode)
+    def visit(self, node: PrintIntNode):
+        return f'PRINTINT {node.str_addr}'
 
     @visitor.when(GetAttribNode)
     def visit(self, node: GetAttribNode):

@@ -357,11 +357,11 @@ class MipsCode:
         '''
         self._write(f'beq {rsrc1}, {src2}, {label}')
 
-    def beqz(self, rsrc1, src2, label):
+    def beqz(self, rsrc1, label):
         '''
         Branch on Equal Zero
         '''
-        self._write(f'beqz {rsrc1}, {src2}, {label}')
+        self._write(f'beqz {rsrc1}, {label}')
 
     def bne(self, rsrc1, src2, label):
         '''
