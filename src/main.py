@@ -25,8 +25,14 @@ if len(errors):
 
 
 parse, operations = CoolParser(tokens)
-
 ast = evaluate_reverse_parse(parse, operations, tokens)
+
+#print(ast)
+
+fmatter = Format()
+tree = fmatter.visit(ast, 0)
+
+print(tree)
 
 collect_errors = []
 collect = Collector(collect_errors)
