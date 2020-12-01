@@ -49,17 +49,19 @@ class InstructionNode(Node):
 
 
 class GetAttribNode(InstructionNode):
-    def __init__(self, dest, obj, attrib):
+    def __init__(self, dest, obj, attrib, typex):
         self.dest = dest
         self.obj = obj
         self.attrib = attrib
+        self.type = typex
 
 
 class SetAttribNode(InstructionNode):
-    def __init__(self, obj, attrib, value):
+    def __init__(self, obj, attrib, value, typex):
         self.obj = obj
         self.attrib = attrib
         self.value = value
+        self.type = typex
 
 
 class AssignNode(InstructionNode):
@@ -223,26 +225,24 @@ class SubstringNode(InstructionNode):
         self.length = length
 
 
-class ToStrNode(InstructionNode):
-    def __init__(self, dest, ivalue):
-        self.dest = dest
-        self.ivalue = ivalue
+class PrintStrNode(InstructionNode):
+    def __init__(self, str_addr):
+        self.str_addr = str_addr
 
 
-class ToIntNode(InstructionNode):
-    def __init__(self, dest, msg):
-        self.dest = dest
-        self.msg = msg
+class PrintIntNode(InstructionNode):
+    def __init__(self, str_addr):
+        self.str_addr = str_addr
 
 
-class ReadNode(InstructionNode):
+class ReadIntNode(InstructionNode):
     def __init__(self, dest):
         self.dest = dest
 
 
-class PrintNode(InstructionNode):
-    def __init__(self, str_addr):
-        self.str_addr = str_addr
+class ReadStrNode(InstructionNode):
+    def __init__(self, dest):
+        self.dest = dest
 
 ################# nodes que me tengo que definir ##############
 

@@ -7,7 +7,7 @@ class Main inherits IO {
 
 class A {
     m () : String { "A" };
-    f () : A { new A };
+    f ( a : B) : B { a };
 };
 
 class B inherits A {
