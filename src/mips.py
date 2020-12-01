@@ -555,19 +555,14 @@ function_in_string_at_IO:
             move $t0, $v0
             la $a0, _buffer
 
-            li $t3 10
-
         IO_copy:
             lb $t1, ($a0)
-            beq $t1, $t3, IO_change
             sb $t1, ($t0)
             addiu $a0, $a0, 1
             addiu $t0, $t0, 1
-            j IO_copy
+            bne $t1, $zero, IO_copy
 
-        IO_change:
-
-            #addiu $t0, $t0, -2
+            addiu $t0, $t0, -2
             sb $zero, ($t0)
 
             move $a0, $v0
