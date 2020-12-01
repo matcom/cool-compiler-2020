@@ -1356,6 +1356,10 @@ class UsedRegisterFinder:
     @visitor.when(mips.JumpAndLinkNode)
     def visit(self, node):
         self.used_registers.add(mips.RA_REG)
+    
+    @visitor.when(mips.JumpRegisterAndLinkNode)
+    def visit(self, node):
+        self.used_registers.add(mips.RA_REG)
 
 
 #Change Name
