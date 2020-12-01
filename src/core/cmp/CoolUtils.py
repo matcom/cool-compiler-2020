@@ -1,6 +1,6 @@
-from core.cmp.pycompiler import Grammar
-from core.cmp.functions import LR1Parser
-from core.cmp.utils import Token, tokenizer
+from .pycompiler import Grammar
+from .functions import LR1Parser
+from .utils import Token, tokenizer
 
 empty_token = Token("", "")
 empty_token.row, empty_token.column = (0, 0)

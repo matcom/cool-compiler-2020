@@ -1,6 +1,6 @@
-from core.cmp.pycompiler import *
-from core.cmp.automata import *
-from core.cmp.utils import *
+from .pycompiler import *
+from .automata import *
+from .utils import *
 
 class BadTextFormatException(Exception):
     """
@@ -438,7 +438,6 @@ class GrammarTools:
                 e = GrammarTools.regex_union(e, R[0][i][n])
 
         return e
-
 
 class Action(tuple):
     SHIFT = 'SHIFT'
