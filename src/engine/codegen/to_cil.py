@@ -50,6 +50,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.current_function = self.register_function('entry')
         instance = self.define_internal_local()
         result = self.define_internal_local()
+        self.current_type = 'Main'
         self.register_instruction(AllocateNode(instance, 'Main'))
         self.init_class_attr(scope, 'Main', instance)
         self.register_instruction(ArgNode(instance))

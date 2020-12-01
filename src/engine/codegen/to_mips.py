@@ -449,10 +449,9 @@ class CIL_TO_MIPS:
         self.get_string_length(reg.s0, reg.s4)
         self.get_string_length(reg.s1, reg.s5)
 
-        # WARNING: Divide in 2, from half to byte
         self.mips.add(reg.a0, reg.s4, reg.s5)
         self.mips.sbrk()
-        self.mips.move(reg.s3, reg.v0)  # The new space reserved
+        self.mips.move(reg.s3, reg.v0)
 
         self.copy_str(reg.s0, reg.s3, reg.v0)
         self.copy_str(reg.s1, reg.v0, reg.v0)
@@ -465,38 +464,37 @@ class CIL_TO_MIPS:
         end_ok_label = self.get_label()
         loop_label = self.get_label()
 
-        self.load_memory(reg.s0, node.msg1)  # load string address
+        self.load_memory(reg.s0, node.msg1)
         self.load_memory(reg.s1, node.msg2)
 
-        self.get_string_length(reg.s0, reg.s2)  # load size of string
+        self.get_string_length(reg.s0, reg.s2)
         self.get_string_length(reg.s1, reg.s3)
 
-        self.mips.move(reg.v0, reg.zero)  # return 0
-        # end and return 0 if size not equal
+        self.mips.move(reg.v0, reg.zero)
         self.mips.bne(reg.s2, reg.s3, end_label)
 
-        self.mips.move(reg.s2, reg.s0)  # lets use temporal register
+        self.mips.move(reg.s2, reg.s0)
         self.mips.move(reg.s3, reg.s1)
 
         self.mips.label(loop_label)
 
-        self.mips.lb(reg.s4, self.mips.offset(reg.s2))  # load string character
+        self.mips.lb(reg.s4, self.mips.offset(reg.s2))
         self.mips.lb(reg.s5, self.mips.offset(reg.s3))
 
-        self.mips.bne(reg.s4, reg.s5, end_label)  # if no equal then return 0
+        self.mips.bne(reg.s4, reg.s5, end_label)
 
-        self.mips.addi(reg.s2, reg.s2, 1)  # move next character
+        self.mips.addi(reg.s2, reg.s2, 1)
         self.mips.addi(reg.s3, reg.s3, 1)
 
         self.mips.beqz(
             reg.s4, end_ok_label
-        )  # if end the string return 1 (they are equal)
-        self.mips.j(loop_label)  # continue loop
+        )
+        self.mips.j(loop_label)
 
         self.mips.label(end_ok_label)
-        self.mips.li(reg.v0, 1)  # return 1
+        self.mips.li(reg.v0, 1)
         self.mips.label(end_label)
-        self.mips.store_memory(reg.v0, node.dest)  # store value in dst
+        self.mips.store_memory(reg.v0, node.dest)
 
     @visitor.when(ConcatNode)
     def visit(self, node):
@@ -506,10 +504,9 @@ class CIL_TO_MIPS:
         self.get_string_length(reg.s0, reg.s4)
         self.get_string_length(reg.s1, reg.s5)
 
-        # WARNING: Divide in 2, from half to byte
         self.mips.add(reg.a0, reg.s4, reg.s5)
         self.mips.sbrk()
-        self.mips.move(reg.s3, reg.v0)  # The new space reserved
+        self.mips.move(reg.s3, reg.v0)
 
         self.copy_str(reg.s0, reg.s3, reg.v0)
         self.copy_str(reg.s1, reg.v0, reg.v0)
@@ -527,7 +524,7 @@ class CIL_TO_MIPS:
         self.mips.move(reg.t0, src)
         self.mips.move(reg.t1, dst)
 
-        self.mips.move(reg.t3, length)  # i = length
+        self.mips.move(reg.t3, length)
 
         self.mips.label(loop)
 
@@ -537,7 +534,7 @@ class CIL_TO_MIPS:
         self.mips.addi(reg.t0, reg.t0, 1)
         self.mips.addi(reg.t1, reg.t1, 1)
 
-        self.mips.addi(reg.t3, reg.t3, -1)  # i --
+        self.mips.addi(reg.t3, reg.t3, -1)
 
         self.mips.beqz(reg.t3, end)
         self.mips.j(loop)
@@ -549,16 +546,13 @@ class CIL_TO_MIPS:
 
     @visitor.when(SubstringNode)
     def visit(self, node):
-        # self.mips.li(reg.a0, 10)
-        # self.mips.print_int()
         self.load_memory(reg.s0, node.msg1)
         self.load_memory(reg.s1, node.length)
         self.load_memory(reg.s3, node.start)
 
         self.mips.add(reg.s0, reg.s0, reg.s3)
 
-        self.mips.move(reg.a0, reg.s1)  # allocate heap memory
-        # self.mips.print_int()
+        self.mips.move(reg.a0, reg.s1)
         self.mips.sbrk()
         self.copy_substr(reg.s0, reg.v0, reg.s1)
 
@@ -570,13 +564,13 @@ class CIL_TO_MIPS:
         self.mips.sbrk()
         self.mips.move(reg.a0, reg.v0)
         self.store_memory(reg.v0, node.dest)
-        self.mips.li(reg.a1, 1024)  # Change this later
+        self.mips.li(reg.a1, 1024)
         self.mips.read_string()
 
     @visitor.when(PrintStrNode)
-    def visit(self, node: PrintStrNode):  # noqa: F811
+    def visit(self, node: PrintStrNode):
         self.load_memory(reg.a0, node.str_addr)
-        self.mips.print_str()
+        self.mips.print_str(node.str_addr)
 
     @visitor.when(ReadIntNode)
     def visit(self, node: ReadIntNode):
@@ -586,7 +580,7 @@ class CIL_TO_MIPS:
     @visitor.when(PrintIntNode)
     def visit(self, node: PrintIntNode):
         self.load_memory(reg.a0, node.str_addr)
-        self.mips.print_int()
+        self.mips.print_int(node.str_addr)
 
     @visitor.when(ReturnNode)
     def visit(self, node: ReturnNode):
