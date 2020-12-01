@@ -32,13 +32,14 @@ main:
 	@echo "[*] Installing python dependencies"
 	@$(PIP) install $(PIPREQUIREMENTS)
 	@echo "[*] Compiling Cool Lexical structures"
-	@> build/$(COMPSTRUCTFILE)
+	@mkdir build
+	@touch build/$(COMPSTRUCTFILE)
 	@$(PYTHON) install.py build/$(COMPSTRUCTFILE)
 	@touch build/__init__.py
 	@echo 1 >> .builds
 
 clean:
-	rm -rf build/*
+	rm -rf build
 	rm -rf ../tests/*/*.mips
 
 test:
