@@ -49,6 +49,10 @@ class ShiftReduceParser:
                 action, tag = self.action[state, lookahead]
             except KeyError:
                 col = tokens[cursor].token_column - len(tokens[cursor].lex)
+                if lookahead.Name == "self" or (lookahead.Name == "assign" and tokens[cursor - 1].token_type.Name == "self"):
+                    raise SyntaxError(f'({tokens[cursor].token_line},{col}) - ' +
+                                  f' SemanticError: ERROR "%s"' %
+                                  tokens[cursor].lex)
                 raise SyntaxError(f'({tokens[cursor].token_line},{col}) - ' +
                                   f' SyntacticError: ERROR "%s"' %
                                   tokens[cursor].lex)
