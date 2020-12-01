@@ -100,6 +100,7 @@ def program_to_cil_visitor(program):
     main_result = add_local('main_result')
     body.append(CilAST.ArgNode(main_init.value))
     body.append(CilAST.VCAllNode('Main', 'main', main_result))
+    body.append(CilAST.ReturnNode(main_result))
 
     main_function = CilAST.FuncNode(
         'main', [], [__LOCALS__[k] for k in __LOCALS__.keys()], body)
@@ -121,9 +122,9 @@ def program_to_cil_visitor(program):
     data.append(CilAST.DataNode('data_abort', 'Abort called from class '))
 
     cil_program = CilAST.ProgramNode(types, data, code, built_in_code)
-    remove_unused_locals(cil_program)
+    # remove_unused_locals(cil_program)
     # aqui se esta perdiendo un vcall
-    optimization_locals(cil_program)
+    # optimization_locals(cil_program)
     return cil_program
 
 
@@ -207,7 +208,13 @@ def func_to_cil_visitor(type_name, func):
     body.append(CilAST.ReturnNode(instruction.value))
 
     _locals = __LOCALS__.copy()
-    return CilAST.FuncNode(name, params, [_locals[k] for k in _locals.keys()], body)
+    _l_keys = _locals.keys()
+    for k in _l_keys:
+        for p in func.params:
+            if k == p[0]:
+                __LOCALS__.pop(k)
+
+    return CilAST.FuncNode(name, params, [__LOCALS__[k] for k in __LOCALS__.keys()], body)
 
 
 def expression_to_cil_visitor(expression):

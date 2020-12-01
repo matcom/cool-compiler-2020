@@ -43,7 +43,7 @@ class MIPSFunction:
         self.init_instructions = []
         self.instructions = []
         self.end_instructions = []
-        self.used_regs = set(['ra'])
+        self.used_regs = set(['ra', 'fp'])
 
         self.args_count = 0
         self.offset = {}
@@ -65,7 +65,10 @@ class MIPSFunction:
 
         self.end_instructions.append(
             AdduInstruction('$sp', '$sp', len(locals)*4))
-        if(self.name != 'Main_main'):
+        if self.name == 'main':
+            self.end_instructions.append(LiInstruction('$v0', 10))
+            self.end_instructions.append(SyscallInstruction())
+        else:
             self.end_instructions.append(JrInstruction('$ra'))
 
     def append_instruction(self, instruction):
@@ -75,7 +78,7 @@ class MIPSFunction:
         were declared in CIL.
         """
         # Update used registers
-        self.update_used_reg(instruction.registers)
+        # self.update_used_reg(instruction.registers)
         # Update function instrcutions
         self.instructions.append(instruction)
 

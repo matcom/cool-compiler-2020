@@ -574,6 +574,10 @@ def vcall_to_mips_visitor(vcall: cil.VCAllNode):
         CURRENT_FUNCTION.used_regs.remove('v0')
     except KeyError:
         pass
+    try:
+        CURRENT_FUNCTION.used_regs.remove('sp')
+    except KeyError:
+        pass
     save_reg_space = len(CURRENT_FUNCTION.used_regs) * 4
     instructions.append(mips.SubuInstruction('$sp', '$sp', save_reg_space))
     for i, reg in enumerate(CURRENT_FUNCTION.used_regs):
