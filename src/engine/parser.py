@@ -1,328 +1,237 @@
 from .cp import Grammar, LR1Parser
-
-# AST Classes
-class Node:
-    pass
-
-class ProgramNode(Node):
-    def __init__(self, declarations):
-        self.declarations = declarations
-        self.line = declarations[0].line
-        self.column = declarations[0].column
-
-class DeclarationNode(Node):
-    pass
-
-class ClassDeclarationNode(DeclarationNode):
-    def __init__(self, idx, features, parent=None):
-        self.id = idx
-        self.parent = parent
-        self.features = features
-        self.line = idx.line
-        self.column = idx.column
-
-class AttrDeclarationNode(DeclarationNode):
-    def __init__(self, idx, typex, expression=None):
-        self.id = idx
-        self.type = typex
-        self.expression = expression
-        self.line = idx.line
-        self.column = idx.column
-
-class FuncDeclarationNode(DeclarationNode):
-    def __init__(self, idx, params, return_type, body):
-        self.id = idx
-        self.params = params
-        self.type = return_type
-        self.body = body
-        self.line = idx.line
-        self.column = idx.column
-
-class ExpressionNode(Node):
-    pass
-
-class IfThenElseNode(ExpressionNode):
-    def __init__(self, condition, if_body, else_body):
-        self.condition = condition
-        self.if_body = if_body
-        self.else_body = else_body
-        self.line = condition.line
-        self.column = condition.column
-
-class WhileLoopNode(ExpressionNode):
-    def __init__(self, condition, body):
-        self.condition = condition
-        self.body = body
-        self.line = condition.line
-        self.column = condition.column
-        
-
-class BlockNode(ExpressionNode):
-    def __init__(self, expressions):
-        self.expressions = expressions
-        self.line = expressions[-1].line
-        self.column = expressions[-1].column
-
-class LetInNode(ExpressionNode):
-    def __init__(self, let_body, in_body):
-        self.let_body = let_body
-        self.in_body = in_body
-        self.line = in_body.line
-        self.column = in_body.column
-
-class CaseOfNode(ExpressionNode):
-    def __init__(self, expression, branches):
-        self.expression = expression
-        self.branches = branches
-        self.line = expression.line
-        self.column = expression.column
-
-class AssignNode(ExpressionNode):
-    def __init__(self, idx, expression):
-        self.id = idx
-        self.expression = expression
-        self.line = idx.line
-        self.column = idx.column
-
-class UnaryNode(ExpressionNode):
-    def __init__(self, expression):
-        self.expression = expression
-        self.line = expression.line
-        self.column = expression.column
-
-class NotNode(UnaryNode):
-    pass
-
-class BinaryNode(ExpressionNode):
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-        self.line = left.line
-        self.column = left.column
-
-class LessEqualNode(BinaryNode):
-    pass
-
-class LessNode(BinaryNode):
-    pass
-
-class EqualNode(BinaryNode):
-    pass
-
-class ArithmeticNode(BinaryNode):
-    pass
-
-class PlusNode(ArithmeticNode):
-    pass
-
-class MinusNode(ArithmeticNode):
-    pass
-
-class StarNode(ArithmeticNode):
-    pass
-
-class DivNode(ArithmeticNode):
-    pass
-
-class IsVoidNode(UnaryNode):
-    pass
-
-class ComplementNode(UnaryNode):
-    pass
-
-class FunctionCallNode(ExpressionNode):
-    def __init__(self, obj, idx, args, typex=None):
-        self.obj = obj
-        self.id = idx
-        self.args = args
-        self.type = typex
-        self.line = idx.line
-        self.column = idx.column
-
-class MemberCallNode(ExpressionNode):
-    def __init__(self, idx, args):
-        self.id = idx
-        self.args = args
-        self.line = idx.line
-        self.column = idx.column
-
-class NewNode(ExpressionNode):
-    def __init__(self, typex):
-        self.type = typex
-        self.line = typex.line
-        self.column = typex.column
-
-class AtomicNode(ExpressionNode):
-    def __init__(self, token):
-        self.token = token
-        self.line = token.line
-        self.column = token.column
-
-class IntegerNode(AtomicNode):
-    pass
-
-class IdNode(AtomicNode):
-    pass
-
-class StringNode(AtomicNode):
-    pass
-
-class BoolNode(AtomicNode):
-    pass
-
-
-
-# grammar
-CoolGrammar = Grammar()
-
-# non-terminals
-program = CoolGrammar.NonTerminal('<program>', startSymbol=True)
-class_list, def_class = CoolGrammar.NonTerminals('<class-list> <def-class>')
-feature_list, feature = CoolGrammar.NonTerminals('<feature-list> <feature>')
-param_list, param = CoolGrammar.NonTerminals('<param-list> <param>')
-expr, member_call, expr_list, let_list, case_list = CoolGrammar.NonTerminals('<expr> <member-call> <expr-list> <let-list> <case-list>')
-sub_expr, arith, arith_2, term, factor, factor_2 = CoolGrammar.NonTerminals('<sub-expr> <arith> <arith-2> <term> <factor> <factor-2>')
-atom, pre_atom, func_call, arg_list = CoolGrammar.NonTerminals('<atom> <pre-atom> <func-call> <arg-list>')
-
-# terminals
-classx, inherits = CoolGrammar.Terminals('class inherits')
-ifx, then, elsex, fi = CoolGrammar.Terminals('if then else fi')
-whilex, loop, pool = CoolGrammar.Terminals('while loop pool')
-let, inx = CoolGrammar.Terminals('let in')
-case, of, esac = CoolGrammar.Terminals('case of esac')
-semi, colon, comma, dot, at, opar, cpar, ocur, ccur, larrow, rarrow = CoolGrammar.Terminals('; : , . @ ( ) { } assign action')
-plus, minus, star, div, isvoid, compl = CoolGrammar.Terminals('+ - * / isvoid int_complement')
-notx, less, leq, equal = CoolGrammar.Terminals('not less lessequal equal')
-new, idx, typex, integer, string, boolx = CoolGrammar.Terminals('new id type integer string bool')
-
-# productions
-program %= class_list, lambda h, s: ProgramNode(s[1])
-
-# <class-list>   ???
-class_list %= def_class + class_list, lambda h, s: [s[1]] + s[2]
-class_list %= def_class, lambda h, s: [s[1]]
-
-# <def-class>    ???
-def_class %= classx + typex + ocur + feature_list + ccur + semi, lambda h, s: ClassDeclarationNode(s[2], s[4])
-def_class %= classx + typex + inherits + typex + ocur + feature_list + ccur + semi, lambda h, s: ClassDeclarationNode(s[2], s[6], s[4])
-
-# <feature-list> ???
-feature_list %= feature + feature_list, lambda h, s: [s[1]] + s[2]
-feature_list %= CoolGrammar.Epsilon, lambda h, s: []
-
-# <def-attr>     ???
-feature %= idx + colon + typex + semi, lambda h, s: AttrDeclarationNode(s[1], s[3])
-feature %= idx + colon + typex + larrow + expr + semi, lambda h, s: AttrDeclarationNode(s[1], s[3], s[5])
-
-# <def-func>     ???
-feature %= idx + opar + param_list + cpar + colon + typex + ocur + expr + ccur + semi, lambda h, s: FuncDeclarationNode(s[1], s[3], s[6], s[8]) 
-feature %= idx + opar + cpar + colon + typex + ocur + expr + ccur + semi, lambda h, s: FuncDeclarationNode(s[1], [], s[5], s[7]) 
-
-# <param-list>   ???
-param_list %= param, lambda h, s: [s[1]]
-param_list %= param + comma + param_list, lambda h, s: [s[1]] + s[3]
-
-# <param>        ???
-param %= idx + colon + typex, lambda h, s: (s[1], s[3])
-
-# <expr-list>    ???
-expr_list %= expr + semi, lambda h, s: [s[1]]
-expr_list %= expr + semi + expr_list, lambda h, s: [s[1]] + s[3]
-
-# <let-list>     ???
-let_list %= idx + colon + typex, lambda h, s: [(s[1], s[3], None)]
-let_list %= idx + colon + typex + larrow + expr, lambda h, s: [(s[1], s[3], s[5])]
-let_list %= idx + colon + typex + comma + let_list, lambda h, s: [(s[1], s[3], None)] + s[5]
-let_list %= idx + colon + typex + larrow + expr + comma + let_list, lambda h, s: [(s[1], s[3], s[5])] + s[7]
-
-# <case-list>    ???
-case_list %= idx + colon + typex + rarrow + expr + semi, lambda h, s: [(s[1], s[3], s[5])]
-case_list %= idx + colon + typex + rarrow + expr + semi + case_list, lambda h, s: [(s[1], s[3], s[5])] + s[7]
-
-# <expr> == <truth-expr>   ???
-# expr %= notx + expr, lambda h, s: NotNode(s[2])
-# expr %= comp_expr, lambda h, s: s[1]
-
-# <comp-expr>    ???
-expr %= expr + leq + arith, lambda h, s: LessEqualNode(s[1], s[3])
-expr %= expr + less + arith, lambda h, s: LessNode(s[1], s[3])
-expr %= expr + equal + arith, lambda h, s: EqualNode(s[1], s[3])
-expr %= sub_expr, lambda h, s: s[1]
-
-sub_expr %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[6])
-sub_expr %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4])
-sub_expr %= ocur + expr_list + ccur, lambda h, s: BlockNode(s[2])
-sub_expr %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
-sub_expr %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
-sub_expr %= idx + larrow + expr, lambda h, s: AssignNode(s[1], s[3])
-sub_expr %= arith, lambda h, s: s[1]
-
-# <arith>     ???
-arith %= notx + arith_2, lambda h, s: NotNode(s[2])
-arith %= arith_2, lambda h, s: s[1] 
-
-# <arith_2>       ???
-arith_2 %= arith_2 + plus + term, lambda h, s: PlusNode(s[1], s[3])
-arith_2 %= arith_2 + minus + term, lambda h, s: MinusNode(s[1], s[3])
-arith_2 %= term, lambda h, s: s[1]
-
-# <term>        ???
-term %= term + star + factor, lambda h, s: StarNode(s[1], s[3])
-term %= term + div + factor, lambda h, s: DivNode(s[1], s[3])
-term %= factor, lambda h, s: s[1]
-
-# <factor>      ???
-factor %= isvoid + factor_2, lambda h, s: IsVoidNode(s[2])
-factor %= factor_2, lambda h, s: s[1]
-
-# <factor-2>    ???
-factor_2 %= compl + atom, lambda h, s: ComplementNode(s[2])
-factor_2 %= atom, lambda h, s: s[1]
-
-# <expr>
-# pre_atom %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[6])
-# pre_atom %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4])
-# pre_atom %= ocur + expr_list + ccur, lambda h, s: BlockNode(s[2])
-# pre_atom %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
-# pre_atom %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
-# pre_atom %= idx + larrow + expr, lambda h, s: AssignNode(s[1], s[3])
-# pre_atom %= atom, lambda h, s: s[1]
-
-# <atom> (<expr>)         ???
-# atom %= ifx + expr + then + expr + elsex + expr + fi, lambda h, s: IfThenElseNode(s[2], s[4], s[6])
-# atom %= whilex + expr + loop + expr + pool, lambda h, s: WhileLoopNode(s[2], s[4])
-# atom %= ocur + expr_list + ccur, lambda h, s: BlockNode(s[2])
-# atom %= let + let_list + inx + expr, lambda h, s: LetInNode(s[2], s[4])
-# atom %= case + expr + of + case_list + esac, lambda h, s: CaseOfNode(s[2], s[4])
-# atom %= idx + larrow + expr, lambda h, s: AssignNode(s[1], s[3])
-# <atom>        ???
-atom %= atom + func_call, lambda h, s: FunctionCallNode(s[1], *s[2])
-atom %= member_call, lambda h, s: s[1]
-atom %= new + typex, lambda h, s: NewNode(s[2])
-atom %= opar + expr + cpar, lambda h, s: s[2]
-atom %= idx, lambda h, s: IdNode(s[1])
-atom %= integer, lambda h, s: IntegerNode(s[1])
-atom %= string, lambda h, s: StringNode(s[1])
-atom %= boolx, lambda h, s: BoolNode(s[1])
-
-# <func-call>   ???
-func_call %= dot + idx + opar + arg_list + cpar, lambda h, s: (s[2], s[4])
-func_call %= dot + idx + opar + cpar, lambda h, s: (s[2], [])
-func_call %= at + typex + dot + idx + opar + arg_list + cpar, lambda h, s: (s[4], s[6], s[2])
-func_call %= at + typex + dot + idx + opar + cpar, lambda h, s: (s[4], [], s[2])
-
-# <arg-list>    ???
-arg_list %= expr, lambda h, s: [s[1]]
-arg_list %= expr + comma + arg_list, lambda h, s: [s[1]] + s[3]
-
-# <member-call> ???
-member_call %= idx + opar + arg_list + cpar, lambda h, s: MemberCallNode(s[1], s[3])
-member_call %= idx + opar + cpar, lambda h, s: MemberCallNode(s[1], [])
-
-# parser
-CoolParser = LR1Parser(CoolGrammar)
+from ply import yacc
+from ast_parser import *
+from lexer import tokens,literals
+
+# Parser
+
+class CoolParser:
+    """
+    CoolParser class.
+    """
+    def __init__(self, tokens, literals):
+        self.tokens = None
+        self.literals = None
+        self.parser = yacc.yacc(module=self,start='program')
+        self.error_list = []
+
+
+    precedence = (
+        ('right', 'ASSIGN'),
+        ('right', 'NOT'),
+        ('nonassoc', 'LESS', 'LESSEQUAL', 'EQUAL'),
+        ('left', '+', '-'),
+        ('left', '*', '/'),
+        ('right', 'ISVOID')
+        ('right', 'INT_COMPLEMENT')
+        ('left', '@'),
+        ('left', '.'),
+    )
+
+    def p_epsilon(p):
+        'epsilon :'
+        pass
+
+    def p_program(p):
+        '''program : class_list'''
+        p[0] = ProgramNode(p[1])
+
+    def p_class_list(p):
+        '''class_list : def_class class_list
+                      | def_class'''
+        if len(p) == 3:
+            p[0] = [s[1]] + s[2]
+        else:
+            p[0] = [p[1]]
+
+    def p_def_class(p):
+        '''def_class : CLASS TYPE '(' feature_list ')' ';'
+                    | CLASS TYPE INHERITS TYPE '(' feature_list ')' ';' '''
+        if len(p) == 7:
+            p[0] = ClassDeclarationNode(p[2], p[4])
+        else:
+            p[0] = ClassDeclarationNode(p[2], p[6], parent=p[4])
+
+    def p_feature_list(p):
+        '''feature_list : feature feature_list
+                        | epsilon'''
+        if len(p) == 3:
+            p[0] = [p[1]] + p[2]
+
+    def p_feature_attribute(p):
+        '''feature : ID ':' TYPE ';'
+                | ID ':' TYPE ASSIGN expr ';' '''
+        if len(p) == 5:
+            p[0] = AttrDeclarationNode(p[1], p[3])
+        else:
+            p[0] = AttrDeclarationNode(p[1], p[3], p[5])
+
+    def p_feature_function(p):
+        '''feature : ID '(' param_list ')' ':' TYPE '(' expr ')' ';'
+                   | ID '(' ')' ':' TYPE '(' expr ')' ';''''
+        if len(p) == 11:
+            p[0] = FuncDeclarationNode(p[1], p[3], p[6], p[8])
+        else:
+            p[0] = FuncDeclarationNode(p[1], [], p[5], p[7])
+
+    def p_param_list(p):
+        '''param_list : param
+                    | param comma param_list'''
+        if len(p) == 2:
+            p[0] = [p[1]]
+        else:
+            p[0] = [p[1]] + p[3]
+
+    def p_param(p):
+        '''param : ID ':' TYPE'''
+        p[0] = (p[1], p[3])
+
+    def p_expr_list(p):
+        '''expr_block : expr semi
+                     | expr semi expr_block'''
+        if len(p) == 3:
+            p[0] = [p[1]]
+        else:
+            p[0] = [p[1]] + p[3]
+
+    def p_let_list(p):
+        '''let_list : ID ':' TYPE
+                    | ID ':' TYPE ACTION expr
+                    | ID ':' TYPE comma let_list
+                    | ID ':' TYPE ACTION expr comma let_list'''
+        if len(p) == 4:
+            p[0] = [LetVariableDeclaration(p[1], p[3], None)]
+        elif len(p) == 6 and p[4].lex == '=>':
+            p[0] = [LetVariableDeclaration(p[1], p[3], p[5])]
+        elif len(p) == 6:
+            p[0] = [LetVariableDeclaration(p[1], p[3], None)] + p[5]
+        else:
+            p[0] = [LetVariableDeclaration(p[1], p[3], p[5])] + p[7]
+
+    def p_case_list(p):
+        '''case_list : ID ':' TYPE ACTION expr ';'
+                    | ID ':' TYPE ACTION expr ';' case_list '''
+        if len(p) == 7:
+            p[0] = [CaseVariableDeclaration(s[1], s[3], s[5])]
+        else:
+            p[0] = [CaseVariableDeclaration(s[1], s[3], s[5])] + p[7]
+    
+    def p_compar(p):
+        '''expr : expr LESSEQUAL expr
+                | expr LESS expr
+                | expr EQUAL expr'''
+        if p[2].lex == '<=':
+            p[0] = LessEqualNode(p[1], p[3])
+        elif p[2] == '<':
+            p[0] = LessNode(p[1], p[3])
+        else:
+            p[0] = EqualNode(p[1], p[3])
+
+    def p_unary(p):
+        ''' expr : '~' expr
+                 | NOT expr
+                 | ISVOID expr'''
+        if p[1].lex == '~':
+            p[0] = ComplementNode(p[2])
+        elif p[1].lex == 'not':
+            p[0] = NotNode(p[2])
+        else:
+            p[0] = IsVoidNode(p[2])
+
+    def p_arith(p):
+        '''expr : expr '+' expr
+                | expr '-' expr'''
+        if p[2].lex == '+':
+            p[0] = PlusNode(p[0], p[3])
+        elif p[2].lex == '-':
+            p[0] = MinusNode(p[0], p[3])
+
+    def p_term(p):
+        '''expr : expr '*' expr
+                | expr '/' expr'''
+       elif p[2].lex == '*':
+            p[0] = StarNode(p[1], p[3])
+        else:
+            p[0] = DivNode(p[1], p[3])
+
+    def p_sub_atomic(p):
+        '''expr : IF expr THEN expr ELSE expr FI
+                | WHILE expr LOOP expr POOL
+                | '(' expr_list ')'
+                | LET let_list IN expr 
+                | LET let_list 
+                | CASE expr of case_list ESAC
+                | ID ASSIGN expr'''
+        if p[1].lex == 'if':
+            p[0] = IfThenElseNode(p[2], p[4], p[6])
+        elif p[1].lex == 'while':
+            p[0] = WhileLoopNode(p[2], p[4])
+        elif p[1].lex == '(':
+            p[0] = BlockNode(p[2])
+        elif len(p) == 5 and p[1].lex == 'let':
+            p[0] = LetInNode(p[2], p[4])
+        elif p[1].lex == 'let':
+            p[0] = LetInNode(p[2], None)
+        elif p[1].lex == 'case':
+            p[0] = CaseOfNode(p[2], p[4])
+        else:
+            p[0] = AssignNode(p[1], p[3])
+
+    def p_atomic(p):
+        '''expr : new0 TYPE
+                | '(' expr ')''''
+        if p[0].lex == 'new':
+            p[0] = NewNode(p[2])
+        elif p[0].lex == '(':
+            p[0] = p[2]
+
+    def p_atomic_func_call(p):
+        '''expr : expr func_call'''
+        p[0] = FunctionCallNode(p[1], *p[2])
+
+    def p_static_call(p):
+        '''func_call : '.' ID '(' arg_list ')'
+                     | '.' ID '(' ')''''
+        if len(p) == 6:
+            p[0] = (p[2], p[4])
+        else:
+            p[0] = (p[2], [])
+
+    def p_dynamic_call(p):
+        '''func_call : '@' TYPE '.' ID '(' arg_list ')'
+                     | '@' TYPE '.' ID '(' ')''''
+        if len(p) == 6:
+            p[0] = (p[4], p[6], p[2])
+        else:
+            p[0] = (p[4], [], p[2])
+    def p_atomic_member_call(p):
+        '''expr : ID '(' arg_list ')'
+                | ID '(' ')''''
+
+    def p_arg_list(p):
+        ''' arg_list : expr
+                     | expr ',' arg_list'''
+        if len(p) == 2:
+            p[0] = [p[1]]
+        else:``
+            p[0] = [p[1]] + p[3]
+    
+    def p_atomic_id(p):
+        '''expr : ID'''
+        p[0] = IdNode(p[1])
+
+    def p_atomic_integer(p):
+        '''expr : INTEGER'''
+        p[0] = IntegerNode(p[1])
+
+    def p_atomic_string(p):
+        '''expr : STRING'''
+        p[0] = StringNode(p[1])
+
+    def p_atomic_bool(p):
+        '''expr : BOOL'''
+        p[0] = BoolNode(p[1])
+
+parser = CoolParser(tokens, literals)
 
 if __name__ == '__main__':
-    if CoolParser.is_lr1:
-        print('The grammar is LR1')
-        print(CoolGrammar)
