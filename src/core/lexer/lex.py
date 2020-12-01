@@ -106,26 +106,6 @@ class CoolLexer:
         'ERROR'
     ] + list(reserved.values())
 
-    # t_EQUALS        = r'=' 
-    # t_PLUS          = r'\+'
-    # t_MINUS         = r'-'
-    # t_TIMES         = r'\*'
-    # t_DIVIDE        = r'/'
-    # t_LPAREN        = r'\('
-    # t_RPAREN        = r'\)'
-    # t_LESS          = r'<'
-    # t_LESSEQ        = r'<='
-    # t_LCBRA         = r'{'
-    # t_RCBRA         = r'}'
-    # t_COLON         = r':'
-    # t_SEMICOLON     = r';'
-    # t_COMPLEMENT    = r'~'
-    # t_RARROW        = r'=>'
-    # t_LARROW        = r'<-'
-    # t_COMMA         = r','
-    # t_DOT           = r'\.'
-    # t_AT            = r'@'
-
     t_ignore = ' \t\f\r\t\v'
     t_comments_ignore = ''
 
