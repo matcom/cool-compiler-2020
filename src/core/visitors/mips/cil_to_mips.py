@@ -1493,9 +1493,7 @@ class RegistersAllocator:
         next_in_out = [(set(), set()) for _ in range(n_instructions)]
 
         def add(set1, set2):
-            new = not set1 == set2
-            set1.update(set2)
-            return new
+            return not set2.issubset(set1)
 
         changed = True
         while changed:
@@ -1503,13 +1501,18 @@ class RegistersAllocator:
             for i in range(n_instructions)[::-1]:
                 for i_suc in suc[i]:
                     if i_suc < i:
-                        changed = add(next_in_out[i][1], in_out[i_suc][0])
+                        changed |= add(next_in_out[i][1], in_out[i_suc][0])
+                        next_in_out[i][1] = next_in_out[i][1].union(in_out[i_suc][0])
                     else:
-                        changed = add(next_in_out[i][1], next_in_out[i_suc][0])
+                        changed |= add(next_in_out[i][1], next_in_out[i_suc][0])
+                        next_in_out[i][1] = next_in_out[i][1].union(next_in_out[i_suc][0])
+
                 g_i = set(gk[i][0])
                 k_i = set(gk[i][1])
                 new = g_i.union(next_in_out[i][1].difference(k_i))
-                changed = add(next_in_out[i][0], new)
+                changed |= add(next_in_out[i][0], new)
+                next_in_out[i][0] = next_in_out[i][0].union(new)
+
             in_out = next_in_out
         
         return in_out
