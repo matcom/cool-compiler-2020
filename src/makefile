@@ -32,7 +32,7 @@ main:
 	@echo "[*] Installing python dependencies"
 	@$(PIP) install $(PIPREQUIREMENTS)
 	@echo "[*] Compiling Cool Lexical structures"
-	@touch build/$(COMPSTRUCTFILE)
+	@> build/$(COMPSTRUCTFILE)
 	@$(PYTHON) install.py build/$(COMPSTRUCTFILE)
 	@touch build/__init__.py
 	@echo 1 >> .builds
