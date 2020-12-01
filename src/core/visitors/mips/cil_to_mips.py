@@ -1,10 +1,10 @@
 import itertools as itt
-import core.cmp.visitor as visitor
-import core.cmp.cil as cil
-import core.cmp.mips as mips
+
+from ...visitors import visitor
+from ..cil import cil
+from ..mips import mips
 from random import choice
 from collections import defaultdict
-from core.cmp.utils import CountDict
 
 
 USED   = 1
@@ -20,8 +20,7 @@ class SimpleRegistersManager:
             if state == UNUSED:
                 self.registers[reg] = USED
                 return reg
-        raise Exception("not free register")
-        
+        raise Exception("not free register")    
     
     def free_reg(self, reg):
         self.registers[reg] = UNUSED
@@ -37,12 +36,12 @@ class SimpleRegistersManager:
     def __repr__(self):
         return str(len([0 for r in self.registers if self.registers[r] == USED ]))
 
+
 class MemoryManager:
     def __init__(self, registers, function_for_assign):
         self.registers = registers
         self.func = function_for_assign
     
-
     def get_reg_for_var(self, var):
         index = self.func(var)
         if index == -1:
@@ -52,8 +51,6 @@ class MemoryManager:
     def get_reg_unusued(self, used = []):
         possibles = list(set(self.registers).difference(set(used)))
         return choice(possibles)
-
-
 
 
 class LabelGenerator:
@@ -156,7 +153,7 @@ class CILToMIPSVisitor:
         mips_label = self.generate_code_label()
         self.register_label(node.label, mips_label)
     
-    
+
     @visitor.on('node')
     def visit(self, node):
         pass
@@ -205,14 +202,11 @@ class CILToMIPSVisitor:
     @visitor.when(cil.FunctionNode)
     def visit(self, node):
         used_regs_finder = UsedRegisterFinder()
-        
 
         label = self._name_func_map[node.name]
         params = [param.name for param in node.params]
         localvars = [local.name for local in node.localvars]
-        size_for_locals = len(localvars) * mips.ATTR_SIZE
-
-        
+        size_for_locals = len(localvars) * mips.ATTR_SIZE        
         
         new_func = mips.FunctionNode(label, params, localvars)
         self.register_function(node.name, new_func)
@@ -223,9 +217,6 @@ class CILToMIPSVisitor:
         if len(node.instructions):
             reg_for_var = ra.get_registers_for_variables(node.instructions, node.params, len(mips.REGISTERS))
             self.memory_manager = MemoryManager(mips.REGISTERS, lambda x : reg_for_var[x])
-        
-
-
 
         for instruction in node.instructions:
             self.collect_labels_in_func(instruction)
@@ -234,7 +225,6 @@ class CILToMIPSVisitor:
         if self.in_entry_function():
             initial_instructions.append(mips.JumpAndLinkNode("mem_manager_init"))
 
-
         initial_instructions.extend(mips.push_register(mips.FP_REG))
         initial_instructions.append(mips.AddInmediateNode(mips.FP_REG, mips.SP_REG, 4))
         initial_instructions.append(mips.AddInmediateNode(mips.SP_REG, mips.SP_REG, -size_for_locals))
@@ -242,7 +232,6 @@ class CILToMIPSVisitor:
         code_instructions = []
         
         #This try-except block is for debuggin purposes
-
 
         try:
             code_instructions = list(itt.chain.from_iterable([self.visit(instruction) for instruction in node.instructions]))
@@ -254,8 +243,7 @@ class CILToMIPSVisitor:
                 # print(node.instructions)
             print(e)
             print(node.name)
-            
-            
+                
         #code_instructions.extend(self.memory_manager.save_values())
 
         final_instructions = []
@@ -282,14 +270,11 @@ class CILToMIPSVisitor:
             final_instructions.append(mips.JumpRegister(mips.RA_REG))
         else:
             final_instructions.extend(mips.exit_program())
-
-
         
         func_instructions = list(itt.chain(initial_instructions, code_instructions, final_instructions))
         new_func.add_instructions(func_instructions)
 
-        self.finish_functions() 
-        
+        self.finish_functions()    
        
     @visitor.when(cil.ArgNode)
     def visit(self, node):
@@ -523,8 +508,6 @@ class CILToMIPSVisitor:
             instructions.append(mips.StoreWordNode(mips.ARG_REGISTERS[0], self.get_var_location(node.dest)))
         else:
             instructions.append(mips.MoveNode(reg2, mips.ARG_REGISTERS[0]))
-        
-
 
         #instructions.append(mips.LoadWordNode(reg, src_location))
         #instructions.append(mips.LoadWordNode(reg3, mips.RegisterRelativeLocation(reg1, 0)))
@@ -535,9 +518,8 @@ class CILToMIPSVisitor:
         #instructions.append(mips.StoreWordNode(reg1, dst_location))
         #instructions.append(mips.MoveNode(reg2, reg3))
 
-
-#        self.free_reg(reg)
-#        self.free_reg(reg2)
+        #self.free_reg(reg)
+        #self.free_reg(reg2)
 
         return instructions
     
@@ -583,7 +565,6 @@ class CILToMIPSVisitor:
 
        # instructions.append(mips.StoreWordNode(reg, dst_location))
         #instructions.append(mips.MoveNode(reg2, reg3))
-
 
         #self.free_reg(reg)
         return instructions
@@ -659,7 +640,6 @@ class CILToMIPSVisitor:
             instructions.append(mips.StoreWordNode(mips.V0_REG, self.get_var_location(node.dest)))
         else:
             instructions.append(mips.MoveNode(reg, mips.V0_REG))
-
 
         #self.free_reg(reg1)
         #self.free_reg(reg2)
@@ -744,7 +724,6 @@ class CILToMIPSVisitor:
         
         return instructions
 
-
     @visitor.when(cil.LabelNode)
     def visit(self, node):
         return [mips.LabelNode(self.get_mips_label(node.label))]
@@ -809,7 +788,6 @@ class CILToMIPSVisitor:
 
         #reg1 = self.get_free_reg()
         #reg2 = self.get_free_reg()
-        
 
         comp_tp = self._types[node.computed_type]
         method_index = list(comp_tp.methods).index(node.method)
@@ -854,7 +832,6 @@ class CILToMIPSVisitor:
 
         return instructions
     
-
     @visitor.when(cil.ErrorNode)
     def visit(self, node):
         instructions = []
@@ -868,7 +845,6 @@ class CILToMIPSVisitor:
         instructions.append(mips.SyscallNode())
 
         return instructions
-
 
     @visitor.when(cil.NameNode)
     def visit(self, node):
@@ -948,7 +924,6 @@ class CILToMIPSVisitor:
     def visit(self, node):
         instructions = []
 
-
         #reg1 = self.get_free_reg()
         #reg2 = self.get_free_reg()
 
@@ -994,7 +969,6 @@ class CILToMIPSVisitor:
     def visit(self, node):
         instructions = []
 
-
         #reg1 = self.get_free_reg()
         #reg2 = self.get_free_reg()
 
@@ -1030,7 +1004,6 @@ class CILToMIPSVisitor:
             instructions.append(mips.StoreWordNode(mips.ARG_REGISTERS[0], self.get_var_location(node.dest)))
         else:
             instructions.append(mips.MultiplyNode(reg3, reg1, reg2))
-
 
         #self.free_reg(reg1)
         #self.free_reg(reg2)
@@ -1116,18 +1089,14 @@ class CILToMIPSVisitor:
         #instructions.append(mips.AddInmediateNode(reg1, reg1, 1))
         #instructions.append(mips.StoreWordNode(reg1, dest_location))
 
-
         #self.free_reg(reg1)
 
         return instructions
-
-
 
     @visitor.when(cil.LessEqualNode)
     def visit(self, node):
         instructions = []
         #Save $a0, $a1, $v0
-
 
         if type(node.left) == int:
             instructions.append(mips.LoadInmediateNode(mips.ARG_REGISTERS[0], node.left))
@@ -1197,7 +1166,6 @@ class CILToMIPSVisitor:
             instructions.append(mips.StoreWordNode(mips.V0_REG, self.get_var_location(node.dest)))
         else:
             instructions.append(mips.MoveNode(reg, mips.V0_REG))
-
 
         return instructions
     
@@ -1327,7 +1295,6 @@ class CILToMIPSVisitor:
                 instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[1], self.get_var_location(node.index)))
             else:
                 instructions.append(mips.MoveNode(mips.ARG_REGISTERS[1], reg))
-
         
         if type(node.length) == int:
             instructions.append(mips.LoadInmediateNode(mips.ARG_REGISTERS[2], node.length))
@@ -1339,7 +1306,6 @@ class CILToMIPSVisitor:
                 instructions.append(mips.LoadWordNode(mips.ARG_REGISTERS[2], self.get_var_location(node.length)))
             else:
                 instructions.append(mips.MoveNode(mips.ARG_REGISTERS[2], reg))
-
         
         instructions.append(mips.JumpAndLinkNode("substr"))
         #instructions.append(mips.StoreWordNode(mips.V0_REG, dest_location))
@@ -1349,28 +1315,6 @@ class CILToMIPSVisitor:
         else:
             instructions.append(mips.MoveNode(reg, mips.V0_REG))
         return instructions
-
-
-        
-    
-
-
-
-
-
-
-
-
-
-
-
-    
-    
-        
-
-
-
-
 
 
 class UsedRegisterFinder:
@@ -1384,7 +1328,6 @@ class UsedRegisterFinder:
             self.visit(inst)
         self.used_registers = set.difference(self.used_registers, set([mips.SP_REG, mips.FP_REG, mips.V0_REG]))
         return [reg for reg in self.used_registers]
-
 
     @visitor.on('node')
     def visit(self, node):
@@ -1413,17 +1356,6 @@ class UsedRegisterFinder:
     @visitor.when(mips.JumpAndLinkNode)
     def visit(self, node):
         self.used_registers.add(mips.RA_REG)
-
-            
-
-    
-    
-
-
-
-
-
-
 
 
 #Change Name
@@ -1478,9 +1410,9 @@ class RegistersAllocator:
         io = [([], io[0][0])] + io
 
         return gk, io
-        interference = RegistersAllocator.interference_compute(gk, oi)
+        # interference = RegistersAllocator.interference_compute(gk, oi)
         
-        RegistersAllocator.assign_registers(interference, 4)
+        # RegistersAllocator.assign_registers(interference, 4)
 
     @staticmethod
     def interference_compute(gk, in_out):
@@ -1752,30 +1684,3 @@ class RegistersAllocator:
     def mark_leaders(self, instruction):
         instruction.leader = self.mark
         self.mark = False
-
-     
-
-
-
-
-
-
-
-#TEST
-CIL_TYPE_1 = cil.TypeNode("myType")
-CIL_TYPE_1.attributes = ["attr1", "attr2", "attr3"]
-CIL_TYPE_1.methods  = [("method1", "func1"), ("method2", "func2"), ("method3", "func3"), ("method4", "func4")]
-CIL_TYPE_2 = cil.TypeNode("myType2")
-CIL_TYPE_2.attributes = ["attr1", "attr2"]
-CIL_TYPE_2.methods  = [("method1", "func5"), ("method2", "func2"), ("method3", "func6"), ("method4", "func7")]
-CIL_AST_TEST = cil.ProgramNode([],[],[])
-CIL_AST_TEST.dottypes = [CIL_TYPE_1, CIL_TYPE_2]
-
-
-# if __name__ == '__main__':
-def test():
-    conv = CILToMIPSVisitor()
-    conv.visit(CIL_AST_TEST)
-    for d in conv.dotdata:
-        print(d)
-    
