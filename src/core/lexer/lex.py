@@ -1,14 +1,14 @@
 import ply.lex as lex
 import re
-from .utils import Token
-from .CoolUtils import *
+
+from ..cmp import Token
+from ..cmp.CoolUtils import *
 
 class CoolLexer:
 
     states = (
         ('comments', 'exclusive'),
         ('strings', 'exclusive'),
-        
     )
 
     reserved = {
@@ -79,7 +79,6 @@ class CoolLexer:
         "STRING":       string,
     }
 
-
     tokens = [
         'NUMBER',
         'TYPEIDENTIFIER',
@@ -105,8 +104,6 @@ class CoolLexer:
         'DOT',
         'AT',
         'ERROR'
-        
-
     ] + list(reserved.values())
 
     # t_EQUALS        = r'=' 
@@ -140,7 +137,6 @@ class CoolLexer:
         self.lexer.eof= (1,1)
         self.comment_level = 0
         self.string = ""
-
     
     def t_comments_COMMENTOUT(self, t):
         r'\*\)'
@@ -182,8 +178,6 @@ class CoolLexer:
         t.value = f"({line},{column}) - LexicographicError: Unterminated string constant"
         self.add_line_column(t)
         return t
-    
-    
 
     def t_strings_escaped_special_character(self, t):
         r'\\(b|t|f)'
@@ -213,11 +207,6 @@ class CoolLexer:
         t.lexer.begin("INITIAL")
         self.add_line_column(t)
         return t
-
-    
-
-
-
 
     def t_TYPEIDENTIFIER(self, t):
         r'[A-Z][a-zA-Z0-9|_]*'
@@ -279,7 +268,6 @@ class CoolLexer:
         line_start = self.text.rfind('\n', 0, token.lexpos) + 1
         return (token.lexpos - line_start) + 1
 
-
     def t_LARROW(self, t):
         r'<-'
         self.add_line_column(t)
@@ -330,14 +318,11 @@ class CoolLexer:
         self.add_line_column(t)
         return t
 
-    
-
     def t_LESS(self, t):
         r'<'
         self.add_line_column(t)
         return t
        
-
     def t_LCBRA(self, t):
         r'{'
         self.add_line_column(t)
@@ -363,8 +348,6 @@ class CoolLexer:
         self.add_line_column(t)
         return t
 
-    
-
     def t_COMMA(self, t):
         r','
         self.add_line_column(t)
@@ -379,6 +362,7 @@ class CoolLexer:
         r'@' 
         self.add_line_column(t)  
         return t  
+
     def t_error(self, t):
         line = t.lexer.lineno
         column = self.compute_column(t)
@@ -388,11 +372,9 @@ class CoolLexer:
         t.value = f"({line},{column}) - LexicographicError: \"{error_text}\""
         self.add_line_column(t)
         return t
-    
-    
+     
     def t_comments_error(self, t):
         t.lexer.skip(1)
-    
     
     def tokenize(self, text):
         self.text = text
@@ -413,3 +395,4 @@ class CoolLexer:
     def add_line_column(self, t):
         t.row = t.lexer.lineno
         t.column = self.compute_column(t)
+        
