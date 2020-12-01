@@ -1,7 +1,7 @@
 # Reporte sobre el de desarrollo del compilador
-En este reporte expondremos los requerimientos y forma de uso de nuestro compilador, además daremons un repaso sobre el diseño del mismo y sus distintas fases.
+En este reporte expondremos los requerimientos y forma de uso de nuestro compilador, además daremos un repaso sobre el diseño del mismo y sus distintas fases.
 ## Formas de uso y requeriminetos
-Nuestro compilador fue desarrollado en el lenguaje **Python** y actualmente para ser usado nuestro solo necesita del uso de módulo **ply** del mismo.
+Nuestro compilador fue desarrollado en el lenguaje **Python** y actualmente para ser usado solo necesita del uso de módulo **ply** del mismo.
 Para ser ejecutado solo se debe dirigir a `\src` en nuetro proyecto y ejecutar `python TigerandButiCompiler.py {input}` donde _input_ sería la dirección del archivo a compilar, como resultado se obtendrá un arvhivo _.mips_ con el mismo nombre del archivo.
 ## Estructura del proyecto
 La totalidad del mismo se halla en `\src` siendo *TigerandButiCompiler* nuestro archivo principal además de contener las definiciones del lexer y el parser y en _AST_ se define el AST generado por nuestro parser.   
