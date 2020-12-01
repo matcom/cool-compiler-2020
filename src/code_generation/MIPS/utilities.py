@@ -16,7 +16,7 @@ def init_types(types):
     for i, t in enumerate(types):
         t.code_mips = i
         t.size_mips = (len(t.attributes) + 2) * 4
-        size_vt = max(size_vt, (len(t.methods) + 1) * 4)
+        size_vt +=(len(t.methods) + 1) * 4
         t.attr_index_mips = {}
         for i, a in enumerate(t.attributes):
             t.attr_index_mips[a] = i + 1
