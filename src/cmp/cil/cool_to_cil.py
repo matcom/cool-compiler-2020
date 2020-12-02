@@ -30,6 +30,7 @@ from .ast import (
     StringEqualNode,
     TypeOfNode,
     VoidNode,
+    StaticTypeOfNode,
 )
 from .basic_transform import BASE_COOL_CIL_TRANSFORM, VariableInfo
 from .utils import Scope, on, when
@@ -132,7 +133,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         self.current_function = self.register_function("entry")
         instance = self.define_internal_local()
         result = self.define_internal_local()
-        self.register_instruction(AllocateNode(instance, "Main"))
+        self.register_instruction(StaticCallNode("init_Main", instance))
         self.current_type = self.context.get_type("Main")
         self.init_class_attr(scope, "Main", instance)
         self.current_type = None
@@ -286,8 +287,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         if result == 0:
             typex = node.type
             if typex in ["Int", "String", "Bool"]:
-                self.register_instruction(AllocateNode(var_name, typex))
-                self.register_instruction(SetAttribNode(var_name, "value", 0, typex))
+                self.register_instruction(StaticCallNode(f'init_{typex}', var_name))
             else:
                 self.register_instruction(VoidNode(var_name))
         else:
@@ -317,11 +317,11 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         not_cond = self.define_internal_local()
         case_label = self.to_label_name(f"case_{node.type}")
         # print(node.type, type(node.type))
-        temp_type = self.define_internal_local()
+        # temp_type = self.define_internal_local()
         type_val = self.define_internal_local()
         # WARNING: attr initialization isn't done
-        self.register_instruction(AllocateNode(temp_type, node.type))
-        self.register_instruction(TypeOfNode(temp_type, type_val))
+        self.register_instruction(StaticTypeOfNode(node.type, type_val))
+        # self.register_instruction(TypeOfNode(temp_type, type_val))
         self.register_instruction(EqualNode(cond, typex, type_val))
         self.register_instruction(NotNode(not_cond, cond))
         self.register_instruction(GotoIfNode(not_cond, case_label))
@@ -562,15 +562,15 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node: cool.BoolNode, scope: Scope):  # noqa:F811
         value = 1 if node.token.lower() == "true" else 0
         bool_inst = self.define_internal_local()
-        self.register_instruction(AllocateNode(bool_inst, "Bool"))
-        self.register_instruction(SetAttribNode(bool_inst, "value", value, "Bool"))
+        self.register_instruction(StaticCallNode('init_Bool', bool_inst))
+        if value: self.register_instruction(SetAttribNode(bool_inst, "value", value, "Bool"))
         return bool_inst
 
     @when(cool.IntegerNode)
     def visit(self, node: cool.IntegerNode, scope: Scope):  # noqa:F811
         value = int(node.token)
         int_inst = self.define_internal_local()
-        self.register_instruction(AllocateNode(int_inst, "Int"))
+        self.register_instruction(StaticCallNode('init_Int', int_inst))
         self.register_instruction(SetAttribNode(int_inst, "value", value, "Int"))
         return int_inst
 
@@ -579,6 +579,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         string = self.register_data(node.token[1:-1])
         value = string.name
         string_inst = self.define_internal_local()
-        self.register_instruction(AllocateNode(string_inst, "String"))
+        self.register_instruction(StaticCallNode('init_String', string_inst))
         self.register_instruction(SetAttribNode(string_inst, "value", value, "String"))
         return string_inst

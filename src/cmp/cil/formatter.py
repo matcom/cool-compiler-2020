@@ -41,6 +41,7 @@ from .ast import (
     TypeNode,
     TypeOfNode,
     VoidNode,
+    StaticTypeOfNode,
 )
 from .utils import on, when
 
@@ -158,6 +159,10 @@ class CIL_FORMATTER(object):
     @when(TypeOfNode)
     def visit(self, node: TypeOfNode):  # noqa:F811
         return f"{node.dest} = TYPEOF {node.obj}"
+
+    @when(StaticTypeOfNode)
+    def visit(self, node: StaticTypeOfNode):  # noqa:F811
+        return f"{node.dest} = TYPE {node.type}"
 
     @when(StaticCallNode)
     def visit(self, node: StaticCallNode):  # noqa:F811

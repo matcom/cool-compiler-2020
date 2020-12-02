@@ -175,6 +175,12 @@ class TypeOfNode(InstructionNode):
         self.dest = dest
 
 
+class StaticTypeOfNode(InstructionNode):
+    def __init__(self, typex, dest):
+        self.type = typex
+        self.dest = dest
+
+
 class LabelNode(InstructionNode):
     def __init__(self, label):
         self.label = label

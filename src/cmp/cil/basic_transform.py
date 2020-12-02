@@ -4,7 +4,6 @@ from typing import Any, Union, cast
 from ..cool_lang.semantics.semantic_utils import Attribute, Type
 from .ast import (
     AbortNode,
-    AllocateNode,
     ConcatNode,
     CopyNode,
     DataNode,
@@ -27,6 +26,7 @@ from .ast import (
     SubstringNode,
     TypeNameNode,
     TypeNode,
+    StaticCallNode
 )
 
 
@@ -84,7 +84,7 @@ class BASE_COOL_CIL_TRANSFORM:
         arg = static_type if isinstance(static_type, str) else static_type.name
         if arg in ["Int", "Bool", "String"]:
             packed = self.define_internal_local()
-            self.register_instruction(AllocateNode(packed, arg))
+            self.register_instruction(StaticCallNode(f'init_{arg}', packed))
             self.register_instruction(SetAttribNode(packed, "value", value, arg))
             return packed
         return value
@@ -363,8 +363,7 @@ class BASE_COOL_CIL_TRANSFORM:
         no_error_label2 = self.to_label_name("error2")
         no_error_label3 = self.to_label_name("error3")
         str_raw = self.unpack_type_by_value(self_local, "String")
-        self.register_instruction(AllocateNode(zero, "Int"))
-        self.register_instruction(SetAttribNode(zero, "value", 0, "Int"))
+        self.register_instruction(StaticCallNode("init_Int", zero))
         zero = self.unpack_type_by_value(zero, "Int")
         start_raw = self.unpack_type_by_value(start_parm, "Int")
         length_raw = self.unpack_type_by_value(length_param, "Int")

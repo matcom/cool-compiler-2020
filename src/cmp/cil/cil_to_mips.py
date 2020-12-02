@@ -46,6 +46,7 @@ from .ast import (
     TypeNode,
     TypeOfNode,
     VoidNode,
+    StaticTypeOfNode
 )
 from .utils import TypeData, on, when
 from .utils.mips_syntax import DATA_SIZE, Mips
@@ -511,6 +512,12 @@ class CIL_TO_MIPS(object):
     def visit(self, node: TypeOfNode):  # noqa: F811
         self.load_memory(Reg.s0, node.obj)
         self.mips.load_memory(Reg.s1, self.mips.offset(Reg.s0))
+        self.store_memory(Reg.s1, node.dest)
+
+    @when(StaticTypeOfNode)
+    @mips_comment("StaticTypeOfNode")
+    def visit(self, node: StaticTypeOfNode):  # noqa: F811
+        self.mips.li(Reg.s1, self.types_offsets[node.type].type)
         self.store_memory(Reg.s1, node.dest)
 
     @when(StaticCallNode)
