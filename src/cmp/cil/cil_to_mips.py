@@ -240,7 +240,7 @@ class CIL_TO_MIPS(object):
         self.mips.comment("Allocate memory for Local variables")
 
         localvars_count = len(node.localvars)
-        self.mips.addi(Reg.sp, -DATA_SIZE * localvars_count)
+        self.mips.addi(Reg.sp, Reg.sp, -DATA_SIZE * localvars_count)
         for idx, local in enumerate(node.localvars):
             self.visit(local, index=idx)
 
@@ -269,7 +269,7 @@ class CIL_TO_MIPS(object):
 
         self.mips.comment("Clean stack variable space")
 
-        self.mips.addi(Reg.sp, DATA_SIZE * localvars_count)
+        self.mips.addi(Reg.sp, Reg.sp, DATA_SIZE * localvars_count)
         self.actual_args = None
         self.mips.comment("Return")
         self.mips.pop(Reg.fp)
