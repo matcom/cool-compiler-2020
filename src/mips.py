@@ -564,7 +564,7 @@ function_in_string_at_IO:
 
             addiu $t0, $t0, -2
             li t1 10
-            bne $t1 , $t2 not_slash
+            bne $t1 , $t0 not_slash
             sb $zero, ($t0)
 
             :not_slash
