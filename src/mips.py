@@ -563,8 +563,11 @@ function_in_string_at_IO:
             bne $t1, $zero, IO_copy
 
             addiu $t0, $t0, -2
+            li t1 10
+            bne $t1 , $t2 not_slash
             sb $zero, ($t0)
 
+            :not_slash
             move $a0, $v0
 
             lw $ra, 0($fp)
