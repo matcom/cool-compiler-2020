@@ -79,7 +79,7 @@ class NotNode(InstructionNode):
     def __init__(self, dest, body):
         self.dest = dest
         self.body = body
-        
+
 
 class IsVoidNode(InstructionNode):
     def __init__(self, dest, body):
@@ -154,6 +154,12 @@ class SetIndexNode(InstructionNode):
     def __init__(self, array, index, value):
         self.array = array
         self.index = index
+        self.value = value
+
+
+class SetNode(InstructionNode):
+    def __init__(self, dest, value):
+        self.dest = dest
         self.value = value
 
 
