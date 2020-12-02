@@ -65,7 +65,7 @@ ctc = COOL_TO_CIL_VISITOR(cchecker.context)
 cil_ast = ctc.visit(program)
 
 if GEN_CIL:
-    with open(re.findall(r"^(.+)\.(.*)$",OUTPUT_FILE)[0][0] + ".cil", "w") as out_fd:
+    with open(re.findall(r"^(.+)\.(.*)$", OUTPUT_FILE)[0][0] + ".cil", "w") as out_fd:
         out_fd.write(CIL_FORMATTER().visit(cil_ast))
 
 ctm = CIL_TO_MIPS(cchecker.context)
