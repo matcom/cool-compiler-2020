@@ -59,3 +59,14 @@ La llamada a los métodos tiene un indicador de la posición relativa a su defin
 * Llamada al Main.Special desde el main
 * Métodos predefinidos
 * Métodos globales del programa
+
+#### Uso de registros
+* Registros $a#: Se usan para pasarle parámetros a los métodos en el interior de los métodos se evita su uso y en caso de necesitar usarlos, primero se guardan en la pila para luego restaurarlos. El único caso en que se modifican es si es especificado por el código CIL recibido.
+* Registros $s#: Se deben salvar antes de utilizarlos, para luego restaurarlos. No tienen reservada una función específica
+* Registros $t#: No necesitan ser salvados antes de utilizarlos. Internamente se utilizan en casi cada conversión a MIPS como lugar donde se cargan los parámetros CIL de la instrucción origen
+* Registro $v0: No necesita ser salvado en sus operaciones.Se utiliza para el valor de retorno de las funciones, así como de destino intermedio en la conversión a MIPS. $v1 no se usa
+El resto de los registros tiene una función asignada por el estándar de MIPS que no se violó. nos referimos a $ra, $sp, etc.  
+Alguna regla se violó en el código estático, debido a que solo se usa en circunstancias específicas y basado en el modelo de programación seguido
+  
+#### Tipos en tiempo de ejecución
+Esto proviene de un tipo CIL que pide inferencia de tipos. Lo que se utiliza es la definición de clase. Se pregunta si tu definición de clase es la buscada, en caso de no serlo se compara con la del padre, y sucesivamente con la de su padre; si en estos casos se encuentra una respuesta afirmativa se retorna verdadero. En caso de ver que llegaste a una clase sin padre(Object), es decir padre igual a 0, se retorna falso.
