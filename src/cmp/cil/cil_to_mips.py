@@ -38,15 +38,16 @@ from .ast import (
     ReadStrNode,
     ReturnNode,
     SetAttribNode,
+    SetNode,
     StarNode,
     StaticCallNode,
+    StaticTypeOfNode,
     StringEqualNode,
     SubstringNode,
     TypeNameNode,
     TypeNode,
     TypeOfNode,
     VoidNode,
-    StaticTypeOfNode
 )
 from .utils import TypeData, on, when
 from .utils.mips_syntax import DATA_SIZE, Mips
@@ -312,6 +313,12 @@ class CIL_TO_MIPS(object):
 
         self.mips.label(end)
 
+    @when(SetNode)
+    @mips_comment("SetNode")
+    def visit(self, node: SetNode):  # noqa: F811
+        self.mips.li(Reg.s0, node.value)
+        self.store_memory(Reg.s0, node.dest)
+
     @when(CopyNode)
     @mips_comment("CopyNode")
     def visit(self, node: CopyNode):  # noqa: F811
@@ -575,8 +582,8 @@ class CIL_TO_MIPS(object):
         len_to = self.get_label()
         end = self.get_label()
         self.mips.label(len_to)
-        self.mips.lb(Reg.t2, self.mips.offset(Reg.a0))  # t2 = *a0
-        self.mips.beq(Reg.t2, 0, end)  # if t2 == '\n' -> stop
+        self.mips.lb(Reg.s2, self.mips.offset(Reg.a0))  # t2 = *a0
+        self.mips.beq(Reg.s2, 0, end)  # if t2 == '\n' -> stop
         self.mips.addi(Reg.a0, Reg.a0, 1)  # a0++
         self.mips.j(len_to)
         self.mips.label(end)
