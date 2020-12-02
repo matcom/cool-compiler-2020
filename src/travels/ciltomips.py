@@ -389,9 +389,13 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
                 attribute, instance_type
             )
             # llamar la funcion de inicializacion del atributo
+            # Salvar el registro temp
+            self.push_register(temp)
             self.register_instruction(
                 branchNodes.JAL(f"__{attrib_type_name}__attrib__{attribute.name}__init")
             )
+            # Restaurar el valor del registro temp
+            self.pop_register(temp)
             # El valor de retorno viene en v0
             self.register_instruction(
                 SW(dest=v0, src=f"{8 + i*4}(${REG_TO_STR[temp]})")
@@ -405,8 +409,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.TypeOfNode):
-        local_addr = self.get_location_address(node=node.variable)
-        return_addr = self.get_location_address(node=node.dest)
+        local_addr = self.visit(node.variable)
+        return_addr = self.visit(node.dest)
         reg = self.get_available_register()
         reg2 = self.get_available_register()
 
@@ -501,17 +505,13 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             reg1 is not None and reg2 is not None and reg3 is not None
         ), "out of registers"
 
-        # Salvar el puntero a self en a1
-        self.comment("Save current self pointer in $a1")
-        self.register_instruction(MOVE(a1, s1))
-
         # Actualizar el puntero a self en s1
         self.comment("Save new self pointer in $s1")
         self.register_instruction(LW(s1, type_src))
 
         # Cargar el puuntero al tipo en el primer registro
         self.comment("Get pointer to type")
-        self.register_instruction(LW(reg1, type_src))
+        self.register_instruction(LW(reg1, f"4($s1)"))
 
         # Cargar el puntero a la VTABLE en el segundo registro
         self.comment("Get pointer to type's VTABLE")
@@ -528,13 +528,17 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # El resultado viene en $v0
         self.register_instruction(SW(v0, dest))
 
-        # Restaurar el valor antiguo del puntero a self
-        self.comment("Restore self pointer after function call")
-        self.register_instruction(MOVE(s1, a1))
-
         self.used_registers[reg1] = False
         self.used_registers[reg2] = False
         self.used_registers[reg3] = False
+
+    @visit.register
+    def _(self, node: cil.SaveSelf):
+        self.push_register(s1)
+
+    @visit.register
+    def _(self, node: cil.RestoreSelf):
+        self.pop_register(s1)
 
     @visit.register
     def _(self, node: cil.ArgNode):

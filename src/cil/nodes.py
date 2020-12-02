@@ -274,3 +274,10 @@ class CopyNode(InstructionNode):
 class TypeName(InstructionNode):
     def __init__(self, dest: LocalNode) -> None:
         self.dest = dest
+
+
+class SaveSelf(InstructionNode):
+    pass
+
+class RestoreSelf(InstructionNode):
+    pass

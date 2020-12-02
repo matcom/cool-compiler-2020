@@ -10,4 +10,4 @@ BUILD=$(wc -l .builds | awk '{ print $1 }')
 echo "pycoolc: version $VERSION Developed by Eliane Puerta, Liset Alfaro, Adrian Gonzalez"
 # echo "Build: $BUILD"
 echo "Copyright (c) 2020 School of Math and Computer Science, University of Havana"
-python3 pycoolc.py $INPUT_FILE
+python pycoolc.py $INPUT_FILE

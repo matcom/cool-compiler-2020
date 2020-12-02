@@ -1,9 +1,9 @@
 # Find a python3 version on the System
 ifndef PYTHON
-	PYTHON:=$(shell if which python3 > "/dev/null" 2>&1; \
-			then echo "python3"; \
+	PYTHON:=$(shell if which python > "/dev/null" 2>&1; \
+			then echo "python"; \
 		else \
-			echo "No python3 on system Path"; \
+			echo "No python on system Path"; \
 			exit 1; \
 		fi)
 endif

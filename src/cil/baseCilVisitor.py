@@ -290,14 +290,20 @@ class BaseCoolToCilVisitor:
         
         # Registrar el tipo IO como un tipo instanciable
         io_typeNode = self.register_type("IO")
+        obj = self.register_type("Object")
 
-        io_typeNode.methods.append(("in_string", "function_in_string_at_IO"))
-        io_typeNode.methods.append(("in_int", "function_in_int_at_IO"))
         io_typeNode.methods.append(("out_string", "function_out_string_at_IO"))
         io_typeNode.methods.append(("out_int", "function_out_int_at_IO"))
+        io_typeNode.methods.append(("in_string", "function_in_string_at_IO"))
+        io_typeNode.methods.append(("in_int", "function_in_int_at_IO"))
         io_typeNode.methods.append(("abort", "function_abort_at_Object"))
-        io_typeNode.methods.append(("copy", "function_copy_at_Object"))
         io_typeNode.methods.append(("type_name", "function_type_name_at_Object"))
+        io_typeNode.methods.append(("copy", "function_copy_at_Object"))
+
+        obj.methods.append(("abort", "function_abort_at_Object"))
+        obj.methods.append(("type_name", "function_type_name_at_Object"))
+        obj.methods.append(("copy", "function_copy_at_Object"))
+
 
         self.__implement_in_string()
         self.__implement_out_int()

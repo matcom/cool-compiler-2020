@@ -164,5 +164,6 @@ class Main inherits IO {
 
 };
 
+
 """
 pipeline(text, 5)

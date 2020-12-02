@@ -6,14 +6,16 @@ from abstract.semantics import Type as SemanticType
 from cil.nodes import TypeNode
 from cil.nodes import CilNode, FunctionNode
 from mips import load_store
+from mips.arithmetic import ADDU, SUBU
 from mips.branch import JAL, JALR
 import mips.instruction as instrNodes
 import mips.arithmetic as arithNodes
-from mips.instruction import FixedData, LineComment, a0, fp, ra, sp, v0
+from mips.instruction import FixedData, LineComment, REG_TO_STR, a0, fp, ra, sp, v0
 import mips.load_store as lsNodes
 from typing import List, Optional, Type, Union
 import time
 import cil.nodes as cil
+from mips.load_store import LW, SW
 from travels.ctcill import CilDisplayFormatter
 
 
@@ -360,6 +362,22 @@ class BaseCilToMipsVisitor:
                 offset += i * 4
                 break
         return offset
+
+    def push_register(self, reg):
+        """
+        Equivalente a push <reg> en x86
+        """
+        self.comment(f"Push register {REG_TO_STR[reg]} into stack")
+        self.register_instruction(SUBU(sp, sp, 4, True))
+        self.register_instruction(SW(reg, "0($sp)"))
+
+    def pop_register(self, reg):
+        """
+        Equivalente a pop <reg> en x86
+        """
+        self.comment(f"Pop 4 bytes from stack into register {REG_TO_STR[reg]}")
+        self.register_instruction(LW(reg, "0($sp)"))
+        self.register_instruction(ADDU(sp, sp, 4, True))
 
 
 def locate_attribute_in_type_hierarchy(attribute: Attribute, base_type: SemanticType):

@@ -37,8 +37,8 @@ from cil.nodes import (
     PrintIntNode,
     PrintNode,
     ReadIntNode,
-    ReadNode,
-    ReturnNode,
+    ReadNode, RestoreSelf,
+    ReturnNode, SaveSelf,
     SetAtAddress,
     SetAttributeNode,
     StarNode,
@@ -111,7 +111,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             for attribute in self.current_type.parent.attributes:
                 new_type_node.attributes.append(attribute)
 
-            for method in self.current_type.parent.methods.keys():
+            parent = next(t for t in self.dot_types if t.name == self.current_type.parent.name)
+
+            for method, _ in parent.methods:
                 # Manejar la redefinicion de metodos
                 if method not in methods:
                     new_type_node.methods.append(
@@ -764,7 +766,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         expr = self.visit(node.obj, scope)
 
         assert isinstance(expr, LocalNode) or isinstance(expr, ParamNode)
-        self.register_instruction(TypeOfNode(expr, type_vm_holder))
+        self.register_instruction(AssignNode(type_vm_holder, expr))
+
+        self.register_instruction(SaveSelf())
 
         # Evaluar los argumentos
         for arg in node.args:
@@ -774,6 +778,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.register_instruction(
             DynamicCallNode(type_vm_holder, node.id, return_vm_holder)
         )
+
+        self.register_instruction(RestoreSelf())
 
         return return_vm_holder
 
