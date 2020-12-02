@@ -238,6 +238,9 @@ class CIL_TO_MIPS(object):
 
         self.mips.empty()
         self.mips.comment("Allocate memory for Local variables")
+
+        localvars_count = len(node.localvars)
+        self.mips.addi(Reg.sp, Reg.sp, -DATA_SIZE * localvars_count)
         for idx, local in enumerate(node.localvars):
             self.visit(local, index=idx)
 
@@ -278,7 +281,6 @@ class CIL_TO_MIPS(object):
     @when(LocalNode)
     @mips_comment("LocalNode")
     def visit(self, node: LocalNode, index=0):  # noqa: F811
-        self.mips.push(Reg.zero)
         assert node.name not in self.local_vars_offsets, f"Impossible {node.name}..."
         self.local_vars_offsets[node.name] = -(index + 1)
 
