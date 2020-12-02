@@ -588,7 +588,10 @@ class COOLToCILVisitor(BaseCOOLToCILVisitor):
         # node.type -> str
         # node.expr -> ExpressionNode
         ###############################
-        vname = self.register_local(VariableInfo(node.id, node.type), id=True)
+        if node.id in self.ids:
+            vname = self.ids[node.id]
+        else:
+            vname = self.register_local(VariableInfo(node.id, node.type), id=True)
         if node.expr:
             self.visit(node.expr, scope)
             self.register_instruction(cil.AssignNode(vname, scope.ret_expr))
