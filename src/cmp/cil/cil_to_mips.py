@@ -380,9 +380,10 @@ class CIL_TO_MIPS(object):
         self.load_memory(Reg.s0, node.body)
         # self.mips.move(Reg.a0, Reg.s0)
         # self.mips.print_int()
-        self.mips.move(Reg.s1, Reg.s0)
-        self.mips.nor(Reg.s2, Reg.s1, Reg.s0)
-        self.store_memory(Reg.s2, node.dest)
+        self.mips.li(Reg.s1, -1)
+        self.mips.mult(Reg.s0, Reg.s1)
+        self.mips.mflo(Reg.s0)
+        self.store_memory(Reg.s0, node.dest)
         # self.mips.move(Reg.a0, Reg.s1)
         # self.mips.print_int()
 
