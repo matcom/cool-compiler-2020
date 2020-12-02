@@ -37,20 +37,25 @@ TYPES -->
 		method copy:Object_copy
 	}
 
-	type A2I {
-		method c2i:A2I_c2i
-		method i2c:A2I_i2c
-		method a2i:A2I_a2i
-		method a2i_aux:A2I_a2i_aux
-		method i2a:A2I_i2a
-		method i2a_aux:A2I_i2a_aux
+	type Graph {
+		attribute vertices:Graph
+		attribute edges:Graph
+		method add_vertice:Graph_add_vertice
+		method print_E:Graph_print_E
+		method print_V:Graph_print_V
 		method abort:Object_abort
 		method type_name:Object_type_name
 		method copy:Object_copy
 	}
 
-	type Main {
-		method main:Main_main
+	type Vertice {
+		attribute num:Vertice
+		attribute out:Vertice
+		method outgoing:Vertice_outgoing
+		method number:Vertice_number
+		method init:Vertice_init
+		method add_out:Vertice_add_out
+		method print:Vertice_print
 		method out_string:IO_out_string
 		method out_int:IO_out_int
 		method in_string:IO_in_string
@@ -60,39 +65,162 @@ TYPES -->
 		method copy:Object_copy
 	}
 
+	type Edge {
+		attribute from:Edge
+		attribute to:Edge
+		attribute weight:Edge
+		method init:Edge_init
+		method print:Edge_print
+		method out_string:IO_out_string
+		method out_int:IO_out_int
+		method in_string:IO_in_string
+		method in_int:IO_in_int
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type EList {
+		attribute car:EList
+		method isNil:EList_isNil
+		method head:EList_head
+		method tail:EList_tail
+		method cons:EList_cons
+		method append:EList_append
+		method print:EList_print
+		method out_string:IO_out_string
+		method out_int:IO_out_int
+		method in_string:IO_in_string
+		method in_int:IO_in_int
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type ECons {
+		attribute cdr:ECons
+		attribute car:EList
+		method isNil:ECons_isNil
+		method head:ECons_head
+		method tail:ECons_tail
+		method init:ECons_init
+		method print:ECons_print
+		method cons:EList_cons
+		method append:EList_append
+		method out_string:IO_out_string
+		method out_int:IO_out_int
+		method in_string:IO_in_string
+		method in_int:IO_in_int
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type VList {
+		attribute car:VList
+		method isNil:VList_isNil
+		method head:VList_head
+		method tail:VList_tail
+		method cons:VList_cons
+		method print:VList_print
+		method out_string:IO_out_string
+		method out_int:IO_out_int
+		method in_string:IO_in_string
+		method in_int:IO_in_int
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type VCons {
+		attribute cdr:VCons
+		attribute car:VList
+		method isNil:VCons_isNil
+		method head:VCons_head
+		method tail:VCons_tail
+		method init:VCons_init
+		method print:VCons_print
+		method cons:VList_cons
+		method out_string:IO_out_string
+		method out_int:IO_out_int
+		method in_string:IO_in_string
+		method in_int:IO_in_int
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type Parse {
+		attribute boolop:Parse
+		attribute rest:Parse
+		method read_input:Parse_read_input
+		method parse_line:Parse_parse_line
+		method c2i:Parse_c2i
+		method a2i:Parse_a2i
+		method a2i_aux:Parse_a2i_aux
+		method out_string:IO_out_string
+		method out_int:IO_out_int
+		method in_string:IO_in_string
+		method in_int:IO_in_int
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type Main {
+		attribute g:Main
+		attribute boolop:Parse
+		attribute rest:Parse
+		method main:Main_main
+		method read_input:Parse_read_input
+		method parse_line:Parse_parse_line
+		method c2i:Parse_c2i
+		method a2i:Parse_a2i
+		method a2i_aux:Parse_a2i_aux
+		method out_string:IO_out_string
+		method out_int:IO_out_int
+		method in_string:IO_in_string
+		method in_int:IO_in_int
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
+	type BoolOp {
+		method and:BoolOp_and
+		method or:BoolOp_or
+		method abort:Object_abort
+		method type_name:Object_type_name
+		method copy:Object_copy
+	}
+
 END <--
 
 DATA -->
 
-	data_0 "0"
-	data_1 "1"
-	data_2 "2"
-	data_3 "3"
-	data_4 "4"
-	data_5 "5"
-	data_6 "6"
-	data_7 "7"
-	data_8 "8"
-	data_9 "9"
-	data_10 "0"
-	data_11 "1"
-	data_12 "2"
-	data_13 "3"
-	data_14 "4"
-	data_15 "5"
-	data_16 "6"
-	data_17 "7"
-	data_18 "8"
-	data_19 "9"
-	data_20 ""
-	data_21 "-"
-	data_22 "+"
-	data_23 "0"
-	data_24 "-"
-	data_25 ""
-	data_26 "678987"
-	data_27 " == "
-	data_28 "\n"
+	data_0 " ("
+	data_1 ","
+	data_2 ")"
+	data_3 "\n"
+	data_4 "\n"
+	data_5 "\n"
+	data_6 ""
+	data_7 "0"
+	data_8 "1"
+	data_9 "2"
+	data_10 "3"
+	data_11 "4"
+	data_12 "5"
+	data_13 "6"
+	data_14 "7"
+	data_15 "8"
+	data_16 "9"
+	data_17 "-"
+	data_18 " "
+	data_19 " "
+	data_20 ","
+	data_21 ""
+	data_22 ""
 
 END <--
 
@@ -178,9 +306,9 @@ CODE -->
 		EXIT
 	}
 
-	function A2I_c2i {
+	function Graph_add_vertice {
 		PARAM self
-		PARAM char
+		PARAM v
 		LOCAL local_8
 		LOCAL local_9
 		LOCAL local_10
@@ -189,17 +317,105 @@ CODE -->
 		LOCAL local_13
 		LOCAL local_14
 		LOCAL local_15
+		LOCALSAVE
+		ARG v
+		ALLOC local_9 String
+		TYPE local_9 v
+		CALL local_8 local_9 outgoing
+		ALLOC local_10 EList
+		GATTR local_10 self edges
+		LOCALSAVE
+		ARG local_8
+		ARG local_10
+		ALLOC local_12 String
+		TYPE local_12 local_8
+		CALL local_11 local_12 append
+		SATTR self edges local_11
+		ALLOC local_13 VList
+		GATTR local_13 self vertices
+		LOCALSAVE
+		ARG local_13
+		ARG v
+		ALLOC local_15 String
+		TYPE local_15 local_13
+		CALL local_14 local_15 cons
+		SATTR self vertices local_14
+		RETURN local_14
+	}
+
+	function Graph_print_E {
+		PARAM self
 		LOCAL local_16
 		LOCAL local_17
 		LOCAL local_18
+		ALLOC local_16 EList
+		GATTR local_16 self edges
+		LOCALSAVE
+		ARG local_16
+		ALLOC local_18 String
+		TYPE local_18 local_16
+		CALL local_17 local_18 print
+		RETURN local_17
+	}
+
+	function Graph_print_V {
+		PARAM self
 		LOCAL local_19
 		LOCAL local_20
 		LOCAL local_21
+		ALLOC local_19 VList
+		GATTR local_19 self vertices
+		LOCALSAVE
+		ARG local_19
+		ALLOC local_21 String
+		TYPE local_21 local_19
+		CALL local_20 local_21 print
+		RETURN local_20
+	}
+
+	function Vertice_outgoing {
+		PARAM self
 		LOCAL local_22
+		ALLOC local_22 EList
+		GATTR local_22 self out
+		RETURN local_22
+	}
+
+	function Vertice_number {
+		PARAM self
 		LOCAL local_23
+		ALLOC local_23 Int
+		GATTR local_23 self num
+		RETURN local_23
+	}
+
+	function Vertice_init {
+		PARAM self
+		PARAM n
+		SATTR self num n
+		RETURN self
+	}
+
+	function Vertice_add_out {
+		PARAM self
+		PARAM s
 		LOCAL local_24
 		LOCAL local_25
 		LOCAL local_26
+		ALLOC local_24 EList
+		GATTR local_24 self out
+		LOCALSAVE
+		ARG local_24
+		ARG s
+		ALLOC local_26 String
+		TYPE local_26 local_24
+		CALL local_25 local_26 cons
+		SATTR self out local_25
+		RETURN self
+	}
+
+	function Vertice_print {
+		PARAM self
 		LOCAL local_27
 		LOCAL local_28
 		LOCAL local_29
@@ -207,6 +423,38 @@ CODE -->
 		LOCAL local_31
 		LOCAL local_32
 		LOCAL local_33
+		ALLOC local_27 IO
+		ALLOC local_28 Int
+		GATTR local_28 self num
+		LOCALSAVE
+		ARG self
+		ARG local_28
+		ALLOC local_30 String
+		TYPE local_30 local_27
+		CALL local_29 local_30 out_int
+		ALLOC local_31 EList
+		GATTR local_31 self out
+		LOCALSAVE
+		ARG local_31
+		ALLOC local_33 String
+		TYPE local_33 local_31
+		CALL local_32 local_33 print
+		RETURN local_32
+	}
+
+	function Edge_init {
+		PARAM self
+		PARAM f
+		PARAM t
+		PARAM w
+		SATTR self from f
+		SATTR self to t
+		SATTR self weight w
+		RETURN self
+	}
+
+	function Edge_print {
+		PARAM self
 		LOCAL local_34
 		LOCAL local_35
 		LOCAL local_36
@@ -225,168 +473,134 @@ CODE -->
 		LOCAL local_49
 		LOCAL local_50
 		LOCAL local_51
-		ALLOC local_51 Bool
-		ALLOC local_9 Bool
-		ALLOC local_8 String
-		LDATA local_8 data_23
-		E local_9 char local_8
-		IF local_9 GOTO label_19
-		ALLOC local_50 Bool
-		ALLOC local_12 Bool
-		ALLOC local_11 String
-		LDATA local_11 data_11
-		E local_12 char local_11
-		IF local_12 GOTO label_17
-		ALLOC local_49 Bool
-		ALLOC local_15 Bool
-		ALLOC local_14 String
-		LDATA local_14 data_12
-		E local_15 char local_14
-		IF local_15 GOTO label_15
-		ALLOC local_48 Bool
-		ALLOC local_18 Bool
-		ALLOC local_17 String
-		LDATA local_17 data_13
-		E local_18 char local_17
-		IF local_18 GOTO label_13
-		ALLOC local_47 Bool
-		ALLOC local_21 Bool
-		ALLOC local_20 String
-		LDATA local_20 data_14
-		E local_21 char local_20
-		IF local_21 GOTO label_11
-		ALLOC local_46 Bool
-		ALLOC local_24 Bool
-		ALLOC local_23 String
-		LDATA local_23 data_15
-		E local_24 char local_23
-		IF local_24 GOTO label_9
-		ALLOC local_45 Bool
-		ALLOC local_27 Bool
-		ALLOC local_26 String
-		LDATA local_26 data_16
-		E local_27 char local_26
-		IF local_27 GOTO label_7
-		ALLOC local_44 Bool
-		ALLOC local_30 Bool
-		ALLOC local_29 String
-		LDATA local_29 data_17
-		E local_30 char local_29
-		IF local_30 GOTO label_5
-		ALLOC local_43 Bool
-		ALLOC local_33 Bool
-		ALLOC local_32 String
-		LDATA local_32 data_18
-		E local_33 char local_32
-		IF local_33 GOTO label_3
-		ALLOC local_42 Bool
-		ALLOC local_36 Bool
-		ALLOC local_35 String
-		LDATA local_35 data_19
-		E local_36 char local_35
-		IF local_36 GOTO label_1
-		ALLOC local_38 Object
-		ARG self
-		ALLOC local_40 String
-		TYPE local_40 local_38
-		CALL local_39 local_40 abort
-		ALLOC local_41 Int
-		MOV local_41 0
-		MOV local_42 local_41
-		GOTO label_2
-		LABEL label_1
-		ALLOC local_37 Int
-		MOV local_37 9
-		MOV local_42 local_37
-		LABEL label_2
-		MOV local_43 local_42
-		GOTO label_4
-		LABEL label_3
-		ALLOC local_34 Int
-		MOV local_34 8
-		MOV local_43 local_34
-		LABEL label_4
-		MOV local_44 local_43
-		GOTO label_6
-		LABEL label_5
-		ALLOC local_31 Int
-		MOV local_31 7
-		MOV local_44 local_31
-		LABEL label_6
-		MOV local_45 local_44
-		GOTO label_8
-		LABEL label_7
-		ALLOC local_28 Int
-		MOV local_28 6
-		MOV local_45 local_28
-		LABEL label_8
-		MOV local_46 local_45
-		GOTO label_10
-		LABEL label_9
-		ALLOC local_25 Int
-		MOV local_25 5
-		MOV local_46 local_25
-		LABEL label_10
-		MOV local_47 local_46
-		GOTO label_12
-		LABEL label_11
-		ALLOC local_22 Int
-		MOV local_22 4
-		MOV local_47 local_22
-		LABEL label_12
-		MOV local_48 local_47
-		GOTO label_14
-		LABEL label_13
-		ALLOC local_19 Int
-		MOV local_19 3
-		MOV local_48 local_19
-		LABEL label_14
-		MOV local_49 local_48
-		GOTO label_16
-		LABEL label_15
-		ALLOC local_16 Int
-		MOV local_16 2
-		MOV local_49 local_16
-		LABEL label_16
-		MOV local_50 local_49
-		GOTO label_18
-		LABEL label_17
-		ALLOC local_13 Int
-		MOV local_13 1
-		MOV local_50 local_13
-		LABEL label_18
-		MOV local_51 local_50
-		GOTO label_20
-		LABEL label_19
-		ALLOC local_10 Int
-		MOV local_10 0
-		MOV local_51 local_10
-		LABEL label_20
-		RETURN local_51
-	}
-
-	function A2I_i2c {
-		PARAM self
-		PARAM i
 		LOCAL local_52
 		LOCAL local_53
 		LOCAL local_54
 		LOCAL local_55
 		LOCAL local_56
 		LOCAL local_57
+		ALLOC local_34 IO
+		ALLOC local_35 String
+		LDATA local_35 data_0
+		LOCALSAVE
+		ARG self
+		ARG local_35
+		ALLOC local_37 String
+		TYPE local_37 local_34
+		CALL local_36 local_37 out_string
+		ALLOC local_38 IO
+		ALLOC local_39 Int
+		GATTR local_39 self from
+		LOCALSAVE
+		ARG self
+		ARG local_39
+		ALLOC local_41 String
+		TYPE local_41 local_38
+		CALL local_40 local_41 out_int
+		ALLOC local_42 IO
+		ALLOC local_43 String
+		LDATA local_43 data_20
+		LOCALSAVE
+		ARG self
+		ARG local_43
+		ALLOC local_45 String
+		TYPE local_45 local_42
+		CALL local_44 local_45 out_string
+		ALLOC local_46 IO
+		ALLOC local_47 Int
+		GATTR local_47 self to
+		LOCALSAVE
+		ARG self
+		ARG local_47
+		ALLOC local_49 String
+		TYPE local_49 local_46
+		CALL local_48 local_49 out_int
+		ALLOC local_50 IO
+		ALLOC local_51 String
+		LDATA local_51 data_2
+		LOCALSAVE
+		ARG self
+		ARG local_51
+		ALLOC local_53 String
+		TYPE local_53 local_50
+		CALL local_52 local_53 out_string
+		ALLOC local_54 IO
+		ALLOC local_55 Int
+		GATTR local_55 self weight
+		LOCALSAVE
+		ARG self
+		ARG local_55
+		ALLOC local_57 String
+		TYPE local_57 local_54
+		CALL local_56 local_57 out_int
+		RETURN local_56
+	}
+
+	function EList_isNil {
+		PARAM self
 		LOCAL local_58
+		ALLOC local_58 Bool
+		MOV local_58 1
+		RETURN local_58
+	}
+
+	function EList_head {
+		PARAM self
 		LOCAL local_59
 		LOCAL local_60
 		LOCAL local_61
 		LOCAL local_62
+		ALLOC local_59 Object
+		LOCALSAVE
+		ARG self
+		ALLOC local_61 String
+		TYPE local_61 local_59
+		CALL local_60 local_61 abort
+		ALLOC local_62 Edge
+		GATTR local_62 self car
+		RETURN local_62
+	}
+
+	function EList_tail {
+		PARAM self
 		LOCAL local_63
 		LOCAL local_64
 		LOCAL local_65
+		ALLOC local_63 Object
+		LOCALSAVE
+		ARG self
+		ALLOC local_65 String
+		TYPE local_65 local_63
+		CALL local_64 local_65 abort
+		RETURN self
+	}
+
+	function EList_cons {
+		PARAM self
+		PARAM e
 		LOCAL local_66
 		LOCAL local_67
 		LOCAL local_68
 		LOCAL local_69
 		LOCAL local_70
+		ALLOC local_66 ECons
+		ALLOC local_67 Pointer
+		SATTR local_66 cdr local_67
+		ALLOC local_68 Pointer
+		SATTR local_66 car local_68
+		LOCALSAVE
+		ARG local_66
+		ARG e
+		ARG self
+		ALLOC local_70 String
+		TYPE local_70 local_66
+		CALL local_69 local_70 init
+		RETURN local_69
+	}
+
+	function EList_append {
+		PARAM self
+		PARAM l
 		LOCAL local_71
 		LOCAL local_72
 		LOCAL local_73
@@ -401,188 +615,262 @@ CODE -->
 		LOCAL local_82
 		LOCAL local_83
 		LOCAL local_84
+		ALLOC local_84 Bool
+		ALLOC local_71 EList
+		LOCALSAVE
+		ARG self
+		ALLOC local_73 String
+		TYPE local_73 local_71
+		CALL local_72 local_73 isNil
+		IF local_72 GOTO label_1
+		ALLOC local_74 EList
+		LOCALSAVE
+		ARG self
+		ALLOC local_76 String
+		TYPE local_76 local_74
+		CALL local_75 local_76 tail
+		LOCALSAVE
+		ARG local_75
+		ARG l
+		ALLOC local_78 String
+		TYPE local_78 local_75
+		CALL local_77 local_78 append
+		ALLOC local_79 EList
+		LOCALSAVE
+		ARG self
+		ALLOC local_81 String
+		TYPE local_81 local_79
+		CALL local_80 local_81 head
+		LOCALSAVE
+		ARG local_77
+		ARG local_80
+		ALLOC local_83 String
+		TYPE local_83 local_77
+		CALL local_82 local_83 cons
+		MOV local_84 local_82
+		GOTO label_2
+		LABEL label_1
+		MOV local_84 l
+		LABEL label_2
+		RETURN local_84
+	}
+
+	function EList_print {
+		PARAM self
 		LOCAL local_85
 		LOCAL local_86
 		LOCAL local_87
 		LOCAL local_88
+		ALLOC local_85 IO
+		ALLOC local_86 String
+		LDATA local_86 data_5
+		LOCALSAVE
+		ARG self
+		ARG local_86
+		ALLOC local_88 String
+		TYPE local_88 local_85
+		CALL local_87 local_88 out_string
+		RETURN local_87
+	}
+
+	function ECons_isNil {
+		PARAM self
 		LOCAL local_89
+		ALLOC local_89 Bool
+		MOV local_89 0
+		RETURN local_89
+	}
+
+	function ECons_head {
+		PARAM self
 		LOCAL local_90
+		ALLOC local_90 Edge
+		GATTR local_90 self car
+		RETURN local_90
+	}
+
+	function ECons_tail {
+		PARAM self
 		LOCAL local_91
+		ALLOC local_91 EList
+		GATTR local_91 self cdr
+		RETURN local_91
+	}
+
+	function ECons_init {
+		PARAM self
+		PARAM e
+		PARAM rest
+		SATTR self car e
+		SATTR self cdr rest
+		RETURN self
+	}
+
+	function ECons_print {
+		PARAM self
 		LOCAL local_92
 		LOCAL local_93
 		LOCAL local_94
 		LOCAL local_95
-		ALLOC local_95 Bool
-		ALLOC local_53 Bool
-		ALLOC local_52 Int
-		MOV local_52 0
-		E local_53 i local_52
-		IF local_53 GOTO label_39
-		ALLOC local_94 Bool
-		ALLOC local_56 Bool
-		ALLOC local_55 Int
-		MOV local_55 1
-		E local_56 i local_55
-		IF local_56 GOTO label_37
-		ALLOC local_93 Bool
-		ALLOC local_59 Bool
-		ALLOC local_58 Int
-		MOV local_58 2
-		E local_59 i local_58
-		IF local_59 GOTO label_35
-		ALLOC local_92 Bool
-		ALLOC local_62 Bool
-		ALLOC local_61 Int
-		MOV local_61 3
-		E local_62 i local_61
-		IF local_62 GOTO label_33
-		ALLOC local_91 Bool
-		ALLOC local_65 Bool
-		ALLOC local_64 Int
-		MOV local_64 4
-		E local_65 i local_64
-		IF local_65 GOTO label_31
-		ALLOC local_90 Bool
-		ALLOC local_68 Bool
-		ALLOC local_67 Int
-		MOV local_67 5
-		E local_68 i local_67
-		IF local_68 GOTO label_29
-		ALLOC local_89 Bool
-		ALLOC local_71 Bool
-		ALLOC local_70 Int
-		MOV local_70 6
-		E local_71 i local_70
-		IF local_71 GOTO label_27
-		ALLOC local_88 Bool
-		ALLOC local_74 Bool
-		ALLOC local_73 Int
-		MOV local_73 7
-		E local_74 i local_73
-		IF local_74 GOTO label_25
-		ALLOC local_87 Bool
-		ALLOC local_77 Bool
-		ALLOC local_76 Int
-		MOV local_76 8
-		E local_77 i local_76
-		IF local_77 GOTO label_23
-		ALLOC local_86 Bool
-		ALLOC local_80 Bool
-		ALLOC local_79 Int
-		MOV local_79 9
-		E local_80 i local_79
-		IF local_80 GOTO label_21
-		ALLOC local_82 Object
-		ARG self
-		ALLOC local_84 String
-		TYPE local_84 local_82
-		CALL local_83 local_84 abort
-		ALLOC local_85 String
-		LDATA local_85 data_25
-		MOV local_86 local_85
-		GOTO label_22
-		LABEL label_21
-		ALLOC local_81 String
-		LDATA local_81 data_19
-		MOV local_86 local_81
-		LABEL label_22
-		MOV local_87 local_86
-		GOTO label_24
-		LABEL label_23
-		ALLOC local_78 String
-		LDATA local_78 data_18
-		MOV local_87 local_78
-		LABEL label_24
-		MOV local_88 local_87
-		GOTO label_26
-		LABEL label_25
-		ALLOC local_75 String
-		LDATA local_75 data_17
-		MOV local_88 local_75
-		LABEL label_26
-		MOV local_89 local_88
-		GOTO label_28
-		LABEL label_27
-		ALLOC local_72 String
-		LDATA local_72 data_16
-		MOV local_89 local_72
-		LABEL label_28
-		MOV local_90 local_89
-		GOTO label_30
-		LABEL label_29
-		ALLOC local_69 String
-		LDATA local_69 data_15
-		MOV local_90 local_69
-		LABEL label_30
-		MOV local_91 local_90
-		GOTO label_32
-		LABEL label_31
-		ALLOC local_66 String
-		LDATA local_66 data_14
-		MOV local_91 local_66
-		LABEL label_32
-		MOV local_92 local_91
-		GOTO label_34
-		LABEL label_33
-		ALLOC local_63 String
-		LDATA local_63 data_13
-		MOV local_92 local_63
-		LABEL label_34
-		MOV local_93 local_92
-		GOTO label_36
-		LABEL label_35
-		ALLOC local_60 String
-		LDATA local_60 data_12
-		MOV local_93 local_60
-		LABEL label_36
-		MOV local_94 local_93
-		GOTO label_38
-		LABEL label_37
-		ALLOC local_57 String
-		LDATA local_57 data_11
-		MOV local_94 local_57
-		LABEL label_38
-		MOV local_95 local_94
-		GOTO label_40
-		LABEL label_39
-		ALLOC local_54 String
-		LDATA local_54 data_23
-		MOV local_95 local_54
-		LABEL label_40
-		RETURN local_95
-	}
-
-	function A2I_a2i {
-		PARAM self
-		PARAM s
 		LOCAL local_96
 		LOCAL local_97
+		ALLOC local_92 Edge
+		GATTR local_92 self car
+		LOCALSAVE
+		ARG local_92
+		ALLOC local_94 String
+		TYPE local_94 local_92
+		CALL local_93 local_94 print
+		ALLOC local_95 EList
+		GATTR local_95 self cdr
+		LOCALSAVE
+		ARG local_95
+		ALLOC local_97 String
+		TYPE local_97 local_95
+		CALL local_96 local_97 print
+		RETURN local_96
+	}
+
+	function VList_isNil {
+		PARAM self
 		LOCAL local_98
+		ALLOC local_98 Bool
+		MOV local_98 1
+		RETURN local_98
+	}
+
+	function VList_head {
+		PARAM self
 		LOCAL local_99
 		LOCAL local_100
 		LOCAL local_101
 		LOCAL local_102
+		ALLOC local_99 Object
+		LOCALSAVE
+		ARG self
+		ALLOC local_101 String
+		TYPE local_101 local_99
+		CALL local_100 local_101 abort
+		ALLOC local_102 Vertice
+		GATTR local_102 self car
+		RETURN local_102
+	}
+
+	function VList_tail {
+		PARAM self
 		LOCAL local_103
 		LOCAL local_104
 		LOCAL local_105
+		ALLOC local_103 Object
+		LOCALSAVE
+		ARG self
+		ALLOC local_105 String
+		TYPE local_105 local_103
+		CALL local_104 local_105 abort
+		RETURN self
+	}
+
+	function VList_cons {
+		PARAM self
+		PARAM v
 		LOCAL local_106
 		LOCAL local_107
 		LOCAL local_108
 		LOCAL local_109
 		LOCAL local_110
+		ALLOC local_106 VCons
+		ALLOC local_107 Pointer
+		SATTR local_106 cdr local_107
+		ALLOC local_108 Pointer
+		SATTR local_106 car local_108
+		LOCALSAVE
+		ARG local_106
+		ARG v
+		ARG self
+		ALLOC local_110 String
+		TYPE local_110 local_106
+		CALL local_109 local_110 init
+		RETURN local_109
+	}
+
+	function VList_print {
+		PARAM self
 		LOCAL local_111
 		LOCAL local_112
 		LOCAL local_113
 		LOCAL local_114
+		ALLOC local_111 IO
+		ALLOC local_112 String
+		LDATA local_112 data_5
+		LOCALSAVE
+		ARG self
+		ARG local_112
+		ALLOC local_114 String
+		TYPE local_114 local_111
+		CALL local_113 local_114 out_string
+		RETURN local_113
+	}
+
+	function VCons_isNil {
+		PARAM self
 		LOCAL local_115
+		ALLOC local_115 Bool
+		MOV local_115 0
+		RETURN local_115
+	}
+
+	function VCons_head {
+		PARAM self
 		LOCAL local_116
+		ALLOC local_116 Vertice
+		GATTR local_116 self car
+		RETURN local_116
+	}
+
+	function VCons_tail {
+		PARAM self
 		LOCAL local_117
+		ALLOC local_117 VList
+		GATTR local_117 self cdr
+		RETURN local_117
+	}
+
+	function VCons_init {
+		PARAM self
+		PARAM v
+		PARAM rest
+		SATTR self car v
+		SATTR self cdr rest
+		RETURN self
+	}
+
+	function VCons_print {
+		PARAM self
 		LOCAL local_118
 		LOCAL local_119
 		LOCAL local_120
 		LOCAL local_121
 		LOCAL local_122
 		LOCAL local_123
+		ALLOC local_118 Vertice
+		GATTR local_118 self car
+		LOCALSAVE
+		ARG local_118
+		ALLOC local_120 String
+		TYPE local_120 local_118
+		CALL local_119 local_120 print
+		ALLOC local_121 VList
+		GATTR local_121 self cdr
+		LOCALSAVE
+		ARG local_121
+		ALLOC local_123 String
+		TYPE local_123 local_121
+		CALL local_122 local_123 print
+		RETURN local_122
+	}
+
+	function Parse_read_input {
+		PARAM self
 		LOCAL local_124
 		LOCAL local_125
 		LOCAL local_126
@@ -599,123 +887,6 @@ CODE -->
 		LOCAL local_137
 		LOCAL local_138
 		LOCAL local_139
-		ALLOC local_139 Bool
-		ALLOC local_99 Bool
-		ARG s
-		ALLOC local_97 String
-		TYPE local_97 s
-		CALL local_96 local_97 length
-		ALLOC local_98 Int
-		MOV local_98 0
-		E local_99 local_96 local_98
-		IF local_99 GOTO label_45
-		ALLOC local_138 Bool
-		ALLOC local_106 Bool
-		ALLOC local_101 Int
-		MOV local_101 0
-		ALLOC local_102 Int
-		MOV local_102 1
-		ARG s
-		ARG local_101
-		ARG local_102
-		ALLOC local_104 String
-		TYPE local_104 s
-		CALL local_103 local_104 substr
-		ALLOC local_105 String
-		LDATA local_105 data_24
-		E local_106 local_103 local_105
-		IF local_106 GOTO label_43
-		ALLOC local_137 Bool
-		ALLOC local_123 Bool
-		ALLOC local_118 Int
-		MOV local_118 0
-		ALLOC local_119 Int
-		MOV local_119 1
-		ARG s
-		ARG local_118
-		ARG local_119
-		ALLOC local_121 String
-		TYPE local_121 s
-		CALL local_120 local_121 substr
-		ALLOC local_122 String
-		LDATA local_122 data_22
-		E local_123 local_120 local_122
-		IF local_123 GOTO label_41
-		ALLOC local_134 A2I
-		ARG self
-		ARG s
-		ALLOC local_136 String
-		TYPE local_136 local_134
-		CALL local_135 local_136 a2i_aux
-		MOV local_137 local_135
-		GOTO label_42
-		LABEL label_41
-		ALLOC local_124 A2I
-		ALLOC local_125 Int
-		MOV local_125 1
-		ARG s
-		ALLOC local_127 String
-		TYPE local_127 s
-		CALL local_126 local_127 length
-		ALLOC local_128 Int
-		MOV local_128 1
-		ALLOC local_129 Int
-		SUB local_129 local_126 local_128
-		ARG s
-		ARG local_125
-		ARG local_129
-		ALLOC local_131 String
-		TYPE local_131 s
-		CALL local_130 local_131 substr
-		ARG self
-		ARG local_130
-		ALLOC local_133 String
-		TYPE local_133 local_124
-		CALL local_132 local_133 a2i_aux
-		MOV local_137 local_132
-		LABEL label_42
-		MOV local_138 local_137
-		GOTO label_44
-		LABEL label_43
-		ALLOC local_117 Int
-		ALLOC local_107 A2I
-		ALLOC local_108 Int
-		MOV local_108 1
-		ARG s
-		ALLOC local_110 String
-		TYPE local_110 s
-		CALL local_109 local_110 length
-		ALLOC local_111 Int
-		MOV local_111 1
-		ALLOC local_112 Int
-		SUB local_112 local_109 local_111
-		ARG s
-		ARG local_108
-		ARG local_112
-		ALLOC local_114 String
-		TYPE local_114 s
-		CALL local_113 local_114 substr
-		ARG self
-		ARG local_113
-		ALLOC local_116 String
-		TYPE local_116 local_107
-		CALL local_115 local_116 a2i_aux
-		CMP local_117 local_115
-		MOV local_138 local_117
-		LABEL label_44
-		MOV local_139 local_138
-		GOTO label_46
-		LABEL label_45
-		ALLOC local_100 Int
-		MOV local_100 0
-		MOV local_139 local_100
-		LABEL label_46
-		RETURN local_139
-	}
-
-	function A2I_a2i_aux {
-		PARAM self
-		PARAM s
 		LOCAL local_140
 		LOCAL local_141
 		LOCAL local_142
@@ -728,6 +899,79 @@ CODE -->
 		LOCAL local_149
 		LOCAL local_150
 		LOCAL local_151
+		ALLOC local_124 Graph
+		ALLOC local_125 VList
+		ALLOC local_126 Pointer
+		SATTR local_125 car local_126
+		SATTR local_124 vertices local_125
+		ALLOC local_127 EList
+		ALLOC local_128 Pointer
+		SATTR local_127 car local_128
+		SATTR local_124 edges local_127
+		ALLOC local_129 Graph
+		MOV local_129 local_124
+		ALLOC local_130 IO
+		LOCALSAVE
+		ARG self
+		ALLOC local_132 String
+		TYPE local_132 local_130
+		CALL local_131 local_132 in_string
+		ALLOC local_133 String
+		MOV local_133 local_131
+		ALLOC local_151 void
+		LABEL label_3
+		ALLOC local_134 BoolOp
+		GATTR local_134 self boolop
+		ALLOC local_137 Bool
+		ALLOC local_136 Bool
+		ALLOC local_135 String
+		LDATA local_135 data_5
+		E local_136 local_133 local_135
+		NOT local_137 local_136
+		ALLOC local_140 Bool
+		ALLOC local_139 Bool
+		ALLOC local_138 String
+		LDATA local_138 data_22
+		E local_139 local_133 local_138
+		NOT local_140 local_139
+		LOCALSAVE
+		ARG local_134
+		ARG local_137
+		ARG local_140
+		ALLOC local_142 String
+		TYPE local_142 local_134
+		CALL local_141 local_142 and
+		IF local_141 GOTO label_4
+		GOTO label_5
+		LABEL label_4
+		ALLOC local_143 Parse
+		LOCALSAVE
+		ARG self
+		ARG local_133
+		ALLOC local_145 String
+		TYPE local_145 local_143
+		CALL local_144 local_145 parse_line
+		LOCALSAVE
+		ARG local_129
+		ARG local_144
+		ALLOC local_147 String
+		TYPE local_147 local_129
+		CALL local_146 local_147 add_vertice
+		ALLOC local_148 IO
+		LOCALSAVE
+		ARG self
+		ALLOC local_150 String
+		TYPE local_150 local_148
+		CALL local_149 local_150 in_string
+		COPY local_133 local_149
+		GOTO label_3
+		LABEL label_5
+		RETURN local_129
+	}
+
+	function Parse_parse_line {
+		PARAM self
+		PARAM s
 		LOCAL local_152
 		LOCAL local_153
 		LOCAL local_154
@@ -736,61 +980,6 @@ CODE -->
 		LOCAL local_157
 		LOCAL local_158
 		LOCAL local_159
-		ALLOC local_140 Int
-		MOV local_140 0
-		ALLOC local_141 Int
-		MOV local_141 local_140
-		ARG s
-		ALLOC local_143 String
-		TYPE local_143 s
-		CALL local_142 local_143 length
-		ALLOC local_144 Int
-		MOV local_144 local_142
-		ALLOC local_145 Int
-		MOV local_145 0
-		ALLOC local_146 Int
-		MOV local_146 local_145
-		ALLOC local_159 void
-		LABEL label_47
-		ALLOC local_147 Bool
-		L local_147 local_146 local_144
-		IF local_147 GOTO label_48
-		GOTO label_49
-		LABEL label_48
-		ALLOC local_148 Int
-		MOV local_148 10
-		ALLOC local_149 Int
-		Mul local_149 local_141 local_148
-		ALLOC local_150 A2I
-		ALLOC local_151 Int
-		MOV local_151 1
-		ARG s
-		ARG local_146
-		ARG local_151
-		ALLOC local_153 String
-		TYPE local_153 s
-		CALL local_152 local_153 substr
-		ARG self
-		ARG local_152
-		ALLOC local_155 String
-		TYPE local_155 local_150
-		CALL local_154 local_155 c2i
-		ALLOC local_156 Int
-		ADD local_156 local_149 local_154
-		COPY local_141 local_156
-		ALLOC local_157 Int
-		MOV local_157 1
-		ALLOC local_158 Int
-		ADD local_158 local_146 local_157
-		COPY local_146 local_158
-		GOTO label_47
-		LABEL label_49
-		RETURN local_141
-	}
-
-	function A2I_i2a {
-		PARAM self
-		PARAM i
 		LOCAL local_160
 		LOCAL local_161
 		LOCAL local_162
@@ -810,61 +999,6 @@ CODE -->
 		LOCAL local_176
 		LOCAL local_177
 		LOCAL local_178
-		ALLOC local_178 Bool
-		ALLOC local_161 Bool
-		ALLOC local_160 Int
-		MOV local_160 0
-		E local_161 i local_160
-		IF local_161 GOTO label_52
-		ALLOC local_177 Bool
-		ALLOC local_164 Bool
-		ALLOC local_163 Int
-		MOV local_163 0
-		L local_164 local_163 i
-		IF local_164 GOTO label_50
-		ALLOC local_168 String
-		LDATA local_168 data_24
-		ALLOC local_169 A2I
-		ALLOC local_171 Int
-		ALLOC local_170 Int
-		MOV local_170 1
-		CMP local_171 local_170
-		ALLOC local_172 Int
-		Mul local_172 i local_171
-		ARG self
-		ARG local_172
-		ALLOC local_174 String
-		TYPE local_174 local_169
-		CALL local_173 local_174 i2a_aux
-		ARG local_168
-		ARG local_173
-		ALLOC local_176 String
-		TYPE local_176 local_168
-		CALL local_175 local_176 concat
-		MOV local_177 local_175
-		GOTO label_51
-		LABEL label_50
-		ALLOC local_165 A2I
-		ARG self
-		ARG i
-		ALLOC local_167 String
-		TYPE local_167 local_165
-		CALL local_166 local_167 i2a_aux
-		MOV local_177 local_166
-		LABEL label_51
-		MOV local_178 local_177
-		GOTO label_53
-		LABEL label_52
-		ALLOC local_162 String
-		LDATA local_162 data_23
-		MOV local_178 local_162
-		LABEL label_53
-		RETURN local_178
-	}
-
-	function A2I_i2a_aux {
-		PARAM self
-		PARAM i
 		LOCAL local_179
 		LOCAL local_180
 		LOCAL local_181
@@ -875,6 +1009,102 @@ CODE -->
 		LOCAL local_186
 		LOCAL local_187
 		LOCAL local_188
+		ALLOC local_152 Vertice
+		ALLOC local_153 Int
+		SATTR local_152 num local_153
+		ALLOC local_154 EList
+		ALLOC local_155 Pointer
+		SATTR local_154 car local_155
+		SATTR local_152 out local_154
+		ALLOC local_156 Parse
+		LOCALSAVE
+		ARG self
+		ARG s
+		ALLOC local_158 String
+		TYPE local_158 local_156
+		CALL local_157 local_158 a2i
+		LOCALSAVE
+		ARG local_152
+		ARG local_157
+		ALLOC local_160 String
+		TYPE local_160 local_152
+		CALL local_159 local_160 init
+		ALLOC local_161 Vertice
+		MOV local_161 local_159
+		ALLOC local_188 void
+		LABEL label_6
+		ALLOC local_167 Bool
+		ALLOC local_166 Bool
+		ALLOC local_162 String
+		GATTR local_162 self rest
+		LOCALSAVE
+		ARG local_162
+		ALLOC local_164 String
+		TYPE local_164 local_162
+		CALL local_163 local_164 length
+		ALLOC local_165 Int
+		MOV local_165 0
+		E local_166 local_163 local_165
+		NOT local_167 local_166
+		IF local_167 GOTO label_7
+		GOTO label_8
+		LABEL label_7
+		ALLOC local_168 Parse
+		ALLOC local_169 String
+		GATTR local_169 self rest
+		LOCALSAVE
+		ARG self
+		ARG local_169
+		ALLOC local_171 String
+		TYPE local_171 local_168
+		CALL local_170 local_171 a2i
+		ALLOC local_172 Int
+		MOV local_172 local_170
+		ALLOC local_173 Parse
+		ALLOC local_174 String
+		GATTR local_174 self rest
+		LOCALSAVE
+		ARG self
+		ARG local_174
+		ALLOC local_176 String
+		TYPE local_176 local_173
+		CALL local_175 local_176 a2i
+		ALLOC local_177 Int
+		MOV local_177 local_175
+		ALLOC local_178 Edge
+		ALLOC local_179 Int
+		SATTR local_178 from local_179
+		ALLOC local_180 Int
+		SATTR local_178 to local_180
+		ALLOC local_181 Int
+		SATTR local_178 weight local_181
+		LOCALSAVE
+		ARG local_161
+		ALLOC local_183 String
+		TYPE local_183 local_161
+		CALL local_182 local_183 number
+		LOCALSAVE
+		ARG local_178
+		ARG local_182
+		ARG local_172
+		ARG local_177
+		ALLOC local_185 String
+		TYPE local_185 local_178
+		CALL local_184 local_185 init
+		LOCALSAVE
+		ARG local_161
+		ARG local_184
+		ALLOC local_187 String
+		TYPE local_187 local_161
+		CALL local_186 local_187 add_out
+		GOTO label_6
+		LABEL label_8
+		RETURN local_161
+	}
+
+	function Parse_c2i {
+		PARAM self
+		PARAM char
 		LOCAL local_189
 		LOCAL local_190
 		LOCAL local_191
@@ -883,53 +1113,6 @@ CODE -->
 		LOCAL local_194
 		LOCAL local_195
 		LOCAL local_196
-		ALLOC local_196 Bool
-		ALLOC local_180 Bool
-		ALLOC local_179 Int
-		MOV local_179 0
-		E local_180 i local_179
-		IF local_180 GOTO label_54
-		ALLOC local_182 Int
-		MOV local_182 10
-		ALLOC local_183 Int
-		Div local_183 i local_182
-		ALLOC local_184 Int
-		MOV local_184 local_183
-		ALLOC local_185 A2I
-		ARG self
-		ARG local_184
-		ALLOC local_187 String
-		TYPE local_187 local_185
-		CALL local_186 local_187 i2a_aux
-		ALLOC local_188 A2I
-		ALLOC local_189 Int
-		MOV local_189 10
-		ALLOC local_190 Int
-		Mul local_190 local_184 local_189
-		ALLOC local_191 Int
-		SUB local_191 i local_190
-		ARG self
-		ARG local_191
-		ALLOC local_193 String
-		TYPE local_193 local_188
-		CALL local_192 local_193 i2c
-		ARG local_186
-		ARG local_192
-		ALLOC local_195 String
-		TYPE local_195 local_186
-		CALL local_194 local_195 concat
-		MOV local_196 local_194
-		GOTO label_55
-		LABEL label_54
-		ALLOC local_181 String
-		LDATA local_181 data_25
-		MOV local_196 local_181
-		LABEL label_55
-		RETURN local_196
-	}
-
-	function Main_main {
-		PARAM self
 		LOCAL local_197
 		LOCAL local_198
 		LOCAL local_199
@@ -954,64 +1137,614 @@ CODE -->
 		LOCAL local_218
 		LOCAL local_219
 		LOCAL local_220
-		ALLOC local_197 A2I
+		LOCAL local_221
+		LOCAL local_222
+		LOCAL local_223
+		LOCAL local_224
+		LOCAL local_225
+		LOCAL local_226
+		LOCAL local_227
+		LOCAL local_228
+		LOCAL local_229
+		LOCAL local_230
+		LOCAL local_231
+		LOCAL local_232
+		ALLOC local_232 Bool
+		ALLOC local_190 Bool
+		ALLOC local_189 String
+		LDATA local_189 data_7
+		E local_190 char local_189
+		IF local_190 GOTO label_27
+		ALLOC local_231 Bool
+		ALLOC local_193 Bool
+		ALLOC local_192 String
+		LDATA local_192 data_8
+		E local_193 char local_192
+		IF local_193 GOTO label_25
+		ALLOC local_230 Bool
+		ALLOC local_196 Bool
+		ALLOC local_195 String
+		LDATA local_195 data_9
+		E local_196 char local_195
+		IF local_196 GOTO label_23
+		ALLOC local_229 Bool
+		ALLOC local_199 Bool
 		ALLOC local_198 String
-		LDATA local_198 data_26
-		ARG local_197
-		ARG local_198
-		ALLOC local_200 String
-		TYPE local_200 local_197
-		CALL local_199 local_200 a2i
-		ALLOC local_201 Int
-		MOV local_201 local_199
-		ALLOC local_202 A2I
-		ALLOC local_203 Int
-		MOV local_203 678987
-		ARG local_202
-		ARG local_203
-		ALLOC local_205 String
-		TYPE local_205 local_202
-		CALL local_204 local_205 i2a
-		ALLOC local_206 String
-		MOV local_206 local_204
-		ALLOC local_207 IO
-		ARG self
-		ARG local_201
-		ALLOC local_209 String
-		TYPE local_209 local_207
-		CALL local_208 local_209 out_int
-		ALLOC local_210 IO
-		ALLOC local_211 String
-		LDATA local_211 data_27
-		ARG self
-		ARG local_211
+		LDATA local_198 data_10
+		E local_199 char local_198
+		IF local_199 GOTO label_21
+		ALLOC local_228 Bool
+		ALLOC local_202 Bool
+		ALLOC local_201 String
+		LDATA local_201 data_11
+		E local_202 char local_201
+		IF local_202 GOTO label_19
+		ALLOC local_227 Bool
+		ALLOC local_205 Bool
+		ALLOC local_204 String
+		LDATA local_204 data_12
+		E local_205 char local_204
+		IF local_205 GOTO label_17
+		ALLOC local_226 Bool
+		ALLOC local_208 Bool
+		ALLOC local_207 String
+		LDATA local_207 data_13
+		E local_208 char local_207
+		IF local_208 GOTO label_15
+		ALLOC local_225 Bool
+		ALLOC local_211 Bool
+		ALLOC local_210 String
+		LDATA local_210 data_14
+		E local_211 char local_210
+		IF local_211 GOTO label_13
+		ALLOC local_224 Bool
+		ALLOC local_214 Bool
 		ALLOC local_213 String
-		TYPE local_213 local_210
-		CALL local_212 local_213 out_string
-		ALLOC local_214 IO
-		ARG self
-		ARG local_206
+		LDATA local_213 data_15
+		E local_214 char local_213
+		IF local_214 GOTO label_11
+		ALLOC local_223 Bool
+		ALLOC local_217 Bool
 		ALLOC local_216 String
-		TYPE local_216 local_214
-		CALL local_215 local_216 out_string
-		ALLOC local_217 IO
-		ALLOC local_218 String
-		LDATA local_218 data_28
+		LDATA local_216 data_16
+		E local_217 char local_216
+		IF local_217 GOTO label_9
+		ALLOC local_219 Object
+		LOCALSAVE
 		ARG self
-		ARG local_218
-		ALLOC local_220 String
-		TYPE local_220 local_217
-		CALL local_219 local_220 out_string
-		RETURN local_219
+		ALLOC local_221 String
+		TYPE local_221 local_219
+		CALL local_220 local_221 abort
+		ALLOC local_222 Int
+		MOV local_222 0
+		MOV local_223 local_222
+		GOTO label_10
+		LABEL label_9
+		ALLOC local_218 Int
+		MOV local_218 9
+		MOV local_223 local_218
+		LABEL label_10
+		MOV local_224 local_223
+		GOTO label_12
+		LABEL label_11
+		ALLOC local_215 Int
+		MOV local_215 8
+		MOV local_224 local_215
+		LABEL label_12
+		MOV local_225 local_224
+		GOTO label_14
+		LABEL label_13
+		ALLOC local_212 Int
+		MOV local_212 7
+		MOV local_225 local_212
+		LABEL label_14
+		MOV local_226 local_225
+		GOTO label_16
+		LABEL label_15
+		ALLOC local_209 Int
+		MOV local_209 6
+		MOV local_226 local_209
+		LABEL label_16
+		MOV local_227 local_226
+		GOTO label_18
+		LABEL label_17
+		ALLOC local_206 Int
+		MOV local_206 5
+		MOV local_227 local_206
+		LABEL label_18
+		MOV local_228 local_227
+		GOTO label_20
+		LABEL label_19
+		ALLOC local_203 Int
+		MOV local_203 4
+		MOV local_228 local_203
+		LABEL label_20
+		MOV local_229 local_228
+		GOTO label_22
+		LABEL label_21
+		ALLOC local_200 Int
+		MOV local_200 3
+		MOV local_229 local_200
+		LABEL label_22
+		MOV local_230 local_229
+		GOTO label_24
+		LABEL label_23
+		ALLOC local_197 Int
+		MOV local_197 2
+		MOV local_230 local_197
+		LABEL label_24
+		MOV local_231 local_230
+		GOTO label_26
+		LABEL label_25
+		ALLOC local_194 Int
+		MOV local_194 1
+		MOV local_231 local_194
+		LABEL label_26
+		MOV local_232 local_231
+		GOTO label_28
+		LABEL label_27
+		ALLOC local_191 Int
+		MOV local_191 0
+		MOV local_232 local_191
+		LABEL label_28
+		RETURN local_232
+	}
+
+	function Parse_a2i {
+		PARAM self
+		PARAM s
+		LOCAL local_233
+		LOCAL local_234
+		LOCAL local_235
+		LOCAL local_236
+		LOCAL local_237
+		LOCAL local_238
+		LOCAL local_239
+		LOCAL local_240
+		LOCAL local_241
+		LOCAL local_242
+		LOCAL local_243
+		LOCAL local_244
+		LOCAL local_245
+		LOCAL local_246
+		LOCAL local_247
+		LOCAL local_248
+		LOCAL local_249
+		LOCAL local_250
+		LOCAL local_251
+		LOCAL local_252
+		LOCAL local_253
+		LOCAL local_254
+		LOCAL local_255
+		LOCAL local_256
+		LOCAL local_257
+		LOCAL local_258
+		LOCAL local_259
+		LOCAL local_260
+		LOCAL local_261
+		LOCAL local_262
+		LOCAL local_263
+		LOCAL local_264
+		LOCAL local_265
+		LOCAL local_266
+		LOCAL local_267
+		LOCAL local_268
+		LOCAL local_269
+		LOCAL local_270
+		LOCAL local_271
+		LOCAL local_272
+		LOCAL local_273
+		LOCAL local_274
+		LOCAL local_275
+		LOCAL local_276
+		ALLOC local_276 Bool
+		ALLOC local_236 Bool
+		LOCALSAVE
+		ARG s
+		ALLOC local_234 String
+		TYPE local_234 s
+		CALL local_233 local_234 length
+		ALLOC local_235 Int
+		MOV local_235 0
+		E local_236 local_233 local_235
+		IF local_236 GOTO label_33
+		ALLOC local_275 Bool
+		ALLOC local_243 Bool
+		ALLOC local_238 Int
+		MOV local_238 0
+		ALLOC local_239 Int
+		MOV local_239 1
+		LOCALSAVE
+		ARG s
+		ARG local_238
+		ARG local_239
+		ALLOC local_241 String
+		TYPE local_241 s
+		CALL local_240 local_241 substr
+		ALLOC local_242 String
+		LDATA local_242 data_17
+		E local_243 local_240 local_242
+		IF local_243 GOTO label_31
+		ALLOC local_274 Bool
+		ALLOC local_260 Bool
+		ALLOC local_255 Int
+		MOV local_255 0
+		ALLOC local_256 Int
+		MOV local_256 1
+		LOCALSAVE
+		ARG s
+		ARG local_255
+		ARG local_256
+		ALLOC local_258 String
+		TYPE local_258 s
+		CALL local_257 local_258 substr
+		ALLOC local_259 String
+		LDATA local_259 data_19
+		E local_260 local_257 local_259
+		IF local_260 GOTO label_29
+		ALLOC local_271 Parse
+		LOCALSAVE
+		ARG self
+		ARG s
+		ALLOC local_273 String
+		TYPE local_273 local_271
+		CALL local_272 local_273 a2i_aux
+		MOV local_274 local_272
+		GOTO label_30
+		LABEL label_29
+		ALLOC local_261 Parse
+		ALLOC local_262 Int
+		MOV local_262 1
+		LOCALSAVE
+		ARG s
+		ALLOC local_264 String
+		TYPE local_264 s
+		CALL local_263 local_264 length
+		ALLOC local_265 Int
+		MOV local_265 1
+		ALLOC local_266 Int
+		SUB local_266 local_263 local_265
+		LOCALSAVE
+		ARG s
+		ARG local_262
+		ARG local_266
+		ALLOC local_268 String
+		TYPE local_268 s
+		CALL local_267 local_268 substr
+		LOCALSAVE
+		ARG self
+		ARG local_267
+		ALLOC local_270 String
+		TYPE local_270 local_261
+		CALL local_269 local_270 a2i
+		MOV local_274 local_269
+		LABEL label_30
+		MOV local_275 local_274
+		GOTO label_32
+		LABEL label_31
+		ALLOC local_254 Int
+		ALLOC local_244 Parse
+		ALLOC local_245 Int
+		MOV local_245 1
+		LOCALSAVE
+		ARG s
+		ALLOC local_247 String
+		TYPE local_247 s
+		CALL local_246 local_247 length
+		ALLOC local_248 Int
+		MOV local_248 1
+		ALLOC local_249 Int
+		SUB local_249 local_246 local_248
+		LOCALSAVE
+		ARG s
+		ARG local_245
+		ARG local_249
+		ALLOC local_251 String
+		TYPE local_251 s
+		CALL local_250 local_251 substr
+		LOCALSAVE
+		ARG self
+		ARG local_250
+		ALLOC local_253 String
+		TYPE local_253 local_244
+		CALL local_252 local_253 a2i_aux
+		CMP local_254 local_252
+		MOV local_275 local_254
+		LABEL label_32
+		MOV local_276 local_275
+		GOTO label_34
+		LABEL label_33
+		ALLOC local_237 Int
+		MOV local_237 0
+		MOV local_276 local_237
+		LABEL label_34
+		RETURN local_276
+	}
+
+	function Parse_a2i_aux {
+		PARAM self
+		PARAM s
+		LOCAL local_277
+		LOCAL local_278
+		LOCAL local_279
+		LOCAL local_280
+		LOCAL local_281
+		LOCAL local_282
+		LOCAL local_283
+		LOCAL local_284
+		LOCAL local_285
+		LOCAL local_286
+		LOCAL local_287
+		LOCAL local_288
+		LOCAL local_289
+		LOCAL local_290
+		LOCAL local_291
+		LOCAL local_292
+		LOCAL local_293
+		LOCAL local_294
+		LOCAL local_295
+		LOCAL local_296
+		LOCAL local_297
+		LOCAL local_298
+		LOCAL local_299
+		LOCAL local_300
+		LOCAL local_301
+		LOCAL local_302
+		LOCAL local_303
+		LOCAL local_304
+		LOCAL local_305
+		LOCAL local_306
+		LOCAL local_307
+		LOCAL local_308
+		LOCAL local_309
+		LOCAL local_310
+		LOCAL local_311
+		LOCAL local_312
+		LOCAL local_313
+		LOCAL local_314
+		LOCAL local_315
+		LOCAL local_316
+		LOCAL local_317
+		LOCAL local_318
+		LOCAL local_319
+		LOCAL local_320
+		LOCAL local_321
+		LOCAL local_322
+		LOCAL local_323
+		LOCAL local_324
+		LOCAL local_325
+		LOCAL local_326
+		LOCAL local_327
+		ALLOC local_277 Int
+		MOV local_277 0
+		ALLOC local_278 Int
+		MOV local_278 local_277
+		LOCALSAVE
+		ARG s
+		ALLOC local_280 String
+		TYPE local_280 s
+		CALL local_279 local_280 length
+		ALLOC local_281 Int
+		MOV local_281 local_279
+		ALLOC local_282 Int
+		MOV local_282 0
+		ALLOC local_283 Int
+		MOV local_283 local_282
+		ALLOC local_327 void
+		LABEL label_41
+		ALLOC local_284 Bool
+		L local_284 local_283 local_281
+		IF local_284 GOTO label_42
+		GOTO label_43
+		LABEL label_42
+		ALLOC local_285 Int
+		MOV local_285 1
+		LOCALSAVE
+		ARG s
+		ARG local_283
+		ARG local_285
+		ALLOC local_287 String
+		TYPE local_287 s
+		CALL local_286 local_287 substr
+		ALLOC local_288 String
+		MOV local_288 local_286
+		ALLOC local_326 Bool
+		ALLOC local_290 Bool
+		ALLOC local_289 String
+		LDATA local_289 data_19
+		E local_290 local_288 local_289
+		IF local_290 GOTO label_39
+		ALLOC local_325 Bool
+		ALLOC local_301 Bool
+		ALLOC local_300 String
+		LDATA local_300 data_20
+		E local_301 local_288 local_300
+		IF local_301 GOTO label_37
+		ALLOC local_311 Int
+		MOV local_311 10
+		ALLOC local_312 Int
+		Mul local_312 local_278 local_311
+		ALLOC local_313 Parse
+		ALLOC local_314 Int
+		MOV local_314 1
+		LOCALSAVE
+		ARG s
+		ARG local_283
+		ARG local_314
+		ALLOC local_316 String
+		TYPE local_316 s
+		CALL local_315 local_316 substr
+		LOCALSAVE
+		ARG self
+		ARG local_315
+		ALLOC local_318 String
+		TYPE local_318 local_313
+		CALL local_317 local_318 c2i
+		ALLOC local_319 Int
+		ADD local_319 local_312 local_317
+		COPY local_278 local_319
+		ALLOC local_320 Int
+		MOV local_320 1
+		ALLOC local_321 Int
+		ADD local_321 local_283 local_320
+		COPY local_283 local_321
+		ALLOC local_324 Bool
+		ALLOC local_322 Bool
+		E local_322 local_283 local_281
+		IF local_322 GOTO label_35
+		MOV local_324 local_323
+		GOTO label_36
+		LABEL label_35
+		ALLOC local_323 String
+		LDATA local_323 data_22
+		SATTR self rest local_323
+		MOV local_324 local_323
+		LABEL label_36
+		MOV local_325 local_324
+		GOTO label_38
+		LABEL label_37
+		ALLOC local_302 Int
+		MOV local_302 1
+		ALLOC local_303 Int
+		ADD local_303 local_283 local_302
+		LOCALSAVE
+		ARG s
+		ALLOC local_305 String
+		TYPE local_305 s
+		CALL local_304 local_305 length
+		ALLOC local_306 Int
+		SUB local_306 local_304 local_283
+		ALLOC local_307 Int
+		MOV local_307 1
+		ALLOC local_308 Int
+		SUB local_308 local_306 local_307
+		LOCALSAVE
+		ARG s
+		ARG local_303
+		ARG local_308
+		ALLOC local_310 String
+		TYPE local_310 s
+		CALL local_309 local_310 substr
+		SATTR self rest local_309
+		COPY local_283 local_281
+		MOV local_325 local_283
+		LABEL label_38
+		MOV local_326 local_325
+		GOTO label_40
+		LABEL label_39
+		ALLOC local_291 Int
+		MOV local_291 1
+		ALLOC local_292 Int
+		ADD local_292 local_283 local_291
+		LOCALSAVE
+		ARG s
+		ALLOC local_294 String
+		TYPE local_294 s
+		CALL local_293 local_294 length
+		ALLOC local_295 Int
+		SUB local_295 local_293 local_283
+		ALLOC local_296 Int
+		MOV local_296 1
+		ALLOC local_297 Int
+		SUB local_297 local_295 local_296
+		LOCALSAVE
+		ARG s
+		ARG local_292
+		ARG local_297
+		ALLOC local_299 String
+		TYPE local_299 s
+		CALL local_298 local_299 substr
+		SATTR self rest local_298
+		COPY local_283 local_281
+		MOV local_326 local_283
+		LABEL label_40
+		GOTO label_41
+		LABEL label_43
+		RETURN local_278
+	}
+
+	function Main_main {
+		PARAM self
+		LOCAL local_328
+		LOCAL local_329
+		LOCAL local_330
+		LOCAL local_331
+		LOCAL local_332
+		LOCAL local_333
+		ALLOC local_328 Graph
+		GATTR local_328 self g
+		LOCALSAVE
+		ARG local_328
+		ALLOC local_330 String
+		TYPE local_330 local_328
+		CALL local_329 local_330 print_V
+		ALLOC local_331 Graph
+		GATTR local_331 self g
+		LOCALSAVE
+		ARG local_331
+		ALLOC local_333 String
+		TYPE local_333 local_331
+		CALL local_332 local_333 print_E
+		RETURN local_332
+	}
+
+	function BoolOp_and {
+		PARAM self
+		PARAM b1
+		PARAM b2
+		LOCAL local_334
+		LOCAL local_335
+		ALLOC local_335 Bool
+		IF b1 GOTO label_44
+		ALLOC local_334 Bool
+		MOV local_334 0
+		MOV local_335 local_334
+		GOTO label_45
+		LABEL label_44
+		MOV local_335 b2
+		LABEL label_45
+		RETURN local_335
+	}
+
+	function BoolOp_or {
+		PARAM self
+		PARAM b1
+		PARAM b2
+		LOCAL local_336
+		LOCAL local_337
+		ALLOC local_337 Bool
+		IF b1 GOTO label_46
+		MOV local_337 b2
+		GOTO label_47
+		LABEL label_46
+		ALLOC local_336 Bool
+		MOV local_336 1
+		MOV local_337 local_336
+		LABEL label_47
+		RETURN local_337
 	}
 
 	function main {
-		LOCAL local_221
-		ALLOC local_221 Main
-		ARG local_221
-		ALLOC local_223 String
-		SETSTR local_223 Main
-		CALL local_222 local_223 main
+		LOCAL local_338
+		LOCAL local_339
+		LOCAL local_340
+		LOCAL local_341
+		LOCAL local_342
+		LOCAL local_343
+		LOCAL local_344
+		ALLOC local_338 Main
+		ALLOC local_341 Parse
+		LOCALSAVE
+		ARG self
+		ALLOC local_343 String
+		TYPE local_343 local_341
+		CALL local_342 local_343 read_input
+		SATTR local_338 g local_342
+		LOCALSAVE
+		ARG local_338
+		ALLOC local_344 String
+		SETSTR local_344 Main
+		CALL local_339 local_344 main
 	}
 
 END <--

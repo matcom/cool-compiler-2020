@@ -53,22 +53,39 @@ def generate_data(data, locals, max_param_count):
 
 PARAMS = {}
 CURR_PARAM_COUNT = 0
-PARAMS_LOAD = ""
+LOCALS_WRITE = ""
+PARAMS_AND_LOCALS_RELOAD = ""
 
 def generate_code(functions_code):
     result = ".text\n\n"
 
-    global PARAMS, CURR_PARAM_COUNT, PARAM_COUNT, PARAMS_LOAD
+    global PARAMS, CURR_PARAM_COUNT, PARAM_COUNT, LOCALS_WRITE, PARAMS_AND_LOCALS_RELOAD
 
     for f in functions_code:
         CURR_PARAM_COUNT = 0
         PARAMS_LOAD = ""
+        LOCALS_LOAD = ""
+        LOCALS_WRITE = "" 
 
         result += f.name + ":\n"
 
+        counter = len(f.locals)
+        for l in f.locals:
+            local_name = l.id
+            
+            LOCALS_WRITE += "lw $t0, " + local_name + "\n"
+            LOCALS_WRITE += "sw $t0, ($sp)\n"
+            LOCALS_WRITE += "addi $sp, $sp, 4\n"
+
+            LOCALS_LOAD += "lw $t0, -" + str(counter * 4) + "($sp)\n"
+            LOCALS_LOAD += "sw $t0, " + local_name + "\n"
+
+            counter -= 1
+
+        LOCALS_LOAD += "addi $sp, $sp, -" + str(4 * len(f.locals)) + "\n"
+
         counter = len(f.params)
 
-        
         for p in f.params:
             param_name = "param_" + str(PARAM_COUNT)
             PARAM_COUNT += 1
@@ -81,7 +98,9 @@ def generate_code(functions_code):
 
             counter -= 1
             CURR_PARAM_COUNT += 1
-        
+
+        PARAMS_AND_LOCALS_RELOAD = LOCALS_LOAD + PARAMS_LOAD
+
         if len(f.params) > 0:
             result += "sw $ra, ($sp)\n"
             result += "addi $sp, $sp, 4\n"
@@ -193,11 +212,16 @@ def convert_cil_instruction(instruction):
     elif type(instruction) == LoadDataNode:
         return convert_LoadDataNode(instruction)
 
+    elif type(instruction) == LocalSaveNode:
+        return convert_LocalSaveNode(instruction)
+
     else:
         print(str(type(instruction)) + " doesn't have convert method")
         return ""
 
-
+def convert_LocalSaveNode(instruction):
+    global LOCALS_WRITE
+    return LOCALS_WRITE
 def convert_LoadDataNode(instruction):
     result = ""
 
@@ -937,8 +961,9 @@ def convert_DispatchCallNode(instruction):
 
         result += "jal " + t.methods[instruction.method] + "_" + instruction.method + "\n"
 
+        result += PARAMS_AND_LOCALS_RELOAD
+
         result += "sw $v0, " + dest + "\n"
-        result += PARAMS_LOAD
         result += "j " + dispatch_after_call_label + "\n"
         result += dispatch_continue_label + ":\n"
 
@@ -996,8 +1021,11 @@ def convert_SetAttributeNode(instruction):
         result += "addi $t0, $t0, 1\n"
         result += "addi $t1, $t1, 1\n"
         result += "bne $t3, 0, " + sattr_string_copy_start_label + "\n"
-    else:
+    elif attr_type.name == "Int" or attr_type.name == "Bool":
         result += "lw $t3, ($t1)\n"
+        result += "sw $t3, ($t0)\n"
+    else:
+        result += "addi $t3, $t1, -4\n"
         result += "sw $t3, ($t0)\n"
 
     return result
@@ -1052,9 +1080,12 @@ def convert_GetAttributeNode(instruction):
         result += "addi $t0, $t0, 1\n"
         result += "addi $t1, $t1, 1\n"
         result += "bne $t3, $0, " + gattr_string_copy_start_label + "\n"
-    else:
+    elif attr_type.name == "Int" or attr_type.name == "Bool":
         result += "lw $t3, ($t0)\n"
         result += "sw $t3, ($t1)\n"
+    else:
+        result += "lw $t3, ($t0)\n"
+        result += "sw $t3, " + dest + "\n"
 
     return result
 

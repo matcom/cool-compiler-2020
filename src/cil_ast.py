@@ -1,13 +1,15 @@
 class Node:
     pass
 
+class LocalSaveNode(Node):
+    def GetCode(self):
+        return "LOCALSAVE"
 
 class ProgramNode(Node):
     def __init__(self, types, data, code):
         self.types = types
         self.data = data
         self.code = code
-
 
 class TypeNode(Node):
     def __init__(self, type_name, attributes_owner, attributes, methods):

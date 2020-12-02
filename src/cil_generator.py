@@ -111,7 +111,7 @@ def generate_cil_code(ast):
     MAIN_LOCAL = Main_instance
     result_local = get_local()
 
-    main_func = FunctionNode('main', [], [Main_instance], 
+    main_func = FunctionNode('main', [], [], 
                 [AllocateNode("Main", Main_instance.id)])
 
     for a in Main_class_attributes:
@@ -154,10 +154,17 @@ def generate_cil_code(ast):
     Main_type_local = get_local()
 
 
-    main_func.body += [ArgNode(Main_instance.id), 
+    main_func.body += [LocalSaveNode(), ArgNode(Main_instance.id), 
                        AllocateNode("String", Main_type_local.id),
                        SetStringNode(Main_type_local.id, "Main"),
                        DispatchCallNode(Main_type_local.id, "main", result_local.id)]
+
+    _locals = F_LOCALS.copy()
+    locals_aux = []
+    for key in _locals.keys():
+        locals_aux += [_locals[key]]
+
+    main_func.locals = locals_aux
 
     global CODE
 
@@ -443,7 +450,7 @@ def convert_assign(assign):
 
     # Only in main entry function
     if CURR_TYPE == "":
-        node = expr.node + [SetAttributeNode("Main", MAIN_LOCAL, assign.id, expr.result.id)]
+        node = expr.node + [SetAttributeNode("Main", MAIN_LOCAL.id, assign.id, expr.result.id)]
         return Node_Result(node, expr.result)
 
     if assign.id in C_ATTRIBUTES:
@@ -583,7 +590,7 @@ def convert_variable(id):
     
     if CURR_TYPE == "":
         result = get_local()
-        nodes = [AllocateNode(AllTypes["Main"].attributes[id.lex].attribute_type.name, result.id), GetAttributeNode("Main", MAIN_LOCAL, id.lex, result.id)]
+        nodes = [AllocateNode(AllTypes["Main"].attributes[id.lex].attribute_type.name, result.id), GetAttributeNode("Main", MAIN_LOCAL.id, id.lex, result.id)]
         return Node_Result(nodes, result)
 
     if id.lex in LET_LOCALS:
@@ -757,6 +764,7 @@ def convert_function_call(call):
         nodes += arg.node
         arguments.append(arg.result)
 
+    nodes += [LocalSaveNode()]
 
     if instance_is_self:
         nodes.append(ArgNode("self"))
