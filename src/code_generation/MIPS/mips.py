@@ -237,11 +237,12 @@ def length_to_mips_visitor(length: cil.LengthNode):
 
     code = [
         mips.Comment(str(length)),
-        mips.LbInstruction('$t0', f'{val}($fp)'),
+        mips.LwInstruction('$t2', f'{val}($fp)'),
         mips.LiInstruction('$t1', 0),
         mips.MIPSLabel('length_loop'),
+        mips.LbInstruction('$t0', '($t2)'),
         mips.BeqzInstruction('$t0', 'end_length_loop'),
-        mips.AdduInstruction('$t0', '$t0', 1),
+        mips.AdduInstruction('$t2', '$t2', 1),
         mips.AdduInstruction('$t1', '$t1', 1),
         mips.BInstruction('length_loop'),
         mips.MIPSLabel('end_length_loop'),
@@ -251,15 +252,15 @@ def length_to_mips_visitor(length: cil.LengthNode):
 
 
 def concat_to_mips_visitor(concat: cil.ConcatNode):
-    __DATA__.append(mips.MIPSDataItem(concat.result.id,
+    __DATA__.append(mips.MIPSDataItem(str(concat.result),
                                       mips.SpaceInst(2 * __BUFFSIZE__)))
-    result_offset = CURRENT_FUNCTION.offset[concat.result.id]
+    result_offset = CURRENT_FUNCTION.offset[str(concat.result)]
     a_offset = CURRENT_FUNCTION.offset[str(concat.str_a)]
     b_offset = CURRENT_FUNCTION.offset[str(concat.str_b)]
 
     return [
         mips.Comment(str(concat)),
-        mips.LwInstruction('$t0', f'{result_offset}($fp)'),
+        mips.LaInstruction('$t0', str(concat.result)),
         mips.LwInstruction('$t1', f'{a_offset}($fp)'),
         mips.LwInstruction('$t2', f'{b_offset}($fp)'),
         mips.MIPSLabel('concat_loop_a'),
@@ -276,7 +277,9 @@ def concat_to_mips_visitor(concat: cil.ConcatNode):
         mips.AdduInstruction('$t0', '$t0', 1),
         mips.AdduInstruction('$t2', '$t2', 1),
         mips.BInstruction('concat_loop_b'),
-        mips.MIPSLabel('end_concat')
+        mips.MIPSLabel('end_concat'),
+        mips.LaInstruction('$t0', str(concat.result)),
+        mips.SwInstruction('$t0', f'{result_offset}($fp)')
     ]
 
 
@@ -502,6 +505,93 @@ def div_to_mips_visitor(div: cil.DivNode):
     z_addr = CURRENT_FUNCTION.offset[str(div.result)]
     return code + [mips.DivInstruction('$t0', '$t0', '$t1'), mips.SwInstruction('$t0', f'{z_addr}($fp)')]
 
+def eq_to_mips_visitor(eq:cil.EqNode):
+    instructions = [mips.Comment(str(eq))]
+    if isinstance(eq.left, int):
+        instructions.append(mips.LiInstruction('$t0', eq.left))
+    else:
+        y_offset = CURRENT_FUNCTION.offset[str(eq.left)]
+        instructions.append(mips.LwInstruction('$t0', f'{y_offset}($fp)'))
+
+    if isinstance(eq.right, int):
+        instructions.append(mips.LiInstruction('$t1', eq.right))
+    else:
+        z_offset = CURRENT_FUNCTION.offset[str(eq.right)]
+        instructions.append(mips.LwInstruction('$t1', f'{z_offset}($fp)'))
+
+    x_offset = CURRENT_FUNCTION.offset[str(eq.result)]
+
+    return instructions + [
+        mips.SeqInstruction('$t0', '$t0', '$t1'),
+        mips.SwInstruction('$t0', f'{x_offset}($fp)')
+    ]
+
+__EQUAL__=0
+
+def eq_string_to_mips_visitor(eq:cil.EqNode):
+    global __EQUAL__
+    y_offset = CURRENT_FUNCTION.offset[str(eq.left)]
+    z_offset = CURRENT_FUNCTION.offset[str(eq.right)]
+    x_offset = CURRENT_FUNCTION.offset[str(eq.result)]
+    __EQUAL__+=1
+    return [
+        mips.Comment(str(eq)),
+        mips.LwInstruction('$t0', f'{y_offset}($fp)'),
+        mips.LwInstruction('$t1', f'{z_offset}($fp)'),
+        mips.LiInstruction('$v0', 1),
+        mips.SwInstruction('$v0', f'{x_offset}($fp)'),
+        mips.MIPSLabel(f'equal_loop_{__EQUAL__}'),
+        mips.LbInstruction('$t2', '($t0)'),
+        mips.LbInstruction('$t3', '($t1)'),
+        mips.SeqInstruction('$t4', '$t2', '$t3'),
+        mips.BeqzInstruction('$t4', f'not_equal_{__EQUAL__}'),
+        mips.BeqzInstruction('$t2', f'end_loop_{__EQUAL__}'),
+        mips.AdduInstruction('$t0','$t0', 1),
+        mips.AdduInstruction('$t1', '$t1', 1),
+        mips.BInstruction(f'equal_loop_{__EQUAL__}'),
+        mips.BInstruction(f'end_loop_{__EQUAL__}'),
+        mips.MIPSLabel(f'not_equal_{__EQUAL__}'),
+        mips.LiInstruction('$v0', 0),
+        mips.SwInstruction('$v0', f'{x_offset}($fp)'),
+        mips.MIPSLabel(f'end_loop_{__EQUAL__}')
+    ]
+
+    
+def not_eq_to_mips_visitor(eq:cil.EqNode):
+    instructions = [mips.Comment(str(eq))]
+    if isinstance(eq.left, int):
+        instructions.append(mips.LiInstruction('$t0', eq.left))
+    else:
+        y_offset = CURRENT_FUNCTION.offset[str(eq.left)]
+        instructions.append(mips.LwInstruction('$t0', f'{y_offset}($fp)'))
+
+    if isinstance(eq.right, int):
+        instructions.append(mips.LiInstruction('$t1', eq.right))
+    else:
+        z_offset = CURRENT_FUNCTION.offset[str(eq.right)]
+        instructions.append(mips.LwInstruction('$t1', f'{z_offset}($fp)'))
+
+    x_offset = CURRENT_FUNCTION.offset[str(eq.result)]
+
+    return instructions + [
+        mips.SneInstruction('$t0', '$t0', '$t1'),
+        mips.SwInstruction('$t0', f'{x_offset}($fp)')
+    ]
+    
+def not_eq_instance_to_mips_visitor(noteq:cil.NotEqNode):
+    y_offset = CURRENT_FUNCTION.offset[str(eq.left)]
+    z_offset = CURRENT_FUNCTION.offset[str(eq.right)]
+    x_offset = CURRENT_FUNCTION.offset[str(eq.result)]
+
+    return [
+        mips.Comment(str(eq)),
+        mips.LwInstruction('$t0', f'{y_offset}($fp)'),
+        mips.LwInstruction('$t1', '($t0)'),
+        mips.LwInstruction('$t0', f'{z_offset}($fp)'),
+        mips.LwInstruction('$t2', '($t0)'),
+        mips.SneInstruction('$t0', '$t1', '$t2'),
+        mips.SwInstruction('$t0', f'{x_offset}($fp)')
+    ]
 
 def lesseq_to_mips_visitor(lesseq: cil.LessEqNode):
     """
@@ -781,5 +871,9 @@ __visitors__ = {
     cil.AssignNode: assign_to_mips_visitor,
     cil.TypeOfNode: type_of_to_mips_visitor,
     cil.AbortNode: abort_to_mips_visitor,
-    cil.GetTypeAddrNode: get_type_addr_to_mips_visitor
+    cil.GetTypeAddrNode: get_type_addr_to_mips_visitor,
+    cil.EqNode: eq_to_mips_visitor,
+    cil.NotEqNode:not_eq_to_mips_visitor,
+    cil.NotEqInstanceNode:not_eq_instance_to_mips_visitor, 
+    cil.EqStringNode:eq_string_to_mips_visitor
 }

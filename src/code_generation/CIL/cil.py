@@ -294,7 +294,7 @@ def case_to_cil_visitor(case):
 
     for i, branch in enumerate(case.case_list):
         predicate = add_local()
-        body.append(CilAST.MinusNode(t, branch.type, predicate))
+        body.append(CilAST.NotEqInstanceNode(t, branch.type, predicate))
         body.append(CilAST.ConditionalGotoNode(predicate, labels[i]))
         val = add_local(branch.id)
         body.append(CilAST.AssignNode(val, expr_cil.value))
@@ -386,14 +386,20 @@ def equal_to_cil_visitor(equal):
     l = expression_to_cil_visitor(equal.lvalue)
     r = expression_to_cil_visitor(equal.rvalue)
 
+    ret_l=equal.lvalue.returned_type.name
+    ret_r=equal.rvalue.returned_type.name
+    
     cil_result = add_local()
-    end_label = add_label()
     value = add_local()
 
-    body = l.body + r.body + [CilAST.MinusNode(l.value, r.value, cil_result),  CilAST.AssignNode(value, 0),
-                              CilAST.ConditionalGotoNode(
-        cil_result, end_label),  CilAST.AssignNode(value, 1),
-        CilAST.LabelNode(end_label)]
+    if ret_l == 'String' and ret_r=='String':
+        comparison=CilAST.EqStringNode(l.value, r.value, cil_result)
+    else:
+        comparison=CilAST.EqNode(l.value, r.value, cil_result)
+        
+        
+    
+    body = l.body + r.body + [comparison,  CilAST.AssignNode(value, cil_result)]
 
     return CIL_block(body, value)
 

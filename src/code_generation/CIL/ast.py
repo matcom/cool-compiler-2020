@@ -156,7 +156,23 @@ class LessEqNode(ArithNode):
 class LessNode(ArithNode):
     def __str__(self):
         return f'{self.result} = {self.left} < {self.right} ;'
+    
+class EqNode(ArithNode):
+    def __str__(self):
+        return f'{self.result} = {self.left} == {self.right} ;'
 
+class EqStringNode(ArithNode):
+    def __str__(self):
+        return f'{self.result} = {self.left} == {self.right} ;'   
+
+class NotEqNode(ArithNode):
+    def __str__(self):
+        return f'{self.result} = {self.left} != {self.right} ;'
+    
+class NotEqInstanceNode(ArithNode):
+    def __str__(self):
+        return f'{self.result} = {self.left} != {self.right} ;'
+    
 
 class NotNode(InstructionNode):
     def __init__(self, value, result):
