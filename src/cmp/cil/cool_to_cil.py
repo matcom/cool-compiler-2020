@@ -133,9 +133,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         self.current_function = self.register_function("entry")
         instance = self.define_internal_local()
         result = self.define_internal_local()
-        self.register_instruction(StaticCallNode("init_Main", instance))
         self.current_type = self.context.get_type("Main")
-        self.init_class_attr(scope, "Main", instance)
+        self.register_instruction(StaticCallNode("init_Main", instance))
         self.current_type = None
         self.register_instruction(ArgNode(instance))
         self.register_instruction(
@@ -321,7 +320,9 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         type_val = self.define_internal_local()
         # WARNING: attr initialization isn't done
         self.register_instruction(StaticTypeOfNode(node.type, type_val))
-        # self.register_instruction(TypeOfNode(temp_type, type_val))
+        # temp_inst = self.define_internal_local()
+        # self.register_instruction(AllocateNode(temp_inst, node.type))
+        # self.register_instruction(TypeOfNode(temp_inst, type_val))
         self.register_instruction(EqualNode(cond, typex, type_val))
         self.register_instruction(NotNode(not_cond, cond))
         self.register_instruction(GotoIfNode(not_cond, case_label))
