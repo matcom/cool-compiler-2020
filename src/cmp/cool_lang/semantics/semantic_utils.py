@@ -128,7 +128,8 @@ class Type:
                 new_method = Method(name, param_names, param_types, return_type)
                 if not new_method.is_override(
                     method
-                ):  # override check is different from the manual, check method if something goes wrong here
+                ):  # override check is different from the manual, check method
+                    # if something goes wrong here
                     raise SemanticException(
                         f'Invalid override of method "{name}" in type {self.name}.'
                     )
@@ -183,7 +184,7 @@ class Type:
         while True:
             if actual == otype:
                 return True
-            if actual.parent == None:
+            if actual.parent is None:
                 return False
             actual = actual.parent
 
@@ -302,7 +303,7 @@ class Scope:
         try:
             return self.vars[name]
         except KeyError:
-            if not self.parent is None:
+            if self.parent is not None:
                 try:
                     return self.parent.get_var(name)
                 except SemanticException as e:
