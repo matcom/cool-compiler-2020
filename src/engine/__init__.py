@@ -1,4 +1,4 @@
-from .lexer import tokenizer
+from .lexer import CoolLexer
 from .parser import *
 from .cp import evaluate_reverse_parse
 from .cp.semantic import Scope
