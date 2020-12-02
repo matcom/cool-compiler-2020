@@ -385,7 +385,7 @@ def loop_to_cil_visitor(loop):
 def equal_to_cil_visitor(equal):
     l = expression_to_cil_visitor(equal.lvalue)
     r = expression_to_cil_visitor(equal.rvalue)
-
+    
     ret_l=equal.lvalue.returned_type.name
     ret_r=equal.rvalue.returned_type.name
     

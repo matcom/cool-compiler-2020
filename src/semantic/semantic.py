@@ -543,6 +543,7 @@ def negation_visitor(negation: NegationNode, current_class: CT.CoolType, local_s
         add_semantic_error(negation.lineno, negation.colno,
                            f'{ERR_TYPE}: Argument of \'~\' has type {value_type} instead of {CT.IntType}.')
     # 3)
+    negation.returned_type=CT.BoolType
     return CT.IntType
 
 
@@ -564,6 +565,7 @@ def logic_negation_visitor(negation: LogicNegationNode, current_class: CT.CoolTy
         add_semantic_error(negation.lineno, negation.colno,
                            f'{ERR_TYPE}: Argument of \'not\' has type {CT.IntType} instead of {value_type}.')
     # 3)
+    negation.returned_type=CT.BoolType
     return CT.BoolType
 
 
