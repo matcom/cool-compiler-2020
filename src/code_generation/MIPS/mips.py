@@ -293,6 +293,7 @@ def concat_to_mips_visitor(concat: cil.ConcatNode):
         mips.AdduInstruction('$t2', '$t2', 1),
         mips.BInstruction('concat_loop_b'),
         mips.MIPSLabel('end_concat'),
+        mips.SbInstruction('$zero', '($t0)'),
         mips.LaInstruction('$t0', str(concat.result)),
         mips.SwInstruction('$t0', f'{result_offset}($fp)')
     ]
@@ -685,12 +686,12 @@ def not_to_mips_visitor(notn: cil.NotNode):
         instructions.append(mips.LiInstruction('$t0', notn.value))
     else:
         y_offset = CURRENT_FUNCTION.offset[str(notn.value)]
-        mips.LwInstruction('$t0', f'{y_offset}($fp)')
+        instructions.append(mips.LwInstruction('$t0', f'{y_offset}($fp)'))
 
     x_offset = CURRENT_FUNCTION.offset[str(notn.result)]
 
     return instructions + [
-        mips.NotInstruction('$t0', '$t0'),
+        mips.NegInstruction('$t0', '$t0'),
         mips.SwInstruction('$t0', f'{x_offset}($fp)')
     ]
 
