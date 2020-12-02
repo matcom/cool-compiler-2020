@@ -108,7 +108,6 @@ class BASE_COOL_CIL_TRANSFORM:
     def register_instruction(self, instruction):
         self.instructions.append(instruction)
         return instruction
-        ###########
 
     def to_function_name(self, method_name, type_name):
         return f"function_{method_name}_at_{type_name}"
@@ -140,8 +139,6 @@ class BASE_COOL_CIL_TRANSFORM:
             data_node = DataNode(vname, value)
             self.dotdata.append(data_node)
         return data_node
-
-    ######################################################
 
     def build_basics(self):
         self.build_basic_object()
@@ -364,15 +361,10 @@ class BASE_COOL_CIL_TRANSFORM:
         no_error_label2 = self.to_label_name("error2")
         no_error_label3 = self.to_label_name("error3")
         str_raw = self.unpack_type_by_value(self_local, "String")
-        # self.register_instruction(StaticCallNode("init_Int", zero))
-        # zero = self.unpack_type_by_value(zero, "Int")
         self.register_instruction(SetNode(zero, 0))
         start_raw = self.unpack_type_by_value(start_parm, "Int")
         length_raw = self.unpack_type_by_value(length_param, "Int")
-        # self.register_instruction(PrintIntNode(start_raw))
-        # self.register_instruction(PrintIntNode(length_raw))
         self.register_instruction(LengthNode(length_var, str_raw))
-        # self.register_instruction(PrintIntNode(length_var))
         eol = self.register_data("\n").name
         msg_eol = self.define_internal_local()
         # start param negative

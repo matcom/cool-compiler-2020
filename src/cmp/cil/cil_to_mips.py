@@ -246,28 +246,15 @@ class CIL_TO_MIPS(object):
         for idx, local in enumerate(node.localvars):
             self.visit(local, index=idx)
 
-        # self.mips.move(Reg.a0, Reg.ra)
-        # self.mips.print_int()
-        # self.mips.la(Reg.a0, "eol")
-        # self.mips.print_string()
-
         self.mips.empty()
         self.store_registers()
         self.mips.empty()
         self.mips.comment("Generating body code")
         for instruction in node.instructions:
-            # if type(instruction) == AssignNode:
-            #     print(node.name)
-            #     print("     \n".join(map(lambda x: str(x), node.instructions)))
             self.visit(instruction)
 
         self.mips.empty()
         self.load_registers()
-
-        # self.mips.move(Reg.a0, Reg.ra)
-        # self.mips.print_int()
-        # self.mips.la(Reg.a0, "eol")
-        # self.mips.print_string()
 
         self.mips.comment("Clean stack variable space")
         self.mips.addi(Reg.sp, Reg.sp, len(node.localvars) * DATA_SIZE)
@@ -385,14 +372,10 @@ class CIL_TO_MIPS(object):
     def visit(self, node: ComplementNode):  # noqa: F811
 
         self.load_memory(Reg.s0, node.body)
-        # self.mips.move(Reg.a0, Reg.s0)
-        # self.mips.print_int()
         self.mips.li(Reg.s1, -1)
         self.mips.mult(Reg.s0, Reg.s1)
         self.mips.mflo(Reg.s0)
         self.store_memory(Reg.s0, node.dest)
-        # self.mips.move(Reg.a0, Reg.s1)
-        # self.mips.print_int()
 
     @when(LessNode)
     @mips_comment("LessNode")
@@ -408,18 +391,11 @@ class CIL_TO_MIPS(object):
         ((a < b) + (b < a)) < 1  -> ==
         """
         self.load_arithmetic(node)
-        # self.mips.move(Reg.a0, Reg.s0)
-        # self.mips.print_int()
-        # self.mips.move(Reg.a0, Reg.s1)
-        # self.mips.print_int()
         self.mips.slt(Reg.s2, Reg.s0, Reg.s1)
         self.mips.slt(Reg.s3, Reg.s1, Reg.s0)
 
         self.mips.add(Reg.s0, Reg.s2, Reg.s3)
         self.mips.slti(Reg.s1, Reg.s0, 1)
-
-        # self.mips.move(Reg.a0, Reg.s1)
-        # self.mips.print_int()
 
         self.store_memory(Reg.s1, node.dest)
 
@@ -593,10 +569,6 @@ class CIL_TO_MIPS(object):
     @when(PrintIntNode)
     @mips_comment("PrintIntNode")
     def visit(self, node: PrintIntNode):  # noqa: F811
-        # self.load_memory(Reg.s0, node.str_addr)
-        # type_data = self.types_offsets["Int"]
-        # offset = type_data.attr_offsets["value"] * DATA_SIZE
-        # self.mips.load_memory(Reg.a0, self.mips.offset(Reg.s0, offset))
         self.load_memory(Reg.a0, node.str_addr)
         self.mips.print_int()
 
@@ -708,8 +680,6 @@ class CIL_TO_MIPS(object):
     @when(SubstringNode)
     @mips_comment("SubstringNode")
     def visit(self, node: SubstringNode):  # noqa: F811
-        # self.mips.li(Reg.a0, 10)
-        # self.mips.print_int()
         self.load_memory(Reg.s0, node.msg1)
         self.load_memory(Reg.s1, node.length)
         self.load_memory(Reg.s3, node.start)
@@ -771,19 +741,6 @@ class CIL_TO_MIPS(object):
         offset = type_data.attr_offsets[node.attrib] * DATA_SIZE
         self.mips.load_memory(Reg.s1, self.mips.offset(Reg.s0, offset))
 
-        # label = self.get_label()
-        # tag = f"{label}_{node.type}_{node.attrib}"
-        # self.mips.write_data(tag + ":")
-        # self.mips.asciiz(f"{node.attrib}, {node.type}")
-        # self.mips.la(Reg.a0, tag)
-        # self.mips.print_string()
-        # self.mips.la(Reg.a0, "eol")
-        # self.mips.print_string()
-        # self.mips.move(Reg.a0, Reg.s1)
-        # self.mips.print_int()
-        # self.mips.la(Reg.a0, "eol")
-        # self.mips.print_string()
-
         self.store_memory(Reg.s1, node.dest)
 
     @when(SetAttribNode)
@@ -795,19 +752,6 @@ class CIL_TO_MIPS(object):
         if node.value in self.local_vars_offsets or node.value in self.actual_args:
             self.mips.comment(f"Setting local var {node.value}")
             self.load_memory(Reg.s1, node.value)
-
-            # label = self.get_label()
-            # tag = f"{label}_{node.type}_{node.attrib}"
-            # self.mips.write_data(tag + ":")
-            # self.mips.asciiz(f"{node.attrib}, {node.type}, {offset}")
-            # self.mips.la(Reg.a0, tag)
-            # self.mips.print_string()
-            # self.mips.la(Reg.a0, "eol")
-            # self.mips.print_string()
-            # self.mips.move(Reg.a0, Reg.s1)
-            # self.mips.print_int()
-            # self.mips.la(Reg.a0, "eol")
-            # self.mips.print_string()
         else:
             try:
                 value = int(node.value)

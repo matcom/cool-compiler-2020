@@ -80,8 +80,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         return self.find_type_name(typex.parent, func_name)
 
     def init_class_attr(self, scope: Scope, class_id, self_inst):
-        # print(self.attr_init)
-        # print("==============================")
         attr_nodes = self.attr_init[class_id]
         for attr in attr_nodes:
             attr_scope = Scope(parent=scope)
@@ -141,7 +139,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             StaticCallNode(self.to_function_name("main", "Main"), result)
         )
         self.register_instruction(CleanArgsNode(1))
-        # self.register_instruction(ReturnNode(0))
         self.current_function = None
 
         for classx in node.classes:
@@ -213,7 +210,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             func_scope.define_var(param_name, param_local)
 
         body = self.visit(node.expression, func_scope)
-        # print(body, type(body), node.expression, "==================================")
         self.register_instruction(ReturnNode(body))
 
         self.current_method = self.current_function = None
@@ -228,21 +224,11 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         cond_result = self.unpack_type_by_value(cond_result, node.condition.static_type)
         self.register_instruction(GotoIfNode(cond_result, true_label))
         false_result = self.visit(node.else_body, if_scope)
-        # if false_result == "0" or false_result == 0:
-        #     print(type(node.else_body), "IfThenElseNode")
-        # false_result = self.unpack_type_by_value(
-        #     false_result, node.else_body.static_type
-        # )
         self.register_instruction(AssignNode(result, false_result))
-        # result = self.pack_type_by_value(result, node.else_body.static_type)
         self.register_instruction(GotoNode(end_label))
         self.register_instruction(LabelNode(true_label))
         true_result = self.visit(node.if_body, if_scope)
-        # true_result = self.unpack_type_by_value(true_result, node.if_body.static_type)
-        # if true_result == "0" or true_result == 0:
-        #     print(type(node.if_body), "IfThenElseNode")
         self.register_instruction(AssignNode(result, true_result))
-        # result = self.pack_type_by_value(result, node.if_body.static_type)
         self.register_instruction(LabelNode(end_label))
 
         return result
@@ -256,7 +242,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(LabelNode(loop_label))
         condition = self.visit(node.condition, scope)
         condition_raw = self.unpack_type_by_value(condition, node.condition.static_type)
-        # self.register_instruction(PrintIntNode(condition_raw))
         self.register_instruction(GotoIfNode(condition_raw, body_label))
         self.register_instruction(GotoNode(end_label))
         self.register_instruction(LabelNode(body_label))
@@ -316,14 +301,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         cond = self.define_internal_local()
         not_cond = self.define_internal_local()
         case_label = self.to_label_name(f"case_{node.type}")
-        # print(node.type, type(node.type))
-        # temp_type = self.define_internal_local()
         type_val = self.define_internal_local()
-        # WARNING: attr initialization isn't done
         self.register_instruction(StaticTypeOfNode(node.type, type_val))
-        # temp_inst = self.define_internal_local()
-        # self.register_instruction(AllocateNode(temp_inst, node.type))
-        # self.register_instruction(TypeOfNode(temp_inst, type_val))
         self.register_instruction(EqualNode(cond, typex, type_val))
         self.register_instruction(NotNode(not_cond, cond))
         self.register_instruction(GotoIfNode(not_cond, case_label))
@@ -332,8 +311,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         case_scope.define_var(node.id, case_var)
         self.register_instruction(AssignNode(case_var, expr_inst))
         case_result = self.visit(node.expression, case_scope)
-        # if case_result == "0" or case_result == 0:
-        #     print(type(node.expression), "CaseNode")
         self.register_instruction(AssignNode(result_inst, case_result))
         self.register_instruction(GotoNode(end_label))
         self.register_instruction(LabelNode(case_label))
@@ -375,8 +352,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             )
         else:
             pvar = pvar.local_name
-            # if value == "0" or value == 0:
-            #     print(type(node.expression), "AssignNode")
             self.register_instruction(AssignNode(pvar, value))
         return value
 
@@ -389,7 +364,6 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             arg_value = self.visit(arg, scope)
             rev_args = [arg_value] + rev_args
         for arg_value in rev_args:
-            # arg_value = self.unpack_type_by_value(arg_value, typex)
             self.register_instruction(ArgNode(arg_value))
         self_inst = scope.get_var("self").local_name
         self.register_instruction(ArgNode(self_inst))
