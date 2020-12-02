@@ -66,9 +66,10 @@ def autowrite(tabs: int = 1):
         autowrite a instruction when execute string return function
         """
 
-        def wrapper(*args, **kwargs):
-            instruction = func(*args, **kwargs)
-            args[0].write_inst(instruction, tabs)
+        def wrapper(self: "Mips", *args, **kwargs):
+            instruction = func(self, *args, **kwargs)
+            if instruction is not None:
+                self.write_inst(instruction, 0 if self.zip_mode else tabs)
 
         return wrapper
 
@@ -92,9 +93,10 @@ def autowritedata(func):
 
 
 class Mips:
-    def __init__(self):
+    def __init__(self, zip_mode=False):
         self.DOTTEXT: List[str] = []
         self.DOTDATA: List[str] = []
+        self.zip_mode = zip_mode
 
     def write_inst(self, instruction: str, tabs: int = 0):
         tabstr = ""
@@ -355,7 +357,7 @@ class Mips:
 
     @autowrite()
     def comment(self, text: str):
-        return f"# {text}"
+        return None if self.zip_mode else f"# {text}"
 
     @autowrite(0)
     def label(self, name: str):
@@ -363,7 +365,7 @@ class Mips:
 
     @autowrite()
     def empty(self):
-        return ""
+        return None if self.zip_mode else ""
 
     # Data Section
 
