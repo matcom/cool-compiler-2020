@@ -61,34 +61,12 @@ main:
 	usw        $t0, vt_Main+20
 	la         $t0, IO_in_int
 	usw        $t0, vt_Main+24
-	la         $t0, Main_main
+	la         $t0, Main_pal
 	usw        $t0, vt_Main+40
-	la         $t0, Object_abort
-	usw        $t0, vt_Complex+0
-	la         $t0, Object_type_name
-	usw        $t0, vt_Complex+4
-	la         $t0, Object_copy
-	usw        $t0, vt_Complex+8
-	la         $t0, IO_out_string
-	usw        $t0, vt_Complex+12
-	la         $t0, IO_out_int
-	usw        $t0, vt_Complex+16
-	la         $t0, IO_in_string
-	usw        $t0, vt_Complex+20
-	la         $t0, IO_in_int
-	usw        $t0, vt_Complex+24
-	la         $t0, Complex_init
-	usw        $t0, vt_Complex+44
-	la         $t0, Complex_print
-	usw        $t0, vt_Complex+48
-	la         $t0, Complex_reflect_0
-	usw        $t0, vt_Complex+52
-	la         $t0, Complex_reflect_X
-	usw        $t0, vt_Complex+56
-	la         $t0, Complex_reflect_Y
-	usw        $t0, vt_Complex+60
+	la         $t0, Main_main
+	usw        $t0, vt_Main+44
 	#          self = ALLOCATE Main ;
-	li         $a0, 12
+	li         $a0, 16
 	li         $v0, 9
 	syscall
 	sw         $v0, -4($fp)
@@ -101,8 +79,8 @@ main:
 	lw         $t0, -8($fp)
 	lw         $t1, -4($fp)
 	sw         $t0, 0($t1)
-	#          local_2 = 12 ;
-	li         $t0, 12
+	#          local_2 = 16 ;
+	li         $t0, 16
 	sw         $t0, -12($fp)
 	#          SETATTR self @size local_2 ;
 	lw         $t0, -12($fp)
@@ -152,12 +130,28 @@ IO_out_string:
 IO_in_string:
 	move       $fp, $sp
 	subu       $sp, $sp, 4
-	la         $a0, str
+	la         $a0, read_result
+	lw         $t0, 0($fp)
+	addu       $a0, $a0, $t0
 	li         $a1, 1024
 	li         $v0, 8
 	syscall
+	remove_nl_loop:
+
+	lb         $t0, ($a0)
+	la         $t1, new_line
+	lb         $t2, ($t1)
+	beq        $t0, $t2, end_loop
+	addu       $a0, $a0, 1
+	b          remove_nl_loop
+	end_loop:
+
+	sb         $zero, ($a0)
+	la         $a0, read_result
+	lw         $t0, 0($fp)
+	addu       $a0, $a0, $t0
 	sw         $a0, -4($fp)
-	#          RETURN str ;
+	#          RETURN read_result ;
 	lw         $v0, -4($fp)
 	addu       $sp, $sp, 4
 	jr         $ra
@@ -233,8 +227,8 @@ String_concat:
 	subu       $sp, $sp, 4
 	#          concat_result = CONCAT self x ;
 	la         $t0, concat_result
-	lw         $t1, 4($fp)
-	lw         $t2, 0($fp)
+	lw         $t1, 8($fp)
+	lw         $t2, 4($fp)
 	concat_loop_a:
 
 	lb         $a0, ($t1)
@@ -263,10 +257,12 @@ String_substr:
 	move       $fp, $sp
 	subu       $sp, $sp, 4
 	#          substring_result = SUBSTRING self i l;
-	lw         $t0, 8($fp)
-	la         $t1, substring_result
-	lw         $t4, 4($fp)
-	lw         $t2, 0($fp)
+	lw         $t0, 12($fp)
+	la         $t5, substring_result
+	lw         $t1, 0($fp)
+	addu       $t1, $t1, $t5
+	lw         $t4, 8($fp)
+	lw         $t2, 4($fp)
 	addu       $t0, $t0, $t4
 	substring_loop:
 
@@ -279,7 +275,9 @@ String_substr:
 	b          substring_loop
 	end_substring_loop:
 
-	la         $t1, substring_result
+	la         $t5, substring_result
+	lw         $t1, 0($fp)
+	addu       $t1, $t1, $t5
 	sw         $t1, -4($fp)
 	#          RETURN substring_result ;
 	lw         $v0, -4($fp)
@@ -348,202 +346,319 @@ Bool_abort:
 Bool_type_name:
 	move       $fp, $sp
 	subu       $sp, $sp, 4
-	#          local_5 = LOAD data_7 ;
-	la         $t0, data_7
+	#          local_15 = LOAD data_5 ;
+	la         $t0, data_5
 	sw         $t0, -4($fp)
-	#          RETURN local_5 ;
+	#          RETURN local_15 ;
 	lw         $v0, -4($fp)
 	addu       $sp, $sp, 4
 	jr         $ra
 Int_type_name:
 	move       $fp, $sp
 	subu       $sp, $sp, 4
-	#          local_6 = LOAD data_8 ;
-	la         $t0, data_8
+	#          local_16 = LOAD data_6 ;
+	la         $t0, data_6
 	sw         $t0, -4($fp)
-	#          RETURN local_6 ;
+	#          RETURN local_16 ;
 	lw         $v0, -4($fp)
 	addu       $sp, $sp, 4
 	jr         $ra
 String_type_name:
 	move       $fp, $sp
 	subu       $sp, $sp, 4
-	#          local_7 = LOAD data_9 ;
-	la         $t0, data_9
+	#          local_17 = LOAD data_7 ;
+	la         $t0, data_7
 	sw         $t0, -4($fp)
-	#          RETURN local_7 ;
+	#          RETURN local_17 ;
 	lw         $v0, -4($fp)
 	addu       $sp, $sp, 4
 	jr         $ra
-Main_main:
+Main_pal:
 	move       $fp, $sp
-	subu       $sp, $sp, 84
-	#          local_1 = ALLOCATE Complex ;
-	li         $a0, 20
-	li         $v0, 9
-	syscall
+	subu       $sp, $sp, 108
+	#          local_1 = VCALL String length ;
+	subu       $sp, $sp, 8
+	sw         $fp, 0($sp)
+	sw         $ra, 4($sp)
+	#          ARG s ;
+	lw         $t0, 0($fp)
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	jal        String_length
+	addu       $sp, $sp, 4
+	lw         $fp, 0($sp)
+	lw         $ra, 4($sp)
+	addu       $sp, $sp, 8
 	sw         $v0, -8($fp)
-	la         $t0, vt_Complex
-	sw         $t0, 8($v0)
-	#          local_2 = LOAD data_2 ;
-	la         $t0, data_2
-	sw         $t0, -12($fp)
-	#          SETATTR local_1 @type local_2 ;
-	lw         $t0, -12($fp)
-	lw         $t1, -8($fp)
-	sw         $t0, 0($t1)
-	#          local_3 = 20 ;
-	li         $t0, 20
-	sw         $t0, -16($fp)
-	#          SETATTR local_1 @size local_3 ;
-	lw         $t0, -16($fp)
-	lw         $t1, -8($fp)
-	sw         $t0, 4($t1)
-	#          local_0 = GETTYPEADDR local_1 ;
-	lw         $t1, -8($fp)
-	lw         $t0, 8($t1)
-	sw         $t0, -4($fp)
-	#          local_4 = VCALL local_0 init ;
-	subu       $sp, $sp, 8
-	sw         $fp, 0($sp)
-	sw         $ra, 4($sp)
-	#          ARG local_1 ;
+	#          local_2 = local_1 == 0 ;
 	lw         $t0, -8($fp)
-	subu       $sp, $sp, 4
-	sw         $t0, ($sp)
-	#          ARG 1 ;
-	li         $t0, 1
-	subu       $sp, $sp, 4
-	sw         $t0, ($sp)
-	#          ARG 1 ;
-	li         $t0, 1
-	subu       $sp, $sp, 4
-	sw         $t0, ($sp)
-	lw         $t0, -4($fp)
-	ulw        $t1, 44($t0)
-	jalr       $t1
-	addu       $sp, $sp, 12
-	lw         $fp, 0($sp)
-	lw         $ra, 4($sp)
-	addu       $sp, $sp, 8
-	sw         $v0, -20($fp)
-	#          c = local_4 ;
-	lw         $t0, -20($fp)
-	sw         $t0, -24($fp)
-	#          local_7 = GETTYPEADDR c ;
-	lw         $t1, -24($fp)
-	lw         $t0, 8($t1)
-	sw         $t0, -32($fp)
-	#          local_8 = VCALL local_7 reflect_X ;
+	li         $t1, 0
+	seq        $t0, $t0, $t1
+	sw         $t0, -12($fp)
+	#          local_3 = local_2 ;
+	lw         $t0, -12($fp)
+	sw         $t0, -16($fp)
+	#          IF local_3 GOTO label_5 ;
+	lw         $t0, -16($fp)
+	bnez       $t0, label_5
+	#          local_5 = VCALL String length ;
 	subu       $sp, $sp, 8
 	sw         $fp, 0($sp)
 	sw         $ra, 4($sp)
-	#          ARG c ;
+	#          ARG s ;
+	lw         $t0, 0($fp)
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	jal        String_length
+	addu       $sp, $sp, 4
+	lw         $fp, 0($sp)
+	lw         $ra, 4($sp)
+	addu       $sp, $sp, 8
+	sw         $v0, -24($fp)
+	#          local_6 = local_5 == 1 ;
 	lw         $t0, -24($fp)
-	subu       $sp, $sp, 4
-	sw         $t0, ($sp)
-	lw         $t0, -32($fp)
-	ulw        $t1, 56($t0)
-	jalr       $t1
-	addu       $sp, $sp, 4
-	lw         $fp, 0($sp)
-	lw         $ra, 4($sp)
-	addu       $sp, $sp, 8
-	sw         $v0, -36($fp)
-	#          local_6 = GETTYPEADDR local_8 ;
-	lw         $t1, -36($fp)
-	lw         $t0, 8($t1)
+	li         $t1, 1
+	seq        $t0, $t0, $t1
 	sw         $t0, -28($fp)
-	#          local_9 = VCALL local_6 reflect_Y ;
+	#          local_7 = local_6 ;
+	lw         $t0, -28($fp)
+	sw         $t0, -32($fp)
+	#          IF local_7 GOTO label_3 ;
+	lw         $t0, -32($fp)
+	bnez       $t0, label_3
+	#          local_9 = VCALL String substr ;
 	subu       $sp, $sp, 8
 	sw         $fp, 0($sp)
 	sw         $ra, 4($sp)
-	#          ARG local_8 ;
-	lw         $t0, -36($fp)
+	#          ARG s ;
+	lw         $t0, 0($fp)
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	lw         $t0, -28($fp)
-	ulw        $t1, 60($t0)
-	jalr       $t1
-	addu       $sp, $sp, 4
+	#          ARG 0 ;
+	li         $t0, 0
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	#          ARG 1 ;
+	li         $t0, 1
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	#          ARG 0 ;
+	li         $t0, 0
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	jal        String_substr
+	addu       $sp, $sp, 16
 	lw         $fp, 0($sp)
 	lw         $ra, 4($sp)
 	addu       $sp, $sp, 8
 	sw         $v0, -40($fp)
-	#          local_10 = GETTYPEADDR c ;
-	lw         $t1, -24($fp)
-	lw         $t0, 8($t1)
-	sw         $t0, -44($fp)
-	#          local_11 = VCALL local_10 reflect_0 ;
+	#          local_12 = VCALL String length ;
 	subu       $sp, $sp, 8
 	sw         $fp, 0($sp)
 	sw         $ra, 4($sp)
-	#          ARG c ;
-	lw         $t0, -24($fp)
+	#          ARG s ;
+	lw         $t0, 0($fp)
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	lw         $t0, -44($fp)
-	ulw        $t1, 52($t0)
-	jalr       $t1
+	jal        String_length
 	addu       $sp, $sp, 4
 	lw         $fp, 0($sp)
 	lw         $ra, 4($sp)
 	addu       $sp, $sp, 8
-	sw         $v0, -48($fp)
-	#          local_12 = local_9 == local_11 ;
-	lw         $t0, -40($fp)
-	lw         $t1, -48($fp)
-	seq        $t0, $t0, $t1
-	sw         $t0, -52($fp)
-	#          local_13 = local_12 ;
+	sw         $v0, -52($fp)
+	#          local_13 = local_12 - 1 ;
 	lw         $t0, -52($fp)
+	li         $t1, 1
+	sub        $t0, $t0, $t1
 	sw         $t0, -56($fp)
-	#          IF local_13 GOTO label_1 ;
-	lw         $t0, -56($fp)
-	bnez       $t0, label_1
-	#          local_17 = GETTYPEADDR self ;
-	lw         $t1, 0($fp)
-	lw         $t0, 8($t1)
-	sw         $t0, -72($fp)
-	#          local_18 = LOAD data_4 ;
-	la         $t0, data_4
-	sw         $t0, -76($fp)
-	#          local_19 = VCALL local_17 out_string ;
+	#          local_14 = VCALL String substr ;
 	subu       $sp, $sp, 8
 	sw         $fp, 0($sp)
 	sw         $ra, 4($sp)
-	#          ARG self ;
+	#          ARG s ;
 	lw         $t0, 0($fp)
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	#          ARG local_18 ;
-	lw         $t0, -76($fp)
+	#          ARG local_13 ;
+	lw         $t0, -56($fp)
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	lw         $t0, -72($fp)
-	ulw        $t1, 12($t0)
-	jalr       $t1
-	addu       $sp, $sp, 8
+	#          ARG 1 ;
+	li         $t0, 1
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	#          ARG 4 ;
+	li         $t0, 4
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	jal        String_substr
+	addu       $sp, $sp, 16
 	lw         $fp, 0($sp)
 	lw         $ra, 4($sp)
 	addu       $sp, $sp, 8
-	sw         $v0, -80($fp)
-	#          local_20 = local_19 ;
-	lw         $t0, -80($fp)
-	sw         $t0, -84($fp)
+	sw         $v0, -60($fp)
+	#          local_15 = local_9 == local_14 ;
+	lw         $t0, -40($fp)
+	lw         $t1, -60($fp)
+	li         $v0, 1
+	sw         $v0, -64($fp)
+	equal_loop_1:
+
+	lb         $t2, ($t0)
+	lb         $t3, ($t1)
+	seq        $t4, $t2, $t3
+	beqz       $t4, not_equal_1
+	beqz       $t2, end_loop_1
+	addu       $t0, $t0, 1
+	addu       $t1, $t1, 1
+	b          equal_loop_1
+	b          end_loop_1
+	not_equal_1:
+
+	li         $v0, 0
+	sw         $v0, -64($fp)
+	end_loop_1:
+
+	#          local_16 = local_15 ;
+	lw         $t0, -64($fp)
+	sw         $t0, -68($fp)
+	#          IF local_16 GOTO label_1 ;
+	lw         $t0, -68($fp)
+	bnez       $t0, label_1
+	#          local_24 = 0 ;
+	li         $t0, 0
+	sw         $t0, -100($fp)
 	#          GOTO label_2 ;
 	b          label_2
 	#          LABEL label_1 ;
 	label_1:
 
-	#          local_14 = GETTYPEADDR self ;
+	#          local_17 = GETTYPEADDR self ;
+	lw         $t1, 4($fp)
+	lw         $t0, 8($t1)
+	sw         $t0, -72($fp)
+	#          local_20 = VCALL String length ;
+	subu       $sp, $sp, 8
+	sw         $fp, 0($sp)
+	sw         $ra, 4($sp)
+	#          ARG s ;
+	lw         $t0, 0($fp)
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	jal        String_length
+	addu       $sp, $sp, 4
+	lw         $fp, 0($sp)
+	lw         $ra, 4($sp)
+	addu       $sp, $sp, 8
+	sw         $v0, -84($fp)
+	#          local_21 = local_20 - 2 ;
+	lw         $t0, -84($fp)
+	li         $t1, 2
+	sub        $t0, $t0, $t1
+	sw         $t0, -88($fp)
+	#          local_22 = VCALL String substr ;
+	subu       $sp, $sp, 8
+	sw         $fp, 0($sp)
+	sw         $ra, 4($sp)
+	#          ARG s ;
+	lw         $t0, 0($fp)
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	#          ARG 1 ;
+	li         $t0, 1
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	#          ARG local_21 ;
+	lw         $t0, -88($fp)
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	#          ARG 8 ;
+	li         $t0, 8
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	jal        String_substr
+	addu       $sp, $sp, 16
+	lw         $fp, 0($sp)
+	lw         $ra, 4($sp)
+	addu       $sp, $sp, 8
+	sw         $v0, -92($fp)
+	#          local_23 = VCALL local_17 pal ;
+	subu       $sp, $sp, 8
+	sw         $fp, 0($sp)
+	sw         $ra, 4($sp)
+	#          ARG self ;
+	lw         $t0, 4($fp)
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	#          ARG local_22 ;
+	lw         $t0, -92($fp)
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	lw         $t0, -72($fp)
+	ulw        $t1, 40($t0)
+	jalr       $t1
+	addu       $sp, $sp, 8
+	lw         $fp, 0($sp)
+	lw         $ra, 4($sp)
+	addu       $sp, $sp, 8
+	sw         $v0, -96($fp)
+	#          local_24 = local_23 ;
+	lw         $t0, -96($fp)
+	sw         $t0, -100($fp)
+	#          LABEL label_2 ;
+	label_2:
+
+	#          local_25 = local_24 ;
+	lw         $t0, -100($fp)
+	sw         $t0, -104($fp)
+	#          GOTO label_4 ;
+	b          label_4
+	#          LABEL label_3 ;
+	label_3:
+
+	#          local_25 = 1 ;
+	li         $t0, 1
+	sw         $t0, -104($fp)
+	#          LABEL label_4 ;
+	label_4:
+
+	#          local_26 = local_25 ;
+	lw         $t0, -104($fp)
+	sw         $t0, -108($fp)
+	#          GOTO label_6 ;
+	b          label_6
+	#          LABEL label_5 ;
+	label_5:
+
+	#          local_26 = 1 ;
+	li         $t0, 1
+	sw         $t0, -108($fp)
+	#          LABEL label_6 ;
+	label_6:
+
+	#          RETURN local_26 ;
+	lw         $v0, -108($fp)
+	addu       $sp, $sp, 108
+	jr         $ra
+Main_main:
+	move       $fp, $sp
+	subu       $sp, $sp, 60
+	#          local_0 = ~ 1
+	li         $t0, 1
+	not        $t0, $t0
+	sw         $t0, -4($fp)
+	#          SETATTR self i local_0 ;
+	lw         $t0, -4($fp)
+	lw         $t1, 0($fp)
+	sw         $t0, 12($t1)
+	#          local_1 = GETTYPEADDR self ;
 	lw         $t1, 0($fp)
 	lw         $t0, 8($t1)
-	sw         $t0, -60($fp)
-	#          local_15 = LOAD data_3 ;
-	la         $t0, data_3
-	sw         $t0, -64($fp)
-	#          local_16 = VCALL local_14 out_string ;
+	sw         $t0, -8($fp)
+	#          local_2 = LOAD data_2 ;
+	la         $t0, data_2
+	sw         $t0, -12($fp)
+	#          local_3 = VCALL local_1 out_string ;
 	subu       $sp, $sp, 8
 	sw         $fp, 0($sp)
 	sw         $ra, 4($sp)
@@ -551,86 +666,27 @@ Main_main:
 	lw         $t0, 0($fp)
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	#          ARG local_15 ;
-	lw         $t0, -64($fp)
+	#          ARG local_2 ;
+	lw         $t0, -12($fp)
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	lw         $t0, -60($fp)
+	lw         $t0, -8($fp)
 	ulw        $t1, 12($t0)
 	jalr       $t1
 	addu       $sp, $sp, 8
 	lw         $fp, 0($sp)
 	lw         $ra, 4($sp)
 	addu       $sp, $sp, 8
-	sw         $v0, -68($fp)
-	#          local_20 = local_16 ;
-	lw         $t0, -68($fp)
-	sw         $t0, -84($fp)
-	#          LABEL label_2 ;
-	label_2:
-
-	#          RETURN local_20 ;
-	lw         $v0, -84($fp)
-	addu       $sp, $sp, 84
-	jr         $ra
-Complex_init:
-	move       $fp, $sp
-	subu       $sp, $sp, 24
-	#          local_0 = GETATTR self x ;
-	lw         $t0, 8($fp)
-	lw         $t1, 12($t0)
-	sw         $t1, -4($fp)
-	#          local_1 = local_0 == a ;
-	lw         $t0, -4($fp)
-	lw         $t1, 4($fp)
-	seq        $t0, $t0, $t1
-	sw         $t0, -8($fp)
-	#          local_2 = local_1 ;
-	lw         $t0, -8($fp)
-	sw         $t0, -12($fp)
-	#          local_3 = GETATTR self y ;
-	lw         $t0, 8($fp)
-	lw         $t1, 16($t0)
-	sw         $t1, -16($fp)
-	#          local_4 = local_3 == b ;
-	lw         $t0, -16($fp)
-	lw         $t1, 0($fp)
-	seq        $t0, $t0, $t1
-	sw         $t0, -20($fp)
-	#          local_5 = local_4 ;
-	lw         $t0, -20($fp)
-	sw         $t0, -24($fp)
-	#          RETURN self ;
-	lw         $v0, 8($fp)
-	addu       $sp, $sp, 24
-	jr         $ra
-Complex_print:
-	move       $fp, $sp
-	subu       $sp, $sp, 76
-	#          local_0 = GETATTR self y ;
-	lw         $t0, 0($fp)
-	lw         $t1, 16($t0)
-	sw         $t1, -4($fp)
-	#          local_1 = local_0 == 0 ;
-	lw         $t0, -4($fp)
-	li         $t1, 0
-	seq        $t0, $t0, $t1
-	sw         $t0, -8($fp)
-	#          local_2 = local_1 ;
-	lw         $t0, -8($fp)
-	sw         $t0, -12($fp)
-	#          IF local_2 GOTO label_3 ;
-	lw         $t0, -12($fp)
-	bnez       $t0, label_3
-	#          local_9 = GETTYPEADDR self ;
+	sw         $v0, -16($fp)
+	#          local_4 = GETTYPEADDR self ;
 	lw         $t1, 0($fp)
 	lw         $t0, 8($t1)
-	sw         $t0, -40($fp)
-	#          local_10 = GETATTR self x ;
-	lw         $t0, 0($fp)
-	lw         $t1, 12($t0)
-	sw         $t1, -44($fp)
-	#          local_11 = VCALL local_9 out_int ;
+	sw         $t0, -20($fp)
+	#          local_5 = GETTYPEADDR self ;
+	lw         $t1, 0($fp)
+	lw         $t0, 8($t1)
+	sw         $t0, -24($fp)
+	#          local_6 = VCALL local_5 in_string ;
 	subu       $sp, $sp, 8
 	sw         $fp, 0($sp)
 	sw         $ra, 4($sp)
@@ -638,38 +694,61 @@ Complex_print:
 	lw         $t0, 0($fp)
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	#          ARG local_10 ;
-	lw         $t0, -44($fp)
+	#          ARG 0 ;
+	li         $t0, 0
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	lw         $t0, -40($fp)
-	ulw        $t1, 16($t0)
+	lw         $t0, -24($fp)
+	ulw        $t1, 20($t0)
 	jalr       $t1
 	addu       $sp, $sp, 8
 	lw         $fp, 0($sp)
 	lw         $ra, 4($sp)
 	addu       $sp, $sp, 8
-	sw         $v0, -48($fp)
-	#          local_8 = GETTYPEADDR local_11 ;
-	lw         $t1, -48($fp)
-	lw         $t0, 8($t1)
-	sw         $t0, -36($fp)
-	#          local_12 = LOAD data_5 ;
-	la         $t0, data_5
-	sw         $t0, -52($fp)
-	#          local_13 = VCALL local_8 out_string ;
+	sw         $v0, -28($fp)
+	#          local_7 = VCALL local_4 pal ;
 	subu       $sp, $sp, 8
 	sw         $fp, 0($sp)
 	sw         $ra, 4($sp)
-	#          ARG local_11 ;
-	lw         $t0, -48($fp)
+	#          ARG self ;
+	lw         $t0, 0($fp)
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	#          ARG local_6 ;
+	lw         $t0, -28($fp)
+	subu       $sp, $sp, 4
+	sw         $t0, ($sp)
+	lw         $t0, -20($fp)
+	ulw        $t1, 40($t0)
+	jalr       $t1
+	addu       $sp, $sp, 8
+	lw         $fp, 0($sp)
+	lw         $ra, 4($sp)
+	addu       $sp, $sp, 8
+	sw         $v0, -32($fp)
+	#          IF local_7 GOTO label_7 ;
+	lw         $t0, -32($fp)
+	bnez       $t0, label_7
+	#          local_11 = GETTYPEADDR self ;
+	lw         $t1, 0($fp)
+	lw         $t0, 8($t1)
+	sw         $t0, -48($fp)
+	#          local_12 = LOAD data_4 ;
+	la         $t0, data_4
+	sw         $t0, -52($fp)
+	#          local_13 = VCALL local_11 out_string ;
+	subu       $sp, $sp, 8
+	sw         $fp, 0($sp)
+	sw         $ra, 4($sp)
+	#          ARG self ;
+	lw         $t0, 0($fp)
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
 	#          ARG local_12 ;
 	lw         $t0, -52($fp)
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	lw         $t0, -36($fp)
+	lw         $t0, -48($fp)
 	ulw        $t1, 12($t0)
 	jalr       $t1
 	addu       $sp, $sp, 8
@@ -677,78 +756,22 @@ Complex_print:
 	lw         $ra, 4($sp)
 	addu       $sp, $sp, 8
 	sw         $v0, -56($fp)
-	#          local_7 = GETTYPEADDR local_13 ;
-	lw         $t1, -56($fp)
-	lw         $t0, 8($t1)
-	sw         $t0, -32($fp)
-	#          local_14 = GETATTR self y ;
-	lw         $t0, 0($fp)
-	lw         $t1, 16($t0)
-	sw         $t1, -60($fp)
-	#          local_15 = VCALL local_7 out_int ;
-	subu       $sp, $sp, 8
-	sw         $fp, 0($sp)
-	sw         $ra, 4($sp)
-	#          ARG local_13 ;
+	#          local_14 = local_13 ;
 	lw         $t0, -56($fp)
-	subu       $sp, $sp, 4
-	sw         $t0, ($sp)
-	#          ARG local_14 ;
-	lw         $t0, -60($fp)
-	subu       $sp, $sp, 4
-	sw         $t0, ($sp)
-	lw         $t0, -32($fp)
-	ulw        $t1, 16($t0)
-	jalr       $t1
-	addu       $sp, $sp, 8
-	lw         $fp, 0($sp)
-	lw         $ra, 4($sp)
-	addu       $sp, $sp, 8
-	sw         $v0, -64($fp)
-	#          local_6 = GETTYPEADDR local_15 ;
-	lw         $t1, -64($fp)
-	lw         $t0, 8($t1)
-	sw         $t0, -28($fp)
-	#          local_16 = LOAD data_6 ;
-	la         $t0, data_6
-	sw         $t0, -68($fp)
-	#          local_17 = VCALL local_6 out_string ;
-	subu       $sp, $sp, 8
-	sw         $fp, 0($sp)
-	sw         $ra, 4($sp)
-	#          ARG local_15 ;
-	lw         $t0, -64($fp)
-	subu       $sp, $sp, 4
-	sw         $t0, ($sp)
-	#          ARG local_16 ;
-	lw         $t0, -68($fp)
-	subu       $sp, $sp, 4
-	sw         $t0, ($sp)
-	lw         $t0, -28($fp)
-	ulw        $t1, 12($t0)
-	jalr       $t1
-	addu       $sp, $sp, 8
-	lw         $fp, 0($sp)
-	lw         $ra, 4($sp)
-	addu       $sp, $sp, 8
-	sw         $v0, -72($fp)
-	#          local_18 = local_17 ;
-	lw         $t0, -72($fp)
-	sw         $t0, -76($fp)
-	#          GOTO label_4 ;
-	b          label_4
-	#          LABEL label_3 ;
-	label_3:
+	sw         $t0, -60($fp)
+	#          GOTO label_8 ;
+	b          label_8
+	#          LABEL label_7 ;
+	label_7:
 
-	#          local_3 = GETTYPEADDR self ;
+	#          local_8 = GETTYPEADDR self ;
 	lw         $t1, 0($fp)
 	lw         $t0, 8($t1)
-	sw         $t0, -16($fp)
-	#          local_4 = GETATTR self x ;
-	lw         $t0, 0($fp)
-	lw         $t1, 12($t0)
-	sw         $t1, -20($fp)
-	#          local_5 = VCALL local_3 out_int ;
+	sw         $t0, -36($fp)
+	#          local_9 = LOAD data_3 ;
+	la         $t0, data_3
+	sw         $t0, -40($fp)
+	#          local_10 = VCALL local_8 out_string ;
 	subu       $sp, $sp, 8
 	sw         $fp, 0($sp)
 	sw         $ra, 4($sp)
@@ -756,169 +779,66 @@ Complex_print:
 	lw         $t0, 0($fp)
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	#          ARG local_4 ;
-	lw         $t0, -20($fp)
+	#          ARG local_9 ;
+	lw         $t0, -40($fp)
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	lw         $t0, -16($fp)
-	ulw        $t1, 16($t0)
+	lw         $t0, -36($fp)
+	ulw        $t1, 12($t0)
 	jalr       $t1
 	addu       $sp, $sp, 8
 	lw         $fp, 0($sp)
 	lw         $ra, 4($sp)
 	addu       $sp, $sp, 8
-	sw         $v0, -24($fp)
-	#          local_18 = local_5 ;
-	lw         $t0, -24($fp)
-	sw         $t0, -76($fp)
-	#          LABEL label_4 ;
-	label_4:
+	sw         $v0, -44($fp)
+	#          local_14 = local_10 ;
+	lw         $t0, -44($fp)
+	sw         $t0, -60($fp)
+	#          LABEL label_8 ;
+	label_8:
 
-	#          RETURN local_18 ;
-	lw         $v0, -76($fp)
-	addu       $sp, $sp, 76
-	jr         $ra
-Complex_reflect_0:
-	move       $fp, $sp
-	subu       $sp, $sp, 40
-	#          local_0 = GETATTR self x ;
-	lw         $t0, 0($fp)
-	lw         $t1, 12($t0)
-	sw         $t1, -4($fp)
-	#          local_1 = GETATTR self x ;
-	lw         $t0, 0($fp)
-	lw         $t1, 12($t0)
-	sw         $t1, -8($fp)
-	#          local_2 = ~ local_1
-	not        $t0, $t0
-	sw         $t0, -12($fp)
-	#          local_3 = local_0 == local_2 ;
-	lw         $t0, -4($fp)
-	lw         $t1, -12($fp)
-	seq        $t0, $t0, $t1
-	sw         $t0, -16($fp)
-	#          local_4 = local_3 ;
-	lw         $t0, -16($fp)
-	sw         $t0, -20($fp)
-	#          local_5 = GETATTR self y ;
-	lw         $t0, 0($fp)
-	lw         $t1, 16($t0)
-	sw         $t1, -24($fp)
-	#          local_6 = GETATTR self y ;
-	lw         $t0, 0($fp)
-	lw         $t1, 16($t0)
-	sw         $t1, -28($fp)
-	#          local_7 = ~ local_6
-	not        $t0, $t0
-	sw         $t0, -32($fp)
-	#          local_8 = local_5 == local_7 ;
-	lw         $t0, -24($fp)
-	lw         $t1, -32($fp)
-	seq        $t0, $t0, $t1
-	sw         $t0, -36($fp)
-	#          local_9 = local_8 ;
-	lw         $t0, -36($fp)
-	sw         $t0, -40($fp)
-	#          RETURN self ;
-	lw         $v0, 0($fp)
-	addu       $sp, $sp, 40
-	jr         $ra
-Complex_reflect_X:
-	move       $fp, $sp
-	subu       $sp, $sp, 20
-	#          local_0 = GETATTR self y ;
-	lw         $t0, 0($fp)
-	lw         $t1, 16($t0)
-	sw         $t1, -4($fp)
-	#          local_1 = GETATTR self y ;
-	lw         $t0, 0($fp)
-	lw         $t1, 16($t0)
-	sw         $t1, -8($fp)
-	#          local_2 = ~ local_1
-	not        $t0, $t0
-	sw         $t0, -12($fp)
-	#          local_3 = local_0 == local_2 ;
-	lw         $t0, -4($fp)
-	lw         $t1, -12($fp)
-	seq        $t0, $t0, $t1
-	sw         $t0, -16($fp)
-	#          local_4 = local_3 ;
-	lw         $t0, -16($fp)
-	sw         $t0, -20($fp)
-	#          RETURN self ;
-	lw         $v0, 0($fp)
-	addu       $sp, $sp, 20
-	jr         $ra
-Complex_reflect_Y:
-	move       $fp, $sp
-	subu       $sp, $sp, 20
-	#          local_0 = GETATTR self x ;
-	lw         $t0, 0($fp)
-	lw         $t1, 12($t0)
-	sw         $t1, -4($fp)
-	#          local_1 = GETATTR self x ;
-	lw         $t0, 0($fp)
-	lw         $t1, 12($t0)
-	sw         $t1, -8($fp)
-	#          local_2 = ~ local_1
-	not        $t0, $t0
-	sw         $t0, -12($fp)
-	#          local_3 = local_0 == local_2 ;
-	lw         $t0, -4($fp)
-	lw         $t1, -12($fp)
-	seq        $t0, $t0, $t1
-	sw         $t0, -16($fp)
-	#          local_4 = local_3 ;
-	lw         $t0, -16($fp)
-	sw         $t0, -20($fp)
-	#          RETURN self ;
-	lw         $v0, 0($fp)
-	addu       $sp, $sp, 20
+	#          RETURN local_14 ;
+	lw         $v0, -60($fp)
+	addu       $sp, $sp, 60
 	jr         $ra
 
 .data
 	data_1:
 		.asciiz    "Main"
 	data_2:
-		.asciiz    "Complex"
+		.asciiz    "enter a string\n"
 	data_3:
-		.asciiz    "=)\n"
+		.asciiz    "that was a palindrome\n"
 	data_4:
-		.asciiz    "=(\n"
+		.asciiz    "that was not a palindrome\n"
 	data_5:
-		.asciiz    "+"
-	data_6:
-		.asciiz    "I"
-	data_7:
 		.asciiz    "Bool"
-	data_8:
+	data_6:
 		.asciiz    "Int"
-	data_9:
+	data_7:
 		.asciiz    "String"
 	data_abort:
 		.asciiz    "Abort called from class "
 	new_line:
 		.asciiz    "\n"
-	vt_Object:
-		.space     200
-	vt_IO:
-		.space     200
-	vt_Int:
-		.space     200
-	vt_String:
-		.space     200
-	vt_Bool:
-		.space     200
-	vt_Main:
-		.space     200
-	vt_Complex:
-		.space     200
-	str:
-		.space     1024
 	concat_result:
 		.space     2048
 	substring_result:
-		.space     1024
+		.space     4096
+	read_result:
+		.space     2048
+	vt_Object:
+		.space     152
+	vt_IO:
+		.space     152
+	vt_Int:
+		.space     152
+	vt_String:
+		.space     152
+	vt_Bool:
+		.space     152
+	vt_Main:
+		.space     152
 	abort_String:
 		.asciiz    "String"
 	abort_Int:
