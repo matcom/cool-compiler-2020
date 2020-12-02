@@ -854,11 +854,15 @@ read_str_reading:
 
 read_str_look_nl:
     lb $t2 0($t0)
-    beq $t2 $zero read_str_no_nl
     beq $t2 new_line read_str_nl_founded
+    beq $t2 $zero read_str_zero_founded#read_str_no_nl
     addi $t1 $t1 1
     addi $t0 $t0 1
     j read_str_look_nl
+
+read_str_zero_founded:
+    blt $t1 $t3 read_str_nl_founded
+    j read_str_no_nl
 
 read_str_nl_founded:
     sb $zero 0($t0)
