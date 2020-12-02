@@ -287,6 +287,9 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             typex = node.type
             if typex in ["Int", "String", "Bool"]:
                 self.register_instruction(StaticCallNode(f'init_{typex}', var_name))
+                if typex == "String":
+                    empty = self.register_data("").name
+                    self.register_instruction(SetAttribNode(var_name, "value", empty, typex))
             else:
                 self.register_instruction(VoidNode(var_name))
         else:
