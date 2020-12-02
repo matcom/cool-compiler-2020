@@ -1419,7 +1419,9 @@ def convert_CmpNode(instruction):
     result += "lw $t1, " + dest + "\n"
     result += "addi $t1, $t1, 4\n"
 
-    result += "not $t0, $t0\n"
+    result += "li $t2, -1\n"
+    result += "mult $t0, $t2\n"
+    result += "mflo $t0\n"
     result += "sw $t0, ($t1)\n"
 
     return result

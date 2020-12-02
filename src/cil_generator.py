@@ -441,6 +441,7 @@ def convert_assign(assign):
 
         return Node_Result(node, F_PARAM[assign.id])
 
+    # Only in main entry function
     if CURR_TYPE == "":
         node = expr.node + [SetAttributeNode("Main", MAIN_LOCAL, assign.id, expr.result.id)]
         return Node_Result(node, expr.result)
