@@ -42,6 +42,7 @@ from .ast import (
     TypeOfNode,
     VoidNode,
     StaticTypeOfNode,
+    SetNode
 )
 from .utils import on, when
 
@@ -107,6 +108,10 @@ class CIL_FORMATTER(object):
     @when(AssignNode)
     def visit(self, node: AssignNode):  # noqa:F811
         return f"{node.dest} = {node.source}"
+
+    @when(SetNode)
+    def visit(self, node: SetNode):  # noqa:F811
+        return f"{node.dest} = {node.value}"
 
     @when(IsVoidNode)
     def visit(self, node: IsVoidNode):  # noqa:F811

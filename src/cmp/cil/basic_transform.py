@@ -26,7 +26,8 @@ from .ast import (
     SubstringNode,
     TypeNameNode,
     TypeNode,
-    StaticCallNode
+    StaticCallNode,
+    SetNode
 )
 
 
@@ -363,8 +364,9 @@ class BASE_COOL_CIL_TRANSFORM:
         no_error_label2 = self.to_label_name("error2")
         no_error_label3 = self.to_label_name("error3")
         str_raw = self.unpack_type_by_value(self_local, "String")
-        self.register_instruction(StaticCallNode("init_Int", zero))
-        zero = self.unpack_type_by_value(zero, "Int")
+        # self.register_instruction(StaticCallNode("init_Int", zero))
+        # zero = self.unpack_type_by_value(zero, "Int")
+        self.register_instruction(SetNode(zero, 0))
         start_raw = self.unpack_type_by_value(start_parm, "Int")
         length_raw = self.unpack_type_by_value(length_param, "Int")
         # self.register_instruction(PrintIntNode(start_raw))
