@@ -238,6 +238,9 @@ class CIL_TO_MIPS(object):
 
         self.mips.empty()
         self.mips.comment("Allocate memory for Local variables")
+
+        localvars_count = len(node.localvars)
+        self.mips.addi(Reg.sp, -DATA_SIZE * localvars_count)
         for idx, local in enumerate(node.localvars):
             self.visit(local, index=idx)
 
@@ -265,8 +268,8 @@ class CIL_TO_MIPS(object):
         # self.mips.print_string()
 
         self.mips.comment("Clean stack variable space")
-        for _ in node.localvars:
-            self.mips.pop(None)
+
+        self.mips.addi(Reg.sp, DATA_SIZE * localvars_count)
         self.actual_args = None
         self.mips.comment("Return")
         self.mips.pop(Reg.fp)
@@ -279,7 +282,6 @@ class CIL_TO_MIPS(object):
     @when(LocalNode)
     @mips_comment("LocalNode")
     def visit(self, node: LocalNode, index=0):  # noqa: F811
-        self.mips.push(Reg.zero)
         assert node.name not in self.local_vars_offsets, f"Impossible {node.name}..."
         self.local_vars_offsets[node.name] = -(index + 1)
 
@@ -567,12 +569,12 @@ class CIL_TO_MIPS(object):
         len_to = self.get_label()
         end = self.get_label()
         self.mips.label(len_to)
-        self.mips.lb(Reg.t2, self.mips.offset(Reg.a0)) # t2 = *a0
-        self.mips.beq(Reg.t2, 10, end) # if t2 == '\n' -> stop
-        self.mips.addi(Reg.a0, Reg.a0, 1) # a0++
-        self.mips.j(len_to)   
+        self.mips.lb(Reg.t2, self.mips.offset(Reg.a0))  # t2 = *a0
+        self.mips.beq(Reg.t2, 10, end)  # if t2 == '\n' -> stop
+        self.mips.addi(Reg.a0, Reg.a0, 1)  # a0++
+        self.mips.j(len_to)
         self.mips.label(end)
-        self.mips.sb(Reg.zero, self.mips.offset(Reg.a0)) # overwrite '\n' with 0
+        self.mips.sb(Reg.zero, self.mips.offset(Reg.a0))  # overwrite '\n' with 0
 
     @when(PrintIntNode)
     @mips_comment("PrintIntNode")
