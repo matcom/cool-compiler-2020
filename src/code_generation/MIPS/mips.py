@@ -228,6 +228,7 @@ def substring_to_mips_visitor(ss: cil.SubStringNode):
         mips.AdduInstruction('$t1', '$t1', 1),
         mips.BInstruction('substring_loop'),
         mips.MIPSLabel('end_substring_loop'),
+        mips.SbInstruction('$zero', '($t1)'),
         mips.LaInstruction('$t5', str(ss.result)),
         mips.LwInstruction('$t1', f'{calls_offset}($fp)'),
         mips.AdduInstruction('$t1', '$t1', '$t5'),

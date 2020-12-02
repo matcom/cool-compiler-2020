@@ -162,6 +162,11 @@ class SwInstruction(Instruction):
 class UswInstruction(Instruction):
     def __init__(self, *arguments):
         super().__init__('usw', *arguments)
+        
+class BreakInstruction(Instruction):
+    def __init__(self, *arguments):
+        super().__init__('break', *arguments)
+    
 
 
 

@@ -122,9 +122,9 @@ def program_to_cil_visitor(program):
 
     data.append(CilAST.DataNode('data_abort', 'Abort called from class '))
     cil_program = CilAST.ProgramNode(types, data, code, built_in_code)
-    cil_program.concat_calls=__CONCAT_CALLS__
-    cil_program.substr_calls=__SUBST_CALLS__
-    cil_program.in_calls=__IN_CALLS__
+    cil_program.concat_calls=__CONCAT_CALLS__-1
+    cil_program.substr_calls=__SUBST_CALLS__-1
+    cil_program.in_calls=__IN_CALLS__-1
     # remove_unused_locals(cil_program)
     # aqui se esta perdiendo un vcall
     # optimization_locals(cil_program)
@@ -297,7 +297,13 @@ def case_to_cil_visitor(case):
 
     for i, branch in enumerate(case.case_list):
         predicate = add_local()
-        body.append(CilAST.NotEqInstanceNode(t, branch.type, predicate))
+        aux_predicate=add_local()
+        str_addr = add_str_data(branch.type)
+        str_id, need_load = add_data_local(str_addr)
+        if need_load:
+            body.append(CilAST.LoadNode(str_addr, str_id))
+        body.append(CilAST.EqStringNode(t, str_id, aux_predicate)),
+        body.append(CilAST.EqNode(aux_predicate, 0, predicate)),
         body.append(CilAST.ConditionalGotoNode(predicate, labels[i]))
         val = add_local(branch.id)
         body.append(CilAST.AssignNode(val, expr_cil.value))
@@ -595,15 +601,15 @@ def func_call_to_cil_visitor(call):
     result = add_local()
     
     if call.id =='substr':
-        body.append(CilAST.ArgNode((__SUBST_CALLS__-1)*4))
+        body.append(CilAST.ArgNode((__SUBST_CALLS__-1)*1024))
         __SUBST_CALLS__+=1
         
     if call.id=='in_string':
-        body.append(CilAST.ArgNode((__IN_CALLS__-1)*4))
+        body.append(CilAST.ArgNode((__IN_CALLS__-1)*1024))
         __IN_CALLS__+=1
     
     if call.id =='concat':
-        body.append(CilAST.ArgNode((__CONCAT_CALLS__-1)*4))
+        body.append(CilAST.ArgNode((__CONCAT_CALLS__-1)*1024))
         __CONCAT_CALLS__+=1
         
     

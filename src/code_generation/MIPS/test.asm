@@ -275,6 +275,7 @@ String_substr:
 	b          substring_loop
 	end_substring_loop:
 
+	sb         $zero, ($t1)
 	la         $t5, substring_result
 	lw         $t1, 0($fp)
 	addu       $t1, $t1, $t5
@@ -487,8 +488,8 @@ Main_pal:
 	li         $t0, 1
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	#          ARG 4 ;
-	li         $t0, 4
+	#          ARG 1024 ;
+	li         $t0, 1024
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
 	jal        String_substr
@@ -572,8 +573,8 @@ Main_pal:
 	lw         $t0, -88($fp)
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
-	#          ARG 8 ;
-	li         $t0, 8
+	#          ARG 2048 ;
+	li         $t0, 2048
 	subu       $sp, $sp, 4
 	sw         $t0, ($sp)
 	jal        String_substr
@@ -822,11 +823,11 @@ Main_main:
 	new_line:
 		.asciiz    "\n"
 	concat_result:
-		.space     2048
+		.space     0
 	substring_result:
-		.space     4096
+		.space     3072
 	read_result:
-		.space     2048
+		.space     1024
 	vt_Object:
 		.space     152
 	vt_IO:
