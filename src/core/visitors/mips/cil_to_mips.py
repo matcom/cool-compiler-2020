@@ -189,7 +189,7 @@ class CILToMIPSVisitor:
         methods = {key: self._name_func_map[value] for key, value in node.methods}
         defaults = []
         if node.name == "String":
-            defaults = [('value', 'default_str')]
+            defaults = [('value', 'default_str'), ('length', 'type_4_proto')]
         new_type = mips.MIPSType(type_label, name_label, node.attributes, methods, len(self._types), default=defaults)
 
         self._types[node.name] = new_type
@@ -243,6 +243,11 @@ class CILToMIPSVisitor:
                 # print(node.instructions)
             print(e)
             print(node.name)
+        
+        if "evolve" in node.name:
+            print("!!!!!!!!!!!!!!!!!!!!!!!", node.name)
+            for ins in node.instructions:
+                print(ins)
                 
         #code_instructions.extend(self.memory_manager.save_values())
 
