@@ -33,16 +33,16 @@ from .ast import (
     ReadStrNode,
     ReturnNode,
     SetAttribNode,
+    SetNode,
     StarNode,
     StaticCallNode,
+    StaticTypeOfNode,
     StringEqualNode,
     SubstringNode,
     TypeNameNode,
     TypeNode,
     TypeOfNode,
     VoidNode,
-    StaticTypeOfNode,
-    SetNode
 )
 from .utils import on, when
 
