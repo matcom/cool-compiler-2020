@@ -74,7 +74,7 @@ class CIL_TO_MIPS(object):
         self.labels: List[str] = []
         self.local_vars_offsets = dict()
         self.actual_args = dict()
-        self.mips = Mips()
+        self.mips = Mips(zip_mode=False)
         self.label_count = -1
         self.registers_to_save: List[Reg] = [
             Reg.ra,
