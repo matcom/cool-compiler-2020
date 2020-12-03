@@ -234,7 +234,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self_local = self.register_param(VariableInfo("self", None))
         type_name_inst = self.define_internal_local()
         self.register_instruction(TypeNameNode(type_name_inst, self_local))
-        type_name_inst = self.pack_type_by_value(type_name_inst, "String")
+        # type_name_inst = self.pack_type_by_value(type_name_inst, "String")
         self.register_instruction(ReturnNode(type_name_inst))
         self.current_method = self.current_function = None
         self.current_type = None
@@ -260,8 +260,8 @@ class BASE_COOL_CIL_TRANSFORM:
         _ = self.register_param(VariableInfo("self", None))
         result_msg = self.define_internal_local()
         self.register_instruction(ReadStrNode(result_msg))
-        string_inst = self.pack_type_by_value(result_msg, "String")
-        self.register_instruction(ReturnNode(string_inst))
+        # string_inst = self.pack_type_by_value(result_msg, "String")
+        self.register_instruction(ReturnNode(result_msg))
         self.current_method = self.current_function = None
         # out_string
         self.current_method = self.current_type.get_method("out_string")
@@ -271,8 +271,8 @@ class BASE_COOL_CIL_TRANSFORM:
         )
         self_local = self.register_param(VariableInfo("self", None))
         string_inst = self.register_param(VariableInfo("x", None))
-        out_msg = self.unpack_type_by_value(string_inst, "String")
-        self.register_instruction(PrintStrNode(out_msg))
+        # out_msg = self.unpack_type_by_value(string_inst, "String")
+        self.register_instruction(PrintStrNode(string_inst))
         self.register_instruction(ReturnNode(self_local))
         self.current_method = self.current_function = None
         # in_int
@@ -284,8 +284,8 @@ class BASE_COOL_CIL_TRANSFORM:
         _ = self.register_param(VariableInfo("self", None))
         result_int = self.define_internal_local()
         self.register_instruction(ReadIntNode(result_int))
-        result = self.pack_type_by_value(result_int, "Int")
-        self.register_instruction(ReturnNode(result))
+        # result = self.pack_type_by_value(result_int, "Int")
+        self.register_instruction(ReturnNode(result_int))
         self.current_method = self.current_function = None
         # out_int
         self.current_method = self.current_type.get_method("out_int")
@@ -295,8 +295,8 @@ class BASE_COOL_CIL_TRANSFORM:
         )
         self_local = self.register_param(VariableInfo("self", None))
         int_inst = self.register_param(VariableInfo("x", None))
-        out_int = self.unpack_type_by_value(int_inst, "Int")
-        self.register_instruction(PrintIntNode(out_int))
+        # out_int = self.unpack_type_by_value(int_inst, "Int")
+        self.register_instruction(PrintIntNode(int_inst))
         self.register_instruction(ReturnNode(self_local))
         self.current_method = self.current_function = None
         self.current_type = None
@@ -323,8 +323,8 @@ class BASE_COOL_CIL_TRANSFORM:
         length_var = self.define_internal_local()
         str_raw = self.unpack_type_by_value(self_local, "String")
         self.register_instruction(LengthNode(length_var, str_raw))
-        length = self.pack_type_by_value(length_var, "Int")
-        self.register_instruction(ReturnNode(length))
+        # length = self.pack_type_by_value(length_var, "Int")
+        self.register_instruction(ReturnNode(length_var))
         self.current_method = self.current_function = None
         # concat
         self.current_method = self.current_type.get_method("concat")
@@ -335,11 +335,11 @@ class BASE_COOL_CIL_TRANSFORM:
         self_local = self.register_param(VariableInfo("self", None))
         param_local = self.register_param(VariableInfo("s", None))
         str_raw = self.unpack_type_by_value(self_local, "String")
-        str_raw2 = self.unpack_type_by_value(param_local, "String")
+        # str_raw2 = self.unpack_type_by_value(param_local, "String")
         result_msg = self.define_internal_local()
-        self.register_instruction(ConcatNode(result_msg, str_raw, str_raw2))
-        string_inst = self.pack_type_by_value(result_msg, "String")
-        self.register_instruction(ReturnNode(string_inst))
+        self.register_instruction(ConcatNode(result_msg, str_raw, param_local))
+        # string_inst = self.pack_type_by_value(result_msg, "String")
+        self.register_instruction(ReturnNode(result_msg))
         self.current_method = self.current_function = None
         # substr
         self.current_method = self.current_type.get_method("substr")
@@ -362,13 +362,13 @@ class BASE_COOL_CIL_TRANSFORM:
         no_error_label3 = self.to_label_name("error3")
         str_raw = self.unpack_type_by_value(self_local, "String")
         self.register_instruction(SetNode(zero, 0))
-        start_raw = self.unpack_type_by_value(start_parm, "Int")
-        length_raw = self.unpack_type_by_value(length_param, "Int")
+        # start_raw = self.unpack_type_by_value(start_parm, "Int")
+        # length_raw = self.unpack_type_by_value(length_param, "Int")
         self.register_instruction(LengthNode(length_var, str_raw))
         eol = self.register_data("\n").name
         msg_eol = self.define_internal_local()
         # start param negative
-        self.register_instruction(LessEqNode(cmp_var1, zero, start_raw))
+        self.register_instruction(LessEqNode(cmp_var1, zero, start_parm))
         self.register_instruction(GotoIfNode(cmp_var1, no_error_label1))
         error_msg = self.register_data("Invalid substring start").name
         self.register_instruction(ConcatNode(msg_eol, error_msg, eol))
@@ -376,7 +376,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(ErrorNode())
         self.register_instruction(LabelNode(no_error_label1))
         # length param negative
-        self.register_instruction(LessEqNode(cmp_var2, zero, length_raw))
+        self.register_instruction(LessEqNode(cmp_var2, zero, length_param))
         self.register_instruction(GotoIfNode(cmp_var2, no_error_label2))
         error_msg = self.register_data("Invalid substring length").name
         self.register_instruction(ConcatNode(msg_eol, error_msg, eol))
@@ -384,7 +384,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(ErrorNode())
         self.register_instruction(LabelNode(no_error_label2))
         # substr larger than max length
-        self.register_instruction(PlusNode(sum_var, start_raw, length_raw))
+        self.register_instruction(PlusNode(sum_var, start_parm, length_param))
         self.register_instruction(LessEqNode(cmp_var3, sum_var, length_var))
         self.register_instruction(GotoIfNode(cmp_var3, no_error_label3))
         error_msg = self.register_data("Invalid substring").name
@@ -393,9 +393,9 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(ErrorNode())
         self.register_instruction(LabelNode(no_error_label3))
         self.register_instruction(
-            SubstringNode(result_msg, str_raw, start_raw, length_raw)
+            SubstringNode(result_msg, str_raw, start_parm, length_param)
         )
-        string_inst = self.pack_type_by_value(result_msg, "String")
-        self.register_instruction(ReturnNode(string_inst))
+        # string_inst = self.pack_type_by_value(result_msg, "String")
+        self.register_instruction(ReturnNode(result_msg))
         self.current_method = self.current_function = None
         self.current_type = None
