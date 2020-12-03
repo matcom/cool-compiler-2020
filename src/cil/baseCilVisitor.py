@@ -1,14 +1,15 @@
 from typing import List, Optional, Any, Dict, Tuple
 import cil.nodes as nodes
-from abstract.semantics import VariableInfo, Context, Type, Method
+from abstract.semantics import Attribute, VariableInfo, Context, Type, Method
 from cil.nodes import (
-    CopyNode,
+    CopyNode, GetAttributeNode,
     PrintIntNode,
     PrintNode,
     ReadIntNode,
     ReadNode,
     ReturnNode,
-    SelfNode, TypeName,
+    SelfNode,
+    TypeName,
     TypeNode,
 )
 
@@ -186,7 +187,6 @@ class BaseCoolToCilVisitor:
         self.__labels_count += 1
         return f"label_{label}_{self.__labels_count}"
 
-
     def __build_CART(self) -> None:
         """
         CART: Context Aware Runtime Table.\
@@ -286,12 +286,38 @@ class BaseCoolToCilVisitor:
         self.register_instruction(TypeName(return_vm_holder))
         self.register_instruction(ReturnNode(return_vm_holder))
 
+    def __implement_concat(self):
+        self.current_function = self.register_function("function_concat_at_String")
+        return_vm_holder = self.define_internal_local()
+        param = self.register_params(
+            VariableInfo("s", self.context.get_type("String"), "PARAM")
+        )
+        self.register_instruction(ReturnNode(return_vm_holder))
+
+    def __implement_substr(self):
+        self.current_function = self.register_function("function_substr_at_String")
+        return_vm_holder = self.define_internal_local()
+        paraml = self.register_params(
+            VariableInfo("l", self.context.get_type("Int"), "PARAM")
+        )
+        paramr = self.register_params(
+            VariableInfo("r", self.context.get_type("Int"), "PARAM")
+        )
+        self.register_instruction(ReturnNode(return_vm_holder))
+
+    def __implement_length(self):
+        str_ = self.context.get_type("String")
+        self.current_function = self.register_function("function_length_at_String")
+        return_vm_holder = self.define_internal_local()
+        self.register_instruction(GetAttributeNode(str_, "length", return_vm_holder))
+        self.register_instruction(ReturnNode(return_vm_holder))
 
     def build_builtins(self):
-        
+
         # Registrar el tipo IO como un tipo instanciable
         io_typeNode = self.register_type("IO")
         obj = self.register_type("Object")
+        str_ = self.register_type("String")
 
         io_typeNode.methods.append(("out_string", "function_out_string_at_IO"))
         io_typeNode.methods.append(("out_int", "function_out_int_at_IO"))
@@ -305,6 +331,12 @@ class BaseCoolToCilVisitor:
         obj.methods.append(("type_name", "function_type_name_at_Object"))
         obj.methods.append(("copy", "function_copy_at_Object"))
 
+        str_.methods.append(("concat", "function_concat_at_String"))
+        str_.methods.append(("substr", "function_substr_at_String"))
+        str_.methods.append(("length", "function_length_at_String"))
+
+        str_.attributes.append(Attribute("length", self.context.get_type("Int")))
+        str_.attributes.append(Attribute("value", self.context.get_type("String")))
 
         self.__implement_in_string()
         self.__implement_out_int()
@@ -313,3 +345,6 @@ class BaseCoolToCilVisitor:
         self.__implement_abort()
         self.__implement_copy()
         self.__implement_type_name()
+        self.__implement_concat()
+        self.__implement_substr()
+        self.__implement_length()

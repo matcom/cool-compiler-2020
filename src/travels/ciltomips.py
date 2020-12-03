@@ -108,7 +108,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         for attrib in node.attributes:
             if attrib.type.name == "String":
                 self.register_instruction(
-                    FixedData(f"{node.name}_attrib_{attrib.name}", r"", "asciiz")
+                    FixedData(f"{node.name}_attrib_{attrib.name}", r'""', "asciiz")
                 )
             else:
                 self.register_instruction(
@@ -331,6 +331,37 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(SW(reg, f"{offset}($s1)"))
 
         self.used_registers[reg] = False
+
+    @visit.register
+    def _(self, node: cil.AllocateStringNode):
+        dest = self.visit(node.dest)
+        assert dest is not None
+
+        size = 16
+
+        # Reservar memoria para el tipo
+        self.allocate_memory(size)
+        reg = self.get_available_register()
+
+        assert reg is not None
+
+        self.comment("Allocating string")
+
+        # Inicializar la instancia
+        self.register_instruction(LA(reg, "String"))
+        self.register_instruction(SW(reg, "0($v0)"))
+
+        self.register_instruction(LA(reg, "String_start"))
+        self.register_instruction(SW(reg, "4($v0)"))
+
+        self.register_instruction(LA(reg, node.value.name))
+        self.register_instruction(SW(reg, "8($v0)"))
+
+        self.register_instruction(LI(reg, node.length))
+        self.register_instruction(SW(reg, "12($v0)"))
+
+        # devolver la instancia
+        self.register_instruction(SW(v0, dest))
 
     @visit.register
     def _(self, node: cil.AllocateNode):
@@ -672,8 +703,10 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.add_source_line_comment(node)
 
+        self.register_instruction(LW(v0, src))
+
         # Cargar la direccion del string en a0
-        self.register_instruction(LW(a0, src))
+        self.register_instruction(LW(a0, "8($v0)"))
         # syscall 4 = print_string
         self.register_instruction(LI(v0, 4))
         self.register_instruction(SYSCALL())

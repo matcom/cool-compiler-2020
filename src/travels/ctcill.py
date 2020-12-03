@@ -9,7 +9,7 @@ from functools import singledispatchmethod
 import cil.nodes
 
 from cil.nodes import (
-    AllocateNode,
+    AllocateNode, AllocateStringNode,
     ArgNode,
     AssignNode,
     CilNode,
@@ -562,7 +562,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         s1 = self.register_data(node.lex)
 
         # Cargar el string en la variable interna
-        self.register_instruction(LoadNode(str_const_vm_holder, s1))
+        self.register_instruction(AllocateStringNode(str_const_vm_holder, s1, len(node.lex)))
 
         # Devolver la variable que contiene el string
         return str_const_vm_holder

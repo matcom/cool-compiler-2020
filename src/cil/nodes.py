@@ -281,3 +281,10 @@ class SaveSelf(InstructionNode):
 
 class RestoreSelf(InstructionNode):
     pass
+
+
+class AllocateStringNode(InstructionNode):
+    def __init__(self, dest: LocalNode, value: DataNode, length: int) -> None:
+        self.dest = dest
+        self.value = value
+        self.length = length
