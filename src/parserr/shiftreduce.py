@@ -1,13 +1,13 @@
-'''
+"""
 Este modulo contiene la declaracion de la clase ShiftReduceParser, la cual
 sirve de base para los parsers SLR, LALR y LR
-'''
+"""
 from typing import Dict, List, Literal, Tuple, Union
 from grammar.grammar import EOF, Grammar
 from grammar.symbols import Production, Terminal
 from lexer.tokens import Token
 
-Action = Union[Literal['SHIFT'], Literal['REDUCE'], Literal['OK']]
+Action = Union[Literal["SHIFT"], Literal["REDUCE"], Literal["OK"]]
 Tag = Union[Production, int]
 ActionTableEntry = Tuple[int, Terminal]
 
@@ -19,9 +19,10 @@ class ShiftReduceParser:
     cuyo funcionamiento se base en las acciones shift reduce deben heredar
     de esta clase e implementar el metodo build_parsing_table.
     """
-    SHIFT = 'SHIFT'
-    REDUCE = 'REDUCE'
-    OK = 'OK'
+
+    SHIFT = "SHIFT"
+    REDUCE = "REDUCE"
+    OK = "OK"
 
     def __init__(self, G: Grammar, verbose: bool = False):
         self.G = G
@@ -39,8 +40,7 @@ class ShiftReduceParser:
         output = []
 
         if isinstance(tokens[0].token_type, EOF):
-            raise SyntaxError(
-                "(0,0) - SyntacticError: Cool program must not be empty.")
+            raise SyntaxError("(0,0) - SyntacticError: Cool program must not be empty.")
 
         while True:
             state = stack[-1]
@@ -49,13 +49,18 @@ class ShiftReduceParser:
                 action, tag = self.action[state, lookahead]
             except KeyError:
                 col = tokens[cursor].token_column - len(tokens[cursor].lex)
-                if lookahead.Name == "self" or (lookahead.Name == "assign" and tokens[cursor - 1].token_type.Name == "self"):
-                    raise SyntaxError(f'({tokens[cursor].token_line},{col}) - ' +
-                                  f' SemanticError: ERROR "%s"' %
-                                  tokens[cursor].lex)
-                raise SyntaxError(f'({tokens[cursor].token_line},{col}) - ' +
-                                  f' SyntacticError: ERROR "%s"' %
-                                  tokens[cursor].lex)
+                if lookahead.Name == "self" or (
+                    lookahead.Name == "assign"
+                    and tokens[cursor - 1].token_type.Name == "self"
+                ):
+                    raise SyntaxError(
+                        f"({tokens[cursor].token_line},{col}) - "
+                        + f' SemanticError: ERROR "%s"' % tokens[cursor].lex
+                    )
+                raise SyntaxError(
+                    f"({tokens[cursor].token_line},{col}) - "
+                    + f' SyntacticError: ERROR "%s"' % tokens[cursor]
+                )
 
             if action == self.SHIFT:
                 cursor += 1
@@ -78,14 +83,14 @@ class ShiftReduceParser:
                 return output[::-1]
 
             else:
-                raise Exception('La cadena no pertenece al lenguaje')
+                raise Exception("La cadena no pertenece al lenguaje")
 
     def dumps_parser_state(self, file):
-        '''
+        """
         Devuelve un formato objeto de tipo bytes (o string)
         que sirve para guardar el estado del parser en un fichero
         para cargarlo posteriormente con load.
-        '''
+        """
         try:
             import cloudpickle  # type: ignore
         except ImportError:
@@ -101,6 +106,7 @@ class ShiftReduceParser:
     def load_parser_state(file):
         try:
             import cloudpickle as pickle
+
             return pickle.load(file)
         except ImportError:
             return None

@@ -428,7 +428,7 @@ def build_cool_grammar():
         (implies, r"=>"),
         (div, "/"),
         (star, r"\*"),
-        (let, r"(?i) let"),
+        (let, r"(?i)let"),
         (fi, r"(?i)fi"),
         (pool, r"(?i)pool"),
         (loop, r"(?i)loop"),
