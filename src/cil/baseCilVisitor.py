@@ -186,6 +186,7 @@ class BaseCoolToCilVisitor:
         self.__labels_count += 1
         return f"label_{label}_{self.__labels_count}"
 
+
     def __build_CART(self) -> None:
         """
         CART: Context Aware Runtime Table.\

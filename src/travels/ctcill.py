@@ -37,8 +37,10 @@ from cil.nodes import (
     PrintIntNode,
     PrintNode,
     ReadIntNode,
-    ReadNode, RestoreSelf,
-    ReturnNode, SaveSelf,
+    ReadNode,
+    RestoreSelf,
+    ReturnNode,
+    SaveSelf,
     SetAtAddress,
     SetAttributeNode,
     StarNode,
@@ -111,7 +113,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             for attribute in self.current_type.parent.attributes:
                 new_type_node.attributes.append(attribute)
 
-            parent = next(t for t in self.dot_types if t.name == self.current_type.parent.name)
+            parent = next(
+                t for t in self.dot_types if t.name == self.current_type.parent.name
+            )
 
             for method, _ in parent.methods:
                 # Manejar la redefinicion de metodos
@@ -248,11 +252,12 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
     @visit.register
     def _(self, node: coolAst.VariableDeclaration, scope: Scope) -> CilNode:
-        for var_idx, var_type, var_init_expr in node.var_list:
+        scope = scope.children[0]
+        for var_idx, var_type, var_init_expr, _, _ in node.var_list:
 
             # Registrar las variables en orden.
             var_info = scope.find_variable(var_idx)
-            assert var_info is not None
+            assert var_info is not None, f"Var not found {var_idx}"
             local_var = self.register_local(var_info)
 
             # Reservar memoria para la variable y realizar su inicializacion si tiene
@@ -278,25 +283,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
     @visit.register
     def _(self, node: coolAst.VariableCall, scope: Scope):
-        vinfo = scope.find_variable(node.idx)
-        # Diferenciar la variable si es un parametro, un atributo o una variable local
-        # en el scope actual
-        if vinfo.location == "PARAM":
-
-            for param_node in self.params:
-                if vinfo.name in param_node.name:
-                    return param_node
-        if vinfo.location == "ATTRIBUTE":
-            local = self.define_internal_local()
-            assert self.current_type is not None
-            self.register_instruction(
-                GetAttributeNode(self.current_type, vinfo.name, local)
-            )
-            return local
-        if vinfo.location == "LOCAL":
-            for local_node in self.localvars:
-                if vinfo.name in local_node.name:
-                    return local_node
+        return self.visit(node.idx, scope)
 
     @visit.register
     def _(self, node: coolAst.InstantiateClassNode, scope: Scope) -> LocalNode:
@@ -323,20 +310,65 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # ya ha sido definida
 
         # Generar el codigo para el rvalue (expr)
-        rvalue_vm_holder = self.visit(self, node.expr)
+        rvalue_vm_holder = self.visit(node.expr, scope)
+        var_inf = scope.find_variable(node.idx)
 
         # Es necesario diferenciar entre variable y atributo.
         # Las variables se diferencian en si son locales al
         # metodo que estamos creando o si son atributos.
-        if isinstance(rvalue_vm_holder, ParamNode) or scope.is_local(node.idx):
+        if var_inf.location == "PARAM":
+            # Buscar la variable en los parametros
+            var = next(
+                v
+                for v in self.params
+                if f"param_{self.current_function.name[9:]}_{var_inf.name}_" in v.name
+            )
             # registrar la instruccion de asignacion
-            self.register_instruction(AssignNode(node.idx, rvalue_vm_holder))
+            self.register_instruction(AssignNode(var, rvalue_vm_holder))
+        elif var_inf.location == "LOCAL":
+            var = next(
+                v
+                for v in self.localvars
+                if f"local_{self.current_function.name[9:]}_{var_inf.name}_" in v.name
+            )
+            self.register_instruction(AssignNode(var, rvalue_vm_holder))
         else:
             assert self.current_type is not None
             assert isinstance(rvalue_vm_holder, LocalNode)
             self.register_instruction(
                 SetAttributeNode(self.current_type, node.idx, rvalue_vm_holder)
             )
+
+    @visit.register
+    def _(self, node: str, scope: Scope):
+        var_inf = scope.find_variable(node)
+
+        # Es necesario diferenciar entre variable y atributo.
+        # Las variables se diferencian en si son locales al
+        # metodo que estamos creando o si son atributos.
+        if var_inf.location == "PARAM":
+            # Buscar la variable en los parametros
+            var = next(
+                v
+                for v in self.params
+                if f"param_{self.current_function.name[9:]}_{var_inf.name}_" in v.name
+            )
+            # registrar la instruccion de asignacion
+            return var
+        elif var_inf.location == "LOCAL":
+            var = next(
+                v
+                for v in self.localvars
+                if f"local_{self.current_function.name[9:]}_{var_inf.name}_" in v.name
+            )
+            return var
+        else:
+            local = self.define_internal_local()
+            assert self.current_type is not None
+            self.register_instruction(
+                GetAttributeNode(self.current_type, var_inf.name, local)
+            )
+            return local
 
     @visit.register
     def _(self, node: coolAst.WhileBlockNode, scope: Scope):
@@ -467,10 +499,6 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Obtener el resultado del sustraendo
         right_vm_holder = self.visit(node.right, scope)
 
-        # Registrar la instruccion de resta
-        assert isinstance(left_vm_holder, LocalNode) and isinstance(
-            right_vm_holder, LocalNode
-        )
         self.register_instruction(
             MinusNode(left_vm_holder, right_vm_holder, minus_internal_vm_holder)
         )
@@ -569,9 +597,19 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             )
             return result_vm_holder
         else:
+            false_label = self.do_label("FALSE")
+            not_end_label = self.do_label("NOT_END")
             assert isinstance(expr_result, LocalNode)
-            self.register_instruction(NotNode(expr_result))
-            return expr_result
+            # Si expr = 0 entonces devolver 1
+            self.register_instruction(IfZeroJump(expr_result, false_label))
+            # Si expr = 1 devolver 0
+            self.register_instruction(AssignNode(result_vm_holder, 0))
+            self.register_instruction(UnconditionalJump(not_end_label))
+            self.register_instruction(LabelNode(false_label))
+             # Si expr = 0 entonces devolver 1
+            self.register_instruction(AssignNode(result_vm_holder, 1))
+            self.register_instruction(LabelNode(not_end_label))
+            return result_vm_holder
 
     @visit.register
     def _(self, node: coolAst.EqualToNode, scope: Scope) -> LocalNode:
