@@ -1042,6 +1042,33 @@ class UsedRegisterFinder:
     def visit(self, node):
         self.used_registers.add(mips.RA_REG)
 
+    @visitor.when(mips.AddUnsignedNode)
+    def visit(self, node):
+        self.used_registers.add(node.dest)
+    
+    @visitor.when(mips.ShiftLeftLogicalNode)
+    def visit(self, node):
+        self.used_registers.add(node.dest)
+    
+    @visitor.when(mips.AddNode)
+    def visit(self, node):
+        self.used_registers.add(node.reg1)
+    
+    @visitor.when(mips.SubNode)
+    def visit(self, node):
+        self.used_registers.add(node.reg1)
+    
+    @visitor.when(mips.MultiplyNode)
+    def visit(self, node):
+        self.used_registers.add(node.reg1)
+    
+    @visitor.when(mips.ComplementNode)
+    def visit(self, node):
+        self.used_registers.add(node.reg1)
+    
+    @visitor.when(mips.MoveFromLowNode)
+    def visit(self, node):
+        self.used_registers.add(node.reg)
 
 #Change Name
 class RegistersAllocator:
