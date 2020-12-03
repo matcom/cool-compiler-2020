@@ -770,17 +770,78 @@ def convert_AllocateNode(instruction):
 
     global DATA, PARAMS, CIL_TYPES
 
-    # los datos Int y Bool toman 5 bytes, 1 para la letra inicial I o B
+    if instruction.result in DATA:
+        dest = instruction.result
+    else:
+        dest = PARAMS[instruction.result]
+
+    do_realocate = next_label()
+    allocate_end_label = next_label()
+
+    # first check if there is already a value in local
+    result += "lw $t1, " + dest + "\n"
+    result += "beq $t1, 0, " + do_realocate + "\n"
+
+    if instruction.type == "Int" or instruction.type == "Bool" or instruction.type == "Pointer":
+        # put correct letter first
+        if instruction.type == "Int":
+            result += "li $t0, 'I'\n"
+        elif instruction.type == "Bool":
+            result +=   "li $t0, 'B'\n"
+        else:
+            result +=   "li $t0, 'P'\n"
+
+        result += "sb $t0, ($t1)\n"
+    
+        # put zero value       
+        result += "li $t0, 0\n"
+        result += "sw $t0, 4($t1)\n"
+        result += "j " + allocate_end_label + "\n"
+    
+    elif instruction.type == "String":
+        # first check if there is already a string
+        result += "li $t0, 0\n"
+        result += "lb $t0, ($t1)\n"
+        # if there is not a string then realocate
+        result += "bne $t0, 'S', " + do_realocate + "\n"
+        # if there is a string then change it to ""
+        result += "li $t0, 0\n"
+        result += "sw $t0, 4($t1)\n"
+        result += "j " + allocate_end_label + "\n"
+    
+    elif instruction.type == "void":
+        result += "li $t0, 0\n"
+        result += "sw $t0, " + dest + "\n"
+        result += "j " + allocate_end_label + "\n"
+
+    else:
+        # first check if there is already an object of this type
+        result += "li $t0, 0\n"
+        result += "lb $t0, ($t1)\n"
+        # if there is not an object then realocate
+        result += "bne $t0, 'O', " + do_realocate + "\n"
+    
+        # check that the same type is stored
+        result += "li $t3, 0\n"
+        result += "lw $t2, 4($t1)\n"
+        for i in range(0, len(instruction.type)):
+            result += "lb $t3, ($t2)\n"
+            result += "bne $t3, '" + instruction.type[i] + "', " + do_realocate + "\n"
+            result += "addi $t2, $t2, 1\n"
+        
+        result += "lb $t3, ($t2)\n"
+        result += "bne $t3, 0, " + do_realocate + "\n"
+
+        result += "j " + allocate_end_label + "\n"        
+
+    result += do_realocate + ":\n"
+
+    # los datos Int y Bool toman 8 bytes, 4 para la letra inicial I o B
     # y los restantes 4 para el valor
     if instruction.type == "Int" or instruction.type == "Bool" or instruction.type == "Pointer":
         result += "li $a0, 8\n"
         result += "li $v0, 9\n"
         result += "syscall\n"
-
-        if instruction.result in DATA:
-            dest = instruction.result
-        else:
-            dest = PARAMS[instruction.result]
 
         # ponemos la direccion en la variable local correspondiente
         result += "sw $v0, " + dest + "\n"
@@ -799,17 +860,12 @@ def convert_AllocateNode(instruction):
         result += "li $t0, 0\n"
         result += "sw $t0, 4($v0)\n" 
 
-    # los datos String se llevan 1025 bytes, 1 para la 'S' y los restantes
+    # los datos String se llevan 1028 bytes, 4 para la 'S' y los restantes
     # 1024 para el valor de la cadena
     elif instruction.type == "String":
         result += "li $a0, 1028\n"
         result += "li $v0, 9\n"
         result += "syscall\n"
-
-        if instruction.result in DATA:
-            dest = instruction.result
-        else:
-            dest = PARAMS[instruction.result]
 
         # ponemos la direccion en la variable local correspondiente
         result += "sw $v0, " + dest + "\n"
@@ -823,14 +879,8 @@ def convert_AllocateNode(instruction):
         result += "sw $t0, 4($v0)\n" 
 
     elif instruction.type == "void":
-        if instruction.result in DATA:
-            dest = instruction.result
-        else:
-            dest = PARAMS[instruction.result]
 
-        result += "li $t0, 0\n"
-        result += "sw $t0, " + dest + "\n"
-
+        # reaching here means that destiny local was already zero
         return result
 
     else:
@@ -861,11 +911,6 @@ def convert_AllocateNode(instruction):
         result += "li $v0, 9\n"
         result += "syscall\n"
 
-        if instruction.result in DATA:
-            dest = instruction.result
-        else:
-            dest = PARAMS[instruction.result]
-
         # ponemos la direccion en la variable local correspondiente
         result += "sw $v0, " + dest + "\n"
 
@@ -895,6 +940,8 @@ def convert_AllocateNode(instruction):
                 result += "addi $v0, $v0, 1028\n"
             else:
                 result += "addi $v0, $v0, 8\n"
+
+    result += allocate_end_label + ":\n"
 
     return result
     
