@@ -318,6 +318,7 @@ class BaseCoolToCilVisitor:
         io_typeNode = self.register_type("IO")
         obj = self.register_type("Object")
         str_ = self.register_type("String")
+        str__ = self.context.get_type("String")
 
         io_typeNode.methods.append(("out_string", "function_out_string_at_IO"))
         io_typeNode.methods.append(("out_int", "function_out_int_at_IO"))
@@ -335,8 +336,11 @@ class BaseCoolToCilVisitor:
         str_.methods.append(("substr", "function_substr_at_String"))
         str_.methods.append(("length", "function_length_at_String"))
 
+        str_.attributes.append(Attribute("value", str__))
         str_.attributes.append(Attribute("length", self.context.get_type("Int")))
-        str_.attributes.append(Attribute("value", self.context.get_type("String")))
+
+        str__.attributes.append(Attribute("value", str__))
+        str__.attributes.append(Attribute("length", self.context.get_type("Int")))
 
         self.__implement_in_string()
         self.__implement_out_int()

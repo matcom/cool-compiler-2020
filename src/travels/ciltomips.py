@@ -105,15 +105,15 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Declarar los atributos: Si los atributos son de tipo string, guardarlos como asciiz
         # de lo contrario son o numeros o punteros y se inicializan como .words
-        for attrib in node.attributes:
-            if attrib.type.name == "String":
-                self.register_instruction(
-                    FixedData(f"{node.name}_attrib_{attrib.name}", r'""', "asciiz")
-                )
-            else:
-                self.register_instruction(
-                    FixedData(f"{node.name}_attrib_{attrib.name}", 0)
-                )
+        # for attrib in node.attributes:
+        #     if attrib.type.name == "String":
+        #         self.register_instruction(
+        #             FixedData(f"{node.name}_attrib_{attrib.name}", r'""', "asciiz")
+        #         )
+        #     else:
+        #         self.register_instruction(
+        #             FixedData(f"{node.name}_attrib_{attrib.name}", 0)
+        #         )
 
         # Registrar la direccion de memoria donde termina el tipo para calcular facilmente
         # sizeof
@@ -362,6 +362,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # devolver la instancia
         self.register_instruction(SW(v0, dest))
+
+        self.used_registers[reg] = False
 
     @visit.register
     def _(self, node: cil.AllocateNode):

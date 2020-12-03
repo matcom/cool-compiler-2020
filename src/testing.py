@@ -62,7 +62,7 @@ def pipeline(program: str, deep: int) -> None:
 
 text = r"""class Main inherits IO {
    main(): IO {
-	out_string("Hello, World.\n")
+	out_int("Hello, World.\n".length())
    };
 };
 

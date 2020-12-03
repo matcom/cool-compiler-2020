@@ -184,7 +184,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             # (0 = false y 0 = void)
             attribute_type = self.context.get_type(node.typex)
             if attribute_type.name == "String":
-                self.register_instruction(ReturnNode(self.null.name))
+                local = self.define_internal_local()
+                self.register_instruction(AllocateStringNode(local, self.null, 0))
+                self.register_instruction(ReturnNode(local))
             else:
                 self.register_instruction(ReturnNode(0))
 
