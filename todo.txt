@@ -1,0 +1,2 @@
+- optimizar preguntando cuando voy a hacer allocate si no es cero el puntero y hay algo del mismo tipo
+- si no pincha los de los primos y eso con esta optimizacion ver que los locales se creen por tipo de nodos, o sea, si entro en un if de dos funciones diferentes que el resultado de la evaluacion se meta en el mismo local 

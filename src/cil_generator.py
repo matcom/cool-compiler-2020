@@ -248,8 +248,28 @@ def generate_built_in_functions():
             FunctionNode("Object_abort", [ParamNode('self')], [], 
                 [AbortNode()])]
 
+    is_son_func = FunctionNode('is_son', [ParamNode('self'), ParamNode('class_s'), ParamNode('class_f')], [get_local(), get_local(), get_local()], [AllocateNode("Bool", 'local_8'), AllocateNode("Bool", 'local_9'), AllocateNode("Int", 'local_10'), MovNode('local_10', 2)]) 
+
+    for t1 in AllTypes.values():
+        for t2 in AllTypes.values():
+            if t1 == t2:
+                continue
+            continue_label = get_label()
+            if is_ancestor(t2, t1):
+                is_son_func.body += [ENode('class_s', 'type_' + t1.name, 'local_8'),
+                                     ENode('class_f', 'type_' + t2.name, 'local_9'),
+                                     AddNode('local_8', 'local_9', 'local_8'),
+                                     LNode('local_8', 'local_10', 'local_8'),
+                                     IfGotoNode('local_8', continue_label),
+                                     MovNode('local_8', 1),
+                                     ReturnNode('local_8'),
+                                     LabelNode(continue_label)]
+    is_son_func.body += [MovNode('local_8', 0), ReturnNode('local_8')]
+
+    code += [is_son_func]
+
     global MAX_PARAM_COUNT
-    MAX_PARAM_COUNT += 15
+    MAX_PARAM_COUNT += 18
 
     global CODE
     CODE = CODE + code
@@ -266,6 +286,7 @@ C_ATTRIBUTES = {}
 F_PARAM = {}
 F_LOCALS = {}
 LET_LOCALS = {}
+CASE_LOCALS = {}
 D_LOCALS = {}
 V_TYPE = {}
 CURR_TYPE = ""
@@ -292,6 +313,7 @@ def generate_function(type_name, method):
     CURR_TYPE = type_name
     statements = []
     F_PARAM = {}
+    CASE_LOCALS = {}
 
     parameters = [ParamNode("self")]
     F_PARAM["self"] = ParamNode("self")
@@ -399,14 +421,14 @@ def convert_case(case):
     expr = convert_expression(case.expression)
     nodes += expr.node
     expr_type_local = get_local()
-    nodes += [AllocateNode("String", expr_type_local.id), TypeOfNode(expr_type_local.id, expr.result)]
+    nodes += [AllocateNode("String", expr_type_local.id), TypeOfNode(expr_type_local.id, expr.result.id)]
 
     case_types = []
     case_labels = []
 
     for c in case.body:
         lcl = get_local()
-        nodes += [AllocateNode("String", lcl.id), SetStringNode(lcl.id, c.type_name)]
+        nodes += [AllocateNode("String", lcl.id), SetStringNode(lcl.id, c.typeName)]
         case_types.append(lcl)
         case_labels.append(get_label())
 
@@ -415,18 +437,23 @@ def convert_case(case):
     for i, case_branch in enumerate(case.body):
         predicate = get_local()
         nodes.append(AllocateNode("Bool", predicate.id))
-        nodes.append(ENode(expr_type_local, case_types[i], predicate.id))
+        nodes.append(IsSonNode(expr_type_local.id, case_types[i].id, predicate.id))
         nodes.append(IfGotoNode(predicate.id, case_labels[i]))
     
     end_label = get_label()
-    nodes.append(GotoNode(end_label.id))
+    nodes.append(GotoNode(end_label))
+
+    global CASE_LOCALS
 
     for i, case_branch in enumerate(case.body):
         nodes.append(LabelNode(case_labels[i]))
+        CASE_LOCALS[case_branch.id] = expr.result
         branch = convert_expression(case_branch.expression)
         nodes += branch.node
         nodes.append(CopyNode(branch.result.id, result.id))
         nodes.append(GotoNode(end_label))
+
+    # Aqui iria el error por no irse por ninguna rama
 
     nodes.append(LabelNode(end_label))
 
@@ -586,12 +613,15 @@ def convert_bool(bool):
 
 def convert_variable(id):
   
-    global LET_LOCALS, F_PARAM, C_ATTRIBUTES, CURR_TYPE, MAIN_LOCAL
+    global LET_LOCALS, F_PARAM, C_ATTRIBUTES, CURR_TYPE, MAIN_LOCAL, CASE_LOCALS
     
     if CURR_TYPE == "":
         result = get_local()
         nodes = [AllocateNode(AllTypes["Main"].attributes[id.lex].attribute_type.name, result.id), GetAttributeNode("Main", MAIN_LOCAL.id, id.lex, result.id)]
         return Node_Result(nodes, result)
+
+    if id.lex in CASE_LOCALS:
+        return Node_Result([], CASE_LOCALS[id.lex])
 
     if id.lex in LET_LOCALS:
         return Node_Result([], LET_LOCALS[id.lex])

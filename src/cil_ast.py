@@ -320,6 +320,14 @@ class SetStringNode(InstructionNode):
     def GetCode(self):
         return "SETSTR " + str(self.result) + " " + str(self.str)
 
+class IsSonNode(InstructionNode):
+    def __init__(self, class_son, class_father, result):
+        self.son = class_son
+        self.father = class_father
+        self.result = result
+
+    def GetCode(self):
+        return "ISSON " + self.son + " " + self.father + " " + self.result
 
 class StrsubNode(InstructionNode):
     def __init__(self, str, i, len, result):

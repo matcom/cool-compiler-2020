@@ -215,9 +215,46 @@ def convert_cil_instruction(instruction):
     elif type(instruction) == LocalSaveNode:
         return convert_LocalSaveNode(instruction)
 
+    elif type(instruction) == IsSonNode:
+        return convert_IsSonNode(instruction)
+
     else:
         print(str(type(instruction)) + " doesn't have convert method")
         return ""
+
+def convert_IsSonNode(instruction):
+    result = ""
+
+    global DATA, PARAMS
+    
+    if instruction.son in DATA:
+        son = instruction.son
+    else:
+        son = PARAMS[instruction.son]
+    
+    if instruction.father in DATA:
+        father = instruction.father
+    else:
+        father = PARAMS[instruction.father]
+
+    if instruction.result in DATA:
+        dest = instruction.result
+    else:
+        dest = PARAMS[instruction.result]
+    
+
+    result += "addi $sp, $sp, 4\n"
+    result += "lw $t0, " + son + "\n"
+    result += "sw $t0, ($sp)\n"
+    result += "addi $sp, $sp, 4\n"
+    result += "lw $t0, " + father + "\n"
+    result += "sw $t0, ($sp)\n"
+    result += "addi $sp, $sp, 4\n"
+    result += "jal is_son\n"
+    result += "sw $v0, " + dest + "\n"
+
+    return result
+
 
 def convert_LocalSaveNode(instruction):
     global LOCALS_WRITE
@@ -1107,7 +1144,9 @@ def convert_ENode(instruction):
         right = instruction.right
     elif instruction.right in PARAMS:
         right = PARAMS[instruction.right]
-   
+    else:
+        right = instruction.right
+
    # poner en t1 la direccion del segundo dato
     result += "lw $t1, " + right + "\n"
 
