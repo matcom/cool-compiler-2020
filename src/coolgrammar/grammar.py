@@ -259,6 +259,14 @@ def build_cool_grammar():
         s[1], s[3], s[2].token_line, s[2].token_column - 1
     )
 
+    term %= term + star + not_ + factor, lambda s: MulNode(
+        s[1], s[4], s[2].token_line, s[2].token_column - 1
+    )
+
+    term %= term + div + not_  + factor, lambda s: DivNode(
+        s[1], s[4], s[2].token_line, s[2].token_column - 1
+    )
+
     term %= factor, lambda s: s[1]
 
     term %= not_ + factor, lambda s: NotNode(s[2], s[1].token_line, s[1].token_column)

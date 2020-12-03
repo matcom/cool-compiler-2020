@@ -517,10 +517,6 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Obtener el resultado del segundo factor
         right_vm_holder = self.visit(node.right, scope)
 
-        assert isinstance(left_vm_holder, LocalNode) and isinstance(
-            right_vm_holder, LocalNode
-        )
-
         # Registrar la instruccion de multimplicacion
         self.register_instruction(
             StarNode(left_vm_holder, right_vm_holder, mul_internal_vm_holder)
@@ -666,10 +662,6 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Obtener el valor de la expresion derecha
         right_vm_holder = self.visit(node.right, scope)
 
-        # Comparar los resultados restando
-        assert isinstance(left_vm_holder, LocalNode) and isinstance(
-            right_vm_holder, LocalNode
-        )
         self.register_instruction(
             MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder)
         )

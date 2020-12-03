@@ -720,6 +720,6 @@ class MipsCodeGenerator(CilToMipsVisitor):
             if "#" not in line and (":" in line and "end" not in line):
                 if "word" not in line and "asciiz" not in line and "byte" not in line:
                     indent += 1
-            if "# Function END" in line:
+            if "# Function END" in line or "label_END" in line:
                 indent -= 1
         return program
