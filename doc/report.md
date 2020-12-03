@@ -4,15 +4,15 @@
 
 Para ejecutar el compilador se deberá correr en la terminal el comando:
 
-`$ python coolc.py <archivo.cl> <archivo.mips>`
+`$ python coolc.py <INPUT_FILE.cl> <OUTPUT_FILE.mips>`
 
 Adicionalmente el se le pueden adicionar al compilador diferentes a argumentos opcionales. Estos argumentos son los siguientes:
 
 * `--cil`: Este argumento indica al compilador que se desea generar un archivo con el código `CIL` generado en las etapas intermedias del proceso de compilación.  
 
-* `-v` o `--verbose`: Estos argumentos opcionales indican al compilador que se desea ejecutar el mismo en modo verboso. El modo verboso agregará a la salida estandar del compilador información adicional. La estructura del ast de `COOL` generado y datos sobre los tipos definidos en el código son parte de esta información adicional.
+* `--verbose`: Estos argumentos opcionales indican al compilador que se desea ejecutar el mismo en modo verboso. El modo verboso agregará a la salida estandar del compilador información adicional. La estructura del ast de `COOL` generado y datos sobre los tipos definidos en el código son parte de esta información adicional.
 
-* `-h` o `--help`: Estos argumentos mostrarán una ayuda mínima referente al uso del comando, así como de los demás argumentos opcionales del mismo.
+* `--help`: Estos argumentos mostrarán una ayuda mínima referente al uso del comando, así como de los demás argumentos opcionales del mismo.
 
 ## Arquitectura del Compilador
 
