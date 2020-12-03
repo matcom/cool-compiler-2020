@@ -23,11 +23,11 @@ from .ast import (
     ReadStrNode,
     ReturnNode,
     SetAttribNode,
+    SetNode,
+    StaticCallNode,
     SubstringNode,
     TypeNameNode,
     TypeNode,
-    StaticCallNode,
-    SetNode
 )
 
 
@@ -85,7 +85,7 @@ class BASE_COOL_CIL_TRANSFORM:
         arg = static_type if isinstance(static_type, str) else static_type.name
         if arg in ["Int", "Bool", "String"]:
             packed = self.define_internal_local()
-            self.register_instruction(StaticCallNode(f'init_{arg}', packed))
+            self.register_instruction(StaticCallNode(f"init_{arg}", packed))
             self.register_instruction(SetAttribNode(packed, "value", value, arg))
             return packed
         return value
