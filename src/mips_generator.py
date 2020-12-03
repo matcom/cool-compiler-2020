@@ -30,6 +30,9 @@ def generate_data(data, locals, max_param_count):
 
     result = ".data\n\n"
 
+    result += "abort_msg: .asciiz \"Abort called from class \"\n"
+    result += "end_of_line: .asciiz \"\\n\"\n"
+
     for t in CIL_TYPES.values():
         result += "type_" + t.type_name + ": .asciiz \"" + t.type_name + "\"\n"
 
@@ -55,7 +58,6 @@ PARAMS = {}
 CURR_PARAM_COUNT = 0
 LOCALS_WRITE = ""
 PARAMS_AND_LOCALS_RELOAD = ""
-
 def generate_code(functions_code):
     result = ".text\n\n"
 
@@ -1693,7 +1695,33 @@ def convert_ToStrNode(instruction):
     return result
 
 def convert_AbortNode(instruction):
-    result = "li $v0, 10\n"
+    result = ""
+
+    # write abort message
+    result += "la $a0, abort_msg\n"
+    result += "li $v0, 4\n"
+    result += "syscall\n"
+
+    global DATA, PARAMS
+
+    if instruction.caller_type in DATA:
+        caller = instruction.caller_type
+    else:
+        caller = PARAMS[instruction.caller_type]
+    
+    result += "lw $t0, " + caller + "\n"
+    
+    # write type who called abort
+    result += "addi $a0, $t0, 4\n"
+    result += "li $v0, 4\n"
+    result += "syscall\n"
+
+    # write an end of line
+    result += "la $a0, end_of_line\n"
+    result += "li $v0, 4\n"
+    result += "syscall\n"
+
+    result += "li $v0, 10\n"
     result += "syscall\n"
 
     return result

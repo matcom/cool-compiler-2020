@@ -245,10 +245,10 @@ def generate_built_in_functions():
                 [AllocateNode("String", "local_7"),
                 StrsubNode('self', 'from', 'to', 'local_7'),
                 ReturnNode('local_7')]),
-            FunctionNode("Object_abort", [ParamNode('self')], [], 
-                [AbortNode()])]
+            FunctionNode("Object_abort", [ParamNode('self')], [get_local()], 
+                [AllocateNode("String", 'local_8'), TypeOfNode('local_8', 'self'), AbortNode('local_8')])]
 
-    is_son_func = FunctionNode('is_son', [ParamNode('self'), ParamNode('class_s'), ParamNode('class_f')], [get_local(), get_local(), get_local()], [AllocateNode("Bool", 'local_8'), AllocateNode("Bool", 'local_9'), AllocateNode("Int", 'local_10'), MovNode('local_10', 2)]) 
+    is_son_func = FunctionNode('is_son', [ParamNode('self'), ParamNode('class_s'), ParamNode('class_f')], [get_local(), get_local(), get_local()], [AllocateNode("Bool", 'local_9'), AllocateNode("Bool", 'local_10'), AllocateNode("Int", 'local_11'), MovNode('local_11', 2)]) 
 
     for t1 in AllTypes.values():
         for t2 in AllTypes.values():
@@ -256,15 +256,15 @@ def generate_built_in_functions():
                 continue
             continue_label = get_label()
             if is_ancestor(t2, t1):
-                is_son_func.body += [ENode('class_s', 'type_' + t1.name, 'local_8'),
-                                     ENode('class_f', 'type_' + t2.name, 'local_9'),
-                                     AddNode('local_8', 'local_9', 'local_8'),
-                                     LNode('local_8', 'local_10', 'local_8'),
-                                     IfGotoNode('local_8', continue_label),
-                                     MovNode('local_8', 1),
-                                     ReturnNode('local_8'),
+                is_son_func.body += [ENode('class_s', 'type_' + t1.name, 'local_9'),
+                                     ENode('class_f', 'type_' + t2.name, 'local_10'),
+                                     AddNode('local_9', 'local_10', 'local_9'),
+                                     LNode('local_9', 'local_11', 'local_9'),
+                                     IfGotoNode('local_9', continue_label),
+                                     MovNode('local_9', 1),
+                                     ReturnNode('local_9'),
                                      LabelNode(continue_label)]
-    is_son_func.body += [MovNode('local_8', 0), ReturnNode('local_8')]
+    is_son_func.body += [MovNode('local_9', 0), ReturnNode('local_9')]
 
     code += [is_son_func]
 

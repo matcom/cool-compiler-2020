@@ -196,6 +196,8 @@ class AllocateNode(InstructionNode):
 
 
 class AbortNode(InstructionNode):
+    def __init__(self, caller_type):
+        self.caller_type = caller_type
     def GetCode(self):
         return "EXIT"
 
