@@ -90,6 +90,9 @@ def program_to_cil_visitor(program):
 
         for met in value.get_all_self_methods():
             _type.methods[met] = t
+        
+        if t not in ('SELF_TYPE', 'Object', 'IO', 'String', 'Bool', 'Int'):
+            _type.methods['__init__']=t
 
         types.append(_type)
 
@@ -110,6 +113,7 @@ def program_to_cil_visitor(program):
     # completing .CODE and .DATA sections
 
     for c in program.classes:
+        code.append(init_instance(c.type, c.parent_type))
         for f in c.feature_nodes:
             if type(f) == CoolAST.DefFuncNode:
                 fun = func_to_cil_visitor(c.type, f)
@@ -133,7 +137,6 @@ def program_to_cil_visitor(program):
 
 def built_in_to_cil():
     return [out_int_to_cil(), out_string_to_cil(), in_string_to_cil(), in_int_to_cil(), type_name_to_cil(), copy_to_cil(), length_to_cil(), concat_to_cil(), substring_to_cil(), abort_to_cil(), abort_string_to_cil(), abort_int_to_cil(), abort_bool_to_cil(), type_name_bool_to_cil(), type_name_int_to_cil(), type_name_string_to_cil()]
-
 
 def out_string_to_cil():
     return CilAST.FuncNode('IO_out_string', [CilAST.ParamNode('self'),  CilAST.ParamNode('str')], [], [CilAST.PrintNode('str'),  CilAST.ReturnNode('self')])
@@ -449,25 +452,23 @@ def id_to_cil_visitor(id):
         return CIL_block([], val)
     except:
         return CIL_block([], id.id)
-
-
-def new_to_cil_visitor(new_node, value_id=None):
-    global __CURRENT_TYPE__
-    if value_id:
-        value = add_local(value_id)
-    else:
-        value = add_local()
-    t = new_node.type
+    
+def init_instance(t, parent=None):
+    global __CURRENT_TYPE__, __LOCALS__, __DATA_LOCALS__, __TYPEOF__
+    
+    __LOCALS__ = {}
+    __DATA_LOCALS__ = {}
+    __TYPEOF__ = {}
+    __CURRENT_TYPE__ = t
+    value = add_local()
     body = []
 
-    if t == 'SELF_TYPE':
-        t, need_typeof = get_typeof(__CURRENT_TYPE__)
-        if need_typeof:
-            body.append(CilAST.TypeOfNode(t, __CURRENT_TYPE__))
-
-    body.append(CilAST.AllocateNode(t, value))
     init_attr = CT.TypesByName[t].get_all_attributes()
 
+    if parent and parent not in ('Object', 'IO'):
+        parent_init=add_local()
+        body.append(CilAST.ArgNode('self'))
+        body.append(CilAST.VCAllNode(parent, '__init__', parent_init))
     #
     t_data = add_str_data(t)
     t_local = add_local()
@@ -475,20 +476,43 @@ def new_to_cil_visitor(new_node, value_id=None):
     #
 
     body.append(CilAST.LoadNode(t_data, t_local))
-    body.append(CilAST.SetAttrNode(value, '@type', t_local))
+    body.append(CilAST.SetAttrNode('self', '@type', t_local))
     body.append(CilAST.AssignNode(size_local, (len(init_attr)+3)*4))
-    body.append(CilAST.SetAttrNode(value, '@size', size_local, 1))
-
-    old_current_type = __CURRENT_TYPE__
-    __CURRENT_TYPE__ = new_node.type
+    body.append(CilAST.SetAttrNode('self', 'size', size_local, 1))
     for index, attr in enumerate(init_attr, 3):
         if attr.expression:
             attr_cil = expression_to_cil_visitor(
                 attr.expression)
             body += attr_cil.body
             body.append(CilAST.SetAttrNode(
-                value, attr.id, attr_cil.value, index))
-    __CURRENT_TYPE__ = old_current_type
+                'self', attr.id, attr_cil.value, index))
+    
+    body.append(CilAST.ReturnNode(value))
+
+    return CilAST.FuncNode(f'{t}___init__', [CilAST.ParamNode('self')], [__LOCALS__[k] for k in __LOCALS__.keys()], body)
+
+    
+
+
+def new_to_cil_visitor(new_node, val_id=None):
+    if val_id:
+        value=add_local(val_id)
+    else:
+        value=add_local()
+    t = new_node.type
+    
+    body = []
+    if t == 'SELF_TYPE':
+        t, need_typeof = get_typeof(__CURRENT_TYPE__)
+        if need_typeof:
+            body.append(CilAST.TypeOfNode(t, __CURRENT_TYPE__))
+    
+    
+    allocate_res=add_local()
+    body.append(CilAST.AllocateNode(t, value))
+    body.append(CilAST.ArgNode(value))
+    body.append(CilAST.VCAllNode(t, '__init__', allocate_res))
+    
     return CIL_block(body, value)
 
 
