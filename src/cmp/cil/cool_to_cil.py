@@ -190,9 +190,9 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             self.register_instruction(VoidNode(result))
         self_inst = scope.get_var("self").local_name
         assert typex, f"AttrDeclarationNode: {typex}"
-        result = self.unpack_type_by_value(
-            result, node.expression.static_type if node.expression else "Void"
-        )
+        # result = self.unpack_type_by_value(
+        #     result, node.expression.static_type if node.expression else "Void"
+        # )
         self.register_instruction(SetAttribNode(self_inst, node.id, result, typex))
 
     @when(cool.FuncDeclarationNode)
