@@ -31,6 +31,7 @@ from .ast import (
     StringEqualNode,
     TypeOfNode,
     VoidNode,
+    SetNode
 )
 from .basic_transform import BASE_COOL_CIL_TRANSFORM, VariableInfo
 from .utils import Scope, on, when
@@ -221,7 +222,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         result = self.define_internal_local()
         true_label = self.to_label_name("if_true")
         end_label = self.to_label_name("end_if")
-        cond_result = self.unpack_type_by_value(cond_result, node.condition.static_type)
+        # cond_result = self.unpack_type_by_value(cond_result, node.condition.static_type)
         self.register_instruction(GotoIfNode(cond_result, true_label))
         false_result = self.visit(node.else_body, if_scope)
         self.register_instruction(AssignNode(result, false_result))
@@ -241,8 +242,8 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         end_label = self.to_label_name("pool")
         self.register_instruction(LabelNode(loop_label))
         condition = self.visit(node.condition, scope)
-        condition_raw = self.unpack_type_by_value(condition, node.condition.static_type)
-        self.register_instruction(GotoIfNode(condition_raw, body_label))
+        # condition_raw = self.unpack_type_by_value(condition, node.condition.static_type)
+        self.register_instruction(GotoIfNode(condition, body_label))
         self.register_instruction(GotoNode(end_label))
         self.register_instruction(LabelNode(body_label))
         self.visit(node.body, while_scope)
@@ -266,13 +267,14 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         result = self.visit(node.expression, scope) if node.expression else 0
         if result == 0:
             typex = node.type
-            if typex in ["Int", "String", "Bool"]:
-                self.register_instruction(StaticCallNode(f"init_{typex}", var_name))
-                if typex == "String":
-                    empty = self.register_data("").name
-                    self.register_instruction(
-                        SetAttribNode(var_name, "value", empty, typex)
-                    )
+            # if typex in ["Int", "String", "Bool"]:
+                # self.register_instruction(StaticCallNode(f"init_{typex}", var_name))
+            if typex == "String":
+                empty = self.register_data("").name
+                self.register_instruction(AssignNode(var_name, empty))
+                # self.register_instruction(
+                #     SetAttribNode(var_name, "value", empty, typex)
+                # )
             else:
                 self.register_instruction(VoidNode(var_name))
         else:
@@ -340,7 +342,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         value = self.visit(node.expression, scope)
         pvar = scope.get_var(node.id)
         if not pvar:
-            value = self.unpack_type_by_value(value, node.expression.static_type)
+            # value = self.unpack_type_by_value(value, node.expression.static_type)
             selfx = scope.get_var("self").local_name
             self.register_instruction(
                 SetAttribNode(
@@ -386,6 +388,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         for arg_value in rev_args:
             self.register_instruction(ArgNode(arg_value))
         obj_inst = self.visit(node.obj, scope)
+        obj_inst = self.pack_type_by_value(obj_inst, node.obj.static_type)
         self.register_instruction(ArgNode(obj_inst))
         if func_name:
             self.register_instruction(StaticCallNode(func_name, result))
@@ -405,6 +408,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node: cool.NewNode, scope: Scope):  # noqa:F811
         result = self.define_internal_local()
         self.register_instruction(StaticCallNode(f"init_{node.type}", result))
+        result = self.unpack_type_by_value(result, node.type)
         return result
 
     @when(cool.IsVoidNode)
@@ -412,105 +416,105 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
         body = self.visit(node.expression, scope)
         result = self.define_internal_local()
         self.register_instruction(IsVoidNode(result, body))
-        result = self.pack_type_by_value(result, node.static_type)
+        # result = self.pack_type_by_value(result, node.static_type)
         return result
 
     @when(cool.NotNode)
     def visit(self, node: cool.NotNode, scope: Scope):  # noqa:F811
         value = self.visit(node.expression, scope)
-        value = self.unpack_type_by_value(value, node.expression.static_type)
+        # value = self.unpack_type_by_value(value, node.expression.static_type)
         result = self.define_internal_local()
         self.register_instruction(NotNode(result, value))
-        result = self.pack_type_by_value(result, node.static_type)
+        # result = self.pack_type_by_value(result, node.static_type)
         return result
 
     @when(cool.ComplementNode)
     def visit(self, node: cool.ComplementNode, scope: Scope):  # noqa:F811
         value = self.visit(node.expression, scope)
-        value = self.unpack_type_by_value(value, node.expression.static_type)
+        # value = self.unpack_type_by_value(value, node.expression.static_type)
         result = self.define_internal_local()
         self.register_instruction(ComplementNode(result, value))
-        result = self.pack_type_by_value(result, node.static_type)
+        # result = self.pack_type_by_value(result, node.static_type)
         return result
 
     @when(cool.PlusNode)
     def visit(self, node: cool.PlusNode, scope: Scope):  # noqa:F811
         left = self.visit(node.left, scope)
         right = self.visit(node.right, scope)
-        left = self.unpack_type_by_value(left, node.left.static_type)
-        right = self.unpack_type_by_value(right, node.right.static_type)
+        # left = self.unpack_type_by_value(left, node.left.static_type)
+        # right = self.unpack_type_by_value(right, node.right.static_type)
         result = self.define_internal_local()
         self.register_instruction(PlusNode(result, left, right))
-        result = self.pack_type_by_value(result, node.static_type)
+        # result = self.pack_type_by_value(result, node.static_type)
         return result
 
     @when(cool.MinusNode)
     def visit(self, node: cool.MinusNode, scope: Scope):  # noqa:F811
         left = self.visit(node.left, scope)
         right = self.visit(node.right, scope)
-        left = self.unpack_type_by_value(left, node.left.static_type)
-        right = self.unpack_type_by_value(right, node.right.static_type)
+        # left = self.unpack_type_by_value(left, node.left.static_type)
+        # right = self.unpack_type_by_value(right, node.right.static_type)
         result = self.define_internal_local()
         self.register_instruction(MinusNode(result, left, right))
-        result = self.pack_type_by_value(result, node.static_type)
+        # result = self.pack_type_by_value(result, node.static_type)
         return result
 
     @when(cool.StarNode)
     def visit(self, node: cool.StarNode, scope: Scope):  # noqa:F811
         left = self.visit(node.left, scope)
         right = self.visit(node.right, scope)
-        left = self.unpack_type_by_value(left, node.left.static_type)
-        right = self.unpack_type_by_value(right, node.right.static_type)
+        # left = self.unpack_type_by_value(left, node.left.static_type)
+        # right = self.unpack_type_by_value(right, node.right.static_type)
         result = self.define_internal_local()
         self.register_instruction(StarNode(result, left, right))
-        result = self.pack_type_by_value(result, node.static_type)
+        # result = self.pack_type_by_value(result, node.static_type)
         return result
 
     @when(cool.DivNode)
     def visit(self, node: cool.DivNode, scope: Scope):  # noqa:F811
         left = self.visit(node.left, scope)
         right = self.visit(node.right, scope)
-        left = self.unpack_type_by_value(left, node.left.static_type)
-        right = self.unpack_type_by_value(right, node.right.static_type)
+        # left = self.unpack_type_by_value(left, node.left.static_type)
+        # right = self.unpack_type_by_value(right, node.right.static_type)
         result = self.define_internal_local()
         self.register_instruction(DivNode(result, left, right))
-        result = self.pack_type_by_value(result, node.static_type)
+        # result = self.pack_type_by_value(result, node.static_type)
         return result
 
     @when(cool.EqualNode)
     def visit(self, node: cool.EqualNode, scope: Scope):  # noqa:F811
         left = self.visit(node.left, scope)
         right = self.visit(node.right, scope)
-        left = self.unpack_type_by_value(left, node.left.static_type)
-        right = self.unpack_type_by_value(right, node.right.static_type)
+        # left = self.unpack_type_by_value(left, node.left.static_type)
+        # right = self.unpack_type_by_value(right, node.right.static_type)
         result = self.define_internal_local()
         if node.left.static_type == self.context.get_type("String"):
             self.register_instruction(StringEqualNode(result, left, right))
         else:
             self.register_instruction(EqualNode(result, left, right))
-        result = self.pack_type_by_value(result, node.static_type)
+        # result = self.pack_type_by_value(result, node.static_type)
         return result
 
     @when(cool.LessNode)
     def visit(self, node: cool.LessNode, scope: Scope):  # noqa:F811
         left = self.visit(node.left, scope)
         right = self.visit(node.right, scope)
-        left = self.unpack_type_by_value(left, node.left.static_type)
-        right = self.unpack_type_by_value(right, node.right.static_type)
+        # left = self.unpack_type_by_value(left, node.left.static_type)
+        # right = self.unpack_type_by_value(right, node.right.static_type)
         result = self.define_internal_local()
         self.register_instruction(LessNode(result, left, right))
-        result = self.pack_type_by_value(result, node.static_type)
+        # result = self.pack_type_by_value(result, node.static_type)
         return result
 
     @when(cool.LessEqualNode)
     def visit(self, node: cool.LessEqualNode, scope: Scope):  # noqa:F811
         left = self.visit(node.left, scope)
         right = self.visit(node.right, scope)
-        left = self.unpack_type_by_value(left, node.left.static_type)
-        right = self.unpack_type_by_value(right, node.right.static_type)
+        # left = self.unpack_type_by_value(left, node.left.static_type)
+        # right = self.unpack_type_by_value(right, node.right.static_type)
         result = self.define_internal_local()
         self.register_instruction(LessEqNode(result, left, right))
-        result = self.pack_type_by_value(result, node.static_type)
+        # result = self.pack_type_by_value(result, node.static_type)
         return result
 
     @when(cool.IdNode)
@@ -529,7 +533,7 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
             ]
             assert vattrbs, "IdNode: attributes is empty"
             vattr: Attribute = vattrbs[0]
-            pvar = self.pack_type_by_value(pvar, vattr.type)
+            # pvar = self.pack_type_by_value(pvar, vattr.type)
         else:
             pvar = pvar.local_name
         return pvar
@@ -538,24 +542,27 @@ class COOL_TO_CIL_VISITOR(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node: cool.BoolNode, scope: Scope):  # noqa:F811
         value = 1 if node.token.lower() == "true" else 0
         bool_inst = self.define_internal_local()
-        self.register_instruction(StaticCallNode("init_Bool", bool_inst))
-        if value:
-            self.register_instruction(SetAttribNode(bool_inst, "value", value, "Bool"))
+        self.register_instruction(SetNode(bool_inst, value))
+        # self.register_instruction(StaticCallNode("init_Bool", bool_inst))
+        # if value:
+        #     self.register_instruction(SetAttribNode(bool_inst, "value", value, "Bool"))
         return bool_inst
 
     @when(cool.IntegerNode)
     def visit(self, node: cool.IntegerNode, scope: Scope):  # noqa:F811
         value = int(node.token)
         int_inst = self.define_internal_local()
-        self.register_instruction(StaticCallNode("init_Int", int_inst))
-        self.register_instruction(SetAttribNode(int_inst, "value", value, "Int"))
+        self.register_instruction(SetNode(int_inst, value))
+        # self.register_instruction(StaticCallNode("init_Int", int_inst))
+        # self.register_instruction(SetAttribNode(int_inst, "value", value, "Int"))
         return int_inst
 
     @when(cool.StringNode)
     def visit(self, node: cool.StringNode, scope: Scope):  # noqa:F811
         string = self.register_data(node.token[1:-1])
         value = string.name
-        string_inst = self.define_internal_local()
-        self.register_instruction(StaticCallNode("init_String", string_inst))
-        self.register_instruction(SetAttribNode(string_inst, "value", value, "String"))
-        return string_inst
+        return value
+        # string_inst = self.define_internal_local()
+        # self.register_instruction(StaticCallNode("init_String", string_inst))
+        # self.register_instruction(SetAttribNode(string_inst, "value", value, "String"))
+        # return string_inst
