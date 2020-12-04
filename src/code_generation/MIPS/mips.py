@@ -264,26 +264,6 @@ def length_to_mips_visitor(length: cil.LengthNode):
     ]
     return code
 
-
-def copy_string(string_var):
-    __DATA__.append(mips.MIPSDataItem(f'temporal_string_{string_var}', mips.SpaceInst(__BUFFSIZE__)))
-    offset=CURRENT_FUNCTION.offset[str(string_var)]
-    return [
-        mips.LwInstruction('$t0',f'{offset}($fp)'),
-        mips.LaInstruction('$t1', f'temporal_string_{string_var}'),
-        mips.MIPSLabel(f'loop_{string_var}'),
-        mips.LbInstruction('$t2', '($t0)'),
-        mips.SbInstruction('$t2', '($t1)'),
-        mips.BeqzInstruction('$t2', f'end_loop_{string_var}'),
-        mips.AdduInstruction('$t0', '$t0', 1),
-        mips.AdduInstruction('$t1', '$t1', 1),
-        mips.BInstruction(f'loop_{string_var}'),
-        mips.MIPSLabel(f'end_loop_{string_var}'),
-        mips.LaInstruction('$t0', f'temporal_string_{string_var}'),
-        mips.SwInstruction('$t0', f'{offset}($fp)')
-    ]
-    
-
 def concat_to_mips_visitor(concat: cil.ConcatNode):
     result_offset = CURRENT_FUNCTION.offset[str(concat.result)]
     a_offset = CURRENT_FUNCTION.offset[str(concat.str_a)]
