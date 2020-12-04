@@ -285,3 +285,9 @@ class ConcatString(InstructionNode):
 
 class AbortNode(InstructionNode):
     pass
+
+
+class AllocateBoolNode(InstructionNode):
+    def __init__(self, dest: LocalNode, value: int) -> None:
+        self.dest = dest
+        self.value = value

@@ -1,5 +1,5 @@
 from abstract.semantics import Type
-from abstract.tree import EqualToNode, SelfNode
+from abstract.tree import EqualToNode, IsVoidNode, SelfNode
 import cil.baseCilVisitor as baseCilVisitor
 import abstract.tree as coolAst
 import abstract.semantics as semantics
@@ -9,7 +9,7 @@ from functools import singledispatchmethod
 import cil.nodes
 
 from cil.nodes import (
-    AllocateNode,
+    AllocateBoolNode, AllocateNode,
     AllocateStringNode,
     ArgNode,
     AssignNode,
@@ -50,6 +50,7 @@ from cil.nodes import (
     TypeOfNode,
     UnconditionalJump,
 )
+from mips.branch import J
 
 
 def find_method_in_parent(type_: Type, method: str):
@@ -847,6 +848,20 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.register_instruction(cil.nodes.SelfNode(return_expr_vm_holder))
         return return_expr_vm_holder
 
+    @visit.register
+    def _(self, node: IsVoidNode, scope: Scope):
+        return_bool_vm_holder = self.define_internal_local()
+        val = self.visit(node.expr, scope)
+        true_label = self.do_label("TRUE")
+        end_label = self.do_label("END")
+        self.register_instruction(IfZeroJump(val, true_label))
+        # Bool con valor false
+        self.register_instruction(AllocateBoolNode(return_bool_vm_holder, 0))
+        self.register_instruction(UnconditionalJump(end_label))
+        self.register_instruction(LabelNode(true_label))
+        self.register_instruction(AllocateBoolNode(return_bool_vm_holder, 1))
+        self.register_instruction(LabelNode(end_label))
+        return return_bool_vm_holder
 
 class CilDisplayFormatter:
     @singledispatchmethod

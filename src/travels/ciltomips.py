@@ -1,6 +1,6 @@
 from pickle import TRUE
 from abstract.semantics import Type
-from cil.nodes import AbortNode, ConcatString, LocalNode
+from cil.nodes import AbortNode, AllocateBoolNode, ConcatString, LocalNode
 from mips.arithmetic import ADD, ADDU, DIV, MUL, NOR, SUB, SUBU
 from mips.baseMipsVisitor import (
     BaseCilToMipsVisitor,
@@ -331,6 +331,57 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(SW(reg, f"{offset}($s1)"))
 
         self.used_registers[reg] = False
+
+    @visit.register
+    def _(self, node: AllocateBoolNode):
+        dest = self.visit(node.dest)
+        assert dest is not None
+
+        size = 16
+
+        # Reservar memoria para el tipo
+        self.allocate_memory(size)
+        reg = self.get_available_register()
+
+        assert reg is not None
+
+        self.comment("Allocating string for type Bool")
+
+        # Inicializar la instancia
+        self.register_instruction(LA(reg, "String"))
+        self.register_instruction(SW(reg, "0($v0)"))
+
+        self.register_instruction(LA(reg, "String_start"))
+        self.register_instruction(SW(reg, "4($v0)"))
+
+        self.register_instruction(LA(reg, "Bool"))
+        self.register_instruction(SW(reg, "8($v0)"))
+
+        self.register_instruction(LI(reg, 4))
+        self.register_instruction(SW(reg, "12($v0)"))
+
+        # devolver la instancia
+        self.register_instruction(MOVE(reg, v0))
+
+        size = 12
+
+        self.allocate_memory(size)
+
+        # Almacenar el string al tipo BOOL
+        self.register_instruction(SW(reg, f"0($v0)"))
+
+        self.register_instruction(LA(reg, "Bool_start"))
+        self.register_instruction(SW(reg, "4($v0)"))
+
+        self.register_instruction(LI(reg, node.value))
+        self.register_instruction(SW(reg, "8($v0)"))
+
+        # devolver la instancia
+        self.register_instruction(SW(v0, dest))
+
+        self.used_registers[reg] = False
+
+
 
     @visit.register
     def _(self, node: cil.AllocateStringNode):

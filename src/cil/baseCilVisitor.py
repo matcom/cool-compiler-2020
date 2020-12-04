@@ -217,13 +217,16 @@ class BaseCoolToCilVisitor:
         param = self.register_params(
             VariableInfo("x", self.context.get_type("String"), "PARAM")
         )
+        self__ = self.define_internal_local()
         # Esta funcion espera que se llame con un argumento que apunta
         # a la direccion de memoria de un string, luego solo realiza
         # los procedimientos necesarios para imprimir en consola
         # dicho string. Creamos el nodo PrintNode y dejamos la
         # implementacion y la llamada a sistema a MIPS
         self.register_instruction(PrintNode(param))
-        self.register_instruction(ReturnNode())
+        # retornar self
+        self.register_instruction(SelfNode(self__))
+        self.register_instruction(ReturnNode(self__))
         self.current_function = None
 
     def __implement_out_int(self):
@@ -233,10 +236,13 @@ class BaseCoolToCilVisitor:
         param = self.register_params(
             VariableInfo("x", self.context.get_type("Int"), "PARAM")
         )
+        self__ = self.define_internal_local()
 
         # Espera como unico parametro un entero.
         self.register_instruction(PrintIntNode(param))
-        self.register_instruction(ReturnNode())
+        # retornar self
+        self.register_instruction(SelfNode(self__))
+        self.register_instruction(ReturnNode(self__))
         self.current_function = None
 
     def __implement_in_string(self):
@@ -324,6 +330,9 @@ class BaseCoolToCilVisitor:
         str_ = self.register_type("String")
         str__ = self.context.get_type("String")
 
+        bool_ = self.register_type("Bool")
+        bool__ = self.context.get_type("Bool")
+
         io_typeNode.methods.append(("abort", "function_abort_at_Object"))
         io_typeNode.methods.append(("type_name", "function_type_name_at_Object"))
         io_typeNode.methods.append(("copy", "function_copy_at_Object"))
@@ -336,12 +345,19 @@ class BaseCoolToCilVisitor:
         obj.methods.append(("type_name", "function_type_name_at_Object"))
         obj.methods.append(("copy", "function_copy_at_Object"))
 
+        bool_.methods.append(("abort", "function_abort_at_Object"))
+        bool_.methods.append(("type_name", "function_type_name_at_Object"))
+        bool_.methods.append(("copy", "function_copy_at_Object"))
+
         str_.methods.append(("concat", "function_concat_at_String"))
         str_.methods.append(("substr", "function_substr_at_String"))
         str_.methods.append(("length", "function_length_at_String"))
 
         str_.attributes.append(Attribute("value", str__))
         str_.attributes.append(Attribute("length", self.context.get_type("Int")))
+
+        bool__.attributes.append(Attribute("value", self.context.get_type("Int")))
+        bool__.attributes.append(Attribute("value", self.context.get_type("Int")))
 
         str__.attributes.append(Attribute("value", str__))
         str__.attributes.append(Attribute("length", self.context.get_type("Int")))

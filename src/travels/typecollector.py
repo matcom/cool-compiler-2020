@@ -49,12 +49,12 @@ def bootstrap_string(obj: StringType):
     obj.methods["substr"] = substr()
 
 
-def bootstrap_io(io: IoType, strType: StringType):
+def bootstrap_io(io: IoType, strType: StringType, selfType: SelfType):
     def out_string() -> Method:
         method_name = "out_string"
         param_names = ["x"]
         param_types: List[Type] = [StringType()]
-        return_type = SelfType()
+        return_type = selfType
 
         return Method(method_name, param_names, param_types, return_type)
 
@@ -62,7 +62,7 @@ def bootstrap_io(io: IoType, strType: StringType):
         method_name = "out_int"
         param_names = ["x"]
         params_types: List[Type] = [IntegerType()]
-        return_type = SelfType()
+        return_type = selfType
 
         return Method(method_name, param_names, params_types, return_type)
 
@@ -143,7 +143,7 @@ class TypeCollector:
 
         # Agregar los metodos builtin
         bootstrap_string(STRING)
-        bootstrap_io(ioType, STRING)
+        bootstrap_io(ioType, STRING, SELF_TYPE)
         bootstrap_object(OBJECT, STRING)
 
         INTEGER.set_parent(OBJECT)
