@@ -1,5 +1,6 @@
+from pickle import TRUE
 from abstract.semantics import Type
-from cil.nodes import LocalNode
+from cil.nodes import AbortNode, ConcatString, LocalNode
 from mips.arithmetic import ADD, ADDU, DIV, MUL, NOR, SUB, SUBU
 from mips.baseMipsVisitor import (
     BaseCilToMipsVisitor,
@@ -8,7 +9,7 @@ from mips.baseMipsVisitor import (
     locate_attribute_in_type_hierarchy,
 )
 import cil.nodes as cil
-from mips.branch import BEQ, J
+from mips.branch import BEQ, BEQZ, J
 from mips.instruction import (
     FixedData,
     Label,
@@ -23,7 +24,7 @@ from mips.instruction import (
     a1,
     zero,
     s1,
-    at
+    at,
 )
 import mips.branch as branchNodes
 from functools import singledispatchmethod
@@ -163,11 +164,10 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.InitSelfNode):
-        src =  self.visit(node.src)
+        src = self.visit(node.src)
         assert src is not None
 
         self.register_instruction(LW(s1, src))
-
 
     @visit.register
     def _(self, node: cil.LabelNode):
@@ -657,13 +657,13 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(LW(reg2, "8($s1)"))
 
         # Hacer que reg apunte al inicio del substr
-        if isinstance(l , int):
+        if isinstance(l, int):
             self.register_instruction(ADDU(reg, reg, l, True))
         else:
             self.register_instruction(LW(temp, l))
             self.register_instruction(ADDU(reg, reg, temp))
 
-        if isinstance(r , int):
+        if isinstance(r, int):
             self.register_instruction(ADDU(reg2, reg2, r, True))
         else:
             self.register_instruction(LW(temp, r))
@@ -726,12 +726,135 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.used_registers[reg] = False
         self.used_registers[reg2] = False
         self.used_registers[temp] = False
-        self.used_registers[size] = False
+        self.used_registers[size_reg] = False
+
+    @visit.register
+    def _(self, node: ConcatString):
+        self.add_source_line_comment(node)
+        # Obtener los strings a concatenar
+        dest = self.visit(node.dest)
+        s = self.visit(node.s)
+        assert s is not None
+        assert dest is not None
+
+        reg = self.get_available_register()
+        reg2 = self.get_available_register()
+        temp = self.get_available_register()
+        size_reg = self.get_available_register()
+        byte = self.get_available_register()
+
+        assert (
+            reg is not None
+            and reg2 is not None
+            and temp is not None
+            and size_reg is not None
+            and byte is not None
+        )
+
+        # Get Strings length
+        self.comment("Get first string length from self")
+        self.register_instruction(LW(reg, f"12($s1)"))
+
+        # Obtener el segundo string
+        self.comment("Get second string length from param")
+        self.register_instruction(LW(v0, s))
+        self.register_instruction(LW(reg2, "12($v0)"))
+
+        self.comment("Save new string length in a0 for memory allocation")
+        self.register_instruction(ADDU(a0, reg, reg2))
+        self.register_instruction(MOVE(size_reg, a0))
+
+        # Obtener el primer string desde self
+        self.comment("Get first string from self")
+        self.register_instruction(LW(reg, f"8($s1)"))
+
+        # Obtener el segundo string
+        self.comment("Get second string from param")
+        self.register_instruction(LW(reg2, "8($v0)"))
+
+        # Reservar memoria para el nuevo buffer
+        # $v0 = 9 (syscall 9 = sbrk)
+        self.register_instruction(ADDU(a0, a0, 1, True))
+        self.register_instruction(LI(v0, 9))
+        self.register_instruction(SYSCALL())
+
+        # mover v0 a un puntero temporal que podamos mover
+        self.register_instruction(MOVE(temp, v0))
+
+        # Hacer 0 el registro byte
+        self.register_instruction(MOVE(byte, zero))
+        
+        # while [reg] != 0: copy to temp
+        self.register_instruction(Label("concat_loop1"))
+        self.comment(f"Compare {REG_TO_STR[reg]} with \\0")
+        self.register_instruction(LB(byte, f"0(${REG_TO_STR[reg]})"))
+        self.register_instruction(BEQZ(byte, "concat_loop1_end"))
+        # Copiar el byte hacia temp y aumentar en 1
+        self.comment("Copy 1 byte")
+        self.register_instruction(SB(byte, f"0(${REG_TO_STR[temp]})"))
+        self.register_instruction(ADDU(temp, temp, 1, True))
+        self.register_instruction(ADDU(reg, reg, 1, True))
+        self.register_instruction(J("concat_loop1"))
+        
+        self.register_instruction(Label("concat_loop1_end"))
+
+        # Copiar el segundo string
+        self.comment("Copy second string")
+        # while [reg2] != 0: copy to temp
+        self.register_instruction(Label("concat_loop2"))
+        self.comment(f"Compare {REG_TO_STR[reg2]} with \\0")
+        self.register_instruction(LB(byte, f"0(${REG_TO_STR[reg2]})"))
+        self.register_instruction(BEQZ(byte, "concat_loop2_end"))
+        # Copiar el byte hacia temp y aumentar en 1
+        self.comment("Copy 1 byte")
+        self.register_instruction(SB(byte, f"0(${REG_TO_STR[temp]})"))
+        self.register_instruction(ADDU(temp, temp, 1, True))
+        self.register_instruction(ADDU(reg2, reg2, 1, True))
+        self.register_instruction(J("concat_loop2"))
+        
+        self.register_instruction(Label("concat_loop2_end"))
+        # Agregar el caracter null al final
+        self.register_instruction(SB(zero, f"0(${REG_TO_STR[temp]})"))
+
+        # v0 contiene el string concatenado
+        self.comment("v0 contains resulting string")
+        self.register_instruction(MOVE(reg2, v0))
+
+        # Crear la instancia de str
+        size = 16
+
+        # Reservar memoria para el tipo
+        self.allocate_memory(size)
+
+        self.comment("Allocating string")
+
+        # Inicializar la instancia
+        self.register_instruction(LA(reg, "String"))
+        self.register_instruction(SW(reg, "0($v0)"))
+
+        self.register_instruction(LA(reg, "String_start"))
+        self.register_instruction(SW(reg, "4($v0)"))
+
+        # Copiar el str en v0 al atributo value de la instancia
+        self.register_instruction(SW(reg2, "8($v0)"))
+
+        self.register_instruction(SW(size_reg, "12($v0)"))
+
+        # devolver la instancia
+        self.register_instruction(SW(v0, dest))
+
+        self.used_registers[reg] = False
+        self.used_registers[reg2] = False
+        self.used_registers[temp] = False
+        self.used_registers[size_reg] = False
+        self.used_registers[byte] = False
+
 
 
     @visit.register
-    def _(self, node: cil.ToStrNode):
-        pass
+    def _(self, node: AbortNode):
+        self.register_instruction(LI(a0, 10))
+        self.register_instruction(SYSCALL())
 
     @visit.register
     def _(self, node: cil.ReadNode):

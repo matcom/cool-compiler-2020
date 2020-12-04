@@ -9,11 +9,12 @@ from functools import singledispatchmethod
 import cil.nodes
 
 from cil.nodes import (
-    AllocateNode, AllocateStringNode,
+    AllocateNode,
+    AllocateStringNode,
     ArgNode,
     AssignNode,
     CilNode,
-    CilProgramNode,
+    CilProgramNode, ConcatString,
     DataNode,
     DivNode,
     DynamicCallNode,
@@ -561,7 +562,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         s1 = self.register_data(node.lex)
 
         # Cargar el string en la variable interna
-        self.register_instruction(AllocateStringNode(str_const_vm_holder, s1, len(node.lex)))
+        self.register_instruction(
+            AllocateStringNode(str_const_vm_holder, s1, len(node.lex))
+        )
 
         # Devolver la variable que contiene el string
         return str_const_vm_holder
@@ -601,7 +604,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             self.register_instruction(AssignNode(result_vm_holder, 0))
             self.register_instruction(UnconditionalJump(not_end_label))
             self.register_instruction(LabelNode(false_label))
-             # Si expr = 0 entonces devolver 1
+            # Si expr = 0 entonces devolver 1
             self.register_instruction(AssignNode(result_vm_holder, 1))
             self.register_instruction(LabelNode(not_end_label))
             return result_vm_holder
@@ -995,6 +998,14 @@ class CilDisplayFormatter:
     @visit.register
     def _(self, node: PrintNode):
         return f"PRINT_STR {node.src.name}"
+
+    @visit.register
+    def _(self, node: SubstringNode):
+        return f"{self.visit(node.dest)} = SUBSTRING {self.visit(node.l)} {self.visit(node.r)} self"
+
+    @visit.register
+    def _(self, node: ConcatString):
+        return f"{self.visit(node.dest)} = self.CONCAT {node.s}"
 
     def __call__(self, node) -> str:
         return self.visit(node)

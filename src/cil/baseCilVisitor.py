@@ -2,7 +2,7 @@ from typing import List, Optional, Any, Dict, Tuple
 import cil.nodes as nodes
 from abstract.semantics import Attribute, VariableInfo, Context, Type, Method
 from cil.nodes import (
-    AllocateStringNode, CopyNode, GetAttributeNode,
+    AbortNode, AllocateStringNode, ConcatString, CopyNode, GetAttributeNode,
     PrintIntNode,
     PrintNode,
     ReadIntNode,
@@ -262,9 +262,8 @@ class BaseCoolToCilVisitor:
         # la funcion abort no recibe ningun paramentro
         # Simplemente llama trap y le pasa la causa "abortion"
         self.current_function = self.register_function("function_abort_at_Object")
-        # TODO: Implementarlo
+        self.register_instruction(AbortNode())
         self.current_function = None
-        pass
 
     def __implement_copy(self):
         # La funcion copy es llamada sore un objeto
@@ -292,6 +291,7 @@ class BaseCoolToCilVisitor:
         param = self.register_params(
             VariableInfo("s", self.context.get_type("String"), "PARAM")
         )
+        self.register_instruction(ConcatString(return_vm_holder, param))
         self.register_instruction(ReturnNode(return_vm_holder))
 
     def __implement_substr(self):

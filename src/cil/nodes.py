@@ -275,3 +275,13 @@ class AllocateStringNode(InstructionNode):
         self.dest = dest
         self.value = value
         self.length = length
+
+
+class ConcatString(InstructionNode):
+    def __init__(self, dest: LocalNode, s: ParamNode) -> None:
+        self.dest = dest
+        self.s = s
+
+
+class AbortNode(InstructionNode):
+    pass
