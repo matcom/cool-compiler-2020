@@ -190,6 +190,7 @@ def read_to_mips_visitor(read: cil.ReadNode):
         mips.SyscallInstruction(),
         mips.MIPSLabel('remove_nl_loop'),
         mips.LbInstruction('$t0', '($a0)'),
+        mips.BeqzInstruction('$t0', 'end_loop'),
         mips.LaInstruction('$t1', 'new_line'),
         mips.LbInstruction('$t2', '($t1)'),
         mips.BeqInstruction('$t0', '$t2', 'end_loop'),
@@ -338,6 +339,8 @@ def allocate_to_mips_visitor(allocate: cil.AllocateNode):
     """
     size = get_type(allocate.type).size_mips
     address = CURRENT_FUNCTION.offset[str(allocate.result)]
+    
+    
     code = [
         mips.Comment(str(allocate)),
         mips.LiInstruction('$a0', size + 4),
@@ -761,6 +764,16 @@ def get_type_addr_to_mips_visitor(get_type:cil.GetTypeAddrNode):
         mips.LwInstruction('$t0', f'8($t1)'),
         mips.SwInstruction('$t0', f'{t_addr}($fp)')
     ]
+    
+def get_type_order_to_mips_visitor(get_order:cil.GetTypeOrderNode):
+    x_addr = CURRENT_FUNCTION.offset[str(get_order.var)]
+    t_addr = CURRENT_FUNCTION.offset[str(get_order.result)]
+    return [
+        mips.Comment(str(get_order)),
+        mips.LwInstruction('$t1', f'{x_addr}($fp)'),
+        mips.LwInstruction('$t0', f'12($t1)'),
+        mips.SwInstruction('$t0', f'{t_addr}($fp)')
+    ]
 
 def assign_to_mips_visitor(assign: cil.AssignNode):
     """
@@ -888,6 +901,7 @@ __visitors__ = {
     cil.TypeOfNode: type_of_to_mips_visitor,
     cil.AbortNode: abort_to_mips_visitor,
     cil.GetTypeAddrNode: get_type_addr_to_mips_visitor,
+    cil.GetTypeOrderNode:get_type_order_to_mips_visitor,
     cil.EqNode: eq_to_mips_visitor,
     cil.NotEqNode:not_eq_to_mips_visitor,
     cil.NotEqInstanceNode:not_eq_instance_to_mips_visitor, 

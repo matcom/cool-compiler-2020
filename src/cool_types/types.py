@@ -15,6 +15,11 @@ class CoolType:
         self.methods = {}
         self.inherit = inherit
         self.childs = []
+        
+        # if parent_type:
+        #     self.order=self.parent.order-1
+        # else:
+        #     self.order=0
 
     def __can_be_define__(self, id):
         if id in self.methods.keys():
@@ -64,6 +69,9 @@ class CoolType:
             result.append(temp)
             t = t.parent
         return [elem for sublist in result[::-1] for elem in sublist]
+
+    def get_self_attributes(self):
+        return self.attributes.values()
 
     def get_all_self_methods(self):
         return self.methods
@@ -154,6 +162,7 @@ def type_by_name(type_name):
     except KeyError:
         return None
 
+        
 
 def check_inherits(type_a: CoolType, type_b: CoolType):
     """
@@ -205,8 +214,24 @@ def check_type_hierarchy(node):
                 return False
         else:
             cType.parent = ObjectType
+    set_types_order([TypesByName[c.type] for c in node.classes])
     return True
 
+def set_types_order(classes):
+    q=[c for c in classes]
+    while len(q):
+        c=q[0]
+        q=q[1:]
+        if c.parent:
+            try:
+                c.order=c.parent.order-1
+            except:
+                q.append(c)
+        else: 
+            c.order=-1
+    
+                
+    
 
 def __type_hierarchy__(type_x):
     h = []
@@ -214,7 +239,6 @@ def __type_hierarchy__(type_x):
         h.append(type_x)
         type_x = type_x.parent
     return h
-
 
 def pronounced_join(type_a, type_b):
     h = __type_hierarchy__(type_b)
@@ -227,10 +251,15 @@ def pronounced_join(type_a, type_b):
 
 SelfType = CoolType('SELF_TYPE', None, False)
 ObjectType = CoolType('Object', None)
+ObjectType.order=0
 IOType = CoolType('IO', ObjectType)
+IOType.order=-1
 IntType = CoolType('Int', ObjectType, False)
+IntType.order=-2
 StringType = CoolType('String', ObjectType, False)
+StringType.order=-2
 BoolType = CoolType('Bool', ObjectType, False)
+BoolType.order=-2
 
 TypesByName = {
     'SELF_TYPE': SelfType,

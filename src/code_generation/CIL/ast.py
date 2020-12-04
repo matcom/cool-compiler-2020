@@ -293,6 +293,17 @@ class GetTypeAddrNode(InstructionNode):
     def __str__(self):
         return f'{self.result} = GETTYPEADDR {self.var} ;'
 
+class GetTypeOrderNode(InstructionNode):
+    def __init__(self, result, var):
+        super().__init__()
+        self.result = result
+        self.var = var
+        self.check_local(result)
+        self.check_local(var)
+
+    def __str__(self):
+        return f'{self.result} = GETTYPEORDER {self.var} ;'
+
 
 class ArrayNode(InstructionNode):
     def __init__(self, len, result):
