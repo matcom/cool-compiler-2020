@@ -97,26 +97,21 @@ class MipsCode:
     def empty_line(self):
         self._write('')
 
+    def offset(self, r, offset: int = 0):
+        return f"{offset}({r})"
+
     def asciiz(self, string):
         self._write_data(f'.asciiz "{string}"')
 
-    def push(self, register: Registers):
-        self.addi(Registers.sp, Registers.sp, -8)
-        self.store_memory(register, self.offset(Registers.sp))
+    def push(self, register):
+        self.addi(reg.sp, reg.sp, -8)
+        self.store_memory(register, self.offset(reg.sp))
 
-    def pop(self, register: Registers):
-        """
-        First,  load from to address `0($sp)`
-        and then write `addi $sp ,  $sp ,  8`
-        to restore the stack pointer
-        """
+    def pop(self, register):
         self.load_memory(register, self.offset(reg.sp))
         self.addi(reg.sp, reg.sp, 8)
 
-    def load_memory(self, dst: Registers, address: str):
-        """
-        Load from a specific address a 32 bits register
-        """
+    def load_memory(self, dst, address: str):
         self.lw(reg.t8, address)
         self.sll(reg.t8, reg.t8, 16)
         self.la(reg.t7, address)
@@ -125,9 +120,6 @@ class MipsCode:
         self.or_(dst, reg.t8, reg.t9)
 
     def store_memory(self, src: Registers, address: str):
-        """
-        Write to a specific address a 32 bits register
-        """
         self.la(reg.t8, address)
 
         self.srl(reg.t9, src, 16)
@@ -138,11 +130,8 @@ class MipsCode:
     # System Calls
 
     def syscall(self, code: int):
-        self.li(Registers.v0, code)
+        self.li(reg.v0, code)
         self._write('syscall')
-
-    def offset(self, r: Registers, offset: int = 0):
-        return f"{offset}({r})"
 
     def comment(self, text: str):
         self._write(f"# {text}")
@@ -297,6 +286,9 @@ class MipsCode:
         self._write(f'subu {rdest}, {rsrc1}, {src2}')
 
     def sll(self, dst, rl, value: int):
+        '''
+        Shift Left Logical
+        '''
         self._write(f"sll {dst}, {rl}, {value}")
 
     # Constant Manipulating
@@ -440,12 +432,12 @@ class MipsCode:
 
     def mfhi(self, rdest):
         '''
-        Move from `hi`
+        Move from `high`
         '''
         self._write(f'mfhi {rdest}')
 
     def mflo(self, rdest):
         '''
-        Move from `lo`
+        Move from `low`
         '''
         self._write(f'mflo {rdest}')

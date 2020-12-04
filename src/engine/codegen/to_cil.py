@@ -108,13 +108,22 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(
             SetAttribNode(self_inst, node.id.lex, result, self.current_type.name))
 
+    @visitor.when(cool.BlockNode)
+    def visit(self, node: cool.BlockNode, scope):
+        result = self.define_internal_local()
+        for expr in node.expressions:
+            val = self.visit(expr, scope)
+        self.register_instruction(AssignNode(result, val))
+        return result
+
     @visitor.when(cool.AssignNode)
     def visit(self, node: cool.AssignNode, scope):
         expr = self.visit(node.expression, scope)
         attr_info = scope.find_variable(node.id.lex)
         if not attr_info:
             selfx = scope.find_variable('self').name
-            self.register_instruction(SetAttribNode(selfx, node.id.lex, expr))
+            self.register_instruction(SetAttribNode(
+                selfx, node.id.lex, expr, self.current_type.name))
         else:
             attr_info = attr_info.name
             self.register_instruction(AssignNode(attr_info, expr))
@@ -132,30 +141,31 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node: cool.IfThenElseNode, scope):
         cond = self.visit(node.condition, scope)
         child_scope = Scope(parent=scope)
-        true_label = LabelNode('TRUE')
-        end_label = LabelNode('END')
+        true_label = LabelNode(f'TRUE_{self.label_counter}')
+        end_label = LabelNode(f'END_{self.label_counter}')
         result = self.define_internal_local()
         self.register_instruction(IfGotoNode(
-            cond, self.to_label_name(true_label.label)))
-
+            cond, true_label.label))
+        self.label_counter += 1
         false_expr = self.visit(node.else_body, child_scope)
         self.register_instruction(AssignNode(result, false_expr))
         self.register_instruction(
-            GotoNode(self.to_label_name(end_label.label)))
+            GotoNode(end_label.label))
         self.register_instruction(true_label)
 
         true_expr = self.visit(node.if_body, child_scope)
         self.register_instruction(AssignNode(result, true_expr))
         self.register_instruction(end_label)
+        self.label_counter = 0
 
         return result
 
     @visitor.when(cool.WhileLoopNode)
     def visit(self, node: cool.WhileLoopNode, scope):
         while_scope = Scope(parent=scope)
-        start_label = LabelNode('START')
-        continue_label = LabelNode('CONTINUE')
-        end_label = LabelNode('END')
+        start_label = LabelNode(f'START_{self.label_counter}')
+        continue_label = LabelNode(f'CONTINUE_{self.label_counter}')
+        end_label = LabelNode(f'END_{self.label_counter}')
 
         self.register_instruction(start_label)
 
@@ -164,9 +174,11 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(GotoNode(end_label.label))
         self.register_instruction(continue_label)
         self.visit(node.body, while_scope)
+        self.label_counter += 1
         self.register_instruction(GotoNode(start_label.label))
         self.register_instruction(end_label)
 
+        self.label_counter = 0
         return 0
 
     @visitor.when(cool.CaseOfNode)
@@ -197,14 +209,6 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         result = self.define_internal_local()
         expr = self.visit(node.in_body, let_scope)
         self.register_instruction(AssignNode(result, expr))
-        return result
-
-    @visitor.when(cool.BlockNode)
-    def visit(self, node: cool.BlockNode, scope):
-        result = self.define_internal_local()
-        for expr in node.expressions:
-            val = self.visit(expr, scope)
-        self.register_instruction(AssignNode(result, val))
         return result
 
     @visitor.when(cool.FunctionCallNode)
