@@ -804,7 +804,6 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Evaluar la expresion a la izquierda del punto
         expr = self.visit(node.obj, scope)
 
-        assert isinstance(expr, LocalNode) or isinstance(expr, ParamNode)
         self.register_instruction(AssignNode(type_vm_holder, expr))
 
         self.register_instruction(SaveSelf())

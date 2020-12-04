@@ -397,8 +397,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         num_bytes += len(instance_type.attributes) * 4
 
-        # Reservar memoria para la instancia
-        self.allocate_memory(num_bytes)
+        
 
         reg = self.get_available_register()
         temp = self.get_available_register()
@@ -406,8 +405,38 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Inicializar la instancia
 
+        # Crear el string referente al nombre del tipo
+        length = len(instance_type.name)
+
+        size = 16
+
+        # Reservar memoria para el tipo
+        self.allocate_memory(size)
+        reg = self.get_available_register()
+
+        assert reg is not None
+
+        self.comment("Allocating string for type name")
+
+        # Inicializar la instancia
+        self.register_instruction(LA(reg, "String"))
+        self.register_instruction(SW(reg, "0($v0)"))
+
+        self.register_instruction(LA(reg, "String_start"))
+        self.register_instruction(SW(reg, "4($v0)"))
+
+        self.register_instruction(LA(reg, instance_type.name))
+        self.register_instruction(SW(reg, "8($v0)"))
+
+        self.register_instruction(LI(reg, length))
+        self.register_instruction(SW(reg, "12($v0)"))
+
+        self.register_instruction(MOVE(reg, v0))
+
+        # Reservar memoria para la instancia
+        self.allocate_memory(num_bytes)
+
         # Cargar el puntero al tipo de la instancia
-        self.register_instruction(LA(dest=reg, src=instance_type.name))
         self.register_instruction(SW(dest=reg, src="0($v0)"))
 
         # Cargar el puntero a la VTABLE
@@ -656,7 +685,6 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Cargar el string sobre el que se llama substr
         self.register_instruction(LW(reg, "8($s1)"))
-        self.register_instruction(LW(reg2, "8($s1)"))
 
         # Hacer que reg apunte al inicio del substr
         if isinstance(l, int):
@@ -666,15 +694,12 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.register_instruction(ADDU(reg, reg, temp))
 
         if isinstance(r, int):
-            self.register_instruction(ADDU(reg2, reg2, r, True))
+            self.register_instruction(LI(a0, r))
         else:
-            self.register_instruction(LW(temp, r))
-            self.register_instruction(ADDU(reg2, reg2, temp))
+            self.register_instruction(LW(a0, r))
 
-        # Reservar memoria para el buffer de resultado
-        self.register_instruction(SUBU(a0, reg2, reg))
-        # Salvar el length del substr
         self.register_instruction(MOVE(size_reg, a0))
+        self.register_instruction(MOVE(reg2, a0))
         # Agregar un byte mas para el fin de cadena
         self.register_instruction(ADDU(a0, a0, 1, True))
 
@@ -686,13 +711,15 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Mientras reg != reg2 : Copiar a v0
         self.register_instruction(Label("substr_loop"))
-        self.register_instruction(BEQ(reg, reg2, "substr_end"))
+        self.register_instruction(BEQZ(reg2, "substr_end"))
         # Copiar un byte
         self.register_instruction(LB(a0, f"0(${REG_TO_STR[reg]})"))
         self.register_instruction(SB(a0, f"0(${REG_TO_STR[temp]})"))
         # Mover el puntero temp y el puntero reg
         self.register_instruction(ADDU(reg, reg, 1, True))
         self.register_instruction(ADDU(temp, temp, 1, True))
+        # Restar del contador
+        self.register_instruction(SUBU(reg2, reg2, 1, True))
         # Saltar al ciclo while
         self.register_instruction(J("substr_loop"))
         # Salir del ciclo

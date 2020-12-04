@@ -505,7 +505,6 @@ class TypeInferer:
             void,
             self.STRING,
             self.INTEGER,
-            self.OBJECT,
             self.BOOL,
         ):
             self.errors.append(f"Cannot instantiate {ret_type.name}")
