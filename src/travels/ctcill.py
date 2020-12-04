@@ -14,7 +14,8 @@ from cil.nodes import (
     ArgNode,
     AssignNode,
     CilNode,
-    CilProgramNode, ConcatString,
+    CilProgramNode,
+    ConcatString,
     DataNode,
     DivNode,
     DynamicCallNode,
@@ -129,6 +130,12 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
                             ),
                         )
                     )
+                else:
+                    new_type_node.methods.append(
+                        (method, self.to_function_name(method, node.idx))
+                    )
+
+        defined_methods = [x for x, _ in new_type_node.methods]
 
         # Registrar cada atributo y metodo para este tipo
         # la seccion .Type debe tener la siguiente forma:
@@ -144,9 +151,10 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
                 new_type_node.attributes.append(attribute)
 
         for method in methods:
-            new_type_node.methods.append(
-                (method, self.to_function_name(method, node.idx))
-            )
+            if method not in defined_methods:
+                new_type_node.methods.append(
+                    (method, self.to_function_name(method, node.idx))
+                )
 
         # Visitar los atributos definidos en la clase para generar sus funciones
         # de inicializacion
@@ -334,7 +342,6 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             self.register_instruction(AssignNode(var, rvalue_vm_holder))
         else:
             assert self.current_type is not None
-            assert isinstance(rvalue_vm_holder, LocalNode)
             self.register_instruction(
                 SetAttributeNode(self.current_type, node.idx, rvalue_vm_holder)
             )
@@ -563,7 +570,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Cargar el string en la variable interna
         self.register_instruction(
-            AllocateStringNode(str_const_vm_holder, s1, len(node.lex))
+            AllocateStringNode(str_const_vm_holder, s1, len(node.lex) - 2)
         )
 
         # Devolver la variable que contiene el string

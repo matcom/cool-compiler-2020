@@ -84,6 +84,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(
             FixedData(f"{node.name}_vtable", ", ".join(x[1] for x in node.methods))
         )
+        self.comment("Function END")
 
         self.comment("\n\n")
 
@@ -104,6 +105,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(
             FixedData(f"{node.name}_vtable_pointer", f"{node.name}_vtable")
         )
+        self.comment("Function END")
 
         # Declarar los atributos: Si los atributos son de tipo string, guardarlos como asciiz
         # de lo contrario son o numeros o punteros y se inicializan como .words

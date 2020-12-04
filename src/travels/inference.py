@@ -773,4 +773,4 @@ class TypeInferer:
 
     @visit.register
     def _(self, node: SelfNode, scope, infered_type=None, deep=1):
-        return self.SELF_TYPE
+        return self.current_type

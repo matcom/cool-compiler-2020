@@ -324,13 +324,13 @@ class BaseCoolToCilVisitor:
         str_ = self.register_type("String")
         str__ = self.context.get_type("String")
 
+        io_typeNode.methods.append(("abort", "function_abort_at_Object"))
+        io_typeNode.methods.append(("type_name", "function_type_name_at_Object"))
+        io_typeNode.methods.append(("copy", "function_copy_at_Object"))
         io_typeNode.methods.append(("out_string", "function_out_string_at_IO"))
         io_typeNode.methods.append(("out_int", "function_out_int_at_IO"))
         io_typeNode.methods.append(("in_string", "function_in_string_at_IO"))
         io_typeNode.methods.append(("in_int", "function_in_int_at_IO"))
-        io_typeNode.methods.append(("abort", "function_abort_at_Object"))
-        io_typeNode.methods.append(("type_name", "function_type_name_at_Object"))
-        io_typeNode.methods.append(("copy", "function_copy_at_Object"))
 
         obj.methods.append(("abort", "function_abort_at_Object"))
         obj.methods.append(("type_name", "function_type_name_at_Object"))
