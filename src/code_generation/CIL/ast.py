@@ -406,23 +406,21 @@ class LengthNode(InstructionNode):
 
 
 class ConcatNode(InstructionNode):
-    def __init__(self, str_a, str_b, calls, result):
+    def __init__(self, str_a, str_b, result):
         self.result = result
         self.str_a = str_a
         self.str_b = str_b
-        self.calls=calls
 
     def __str__(self):
         return f'{self.result} = CONCAT {self.str_a} {self.str_b} ;'
 
 
 class SubStringNode(InstructionNode):
-    def __init__(self, str, i, len,calls,  result):
+    def __init__(self, str, i, len,  result):
         self.result = result
         self.i = i
         self.len = len
         self.str = str
-        self.calls=calls
 
     def __str__(self):
         return f'{self.result} = SUBSTRING {self.str} {self.i} {self.len};'
@@ -441,9 +439,8 @@ class StrNode(InstructionNode):
 
 
 class ReadNode(InstructionNode):
-    def __init__(self, result, calls):
+    def __init__(self, result):
         super().__init__()
-        self.calls=calls
         self.result = result
         self.check_local(result)
 

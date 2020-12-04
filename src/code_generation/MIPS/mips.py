@@ -36,9 +36,6 @@ def program_to_mips_visitor(program: cil.ProgramNode):
     __DATA__ = [mips.MIPSDataItem(d.id, mips.AsciizInst(f'"{d.val}"'))
                 for d in program.data]
     __DATA__.append(mips.MIPSDataItem('new_line', mips.AsciizInst(f'"\\n"')))
-    __DATA__.append(mips.MIPSDataItem('concat_result', mips.SpaceInst(program.concat_calls*__BUFFSIZE__*2)))
-    __DATA__.append(mips.MIPSDataItem('substring_result', mips.SpaceInst(program.substr_calls*__BUFFSIZE__)))
-    __DATA__.append(mips.MIPSDataItem('read_result', mips.SpaceInst(program.in_calls*__BUFFSIZE__)))
     __DATA__.extend(vt_space_code)
     data_section = mips.MIPSDataSection(__DATA__)
 
@@ -180,11 +177,14 @@ def read_to_mips_visitor(read: cil.ReadNode):
 
     """
     offset = CURRENT_FUNCTION.offset[str(read.result)]
-    calls_offset=CURRENT_FUNCTION.offset[str(read.calls)]
     return [
-        mips.LaInstruction('$a0', str(read.result)),
-        mips.LwInstruction('$t0', f'{calls_offset}($fp)'),
-        mips.AdduInstruction('$a0', '$a0','$t0'),
+        
+        mips.LiInstruction('$a0', __BUFFSIZE__),
+        mips.LiInstruction('$v0', 9),
+        mips.SyscallInstruction(),
+        mips.SwInstruction('$v0', f'{offset}($fp)'),
+        mips.MoveInstruction('$a0', '$v0'),
+        
         mips.LiInstruction('$a1', __BUFFSIZE__),
         mips.LiInstruction('$v0', 8),
         mips.SyscallInstruction(),
@@ -197,12 +197,8 @@ def read_to_mips_visitor(read: cil.ReadNode):
         mips.AdduInstruction('$a0', '$a0', 1),
         mips.BInstruction('remove_nl_loop'),
         mips.MIPSLabel('end_loop'),
-        mips.SbInstruction('$zero', '($a0)'),
-        mips.LaInstruction('$a0', str(read.result)),
-        mips.LwInstruction('$t0', f'{calls_offset}($fp)'),
-        mips.AdduInstruction('$a0', '$a0','$t0'),
-        mips.SwInstruction('$a0', f'{offset}($fp)')
-    ]
+        mips.SbInstruction('$zero', '($a0)')
+    ] 
 
 
 def substring_to_mips_visitor(ss: cil.SubStringNode):
@@ -210,13 +206,18 @@ def substring_to_mips_visitor(ss: cil.SubStringNode):
     str_offset = CURRENT_FUNCTION.offset[str(ss.str)]
     i_offset = CURRENT_FUNCTION.offset[str(ss.i)]
     len_offset = CURRENT_FUNCTION.offset[str(ss.len)]
-    calls_offset= CURRENT_FUNCTION.offset[str(ss.calls)]
     return [
         mips.Comment(str(ss)),
         mips.LwInstruction('$t0', f'{str_offset}($fp)'),
-        mips.LaInstruction('$t5', str(ss.result)),
-        mips.LwInstruction('$t1', f'{calls_offset}($fp)'),
-        mips.AdduInstruction('$t1', '$t1', '$t5'),
+        
+        
+        mips.LiInstruction('$a0', __BUFFSIZE__),
+        mips.LiInstruction('$v0', 9),
+        mips.SyscallInstruction(),
+        mips.SwInstruction('$v0', f'{result_offset}($fp)'),
+        mips.MoveInstruction('$t1', '$v0'),
+        
+        
         mips.LwInstruction('$t4', f'{i_offset}($fp)'),
         mips.LwInstruction('$t2', f'{len_offset}($fp)'),
         mips.AdduInstruction('$t0', '$t0', '$t4'),
@@ -229,11 +230,7 @@ def substring_to_mips_visitor(ss: cil.SubStringNode):
         mips.AdduInstruction('$t1', '$t1', 1),
         mips.BInstruction('substring_loop'),
         mips.MIPSLabel('end_substring_loop'),
-        mips.SbInstruction('$zero', '($t1)'),
-        mips.LaInstruction('$t5', str(ss.result)),
-        mips.LwInstruction('$t1', f'{calls_offset}($fp)'),
-        mips.AdduInstruction('$t1', '$t1', '$t5'),
-        mips.SwInstruction('$t1', f'{result_offset}($fp)')
+        mips.SbInstruction('$zero', '($t1)')
     ]
 
 
@@ -248,7 +245,6 @@ def read_int_to_mips_visitor(read: cil.ReadIntNode):
     return code
 
 
-# TODO: Check
 def length_to_mips_visitor(length: cil.LengthNode):
     val = CURRENT_FUNCTION.offset[str(length.str)]
     result_val = CURRENT_FUNCTION.offset[str(length.result)]
@@ -269,6 +265,25 @@ def length_to_mips_visitor(length: cil.LengthNode):
     return code
 
 
+def copy_string(string_var):
+    __DATA__.append(mips.MIPSDataItem(f'temporal_string_{string_var}', mips.SpaceInst(__BUFFSIZE__)))
+    offset=CURRENT_FUNCTION.offset[str(string_var)]
+    return [
+        mips.LwInstruction('$t0',f'{offset}($fp)'),
+        mips.LaInstruction('$t1', f'temporal_string_{string_var}'),
+        mips.MIPSLabel(f'loop_{string_var}'),
+        mips.LbInstruction('$t2', '($t0)'),
+        mips.SbInstruction('$t2', '($t1)'),
+        mips.BeqzInstruction('$t2', f'end_loop_{string_var}'),
+        mips.AdduInstruction('$t0', '$t0', 1),
+        mips.AdduInstruction('$t1', '$t1', 1),
+        mips.BInstruction(f'loop_{string_var}'),
+        mips.MIPSLabel(f'end_loop_{string_var}'),
+        mips.LaInstruction('$t0', f'temporal_string_{string_var}'),
+        mips.SwInstruction('$t0', f'{offset}($fp)')
+    ]
+    
+
 def concat_to_mips_visitor(concat: cil.ConcatNode):
     result_offset = CURRENT_FUNCTION.offset[str(concat.result)]
     a_offset = CURRENT_FUNCTION.offset[str(concat.str_a)]
@@ -276,7 +291,12 @@ def concat_to_mips_visitor(concat: cil.ConcatNode):
 
     return [
         mips.Comment(str(concat)),
-        mips.LaInstruction('$t0', str(concat.result)),
+        mips.LiInstruction('$a0', 2*__BUFFSIZE__),
+        mips.LiInstruction('$v0', 9),
+        mips.SyscallInstruction(),
+        mips.SwInstruction('$v0', f'{result_offset}($fp)'),
+        mips.MoveInstruction('$t0', '$v0'),
+        
         mips.LwInstruction('$t1', f'{a_offset}($fp)'),
         mips.LwInstruction('$t2', f'{b_offset}($fp)'),
         mips.MIPSLabel('concat_loop_a'),
@@ -294,10 +314,8 @@ def concat_to_mips_visitor(concat: cil.ConcatNode):
         mips.AdduInstruction('$t2', '$t2', 1),
         mips.BInstruction('concat_loop_b'),
         mips.MIPSLabel('end_concat'),
-        mips.SbInstruction('$zero', '($t0)'),
-        mips.LaInstruction('$t0', str(concat.result)),
-        mips.SwInstruction('$t0', f'{result_offset}($fp)')
-    ]
+        mips.SbInstruction('$zero', '($t0)')
+    ] 
 
 
 def load_to_mips_visitor(load: cil.LoadNode):

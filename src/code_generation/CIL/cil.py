@@ -73,7 +73,6 @@ __CURRENT_TYPE__ = None
 
 
 def program_to_cil_visitor(program):
-    global __CONCAT_CALLS__, __SUBST_CALLS__
     types = []
     code = []
     built_in_code = []
@@ -130,9 +129,6 @@ def program_to_cil_visitor(program):
 
     data.append(CilAST.DataNode('data_abort', 'Abort called from class '))
     cil_program = CilAST.ProgramNode(types, data, code, built_in_code)
-    cil_program.concat_calls=__CONCAT_CALLS__-1
-    cil_program.substr_calls=__SUBST_CALLS__-1
-    cil_program.in_calls=__IN_CALLS__-1
     # remove_unused_locals(cil_program)
     # aqui se esta perdiendo un vcall
     # optimization_locals(cil_program)
@@ -152,7 +148,7 @@ def out_int_to_cil():
 
 def in_string_to_cil():
     _str = CilAST.LocalNode('read_result')
-    return CilAST.FuncNode('IO_in_string', [CilAST.ParamNode('self'), CilAST.ParamNode('calls')], [_str], [CilAST.ReadNode(_str, 'calls'),   CilAST.ReturnNode(_str)])
+    return CilAST.FuncNode('IO_in_string', [CilAST.ParamNode('self')], [_str], [CilAST.ReadNode(_str),   CilAST.ReturnNode(_str)])
 
 
 def in_int_to_cil():
@@ -209,12 +205,12 @@ def length_to_cil():
 
 def concat_to_cil():
     result = CilAST.LocalNode('concat_result')
-    return CilAST.FuncNode('String_concat', [CilAST.ParamNode('self'),   CilAST.ParamNode('x'), CilAST.ParamNode('calls')], [result], [CilAST.ConcatNode('self', 'x', 'calls', result),   CilAST.ReturnNode(result)])
+    return CilAST.FuncNode('String_concat', [CilAST.ParamNode('self'),   CilAST.ParamNode('x')], [result], [CilAST.ConcatNode('self', 'x', result),   CilAST.ReturnNode(result)])
 
 
 def substring_to_cil():
     result = CilAST.LocalNode('substring_result')
-    return CilAST.FuncNode('String_substr', [CilAST.ParamNode('self'),   CilAST.ParamNode('i'),   CilAST.ParamNode('l'), CilAST.ParamNode('calls')], [result], [CilAST.SubStringNode('self', 'i', 'l', 'calls', result),   CilAST.ReturnNode(result)])
+    return CilAST.FuncNode('String_substr', [CilAST.ParamNode('self'),   CilAST.ParamNode('i'),   CilAST.ParamNode('l')], [result], [CilAST.SubStringNode('self', 'i', 'l', result),   CilAST.ReturnNode(result)])
 
 
 def abort_to_cil():
@@ -582,6 +578,13 @@ def let_to_cil_visitor(let):
             body += attr_cil.body
             val = add_local(attr.id)
             body.append(CilAST.AssignNode(val, attr_cil.value))
+        elif attr.type=='String':
+            str_addr = add_str_data('')
+            str_id, need_load = add_data_local(str_addr)
+            body.append(CilAST.LoadNode(str_addr, str_id))
+            body.append(CilAST.AssignNode(attr.id, str_id))
+            
+            
 
     expr_cil = expression_to_cil_visitor(let.expr)
     body += expr_cil.body
@@ -625,12 +628,8 @@ def block_to_cil_visitor(block):
     return CIL_block(body, value)
 
 
-__SUBST_CALLS__=1
-__CONCAT_CALLS__=1
-__IN_CALLS__=1
 
 def func_call_to_cil_visitor(call):
-    global __SUBST_CALLS__, __CONCAT_CALLS__, __IN_CALLS__
     body = []
     t = add_local()
     returned=None
@@ -662,19 +661,6 @@ def func_call_to_cil_visitor(call):
         body.append(CilAST.ArgNode(arg))
 
     result = add_local()
-    
-    if call.id =='substr':
-        body.append(CilAST.ArgNode((__SUBST_CALLS__-1)*1024))
-        __SUBST_CALLS__+=1
-        
-    if call.id=='in_string':
-        body.append(CilAST.ArgNode((__IN_CALLS__-1)*1024))
-        __IN_CALLS__+=1
-    
-    if call.id =='concat':
-        body.append(CilAST.ArgNode((__CONCAT_CALLS__-1)*1024))
-        __CONCAT_CALLS__+=1
-        
     
     if not call.type:
         body.append(CilAST.VCAllNode(t, call.id, result))
