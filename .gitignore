@@ -412,3 +412,4 @@ dmypy.json
 .vscode
 *.cil
 *.mips
+/src/lexer_parser/parsetab.py
