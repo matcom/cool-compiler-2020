@@ -578,7 +578,7 @@ def let_to_cil_visitor(let):
             body += attr_cil.body
             val = add_local(attr.id)
             body.append(CilAST.AssignNode(val, attr_cil.value))
-        elif attr.type=='String':
+        elif attr.type=='String':  
             str_addr = add_str_data('')
             str_id, need_load = add_data_local(str_addr)
             body.append(CilAST.LoadNode(str_addr, str_id))

@@ -182,8 +182,8 @@ def read_to_mips_visitor(read: cil.ReadNode):
         mips.LiInstruction('$a0', __BUFFSIZE__),
         mips.LiInstruction('$v0', 9),
         mips.SyscallInstruction(),
-        mips.SwInstruction('$v0', f'{offset}($fp)'),
         mips.MoveInstruction('$a0', '$v0'),
+        mips.MoveInstruction('$t3', '$v0'),
         
         mips.LiInstruction('$a1', __BUFFSIZE__),
         mips.LiInstruction('$v0', 8),
@@ -197,7 +197,8 @@ def read_to_mips_visitor(read: cil.ReadNode):
         mips.AdduInstruction('$a0', '$a0', 1),
         mips.BInstruction('remove_nl_loop'),
         mips.MIPSLabel('end_loop'),
-        mips.SbInstruction('$zero', '($a0)')
+        mips.SbInstruction('$zero', '($a0)'),
+        mips.SwInstruction('$t3', f'{offset}($fp)')
     ] 
 
 
@@ -214,7 +215,6 @@ def substring_to_mips_visitor(ss: cil.SubStringNode):
         mips.LiInstruction('$a0', __BUFFSIZE__),
         mips.LiInstruction('$v0', 9),
         mips.SyscallInstruction(),
-        mips.SwInstruction('$v0', f'{result_offset}($fp)'),
         mips.MoveInstruction('$t1', '$v0'),
         
         
@@ -230,7 +230,8 @@ def substring_to_mips_visitor(ss: cil.SubStringNode):
         mips.AdduInstruction('$t1', '$t1', 1),
         mips.BInstruction('substring_loop'),
         mips.MIPSLabel('end_substring_loop'),
-        mips.SbInstruction('$zero', '($t1)')
+        mips.SbInstruction('$zero', '($t1)'),
+        mips.SwInstruction('$v0', f'{result_offset}($fp)')
     ]
 
 
@@ -274,7 +275,6 @@ def concat_to_mips_visitor(concat: cil.ConcatNode):
         mips.LiInstruction('$a0', 2*__BUFFSIZE__),
         mips.LiInstruction('$v0', 9),
         mips.SyscallInstruction(),
-        mips.SwInstruction('$v0', f'{result_offset}($fp)'),
         mips.MoveInstruction('$t0', '$v0'),
         
         mips.LwInstruction('$t1', f'{a_offset}($fp)'),
@@ -294,7 +294,8 @@ def concat_to_mips_visitor(concat: cil.ConcatNode):
         mips.AdduInstruction('$t2', '$t2', 1),
         mips.BInstruction('concat_loop_b'),
         mips.MIPSLabel('end_concat'),
-        mips.SbInstruction('$zero', '($t0)')
+        mips.SbInstruction('$zero', '($t0)'),
+        mips.SwInstruction('$v0', f'{result_offset}($fp)')
     ] 
 
 
