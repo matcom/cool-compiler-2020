@@ -109,7 +109,6 @@ def instruction_to_mips_visitor(inst):
     """
     Resolves visitor for each type
     """
-    return __visitors__[type(inst)](inst)
     try:
         return __visitors__[type(inst)](inst)
     except KeyError:
@@ -597,12 +596,12 @@ def not_eq_to_mips_visitor(eq:cil.EqNode):
     ]
     
 def not_eq_instance_to_mips_visitor(noteq:cil.NotEqNode):
-    y_offset = CURRENT_FUNCTION.offset[str(eq.left)]
-    z_offset = CURRENT_FUNCTION.offset[str(eq.right)]
-    x_offset = CURRENT_FUNCTION.offset[str(eq.result)]
+    y_offset = CURRENT_FUNCTION.offset[str(noteq.left)]
+    z_offset = CURRENT_FUNCTION.offset[str(noteq.right)]
+    x_offset = CURRENT_FUNCTION.offset[str(noteq.result)]
 
     return [
-        mips.Comment(str(eq)),
+        mips.Comment(str(noteq)),
         mips.LwInstruction('$t0', f'{y_offset}($fp)'),
         mips.LwInstruction('$t1', '($t0)'),
         mips.LwInstruction('$t0', f'{z_offset}($fp)'),
