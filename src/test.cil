@@ -37,16 +37,13 @@ TYPES -->
 		method copy:Object_copy
 	}
 
-	type CellularAutomaton {
-		attribute population_map:CellularAutomaton
-		method init:CellularAutomaton_init
-		method print:CellularAutomaton_print
-		method num_cells:CellularAutomaton_num_cells
-		method cell:CellularAutomaton_cell
-		method cell_left_neighbor:CellularAutomaton_cell_left_neighbor
-		method cell_right_neighbor:CellularAutomaton_cell_right_neighbor
-		method cell_at_next_evolution:CellularAutomaton_cell_at_next_evolution
-		method evolve:CellularAutomaton_evolve
+	type Main {
+		attribute out:Main
+		attribute testee:Main
+		attribute divisor:Main
+		attribute stop:Main
+		attribute m:Main
+		method main:Main_main
 		method out_string:IO_out_string
 		method out_int:IO_out_int
 		method in_string:IO_in_string
@@ -56,25 +53,14 @@ TYPES -->
 		method copy:Object_copy
 	}
 
-	type Main {
-		attribute cells:Main
-		method main:Main_main
-		method abort:Object_abort
-		method type_name:Object_type_name
-		method copy:Object_copy
-	}
-
 END <--
 
 DATA -->
 
-	data_0 "\n"
-	data_1 "X"
-	data_2 "X"
-	data_3 "X"
-	data_4 "X"
-	data_5 "."
-	data_6 "         X         "
+	data_0 "2 is trivially prime.\n"
+	data_1 " is prime.\n"
+	data_2 "halt"
+	data_3 "continue"
 
 END <--
 
@@ -178,137 +164,76 @@ CODE -->
 		E local_10 class_f type_Object
 		ADD local_9 local_9 local_10
 		L local_9 local_9 local_11
-		IF local_9 GOTO label_15
+		IF local_9 GOTO label_13
 		MOV local_9 1
 		RETURN local_9
-		LABEL label_15
+		LABEL label_13
 		E local_9 class_s type_String
 		E local_10 class_f type_Object
 		ADD local_9 local_9 local_10
 		L local_9 local_9 local_11
-		IF local_9 GOTO label_22
+		IF local_9 GOTO label_19
 		MOV local_9 1
 		RETURN local_9
-		LABEL label_22
+		LABEL label_19
 		E local_9 class_s type_Int
 		E local_10 class_f type_Object
 		ADD local_9 local_9 local_10
 		L local_9 local_9 local_11
-		IF local_9 GOTO label_29
+		IF local_9 GOTO label_25
 		MOV local_9 1
 		RETURN local_9
-		LABEL label_29
+		LABEL label_25
 		E local_9 class_s type_Bool
 		E local_10 class_f type_Object
 		ADD local_9 local_9 local_10
 		L local_9 local_9 local_11
-		IF local_9 GOTO label_36
+		IF local_9 GOTO label_31
 		MOV local_9 1
 		RETURN local_9
-		LABEL label_36
-		E local_9 class_s type_CellularAutomaton
-		E local_10 class_f type_Object
-		ADD local_9 local_9 local_10
-		L local_9 local_9 local_11
-		IF local_9 GOTO label_43
-		MOV local_9 1
-		RETURN local_9
-		LABEL label_43
-		E local_9 class_s type_CellularAutomaton
-		E local_10 class_f type_IO
-		ADD local_9 local_9 local_10
-		L local_9 local_9 local_11
-		IF local_9 GOTO label_45
-		MOV local_9 1
-		RETURN local_9
-		LABEL label_45
+		LABEL label_31
 		E local_9 class_s type_Main
 		E local_10 class_f type_Object
 		ADD local_9 local_9 local_10
 		L local_9 local_9 local_11
-		IF local_9 GOTO label_50
+		IF local_9 GOTO label_37
 		MOV local_9 1
 		RETURN local_9
-		LABEL label_50
+		LABEL label_37
+		E local_9 class_s type_Main
+		E local_10 class_f type_IO
+		ADD local_9 local_9 local_10
+		L local_9 local_9 local_11
+		IF local_9 GOTO label_39
+		MOV local_9 1
+		RETURN local_9
+		LABEL label_39
 		MOV local_9 0
 		RETURN local_9
 	}
 
-	function CellularAutomaton_init {
-		PARAM self
-		PARAM map
-		SATTR self population_map map
-		RETURN self
-	}
-
-	function CellularAutomaton_print {
+	function Main_main {
 		PARAM self
 		LOCAL local_12
+		ALLOC local_12 Int
+		MOV local_12 0
+		RETURN local_12
+	}
+
+	function main {
 		LOCAL local_13
 		LOCAL local_14
 		LOCAL local_15
 		LOCAL local_16
 		LOCAL local_17
 		LOCAL local_18
-		ALLOC local_12 IO
-		ALLOC local_13 String
-		GATTR local_13 self population_map
-		ALLOC local_14 String
-		LDATA local_14 data_0
-		LOCALSAVE
-		ARG local_13
-		ARG local_14
-		ALLOC local_16 String
-		TYPE local_16 local_13
-		CALL local_15 local_16 concat
-		LOCALSAVE
-		ARG self
-		ARG local_15
-		ALLOC local_18 String
-		TYPE local_18 local_12
-		CALL local_17 local_18 out_string
-		RETURN self
-	}
-
-	function CellularAutomaton_num_cells {
-		PARAM self
 		LOCAL local_19
 		LOCAL local_20
 		LOCAL local_21
-		ALLOC local_19 String
-		GATTR local_19 self population_map
-		LOCALSAVE
-		ARG local_19
-		ALLOC local_21 String
-		TYPE local_21 local_19
-		CALL local_20 local_21 length
-		RETURN local_20
-	}
-
-	function CellularAutomaton_cell {
-		PARAM self
-		PARAM position
 		LOCAL local_22
 		LOCAL local_23
 		LOCAL local_24
 		LOCAL local_25
-		ALLOC local_22 String
-		GATTR local_22 self population_map
-		ALLOC local_23 Int
-		MOV local_23 1
-		LOCALSAVE
-		ARG local_22
-		ARG position
-		ARG local_23
-		ALLOC local_25 String
-		TYPE local_25 local_22
-		CALL local_24 local_25 substr
-		RETURN local_24
-	}
-
-	function CellularAutomaton_cell_left_neighbor {
-		PARAM self
-		PARAM position
 		LOCAL local_26
 		LOCAL local_27
 		LOCAL local_28
@@ -325,51 +250,6 @@ CODE -->
 		LOCAL local_39
 		LOCAL local_40
 		LOCAL local_41
-		ALLOC local_41 Bool
-		ALLOC local_27 Bool
-		ALLOC local_26 Int
-		MOV local_26 0
-		E local_27 position local_26
-		IF local_27 GOTO label_57
-		ALLOC local_36 CellularAutomaton
-		ALLOC local_37 Int
-		MOV local_37 1
-		ALLOC local_38 Int
-		SUB local_38 position local_37
-		LOCALSAVE
-		ARG self
-		ARG local_38
-		ALLOC local_40 String
-		TYPE local_40 local_36
-		CALL local_39 local_40 cell
-		MOV local_41 local_39
-		GOTO label_58
-		LABEL label_57
-		ALLOC local_28 CellularAutomaton
-		ALLOC local_29 CellularAutomaton
-		LOCALSAVE
-		ARG self
-		ALLOC local_31 String
-		TYPE local_31 local_29
-		CALL local_30 local_31 num_cells
-		ALLOC local_32 Int
-		MOV local_32 1
-		ALLOC local_33 Int
-		SUB local_33 local_30 local_32
-		LOCALSAVE
-		ARG self
-		ARG local_33
-		ALLOC local_35 String
-		TYPE local_35 local_28
-		CALL local_34 local_35 cell
-		MOV local_41 local_34
-		LABEL label_58
-		RETURN local_41
-	}
-
-	function CellularAutomaton_cell_right_neighbor {
-		PARAM self
-		PARAM position
 		LOCAL local_42
 		LOCAL local_43
 		LOCAL local_44
@@ -386,51 +266,6 @@ CODE -->
 		LOCAL local_55
 		LOCAL local_56
 		LOCAL local_57
-		ALLOC local_57 Bool
-		ALLOC local_47 Bool
-		ALLOC local_42 CellularAutomaton
-		LOCALSAVE
-		ARG self
-		ALLOC local_44 String
-		TYPE local_44 local_42
-		CALL local_43 local_44 num_cells
-		ALLOC local_45 Int
-		MOV local_45 1
-		ALLOC local_46 Int
-		SUB local_46 local_43 local_45
-		E local_47 position local_46
-		IF local_47 GOTO label_59
-		ALLOC local_52 CellularAutomaton
-		ALLOC local_53 Int
-		MOV local_53 1
-		ALLOC local_54 Int
-		ADD local_54 position local_53
-		LOCALSAVE
-		ARG self
-		ARG local_54
-		ALLOC local_56 String
-		TYPE local_56 local_52
-		CALL local_55 local_56 cell
-		MOV local_57 local_55
-		GOTO label_60
-		LABEL label_59
-		ALLOC local_48 CellularAutomaton
-		ALLOC local_49 Int
-		MOV local_49 0
-		LOCALSAVE
-		ARG self
-		ARG local_49
-		ALLOC local_51 String
-		TYPE local_51 local_48
-		CALL local_50 local_51 cell
-		MOV local_57 local_50
-		LABEL label_60
-		RETURN local_57
-	}
-
-	function CellularAutomaton_cell_at_next_evolution {
-		PARAM self
-		PARAM position
 		LOCAL local_58
 		LOCAL local_59
 		LOCAL local_60
@@ -454,245 +289,176 @@ CODE -->
 		LOCAL local_78
 		LOCAL local_79
 		LOCAL local_80
-		LOCAL local_81
-		LOCAL local_82
-		LOCAL local_83
-		LOCAL local_84
-		LOCAL local_85
-		ALLOC local_85 Bool
-		ALLOC local_83 Bool
-		ALLOC local_65 Bool
-		ALLOC local_62 Bool
-		ALLOC local_58 CellularAutomaton
+		ALLOC local_13 Main
+		ALLOC local_16 IO
+		ALLOC local_17 String
+		LDATA local_17 data_0
 		LOCALSAVE
 		ARG self
-		ARG position
-		ALLOC local_60 String
-		TYPE local_60 local_58
-		CALL local_59 local_60 cell
-		ALLOC local_61 String
-		LDATA local_61 data_4
-		E local_62 local_59 local_61
-		IF local_62 GOTO label_61
-		ALLOC local_64 Int
-		MOV local_64 0
-		MOV local_65 local_64
-		GOTO label_62
-		LABEL label_61
-		ALLOC local_63 Int
-		MOV local_63 1
-		MOV local_65 local_63
-		LABEL label_62
-		ALLOC local_72 Bool
-		ALLOC local_69 Bool
-		ALLOC local_66 CellularAutomaton
+		ARG local_17
+		ALLOC local_19 String
+		TYPE local_19 local_16
+		CALL local_18 local_19 out_string
+		ALLOC local_20 Int
+		MOV local_20 2
+		SATTR local_13 out local_20
+		ALLOC local_22 Int
+		GATTR local_22 local_13 out
+		SATTR local_13 testee local_22
+		ALLOC local_23 Int
+		SATTR local_13 divisor local_23
+		ALLOC local_25 Int
+		MOV local_25 500
+		SATTR local_13 stop local_25
+		ALLOC local_79 void
+		LABEL label_54
+		ALLOC local_27 Bool
+		MOV local_27 1
+		IF local_27 GOTO label_55
+		GOTO label_56
+		LABEL label_55
+		ALLOC local_28 Int
+		GATTR local_28 local_13 testee
+		ALLOC local_29 Int
+		MOV local_29 1
+		ALLOC local_30 Int
+		ADD local_30 local_28 local_29
+		SATTR local_13 testee local_30
+		ALLOC local_31 Int
+		MOV local_31 2
+		SATTR local_13 divisor local_31
+		ALLOC local_54 void
+		LABEL label_47
+		ALLOC local_50 Bool
+		ALLOC local_36 Bool
+		ALLOC local_32 Int
+		GATTR local_32 local_13 testee
+		ALLOC local_33 Int
+		GATTR local_33 local_13 divisor
+		ALLOC local_34 Int
+		GATTR local_34 local_13 divisor
+		ALLOC local_35 Int
+		Mul local_35 local_33 local_34
+		L local_36 local_32 local_35
+		IF local_36 GOTO label_45
+		ALLOC local_49 Bool
+		ALLOC local_46 Bool
+		ALLOC local_38 Int
+		GATTR local_38 local_13 testee
+		ALLOC local_39 Int
+		GATTR local_39 local_13 divisor
+		ALLOC local_40 Int
+		GATTR local_40 local_13 testee
+		ALLOC local_41 Int
+		GATTR local_41 local_13 divisor
+		ALLOC local_42 Int
+		Div local_42 local_40 local_41
+		ALLOC local_43 Int
+		Mul local_43 local_39 local_42
+		ALLOC local_44 Int
+		SUB local_44 local_38 local_43
+		ALLOC local_45 Int
+		MOV local_45 0
+		E local_46 local_44 local_45
+		IF local_46 GOTO label_43
+		ALLOC local_48 Bool
+		MOV local_48 1
+		MOV local_49 local_48
+		GOTO label_44
+		LABEL label_43
+		ALLOC local_47 Bool
+		MOV local_47 0
+		MOV local_49 local_47
+		LABEL label_44
+		MOV local_50 local_49
+		GOTO label_46
+		LABEL label_45
+		ALLOC local_37 Bool
+		MOV local_37 0
+		MOV local_50 local_37
+		LABEL label_46
+		IF local_50 GOTO label_48
+		GOTO label_49
+		LABEL label_48
+		ALLOC local_51 Int
+		GATTR local_51 local_13 divisor
+		ALLOC local_52 Int
+		MOV local_52 1
+		ALLOC local_53 Int
+		ADD local_53 local_51 local_52
+		SATTR local_13 divisor local_53
+		GOTO label_47
+		LABEL label_49
+		ALLOC local_70 Bool
+		ALLOC local_59 Bool
+		ALLOC local_55 Int
+		GATTR local_55 local_13 testee
+		ALLOC local_56 Int
+		GATTR local_56 local_13 divisor
+		ALLOC local_57 Int
+		GATTR local_57 local_13 divisor
+		ALLOC local_58 Int
+		Mul local_58 local_56 local_57
+		L local_59 local_55 local_58
+		IF local_59 GOTO label_50
+		ALLOC local_69 Int
+		MOV local_69 0
+		MOV local_70 local_69
+		GOTO label_51
+		LABEL label_50
+		ALLOC local_60 Int
+		GATTR local_60 local_13 testee
+		SATTR local_13 out local_60
+		ALLOC local_61 IO
+		ALLOC local_62 Int
+		GATTR local_62 local_13 out
 		LOCALSAVE
 		ARG self
-		ARG position
+		ARG local_62
+		ALLOC local_64 String
+		TYPE local_64 local_61
+		CALL local_63 local_64 out_int
+		ALLOC local_65 IO
+		ALLOC local_66 String
+		LDATA local_66 data_1
+		LOCALSAVE
+		ARG self
+		ARG local_66
 		ALLOC local_68 String
-		TYPE local_68 local_66
-		CALL local_67 local_68 cell_left_neighbor
-		E local_69 local_67 local_61
-		IF local_69 GOTO label_63
+		TYPE local_68 local_65
+		CALL local_67 local_68 out_string
+		MOV local_70 local_67
+		LABEL label_51
+		ALLOC local_78 Bool
+		ALLOC local_73 Bool
 		ALLOC local_71 Int
-		MOV local_71 0
-		MOV local_72 local_71
-		GOTO label_64
-		LABEL label_63
-		ALLOC local_70 Int
-		MOV local_70 1
-		MOV local_72 local_70
-		LABEL label_64
-		ALLOC local_73 Int
-		ADD local_73 local_65 local_72
-		ALLOC local_80 Bool
-		ALLOC local_77 Bool
-		ALLOC local_74 CellularAutomaton
+		GATTR local_71 local_13 stop
+		ALLOC local_72 Int
+		GATTR local_72 local_13 testee
+		LE local_73 local_71 local_72
+		IF local_73 GOTO label_52
+		ALLOC local_77 String
+		LDATA local_77 data_3
+		MOV local_78 local_77
+		GOTO label_53
+		LABEL label_52
+		ALLOC local_74 String
+		LDATA local_74 data_2
 		LOCALSAVE
-		ARG self
-		ARG position
+		ARG local_74
 		ALLOC local_76 String
 		TYPE local_76 local_74
-		CALL local_75 local_76 cell_right_neighbor
-		E local_77 local_75 local_61
-		IF local_77 GOTO label_65
-		ALLOC local_79 Int
-		MOV local_79 0
-		MOV local_80 local_79
-		GOTO label_66
-		LABEL label_65
-		ALLOC local_78 Int
-		MOV local_78 1
-		MOV local_80 local_78
-		LABEL label_66
-		ALLOC local_81 Int
-		ADD local_81 local_73 local_80
-		ALLOC local_82 Int
-		MOV local_82 1
-		E local_83 local_81 local_82
-		IF local_83 GOTO label_67
-		ALLOC local_84 String
-		LDATA local_84 data_5
-		MOV local_85 local_84
-		GOTO label_68
-		LABEL label_67
-		MOV local_85 local_61
-		LABEL label_68
-		RETURN local_85
-	}
-
-	function CellularAutomaton_evolve {
-		PARAM self
-		LOCAL local_86
-		LOCAL local_87
-		LOCAL local_88
-		LOCAL local_89
-		LOCAL local_90
-		LOCAL local_91
-		LOCAL local_92
-		LOCAL local_93
-		LOCAL local_94
-		LOCAL local_95
-		LOCAL local_96
-		LOCAL local_97
-		LOCAL local_98
-		LOCAL local_99
-		LOCAL local_100
-		ALLOC local_86 Int
-		ALLOC local_87 CellularAutomaton
+		CALL local_75 local_76 abort
+		MOV local_78 local_75
+		LABEL label_53
+		GOTO label_54
+		LABEL label_56
+		SATTR local_13 m local_79
 		LOCALSAVE
-		ARG self
-		ALLOC local_89 String
-		TYPE local_89 local_87
-		CALL local_88 local_89 num_cells
-		ALLOC local_90 Int
-		MOV local_90 local_88
-		ALLOC local_91 String
-		ALLOC local_100 void
-		LABEL label_69
-		ALLOC local_92 Bool
-		L local_92 local_86 local_90
-		IF local_92 GOTO label_70
-		GOTO label_71
-		LABEL label_70
-		ALLOC local_93 CellularAutomaton
-		LOCALSAVE
-		ARG self
-		ARG local_86
-		ALLOC local_95 String
-		TYPE local_95 local_93
-		CALL local_94 local_95 cell_at_next_evolution
-		LOCALSAVE
-		ARG local_91
-		ARG local_94
-		ALLOC local_97 String
-		TYPE local_97 local_91
-		CALL local_96 local_97 concat
-		COPY local_91 local_96
-		ALLOC local_98 Int
-		MOV local_98 1
-		ALLOC local_99 Int
-		ADD local_99 local_86 local_98
-		COPY local_86 local_99
-		GOTO label_69
-		LABEL label_71
-		SATTR self population_map local_91
-		RETURN self
-	}
-
-	function Main_main {
-		PARAM self
-		LOCAL local_101
-		LOCAL local_102
-		LOCAL local_103
-		LOCAL local_104
-		LOCAL local_105
-		LOCAL local_106
-		LOCAL local_107
-		LOCAL local_108
-		LOCAL local_109
-		LOCAL local_110
-		LOCAL local_111
-		LOCAL local_112
-		LOCAL local_113
-		LOCAL local_114
-		LOCAL local_115
-		LOCAL local_116
-		LOCAL local_117
-		LOCAL local_118
-		LOCAL local_119
-		LOCAL local_120
-		LOCAL local_121
-		ALLOC local_101 CellularAutomaton
-		ALLOC local_102 String
-		SETSTR local_102 
-		SATTR local_101 population_map local_102
-		ALLOC local_103 String
-		LDATA local_103 data_6
-		LOCALSAVE
-		ARG local_101
-		ARG local_103
-		ALLOC local_105 String
-		TYPE local_105 local_101
-		CALL local_104 local_105 init
-		SATTR self cells local_104
-		ALLOC local_106 CellularAutomaton
-		GATTR local_106 self cells
-		LOCALSAVE
-		ARG local_106
-		ALLOC local_108 String
-		TYPE local_108 local_106
-		CALL local_107 local_108 print
-		ALLOC local_109 Int
-		MOV local_109 20
-		ALLOC local_110 Int
-		MOV local_110 local_109
-		ALLOC local_121 void
-		LABEL label_72
-		ALLOC local_112 Bool
-		ALLOC local_111 Int
-		MOV local_111 0
-		L local_112 local_111 local_110
-		IF local_112 GOTO label_73
-		GOTO label_74
-		LABEL label_73
-		ALLOC local_113 CellularAutomaton
-		GATTR local_113 self cells
-		LOCALSAVE
-		ARG local_113
-		ALLOC local_115 String
-		TYPE local_115 local_113
-		CALL local_114 local_115 evolve
-		ALLOC local_116 CellularAutomaton
-		GATTR local_116 self cells
-		LOCALSAVE
-		ARG local_116
-		ALLOC local_118 String
-		TYPE local_118 local_116
-		CALL local_117 local_118 print
-		ALLOC local_119 Int
-		MOV local_119 1
-		ALLOC local_120 Int
-		SUB local_120 local_110 local_119
-		COPY local_110 local_120
-		GOTO label_72
-		LABEL label_74
-		RETURN self
-	}
-
-	function main {
-		LOCAL local_122
-		LOCAL local_123
-		LOCAL local_124
-		LOCAL local_125
-		ALLOC local_122 Main
-		ALLOC local_124 CellularAutomaton
-		SATTR local_122 cells local_124
-		LOCALSAVE
-		ARG local_122
-		ALLOC local_125 String
-		SETSTR local_125 Main
-		CALL local_123 local_125 main
+		ARG local_13
+		ALLOC local_80 String
+		SETSTR local_80 Main
+		CALL local_14 local_80 main
 	}
 
 END <--

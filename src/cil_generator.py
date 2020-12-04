@@ -466,12 +466,12 @@ def convert_assign(assign):
     expr = convert_expression(assign.expression)
 
     if assign.id in LET_LOCALS:
-        node = expr.node + [CopyNode(expr.result.id, LET_LOCALS[assign.id].id)]
+        node = expr.node + [MovNode(LET_LOCALS[assign.id].id, expr.result.id)]
 
         return Node_Result(node, LET_LOCALS[assign.id])
 
     if assign.id in F_PARAM:
-        node = expr.node + [CopyNode(expr.result.id, F_PARAM[assign.id].id)]
+        node = expr.node + [MovNode(F_PARAM[assign.id].id, expr.result.id)]
 
         return Node_Result(node, F_PARAM[assign.id])
 
@@ -708,7 +708,9 @@ def convert_let(let):
     global LET_LOCALS
     nodes = []
 
+
     for attr in let.variables:
+       
         if attr.expression:
             a = convert_expression(attr.expression)
             nodes += a.node
@@ -721,6 +723,7 @@ def convert_let(let):
             nodes.append(AllocateNode(attr.typeName, local.id))
             LET_LOCALS[attr.id] = local
 
+   
     expr = convert_expression(let.expression)
     nodes += expr.node
 

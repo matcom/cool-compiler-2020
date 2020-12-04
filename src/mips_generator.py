@@ -577,6 +577,7 @@ def convert_CopyNode(instruction):
     result += "li $a0, 8\n"
     result += "li $v0, 9\n"
     result += "syscall\n"
+
     result += "sw $v0, " + dest + "\n"
 
     result += "lw $t3, ($t0)\n"
@@ -723,7 +724,7 @@ def convert_StrsubNode(instruction):
 
     if instruction.len in DATA:
         lenght = instruction.len
-    elif instruction.i in PARAMS:
+    elif instruction.len in PARAMS:
         lenght = PARAMS[instruction.len]
      
     # en t1 ponemos el entero q dice la cantidad de caracteres a copiar
@@ -847,6 +848,7 @@ def convert_AllocateNode(instruction):
 
         # ponemos la direccion en la variable local correspondiente
         result += "sw $v0, " + dest + "\n"
+        result += "li $t0, 0\n"
 
         # ponemos la letra correspondiente
         if instruction.type == "Int":
@@ -872,6 +874,7 @@ def convert_AllocateNode(instruction):
         # ponemos la direccion en la variable local correspondiente
         result += "sw $v0, " + dest + "\n"
 
+        result += "li $t0, 0\n"
         # ponemos la letra correspondiente
         result += "li $t0, 'S'\n"
         result += "sb $t0, ($v0)\n"
@@ -883,6 +886,7 @@ def convert_AllocateNode(instruction):
     elif instruction.type == "void":
 
         # reaching here means that destiny local was already zero
+        result += allocate_end_label + ":\n"
         return result
 
     else:
@@ -1591,8 +1595,35 @@ def convert_MovNode(instruction):
         elif instruction.result in PARAMS:
             res = PARAMS[instruction.result]
 
+        result += "lw $t4, " + res + "\n"
+
+        mov_object = next_label()
+        mov_string = next_label()
+        mov_string_loop = next_label()
+        mov_end_label = next_label()
         result += "lw $t0, " + val + "\n"
+        result += "li $t1, 0\n"
+        result += "lb $t1, ($t0)\n"
+        result += "beq $t1, 'O', " + mov_object + "\n"
+        result += "beq $t1, 'S', " + mov_string + "\n"
+        result += "sb $t1, ($t4)\n"
+        result += "lw $t1, 4($t0)\n"
+        result += "sw $t1, 4($t4)\n"
+        result += "j " + mov_end_label + "\n"
+        result += mov_string + ":\n"
+        result += "sb $t1, ($t4)\n"
+        result += "addi $t4, $t4, 4\n"
+        result += "addi $t0, $t0, 4\n"
+        result += mov_string_loop + ":\n"
+        result += "lb $t1, ($t0)\n"
+        result += "sb $t1, ($t4)\n"
+        result += "beq $t1, 0, " + mov_end_label + "\n"
+        result += "addi $t0, $t0, 1\n"
+        result += "addi $t4, $t4, 1\n"
+        result += "j " + mov_string_loop + "\n"
+        result += mov_object + ":\n"
         result += "sw $t0, " + res + "\n"
+        result += mov_end_label + ":\n"
 
     return result
 
