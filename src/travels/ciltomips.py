@@ -1,6 +1,6 @@
 from abstract.semantics import Type
 from cil.nodes import LocalNode
-from mips.arithmetic import ADD, DIV, MUL, NOR, SUB, SUBU
+from mips.arithmetic import ADD, ADDU, DIV, MUL, NOR, SUB, SUBU
 from mips.baseMipsVisitor import (
     BaseCilToMipsVisitor,
     DotDataDirective,
@@ -8,6 +8,7 @@ from mips.baseMipsVisitor import (
     locate_attribute_in_type_hierarchy,
 )
 import cil.nodes as cil
+from mips.branch import BEQ, J
 from mips.instruction import (
     FixedData,
     Label,
@@ -27,7 +28,7 @@ from mips.instruction import (
 import mips.branch as branchNodes
 from functools import singledispatchmethod
 
-from mips.load_store import LA, LI, LW, SW
+from mips.load_store import LA, LB, LI, LW, SB, SW
 
 
 class CilToMipsVisitor(BaseCilToMipsVisitor):
@@ -167,9 +168,6 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.register_instruction(LW(s1, src))
 
-    @visit.register
-    def _(self, node: cil.SetAtAddress):
-        self.register_instruction(LI(at, 0))
 
     @visit.register
     def _(self, node: cil.LabelNode):
@@ -637,16 +635,99 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
     ##          NODOS REFERENTES A OPERACIONES BUILT-IN DE COOL   ##
 
     @visit.register
-    def _(self, node: cil.LengthNode):
-        pass
+    def _(self, node: cil.SubstringNode):
+        dest = self.visit(node.dest)
+        assert dest is not None
+        l = self.visit(node.l)
+        r = self.visit(node.r)
+        assert l is not None
+        assert r is not None
 
-    @visit.register
-    def _(self, node: cil.ConcatNode):
-        pass
+        reg = self.get_available_register()
+        reg2 = self.get_available_register()
+        temp = self.get_available_register()
+        size_reg = self.get_available_register()
+        assert reg is not None
+        assert reg2 is not None
+        assert temp is not None
+        assert size_reg is not None
 
-    @visit.register
-    def _(self, node: cil.PrefixNode):
-        pass
+        # Cargar el string sobre el que se llama substr
+        self.register_instruction(LW(reg, "8($s1)"))
+        self.register_instruction(LW(reg2, "8($s1)"))
+
+        # Hacer que reg apunte al inicio del substr
+        if isinstance(l , int):
+            self.register_instruction(ADDU(reg, reg, l, True))
+        else:
+            self.register_instruction(LW(temp, l))
+            self.register_instruction(ADDU(reg, reg, temp))
+
+        if isinstance(r , int):
+            self.register_instruction(ADDU(reg2, reg2, r, True))
+        else:
+            self.register_instruction(LW(temp, r))
+            self.register_instruction(ADDU(reg2, reg2, temp))
+
+        # Reservar memoria para el buffer de resultado
+        self.register_instruction(SUBU(a0, reg2, reg))
+        # Salvar el length del substr
+        self.register_instruction(MOVE(size_reg, a0))
+        # Agregar un byte mas para el fin de cadena
+        self.register_instruction(ADDU(a0, a0, 1, True))
+
+        # $v0 = 9 (syscall 9 = sbrk)
+        self.register_instruction(LI(v0, 9))
+        self.register_instruction(SYSCALL())
+
+        self.register_instruction(MOVE(temp, v0))
+
+        # Mientras reg != reg2 : Copiar a v0
+        self.register_instruction(Label("substr_loop"))
+        self.register_instruction(BEQ(reg, reg2, "substr_end"))
+        # Copiar un byte
+        self.register_instruction(LB(a0, f"0(${REG_TO_STR[reg]})"))
+        self.register_instruction(SB(a0, f"0(${REG_TO_STR[temp]})"))
+        # Mover el puntero temp y el puntero reg
+        self.register_instruction(ADDU(reg, reg, 1, True))
+        self.register_instruction(ADDU(temp, temp, 1, True))
+        # Saltar al ciclo while
+        self.register_instruction(J("substr_loop"))
+        # Salir del ciclo
+        self.register_instruction(Label("substr_end"))
+        # Agregar el null al final de la cadena
+        self.register_instruction(SB(zero, f"0(${REG_TO_STR[temp]})"))
+
+        # v0 contiene el substr
+        self.register_instruction(MOVE(reg2, v0))
+        # Crear la instancia de str
+        size = 16
+
+        # Reservar memoria para el tipo
+        self.allocate_memory(size)
+
+        self.comment("Allocating string")
+
+        # Inicializar la instancia
+        self.register_instruction(LA(reg, "String"))
+        self.register_instruction(SW(reg, "0($v0)"))
+
+        self.register_instruction(LA(reg, "String_start"))
+        self.register_instruction(SW(reg, "4($v0)"))
+
+        # Copiar el str en v0 al atributo value de la instancia
+        self.register_instruction(SW(reg2, "8($v0)"))
+
+        self.register_instruction(SW(size_reg, "12($v0)"))
+
+        # devolver la instancia
+        self.register_instruction(SW(v0, dest))
+
+        self.used_registers[reg] = False
+        self.used_registers[reg2] = False
+        self.used_registers[temp] = False
+        self.used_registers[size] = False
+
 
     @visit.register
     def _(self, node: cil.ToStrNode):
@@ -756,5 +837,5 @@ class MipsCodeGenerator(CilToMipsVisitor):
                 if "word" not in line and "asciiz" not in line and "byte" not in line:
                     indent += 1
             if "# Function END" in line or "label_END" in line:
-                indent -= 1
+                indent = 0
         return program

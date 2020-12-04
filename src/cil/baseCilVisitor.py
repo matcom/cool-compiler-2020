@@ -2,13 +2,13 @@ from typing import List, Optional, Any, Dict, Tuple
 import cil.nodes as nodes
 from abstract.semantics import Attribute, VariableInfo, Context, Type, Method
 from cil.nodes import (
-    CopyNode, GetAttributeNode,
+    AllocateStringNode, CopyNode, GetAttributeNode,
     PrintIntNode,
     PrintNode,
     ReadIntNode,
     ReadNode,
     ReturnNode,
-    SelfNode,
+    SelfNode, SubstringNode,
     TypeName,
     TypeNode,
 )
@@ -303,6 +303,10 @@ class BaseCoolToCilVisitor:
         paramr = self.register_params(
             VariableInfo("r", self.context.get_type("Int"), "PARAM")
         )
+
+        self.register_instruction(SubstringNode(return_vm_holder, paraml, paramr))
+
+        # Declarar un string vacio y rellenar la instancia
         self.register_instruction(ReturnNode(return_vm_holder))
 
     def __implement_length(self):

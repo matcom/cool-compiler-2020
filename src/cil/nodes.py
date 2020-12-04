@@ -1,5 +1,4 @@
 from __future__ import annotations
-from time import clock_settime
 from typing import List, Tuple, Union
 from abstract.semantics import Attribute, Method, Type
 """
@@ -196,23 +195,11 @@ class InitSelfNode(InstructionNode):
         self.src = src
 
 
-class SetAtAddress(InstructionNode):
-    pass
-
-class LengthNode(BuiltInNode):
-    pass
-
-
-class ConcatNode(BuiltInNode):
-    pass
-
-
-class PrefixNode(BuiltInNode):
-    pass
-
-
-class SubstringNode(BuiltInNode):
-    pass
+class SubstringNode(InstructionNode):
+    def __init__(self, dest, l, r) -> None:
+        self.dest = dest
+        self.l = l
+        self.r = r
 
 
 class ToStrNode(InstructionNode):

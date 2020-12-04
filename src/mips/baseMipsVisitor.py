@@ -125,22 +125,21 @@ class BaseCilToMipsVisitor:
         """
         assert self.current_function is not None
         index = -1
+        params = self.current_function.params
         if isinstance(node, cil.ParamNode):
             # Buscar el indice del parametro al que corresponde
-            for i, param in enumerate(self.current_function.params):
-                if param.name == node.name:
-                    index = i
-                    break
+            index = next(i for i, param in enumerate(params, 1) if param.name == node.name)
 
             assert index > -1
 
-            return f"{index * 4}($fp)"
+            return f"{len(params) * 4 - index * 4}($fp)"
         else:
             # Buscar el indice de la variable local
-            for i, local_var in enumerate(self.current_function.localvars):
-                if local_var.name == node.name:
-                    index = i
-                    break
+            index = next(
+                i
+                for i, local_var in enumerate(self.current_function.localvars)
+                if local_var.name == node.name
+            )
 
             assert index > -1
             index += 1
@@ -222,7 +221,7 @@ class BaseCilToMipsVisitor:
         # Generar por cada tipo, un label que lo identifique, en el mismo orden que aparecen
         # en la lista de tipos.
         for t in types:
-            self.register_instruction(FixedData(t.name, f"\"{t.name}\"", "asciiz"))
+            self.register_instruction(FixedData(t.name, f'"{t.name}"', "asciiz"))
             self.comment("Function END")
 
     def allocate_memory(self, bytes_num: int):
