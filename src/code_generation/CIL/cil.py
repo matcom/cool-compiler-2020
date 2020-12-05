@@ -301,6 +301,10 @@ def case_to_cil_visitor(case):
     body += expr_cil.body
     t = add_local()
     body.append(CilAST.GetTypeOrderNode(t, expr_cil.value))
+    t_min=add_local()
+    
+    body.append(CilAST.GetTypeMinOrderNode(t_min, expr_cil.value))
+    
     types = []
     labels = []
     for c in case.case_list:
@@ -318,20 +322,15 @@ def case_to_cil_visitor(case):
         aux_predicate=add_local()
         
         order=CT.TypesByName[branch.type].order
-        comp_result=add_local()
-        body.append(CilAST.LessNode(order, t, comp_result))
-        body.append(CilAST.ConditionalGotoNode(comp_result, labels[i]))
+        min_order=CT.TypesByName[branch.type].min_order
         
+        first_comp_result=add_local()
+        body.append(CilAST.LessNode(order, t, first_comp_result))
+        body.append(CilAST.ConditionalGotoNode(first_comp_result, labels[i]))
         
-        
-        # str_addr = add_str_data(branch.type)
-        # str_id, need_load = add_data_local(str_addr)
-        # if need_load:
-        #     body.append(CilAST.LoadNode(str_addr, str_id))
-        # body.append(CilAST.EqStringNode(t, str_id, aux_predicate)),
-        # body.append(CilAST.EqNode(aux_predicate, 0, predicate)),
-        # body.append(CilAST.ConditionalGotoNode(predicate, labels[i]))
-        
+        second_comp_result=add_local()
+        body.append(CilAST.LessNode(t_min, min_order, second_comp_result))
+        body.append(CilAST.ConditionalGotoNode(second_comp_result, labels[i]))
         
         val = add_local(branch.id)
         body.append(CilAST.AssignNode(val, expr_cil.value))
@@ -353,7 +352,7 @@ def assign_to_cil_visitor(assign):
     expr = expression_to_cil_visitor(assign.expr)
     if assign.id in __ATTR__[__CURRENT_TYPE__]:
         index = __ATTR__[__CURRENT_TYPE__].index(assign.id)
-        body = expr.body + [CilAST.SetAttrNode('self', assign.id, expr.value, index + 4)]
+        body = expr.body + [CilAST.SetAttrNode('self', assign.id, expr.value, index + 5)]
         return CIL_block(body, expr.value)
     else:
         val = add_local(assign.id)
@@ -474,7 +473,7 @@ def id_to_cil_visitor(id):
         if id.id in __ATTR__[__CURRENT_TYPE__]:
             result = add_local()
             index = __ATTR__[__CURRENT_TYPE__].index(id.id)
-            return CIL_block([CilAST.GetAttrNode('self', id.id, result, index + 4)], result)
+            return CIL_block([CilAST.GetAttrNode('self', id.id, result, index + 5)], result)
         return CIL_block([], id.id)
     
 def init_instance(t, parent=None):
@@ -495,7 +494,7 @@ def init_instance(t, parent=None):
     
     all_attr= CT.TypesByName[t].get_all_attributes()
     init_attr = CT.TypesByName[t].get_self_attributes()
-    for index, attr in enumerate(init_attr, len(all_attr)-len(init_attr)+4):
+    for index, attr in enumerate(init_attr, len(all_attr)-len(init_attr)+5):
         if attr.expression:
             attr_cil = expression_to_cil_visitor(
                 attr.expression)
@@ -541,16 +540,20 @@ def new_to_cil_visitor(new_node, val_id=None, default_type=None):
     t_local = add_local()
     size_local = add_local()
     order_local=add_local()
+    min_order_local=add_local()
     #
     
     init_attr = CT.TypesByName[t].get_all_attributes()
 
     body.append(CilAST.LoadNode(t_data, t_local))
     body.append(CilAST.SetAttrNode(value, '@type', t_local))
-    body.append(CilAST.AssignNode(size_local, (len(init_attr)+4)*4))
+    body.append(CilAST.AssignNode(size_local, (len(init_attr)+5)*4))
     body.append(CilAST.SetAttrNode(value, '@size', size_local, 1))
     body.append(CilAST.AssignNode(order_local, CT.TypesByName[t].order))
     body.append(CilAST.SetAttrNode(value, '@order', order_local, 3))
+    
+    body.append(CilAST.AssignNode(min_order_local, CT.TypesByName[t].min_order))
+    body.append(CilAST.SetAttrNode(value, '@min_order', min_order_local, 4))
     
     if t not in ('IO', 'Object', 'Int', 'String', 'Bool'):
         body.append(CilAST.ArgNode(value))

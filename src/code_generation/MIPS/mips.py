@@ -805,6 +805,16 @@ def get_type_order_to_mips_visitor(get_order:cil.GetTypeOrderNode):
         mips.LwInstruction('$t0', f'12($t1)'),
         mips.SwInstruction('$t0', f'{t_addr}($fp)')
     ]
+    
+def get_type_order_min_to_mips_visitor(get_order:cil.GetTypeMinOrderNode):
+    x_addr = CURRENT_FUNCTION.offset[str(get_order.var)]
+    t_addr = CURRENT_FUNCTION.offset[str(get_order.result)]
+    return [
+        mips.Comment(str(get_order)),
+        mips.LwInstruction('$t1', f'{x_addr}($fp)'),
+        mips.LwInstruction('$t0', f'16($t1)'),
+        mips.SwInstruction('$t0', f'{t_addr}($fp)')
+    ]
 
 def assign_to_mips_visitor(assign: cil.AssignNode):
     """
@@ -933,6 +943,8 @@ __visitors__ = {
     cil.AbortNode: abort_to_mips_visitor,
     cil.GetTypeAddrNode: get_type_addr_to_mips_visitor,
     cil.GetTypeOrderNode:get_type_order_to_mips_visitor,
+    
+    cil.GetTypeMinOrderNode:get_type_order_min_to_mips_visitor,
     cil.EqNode: eq_to_mips_visitor,
     cil.NotEqNode:not_eq_to_mips_visitor,
     cil.NotEqInstanceNode:not_eq_instance_to_mips_visitor, 
