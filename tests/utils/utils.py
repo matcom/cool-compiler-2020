@@ -57,9 +57,9 @@ def compare_errors(compiler_path: str, cool_file_path: str, error_file_path: str
     errors = fd.read().split('\n')
     fd.close()
 
-    print(compiler_output)
     # checking the errors of compiler
     compiler_output = output.split('\n')
+    print(compiler_output)
     cmp(compiler_output[2:], errors)
 
 SPIM_HEADER = r'''^SPIM Version .+ of .+
