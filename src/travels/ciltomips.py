@@ -359,7 +359,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(LA(reg, "String_start"))
         self.register_instruction(SW(reg, "4($v0)"))
 
-         # Cargar el offset del tipo
+        # Cargar el offset del tipo
         self.comment("Load type offset")
         offset = next(i for i, t in enumerate(self.mips_types) if t == "String") * 4
         self.register_instruction(LI(reg, offset))
@@ -1039,8 +1039,30 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.TdtLookupNode):
-        # Los nodos TDT siempre tienen
-        pass
+        # Cargar el valor que esta en offset en la tabla del tipo
+        self.add_source_line_comment(node)
+        dest = self.visit(node.dest)
+        offset_addr = self.visit(node.j)
+        tdt_table = self.get_available_register()
+        offset = self.get_available_register()
+
+        assert offset is not None
+        assert tdt_table is not None
+        assert offset_addr is not None
+        assert dest is not None
+
+        # Cargar la tabla referente al tipo
+        self.comment(f"Load TDT pointer to type {node.i}")
+        self.register_instruction(LA(tdt_table, f"{node.i}__TDT"))
+
+        self.register_instruction(LW(offset, offset_addr))
+
+        # mover el puntero offset bytes
+        self.register_instruction(ADDU(tdt_table, tdt_table, offset))
+
+        self.comment("Save distance")
+        self.register_instruction(LW(offset, f"0(${REG_TO_STR[tdt_table]})"))
+        self.register_instruction(SW(offset, dest))
 
     @visit.register
     def _(self, node: int):
