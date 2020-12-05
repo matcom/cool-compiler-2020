@@ -27,7 +27,7 @@ if len(errors):
         print(e)
     exit(1)
 
-lexer.reset()
+lexer = CoolLexer()
 parser = CoolParser(lexer)
 ast, errors = parser.parse(t)
 
