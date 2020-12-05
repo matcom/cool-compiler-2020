@@ -502,6 +502,16 @@ def init_instance(t, parent=None):
             body += attr_cil.body
             body.append(CilAST.SetAttrNode(
                 'self', attr.id, attr_cil.value, index))
+        elif attr.attrType.name =='String':
+            val=add_local()
+            body.append(CilAST.AllocateNode('String',val))
+            body.append(CilAST.SetAttrNode('self', attr.id, val, index))
+        elif attr.attrType.name not in ('Bool', 'Int'): 
+            init=new_to_cil_visitor(None, default_type=attr.attrType.name)
+            body.extend(init.body)
+            body.append(CilAST.SetAttrNode('self', attr.id, init.value, index))
+        else:
+            body.append(CilAST.SetAttrNode('self', attr.id, 0, index))
     
     body.append(CilAST.ReturnNode('self'))
 
@@ -510,12 +520,15 @@ def init_instance(t, parent=None):
     
 
 
-def new_to_cil_visitor(new_node, val_id=None):
+def new_to_cil_visitor(new_node, val_id=None, default_type=None):
     if val_id:
         value=add_local(val_id)
     else:
         value=add_local()
-    t = new_node.type
+    if default_type:
+        t=default_type
+    else:
+        t = new_node.type
     
     body = []
     if t == 'SELF_TYPE':
@@ -573,19 +586,21 @@ def string_to_cil_visitor(str):
 def let_to_cil_visitor(let):
     body = []
     for attr in let.let_attrs:
+        val = add_local(attr.id)
         if attr.expr:
             attr_cil = expression_to_cil_visitor(attr.expr)
             body += attr_cil.body
-            val = add_local(attr.id)
             body.append(CilAST.AssignNode(val, attr_cil.value))
-        elif attr.type=='String':  
-            str_addr = add_str_data('')
-            str_id, need_load = add_data_local(str_addr)
-            body.append(CilAST.LoadNode(str_addr, str_id))
-            body.append(CilAST.AssignNode(attr.id, str_id))
+        elif attr.type=='String':
+            body.append(CilAST.AllocateNode('String', val))
+        elif attr.type not in ('Bool', 'Int'): 
+            init=new_to_cil_visitor(None, default_type=attr.type)
+            body.extend(init.body)
+            body.append(CilAST.AssignNode(val, init.value))
+        else:
+            body.append(CilAST.AssignNode(val, 0))
             
             
-
     expr_cil = expression_to_cil_visitor(let.expr)
     body += expr_cil.body
 

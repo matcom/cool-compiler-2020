@@ -211,7 +211,7 @@ def substring_to_mips_visitor(ss: cil.SubStringNode):
         mips.LwInstruction('$t0', f'{str_offset}($fp)'),
         
         
-        mips.LiInstruction('$a0', __BUFFSIZE__),
+        mips.LwInstruction('$a0', f'{len_offset}($fp)'),
         mips.LiInstruction('$v0', 9),
         mips.SyscallInstruction(),
         mips.MoveInstruction('$t1', '$v0'),
@@ -268,10 +268,33 @@ def concat_to_mips_visitor(concat: cil.ConcatNode):
     result_offset = CURRENT_FUNCTION.offset[str(concat.result)]
     a_offset = CURRENT_FUNCTION.offset[str(concat.str_a)]
     b_offset = CURRENT_FUNCTION.offset[str(concat.str_b)]
+    
+
+    
 
     return [
         mips.Comment(str(concat)),
-        mips.LiInstruction('$a0', 2*__BUFFSIZE__),
+        
+        mips.LwInstruction('$t2', f'{a_offset}($fp)'),
+        mips.LiInstruction('$t1', 0),
+        mips.MIPSLabel('concat_a_length_loop'),
+        mips.LbInstruction('$t0', '($t2)'),
+        mips.BeqzInstruction('$t0', 'concat_a_end_length_loop'),
+        mips.AdduInstruction('$t2', '$t2', 1),
+        mips.AdduInstruction('$t1', '$t1', 1),
+        mips.BInstruction('concat_a_length_loop'),
+        mips.MIPSLabel('concat_a_end_length_loop'),
+        
+        mips.LwInstruction('$t2', f'{b_offset}($fp)'),
+        mips.MIPSLabel('concat_b_length_loop'),
+        mips.LbInstruction('$t0', '($t2)'),
+        mips.BeqzInstruction('$t0', 'concat_b_end_length_loop'),
+        mips.AdduInstruction('$t2', '$t2', 1),
+        mips.AdduInstruction('$t1', '$t1', 1),
+        mips.BInstruction('concat_b_length_loop'),
+        mips.MIPSLabel('concat_b_end_length_loop'),
+        
+        mips.AdduInstruction('$a0', '$t1', 1),
         mips.LiInstruction('$v0', 9),
         mips.SyscallInstruction(),
         mips.MoveInstruction('$t0', '$v0'),
@@ -335,19 +358,28 @@ def allocate_to_mips_visitor(allocate: cil.AllocateNode):
         syscall
         sw      $v0, [addr(x)]
     """
-    size = get_type(allocate.type).size_mips
     address = CURRENT_FUNCTION.offset[str(allocate.result)]
-    
-    
-    code = [
-        mips.Comment(str(allocate)),
-        mips.LiInstruction('$a0', size + 4),
-        mips.LiInstruction('$v0', 9),
-        mips.SyscallInstruction(),
-        mips.SwInstruction('$v0', f'{address}($fp)'),
-        mips.LaInstruction('$t0', f'vt_{allocate.type}'),
-        mips.SwInstruction('$t0', f'8($v0)')
-    ]
+    if allocate.type=='String':
+        size= __BUFFSIZE__
+        code=[
+            mips.Comment(str(allocate)),
+            mips.LiInstruction('$a0', size),
+            mips.LiInstruction('$v0', 9),
+            mips.SyscallInstruction(),
+            mips.SwInstruction('$v0', f'{address}($fp)')
+        ]
+        
+    else:
+        size = get_type(allocate.type).size_mips + 16
+        code = [
+            mips.Comment(str(allocate)),
+            mips.LiInstruction('$a0', size),
+            mips.LiInstruction('$v0', 9),
+            mips.SyscallInstruction(),
+            mips.SwInstruction('$v0', f'{address}($fp)'),
+            mips.LaInstruction('$t0', f'vt_{allocate.type}'),
+            mips.SwInstruction('$t0', f'8($v0)')
+        ]
     return code
 
 
