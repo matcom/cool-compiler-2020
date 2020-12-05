@@ -137,10 +137,15 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             # en caso de que tipo1 sea ancestro de tipo2, -1 en otro caso. Para hacerla accesible en O(1)
             # podemos representarlas como la concatenacion de los nombres de tipo1 y tipo2 (Al final en cada
             # programa los tipos son unicos).
-            for (type1, type2), distance in node.value.items():
-                self.register_instruction(
-                    FixedData(f"__{type1}_{type2}_tdt_entry__", distance)
+            # for (type1, type2), distance in node.value.items():
+            #     self.register_instruction(
+            #         FixedData(f"__{type1}_{type2}_tdt_entry__", distance)
+            #     )
+            for t1 in self.mips_types:
+                array = ", ".join(
+                    str(x) for x in [node.value[t1, t] for t in self.mips_types]
                 )
+                self.register_instruction(FixedData(f"{t1}__TDT", array))
         elif isinstance(node.value, int):
             self.register_instruction(FixedData(node.name, node.value))
 
@@ -337,7 +342,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         dest = self.visit(node.dest)
         assert dest is not None
 
-        size = 16
+        size = 20
 
         # Reservar memoria para el tipo
         self.allocate_memory(size)
@@ -354,11 +359,17 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(LA(reg, "String_start"))
         self.register_instruction(SW(reg, "4($v0)"))
 
-        self.register_instruction(LA(reg, "Bool"))
+         # Cargar el offset del tipo
+        self.comment("Load type offset")
+        offset = next(i for i, t in enumerate(self.mips_types) if t == "String") * 4
+        self.register_instruction(LI(reg, offset))
         self.register_instruction(SW(reg, "8($v0)"))
 
-        self.register_instruction(LI(reg, 4))
+        self.register_instruction(LA(reg, "Bool"))
         self.register_instruction(SW(reg, "12($v0)"))
+
+        self.register_instruction(LI(reg, 4))
+        self.register_instruction(SW(reg, "16($v0)"))
 
         # devolver la instancia
         self.register_instruction(MOVE(reg, v0))
@@ -381,14 +392,12 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.used_registers[reg] = False
 
-
-
     @visit.register
     def _(self, node: cil.AllocateStringNode):
         dest = self.visit(node.dest)
         assert dest is not None
 
-        size = 16
+        size = 20
 
         # Reservar memoria para el tipo
         self.allocate_memory(size)
@@ -405,11 +414,17 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(LA(reg, "String_start"))
         self.register_instruction(SW(reg, "4($v0)"))
 
-        self.register_instruction(LA(reg, node.value.name))
+        # Cargar el offset del tipo
+        self.comment("Load type offset")
+        offset = next(i for i, t in enumerate(self.mips_types) if t == "String") * 4
+        self.register_instruction(LI(reg, offset))
         self.register_instruction(SW(reg, "8($v0)"))
 
-        self.register_instruction(LI(reg, node.length))
+        self.register_instruction(LA(reg, node.value.name))
         self.register_instruction(SW(reg, "12($v0)"))
+
+        self.register_instruction(LI(reg, node.length))
+        self.register_instruction(SW(reg, "16($v0)"))
 
         # devolver la instancia
         self.register_instruction(SW(v0, dest))
@@ -437,7 +452,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         #               ...             #
         #################################
 
-        num_bytes = 8  # inicialmente necesita al menos dos punteros
+        num_bytes = 12  # inicialmente necesita al menos 3 punteros
         dest = self.visit(node.dest)
 
         instance_type = node.itype
@@ -448,8 +463,6 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         num_bytes += len(instance_type.attributes) * 4
 
-        
-
         reg = self.get_available_register()
         temp = self.get_available_register()
         assert reg is not None and temp is not None, "Out of registers."
@@ -459,7 +472,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Crear el string referente al nombre del tipo
         length = len(instance_type.name)
 
-        size = 16
+        size = 20
 
         # Reservar memoria para el tipo
         self.allocate_memory(size)
@@ -476,11 +489,17 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(LA(reg, "String_start"))
         self.register_instruction(SW(reg, "4($v0)"))
 
-        self.register_instruction(LA(reg, instance_type.name))
+        # Cargar el offset del tipo
+        self.comment("Load type offset")
+        offset = next(i for i, t in enumerate(self.mips_types) if t == "String") * 4
+        self.register_instruction(LI(reg, offset))
         self.register_instruction(SW(reg, "8($v0)"))
 
-        self.register_instruction(LI(reg, length))
+        self.register_instruction(LA(reg, instance_type.name))
         self.register_instruction(SW(reg, "12($v0)"))
+
+        self.register_instruction(LI(reg, length))
+        self.register_instruction(SW(reg, "16($v0)"))
 
         self.register_instruction(MOVE(reg, v0))
 
@@ -493,6 +512,15 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Cargar el puntero a la VTABLE
         self.register_instruction(LA(dest=reg, src=f"{instance_type.name}_start"))
         self.register_instruction(SW(dest=reg, src="4($v0)"))
+
+        # Cargar el offset del tipo
+        self.comment("Load type offset")
+        offset = (
+            next(i for i, t in enumerate(self.mips_types) if t == instance_type.name)
+            * 4
+        )
+        self.register_instruction(LI(reg, offset))
+        self.register_instruction(SW(reg, "8($v0)"))
 
         self.register_instruction(MOVE(temp, v0))
 
@@ -511,7 +539,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.pop_register(temp)
             # El valor de retorno viene en v0
             self.register_instruction(
-                SW(dest=v0, src=f"{8 + i*4}(${REG_TO_STR[temp]})")
+                SW(dest=v0, src=f"{12 + i*4}(${REG_TO_STR[temp]})")
             )
 
         # mover la direccion que almacena la instancia hacia dest
@@ -521,7 +549,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.used_registers[temp] = False
 
     @visit.register
-    def _(self, node: cil.TypeOfNode):
+    def _(self, node: cil.TypeOffsetNode):
         local_addr = self.visit(node.variable)
         return_addr = self.visit(node.dest)
         reg = self.get_available_register()
@@ -533,8 +561,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.add_source_line_comment(node)
 
         self.register_instruction(LW(reg, local_addr))
-        self.comment("Load pointer to type")
-        self.register_instruction(LW(reg2, f"4(${REG_TO_STR[reg]})"))
+        self.comment("Load pointer to type offset")
+        self.register_instruction(LW(reg2, f"8(${REG_TO_STR[reg]})"))
         self.register_instruction(SW(reg2, return_addr))
 
         self.used_registers[reg] = False
@@ -735,7 +763,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         assert size_reg is not None
 
         # Cargar el string sobre el que se llama substr
-        self.register_instruction(LW(reg, "8($s1)"))
+        self.register_instruction(LW(reg, "12($s1)"))
 
         # Hacer que reg apunte al inicio del substr
         if isinstance(l, int):
@@ -781,7 +809,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # v0 contiene el substr
         self.register_instruction(MOVE(reg2, v0))
         # Crear la instancia de str
-        size = 16
+        size = 20
 
         # Reservar memoria para el tipo
         self.allocate_memory(size)
@@ -795,10 +823,16 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(LA(reg, "String_start"))
         self.register_instruction(SW(reg, "4($v0)"))
 
-        # Copiar el str en v0 al atributo value de la instancia
-        self.register_instruction(SW(reg2, "8($v0)"))
+        # Cargar el offset del tipo
+        self.comment("Load type offset")
+        offset = next(i for i, t in enumerate(self.mips_types) if t == "String") * 4
+        self.register_instruction(LI(reg, offset))
+        self.register_instruction(SW(reg, "8($v0)"))
 
-        self.register_instruction(SW(size_reg, "12($v0)"))
+        # Copiar el str en v0 al atributo value de la instancia
+        self.register_instruction(SW(reg2, "12($v0)"))
+
+        self.register_instruction(SW(size_reg, "16($v0)"))
 
         # devolver la instancia
         self.register_instruction(SW(v0, dest))
@@ -833,12 +867,12 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Get Strings length
         self.comment("Get first string length from self")
-        self.register_instruction(LW(reg, f"12($s1)"))
+        self.register_instruction(LW(reg, f"16($s1)"))
 
         # Obtener el segundo string
         self.comment("Get second string length from param")
         self.register_instruction(LW(v0, s))
-        self.register_instruction(LW(reg2, "12($v0)"))
+        self.register_instruction(LW(reg2, "16($v0)"))
 
         self.comment("Save new string length in a0 for memory allocation")
         self.register_instruction(ADDU(a0, reg, reg2))
@@ -846,11 +880,11 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Obtener el primer string desde self
         self.comment("Get first string from self")
-        self.register_instruction(LW(reg, f"8($s1)"))
+        self.register_instruction(LW(reg, f"12($s1)"))
 
         # Obtener el segundo string
         self.comment("Get second string from param")
-        self.register_instruction(LW(reg2, "8($v0)"))
+        self.register_instruction(LW(reg2, "12($v0)"))
 
         # Reservar memoria para el nuevo buffer
         # $v0 = 9 (syscall 9 = sbrk)
@@ -863,7 +897,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Hacer 0 el registro byte
         self.register_instruction(MOVE(byte, zero))
-        
+
         # while [reg] != 0: copy to temp
         self.register_instruction(Label("concat_loop1"))
         self.comment(f"Compare {REG_TO_STR[reg]} with \\0")
@@ -875,7 +909,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(ADDU(temp, temp, 1, True))
         self.register_instruction(ADDU(reg, reg, 1, True))
         self.register_instruction(J("concat_loop1"))
-        
+
         self.register_instruction(Label("concat_loop1_end"))
 
         # Copiar el segundo string
@@ -891,7 +925,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(ADDU(temp, temp, 1, True))
         self.register_instruction(ADDU(reg2, reg2, 1, True))
         self.register_instruction(J("concat_loop2"))
-        
+
         self.register_instruction(Label("concat_loop2_end"))
         # Agregar el caracter null al final
         self.register_instruction(SB(zero, f"0(${REG_TO_STR[temp]})"))
@@ -901,7 +935,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(MOVE(reg2, v0))
 
         # Crear la instancia de str
-        size = 16
+        size = 20
 
         # Reservar memoria para el tipo
         self.allocate_memory(size)
@@ -915,10 +949,16 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(LA(reg, "String_start"))
         self.register_instruction(SW(reg, "4($v0)"))
 
-        # Copiar el str en v0 al atributo value de la instancia
-        self.register_instruction(SW(reg2, "8($v0)"))
+        # Cargar el offset del tipo
+        self.comment("Load type offset")
+        offset = next(i for i, t in enumerate(self.mips_types) if t == "String") * 4
+        self.register_instruction(LI(reg, offset))
+        self.register_instruction(SW(reg, "8($v0)"))
 
-        self.register_instruction(SW(size_reg, "12($v0)"))
+        # Copiar el str en v0 al atributo value de la instancia
+        self.register_instruction(SW(reg2, "12($v0)"))
+
+        self.register_instruction(SW(size_reg, "16($v0)"))
 
         # devolver la instancia
         self.register_instruction(SW(v0, dest))
@@ -928,8 +968,6 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.used_registers[temp] = False
         self.used_registers[size_reg] = False
         self.used_registers[byte] = False
-
-
 
     @visit.register
     def _(self, node: AbortNode):
@@ -994,7 +1032,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(LW(v0, src))
 
         # Cargar la direccion del string en a0
-        self.register_instruction(LW(a0, "8($v0)"))
+        self.register_instruction(LW(a0, "12($v0)"))
         # syscall 4 = print_string
         self.register_instruction(LI(v0, 4))
         self.register_instruction(SYSCALL())

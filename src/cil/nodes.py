@@ -127,7 +127,7 @@ class ArrayNode(InstructionNode):
     pass
 
 
-class TypeOfNode(InstructionNode):
+class TypeOffsetNode(InstructionNode):
     def __init__(self, variable: Union[LocalNode, ParamNode], dest: LocalNode):
         self.variable = variable
         self.dest = dest

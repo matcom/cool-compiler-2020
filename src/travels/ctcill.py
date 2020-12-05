@@ -47,7 +47,7 @@ from cil.nodes import (
     SubstringNode,
     TdtLookupNode,
     TypeNode,
-    TypeOfNode,
+    TypeOffsetNode,
     UnconditionalJump,
 )
 from mips.branch import J
@@ -410,7 +410,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         assert isinstance(expr_vm_holder, LocalNode)
         self.register_instruction(
-            TypeOfNode(expr_vm_holder, type_internal_local_holder)
+            TypeOffsetNode(expr_vm_holder, type_internal_local_holder)
         )
 
         # Variables internas para almacenar resultados intermedios
@@ -929,7 +929,7 @@ class CilDisplayFormatter:
         return f"{self.visit(node.dest)} = ALLOCATE {node.itype.name}"
 
     @visit.register
-    def _(self, node: TypeOfNode) -> str:
+    def _(self, node: TypeOffsetNode) -> str:
         return f"{self.visit(node.dest)} = TYPEOF {node.variable.name}"
 
     @visit.register

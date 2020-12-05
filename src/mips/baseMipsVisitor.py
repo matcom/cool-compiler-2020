@@ -94,6 +94,9 @@ class BaseCilToMipsVisitor:
 
         # Necesitamos acceso a los tipos del programa
         self.types: List[TypeNode] = []
+        
+        # Tipos accesibles en el codigo
+        self.mips_types: List[str] = [] 
 
         # Construir el header del programa.
         self.__program_header()
@@ -223,6 +226,7 @@ class BaseCilToMipsVisitor:
         # Generar por cada tipo, un label que lo identifique, en el mismo orden que aparecen
         # en la lista de tipos.
         for t in types:
+            self.mips_types.append(t.name)
             self.register_instruction(FixedData(t.name, f'"{t.name}"', "asciiz"))
             self.comment("Function END")
 
@@ -357,7 +361,7 @@ class BaseCilToMipsVisitor:
 
         # Hallar el offset del atributo en el tipo que se
         # esta ejecutando
-        offset: int = 8
+        offset: int = 12
         for i, attribute in enumerate(attributes):
             if attribute.name == attrname:
                 offset += i * 4
