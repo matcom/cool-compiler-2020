@@ -42,6 +42,8 @@ def create_arg_parser():
 
 
 def main():
+    print("Enter main")
+    exit(1)
     arg_parser = create_arg_parser()
 
     args = arg_parser.parse_args()
