@@ -1,5 +1,8 @@
 
 String.length:
+move $fp, $sp
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
 lw $a0, 4($sp)
 _stringlength.loop:
 lb $a1, 0($sp)
@@ -14,6 +17,9 @@ jr $ra
 
 
 String.concat:
+move $fp, $sp
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
 move $a2, $ra
 jal String.length
 move $v1, $v0

@@ -98,7 +98,7 @@ class codeVisitor:
         for t in built_in:
             self.code.append(LabelIL(t, 'Constructor', True))
             self.code.append(PushIL())
-            self.code.append(ReturnIL())
+            self.code.append(ReturnIL(1))
             self.setClassTypeName(t)
 
     def setClassConstructor(self, attributes):
@@ -200,7 +200,7 @@ class codeVisitor:
         if self.current_class == 'Main' and node.id == 'main':
             self.code.append("j Object.abort\n")
         else:
-            self.code.append(ReturnIL())
+            self.code.append(ReturnIL(len(node.params)))
 
     @visitor.when(VarDeclarationNode)
     def visit(self, node, variables):

@@ -65,6 +65,8 @@ class PushIL(NodeIL):
 
 class ReturnIL(NodeIL):
     
+    def __init__(self, sizeof = 0):
+        self.sizeof = sizeof
     def __str__(self):
         return 'return\n'
 

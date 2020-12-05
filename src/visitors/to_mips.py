@@ -71,7 +71,7 @@ class MIPS:
 
     @visitor.when(BinaryOperationIL)
     def visit(self, node):
-        self.code.append("sw $a0, 0($sp)\n"))
+        self.code.append("sw $a0, 0($sp)\n")
         self.code.append("addiu $sp, $sp, -4\n")
         self.code.append("lw $t1, 4($sp)\n")
 
@@ -103,14 +103,14 @@ class MIPS:
 
     @visitor.when(UnaryOperationIL)
     def visit(self, node):
-        self.code.append("lw $t0, {}($sp)\n".format(4*node.op))
+        self.code.append("lw $a0, 0($sp)\n")
         
         if node.symbol == '~':
-            self.code.append("not $t0, $t0\n")
+            self.code.append("not $a0, $a0\n")
         else:
             self.code.append("li $t1, 1\n")
-            self.code.append("sub $t0, $t1, $t0\n")
-        self.code.append("sw $t0, {}($sp)\n".format(4 * node.var))
+            self.code.append("sub $a0, $t1, $a0\n")
+        self.code.append("sw $a0, 4($sp)\n")
     #allocate
 
     @visitor.when(AllocateIL)
@@ -125,32 +125,33 @@ class MIPS:
     #assignment
     @visitor.when(VarToVarIL)
     def visit(self, node):
-        self.code.append("lw $t0, {}($sp)\n".format(4 * node.right))
-        self.code.append("sw $t0, {}($sp)\n".format(4 * node.left))
+        self.code.append("lw $a0, {}($fp)\n".format(4 * node.right))
+        self.code.append("sw $a0, {}($fp)\n".format(4 * node.left))
 
     @visitor.when(VarToMemoIL)
     def visit(self, node):
-        self.code.append("lw $t0, {}($sp)\n".format(4*node.right))
-        self.code.append("lw $t1, {}($sp)\n".format(4*node.left))
-        self.code.append("sw $t1, {}($sp)\n".format(4*node.offset))
+        self.code.append("lw $a0, {}($fp)\n".format(4*node.right))
+        self.code.append("lw $t1, {}($fp)\n".format(4*node.left))
+        self.code.append("sw $t1, {}($fp)\n".format(4*node.offset))
 
     @visitor.when(MemoToVarIL)
     def visit(self, node):
-        self.code.append("lw $t0, {}($sp)\n".format(4 * node.right))
-        self.code.append("lw $t1, {}($t0)\n".format(4*node.offset))
-        self.code.append("sw $t1, {}($sp)\n".format(4*node.left))
+        self.code.append("lw $a0, {}($fp)\n".format(4 * node.right))
+        self.code.append("lw $t1, {}($a0)\n".format(4 * node.offset))
+        self.code.append("sw $t1, {}($fp)\n".format(4 * node.left))
 
     @visitor.when(ConstToMemoIL)
     def visit(self, node):
-        self.code.append("lw $t0, {}($sp)\n".format(4 * node.left))
+        self.code.append("lw $a0, {}($fp)\n".format(4 * node.left))
         self.code.append("li $t1, {}\n".format(node.right))
-        self.code.append("sw $t1, {}($t0)\n".format(4*node.offset))
+        self.code.append("sw $t1, {}($a0)\n".format(4*node.offset))
 
     #methods
     @visitor.when(LabelIL)
     def visit(self, node):
         self.code.append(node.label + ':\n')
         if node.func:
+            self.code.append("move $fp, $sp\n")
             self.code.append("sw $ra, 0($sp)\n")
             self.code.append("addiu $sp, $sp, -4\n")
 
@@ -195,14 +196,9 @@ class MIPS:
 
     @visitor.when(ReturnIL)
     def visit(self, node):
-        self.code.append("lw $v0, 4($sp)\n")
-        self.code.append("li $a0, 0\n")
-        self.code.append("sw $a0, ($sp)\n")
-        self.code.append("addi $sp, $sp, -4\n")
-        # self.code.append("lw $ra, 4($sp)\n")
-        self.code.append("li $a0, 0\n")
-        self.code.append("sw $a0, ($sp)\n")
-        self.code.append("addi $sp, $sp, -4\n")
+        self.code.append("lw $ra, 4($sp)\n")
+        self.code.append("addiu $sp, $sp, {}\n".format(4*node.sizeof + 8))
+        self.code.append("lw $fp, 0($sp)\n")
         self.code.append("jr $ra\n")
 
     @visitor.when(DispatchIL)
