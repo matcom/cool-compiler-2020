@@ -11,9 +11,9 @@ jobs:
       name: "Lexer" 
       script: 
         - cd src
+        - python compiler.py ../tests/lexer/comment1.cl
         - make clean
         - make
-        - python compiler.py ../tests/lexer/comment1.cl
         - make test TAG=lexer
     - stage: "Parser"
       name: "Parser" 
