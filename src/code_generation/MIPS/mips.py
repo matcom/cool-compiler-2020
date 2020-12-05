@@ -212,6 +212,7 @@ def substring_to_mips_visitor(ss: cil.SubStringNode):
         
         
         mips.LwInstruction('$a0', f'{len_offset}($fp)'),
+        mips.AdduInstruction('$a0', '$a0', 1),
         mips.LiInstruction('$v0', 9),
         mips.SyscallInstruction(),
         mips.MoveInstruction('$t1', '$v0'),
