@@ -15,6 +15,8 @@ class CoolType:
         self.methods = {}
         self.inherit = inherit
         self.childs = set()
+        self.order = 0
+        self.min_order = 0
 
         # if parent_type:
         #     self.order=self.parent.order-1
@@ -215,22 +217,16 @@ def check_type_hierarchy(node):
         else:
             cType.parent = ObjectType
             ObjectType.childs.add(cType)
-    set_types_order([TypesByName[c.type] for c in node.classes])
+    set_types_order(ObjectType, 1)
     return True
 
 
-def set_types_order(classes):
-    q = [c for c in classes]
-    while len(q):
-        c = q[0]
-        q = q[1:]
-        if c.parent:
-            try:
-                c.order = c.parent.order-1
-            except:
-                q.append(c)
-        else:
-            c.order = -1
+def set_types_order(currnet_type: CoolType, current_order: int) -> int:
+    currnet_type.min_order = current_order
+    for t in currnet_type.childs:
+        current_order = set_types_order(t, current_order)
+    currnet_type.order = current_order
+    return current_order + 1
 
 
 def __type_hierarchy__(type_x):
