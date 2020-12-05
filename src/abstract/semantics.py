@@ -261,7 +261,7 @@ class Scope:
             return next(x for x in locals if x.name == vname)
         except StopIteration:
             return self.parent.find_variable(
-                vname, self.index) if self.parent else None
+                vname, self.index) if self.parent is not None else None
 
     def is_defined(self, vname: str) -> bool:
         return self.find_variable(vname) is not None

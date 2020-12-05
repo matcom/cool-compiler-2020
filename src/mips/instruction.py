@@ -56,7 +56,7 @@ fp = 30
 # Direccion de retorno
 ra = 31
 
-TEMP_REGISTERS = (t0, t1, t2, t3, t4, t5, t6, t7, t8, t9)
+TEMP_REGISTERS = (t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, s2, s3, s4, s5, s6, s7)
 ARGS_REGISTERS = (a0, a1, a2, a3)
 
 REG_TO_STR = {

@@ -465,7 +465,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.allocate_memory(size)
         reg = self.get_available_register()
 
-        assert reg is not None
+        assert reg is not None, f"{str(self.used_registers)}"
 
         self.comment("Allocating string for type name")
 
@@ -951,6 +951,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.register_instruction(LW(reg, f"0($s1)"))
         self.register_instruction(SW(reg, dest))
+
+        self.used_registers[reg] = False
 
     @visit.register
     def _(self, node: cil.PrintIntNode):

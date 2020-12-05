@@ -109,8 +109,9 @@ class TypeInferer:
     ):
         self.current_type = self.context.get_type(node.idx)
         # Definir los atributos heredados
-        for attribute in self.current_type.attributes:
-            scope.define_variable(attribute.name, attribute.type, "ATTRIBUTE")
+        if deep == 1:
+            for attribute in self.current_type.attributes:
+                scope.define_variable(attribute.name, attribute.type, "ATTRIBUTE")
 
         for feature in node.features:
             if isinstance(feature, coolAst.AttributeDef):
@@ -292,9 +293,16 @@ class TypeInferer:
 
     @visit.register
     def _(self, node: CaseNode, scope: Scope, infered_type=None, deep=1):
-        types: List[Type] = [
-            self.visit(action, scope, infered_type, deep) for action in node.actions
-        ]
+        if deep == 1:
+            types: List[Type] = [
+                self.visit(action, scope.create_child(), infered_type, deep)
+                for action in node.actions
+            ]
+        else:
+            types = [
+                self.visit(action, s, infered_type, deep)
+                for action, s in zip(node.actions, scope.children)
+            ]
 
         actions_types = [action.typex for action in node.actions]
 
@@ -322,6 +330,8 @@ class TypeInferer:
 
     @visit.register
     def _(self, node: ActionNode, scope: Scope, infered_type=None, deep=1):
+        if deep == 1:
+            scope.define_variable(node.idx, self.context.get_type(node.typex), "LOCAL")
         return self.visit(node.actions, scope, infered_type, deep)
 
     @visit.register
@@ -336,15 +346,17 @@ class TypeInferer:
             scope = scope.create_child()
         else:
             scope = scope.children[0]
-        for var_id, var_type, var_init_expr, l , c in node.var_list:
+        for var_id, var_type, var_init_expr, l, c in node.var_list:
             try:
                 type_ = self.context.get_type(var_type)
             except SemanticError:
-                raise SemanticError(TypeError(
-                f"Class {var_type} of let-bound identifier b is undefined.",
-                l,
-                c
-            ))
+                raise SemanticError(
+                    TypeError(
+                        f"Class {var_type} of let-bound identifier b is undefined.",
+                        l,
+                        c,
+                    )
+                )
             # Revisar que la expresion de inicializacion (de existir) se conforme con el tipo
             # de la variable.
             # Se pueden dar varios casos:
@@ -499,7 +511,9 @@ class TypeInferer:
         try:
             ret_type = self.context.get_type(node.type_)
         except SemanticError:
-            raise SemanticError(f"{node.line, node.column + 4} - TypeError: 'new' used with undefined class {node.type_}.")
+            raise SemanticError(
+                f"{node.line, node.column + 4} - TypeError: 'new' used with undefined class {node.type_}."
+            )
         if ret_type in (
             self.AUTO_TYPE,
             void,
@@ -520,7 +534,9 @@ class TypeInferer:
     ):
         cond_type = self.visit(node.cond, scope, infered_type, deep)
         if cond_type != self.BOOL:
-            raise SemanticError(f"{node.cond.line, node.cond.column} - TypeError: Loop condition does not have type Bool.")
+            raise SemanticError(
+                f"{node.cond.line, node.cond.column} - TypeError: Loop condition does not have type Bool."
+            )
         ret_type = self.visit(node.statements, scope, infered_type, deep)
         return self.OBJECT
 

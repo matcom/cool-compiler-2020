@@ -428,7 +428,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
             # Comparar el resultado obtenido con el minimo actual.
             self.register_instruction(MinusNode(min_, tdt_result, min_check_local))
-            not_min_label = self.do_label("Not_min{i}")
+            not_min_label = self.do_label(f"Not_min{i}")
             self.register_instruction(
                 JumpIfGreaterThanZeroNode(min_check_local, not_min_label)
             )
@@ -448,7 +448,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         end_label = self.do_label("END")
 
         # Procesar cada accion y ejecutar el tipo cuya distancia sea igual a min_
-        for i, action_node in enumerate(node.actions):
+        for i, (action_node, s) in enumerate(zip(node.actions, scope.children)):
             next_label = self.do_label(f"NEXT{i}")
             self.register_instruction(
                 TdtLookupNode(action_node.typex, type_internal_local_holder, tdt_result)
@@ -457,7 +457,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             self.register_instruction(NotZeroJump(min_check_local, next_label))
             # Implemententacion del branch.
             # Registrar la variable <idk>
-            var_info = scope.find_variable(action_node.idx)
+            var_info = s.find_variable(action_node.idx)
             assert var_info is not None
             idk = self.register_local(var_info)
             # Asignar al identificador idk el valor de expr0

@@ -196,7 +196,8 @@ class BaseCilToMipsVisitor:
                 # rigth es una constante
                 self.register_instruction(operand(reg, reg, right, True))
             self.register_instruction(lsNodes.SW(reg, dest))
-            self.used_registers[reg] = self.used_registers[right_reg] = False
+            self.used_registers[reg] = False
+            self.used_registers[right_reg] = False
         else:
             # left es una constante
             reg = self.get_available_register()
@@ -210,7 +211,8 @@ class BaseCilToMipsVisitor:
             else:
                 self.register_instruction(operand(reg, reg, right, True))
             self.register_instruction(lsNodes.SW(reg, dest))
-            self.used_registers[reg] = self.used_registers[right_reg] = False
+            self.used_registers[reg] = False
+            self.used_registers[right_reg] = False
 
     def create_type_array(self, types: List[TypeNode]):
         """
