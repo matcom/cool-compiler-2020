@@ -58,8 +58,10 @@ jr $ra
 
 
 IO.out_int:
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
 li $v0, 1
-lw $a0, -4($sp)
+lw $a0, 8($sp)
 syscall
 jr $ra
 
@@ -82,11 +84,36 @@ li $v0, 9
 syscall
 move $t0, $v0
 la $a0, buffer
+istr_copy:
+lb $t1, ($a0)
+sb $t1, ($t0)
+addiu $a0, $a0, 1
+addiu $t0, $t0, 1
+bne $t1, $zero, istr_copy
+addiu $t0, $t0, -2
+li $t1 10
+lb $t2, ($t0)
+bne $t1 , $t2 not_slash
+sb $zero, ($t0)
+not_slash:
+move $a0, $v0
+lw $ra, 0($fp)
+addiu $sp, $sp, 12
+lw $fp, 0($sp)
+jr $ra 
 
 
 IO.in_int:
+move $fp, $sp
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+lw $a0, 4($fp)
 li $v0, 5
 syscall
+move $a0, $v0
+lw $ra, 0($fp)
+addiu $sp, $sp, 12
+lw $fp, 0($sp)
 jr $ra
 Object.copy:
 lw $a1, -4($sp)
@@ -163,27 +190,31 @@ move $ra, $a2
 jr $ra
 
 String.substr:
-lw $a0, -12($sp)
+move $fp, $sp
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+lw $a0, 12($fp)
 addiu $a0, $a0, 1
 li $v0, 9
 syscall
-move $v1, $v0
-lw $a0, -4($sp)
-lw $a1, -8($sp)
-add $a0, $a0, $a1
-lw $a2, -12($sp)
-_stringsubstr.loop:
-beqz $a2, _stringsubstr.end
-lb $a1, 0($a0)
-beqz $a1, _substrexception
-sb $a1, 0($v1)
-addiu $a0, $a0, 1
-addiu $v1, $v1, 1
-addiu $a2, $a2, -1
-j _stringsubstr.loop
-_stringsubstr.end:
-sb $zero, 0($v1)
-jr $ra
+move $t0, $v0
+lw $s1, 4($fp)
+lw $t1, 8($fp)
+add $s1, $s1, $t1
+lw $t1, 12($fp)
+substr:
+lb $t5, ($s1)
+sb $t5, ($t0)
+addiu $s1, $s1, 1
+addiu $t0, $t0, 1
+addiu $t1, $t1, -1
+bne $t1, $zero, substr
+sb $zero, ($t0)
+move $a0, $v0
+lw $ra, 0($fp)
+addiu $sp, $sp, 20
+lw $fp, 0($sp)
+jr $ra 
 
 
 _substrexception:
@@ -195,25 +226,47 @@ syscall
 
 
 _stringcmp:
-li $v0, 1
-_stringcmp.loop:
-lb $a2, 0($a0)
-lb $a3, 0($a1)
-beqz $a2, _stringcmp.end
-beq $a2, $zero, _stringcmp.end
-beq $a3, $zero, _stringcmp.end
-bne $a2, $a3, _stringcmp.differents
+move $fp, $sp
+sw $ra, 0($sp)
+addiu $sp, $sp, -4
+lw $s1, 4($fp)
+sw $fp, 0($sp)
+addiu $sp, $sp, -4
+sw $s1, 0($sp)
+addiu $sp, $sp, -4
+jal String.length
+
+sw $a0, 0($sp)
+addiu $sp, $sp, -4
+lw $s1, 8($fp)
+sw $fp, 0($sp)
+addiu $sp, $sp, -4
+sw $s1, 0($sp)
+addiu $sp, $sp, -4
+jal String.length
+lw $t7, 4($sp)
+addiu $sp, $sp, 4
+bne $t7, $a0, str.not_equals_strings
+lw $t7, 4($fp)
+lw $a0, 8($fp)
+str.equal_chart:
+lb $t1, ($t7)
+lb $t2, ($a0)
+addiu $t7, $t7, 1
 addiu $a0, $a0, 1
-addiu $a1, $a1, 1
-j _stringcmp.loop
-_stringcmp.end:
-beq $a2, $a3, _stringcmp.equals
-_stringcmp.differents:
-li $v0, 0
-jr $ra
-_stringcmp.equals:
-li $v0, 1
-jr $ra
+bne $t1, $t2, str.not_equals_strings
+beq $t1, $zero, str.equals_strings
+j str.equal_chart
+str.not_equals_strings:
+li $a0, 0
+j str.end_equal_string
+str.equals_strings:
+li $a0, 1
+str.end_equal_string:
+lw $ra, 0($fp)
+addiu $sp, $sp, 16
+lw $fp, 0($sp)
+jr $ra 
 inherit:
 beq $a0, $a1, inherit_true
 beq $a0, $zero, inherit_false

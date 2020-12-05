@@ -71,34 +71,35 @@ class MIPS:
 
     @visitor.when(BinaryOperationIL)
     def visit(self, node):
-        self.code.append("lw $t0, {}($sp)\n".format(4 * node.leftOp))
-        self.code.append("lw $t1, {}($sp)\n".format(4 * node.rightOp))
+        self.code.append("sw $a0, 0($sp)\n"))
+        self.code.append("addiu $sp, $sp, -4\n")
+        self.code.append("lw $t1, 4($sp)\n")
 
         if node.symbol == '+':
-            self.code.append("add $t0, $t0, $t1\n")
+            self.code.append("add $a0, $a0, $t1\n")
         elif node.symbol == '-':
-            self.code.append("sub $t0, $t0, $t1\n")
+            self.code.append("sub $a0, $a0, $t1\n")
         elif node.symbol == '*':
-            self.code.append("mult $t0, $t1\n")
-            self.code.append("mflo $t0\n")
+            self.code.append("mult $a0, $t1\n")
+            self.code.append("mflo $a0\n")
         elif node.symbol == '/':
-            self.code.append("div $t0, $t1\n")
-            self.code.append("mflo $t0\n")
+            self.code.append("div $a0, $t1\n")
+            self.code.append("mflo $a0\n")
         elif node.symbol == '=':
-            self.code.append("seq $t0, $t0, $t1\n")
+            self.code.append("seq $a0, $a0, $t1\n")
         elif node.symbol == '>':
             self.code.append("li $t0, 1\n")
-            self.code.append("add $t1, $t1, $t3\n")
-            self.code.append("sge $t0, $t0, $t1\n")
+            self.code.append("add $t1, $t1, $t0\n")
+            self.code.append("sge $a0, $a0, $t1\n")
         elif node.symbol == '>=':
-            self.code.append("sge $t0, $t0, $t1\n")
+            self.code.append("sge $a0, $a0, $t1\n")
         elif node.symbol == '<=':
-            self.code.append("add $t0, $t1, $t0\n")
+            self.code.append("sge $a0, $t1, $a0\n")
         elif node.symbol == '<':
-            self.code.append("li $t3, 1\n")
-            self.code.append("add $t0, $t0, $t3\n")
-            self.code.append("sge $t0, $t1, $t0\n")
-        self.code.append("sw $t0, {}($sp)\n".format(4*node.var))
+            self.code.append("li $t0, 1\n")
+            self.code.append("add $a0, $a0, $t0\n")
+            self.code.append("sge $a0, $t1, $a0\n")
+        self.code.append("sw $a0, 4($sp)\n")
 
     @visitor.when(UnaryOperationIL)
     def visit(self, node):

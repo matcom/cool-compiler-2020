@@ -467,7 +467,7 @@ class codeVisitor:
 
         result = variables.add_temp()
         self.code.append(PushIL())
-        print('----------node {}---------'.format(node.id))
+        # print('----------node {}---------'.format(node.id))
         index = self.virtual_table.get_method_id(node.obj, node.id)
         if str(node.id) == 'type_name':
             index = self.virtual_table.get_method_id(self.context.exprs_dict[node.obj].name, node.id)
