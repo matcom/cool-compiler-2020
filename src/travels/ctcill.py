@@ -9,7 +9,9 @@ from functools import singledispatchmethod
 import cil.nodes
 
 from cil.nodes import (
-    AllocateBoolNode, AllocateNode,
+    AbortNode,
+    AllocateBoolNode,
+    AllocateNode,
     AllocateStringNode,
     ArgNode,
     AssignNode,
@@ -24,7 +26,7 @@ from cil.nodes import (
     GetTypeIndex,
     IfZeroJump,
     InitSelfNode,
-    InstructionNode,
+    InstructionNode, JumpIfGreater,
     JumpIfGreaterThanZeroNode,
     LabelNode,
     LoadNode,
@@ -87,7 +89,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Llamar al metodo main
         self.register_instruction(
-            StaticCallNode(self.to_function_name("main", "Main"), result)
+            StaticCallNode(
+                instance, main_type, "main", result
+            )
         )
         self.register_instruction(ReturnNode(0))
         self.current_function = None
@@ -416,7 +420,6 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Variables internas para almacenar resultados intermedios
         min_ = self.define_internal_local()
         tdt_result = self.define_internal_local()
-        min_check_local = self.define_internal_local()
 
         self.register_instruction(AssignNode(min_, len(self.context.types)))
 
@@ -426,12 +429,10 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
                 TdtLookupNode(action_node.typex, type_internal_local_holder, tdt_result)
             )
 
-            # Comparar el resultado obtenido con el minimo actual.
-            self.register_instruction(MinusNode(min_, tdt_result, min_check_local))
             not_min_label = self.do_label(f"Not_min{i}")
-            self.register_instruction(
-                JumpIfGreaterThanZeroNode(min_check_local, not_min_label)
-            )
+
+            # Comparar el resultado obtenido con el minimo actual.
+            self.register_instruction(JumpIfGreater(tdt_result, min_, not_min_label))
 
             # Si mejora el minimo, entonces actualizarlo.
             self.register_instruction(AssignNode(min_, tdt_result))
@@ -453,8 +454,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             self.register_instruction(
                 TdtLookupNode(action_node.typex, type_internal_local_holder, tdt_result)
             )
-            self.register_instruction(MinusNode(min_, tdt_result, min_check_local))
-            self.register_instruction(NotZeroJump(min_check_local, next_label))
+            self.register_instruction(JumpIfGreater(tdt_result, min_, next_label))
             # Implemententacion del branch.
             # Registrar la variable <idk>
             var_info = s.find_variable(action_node.idx)
@@ -469,7 +469,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             self.register_instruction(LabelNode(next_label))
 
         self.register_instruction(LabelNode(error_label))
-        # TODO: Define some form of runtime errors
+        self.register_instruction(AbortNode())
 
         self.register_instruction(LabelNode(end_label))
 
@@ -824,8 +824,12 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
     @visit.register
     def _(self, node: coolAst.ParentFuncCall, scope: Scope) -> LocalNode:
-        local_type_identifier = self.define_internal_local()
         return_expr_vm_holder = self.define_internal_local()
+
+        # Evaluar el objeto sobre el que se llama la funcion
+        obj_dispatched = self.visit(node.obj, scope)
+
+        self.register_instruction(SaveSelf())
 
         # Evaluar los argumentos
         for arg in node.arg_list:
@@ -834,11 +838,11 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         # Asignar el tipo a una variable
         type_ = self.context.get_type(node.parent_type)
-        self.register_instruction(AssignNode(local_type_identifier, type_))
-
         self.register_instruction(
-            DynamicCallNode(local_type_identifier, node.idx, return_expr_vm_holder)
+            StaticCallNode(obj_dispatched, type_, node.idx, return_expr_vm_holder)
         )
+
+        self.register_instruction(RestoreSelf())
 
         return return_expr_vm_holder
 
@@ -862,6 +866,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.register_instruction(AllocateBoolNode(return_bool_vm_holder, 1))
         self.register_instruction(LabelNode(end_label))
         return return_bool_vm_holder
+
 
 class CilDisplayFormatter:
     @singledispatchmethod

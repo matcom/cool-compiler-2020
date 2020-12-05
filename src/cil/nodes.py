@@ -162,9 +162,11 @@ class UnconditionalJump(InstructionNode):
 
 
 class StaticCallNode(InstructionNode):
-    def __init__(self, function: str, dest: LocalNode):
+    def __init__(self, obj: LocalNode, type_: Type, function: str, dest: LocalNode):
         self.function = function
         self.dest = dest
+        self.obj = obj
+        self.type_ = type_
 
 
 class DynamicCallNode(InstructionNode):
@@ -291,3 +293,10 @@ class AllocateBoolNode(InstructionNode):
     def __init__(self, dest: LocalNode, value: int) -> None:
         self.dest = dest
         self.value = value
+
+
+class JumpIfGreater(InstructionNode):
+    def __init__(self, src1: LocalNode, src2: LocalNode, label: str) -> None:
+        self.left = src1
+        self.rigt = src2
+        self.label = label

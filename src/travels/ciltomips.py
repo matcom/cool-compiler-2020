@@ -1,6 +1,6 @@
 from pickle import TRUE
 from abstract.semantics import Type
-from cil.nodes import AbortNode, AllocateBoolNode, ConcatString, LocalNode
+from cil.nodes import AbortNode, AllocateBoolNode, ConcatString, JumpIfGreater, LocalNode
 from mips.arithmetic import ADD, ADDU, DIV, MUL, NOR, SUB, SUBU
 from mips.baseMipsVisitor import (
     BaseCilToMipsVisitor,
@@ -9,7 +9,7 @@ from mips.baseMipsVisitor import (
     locate_attribute_in_type_hierarchy,
 )
 import cil.nodes as cil
-from mips.branch import BEQ, BEQZ, J
+from mips.branch import BEQ, BEQZ, BGT, BGTU, J
 from mips.instruction import (
     FixedData,
     Label,
@@ -569,6 +569,26 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.used_registers[reg2] = False
 
     @visit.register
+    def _(self, node: JumpIfGreater):
+        left = self.visit(node.left)
+        right = self.visit(node.rigt)
+        reg1 = self.get_available_register()
+        reg2 = self.get_available_register()
+
+        assert left is not None
+        assert right is not None
+        assert reg1 is not None
+        assert reg2 is not None
+
+        self.comment(f"Update min if {reg1} < {reg2}")
+        self.register_instruction(LW(reg1, left))
+        self.register_instruction(LW(reg2, right))
+        self.register_instruction(BGTU(reg1, reg2, node.label))
+
+        self.used_registers[reg1] = False
+        self.used_registers[reg2] = False
+
+    @visit.register
     def _(self, node: cil.JumpIfGreaterThanZeroNode):
         self.add_source_line_comment(node)
         self.conditional_jump(node, branchNodes.BGT)
@@ -616,14 +636,42 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Registrar un comentario con la linea fuente
         self.add_source_line_comment(node)
         dest = self.visit(node.dest)
+        self_ptr = self.visit(node.obj)
 
         assert dest is not None
+        assert self_ptr is not None
 
-        # Saltar hacia la direccion de memoria correspondiente a la funcion
-        self.register_instruction(branchNodes.JAL(node.function))
+        # obtener el indice que le corresponde a la funcion que estamos llamando,
+        # Recordar que nuestra invariante garantiza que todo metodo con el mismo
+        # nombre ocupa el mismo indice en cada VTABLE
+        i = self.get_method_index(node.function)
 
-        # EL resultado viene en v0
+        # Reservar registros para operaciones intermedias
+        reg2 = self.get_available_register()
+        reg3 = self.get_available_register()
+        assert reg2 is not None and reg3 is not None, "out of registers"
+
+        # Actualizar el puntero a self en s1
+        self.comment("Save new self pointer in $s1")
+        self.register_instruction(LW(s1, self_ptr))
+
+        # Cargar el puntero a la VTABLE del tipo referenciado en TYPE
+        self.comment("Get pointer to type's VTABLE")
+        self.register_instruction(LA(reg2, f"{node.type_.name}_vtable"))
+
+        # Cargar el puntero a la funcion correspondiente en el tercer registro
+        self.comment("Get pointer to function address")
+        self.register_instruction(LW(reg3, f"{i * 4}(${REG_TO_STR[reg2]})"))
+
+        # saltar hacia la direccion de memoria correspondiente a la funcion
+        self.comment("Call function. Result is on $v0")
+        self.register_instruction(branchNodes.JALR(reg3))
+
+        # El resultado viene en $v0
         self.register_instruction(SW(v0, dest))
+
+        self.used_registers[reg2] = False
+        self.used_registers[reg3] = False
 
     @visit.register
     def _(self, node: cil.DynamicCallNode):
@@ -1063,6 +1111,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.comment("Save distance")
         self.register_instruction(LW(offset, f"0(${REG_TO_STR[tdt_table]})"))
         self.register_instruction(SW(offset, dest))
+
+        self.used_registers[tdt_table] = False
+        self.used_registers[offset] = False
 
     @visit.register
     def _(self, node: int):
