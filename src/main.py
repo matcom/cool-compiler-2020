@@ -8,10 +8,10 @@ args = sys.argv
 # if len(args) != 3:
 #     exit(1)
 
-# input_file = open(args[1], "r")
-# output_file = open(args[2], 'w')
+input_file = open(args[1], "r")
+output_file = open(args[2], 'w')
 
-input_file = open('./src/test.cl', "r")
+#input_file = open('./src/test.cl', "r")
 # output_file = open('./src/test.mips', 'w')
 
 t = input_file.read()
