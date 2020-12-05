@@ -13,6 +13,7 @@ jobs:
         - cd src
         - make clean
         - make
+        - python compiler.py ../tests/lexer/comment1.cl
         - make test TAG=lexer
     - stage: "Parser"
       name: "Parser" 
