@@ -10,4 +10,4 @@ echo "Copyright (c) 2019: Lazaro Jesus Suarez Nuñez, Marcos Antonio Maceo Reyes
 # Llamar al compilador
 #echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 
-python3 compiler.py "$INPUT_FILE" -o "$OUTPUT_FILE"
+python3 pp.py "$INPUT_FILE" -o "$OUTPUT_FILE"
