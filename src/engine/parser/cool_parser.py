@@ -388,7 +388,7 @@ class CoolParser:
 
     def p_unary_operations(self, p):
         '''subatom : INT_COMPLEMENT baseop
-                    | NOT baseop
+                    | NOT operat
                     | ISVOID baseop '''
         if p.slice[1].lex == '~':
             p[0] = ComplementNode(p[2])
@@ -397,11 +397,9 @@ class CoolParser:
         else:
             p[0] = IsVoidNode(p[2])
 
-    # def p_unary_operations_error(self, p):
-    #     '''subatom : INT_COMPLEMENT error
-    #                 | NOT error
-    #                 | ISVOID error '''
-    #     p[0] = ErrorNode()
+    def p_unary_operations_error(self, p):
+        '''subatom : NOT error '''
+        p[0] = ErrorNode()
 
     def p_complex_sub_atom(self, p):
         '''subatom : IF expr THEN expr ELSE expr FI
