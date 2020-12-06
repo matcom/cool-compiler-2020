@@ -1060,7 +1060,22 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: AbortNode):
-        self.register_instruction(LI(a0, 10))
+        # Cargar el puntero al tipo de self
+        src = self.visit(node.src)
+        self.register_instruction(LA(a0, node.abortion.name))
+        # Print abortion
+        self.register_instruction(LI(v0, 4))
+        self.register_instruction(SYSCALL())
+
+        self.register_instruction(LW(a0, src))
+        self.register_instruction(LI(v0, 4))
+        self.register_instruction(SYSCALL())
+
+        self.register_instruction(LA(a0, node.nl.name))
+        self.register_instruction(LI(v0, 4))
+        self.register_instruction(SYSCALL())
+
+        self.register_instruction(LI(v0, 10))
         self.register_instruction(SYSCALL())
 
     @visit.register

@@ -115,6 +115,8 @@ class BaseCoolToCilVisitor:
         self.current_method: Optional[Method] = None
         self.current_function: Optional[nodes.FunctionNode] = None
         self.null = self.register_data('""')
+        self.abortion = self.register_data('"Abort called from class "')
+        self.newLine = self.register_data(r'"\n"')
         self.__labels_count: int = 0
         self.__build_CART()
         self.build_builtins()
@@ -268,7 +270,9 @@ class BaseCoolToCilVisitor:
         # la funcion abort no recibe ningun paramentro
         # Simplemente llama trap y le pasa la causa "abortion"
         self.current_function = self.register_function("function_abort_at_Object")
-        self.register_instruction(AbortNode())
+        return_expr_vm_holder = self.define_internal_local()
+        self.register_instruction(TypeName(return_expr_vm_holder))
+        self.register_instruction(AbortNode(return_expr_vm_holder, self.abortion, self.newLine))
         self.current_function = None
 
     def __implement_copy(self):

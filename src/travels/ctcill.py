@@ -47,7 +47,7 @@ from cil.nodes import (
     StarNode,
     StaticCallNode,
     SubstringNode,
-    TdtLookupNode,
+    TdtLookupNode, TypeName,
     TypeNode,
     TypeOffsetNode,
     UnconditionalJump,
@@ -476,7 +476,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             self.register_instruction(LabelNode(next_label))
 
         self.register_instruction(LabelNode(error_label))
-        self.register_instruction(AbortNode())
+        self.register_instruction(TypeName(expr_vm_holder))
+        self.register_instruction(AbortNode(expr_vm_holder, self.abortion, self.newLine))
 
         self.register_instruction(LabelNode(end_label))
 

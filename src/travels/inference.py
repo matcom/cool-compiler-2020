@@ -13,6 +13,13 @@ from travels.context_actions import (
 
 void = semantic.VoidType()
 
+def get_type_attribute_chain(type_: Type):
+    if type_.name == "Object":
+        return []
+    else:
+        assert type_.parent is not None
+        return type_.attributes + get_type_attribute_chain(type_.parent)
+
 
 def find_common_parent(e1, e2):
     if e1.conforms_to(e2):
@@ -110,7 +117,9 @@ class TypeInferer:
         self.current_type = self.context.get_type(node.idx)
         # Definir los atributos heredados
         if deep == 1:
-            for attribute in self.current_type.attributes:
+            for attribute in (
+                get_type_attribute_chain(self.current_type)
+            ):
                 scope.define_variable(attribute.name, attribute.type, "ATTRIBUTE")
 
         for feature in node.features:
@@ -331,7 +340,14 @@ class TypeInferer:
     @visit.register
     def _(self, node: ActionNode, scope: Scope, infered_type=None, deep=1):
         if deep == 1:
-            scope.define_variable(node.idx, self.context.get_type(node.typex), "LOCAL")
+            try:
+                scope.define_variable(
+                    node.idx, self.context.get_type(node.typex), "LOCAL"
+                )
+            except SemanticError:
+                raise SemanticError(
+                    f"{node.line, node.column} - TypeError: Undefined type {node.typex}"
+                )
         return self.visit(node.actions, scope, infered_type, deep)
 
     @visit.register
