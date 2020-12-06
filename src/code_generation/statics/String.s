@@ -49,32 +49,27 @@ move $ra, $a2
 jr $ra
 
 String.substr:
-move $fp, $sp
-sw $ra, 0($sp)
-addiu $sp, $sp, -4
-lw $a0, 12($fp)
+lw $a0, -12($sp)
 addiu $a0, $a0, 1
 li $v0, 9
 syscall
-move $t0, $v0
-lw $s1, 4($fp)
-lw $t1, 8($fp)
-add $s1, $s1, $t1
-lw $t1, 12($fp)
-substr:
-lb $t5, ($s1)
-sb $t5, ($t0)
-addiu $s1, $s1, 1
-addiu $t0, $t0, 1
-addiu $t1, $t1, -1
-bne $t1, $zero, substr
-sb $zero, ($t0)
-move $a0, $v0
-lw $ra, 0($fp)
-addiu $sp, $sp, 20
-lw $fp, 0($sp)
-jr $ra 
-
+move $v1, $v0
+lw $a0, -4($sp)
+lw $a1, -8($sp)
+add $a0, $a0, $a1
+lw $a2, -12($sp)
+_stringsubstr.loop:
+beqz $a2, _stringsubstr.end
+lb $a1, 0($a0)
+beqz $a1, _substrexception
+sb $a1, 0($v1)
+addiu $a0, $a0, 1
+addiu $v1, $v1, 1
+addiu $a2, $a2, -1
+j _stringsubstr.loop
+_stringsubstr.end:
+sb $zero, 0($v1)
+jr $ra
 
 _substrexception:
 la $a0, strsubstrexception
