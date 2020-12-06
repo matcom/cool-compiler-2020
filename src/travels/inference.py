@@ -4,7 +4,7 @@ from typing import List, Optional
 import abstract.semantics as semantic
 import abstract.tree as coolAst
 from abstract.semantics import Scope, SemanticError, Type
-from abstract.tree import ActionNode, CaseNode, IsVoidNode, ParentFuncCall, SelfNode
+from abstract.tree import ActionNode, AttributeDef, CaseNode, IsVoidNode, MethodDef, ParentFuncCall, SelfNode
 from travels.context_actions import (
     update_attr_type,
     update_method_param,
@@ -122,17 +122,28 @@ class TypeInferer:
             ):
                 scope.define_variable(attribute.name, attribute.type, "ATTRIBUTE")
 
-        for feature in node.features:
-            if isinstance(feature, coolAst.AttributeDef):
-                self.visit(feature, scope, deep=deep)
+        attrib = [x for x in node.features if isinstance(x, AttributeDef)]
+        meth = [x for x in node.features if isinstance(x, MethodDef)]
+        features = attrib + meth
+        
         if deep == 1:
-            for feature in node.features:
-                if isinstance(feature, coolAst.MethodDef):
-                    self.visit(feature, scope.create_child(), deep=deep)
+            for f in features:
+                self.visit(f, scope.create_child(), deep)
         else:
-            methods = (f for f in node.features if isinstance(f, coolAst.MethodDef))
-            for feature, child_scope in zip(methods, scope.children):
-                self.visit(feature, child_scope, deep=deep)
+            for f, s in zip(features, scope.children):
+                self.visit(f, s, deep)
+
+        # for feature in node.features:
+        #     if isinstance(feature, coolAst.AttributeDef):
+        #         self.visit(feature, scope, deep=deep)
+        # if deep == 1:
+        #     for feature in node.features:
+        #         if isinstance(feature, coolAst.MethodDef):
+        #             self.visit(feature, scope.create_child(), deep=deep)
+        # else:
+        #     methods = (f for f in node.features if isinstance(f, coolAst.MethodDef))
+        #     for feature, child_scope in zip(methods, scope.children):
+        #         self.visit(feature, child_scope, deep=deep)
 
     # ---------------------------------------------------------
     # Definir un atributo en el scope.                        |
@@ -361,7 +372,7 @@ class TypeInferer:
         if deep == 1:
             scope = scope.create_child()
         else:
-            scope = scope.children[0]
+            scope = scope.children[0] if scope.children else scope
         for var_id, var_type, var_init_expr, l, c in node.var_list:
             try:
                 type_ = self.context.get_type(var_type)

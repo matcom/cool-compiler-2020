@@ -123,4 +123,4 @@ class Main {
 
 };
 """
-pipeline(text, 5)
+pipeline(text, 1)

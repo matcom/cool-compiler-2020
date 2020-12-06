@@ -82,7 +82,7 @@ if __name__ == "__main__":
     parser.add_argument("file", type=str, help="Cool source file.")
     parser.add_argument("--deep", type=int)
     args = parser.parse_args()
-    deep = 3 if args.deep is None else args.deep
+    deep = 1 if args.deep is None else args.deep
     with open(args.file, "r") as f:
         program = f.read()
         pipeline(program, deep, args.file)

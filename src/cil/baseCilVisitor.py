@@ -1,14 +1,21 @@
+import re
 from typing import List, Optional, Any, Dict, Tuple
+from abstract.tree import ClassDef
 import cil.nodes as nodes
 from abstract.semantics import Attribute, VariableInfo, Context, Type, Method
 from cil.nodes import (
-    AbortNode, AllocateStringNode, ConcatString, CopyNode, GetAttributeNode,
+    AbortNode,
+    AllocateStringNode,
+    ConcatString,
+    CopyNode,
+    GetAttributeNode,
     PrintIntNode,
     PrintNode,
     ReadIntNode,
     ReadNode,
     ReturnNode,
-    SelfNode, SubstringNode,
+    SelfNode,
+    SubstringNode,
     TypeName,
     TypeNode,
 )
@@ -81,6 +88,13 @@ class InheritanceGraph:
                 self.__time += 1
         self._finalization[root] = self.__time
 
+    def tp_sort(self, root: str, visited: Dict[str, bool], result):
+        visited[root] = True
+        for v in self._adytable[root]:
+            if not visited[v]:
+                self.tp_sort(v, visited, result)
+        result.append(root)
+
     def build_tdt(self):
         # Construir una tabla de distancia para cada Nodo del arbol.
         # En dicha tabla, tdt[x, y] = d donde d es la distancia entre
@@ -117,9 +131,18 @@ class BaseCoolToCilVisitor:
         self.null = self.register_data('""')
         self.abortion = self.register_data('"Abort called from class "')
         self.newLine = self.register_data(r'"\n"')
+        self.__inheritance_graph = None
         self.__labels_count: int = 0
         self.__build_CART()
         self.build_builtins()
+
+    def topological_sort_classDefs(self, classdef: List[ClassDef]):
+        visited = {x: False for x in self.__inheritance_graph._adytable}
+        result = []
+        self.__inheritance_graph.tp_sort("Object", visited, result)
+        l = [x for x in result if x in [y.idx for y in classdef]]
+        l = [next(c for c in classdef if c.idx == x) for x in l]
+        return list(reversed(l))
 
     @property
     def params(self) -> List[nodes.ParamNode]:
@@ -207,6 +230,7 @@ class BaseCoolToCilVisitor:
                 )  # type: ignore
 
         # Crear la TDT
+        self.__inheritance_graph = graph
         graph.build_tdt()
         self.tdt_table = graph.tdt
 
@@ -272,7 +296,9 @@ class BaseCoolToCilVisitor:
         self.current_function = self.register_function("function_abort_at_Object")
         return_expr_vm_holder = self.define_internal_local()
         self.register_instruction(TypeName(return_expr_vm_holder))
-        self.register_instruction(AbortNode(return_expr_vm_holder, self.abortion, self.newLine))
+        self.register_instruction(
+            AbortNode(return_expr_vm_holder, self.abortion, self.newLine)
+        )
         self.current_function = None
 
     def __implement_copy(self):
@@ -352,7 +378,6 @@ class BaseCoolToCilVisitor:
         bool_.methods.append(("abort", "function_abort_at_Object"))
         bool_.methods.append(("type_name", "function_type_name_at_Object"))
         bool_.methods.append(("copy", "function_copy_at_Object"))
-
 
         str_.methods.append(("abort", "function_abort_at_Object"))
         str_.methods.append(("type_name", "function_type_name_at_Object"))

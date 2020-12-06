@@ -1,5 +1,6 @@
-from abstract.semantics import Type
-from abstract.tree import EqualToNode, IsVoidNode, NotNode, SelfNode
+from re import L
+from abstract.semantics import Context, Type
+from abstract.tree import AttributeDef, ClassDef, EqualToNode, IsVoidNode, MethodDef, NotNode, SelfNode
 import cil.baseCilVisitor as baseCilVisitor
 import abstract.tree as coolAst
 import abstract.semantics as semantics
@@ -96,6 +97,11 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.register_instruction(ReturnNode(0))
         self.current_function = None
 
+        class_list = self.topological_sort_classDefs(node.class_list)
+
+        for c in node.class_list:
+            self.register_type(c.idx)
+
         for klass, child_scope in zip(node.class_list, scope.children):
             self.visit(klass, child_scope)
 
@@ -107,7 +113,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     def _(self, node: coolAst.ClassDef, scope: Scope) -> None:
         # Registrar el tipo que creamos en .Types section
         self.current_type = self.context.get_type(node.idx)
-        new_type_node = self.register_type(node.idx)
+        new_type_node = next(x for x in self.dot_types if x.name == node.idx)
 
         methods = self.current_type.methods
         attributes = self.current_type.attributes
@@ -161,18 +167,26 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
                     (method, self.to_function_name(method, node.idx))
                 )
 
-        # Visitar los atributos definidos en la clase para generar sus funciones
-        # de inicializacion
-        for feature in node.features:
-            if isinstance(feature, coolAst.AttributeDef):
-                self.visit(feature, scope)
+        attrib = [x for x in node.features if isinstance(x, AttributeDef)]
+        meth = [x for x in node.features if isinstance(x, MethodDef)]
+        features = attrib + meth
+        
+        
+        for f, s in zip(features, scope.children):
+            self.visit(f, s)
 
-        # Visitar cada metodo para generar su codigo en la seccion .CODE
-        for feature, child_scope in zip(
-            (x for x in node.features if isinstance(x, coolAst.MethodDef)),
-            scope.children,
-        ):
-            self.visit(feature, child_scope)
+        # # Visitar los atributos definidos en la clase para generar sus funciones
+        # # de inicializacion
+        # for feature in node.features:
+        #     if isinstance(feature, coolAst.AttributeDef):
+        #         self.visit(feature, scope)
+
+        # # Visitar cada metodo para generar su codigo en la seccion .CODE
+        # for feature, child_scope in zip(
+        #     (x for x in node.features if isinstance(x, coolAst.MethodDef)),
+        #     scope.children,
+        # ):
+        #     self.visit(feature, child_scope)
 
         self.current_type = None
 
@@ -470,7 +484,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             # Asignar al identificador idk el valor de expr0
             self.register_instruction(AssignNode(idk, expr_vm_holder))
             # Generar el codigo de la expresion asociada a esta rama
-            self.visit(action_node.actions, scope)
+            self.visit(action_node.actions, s)
             # Generar un salto de modo que no se chequee otra rama
             self.register_instruction(UnconditionalJump(end_label))
             self.register_instruction(LabelNode(next_label))
