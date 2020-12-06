@@ -414,5 +414,4 @@ dmypy.json
 src/ast.txt
 src/main.py
 .idea
-venv
 test
