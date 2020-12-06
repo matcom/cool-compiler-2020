@@ -6,7 +6,7 @@ li $v0, 4
 lw $a0, 8($sp)
 syscall
 lw $ra, 4($sp)
-addiu $sp, $sp, 12
+addiu $sp, $sp, 8
 lw $fp, 0($sp)
 jr $ra
 
@@ -19,7 +19,7 @@ li $v0, 1
 lw $a0, 8($sp)
 syscall
 lw $ra, 4($sp)
-addiu $sp, $sp, 12
+addiu $sp, $sp, 8
 lw $fp, 0($sp)
 jr $ra
 
@@ -55,7 +55,7 @@ bne $t1 , $t2 not_slash
 sb $zero, ($t0)
 not_slash:
 move $a0, $v0
-lw $ra, 4($fp)
+lw $ra, 4($sp)
 addiu $sp, $sp, 8
 lw $fp, 0($sp)
 jr $ra 
@@ -69,7 +69,7 @@ lw $a0, 4($fp)
 li $v0, 5
 syscall
 move $a0, $v0
-lw $ra, 4($fp)
+lw $ra, 4($sp)
 addiu $sp, $sp, 8
 lw $fp, 0($sp)
 jr $ra 

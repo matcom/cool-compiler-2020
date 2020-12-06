@@ -76,7 +76,7 @@ addiu $t1, $t1, -1
 bne $t1, $zero, substr
 sb $zero, ($t0)
 move $a0, $v0
-lw $ra, 0($fp)
+lw $ra, 16($sp)
 addiu $sp, $sp, 20
 lw $fp, 0($sp)
 jr $ra 
@@ -128,7 +128,7 @@ j str.end_equal_string
 str.equals_strings:
 li $a0, 1
 str.end_equal_string:
-lw $ra, 0($fp)
+lw $ra, 12($sp)
 addiu $sp, $sp, 16
 lw $fp, 0($sp)
 jr $ra 
