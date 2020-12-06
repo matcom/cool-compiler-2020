@@ -349,6 +349,10 @@ class BaseCoolToCilVisitor:
         bool_.methods.append(("type_name", "function_type_name_at_Object"))
         bool_.methods.append(("copy", "function_copy_at_Object"))
 
+
+        str_.methods.append(("abort", "function_abort_at_Object"))
+        str_.methods.append(("type_name", "function_type_name_at_Object"))
+        str_.methods.append(("copy", "function_copy_at_Object"))
         str_.methods.append(("concat", "function_concat_at_String"))
         str_.methods.append(("substr", "function_substr_at_String"))
         str_.methods.append(("length", "function_length_at_String"))

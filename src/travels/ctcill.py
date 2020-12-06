@@ -5,6 +5,7 @@ import abstract.tree as coolAst
 import abstract.semantics as semantics
 from typing import List, Optional, Tuple
 from functools import singledispatchmethod
+import re
 
 import cil.nodes
 
@@ -283,6 +284,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             # Si la variable es int, string o boolean, su valor por defecto es 0
             if var_info.type.name not in ("String", "Int", "Bool"):
                 self.register_instruction(AllocateNode(var_info.type, local_var))
+            elif var_info.type.name == "String":
+                self.register_instruction(AllocateStringNode(local_var, self.null, 0))
             else:
                 # Si la variable tiene una expresion de inicializacion
                 # entonces no es necesario ponerle valor por defecto
@@ -573,22 +576,29 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Registrar el string en la seccion de datos
         s1 = self.register_data(node.lex)
 
+        pluses = len(re.findall(r"\\n", node.lex)) + 2
+
         # Cargar el string en la variable interna
         self.register_instruction(
-            AllocateStringNode(str_const_vm_holder, s1, len(node.lex) - 2)
+            AllocateStringNode(str_const_vm_holder, s1, len(node.lex) - pluses)
         )
 
         # Devolver la variable que contiene el string
         return str_const_vm_holder
 
     @visit.register
-    def _(self, node: coolAst.TrueConstant, scope: Scope) -> int:
+    def _(self, node: coolAst.TrueConstant, scope: Scope):
         # variable interna que devuelve el valor de la constante
-        return 1
+        expr = self.define_internal_local()
+        self.register_instruction(AssignNode(expr, 1))
+        return expr
 
     @visit.register
-    def _(self, node: coolAst.FalseConstant, scope: Scope) -> int:
-        return 0
+    def _(self, node: coolAst.FalseConstant, scope: Scope):
+        # variable interna que devuelve el valor de la constante
+        expr = self.define_internal_local()
+        self.register_instruction(AssignNode(expr, 0))
+        return expr
 
     # *******************  Implementacion de las comparaciones ********************
     # Todas las operaciones de comparacion devuelven 1 si el resultado es verdadero,

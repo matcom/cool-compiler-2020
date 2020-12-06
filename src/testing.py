@@ -61,82 +61,28 @@ def pipeline(program: str, deep: int) -> None:
 
 
 text = r"""class Main inherits IO {
-    main() : IO {
-	(let c : Complex <- (new Complex).init(1, 1) in
-	    {
-	        -- trivially equal (see CoolAid)
-	        if c.reflect_X() = c.reflect_0()
-	        then out_string("=)\n")
-	        else out_string("=(\n")
-	        fi;
-		-- equal
-	        if c.reflect_X().reflect_Y().equal(c.reflect_0())
-	        then out_string("=)\n")
-	        else out_string("=(\n")
-	        fi;
-	    }
-	)
-    };
-};
-
-class Complex inherits IO {
-    x : Int;
-    y : Int;
-
-    init(a : Int, b : Int) : Complex {
-	{
-	    x = a;
-	    y = b;
-	    self;
-	}
-    };
-
-    print() : Object {
-	if y = 0
-	then out_int(x)
-	else out_int(x).out_string("+").out_int(y).out_string("I")
-	fi
-    };
-
-    reflect_0() : Complex {
-	{
-	    x = ~x;
-	    y = ~y;
-	    self;
-	}
-    };
-
-    reflect_X() : Complex {
-	{
-	    y = ~y;
-	    self;
-	}
-    };
-
-    reflect_Y() : Complex {
-	{
-	    x = ~x;
-	    self;
-	}
-    };
-
-    equal(d : Complex) : Bool {
-	if x = d.x_value()
-	then
-	    if y = d.y_value()
-	    then true
-	    else false
-	    fi
+    pal(s : String) : Bool {
+	if s.length() = 0
+	then true
+	else if s.length() = 1
+	then true
+	else if s.substr(0, 1) = s.substr(s.length() - 1, 1)
+	then pal(s.substr(1, s.length() -2))
 	else false
-	fi
+	fi fi fi
     };
 
-    x_value() : Int {
-	x
-    };
+    i : Int;
 
-    y_value() : Int {
-	y
+    main() : IO {
+	{
+            i <- ~1;
+	    out_string("enter a string\n");
+	    if pal(in_string())
+	    then out_string("that was a palindrome\n")
+	    else out_string("that was not a palindrome\n")
+	    fi;
+	}
     };
 };
 

@@ -1,4 +1,6 @@
 from pickle import TRUE
+
+from cloudpickle.cloudpickle import instance
 from abstract.semantics import Type
 from cil.nodes import (
     AbortNode,
@@ -340,7 +342,10 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # Cargar el valor de source en un registro temporal
         # y luego moverlo a la direccion de memoria del
         # atributo
-        self.register_instruction(LW(reg, source))
+        if isinstance(source, int):
+            self.register_instruction(LI(reg, source))
+        else:
+            self.register_instruction(LW(reg, source))
         self.register_instruction(SW(reg, f"{offset}($s1)"))
 
         self.used_registers[reg] = False
@@ -532,6 +537,11 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         self.register_instruction(MOVE(temp, v0))
 
+        # Cada atributo puede hacer referencia a atributos anteriormente
+        # definidos, o sea que tenemos que salvar self
+        self.push_register(s1)
+        self.register_instruction(MOVE(s1, v0))
+
         # Los atributos comienzan en el indice 8($v0)
         for i, attribute in enumerate(instance_type.attributes):
             attrib_type_name = locate_attribute_in_type_hierarchy(
@@ -549,6 +559,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
             self.register_instruction(
                 SW(dest=v0, src=f"{12 + i*4}(${REG_TO_STR[temp]})")
             )
+
+        # Restaurar self
+        self.pop_register(s1)
 
         # mover la direccion que almacena la instancia hacia dest
         self.register_instruction(SW(temp, dest))
@@ -627,7 +640,10 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         assert src is not None
         assert dest is not None
 
-        self.register_instruction(LW(reg, src))
+        if isinstance(src, int):
+            self.register_instruction(LI(reg, src))
+        else:
+            self.register_instruction(LW(reg, src))
         self.register_instruction(NOT(reg, reg))
         self.register_instruction(SW(reg, dest))
 
@@ -961,7 +977,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Reservar memoria para el nuevo buffer
         # $v0 = 9 (syscall 9 = sbrk)
-        self.register_instruction(ADDU(a0, a0, 1, True))
+        self.register_instruction(ADDU(a0, a0, 4, True))
         self.register_instruction(LI(v0, 9))
         self.register_instruction(SYSCALL())
 
@@ -1088,6 +1104,11 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(ADDU(length, length, 1, True))
         self.register_instruction(J("read_length_loop"))
         self.register_instruction(Label("end_read_length_loop"))
+
+        # Remove new line
+        self.register_instruction(SUBU(reg2, reg2, 1, True))
+        self.register_instruction(SB(zero, f"0(${REG_TO_STR[reg2]})"))
+        self.register_instruction(SUBU(length, length, 1, True))
 
         # length contiene el length del string
         # Crear la instancia
