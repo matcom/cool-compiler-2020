@@ -300,3 +300,9 @@ class JumpIfGreater(InstructionNode):
         self.left = src1
         self.rigt = src2
         self.label = label
+
+
+class BitwiseNotNode(InstructionNode):
+    def __init__(self, src, dest) -> None:
+        self.dest = dest
+        self.src = src

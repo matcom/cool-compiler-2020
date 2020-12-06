@@ -1,5 +1,5 @@
 from abstract.semantics import Type
-from abstract.tree import EqualToNode, IsVoidNode, SelfNode
+from abstract.tree import EqualToNode, IsVoidNode, NotNode, SelfNode
 import cil.baseCilVisitor as baseCilVisitor
 import abstract.tree as coolAst
 import abstract.semantics as semantics
@@ -14,7 +14,7 @@ from cil.nodes import (
     AllocateNode,
     AllocateStringNode,
     ArgNode,
-    AssignNode,
+    AssignNode, BitwiseNotNode,
     CilNode,
     CilProgramNode,
     ConcatString,
@@ -32,7 +32,6 @@ from cil.nodes import (
     LoadNode,
     LocalNode,
     MinusNode,
-    NotNode,
     NotZeroJump,
     ParamNode,
     PlusNode,
@@ -239,10 +238,11 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     # **************
 
     @visit.register
-    def _(self, node: coolAst.IfThenElseNode, scope: Scope) -> None:  # noqa: F811
+    def _(self, node: coolAst.IfThenElseNode, scope: Scope):  # noqa: F811
         # Crear un LABEL al cual realizar un salto.
-        false_label = self.do_label("FALSE")
-        end_label = self.do_label("END")
+        false_label = self.do_label("FALSEIF")
+        end_label = self.do_label("ENDIF")
+        return_expr = self.define_internal_local()
 
         # Salvar las instrucciones relacionadas con la condicion,
         # cada expresion retorna el nombre de la variable interna que contiene el valor ??
@@ -253,15 +253,19 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.register_instruction(IfZeroJump(internal_cond_vm_holder, false_label))
 
         # Salvar las instrucciones relacionadas con la rama TRUE.
-        self.visit(node.expr1, scope)
+        expr = self.visit(node.expr1, scope)
+        self.register_instruction(AssignNode(return_expr, expr))
 
         self.register_instruction(UnconditionalJump(end_label))
 
         # Registrar las instrucciones relacionadas con la rama ELSE
         self.register_instruction(LabelNode(false_label))
-        self.visit(node.expr2, scope)
+        expr2 = self.visit(node.expr2, scope)
+        self.register_instruction(AssignNode(return_expr, expr2))
 
         self.register_instruction(LabelNode(end_label))
+
+        return return_expr
 
     @visit.register
     def _(self, node: coolAst.VariableDeclaration, scope: Scope) -> CilNode:
@@ -866,6 +870,13 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.register_instruction(AllocateBoolNode(return_bool_vm_holder, 1))
         self.register_instruction(LabelNode(end_label))
         return return_bool_vm_holder
+
+    @visit.register
+    def _(self, node: NotNode, scope: Scope):
+        expr = self.define_internal_local()
+        result = self.visit(node.lex, scope)
+        self.register_instruction(BitwiseNotNode(result, expr))
+        return expr
 
 
 class CilDisplayFormatter:

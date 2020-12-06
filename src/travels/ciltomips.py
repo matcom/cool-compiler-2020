@@ -1,7 +1,14 @@
 from pickle import TRUE
 from abstract.semantics import Type
-from cil.nodes import AbortNode, AllocateBoolNode, ConcatString, JumpIfGreater, LocalNode
-from mips.arithmetic import ADD, ADDU, DIV, MUL, NOR, SUB, SUBU
+from cil.nodes import (
+    AbortNode,
+    AllocateBoolNode,
+    BitwiseNotNode,
+    ConcatString,
+    JumpIfGreater,
+    LocalNode,
+)
+from mips.arithmetic import ADD, ADDU, DIV, MUL, NOR, NOT, SUB, SUBU
 from mips.baseMipsVisitor import (
     BaseCilToMipsVisitor,
     DotDataDirective,
@@ -327,7 +334,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         source = self.visit(node.source)
         reg = self.get_available_register()
 
-        assert reg is not None and source is not None
+        assert reg is not None
+        assert source is not None
 
         # Cargar el valor de source en un registro temporal
         # y luego moverlo a la direccion de memoria del
@@ -607,6 +615,23 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
     def _(self, node: cil.UnconditionalJump):
         self.add_source_line_comment(node)
         self.register_instruction(branchNodes.J(node.label))
+
+    @visit.register
+    def _(self, node: BitwiseNotNode):
+        dest = self.visit(node.dest)
+        src = self.visit(node.src)
+
+        reg = self.get_available_register()
+
+        assert reg is not None
+        assert src is not None
+        assert dest is not None
+
+        self.register_instruction(LW(reg, src))
+        self.register_instruction(NOT(reg, reg))
+        self.register_instruction(SW(reg, dest))
+
+        self.used_registers[reg] = False
 
     @visit.register
     def _(self, node: cil.NotNode):
@@ -1024,7 +1049,80 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
     @visit.register
     def _(self, node: cil.ReadNode):
-        pass
+        dest = self.visit(node.dest)
+
+        assert dest is not None
+        size = 1024  # Max string length in COOL
+        reg = self.get_available_register()
+        reg2 = self.get_available_register()
+        length = self.get_available_register()
+        temp = self.get_available_register()
+        assert reg is not None
+        assert length is not None
+        assert temp is not None
+        assert reg2 is not None
+
+        # Declarar un buffer para el string
+        self.allocate_memory(size)
+        self.register_instruction(MOVE(reg, v0))
+
+        # Mover la direccion del buffer a0
+        self.register_instruction(MOVE(a0, v0))
+        # declarar el espacio disponible en el buffer
+        self.register_instruction(LI(a1, size))
+        # syscall 8 = read_int
+        self.register_instruction(LI(v0, 8))
+        self.register_instruction(SYSCALL())
+
+        # reg contiene el string.
+        # Crear la instancia del tipo string.
+        # Primero calcular el length del string
+        self.register_instruction(MOVE(length, zero))
+        self.register_instruction(MOVE(temp, zero))
+        self.register_instruction(MOVE(reg2, reg))
+        self.register_instruction(Label("read_length_loop"))
+        # while [reg2] != 0: length ++
+        self.register_instruction(LB(temp, f"0(${REG_TO_STR[reg2]})"))
+        self.register_instruction(BEQZ(temp, "end_read_length_loop"))
+        self.register_instruction(ADDU(reg2, reg2, 1, True))
+        self.register_instruction(ADDU(length, length, 1, True))
+        self.register_instruction(J("read_length_loop"))
+        self.register_instruction(Label("end_read_length_loop"))
+
+        # length contiene el length del string
+        # Crear la instancia
+
+        size = 20
+
+        # Reservar memoria para el tipo
+        self.allocate_memory(size)
+
+        self.comment("Allocating string")
+
+        # Inicializar la instancia
+        self.register_instruction(LA(reg2, "String"))
+        self.register_instruction(SW(reg2, "0($v0)"))
+
+        self.register_instruction(LA(reg2, "String_start"))
+        self.register_instruction(SW(reg2, "4($v0)"))
+
+        # Cargar el offset del tipo
+        self.comment("Load type offset")
+        offset = next(i for i, t in enumerate(self.mips_types) if t == "String") * 4
+        self.register_instruction(LI(reg2, offset))
+        self.register_instruction(SW(reg2, "8($v0)"))
+
+        self.register_instruction(SW(reg, "12($v0)"))
+
+        self.register_instruction(SW(length, "16($v0)"))
+
+        # devolver la instancia
+        self.register_instruction(SW(v0, dest))
+
+        self.used_registers[reg] = False
+        self.used_registers[reg2] = False
+        self.used_registers[temp] = False
+        self.used_registers[length] = False
 
     @visit.register
     def _(self, node: cil.TypeName):
