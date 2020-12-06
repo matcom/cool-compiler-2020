@@ -369,10 +369,10 @@ class TypeInferer:
         infered_type=None,
         deep=1,
     ):
-        if deep == 1:
-            scope = scope.create_child()
-        else:
-            scope = scope.children[0] if scope.children else scope
+        # if deep == 1:
+        #     scope = scope.create_child()
+        # else:
+        #     scope = scope.children[0] if scope.children else scope
         for var_id, var_type, var_init_expr, l, c in node.var_list:
             try:
                 type_ = self.context.get_type(var_type)
