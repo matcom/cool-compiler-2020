@@ -21,10 +21,13 @@ t = input_file.read()
 lexer = CoolLexer()
 tokens, errors = lexer.tokenize(t)
 
-# print(tokens)
 if len(errors):
     for e in errors:
         print(e)
+    exit(1)
+
+if not tokens:
+    print(SyntacticError(0, 0, 'ERROR at or near "%s"' % 'EOF'))
     exit(1)
 
 lexer = CoolLexer()
@@ -42,37 +45,37 @@ if errors:
 
 # print(tree)
 
-# collect_errors = []
-# collect = Collector(collect_errors)
-# collect.visit(ast)
+collect_errors = []
+collect = Collector(collect_errors)
+collect.visit(ast)
 
-# if len(collect_errors):
-#     # print("coolector")
-#     for e in collect_errors[::-1]:
-#         print(e)
-#     exit(1)
+if len(collect_errors):
+    # print("coolector")
+    for e in collect_errors[::-1]:
+        print(e)
+    exit(1)
 
-# context = collect.context
-# builder_errors = []
-# builder = Builder(context, builder_errors)
-# builder.visit(ast)
+context = collect.context
+builder_errors = []
+builder = Builder(context, builder_errors)
+builder.visit(ast)
 
-# if len(builder_errors):
-#     # print("builder")
-#     for e in builder_errors[::-1]:
-#         print(e)
-#     exit(1)
+if len(builder_errors):
+    # print("builder")
+    for e in builder_errors[::-1]:
+        print(e)
+    exit(1)
 
-# context = builder.context
-# checker_errors = []
-# checker = Checker(context, checker_errors)
-# scope = checker.visit(ast)
+context = builder.context
+checker_errors = []
+checker = Checker(context, checker_errors)
+scope = checker.visit(ast)
 
-# if len(checker_errors):
-#     # print("checker")
-#     for e in checker_errors[::-1]:
-#         print(e)
-#     exit(1)
+if len(checker_errors):
+    # print("checker")
+    for e in checker_errors[::-1]:
+        print(e)
+    exit(1)
 
 
 # cil = COOL_TO_CIL(checker.context)
