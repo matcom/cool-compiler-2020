@@ -1,18 +1,26 @@
 IO.out_string:
+move $fp, $sp
 sw $ra, 0($sp)
 addiu $sp, $sp, -4
 li $v0, 4
 lw $a0, 8($sp)
 syscall
+lw $ra, 4($sp)
+addiu $sp, $sp, 8
+lw $fp, 0($sp)
 jr $ra
 
 
 IO.out_int:
+move $fp, $sp
 sw $ra, 0($sp)
 addiu $sp, $sp, -4
 li $v0, 1
 lw $a0, 8($sp)
 syscall
+lw $ra, 4($sp)
+addiu $sp, $sp, 8
+lw $fp, 0($sp)
 jr $ra
 
 
@@ -47,8 +55,8 @@ bne $t1 , $t2 not_slash
 sb $zero, ($t0)
 not_slash:
 move $a0, $v0
-lw $ra, 0($fp)
-addiu $sp, $sp, 12
+lw $ra, 4($sp)
+addiu $sp, $sp, 8
 lw $fp, 0($sp)
 jr $ra 
 
@@ -61,7 +69,7 @@ lw $a0, 4($fp)
 li $v0, 5
 syscall
 move $a0, $v0
-lw $ra, 0($fp)
-addiu $sp, $sp, 12
+lw $ra, 4($sp)
+addiu $sp, $sp, 8
 lw $fp, 0($sp)
-jr $ra
+jr $ra 

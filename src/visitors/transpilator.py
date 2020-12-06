@@ -81,9 +81,9 @@ class codeVisitor:
         # self.code.append(CustomLineIL("sub $a2, $a2, $a2\n"))
         # self.code.append(CustomLineIL("sub $a3, $a3, $a3\n"))
 
-        self.code.append(PushIL())
-        self.code.append(PushIL())
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
+        # self.code.append(PushIL())
+        # self.code.append(PushIL())
 
         self.code.append(AllocateIL(1, self.virtual_table.get_index('Main'), 'Main'))
         self.code.append(DispatchParentIL(2, 1, 'Main.Constructor'))
@@ -97,8 +97,8 @@ class codeVisitor:
         built_in = ['Object','Int', 'IO', 'Bool', 'String']
         for t in built_in:
             self.code.append(LabelIL(t, 'Constructor', True))
-            self.code.append(PushIL())
-            self.code.append(ReturnIL())
+            # self.code.append(PushIL())
+            self.code.append(ReturnIL(0))
             self.setClassTypeName(t)
 
     def setClassConstructor(self, attributes):
@@ -116,8 +116,12 @@ class codeVisitor:
             index = self.virtual_table.get_attributes_id(self.current_class, node.id)
             self.code.append(VarToMemoIL(vars.id('self'), vars.id(p), index))
 
-        self.code.append(PushIL())
-        self.code.append(ReturnIL())
+        # self.code.append(PushIL())
+        # if self.current_class == 'Main':
+        #     self.code.append(ReturnIL(len(at))
+        # else: 
+        #     self.code.append(ReturnIL())
+        self.code.append(ReturnIL(1))
 
     def setClassTypeName(self, claSS):
         self.code.append(LabelIL(claSS, 'type_name', True))
@@ -128,7 +132,7 @@ class codeVisitor:
 
     def handleBinaryOps(self, node, variables, symbol):
         self.code.append(CommentIL('Binary'))
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
         res = variables.add_temp()
 
         self.visit(node.left, variables)
@@ -140,12 +144,12 @@ class codeVisitor:
 
         variables.pop_var()
         variables.pop_var()
-        self.code.append(PopIL(2))
+        # self.code.append(PopIL(2))
 
     def handleUnaryOps(self, node, variables, symbol):
         self.code.append(CommentIL('Unary'))
         res = variables.add_temp()
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
 
         self.visit(node.expr, variables)
         v = variables.peek_last()
@@ -200,11 +204,11 @@ class codeVisitor:
         if self.current_class == 'Main' and node.id == 'main':
             self.code.append("j Object.abort\n")
         else:
-            self.code.append(ReturnIL())
+            self.code.append(ReturnIL(len(node.params)))
 
     @visitor.when(VarDeclarationNode)
     def visit(self, node, variables):
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
         p = variables.add_var(node.idx)
 
         if node.expr != None:
@@ -212,7 +216,7 @@ class codeVisitor:
             res = variables.peek_last()
             self.code.append(VarToVarIL(variables.id(p), variables.id(res)))
             variables.pop_var()
-            self.code.append(PopIL())
+            # self.code.append(PopIL())
 
     #operations: binary
     @visitor.when(SumNode)
@@ -256,7 +260,7 @@ class codeVisitor:
     #expressions: atomics
     @visitor.when(VariableNode)
     def visit(self, node, variables):
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
         result = variables.add_temp()
         # print(node.id)
         if node.id in variables.stack:
@@ -267,12 +271,12 @@ class codeVisitor:
     @visitor.when(NewNode)
     def visit(self, node, variables):
         result = variables.add_temp()
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
 
         dispatch = variables.add_temp()
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
 
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
         p = variables.add_temp()
 
         size = self.virtual_table.get_index(node.type)
@@ -281,7 +285,8 @@ class codeVisitor:
         self.code.append(VarToVarIL(variables.id(result), variables.id(p)))
         self.code.append(DispatchParentIL(variables.id(dispatch), variables.id(p), node.type + '.Constructor'))
 
-        self.code.append(PopIL(2))
+        # self.code.append(PopIL(3))
+        variables.pop_var()
         variables.pop_var()
         variables.pop_var()
 
@@ -290,7 +295,7 @@ class codeVisitor:
     def visit(self, node, variables):
         self.code.append(CommentIL('Condition'))
         result = variables.add_temp()
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
 
         self.visit(node.cond, variables)
         p = variables.peek_last()
@@ -315,13 +320,13 @@ class codeVisitor:
         self.code.append(LabelIL('_fi', IF.second))
 
         variables.pop_var()
-        self.code.append(PopIL(2))
+        # self.code.append(PopIL(2))
         
 
     @visitor.when(WhileNode)
     def visit(self, node, variables):
         self.code.append(CommentIL('loop'))
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
         
         result = variables.add_temp()
 
@@ -342,7 +347,7 @@ class codeVisitor:
         self.visit(node.expr, variables)
         variables.pop_var()
         variables.pop_var()
-        self.code.append(PopIL(2))
+        # self.code.append(PopIL(2))
         self.code.append(GotoIL(LOOP.label))
         
         self.code.append(POOL)
@@ -351,7 +356,7 @@ class codeVisitor:
     @visitor.when(LetNode)
     def visit(self, node, variables):
         self.code.append(CommentIL('Let'))
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
         result = variables.add_temp()
         result1 = variables.add_temp()
         vars = variables.get_copy()
@@ -370,7 +375,7 @@ class codeVisitor:
         except:
             pass
 
-        self.code.append(PopIL(pop_times))
+        # self.code.append(PopIL(pop_times))
 
 
 
@@ -382,14 +387,14 @@ class codeVisitor:
     def visit(self, node, variables):
         self.code.append(CommentIL('Block'))
         result = variables.add_temp()
-        self.code.append(PushIL(0))
+        # self.code.append(PushIL(0))
         for expr in node.expr_list:
             self.visit(expr, variables)
         
         p = variables.peek_last()
         self.code.append(VarToVarIL(variables.id(result), variables.id(p)))
 
-        self.code.append(PopIL(len(node.expr_list)))
+        # self.code.append(PopIL(len(node.expr_list)))
         for i in range(len(node.expr_list)):
             variables.pop_var()
 
@@ -399,7 +404,7 @@ class codeVisitor:
         # node.case_list.sort(key = lambda x : self.depth[x.typex], reverse = True)
 
         result = variables.add_temp()
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
 
         self.visit(node.expr, variables)
         p = variables.peek_last()
@@ -411,12 +416,12 @@ class codeVisitor:
         index = 0
         for b in node.case_list:
             tmp = variables.add_temp()
-            self.code.append(PushIL())
+            # self.code.append(PushIL())
 
             self.code.append(InheritIL(variables.id(p), b.typex, variables.id(tmp)))
             
             self.code.append(IfJumpIL(variables.id(tmp), labels[index].label))
-            self.code.append(PopIL(1))
+            # self.code.append(PopIL(1))
             variables.pop_var()
             index += 1
 
@@ -426,9 +431,9 @@ class codeVisitor:
             self.code.append(labels[i])
             i += 1
             variables.pop_var()
-            self.code.append(PopIL(1))
+            # self.code.append(PopIL(1))
 
-            self.code.append(PushIL())
+            # self.code.append(PushIL())
             result = variables.add_var(b.id)
             self.code.append(VarToVarIL(variables.id(result), variables.id(p)))
             
@@ -440,7 +445,7 @@ class codeVisitor:
             variables.pop_var()
             variables.pop_var()
 
-            self.code.append(PopIL(3))
+        # self.code.append(PopIL(3))
 
     @visitor.when(OptionNode)
     def visit(self, node, variables):
@@ -466,8 +471,8 @@ class codeVisitor:
         self.code.append(CommentIL('Point-Dispatch'))
 
         result = variables.add_temp()
-        self.code.append(PushIL())
-        print('----------node {}---------'.format(node.id))
+        # self.code.append(PushIL())
+        # print('----------node {}---------'.format(node.id))
         index = self.virtual_table.get_method_id(node.obj, node.id)
         if str(node.id) == 'type_name':
             index = self.virtual_table.get_method_id(self.context.exprs_dict[node.obj].name, node.id)
@@ -488,21 +493,21 @@ class codeVisitor:
         for i in range(0, len(node.args) + 1):
             variables.pop_var()
 
-        self.code.append(PopIL(len(node.args) + 1))
+        # self.code.append(PopIL(len(node.args) + 1))
 
     @visitor.when(SelfCallNode)
     def visit(self, node, variables):
         self.code.append(CommentIL('Self-Dispatch'))
 
         result = variables.add_temp()
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
         # print('----------node {}---------'.format(node))
         index = self.virtual_table.get_method_id(self.current_class, node.id)
 
         if self.current_class != 'Main':
             self.code.append(CommentIL('push self'))
             s = variables.add_temp()
-            self.code.append(PushIL())
+            # self.code.append(PushIL())
             self.code.append(VarToVarIL(variables.id(s), variables.id('self')))
         
         i = 0
@@ -519,14 +524,14 @@ class codeVisitor:
         for i in range(len(node.args) + n):
             variables.pop_var()
         
-        self.code.append(PopIL(len(node.args) + n))
+        # self.code.append(PopIL(len(node.args) + n))
 
     @visitor.when(ParentCallNode)
     def visit(self, node, variables):
         self.code.append(CommentIL('Parent-Dispatch'))
 
         result = variables.add_temp()
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
 
         self.code.append('push object')
         self.visit(node.obj, variables)
@@ -546,7 +551,7 @@ class codeVisitor:
 
         for i in range((len(node.args) + 1)):
             variables.pop_var()
-        self.code.append(PopIL(len(node.args) + 1))
+        # self.code.append(PopIL(len(node.args) + 1))
 
 
     #constants
@@ -561,7 +566,7 @@ class codeVisitor:
         label = 'string_' + str(self.getInt())
         self.data.append(StringIL(label, node.lex))
         self.code.append(CommentIL('loading label'))
-        self.code.append(PushIL())
+        # self.code.append(PushIL())
         p = variables.add_temp()
 
         self.code.append(LoadLabelIL(variables.id(p), label))
