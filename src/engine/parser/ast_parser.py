@@ -1,7 +1,9 @@
 
 # AST Classes
 class Node:
-    pass
+    def __init__(self):
+        self.line = 0
+        self.column = 0
 
 
 class ErrorNode(Node):
@@ -195,6 +197,11 @@ class FunctionCallNode(ExpressionNode):
         self.type = typex
         self.line = idx.line
         self.column = idx.column
+    
+    def __iter__(self):
+        yield from (self.id, self.type, self.expression)
+
+
 
 
 class MemberCallNode(ExpressionNode):

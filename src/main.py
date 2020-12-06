@@ -11,7 +11,7 @@ args = sys.argv
 input_file = open(args[1], "r")
 output_file = open(args[2], 'w')
 
-#input_file = open('./src/test.cl', "r")
+# input_file = open('./src/test.cl', "r")
 # output_file = open('./src/test.mips', 'w')
 
 t = input_file.read()
@@ -37,10 +37,10 @@ if errors:
     exit(1)
 # print(ast)
 
-fmatter = Format()
-tree = fmatter.visit(ast, 0)
+# fmatter = Format()
+# tree = fmatter.visit(ast, 0)
 
-print(tree)
+# print(tree)
 
 # collect_errors = []
 # collect = Collector(collect_errors)
@@ -91,6 +91,7 @@ print(tree)
 # # output_file.write(str(builder_errors))
 # # output_file.write(str(checker_errors))
 # # output_file.write(collect_errors)
+input_file.close()
 output_file.close()
 
 

@@ -179,6 +179,41 @@ class CoolParser:
             p[0] = [LetVariableDeclaration(
                 p.slice[1], p.slice[3], p[5])] + p[7]
 
+    def p_let_list_error(self, p):
+        '''let_list : error COLON TYPE
+                    | ID COLON error
+                    | error COLON error 
+                    | error COLON TYPE ASSIGN expr
+                    | ID COLON error ASSIGN expr
+                    | ID COLON TYPE ASSIGN error
+                    | ID COLON error ASSIGN error
+                    | error COLON error ASSIGN expr
+                    | error COLON TYPE ASSIGN error
+                    | error COLON error ASSIGN error
+                    | error COLON TYPE COMMA let_list
+                    | ID COLON error COMMA let_list
+                    | ID COLON TYPE COMMA error
+                    | ID COLON error COMMA error
+                    | error COLON error COMMA let_list
+                    | error COLON TYPE COMMA error
+                    | error COLON error COMMA error
+                    | error COLON error ASSIGN error COMMA error
+                    | ID COLON error ASSIGN error COMMA error
+                    | error COLON TYPE ASSIGN error COMMA error
+                    | ID COLON TYPE ASSIGN error COMMA error
+                    | error COLON error ASSIGN expr COMMA error
+                    | ID COLON error ASSIGN expr COMMA error
+                    | error COLON TYPE ASSIGN expr COMMA error
+                    | ID COLON TYPE ASSIGN expr COMMA error
+                    | error COLON error ASSIGN error COMMA let_list
+                    | ID COLON error ASSIGN error COMMA let_list
+                    | error COLON TYPE ASSIGN error COMMA let_list
+                    | ID COLON TYPE ASSIGN error COMMA let_list
+                    | error COLON error ASSIGN expr COMMA let_list
+                    | ID COLON error ASSIGN expr COMMA let_list
+                    | error COLON TYPE ASSIGN expr COMMA let_list '''
+        p[0] = [ErrorNode()]
+
     def p_case_list(self, p):
         '''case_list : ID COLON TYPE ACTION expr SEMI
                     | ID COLON TYPE ACTION expr SEMI case_list '''
@@ -187,7 +222,7 @@ class CoolParser:
                 p.slice[1], p.slice[3], p[5])]
         else:
             p[0] = [CaseVariableDeclaration(
-                p.slice[1], p.slice[3], p[5])] + p[7]
+               p.slice[1], p.slice[3], p[5])] + p[7]
 
     def p_case_list_error(self, p):
         '''case_list : error COLON TYPE ACTION expr SEMI
@@ -203,8 +238,15 @@ class CoolParser:
                     | ID COLON TYPE error error SEMI case_list
                     | error COLON error ACTION expr SEMI case_list
                     | error COLON TYPE ACTION error SEMI case_list
-                    | error COLON error ACTION error SEMI case_list'''
-        p[0] = ErrorNode()
+                    | error COLON error ACTION error SEMI case_list
+                    | error COLON TYPE ACTION expr SEMI error
+                    | ID COLON TYPE ACTION expr SEMI error
+                    | ID COLON error ACTION expr SEMI error
+                    | ID COLON TYPE error error SEMI error
+                    | error COLON error ACTION expr SEMI error
+                    | error COLON TYPE ACTION error SEMI error
+                    | error COLON error ACTION error SEMI error'''
+        p[0] = [ErrorNode()]
 
     def p_func_call(self, p):
         '''funccall : ID OPAR CPAR
@@ -219,7 +261,7 @@ class CoolParser:
                     | ID OPAR error CPAR
                     | error OPAR arg_list CPAR
                     | error OPAR error CPAR'''
-        p[0] = ErrorNode()
+        p[0] = (ErrorNode(), ErrorNode())
 
     def p_arg_list(self, p):
         ''' arg_list : expr
@@ -258,6 +300,18 @@ class CoolParser:
         else:
             p[0] = EqualNode(p[1], p[3])
 
+    def p_comp_error(self, p):
+        '''operat : error LESSEQUAL operat
+                    | error LESSEQUAL error
+                    | operat LESSEQUAL error
+                    | error LESS operat
+                    | error LESS error
+                    | operat LESS error
+                    | error EQUAL operat
+                    | error EQUAL error
+                    | operat EQUAL error'''
+        p[0] = ErrorNode()
+
     def p_arith(self, p):
         '''operat : operat PLUS operat
                 | operat MINUS operat
@@ -273,13 +327,18 @@ class CoolParser:
             p[0] = DivNode(p[1], p[3])
 
     def p_operat_error(self, p):
-        '''operat : operat LESSEQUAL error
-                    | operat LESS error
-                    | operat EQUAL error
-                    | operat PLUS error
+        '''operat : operat PLUS error
+                    | error PLUS error
+                    | error PLUS operat
+                    | error MINUS operat
+                    | error MINUS error
                     | operat MINUS error
                     | operat STAR error
-                    | operat DIV error '''
+                    | error STAR error
+                    | error STAR operat
+                    | operat DIV error 
+                    | error DIV error 
+                    | error DIV operat '''
         p[0] = ErrorNode()
 
     def p_base_operat(self, p):
@@ -306,7 +365,7 @@ class CoolParser:
 
     def p_parent_expr(self, p):
         '''subatom : OPAR expr CPAR'''
-        p[0] = p[1]
+        p[0] = p[2]
 
     def p_parent_expr_error(self, p):
         '''subatom : error expr CPAR
@@ -349,7 +408,7 @@ class CoolParser:
                     | WHILE expr LOOP expr POOL
                     | LET let_list IN expr 
                     | CASE expr OF case_list ESAC '''
-        #| LET let_list
+        # | LET let_list
         if p.slice[1].lex == 'if':
             p[0] = IfThenElseNode(p[2], p[4], p[6])
         elif p.slice[1].lex == 'while':
@@ -382,7 +441,7 @@ class CoolParser:
         p[0] = ErrorNode()
 
     def p_atom_id(self, p):
-        '''expr : ID'''
+        '''atom : ID'''
         p[0] = IdNode(p.slice[1])
 
     def p_atom_integer(self, p):
