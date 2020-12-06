@@ -1,63 +1,31 @@
-import argparse
 from lexer import make_lexer
 from parser import make_parser
 from semantic import check_semantic
 from cil_generator import generate_cil
 from mips_generator import generate_mips
-
-def create_arg_parser():
-    arg_parser = argparse.ArgumentParser(prog="pycoolc")
-
-    arg_parser.add_argument(
-        "cool_program",
-        type=str, nargs="+",
-        help="One cool program source code file ending with *.cl extension.")
-
-    arg_parser.add_argument(
-        "-o", "--outfile",
-        type=str, action="store", nargs=1, default=None,
-        help="Output program name.")
-
-    arg_parser.add_argument(
-        "--tokens",
-        action="store_true", default=False,
-        help="Displays tokens.")
-
-    arg_parser.add_argument(
-        "--ast",
-        action="store_true", default=False,
-        help="Displays ast.")
-
-    arg_parser.add_argument(
-        "--semantics",
-        action="store_true", default=False,
-        help="Displays semantic analysis.")
-
-    arg_parser.add_argument(
-        "--debug",
-        action="store_true", default=False,
-        help="Debug sections.")
-
-    return arg_parser
+import sys
 
 
 def main():
-    print("Enter main")
-    exit(1)
-    arg_parser = create_arg_parser()
-
-    args = arg_parser.parse_args()
-    program = args.cool_program
-
     cool_program_code = ""
 
-    p = program[0]
-    if '\r' == p[-1:]:
-        p = p[:-1]
-    if not str(p).endswith(".cl"):
-        print("Cool program files must end with a \`.cl\` extension.\r\n")
-        arg_parser.print_usage()
+    if len(sys.argv) < 2:
+        print('Must contains cool file')
         exit(1)
+
+    p = sys.argv[1]
+    current = ''
+    index = 0
+    while True:
+        if str(current).endswith(".cl"):
+            p = current
+            break
+        if index > len(p):
+            print("Cool program files must end with a \`.cl\` extension.\r\n")
+            exit(1)
+            break
+        current += p[index]
+        index += 1
 
     with open(str(p)) as file:
         while True:
@@ -72,7 +40,7 @@ def main():
                     cool_program_code += "    "
                     continue
                 cool_program_code += i
-            
+
         data = cool_program_code
 
         newData = ""
@@ -110,7 +78,7 @@ def main():
             i += 1
 
         s = newData
-        
+
         lexer, errors = make_lexer(s)
 
         # Print lexer errors
@@ -118,15 +86,15 @@ def main():
             for er in errors:
                 print(er)
             exit(1)
-            
+
         ast, errors = make_parser(s)
-            
+
         # Print parser errors
         if len(errors) > 0:
             for er in errors:
                 print(er)
             exit(1)
-               
+
         errors, types = check_semantic(ast)
 
         # Print semantic errors
@@ -135,8 +103,8 @@ def main():
                 print(er)
             exit(1)
 
-        #cil = generate_cil(types)
-        
+        cil = generate_cil(types)
+
         mips = generate_mips(cil)
 
         with open(p[:-2] + "mips", "w") as p:
