@@ -322,3 +322,56 @@ class EqualToCilNode(InstructionNode):
         self.left = left
         self.right = right
         self.dest = dest
+
+
+class GetValue(InstructionNode):
+    def __init__(self, dest, src) -> None:
+        self.dest = dest
+        self.src = src
+
+
+class CompareType(InstructionNode):
+    def __init__(self, dest, src, type_) -> None:
+        self.dest = dest
+        self.src = src
+        self.type = type_
+
+class CompareSTRType(InstructionNode):
+    def __init__(self, dest, src) -> None:
+        self.dest = dest
+        self.src = src
+
+
+class CompareStringLengthNode(InstructionNode):
+    def __init__(self, dest, left, rigth) -> None:
+        self.dest = dest
+        self.left = left
+        self.right = rigth
+
+
+class ReferenceEqualNode(InstructionNode):
+    def __init__(self, left, right, dest):
+        self.dest = dest
+        self.right = right
+        self.left = left
+
+class CharToCharStringCompare(InstructionNode):
+    def __init__(self, dest, left, rigth, while_label, end_label) -> None:
+        self.dest = dest
+        self.left = left
+        self.right = rigth
+        self.while_label = while_label
+        self.end_label = end_label
+
+
+class MinusNodeComp(InstructionNode):
+    def __init__(self, left, right, dest):
+        self.dest = dest
+        self.right = right
+        self.left = left
+
+class PureMinus(InstructionNode):
+    def __init__(self, left, right, dest):
+        self.dest = dest
+        self.right = right
+        self.left = left

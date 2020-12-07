@@ -544,9 +544,6 @@ class TypeInferer:
         if ret_type in (
             self.AUTO_TYPE,
             void,
-            self.STRING,
-            self.INTEGER,
-            self.BOOL,
         ):
             self.errors.append(f"Cannot instantiate {ret_type.name}")
         return ret_type

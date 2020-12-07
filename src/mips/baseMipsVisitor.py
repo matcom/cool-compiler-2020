@@ -207,11 +207,11 @@ class BaseCilToMipsVisitor:
 
         self.register_instruction(lsNodes.LW(reg2, left))
         # Load integer value
-        self.register_instruction(lsNodes.LW(reg, f"8(${REG_TO_STR[reg2]})"))
+        self.register_instruction(lsNodes.LW(reg, f"12(${REG_TO_STR[reg2]})"))
         # right no es una constante
         self.register_instruction(lsNodes.LW(reg2, right))
         # Cargar el valor
-        self.register_instruction(lsNodes.LW(right_reg, f"8(${REG_TO_STR[reg2]})"))
+        self.register_instruction(lsNodes.LW(right_reg, f"12(${REG_TO_STR[reg2]})"))
         self.register_instruction(operand(reg, reg, right_reg))
 
         # Crear la nueva instancia de Int
@@ -232,7 +232,7 @@ class BaseCilToMipsVisitor:
 
         # Cargar el offset del tipo
         self.comment("Load type offset")
-        offset = next(i for i, t in enumerate(self.mips_types) if t == "Int") * 4
+        offset = next(i for i, t in enumerate(self.mips_types) if t == "String") * 4
         self.register_instruction(LI(reg2, offset))
         self.register_instruction(SW(reg2, "8($v0)"))
 
@@ -245,7 +245,7 @@ class BaseCilToMipsVisitor:
         # devolver la instancia
         self.register_instruction(MOVE(reg2, v0))
 
-        size = 12
+        size = 16
 
         self.allocate_memory(size)
 
@@ -255,7 +255,13 @@ class BaseCilToMipsVisitor:
         self.register_instruction(LA(reg2, "Int_start"))
         self.register_instruction(SW(reg2, "4($v0)"))
 
-        self.register_instruction(SW(reg, "8($v0)"))
+        # Cargar el offset del tipo
+        self.comment("Load type offset")
+        offset = next(i for i, t in enumerate(self.mips_types) if t == "Int") * 4
+        self.register_instruction(LI(reg2, offset))
+        self.register_instruction(SW(reg2, "8($v0)"))
+
+        self.register_instruction(SW(reg, "12($v0)"))
 
         # devolver la instancia
         self.register_instruction(SW(v0, dest))

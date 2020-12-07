@@ -20,14 +20,19 @@ import cil.nodes
 
 from cil.nodes import (
     AbortNode,
-    AllocateBoolNode, AllocateIntNode,
+    AllocateBoolNode,
+    AllocateIntNode,
     AllocateNode,
     AllocateStringNode,
     ArgNode,
     AssignNode,
     BitwiseNotNode,
+    CharToCharStringCompare,
     CilNode,
     CilProgramNode,
+    CompareSTRType,
+    CompareStringLengthNode,
+    CompareType,
     ConcatString,
     DataNode,
     DivNode,
@@ -36,6 +41,7 @@ from cil.nodes import (
     FunctionNode,
     GetAttributeNode,
     GetTypeIndex,
+    GetValue,
     IfZeroJump,
     InitSelfNode,
     InstructionNode,
@@ -45,13 +51,16 @@ from cil.nodes import (
     LoadNode,
     LocalNode,
     MinusNode,
+    MinusNodeComp,
     NotZeroJump,
     ParamNode,
     PlusNode,
     PrintIntNode,
     PrintNode,
+    PureMinus,
     ReadIntNode,
     ReadNode,
+    ReferenceEqualNode,
     RestoreSelf,
     ReturnNode,
     SaveSelf,
@@ -202,6 +211,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.current_function = self.register_function(
             f"__{self.current_type.name}__attrib__{node.idx}__init"
         )
+        local = self.define_internal_local()
         if node.default_value is not None:
             # Generar el codigo de la expresion de inicializacion
             # y devolver el valor de esta
@@ -214,8 +224,13 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             # (0 = false y 0 = void)
             attribute_type = self.context.get_type(node.typex)
             if attribute_type.name == "String":
-                local = self.define_internal_local()
                 self.register_instruction(AllocateStringNode(local, self.null, 0))
+                self.register_instruction(ReturnNode(local))
+            elif attribute_type.name == "Bool":
+                self.register_instruction(AllocateBoolNode(local, 0))
+                self.register_instruction(ReturnNode(local))
+            elif attribute_type.name == "Int":
+                self.register_instruction(AllocateIntNode(local, 0))
                 self.register_instruction(ReturnNode(local))
             else:
                 self.register_instruction(ReturnNode(0))
@@ -262,15 +277,18 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Crear un LABEL al cual realizar un salto.
         false_label = self.do_label("FALSEIF")
         end_label = self.do_label("ENDIF")
+        cond_value = self.define_internal_local()
         return_expr = self.define_internal_local()
 
         # Salvar las instrucciones relacionadas con la condicion,
         # cada expresion retorna el nombre de la variable interna que contiene el valor ??
         internal_cond_vm_holder = self.visit(node.cond, scope)
 
+        # Condicion es un Bool
+        self.register_instruction(GetValue(cond_value, internal_cond_vm_holder))
+
         # Chequear y saltar si es necesario.
-        assert isinstance(internal_cond_vm_holder, LocalNode)
-        self.register_instruction(IfZeroJump(internal_cond_vm_holder, false_label))
+        self.register_instruction(IfZeroJump(cond_value, false_label))
 
         # Salvar las instrucciones relacionadas con la rama TRUE.
         expr = self.visit(node.expr1, scope)
@@ -304,6 +322,10 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
                 self.register_instruction(AllocateNode(var_info.type, local_var))
             elif var_info.type.name == "String":
                 self.register_instruction(AllocateStringNode(local_var, self.null, 0))
+            elif var_info.type.name == "Int":
+                self.register_instruction(AllocateIntNode(local_var, 0))
+            elif var_info.type.name == "Bool":
+                self.register_instruction(AllocateBoolNode(local_var, 0))
             else:
                 # Si la variable tiene una expresion de inicializacion
                 # entonces no es necesario ponerle valor por defecto
@@ -328,7 +350,16 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Reservar una variable que guarde la nueva instancia
         type_ = self.context.get_type(node.type_)
         instance_vm_holder = self.define_internal_local()
-        self.register_instruction(AllocateNode(type_, instance_vm_holder))
+
+        if type_.name not in ("String", "Int", "Bool"):
+            self.register_instruction(AllocateNode(type_, instance_vm_holder))
+        elif type_.name == "String":
+            self.register_instruction(AllocateStringNode(instance_vm_holder, self.null, 0))
+        elif type_.name == "Int":
+            self.register_instruction(AllocateIntNode(instance_vm_holder, 0))
+        elif type_.name == "Bool":
+            self.register_instruction(AllocateBoolNode(instance_vm_holder, 0))
+
         return instance_vm_holder
 
     @visit.register
@@ -411,14 +442,17 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     def _(self, node: coolAst.WhileBlockNode, scope: Scope):
         # Evaluar la condicion y definir un LABEL al cual
         # retornar
+        cond_value = self.define_internal_local()
         while_label = self.do_label("WHILE")
         end_label = self.do_label("WHILE_END")
         self.register_instruction(LabelNode(while_label))
         cond_vm_holder = self.visit(node.cond, scope)
 
+        # Lo que viene en cond es un Bool
+        self.register_instruction(GetValue(cond_value, cond_vm_holder))
+
         # Probar la condicion, si es true continuar la ejecucion, sino saltar al LABEL end
-        assert isinstance(cond_vm_holder, LocalNode), cond_vm_holder.__class__.__name__
-        self.register_instruction(IfZeroJump(cond_vm_holder, end_label))
+        self.register_instruction(IfZeroJump(cond_value, end_label))
 
         # Registrar las instrucciones del cuerpo del while
         self.visit(node.statements, scope)
@@ -438,7 +472,6 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         sub_vm_local_holder = self.define_internal_local()
         result_vm_holder = self.define_internal_local()
 
-        assert isinstance(expr_vm_holder, LocalNode)
         self.register_instruction(
             TypeOffsetNode(expr_vm_holder, type_internal_local_holder)
         )
@@ -468,7 +501,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # en los branches del case.
         # Comprobar que tengamos una coincidencia
         self.register_instruction(AssignNode(tdt_result, len(self.context.types)))
-        self.register_instruction(MinusNode(tdt_result, min_, sub_vm_local_holder))
+        self.register_instruction(
+            ReferenceEqualNode(tdt_result, min_, sub_vm_local_holder)
+        )
         error_label = self.do_label("ERROR")
         self.register_instruction(IfZeroJump(sub_vm_local_holder, error_label))
 
@@ -617,14 +652,14 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     def _(self, node: coolAst.TrueConstant, scope: Scope):
         # variable interna que devuelve el valor de la constante
         expr = self.define_internal_local()
-        self.register_instruction(AssignNode(expr, 1))
+        self.register_instruction(AllocateBoolNode(expr, 1))
         return expr
 
     @visit.register
     def _(self, node: coolAst.FalseConstant, scope: Scope):
         # variable interna que devuelve el valor de la constante
         expr = self.define_internal_local()
-        self.register_instruction(AssignNode(expr, 0))
+        self.register_instruction(AllocateBoolNode(expr, 0))
         return expr
 
     # *******************  Implementacion de las comparaciones ********************
@@ -647,20 +682,22 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             false_label = self.do_label("FALSE")
             not_end_label = self.do_label("NOT_END")
             assert isinstance(expr_result, LocalNode)
+            self.register_instruction(GetValue(expr_result, expr_result))
             # Si expr = 0 entonces devolver 1
             self.register_instruction(IfZeroJump(expr_result, false_label))
             # Si expr = 1 devolver 0
-            self.register_instruction(AssignNode(result_vm_holder, 0))
+            self.register_instruction(AllocateBoolNode(result_vm_holder, 0))
             self.register_instruction(UnconditionalJump(not_end_label))
             self.register_instruction(LabelNode(false_label))
             # Si expr = 0 entonces devolver 1
-            self.register_instruction(AssignNode(result_vm_holder, 1))
+            self.register_instruction(AllocateBoolNode(result_vm_holder, 1))
             self.register_instruction(LabelNode(not_end_label))
             return result_vm_holder
 
     @visit.register
     def _(self, node: coolAst.EqualToNode, scope: Scope) -> LocalNode:
         expr_result_vm_holder = self.define_internal_local()
+        temp_expr_vm_holder = self.define_internal_local()
 
         # Obtener el valor de la expresion izquierda
         left_vm_holder = self.visit(node.left, scope)
@@ -668,9 +705,81 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # obtener el valor de la expresion derecha
         right_vm_holder = self.visit(node.right, scope)
 
+        false_ = self.do_label("FALSE")
+        true_ = self.do_label("TRUE")
+        end = self.do_label("END")
+        compare_string = self.do_label("COMPARE_STRING")
+        compare_by_value = self.do_label("COMPARE_BY_VALUE")
+        continue_ = self.do_label("CONTINUE")
+        while_label = self.do_label("WHILE_STR_COMP")
+        end_while_label = self.do_label("WHILE_STR_COMP_END")
+
+        # Si left es un string realizar la comparacion entre strings
+        # si no realizar una resta y devolver el resultado
+
+        # Si right = void o left = void (0) devolver false
+        self.register_instruction(IfZeroJump(left_vm_holder, false_))
+        self.register_instruction(IfZeroJump(right_vm_holder, false_))
+
+        # Si es un string comparar char a char
+        self.register_instruction(CompareSTRType(temp_expr_vm_holder, left_vm_holder))
+        # CompareType devuelve 0 para True y 1 para False
+        self.register_instruction(IfZeroJump(temp_expr_vm_holder, compare_string))
+        # No es un string, comparar por valor si es bool o int
         self.register_instruction(
-            EqualToCilNode(left_vm_holder, right_vm_holder, expr_result_vm_holder)
+            CompareType(temp_expr_vm_holder, left_vm_holder, "Bool")
         )
+        self.register_instruction(IfZeroJump(temp_expr_vm_holder, compare_by_value))
+
+        self.register_instruction(
+            CompareType(temp_expr_vm_holder, left_vm_holder, "Int")
+        )
+        self.register_instruction(IfZeroJump(temp_expr_vm_holder, compare_by_value))
+
+        # Comparar por referencia
+        self.register_instruction(
+            ReferenceEqualNode(left_vm_holder, right_vm_holder, temp_expr_vm_holder)
+        )
+        self.register_instruction(IfZeroJump(temp_expr_vm_holder, true_))
+        self.register_instruction(UnconditionalJump(false_))
+
+        self.register_instruction(LabelNode(compare_by_value))
+        self.register_instruction(
+            MinusNodeComp(left_vm_holder, right_vm_holder, temp_expr_vm_holder)
+        )
+        self.register_instruction(IfZeroJump(temp_expr_vm_holder, true_))
+        self.register_instruction(UnconditionalJump(false_))
+
+        self.register_instruction(LabelNode(compare_string))
+        self.register_instruction(
+            CompareStringLengthNode(
+                temp_expr_vm_holder, left_vm_holder, right_vm_holder
+            )
+        )
+        # Compare devuelve 0 para true y 1 para true
+        self.register_instruction(IfZeroJump(temp_expr_vm_holder, continue_))
+        self.register_instruction(UnconditionalJump(false_))
+
+        # Los lengths son iguales, seguir comparando
+        self.register_instruction(LabelNode(continue_))
+        self.register_instruction(
+            CharToCharStringCompare(
+                temp_expr_vm_holder,
+                left_vm_holder,
+                right_vm_holder,
+                while_label,
+                end_while_label,
+            )
+        )
+        self.register_instruction(IfZeroJump(temp_expr_vm_holder, true_))
+
+        self.register_instruction(LabelNode(false_))
+        self.register_instruction(AllocateBoolNode(expr_result_vm_holder, 0))
+        self.register_instruction(UnconditionalJump(end))
+
+        self.register_instruction(LabelNode(true_))
+        self.register_instruction(AllocateBoolNode(expr_result_vm_holder, 1))
+        self.register_instruction(LabelNode(end))
 
         # Devolver la variable con el resultado
         return expr_result_vm_holder
@@ -688,7 +797,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         right_vm_holder = self.visit(node.right, scope)
 
         self.register_instruction(
-            MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder)
+            MinusNodeComp(left_vm_holder, right_vm_holder, expr_result_vm_holder)
         )
 
         self.register_instruction(
@@ -696,11 +805,11 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         )
         self.register_instruction(IfZeroJump(expr_result_vm_holder, false_label))
 
-        self.register_instruction(AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(AllocateBoolNode(expr_result_vm_holder, 1))
         self.register_instruction(UnconditionalJump(end_label))
 
         self.register_instruction(LabelNode(false_label))
-        self.register_instruction(AssignNode(expr_result_vm_holder, 0))
+        self.register_instruction(AllocateBoolNode(expr_result_vm_holder, 0))
         self.register_instruction(LabelNode(end_label))
 
         return expr_result_vm_holder
@@ -717,23 +826,19 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Obtener el valor de la expresion derecha
         right_vm_holder = self.visit(node.right, scope)
 
-        assert isinstance(left_vm_holder, LocalNode) and isinstance(
-            right_vm_holder, LocalNode
-        )
-
         self.register_instruction(
-            MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder)
+            MinusNodeComp(left_vm_holder, right_vm_holder, expr_result_vm_holder)
         )
 
         self.register_instruction(
             JumpIfGreaterThanZeroNode(expr_result_vm_holder, false_label)
         )
 
-        self.register_instruction(AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(AllocateBoolNode(expr_result_vm_holder, 1))
         self.register_instruction(UnconditionalJump(end_label))
 
         self.register_instruction(LabelNode(false_label))
-        self.register_instruction(AssignNode(expr_result_vm_holder, 0))
+        self.register_instruction(AllocateBoolNode(expr_result_vm_holder, 0))
         self.register_instruction(LabelNode(end_label))
 
         return expr_result_vm_holder
@@ -755,7 +860,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         )
 
         self.register_instruction(
-            MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder)
+            MinusNodeComp(left_vm_holder, right_vm_holder, expr_result_vm_holder)
         )
 
         self.register_instruction(
@@ -763,12 +868,12 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         )
 
         # False Branch
-        self.register_instruction(AssignNode(expr_result_vm_holder, 0))
+        self.register_instruction(AllocateBoolNode(expr_result_vm_holder, 0))
         self.register_instruction(UnconditionalJump(end_label))
 
         # True Branch
         self.register_instruction(LabelNode(true_label))
-        self.register_instruction(AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(AllocateBoolNode(expr_result_vm_holder, 1))
         self.register_instruction(LabelNode(end_label))
 
         return expr_result_vm_holder
@@ -790,7 +895,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         )
 
         self.register_instruction(
-            MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder)
+            MinusNodeComp(left_vm_holder, right_vm_holder, expr_result_vm_holder)
         )
 
         self.register_instruction(
@@ -799,12 +904,12 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         self.register_instruction(IfZeroJump(expr_result_vm_holder, true_label))
 
         # False Branch
-        self.register_instruction(AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(AllocateBoolNode(expr_result_vm_holder, 0))
         self.register_instruction(UnconditionalJump(end_label))
 
         # True Branch
         self.register_instruction(LabelNode(true_label))
-        self.register_instruction(AssignNode(expr_result_vm_holder, 1))
+        self.register_instruction(AllocateBoolNode(expr_result_vm_holder, 1))
         self.register_instruction(LabelNode(end_label))
 
         return expr_result_vm_holder
@@ -887,6 +992,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         expr = self.define_internal_local()
         result = self.visit(node.lex, scope)
         self.register_instruction(BitwiseNotNode(result, expr))
+        self.register_instruction(AllocateIntNode(expr, expr))
         return expr
 
 

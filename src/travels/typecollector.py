@@ -19,12 +19,12 @@ from functools import singledispatchmethod
 BUILTINS = ("Int", "Bool", "Object", "String", "IO", "AUTO_TYPE")
 
 
-def bootstrap_string(obj: StringType):
+def bootstrap_string(obj: StringType, intType: IntegerType):
     def length() -> Method:
         method_name = "length"
         param_names = []
         params_types = []
-        return_type = IntegerType()
+        return_type = intType
 
         return Method(method_name, param_names, params_types, return_type)
 
@@ -49,7 +49,7 @@ def bootstrap_string(obj: StringType):
     obj.methods["substr"] = substr()
 
 
-def bootstrap_io(io: IoType, strType: StringType, selfType: SelfType):
+def bootstrap_io(io: IoType, strType: StringType, selfType: SelfType, intType: IntegerType):
     def out_string() -> Method:
         method_name = "out_string"
         param_names = ["x"]
@@ -78,7 +78,7 @@ def bootstrap_io(io: IoType, strType: StringType, selfType: SelfType):
         method_name = "in_int"
         param_names = []
         params_types = []
-        return_type = IntegerType()
+        return_type = intType
 
         return Method(method_name, param_names, params_types, return_type)
 
@@ -141,15 +141,15 @@ class TypeCollector:
         )
         ioType = IoType()
 
-        # Agregar los metodos builtin
-        bootstrap_string(STRING)
-        bootstrap_io(ioType, STRING, SELF_TYPE)
-        bootstrap_object(OBJECT, STRING)
-
         INTEGER.set_parent(OBJECT)
         STRING.set_parent(OBJECT)
         BOOL.set_parent(OBJECT)
         ioType.set_parent(OBJECT)
+
+        # Agregar los metodos builtin
+        bootstrap_string(STRING, INTEGER)
+        bootstrap_io(ioType, STRING, SELF_TYPE, INTEGER)
+        bootstrap_object(OBJECT, STRING)
 
         # Agregar al objeto IO los metodos de OBJECT
         ioType.methods.update(OBJECT.methods)
