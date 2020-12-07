@@ -5,28 +5,45 @@ import sys
 
 args = sys.argv
 
-if len(args) != 3:
-    exit(1)
+# if len(args) != 3:
+#     exit(1)
 
 input_file = open(args[1], "r")
 output_file = open(args[2], 'w')
+
+# input_file = open('./src/test.cl', "r")
+# output_file = open('./src/test.mips', 'w')
 
 t = input_file.read()
 
 # output_file = args[2]
 
-tokens, errors = tokenizer(t)
+lexer = CoolLexer()
+tokens, errors = lexer.tokenize(t)
 
-# print(tokens)
 if len(errors):
     for e in errors:
         print(e)
     exit(1)
 
+if not tokens:
+    print(SyntacticError(0, 0, 'ERROR at or near "%s"' % 'EOF'))
+    exit(1)
 
-parse, operations = CoolParser(tokens)
+lexer = CoolLexer()
+parser = CoolParser(lexer)
+ast, errors = parser.parse(t)
 
-ast = evaluate_reverse_parse(parse, operations, tokens)
+if errors:
+    for error in errors:
+        print(error)
+    exit(1)
+# print(ast)
+
+# fmatter = Format()
+# tree = fmatter.visit(ast, 0)
+
+# print(tree)
 
 collect_errors = []
 collect = Collector(collect_errors)
@@ -77,13 +94,14 @@ output_file.write(string_formatted)
 # output_file.write(str(builder_errors))
 # output_file.write(str(checker_errors))
 # output_file.write(collect_errors)
+input_file.close()
 output_file.close()
 
 
-if not operations:
-    message = f'ERROR at or near "{parse.lex}"'
-    print(SyntacticError(parse.line, parse.column, message))
-    exit(1)
+# if not operations:
+#     message = f'ERROR at or near "{parse.lex}"'
+#     print(SyntacticError(parse.line, parse.column, message))
+#     exit(1)
 # print(parse)
 
 

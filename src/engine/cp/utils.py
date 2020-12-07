@@ -77,6 +77,22 @@ class Token:
         self.line = line
         self.column = column
 
+    @property
+    def type(self):
+        return self.token_type
+
+    @property
+    def value(self):
+        return self.lex
+
+    @property
+    def lineno(self):
+        return self.line
+
+    @property
+    def lexpos(self):
+        return self.column
+
     def __str__(self):
         return f'{self.token_type}: {self.lex}'
 

@@ -61,9 +61,14 @@ class Format:
         let_body = ', '.join(f'{idx.lex}: {typex.lex}' + (' <- <expr>' if expr else '') for idx, typex, expr in node.let_body)
         ans = '\t' * tabs + f'\\_LetInNode: let {let_body} in <expr>'
         lets = '\n'.join(self.visit(expr, tabs + 1) for _, _, expr in node.let_body if expr)
-        body = self.visit(node.in_body, tabs + 1)
-        return f'{ans}\n{lets}\n{body}'
-
+        if node.in_body is None:
+            return f'{ans}\n{lets}'
+        else:
+            body = self.visit(node.in_body, tabs + 1)
+            return f'{ans}\n{lets}\n{body}'
+    # @visitor.when(Let)
+    # def visit(self, node, tabs=0):
+    
     @visitor.when(CaseOfNode)
     def visit(self, node, tabs=0):
         case_body = ' '.join(f'{idx.lex}: {typex.lex} => <expr>;' for idx, typex, expr in node.branches)
