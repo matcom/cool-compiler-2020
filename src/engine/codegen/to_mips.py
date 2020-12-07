@@ -1,6 +1,6 @@
 from .cil_ast import *
 from ..cp import visitor
-from .mips import MipsCode, TypeData
+from .mips import MipsCode, TypeData, MipsLabel
 from .mips import Registers as reg
 from typing import Dict, List
 
@@ -78,10 +78,6 @@ class CIL_TO_MIPS:
         else:
             raise Exception(
                 f"store_memory: The direction {arg} isn't an address")
-
-    def load_arithmetic(self, node: ArithmeticNode):
-        self.load_memory(reg.t0, node.left)
-        self.load_memory(reg.t1, node.right)
 
     def store_registers(self):
         for reg in self.registers_to_save:
@@ -195,46 +191,49 @@ class CIL_TO_MIPS:
 
     @visitor.when(AssignNode)
     def visit(self, node: AssignNode):
-        self.mips.comment("AssignNode")
         self.load_memory(reg.t0, node.source)
         self.store_memory(reg.t0, node.dest)
 
     @visitor.when(ComplementNode)
     def visit(self, node: ComplementNode):
-        self.mips.comment("ComplementNode")
         self.load_memory(reg.t0, node.body)
         self.mips.nor(reg.t1, reg.t0, reg.t0)
         self.store_memory(reg.t1, node.dest)
 
     @visitor.when(PlusNode)
     def visit(self, node: PlusNode):
-        self.load_arithmetic(node)
+        self.load_memory(reg.t0, node.left)
+        self.load_memory(reg.t1, node.right)
         self.mips.add(reg.t2, reg.t0, reg.t1)
         self.store_memory(reg.t2, node.dest)
 
     @visitor.when(MinusNode)
     def visit(self, node: MinusNode):
-        self.load_arithmetic(node)
+        self.load_memory(reg.t0, node.left)
+        self.load_memory(reg.t1, node.right)
         self.mips.sub(reg.t2, reg.t0, reg.t1)
         self.store_memory(reg.t2, node.dest)
 
     @visitor.when(StarNode)
     def visit(self, node: StarNode):
-        self.load_arithmetic(node)
+        self.load_memory(reg.t0, node.left)
+        self.load_memory(reg.t1, node.right)
         self.mips.mult(reg.t2, reg.t0, reg.t1)
         self.mips.mflo(reg.t0)
         self.store_memory(reg.t0, node.dest)
 
     @visitor.when(DivNode)
     def visit(self, node: DivNode):
-        self.load_arithmetic(node)
+        self.load_memory(reg.t0, node.left)
+        self.load_memory(reg.t1, node.right)
         self.mips.div(reg.t2, reg.t0, reg.t1)
         self.mips.mflo(reg.t0)
         self.store_memory(reg.t0, node.dest)
 
     @visitor.when(EqualNode)
     def visit(self, node: EqualNode):
-        self.load_arithmetic(node)
+        self.load_memory(reg.t0, node.left)
+        self.load_memory(reg.t1, node.right)
         self.mips.slt(reg.t2, reg.t0, reg.t1)
         self.mips.slt(reg.t3, reg.t1, reg.t0)
 
@@ -245,7 +244,8 @@ class CIL_TO_MIPS:
 
     @visitor.when(LessEqNode)
     def visit(self, node: LessEqNode):
-        self.load_arithmetic(node)
+        self.load_memory(reg.t0, node.left)
+        self.load_memory(reg.t1, node.right)
         self.mips.slt(reg.t2, reg.t1, reg.t0)
         self.mips.li(reg.t3, 1)
         self.mips.sub(reg.t0, reg.t3, reg.t2)
@@ -253,7 +253,8 @@ class CIL_TO_MIPS:
 
     @visitor.when(LessNode)
     def visit(self, node: LessNode):
-        self.load_arithmetic(node)
+        self.load_memory(reg.t0, node.left)
+        self.load_memory(reg.t1, node.right)
         self.mips.slt(reg.t2, reg.t0, reg.t1)
         self.store_memory(reg.t2, node.dest)
 
