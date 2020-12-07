@@ -10,12 +10,22 @@ from mips.arithmetic import ADDU, SUBU
 from mips.branch import JAL, JALR
 import mips.instruction as instrNodes
 import mips.arithmetic as arithNodes
-from mips.instruction import FixedData, LineComment, REG_TO_STR, a0, fp, ra, sp, v0
+from mips.instruction import (
+    FixedData,
+    LineComment,
+    MOVE,
+    REG_TO_STR,
+    a0,
+    fp,
+    ra,
+    sp,
+    v0,
+)
 import mips.load_store as lsNodes
 from typing import List, Optional, Type, Union
 import time
 import cil.nodes as cil
-from mips.load_store import LW, SW
+from mips.load_store import LA, LI, LW, SW
 from travels.ctcill import CilDisplayFormatter
 
 
@@ -94,9 +104,9 @@ class BaseCilToMipsVisitor:
 
         # Necesitamos acceso a los tipos del programa
         self.types: List[TypeNode] = []
-        
+
         # Tipos accesibles en el codigo
-        self.mips_types: List[str] = [] 
+        self.mips_types: List[str] = []
 
         # Construir el header del programa.
         self.__program_header()
@@ -131,7 +141,9 @@ class BaseCilToMipsVisitor:
         params = self.current_function.params
         if isinstance(node, cil.ParamNode):
             # Buscar el indice del parametro al que corresponde
-            index = next(i for i, param in enumerate(params, 1) if param.name == node.name)
+            index = next(
+                i for i, param in enumerate(params, 1) if param.name == node.name
+            )
 
             assert index > -1
 
@@ -184,38 +196,73 @@ class BaseCilToMipsVisitor:
         Realiza la operacion indicada por operand entre left y right
         y la guarda en dest.
         """
-        if isinstance(left, str):
-            # left es una direccion de memoria
-            reg = self.get_available_register()
-            assert reg is not None
-            right_reg = self.get_available_register()
-            assert right_reg is not None
-            self.register_instruction(lsNodes.LW(reg, left))
-            if not isinstance(right, int):
-                # right no es una constante
-                self.register_instruction(lsNodes.LW(right_reg, right))
-                self.register_instruction(operand(reg, reg, right_reg))
-            else:
-                # rigth es una constante
-                self.register_instruction(operand(reg, reg, right, True))
-            self.register_instruction(lsNodes.SW(reg, dest))
-            self.used_registers[reg] = False
-            self.used_registers[right_reg] = False
-        else:
-            # left es una constante
-            reg = self.get_available_register()
-            right_reg = self.get_available_register()
-            assert right_reg is not None
-            assert reg is not None
-            self.register_instruction(lsNodes.LI(reg, left))
-            if not isinstance(right, int):
-                self.register_instruction(lsNodes.LW(right_reg, right))
-                self.register_instruction(operand(reg, reg, right_reg))
-            else:
-                self.register_instruction(operand(reg, reg, right, True))
-            self.register_instruction(lsNodes.SW(reg, dest))
-            self.used_registers[reg] = False
-            self.used_registers[right_reg] = False
+        # left es una direccion de memoria
+        reg = self.get_available_register()
+        reg2 = self.get_available_register()
+        right_reg = self.get_available_register()
+
+        assert reg is not None
+        assert reg2 is not None
+        assert right_reg is not None
+
+        self.register_instruction(lsNodes.LW(reg2, left))
+        # Load integer value
+        self.register_instruction(lsNodes.LW(reg, f"8(${REG_TO_STR[reg2]})"))
+        # right no es una constante
+        self.register_instruction(lsNodes.LW(reg2, right))
+        # Cargar el valor
+        self.register_instruction(lsNodes.LW(right_reg, f"8(${REG_TO_STR[reg2]})"))
+        self.register_instruction(operand(reg, reg, right_reg))
+
+        # Crear la nueva instancia de Int
+
+        size = 20
+
+        # Reservar memoria para el tipo
+        self.allocate_memory(size)
+
+        self.comment("Allocating string for type Int")
+
+        # Inicializar la instancia
+        self.register_instruction(LA(reg2, "String"))
+        self.register_instruction(SW(reg2, "0($v0)"))
+
+        self.register_instruction(LA(reg2, "String_start"))
+        self.register_instruction(SW(reg2, "4($v0)"))
+
+        # Cargar el offset del tipo
+        self.comment("Load type offset")
+        offset = next(i for i, t in enumerate(self.mips_types) if t == "Int") * 4
+        self.register_instruction(LI(reg2, offset))
+        self.register_instruction(SW(reg2, "8($v0)"))
+
+        self.register_instruction(LA(reg2, "Int"))
+        self.register_instruction(SW(reg2, "12($v0)"))
+
+        self.register_instruction(LI(reg2, 3))
+        self.register_instruction(SW(reg2, "16($v0)"))
+
+        # devolver la instancia
+        self.register_instruction(MOVE(reg2, v0))
+
+        size = 12
+
+        self.allocate_memory(size)
+
+        # Almacenar el string al tipo Int
+        self.register_instruction(SW(reg2, f"0($v0)"))
+
+        self.register_instruction(LA(reg2, "Int_start"))
+        self.register_instruction(SW(reg2, "4($v0)"))
+
+        self.register_instruction(SW(reg, "8($v0)"))
+
+        # devolver la instancia
+        self.register_instruction(SW(v0, dest))
+
+        self.used_registers[reg] = False
+        self.used_registers[right_reg] = False
+        self.used_registers[reg2] = False
 
     def create_type_array(self, types: List[TypeNode]):
         """

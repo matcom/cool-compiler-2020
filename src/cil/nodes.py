@@ -298,6 +298,12 @@ class AllocateBoolNode(InstructionNode):
         self.value = value
 
 
+class AllocateIntNode(InstructionNode):
+    def __init__(self, dest: LocalNode, value):
+        self.dest = dest
+        self.value = value
+
+
 class JumpIfGreater(InstructionNode):
     def __init__(self, src1: LocalNode, src2: LocalNode, label: str) -> None:
         self.left = src1
@@ -309,3 +315,10 @@ class BitwiseNotNode(InstructionNode):
     def __init__(self, src, dest) -> None:
         self.dest = dest
         self.src = src
+
+
+class EqualToCilNode(InstructionNode):
+    def __init__(self, left, right, dest) -> None:
+        self.left = left
+        self.right = right
+        self.dest = dest

@@ -4,9 +4,9 @@ from cloudpickle.cloudpickle import instance
 from abstract.semantics import Type
 from cil.nodes import (
     AbortNode,
-    AllocateBoolNode,
+    AllocateBoolNode, AllocateIntNode,
     BitwiseNotNode,
-    ConcatString,
+    ConcatString, EqualToCilNode,
     JumpIfGreater,
     LocalNode,
 )
@@ -398,6 +398,65 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(SW(reg, "4($v0)"))
 
         self.register_instruction(LI(reg, node.value))
+        self.register_instruction(SW(reg, "8($v0)"))
+
+        # devolver la instancia
+        self.register_instruction(SW(v0, dest))
+
+        self.used_registers[reg] = False
+
+    @visit.register
+    def _(self, node: AllocateIntNode):
+        dest = self.visit(node.dest)
+        value = self.visit(node.value)
+        assert dest is not None
+
+        size = 20
+
+        # Reservar memoria para el tipo
+        self.allocate_memory(size)
+        reg = self.get_available_register()
+
+        assert reg is not None
+
+        self.comment("Allocating string for type Int")
+
+        # Inicializar la instancia
+        self.register_instruction(LA(reg, "String"))
+        self.register_instruction(SW(reg, "0($v0)"))
+
+        self.register_instruction(LA(reg, "String_start"))
+        self.register_instruction(SW(reg, "4($v0)"))
+
+        # Cargar el offset del tipo
+        self.comment("Load type offset")
+        offset = next(i for i, t in enumerate(self.mips_types) if t == "Int") * 4
+        self.register_instruction(LI(reg, offset))
+        self.register_instruction(SW(reg, "8($v0)"))
+
+        self.register_instruction(LA(reg, "Int"))
+        self.register_instruction(SW(reg, "12($v0)"))
+
+        self.register_instruction(LI(reg, 3))
+        self.register_instruction(SW(reg, "16($v0)"))
+
+        # devolver la instancia
+        self.register_instruction(MOVE(reg, v0))
+
+        size = 12
+
+        self.allocate_memory(size)
+
+        # Almacenar el string al tipo BOOL
+        self.register_instruction(SW(reg, f"0($v0)"))
+
+        self.register_instruction(LA(reg, "Int_start"))
+        self.register_instruction(SW(reg, "4($v0)"))
+
+        if isinstance(node.value, int):
+            self.register_instruction(LI(reg, value))
+        else:
+            self.register_instruction(LW(reg, value))
         self.register_instruction(SW(reg, "8($v0)"))
 
         # devolver la instancia
@@ -1185,7 +1244,9 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # En mips, syscall 1 se usa para imprimir el entero
         # almacenado en $a0
         # Cargar el entero en $a0
-        self.register_instruction(LW(a0, src))
+        self.register_instruction(LW(v0, src))
+        # Cargar el valor
+        self.register_instruction(LW(a0, f"8($v0)"))
         # syscall 1 = print_int
         self.register_instruction(LI(v0, 1))
         self.register_instruction(SYSCALL())
@@ -1201,8 +1262,56 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(LI(v0, 5))
         self.register_instruction(SYSCALL())
 
+        # Crear la instancia a Int
+        self.register_instruction(MOVE(a0, v0))
+
+        size = 20
+
+        # Reservar memoria para el tipo
+        self.allocate_memory(size)
+        reg2 = self.get_available_register()
+
+        assert reg2 is not None
+
+        self.comment("Allocating string for type Int")
+
+        # Inicializar la instancia
+        self.register_instruction(LA(reg2, "String"))
+        self.register_instruction(SW(reg2, "0($v0)"))
+
+        self.register_instruction(LA(reg2, "String_start"))
+        self.register_instruction(SW(reg2, "4($v0)"))
+
+        # Cargar el offset del tipo
+        self.comment("Load type offset")
+        offset = next(i for i, t in enumerate(self.mips_types) if t == "Int") * 4
+        self.register_instruction(LI(reg2, offset))
+        self.register_instruction(SW(reg2, "8($v0)"))
+
+        self.register_instruction(LA(reg2, "Int"))
+        self.register_instruction(SW(reg2, "12($v0)"))
+
+        self.register_instruction(LI(reg2, 3))
+        self.register_instruction(SW(reg2, "16($v0)"))
+
+        # devolver la instancia
+        self.register_instruction(MOVE(reg2, v0))
+
+        size = 12
+
+        self.allocate_memory(size)
+
+        # Almacenar el string al tipo Int
+        self.register_instruction(SW(reg2, f"0($v0)"))
+
+        self.register_instruction(LA(reg2, "Int_start"))
+        self.register_instruction(SW(reg2, "4($v0)"))
+
+        self.register_instruction(SW(a0, "8($v0)"))
+
         # Almacenar el numero leido en dest
         self.register_instruction(SW(v0, dest))
+        self.used_registers[reg2] = False
 
     @visit.register
     def _(self, node: cil.PrintNode):
@@ -1260,6 +1369,22 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         # El puntero a self siempre se guarda en el registro $s1
         self.add_source_line_comment(node)
         self.register_instruction(SW(s1, dest))
+
+    @visit.register
+    def _(self, node: EqualToCilNode):
+        dest = self.visit(node.dest)
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+
+        # Si left es un string realizar la comparacion entre strings
+        # si no realizar una resta y devolver el resultado
+        # Cargar left en un registro
+        reg = self.get_available_register()
+        assert reg is not None
+
+        if not isinstance(left, int):
+            self.register_instruction(LW(reg, left))
+
 
 
 class MipsCodeGenerator(CilToMipsVisitor):

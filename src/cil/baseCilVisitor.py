@@ -4,7 +4,7 @@ from abstract.tree import ClassDef
 import cil.nodes as nodes
 from abstract.semantics import Attribute, VariableInfo, Context, Type, Method
 from cil.nodes import (
-    AbortNode,
+    AbortNode, AllocateIntNode,
     AllocateStringNode,
     ConcatString,
     CopyNode,
@@ -349,8 +349,10 @@ class BaseCoolToCilVisitor:
         str_ = self.context.get_type("String")
         self.current_function = self.register_function("function_length_at_String")
         return_vm_holder = self.define_internal_local()
+        int_const_vm_holder = self.define_internal_local()
         self.register_instruction(GetAttributeNode(str_, "length", return_vm_holder))
-        self.register_instruction(ReturnNode(return_vm_holder))
+        self.register_instruction(AllocateIntNode(int_const_vm_holder, return_vm_holder))
+        self.register_instruction(ReturnNode(int_const_vm_holder))
 
     def build_builtins(self):
 
@@ -362,6 +364,8 @@ class BaseCoolToCilVisitor:
 
         bool_ = self.register_type("Bool")
         bool__ = self.context.get_type("Bool")
+
+        int_ = self.register_type("Int")
 
         io_typeNode.methods.append(("abort", "function_abort_at_Object"))
         io_typeNode.methods.append(("type_name", "function_type_name_at_Object"))
@@ -385,6 +389,10 @@ class BaseCoolToCilVisitor:
         str_.methods.append(("concat", "function_concat_at_String"))
         str_.methods.append(("substr", "function_substr_at_String"))
         str_.methods.append(("length", "function_length_at_String"))
+
+        int_.methods.append(("abort", "function_abort_at_Object"))
+        int_.methods.append(("type_name", "function_type_name_at_Object"))
+        int_.methods.append(("copy", "function_copy_at_Object"))
 
         str_.attributes.append(Attribute("value", str__))
         str_.attributes.append(Attribute("length", self.context.get_type("Int")))

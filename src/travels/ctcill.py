@@ -20,7 +20,7 @@ import cil.nodes
 
 from cil.nodes import (
     AbortNode,
-    AllocateBoolNode,
+    AllocateBoolNode, AllocateIntNode,
     AllocateNode,
     AllocateStringNode,
     ArgNode,
@@ -32,6 +32,7 @@ from cil.nodes import (
     DataNode,
     DivNode,
     DynamicCallNode,
+    EqualToCilNode,
     FunctionNode,
     GetAttributeNode,
     GetTypeIndex,
@@ -72,10 +73,7 @@ def find_method_in_parent(type_: Type, method: str, typeNodes: List[TypeNode]):
     if type_.parent is not None:
         parent = next(n for n in typeNodes if n.name == type_.name)
         methods = [m for _, m in parent.methods]
-    if (
-        type_.parent is None
-        or f"function_{method}_at_{type_.name}" in methods
-    ):
+    if type_.parent is None or f"function_{method}_at_{type_.name}" in methods:
         return type_
     return find_method_in_parent(type_.parent, method, typeNodes)
 
@@ -591,9 +589,11 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     # *********************
 
     @visit.register
-    def _(self, node: coolAst.IntegerConstant, scope: Scope) -> int:
+    def _(self, node: coolAst.IntegerConstant, scope: Scope):
         # devolver el valor
-        return int(node.lex)
+        return_vm_holder = self.define_internal_local()
+        self.register_instruction(AllocateIntNode(return_vm_holder, int(node.lex)))
+        return return_vm_holder
 
     @visit.register
     def _(self, node: coolAst.StringConstant, scope: Scope) -> LocalNode:
@@ -661,8 +661,6 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
     @visit.register
     def _(self, node: coolAst.EqualToNode, scope: Scope) -> LocalNode:
         expr_result_vm_holder = self.define_internal_local()
-        true_label = self.do_label("TRUE")
-        end_label = self.do_label("END")
 
         # Obtener el valor de la expresion izquierda
         left_vm_holder = self.visit(node.left, scope)
@@ -670,33 +668,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # obtener el valor de la expresion derecha
         right_vm_holder = self.visit(node.right, scope)
 
-        # Realizar una resta y devolver el resultado
-        assert (
-            isinstance(left_vm_holder, LocalNode)
-            or isinstance(left_vm_holder, int)
-            or isinstance(left_vm_holder, ParamNode)
-        ) and (
-            isinstance(right_vm_holder, LocalNode)
-            or isinstance(right_vm_holder, int)
-            or isinstance(right_vm_holder, ParamNode)
-        )
-
         self.register_instruction(
-            MinusNode(left_vm_holder, right_vm_holder, expr_result_vm_holder)
+            EqualToCilNode(left_vm_holder, right_vm_holder, expr_result_vm_holder)
         )
-
-        # Si la resta da 0, entonces son iguales y se devuelve 1, si no, se devuelve 0
-        self.register_instruction(IfZeroJump(expr_result_vm_holder, true_label))
-
-        # si la resta no da 0, almacenar 0 y retornar
-        self.register_instruction(AssignNode(expr_result_vm_holder, 0))
-        self.register_instruction(UnconditionalJump(end_label))
-
-        # Si la resta da 0, devolver 1
-        self.register_instruction(LabelNode(true_label))
-        self.register_instruction(AssignNode(expr_result_vm_holder, 1))
-
-        self.register_instruction(LabelNode(end_label))
 
         # Devolver la variable con el resultado
         return expr_result_vm_holder
