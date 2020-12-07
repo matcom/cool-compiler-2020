@@ -105,6 +105,45 @@ class BASE_COOL_CIL_TRANSFORM:
         start = self.register_param(VariableInfo('start', None))
         length = self.register_param(VariableInfo('length', None))
         dest = self.define_internal_local()
+        result_msg = self.define_internal_local()
+        length_var = self.define_internal_local()
+        zero = self.define_internal_local()
+        sum_var = self.define_internal_local()
+        cmp_var1 = self.define_internal_local()
+        cmp_var2 = self.define_internal_local()
+        cmp_var3 = self.define_internal_local()
+        no_error_label1 = LabelNode("error1")
+        no_error_label2 = LabelNode("error2")
+        no_error_label3 = LabelNode("error3")
+        self.register_instruction(AssignNode(zero, 0))
+        self.register_instruction(LengthNode(length_var, self_param))
+        eol = self.register_data('\n').name
+        msg_eol = self.define_internal_local()
+
+        self.register_instruction(LessEqNode(cmp_var1, zero, start))
+        self.register_instruction(IfGotoNode(cmp_var1, no_error_label1.label))
+        error_msg = self.register_data("Invalid substring start").name
+        self.register_instruction(ConcatNode(msg_eol, error_msg, eol))
+        self.register_instruction(PrintStrNode(msg_eol))
+        self.register_instruction(ErrorNode())
+        self.register_instruction(no_error_label1)
+
+        self.register_instruction(LessEqNode(cmp_var2, zero, length))
+        self.register_instruction(IfGotoNode(cmp_var2, no_error_label2.label))
+        error_msg = self.register_data("Invalid substring length").name
+        self.register_instruction(ConcatNode(msg_eol, error_msg, eol))
+        self.register_instruction(PrintStrNode(msg_eol))
+        self.register_instruction(ErrorNode())
+        self.register_instruction(no_error_label2)
+
+        self.register_instruction(PlusNode(sum_var, start, length))
+        self.register_instruction(LessEqNode(cmp_var3, sum_var, length_var))
+        self.register_instruction(IfGotoNode(cmp_var3, no_error_label3.label))
+        error_msg = self.register_data("Invalid substring").name
+        self.register_instruction(ConcatNode(msg_eol, error_msg, eol))
+        self.register_instruction(PrintStrNode(msg_eol))
+        self.register_instruction(ErrorNode())
+        self.register_instruction(no_error_label3)
         self.register_instruction(SubstringNode(
             dest, self_param, start, length))
         self.register_instruction(ReturnNode(dest))
@@ -170,6 +209,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.current_function = self.register_function(
             self.to_function_name(self.current_method.name, type_name))
         self_local = self.register_param(VariableInfo('self', None))
+        self.register_instruction(PrintStrNode('abort with type'))
         self.register_instruction(ErrorNode())
         # self.register_instruction(ReturnNode(0))
         self.current_method = self.current_function = None
