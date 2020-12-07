@@ -24,6 +24,12 @@ class Node:
     def __setitem__(self, x, y):
         self.__dict__[x]= y
 
+    def __iter__(self):
+        return self.__dict__.__iter__()
+    
+    def __eq__(self, other):
+        return type(self) == type(other) and self.idName == other.idName
+        
     def toJSON(self):
         return dumps(self, default=lambda  o: o.__dict__,
         sort_keys=True, indent=4, separators=(',', ': '))
@@ -52,7 +58,11 @@ class NodeClass(Node):
         self.methods = methods
         self.attributes = attributes
         self.parent = parent
-
+        self.builtIn = idName in {'Int', 'Bool', 'SELF_TYPE'}
+        self.inheritsAttr = {}
+        self.inheritsMethods= {}
+        
+        
     def to_readable(self):
         return "{}(name='{}', parent={}, methods={}, attributes={})".format(
             self.clsname, self.idName, self.parent, 
@@ -61,6 +71,7 @@ class NodeClass(Node):
 class NodeFeature(Node):
     def __init__(self):
         super(NodeFeature, self).__init__()
+        self.readed = False
 
 #No se si poner aqui una clase para heredar , que sea feature_class.
 #Tengo que ver si a futuro necesito iterar por los elementos de una clase
@@ -69,13 +80,14 @@ class NodeClassMethod(NodeFeature):
     def __init__(self,
                 idName: str,
                 argNames,
-                argTypesNames,
-                return_type: str,
+                argTypes,
+                returnType: str,
                 body):
+        super().__init__()
         self.idName = idName
         self.argNames = argNames
-        self.returnType = return_type
-        self.argTypesNames = argTypesNames
+        self.returnType = returnType
+        self.argTypes = argTypes
         self.body = body
 
     def to_readable(self):
@@ -85,10 +97,12 @@ class NodeClassMethod(NodeFeature):
             )
 
 class NodeAttr(NodeFeature):
-    def __init__(self, idName, attr_type, expr):
+    def __init__(self, idName, attrType, expr= None, value= None):
+        super().__init__()
         self.idName = idName
-        self.attrType = attr_type
+        self.type = attrType
         self.expr = expr
+        self.value = value
 
 class NodeFormalParam(NodeFeature):
     def __init__(self, idName, param_type):
@@ -185,7 +199,6 @@ class NodeString(NodeConstant):
 
 class NodeExpr(Node):
     def __init__(self):
-        self.value= None
         super().__init__()
 
 class NodeNewObject(NodeExpr):
@@ -313,10 +326,10 @@ class NodeLetComplex(NodeExpr):
 
 
 class NodeLet(NodeExpr):
-    def __init__(self, idName, return_type, body):
+    def __init__(self, idName, returnType, body):
         super().__init__()
         self.idName= idName
-        self.type= return_type
+        self.type= returnType
         self.body= body
         
 
@@ -324,13 +337,13 @@ class NodeLet(NodeExpr):
         return tuple([
             ("class_name", self.clsname),
             ("idName", self.idName),
-            ("return_type", self.type),
+            ("returnType", self.type),
             ("body", self.body),
             ("value", self.value),
         ])
 
     def to_readable(self):
-        return "{}(idName={}, return_type={}, body={}, value={})".format(
+        return "{}(idName={}, returnType={}, body={}, value={})".format(
             self.clsname, self.idName, self.type,
             self.body, self.value)
 
@@ -434,6 +447,7 @@ class NodeBooleanComplement(NodeUnaryOperation):
 class NodeBinaryOperation(NodeExpr):
     def __init__(self):
         super().__init__()
+        self.type= ''
 
 class NodeAddition(NodeBinaryOperation):
     def __init__(self, first, second):
