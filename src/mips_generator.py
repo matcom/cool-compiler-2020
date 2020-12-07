@@ -4,6 +4,7 @@ DATA = []
 CIL_TYPES = {}
 LABELS_COUNT = 0
 PARAM_COUNT = 0
+MAX_LOCALS_COUNT = 0
 
 def next_label():
     global LABELS_COUNT
@@ -24,9 +25,10 @@ def generate_mips(cil):
 
 
 def generate_data(data, locals, max_param_count):
-    global DATA, CIL_TYPES
+    global DATA, CIL_TYPES, MAX_LOCALS_COUNT
+    MAX_LOCALS_COUNT = locals
     
-    if len(data) == 0 and len(locals) == 0:
+    if len(data) == 0 and locals == 0:
         return ""
 
     result = ".data\n\n"
@@ -37,9 +39,8 @@ def generate_data(data, locals, max_param_count):
     for t in CIL_TYPES.values():
         result += "type_" + t.type_name + ": .asciiz \"" + t.type_name + "\"\n"
 
-    for l in locals.values():
-        DATA.append(l.id)
-        result += l.id + ": .word 0, 0\n"
+    for l in range(0, locals):
+        result += "local_" + str(l) + ": .word 0, 0\n"
 
     for d in data.values():
         DATA.append(d.id)
@@ -57,44 +58,57 @@ def generate_data(data, locals, max_param_count):
 
 PARAMS = {}
 CURR_PARAM_COUNT = 0
-LOCALS_WRITE = ""
-PARAMS_AND_LOCALS_RELOAD = ""
+PARAMS_LOAD = ""
 
-LAST = ""
+def generate_locals_write():
+    result = "locals_write:\n"
+
+    global MAX_LOCALS_COUNT
+    for i in range(0, MAX_LOCALS_COUNT):
+        name = "local_" + str(i)
+        result += "la $t1, " + name + "\n"
+        result += "lw $t0, ($t1)\n"
+        result += "sw $t0, ($sp)\n"
+        result += "lw $t0, 4($t1)\n"
+        result += "sw $t0, 4($sp)\n"
+        result += "addi $sp, $sp, 8\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_locals_load():
+    result = "locals_load:\n"
+
+    global MAX_LOCALS_COUNT
+    for i in range(0, MAX_LOCALS_COUNT):
+        name = "local_" + str(i)
+        result += "lw $t0, -" + str((MAX_LOCALS_COUNT - i) * 8) + "($sp)\n"
+        result += "lw $t1, -" + str((MAX_LOCALS_COUNT - i) * 8 - 4) + "($sp)\n"
+        result += "la $t2, " + name + "\n"
+        result += "sw $t0, ($t2)\n"
+        result += "sw $t1, 4($t2)\n"
+
+    result += "addi $sp, $sp, -" + str(8 * MAX_LOCALS_COUNT) + "\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
 def generate_code(functions_code):
     result = ".text\n\n"
 
-    global PARAMS, CURR_PARAM_COUNT, PARAM_COUNT, LOCALS_WRITE, PARAMS_AND_LOCALS_RELOAD
+    result += generate_locals_write()
+    result += generate_locals_load()
+
+    global PARAMS, CURR_PARAM_COUNT, PARAM_COUNT, PARAMS_LOAD
 
     for f in functions_code:
         CURR_PARAM_COUNT = 0
         PARAMS_LOAD = ""
-        LOCALS_LOAD = ""
-        LOCALS_WRITE = "" 
 
         result += f.name + ":\n"
-
-        counter = len(f.locals)
-        for l in f.locals:
-            local_name = l.id
-            
-            LOCALS_WRITE += "la $t1, " + local_name + "\n"
-            LOCALS_WRITE += "lw $t0, ($t1)\n"
-            LOCALS_WRITE += "sw $t0, ($sp)\n"
-            LOCALS_WRITE += "lw $t0, 4($t1)\n"
-            LOCALS_WRITE += "sw $t0, 4($sp)\n"
-            LOCALS_WRITE += "addi $sp, $sp, 8\n"
-
-            LOCALS_LOAD += "lw $t0, -" + str(counter * 8) + "($sp)\n"
-            LOCALS_LOAD += "lw $t1, -" + str(counter * 8 - 4) + "($sp)\n"
-            LOCALS_LOAD += "la $t2, " + local_name + "\n"
-            LOCALS_LOAD += "sw $t0, ($t2)\n"
-            LOCALS_LOAD += "sw $t1, 4($t2)\n"
-
-            counter -= 1
-
-        LOCALS_LOAD += "addi $sp, $sp, -" + str(8 * len(f.locals)) + "\n"
-
+        
         counter = len(f.params)
 
         for p in f.params:
@@ -115,8 +129,6 @@ def generate_code(functions_code):
 
             counter -= 1
             CURR_PARAM_COUNT += 1
-
-        PARAMS_AND_LOCALS_RELOAD = LOCALS_LOAD + PARAMS_LOAD
 
         if len(f.params) > 0:
             result += "sw $ra, ($sp)\n"
@@ -247,15 +259,15 @@ def convert_TypeNameNode(instruction):
 
     result = ""
 
-    if instruction.type_addr in DATA:
-        t_addr = instruction.type_addr
-    else:
+    if instruction.type_addr in PARAMS:
         t_addr = PARAMS[instruction.type_addr]
-
-    if instruction.result in DATA:
-        dest = instruction.result
     else:
+        t_addr = instruction.type_addr
+
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
 
     result += "la $t0, " + t_addr + "\n"
     result += "lw $t0, 4($t0)\n"
@@ -289,10 +301,10 @@ def convert_TypeAddressNode(instruction):
 
     result = ""
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
 
     result += "la $t0, type_" + instruction.type_name + "\n"
     result += "la $t1, " + dest + "\n"
@@ -305,10 +317,11 @@ def convert_PrintIntNode(instruction):
 
     result = ""
 
-    if instruction.val in DATA:
-        dest = instruction.val
-    else:
+    if instruction.val in PARAMS:
         dest = PARAMS[instruction.val]
+    else:
+        dest = instruction.val
+
 
     result += "la $t0, " + dest + "\n"
     result += "lw $a0, 4($t0)\n"
@@ -318,11 +331,9 @@ def convert_PrintIntNode(instruction):
     return result
 
 
-
-
 def convert_LocalSaveNode(instruction):
-    global LOCALS_WRITE
-    return LOCALS_WRITE
+    result = "jal locals_write\n"    
+    return result
 def convert_LoadDataNode(instruction):
     result = ""
 
@@ -332,10 +343,10 @@ def convert_LoadDataNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
 
     result += "la $t2, " + dest + "\n"
     
@@ -364,10 +375,10 @@ def convert_ReadNode(instruction):
 
     global DATA, PARAMS
     
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
     
     # ponemos en a0 la direccion a que apunta la variable local 
     result += "la $a0, string_read_buffer\n"
@@ -414,11 +425,11 @@ def convert_ReadIntNode(instruction):
 
     global DATA, PARAMS
     
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
-
+    else:
+        dest = instruction.result
+        
     # leemos el numero
     result += "li $v0, 5\n"
     result += "syscall\n"
@@ -435,10 +446,10 @@ def convert_PrintNode(instruction):
 
     global DATA
 
-    if instruction.str in DATA:
-        dest = instruction.str
-    else:
+    if instruction.str in PARAMS:
         dest = PARAMS[instruction.str]
+    else:
+        dest = instruction.str
     
     # ponemos en a0 la direccion del string
     result += "la $a0, " + dest + "\n"
@@ -454,17 +465,17 @@ def convert_PrintNode(instruction):
 def convert_ReturnNode(instruction):
     result = ""
 
-    global DATA
+    global DATA, PARAMS
 
     # devolvemos en v0 la direccion en memoria del valor de retorno, si es void seria 0
 
     if instruction.return_value == "":
         result += "li $v0, 0\n"
     else:
-        if instruction.return_value in DATA:
-            dest = instruction.return_value
-        else:
+        if instruction.return_value in PARAMS:
             dest = PARAMS[instruction.return_value]
+        else:
+            dest = instruction.return_value
 
         result += "la $v0, " + dest + "\n"
 
@@ -483,17 +494,17 @@ def convert_TypeOfNode(instruction):
     
     global DATA, PARAMS
 
-    if instruction.variable in DATA:
-        val = instruction.variable
-    else:
+    if instruction.variable in PARAMS:
         val = PARAMS[instruction.variable]
+    else:
+        val = instruction.variable
 
     result += "la $t0, " + val + "\n"
     
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
 
     result += "la $t1, " + dest + "\n"
     
@@ -508,17 +519,17 @@ def convert_CopyNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.value in DATA:
-        val = instruction.value
-    else:
+    if instruction.value in PARAMS:
         val = PARAMS[instruction.value]
+    else:
+        val = instruction.value
 
     result += "la $t0, " + val + "\n"
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
 
     result += "la $t1, " + dest + "\n"
 
@@ -579,19 +590,19 @@ def convert_StrlenNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.str in DATA:
-        val = instruction.str
-    else:
+    if instruction.str in PARAMS:
         val = PARAMS[instruction.str]
+    else:
+        val = instruction.str
         
     # en t0 va la direccion del string    
     result += "la $t0, " + val + "\n"
     result += "lw $t0, 4($t0)\n"
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
     
     # en $t1 va la direccion donde pondremos el valor de salida
     result += "la $t1, " + dest + "\n"
@@ -606,28 +617,28 @@ def convert_StrcatNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.str_a in DATA:
-        val_a = instruction.str_a
-    else:
+    if instruction.str_a in PARAMS:
         val_a = PARAMS[instruction.str_a]
+    else:
+        val_a = instruction.str_a
         
     # en t0 va la direccion del primer string    
     result += "la $t0, " + val_a + "\n"
     result += "lw $t0, 4($t0)\n"
 
-    if instruction.str_b in DATA:
-        val_b = instruction.str_b
-    else:
+    if instruction.str_b in PARAMS:
         val_b = PARAMS[instruction.str_b]
+    else:
+        val_b = instruction.str_b
         
     # en t1 va la direccion del segundo string    
     result += "la $t1, " + val_b + "\n"
     result += "lw $t1, 4($t1)\n"
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
         
     # en t2 va la direccion del string resultante    
     result += "la $t2, " + dest + "\n"
@@ -673,20 +684,20 @@ def convert_StrsubNode(instruction):
     
     result = ""
     
-    if instruction.str in DATA:
-        val = instruction.str
-    else:
+    if instruction.str in PARAMS:
         val = PARAMS[instruction.str]
+    else:
+        val = instruction.str
     
     # en t0 metemos la direccion del string
     result += "la $t0, " + val + "\n"
     result += "lw $t0, 4($t0)\n"
     result += "addi $t0, $t0, 4\n"
 
-    if instruction.i in DATA:
-        index = instruction.i        
-    elif instruction.i in PARAMS:
-        index = PARAMS[instruction.i]
+    if instruction.i in PARAMS:   
+        index = PARAMS[instruction.i]    
+    else:
+        index = instruction.i 
     
     # en t1 metemos el entero del indice donde empieza la subcadena
     result += "la $t1, " + index + "\n"
@@ -695,10 +706,10 @@ def convert_StrsubNode(instruction):
     # ponemos en t0 la direccion del inicio de la subcadena
     result += "add $t0, $t0, $t1\n"
 
-    if instruction.len in DATA:
-        lenght = instruction.len
-    elif instruction.len in PARAMS:
+    if instruction.len in PARAMS:
         lenght = PARAMS[instruction.len]
+    else:
+        lenght = instruction.len
      
     # en t1 ponemos el entero q dice la cantidad de caracteres a copiar
     result += "la $t1, " + lenght + "\n"
@@ -707,10 +718,10 @@ def convert_StrsubNode(instruction):
     # en t1 dejamos la direccion del final de la subcadena
     result += "add $t1, $t0, $t1\n"
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
         
     # en t2 va la direccion donde pondremos la subcadena resultante
     result += "la $t2, " + dest + "\n"
@@ -749,10 +760,10 @@ def convert_AllocateNode(instruction):
 
     global DATA, PARAMS, CIL_TYPES
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
 
     result += "la $t0, " + dest + "\n"
 
@@ -829,10 +840,10 @@ def convert_ArgNode(instruction):
 
     global DATA, PARAMS
     
-    if instruction.value in DATA:
-        val = instruction.value
-    else:
+    if instruction.value in PARAMS:
         val = PARAMS[instruction.value]
+    else:
+        val = instruction.value
     
     result += "la $t0, " + val + "\n"
     result += "lw $t1, ($t0)\n"
@@ -846,18 +857,18 @@ def convert_ArgNode(instruction):
 
 def convert_DispatchCallNode(instruction):
     result = ""
-    
-    global DATA, PARAMS, PARAMS_LOAD, CIL_TYPES, LAST
 
-    if instruction.type_addr in DATA:
-        t_addr = instruction.type_addr
-    else:
+    global DATA, PARAMS, PARAMS_LOAD, CIL_TYPES
+
+    if instruction.type_addr in PARAMS:
         t_addr = PARAMS[instruction.type_addr]
-
-    if instruction.result in DATA:
-        dest = instruction.result
     else:
+        t_addr = instruction.type_addr
+
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
 
     dispatch_end_label = next_label()
 
@@ -885,7 +896,8 @@ def convert_DispatchCallNode(instruction):
     result += "lw $t6, ($v0)\n"
     result += "lw $t7, 4($v0)\n"
 
-    result += PARAMS_AND_LOCALS_RELOAD
+    result += "jal locals_load\n"
+    result += PARAMS_LOAD
 
     result += "la $t0, " + dest + "\n"
     result += "sw $t6, ($t0)\n"
@@ -907,20 +919,21 @@ def convert_SetAttributeNode(instruction):
             break
         offset += 8
 
-    if instruction.instance in DATA:
-        ins = instruction.instance
-    else:
+    if instruction.instance in PARAMS:
         ins = PARAMS[instruction.instance]
+    else:
+        ins = instruction.instance
     
     # en t0 metemos la direccion del valor a modificar
     result += "la $t0, " + ins + "\n"
     result += "lw $t0, 4($t0)\n"
     result += "addi $t0, $t0, " + str(offset) + "\n"
 
-    if instruction.value in DATA:
-        val = instruction.value
-    else:
+    if instruction.value in PARAMS:
         val = PARAMS[instruction.value]
+    else:
+        val = instruction.value
+
 
     # en t1 metemos la direccion del valor nuevo
     result += "la $t1, " + val + "\n"
@@ -947,20 +960,20 @@ def convert_GetAttributeNode(instruction):
             break
         offset += 8
 
-    if instruction.value in DATA:
-        val = instruction.value
-    else:
+    if instruction.value in PARAMS:
         val = PARAMS[instruction.value]
+    else:
+        val = instruction.value
     
     # en t0 metemos la direccion del valor a devolver
     result += "la $t0, " + val + "\n"
     result += "lw $t0, 4($t0)\n"
     result += "addi $t0, $t0, " + str(offset) + "\n"
     
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
 
     result += "la $t1, " + dest + "\n"
 
@@ -977,17 +990,15 @@ def convert_ENode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.left in DATA:
-        left = instruction.left
-    elif instruction.left in PARAMS:
+    if instruction.left in PARAMS:
         left = PARAMS[instruction.left]
+    else:
+        left = instruction.left
     
     # poner en t0 la direccion del primer dato
     result += "la $t0, " + left + "\n"
 
-    if instruction.right in DATA:
-        right = instruction.right
-    elif instruction.right in PARAMS:
+    if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
@@ -995,10 +1006,10 @@ def convert_ENode(instruction):
    # poner en t1 la direccion del segundo dato
     result += "la $t1, " + right + "\n"
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    elif instruction.result in PARAMS:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
     
     # poner en t2 la direccion donde se pondra 0 o 1
     result += "la $t2, " + dest + "\n"
@@ -1043,24 +1054,24 @@ def convert_LNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.left in DATA:
-        left = instruction.left
-    elif instruction.left in PARAMS:
+    if instruction.left in PARAMS:
         left = PARAMS[instruction.left]
+    else:
+        left = instruction.left
     
     result += "la $t0, " + left + "\n"
 
-    if instruction.right in DATA:
-        right = instruction.right
-    elif instruction.right in PARAMS:
+    if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
+    else:
+        right = instruction.right
    
     result += "la $t1, " + right + "\n"
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    elif instruction.result in PARAMS:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
     
     result += "la $t2, " + dest + "\n"
 
@@ -1077,24 +1088,24 @@ def convert_LENode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.left in DATA:
-        left = instruction.left
-    elif instruction.left in PARAMS:
+    if instruction.left in PARAMS:
         left = PARAMS[instruction.left]
+    else:
+        left = instruction.left
     
     result += "la $t0, " + left + "\n"
 
-    if instruction.right in DATA:
-        right = instruction.right
-    elif instruction.right in PARAMS:
+    if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
+    else:
+        right = instruction.right
    
     result += "la $t1, " + right + "\n"
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    elif instruction.result in PARAMS:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
     
     result += "la $t2, " + dest + "\n"
 
@@ -1111,24 +1122,24 @@ def convert_DivNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.left in DATA:
-        left = instruction.left
-    elif instruction.left in PARAMS:
+    if instruction.left in PARAMS:
         left = PARAMS[instruction.left]
+    else:
+        left = instruction.left
     
     result += "la $t0, " + left + "\n"
 
-    if instruction.right in DATA:
-        right = instruction.right
-    elif instruction.right in PARAMS:
+    if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
+    else:
+        right = instruction.right
    
     result += "la $t1, " + right + "\n"
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    elif instruction.result in PARAMS:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
     
     result += "la $t2, " + dest + "\n"
 
@@ -1145,25 +1156,24 @@ def convert_MulNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.left in DATA:
-        left = instruction.left
-    elif instruction.left in PARAMS:
+    if instruction.left in PARAMS:
         left = PARAMS[instruction.left]
+    else:
+        left = instruction.left
     
     result += "la $t0, " + left + "\n"
 
-    if instruction.right in DATA:
-        right = instruction.right
-    elif instruction.right in PARAMS:
+    if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
+    else:
+        right = instruction.right
    
     result += "la $t1, " + right + "\n"
 
-
-    if instruction.result in DATA:
-        dest = instruction.result
-    elif instruction.result in PARAMS:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
     
     result += "la $t2, " + dest + "\n"
     
@@ -1181,24 +1191,24 @@ def convert_SubNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.left in DATA:
-        left = instruction.left
-    elif instruction.left in PARAMS:
+    if instruction.left in PARAMS:
         left = PARAMS[instruction.left]
+    else:
+        left = instruction.left
     
     result += "la $t0, " + left + "\n"
 
-    if instruction.right in DATA:
-        right = instruction.right
-    elif instruction.right in PARAMS:
+    if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
+    else:
+        right = instruction.right
    
     result += "la $t1, " + right + "\n"
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    elif instruction.result in PARAMS:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
     
     result += "la $t2, " + dest + "\n"
 
@@ -1215,24 +1225,24 @@ def convert_AddNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.left in DATA:
-        left = instruction.left
-    elif instruction.left in PARAMS:
+    if instruction.left in PARAMS:
         left = PARAMS[instruction.left]
+    else:
+        left = instruction.left
     
     result += "la $t0, " + left + "\n"
 
-    if instruction.right in DATA:
-        right = instruction.right
-    elif instruction.right in PARAMS:
+    if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
+    else:
+        right = instruction.right
    
     result += "la $t1, " + right + "\n"
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    elif instruction.result in PARAMS:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
     
     result += "la $t2, " + dest + "\n"
 
@@ -1249,18 +1259,18 @@ def convert_VDNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.value in DATA:
-        val = instruction.value
-    elif instruction.value in PARAMS:
+    if instruction.value in PARAMS:
         val = PARAMS[instruction.value]
+    else:
+        val = instruction.value
     
     result += "la $t0, " + val + "\n"
     result += "lw $t0, 4($t0)\n"
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
 
     result += "la $t1, " + dest + "\n"
 
@@ -1275,18 +1285,18 @@ def convert_CmpNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.value in DATA:
-        val = instruction.value
-    elif instruction.value in PARAMS:
+    if instruction.value in PARAMS:
         val = PARAMS[instruction.value]
+    else:
+        val = instruction.value
     
     result += "la $t0, " + val + "\n"
     result += "lw $t0, 4($t0)\n"
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
 
     result += "la $t1, " + dest + "\n"
 
@@ -1302,18 +1312,18 @@ def convert_NtNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.value in DATA:
-        val = instruction.value
-    elif instruction.value in PARAMS:
+    if instruction.value in PARAMS:
         val = PARAMS[instruction.value]
+    else:
+        val = instruction.value
     
     result += "la $t0, " + val + "\n"
     result += "lw $t0, 4($t0)\n"
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
 
     result += "la $t1, " + dest + "\n"
 
@@ -1331,15 +1341,15 @@ def convert_MovNode(instruction):
         result += "la $t1, " + instruction.result + "\n"
         result += "sw $t0, 4($t1)\n"
     else:
-        if instruction.value in DATA:
-            val = instruction.value
-        elif instruction.value in PARAMS:
+        if instruction.value in PARAMS:
             val = PARAMS[instruction.value]
+        else:
+            val = instruction.value
         
-        if instruction.result in DATA:
-            res = instruction.result
-        elif instruction.result in PARAMS:
+        if instruction.result in PARAMS:
             res = PARAMS[instruction.result]
+        else:
+            res = instruction.result
 
         result += "la $t0, " + val + "\n"
         result += "la $t1, " + res + "\n"
@@ -1358,10 +1368,10 @@ def convert_SetStringNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.result in DATA:
-        dest = instruction.result
-    else:
+    if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
 
     result += "la $t0, " + dest + "\n"
 
@@ -1397,10 +1407,10 @@ def convert_AbortNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.caller_type in DATA:
-        caller = instruction.caller_type
-    else:
+    if instruction.caller_type in PARAMS:
         caller = PARAMS[instruction.caller_type]
+    else:
+        caller = instruction.caller_type
     
     result += "la $t0, " + caller + "\n"
     
@@ -1425,10 +1435,10 @@ def convert_IfGotoNode(instruction):
 
     global DATA, PARAMS
 
-    if instruction.predicate in DATA:
-        pred = instruction.predicate
-    else:
+    if instruction.predicate in PARAMS:
         pred = PARAMS[instruction.predicate]
+    else:
+        pred = instruction.predicate
 
     result += "la $t0, " + pred + "\n"
     result += "lw $t0, 4($t0)\n"

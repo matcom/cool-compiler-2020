@@ -8,13 +8,14 @@ TYPES = {}
 DATA = {}
 CODE = []
 MAX_PARAM_COUNT = 0
+MAX_LOCAL_COUNT = 2
 STRINGCODE = ""
 MAIN_LOCAL = None
 
 def generate_cil(ast):
     global TYPES, DATA, CODE, T_LOCALS, CILCODE
     CILCODE = generate_all(ast)
-    return [TYPES, DATA, CODE, T_LOCALS, MAX_PARAM_COUNT, CILCODE]
+    return [TYPES, DATA, CODE, MAX_LOCAL_COUNT, MAX_PARAM_COUNT, CILCODE]
 
 
 def generate_all(ast):
@@ -163,6 +164,9 @@ def generate_cil_code(ast):
                        TypeOfNode(Main_type_local.id, Main_instance.id),
                        DispatchCallNode(Main_type_local.id, "main", result_local.id)]
 
+    global MAX_LOCAL_COUNT
+    MAX_LOCAL_COUNT = max(len(F_LOCALS), MAX_LOCAL_COUNT)
+
     _locals = F_LOCALS.copy()
     locals_aux = []
     for key in _locals.keys():
@@ -181,16 +185,16 @@ def generate_cil_code(ast):
 
 def get_local():
     
-    global T_LOCALS, F_LOCALS, F_PARAM
-    
-    id = "local_" + str(len(T_LOCALS))
+    global F_LOCALS, F_PARAM, MAX_LOCAL_COUNT
+
+    id = "local_" + str(len(F_LOCALS))
 
     if id in F_PARAM:
         return F_PARAM[id]
 
     local = LocalNode(id)
-    T_LOCALS[id] = local
     F_LOCALS[id] = local
+
     return local
 
 
@@ -201,8 +205,6 @@ def get_label():
 
 
 def generate_built_in_functions():
-    main_instance = "local_0"
-    main_result = "local_1"
     code = [FunctionNode("IO_out_string", [ParamNode('self'), ParamNode('str')], [], 
                 [PrintNode('str'),
                 ReturnNode('self')]),
@@ -217,43 +219,43 @@ def generate_built_in_functions():
                 ReturnNode('local_0')]),
 
             FunctionNode('IO_in_int', [ParamNode('self')], [get_local()], 
-                [AllocateNode("Int", "local_1"),
-                ReadIntNode('local_1'),
-                ReturnNode('local_1')]),
+                [AllocateNode("Int", "local_0"),
+                ReadIntNode('local_0'),
+                ReturnNode('local_0')]),
 
             FunctionNode('Object_type_name', [ParamNode('self')], [get_local(), get_local()],
-                [AllocateNode("Int", "local_2"),
-                AllocateNode("String", "local_3"),
-                TypeOfNode('local_2', 'self'),
-                TypeNameNode("local_3", "local_2"),
-                ReturnNode("local_3")]),
+                [AllocateNode("Int", "local_0"),
+                AllocateNode("String", "local_1"),
+                TypeOfNode('local_0', 'self'),
+                TypeNameNode("local_1", "local_0"),
+                ReturnNode("local_1")]),
 
             # en el CopyNode no hace falta hacer allocate en memoria
             # para local_4 ya que esto se hace en ejecucion y depende
             # del tipo de self
             FunctionNode('Object_copy', [ParamNode('self')], [get_local()], 
-                [CopyNode('self', 'local_4'),
-                ReturnNode('local_4')]),
+                [CopyNode('self', 'local_0'),
+                ReturnNode('local_0')]),
 
             FunctionNode('String_length', [ParamNode('self')], [get_local()], 
-                [AllocateNode("Int", "local_5"),
-                StrlenNode('self', 'local_5'),
-                ReturnNode('local_5')]),
+                [AllocateNode("Int", "local_0"),
+                StrlenNode('self', 'local_0'),
+                ReturnNode('local_0')]),
 
             FunctionNode('String_concat', [ParamNode('self'), ParamNode('str')], [get_local()],
-                [AllocateNode("String", "local_6"),
-                StrcatNode('self', 'str', 'local_6'),
-                ReturnNode('local_6')]),
+                [AllocateNode("String", "local_0"),
+                StrcatNode('self', 'str', 'local_0'),
+                ReturnNode('local_0')]),
 
             FunctionNode('String_substr', [ParamNode('self'), ParamNode('from'), ParamNode('to')], [get_local()], 
-                [AllocateNode("String", "local_7"),
-                StrsubNode('self', 'from', 'to', 'local_7'),
-                ReturnNode('local_7')]),
+                [AllocateNode("String", "local_0"),
+                StrsubNode('self', 'from', 'to', 'local_0'),
+                ReturnNode('local_0')]),
 
             FunctionNode("Object_abort", [ParamNode('self')], [get_local()], 
-                [AllocateNode("Int", 'local_8'), 
-                TypeOfNode('local_8', 'self'), 
-                AbortNode('local_8')])]
+                [AllocateNode("Int", 'local_0'), 
+                TypeOfNode('local_0', 'self'), 
+                AbortNode('local_0')])]
 
     global MAX_PARAM_COUNT
     MAX_PARAM_COUNT += 18
@@ -268,7 +270,7 @@ def generate_built_in_functions():
     return result
 
 
-T_LOCALS = {}
+
 C_ATTRIBUTES = {}
 F_PARAM = {}
 F_LOCALS = {}
@@ -291,7 +293,7 @@ def generate_function(type_name, method):
 
     f_name = type_name + "_" + method.name
 
-    global F_PARAM, F_LOCALS, LABEL_COUNTER, D_LOCALS, V_TYPE, CURR_TYPE, C_ATTRIBUTES, LET_LOCALS
+    global MAX_LOCAL_COUNT, F_PARAM, F_LOCALS, LABEL_COUNTER, D_LOCALS, V_TYPE, CURR_TYPE, C_ATTRIBUTES, LET_LOCALS
     C_ATTRIBUTES = {}
     F_LOCALS = {}
     D_LOCALS = {}
@@ -316,6 +318,8 @@ def generate_function(type_name, method):
     statements += instruction.node
 
     statements.append(ReturnNode(instruction.result.id))
+
+    MAX_LOCAL_COUNT = max(len(F_LOCALS), MAX_LOCAL_COUNT)
 
     _locals = F_LOCALS.copy()
     locals_aux = []
