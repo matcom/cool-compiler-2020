@@ -15,7 +15,16 @@ MAIN_LOCAL = None
 def generate_cil(ast):
     global TYPES, DATA, CODE, T_LOCALS, CILCODE
     CILCODE = generate_all(ast)
-    return [TYPES, DATA, CODE, MAX_LOCAL_COUNT, MAX_PARAM_COUNT, CILCODE]
+
+    son_father_tuples = []
+    for t1 in AllTypes.values():
+        for t2 in AllTypes.values():
+            if t1.name == "SELF_TYPE" or t2.name == "SELF_TYPE":
+                continue
+            if is_ancestor(t1, t2):
+                son_father_tuples.append((t2.name, t1.name))
+
+    return [TYPES, DATA, CODE, MAX_LOCAL_COUNT, MAX_PARAM_COUNT, CILCODE, son_father_tuples]
 
 
 def generate_all(ast):
@@ -408,21 +417,30 @@ def convert_expression(expression):
         return convert_binary_arithmetic_operation(expression)
 
 
-################################### PENDIENTE ##############################################
+
 def convert_case(case):
     nodes = []
     expr = convert_expression(case.expression)
     nodes += expr.node
     expr_type_local = get_local()
-    nodes += [AllocateNode("String", expr_type_local.id), TypeOfNode(expr_type_local.id, expr.result.id)]
+    nodes += [AllocateNode("Int", expr_type_local.id), 
+              TypeOfNode(expr_type_local.id, expr.result.id)]
 
     case_types = []
     case_labels = []
 
+    for i in range(0, len(case.body) - 1):
+        for j in range(i, len(case.body)):
+            if AllTypes[case.body[i].typeName].get_tree_depth() < AllTypes[case.body[j].typeName].get_tree_depth():
+                aux = case.body[i]
+                case.body[i] = case.body[j]
+                case.body[j] = aux
+
     for c in case.body:
-        lcl = get_local()
-        nodes += [AllocateNode("String", lcl.id), SetStringNode(lcl.id, c.typeName)]
-        case_types.append(lcl)
+        lcl_type_int = get_local()
+        nodes += [AllocateNode("Int", lcl_type_int.id), 
+                  TypeAddressNode(lcl_type_int.id, c.typeName)]
+        case_types.append(lcl_type_int)
         case_labels.append(get_label())
 
     result = get_local()
@@ -451,8 +469,6 @@ def convert_case(case):
     nodes.append(LabelNode(end_label))
 
     return Node_Result(nodes, result)
-
-############################################################################################
 
 def convert_assign(assign):
     global C_ATTRIBUTES, CURR_TYPE, MAIN_LOCAL, LET_LOCALS, F_PARAM

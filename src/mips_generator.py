@@ -19,7 +19,7 @@ def generate_mips(cil):
     CIL_TYPES = cil[0]
 
     data = generate_data(cil[1], cil[3], cil[4])
-    code = generate_code(cil[2])
+    code = generate_code(cil[2], cil[6])
 
     return data + code
 
@@ -95,11 +95,94 @@ def generate_locals_load():
 
     return result
 
-def generate_code(functions_code):
+def generate_allocate_Int():
+    result = "allocate_Int:\n"
+
+    result += "la $t1, type_Int\n"
+    result += "sw $t1, ($s0)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_allocate_Bool():
+    result = "allocate_Bool:\n"
+
+    result += "la $t1, type_Bool\n"
+    result += "sw $t1, ($s0)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_allocate_String():
+    result = "allocate_String:\n"
+
+    result += "la $t1, type_String\n"
+    result += "sw $t1, ($s0)\n"
+    result += "li $a0, 5\n"
+    result += "li $v0, 9\n"
+    result += "syscall\n"
+    result += "sw $v0, 4($s0)\n"
+    result += "li $t1, 0\n"
+    result += "sw $t1, ($v0)\n"
+    result += "sb $t1, 4($v0)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_allocate_Void():
+    result = "allocate_Void:\n"
+
+    result += "li $t1, 0\n"
+    result += "sw $t1, ($s0)\n"
+    result += "sw $t1, 4($s0)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_is_descendant(son_father_tuples):
+    result = "is_descendant:\n"
+
+    result += "lw $t0, -8($sp)\n"
+    result += "lw $t1, -4($sp)\n"
+    result += "addi $sp, $sp, -8\n"
+
+    result += "li $v0, 0\n"
+
+    is_descendant_end_label = next_label()
+
+    for t in son_father_tuples:
+        is_descendant_next_label = next_label()
+        result += "la $t2, type_" + t[0] + "\n"
+        result += "la $t3, type_" + t[1] + "\n"
+        result += "seq $t2, $t2, $t0\n"
+        result += "seq $t3, $t3, $t1\n"
+        result += "add $t2, $t2, $t3\n"
+        result += "bne $t2, 2, " + is_descendant_next_label + "\n"
+        result += "li $v0, 1\n"
+        result += "j " + is_descendant_end_label + "\n"
+        result += is_descendant_next_label + ":\n"
+
+    result += is_descendant_end_label + ":\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_code(functions_code, son_father_tuples):
     result = ".text\n\n"
 
     result += generate_locals_write()
     result += generate_locals_load()
+    result += generate_allocate_Int()
+    result += generate_allocate_Bool()
+    result += generate_allocate_String()
+    result += generate_allocate_Void()
+    result += generate_is_descendant(son_father_tuples)
+    
 
     global PARAMS, CURR_PARAM_COUNT, PARAM_COUNT, PARAMS_LOAD
 
@@ -250,9 +333,51 @@ def convert_cil_instruction(instruction):
     elif type(instruction) == LocalSaveNode:
         return convert_LocalSaveNode(instruction)
 
+    elif type(instruction) == IsSonNode:
+        return convert_IsSonNode(instruction)
+
     else:
         print(str(type(instruction)) + " doesn't have convert method")
         return ""
+
+def convert_IsSonNode(instruction):
+    result = ""
+
+    global PARAMS
+
+    if instruction.son in PARAMS:
+        son = PARAMS[instruction.son]
+    else:
+        son = instruction.son
+    
+    if instruction.father in PARAMS:
+        father = PARAMS[instruction.father]
+    else:
+        father = instruction.father
+
+    if instruction.result in PARAMS:
+        dest = PARAMS[instruction.result]
+    else:
+        dest = instruction.result
+
+    result += "la $t0, " + son + "\n"
+    result += "lw $t0, 4($t0)\n"
+
+    result += "la $t1, " + father + "\n"
+    result += "lw $t1, 4($t1)\n"
+
+    result += "sw $t0, ($sp)\n"
+    result += "sw $t1, 4($sp)\n"
+    result += "addi $sp, $sp, 8\n"
+
+    result += "jal is_descendant\n"
+
+    result += "la $t3, " + dest + "\n"
+    result += "sw $v0, 4($t3)\n"
+
+    return result
+    
+
 
 def convert_TypeNameNode(instruction):
     global DATA, PARAMS
@@ -765,44 +890,28 @@ def convert_AllocateNode(instruction):
     else:
         dest = instruction.result
 
-    result += "la $t0, " + dest + "\n"
+    result += "la $s0, " + dest + "\n"
 
     if instruction.type == "Int":
 
-        result += "la $t1, type_Int\n"
-        result += "sw $t1, ($t0)\n"
-        result += "li $t1, 0\n"
-        result += "sw $t1, 4($t0)\n"
+        result += "jal allocate_Int\n"
     
     elif instruction.type == "Bool":
 
-        result += "la $t1, type_Bool\n"
-        result += "sw $t1, ($t0)\n"
-        result += "li $t1, 0\n"
-        result += "sw $t1, 4($t0)\n"
+        result += "jal allocate_Bool\n"
        
     elif instruction.type == "String":
         
-        result += "la $t1, type_String\n"
-        result += "sw $t1, ($t0)\n"
-        result += "li $a0, 5\n"
-        result += "li $v0, 9\n"
-        result += "syscall\n"
-        result += "sw $v0, 4($t0)\n"
-        result += "li $t1, 0\n"
-        result += "sw $t1, ($v0)\n"
-        result += "sb $t1, 4($v0)\n"
+        result += "jal allocate_String\n"
 
     elif instruction.type == "void":
 
-        result += "li $t1, 0\n"
-        result += "sw $t1, ($t0)\n"
-        result += "sw $t1, 4($t0)\n"
+        result += "jal allocate_Void\n"
 
     else:
        
         result += "la $t1, type_" + instruction.type + "\n"
-        result += "sw $t1, ($t0)\n"
+        result += "sw $t1, ($s0)\n"
 
         object_size = 4
         attrs = []
@@ -817,7 +926,7 @@ def convert_AllocateNode(instruction):
         result += "syscall\n"
 
         # ponemos la direccion en la variable local correspondiente
-        result += "sw $v0, 4($t0)\n"
+        result += "sw $v0, 4($s0)\n"
 
         # ponemos el tamanyo correspondiente
         result += "sw $a0, ($v0)\n"
