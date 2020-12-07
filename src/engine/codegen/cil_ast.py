@@ -70,6 +70,11 @@ class AssignNode(InstructionNode):
         self.source = source
 
 
+class EmptyArgs(InstructionNode):
+    def __init__(self, args):
+        self.args = args
+
+
 class ArithmeticNode(InstructionNode):
     def __init__(self, dest, left, right):
         self.dest = dest
