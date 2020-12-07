@@ -55,9 +55,11 @@ def generate_cil_types(ast):
 
 def generate_cil_data(ast):
     global DATA
+
     result = ""
     vis = FormatVisitorS()
     data = {}
+
     for val in ast.values():
         for attr in val.attributes.values():
             if attr.attribute_name != "self" and attr.expression:
@@ -114,6 +116,8 @@ def generate_cil_code(ast):
     main_func = FunctionNode('main', [], [], 
                 [AllocateNode("Main", Main_instance.id)])
 
+    F_LOCALS["self"] = Main_instance
+
     for a in Main_class_attributes:
         res = get_local()
         if a[0] == "String":
@@ -155,8 +159,8 @@ def generate_cil_code(ast):
 
 
     main_func.body += [LocalSaveNode(), ArgNode(Main_instance.id), 
-                       AllocateNode("String", Main_type_local.id),
-                       SetStringNode(Main_type_local.id, "Main"),
+                       AllocateNode("Int", Main_type_local.id),
+                       TypeOfNode(Main_type_local.id, Main_instance.id),
                        DispatchCallNode(Main_type_local.id, "main", result_local.id)]
 
     _locals = F_LOCALS.copy()
@@ -203,28 +207,28 @@ def generate_built_in_functions():
                 [PrintNode('str'),
                 ReturnNode('self')]),
 
-            FunctionNode('IO_out_int', [ParamNode('self'), ParamNode('int')], [get_local()],
-                [AllocateNode("String", 'local_0'),
-                ToStrNode('int', 'local_0'),
-                PrintNode('local_0'),
+            FunctionNode('IO_out_int', [ParamNode('self'), ParamNode('int')], [],
+                [PrintIntNode('int'),
                 ReturnNode('self')]),
 
             FunctionNode('IO_in_string', [ParamNode('self')], [get_local()], 
-                [AllocateNode("String", 'local_1'),
-                ReadNode('local_1'),
-                ReturnNode('local_1')]),
+                [AllocateNode("String", 'local_0'),
+                ReadNode('local_0'),
+                ReturnNode('local_0')]),
 
             FunctionNode('IO_in_int', [ParamNode('self')], [get_local()], 
+                [AllocateNode("Int", "local_1"),
+                ReadIntNode('local_1'),
+                ReturnNode('local_1')]),
+
+            FunctionNode('Object_type_name', [ParamNode('self')], [get_local(), get_local()],
                 [AllocateNode("Int", "local_2"),
-                ReadIntNode('local_2'),
-                ReturnNode('local_2')]),
+                AllocateNode("String", "local_3"),
+                TypeOfNode('local_2', 'self'),
+                TypeNameNode("local_3", "local_2"),
+                ReturnNode("local_3")]),
 
-            FunctionNode('Object_type_name', [ParamNode('self')], [get_local()],
-                [AllocateNode("String", "local_3"),
-                TypeOfNode('local_3', 'self'),
-                ReturnNode('local_3')]),
-
-            # en el CopyNode no hace falta buscar espacio en memoria
+            # en el CopyNode no hace falta hacer allocate en memoria
             # para local_4 ya que esto se hace en ejecucion y depende
             # del tipo de self
             FunctionNode('Object_copy', [ParamNode('self')], [get_local()], 
@@ -245,28 +249,11 @@ def generate_built_in_functions():
                 [AllocateNode("String", "local_7"),
                 StrsubNode('self', 'from', 'to', 'local_7'),
                 ReturnNode('local_7')]),
+
             FunctionNode("Object_abort", [ParamNode('self')], [get_local()], 
-                [AllocateNode("String", 'local_8'), TypeOfNode('local_8', 'self'), AbortNode('local_8')])]
-
-    is_son_func = FunctionNode('is_son', [ParamNode('self'), ParamNode('class_s'), ParamNode('class_f')], [get_local(), get_local(), get_local()], [AllocateNode("Bool", 'local_9'), AllocateNode("Bool", 'local_10'), AllocateNode("Int", 'local_11'), MovNode('local_11', 2)]) 
-
-    for t1 in AllTypes.values():
-        for t2 in AllTypes.values():
-            if t1 == t2:
-                continue
-            continue_label = get_label()
-            if is_ancestor(t2, t1):
-                is_son_func.body += [ENode('class_s', 'type_' + t1.name, 'local_9'),
-                                     ENode('class_f', 'type_' + t2.name, 'local_10'),
-                                     AddNode('local_9', 'local_10', 'local_9'),
-                                     LNode('local_9', 'local_11', 'local_9'),
-                                     IfGotoNode('local_9', continue_label),
-                                     MovNode('local_9', 1),
-                                     ReturnNode('local_9'),
-                                     LabelNode(continue_label)]
-    is_son_func.body += [MovNode('local_9', 0), ReturnNode('local_9')]
-
-    code += [is_son_func]
+                [AllocateNode("Int", 'local_8'), 
+                TypeOfNode('local_8', 'self'), 
+                AbortNode('local_8')])]
 
     global MAX_PARAM_COUNT
     MAX_PARAM_COUNT += 18
@@ -345,6 +332,7 @@ def generate_function(type_name, method):
     return result
 
 
+
 def convert_expression(expression):
     if type(expression) is AssignStatementNode:
         return convert_assign(expression)
@@ -416,6 +404,7 @@ def convert_expression(expression):
         return convert_binary_arithmetic_operation(expression)
 
 
+################################### PENDIENTE ##############################################
 def convert_case(case):
     nodes = []
     expr = convert_expression(case.expression)
@@ -459,9 +448,10 @@ def convert_case(case):
 
     return Node_Result(nodes, result)
 
+############################################################################################
 
 def convert_assign(assign):
-    global C_ATTRIBUTES, CURR_TYPE, MAIN_LOCAL
+    global C_ATTRIBUTES, CURR_TYPE, MAIN_LOCAL, LET_LOCALS, F_PARAM
 
     expr = convert_expression(assign.expression)
 
@@ -475,7 +465,6 @@ def convert_assign(assign):
 
         return Node_Result(node, F_PARAM[assign.id])
 
-    # Only in main entry function
     if CURR_TYPE == "":
         node = expr.node + [SetAttributeNode("Main", MAIN_LOCAL.id, assign.id, expr.result.id)]
         return Node_Result(node, expr.result)
@@ -525,7 +514,7 @@ def convert_conditional(expression):
 
     result = get_local()
 
-    node = [AllocateNode("Bool", result.id)] + predicate.node + [
+    node =  predicate.node + [
             IfGotoNode(predicate.result.id, label_if)] + else_expr.node + [
             MovNode(result.id, else_expr.result.id),
             GotoNode(label_else),
@@ -614,11 +603,6 @@ def convert_bool(bool):
 def convert_variable(id):
   
     global LET_LOCALS, F_PARAM, C_ATTRIBUTES, CURR_TYPE, MAIN_LOCAL, CASE_LOCALS
-    
-    if CURR_TYPE == "":
-        result = get_local()
-        nodes = [AllocateNode(AllTypes["Main"].attributes[id.lex].attribute_type.name, result.id), GetAttributeNode("Main", MAIN_LOCAL.id, id.lex, result.id)]
-        return Node_Result(nodes, result)
 
     if id.lex in CASE_LOCALS:
         return Node_Result([], CASE_LOCALS[id.lex])
@@ -628,6 +612,11 @@ def convert_variable(id):
 
     if id.lex in F_PARAM:
         return Node_Result([], F_PARAM[id.lex])
+
+    if CURR_TYPE == "":
+        result = get_local()
+        nodes = [AllocateNode(AllTypes["Main"].attributes[id.lex].attribute_type.name, result.id), GetAttributeNode("Main", MAIN_LOCAL.id, id.lex, result.id)]
+        return Node_Result(nodes, result)
 
     if id.lex in C_ATTRIBUTES:
         result = get_local()
@@ -662,22 +651,19 @@ def convert_new(new_node):
             nodes += expr.node
             nodes.append(SetAttributeNode(new_node.typeName, result.id, a.attribute_name, expr.result.id))
         else:
+            res = get_local()
             if a.attribute_type.name == "String":
-                res = get_local()
                 nodes.append(AllocateNode("String", res.id))
                 nodes.append(SetStringNode(res.id, ""))
                 nodes.append(SetAttributeNode(new_node.typeName, result.id, a.attribute_name, res.id))
             elif a.attribute_type.name == "Int":
-                res = get_local()
                 nodes.append(AllocateNode("Int", res.id))
                 nodes.append(SetAttributeNode(new_node.typeName, result.id, a.attribute_name, res.id))
             elif a.attribute_type.name == "Bool":
-                res = get_local()
                 nodes.append(AllocateNode("Bool", res.id))
                 nodes.append(SetAttributeNode(new_node.typeName, result.id, a.attribute_name, res.id))
             else:
-                res = get_local()
-                nodes.append(AllocateNode("Pointer", res.id))
+                nodes.append(AllocateNode(a.attribute_type.name, res.id))
                 nodes.append(SetAttributeNode(new_node.typeName, result.id, a.attribute_name, res.id))
 
     return Node_Result(nodes, result)
@@ -708,9 +694,7 @@ def convert_let(let):
     global LET_LOCALS
     nodes = []
 
-
     for attr in let.variables:
-       
         if attr.expression:
             a = convert_expression(attr.expression)
             nodes += a.node
@@ -723,7 +707,6 @@ def convert_let(let):
             nodes.append(AllocateNode(attr.typeName, local.id))
             LET_LOCALS[attr.id] = local
 
-   
     expr = convert_expression(let.expression)
     nodes += expr.node
 
@@ -783,12 +766,13 @@ def convert_function_call(call):
         nodes += ins.node
         instance = ins.result.id
     else:
-        my_func_owner = get_local()
+
         if CURR_TYPE == "":
-            nodes += [AllocateNode(AllTypes["Main"].get_owner(call.function), my_func_owner.id)]
+            global MAIN_LOCAL
+            instance = MAIN_LOCAL.id
         else:
-            nodes += [AllocateNode(AllTypes[CURR_TYPE].get_owner(call.function), my_func_owner.id)]
-        instance = my_func_owner.id
+            global F_PARAM
+            instance = F_PARAM["self"].id
 
     arguments = []
 
@@ -799,24 +783,21 @@ def convert_function_call(call):
 
     nodes += [LocalSaveNode()]
 
-    if instance_is_self:
-        nodes.append(ArgNode("self"))
-    else:
-        nodes.append(ArgNode(instance))
+    nodes.append(ArgNode(instance))
 
     for a in arguments:
         nodes.append(ArgNode(a.id))
 
     result = get_local()
 
-    if not call.dispatchType:
-        ins_type = get_local()
-        nodes += [AllocateNode("String", ins_type.id), TypeOfNode(ins_type.id, instance)]
+    ins_type = get_local()
+    nodes += [AllocateNode("Int", ins_type.id)]
+
+    if not call.dispatchType: 
+        nodes += [TypeOfNode(ins_type.id, instance)]
         nodes.append(DispatchCallNode(ins_type.id, call.function, result.id))
     else:
-        ins_type = get_local()
-        nodes += [AllocateNode("String", ins_type.id)]
-        nodes.append(SetStringNode(ins_type.id, call.dispatchType))
+        nodes.append(TypeAddressNode(ins_type.id, call.dispatchType))
         nodes.append(DispatchCallNode(ins_type.id, call.function, result.id))
 
     return Node_Result(nodes, result)
