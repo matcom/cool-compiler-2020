@@ -1,0 +1,7 @@
+hairyscary.cl: problema cuando se esta generando el codigo cil que se mete en una funcion recursiva inicializando unos atributos que tienen case con expresiones en self y se mareea (hacer una verificacion de tipo en la expresion del case?)
+
+life.cl: demasiadas variables locales, entonces cuando se guardan en la pila multiples veces cuando llaman funciones unas a otras esta se llena
+
+graph.cl: lo mismo que life.cl, la pila se llena
+
+arith.cl: se generan demasiadas instrucciones en mips entonces no caben en la parte de la memoria que se asigna para ls mismas

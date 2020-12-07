@@ -1,389 +1,345 @@
-class Board inherits IO { 
- 
- rows : Int;
- columns : Int;
- board_size : Int;
 
- size_of_board(initial : String) : Int {
-   initial.length()
- };
+class Graph {
 
- board_init(start : String) : Board {
-   (let size :Int  <- size_of_board(start) in
-    {
-	if size = 15 then
-	 {
-	  rows <- 3;
-	  columns <- 5;
-	  board_size <- size;
-	 }
-	else if size = 16 then
-	  {
-	  rows <- 4;
-	  columns <- 4;
-	  board_size <- size;
-	 }
-	else if size = 20 then
-	 {
-	  rows <- 4;
-	  columns <- 5;
-	  board_size <- size;
-	 }
-	else if size = 21 then
-	 {
-	  rows <- 3;
-	  columns <- 7;
-	  board_size <- size;
-	 }
-	else if size = 25 then
-	 {
-	  rows <- 5;
-	  columns <- 5;
-	  board_size <- size;
-	 }
-	else if size = 28 then
-	 {
-	  rows <- 7;
-	  columns <- 4;
-	  board_size <- size;
-	 }
-	else 	-- If none of the above fit, then just give 
-	 {  -- the configuration of the most common board
-	  rows <- 5;
-	  columns <- 5;
-	  board_size <- size;
-	 }
-	fi fi fi fi fi fi;
-	self;
-    }
-   )
- };
+   vertices : VList <- new VList;
+   edges    : EList <- new EList;
+
+   add_vertice(v : Vertice) : Object { {
+      edges <- v.outgoing().append(edges);
+      vertices <- vertices.cons(v);
+   } };
+
+   print_E() : Object { edges.print() };
+   print_V() : Object { vertices.print() };
+
+};
+
+class Vertice inherits IO { 
+
+   num  : Int;
+   out  : EList <- new EList;
+
+   outgoing() : EList { out };
+
+   number() : Int { num };
+
+   init(n : Int) : Vertice {
+      {
+         num <- n;
+         self;
+      }
+   };
+
+
+   add_out(s : Edge) : Vertice {
+      {
+	 out <- out.cons(s);
+         self;
+      }
+   };
+
+   print() : Object {
+      {
+         out_int(num);
+	 out.print();
+      }
+   };
+
+};
+
+class Edge inherits IO {
+
+   from   : Int;
+   to     : Int;
+   weight : Int;
+
+   init(f : Int, t : Int, w : Int) : Edge {
+      {
+         from <- f;
+	 to <- t;
+	 weight <- w;
+	 self;
+      }
+   };
+
+   print() : Object {
+      {
+         out_string(" (");
+	 out_int(from);
+	 out_string(",");
+	 out_int(to);
+	 out_string(")");
+	 out_int(weight);
+      }
+   };
 
 };
 
 
 
-class CellularAutomaton inherits Board {
-    population_map : String;
-   
-    init(map : String) : CellularAutomaton {
-        {
-            population_map <- map;
-	    board_init(map);
-            self;
-        }
-    };
+class EList inherits IO {
+   -- Define operations on empty lists of Edges.
 
+   car : Edge;
 
+   isNil() : Bool { true };
 
-   
-    print() : CellularAutomaton {
-        
-	(let i : Int <- 0 in
-	(let num : Int <- board_size in
-	{
- 	out_string("\n");
-	 while i < num loop
-           {
-	    out_string(population_map.substr(i,columns));
-	    out_string("\n"); 
-	    i <- i + columns;
-	   }
-	 pool;
- 	out_string("\n");
-	self;
-	}
-	) ) 
-    };
-   
-    num_cells() : Int {
-        population_map.length()
-    };
-   
-    cell(position : Int) : String {
-	if board_size - 1 < position then
-		" "
-	else 
-        	population_map.substr(position, 1)
-	fi
-    };
-   
- north(position : Int): String {
-	if (position - columns) < 0 then
-	      " "	                       
-	else
-	   cell(position - columns)
-	fi
- };
+   head()  : Edge { { abort(); car; } };
 
- south(position : Int): String {
-	if board_size < (position + columns) then
-	      " "                     
-	else
-	   cell(position + columns)
-	fi
- };
+   tail()  : EList { { abort(); self; } };
 
- east(position : Int): String {
-	if (((position + 1) /columns ) * columns) = (position + 1) then
-	      " "                
-	else
-	   cell(position + 1)
-	fi 
- };
+   -- When we cons and element onto the empty list we get a non-empty
+   -- list. The (new Cons) expression creates a new list cell of class
+   -- Cons, which is initialized by a dispatch to init().
+   -- The result of init() is an element of class Cons, but it
+   -- conforms to the return type List, because Cons is a subclass of
+   -- List.
 
- west(position : Int): String {
-	if position = 0 then
-	      " "
-	else 
-	   if ((position / columns) * columns) = position then
-	      " "
-	   else
-	      cell(position - 1)
-	fi fi
- };
+   cons(e : Edge) : EList {
+      (new ECons).init(e, self)
+   };
 
- northwest(position : Int): String {
-	if (position - columns) < 0 then
-	      " "	                       
-	else  if ((position / columns) * columns) = position then
-	      " "
-	      else
-		north(position - 1)
-	fi fi
- };
+   append(l : EList) : EList {
+     if self.isNil() then l
+     else tail().append(l).cons(head())
+     fi
+   };
 
- northeast(position : Int): String {
-	if (position - columns) < 0 then
-	      " "	
-	else if (((position + 1) /columns ) * columns) = (position + 1) then
-	      " "     
-	     else
-	       north(position + 1)
-	fi fi
- };
-
- southeast(position : Int): String {
-	if board_size < (position + columns) then
-	      " "                     
-	else if (((position + 1) /columns ) * columns) = (position + 1) then
-	       " "                
-	     else
-	       south(position + 1)
-	fi fi
- };
-
- southwest(position : Int): String {
-	if board_size < (position + columns) then
-	      " "                     
-	else  if ((position / columns) * columns) = position then
-	      " "
-	      else
-	       south(position - 1)
-	fi fi
- };
-
- neighbors(position: Int): Int { 
- 	{
-	     if north(position) = "X" then 1 else 0 fi
-	     + if south(position) = "X" then 1 else 0 fi
- 	     + if east(position) = "X" then 1 else 0 fi
- 	     + if west(position) = "X" then 1 else 0 fi
-	     + if northeast(position) = "X" then 1 else 0 fi
-	     + if northwest(position) = "X" then 1 else 0 fi
- 	     + if southeast(position) = "X" then 1 else 0 fi
-	     + if southwest(position) = "X" then 1 else 0 fi;
-	 }
- };
-
- 
-(* A cell will live if 2 or 3 of it's neighbors are alive. It dies 
-   otherwise. A cell is born if only 3 of it's neighbors are alive. *)
-    
-    cell_at_next_evolution(position : Int) : String {
-
-	if neighbors(position) = 3 then
-		"X"
-	else
-	   if neighbors(position) = 2 then
-		if cell(position) = "X" then
-			"X"
-		else
-			"-"
-	        fi
-	   else
-		"-"
-	fi fi
-    };
-  
-
-    evolve() : CellularAutomaton {
-        (let position : Int <- 0 in
-        (let num : Int <- num_cells() in
-        (let temp : String in
-            {
-                while position < num loop
-                    {
-                        temp <- temp.concat(cell_at_next_evolution(position));
-                        position <- position + 1;
-                    }
-                pool;
-                population_map <- temp;
-                self;
-            }
-        ) ) )
-    };
-
- option(): String {
- {
-  (let num : Int in
-   {
-   out_string("\nPlease chose a number:\n");
-   out_string("\t1: A cross\n"); 
-   out_string("\t2: A slash from the upper left to lower right\n");
-   out_string("\t3: A slash from the upper right to lower left\n"); 
-   out_string("\t4: An X\n"); 
-   out_string("\t5: A greater than sign \n"); 
-   out_string("\t6: A less than sign\n"); 
-   out_string("\t7: Two greater than signs\n"); 
-   out_string("\t8: Two less than signs\n"); 
-   out_string("\t9: A 'V'\n"); 
-   out_string("\t10: An inverse 'V'\n"); 
-   out_string("\t11: Numbers 9 and 10 combined\n"); 
-   out_string("\t12: A full grid\n"); 
-   out_string("\t13: A 'T'\n");
-   out_string("\t14: A plus '+'\n");
-   out_string("\t15: A 'W'\n");
-   out_string("\t16: An 'M'\n");
-   out_string("\t17: An 'E'\n");
-   out_string("\t18: A '3'\n");
-   out_string("\t19: An 'O'\n");
-   out_string("\t20: An '8'\n");
-   out_string("\t21: An 'S'\n");
-   out_string("Your choice => ");
-   num <- in_int();
-   out_string("\n");
-   if num = 1 then
-    	" XX  XXXX XXXX  XX  "
-   else if num = 2 then
-    	"    X   X   X   X   X    "
-   else if num = 3 then
-    	"X     X     X     X     X"
-   else if num = 4 then
-	"X   X X X   X   X X X   X"
-   else if num = 5 then
-	"X     X     X   X   X    "
-   else if num = 6 then
-	"    X   X   X     X     X"
-   else if num = 7 then
-	"X  X  X  XX  X      "
-   else if num = 8 then
-	" X  XX  X  X  X     "
-   else if num = 9 then
-	"X   X X X   X  "
-   else if num = 10 then
-	"  X   X X X   X"
-   else if num = 11 then
-	"X X X X X X X X"
-   else if num = 12 then
-	"XXXXXXXXXXXXXXXXXXXXXXXXX"
-   else if num = 13 then
-    	"XXXXX  X    X    X    X  "
-   else if num = 14 then
-    	"  X    X  XXXXX  X    X  "
-   else if num = 15 then
-    	"X     X X X X   X X  "
-   else if num = 16 then
-    	"  X X   X X X X     X"
-   else if num = 17 then
-	"XXXXX   X   XXXXX   X   XXXX"
-   else if num = 18 then
-	"XXX    X   X  X    X   XXXX "
-   else if num = 19 then
-	" XX X  XX  X XX "
-   else if num = 20 then
-	" XX X  XX  X XX X  XX  X XX "
-   else if num = 21 then
-	" XXXX   X    XX    X   XXXX "
-   else
-	"                         "
-  fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi;
-    }
-   );
- }
- };
-
-
-
-
- prompt() : Bool { 
- {
-  (let ans : String in
-   {
-   out_string("Would you like to continue with the next generation? \n");
-   out_string("Please use lowercase y or n for your answer [y]: ");
-   ans <- in_string();
-   out_string("\n");
-   if ans = "n" then 
-	false
-   else
-	true
-   fi;
-   }
-  );
- }
- };
-
-
- prompt2() : Bool { 
-  (let ans : String in
-   {
-   out_string("\n\n");
-   out_string("Would you like to choose a background pattern? \n");
-   out_string("Please use lowercase y or n for your answer [n]: ");
-   ans <- in_string();
-   if ans = "y" then 
-	true
-   else
-	false
-   fi;
-   }
-  )
- };
-
+   print() : Object {
+     out_string("\n")
+   };
 
 };
 
-class Main inherits CellularAutomaton {
-    cells : CellularAutomaton;
-   
-    main() : Main {
-        {
-	 (let continue : Bool  in
-	  (let choice : String  in
-	   {
-	   out_string("Welcome to the Game of Life.\n");
-	   out_string("There are many initial states to choose from. \n");
-	   while prompt2() loop
-	    {
-	     continue <- true;
-	     choice <- option();
-	     cells <- (new CellularAutomaton).init(choice);
-	     cells.print();
-             while continue loop
-		if prompt() then
-                    {
-                        cells.evolve();
-                        cells.print();
-                    }
-		else
-		    continue <- false
-	      fi 
-                pool;
-            }
-            pool;
-	    self;
-      }  ) ); }
-    };
+
+(*
+ *  Cons inherits all operations from List. We can reuse only the cons
+ *  method though, because adding an element to the front of an emtpy
+ *  list is the same as adding it to the front of a non empty
+ *  list. All other methods have to be redefined, since the behaviour
+ *  for them is different from the empty list.
+ *
+ *  Cons needs an extra attribute to hold the rest of the list.
+ *
+ *  The init() method is used by the cons() method to initialize the
+ *  cell.
+ *)
+
+class ECons inherits EList {
+
+   cdr : EList;	-- The rest of the list
+
+   isNil() : Bool { false };
+
+   head()  : Edge { car };
+
+   tail()  : EList { cdr };
+
+   init(e : Edge, rest : EList) : EList {
+      {
+	 car <- e;
+	 cdr <- rest;
+	 self;
+      }
+   };
+
+   print() : Object {
+     {
+       car.print();
+       cdr.print();
+     } 
+   };
+
 };
 
+
+
+
+class VList inherits IO {
+   -- Define operations on empty lists of vertices.
+
+   car : Vertice;
+
+   isNil() : Bool { true };
+
+   head()  : Vertice { { abort(); car; } };
+
+   tail()  : VList { { abort(); self; } };
+
+   -- When we cons and element onto the empty list we get a non-empty
+   -- list. The (new Cons) expression creates a new list cell of class
+   -- ECons, which is initialized by a dispatch to init().
+   -- The result of init() is an element of class Cons, but it
+   -- conforms to the return type List, because Cons is a subclass of
+   -- List.
+
+   cons(v : Vertice) : VList {
+      (new VCons).init(v, self)
+   };
+
+   print() : Object { out_string("\n") };
+
+};
+
+
+class VCons inherits VList {
+
+   cdr : VList;	-- The rest of the list
+
+   isNil() : Bool { false };
+
+   head()  : Vertice { car };
+
+   tail()  : VList { cdr };
+
+   init(v : Vertice, rest : VList) : VList {
+      {
+	 car <- v;
+	 cdr <- rest;
+	 self;
+      }
+   };
+
+   print() : Object {
+     {
+       car.print();
+       cdr.print();
+     } 
+   };
+
+};
+
+
+class Parse inherits IO {
+
+
+   boolop : BoolOp <- new BoolOp;
+
+   -- Reads the input and parses the fields
+
+   read_input() : Graph {
+
+      (let g : Graph <- new Graph in {
+         (let line : String <- in_string() in
+            while (boolop.and(not line="\n", not line="")) loop {
+		-- out_string(line);
+		-- out_string("\n");
+		g.add_vertice(parse_line(line));
+		line <- in_string();
+	    } pool
+         );
+	 g;
+      } )
+   };
+
+
+   parse_line(s : String) : Vertice {
+      (let v : Vertice <- (new Vertice).init(a2i(s)) in {
+	 while (not rest.length() = 0) loop {
+	       -- out_string(rest);
+	       -- out_string("\n");
+	       (let succ : Int <- a2i(rest) in (let
+	           weight : Int <- a2i(rest)
+               in
+	          v.add_out(new Edge.init(v.number(), 
+                                          succ,
+					  weight))
+	       ) );
+	 } pool;
+	 v;
+         }
+      )
+   };
+
+     c2i(char : String) : Int {
+	if char = "0" then 0 else
+	if char = "1" then 1 else
+	if char = "2" then 2 else
+        if char = "3" then 3 else
+        if char = "4" then 4 else
+        if char = "5" then 5 else
+        if char = "6" then 6 else
+        if char = "7" then 7 else
+        if char = "8" then 8 else
+        if char = "9" then 9 else
+        { abort(); 0; }  -- the 0 is needed to satisfy the typchecker
+        fi fi fi fi fi fi fi fi fi fi
+     };
+
+     rest : String;
+
+     a2i(s : String) : Int {
+        if s.length() = 0 then 0 else
+	if s.substr(0,1) = "-" then ~a2i_aux(s.substr(1,s.length()-1)) else
+        if s.substr(0,1) = " " then a2i(s.substr(1,s.length()-1)) else
+           a2i_aux(s)
+        fi fi fi
+     };
+
+(*
+  a2i_aux converts the usigned portion of the string.  As a programming
+example, this method is written iteratively.
+  The conversion stops at a space or comma.
+  As a side effect, r is set to the remaining string (without the comma).
+*)
+     a2i_aux(s : String) : Int {
+	(let int : Int <- 0 in	
+           {	
+               (let j : Int <- s.length() in
+	          (let i : Int <- 0 in
+		    while i < j loop
+			(let c : String <- s.substr(i,1) in
+			    if (c = " ") then
+			       {
+				  rest <- s.substr(i+1,s.length()-i-1);
+				  i <- j;
+			       }
+			    else if (c = ",") then
+		               {
+				  rest <- s.substr(i+1, s.length()-i-1);
+				  i <- j;
+		               }
+			    else
+			       {
+				 int <- int * 10 + c2i(s.substr(i,1));
+				 i <- i + 1;
+				 if i=j then rest <- "" else "" fi;
+			       }
+			    fi fi
+			)
+		    pool
+		  )
+	       );
+              int;
+	    }
+        )
+     };
+
+};
+
+
+class Main inherits Parse {
+
+   g : Graph <- read_input();
+
+   main() : Object {
+      {
+	 g.print_V();
+         g.print_E();
+      }
+   };
+
+};
+
+class BoolOp {
+
+  and(b1 : Bool, b2 : Bool) : Bool {
+     if b1 then b2 else false fi
+  };
+
+
+  or(b1 : Bool, b2 : Bool) : Bool {
+     if b1 then true else b2 fi
+  };
+
+};

@@ -7,8 +7,10 @@ from semantic import *
 TYPES = {}
 DATA = {}
 CODE = []
+
 MAX_PARAM_COUNT = 0
 MAX_LOCAL_COUNT = 2
+
 STRINGCODE = ""
 MAIN_LOCAL = None
 
@@ -267,7 +269,7 @@ def generate_built_in_functions():
                 AbortNode('local_0')])]
 
     global MAX_PARAM_COUNT
-    MAX_PARAM_COUNT += 18
+    MAX_PARAM_COUNT = 3
 
     global CODE
     CODE = CODE + code
@@ -336,7 +338,7 @@ def generate_function(type_name, method):
         locals_aux += [_locals[key]]
 
     global MAX_PARAM_COUNT
-    MAX_PARAM_COUNT += len(parameters)
+    MAX_PARAM_COUNT = max(MAX_PARAM_COUNT, len(parameters))
 
     CODE.append(FunctionNode(f_name, parameters, locals_aux, statements))
 

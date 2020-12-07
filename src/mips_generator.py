@@ -100,6 +100,8 @@ def generate_allocate_Int():
 
     result += "la $t1, type_Int\n"
     result += "sw $t1, ($s0)\n"
+    result += "li $t1, 0\n"
+    result += "sw $t1, 4($s0)\n"
 
     result += "jr $ra\n\n"
 
@@ -110,6 +112,8 @@ def generate_allocate_Bool():
 
     result += "la $t1, type_Bool\n"
     result += "sw $t1, ($s0)\n"
+    result += "li $t1, 0\n"
+    result += "sw $t1, 4($s0)\n"
 
     result += "jr $ra\n\n"
 
@@ -195,7 +199,7 @@ def generate_code(functions_code, son_father_tuples):
         counter = len(f.params)
 
         for p in f.params:
-            param_name = "param_" + str(PARAM_COUNT)
+            param_name = "param_" + str(CURR_PARAM_COUNT)
             PARAM_COUNT += 1
             PARAMS[p.id] = param_name
             result += "lw $t0, -" + str(8 * counter) + "($sp)\n"

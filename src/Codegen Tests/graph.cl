@@ -1,39 +1,3 @@
-(*
- *   Cool program reading descriptions of weighted directed graphs
- *   from stdin. It builds up a graph objects with a list of vertices
- *   and a list of edges. Every vertice has a list of outgoing edges.
- *
- *  INPUT FORMAT
- *      Every line has the form		vertice successor*
- *      Where vertice is an int, and successor is   vertice,weight
- *
- *      An empty line or EOF terminates the input.
- *
- *   The list of vertices and the edge list is printed out by the Main
- *   class. 
- *
- *  TEST
- *     Once compiled, the file g1.graph can be fed to the program.
- *     The output should look like this:
-
-nautilus.CS.Berkeley.EDU 53# spim -file graph.s <g1.graph 
-SPIM Version 5.4 of Jan. 17, 1994
-Copyright 1990-1994 by James R. Larus (larus@cs.wisc.edu).
-All Rights Reserved.
-See the file README a full copyright notice.
-Loaded: /home/n/cs164/lib/trap.handler
-5 (5,5)5 (5,4)4 (5,3)3 (5,2)2 (5,1)1
-4 (4,5)100 (4,3)55
-3 (3,2)10
-2 (2,1)150 (2,3)200
-1 (1,2)100
-
- (5,5)5 (5,4)4 (5,3)3 (5,2)2 (5,1)1 (4,5)100 (4,3)55 (3,2)10 (2,1)150 (2,3)200 (1,2)100
-COOL program successfully executed
-
- *)
-
-
 
 class Graph {
 
