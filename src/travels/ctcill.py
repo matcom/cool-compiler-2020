@@ -397,7 +397,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         elif var_inf.location == "LOCAL":
             var = next(
                 v
-                for v in self.localvars
+                for v in list(reversed(self.localvars))
                 if f"local_{self.current_function.name[9:]}_{var_inf.name}_" in v.name
             )
             return var
@@ -438,6 +438,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         # Almacenar el tipo del valor retornado
         type_internal_local_holder = self.define_internal_local()
         sub_vm_local_holder = self.define_internal_local()
+        result_vm_holder = self.define_internal_local()
 
         assert isinstance(expr_vm_holder, LocalNode)
         self.register_instruction(
@@ -490,7 +491,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             # Asignar al identificador idk el valor de expr0
             self.register_instruction(AssignNode(idk, expr_vm_holder))
             # Generar el codigo de la expresion asociada a esta rama
-            self.visit(action_node.actions, s)
+            expr_val_vm_holder = self.visit(action_node.actions, s)
+            # Salvar el resultado
+            self.register_instruction(AssignNode(result_vm_holder, expr_val_vm_holder))
             # Generar un salto de modo que no se chequee otra rama
             self.register_instruction(UnconditionalJump(end_label))
             self.register_instruction(LabelNode(next_label))
@@ -502,6 +505,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         )
 
         self.register_instruction(LabelNode(end_label))
+        return result_vm_holder
 
     # ***************   IMPLEMENTACION DE LAS EXPRESIONES ARITMETICAS
     #
