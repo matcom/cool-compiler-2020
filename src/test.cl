@@ -1,345 +1,146 @@
-
-class Graph {
-
-   vertices : VList <- new VList;
-   edges    : EList <- new EList;
-
-   add_vertice(v : Vertice) : Object { {
-      edges <- v.outgoing().append(edges);
-      vertices <- vertices.cons(v);
-   } };
-
-   print_E() : Object { edges.print() };
-   print_V() : Object { vertices.print() };
-
-};
-
-class Vertice inherits IO { 
-
-   num  : Int;
-   out  : EList <- new EList;
-
-   outgoing() : EList { out };
-
-   number() : Int { num };
-
-   init(n : Int) : Vertice {
-      {
-         num <- n;
-         self;
-      }
-   };
-
-
-   add_out(s : Edge) : Vertice {
-      {
-	 out <- out.cons(s);
-         self;
-      }
-   };
-
-   print() : Object {
-      {
-         out_int(num);
-	 out.print();
-      }
-   };
-
-};
-
-class Edge inherits IO {
-
-   from   : Int;
-   to     : Int;
-   weight : Int;
-
-   init(f : Int, t : Int, w : Int) : Edge {
-      {
-         from <- f;
-	 to <- t;
-	 weight <- w;
-	 self;
-      }
-   };
-
-   print() : Object {
-      {
-         out_string(" (");
-	 out_int(from);
-	 out_string(",");
-	 out_int(to);
-	 out_string(")");
-	 out_int(weight);
-      }
-   };
-
-};
-
-
-
-class EList inherits IO {
-   -- Define operations on empty lists of Edges.
-
-   car : Edge;
-
-   isNil() : Bool { true };
-
-   head()  : Edge { { abort(); car; } };
-
-   tail()  : EList { { abort(); self; } };
-
-   -- When we cons and element onto the empty list we get a non-empty
-   -- list. The (new Cons) expression creates a new list cell of class
-   -- Cons, which is initialized by a dispatch to init().
-   -- The result of init() is an element of class Cons, but it
-   -- conforms to the return type List, because Cons is a subclass of
-   -- List.
-
-   cons(e : Edge) : EList {
-      (new ECons).init(e, self)
-   };
-
-   append(l : EList) : EList {
-     if self.isNil() then l
-     else tail().append(l).cons(head())
-     fi
-   };
-
-   print() : Object {
-     out_string("\n")
-   };
-
-};
-
-
 (*
- *  Cons inherits all operations from List. We can reuse only the cons
- *  method though, because adding an element to the front of an emtpy
- *  list is the same as adding it to the front of a non empty
- *  list. All other methods have to be redefined, since the behaviour
- *  for them is different from the empty list.
- *
- *  Cons needs an extra attribute to hold the rest of the list.
- *
- *  The init() method is used by the cons() method to initialize the
- *  cell.
- *)
+   This file presents a fairly large example of Cool programming.  The
+class List defines the names of standard list operations ala Scheme:
+car, cdr, cons, isNil, rev, sort, rcons (add an element to the end of
+the list), and print_list.  In the List class most of these functions
+are just stubs that abort if ever called.  The classes Nil and Cons
+inherit from List and define the same operations, but now as
+appropriate to the empty list (for the Nil class) and for cons cells (for
+the Cons class).
 
-class ECons inherits EList {
+The Main class puts all of this code through the following silly 
+test exercise:
 
-   cdr : EList;	-- The rest of the list
+   1. prompt for a number N
+   2. generate a list of numbers 0..N-1
+   3. reverse the list
+   4. sort the list
+   5. print the sorted list
 
-   isNil() : Bool { false };
-
-   head()  : Edge { car };
-
-   tail()  : EList { cdr };
-
-   init(e : Edge, rest : EList) : EList {
-      {
-	 car <- e;
-	 cdr <- rest;
-	 self;
-      }
-   };
-
-   print() : Object {
-     {
-       car.print();
-       cdr.print();
-     } 
-   };
-
-};
-
-
-
-
-class VList inherits IO {
-   -- Define operations on empty lists of vertices.
-
-   car : Vertice;
-
-   isNil() : Bool { true };
-
-   head()  : Vertice { { abort(); car; } };
-
-   tail()  : VList { { abort(); self; } };
-
-   -- When we cons and element onto the empty list we get a non-empty
-   -- list. The (new Cons) expression creates a new list cell of class
-   -- ECons, which is initialized by a dispatch to init().
-   -- The result of init() is an element of class Cons, but it
-   -- conforms to the return type List, because Cons is a subclass of
-   -- List.
-
-   cons(v : Vertice) : VList {
-      (new VCons).init(v, self)
-   };
-
-   print() : Object { out_string("\n") };
-
-};
-
-
-class VCons inherits VList {
-
-   cdr : VList;	-- The rest of the list
-
-   isNil() : Bool { false };
-
-   head()  : Vertice { car };
-
-   tail()  : VList { cdr };
-
-   init(v : Vertice, rest : VList) : VList {
-      {
-	 car <- v;
-	 cdr <- rest;
-	 self;
-      }
-   };
-
-   print() : Object {
-     {
-       car.print();
-       cdr.print();
-     } 
-   };
-
-};
-
-
-class Parse inherits IO {
-
-
-   boolop : BoolOp <- new BoolOp;
-
-   -- Reads the input and parses the fields
-
-   read_input() : Graph {
-
-      (let g : Graph <- new Graph in {
-         (let line : String <- in_string() in
-            while (boolop.and(not line="\n", not line="")) loop {
-		-- out_string(line);
-		-- out_string("\n");
-		g.add_vertice(parse_line(line));
-		line <- in_string();
-	    } pool
-         );
-	 g;
-      } )
-   };
-
-
-   parse_line(s : String) : Vertice {
-      (let v : Vertice <- (new Vertice).init(a2i(s)) in {
-	 while (not rest.length() = 0) loop {
-	       -- out_string(rest);
-	       -- out_string("\n");
-	       (let succ : Int <- a2i(rest) in (let
-	           weight : Int <- a2i(rest)
-               in
-	          v.add_out(new Edge.init(v.number(), 
-                                          succ,
-					  weight))
-	       ) );
-	 } pool;
-	 v;
-         }
-      )
-   };
-
-     c2i(char : String) : Int {
-	if char = "0" then 0 else
-	if char = "1" then 1 else
-	if char = "2" then 2 else
-        if char = "3" then 3 else
-        if char = "4" then 4 else
-        if char = "5" then 5 else
-        if char = "6" then 6 else
-        if char = "7" then 7 else
-        if char = "8" then 8 else
-        if char = "9" then 9 else
-        { abort(); 0; }  -- the 0 is needed to satisfy the typchecker
-        fi fi fi fi fi fi fi fi fi fi
-     };
-
-     rest : String;
-
-     a2i(s : String) : Int {
-        if s.length() = 0 then 0 else
-	if s.substr(0,1) = "-" then ~a2i_aux(s.substr(1,s.length()-1)) else
-        if s.substr(0,1) = " " then a2i(s.substr(1,s.length()-1)) else
-           a2i_aux(s)
-        fi fi fi
-     };
-
-(*
-  a2i_aux converts the usigned portion of the string.  As a programming
-example, this method is written iteratively.
-  The conversion stops at a space or comma.
-  As a side effect, r is set to the remaining string (without the comma).
+Because the sort used is a quadratic space insertion sort, sorting
+moderately large lists can be quite slow. 
 *)
-     a2i_aux(s : String) : Int {
-	(let int : Int <- 0 in	
-           {	
-               (let j : Int <- s.length() in
-	          (let i : Int <- 0 in
-		    while i < j loop
-			(let c : String <- s.substr(i,1) in
-			    if (c = " ") then
-			       {
-				  rest <- s.substr(i+1,s.length()-i-1);
-				  i <- j;
-			       }
-			    else if (c = ",") then
-		               {
-				  rest <- s.substr(i+1, s.length()-i-1);
-				  i <- j;
-		               }
-			    else
-			       {
-				 int <- int * 10 + c2i(s.substr(i,1));
-				 i <- i + 1;
-				 if i=j then rest <- "" else "" fi;
-			       }
-			    fi fi
-			)
-		    pool
-		  )
-	       );
-              int;
+
+Class List inherits IO { 
+        (* Since abort() returns Object, we need something of
+	   type Bool at the end of the block to satisfy the typechecker. 
+           This code is unreachable, since abort() halts the program. *)
+	isNil() : Bool { { abort(); true; } };
+
+	cons(hd : Int) : Cons {
+	  (let new_cell : Cons <- new Cons in
+		new_cell.init(hd,self)
+	  )
+	};
+
+	(* 
+	   Since abort "returns" type Object, we have to add
+	   an expression of type Int here to satisfy the typechecker.
+	   This code is, of course, unreachable.
+        *)
+	car() : Int { { abort(); new Int; } };
+
+	cdr() : List { { abort(); new List; } };
+
+	rev() : List { cdr() };
+
+	sort() : List { cdr() };
+
+	insert(i : Int) : List { cdr() };
+
+	rcons(i : Int) : List { cdr() };
+	
+	print_list() : Object { abort() };
+};
+
+Class Cons inherits List {
+	xcar : Int;  -- We keep the car in cdr in attributes.
+	xcdr : List; 
+
+	isNil() : Bool { false };
+
+	init(hd : Int, tl : List) : Cons {
+	  {
+	    xcar <- hd;
+	    xcdr <- tl;
+	    self;
+	  }
+	};
+	  
+	car() : Int { xcar };
+
+	cdr() : List { xcdr };
+
+	rev() : List { (xcdr.rev()).rcons(xcar) };
+
+	sort() : List { (xcdr.sort()).insert(xcar) };
+
+	insert(i : Int) : List {
+		if i < xcar then
+			(new Cons).init(i,self)
+		else
+			(new Cons).init(xcar,xcdr.insert(i))
+		fi
+	};
+
+
+	rcons(i : Int) : List { (new Cons).init(xcar, xcdr.rcons(i)) };
+
+	print_list() : Object {
+		{
+		     out_int(xcar);
+		     out_string("\n");
+		     xcdr.print_list();
+		}
+	};
+};
+
+Class Nil inherits List {
+	isNil() : Bool { true };
+
+        rev() : List { self };
+
+	sort() : List { self };
+
+	insert(i : Int) : List { rcons(i) };
+
+	rcons(i : Int) : List { (new Cons).init(i,self) };
+
+	print_list() : Object { true };
+
+};
+
+
+Class Main inherits IO {
+
+	l : List;
+
+	(* iota maps its integer argument n into the list 0..n-1 *)
+	iota(i : Int) : List {
+	    {
+		l <- new Nil;
+		(let j : Int <- 0 in
+		   while j < i 
+		   loop 
+		     {
+		       l <- (new Cons).init(j,l);
+		       j <- j + 1;
+		     } 
+		   pool
+		);
+		l;
 	    }
-        )
-     };
+	};		
 
-};
-
-
-class Main inherits Parse {
-
-   g : Graph <- read_input();
-
-   main() : Object {
-      {
-	 g.print_V();
-         g.print_E();
-      }
-   };
-
-};
-
-class BoolOp {
-
-  and(b1 : Bool, b2 : Bool) : Bool {
-     if b1 then b2 else false fi
-  };
+	main() : Object {
+	   {
+	     out_string("How many numbers to sort? ");
+	     iota(in_int()).rev().sort().print_list();
+	   }
+	};
+};			    
 
 
-  or(b1 : Bool, b2 : Bool) : Bool {
-     if b1 then true else b2 fi
-  };
 
-};
+
+

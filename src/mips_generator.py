@@ -59,37 +59,40 @@ def generate_data(data, locals, max_param_count):
 PARAMS = {}
 CURR_PARAM_COUNT = 0
 PARAMS_LOAD = ""
+CURR_FUNC = ""
 
-def generate_locals_write():
-    result = "locals_write:\n"
+def generate_locals_write(f_name, f_locals):
+    result = f_name + "_locals_write:\n"
 
-    global MAX_LOCALS_COUNT
-    for i in range(0, MAX_LOCALS_COUNT):
-        name = "local_" + str(i)
+    counter = 0
+    for i in f_locals:
+        name = "local_" + str(counter)
         result += "la $t1, " + name + "\n"
         result += "lw $t0, ($t1)\n"
         result += "sw $t0, ($sp)\n"
         result += "lw $t0, 4($t1)\n"
         result += "sw $t0, 4($sp)\n"
         result += "addi $sp, $sp, 8\n"
+        counter += 1
 
     result += "jr $ra\n\n"
 
     return result
 
-def generate_locals_load():
-    result = "locals_load:\n"
+def generate_locals_load(f_name, f_locals):
+    result = f_name + "_locals_load:\n"
 
-    global MAX_LOCALS_COUNT
-    for i in range(0, MAX_LOCALS_COUNT):
-        name = "local_" + str(i)
-        result += "lw $t0, -" + str((MAX_LOCALS_COUNT - i) * 8) + "($sp)\n"
-        result += "lw $t1, -" + str((MAX_LOCALS_COUNT - i) * 8 - 4) + "($sp)\n"
+    counter = 0
+    for i in f_locals:
+        name = "local_" + str(counter)
+        result += "lw $t0, -" + str((len(f_locals) - counter) * 8) + "($sp)\n"
+        result += "lw $t1, -" + str((len(f_locals) - counter) * 8 - 4) + "($sp)\n"
         result += "la $t2, " + name + "\n"
         result += "sw $t0, ($t2)\n"
         result += "sw $t1, 4($t2)\n"
+        counter += 1
 
-    result += "addi $sp, $sp, -" + str(8 * MAX_LOCALS_COUNT) + "\n"
+    result += "addi $sp, $sp, -" + str(8 * len(f_locals)) + "\n"
 
     result += "jr $ra\n\n"
 
@@ -179,8 +182,6 @@ def generate_is_descendant(son_father_tuples):
 def generate_code(functions_code, son_father_tuples):
     result = ".text\n\n"
 
-    result += generate_locals_write()
-    result += generate_locals_load()
     result += generate_allocate_Int()
     result += generate_allocate_Bool()
     result += generate_allocate_String()
@@ -188,11 +189,16 @@ def generate_code(functions_code, son_father_tuples):
     result += generate_is_descendant(son_father_tuples)
     
 
-    global PARAMS, CURR_PARAM_COUNT, PARAM_COUNT, PARAMS_LOAD
+    global PARAMS, CURR_PARAM_COUNT, PARAM_COUNT, PARAMS_LOAD, CURR_FUNC
 
     for f in functions_code:
         CURR_PARAM_COUNT = 0
         PARAMS_LOAD = ""
+        CURR_FUNC = f.name
+
+        result += generate_locals_write(f.name, f.locals)
+
+        result += generate_locals_load(f.name, f.locals)
 
         result += f.name + ":\n"
         
@@ -461,7 +467,8 @@ def convert_PrintIntNode(instruction):
 
 
 def convert_LocalSaveNode(instruction):
-    result = "jal locals_write\n"    
+    global CURR_FUNC
+    result = "jal " + CURR_FUNC + "_locals_write\n"    
     return result
 def convert_LoadDataNode(instruction):
     result = ""
@@ -1009,7 +1016,8 @@ def convert_DispatchCallNode(instruction):
     result += "lw $t6, ($v0)\n"
     result += "lw $t7, 4($v0)\n"
 
-    result += "jal locals_load\n"
+    global CURR_FUNC
+    result += "jal " + CURR_FUNC + "_locals_load\n"
     result += PARAMS_LOAD
 
     result += "la $t0, " + dest + "\n"
