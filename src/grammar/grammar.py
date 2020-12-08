@@ -1,6 +1,5 @@
 from typing import Dict, List, Optional, Type, Union
 from grammar.symbols import NonTerminal, Production, Symbol, Terminal, Sentence, Epsilon, EOF, AttributeProduction
-import json
 
 
 class Grammar():

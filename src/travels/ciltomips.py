@@ -1,4 +1,3 @@
-from pickle import TRUE
 
 from abstract.semantics import Type
 from cil.nodes import (

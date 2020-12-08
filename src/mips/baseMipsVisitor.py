@@ -1,6 +1,3 @@
-from json import load
-
-from typed_ast.ast3 import arg
 from abstract.semantics import Attribute
 from abstract.semantics import Type as SemanticType
 from cil.nodes import TypeNode
