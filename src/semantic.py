@@ -11,6 +11,7 @@ def check_type_declaration(ast: ProgramNode):
             return f'({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Classes may not be redefined'
 
         AllTypes[cls.typeName] = CoolType(cls.typeName, None)
+    
     return []
 
 

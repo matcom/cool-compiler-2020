@@ -1,3 +1,7 @@
+Introduccion
+
+Este informe presenta la idea general que hay detras de nuestra implementacion del compilador de COOL. Se divide este informe en cuatro secciones que corresponden a las fases de Lexer, Parsing, Semantic y Code Generation. Este documento solo da una vision general de las ideas y procedimientos que tomamos en la construccion del compilador, para un mayor entendimiento se sugiere ir a la vez mirando el codigo que se encuentra en la carpeta src.
+
 Lexer
 
 Se encuentra en lexer.py.
@@ -50,7 +54,9 @@ Parser
 Se encuentra en parser.py y ast.py.
 En la fase de parsing se utilizo tambien el modulo ply que contiene tambien importantes mecanismos
 para esta parte y ademas la construccion del Arbol de Sintaxis Abstracta.
-Aqui primero hay que tener ya conformada la gramatica de nuestro lenguaje cool para definir despues
+Este modulo consiste en una serie de funciones que leen los tokens enviados por el lexer y realizan
+las correspondientes producciones dependiendo de la gramatica definida.
+Primeramente hay que tener ya conformada la gramatica de nuestro lenguaje cool para definir despues
 las producciones a llevar a cabo. Nuestra gramatica quedo de la siguiente forma:
 
 program -> class_list
@@ -192,12 +198,12 @@ Se encuentra en semantic.py, graph.py y type_defined.py.
 La fase de analisis semantico se realizo sobre el ast que se devuelve en la fase del parsing.
 Aqui se llevaron a cabo los siguientes chequeos (en este orden):
 
-- Chequeo de tipos declarados
-- Chequeo de herencia de tipos
-- Chequeo de grafo de herencia
-- Chequeo de atributos y metodos de los tipos
-- Chequeo de expresiones
-- Chequeo de la existencia de la clase Main y metodo main
+- Chequeo de tipos declarados (metodo check_type_declaration)
+- Chequeo de herencia de tipos (metodo check_type_inheritance)
+- Chequeo de grafo de herencia (metodo check_cyclic_inheritance)
+- Chequeo de atributos y metodos de los tipos (metodo check_features)
+- Chequeo de expresiones (metodo check_expressions)
+- Chequeo de la existencia de la clase Main y metodo main (abajo en check_semantic)
 
 En el chequeo de tipos declarados se comprueba que no hayan dos tipos con igual nombre y se guardan
 en un diccionario todos los tipos. Tambien se comprueba que no se haya declarado un tipo con el nombre
@@ -210,7 +216,7 @@ que el tipo este heredando de si mismo.
 En el chequeo de grafo de herencia se analiza el grafo formado por los tipos y la herencia de estos en busqueda
 de ciclos. Como no existe la herencia multiple y todos los tipos heredan de la clase Object entonces basta con
 realizar una busqueda a lo largo (DFS) sobre el grafo empezando en Object y comprobando que se lleguen a todos
-los tipos y sin posibilidad de revisitar a nadie.
+los tipos y sin posibilidad de revisitar a nadie. Aqui se utiliza el modulo graph.py.
 
 En el chequeo de atributos y metodos de los tipos se comprueba que los atributos y los metodos dentro de los 
 tipos esten correctos, o sea, que devuelvan un tipo que este definido, que no se llamen 'self', y que si se
@@ -221,8 +227,7 @@ En el chequeo de expresiones se analizan todas las expresiones de los atributos 
 de que no hayan conflictos de tipo en las operaciones, valores de retorno, parametros, entre otras. Tambien se comprueban
 que se esten llamando a atributos, argumentos o metodos que esten definidos dentro de la clase o en alguna clase padre.
 Se tiene bien en cuenta que los tipos de retorno de las expresiones no tiene que ser el mismo tipo que se define en su 
-inicializacion o definicion, sino que este puede ser de un tipo que hereda del esperado, en este caso se sobrescribe
-el tipo de retorno (nos ayuda un poco en la parte de generacion de codigo) por el tipo que se retorna en la expresion.
+inicializacion o definicion, sino que este puede ser de un tipo que hereda del esperado.
 
 En el chequeo de la existencia de la clase Main y el metodo main queda explicito lo que se hace.
 
@@ -232,4 +237,90 @@ que se utilizaron para convertir el ast en algo mas compacto y declarar unas fun
 de tipos y sus metodos y atributos, estas clases son CoolType, CoolAttribute y CoolMethod, ademas de que definieron los tipos 
 basicos y sus metodos.
 
- 
+Code Generation
+
+En la fase de generacion de codigo optamos por generar un codigo de lenguaje intermedio (CIL) para que nos organizara
+el codigo en una forma similar a como se encuentra en MIPS. La generacion de CIL se encuentra en cil_generator.py.
+Este modulo utiliza a su vez a los modulos cil_ast.py y string_data_visitor.py. En cil_ast se encuentra la estructura
+de un AST que represente el codigo en CIL, y en string_data_visitor se encuentra una implementacion de un patron visitor que
+se utilizo para buscar cadenas estaticas dentro del AST devuelto por el parser.
+Primeramente se genera una lista (TYPES) que contiene nodos de tipo TypeNode, que nos guardara todos los tipos los nombres de 
+sus metodos y atributos. Esta lista es utilizada en la generacion de MIPS para chequear los tipos de los atributos cuando se 
+van a crear instancias de los tipos saber la cantidad de memoria que van a ocupar, entre otras cosas.
+Despues se genera una lista (DATA) que contendra los datos del codigo, que seran puestos en la parte .data del codigo MIPS.
+Aqui es donde se utiliza el patron visitor para recoger las cadenas de caracteres que hay dentro del codigo y ponerlas
+en un nodo tipo DataNode. Tambien aqui se agregan despues los nombres de las variables locales que se declararian dentro del
+codigo que serian usadas como punteros a direcciones en memoria en el codigo MIPS.
+Finalmente se genera una lista (CODE) donde como tal iria el AST con los nodos de instrucciones en CIL. A esta lista se le van
+agregando nodos del tipo FunctionNode a medida que se van viendo las distintas funciones que se declaran en el codigo. Lo primero que
+se hace en esta ultima parte de generacion de CIL es agregar al codigo las funciones de los tipos basicos, y luego la de los procedimientos
+de las inicializaciones de atributos y funciones de los tipos, tambien se agrega al final una funcion extra 'main' que seria la ruta de 
+entrada en el codigo MIPS.
+Los nodos del AST construido para la generacion de CIL representan instrucciones que se ponen de forma similar a MIPS, aunque alguna de
+estas podria traducirse en mas de 10 instrucciones en codigo MIPS. La introduccion de este codigo intermedio nos permite convertir
+las expresiones en COOL en algo menos abstracto que seria mas facil hacer que convertir directamente a MIPS, y que a la vez
+nos haria el trabajo mas facil a la hora de como tal generar el MIPS. 
+Se utiliza la clase Node_Result para en 'node' ir llevando la serie de instrucciones hasta el momento y en 'result' la variable local donde se encuentra el resultado hasta el momento. Por ejemplo, tomemos la expresion que representa una condicional en COOL:
+
+if <expr> then <expr> else <expr> fi
+
+para convertirla al CIL hacemos lo siguiente:
+
+def convert_conditional(expression):
+    predicate = convert_expression(expression.evalExpr)
+
+    if_expr = convert_expression(expression.ifExpr)
+
+    else_expr = convert_expression(expression.elseExpr)
+
+    label_if = get_label()
+    label_else = get_label()
+
+    result = get_local()
+
+    node = [AllocateNode("Bool", result.id)] + predicate.node + [
+            IfGotoNode(predicate.result.id, label_if)] + else_expr.node + [
+            MovNode(result.id, else_expr.result.id),
+            GotoNode(label_else),
+            LabelNode(label_if)] + if_expr.node + [
+            MovNode(result.id, if_expr.result.id), LabelNode(label_else)]
+
+    return Node_Result(node, result)
+
+En la primera linea del metodo mandamos a convertir la expresion a evaluar en el if en CIL y el resultado queda en predicate, predicate
+seria entonces una variable de tipo Node_Result donde en 'node' tiene la lista de las instrucciones que se realizan para calcular el
+valor de la expresion y en 'resul' contiene la variable local donde quedaria el resultado (la variable local es de tipo LocalNode y consiste
+en un nombre que es el que se utilizaria como tal en el codigo MIPS). Luego se procede igual para las expresiones dentro del cuerpo del
+then y del else, y se guardan en if_expr y else_expr respectivamente. Despues se definen, o crean, dos variables donde estaran los labels y
+la variable local que se van a utilizar para hacer los saltos y devolver el resultado de la expresion if. Finalmente se meten en una lista 
+los nodos que corresponden a las instrucciones que se ejecutan en total en esta instruccion. Primero se pide memoria para almacenar un Bool
+donde iria el resultado (resultado en el codigo de esta expresion), despues vendrian las instrucciones para calcular la expresion a evaluar,
+luego se veriia un nodo IfGotoNode que se le pasan el nombre de la variable local donde se encuentra el resultado de la evaluacion y el nombre
+de la etiqueta a donde se saltaria si el resultado fuera True (o 1 que es lo mismo). Luego se ponen las instrucciones del cuerpo del else pues
+si no se salta en la instruccion anterior quiere decir que la expresion a evaluar era false. Despues se agrega un nodo MovNode que lo que haria 
+fuera meter el resultado de la expresion del cuerpo del else en la variable local de retorno del if. Luego un salto como es logico al final ya que
+a continuacion se encuentra la etiqueta y las instrucciones correspondientes a si el predicado era True, estas instrucciones igual que el else,
+agregan las instrucciones para llegar al resultado del cuerpo del then y las pondrian en el resultado en la variable local de retorno del if.
+Finalmente se pone la etiqueta de fin para si se habia ido por el else. Se retorna un Node_Result donde la lista de instrucciones es la 
+que se construyo anteriormente y el resultado que estara en la variable de retorno del if.
+
+La generacion de CIL entonces nos manda para el modulo de generacion de MIPS la lista de los tipos, los datos, el codigo, entre otros datos como
+la cantidad de parametros maximos en una funcion y la lista de variables locales declaradas.
+
+En el generador de MIPS se encuentra en mips_generator.py. Aqui se reciben las anteriores listas desde el CIL y se genera el codigo MIPS en correspondencia. Es mas sencillo aqui pasar de nodo CIL a MIPS.
+En el codigo MIPS se ponen las funciones de los tipos con el nombre 'tipo_funcion' para que no se repitan en el codigo ningun nombre de funcion por la redefinicion de estas por algun tipo hijo. Los parametros se pasan como punteros en la pila, que apuntan a direcciones en memoria donde se encuentra como tal los parametros. Se guarda en memoria la lista de los tipos que hay con sus nombres para poder hacer instanciado dinamico de tipos, pues a veces una expresion devuelve un tipo hijo del tipo esperado, y aqui entonces se pide en memoria en dependencia del tipo devuelto, que esto a veces solo es conocido en ejecucion.
+La estructura de los diferentes tipos en memoria es la siguiente:
+
+Int: ['I']['valor']
+Bool: ['B']['valor']
+String: ['S']['valor']
+Puntero: ['P']['valor']
+Clase: ['O']['direccion_nombre_de_tipo']['tamanyo']['atributo1']['atributo2'].....
+
+Cada estructura comienza con 4 bytes donde hay una letra, que dice el tipo de estructura que hay a continuacion. Los enteros, punteros y booleanos siguen con 4 bytes donde se almacena el valor. En el caso de las cadenas de caracteres siguien 1024 bytes que es el tamanyo maximo que puede tener la cadena. En el caso de la instancia de una clase, se comienza por la letra 'O', despues una direccion que a punta a una cadena que es el nombre de el tipo de esa instancia, despues 4 bytes con el tamanyo total que ocupa esta instancia, y finalmente la lista de variables, que tienen la misma estructura que las anteriores mencionadas. Notar que en el caso de los atributos lo que se tiene es una estructura de tipo puntero.
+
+La funcion generate_mips de este modulo devuelve un texto que corresponde al codigo MIPS que devuelve la evaluacion de los datos enviados por el CIL.
+
+
+
+

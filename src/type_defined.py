@@ -37,12 +37,17 @@ class CoolType:
     def get_attributes_as_dict(self):
         node = self
         attr = {}
+        nodes_list = []
         while node:
-            for attrs in node.attributes.keys():
+            nodes_list = [node] + nodes_list
+            node = node.parent_type
+        
+        for n in nodes_list:
+            for attrs in n.attributes.keys():
                 if attrs in attr:
                     continue
-                attr[attrs] = node.attributes[attrs]
-            node = node.parent_type
+                attr[attrs] = n.attributes[attrs]
+
         return attr
  
     def get_attributes(self):
@@ -145,16 +150,30 @@ class CoolType:
     def get_attribute_owner(self):
         node = self
         AO = {}
+        nodes_list = []
         while node:
-            for attrs in node.attributes.values():
+            nodes_list = [node] + nodes_list
+            node = node.parent_type
+
+        for n in nodes_list:
+            for attrs in n.attributes.values():
                 if attrs.attribute_name == "self":
                     continue
-                if attrs.attribute_name in AO:
-                    continue
-                AO[attrs.attribute_name] = node.name
-            node = node.parent_type
+                AO[attrs.attribute_name] = n.name
+
         return AO
         
+
+    def get_tree_depth(self):
+        node = self
+
+        result = 0
+
+        while node:
+            result += 1
+            node = node.parent_type
+        
+        return result
 
     def get_method_owner(self):
         node = self

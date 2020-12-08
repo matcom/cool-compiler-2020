@@ -1,13 +1,15 @@
 class Node:
     pass
 
+class LocalSaveNode(Node):
+    def GetCode(self):
+        return "LOCALSAVE"
 
 class ProgramNode(Node):
     def __init__(self, types, data, code):
         self.types = types
         self.data = data
         self.code = code
-
 
 class TypeNode(Node):
     def __init__(self, type_name, attributes_owner, attributes, methods):
@@ -194,6 +196,8 @@ class AllocateNode(InstructionNode):
 
 
 class AbortNode(InstructionNode):
+    def __init__(self, caller_type):
+        self.caller_type = caller_type
     def GetCode(self):
         return "EXIT"
 
@@ -225,13 +229,13 @@ class TypeOfNode(InstructionNode):
 
 
 class DispatchCallNode(InstructionNode):
-    def __init__(self, type_name, method, result):
-        self.type_name = type_name
+    def __init__(self, type_addr, method, result):
+        self.type_addr = type_addr
         self.method = method
         self.result = result
 
     def GetCode(self):
-        return "CALL " + str(self.result) + " " + str(self.type_name) + " " + str(self.method)
+        return "CALL " + str(self.result) + " " + str(self.type_addr) + " " + str(self.method)
 
 
 class ArgNode(InstructionNode):
@@ -318,6 +322,14 @@ class SetStringNode(InstructionNode):
     def GetCode(self):
         return "SETSTR " + str(self.result) + " " + str(self.str)
 
+class IsSonNode(InstructionNode):
+    def __init__(self, class_son, class_father, result):
+        self.son = class_son
+        self.father = class_father
+        self.result = result
+
+    def GetCode(self):
+        return "ISSON " + self.son + " " + self.father + " " + self.result
 
 class StrsubNode(InstructionNode):
     def __init__(self, str, i, len, result):
@@ -328,14 +340,6 @@ class StrsubNode(InstructionNode):
 
     def GetCode(self):
         return "STRSUB " + str(self.result) + " " + str(self.str) + " " + str(self.i) + " " + str(self.len)
-
-class ToStrNode(InstructionNode):
-    def __init__(self, value, result):
-        self.result = result
-        self.value = value
-
-    def GetCode(self):
-        return "TOSTR " + str(self.result) + " " + str(self.value)
 
 
 class ReadNode(InstructionNode):
@@ -352,3 +356,29 @@ class PrintNode(InstructionNode):
 
     def GetCode(self):
         return "PRINT " + str(self.str)
+
+
+class PrintIntNode(InstructionNode):
+    def __init__(self, val):
+        self.val = val
+
+    def GetCode(self):
+        return "PINT " + str(self.val)
+
+
+class TypeNameNode(InstructionNode):
+    def __init__(self, result, type_addr):
+        self.result = result
+        self.type_addr = type_addr
+
+    def GetCode(self):
+        return "TYPENAME " + str(self.result) + " " + str(self.type_addr)
+
+
+class TypeAddressNode(InstructionNode):
+    def __init__(self, result, type_name):
+        self.result = result
+        self.type_name = type_name
+
+    def GetCode(self):
+        return "TYPEADDR " + str(self.result) + " " + str(self.type_name)
