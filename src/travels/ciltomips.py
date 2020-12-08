@@ -1,6 +1,5 @@
 from pickle import TRUE
 
-from cloudpickle.cloudpickle import instance
 from abstract.semantics import Type
 from cil.nodes import (
     AbortNode,
@@ -1187,6 +1186,10 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(MOVE(length, zero))
         self.register_instruction(MOVE(temp, zero))
         self.register_instruction(MOVE(reg2, reg))
+
+        self.register_instruction(LB(temp, f"0(${REG_TO_STR[reg2]})"))
+        self.register_instruction(BEQZ(temp, "end_loop"))
+
         self.register_instruction(Label("read_length_loop"))
         # while [reg2] != 0: length ++
         self.register_instruction(LB(temp, f"0(${REG_TO_STR[reg2]})"))
@@ -1200,6 +1203,8 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
         self.register_instruction(SUBU(reg2, reg2, 1, True))
         self.register_instruction(SB(zero, f"0(${REG_TO_STR[reg2]})"))
         self.register_instruction(SUBU(length, length, 1, True))
+
+        self.register_instruction(Label("end_loop"))
 
         # length contiene el length del string
         # Crear la instancia

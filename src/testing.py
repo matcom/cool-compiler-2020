@@ -418,12 +418,16 @@ example, this method is written iteratively.
 
 class Main inherits Parse {
 
-   g : Graph <- read_input();
-
    main() : Object {
       {
-	 g.print_V();
-         g.print_E();
+         
+         if "" = "" then out_string("True \n") else out_string("False\n")fi;
+         if in_string() = "" then out_string("True \n") else out_string("False\n")fi;
+         if in_string() = "" then out_string("True \n") else out_string("False\n")fi;
+         if in_string() = "" then out_string("True \n") else out_string("False\n")fi;
+         if in_string() = "" then out_string("True \n") else out_string("False\n")fi;
+         if in_string() = "" then out_string("True \n") else out_string("False\n")fi;
+         if in_string() = "" then out_string("True \n") else out_string("False\n")fi;
       }
    };
 
