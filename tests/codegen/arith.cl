@@ -158,14 +158,14 @@ class A2I {
 	if char = "0" then 0 else
 	if char = "1" then 1 else
 	if char = "2" then 2 else
-        if char = "3" then 3 else
-        if char = "4" then 4 else
-        if char = "5" then 5 else
-        if char = "6" then 6 else
-        if char = "7" then 7 else
-        if char = "8" then 8 else
-        if char = "9" then 9 else
-        { abort(); 0; }  (* the 0 is needed to satisfy the
+    if char = "3" then 3 else
+    if char = "4" then 4 else
+    if char = "5" then 5 else
+    if char = "6" then 6 else
+    if char = "7" then 7 else
+    if char = "8" then 8 else
+    if char = "9" then 9 else
+    { abort(); 0; }  (* the 0 is needed to satisfy the
 				  typchecker *)
         fi fi fi fi fi fi fi fi fi fi
      };
@@ -318,12 +318,12 @@ class Main inherits IO {
 
    class_type(var : A) : IO {
       case var of
-	 a : A => out_string("Class type is now A\n");
-	 b : B => out_string("Class type is now B\n");
-	 c : C => out_string("Class type is now C\n");
-	 d : D => out_string("Class type is now D\n");
-	 e : E => out_string("Class type is now E\n");
-	 o : Object => out_string("Oooops\n");
+        a : A => out_string("Class type is now A\n");
+        b : B => out_string("Class type is now B\n");
+        c : C => out_string("Class type is now C\n");
+        d : D => out_string("Class type is now D\n");
+        e : E => out_string("Class type is now E\n");
+        o : Object => out_string("Oooops\n");
       esac
    };
  
@@ -339,9 +339,9 @@ class Main inherits IO {
    main() : Object {
       {
          avar <- (new A);
-         while flag loop
-            {
-	       -- avar <- (new A).set_var(get_int());
+
+         while flag loop {
+
 	       out_string("number ");
 	       print(avar);
 	       if is_even(avar.value()) then
@@ -349,79 +349,74 @@ class Main inherits IO {
 	       else
 	          out_string("is odd!\n")
 	       fi;
-	       -- print(avar); -- prints out answer
+
 	       class_type(avar);
+
 	       char <- menu();
-                  if char = "a" then -- add
-                     {
-                        a_var <- (new A).set_var(get_int());
-	                avar <- (new B).method2(avar.value(), a_var.value());
-	             } else
-                  if char = "b" then -- negate
-                     case avar of
-	                   c : C => avar <- c.method6(c.value());
-	                   a : A => avar <- a.method3(a.value());
-	                   o : Object => {
-		                  out_string("Oooops\n");
-		                  abort(); 0;
-		               };
-                     esac else
-                  if char = "c" then -- diff
-                     {
-                        a_var <- (new A).set_var(get_int());
-	                avar <- (new D).method4(avar.value(), a_var.value());
-	             } else
-                  if char = "d" then avar <- (new C)@A.method5(avar.value()) else
-		          -- factorial
-                  if char = "e" then avar <- (new C)@B.method5(avar.value()) else
-			  -- square
-                  if char = "f" then avar <- (new C)@C.method5(avar.value()) else
-			  -- cube
-                  if char = "g" then -- multiple of 3?
-		      if ((new D).method7(avar.value()))
-		                       then -- avar <- (new A).method1(avar.value())
+           if char = "a" then -- add
+           {
+              a_var <- (new A).set_var(get_int());
+	          avar <- (new B).method2(avar.value(), a_var.value());
+	       }
+	       else if char = "b" then -- negate
+             case avar of
+               c : C => avar <- c.method6(c.value());
+               a : A => avar <- a.method3(a.value());
+               o : Object => {
+                  out_string("Oooops\n");
+                  abort(); 0;
+               };
+             esac
+           else if char = "c" then -- diff
+           {
+             a_var <- (new A).set_var(get_int());
+             avar <- (new D).method4(avar.value(), a_var.value());
+           }
+           else if char = "d" then
+             avar <- (new C)@A.method5(avar.value()) -- factorial
+           else if char = "e" then
+             avar <- (new C)@B.method5(avar.value()) -- square
+           else if char = "f" then
+             avar <- (new C)@C.method5(avar.value()) -- cube
+           else if char = "g" then -- multiple of 3?
+		     if ((new D).method7(avar.value())) then
 			 {
-	                    out_string("number ");
-	                    print(avar);
-	                    out_string("is divisible by 3.\n");
+	           out_string("number ");
+	           print(avar);
+	           out_string("is divisible by 3.\n");
 			 }
-			 else  -- avar <- (new A).set_var(0)
+			 else
 			 {
-	                    out_string("number ");
-	                    print(avar);
-	                    out_string("is not divisible by 3.\n");
-			 }
-		      fi else
-                  if char = "h" then 
-		      (let x : A in
-			 {
-		            x <- (new E).method6(avar.value());
+	           out_string("number ");
+	           print(avar);
+	           out_string("is not divisible by 3.\n");
+			 } fi
+		   else if char = "h" then
+		     (let x : A in {
+		        x <- (new E).method6(avar.value());
 			    (let r : Int <- (avar.value() - (x.value() * 8)) in
-			       {
-			          out_string("number ");
-			          print(avar);
-			          out_string("is equal to ");
-			          print(x);
-			          out_string("times 8 with a remainder of ");
-				  (let a : A2I <- new A2I in
-				     {
-			                out_string(a.i2a(r));
-			                out_string("\n");
-				     }
-				  ); -- end let a:
-			       }
-                            ); -- end let r:
+			     {
+			       out_string("number ");
+			       print(avar);
+			       out_string("is equal to ");
+			       print(x);
+			       out_string("times 8 with a remainder of ");
+			       (let a : A2I <- new A2I in
+				    {
+			          out_string(a.i2a(r));
+			          out_string("\n");
+				    }); -- end let a:
+			     }); -- end let r:
 			    avar <- x;
-		         } 
-		      )  -- end let x:
-		      else
-                  if char = "j" then avar <- (new A)
-		      else
-                  if char = "q" then flag <- false
-		      else
-                      avar <- (new A).method1(avar.value()) -- divide/8
-                  fi fi fi fi fi fi fi fi fi fi;
-            }
+		     })  -- end let x:
+		   else if char = "j" then
+		     avar <- (new A)
+		   else if char = "q" then
+		     flag <- false
+		   else
+		     avar <- (new A).method1(avar.value()) -- divide/8
+           fi fi fi fi fi fi fi fi fi fi;
+         }
          pool;
        }
    };

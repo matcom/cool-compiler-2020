@@ -1,1 +1,1 @@
-(0, 0) - SyntacticError: ERROR at or near EOF
+(1, 36) - SyntacticError: ERROR at or near EOF

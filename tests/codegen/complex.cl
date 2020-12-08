@@ -1,22 +1,11 @@
-class Main inherits IO {
-    main() : IO {
-	(let c : Complex <- (new Complex).init(1, 1) in
-	    if c.reflect_X().reflect_Y() = c.reflect_0()
-	    then out_string("=)\n")
-	    else out_string("=(\n")
-	    fi
-	)
-    };
-};
-
 class Complex inherits IO {
     x : Int;
     y : Int;
 
-    init(a : Int, b : Int) : Complex {
+    init(a : Int, b : Int) : SELF_TYPE {
 	{
-	    x = a;
-	    y = b;
+	    x <- a;
+	    y <- b;
 	    self;
 	}
     };
@@ -30,23 +19,36 @@ class Complex inherits IO {
 
     reflect_0() : Complex {
 	{
-	    x = ~x;
-	    y = ~y;
+	    x <- ~x;
+	    y <- ~y;
 	    self;
 	}
     };
 
     reflect_X() : Complex {
 	{
-	    y = ~y;
+	    y <- ~y;
 	    self;
 	}
     };
 
     reflect_Y() : Complex {
 	{
-	    x = ~x;
+	    x <- ~x;
 	    self;
 	}
     };
 };
+
+class Main inherits IO {
+    main() : IO {
+	(let c : Complex <- (new Complex).init(1, 1)  in
+	    if c.reflect_X().reflect_Y() = c.reflect_0()
+	    then out_string("=)\n")
+	    else out_string("=(\n")
+	    fi
+	)
+    };
+};
+
+

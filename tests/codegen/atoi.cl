@@ -13,9 +13,9 @@ something of type A2I, or simpl write (new A2I).method(argument).
 class A2I {
 
      c2i(char : String) : Int {
-	if char = "0" then 0 else
-	if char = "1" then 1 else
-	if char = "2" then 2 else
+        if char = "0" then 0 else
+        if char = "1" then 1 else
+        if char = "2" then 2 else
         if char = "3" then 3 else
         if char = "4" then 4 else
         if char = "5" then 5 else
@@ -54,9 +54,13 @@ overflow.
 
 *)
      a2i(s : String) : Int {
-        if s.length() = 0 then 0 else
-	if s.substr(0,1) = "-" then ~a2i_aux(s.substr(1,s.length()-1)) else
-        if s.substr(0,1) = "+" then a2i_aux(s.substr(1,s.length()-1)) else
+        if s.length() = 0 then
+            0
+        else if s.substr(0,1) = "-" then
+            ~a2i_aux(s.substr(1,s.length()-1))
+        else if s.substr(0,1) = "+" then
+            a2i_aux(s.substr(1,s.length()-1))
+        else
            a2i_aux(s)
         fi fi fi
      };
@@ -66,21 +70,17 @@ overflow.
 example, this method is written iteratively.
 *)
      a2i_aux(s : String) : Int {
-	(let int : Int <- 0 in	
-           {	
-               (let j : Int <- s.length() in
-	          (let i : Int <- 0 in
-		    while i < j loop
-			{
-			    int <- int * 10 + c2i(s.substr(i,1));
-			    i <- i + 1;
-			}
-		    pool
-		  )
-	       );
-              int;
-	    }
-        )
+	    (let int : Int <- 0 in	{
+            (let j : Int <- s.length() in
+	            (let i : Int <- 0 in
+		            while i < j loop {
+                        int <- int * 10 + c2i(s.substr(i,1));
+                        i <- i + 1;
+                    } pool
+		        )
+	        );
+            int;
+	    })
      };
 
 (*
@@ -108,14 +108,35 @@ numbers are handled correctly.
 };
 
 class Main inherits IO {
-  main () : Object { 
-      let a : Int <- (new A2I).a2i("678987"), 
-          b : String <- (new A2I).i2a(678987) in
+
+     c2i(char : String) : Int {
+        if char = "0" then 0 else
+        if char = "1" then 1 else
+        if char = "2" then 2 else
+        if char = "3" then 3 else
+        if char = "4" then 4 else
+        if char = "5" then 5 else
+        if char = "6" then 6 else
+        if char = "7" then 7 else
+        if char = "8" then 8 else
+        if char = "9" then 9 else
+        { abort(); 0; }  -- the 0 is needed to satisfy the typchecker
+        fi fi fi fi fi fi fi fi fi fi
+     };
+
+    counter : Int <- 0;
+
+  main () : Object { {
+
+      let a : Int <- (new A2I).a2i("678987"),
+          b : String <- (new A2I).i2a(678987)  in
       { 
         out_int(a) ;
         out_string(" == ") ;
         out_string(b) ;
-        out_string("\n"); 
-      } 
+        out_string("\n");
+      };
+
+    }
   } ;
 } ;
