@@ -67,6 +67,7 @@ class CilToMipsVisitor(BaseCilToMipsVisitor):
 
         # Los tipos los definiremos en la seccion .data
         self.register_instruction(DotDataDirective())
+        self.register_instruction(FixedData("dummy", 0))
 
         # Generar los tipos
         self.create_type_array(node.dottypes)

@@ -74,7 +74,25 @@ from cil.nodes import (
     TypeOffsetNode,
     UnconditionalJump,
 )
-from mips.branch import J
+
+
+def find_min_i(vtables: List[List[Tuple[str, str]]], method: str):
+    return min(
+        [i for vtable in vtables for i, (m, _) in enumerate(vtable) if m == method]
+    )
+
+
+def sort_methods_tables(vtables: List[List[Tuple[str, str]]]):
+    methods = set([m for v in vtables for m, _ in v])
+    new_tables = [[] for _ in vtables]
+    for m in methods:
+        for i, vtable in enumerate(vtables):
+            if m in [x for x, _ in vtable]:
+                name = next(n for x, n in vtable if x == m)
+                new_tables[i].append((m, name))
+            else:
+                new_tables[i].append(("__not_a_func", "dummy"))
+    return new_tables
 
 
 def find_method_in_parent(type_: Type, method: str, typeNodes: List[TypeNode]):
@@ -130,6 +148,11 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
         for klass, child_scope in zip(class_list, children):
             self.visit(klass, child_scope)
+
+        # print("\n".join(str(x) for x in sort_methods_tables([t.methods for t in self.dot_types])))
+        new_vtable = sort_methods_tables([t.methods for t in self.dot_types])
+        for i in range(len(self.dot_types)):
+            self.dot_types[i].methods = new_vtable[i]
 
         return CilProgramNode(self.dot_types, self.dot_data, self.dot_code)
 
@@ -349,7 +372,9 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         if type_.name not in ("String", "Int", "Bool"):
             self.register_instruction(AllocateNode(type_, instance_vm_holder))
         elif type_.name == "String":
-            self.register_instruction(AllocateStringNode(instance_vm_holder, self.null, 0))
+            self.register_instruction(
+                AllocateStringNode(instance_vm_holder, self.null, 0)
+            )
         elif type_.name == "Int":
             self.register_instruction(AllocateIntNode(instance_vm_holder, 0))
         elif type_.name == "Bool":
