@@ -319,18 +319,13 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
 
             # Si la variable es int, string o boolean, su valor por defecto es 0
             if var_info.type.name not in ("String", "Int", "Bool"):
-                self.register_instruction(AllocateNode(var_info.type, local_var))
+                self.register_instruction(AssignNode(local_var, 0))
             elif var_info.type.name == "String":
                 self.register_instruction(AllocateStringNode(local_var, self.null, 0))
             elif var_info.type.name == "Int":
                 self.register_instruction(AllocateIntNode(local_var, 0))
             elif var_info.type.name == "Bool":
                 self.register_instruction(AllocateBoolNode(local_var, 0))
-            else:
-                # Si la variable tiene una expresion de inicializacion
-                # entonces no es necesario ponerle valor por defecto
-                if var_init_expr is None:
-                    self.register_instruction(AssignNode(local_var, 0))
 
             if var_init_expr is not None:
                 expr_init_vm_holder = self.visit(var_init_expr, scope)
@@ -397,7 +392,7 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
         elif var_inf.location == "LOCAL":
             var = next(
                 v
-                for v in self.localvars
+                for v in list(reversed(self.localvars))
                 if f"local_{self.current_function.name[9:]}_{var_inf.name}_" in v.name
             )
             self.register_instruction(AssignNode(var, rvalue_vm_holder))

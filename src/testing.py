@@ -123,6 +123,8 @@ class Vertice inherits IO {
 
    init(n : Int) : Vertice {
       {
+        new IO.out_string("initializing Vertice\n");
+        new IO.in_string();
          num <- n;
          self;
       }
@@ -418,12 +420,12 @@ example, this method is written iteratively.
 
 class Main inherits Parse {
 
-   g : Graph <- read_input();
+    s : String <- in_string();
 
    main() : Object {
       {
-	 g.print_V();
-         g.print_E();
+          let v : Vertice <- (new Vertice).init(a2i(s)) in
+          out_string("Success in init\n");
       }
    };
 
@@ -441,6 +443,27 @@ class BoolOp {
   };
 
 };
-		    
+
+"""
+
+testProg = r"""
+class Main inherits IO {
+    num1 : Int;
+    num2 : Int;
+    main(): Object {
+        {
+            num1 <- ~1;
+            num2 <- 0;
+            out_int(num2 - num1);
+            out_string("\n");
+            let x: Int in
+            {
+                x <- num2 - num1;
+                out_int(x);
+            };
+            out_string("\n");
+        }
+    };
+};
 """
 pipeline(text, 1)

@@ -181,7 +181,13 @@ def build_cool_grammar():
     nested_lets %= (
         idx + dd + typex + coma + nested_lets,
         lambda s: [
-            (s[1].lex, s[3].lex, None, s[3].token_line, s[3].token_column - len(s[3].lex))
+            (
+                s[1].lex,
+                s[3].lex,
+                None,
+                s[3].token_line,
+                s[3].token_column - len(s[3].lex),
+            )
         ]
         + s[5],
     )
@@ -193,7 +199,13 @@ def build_cool_grammar():
     nested_lets %= (
         idx + dd + typex + assign + exp + coma + nested_lets,
         lambda s: [
-            (s[1].lex, s[3].lex, s[5], s[3].token_line, s[3].token_column - len(s[3].lex))
+            (
+                s[1].lex,
+                s[3].lex,
+                s[5],
+                s[3].token_line,
+                s[3].token_column - len(s[3].lex),
+            )
         ]
         + s[7],
     )
@@ -260,11 +272,17 @@ def build_cool_grammar():
     )
 
     term %= term + star + not_ + factor, lambda s: MulNode(
-        s[1], s[4], s[2].token_line, s[2].token_column - 1
+        s[1],
+        NotNode(s[4], s[3].token_line, s[3].token_column),
+        s[2].token_line,
+        s[2].token_column - 1,
     )
 
-    term %= term + div + not_  + factor, lambda s: DivNode(
-        s[1], s[4], s[2].token_line, s[2].token_column - 1
+    term %= term + div + not_ + factor, lambda s: DivNode(
+        s[1],
+        NotNode(s[4], s[3].token_line, s[3].token_column),
+        s[2].token_line,
+        s[2].token_column - 1,
     )
 
     term %= factor, lambda s: s[1]

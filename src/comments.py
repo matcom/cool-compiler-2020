@@ -52,43 +52,33 @@ def find_comments(program: Any) -> str:
         except StopIteration:
             break
     assert not stack, "(%d, %d) - LexicographicError: EOF in comment" % (line, column)
-    iter_char = iter(enumerate(program))
-    column = 1
-    line = 1
-    while 1:
-        try:
-            i, char = next(iter_char)
-            column += 1
-            if char == "-" and i > 0 and program[i - 1] != "<":
-                i, char = next(iter_char)
-                column += 1
-                if char == "-":
-                    stack.append(i - 1)
-                elif char == "\n":
-                    if stack:
-                        first = stack.pop()
-                        pairs.append((first, i))
-                        column = 1
-                        line += 1
-            elif char == '-' and i == 0:
-                i, char = next(iter_char)
-                column += 1
-                if char == "-":
-                    stack.append(i - 1)
-                elif char == "\n":
-                    if stack:
-                        first = stack.pop()
-                        pairs.append((first, i))
-                        column = 1
-                        line += 1
-            elif char == "\n":
-                if stack:
-                    first = stack.pop()
-                    pairs.append((first, i))
-                    column = 1
-                    line += 1
-        except StopIteration:
-            break
+    
+    i = 0
+    while i < len(program):
+        c = program[i]
+        if c =='-' and i > 0 and program[i - 1] != '<':
+            i += 1
+            c = program[i]
+            if c == "-":
+                eol = "".join(program).find("\n", i)
+                for j in range(i - 1, eol):
+                    program[j] = " "
+                i = eol
+            else:
+                i += 1
+        elif c =='-' and i == 0:
+            i += 1
+            c = program[i]
+            if c == "-":
+                eol = "".join(program).find("\n", i)
+                for j in range(i - 1, eol):
+                    program[j] = " "
+                i = eol
+            else:
+                i += 1
+        else:
+            i += 1
+            
     while pairs:
         i, j = pairs.pop()
         for k in range(i, j + 1):
