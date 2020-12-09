@@ -107,9 +107,9 @@ class CIL_FORMATTER(object):
     def visit(self, node: ConcatNode):
         return f'{node.dest} = CONCAT {node.msg1} {node.msg2}'
 
-    # @visitor.when(PrefixNode)
-    # def visit(self, node: PrefixNode):
-    #     return f'{node.dest} = PREFIX {node.msg1} {node.msg2}'
+    @visitor.when(EmptyArgs)
+    def visit(self, node: EmptyArgs):
+        return f'CLEAR {node.args} ARGS'
 
     @visitor.when(SubstringNode)
     def visit(self, node: SubstringNode):
@@ -169,9 +169,9 @@ class CIL_FORMATTER(object):
     def visit(self, node: ErrorNode):
         return f'ERROR {node.error}'
 
-    # @visitor.when(ConformNode)
-    # def visit(self, node: ConformNode):
-    #     return f'{node.dest} = COMFORM {node.obj} {node.type}'
+    @visitor.when(BoxNode)
+    def visit(self, node: BoxNode):
+        return f'{node.dest} = {node.value}'
 
     @visitor.when(NotNode)
     def visit(self, node: NotNode):

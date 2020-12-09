@@ -40,14 +40,16 @@ class Registers:
 
 class TypeData:
     def __init__(self, type_number: int, typex: TypeNode):
-        self.type: int = type_number
+        self.pos = type_number
+        self.type = typex
         self.str: str = typex.name_dir
         self.attr_offsets: Dict[str, int] = dict()
         self.func_offsets: Dict[str, int] = dict()
         self.func_names: Dict[str, str] = dict()
+        self.set_type()
 
-        # Calculate offsets for attributes and functions
-        for idx, feature in enumerate(typex.features):
+    def set_type(self):
+        for idx, feature in enumerate(self.type.features):
             if isinstance(feature, str):
                 # The plus 2 is because the two first elementes
                 # in the instance are the type_int and the type_str_dir.

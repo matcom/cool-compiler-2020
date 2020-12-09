@@ -128,6 +128,12 @@ class LessEqNode(ArithmeticNode):
     pass
 
 
+class BoxNode(InstructionNode):
+    def __init__(self, dest, value):
+        self.dest = dest
+        self.value = value
+
+
 class AllocateNode(InstructionNode):
     def __init__(self, dest, itype):
         self.dest = dest
@@ -163,7 +169,8 @@ class StaticCallNode(InstructionNode):
 
 
 class DynamicCallNode(InstructionNode):
-    def __init__(self, xtype, method, dest):
+    def __init__(self, obj, xtype, method, dest):
+        self.obj = obj
         self.type = xtype
         self.method = method
         self.dest = dest

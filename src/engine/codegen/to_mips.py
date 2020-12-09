@@ -12,6 +12,7 @@ class CIL_TO_MIPS:
         self.types_offsets: Dict[str, TypeData] = dict()
         self.arguments = {}
         self.local_vars = {}
+        self.data_segment = []
         self.data_size = data_size
         self.registers_to_save = [
             reg.ra,
@@ -67,6 +68,8 @@ class CIL_TO_MIPS:
             ) * self.data_size
 
             self.mips.load_memory(dst, self.mips.offset(reg.fp, offset))
+        elif arg in self.data_segment:
+            self.mips.la(dst, arg)
         else:
             raise Exception(
                 f"load_memory: The direction {arg} isn't an address")
@@ -99,6 +102,7 @@ class CIL_TO_MIPS:
 
         for data in node.dotdata:
             self.visit(data)
+            self.data_segment.append(data.name)
 
         self.mips.label('main')
         self.mips.jal('entry')
@@ -280,7 +284,7 @@ class CIL_TO_MIPS:
         self.mips.li(reg.a0, length)
         self.mips.sbrk()
         self.store_memory(reg.v0, node.dest)
-        self.mips.li(reg.t0, type_data.type)
+        self.mips.li(reg.t0, type_data.pos)
         self.mips.store_memory(reg.t0, reg.v0)
         self.mips.la(reg.t0, type_data.str)
         self.mips.store_memory(
@@ -336,7 +340,7 @@ class CIL_TO_MIPS:
         label_get_pc = self.get_pc(reg.t2)
         self.mips.jal(label_get_pc)
         self.mips.move(reg.ra, reg.t2)
-        self.mips.addi(reg.ra, 12)
+        self.mips.addi(reg.ra, reg.ra, 12)
         self.mips.jr(reg.t1)
 
     @visitor.when(ArgNode)
@@ -350,6 +354,11 @@ class CIL_TO_MIPS:
         self.mips.comment("ErrorNode")
         self.mips.li(reg.a0, 1)
         self.mips.syscall(17)
+
+    @visitor.when(BoxNode)
+    def visit(self, node: BoxNode):
+        self.mips.li(reg.s0, node.value)
+        self.store_memory(reg.s0, node.dest)
 
     def copy_data(self, src, dst, length):
         """
@@ -582,6 +591,10 @@ class CIL_TO_MIPS:
     def visit(self, node: PrintIntNode):
         self.load_memory(reg.a0, node.str_addr)
         self.mips.print_int(node.str_addr)
+
+    @visitor.when(EmptyArgs)
+    def visit(self, node: EmptyArgs):
+        self.mips.addi(reg.sp, reg.sp, node.args * self.data_size)
 
     @visitor.when(ReturnNode)
     def visit(self, node: ReturnNode):
