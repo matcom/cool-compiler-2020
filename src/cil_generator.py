@@ -314,7 +314,7 @@ def generate_function(type_name, method):
 
 def generate_attributes_initialization(type_name, attributes):
     result = ""
-    
+
     code = FunctionNode(type_name + "_Attributes_Initialization", [ParamNode("instance")], [], [])
 
     body = []
@@ -343,7 +343,9 @@ def generate_attributes_initialization(type_name, attributes):
             res = convert_expression(attr.expression)
             body += res.node
             body += [SetAttributeNode(type_name, 'instance', attr.attribute_name, res.result.id)]
-        
+        else:
+            body += [SetAttributeNode(type_name, 'instance', attr.attribute_name, aux_local.id)]
+
     body += [ReturnNode(aux_local.id)]
 
     MAX_LOCAL_COUNT = max(len(F_LOCALS), MAX_LOCAL_COUNT)
@@ -478,7 +480,7 @@ def convert_case(case):
         CASE_LOCALS[case_branch.id] = expr.result
         branch = convert_expression(case_branch.expression)
         nodes += branch.node
-        nodes.append(CopyNode(branch.result.id, result.id))
+        nodes.append(MovNode(result.id, branch.result.id))
         nodes.append(GotoNode(end_label))
 
     # Aqui iria el error por no irse por ninguna rama
@@ -652,12 +654,12 @@ def convert_variable(id):
 
     if CURR_TYPE == "":
         result = get_local()
-        nodes = [AllocateNode(AllTypes["Main"].attributes[id.lex].attribute_type.name, result.id), GetAttributeNode("Main", MAIN_LOCAL.id, id.lex, result.id)]
+        nodes = [GetAttributeNode("Main", MAIN_LOCAL.id, id.lex, result.id)]
         return Node_Result(nodes, result)
 
     if id.lex in C_ATTRIBUTES:
         result = get_local()
-        return Node_Result([AllocateNode(C_ATTRIBUTES[id.lex].attribute_type.name, result.id), GetAttributeNode(CURR_TYPE, "self", id.lex, result.id)], result)
+        return Node_Result([GetAttributeNode(CURR_TYPE, "self", id.lex, result.id)], result)
     
     result = get_local()
     
