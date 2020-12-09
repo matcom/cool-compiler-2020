@@ -101,6 +101,9 @@ def generate_cil_code(ast):
     result += generate_built_in_functions()
 
     for types in ast.values():
+        if types.name == "SELF_TYPE":
+            continue
+        result += generate_attributes_initialization(types.name, types.get_attributes_as_dict().values())
         if types.name == "Object" or types.name == "IO" or types.name == "String":
             continue
         if types.name == "Main":
@@ -129,46 +132,8 @@ def generate_cil_code(ast):
                 [AllocateNode("Main", Main_instance.id)])
 
     F_LOCALS["self"] = Main_instance
-
-    for a in Main_class_attributes:
-        res = get_local()
-        if a[0] == "String":
-
-            if a[2] != None:
-                inst = convert_expression(a[2])
-                main_func.body += inst.node
-                main_func.body += [SetAttributeNode("Main", Main_instance.id, a[1], inst.result.id)]
-            else:
-                main_func.body += [AllocateNode("String", res.id), 
-                                   SetStringNode(res.id, ""),
-                                   SetAttributeNode("Main", Main_instance.id, a[1], res.id)]
-        elif a[0] == "Int":
-            if a[2] != None:
-                inst = convert_expression(a[2])
-                main_func.body += inst.node
-                main_func.body += [SetAttributeNode("Main", Main_instance.id, a[1], inst.result.id)]
-            else:
-                main_func.body += [AllocateNode("Int", res.id), 
-                                   SetAttributeNode("Main", Main_instance.id, a[1], res.id)]
-        elif a[0] == "Bool":
-            if a[2] != None:
-                inst = convert_expression(a[2])
-                main_func.body += inst.node
-                main_func.body += [SetAttributeNode("Main", Main_instance.id, a[1], inst.result.id)]
-            else:
-                main_func.body += [AllocateNode("Bool", res.id), 
-                                   SetAttributeNode("Main", Main_instance.id, a[1], res.id)]
-        else:
-            if a[2] != None:
-                inst = convert_expression(a[2])
-                main_func.body += inst.node
-                main_func.body += [SetAttributeNode("Main", Main_instance.id, a[1], inst.result.id)]
-            else:
-                main_func.body += [AllocateNode(a[0], res.id), 
-                                   SetAttributeNode("Main", Main_instance.id, a[1], res.id)]
     
     Main_type_local = get_local()
-
 
     main_func.body += [LocalSaveNode(), ArgNode(Main_instance.id), 
                        AllocateNode("Int", Main_type_local.id),
@@ -346,6 +311,56 @@ def generate_function(type_name, method):
 
     return result
 
+
+def generate_attributes_initialization(type_name, attributes):
+    result = ""
+    
+    code = FunctionNode(type_name + "_Attributes_Initialization", [ParamNode("instance")], [], [])
+
+    body = []
+
+    global MAX_LOCAL_COUNT, F_PARAM, F_LOCALS, LABEL_COUNTER, D_LOCALS, V_TYPE, CURR_TYPE, C_ATTRIBUTES, LET_LOCALS
+    C_ATTRIBUTES = {}
+    F_LOCALS = {}
+    D_LOCALS = {}
+    V_TYPE = {}
+    LET_LOCALS = {}
+    CURR_TYPE = type_name
+    statements = []
+    F_PARAM = {}
+    CASE_LOCALS = {}
+
+    F_PARAM["self"] = ParamNode("instance")
+
+    aux_local = get_local()
+    body += [AllocateNode("void", aux_local.id),]
+
+    for attr in attributes:
+        if attr.attribute_name == "self":
+            continue
+        C_ATTRIBUTES[attr.attribute_name] = attr
+        if attr.expression != None:
+            res = convert_expression(attr.expression)
+            body += res.node
+            body += [SetAttributeNode(type_name, 'instance', attr.attribute_name, res.result.id)]
+        
+    body += [ReturnNode(aux_local.id)]
+
+    MAX_LOCAL_COUNT = max(len(F_LOCALS), MAX_LOCAL_COUNT)
+
+    _locals = F_LOCALS.copy()
+    locals_aux = []
+    for key in _locals.keys():
+        locals_aux += [_locals[key]]
+
+    code.locals = locals_aux
+    code.body = body
+    global CODE
+    CODE.append(code)
+    
+    result += CODE[-1].GetCode() + "\n\n"
+
+    return result
 
 
 def convert_expression(expression):
@@ -663,30 +678,6 @@ def convert_new(new_node):
             new_node.typeName = CURR_TYPE
 
     nodes.append(AllocateNode(new_node.typeName, result.id))
-
-    attr = AllTypes[new_node.typeName].get_attributes()
-    for a in attr:
-        if a.attribute_name == "self":
-            continue
-        if a.expression:
-            expr = convert_expression(a.expression)
-            nodes += expr.node
-            nodes.append(SetAttributeNode(new_node.typeName, result.id, a.attribute_name, expr.result.id))
-        else:
-            res = get_local()
-            if a.attribute_type.name == "String":
-                nodes.append(AllocateNode("String", res.id))
-                nodes.append(SetStringNode(res.id, ""))
-                nodes.append(SetAttributeNode(new_node.typeName, result.id, a.attribute_name, res.id))
-            elif a.attribute_type.name == "Int":
-                nodes.append(AllocateNode("Int", res.id))
-                nodes.append(SetAttributeNode(new_node.typeName, result.id, a.attribute_name, res.id))
-            elif a.attribute_type.name == "Bool":
-                nodes.append(AllocateNode("Bool", res.id))
-                nodes.append(SetAttributeNode(new_node.typeName, result.id, a.attribute_name, res.id))
-            else:
-                nodes.append(AllocateNode(a.attribute_type.name, res.id))
-                nodes.append(SetAttributeNode(new_node.typeName, result.id, a.attribute_name, res.id))
 
     return Node_Result(nodes, result)
 

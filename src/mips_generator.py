@@ -920,7 +920,6 @@ def convert_AllocateNode(instruction):
         result += "jal allocate_Void\n"
 
     else:
-       
         result += "la $t1, type_" + instruction.type + "\n"
         result += "sw $t1, ($s0)\n"
 
@@ -942,15 +941,26 @@ def convert_AllocateNode(instruction):
         # ponemos el tamanyo correspondiente
         result += "sw $a0, ($v0)\n"
 
-        # ponemos 0 en t3
         result += "li $t3, 0\n"
-
         # ponemos las letras correspondientes a cada attributo
         for l in attrs:
             result += "la $t1, type_" + l + "\n"
             result += "sw $t1, 4($v0)\n"
             result += "sw $t3, 8($v0)\n"
             result += "addi $v0, $v0, 8\n"
+
+        global CURR_FUNC
+        result += "jal " + CURR_FUNC + "_locals_write\n"
+
+        result += "lw $t0, ($s0)\n"
+        result += "sw $t0, ($sp)\n"
+        result += "lw $t0, 4($s0)\n"
+        result += "sw $t0, 4($sp)\n"
+        result += "addi $sp, $sp, 8\n"
+        result += "jal " + instruction.type + "_Attributes_Initialization\n"
+
+        result += "jal " + CURR_FUNC + "_locals_load\n"
+        result += PARAMS_LOAD
 
     return result
     
