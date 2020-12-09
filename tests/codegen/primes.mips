@@ -1,0 +1,485 @@
+.data
+s_0: .asciiz"2 is trivially prime.
+"
+s_1: .asciiz"3 is prime.
+"
+s_2: .asciiz"5 is prime.
+"
+s_3: .asciiz"7 is prime.
+"
+s_4: .asciiz"11 is prime.
+"
+s_5: .asciiz"13 is prime.
+"
+s_6: .asciiz"17 is prime.
+"
+s_7: .asciiz"19 is prime.
+"
+s_8: .asciiz"23 is prime.
+"
+s_9: .asciiz"29 is prime.
+"
+s_10: .asciiz"31 is prime.
+"
+s_11: .asciiz"37 is prime.
+"
+s_12: .asciiz"41 is prime.
+"
+s_13: .asciiz"43 is prime.
+"
+s_14: .asciiz"47 is prime.
+"
+s_15: .asciiz"53 is prime.
+"
+s_16: .asciiz"59 is prime.
+"
+s_17: .asciiz"61 is prime.
+"
+s_18: .asciiz"67 is prime.
+"
+s_19: .asciiz"71 is prime.
+"
+s_20: .asciiz"73 is prime.
+"
+s_21: .asciiz"79 is prime.
+"
+s_22: .asciiz"83 is prime.
+"
+s_23: .asciiz"89 is prime.
+"
+s_24: .asciiz"97 is prime.
+"
+s_25: .asciiz"101 is prime.
+"
+s_26: .asciiz"103 is prime.
+"
+s_27: .asciiz"107 is prime.
+"
+s_28: .asciiz"109 is prime.
+"
+s_29: .asciiz"113 is prime.
+"
+s_30: .asciiz"127 is prime.
+"
+s_31: .asciiz"131 is prime.
+"
+s_32: .asciiz"137 is prime.
+"
+s_33: .asciiz"139 is prime.
+"
+s_34: .asciiz"149 is prime.
+"
+s_35: .asciiz"151 is prime.
+"
+s_36: .asciiz"157 is prime.
+"
+s_37: .asciiz"163 is prime.
+"
+s_38: .asciiz"167 is prime.
+"
+s_39: .asciiz"173 is prime.
+"
+s_40: .asciiz"179 is prime.
+"
+s_41: .asciiz"181 is prime.
+"
+s_42: .asciiz"191 is prime.
+"
+s_43: .asciiz"193 is prime.
+"
+s_44: .asciiz"197 is prime.
+"
+s_45: .asciiz"199 is prime.
+"
+s_46: .asciiz"211 is prime.
+"
+s_47: .asciiz"223 is prime.
+"
+s_48: .asciiz"227 is prime.
+"
+s_49: .asciiz"229 is prime.
+"
+s_50: .asciiz"233 is prime.
+"
+s_51: .asciiz"239 is prime.
+"
+s_52: .asciiz"241 is prime.
+"
+s_53: .asciiz"251 is prime.
+"
+s_54: .asciiz"257 is prime.
+"
+s_55: .asciiz"263 is prime.
+"
+s_56: .asciiz"269 is prime.
+"
+s_57: .asciiz"271 is prime.
+"
+s_58: .asciiz"277 is prime.
+"
+s_59: .asciiz"281 is prime.
+"
+s_60: .asciiz"283 is prime.
+"
+s_61: .asciiz"293 is prime.
+"
+s_62: .asciiz"307 is prime.
+"
+s_63: .asciiz"311 is prime.
+"
+s_64: .asciiz"313 is prime.
+"
+s_65: .asciiz"317 is prime.
+"
+s_66: .asciiz"331 is prime.
+"
+s_67: .asciiz"337 is prime.
+"
+s_68: .asciiz"347 is prime.
+"
+s_69: .asciiz"349 is prime.
+"
+s_70: .asciiz"353 is prime.
+"
+s_71: .asciiz"359 is prime.
+"
+s_72: .asciiz"367 is prime.
+"
+s_73: .asciiz"373 is prime.
+"
+s_74: .asciiz"379 is prime.
+"
+s_75: .asciiz"383 is prime.
+"
+s_76: .asciiz"389 is prime.
+"
+s_77: .asciiz"397 is prime.
+"
+s_78: .asciiz"401 is prime.
+"
+s_79: .asciiz"409 is prime.
+"
+s_80: .asciiz"419 is prime.
+"
+s_81: .asciiz"421 is prime.
+"
+s_82: .asciiz"431 is prime.
+"
+s_83: .asciiz"433 is prime.
+"
+s_84: .asciiz"439 is prime.
+"
+s_85: .asciiz"443 is prime.
+"
+s_86: .asciiz"449 is prime.
+"
+s_87: .asciiz"457 is prime.
+"
+s_88: .asciiz"461 is prime.
+"
+s_89: .asciiz"463 is prime.
+"
+s_90: .asciiz"467 is prime.
+"
+s_91: .asciiz"479 is prime.
+"
+s_92: .asciiz"487 is prime.
+"
+s_93: .asciiz"491 is prime.
+"
+s_94: .asciiz"499 is prime.
+"
+s_95: .asciiz"Abort called from class String
+"
+.text
+main:
+li $v0, 4
+la $a0, s_0
+syscall
+li $v0, 4
+la $a0, s_1
+syscall
+li $v0, 4
+la $a0, s_2
+syscall
+li $v0, 4
+la $a0, s_3
+syscall
+li $v0, 4
+la $a0, s_4
+syscall
+li $v0, 4
+la $a0, s_5
+syscall
+li $v0, 4
+la $a0, s_6
+syscall
+li $v0, 4
+la $a0, s_7
+syscall
+li $v0, 4
+la $a0, s_8
+syscall
+li $v0, 4
+la $a0, s_9
+syscall
+li $v0, 4
+la $a0, s_10
+syscall
+li $v0, 4
+la $a0, s_11
+syscall
+li $v0, 4
+la $a0, s_12
+syscall
+li $v0, 4
+la $a0, s_13
+syscall
+li $v0, 4
+la $a0, s_14
+syscall
+li $v0, 4
+la $a0, s_15
+syscall
+li $v0, 4
+la $a0, s_16
+syscall
+li $v0, 4
+la $a0, s_17
+syscall
+li $v0, 4
+la $a0, s_18
+syscall
+li $v0, 4
+la $a0, s_19
+syscall
+li $v0, 4
+la $a0, s_20
+syscall
+li $v0, 4
+la $a0, s_21
+syscall
+li $v0, 4
+la $a0, s_22
+syscall
+li $v0, 4
+la $a0, s_23
+syscall
+li $v0, 4
+la $a0, s_24
+syscall
+li $v0, 4
+la $a0, s_25
+syscall
+li $v0, 4
+la $a0, s_26
+syscall
+li $v0, 4
+la $a0, s_27
+syscall
+li $v0, 4
+la $a0, s_28
+syscall
+li $v0, 4
+la $a0, s_29
+syscall
+li $v0, 4
+la $a0, s_30
+syscall
+li $v0, 4
+la $a0, s_31
+syscall
+li $v0, 4
+la $a0, s_32
+syscall
+li $v0, 4
+la $a0, s_33
+syscall
+li $v0, 4
+la $a0, s_34
+syscall
+li $v0, 4
+la $a0, s_35
+syscall
+li $v0, 4
+la $a0, s_36
+syscall
+li $v0, 4
+la $a0, s_37
+syscall
+li $v0, 4
+la $a0, s_38
+syscall
+li $v0, 4
+la $a0, s_39
+syscall
+li $v0, 4
+la $a0, s_40
+syscall
+li $v0, 4
+la $a0, s_41
+syscall
+li $v0, 4
+la $a0, s_42
+syscall
+li $v0, 4
+la $a0, s_43
+syscall
+li $v0, 4
+la $a0, s_44
+syscall
+li $v0, 4
+la $a0, s_45
+syscall
+li $v0, 4
+la $a0, s_46
+syscall
+li $v0, 4
+la $a0, s_47
+syscall
+li $v0, 4
+la $a0, s_48
+syscall
+li $v0, 4
+la $a0, s_49
+syscall
+li $v0, 4
+la $a0, s_50
+syscall
+li $v0, 4
+la $a0, s_51
+syscall
+li $v0, 4
+la $a0, s_52
+syscall
+li $v0, 4
+la $a0, s_53
+syscall
+li $v0, 4
+la $a0, s_54
+syscall
+li $v0, 4
+la $a0, s_55
+syscall
+li $v0, 4
+la $a0, s_56
+syscall
+li $v0, 4
+la $a0, s_57
+syscall
+li $v0, 4
+la $a0, s_58
+syscall
+li $v0, 4
+la $a0, s_59
+syscall
+li $v0, 4
+la $a0, s_60
+syscall
+li $v0, 4
+la $a0, s_61
+syscall
+li $v0, 4
+la $a0, s_62
+syscall
+li $v0, 4
+la $a0, s_63
+syscall
+li $v0, 4
+la $a0, s_64
+syscall
+li $v0, 4
+la $a0, s_65
+syscall
+li $v0, 4
+la $a0, s_66
+syscall
+li $v0, 4
+la $a0, s_67
+syscall
+li $v0, 4
+la $a0, s_68
+syscall
+li $v0, 4
+la $a0, s_69
+syscall
+li $v0, 4
+la $a0, s_70
+syscall
+li $v0, 4
+la $a0, s_71
+syscall
+li $v0, 4
+la $a0, s_72
+syscall
+li $v0, 4
+la $a0, s_73
+syscall
+li $v0, 4
+la $a0, s_74
+syscall
+li $v0, 4
+la $a0, s_75
+syscall
+li $v0, 4
+la $a0, s_76
+syscall
+li $v0, 4
+la $a0, s_77
+syscall
+li $v0, 4
+la $a0, s_78
+syscall
+li $v0, 4
+la $a0, s_79
+syscall
+li $v0, 4
+la $a0, s_80
+syscall
+li $v0, 4
+la $a0, s_81
+syscall
+li $v0, 4
+la $a0, s_82
+syscall
+li $v0, 4
+la $a0, s_83
+syscall
+li $v0, 4
+la $a0, s_84
+syscall
+li $v0, 4
+la $a0, s_85
+syscall
+li $v0, 4
+la $a0, s_86
+syscall
+li $v0, 4
+la $a0, s_87
+syscall
+li $v0, 4
+la $a0, s_88
+syscall
+li $v0, 4
+la $a0, s_89
+syscall
+li $v0, 4
+la $a0, s_90
+syscall
+li $v0, 4
+la $a0, s_91
+syscall
+li $v0, 4
+la $a0, s_92
+syscall
+li $v0, 4
+la $a0, s_93
+syscall
+li $v0, 4
+la $a0, s_94
+syscall
+li $v0, 4
+la $a0, s_95
+syscall
+li $v0, 10
+syscall

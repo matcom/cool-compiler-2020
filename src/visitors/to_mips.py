@@ -137,15 +137,15 @@ class MIPS:
 
     @visitor.when(MemoToVarIL)
     def visit(self, node):
-        self.code.append("lw $a0, {}($sp)\n".format(4 * node.right))
-        self.code.append("lw $t1, {}($a0)\n".format(4 * node.offset))
+        self.code.append("la $a0, {}($sp)\n".format(4 * node.right))
+        self.code.append("lw $t1, ($a0)\n")
         self.code.append("sw $t1, {}($sp)\n".format(4 * node.left))
 
     @visitor.when(ConstToMemoIL)
     def visit(self, node):
-        self.code.append("lw $a0, {}($sp)\n".format(4 * node.left))
+        self.code.append("la $a0, {}($sp)\n".format(4 * node.left))
         self.code.append("li $t1, {}\n".format(node.right))
-        self.code.append("sw $t1, {}($a0)\n".format(4*node.offset))
+        self.code.append("sw $t1, ($a0)\n")
 
     #methods
     @visitor.when(LabelIL)
@@ -167,7 +167,7 @@ class MIPS:
 
     @visitor.when(IfJumpIL)
     def visit(self, node):
-        self.code.append("lw $a0, {}($fp)\n".format(4 * node.var))
+        self.code.append("lw $a0, {}($sp)\n".format(4 * node.var))
         self.code.append("bnez $a0, " + node.label + "\n")
 
     @visitor.when(HierarchyIL)
@@ -224,8 +224,9 @@ class MIPS:
             self.code.append("jal IO.out_string\n")
         else:
             self.code.append("jal {}\n".format(node.result))
-        self.code.append("sw $a0, {}($sp)\n".format(4))
-        self.code.append("addi $sp, $sp, 4\n")
+        # self.code.append("addiu $sp, $sp, -4\n")
+        # self.code.append("sw $a0, {}($sp)\n".format(0))
+        # self.code.append("addiu $sp, $sp, -4\n")
         # self.code.append("lw $ra, {}($sp)\n".format(4))
 
 
@@ -239,8 +240,9 @@ class MIPS:
             self.code.append("jal IO.out_string\n")
         else:
             self.code.append("jal {}\n".format(node.result))
-        self.code.append("sw $a0, 0($sp)\n")
-        self.code.append("addi $sp, $sp, -4\n")
+        # self.code.append("addiu $sp, $sp, -4\n")
+        # self.code.append("sw $a0, 0($sp)\n")
+        # self.code.append("addiu $sp, $sp, -4\n")
 
     @visitor.when(InheritIL)
     def visit(self, node):

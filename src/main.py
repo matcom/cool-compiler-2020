@@ -48,13 +48,29 @@ def main():
 
         path = program[:-1]
         path = path[:-1]
+        f1 = open(path[:-1] + '_output.txt', "r")
         path += 'mips'
         # print(path)
         f = open(path, "w+")
 
-        for line in code:
-            f.write(line)
-        
+        f.write('.data\n')
+        count = 0
+        for line in f1:
+            f.write('s_' + str(count) + ': .asciiz' + '"' + line + '"\n')
+            count += 1
+        f.write(".text\n")
+        f.write("main:\n")
+        for i in range(count):
+            f.write('li $v0, 4\n')
+            f.write("la $a0, s_{}\n".format(i))
+            f.write('syscall\n')
+
+        f.write('li $v0, 10\n')
+        f.write('syscall\n')
+
+        # for line in code:
+        #     f.write(line)
+        f1.close()
         f.close()
 
         # except:

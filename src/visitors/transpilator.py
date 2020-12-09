@@ -121,7 +121,7 @@ class codeVisitor:
         #     self.code.append(ReturnIL(len(at))
         # else: 
         #     self.code.append(ReturnIL())
-        self.code.append(ReturnIL(1))
+        self.code.append(ReturnIL(len(attributes)))
 
     def setClassTypeName(self, claSS):
         self.code.append(LabelIL(claSS, 'type_name', True))
@@ -199,11 +199,19 @@ class codeVisitor:
             variables.add_var(p.id)
 
         variables.add_temp()
-
+        #patch
+        st = len(self.code)
+        offset = 0
+        #endpatch
         self.visit(node.body, variables)
         if self.current_class == 'Main' and node.id == 'main':
             self.code.append("j Object.abort\n")
         else:
+            for i in range(st, len(self.code)):
+                print('offset::::::::',self.code[i])
+                if isinstance(self.code[i], DispatchIL) or isinstance(self.code[i], DispatchParentIL):
+                    offset += 1 
+            # self.code.append(PopIL(offset))
             self.code.append(ReturnIL(len(node.params)))
 
     @visitor.when(VarDeclarationNode)
@@ -285,7 +293,7 @@ class codeVisitor:
         self.code.append(VarToVarIL(variables.id(result), variables.id(p)))
         self.code.append(DispatchParentIL(variables.id(dispatch), variables.id(p), node.type + '.Constructor'))
 
-        # self.code.append(PopIL(3))
+        # self.code.append(PopIL(1))
         variables.pop_var()
         variables.pop_var()
         variables.pop_var()
@@ -548,7 +556,7 @@ class codeVisitor:
             method = node.obj.id + '.' + node.id
         # print('--method: ', method)
         self.code.append(DispatchParentIL(variables.id(result), variables.id(name), method))
-
+        # self.code.app
         for i in range((len(node.args) + 1)):
             variables.pop_var()
         # self.code.append(PopIL(len(node.args) + 1))

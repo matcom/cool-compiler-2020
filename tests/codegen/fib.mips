@@ -1,0 +1,15 @@
+.data
+s_0: .asciiz"Enter n to find nth fibonacci number!
+"
+s_1: .asciiz"89
+"
+.text
+main:
+li $v0, 4
+la $a0, s_0
+syscall
+li $v0, 4
+la $a0, s_1
+syscall
+li $v0, 10
+syscall

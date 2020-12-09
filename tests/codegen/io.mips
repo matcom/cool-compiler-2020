@@ -1,0 +1,30 @@
+.data
+s_0: .asciiz"A: Hello world
+"
+s_1: .asciiz"B: Hello world
+"
+s_2: .asciiz"C: Hello world
+"
+s_3: .asciiz"D: Hello world
+"
+s_4: .asciiz"Done.
+"
+.text
+main:
+li $v0, 4
+la $a0, s_0
+syscall
+li $v0, 4
+la $a0, s_1
+syscall
+li $v0, 4
+la $a0, s_2
+syscall
+li $v0, 4
+la $a0, s_3
+syscall
+li $v0, 4
+la $a0, s_4
+syscall
+li $v0, 10
+syscall

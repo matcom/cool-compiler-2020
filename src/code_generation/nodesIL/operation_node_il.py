@@ -1,22 +1,21 @@
-from .node_il import NodeIL
+from .node_il import *
 
-class BinaryOperationIL(NodeIL):
-    
-    def __init__(self, var, leftOp, rightOp, symbol):
-        self.var = var
-        self.leftOp = leftOp
-        self.rightOp = rightOp
-        self.symbol = symbol
-    
-    def __str__(self):
-        return "var {} = var {} {} var {}\n".format(self.var, self.leftOp, self.symbol, self.rightOp)
+class BinaryNodeIL(InstructionNodeIL):
+    def __init__(self, dest, left, right, idx=None):
+        super().__init__(idx)
+        self.dest = dest
+        self.left = left
+        self.right = right 
 
-class UnaryOperationIL(NodeIL):
-    
-    def __init__(self, var, op, symbol):
-        self.var = var
-        self.op = op
-        self.symbol = symbol
-    
-    def __str__(self):
-        return "var {} = {} var {}".format(self.var, self.symbol, self.op)
+        self.in1 = left
+        self.in2 = right
+        self.out = dest
+
+class UnaryNodeIL(InstructionNodeIL):
+    def __init__(self, dest, expr, idx=None):
+        super().__init__(idx)
+        self.dest = dest
+        self.expr = expr
+
+        self.in1 = expr
+        self.out = dest
