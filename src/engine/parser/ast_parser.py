@@ -33,7 +33,7 @@ class LetVariableDeclaration(DeclarationNode):
         yield from (self.id, self.type, self.expression)
 
 
-class CaseVariableDeclaration(DeclarationNode):
+class CaseActionExpression(DeclarationNode):
     def __init__(self, idx, typex, expression=Node):
         self.id = idx
         self.type = typex
@@ -197,11 +197,9 @@ class FunctionCallNode(ExpressionNode):
         self.type = typex
         self.line = idx.line
         self.column = idx.column
-    
+
     def __iter__(self):
         yield from (self.id, self.type, self.expression)
-
-
 
 
 class MemberCallNode(ExpressionNode):

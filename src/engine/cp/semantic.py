@@ -234,6 +234,11 @@ class Context:
         except KeyError:
             raise SemanticError(f'Type "{name}" is not defined.')
 
+    def inheritance_deep(self, type_name: str) -> int:
+        if type_name not in self.inheritance:
+            return 0
+        return 1 + self.inheritance_deep(self.inheritance[type_name])
+
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
 

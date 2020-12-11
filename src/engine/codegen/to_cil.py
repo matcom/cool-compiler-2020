@@ -181,22 +181,55 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         return 0
 
     @visitor.when(cool.CaseOfNode)
-    def visit(self, node: cool.CaseOfNode, scope):
+    def visit(self, node: cool.CaseOfNode, scope: Scope):
         expr = self.visit(node.expression, scope)
         result = self.define_internal_local()
-        exptype = self.define_internal_local()
+        exp_type = self.define_internal_local()
         end_label = LabelNode('END')
-        self.register_instruction(TypeOfNode(expr, exptype))
+        error_label = LabelNode(f'ERROR_CASE_{node.id}')
+        # TODO: Label error logic if is void
+        self.register_instruction(TypeOfNode(expr, exp_type))
 
-        for i, case in enumerate(node.branches):
+        case_expressions = self.sort_case_list(node.branches)
+
+        for i, case in enumerate(case_expressions):
+            next_branch_label = LabelNode(f'CASE_{case.id}_{i}')
             child_scope = Scope(parent=scope)
-            expr_n = self.visit(case, child_scope)
-            self.register_instruction(AssignNode(result, expr_n))
+            expr_i = self.visit(
+                case, child_scope,
+                expr=expr,
+                expr_type=exp_type,
+                next_label=next_branch_label,
+            )
+            self.register_instruction(AssignNode(result, expr_i))
             self.register_instruction(GotoNode(end_label.label))
-            self.register_instruction(LabelNode(f'CASE_{i}'))
+            self.register_instruction(next_branch_label)
+
+        self.register_instruction(error_label)
+        # TODO: specify the message error here [ i think :/ ]
+        self.register_instruction(ErrorNode())
         self.register_instruction(end_label)
 
         return result
+
+    @visitor.when(cool.CaseActionExpression)
+    def visit(self, node: cool.CaseActionExpression, scope: Scope, expr=None, expr_type=None, next_label=None):
+        test_res = self.define_internal_local()
+
+        matching_label = LabelNode('CASE_MATCH_{node.id}_{node.typex}')
+        self.register_instruction(ConformsNode(test_res, expr, node.typex))
+        self.register_instruction(IfGotoNode(expr, matching_label))
+        self.register_instruction(
+            GotoNode(next_label.label)
+        )
+        self.register_instruction(matching_label)
+        l_var = self.define_internal_local()
+        typex = self.context.get_type(node.type)
+        scope.define_variable(l_var, typex)
+        self.register_instruction(AssignNode(l_var, expr))
+
+        case_action_expr = self.visit(node.expression, scope)
+        return case_action_expr
 
     @visitor.when(cool.LetInNode)
     def visit(self, node: cool.LetInNode, scope: Scope):
@@ -226,7 +259,9 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             self.register_instruction(ArgNode(arg_value))
         obj = self.visit(node.obj, scope)
         self.register_instruction(ArgNode(obj))
-        self.register_instruction(StaticCallNode(name, result)) if name else \
+        if name:
+            self.register_instruction(StaticCallNode(name, result))
+        else:
             self.register_instruction(
                 DynamicCallNode(typex, node.id.lex, result))
 

@@ -66,6 +66,10 @@ class BASE_COOL_CIL_TRANSFORM:
         self.dotdata.append(data_node)
         return data_node
 
+    def sort_case_list(self, case_expressions):
+        return sorted(case_expressions, reverse=True,
+                      key=lambda x: self.context.inheritance_deep(x.type))
+
     ###################################
 
     def define_string_type(self):
