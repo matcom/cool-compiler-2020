@@ -350,7 +350,7 @@ class codeVisitor:
         pass
     
     @visitor.when(ProgramNode)
-    def visit(self, node, scope = None):
+    def visit(self, node, scope, sscope):
         
         if not scope: 
             scope = ScopeCIL()
@@ -377,12 +377,12 @@ class codeVisitor:
         self.build_string_equals_function(scope)
         
         for klass in node.declarations:
-            self.visit(klass, scope.create_child())
+            self.visit(klass, scope.create_child(), sscope.cls_scopes[klass.id])
 
         return ProgramNodeIL(self.dottypes, self.dotdata, self.dotcode)
     
     @visitor.when(ClassDeclarationNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         self.current_type = self.context.get_type(node.id)
         
         #Handle all the .TYPE section
@@ -412,17 +412,19 @@ class codeVisitor:
         self.register_instruction(ReturnNodeIL(None))
 
         for attr in attr_declarations:
-            self.visit(attr, scope)
+            self.visit(attr, scope, sscope)
         #---------------------------------------------------------------
         self.current_function = None
         
         for feature in func_declarations:
-            self.visit(feature, scope.create_child())
+            self.visit(feature, scope.create_child(), sscope)
                 
         self.current_type = None
                 
     @visitor.when(FuncDeclarationNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
+        fscope = sscope.func_scopes[node.id]
+
         self.current_method = self.current_type.get_method(node.id)
         self.dottypes[self.current_type.name].methods[node.id] = f'{self.current_type.name}.{node.id}'
         cil_method_name = self.to_function_name(node.id, self.current_type.name)
@@ -432,13 +434,14 @@ class codeVisitor:
         for p in node.params:
             self.register_param(VariableInfo(p.id, p.type))
         
-        value = self.visit(node.body, scope)
+        value = self.visit(node.body, scope, fscope)
 
         self.register_instruction(ReturnNodeIL(value)) 
         self.current_method = None
 
     @visitor.when(AttrDeclarationNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
+        ascope = sscope.attr_scopes[node.id]
         instance = None
 
         if node.type in ['Int', 'Bool']:
@@ -459,13 +462,13 @@ class codeVisitor:
         self.register_instruction(SetAttribNodeIL('self', node.id,instance, self.current_type.name))
     
     @visitor.when(VarDeclarationNode)
-    def visit(self, node, scope):
-        expr = self.visit(node.expr, scope)
+    def visit(self, node, scope, sscope):
+        expr = self.visit(node.expr, scope, sscope)
         self.register_instruction(SetAttribNodeIL('self', node.name, expr, self.current_type.name))
 
     @visitor.when(AssignNode)
-    def visit(self, node, scope):
-        expr_local = self.visit(node.expr, scope)
+    def visit(self, node, scope, sscope):
+        expr_local = self.visit(node.expr, scope, sscope)
         result_local = self.define_internal_local(scope=scope, name = "result" )
         cil_node_name = scope.find_cil_local(node.id)
 
@@ -479,16 +482,16 @@ class codeVisitor:
         return expr_local
 
     @visitor.when(BlockNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         for e in node.expr_list:
-            result_local = self.visit(e, scope)
+            result_local = self.visit(e, scope, sscope)
         return result_local
     
     @visitor.when(ConditionalNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope=scope, name = "result")
 
-        cond_value = self.visit(node.cond, scope)
+        cond_value = self.visit(node.cond, scope, sscope)
 
         if_then_label = self.get_label()
         self.register_instruction(GotoNodeIL(cond_value, if_then_label))
@@ -507,19 +510,19 @@ class codeVisitor:
         return result_local
 
     @visitor.when(WhileNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope = scope, name = "result")
         
         loop_init_label = self.get_label()
         loop_body_label = self.get_label()
         loop_end_label = self.get_label()
         self.register_instruction(LabelNodeIL(loop_init_label))
-        pred_value = self.visit(node.cond, scope)
+        pred_value = self.visit(node.cond, scope, sscope)
         self.register_instruction(GotoNodeIL(pred_value, loop_body_label))
         self.register_instruction(GotoNodeIL(loop_end_label))
         
         self.register_instruction(LabelNodeIL(loop_body_label))
-        body_value = self.visit(node.expr, scope)
+        body_value = self.visit(node.expr, scope, sscope)
         self.register_instruction(GotoNodeIL(loop_init_label))
         self.register_instruction(LabelNodeIL(loop_end_label))
 
@@ -527,13 +530,13 @@ class codeVisitor:
         return result_local
     
     @visitor.when(ExprCallNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope = scope, name = "result")
-        expr_value = self.visit(node.obj, scope)
+        expr_value = self.visit(node.obj, scope, sscope)
 
         call_args = []
         for arg in reversed(node.args):
-            param_local = self.visit(arg, scope)
+            param_local = self.visit(arg, scope, sscope)
             call_args.append(ArgNodeIL(param_local))
         call_args.append(ArgNodeIL(expr_value))
         
@@ -549,13 +552,13 @@ class codeVisitor:
         return result_local
 
     @visitor.when(ParentCallNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope = scope, name = "result")
-        expr_value = self.visit(node.obj, scope)
+        expr_value = self.visit(node.obj, scope, sscope)
 
         call_args = []
         for arg in reversed(node.args):
-            param_local = self.visit(arg, scope)
+            param_local = self.visit(arg, scope, sscope)
             call_args.append(ArgNodeIL(param_local))
         call_args.append(ArgNodeIL(expr_value))
 
@@ -569,19 +572,23 @@ class codeVisitor:
         return result_local
         
     @visitor.when(LetNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
+        chld_scope = sscope.expr_dict[node]
+        iscope = chld_scope
+
         let_scope = scope.create_child()
         for var in node.init_list:
-            self.visit(var, let_scope)
+            self.visit(var, let_scope, iscope)
+            iscope = iscope.children[0]
         
-        body_value = self.visit(node.expr, let_scope)
+        body_value = self.visit(node.expr, let_scope, iscope)
         result_local = self.define_internal_local(scope = scope, name = "let_result")
         self.register_instruction(AssignNodeIL(result_local, body_value))
         return result_local
     
     @visitor.when(LetDeclarationNode)
-    def visit(self, node, scope):
-        expr_value = self.visit(node.expr, scope)
+    def visit(self, node, scope, sscope):
+        expr_value = self.visit(node.expr, scope, sscope)
         var_init = self.define_internal_local(scope = scope, name = node.id, cool_var_name= node.id)
         self.register_instruction(AssignNodeIL(var_init, expr_value))
         return var_init
@@ -611,9 +618,11 @@ class codeVisitor:
     
     
     @visitor.when(CaseNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope = scope, name = "result")
         case_expr = self.visit(node.expr, scope)
+
+        nscope = sscope.expr_dict[node]
 
         exit_label = self.get_label()
         label = self.get_label()
@@ -622,13 +631,13 @@ class codeVisitor:
         
         tag_lst = []
         option_dict = {}
-        for option in node.case_list:
+        for option, c_scp in zip(node.case_list, nscope.children):
             tag = self.context.get_type(option.typex).name
-            tag_lst.append(tag)
+            tag_lst.append( (tag, c_scp) )
             option_dict[tag] = option
         tag_lst.sort()
 
-        for t in reversed(tag_lst):
+        for t, c_scp in reversed(tag_lst):
             option = option_dict[t]
             self.register_instruction(LabelNodeIL(label))
             label = self.get_label()
@@ -640,7 +649,7 @@ class codeVisitor:
             option_scope = scope.create_child()
             option_id = self.define_internal_local(scope=option_scope, name=option.id, cool_var_name=option.id)
             self.register_instruction(AssignNodeIL(option_id, case_expr))
-            expr_result = self.visit(option.expr, option_scope)
+            expr_result = self.visit(option.expr, option_scope, c_scp)
 
             self.register_instruction(AssignNodeIL(result_local, expr_result))
             self.register_instruction(GotoNodeIL(exit_label))
@@ -651,11 +660,11 @@ class codeVisitor:
         return result_local
 
     @visitor.when(OptionNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         pass
 
     @visitor.when(NewNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope=scope, name="result")
         result_init = self.define_internal_local(scope=scope, name="init")
         
@@ -673,8 +682,8 @@ class codeVisitor:
         return result_local
         
     @visitor.when(IsVoidNode)
-    def visit(self, node, scope):
-        expre_value = self.visit(node.expr, scope)
+    def visit(self, node, scope, sscope):
+        expre_value = self.visit(node.expr, scope, sscope)
         result_local = self.define_internal_local(scope=scope, name ="isvoid_result")
         self.register_instruction(IsVoidNodeIL(result_local, expre_value))
         instance = self.define_internal_local(scope=scope, name="instance")
@@ -684,14 +693,14 @@ class codeVisitor:
         return instance
     
     @visitor.when(SumNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
         right_local = self.define_internal_local(scope=scope, name = "right")
 
-        left_value = self.visit(node.left, scope)
-        right_value = self.visit(node.right, scope)
+        left_value = self.visit(node.left, scope, sscope)
+        right_value = self.visit(node.right, scope, sscope)
 
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
@@ -709,14 +718,14 @@ class codeVisitor:
         return result_local
 
     @visitor.when(DiffNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
         right_local = self.define_internal_local(scope=scope, name = "right")
 
-        left_value = self.visit(node.left, scope)
-        right_value = self.visit(node.right, scope)
+        left_value = self.visit(node.left, scope, sscope)
+        right_value = self.visit(node.right, scope, sscope)
 
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
@@ -734,14 +743,14 @@ class codeVisitor:
         return result_local
 
     @visitor.when(StarNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
         right_local = self.define_internal_local(scope=scope, name = "right")
 
-        left_value = self.visit(node.left, scope)
-        right_value = self.visit(node.right, scope)
+        left_value = self.visit(node.left, scope, sscope)
+        right_value = self.visit(node.right, scope, sscope)
 
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
@@ -759,14 +768,14 @@ class codeVisitor:
         return result_local
 
     @visitor.when(DivNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
         right_local = self.define_internal_local(scope=scope, name = "right")
 
-        left_value = self.visit(node.left, scope)
-        right_value = self.visit(node.right, scope)
+        left_value = self.visit(node.left, scope, sscope)
+        right_value = self.visit(node.right, scope, sscope)
 
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
@@ -784,12 +793,12 @@ class codeVisitor:
         return result_local
 
     @visitor.when(BitNotNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         expr_local = self.define_internal_local(scope=scope) 
         
-        expr_value = self.visit(node.expr, scope)
+        expr_value = self.visit(node.expr, scope, sscope)
         
         # self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", node.expr.computed_type.name))
         self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", None))
@@ -803,12 +812,12 @@ class codeVisitor:
         return result_local
         
     @visitor.when(NotNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         expr_local = self.define_internal_local(scope=scope) 
         
-        expr_value = self.visit(node.expr, scope)
+        expr_value = self.visit(node.expr, scope, sscope)
         
         # self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", node.expr.computed_type.name))
         self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", None))
@@ -822,14 +831,14 @@ class codeVisitor:
         return result_local
 
     @visitor.when(LessNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
         right_local = self.define_internal_local(scope=scope, name = "right")
 
-        left_value = self.visit(node.left, scope)
-        right_value = self.visit(node.right, scope)
+        left_value = self.visit(node.left, scope, sscope)
+        right_value = self.visit(node.right, scope, sscope)
 
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
         self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
@@ -846,14 +855,14 @@ class codeVisitor:
         return result_local
 
     @visitor.when(LessEqualNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
         right_local = self.define_internal_local(scope=scope, name = "right")
 
-        left_value = self.visit(node.left, scope)
-        right_value = self.visit(node.right, scope)
+        left_value = self.visit(node.left, scope, sscope)
+        right_value = self.visit(node.right, scope, sscope)
 
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
@@ -871,7 +880,7 @@ class codeVisitor:
         return result_local
 
     @visitor.when(EqualNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         print('----got in equalss----')
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
@@ -879,8 +888,8 @@ class codeVisitor:
         right_local = self.define_internal_local(scope=scope, name = "right")
         # print('left: ', left_local)
 
-        left_value = self.visit(node.left, scope)
-        right_value = self.visit(node.right, scope)
+        left_value = self.visit(node.left, scope, sscope)
+        right_value = self.visit(node.right, scope, sscope)
         print('left: ', left_value)
         print('right: ', right_value)
         # if node.left.computed_type.name == 'String':
@@ -915,7 +924,7 @@ class codeVisitor:
         return result_local
 
     @visitor.when(ConstantNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         if self.is_defined_param(node.lex):
             return node.lex
         elif self.current_type.has_attr(node.lex): 
@@ -926,7 +935,7 @@ class codeVisitor:
             return scope.find_cil_local(node.lex)
     
     @visitor.when(IntegerNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         instance = self.define_internal_local(scope=scope, name="instance")
         self.register_instruction(AllocateNodeIL('Int',self.context.get_type('Int').name, instance))
         value = self.define_internal_local(scope=scope, name="value")
@@ -936,7 +945,7 @@ class codeVisitor:
         return instance
 
     @visitor.when(StringNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         str_name = ""
         for s in self.dotdata.keys():
             if self.dotdata[s] == node.lex:
@@ -954,7 +963,7 @@ class codeVisitor:
         return instance
         
     @visitor.when(BoolNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, sscope):
         boolean = 0
         if str(node.lex) == "true":
             boolean = 1
