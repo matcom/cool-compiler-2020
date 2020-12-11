@@ -234,14 +234,22 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
     @visitor.when(cool.LetInNode)
     def visit(self, node: cool.LetInNode, scope: Scope):
         let_scope = Scope(parent=scope)
-        for let_id, let_type, let_expr in node.let_body:
-            let_scope.define_variable(let_id.lex, let_type.lex)
-            self.visit(let_expr, let_scope)
+        for var_decl in node.let_body:
+            let_scope.define_variable(var_decl.id, var_decl.type)
+            self.visit(var_decl, let_scope)
 
-        result = self.define_internal_local()
-        expr = self.visit(node.in_body, let_scope)
-        self.register_instruction(AssignNode(result, expr))
+        result = self.visit(node.in_body, let_scope)
         return result
+
+    @visitor.when(cool.LetVariableDeclaration)
+    def visit(self, node: cool.LetVariableDeclaration, scope: Scope):
+        var_info = scope.find_variable(node.id)
+        local_var = self.register_local(var_info.name)
+
+        value = self.visit(node.expression, scope)
+
+        self.register_instruction(AssignNode(local_var, value))
+        return local_var
 
     @visitor.when(cool.FunctionCallNode)
     def visit(self, node: cool.FunctionCallNode, scope):
