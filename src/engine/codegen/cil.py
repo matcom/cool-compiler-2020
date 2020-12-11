@@ -117,7 +117,7 @@ class BASE_COOL_CIL_TRANSFORM:
         no_error_label3 = LabelNode("error3")
         self.register_instruction(AssignNode(zero, 0))
         self.register_instruction(LengthNode(length_var, self_param))
-        eol = self.register_data('\n').name
+        eol = self.register_data('\\n').name
         msg_eol = self.define_internal_local()
 
         self.register_instruction(LessEqNode(cmp_var1, zero, start))
