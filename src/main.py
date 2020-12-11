@@ -42,17 +42,19 @@ collect = Collector(collect_errors)
 collect.visit(ast)
 
 if len(collect_errors):
-    for e in collect_errors[::-1]:
+    for e in collect_errors:
         print(e)
     exit(1)
 
 context = collect.context
 builder_errors = []
 builder = Builder(context, builder_errors)
+
+
 builder.visit(ast)
 
 if len(builder_errors):
-    for e in builder_errors[::-1]:
+    for e in builder_errors:
         print(e)
     exit(1)
 
