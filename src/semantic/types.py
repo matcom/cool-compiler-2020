@@ -29,6 +29,14 @@ class Type:
             except SemanticError:
                 raise SemanticError(f'Attribute "{name}" is not defined in {self.name}.')
 
+    def has_attr(self, name: str):
+        try: 
+            attr_name = self.get_attribute(name)
+        except:
+            return False
+        else:
+            return True
+
     def define_attribute(self, name:str, typex):
         if name == 'self':
             raise SemanticError(f'\'self\' cannot be the name of an attribute')
@@ -62,6 +70,16 @@ class Type:
         
         method = self.methods[name] = Method(name, param_names, param_types, return_type)
         return method
+
+    def get_all_methods(self):
+        all_methods = self.parent and self.parent.get_all_methods() or []
+        all_methods += [(self.name, method) for method in self.methods]
+        return all_methods
+
+    def get_all_attributes(self):
+        all_attributes = self.parent and self.parent.get_all_attributes() or []
+        all_attributes += [(self.name, attr) for attr in self.attributes]
+        return all_attributes
 
     def change_type(self, method, nparm, newtype):
         idx = method.param_names.index(nparm)

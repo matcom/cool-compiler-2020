@@ -1,11 +1,13 @@
-from .node_il import NodeIL
+from .node_il import *
 
-class AllocateIL(NodeIL):
-    
-    def __init__(self, var, size, typ):
-        self.var = var
-        self.size = size
-        self.typ = typ
+class AllocateNodeIL(InstructionNodeIL):
+    def __init__(self, itype, name, dest, idx=None):
+        super().__init__(idx)
+        self.type = itype
+        self.name = name
+        self.dest = dest
 
-    def __str__(self):
-        return "alloc {} in {}".format(self.typ, self.var)
+        self.out = dest
+
+    def __str__():
+        return ("{} = ALLOCATE {}".format(self.dest, self.type))

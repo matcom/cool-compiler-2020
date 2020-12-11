@@ -36,26 +36,22 @@ def main():
         exit(1)
     else:
         cv = codeVisitor(context)
-        cv.visit(ast)
+        cil_ast = cv.visit(ast)
 
-        mips = MIPS(cv.code, cv.data)
-        code = mips.start()
+        mips = MIPS()
+        code = mips.visit(cil_ast)
 
-        for c in cv.data:
-            print(str(c))
-        for c in cv.code:
-            print(str(c))
+        # for c in cv.data:
+        #     print(str(c))
+        # for c in cv.code:
+        #     print(str(c))
 
-        path = program[:-1]
-        path = path[:-1]
+        path = program[:-2]
+        # path = path[:-1]
         path += 'mips'
         # print(path)
         f = open(path, "w+")
-
-        for line in code:
-            f.write(line)
-        
-        f.close()
+        f.write(code)
 
         # except:
         #     pass

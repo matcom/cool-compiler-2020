@@ -1,587 +1,967 @@
 import sys
 sys.path.append('/..')
 from code_generation import *
+from semantic.context import *
+from semantic.features import *
+from semantic.types import *
 import visitors.visitor as visitor
 from cl_ast import *
+
+class ScopeCIL:
+    def __init__(self, parent=None):
+        self.locals = []
+        self.cil_locals = {}
+        self.parent = parent
+        self.children = []
+        self.index = 0 if parent is None else len(parent)
+
+    def __len__(self):
+        return len(self.locals)
+
+    def create_child(self):
+        child = ScopeCIL(self)
+        self.children.append(child)
+        return child
+
+    def define_variable(self, vname, vtype):
+        info = VariableInfo(vname, vtype)
+        self.locals.append(info)
+        return info
+
+    def define_cil_local(self, vname, cilname, vtype = None):
+        self.define_variable(vname, vtype)
+        self.cil_locals[vname] = cilname
+        
+    
+    def get_cil_local(self, vname):
+        if self.cil_locals.__contains__(vname):
+            return self.cil_locals[vname]
+        else: 
+            return None
+    
+    def find_cil_local(self, vname, index=None):
+        locals = self.cil_locals.items() if index is None else itt.islice(self.cil_locals.items(), index)
+        try:
+            return next(cil_name for name, cil_name in locals if name == vname)
+        except StopIteration:
+            return self.parent.find_cil_local(vname, self.index) if (self.parent is not None) else None
+
+    def find_variable(self, vname, index=None):
+        locals = self.locals if index is None else itt.islice(
+            self.locals, index)
+        try:
+            return next(x for x in locals if x.name == vname)
+        except StopIteration:
+            return self.parent.find_variable(vname, self.index) if (self.parent is not None) else None
+
+    def is_defined(self, vname):
+        return self.find_variable(vname) is not None
+
+    def is_defined_cil_local(self, vname):
+        return self.find_cil_local(vname ) is not None
+
+    def is_local(self, vname):
+        return any(True for x in self.locals if x.name == vname)
+
+    def remove_local(self, vname):
+        self.locals = [local for local in self.locals if local.name != vname]
 
 class codeVisitor:
 
     def __init__(self, context):
-        #code IL
-        self.code = []
-        self.data = []
+        self.dottypes = {}
+        self.dotdata = {}
+        self.dotcode = []
+        self.current_type = None
+        self.current_method = None
+        self.current_function = None
         self.context = context
-
-        self.count = 0
-        self.current_class = 'Main'
-
-        self.virtual_table = VirtualTable()
-
-        self.depth = {}
-
-        self.collectTypes(context)
-        self.setBuiltInTypes()
-        # self.setClassConstructor()
-        self.setInitialCode()
-
-    def getInt(self):
-        self.count = self.count + 1
-        return self.count 
-
-    def collectTypes(self, context):
-        # print('collecting types')
-        types = {}
-        methods = {}
-        attr = {}
-
-        for t in context.types:
-            t_str = str(t)
-            # print('----------------Typessssss-------------------------')
-            # print(t_str)
-            if context.types[t].parent is not None:
-                types[t_str] = context.types[t].parent
-            methods[t_str] = []
-            attr[t_str] = context.types[t].attributes
-            if len(context.types[t].attributes):
-                for atr in context.types[t].attributes:
-                    self.virtual_table.add_attr(t_str, atr)
-            # else:
-            #     self.virtual_table.add_method(t_str, '-', [])
-            for m in context.types[t].methods.keys():
-                methods[t_str] = (context.types[t].methods[m])
-                # print("class {} method_name {} params {}".format(t_str,(context.types[t].methods[m]).name, (context.types[t].methods[m]).param_names))
-                self.virtual_table.add_method(t_str, (context.types[t].methods[m]).name, (context.types[t].methods[m]).param_names)
-        # print(str(self.virtual_table))
-        # print('-------------------------------')
-        for t in types:
-            self.data.append(HierarchyIL(t, types[t].name))
-
-        self.data.append(VirtualTableIL('Int', []))
-        self.data.append(VirtualTableIL('Bool', []))
-
-        for m in self.virtual_table.methods.keys():
-            self.data.append(VirtualTableIL(m, self.virtual_table.methods[m]))
-        depth = dict([(types[x].name, len(types) + 2) for x in types])
-        depth['Object'] = 0
-        # TODO set some depth features for simplicity
-        # for _ in types:
-        #     for c in types:
-        #         if c is None:
-        #             continue
-        #         p = types[c]
-        #         depth[c.name] = min(depth[c.name], depth[p] + 1)
-        # self.depth = depth
-
-    def setInitialCode(self):
-        self.code.append(CommentIL('--------------Initial Code---------------'))
-        self.code.append(LabelIL("main", ""))
-        
-        # self.code.append(CustomLineIL("sub $a0, $a0, $a0\n"))
-        # self.code.append(CustomLineIL("sub $a1, $a1, $a1\n"))
-        # self.code.append(CustomLineIL("sub $a2, $a2, $a2\n"))
-        # self.code.append(CustomLineIL("sub $a3, $a3, $a3\n"))
-
-        # self.code.append(PushIL())
-        # self.code.append(PushIL())
-        # self.code.append(PushIL())
-
-        self.code.append(AllocateIL(1, self.virtual_table.get_index('Main'), 'Main'))
-        self.code.append(DispatchParentIL(2, 1, 'Main.Constructor'))
-
-        self.code.append(DispatchIL(3,1,self.virtual_table.get_method_id('Main', 'main')))
-
-        self.code.append(GotoIL("Object.abort"))
-        self.code.append(CommentIL('--------------End Initial Code---------------'))
-
-    def setBuiltInTypes(self):
-        built_in = ['Object','Int', 'IO', 'Bool', 'String']
-        for t in built_in:
-            self.code.append(LabelIL(t, 'Constructor', True))
-            # self.code.append(PushIL())
-            self.code.append(ReturnIL(0))
-            self.setClassTypeName(t)
-
-    def setClassConstructor(self, attributes):
-        self.code.append(LabelIL(self.current_class, 'Constructor', True))
-
-        vars = Variables()
-        vars.add_var('self')
-        vars.add_temp()
-
-        for node in attributes:
-            if node.expr == None:
-                continue
-            self.visit(node.expr, vars)
-            p = vars.peek_last()
-            index = self.virtual_table.get_attributes_id(self.current_class, node.id)
-            self.code.append(VarToMemoIL(vars.id('self'), vars.id(p), index))
-
-        # self.code.append(PushIL())
-        # if self.current_class == 'Main':
-        #     self.code.append(ReturnIL(len(at))
-        # else: 
-        #     self.code.append(ReturnIL())
-        self.code.append(ReturnIL(1))
-
-    def setClassTypeName(self, claSS):
-        self.code.append(LabelIL(claSS, 'type_name', True))
-        # self.code.append(CustomLineIL("sw $a1, ($sp)\n"))
-        self.code.append(CustomLineIL("la $a1, " + claSS + '_name\n' ))
-        self.code.append(CustomLineIL("jr $ra\n"))
-
-
-    def handleBinaryOps(self, node, variables, symbol):
-        self.code.append(CommentIL('Binary'))
-        # self.code.append(PushIL())
-        res = variables.add_temp()
-
-        self.visit(node.left, variables)
-        left = variables.peek_last()
-        self.visit(node.right, variables)
-        right = variables.peek_last()
-
-        self.code.append(BinaryOperationIL(variables.id(res), variables.id(left), variables.id(right), symbol))
-
-        variables.pop_var()
-        variables.pop_var()
-        # self.code.append(PopIL(2))
-
-    def handleUnaryOps(self, node, variables, symbol):
-        self.code.append(CommentIL('Unary'))
-        res = variables.add_temp()
-        # self.code.append(PushIL())
-
-        self.visit(node.expr, variables)
-        v = variables.peek_last()
-
-        self.code.append(UnaryOperationIL(variables.id(res), variables.id(v), symbol))
+        self.label_count = 0
+        # self.scope = scope
+        # self.context.set_type_tags()
+        # self.context.set_type_max_tags()
     
+    @property
+    def params(self):
+        return self.current_function.params
+    
+    @property
+    def localvars(self):
+        return self.current_function.localvars
+    
+    @property
+    def instructions(self):
+        return self.current_function.instructions
+    
+    def get_label(self):
+        self.label_count += 1
+        return f'label_{self.label_count}'
+
+    def register_param(self, vinfo):
+        param_node = ParamNodeIL(vinfo.name)
+        self.params.append(param_node)
+        return vinfo.name
+
+    def is_defined_param(self, name):
+        for p in self.params:
+            if p.name == name:
+                return True
+        return False
+    
+    def register_local(self, var_name):
+        local_node = LocalNodeIL(var_name)
+        self.localvars.append(local_node)
+        return var_name
+
+    def define_internal_local(self, scope, name = "internal", cool_var_name = None, class_type = None):
+        if class_type != None:
+            cilname = f'{class_type}.{name}'
+            scope.define_cil_local(cool_var_name, cilname, None)
+            self.register_local(cilname)
+        else :
+            cilname = f'{name}_{len(self.localvars)}'
+            scope.define_cil_local(cool_var_name, cilname, None)
+            self.register_local(cilname)
+        return cilname
+
+    def register_instruction(self, instruction):
+        self.instructions.append(instruction)
+        return instruction
+    
+    def to_function_name(self, method_name, type_name):
+        return f'{type_name}.{method_name}'
+
+    def register_function(self, function_name):
+        function_node = FunctionNodeIL(function_name, [], [], [])
+        self.dotcode.append(function_node)
+        return function_node
+    
+    def register_type(self, name):
+        type_node = TypeNodeIL(name)
+        self.dottypes[name] = type_node
+        return type_node
+
+    def is_in_data(self, name):
+        return name in self.dotdata.keys
+
+    def register_data(self, value):
+        vname = f's_{len(self.dotdata)}'
+        self.dotdata[vname] = value
+        return vname
+    
+    def register_builtin_types(self, scope):
+        for t in ['Object', 'Int', 'String', 'Bool', 'IO']:
+            builtin_type = self.context.get_type(t)
+            cil_type = self.register_type(t)
+            cil_type.attributes = [f'{attr.name}' for attr in builtin_type.attributes]
+            cil_type.methods = {f'{m}':f'{c}.{m}' for c, m  in builtin_type.get_all_methods()}
+            if t in ['Int', 'String', 'Bool']:
+                cil_type.attributes.append('value')
+    
+        #----------------Object---------------------
+        #init
+        self.current_function = self.register_function('Object_init')
+        self.register_param(VariableInfo('self', None))
+        self.register_instruction(ReturnNodeIL(None))
+
+        #abort
+        self.current_function = self.register_function(self.to_function_name('abort', 'Object'))
+        self.register_param(VariableInfo('self',None))
+        msg = self.define_internal_local(scope=scope, name="msg")
+        key_msg = ''
+        for s in self.dotdata.keys():
+            if self.dotdata[s] == 'Abort called from class ':
+                key_msg = s
+        self.register_instruction(LoadNodeIL(key_msg, msg))
+        self.register_instruction(OutStringNodeIL(msg))
+        type_name = self.define_internal_local(scope=scope, name = "type_name" )
+        self.register_instruction(TypeOfNodeIL('self', type_name))
+        self.register_instruction(OutStringNodeIL(type_name))
+        eol_local = self.define_internal_local(scope=scope, name="eol")
+        for s in self.dotdata.keys():
+            if self.dotdata[s] == '\n':
+                eol = s
+        self.register_instruction(LoadNodeIL(eol, eol_local))
+        self.register_instruction(OutStringNodeIL(eol_local))
+        self.register_instruction(HaltNodeIL())
+
+        #type_name
+        self.current_function = self.register_function(self.to_function_name('type_name', 'Object'))
+        self.register_param(VariableInfo('self', None))
+        type_name = self.define_internal_local(scope=scope, name = "type_name" )
+        self.register_instruction(TypeOfNodeIL('self', type_name))
+        instance = self.define_internal_local(scope=scope, name="instance")
+        self.register_instruction(AllocateNodeIL('String',self.context.get_type('String').name ,instance))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'String_init', [ArgNodeIL(type_name),ArgNodeIL(instance)],"String"))
+        self.register_instruction(ReturnNodeIL(instance))
+
+        #copy
+        self.current_function = self.register_function(self.to_function_name('copy', 'Object'))
+        self.register_param(VariableInfo('self',None))
+        copy = self.define_internal_local(scope=scope, name= "copy")
+        self.register_instruction(CopyNodeIL('self', copy))
+        self.register_instruction(ReturnNodeIL(copy))
+
+        #----------------IO---------------------
+        #init
+        self.current_function = self.register_function('IO_init')
+        self.register_param(VariableInfo('self', None))
+        self.register_instruction(ReturnNodeIL(None))        
+
+        #out_string
+        self.current_function = self.register_function(self.to_function_name('out_string', 'IO'))
+        self.register_param(VariableInfo('self', None))
+        self.register_param(VariableInfo('x', None))
+        v = self.define_internal_local(scope=scope, name="v")
+        self.register_instruction(GetAttribNodeIL(v, 'x','value','String'))
+        self.register_instruction(OutStringNodeIL(v))
+        self.register_instruction(ReturnNodeIL('self'))
+
+        #out_int
+        self.current_function = self.register_function(self.to_function_name('out_int', 'IO'))
+        self.register_param(VariableInfo('self', None))
+        self.register_param(VariableInfo('x', None))
+        v = self.define_internal_local(scope=scope, name="v")
+        self.register_instruction(GetAttribNodeIL(v, 'x','value','Int'))
+        self.register_instruction(OutIntNodeIL(v))
+        self.register_instruction(ReturnNodeIL('self'))
+
+        #in_string
+        self.current_function = self.register_function(self.to_function_name('in_string', 'IO'))
+        self.register_param(VariableInfo('self', None))
+        msg = self.define_internal_local(scope=scope, name="read_str")
+        self.register_instruction(ReadStringNodeIL(msg))
+        instance = self.define_internal_local(scope=scope, name="instance")
+        self.register_instruction(AllocateNodeIL('String',self.context.get_type('String').name ,instance))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'String_init', [ArgNodeIL(msg),ArgNodeIL(instance)],"String"))
+        self.register_instruction(ReturnNodeIL(instance))
+    
+        #in_int
+        self.current_function = self.register_function(self.to_function_name('in_int', 'IO'))
+        self.register_param(VariableInfo('self', None))
+        number = self.define_internal_local(scope=scope, name ="read_int")
+        self.register_instruction(ReadIntNodeIL(number))
+        instance = self.define_internal_local(scope=scope, name="instance")
+        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').name,instance))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'Int_init', [ ArgNodeIL(number), ArgNodeIL(instance)], "Int"))
+        self.register_instruction(ReturnNodeIL(instance))
+
+        # ----------------String---------------------
+        #init
+        self.current_function=self.register_function('String_init')
+        self.register_param(VariableInfo('self', None))
+        self.register_param(VariableInfo('v', None))
+        self.register_instruction(SetAttribNodeIL('self', 'value', 'v', 'String'))
+        self.register_instruction(ReturnNodeIL(None))   
+
+        #length
+        self.current_function = self.register_function(self.to_function_name('length', 'String'))
+        self.register_param(VariableInfo('self', None))
+        length_result = self.define_internal_local(scope=scope, name="length")
+        self.register_instruction(LengthNodeIL('self', length_result))
+        instance = self.define_internal_local(scope=scope, name="instance")
+        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').name,instance))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init,'Int_init', [ArgNodeIL(length_result),ArgNodeIL(instance)], "Int"))
+        self.register_instruction(ReturnNodeIL(instance))
+
+        #concat
+        self.current_function = self.register_function(self.to_function_name('concat', 'String'))
+        self.register_param(VariableInfo('self', None))
+        self.register_param(VariableInfo('s', None))
+
+        str1 = self.define_internal_local(scope=scope, name="str1")
+        self.register_instruction(GetAttribNodeIL(str1, 'self','value','String'))
+        len1 = self.define_internal_local(scope=scope, name="len1")
+        self.register_instruction(StaticCallNodeIL(len1, 'String.length', [ArgNodeIL('self')], 'String'))
+
+        str2 = self.define_internal_local(scope=scope, name="str2")
+        self.register_instruction(GetAttribNodeIL(str2, 's', 'value', 'String'))
+        len2 = self.define_internal_local(scope=scope, name="len2")
+        self.register_instruction(StaticCallNodeIL(len2, 'String.length', [ArgNodeIL('s')], 'String'))
+
+        local_len1 = self.define_internal_local(scope=scope, name="local_len1")
+        self.register_instruction(GetAttribNodeIL(local_len1, len1, 'value', 'Int'))
+        local_len2 = self.define_internal_local(scope=scope, name="local_len2")
+        self.register_instruction(GetAttribNodeIL(local_len2, len2, 'value', 'Int'))
+
+        concat_result = self.define_internal_local(scope=scope, name="concat")
+        self.register_instruction(ConcatNodeIL(str1, local_len1, str2, local_len2, concat_result))
+        instance = self.define_internal_local(scope=scope, name="instance")
+        self.register_instruction(AllocateNodeIL('String',self.context.get_type('String').name ,instance))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'String_init', [ArgNodeIL(concat_result), ArgNodeIL(instance)],"String"))
+        self.register_instruction(ReturnNodeIL(instance))
+        
+    
+        #substr
+        self.current_function = self.register_function(self.to_function_name('substr', 'String'))
+        self.register_param(VariableInfo('self', None))
+        self.register_param(VariableInfo('i', None))
+        self.register_param(VariableInfo('l', None))
+        i_value=self.define_internal_local(scope=scope, name="i_value")
+        self.register_instruction(GetAttribNodeIL(i_value, 'i','value','Int'))
+        l_value = self.define_internal_local(scope=scope, name="l_value")
+        self.register_instruction(GetAttribNodeIL(l_value, 'l','value','Int'))
+        subs_result=self.define_internal_local(scope=scope, name="subs_result")
+        self.register_instruction(SubstringNodeIL(i_value, l_value, 'self', subs_result))
+        instance = self.define_internal_local(scope=scope, name="instance")
+        self.register_instruction(AllocateNodeIL('String', self.context.get_type('String').name,instance))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'String_init', [ArgNodeIL(subs_result),ArgNodeIL(instance)],"String"))
+        self.register_instruction(ReturnNodeIL(instance))
+        
+        #----------------Bool---------------------
+        #init
+        self.current_function=self.register_function('Bool_init')
+        self.register_param(VariableInfo('self', None))
+        self.register_param(VariableInfo('v', None))
+        self.register_instruction(SetAttribNodeIL('self', 'value', 'v', 'Bool'))
+        self.register_instruction(ReturnNodeIL(None))
+        
+        #----------------Int---------------------
+        #init
+        self.current_function=self.register_function('Int_init')
+        self.register_param(VariableInfo('self', None))
+        self.register_param(VariableInfo('v', None))
+        self.register_instruction(SetAttribNodeIL('self', 'value', 'v', 'Int'))
+        self.register_instruction(ReturnNodeIL(None)) 
+
+    def build_string_equals_function(self, scope):
+        self.current_function = self.register_function('String_equals')
+        self.register_param(VariableInfo('str1', None))
+        self.register_param(VariableInfo('str2', None))
+        
+        str1 = self.define_internal_local(scope=scope, name="str1")
+        self.register_instruction(GetAttribNodeIL(str1, 'str1', 'value','String'))
+        
+        str2 = self.define_internal_local(scope=scope, name="str2")
+        self.register_instruction(GetAttribNodeIL(str2, 'str2', 'value', 'String'))
+        
+        result = self.define_internal_local(scope=scope, name="comparison_result")
+        self.register_instruction(StringEqualsNodeIL(str1, str2, result))
+        self.register_instruction(ReturnNodeIL(result))
+
     @visitor.on('node')
-    def visit(self, node):
+    def visit(self, node, scope):
         pass
     
-    #program
     @visitor.when(ProgramNode)
-    def visit(self, node):
-        # print('ProgramNode')
-        for n in node.declarations:
-            self.visit(n)
-    
-    #declarations
-    @visitor.when(ClassDeclarationNode)
-    def visit(self, node):
-        # print('ClassDeclarationNode')
-        self.current_class = node.id
-        # print('--current_class {}\n'.format(node.id))
-        attributes = []
-        for f in node.features:
-            if type(f) == AttrDeclarationNode:
-                attributes.append(f)
+    def visit(self, node, scope = None):
         
-        self.setClassConstructor(attributes)
-        self.setClassTypeName(self.current_class)
+        if not scope: 
+            scope = ScopeCIL()
+            
+        self.current_function = self.register_function('main')
+        instance = self.define_internal_local(scope = scope, name = "instance")
+        result = self.define_internal_local(scope = scope, name = "result")
+        self.register_instruction(AllocateNodeIL('Main',self.context.get_type('Main').name, instance))
+        # self.register_instruction(ArgNodeIL(instance))
+        self.register_instruction(StaticCallNodeIL(result, 'Main_init', [ArgNodeIL(instance)],"Main"))
+        # self.register_instruction(ArgNodeIL(instance))
+        self.register_instruction(StaticCallNodeIL(result, self.to_function_name('main', 'Main'), [ArgNodeIL(instance)],"Main"))
+        self.register_instruction(ReturnNodeIL(None))
+        self.current_function = None
 
-        for f in node.features:
-            self.visit(f)
+        self.register_data('Abort called from class ')
+        self.register_data('\n')
+        self.dotdata['empty_str'] = ''
+        
+        #Add built-in types in .TYPES section
+        self.register_builtin_types(scope)
+
+        #Add string equals function
+        self.build_string_equals_function(scope)
+        
+        for klass in node.declarations:
+            self.visit(klass, scope.create_child())
+
+        return ProgramNodeIL(self.dottypes, self.dotdata, self.dotcode)
+    
+    @visitor.when(ClassDeclarationNode)
+    def visit(self, node, scope):
+        self.current_type = self.context.get_type(node.id)
+        
+        #Handle all the .TYPE section
+        cil_type = self.register_type(self.current_type.name)
+        cil_type.attributes = [f'{attr.name}' for c, attr in self.current_type.get_all_attributes()]
+        cil_type.methods = {f'{m}':f'{c}.{m}' for c, m  in self.current_type.get_all_methods()}
+
+        scope.define_cil_local("self", self.current_type.name, self.current_type)
+
+        func_declarations = [f for f in node.features if isinstance(f, FuncDeclarationNode)]
+        attr_declarations = [a for a in node.features if not isinstance(a, FuncDeclarationNode)]
+        for attr in attr_declarations:
+            scope.define_cil_local(attr.id, attr.id, node.id)
+
+
+        #-------------------------Init---------------------------------
+        self.current_function = self.register_function(f'{node.id}_init')
+        self.register_param(VariableInfo('self', None))
+        # instance = self.define_internal_local(scope=scope, name="instance", class_type=self.current_type.name)
+        # self.register_instruction(AllocateNodeIL(node.name, self.context.get_type(node.name).name,instance))
+        # self.current_type.instance = instance
+
+        #Init parents recursively
+        result = self.define_internal_local(scope=scope, name = "result")
+        # self.register_instruction(ArgNodeIL('instance'))
+        self.register_instruction(StaticCallNodeIL(result, f'{node.parent}_init',[ArgNodeIL('self')], node.parent))
+        self.register_instruction(ReturnNodeIL(None))
+
+        for attr in attr_declarations:
+            self.visit(attr, scope)
+        #---------------------------------------------------------------
+        self.current_function = None
+        
+        for feature in func_declarations:
+            self.visit(feature, scope.create_child())
+                
+        self.current_type = None
+                
+    @visitor.when(FuncDeclarationNode)
+    def visit(self, node, scope):
+        self.current_method = self.current_type.get_method(node.id)
+        self.dottypes[self.current_type.name].methods[node.id] = f'{self.current_type.name}.{node.id}'
+        cil_method_name = self.to_function_name(node.id, self.current_type.name)
+        self.current_function = self.register_function(cil_method_name)
+
+        self.register_param(VariableInfo('self', self.current_type))
+        for p in node.params:
+            self.register_param(VariableInfo(p.id, p.type))
+        
+        value = self.visit(node.body, scope)
+
+        self.register_instruction(ReturnNodeIL(value)) 
+        self.current_method = None
 
     @visitor.when(AttrDeclarationNode)
-    def visit(self, node):
-        pass
+    def visit(self, node, scope):
+        instance = None
 
-    @visitor.when(FuncDeclarationNode)
-    def visit(self, node):
-        self.code.append(LabelIL(self.current_class, node.id, True))
+        if node.type in ['Int', 'Bool']:
+            instance = self.define_internal_local(scope=scope, name="instance")
+            self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).name, instance))
+            value = self.define_internal_local(scope=scope, name="value")
+            self.register_instruction(LoadNodeIL(0,value))
+            result_init = self.define_internal_local(scope=scope, name="result_init")
+            self.register_instruction(StaticCallNodeIL(result_init, f'{node.type}_init', [ ArgNodeIL(value), ArgNodeIL(instance)], node.type))
+        elif node.type == 'String':
+            instance = self.define_internal_local(scope=scope, name="instance")
+            self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).name ,instance))
+            value = self.define_internal_local(scope=scope, name="value")
+            self.register_instruction(LoadNodeIL('empty_str',value))
+            result_init = self.define_internal_local(scope=scope, name="result_init")
+            self.register_instruction(StaticCallNodeIL(result_init, f'{node.type}_init', [ArgNodeIL(value),ArgNodeIL(instance)], node.type))
 
-        variables = Variables()
-        variables.add_var('self')
-
-        for p in node.params:
-            variables.add_var(p.id)
-
-        variables.add_temp()
-
-        self.visit(node.body, variables)
-        if self.current_class == 'Main' and node.id == 'main':
-            self.code.append("j Object.abort\n")
-        else:
-            self.code.append(ReturnIL(len(node.params)))
-
+        self.register_instruction(SetAttribNodeIL('self', node.id,instance, self.current_type.name))
+    
     @visitor.when(VarDeclarationNode)
-    def visit(self, node, variables):
-        # self.code.append(PushIL())
-        p = variables.add_var(node.idx)
-
-        if node.expr != None:
-            self.visit(node.expr, variables)
-            res = variables.peek_last()
-            self.code.append(VarToVarIL(variables.id(p), variables.id(res)))
-            variables.pop_var()
-            # self.code.append(PopIL())
-
-    #operations: binary
-    @visitor.when(SumNode)
-    def visit(self, node, variables):
-        self.handleBinaryOps(node, variables, '+')
-
-    @visitor.when(DiffNode)
-    def visit(self, node, variables):
-        self.handleBinaryOps(node, variables, '-')
-
-    @visitor.when(StarNode)
-    def visit(self, node, variables):
-        self.handleBinaryOps(node, variables, '*')
-
-    @visitor.when(DivNode)
-    def visit(self, node, variables):
-        self.handleBinaryOps(node, variables, '/')
-
-    @visitor.when(LessNode)
-    def visit(self, node, variables):
-        self.handleBinaryOps(node, variables, '<')
-
-    @visitor.when(LessEqualNode)
-    def visit(self, node, variables):
-        self.handleBinaryOps(node, variables, '<=')
-
-    @visitor.when(EqualNode)
-    def visit(self, node, variables):
-        self.handleBinaryOps(node, variables, '=')
-
-    #operations: unary
-
-    @visitor.when(BitNotNode)
-    def visit(self, node, variables):
-        self.handleUnaryOps(node, variables, '~')
-
-    @visitor.when(NotNode)
-    def visit(self, node, variables):
-        self.handleUnaryOps(node, variables, '!')
-
-    #expressions: atomics
-    @visitor.when(VariableNode)
-    def visit(self, node, variables):
-        # self.code.append(PushIL())
-        result = variables.add_temp()
-        # print(node.id)
-        if node.id in variables.stack:
-            self.code.append(VarToVarIL(variables.id(result), variables.id(node.id)))
-        else:
-            self.code.append(MemoToVarIL(variables.id(result), variables.id('self'), self.virtual_table.get_attributes_id(self.current_class, node.id)))
-
-    @visitor.when(NewNode)
-    def visit(self, node, variables):
-        result = variables.add_temp()
-        # self.code.append(PushIL())
-
-        dispatch = variables.add_temp()
-        # self.code.append(PushIL())
-
-        # self.code.append(PushIL())
-        p = variables.add_temp()
-
-        size = self.virtual_table.get_index(node.type)
-        self.code.append(AllocateIL(variables.id(p), size, node.type))
-
-        self.code.append(VarToVarIL(variables.id(result), variables.id(p)))
-        self.code.append(DispatchParentIL(variables.id(dispatch), variables.id(p), node.type + '.Constructor'))
-
-        # self.code.append(PopIL(3))
-        variables.pop_var()
-        variables.pop_var()
-        variables.pop_var()
-
-    #expressions: complex
-    @visitor.when(ConditionalNode)
-    def visit(self, node, variables):
-        self.code.append(CommentIL('Condition'))
-        result = variables.add_temp()
-        # self.code.append(PushIL())
-
-        self.visit(node.cond, variables)
-        p = variables.peek_last()
-
-        IF = LabelIL('_if', self.getInt())
-        FI = LabelIL('_fi', IF.second)
-
-        self.code.append(IfJumpIL(variables.id(p), IF.label))
-
-        self.visit(node.else_stm, variables)
-        ELSE = variables.peek_last()
-        self.code.append(VarToVarIL(variables.id(result), variables.id(ELSE)))
-
-        self.code.append(GotoIL(FI.label))
-
-        self.code.append(IF)
-        self.visit(node.stm, variables)
-        _if = variables.peek_last()
-        self.code.append(VarToVarIL(variables.id(result), variables.id(_if)))
-        variables.pop_var()
-
-        self.code.append(LabelIL('_fi', IF.second))
-
-        variables.pop_var()
-        # self.code.append(PopIL(2))
-        
-
-    @visitor.when(WhileNode)
-    def visit(self, node, variables):
-        self.code.append(CommentIL('loop'))
-        # self.code.append(PushIL())
-        
-        result = variables.add_temp()
-
-        LOOP = LabelIL('_loop', self.getInt())
-        POOL = LabelIL('_pool', LOOP.second)
-        BODY = LabelIL('_body', LOOP.second)
-
-        self.code.append(LOOP)
-
-        self.visit(node.cond, variables)
-        p = variables.peek_last()
-
-        self.code.append(IfJumpIL(variables.id(p), BODY.label))
-
-        self.code.append(GotoIL(POOL.label))
-
-        self.code.append(BODY)
-        self.visit(node.expr, variables)
-        variables.pop_var()
-        variables.pop_var()
-        # self.code.append(PopIL(2))
-        self.code.append(GotoIL(LOOP.label))
-        
-        self.code.append(POOL)
-
-
-    @visitor.when(LetNode)
-    def visit(self, node, variables):
-        self.code.append(CommentIL('Let'))
-        # self.code.append(PushIL())
-        result = variables.add_temp()
-        result1 = variables.add_temp()
-        vars = variables.get_copy()
-
-        for expr in node.init_list:
-            self.visit(expr, vars)
-            vars = vars.get_copy()
-
-        self.visit(node.expr, vars)
-        p = vars.peek_last()
-
-        self.code.append(VarToVarIL(result, p))
-        pop_times = 2
-        try:
-            pop_times = len(node.expr) + 1
-        except:
-            pass
-
-        # self.code.append(PopIL(pop_times))
-
-
-
-    @visitor.when(LetDeclarationNode)
-    def visit(self, node, variables):
-        pass
-
-    @visitor.when(BlockNode)
-    def visit(self, node, variables):
-        self.code.append(CommentIL('Block'))
-        result = variables.add_temp()
-        # self.code.append(PushIL(0))
-        for expr in node.expr_list:
-            self.visit(expr, variables)
-        
-        p = variables.peek_last()
-        self.code.append(VarToVarIL(variables.id(result), variables.id(p)))
-
-        # self.code.append(PopIL(len(node.expr_list)))
-        for i in range(len(node.expr_list)):
-            variables.pop_var()
-
-    @visitor.when(CaseNode)
-    def visit(self, node, variables):
-        # print(node.case_list)
-        # node.case_list.sort(key = lambda x : self.depth[x.typex], reverse = True)
-
-        result = variables.add_temp()
-        # self.code.append(PushIL())
-
-        self.visit(node.expr, variables)
-        p = variables.peek_last()
-
-        labels = []
-        for b in node.case_list:
-            labels.append(LabelIL('branch', self.getInt()))
-
-        index = 0
-        for b in node.case_list:
-            tmp = variables.add_temp()
-            # self.code.append(PushIL())
-
-            self.code.append(InheritIL(variables.id(p), b.typex, variables.id(tmp)))
-            
-            self.code.append(IfJumpIL(variables.id(tmp), labels[index].label))
-            # self.code.append(PopIL(1))
-            variables.pop_var()
-            index += 1
-
-        end_label = LabelIL('esac', self.getInt())
-        i = 0
-        for b in node.case_list:
-            self.code.append(labels[i])
-            i += 1
-            variables.pop_var()
-            # self.code.append(PopIL(1))
-
-            # self.code.append(PushIL())
-            result = variables.add_var(b.id)
-            self.code.append(VarToVarIL(variables.id(result), variables.id(p)))
-            
-            self.visit(b.expr, variables)
-            m = variables.peek_last()
-            self.code.append(VarToVarIL(variables.id(result), variables.id(m)))
-            
-            variables.pop_var()
-            variables.pop_var()
-            variables.pop_var()
-
-        # self.code.append(PopIL(3))
-
-    @visitor.when(OptionNode)
-    def visit(self, node, variables):
-        pass
+    def visit(self, node, scope):
+        expr = self.visit(node.expr, scope)
+        self.register_instruction(SetAttribNodeIL('self', node.name, expr, self.current_type.name))
 
     @visitor.when(AssignNode)
-    def visit(self, node, variables):
-        self.code.append(CommentIL('Assignment'))
-        self.visit(node.expr, variables)
-        p = variables.peek_last()
-        
-        if node.id in variables.stack:
-            self.code.append(VarToVarIL(variables.id(node.id), variables.id(p)))
+    def visit(self, node, scope):
+        expr_local = self.visit(node.expr, scope)
+        result_local = self.define_internal_local(scope=scope, name = "result" )
+        cil_node_name = scope.find_cil_local(node.id)
+
+        if self.is_defined_param(node.id):
+            self.register_instruction(AssignNodeIL(node.id, expr_local))
+        elif self.current_type.has_attr(node.id):
+            cil_type_name = 'self'
+            self.register_instruction(SetAttribNodeIL(cil_type_name, node.id, expr_local, self.current_type.name ))
         else:
-            self.code.append(VarToMemoIL(variables.id('self'), variables.id(p), self.virtual_table.get_attributes_id(self.current_class, node.id)))
+            self.register_instruction(AssignNodeIL(cil_node_name, expr_local))
+        return expr_local
 
-    @visitor.when(IsVoidNode)
-    def visit(self, node, vars):
-        pass
-    #expression: complex->dispatch
+    @visitor.when(BlockNode)
+    def visit(self, node, scope):
+        for e in node.expr_list:
+            result_local = self.visit(e, scope)
+        return result_local
+    
+    @visitor.when(ConditionalNode)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope=scope, name = "result")
+
+        cond_value = self.visit(node.cond, scope)
+
+        if_then_label = self.get_label()
+        self.register_instruction(GotoNodeIL(cond_value, if_then_label))
+
+        else_value = self.visit(node.else_stm, scope)
+        self.register_instruction(AssignNodeIL(result_local, else_value))
+    
+        end_if_label = self.get_label()
+        self.register_instruction(GotoNodeIL(end_if_label))
+
+        self.register_instruction(LabelNodeIL(if_then_label))
+        then_value = self.visit(node.stm, scope)
+        self.register_instruction(AssignNodeIL(result_local, then_value))
+        self.register_instruction(LabelNodeIL(end_if_label))
+
+        return result_local
+
+    @visitor.when(WhileNode)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope = scope, name = "result")
+        
+        loop_init_label = self.get_label()
+        loop_body_label = self.get_label()
+        loop_end_label = self.get_label()
+        self.register_instruction(LabelNodeIL(loop_init_label))
+        pred_value = self.visit(node.cond, scope)
+        self.register_instruction(GotoNodeIL(pred_value, loop_body_label))
+        self.register_instruction(GotoNodeIL(loop_end_label))
+        
+        self.register_instruction(LabelNodeIL(loop_body_label))
+        body_value = self.visit(node.expr, scope)
+        self.register_instruction(GotoNodeIL(loop_init_label))
+        self.register_instruction(LabelNodeIL(loop_end_label))
+
+        self.register_instruction(LoadNodeIL(None, result_local))
+        return result_local
+    
     @visitor.when(ExprCallNode)
-    def visit(self, node, variables):
-        self.code.append(CommentIL('Point-Dispatch'))
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope = scope, name = "result")
+        expr_value = self.visit(node.obj, scope)
 
-        result = variables.add_temp()
-        # self.code.append(PushIL())
-        # print('----------node {}---------'.format(node.id))
-        index = self.virtual_table.get_method_id(node.obj, node.id)
-        if str(node.id) == 'type_name':
-            index = self.virtual_table.get_method_id(self.context.exprs_dict[node.obj].name, node.id)
-        self.code.append(CommentIL('push object'))
-        # print('-------obj-------- ',node.obj)
-        self.visit(node.obj, variables)
-
-        name = variables.peek_last()
-
-        i = 0
-        for p in node.args:
-            self.code.append(CommentIL('Args: ' + str(i)))
-            i += 1
-            self.visit(p, variables)
-        # ret = self.context.exprs_dict[node.obj].name
-        self.code.append(DispatchIL(variables.id(result), variables.id(name), index))
-
-        for i in range(0, len(node.args) + 1):
-            variables.pop_var()
-
-        # self.code.append(PopIL(len(node.args) + 1))
-
-    @visitor.when(SelfCallNode)
-    def visit(self, node, variables):
-        self.code.append(CommentIL('Self-Dispatch'))
-
-        result = variables.add_temp()
-        # self.code.append(PushIL())
-        # print('----------node {}---------'.format(node))
-        index = self.virtual_table.get_method_id(self.current_class, node.id)
-
-        if self.current_class != 'Main':
-            self.code.append(CommentIL('push self'))
-            s = variables.add_temp()
-            # self.code.append(PushIL())
-            self.code.append(VarToVarIL(variables.id(s), variables.id('self')))
+        call_args = []
+        for arg in reversed(node.args):
+            param_local = self.visit(arg, scope)
+            call_args.append(ArgNodeIL(param_local))
+        call_args.append(ArgNodeIL(expr_value))
         
-        i = 0
-        for p in node.args:
-            self.code.append(CommentIL('Args: ' + str(i)))
-            i += 1
-            self.visit(p, variables)
-        self.code.append(DispatchIL(variables.id(result), variables.id('self'), index))
+        # dynamic_type = self.define_internal_local(scope= scope, name="dyn_type")
+        # self.register_instruction(TypeOfNodeIL(expr_value, dynamic_type))
 
-        n = 0
-        if self.current_class == 'Main':
-            n = 1
+        # for arg in call_args:
+        #     self.register_instruction(ArgNodeIL(arg))
 
-        for i in range(len(node.args) + n):
-            variables.pop_var()
+        dynamic_type = self.context.exprs_dict[node.obj]
+        self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, dynamic_type, expr_value))
         
-        # self.code.append(PopIL(len(node.args) + n))
+        return result_local
 
     @visitor.when(ParentCallNode)
-    def visit(self, node, variables):
-        self.code.append(CommentIL('Parent-Dispatch'))
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope = scope, name = "result")
+        expr_value = self.visit(node.obj, scope)
 
-        result = variables.add_temp()
-        # self.code.append(PushIL())
+        call_args = []
+        for arg in reversed(node.args):
+            param_local = self.visit(arg, scope)
+            call_args.append(ArgNodeIL(param_local))
+        call_args.append(ArgNodeIL(expr_value))
 
-        self.code.append('push object')
-        self.visit(node.obj, variables)
-        name = variables.peek_last()
+        # for p in call_args:
+        #     self.register_instruction(ArgNodeIL(p))
 
-        i = 0
-        for p in node.args:
-            self.code.append(CommentIL('Args: ' + str(i)))
-            i += 1
-            self.visit(p, variables)
-        if isinstance(node.obj,NewNode):
-            method = node.obj.type + '.' + node.id
+        static_instance = self.define_internal_local(scope=scope, name='static_instance')
+        self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).name ,static_instance))
+        
+        self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, node.type, static_instance))
+        return result_local
+        
+    @visitor.when(LetNode)
+    def visit(self, node, scope):
+        let_scope = scope.create_child()
+        for var in node.init_list:
+            self.visit(var, let_scope)
+        
+        body_value = self.visit(node.expr, let_scope)
+        result_local = self.define_internal_local(scope = scope, name = "let_result")
+        self.register_instruction(AssignNodeIL(result_local, body_value))
+        return result_local
+    
+    @visitor.when(LetDeclarationNode)
+    def visit(self, node, scope):
+        expr_value = self.visit(node.expr, scope)
+        var_init = self.define_internal_local(scope = scope, name = node.id, cool_var_name= node.id)
+        self.register_instruction(AssignNodeIL(var_init, expr_value))
+        return var_init
+
+    # @visitor.when(COOL_AST.LetVarDef)
+    # def visit(self, node, scope):
+    #     instance = None
+
+    #     if node.type in ['Int', 'Bool']:
+    #         instance = self.define_internal_local(scope=scope, name="instance")
+    #         self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).name, instance))
+    #         value = self.define_internal_local(scope=scope, name="value")
+    #         self.register_instruction(LoadNodeIL(0,value))
+    #         result_init = self.define_internal_local(scope=scope, name="result_init")
+    #         self.register_instruction(StaticCallNodeIL(result_init, f'{node.type}_init', [ ArgNodeIL(value), ArgNodeIL(instance)], node.type))
+    #     elif node.type == 'String':
+    #         instance = self.define_internal_local(scope=scope, name="instance")
+    #         self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).name ,instance))
+    #         value = self.define_internal_local(scope=scope, name="value")
+    #         self.register_instruction(LoadNodeIL('empty_str',value))
+    #         result_init = self.define_internal_local(scope=scope, name="result_init")
+    #         self.register_instruction(StaticCallNodeIL(result_init, f'{node.type}_init', [ArgNodeIL(value), ArgNodeIL(instance)], node.type))
+            
+    #     var_def = self.define_internal_local(scope = scope, name = node.name, cool_var_name=node.name)
+    #     self.register_instruction(AssignNodeIL(var_def, instance))
+    #     return var_def
+    
+    
+    @visitor.when(CaseNode)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope = scope, name = "result")
+        case_expr = self.visit(node.expr, scope)
+
+        exit_label = self.get_label()
+        label = self.get_label()
+
+        self.register_instruction(CaseNodeIL(case_expr, label))
+        
+        tag_lst = []
+        option_dict = {}
+        for option in node.case_list:
+            tag = self.context.get_type(option.typex).name
+            tag_lst.append(tag)
+            option_dict[tag] = option
+        tag_lst.sort()
+
+        for t in reversed(tag_lst):
+            option = option_dict[t]
+            self.register_instruction(LabelNodeIL(label))
+            label = self.get_label()
+
+            option_type = self.context.get_type(option.typex) 
+            #changes
+            self.register_instruction(OptionNodeIL(case_expr, option_type.name, 'Object', label))
+
+            option_scope = scope.create_child()
+            option_id = self.define_internal_local(scope=option_scope, name=option.id, cool_var_name=option.id)
+            self.register_instruction(AssignNodeIL(option_id, case_expr))
+            expr_result = self.visit(option.expr, option_scope)
+
+            self.register_instruction(AssignNodeIL(result_local, expr_result))
+            self.register_instruction(GotoNodeIL(exit_label))
+            
+        self.register_instruction(LabelNodeIL(label))
+        self.register_instruction(GotoNodeIL('case_no_match_error'))
+        self.register_instruction(LabelNodeIL(exit_label))
+        return result_local
+
+    @visitor.when(OptionNode)
+    def visit(self, node, scope):
+        pass
+
+    @visitor.when(NewNode)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope=scope, name="result")
+        result_init = self.define_internal_local(scope=scope, name="init")
+        
+        if node.type == "SELF_TYPE":
+            # get_type_local = self.define_internal_local(scope = scope, name = "type_name")
+            # self.register_instruction(TypeOfNodeIL("self", get_type_local))
+            self.register_instruction(AllocateNodeIL(self.current_type.name,self.current_type.tag ,result_local))
+            # self.register_instruction(ArgNodeIL(result_local))
+            self.register_instruction(StaticCallNodeIL(result_init, f'{self.current_type.name}_init', [result_local], self.current_type.name))
         else:
-            method = node.obj.id + '.' + node.id
-        # print('--method: ', method)
-        self.code.append(DispatchParentIL(variables.id(result), variables.id(name), method))
+            self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).name ,result_local))
+            # self.register_instruction(ArgNodeIL(result_local))
+            self.register_instruction(StaticCallNodeIL(result_init,f'{node.type}_init' ,[ArgNodeIL(result_local)], self.current_type.name ))
 
-        for i in range((len(node.args) + 1)):
-            variables.pop_var()
-        # self.code.append(PopIL(len(node.args) + 1))
+        return result_local
+        
+    @visitor.when(IsVoidNode)
+    def visit(self, node, scope):
+        expre_value = self.visit(node.expr, scope)
+        result_local = self.define_internal_local(scope=scope, name ="isvoid_result")
+        self.register_instruction(IsVoidNodeIL(result_local, expre_value))
+        instance = self.define_internal_local(scope=scope, name="instance")
+        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, instance))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(result_local),ArgNodeIL(instance)], "Bool"))
+        return instance
+    
+    @visitor.when(SumNode)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
+        left_local = self.define_internal_local(scope=scope, name = "left")
+        right_local = self.define_internal_local(scope=scope, name = "right")
 
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
 
-    #constants
+        # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
+        # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
+
+        self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
+        self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+
+        self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "+"))
+
+        # Allocate Int result
+        self.register_instruction(AllocateNodeIL('Int',self.context.get_type('Int').name, result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'Int_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Int"))
+
+        return result_local
+
+    @visitor.when(DiffNode)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
+        left_local = self.define_internal_local(scope=scope, name = "left")
+        right_local = self.define_internal_local(scope=scope, name = "right")
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
+        # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
+
+        self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
+        self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+
+        self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "-"))
+
+        # Allocate Int result
+        self.register_instruction(AllocateNodeIL('Int',self.context.get_type('Int').name, result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'Int_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Int"))
+
+        return result_local
+
+    @visitor.when(StarNode)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
+        left_local = self.define_internal_local(scope=scope, name = "left")
+        right_local = self.define_internal_local(scope=scope, name = "right")
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
+        # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
+
+        self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
+        self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+
+        self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "*"))
+
+        # Allocate Int result
+        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').name, result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'Int_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Int"))
+
+        return result_local
+
+    @visitor.when(DivNode)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
+        left_local = self.define_internal_local(scope=scope, name = "left")
+        right_local = self.define_internal_local(scope=scope, name = "right")
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
+        # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
+
+        self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
+        self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+
+        self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "/"))
+
+        # Allocate Int result
+        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').name, result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'Int_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Int"))
+
+        return result_local
+
+    @visitor.when(BitNotNode)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
+        expr_local = self.define_internal_local(scope=scope) 
+        
+        expr_value = self.visit(node.expr, scope)
+        
+        # self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", node.expr.computed_type.name))
+        self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", None))
+        self.register_instruction(UnaryNodeIL(op_local, expr_local, "~"))
+
+        # Allocate Int result
+        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').name, result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'Int_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Int"))
+
+        return result_local
+        
+    @visitor.when(NotNode)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
+        expr_local = self.define_internal_local(scope=scope) 
+        
+        expr_value = self.visit(node.expr, scope)
+        
+        # self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", node.expr.computed_type.name))
+        self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", None))
+        self.register_instruction(UnaryNodeIL(op_local, expr_local, "not"))
+
+        # Allocate Bool result
+        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Bool"))
+
+        return result_local
+
+    @visitor.when(LessNode)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
+        left_local = self.define_internal_local(scope=scope, name = "left")
+        right_local = self.define_internal_local(scope=scope, name = "right")
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
+        self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
+        # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
+        self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+
+        self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "<"))
+
+        # Allocate Bool result
+        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Bool"))
+
+        return result_local
+
+    @visitor.when(LessEqualNode)
+    def visit(self, node, scope):
+        result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
+        left_local = self.define_internal_local(scope=scope, name = "left")
+        right_local = self.define_internal_local(scope=scope, name = "right")
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+
+        # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
+        # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
+
+        self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
+        self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+
+        self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "<="))
+
+        # Allocate Bool result
+        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Bool"))
+
+        return result_local
+
+    @visitor.when(EqualNode)
+    def visit(self, node, scope):
+        print('----got in equalss----')
+        result_local = self.define_internal_local(scope=scope, name = "result")
+        op_local = self.define_internal_local(scope=scope, name = "op")
+        left_local = self.define_internal_local(scope=scope, name = "left")
+        right_local = self.define_internal_local(scope=scope, name = "right")
+        # print('left: ', left_local)
+
+        left_value = self.visit(node.left, scope)
+        right_value = self.visit(node.right, scope)
+        print('left: ', left_value)
+        print('right: ', right_value)
+        # if node.left.computed_type.name == 'String':
+        if isinstance(node.left, StringNode) and isinstance(node.right, StringNode):
+            self.register_instruction(StaticCallNodeIL(op_local, 'String_equals', [ArgNodeIL(right_value), ArgNodeIL(left_value)], 'String'))
+
+            # Allocate Bool result
+            self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, result_local))
+            result_init = self.define_internal_local(scope=scope, name="result_init")
+            self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Bool"))
+
+            return result_local
+
+        # elif node.left.computed_type.name in ['Int', 'Bool']:
+        elif (isinstance(node.left, IntegerNode) and isinstance(node.right, IntegerNode)) or (isinstance(node.left, BoolNode) and isinstance(node.right, BoolNode)):
+            # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
+            # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
+            self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+        else:
+            print('got here where somewhere else')
+            self.register_instruction(AssignNodeIL(left_local, left_value))
+            self.register_instruction(AssignNodeIL(right_local, right_value))
+
+        self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "="))
+
+        # Allocate Bool result
+        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, result_local))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Bool"))
+
+        return result_local
+
+    @visitor.when(ConstantNode)
+    def visit(self, node, scope):
+        if self.is_defined_param(node.lex):
+            return node.lex
+        elif self.current_type.has_attr(node.lex): 
+            result_local = self.define_internal_local(scope=scope, name = node.lex, class_type=self.current_type.name)
+            self.register_instruction(GetAttribNodeIL(result_local, 'self' , node.lex, self.current_type.name))
+            return result_local
+        else:
+            return scope.find_cil_local(node.lex)
+    
     @visitor.when(IntegerNode)
-    def visit(self, node, variables):
-        self.code.append(CommentIL('Integer'))
-        variables.add_temp()
-        self.code.append(PushIL(int(node.lex)))
+    def visit(self, node, scope):
+        instance = self.define_internal_local(scope=scope, name="instance")
+        self.register_instruction(AllocateNodeIL('Int',self.context.get_type('Int').name, instance))
+        value = self.define_internal_local(scope=scope, name="value")
+        self.register_instruction(LoadNodeIL(node.lex,value))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'Int_init', [ArgNodeIL(value),ArgNodeIL(instance)], "Int"))
+        return instance
 
     @visitor.when(StringNode)
-    def visit(self, node, variables):
-        label = 'string_' + str(self.getInt())
-        self.data.append(StringIL(label, node.lex))
-        self.code.append(CommentIL('loading label'))
-        # self.code.append(PushIL())
-        p = variables.add_temp()
+    def visit(self, node, scope):
+        str_name = ""
+        for s in self.dotdata.keys():
+            if self.dotdata[s] == node.lex:
+                str_name = s
+                break
+        if str_name == "":
+            str_name = self.register_data(node.lex)
 
-        self.code.append(LoadLabelIL(variables.id(p), label))
-
+        result_local = self.define_internal_local(scope=scope)
+        self.register_instruction(LoadNodeIL(str_name, result_local))
+        instance = self.define_internal_local(scope=scope, name="instance")
+        self.register_instruction(AllocateNodeIL('String',self.context.get_type('String').name, instance))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'String_init', [ArgNodeIL(result_local),ArgNodeIL(instance)], "String"))
+        return instance
+        
     @visitor.when(BoolNode)
-    def visit(self, node, variables):
-        variables.add_temp()
-        if node.lex:
-            self.code.append(PushIL(1))
-        else:
-            self.code.append(PushIL(0))
-
-
-    
-
-
-
-
+    def visit(self, node, scope):
+        boolean = 0
+        if str(node.lex) == "true":
+            boolean = 1
+        instance = self.define_internal_local(scope=scope, name="instance")
+        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, instance))
+        value = self.define_internal_local(scope=scope, name="value")
+        self.register_instruction(LoadNodeIL(boolean, value))
+        result_init = self.define_internal_local(scope=scope, name="result_init")
+        self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(value),ArgNodeIL(instance)], "Bool"))
+        return instance
