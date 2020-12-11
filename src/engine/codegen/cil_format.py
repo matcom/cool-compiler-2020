@@ -173,6 +173,10 @@ class CIL_FORMATTER(object):
     def visit(self, node: BoxNode):
         return f'{node.dest} = {node.value}'
 
+    @visitor.when(AbortNode)
+    def visit(self, node: AbortNode):
+        return f'ABORT'
+
     @visitor.when(NotNode)
     def visit(self, node: NotNode):
         return f'{node.dest} = NOT {node.expression}'

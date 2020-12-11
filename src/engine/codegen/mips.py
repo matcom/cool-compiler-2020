@@ -51,9 +51,6 @@ class TypeData:
     def set_type(self):
         for idx, feature in enumerate(self.type.features):
             if isinstance(feature, str):
-                # The plus 2 is because the two first elementes
-                # in the instance are the type_int and the type_str_dir.
-                # Also enumerate starts with 0
                 self.attr_offsets[feature] = idx + 2
             else:
                 func_name, long_name = feature
@@ -85,7 +82,7 @@ class MipsCode:
     # Meta Functions
 
     def compile(self):
-        return '\n'.join([MipsLabel.data] + self.dotdata + [MipsLabel.text] + self.dotcode)
+        return '\n'.join([MipsLabel.data] + self.dotdata + [] + [MipsLabel.text] + self.dotcode)
 
     def _write(self, line):
         self.dotcode.append(line)
@@ -106,28 +103,29 @@ class MipsCode:
         self._write_data(f'.asciiz "{string}"')
 
     def push(self, register):
-        self.addi(reg.sp, reg.sp, -8)
+        self.addi(reg.sp, reg.sp, -4)
         self.store_memory(register, self.offset(reg.sp))
 
     def pop(self, register):
         self.load_memory(register, self.offset(reg.sp))
-        self.addi(reg.sp, reg.sp, 8)
+        self.addi(reg.sp, reg.sp, 4)
 
     def load_memory(self, dst, address: str):
-        self.lw(reg.t8, address)
-        self.sll(reg.t8, reg.t8, 16)
-        self.la(reg.t7, address)
-        self.addi(reg.t7, reg.t7, 4)
-        self.lw(reg.t9, self.offset(reg.t7))
-        self.or_(dst, reg.t8, reg.t9)
+        self.lw(dst, address)
+        # self.sll(reg.t8, reg.t8, 16)
+        # self.la(reg.t7, address)
+        # self.addi(reg.t7, reg.t7, 4)
+        # self.lw(reg.t9, self.offset(reg.t7))
+        # self.or_(dst, reg.t8, reg.t9)
 
     def store_memory(self, src: Registers, address: str):
-        self.la(reg.t8, address)
+        self.sw(src, address)
+        # self.la(reg.t8, address)
 
-        self.srl(reg.t9, src, 16)
+        # self.srl(reg.t9, src, 16)
 
-        self.sw(reg.t9, self.offset(reg.t8))  # store high bits
-        self.sw(src, self.offset(reg.t8, 4))  # store low bits
+        # self.sw(reg.t9, self.offset(reg.t8))  # store high bits
+        # self.sw(src, self.offset(reg.t8, 4))  # store low bits
 
     # System Calls
 
@@ -381,12 +379,18 @@ class MipsCode:
         '''
         self._write(f'jr {rsrc}')
 
+    def jalr(self, rdest):
+        '''
+        Jump and Link Register
+        '''
+        self._write(f"jalr {rdest}")
     # Load Instructions
+
     def la(self, rdest, address):
         '''
         Load Address
         '''
-        return f'la {rdest}, {address}'
+        self._write(f'la {rdest}, {address}')
 
     def lb(self, rdest, address):
         '''

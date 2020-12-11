@@ -134,6 +134,10 @@ class BoxNode(InstructionNode):
         self.value = value
 
 
+class AbortNode(InstructionNode):
+    pass
+
+
 class AllocateNode(InstructionNode):
     def __init__(self, dest, itype):
         self.dest = dest

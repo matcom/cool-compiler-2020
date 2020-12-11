@@ -206,6 +206,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         let_scope = Scope(parent=scope)
         for let_id, let_type, let_expr in node.let_body:
             let_scope.define_variable(let_id.lex, let_type.lex)
+            self.register_instruction(LocalNode(let_id.lex))
             self.visit(let_expr, let_scope)
 
         result = self.define_internal_local()
