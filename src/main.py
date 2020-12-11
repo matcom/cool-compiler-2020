@@ -64,7 +64,7 @@ checker = Checker(context, checker_errors)
 scope = checker.visit(ast)
 
 if len(checker_errors):
-    for e in checker_errors[::-1]:
+    for e in checker_errors:
         print(e)
     exit(1)
 
