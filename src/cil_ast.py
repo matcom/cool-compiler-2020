@@ -45,6 +45,13 @@ class DataNode(Node):
             new_value = str(self.value)
         return "\t" + self.id + " \"" + new_value + "\""
 
+class IntegerNode(Node):
+    def __init__(self, id, value):
+        self.id = id
+        self.value = value
+
+    def GetCode(self):
+        return "\t" + self.id + " \"" + new_value + "\""
 
 class FunctionNode(Node):
     def __init__(self, name, params, locals, body):

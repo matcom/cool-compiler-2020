@@ -14,6 +14,8 @@ MAX_LOCAL_COUNT = 2
 STRINGCODE = ""
 MAIN_LOCAL = None
 
+NUM_LOCALS = {}
+
 def generate_cil(ast):
     global TYPES, DATA, CODE, T_LOCALS, CILCODE
     CILCODE = generate_all(ast)
@@ -483,8 +485,6 @@ def convert_case(case):
         nodes.append(MovNode(result.id, branch.result.id))
         nodes.append(GotoNode(end_label))
 
-    # Aqui iria el error por no irse por ninguna rama
-
     nodes.append(LabelNode(end_label))
 
     return Node_Result(nodes, result)
@@ -619,9 +619,10 @@ def convert_less_equal(le):
 
 
 def convert_integer(integer):
+
     result = get_local()
     
-    nodes = [AllocateNode("Int", result.id), MovNode(result.id, int(integer.lex))]
+    nodes = [MovNode(result.id, int(integer.lex))]
     
     return Node_Result(nodes, result)
 
@@ -630,11 +631,11 @@ def convert_bool(bool):
     result = get_local()
     
     if bool.lex == "true":
-        val = 1
+        val = True
     else:
-        val = 0
+        val = False
     
-    nodes = [AllocateNode("Bool", result.id), MovNode(result.id, val)]
+    nodes = [MovNode(result.id, val)]
 
     return Node_Result(nodes, result)
 
@@ -685,22 +686,10 @@ def convert_new(new_node):
 
 
 def convert_string(s):
-    global DATA
-    in_data = DATA[s.lex]
 
-    already_loaded = False
-    result = None
-    if in_data in D_LOCALS:
-        already_loaded = True
-        result = D_LOCALS[in_data]
-    else:
-        result = get_local()
-        D_LOCALS[in_data] = result
+    result = get_local()
 
-    if not already_loaded:
-        node = [AllocateNode("String", result.id), LoadDataNode(result.id, DATA[s.lex].id)]
-    else:
-        node = []
+    node = [AllocateNode("String", result.id), LoadDataNode(result.id, DATA[s.lex].id)]
 
     return Node_Result(node, result)
 

@@ -1,5 +1,2 @@
-hairyscary.cl: problema cuando se esta generando el codigo cil que se mete en una funcion recursiva inicializando unos atributos que tienen case con expresiones en self y se mareea (hacer una verificacion de tipo en la expresion del case y descartar las ramas por las que no se va a tomar en la generacion de CIL?)
-
-life.cl: al parecer se generan demasiadas instrucciones en MIPS entonces no caben en la parte de la memoria que se asigna para las mismas
-
-arith.cl: al parecer se generan demasiadas instrucciones en MIPS entonces no caben en la parte de la memoria que se asigna para las mismas
+life.cl: se generan demasiadas instrucciones en MIPS entonces no caben en la parte de la memoria que se asigna para las mismas
+arith.cl: se generan demasiadas instrucciones en MIPS entonces no caben en la parte de la memoria que se asigna para las mismas
