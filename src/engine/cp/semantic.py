@@ -311,12 +311,17 @@ class Scope:
         self.children.append(child)
         return child
 
-    def define_variable(self, vname, vtype):
+    def define_variable(self, vname, vtype, let=False):
         info = VariableInfo(vname, vtype)
-        for i in self.locals:
-            if i.name == vname:
-                raise SemanticError(f'Variable {vname} already exists in the current context')
-        self.locals.append(info)
+        for i in range(len(self.locals)):
+            if self.locals[i].name == vname:
+                if not let:
+                    raise SemanticError(f'Variable {vname} already exists in the current context')
+                else:
+                    self.locals[i] = info
+                    break
+        else:    
+            self.locals.append(info)
         return info
 
     def find_variable(self, vname, index=None):

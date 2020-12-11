@@ -35,18 +35,19 @@ class Checker:
     def visit(self, node, scope):
         self.current_type = self.context.get_type(node.id.lex)
 
-        #Verificando ciclos en la herencia
+        attrs = []
         parent = self.current_type.parent
         
         while parent:
+            
             if parent == self.current_type:
                 self.errors.append(ERROR_ON_LN_COL % (node.line, node.column) + "SemanticError: " + CYCLIC_HERITAGE % (parent.name))
                 self.current_type.parent = self.object_type
                 break
-
+            attrs += parent.attributes
             parent = parent.parent
 
-        for a in self.current_type.attributes:
+        for a in self.current_type.attributes + attrs:
             if a.name == 'self':
                 line, column = [ (attrib.line, attrib.column) for attrib in node.features if type(attrib) is AttrDeclarationNode and attrib.id.lex == 'self'][0]
                 self.errors.append(ERROR_ON_LN_COL % (line, column) + "SemanticError: " + "Incorrect use of self in attribute declaration")
@@ -164,7 +165,7 @@ class Checker:
                     self.errors.append(ERROR_ON_LN_COL % (expr.line, expr.column) + "TypeError: " + INCOMPATIBLE_TYPES % (expr_type.name, id_type.name))
 
             try:
-                scope.define_variable(idx.lex, id_type)
+                scope.define_variable(idx.lex, id_type, True)
             except SemanticError as e:
                 self.errors.append(ERROR_ON_LN_COL % (idx.line, idx.column) + "SemanticError: " + e.text)
 
@@ -207,7 +208,8 @@ class Checker:
     @visitor.when(AssignNode)
     def visit(self, node, scope):
         expression = node.expression
-        
+        node_type = ErrorType()
+
         if scope.is_defined(node.id.lex):
             var = scope.find_variable(node.id.lex)
             node_type = var.type       
