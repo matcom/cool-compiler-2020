@@ -29,6 +29,8 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
 
     def save_attr_init(self, node: cool.ProgramNode):
         self.attr_init = dict()
+        self.attr_init['Object'] = []
+        self.attr_init['IO'] = []
         classes = [declaration for declaration in node.declarations if isinstance(
             declaration, cool.ClassDeclarationNode)]
         for declaration in classes:
@@ -56,6 +58,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(ArgNode(instance))
         name = self.to_function_name('main', 'Main')
         self.register_instruction(StaticCallNode(name, result))
+        self.register_instruction(EmptyArgs(1))
         self.current_function = None
 
         classes = [declaration for declaration in node.declarations if isinstance(
@@ -73,7 +76,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
                                 for attr in self.current_type.all_attributes()]
         type_node.methods = [(method.name, self.to_function_name(
             method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
-
+        type_node.features = type_node.attributes + type_node.methods
         fun_declarations = (f for f in node.features if isinstance(
             f, cool.FuncDeclarationNode))
         for feature in fun_declarations:
@@ -203,6 +206,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         let_scope = Scope(parent=scope)
         for let_id, let_type, let_expr in node.let_body:
             let_scope.define_variable(let_id.lex, let_type.lex)
+            self.register_instruction(LocalNode(let_id.lex))
             self.visit(let_expr, let_scope)
 
         result = self.define_internal_local()
@@ -228,7 +232,9 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(ArgNode(obj))
         self.register_instruction(StaticCallNode(name, result)) if name else \
             self.register_instruction(
-                DynamicCallNode(typex, node.id.lex, result))
+                DynamicCallNode(obj, typex, node.id.lex, result))
+
+        self.register_instruction(EmptyArgs(len(node.args) + 1))
 
         return result
 
@@ -245,8 +251,9 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self_inst = scope.find_variable('self').name
         self.register_instruction(ArgNode(self_inst))
         self.register_instruction(
-            DynamicCallNode(type_name, node.id.lex, result))
+            DynamicCallNode(self_inst, type_name, node.id.lex, result))
 
+        self.register_instruction(EmptyArgs(len(node.args) + 1))
         return result
 
     @visitor.when(cool.PlusNode)
@@ -311,11 +318,17 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
 
     @visitor.when(cool.BoolNode)
     def visit(self, node: cool.BoolNode, scope):
-        return 1 if node.token.lex else 0
+        value = 1 if node.token.lex else 0
+        bool_inst = self.define_internal_local()
+        self.register_instruction(BoxNode(bool_inst, value))
+        return bool_inst
 
     @visitor.when(cool.IntegerNode)
     def visit(self, node: cool.IntegerNode, scope):
-        return int(node.token.lex)
+        value = int(node.token.lex)
+        int_inst = self.define_internal_local()
+        self.register_instruction(BoxNode(int_inst, value))
+        return int_inst
 
     @visitor.when(cool.StringNode)
     def visit(self, node: cool.StringNode, scope):

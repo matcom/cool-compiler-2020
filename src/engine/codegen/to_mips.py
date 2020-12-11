@@ -7,11 +7,12 @@ from typing import Dict, List
 
 class CIL_TO_MIPS:
 
-    def __init__(self, data_size=8):
+    def __init__(self, data_size=4):
         self.types = []
         self.types_offsets: Dict[str, TypeData] = dict()
         self.arguments = {}
         self.local_vars = {}
+        self.data_segment = []
         self.data_size = data_size
         self.registers_to_save = [
             reg.ra,
@@ -67,6 +68,8 @@ class CIL_TO_MIPS:
             ) * self.data_size
 
             self.mips.load_memory(dst, self.mips.offset(reg.fp, offset))
+        elif arg in self.data_segment:
+            self.mips.la(dst, arg)
         else:
             raise Exception(
                 f"load_memory: The direction {arg} isn't an address")
@@ -99,6 +102,7 @@ class CIL_TO_MIPS:
 
         for data in node.dotdata:
             self.visit(data)
+            self.data_segment.append(data.name)
 
         self.mips.label('main')
         self.mips.jal('entry')
@@ -130,15 +134,17 @@ class CIL_TO_MIPS:
             self.visit(local, index=idx)
 
         self.store_registers()
+        self.mips.empty_line()
         self.mips.comment("Generating body code")
         for instruction in node.instructions:
             self.visit(instruction)
+
         self.mips.empty_line()
-        self.arguments = None
         self.load_registers()
 
         self.mips.comment("Clean stack variable space")
         self.mips.addi(reg.sp, reg.sp, len(node.localvars) * self.data_size)
+        self.arguments = None
         self.mips.comment("Return")
         self.mips.pop(reg.fp)
         self.mips.jr(reg.ra)
@@ -150,7 +156,7 @@ class CIL_TO_MIPS:
 
     @visitor.when(ParamNode)
     def visit(self, node: ParamNode, index=0):
-        self.arguments[node.name] = index
+        self.arguments[node.name] = index + 1
 
     @visitor.when(LocalNode)
     def visit(self, node: LocalNode, index=0):
@@ -158,7 +164,7 @@ class CIL_TO_MIPS:
         if node.name in self.local_vars:
             pass
         else:
-            self.local_vars[node.name] = index
+            self.local_vars[node.name] = -(index + 1)
 
     @visitor.when(GetAttribNode)
     def visit(self, node: GetAttribNode):
@@ -191,12 +197,13 @@ class CIL_TO_MIPS:
 
     @visitor.when(AssignNode)
     def visit(self, node: AssignNode):
+        print(node.dest, node.source)
         self.load_memory(reg.t0, node.source)
         self.store_memory(reg.t0, node.dest)
 
     @visitor.when(ComplementNode)
     def visit(self, node: ComplementNode):
-        self.load_memory(reg.t0, node.body)
+        self.load_memory(reg.t0, node.expression)
         self.mips.nor(reg.t1, reg.t0, reg.t0)
         self.store_memory(reg.t1, node.dest)
 
@@ -218,7 +225,7 @@ class CIL_TO_MIPS:
     def visit(self, node: StarNode):
         self.load_memory(reg.t0, node.left)
         self.load_memory(reg.t1, node.right)
-        self.mips.mult(reg.t2, reg.t0, reg.t1)
+        self.mips.mult(reg.t0, reg.t1)
         self.mips.mflo(reg.t0)
         self.store_memory(reg.t0, node.dest)
 
@@ -276,26 +283,33 @@ class CIL_TO_MIPS:
         type_data = self.types_offsets[node.type]
 
         length = len(type_data.attr_offsets) + len(type_data.func_offsets) + 2
-        length *= self.data_size / 2
+        length *= self.data_size
         self.mips.li(reg.a0, length)
         self.mips.sbrk()
-        self.store_memory(reg.v0, node.dest)
-        self.mips.li(reg.t0, type_data.type)
-        self.mips.store_memory(reg.t0, reg.v0)
-        self.mips.la(reg.t0, type_data.str)
+        self.mips.move(reg.s1, reg.v0)
+        self.store_memory(reg.s1, node.dest)
+
+        self.mips.li(reg.s0, type_data.pos)
+        self.mips.store_memory(reg.s0, reg.s1)
+
+        self.mips.la(reg.s0, type_data.str)
         self.mips.store_memory(
-            reg.t0, self.mips.offset(reg.v0, 1 * self.data_size))
+            reg.s0, self.mips.offset(reg.v0, self.data_size))
+
+        self.mips.li(reg.s0, length)
+        self.mips.store_memory(
+            reg.s0, self.mips.offset(reg.s1, 2 * self.data_size))
 
         for offset in type_data.attr_offsets.values():
             self.mips.store_memory(reg.zero, self.mips.offset(
-                reg.v0, offset * self.data_size))
+                reg.s1, offset * self.data_size))
 
         for name, offset in type_data.func_offsets.items():
             direct_name = type_data.func_names[name]
-            self.mips.la(reg.t0, direct_name)
+            self.mips.la(reg.s0, direct_name)
             self.mips.store_memory(
-                reg.t0,
-                self.mips.offset(reg.v0, offset * self.data_size))
+                reg.s0,
+                self.mips.offset(reg.s1, offset * self.data_size))
 
     @visitor.when(TypeOfNode)
     def visit(self, node: TypeOfNode):
@@ -330,14 +344,11 @@ class CIL_TO_MIPS:
     def visit(self, node: DynamicCallNode):
         self.mips.comment("DynamicCallNode")
         type_data = self.types_offsets[node.type]
-        offset = type_data.func_offsets[node.method]
-        self.load_memory(reg.t0, node.obj)
-        self.mips.load_memory(reg.t1, self.mips.offset(reg.t0, offset))
-        label_get_pc = self.get_pc(reg.t2)
-        self.mips.jal(label_get_pc)
-        self.mips.move(reg.ra, reg.t2)
-        self.mips.addi(reg.ra, 12)
-        self.mips.jr(reg.t1)
+        offset = type_data.func_offsets[node.method] * self.data_size
+        self.load_memory(reg.s0, node.obj)
+        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0, offset))
+        self.mips.jalr(reg.s1)
+        self.store_memory(reg.v0, node.dest)
 
     @visitor.when(ArgNode)
     def visit(self, node: ArgNode):
@@ -350,6 +361,16 @@ class CIL_TO_MIPS:
         self.mips.comment("ErrorNode")
         self.mips.li(reg.a0, 1)
         self.mips.syscall(17)
+
+    @visitor.when(BoxNode)
+    def visit(self, node: BoxNode):
+        self.mips.li(reg.s0, node.value)
+        self.store_memory(reg.s0, node.dest)
+
+    @visitor.when(AbortNode)
+    def visit(self, node: AbortNode):
+        self.mips.exit()
+        self.mips.empty_line()
 
     def copy_data(self, src, dst, length):
         """
@@ -497,26 +518,9 @@ class CIL_TO_MIPS:
         self.mips.label(end_label)
         self.mips.store_memory(reg.v0, node.dest)
 
-    @visitor.when(ConcatNode)
-    def visit(self, node):
-        self.load_memory(reg.s0, node.msg1)
-        self.load_memory(reg.s1, node.msg2)
-
-        self.get_string_length(reg.s0, reg.s4)
-        self.get_string_length(reg.s1, reg.s5)
-
-        self.mips.add(reg.a0, reg.s4, reg.s5)
-        self.mips.sbrk()
-        self.mips.move(reg.s3, reg.v0)
-
-        self.copy_str(reg.s0, reg.s3, reg.v0)
-        self.copy_str(reg.s1, reg.v0, reg.v0)
-
-        self.store_memory(reg.s3, node.dest)
-
     @visitor.when(LoadNode)
     def visit(self, node: LoadNode):
-        self.load_memory(reg.t0, node.dest)
+        self.load_memory(reg.t0, node.msg)
 
     def copy_substr(self, src, dst, length):
         loop = self.get_label()
@@ -582,6 +586,10 @@ class CIL_TO_MIPS:
     def visit(self, node: PrintIntNode):
         self.load_memory(reg.a0, node.str_addr)
         self.mips.print_int(node.str_addr)
+
+    @visitor.when(EmptyArgs)
+    def visit(self, node: EmptyArgs):
+        self.mips.addi(reg.sp, reg.sp, node.args * self.data_size)
 
     @visitor.when(ReturnNode)
     def visit(self, node: ReturnNode):
