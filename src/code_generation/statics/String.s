@@ -62,8 +62,8 @@ syscall
 move $v1, $v0
 lw $a0, -4($sp)
 lw $a1, -8($sp)
-add $a0, $a0, $a1
 lw $a2, -12($sp)
+add $a2, $a2, $a1
 _stringsubstr.loop:
 beqz $a2, _stringsubstr.end
 lb $a1, 0($a0)
