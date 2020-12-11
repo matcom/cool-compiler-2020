@@ -1,4 +1,4 @@
-from .node_il import *
+from .operation_node_il import *
 
 class NotNodeIL(UnaryNodeIL):
     
@@ -45,13 +45,13 @@ class SetIndexNodeIL(InstructionNodeIL):
     pass
 
 class SetAttribNodeIL(InstructionNodeIL):
-    def __init__(self, obj, attr, typex, value, idx=None):
+    def __init__(self, obj, attr, value, typex, idx=None):
         super().__init__(idx)
         self.obj = obj
         self.attr = attr
 
         self.value = value
-        self.type_name = typex
+        self.attr_type = typex
 
         self.out = obj
         self.in1 = value
@@ -60,11 +60,11 @@ class SetAttribNodeIL(InstructionNodeIL):
         return ("SETATTR {} {} = {}".format(self.obj,self.attr, self.value))
 
 class GetAttribNodeIL(InstructionNodeIL):
-    def __init__(self, obj, attr, typex, dest, attr_type, idx=None):
+    def __init__(self, dest, obj, attr, attr_type, idx=None):
         super().__init__(idx)
         self.obj = obj
         self.attr = attr
-        self.type_name = typex
+        # self.type_name = typex
         self.dest = dest
         self.attr_type = attr_type
 
@@ -125,13 +125,13 @@ class GotoIfFalseNodeIL(InstructionNodeIL):
         return ("IF NOT {} GOTO {}".format(self.cond,self.label))
 
 class StaticCallNodeIL(InstructionNodeIL):
-    def __init__(self, xtype, function, dest, args, return_type, idx=None):
+    def __init__(self, dest, function, args, xtype, idx=None):
         super().__init__(idx)
         self.type = xtype
         self.function = function
         self.dest = dest
         self.args = args
-        self.return_type = return_type
+        # self.return_type = return_type
         
         self.out = dest
     
@@ -140,13 +140,13 @@ class StaticCallNodeIL(InstructionNodeIL):
         return ("{}\n\t{} = CALL {}".format(args, self.dest, self.function))
 
 class DynamicCallNodeIL(InstructionNodeIL):
-    def __init__(self, xtype, obj, method, dest, args, return_type, idx=None):
+    def __init__(self, dest, method,args, xtype, obj, idx=None):
         super().__init__(idx)
         self.type = xtype
         self.method = method
         self.dest = dest
         self.args = args
-        self.return_type = return_type
+        # self.return_type = return_type
         self.obj = obj
 
         self.out = dest
@@ -179,7 +179,7 @@ class ReturnNodeIL(InstructionNodeIL):
         return "RETURN" + to_return
 
 class LoadNodeIL(InstructionNodeIL):
-    def __init__(self, dest, msg, idx=None):
+    def __init__(self, msg, dest, idx=None):
         super().__init__(idx)
         self.dest = dest
         self.msg = msg
@@ -190,7 +190,7 @@ class LoadNodeIL(InstructionNodeIL):
         return ("{} = LOAD {}".format(self.dest, self.msg))
 
 class LengthNodeIL(InstructionNodeIL):
-    def __init__(self, dest, arg, idx=None):
+    def __init__(self, arg, dest, idx=None):
         super().__init__(idx)
         self.dest = dest
         self.arg = arg
@@ -202,12 +202,13 @@ class LengthNodeIL(InstructionNodeIL):
         return ("{} = LENGTH {}".format(self.dest, self.arg))
 
 class ConcatNodeIL(InstructionNodeIL):
-    def __init__(self, dest, arg1, arg2, idx=None):
+    def __init__(self, arg1, len1, arg2, len2, dest, idx=None):
         super().__init__(idx)
         self.dest = dest
         self.arg1 = arg1
         self.arg2 = arg2
-
+        self.len1 = len1
+        self.len2 = len2
         self.out = dest
         self.in1 = arg1
         self.in2 = arg2
@@ -215,19 +216,14 @@ class ConcatNodeIL(InstructionNodeIL):
     def __str__():
         return ("{} = CONCAT {} {}".format(self.dest, self.arg1, self.arg2))
 
-class PrefixNodeIL(InstructionNodeIL):
-    def __init__(self, dest, word, n, idx=None):
-        super().__init__(idx)
-        self.dest = dest
-        self.word = word
-        self.n = n
-
-        self.out = dest
-        self.in1 = word
-        self.in2 = n
+class StringEqualsNodeIL(InstructionNodeIL):
+    def __init__(self, s1, s2, result):
+        self.s1 = s1
+        self.s2 = s2
+        self.result = result
 
 class SubstringNodeIL(InstructionNodeIL):
-    def __init__(self, dest, word, begin, end, idx=None):
+    def __init__(self, begin, end, word, dest, idx=None):
         super().__init__(idx)
         self.dest = dest
         self.begin = begin
@@ -306,7 +302,7 @@ class ExitNodeIL(InstructionNodeIL):
         return ("EXIT {}".format(self.value))
 
 class CopyNodeIL(InstructionNodeIL):
-    def __init__(self, dest, source, idx=None):
+    def __init__(self, source, dest, idx=None):
         super().__init__(idx)
         self.dest = dest
         self.source = source
@@ -355,3 +351,20 @@ class BoxingNodeIL(InstructionNodeIL):
         self.type = type_name
 
         self.out = dest
+
+class IsVoidNodeIL(InstructionNodeIL):
+    def __init__(self, result_local, expre_value):
+        self.result_local = result_local
+        self.expre_value = expre_value
+
+class CaseNodeIL(InstructionNodeIL):
+    def __init__(self, local_expr, first_label):
+        self.local_expr = local_expr
+        self.first_label = first_label
+
+class OptionNodeIL(InstructionNodeIL):
+    def __init__(self, local_expr, tag, max_tag, next_label):
+        self.local_expr = local_expr
+        self.tag = tag
+        self.max_tag = max_tag
+        self.next_label = next_label

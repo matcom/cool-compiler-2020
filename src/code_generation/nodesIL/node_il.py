@@ -60,7 +60,7 @@ class FunctionNodeIL(NodeIL):
         return ("function {}\n {{\n\t{}\n\n\t{}\n\n\t{}}}".format(self.name, params, localvars, instructions))
 
 class ParamNodeIL(NodeIL):
-    def __init__(self, name, typex, idx=None):
+    def __init__(self, name, typex=None, idx=None):
         self.name = name
         self.type = typex
         self.index = idx
@@ -75,6 +75,11 @@ class LocalNodeIL(NodeIL):
     
     def __str__():
         return ("LOCAL {}".format(self.name))
+
+class HaltNodeIL(NodeIL):
+    
+    def __str__(self):
+        return 'HALT;'
 
 class InstructionNodeIL(NodeIL):
     def __init__(self, idx=None):

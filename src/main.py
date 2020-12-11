@@ -36,42 +36,22 @@ def main():
         exit(1)
     else:
         cv = codeVisitor(context)
-        cv.visit(ast)
+        cil_ast = cv.visit(ast)
 
-        mips = MIPS(cv.code, cv.data)
-        code = mips.start()
+        mips = MIPS()
+        code = mips.visit(cil_ast)
 
-        for c in cv.data:
-            print(str(c))
-        for c in cv.code:
-            print(str(c))
+        # for c in cv.data:
+        #     print(str(c))
+        # for c in cv.code:
+        #     print(str(c))
 
-        path = program[:-1]
-        path = path[:-1]
-        f1 = open(path[:-1] + '_output.txt', "r")
+        path = program[:-2]
+        # path = path[:-1]
         path += 'mips'
         # print(path)
         f = open(path, "w+")
-
-        f.write('.data\n')
-        count = 0
-        for line in f1:
-            f.write('s_' + str(count) + ': .asciiz' + '"' + line + '"\n')
-            count += 1
-        f.write(".text\n")
-        f.write("main:\n")
-        for i in range(count):
-            f.write('li $v0, 4\n')
-            f.write("la $a0, s_{}\n".format(i))
-            f.write('syscall\n')
-
-        f.write('li $v0, 10\n')
-        f.write('syscall\n')
-
-        # for line in code:
-        #     f.write(line)
-        f1.close()
-        f.close()
+        f.write(code)
 
         # except:
         #     pass
