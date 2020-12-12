@@ -622,7 +622,7 @@ def convert_integer(integer):
 
     result = get_local()
     
-    nodes = [MovNode(result.id, int(integer.lex))]
+    nodes = [AllocateNode("Int", result.id), MovNode(result.id, int(integer.lex))]
     
     return Node_Result(nodes, result)
 
@@ -635,7 +635,7 @@ def convert_bool(bool):
     else:
         val = False
     
-    nodes = [MovNode(result.id, val)]
+    nodes = [AllocateNode("Bool", result.id), MovNode(result.id, val)]
 
     return Node_Result(nodes, result)
 

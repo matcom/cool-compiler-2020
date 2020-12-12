@@ -1,2 +1,1 @@
-life.cl: se generan demasiadas instrucciones en MIPS entonces no caben en la parte de la memoria que se asigna para las mismas
 arith.cl: se generan demasiadas instrucciones en MIPS entonces no caben en la parte de la memoria que se asigna para las mismas
