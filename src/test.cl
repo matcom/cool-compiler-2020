@@ -1,158 +1,291 @@
 (*
- *  A contribution from Anne Sheets (sheets@cory)
+ *   Cool program reading descriptions of weighted directed graphs
+ *   from stdin. It builds up a graph objects with a list of vertices
+ *   and a list of edges. Every vertice has a list of outgoing edges.
  *
- *  Tests the arithmetic operations and various other things
+ *  INPUT FORMAT
+ *      Every line has the form		vertice successor*
+ *      Where vertice is an int, and successor is   vertice,weight
+ *
+ *      An empty line or EOF terminates the input.
+ *
+ *   The list of vertices and the edge list is printed out by the Main
+ *   class. 
+ *
+ *  TEST
+ *     Once compiled, the file g1.graph can be fed to the program.
+ *     The output should look like this:
+
+nautilus.CS.Berkeley.EDU 53# spim -file graph.s <g1.graph 
+SPIM Version 5.4 of Jan. 17, 1994
+Copyright 1990-1994 by James R. Larus (larus@cs.wisc.edu).
+All Rights Reserved.
+See the file README a full copyright notice.
+Loaded: /home/n/cs164/lib/trap.handler
+5 (5,5)5 (5,4)4 (5,3)3 (5,2)2 (5,1)1
+4 (4,5)100 (4,3)55
+3 (3,2)10
+2 (2,1)150 (2,3)200
+1 (1,2)100
+
+ (5,5)5 (5,4)4 (5,3)3 (5,2)2 (5,1)1 (4,5)100 (4,3)55 (3,2)10 (2,1)150 (2,3)200 (1,2)100
+COOL program successfully executed
+
  *)
 
-class A {
 
-   var : Int <- 0;
 
-   value() : Int { var };
+class Graph {
 
-   set_var(num : Int) : A{
+   vertices : VList <- new VList;
+   edges    : EList <- new EList;
+
+   add_vertice(v : Vertice) : Object { {
+      edges <- v.outgoing().append(edges);
+      vertices <- vertices.cons(v);
+   } };
+
+   print_E() : Object { edges.print() };
+   print_V() : Object { vertices.print() };
+
+};
+
+class Vertice inherits IO { 
+
+   num  : Int;
+   out  : EList <- new EList;
+
+   outgoing() : EList { out };
+
+   number() : Int { num };
+
+   init(n : Int) : Vertice {
       {
-         var <- num;
+         num <- n;
          self;
       }
    };
 
-   method1(num : Int) : A {  -- same
-      self
+
+   add_out(s : Edge) : Vertice {
+      {
+	 out <- out.cons(s);
+         self;
+      }
    };
 
-   method2(num1 : Int, num2 : Int) : A {  -- plus
-      (let x : Int in
-	 {
-            x <- num1 + num2;
-	    (new B).set_var(x);
-	 }
-      )
-   };
-
-   method3(num : Int) : A {  -- negate
-      (let x : Int in
-	 {
-            x <- ~num;
-	    (new C).set_var(x);
-	 }
-      )
-   };
-
-   method4(num1 : Int, num2 : Int) : A {  -- diff
-            if num2 < num1 then
-               (let x : Int in
-		  {
-                     x <- num1 - num2;
-	             (new D).set_var(x);
-	          }
-               )
-            else
-               (let x : Int in
-		  {
-	             x <- num2 - num1;
-	             (new D).set_var(x);
-		  }
-               )
-            fi
-   };
-
-   method5(num : Int) : A {  -- factorial
-      (let x : Int <- 1 in
-	 {
-	    (let y : Int <- 1 in
-	       while y <= num loop
-	          {
-                     x <- x * y;
-	             y <- y + 1;
-	          }
-	       pool
-	    );
-	    (new E).set_var(x);
-	 }
-      )
+   print() : Object {
+      {
+         out_int(num);
+	 out.print();
+      }
    };
 
 };
 
-class B inherits A {  -- B is a number squared
+class Edge inherits IO {
 
-   method5(num : Int) : A { -- square
-      (let x : Int in
-	 {
-            x <- num * num;
-	    (new E).set_var(x);
-	 }
-      )
+   from   : Int;
+   to     : Int;
+   weight : Int;
+
+   init(f : Int, t : Int, w : Int) : Edge {
+      {
+         from <- f;
+	 to <- t;
+	 weight <- w;
+	 self;
+      }
+   };
+
+   print() : Object {
+      {
+         out_string(" (");
+	 out_int(from);
+	 out_string(",");
+	 out_int(to);
+	 out_string(")");
+	 out_int(weight);
+      }
    };
 
 };
 
-class C inherits B {
 
-   method6(num : Int) : A { -- negate
-      (let x : Int in
-         {
-            x <- ~num;
-	    (new A).set_var(x);
-         }
-      )
+
+class EList inherits IO {
+   -- Define operations on empty lists of Edges.
+
+   car : Edge;
+
+   isNil() : Bool { true };
+
+   head()  : Edge { { abort(); car; } };
+
+   tail()  : EList { { abort(); self; } };
+
+   -- When we cons and element onto the empty list we get a non-empty
+   -- list. The (new Cons) expression creates a new list cell of class
+   -- Cons, which is initialized by a dispatch to init().
+   -- The result of init() is an element of class Cons, but it
+   -- conforms to the return type List, because Cons is a subclass of
+   -- List.
+
+   cons(e : Edge) : EList {
+      (new ECons).init(e, self)
    };
 
-   method5(num : Int) : A {  -- cube
-      (let x : Int in
-	 {
-            x <- num * num * num;
-	    (new E).set_var(x);
-	 }
-      )
+   append(l : EList) : EList {
+     if self.isNil() then l
+     else tail().append(l).cons(head())
+     fi
    };
 
-};
-
-class D inherits B {  
-		
-   method7(num : Int) : Bool {  -- divisible by 3
-      (let x : Int <- num in
-            if x < 0 then method7(~x) else
-            if 0 = x then true else
-            if 1 = x then false else
-	    if 2 = x then false else
-	       method7(x - 3)
-	    fi fi fi fi
-      )
-   };
-
-};
-
-class E inherits D {
-
-   method6(num : Int) : A {  -- division
-      (let x : Int in
-         {
-            x <- num / 8;
-	    (new A).set_var(x);
-         }
-      )
+   print() : Object {
+     out_string("\n")
    };
 
 };
-
-(* The following code is from atoi.cl in ~cs164/examples *)
-
-(*
-   The class A2I provides integer-to-string and string-to-integer
-conversion routines.  To use these routines, either inherit them
-in the class where needed, have a dummy variable bound to
-something of type A2I, or simpl write (new A2I).method(argument).
-*)
 
 
 (*
-   c2i   Converts a 1-character string to an integer.  Aborts
-         if the string is not "0" through "9"
-*)
-class A2I {
+ *  Cons inherits all operations from List. We can reuse only the cons
+ *  method though, because adding an element to the front of an emtpy
+ *  list is the same as adding it to the front of a non empty
+ *  list. All other methods have to be redefined, since the behaviour
+ *  for them is different from the empty list.
+ *
+ *  Cons needs an extra attribute to hold the rest of the list.
+ *
+ *  The init() method is used by the cons() method to initialize the
+ *  cell.
+ *)
+
+class ECons inherits EList {
+
+   cdr : EList;	-- The rest of the list
+
+   isNil() : Bool { false };
+
+   head()  : Edge { car };
+
+   tail()  : EList { cdr };
+
+   init(e : Edge, rest : EList) : EList {
+      {
+	 car <- e;
+	 cdr <- rest;
+	 self;
+      }
+   };
+
+   print() : Object {
+     {
+       car.print();
+       cdr.print();
+     } 
+   };
+
+};
+
+
+
+
+class VList inherits IO {
+   -- Define operations on empty lists of vertices.
+
+   car : Vertice;
+
+   isNil() : Bool { true };
+
+   head()  : Vertice { { abort(); car; } };
+
+   tail()  : VList { { abort(); self; } };
+
+   -- When we cons and element onto the empty list we get a non-empty
+   -- list. The (new Cons) expression creates a new list cell of class
+   -- ECons, which is initialized by a dispatch to init().
+   -- The result of init() is an element of class Cons, but it
+   -- conforms to the return type List, because Cons is a subclass of
+   -- List.
+
+   cons(v : Vertice) : VList {
+      (new VCons).init(v, self)
+   };
+
+   print() : Object { out_string("\n") };
+
+};
+
+
+class VCons inherits VList {
+
+   cdr : VList;	-- The rest of the list
+
+   isNil() : Bool { false };
+
+   head()  : Vertice { car };
+
+   tail()  : VList { cdr };
+
+   init(v : Vertice, rest : VList) : VList {
+      {
+	 car <- v;
+	 cdr <- rest;
+	 self;
+      }
+   };
+
+   print() : Object {
+     {
+       car.print();
+       cdr.print();
+     } 
+   };
+
+};
+
+
+class Parse inherits IO {
+
+
+   boolop : BoolOp <- new BoolOp;
+
+   -- Reads the input and parses the fields
+
+   read_input() : Graph {
+
+      (let g : Graph <- new Graph in {
+         (let line : String <- in_string() in
+            while (boolop.and(not line="\n", not line="")) loop {
+		-- out_string(line);
+		-- out_string("\n");
+		g.add_vertice(parse_line(line));
+		line <- in_string();
+	    } pool
+         );
+	 g;
+      } )
+   };
+
+
+   parse_line(s : String) : Vertice {
+      (let v : Vertice <- (new Vertice).init(a2i(s)) in {
+	 while (not rest.length() = 0) loop {
+	       -- out_string(rest);
+	       -- out_string("\n");
+	       (let succ : Int <- a2i(rest) in (let
+	           weight : Int <- a2i(rest)
+               in
+	          v.add_out(new Edge.init(v.number(), 
+                                          succ,
+					  weight))
+	       ) );
+	 } pool;
+	 v;
+         }
+      )
+   };
 
      c2i(char : String) : Int {
 	if char = "0" then 0 else
@@ -165,59 +298,51 @@ class A2I {
         if char = "7" then 7 else
         if char = "8" then 8 else
         if char = "9" then 9 else
-        { abort(); 0; }  (* the 0 is needed to satisfy the
-				  typchecker *)
+        { abort(); 0; }  -- the 0 is needed to satisfy the typchecker
         fi fi fi fi fi fi fi fi fi fi
      };
 
-(*
-   i2c is the inverse of c2i.
-*)
-     i2c(i : Int) : String {
-	if i = 0 then "0" else
-	if i = 1 then "1" else
-	if i = 2 then "2" else
-	if i = 3 then "3" else
-	if i = 4 then "4" else
-	if i = 5 then "5" else
-	if i = 6 then "6" else
-	if i = 7 then "7" else
-	if i = 8 then "8" else
-	if i = 9 then "9" else
-	{ abort(); ""; }  -- the "" is needed to satisfy the typchecker
-        fi fi fi fi fi fi fi fi fi fi
-     };
+     rest : String;
 
-(*
-   a2i converts an ASCII string into an integer.  The empty string
-is converted to 0.  Signed and unsigned strings are handled.  The
-method aborts if the string does not represent an integer.  Very
-long strings of digits produce strange answers because of arithmetic 
-overflow.
-
-*)
      a2i(s : String) : Int {
         if s.length() = 0 then 0 else
 	if s.substr(0,1) = "-" then ~a2i_aux(s.substr(1,s.length()-1)) else
-        if s.substr(0,1) = "+" then a2i_aux(s.substr(1,s.length()-1)) else
+        if s.substr(0,1) = " " then a2i(s.substr(1,s.length()-1)) else
            a2i_aux(s)
         fi fi fi
      };
 
-(* a2i_aux converts the usigned portion of the string.  As a
-   programming example, this method is written iteratively.  *)
-
-
+(*
+  a2i_aux converts the usigned portion of the string.  As a programming
+example, this method is written iteratively.
+  The conversion stops at a space or comma.
+  As a side effect, r is set to the remaining string (without the comma).
+*)
      a2i_aux(s : String) : Int {
 	(let int : Int <- 0 in	
            {	
                (let j : Int <- s.length() in
 	          (let i : Int <- 0 in
 		    while i < j loop
-			{
-			    int <- int * 10 + c2i(s.substr(i,1));
-			    i <- i + 1;
-			}
+			(let c : String <- s.substr(i,1) in
+			    if (c = " ") then
+			       {
+				  rest <- s.substr(i+1,s.length()-i-1);
+				  i <- j;
+			       }
+			    else if (c = ",") then
+		               {
+				  rest <- s.substr(i+1, s.length()-i-1);
+				  i <- j;
+		               }
+			    else
+			       {
+				 int <- int * 10 + c2i(s.substr(i,1));
+				 i <- i + 1;
+				 if i=j then rest <- "" else "" fi;
+			       }
+			    fi fi
+			)
 		    pool
 		  )
 	       );
@@ -226,205 +351,31 @@ overflow.
         )
      };
 
-(* i2a converts an integer to a string.  Positive and negative 
-   numbers are handled correctly.  *)
-
-    i2a(i : Int) : String {
-	if i = 0 then "0" else 
-        if 0 < i then i2a_aux(i) else
-          "-".concat(i2a_aux(i * ~1)) 
-        fi fi
-    };
-	
-(* i2a_aux is an example using recursion.  *)		
-
-    i2a_aux(i : Int) : String {
-        if i = 0 then "" else 
-	    (let next : Int <- i / 10 in
-		i2a_aux(next).concat(i2c(i - next * 10))
-	    )
-        fi
-    };
-
 };
 
-class Main inherits IO {
-   
-   char : String;
-   avar : A; 
-   a_var : A;
-   flag : Bool <- true;
 
+class Main inherits Parse {
 
-   menu() : String {
-      {
-         out_string("\n\tTo add a number to ");
-         print(avar);
-         out_string("...enter a:\n");
-         out_string("\tTo negate ");
-         print(avar);
-         out_string("...enter b:\n");
-         out_string("\tTo find the difference between ");
-         print(avar);
-         out_string("and another number...enter c:\n");
-         out_string("\tTo find the factorial of ");
-         print(avar);
-         out_string("...enter d:\n");
-         out_string("\tTo square ");
-         print(avar);
-         out_string("...enter e:\n");
-         out_string("\tTo cube ");
-         print(avar);
-         out_string("...enter f:\n");
-         out_string("\tTo find out if ");
-         print(avar);
-         out_string("is a multiple of 3...enter g:\n");
-         out_string("\tTo divide ");
-         print(avar);
-         out_string("by 8...enter h:\n");
-	 out_string("\tTo get a new number...enter j:\n");
-	 out_string("\tTo quit...enter q:\n\n");
-         in_string();
-      }
-   };
-
-   prompt() : String {
-      {
-         out_string("\n");
-         out_string("Please enter a number...  ");
-         in_string();
-      }
-   };
-
-   get_int() : Int {
-      {
-	 (let z : A2I <- new A2I in
-	    (let s : String <- prompt() in
-	       z.a2i(s)
-	    )
-         );
-      }
-   };
-
-   is_even(num : Int) : Bool {
-      (let x : Int <- num in
-            if x < 0 then is_even(~x) else
-            if 0 = x then true else
-	    if 1 = x then false else
-	          is_even(x - 2)
-	    fi fi fi
-      )
-   };
-
-   class_type(var : A) : IO {
-      case var of
-	 a : A => out_string("Class type is now A\n");
-	 b : B => out_string("Class type is now B\n");
-	 c : C => out_string("Class type is now C\n");
-	 d : D => out_string("Class type is now D\n");
-	 e : E => out_string("Class type is now E\n");
-	 o : Object => out_string("Oooops\n");
-      esac
-   };
- 
-   print(var : A) : IO {
-     (let z : A2I <- new A2I in
-	{
-	   out_string(z.i2a(var.value()));
-	   out_string(" ");
-	}
-     )
-   };
+   g : Graph <- read_input();
 
    main() : Object {
       {
-         avar <- (new A);
-         while flag loop
-            {
-	       -- avar <- (new A).set_var(get_int());
-	       out_string("number ");
-	       print(avar);
-	       if is_even(avar.value()) then
-	          out_string("is even!\n")
-	       else
-	          out_string("is odd!\n")
-	       fi;
-	       -- print(avar); -- prints out answer
-	       class_type(avar);
-	       char <- menu();
-                  if char = "a" then -- add
-                     {
-                        a_var <- (new A).set_var(get_int());
-	                avar <- (new B).method2(avar.value(), a_var.value());
-	             } else
-                  if char = "b" then -- negate
-                     case avar of
-	                   c : C => avar <- c.method6(c.value());
-	                   a : A => avar <- a.method3(a.value());
-	                   o : Object => {
-		                  out_string("Oooops\n");
-		                  abort(); 0;
-		               };
-                     esac else
-                  if char = "c" then -- diff
-                     {
-                        a_var <- (new A).set_var(get_int());
-	                avar <- (new D).method4(avar.value(), a_var.value());
-	             } else
-                  if char = "d" then avar <- (new C)@A.method5(avar.value()) else
-		          -- factorial
-                  if char = "e" then avar <- (new C)@B.method5(avar.value()) else
-			  -- square
-                  if char = "f" then avar <- (new C)@C.method5(avar.value()) else
-			  -- cube
-                  if char = "g" then -- multiple of 3?
-		      if ((new D).method7(avar.value()))
-		                       then -- avar <- (new A).method1(avar.value())
-			 {
-	                    out_string("number ");
-	                    print(avar);
-	                    out_string("is divisible by 3.\n");
-			 }
-			 else  -- avar <- (new A).set_var(0)
-			 {
-	                    out_string("number ");
-	                    print(avar);
-	                    out_string("is not divisible by 3.\n");
-			 }
-		      fi else
-                  if char = "h" then 
-		      (let x : A in
-			 {
-		            x <- (new E).method6(avar.value());
-			    (let r : Int <- (avar.value() - (x.value() * 8)) in
-			       {
-			          out_string("number ");
-			          print(avar);
-			          out_string("is equal to ");
-			          print(x);
-			          out_string("times 8 with a remainder of ");
-				  (let a : A2I <- new A2I in
-				     {
-			                out_string(a.i2a(r));
-			                out_string("\n");
-				     }
-				  ); -- end let a:
-			       }
-                            ); -- end let r:
-			    avar <- x;
-		         } 
-		      )  -- end let x:
-		      else
-                  if char = "j" then avar <- (new A)
-		      else
-                  if char = "q" then flag <- false
-		      else
-                      avar <- (new A).method1(avar.value()) -- divide/8
-                  fi fi fi fi fi fi fi fi fi fi;
-            }
-         pool;
-       }
+	 g.print_V();
+         g.print_E();
+      }
    };
 
 };
 
+class BoolOp {
+
+  and(b1 : Bool, b2 : Bool) : Bool {
+     if b1 then b2 else false fi
+  };
+
+
+  or(b1 : Bool, b2 : Bool) : Bool {
+     if b1 then true else b2 fi
+  };
+
+};

@@ -491,17 +491,23 @@ def generate_read_string_func():
 
     result += "la $s0, string_read_buffer\n"
 
+    wasnt_empty_string_label = next_label()
+
+    result += "bne $s1, 0, " + wasnt_empty_string_label + "\n"
+
+    result += "addi $s1, $s1, 1\n"
+
+    result += wasnt_empty_string_label + ":\n"
+
     result += "addi $a0, $s1, 4\n"
     result += "li $v0, 9\n"
     result += "syscall\n"
-
 
     result += "sw $v0, 4($s2)\n"
     result += "addi $s1, $s1, -1\n"
     result += "sw $s1, ($v0)\n"
 
     result += "addi $s2, $v0, 4\n"
-
 
     result += "jal copy_from_to\n"
 
