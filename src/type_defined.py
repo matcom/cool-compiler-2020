@@ -203,6 +203,19 @@ class CoolMethod:
         self.expression = expression
 
 
+METHODS_NAME_TO_ID = {}
+
+def refresh_methods_id():
+    global AllTypes, METHODS_NAME_TO_ID
+    id = 0
+    for t in AllTypes.keys():
+        for m in AllTypes[t].methods.keys():
+            if m in METHODS_NAME_TO_ID:
+                continue
+            METHODS_NAME_TO_ID[m] = id
+            id += 1
+
+
 def inherits(a, b):
     current = a
     while current != b:

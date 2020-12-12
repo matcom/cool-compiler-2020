@@ -484,6 +484,7 @@ def convert_case(case):
         nodes += branch.node
         nodes.append(MovNode(result.id, branch.result.id))
         nodes.append(GotoNode(end_label))
+        CASE_LOCALS.pop(case_branch.id)
 
     nodes.append(LabelNode(end_label))
 
@@ -703,7 +704,6 @@ def convert_let(let):
             a = convert_expression(attr.expression)
             nodes += a.node
             local = get_local()
-            nodes.append(AllocateNode(attr.typeName, local.id))
             nodes.append(MovNode(local.id, a.result.id))
             LET_LOCALS[attr.id] = local
         else:
@@ -713,6 +713,9 @@ def convert_let(let):
 
     expr = convert_expression(let.expression)
     nodes += expr.node
+
+    for attr in let.variables:
+        LET_LOCALS.pop(attr.id)
 
     return Node_Result(nodes, expr.result)
 
@@ -770,7 +773,6 @@ def convert_function_call(call):
         nodes += ins.node
         instance = ins.result.id
     else:
-
         if CURR_TYPE == "":
             global MAIN_LOCAL
             instance = MAIN_LOCAL.id

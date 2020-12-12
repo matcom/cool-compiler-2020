@@ -1,4 +1,5 @@
 from cil_ast import *
+from type_defined import *
 
 DATA = []
 CIL_TYPES = {}
@@ -18,6 +19,9 @@ def generate_mips(cil):
     global CIL_TYPES, LABELS_COUNT
     LABELS_COUNT = 0
     CIL_TYPES = cil[0]
+
+    # this is called from type_defined
+    refresh_methods_id()
 
     data = generate_data(cil[1], cil[3], cil[4])
     code = generate_code(cil[2], cil[6])
@@ -663,6 +667,39 @@ def generate_add_func():
 
     return result
 
+def generate_call_func():
+    result = "call_func:\n"
+
+    result += "lw $s0, 4($s0)\n"
+
+    call_func_end_label = next_label()
+
+    for t in CIL_TYPES.values():
+
+        is_not_this_type_label = next_label()
+
+        result += "la $t1, type_" + t.type_name + "\n"
+        result += "bne $s0, $t1, " + is_not_this_type_label + "\n"
+
+        for m in t.methods.keys():
+            is_not_this_method_label = next_label()
+
+            result += "bne $s1, " + str(METHODS_NAME_TO_ID[m]) + ", " + is_not_this_method_label + "\n"
+
+            result += "la $s3, " + t.methods[m] + "_" + m + "\n"
+
+            result += "j " + call_func_end_label + "\n"
+
+            result += is_not_this_method_label + ":\n"
+
+        result += is_not_this_type_label + ":\n"
+
+    result += call_func_end_label + ":\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
 def generate_code(functions_code, son_father_tuples):
     result = ".text\n\n"
 
@@ -694,6 +731,7 @@ def generate_code(functions_code, son_father_tuples):
     result += generate_multiply_func()
     result += generate_substract_func()
     result += generate_add_func()
+    result += generate_call_func()
 
     global PARAMS, CURR_LOCAL_COUNT, CURR_PARAM_COUNT, PARAM_COUNT, CURR_FUNC
 
@@ -1309,26 +1347,12 @@ def convert_DispatchCallNode(instruction):
 
     dispatch_end_label = next_label()
 
-    result += "la $t0, " + t_addr + "\n"
-    result += "lw $t0, 4($t0)\n"
+    result += "la $s0, " + t_addr + "\n"
+    result += "li $s1, " + str(METHODS_NAME_TO_ID[instruction.method]) + "\n"
 
-    for t in CIL_TYPES.values():
+    result += "jal call_func\n"
 
-        if not (instruction.method in t.methods):
-            continue
-
-        dispatch_next_type_label = next_label()
-
-        result += "la $t1, type_" + t.type_name + "\n"
-        result += "bne $t0, $t1, " + dispatch_next_type_label + "\n"
-
-        result += "jal " + t.methods[instruction.method] + "_" + instruction.method + "\n"
-
-        result += "j " + dispatch_end_label + "\n"
-
-        result += dispatch_next_type_label + ":\n"
-
-    result += dispatch_end_label + ":\n"
+    result += "jal $s3\n"
 
     result += "lw $s6, ($v0)\n"
     result += "lw $s7, 4($v0)\n"
