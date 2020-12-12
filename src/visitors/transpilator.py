@@ -78,8 +78,8 @@ class codeVisitor:
         self.context = context
         self.label_count = 0
         # self.scope = scope
-        # self.context.set_type_tags()
-        # self.context.set_type_max_tags()
+        self.context.set_type_tags()
+        self.context.set_type_max_tags()
     
     @property
     def params(self):
@@ -191,7 +191,7 @@ class codeVisitor:
         type_name = self.define_internal_local(scope=scope, name = "type_name" )
         self.register_instruction(TypeOfNodeIL('self', type_name))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(AllocateNodeIL('String',self.context.get_type('String').name ,instance))
+        self.register_instruction(AllocateNodeIL('String',self.context.get_type('String').tag ,instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'String_init', [ArgNodeIL(type_name),ArgNodeIL(instance)],"String"))
         self.register_instruction(ReturnNodeIL(instance))
@@ -233,7 +233,7 @@ class codeVisitor:
         msg = self.define_internal_local(scope=scope, name="read_str")
         self.register_instruction(ReadStringNodeIL(msg))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(AllocateNodeIL('String',self.context.get_type('String').name ,instance))
+        self.register_instruction(AllocateNodeIL('String',self.context.get_type('String').tag ,instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'String_init', [ArgNodeIL(msg),ArgNodeIL(instance)],"String"))
         self.register_instruction(ReturnNodeIL(instance))
@@ -244,7 +244,7 @@ class codeVisitor:
         number = self.define_internal_local(scope=scope, name ="read_int")
         self.register_instruction(ReadIntNodeIL(number))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').name,instance))
+        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').tag,instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'Int_init', [ ArgNodeIL(number), ArgNodeIL(instance)], "Int"))
         self.register_instruction(ReturnNodeIL(instance))
@@ -263,7 +263,7 @@ class codeVisitor:
         length_result = self.define_internal_local(scope=scope, name="length")
         self.register_instruction(LengthNodeIL('self', length_result))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').name,instance))
+        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').tag,instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init,'Int_init', [ArgNodeIL(length_result),ArgNodeIL(instance)], "Int"))
         self.register_instruction(ReturnNodeIL(instance))
@@ -291,7 +291,7 @@ class codeVisitor:
         concat_result = self.define_internal_local(scope=scope, name="concat")
         self.register_instruction(ConcatNodeIL(str1, local_len1, str2, local_len2, concat_result))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(AllocateNodeIL('String',self.context.get_type('String').name ,instance))
+        self.register_instruction(AllocateNodeIL('String',self.context.get_type('String').tag ,instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'String_init', [ArgNodeIL(concat_result), ArgNodeIL(instance)],"String"))
         self.register_instruction(ReturnNodeIL(instance))
@@ -309,7 +309,7 @@ class codeVisitor:
         subs_result=self.define_internal_local(scope=scope, name="subs_result")
         self.register_instruction(SubstringNodeIL(i_value, l_value, 'self', subs_result))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(AllocateNodeIL('String', self.context.get_type('String').name,instance))
+        self.register_instruction(AllocateNodeIL('String', self.context.get_type('String').tag,instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'String_init', [ArgNodeIL(subs_result),ArgNodeIL(instance)],"String"))
         self.register_instruction(ReturnNodeIL(instance))
@@ -358,7 +358,7 @@ class codeVisitor:
         self.current_function = self.register_function('main')
         instance = self.define_internal_local(scope = scope, name = "instance")
         result = self.define_internal_local(scope = scope, name = "result")
-        self.register_instruction(AllocateNodeIL('Main',self.context.get_type('Main').name, instance))
+        self.register_instruction(AllocateNodeIL('Main',self.context.get_type('Main').tag, instance))
         # self.register_instruction(ArgNodeIL(instance))
         self.register_instruction(StaticCallNodeIL(result, 'Main_init', [ArgNodeIL(instance)],"Main"))
         # self.register_instruction(ArgNodeIL(instance))
@@ -380,6 +380,31 @@ class codeVisitor:
             self.visit(klass, scope.create_child(), sscope.cls_scopes[klass.id])
 
         return ProgramNodeIL(self.dottypes, self.dotdata, self.dotcode)
+    
+    @visitor.when(SelfCallNode)
+    def visit(self, node, scope, sscope):
+        # print(node)
+        # print(node.id)
+        # print('args:',node.args)
+        result_local = self.define_internal_local(scope = scope, name = "result")
+        # expr_value = 'value'
+
+        call_args = []
+        for arg in reversed(node.args):
+            param_local = self.visit(arg, scope, sscope)
+            call_args.append(ArgNodeIL(param_local))
+        # call_args.append(ArgNodeIL(expr_value))
+
+        # dynamic_type = 'Void'
+        self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, self.current_type.name, 'value'))
+        
+        return result_local
+    
+    @visitor.when(FormalParamNode)
+    def visit(self, node, scope, sscope):
+        print(node)
+        print(node.id)
+        print(node.type)
     
     @visitor.when(ClassDeclarationNode)
     def visit(self, node, scope, sscope):
@@ -444,16 +469,16 @@ class codeVisitor:
         ascope = sscope.attr_scopes[node.id]
         instance = None
 
-        if node.type in ['Int', 'Bool']:
+        if node.type.name in ['Int', 'Bool']:
             instance = self.define_internal_local(scope=scope, name="instance")
-            self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).name, instance))
+            self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).tag, instance))
             value = self.define_internal_local(scope=scope, name="value")
             self.register_instruction(LoadNodeIL(0,value))
             result_init = self.define_internal_local(scope=scope, name="result_init")
             self.register_instruction(StaticCallNodeIL(result_init, f'{node.type}_init', [ ArgNodeIL(value), ArgNodeIL(instance)], node.type))
-        elif node.type == 'String':
+        elif node.type.name == 'String':
             instance = self.define_internal_local(scope=scope, name="instance")
-            self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).name ,instance))
+            self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).tag ,instance))
             value = self.define_internal_local(scope=scope, name="value")
             self.register_instruction(LoadNodeIL('empty_str',value))
             result_init = self.define_internal_local(scope=scope, name="result_init")
@@ -486,6 +511,17 @@ class codeVisitor:
         for e in node.expr_list:
             result_local = self.visit(e, scope, sscope)
         return result_local
+
+    @visitor.when(VariableNode)
+    def visit(self, node, scope, sscope):
+        if self.is_defined_param(node.id):
+            return node.id
+        elif self.current_type.has_attr(node.id): 
+            result_local = self.define_internal_local(scope=scope, name = node.id, class_type=None)
+            self.register_instruction(GetAttribNodeIL(result_local, 'self' , node.id, sscope.find_variable(node.id).type.name))
+            return result_local
+        else:
+            return scope.find_cil_local(node.id)
     
     @visitor.when(ConditionalNode)
     def visit(self, node, scope, sscope):
@@ -496,14 +532,14 @@ class codeVisitor:
         if_then_label = self.get_label()
         self.register_instruction(GotoNodeIL(cond_value, if_then_label))
 
-        else_value = self.visit(node.else_stm, scope)
+        else_value = self.visit(node.else_stm, scope, sscope)
         self.register_instruction(AssignNodeIL(result_local, else_value))
     
         end_if_label = self.get_label()
         self.register_instruction(GotoNodeIL(end_if_label))
 
         self.register_instruction(LabelNodeIL(if_then_label))
-        then_value = self.visit(node.stm, scope)
+        then_value = self.visit(node.stm, scope, sscope)
         self.register_instruction(AssignNodeIL(result_local, then_value))
         self.register_instruction(LabelNodeIL(end_if_label))
 
@@ -566,7 +602,7 @@ class codeVisitor:
         #     self.register_instruction(ArgNodeIL(p))
 
         static_instance = self.define_internal_local(scope=scope, name='static_instance')
-        self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).name ,static_instance))
+        self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).tag ,static_instance))
         
         self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, node.type, static_instance))
         return result_local
@@ -620,7 +656,7 @@ class codeVisitor:
     @visitor.when(CaseNode)
     def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope = scope, name = "result")
-        case_expr = self.visit(node.expr, scope)
+        case_expr = self.visit(node.expr, scope, sscope)
 
         nscope = sscope.expr_dict[node]
 
@@ -675,7 +711,7 @@ class codeVisitor:
             # self.register_instruction(ArgNodeIL(result_local))
             self.register_instruction(StaticCallNodeIL(result_init, f'{self.current_type.name}_init', [result_local], self.current_type.name))
         else:
-            self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).name ,result_local))
+            self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).tag ,result_local))
             # self.register_instruction(ArgNodeIL(result_local))
             self.register_instruction(StaticCallNodeIL(result_init,f'{node.type}_init' ,[ArgNodeIL(result_local)], self.current_type.name ))
 
@@ -687,7 +723,7 @@ class codeVisitor:
         result_local = self.define_internal_local(scope=scope, name ="isvoid_result")
         self.register_instruction(IsVoidNodeIL(result_local, expre_value))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, instance))
+        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').tag, instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(result_local),ArgNodeIL(instance)], "Bool"))
         return instance
@@ -702,16 +738,50 @@ class codeVisitor:
         left_value = self.visit(node.left, scope, sscope)
         right_value = self.visit(node.right, scope, sscope)
 
+        if hasattr(node.left, 'expr'):
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left.expr]))
+        else:
+            left_type = 'Object'
+            if isinstance(node.left, IntegerNode):
+                left_type = 'Int'
+            elif isinstance(node.left, BoolNode):
+                left_type = 'Bool'
+            elif isinstance(node.left, StringNode):
+                left_type = 'String'
+            else:
+                try:
+                    left_type = (sscope.find_variable(node.left.id)).type.name
+                except:
+                    left_type = 'Int'
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
+
+        if hasattr(node.right, 'expr'):
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right.expr]))
+        else:
+            right_type = 'Object'
+            if isinstance(node.right, IntegerNode):
+                right_type = 'Int'
+            elif isinstance(node.right, BoolNode):
+                right_type = 'Bool'
+            elif isinstance(node.right, StringNode):
+                right_type = 'String'
+            else:
+                try:
+                    right_type = (sscope.find_variable(node.right.id)).type.name
+                except:
+                    right_type = 'Int'
+            self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", right_type))
+
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
 
-        self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
-        self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+        # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
+        # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
 
         self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "+"))
 
         # Allocate Int result
-        self.register_instruction(AllocateNodeIL('Int',self.context.get_type('Int').name, result_local))
+        self.register_instruction(AllocateNodeIL('Int',self.context.get_type('Int').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'Int_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Int"))
 
@@ -730,13 +800,47 @@ class codeVisitor:
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
 
-        self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
-        self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+        if hasattr(node.left, 'expr'):
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left.expr]))
+        else:
+            left_type = 'Object'
+            if isinstance(node.left, IntegerNode):
+                left_type = 'Int'
+            elif isinstance(node.left, BoolNode):
+                left_type = 'Bool'
+            elif isinstance(node.left, StringNode):
+                left_type = 'String'
+            else:
+                try:
+                    left_type = (sscope.find_variable(node.left.id)).type.name
+                except:
+                    left_type = 'Int'
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
+
+        if hasattr(node.right, 'expr'):
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right.expr]))
+        else:
+            right_type = 'Object'
+            if isinstance(node.right, IntegerNode):
+                right_type = 'Int'
+            elif isinstance(node.right, BoolNode):
+                right_type = 'Bool'
+            elif isinstance(node.right, StringNode):
+                right_type = 'String'
+            else:
+                try:
+                    right_type = (sscope.find_variable(node.right.id)).type.name
+                except:
+                    right_type = 'Int'
+            self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", right_type))
+
+        # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
+        # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
 
         self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "-"))
 
         # Allocate Int result
-        self.register_instruction(AllocateNodeIL('Int',self.context.get_type('Int').name, result_local))
+        self.register_instruction(AllocateNodeIL('Int',self.context.get_type('Int').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'Int_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Int"))
 
@@ -755,13 +859,43 @@ class codeVisitor:
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
 
-        self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
-        self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+        if hasattr(node.left, 'expr'):
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left.expr]))
+        else:
+            left_type = 'Object'
+            if isinstance(node.left, IntegerNode):
+                left_type = 'Int'
+            elif isinstance(node.left, BoolNode):
+                left_type = 'Bool'
+            elif isinstance(node.left, StringNode):
+                left_type = 'String'
+            else:
+                try:
+                    left_type = (sscope.find_variable(node.left.id)).type.name
+                except:
+                    left_type = 'Int'
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
 
+        if hasattr(node.right, 'expr'):
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right.expr]))
+        else:
+            right_type = 'Object'
+            if isinstance(node.right, IntegerNode):
+                right_type = 'Int'
+            elif isinstance(node.right, BoolNode):
+                right_type = 'Bool'
+            elif isinstance(node.right, StringNode):
+                right_type = 'String'
+            else:
+                try:
+                    right_type = (sscope.find_variable(node.right.id)).type.name
+                except:
+                    right_type = 'Int'
+            self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", right_type))
         self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "*"))
 
         # Allocate Int result
-        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').name, result_local))
+        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'Int_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Int"))
 
@@ -780,13 +914,44 @@ class codeVisitor:
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
 
-        self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
-        self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+        if hasattr(node.left, 'expr'):
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left.expr]))
+        else:
+            left_type = 'Object'
+            if isinstance(node.left, IntegerNode):
+                left_type = 'Int'
+            elif isinstance(node.left, BoolNode):
+                left_type = 'Bool'
+            elif isinstance(node.left, StringNode):
+                left_type = 'String'
+            else:
+                try:
+                    left_type = (sscope.find_variable(node.left.id)).type.name
+                except:
+                    left_type = 'Int'
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
+
+        if hasattr(node.right, 'expr'):
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right.expr]))
+        else:
+            right_type = 'Object'
+            if isinstance(node.right, IntegerNode):
+                right_type = 'Int'
+            elif isinstance(node.right, BoolNode):
+                right_type = 'Bool'
+            elif isinstance(node.right, StringNode):
+                right_type = 'String'
+            else:
+                try:
+                    right_type = (sscope.find_variable(node.right.id)).type.name
+                except:
+                    right_type = 'Int'
+            self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", right_type))
 
         self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "/"))
 
         # Allocate Int result
-        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').name, result_local))
+        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'Int_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Int"))
 
@@ -801,11 +966,34 @@ class codeVisitor:
         expr_value = self.visit(node.expr, scope, sscope)
         
         # self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", node.expr.computed_type.name))
-        self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", None))
+        if hasattr(node, 'expr') and (not isinstance(node.expr, VariableNode)):
+            typeX = 'Object'
+            if isinstance(node, SelfCallNode):
+                typeX = self.current_type.name
+            else:
+                try:
+                    typeX = self.context.exprs_dict[node.expr].name
+                except:
+                    typeX = 'Object'
+            self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", typeX))
+        else:
+            right_type = 'Object'
+            if isinstance(node.expr, IntegerNode):
+                right_type = 'Int'
+            elif isinstance(node.expr, BoolNode):
+                right_type = 'Bool'
+            elif isinstance(node.expr, StringNode):
+                right_type = 'String'
+            else:
+                try:
+                    right_type = (sscope.find_variable(node.expr.id)).type.name
+                except:
+                    right_type = 'Int'
+            self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", right_type))
         self.register_instruction(UnaryNodeIL(op_local, expr_local, "~"))
 
         # Allocate Int result
-        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').name, result_local))
+        self.register_instruction(AllocateNodeIL('Int', self.context.get_type('Int').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'Int_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Int"))
 
@@ -820,11 +1008,22 @@ class codeVisitor:
         expr_value = self.visit(node.expr, scope, sscope)
         
         # self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", node.expr.computed_type.name))
-        self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", None))
+        if hasattr(node, 'expr') and (not isinstance(node.expr, VariableNode)):
+            typeX = 'Object'
+            if isinstance(node, SelfCallNode):
+                typeX = self.current_type.name
+            else:
+                try:
+                    typeX = self.context.exprs_dict[node.expr].name
+                except:
+                    typeX = 'Object'
+            self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", typeX))
+        else:
+            self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", (sscope.find_variable(node.expr.id)).type.name))
         self.register_instruction(UnaryNodeIL(op_local, expr_local, "not"))
 
         # Allocate Bool result
-        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, result_local))
+        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Bool"))
 
@@ -841,14 +1040,48 @@ class codeVisitor:
         right_value = self.visit(node.right, scope, sscope)
 
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
-        self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
+        # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
-        self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+        # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+
+        if hasattr(node.left, 'expr'):
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left.expr]))
+        else:
+            left_type = 'Object'
+            if isinstance(node.left, IntegerNode):
+                left_type = 'Int'
+            elif isinstance(node.left, BoolNode):
+                left_type = 'Bool'
+            elif isinstance(node.left, StringNode):
+                left_type = 'String'
+            else:
+                try:
+                    left_type = (sscope.find_variable(node.left.id)).type.name
+                except:
+                    left_type = 'Int'
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
+
+        if hasattr(node.right, 'expr'):
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right.expr]))
+        else:
+            right_type = 'Object'
+            if isinstance(node.right, IntegerNode):
+                right_type = 'Int'
+            elif isinstance(node.right, BoolNode):
+                right_type = 'Bool'
+            elif isinstance(node.right, StringNode):
+                right_type = 'String'
+            else:
+                try:
+                    right_type = (sscope.find_variable(node.right.id)).type.name
+                except:
+                    right_type = 'Int'
+            self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", right_type))
 
         self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "<"))
 
         # Allocate Bool result
-        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, result_local))
+        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Bool"))
 
@@ -867,13 +1100,47 @@ class codeVisitor:
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
 
-        self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
-        self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+        # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
+        # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+
+        if hasattr(node.left, 'expr'):
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left.expr]))
+        else:
+            left_type = 'Object'
+            if isinstance(node.left, IntegerNode):
+                left_type = 'Int'
+            elif isinstance(node.left, BoolNode):
+                left_type = 'Bool'
+            elif isinstance(node.left, StringNode):
+                left_type = 'String'
+            else:
+                try:
+                    left_type = (sscope.find_variable(node.left.id)).type.name
+                except:
+                    left_type = 'Int'
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
+
+        if hasattr(node.right, 'expr'):
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right.expr]))
+        else:
+            right_type = 'Object'
+            if isinstance(node.right, IntegerNode):
+                right_type = 'Int'
+            elif isinstance(node.right, BoolNode):
+                right_type = 'Bool'
+            elif isinstance(node.right, StringNode):
+                right_type = 'String'
+            else:
+                try:
+                    right_type = (sscope.find_variable(node.right.id)).type.name
+                except:
+                    right_type = 'Int'
+            self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", right_type))
 
         self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "<="))
 
         # Allocate Bool result
-        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, result_local))
+        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Bool"))
 
@@ -881,7 +1148,8 @@ class codeVisitor:
 
     @visitor.when(EqualNode)
     def visit(self, node, scope, sscope):
-        print('----got in equalss----')
+        # print('----got in equalss----')
+        # print(node)
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
@@ -890,25 +1158,87 @@ class codeVisitor:
 
         left_value = self.visit(node.left, scope, sscope)
         right_value = self.visit(node.right, scope, sscope)
-        print('left: ', left_value)
-        print('right: ', right_value)
-        # if node.left.computed_type.name == 'String':
-        if isinstance(node.left, StringNode) and isinstance(node.right, StringNode):
+        # print('res_local: ', result_local)
+        # print('op_local: ', op_local)
+        # print('left_local: ', left_local)
+        # print('right_local: ', right_local)
+        # print('left: ', node.left)
+        # print('left_value: ',left_value)
+        # print('right: ', node.right)
+        # print('right_value: ',right_value)
+        left_type = 'Object'
+        right_type = 'Object'
+        if hasattr(node.left, 'expr'):
+            left_type = self.context.exprs_dict[node.left.expr].name
+        else:
+            left_type = 'Object'
+            if isinstance(node.left, IntegerNode):
+                left_type = 'Int'
+            elif isinstance(node.left, BoolNode):
+                left_type = 'Bool'
+            elif isinstance(node.left, StringNode):
+                left_type = 'String'
+            else:
+                try:
+                    left_type = (sscope.find_variable(node.left.id)).type.name
+                except:
+                    left_type = 'Int'
+            # left_type = (sscope.find_variable(node.left.id)).type.name.name
+        # if hasattr(node.right, 'expr'):
+        #     right_type = self.context.exprs_dict[node.right.expr].name
+        # else:
+        #     right_type = (sscope.find_variable(node.right.id)).type.name.name
+
+        # if isinstance(node.left, StringNode) and isinstance(node.right, StringNode):
+        if left_type == 'String':
             self.register_instruction(StaticCallNodeIL(op_local, 'String_equals', [ArgNodeIL(right_value), ArgNodeIL(left_value)], 'String'))
 
             # Allocate Bool result
-            self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, result_local))
+            self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').tag, result_local))
             result_init = self.define_internal_local(scope=scope, name="result_init")
             self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Bool"))
 
             return result_local
 
-        # elif node.left.computed_type.name in ['Int', 'Bool']:
-        elif (isinstance(node.left, IntegerNode) and isinstance(node.right, IntegerNode)) or (isinstance(node.left, BoolNode) and isinstance(node.right, BoolNode)):
+        # elif (isinstance(node.left, IntegerNode) and isinstance(node.right, IntegerNode)) or (isinstance(node.left, BoolNode) and isinstance(node.right, BoolNode)):
+        elif left_type in ['Int', 'Bool']:
             # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
             # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
-            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
-            self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+            # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
+            # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
+            if hasattr(node.left, 'expr'):
+                self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left.expr]))
+            else:
+                left_type = 'Object'
+                if isinstance(node.left, IntegerNode):
+                    left_type = 'Int'
+                elif isinstance(node.left, BoolNode):
+                    left_type = 'Bool'
+                elif isinstance(node.left, StringNode):
+                    left_type = 'String'
+                else:
+                    try:
+                        left_type = (sscope.find_variable(node.left.id)).type.name
+                    except:
+                        left_type = 'Int'
+                self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
+
+            if hasattr(node.right, 'expr'):
+                self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right.expr]))
+            else:
+                right_type = 'Object'
+                if isinstance(node.right, IntegerNode):
+                    right_type = 'Int'
+                elif isinstance(node.right, BoolNode):
+                    right_type = 'Bool'
+                elif isinstance(node.right, StringNode):
+                    right_type = 'String'
+                else:
+                    try:
+                        right_type = (sscope.find_variable(node.right.id)).type.name
+                    except:
+                        right_type = 'Int'
+                self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", right_type))
         else:
             print('got here where somewhere else')
             self.register_instruction(AssignNodeIL(left_local, left_value))
@@ -917,7 +1247,7 @@ class codeVisitor:
         self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "="))
 
         # Allocate Bool result
-        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, result_local))
+        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').tag, result_local))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(op_local), ArgNodeIL(result_local)], "Bool"))
 
@@ -937,7 +1267,7 @@ class codeVisitor:
     @visitor.when(IntegerNode)
     def visit(self, node, scope, sscope):
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(AllocateNodeIL('Int',self.context.get_type('Int').name, instance))
+        self.register_instruction(AllocateNodeIL('Int',self.context.get_type('Int').tag, instance))
         value = self.define_internal_local(scope=scope, name="value")
         self.register_instruction(LoadNodeIL(node.lex,value))
         result_init = self.define_internal_local(scope=scope, name="result_init")
@@ -957,7 +1287,7 @@ class codeVisitor:
         result_local = self.define_internal_local(scope=scope)
         self.register_instruction(LoadNodeIL(str_name, result_local))
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(AllocateNodeIL('String',self.context.get_type('String').name, instance))
+        self.register_instruction(AllocateNodeIL('String',self.context.get_type('String').tag, instance))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'String_init', [ArgNodeIL(result_local),ArgNodeIL(instance)], "String"))
         return instance
@@ -968,9 +1298,164 @@ class codeVisitor:
         if str(node.lex) == "true":
             boolean = 1
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, instance))
+        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').tag, instance))
         value = self.define_internal_local(scope=scope, name="value")
         self.register_instruction(LoadNodeIL(boolean, value))
         result_init = self.define_internal_local(scope=scope, name="result_init")
         self.register_instruction(StaticCallNodeIL(result_init, 'Bool_init', [ArgNodeIL(value),ArgNodeIL(instance)], "Bool"))
         return instance
+
+
+def get_formatter():
+    
+    class PrintVisitor(object):
+        @visitor.on('node')
+        def visit(self, node):
+            pass
+
+        @visitor.when(ProgramNodeIL)
+        def visit(self, node):
+            dottypes = '\n'.join(self.visit(t) for t in node.dottypes.values())
+            dotdata = '\n'.join(f'{t}: {node.dotdata[t]}' for t in node.dotdata.keys())
+            dotcode = '\n'.join(self.visit(t) for t in node.dotcode)
+
+            return f'.TYPES\n{dottypes}\n\n.DATA\n{dotdata}\n\n.CODE\n{dotcode}'
+
+        @visitor.when(TypeNodeIL)
+        def visit(self, node):
+            attributes = '\n\t'.join(f'attribute {x}' for x in node.attributes)
+            methods = '\n\t'.join(f'method {x} : {node.methods[x]}' for x in node.methods.keys())
+
+            return f'type {node.name} {{\n\t{attributes}\n\n\t{methods}\n}}'
+
+        @visitor.when(FunctionNodeIL)
+        def visit(self, node):
+            params = '\n\t'.join(self.visit(x) for x in node.params)
+            localvars = '\n\t'.join(self.visit(x) for x in node.localvars)
+            instructions = '\n\t'.join(self.visit(x) for x in node.instructions)
+
+            return f'function {node.name} {{\n\t{params}\n\n\t{localvars}\n\n\t{instructions}\n}}'
+
+        @visitor.when(ParamNodeIL)
+        def visit(self, node):
+            return f'PARAM {node.name}'
+
+        @visitor.when(LocalNodeIL)
+        def visit(self, node):
+            return f'LOCAL {node.name}'
+
+        @visitor.when(AssignNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = {node.source}'
+
+        @visitor.when(GotoIfNodeIL)
+        def visit(self, node):
+            return f'IF {node.cond} GOTO {node.label}'
+        
+        @visitor.when(LabelNodeIL)
+        def visit(self, node):
+            return f'LABEL {node.label}'
+        
+        @visitor.when(GotoNodeIL)
+        def visit(self, node):
+            return f'GOTO {node.label}'
+
+        @visitor.when(UnaryNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = {node.op} {node.expr}'
+
+        @visitor.when(BinaryNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = {node.left} {node.op} {node.right}'
+
+        @visitor.when(AllocateNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = ALLOCATE {node.type}'
+
+        @visitor.when(LoadNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = LOAD {node.msg}'
+
+        # @visitor.when(LoadInt)
+        # def visit(self, node):
+        #     return f'{node.local_dest} = LOAD {node.num}'
+
+        # @visitor.when(LoadVoid)
+        # def visit(self, node):
+        #     return f'{node.local_dest} = LOAD VOID'
+
+        @visitor.when(GetAttribNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = GetAttr {node.obj} {node.attr} '
+
+        @visitor.when(SetAttribNodeIL)
+        def visit(self, node):
+            return f'SetAttr {node.obj} {node.attr} {node.value}'
+
+
+        @visitor.when(TypeOfNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = TYPEOF {node.obj}'
+
+        @visitor.when(StaticCallNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = CALL {node.function}'
+
+        @visitor.when(DynamicCallNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = VCALL {node.type} {node.method} '
+
+        @visitor.when(ArgNodeIL)
+        def visit(self, node):
+            return f'ARG {node.arg}'
+
+        @visitor.when(ReturnNodeIL)
+        def visit(self, node):
+            return f'\n RETURN {node.value if node.value is not None else ""}'
+
+        @visitor.when(IsVoidNodeIL)
+        def visit(self, node):
+            return f'{node.result_local} ISVOID {node.expre_value}'
+
+        @visitor.when(HaltNodeIL)
+        def visit(self, node):
+            return 'HALT'
+        
+        @visitor.when(CopyNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = COPY {node.source}'
+
+        @visitor.when(LengthNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = LENGTH {node.arg}'
+
+        @visitor.when(ConcatNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = CONCAT {node.arg1}  {node.arg2}'
+
+        @visitor.when(SubstringNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = SUBSTR {node.begin}  {node.end}  {node.word}'
+        
+        @visitor.when(StringEqualsNodeIL)
+        def visit(self, node):
+            return f'{node.result} = {node.s1} = {node.s2}'
+
+        @visitor.when(ReadStringNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = READ STR'
+
+        @visitor.when(ReadIntNodeIL)
+        def visit(self, node):
+            return f'{node.dest} = READ INT'
+
+        @visitor.when(OutStringNodeIL)
+        def visit(self, node):
+            return f'PRINT_STR {node.value}'
+
+        @visitor.when(OutIntNodeIL)
+        def visit(self, node):
+            return f'PRINT_INT {node.value}'
+
+    printer = PrintVisitor()
+    return (lambda ast: printer.visit(ast))

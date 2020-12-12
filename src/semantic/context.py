@@ -17,6 +17,7 @@ class Context:
             'IO' : IOType(),
             'SELF_TYPE' : SELF_TYPE()
         }
+        self.graph = {}
 
         # build-in methods
         self.types['Object'].methods['abort'] = Method('abort', [], [], self.types['Object'])
@@ -32,10 +33,26 @@ class Context:
         self.types['String'].methods['concat'] = Method('concat', ['s'], [self.types['String']], self.types['String'])
         self.types['String'].methods['substr'] = Method('substr', ['i', 'l'], [self.types['Int'], self.types['Int']], self.types['String'])
 
+        self.graph['Object'] = ['IO', 'String', 'Bool', 'Int']
+        self.graph['IO'] = []
+        self.graph['String'] = []
+        self.graph['Int'] = []
+        self.graph['Bool'] = []
+
     def create_type(self, name:str):
         if name in self.types:
             raise ContextError(f'Type with the same name ({name}) already in context.')
-        typex = self.types[name] = Type(name)
+        typex = Type(name)
+        print('---CreateType---')
+        print('type: ', typex.name)
+        print('parent: ', typex.parent.name)
+        self.types[name] = typex
+        if not self.graph.__contains__(name):
+            self.graph[name] = []
+        if self.graph.__contains__(typex.parent.name):
+            self.graph[typex.parent.name].append(name)
+        else:
+            self.graph[typex.parent.name] = [name]
         return typex
 
     def get_type(self, name:str):
@@ -44,6 +61,32 @@ class Context:
         except KeyError:
             raise ContextError(f'Type "{name}" is not defined.')
 
+    def set_type_tags(self, node='Object', tag=0):
+        # print('------Set-----')
+        # print('type: ', node)
+        # print('tag: ', tag)
+        # self.types[node].tag = tag
+        # for i,t in enumerate(self.graph[node]):
+        #     self.set_type_tags(t, tag + i + 1)
+        # print('Done type tags')
+        self.types['Object'].tag = 0
+        self.types['IO'].tag = 1
+        self.types['Main'].tag = 2
+        self.types['String'].tag = 2
+        self.types['Bool'].tag = 3
+        self.types['Int'].tag = 4
+            
+    def set_type_max_tags(self, node='Object'):
+        if not self.graph[node]:
+            self.types[node].max_tag = self.types[node].tag
+        else:
+            for t in self.graph[node]:
+                self.set_type_max_tags(t)
+            maximum = 0
+            for t in self.graph[node]:
+                maximum = max(maximum, self.types[t].max_tag)
+            self.types[node].max_tag = maximum
+        print('Done type max tags')
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
 

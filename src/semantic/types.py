@@ -12,6 +12,8 @@ class Type:
         self.attributes = []
         self.methods = {}
         self.parent = ObjectType()
+        self.tag = None 
+        self.max_tag = None
 
     def set_parent(self, parent):
         if self.parent != ObjectType() and self.parent is not None:

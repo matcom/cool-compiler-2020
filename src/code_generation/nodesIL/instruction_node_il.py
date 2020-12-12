@@ -2,37 +2,37 @@ from .operation_node_il import *
 
 class NotNodeIL(UnaryNodeIL):
     
-    def __str__():
+    def __str__(self):
         return ("{} = ~{}".format(self.dest, self.expr))
 
 class LogicalNotNodeIL(UnaryNodeIL):
-    def __str__():
+    def __str__(self):
         return ("{} = NOT {}".format(self.dest, self.expr))
 class PlusNodeIL(BinaryNodeIL):
-    def __str__():
+    def __str__(self):
         return ("{} = {} + {}".format(self.dest,self.left, self.right))
 
 class MinusNodeIL(BinaryNodeIL):
-    def __str__():
+    def __str__(self):
         return ("{} = {} - {}".format(self.dest,self.left, self.right))
 class StarNodeIL(BinaryNodeIL):
-    def __str__():
+    def __str__(self):
         return ("{} = {} * {}".format(self.dest,self.left, self.right))
 
 class DivNodeIL(BinaryNodeIL):
-    def __str__():
+    def __str__(self):
         return ("{} = {} / {}".format(self.dest,self.left, self.right))
 
 class LessNodeIL(BinaryNodeIL):
-    def __str__():
+    def __str__(self):
         return ("{} = {} < {}".format(self.dest,self.left, self.right))
 
 class LessEqNodeIL(BinaryNodeIL):
-    def __str__():
+    def __str__(self):
         return ("{} = {} <= {}".format(self.dest,self.left, self.right))
 
 class EqualNodeIL(BinaryNodeIL):
-    def __str__():
+    def __str__(self):
         return ("{} = {} == {}".format(self.dest,self.left, self.right))
 
 class ArrayNodeIL(InstructionNodeIL):
@@ -56,7 +56,7 @@ class SetAttribNodeIL(InstructionNodeIL):
         self.out = obj
         self.in1 = value
     
-    def __str__():
+    def __str__(self):
         return ("SETATTR {} {} = {}".format(self.obj,self.attr, self.value))
 
 class GetAttribNodeIL(InstructionNodeIL):
@@ -71,7 +71,7 @@ class GetAttribNodeIL(InstructionNodeIL):
         self.out = dest
         self.in1 = obj
 
-    def __str__():
+    def __str__(self):
         return ("{} = GETATTR {} {}".format(self.dest,self.obj,self.attr))
 
 class TypeOfNodeIL(InstructionNodeIL):
@@ -83,7 +83,7 @@ class TypeOfNodeIL(InstructionNodeIL):
         self.out = dest
         self.in1 = obj
 
-    def __str__():
+    def __str__(self):
         return ("{} = TYPEOF {}".format(self.dest,self.obj))
 
 class LabelNodeIL(InstructionNodeIL):
@@ -91,7 +91,7 @@ class LabelNodeIL(InstructionNodeIL):
         super().__init__(idx)
         self.label = label
     
-    def __str__():
+    def __str__(self):
         return ("LABEL {}".format(self.label))
 
 
@@ -99,7 +99,7 @@ class GotoNodeIL(InstructionNodeIL):
     def __init__(self, label, idx=None):
         super().__init__(idx)
         self.label = label
-    def __str__():
+    def __str__(self):
         return ("GOTO {}".format(self.label))
 
 class GotoIfNodeIL(InstructionNodeIL):
@@ -110,7 +110,7 @@ class GotoIfNodeIL(InstructionNodeIL):
 
         self.in1 = cond
     
-    def __str__():
+    def __str__(self):
         return ("IF {} GOTO {}".format(self.cond, self.label))
 
 class GotoIfFalseNodeIL(InstructionNodeIL):
@@ -121,7 +121,7 @@ class GotoIfFalseNodeIL(InstructionNodeIL):
 
         self.in1 = cond
     
-    def __str__():
+    def __str__(self):
         return ("IF NOT {} GOTO {}".format(self.cond,self.label))
 
 class StaticCallNodeIL(InstructionNodeIL):
@@ -135,7 +135,7 @@ class StaticCallNodeIL(InstructionNodeIL):
         
         self.out = dest
     
-    def __str__():
+    def __str__(self):
         args = '\n\t'.join(str(arg) for arg in self.args)
         return ("{}\n\t{} = CALL {}".format(args, self.dest, self.function))
 
@@ -152,7 +152,7 @@ class DynamicCallNodeIL(InstructionNodeIL):
         self.out = dest
         self.in1 = obj
     
-    def __str__():
+    def __str__(self):
         args = '\n\t'.join(str(arg) for arg in self.args)
         return ("{}\n\t{} = VCALL {} {}".format(args, self.dest, self.type, self.method))
 
@@ -162,7 +162,7 @@ class ArgNodeIL(InstructionNodeIL):
         self.dest = name
         self.out = name
 
-    def __str__():
+    def __str__(self):
         return ("ARG {}".format(self.dest))
 
 class ReturnNodeIL(InstructionNodeIL):
@@ -172,7 +172,7 @@ class ReturnNodeIL(InstructionNodeIL):
 
         self.out = value
     
-    def __str__():
+    def __str__(self):
         to_return = ""
         if self.value is not None:
             to_return = " " + str(self.value)
@@ -186,7 +186,7 @@ class LoadNodeIL(InstructionNodeIL):
 
         self.out = dest
 
-    def __str__():
+    def __str__(self):
         return ("{} = LOAD {}".format(self.dest, self.msg))
 
 class LengthNodeIL(InstructionNodeIL):
@@ -198,7 +198,7 @@ class LengthNodeIL(InstructionNodeIL):
         self.out = dest
         self.in1 = arg
 
-    def __str__():
+    def __str__(self):
         return ("{} = LENGTH {}".format(self.dest, self.arg))
 
 class ConcatNodeIL(InstructionNodeIL):
@@ -213,7 +213,7 @@ class ConcatNodeIL(InstructionNodeIL):
         self.in1 = arg1
         self.in2 = arg2
     
-    def __str__():
+    def __str__(self):
         return ("{} = CONCAT {} {}".format(self.dest, self.arg1, self.arg2))
 
 class StringEqualsNodeIL(InstructionNodeIL):
@@ -234,7 +234,7 @@ class SubstringNodeIL(InstructionNodeIL):
         self.in1 = begin
         self.in2 = end
 
-    def __str__():
+    def __str__(self):
         return ("{} = SUBSTR {} {} {}".format(self.dest, self.word, self.begin, self.end))
 
 class ToStrNodeIL(InstructionNodeIL):
@@ -246,7 +246,7 @@ class ToStrNodeIL(InstructionNodeIL):
         self.out = dest
         self.in1 = ivalue
 
-    def __str__():
+    def __str__(self):
         return ("{} = STR {}".format(self.dest, self.ivalue))
 
 class OutStringNodeIL(InstructionNodeIL):
@@ -256,7 +256,7 @@ class OutStringNodeIL(InstructionNodeIL):
 
         self.in1 = value
 
-    def __str__():
+    def __str__(self):
         return ("OUT_STR {}".format(self.value))
 
 class OutIntNodeIL(InstructionNodeIL):
@@ -266,7 +266,7 @@ class OutIntNodeIL(InstructionNodeIL):
 
         self.in1 = value
 
-    def __str__():
+    def __str__(self):
         return ("OUT_INT {}".format(self.value))
 
 class ReadStringNodeIL(InstructionNodeIL):
@@ -276,7 +276,7 @@ class ReadStringNodeIL(InstructionNodeIL):
 
         self.out = dest
 
-    def __str__():
+    def __str__(self):
         return ("{} = READ_STR".format(self.dest))
 
 class ReadIntNodeIL(InstructionNodeIL):
@@ -286,7 +286,7 @@ class ReadIntNodeIL(InstructionNodeIL):
 
         self.out = dest
 
-    def __str__():
+    def __str__(self):
         return ("{} = READ_INT".format(self.dest))
 
 class ExitNodeIL(InstructionNodeIL):
@@ -298,7 +298,7 @@ class ExitNodeIL(InstructionNodeIL):
         self.in1 = value
         self.in2 = classx
 
-    def __str__():
+    def __str__(self):
         return ("EXIT {}".format(self.value))
 
 class CopyNodeIL(InstructionNodeIL):
@@ -310,7 +310,7 @@ class CopyNodeIL(InstructionNodeIL):
         self.out = dest
         self.in1 = source
 
-    def __str__():
+    def __str__(self):
         return ("{} = COPY {}".format(self.dest, self.source))
 
 class ConformsNodeIL(InstructionNodeIL):
@@ -323,7 +323,7 @@ class ConformsNodeIL(InstructionNodeIL):
         self.out = dest
         self.in1 = expr
     
-    def __str__():
+    def __str__(self):
         return ("{} = CONFORMS {}".format(self.dest, self.expr, self.type))
         
 class VoidConstantNodeIL(InstructionNodeIL):
@@ -333,7 +333,7 @@ class VoidConstantNodeIL(InstructionNodeIL):
 
         self.out = obj
     
-    def __str__():
+    def __str__(self):
         return ("{} = Void".format(self.obj))
 
 class ErrorNodeIL(InstructionNodeIL):
@@ -341,7 +341,7 @@ class ErrorNodeIL(InstructionNodeIL):
         super().__init__(idx)
         self.type = typex
 
-    def __str__():
+    def __str__(self):
         return ("ERROR {}".format(self.type))
 
 class BoxingNodeIL(InstructionNodeIL):

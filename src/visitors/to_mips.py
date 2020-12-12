@@ -186,7 +186,13 @@ class MIPS:
 
     @visitor.when(GetAttribNodeIL)
     def visit(self, node):
+        print('----------------::::::')
         print('----------------::::::',node.obj)
+        print('----------------::::::',node.dest)
+        print('----------------::::::',node.attr)
+        print('----------------::::::',node.attr_type)
+        print('----------------::::::',self.attr_offset[node.attr_type][node.attr])
+        
         self_offset = self.var_offset[self.current_function.name][node.obj]
         self.text += f'lw $t0, {self_offset}($sp)\n'  #get self address
         
@@ -214,6 +220,7 @@ class MIPS:
     @visitor.when(ArgNodeIL)
     def visit(self, node):
         value_offset = self.var_offset[self.current_function.name][node.dest]  # get value from local
+        # print('offset::::::::::: ',value_offset)
         self.text += f'lw $t1, {value_offset}($t0)\n'
         self.text += 'addi $sp, $sp, -4\n'
         self.text += 'sw $t1, 0($sp)\n'
@@ -232,7 +239,7 @@ class MIPS:
         
         self.text += f'lw $t2, 12($t1)\n' #get dispatch table address
 
-        method_offset = self.method_offset[node.dynamic_type][node.method]
+        method_offset = self.method_offset[node.type][node.method]
         self.text += f'lw $t3, {method_offset}($t2)\n' # get method address
         
         self.text += 'jal $t3\n'

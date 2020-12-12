@@ -9,5 +9,5 @@ class AllocateNodeIL(InstructionNodeIL):
 
         self.out = dest
 
-    def __str__():
+    def __str__(self):
         return ("{} = ALLOCATE {}".format(self.dest, self.type))

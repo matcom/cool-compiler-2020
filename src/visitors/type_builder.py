@@ -88,7 +88,7 @@ class Builder:
             self.current_type.define_method(node.id, args_ids, args_types, ret_type)
         except SemanticError as e:
             self.errors.append(CSemanticError(node.row, node.col, e.text))
-   
+
     @visitor.when(AttrDeclarationNode)
     def visit(self, node):
         try:

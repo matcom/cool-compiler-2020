@@ -30,15 +30,26 @@ def main():
         ast, context, scope = pipeline.run_pipeline(program)
     except:
         pass
-
+    
     pipeline.report_errors()
 
     if pipeline.pipeline_errors:
         exit(1)
     else:
+        # print('-------------AST-------------')
+        # for x in ast:
+        #     print(x)
+
         cv = codeVisitor(context)
         cil_ast = cv.visit(ast, None, scope)
+        f2_n = program[:-3] + '_test.cil'
+        f2 = open(f2_n, 'w+')
 
+        formatter = get_formatter()
+        cil_code = formatter(cil_ast)
+        f2.write(f'{cil_code}')
+        f2.close()
+        print('LEN:::::',len(cv.instructions))
         mips = MIPS()
         code = mips.visit(cil_ast)
 

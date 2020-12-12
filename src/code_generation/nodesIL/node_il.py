@@ -9,7 +9,7 @@ class ProgramNodeIL(NodeIL):
         self.dotcode = dotcode
         self.index = idx
 
-    def __str__():
+    def __str__(self):
         dottypes = '\n'.join(str(t) for t in self.dottypes)
         dotdata = '\n'.join(str(t) for t in self.dotdata)
         dotcode = '\n'.join(str(t) for t in self.dotcode)
@@ -23,7 +23,7 @@ class TypeNodeIL(NodeIL):
         self.methods = methods if methods is not None else []
         self.index = idx
 
-    def __str__():
+    def __str__(self):
         attributes = "\n\t"
         methods = "\n\t"
         for x,y in self.attributes:
@@ -40,7 +40,7 @@ class DataNodeIL(NodeIL):
         self.value = value
         self.index = idx
 
-    def __str__():
+    def __str__(self):
         return str(self.name) + " = " + '"' + str(node.value) + '"'
 
 
@@ -52,7 +52,7 @@ class FunctionNodeIL(NodeIL):
         self.instructions = instructions
         self.index = idx
 
-    def __str__():
+    def __str__(self):
         params = "\n".join(str(x) for x in self.params)
         localvars = "\n".join(str(x) for x in self.localvars)
         instruction = "\n".join(str(x) for x in self.instructions)
@@ -65,7 +65,7 @@ class ParamNodeIL(NodeIL):
         self.type = typex
         self.index = idx
 
-    def __str__():
+    def __str__(self):
         return ("PARAM {}".format(self.name))
 
 class LocalNodeIL(NodeIL):
@@ -73,7 +73,7 @@ class LocalNodeIL(NodeIL):
         self.name = name
         self.index = idx
     
-    def __str__():
+    def __str__(self):
         return ("LOCAL {}".format(self.name))
 
 class HaltNodeIL(NodeIL):

@@ -9,5 +9,5 @@ class AssignNodeIL(InstructionNodeIL):
         self.in1 = source
         self.out = dest
 
-    def __str__():
+    def __str__(self):
         return ("{} = {}".format(self.dest, self.source))
