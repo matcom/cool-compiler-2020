@@ -1050,7 +1050,7 @@ class codeVisitor:
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
 
         if hasattr(node.left, 'expr'):
-            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left.expr]))
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left.expr].name))
         else:
             left_type = 'Int'
             if isinstance(node.left, IntegerNode):
@@ -1067,7 +1067,7 @@ class codeVisitor:
             self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
 
         if hasattr(node.right, 'expr'):
-            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right.expr]))
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right.expr].name))
         else:
             right_type = 'Int'
             if isinstance(node.right, IntegerNode):
@@ -1109,7 +1109,7 @@ class codeVisitor:
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
 
         if hasattr(node.left, 'expr'):
-            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left.expr]))
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left.expr].name))
         else:
             left_type = 'Int'
             if isinstance(node.left, IntegerNode):
@@ -1126,7 +1126,7 @@ class codeVisitor:
             self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
 
         if hasattr(node.right, 'expr'):
-            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right.expr]))
+            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right.expr].name))
         else:
             right_type = 'Int'
             if isinstance(node.right, IntegerNode):
@@ -1212,7 +1212,7 @@ class codeVisitor:
             # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", None))
             # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", None))
             if hasattr(node.left, 'expr'):
-                self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left.expr]))
+                self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left.expr].name))
             else:
                 left_type = 'Int'
                 if isinstance(node.left, IntegerNode):
@@ -1229,7 +1229,7 @@ class codeVisitor:
                 self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
 
             if hasattr(node.right, 'expr'):
-                self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right.expr]))
+                self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right.expr].name))
             else:
                 right_type = 'Int'
                 if isinstance(node.right, IntegerNode):

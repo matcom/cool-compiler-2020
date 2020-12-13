@@ -1,7 +1,7 @@
 from .astNode import ASTNode
 
 class ClassDeclarationNode(ASTNode):
-    def __init__(self, row, col, idx, features, parent = None):
+    def __init__(self, row, col, idx, features, parent = "Object"):
         super().__init__(row, col)
         self.id = idx
         self.parent = parent

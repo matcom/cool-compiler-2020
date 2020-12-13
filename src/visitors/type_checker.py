@@ -265,6 +265,10 @@ class TypeChecker(State):
     def visit(self, node, scope):
         ltype = self.visit(node.left, scope)
         rtype = self.visit(node.right, scope)
+
+        self.context.exprs_dict[node.left] = ltype
+        self.context.exprs_dict[node.right] = rtype
+
         if rtype != IntType() or ltype != IntType():
             self.errors.append(CTypeError(node.row, node.col, BOPERATION_NOT_DEFINED %('Arithmetic', ltype.name, rtype.name)))
             return ErrorType()
@@ -275,6 +279,10 @@ class TypeChecker(State):
     def visit(self, node, scope):
         ltype = self.visit(node.left, scope)
         rtype = self.visit(node.right, scope)
+
+        self.context.exprs_dict[node.left] = ltype
+        self.context.exprs_dict[node.right] = rtype
+
         if rtype != IntType() or ltype != IntType():
             self.errors.append(CTypeError(node.row, node.col, BOPERATION_NOT_DEFINED %('Comparison', ltype.name, rtype.name)))
             return ErrorType()
@@ -285,6 +293,10 @@ class TypeChecker(State):
     def visit(self, node, scope):
         ltype = self.visit(node.left, scope)
         rtype = self.visit(node.right, scope)
+
+        self.context.exprs_dict[node.left] = ltype
+        self.context.exprs_dict[node.right] = rtype
+
         if rtype != IntType() or ltype != IntType():
             self.errors.append(CTypeError(node.row, node.col, BOPERATION_NOT_DEFINED %('Comparison', ltype.name, rtype.name)))
             return ErrorType()
@@ -296,6 +308,9 @@ class TypeChecker(State):
         ltype = self.visit(node.left, scope)
         rtype = self.visit(node.right, scope)
 
+        self.context.exprs_dict[node.left] = ltype
+        self.context.exprs_dict[node.right] = rtype
+
         if ltype in [IntType(), StringType(), BoolType()] and ltype != rtype:
             self.errors.append(CTypeError(node.row, node.col, f'Invalid comparison operation between {ltype.name} and {rtype.name}'))
 
@@ -304,6 +319,8 @@ class TypeChecker(State):
     @visitor.when(NotNode)
     def visit(self, node, scope):
         ltype = self.visit(node.expr, scope)
+        self.context.exprs_dict[node.expr] = ltype
+
         if ltype != BoolType():
             self.errors.append(CTypeError(node.row, node.col, UOPERATION_NOT_DEFINED %('Logical', ltype.name)))
             return ErrorType()
@@ -313,6 +330,7 @@ class TypeChecker(State):
     @visitor.when(BitNotNode)
     def visit(self, node, scope):
         ltype = self.visit(node.expr, scope)
+        self.context.exprs_dict[node.expr] = ltype
         if ltype != IntType():
             self.errors.append(CTypeError(node.row, node.col, UOPERATION_NOT_DEFINED %('Arithmetic', ltype.name)))
             return ErrorType()
