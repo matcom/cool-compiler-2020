@@ -528,7 +528,7 @@ class codeVisitor:
         cond_value = self.visit(node.cond, scope, sscope)
 
         if_then_label = self.get_label()
-        self.register_instruction(GotoNodeIL(cond_value, if_then_label))
+        self.register_instruction(GotoIfNodeIL(cond_value, if_then_label))
 
         else_value = self.visit(node.else_stm, scope, sscope)
         self.register_instruction(AssignNodeIL(result_local, else_value))
@@ -552,7 +552,7 @@ class codeVisitor:
         loop_end_label = self.get_label()
         self.register_instruction(LabelNodeIL(loop_init_label))
         pred_value = self.visit(node.cond, scope, sscope)
-        self.register_instruction(GotoNodeIL(pred_value, loop_body_label))
+        self.register_instruction(GotoIfNodeIL(pred_value, loop_body_label))
         self.register_instruction(GotoNodeIL(loop_end_label))
         
         self.register_instruction(LabelNodeIL(loop_body_label))

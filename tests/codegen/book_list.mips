@@ -1194,8 +1194,6 @@ sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
 sw $t0, 8($sp)
-la $t0, 0
-sw $t0, 12($sp)
 move $t0, $sp
 lw $t1, 12($t0)
 addi $sp, $sp, -4
@@ -1393,8 +1391,6 @@ sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
 sw $t0, 4($sp)
-la $t0, 0
-sw $t0, 8($sp)
 move $t0, $sp
 lw $t1, 8($t0)
 addi $sp, $sp, -4
@@ -1614,8 +1610,6 @@ sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
 sw $t0, 4($sp)
-la $t0, 0
-sw $t0, 8($sp)
 move $t0, $sp
 lw $t1, 8($t0)
 addi $sp, $sp, -4
@@ -1647,8 +1641,6 @@ sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
 sw $t0, 4($sp)
-la $t0, 0
-sw $t0, 8($sp)
 move $t0, $sp
 lw $t1, 8($t0)
 addi $sp, $sp, -4

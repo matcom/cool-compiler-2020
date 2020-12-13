@@ -760,8 +760,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 8($sp)
-la $t0, 0
-sw $t0, 12($sp)
 move $t0, $sp
 lw $t1, 12($t0)
 addi $sp, $sp, -4
@@ -1002,7 +1000,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 24($sp)
-b result_1
+lw $t0, 8($sp)
+lw $a0, 16($t0)
+bnez $a0, label_1
 la $t1, void
 sw $t1, 28($sp)
 lw $t0, 124($sp)
@@ -1252,7 +1252,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 56($sp)
-b result_9
+lw $t0, 40($sp)
+lw $a0, 16($t0)
+bnez $a0, label_4
 b label_5
 label_4:
 lw $t0, 16($sp)
@@ -1352,8 +1354,6 @@ lw $t1, 84($sp)
 sw $t1, 32($sp)
 b label_3
 label_5:
-la $t0, None
-sw $t0, 36($sp)
 lw $t1, 36($sp)
 sw $t1, 120($sp)
 li $a0, 20
@@ -1730,8 +1730,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 28($sp)
-la $t0, 0
-sw $t0, 32($sp)
 move $t0, $sp
 lw $t1, 32($t0)
 addi $sp, $sp, -4
@@ -1774,7 +1772,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 40($sp)
-b result_2
+lw $t0, 12($sp)
+lw $a0, 16($t0)
+bnez $a0, label_6
 li $a0, 20
 li $v0, 9
 syscall
@@ -1789,8 +1789,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 64($sp)
-la $t0, 0
-sw $t0, 68($sp)
 move $t0, $sp
 lw $t1, 68($t0)
 addi $sp, $sp, -4
@@ -1833,7 +1831,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 76($sp)
-b result_11
+lw $t0, 48($sp)
+lw $a0, 16($t0)
+bnez $a0, label_7
 li $a0, 20
 li $v0, 9
 syscall
@@ -1892,7 +1892,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 112($sp)
-b result_20
+lw $t0, 84($sp)
+lw $a0, 16($t0)
+bnez $a0, label_8
 li $a0, 20
 li $v0, 9
 syscall
@@ -1951,7 +1953,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 148($sp)
-b result_29
+lw $t0, 120($sp)
+lw $a0, 16($t0)
+bnez $a0, label_9
 li $a0, 20
 li $v0, 9
 syscall
@@ -2042,8 +2046,6 @@ sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
 sw $t0, 188($sp)
-la $t0, 0
-sw $t0, 192($sp)
 move $t0, $sp
 lw $t1, 192($t0)
 addi $sp, $sp, -4
@@ -2074,8 +2076,6 @@ sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
 sw $t0, 200($sp)
-la $t0, 0
-sw $t0, 204($sp)
 move $t0, $sp
 lw $t1, 204($t0)
 addi $sp, $sp, -4
@@ -2106,8 +2106,6 @@ sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
 sw $t0, 212($sp)
-la $t0, 0
-sw $t0, 216($sp)
 move $t0, $sp
 lw $t1, 216($t0)
 addi $sp, $sp, -4
@@ -2372,7 +2370,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 36($sp)
-b result_1
+lw $t0, 8($sp)
+lw $a0, 16($t0)
+bnez $a0, label_14
 la $t0, s_4
 sw $t0, 60($sp)
 li $a0, 20
@@ -2430,7 +2430,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 72($sp)
-b result_10
+lw $t0, 44($sp)
+lw $a0, 16($t0)
+bnez $a0, label_15
 la $t0, s_5
 sw $t0, 96($sp)
 li $a0, 20
@@ -2488,7 +2490,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 108($sp)
-b result_19
+lw $t0, 80($sp)
+lw $a0, 16($t0)
+bnez $a0, label_16
 la $t0, s_6
 sw $t0, 132($sp)
 li $a0, 20
@@ -2546,7 +2550,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 144($sp)
-b result_28
+lw $t0, 116($sp)
+lw $a0, 16($t0)
+bnez $a0, label_17
 la $t0, s_7
 sw $t0, 168($sp)
 li $a0, 20
@@ -2604,7 +2610,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 180($sp)
-b result_37
+lw $t0, 152($sp)
+lw $a0, 16($t0)
+bnez $a0, label_18
 la $t0, s_8
 sw $t0, 204($sp)
 li $a0, 20
@@ -2662,7 +2670,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 216($sp)
-b result_46
+lw $t0, 188($sp)
+lw $a0, 16($t0)
+bnez $a0, label_19
 la $t0, s_9
 sw $t0, 240($sp)
 li $a0, 20
@@ -2720,7 +2730,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 252($sp)
-b result_55
+lw $t0, 224($sp)
+lw $a0, 16($t0)
+bnez $a0, label_20
 la $t0, s_10
 sw $t0, 276($sp)
 li $a0, 20
@@ -2778,7 +2790,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 288($sp)
-b result_64
+lw $t0, 260($sp)
+lw $a0, 16($t0)
+bnez $a0, label_21
 la $t0, s_11
 sw $t0, 312($sp)
 li $a0, 20
@@ -2836,7 +2850,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 324($sp)
-b result_73
+lw $t0, 296($sp)
+lw $a0, 16($t0)
+bnez $a0, label_22
 la $t0, s_12
 sw $t0, 348($sp)
 li $a0, 20
@@ -2894,7 +2910,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 360($sp)
-b result_82
+lw $t0, 332($sp)
+lw $a0, 16($t0)
+bnez $a0, label_23
 move $t0, $sp
 lw $t1, 500($t0)
 addi $sp, $sp, -4
@@ -2920,8 +2938,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 368($sp)
-la $t0, 0
-sw $t0, 372($sp)
 move $t0, $sp
 lw $t1, 372($t0)
 addi $sp, $sp, -4
@@ -3237,8 +3253,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 488($sp)
-la $t0, 0
-sw $t0, 492($sp)
 move $t0, $sp
 lw $t1, 492($t0)
 addi $sp, $sp, -4
@@ -3273,8 +3287,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 24($sp)
-la $t0, 0
-sw $t0, 28($sp)
 move $t0, $sp
 lw $t1, 28($t0)
 addi $sp, $sp, -4
@@ -3317,7 +3329,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 36($sp)
-b result_1
+lw $t0, 8($sp)
+lw $a0, 16($t0)
+bnez $a0, label_34
 li $a0, 20
 li $v0, 9
 syscall
@@ -3376,7 +3390,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 72($sp)
-b result_10
+lw $t0, 44($sp)
+lw $a0, 16($t0)
+bnez $a0, label_35
 li $a0, 20
 li $v0, 9
 syscall
@@ -3435,7 +3451,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 108($sp)
-b result_19
+lw $t0, 80($sp)
+lw $a0, 16($t0)
+bnez $a0, label_36
 li $a0, 20
 li $v0, 9
 syscall
@@ -3494,7 +3512,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 144($sp)
-b result_28
+lw $t0, 116($sp)
+lw $a0, 16($t0)
+bnez $a0, label_37
 li $a0, 20
 li $v0, 9
 syscall
@@ -3553,7 +3573,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 180($sp)
-b result_37
+lw $t0, 152($sp)
+lw $a0, 16($t0)
+bnez $a0, label_38
 li $a0, 20
 li $v0, 9
 syscall
@@ -3612,7 +3634,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 216($sp)
-b result_46
+lw $t0, 188($sp)
+lw $a0, 16($t0)
+bnez $a0, label_39
 li $a0, 20
 li $v0, 9
 syscall
@@ -3671,7 +3695,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 252($sp)
-b result_55
+lw $t0, 224($sp)
+lw $a0, 16($t0)
+bnez $a0, label_40
 li $a0, 20
 li $v0, 9
 syscall
@@ -3730,7 +3756,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 288($sp)
-b result_64
+lw $t0, 260($sp)
+lw $a0, 16($t0)
+bnez $a0, label_41
 li $a0, 20
 li $v0, 9
 syscall
@@ -3789,7 +3817,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 324($sp)
-b result_73
+lw $t0, 296($sp)
+lw $a0, 16($t0)
+bnez $a0, label_42
 li $a0, 20
 li $v0, 9
 syscall
@@ -3848,7 +3878,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 360($sp)
-b result_82
+lw $t0, 332($sp)
+lw $a0, 16($t0)
+bnez $a0, label_43
 move $t0, $sp
 lw $t1, 500($t0)
 addi $sp, $sp, -4
@@ -4238,8 +4270,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 28($sp)
-la $t0, 0
-sw $t0, 32($sp)
 move $t0, $sp
 lw $t1, 32($t0)
 addi $sp, $sp, -4
@@ -4282,7 +4312,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 40($sp)
-b result_1
+lw $t0, 8($sp)
+lw $a0, 16($t0)
+bnez $a0, label_54
 li $a0, 20
 li $v0, 9
 syscall
@@ -4322,8 +4354,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 80($sp)
-la $t0, 0
-sw $t0, 84($sp)
 move $t0, $sp
 lw $t1, 84($t0)
 addi $sp, $sp, -4
@@ -4408,7 +4438,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 104($sp)
-b result_11
+lw $t0, 48($sp)
+lw $a0, 16($t0)
+bnez $a0, label_55
 li $a0, 20
 li $v0, 9
 syscall
@@ -4448,8 +4480,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 144($sp)
-la $t0, 0
-sw $t0, 148($sp)
 move $t0, $sp
 lw $t1, 148($t0)
 addi $sp, $sp, -4
@@ -4534,7 +4564,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 168($sp)
-b result_27
+lw $t0, 112($sp)
+lw $a0, 16($t0)
+bnez $a0, label_56
 move $t0, $sp
 lw $t1, 320($t0)
 addi $sp, $sp, -4
@@ -4860,8 +4892,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 304($sp)
-la $t0, 0
-sw $t0, 308($sp)
 move $t0, $sp
 lw $t1, 308($t0)
 addi $sp, $sp, -4
@@ -4896,8 +4926,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 4($sp)
-la $t0, 0
-sw $t0, 8($sp)
 move $t0, $sp
 lw $t1, 8($t0)
 addi $sp, $sp, -4
@@ -4936,8 +4964,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 28($sp)
-la $t0, 0
-sw $t0, 32($sp)
 move $t0, $sp
 lw $t1, 32($t0)
 addi $sp, $sp, -4
@@ -4983,7 +5009,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 64($sp)
-b result_11
+lw $t0, 48($sp)
+lw $a0, 16($t0)
+bnez $a0, label_61
 b label_62
 label_61:
 li $a0, 20
@@ -5197,8 +5225,6 @@ lw $t1, 144($sp)
 sw $t1, 40($sp)
 b label_60
 label_62:
-la $t0, None
-sw $t0, 44($sp)
 lw $t1, 44($sp)
 sw $t1, 180($sp)
 lw $t1, 180($sp)
@@ -5227,8 +5253,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 24($sp)
-la $t0, 0
-sw $t0, 28($sp)
 move $t0, $sp
 lw $t1, 28($t0)
 addi $sp, $sp, -4
@@ -5271,7 +5295,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 36($sp)
-b result_1
+lw $t0, 8($sp)
+lw $a0, 16($t0)
+bnez $a0, label_63
 li $a0, 20
 li $v0, 9
 syscall
@@ -5286,8 +5312,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 60($sp)
-la $t0, 0
-sw $t0, 64($sp)
 move $t0, $sp
 lw $t1, 64($t0)
 addi $sp, $sp, -4
@@ -5330,7 +5354,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 72($sp)
-b result_10
+lw $t0, 44($sp)
+lw $a0, 16($t0)
+bnez $a0, label_64
 la $t0, s_13
 sw $t0, 80($sp)
 li $a0, 20
@@ -5543,8 +5569,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 24($sp)
-la $t0, 0
-sw $t0, 28($sp)
 move $t0, $sp
 lw $t1, 28($t0)
 addi $sp, $sp, -4
@@ -5587,7 +5611,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 36($sp)
-b result_1
+lw $t0, 8($sp)
+lw $a0, 16($t0)
+bnez $a0, label_67
 li $a0, 20
 li $v0, 9
 syscall
@@ -5879,8 +5905,6 @@ sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
 sw $t0, 20($sp)
-la $t0, 0
-sw $t0, 24($sp)
 move $t0, $sp
 lw $t1, 24($t0)
 addi $sp, $sp, -4
@@ -6931,8 +6955,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 28($sp)
-la $t0, 0
-sw $t0, 32($sp)
 move $t0, $sp
 lw $t1, 32($t0)
 addi $sp, $sp, -4
@@ -6975,7 +6997,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 40($sp)
-b result_2
+lw $t0, 12($sp)
+lw $a0, 16($t0)
+bnez $a0, label_69
 li $a0, 20
 li $v0, 9
 syscall
@@ -6990,8 +7014,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 64($sp)
-la $t0, 0
-sw $t0, 68($sp)
 move $t0, $sp
 lw $t1, 68($t0)
 addi $sp, $sp, -4
@@ -7034,7 +7056,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 76($sp)
-b result_11
+lw $t0, 48($sp)
+lw $a0, 16($t0)
+bnez $a0, label_70
 li $a0, 20
 li $v0, 9
 syscall
@@ -7093,7 +7117,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 112($sp)
-b result_20
+lw $t0, 84($sp)
+lw $a0, 16($t0)
+bnez $a0, label_71
 li $a0, 20
 li $v0, 9
 syscall
@@ -7184,8 +7210,6 @@ sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
 sw $t0, 152($sp)
-la $t0, 0
-sw $t0, 156($sp)
 move $t0, $sp
 lw $t1, 156($t0)
 addi $sp, $sp, -4
@@ -7216,8 +7240,6 @@ sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
 sw $t0, 164($sp)
-la $t0, 0
-sw $t0, 168($sp)
 move $t0, $sp
 lw $t1, 168($t0)
 addi $sp, $sp, -4
@@ -7725,7 +7747,9 @@ label_83:
 lw $t0, 1140($sp)
 lw $t1, 28($t0)
 sw $t1, 20($sp)
-b flag_4
+lw $t0, 20($sp)
+lw $a0, 16($t0)
+bnez $a0, label_84
 b label_85
 label_84:
 la $t0, s_42
@@ -7812,7 +7836,9 @@ lw $t2, 12($t1)
 lw $t3, 40($t2)
 jal $t3
 sw $a1, 52($sp)
-b result_12
+lw $t0, 52($sp)
+lw $a0, 16($t0)
+bnez $a0, label_86
 la $t0, s_43
 sw $t0, 68($sp)
 li $a0, 20
@@ -7989,7 +8015,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 148($sp)
-b result_28
+lw $t0, 116($sp)
+lw $a0, 16($t0)
+bnez $a0, label_88
 lw $t0, 1140($sp)
 lw $t1, 16($t0)
 sw $t1, 172($sp)
@@ -8050,7 +8078,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 188($sp)
-b result_38
+lw $t0, 156($sp)
+lw $a0, 16($t0)
+bnez $a0, label_89
 lw $t0, 1140($sp)
 lw $t1, 16($t0)
 sw $t1, 212($sp)
@@ -8111,7 +8141,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 228($sp)
-b result_48
+lw $t0, 196($sp)
+lw $a0, 16($t0)
+bnez $a0, label_90
 lw $t0, 1140($sp)
 lw $t1, 16($t0)
 sw $t1, 252($sp)
@@ -8172,7 +8204,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 268($sp)
-b result_58
+lw $t0, 236($sp)
+lw $a0, 16($t0)
+bnez $a0, label_91
 lw $t0, 1140($sp)
 lw $t1, 16($t0)
 sw $t1, 292($sp)
@@ -8233,7 +8267,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 308($sp)
-b result_68
+lw $t0, 276($sp)
+lw $a0, 16($t0)
+bnez $a0, label_92
 lw $t0, 1140($sp)
 lw $t1, 16($t0)
 sw $t1, 332($sp)
@@ -8294,7 +8330,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 348($sp)
-b result_78
+lw $t0, 316($sp)
+lw $a0, 16($t0)
+bnez $a0, label_93
 lw $t0, 1140($sp)
 lw $t1, 16($t0)
 sw $t1, 372($sp)
@@ -8355,7 +8393,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 388($sp)
-b result_88
+lw $t0, 356($sp)
+lw $a0, 16($t0)
+bnez $a0, label_94
 lw $t0, 1140($sp)
 lw $t1, 16($t0)
 sw $t1, 412($sp)
@@ -8416,7 +8456,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 428($sp)
-b result_98
+lw $t0, 396($sp)
+lw $a0, 16($t0)
+bnez $a0, label_95
 lw $t0, 1140($sp)
 lw $t1, 16($t0)
 sw $t1, 452($sp)
@@ -8477,7 +8519,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 468($sp)
-b result_108
+lw $t0, 436($sp)
+lw $a0, 16($t0)
+bnez $a0, label_96
 lw $t0, 1140($sp)
 lw $t1, 16($t0)
 sw $t1, 492($sp)
@@ -8538,7 +8582,9 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
 sw $a1, 508($sp)
-b result_118
+lw $t0, 476($sp)
+lw $a0, 16($t0)
+bnez $a0, label_97
 li $a0, 20
 li $v0, 9
 syscall
@@ -8608,8 +8654,6 @@ sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
 sw $t0, 536($sp)
-la $t0, 0
-sw $t0, 540($sp)
 move $t0, $sp
 lw $t1, 540($t0)
 addi $sp, $sp, -4
@@ -9130,7 +9174,9 @@ lw $t2, 12($t1)
 lw $t3, 40($t2)
 jal $t3
 sw $a1, 776($sp)
-b result_193
+lw $t0, 776($sp)
+lw $a0, 16($t0)
+bnez $a0, label_102
 la $t0, s_42
 sw $t0, 800($sp)
 li $a0, 20
@@ -9751,8 +9797,6 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 1044($sp)
-la $t0, 0
-sw $t0, 1048($sp)
 move $t0, $sp
 lw $t1, 1048($t0)
 addi $sp, $sp, -4
@@ -9968,8 +10012,6 @@ sw $t1, 112($sp)
 label_114:
 b label_83
 label_85:
-la $t0, None
-sw $t0, 16($sp)
 lw $a1, 16($sp)
 lw $ra, 0($sp)
 addi $sp, $sp, 1144
