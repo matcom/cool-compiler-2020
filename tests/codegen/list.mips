@@ -628,7 +628,7 @@ move $t0, $sp
 lw $t1, 8($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-jal None_init
+jal Object_init
 sw $a1, 4($sp)
 move $a1, $zero
 lw $ra, 0($sp)
