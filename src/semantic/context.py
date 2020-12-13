@@ -62,19 +62,19 @@ class Context:
             raise ContextError(f'Type "{name}" is not defined.')
 
     def set_type_tags(self, node='Object', tag=0):
-        # print('------Set-----')
-        # print('type: ', node)
-        # print('tag: ', tag)
-        # self.types[node].tag = tag
-        # for i,t in enumerate(self.graph[node]):
-        #     self.set_type_tags(t, tag + i + 1)
+        print('------Set-----')
+        print('type: ', node)
+        print('tag: ', tag)
+        self.types[node].tag = tag
+        for i,t in enumerate(self.graph[node]):
+            self.set_type_tags(t, tag + i + 1)
         # print('Done type tags')
-        self.types['Object'].tag = 0
-        self.types['IO'].tag = 1
-        self.types['Main'].tag = 2
-        self.types['String'].tag = 2
-        self.types['Bool'].tag = 3
-        self.types['Int'].tag = 4
+        # self.types['Object'].tag = 0
+        # self.types['IO'].tag = 1
+        # self.types['Main'].tag = 2
+        # self.types['String'].tag = 2
+        # self.types['Bool'].tag = 3
+        # self.types['Int'].tag = 4
             
     def set_type_max_tags(self, node='Object'):
         if not self.graph[node]:
@@ -84,7 +84,10 @@ class Context:
                 self.set_type_max_tags(t)
             maximum = 0
             for t in self.graph[node]:
-                maximum = max(maximum, self.types[t].max_tag)
+                try:
+                    maximum = max(maximum, self.types[t].max_tag)
+                except:
+                    maximum = 0
             self.types[node].max_tag = maximum
         # print('Done type max tags')
     def __str__(self):

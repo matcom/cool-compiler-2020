@@ -141,8 +141,8 @@ class MIPS:
     def visit(self, node):
         offset = self.var_offset[self.current_function.name][node.dest]
         if node.source:
-            if isinstance(node.right_expr, int):
-                self.text += f'li $t1, {node.right_expr}\n'
+            if isinstance(node.source, int):
+                self.text += f'li $t1, {node.source}\n'
             else:
                 right_offset = self.var_offset[self.current_function.name][node.source]
                 self.text += f'lw $t1, {right_offset}($sp)\n'
@@ -204,6 +204,12 @@ class MIPS:
 
     @visitor.when(SetAttribNodeIL)
     def visit(self, node):
+        print('----------------::::::')
+        print('----------------::::::',node.obj)
+        # print('----------------::::::',node.dest)
+        print('----------------::::::',node.attr)
+        print('----------------::::::',node.attr_type)
+        # print('----------------::::::',self.attr_offset[node.attr_type][node.attr])
         self_offset = self.var_offset[self.current_function.name][node.obj]
         self.text += f'lw $t0, {self_offset}($sp)\n'  #get self address
 
