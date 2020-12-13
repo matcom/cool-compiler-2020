@@ -1,0 +1,3379 @@
+.TYPES
+type Object {
+	
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+}
+type Int {
+	attribute value
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+}
+type String {
+	attribute value
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method length : String.length
+	method concat : String.concat
+	method substr : String.substr
+}
+type Bool {
+	attribute value
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+}
+type IO {
+	
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
+}
+type Board {
+	attribute rows
+	attribute columns
+	attribute board_size
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
+	method size_of_board : Board.size_of_board
+	method board_init : Board.board_init
+}
+type CellularAutomaton {
+	attribute rows
+	attribute columns
+	attribute board_size
+	attribute population_map
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
+	method size_of_board : Board.size_of_board
+	method board_init : Board.board_init
+	method init : CellularAutomaton.init
+	method print : CellularAutomaton.print
+	method num_cells : CellularAutomaton.num_cells
+	method cell : CellularAutomaton.cell
+	method north : CellularAutomaton.north
+	method south : CellularAutomaton.south
+	method east : CellularAutomaton.east
+	method west : CellularAutomaton.west
+	method northwest : CellularAutomaton.northwest
+	method northeast : CellularAutomaton.northeast
+	method southeast : CellularAutomaton.southeast
+	method southwest : CellularAutomaton.southwest
+	method neighbors : CellularAutomaton.neighbors
+	method cell_at_next_evolution : CellularAutomaton.cell_at_next_evolution
+	method evolve : CellularAutomaton.evolve
+	method option : CellularAutomaton.option
+	method prompt : CellularAutomaton.prompt
+	method prompt2 : CellularAutomaton.prompt2
+}
+type Main {
+	attribute rows
+	attribute columns
+	attribute board_size
+	attribute population_map
+	attribute cells
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
+	method size_of_board : Board.size_of_board
+	method board_init : Board.board_init
+	method init : CellularAutomaton.init
+	method print : CellularAutomaton.print
+	method num_cells : CellularAutomaton.num_cells
+	method cell : CellularAutomaton.cell
+	method north : CellularAutomaton.north
+	method south : CellularAutomaton.south
+	method east : CellularAutomaton.east
+	method west : CellularAutomaton.west
+	method northwest : CellularAutomaton.northwest
+	method northeast : CellularAutomaton.northeast
+	method southeast : CellularAutomaton.southeast
+	method southwest : CellularAutomaton.southwest
+	method neighbors : CellularAutomaton.neighbors
+	method cell_at_next_evolution : CellularAutomaton.cell_at_next_evolution
+	method evolve : CellularAutomaton.evolve
+	method option : CellularAutomaton.option
+	method prompt : CellularAutomaton.prompt
+	method prompt2 : CellularAutomaton.prompt2
+	method main : Main.main
+}
+
+.DATA
+s_0: Abort called from class 
+s_1: 
+
+empty_str: 
+s_3: \n
+s_4:  
+s_5: X
+s_6: -
+s_7: \nPlease chose a number:\n
+s_8: \t1: A cross\n
+s_9: \t2: A slash from the upper left to lower right\n
+s_10: \t3: A slash from the upper right to lower left\n
+s_11: \t4: An X\n
+s_12: \t5: A greater than sign \n
+s_13: \t6: A less than sign\n
+s_14: \t7: Two greater than signs\n
+s_15: \t8: Two less than signs\n
+s_16: \t9: A 'V'\n
+s_17: \t10: An inverse 'V'\n
+s_18: \t11: Numbers 9 and 10 combined\n
+s_19: \t12: A full grid\n
+s_20: \t13: A 'T'\n
+s_21: \t14: A plus '+'\n
+s_22: \t15: A 'W'\n
+s_23: \t16: An 'M'\n
+s_24: \t17: An 'E'\n
+s_25: \t18: A '3'\n
+s_26: \t19: An 'O'\n
+s_27: \t20: An '8'\n
+s_28: \t21: An 'S'\n
+s_29: Your choice => 
+s_30:                          
+s_31:  XXXX   X    XX    X   XXXX 
+s_32:  XX X  XX  X XX X  XX  X XX 
+s_33:  XX X  XX  X XX 
+s_34: XXX    X   X  X    X   XXXX 
+s_35: XXXXX   X   XXXXX   X   XXXX
+s_36:   X X   X X X X     X
+s_37: X     X X X X   X X  
+s_38:   X    X  XXXXX  X    X  
+s_39: XXXXX  X    X    X    X  
+s_40: XXXXXXXXXXXXXXXXXXXXXXXXX
+s_41: X X X X X X X X
+s_42:   X   X X X   X
+s_43: X   X X X   X  
+s_44:  X  XX  X  X  X     
+s_45: X  X  X  XX  X      
+s_46:     X   X   X     X     X
+s_47: X     X     X   X   X    
+s_48: X   X X X   X   X X X   X
+s_49: X     X     X     X     X
+s_50:     X   X   X   X   X    
+s_51:  XX  XXXX XXXX  XX  
+s_52: Would you like to continue with the next generation? \n
+s_53: Please use lowercase y or n for your answer [y]: 
+s_54: n
+s_55: \n\n
+s_56: Would you like to choose a background pattern? \n
+s_57: Please use lowercase y or n for your answer [n]: 
+s_58: y
+s_59: Welcome to the Game of Life.\n
+s_60: There are many initial states to choose from. \n
+
+.CODE
+function main {
+	
+
+	LOCAL instance_0
+	LOCAL result_1
+
+	instance_0 = ALLOCATE Main
+	result_1 = CALL Main_init
+	result_1 = CALL Main.main
+	
+ RETURN 
+}
+function Object_init {
+	PARAM self
+
+	
+
+	
+ RETURN 
+}
+function Object.abort {
+	PARAM self
+
+	LOCAL msg_0
+	LOCAL type_name_1
+	LOCAL eol_2
+
+	msg_0 = LOAD s_0
+	PRINT_STR msg_0
+	type_name_1 = TYPEOF self
+	PRINT_STR type_name_1
+	eol_2 = LOAD s_1
+	PRINT_STR eol_2
+	HALT
+}
+function Object.type_name {
+	PARAM self
+
+	LOCAL type_name_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	type_name_0 = TYPEOF self
+	instance_1 = ALLOCATE String
+	result_init_2 = CALL String_init
+	
+ RETURN instance_1
+}
+function Object.copy {
+	PARAM self
+
+	LOCAL copy_0
+
+	copy_0 = COPY self
+	
+ RETURN copy_0
+}
+function IO_init {
+	PARAM self
+
+	
+
+	
+ RETURN 
+}
+function IO.out_string {
+	PARAM self
+	PARAM x
+
+	LOCAL v_0
+
+	v_0 = GetAttr x value 
+	PRINT_STR v_0
+	
+ RETURN self
+}
+function IO.out_int {
+	PARAM self
+	PARAM x
+
+	LOCAL v_0
+
+	v_0 = GetAttr x value 
+	PRINT_INT v_0
+	
+ RETURN self
+}
+function IO.in_string {
+	PARAM self
+
+	LOCAL read_str_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	read_str_0 = READ STR
+	instance_1 = ALLOCATE String
+	result_init_2 = CALL String_init
+	
+ RETURN instance_1
+}
+function IO.in_int {
+	PARAM self
+
+	LOCAL read_int_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	read_int_0 = READ INT
+	instance_1 = ALLOCATE Int
+	result_init_2 = CALL Int_init
+	
+ RETURN instance_1
+}
+function String_init {
+	PARAM self
+	PARAM v
+
+	
+
+	SetAttr self value v
+	
+ RETURN 
+}
+function String.length {
+	PARAM self
+
+	LOCAL length_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	length_0 = LENGTH self
+	instance_1 = ALLOCATE Int
+	result_init_2 = CALL Int_init
+	
+ RETURN instance_1
+}
+function String.concat {
+	PARAM self
+	PARAM s
+
+	LOCAL str1_0
+	LOCAL len1_1
+	LOCAL str2_2
+	LOCAL len2_3
+	LOCAL local_len1_4
+	LOCAL local_len2_5
+	LOCAL concat_6
+	LOCAL instance_7
+	LOCAL result_init_8
+
+	str1_0 = GetAttr self value 
+	len1_1 = CALL String.length
+	str2_2 = GetAttr s value 
+	len2_3 = CALL String.length
+	local_len1_4 = GetAttr len1_1 value 
+	local_len2_5 = GetAttr len2_3 value 
+	concat_6 = CONCAT str1_0  str2_2
+	instance_7 = ALLOCATE String
+	result_init_8 = CALL String_init
+	
+ RETURN instance_7
+}
+function String.substr {
+	PARAM self
+	PARAM i
+	PARAM l
+
+	LOCAL i_value_0
+	LOCAL l_value_1
+	LOCAL subs_result_2
+	LOCAL instance_3
+	LOCAL result_init_4
+
+	i_value_0 = GetAttr i value 
+	l_value_1 = GetAttr l value 
+	subs_result_2 = SUBSTR i_value_0  l_value_1  self
+	instance_3 = ALLOCATE String
+	result_init_4 = CALL String_init
+	
+ RETURN instance_3
+}
+function Bool_init {
+	PARAM self
+	PARAM v
+
+	
+
+	SetAttr self value v
+	
+ RETURN 
+}
+function Int_init {
+	PARAM self
+	PARAM v
+
+	
+
+	SetAttr self value v
+	
+ RETURN 
+}
+function String_equals {
+	PARAM str1
+	PARAM str2
+
+	LOCAL str1_0
+	LOCAL str2_1
+	LOCAL comparison_result_2
+
+	str1_0 = GetAttr str1 value 
+	str2_1 = GetAttr str2 value 
+	comparison_result_2 = str1_0 = str2_1
+	
+ RETURN comparison_result_2
+}
+function Board_init {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL instance_1
+	LOCAL value_2
+	LOCAL result_init_3
+	LOCAL instance_4
+	LOCAL value_5
+	LOCAL result_init_6
+	LOCAL instance_7
+	LOCAL value_8
+	LOCAL result_init_9
+
+	result_0 = CALL IO_init
+	
+ RETURN 
+	instance_1 = ALLOCATE Int
+	value_2 = LOAD 0
+	result_init_3 = CALL Int_init
+	SetAttr self rows instance_1
+	instance_4 = ALLOCATE Int
+	value_5 = LOAD 0
+	result_init_6 = CALL Int_init
+	SetAttr self columns instance_4
+	instance_7 = ALLOCATE Int
+	value_8 = LOAD 0
+	result_init_9 = CALL Int_init
+	SetAttr self board_size instance_7
+}
+function Board.size_of_board {
+	PARAM self
+	PARAM initial
+
+	LOCAL result_0
+
+	result_0 = VCALL String length 
+	
+ RETURN result_0
+}
+function Board.board_init {
+	PARAM self
+	PARAM start
+
+	LOCAL result_0
+	LOCAL size_1
+	LOCAL result_2
+	LOCAL result_3
+	LOCAL op_4
+	LOCAL left_5
+	LOCAL right_6
+	LOCAL instance_7
+	LOCAL value_8
+	LOCAL result_init_9
+	LOCAL result_init_10
+	LOCAL result_11
+	LOCAL result_12
+	LOCAL op_13
+	LOCAL left_14
+	LOCAL right_15
+	LOCAL instance_16
+	LOCAL value_17
+	LOCAL result_init_18
+	LOCAL result_init_19
+	LOCAL result_20
+	LOCAL result_21
+	LOCAL op_22
+	LOCAL left_23
+	LOCAL right_24
+	LOCAL instance_25
+	LOCAL value_26
+	LOCAL result_init_27
+	LOCAL result_init_28
+	LOCAL result_29
+	LOCAL result_30
+	LOCAL op_31
+	LOCAL left_32
+	LOCAL right_33
+	LOCAL instance_34
+	LOCAL value_35
+	LOCAL result_init_36
+	LOCAL result_init_37
+	LOCAL result_38
+	LOCAL result_39
+	LOCAL op_40
+	LOCAL left_41
+	LOCAL right_42
+	LOCAL instance_43
+	LOCAL value_44
+	LOCAL result_init_45
+	LOCAL result_init_46
+	LOCAL result_47
+	LOCAL result_48
+	LOCAL op_49
+	LOCAL left_50
+	LOCAL right_51
+	LOCAL instance_52
+	LOCAL value_53
+	LOCAL result_init_54
+	LOCAL result_init_55
+	LOCAL instance_56
+	LOCAL value_57
+	LOCAL result_init_58
+	LOCAL result_59
+	LOCAL instance_60
+	LOCAL value_61
+	LOCAL result_init_62
+	LOCAL result_63
+	LOCAL result_64
+	LOCAL instance_65
+	LOCAL value_66
+	LOCAL result_init_67
+	LOCAL result_68
+	LOCAL instance_69
+	LOCAL value_70
+	LOCAL result_init_71
+	LOCAL result_72
+	LOCAL result_73
+	LOCAL instance_74
+	LOCAL value_75
+	LOCAL result_init_76
+	LOCAL result_77
+	LOCAL instance_78
+	LOCAL value_79
+	LOCAL result_init_80
+	LOCAL result_81
+	LOCAL result_82
+	LOCAL instance_83
+	LOCAL value_84
+	LOCAL result_init_85
+	LOCAL result_86
+	LOCAL instance_87
+	LOCAL value_88
+	LOCAL result_init_89
+	LOCAL result_90
+	LOCAL result_91
+	LOCAL instance_92
+	LOCAL value_93
+	LOCAL result_init_94
+	LOCAL result_95
+	LOCAL instance_96
+	LOCAL value_97
+	LOCAL result_init_98
+	LOCAL result_99
+	LOCAL result_100
+	LOCAL instance_101
+	LOCAL value_102
+	LOCAL result_init_103
+	LOCAL result_104
+	LOCAL instance_105
+	LOCAL value_106
+	LOCAL result_init_107
+	LOCAL result_108
+	LOCAL result_109
+	LOCAL instance_110
+	LOCAL value_111
+	LOCAL result_init_112
+	LOCAL result_113
+	LOCAL instance_114
+	LOCAL value_115
+	LOCAL result_init_116
+	LOCAL result_117
+	LOCAL result_118
+	LOCAL let_result_119
+
+	result_0 = VCALL Board size_of_board 
+	size_1 = result_0
+	instance_7 = ALLOCATE Int
+	value_8 = LOAD 15
+	result_init_9 = CALL Int_init
+	left_5 = GetAttr size_1 value 
+	right_6 = GetAttr instance_7 value 
+	op_4 = left_5 = right_6
+	result_3 = ALLOCATE Bool
+	result_init_10 = CALL Bool_init
+	IF result_3 GOTO label_1
+	instance_16 = ALLOCATE Int
+	value_17 = LOAD 16
+	result_init_18 = CALL Int_init
+	left_14 = GetAttr size_1 value 
+	right_15 = GetAttr instance_16 value 
+	op_13 = left_14 = right_15
+	result_12 = ALLOCATE Bool
+	result_init_19 = CALL Bool_init
+	IF result_12 GOTO label_2
+	instance_25 = ALLOCATE Int
+	value_26 = LOAD 20
+	result_init_27 = CALL Int_init
+	left_23 = GetAttr size_1 value 
+	right_24 = GetAttr instance_25 value 
+	op_22 = left_23 = right_24
+	result_21 = ALLOCATE Bool
+	result_init_28 = CALL Bool_init
+	IF result_21 GOTO label_3
+	instance_34 = ALLOCATE Int
+	value_35 = LOAD 21
+	result_init_36 = CALL Int_init
+	left_32 = GetAttr size_1 value 
+	right_33 = GetAttr instance_34 value 
+	op_31 = left_32 = right_33
+	result_30 = ALLOCATE Bool
+	result_init_37 = CALL Bool_init
+	IF result_30 GOTO label_4
+	instance_43 = ALLOCATE Int
+	value_44 = LOAD 25
+	result_init_45 = CALL Int_init
+	left_41 = GetAttr size_1 value 
+	right_42 = GetAttr instance_43 value 
+	op_40 = left_41 = right_42
+	result_39 = ALLOCATE Bool
+	result_init_46 = CALL Bool_init
+	IF result_39 GOTO label_5
+	instance_52 = ALLOCATE Int
+	value_53 = LOAD 28
+	result_init_54 = CALL Int_init
+	left_50 = GetAttr size_1 value 
+	right_51 = GetAttr instance_52 value 
+	op_49 = left_50 = right_51
+	result_48 = ALLOCATE Bool
+	result_init_55 = CALL Bool_init
+	IF result_48 GOTO label_6
+	instance_56 = ALLOCATE Int
+	value_57 = LOAD 5
+	result_init_58 = CALL Int_init
+	SetAttr self rows instance_56
+	instance_60 = ALLOCATE Int
+	value_61 = LOAD 5
+	result_init_62 = CALL Int_init
+	SetAttr self columns instance_60
+	SetAttr self board_size size_1
+	result_47 = size_1
+	GOTO label_7
+	LABEL label_6
+	instance_65 = ALLOCATE Int
+	value_66 = LOAD 7
+	result_init_67 = CALL Int_init
+	SetAttr self rows instance_65
+	instance_69 = ALLOCATE Int
+	value_70 = LOAD 4
+	result_init_71 = CALL Int_init
+	SetAttr self columns instance_69
+	SetAttr self board_size size_1
+	result_47 = size_1
+	LABEL label_7
+	result_38 = result_47
+	GOTO label_8
+	LABEL label_5
+	instance_74 = ALLOCATE Int
+	value_75 = LOAD 5
+	result_init_76 = CALL Int_init
+	SetAttr self rows instance_74
+	instance_78 = ALLOCATE Int
+	value_79 = LOAD 5
+	result_init_80 = CALL Int_init
+	SetAttr self columns instance_78
+	SetAttr self board_size size_1
+	result_38 = size_1
+	LABEL label_8
+	result_29 = result_38
+	GOTO label_9
+	LABEL label_4
+	instance_83 = ALLOCATE Int
+	value_84 = LOAD 3
+	result_init_85 = CALL Int_init
+	SetAttr self rows instance_83
+	instance_87 = ALLOCATE Int
+	value_88 = LOAD 7
+	result_init_89 = CALL Int_init
+	SetAttr self columns instance_87
+	SetAttr self board_size size_1
+	result_29 = size_1
+	LABEL label_9
+	result_20 = result_29
+	GOTO label_10
+	LABEL label_3
+	instance_92 = ALLOCATE Int
+	value_93 = LOAD 4
+	result_init_94 = CALL Int_init
+	SetAttr self rows instance_92
+	instance_96 = ALLOCATE Int
+	value_97 = LOAD 5
+	result_init_98 = CALL Int_init
+	SetAttr self columns instance_96
+	SetAttr self board_size size_1
+	result_20 = size_1
+	LABEL label_10
+	result_11 = result_20
+	GOTO label_11
+	LABEL label_2
+	instance_101 = ALLOCATE Int
+	value_102 = LOAD 4
+	result_init_103 = CALL Int_init
+	SetAttr self rows instance_101
+	instance_105 = ALLOCATE Int
+	value_106 = LOAD 4
+	result_init_107 = CALL Int_init
+	SetAttr self columns instance_105
+	SetAttr self board_size size_1
+	result_11 = size_1
+	LABEL label_11
+	result_2 = result_11
+	GOTO label_12
+	LABEL label_1
+	instance_110 = ALLOCATE Int
+	value_111 = LOAD 3
+	result_init_112 = CALL Int_init
+	SetAttr self rows instance_110
+	instance_114 = ALLOCATE Int
+	value_115 = LOAD 5
+	result_init_116 = CALL Int_init
+	SetAttr self columns instance_114
+	SetAttr self board_size size_1
+	result_2 = size_1
+	LABEL label_12
+	let_result_119 = self
+	
+ RETURN let_result_119
+}
+function CellularAutomaton_init {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL instance_1
+	LOCAL value_2
+	LOCAL result_init_3
+
+	result_0 = CALL Board_init
+	
+ RETURN 
+	instance_1 = ALLOCATE String
+	value_2 = LOAD empty_str
+	result_init_3 = CALL String_init
+	SetAttr self population_map instance_1
+}
+function CellularAutomaton.init {
+	PARAM self
+	PARAM map
+
+	LOCAL result_0
+	LOCAL result_1
+
+	SetAttr self population_map map
+	result_1 = VCALL CellularAutomaton board_init 
+	
+ RETURN self
+}
+function CellularAutomaton.print {
+	PARAM self
+
+	LOCAL instance_0
+	LOCAL value_1
+	LOCAL result_init_2
+	LOCAL i_3
+	LOCAL board_size_4
+	LOCAL num_5
+	LOCAL result_6
+	LOCAL internal_7
+	LOCAL instance_8
+	LOCAL result_init_9
+	LOCAL result_10
+	LOCAL result_11
+	LOCAL op_12
+	LOCAL left_13
+	LOCAL right_14
+	LOCAL result_init_15
+	LOCAL result_16
+	LOCAL result_17
+	LOCAL population_map_18
+	LOCAL columns_19
+	LOCAL result_20
+	LOCAL internal_21
+	LOCAL instance_22
+	LOCAL result_init_23
+	LOCAL result_24
+	LOCAL op_25
+	LOCAL left_26
+	LOCAL right_27
+	LOCAL columns_28
+	LOCAL result_init_29
+	LOCAL result_30
+	LOCAL result_31
+	LOCAL internal_32
+	LOCAL instance_33
+	LOCAL result_init_34
+	LOCAL let_result_35
+	LOCAL let_result_36
+
+	instance_0 = ALLOCATE Int
+	value_1 = LOAD 0
+	result_init_2 = CALL Int_init
+	i_3 = instance_0
+	board_size_4 = GetAttr self board_size 
+	num_5 = board_size_4
+	internal_7 = LOAD s_3
+	instance_8 = ALLOCATE String
+	result_init_9 = CALL String_init
+	result_6 = VCALL CellularAutomaton out_string 
+	LABEL label_13
+	left_13 = GetAttr i_3 value 
+	right_14 = GetAttr num_5 value 
+	op_12 = left_13 < right_14
+	result_11 = ALLOCATE Bool
+	result_init_15 = CALL Bool_init
+	IF result_11 GOTO label_14
+	GOTO label_15
+	LABEL label_14
+	population_map_18 = GetAttr self population_map 
+	columns_19 = GetAttr self columns 
+	result_17 = VCALL String substr 
+	result_16 = VCALL CellularAutomaton out_string 
+	internal_21 = LOAD s_3
+	instance_22 = ALLOCATE String
+	result_init_23 = CALL String_init
+	result_20 = VCALL CellularAutomaton out_string 
+	columns_28 = GetAttr self columns 
+	left_26 = GetAttr i_3 value 
+	right_27 = GetAttr columns_28 value 
+	op_25 = left_26 + right_27
+	result_24 = ALLOCATE Int
+	result_init_29 = CALL Int_init
+	i_3 = result_24
+	GOTO label_13
+	LABEL label_15
+	result_10 = LOAD None
+	internal_32 = LOAD s_3
+	instance_33 = ALLOCATE String
+	result_init_34 = CALL String_init
+	result_31 = VCALL CellularAutomaton out_string 
+	let_result_35 = self
+	let_result_36 = let_result_35
+	
+ RETURN let_result_36
+}
+function CellularAutomaton.num_cells {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL population_map_1
+
+	population_map_1 = GetAttr self population_map 
+	result_0 = VCALL String length 
+	
+ RETURN result_0
+}
+function CellularAutomaton.cell {
+	PARAM self
+	PARAM position
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL op_2
+	LOCAL left_3
+	LOCAL right_4
+	LOCAL result_5
+	LOCAL op_6
+	LOCAL left_7
+	LOCAL right_8
+	LOCAL board_size_9
+	LOCAL instance_10
+	LOCAL value_11
+	LOCAL result_init_12
+	LOCAL result_init_13
+	LOCAL result_init_14
+	LOCAL result_15
+	LOCAL population_map_16
+	LOCAL instance_17
+	LOCAL value_18
+	LOCAL result_init_19
+	LOCAL internal_20
+	LOCAL instance_21
+	LOCAL result_init_22
+
+	board_size_9 = GetAttr self board_size 
+	instance_10 = ALLOCATE Int
+	value_11 = LOAD 1
+	result_init_12 = CALL Int_init
+	left_7 = GetAttr board_size_9 value 
+	right_8 = GetAttr instance_10 value 
+	op_6 = left_7 - right_8
+	result_5 = ALLOCATE Int
+	result_init_13 = CALL Int_init
+	left_3 = GetAttr result_5 value 
+	right_4 = GetAttr position value 
+	op_2 = left_3 < right_4
+	result_1 = ALLOCATE Bool
+	result_init_14 = CALL Bool_init
+	IF result_1 GOTO label_16
+	population_map_16 = GetAttr self population_map 
+	instance_17 = ALLOCATE Int
+	value_18 = LOAD 1
+	result_init_19 = CALL Int_init
+	result_15 = VCALL String substr 
+	result_0 = result_15
+	GOTO label_17
+	LABEL label_16
+	internal_20 = LOAD s_4
+	instance_21 = ALLOCATE String
+	result_init_22 = CALL String_init
+	result_0 = instance_21
+	LABEL label_17
+	
+ RETURN result_0
+}
+function CellularAutomaton.north {
+	PARAM self
+	PARAM position
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL op_2
+	LOCAL left_3
+	LOCAL right_4
+	LOCAL result_5
+	LOCAL op_6
+	LOCAL left_7
+	LOCAL right_8
+	LOCAL columns_9
+	LOCAL result_init_10
+	LOCAL instance_11
+	LOCAL value_12
+	LOCAL result_init_13
+	LOCAL result_init_14
+	LOCAL result_15
+	LOCAL result_16
+	LOCAL op_17
+	LOCAL left_18
+	LOCAL right_19
+	LOCAL columns_20
+	LOCAL result_init_21
+	LOCAL internal_22
+	LOCAL instance_23
+	LOCAL result_init_24
+
+	columns_9 = GetAttr self columns 
+	left_7 = GetAttr position value 
+	right_8 = GetAttr columns_9 value 
+	op_6 = left_7 - right_8
+	result_5 = ALLOCATE Int
+	result_init_10 = CALL Int_init
+	instance_11 = ALLOCATE Int
+	value_12 = LOAD 0
+	result_init_13 = CALL Int_init
+	left_3 = GetAttr result_5 value 
+	right_4 = GetAttr instance_11 value 
+	op_2 = left_3 < right_4
+	result_1 = ALLOCATE Bool
+	result_init_14 = CALL Bool_init
+	IF result_1 GOTO label_18
+	columns_20 = GetAttr self columns 
+	left_18 = GetAttr position value 
+	right_19 = GetAttr columns_20 value 
+	op_17 = left_18 - right_19
+	result_16 = ALLOCATE Int
+	result_init_21 = CALL Int_init
+	result_15 = VCALL CellularAutomaton cell 
+	result_0 = result_15
+	GOTO label_19
+	LABEL label_18
+	internal_22 = LOAD s_4
+	instance_23 = ALLOCATE String
+	result_init_24 = CALL String_init
+	result_0 = instance_23
+	LABEL label_19
+	
+ RETURN result_0
+}
+function CellularAutomaton.south {
+	PARAM self
+	PARAM position
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL op_2
+	LOCAL left_3
+	LOCAL right_4
+	LOCAL board_size_5
+	LOCAL result_6
+	LOCAL op_7
+	LOCAL left_8
+	LOCAL right_9
+	LOCAL columns_10
+	LOCAL result_init_11
+	LOCAL result_init_12
+	LOCAL result_13
+	LOCAL result_14
+	LOCAL op_15
+	LOCAL left_16
+	LOCAL right_17
+	LOCAL columns_18
+	LOCAL result_init_19
+	LOCAL internal_20
+	LOCAL instance_21
+	LOCAL result_init_22
+
+	board_size_5 = GetAttr self board_size 
+	columns_10 = GetAttr self columns 
+	left_8 = GetAttr position value 
+	right_9 = GetAttr columns_10 value 
+	op_7 = left_8 + right_9
+	result_6 = ALLOCATE Int
+	result_init_11 = CALL Int_init
+	left_3 = GetAttr board_size_5 value 
+	right_4 = GetAttr result_6 value 
+	op_2 = left_3 < right_4
+	result_1 = ALLOCATE Bool
+	result_init_12 = CALL Bool_init
+	IF result_1 GOTO label_20
+	columns_18 = GetAttr self columns 
+	left_16 = GetAttr position value 
+	right_17 = GetAttr columns_18 value 
+	op_15 = left_16 + right_17
+	result_14 = ALLOCATE Int
+	result_init_19 = CALL Int_init
+	result_13 = VCALL CellularAutomaton cell 
+	result_0 = result_13
+	GOTO label_21
+	LABEL label_20
+	internal_20 = LOAD s_4
+	instance_21 = ALLOCATE String
+	result_init_22 = CALL String_init
+	result_0 = instance_21
+	LABEL label_21
+	
+ RETURN result_0
+}
+function CellularAutomaton.east {
+	PARAM self
+	PARAM position
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL op_2
+	LOCAL left_3
+	LOCAL right_4
+	LOCAL result_5
+	LOCAL op_6
+	LOCAL left_7
+	LOCAL right_8
+	LOCAL result_9
+	LOCAL op_10
+	LOCAL left_11
+	LOCAL right_12
+	LOCAL result_13
+	LOCAL op_14
+	LOCAL left_15
+	LOCAL right_16
+	LOCAL instance_17
+	LOCAL value_18
+	LOCAL result_init_19
+	LOCAL result_init_20
+	LOCAL columns_21
+	LOCAL result_init_22
+	LOCAL columns_23
+	LOCAL result_init_24
+	LOCAL result_25
+	LOCAL op_26
+	LOCAL left_27
+	LOCAL right_28
+	LOCAL instance_29
+	LOCAL value_30
+	LOCAL result_init_31
+	LOCAL result_init_32
+	LOCAL result_init_33
+	LOCAL result_34
+	LOCAL result_35
+	LOCAL op_36
+	LOCAL left_37
+	LOCAL right_38
+	LOCAL instance_39
+	LOCAL value_40
+	LOCAL result_init_41
+	LOCAL result_init_42
+	LOCAL internal_43
+	LOCAL instance_44
+	LOCAL result_init_45
+
+	instance_17 = ALLOCATE Int
+	value_18 = LOAD 1
+	result_init_19 = CALL Int_init
+	left_15 = GetAttr position value 
+	right_16 = GetAttr instance_17 value 
+	op_14 = left_15 + right_16
+	result_13 = ALLOCATE Int
+	result_init_20 = CALL Int_init
+	columns_21 = GetAttr self columns 
+	left_11 = GetAttr result_13 value 
+	right_12 = GetAttr columns_21 value 
+	op_10 = left_11 / right_12
+	result_9 = ALLOCATE Int
+	result_init_22 = CALL Int_init
+	columns_23 = GetAttr self columns 
+	left_7 = GetAttr result_9 value 
+	right_8 = GetAttr columns_23 value 
+	op_6 = left_7 * right_8
+	result_5 = ALLOCATE Int
+	result_init_24 = CALL Int_init
+	instance_29 = ALLOCATE Int
+	value_30 = LOAD 1
+	result_init_31 = CALL Int_init
+	left_27 = GetAttr position value 
+	right_28 = GetAttr instance_29 value 
+	op_26 = left_27 + right_28
+	result_25 = ALLOCATE Int
+	result_init_32 = CALL Int_init
+	left_3 = GetAttr result_5 value 
+	right_4 = GetAttr result_25 value 
+	op_2 = left_3 = right_4
+	result_1 = ALLOCATE Bool
+	result_init_33 = CALL Bool_init
+	IF result_1 GOTO label_22
+	instance_39 = ALLOCATE Int
+	value_40 = LOAD 1
+	result_init_41 = CALL Int_init
+	left_37 = GetAttr position value 
+	right_38 = GetAttr instance_39 value 
+	op_36 = left_37 + right_38
+	result_35 = ALLOCATE Int
+	result_init_42 = CALL Int_init
+	result_34 = VCALL CellularAutomaton cell 
+	result_0 = result_34
+	GOTO label_23
+	LABEL label_22
+	internal_43 = LOAD s_4
+	instance_44 = ALLOCATE String
+	result_init_45 = CALL String_init
+	result_0 = instance_44
+	LABEL label_23
+	
+ RETURN result_0
+}
+function CellularAutomaton.west {
+	PARAM self
+	PARAM position
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL op_2
+	LOCAL left_3
+	LOCAL right_4
+	LOCAL instance_5
+	LOCAL value_6
+	LOCAL result_init_7
+	LOCAL result_init_8
+	LOCAL result_9
+	LOCAL result_10
+	LOCAL op_11
+	LOCAL left_12
+	LOCAL right_13
+	LOCAL result_14
+	LOCAL op_15
+	LOCAL left_16
+	LOCAL right_17
+	LOCAL result_18
+	LOCAL op_19
+	LOCAL left_20
+	LOCAL right_21
+	LOCAL columns_22
+	LOCAL result_init_23
+	LOCAL columns_24
+	LOCAL result_init_25
+	LOCAL result_init_26
+	LOCAL result_27
+	LOCAL result_28
+	LOCAL op_29
+	LOCAL left_30
+	LOCAL right_31
+	LOCAL instance_32
+	LOCAL value_33
+	LOCAL result_init_34
+	LOCAL result_init_35
+	LOCAL internal_36
+	LOCAL instance_37
+	LOCAL result_init_38
+	LOCAL internal_39
+	LOCAL instance_40
+	LOCAL result_init_41
+
+	instance_5 = ALLOCATE Int
+	value_6 = LOAD 0
+	result_init_7 = CALL Int_init
+	left_3 = GetAttr position value 
+	right_4 = GetAttr instance_5 value 
+	op_2 = left_3 = right_4
+	result_1 = ALLOCATE Bool
+	result_init_8 = CALL Bool_init
+	IF result_1 GOTO label_24
+	columns_22 = GetAttr self columns 
+	left_20 = GetAttr position value 
+	right_21 = GetAttr columns_22 value 
+	op_19 = left_20 / right_21
+	result_18 = ALLOCATE Int
+	result_init_23 = CALL Int_init
+	columns_24 = GetAttr self columns 
+	left_16 = GetAttr result_18 value 
+	right_17 = GetAttr columns_24 value 
+	op_15 = left_16 * right_17
+	result_14 = ALLOCATE Int
+	result_init_25 = CALL Int_init
+	left_12 = GetAttr result_14 value 
+	right_13 = GetAttr position value 
+	op_11 = left_12 = right_13
+	result_10 = ALLOCATE Bool
+	result_init_26 = CALL Bool_init
+	IF result_10 GOTO label_25
+	instance_32 = ALLOCATE Int
+	value_33 = LOAD 1
+	result_init_34 = CALL Int_init
+	left_30 = GetAttr position value 
+	right_31 = GetAttr instance_32 value 
+	op_29 = left_30 - right_31
+	result_28 = ALLOCATE Int
+	result_init_35 = CALL Int_init
+	result_27 = VCALL CellularAutomaton cell 
+	result_9 = result_27
+	GOTO label_26
+	LABEL label_25
+	internal_36 = LOAD s_4
+	instance_37 = ALLOCATE String
+	result_init_38 = CALL String_init
+	result_9 = instance_37
+	LABEL label_26
+	result_0 = result_9
+	GOTO label_27
+	LABEL label_24
+	internal_39 = LOAD s_4
+	instance_40 = ALLOCATE String
+	result_init_41 = CALL String_init
+	result_0 = instance_40
+	LABEL label_27
+	
+ RETURN result_0
+}
+function CellularAutomaton.northwest {
+	PARAM self
+	PARAM position
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL op_2
+	LOCAL left_3
+	LOCAL right_4
+	LOCAL result_5
+	LOCAL op_6
+	LOCAL left_7
+	LOCAL right_8
+	LOCAL columns_9
+	LOCAL result_init_10
+	LOCAL instance_11
+	LOCAL value_12
+	LOCAL result_init_13
+	LOCAL result_init_14
+	LOCAL result_15
+	LOCAL result_16
+	LOCAL op_17
+	LOCAL left_18
+	LOCAL right_19
+	LOCAL result_20
+	LOCAL op_21
+	LOCAL left_22
+	LOCAL right_23
+	LOCAL result_24
+	LOCAL op_25
+	LOCAL left_26
+	LOCAL right_27
+	LOCAL columns_28
+	LOCAL result_init_29
+	LOCAL columns_30
+	LOCAL result_init_31
+	LOCAL result_init_32
+	LOCAL result_33
+	LOCAL result_34
+	LOCAL op_35
+	LOCAL left_36
+	LOCAL right_37
+	LOCAL instance_38
+	LOCAL value_39
+	LOCAL result_init_40
+	LOCAL result_init_41
+	LOCAL internal_42
+	LOCAL instance_43
+	LOCAL result_init_44
+	LOCAL internal_45
+	LOCAL instance_46
+	LOCAL result_init_47
+
+	columns_9 = GetAttr self columns 
+	left_7 = GetAttr position value 
+	right_8 = GetAttr columns_9 value 
+	op_6 = left_7 - right_8
+	result_5 = ALLOCATE Int
+	result_init_10 = CALL Int_init
+	instance_11 = ALLOCATE Int
+	value_12 = LOAD 0
+	result_init_13 = CALL Int_init
+	left_3 = GetAttr result_5 value 
+	right_4 = GetAttr instance_11 value 
+	op_2 = left_3 < right_4
+	result_1 = ALLOCATE Bool
+	result_init_14 = CALL Bool_init
+	IF result_1 GOTO label_28
+	columns_28 = GetAttr self columns 
+	left_26 = GetAttr position value 
+	right_27 = GetAttr columns_28 value 
+	op_25 = left_26 / right_27
+	result_24 = ALLOCATE Int
+	result_init_29 = CALL Int_init
+	columns_30 = GetAttr self columns 
+	left_22 = GetAttr result_24 value 
+	right_23 = GetAttr columns_30 value 
+	op_21 = left_22 * right_23
+	result_20 = ALLOCATE Int
+	result_init_31 = CALL Int_init
+	left_18 = GetAttr result_20 value 
+	right_19 = GetAttr position value 
+	op_17 = left_18 = right_19
+	result_16 = ALLOCATE Bool
+	result_init_32 = CALL Bool_init
+	IF result_16 GOTO label_29
+	instance_38 = ALLOCATE Int
+	value_39 = LOAD 1
+	result_init_40 = CALL Int_init
+	left_36 = GetAttr position value 
+	right_37 = GetAttr instance_38 value 
+	op_35 = left_36 - right_37
+	result_34 = ALLOCATE Int
+	result_init_41 = CALL Int_init
+	result_33 = VCALL CellularAutomaton north 
+	result_15 = result_33
+	GOTO label_30
+	LABEL label_29
+	internal_42 = LOAD s_4
+	instance_43 = ALLOCATE String
+	result_init_44 = CALL String_init
+	result_15 = instance_43
+	LABEL label_30
+	result_0 = result_15
+	GOTO label_31
+	LABEL label_28
+	internal_45 = LOAD s_4
+	instance_46 = ALLOCATE String
+	result_init_47 = CALL String_init
+	result_0 = instance_46
+	LABEL label_31
+	
+ RETURN result_0
+}
+function CellularAutomaton.northeast {
+	PARAM self
+	PARAM position
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL op_2
+	LOCAL left_3
+	LOCAL right_4
+	LOCAL result_5
+	LOCAL op_6
+	LOCAL left_7
+	LOCAL right_8
+	LOCAL columns_9
+	LOCAL result_init_10
+	LOCAL instance_11
+	LOCAL value_12
+	LOCAL result_init_13
+	LOCAL result_init_14
+	LOCAL result_15
+	LOCAL result_16
+	LOCAL op_17
+	LOCAL left_18
+	LOCAL right_19
+	LOCAL result_20
+	LOCAL op_21
+	LOCAL left_22
+	LOCAL right_23
+	LOCAL result_24
+	LOCAL op_25
+	LOCAL left_26
+	LOCAL right_27
+	LOCAL result_28
+	LOCAL op_29
+	LOCAL left_30
+	LOCAL right_31
+	LOCAL instance_32
+	LOCAL value_33
+	LOCAL result_init_34
+	LOCAL result_init_35
+	LOCAL columns_36
+	LOCAL result_init_37
+	LOCAL columns_38
+	LOCAL result_init_39
+	LOCAL result_40
+	LOCAL op_41
+	LOCAL left_42
+	LOCAL right_43
+	LOCAL instance_44
+	LOCAL value_45
+	LOCAL result_init_46
+	LOCAL result_init_47
+	LOCAL result_init_48
+	LOCAL result_49
+	LOCAL result_50
+	LOCAL op_51
+	LOCAL left_52
+	LOCAL right_53
+	LOCAL instance_54
+	LOCAL value_55
+	LOCAL result_init_56
+	LOCAL result_init_57
+	LOCAL internal_58
+	LOCAL instance_59
+	LOCAL result_init_60
+	LOCAL internal_61
+	LOCAL instance_62
+	LOCAL result_init_63
+
+	columns_9 = GetAttr self columns 
+	left_7 = GetAttr position value 
+	right_8 = GetAttr columns_9 value 
+	op_6 = left_7 - right_8
+	result_5 = ALLOCATE Int
+	result_init_10 = CALL Int_init
+	instance_11 = ALLOCATE Int
+	value_12 = LOAD 0
+	result_init_13 = CALL Int_init
+	left_3 = GetAttr result_5 value 
+	right_4 = GetAttr instance_11 value 
+	op_2 = left_3 < right_4
+	result_1 = ALLOCATE Bool
+	result_init_14 = CALL Bool_init
+	IF result_1 GOTO label_32
+	instance_32 = ALLOCATE Int
+	value_33 = LOAD 1
+	result_init_34 = CALL Int_init
+	left_30 = GetAttr position value 
+	right_31 = GetAttr instance_32 value 
+	op_29 = left_30 + right_31
+	result_28 = ALLOCATE Int
+	result_init_35 = CALL Int_init
+	columns_36 = GetAttr self columns 
+	left_26 = GetAttr result_28 value 
+	right_27 = GetAttr columns_36 value 
+	op_25 = left_26 / right_27
+	result_24 = ALLOCATE Int
+	result_init_37 = CALL Int_init
+	columns_38 = GetAttr self columns 
+	left_22 = GetAttr result_24 value 
+	right_23 = GetAttr columns_38 value 
+	op_21 = left_22 * right_23
+	result_20 = ALLOCATE Int
+	result_init_39 = CALL Int_init
+	instance_44 = ALLOCATE Int
+	value_45 = LOAD 1
+	result_init_46 = CALL Int_init
+	left_42 = GetAttr position value 
+	right_43 = GetAttr instance_44 value 
+	op_41 = left_42 + right_43
+	result_40 = ALLOCATE Int
+	result_init_47 = CALL Int_init
+	left_18 = GetAttr result_20 value 
+	right_19 = GetAttr result_40 value 
+	op_17 = left_18 = right_19
+	result_16 = ALLOCATE Bool
+	result_init_48 = CALL Bool_init
+	IF result_16 GOTO label_33
+	instance_54 = ALLOCATE Int
+	value_55 = LOAD 1
+	result_init_56 = CALL Int_init
+	left_52 = GetAttr position value 
+	right_53 = GetAttr instance_54 value 
+	op_51 = left_52 + right_53
+	result_50 = ALLOCATE Int
+	result_init_57 = CALL Int_init
+	result_49 = VCALL CellularAutomaton north 
+	result_15 = result_49
+	GOTO label_34
+	LABEL label_33
+	internal_58 = LOAD s_4
+	instance_59 = ALLOCATE String
+	result_init_60 = CALL String_init
+	result_15 = instance_59
+	LABEL label_34
+	result_0 = result_15
+	GOTO label_35
+	LABEL label_32
+	internal_61 = LOAD s_4
+	instance_62 = ALLOCATE String
+	result_init_63 = CALL String_init
+	result_0 = instance_62
+	LABEL label_35
+	
+ RETURN result_0
+}
+function CellularAutomaton.southeast {
+	PARAM self
+	PARAM position
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL op_2
+	LOCAL left_3
+	LOCAL right_4
+	LOCAL board_size_5
+	LOCAL result_6
+	LOCAL op_7
+	LOCAL left_8
+	LOCAL right_9
+	LOCAL columns_10
+	LOCAL result_init_11
+	LOCAL result_init_12
+	LOCAL result_13
+	LOCAL result_14
+	LOCAL op_15
+	LOCAL left_16
+	LOCAL right_17
+	LOCAL result_18
+	LOCAL op_19
+	LOCAL left_20
+	LOCAL right_21
+	LOCAL result_22
+	LOCAL op_23
+	LOCAL left_24
+	LOCAL right_25
+	LOCAL result_26
+	LOCAL op_27
+	LOCAL left_28
+	LOCAL right_29
+	LOCAL instance_30
+	LOCAL value_31
+	LOCAL result_init_32
+	LOCAL result_init_33
+	LOCAL columns_34
+	LOCAL result_init_35
+	LOCAL columns_36
+	LOCAL result_init_37
+	LOCAL result_38
+	LOCAL op_39
+	LOCAL left_40
+	LOCAL right_41
+	LOCAL instance_42
+	LOCAL value_43
+	LOCAL result_init_44
+	LOCAL result_init_45
+	LOCAL result_init_46
+	LOCAL result_47
+	LOCAL result_48
+	LOCAL op_49
+	LOCAL left_50
+	LOCAL right_51
+	LOCAL instance_52
+	LOCAL value_53
+	LOCAL result_init_54
+	LOCAL result_init_55
+	LOCAL internal_56
+	LOCAL instance_57
+	LOCAL result_init_58
+	LOCAL internal_59
+	LOCAL instance_60
+	LOCAL result_init_61
+
+	board_size_5 = GetAttr self board_size 
+	columns_10 = GetAttr self columns 
+	left_8 = GetAttr position value 
+	right_9 = GetAttr columns_10 value 
+	op_7 = left_8 + right_9
+	result_6 = ALLOCATE Int
+	result_init_11 = CALL Int_init
+	left_3 = GetAttr board_size_5 value 
+	right_4 = GetAttr result_6 value 
+	op_2 = left_3 < right_4
+	result_1 = ALLOCATE Bool
+	result_init_12 = CALL Bool_init
+	IF result_1 GOTO label_36
+	instance_30 = ALLOCATE Int
+	value_31 = LOAD 1
+	result_init_32 = CALL Int_init
+	left_28 = GetAttr position value 
+	right_29 = GetAttr instance_30 value 
+	op_27 = left_28 + right_29
+	result_26 = ALLOCATE Int
+	result_init_33 = CALL Int_init
+	columns_34 = GetAttr self columns 
+	left_24 = GetAttr result_26 value 
+	right_25 = GetAttr columns_34 value 
+	op_23 = left_24 / right_25
+	result_22 = ALLOCATE Int
+	result_init_35 = CALL Int_init
+	columns_36 = GetAttr self columns 
+	left_20 = GetAttr result_22 value 
+	right_21 = GetAttr columns_36 value 
+	op_19 = left_20 * right_21
+	result_18 = ALLOCATE Int
+	result_init_37 = CALL Int_init
+	instance_42 = ALLOCATE Int
+	value_43 = LOAD 1
+	result_init_44 = CALL Int_init
+	left_40 = GetAttr position value 
+	right_41 = GetAttr instance_42 value 
+	op_39 = left_40 + right_41
+	result_38 = ALLOCATE Int
+	result_init_45 = CALL Int_init
+	left_16 = GetAttr result_18 value 
+	right_17 = GetAttr result_38 value 
+	op_15 = left_16 = right_17
+	result_14 = ALLOCATE Bool
+	result_init_46 = CALL Bool_init
+	IF result_14 GOTO label_37
+	instance_52 = ALLOCATE Int
+	value_53 = LOAD 1
+	result_init_54 = CALL Int_init
+	left_50 = GetAttr position value 
+	right_51 = GetAttr instance_52 value 
+	op_49 = left_50 + right_51
+	result_48 = ALLOCATE Int
+	result_init_55 = CALL Int_init
+	result_47 = VCALL CellularAutomaton south 
+	result_13 = result_47
+	GOTO label_38
+	LABEL label_37
+	internal_56 = LOAD s_4
+	instance_57 = ALLOCATE String
+	result_init_58 = CALL String_init
+	result_13 = instance_57
+	LABEL label_38
+	result_0 = result_13
+	GOTO label_39
+	LABEL label_36
+	internal_59 = LOAD s_4
+	instance_60 = ALLOCATE String
+	result_init_61 = CALL String_init
+	result_0 = instance_60
+	LABEL label_39
+	
+ RETURN result_0
+}
+function CellularAutomaton.southwest {
+	PARAM self
+	PARAM position
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL op_2
+	LOCAL left_3
+	LOCAL right_4
+	LOCAL board_size_5
+	LOCAL result_6
+	LOCAL op_7
+	LOCAL left_8
+	LOCAL right_9
+	LOCAL columns_10
+	LOCAL result_init_11
+	LOCAL result_init_12
+	LOCAL result_13
+	LOCAL result_14
+	LOCAL op_15
+	LOCAL left_16
+	LOCAL right_17
+	LOCAL result_18
+	LOCAL op_19
+	LOCAL left_20
+	LOCAL right_21
+	LOCAL result_22
+	LOCAL op_23
+	LOCAL left_24
+	LOCAL right_25
+	LOCAL columns_26
+	LOCAL result_init_27
+	LOCAL columns_28
+	LOCAL result_init_29
+	LOCAL result_init_30
+	LOCAL result_31
+	LOCAL result_32
+	LOCAL op_33
+	LOCAL left_34
+	LOCAL right_35
+	LOCAL instance_36
+	LOCAL value_37
+	LOCAL result_init_38
+	LOCAL result_init_39
+	LOCAL internal_40
+	LOCAL instance_41
+	LOCAL result_init_42
+	LOCAL internal_43
+	LOCAL instance_44
+	LOCAL result_init_45
+
+	board_size_5 = GetAttr self board_size 
+	columns_10 = GetAttr self columns 
+	left_8 = GetAttr position value 
+	right_9 = GetAttr columns_10 value 
+	op_7 = left_8 + right_9
+	result_6 = ALLOCATE Int
+	result_init_11 = CALL Int_init
+	left_3 = GetAttr board_size_5 value 
+	right_4 = GetAttr result_6 value 
+	op_2 = left_3 < right_4
+	result_1 = ALLOCATE Bool
+	result_init_12 = CALL Bool_init
+	IF result_1 GOTO label_40
+	columns_26 = GetAttr self columns 
+	left_24 = GetAttr position value 
+	right_25 = GetAttr columns_26 value 
+	op_23 = left_24 / right_25
+	result_22 = ALLOCATE Int
+	result_init_27 = CALL Int_init
+	columns_28 = GetAttr self columns 
+	left_20 = GetAttr result_22 value 
+	right_21 = GetAttr columns_28 value 
+	op_19 = left_20 * right_21
+	result_18 = ALLOCATE Int
+	result_init_29 = CALL Int_init
+	left_16 = GetAttr result_18 value 
+	right_17 = GetAttr position value 
+	op_15 = left_16 = right_17
+	result_14 = ALLOCATE Bool
+	result_init_30 = CALL Bool_init
+	IF result_14 GOTO label_41
+	instance_36 = ALLOCATE Int
+	value_37 = LOAD 1
+	result_init_38 = CALL Int_init
+	left_34 = GetAttr position value 
+	right_35 = GetAttr instance_36 value 
+	op_33 = left_34 - right_35
+	result_32 = ALLOCATE Int
+	result_init_39 = CALL Int_init
+	result_31 = VCALL CellularAutomaton south 
+	result_13 = result_31
+	GOTO label_42
+	LABEL label_41
+	internal_40 = LOAD s_4
+	instance_41 = ALLOCATE String
+	result_init_42 = CALL String_init
+	result_13 = instance_41
+	LABEL label_42
+	result_0 = result_13
+	GOTO label_43
+	LABEL label_40
+	internal_43 = LOAD s_4
+	instance_44 = ALLOCATE String
+	result_init_45 = CALL String_init
+	result_0 = instance_44
+	LABEL label_43
+	
+ RETURN result_0
+}
+function CellularAutomaton.neighbors {
+	PARAM self
+	PARAM position
+
+	LOCAL result_0
+	LOCAL op_1
+	LOCAL left_2
+	LOCAL right_3
+	LOCAL result_4
+	LOCAL op_5
+	LOCAL left_6
+	LOCAL right_7
+	LOCAL result_8
+	LOCAL op_9
+	LOCAL left_10
+	LOCAL right_11
+	LOCAL result_12
+	LOCAL op_13
+	LOCAL left_14
+	LOCAL right_15
+	LOCAL result_16
+	LOCAL op_17
+	LOCAL left_18
+	LOCAL right_19
+	LOCAL result_20
+	LOCAL op_21
+	LOCAL left_22
+	LOCAL right_23
+	LOCAL result_24
+	LOCAL op_25
+	LOCAL left_26
+	LOCAL right_27
+	LOCAL result_28
+	LOCAL result_29
+	LOCAL op_30
+	LOCAL left_31
+	LOCAL right_32
+	LOCAL result_33
+	LOCAL internal_34
+	LOCAL instance_35
+	LOCAL result_init_36
+	LOCAL result_init_37
+	LOCAL instance_38
+	LOCAL value_39
+	LOCAL result_init_40
+	LOCAL instance_41
+	LOCAL value_42
+	LOCAL result_init_43
+	LOCAL result_44
+	LOCAL result_45
+	LOCAL op_46
+	LOCAL left_47
+	LOCAL right_48
+	LOCAL result_49
+	LOCAL internal_50
+	LOCAL instance_51
+	LOCAL result_init_52
+	LOCAL result_init_53
+	LOCAL instance_54
+	LOCAL value_55
+	LOCAL result_init_56
+	LOCAL instance_57
+	LOCAL value_58
+	LOCAL result_init_59
+	LOCAL result_init_60
+	LOCAL result_61
+	LOCAL result_62
+	LOCAL op_63
+	LOCAL left_64
+	LOCAL right_65
+	LOCAL result_66
+	LOCAL internal_67
+	LOCAL instance_68
+	LOCAL result_init_69
+	LOCAL result_init_70
+	LOCAL instance_71
+	LOCAL value_72
+	LOCAL result_init_73
+	LOCAL instance_74
+	LOCAL value_75
+	LOCAL result_init_76
+	LOCAL result_init_77
+	LOCAL result_78
+	LOCAL result_79
+	LOCAL op_80
+	LOCAL left_81
+	LOCAL right_82
+	LOCAL result_83
+	LOCAL internal_84
+	LOCAL instance_85
+	LOCAL result_init_86
+	LOCAL result_init_87
+	LOCAL instance_88
+	LOCAL value_89
+	LOCAL result_init_90
+	LOCAL instance_91
+	LOCAL value_92
+	LOCAL result_init_93
+	LOCAL result_init_94
+	LOCAL result_95
+	LOCAL result_96
+	LOCAL op_97
+	LOCAL left_98
+	LOCAL right_99
+	LOCAL result_100
+	LOCAL internal_101
+	LOCAL instance_102
+	LOCAL result_init_103
+	LOCAL result_init_104
+	LOCAL instance_105
+	LOCAL value_106
+	LOCAL result_init_107
+	LOCAL instance_108
+	LOCAL value_109
+	LOCAL result_init_110
+	LOCAL result_init_111
+	LOCAL result_112
+	LOCAL result_113
+	LOCAL op_114
+	LOCAL left_115
+	LOCAL right_116
+	LOCAL result_117
+	LOCAL internal_118
+	LOCAL instance_119
+	LOCAL result_init_120
+	LOCAL result_init_121
+	LOCAL instance_122
+	LOCAL value_123
+	LOCAL result_init_124
+	LOCAL instance_125
+	LOCAL value_126
+	LOCAL result_init_127
+	LOCAL result_init_128
+	LOCAL result_129
+	LOCAL result_130
+	LOCAL op_131
+	LOCAL left_132
+	LOCAL right_133
+	LOCAL result_134
+	LOCAL internal_135
+	LOCAL instance_136
+	LOCAL result_init_137
+	LOCAL result_init_138
+	LOCAL instance_139
+	LOCAL value_140
+	LOCAL result_init_141
+	LOCAL instance_142
+	LOCAL value_143
+	LOCAL result_init_144
+	LOCAL result_init_145
+	LOCAL result_146
+	LOCAL result_147
+	LOCAL op_148
+	LOCAL left_149
+	LOCAL right_150
+	LOCAL result_151
+	LOCAL internal_152
+	LOCAL instance_153
+	LOCAL result_init_154
+	LOCAL result_init_155
+	LOCAL instance_156
+	LOCAL value_157
+	LOCAL result_init_158
+	LOCAL instance_159
+	LOCAL value_160
+	LOCAL result_init_161
+	LOCAL result_init_162
+
+	result_33 = VCALL CellularAutomaton north 
+	internal_34 = LOAD s_5
+	instance_35 = ALLOCATE String
+	result_init_36 = CALL String_init
+	left_31 = GetAttr result_33 value 
+	right_32 = GetAttr instance_35 value 
+	op_30 = left_31 = right_32
+	result_29 = ALLOCATE Bool
+	result_init_37 = CALL Bool_init
+	IF result_29 GOTO label_44
+	instance_38 = ALLOCATE Int
+	value_39 = LOAD 0
+	result_init_40 = CALL Int_init
+	result_28 = instance_38
+	GOTO label_45
+	LABEL label_44
+	instance_41 = ALLOCATE Int
+	value_42 = LOAD 1
+	result_init_43 = CALL Int_init
+	result_28 = instance_41
+	LABEL label_45
+	result_49 = VCALL CellularAutomaton south 
+	internal_50 = LOAD s_5
+	instance_51 = ALLOCATE String
+	result_init_52 = CALL String_init
+	left_47 = GetAttr result_49 value 
+	right_48 = GetAttr instance_51 value 
+	op_46 = left_47 = right_48
+	result_45 = ALLOCATE Bool
+	result_init_53 = CALL Bool_init
+	IF result_45 GOTO label_46
+	instance_54 = ALLOCATE Int
+	value_55 = LOAD 0
+	result_init_56 = CALL Int_init
+	result_44 = instance_54
+	GOTO label_47
+	LABEL label_46
+	instance_57 = ALLOCATE Int
+	value_58 = LOAD 1
+	result_init_59 = CALL Int_init
+	result_44 = instance_57
+	LABEL label_47
+	left_26 = GetAttr result_28 value 
+	right_27 = GetAttr result_44 value 
+	op_25 = left_26 + right_27
+	result_24 = ALLOCATE Int
+	result_init_60 = CALL Int_init
+	result_66 = VCALL CellularAutomaton east 
+	internal_67 = LOAD s_5
+	instance_68 = ALLOCATE String
+	result_init_69 = CALL String_init
+	left_64 = GetAttr result_66 value 
+	right_65 = GetAttr instance_68 value 
+	op_63 = left_64 = right_65
+	result_62 = ALLOCATE Bool
+	result_init_70 = CALL Bool_init
+	IF result_62 GOTO label_48
+	instance_71 = ALLOCATE Int
+	value_72 = LOAD 0
+	result_init_73 = CALL Int_init
+	result_61 = instance_71
+	GOTO label_49
+	LABEL label_48
+	instance_74 = ALLOCATE Int
+	value_75 = LOAD 1
+	result_init_76 = CALL Int_init
+	result_61 = instance_74
+	LABEL label_49
+	left_22 = GetAttr result_24 value 
+	right_23 = GetAttr result_61 value 
+	op_21 = left_22 + right_23
+	result_20 = ALLOCATE Int
+	result_init_77 = CALL Int_init
+	result_83 = VCALL CellularAutomaton west 
+	internal_84 = LOAD s_5
+	instance_85 = ALLOCATE String
+	result_init_86 = CALL String_init
+	left_81 = GetAttr result_83 value 
+	right_82 = GetAttr instance_85 value 
+	op_80 = left_81 = right_82
+	result_79 = ALLOCATE Bool
+	result_init_87 = CALL Bool_init
+	IF result_79 GOTO label_50
+	instance_88 = ALLOCATE Int
+	value_89 = LOAD 0
+	result_init_90 = CALL Int_init
+	result_78 = instance_88
+	GOTO label_51
+	LABEL label_50
+	instance_91 = ALLOCATE Int
+	value_92 = LOAD 1
+	result_init_93 = CALL Int_init
+	result_78 = instance_91
+	LABEL label_51
+	left_18 = GetAttr result_20 value 
+	right_19 = GetAttr result_78 value 
+	op_17 = left_18 + right_19
+	result_16 = ALLOCATE Int
+	result_init_94 = CALL Int_init
+	result_100 = VCALL CellularAutomaton northeast 
+	internal_101 = LOAD s_5
+	instance_102 = ALLOCATE String
+	result_init_103 = CALL String_init
+	left_98 = GetAttr result_100 value 
+	right_99 = GetAttr instance_102 value 
+	op_97 = left_98 = right_99
+	result_96 = ALLOCATE Bool
+	result_init_104 = CALL Bool_init
+	IF result_96 GOTO label_52
+	instance_105 = ALLOCATE Int
+	value_106 = LOAD 0
+	result_init_107 = CALL Int_init
+	result_95 = instance_105
+	GOTO label_53
+	LABEL label_52
+	instance_108 = ALLOCATE Int
+	value_109 = LOAD 1
+	result_init_110 = CALL Int_init
+	result_95 = instance_108
+	LABEL label_53
+	left_14 = GetAttr result_16 value 
+	right_15 = GetAttr result_95 value 
+	op_13 = left_14 + right_15
+	result_12 = ALLOCATE Int
+	result_init_111 = CALL Int_init
+	result_117 = VCALL CellularAutomaton northwest 
+	internal_118 = LOAD s_5
+	instance_119 = ALLOCATE String
+	result_init_120 = CALL String_init
+	left_115 = GetAttr result_117 value 
+	right_116 = GetAttr instance_119 value 
+	op_114 = left_115 = right_116
+	result_113 = ALLOCATE Bool
+	result_init_121 = CALL Bool_init
+	IF result_113 GOTO label_54
+	instance_122 = ALLOCATE Int
+	value_123 = LOAD 0
+	result_init_124 = CALL Int_init
+	result_112 = instance_122
+	GOTO label_55
+	LABEL label_54
+	instance_125 = ALLOCATE Int
+	value_126 = LOAD 1
+	result_init_127 = CALL Int_init
+	result_112 = instance_125
+	LABEL label_55
+	left_10 = GetAttr result_12 value 
+	right_11 = GetAttr result_112 value 
+	op_9 = left_10 + right_11
+	result_8 = ALLOCATE Int
+	result_init_128 = CALL Int_init
+	result_134 = VCALL CellularAutomaton southeast 
+	internal_135 = LOAD s_5
+	instance_136 = ALLOCATE String
+	result_init_137 = CALL String_init
+	left_132 = GetAttr result_134 value 
+	right_133 = GetAttr instance_136 value 
+	op_131 = left_132 = right_133
+	result_130 = ALLOCATE Bool
+	result_init_138 = CALL Bool_init
+	IF result_130 GOTO label_56
+	instance_139 = ALLOCATE Int
+	value_140 = LOAD 0
+	result_init_141 = CALL Int_init
+	result_129 = instance_139
+	GOTO label_57
+	LABEL label_56
+	instance_142 = ALLOCATE Int
+	value_143 = LOAD 1
+	result_init_144 = CALL Int_init
+	result_129 = instance_142
+	LABEL label_57
+	left_6 = GetAttr result_8 value 
+	right_7 = GetAttr result_129 value 
+	op_5 = left_6 + right_7
+	result_4 = ALLOCATE Int
+	result_init_145 = CALL Int_init
+	result_151 = VCALL CellularAutomaton southwest 
+	internal_152 = LOAD s_5
+	instance_153 = ALLOCATE String
+	result_init_154 = CALL String_init
+	left_149 = GetAttr result_151 value 
+	right_150 = GetAttr instance_153 value 
+	op_148 = left_149 = right_150
+	result_147 = ALLOCATE Bool
+	result_init_155 = CALL Bool_init
+	IF result_147 GOTO label_58
+	instance_156 = ALLOCATE Int
+	value_157 = LOAD 0
+	result_init_158 = CALL Int_init
+	result_146 = instance_156
+	GOTO label_59
+	LABEL label_58
+	instance_159 = ALLOCATE Int
+	value_160 = LOAD 1
+	result_init_161 = CALL Int_init
+	result_146 = instance_159
+	LABEL label_59
+	left_2 = GetAttr result_4 value 
+	right_3 = GetAttr result_146 value 
+	op_1 = left_2 + right_3
+	result_0 = ALLOCATE Int
+	result_init_162 = CALL Int_init
+	
+ RETURN result_0
+}
+function CellularAutomaton.cell_at_next_evolution {
+	PARAM self
+	PARAM position
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL op_2
+	LOCAL left_3
+	LOCAL right_4
+	LOCAL result_5
+	LOCAL instance_6
+	LOCAL value_7
+	LOCAL result_init_8
+	LOCAL result_init_9
+	LOCAL result_10
+	LOCAL result_11
+	LOCAL op_12
+	LOCAL left_13
+	LOCAL right_14
+	LOCAL result_15
+	LOCAL instance_16
+	LOCAL value_17
+	LOCAL result_init_18
+	LOCAL result_init_19
+	LOCAL internal_20
+	LOCAL instance_21
+	LOCAL result_init_22
+	LOCAL result_23
+	LOCAL result_24
+	LOCAL op_25
+	LOCAL left_26
+	LOCAL right_27
+	LOCAL result_28
+	LOCAL internal_29
+	LOCAL instance_30
+	LOCAL result_init_31
+	LOCAL result_init_32
+	LOCAL internal_33
+	LOCAL instance_34
+	LOCAL result_init_35
+	LOCAL internal_36
+	LOCAL instance_37
+	LOCAL result_init_38
+	LOCAL internal_39
+	LOCAL instance_40
+	LOCAL result_init_41
+
+	result_5 = VCALL CellularAutomaton neighbors 
+	instance_6 = ALLOCATE Int
+	value_7 = LOAD 3
+	result_init_8 = CALL Int_init
+	left_3 = GetAttr result_5 value 
+	right_4 = GetAttr instance_6 value 
+	op_2 = left_3 = right_4
+	result_1 = ALLOCATE Bool
+	result_init_9 = CALL Bool_init
+	IF result_1 GOTO label_60
+	result_15 = VCALL CellularAutomaton neighbors 
+	instance_16 = ALLOCATE Int
+	value_17 = LOAD 2
+	result_init_18 = CALL Int_init
+	left_13 = GetAttr result_15 value 
+	right_14 = GetAttr instance_16 value 
+	op_12 = left_13 = right_14
+	result_11 = ALLOCATE Bool
+	result_init_19 = CALL Bool_init
+	IF result_11 GOTO label_61
+	internal_20 = LOAD s_6
+	instance_21 = ALLOCATE String
+	result_init_22 = CALL String_init
+	result_10 = instance_21
+	GOTO label_62
+	LABEL label_61
+	result_28 = VCALL CellularAutomaton cell 
+	internal_29 = LOAD s_5
+	instance_30 = ALLOCATE String
+	result_init_31 = CALL String_init
+	left_26 = GetAttr result_28 value 
+	right_27 = GetAttr instance_30 value 
+	op_25 = left_26 = right_27
+	result_24 = ALLOCATE Bool
+	result_init_32 = CALL Bool_init
+	IF result_24 GOTO label_63
+	internal_33 = LOAD s_6
+	instance_34 = ALLOCATE String
+	result_init_35 = CALL String_init
+	result_23 = instance_34
+	GOTO label_64
+	LABEL label_63
+	internal_36 = LOAD s_5
+	instance_37 = ALLOCATE String
+	result_init_38 = CALL String_init
+	result_23 = instance_37
+	LABEL label_64
+	result_10 = result_23
+	LABEL label_62
+	result_0 = result_10
+	GOTO label_65
+	LABEL label_60
+	internal_39 = LOAD s_5
+	instance_40 = ALLOCATE String
+	result_init_41 = CALL String_init
+	result_0 = instance_40
+	LABEL label_65
+	
+ RETURN result_0
+}
+function CellularAutomaton.evolve {
+	PARAM self
+
+	LOCAL instance_0
+	LOCAL value_1
+	LOCAL result_init_2
+	LOCAL position_3
+	LOCAL result_4
+	LOCAL num_5
+	LOCAL temp_6
+	LOCAL result_7
+	LOCAL result_8
+	LOCAL op_9
+	LOCAL left_10
+	LOCAL right_11
+	LOCAL result_init_12
+	LOCAL result_13
+	LOCAL result_14
+	LOCAL result_15
+	LOCAL result_16
+	LOCAL op_17
+	LOCAL left_18
+	LOCAL right_19
+	LOCAL instance_20
+	LOCAL value_21
+	LOCAL result_init_22
+	LOCAL result_init_23
+	LOCAL result_24
+	LOCAL result_25
+	LOCAL let_result_26
+	LOCAL let_result_27
+	LOCAL let_result_28
+
+	instance_0 = ALLOCATE Int
+	value_1 = LOAD 0
+	result_init_2 = CALL Int_init
+	position_3 = instance_0
+	result_4 = VCALL CellularAutomaton num_cells 
+	num_5 = result_4
+	temp_6 = []
+	LABEL label_66
+	left_10 = GetAttr position_3 value 
+	right_11 = GetAttr num_5 value 
+	op_9 = left_10 < right_11
+	result_8 = ALLOCATE Bool
+	result_init_12 = CALL Bool_init
+	IF result_8 GOTO label_67
+	GOTO label_68
+	LABEL label_67
+	result_14 = VCALL CellularAutomaton cell_at_next_evolution 
+	result_13 = VCALL String concat 
+	temp_6 = result_13
+	instance_20 = ALLOCATE Int
+	value_21 = LOAD 1
+	result_init_22 = CALL Int_init
+	left_18 = GetAttr position_3 value 
+	right_19 = GetAttr instance_20 value 
+	op_17 = left_18 + right_19
+	result_16 = ALLOCATE Int
+	result_init_23 = CALL Int_init
+	position_3 = result_16
+	GOTO label_66
+	LABEL label_68
+	result_7 = LOAD None
+	SetAttr self population_map temp_6
+	let_result_26 = self
+	let_result_27 = let_result_26
+	let_result_28 = let_result_27
+	
+ RETURN let_result_28
+}
+function CellularAutomaton.option {
+	PARAM self
+
+	LOCAL num_0
+	LOCAL result_1
+	LOCAL internal_2
+	LOCAL instance_3
+	LOCAL result_init_4
+	LOCAL result_5
+	LOCAL internal_6
+	LOCAL instance_7
+	LOCAL result_init_8
+	LOCAL result_9
+	LOCAL internal_10
+	LOCAL instance_11
+	LOCAL result_init_12
+	LOCAL result_13
+	LOCAL internal_14
+	LOCAL instance_15
+	LOCAL result_init_16
+	LOCAL result_17
+	LOCAL internal_18
+	LOCAL instance_19
+	LOCAL result_init_20
+	LOCAL result_21
+	LOCAL internal_22
+	LOCAL instance_23
+	LOCAL result_init_24
+	LOCAL result_25
+	LOCAL internal_26
+	LOCAL instance_27
+	LOCAL result_init_28
+	LOCAL result_29
+	LOCAL internal_30
+	LOCAL instance_31
+	LOCAL result_init_32
+	LOCAL result_33
+	LOCAL internal_34
+	LOCAL instance_35
+	LOCAL result_init_36
+	LOCAL result_37
+	LOCAL internal_38
+	LOCAL instance_39
+	LOCAL result_init_40
+	LOCAL result_41
+	LOCAL internal_42
+	LOCAL instance_43
+	LOCAL result_init_44
+	LOCAL result_45
+	LOCAL internal_46
+	LOCAL instance_47
+	LOCAL result_init_48
+	LOCAL result_49
+	LOCAL internal_50
+	LOCAL instance_51
+	LOCAL result_init_52
+	LOCAL result_53
+	LOCAL internal_54
+	LOCAL instance_55
+	LOCAL result_init_56
+	LOCAL result_57
+	LOCAL internal_58
+	LOCAL instance_59
+	LOCAL result_init_60
+	LOCAL result_61
+	LOCAL internal_62
+	LOCAL instance_63
+	LOCAL result_init_64
+	LOCAL result_65
+	LOCAL internal_66
+	LOCAL instance_67
+	LOCAL result_init_68
+	LOCAL result_69
+	LOCAL internal_70
+	LOCAL instance_71
+	LOCAL result_init_72
+	LOCAL result_73
+	LOCAL internal_74
+	LOCAL instance_75
+	LOCAL result_init_76
+	LOCAL result_77
+	LOCAL internal_78
+	LOCAL instance_79
+	LOCAL result_init_80
+	LOCAL result_81
+	LOCAL internal_82
+	LOCAL instance_83
+	LOCAL result_init_84
+	LOCAL result_85
+	LOCAL internal_86
+	LOCAL instance_87
+	LOCAL result_init_88
+	LOCAL result_89
+	LOCAL internal_90
+	LOCAL instance_91
+	LOCAL result_init_92
+	LOCAL result_93
+	LOCAL result_94
+	LOCAL result_95
+	LOCAL internal_96
+	LOCAL instance_97
+	LOCAL result_init_98
+	LOCAL result_99
+	LOCAL result_100
+	LOCAL op_101
+	LOCAL left_102
+	LOCAL right_103
+	LOCAL instance_104
+	LOCAL value_105
+	LOCAL result_init_106
+	LOCAL result_init_107
+	LOCAL result_108
+	LOCAL result_109
+	LOCAL op_110
+	LOCAL left_111
+	LOCAL right_112
+	LOCAL instance_113
+	LOCAL value_114
+	LOCAL result_init_115
+	LOCAL result_init_116
+	LOCAL result_117
+	LOCAL result_118
+	LOCAL op_119
+	LOCAL left_120
+	LOCAL right_121
+	LOCAL instance_122
+	LOCAL value_123
+	LOCAL result_init_124
+	LOCAL result_init_125
+	LOCAL result_126
+	LOCAL result_127
+	LOCAL op_128
+	LOCAL left_129
+	LOCAL right_130
+	LOCAL instance_131
+	LOCAL value_132
+	LOCAL result_init_133
+	LOCAL result_init_134
+	LOCAL result_135
+	LOCAL result_136
+	LOCAL op_137
+	LOCAL left_138
+	LOCAL right_139
+	LOCAL instance_140
+	LOCAL value_141
+	LOCAL result_init_142
+	LOCAL result_init_143
+	LOCAL result_144
+	LOCAL result_145
+	LOCAL op_146
+	LOCAL left_147
+	LOCAL right_148
+	LOCAL instance_149
+	LOCAL value_150
+	LOCAL result_init_151
+	LOCAL result_init_152
+	LOCAL result_153
+	LOCAL result_154
+	LOCAL op_155
+	LOCAL left_156
+	LOCAL right_157
+	LOCAL instance_158
+	LOCAL value_159
+	LOCAL result_init_160
+	LOCAL result_init_161
+	LOCAL result_162
+	LOCAL result_163
+	LOCAL op_164
+	LOCAL left_165
+	LOCAL right_166
+	LOCAL instance_167
+	LOCAL value_168
+	LOCAL result_init_169
+	LOCAL result_init_170
+	LOCAL result_171
+	LOCAL result_172
+	LOCAL op_173
+	LOCAL left_174
+	LOCAL right_175
+	LOCAL instance_176
+	LOCAL value_177
+	LOCAL result_init_178
+	LOCAL result_init_179
+	LOCAL result_180
+	LOCAL result_181
+	LOCAL op_182
+	LOCAL left_183
+	LOCAL right_184
+	LOCAL instance_185
+	LOCAL value_186
+	LOCAL result_init_187
+	LOCAL result_init_188
+	LOCAL result_189
+	LOCAL result_190
+	LOCAL op_191
+	LOCAL left_192
+	LOCAL right_193
+	LOCAL instance_194
+	LOCAL value_195
+	LOCAL result_init_196
+	LOCAL result_init_197
+	LOCAL result_198
+	LOCAL result_199
+	LOCAL op_200
+	LOCAL left_201
+	LOCAL right_202
+	LOCAL instance_203
+	LOCAL value_204
+	LOCAL result_init_205
+	LOCAL result_init_206
+	LOCAL result_207
+	LOCAL result_208
+	LOCAL op_209
+	LOCAL left_210
+	LOCAL right_211
+	LOCAL instance_212
+	LOCAL value_213
+	LOCAL result_init_214
+	LOCAL result_init_215
+	LOCAL result_216
+	LOCAL result_217
+	LOCAL op_218
+	LOCAL left_219
+	LOCAL right_220
+	LOCAL instance_221
+	LOCAL value_222
+	LOCAL result_init_223
+	LOCAL result_init_224
+	LOCAL result_225
+	LOCAL result_226
+	LOCAL op_227
+	LOCAL left_228
+	LOCAL right_229
+	LOCAL instance_230
+	LOCAL value_231
+	LOCAL result_init_232
+	LOCAL result_init_233
+	LOCAL result_234
+	LOCAL result_235
+	LOCAL op_236
+	LOCAL left_237
+	LOCAL right_238
+	LOCAL instance_239
+	LOCAL value_240
+	LOCAL result_init_241
+	LOCAL result_init_242
+	LOCAL result_243
+	LOCAL result_244
+	LOCAL op_245
+	LOCAL left_246
+	LOCAL right_247
+	LOCAL instance_248
+	LOCAL value_249
+	LOCAL result_init_250
+	LOCAL result_init_251
+	LOCAL result_252
+	LOCAL result_253
+	LOCAL op_254
+	LOCAL left_255
+	LOCAL right_256
+	LOCAL instance_257
+	LOCAL value_258
+	LOCAL result_init_259
+	LOCAL result_init_260
+	LOCAL result_261
+	LOCAL result_262
+	LOCAL op_263
+	LOCAL left_264
+	LOCAL right_265
+	LOCAL instance_266
+	LOCAL value_267
+	LOCAL result_init_268
+	LOCAL result_init_269
+	LOCAL result_270
+	LOCAL result_271
+	LOCAL op_272
+	LOCAL left_273
+	LOCAL right_274
+	LOCAL instance_275
+	LOCAL value_276
+	LOCAL result_init_277
+	LOCAL result_init_278
+	LOCAL result_279
+	LOCAL result_280
+	LOCAL op_281
+	LOCAL left_282
+	LOCAL right_283
+	LOCAL instance_284
+	LOCAL value_285
+	LOCAL result_init_286
+	LOCAL result_init_287
+	LOCAL internal_288
+	LOCAL instance_289
+	LOCAL result_init_290
+	LOCAL internal_291
+	LOCAL instance_292
+	LOCAL result_init_293
+	LOCAL internal_294
+	LOCAL instance_295
+	LOCAL result_init_296
+	LOCAL internal_297
+	LOCAL instance_298
+	LOCAL result_init_299
+	LOCAL internal_300
+	LOCAL instance_301
+	LOCAL result_init_302
+	LOCAL internal_303
+	LOCAL instance_304
+	LOCAL result_init_305
+	LOCAL internal_306
+	LOCAL instance_307
+	LOCAL result_init_308
+	LOCAL internal_309
+	LOCAL instance_310
+	LOCAL result_init_311
+	LOCAL internal_312
+	LOCAL instance_313
+	LOCAL result_init_314
+	LOCAL internal_315
+	LOCAL instance_316
+	LOCAL result_init_317
+	LOCAL internal_318
+	LOCAL instance_319
+	LOCAL result_init_320
+	LOCAL internal_321
+	LOCAL instance_322
+	LOCAL result_init_323
+	LOCAL internal_324
+	LOCAL instance_325
+	LOCAL result_init_326
+	LOCAL internal_327
+	LOCAL instance_328
+	LOCAL result_init_329
+	LOCAL internal_330
+	LOCAL instance_331
+	LOCAL result_init_332
+	LOCAL internal_333
+	LOCAL instance_334
+	LOCAL result_init_335
+	LOCAL internal_336
+	LOCAL instance_337
+	LOCAL result_init_338
+	LOCAL internal_339
+	LOCAL instance_340
+	LOCAL result_init_341
+	LOCAL internal_342
+	LOCAL instance_343
+	LOCAL result_init_344
+	LOCAL internal_345
+	LOCAL instance_346
+	LOCAL result_init_347
+	LOCAL internal_348
+	LOCAL instance_349
+	LOCAL result_init_350
+	LOCAL internal_351
+	LOCAL instance_352
+	LOCAL result_init_353
+	LOCAL let_result_354
+
+	num_0 = []
+	internal_2 = LOAD s_7
+	instance_3 = ALLOCATE String
+	result_init_4 = CALL String_init
+	result_1 = VCALL CellularAutomaton out_string 
+	internal_6 = LOAD s_8
+	instance_7 = ALLOCATE String
+	result_init_8 = CALL String_init
+	result_5 = VCALL CellularAutomaton out_string 
+	internal_10 = LOAD s_9
+	instance_11 = ALLOCATE String
+	result_init_12 = CALL String_init
+	result_9 = VCALL CellularAutomaton out_string 
+	internal_14 = LOAD s_10
+	instance_15 = ALLOCATE String
+	result_init_16 = CALL String_init
+	result_13 = VCALL CellularAutomaton out_string 
+	internal_18 = LOAD s_11
+	instance_19 = ALLOCATE String
+	result_init_20 = CALL String_init
+	result_17 = VCALL CellularAutomaton out_string 
+	internal_22 = LOAD s_12
+	instance_23 = ALLOCATE String
+	result_init_24 = CALL String_init
+	result_21 = VCALL CellularAutomaton out_string 
+	internal_26 = LOAD s_13
+	instance_27 = ALLOCATE String
+	result_init_28 = CALL String_init
+	result_25 = VCALL CellularAutomaton out_string 
+	internal_30 = LOAD s_14
+	instance_31 = ALLOCATE String
+	result_init_32 = CALL String_init
+	result_29 = VCALL CellularAutomaton out_string 
+	internal_34 = LOAD s_15
+	instance_35 = ALLOCATE String
+	result_init_36 = CALL String_init
+	result_33 = VCALL CellularAutomaton out_string 
+	internal_38 = LOAD s_16
+	instance_39 = ALLOCATE String
+	result_init_40 = CALL String_init
+	result_37 = VCALL CellularAutomaton out_string 
+	internal_42 = LOAD s_17
+	instance_43 = ALLOCATE String
+	result_init_44 = CALL String_init
+	result_41 = VCALL CellularAutomaton out_string 
+	internal_46 = LOAD s_18
+	instance_47 = ALLOCATE String
+	result_init_48 = CALL String_init
+	result_45 = VCALL CellularAutomaton out_string 
+	internal_50 = LOAD s_19
+	instance_51 = ALLOCATE String
+	result_init_52 = CALL String_init
+	result_49 = VCALL CellularAutomaton out_string 
+	internal_54 = LOAD s_20
+	instance_55 = ALLOCATE String
+	result_init_56 = CALL String_init
+	result_53 = VCALL CellularAutomaton out_string 
+	internal_58 = LOAD s_21
+	instance_59 = ALLOCATE String
+	result_init_60 = CALL String_init
+	result_57 = VCALL CellularAutomaton out_string 
+	internal_62 = LOAD s_22
+	instance_63 = ALLOCATE String
+	result_init_64 = CALL String_init
+	result_61 = VCALL CellularAutomaton out_string 
+	internal_66 = LOAD s_23
+	instance_67 = ALLOCATE String
+	result_init_68 = CALL String_init
+	result_65 = VCALL CellularAutomaton out_string 
+	internal_70 = LOAD s_24
+	instance_71 = ALLOCATE String
+	result_init_72 = CALL String_init
+	result_69 = VCALL CellularAutomaton out_string 
+	internal_74 = LOAD s_25
+	instance_75 = ALLOCATE String
+	result_init_76 = CALL String_init
+	result_73 = VCALL CellularAutomaton out_string 
+	internal_78 = LOAD s_26
+	instance_79 = ALLOCATE String
+	result_init_80 = CALL String_init
+	result_77 = VCALL CellularAutomaton out_string 
+	internal_82 = LOAD s_27
+	instance_83 = ALLOCATE String
+	result_init_84 = CALL String_init
+	result_81 = VCALL CellularAutomaton out_string 
+	internal_86 = LOAD s_28
+	instance_87 = ALLOCATE String
+	result_init_88 = CALL String_init
+	result_85 = VCALL CellularAutomaton out_string 
+	internal_90 = LOAD s_29
+	instance_91 = ALLOCATE String
+	result_init_92 = CALL String_init
+	result_89 = VCALL CellularAutomaton out_string 
+	result_93 = VCALL CellularAutomaton in_int 
+	num_0 = result_93
+	internal_96 = LOAD s_3
+	instance_97 = ALLOCATE String
+	result_init_98 = CALL String_init
+	result_95 = VCALL CellularAutomaton out_string 
+	instance_104 = ALLOCATE Int
+	value_105 = LOAD 1
+	result_init_106 = CALL Int_init
+	left_102 = GetAttr num_0 value 
+	right_103 = GetAttr instance_104 value 
+	op_101 = left_102 = right_103
+	result_100 = ALLOCATE Bool
+	result_init_107 = CALL Bool_init
+	IF result_100 GOTO label_69
+	instance_113 = ALLOCATE Int
+	value_114 = LOAD 2
+	result_init_115 = CALL Int_init
+	left_111 = GetAttr num_0 value 
+	right_112 = GetAttr instance_113 value 
+	op_110 = left_111 = right_112
+	result_109 = ALLOCATE Bool
+	result_init_116 = CALL Bool_init
+	IF result_109 GOTO label_70
+	instance_122 = ALLOCATE Int
+	value_123 = LOAD 3
+	result_init_124 = CALL Int_init
+	left_120 = GetAttr num_0 value 
+	right_121 = GetAttr instance_122 value 
+	op_119 = left_120 = right_121
+	result_118 = ALLOCATE Bool
+	result_init_125 = CALL Bool_init
+	IF result_118 GOTO label_71
+	instance_131 = ALLOCATE Int
+	value_132 = LOAD 4
+	result_init_133 = CALL Int_init
+	left_129 = GetAttr num_0 value 
+	right_130 = GetAttr instance_131 value 
+	op_128 = left_129 = right_130
+	result_127 = ALLOCATE Bool
+	result_init_134 = CALL Bool_init
+	IF result_127 GOTO label_72
+	instance_140 = ALLOCATE Int
+	value_141 = LOAD 5
+	result_init_142 = CALL Int_init
+	left_138 = GetAttr num_0 value 
+	right_139 = GetAttr instance_140 value 
+	op_137 = left_138 = right_139
+	result_136 = ALLOCATE Bool
+	result_init_143 = CALL Bool_init
+	IF result_136 GOTO label_73
+	instance_149 = ALLOCATE Int
+	value_150 = LOAD 6
+	result_init_151 = CALL Int_init
+	left_147 = GetAttr num_0 value 
+	right_148 = GetAttr instance_149 value 
+	op_146 = left_147 = right_148
+	result_145 = ALLOCATE Bool
+	result_init_152 = CALL Bool_init
+	IF result_145 GOTO label_74
+	instance_158 = ALLOCATE Int
+	value_159 = LOAD 7
+	result_init_160 = CALL Int_init
+	left_156 = GetAttr num_0 value 
+	right_157 = GetAttr instance_158 value 
+	op_155 = left_156 = right_157
+	result_154 = ALLOCATE Bool
+	result_init_161 = CALL Bool_init
+	IF result_154 GOTO label_75
+	instance_167 = ALLOCATE Int
+	value_168 = LOAD 8
+	result_init_169 = CALL Int_init
+	left_165 = GetAttr num_0 value 
+	right_166 = GetAttr instance_167 value 
+	op_164 = left_165 = right_166
+	result_163 = ALLOCATE Bool
+	result_init_170 = CALL Bool_init
+	IF result_163 GOTO label_76
+	instance_176 = ALLOCATE Int
+	value_177 = LOAD 9
+	result_init_178 = CALL Int_init
+	left_174 = GetAttr num_0 value 
+	right_175 = GetAttr instance_176 value 
+	op_173 = left_174 = right_175
+	result_172 = ALLOCATE Bool
+	result_init_179 = CALL Bool_init
+	IF result_172 GOTO label_77
+	instance_185 = ALLOCATE Int
+	value_186 = LOAD 10
+	result_init_187 = CALL Int_init
+	left_183 = GetAttr num_0 value 
+	right_184 = GetAttr instance_185 value 
+	op_182 = left_183 = right_184
+	result_181 = ALLOCATE Bool
+	result_init_188 = CALL Bool_init
+	IF result_181 GOTO label_78
+	instance_194 = ALLOCATE Int
+	value_195 = LOAD 11
+	result_init_196 = CALL Int_init
+	left_192 = GetAttr num_0 value 
+	right_193 = GetAttr instance_194 value 
+	op_191 = left_192 = right_193
+	result_190 = ALLOCATE Bool
+	result_init_197 = CALL Bool_init
+	IF result_190 GOTO label_79
+	instance_203 = ALLOCATE Int
+	value_204 = LOAD 12
+	result_init_205 = CALL Int_init
+	left_201 = GetAttr num_0 value 
+	right_202 = GetAttr instance_203 value 
+	op_200 = left_201 = right_202
+	result_199 = ALLOCATE Bool
+	result_init_206 = CALL Bool_init
+	IF result_199 GOTO label_80
+	instance_212 = ALLOCATE Int
+	value_213 = LOAD 13
+	result_init_214 = CALL Int_init
+	left_210 = GetAttr num_0 value 
+	right_211 = GetAttr instance_212 value 
+	op_209 = left_210 = right_211
+	result_208 = ALLOCATE Bool
+	result_init_215 = CALL Bool_init
+	IF result_208 GOTO label_81
+	instance_221 = ALLOCATE Int
+	value_222 = LOAD 14
+	result_init_223 = CALL Int_init
+	left_219 = GetAttr num_0 value 
+	right_220 = GetAttr instance_221 value 
+	op_218 = left_219 = right_220
+	result_217 = ALLOCATE Bool
+	result_init_224 = CALL Bool_init
+	IF result_217 GOTO label_82
+	instance_230 = ALLOCATE Int
+	value_231 = LOAD 15
+	result_init_232 = CALL Int_init
+	left_228 = GetAttr num_0 value 
+	right_229 = GetAttr instance_230 value 
+	op_227 = left_228 = right_229
+	result_226 = ALLOCATE Bool
+	result_init_233 = CALL Bool_init
+	IF result_226 GOTO label_83
+	instance_239 = ALLOCATE Int
+	value_240 = LOAD 16
+	result_init_241 = CALL Int_init
+	left_237 = GetAttr num_0 value 
+	right_238 = GetAttr instance_239 value 
+	op_236 = left_237 = right_238
+	result_235 = ALLOCATE Bool
+	result_init_242 = CALL Bool_init
+	IF result_235 GOTO label_84
+	instance_248 = ALLOCATE Int
+	value_249 = LOAD 17
+	result_init_250 = CALL Int_init
+	left_246 = GetAttr num_0 value 
+	right_247 = GetAttr instance_248 value 
+	op_245 = left_246 = right_247
+	result_244 = ALLOCATE Bool
+	result_init_251 = CALL Bool_init
+	IF result_244 GOTO label_85
+	instance_257 = ALLOCATE Int
+	value_258 = LOAD 18
+	result_init_259 = CALL Int_init
+	left_255 = GetAttr num_0 value 
+	right_256 = GetAttr instance_257 value 
+	op_254 = left_255 = right_256
+	result_253 = ALLOCATE Bool
+	result_init_260 = CALL Bool_init
+	IF result_253 GOTO label_86
+	instance_266 = ALLOCATE Int
+	value_267 = LOAD 19
+	result_init_268 = CALL Int_init
+	left_264 = GetAttr num_0 value 
+	right_265 = GetAttr instance_266 value 
+	op_263 = left_264 = right_265
+	result_262 = ALLOCATE Bool
+	result_init_269 = CALL Bool_init
+	IF result_262 GOTO label_87
+	instance_275 = ALLOCATE Int
+	value_276 = LOAD 20
+	result_init_277 = CALL Int_init
+	left_273 = GetAttr num_0 value 
+	right_274 = GetAttr instance_275 value 
+	op_272 = left_273 = right_274
+	result_271 = ALLOCATE Bool
+	result_init_278 = CALL Bool_init
+	IF result_271 GOTO label_88
+	instance_284 = ALLOCATE Int
+	value_285 = LOAD 21
+	result_init_286 = CALL Int_init
+	left_282 = GetAttr num_0 value 
+	right_283 = GetAttr instance_284 value 
+	op_281 = left_282 = right_283
+	result_280 = ALLOCATE Bool
+	result_init_287 = CALL Bool_init
+	IF result_280 GOTO label_89
+	internal_288 = LOAD s_30
+	instance_289 = ALLOCATE String
+	result_init_290 = CALL String_init
+	result_279 = instance_289
+	GOTO label_90
+	LABEL label_89
+	internal_291 = LOAD s_31
+	instance_292 = ALLOCATE String
+	result_init_293 = CALL String_init
+	result_279 = instance_292
+	LABEL label_90
+	result_270 = result_279
+	GOTO label_91
+	LABEL label_88
+	internal_294 = LOAD s_32
+	instance_295 = ALLOCATE String
+	result_init_296 = CALL String_init
+	result_270 = instance_295
+	LABEL label_91
+	result_261 = result_270
+	GOTO label_92
+	LABEL label_87
+	internal_297 = LOAD s_33
+	instance_298 = ALLOCATE String
+	result_init_299 = CALL String_init
+	result_261 = instance_298
+	LABEL label_92
+	result_252 = result_261
+	GOTO label_93
+	LABEL label_86
+	internal_300 = LOAD s_34
+	instance_301 = ALLOCATE String
+	result_init_302 = CALL String_init
+	result_252 = instance_301
+	LABEL label_93
+	result_243 = result_252
+	GOTO label_94
+	LABEL label_85
+	internal_303 = LOAD s_35
+	instance_304 = ALLOCATE String
+	result_init_305 = CALL String_init
+	result_243 = instance_304
+	LABEL label_94
+	result_234 = result_243
+	GOTO label_95
+	LABEL label_84
+	internal_306 = LOAD s_36
+	instance_307 = ALLOCATE String
+	result_init_308 = CALL String_init
+	result_234 = instance_307
+	LABEL label_95
+	result_225 = result_234
+	GOTO label_96
+	LABEL label_83
+	internal_309 = LOAD s_37
+	instance_310 = ALLOCATE String
+	result_init_311 = CALL String_init
+	result_225 = instance_310
+	LABEL label_96
+	result_216 = result_225
+	GOTO label_97
+	LABEL label_82
+	internal_312 = LOAD s_38
+	instance_313 = ALLOCATE String
+	result_init_314 = CALL String_init
+	result_216 = instance_313
+	LABEL label_97
+	result_207 = result_216
+	GOTO label_98
+	LABEL label_81
+	internal_315 = LOAD s_39
+	instance_316 = ALLOCATE String
+	result_init_317 = CALL String_init
+	result_207 = instance_316
+	LABEL label_98
+	result_198 = result_207
+	GOTO label_99
+	LABEL label_80
+	internal_318 = LOAD s_40
+	instance_319 = ALLOCATE String
+	result_init_320 = CALL String_init
+	result_198 = instance_319
+	LABEL label_99
+	result_189 = result_198
+	GOTO label_100
+	LABEL label_79
+	internal_321 = LOAD s_41
+	instance_322 = ALLOCATE String
+	result_init_323 = CALL String_init
+	result_189 = instance_322
+	LABEL label_100
+	result_180 = result_189
+	GOTO label_101
+	LABEL label_78
+	internal_324 = LOAD s_42
+	instance_325 = ALLOCATE String
+	result_init_326 = CALL String_init
+	result_180 = instance_325
+	LABEL label_101
+	result_171 = result_180
+	GOTO label_102
+	LABEL label_77
+	internal_327 = LOAD s_43
+	instance_328 = ALLOCATE String
+	result_init_329 = CALL String_init
+	result_171 = instance_328
+	LABEL label_102
+	result_162 = result_171
+	GOTO label_103
+	LABEL label_76
+	internal_330 = LOAD s_44
+	instance_331 = ALLOCATE String
+	result_init_332 = CALL String_init
+	result_162 = instance_331
+	LABEL label_103
+	result_153 = result_162
+	GOTO label_104
+	LABEL label_75
+	internal_333 = LOAD s_45
+	instance_334 = ALLOCATE String
+	result_init_335 = CALL String_init
+	result_153 = instance_334
+	LABEL label_104
+	result_144 = result_153
+	GOTO label_105
+	LABEL label_74
+	internal_336 = LOAD s_46
+	instance_337 = ALLOCATE String
+	result_init_338 = CALL String_init
+	result_144 = instance_337
+	LABEL label_105
+	result_135 = result_144
+	GOTO label_106
+	LABEL label_73
+	internal_339 = LOAD s_47
+	instance_340 = ALLOCATE String
+	result_init_341 = CALL String_init
+	result_135 = instance_340
+	LABEL label_106
+	result_126 = result_135
+	GOTO label_107
+	LABEL label_72
+	internal_342 = LOAD s_48
+	instance_343 = ALLOCATE String
+	result_init_344 = CALL String_init
+	result_126 = instance_343
+	LABEL label_107
+	result_117 = result_126
+	GOTO label_108
+	LABEL label_71
+	internal_345 = LOAD s_49
+	instance_346 = ALLOCATE String
+	result_init_347 = CALL String_init
+	result_117 = instance_346
+	LABEL label_108
+	result_108 = result_117
+	GOTO label_109
+	LABEL label_70
+	internal_348 = LOAD s_50
+	instance_349 = ALLOCATE String
+	result_init_350 = CALL String_init
+	result_108 = instance_349
+	LABEL label_109
+	result_99 = result_108
+	GOTO label_110
+	LABEL label_69
+	internal_351 = LOAD s_51
+	instance_352 = ALLOCATE String
+	result_init_353 = CALL String_init
+	result_99 = instance_352
+	LABEL label_110
+	let_result_354 = result_99
+	
+ RETURN let_result_354
+}
+function CellularAutomaton.prompt {
+	PARAM self
+
+	LOCAL ans_0
+	LOCAL result_1
+	LOCAL internal_2
+	LOCAL instance_3
+	LOCAL result_init_4
+	LOCAL result_5
+	LOCAL internal_6
+	LOCAL instance_7
+	LOCAL result_init_8
+	LOCAL result_9
+	LOCAL result_10
+	LOCAL result_11
+	LOCAL internal_12
+	LOCAL instance_13
+	LOCAL result_init_14
+	LOCAL result_15
+	LOCAL result_16
+	LOCAL op_17
+	LOCAL left_18
+	LOCAL right_19
+	LOCAL internal_20
+	LOCAL instance_21
+	LOCAL result_init_22
+	LOCAL result_init_23
+	LOCAL instance_24
+	LOCAL value_25
+	LOCAL result_init_26
+	LOCAL instance_27
+	LOCAL value_28
+	LOCAL result_init_29
+	LOCAL let_result_30
+
+	ans_0 = []
+	internal_2 = LOAD s_52
+	instance_3 = ALLOCATE String
+	result_init_4 = CALL String_init
+	result_1 = VCALL CellularAutomaton out_string 
+	internal_6 = LOAD s_53
+	instance_7 = ALLOCATE String
+	result_init_8 = CALL String_init
+	result_5 = VCALL CellularAutomaton out_string 
+	result_9 = VCALL CellularAutomaton in_string 
+	ans_0 = result_9
+	internal_12 = LOAD s_3
+	instance_13 = ALLOCATE String
+	result_init_14 = CALL String_init
+	result_11 = VCALL CellularAutomaton out_string 
+	internal_20 = LOAD s_54
+	instance_21 = ALLOCATE String
+	result_init_22 = CALL String_init
+	op_17 = CALL String_equals
+	result_16 = ALLOCATE Bool
+	result_init_23 = CALL Bool_init
+	IF result_16 GOTO label_111
+	instance_24 = ALLOCATE Bool
+	value_25 = LOAD 0
+	result_init_26 = CALL Bool_init
+	result_15 = instance_24
+	GOTO label_112
+	LABEL label_111
+	instance_27 = ALLOCATE Bool
+	value_28 = LOAD 0
+	result_init_29 = CALL Bool_init
+	result_15 = instance_27
+	LABEL label_112
+	let_result_30 = result_15
+	
+ RETURN let_result_30
+}
+function CellularAutomaton.prompt2 {
+	PARAM self
+
+	LOCAL ans_0
+	LOCAL result_1
+	LOCAL internal_2
+	LOCAL instance_3
+	LOCAL result_init_4
+	LOCAL result_5
+	LOCAL internal_6
+	LOCAL instance_7
+	LOCAL result_init_8
+	LOCAL result_9
+	LOCAL internal_10
+	LOCAL instance_11
+	LOCAL result_init_12
+	LOCAL result_13
+	LOCAL result_14
+	LOCAL result_15
+	LOCAL result_16
+	LOCAL op_17
+	LOCAL left_18
+	LOCAL right_19
+	LOCAL internal_20
+	LOCAL instance_21
+	LOCAL result_init_22
+	LOCAL result_init_23
+	LOCAL instance_24
+	LOCAL value_25
+	LOCAL result_init_26
+	LOCAL instance_27
+	LOCAL value_28
+	LOCAL result_init_29
+	LOCAL let_result_30
+
+	ans_0 = []
+	internal_2 = LOAD s_55
+	instance_3 = ALLOCATE String
+	result_init_4 = CALL String_init
+	result_1 = VCALL CellularAutomaton out_string 
+	internal_6 = LOAD s_56
+	instance_7 = ALLOCATE String
+	result_init_8 = CALL String_init
+	result_5 = VCALL CellularAutomaton out_string 
+	internal_10 = LOAD s_57
+	instance_11 = ALLOCATE String
+	result_init_12 = CALL String_init
+	result_9 = VCALL CellularAutomaton out_string 
+	result_13 = VCALL CellularAutomaton in_string 
+	ans_0 = result_13
+	internal_20 = LOAD s_58
+	instance_21 = ALLOCATE String
+	result_init_22 = CALL String_init
+	op_17 = CALL String_equals
+	result_16 = ALLOCATE Bool
+	result_init_23 = CALL Bool_init
+	IF result_16 GOTO label_113
+	instance_24 = ALLOCATE Bool
+	value_25 = LOAD 0
+	result_init_26 = CALL Bool_init
+	result_15 = instance_24
+	GOTO label_114
+	LABEL label_113
+	instance_27 = ALLOCATE Bool
+	value_28 = LOAD 0
+	result_init_29 = CALL Bool_init
+	result_15 = instance_27
+	LABEL label_114
+	let_result_30 = result_15
+	
+ RETURN let_result_30
+}
+function Main_init {
+	PARAM self
+
+	LOCAL result_0
+
+	result_0 = CALL CellularAutomaton_init
+	
+ RETURN 
+	SetAttr self cells None
+}
+function Main.main {
+	PARAM self
+
+	LOCAL continue_0
+	LOCAL choice_1
+	LOCAL result_2
+	LOCAL internal_3
+	LOCAL instance_4
+	LOCAL result_init_5
+	LOCAL result_6
+	LOCAL internal_7
+	LOCAL instance_8
+	LOCAL result_init_9
+	LOCAL result_10
+	LOCAL result_11
+	LOCAL instance_12
+	LOCAL value_13
+	LOCAL result_init_14
+	LOCAL result_15
+	LOCAL result_16
+	LOCAL result_17
+	LOCAL result_18
+	LOCAL result_19
+	LOCAL init_20
+	LOCAL result_21
+	LOCAL result_22
+	LOCAL cells_23
+	LOCAL result_24
+	LOCAL result_25
+	LOCAL result_26
+	LOCAL instance_27
+	LOCAL value_28
+	LOCAL result_init_29
+	LOCAL result_30
+	LOCAL result_31
+	LOCAL cells_32
+	LOCAL result_33
+	LOCAL cells_34
+	LOCAL let_result_35
+	LOCAL let_result_36
+
+	continue_0 = []
+	choice_1 = []
+	internal_3 = LOAD s_59
+	instance_4 = ALLOCATE String
+	result_init_5 = CALL String_init
+	result_2 = VCALL Main out_string 
+	internal_7 = LOAD s_60
+	instance_8 = ALLOCATE String
+	result_init_9 = CALL String_init
+	result_6 = VCALL Main out_string 
+	LABEL label_115
+	result_11 = VCALL Main prompt2 
+	IF result_11 GOTO label_116
+	GOTO label_117
+	LABEL label_116
+	instance_12 = ALLOCATE Bool
+	value_13 = LOAD 0
+	result_init_14 = CALL Bool_init
+	continue_0 = instance_12
+	result_16 = VCALL Main option 
+	choice_1 = result_16
+	result_19 = ALLOCATE CellularAutomaton
+	init_20 = CALL CellularAutomaton_init
+	result_18 = VCALL CellularAutomaton init 
+	SetAttr self cells result_18
+	cells_23 = GetAttr self cells 
+	result_22 = VCALL CellularAutomaton print 
+	LABEL label_118
+	IF continue_0 GOTO label_119
+	GOTO label_120
+	LABEL label_119
+	result_26 = VCALL Main prompt 
+	IF result_26 GOTO label_121
+	instance_27 = ALLOCATE Bool
+	value_28 = LOAD 0
+	result_init_29 = CALL Bool_init
+	continue_0 = instance_27
+	result_25 = instance_27
+	GOTO label_122
+	LABEL label_121
+	cells_32 = GetAttr self cells 
+	result_31 = VCALL CellularAutomaton evolve 
+	cells_34 = GetAttr self cells 
+	result_33 = VCALL CellularAutomaton print 
+	result_25 = result_33
+	LABEL label_122
+	GOTO label_118
+	LABEL label_120
+	result_24 = LOAD None
+	GOTO label_115
+	LABEL label_117
+	result_10 = LOAD None
+	let_result_35 = self
+	let_result_36 = let_result_35
+	
+ RETURN let_result_36
+}

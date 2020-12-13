@@ -1,0 +1,719 @@
+.TYPES
+type Object {
+	
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+}
+type Int {
+	attribute value
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+}
+type String {
+	attribute value
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method length : String.length
+	method concat : String.concat
+	method substr : String.substr
+}
+type Bool {
+	attribute value
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+}
+type IO {
+	
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
+}
+type Main {
+	
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
+	method main : Main.main
+}
+type Complex {
+	attribute x
+	attribute y
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
+	method init : Complex.init
+	method print : Complex.print
+	method reflect_0 : Complex.reflect_0
+	method reflect_X : Complex.reflect_X
+	method reflect_Y : Complex.reflect_Y
+	method equal : Complex.equal
+	method x_value : Complex.x_value
+	method y_value : Complex.y_value
+}
+
+.DATA
+s_0: Abort called from class 
+s_1: 
+
+empty_str: 
+s_3: =(\n
+s_4: =)\n
+s_5: +
+s_6: I
+
+.CODE
+function main {
+	
+
+	LOCAL instance_0
+	LOCAL result_1
+
+	instance_0 = ALLOCATE Main
+	result_1 = CALL Main_init
+	result_1 = CALL Main.main
+	
+ RETURN 
+}
+function Object_init {
+	PARAM self
+
+	
+
+	
+ RETURN 
+}
+function Object.abort {
+	PARAM self
+
+	LOCAL msg_0
+	LOCAL type_name_1
+	LOCAL eol_2
+
+	msg_0 = LOAD s_0
+	PRINT_STR msg_0
+	type_name_1 = TYPEOF self
+	PRINT_STR type_name_1
+	eol_2 = LOAD s_1
+	PRINT_STR eol_2
+	HALT
+}
+function Object.type_name {
+	PARAM self
+
+	LOCAL type_name_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	type_name_0 = TYPEOF self
+	instance_1 = ALLOCATE String
+	result_init_2 = CALL String_init
+	
+ RETURN instance_1
+}
+function Object.copy {
+	PARAM self
+
+	LOCAL copy_0
+
+	copy_0 = COPY self
+	
+ RETURN copy_0
+}
+function IO_init {
+	PARAM self
+
+	
+
+	
+ RETURN 
+}
+function IO.out_string {
+	PARAM self
+	PARAM x
+
+	LOCAL v_0
+
+	v_0 = GetAttr x value 
+	PRINT_STR v_0
+	
+ RETURN self
+}
+function IO.out_int {
+	PARAM self
+	PARAM x
+
+	LOCAL v_0
+
+	v_0 = GetAttr x value 
+	PRINT_INT v_0
+	
+ RETURN self
+}
+function IO.in_string {
+	PARAM self
+
+	LOCAL read_str_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	read_str_0 = READ STR
+	instance_1 = ALLOCATE String
+	result_init_2 = CALL String_init
+	
+ RETURN instance_1
+}
+function IO.in_int {
+	PARAM self
+
+	LOCAL read_int_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	read_int_0 = READ INT
+	instance_1 = ALLOCATE Int
+	result_init_2 = CALL Int_init
+	
+ RETURN instance_1
+}
+function String_init {
+	PARAM self
+	PARAM v
+
+	
+
+	SetAttr self value v
+	
+ RETURN 
+}
+function String.length {
+	PARAM self
+
+	LOCAL length_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	length_0 = LENGTH self
+	instance_1 = ALLOCATE Int
+	result_init_2 = CALL Int_init
+	
+ RETURN instance_1
+}
+function String.concat {
+	PARAM self
+	PARAM s
+
+	LOCAL str1_0
+	LOCAL len1_1
+	LOCAL str2_2
+	LOCAL len2_3
+	LOCAL local_len1_4
+	LOCAL local_len2_5
+	LOCAL concat_6
+	LOCAL instance_7
+	LOCAL result_init_8
+
+	str1_0 = GetAttr self value 
+	len1_1 = CALL String.length
+	str2_2 = GetAttr s value 
+	len2_3 = CALL String.length
+	local_len1_4 = GetAttr len1_1 value 
+	local_len2_5 = GetAttr len2_3 value 
+	concat_6 = CONCAT str1_0  str2_2
+	instance_7 = ALLOCATE String
+	result_init_8 = CALL String_init
+	
+ RETURN instance_7
+}
+function String.substr {
+	PARAM self
+	PARAM i
+	PARAM l
+
+	LOCAL i_value_0
+	LOCAL l_value_1
+	LOCAL subs_result_2
+	LOCAL instance_3
+	LOCAL result_init_4
+
+	i_value_0 = GetAttr i value 
+	l_value_1 = GetAttr l value 
+	subs_result_2 = SUBSTR i_value_0  l_value_1  self
+	instance_3 = ALLOCATE String
+	result_init_4 = CALL String_init
+	
+ RETURN instance_3
+}
+function Bool_init {
+	PARAM self
+	PARAM v
+
+	
+
+	SetAttr self value v
+	
+ RETURN 
+}
+function Int_init {
+	PARAM self
+	PARAM v
+
+	
+
+	SetAttr self value v
+	
+ RETURN 
+}
+function String_equals {
+	PARAM str1
+	PARAM str2
+
+	LOCAL str1_0
+	LOCAL str2_1
+	LOCAL comparison_result_2
+
+	str1_0 = GetAttr str1 value 
+	str2_1 = GetAttr str2 value 
+	comparison_result_2 = str1_0 = str2_1
+	
+ RETURN comparison_result_2
+}
+function Main_init {
+	PARAM self
+
+	LOCAL result_0
+
+	result_0 = CALL IO_init
+	
+ RETURN 
+}
+function Main.main {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL init_2
+	LOCAL instance_3
+	LOCAL value_4
+	LOCAL result_init_5
+	LOCAL instance_6
+	LOCAL value_7
+	LOCAL result_init_8
+	LOCAL c_9
+	LOCAL result_10
+	LOCAL result_11
+	LOCAL op_12
+	LOCAL left_13
+	LOCAL right_14
+	LOCAL result_15
+	LOCAL result_16
+	LOCAL result_init_17
+	LOCAL result_18
+	LOCAL internal_19
+	LOCAL instance_20
+	LOCAL result_init_21
+	LOCAL result_22
+	LOCAL internal_23
+	LOCAL instance_24
+	LOCAL result_init_25
+	LOCAL result_26
+	LOCAL result_27
+	LOCAL result_28
+	LOCAL result_29
+	LOCAL result_30
+	LOCAL result_31
+	LOCAL internal_32
+	LOCAL instance_33
+	LOCAL result_init_34
+	LOCAL result_35
+	LOCAL internal_36
+	LOCAL instance_37
+	LOCAL result_init_38
+	LOCAL let_result_39
+
+	result_1 = ALLOCATE Complex
+	init_2 = CALL Complex_init
+	instance_3 = ALLOCATE Int
+	value_4 = LOAD 1
+	result_init_5 = CALL Int_init
+	instance_6 = ALLOCATE Int
+	value_7 = LOAD 1
+	result_init_8 = CALL Int_init
+	result_0 = VCALL Complex init 
+	c_9 = result_0
+	result_15 = VCALL Complex reflect_X 
+	result_16 = VCALL Complex reflect_0 
+	left_13 = GetAttr result_15 value 
+	right_14 = GetAttr result_16 value 
+	op_12 = left_13 = right_14
+	result_11 = ALLOCATE Bool
+	result_init_17 = CALL Bool_init
+	IF result_11 GOTO label_1
+	internal_19 = LOAD s_3
+	instance_20 = ALLOCATE String
+	result_init_21 = CALL String_init
+	result_18 = VCALL Main out_string 
+	result_10 = result_18
+	GOTO label_2
+	LABEL label_1
+	internal_23 = LOAD s_4
+	instance_24 = ALLOCATE String
+	result_init_25 = CALL String_init
+	result_22 = VCALL Main out_string 
+	result_10 = result_22
+	LABEL label_2
+	result_29 = VCALL Complex reflect_X 
+	result_28 = VCALL Complex reflect_Y 
+	result_30 = VCALL Complex reflect_0 
+	result_27 = VCALL Complex equal 
+	IF result_27 GOTO label_3
+	internal_32 = LOAD s_3
+	instance_33 = ALLOCATE String
+	result_init_34 = CALL String_init
+	result_31 = VCALL Main out_string 
+	result_26 = result_31
+	GOTO label_4
+	LABEL label_3
+	internal_36 = LOAD s_4
+	instance_37 = ALLOCATE String
+	result_init_38 = CALL String_init
+	result_35 = VCALL Main out_string 
+	result_26 = result_35
+	LABEL label_4
+	let_result_39 = result_26
+	
+ RETURN let_result_39
+}
+function Complex_init {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL instance_1
+	LOCAL value_2
+	LOCAL result_init_3
+	LOCAL instance_4
+	LOCAL value_5
+	LOCAL result_init_6
+
+	result_0 = CALL IO_init
+	
+ RETURN 
+	instance_1 = ALLOCATE Int
+	value_2 = LOAD 0
+	result_init_3 = CALL Int_init
+	SetAttr self x instance_1
+	instance_4 = ALLOCATE Int
+	value_5 = LOAD 0
+	result_init_6 = CALL Int_init
+	SetAttr self y instance_4
+}
+function Complex.init {
+	PARAM self
+	PARAM a
+	PARAM b
+
+	LOCAL result_0
+	LOCAL op_1
+	LOCAL left_2
+	LOCAL right_3
+	LOCAL x_4
+	LOCAL result_init_5
+	LOCAL result_6
+	LOCAL op_7
+	LOCAL left_8
+	LOCAL right_9
+	LOCAL y_10
+	LOCAL result_init_11
+
+	x_4 = GetAttr self x 
+	left_2 = GetAttr x_4 value 
+	right_3 = GetAttr a value 
+	op_1 = left_2 = right_3
+	result_0 = ALLOCATE Bool
+	result_init_5 = CALL Bool_init
+	y_10 = GetAttr self y 
+	left_8 = GetAttr y_10 value 
+	right_9 = GetAttr b value 
+	op_7 = left_8 = right_9
+	result_6 = ALLOCATE Bool
+	result_init_11 = CALL Bool_init
+	
+ RETURN self
+}
+function Complex.print {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL op_2
+	LOCAL left_3
+	LOCAL right_4
+	LOCAL y_5
+	LOCAL instance_6
+	LOCAL value_7
+	LOCAL result_init_8
+	LOCAL result_init_9
+	LOCAL result_10
+	LOCAL result_11
+	LOCAL result_12
+	LOCAL result_13
+	LOCAL x_14
+	LOCAL internal_15
+	LOCAL instance_16
+	LOCAL result_init_17
+	LOCAL y_18
+	LOCAL internal_19
+	LOCAL instance_20
+	LOCAL result_init_21
+	LOCAL result_22
+	LOCAL x_23
+
+	y_5 = GetAttr self y 
+	instance_6 = ALLOCATE Int
+	value_7 = LOAD 0
+	result_init_8 = CALL Int_init
+	left_3 = GetAttr y_5 value 
+	right_4 = GetAttr instance_6 value 
+	op_2 = left_3 = right_4
+	result_1 = ALLOCATE Bool
+	result_init_9 = CALL Bool_init
+	IF result_1 GOTO label_5
+	x_14 = GetAttr self x 
+	result_13 = VCALL Complex out_int 
+	internal_15 = LOAD s_5
+	instance_16 = ALLOCATE String
+	result_init_17 = CALL String_init
+	result_12 = VCALL IO out_string 
+	y_18 = GetAttr self y 
+	result_11 = VCALL IO out_int 
+	internal_19 = LOAD s_6
+	instance_20 = ALLOCATE String
+	result_init_21 = CALL String_init
+	result_10 = VCALL IO out_string 
+	result_0 = result_10
+	GOTO label_6
+	LABEL label_5
+	x_23 = GetAttr self x 
+	result_22 = VCALL Complex out_int 
+	result_0 = result_22
+	LABEL label_6
+	
+ RETURN result_0
+}
+function Complex.reflect_0 {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL op_1
+	LOCAL left_2
+	LOCAL right_3
+	LOCAL x_4
+	LOCAL result_5
+	LOCAL op_6
+	LOCAL internal_7
+	LOCAL x_8
+	LOCAL result_init_9
+	LOCAL result_init_10
+	LOCAL result_11
+	LOCAL op_12
+	LOCAL left_13
+	LOCAL right_14
+	LOCAL y_15
+	LOCAL result_16
+	LOCAL op_17
+	LOCAL internal_18
+	LOCAL y_19
+	LOCAL result_init_20
+	LOCAL result_init_21
+
+	x_4 = GetAttr self x 
+	x_8 = GetAttr self x 
+	internal_7 = GetAttr x_8 value 
+	op_6 = ~ internal_7
+	result_5 = ALLOCATE Int
+	result_init_9 = CALL Int_init
+	left_2 = GetAttr x_4 value 
+	left_2 = GetAttr x_4 value 
+	op_1 = left_2 = right_3
+	result_0 = ALLOCATE Bool
+	result_init_10 = CALL Bool_init
+	y_15 = GetAttr self y 
+	y_19 = GetAttr self y 
+	internal_18 = GetAttr y_19 value 
+	op_17 = ~ internal_18
+	result_16 = ALLOCATE Int
+	result_init_20 = CALL Int_init
+	left_13 = GetAttr y_15 value 
+	left_13 = GetAttr y_15 value 
+	op_12 = left_13 = right_14
+	result_11 = ALLOCATE Bool
+	result_init_21 = CALL Bool_init
+	
+ RETURN self
+}
+function Complex.reflect_X {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL op_1
+	LOCAL left_2
+	LOCAL right_3
+	LOCAL y_4
+	LOCAL result_5
+	LOCAL op_6
+	LOCAL internal_7
+	LOCAL y_8
+	LOCAL result_init_9
+	LOCAL result_init_10
+
+	y_4 = GetAttr self y 
+	y_8 = GetAttr self y 
+	internal_7 = GetAttr y_8 value 
+	op_6 = ~ internal_7
+	result_5 = ALLOCATE Int
+	result_init_9 = CALL Int_init
+	left_2 = GetAttr y_4 value 
+	left_2 = GetAttr y_4 value 
+	op_1 = left_2 = right_3
+	result_0 = ALLOCATE Bool
+	result_init_10 = CALL Bool_init
+	
+ RETURN self
+}
+function Complex.reflect_Y {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL op_1
+	LOCAL left_2
+	LOCAL right_3
+	LOCAL x_4
+	LOCAL result_5
+	LOCAL op_6
+	LOCAL internal_7
+	LOCAL x_8
+	LOCAL result_init_9
+	LOCAL result_init_10
+
+	x_4 = GetAttr self x 
+	x_8 = GetAttr self x 
+	internal_7 = GetAttr x_8 value 
+	op_6 = ~ internal_7
+	result_5 = ALLOCATE Int
+	result_init_9 = CALL Int_init
+	left_2 = GetAttr x_4 value 
+	left_2 = GetAttr x_4 value 
+	op_1 = left_2 = right_3
+	result_0 = ALLOCATE Bool
+	result_init_10 = CALL Bool_init
+	
+ RETURN self
+}
+function Complex.equal {
+	PARAM self
+	PARAM d
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL op_2
+	LOCAL left_3
+	LOCAL right_4
+	LOCAL x_5
+	LOCAL result_6
+	LOCAL result_init_7
+	LOCAL instance_8
+	LOCAL value_9
+	LOCAL result_init_10
+	LOCAL result_11
+	LOCAL result_12
+	LOCAL op_13
+	LOCAL left_14
+	LOCAL right_15
+	LOCAL y_16
+	LOCAL result_17
+	LOCAL result_init_18
+	LOCAL instance_19
+	LOCAL value_20
+	LOCAL result_init_21
+	LOCAL instance_22
+	LOCAL value_23
+	LOCAL result_init_24
+
+	x_5 = GetAttr self x 
+	result_6 = VCALL Complex x_value 
+	left_3 = GetAttr x_5 value 
+	right_4 = GetAttr result_6 value 
+	op_2 = left_3 = right_4
+	result_1 = ALLOCATE Bool
+	result_init_7 = CALL Bool_init
+	IF result_1 GOTO label_7
+	instance_8 = ALLOCATE Bool
+	value_9 = LOAD 0
+	result_init_10 = CALL Bool_init
+	result_0 = instance_8
+	GOTO label_8
+	LABEL label_7
+	y_16 = GetAttr self y 
+	result_17 = VCALL Complex y_value 
+	left_14 = GetAttr y_16 value 
+	right_15 = GetAttr result_17 value 
+	op_13 = left_14 = right_15
+	result_12 = ALLOCATE Bool
+	result_init_18 = CALL Bool_init
+	IF result_12 GOTO label_9
+	instance_19 = ALLOCATE Bool
+	value_20 = LOAD 0
+	result_init_21 = CALL Bool_init
+	result_11 = instance_19
+	GOTO label_10
+	LABEL label_9
+	instance_22 = ALLOCATE Bool
+	value_23 = LOAD 0
+	result_init_24 = CALL Bool_init
+	result_11 = instance_22
+	LABEL label_10
+	result_0 = result_11
+	LABEL label_8
+	
+ RETURN result_0
+}
+function Complex.x_value {
+	PARAM self
+
+	LOCAL x_0
+
+	x_0 = GetAttr self x 
+	
+ RETURN x_0
+}
+function Complex.y_value {
+	PARAM self
+
+	LOCAL y_0
+
+	y_0 = GetAttr self y 
+	
+ RETURN y_0
+}

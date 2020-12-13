@@ -163,7 +163,7 @@ class ArgNodeIL(InstructionNodeIL):
         self.out = name
 
     def __str__(self):
-        return ("ARG {}".format(self.dest))
+        return f"ARG {self.dest}"
 
 class ReturnNodeIL(InstructionNodeIL):
     def __init__(self, value, idx=None):

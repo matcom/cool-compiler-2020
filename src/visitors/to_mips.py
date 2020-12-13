@@ -11,6 +11,7 @@ class MIPS:
         self.mips_code = ''
         self.text = ''
         self.data = ''
+        self.count = 0
         self.mips_comm_for_operators = {
             '+' : 'add',
             '-' : 'sub',
@@ -71,6 +72,10 @@ class MIPS:
 
     @visitor.when(ProgramNodeIL)
     def visit(self, node):
+        print('-------------------IL visitor-----------------')
+        print(self.count)
+        self.count += 1
+        print('ProgramNodeIL')
         self.types = node.dottypes
         
         self.data += 'temp_string: .space 2048\n' 
@@ -90,6 +95,9 @@ class MIPS:
     
     @visitor.when(FunctionNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('FunctionNodeIL')
         self.current_function = node
 
         self.var_offset.__setitem__(self.current_function.name, {})
@@ -119,6 +127,9 @@ class MIPS:
 
     @visitor.when(TypeNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('TypeNodeIL')
         self.data += f'{node.name}_name: .asciiz "{node.name}"\n'
         self.data += f'{node.name}_methods:\n'
         for method in node.methods.values():
@@ -139,7 +150,11 @@ class MIPS:
         
     @visitor.when(AssignNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('AssignNodeIL')
         offset = self.var_offset[self.current_function.name][node.dest]
+        print('-----------TYPE---- ',type(node.source))
         if node.source:
             if isinstance(node.source, int):
                 self.text += f'li $t1, {node.source}\n'
@@ -154,6 +169,9 @@ class MIPS:
 
     @visitor.when(AllocateNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('AllocateNodeIL')
         amount = len(self.types[node.type].attributes) + 4
         self.text += f'li $a0, {amount * 4}\n' 
         self.text += f'li $v0, 9\n'
@@ -186,12 +204,15 @@ class MIPS:
 
     @visitor.when(GetAttribNodeIL)
     def visit(self, node):
-        print('----------------::::::')
-        print('----------------::::::',node.obj)
-        print('----------------::::::',node.dest)
-        print('----------------::::::',node.attr)
-        print('----------------::::::',node.attr_type)
-        print('----------------::::::',self.attr_offset[node.attr_type][node.attr])
+        print(self.count)
+        self.count += 1
+        print('GetAttrNodeIL')
+        # print('----------------::::::')
+        # print('----------------::::::',node.obj)
+        # print('----------------::::::',node.dest)
+        # print('----------------::::::',node.attr)
+        # print('----------------::::::',node.attr_type)
+        # print('----------------::::::',self.attr_offset[node.attr_type][node.attr])
         
         self_offset = self.var_offset[self.current_function.name][node.obj]
         self.text += f'lw $t0, {self_offset}($sp)\n'  #get self address
@@ -204,11 +225,14 @@ class MIPS:
 
     @visitor.when(SetAttribNodeIL)
     def visit(self, node):
-        print('----------------::::::')
-        print('----------------::::::',node.obj)
+        print(self.count)
+        self.count += 1
+        print('SetAttrNodeIL')
+        # print('----------------::::::')
+        # print('----------------::::::',node.obj)
         # print('----------------::::::',node.dest)
-        print('----------------::::::',node.attr)
-        print('----------------::::::',node.attr_type)
+        # print('----------------::::::',node.attr)
+        # print('----------------::::::',node.attr_type)
         # print('----------------::::::',self.attr_offset[node.attr_type][node.attr])
         self_offset = self.var_offset[self.current_function.name][node.obj]
         self.text += f'lw $t0, {self_offset}($sp)\n'  #get self address
@@ -225,7 +249,16 @@ class MIPS:
 
     @visitor.when(ArgNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('ArgNodeIL')
         value_offset = self.var_offset[self.current_function.name][node.dest]  # get value from local
+        # if not self.count:
+        #     self.count = 1
+        # else:
+        #     self.count += 1
+        # print(self.count)        
+        # print('arg:', node.dest)
         # print('offset::::::::::: ',value_offset)
         self.text += f'lw $t1, {value_offset}($t0)\n'
         self.text += 'addi $sp, $sp, -4\n'
@@ -233,11 +266,13 @@ class MIPS:
 
     @visitor.when(DynamicCallNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('DynamicCallNodeIL')
         self.text += 'move $t0, $sp\n'
         
         for arg in node.args:
             self.visit(arg)
-
         value_offset = self.var_offset[self.current_function.name][node.obj]  
         self.text += f'lw $t1, {value_offset}($t0)\n'  # get instance from local
         self.text += 'la $t0, void\n'
@@ -256,11 +291,17 @@ class MIPS:
 
     @visitor.when(StaticCallNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('StaticCallNodeIL')
         self.text += 'move $t0, $sp\n'
-        
+        # print('--------CALL------')
+        # print(node.function)
+        # self.count = 0
         for arg in node.args:
             self.visit(arg)
 
+        # print(self.count)
         self.text += f'jal {node.function}\n'
 
         result_offset = self.var_offset[self.current_function.name][node.dest]
@@ -268,6 +309,9 @@ class MIPS:
 
     @visitor.when(ReturnNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('ReturnNodeIL')
         if node.value:
             offset = self.var_offset[self.current_function.name][node.value]
             self.text += f'lw $a1, {offset}($sp)\n'
@@ -276,6 +320,9 @@ class MIPS:
 
     @visitor.when(CaseNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('CaseNodeIL')
         offset = self.var_offset[self.current_function.name][node.local_expr]
         self.text += f'lw $t0, {offset}($sp)\n'
         self.text += f'lw $t1, 0($t0)\n'
@@ -285,12 +332,18 @@ class MIPS:
 
     @visitor.when(OptionNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('OptionNodeIL')
         self.text += f'blt	$t1 {node.tag} {node.next_label}\n'
         self.text += f'bgt	$t1 {node.max_tag} {node.next_label}\n'
 
 
     @visitor.when(BinaryNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('BinaryNodeIL ' + node.op)
         mips_comm = self.mips_comm_for_operators[node.op]
         left_offset = self.var_offset[self.current_function.name][node.left]
         right_offset = self.var_offset[self.current_function.name][node.right]
@@ -304,6 +357,9 @@ class MIPS:
     
     @visitor.when(UnaryNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('UnaryNodeIL' + node.op)
         expr_offset = self.var_offset[self.current_function.name][node.expr]
         self.text += f'lw $t1, {expr_offset}($sp)\n'
         if node.op == 'not':
@@ -316,6 +372,9 @@ class MIPS:
         
     @visitor.when(GotoIfNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('GotoIfNodeIL')
         predicate_offset = self.var_offset[self.current_function.name][node.cond]
         self.text += f'lw $t0, {predicate_offset}($sp)\n'
         self.text += f'lw $a0, 16($t0)\n'  #get value attribute
@@ -323,14 +382,21 @@ class MIPS:
     
     @visitor.when(GotoNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('GotoNodeIL')
         self.text += f'b {node.label}\n'
     
     @visitor.when(LabelNodeIL)
     def visit(self, node):
+        print('LabelNodeIL')
         self.text += f'{node.label}:\n'
 
     @visitor.when(OutIntNodeIL)
-    def visit(self, node):   
+    def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('OutIntNodeIL')   
         if isinstance(node.value, int):
             self.text += f'li $v0 , 1\n'
             self.text += f'li $a0 , {node.value}\n'
@@ -343,6 +409,9 @@ class MIPS:
 
     @visitor.when(OutStringNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('OutStringNodeIL')
         var_offset = self.var_offset[self.current_function.name][node.value]
         self.text += f'lw $a0, {var_offset}($sp)\n'
         self.text += f'li $v0, 4\n'
@@ -350,6 +419,9 @@ class MIPS:
 
     @visitor.when(ReadIntNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('ReadIntNodeIL')
         read_offset = self.var_offset[self.current_function.name][node.dest]
         self.text += f'li $v0, 5\n'
         self.text += f'syscall\n'
@@ -357,6 +429,9 @@ class MIPS:
 
     @visitor.when(ReadStringNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('ReadStringNodeIL')
         read_offset = self.var_offset[self.current_function.name][node.dest]
         self.text += f'la $a0, temp_string\n'
         self.text += f'li $a1, 2048\n'
@@ -389,10 +464,17 @@ class MIPS:
 
     @visitor.when(LoadNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('LoadNodeIL')
         if node.msg:
             self.text += f'la $t0, {node.msg}\n'
             offset = self.var_offset[self.current_function.name][node.dest]
             self.text += f'sw $t0, {offset}($sp)\n'
+        # else:
+        #     self.text += f'li $t0, {node.msg}\n'
+        #     offset = self.var_offset[self.current_function.name][node.dest]
+        #     self.text += f'sw $t0, {offset}($sp)\n'
 
     # @visitor.when(CIL_AST.LoadInt)
     # def visit(self, node):
@@ -402,11 +484,17 @@ class MIPS:
 
     @visitor.when(HaltNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('HaltNodeIL')
         self.text += 'li $v0, 10\n'
         self.text += 'syscall\n'
 
     @visitor.when(TypeOfNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('TypeOfNodeIL')
         obj_offset = self.var_offset[self.current_function.name][node.obj] 
         self.text += f'lw $t0, {obj_offset}($sp)\n' #get obj address from local
         self.text += 'lw $t1, 4($t0)\n' # get type name from the sec pos in obj layout
@@ -415,6 +503,9 @@ class MIPS:
 
     @visitor.when(IsVoidNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('IsVoidNodeIL')
         self.text += 'la $t0, void\n'
         offset = self.var_offset[self.current_function.name][node.expre_value] 
         self.text += f'lw $t1, {offset}($sp)\n' 
@@ -424,6 +515,9 @@ class MIPS:
     
     @visitor.when(CopyNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('CopyNodeIL')
         # offset = self.var_offset[self.current_function.name][self.current_function.params[0].name] 
         self_offset = self.var_offset[self.current_function.name][node.source]
         self.text += f'lw $t0, {self_offset}($sp)\n'  # get self address
@@ -462,6 +556,9 @@ class MIPS:
 
     @visitor.when(LengthNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('LengthNodeIL')
         offset = self.var_offset[self.current_function.name][node.arg]
         self.text += f'lw $t0, {offset}($sp)\n'
         self.text += f'lw $t0, 16($t0)\n'
@@ -480,6 +577,9 @@ class MIPS:
     
     @visitor.when(ConcatNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('ConcatNodeIL')
         offset_arg1 = self.var_offset[self.current_function.name][node.arg1]
         offset_len1 = self.var_offset[self.current_function.name][node.len1]
 
@@ -527,6 +627,9 @@ class MIPS:
 
     @visitor.when(SubstringNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('SubstringNodeIL')
         offset_idx = self.var_offset[self.current_function.name][node.begin]
         offset_len = self.var_offset[self.current_function.name][node.end]
         offset_str = self.var_offset[self.current_function.name][node.word]
@@ -577,6 +680,9 @@ class MIPS:
 
     @visitor.when(StringEqualsNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
+        print('StringEqualsNodeIL')
         offset_arg1 = self.var_offset[self.current_function.name][node.s1]
         offset_arg2 = self.var_offset[self.current_function.name][node.s2]
         

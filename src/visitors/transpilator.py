@@ -431,10 +431,15 @@ class codeVisitor:
         #Init parents recursively
         result = self.define_internal_local(scope=scope, name = "result")
         # self.register_instruction(ArgNodeIL('instance'))
+        # print('ID: ', node.id)
+        # print('Parent: ', node.parent)
         self.register_instruction(StaticCallNodeIL(result, f'{node.parent}_init',[ArgNodeIL('self')], node.parent))
         self.register_instruction(ReturnNodeIL(None))
-
+        print('Class: ', self.current_type.name)
         for attr in attr_declarations:
+            print('Attr')
+            print('id: ', attr.id)
+            print('type:', attr.type)
             self.visit(attr, scope, sscope)
         #---------------------------------------------------------------
         self.current_function = None
@@ -447,7 +452,7 @@ class codeVisitor:
     @visitor.when(FuncDeclarationNode)
     def visit(self, node, scope, sscope):
         fscope = sscope.func_scopes[node.id]
-
+        # print('func:::: ', node.id)
         self.current_method = self.current_type.get_method(node.id)
         self.dottypes[self.current_type.name].methods[node.id] = f'{self.current_type.name}.{node.id}'
         cil_method_name = self.to_function_name(node.id, self.current_type.name)
@@ -464,28 +469,35 @@ class codeVisitor:
 
     @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope, sscope):
-        ascope = sscope.attr_scopes[node.id]
-        instance = None
 
-        if node.type in ['Int', 'Bool']:
-            instance = self.define_internal_local(scope=scope, name="instance")
-            self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).tag, instance))
-            value = self.define_internal_local(scope=scope, name="value")
-            self.register_instruction(LoadNodeIL(0,value))
-            result_init = self.define_internal_local(scope=scope, name="result_init")
-            self.register_instruction(StaticCallNodeIL(result_init, f'{node.type}_init', [ ArgNodeIL(value), ArgNodeIL(instance)], node.type))
-        elif node.type == 'String':
-            instance = self.define_internal_local(scope=scope, name="instance")
-            self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).tag ,instance))
-            value = self.define_internal_local(scope=scope, name="value")
-            self.register_instruction(LoadNodeIL('empty_str',value))
-            result_init = self.define_internal_local(scope=scope, name="result_init")
-            self.register_instruction(StaticCallNodeIL(result_init, f'{node.type}_init', [ArgNodeIL(value),ArgNodeIL(instance)], node.type))
+        if not node.expr:
+            ascope = sscope.attr_scopes[node.id]
+            instance = None
+            # print('attr_type:::::::::: ', node.type)
+            if node.type in ['Int', 'Bool']:
+                instance = self.define_internal_local(scope=scope, name="instance")
+                self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).tag, instance))
+                value = self.define_internal_local(scope=scope, name="value")
+                self.register_instruction(LoadNodeIL(0,value))
+                result_init = self.define_internal_local(scope=scope, name="result_init")
+                self.register_instruction(StaticCallNodeIL(result_init, f'{node.type}_init', [ ArgNodeIL(value), ArgNodeIL(instance)], node.type))
+            elif node.type == 'String':
+                instance = self.define_internal_local(scope=scope, name="instance")
+                self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).tag ,instance))
+                value = self.define_internal_local(scope=scope, name="value")
+                self.register_instruction(LoadNodeIL('empty_str',value))
+                result_init = self.define_internal_local(scope=scope, name="result_init")
+                self.register_instruction(StaticCallNodeIL(result_init, f'{node.type}_init', [ArgNodeIL(value),ArgNodeIL(instance)], node.type))
 
-        self.register_instruction(SetAttribNodeIL('self', node.id,instance, self.current_type.name))
+            self.register_instruction(SetAttribNodeIL('self', node.id,instance, self.current_type.name))
+        else:
+            print('attr_type::::IN_______EXPRRRRRR:::::: ', node.type)
+            expr = self.visit(node.expr, scope, sscope)
+            self.register_instruction(SetAttribNodeIL('self', node.id, expr, self.current_type.name))
     
     @visitor.when(VarDeclarationNode)
     def visit(self, node, scope, sscope):
+        print('var_decl: ',node.id)
         expr = self.visit(node.expr, scope, sscope)
         self.register_instruction(SetAttribNodeIL('self', node.name, expr, self.current_type.name))
 
@@ -702,7 +714,8 @@ class codeVisitor:
         result_local = self.define_internal_local(scope=scope, name="result")
         result_init = self.define_internal_local(scope=scope, name="init")
         
-        print(result_init)
+        # print('ID:', node.id)
+        print('type:', node.type)
 
         if node.type == "SELF_TYPE":
             # get_type_local = self.define_internal_local(scope = scope, name = "type_name")

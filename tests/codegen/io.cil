@@ -41,6 +41,48 @@ type IO {
 	method in_string : IO.in_string
 	method in_int : IO.in_int
 }
+type A {
+	attribute io
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_a : A.out_a
+}
+type B {
+	attribute io
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_a : A.out_a
+	method out_b : B.out_b
+}
+type C {
+	
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
+	method out_c : C.out_c
+}
+type D {
+	
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
+	method out_c : C.out_c
+	method out_d : D.out_d
+}
 type Main {
 	
 
@@ -52,7 +94,6 @@ type Main {
 	method in_string : IO.in_string
 	method in_int : IO.in_int
 	method main : Main.main
-	method fib : Main.fib
 }
 
 .DATA
@@ -60,8 +101,16 @@ s_0: Abort called from class
 s_1: 
 
 empty_str: 
-s_3: Enter n to find nth fibonacci number!\n
-s_4: \n
+s_3: A: Hello world
+
+s_4: B: Hello world
+
+s_5: C: Hello world
+
+s_6: D: Hello world
+
+s_7: Done.
+
 
 .CODE
 function main {
@@ -92,11 +141,11 @@ function Object.abort {
 	LOCAL eol_2
 
 	msg_0 = LOAD s_0
-	PRINT_STR msg_0
+	PRINT msg_0
 	type_name_1 = TYPEOF self
-	PRINT_STR type_name_1
+	PRINT type_name_1
 	eol_2 = LOAD s_1
-	PRINT_STR eol_2
+	PRINT eol_2
 	HALT
 }
 function Object.type_name {
@@ -136,7 +185,7 @@ function IO.out_string {
 	LOCAL v_0
 
 	v_0 = GetAttr x value 
-	PRINT_STR v_0
+	PRINT v_0
 	
  RETURN self
 }
@@ -147,7 +196,7 @@ function IO.out_int {
 	LOCAL v_0
 
 	v_0 = GetAttr x value 
-	PRINT_INT v_0
+	PRINT v_0
 	
  RETURN self
 }
@@ -158,7 +207,7 @@ function IO.in_string {
 	LOCAL instance_1
 	LOCAL result_init_2
 
-	read_str_0 = READ STR
+	read_str_0 = READ
 	instance_1 = ALLOCATE String
 	result_init_2 = CALL String_init
 	
@@ -171,7 +220,7 @@ function IO.in_int {
 	LOCAL instance_1
 	LOCAL result_init_2
 
-	read_int_0 = READ INT
+	read_int_0 = READ
 	instance_1 = ALLOCATE Int
 	result_init_2 = CALL Int_init
 	
@@ -279,6 +328,111 @@ function String_equals {
 	
  RETURN comparison_result_2
 }
+function A_init {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL init_2
+
+	result_0 = CALL Object_init
+	
+ RETURN 
+	result_1 = ALLOCATE IO
+	init_2 = CALL IO_init
+	SetAttr self io result_1
+}
+function A.out_a {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL A.io
+	LOCAL internal_2
+	LOCAL instance_3
+	LOCAL result_init_4
+
+	A.io = GetAttr self io 
+	internal_2 = LOAD s_3
+	instance_3 = ALLOCATE String
+	result_init_4 = CALL String_init
+	result_0 = VCALL IO out_string 
+	
+ RETURN result_0
+}
+function B_init {
+	PARAM self
+
+	LOCAL result_0
+
+	result_0 = CALL A_init
+	
+ RETURN 
+}
+function B.out_b {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL B.io
+	LOCAL internal_2
+	LOCAL instance_3
+	LOCAL result_init_4
+
+	B.io = GetAttr self io 
+	internal_2 = LOAD s_4
+	instance_3 = ALLOCATE String
+	result_init_4 = CALL String_init
+	result_0 = VCALL IO out_string 
+	
+ RETURN result_0
+}
+function C_init {
+	PARAM self
+
+	LOCAL result_0
+
+	result_0 = CALL IO_init
+	
+ RETURN 
+}
+function C.out_c {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL internal_1
+	LOCAL instance_2
+	LOCAL result_init_3
+
+	internal_1 = LOAD s_5
+	instance_2 = ALLOCATE String
+	result_init_3 = CALL String_init
+	result_0 = VCALL C out_string 
+	
+ RETURN result_0
+}
+function D_init {
+	PARAM self
+
+	LOCAL result_0
+
+	result_0 = CALL C_init
+	
+ RETURN 
+}
+function D.out_d {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL internal_1
+	LOCAL instance_2
+	LOCAL result_init_3
+
+	internal_1 = LOAD s_6
+	instance_2 = ALLOCATE String
+	result_init_3 = CALL String_init
+	result_0 = VCALL D out_string 
+	
+ RETURN result_0
+}
 function Main_init {
 	PARAM self
 
@@ -292,128 +446,38 @@ function Main.main {
 	PARAM self
 
 	LOCAL result_0
-	LOCAL internal_1
-	LOCAL instance_2
-	LOCAL result_init_3
+	LOCAL result_1
+	LOCAL init_2
+	LOCAL result_3
 	LOCAL result_4
-	LOCAL result_5
+	LOCAL init_5
 	LOCAL result_6
 	LOCAL result_7
-	LOCAL internal_8
-	LOCAL instance_9
-	LOCAL result_init_10
-
-	internal_1 = LOAD s_3
-	instance_2 = ALLOCATE String
-	result_init_3 = CALL String_init
-	result_0 = VCALL Main out_string 
-	result_6 = VCALL Main in_int 
-	result_5 = VCALL Main fib 
-	result_4 = VCALL Main out_int 
-	internal_8 = LOAD s_4
-	instance_9 = ALLOCATE String
-	result_init_10 = CALL String_init
-	result_7 = VCALL Main out_string 
-	
- RETURN result_7
-}
-function Main.fib {
-	PARAM self
-	PARAM i
-
-	LOCAL instance_0
-	LOCAL value_1
-	LOCAL result_init_2
-	LOCAL a_3
-	LOCAL instance_4
-	LOCAL value_5
-	LOCAL result_init_6
-	LOCAL b_7
-	LOCAL instance_8
-	LOCAL value_9
-	LOCAL result_init_10
-	LOCAL c_11
+	LOCAL init_8
+	LOCAL result_9
+	LOCAL result_10
+	LOCAL init_11
 	LOCAL result_12
-	LOCAL result_13
-	LOCAL op_14
-	LOCAL internal_15
-	LOCAL result_16
-	LOCAL op_17
-	LOCAL left_18
-	LOCAL right_19
-	LOCAL instance_20
-	LOCAL value_21
-	LOCAL result_init_22
-	LOCAL result_init_23
-	LOCAL result_init_24
-	LOCAL result_25
-	LOCAL op_26
-	LOCAL left_27
-	LOCAL right_28
-	LOCAL result_init_29
-	LOCAL result_30
-	LOCAL result_31
-	LOCAL op_32
-	LOCAL left_33
-	LOCAL right_34
-	LOCAL instance_35
-	LOCAL value_36
-	LOCAL result_init_37
-	LOCAL result_init_38
-	LOCAL result_39
-	LOCAL result_40
-	LOCAL result_41
-	LOCAL let_result_42
+	LOCAL internal_13
+	LOCAL instance_14
+	LOCAL result_init_15
 
-	instance_0 = ALLOCATE Int
-	value_1 = LOAD 1
-	result_init_2 = CALL Int_init
-	a_3 = instance_0
-	instance_4 = ALLOCATE Int
-	value_5 = LOAD 0
-	result_init_6 = CALL Int_init
-	b_7 = instance_4
-	instance_8 = ALLOCATE Int
-	value_9 = LOAD 0
-	result_init_10 = CALL Int_init
-	c_11 = instance_8
-	LABEL label_1
-	instance_20 = ALLOCATE Int
-	value_21 = LOAD 0
-	result_init_22 = CALL Int_init
-	left_18 = GetAttr i value 
-	right_19 = GetAttr instance_20 value 
-	op_17 = left_18 = right_19
-	result_16 = ALLOCATE Bool
-	result_init_23 = CALL Bool_init
-	internal_15 = GetAttr result_16 value 
-	op_14 = not internal_15
-	result_13 = ALLOCATE Bool
-	result_init_24 = CALL Bool_init
-	IF result_13 GOTO label_2
-	GOTO label_3
-	LABEL label_2
-	left_27 = GetAttr a_3 value 
-	right_28 = GetAttr b_7 value 
-	op_26 = left_27 + right_28
-	result_25 = ALLOCATE Int
-	result_init_29 = CALL Int_init
-	c_11 = result_25
-	instance_35 = ALLOCATE Int
-	value_36 = LOAD 1
-	result_init_37 = CALL Int_init
-	left_33 = GetAttr i value 
-	right_34 = GetAttr instance_35 value 
-	op_32 = left_33 - right_34
-	result_31 = ALLOCATE Int
-	result_init_38 = CALL Int_init
-	i = result_31
-	b_7 = a_3
-	a_3 = c_11
-	GOTO label_1
-	LABEL label_3
-	result_12 = LOAD None
-	let_result_42 = c_11
+	result_1 = ALLOCATE A
+	init_2 = CALL A_init
+	result_0 = VCALL A out_a 
+	result_4 = ALLOCATE B
+	init_5 = CALL B_init
+	result_3 = VCALL B out_b 
+	result_7 = ALLOCATE C
+	init_8 = CALL C_init
+	result_6 = VCALL C out_c 
+	result_10 = ALLOCATE D
+	init_11 = CALL D_init
+	result_9 = VCALL D out_d 
+	internal_13 = LOAD s_7
+	instance_14 = ALLOCATE String
+	result_init_15 = CALL String_init
+	result_12 = VCALL Main out_string 
 	
- RETURN let_result_42
+ RETURN result_12
 }

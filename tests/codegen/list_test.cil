@@ -1,0 +1,560 @@
+.TYPES
+type Object {
+	
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+}
+type Int {
+	attribute value
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+}
+type String {
+	attribute value
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method length : String.length
+	method concat : String.concat
+	method substr : String.substr
+}
+type Bool {
+	attribute value
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+}
+type IO {
+	
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
+}
+type List {
+	
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method isNil : List.isNil
+	method head : List.head
+	method tail : List.tail
+	method cons : List.cons
+}
+type Cons {
+	attribute car
+	attribute cdr
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method isNil : Cons.isNil
+	method head : Cons.head
+	method tail : Cons.tail
+	method cons : List.cons
+	method init : Cons.init
+}
+type Main {
+	attribute mylist
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
+	method print_list : Main.print_list
+	method main : Main.main
+}
+
+.DATA
+s_0: Abort called from class 
+s_1: 
+
+empty_str: 
+s_3:  
+s_4: \n
+
+.CODE
+function main {
+	
+
+	LOCAL instance_0
+	LOCAL result_1
+
+	instance_0 = ALLOCATE Main
+	result_1 = CALL Main_init
+	result_1 = CALL Main.main
+	
+ RETURN 
+}
+function Object_init {
+	PARAM self
+
+	
+
+	
+ RETURN 
+}
+function Object.abort {
+	PARAM self
+
+	LOCAL msg_0
+	LOCAL type_name_1
+	LOCAL eol_2
+
+	msg_0 = LOAD s_0
+	PRINT_STR msg_0
+	type_name_1 = TYPEOF self
+	PRINT_STR type_name_1
+	eol_2 = LOAD s_1
+	PRINT_STR eol_2
+	HALT
+}
+function Object.type_name {
+	PARAM self
+
+	LOCAL type_name_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	type_name_0 = TYPEOF self
+	instance_1 = ALLOCATE String
+	result_init_2 = CALL String_init
+	
+ RETURN instance_1
+}
+function Object.copy {
+	PARAM self
+
+	LOCAL copy_0
+
+	copy_0 = COPY self
+	
+ RETURN copy_0
+}
+function IO_init {
+	PARAM self
+
+	
+
+	
+ RETURN 
+}
+function IO.out_string {
+	PARAM self
+	PARAM x
+
+	LOCAL v_0
+
+	v_0 = GetAttr x value 
+	PRINT_STR v_0
+	
+ RETURN self
+}
+function IO.out_int {
+	PARAM self
+	PARAM x
+
+	LOCAL v_0
+
+	v_0 = GetAttr x value 
+	PRINT_INT v_0
+	
+ RETURN self
+}
+function IO.in_string {
+	PARAM self
+
+	LOCAL read_str_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	read_str_0 = READ STR
+	instance_1 = ALLOCATE String
+	result_init_2 = CALL String_init
+	
+ RETURN instance_1
+}
+function IO.in_int {
+	PARAM self
+
+	LOCAL read_int_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	read_int_0 = READ INT
+	instance_1 = ALLOCATE Int
+	result_init_2 = CALL Int_init
+	
+ RETURN instance_1
+}
+function String_init {
+	PARAM self
+	PARAM v
+
+	
+
+	SetAttr self value v
+	
+ RETURN 
+}
+function String.length {
+	PARAM self
+
+	LOCAL length_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	length_0 = LENGTH self
+	instance_1 = ALLOCATE Int
+	result_init_2 = CALL Int_init
+	
+ RETURN instance_1
+}
+function String.concat {
+	PARAM self
+	PARAM s
+
+	LOCAL str1_0
+	LOCAL len1_1
+	LOCAL str2_2
+	LOCAL len2_3
+	LOCAL local_len1_4
+	LOCAL local_len2_5
+	LOCAL concat_6
+	LOCAL instance_7
+	LOCAL result_init_8
+
+	str1_0 = GetAttr self value 
+	len1_1 = CALL String.length
+	str2_2 = GetAttr s value 
+	len2_3 = CALL String.length
+	local_len1_4 = GetAttr len1_1 value 
+	local_len2_5 = GetAttr len2_3 value 
+	concat_6 = CONCAT str1_0  str2_2
+	instance_7 = ALLOCATE String
+	result_init_8 = CALL String_init
+	
+ RETURN instance_7
+}
+function String.substr {
+	PARAM self
+	PARAM i
+	PARAM l
+
+	LOCAL i_value_0
+	LOCAL l_value_1
+	LOCAL subs_result_2
+	LOCAL instance_3
+	LOCAL result_init_4
+
+	i_value_0 = GetAttr i value 
+	l_value_1 = GetAttr l value 
+	subs_result_2 = SUBSTR i_value_0  l_value_1  self
+	instance_3 = ALLOCATE String
+	result_init_4 = CALL String_init
+	
+ RETURN instance_3
+}
+function Bool_init {
+	PARAM self
+	PARAM v
+
+	
+
+	SetAttr self value v
+	
+ RETURN 
+}
+function Int_init {
+	PARAM self
+	PARAM v
+
+	
+
+	SetAttr self value v
+	
+ RETURN 
+}
+function String_equals {
+	PARAM str1
+	PARAM str2
+
+	LOCAL str1_0
+	LOCAL str2_1
+	LOCAL comparison_result_2
+
+	str1_0 = GetAttr str1 value 
+	str2_1 = GetAttr str2 value 
+	comparison_result_2 = str1_0 = str2_1
+	
+ RETURN comparison_result_2
+}
+function List_init {
+	PARAM self
+
+	LOCAL result_0
+
+	result_0 = CALL Object_init
+	
+ RETURN 
+}
+function List.isNil {
+	PARAM self
+
+	LOCAL instance_0
+	LOCAL value_1
+	LOCAL result_init_2
+
+	instance_0 = ALLOCATE Bool
+	value_1 = LOAD 0
+	result_init_2 = CALL Bool_init
+	
+ RETURN instance_0
+}
+function List.head {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL instance_1
+	LOCAL value_2
+	LOCAL result_init_3
+
+	result_0 = VCALL List abort 
+	instance_1 = ALLOCATE Int
+	value_2 = LOAD 0
+	result_init_3 = CALL Int_init
+	
+ RETURN instance_1
+}
+function List.tail {
+	PARAM self
+
+	LOCAL result_0
+
+	result_0 = VCALL List abort 
+	
+ RETURN self
+}
+function List.cons {
+	PARAM self
+	PARAM i
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL init_2
+
+	result_1 = ALLOCATE Cons
+	init_2 = CALL Cons_init
+	result_0 = VCALL Cons init 
+	
+ RETURN result_0
+}
+function Cons_init {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL instance_1
+	LOCAL value_2
+	LOCAL result_init_3
+
+	result_0 = CALL List_init
+	
+ RETURN 
+	instance_1 = ALLOCATE Int
+	value_2 = LOAD 0
+	result_init_3 = CALL Int_init
+	SetAttr self car instance_1
+	SetAttr self cdr None
+}
+function Cons.isNil {
+	PARAM self
+
+	LOCAL instance_0
+	LOCAL value_1
+	LOCAL result_init_2
+
+	instance_0 = ALLOCATE Bool
+	value_1 = LOAD 0
+	result_init_2 = CALL Bool_init
+	
+ RETURN instance_0
+}
+function Cons.head {
+	PARAM self
+
+	LOCAL car_0
+
+	car_0 = GetAttr self car 
+	
+ RETURN car_0
+}
+function Cons.tail {
+	PARAM self
+
+	LOCAL cdr_0
+
+	cdr_0 = GetAttr self cdr 
+	
+ RETURN cdr_0
+}
+function Cons.init {
+	PARAM self
+	PARAM i
+	PARAM rest
+
+	LOCAL result_0
+	LOCAL result_1
+
+	SetAttr self car i
+	SetAttr self cdr rest
+	
+ RETURN self
+}
+function Main_init {
+	PARAM self
+
+	LOCAL result_0
+
+	result_0 = CALL IO_init
+	
+ RETURN 
+	SetAttr self mylist None
+}
+function Main.print_list {
+	PARAM self
+	PARAM l
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL result_2
+	LOCAL result_3
+	LOCAL result_4
+	LOCAL internal_5
+	LOCAL instance_6
+	LOCAL result_init_7
+	LOCAL result_8
+	LOCAL result_9
+	LOCAL result_10
+	LOCAL internal_11
+	LOCAL instance_12
+	LOCAL result_init_13
+
+	result_1 = VCALL List isNil 
+	IF result_1 GOTO label_1
+	result_3 = VCALL List head 
+	result_2 = VCALL Main out_int 
+	internal_5 = LOAD s_3
+	instance_6 = ALLOCATE String
+	result_init_7 = CALL String_init
+	result_4 = VCALL Main out_string 
+	result_9 = VCALL List tail 
+	result_8 = VCALL Main print_list 
+	result_0 = result_8
+	GOTO label_2
+	LABEL label_1
+	internal_11 = LOAD s_4
+	instance_12 = ALLOCATE String
+	result_init_13 = CALL String_init
+	result_10 = VCALL Main out_string 
+	result_0 = result_10
+	LABEL label_2
+	
+ RETURN result_0
+}
+function Main.main {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL result_2
+	LOCAL result_3
+	LOCAL result_4
+	LOCAL result_5
+	LOCAL init_6
+	LOCAL instance_7
+	LOCAL value_8
+	LOCAL result_init_9
+	LOCAL instance_10
+	LOCAL value_11
+	LOCAL result_init_12
+	LOCAL instance_13
+	LOCAL value_14
+	LOCAL result_init_15
+	LOCAL instance_16
+	LOCAL value_17
+	LOCAL result_init_18
+	LOCAL instance_19
+	LOCAL value_20
+	LOCAL result_init_21
+	LOCAL result_22
+	LOCAL result_23
+	LOCAL result_24
+	LOCAL op_25
+	LOCAL internal_26
+	LOCAL result_27
+	LOCAL mylist_28
+	LOCAL result_init_29
+	LOCAL result_30
+	LOCAL mylist_31
+	LOCAL result_32
+	LOCAL mylist_33
+	LOCAL result_34
+
+	result_5 = ALLOCATE List
+	init_6 = CALL List_init
+	instance_7 = ALLOCATE Int
+	value_8 = LOAD 1
+	result_init_9 = CALL Int_init
+	result_4 = VCALL List cons 
+	instance_10 = ALLOCATE Int
+	value_11 = LOAD 2
+	result_init_12 = CALL Int_init
+	result_3 = VCALL List cons 
+	instance_13 = ALLOCATE Int
+	value_14 = LOAD 3
+	result_init_15 = CALL Int_init
+	result_2 = VCALL List cons 
+	instance_16 = ALLOCATE Int
+	value_17 = LOAD 4
+	result_init_18 = CALL Int_init
+	result_1 = VCALL List cons 
+	instance_19 = ALLOCATE Int
+	value_20 = LOAD 5
+	result_init_21 = CALL Int_init
+	result_0 = VCALL List cons 
+	SetAttr self mylist result_0
+	LABEL label_3
+	mylist_28 = GetAttr self mylist 
+	result_27 = VCALL List isNil 
+	internal_26 = GetAttr result_27 value 
+	op_25 = not internal_26
+	result_24 = ALLOCATE Bool
+	result_init_29 = CALL Bool_init
+	IF result_24 GOTO label_4
+	GOTO label_5
+	LABEL label_4
+	mylist_31 = GetAttr self mylist 
+	result_30 = VCALL Main print_list 
+	mylist_33 = GetAttr self mylist 
+	result_32 = VCALL List tail 
+	SetAttr self mylist result_32
+	GOTO label_3
+	LABEL label_5
+	result_23 = LOAD None
+	
+ RETURN result_23
+}

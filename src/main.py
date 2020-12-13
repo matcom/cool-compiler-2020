@@ -49,7 +49,19 @@ def main():
         # cil_code = formatter(cil_ast)
         # f2.write(f'{cil_code}')
         # f2.close()
-        # print('LEN:::::',len(cv.instructions))
+        print('LEN:::::',len(cv.instructions))
+        i = 0
+        for x in cv.instructions:
+            print('------{}-------'.format(i))
+            i += 1
+            print(type(x))
+            items = vars(x)
+            for item in items:
+                # if isinstance(items[item], ArgNodeIL)
+                print(item, ':', str(items[item]))
+                if str(item) == 'args':
+                    for x in items[item]:
+                        print('arg: ',x.dest)
         mips = MIPS()
         code = mips.visit(cil_ast)
 

@@ -34,7 +34,7 @@ class Context:
         self.types['String'].methods['substr'] = Method('substr', ['i', 'l'], [self.types['Int'], self.types['Int']], self.types['String'])
 
         self.graph['Object'] = ['IO', 'String', 'Bool', 'Int']
-        self.graph['IO'] = []
+        self.graph['IO'] = ['Main']
         self.graph['String'] = []
         self.graph['Int'] = []
         self.graph['Bool'] = []
@@ -62,20 +62,23 @@ class Context:
             raise ContextError(f'Type "{name}" is not defined.')
 
     def set_type_tags(self, node='Object', tag=0):
-        print('------Set-----')
-        print('type: ', node)
-        print('tag: ', tag)
+        # print('------Set-----')
+        # print('type: ', node)
+        # print('tag: ', tag)
         self.types[node].tag = tag
         for i,t in enumerate(self.graph[node]):
             self.set_type_tags(t, tag + i + 1)
         # print('Done type tags')
         # self.types['Object'].tag = 0
         # self.types['IO'].tag = 1
-        # self.types['Main'].tag = 2
+        # self.types['Main'].tag = 3
         # self.types['String'].tag = 2
         # self.types['Bool'].tag = 3
         # self.types['Int'].tag = 4
-            
+        # self.types['A'].tag = 5
+        # self.types['B'].tag = 6
+        # self.types['A'].tag = 5
+        # self.types['B'].tag = 6
     def set_type_max_tags(self, node='Object'):
         if not self.graph[node]:
             self.types[node].max_tag = self.types[node].tag
