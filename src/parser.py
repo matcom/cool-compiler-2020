@@ -8,20 +8,24 @@ start = 'program'
 # para devolver los errores que se encuentran
 errors = []
 
+
 # para devolver la columna de los simbolos
 def find_column(p, lex_pos):
     line_start = p.lexer.lexdata.rfind('\n', 0, lex_pos) + 1
     return (lex_pos - line_start) + 1
 
+
 # para mandar la posicion de los simbolos a los nodos del AST
 def GetPosition(p, x):
     return p.lineno(x), find_column(p, p.lexpos(x))
+
 
 # no terminal de la entrada de la gramatica, el programa consiste en una lista de clases
 # devuelve un nodo ProgramNode
 def p_program(p):
     '''program : class_list'''
     p[0] = ProgramNode(p[1], GetPosition(p, 1))
+
 
 # no terminal de lista de clases y sus producciones
 # devuelve una lista con ClassNode
@@ -33,6 +37,7 @@ def p_class_list(p):
     else:
         p[0] = [p[1]] + p[2]
 
+
 # no terminal de estructura de una clases
 # devuelve un ClassNode
 def p_class_definition(p):
@@ -43,10 +48,12 @@ def p_class_definition(p):
     else:
         p[0] = ClassNode(p[2], p[6], p[4], [GetPosition(p, 4)])
 
+
 # para el simbolo vacio
 def p_empty(p):
     'empty :'
     pass
+
 
 # no terminal de lista de caracteristicas de la clase (atributos y metodos)
 # devuelve una lista de FeatureNode
@@ -59,12 +66,14 @@ def p_class_feature_list(p):
     else:
         p[0] = []
 
+
 # no terminal de una caracteristica y sus producciones
 # devuelve lo que devuelva el no terminal de la caracteristica correspondiente
 def p_feature(p):
     '''feature : attribute_feature
                 | function_feature'''
     p[0] = p[1]
+
 
 # no terminal de la caracteristica de atributo
 # devuelve un nodo de tipo AttributeFeatureNode
@@ -87,6 +96,7 @@ def p_function_feature(p):
     else:
         p[0] = FunctionFeatureNode(p[1], p[3], p[6], p[8], [GetPosition(p, 1)])
 
+
 # no terminal de la lista de parametros de un metodo
 # devuelve una lista de ParameterNode
 def p_parameter_list(p):
@@ -97,11 +107,13 @@ def p_parameter_list(p):
     else:
         p[0] = [p[1]] + p[3]
 
+
 # no teminal de un parametro de una funcion
 # devuelve un nodo ParameterNode
 def p_parameter(p):
     '''parameter : ATTRIBUTEID COLON CLASSID'''
     p[0] = ParameterNode(p[1], p[3], [GetPosition(p, 3)])
+
 
 # no teminal de una expresion en COOL
 # devuelve un nodo de tipo ExpressionNode
@@ -109,6 +121,7 @@ def p_expression(p):
     '''expression : not_form
                     | mixed_expression'''
     p[0] = p[1]
+
 
 # no teminal de una expresion de tipo not
 # devuelve un nodo NotNode
@@ -118,6 +131,7 @@ def p_not_form(p):
         p[0] = p[1]
     else:
         p[0] = NotNode(p[2], [GetPosition(p, 1)])
+
 
 # no terminal para expresiones de comparacion
 # devuelve el correspondiente nodo, y si lo que corresponde no es una operacion
@@ -137,6 +151,7 @@ def p_mixed_expression(p):
                 p[0] = LessEqualNode(p[1], p[3], [GetPosition(p, 2)])
     else:
         p[0] = p[1]
+
 
 # no teminal de las operaciones de suma y resta
 # devuelve el correspondiente nodo y sino lo que devuelva la ultima produccion
@@ -167,6 +182,7 @@ def p_term(p):
         else:
             p[0] = DivideNode(p[1], p[3], [GetPosition(p, 2)])
 
+
 # no terminal de la operacion isvoid
 # devuelve un nodo IsVoidNode, sino lo que devuelva la ultima produccion
 def p_isvoid_form(p):
@@ -189,7 +205,6 @@ def p_complement_form(p):
         p[0] = ComplementNode(p[2], [GetPosition(p, 1)])
 
 
-
 ######### a partir de aqui todas son producciones del no terminal program_atom ########
 
 
@@ -199,20 +214,24 @@ def p_program_atom_boolean(p):
                     | FALSE'''
     p[0] = ConstantBoolNode(p[1], [GetPosition(p, 1)])
 
+
 # produccion para constantes de cadenas de caracteres
 def p_program_atom_string(p):
     '''program_atom : STRING'''
     p[0] = ConstantStringNode(p[1], [GetPosition(p, 1)])
+
 
 # produccion para constantes enteras
 def p_program_atom_int(p):
     '''program_atom : NUMBER'''
     p[0] = ConstantNumericNode(p[1], [GetPosition(p, 1)])
 
+
 # produccion para identificadores que se encuentran
 def p_program_atom_id(p):
     '''program_atom : ATTRIBUTEID'''
     p[0] = VariableNode(p[1], [GetPosition(p, 1)])
+
 
 # produccion para expresiones encerradas por parentesis
 def p_program_atom_parentesis(p):
@@ -231,6 +250,7 @@ def p_program_atom_member(p):
     '''program_atom : member_call'''
     p[0] = p[1]
 
+
 def p_member_call(p):
     '''member_call : ATTRIBUTEID LPAREN RPAREN
                     | ATTRIBUTEID LPAREN argument_list RPAREN'''
@@ -238,6 +258,7 @@ def p_member_call(p):
         p[0] = FunctionCallStatement(VariableNode("self", p.lineno), None, p[1], [], [GetPosition(p, 1)])
     else:
         p[0] = FunctionCallStatement(VariableNode("self", p.lineno), None, p[1], p[3], [GetPosition(p, 1)])
+
 
 # producciones para lista de argumentos
 def p_argument_list(p):
@@ -248,10 +269,12 @@ def p_argument_list(p):
     else:
         p[0] = [p[1]] + p[3]
 
+
 # produccion para expressiones de llamados de funcion de una instancia determinada
 def p_program_atom_function(p):
     '''program_atom : program_atom function_call'''
     p[0] = FunctionCallStatement(p[1], (p[2])[0], (p[2])[1], (p[2])[2], p[1].lineNumber)
+
 
 # producciones de lo que viene a partir de la instancia en un llamado de funcion
 def p_function_call(p):
@@ -283,6 +306,7 @@ def p_program_atom_case(p):
     '''program_atom : CASE expression OF case_body ESAC'''
     p[0] = CaseStatementNode(p[2], p[4], GetPosition(p, 1))
 
+
 # producciones para las ramas de las expresiones case
 def p_case_body(p):
     '''case_body : ATTRIBUTEID COLON CLASSID ARROW expression SEMICOLON case_body
@@ -291,6 +315,7 @@ def p_case_body(p):
         p[0] = [CaseBranchNode(p[1], p[3], p[5], [GetPosition(p, 3)])]
     else:
         p[0] = [CaseBranchNode(p[1], p[3], p[5], [GetPosition(p, 3)])] + p[7]
+
 
 # produccion para expressiones let
 def p_program_atom_let(p):
@@ -331,10 +356,12 @@ def p_expression_list(p):
     else:
         p[0] = [p[1]] + p[3]
 
+
 # produccion para expressiones while
 def p_program_atom_while(p):
     '''program_atom : WHILE expression LOOP expression POOL'''
     p[0] = LoopStatementNode(p[2], p[4], [GetPosition(p, 2)])
+
 
 # produccion para expressiones condicionales
 def p_program_atom_if(p):
@@ -370,6 +397,7 @@ def p_error(p):
 
 
 parser = yacc.yacc(debug=1)
+
 
 # para ejecutar el parser desde compiler.py
 def make_parser(code):

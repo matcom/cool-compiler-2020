@@ -2,17 +2,21 @@ from ast import *
 from graph import Graph
 from type_defined import AllTypes, CoolType, object_type, BasicTypes
 
+
 # aqui chequeamos si algun tipo esta declarado doble y formamos el diccionario AllTypes
 def check_type_declaration(ast: ProgramNode):
     for cls in ast.classes:
         if cls.typeName in BasicTypes:
-            return f'({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Redefinition of basic class {cls.typeName}.'
+            return f'({cls.getLineNumber()}, {cls.getColumnNumber()}) - ' \
+                   f'SemanticError: Redefinition of basic class {cls.typeName}.'
         if cls.typeName in AllTypes:
-            return f'({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Classes may not be redefined'
+            return f'({cls.getLineNumber()}, {cls.getColumnNumber()}) - ' \
+                   f'SemanticError: Classes may not be redefined'
 
         AllTypes[cls.typeName] = CoolType(cls.typeName, None)
-    
+
     return []
+
 
 # aqui chequeamos que las clases hereden de tipos definidos y validos
 def check_type_inheritance(ast: ProgramNode):
@@ -36,6 +40,7 @@ def check_type_inheritance(ast: ProgramNode):
             AllTypes[cls.typeName].parent_type = object_type
 
     return []
+
 
 # aqui chequeamos las caracteristicas de los tipos, que no esten repetidas
 # y cumplan con las restricciones de herencia
@@ -123,6 +128,7 @@ def check_features(ast: ProgramNode):
 # para el chequeo de expresiones
 CURR_TYPE = ""
 
+
 # aqui se chequea que las expresiones esten devolviendo el tipo correcto
 def check_expressions(ast: ProgramNode):
     global CURR_TYPE, TYPE_CHANGES
@@ -136,7 +142,7 @@ def check_expressions(ast: ProgramNode):
         attrs_type = cls_type.get_attributes()
 
         for attr in attrs_type:
-                attrs[attr.attribute_name] = attr.attribute_type.name
+            attrs[attr.attribute_name] = attr.attribute_type.name
         attrs["self"] = cls.typeName
 
         for feature in cls.features:
@@ -144,15 +150,15 @@ def check_expressions(ast: ProgramNode):
                 feature_type = feature.typeName
                 if feature.expression:
                     error, expression_type = get_expression_return_type(feature.expression, False, attrs, {}, {}, False,
-                                                                            {})
+                                                                        {})
                     if len(error) > 0:
                         return error
                     # si el tipo que devuelve la expresion no hereda del tipo de retorno entonces retornamos un error
-                    if expression_type != feature.typeName and not is_ancestor(AllTypes[feature_type], AllTypes[expression_type]):
+                    if expression_type != feature.typeName and not is_ancestor(AllTypes[feature_type],
+                                                                               AllTypes[expression_type]):
                         return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) - TypeError: Inferred type ' \
-                                f'{expression_type} of initialization of attribute test ' \
-                                f'does not conform to declared type {feature_type}.'
-                        
+                               f'{expression_type} of initialization of attribute test ' \
+                               f'does not conform to declared type {feature_type}.'
 
         functions = AllTypes[cls.typeName].get_methods()
 
@@ -160,26 +166,27 @@ def check_expressions(ast: ProgramNode):
             if type(feature) is FunctionFeatureNode:
                 feature_type = feature.typeName
 
-                params = { "self" : cls.typeName }
+                params = {"self": cls.typeName}
                 for parameter in feature.parameters:
                     params[parameter.id] = parameter.typeName
                 error, expression_type = get_expression_return_type(feature.statement, True, attrs, functions,
-                                                                        params,
-                                                                        False, {})
+                                                                    params,
+                                                                    False, {})
 
                 if len(error) > 0:
                     return error
-                
+
                 if feature_type not in AllTypes:
                     return f'({feature.statement.getLineNumber()}, {feature.statement.getColumnNumber()}) - TypeError: ' \
-                            f'Undefined return type {feature_type} in method test.'
+                           f'Undefined return type {feature_type} in method test.'
                 # si el tipo que devuelve la expresion no hereda del tipo de retorno entonces retornamos un error
                 if not is_ancestor(AllTypes[feature_type], AllTypes[expression_type]):
                     return f'({feature.statement.getLineNumber()}, {feature.statement.getColumnNumber()}) - TypeError: ' \
-                            f'Inferred return type {expression_type} of method {feature.id} does not conform to declared ' \
-                            f'return type {feature_type}.'
+                           f'Inferred return type {expression_type} of method {feature.id} does not conform to declared ' \
+                           f'return type {feature_type}.'
 
     return []
+
 
 # dada una lista de tipos devuelve el primer ancestro en comun de ellos
 def GetFirstCommonAncestor(types):
@@ -189,6 +196,7 @@ def GetFirstCommonAncestor(types):
 
     return result.name
 
+
 # dados dos tipos devuelve el primer ancestro en comun
 def get_first_common_ancestor(typeA, typeB):
     if is_ancestor(typeA, typeB):
@@ -197,6 +205,7 @@ def get_first_common_ancestor(typeA, typeB):
         return typeB.name
     return get_first_common_ancestor(typeA.parent_type, typeB.parent_type)
 
+
 # devuelve True si youngerNode hereda de olderNode (youngerNode y olderNode son tipos)
 def is_ancestor(olderNode, youngerNode):
     if olderNode is None or youngerNode is None:
@@ -204,6 +213,7 @@ def is_ancestor(olderNode, youngerNode):
     if olderNode.name == youngerNode.name:
         return True
     return is_ancestor(olderNode, youngerNode.parent_type)
+
 
 # dado el nodo de una expresion devuelve el tipo de retorno de dicha expresion,
 # y detecta errores de malas operaciones entre tipos, entre otros
@@ -223,11 +233,9 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
             if expression.id in letVars and not is_ancestor(AllTypes[letVars[expression.id]], AllTypes[type1]):
                 return "Errorrrrrrrr asigning another type to a let variable"
 
-
         if insideCase:
             if expression.id in caseVar and not is_ancestor(AllTypes[caseVar[expression.id]], AllTypes[type1]):
                 return "Errorrrrrrrr asigning another type to a case variable"
-
 
         if insideFunction:
             if expression.id in parameters and not is_ancestor(AllTypes[parameters[expression.id]], AllTypes[type1]):
@@ -329,13 +337,13 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
             for s in case_types:
                 if s == caseBranch.typeName:
                     return f'({caseBranch.getLineNumber()}, {caseBranch.getColumnNumber()}) - SemanticError: Duplicate branch {caseBranch.typeName} in case statement', ""
-            
+
             case_types.append(caseBranch.typeName)
             error0, type0 = get_expression_return_type(caseBranch, insideFunction, attributes, functions, parameters,
                                                        insideLet, letVars, insideCase, caseVar, inside_loop)
             if len(error0) > 0:
                 return f'({caseBranch.getLineNumber()}, {caseBranch.getColumnNumber()}) - {error0}', ""
-            
+
             duplicated_type = False
             for t in caseBranchesTypes:
                 if t.name == type0:
@@ -369,7 +377,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
 
         e, t = get_expression_return_type(expression.instance, insideFunction, attributes, functions, parameters,
                                           insideLet, letVars, insideCase, caseVar, inside_loop)
-        
+
         if len(e) > 0:
             return e, ""
         if expression.dispatchType is not None:
@@ -404,7 +412,6 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                 return f'({expression.getLineNumber()}, {expression.getColumnNumber()}) - TypeError: ' \
                        f'Expression type {expType.name} does not conform to declared static dispatch type ' \
                        f'{ancType.name}. ', ''
-
 
         methods = AllTypes[t].get_methods()
         if expression.function in methods:
@@ -515,7 +522,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                                                    insideLet, letVars, insideCase, caseVar, inside_loop)
         if len(error2) > 0:
             return error2, ""
-        
+
         if type1 not in BasicTypes and type2 not in BasicTypes:
             return [], 'Bool'
         if type1 != type2:
@@ -579,6 +586,7 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                    f'{type1} / {type2}', ''
         return [], "Int"
 
+
 # se realiza un DFS sobre el grafo de los tipos empezando por Object,
 # si no se llega a algun tipo entonces existe un ciclo
 def get_cyclic_class(graph: Graph, ast: ProgramNode):
@@ -592,6 +600,7 @@ def get_cyclic_class(graph: Graph, ast: ProgramNode):
             return f"({cls.getLineNumber()}, {cls.getColumnNumber()}) - SemanticError: Class {cls.typeName}, " \
                    f"or an ancestor of {cls.typeName}, is involved in an inheritance cycle"
     return []
+
 
 # aqui chequeamos que no hayan ciclos en el grafo que se forma
 # con los tipos y sus relaciones de herencia

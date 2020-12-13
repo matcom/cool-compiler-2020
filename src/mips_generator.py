@@ -8,8 +8,9 @@ PARAM_COUNT = 0
 MAX_LOCALS_COUNT = 0
 MAX_PARAMS_COUNT = 0
 
-# para devolver algun nombre de etiqueta
+
 def next_label():
+    # para devolver algun nombre de etiqueta
     global LABELS_COUNT
     result = "custom_label_" + str(LABELS_COUNT)
     LABELS_COUNT += 1
@@ -30,12 +31,13 @@ def generate_mips(cil):
 
     return data + code
 
-# aqui se genera lo que va en la seccion .data
+
 def generate_data(data, locals, max_param_count):
+    # aqui se genera lo que va en la seccion .data
     global DATA, CIL_TYPES, MAX_LOCALS_COUNT, MAX_PARAMS_COUNT
     MAX_PARAMS_COUNT = max_param_count
     MAX_LOCALS_COUNT = locals
-    
+
     if len(data) == 0 and locals == 0:
         return ""
 
@@ -55,7 +57,7 @@ def generate_data(data, locals, max_param_count):
         result += d.id + ": .asciiz \"" + d.value.replace("\n", "\\n") + "\"\n"
 
     global PARAMS
-    
+
     for i in range(0, max_param_count):
         result += "param_" + str(i) + ": .word 0, 0\n"
         PARAMS["param_" + str(i)] = None
@@ -64,12 +66,14 @@ def generate_data(data, locals, max_param_count):
 
     return result
 
+
 PARAMS = {}
 CURR_PARAM_COUNT = 0
 CURR_FUNC = ""
 
-# se le pasa en $s0 la cantidad de variables a escribir en la funcion que la llama
+
 def generate_locals_write():
+    # se le pasa en $s0 la cantidad de variables a escribir en la funcion que la llama
     result = "locals_write:\n"
     result += "addi $t7, $s0, 0\n"
 
@@ -95,13 +99,14 @@ def generate_locals_write():
 
     return result
 
-# se le pasa en s0 la cantidad de variables a leer en la funcion que la llama
+
 def generate_locals_load():
+    # se le pasa en s0 la cantidad de variables a leer en la funcion que la llama
     result = "locals_load:\n"
     result += "addi $t7, $s0, 0\n"
-    
+
     locals_load_end_label = next_label()
-    
+
     counter = 0
 
     result += "li $t6, 8\n"
@@ -132,8 +137,9 @@ def generate_locals_load():
 
     return result
 
-# en s0 te mandan la cantidad de parametros a cargar
+
 def generate_params_load():
+    # en s0 te mandan la cantidad de parametros a cargar
     result = "params_load:\n"
 
     result += "addi $t7, $s0, 0\n"
@@ -166,8 +172,9 @@ def generate_params_load():
 
     return result
 
-# en s0 esta la direccion en donde se va a poner un entero
+
 def generate_allocate_Int():
+    # en s0 esta la direccion en donde se va a poner un entero
     result = "allocate_Int:\n"
 
     result += "la $t1, type_Int\n"
@@ -178,6 +185,8 @@ def generate_allocate_Int():
     result += "jr $ra\n\n"
 
     return result
+
+
 # en s0 esta la direccion en donde se va a poner un booleano
 def generate_allocate_Bool():
     result = "allocate_Bool:\n"
@@ -190,6 +199,8 @@ def generate_allocate_Bool():
     result += "jr $ra\n\n"
 
     return result
+
+
 # en s0 esta la direccion en donde se va a poner una cadena
 def generate_allocate_String():
     result = "allocate_String:\n"
@@ -208,6 +219,7 @@ def generate_allocate_String():
 
     return result
 
+
 # en s0 esta la direccion en donde se va a poner void
 def generate_allocate_Void():
     result = "allocate_Void:\n"
@@ -219,6 +231,7 @@ def generate_allocate_Void():
     result += "jr $ra\n\n"
 
     return result
+
 
 # en s0 y s1 estan la direccion de dos variables donde estan los objetos que se
 # quiere saber si el tipo de uno hereda del tipo del otro
@@ -252,7 +265,8 @@ def generate_is_descendant(son_father_tuples):
 
     return result
 
-# se entran $s0, $s1 y $s2, la primera es la 
+
+# se entran $s0, $s1 y $s2, la primera es la
 # direccion inicio desde donde copiar, la segunda es el offset, o sea, 
 # cuantos elementos copiar, y la tercera la direccion donde se va a pegar
 def generate_copy_from_to():
@@ -275,6 +289,7 @@ def generate_copy_from_to():
 
     return result
 
+
 # se entra en s0 la direccion de comienzo de una cadena y devuelve en s1 la cantidad
 # de caracteres hasta llegar al final de la cadena
 def generate_get_length():
@@ -295,6 +310,7 @@ def generate_get_length():
     result += "jr $ra\n\n"
 
     return result
+
 
 # se entran s0, s1 y s2 .. los dos primeros son las direcciones de las variables
 # a comparar y la ultima es la direccion de la variable booleana donde poner el resultado
@@ -337,6 +353,7 @@ def generate_equality_function():
 
     return result
 
+
 # se manda en s0 la variable de la instancia que llama al abort
 def generate_abort():
     result = "abort:\n"
@@ -363,6 +380,7 @@ def generate_abort():
 
     return result
 
+
 # esta funcion pone en la variable que esta en s1 el contenido de la variable
 # que esta en s0 (por referencia si es un objeto o cadena de caracteres)
 def generate_mov_func():
@@ -378,6 +396,7 @@ def generate_mov_func():
 
     return result
 
+
 # mandas en s0 la direccion de una variable y te agraga su informacion a la pila
 def generate_put_argument():
     result = "put_argument:\n"
@@ -391,6 +410,7 @@ def generate_put_argument():
     result += "jr $ra\n\n"
 
     return result
+
 
 # mandas en s0 la direccion de la primera cadena y en s6 la de la segunda cadena
 # y te devuelve en s2 la direccion de la variable con la cadena resultante
@@ -416,7 +436,7 @@ def generate_concat_func():
 
     result += "addi $s0, $s0, 4\n"
     result += "jal copy_from_to\n"
-    
+
     result += "addi $s0, $s6, 4\n"
     result += "addi $s1, $t7, 1\n"
     result += "jal copy_from_to\n"
@@ -427,6 +447,7 @@ def generate_concat_func():
 
     return result
 
+
 # mandas en s0 la direccion de la variable a imprimir (la variable tiene que ser
 # de tipo cadena de caracteres)
 def generate_print_func():
@@ -435,13 +456,14 @@ def generate_print_func():
     result += "addi $a0, $s0, 0\n"
     result += "lw $a0, 4($a0)\n"
     result += "addi $a0, $a0, 4\n"
-    
+
     result += "li $v0, 4\n"
     result += "syscall\n"
 
     result += "jr $ra\n\n"
 
     return result
+
 
 # mandas en s0 la direccion de una variable entera y te imprime el entero
 def generate_print_int_func():
@@ -455,18 +477,20 @@ def generate_print_int_func():
 
     return result
 
+
 # lee un entero y lo pone en la variable entera de direccion s0
 def generate_read_int_func():
     result = "read_int_func:\n"
 
     result += "li $v0, 5\n"
     result += "syscall\n"
-    
+
     result += "sw $v0, 4($s0)\n"
 
     result += "jr $ra\n\n"
 
     return result
+
 
 # mandas en s0 la direccion de comienzo de una cadena de caracteres
 # y en s2 la direccion de la variable donde quieres ponerla
@@ -496,6 +520,7 @@ def generate_load_data_func():
     result += "jr $ra\n\n"
 
     return result
+
 
 # se lee una cadena de caracteres y se pone en la variable de direccion s2
 def generate_read_string_func():
@@ -542,16 +567,17 @@ def generate_read_string_func():
 
     return result
 
-# se mandan en s6 y s7 las direcciones de las variables de origen y destino de la
-# copia (se copia solo el valor, o sea se crea una copia)
+
 def generate_copy_func():
+    # se mandan en s6 y s7 las direcciones de las variables de origen y destino de la
+    # copia (se copia solo el valor, o sea se crea una copia)
     result = "copy_func:\n"
 
     result += "sw $ra, ($sp)\n"
 
     result += "lw $t2, ($s6)\n"
     result += "sw $t2, ($s7)\n"
-    
+
     copy_int_or_bool_label = next_label()
     copy_string_label = next_label()
     copy_string_loop_start_label = next_label()
@@ -595,6 +621,7 @@ def generate_copy_func():
 
     return result
 
+
 # en s0 esta la direccion de la variable de cadena, en s7 la posicion en donde
 # empieza la subcadena (una variable entera), en s1 la cantidad de caracteres (otra
 # variable entera) y en s6 la direccion de la variable local de destino
@@ -626,6 +653,7 @@ def generate_substring_func():
 
     return result
 
+
 # en las dos siguientes funciones se mandan en s0 y s1 las direcciones de las variables
 # que se quieren comparar y en s2 se retorna la direccion de la variable booleana
 # donde quedara el valor del resultado correspondiente de la operacion
@@ -642,6 +670,7 @@ def generate_less_func():
 
     return result
 
+
 def generate_less_equal_func():
     result = "less_equal_func:\n"
 
@@ -653,6 +682,7 @@ def generate_less_equal_func():
     result += "jr $ra\n\n"
 
     return result
+
 
 ##################################################################################
 
@@ -672,6 +702,7 @@ def generate_divide_func():
 
     return result
 
+
 def generate_multiply_func():
     result = "multiply_func:\n"
 
@@ -685,6 +716,7 @@ def generate_multiply_func():
 
     return result
 
+
 def generate_substract_func():
     result = "substract_func:\n"
 
@@ -697,6 +729,7 @@ def generate_substract_func():
 
     return result
 
+
 def generate_add_func():
     result = "add_func:\n"
 
@@ -708,6 +741,7 @@ def generate_add_func():
     result += "jr $ra\n\n"
 
     return result
+
 
 #######################################################################################
 
@@ -746,6 +780,7 @@ def generate_call_func():
     result += "jr $ra\n\n"
 
     return result
+
 
 # aqui se genera el codigo correspondiente a la seccion .text
 def generate_code(functions_code, son_father_tuples):
@@ -792,7 +827,7 @@ def generate_code(functions_code, son_father_tuples):
         CURR_FUNC = f.name
 
         result += f.name + ":\n"
-        
+
         counter = len(f.params)
 
         # al principio de una funcion cargar los parametros desde la pila
@@ -813,7 +848,7 @@ def generate_code(functions_code, son_father_tuples):
         if len(f.params) > 0:
             result += "sw $ra, ($sp)\n"
             result += "addi $sp, $sp, 4\n"
-        
+
         for i in f.body:
             result += convert_cil_instruction(i)
 
@@ -824,17 +859,18 @@ def generate_code(functions_code, son_father_tuples):
 
     return result
 
-# se recive un nodo del AST del CIL para generar el codigo MIPS correspondiente
+
 def convert_cil_instruction(instruction):
+    # se recive un nodo del AST del CIL para generar el codigo MIPS correspondiente
     if type(instruction) == PrintNode:
         return convert_PrintNode(instruction)
 
     elif type(instruction) == PrintIntNode:
         return convert_PrintIntNode(instruction)
-    
+
     elif type(instruction) == TypeNameNode:
         return convert_TypeNameNode(instruction)
-    
+
     elif type(instruction) == TypeAddressNode:
         return convert_TypeAddressNode(instruction)
 
@@ -891,31 +927,28 @@ def convert_cil_instruction(instruction):
 
     elif type(instruction) == MulNode:
         return convert_MulNode(instruction)
-    
+
     elif type(instruction) == SubNode:
         return convert_SubNode(instruction)
-    
+
     elif type(instruction) == AddNode:
         return convert_AddNode(instruction)
-    
+
     elif type(instruction) == VDNode:
         return convert_VDNode(instruction)
-    
+
     elif type(instruction) == AbortNode:
         return convert_AbortNode(instruction)
 
     elif type(instruction) == CmpNode:
         return convert_CmpNode(instruction)
-    
+
     elif type(instruction) == NtNode:
         return convert_NtNode(instruction)
-    
+
     elif type(instruction) == MovNode:
         return convert_MovNode(instruction)
 
-    elif type(instruction) == SetStringNode:
-        return convert_SetStringNode(instruction)
-    
     elif type(instruction) == IfGotoNode:
         return convert_IfGotoNode(instruction)
 
@@ -938,6 +971,7 @@ def convert_cil_instruction(instruction):
         print(str(type(instruction)) + " doesn't have convert method")
         return ""
 
+
 # en la mayoria de los siguientes metodos lo que se hace es llamar a una funcion ya generada
 # previamente pasando argumentos por los registros de salvado (los $sx) .. esto se hace para
 # que no se generen tantas instrucciones MIPS innecesarias
@@ -951,7 +985,7 @@ def convert_IsSonNode(instruction):
         son = PARAMS[instruction.son]
     else:
         son = instruction.son
-    
+
     if instruction.father in PARAMS:
         father = PARAMS[instruction.father]
     else:
@@ -966,10 +1000,9 @@ def convert_IsSonNode(instruction):
     result += "la $s1, " + father + "\n"
     result += "la $s7, " + dest + "\n"
 
-    result += "jal is_descendant\n"    
+    result += "jal is_descendant\n"
 
     return result
-    
 
 
 def convert_TypeNameNode(instruction):
@@ -996,14 +1029,14 @@ def convert_TypeNameNode(instruction):
     result += "lw $s0, 4($s0)\n"
 
     result += "la $s2, " + dest + "\n"
-    
+
     result += "addi $a0, $s1, 5\n"
     result += "li $v0, 9\n"
     result += "syscall\n"
 
     result += "sw $v0, 4($s2)\n"
     result += "sw $s1, ($v0)\n"
-    
+
     result += "addi $s2, $v0, 4\n"
     result += "addi $s1, $s1, 1\n"
 
@@ -1011,6 +1044,7 @@ def convert_TypeNameNode(instruction):
     result += "jal copy_from_to\n"
 
     return result
+
 
 def convert_TypeAddressNode(instruction):
     global DATA, PARAMS
@@ -1028,6 +1062,7 @@ def convert_TypeAddressNode(instruction):
 
     return result
 
+
 def convert_PrintIntNode(instruction):
     global DATA, PARAMS
 
@@ -1037,7 +1072,6 @@ def convert_PrintIntNode(instruction):
         dest = PARAMS[instruction.val]
     else:
         dest = instruction.val
-
 
     result += "la $s0, " + dest + "\n"
     result += "jal print_int_func\n"
@@ -1049,7 +1083,7 @@ def convert_LocalSaveNode(instruction):
     global CURR_LOCAL_COUNT
     result = "li $s0, " + str(CURR_LOCAL_COUNT) + "\n"
 
-    result += "jal locals_write\n"    
+    result += "jal locals_write\n"
     return result
 
 
@@ -1071,16 +1105,17 @@ def convert_LoadDataNode(instruction):
 
     return result
 
+
 def convert_ReadNode(instruction):
     result = ""
 
     global DATA, PARAMS
-    
+
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
-    
+
     result += "la $s2, " + dest + "\n"
 
     result += "jal read_string_func\n"
@@ -1092,12 +1127,12 @@ def convert_ReadIntNode(instruction):
     result = ""
 
     global DATA, PARAMS
-    
+
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
-        
+
     result += "la $s0, " + dest + "\n"
 
     result += "jal read_int_func\n"
@@ -1114,7 +1149,7 @@ def convert_PrintNode(instruction):
         dest = PARAMS[instruction.str]
     else:
         dest = instruction.str
-    
+
     # ponemos en a0 la direccion del string
     result += "la $s0, " + dest + "\n"
 
@@ -1152,7 +1187,7 @@ def convert_ReturnNode(instruction):
 
 def convert_TypeOfNode(instruction):
     result = ""
-    
+
     global DATA, PARAMS
 
     if instruction.variable in PARAMS:
@@ -1161,14 +1196,14 @@ def convert_TypeOfNode(instruction):
         val = instruction.variable
 
     result += "la $t0, " + val + "\n"
-    
+
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
 
     result += "la $t1, " + dest + "\n"
-    
+
     result += "lw $t2, ($t0)\n"
     result += "sw $t2, 4($t1)\n"
 
@@ -1193,10 +1228,10 @@ def convert_CopyNode(instruction):
         dest = instruction.result
 
     result += "la $s7, " + dest + "\n"
-    
+
     result += "jal copy_func\n"
 
-    return result  
+    return result
 
 
 def convert_StrlenNode(instruction):
@@ -1208,7 +1243,7 @@ def convert_StrlenNode(instruction):
         val = PARAMS[instruction.str]
     else:
         val = instruction.str
-        
+
     # en t0 va la direccion del string    
     result += "la $t0, " + val + "\n"
     result += "lw $t0, 4($t0)\n"
@@ -1217,7 +1252,7 @@ def convert_StrlenNode(instruction):
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
-    
+
     # en $t1 va la direccion donde pondremos el valor de salida
     result += "la $t1, " + dest + "\n"
 
@@ -1225,6 +1260,7 @@ def convert_StrlenNode(instruction):
     result += "sw $t2, 4($t1)\n"
 
     return result
+
 
 def convert_StrcatNode(instruction):
     result = ""
@@ -1235,16 +1271,15 @@ def convert_StrcatNode(instruction):
         val_a = PARAMS[instruction.str_a]
     else:
         val_a = instruction.str_a
-        
+
     # en s0 va la direccion del primer string    
     result += "la $s0, " + val_a + "\n"
-    
 
     if instruction.str_b in PARAMS:
         val_b = PARAMS[instruction.str_b]
     else:
         val_b = instruction.str_b
-        
+
     # en s6 va la direccion del segundo string    
     result += "la $s6, " + val_b + "\n"
 
@@ -1252,7 +1287,7 @@ def convert_StrcatNode(instruction):
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
-        
+
     # en s2 va la direccion del string resultante    
     result += "la $s2, " + dest + "\n"
 
@@ -1263,29 +1298,29 @@ def convert_StrcatNode(instruction):
 
 def convert_StrsubNode(instruction):
     global DATA, PARAMS
-    
+
     result = ""
-    
+
     if instruction.str in PARAMS:
         val = PARAMS[instruction.str]
     else:
         val = instruction.str
 
-    if instruction.i in PARAMS:   
-        index = PARAMS[instruction.i]    
+    if instruction.i in PARAMS:
+        index = PARAMS[instruction.i]
     else:
-        index = instruction.i 
+        index = instruction.i
 
     if instruction.len in PARAMS:
         lenght = PARAMS[instruction.len]
     else:
         lenght = instruction.len
-     
+
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
-    
+
     result += "la $s0, " + val + "\n"
     result += "la $s7, " + index + "\n"
     result += "la $s1, " + lenght + "\n"
@@ -1294,7 +1329,7 @@ def convert_StrsubNode(instruction):
     result += "jal substring_func\n"
 
     return result
-    
+
 
 def convert_AllocateNode(instruction):
     result = ""
@@ -1311,13 +1346,13 @@ def convert_AllocateNode(instruction):
     if instruction.type == "Int":
 
         result += "jal allocate_Int\n"
-    
+
     elif instruction.type == "Bool":
 
         result += "jal allocate_Bool\n"
-       
+
     elif instruction.type == "String":
-        
+
         result += "jal allocate_String\n"
 
     elif instruction.type == "void":
@@ -1335,7 +1370,7 @@ def convert_AllocateNode(instruction):
                 continue
             object_size += 8
             attrs.append(a.attribute_type.name)
-        
+
         result += "li $a0, " + str(object_size) + "\n"
         result += "li $v0, 9\n"
         result += "syscall\n"
@@ -1369,18 +1404,18 @@ def convert_AllocateNode(instruction):
         result += "jal params_load\n"
 
     return result
-    
+
 
 def convert_ArgNode(instruction):
     result = ""
 
     global DATA, PARAMS
-    
+
     if instruction.value in PARAMS:
         val = PARAMS[instruction.value]
     else:
         val = instruction.value
-    
+
     result += "la $s0, " + val + "\n"
 
     result += "jal put_argument\n"
@@ -1427,6 +1462,7 @@ def convert_DispatchCallNode(instruction):
 
     return result
 
+
 def convert_SetAttributeNode(instruction):
     result = ""
 
@@ -1445,7 +1481,7 @@ def convert_SetAttributeNode(instruction):
         ins = PARAMS[instruction.instance]
     else:
         ins = instruction.instance
-    
+
     # en t0 metemos la direccion del valor a modificar
     result += "la $t0, " + ins + "\n"
     result += "lw $t0, 4($t0)\n"
@@ -1455,7 +1491,6 @@ def convert_SetAttributeNode(instruction):
         val = PARAMS[instruction.value]
     else:
         val = instruction.value
-
 
     # en t1 metemos la direccion del valor nuevo
     result += "la $s0, " + val + "\n"
@@ -1483,12 +1518,12 @@ def convert_GetAttributeNode(instruction):
         val = PARAMS[instruction.value]
     else:
         val = instruction.value
-    
+
     # en t0 metemos la direccion del valor a devolver
     result += "la $t0, " + val + "\n"
     result += "lw $t0, 4($t0)\n"
     result += "addi $s0, $t0, " + str(offset) + "\n"
-    
+
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
@@ -1497,7 +1532,7 @@ def convert_GetAttributeNode(instruction):
     result += "la $s1, " + dest + "\n"
 
     result += "jal mov_func\n"
-    
+
     return result
 
 
@@ -1510,7 +1545,7 @@ def convert_ENode(instruction):
         left = PARAMS[instruction.left]
     else:
         left = instruction.left
-    
+
     # poner en s0 la direccion del primer dato
     result += "la $s0, " + left + "\n"
 
@@ -1519,20 +1554,20 @@ def convert_ENode(instruction):
     else:
         right = instruction.right
 
-   # poner en s1 la direccion del segundo dato
+    # poner en s1 la direccion del segundo dato
     result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
-    
+
     # poner en s2 la direccion del booleano de salida
     result += "la $s2, " + dest + "\n"
 
     result += "jal equality_function\n"
 
-    return result 
+    return result
 
 
 def convert_LNode(instruction):
@@ -1544,26 +1579,26 @@ def convert_LNode(instruction):
         left = PARAMS[instruction.left]
     else:
         left = instruction.left
-    
+
     result += "la $s0, " + left + "\n"
 
     if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
-   
+
     result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
-    
+
     result += "la $s2, " + dest + "\n"
 
     result += "jal less_func\n"
 
-    return result 
+    return result
 
 
 def convert_LENode(instruction):
@@ -1575,26 +1610,26 @@ def convert_LENode(instruction):
         left = PARAMS[instruction.left]
     else:
         left = instruction.left
-    
+
     result += "la $s0, " + left + "\n"
 
     if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
-   
+
     result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
-    
+
     result += "la $s2, " + dest + "\n"
 
     result += "jal less_equal_func\n"
 
-    return result 
+    return result
 
 
 def convert_DivNode(instruction):
@@ -1606,26 +1641,26 @@ def convert_DivNode(instruction):
         left = PARAMS[instruction.left]
     else:
         left = instruction.left
-    
+
     result += "la $s0, " + left + "\n"
 
     if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
-   
+
     result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
-    
+
     result += "la $s2, " + dest + "\n"
 
     result += "jal divide_func\n"
 
-    return result 
+    return result
 
 
 def convert_MulNode(instruction):
@@ -1637,23 +1672,23 @@ def convert_MulNode(instruction):
         left = PARAMS[instruction.left]
     else:
         left = instruction.left
-    
+
     result += "la $s0, " + left + "\n"
 
     if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
-   
+
     result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
-    
+
     result += "la $s2, " + dest + "\n"
-    
+
     result += "jal multiply_func\n"
 
     return result
@@ -1668,21 +1703,21 @@ def convert_SubNode(instruction):
         left = PARAMS[instruction.left]
     else:
         left = instruction.left
-    
+
     result += "la $s0, " + left + "\n"
 
     if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
-   
+
     result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
-    
+
     result += "la $s2, " + dest + "\n"
 
     result += "jal substract_func\n"
@@ -1699,21 +1734,21 @@ def convert_AddNode(instruction):
         left = PARAMS[instruction.left]
     else:
         left = instruction.left
-    
+
     result += "la $s0, " + left + "\n"
 
     if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
-   
+
     result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
-    
+
     result += "la $s2, " + dest + "\n"
 
     result += "jal add_func\n"
@@ -1730,7 +1765,7 @@ def convert_VDNode(instruction):
         val = PARAMS[instruction.value]
     else:
         val = instruction.value
-    
+
     result += "la $t0, " + val + "\n"
     result += "lw $t0, 4($t0)\n"
 
@@ -1756,7 +1791,7 @@ def convert_CmpNode(instruction):
         val = PARAMS[instruction.value]
     else:
         val = instruction.value
-    
+
     result += "la $t0, " + val + "\n"
     result += "lw $t0, 4($t0)\n"
 
@@ -1774,6 +1809,7 @@ def convert_CmpNode(instruction):
 
     return result
 
+
 def convert_NtNode(instruction):
     result = ""
 
@@ -1783,7 +1819,7 @@ def convert_NtNode(instruction):
         val = PARAMS[instruction.value]
     else:
         val = instruction.value
-    
+
     result += "la $t0, " + val + "\n"
     result += "lw $t0, 4($t0)\n"
 
@@ -1819,7 +1855,7 @@ def convert_MovNode(instruction):
             val = PARAMS[instruction.value]
         else:
             val = instruction.value
-        
+
         if instruction.result in PARAMS:
             res = PARAMS[instruction.result]
         else:
@@ -1832,6 +1868,7 @@ def convert_MovNode(instruction):
 
     return result
 
+
 def convert_AbortNode(instruction):
     result = ""
 
@@ -1841,7 +1878,7 @@ def convert_AbortNode(instruction):
         caller = PARAMS[instruction.caller_type]
     else:
         caller = instruction.caller_type
-    
+
     result += "la $s0, " + caller + "\n"
 
     result += "jal abort\n"

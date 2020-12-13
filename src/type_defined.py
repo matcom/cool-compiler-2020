@@ -10,10 +10,10 @@ class CoolType:
 
     def defined(self, method_name):
         return method_name in self.methods.keys()
-    
+
     # en el chequeo semantico se van agregando los metodos y atributos y si se encuentra
     # algun tipo de error se devuelve
-    def add_method(self, method_name, args_types, args_names, return_type, expression = None):
+    def add_method(self, method_name, args_types, args_names, return_type, expression=None):
         if not self.defined(method_name):
             if len(args_types) != len(args_names):
                 args_names = ['a' * i for i, _ in enumerate(args_types)]
@@ -45,7 +45,7 @@ class CoolType:
         while node:
             nodes_list = [node] + nodes_list
             node = node.parent_type
-        
+
         for n in nodes_list:
             for attrs in n.attributes.keys():
                 if attrs in attr:
@@ -53,7 +53,7 @@ class CoolType:
                 attr[attrs] = n.attributes[attrs]
 
         return attr
- 
+
     def get_attributes(self):
         node = self
         attr = []
@@ -84,7 +84,7 @@ class CoolType:
 
         if func in mine:
             return self.name
-        
+
         owner = ""
         node = self.parent_type
         while node:
@@ -92,7 +92,7 @@ class CoolType:
                 if func in node.methods:
                     return node.name
             node = node.parent_type
-        
+
         return owner
 
     def get_methods(self):
@@ -170,7 +170,7 @@ class CoolType:
                 AO[attrs.attribute_name] = n.name
 
         return AO
-        
+
     # para devolver a que profundidad estoy del arbol que se forma con los tipos
     # y la herencia entre ellos
     def get_tree_depth(self):
@@ -181,7 +181,7 @@ class CoolType:
         while node:
             result += 1
             node = node.parent_type
-        
+
         return result
 
     # para devolver que tipo es el que define cada uno de mis metodos
@@ -196,16 +196,18 @@ class CoolType:
             node = node.parent_type
         return MO
 
+
 # clase base de un atributo en COOL
 class CoolAttribute:
-    def __init__(self, attribute_name, attribute_type, expression = None):
+    def __init__(self, attribute_name, attribute_type, expression=None):
         self.attribute_name = attribute_name
         self.attribute_type = attribute_type
         self.expression = expression
 
+
 # clase base de un metodo en COOL
 class CoolMethod:
-    def __init__(self, method_name, args_types, args_names, return_type, expression = None):
+    def __init__(self, method_name, args_types, args_names, return_type, expression=None):
         self.name = method_name
         self.args_types = args_types
         self.args_names = args_names
@@ -216,6 +218,8 @@ class CoolMethod:
 # para ponerles identificadores a los metodos que existen,
 # esto es usado para optimizar la generacion de codigo en mips
 METHODS_NAME_TO_ID = {}
+
+
 def refresh_methods_id():
     global AllTypes, METHODS_NAME_TO_ID
     id = 0
@@ -235,6 +239,7 @@ def inherits(a, b):
             return False
         current = current.parent
     return True
+
 
 # devuelve un tipo a partir de su nombre
 def get_type_by_name(type_name):

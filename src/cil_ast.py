@@ -2,12 +2,14 @@
 class Node:
     pass
 
+
 # nodo del programa
 class ProgramNode(Node):
     def __init__(self, types, data, code):
         self.types = types
         self.data = data
         self.code = code
+
 
 # nodo de los tipos
 class TypeNode(Node):
@@ -31,6 +33,7 @@ class TypeNode(Node):
 
         return result
 
+
 # nodo de los datos que se definen en la region .data del MIPS
 class DataNode(Node):
     def __init__(self, id, value):
@@ -44,6 +47,7 @@ class DataNode(Node):
             new_value = str(self.value)
         return "\t" + self.id + " \"" + new_value + "\""
 
+
 # nodo de funciones
 class FunctionNode(Node):
     def __init__(self, name, params, locals, body):
@@ -56,8 +60,8 @@ class FunctionNode(Node):
         result = "\tfunction " + self.name + " {\n"
         for p in self.params:
             result += "\t\t" + p.GetCode() + "\n"
-        for l in self.locals:
-            result += "\t\t" + l.GetCode() + "\n"
+        for local in self.locals:
+            result += "\t\t" + local.GetCode() + "\n"
         for s in self.body:
             result += "\t\t" + s.GetCode() + "\n"
 
@@ -70,6 +74,7 @@ class FunctionNode(Node):
 class InstructionNode(Node):
     pass
 
+
 # nodo para variables locales
 class LocalNode(Node):
     def __init__(self, id):
@@ -81,10 +86,12 @@ class LocalNode(Node):
     def __str__(self):
         return str(self.id)
 
+
 # nodo para la operacion de salvado de variables locales
 class LocalSaveNode(Node):
     def GetCode(self):
         return "LOCALSAVE"
+
 
 # nodo para parametros de funciones
 class ParamNode(Node):
@@ -97,6 +104,7 @@ class ParamNode(Node):
     def __str__(self):
         return str(self.id)
 
+
 # nodo para la operacion mov
 class MovNode(InstructionNode):
     def __init__(self, result, value):
@@ -105,27 +113,32 @@ class MovNode(InstructionNode):
 
     def GetCode(self):
         return "MOV " + str(self.result) + " " + str(self.value)
-    
+
+
 # nodo base de operaciones unarias
 class UnaryOpNode(InstructionNode):
     def __init__(self, value, result):
         self.value = value
         self.result = result
 
+
 # nodo de la operacion not
 class NtNode(UnaryOpNode):
     def GetCode(self):
         return "NOT " + str(self.result) + " " + str(self.value)
+
 
 # nodo de la operacion de complemento de entero
 class CmpNode(UnaryOpNode):
     def GetCode(self):
         return "CMP " + str(self.result) + " " + str(self.value)
 
+
 # nodo de la operacion isvoid
 class VDNode(UnaryOpNode):
     def GetCode(self):
         return "VD " + str(self.result) + " " + str(self.value)
+
 
 # nodo base de las operaciones binarias
 class BinaryOpNode(InstructionNode):
@@ -134,40 +147,48 @@ class BinaryOpNode(InstructionNode):
         self.right = right
         self.result = result
 
+
 # nodo de la operacion suma
 class AddNode(BinaryOpNode):
     def GetCode(self):
         return "ADD " + str(self.result) + " " + str(self.left) + " " + str(self.right)
+
 
 # nodo de la operacion resta
 class SubNode(BinaryOpNode):
     def GetCode(self):
         return "SUB " + str(self.result) + " " + str(self.left) + " " + str(self.right)
 
+
 # nodo de la operacion multiplicacion
 class MulNode(BinaryOpNode):
     def GetCode(self):
         return "Mul " + str(self.result) + " " + str(self.left) + " " + str(self.right)
+
 
 # nodo de la operacion division
 class DivNode(BinaryOpNode):
     def GetCode(self):
         return "Div " + str(self.result) + " " + str(self.left) + " " + str(self.right)
 
+
 # nodo de la operacion <=
 class LENode(BinaryOpNode):
     def GetCode(self):
         return "LE " + str(self.result) + " " + str(self.left) + " " + str(self.right)
+
 
 # nodo de la operacion <
 class LNode(BinaryOpNode):
     def GetCode(self):
         return "L " + str(self.result) + " " + str(self.left) + " " + str(self.right)
 
+
 # nodo de la operacion =
 class ENode(BinaryOpNode):
     def GetCode(self):
         return "E " + str(self.result) + " " + str(self.left) + " " + str(self.right)
+
 
 # nodo de la operacion que pide un atributo de un objeto
 class GetAttributeNode(InstructionNode):
@@ -180,6 +201,7 @@ class GetAttributeNode(InstructionNode):
     def GetCode(self):
         return "GATTR " + str(self.result) + " " + str(self.value) + " " + str(self.attr)
 
+
 # nodo de la operacion que modifica un atributo de un objeto
 class SetAttributeNode(InstructionNode):
     def __init__(self, _type, instance, attr, value):
@@ -191,6 +213,7 @@ class SetAttributeNode(InstructionNode):
     def GetCode(self):
         return "SATTR " + str(self.instance) + " " + str(self.attr) + " " + str(self.value)
 
+
 # nodo de la operacion de crear inicializar una variable local
 class AllocateNode(InstructionNode):
     def __init__(self, _type, result):
@@ -200,14 +223,17 @@ class AllocateNode(InstructionNode):
     def GetCode(self):
         return "ALLOC " + str(self.result) + " " + str(self.type)
 
+
 # nodo de la operacion de salida del programa
 class AbortNode(InstructionNode):
     def __init__(self, caller_type):
         self.caller_type = caller_type
+
     def GetCode(self):
         return "EXIT"
 
-# nodo de la operacion de copiar una valor de una variable local en otra 
+
+# nodo de la operacion de copiar una valor de una variable local en otra
 class CopyNode(InstructionNode):
     def __init__(self, value, result):
         self.result = result
@@ -215,6 +241,7 @@ class CopyNode(InstructionNode):
 
     def GetCode(self):
         return "COPY " + str(self.result) + " " + str(self.value)
+
 
 # nodo de la operacion que devuelve el entero que representa el tipo
 class TypeOfNode(InstructionNode):
@@ -224,6 +251,7 @@ class TypeOfNode(InstructionNode):
 
     def GetCode(self):
         return "TYPE " + str(self.result) + " " + str(self.variable)
+
 
 # nodo de la operacion de llamado de una funcion
 class DispatchCallNode(InstructionNode):
@@ -235,6 +263,7 @@ class DispatchCallNode(InstructionNode):
     def GetCode(self):
         return "CALL " + str(self.result) + " " + str(self.type_addr) + " " + str(self.method)
 
+
 # nodo de la operacion de agragar un argumento para la proxima funcion que se llame
 class ArgNode(InstructionNode):
     def __init__(self, value):
@@ -243,14 +272,16 @@ class ArgNode(InstructionNode):
     def GetCode(self):
         return "ARG " + str(self.value)
 
+
 # nodo de la operacion condicional
 class IfGotoNode(InstructionNode):
     def __init__(self, predicate, label):
         self.predicate = predicate
         self.label = label
-    
+
     def GetCode(self):
         return "IF " + str(self.predicate) + " GOTO " + self.label
+
 
 # nodo de la operacion de salto incondicional
 class GotoNode(InstructionNode):
@@ -260,6 +291,7 @@ class GotoNode(InstructionNode):
     def GetCode(self):
         return "GOTO " + self.label
 
+
 # nodo para las etiquetas de salto
 class LabelNode(InstructionNode):
     def __init__(self, label_name):
@@ -268,13 +300,15 @@ class LabelNode(InstructionNode):
     def GetCode(self):
         return "LABEL " + self.label_name
 
+
 # nodo de la operacion de retorno de funciones
 class ReturnNode(InstructionNode):
-    def __init__(self, return_value = ""):
+    def __init__(self, return_value=""):
         self.return_value = return_value
 
     def GetCode(self):
         return "RETURN " + str(self.return_value)
+
 
 # nodo de la operacion de strlen
 class StrlenNode(InstructionNode):
@@ -285,6 +319,7 @@ class StrlenNode(InstructionNode):
     def GetCode(self):
         return "STRLEN " + str(self.result) + " " + self.str
 
+
 # nodo de la operacion concat
 class StrcatNode(InstructionNode):
     def __init__(self, str_a, str_b, result):
@@ -294,6 +329,7 @@ class StrcatNode(InstructionNode):
 
     def GetCode(self):
         return "STRCAT " + str(self.result) + " " + str(self.str_a) + " " + str(self.str_b)
+
 
 # nodo de la operacion strsub
 class StrsubNode(InstructionNode):
@@ -306,6 +342,7 @@ class StrsubNode(InstructionNode):
     def GetCode(self):
         return "STRSUB " + str(self.result) + " " + str(self.str) + " " + str(self.i) + " " + str(self.len)
 
+
 # nodo de la expresion de cargar un dato en una variable local
 class LoadDataNode(InstructionNode):
     def __init__(self, result, data):
@@ -314,6 +351,7 @@ class LoadDataNode(InstructionNode):
 
     def GetCode(self):
         return "LDATA " + str(self.result) + " " + str(self.data)
+
 
 # nodo de la expresion que calcula si el tipo de una variable local hereda de otro
 class IsSonNode(InstructionNode):
@@ -334,21 +372,24 @@ class ReadNode(InstructionNode):
     def GetCode(self):
         return "READ " + str(self.result)
 
+
 # nodo de la operacion de leer un entero
 class ReadIntNode(InstructionNode):
     def __init__(self, result):
         self.result = result
-    
+
     def GetCode(self):
         return "RINT " + str(self.result)
 
-# nodo de la operacion de imprimir una cadena 
+
+# nodo de la operacion de imprimir una cadena
 class PrintNode(InstructionNode):
     def __init__(self, str):
         self.str = str
 
     def GetCode(self):
         return "PRINT " + str(self.str)
+
 
 # nodo de la operacion de imprimir un entero
 class PrintIntNode(InstructionNode):
@@ -358,7 +399,8 @@ class PrintIntNode(InstructionNode):
     def GetCode(self):
         return "PINT " + str(self.val)
 
-# nodo de la operacion que a partir de una variable entera ponga en otra que 
+
+# nodo de la operacion que a partir de una variable entera ponga en otra que
 # es una cadena de caracteres el nombre del tipo que representa dicho entero
 class TypeNameNode(InstructionNode):
     def __init__(self, result, type_addr):
@@ -367,6 +409,7 @@ class TypeNameNode(InstructionNode):
 
     def GetCode(self):
         return "TYPENAME " + str(self.result) + " " + str(self.type_addr)
+
 
 # nodo de la operacion que a partir de una cadena de caracteres pone en una variable local
 # el entero que representa ese tipo

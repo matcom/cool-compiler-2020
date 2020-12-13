@@ -47,7 +47,7 @@ def main():
 
         data = cool_program_code
 
-        newData = ""
+        new_data = ""
 
         # se ponen en blanco los comentarios multilinea
         i = 0
@@ -55,17 +55,17 @@ def main():
             if data[i] == '(' and i < len(data) - 1 and data[i + 1] == '*':
                 counter = 0
                 j = i + 2
-                newData += "  "
+                new_data += "  "
                 paster = ""
                 matched = False
                 while j < len(data) - 1:
                     if data[j] == '(' and data[j + 1] == '*':
                         counter += 1
                         j += 2
-                        newData += "  "
+                        new_data += "  "
                         continue
                     if data[j] == '*' and data[j + 1] == ')':
-                        newData += "  "
+                        new_data += "  "
                         if counter == 0:
                             matched = True
                             break
@@ -74,15 +74,15 @@ def main():
                     if data[j] == '\n':
                         paster += "\n"
                     j += 1
-                    newData += " "
+                    new_data += " "
                 if matched:
-                    newData += paster
+                    new_data += paster
                     i = j + 2
                     continue
-            newData += data[i]
+            new_data += data[i]
             i += 1
 
-        s = newData
+        s = new_data
 
         lexer, errors = make_lexer(s)
 

@@ -15,6 +15,7 @@ MAX_LOCAL_COUNT = 2
 
 MAIN_LOCAL = None
 
+
 def generate_cil(ast):
     global TYPES, DATA, CODE, T_LOCALS, CILCODE
     CILCODE = generate_all(ast)
@@ -98,6 +99,7 @@ def generate_cil_data(ast):
     result += "\n"
     return result
 
+
 # aqui se genera el codigo CIL de las funciones de las diferentes clases y de la funcion de
 # entrada del programa
 def generate_cil_code(ast):
@@ -123,7 +125,6 @@ def generate_cil_code(ast):
         for method in types.methods.values():
             result += generate_function(types.name, method)
 
-
     # a partir de aqui se genera el codigo de la clase de entrada del programa
     global F_PARAM, F_LOCALS, LABEL_COUNTER, D_LOCALS, V_TYPE, CURR_TYPE, C_ATTRIBUTES, LET_LOCALS, MAIN_LOCAL
     C_ATTRIBUTES = {}
@@ -139,14 +140,14 @@ def generate_cil_code(ast):
     MAIN_LOCAL = Main_instance
     result_local = get_local()
 
-    main_func = FunctionNode('main', [], [], 
-                [AllocateNode("Main", Main_instance.id)])
+    main_func = FunctionNode('main', [], [],
+                             [AllocateNode("Main", Main_instance.id)])
 
     F_LOCALS["self"] = Main_instance
-    
+
     Main_type_local = get_local()
 
-    main_func.body += [LocalSaveNode(), ArgNode(Main_instance.id), 
+    main_func.body += [LocalSaveNode(), ArgNode(Main_instance.id),
                        AllocateNode("Int", Main_type_local.id),
                        TypeOfNode(Main_type_local.id, Main_instance.id),
                        DispatchCallNode(Main_type_local.id, "main", result_local.id)]
@@ -169,9 +170,9 @@ def generate_cil_code(ast):
 
     return result
 
+
 # obtener una variable local para almacenar algun dato
 def get_local():
-    
     global F_LOCALS, F_PARAM, MAX_LOCAL_COUNT
 
     id = "local_" + str(len(F_LOCALS))
@@ -184,65 +185,67 @@ def get_local():
 
     return local
 
+
 # obtener una etiqueta
 def get_label():
     global LABEL_COUNTER
     LABEL_COUNTER += 1
     return "label_" + str(LABEL_COUNTER)
 
+
 # aqui se genera el codigo CIL de las funciones de los tipos basicos
 def generate_built_in_functions():
-    code = [FunctionNode("IO_out_string", [ParamNode('self'), ParamNode('str')], [], 
-                [PrintNode('str'),
-                ReturnNode('self')]),
+    code = [FunctionNode("IO_out_string", [ParamNode('self'), ParamNode('str')], [],
+                         [PrintNode('str'),
+                          ReturnNode('self')]),
 
             FunctionNode('IO_out_int', [ParamNode('self'), ParamNode('int')], [],
-                [PrintIntNode('int'),
-                ReturnNode('self')]),
+                         [PrintIntNode('int'),
+                          ReturnNode('self')]),
 
-            FunctionNode('IO_in_string', [ParamNode('self')], [get_local()], 
-                [AllocateNode("String", 'local_0'),
-                ReadNode('local_0'),
-                ReturnNode('local_0')]),
+            FunctionNode('IO_in_string', [ParamNode('self')], [get_local()],
+                         [AllocateNode("String", 'local_0'),
+                          ReadNode('local_0'),
+                          ReturnNode('local_0')]),
 
-            FunctionNode('IO_in_int', [ParamNode('self')], [get_local()], 
-                [AllocateNode("Int", "local_0"),
-                ReadIntNode('local_0'),
-                ReturnNode('local_0')]),
+            FunctionNode('IO_in_int', [ParamNode('self')], [get_local()],
+                         [AllocateNode("Int", "local_0"),
+                          ReadIntNode('local_0'),
+                          ReturnNode('local_0')]),
 
             FunctionNode('Object_type_name', [ParamNode('self')], [get_local(), get_local()],
-                [AllocateNode("Int", "local_0"),
-                AllocateNode("String", "local_1"),
-                TypeOfNode('local_0', 'self'),
-                TypeNameNode("local_1", "local_0"),
-                ReturnNode("local_1")]),
+                         [AllocateNode("Int", "local_0"),
+                          AllocateNode("String", "local_1"),
+                          TypeOfNode('local_0', 'self'),
+                          TypeNameNode("local_1", "local_0"),
+                          ReturnNode("local_1")]),
 
             # en el CopyNode no hace falta hacer allocate en memoria
             # para local_4 ya que esto se hace en ejecucion y depende
             # del tipo de self
-            FunctionNode('Object_copy', [ParamNode('self')], [get_local()], 
-                [CopyNode('self', 'local_0'),
-                ReturnNode('local_0')]),
+            FunctionNode('Object_copy', [ParamNode('self')], [get_local()],
+                         [CopyNode('self', 'local_0'),
+                          ReturnNode('local_0')]),
 
-            FunctionNode('String_length', [ParamNode('self')], [get_local()], 
-                [AllocateNode("Int", "local_0"),
-                StrlenNode('self', 'local_0'),
-                ReturnNode('local_0')]),
+            FunctionNode('String_length', [ParamNode('self')], [get_local()],
+                         [AllocateNode("Int", "local_0"),
+                          StrlenNode('self', 'local_0'),
+                          ReturnNode('local_0')]),
 
             FunctionNode('String_concat', [ParamNode('self'), ParamNode('str')], [get_local()],
-                [AllocateNode("String", "local_0"),
-                StrcatNode('self', 'str', 'local_0'),
-                ReturnNode('local_0')]),
+                         [AllocateNode("String", "local_0"),
+                          StrcatNode('self', 'str', 'local_0'),
+                          ReturnNode('local_0')]),
 
-            FunctionNode('String_substr', [ParamNode('self'), ParamNode('from'), ParamNode('to')], [get_local()], 
-                [AllocateNode("String", "local_0"),
-                StrsubNode('self', 'from', 'to', 'local_0'),
-                ReturnNode('local_0')]),
+            FunctionNode('String_substr', [ParamNode('self'), ParamNode('from'), ParamNode('to')], [get_local()],
+                         [AllocateNode("String", "local_0"),
+                          StrsubNode('self', 'from', 'to', 'local_0'),
+                          ReturnNode('local_0')]),
 
-            FunctionNode("Object_abort", [ParamNode('self')], [get_local()], 
-                [AllocateNode("Int", 'local_0'), 
-                TypeOfNode('local_0', 'self'), 
-                AbortNode('local_0')])]
+            FunctionNode("Object_abort", [ParamNode('self')], [get_local()],
+                         [AllocateNode("Int", 'local_0'),
+                          TypeOfNode('local_0', 'self'),
+                          AbortNode('local_0')])]
 
     global MAX_PARAM_COUNT
     MAX_PARAM_COUNT = 3
@@ -257,7 +260,6 @@ def generate_built_in_functions():
     return result
 
 
-
 C_ATTRIBUTES = {}
 F_PARAM = {}
 F_LOCALS = {}
@@ -268,11 +270,13 @@ V_TYPE = {}
 CURR_TYPE = ""
 LABEL_COUNTER = 0
 
+
 # clase base donde de el codigo y la variable donde se almacena el resultado
 class Node_Result:
     def __init__(self, node, result):
         self.node = node
         self.result = result
+
 
 # aqui se genera el codigo de una funcion
 def generate_function(type_name, method):
@@ -322,6 +326,7 @@ def generate_function(type_name, method):
 
     return result
 
+
 # aqui se genera el codigo de inicializacion de los atributos de una clase
 def generate_attributes_initialization(type_name, attributes):
     result = ""
@@ -344,7 +349,7 @@ def generate_attributes_initialization(type_name, attributes):
     F_PARAM["self"] = ParamNode("instance")
 
     aux_local = get_local()
-    body += [AllocateNode("void", aux_local.id),]
+    body += [AllocateNode("void", aux_local.id), ]
 
     for attr in attributes:
         if attr.attribute_name == "self":
@@ -370,12 +375,13 @@ def generate_attributes_initialization(type_name, attributes):
     code.body = body
     global CODE
     CODE.append(code)
-    
+
     result += CODE[-1].GetCode() + "\n\n"
 
     return result
 
-# para convertir una expresion en codigo CIL 
+
+# para convertir una expresion en codigo CIL
 # (la expresion viene como se formo en el AST del parser)
 def convert_expression(expression):
     if type(expression) is AssignStatementNode:
@@ -454,7 +460,7 @@ def convert_case(case):
     expr = convert_expression(case.expression)
     nodes += expr.node
     expr_type_local = get_local()
-    nodes += [AllocateNode("Int", expr_type_local.id), 
+    nodes += [AllocateNode("Int", expr_type_local.id),
               TypeOfNode(expr_type_local.id, expr.result.id)]
 
     case_types = []
@@ -472,7 +478,7 @@ def convert_case(case):
 
     for c in case.body:
         lcl_type_int = get_local()
-        nodes += [AllocateNode("Int", lcl_type_int.id), 
+        nodes += [AllocateNode("Int", lcl_type_int.id),
                   TypeAddressNode(lcl_type_int.id, c.typeName)]
         case_types.append(lcl_type_int)
         case_labels.append(get_label())
@@ -484,7 +490,7 @@ def convert_case(case):
         nodes.append(AllocateNode("Bool", predicate.id))
         nodes.append(IsSonNode(expr_type_local.id, case_types[i].id, predicate.id))
         nodes.append(IfGotoNode(predicate.id, case_labels[i]))
-    
+
     end_label = get_label()
     nodes.append(GotoNode(end_label))
 
@@ -502,6 +508,7 @@ def convert_case(case):
     nodes.append(LabelNode(end_label))
 
     return Node_Result(nodes, result)
+
 
 # codigo para generar el CIL de una expresion de asignacion
 def convert_assign(assign):
@@ -530,6 +537,7 @@ def convert_assign(assign):
         node = expr.node
         return Node_Result(node, expr.result)
 
+
 # codigo para generar el CIL de una expresion de operacion aritmetica
 def convert_binary_arithmetic_operation(op):
     left = convert_expression(op.left)
@@ -555,6 +563,7 @@ def convert_binary_arithmetic_operation(op):
 
     return Node_Result(node, result)
 
+
 # codigo para generar el CIL de una expresion condicional
 def convert_conditional(expression):
     predicate = convert_expression(expression.evalExpr)
@@ -568,18 +577,18 @@ def convert_conditional(expression):
 
     result = get_local()
 
-    node =  predicate.node + [
-            IfGotoNode(predicate.result.id, label_if)] + else_expr.node + [
-            MovNode(result.id, else_expr.result.id),
-            GotoNode(label_else),
-            LabelNode(label_if)] + if_expr.node + [
-            MovNode(result.id, if_expr.result.id), LabelNode(label_else)]
+    node = predicate.node + [
+        IfGotoNode(predicate.result.id, label_if)] + else_expr.node + [
+               MovNode(result.id, else_expr.result.id),
+               GotoNode(label_else),
+               LabelNode(label_if)] + if_expr.node + [
+               MovNode(result.id, if_expr.result.id), LabelNode(label_else)]
 
     return Node_Result(node, result)
 
+
 # codigo para generar el CIL de una expresion while
 def convert_loop(loop):
-
     predicate = convert_expression(loop.evalExpr)
 
     expr = convert_expression(loop.loopExpr)
@@ -599,6 +608,7 @@ def convert_loop(loop):
 
     return Node_Result(node, result)
 
+
 # codigo para generar el CIL de una expresion de =
 def convert_equal(equal):
     left = convert_expression(equal.left)
@@ -606,9 +616,11 @@ def convert_equal(equal):
 
     result = get_local()
 
-    node = [AllocateNode("Bool", result.id)] + left.node + right.node + [ENode(left.result.id, right.result.id, result.id)]
+    node = [AllocateNode("Bool", result.id)] + left.node + right.node + [
+        ENode(left.result.id, right.result.id, result.id)]
 
     return Node_Result(node, result)
+
 
 # codigo para generar el CIL de una expresion de <
 def convert_less(l):
@@ -617,9 +629,11 @@ def convert_less(l):
 
     result = get_local()
 
-    node = [AllocateNode("Bool", result.id)] + left.node + right.node + [LNode(left.result.id, right.result.id, result.id)]
+    node = [AllocateNode("Bool", result.id)] + left.node + right.node + [
+        LNode(left.result.id, right.result.id, result.id)]
 
     return Node_Result(node, result)
+
 
 # codigo para generar el CIL de una expresion <=
 def convert_less_equal(le):
@@ -628,35 +642,37 @@ def convert_less_equal(le):
 
     result = get_local()
 
-    node = [AllocateNode("Bool", result.id)] + left.node + right.node + [LENode(left.result.id, right.result.id, result.id)]
+    node = [AllocateNode("Bool", result.id)] + left.node + right.node + [
+        LENode(left.result.id, right.result.id, result.id)]
 
     return Node_Result(node, result)
 
+
 # codigo para generar el CIL de una constante entera
 def convert_integer(integer):
-
     result = get_local()
-    
+
     nodes = [AllocateNode("Int", result.id), MovNode(result.id, int(integer.lex))]
-    
+
     return Node_Result(nodes, result)
+
 
 # codigo para generar el CIL de una constante booleana
 def convert_bool(bool):
     result = get_local()
-    
+
     if bool.lex == "true":
         val = True
     else:
         val = False
-    
+
     nodes = [AllocateNode("Bool", result.id), MovNode(result.id, val)]
 
     return Node_Result(nodes, result)
 
+
 # codigo para generar el CIL de una variable en el codigo
 def convert_variable(id):
-  
     global LET_LOCALS, F_PARAM, C_ATTRIBUTES, CURR_TYPE, MAIN_LOCAL, CASE_LOCALS
 
     if id.lex in CASE_LOCALS:
@@ -676,9 +692,9 @@ def convert_variable(id):
     if id.lex in C_ATTRIBUTES:
         result = get_local()
         return Node_Result([GetAttributeNode(CURR_TYPE, "self", id.lex, result.id)], result)
-    
+
     result = get_local()
-    
+
     return Node_Result([AllocateNode("void", result.id)], result)
 
 
@@ -699,14 +715,15 @@ def convert_new(new_node):
 
     return Node_Result(nodes, result)
 
+
 # codigo para generar el CIL de una cadena de caracteres
 def convert_string(s):
-
     result = get_local()
 
     node = [AllocateNode("String", result.id), LoadDataNode(result.id, DATA[s.lex].id)]
 
     return Node_Result(node, result)
+
 
 # codigo para generar el CIL de una expresion let
 def convert_let(let):
@@ -733,6 +750,7 @@ def convert_let(let):
 
     return Node_Result(nodes, expr.result)
 
+
 # codigo para generar el CIL de una expresion de complemeto de entero
 def convert_complement(complement_node):
     expr = convert_expression(complement_node.expression)
@@ -742,6 +760,7 @@ def convert_complement(complement_node):
     node = [AllocateNode("Int", result.id)] + expr.node + [CmpNode(expr.result.id, result.id)]
 
     return Node_Result(node, result)
+
 
 # codigo para generar el CIL de una expresion not
 def convert_not(not_node):
@@ -753,6 +772,7 @@ def convert_not(not_node):
 
     return Node_Result(node, result)
 
+
 # codigo para generar el CIL de una expresion isvoid
 def convert_is_void(isvoid):
     expr = convert_expression(isvoid.expression)
@@ -762,6 +782,7 @@ def convert_is_void(isvoid):
     node = expr.node + [AllocateNode("Bool", result.id), VDNode(expr.result.id, result.id)]
 
     return Node_Result(node, result)
+
 
 # codigo para generar el CIL de una expresion block
 def convert_block(block):
@@ -774,6 +795,7 @@ def convert_block(block):
         result = expr.result
 
     return Node_Result(nodes, result)
+
 
 # codigo para generar el CIL de una llamada a una funcion
 def convert_function_call(call):
@@ -815,7 +837,7 @@ def convert_function_call(call):
     ins_type = get_local()
     nodes += [AllocateNode("Int", ins_type.id)]
 
-    if not call.dispatchType: 
+    if not call.dispatchType:
         nodes += [TypeOfNode(ins_type.id, instance)]
         nodes.append(DispatchCallNode(ins_type.id, call.function, result.id))
     else:
@@ -823,4 +845,3 @@ def convert_function_call(call):
         nodes.append(DispatchCallNode(ins_type.id, call.function, result.id))
 
     return Node_Result(nodes, result)
-

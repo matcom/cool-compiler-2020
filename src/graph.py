@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+
 # clase para representar el grafo que se forma con los tipos
 # y sus relaciones de herencia
 class Graph:
