@@ -1,7 +1,7 @@
 from visitor_helper import *
 from ast import *
 
-
+# se utiliza para encontrar cadenas de caracteres en el texto y devolverlas
 class FormatVisitorS(object):
     @on('node')
     def visit(self, node, tabs):
@@ -12,7 +12,7 @@ class FormatVisitorS(object):
         result = []
         for c in node.classes:
             result += self.visit(c)
-        return c
+        return result
     
     @when(ClassNode)
     def visit(self, node, tabs=0):

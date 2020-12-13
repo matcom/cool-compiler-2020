@@ -9,6 +9,7 @@ import sys
 def main():
     cool_program_code = ""
 
+    # se comprueba primero el fichero de entrada
     if len(sys.argv) < 2:
         print('Must contains cool file')
         exit(1)
@@ -27,6 +28,9 @@ def main():
         current += p[index]
         index += 1
 
+    # se hace una primera pasada por el texto de entrada para poner los \0 en \\0
+    # para que puedan ser notados por el lexer ... asi mismo se hace con los \t para
+    # que puedan ser cambiados por la correspondiente cantidad de espacios en blanco
     with open(str(p)) as file:
         while True:
             i = file.read(1)
@@ -45,6 +49,7 @@ def main():
 
         newData = ""
 
+        # se ponen en blanco los comentarios multilinea
         i = 0
         while i < len(data):
             if data[i] == '(' and i < len(data) - 1 and data[i + 1] == '*':
@@ -81,7 +86,7 @@ def main():
 
         lexer, errors = make_lexer(s)
 
-        # Print lexer errors
+        # se imprimen los errores del lexer
         if len(errors) > 0:
             for er in errors:
                 print(er)
@@ -89,7 +94,7 @@ def main():
 
         ast, errors = make_parser(s)
 
-        # Print parser errors
+        # se imprimen ls errores del parser
         if len(errors) > 0:
             for er in errors:
                 print(er)
@@ -97,7 +102,7 @@ def main():
 
         errors, types = check_semantic(ast)
 
-        # Print semantic errors
+        # se imprimen los errores en el chequeo semantico
         if len(errors) > 0:
             for er in errors:
                 print(er)
@@ -107,6 +112,7 @@ def main():
 
         mips = generate_mips(cil)
 
+        # se crea el archivo mips correspondiente y se guarda el codigo generado
         with open(p[:-2] + "mips", "w") as p:
             p.write(mips)
 

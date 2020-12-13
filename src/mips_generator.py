@@ -8,6 +8,7 @@ PARAM_COUNT = 0
 MAX_LOCALS_COUNT = 0
 MAX_PARAMS_COUNT = 0
 
+# para devolver algun nombre de etiqueta
 def next_label():
     global LABELS_COUNT
     result = "custom_label_" + str(LABELS_COUNT)
@@ -20,7 +21,8 @@ def generate_mips(cil):
     LABELS_COUNT = 0
     CIL_TYPES = cil[0]
 
-    # this is called from type_defined
+    # esto es llamado desde type_defined para ponerle a cada nombre de metodo
+    # un identificador
     refresh_methods_id()
 
     data = generate_data(cil[1], cil[3], cil[4])
@@ -28,7 +30,7 @@ def generate_mips(cil):
 
     return data + code
 
-
+# aqui se genera lo que va en la seccion .data
 def generate_data(data, locals, max_param_count):
     global DATA, CIL_TYPES, MAX_LOCALS_COUNT, MAX_PARAMS_COUNT
     MAX_PARAMS_COUNT = max_param_count
@@ -164,6 +166,7 @@ def generate_params_load():
 
     return result
 
+# en s0 esta la direccion en donde se va a poner un entero
 def generate_allocate_Int():
     result = "allocate_Int:\n"
 
@@ -175,7 +178,7 @@ def generate_allocate_Int():
     result += "jr $ra\n\n"
 
     return result
-
+# en s0 esta la direccion en donde se va a poner un booleano
 def generate_allocate_Bool():
     result = "allocate_Bool:\n"
 
@@ -187,7 +190,7 @@ def generate_allocate_Bool():
     result += "jr $ra\n\n"
 
     return result
-
+# en s0 esta la direccion en donde se va a poner una cadena
 def generate_allocate_String():
     result = "allocate_String:\n"
 
@@ -205,6 +208,7 @@ def generate_allocate_String():
 
     return result
 
+# en s0 esta la direccion en donde se va a poner void
 def generate_allocate_Void():
     result = "allocate_Void:\n"
 
@@ -216,6 +220,8 @@ def generate_allocate_Void():
 
     return result
 
+# en s0 y s1 estan la direccion de dos variables donde estan los objetos que se
+# quiere saber si el tipo de uno hereda del tipo del otro
 def generate_is_descendant(son_father_tuples):
     result = "is_descendant:\n"
 
@@ -246,7 +252,7 @@ def generate_is_descendant(son_father_tuples):
 
     return result
 
-# se entran 3 ($s0, $s1 y $s2), la primera es la 
+# se entran $s0, $s1 y $s2, la primera es la 
 # direccion inicio desde donde copiar, la segunda es el offset, o sea, 
 # cuantos elementos copiar, y la tercera la direccion donde se va a pegar
 def generate_copy_from_to():
@@ -269,7 +275,8 @@ def generate_copy_from_to():
 
     return result
 
-# gets in ($s1) the direction of a string and returns in $s1 the length
+# se entra en s0 la direccion de comienzo de una cadena y devuelve en s1 la cantidad
+# de caracteres hasta llegar al final de la cadena
 def generate_get_length():
     result = "get_length:\n"
 
@@ -289,6 +296,8 @@ def generate_get_length():
 
     return result
 
+# se entran s0, s1 y s2 .. los dos primeros son las direcciones de las variables
+# a comparar y la ultima es la direccion de la variable booleana donde poner el resultado
 def generate_equality_function():
     result = "equality_function:\n"
 
@@ -328,6 +337,7 @@ def generate_equality_function():
 
     return result
 
+# se manda en s0 la variable de la instancia que llama al abort
 def generate_abort():
     result = "abort:\n"
 
@@ -353,6 +363,8 @@ def generate_abort():
 
     return result
 
+# esta funcion pone en la variable que esta en s1 el contenido de la variable
+# que esta en s0 (por referencia si es un objeto o cadena de caracteres)
 def generate_mov_func():
     result = "mov_func:\n"
 
@@ -366,6 +378,7 @@ def generate_mov_func():
 
     return result
 
+# mandas en s0 la direccion de una variable y te agraga su informacion a la pila
 def generate_put_argument():
     result = "put_argument:\n"
 
@@ -379,6 +392,8 @@ def generate_put_argument():
 
     return result
 
+# mandas en s0 la direccion de la primera cadena y en s6 la de la segunda cadena
+# y te devuelve en s2 la direccion de la variable con la cadena resultante
 def generate_concat_func():
     result = "concat_func:\n"
 
@@ -412,6 +427,8 @@ def generate_concat_func():
 
     return result
 
+# mandas en s0 la direccion de la variable a imprimir (la variable tiene que ser
+# de tipo cadena de caracteres)
 def generate_print_func():
     result = "print_func:\n"
 
@@ -426,6 +443,7 @@ def generate_print_func():
 
     return result
 
+# mandas en s0 la direccion de una variable entera y te imprime el entero
 def generate_print_int_func():
     result = "print_int_func:\n"
 
@@ -437,18 +455,21 @@ def generate_print_int_func():
 
     return result
 
+# lee un entero y lo pone en la variable entera de direccion s0
 def generate_read_int_func():
     result = "read_int_func:\n"
 
     result += "li $v0, 5\n"
     result += "syscall\n"
     
-    result += "sw $v0, 4($t0)\n"
+    result += "sw $v0, 4($s0)\n"
 
     result += "jr $ra\n\n"
 
     return result
 
+# mandas en s0 la direccion de comienzo de una cadena de caracteres
+# y en s2 la direccion de la variable donde quieres ponerla
 def generate_load_data_func():
     result = "load_data_func:\n"
 
@@ -476,6 +497,7 @@ def generate_load_data_func():
 
     return result
 
+# se lee una cadena de caracteres y se pone en la variable de direccion s2
 def generate_read_string_func():
     result = "read_string_func:\n"
 
@@ -520,7 +542,8 @@ def generate_read_string_func():
 
     return result
 
-
+# se mandan en s6 y s7 las direcciones de las variables de origen y destino de la
+# copia (se copia solo el valor, o sea se crea una copia)
 def generate_copy_func():
     result = "copy_func:\n"
 
@@ -572,6 +595,9 @@ def generate_copy_func():
 
     return result
 
+# en s0 esta la direccion de la variable de cadena, en s7 la posicion en donde
+# empieza la subcadena (una variable entera), en s1 la cantidad de caracteres (otra
+# variable entera) y en s6 la direccion de la variable local de destino
 def generate_substring_func():
     result = "substring_func:\n"
 
@@ -600,6 +626,10 @@ def generate_substring_func():
 
     return result
 
+# en las dos siguientes funciones se mandan en s0 y s1 las direcciones de las variables
+# que se quieren comparar y en s2 se retorna la direccion de la variable booleana
+# donde quedara el valor del resultado correspondiente de la operacion
+
 def generate_less_func():
     result = "less_func:\n"
 
@@ -623,6 +653,12 @@ def generate_less_equal_func():
     result += "jr $ra\n\n"
 
     return result
+
+##################################################################################
+
+# en las cuatro siguientes funciones se mandan en s0 y s1 las direcciones de las variables
+# con las que se quiere operar y en s2 se retorna la direccion de la variable entera
+# donde quedara el valor del resultado correspondiente de la operacion
 
 def generate_divide_func():
     result = "divide_func:\n"
@@ -673,6 +709,11 @@ def generate_add_func():
 
     return result
 
+#######################################################################################
+
+# se manda en s0 la direccion de la variable del objeto al que se le quiere llamar un metodo
+# y en s1 el valor entero del identificador que corresponde al metodo que se quiere llamar
+# ... y se devuelve en s3 la direccion del metodo correspondiente que se debe llamar
 def generate_call_func():
     result = "call_func:\n"
 
@@ -706,9 +747,13 @@ def generate_call_func():
 
     return result
 
+# aqui se genera el codigo correspondiente a la seccion .text
 def generate_code(functions_code, son_father_tuples):
     result = ".text\n\n"
 
+    # aqui se generan funciones para casi cada operacion en CIL
+    # esto para que solamente sea mandarles la direccion de las 
+    # variables locales a operar
     result += generate_allocate_Int()
     result += generate_allocate_Bool()
     result += generate_allocate_String()
@@ -750,6 +795,7 @@ def generate_code(functions_code, son_father_tuples):
         
         counter = len(f.params)
 
+        # al principio de una funcion cargar los parametros desde la pila
         for p in f.params:
             param_name = "param_" + str(CURR_PARAM_COUNT)
             PARAM_COUNT += 1
@@ -763,6 +809,7 @@ def generate_code(functions_code, son_father_tuples):
             counter -= 1
             CURR_PARAM_COUNT += 1
 
+        # guardar la direccion de retorno en la pila
         if len(f.params) > 0:
             result += "sw $ra, ($sp)\n"
             result += "addi $sp, $sp, 4\n"
@@ -777,6 +824,7 @@ def generate_code(functions_code, son_father_tuples):
 
     return result
 
+# se recive un nodo del AST del CIL para generar el codigo MIPS correspondiente
 def convert_cil_instruction(instruction):
     if type(instruction) == PrintNode:
         return convert_PrintNode(instruction)
@@ -889,6 +937,10 @@ def convert_cil_instruction(instruction):
     else:
         print(str(type(instruction)) + " doesn't have convert method")
         return ""
+
+# en la mayoria de los siguientes metodos lo que se hace es llamar a una funcion ya generada
+# previamente pasando argumentos por los registros de salvado (los $sx) .. esto se hace para
+# que no se generen tantas instrucciones MIPS innecesarias
 
 def convert_IsSonNode(instruction):
     result = ""
@@ -1046,7 +1098,7 @@ def convert_ReadIntNode(instruction):
     else:
         dest = instruction.result
         
-    result += "la $t0, " + dest + "\n"
+    result += "la $s0, " + dest + "\n"
 
     result += "jal read_int_func\n"
 

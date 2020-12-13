@@ -4,22 +4,23 @@ from string_data_visitor import *
 from cil_ast import *
 from semantic import *
 
+# aqui se almacena la informacion del MIPS
 TYPES = {}
 DATA = {}
 CODE = []
 
+# utilizados para minimizar cantidad de variables locale declaradas en MIPS
 MAX_PARAM_COUNT = 0
 MAX_LOCAL_COUNT = 2
 
-STRINGCODE = ""
 MAIN_LOCAL = None
-
-NUM_LOCALS = {}
 
 def generate_cil(ast):
     global TYPES, DATA, CODE, T_LOCALS, CILCODE
     CILCODE = generate_all(ast)
 
+    # son_father_tuples almacena las tuplas de padre-hijo que existen en las clases
+    # para hacer chequeos de herencia en ejecucion, esto es utilizado para las expresiones case
     son_father_tuples = []
     for t1 in AllTypes.values():
         for t2 in AllTypes.values():
@@ -52,6 +53,7 @@ def generate_cil_types(ast):
 
     global TYPES
 
+    # pone el TYPES la informacion necesaria de los tipos y sus caracteristicas
     for key in ast.keys():
         if key == "SELF_TYPE":
             continue
@@ -70,6 +72,8 @@ def generate_cil_types(ast):
 def generate_cil_data(ast):
     global DATA
 
+    # se utiliza el patron visitor para encontrar las cadenas de caracteres en el codigo
+    # para ponerlas en DATA
     result = ""
     vis = FormatVisitorS()
     data = {}
@@ -94,14 +98,17 @@ def generate_cil_data(ast):
     result += "\n"
     return result
 
-
+# aqui se genera el codigo CIL de las funciones de las diferentes clases y de la funcion de
+# entrada del programa
 def generate_cil_code(ast):
     result = ""
 
     Main_class_attributes = []
 
+    # codigo de las funciones basicas
     result += generate_built_in_functions()
 
+    # codigo de las funciones declaradas
     for types in ast.values():
         if types.name == "SELF_TYPE":
             continue
@@ -116,6 +123,8 @@ def generate_cil_code(ast):
         for method in types.methods.values():
             result += generate_function(types.name, method)
 
+
+    # a partir de aqui se genera el codigo de la clase de entrada del programa
     global F_PARAM, F_LOCALS, LABEL_COUNTER, D_LOCALS, V_TYPE, CURR_TYPE, C_ATTRIBUTES, LET_LOCALS, MAIN_LOCAL
     C_ATTRIBUTES = {}
     F_LOCALS = {}
@@ -160,7 +169,7 @@ def generate_cil_code(ast):
 
     return result
 
-
+# obtener una variable local para almacenar algun dato
 def get_local():
     
     global F_LOCALS, F_PARAM, MAX_LOCAL_COUNT
@@ -175,13 +184,13 @@ def get_local():
 
     return local
 
-
+# obtener una etiqueta
 def get_label():
     global LABEL_COUNTER
     LABEL_COUNTER += 1
     return "label_" + str(LABEL_COUNTER)
 
-
+# aqui se genera el codigo CIL de las funciones de los tipos basicos
 def generate_built_in_functions():
     code = [FunctionNode("IO_out_string", [ParamNode('self'), ParamNode('str')], [], 
                 [PrintNode('str'),
@@ -259,13 +268,13 @@ V_TYPE = {}
 CURR_TYPE = ""
 LABEL_COUNTER = 0
 
-
+# clase base donde de el codigo y la variable donde se almacena el resultado
 class Node_Result:
     def __init__(self, node, result):
         self.node = node
         self.result = result
 
-
+# aqui se genera el codigo de una funcion
 def generate_function(type_name, method):
     result = ""
 
@@ -313,7 +322,7 @@ def generate_function(type_name, method):
 
     return result
 
-
+# aqui se genera el codigo de inicializacion de los atributos de una clase
 def generate_attributes_initialization(type_name, attributes):
     result = ""
 
@@ -366,7 +375,8 @@ def generate_attributes_initialization(type_name, attributes):
 
     return result
 
-
+# para convertir una expresion en codigo CIL 
+# (la expresion viene como se formo en el AST del parser)
 def convert_expression(expression):
     if type(expression) is AssignStatementNode:
         return convert_assign(expression)
@@ -438,7 +448,7 @@ def convert_expression(expression):
         return convert_binary_arithmetic_operation(expression)
 
 
-
+# codigo para generar el CIL de una expresion case
 def convert_case(case):
     nodes = []
     expr = convert_expression(case.expression)
@@ -450,6 +460,9 @@ def convert_case(case):
     case_types = []
     case_labels = []
 
+    # primero se ordenan las ramas de forma tal que las primeras tengan tipo
+    # con una mayor profundidad en el arbol de herencia, entonces se tomara la
+    # primera rama tal que el valor de la expresion herede del tipo de la rama
     for i in range(0, len(case.body) - 1):
         for j in range(i, len(case.body)):
             if AllTypes[case.body[i].typeName].get_tree_depth() < AllTypes[case.body[j].typeName].get_tree_depth():
@@ -490,6 +503,7 @@ def convert_case(case):
 
     return Node_Result(nodes, result)
 
+# codigo para generar el CIL de una expresion de asignacion
 def convert_assign(assign):
     global C_ATTRIBUTES, CURR_TYPE, MAIN_LOCAL, LET_LOCALS, F_PARAM
 
@@ -516,7 +530,7 @@ def convert_assign(assign):
         node = expr.node
         return Node_Result(node, expr.result)
 
-
+# codigo para generar el CIL de una expresion de operacion aritmetica
 def convert_binary_arithmetic_operation(op):
     left = convert_expression(op.left)
     right = convert_expression(op.right)
@@ -541,7 +555,7 @@ def convert_binary_arithmetic_operation(op):
 
     return Node_Result(node, result)
 
-
+# codigo para generar el CIL de una expresion condicional
 def convert_conditional(expression):
     predicate = convert_expression(expression.evalExpr)
 
@@ -563,7 +577,7 @@ def convert_conditional(expression):
 
     return Node_Result(node, result)
 
-
+# codigo para generar el CIL de una expresion while
 def convert_loop(loop):
 
     predicate = convert_expression(loop.evalExpr)
@@ -585,7 +599,7 @@ def convert_loop(loop):
 
     return Node_Result(node, result)
 
-
+# codigo para generar el CIL de una expresion de =
 def convert_equal(equal):
     left = convert_expression(equal.left)
     right = convert_expression(equal.right)
@@ -596,7 +610,7 @@ def convert_equal(equal):
 
     return Node_Result(node, result)
 
-
+# codigo para generar el CIL de una expresion de <
 def convert_less(l):
     left = convert_expression(l.left)
     right = convert_expression(l.right)
@@ -607,7 +621,7 @@ def convert_less(l):
 
     return Node_Result(node, result)
 
-
+# codigo para generar el CIL de una expresion <=
 def convert_less_equal(le):
     left = convert_expression(le.left)
     right = convert_expression(le.right)
@@ -618,7 +632,7 @@ def convert_less_equal(le):
 
     return Node_Result(node, result)
 
-
+# codigo para generar el CIL de una constante entera
 def convert_integer(integer):
 
     result = get_local()
@@ -627,7 +641,7 @@ def convert_integer(integer):
     
     return Node_Result(nodes, result)
 
-
+# codigo para generar el CIL de una constante booleana
 def convert_bool(bool):
     result = get_local()
     
@@ -640,7 +654,7 @@ def convert_bool(bool):
 
     return Node_Result(nodes, result)
 
-
+# codigo para generar el CIL de una variable en el codigo
 def convert_variable(id):
   
     global LET_LOCALS, F_PARAM, C_ATTRIBUTES, CURR_TYPE, MAIN_LOCAL, CASE_LOCALS
@@ -668,7 +682,7 @@ def convert_variable(id):
     return Node_Result([AllocateNode("void", result.id)], result)
 
 
-
+# codigo para generar el CIL de una expresion new
 def convert_new(new_node):
     global CURR_TYPE
 
@@ -685,7 +699,7 @@ def convert_new(new_node):
 
     return Node_Result(nodes, result)
 
-
+# codigo para generar el CIL de una cadena de caracteres
 def convert_string(s):
 
     result = get_local()
@@ -694,7 +708,7 @@ def convert_string(s):
 
     return Node_Result(node, result)
 
-
+# codigo para generar el CIL de una expresion let
 def convert_let(let):
     global LET_LOCALS
     nodes = []
@@ -719,7 +733,7 @@ def convert_let(let):
 
     return Node_Result(nodes, expr.result)
 
-
+# codigo para generar el CIL de una expresion de complemeto de entero
 def convert_complement(complement_node):
     expr = convert_expression(complement_node.expression)
 
@@ -729,7 +743,7 @@ def convert_complement(complement_node):
 
     return Node_Result(node, result)
 
-
+# codigo para generar el CIL de una expresion not
 def convert_not(not_node):
     expr = convert_expression(not_node.expression)
 
@@ -739,7 +753,7 @@ def convert_not(not_node):
 
     return Node_Result(node, result)
 
-
+# codigo para generar el CIL de una expresion isvoid
 def convert_is_void(isvoid):
     expr = convert_expression(isvoid.expression)
 
@@ -749,7 +763,7 @@ def convert_is_void(isvoid):
 
     return Node_Result(node, result)
 
-
+# codigo para generar el CIL de una expresion block
 def convert_block(block):
     nodes = []
     result = None
@@ -761,7 +775,7 @@ def convert_block(block):
 
     return Node_Result(nodes, result)
 
-
+# codigo para generar el CIL de una llamada a una funcion
 def convert_function_call(call):
     global V_TYPE, CURR_TYPE
     nodes = []
@@ -782,11 +796,13 @@ def convert_function_call(call):
 
     arguments = []
 
+    # primero se genera el CIL de los argumentos
     for a in call.args:
         arg = convert_expression(a)
         nodes += arg.node
         arguments.append(arg.result)
 
+    # se salvan los valores actuales de las variables locales
     nodes += [LocalSaveNode()]
 
     nodes.append(ArgNode(instance))

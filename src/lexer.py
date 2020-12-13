@@ -1,6 +1,10 @@
 from ply import lex as lex
 
+# para devolver los errores que se encuentren cuando se analice el texto de entrada
 errors = []
+
+# la llave es como aparecen las palabras clave en el codigo en COOL y el valor es
+# el tipo de token que se genera
 reserved = {
     'class': 'CLASS',
     'else': 'ELSE',
@@ -23,6 +27,7 @@ reserved = {
     'true': 'TRUE',
 }
 
+# aqui estan los demas tipos de tokens que no corresponden a palabras clave
 tokens = [
              'NUMBER',
              'STRING',
@@ -51,13 +56,16 @@ tokens = [
              'DISPATCH'
          ] + list(reserved.values())
 
+# estos son caracteres que se van a ignorar en la entrada
 t_ignore = ' \t\r\v\f'
 
-
+# aqui se leen las lineas que a partir de los -- y se ignoran hasta el siguiente \n
 def t_INLINECOMMENT(t):
     r'--.*'
     pass
 
+
+# por aqui comienza la maquina de estado para leer los comentarios multilinea
 def t_start_comment(t):
     r'\(\*'
     t.lexer.push_state("COMMENT")
@@ -65,7 +73,7 @@ def t_start_comment(t):
     t.lexer.star = False
     t.lexer.lparen = False
 
-
+# por aqui comienza la maquina de estado para leer valores de cadenas
 def t_start_string(t):
     r'"'
     t.lexer.push_state("STRING")
@@ -76,6 +84,8 @@ def t_start_string(t):
     t.lexer.string_nullcol = 0
 
 
+# las siguientes cuatro funciones forman los tokens de operaciones aritmeticas a medida
+# que aparecen los correspondientes simbolos en la entrada
 def t_PLUS(t):
     r'\+'
     t.value = '+'
@@ -103,7 +113,10 @@ def t_DIVIDE(t):
     t.colno = find_column(t.lexer.lexdata, t)
     return t
 
+###################################################################################
 
+
+# las siguientes funciones forman los tokens de diferentes simbolos del lenguaje
 def t_LPAREN(t):
     r'\('
     t.value = '('
@@ -173,7 +186,12 @@ def t_DOT(t):
     t.colno = find_column(t.lexer.lexdata, t)
     return t
 
+######################################################################################
 
+# aqui se forman los tokens que corresponden a operaciones de comparacion
+# las funciones de LESSEQUAL y LESS tienen que definirse en este orden sino
+# habra problemas ya que el simbolo de LESS es un prefijo de LESSEQUAL, igualmente
+# pasa con GREATER y GREATEREQUAL
 def t_LESSEQUAL(t):
     r'<='
     t.value = '<='
@@ -208,34 +226,39 @@ def t_EQUAL(t):
     t.colno = find_column(t.lexer.lexdata, t)
     return t
 
+##########################################################################
 
+
+# a continuacion la funcion que forma los tokens de los simbolos de operaciones
+# de complemento de entero
 def t_COMPLEMENT(t):
     r'~'
     t.value = '~'
     t.colno = find_column(t.lexer.lexdata, t)
     return t
 
-
+# simbolo del tipo de dispatch alternativo
 def t_DISPATCH(t):
     r'@'
     t.value = '@'
     t.colno = find_column(t.lexer.lexdata, t)
     return t
 
-
+# aqui se forman los tokens de numeros que aparecen en la entrada
 def t_NUMBER(t):
     r'\d+'
     t.value = int(t.value)
     t.colno = find_column(t.lexer.lexdata, t)
     return t
 
-
+# esto define las diferentes maquinas de estado
 states = (
     ('STRING', 'exclusive'),
     ('COMMENT', 'exclusive'),
 )
 
-
+# cuando estamos leyendo un string si recivimos un \n entonces debe haber un \ antes
+# (pues una cadena no puede saltarse de la linea) sino se devuelve un error
 def t_STRING_newline(t):
     r'\n'
     global errors
@@ -248,6 +271,8 @@ def t_STRING_newline(t):
         t.lexer.string_backslashed = False
 
 
+# si estamos leyendo un comentario multilinea y encontramos el fin del codigo 
+# devolvemos un error
 def t_COMMENT_eof(t):
     r'\$'
     global errors
@@ -260,7 +285,9 @@ def t_COMMENT_eof(t):
         i -= 1
     errors.append("(%s, %s) - LexicographicError: EOF in comment" % (lineCount, find_column(t.lexer.lexdata, t) - 1))
 
-
+# si se encuentra un * y antes se habia leido un ( entoces aumenta en uno la cantidad
+# de comentarios multilinea abiertos, sino marcamos que avimos un * por si el siguientes
+# caracter es )
 def t_COMMENT_star(t):
     r'\*'
     if (t.lexer.lparen):
@@ -269,14 +296,16 @@ def t_COMMENT_star(t):
     else:
         t.lexer.star = True
 
-
+# si se encuentra un ( recordarlo por si aparece un *, y si habia un * antes marcar
+# que ya no lo hay
 def t_COMMENT_lparen(t):
     r'\('
     t.lexerlparen = True
     if (t.lexer.star):
         t.lexer.start = False
 
-
+# se devuelve un error si se encuentra un fin de fichero cuando se esta leyendo
+# una cadena de caracteres
 def t_STRING_eof(t):
     r'\$'
     global errors
@@ -284,7 +313,11 @@ def t_STRING_eof(t):
                   (t.lineno, find_column(t.lexer.lexdata, t) - 1))
     t.lexer.pop_state()
 
-
+# si se encuentra un ) ver si antes habia un *, en este caso disminuir en uno
+# la cantidad de indexaciones de comentarios multilinea, si la cantidad actual
+# se hace 0 entonces significa que ya terminamos de leer el comentario multilinea
+# y salimos de la maquina de estado para continuar tokenizando con lo siguientes
+# que se lea
 def t_COMMENT_rparen(t):
     r'\)'
     if t.lexer.star:
@@ -293,7 +326,8 @@ def t_COMMENT_rparen(t):
         if t.lexer.counter == 0:
             t.lexer.pop_state()
 
-
+# finalizamos la cadena cuando volvemos a encontrar otro " y se comprueba si se 
+# detecto algun \0 para devolver el error, al final se sale de la maquina de estado
 def t_STRING_end(t):
     r'"'
     global errors
@@ -312,12 +346,13 @@ def t_STRING_end(t):
         t.lexer.stringbuf += '"'
         t.lexer.string_backslashed = False
 
-
+# cuando estamos leyendo un comentario multilinea todo lo que veamos lo ignoramos
 def t_COMMENT_anything(t):
     r'(.|\n)'
     pass
 
-
+# cuando estamos leyendo una cadena de caracteres comprobamos cuando aparecen caracteres
+# especiales, y agragamos todo a la cadena actual que estamos leyendo
 def t_STRING_anything(t):
     r'[^\n]'
     if t.lexer.string_backslashed:
@@ -345,7 +380,8 @@ def t_STRING_anything(t):
 
 t_STRING_ignore = ''
 
-
+# si se esta leyendo una cadena y se encuentra un \0 se guarda el error y se sigue
+# leyendo
 def t_STRING_error(t):
     t.lexer.string_containsNull = True
     t.lexer.string_nullrow = t.lineno
@@ -354,21 +390,25 @@ def t_STRING_error(t):
 
 t_COMMENT_ignore = ''
 
-
+# para cuando se encuentran caracteres que dan error como \0 se ignoran
 def t_COMMENT_error(t):
     t.lexer.counter = 0
     t.lexer.star = False
     t.lexer.lparen = False
 
+# aunque estemos leyendo un comentario se anotan los finales de linea pues despues
+# sera necesario en el retorno de errores
 def t_COMMENT_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
+# para cuando se encuentran fines de linea en el codigo
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
-
+# aqui se forman los tokens de identificadoes de atributos y de palabras clave, 
+# notar que como se especifica en COOL los identificadores comienzan con minusculas
 def t_ATTRIBUTEID(t):
     r'[a-z][a-zA-Z_0-9]*'
     if reserved.get(t.value.lower()) is None:
@@ -378,7 +418,8 @@ def t_ATTRIBUTEID(t):
     t.colno = find_column(t.lexer.lexdata, t)
     return t
 
-
+# aqui se forman los tokens de nombres de tipos y de valores booleanos que se encuentran
+# en la entrada, pues ambos empiezan en mayusculas
 def t_CLASSID(t):
     r'[A-Z][a-zA-Z_0-9]*'
     if reserved.get(t.value.lower()) is None or reserved.get(t.value.lower()) == 'TRUE' or reserved.get(
@@ -389,19 +430,23 @@ def t_CLASSID(t):
     t.colno = find_column(t.lexer.lexdata, t)
     return t
 
-
+# para devolver la columna de un simbolo pues lexpos es el valor de offset dentro de la 
+# cadena con el codigo de entrada, entonces hay que buscar el \n proximo por la izquierda
+# del simbolo en cuestion y contar la cantidad de caracteres
 def find_column(input, token):
     line_start = input.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
-
+# si se encuentran errores de simbolos de entrada que no se han definido en las anteriores
+# expresiones regulares, y no es el simbolo de final del texto, entonces retornar el error
+# correspondiente
 def t_error(t):
     global errors
     if not (t.value[0] == '$' and t.lexpos + 1 == len(t.lexer.lexdata)):
         errors.append('(%s, %s) - LexicographicError: ERROR "%s"' % (t.lineno, find_column(t.lexer.lexdata, t), t.value[0]))
     t.lexer.skip(1)
 
-
+# esto es para ejecutar el lexer desde compiler.py
 def make_lexer(data):
     global errors
     errors = []
