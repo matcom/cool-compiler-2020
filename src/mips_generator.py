@@ -1,10 +1,12 @@
 from cil_ast import *
+from type_defined import *
 
 DATA = []
 CIL_TYPES = {}
 LABELS_COUNT = 0
 PARAM_COUNT = 0
 MAX_LOCALS_COUNT = 0
+MAX_PARAMS_COUNT = 0
 
 def next_label():
     global LABELS_COUNT
@@ -18,6 +20,9 @@ def generate_mips(cil):
     LABELS_COUNT = 0
     CIL_TYPES = cil[0]
 
+    # this is called from type_defined
+    refresh_methods_id()
+
     data = generate_data(cil[1], cil[3], cil[4])
     code = generate_code(cil[2], cil[6])
 
@@ -25,7 +30,8 @@ def generate_mips(cil):
 
 
 def generate_data(data, locals, max_param_count):
-    global DATA, CIL_TYPES, MAX_LOCALS_COUNT
+    global DATA, CIL_TYPES, MAX_LOCALS_COUNT, MAX_PARAMS_COUNT
+    MAX_PARAMS_COUNT = max_param_count
     MAX_LOCALS_COUNT = locals
     
     if len(data) == 0 and locals == 0:
@@ -58,39 +64,102 @@ def generate_data(data, locals, max_param_count):
 
 PARAMS = {}
 CURR_PARAM_COUNT = 0
-PARAMS_LOAD = ""
+CURR_FUNC = ""
 
+# se le pasa en $s0 la cantidad de variables a escribir en la funcion que la llama
 def generate_locals_write():
     result = "locals_write:\n"
+    result += "addi $t7, $s0, 0\n"
 
-    global MAX_LOCALS_COUNT
+    locals_write_end_label = next_label()
+
+    counter = 0
+
     for i in range(0, MAX_LOCALS_COUNT):
-        name = "local_" + str(i)
+        result += "beq $t7, 0, " + locals_write_end_label + "\n"
+        name = "local_" + str(counter)
         result += "la $t1, " + name + "\n"
         result += "lw $t0, ($t1)\n"
         result += "sw $t0, ($sp)\n"
         result += "lw $t0, 4($t1)\n"
         result += "sw $t0, 4($sp)\n"
         result += "addi $sp, $sp, 8\n"
+        result += "addi $t7, $t7, -1\n"
+        counter += 1
+
+    result += locals_write_end_label + ":\n"
 
     result += "jr $ra\n\n"
 
     return result
 
+# se le pasa en s0 la cantidad de variables a leer en la funcion que la llama
 def generate_locals_load():
     result = "locals_load:\n"
+    result += "addi $t7, $s0, 0\n"
+    
+    locals_load_end_label = next_label()
+    
+    counter = 0
+
+    result += "li $t6, 8\n"
 
     global MAX_LOCALS_COUNT
     for i in range(0, MAX_LOCALS_COUNT):
-        name = "local_" + str(i)
-        result += "lw $t0, -" + str((MAX_LOCALS_COUNT - i) * 8) + "($sp)\n"
-        result += "lw $t1, -" + str((MAX_LOCALS_COUNT - i) * 8 - 4) + "($sp)\n"
+        result += "beq $t7, 0, " + locals_load_end_label + "\n"
+        name = "local_" + str(counter)
+        result += "mult $t7, $t6\n"
+        result += "mflo $t5\n"
+        result += "sub $t4, $sp, $t5\n"
+        result += "lw $t0, ($t4)\n"
+        result += "addi $t5, $t5, -4\n"
+        result += "sub $t4, $sp, $t5\n"
+        result += "lw $t1, ($t4)\n"
         result += "la $t2, " + name + "\n"
         result += "sw $t0, ($t2)\n"
         result += "sw $t1, 4($t2)\n"
+        result += "addi $t7, $t7, -1\n"
+        counter += 1
 
-    result += "addi $sp, $sp, -" + str(8 * MAX_LOCALS_COUNT) + "\n"
+    result += locals_load_end_label + ":\n"
+    result += "mult $s0, $t6\n"
+    result += "mflo $t5\n"
+    result += "sub $sp, $sp, $t5\n"
 
+    result += "jr $ra\n\n"
+
+    return result
+
+# en s0 te mandan la cantidad de parametros a cargar
+def generate_params_load():
+    result = "params_load:\n"
+
+    result += "addi $t7, $s0, 0\n"
+    result += "li $t6, 8\n"
+    result += "mult $t7, $t6\n"
+    result += "mflo $t5\n"
+    result += "addi $t5, 4\n"
+    result += "sub $t6, $sp, $t5\n"
+
+    counter = 0
+
+    params_load_end_label = next_label()
+
+    global MAX_PARAMS_COUNT
+    for i in range(0, MAX_PARAMS_COUNT):
+        result += "sub $t5, $sp, $t6\n"
+        result += "blt $t5, 8, " + params_load_end_label + "\n"
+        name = "param_" + str(counter)
+        result += "lw $t0, ($t6)\n"
+        result += "addi $t6, 4\n"
+        result += "lw $t1, ($t6)\n"
+        result += "addi $t6, 4\n"
+        result += "la $t2, " + name + "\n"
+        result += "sw $t0, ($t2)\n"
+        result += "sw $t1, 4($t2)\n"
+        counter += 1
+
+    result += params_load_end_label + ":\n"
     result += "jr $ra\n\n"
 
     return result
@@ -100,6 +169,8 @@ def generate_allocate_Int():
 
     result += "la $t1, type_Int\n"
     result += "sw $t1, ($s0)\n"
+    result += "li $t1, 0\n"
+    result += "sw $t1, 4($s0)\n"
 
     result += "jr $ra\n\n"
 
@@ -110,6 +181,8 @@ def generate_allocate_Bool():
 
     result += "la $t1, type_Bool\n"
     result += "sw $t1, ($s0)\n"
+    result += "li $t1, 0\n"
+    result += "sw $t1, 4($s0)\n"
 
     result += "jr $ra\n\n"
 
@@ -146,9 +219,8 @@ def generate_allocate_Void():
 def generate_is_descendant(son_father_tuples):
     result = "is_descendant:\n"
 
-    result += "lw $t0, -8($sp)\n"
-    result += "lw $t1, -4($sp)\n"
-    result += "addi $sp, $sp, -8\n"
+    result += "lw $s0, 4($s0)\n"
+    result += "lw $s1, 4($s1)\n"
 
     result += "li $v0, 0\n"
 
@@ -158,8 +230,8 @@ def generate_is_descendant(son_father_tuples):
         is_descendant_next_label = next_label()
         result += "la $t2, type_" + t[0] + "\n"
         result += "la $t3, type_" + t[1] + "\n"
-        result += "seq $t2, $t2, $t0\n"
-        result += "seq $t3, $t3, $t1\n"
+        result += "seq $t2, $t2, $s0\n"
+        result += "seq $t3, $t3, $s1\n"
         result += "add $t2, $t2, $t3\n"
         result += "bne $t2, 2, " + is_descendant_next_label + "\n"
         result += "li $v0, 1\n"
@@ -168,6 +240,468 @@ def generate_is_descendant(son_father_tuples):
 
     result += is_descendant_end_label + ":\n"
 
+    result += "sw $v0, 4($s7)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+# se entran 3 ($s0, $s1 y $s2), la primera es la 
+# direccion inicio desde donde copiar, la segunda es el offset, o sea, 
+# cuantos elementos copiar, y la tercera la direccion donde se va a pegar
+def generate_copy_from_to():
+    result = "copy_from_to:\n"
+
+    copy_from_to_loop_label = next_label()
+    copy_from_to_end_label = next_label()
+
+    result += copy_from_to_loop_label + ":\n"
+    result += "beq $s1, 0, " + copy_from_to_end_label + "\n"
+    result += "lb $t3, ($s0)\n"
+    result += "sb $t3, ($s2)\n"
+    result += "addi $s1, $s1, -1\n"
+    result += "addi $s0, $s0, 1\n"
+    result += "addi $s2, $s2, 1\n"
+    result += "j " + copy_from_to_loop_label + "\n"
+    result += copy_from_to_end_label + ":\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+# gets in ($s1) the direction of a string and returns in $s1 the length
+def generate_get_length():
+    result = "get_length:\n"
+
+    end_label = next_label()
+    loop_label = next_label()
+
+    result += "li $s1, 0\n"
+    result += loop_label + ":\n"
+    result += "lb $t0, ($s0)\n"
+    result += "beq $t0, 0, " + end_label + "\n"
+    result += "addi $s1, $s1, 1\n"
+    result += "addi $s0, $s0, 1\n"
+    result += "j " + loop_label + "\n"
+    result += end_label + ":\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_equality_function():
+    result = "equality_function:\n"
+
+    compare_strings_label = next_label()
+    compare_strings_false_label = next_label()
+    compare_strings_loop_label = next_label()
+    equal_end_label = next_label()
+
+    result += "lw $t3, ($s0)\n"
+    result += "la $t4, type_String\n"
+    result += "lw $s0, 4($s0)\n"
+    result += "lw $s1, 4($s1)\n"
+    result += "beq $t3, $t4, " + compare_strings_label + "\n"
+    result += "seq $s0, $s0, $s1\n"
+    result += "j " + equal_end_label + "\n"
+    result += compare_strings_label + ":\n"
+    result += "lw $t3, ($s0)\n"
+    result += "lw $t4, ($s1)\n"
+    result += "bne $t3, $t4, " + compare_strings_false_label + "\n"
+    result += "li $t3, 0\n"
+    result += "li $t4, 0\n"
+    result += compare_strings_loop_label + ":\n"
+    result += "lb $t3, 4($s0)\n"
+    result += "lb $t4, 4($s1)\n"
+    result += "bne $t3, $t4, " + compare_strings_false_label + "\n"
+    result += "addi $s0, $s0, 1\n"
+    result += "addi $s1, $s1, 1\n"
+    result += "bne $t3, 0, " + compare_strings_loop_label + "\n"
+    result += "li $s0, 1\n"
+    result += "j " + equal_end_label + "\n"
+    result += compare_strings_false_label + ":\n"
+    result += "li $s0, 0\n"
+    result += equal_end_label + ":\n"
+    result += "sw $s0, 4($s2)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_abort():
+    result = "abort:\n"
+
+    # write abort message
+    result += "la $a0, abort_msg\n"
+    result += "li $v0, 4\n"
+    result += "syscall\n"
+
+    # write type who called abort
+    result += "lw $a0, 4($s0)\n"
+    result += "li $v0, 4\n"
+    result += "syscall\n"
+
+    # write an end of line
+    result += "la $a0, end_of_line\n"
+    result += "li $v0, 4\n"
+    result += "syscall\n"
+
+    result += "li $v0, 10\n"
+    result += "syscall\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_mov_func():
+    result = "mov_func:\n"
+
+    result += "lw $t2, ($s0)\n"
+    result += "sw $t2, ($s1)\n"
+
+    result += "lw $t2, 4($s0)\n"
+    result += "sw $t2, 4($s1)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_put_argument():
+    result = "put_argument:\n"
+
+    result += "lw $t1, ($s0)\n"
+    result += "sw $t1, ($sp)\n"
+    result += "lw $t1, 4($s0)\n"
+    result += "sw $t1, 4($sp)\n"
+    result += "addi $sp, $sp, 8\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_concat_func():
+    result = "concat_func:\n"
+
+    result += "sw $ra, ($sp)\n"
+
+    result += "lw $s0, 4($s0)\n"
+    result += "lw $s6, 4($s6)\n"
+
+    result += "lw $s1, ($s0)\n"
+    result += "lw $t7, ($s6)\n"
+    result += "add $a0, $s1, $t7\n"
+    result += "addi $a0, $a0, 5\n"
+    result += "li $v0, 9\n"
+    result += "syscall\n"
+
+    result += "sw $v0, 4($s2)\n"
+    result += "addi $a0, $a0, -5\n"
+    result += "sw $a0, ($v0)\n"
+    result += "addi $s2, $v0, 4\n"
+
+    result += "addi $s0, $s0, 4\n"
+    result += "jal copy_from_to\n"
+    
+    result += "addi $s0, $s6, 4\n"
+    result += "addi $s1, $t7, 1\n"
+    result += "jal copy_from_to\n"
+
+    result += "lw $ra, ($sp)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_print_func():
+    result = "print_func:\n"
+
+    result += "addi $a0, $s0, 0\n"
+    result += "lw $a0, 4($a0)\n"
+    result += "addi $a0, $a0, 4\n"
+    
+    result += "li $v0, 4\n"
+    result += "syscall\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_print_int_func():
+    result = "print_int_func:\n"
+
+    result += "lw $a0, 4($s0)\n"
+    result += "li $v0, 1\n"
+    result += "syscall\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_read_int_func():
+    result = "read_int_func:\n"
+
+    result += "li $v0, 5\n"
+    result += "syscall\n"
+    
+    result += "sw $v0, 4($t0)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_load_data_func():
+    result = "load_data_func:\n"
+
+    result += "sw $ra, ($sp)\n"
+
+    result += "addi $t7, $s0, 0\n"
+    result += "jal get_length\n"
+    result += "addi $s0, $t7, 0\n"
+
+    result += "addi $a0, $s1, 5\n"
+    result += "li $v0, 9\n"
+    result += "syscall\n"
+
+    result += "sw $v0, 4($s2)\n"
+    result += "sw $s1, ($v0)\n"
+
+    result += "addi $s1, $s1, 1\n"
+    result += "addi $s2, $v0, 4\n"
+
+    result += "jal copy_from_to\n"
+
+    result += "lw $ra, ($sp)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_read_string_func():
+    result = "read_string_func:\n"
+
+    result += "sw $ra, ($sp)\n"
+
+    result += "la $a0, string_read_buffer\n"
+    result += "li $v0, 8\n"
+    result += "syscall\n"
+
+    result += "la $s0, string_read_buffer\n"
+
+    result += "jal get_length\n"
+
+    result += "la $s0, string_read_buffer\n"
+
+    wasnt_empty_string_label = next_label()
+
+    result += "bne $s1, 0, " + wasnt_empty_string_label + "\n"
+
+    result += "addi $s1, $s1, 1\n"
+
+    result += wasnt_empty_string_label + ":\n"
+
+    result += "addi $a0, $s1, 4\n"
+    result += "li $v0, 9\n"
+    result += "syscall\n"
+
+    result += "sw $v0, 4($s2)\n"
+    result += "addi $s1, $s1, -1\n"
+    result += "sw $s1, ($v0)\n"
+
+    result += "addi $s2, $v0, 4\n"
+
+    result += "jal copy_from_to\n"
+
+    result += "li $t3, 0\n"
+    result += "sb $t3, ($s2)\n"
+
+    result += "lw $ra, ($sp)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+
+def generate_copy_func():
+    result = "copy_func:\n"
+
+    result += "sw $ra, ($sp)\n"
+
+    result += "lw $t2, ($s6)\n"
+    result += "sw $t2, ($s7)\n"
+    
+    copy_int_or_bool_label = next_label()
+    copy_string_label = next_label()
+    copy_string_loop_start_label = next_label()
+    copy_object_loop_start_label = next_label()
+    copy_end_label = next_label()
+
+    result += "la $t3, type_Int\n"
+    result += "beq $t2, $t3, " + copy_int_or_bool_label + "\n"
+    result += "la $t3, type_Bool\n"
+    result += "beq $t2, $t3, " + copy_int_or_bool_label + "\n"
+    result += "la $t3, type_String\n"
+    result += "beq $t2, $t3, " + copy_string_label + "\n"
+    result += "lw $s0, 4($s6)\n"
+    result += "lw $a0, ($s0)\n"
+    result += "li $v0, 9\n"
+    result += "syscall\n"
+    result += "sw $v0, 4($s7)\n"
+    result += "addi $s2, $v0, 0\n"
+    result += "add $s1, $a0, 0\n"
+    result += "jal copy_from_to\n"
+    result += "j " + copy_end_label + "\n"
+    result += copy_int_or_bool_label + ":\n"
+    result += "lw $t2, 4($s6)\n"
+    result += "sw $t2, 4($s7)\n"
+    result += "j " + copy_end_label + "\n"
+    result += copy_string_label + ":\n"
+    result += "lw $s0, 4($s6)\n"
+    result += "lw $t6, ($s0)\n"
+    result += "addi $a0, $t6, 5\n"
+    result += "li $v0, 9\n"
+    result += "syscall\n"
+    result += "sw $v0, 4($s7)\n"
+    result += "addi $s2, $v0, 0\n"
+    result += "add $s1, $a0, 0\n"
+    result += "jal copy_from_to\n"
+    result += copy_end_label + ":\n"
+
+    result += "lw $ra, ($sp)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_substring_func():
+    result = "substring_func:\n"
+
+    result += "sw $ra, ($sp)\n"
+
+    result += "lw $s0, 4($s0)\n"
+    result += "addi $s0, $s0, 4\n"
+    result += "lw $s7, 4($s7)\n"
+    result += "add $s0, $s0, $s7\n"
+    result += "lw $s1, 4($s1)\n"
+
+    result += "addi $a0, $s1, 5\n"
+    result += "li $v0, 9\n"
+    result += "syscall\n"
+
+    result += "sw $v0, 4($s6)\n"
+    result += "sw $s1, ($v0)\n"
+    result += "addi $s2, $v0, 4\n"
+    result += "jal copy_from_to\n"
+    result += "li $t3, 0\n"
+    result += "sb $t3, ($s2)\n"
+
+    result += "lw $ra, ($sp)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_less_func():
+    result = "less_func:\n"
+
+    result += "lw $s0, 4($s0)\n"
+    result += "lw $s1, 4($s1)\n"
+    result += "slt $s0, $s0, $s1\n"
+    result += "sw $s0, 4($s2)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_less_equal_func():
+    result = "less_equal_func:\n"
+
+    result += "lw $s0, 4($s0)\n"
+    result += "lw $s1, 4($s1)\n"
+    result += "sle $s0, $s0, $s1\n"
+    result += "sw $s0, 4($s2)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_divide_func():
+    result = "divide_func:\n"
+
+    result += "lw $s0, 4($s0)\n"
+    result += "lw $s1, 4($s1)\n"
+    result += "div $s0, $s0, $s1\n"
+    result += "sw $s0, 4($s2)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_multiply_func():
+    result = "multiply_func:\n"
+
+    result += "lw $s0, 4($s0)\n"
+    result += "lw $s1, 4($s1)\n"
+    result += "mult $s0, $s1\n"
+    result += "mflo $s0\n"
+    result += "sw $s0, 4($s2)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_substract_func():
+    result = "substract_func:\n"
+
+    result += "lw $s0, 4($s0)\n"
+    result += "lw $s1, 4($s1)\n"
+    result += "sub $s0, $s0, $s1\n"
+    result += "sw $s0, 4($s2)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_add_func():
+    result = "add_func:\n"
+
+    result += "lw $s0, 4($s0)\n"
+    result += "lw $s1, 4($s1)\n"
+    result += "add $s0, $s0, $s1\n"
+    result += "sw $s0, 4($s2)\n"
+
+    result += "jr $ra\n\n"
+
+    return result
+
+def generate_call_func():
+    result = "call_func:\n"
+
+    result += "lw $s0, 4($s0)\n"
+
+    call_func_end_label = next_label()
+
+    for t in CIL_TYPES.values():
+
+        is_not_this_type_label = next_label()
+
+        result += "la $t1, type_" + t.type_name + "\n"
+        result += "bne $s0, $t1, " + is_not_this_type_label + "\n"
+
+        for m in t.methods.keys():
+            is_not_this_method_label = next_label()
+
+            result += "bne $s1, " + str(METHODS_NAME_TO_ID[m]) + ", " + is_not_this_method_label + "\n"
+
+            result += "la $s3, " + t.methods[m] + "_" + m + "\n"
+
+            result += "j " + call_func_end_label + "\n"
+
+            result += is_not_this_method_label + ":\n"
+
+        result += is_not_this_type_label + ":\n"
+
+    result += call_func_end_label + ":\n"
+
     result += "jr $ra\n\n"
 
     return result
@@ -175,27 +709,49 @@ def generate_is_descendant(son_father_tuples):
 def generate_code(functions_code, son_father_tuples):
     result = ".text\n\n"
 
-    result += generate_locals_write()
-    result += generate_locals_load()
     result += generate_allocate_Int()
     result += generate_allocate_Bool()
     result += generate_allocate_String()
     result += generate_allocate_Void()
+    result += generate_locals_write()
+    result += generate_locals_load()
+    result += generate_params_load()
+    result += generate_copy_from_to()
+    result += generate_get_length()
+    result += generate_equality_function()
+    result += generate_abort()
     result += generate_is_descendant(son_father_tuples)
-    
+    result += generate_mov_func()
+    result += generate_put_argument()
+    result += generate_concat_func()
+    result += generate_print_func()
+    result += generate_read_int_func()
+    result += generate_read_string_func()
+    result += generate_load_data_func()
+    result += generate_print_int_func()
+    result += generate_copy_func()
+    result += generate_substring_func()
+    result += generate_less_func()
+    result += generate_less_equal_func()
+    result += generate_divide_func()
+    result += generate_multiply_func()
+    result += generate_substract_func()
+    result += generate_add_func()
+    result += generate_call_func()
 
-    global PARAMS, CURR_PARAM_COUNT, PARAM_COUNT, PARAMS_LOAD
+    global PARAMS, CURR_LOCAL_COUNT, CURR_PARAM_COUNT, PARAM_COUNT, CURR_FUNC
 
     for f in functions_code:
         CURR_PARAM_COUNT = 0
-        PARAMS_LOAD = ""
+        CURR_LOCAL_COUNT = len(f.locals)
+        CURR_FUNC = f.name
 
         result += f.name + ":\n"
         
         counter = len(f.params)
 
         for p in f.params:
-            param_name = "param_" + str(PARAM_COUNT)
+            param_name = "param_" + str(CURR_PARAM_COUNT)
             PARAM_COUNT += 1
             PARAMS[p.id] = param_name
             result += "lw $t0, -" + str(8 * counter) + "($sp)\n"
@@ -203,12 +759,6 @@ def generate_code(functions_code, son_father_tuples):
             result += "la $t2, " + param_name + "\n"
             result += "sw $t0, ($t2)\n"
             result += "sw $t1, 4($t2)\n"
-            
-            PARAMS_LOAD += "lw $t0, -" + str(8 * counter + 4) + "($sp)\n"
-            PARAMS_LOAD += "lw $t1, -" + str(8 * counter) + "($sp)\n"
-            PARAMS_LOAD += "la $t2, " + param_name + "\n"
-            PARAMS_LOAD += "sw $t0, ($t2)\n"
-            PARAMS_LOAD += "sw $t1, 4($t2)\n"
 
             counter -= 1
             CURR_PARAM_COUNT += 1
@@ -219,7 +769,7 @@ def generate_code(functions_code, son_father_tuples):
         
         for i in f.body:
             result += convert_cil_instruction(i)
-        
+
         result += "\n\n"
 
     result = result[0:-2] + "li $v0, 10\n"
@@ -360,20 +910,11 @@ def convert_IsSonNode(instruction):
     else:
         dest = instruction.result
 
-    result += "la $t0, " + son + "\n"
-    result += "lw $t0, 4($t0)\n"
+    result += "la $s0, " + son + "\n"
+    result += "la $s1, " + father + "\n"
+    result += "la $s7, " + dest + "\n"
 
-    result += "la $t1, " + father + "\n"
-    result += "lw $t1, 4($t1)\n"
-
-    result += "sw $t0, ($sp)\n"
-    result += "sw $t1, 4($sp)\n"
-    result += "addi $sp, $sp, 8\n"
-
-    result += "jal is_descendant\n"
-
-    result += "la $t3, " + dest + "\n"
-    result += "sw $v0, 4($t3)\n"
+    result += "jal is_descendant\n"    
 
     return result
     
@@ -394,30 +935,28 @@ def convert_TypeNameNode(instruction):
     else:
         dest = instruction.result
 
-    result += "la $t0, " + t_addr + "\n"
-    result += "lw $t0, 4($t0)\n"
-    result += get_length_with_registers("$t0", "$t1", "$t2")
-    result += "la $t0, " + t_addr + "\n"
-    result += "lw $t0, 4($t0)\n"
+    result += "la $s0, " + t_addr + "\n"
+    result += "lw $s0, 4($s0)\n"
+    # poner en $s1 el tamanyo del string que comienza en ($s0)
+    result += "jal get_length\n"
 
-    result += "la $t2, " + dest + "\n"
+    result += "la $s0, " + t_addr + "\n"
+    result += "lw $s0, 4($s0)\n"
+
+    result += "la $s2, " + dest + "\n"
     
-    result += "addi $a0, $t1, 5\n"
+    result += "addi $a0, $s1, 5\n"
     result += "li $v0, 9\n"
     result += "syscall\n"
 
-    result += "sw $v0, 4($t2)\n"
-    result += "sw $t1, ($v0)\n"
+    result += "sw $v0, 4($s2)\n"
+    result += "sw $s1, ($v0)\n"
+    
+    result += "addi $s2, $v0, 4\n"
+    result += "addi $s1, $s1, 1\n"
 
-    t_name_loop_start_label = next_label()
-
-    result += "li $t3, 0\n"
-    result += t_name_loop_start_label + ":\n"
-    result += "lb $t3, ($t0)\n"
-    result += "sb $t3, 4($v0)\n"
-    result += "addi $t0, $t0, 1\n"
-    result += "addi $v0, $v0, 1\n"
-    result += "bne $t3, 0, " + t_name_loop_start_label + "\n"
+    # copio deste ($s0) una cantidad de ($s1) bytes en ($s3)
+    result += "jal copy_from_to\n"
 
     return result
 
@@ -448,23 +987,22 @@ def convert_PrintIntNode(instruction):
         dest = instruction.val
 
 
-    result += "la $t0, " + dest + "\n"
-    result += "lw $a0, 4($t0)\n"
-    result += "li $v0, 1\n"
-    result += "syscall\n"
+    result += "la $s0, " + dest + "\n"
+    result += "jal print_int_func\n"
 
     return result
 
 
 def convert_LocalSaveNode(instruction):
-    result = "jal locals_write\n"    
+    global CURR_LOCAL_COUNT
+    result = "li $s0, " + str(CURR_LOCAL_COUNT) + "\n"
+
+    result += "jal locals_write\n"    
     return result
+
+
 def convert_LoadDataNode(instruction):
     result = ""
-
-    result += "la $t0, " + instruction.data + "\n"
-    result += get_length_with_registers("$t0", "$t1", "$t2")
-    result += "la $t0, " + instruction.data + "\n"
 
     global DATA, PARAMS
 
@@ -473,25 +1011,11 @@ def convert_LoadDataNode(instruction):
     else:
         dest = instruction.result
 
-    result += "la $t2, " + dest + "\n"
-    
-    result += "addi $a0, $t1, 5\n"
-    result += "li $v0, 9\n"
-    result += "syscall\n"
+    result += "la $s0, " + instruction.data + "\n"
 
-    result += "sw $v0, 4($t2)\n"
-    result += "sw $t1, ($v0)\n"
+    result += "la $s2, " + dest + "\n"
 
-
-    load_data_loop_start_label = next_label()
-
-    result += "li $t3, 0\n"
-    result += load_data_loop_start_label + ":\n"
-    result += "lb $t3, ($t0)\n"
-    result += "sb $t3, 4($v0)\n"
-    result += "addi $t0, $t0, 1\n"
-    result += "addi $v0, $v0, 1\n"
-    result += "bne $t3, 0, " + load_data_loop_start_label + "\n"
+    result += "jal load_data_func\n"
 
     return result
 
@@ -505,42 +1029,9 @@ def convert_ReadNode(instruction):
     else:
         dest = instruction.result
     
-    # ponemos en a0 la direccion a que apunta la variable local 
-    result += "la $a0, string_read_buffer\n"
-    result += "li $v0, 8\n"
-    result += "syscall\n"
+    result += "la $s2, " + dest + "\n"
 
-    # ponemos en t2 la direccion del string leido
-    result += "addi $t2, $a0, 0\n"
-
-    # ponemos en t0 la cantidad de caracteres (contando el '\n' del final)
-    result += get_length_with_registers("$a0", "$t0", "$t1")
-    result += "addi $t0, $t0, -1\n"
-
-    # ponemos en t1 la dieccion de destino
-    result += "la $t1, " + dest + "\n"
-
-    result += "addi $a0, $t0, 5\n"
-    result += "li $v0, 9\n"
-    result += "syscall\n"
-
-    result += "sw $v0, 4($t1)\n"
-    result += "sw $t0, ($v0)\n"
-
-    read_node_loop_start = next_label()
-    read_node_loop_end = next_label()
-
-    result += "li $t0, 0\n"
-    result += read_node_loop_start + ":\n"
-    result += "lb $t0, ($t2)\n"
-    result += "sb $t0, 4($v0)\n"
-    result += "beq $t0, 10, " + read_node_loop_end + "\n"
-    result += "addi $t2, $t2, 1\n"
-    result += "addi $v0, $v0, 1\n"
-    result += "j " + read_node_loop_start + "\n"
-    result += read_node_loop_end + ":\n"
-    result += "li $t0, 0\n"
-    result += "sb $t0, 4($v0)\n"
+    result += "jal read_string_func\n"
 
     return result
 
@@ -555,13 +1046,9 @@ def convert_ReadIntNode(instruction):
     else:
         dest = instruction.result
         
-    # leemos el numero
-    result += "li $v0, 5\n"
-    result += "syscall\n"
-
     result += "la $t0, " + dest + "\n"
-    
-    result += "sw $v0, 4($t0)\n"
+
+    result += "jal read_int_func\n"
 
     return result
 
@@ -577,12 +1064,9 @@ def convert_PrintNode(instruction):
         dest = instruction.str
     
     # ponemos en a0 la direccion del string
-    result += "la $a0, " + dest + "\n"
-    result += "lw $a0, 4($a0)\n"
-    result += "addi $a0, $a0, 4\n"
-    
-    result += "li $v0, 4\n"
-    result += "syscall\n"
+    result += "la $s0, " + dest + "\n"
+
+    result += "jal print_func\n"
 
     return result
 
@@ -607,7 +1091,7 @@ def convert_ReturnNode(instruction):
     global CURR_PARAM_COUNT
 
     result += "lw $ra, -4($sp)\n"
-    result += "addi $sp, $sp, -" + str(8 * (CURR_PARAM_COUNT) + 4) + "\n"
+    result += "addi $sp, $sp, -" + str(8 * CURR_PARAM_COUNT + 4) + "\n"
 
     result += "jr $ra\n"
 
@@ -649,63 +1133,16 @@ def convert_CopyNode(instruction):
     else:
         val = instruction.value
 
-    result += "la $t0, " + val + "\n"
+    result += "la $s6, " + val + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
 
-    result += "la $t1, " + dest + "\n"
-
-    # primero copiar la direccion del tipo de dato
-    result += "lw $t2, ($t0)\n"
-    result += "sw $t2, ($t1)\n"
+    result += "la $s7, " + dest + "\n"
     
-    copy_int_or_bool_label = next_label()
-    copy_string_label = next_label()
-    copy_string_loop_start_label = next_label()
-    copy_object_loop_start_label = next_label()
-    copy_end_label = next_label()
-
-    result += "la $t3, type_Int\n"
-    result += "beq $t2, $t3, " + copy_int_or_bool_label + "\n"
-    result += "la $t3, type_Bool\n"
-    result += "beq $t2, $t3, " + copy_int_or_bool_label + "\n"
-    result += "la $t3, type_String\n"
-    result += "beq $t2, $t3, " + copy_string_label + "\n"
-    result += "lw $t0, 4($t0)\n"
-    result += "lw $a0, ($t0)\n"
-    result += "li $v0, 9\n"
-    result += "syscall\n"
-    result += "sw $v0, 4($t1)\n"
-    result += "add $a0, $t0, $a0\n"
-    result += copy_object_loop_start_label + ":\n"
-    result += "lw $t3, ($t0)\n"
-    result += "sw $t3, ($v0)\n"
-    result += "addi $t0, $t0, 4\n"
-    result += "addi $v0, $v0, 4\n"
-    result += "bne $t0, $a0, " + copy_object_loop_start_label + "\n"
-    result += "j " + copy_end_label + "\n"
-    result += copy_int_or_bool_label + ":\n"
-    result += "lw $t2, 4($t0)\n"
-    result += "sw $t2, 4($t1)\n"
-    result += "j " + copy_end_label + "\n"
-    result += copy_string_label + ":\n"
-    result += "lw $t0, 4($t0)\n"
-    result += "lw $t6, ($t0)\n"
-    result += "addi $a0, $t6, 5\n"
-    result += "li $v0, 9\n"
-    result += "syscall\n"
-    result += "sw $v0, 4($t1)\n"
-    result += "sw $t6, ($v0)\n"
-    result += copy_string_loop_start_label + ":\n"
-    result += "lb $t3, 4($t0)\n"
-    result += "sb $t3, 4($v0)\n"
-    result += "addi $t0, $t0, 1\n"
-    result += "addi $v0, $v0, 1\n"
-    result += "bne $t3, 0, " + copy_string_loop_start_label + "\n"
-    result += copy_end_label + ":\n"
+    result += "jal copy_func\n"
 
     return result  
 
@@ -747,59 +1184,27 @@ def convert_StrcatNode(instruction):
     else:
         val_a = instruction.str_a
         
-    # en t0 va la direccion del primer string    
-    result += "la $t0, " + val_a + "\n"
-    result += "lw $t0, 4($t0)\n"
+    # en s0 va la direccion del primer string    
+    result += "la $s0, " + val_a + "\n"
+    
 
     if instruction.str_b in PARAMS:
         val_b = PARAMS[instruction.str_b]
     else:
         val_b = instruction.str_b
         
-    # en t1 va la direccion del segundo string    
-    result += "la $t1, " + val_b + "\n"
-    result += "lw $t1, 4($t1)\n"
+    # en s6 va la direccion del segundo string    
+    result += "la $s6, " + val_b + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
         
-    # en t2 va la direccion del string resultante    
-    result += "la $t2, " + dest + "\n"
-    
-    result += "lw $a0, ($t0)\n"
-    result += "lw $t3, ($t1)\n"
-    result += "add $a0, $a0, $t3\n"
-    result += "addi $a0, $a0, 5\n"
-    result += "li $v0, 9\n"
-    result += "syscall\n"
+    # en s2 va la direccion del string resultante    
+    result += "la $s2, " + dest + "\n"
 
-    result += "sw $v0, 4($t2)\n"
-    result += "addi $a0, $a0, -5\n"
-    result += "sw $a0, ($v0)\n"
-
-    strcat_first_start_label = next_label()
-    strcat_first_done_label = next_label()
-    strcat_second_start_label = next_label()
-
-    # copiamos primero el primer string
-    result += "li $t3, 0\n"
-    result += strcat_first_start_label + ":\n"
-    result += "lb $t3, 4($t0)\n"
-    result += "beq $t3, 0, " + strcat_first_done_label + "\n"
-    result += "sb $t3, 4($v0)\n"
-    result += "addi $t0, $t0, 1\n"
-    result += "addi $v0, $v0, 1\n"
-    result += "j " + strcat_first_start_label + "\n"
-    result += strcat_first_done_label + ":\n"
-    # copiamos despues el segundo string
-    result += strcat_second_start_label + ":\n"
-    result += "lb $t3, 4($t1)\n"
-    result += "sb $t3, 4($v0)\n"
-    result += "addi $t1, $t1, 1\n"
-    result += "addi $v0, $v0, 1\n"
-    result += "bne $t3, 0, " + strcat_second_start_label + "\n"
+    result += "jal concat_func\n"
 
     return result
 
@@ -813,69 +1218,28 @@ def convert_StrsubNode(instruction):
         val = PARAMS[instruction.str]
     else:
         val = instruction.str
-    
-    # en t0 metemos la direccion del string
-    result += "la $t0, " + val + "\n"
-    result += "lw $t0, 4($t0)\n"
-    result += "addi $t0, $t0, 4\n"
 
     if instruction.i in PARAMS:   
         index = PARAMS[instruction.i]    
     else:
         index = instruction.i 
-    
-    # en t1 metemos el entero del indice donde empieza la subcadena
-    result += "la $t1, " + index + "\n"
-    result += "lw $t1, 4($t1)\n"
-
-    # ponemos en t0 la direccion del inicio de la subcadena
-    result += "add $t0, $t0, $t1\n"
 
     if instruction.len in PARAMS:
         lenght = PARAMS[instruction.len]
     else:
         lenght = instruction.len
      
-    # en t1 ponemos el entero q dice la cantidad de caracteres a copiar
-    result += "la $t1, " + lenght + "\n"
-    result += "lw $t1, 4($t1)\n"
-
-    # en t1 dejamos la direccion del final de la subcadena
-    result += "add $t1, $t0, $t1\n"
-
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
-        
-    # en t2 va la direccion donde pondremos la subcadena resultante
-    result += "la $t2, " + dest + "\n"
+    
+    result += "la $s0, " + val + "\n"
+    result += "la $s7, " + index + "\n"
+    result += "la $s1, " + lenght + "\n"
+    result += "la $s6, " + dest + "\n"
 
-    result += "sub $a0, $t1, $t0\n"
-    result += "addi $a0, $a0, 5\n"
-    result += "li $v0, 9\n"
-    result += "syscall\n"
-
-    result += "sw $v0, 4($t2)\n"
-    result += "addi $a0, $a0, -5\n"
-    result += "sw $a0, ($v0)\n"
-
-
-    strsub_loop_start_label = next_label()
-    strsub_loop_end_label = next_label()
-
-    result += strsub_loop_start_label + ":\n"
-    result += "beq $t0, $t1, " + strsub_loop_end_label + "\n"
-    # pasamos caracter a caracter de t0 a t2
-    result += "lb $t3, ($t0)\n"
-    result += "sb $t3, 4($v0)\n"
-    result += "addi $t0, $t0, 1\n"
-    result += "addi $v0, $v0, 1\n"
-    result += "j " + strsub_loop_start_label + "\n"
-    result += strsub_loop_end_label + ":\n"
-    # ponemos \0 al final de la cadena resultante
-    result += "li $t3, 0\n"
-    result += "sb $t3, 4($v0)\n"
+    result += "jal substring_func\n"
 
     return result
     
@@ -909,7 +1273,6 @@ def convert_AllocateNode(instruction):
         result += "jal allocate_Void\n"
 
     else:
-       
         result += "la $t1, type_" + instruction.type + "\n"
         result += "sw $t1, ($s0)\n"
 
@@ -931,15 +1294,27 @@ def convert_AllocateNode(instruction):
         # ponemos el tamanyo correspondiente
         result += "sw $a0, ($v0)\n"
 
-        # ponemos 0 en t3
         result += "li $t3, 0\n"
-
         # ponemos las letras correspondientes a cada attributo
         for l in attrs:
             result += "la $t1, type_" + l + "\n"
             result += "sw $t1, 4($v0)\n"
             result += "sw $t3, 8($v0)\n"
             result += "addi $v0, $v0, 8\n"
+
+        global CURR_LOCAL_COUNT, CURR_PARAM_COUNT
+        result += "li $s0, " + str(CURR_LOCAL_COUNT) + "\n"
+        result += "jal locals_write\n"
+
+        result += "la $s0, " + dest + "\n"
+        result += "jal put_argument\n"
+
+        result += "jal " + instruction.type + "_Attributes_Initialization\n"
+
+        result += "li $s0, " + str(CURR_LOCAL_COUNT) + "\n"
+        result += "jal locals_load\n"
+        result += "li $s0, " + str(CURR_PARAM_COUNT) + "\n"
+        result += "jal params_load\n"
 
     return result
     
@@ -954,12 +1329,9 @@ def convert_ArgNode(instruction):
     else:
         val = instruction.value
     
-    result += "la $t0, " + val + "\n"
-    result += "lw $t1, ($t0)\n"
-    result += "sw $t1, ($sp)\n"
-    result += "lw $t1, 4($t0)\n"
-    result += "sw $t1, 4($sp)\n"
-    result += "addi $sp, $sp, 8\n"
+    result += "la $s0, " + val + "\n"
+
+    result += "jal put_argument\n"
 
     return result
 
@@ -967,7 +1339,7 @@ def convert_ArgNode(instruction):
 def convert_DispatchCallNode(instruction):
     result = ""
 
-    global DATA, PARAMS, PARAMS_LOAD, CIL_TYPES
+    global DATA, PARAMS, CIL_TYPES
 
     if instruction.type_addr in PARAMS:
         t_addr = PARAMS[instruction.type_addr]
@@ -981,36 +1353,25 @@ def convert_DispatchCallNode(instruction):
 
     dispatch_end_label = next_label()
 
-    result += "la $t0, " + t_addr + "\n"
-    result += "lw $t0, 4($t0)\n"
+    result += "la $s0, " + t_addr + "\n"
+    result += "li $s1, " + str(METHODS_NAME_TO_ID[instruction.method]) + "\n"
 
-    for t in CIL_TYPES.values():
+    result += "jal call_func\n"
 
-        if not (instruction.method in t.methods):
-            continue
+    result += "jal $s3\n"
 
-        dispatch_next_type_label = next_label()
+    result += "lw $s6, ($v0)\n"
+    result += "lw $s7, 4($v0)\n"
 
-        result += "la $t1, type_" + t.type_name + "\n"
-        result += "bne $t0, $t1, " + dispatch_next_type_label + "\n"
-
-        result += "jal " + t.methods[instruction.method] + "_" + instruction.method + "\n"
-
-        result += "j " + dispatch_end_label + "\n"
-
-        result += dispatch_next_type_label + ":\n"
-
-    result += dispatch_end_label + ":\n"
-
-    result += "lw $t6, ($v0)\n"
-    result += "lw $t7, 4($v0)\n"
-
+    global CURR_LOCAL_COUNT, CURR_PARAM_COUNT
+    result += "li $s0, " + str(CURR_LOCAL_COUNT) + "\n"
     result += "jal locals_load\n"
-    result += PARAMS_LOAD
+    result += "li $s0, " + str(CURR_PARAM_COUNT) + "\n"
+    result += "jal params_load\n"
 
     result += "la $t0, " + dest + "\n"
-    result += "sw $t6, ($t0)\n"
-    result += "sw $t7, 4($t0)\n"
+    result += "sw $s6, ($t0)\n"
+    result += "sw $s7, 4($t0)\n"
 
     return result
 
@@ -1036,7 +1397,7 @@ def convert_SetAttributeNode(instruction):
     # en t0 metemos la direccion del valor a modificar
     result += "la $t0, " + ins + "\n"
     result += "lw $t0, 4($t0)\n"
-    result += "addi $t0, $t0, " + str(offset) + "\n"
+    result += "addi $s1, $t0, " + str(offset) + "\n"
 
     if instruction.value in PARAMS:
         val = PARAMS[instruction.value]
@@ -1045,12 +1406,9 @@ def convert_SetAttributeNode(instruction):
 
 
     # en t1 metemos la direccion del valor nuevo
-    result += "la $t1, " + val + "\n"
+    result += "la $s0, " + val + "\n"
 
-    result += "lw $t2, ($t1)\n"
-    result += "sw $t2, ($t0)\n"
-    result += "lw $t2, 4($t1)\n"
-    result += "sw $t2, 4($t0)\n"
+    result += "jal mov_func\n"
 
     return result
 
@@ -1077,19 +1435,16 @@ def convert_GetAttributeNode(instruction):
     # en t0 metemos la direccion del valor a devolver
     result += "la $t0, " + val + "\n"
     result += "lw $t0, 4($t0)\n"
-    result += "addi $t0, $t0, " + str(offset) + "\n"
+    result += "addi $s0, $t0, " + str(offset) + "\n"
     
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
 
-    result += "la $t1, " + dest + "\n"
+    result += "la $s1, " + dest + "\n"
 
-    result += "lw $t2, ($t0)\n"
-    result += "sw $t2, ($t1)\n"
-    result += "lw $t2, 4($t0)\n"
-    result += "sw $t2, 4($t1)\n"
+    result += "jal mov_func\n"
     
     return result
 
@@ -1104,56 +1459,26 @@ def convert_ENode(instruction):
     else:
         left = instruction.left
     
-    # poner en t0 la direccion del primer dato
-    result += "la $t0, " + left + "\n"
+    # poner en s0 la direccion del primer dato
+    result += "la $s0, " + left + "\n"
 
     if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
 
-   # poner en t1 la direccion del segundo dato
-    result += "la $t1, " + right + "\n"
+   # poner en s1 la direccion del segundo dato
+    result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
     
-    # poner en t2 la direccion donde se pondra 0 o 1
-    result += "la $t2, " + dest + "\n"
+    # poner en s2 la direccion del booleano de salida
+    result += "la $s2, " + dest + "\n"
 
-    compare_strings_label = next_label()
-    compare_strings_false_label = next_label()
-    compare_strings_loop_label = next_label()
-    equal_end_label = next_label()
-
-    result += "lw $t3, ($t0)\n"
-    result += "la $t4, type_String\n"
-    result += "lw $t0, 4($t0)\n"
-    result += "lw $t1, 4($t1)\n"
-    result += "beq $t3, $t4, " + compare_strings_label + "\n"
-    result += "seq $t0, $t0, $t1\n"
-    result += "j " + equal_end_label + "\n"
-    result += compare_strings_label + ":\n"
-    result += "lw $t3, ($t0)\n"
-    result += "lw $t4, ($t1)\n"
-    result += "bne $t3, $t4, " + compare_strings_false_label + "\n"
-    result += "li $t3, 0\n"
-    result += "li $t4, 0\n"
-    result += compare_strings_loop_label + ":\n"
-    result += "lb $t3, 4($t0)\n"
-    result += "lb $t4, 4($t1)\n"
-    result += "bne $t3, $t4, " + compare_strings_false_label + "\n"
-    result += "addi $t0, $t0, 1\n"
-    result += "addi $t1, $t1, 1\n"
-    result += "bne $t3, 0, " + compare_strings_loop_label + "\n"
-    result += "li $t0, 1\n"
-    result += "j " + equal_end_label + "\n"
-    result += compare_strings_false_label + ":\n"
-    result += "li $t0, 0\n"
-    result += equal_end_label + ":\n"
-    result += "sw $t0, 4($t2)\n"
+    result += "jal equality_function\n"
 
     return result 
 
@@ -1168,26 +1493,23 @@ def convert_LNode(instruction):
     else:
         left = instruction.left
     
-    result += "la $t0, " + left + "\n"
+    result += "la $s0, " + left + "\n"
 
     if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
    
-    result += "la $t1, " + right + "\n"
+    result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
     
-    result += "la $t2, " + dest + "\n"
+    result += "la $s2, " + dest + "\n"
 
-    result += "lw $t0, 4($t0)\n"
-    result += "lw $t1, 4($t1)\n"
-    result += "slt $t0, $t0, $t1\n"
-    result += "sw $t0, 4($t2)\n"
+    result += "jal less_func\n"
 
     return result 
 
@@ -1202,26 +1524,23 @@ def convert_LENode(instruction):
     else:
         left = instruction.left
     
-    result += "la $t0, " + left + "\n"
+    result += "la $s0, " + left + "\n"
 
     if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
    
-    result += "la $t1, " + right + "\n"
+    result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
     
-    result += "la $t2, " + dest + "\n"
+    result += "la $s2, " + dest + "\n"
 
-    result += "lw $t0, 4($t0)\n"
-    result += "lw $t1, 4($t1)\n"
-    result += "sle $t0, $t0, $t1\n"
-    result += "sw $t0, 4($t2)\n"
+    result += "jal less_equal_func\n"
 
     return result 
 
@@ -1236,26 +1555,23 @@ def convert_DivNode(instruction):
     else:
         left = instruction.left
     
-    result += "la $t0, " + left + "\n"
+    result += "la $s0, " + left + "\n"
 
     if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
    
-    result += "la $t1, " + right + "\n"
+    result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
     
-    result += "la $t2, " + dest + "\n"
+    result += "la $s2, " + dest + "\n"
 
-    result += "lw $t0, 4($t0)\n"
-    result += "lw $t1, 4($t1)\n"
-    result += "div $t0, $t0, $t1\n"
-    result += "sw $t0, 4($t2)\n"
+    result += "jal divide_func\n"
 
     return result 
 
@@ -1270,27 +1586,23 @@ def convert_MulNode(instruction):
     else:
         left = instruction.left
     
-    result += "la $t0, " + left + "\n"
+    result += "la $s0, " + left + "\n"
 
     if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
    
-    result += "la $t1, " + right + "\n"
+    result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
     
-    result += "la $t2, " + dest + "\n"
+    result += "la $s2, " + dest + "\n"
     
-    result += "lw $t0, 4($t0)\n"
-    result += "lw $t1, 4($t1)\n"
-    result += "mult $t0, $t1\n"
-    result += "mflo $t0\n"
-    result += "sw $t0, 4($t2)\n"
+    result += "jal multiply_func\n"
 
     return result
 
@@ -1305,26 +1617,23 @@ def convert_SubNode(instruction):
     else:
         left = instruction.left
     
-    result += "la $t0, " + left + "\n"
+    result += "la $s0, " + left + "\n"
 
     if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
    
-    result += "la $t1, " + right + "\n"
+    result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
     
-    result += "la $t2, " + dest + "\n"
+    result += "la $s2, " + dest + "\n"
 
-    result += "lw $t0, 4($t0)\n"
-    result += "lw $t1, 4($t1)\n"
-    result += "sub $t0, $t0, $t1\n"
-    result += "sw $t0, 4($t2)\n"
+    result += "jal substract_func\n"
 
     return result
 
@@ -1339,26 +1648,23 @@ def convert_AddNode(instruction):
     else:
         left = instruction.left
     
-    result += "la $t0, " + left + "\n"
+    result += "la $s0, " + left + "\n"
 
     if instruction.right in PARAMS:
         right = PARAMS[instruction.right]
     else:
         right = instruction.right
    
-    result += "la $t1, " + right + "\n"
+    result += "la $s1, " + right + "\n"
 
     if instruction.result in PARAMS:
         dest = PARAMS[instruction.result]
     else:
         dest = instruction.result
     
-    result += "la $t2, " + dest + "\n"
+    result += "la $s2, " + dest + "\n"
 
-    result += "lw $t0, 4($t0)\n"
-    result += "lw $t1, 4($t1)\n"
-    result += "add $t0, $t0, $t1\n"
-    result += "sw $t0, 4($t2)\n"
+    result += "jal add_func\n"
 
     return result
 
@@ -1449,6 +1755,13 @@ def convert_MovNode(instruction):
         result += "li $t0, " + str(instruction.value) + "\n"
         result += "la $t1, " + instruction.result + "\n"
         result += "sw $t0, 4($t1)\n"
+    elif type(instruction.value) == type(True):
+        if instruction.value:
+            result += "li $t0, 1\n"
+        else:
+            result += "li $t0, 0\n"
+        result += "la $t1, " + instruction.result + "\n"
+        result += "sw $t0, 4($t1)\n"
     else:
         if instruction.value in PARAMS:
             val = PARAMS[instruction.value]
@@ -1460,59 +1773,15 @@ def convert_MovNode(instruction):
         else:
             res = instruction.result
 
-        result += "la $t0, " + val + "\n"
-        result += "la $t1, " + res + "\n"
+        result += "la $s0, " + val + "\n"
+        result += "la $s1, " + res + "\n"
 
-        result += "lw $t2, ($t0)\n"
-        result += "sw $t2, ($t1)\n"
-
-        result += "lw $t2, 4($t0)\n"
-        result += "sw $t2, 4($t1)\n"
+        result += "jal mov_func\n"
 
     return result
-
-
-def convert_SetStringNode(instruction):
-    result = ""
-
-    global DATA, PARAMS
-
-    if instruction.result in PARAMS:
-        dest = PARAMS[instruction.result]
-    else:
-        dest = instruction.result
-
-    result += "la $t0, " + dest + "\n"
-
-    result += "li $a0, " + str(4 + len(instruction.str) + 1) + "\n"
-    result += "li $v0, 9\n"
-    result += "syscall\n"
-
-    result += "sw $v0, 4($t0)\n"
-    result += "li $t0, " + str(len(instruction.str)) + "\n"
-    result += "sw $t0, ($v0)\n"
-
-    for c in instruction.str:
-        result += "li $t0, '" + c + "'\n"
-        result += "sb $t0, 4($v0)\n"
-        result += "addi $v0, $v0, 1\n"
-
-    result += "li $t0, 0\n"
-    result += "sb $t0, 4($v0)\n"
-
-    return result
-
-
-
-
 
 def convert_AbortNode(instruction):
     result = ""
-
-    # write abort message
-    result += "la $a0, abort_msg\n"
-    result += "li $v0, 4\n"
-    result += "syscall\n"
 
     global DATA, PARAMS
 
@@ -1521,20 +1790,9 @@ def convert_AbortNode(instruction):
     else:
         caller = instruction.caller_type
     
-    result += "la $t0, " + caller + "\n"
-    
-    # write type who called abort
-    result += "lw $a0, 4($t0)\n"
-    result += "li $v0, 4\n"
-    result += "syscall\n"
+    result += "la $s0, " + caller + "\n"
 
-    # write an end of line
-    result += "la $a0, end_of_line\n"
-    result += "li $v0, 4\n"
-    result += "syscall\n"
-
-    result += "li $v0, 10\n"
-    result += "syscall\n"
+    result += "jal abort\n"
 
     return result
 
@@ -1562,20 +1820,3 @@ def convert_GotoNode(instruction):
 
 def convert_LabelNode(instruction):
     return instruction.label_name + ":\n"
-
-def get_length_with_registers(str_reg, val_reg, aux_reg):
-    result = ""
-
-    end_label = next_label()
-    loop_label = next_label()
-
-    result += "li " + val_reg + ", 0\n"
-    result += loop_label + ":\n"
-    result += "lb " + aux_reg + ", (" + str_reg + ")\n"
-    result += "beq " + aux_reg + ", 0, " + end_label + "\n"
-    result += "addi " + val_reg + ", " + val_reg + ", 1\n"
-    result += "addi " + str_reg + ", " + str_reg + ", 1\n"
-    result += "j " + loop_label + "\n"
-    result += end_label + ":\n"
-
-    return result

@@ -1,5 +1,0 @@
-- Primero que todo organizarlo todo, ver bien cuando se necesita hacer allocate y cuando no .. sino se hace copy y ya
-- Cuando se estaa retornando de una funcion se estaa igualando siempre por referencia (ver esto)
-- Buscar problemas que se puedan estar dando por sobreescribir referencias
-
-- si no pincha los de los primos y eso con esta optimizacion ver que los locales se creen por tipo de nodos, o sea, si entro en un if de dos funciones diferentes que el resultado de la evaluacion se meta en el mismo local 
