@@ -581,7 +581,7 @@ class codeVisitor:
         #     self.register_instruction(ArgNodeIL(arg))
 
         dynamic_type = self.context.exprs_dict[node.obj]
-        self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, dynamic_type, expr_value))
+        self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, dynamic_type.name, expr_value))
         
         return result_local
 

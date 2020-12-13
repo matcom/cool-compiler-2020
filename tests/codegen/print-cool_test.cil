@@ -319,49 +319,27 @@ function Main.main {
 
 	result_4 = ALLOCATE Object
 	init_5 = CALL Object_init
-	result_3 = VCALL type Object {
-	[method] abort(): Object;
-	[method] type_name(): String;
-	[method] copy(): Object;
-}
- type_name 
+	result_3 = VCALL Object type_name 
 	instance_6 = ALLOCATE Int
 	value_7 = LOAD 1
 	result_init_8 = CALL Int_init
 	instance_9 = ALLOCATE Int
 	value_10 = LOAD 4
 	result_init_11 = CALL Int_init
-	result_2 = VCALL type String : Object {
-	[method] length(): Int;
-	[method] concat(s:String): String;
-	[method] substr(i:Int, l:Int): String;
-}
- substr 
+	result_2 = VCALL String substr 
 	result_1 = VCALL Main out_string 
 	isvoid_result_14 ISVOID self
 	instance_15 = ALLOCATE Bool
 	result_init_16 = CALL Bool_init
-	result_13 = VCALL type Bool : Object {}
- type_name 
+	result_13 = VCALL Bool type_name 
 	instance_17 = ALLOCATE Int
 	value_18 = LOAD 3
 	result_init_19 = CALL Int_init
 	instance_20 = ALLOCATE Int
 	value_21 = LOAD 1
 	result_init_22 = CALL Int_init
-	result_12 = VCALL type String : Object {
-	[method] length(): Int;
-	[method] concat(s:String): String;
-	[method] substr(i:Int, l:Int): String;
-}
- substr 
-	result_0 = VCALL type IO : Object {
-	[method] out_string(x:String): IO;
-	[method] out_int(x:Int): IO;
-	[method] in_string(): String;
-	[method] in_int(): Int;
-}
- out_string 
+	result_12 = VCALL String substr 
+	result_0 = VCALL IO out_string 
 	internal_24 = LOAD s_3
 	instance_25 = ALLOCATE String
 	result_init_26 = CALL String_init
