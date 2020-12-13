@@ -43,9 +43,9 @@ class Context:
         if name in self.types:
             raise ContextError(f'Type with the same name ({name}) already in context.')
         typex = Type(name)
-        print('---CreateType---')
-        print('type: ', typex.name)
-        print('parent: ', typex.parent.name)
+        # print('---CreateType---')
+        # print('type: ', typex.name)
+        # print('parent: ', typex.parent.name)
         self.types[name] = typex
         if not self.graph.__contains__(name):
             self.graph[name] = []
@@ -86,7 +86,7 @@ class Context:
             for t in self.graph[node]:
                 maximum = max(maximum, self.types[t].max_tag)
             self.types[node].max_tag = maximum
-        print('Done type max tags')
+        # print('Done type max tags')
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
 

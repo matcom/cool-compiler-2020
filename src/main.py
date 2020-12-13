@@ -49,7 +49,7 @@ def main():
         cil_code = formatter(cil_ast)
         f2.write(f'{cil_code}')
         f2.close()
-        print('LEN:::::',len(cv.instructions))
+        # print('LEN:::::',len(cv.instructions))
         mips = MIPS()
         code = mips.visit(cil_ast)
 

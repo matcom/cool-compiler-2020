@@ -387,24 +387,22 @@ class codeVisitor:
         # print(node.id)
         # print('args:',node.args)
         result_local = self.define_internal_local(scope = scope, name = "result")
-        # expr_value = 'value'
+        expr_value = 'self'
 
         call_args = []
         for arg in reversed(node.args):
             param_local = self.visit(arg, scope, sscope)
             call_args.append(ArgNodeIL(param_local))
-        # call_args.append(ArgNodeIL(expr_value))
+        call_args.append(ArgNodeIL(expr_value))
 
         # dynamic_type = 'Void'
-        self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, self.current_type.name, 'value'))
+        self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, self.current_type.name, expr_value))
         
         return result_local
     
     @visitor.when(FormalParamNode)
     def visit(self, node, scope, sscope):
-        print(node)
-        print(node.id)
-        print(node.type)
+        pass
     
     @visitor.when(ClassDeclarationNode)
     def visit(self, node, scope, sscope):
@@ -484,7 +482,7 @@ class codeVisitor:
             result_init = self.define_internal_local(scope=scope, name="result_init")
             self.register_instruction(StaticCallNodeIL(result_init, f'{node.type}_init', [ArgNodeIL(value),ArgNodeIL(instance)], node.type))
 
-        self.register_instruction(SetAttribNodeIL('self', node.id,instance, self.current_type.name))
+        self.register_instruction(SetAttribNodeIL('self', node.id,instance, self.current_type.tag))
     
     @visitor.when(VarDeclarationNode)
     def visit(self, node, scope, sscope):
@@ -1240,7 +1238,7 @@ class codeVisitor:
                         right_type = 'Int'
                 self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", right_type))
         else:
-            print('got here where somewhere else')
+            # print('got here where somewhere else')
             self.register_instruction(AssignNodeIL(left_local, left_value))
             self.register_instruction(AssignNodeIL(right_local, right_value))
 
@@ -1298,7 +1296,7 @@ class codeVisitor:
         if str(node.lex) == "true":
             boolean = 1
         instance = self.define_internal_local(scope=scope, name="instance")
-        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').tag, instance))
+        self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').name, instance))
         value = self.define_internal_local(scope=scope, name="value")
         self.register_instruction(LoadNodeIL(boolean, value))
         result_init = self.define_internal_local(scope=scope, name="result_init")
