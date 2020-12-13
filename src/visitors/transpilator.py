@@ -702,6 +702,8 @@ class codeVisitor:
         result_local = self.define_internal_local(scope=scope, name="result")
         result_init = self.define_internal_local(scope=scope, name="init")
         
+        print(result_init)
+
         if node.type == "SELF_TYPE":
             # get_type_local = self.define_internal_local(scope = scope, name = "type_name")
             # self.register_instruction(TypeOfNodeIL("self", get_type_local))
