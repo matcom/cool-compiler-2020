@@ -1,4 +1,6 @@
+# clase que representa un tipo en COOL
 class CoolType:
+    # inherit dice si de este tipo se puede heredar
     def __init__(self, name, parent_type, inherit=True):
         self.name = name
         self.parent_type = parent_type
@@ -8,7 +10,9 @@ class CoolType:
 
     def defined(self, method_name):
         return method_name in self.methods.keys()
-
+    
+    # en el chequeo semantico se van agregando los metodos y atributos y si se encuentra
+    # algun tipo de error se devuelve
     def add_method(self, method_name, args_types, args_names, return_type, expression = None):
         if not self.defined(method_name):
             if len(args_types) != len(args_names):
@@ -64,6 +68,7 @@ class CoolType:
     def get_self_methods(self):
         return self.methods
 
+    # para devolver los metodos que se heredan
     def get_methods_inherited(self):
         node = self.parent_type
         methods = {}
@@ -73,6 +78,7 @@ class CoolType:
             node = node.parent_type
         return methods
 
+    # para devolver que tipo es el que define cada uno de mis metodos
     def get_owner(self, func):
         mine = self.get_self_methods()
 
@@ -139,6 +145,7 @@ class CoolType:
         self.attributes[attribute_name] = CoolAttribute(attribute_name, class_attr_type, expression)
         return []
 
+    # devolver los atributos heredados
     def get_attribute_inherited(self, attribute_name):
         t = self.parent_type
         while t is not None:
@@ -147,6 +154,7 @@ class CoolType:
             t = t.parent_type
         return None
 
+    # para devolver los tipos que definen mis atributos
     def get_attribute_owner(self):
         node = self
         AO = {}
@@ -163,7 +171,8 @@ class CoolType:
 
         return AO
         
-
+    # para devolver a que profundidad estoy del arbol que se forma con los tipos
+    # y la herencia entre ellos
     def get_tree_depth(self):
         node = self
 
@@ -175,6 +184,7 @@ class CoolType:
         
         return result
 
+    # para devolver que tipo es el que define cada uno de mis metodos
     def get_method_owner(self):
         node = self
         MO = {}
@@ -186,14 +196,14 @@ class CoolType:
             node = node.parent_type
         return MO
 
-
+# clase base de un atributo en COOL
 class CoolAttribute:
     def __init__(self, attribute_name, attribute_type, expression = None):
         self.attribute_name = attribute_name
         self.attribute_type = attribute_type
         self.expression = expression
 
-
+# clase base de un metodo en COOL
 class CoolMethod:
     def __init__(self, method_name, args_types, args_names, return_type, expression = None):
         self.name = method_name
@@ -203,8 +213,9 @@ class CoolMethod:
         self.expression = expression
 
 
+# para ponerles identificadores a los metodos que existen,
+# esto es usado para optimizar la generacion de codigo en mips
 METHODS_NAME_TO_ID = {}
-
 def refresh_methods_id():
     global AllTypes, METHODS_NAME_TO_ID
     id = 0
@@ -216,6 +227,7 @@ def refresh_methods_id():
             id += 1
 
 
+# devuelve True si el tipo a hereda de b
 def inherits(a, b):
     current = a
     while current != b:
@@ -224,14 +236,14 @@ def inherits(a, b):
         current = current.parent
     return True
 
-
+# devuelve un tipo a partir de su nombre
 def get_type_by_name(type_name):
     if type_name in AllTypes:
         return AllTypes[type_name]
     return None
 
 
-# Declaring default types
+# declarando los tipos por defecto
 object_type = CoolType('Object', None)
 self_type = CoolType('SELF_TYPE', None, False)
 io_type = CoolType('IO', object_type)
@@ -239,7 +251,7 @@ string_type = CoolType('String', object_type, False)
 int_type = CoolType('Int', object_type, False)
 bool_type = CoolType('Bool', object_type, False)
 
-# Add basic types to types dictionary
+# AllTypes contendra toda la informacion de todos los tipos
 AllTypes = {
     'Object': object_type,
     'SELF_TYPE': self_type,
@@ -249,7 +261,7 @@ AllTypes = {
     'Bool': bool_type
 }
 
-# Set methods for basic types
+# finalmente agregamos los metodos de los tipos basicos
 object_type.add_method('abort', [], [], 'Object')
 object_type.add_method('type_name', [], [], 'String')
 object_type.add_method('copy', [], [], 'SELF_TYPE')
@@ -263,4 +275,5 @@ string_type.add_method('length', [], [], 'Int')
 string_type.add_method('concat', ['String'], ['s'], 'String')
 string_type.add_method('substr', ['Int', 'Int'], ['a', 'b'], 'String')
 
+# lista de los tipos basicos
 BasicTypes = ['Object', 'SELF_TYPE', 'IO', 'String', 'Int', 'Bool']

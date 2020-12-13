@@ -2,7 +2,7 @@ from ast import *
 from graph import Graph
 from type_defined import AllTypes, CoolType, object_type, BasicTypes
 
-
+# aqui chequeamos si algun tipo esta declarado doble y formamos el diccionario AllTypes
 def check_type_declaration(ast: ProgramNode):
     for cls in ast.classes:
         if cls.typeName in BasicTypes:
@@ -14,7 +14,7 @@ def check_type_declaration(ast: ProgramNode):
     
     return []
 
-
+# aqui chequeamos que las clases hereden de tipos definidos y validos
 def check_type_inheritance(ast: ProgramNode):
     for cls in ast.classes:
         if cls.fatherTypeName:
@@ -37,6 +37,8 @@ def check_type_inheritance(ast: ProgramNode):
 
     return []
 
+# aqui chequeamos las caracteristicas de los tipos, que no esten repetidas
+# y cumplan con las restricciones de herencia
 
 def check_features(ast: ProgramNode):
     checked_types = [False for _ in ast.classes]
@@ -48,13 +50,13 @@ def check_features(ast: ProgramNode):
             if checked_types[i]:
                 continue
 
+            # esto de aqui para que se chequeen los tipos como si estuvieramos
+            # buscando a lo ancho en el arbol de los tipos y sus relaciones de herencia
+            # el primero seria el tipo Object y despues sus hijos
             if cls.fatherTypeName:
-                # If father is in created types, then check if father is also checked
                 if cls.fatherTypeName in created_types_names:
-                    # If father not checked
                     if not checked_types[created_types_names.index(cls.fatherTypeName)]:
                         continue
-                # Else is in Basic types. so can continue checking
 
             class_type = AllTypes[cls.typeName]
             class_type.add_attribute("self", class_type.name, "self")
@@ -87,7 +89,6 @@ def check_features(ast: ProgramNode):
                     if len(feature_added_error) == 1:
                         return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) {feature_added_error[0]}'
                     elif len(feature_added_error) == 2:
-                        # TODO Update column
                         return f'({feature.getLineNumber()}, {feature.getColumnNumber() + len(feature.id) + 2}) ' \
                                f'{feature_added_error[0]}'
                     continue
@@ -119,8 +120,10 @@ def check_features(ast: ProgramNode):
     return []
 
 
+# para el chequeo de expresiones
 CURR_TYPE = ""
 
+# aqui se chequea que las expresiones esten devolviendo el tipo correcto
 def check_expressions(ast: ProgramNode):
     global CURR_TYPE, TYPE_CHANGES
 
@@ -144,6 +147,7 @@ def check_expressions(ast: ProgramNode):
                                                                             {})
                     if len(error) > 0:
                         return error
+                    # si el tipo que devuelve la expresion no hereda del tipo de retorno entonces retornamos un error
                     if expression_type != feature.typeName and not is_ancestor(AllTypes[feature_type], AllTypes[expression_type]):
                         return f'({feature.getLineNumber()}, {feature.getColumnNumber()}) - TypeError: Inferred type ' \
                                 f'{expression_type} of initialization of attribute test ' \
@@ -165,9 +169,11 @@ def check_expressions(ast: ProgramNode):
 
                 if len(error) > 0:
                     return error
+                
                 if feature_type not in AllTypes:
                     return f'({feature.statement.getLineNumber()}, {feature.statement.getColumnNumber()}) - TypeError: ' \
                             f'Undefined return type {feature_type} in method test.'
+                # si el tipo que devuelve la expresion no hereda del tipo de retorno entonces retornamos un error
                 if not is_ancestor(AllTypes[feature_type], AllTypes[expression_type]):
                     return f'({feature.statement.getLineNumber()}, {feature.statement.getColumnNumber()}) - TypeError: ' \
                             f'Inferred return type {expression_type} of method {feature.id} does not conform to declared ' \
@@ -175,7 +181,7 @@ def check_expressions(ast: ProgramNode):
 
     return []
 
-
+# dada una lista de tipos devuelve el primer ancestro en comun de ellos
 def GetFirstCommonAncestor(types):
     result = types[0]
     for i in range(1, len(types)):
@@ -183,7 +189,7 @@ def GetFirstCommonAncestor(types):
 
     return result.name
 
-
+# dados dos tipos devuelve el primer ancestro en comun
 def get_first_common_ancestor(typeA, typeB):
     if is_ancestor(typeA, typeB):
         return typeA.name
@@ -191,7 +197,7 @@ def get_first_common_ancestor(typeA, typeB):
         return typeB.name
     return get_first_common_ancestor(typeA.parent_type, typeB.parent_type)
 
-
+# devuelve True si youngerNode hereda de olderNode (youngerNode y olderNode son tipos)
 def is_ancestor(olderNode, youngerNode):
     if olderNode is None or youngerNode is None:
         return False
@@ -199,7 +205,8 @@ def is_ancestor(olderNode, youngerNode):
         return True
     return is_ancestor(olderNode, youngerNode.parent_type)
 
-
+# dado el nodo de una expresion devuelve el tipo de retorno de dicha expresion,
+# y detecta errores de malas operaciones entre tipos, entre otros
 def get_expression_return_type(expression, insideFunction, attributes, functions, parameters, insideLet, letVars,
                                insideCase=False, caseVar={}, inside_loop=False):
     if type(expression) is AssignStatementNode:
@@ -572,7 +579,8 @@ def get_expression_return_type(expression, insideFunction, attributes, functions
                    f'{type1} / {type2}', ''
         return [], "Int"
 
-
+# se realiza un DFS sobre el grafo de los tipos empezando por Object,
+# si no se llega a algun tipo entonces existe un ciclo
 def get_cyclic_class(graph: Graph, ast: ProgramNode):
     for cls in ast.classes:
         if not graph.visited[graph.vertex_id.index(cls.typeName)]:
@@ -585,7 +593,8 @@ def get_cyclic_class(graph: Graph, ast: ProgramNode):
                    f"or an ancestor of {cls.typeName}, is involved in an inheritance cycle"
     return []
 
-
+# aqui chequeamos que no hayan ciclos en el grafo que se forma
+# con los tipos y sus relaciones de herencia
 def check_cyclic_inheritance(ast):
     graph = Graph(len(AllTypes.keys()))
 
@@ -601,9 +610,6 @@ def check_cyclic_inheritance(ast):
     return [] if graph.dfs('Object') else get_cyclic_class(graph, ast)
 
 
-
-
-
 def check_methods_params(ast):
     for cls in ast.classes:
         cls_type = AllTypes[cls.typeName]
@@ -616,49 +622,47 @@ def check_methods_params(ast):
     return []
 
 
+# para devolver los errores semanticos
 def check_semantic(ast: ProgramNode):
     errors = []
 
-    # Checking semantic errors
-
-    # Checking duplicated types declaration
+    # aqui chequeamos si algun tipo esta declarado doble
     type_declaration_output = check_type_declaration(ast)
     if len(type_declaration_output) > 0:
         errors.append(type_declaration_output)
         return errors, AllTypes
 
-    # Checking inheritance in declared types
+    # aqui chequeamos que las clases hereden de tipos definidos y validos
     inheritance_check_output = check_type_inheritance(ast)
     if len(inheritance_check_output) > 0:
         errors.append(inheritance_check_output)
         return errors, AllTypes
 
-    # Check cyclic inheritance
+    # aqui chequeamos que no hayan ciclos en el grafo que se forma
+    # con los tipos y sus relaciones de herencia
     cyclic_inheritance_check = check_cyclic_inheritance(ast)
     if len(cyclic_inheritance_check) > 0:
         errors.append(cyclic_inheritance_check)
         return errors, AllTypes
 
-    # Check feature class list
+    # aqui chequeamos las caracteristicas de los tipos, que no esten repetidas
+    # y cumplan con lo que tengan que cumplir
     feature_check_output = check_features(ast)
     if len(feature_check_output) > 0:
         errors.append(feature_check_output)
         return errors, AllTypes
 
-    # Check expressions types
+    # aqui se chequea que las expresiones esten devolviendo el tipo correcto
     expressions_check_output = check_expressions(ast)
     if len(expressions_check_output) > 0:
         errors.append(expressions_check_output)
         return errors, AllTypes
 
-    # Check Main unity
+    # finalmente chequeamos que exista la clase Main con el metodo main
     if 'Main' not in AllTypes:
-        # Update Error message
         errors.append('Main not declared')
         return errors, AllTypes
-
     if 'main' not in AllTypes["Main"].methods:
-        # Update Error message
         errors.append('main method not declared')
         return errors, AllTypes
 

@@ -1,6 +1,7 @@
 from collections import defaultdict
 
-
+# clase para representar el grafo que se forma con los tipos
+# y sus relaciones de herencia
 class Graph:
     def __init__(self, vertex):
         self.graph = defaultdict(list)
