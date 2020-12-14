@@ -169,9 +169,9 @@ class CIL_FORMATTER(object):
     def visit(self, node: ErrorNode):
         return f'ERROR {node.error}'
 
-    # @visitor.when(ConformNode)
-    # def visit(self, node: ConformNode):
-    #     return f'{node.dest} = COMFORM {node.obj} {node.type}'
+    @visitor.when(ConformsNode)
+    def visit(self, node: ConformsNode):
+        return f'{node.dest} = COMFORM {node.expr} {node.type}'
 
     @visitor.when(NotNode)
     def visit(self, node: NotNode):

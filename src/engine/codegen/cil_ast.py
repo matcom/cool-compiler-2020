@@ -57,10 +57,10 @@ class GetAttribNode(InstructionNode):
 
 
 class ConformsNode(InstructionNode):
-    def __init__(self, dest, expr, type_test):
+    def __init__(self, dest, expr, typex):
         self.dest = dest
         self.expr = expr  # variable id
-        self.type = type_test
+        self.type = typex
 
 
 class SetAttribNode(InstructionNode):

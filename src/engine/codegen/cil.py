@@ -10,11 +10,15 @@ class BASE_COOL_CIL_TRANSFORM:
         self.current_type = None
         self.current_method = None
         self.current_function = None
-        self.label_counter = 0
         self.context = context
+        self._label_counter = 0
         self.define_object_type()
         self.define_string_type()
         self.define_io_type()
+
+    def label_counter_gen(self):
+        self._label_counter += 1
+        return self._label_counter
 
     @property
     def params(self):
@@ -70,7 +74,7 @@ class BASE_COOL_CIL_TRANSFORM:
         return sorted(case_expressions, reverse=True,
                       key=lambda x: self.context.inheritance_deep(x.type))
 
-    ###################################
+        ###################################
 
     def define_string_type(self):
         self.current_type = self.context.get_type('String')

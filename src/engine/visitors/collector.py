@@ -25,10 +25,6 @@ class Collector:
         self.parents['String'] = 'Object'
         self.parents['Bool'] = 'Object'
 
-    @property
-    def parents(self):
-        return self.context.inheritance
-
     def ciclic_heritage(self, name, parent):
         if parent is None:
             return False
