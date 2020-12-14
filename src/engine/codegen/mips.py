@@ -6,6 +6,20 @@ word_size = 2
 
 string_max_size = 1000
 
+class VTable:
+
+    def __init__(self, methods):
+        self.methods = methods
+
+    def size(self):
+        return len(self.methods)
+
+    def __getitem__(self, name):
+        return self.methods[name]
+
+    def get_index(self, name):
+        return list(self.methods.keys()).index(name)
+
 
 class Registers:
     zero = '$zero'  # Constant 0
