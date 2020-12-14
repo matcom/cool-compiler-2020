@@ -44,7 +44,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.attr_init = dict()
         for declaration in node.declarations:
             self.attr_init[declaration.id.lex] = []
-            if declaration.parent and not declaration.parent.lex in ['IO', 'Object']:
+            if declaration.parent and not declaration.parent.lex in ['IO', 'Int', 'String', 'Bool', 'Object']:
                 self.attr_init[declaration.id.lex] += self.attr_init[declaration.parent.lex]
             self.attr_init[declaration.id.lex] += [
                 feature for feature in declaration.features
@@ -220,7 +220,6 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         for i, case in enumerate(case_expressions):
             next_branch_label = LabelNode(f'CASE_{case.id.lex}_{i}')
             child_scope = scope.create_child()
-            print(exp_type)
             expr_i = self.visit(
                 case, child_scope,
                 expr=expr,
