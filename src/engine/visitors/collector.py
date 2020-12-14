@@ -54,6 +54,10 @@ class Collector:
     def visit(self, node):
         try:
             self.context.create_type(node.id.lex)
+            if(node.parent):
+                self.parents[node.id.lex] = node.parent.lex
+            else:
+                self.parents[node.id.lex] = 'Object'
         except SemanticError as se:
             self.errors.append(ERROR_ON_LN_COL % (
                 node.line, node.column) + "SemanticError: " + se.text)
