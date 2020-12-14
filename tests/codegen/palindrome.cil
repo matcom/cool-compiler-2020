@@ -1,0 +1,518 @@
+.TYPES
+type Object {
+	
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+}
+type Int {
+	attribute value
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+}
+type String {
+	attribute value
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method length : String.length
+	method concat : String.concat
+	method substr : String.substr
+}
+type Bool {
+	attribute value
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+}
+type IO {
+	
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
+}
+type Main {
+	attribute i
+
+	method abort : Object.abort
+	method type_name : Object.type_name
+	method copy : Object.copy
+	method out_string : IO.out_string
+	method out_int : IO.out_int
+	method in_string : IO.in_string
+	method in_int : IO.in_int
+	method pal : Main.pal
+	method main : Main.main
+}
+
+.DATA
+s_0: Abort called from class 
+s_1: 
+
+empty_str: 
+s_3: enter a string
+
+s_4: that was not a palindrome
+
+s_5: that was a palindrome
+
+
+.CODE
+function main {
+	
+
+	LOCAL instance_0
+	LOCAL result_1
+
+	instance_0 = ALLOCATE Main
+	result_1 = CALL Main_init
+	result_1 = CALL Main.main
+	
+ RETURN 
+}
+function Object_init {
+	PARAM self
+
+	
+
+	
+ RETURN 
+}
+function Object.abort {
+	PARAM self
+
+	LOCAL msg_0
+	LOCAL type_name_1
+	LOCAL eol_2
+
+	msg_0 = LOAD s_0
+	PRINT msg_0
+	type_name_1 = TYPEOF self
+	PRINT type_name_1
+	eol_2 = LOAD s_1
+	PRINT eol_2
+	HALT
+}
+function Object.type_name {
+	PARAM self
+
+	LOCAL type_name_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	type_name_0 = TYPEOF self
+	instance_1 = ALLOCATE String
+	result_init_2 = CALL String_init
+	
+ RETURN instance_1
+}
+function Object.copy {
+	PARAM self
+
+	LOCAL copy_0
+
+	copy_0 = COPY self
+	
+ RETURN copy_0
+}
+function IO_init {
+	PARAM self
+
+	
+
+	
+ RETURN 
+}
+function IO.out_string {
+	PARAM self
+	PARAM x
+
+	LOCAL v_0
+
+	v_0 = GetAttr x value 
+	PRINT v_0
+	
+ RETURN self
+}
+function IO.out_int {
+	PARAM self
+	PARAM x
+
+	LOCAL v_0
+
+	v_0 = GetAttr x value 
+	PRINT v_0
+	
+ RETURN self
+}
+function IO.in_string {
+	PARAM self
+
+	LOCAL read_str_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	read_str_0 = READ
+	instance_1 = ALLOCATE String
+	result_init_2 = CALL String_init
+	
+ RETURN instance_1
+}
+function IO.in_int {
+	PARAM self
+
+	LOCAL read_int_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	read_int_0 = READ
+	instance_1 = ALLOCATE Int
+	result_init_2 = CALL Int_init
+	
+ RETURN instance_1
+}
+function String_init {
+	PARAM self
+	PARAM v
+
+	
+
+	SetAttr self value v
+	
+ RETURN 
+}
+function String.length {
+	PARAM self
+
+	LOCAL length_0
+	LOCAL instance_1
+	LOCAL result_init_2
+
+	length_0 = LENGTH self
+	instance_1 = ALLOCATE Int
+	result_init_2 = CALL Int_init
+	
+ RETURN instance_1
+}
+function String.concat {
+	PARAM self
+	PARAM s
+
+	LOCAL str1_0
+	LOCAL len1_1
+	LOCAL str2_2
+	LOCAL len2_3
+	LOCAL local_len1_4
+	LOCAL local_len2_5
+	LOCAL concat_6
+	LOCAL instance_7
+	LOCAL result_init_8
+
+	str1_0 = GetAttr self value 
+	len1_1 = CALL String.length
+	str2_2 = GetAttr s value 
+	len2_3 = CALL String.length
+	local_len1_4 = GetAttr len1_1 value 
+	local_len2_5 = GetAttr len2_3 value 
+	concat_6 = CONCAT str1_0  str2_2
+	instance_7 = ALLOCATE String
+	result_init_8 = CALL String_init
+	
+ RETURN instance_7
+}
+function String.substr {
+	PARAM self
+	PARAM i
+	PARAM l
+
+	LOCAL i_value_0
+	LOCAL l_value_1
+	LOCAL subs_result_2
+	LOCAL instance_3
+	LOCAL result_init_4
+
+	i_value_0 = GetAttr i value 
+	l_value_1 = GetAttr l value 
+	subs_result_2 = SUBSTR i_value_0  l_value_1  self
+	instance_3 = ALLOCATE String
+	result_init_4 = CALL String_init
+	
+ RETURN instance_3
+}
+function Bool_init {
+	PARAM self
+	PARAM v
+
+	
+
+	SetAttr self value v
+	
+ RETURN 
+}
+function Int_init {
+	PARAM self
+	PARAM v
+
+	
+
+	SetAttr self value v
+	
+ RETURN 
+}
+function String_equals {
+	PARAM str1
+	PARAM str2
+
+	LOCAL str1_0
+	LOCAL str2_1
+	LOCAL comparison_result_2
+
+	str1_0 = GetAttr str1 value 
+	str2_1 = GetAttr str2 value 
+	comparison_result_2 = str1_0 = str2_1
+	
+ RETURN comparison_result_2
+}
+function Main_init {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL instance_1
+	LOCAL value_2
+	LOCAL result_init_3
+
+	result_0 = CALL IO_init
+	
+ RETURN 
+	instance_1 = ALLOCATE Int
+	value_2 = LOAD 0
+	result_init_3 = CALL Int_init
+	SetAttr self i instance_1
+}
+function Main.pal {
+	PARAM self
+	PARAM s
+
+	LOCAL result_0
+	LOCAL result_1
+	LOCAL op_2
+	LOCAL left_3
+	LOCAL right_4
+	LOCAL result_5
+	LOCAL instance_6
+	LOCAL value_7
+	LOCAL result_init_8
+	LOCAL result_init_9
+	LOCAL result_10
+	LOCAL result_11
+	LOCAL op_12
+	LOCAL left_13
+	LOCAL right_14
+	LOCAL result_15
+	LOCAL instance_16
+	LOCAL value_17
+	LOCAL result_init_18
+	LOCAL result_init_19
+	LOCAL result_20
+	LOCAL result_21
+	LOCAL op_22
+	LOCAL left_23
+	LOCAL right_24
+	LOCAL result_25
+	LOCAL instance_26
+	LOCAL value_27
+	LOCAL result_init_28
+	LOCAL instance_29
+	LOCAL value_30
+	LOCAL result_init_31
+	LOCAL result_32
+	LOCAL instance_33
+	LOCAL value_34
+	LOCAL result_init_35
+	LOCAL result_36
+	LOCAL op_37
+	LOCAL left_38
+	LOCAL right_39
+	LOCAL result_40
+	LOCAL instance_41
+	LOCAL value_42
+	LOCAL result_init_43
+	LOCAL result_init_44
+	LOCAL result_init_45
+	LOCAL instance_46
+	LOCAL value_47
+	LOCAL result_init_48
+	LOCAL result_49
+	LOCAL result_50
+	LOCAL result_51
+	LOCAL op_52
+	LOCAL left_53
+	LOCAL right_54
+	LOCAL result_55
+	LOCAL instance_56
+	LOCAL value_57
+	LOCAL result_init_58
+	LOCAL result_init_59
+	LOCAL instance_60
+	LOCAL value_61
+	LOCAL result_init_62
+	LOCAL instance_63
+	LOCAL value_64
+	LOCAL result_init_65
+	LOCAL instance_66
+	LOCAL value_67
+	LOCAL result_init_68
+
+	result_5 = VCALL String length 
+	instance_6 = ALLOCATE Int
+	value_7 = LOAD 0
+	result_init_8 = CALL Int_init
+	left_3 = GetAttr result_5 value 
+	right_4 = GetAttr instance_6 value 
+	op_2 = left_3 = right_4
+	result_1 = ALLOCATE Bool
+	result_init_9 = CALL Bool_init
+	IF result_1 GOTO label_1
+	result_15 = VCALL String length 
+	instance_16 = ALLOCATE Int
+	value_17 = LOAD 1
+	result_init_18 = CALL Int_init
+	left_13 = GetAttr result_15 value 
+	right_14 = GetAttr instance_16 value 
+	op_12 = left_13 = right_14
+	result_11 = ALLOCATE Bool
+	result_init_19 = CALL Bool_init
+	IF result_11 GOTO label_2
+	instance_26 = ALLOCATE Int
+	value_27 = LOAD 1
+	result_init_28 = CALL Int_init
+	instance_29 = ALLOCATE Int
+	value_30 = LOAD 0
+	result_init_31 = CALL Int_init
+	result_25 = VCALL String substr 
+	instance_33 = ALLOCATE Int
+	value_34 = LOAD 1
+	result_init_35 = CALL Int_init
+	result_40 = VCALL String length 
+	instance_41 = ALLOCATE Int
+	value_42 = LOAD 1
+	result_init_43 = CALL Int_init
+	left_38 = GetAttr result_40 value 
+	right_39 = GetAttr instance_41 value 
+	op_37 = left_38 - right_39
+	result_36 = ALLOCATE Int
+	result_init_44 = CALL Int_init
+	result_32 = VCALL String substr 
+	op_22 = CALL String_equals
+	result_21 = ALLOCATE Bool
+	result_init_45 = CALL Bool_init
+	IF result_21 GOTO label_3
+	instance_46 = ALLOCATE Bool
+	value_47 = LOAD 0
+	result_init_48 = CALL Bool_init
+	result_20 = instance_46
+	GOTO label_4
+	LABEL label_3
+	result_55 = VCALL String length 
+	instance_56 = ALLOCATE Int
+	value_57 = LOAD 2
+	result_init_58 = CALL Int_init
+	left_53 = GetAttr result_55 value 
+	right_54 = GetAttr instance_56 value 
+	op_52 = left_53 - right_54
+	result_51 = ALLOCATE Int
+	result_init_59 = CALL Int_init
+	instance_60 = ALLOCATE Int
+	value_61 = LOAD 1
+	result_init_62 = CALL Int_init
+	result_50 = VCALL String substr 
+	result_49 = VCALL Main pal 
+	result_20 = result_49
+	LABEL label_4
+	result_10 = result_20
+	GOTO label_5
+	LABEL label_2
+	instance_63 = ALLOCATE Bool
+	value_64 = LOAD 1
+	result_init_65 = CALL Bool_init
+	result_10 = instance_63
+	LABEL label_5
+	result_0 = result_10
+	GOTO label_6
+	LABEL label_1
+	instance_66 = ALLOCATE Bool
+	value_67 = LOAD 1
+	result_init_68 = CALL Bool_init
+	result_0 = instance_66
+	LABEL label_6
+	
+ RETURN result_0
+}
+function Main.main {
+	PARAM self
+
+	LOCAL result_0
+	LOCAL op_1
+	LOCAL internal_2
+	LOCAL instance_3
+	LOCAL value_4
+	LOCAL result_init_5
+	LOCAL result_init_6
+	LOCAL result_7
+	LOCAL result_8
+	LOCAL internal_9
+	LOCAL instance_10
+	LOCAL result_init_11
+	LOCAL result_12
+	LOCAL result_13
+	LOCAL result_14
+	LOCAL result_15
+	LOCAL internal_16
+	LOCAL instance_17
+	LOCAL result_init_18
+	LOCAL result_19
+	LOCAL internal_20
+	LOCAL instance_21
+	LOCAL result_init_22
+
+	instance_3 = ALLOCATE Int
+	value_4 = LOAD 1
+	result_init_5 = CALL Int_init
+	internal_2 = GetAttr instance_3 value 
+	op_1 = ~ internal_2
+	result_0 = ALLOCATE Int
+	result_init_6 = CALL Int_init
+	SetAttr self i result_0
+	internal_9 = LOAD s_3
+	instance_10 = ALLOCATE String
+	result_init_11 = CALL String_init
+	result_8 = VCALL Main out_string 
+	result_14 = VCALL Main in_string 
+	result_13 = VCALL Main pal 
+	IF result_13 GOTO label_7
+	internal_16 = LOAD s_4
+	instance_17 = ALLOCATE String
+	result_init_18 = CALL String_init
+	result_15 = VCALL Main out_string 
+	result_12 = result_15
+	GOTO label_8
+	LABEL label_7
+	internal_20 = LOAD s_5
+	instance_21 = ALLOCATE String
+	result_init_22 = CALL String_init
+	result_19 = VCALL Main out_string 
+	result_12 = result_19
+	LABEL label_8
+	
+ RETURN result_12
+}

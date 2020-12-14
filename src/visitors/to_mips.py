@@ -389,6 +389,8 @@ class MIPS:
     
     @visitor.when(LabelNodeIL)
     def visit(self, node):
+        print(self.count)
+        self.count += 1
         print('LabelNodeIL')
         self.text += f'{node.label}:\n'
 
@@ -467,15 +469,18 @@ class MIPS:
         print(self.count)
         self.count += 1
         print('LoadNodeIL')
-        if node.msg:
+        print('-------------msg----------: ' + str(node.msg))
+        if node.msg != None:
             if isinstance(node.msg, str):
                 self.text += f'la $t0, {node.msg}\n'
                 offset = self.var_offset[self.current_function.name][node.dest]
                 self.text += f'sw $t0, {offset}($sp)\n'
+                print('Got str')
             else:
                 self.text += f'li $t0, {node.msg}\n'
                 offset = self.var_offset[self.current_function.name][node.dest]
                 self.text += f'sw $t0, {offset}($sp)\n'
+                print('Got int')
 
     # @visitor.when(CIL_AST.LoadInt)
     # def visit(self, node):

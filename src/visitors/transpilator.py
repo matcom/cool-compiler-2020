@@ -1315,8 +1315,9 @@ class codeVisitor:
     @visitor.when(BoolNode)
     def visit(self, node, scope, sscope):
         boolean = 0
-        if str(node.lex) == "true":
+        if str(node.lex) == "True":
             boolean = 1
+        # print('booolean--------------- ', node.lex)
         instance = self.define_internal_local(scope=scope, name="instance")
         self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').tag, instance))
         value = self.define_internal_local(scope=scope, name="value")
