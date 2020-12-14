@@ -8,7 +8,7 @@ from ASTtoCIL import *
 from CILtoMIPS import *
 
 LexerError=False
-
+DispatchList = []
 #Welcome='Tiger and Buti Compiler 2020 0.2.0\nCopyright (c) 2019: Jose Gabriel Navarro Comabella, Alberto Helguera Fleitas'
 
 #print(Welcome)
@@ -445,19 +445,25 @@ def p_dispatch(p):
                 | expression arroba type point id lparen expression expressionparams rparen'''
     if p[3] == ')':
         p[0] = DispatchNode(func_id = p[1], parameters = [], left_expr = None)
+        DispatchList.append(p[1])
     elif p[2] == '(':
         p[4].insert(0,p[3])
         p[0] = DispatchNode(func_id = p[1], parameters = p[4], left_expr = None)
+        DispatchList.append(p[1])
     elif p[5] == ')':
         p[0] = DispatchNode(func_id = p[3], parameters = [], left_expr = p[1])
+        DispatchList.append(p[3])
     elif p[2] == '.':
         p[6].insert(0,p[5])
         p[0] = DispatchNode(func_id = p[3], parameters = p[6], left_expr = p[1])
+        DispatchList.append(p[3])
     elif p[7] == ")":
         p[0] = StaticDispatchNode(func_id = p[5], parent_id = p[3] ,parameters = [], left_expr = p[1])
+        DispatchList.append(p[5])
     else:
         p[8].insert(0,p[7])
         p[0] = StaticDispatchNode(func_id = p[5], parent_id = p[3] ,parameters = p[8], left_expr = p[1])
+        DispatchList.append(p[5])
     (linea,columna) = posicion(p)
     p[0].index = columna
     p[0].line = linea
@@ -567,20 +573,49 @@ def p_aritmetica(p):
                   | expression div expression
                   | intnot expression'''
     if p[2] == '+':
-        p[0] = PlusNode(left = p[1], right = p[3])
-        p[0].operator = p[2]
+        if isinstance(p[1],IntegerNode) and isinstance(p[3],IntegerNode):
+            v1 = int(p[1].value)
+            v2 = int(p[3].value)
+            res = v1 + v2
+            p[0] = IntegerNode(value = str(res))
+        else:
+            p[0] = PlusNode(left = p[1], right = p[3])
+            p[0].operator = p[2]
     elif p[2] == '-':
-        p[0] = MinusNode(left = p[1], right = p[3])
-        p[0].operator = p[2]
+        if isinstance(p[1],IntegerNode) and isinstance(p[3],IntegerNode):
+            v1 = int(p[1].value)
+            v2 = int(p[3].value)
+            res = v1 - v2
+            p[0] = IntegerNode(value = str(res))
+        else:
+            p[0] = MinusNode(left = p[1], right = p[3])
+            p[0].operator = p[2]
     elif p[2] == '*':
-        p[0] = MultNode(left = p[1], right = p[3])
-        p[0].operator = p[2]
+        if isinstance(p[1],IntegerNode) and isinstance(p[3],IntegerNode):
+            v1 = int(p[1].value)
+            v2 = int(p[3].value)
+            res = v1 * v2
+            p[0] = IntegerNode(value = str(res))
+        else:
+            p[0] = MultNode(left = p[1], right = p[3])
+            p[0].operator = p[2]
     elif p[2] == '/':
-        p[0] = DivNode(left = p[1], right = p[3])
-        p[0].operator = p[2]
+        if isinstance(p[1],IntegerNode) and isinstance(p[3],IntegerNode):
+            v1 = int(p[1].value)
+            v2 = int(p[3].value)
+            res = v1 // v2
+            p[0] = IntegerNode(value = str(res))
+        else:
+            p[0] = DivNode(left = p[1], right = p[3])
+            p[0].operator = p[2]
     else:
-        p[0] = IntComplementNode(right = p[2])
-        p[0].operator = p[1]
+        if isinstance(p[1],IntegerNode):
+            v1 = int(p[1].value)
+            res = -1*v1
+            p[0] = IntegerNode(value = str(res))
+        else:
+            p[0] = IntComplementNode(right = p[2])
+            p[0].operator = p[1]
     
     (linea,columna) = posicion(p)
     p[0].index = columna
@@ -593,14 +628,32 @@ def p_comparison(p):
                   | expression equal expression
                   | not expression'''
     if p[2] == '<':
-        p[0] = LesserNode(left = p[1], right = p[3])
-        p[0].operator = p[2]
+        if isinstance(p[1],IntegerNode) and isinstance(p[3],IntegerNode):
+            v1 = int(p[1].value)
+            v2 = int(p[3].value)
+            res = v1 < v2
+            p[0] = BoolNode(value = lower(str(res)))
+        else:
+            p[0] = LesserNode(left = p[1], right = p[3])
+            p[0].operator = p[2]
     elif p[2] == '<=':
-        p[0] = LesserEqualNode(left = p[1], right = p[3])
-        p[0].operator = p[2]
+        if isinstance(p[1],IntegerNode) and isinstance(p[3],IntegerNode):
+            v1 = int(p[1].value)
+            v2 = int(p[3].value)
+            res = v1 <= v2
+            p[0] = BoolNode(value = lower(str(res)))
+        else:
+            p[0] = LesserEqualNode(left = p[1], right = p[3])
+            p[0].operator = p[2]
     elif p[2] == '=':
-        p[0] = EqualNode(left = p[1], right = p[3])
-        p[0].operator = p[2]
+        if isinstance(p[1],IntegerNode) and isinstance(p[3],IntegerNode):
+            v1 = int(p[1].value)
+            v2 = int(p[3].value)
+            res = v1 == v2
+            p[0] = BoolNode(value = lower(str(res)))
+        else:
+            p[0] = EqualNode(left = p[1], right = p[3])
+            p[0].operator = p[2]
     else:
         p[0] = BoolComplementNode(right = p[2])
         p[0].operator = p[1]
