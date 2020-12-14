@@ -20,6 +20,27 @@ class VTable:
     def get_index(self, name):
         return list(self.methods.keys()).index(name)
 
+class MemoryType:
+
+    def __init__(self, name, id, attrs, methods, base_index, ptr_name):
+        self.name = name
+        self.id = id
+        self.attrs = attrs
+        self.methods = methods
+        self.vtable = base_index
+        self.ptr_name = ptr_name
+
+    def size(self):
+        return 4 + len(self.attrs)
+
+    def get_attr_index(self, attr):
+        return 4 + self.attrs.index(attr)
+    
+    def get_method_index(self, method):
+        return self.vtable + self.methods.index(method)
+
+    def get_ptr_name(self):
+        return self.ptr_name
 
 class Registers:
     zero = '$zero'  # Constant 0
