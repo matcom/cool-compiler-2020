@@ -1186,23 +1186,24 @@ class codeVisitor:
         # print('left_value: ',left_value)
         # print('right: ', node.right)
         # print('right_value: ',right_value)
-        left_type = 'Int'
-        right_type = 'Int'
-        if hasattr(node.left, 'expr'):
-            left_type = self.context.exprs_dict[node.left.expr].name
-        else:
-            left_type = 'Int'
-            if isinstance(node.left, IntegerNode):
-                left_type = 'Int'
-            elif isinstance(node.left, BoolNode):
-                left_type = 'Bool'
-            elif isinstance(node.left, StringNode):
-                left_type = 'String'
-            else:
-                try:
-                    left_type = (sscope.find_variable(node.left.id)).type.name
-                except:
-                    left_type = 'Int'
+        # print('Got here')
+        left_type = self.context.exprs_dict[node.left].name
+        right_type = self.context.exprs_dict[node.right].name
+        # if hasattr(node.left, 'expr'):
+        #     left_type = self.context.exprs_dict[node.left.expr].name
+        # else:
+        #     left_type = 'Int'
+        #     if isinstance(node.left, IntegerNode):
+        #         left_type = 'Int'
+        #     elif isinstance(node.left, BoolNode):
+        #         left_type = 'Bool'
+        #     elif isinstance(node.left, StringNode):
+        #         left_type = 'String'
+        #     else:
+        #         try:
+        #             left_type = (sscope.find_variable(node.left.id)).type.name
+        #         except:
+        #             left_type = 'Int'
             # left_type = (sscope.find_variable(node.left.id)).type.name.name
         # if hasattr(node.right, 'expr'):
         #     right_type = self.context.exprs_dict[node.right.expr].name
@@ -1210,6 +1211,10 @@ class codeVisitor:
         #     right_type = (sscope.find_variable(node.right.id)).type.name.name
 
         # if isinstance(node.left, StringNode) and isinstance(node.right, StringNode):
+        # print('----left_type ', left_type)
+        # print('----right_type,', right_type)
+        # print(node.left)
+        # print(node.right)
         if left_type == 'String':
             self.register_instruction(StaticCallNodeIL(op_local, 'String_equals', [ArgNodeIL(right_value), ArgNodeIL(left_value)], 'String'))
 

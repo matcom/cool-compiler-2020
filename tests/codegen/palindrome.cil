@@ -60,11 +60,11 @@ s_0: Abort called from class
 s_1: 
 
 empty_str: 
-s_3: enter a string
+s_3: enter a string\n
 
-s_4: that was not a palindrome
+s_4: that was not a palindrome\n
 
-s_5: that was a palindrome
+s_5: that was a palindrome\n
 
 
 .CODE

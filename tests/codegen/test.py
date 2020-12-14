@@ -1,7 +1,7 @@
-f1 = open('list_test.mips', 'r')
+f1 = open('palindrome_test.cil', 'r')
 lines_1 = f1.readlines()
 
-f2 = open('list.mips', 'r')
+f2 = open('palindrome.cil', 'r')
 lines_2 = f2.readlines()
 print(len(lines_1))
 print(len(lines_2))

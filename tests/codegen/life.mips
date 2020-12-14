@@ -4862,16 +4862,15 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_init
 sw $a1, 148($sp)
-lw $t0, 136($sp)
-lw $t1, 16($t0)
-sw $t1, 128($sp)
-lw $t0, 144($sp)
-lw $t1, 16($t0)
-sw $t1, 132($sp)
-lw $a0, 128($sp)
-lw $t1, 132($sp)
-seq $a0, $a0, $t1
-sw $a0, 124($sp)
+move $t0, $sp
+lw $t1, 144($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 136($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 124($sp)
 li $a0, 20
 li $v0, 9
 syscall
@@ -4994,16 +4993,15 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_init
 sw $a1, 212($sp)
-lw $t0, 200($sp)
-lw $t1, 16($t0)
-sw $t1, 192($sp)
-lw $t0, 208($sp)
-lw $t1, 16($t0)
-sw $t1, 196($sp)
-lw $a0, 192($sp)
-lw $t1, 196($sp)
-seq $a0, $a0, $t1
-sw $a0, 188($sp)
+move $t0, $sp
+lw $t1, 208($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 200($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 188($sp)
 li $a0, 20
 li $v0, 9
 syscall
@@ -5159,16 +5157,15 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_init
 sw $a1, 280($sp)
-lw $t0, 268($sp)
-lw $t1, 16($t0)
-sw $t1, 260($sp)
-lw $t0, 276($sp)
-lw $t1, 16($t0)
-sw $t1, 264($sp)
-lw $a0, 260($sp)
-lw $t1, 264($sp)
-seq $a0, $a0, $t1
-sw $a0, 256($sp)
+move $t0, $sp
+lw $t1, 276($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 268($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 256($sp)
 li $a0, 20
 li $v0, 9
 syscall
@@ -5324,16 +5321,15 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_init
 sw $a1, 348($sp)
-lw $t0, 336($sp)
-lw $t1, 16($t0)
-sw $t1, 328($sp)
-lw $t0, 344($sp)
-lw $t1, 16($t0)
-sw $t1, 332($sp)
-lw $a0, 328($sp)
-lw $t1, 332($sp)
-seq $a0, $a0, $t1
-sw $a0, 324($sp)
+move $t0, $sp
+lw $t1, 344($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 336($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 324($sp)
 li $a0, 20
 li $v0, 9
 syscall
@@ -5489,16 +5485,15 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_init
 sw $a1, 416($sp)
-lw $t0, 404($sp)
-lw $t1, 16($t0)
-sw $t1, 396($sp)
-lw $t0, 412($sp)
-lw $t1, 16($t0)
-sw $t1, 400($sp)
-lw $a0, 396($sp)
-lw $t1, 400($sp)
-seq $a0, $a0, $t1
-sw $a0, 392($sp)
+move $t0, $sp
+lw $t1, 412($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 404($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 392($sp)
 li $a0, 20
 li $v0, 9
 syscall
@@ -5654,16 +5649,15 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_init
 sw $a1, 484($sp)
-lw $t0, 472($sp)
-lw $t1, 16($t0)
-sw $t1, 464($sp)
-lw $t0, 480($sp)
-lw $t1, 16($t0)
-sw $t1, 468($sp)
-lw $a0, 464($sp)
-lw $t1, 468($sp)
-seq $a0, $a0, $t1
-sw $a0, 460($sp)
+move $t0, $sp
+lw $t1, 480($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 472($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 460($sp)
 li $a0, 20
 li $v0, 9
 syscall
@@ -5819,16 +5813,15 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_init
 sw $a1, 552($sp)
-lw $t0, 540($sp)
-lw $t1, 16($t0)
-sw $t1, 532($sp)
-lw $t0, 548($sp)
-lw $t1, 16($t0)
-sw $t1, 536($sp)
-lw $a0, 532($sp)
-lw $t1, 536($sp)
-seq $a0, $a0, $t1
-sw $a0, 528($sp)
+move $t0, $sp
+lw $t1, 548($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 540($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 528($sp)
 li $a0, 20
 li $v0, 9
 syscall
@@ -5984,16 +5977,15 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_init
 sw $a1, 620($sp)
-lw $t0, 608($sp)
-lw $t1, 16($t0)
-sw $t1, 600($sp)
-lw $t0, 616($sp)
-lw $t1, 16($t0)
-sw $t1, 604($sp)
-lw $a0, 600($sp)
-lw $t1, 604($sp)
-seq $a0, $a0, $t1
-sw $a0, 596($sp)
+move $t0, $sp
+lw $t1, 616($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 608($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 596($sp)
 li $a0, 20
 li $v0, 9
 syscall
@@ -6336,16 +6328,15 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_init
 sw $a1, 128($sp)
-lw $t0, 116($sp)
-lw $t1, 16($t0)
-sw $t1, 108($sp)
-lw $t0, 124($sp)
-lw $t1, 16($t0)
-sw $t1, 112($sp)
-lw $a0, 108($sp)
-lw $t1, 112($sp)
-seq $a0, $a0, $t1
-sw $a0, 104($sp)
+move $t0, $sp
+lw $t1, 124($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 116($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 104($sp)
 li $a0, 20
 li $v0, 9
 syscall
