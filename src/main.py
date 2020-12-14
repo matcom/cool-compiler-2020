@@ -71,8 +71,19 @@ def main():
         #     print(str(c))
         # for c in cv.code:
         #     print(str(c))
-        print('Ops: ',cv.count)
-        print('GetAttr: ', mips.countStatic)
+        # print('Ops: ',cv.count)
+        # print('GetAttr: ', mips.countStatic)
+        print('attr_offset: ', mips.attr_offset)
+        print('var_offset: ')
+        c = 1
+        for k in mips.var_offset.keys():
+            t = 1
+            print(f'{c}. {k}')
+            for x in mips.var_offset[k].keys():
+                print(f'{x} : {mips.var_offset[k][x]}')
+                t += 1
+            print('\n')
+            c += 1
         path = program[:-2]
         # path = path[:-1]
         path += 'mips'

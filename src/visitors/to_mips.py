@@ -12,7 +12,7 @@ class MIPS:
         self.text = ''
         self.data = ''
         self.count = 0
-        self.countStatic = 0
+        self.countStatic = ''
         self.mips_comm_for_operators = {
             '+' : 'add',
             '-' : 'sub',
@@ -208,7 +208,7 @@ class MIPS:
     @visitor.when(GetAttribNodeIL)
     def visit(self, node):
         print(self.count)
-        self.countStatic += 1
+        self.countStatic += 'GetAttr: dest: ' + str(node.dest) + '\n'
         print('GetAttrNodeIL')
         # print('----------------::::::')
         # print('----------------::::::',node.obj)
@@ -272,6 +272,7 @@ class MIPS:
         print(self.count)
         self.count += 1
         print('DynamicCallNodeIL')
+        self.countStatic += 'DynamicCall: instance: ' + str(node.obj) + '\n'
         self.text += 'move $t0, $sp\n'
         
         for arg in node.args:

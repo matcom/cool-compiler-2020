@@ -387,6 +387,7 @@ class codeVisitor:
         # print(node)
         # print(node.id)
         # print('args:',node.args)
+        self.count += 'SelfCall \n-------------------\n'+ node.id + '(' + str(node.args)+')' + '--------\n '
         result_local = self.define_internal_local(scope = scope, name = "result")
         expr_value = 'self'
 
@@ -397,6 +398,7 @@ class codeVisitor:
         call_args.append(ArgNodeIL(expr_value))
 
         # dynamic_type = 'Void'
+        self.count += expr_value + '\n'
         self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, self.current_type.name, expr_value))
         
         return result_local
@@ -534,7 +536,7 @@ class codeVisitor:
             # print('defined PARAM ', node.id)
             return node.id
         elif self.current_type.has_attr(node.id): 
-            result_local = self.define_internal_local(scope=scope, name = node.id, class_type=None)
+            result_local = self.define_internal_local(scope=scope, name = node.id, class_type=self.current_type.name)
             # self.count += 1
             self.register_instruction(GetAttribNodeIL(result_local, 'self' , node.id, self.current_type.name))
             return result_local
@@ -589,6 +591,7 @@ class codeVisitor:
     
     @visitor.when(ExprCallNode)
     def visit(self, node, scope, sscope):
+        self.count += 'ExprCall: \n-------------------\n'+ node.id + '(' + str(node.row) +','+ str(node.col)+')' + '--------\n '
         result_local = self.define_internal_local(scope = scope, name = "result")
         expr_value = self.visit(node.obj, scope, sscope)
 
@@ -605,12 +608,14 @@ class codeVisitor:
         #     self.register_instruction(ArgNodeIL(arg))
 
         dynamic_type = self.context.exprs_dict[node.obj]
+        self.count += expr_value + '\n'
         self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, dynamic_type.name, expr_value))
         
         return result_local
 
     @visitor.when(ParentCallNode)
     def visit(self, node, scope, sscope):
+        self.count += 'ParentCall \n-------------------\n'+ node.id + '(' + str(node.row) +','+ str(node.col)+')' + '--------\n '
         result_local = self.define_internal_local(scope = scope, name = "result")
         expr_value = self.visit(node.obj, scope, sscope)
 
@@ -625,7 +630,7 @@ class codeVisitor:
 
         static_instance = self.define_internal_local(scope=scope, name='static_instance')
         self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).tag ,static_instance))
-        
+        self.count += static_instance + '\n'
         self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, node.type, static_instance))
         return result_local
         
@@ -725,11 +730,13 @@ class codeVisitor:
 
         for t, c_scp in reversed(tag_lst):
             option = option_dict[t]
+            option_type = self.context.get_type(option.typex) 
             self.register_instruction(LabelNodeIL(label))
             label = self.get_label()
 
-            option_type = self.context.get_type(option.typex) 
             #changes
+            # print(option_type.name)
+            # if option_type.name != 'Object'
             self.register_instruction(OptionNodeIL(case_expr, option_type.tag, option_type.max_tag, label))
 
             option_scope = scope.create_child()
@@ -786,7 +793,7 @@ class codeVisitor:
     
     @visitor.when(SumNode)
     def visit(self, node, scope, sscope):
-        self.count += ' +'
+        #self.count += ' +'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
@@ -810,7 +817,7 @@ class codeVisitor:
                     left_type = (sscope.find_variable(node.left.id)).type.name
                 except:
                     left_type = 'Int'
-            # self.count += 1
+            # #self.count += 1
             self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
 
         if hasattr(node.right, 'expr'):
@@ -828,7 +835,7 @@ class codeVisitor:
                     right_type = (sscope.find_variable(node.right.id)).type.name
                 except:
                     right_type = 'Int'
-            # self.count += 1
+            # #self.count += 1
             self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", right_type))
 
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
@@ -848,7 +855,7 @@ class codeVisitor:
 
     @visitor.when(DiffNode)
     def visit(self, node, scope, sscope):
-        self.count += ' -'
+        #self.count += ' -'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
@@ -908,7 +915,7 @@ class codeVisitor:
 
     @visitor.when(StarNode)
     def visit(self, node, scope, sscope):
-        self.count += ' *'
+        #self.count += ' *'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
@@ -937,6 +944,7 @@ class codeVisitor:
         #             left_type = 'Int'
         left_type = self.context.exprs_dict[node.left].name
         right_type = self.context.exprs_dict[node.right].name
+        #self.count += f'({left_local},{right_local})'
         self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
 
         # right_type = 'Int'
@@ -973,7 +981,7 @@ class codeVisitor:
 
     @visitor.when(DivNode)
     def visit(self, node, scope, sscope):
-        self.count += ' /'
+        #self.count += ' /'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
@@ -1030,7 +1038,7 @@ class codeVisitor:
 
     @visitor.when(BitNotNode)
     def visit(self, node, scope, sscope):
-        self.count += ' ~'
+        #self.count += ' ~'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         expr_local = self.define_internal_local(scope=scope) 
@@ -1047,7 +1055,7 @@ class codeVisitor:
                     typeX = self.context.exprs_dict[node.expr].name
                 except:
                     typeX = 'Int'
-            # self.count += 1
+            # #self.count += 1
             self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", typeX))
         else:
             right_type = 'Int'
@@ -1062,7 +1070,7 @@ class codeVisitor:
                     right_type = (sscope.find_variable(node.expr.id)).type.name
                 except:
                     right_type = 'Int'
-            # self.count += 1
+            # #self.count += 1
             self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", right_type))
         self.register_instruction(UnaryNodeIL(op_local, expr_local, "~"))
 
@@ -1075,7 +1083,7 @@ class codeVisitor:
         
     @visitor.when(NotNode)
     def visit(self, node, scope, sscope):
-        self.count += ' !'
+        #self.count += ' !'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         expr_local = self.define_internal_local(scope=scope) 
@@ -1106,7 +1114,7 @@ class codeVisitor:
 
     @visitor.when(LessNode)
     def visit(self, node, scope, sscope):
-        self.count += ' <'
+        #self.count += ' <'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
@@ -1165,7 +1173,7 @@ class codeVisitor:
 
     @visitor.when(LessEqualNode)
     def visit(self, node, scope, sscope):
-        self.count += ' <='
+        #self.count += ' <='
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
@@ -1225,7 +1233,7 @@ class codeVisitor:
 
     @visitor.when(EqualNode)
     def visit(self, node, scope, sscope):
-        self.count += ' =='
+        #self.count += ' =='
         # print('----got in equalss----')
         # print(node)
         result_local = self.define_internal_local(scope=scope, name = "result")
