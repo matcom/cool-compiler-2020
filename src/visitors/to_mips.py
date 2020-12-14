@@ -468,13 +468,14 @@ class MIPS:
         self.count += 1
         print('LoadNodeIL')
         if node.msg:
-            self.text += f'la $t0, {node.msg}\n'
-            offset = self.var_offset[self.current_function.name][node.dest]
-            self.text += f'sw $t0, {offset}($sp)\n'
-        # else:
-        #     self.text += f'li $t0, {node.msg}\n'
-        #     offset = self.var_offset[self.current_function.name][node.dest]
-        #     self.text += f'sw $t0, {offset}($sp)\n'
+            if isinstance(node.msg, str):
+                self.text += f'la $t0, {node.msg}\n'
+                offset = self.var_offset[self.current_function.name][node.dest]
+                self.text += f'sw $t0, {offset}($sp)\n'
+            else:
+                self.text += f'li $t0, {node.msg}\n'
+                offset = self.var_offset[self.current_function.name][node.dest]
+                self.text += f'sw $t0, {offset}($sp)\n'
 
     # @visitor.when(CIL_AST.LoadInt)
     # def visit(self, node):

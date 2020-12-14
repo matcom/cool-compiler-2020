@@ -758,7 +758,7 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 4($sp)
-la $t0, 1
+li $t0, 1
 sw $t0, 8($sp)
 move $t0, $sp
 lw $t1, 8($t0)
@@ -961,7 +961,7 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 144($sp)
-la $t0, 1
+li $t0, 1
 sw $t0, 148($sp)
 move $t0, $sp
 lw $t1, 148($t0)

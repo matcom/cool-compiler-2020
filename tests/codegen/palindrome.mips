@@ -741,7 +741,7 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 68($sp)
-la $t0, 1
+li $t0, 1
 sw $t0, 72($sp)
 move $t0, $sp
 lw $t1, 72($t0)
@@ -802,7 +802,7 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 108($sp)
-la $t0, 1
+li $t0, 1
 sw $t0, 112($sp)
 move $t0, $sp
 lw $t1, 112($t0)
@@ -867,7 +867,7 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 136($sp)
-la $t0, 1
+li $t0, 1
 sw $t0, 140($sp)
 move $t0, $sp
 lw $t1, 140($t0)
@@ -903,7 +903,7 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 168($sp)
-la $t0, 1
+li $t0, 1
 sw $t0, 172($sp)
 move $t0, $sp
 lw $t1, 172($t0)
@@ -1052,7 +1052,7 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 228($sp)
-la $t0, 2
+li $t0, 2
 sw $t0, 232($sp)
 move $t0, $sp
 lw $t1, 232($t0)
@@ -1110,7 +1110,7 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 244($sp)
-la $t0, 1
+li $t0, 1
 sw $t0, 248($sp)
 move $t0, $sp
 lw $t1, 248($t0)
@@ -1237,7 +1237,7 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 16($sp)
-la $t0, 1
+li $t0, 1
 sw $t0, 20($sp)
 move $t0, $sp
 lw $t1, 20($t0)
