@@ -8,7 +8,7 @@ string_max_size = 1000
 
 class GlobalDescriptor:
 
-    def __init__(self, dottypes: list(TypeNode), name_ptrs):
+    def __init__(self, dottypes, name_ptrs):
         self.vTable = None
         self.Types = Dict[str, MemoryType] = dict()
 

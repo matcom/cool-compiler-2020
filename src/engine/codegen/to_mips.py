@@ -43,7 +43,7 @@ class CIL_TO_MIPS:
 
 
 
-    def build_tags(self, dottypes:list(TypeData)):
+    def build_tags(self, dottypes: List[TypeData]):
         base_tag = "classname_"
 
         tags = dict()
