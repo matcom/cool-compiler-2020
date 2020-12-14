@@ -7,7 +7,7 @@ type Object {
 	method copy: function_copy_at_Object
 }
 type String {
-	
+	attribute value
 
 	method abort: function_abort_at_Object
 	method type_name: function_type_name_at_Object
@@ -27,20 +27,51 @@ type IO {
 	method in_string: function_in_string_at_IO
 	method in_int: function_in_int_at_IO
 }
-type A2I {
-	
+type Int {
+	attribute value
 
 	method abort: function_abort_at_Object
 	method type_name: function_type_name_at_Object
 	method copy: function_copy_at_Object
-	method c2i: function_c2i_at_A2I
-	method i2c: function_i2c_at_A2I
-	method a2i: function_a2i_at_A2I
-	method a2i_aux: function_a2i_aux_at_A2I
-	method i2a: function_i2a_at_A2I
-	method i2a_aux: function_i2a_aux_at_A2I
 }
-type Main {
+type Bool {
+	attribute value
+
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+}
+type Book {
+	attribute title
+	attribute author
+
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+	method out_string: function_out_string_at_IO
+	method out_int: function_out_int_at_IO
+	method in_string: function_in_string_at_IO
+	method in_int: function_in_int_at_IO
+	method initBook: function_initBook_at_Book
+	method print: function_print_at_Book
+}
+type Article {
+	attribute title
+	attribute author
+	attribute per_title
+
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+	method out_string: function_out_string_at_IO
+	method out_int: function_out_int_at_IO
+	method in_string: function_in_string_at_IO
+	method in_int: function_in_int_at_IO
+	method initBook: function_initBook_at_Book
+	method print: function_print_at_Article
+	method initArticle: function_initArticle_at_Article
+}
+type BookList {
 	
 
 	method abort: function_abort_at_Object
@@ -50,39 +81,73 @@ type Main {
 	method out_int: function_out_int_at_IO
 	method in_string: function_in_string_at_IO
 	method in_int: function_in_int_at_IO
+	method isNil: function_isNil_at_BookList
+	method cons: function_cons_at_BookList
+	method car: function_car_at_BookList
+	method cdr: function_cdr_at_BookList
+	method print_list: function_print_list_at_BookList
+}
+type Cons {
+	attribute xcar
+	attribute xcdr
+
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+	method out_string: function_out_string_at_IO
+	method out_int: function_out_int_at_IO
+	method in_string: function_in_string_at_IO
+	method in_int: function_in_int_at_IO
+	method isNil: function_isNil_at_Cons
+	method cons: function_cons_at_BookList
+	method car: function_car_at_Cons
+	method cdr: function_cdr_at_Cons
+	method print_list: function_print_list_at_Cons
+	method init: function_init_at_Cons
+}
+type Nil {
+	
+
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+	method out_string: function_out_string_at_IO
+	method out_int: function_out_int_at_IO
+	method in_string: function_in_string_at_IO
+	method in_int: function_in_int_at_IO
+	method isNil: function_isNil_at_Nil
+	method cons: function_cons_at_BookList
+	method car: function_car_at_BookList
+	method cdr: function_cdr_at_BookList
+	method print_list: function_print_list_at_Nil
+}
+type Main {
+	attribute books
+
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
 	method main: function_main_at_Main
 }
 
 .DATA
-data_0 = "0"
-data_1 = "1"
-data_2 = "2"
-data_3 = "3"
-data_4 = "4"
-data_5 = "5"
-data_6 = "6"
-data_7 = "7"
-data_8 = "8"
-data_9 = "9"
-data_10 = ""
-data_11 = "9"
-data_12 = "8"
-data_13 = "7"
-data_14 = "6"
-data_15 = "5"
-data_16 = "4"
-data_17 = "3"
-data_18 = "2"
-data_19 = "1"
-data_20 = "0"
-data_21 = "-"
-data_22 = "+"
-data_23 = "-"
-data_24 = "0"
-data_25 = ""
-data_26 = "678987"
-data_27 = " == "
-data_28 = "n"
+data_0 = "\n"
+data_1 = "Invalid substring start"
+data_2 = "Invalid substring length"
+data_3 = "Invalid substring"
+data_4 = "n"
+data_5 = "title:      "
+data_6 = "n"
+data_7 = "author:     "
+data_8 = "n"
+data_9 = "periodical:  "
+data_10 = "- dynamic type was Book -n"
+data_11 = "- dynamic type was Article -n"
+data_12 = "Compilers, Principles, Techniques, and Tools"
+data_13 = "Aho, Sethi, and Ullman"
+data_14 = "The Top 100 CD_ROMs"
+data_15 = "Ulanoff"
+data_16 = "PC Magazine"
 
 .CODE
 function function_abort_at_Object {
@@ -90,6 +155,7 @@ function function_abort_at_Object {
 
 	
 
+	PRINTSTR abort with type
 	ERROR 0
 }
 function function_copy_at_Object {
@@ -133,7 +199,36 @@ function function_substr_at_String {
 	PARAM length
 
 	LOCAL local_substr_at_String_internal_0
+	LOCAL local_substr_at_String_internal_1
+	LOCAL local_substr_at_String_internal_2
+	LOCAL local_substr_at_String_internal_3
+	LOCAL local_substr_at_String_internal_4
+	LOCAL local_substr_at_String_internal_5
+	LOCAL local_substr_at_String_internal_6
+	LOCAL local_substr_at_String_internal_7
+	LOCAL local_substr_at_String_internal_8
 
+	local_substr_at_String_internal_3 = 0
+	local_substr_at_String_internal_2 = LENGTH self
+	local_substr_at_String_internal_5 = local_substr_at_String_internal_3 <= start
+	IF local_substr_at_String_internal_5 GOTO error1
+	local_substr_at_String_internal_8 = CONCAT data_1 data_0
+	PRINTSTR local_substr_at_String_internal_8
+	ERROR 0
+	LABEL error1
+	local_substr_at_String_internal_6 = local_substr_at_String_internal_3 <= length
+	IF local_substr_at_String_internal_6 GOTO error2
+	local_substr_at_String_internal_8 = CONCAT data_2 data_0
+	PRINTSTR local_substr_at_String_internal_8
+	ERROR 0
+	LABEL error2
+	local_substr_at_String_internal_4 = start + length
+	local_substr_at_String_internal_7 = local_substr_at_String_internal_4 <= local_substr_at_String_internal_2
+	IF local_substr_at_String_internal_7 GOTO error3
+	local_substr_at_String_internal_8 = CONCAT data_3 data_0
+	PRINTSTR local_substr_at_String_internal_8
+	ERROR 0
+	LABEL error3
 	local_substr_at_String_internal_0 = SUBSTRING self start length
 	RETURN local_substr_at_String_internal_0
 }
@@ -174,477 +269,292 @@ function entry {
 	LOCAL local__internal_1
 
 	local__internal_0 = ALLOCATE Main
+	SETATTR books OF self_Main = 0
 	ARG local__internal_0
 	local__internal_1 = CALL function_main_at_Main
 }
-function function_c2i_at_A2I {
+function function_initBook_at_Book {
 	PARAM self
-	PARAM char
+	PARAM title_p
+	PARAM author_p
 
-	LOCAL local_c2i_at_A2I_internal_0
-	LOCAL local_c2i_at_A2I_internal_1
-	LOCAL local_c2i_at_A2I_internal_2
-	LOCAL local_c2i_at_A2I_internal_3
-	LOCAL local_c2i_at_A2I_internal_4
-	LOCAL local_c2i_at_A2I_internal_5
-	LOCAL local_c2i_at_A2I_internal_6
-	LOCAL local_c2i_at_A2I_internal_7
-	LOCAL local_c2i_at_A2I_internal_8
-	LOCAL local_c2i_at_A2I_internal_9
-	LOCAL local_c2i_at_A2I_internal_10
-	LOCAL local_c2i_at_A2I_internal_11
-	LOCAL local_c2i_at_A2I_internal_12
-	LOCAL local_c2i_at_A2I_internal_13
-	LOCAL local_c2i_at_A2I_internal_14
-	LOCAL local_c2i_at_A2I_internal_15
-	LOCAL local_c2i_at_A2I_internal_16
-	LOCAL local_c2i_at_A2I_internal_17
-	LOCAL local_c2i_at_A2I_internal_18
-	LOCAL local_c2i_at_A2I_internal_19
-	LOCAL local_c2i_at_A2I_internal_20
-	LOCAL local_c2i_at_A2I_internal_21
-	LOCAL local_c2i_at_A2I_internal_22
-	LOCAL local_c2i_at_A2I_internal_23
-	LOCAL local_c2i_at_A2I_internal_24
-	LOCAL local_c2i_at_A2I_internal_25
-	LOCAL local_c2i_at_A2I_internal_26
-	LOCAL local_c2i_at_A2I_internal_27
-	LOCAL local_c2i_at_A2I_internal_28
-	LOCAL local_c2i_at_A2I_internal_29
-	LOCAL local_c2i_at_A2I_internal_30
-	LOCAL local_c2i_at_A2I_internal_31
+	LOCAL local_initBook_at_Book_internal_0
 
-	local_c2i_at_A2I_internal_0 = LOAD data_0
-	local_c2i_at_A2I_internal_1 = STREQ char local_c2i_at_A2I_internal_0
-	IF local_c2i_at_A2I_internal_1 GOTO TRUE_0
-	local_c2i_at_A2I_internal_3 = LOAD data_1
-	local_c2i_at_A2I_internal_4 = STREQ char local_c2i_at_A2I_internal_3
-	IF local_c2i_at_A2I_internal_4 GOTO TRUE_1
-	local_c2i_at_A2I_internal_6 = LOAD data_2
-	local_c2i_at_A2I_internal_7 = STREQ char local_c2i_at_A2I_internal_6
-	IF local_c2i_at_A2I_internal_7 GOTO TRUE_2
-	local_c2i_at_A2I_internal_9 = LOAD data_3
-	local_c2i_at_A2I_internal_10 = STREQ char local_c2i_at_A2I_internal_9
-	IF local_c2i_at_A2I_internal_10 GOTO TRUE_3
-	local_c2i_at_A2I_internal_12 = LOAD data_4
-	local_c2i_at_A2I_internal_13 = STREQ char local_c2i_at_A2I_internal_12
-	IF local_c2i_at_A2I_internal_13 GOTO TRUE_4
-	local_c2i_at_A2I_internal_15 = LOAD data_5
-	local_c2i_at_A2I_internal_16 = STREQ char local_c2i_at_A2I_internal_15
-	IF local_c2i_at_A2I_internal_16 GOTO TRUE_5
-	local_c2i_at_A2I_internal_18 = LOAD data_6
-	local_c2i_at_A2I_internal_19 = STREQ char local_c2i_at_A2I_internal_18
-	IF local_c2i_at_A2I_internal_19 GOTO TRUE_6
-	local_c2i_at_A2I_internal_21 = LOAD data_7
-	local_c2i_at_A2I_internal_22 = STREQ char local_c2i_at_A2I_internal_21
-	IF local_c2i_at_A2I_internal_22 GOTO TRUE_7
-	local_c2i_at_A2I_internal_24 = LOAD data_8
-	local_c2i_at_A2I_internal_25 = STREQ char local_c2i_at_A2I_internal_24
-	IF local_c2i_at_A2I_internal_25 GOTO TRUE_8
-	local_c2i_at_A2I_internal_27 = LOAD data_9
-	local_c2i_at_A2I_internal_28 = STREQ char local_c2i_at_A2I_internal_27
-	IF local_c2i_at_A2I_internal_28 GOTO TRUE_9
+	SETATTR title OF self_Book = title_p
+	SETATTR author OF self_Book = author_p
+	local_initBook_at_Book_internal_0 = self
+	RETURN local_initBook_at_Book_internal_0
+}
+function function_print_at_Book {
+	PARAM self
+
+	LOCAL local_print_at_Book_internal_0
+	LOCAL local_print_at_Book_internal_1
+	LOCAL local_print_at_Book_internal_2
+	LOCAL local_print_at_Book_internal_3
+	LOCAL local_print_at_Book_internal_4
+	LOCAL local_print_at_Book_internal_5
+	LOCAL local_print_at_Book_internal_6
+	LOCAL local_print_at_Book_internal_7
+	LOCAL local_print_at_Book_internal_8
+	LOCAL local_print_at_Book_internal_9
+	LOCAL local_print_at_Book_internal_10
+	LOCAL local_print_at_Book_internal_11
+	LOCAL local_print_at_Book_internal_12
+
+	local_print_at_Book_internal_2 = LOAD data_4
+	ARG local_print_at_Book_internal_2
+	local_print_at_Book_internal_4 = GETATTR self title
+	ARG local_print_at_Book_internal_4
+	local_print_at_Book_internal_6 = LOAD data_5
+	ARG local_print_at_Book_internal_6
 	ARG self
-	local_c2i_at_A2I_internal_31 = VCALL A2I abort
-	local_c2i_at_A2I_internal_30 = 0
-	local_c2i_at_A2I_internal_29 = local_c2i_at_A2I_internal_30
-	GOTO END_9
-	LABEL TRUE_9
-	local_c2i_at_A2I_internal_29 = 9
-	LABEL END_9
-	local_c2i_at_A2I_internal_26 = local_c2i_at_A2I_internal_29
-	GOTO END_8
-	LABEL TRUE_8
-	local_c2i_at_A2I_internal_26 = 8
-	LABEL END_8
-	local_c2i_at_A2I_internal_23 = local_c2i_at_A2I_internal_26
-	GOTO END_7
-	LABEL TRUE_7
-	local_c2i_at_A2I_internal_23 = 7
-	LABEL END_7
-	local_c2i_at_A2I_internal_20 = local_c2i_at_A2I_internal_23
-	GOTO END_6
-	LABEL TRUE_6
-	local_c2i_at_A2I_internal_20 = 6
-	LABEL END_6
-	local_c2i_at_A2I_internal_17 = local_c2i_at_A2I_internal_20
-	GOTO END_5
-	LABEL TRUE_5
-	local_c2i_at_A2I_internal_17 = 5
-	LABEL END_5
-	local_c2i_at_A2I_internal_14 = local_c2i_at_A2I_internal_17
-	GOTO END_4
-	LABEL TRUE_4
-	local_c2i_at_A2I_internal_14 = 4
-	LABEL END_4
-	local_c2i_at_A2I_internal_11 = local_c2i_at_A2I_internal_14
-	GOTO END_3
-	LABEL TRUE_3
-	local_c2i_at_A2I_internal_11 = 3
-	LABEL END_3
-	local_c2i_at_A2I_internal_8 = local_c2i_at_A2I_internal_11
-	GOTO END_2
-	LABEL TRUE_2
-	local_c2i_at_A2I_internal_8 = 2
-	LABEL END_2
-	local_c2i_at_A2I_internal_5 = local_c2i_at_A2I_internal_8
+	local_print_at_Book_internal_5 = VCALL Book out_string
+	ARG local_print_at_Book_internal_5
+	local_print_at_Book_internal_3 = VCALL Book out_string
+	ARG local_print_at_Book_internal_3
+	local_print_at_Book_internal_1 = VCALL Book out_string
+	local_print_at_Book_internal_8 = LOAD data_6
+	ARG local_print_at_Book_internal_8
+	local_print_at_Book_internal_10 = GETATTR self author
+	ARG local_print_at_Book_internal_10
+	local_print_at_Book_internal_12 = LOAD data_7
+	ARG local_print_at_Book_internal_12
+	ARG self
+	local_print_at_Book_internal_11 = VCALL Book out_string
+	ARG local_print_at_Book_internal_11
+	local_print_at_Book_internal_9 = VCALL Book out_string
+	ARG local_print_at_Book_internal_9
+	local_print_at_Book_internal_7 = VCALL Book out_string
+	local_print_at_Book_internal_0 = self
+	RETURN local_print_at_Book_internal_0
+}
+function function_initArticle_at_Article {
+	PARAM self
+	PARAM title_p
+	PARAM author_p
+	PARAM per_title_p
+
+	LOCAL local_initArticle_at_Article_internal_0
+	LOCAL local_initArticle_at_Article_internal_1
+
+	ARG author_p
+	ARG title_p
+	ARG self
+	local_initArticle_at_Article_internal_1 = VCALL Article initBook
+	SETATTR per_title OF self_Article = per_title_p
+	local_initArticle_at_Article_internal_0 = self
+	RETURN local_initArticle_at_Article_internal_0
+}
+function function_print_at_Article {
+	PARAM self
+
+	LOCAL local_print_at_Article_internal_0
+	LOCAL local_print_at_Article_internal_1
+	LOCAL local_print_at_Article_internal_2
+	LOCAL local_print_at_Article_internal_3
+	LOCAL local_print_at_Article_internal_4
+	LOCAL local_print_at_Article_internal_5
+	LOCAL local_print_at_Article_internal_6
+	LOCAL local_print_at_Article_internal_7
+
+	ARG self
+	local_print_at_Article_internal_1 = CALL function_print_at_Book
+	local_print_at_Article_internal_3 = LOAD data_8
+	ARG local_print_at_Article_internal_3
+	local_print_at_Article_internal_5 = GETATTR self per_title
+	ARG local_print_at_Article_internal_5
+	local_print_at_Article_internal_7 = LOAD data_9
+	ARG local_print_at_Article_internal_7
+	ARG self
+	local_print_at_Article_internal_6 = VCALL Article out_string
+	ARG local_print_at_Article_internal_6
+	local_print_at_Article_internal_4 = VCALL Article out_string
+	ARG local_print_at_Article_internal_4
+	local_print_at_Article_internal_2 = VCALL Article out_string
+	local_print_at_Article_internal_0 = self
+	RETURN local_print_at_Article_internal_0
+}
+function function_isNil_at_BookList {
+	PARAM self
+
+	LOCAL local_isNil_at_BookList_internal_0
+	LOCAL local_isNil_at_BookList_internal_1
+
+	ARG self
+	local_isNil_at_BookList_internal_1 = VCALL BookList abort
+	local_isNil_at_BookList_internal_0 = 1
+	RETURN local_isNil_at_BookList_internal_0
+}
+function function_cons_at_BookList {
+	PARAM self
+	PARAM hd
+
+	LOCAL local_cons_at_BookList_new_cell_0
+	LOCAL local_cons_at_BookList_internal_1
+	LOCAL local_cons_at_BookList_internal_2
+
+	local_cons_at_BookList_internal_1 = ALLOCATE Cons
+	SETATTR xcar OF self_Cons = 0
+	SETATTR xcdr OF self_Cons = 0
+	local_cons_at_BookList_new_cell_0 = local_cons_at_BookList_internal_1
+	ARG self
+	ARG hd
+	ARG new_cell
+	local_cons_at_BookList_internal_2 = VCALL Cons init
+	RETURN local_cons_at_BookList_internal_2
+}
+function function_car_at_BookList {
+	PARAM self
+
+	LOCAL local_car_at_BookList_internal_0
+	LOCAL local_car_at_BookList_internal_1
+	LOCAL local_car_at_BookList_internal_2
+
+	ARG self
+	local_car_at_BookList_internal_1 = VCALL BookList abort
+	local_car_at_BookList_internal_2 = ALLOCATE Book
+	SETATTR title OF self_Book = 0
+	SETATTR author OF self_Book = 0
+	local_car_at_BookList_internal_0 = local_car_at_BookList_internal_2
+	RETURN local_car_at_BookList_internal_0
+}
+function function_cdr_at_BookList {
+	PARAM self
+
+	LOCAL local_cdr_at_BookList_internal_0
+	LOCAL local_cdr_at_BookList_internal_1
+	LOCAL local_cdr_at_BookList_internal_2
+
+	ARG self
+	local_cdr_at_BookList_internal_1 = VCALL BookList abort
+	local_cdr_at_BookList_internal_2 = ALLOCATE BookList
+	local_cdr_at_BookList_internal_0 = local_cdr_at_BookList_internal_2
+	RETURN local_cdr_at_BookList_internal_0
+}
+function function_print_list_at_BookList {
+	PARAM self
+
+	LOCAL local_print_list_at_BookList_internal_0
+
+	ARG self
+	local_print_list_at_BookList_internal_0 = VCALL BookList abort
+	RETURN local_print_list_at_BookList_internal_0
+}
+function function_isNil_at_Cons {
+	PARAM self
+
+	
+
+	RETURN 0
+}
+function function_init_at_Cons {
+	PARAM self
+	PARAM hd
+	PARAM tl
+
+	LOCAL local_init_at_Cons_internal_0
+
+	SETATTR xcar OF self_Cons = hd
+	SETATTR xcdr OF self_Cons = tl
+	local_init_at_Cons_internal_0 = self
+	RETURN local_init_at_Cons_internal_0
+}
+function function_car_at_Cons {
+	PARAM self
+
+	LOCAL local_car_at_Cons_internal_0
+
+	local_car_at_Cons_internal_0 = GETATTR self xcar
+	RETURN local_car_at_Cons_internal_0
+}
+function function_cdr_at_Cons {
+	PARAM self
+
+	LOCAL local_cdr_at_Cons_internal_0
+
+	local_cdr_at_Cons_internal_0 = GETATTR self xcdr
+	RETURN local_cdr_at_Cons_internal_0
+}
+function function_print_list_at_Cons {
+	PARAM self
+
+	LOCAL local_print_list_at_Cons_internal_0
+	LOCAL local_print_list_at_Cons_internal_1
+	LOCAL local_print_list_at_Cons_internal_2
+	LOCAL local_print_list_at_Cons_internal_3
+	LOCAL local_print_list_at_Cons_internal_4
+	LOCAL local_print_list_at_Cons_internal_5
+	LOCAL local_print_list_at_Cons_internal_6
+	LOCAL local_print_list_at_Cons_internal_7
+	LOCAL local_print_list_at_Cons_internal_8
+	LOCAL local_print_list_at_Cons_internal_9
+	LOCAL local_print_list_at_Cons_internal_10
+	LOCAL local_print_list_at_Cons_internal_11
+	LOCAL local_print_list_at_Cons_internal_12
+	LOCAL local_print_list_at_Cons_internal_13
+	LOCAL local_print_list_at_Cons_internal_14
+
+	local_print_list_at_Cons_internal_2 = GETATTR self xcar
+	ARG local_print_list_at_Cons_internal_2
+	local_print_list_at_Cons_internal_1 = VCALL Book print
+	local_print_list_at_Cons_internal_4 = TYPEOF local_print_list_at_Cons_internal_1
+	local_print_list_at_Cons_internal_5 = COMFORM local_print_list_at_Cons_internal_1 TYPE: Book
+	IF local_print_list_at_Cons_internal_1 GOTO <engine.codegen.cil_ast.LabelNode object at 0x7f1651aa6890>
+	GOTO CASE_dummy_0
+	LABEL CASE_MATCH_dummy_Book
+	local_print_list_at_Cons_internal_6 = local_print_list_at_Cons_internal_1
+	local_print_list_at_Cons_internal_8 = LOAD data_10
+	ARG local_print_list_at_Cons_internal_8
+	ARG self
+	local_print_list_at_Cons_internal_7 = VCALL Cons out_string
+	local_print_list_at_Cons_internal_3 = local_print_list_at_Cons_internal_7
 	GOTO END_1
-	LABEL TRUE_1
-	local_c2i_at_A2I_internal_5 = 1
-	LABEL END_1
-	local_c2i_at_A2I_internal_2 = local_c2i_at_A2I_internal_5
-	GOTO END_0
-	LABEL TRUE_0
-	local_c2i_at_A2I_internal_2 = 0
-	LABEL END_0
-	RETURN local_c2i_at_A2I_internal_2
-}
-function function_i2c_at_A2I {
-	PARAM self
-	PARAM i
-
-	LOCAL local_i2c_at_A2I_internal_0
-	LOCAL local_i2c_at_A2I_internal_1
-	LOCAL local_i2c_at_A2I_internal_2
-	LOCAL local_i2c_at_A2I_internal_3
-	LOCAL local_i2c_at_A2I_internal_4
-	LOCAL local_i2c_at_A2I_internal_5
-	LOCAL local_i2c_at_A2I_internal_6
-	LOCAL local_i2c_at_A2I_internal_7
-	LOCAL local_i2c_at_A2I_internal_8
-	LOCAL local_i2c_at_A2I_internal_9
-	LOCAL local_i2c_at_A2I_internal_10
-	LOCAL local_i2c_at_A2I_internal_11
-	LOCAL local_i2c_at_A2I_internal_12
-	LOCAL local_i2c_at_A2I_internal_13
-	LOCAL local_i2c_at_A2I_internal_14
-	LOCAL local_i2c_at_A2I_internal_15
-	LOCAL local_i2c_at_A2I_internal_16
-	LOCAL local_i2c_at_A2I_internal_17
-	LOCAL local_i2c_at_A2I_internal_18
-	LOCAL local_i2c_at_A2I_internal_19
-	LOCAL local_i2c_at_A2I_internal_20
-	LOCAL local_i2c_at_A2I_internal_21
-	LOCAL local_i2c_at_A2I_internal_22
-	LOCAL local_i2c_at_A2I_internal_23
-	LOCAL local_i2c_at_A2I_internal_24
-	LOCAL local_i2c_at_A2I_internal_25
-	LOCAL local_i2c_at_A2I_internal_26
-	LOCAL local_i2c_at_A2I_internal_27
-	LOCAL local_i2c_at_A2I_internal_28
-	LOCAL local_i2c_at_A2I_internal_29
-	LOCAL local_i2c_at_A2I_internal_30
-	LOCAL local_i2c_at_A2I_internal_31
-	LOCAL local_i2c_at_A2I_internal_32
-
-	local_i2c_at_A2I_internal_0 = i == 0
-	IF local_i2c_at_A2I_internal_0 GOTO TRUE_0
-	local_i2c_at_A2I_internal_2 = i == 1
-	IF local_i2c_at_A2I_internal_2 GOTO TRUE_1
-	local_i2c_at_A2I_internal_4 = i == 2
-	IF local_i2c_at_A2I_internal_4 GOTO TRUE_2
-	local_i2c_at_A2I_internal_6 = i == 3
-	IF local_i2c_at_A2I_internal_6 GOTO TRUE_3
-	local_i2c_at_A2I_internal_8 = i == 4
-	IF local_i2c_at_A2I_internal_8 GOTO TRUE_4
-	local_i2c_at_A2I_internal_10 = i == 5
-	IF local_i2c_at_A2I_internal_10 GOTO TRUE_5
-	local_i2c_at_A2I_internal_12 = i == 6
-	IF local_i2c_at_A2I_internal_12 GOTO TRUE_6
-	local_i2c_at_A2I_internal_14 = i == 7
-	IF local_i2c_at_A2I_internal_14 GOTO TRUE_7
-	local_i2c_at_A2I_internal_16 = i == 8
-	IF local_i2c_at_A2I_internal_16 GOTO TRUE_8
-	local_i2c_at_A2I_internal_18 = i == 9
-	IF local_i2c_at_A2I_internal_18 GOTO TRUE_9
+	LABEL CASE_dummy_0
+	local_print_list_at_Cons_internal_9 = COMFORM local_print_list_at_Cons_internal_1 TYPE: Article
+	IF local_print_list_at_Cons_internal_1 GOTO <engine.codegen.cil_ast.LabelNode object at 0x7f1651aa6cd0>
+	GOTO CASE_dummy_1
+	LABEL CASE_MATCH_dummy_Article
+	local_print_list_at_Cons_internal_10 = local_print_list_at_Cons_internal_1
+	local_print_list_at_Cons_internal_12 = LOAD data_11
+	ARG local_print_list_at_Cons_internal_12
 	ARG self
-	local_i2c_at_A2I_internal_21 = VCALL A2I abort
-	local_i2c_at_A2I_internal_22 = LOAD data_10
-	local_i2c_at_A2I_internal_20 = local_i2c_at_A2I_internal_22
-	local_i2c_at_A2I_internal_19 = local_i2c_at_A2I_internal_20
-	GOTO END_9
-	LABEL TRUE_9
-	local_i2c_at_A2I_internal_23 = LOAD data_11
-	local_i2c_at_A2I_internal_19 = local_i2c_at_A2I_internal_23
-	LABEL END_9
-	local_i2c_at_A2I_internal_17 = local_i2c_at_A2I_internal_19
-	GOTO END_8
-	LABEL TRUE_8
-	local_i2c_at_A2I_internal_24 = LOAD data_12
-	local_i2c_at_A2I_internal_17 = local_i2c_at_A2I_internal_24
-	LABEL END_8
-	local_i2c_at_A2I_internal_15 = local_i2c_at_A2I_internal_17
-	GOTO END_7
-	LABEL TRUE_7
-	local_i2c_at_A2I_internal_25 = LOAD data_13
-	local_i2c_at_A2I_internal_15 = local_i2c_at_A2I_internal_25
-	LABEL END_7
-	local_i2c_at_A2I_internal_13 = local_i2c_at_A2I_internal_15
-	GOTO END_6
-	LABEL TRUE_6
-	local_i2c_at_A2I_internal_26 = LOAD data_14
-	local_i2c_at_A2I_internal_13 = local_i2c_at_A2I_internal_26
-	LABEL END_6
-	local_i2c_at_A2I_internal_11 = local_i2c_at_A2I_internal_13
-	GOTO END_5
-	LABEL TRUE_5
-	local_i2c_at_A2I_internal_27 = LOAD data_15
-	local_i2c_at_A2I_internal_11 = local_i2c_at_A2I_internal_27
-	LABEL END_5
-	local_i2c_at_A2I_internal_9 = local_i2c_at_A2I_internal_11
-	GOTO END_4
-	LABEL TRUE_4
-	local_i2c_at_A2I_internal_28 = LOAD data_16
-	local_i2c_at_A2I_internal_9 = local_i2c_at_A2I_internal_28
-	LABEL END_4
-	local_i2c_at_A2I_internal_7 = local_i2c_at_A2I_internal_9
-	GOTO END_3
-	LABEL TRUE_3
-	local_i2c_at_A2I_internal_29 = LOAD data_17
-	local_i2c_at_A2I_internal_7 = local_i2c_at_A2I_internal_29
-	LABEL END_3
-	local_i2c_at_A2I_internal_5 = local_i2c_at_A2I_internal_7
-	GOTO END_2
-	LABEL TRUE_2
-	local_i2c_at_A2I_internal_30 = LOAD data_18
-	local_i2c_at_A2I_internal_5 = local_i2c_at_A2I_internal_30
-	LABEL END_2
-	local_i2c_at_A2I_internal_3 = local_i2c_at_A2I_internal_5
+	local_print_list_at_Cons_internal_11 = VCALL Cons out_string
+	local_print_list_at_Cons_internal_3 = local_print_list_at_Cons_internal_11
 	GOTO END_1
-	LABEL TRUE_1
-	local_i2c_at_A2I_internal_31 = LOAD data_19
-	local_i2c_at_A2I_internal_3 = local_i2c_at_A2I_internal_31
+	LABEL CASE_dummy_1
+	LABEL ERROR_CASE_1
+	ERROR 0
 	LABEL END_1
-	local_i2c_at_A2I_internal_1 = local_i2c_at_A2I_internal_3
-	GOTO END_0
-	LABEL TRUE_0
-	local_i2c_at_A2I_internal_32 = LOAD data_20
-	local_i2c_at_A2I_internal_1 = local_i2c_at_A2I_internal_32
-	LABEL END_0
-	RETURN local_i2c_at_A2I_internal_1
+	local_print_list_at_Cons_internal_14 = GETATTR self xcdr
+	ARG local_print_list_at_Cons_internal_14
+	local_print_list_at_Cons_internal_13 = VCALL BookList print_list
+	local_print_list_at_Cons_internal_0 = local_print_list_at_Cons_internal_13
+	RETURN local_print_list_at_Cons_internal_0
 }
-function function_a2i_at_A2I {
+function function_isNil_at_Nil {
 	PARAM self
-	PARAM s
 
-	LOCAL local_a2i_at_A2I_internal_0
-	LOCAL local_a2i_at_A2I_internal_1
-	LOCAL local_a2i_at_A2I_internal_2
-	LOCAL local_a2i_at_A2I_internal_3
-	LOCAL local_a2i_at_A2I_internal_4
-	LOCAL local_a2i_at_A2I_internal_5
-	LOCAL local_a2i_at_A2I_internal_6
-	LOCAL local_a2i_at_A2I_internal_7
-	LOCAL local_a2i_at_A2I_internal_8
-	LOCAL local_a2i_at_A2I_internal_9
-	LOCAL local_a2i_at_A2I_internal_10
-	LOCAL local_a2i_at_A2I_internal_11
-	LOCAL local_a2i_at_A2I_internal_12
-	LOCAL local_a2i_at_A2I_internal_13
-	LOCAL local_a2i_at_A2I_internal_14
-	LOCAL local_a2i_at_A2I_internal_15
-	LOCAL local_a2i_at_A2I_internal_16
-	LOCAL local_a2i_at_A2I_internal_17
-	LOCAL local_a2i_at_A2I_internal_18
-	LOCAL local_a2i_at_A2I_internal_19
-	LOCAL local_a2i_at_A2I_internal_20
+	
 
-	ARG s
-	local_a2i_at_A2I_internal_0 = CALL function_length_at_String
-	local_a2i_at_A2I_internal_1 = local_a2i_at_A2I_internal_0 == 0
-	IF local_a2i_at_A2I_internal_1 GOTO TRUE_0
-	ARG 1
-	ARG 0
-	ARG s
-	local_a2i_at_A2I_internal_3 = CALL function_substr_at_String
-	local_a2i_at_A2I_internal_4 = LOAD data_21
-	local_a2i_at_A2I_internal_5 = STREQ local_a2i_at_A2I_internal_3 local_a2i_at_A2I_internal_4
-	IF local_a2i_at_A2I_internal_5 GOTO TRUE_1
-	ARG 1
-	ARG 0
-	ARG s
-	local_a2i_at_A2I_internal_7 = CALL function_substr_at_String
-	local_a2i_at_A2I_internal_8 = LOAD data_22
-	local_a2i_at_A2I_internal_9 = STREQ local_a2i_at_A2I_internal_7 local_a2i_at_A2I_internal_8
-	IF local_a2i_at_A2I_internal_9 GOTO TRUE_2
-	ARG s
-	ARG self
-	local_a2i_at_A2I_internal_11 = VCALL A2I a2i_aux
-	local_a2i_at_A2I_internal_10 = local_a2i_at_A2I_internal_11
-	GOTO END_2
-	LABEL TRUE_2
-	ARG s
-	local_a2i_at_A2I_internal_15 = CALL function_length_at_String
-	local_a2i_at_A2I_internal_14 = local_a2i_at_A2I_internal_15 - 1
-	ARG local_a2i_at_A2I_internal_14
-	ARG 1
-	ARG s
-	local_a2i_at_A2I_internal_13 = CALL function_substr_at_String
-	ARG local_a2i_at_A2I_internal_13
-	ARG self
-	local_a2i_at_A2I_internal_12 = VCALL A2I a2i_aux
-	local_a2i_at_A2I_internal_10 = local_a2i_at_A2I_internal_12
-	LABEL END_2
-	local_a2i_at_A2I_internal_6 = local_a2i_at_A2I_internal_10
-	GOTO END_1
-	LABEL TRUE_1
-	ARG s
-	local_a2i_at_A2I_internal_20 = CALL function_length_at_String
-	local_a2i_at_A2I_internal_19 = local_a2i_at_A2I_internal_20 - 1
-	ARG local_a2i_at_A2I_internal_19
-	ARG 1
-	ARG s
-	local_a2i_at_A2I_internal_18 = CALL function_substr_at_String
-	ARG local_a2i_at_A2I_internal_18
-	ARG self
-	local_a2i_at_A2I_internal_17 = VCALL A2I a2i_aux
-	local_a2i_at_A2I_internal_16 = COMPLEMENT local_a2i_at_A2I_internal_17
-	local_a2i_at_A2I_internal_6 = local_a2i_at_A2I_internal_16
-	LABEL END_1
-	local_a2i_at_A2I_internal_2 = local_a2i_at_A2I_internal_6
-	GOTO END_0
-	LABEL TRUE_0
-	local_a2i_at_A2I_internal_2 = 0
-	LABEL END_0
-	RETURN local_a2i_at_A2I_internal_2
+	RETURN 1
 }
-function function_a2i_aux_at_A2I {
+function function_print_list_at_Nil {
 	PARAM self
-	PARAM s
 
-	LOCAL local_a2i_aux_at_A2I_internal_0
-	LOCAL local_a2i_aux_at_A2I_internal_1
-	LOCAL local_a2i_aux_at_A2I_internal_2
-	LOCAL local_a2i_aux_at_A2I_internal_3
-	LOCAL local_a2i_aux_at_A2I_internal_4
-	LOCAL local_a2i_aux_at_A2I_internal_5
-	LOCAL local_a2i_aux_at_A2I_internal_6
-	LOCAL local_a2i_aux_at_A2I_internal_7
-	LOCAL local_a2i_aux_at_A2I_internal_8
-	LOCAL local_a2i_aux_at_A2I_internal_9
-	LOCAL local_a2i_aux_at_A2I_internal_10
-	LOCAL local_a2i_aux_at_A2I_internal_11
+	
 
-	ARG s
-	local_a2i_aux_at_A2I_internal_2 = CALL function_length_at_String
-	LABEL START_0
-	local_a2i_aux_at_A2I_internal_5 = i < j
-	IF local_a2i_aux_at_A2I_internal_5 GOTO CONTINUE_0
-	GOTO END_0
-	LABEL CONTINUE_0
-	local_a2i_aux_at_A2I_internal_8 = int * 10
-	ARG 1
-	ARG i
-	ARG s
-	local_a2i_aux_at_A2I_internal_10 = CALL function_substr_at_String
-	ARG local_a2i_aux_at_A2I_internal_10
-	ARG self
-	local_a2i_aux_at_A2I_internal_9 = VCALL A2I c2i
-	local_a2i_aux_at_A2I_internal_7 = local_a2i_aux_at_A2I_internal_8 + local_a2i_aux_at_A2I_internal_9
-	int = local_a2i_aux_at_A2I_internal_7
-	local_a2i_aux_at_A2I_internal_11 = i + 1
-	i = local_a2i_aux_at_A2I_internal_11
-	local_a2i_aux_at_A2I_internal_6 = 0
-	GOTO START_0
-	LABEL END_0
-	local_a2i_aux_at_A2I_internal_4 = 0
-	local_a2i_aux_at_A2I_internal_3 = local_a2i_aux_at_A2I_internal_4
-	local_a2i_aux_at_A2I_internal_1 = int
-	local_a2i_aux_at_A2I_internal_0 = local_a2i_aux_at_A2I_internal_1
-	RETURN local_a2i_aux_at_A2I_internal_0
-}
-function function_i2a_at_A2I {
-	PARAM self
-	PARAM i
-
-	LOCAL local_i2a_at_A2I_internal_0
-	LOCAL local_i2a_at_A2I_internal_1
-	LOCAL local_i2a_at_A2I_internal_2
-	LOCAL local_i2a_at_A2I_internal_3
-	LOCAL local_i2a_at_A2I_internal_4
-	LOCAL local_i2a_at_A2I_internal_5
-	LOCAL local_i2a_at_A2I_internal_6
-	LOCAL local_i2a_at_A2I_internal_7
-	LOCAL local_i2a_at_A2I_internal_8
-	LOCAL local_i2a_at_A2I_internal_9
-	LOCAL local_i2a_at_A2I_internal_10
-
-	local_i2a_at_A2I_internal_0 = i == 0
-	IF local_i2a_at_A2I_internal_0 GOTO TRUE_0
-	local_i2a_at_A2I_internal_2 = 0 < i
-	IF local_i2a_at_A2I_internal_2 GOTO TRUE_1
-	local_i2a_at_A2I_internal_7 = COMPLEMENT 1
-	local_i2a_at_A2I_internal_6 = i * local_i2a_at_A2I_internal_7
-	ARG local_i2a_at_A2I_internal_6
-	ARG self
-	local_i2a_at_A2I_internal_5 = VCALL A2I i2a_aux
-	ARG local_i2a_at_A2I_internal_5
-	local_i2a_at_A2I_internal_8 = LOAD data_23
-	ARG local_i2a_at_A2I_internal_8
-	local_i2a_at_A2I_internal_4 = CALL function_concat_at_String
-	local_i2a_at_A2I_internal_3 = local_i2a_at_A2I_internal_4
-	GOTO END_1
-	LABEL TRUE_1
-	ARG i
-	ARG self
-	local_i2a_at_A2I_internal_9 = VCALL A2I i2a_aux
-	local_i2a_at_A2I_internal_3 = local_i2a_at_A2I_internal_9
-	LABEL END_1
-	local_i2a_at_A2I_internal_1 = local_i2a_at_A2I_internal_3
-	GOTO END_0
-	LABEL TRUE_0
-	local_i2a_at_A2I_internal_10 = LOAD data_24
-	local_i2a_at_A2I_internal_1 = local_i2a_at_A2I_internal_10
-	LABEL END_0
-	RETURN local_i2a_at_A2I_internal_1
-}
-function function_i2a_aux_at_A2I {
-	PARAM self
-	PARAM i
-
-	LOCAL local_i2a_aux_at_A2I_internal_0
-	LOCAL local_i2a_aux_at_A2I_internal_1
-	LOCAL local_i2a_aux_at_A2I_internal_2
-	LOCAL local_i2a_aux_at_A2I_internal_3
-	LOCAL local_i2a_aux_at_A2I_internal_4
-	LOCAL local_i2a_aux_at_A2I_internal_5
-	LOCAL local_i2a_aux_at_A2I_internal_6
-	LOCAL local_i2a_aux_at_A2I_internal_7
-	LOCAL local_i2a_aux_at_A2I_internal_8
-	LOCAL local_i2a_aux_at_A2I_internal_9
-
-	local_i2a_aux_at_A2I_internal_0 = i == 0
-	IF local_i2a_aux_at_A2I_internal_0 GOTO TRUE_0
-	local_i2a_aux_at_A2I_internal_2 = i / 10
-	local_i2a_aux_at_A2I_internal_7 = next * 10
-	local_i2a_aux_at_A2I_internal_6 = i - local_i2a_aux_at_A2I_internal_7
-	ARG local_i2a_aux_at_A2I_internal_6
-	ARG self
-	local_i2a_aux_at_A2I_internal_5 = VCALL A2I i2c
-	ARG local_i2a_aux_at_A2I_internal_5
-	ARG next
-	ARG self
-	local_i2a_aux_at_A2I_internal_8 = VCALL A2I i2a_aux
-	ARG local_i2a_aux_at_A2I_internal_8
-	local_i2a_aux_at_A2I_internal_4 = CALL function_concat_at_String
-	local_i2a_aux_at_A2I_internal_3 = local_i2a_aux_at_A2I_internal_4
-	local_i2a_aux_at_A2I_internal_1 = local_i2a_aux_at_A2I_internal_3
-	GOTO END_0
-	LABEL TRUE_0
-	local_i2a_aux_at_A2I_internal_9 = LOAD data_25
-	local_i2a_aux_at_A2I_internal_1 = local_i2a_aux_at_A2I_internal_9
-	LABEL END_0
-	RETURN local_i2a_aux_at_A2I_internal_1
+	RETURN 1
 }
 function function_main_at_Main {
 	PARAM self
 
-	LOCAL local_main_at_Main_internal_0
+	LOCAL local_main_at_Main_a_book_0
 	LOCAL local_main_at_Main_internal_1
 	LOCAL local_main_at_Main_internal_2
 	LOCAL local_main_at_Main_internal_3
 	LOCAL local_main_at_Main_internal_4
-	LOCAL local_main_at_Main_internal_5
+	LOCAL local_main_at_Main_an_article_5
 	LOCAL local_main_at_Main_internal_6
 	LOCAL local_main_at_Main_internal_7
 	LOCAL local_main_at_Main_internal_8
@@ -652,31 +562,45 @@ function function_main_at_Main {
 	LOCAL local_main_at_Main_internal_10
 	LOCAL local_main_at_Main_internal_11
 	LOCAL local_main_at_Main_internal_12
+	LOCAL local_main_at_Main_internal_13
+	LOCAL local_main_at_Main_internal_14
+	LOCAL local_main_at_Main_internal_15
+	LOCAL local_main_at_Main_internal_16
 
-	local_main_at_Main_internal_1 = LOAD data_26
-	ARG local_main_at_Main_internal_1
-	local_main_at_Main_internal_2 = ALLOCATE A2I
+	local_main_at_Main_internal_2 = LOAD data_12
+	local_main_at_Main_internal_3 = LOAD data_13
+	ARG local_main_at_Main_internal_3
 	ARG local_main_at_Main_internal_2
-	local_main_at_Main_internal_0 = CALL function_a2i_at_A2I
-	ARG 678987
-	local_main_at_Main_internal_4 = ALLOCATE A2I
+	local_main_at_Main_internal_4 = ALLOCATE Book
+	SETATTR title OF self_Book = 0
+	SETATTR author OF self_Book = 0
 	ARG local_main_at_Main_internal_4
-	local_main_at_Main_internal_3 = CALL function_i2a_at_A2I
-	ARG a
-	ARG self
-	local_main_at_Main_internal_7 = VCALL Main out_int
-	local_main_at_Main_internal_9 = LOAD data_27
+	local_main_at_Main_internal_1 = VCALL Book initBook
+	local_main_at_Main_a_book_0 = local_main_at_Main_internal_1
+	local_main_at_Main_internal_7 = LOAD data_14
+	local_main_at_Main_internal_8 = LOAD data_15
+	local_main_at_Main_internal_9 = LOAD data_16
 	ARG local_main_at_Main_internal_9
-	ARG self
-	local_main_at_Main_internal_8 = VCALL Main out_string
-	ARG b
-	ARG self
-	local_main_at_Main_internal_10 = VCALL Main out_string
-	local_main_at_Main_internal_12 = LOAD data_28
-	ARG local_main_at_Main_internal_12
-	ARG self
-	local_main_at_Main_internal_11 = VCALL Main out_string
-	local_main_at_Main_internal_6 = local_main_at_Main_internal_11
-	local_main_at_Main_internal_5 = local_main_at_Main_internal_6
-	RETURN local_main_at_Main_internal_5
+	ARG local_main_at_Main_internal_8
+	ARG local_main_at_Main_internal_7
+	local_main_at_Main_internal_10 = ALLOCATE Article
+	SETATTR title OF self_Article = 0
+	SETATTR author OF self_Article = 0
+	SETATTR per_title OF self_Article = 0
+	ARG local_main_at_Main_internal_10
+	local_main_at_Main_internal_6 = VCALL Article initArticle
+	local_main_at_Main_an_article_5 = local_main_at_Main_internal_6
+	ARG an_article
+	ARG a_book
+	local_main_at_Main_internal_14 = ALLOCATE Nil
+	ARG local_main_at_Main_internal_14
+	local_main_at_Main_internal_13 = VCALL Nil cons
+	ARG local_main_at_Main_internal_13
+	local_main_at_Main_internal_12 = VCALL Cons cons
+	SETATTR books OF self_Main = local_main_at_Main_internal_12
+	local_main_at_Main_internal_16 = GETATTR self books
+	ARG local_main_at_Main_internal_16
+	local_main_at_Main_internal_15 = VCALL BookList print_list
+	local_main_at_Main_internal_11 = local_main_at_Main_internal_15
+	RETURN local_main_at_Main_internal_11
 }

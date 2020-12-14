@@ -16,6 +16,8 @@ class BASE_COOL_CIL_TRANSFORM:
         self.define_object_type()
         self.define_string_type()
         self.define_io_type()
+        self.define_int_type()
+        self.define_bool_type()
 
     def label_counter_gen(self):
         self._label_counter += 1
@@ -77,11 +79,30 @@ class BASE_COOL_CIL_TRANSFORM:
 
         ###################################
 
+    def define_int_type(self):
+        self.current_type = self.context.get_type('Int')
+        type_node = self.register_type('Int')
+        type_node.attributes = [(attr.name)
+                                for attr in self.current_type.all_attributes()]
+        type_node.attributes.append('value')
+        type_node.methods = [(method.name, self.to_function_name(
+            method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
+
+    def define_bool_type(self):
+        self.current_type = self.context.get_type('Bool')
+        type_node = self.register_type('Bool')
+        type_node.attributes = [(attr.name)
+                                for attr in self.current_type.all_attributes()]
+        type_node.attributes.append('value')
+        type_node.methods = [(method.name, self.to_function_name(
+            method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
+
     def define_string_type(self):
         self.current_type = self.context.get_type('String')
         type_node = self.register_type('String')
         type_node.attributes = [(attr.name)
                                 for attr in self.current_type.all_attributes()]
+        type_node.attributes.append('value')
         type_node.methods = [(method.name, self.to_function_name(
             method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
 

@@ -45,7 +45,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.attr_declarations = dict()
         for declaration in node.declarations:
             self.attr_declarations[declaration.id.lex] = []
-            if declaration.parent and not declaration.parent.lex in ['IO', 'Object']:
+            if declaration.parent and not declaration.parent.lex in ['IO', 'Int', 'String', 'Bool', 'Object']:
                 self.attr_declarations[declaration.id.lex] += self.attr_declarations[declaration.parent.lex]
             self.attr_declarations[declaration.id.lex] += [
                 feature for feature in declaration.features
