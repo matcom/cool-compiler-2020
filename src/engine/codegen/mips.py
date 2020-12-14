@@ -6,6 +6,35 @@ word_size = 2
 
 string_max_size = 1000
 
+class GlobalDescriptor:
+
+    def __init__(self, dottypes: list(TypeNode), name_ptrs):
+        self.vTable = None
+        self.Types = Dict[str, MemoryType] = dict()
+
+        methods = {}
+
+        index = 0
+
+        start_method = 0
+        end_method = 0
+
+        for dottype in dottypes:
+
+            methds = []
+
+            for (method_name, method_tag) in dottype.methods:
+                methods[method_name] = method_tag
+                methds.append(method_name)
+                end_method += 1
+
+            self.Types[dottype.name] = MemoryType(dottype.name, index, dottype.attrs, methds, start_method, name_ptrs[dottype.name])
+
+            start_method = end_method
+            
+
+        self.vTable = VTable(methods)
+
 class VTable:
 
     def __init__(self, methods):
