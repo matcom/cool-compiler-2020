@@ -42,6 +42,7 @@ def main():
 
         cv = codeVisitor(context)
         cil_ast = cv.visit(ast, None, scope)
+        
         # f2_n = program[:-3] + '_test.cil'
         # f2 = open(f2_n, 'w+')
 
@@ -49,28 +50,29 @@ def main():
         # cil_code = formatter(cil_ast)
         # f2.write(f'{cil_code}')
         # f2.close()
-        print('LEN:::::',len(cv.instructions))
-        i = 0
-        for x in cv.instructions:
-            print('------{}-------'.format(i))
-            i += 1
-            print(type(x))
-            items = vars(x)
-            for item in items:
-                # if isinstance(items[item], ArgNodeIL)
-                print(item, ':', str(items[item]))
-                if str(item) == 'args':
-                    for x in items[item]:
-                        print('arg: ',x.dest)
+        # print('LEN:::::',len(cv.instructions))
+        # i = 0
+        # for x in cv.instructions:
+        #     print('------{}-------'.format(i))
+        #     i += 1
+        #     print(type(x))
+        #     items = vars(x)
+        #     for item in items:
+        #         # if isinstance(items[item], ArgNodeIL)
+        #         print(item, ':', str(items[item]))
+        #         if str(item) == 'args':
+        #             for x in items[item]:
+        #                 print('arg: ',x.dest)
         mips = MIPS()
         code = mips.visit(cil_ast)
-        print('Equals: ', mips.countStatic)
+        # print('Equals: ', mips.countStatic)
 
         # for c in cv.data:
         #     print(str(c))
         # for c in cv.code:
         #     print(str(c))
-
+        print('Ops: ',cv.count)
+        print('GetAttr: ', mips.countStatic)
         path = program[:-2]
         # path = path[:-1]
         path += 'mips'

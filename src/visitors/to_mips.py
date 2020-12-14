@@ -208,7 +208,7 @@ class MIPS:
     @visitor.when(GetAttribNodeIL)
     def visit(self, node):
         print(self.count)
-        self.count += 1
+        self.countStatic += 1
         print('GetAttrNodeIL')
         # print('----------------::::::')
         # print('----------------::::::',node.obj)
@@ -295,8 +295,8 @@ class MIPS:
     @visitor.when(StaticCallNodeIL)
     def visit(self, node):
         print(self.count)
-        if node.function == 'String_equals':
-            self.countStatic += 1
+        # if node.function == 'String_equals':
+        # self.countStatic += 1
         print('StaticCallNodeIL')
         self.text += 'move $t0, $sp\n'
         # print('--------CALL------')

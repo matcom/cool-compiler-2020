@@ -1,7 +1,7 @@
-f1 = open('cells_test.mips', 'r')
+f1 = open('arith.mips', 'r')
 lines_1 = f1.readlines()
 
-f2 = open('cells.mips', 'r')
+f2 = open('arith_test.mips', 'r')
 lines_2 = f2.readlines()
 print(len(lines_1))
 print(len(lines_2))

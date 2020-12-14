@@ -77,6 +77,7 @@ class codeVisitor:
         self.current_function = None
         self.context = context
         self.label_count = 0
+        self.count = ''
         # self.scope = scope
         self.context.set_type_tags()
         self.context.set_type_max_tags()
@@ -529,9 +530,12 @@ class codeVisitor:
     @visitor.when(VariableNode)
     def visit(self, node, scope, sscope):
         if self.is_defined_param(node.id):
+            # print('------------------------------')
+            # print('defined PARAM ', node.id)
             return node.id
         elif self.current_type.has_attr(node.id): 
             result_local = self.define_internal_local(scope=scope, name = node.id, class_type=None)
+            # self.count += 1
             self.register_instruction(GetAttribNodeIL(result_local, 'self' , node.id, self.current_type.name))
             return result_local
         else:
@@ -703,7 +707,7 @@ class codeVisitor:
     def visit(self, node, scope, sscope):
         result_local = self.define_internal_local(scope = scope, name = "result")
         case_expr = self.visit(node.expr, scope, sscope)
-
+        print('EXPRRRRRRRR:', type(node.expr))
         nscope = sscope.expr_dict[node]
 
         exit_label = self.get_label()
@@ -782,6 +786,7 @@ class codeVisitor:
     
     @visitor.when(SumNode)
     def visit(self, node, scope, sscope):
+        self.count += ' +'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
@@ -805,6 +810,7 @@ class codeVisitor:
                     left_type = (sscope.find_variable(node.left.id)).type.name
                 except:
                     left_type = 'Int'
+            # self.count += 1
             self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
 
         if hasattr(node.right, 'expr'):
@@ -822,6 +828,7 @@ class codeVisitor:
                     right_type = (sscope.find_variable(node.right.id)).type.name
                 except:
                     right_type = 'Int'
+            # self.count += 1
             self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", right_type))
 
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
@@ -841,6 +848,7 @@ class codeVisitor:
 
     @visitor.when(DiffNode)
     def visit(self, node, scope, sscope):
+        self.count += ' -'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
@@ -900,6 +908,7 @@ class codeVisitor:
 
     @visitor.when(StarNode)
     def visit(self, node, scope, sscope):
+        self.count += ' *'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
@@ -911,46 +920,48 @@ class codeVisitor:
         # self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", node.left.computed_type.name))
         # self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", node.right.computed_type.name))
 
-        if hasattr(node.left, 'expr'):
-            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left]))
-        else:
-            left_type = 'Int'
-            if isinstance(node.left, IntegerNode):
-                left_type = 'Int'
-            elif isinstance(node.left, BoolNode):
-                left_type = 'Bool'
-            elif isinstance(node.left, StringNode):
-                left_type = 'String'
-            else:
-                try:
-                    left_type = (sscope.find_variable(node.left.id)).type.name
-                except:
-                    left_type = 'Int'
-            self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
+        # if hasattr(node.left, 'expr'):
+        #     self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.left]))
+        # else:
+        #     left_type = 'Int'
+        #     if isinstance(node.left, IntegerNode):
+        #         left_type = 'Int'
+        #     elif isinstance(node.left, BoolNode):
+        #         left_type = 'Bool'
+        #     elif isinstance(node.left, StringNode):
+        #         left_type = 'String'
+        #     else:
+        #         try:
+        #             left_type = (sscope.find_variable(node.left.id)).type.name
+        #         except:
+        #             left_type = 'Int'
+        left_type = self.context.exprs_dict[node.left].name
+        right_type = self.context.exprs_dict[node.right].name
+        self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", left_type))
 
-        right_type = 'Int'
-        if hasattr(node.right, 'expr'):
-            if isinstance(node.right.expr, IntegerNode):
-                right_type = 'Int'
-            elif isinstance(node.right.expr, BoolNode):
-                right_type = 'Bool'
-            elif isinstance(node.right.expr, StringNode):
-                right_type = 'String'
-            else:
-                self.register_instruction(GetAttribNodeIL(left_local, left_value, "value", self.context.exprs_dict[node.right]))
-        else:
-            if isinstance(node.right, IntegerNode):
-                right_type = 'Int'
-            elif isinstance(node.right, BoolNode):
-                right_type = 'Bool'
-            elif isinstance(node.right, StringNode):
-                right_type = 'String'
-            else:
-                try:
-                    right_type = (sscope.find_variable(node.right.id)).type.name
-                except:
-                    right_type = 'Int'
-            self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", right_type))
+        # right_type = 'Int'
+        # if hasattr(node.right, 'expr'):
+        #     if isinstance(node.right.expr, IntegerNode):
+        #         right_type = 'Int'
+        #     elif isinstance(node.right.expr, BoolNode):
+        #         right_type = 'Bool'
+        #     elif isinstance(node.right.expr, StringNode):
+        #         right_type = 'String'
+        #     else:
+        #         self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", self.context.exprs_dict[node.right]))
+        # else:
+        #     if isinstance(node.right, IntegerNode):
+        #         right_type = 'Int'
+        #     elif isinstance(node.right, BoolNode):
+        #         right_type = 'Bool'
+        #     elif isinstance(node.right, StringNode):
+        #         right_type = 'String'
+        #     else:
+        #         try:
+        #             right_type = (sscope.find_variable(node.right.id)).type.name
+        #         except:
+        #             right_type = 'Int'
+        self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", right_type))
         self.register_instruction(BinaryNodeIL(op_local, left_local, right_local, "*"))
 
         # Allocate Int result
@@ -962,6 +973,7 @@ class codeVisitor:
 
     @visitor.when(DivNode)
     def visit(self, node, scope, sscope):
+        self.count += ' /'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
@@ -1018,6 +1030,7 @@ class codeVisitor:
 
     @visitor.when(BitNotNode)
     def visit(self, node, scope, sscope):
+        self.count += ' ~'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         expr_local = self.define_internal_local(scope=scope) 
@@ -1034,6 +1047,7 @@ class codeVisitor:
                     typeX = self.context.exprs_dict[node.expr].name
                 except:
                     typeX = 'Int'
+            # self.count += 1
             self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", typeX))
         else:
             right_type = 'Int'
@@ -1048,6 +1062,7 @@ class codeVisitor:
                     right_type = (sscope.find_variable(node.expr.id)).type.name
                 except:
                     right_type = 'Int'
+            # self.count += 1
             self.register_instruction(GetAttribNodeIL(expr_local, expr_value, "value", right_type))
         self.register_instruction(UnaryNodeIL(op_local, expr_local, "~"))
 
@@ -1060,6 +1075,7 @@ class codeVisitor:
         
     @visitor.when(NotNode)
     def visit(self, node, scope, sscope):
+        self.count += ' !'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         expr_local = self.define_internal_local(scope=scope) 
@@ -1090,6 +1106,7 @@ class codeVisitor:
 
     @visitor.when(LessNode)
     def visit(self, node, scope, sscope):
+        self.count += ' <'
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
@@ -1148,6 +1165,7 @@ class codeVisitor:
 
     @visitor.when(LessEqualNode)
     def visit(self, node, scope, sscope):
+        self.count += ' <='
         result_local = self.define_internal_local(scope=scope, name = "result")
         op_local = self.define_internal_local(scope=scope, name = "op")
         left_local = self.define_internal_local(scope=scope, name = "left")
@@ -1207,6 +1225,7 @@ class codeVisitor:
 
     @visitor.when(EqualNode)
     def visit(self, node, scope, sscope):
+        self.count += ' =='
         # print('----got in equalss----')
         # print(node)
         result_local = self.define_internal_local(scope=scope, name = "result")
