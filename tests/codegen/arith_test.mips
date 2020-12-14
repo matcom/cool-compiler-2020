@@ -1,4 +1,216 @@
+.data
+dispatch_void: .asciiz "Runtime Error: A dispatch (static or dynamic) on void"
+case_void: .asciiz "Runtime Error: A case on void"
+case_no_match: .asciiz "Runtime Error: Execution of a case statement without a matching branch"
+div_zero: .asciiz "Runtime Error: Division by zero"
+substr: .asciiz "Runtime Error: Substring out of range"
+heap: .asciiz "Runtime Error: Heap overflow"
+temp_string: .space 2048
+void: .word 0
+Object_name: .asciiz "Object"
+Object_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+Int_name: .asciiz "Int"
+Int_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+String_name: .asciiz "String"
+String_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+.word String.length
+.word String.concat
+.word String.substr
+Bool_name: .asciiz "Bool"
+Bool_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+IO_name: .asciiz "IO"
+IO_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+.word IO.out_string
+.word IO.out_int
+.word IO.in_string
+.word IO.in_int
+A_name: .asciiz "A"
+A_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+.word A.value
+.word A.set_var
+.word A.method1
+.word A.method2
+.word A.method3
+.word A.method4
+.word A.method5
+B_name: .asciiz "B"
+B_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+.word A.value
+.word A.set_var
+.word A.method1
+.word A.method2
+.word A.method3
+.word A.method4
+.word B.method5
+C_name: .asciiz "C"
+C_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+.word A.value
+.word A.set_var
+.word A.method1
+.word A.method2
+.word A.method3
+.word A.method4
+.word C.method5
+.word C.method6
+D_name: .asciiz "D"
+D_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+.word A.value
+.word A.set_var
+.word A.method1
+.word A.method2
+.word A.method3
+.word A.method4
+.word B.method5
+.word D.method7
+E_name: .asciiz "E"
+E_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+.word A.value
+.word A.set_var
+.word A.method1
+.word A.method2
+.word A.method3
+.word A.method4
+.word B.method5
+.word D.method7
+.word E.method6
+A2I_name: .asciiz "A2I"
+A2I_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+.word A2I.c2i
+.word A2I.i2c
+.word A2I.a2i
+.word A2I.a2i_aux
+.word A2I.i2a
+.word A2I.i2a_aux
+Main_name: .asciiz "Main"
+Main_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+.word IO.out_string
+.word IO.out_int
+.word IO.in_string
+.word IO.in_int
+.word Main.menu
+.word Main.prompt
+.word Main.get_int
+.word Main.is_even
+.word Main.class_type
+.word Main.print
+.word Main.main
+s_0: .asciiz "Abort called from class "
+s_1: .asciiz "
+"
+empty_str: .asciiz ""
+s_3: .asciiz "0"
+s_4: .asciiz "1"
+s_5: .asciiz "2"
+s_6: .asciiz "3"
+s_7: .asciiz "4"
+s_8: .asciiz "5"
+s_9: .asciiz "6"
+s_10: .asciiz "7"
+s_11: .asciiz "8"
+s_12: .asciiz "9"
+s_13: .asciiz "-"
+s_14: .asciiz "+"
+s_15: .asciiz "
+	To add a number to "
+s_16: .asciiz "...enter a:
+"
+s_17: .asciiz "	To negate "
+s_18: .asciiz "...enter b:
+"
+s_19: .asciiz "	To find the difference between "
+s_20: .asciiz "and another number...enter c:
+"
+s_21: .asciiz "	To find the factorial of "
+s_22: .asciiz "...enter d:
+"
+s_23: .asciiz "	To square "
+s_24: .asciiz "...enter e:
+"
+s_25: .asciiz "	To cube "
+s_26: .asciiz "...enter f:
+"
+s_27: .asciiz "	To find out if "
+s_28: .asciiz "is a multiple of 3...enter g:
+"
+s_29: .asciiz "	To divide "
+s_30: .asciiz "by 8...enter h:
+"
+s_31: .asciiz "	To get a new number...enter j:
+"
+s_32: .asciiz "	To quit...enter q:
 
+"
+s_33: .asciiz "Please enter a number...  "
+s_34: .asciiz "Class type is now E
+"
+s_35: .asciiz "Class type is now D
+"
+s_36: .asciiz "Class type is now C
+"
+s_37: .asciiz "Class type is now B
+"
+s_38: .asciiz "Class type is now A
+"
+s_39: .asciiz "Oooops
+"
+s_40: .asciiz " "
+s_41: .asciiz "number "
+s_42: .asciiz "is odd!
+"
+s_43: .asciiz "is even!
+"
+s_44: .asciiz "a"
+s_45: .asciiz "b"
+s_46: .asciiz "c"
+s_47: .asciiz "d"
+s_48: .asciiz "e"
+s_49: .asciiz "f"
+s_50: .asciiz "g"
+s_51: .asciiz "h"
+s_52: .asciiz "j"
+s_53: .asciiz "q"
+s_54: .asciiz "is equal to "
+s_55: .asciiz "times 8 with a remainder of "
+s_56: .asciiz "is not divisible by 3.
+"
+s_57: .asciiz "is divisible by 3.
+"
 .text
 dispatch_void_error:
 la $a0 dispatch_void

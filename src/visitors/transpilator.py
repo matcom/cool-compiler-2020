@@ -723,7 +723,7 @@ class codeVisitor:
         tag_lst = []
         option_dict = {}
         for option, c_scp in zip(node.case_list, nscope.children):
-            tag = self.context.get_type(option.typex).name
+            tag = self.context.get_type(option.typex).tag
             tag_lst.append( (tag, c_scp) )
             option_dict[tag] = option
         tag_lst.sort()

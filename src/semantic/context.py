@@ -70,16 +70,32 @@ class Context:
             self.set_type_tags(t, tag + i + 1)
         # print('Done type tags')
         # self.types['Object'].tag = 0
+        # self.types['Object'].tag = 0
         # self.types['IO'].tag = 1
-        # self.types['Main'].tag = 3
+        # self.types['Main'].tag = 2
         # self.types['String'].tag = 2
         # self.types['Bool'].tag = 3
         # self.types['Int'].tag = 4
         # self.types['A'].tag = 5
         # self.types['B'].tag = 6
-        # self.types['A'].tag = 5
-        # self.types['B'].tag = 6
+        # self.types['C'].tag = 7
+        # self.types['D'].tag = 8
+        # self.types['E'].tag = 9
+        # self.types['A2I'].tag = 6
+
     def set_type_max_tags(self, node='Object'):
+        # self.types['Object'].max_tag = 9
+        # self.types['IO'].max_tag = 2
+        # self.types['Main'].max_tag = 2
+        # self.types['String'].max_tag = 2
+        # self.types['Bool'].max_tag = 3
+        # self.types['Int'].max_tag = 4
+        # self.types['A'].max_tag = 9
+        # self.types['B'].max_tag = 9
+        # self.types['C'].max_tag = 7
+        # self.types['D'].max_tag = 9
+        # self.types['E'].max_tag = 9
+        # self.types['A2I'].max_tag = 6
         if not self.graph[node]:
             self.types[node].max_tag = self.types[node].tag
         else:
