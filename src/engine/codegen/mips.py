@@ -2,6 +2,10 @@ from enum import Enum
 from typing import Dict, List
 from .cil_ast import TypeNode
 
+word_size = 2
+
+string_max_size = 1000
+
 
 class Registers:
     zero = '$zero'  # Constant 0
