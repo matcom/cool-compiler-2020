@@ -1,0 +1,265 @@
+\documentclass[a4paper, 12pt]{article}
+    % General Document formatting
+    \usepackage[margin=0.7in]{geometry}
+    \usepackage[parfill]{parskip}
+    \usepackage[utf8]{inputenc}
+    \usepackage{graphicx}
+    \usepackage{amsthm}
+    \usepackage{amsmath}
+    \usepackage{mathtools}
+
+\newtheorem{mydef}{Definici\'on}
+\newtheorem{mytheo}{Teorema}
+
+\begin{document}
+\title{Documentacion del Proyecto final de Complementos de Compilación}
+\date{Curso 2019-2020}
+
+\author{  
+	Adrian Gonzalez Sánchez- C412 - [@adriangs1996]\\
+	Eliane Puerta Cabrera- C412 - [@NaniPuerta]\\
+	Liset Alfaro Gonzalez- C411 - [@LisetAlfaro]\\
+  }
+
+\maketitle
+
+\section{Introducción}
+\textit{COOL (Classroom Object-Oriented Language)} es un lenguaje pequeño, prácticamente de expresiones; pero que aun así, 
+mantiene muchas de las características de los lenguajes de programación modernos, 
+incluyendo orientación a objetos, tipado estático y manejo automático de memoria. 
+La gramatica de Cool utilizada es libre del contexto y es definida en nuestro proyecto como 
+una gram\'atica s-atributada, una definici\'on informal de la misma
+puede encontrarse en el manual de Cool que aparece en la carpeta doc, precisamente donde se encuentra esta documentación.\\
+En este documento quedan reflejadas las principales ideas a seguir por el equipo para 
+la implementación de un compilador funcional de este lenguaje, 
+pasando por un lenguaje intermedio CIL que facilita su transición a Mips.
+
+\section{Requerimientos para ejecutar el compilador}
+Lo primero que se debe hacer ejecutar el archivo Makefile que se encuentra en la carpeta src del proyecto utilizando el siguiente
+comando:
+\begin{verbatim}
+	$ make
+\end{verbatim}
+
+una vez termine de ejecutarse, habr\'a ocurrido lo siguiente
+\begin{itemize}
+	\item Se tendr\'a instalada la librería cloudpickle, requerida para cargar el Parser que posteriormente mencionaremos.
+	\item Se crear\'a la carpeta build donde habr\'a un m\'odulo que contiene el binario de nuestro Lexer y nuestro Parser.
+\end{itemize}
+\section{Arquitectura:}
+
+\subsection*{Módulos:}
+\begin{itemize}
+	\item \textbf{Tokenizer}: \textit{src/tknizer.py}
+	\item \textbf{Parser}: El parser no es un m\'odulo, en vez de eso utilizamos nuestro
+	propio generador de parsers, el cual se encuentra en \textit{src/parserr/slr.py}. La tabla de parsing
+	devuelta es lo que se compila con cloudpickle.
+	\item \textbf{COOL AST}: \textit{src/abstract/tree.py}
+	\item \textbf{Visitors}: \textit{src/travels/*.py}
+	\item \textbf{CIL AST}: \textit{src/cil/nodes.py}
+	\item \textbf{MIPS Instruction Set}: \textit{src/mips/*.py}
+\end{itemize}
+
+\subsection*{Fases en las que se divide el compilador:}
+Para una mejor organización se divide el compilador en varias fases
+\begin{itemize}
+\item \textbf{Lexer}: En esta fase se realiza un preprocesamiento de la entrada. 
+Este preprocesamiento consiste en sustituir los comentarios ,que pueden ser anidados y 
+por tanto no admiten una expresi\'on regular para detectarlos, por el caracter $espacio$, 
+manteniendo los caracteres fin de línea en el archivo fuente 
+(Esto es necesario para detectar un errores en la línea y la columna exacta donde ocurren).\\
+El tokenizer que recibe este archivo fuente ya procesado tiene una tabla de expresiones regulares 
+donde se encuentran clasificados los tokens por prioridad, 
+esto nos permite, por ejemplo, no confundir palabras claves(keywords) con identificadores. 
+Este devuelve una lista de $tokens$ y pasamos a la segunda fase.\\
+
+\item \textbf{Parser:} El generador del parser fue hecho por el equipo y la implementación 
+puede encontrarse en los archivos cuyo nombre corresponden con esta fase. 
+Este devuelve un parser $LALR$, que produce una derivaci\'on extrema derecha sobre una cadena de tokens y luego 
+esta se evalúa en una función llamada $evaluate$ que devuelve al \textit{AST de Cool}.\\
+
+\item \textbf{Chequeo Sem\'antico:} En esta fase implementan varios recorridos sobre el AST de COOL, siguiendo 
+el patr\'on $visitor$. 
+Cada uno recolecta errores de índole sem\'antica y si uno de ellos encuentra un error lanza una excepción, 
+siendo este el comportamiento deseado:
+\begin{itemize}
+	\item Recolector de Tipos(TypeCollector): Este recolecta los tipos y los define en el contexto. En este recorrido se
+	detecta si se redefinen las clases built-in, o si las clases son redefinidas.
+	
+	\item Constructor de Tipos(TypeBuilder): Este Visitor define en cada tipo las funciones y atributos, 
+	y maneja la herencia y redefinición de funciones. 
+	En este se detectan errores como dependencias circulares, los atributos definidos con tipos inexistentes, 
+	se chequean la correctitud de las definiciones de los par\'ametros de los m\'etodos que se redefinen, etc..
+
+	\item Inferencia de tipos(Inferer): En este recorrido se realiza el chequeo de Tipos y
+	adem\'as incorporamos inferencia de tipos al lenguage, feature que no est\'a contemplado
+	en la definici\'on formal. Este recorrido visualiza el codigo de COOL como una gran expresi\'on
+	y realiza un an\'alisi Bottom-Up, partiendo de tipos bien definidos de las expresiones en las hojas
+	como enteros, strings, etc. Como paso extra, para inferir los tipos nos basamos en las mismas reglas
+	sem\'anticas de tipos, pero agregamos recorridos para resolver los problemas de dependencia que puedan surgir
+	entre los elementos a inferir. Tomemos como ejemplo el siguiente fragmento de c\'odigo, tomado en parte del
+	test \textbf{Complex.cl}:
+
+	\begin{verbatim}
+class Main inherits IO {
+    main() : AUTO_TYPE {
+	(let c : AUTO_TYPE <- (new Complex).init(4, 5) in
+	    out_int(c.sum())
+	)
+    };
+};
+
+class Complex inherits IO {
+    x : AUTO_TYPE;
+    y : AUTO_TYPE;
+
+    init(a : AUTO_TYPE, b : AUTO_TYPE) : Complex {
+	{
+	    x <- a;
+	    y <- b;
+	    self;
+	}
+    };
+
+   sum() : AUTO_TYPE {
+      x + y
+   };
+};
+	\end{verbatim}
+
+\begin{verbatim}
+	$ python testing.py > testing.mips
+	$ spim -file testing.mips
+	SPIM Version 8.0 of January 8, 2010
+	Copyright 1990-2010, James R. Larus.
+	All Rights Reserved.
+	See the file README for a full copyright notice.
+	Loaded: /usr/lib/spim/exceptions.s
+	9%             
+\end{verbatim}
+\paragraph{}
+El compilador es perfectamente capaz de inferir los tipos de cada argumento y de cada
+atributo en este caso, pero, c\'omo ???
+\paragraph{}
+Es f\'acil resolver los tipos en este ejemplo a vista, ya que miramos primeramente el m\'etodo \textbf{sum}
+en el cual los atributos son usados en una suma, y como en \textit{COOL} solo se pueden sumar enteros,
+entonces los atributos deben ser enteros. Por otro lado, luego verificamos los argumentos de la funci\'on \textbf{init}
+y vemos que est\'an siendo utilizados como asignaci\'on para los atributos, por lo que deben ser enteros tambi\'en.
+La inferencia de los tipos de retorno de los m\'etodos \textbf{sum y main} es trivial, como lo es inferir el tipo de
+la variable \textit{c}. Pero para el compilador, esta forma de "elegir" por donde comenzar a mirar, no es para nada trivial, ya que
+las dependencias de los tipos de retorno forman un grafo que debe ser recorrido en orden topol\'ogico (de no existir dicho orden, o sea, no ser un DAG, 
+evidentemente existir\'ia una dependencia c\'iclica que no es posible resolver), pero definir este recorrido se ve complicado
+por el scoping de los m\'etodos, y nuestra forma de tratar la inicializaci\'on de atributos, que terminan siendo m\'etodos "an\'onimos".
+Dicho esto, nuestro enfoque es definir una relaci\'on de dependencia en profundidad, o sea, $d(x) = p$ si para
+poder inferir el tipo de "$x$", es necesario inferir, como m\'aximo, $p$ elementos antes. Luego se hacen $p$ recorridos, sobre el AST
+de COOL, en cada paso actualizando el contexto en el que existe cada elemento para poder utilizarlo en pasadas posteriores. As\'i
+pudi\'eramos inferir en una primera pasada los tipos de retornos de los atributos, y luego en una segunda pasada, los argumentos.
+En la pr\'actica, el \textbf{inferer} revisa primero los m\'etodos de inicializaci\'on de cada atributo, y luego
+los m\'etodos en orden de definici\'on en el c\'odigo fuente, por lo que en este caso, se infieren primero los argumentos del m\'etodo,
+pues son usados constantes enteras en su llamada a \textbf{init}, y de ah\'i se deduce el tipo de los atributos al ser asignados en la función.
+Es f\'acil entonces ver que esta forma de inferencia est\'a limitada a la profundidad configurada por el compilador, la cual, por defecto
+ es $5$, ya que en la pr\'actica, un nivel de anidaci\'on de dependencias mayor es dificil de conseguir, aunque se puede modificar
+ pas\'andole como argumento la profundidad al compilador, de la siguiente manera:
+
+ \begin{verbatim}
+	 $ python pycoolc.py --deep=10 <INPUT> [<OUTPUT>]
+ \end{verbatim}
+
+\end{itemize}
+\item \textbf{Generación de código:} En esta fase se pasa de Cool a CIL y luego de CIL a MIPS. 
+El conjunto de instrucciones de MIPS que se utiliza son del emulador de SPIM, o sea, utilizamos el conjunto
+de instrucciones extendidas de MIPS, donde existen instrucciones como LW y MOVE que no son parte de la Arquitectura
+original y que se traducen en dos o m\'as instrucciones en modo \textit{bare}. En esta fase primeramente traducimos
+el AST de Cool a un AST de CIL (lenguaje intermedio), con el objetivo de facilitar el paso hacia MIPS. Este es un c\'odigo
+de tres direcciones, compuesto por tres secciones principales \textbf{.DATA} \textbf{.CODE} \textbf{.TYPES}.
+En la secci\'on .DATA almacenamos nuestros strings literales y lo que nosotros llamamos \textit{TDT}. En la secci\'on
+de tipos va una representaci\'on de los tipos que luego se puedan convertir f\'acilmente a MIPS, aqu\'i ocurre el mangling
+de los nombres de las funciones de modo que se puedan referenciar distintamente luego. Por \'ultimo en la secci\'on
+.CODE van todas las funciones que nuestro programa necesite, incluidas las built-in que son bootstrapeadas al
+inicio de este recorrido. Es interesante resaltar en CIL como manejamos los m\'etodos y atributos heredados, ya
+que en los records que representan los tipos, cada m\'etodo y atributo heredado es agregado primero antes que los definidos
+por el tipo en particular; lo que garantiza que para cualquier m\'etodo "$x$", el \'indice de $x$ en la lista de m\'etodos
+de cualquier tipo que lo herede, es el mismo. Una vez que se termina el recorrido por el AST de COOL, hemos conformado
+las tres secciones de CIL, y estas son pasadas al Generador de MIPS, que no es m\'as que otro recorrido sobre este nuevo
+AST que hemos obtenido.
+
+\item \textbf{Generaci\'on de c\'odigo MIPS}: El primer reto para generar c\'odigo ensamblador es representar el
+conjunto de instrucciones de la arquitectura. Para lograr esto definimos varias clases bases (branches, loads, stores, comparisson, etc)
+que redefinen el m\'etodo \textbf{\_\_str\_\_}, de modo que utilizan el nombre de la clase para representarse, y agregan el s\'imbolo
+\$ en dependencia de si ponemos una constante o un registro. De esta forma la generaci\'on de c\'odigo referente a un nodo de CIL
+se realiza de manera natural, casi como si program\'aramos en ensamblador, como por ejemplo, en este caso:
+
+\begin{verbatim}
+	@visit.register
+    def _(self, node: cil.ArgNode):
+        # Pasar los argumentos en la pila.
+        self.add_source_line_comment(node)
+        src = self.visit(node.name)
+        reg = self.get_available_register()
+        assert src is not None and reg is not None
+
+        if isinstance(src, int):
+            self.register_instruction(LI(reg, src))
+        else:
+            self.register_instruction(LW(reg, src))
+
+        self.comment("Push arg into stack")
+        self.register_instruction(SUBU(sp, sp, 4, True))
+        self.register_instruction(SW(reg, "0($sp)"))
+
+        self.used_registers[reg] = False
+\end{verbatim}
+
+Como se puede ver, registramos una instruccion, casi como si program\'aramos assembly.
+
+\paragraph{}
+Otra aspecto significativo es la representaci\'on de los tipos en runtime. Al final, todo son solo n\'umeros,
+por lo que tenemos que darles un formato que sea adecuado para poderlos referenciar y, que, adem\'as, permita
+acceder a sus propiedades de manera eficiente. En este aspecto, usamos la siguiente estructura para los tipos:
+
+\begin{verbatim}
+		     #################################  address
+    	#          TYPE_POINTER         #
+    	#################################  address + 4
+    	#          VTABLE_POINTER       #
+    	#################################  address  + 8
+    	#           ATTRIBUTE_1         #
+    	#################################  address + 12
+    	#           ATTRIBUTE_2         #
+    	#################################
+    	#               ...             #
+    	#               ...             #
+    	#               ...             #
+    	#################################
+\end{verbatim}
+
+Esta estructura permite varias cosas:
+\begin{itemize}
+	\item Acceso a atributos en $O(1)$.
+	\item Acceso al nombre del tipo que corresponda a una instancia en $O(1)$.
+	\item Dispatch din\'amico en $O(1)$.
+\end{itemize}
+
+El mencionado puntero a la VTABLE, no es m\'as que el inicio de un array (Idea sacada de \textit{C++}) que en cada
+tipo contiene los nombres manglados de sus funciones, y recordemos que anteriormente dijimos que en CIL, 
+garantiz\'abamos que el ind\'ice de cada m\'etodo es el mismo en cada tipo que lo herede, de ah\'i que 
+acceder a una funci\'on determinada sobre una instancia es tan f\'acil como cargar el puntero a la VTABLE
+de la instancia, calcular el \'indice del m\'etodo que se quiere en tiempo de compilaci\'on y indexar en la 
+VTABLE en ese indice en runtime, para un dispatch en $O(1)$.
+
+Otro aspecto que le prestamos inter\'es en esta fase es el tema de los \textit{case}. Las expresiones "case"
+requieren que la jerarqu\'ia de tipos sea mantenida de alguna forma en runtime. En vez de esto, calculamos 
+lo que llamamos una $TDT$ (Type Distance Table), que no es m\'as que una tabla donde para cada par de tipos
+A y B se le asigna la distancia a la que se encuentran en la jerarqu\'ia, o $-1$ en caso de que no pertenezcan
+a la misma rama. Para conformar esta tabla hacemos un preprocesamiento en $O(n^2)$ basado en los resultados 
+de los tiempos de descubrimiento de un recorrido DFS sobre la jerarqu\'ia de tipos, partiendo desde la ra\'iz,
+Object.
+
+Importante tambi\'en son las convenciones que adoptamos al generar c\'odigo. Por ejemplo, cada funci\'on
+de MIPS tiene un marco de pila que es creado con un m\'inimo de 32 bytes, porque es convenio entre programadores
+de MIPS. Los par\'ametros a funciones se pasan en la pila, ya que aunque MIPS cuenta con 32 registros, no todos
+son de prop\'osito general y complica mucho la implementaci\'on el hecho de llevar una cuenta de los registros
+utilizados.
+
+\end{itemize}
+\end{document}
