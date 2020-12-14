@@ -212,8 +212,8 @@ class CoolLexer:
     def t_string_all(self, t):
         r'[^\n]'
         if t.lexer.unterminated_slash:
-            spec = {'b': '\b', 't': '\t', 'f': '\f'}
-            if t.value in ['b', 't', 'f']:
+            spec = {'b': '\b', 't': '\t', 'f': '\f', 'n': '\n', '\\':'\\'}
+            if t.value in ['b', 't', 'f', 'n', '\\']:
                 t.lexer.string += spec[t.value]
             else:
                 t.lexer.string += t.value
