@@ -19,6 +19,20 @@ class TypeNode(Node):
         self.methods = []
         self.features = []
 
+    def __str__(self):
+        string_base = self.name + "\n"
+
+        string_base += "Attrs \n"
+
+        for attr in self.attributes:
+            string_base += str(attr) + "\n"
+        
+        string_base += "Methods \n"
+
+        for methos in self.methods:
+            string_base += str(methos) + "\n"
+        
+        return string_base
 
 class DataNode(Node):
     def __init__(self, vname, value):

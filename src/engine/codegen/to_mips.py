@@ -1,6 +1,6 @@
 from .cil_ast import *
 from ..cp import visitor
-from .mips import MipsCode, TypeData, MipsLabel
+from .mips import MipsCode, MemoryType, MipsLabel, VTable, TypeData, GlobalDescriptor, word_size, string_max_size
 from .mips import Registers as reg
 from typing import Dict, List
 
@@ -9,7 +9,7 @@ class CIL_TO_MIPS:
 
     def __init__(self, data_size=4):
         self.types = []
-        self.types_offsets: Dict[str, TypeData] = dict()
+        self.types_offsets: Dict[str, MemoryType] = dict()
         self.arguments = {}
         self.local_vars = {}
         self.data_segment = []
@@ -25,11 +25,36 @@ class CIL_TO_MIPS:
             reg.s6,
             reg.s7, ]
         self.label_count = 0
+        self.vtable_reg = reg.s7
         self.mips = MipsCode()
 
     def build_types(self, types):
         for idx, typex in enumerate(types):
             self.types_offsets[typex.name] = TypeData(idx, typex)
+
+    def fill_vtable(self):
+        index = 0
+
+        self.mips.comment("Build VTable")
+        for _,tag in self.global_descriptor.vTable.methods:
+            self.mips.la(reg.s0, tag)
+            self.mips.sw(reg.s0, f'{index}({reg.s7})')
+            index += 1
+
+
+
+    def build_tags(self, dottypes:list(TypeData)):
+        base_tag = "classname_"
+
+        tags = dict()
+
+        for dottype in dottypes:
+            name = base_tag + dottype.name
+            tags[dottype.name] = name
+            self.mips.data_label(name)
+            self.mips.asciiz(dottype.name)
+
+        return tags
 
     def get_offset(self, arg: str):
         if arg in self.arguments or arg in self.local_vars:
@@ -99,6 +124,14 @@ class CIL_TO_MIPS:
 
         self.types = node.dottypes
         self.build_types(self.types)
+
+        tags = self.build_tags(node.dottypes)
+
+        self.global_descriptor = GlobalDescriptor(node.dottypes, tags)
+
+        self.mips.allocate_vtable(self.global_descriptor.vTable.size())
+
+        self.fill_vtable()
 
         for data in node.dotdata:
             self.visit(data)
