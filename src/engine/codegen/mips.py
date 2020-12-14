@@ -515,3 +515,15 @@ class MipsCode:
         Move from `low`
         '''
         self._write(f'mflo {rdest}')
+
+    #VTble allocate
+    def allocate_vtable(self, size):
+        '''
+        Allocate Vtable and store its adrress in s7
+        '''
+
+        self.li(reg.a0, size)
+        self.sbrk()
+        self.move(reg.a0, reg.s7)
+
+        
