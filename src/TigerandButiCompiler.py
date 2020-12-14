@@ -646,12 +646,6 @@ def p_comparison(p):
             p[0] = LesserEqualNode(left = p[1], right = p[3])
             p[0].operator = p[2]
     elif p[2] == '=':
-        if isinstance(p[1],IntegerNode) and isinstance(p[3],IntegerNode):
-            v1 = int(p[1].value)
-            v2 = int(p[3].value)
-            res = v1 == v2
-            p[0] = BoolNode(value = lower(str(res)))
-        else:
             p[0] = EqualNode(left = p[1], right = p[3])
             p[0].operator = p[2]
     else:
