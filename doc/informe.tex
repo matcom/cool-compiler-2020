@@ -24,7 +24,7 @@
 \maketitle
 
 \section{Introducción}
-$COOL (Classroom Object-Oriented Language)$ es un lenguaje pequeño, prácticamente de expresiones; pero que aun así, 
+\textit{COOL (Classroom Object-Oriented Language)} es un lenguaje pequeño, prácticamente de expresiones; pero que aun así, 
 mantiene muchas de las características de los lenguajes de programación modernos, 
 incluyendo orientación a objetos, tipado estático y manejo automático de memoria. 
 La gramatica de Cool utilizada es libre del contexto y es definida en nuestro proyecto como 
@@ -76,7 +76,7 @@ Este devuelve una lista de $tokens$ y pasamos a la segunda fase.\\
 \item \textbf{Parser:} El generador del parser fue hecho por el equipo y la implementación 
 puede encontrarse en los archivos cuyo nombre corresponden con esta fase. 
 Este devuelve un parser $LALR$, que produce una derivaci\'on extrema derecha sobre una cadena de tokens y luego 
-esta se evalúa en una función llamada $evaluate$ que devuelve al $AST de Cool$.\\
+esta se evalúa en una función llamada $evaluate$ que devuelve al \textit{AST de Cool}.\\
 
 \item \textbf{Chequeo Sem\'antico:} En esta fase implementan varios recorridos sobre el AST de COOL, siguiendo 
 el patr\'on $visitor$. 
@@ -96,14 +96,75 @@ siendo este el comportamiento deseado:
 	en la definici\'on formal. Este recorrido visualiza el codigo de COOL como una gran expresi\'on
 	y realiza un an\'alisi Bottom-Up, partiendo de tipos bien definidos de las expresiones en las hojas
 	como enteros, strings, etc. Como paso extra, para inferir los tipos nos basamos en las mismas reglas
-	semanticas de tipos, pero agregamos recorridos para resolver los problemas de dependencia que puedan surgir
-	entre los elementos a inferir. Por ejemplo es posible que para inferir el valor de retorno de un m\'etodo, primero
-	haya que inferir el valor de retorno de sus par\'ametros. Para esto se agrega un par\'ametro \textbf{deep} al visitor
-	que determina la cantidad de veces que se recorre el AST, y por tanto, determina la profundidad de las dependencias
-	que podemos resolver. Para marcar un atributo, par\'ametro, variable o m\'etodo para que el sistema de 
-	inferencia intente inferir su tipo, basta con marcar su tipo como \textbf{AUTO\_TYPE}. En caso de que no se
-	pueda inferir alg\'un tipo, entonces se lanza un error sem\'antico. 
-	
+	sem\'anticas de tipos, pero agregamos recorridos para resolver los problemas de dependencia que puedan surgir
+	entre los elementos a inferir. Tomemos como ejemplo el siguiente fragmento de c\'odigo, tomado en parte del
+	test \textbf{Complex.cl}:
+
+	\begin{verbatim}
+class Main inherits IO {
+    main() : AUTO_TYPE {
+	(let c : AUTO_TYPE <- (new Complex).init(4, 5) in
+	    out_int(c.sum())
+	)
+    };
+};
+
+class Complex inherits IO {
+    x : AUTO_TYPE;
+    y : AUTO_TYPE;
+
+    init(a : AUTO_TYPE, b : AUTO_TYPE) : Complex {
+	{
+	    x <- a;
+	    y <- b;
+	    self;
+	}
+    };
+
+   sum() : AUTO_TYPE {
+      x + y
+   };
+};
+	\end{verbatim}
+
+\begin{verbatim}
+	$ python testing.py > testing.mips
+	$ spim -file testing.mips
+	SPIM Version 8.0 of January 8, 2010
+	Copyright 1990-2010, James R. Larus.
+	All Rights Reserved.
+	See the file README for a full copyright notice.
+	Loaded: /usr/lib/spim/exceptions.s
+	9%             
+\end{verbatim}
+\paragraph{}
+El compilador es perfectamente capaz de inferir los tipos de cada argumento y de cada
+atributo en este caso, pero, c\'omo ???
+\paragraph{}
+Es f\'acil resolver los tipos en este ejemplo a vista, ya que miramos primeramente el m\'etodo \textbf{sum}
+en el cual los atributos son usados en una suma, y como en \textit{COOL} solo se pueden sumar enteros,
+entonces los atributos deben ser enteros. Por otro lado, luego verificamos los argumentos de la funci\'on \textbf{init}
+y vemos que est\'an siendo utilizados como asignaci\'on para los atributos, por lo que deben ser enteros tambi\'en.
+La inferencia de los tipos de retorno de los m\'etodos \textbf{sum y main} es trivial, como lo es inferir el tipo de
+la variable \textit{c}. Pero para el compilador, esta forma de "elegir" por donde comenzar a mirar, no es para nada trivial, ya que
+las dependencias de los tipos de retorno forman un grafo que debe ser recorrido en orden topol\'ogico (de no existir dicho orden, o sea, no ser un DAG, 
+evidentemente existir\'ia una dependencia c\'iclica que no es posible resolver), pero definir este recorrido se ve complicado
+por el scoping de los m\'etodos, y nuestra forma de tratar la inicializaci\'on de atributos, que terminan siendo m\'etodos "an\'onimos".
+Dicho esto, nuestro enfoque es definir una relaci\'on de dependencia en profundidad, o sea, $d(x) = p$ si para
+poder inferir el tipo de "$x$", es necesario inferir, como m\'aximo, $p$ elementos antes. Luego se hacen $p$ recorridos, sobre el AST
+de COOL, en cada paso actualizando el contexto en el que existe cada elemento para poder utilizarlo en pasadas posteriores. As\'i
+pudi\'eramos inferir en una primera pasada los tipos de retornos de los atributos, y luego en una segunda pasada, los argumentos.
+En la pr\'actica, el \textbf{inferer} revisa primero los m\'etodos de inicializaci\'on de cada atributo, y luego
+los m\'etodos en orden de definici\'on en el c\'odigo fuente, por lo que en este caso, se infieren primero los argumentos del m\'etodo,
+pues son usados constantes enteras en su llamada a \textbf{init}, y de ah\'i se deduce el tipo de los atributos al ser asignados en la función.
+Es f\'acil entonces ver que esta forma de inferencia est\'a limitada a la profundidad configurada por el compilador, la cual, por defecto
+ es $5$, ya que en la pr\'actica, un nivel de anidaci\'on de dependencias mayor es dificil de conseguir, aunque se puede modificar
+ pas\'andole como argumento la profundidad al compilador, de la siguiente manera:
+
+ \begin{verbatim}
+	 $ python pycoolc.py --deep=10 <INPUT> [<OUTPUT>]
+ \end{verbatim}
+
 \end{itemize}
 \item \textbf{Generación de código:} En esta fase se pasa de Cool a CIL y luego de CIL a MIPS. 
 El conjunto de instrucciones de MIPS que se utiliza son del emulador de SPIM, o sea, utilizamos el conjunto
@@ -179,7 +240,7 @@ Esta estructura permite varias cosas:
 	\item Dispatch din\'amico en $O(1)$.
 \end{itemize}
 
-El mencionado puntero a la VTABLE, no es m\'as que el inicio de un array (Idea sacada de $C++$) que en cada
+El mencionado puntero a la VTABLE, no es m\'as que el inicio de un array (Idea sacada de \textit{C++}) que en cada
 tipo contiene los nombres manglados de sus funciones, y recordemos que anteriormente dijimos que en CIL, 
 garantiz\'abamos que el ind\'ice de cada m\'etodo es el mismo en cada tipo que lo herede, de ah\'i que 
 acceder a una funci\'on determinada sobre una instancia es tan f\'acil como cargar el puntero a la VTABLE

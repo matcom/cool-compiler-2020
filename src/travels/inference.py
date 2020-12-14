@@ -511,7 +511,9 @@ class TypeInferer:
             node.args, method.param_types, method.param_names
         ):
             type_expr_i = self.visit(expr_i, scope, infered_type, deep)
-            if not type_expr_i.conforms_to(type_i):
+            if type_i == self.AUTO_TYPE:
+                update_scope_variable(param_name, type_expr_i, scope)
+            elif not type_expr_i.conforms_to(type_i):
                 raise semantic.SemanticError(
                     f"{expr_i.line, expr_i.column} - TypeError: Expression corresponding to param {param_name} in call to {node.id} must conform to {type_i.name}"
                 )

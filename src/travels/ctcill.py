@@ -245,7 +245,8 @@ class CoolToCILVisitor(baseCilVisitor.BaseCoolToCilVisitor):
             # Si no tiene expresion de inicializacion entonces devolvemos
             # 0 en caso de que sea Int, Bool u otro tipo excepto String
             # (0 = false y 0 = void)
-            attribute_type = self.context.get_type(node.typex)
+            # attribute_type = self.context.get_type(node.typex)
+            attribute_type = scope.find_variable(node.idx).type
             if attribute_type.name == "String":
                 self.register_instruction(AllocateStringNode(local, self.null, 0))
                 self.register_instruction(ReturnNode(local))
