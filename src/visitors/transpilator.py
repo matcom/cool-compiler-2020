@@ -668,7 +668,7 @@ class codeVisitor:
         result_local = self.define_internal_local(scope = scope, name = "result")
         case_expr = self.visit(node.expr, scope, sscope)
 
-        nscope = sscope.exprs_dict[node]
+        nscope = sscope.expr_dict[node]
 
         exit_label = self.get_label()
         label = self.get_label()
