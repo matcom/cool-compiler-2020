@@ -36,7 +36,7 @@ class CIL_TO_MIPS:
         index = 0
 
         self.mips.comment("Build VTable")
-        for _,tag in self.global_descriptor.vTable.methods:
+        for _,tag in self.global_descriptor.vTable.methods.items():
             self.mips.la(reg.s0, tag)
             self.mips.sw(reg.s0, f'{index}({reg.s7})')
             index += 1
