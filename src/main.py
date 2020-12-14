@@ -64,6 +64,7 @@ def main():
                         print('arg: ',x.dest)
         mips = MIPS()
         code = mips.visit(cil_ast)
+        print('Equals: ', mips.countStatic)
 
         # for c in cv.data:
         #     print(str(c))

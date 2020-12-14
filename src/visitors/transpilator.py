@@ -508,11 +508,15 @@ class codeVisitor:
         cil_node_name = scope.find_cil_local(node.id)
 
         if self.is_defined_param(node.id):
+            print('-----------Assign----------------')
+            print('-----------expr_local ',expr_local )
             self.register_instruction(AssignNodeIL(node.id, expr_local))
         elif self.current_type.has_attr(node.id):
             cil_type_name = 'self'
             self.register_instruction(SetAttribNodeIL(cil_type_name, node.id, expr_local, self.current_type.name ))
         else:
+            print('-----------Assign----------------')
+            print('-----------expr_local ', expr_local)
             self.register_instruction(AssignNodeIL(cil_node_name, expr_local))
         return expr_local
 
@@ -543,6 +547,8 @@ class codeVisitor:
         self.register_instruction(GotoIfNodeIL(cond_value, if_then_label))
 
         else_value = self.visit(node.else_stm, scope, sscope)
+        print('-----------Cond----------------')
+        print('-----------else_value ', else_value)
         self.register_instruction(AssignNodeIL(result_local, else_value))
     
         end_if_label = self.get_label()
@@ -550,6 +556,8 @@ class codeVisitor:
 
         self.register_instruction(LabelNodeIL(if_then_label))
         then_value = self.visit(node.stm, scope, sscope)
+        print('-----------Cond----------------')
+        print('-----------then_value ', then_value)
         self.register_instruction(AssignNodeIL(result_local, then_value))
         self.register_instruction(LabelNodeIL(end_if_label))
 
@@ -629,16 +637,44 @@ class codeVisitor:
         
         body_value = self.visit(node.expr, let_scope, iscope)
         result_local = self.define_internal_local(scope = scope, name = "let_result")
+        print('-----------LET----------------')
+        print('-----------body_value ', body_value)
+
         self.register_instruction(AssignNodeIL(result_local, body_value))
         return result_local
     
     @visitor.when(LetDeclarationNode)
     def visit(self, node, scope, sscope):
-        expr_value = self.visit(node.expr, scope, sscope)
-        var_init = self.define_internal_local(scope = scope, name = node.id, cool_var_name= node.id)
-        self.register_instruction(AssignNodeIL(var_init, expr_value))
-        return var_init
+        # print(type(node.expr))
+        if node.expr != None:
+            expr_value = self.visit(node.expr, scope, sscope)
+            var_init = self.define_internal_local(scope = scope, name = node.id, cool_var_name= node.id)
+            print('-----------LET_Decl----------------')
+            print('-----------expr_value ', expr_value)
+            self.register_instruction(AssignNodeIL(var_init, expr_value))
+            return var_init
+        else:
+            instance = None
 
+            if node.type in ['Int', 'Bool']:
+                instance = self.define_internal_local(scope=scope, name="instance")
+                self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).tag, instance))
+                value = self.define_internal_local(scope=scope, name="value")
+                self.register_instruction(LoadNodeIL(0,value))
+                result_init = self.define_internal_local(scope=scope, name="result_init")
+                self.register_instruction(StaticCallNodeIL(result_init, f'{node.type}_init', [ ArgNodeIL(value), ArgNodeIL(instance)], node.type))
+            elif node.type == 'String':
+                instance = self.define_internal_local(scope=scope, name="instance")
+                self.register_instruction(AllocateNodeIL(node.type,self.context.get_type(node.type).tag ,instance))
+                value = self.define_internal_local(scope=scope, name="value")
+                self.register_instruction(LoadNodeIL('empty_str',value))
+                result_init = self.define_internal_local(scope=scope, name="result_init")
+                self.register_instruction(StaticCallNodeIL(result_init, f'{node.type}_init', [ArgNodeIL(value), ArgNodeIL(instance)], node.type))
+                
+            var_def = self.define_internal_local(scope = scope, name = node.id, cool_var_name=node.id)
+            self.register_instruction(AssignNodeIL(var_def, instance))
+            return var_def
+        
     # @visitor.when(COOL_AST.LetVarDef)
     # def visit(self, node, scope):
     #     instance = None
@@ -694,9 +730,12 @@ class codeVisitor:
 
             option_scope = scope.create_child()
             option_id = self.define_internal_local(scope=option_scope, name=option.id, cool_var_name=option.id)
+            print('-----------Case----------------')
+            print('-----------case_expr ', case_expr)
             self.register_instruction(AssignNodeIL(option_id, case_expr))
             expr_result = self.visit(option.expr, option_scope, c_scp)
-
+            print('-----------Case----------------')
+            print('-----------expr_result ', expr_result)
             self.register_instruction(AssignNodeIL(result_local, expr_result))
             self.register_instruction(GotoNodeIL(exit_label))
             
@@ -1211,12 +1250,13 @@ class codeVisitor:
         #     right_type = (sscope.find_variable(node.right.id)).type.name.name
 
         # if isinstance(node.left, StringNode) and isinstance(node.right, StringNode):
-        # print('----left_type ', left_type)
-        # print('----right_type,', right_type)
-        # print(node.left)
-        # print(node.right)
+        print('----left_type ', left_type)
+        print('----right_type,', right_type)
+        print(node.left)
+        print(node.right)
         if left_type == 'String':
             self.register_instruction(StaticCallNodeIL(op_local, 'String_equals', [ArgNodeIL(right_value), ArgNodeIL(left_value)], 'String'))
+            print('Got string equals')
 
             # Allocate Bool result
             self.register_instruction(AllocateNodeIL('Bool',self.context.get_type('Bool').tag, result_local))
@@ -1265,7 +1305,9 @@ class codeVisitor:
                         right_type = 'Int'
                 self.register_instruction(GetAttribNodeIL(right_local, right_value, "value", right_type))
         else:
-            # print('got here where somewhere else')
+            print('---------Equal------')
+            print('-----------left_value ', left_value)
+            print('-----------right_value ', right_value)
             self.register_instruction(AssignNodeIL(left_local, left_value))
             self.register_instruction(AssignNodeIL(right_local, right_value))
 

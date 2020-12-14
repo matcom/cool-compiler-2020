@@ -1,7 +1,7 @@
-f1 = open('palindrome_test.cil', 'r')
+f1 = open('cells_test.mips', 'r')
 lines_1 = f1.readlines()
 
-f2 = open('palindrome.cil', 'r')
+f2 = open('cells.mips', 'r')
 lines_2 = f2.readlines()
 print(len(lines_1))
 print(len(lines_2))
@@ -12,5 +12,5 @@ for i in range(0, len(lines_1)):
         print('f1: ', lines_1[i])
         print('f2: ', lines_2[i])
         c += 1
-        # if c == 15:
-        #     break
+        if c == 20:
+            break

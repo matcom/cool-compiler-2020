@@ -12,6 +12,7 @@ class MIPS:
         self.text = ''
         self.data = ''
         self.count = 0
+        self.countStatic = 0
         self.mips_comm_for_operators = {
             '+' : 'add',
             '-' : 'sub',
@@ -154,14 +155,16 @@ class MIPS:
         self.count += 1
         print('AssignNodeIL')
         offset = self.var_offset[self.current_function.name][node.dest]
-        print('-----------TYPE---- ',type(node.source))
+        print('-----------TYPE---- ',node.source)
         if node.source:
+            print('SOURCE')
             if isinstance(node.source, int):
                 self.text += f'li $t1, {node.source}\n'
             else:
                 right_offset = self.var_offset[self.current_function.name][node.source]
                 self.text += f'lw $t1, {right_offset}($sp)\n'
         else:
+            print('LIST')
             self.text += f'la $t1, void\n'
 
         self.text += f'sw $t1, {offset}($sp)\n'
@@ -292,7 +295,8 @@ class MIPS:
     @visitor.when(StaticCallNodeIL)
     def visit(self, node):
         print(self.count)
-        self.count += 1
+        if node.function == 'String_equals':
+            self.countStatic += 1
         print('StaticCallNodeIL')
         self.text += 'move $t0, $sp\n'
         # print('--------CALL------')
