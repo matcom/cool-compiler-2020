@@ -469,9 +469,9 @@ class codeVisitor:
 
     @visitor.when(AttrDeclarationNode)
     def visit(self, node, scope, sscope):
+        ascope = sscope.attr_scopes[node.id]
 
         if not node.expr:
-            ascope = sscope.attr_scopes[node.id]
             instance = None
             # print('attr_type:::::::::: ', node.type)
             if node.type in ['Int', 'Bool']:
@@ -492,7 +492,7 @@ class codeVisitor:
             self.register_instruction(SetAttribNodeIL('self', node.id,instance, self.current_type.name))
         else:
             print('attr_type::::IN_______EXPRRRRRR:::::: ', node.type)
-            expr = self.visit(node.expr, scope, sscope)
+            expr = self.visit(node.expr, scope, ascope)
             self.register_instruction(SetAttribNodeIL('self', node.id, expr, self.current_type.name))
     
     @visitor.when(VarDeclarationNode)
