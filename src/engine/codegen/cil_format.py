@@ -129,7 +129,7 @@ class CIL_FORMATTER(object):
 
     @visitor.when(SetAttribNode)
     def visit(self, node: SetAttribNode):
-        return f'SETATTR {node.obj} {node.attrib} {node.value}'
+        return f'SETATTR {node.attrib} OF {node.obj}_{node.type} = {node.value}'
 
     @visitor.when(LabelNode)
     def visit(self, node: LabelNode):
@@ -176,6 +176,10 @@ class CIL_FORMATTER(object):
     @visitor.when(AbortNode)
     def visit(self, node: AbortNode):
         return f'ABORT'
+
+    @visitor.when(ConformsNode)
+    def visit(self, node: ConformsNode):
+        return f'{node.dest} = COMFORM {node.expr} {node.type}'
 
     @visitor.when(NotNode)
     def visit(self, node: NotNode):

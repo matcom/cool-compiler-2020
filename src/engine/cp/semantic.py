@@ -1,9 +1,11 @@
 import itertools as itt
 
+
 class SemanticError(Exception):
     @property
     def text(self):
         return self.args[0]
+
 
 class Attribute:
     def __init__(self, name, typex):
@@ -16,17 +18,20 @@ class Attribute:
     def __repr__(self):
         return str(self)
 
+
 class Method:
     def __init__(self, name, param_names, params_types, return_type):
         self.name = name
         self.param_names = param_names
         self.param_types = params_types
-        self.param_infos = [VariableInfo(f'_{name}_{pname}', ptype) for pname, ptype in zip(param_names, params_types)] 
+        self.param_infos = [VariableInfo(
+            f'_{name}_{pname}', ptype) for pname, ptype in zip(param_names, params_types)]
         self.return_type = return_type
         self.return_info = VariableInfo(f'_{name}', return_type)
 
     def __str__(self):
-        params = ', '.join(f'{n}: {t.name}' for n,t in zip(self.param_names, self.param_types))
+        params = ', '.join(f'{n}: {t.name}' for n, t in zip(
+            self.param_names, self.param_types))
         return f'[method] {self.name}({params}): {self.return_type.name};'
 
     def __eq__(self, other):
@@ -34,8 +39,9 @@ class Method:
             other.return_type == self.return_type and \
             other.param_types == self.param_types
 
+
 class Type:
-    def __init__(self, name:str, sealed=False, built_in = False):
+    def __init__(self, name: str, sealed=False, built_in=False):
         self.name = name
         self.attributes = []
         self.methods = {}
@@ -47,7 +53,8 @@ class Type:
         if self.parent is not None:
             raise SemanticError(f'Parent type is already set for {self.name}.')
         if parent.sealed:
-            raise SemanticError(f'Parent type "{parent.name}" is sealed. Can\'t inherit from it.')
+            raise SemanticError(
+                f'Parent type "{parent.name}" is sealed. Can\'t inherit from it.')
         self.parent = parent
 
     def type_union(self, other):
@@ -70,18 +77,20 @@ class Type:
 
         return t1[-1]
 
-    def get_attribute(self, name:str):
+    def get_attribute(self, name: str):
         try:
             return next(attr for attr in self.attributes if attr.name == name)
         except StopIteration:
             if self.parent is None:
-                raise SemanticError(f'Attribute "{name}" is not defined in {self.name}.')
+                raise SemanticError(
+                    f'Attribute "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_attribute(name)
             except SemanticError:
-                raise SemanticError(f'Attribute "{name}" is not defined in {self.name}.')
+                raise SemanticError(
+                    f'Attribute "{name}" is not defined in {self.name}.')
 
-    def define_attribute(self, name:str, typex):
+    def define_attribute(self, name: str, typex):
         try:
             self.get_attribute(name)
         except SemanticError:
@@ -89,25 +98,30 @@ class Type:
             self.attributes.append(attribute)
             return attribute
         else:
-            raise SemanticError(f'Attribute "{name}" is already defined in {self.name}.')
+            raise SemanticError(
+                f'Attribute "{name}" is already defined in {self.name}.')
 
-    def get_method(self, name:str):
+    def get_method(self, name: str):
         try:
             return self.methods[name]
         except KeyError:
             if self.parent is None:
-                raise SemanticError(f'Method "{name}" is not defined in {self.name}.')
+                raise SemanticError(
+                    f'Method "{name}" is not defined in {self.name}.')
             try:
                 return self.parent.get_method(name)
             except SemanticError:
-                raise SemanticError(f'Method "{name}" is not defined in {self.name}.')
+                raise SemanticError(
+                    f'Method "{name}" is not defined in {self.name}.')
 
-    def define_method(self, name:str, param_names:list, param_types:list, return_type):
+    def define_method(self, name: str, param_names: list, param_types: list, return_type):
         if name in self.methods:
-            raise SemanticError(f'Method "{name}" already defined in {self.name}')
+            raise SemanticError(
+                f'Method "{name}" already defined in {self.name}')
             # raise SemanticError(f'Method "{name}" already defined in {self.name} with a different signature.')
 
-        method = self.methods[name] = Method(name, param_names, param_types, return_type)
+        method = self.methods[name] = Method(
+            name, param_names, param_types, return_type)
         return method
 
     def all_attributes(self):
@@ -127,9 +141,9 @@ class Type:
                 else:
                     yield (method, typex)
         for method in self.methods.values():
-            if method.name in done: continue
+            if method.name in done:
+                continue
             yield (method, self)
-
 
     def conforms_to(self, other):
         return other.bypass() or self == other or self.parent is not None and self.parent.conforms_to(other)
@@ -153,6 +167,7 @@ class Type:
     def __repr__(self):
         return str(self)
 
+
 class SelfType(Type):
     def __init__(self):
         Type.__init__(self, 'SELF_TYPE')
@@ -167,8 +182,9 @@ class SelfType(Type):
     def __eq__(self, other):
         return isinstance(other, SelfType)
 
+
 class ErrorType(Type):
-    def __init__(self, message = ""):
+    def __init__(self, message=""):
         Type.__init__(self, '<error>')
         self.sealed = True
         self.message = message
@@ -185,38 +201,50 @@ class ErrorType(Type):
     def __eq__(self, other):
         return isinstance(other, Type)
 
+
 class Context:
     def __init__(self):
+        self.inheritance = {}
         self.types = {}
         self.basic_types = ['Object', 'IO', 'Int', 'String', 'Bool']
 
-    def create_type(self, name:str, builtin = False):
+    def create_type(self, name: str, builtin=False):
         if name in self.basic_types and name in self.types:
-            raise SemanticError(f'SemanticError: Redefinition of basic class {name}.')
+            raise SemanticError(
+                f'SemanticError: Redefinition of basic class {name}.')
         if name in self.types:
-            raise SemanticError(f'Type with the same name ({name}) already in context.')
-        typex = self.types[name] = Type(name,built_in=builtin)
+            raise SemanticError(
+                f'Type with the same name ({name}) already in context.')
+        typex = self.types[name] = Type(name, built_in=builtin)
         return typex
 
     def add_type(self, typex):
         if typex.name in self.basic_types:
-            raise SemanticError(f'SemanticError: Redefinition of basic class {typex.name}.')
+            raise SemanticError(
+                f'SemanticError: Redefinition of basic class {typex.name}.')
         if typex.name in self.types:
-            raise SemanticError(f'Type with the same name ({typex.name}) already in context.')
+            raise SemanticError(
+                f'Type with the same name ({typex.name}) already in context.')
         self.types[typex.name] = typex
         return typex
 
-    def get_type(self, name:str):
+    def get_type(self, name: str):
         try:
             return self.types[name]
         except KeyError:
             raise SemanticError(f'Type "{name}" is not defined.')
+
+    def inheritance_deep(self, type_name: str) -> int:
+        if type_name not in self.inheritance:
+            return 0
+        return 1 + self.inheritance_deep(self.inheritance[type_name])
 
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
 
     def __repr__(self):
         return str(self)
+
 
 class VariableInfo:
     def __init__(self, name, vtype):
@@ -237,7 +265,7 @@ class VariableInfo:
         if not self.infered:
             message = ""
             t = all(not x.built_in for x in self.calls + self.assigns)
-            #print(t)
+            # print(t)
             if t:
                 call = None
                 for typex in self.calls:
@@ -254,7 +282,8 @@ class VariableInfo:
                     assign = typex if not assign else assign.type_union(typex)
 
                 if assign:
-                    self.type = assign if not call or assign.conforms_to(call) else ErrorType()
+                    self.type = assign if not call or assign.conforms_to(
+                        call) else ErrorType()
                 else:
                     self.type = call
 
@@ -262,7 +291,7 @@ class VariableInfo:
                 self.assigns = []
 
                 return self.infered, message
-            
+
             else:
                 self.type = None
                 for x in self.assigns + self.calls:
@@ -271,13 +300,14 @@ class VariableInfo:
                         break
                 error = []
 
-                #print(self.type.name)
+                # print(self.type.name)
 
                 for x in self.assigns + self.calls:
                     if not x.conforms_to(self.type):
                         error.append(x)
-                
-                message = f"Incompatible Types {self.type.name} and " + " ".join(e.name for e in error) if error else ""
+
+                message = f"Incompatible Types {self.type.name} and " + \
+                    " ".join(e.name for e in error) if error else ""
 
                 self.infered = True
 
@@ -286,7 +316,6 @@ class VariableInfo:
 
                 return True, message
 
-
         return False, ""
 
     def __repr__(self):
@@ -294,7 +323,7 @@ class VariableInfo:
 
     def __str__(self):
         return f'Variable Name: {self.name}, Variable Type: {self.type} \n'
-            
+
 
 class Scope:
     def __init__(self, parent=None):
@@ -325,7 +354,8 @@ class Scope:
         return info
 
     def find_variable(self, vname, index=None):
-        locals = self.locals if index is None else itt.islice(self.locals, index)
+        locals = self.locals if index is None else itt.islice(
+            self.locals, index)
         try:
             return next(x for x in locals if x.name == vname)
         except StopIteration:
@@ -336,10 +366,10 @@ class Scope:
 
     def is_local(self, vname):
         return any(True for x in self.locals if x.name == vname)
-    
+
     def __repr__(self):
         return str(self)
-    
+
     def __str__(self):
         return "".join(str(i) for i in self.locals) + "".join(str(s) for s in self.children)
-        #return f'Scope: {self.index}\n' + "\n".join(str(x) for x in self.locals) + "\n".join(str(s) for s in self.children) 
+        # return f'Scope: {self.index}\n' + "\n".join(str(x) for x in self.locals) + "\n".join(str(s) for s in self.children)

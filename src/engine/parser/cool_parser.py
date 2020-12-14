@@ -218,11 +218,11 @@ class CoolParser:
         '''case_list : ID COLON TYPE ACTION expr SEMI
                     | ID COLON TYPE ACTION expr SEMI case_list '''
         if len(p) == 7:
-            p[0] = [CaseVariableDeclaration(
+            p[0] = [CaseActionExpression(
                 p.slice[1], p.slice[3], p[5])]
         else:
-            p[0] = [CaseVariableDeclaration(
-               p.slice[1], p.slice[3], p[5])] + p[7]
+            p[0] = [CaseActionExpression(
+                p.slice[1], p.slice[3], p[5])] + p[7]
 
     def p_case_list_error(self, p):
         '''case_list : error COLON TYPE ACTION expr SEMI

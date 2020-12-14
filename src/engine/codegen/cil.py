@@ -10,11 +10,18 @@ class BASE_COOL_CIL_TRANSFORM:
         self.current_type = None
         self.current_method = None
         self.current_function = None
-        self.label_counter = 0
         self.context = context
+        self.attr_declarations = {}
+        self._label_counter = 0
         self.define_object_type()
         self.define_string_type()
         self.define_io_type()
+        self.define_int_type()
+        self.define_bool_type()
+
+    def label_counter_gen(self):
+        self._label_counter += 1
+        return self._label_counter
 
     @property
     def params(self):
@@ -66,13 +73,36 @@ class BASE_COOL_CIL_TRANSFORM:
         self.dotdata.append(data_node)
         return data_node
 
-    ###################################
+    def sort_case_list(self, case_expressions):
+        return sorted(case_expressions, reverse=True,
+                      key=lambda x: self.context.inheritance_deep(x.type))
+
+        ###################################
+
+    def define_int_type(self):
+        self.current_type = self.context.get_type('Int')
+        type_node = self.register_type('Int')
+        type_node.attributes = [(attr.name)
+                                for attr in self.current_type.all_attributes()]
+        type_node.attributes.append('value')
+        type_node.methods = [(method.name, self.to_function_name(
+            method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
+
+    def define_bool_type(self):
+        self.current_type = self.context.get_type('Bool')
+        type_node = self.register_type('Bool')
+        type_node.attributes = [(attr.name)
+                                for attr in self.current_type.all_attributes()]
+        type_node.attributes.append('value')
+        type_node.methods = [(method.name, self.to_function_name(
+            method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
 
     def define_string_type(self):
         self.current_type = self.context.get_type('String')
         type_node = self.register_type('String')
         type_node.attributes = [(attr.name)
                                 for attr in self.current_type.all_attributes()]
+        type_node.attributes.append('value')
         type_node.methods = [(method.name, self.to_function_name(
             method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
         type_node.features = type_node.attributes + type_node.methods
