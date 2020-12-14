@@ -62,6 +62,9 @@ class AttrDeclarationNode(DeclarationNode):
         self.line = idx.line
         self.column = idx.column
 
+    def __iter__(self):
+        yield from (self.id, self.type, self.expression)
+
 
 class FuncDeclarationNode(DeclarationNode):
     def __init__(self, idx, params, return_type, body):

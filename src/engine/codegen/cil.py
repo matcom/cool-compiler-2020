@@ -11,6 +11,7 @@ class BASE_COOL_CIL_TRANSFORM:
         self.current_method = None
         self.current_function = None
         self.context = context
+        self.attr_declarations = {}
         self._label_counter = 0
         self.define_object_type()
         self.define_string_type()

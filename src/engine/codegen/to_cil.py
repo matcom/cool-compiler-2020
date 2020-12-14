@@ -1,3 +1,4 @@
+from typing import List
 from engine import parser as cool
 from engine.cp.semantic import Context
 from .cil_ast import *
@@ -34,22 +35,40 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         )
 
     def init_class_attr(self, scope: Scope, class_id, self_inst):
-        attr_nodes = self.attr_init[class_id]
+        attr_nodes = self.attr_declarations[class_id]
         for attr in attr_nodes:
             attr_scope = scope.create_child()
             attr_scope.define_variable('self', self_inst)
             self.visit(attr, attr_scope)
 
-    def save_attr_init(self, node: cool.ProgramNode):
-        self.attr_init = dict()
+    def save_attr_initializations(self, node: cool.ProgramNode, scope):
+        self.attr_declarations = dict()
         for declaration in node.declarations:
-            self.attr_init[declaration.id.lex] = []
+            self.attr_declarations[declaration.id.lex] = []
             if declaration.parent and not declaration.parent.lex in ['IO', 'Object']:
-                self.attr_init[declaration.id.lex] += self.attr_init[declaration.parent.lex]
-            self.attr_init[declaration.id.lex] += [
+                self.attr_declarations[declaration.id.lex] += self.attr_declarations[declaration.parent.lex]
+            self.attr_declarations[declaration.id.lex] += [
                 feature for feature in declaration.features
                 if isinstance(feature, cool.AttrDeclarationNode)
             ]
+            self.create_constructor(
+                self.attr_declarations[declaration.id.lex], declaration.id.lex
+            )
+
+    def create_constructor(self, attr_declarations: List[cool.AttrDeclarationNode], type_name):
+        self.current_function = self.register_function(f'ctor_{type_name}')
+        self.current_type = self.context.get_type(type_name)
+        instance = self.register_param(VariableInfo('self', self.current_type))
+
+        scope = Scope()
+        scope.define_variable('self', instance)
+        for attr in attr_declarations:
+            self.visit(attr, scope)
+
+        self.register_instruction(ReturnNode(instance))
+
+        self.current_type = None
+        self.current_function = None
 
     def create_vtables(self, node: cool.ProgramNode):
         pass
@@ -62,7 +81,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node: cool.ProgramNode, scope=None):
         scope = Scope()
         self.sort_class_declar(node)
-        self.save_attr_init(node)
+        self.save_attr_initializations(node, scope)
         self.create_vtables(node)
         # entry
         self.current_function = self.register_function('entry')
@@ -125,6 +144,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
 
     @visitor.when(cool.AttrDeclarationNode)
     def visit(self, node: cool.AttrDeclarationNode, scope):
+        # typex = self.context.get_type(type_name)
         result = self.visit(node.expression, scope) if node.expression else 0
         self_inst = scope.find_variable('self').name
         self.register_instruction(
@@ -156,7 +176,9 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         new_local = self.define_internal_local()
         typex = self.context.get_type(node.type.lex)
         self.register_instruction(AllocateNode(new_local, typex.name))
-        self.init_class_attr(scope, node.type.lex, new_local)
+        self.register_instruction(ArgNode(new_local))
+        self.register_instruction(
+            StaticCallNode(f'ctor_{typex.name}', new_local))
         return new_local
 
     @visitor.when(cool.IfThenElseNode)
@@ -220,7 +242,6 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         for i, case in enumerate(case_expressions):
             next_branch_label = LabelNode(f'CASE_{case.id.lex}_{i}')
             child_scope = scope.create_child()
-            print(exp_type)
             expr_i = self.visit(
                 case, child_scope,
                 expr=expr,
