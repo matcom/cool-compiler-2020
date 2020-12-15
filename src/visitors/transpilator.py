@@ -402,12 +402,12 @@ class codeVisitor:
         # dynamic_type = 'Void'
         self.count += expr_value + '\n'
 
-        static_instance = self.define_internal_local(scope=scope, name='static_instance')
+        # static_instance = self.define_internal_local(scope=scope, name='static_instance')
         # print(self.current_type.name, self.context.get_type(self.current_type.name).tag)
         # assert False, "Stop"
-        self.register_instruction(AllocateNodeIL(self.current_type.name, self.context.get_type(self.current_type.name).tag ,static_instance))
+        # self.register_instruction(AllocateNodeIL(self.current_type.name, self.context.get_type(self.current_type.name).tag ,static_instance))
         
-        self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, self.current_type.name, static_instance))
+        self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, self.current_type.name, expr_value))
         
         return result_local
     
