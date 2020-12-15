@@ -35,6 +35,12 @@ class GlobalDescriptor:
 
         self.vTable = VTable(methods)
 
+    def __getitem__(self, id):
+        for mem in self.Types.values():
+            if mem.id == id:
+                return mem
+        
+        raise Exception(f"Class {id} not present")
 class VTable:
 
     def __init__(self, methods):
@@ -51,9 +57,9 @@ class VTable:
 
 class MemoryType:
 
-    def __init__(self, name, id, attrs, methods, base_index, ptr_name):
+    def __init__(self, name, _id, attrs, methods, base_index, ptr_name):
         self.name = name
-        self.id = id
+        self.id = _id
         self.attrs = attrs
         self.methods = methods
         self.vtable = base_index
