@@ -12,7 +12,9 @@ El proyecto fue dividido en disitintas fases para su implementación, estas fuer
   1. Lexing
   2. Parsing
   3. Semantic Checking
-  4. Code Generation
+  4. Code Generation  
+
+![Image](images/Estructura.png "Diagrama 1")
 
 A continuación daremos un resumen de como se desarrollaron las mismas así como algunas de las problemáticas principales que hallamos
 ### Lexing   
@@ -42,7 +44,7 @@ def p_conditional(p):
 ```
 Con todo esto listo **yacc** genera un parser shift_reduce LALR(1) para nuestra gramática, Vale aclarar que a pesar de no poderse cubrir todo tipo de gramáticas mediante un parser de este tipo se realizaron ligeros cambios a la gramática que aparece en el Manual de COOL para lograr desambiguarla para este tipo de parser, con lo cual se obutvo la que se usa actualmente en nuestro programa.   
 Uno de los procesos mas engorrosos fueron los llamados a los distintos tipos de Dispatch ya que estos poseen varias definiciones según la forma en que se llame. Otra problemática que tuvimos fue debido al orden en que debía quedar el AST, debido a la ambigüedad existente en la gramática de **COOL** en el manual, lo cual se solucionó mediante la declaración de la precedencia entre distintos operadores.  
-Es bueno destacar que en aras de optimizar un poco el algoritmo y código generado se decidió preoperar las operaciones artiméticas o de comparación en que solo participen constantes enteras para lograr hacer un poco mas simple nuestro árbol y con ello el código final generado.
+Es bueno destacar que en aras de optimizar un poco el algoritmo y código generado se decidió preoperar las operaciones artiméticas o de comparación en que solo participen constantes enteras para lograr hacer un poco mas simple nuestro árbol y con ello el código final generado. Además se hizo un análisis de los métodos a los que se les realiza Dispatch para podar luego los que jamás son utilizados.
 ### Semantic Checking
 En esta fase se desea asegurar el cumplimiento de los predicados semánticos definidos en el lenguaje, por lo cual se va a reunir informacón sobre el programa mediante el uso de distintos algoritmos y estructuras.    
 Debido la conveniencia del AST obtenido en la fase anterior el mismo es recorrido por nosotros para realizar este chequeo, este proceso se realiza mediante el uso del patrón **visitor**, potente herramienta que permite abstraer el recorrido de las acciones a realizar, con el cual comenzando desde el primer nodo del AST devuelto por **yacc**, se puede ir recorriendo la totalidad de estos.   
@@ -60,28 +62,52 @@ Los componentes del lenguaje CIL son bastante simples. Se encuentra integrado po
 * Instrucciones de a lo sumo dos operadores y un destino.
 * Definición de Strings como Data:
 * Definición de métodos como globales, que contienen las instrucciones, una lista de parámetros y de variables locales.
-* Definición de clases con un mapeo de sus nombres de métodos a los globales, así como definición de sus atributos. En esta definición se incluyen elementos que le pertenecen a su padre antes de los propios, conservando el orden en que se encuentran en el padre.
+![Image](images/CILGlobalMethod.png "Diagrama 1")
+* Definición de clases con un mapeo de sus nombres de métodos a los globales, así como definición de sus atributos. En esta definición se incluyen elementos que le pertenecen a su padre antes de los propios, conservando el orden en que se encuentran en el padre. Vale la pena mencionar en que el orden de los métodos y atributos definidos en su padre conservan el mismo orden y son los primeros.
+![Image](images/CILClass.png "Diagrama 1")
 * Programa CIL, que contiene todo lo anterior.
+![Image](images/ProgramaCIL.png "Diagrama 1")
 
-Con el patrón visitor se transforma del AST de entrada a un programa CIL de salida.  
+La lista de instrucciones CIL se adjunta a continuación:
+* CILTypeCheck: Usado en los case
+* CILBinaryOperator: Que incluye a los operadores aritméticos y de comparación
+* CILLabel: Para usar en los ciclos y condicionales como dirección destino de los saltos
+* CILJump y CILConditionalJump: Usados para los saltos
+* CILAllocate: Usado al crearse un nuevo objeto
+* CILArgument: Usado para pasar parámetros a un método. Después de esta instrucción solo puede venir una del mismo tipo o una llamada a un método.
+* CILCall y CILVirtualCall: El primero realiza una llamada normal y el segundo recibe un tipo y realiza la llamada asumiendo dicho tipo.
+* CILStringLoad: Utilizada para cargar strings predefinidos.
+* Instrucciones específicas: Instrucciones utilizadas en las clases base, como leer y escribir de la entrada estándar y manipulación de strings.
+
+Para lograr la conversión se agregan las clases por defecto y luego se ordenan las clases de forma que todo elemento siempre aparecerá antes que su hijo; lo que permitirá al analizar una clase ya haber analizado a sus ancestros. Seguidamente se mapean los métodos de clase a métodos globales que se poblarán más tarde. Ya en este paso se recopila la información de la clase que será utilizada en la **CILClass**.
+![Image](images/ASTtoCIL.py.png)
+
+Por cada clase predefinida se le agrega a sus métodos globales el código CIL ya predefinido. Luego por cada clase se agrega su método **$init**, utilizado en la creación de instancias para asignarle valores a los atributos con valores ya definidos; en dicho método se llama al equivalente de su padre en caso de tenerlo, para luego evaluar sus propias expresiones. Por cada método de clase se realiza la transformación de sus nodos a instrucciones CIL que luego se guardan encapsuladas en un método global. En todo momento se sigue la política de que en el destino de la última instrucción contiene el resultado de la expresión analizada, incluyendo los mismos métodos. Aquí se omiten los métodos que se haya detectado desde el parser que nunca serán usados.
+
+La información anteriormente obtenida permite formar un Programa CIL, que constituye la salida de esta parte del programa.
 
 #### MIPS
 Dado el programa CIL se lleva a una transformación a MIPS.  
-Una parte importante para entender la estructura es la representación de las clases. Toda clase se guarda como una referencia a un conjunto de palabras, de las cuales la primera siempre es una referencia a su definición de clase y el resto son los atributos.
+Una parte importante para entender la estructura es la representación de las instancias de clase. Toda instancia se guarda como una referencia a un conjunto de palabras, de las cuales la primera siempre es una referencia a su definición de clase y el resto son los atributos.
+![Image](images/Instancia.png)
 
 ##### Qué es la definición de clase?
-Se puede observar al inicio del programa con la forma *Nombreclase: .word Padreclase, f1, f2...*, que no es más que una ubicación en el heap donde se encuentra guardada la direccion de la definicion de su clase padre, seguida por las direcciones de sus métodos
+Se puede observar al inicio del programa con la forma *Nombreclase: .word Padreclase, f1, f2...*, que no es más que una ubicación en el heap donde se encuentra guardada la direccion de la definicion de su clase padre, seguida por las direcciones de sus métodos. Es el descriptor de los elementos estáticos de una clase es decir su padre y sus métodos.
+![Image](images/Definicióndeclase.png)
 
 ##### Llamada a un método
-La llamada a los métodos tiene un indicador de la posición relativa a su definición de clase. Cuando se llama un método se accede a dicha definición a través de la clase o no, dependiendo del tipo de Dispatch y se llama el método en la posición indicada. En el caso de tipos base, como Int, String y Bool siempre se realiza StaticDispatch al final.
+La llamada a los métodos tiene un indicador de la posición relativa a su definición de clase. Dependiendo del caso se busca la definición de clase a través de su referencia en la instancia y luego se llama al método, o se obtiene la definición de clase destino a través de un VirtualCall; Ya una vez con la definición de clase correcta se llama al método en la posición indicada. Por esta razón es que se insiste en el orden de los métodos en las clases.
+
+##### Trabajo con los atributos
+Los atributos como se sabe residen en la instancia y por lo tanto para acceder a ellos simplemente se necesita su posición en esta. En ellos también se cumple el orden anteriormente expuesto para garantizar coherencia en los llamados.
 
 ##### Estructura del programa
-* Datos y cadenas predefinidas
-* Strings
+* Strings predefinidos
+* Strings del programa CIL
 * Definiciones de clase
-* Llamada al Main.Special desde el main
-* Métodos predefinidos
-* Métodos globales del programa
+* Código MIPS predefinido
+* Métodos globales del programa en MIPS
+![Image](images/ProgramaMIPS.png)
 
 #### Uso de registros
 * Registros $a#: Se usan para pasarle parámetros a los métodos en el interior de los métodos se evita su uso y en caso de necesitar usarlos, primero se guardan en la pila para luego restaurarlos. El único caso en que se modifican es si es especificado por el código CIL recibido.
@@ -89,7 +115,10 @@ La llamada a los métodos tiene un indicador de la posición relativa a su defin
 * Registros $t#: No necesitan ser salvados antes de utilizarlos. Internamente se utilizan en casi cada conversión a MIPS como lugar donde se cargan los parámetros CIL de la instrucción origen
 * Registro $v0: No necesita ser salvado en sus operaciones.Se utiliza para el valor de retorno de las funciones, así como de destino intermedio en la conversión a MIPS. $v1 no se usa
 El resto de los registros tiene una función asignada por el estándar de MIPS que no se violó. nos referimos a $ra, $sp, etc.  
-Alguna regla se violó en el código estático, debido a que solo se usa en circunstancias específicas y basado en el modelo de programación seguido
+Alguna regla se violó en el código predefinido, debido a que solo se usa en circunstancias específicas y basado en el modelo de programación seguido
   
 #### Tipos en tiempo de ejecución
-Esto proviene de un tipo CIL que pide inferencia de tipos. Lo que se utiliza es la definición de clase. Se pregunta si tu definición de clase es la buscada, en caso de no serlo se compara con la del padre, y sucesivamente con la de su padre; si en estos casos se encuentra una respuesta afirmativa se retorna verdadero. En caso de ver que llegaste a una clase sin padre(Object), es decir padre igual a 0, se retorna falso.
+Esto proviene de un tipo CIL que pide inferencia de tipos. Lo que se utiliza es la definición de clase. Se pregunta si tu definición de clase, a la que se puede acceder desde la instancia es la buscada, en caso de no serlo se compara con la del padre, y sucesivamente con la de su padre; si en estos casos se encuentra una respuesta afirmativa se retorna verdadero. En caso de ver que llegaste a una clase sin padre(Object), es decir padre igual a 0, se retorna falso.
+
+#### Helpers
+A destacar son dos funciones utilizadas constantemente en la conversión a MIPS que fueron de gran utilidad. Una que se ocupa dado los parámetros de la instrucción CIL cargarlos en los registros $t# y otra que se ocupa dado el resultado en $v0 guardarlo. Lo importante de estos métodos es que son capaces de discernir si un parámetro es parámetro del método, variable local, número, etc y manejar los datos acorde, lo cual facilitó bastante el trabajo de conversión.
