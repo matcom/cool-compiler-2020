@@ -170,7 +170,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -286,7 +286,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -320,7 +320,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -373,7 +373,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -455,7 +455,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -525,7 +525,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -614,7 +614,7 @@ lw $ra, 0($sp)
 addi $sp, $sp, 12
 jr $ra
 Main.main:
-addi $sp, $sp, -16
+addi $sp, $sp, -20
 addi $sp, $sp, -4
 sw $ra, 0($sp)
 la $t0, s_3
@@ -624,7 +624,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -642,11 +642,25 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_init
 sw $a1, 16($sp)
+li $a0, 16
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, Main_name
+sw $t1, 4($t0)
+li $t1, 4
+sw $t1, 8($t0)
+la $t1, Main_methods
+sw $t1, 12($t0)
+sw $t0, 20($sp)
 move $t0, $sp
 lw $t1, 12($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 20($t0)
+lw $t1, 24($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 lw $t1, 20($t0)
@@ -658,5 +672,5 @@ jal $t3
 sw $a1, 4($sp)
 lw $a1, 4($sp)
 lw $ra, 0($sp)
-addi $sp, $sp, 24
+addi $sp, $sp, 28
 jr $ra

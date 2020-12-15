@@ -33,11 +33,11 @@ class Context:
         self.types['String'].methods['concat'] = Method('concat', ['s'], [self.types['String']], self.types['String'])
         self.types['String'].methods['substr'] = Method('substr', ['i', 'l'], [self.types['Int'], self.types['Int']], self.types['String'])
 
-        self.graph['Object'] = ['IO', 'String', 'Bool', 'Int']
-        self.graph['IO'] = ['Main']
-        self.graph['String'] = []
-        self.graph['Int'] = []
-        self.graph['Bool'] = []
+        #self.graph['Object'] = ['IO', 'String', 'Bool', 'Int']
+        #self.graph['IO'] = ['Main']
+        #self.graph['String'] = []
+        #self.graph['Int'] = []
+        #self.graph['Bool'] = []
 
     def create_type(self, name:str):
         if name in self.types:
@@ -47,13 +47,29 @@ class Context:
         # print('type: ', typex.name)
         # print('parent: ', typex.parent.name)
         self.types[name] = typex
-        if not self.graph.__contains__(name):
-            self.graph[name] = []
-        if self.graph.__contains__(typex.parent.name):
-            self.graph[typex.parent.name].append(name)
-        else:
-            self.graph[typex.parent.name] = [name]
+        # if not self.graph.__contains__(name):
+        #     self.graph[name] = []
+        # if self.graph.__contains__(typex.parent.name):
+        #     self.graph[typex.parent.name].append(name)
+        # else:
+        #     self.graph[typex.parent.name] = [name]
         return typex
+
+    def tag_types(self):
+        for name, inst in self.types.items():
+            self.graph[name] = []
+
+        for name, inst in self.types.items():
+            try:
+                if self.graph.__contains__(inst.parent.name):
+                    self.graph[inst.parent.name].append(name)
+                else:
+                    self.graph[inst.parent.name] = [name]
+            except:
+                pass
+
+        # print(self.graph)
+        # assert False, "Stop"
 
     def get_type(self, name:str):
         try:
@@ -87,12 +103,9 @@ class Context:
                 self.set_type_max_tags(t)
             maximum = 0
             for t in self.graph[node]:
-                try:
-                    maximum = max(maximum, self.types[t].max_tag)
-                except:
-                    maximum = 0
+                maximum = max(maximum, self.types[t].max_tag)
             self.types[node].max_tag = maximum
-        # print('Done type max tags')
+
     def __str__(self):
         return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
 

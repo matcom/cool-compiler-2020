@@ -140,7 +140,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 9
+li $t1, 6
 sw $t1, 0($t0)
 la $t1, Main_name
 sw $t1, 4($t0)
@@ -210,7 +210,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -326,7 +326,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -360,7 +360,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -413,7 +413,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -495,7 +495,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -565,7 +565,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -640,32 +640,40 @@ lw $ra, 0($sp)
 addi $sp, $sp, 24
 jr $ra
 Foo_init:
-addi $sp, $sp, -120
+addi $sp, $sp, -128
 addi $sp, $sp, -4
 sw $ra, 0($sp)
 move $t0, $sp
-lw $t1, 124($t0)
+lw $t1, 132($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bazz_init
 sw $a1, 4($sp)
 move $a1, $zero
-lw $t0, 124($sp)
+lw $t0, 132($sp)
 lw $t1, 0($t0)
 la $a0, void
 bne	$t1 $a0 label_2
 b case_void_error
 label_2:
-blt	$t1 7 label_3
-bgt	$t1 7 label_3
-lw $t1, 124($sp)
+blt	$t1 8 label_3
+bgt	$t1 8 label_3
+lw $t1, 132($sp)
 sw $t1, 12($sp)
+lw $t1, 12($sp)
+sw $t1, 8($sp)
+b label_1
+label_3:
+blt	$t1 7 label_4
+bgt	$t1 8 label_4
+lw $t1, 132($sp)
+sw $t1, 16($sp)
 li $a0, 52
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 6
+li $t1, 8
 sw $t1, 0($t0)
 la $t1, Bar_name
 sw $t1, 4($t0)
@@ -673,21 +681,21 @@ li $t1, 13
 sw $t1, 8($t0)
 la $t1, Bar_methods
 sw $t1, 12($t0)
-sw $t0, 16($sp)
+sw $t0, 20($sp)
 move $t0, $sp
-lw $t1, 16($t0)
+lw $t1, 20($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bar_init
-sw $a1, 20($sp)
-lw $t1, 16($sp)
+sw $a1, 24($sp)
+lw $t1, 20($sp)
 sw $t1, 8($sp)
 b label_1
-label_3:
-blt	$t1 5 label_4
-bgt	$t1 5 label_4
-lw $t1, 124($sp)
-sw $t1, 24($sp)
+label_4:
+blt	$t1 6 label_5
+bgt	$t1 8 label_5
+lw $t1, 132($sp)
+sw $t1, 28($sp)
 li $a0, 44
 li $v0, 9
 syscall
@@ -701,31 +709,23 @@ li $t1, 11
 sw $t1, 8($t0)
 la $t1, Razz_methods
 sw $t1, 12($t0)
-sw $t0, 28($sp)
+sw $t0, 32($sp)
 move $t0, $sp
-lw $t1, 28($t0)
+lw $t1, 32($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Razz_init
-sw $a1, 32($sp)
-lw $t1, 28($sp)
-sw $t1, 8($sp)
-b label_1
-label_4:
-blt	$t1 6 label_5
-bgt	$t1 6 label_5
-lw $t1, 124($sp)
-sw $t1, 36($sp)
-lw $t1, 36($sp)
+sw $a1, 36($sp)
+lw $t1, 32($sp)
 sw $t1, 8($sp)
 b label_1
 label_5:
 b case_no_match_error
 label_1:
-lw $t0, 124($sp)
+lw $t0, 132($sp)
 lw $t1, 8($sp)
 sw $t1, 28($t0)
-lw $t0, 124($sp)
+lw $t0, 132($sp)
 lw $t1, 28($t0)
 sw $t1, 92($sp)
 move $t0, $sp
@@ -739,7 +739,7 @@ lw $t2, 12($t1)
 lw $t3, 32($t2)
 jal $t3
 sw $a1, 88($sp)
-lw $t0, 124($sp)
+lw $t0, 132($sp)
 lw $t1, 20($t0)
 sw $t1, 100($sp)
 move $t0, $sp
@@ -768,7 +768,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -786,11 +786,25 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
 sw $a1, 104($sp)
+li $a0, 36
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 6
+sw $t1, 0($t0)
+la $t1, Foo_name
+sw $t1, 4($t0)
+li $t1, 9
+sw $t1, 8($t0)
+la $t1, Foo_methods
+sw $t1, 12($t0)
+sw $t0, 112($sp)
 move $t0, $sp
-lw $t1, 124($t0)
+lw $t1, 132($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 124($t0)
+lw $t1, 112($t0)
 la $t0, void
 beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
@@ -812,7 +826,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -829,9 +843,23 @@ lw $t1, 56($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 112($sp)
+sw $a1, 116($sp)
+li $a0, 36
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 6
+sw $t1, 0($t0)
+la $t1, Foo_name
+sw $t1, 4($t0)
+li $t1, 9
+sw $t1, 8($t0)
+la $t1, Foo_methods
+sw $t1, 12($t0)
+sw $t0, 124($sp)
 move $t0, $sp
-lw $t1, 124($t0)
+lw $t1, 132($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 lw $t1, 124($t0)
@@ -840,11 +868,11 @@ beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
 lw $t3, 28($t2)
 jal $t3
-sw $a1, 116($sp)
+sw $a1, 120($sp)
 lw $t0, 56($sp)
 lw $t1, 16($t0)
 sw $t1, 48($sp)
-lw $t0, 116($sp)
+lw $t0, 120($sp)
 lw $t1, 16($t0)
 sw $t1, 52($sp)
 lw $a0, 48($sp)
@@ -856,7 +884,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -873,12 +901,12 @@ lw $t1, 40($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 120($sp)
-lw $t0, 124($sp)
+sw $a1, 128($sp)
+lw $t0, 132($sp)
 lw $t1, 40($sp)
 sw $t1, 32($t0)
 lw $ra, 0($sp)
-addi $sp, $sp, 128
+addi $sp, $sp, 136
 jr $ra
 Foo.doh:
 addi $sp, $sp, -56
@@ -897,7 +925,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -932,7 +960,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -963,74 +991,22 @@ lw $ra, 0($sp)
 addi $sp, $sp, 64
 jr $ra
 Bar_init:
-addi $sp, $sp, -12
+addi $sp, $sp, -20
 addi $sp, $sp, -4
 sw $ra, 0($sp)
 move $t0, $sp
-lw $t1, 16($t0)
+lw $t1, 24($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Razz_init
 sw $a1, 4($sp)
 move $a1, $zero
-move $t0, $sp
-lw $t1, 16($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-lw $t1, 16($t0)
-la $t0, void
-beq $t1, $t0, dispatch_void_error
-lw $t2, 12($t1)
-lw $t3, 32($t2)
-jal $t3
-sw $a1, 8($sp)
-lw $t0, 16($sp)
-lw $t1, 8($sp)
-sw $t1, 44($t0)
-move $t0, $sp
-lw $t1, 16($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-lw $t1, 16($t0)
-la $t0, void
-beq $t1, $t0, dispatch_void_error
-lw $t2, 12($t1)
-lw $t3, 28($t2)
-jal $t3
-sw $a1, 12($sp)
-lw $t0, 16($sp)
-lw $t1, 12($sp)
-sw $t1, 48($t0)
-lw $ra, 0($sp)
-addi $sp, $sp, 20
-jr $ra
-Razz_init:
-addi $sp, $sp, -140
-addi $sp, $sp, -4
-sw $ra, 0($sp)
-move $t0, $sp
-lw $t1, 144($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-jal Foo_init
-sw $a1, 4($sp)
-move $a1, $zero
-lw $t0, 144($sp)
-lw $t1, 0($t0)
-la $a0, void
-bne	$t1 $a0 label_7
-b case_void_error
-label_7:
-blt	$t1 7 label_8
-bgt	$t1 7 label_8
-lw $t1, 144($sp)
-sw $t1, 12($sp)
 li $a0, 52
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 6
+li $t1, 8
 sw $t1, 0($t0)
 la $t1, Bar_name
 sw $t1, 4($t0)
@@ -1038,31 +1014,111 @@ li $t1, 13
 sw $t1, 8($t0)
 la $t1, Bar_methods
 sw $t1, 12($t0)
-sw $t0, 16($sp)
+sw $t0, 12($sp)
 move $t0, $sp
-lw $t1, 16($t0)
+lw $t1, 24($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-jal Bar_init
-sw $a1, 20($sp)
+lw $t1, 12($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 32($t2)
+jal $t3
+sw $a1, 8($sp)
+lw $t0, 24($sp)
+lw $t1, 8($sp)
+sw $t1, 44($t0)
+li $a0, 52
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 8
+sw $t1, 0($t0)
+la $t1, Bar_name
+sw $t1, 4($t0)
+li $t1, 13
+sw $t1, 8($t0)
+la $t1, Bar_methods
+sw $t1, 12($t0)
+sw $t0, 20($sp)
+move $t0, $sp
+lw $t1, 24($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 20($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 28($t2)
+jal $t3
+sw $a1, 16($sp)
+lw $t0, 24($sp)
 lw $t1, 16($sp)
+sw $t1, 48($t0)
+lw $ra, 0($sp)
+addi $sp, $sp, 28
+jr $ra
+Razz_init:
+addi $sp, $sp, -148
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+move $t0, $sp
+lw $t1, 152($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Foo_init
+sw $a1, 4($sp)
+move $a1, $zero
+lw $t0, 152($sp)
+lw $t1, 0($t0)
+la $a0, void
+bne	$t1 $a0 label_7
+b case_void_error
+label_7:
+blt	$t1 8 label_8
+bgt	$t1 8 label_8
+lw $t1, 152($sp)
+sw $t1, 12($sp)
+lw $t1, 12($sp)
 sw $t1, 8($sp)
 b label_6
 label_8:
-blt	$t1 6 label_9
-bgt	$t1 6 label_9
-lw $t1, 144($sp)
-sw $t1, 24($sp)
-lw $t1, 24($sp)
+blt	$t1 7 label_9
+bgt	$t1 8 label_9
+lw $t1, 152($sp)
+sw $t1, 16($sp)
+li $a0, 52
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 8
+sw $t1, 0($t0)
+la $t1, Bar_name
+sw $t1, 4($t0)
+li $t1, 13
+sw $t1, 8($t0)
+la $t1, Bar_methods
+sw $t1, 12($t0)
+sw $t0, 20($sp)
+move $t0, $sp
+lw $t1, 20($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bar_init
+sw $a1, 24($sp)
+lw $t1, 20($sp)
 sw $t1, 8($sp)
 b label_6
 label_9:
 b case_no_match_error
 label_6:
-lw $t0, 144($sp)
+lw $t0, 152($sp)
 lw $t1, 8($sp)
 sw $t1, 36($t0)
-lw $t0, 144($sp)
+lw $t0, 152($sp)
 lw $t1, 28($t0)
 sw $t1, 96($sp)
 li $a0, 28
@@ -1070,7 +1126,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 8
+li $t1, 5
 sw $t1, 0($t0)
 la $t1, Bazz_name
 sw $t1, 4($t0)
@@ -1090,7 +1146,7 @@ lw $t2, 12($t1)
 lw $t3, 32($t2)
 jal $t3
 sw $a1, 92($sp)
-lw $t0, 144($sp)
+lw $t0, 152($sp)
 lw $t1, 20($t0)
 sw $t1, 108($sp)
 move $t0, $sp
@@ -1119,7 +1175,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1137,7 +1193,7 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
 sw $a1, 112($sp)
-lw $t0, 144($sp)
+lw $t0, 152($sp)
 lw $t1, 36($t0)
 sw $t1, 120($sp)
 move $t0, $sp
@@ -1166,7 +1222,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1184,11 +1240,25 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
 sw $a1, 124($sp)
+li $a0, 44
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 7
+sw $t1, 0($t0)
+la $t1, Razz_name
+sw $t1, 4($t0)
+li $t1, 11
+sw $t1, 8($t0)
+la $t1, Razz_methods
+sw $t1, 12($t0)
+sw $t0, 132($sp)
 move $t0, $sp
-lw $t1, 144($t0)
+lw $t1, 152($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 144($t0)
+lw $t1, 132($t0)
 la $t0, void
 beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
@@ -1210,7 +1280,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1227,9 +1297,23 @@ lw $t1, 44($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 132($sp)
+sw $a1, 136($sp)
+li $a0, 44
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 7
+sw $t1, 0($t0)
+la $t1, Razz_name
+sw $t1, 4($t0)
+li $t1, 11
+sw $t1, 8($t0)
+la $t1, Razz_methods
+sw $t1, 12($t0)
+sw $t0, 144($sp)
 move $t0, $sp
-lw $t1, 144($t0)
+lw $t1, 152($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 lw $t1, 144($t0)
@@ -1238,11 +1322,11 @@ beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
 lw $t3, 28($t2)
 jal $t3
-sw $a1, 136($sp)
+sw $a1, 140($sp)
 lw $t0, 44($sp)
 lw $t1, 16($t0)
 sw $t1, 36($sp)
-lw $t0, 136($sp)
+lw $t0, 140($sp)
 lw $t1, 16($t0)
 sw $t1, 40($sp)
 lw $a0, 36($sp)
@@ -1254,7 +1338,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1271,19 +1355,19 @@ lw $t1, 28($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 140($sp)
-lw $t0, 144($sp)
+sw $a1, 148($sp)
+lw $t0, 152($sp)
 lw $t1, 28($sp)
 sw $t1, 40($t0)
 lw $ra, 0($sp)
-addi $sp, $sp, 148
+addi $sp, $sp, 156
 jr $ra
 Bazz_init:
-addi $sp, $sp, -64
+addi $sp, $sp, -68
 addi $sp, $sp, -4
 sw $ra, 0($sp)
 move $t0, $sp
-lw $t1, 68($t0)
+lw $t1, 72($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal IO_init
@@ -1294,7 +1378,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1314,25 +1398,33 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
 sw $a1, 16($sp)
-lw $t0, 68($sp)
+lw $t0, 72($sp)
 lw $t1, 8($sp)
 sw $t1, 16($t0)
-lw $t0, 68($sp)
+lw $t0, 72($sp)
 lw $t1, 0($t0)
 la $a0, void
 bne	$t1 $a0 label_11
 b case_void_error
 label_11:
-blt	$t1 7 label_12
-bgt	$t1 7 label_12
-lw $t1, 68($sp)
+blt	$t1 8 label_12
+bgt	$t1 8 label_12
+lw $t1, 72($sp)
 sw $t1, 24($sp)
+lw $t1, 24($sp)
+sw $t1, 20($sp)
+b label_10
+label_12:
+blt	$t1 7 label_13
+bgt	$t1 8 label_13
+lw $t1, 72($sp)
+sw $t1, 28($sp)
 li $a0, 52
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 6
+li $t1, 8
 sw $t1, 0($t0)
 la $t1, Bar_name
 sw $t1, 4($t0)
@@ -1340,21 +1432,21 @@ li $t1, 13
 sw $t1, 8($t0)
 la $t1, Bar_methods
 sw $t1, 12($t0)
-sw $t0, 28($sp)
+sw $t0, 32($sp)
 move $t0, $sp
-lw $t1, 28($t0)
+lw $t1, 32($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bar_init
-sw $a1, 32($sp)
-lw $t1, 28($sp)
+sw $a1, 36($sp)
+lw $t1, 32($sp)
 sw $t1, 20($sp)
 b label_10
-label_12:
-blt	$t1 5 label_13
-bgt	$t1 5 label_13
-lw $t1, 68($sp)
-sw $t1, 36($sp)
+label_13:
+blt	$t1 6 label_14
+bgt	$t1 8 label_14
+lw $t1, 72($sp)
+sw $t1, 40($sp)
 li $a0, 44
 li $v0, 9
 syscall
@@ -1368,27 +1460,27 @@ li $t1, 11
 sw $t1, 8($t0)
 la $t1, Razz_methods
 sw $t1, 12($t0)
-sw $t0, 40($sp)
+sw $t0, 44($sp)
 move $t0, $sp
-lw $t1, 40($t0)
+lw $t1, 44($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Razz_init
-sw $a1, 44($sp)
-lw $t1, 40($sp)
+sw $a1, 48($sp)
+lw $t1, 44($sp)
 sw $t1, 20($sp)
 b label_10
-label_13:
-blt	$t1 8 label_14
-bgt	$t1 8 label_14
-lw $t1, 68($sp)
-sw $t1, 48($sp)
+label_14:
+blt	$t1 5 label_15
+bgt	$t1 8 label_15
+lw $t1, 72($sp)
+sw $t1, 52($sp)
 li $a0, 36
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 5
+li $t1, 6
 sw $t1, 0($t0)
 la $t1, Foo_name
 sw $t1, 4($t0)
@@ -1396,32 +1488,38 @@ li $t1, 9
 sw $t1, 8($t0)
 la $t1, Foo_methods
 sw $t1, 12($t0)
-sw $t0, 52($sp)
+sw $t0, 56($sp)
 move $t0, $sp
-lw $t1, 52($t0)
+lw $t1, 56($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Foo_init
-sw $a1, 56($sp)
-lw $t1, 52($sp)
-sw $t1, 20($sp)
-b label_10
-label_14:
-blt	$t1 6 label_15
-bgt	$t1 6 label_15
-lw $t1, 68($sp)
-sw $t1, 60($sp)
-lw $t1, 60($sp)
+sw $a1, 60($sp)
+lw $t1, 56($sp)
 sw $t1, 20($sp)
 b label_10
 label_15:
 b case_no_match_error
 label_10:
-lw $t0, 68($sp)
+lw $t0, 72($sp)
 lw $t1, 20($sp)
 sw $t1, 20($t0)
+li $a0, 28
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, Bazz_name
+sw $t1, 4($t0)
+li $t1, 7
+sw $t1, 8($t0)
+la $t1, Bazz_methods
+sw $t1, 12($t0)
+sw $t0, 68($sp)
 move $t0, $sp
-lw $t1, 68($t0)
+lw $t1, 72($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 lw $t1, 68($t0)
@@ -1431,27 +1529,41 @@ lw $t2, 12($t1)
 lw $t3, 28($t2)
 jal $t3
 sw $a1, 64($sp)
-lw $t0, 68($sp)
+lw $t0, 72($sp)
 lw $t1, 64($sp)
 sw $t1, 24($t0)
 lw $ra, 0($sp)
-addi $sp, $sp, 72
+addi $sp, $sp, 76
 jr $ra
 Bazz.printh:
-addi $sp, $sp, -20
+addi $sp, $sp, -24
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-lw $t0, 24($sp)
+lw $t0, 28($sp)
 lw $t1, 16($t0)
 sw $t1, 8($sp)
+li $a0, 28
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, Bazz_name
+sw $t1, 4($t0)
+li $t1, 7
+sw $t1, 8($t0)
+la $t1, Bazz_methods
+sw $t1, 12($t0)
+sw $t0, 12($sp)
 move $t0, $sp
 lw $t1, 8($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 24($t0)
+lw $t1, 28($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 24($t0)
+lw $t1, 12($t0)
 la $t0, void
 beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
@@ -1463,7 +1575,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1471,21 +1583,21 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 12($sp)
-li $t0, 0
 sw $t0, 16($sp)
+li $t0, 0
+sw $t0, 20($sp)
 move $t0, $sp
+lw $t1, 20($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
 lw $t1, 16($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 12($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
 jal Int_init
-sw $a1, 20($sp)
-lw $a1, 12($sp)
+sw $a1, 24($sp)
+lw $a1, 16($sp)
 lw $ra, 0($sp)
-addi $sp, $sp, 28
+addi $sp, $sp, 32
 jr $ra
 Bazz.doh:
 addi $sp, $sp, -56
@@ -1504,7 +1616,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1539,7 +1651,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1585,7 +1697,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 8
+li $t1, 5
 sw $t1, 0($t0)
 la $t1, Bazz_name
 sw $t1, 4($t0)
@@ -1608,7 +1720,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 5
+li $t1, 6
 sw $t1, 0($t0)
 la $t1, Foo_name
 sw $t1, 4($t0)
@@ -1654,7 +1766,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 6
+li $t1, 8
 sw $t1, 0($t0)
 la $t1, Bar_name
 sw $t1, 4($t0)
@@ -1686,7 +1798,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)

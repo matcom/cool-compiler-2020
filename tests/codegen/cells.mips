@@ -186,7 +186,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -302,7 +302,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -336,7 +336,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -389,7 +389,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -471,7 +471,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -541,7 +541,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -631,7 +631,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -669,10 +669,10 @@ lw $ra, 0($sp)
 addi $sp, $sp, 16
 jr $ra
 CellularAutomaton.print:
-addi $sp, $sp, -24
+addi $sp, $sp, -28
 addi $sp, $sp, -4
 sw $ra, 0($sp)
-lw $t0, 28($sp)
+lw $t0, 32($sp)
 lw $t1, 16($t0)
 sw $t1, 12($sp)
 la $t0, s_3
@@ -682,7 +682,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -714,11 +714,25 @@ lw $t2, 12($t1)
 lw $t3, 16($t2)
 jal $t3
 sw $a1, 8($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, CellularAutomaton_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, CellularAutomaton_methods
+sw $t1, 12($t0)
+sw $t0, 28($sp)
 move $t0, $sp
 lw $t1, 8($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 28($t0)
+lw $t1, 32($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 lw $t1, 28($t0)
@@ -728,9 +742,9 @@ lw $t2, 12($t1)
 lw $t3, 12($t2)
 jal $t3
 sw $a1, 4($sp)
-lw $a1, 28($sp)
+lw $a1, 32($sp)
 lw $ra, 0($sp)
-addi $sp, $sp, 32
+addi $sp, $sp, 36
 jr $ra
 CellularAutomaton.num_cells:
 addi $sp, $sp, -8
@@ -766,7 +780,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -808,7 +822,7 @@ lw $ra, 0($sp)
 addi $sp, $sp, 32
 jr $ra
 CellularAutomaton.cell_left_neighbor:
-addi $sp, $sp, -112
+addi $sp, $sp, -124
 addi $sp, $sp, -4
 sw $ra, 0($sp)
 li $a0, 20
@@ -816,7 +830,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -836,7 +850,7 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
 sw $a1, 32($sp)
-lw $t0, 120($sp)
+lw $t0, 132($sp)
 lw $t1, 16($t0)
 sw $t1, 16($sp)
 lw $t0, 24($sp)
@@ -877,7 +891,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -897,7 +911,7 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
 sw $a1, 68($sp)
-lw $t0, 120($sp)
+lw $t0, 132($sp)
 lw $t1, 16($t0)
 sw $t1, 52($sp)
 lw $t0, 60($sp)
@@ -912,7 +926,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -930,14 +944,28 @@ addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
 sw $a1, 72($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, CellularAutomaton_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, CellularAutomaton_methods
+sw $t1, 12($t0)
+sw $t0, 76($sp)
 move $t0, $sp
 lw $t1, 44($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 116($t0)
+lw $t1, 128($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 116($t0)
+lw $t1, 76($t0)
 la $t0, void
 beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
@@ -948,23 +976,37 @@ lw $t1, 40($sp)
 sw $t1, 4($sp)
 b label_2
 label_1:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, CellularAutomaton_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, CellularAutomaton_methods
+sw $t1, 12($t0)
+sw $t0, 104($sp)
 move $t0, $sp
-lw $t1, 116($t0)
+lw $t1, 128($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 116($t0)
+lw $t1, 104($t0)
 la $t0, void
 beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
 lw $t3, 36($t2)
 jal $t3
-sw $a1, 96($sp)
+sw $a1, 100($sp)
 li $a0, 20
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -972,34 +1014,34 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 100($sp)
+sw $t0, 108($sp)
 li $t0, 1
-sw $t0, 104($sp)
+sw $t0, 112($sp)
 move $t0, $sp
-lw $t1, 104($t0)
+lw $t1, 112($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 100($t0)
+lw $t1, 108($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 108($sp)
-lw $t0, 96($sp)
-lw $t1, 16($t0)
-sw $t1, 88($sp)
+sw $a1, 116($sp)
 lw $t0, 100($sp)
 lw $t1, 16($t0)
 sw $t1, 92($sp)
-lw $a0, 88($sp)
-lw $t1, 92($sp)
+lw $t0, 108($sp)
+lw $t1, 16($t0)
+sw $t1, 96($sp)
+lw $a0, 92($sp)
+lw $t1, 96($sp)
 sub $a0, $a0, $t1
-sw $a0, 84($sp)
+sw $a0, 88($sp)
 li $a0, 20
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1007,46 +1049,74 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 80($sp)
+sw $t0, 84($sp)
+move $t0, $sp
+lw $t1, 88($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 84($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 120($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, CellularAutomaton_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, CellularAutomaton_methods
+sw $t1, 12($t0)
+sw $t0, 124($sp)
 move $t0, $sp
 lw $t1, 84($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 80($t0)
+lw $t1, 128($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-jal Int_init
-sw $a1, 112($sp)
-move $t0, $sp
-lw $t1, 80($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-lw $t1, 116($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-lw $t1, 116($t0)
+lw $t1, 124($t0)
 la $t0, void
 beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
 lw $t3, 40($t2)
 jal $t3
-sw $a1, 76($sp)
-lw $t1, 76($sp)
+sw $a1, 80($sp)
+lw $t1, 80($sp)
 sw $t1, 4($sp)
 label_2:
 lw $a1, 4($sp)
 lw $ra, 0($sp)
-addi $sp, $sp, 124
+addi $sp, $sp, 136
 jr $ra
 CellularAutomaton.cell_right_neighbor:
-addi $sp, $sp, -112
+addi $sp, $sp, -124
 addi $sp, $sp, -4
 sw $ra, 0($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, CellularAutomaton_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, CellularAutomaton_methods
+sw $t1, 12($t0)
+sw $t0, 44($sp)
 move $t0, $sp
-lw $t1, 116($t0)
+lw $t1, 128($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 116($t0)
+lw $t1, 44($t0)
 la $t0, void
 beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
@@ -1058,7 +1128,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1066,22 +1136,22 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 44($sp)
-li $t0, 1
 sw $t0, 48($sp)
+li $t0, 1
+sw $t0, 52($sp)
 move $t0, $sp
+lw $t1, 52($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
 lw $t1, 48($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 44($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
 jal Int_init
-sw $a1, 52($sp)
+sw $a1, 56($sp)
 lw $t0, 40($sp)
 lw $t1, 16($t0)
 sw $t1, 32($sp)
-lw $t0, 44($sp)
+lw $t0, 48($sp)
 lw $t1, 16($t0)
 sw $t1, 36($sp)
 lw $a0, 32($sp)
@@ -1093,7 +1163,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1110,8 +1180,8 @@ lw $t1, 24($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 56($sp)
-lw $t0, 120($sp)
+sw $a1, 60($sp)
+lw $t0, 132($sp)
 lw $t1, 16($t0)
 sw $t1, 16($sp)
 lw $t0, 24($sp)
@@ -1143,7 +1213,7 @@ lw $t1, 8($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
-sw $a1, 60($sp)
+sw $a1, 64($sp)
 lw $t0, 8($sp)
 lw $a0, 16($t0)
 bnez $a0, label_3
@@ -1152,7 +1222,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1160,34 +1230,34 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 84($sp)
-li $t0, 1
 sw $t0, 88($sp)
+li $t0, 1
+sw $t0, 92($sp)
 move $t0, $sp
+lw $t1, 92($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
 lw $t1, 88($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 84($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
 jal Int_init
-sw $a1, 92($sp)
-lw $t0, 120($sp)
-lw $t1, 16($t0)
-sw $t1, 76($sp)
-lw $t0, 84($sp)
+sw $a1, 96($sp)
+lw $t0, 132($sp)
 lw $t1, 16($t0)
 sw $t1, 80($sp)
-lw $a0, 76($sp)
-lw $t1, 80($sp)
+lw $t0, 88($sp)
+lw $t1, 16($t0)
+sw $t1, 84($sp)
+lw $a0, 80($sp)
+lw $t1, 84($sp)
 add $a0, $a0, $t1
-sw $a0, 72($sp)
+sw $a0, 76($sp)
 li $a0, 20
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1195,31 +1265,45 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 68($sp)
+sw $t0, 72($sp)
+move $t0, $sp
+lw $t1, 76($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 72($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 100($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, CellularAutomaton_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, CellularAutomaton_methods
+sw $t1, 12($t0)
+sw $t0, 104($sp)
 move $t0, $sp
 lw $t1, 72($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 68($t0)
+lw $t1, 128($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-jal Int_init
-sw $a1, 96($sp)
-move $t0, $sp
-lw $t1, 68($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-lw $t1, 116($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-lw $t1, 116($t0)
+lw $t1, 104($t0)
 la $t0, void
 beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
 lw $t3, 40($t2)
 jal $t3
-sw $a1, 64($sp)
-lw $t1, 64($sp)
+sw $a1, 68($sp)
+lw $t1, 68($sp)
 sw $t1, 4($sp)
 b label_4
 label_3:
@@ -1228,7 +1312,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1236,51 +1320,79 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 104($sp)
+sw $t0, 112($sp)
 li $t0, 0
-sw $t0, 108($sp)
+sw $t0, 116($sp)
 move $t0, $sp
-lw $t1, 108($t0)
+lw $t1, 116($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 104($t0)
+lw $t1, 112($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 112($sp)
+sw $a1, 120($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, CellularAutomaton_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, CellularAutomaton_methods
+sw $t1, 12($t0)
+sw $t0, 124($sp)
 move $t0, $sp
-lw $t1, 104($t0)
+lw $t1, 112($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 116($t0)
+lw $t1, 128($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 116($t0)
+lw $t1, 124($t0)
 la $t0, void
 beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
 lw $t3, 40($t2)
 jal $t3
-sw $a1, 100($sp)
-lw $t1, 100($sp)
+sw $a1, 108($sp)
+lw $t1, 108($sp)
 sw $t1, 4($sp)
 label_4:
 lw $a1, 4($sp)
 lw $ra, 0($sp)
-addi $sp, $sp, 124
+addi $sp, $sp, 136
 jr $ra
 CellularAutomaton.cell_at_next_evolution:
-addi $sp, $sp, -292
+addi $sp, $sp, -304
 addi $sp, $sp, -4
 sw $ra, 0($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, CellularAutomaton_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, CellularAutomaton_methods
+sw $t1, 12($t0)
+sw $t0, 80($sp)
 move $t0, $sp
-lw $t1, 300($t0)
+lw $t1, 312($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 296($t0)
+lw $t1, 308($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 296($t0)
+lw $t1, 80($t0)
 la $t0, void
 beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
@@ -1288,13 +1400,13 @@ lw $t3, 40($t2)
 jal $t3
 sw $a1, 76($sp)
 la $t0, s_4
-sw $t0, 80($sp)
+sw $t0, 84($sp)
 li $a0, 20
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -1302,18 +1414,18 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, String_methods
 sw $t1, 12($t0)
-sw $t0, 84($sp)
+sw $t0, 88($sp)
 move $t0, $sp
-lw $t1, 80($t0)
+lw $t1, 84($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 84($t0)
+lw $t1, 88($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_init
-sw $a1, 88($sp)
+sw $a1, 92($sp)
 move $t0, $sp
-lw $t1, 84($t0)
+lw $t1, 88($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 lw $t1, 76($t0)
@@ -1343,7 +1455,7 @@ lw $t1, 60($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
-sw $a1, 92($sp)
+sw $a1, 96($sp)
 lw $t0, 60($sp)
 lw $a0, 16($t0)
 bnez $a0, label_5
@@ -1352,7 +1464,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1360,19 +1472,19 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 96($sp)
-li $t0, 0
 sw $t0, 100($sp)
+li $t0, 0
+sw $t0, 104($sp)
 move $t0, $sp
+lw $t1, 104($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
 lw $t1, 100($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 96($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
 jal Int_init
-sw $a1, 104($sp)
-lw $t1, 96($sp)
+sw $a1, 108($sp)
+lw $t1, 100($sp)
 sw $t1, 56($sp)
 b label_6
 label_5:
@@ -1381,7 +1493,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1389,43 +1501,57 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 108($sp)
-li $t0, 1
 sw $t0, 112($sp)
+li $t0, 1
+sw $t0, 116($sp)
 move $t0, $sp
+lw $t1, 116($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
 lw $t1, 112($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 108($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
 jal Int_init
-sw $a1, 116($sp)
-lw $t1, 108($sp)
+sw $a1, 120($sp)
+lw $t1, 112($sp)
 sw $t1, 56($sp)
 label_6:
-move $t0, $sp
-lw $t1, 300($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-lw $t1, 296($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-lw $t1, 296($t0)
-la $t0, void
-beq $t1, $t0, dispatch_void_error
-lw $t2, 12($t1)
-lw $t3, 44($t2)
-jal $t3
-sw $a1, 140($sp)
-la $t0, s_4
-sw $t0, 144($sp)
 li $a0, 20
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, CellularAutomaton_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, CellularAutomaton_methods
+sw $t1, 12($t0)
+sw $t0, 148($sp)
+move $t0, $sp
+lw $t1, 312($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 308($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 148($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 44($t2)
+jal $t3
+sw $a1, 144($sp)
+la $t0, s_4
+sw $t0, 152($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -1433,25 +1559,25 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, String_methods
 sw $t1, 12($t0)
-sw $t0, 148($sp)
+sw $t0, 156($sp)
 move $t0, $sp
-lw $t1, 144($t0)
+lw $t1, 152($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 148($t0)
+lw $t1, 156($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_init
-sw $a1, 152($sp)
+sw $a1, 160($sp)
 move $t0, $sp
-lw $t1, 148($t0)
+lw $t1, 156($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 140($t0)
+lw $t1, 144($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_equals
-sw $a1, 128($sp)
+sw $a1, 132($sp)
 li $a0, 20
 li $v0, 9
 syscall
@@ -1465,17 +1591,17 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
-sw $t0, 124($sp)
+sw $t0, 128($sp)
 move $t0, $sp
+lw $t1, 132($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
 lw $t1, 128($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 124($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
 jal Bool_init
-sw $a1, 156($sp)
-lw $t0, 124($sp)
+sw $a1, 164($sp)
+lw $t0, 128($sp)
 lw $a0, 16($t0)
 bnez $a0, label_7
 li $a0, 20
@@ -1483,7 +1609,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1491,20 +1617,20 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 160($sp)
+sw $t0, 168($sp)
 li $t0, 0
-sw $t0, 164($sp)
+sw $t0, 172($sp)
 move $t0, $sp
-lw $t1, 164($t0)
+lw $t1, 172($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 160($t0)
+lw $t1, 168($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 168($sp)
-lw $t1, 160($sp)
-sw $t1, 120($sp)
+sw $a1, 176($sp)
+lw $t1, 168($sp)
+sw $t1, 124($sp)
 b label_8
 label_7:
 li $a0, 20
@@ -1512,7 +1638,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1520,25 +1646,25 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 172($sp)
+sw $t0, 180($sp)
 li $t0, 1
-sw $t0, 176($sp)
+sw $t0, 184($sp)
 move $t0, $sp
-lw $t1, 176($t0)
+lw $t1, 184($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 172($t0)
+lw $t1, 180($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 180($sp)
-lw $t1, 172($sp)
-sw $t1, 120($sp)
+sw $a1, 188($sp)
+lw $t1, 180($sp)
+sw $t1, 124($sp)
 label_8:
 lw $t0, 56($sp)
 lw $t1, 16($t0)
 sw $t1, 48($sp)
-lw $t0, 120($sp)
+lw $t0, 124($sp)
 lw $t1, 16($t0)
 sw $t1, 52($sp)
 lw $a0, 48($sp)
@@ -1550,7 +1676,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1567,29 +1693,43 @@ lw $t1, 40($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 184($sp)
-move $t0, $sp
-lw $t1, 300($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-lw $t1, 296($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-lw $t1, 296($t0)
-la $t0, void
-beq $t1, $t0, dispatch_void_error
-lw $t2, 12($t1)
-lw $t3, 48($t2)
-jal $t3
-sw $a1, 208($sp)
-la $t0, s_4
-sw $t0, 212($sp)
+sw $a1, 192($sp)
 li $a0, 20
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, CellularAutomaton_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, CellularAutomaton_methods
+sw $t1, 12($t0)
+sw $t0, 220($sp)
+move $t0, $sp
+lw $t1, 312($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 308($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 220($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 48($t2)
+jal $t3
+sw $a1, 216($sp)
+la $t0, s_4
+sw $t0, 224($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -1597,25 +1737,25 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, String_methods
 sw $t1, 12($t0)
-sw $t0, 216($sp)
+sw $t0, 228($sp)
 move $t0, $sp
-lw $t1, 212($t0)
+lw $t1, 224($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 216($t0)
+lw $t1, 228($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal String_init
-sw $a1, 220($sp)
+sw $a1, 232($sp)
 move $t0, $sp
+lw $t1, 228($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
 lw $t1, 216($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 208($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
 jal String_equals
-sw $a1, 196($sp)
+sw $a1, 204($sp)
 li $a0, 20
 li $v0, 9
 syscall
@@ -1629,17 +1769,17 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
-sw $t0, 192($sp)
+sw $t0, 200($sp)
 move $t0, $sp
-lw $t1, 196($t0)
+lw $t1, 204($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 192($t0)
+lw $t1, 200($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
-sw $a1, 224($sp)
-lw $t0, 192($sp)
+sw $a1, 236($sp)
+lw $t0, 200($sp)
 lw $a0, 16($t0)
 bnez $a0, label_9
 li $a0, 20
@@ -1647,36 +1787,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
-sw $t1, 0($t0)
-la $t1, Int_name
-sw $t1, 4($t0)
-li $t1, 5
-sw $t1, 8($t0)
-la $t1, Int_methods
-sw $t1, 12($t0)
-sw $t0, 228($sp)
-li $t0, 0
-sw $t0, 232($sp)
-move $t0, $sp
-lw $t1, 232($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-lw $t1, 228($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-jal Int_init
-sw $a1, 236($sp)
-lw $t1, 228($sp)
-sw $t1, 188($sp)
-b label_10
-label_9:
-li $a0, 20
-li $v0, 9
-syscall
-bge $v0, $sp heap_error
-move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1685,7 +1796,7 @@ sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
 sw $t0, 240($sp)
-li $t0, 1
+li $t0, 0
 sw $t0, 244($sp)
 move $t0, $sp
 lw $t1, 244($t0)
@@ -1697,12 +1808,41 @@ sw $t1, 0($sp)
 jal Int_init
 sw $a1, 248($sp)
 lw $t1, 240($sp)
-sw $t1, 188($sp)
+sw $t1, 196($sp)
+b label_10
+label_9:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 252($sp)
+li $t0, 1
+sw $t0, 256($sp)
+move $t0, $sp
+lw $t1, 256($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 252($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 260($sp)
+lw $t1, 252($sp)
+sw $t1, 196($sp)
 label_10:
 lw $t0, 40($sp)
 lw $t1, 16($t0)
 sw $t1, 32($sp)
-lw $t0, 188($sp)
+lw $t0, 196($sp)
 lw $t1, 16($t0)
 sw $t1, 36($sp)
 lw $a0, 32($sp)
@@ -1714,7 +1854,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1731,13 +1871,13 @@ lw $t1, 24($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 252($sp)
+sw $a1, 264($sp)
 li $a0, 20
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1745,22 +1885,22 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 256($sp)
+sw $t0, 268($sp)
 li $t0, 1
-sw $t0, 260($sp)
+sw $t0, 272($sp)
 move $t0, $sp
-lw $t1, 260($t0)
+lw $t1, 272($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 256($t0)
+lw $t1, 268($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 264($sp)
+sw $a1, 276($sp)
 lw $t0, 24($sp)
 lw $t1, 16($t0)
 sw $t1, 16($sp)
-lw $t0, 256($sp)
+lw $t0, 268($sp)
 lw $t1, 16($t0)
 sw $t1, 20($sp)
 lw $a0, 16($sp)
@@ -1789,47 +1929,18 @@ lw $t1, 8($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Bool_init
-sw $a1, 268($sp)
+sw $a1, 280($sp)
 lw $t0, 8($sp)
 lw $a0, 16($t0)
 bnez $a0, label_11
 la $t0, s_5
-sw $t0, 272($sp)
-li $a0, 20
-li $v0, 9
-syscall
-bge $v0, $sp heap_error
-move $t0, $v0
-li $t1, 2
-sw $t1, 0($t0)
-la $t1, String_name
-sw $t1, 4($t0)
-li $t1, 5
-sw $t1, 8($t0)
-la $t1, String_methods
-sw $t1, 12($t0)
-sw $t0, 276($sp)
-move $t0, $sp
-lw $t1, 272($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-lw $t1, 276($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-jal String_init
-sw $a1, 280($sp)
-lw $t1, 276($sp)
-sw $t1, 4($sp)
-b label_12
-label_11:
-la $t0, s_4
 sw $t0, 284($sp)
 li $a0, 20
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -1849,13 +1960,42 @@ jal String_init
 sw $a1, 292($sp)
 lw $t1, 288($sp)
 sw $t1, 4($sp)
+b label_12
+label_11:
+la $t0, s_4
+sw $t0, 296($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 300($sp)
+move $t0, $sp
+lw $t1, 296($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 300($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 304($sp)
+lw $t1, 300($sp)
+sw $t1, 4($sp)
 label_12:
 lw $a1, 4($sp)
 lw $ra, 0($sp)
-addi $sp, $sp, 304
+addi $sp, $sp, 316
 jr $ra
 CellularAutomaton.evolve:
-addi $sp, $sp, -128
+addi $sp, $sp, -136
 addi $sp, $sp, -4
 sw $ra, 0($sp)
 li $a0, 20
@@ -1863,7 +2003,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -1885,11 +2025,25 @@ jal Int_init
 sw $a1, 12($sp)
 lw $t1, 4($sp)
 sw $t1, 16($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, CellularAutomaton_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, CellularAutomaton_methods
+sw $t1, 12($t0)
+sw $t0, 24($sp)
 move $t0, $sp
-lw $t1, 132($t0)
+lw $t1, 140($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 132($t0)
+lw $t1, 24($t0)
 la $t0, void
 beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
@@ -1897,13 +2051,13 @@ lw $t3, 36($t2)
 jal $t3
 sw $a1, 20($sp)
 lw $t1, 20($sp)
-sw $t1, 24($sp)
+sw $t1, 28($sp)
 li $a0, 20
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -1911,31 +2065,31 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, String_methods
 sw $t1, 12($t0)
-sw $t0, 28($sp)
-la $t0, empty_str
 sw $t0, 32($sp)
+la $t0, empty_str
+sw $t0, 36($sp)
 move $t0, $sp
+lw $t1, 36($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
 lw $t1, 32($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 28($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
 jal String_init
-sw $a1, 36($sp)
-lw $t1, 28($sp)
-sw $t1, 40($sp)
+sw $a1, 40($sp)
+lw $t1, 32($sp)
+sw $t1, 44($sp)
 label_13:
 lw $t0, 16($sp)
 lw $t1, 16($t0)
-sw $t1, 56($sp)
-lw $t0, 24($sp)
-lw $t1, 16($t0)
 sw $t1, 60($sp)
-lw $a0, 56($sp)
-lw $t1, 60($sp)
+lw $t0, 28($sp)
+lw $t1, 16($t0)
+sw $t1, 64($sp)
+lw $a0, 60($sp)
+lw $t1, 64($sp)
 slt $a0, $a0, $t1
-sw $a0, 52($sp)
+sw $a0, 56($sp)
 li $a0, 20
 li $v0, 9
 syscall
@@ -1949,57 +2103,71 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Bool_methods
 sw $t1, 12($t0)
-sw $t0, 48($sp)
+sw $t0, 52($sp)
 move $t0, $sp
+lw $t1, 56($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
 lw $t1, 52($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 48($t0)
-addi $sp, $sp, -4
-sw $t1, 0($sp)
 jal Bool_init
-sw $a1, 64($sp)
-lw $t0, 48($sp)
+sw $a1, 68($sp)
+lw $t0, 52($sp)
 lw $a0, 16($t0)
 bnez $a0, label_14
 b label_15
 label_14:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, CellularAutomaton_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, CellularAutomaton_methods
+sw $t1, 12($t0)
+sw $t0, 80($sp)
 move $t0, $sp
 lw $t1, 16($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 132($t0)
+lw $t1, 140($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 132($t0)
+lw $t1, 80($t0)
 la $t0, void
 beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
 lw $t3, 52($t2)
 jal $t3
-sw $a1, 72($sp)
+sw $a1, 76($sp)
 move $t0, $sp
-lw $t1, 72($t0)
+lw $t1, 76($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 40($t0)
+lw $t1, 44($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 40($t0)
+lw $t1, 44($t0)
 la $t0, void
 beq $t1, $t0, dispatch_void_error
 lw $t2, 12($t1)
 lw $t3, 16($t2)
 jal $t3
-sw $a1, 68($sp)
-lw $t1, 68($sp)
-sw $t1, 40($sp)
+sw $a1, 72($sp)
+lw $t1, 72($sp)
+sw $t1, 44($sp)
 li $a0, 20
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -2007,34 +2175,34 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 96($sp)
+sw $t0, 104($sp)
 li $t0, 1
-sw $t0, 100($sp)
+sw $t0, 108($sp)
 move $t0, $sp
-lw $t1, 100($t0)
+lw $t1, 108($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 96($t0)
+lw $t1, 104($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 104($sp)
+sw $a1, 112($sp)
 lw $t0, 16($sp)
 lw $t1, 16($t0)
-sw $t1, 88($sp)
-lw $t0, 96($sp)
+sw $t1, 96($sp)
+lw $t0, 104($sp)
 lw $t1, 16($t0)
-sw $t1, 92($sp)
-lw $a0, 88($sp)
-lw $t1, 92($sp)
+sw $t1, 100($sp)
+lw $a0, 96($sp)
+lw $t1, 100($sp)
 add $a0, $a0, $t1
-sw $a0, 84($sp)
+sw $a0, 92($sp)
 li $a0, 20
 li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -2042,32 +2210,32 @@ li $t1, 5
 sw $t1, 8($t0)
 la $t1, Int_methods
 sw $t1, 12($t0)
-sw $t0, 80($sp)
+sw $t0, 88($sp)
 move $t0, $sp
-lw $t1, 84($t0)
+lw $t1, 92($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
-lw $t1, 80($t0)
+lw $t1, 88($t0)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
 jal Int_init
-sw $a1, 108($sp)
-lw $t1, 80($sp)
+sw $a1, 116($sp)
+lw $t1, 88($sp)
 sw $t1, 16($sp)
 b label_13
 label_15:
-lw $t0, 132($sp)
-lw $t1, 40($sp)
+lw $t0, 140($sp)
+lw $t1, 44($sp)
 sw $t1, 16($t0)
-lw $t1, 132($sp)
-sw $t1, 120($sp)
-lw $t1, 120($sp)
-sw $t1, 124($sp)
-lw $t1, 124($sp)
+lw $t1, 140($sp)
 sw $t1, 128($sp)
-lw $a1, 128($sp)
+lw $t1, 128($sp)
+sw $t1, 132($sp)
+lw $t1, 132($sp)
+sw $t1, 136($sp)
+lw $a1, 136($sp)
 lw $ra, 0($sp)
-addi $sp, $sp, 136
+addi $sp, $sp, 144
 jr $ra
 Main_init:
 addi $sp, $sp, -4
@@ -2117,7 +2285,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 2
+li $t1, 1
 sw $t1, 0($t0)
 la $t1, String_name
 sw $t1, 4($t0)
@@ -2171,7 +2339,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -2199,7 +2367,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -2290,7 +2458,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)
@@ -2325,7 +2493,7 @@ li $v0, 9
 syscall
 bge $v0, $sp heap_error
 move $t0, $v0
-li $t1, 4
+li $t1, 2
 sw $t1, 0($t0)
 la $t1, Int_name
 sw $t1, 4($t0)

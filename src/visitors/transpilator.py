@@ -79,6 +79,8 @@ class codeVisitor:
         self.label_count = 0
         self.count = ''
         # self.scope = scope
+        # tag context types
+        self.context.tag_types()
         self.context.set_type_tags()
         self.context.set_type_max_tags()
     
@@ -352,7 +354,7 @@ class codeVisitor:
     
     @visitor.when(ProgramNode)
     def visit(self, node, scope, sscope):
-        
+
         if not scope: 
             scope = ScopeCIL()
             
@@ -399,7 +401,13 @@ class codeVisitor:
 
         # dynamic_type = 'Void'
         self.count += expr_value + '\n'
-        self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, self.current_type.name, expr_value))
+
+        static_instance = self.define_internal_local(scope=scope, name='static_instance')
+        # print(self.current_type.name, self.context.get_type(self.current_type.name).tag)
+        # assert False, "Stop"
+        self.register_instruction(AllocateNodeIL(self.current_type.name, self.context.get_type(self.current_type.name).tag ,static_instance))
+        
+        self.register_instruction(DynamicCallNodeIL(result_local, node.id, call_args, self.current_type.name, static_instance))
         
         return result_local
     
@@ -723,17 +731,20 @@ class codeVisitor:
         tag_lst = []
         option_dict = {}
         for option, c_scp in zip(node.case_list, nscope.children):
-            tag = self.context.get_type(option.typex).name
+            tag = self.context.get_type(option.typex).tag
             tag_lst.append( (tag, c_scp) )
             option_dict[tag] = option
         tag_lst.sort()
 
+        # print (tag_lst)
+        # assert False, "Stop"
+
         for t, c_scp in reversed(tag_lst):
             option = option_dict[t]
-            option_type = self.context.get_type(option.typex) 
             self.register_instruction(LabelNodeIL(label))
             label = self.get_label()
-
+            
+            option_type = self.context.get_type(option.typex) 
             #changes
             # print(option_type.name)
             # if option_type.name != 'Object'
