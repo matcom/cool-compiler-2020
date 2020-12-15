@@ -1,0 +1,4454 @@
+.data
+dispatch_void: .asciiz "Runtime Error: A dispatch (static or dynamic) on void"
+case_void: .asciiz "Runtime Error: A case on void"
+case_no_match: .asciiz "Runtime Error: Execution of a case statement without a matching branch"
+div_zero: .asciiz "Runtime Error: Division by zero"
+substr: .asciiz "Runtime Error: Substring out of range"
+heap: .asciiz "Runtime Error: Heap overflow"
+temp_string: .space 2048
+void: .word 0
+Object_name: .asciiz "Object"
+Object_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+Int_name: .asciiz "Int"
+Int_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+String_name: .asciiz "String"
+String_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+.word String.length
+.word String.concat
+.word String.substr
+Bool_name: .asciiz "Bool"
+Bool_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+IO_name: .asciiz "IO"
+IO_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+.word IO.out_string
+.word IO.out_int
+.word IO.in_string
+.word IO.in_int
+A2I_name: .asciiz "A2I"
+A2I_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+.word A2I.c2i
+.word A2I.i2c
+.word A2I.a2i
+.word A2I.a2i_aux
+.word A2I.i2a
+.word A2I.i2a_aux
+Main_name: .asciiz "Main"
+Main_methods:
+.word Object.abort
+.word Object.type_name
+.word Object.copy
+.word IO.out_string
+.word IO.out_int
+.word IO.in_string
+.word IO.in_int
+.word Main.main
+s_0: .asciiz "Abort called from class "
+s_1: .asciiz "
+"
+empty_str: .asciiz ""
+s_3: .asciiz "0"
+s_4: .asciiz "1"
+s_5: .asciiz "2"
+s_6: .asciiz "3"
+s_7: .asciiz "4"
+s_8: .asciiz "5"
+s_9: .asciiz "6"
+s_10: .asciiz "7"
+s_11: .asciiz "8"
+s_12: .asciiz "9"
+s_13: .asciiz "-"
+s_14: .asciiz "+"
+s_15: .asciiz "678987"
+s_16: .asciiz " == "
+s_17: .asciiz "\n"
+.text
+dispatch_void_error:
+la $a0 dispatch_void
+li $v0, 4
+syscall
+li $v0, 10
+syscall
+case_void_error:
+la $a0 case_void
+li $v0, 4
+syscall
+li $v0, 10
+syscall
+case_no_match_error:
+la $a0 case_no_match
+li $v0, 4
+syscall
+li $v0, 10
+syscall
+div_zero_error:
+la $a0 div_zero
+li $v0, 4
+syscall
+li $v0, 10
+syscall
+substr_error:
+la $a0 substr
+li $v0, 4
+syscall
+li $v0, 10
+syscall
+heap_error:
+la $a0 heap
+li $v0, 4
+syscall
+li $v0, 10
+syscall
+main:
+addi $sp, $sp, -8
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+li $a0, 16
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 5
+sw $t1, 0($t0)
+la $t1, Main_name
+sw $t1, 4($t0)
+li $t1, 4
+sw $t1, 8($t0)
+la $t1, Main_methods
+sw $t1, 12($t0)
+sw $t0, 4($sp)
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Main_init
+sw $a1, 8($sp)
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Main.main
+sw $a1, 8($sp)
+move $a1, $zero
+lw $ra, 0($sp)
+addi $sp, $sp, 12
+jr $ra
+Object_init:
+addi $sp, $sp, 0
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+move $a1, $zero
+lw $ra, 0($sp)
+addi $sp, $sp, 8
+jr $ra
+Object.abort:
+addi $sp, $sp, -12
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+la $t0, s_0
+sw $t0, 4($sp)
+lw $a0, 4($sp)
+li $v0, 4
+syscall
+lw $t0, 16($sp)
+lw $t1, 4($t0)
+sw $t1, 8($sp)
+lw $a0, 8($sp)
+li $v0, 4
+syscall
+la $t0, s_1
+sw $t0, 12($sp)
+lw $a0, 12($sp)
+li $v0, 4
+syscall
+li $v0, 10
+syscall
+lw $ra, 0($sp)
+addi $sp, $sp, 20
+jr $ra
+Object.type_name:
+addi $sp, $sp, -12
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 16($sp)
+lw $t1, 4($t0)
+sw $t1, 4($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 12($sp)
+lw $a1, 8($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 20
+jr $ra
+Object.copy:
+addi $sp, $sp, -4
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 8($sp)
+lw $a0, 8($t0)
+mul $a0, $a0, 4
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t1, $v0
+li $a0, 0
+lw $t3, 8($t0)
+copy_object_word:
+lw $t2, 0($t0)
+sw $t2, 0($t1)
+addi $t0, $t0, 4
+addi $t1, $t1, 4
+addi $a0, $a0, 1
+blt $a0, $t3, copy_object_word
+sw $v0, 4($sp)
+lw $a1, 4($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 12
+jr $ra
+IO_init:
+addi $sp, $sp, 0
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+move $a1, $zero
+lw $ra, 0($sp)
+addi $sp, $sp, 8
+jr $ra
+IO.out_string:
+addi $sp, $sp, -4
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 12($sp)
+lw $t1, 16($t0)
+sw $t1, 4($sp)
+lw $a0, 4($sp)
+li $v0, 4
+syscall
+lw $a1, 8($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 16
+jr $ra
+IO.out_int:
+addi $sp, $sp, -4
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 12($sp)
+lw $t1, 16($t0)
+sw $t1, 4($sp)
+li $v0 , 1
+lw $a0 , 4($sp)
+syscall
+lw $a1, 8($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 16
+jr $ra
+IO.in_string:
+addi $sp, $sp, -12
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+la $a0, temp_string
+li $a1, 2048
+li $v0, 8
+syscall
+move $t0, $a0
+jump_read_str_char:
+li $t1, 0
+lb $t1, 0($t0)
+beqz $t1, analize_str_end
+addi $t0, $t0, 1
+j jump_read_str_char
+analize_str_end:
+addi $t0, $t0, -1
+li $t1, 0
+lb $t1, 0($t0)
+bne $t1, 10, finish_jump_read_str_char
+sb $0, 0($t0)
+addi $t0, $t0, -1
+lb $t1, 0($t0)
+bne $t1, 13, finish_jump_read_str_char
+sb $0, 0($t0)
+j analize_str_end
+finish_jump_read_str_char:
+sw $a0, 4($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 12($sp)
+lw $a1, 8($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 20
+jr $ra
+IO.in_int:
+addi $sp, $sp, -12
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+li $v0, 5
+syscall
+sw $v0, 4($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 12($sp)
+lw $a1, 8($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 20
+jr $ra
+String_init:
+addi $sp, $sp, 0
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 4($sp)
+lw $t1, 8($sp)
+sw $t1, 16($t0)
+move $a1, $zero
+lw $ra, 0($sp)
+addi $sp, $sp, 12
+jr $ra
+String.length:
+addi $sp, $sp, -12
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 16($sp)
+lw $t0, 16($t0)
+li $a0, 0
+count_char:
+lb $t1, 0($t0)
+beqz $t1, finish_chars_count
+addi $t0, $t0, 1
+addi $a0, $a0, 1
+j count_char
+finish_chars_count:
+sw $a0, 4($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 4($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 12($sp)
+lw $a1, 8($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 20
+jr $ra
+String.concat:
+addi $sp, $sp, -36
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 40($sp)
+lw $t1, 16($t0)
+sw $t1, 4($sp)
+move $t0, $sp
+lw $t1, 40($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String.length
+sw $a1, 8($sp)
+lw $t0, 44($sp)
+lw $t1, 16($t0)
+sw $t1, 12($sp)
+move $t0, $sp
+lw $t1, 44($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String.length
+sw $a1, 16($sp)
+lw $t0, 8($sp)
+lw $t1, 16($t0)
+sw $t1, 20($sp)
+lw $t0, 16($sp)
+lw $t1, 16($t0)
+sw $t1, 24($sp)
+lw $a0, 20($sp)
+lw $t0, 24($sp)
+add $a0, $a0, $t0
+addi $a0, $a0, 1
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t3, $v0
+lw $t0, 4($sp)
+lw $t1, 12($sp)
+copy_arg1_char:
+lb $t2, 0($t0)
+sb $t2, 0($v0)
+beqz $t2, concat_arg2_char
+addi $t0, $t0, 1
+addi $v0, $v0, 1
+j copy_arg1_char
+concat_arg2_char:
+lb $t2, 0($t1)
+sb $t2, 0($v0)
+beqz $t2, finish_arg2_concat
+addi $t1, $t1, 1
+addi $v0, $v0, 1
+j concat_arg2_char
+finish_arg2_concat:
+sb $0, ($v0)
+sw $t3, 28($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 32($sp)
+move $t0, $sp
+lw $t1, 28($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 32($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 36($sp)
+lw $a1, 32($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 48
+jr $ra
+String.substr:
+addi $sp, $sp, -20
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 28($sp)
+lw $t1, 16($t0)
+sw $t1, 4($sp)
+lw $t0, 32($sp)
+lw $t1, 16($t0)
+sw $t1, 8($sp)
+lw $a0, 8($sp)
+addi $a0, $a0, 1
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+lw $t0, 4($sp)
+lw $t1, 8($sp)
+lw $t4, 24($sp)
+lw $t2, 16($t4)
+bltz $t0, substr_error
+li $a0, 0
+jump_str_char:
+beq $a0, $t0, finish_index_jump
+addi $a0, $a0, 1
+addi $t2, $t2, 1
+beq $t2, $zero, substr_error
+j jump_str_char
+finish_index_jump:
+li $a0, 0
+move $t3, $v0
+copy_substr_char:
+beq $a0, $t1 finish_substr_copy
+li $t0, 0
+lb $t0, 0($t2)
+sb $t0, 0($v0)
+addi $t2, $t2, 1
+beq $t2, $zero, substr_error
+addi $v0, $v0, 1
+addi $a0, $a0, 1
+j copy_substr_char
+finish_substr_copy:
+sb $0, ($v0)
+sw $t3, 12($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 16($sp)
+move $t0, $sp
+lw $t1, 12($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 16($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 20($sp)
+lw $a1, 16($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 36
+jr $ra
+Bool_init:
+addi $sp, $sp, 0
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 4($sp)
+lw $t1, 8($sp)
+sw $t1, 16($t0)
+move $a1, $zero
+lw $ra, 0($sp)
+addi $sp, $sp, 12
+jr $ra
+Int_init:
+addi $sp, $sp, 0
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 4($sp)
+lw $t1, 8($sp)
+sw $t1, 16($t0)
+move $a1, $zero
+lw $ra, 0($sp)
+addi $sp, $sp, 12
+jr $ra
+String_equals:
+addi $sp, $sp, -12
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+lw $t0, 16($sp)
+lw $t1, 16($t0)
+sw $t1, 4($sp)
+lw $t0, 20($sp)
+lw $t1, 16($t0)
+sw $t1, 8($sp)
+lw $t1, 4($sp)
+lw $t2, 8($sp)
+compare_str_char:
+li $t3, 0
+lb $t3, 0($t1)
+li $t4, 0
+lb $t4, 0($t2)
+seq $a0, $t3, $t4
+beqz $a0, finish_compare_str
+beqz $t3, finish_compare_str
+beqz $t4, finish_compare_str
+addi $t1, $t1, 1
+addi $t2, $t2, 1
+j compare_str_char
+finish_compare_str:
+sw $a0, 12($sp)
+lw $a1, 12($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 24
+jr $ra
+A2I_init:
+addi $sp, $sp, -4
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+move $t0, $sp
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Object_init
+sw $a1, 4($sp)
+move $a1, $zero
+lw $ra, 0($sp)
+addi $sp, $sp, 12
+jr $ra
+A2I.c2i:
+addi $sp, $sp, -496
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+la $t0, s_3
+sw $t0, 24($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 28($sp)
+move $t0, $sp
+lw $t1, 24($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 28($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 32($sp)
+move $t0, $sp
+lw $t1, 28($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 504($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 12($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 12($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 36($sp)
+lw $t0, 8($sp)
+lw $a0, 16($t0)
+bnez $a0, label_1
+la $t0, s_4
+sw $t0, 60($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 64($sp)
+move $t0, $sp
+lw $t1, 60($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 64($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 68($sp)
+move $t0, $sp
+lw $t1, 64($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 504($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 48($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 44($sp)
+move $t0, $sp
+lw $t1, 48($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 44($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 72($sp)
+lw $t0, 44($sp)
+lw $a0, 16($t0)
+bnez $a0, label_2
+la $t0, s_5
+sw $t0, 96($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 100($sp)
+move $t0, $sp
+lw $t1, 96($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 100($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 104($sp)
+move $t0, $sp
+lw $t1, 100($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 504($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 84($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 80($sp)
+move $t0, $sp
+lw $t1, 84($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 80($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 108($sp)
+lw $t0, 80($sp)
+lw $a0, 16($t0)
+bnez $a0, label_3
+la $t0, s_6
+sw $t0, 132($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 136($sp)
+move $t0, $sp
+lw $t1, 132($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 136($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 140($sp)
+move $t0, $sp
+lw $t1, 136($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 504($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 120($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 116($sp)
+move $t0, $sp
+lw $t1, 120($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 116($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 144($sp)
+lw $t0, 116($sp)
+lw $a0, 16($t0)
+bnez $a0, label_4
+la $t0, s_7
+sw $t0, 168($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 172($sp)
+move $t0, $sp
+lw $t1, 168($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 172($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 176($sp)
+move $t0, $sp
+lw $t1, 172($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 504($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 156($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 152($sp)
+move $t0, $sp
+lw $t1, 156($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 152($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 180($sp)
+lw $t0, 152($sp)
+lw $a0, 16($t0)
+bnez $a0, label_5
+la $t0, s_8
+sw $t0, 204($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 208($sp)
+move $t0, $sp
+lw $t1, 204($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 208($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 212($sp)
+move $t0, $sp
+lw $t1, 208($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 504($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 192($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 188($sp)
+move $t0, $sp
+lw $t1, 192($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 188($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 216($sp)
+lw $t0, 188($sp)
+lw $a0, 16($t0)
+bnez $a0, label_6
+la $t0, s_9
+sw $t0, 240($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 244($sp)
+move $t0, $sp
+lw $t1, 240($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 244($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 248($sp)
+move $t0, $sp
+lw $t1, 244($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 504($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 228($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 224($sp)
+move $t0, $sp
+lw $t1, 228($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 224($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 252($sp)
+lw $t0, 224($sp)
+lw $a0, 16($t0)
+bnez $a0, label_7
+la $t0, s_10
+sw $t0, 276($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 280($sp)
+move $t0, $sp
+lw $t1, 276($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 280($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 284($sp)
+move $t0, $sp
+lw $t1, 280($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 504($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 264($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 260($sp)
+move $t0, $sp
+lw $t1, 264($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 260($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 288($sp)
+lw $t0, 260($sp)
+lw $a0, 16($t0)
+bnez $a0, label_8
+la $t0, s_11
+sw $t0, 312($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 316($sp)
+move $t0, $sp
+lw $t1, 312($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 316($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 320($sp)
+move $t0, $sp
+lw $t1, 316($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 504($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 300($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 296($sp)
+move $t0, $sp
+lw $t1, 300($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 296($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 324($sp)
+lw $t0, 296($sp)
+lw $a0, 16($t0)
+bnez $a0, label_9
+la $t0, s_12
+sw $t0, 348($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 352($sp)
+move $t0, $sp
+lw $t1, 348($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 352($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 356($sp)
+move $t0, $sp
+lw $t1, 352($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 504($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 336($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 332($sp)
+move $t0, $sp
+lw $t1, 336($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 332($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 360($sp)
+lw $t0, 332($sp)
+lw $a0, 16($t0)
+bnez $a0, label_10
+move $t0, $sp
+lw $t1, 500($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 500($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 0($t2)
+jal $t3
+sw $a1, 364($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 368($sp)
+li $t0, 0
+sw $t0, 372($sp)
+move $t0, $sp
+lw $t1, 372($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 368($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 376($sp)
+lw $t1, 368($sp)
+sw $t1, 328($sp)
+b label_11
+label_10:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 380($sp)
+li $t0, 9
+sw $t0, 384($sp)
+move $t0, $sp
+lw $t1, 384($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 380($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 388($sp)
+lw $t1, 380($sp)
+sw $t1, 328($sp)
+label_11:
+lw $t1, 328($sp)
+sw $t1, 292($sp)
+b label_12
+label_9:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 392($sp)
+li $t0, 8
+sw $t0, 396($sp)
+move $t0, $sp
+lw $t1, 396($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 392($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 400($sp)
+lw $t1, 392($sp)
+sw $t1, 292($sp)
+label_12:
+lw $t1, 292($sp)
+sw $t1, 256($sp)
+b label_13
+label_8:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 404($sp)
+li $t0, 7
+sw $t0, 408($sp)
+move $t0, $sp
+lw $t1, 408($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 404($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 412($sp)
+lw $t1, 404($sp)
+sw $t1, 256($sp)
+label_13:
+lw $t1, 256($sp)
+sw $t1, 220($sp)
+b label_14
+label_7:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 416($sp)
+li $t0, 6
+sw $t0, 420($sp)
+move $t0, $sp
+lw $t1, 420($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 416($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 424($sp)
+lw $t1, 416($sp)
+sw $t1, 220($sp)
+label_14:
+lw $t1, 220($sp)
+sw $t1, 184($sp)
+b label_15
+label_6:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 428($sp)
+li $t0, 5
+sw $t0, 432($sp)
+move $t0, $sp
+lw $t1, 432($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 428($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 436($sp)
+lw $t1, 428($sp)
+sw $t1, 184($sp)
+label_15:
+lw $t1, 184($sp)
+sw $t1, 148($sp)
+b label_16
+label_5:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 440($sp)
+li $t0, 4
+sw $t0, 444($sp)
+move $t0, $sp
+lw $t1, 444($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 440($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 448($sp)
+lw $t1, 440($sp)
+sw $t1, 148($sp)
+label_16:
+lw $t1, 148($sp)
+sw $t1, 112($sp)
+b label_17
+label_4:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 452($sp)
+li $t0, 3
+sw $t0, 456($sp)
+move $t0, $sp
+lw $t1, 456($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 452($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 460($sp)
+lw $t1, 452($sp)
+sw $t1, 112($sp)
+label_17:
+lw $t1, 112($sp)
+sw $t1, 76($sp)
+b label_18
+label_3:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 464($sp)
+li $t0, 2
+sw $t0, 468($sp)
+move $t0, $sp
+lw $t1, 468($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 464($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 472($sp)
+lw $t1, 464($sp)
+sw $t1, 76($sp)
+label_18:
+lw $t1, 76($sp)
+sw $t1, 40($sp)
+b label_19
+label_2:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 476($sp)
+li $t0, 1
+sw $t0, 480($sp)
+move $t0, $sp
+lw $t1, 480($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 476($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 484($sp)
+lw $t1, 476($sp)
+sw $t1, 40($sp)
+label_19:
+lw $t1, 40($sp)
+sw $t1, 4($sp)
+b label_20
+label_1:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 488($sp)
+li $t0, 0
+sw $t0, 492($sp)
+move $t0, $sp
+lw $t1, 492($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 488($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 496($sp)
+lw $t1, 488($sp)
+sw $t1, 4($sp)
+label_20:
+lw $a1, 4($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 508
+jr $ra
+A2I.i2c:
+addi $sp, $sp, -496
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 24($sp)
+li $t0, 0
+sw $t0, 28($sp)
+move $t0, $sp
+lw $t1, 28($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 24($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 32($sp)
+lw $t0, 504($sp)
+lw $t1, 16($t0)
+sw $t1, 16($sp)
+lw $t0, 24($sp)
+lw $t1, 16($t0)
+sw $t1, 20($sp)
+lw $a0, 16($sp)
+lw $t1, 20($sp)
+seq $a0, $a0, $t1
+sw $a0, 12($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 12($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 36($sp)
+lw $t0, 8($sp)
+lw $a0, 16($t0)
+bnez $a0, label_21
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 60($sp)
+li $t0, 1
+sw $t0, 64($sp)
+move $t0, $sp
+lw $t1, 64($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 60($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 68($sp)
+lw $t0, 504($sp)
+lw $t1, 16($t0)
+sw $t1, 52($sp)
+lw $t0, 60($sp)
+lw $t1, 16($t0)
+sw $t1, 56($sp)
+lw $a0, 52($sp)
+lw $t1, 56($sp)
+seq $a0, $a0, $t1
+sw $a0, 48($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 44($sp)
+move $t0, $sp
+lw $t1, 48($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 44($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 72($sp)
+lw $t0, 44($sp)
+lw $a0, 16($t0)
+bnez $a0, label_22
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 96($sp)
+li $t0, 2
+sw $t0, 100($sp)
+move $t0, $sp
+lw $t1, 100($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 96($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 104($sp)
+lw $t0, 504($sp)
+lw $t1, 16($t0)
+sw $t1, 88($sp)
+lw $t0, 96($sp)
+lw $t1, 16($t0)
+sw $t1, 92($sp)
+lw $a0, 88($sp)
+lw $t1, 92($sp)
+seq $a0, $a0, $t1
+sw $a0, 84($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 80($sp)
+move $t0, $sp
+lw $t1, 84($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 80($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 108($sp)
+lw $t0, 80($sp)
+lw $a0, 16($t0)
+bnez $a0, label_23
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 132($sp)
+li $t0, 3
+sw $t0, 136($sp)
+move $t0, $sp
+lw $t1, 136($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 132($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 140($sp)
+lw $t0, 504($sp)
+lw $t1, 16($t0)
+sw $t1, 124($sp)
+lw $t0, 132($sp)
+lw $t1, 16($t0)
+sw $t1, 128($sp)
+lw $a0, 124($sp)
+lw $t1, 128($sp)
+seq $a0, $a0, $t1
+sw $a0, 120($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 116($sp)
+move $t0, $sp
+lw $t1, 120($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 116($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 144($sp)
+lw $t0, 116($sp)
+lw $a0, 16($t0)
+bnez $a0, label_24
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 168($sp)
+li $t0, 4
+sw $t0, 172($sp)
+move $t0, $sp
+lw $t1, 172($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 168($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 176($sp)
+lw $t0, 504($sp)
+lw $t1, 16($t0)
+sw $t1, 160($sp)
+lw $t0, 168($sp)
+lw $t1, 16($t0)
+sw $t1, 164($sp)
+lw $a0, 160($sp)
+lw $t1, 164($sp)
+seq $a0, $a0, $t1
+sw $a0, 156($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 152($sp)
+move $t0, $sp
+lw $t1, 156($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 152($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 180($sp)
+lw $t0, 152($sp)
+lw $a0, 16($t0)
+bnez $a0, label_25
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 204($sp)
+li $t0, 5
+sw $t0, 208($sp)
+move $t0, $sp
+lw $t1, 208($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 204($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 212($sp)
+lw $t0, 504($sp)
+lw $t1, 16($t0)
+sw $t1, 196($sp)
+lw $t0, 204($sp)
+lw $t1, 16($t0)
+sw $t1, 200($sp)
+lw $a0, 196($sp)
+lw $t1, 200($sp)
+seq $a0, $a0, $t1
+sw $a0, 192($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 188($sp)
+move $t0, $sp
+lw $t1, 192($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 188($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 216($sp)
+lw $t0, 188($sp)
+lw $a0, 16($t0)
+bnez $a0, label_26
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 240($sp)
+li $t0, 6
+sw $t0, 244($sp)
+move $t0, $sp
+lw $t1, 244($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 240($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 248($sp)
+lw $t0, 504($sp)
+lw $t1, 16($t0)
+sw $t1, 232($sp)
+lw $t0, 240($sp)
+lw $t1, 16($t0)
+sw $t1, 236($sp)
+lw $a0, 232($sp)
+lw $t1, 236($sp)
+seq $a0, $a0, $t1
+sw $a0, 228($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 224($sp)
+move $t0, $sp
+lw $t1, 228($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 224($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 252($sp)
+lw $t0, 224($sp)
+lw $a0, 16($t0)
+bnez $a0, label_27
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 276($sp)
+li $t0, 7
+sw $t0, 280($sp)
+move $t0, $sp
+lw $t1, 280($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 276($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 284($sp)
+lw $t0, 504($sp)
+lw $t1, 16($t0)
+sw $t1, 268($sp)
+lw $t0, 276($sp)
+lw $t1, 16($t0)
+sw $t1, 272($sp)
+lw $a0, 268($sp)
+lw $t1, 272($sp)
+seq $a0, $a0, $t1
+sw $a0, 264($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 260($sp)
+move $t0, $sp
+lw $t1, 264($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 260($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 288($sp)
+lw $t0, 260($sp)
+lw $a0, 16($t0)
+bnez $a0, label_28
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 312($sp)
+li $t0, 8
+sw $t0, 316($sp)
+move $t0, $sp
+lw $t1, 316($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 312($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 320($sp)
+lw $t0, 504($sp)
+lw $t1, 16($t0)
+sw $t1, 304($sp)
+lw $t0, 312($sp)
+lw $t1, 16($t0)
+sw $t1, 308($sp)
+lw $a0, 304($sp)
+lw $t1, 308($sp)
+seq $a0, $a0, $t1
+sw $a0, 300($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 296($sp)
+move $t0, $sp
+lw $t1, 300($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 296($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 324($sp)
+lw $t0, 296($sp)
+lw $a0, 16($t0)
+bnez $a0, label_29
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 348($sp)
+li $t0, 9
+sw $t0, 352($sp)
+move $t0, $sp
+lw $t1, 352($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 348($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 356($sp)
+lw $t0, 504($sp)
+lw $t1, 16($t0)
+sw $t1, 340($sp)
+lw $t0, 348($sp)
+lw $t1, 16($t0)
+sw $t1, 344($sp)
+lw $a0, 340($sp)
+lw $t1, 344($sp)
+seq $a0, $a0, $t1
+sw $a0, 336($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 332($sp)
+move $t0, $sp
+lw $t1, 336($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 332($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 360($sp)
+lw $t0, 332($sp)
+lw $a0, 16($t0)
+bnez $a0, label_30
+move $t0, $sp
+lw $t1, 500($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 500($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 0($t2)
+jal $t3
+sw $a1, 364($sp)
+la $t0, empty_str
+sw $t0, 368($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 372($sp)
+move $t0, $sp
+lw $t1, 368($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 372($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 376($sp)
+lw $t1, 372($sp)
+sw $t1, 328($sp)
+b label_31
+label_30:
+la $t0, s_12
+sw $t0, 380($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 384($sp)
+move $t0, $sp
+lw $t1, 380($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 384($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 388($sp)
+lw $t1, 384($sp)
+sw $t1, 328($sp)
+label_31:
+lw $t1, 328($sp)
+sw $t1, 292($sp)
+b label_32
+label_29:
+la $t0, s_11
+sw $t0, 392($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 396($sp)
+move $t0, $sp
+lw $t1, 392($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 396($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 400($sp)
+lw $t1, 396($sp)
+sw $t1, 292($sp)
+label_32:
+lw $t1, 292($sp)
+sw $t1, 256($sp)
+b label_33
+label_28:
+la $t0, s_10
+sw $t0, 404($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 408($sp)
+move $t0, $sp
+lw $t1, 404($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 408($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 412($sp)
+lw $t1, 408($sp)
+sw $t1, 256($sp)
+label_33:
+lw $t1, 256($sp)
+sw $t1, 220($sp)
+b label_34
+label_27:
+la $t0, s_9
+sw $t0, 416($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 420($sp)
+move $t0, $sp
+lw $t1, 416($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 420($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 424($sp)
+lw $t1, 420($sp)
+sw $t1, 220($sp)
+label_34:
+lw $t1, 220($sp)
+sw $t1, 184($sp)
+b label_35
+label_26:
+la $t0, s_8
+sw $t0, 428($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 432($sp)
+move $t0, $sp
+lw $t1, 428($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 432($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 436($sp)
+lw $t1, 432($sp)
+sw $t1, 184($sp)
+label_35:
+lw $t1, 184($sp)
+sw $t1, 148($sp)
+b label_36
+label_25:
+la $t0, s_7
+sw $t0, 440($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 444($sp)
+move $t0, $sp
+lw $t1, 440($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 444($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 448($sp)
+lw $t1, 444($sp)
+sw $t1, 148($sp)
+label_36:
+lw $t1, 148($sp)
+sw $t1, 112($sp)
+b label_37
+label_24:
+la $t0, s_6
+sw $t0, 452($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 456($sp)
+move $t0, $sp
+lw $t1, 452($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 456($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 460($sp)
+lw $t1, 456($sp)
+sw $t1, 112($sp)
+label_37:
+lw $t1, 112($sp)
+sw $t1, 76($sp)
+b label_38
+label_23:
+la $t0, s_5
+sw $t0, 464($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 468($sp)
+move $t0, $sp
+lw $t1, 464($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 468($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 472($sp)
+lw $t1, 468($sp)
+sw $t1, 76($sp)
+label_38:
+lw $t1, 76($sp)
+sw $t1, 40($sp)
+b label_39
+label_22:
+la $t0, s_4
+sw $t0, 476($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 480($sp)
+move $t0, $sp
+lw $t1, 476($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 480($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 484($sp)
+lw $t1, 480($sp)
+sw $t1, 40($sp)
+label_39:
+lw $t1, 40($sp)
+sw $t1, 4($sp)
+b label_40
+label_21:
+la $t0, s_3
+sw $t0, 488($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 492($sp)
+move $t0, $sp
+lw $t1, 488($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 492($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 496($sp)
+lw $t1, 492($sp)
+sw $t1, 4($sp)
+label_40:
+lw $a1, 4($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 508
+jr $ra
+A2I.a2i:
+addi $sp, $sp, -312
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+move $t0, $sp
+lw $t1, 320($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 320($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 12($t2)
+jal $t3
+sw $a1, 24($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 28($sp)
+li $t0, 0
+sw $t0, 32($sp)
+move $t0, $sp
+lw $t1, 32($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 28($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 36($sp)
+lw $t0, 24($sp)
+lw $t1, 16($t0)
+sw $t1, 16($sp)
+lw $t0, 28($sp)
+lw $t1, 16($t0)
+sw $t1, 20($sp)
+lw $a0, 16($sp)
+lw $t1, 20($sp)
+seq $a0, $a0, $t1
+sw $a0, 12($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 12($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 40($sp)
+lw $t0, 8($sp)
+lw $a0, 16($t0)
+bnez $a0, label_41
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 68($sp)
+li $t0, 1
+sw $t0, 72($sp)
+move $t0, $sp
+lw $t1, 72($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 68($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 76($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 80($sp)
+li $t0, 0
+sw $t0, 84($sp)
+move $t0, $sp
+lw $t1, 84($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 80($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 88($sp)
+move $t0, $sp
+lw $t1, 68($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 80($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 320($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 320($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 20($t2)
+jal $t3
+sw $a1, 64($sp)
+la $t0, s_13
+sw $t0, 92($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 96($sp)
+move $t0, $sp
+lw $t1, 92($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 96($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 100($sp)
+move $t0, $sp
+lw $t1, 96($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 64($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 52($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 48($sp)
+move $t0, $sp
+lw $t1, 52($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 48($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 104($sp)
+lw $t0, 48($sp)
+lw $a0, 16($t0)
+bnez $a0, label_42
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 132($sp)
+li $t0, 1
+sw $t0, 136($sp)
+move $t0, $sp
+lw $t1, 136($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 132($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 140($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 144($sp)
+li $t0, 0
+sw $t0, 148($sp)
+move $t0, $sp
+lw $t1, 148($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 144($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 152($sp)
+move $t0, $sp
+lw $t1, 132($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 144($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 320($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 320($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 20($t2)
+jal $t3
+sw $a1, 128($sp)
+la $t0, s_14
+sw $t0, 156($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 160($sp)
+move $t0, $sp
+lw $t1, 156($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 160($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 164($sp)
+move $t0, $sp
+lw $t1, 160($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 128($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_equals
+sw $a1, 116($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 112($sp)
+move $t0, $sp
+lw $t1, 116($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 112($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 168($sp)
+lw $t0, 112($sp)
+lw $a0, 16($t0)
+bnez $a0, label_43
+move $t0, $sp
+lw $t1, 320($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 316($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 316($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 24($t2)
+jal $t3
+sw $a1, 172($sp)
+lw $t1, 172($sp)
+sw $t1, 108($sp)
+b label_44
+label_43:
+move $t0, $sp
+lw $t1, 320($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 320($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 12($t2)
+jal $t3
+sw $a1, 200($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 204($sp)
+li $t0, 1
+sw $t0, 208($sp)
+move $t0, $sp
+lw $t1, 208($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 204($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 212($sp)
+lw $t0, 200($sp)
+lw $t1, 16($t0)
+sw $t1, 192($sp)
+lw $t0, 204($sp)
+lw $t1, 16($t0)
+sw $t1, 196($sp)
+lw $a0, 192($sp)
+lw $t1, 196($sp)
+sub $a0, $a0, $t1
+sw $a0, 188($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 184($sp)
+move $t0, $sp
+lw $t1, 188($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 184($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 216($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 220($sp)
+li $t0, 1
+sw $t0, 224($sp)
+move $t0, $sp
+lw $t1, 224($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 220($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 228($sp)
+move $t0, $sp
+lw $t1, 184($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 220($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 320($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 320($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 20($t2)
+jal $t3
+sw $a1, 180($sp)
+move $t0, $sp
+lw $t1, 180($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 316($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 316($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 24($t2)
+jal $t3
+sw $a1, 176($sp)
+lw $t1, 176($sp)
+sw $t1, 108($sp)
+label_44:
+lw $t1, 108($sp)
+sw $t1, 44($sp)
+b label_45
+label_42:
+move $t0, $sp
+lw $t1, 320($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 320($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 12($t2)
+jal $t3
+sw $a1, 268($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 272($sp)
+li $t0, 1
+sw $t0, 276($sp)
+move $t0, $sp
+lw $t1, 276($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 272($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 280($sp)
+lw $t0, 268($sp)
+lw $t1, 16($t0)
+sw $t1, 260($sp)
+lw $t0, 272($sp)
+lw $t1, 16($t0)
+sw $t1, 264($sp)
+lw $a0, 260($sp)
+lw $t1, 264($sp)
+sub $a0, $a0, $t1
+sw $a0, 256($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 252($sp)
+move $t0, $sp
+lw $t1, 256($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 252($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 284($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 288($sp)
+li $t0, 1
+sw $t0, 292($sp)
+move $t0, $sp
+lw $t1, 292($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 288($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 296($sp)
+move $t0, $sp
+lw $t1, 252($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 288($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 320($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 320($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 20($t2)
+jal $t3
+sw $a1, 248($sp)
+move $t0, $sp
+lw $t1, 248($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 316($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 316($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 24($t2)
+jal $t3
+sw $a1, 244($sp)
+lw $t0, 244($sp)
+lw $t1, 16($t0)
+sw $t1, 240($sp)
+lw $t1, 240($sp)
+neg $a0, $t1 
+sw $a0, 236($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 232($sp)
+move $t0, $sp
+lw $t1, 236($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 232($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 300($sp)
+lw $t1, 232($sp)
+sw $t1, 44($sp)
+label_45:
+lw $t1, 44($sp)
+sw $t1, 4($sp)
+b label_46
+label_41:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 304($sp)
+li $t0, 0
+sw $t0, 308($sp)
+move $t0, $sp
+lw $t1, 308($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 304($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 312($sp)
+lw $t1, 304($sp)
+sw $t1, 4($sp)
+label_46:
+lw $a1, 4($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 324
+jr $ra
+A2I.a2i_aux:
+addi $sp, $sp, -188
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 4($sp)
+li $t0, 0
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 4($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 12($sp)
+lw $t1, 4($sp)
+sw $t1, 16($sp)
+move $t0, $sp
+lw $t1, 196($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 196($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 12($t2)
+jal $t3
+sw $a1, 20($sp)
+lw $t1, 20($sp)
+sw $t1, 24($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 28($sp)
+li $t0, 0
+sw $t0, 32($sp)
+move $t0, $sp
+lw $t1, 32($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 28($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 36($sp)
+lw $t1, 28($sp)
+sw $t1, 40($sp)
+label_47:
+lw $t0, 40($sp)
+lw $t1, 16($t0)
+sw $t1, 56($sp)
+lw $t0, 24($sp)
+lw $t1, 16($t0)
+sw $t1, 60($sp)
+lw $a0, 56($sp)
+lw $t1, 60($sp)
+slt $a0, $a0, $t1
+sw $a0, 52($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 48($sp)
+move $t0, $sp
+lw $t1, 52($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 48($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 64($sp)
+lw $t0, 48($sp)
+lw $a0, 16($t0)
+bnez $a0, label_48
+b label_49
+label_48:
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 100($sp)
+li $t0, 10
+sw $t0, 104($sp)
+move $t0, $sp
+lw $t1, 104($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 100($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 108($sp)
+lw $t0, 16($sp)
+lw $t1, 16($t0)
+sw $t1, 92($sp)
+lw $t0, 100($sp)
+lw $t1, 16($t0)
+sw $t1, 96($sp)
+lw $a0, 92($sp)
+lw $t1, 96($sp)
+mul $a0, $a0, $t1
+sw $a0, 88($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 84($sp)
+move $t0, $sp
+lw $t1, 88($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 84($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 112($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 124($sp)
+li $t0, 1
+sw $t0, 128($sp)
+move $t0, $sp
+lw $t1, 128($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 124($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 132($sp)
+move $t0, $sp
+lw $t1, 124($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 40($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 196($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 196($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 20($t2)
+jal $t3
+sw $a1, 120($sp)
+move $t0, $sp
+lw $t1, 120($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 192($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 192($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 12($t2)
+jal $t3
+sw $a1, 116($sp)
+lw $t0, 84($sp)
+lw $t1, 16($t0)
+sw $t1, 76($sp)
+lw $t0, 116($sp)
+lw $t1, 16($t0)
+sw $t1, 80($sp)
+lw $a0, 76($sp)
+lw $t1, 80($sp)
+add $a0, $a0, $t1
+sw $a0, 72($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 68($sp)
+move $t0, $sp
+lw $t1, 72($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 68($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 136($sp)
+lw $t1, 68($sp)
+sw $t1, 16($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 160($sp)
+li $t0, 1
+sw $t0, 164($sp)
+move $t0, $sp
+lw $t1, 164($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 160($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 168($sp)
+lw $t0, 40($sp)
+lw $t1, 16($t0)
+sw $t1, 152($sp)
+lw $t0, 160($sp)
+lw $t1, 16($t0)
+sw $t1, 156($sp)
+lw $a0, 152($sp)
+lw $t1, 156($sp)
+add $a0, $a0, $t1
+sw $a0, 148($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 144($sp)
+move $t0, $sp
+lw $t1, 148($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 144($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 172($sp)
+lw $t1, 144($sp)
+sw $t1, 40($sp)
+b label_47
+label_49:
+lw $t1, 44($sp)
+sw $t1, 180($sp)
+lw $t1, 180($sp)
+sw $t1, 184($sp)
+lw $t1, 16($sp)
+sw $t1, 188($sp)
+lw $a1, 188($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 200
+jr $ra
+A2I.i2a:
+addi $sp, $sp, -156
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 24($sp)
+li $t0, 0
+sw $t0, 28($sp)
+move $t0, $sp
+lw $t1, 28($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 24($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 32($sp)
+lw $t0, 164($sp)
+lw $t1, 16($t0)
+sw $t1, 16($sp)
+lw $t0, 24($sp)
+lw $t1, 16($t0)
+sw $t1, 20($sp)
+lw $a0, 16($sp)
+lw $t1, 20($sp)
+seq $a0, $a0, $t1
+sw $a0, 12($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 12($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 36($sp)
+lw $t0, 8($sp)
+lw $a0, 16($t0)
+bnez $a0, label_50
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 60($sp)
+li $t0, 0
+sw $t0, 64($sp)
+move $t0, $sp
+lw $t1, 64($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 60($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 68($sp)
+lw $t0, 60($sp)
+lw $t1, 16($t0)
+sw $t1, 52($sp)
+lw $t0, 164($sp)
+lw $t1, 16($t0)
+sw $t1, 56($sp)
+lw $a0, 52($sp)
+lw $t1, 56($sp)
+slt $a0, $a0, $t1
+sw $a0, 48($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 44($sp)
+move $t0, $sp
+lw $t1, 48($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 44($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 72($sp)
+lw $t0, 44($sp)
+lw $a0, 16($t0)
+bnez $a0, label_51
+la $t0, s_13
+sw $t0, 80($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 84($sp)
+move $t0, $sp
+lw $t1, 80($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 84($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 88($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 124($sp)
+li $t0, 1
+sw $t0, 128($sp)
+move $t0, $sp
+lw $t1, 128($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 124($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 132($sp)
+lw $t0, 124($sp)
+lw $t1, 16($t0)
+sw $t1, 120($sp)
+lw $t1, 120($sp)
+neg $a0, $t1 
+sw $a0, 116($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 112($sp)
+move $t0, $sp
+lw $t1, 116($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 112($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 136($sp)
+lw $t0, 164($sp)
+lw $t1, 16($t0)
+sw $t1, 104($sp)
+lw $t0, 112($sp)
+lw $t1, 16($t0)
+sw $t1, 108($sp)
+lw $a0, 104($sp)
+lw $t1, 108($sp)
+mul $a0, $a0, $t1
+sw $a0, 100($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 96($sp)
+move $t0, $sp
+lw $t1, 100($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 96($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 140($sp)
+move $t0, $sp
+lw $t1, 96($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 160($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 160($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 32($t2)
+jal $t3
+sw $a1, 92($sp)
+move $t0, $sp
+lw $t1, 92($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 84($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 84($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 16($t2)
+jal $t3
+sw $a1, 76($sp)
+lw $t1, 76($sp)
+sw $t1, 40($sp)
+b label_52
+label_51:
+move $t0, $sp
+lw $t1, 164($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 160($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 160($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 32($t2)
+jal $t3
+sw $a1, 144($sp)
+lw $t1, 144($sp)
+sw $t1, 40($sp)
+label_52:
+lw $t1, 40($sp)
+sw $t1, 4($sp)
+b label_53
+label_50:
+la $t0, s_3
+sw $t0, 148($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 152($sp)
+move $t0, $sp
+lw $t1, 148($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 152($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 156($sp)
+lw $t1, 152($sp)
+sw $t1, 4($sp)
+label_53:
+lw $a1, 4($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 168
+jr $ra
+A2I.i2a_aux:
+addi $sp, $sp, -152
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 24($sp)
+li $t0, 0
+sw $t0, 28($sp)
+move $t0, $sp
+lw $t1, 28($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 24($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 32($sp)
+lw $t0, 160($sp)
+lw $t1, 16($t0)
+sw $t1, 16($sp)
+lw $t0, 24($sp)
+lw $t1, 16($t0)
+sw $t1, 20($sp)
+lw $a0, 16($sp)
+lw $t1, 20($sp)
+seq $a0, $a0, $t1
+sw $a0, 12($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 3
+sw $t1, 0($t0)
+la $t1, Bool_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Bool_methods
+sw $t1, 12($t0)
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 12($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Bool_init
+sw $a1, 36($sp)
+lw $t0, 8($sp)
+lw $a0, 16($t0)
+bnez $a0, label_54
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 56($sp)
+li $t0, 10
+sw $t0, 60($sp)
+move $t0, $sp
+lw $t1, 60($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 56($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 64($sp)
+lw $t0, 160($sp)
+lw $t1, 16($t0)
+sw $t1, 48($sp)
+lw $t0, 56($sp)
+lw $t1, 16($t0)
+sw $t1, 52($sp)
+lw $a0, 48($sp)
+lw $t1, 52($sp)
+beq $t1, 0, div_zero_error
+div $a0, $a0, $t1
+sw $a0, 44($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 40($sp)
+move $t0, $sp
+lw $t1, 44($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 40($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 68($sp)
+lw $t1, 40($sp)
+sw $t1, 72($sp)
+move $t0, $sp
+lw $t1, 72($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 156($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 156($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 32($t2)
+jal $t3
+sw $a1, 80($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 120($sp)
+li $t0, 10
+sw $t0, 124($sp)
+move $t0, $sp
+lw $t1, 124($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 120($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 128($sp)
+lw $t0, 72($sp)
+lw $t1, 16($t0)
+sw $t1, 112($sp)
+lw $t0, 120($sp)
+lw $t1, 16($t0)
+sw $t1, 116($sp)
+lw $a0, 112($sp)
+lw $t1, 116($sp)
+mul $a0, $a0, $t1
+sw $a0, 108($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 104($sp)
+move $t0, $sp
+lw $t1, 108($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 104($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 132($sp)
+lw $t0, 160($sp)
+lw $t1, 16($t0)
+sw $t1, 96($sp)
+lw $t0, 104($sp)
+lw $t1, 16($t0)
+sw $t1, 100($sp)
+lw $a0, 96($sp)
+lw $t1, 100($sp)
+sub $a0, $a0, $t1
+sw $a0, 92($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 88($sp)
+move $t0, $sp
+lw $t1, 92($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 88($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 136($sp)
+move $t0, $sp
+lw $t1, 88($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 156($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 156($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 16($t2)
+jal $t3
+sw $a1, 84($sp)
+move $t0, $sp
+lw $t1, 84($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 80($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 80($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 16($t2)
+jal $t3
+sw $a1, 76($sp)
+lw $t1, 76($sp)
+sw $t1, 140($sp)
+lw $t1, 140($sp)
+sw $t1, 4($sp)
+b label_55
+label_54:
+la $t0, empty_str
+sw $t0, 144($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 148($sp)
+move $t0, $sp
+lw $t1, 144($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 148($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 152($sp)
+lw $t1, 148($sp)
+sw $t1, 4($sp)
+label_55:
+lw $a1, 4($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 164
+jr $ra
+Main_init:
+addi $sp, $sp, -4
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+move $t0, $sp
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal IO_init
+sw $a1, 4($sp)
+move $a1, $zero
+lw $ra, 0($sp)
+addi $sp, $sp, 12
+jr $ra
+Main.main:
+addi $sp, $sp, -100
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+li $a0, 16
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 6
+sw $t1, 0($t0)
+la $t1, A2I_name
+sw $t1, 4($t0)
+li $t1, 4
+sw $t1, 8($t0)
+la $t1, A2I_methods
+sw $t1, 12($t0)
+sw $t0, 8($sp)
+move $t0, $sp
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal A2I_init
+sw $a1, 12($sp)
+la $t0, s_15
+sw $t0, 16($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 20($sp)
+move $t0, $sp
+lw $t1, 16($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 20($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 24($sp)
+move $t0, $sp
+lw $t1, 20($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 8($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 20($t2)
+jal $t3
+sw $a1, 4($sp)
+lw $t1, 4($sp)
+sw $t1, 28($sp)
+li $a0, 16
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 6
+sw $t1, 0($t0)
+la $t1, A2I_name
+sw $t1, 4($t0)
+li $t1, 4
+sw $t1, 8($t0)
+la $t1, A2I_methods
+sw $t1, 12($t0)
+sw $t0, 36($sp)
+move $t0, $sp
+lw $t1, 36($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal A2I_init
+sw $a1, 40($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 2
+sw $t1, 0($t0)
+la $t1, Int_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, Int_methods
+sw $t1, 12($t0)
+sw $t0, 44($sp)
+li $t0, 678987
+sw $t0, 48($sp)
+move $t0, $sp
+lw $t1, 48($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 44($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal Int_init
+sw $a1, 52($sp)
+move $t0, $sp
+lw $t1, 44($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 36($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 36($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 28($t2)
+jal $t3
+sw $a1, 32($sp)
+lw $t1, 32($sp)
+sw $t1, 56($sp)
+move $t0, $sp
+lw $t1, 28($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 104($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 104($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 16($t2)
+jal $t3
+sw $a1, 60($sp)
+la $t0, s_16
+sw $t0, 68($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 72($sp)
+move $t0, $sp
+lw $t1, 68($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 72($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 76($sp)
+move $t0, $sp
+lw $t1, 72($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 104($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 104($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 12($t2)
+jal $t3
+sw $a1, 64($sp)
+move $t0, $sp
+lw $t1, 56($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 104($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 104($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 12($t2)
+jal $t3
+sw $a1, 80($sp)
+la $t0, s_17
+sw $t0, 88($sp)
+li $a0, 20
+li $v0, 9
+syscall
+bge $v0, $sp heap_error
+move $t0, $v0
+li $t1, 1
+sw $t1, 0($t0)
+la $t1, String_name
+sw $t1, 4($t0)
+li $t1, 5
+sw $t1, 8($t0)
+la $t1, String_methods
+sw $t1, 12($t0)
+sw $t0, 92($sp)
+move $t0, $sp
+lw $t1, 88($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 92($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+jal String_init
+sw $a1, 96($sp)
+move $t0, $sp
+lw $t1, 92($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 104($t0)
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+lw $t1, 104($t0)
+la $t0, void
+beq $t1, $t0, dispatch_void_error
+lw $t2, 12($t1)
+lw $t3, 12($t2)
+jal $t3
+sw $a1, 84($sp)
+lw $t1, 84($sp)
+sw $t1, 100($sp)
+lw $a1, 100($sp)
+lw $ra, 0($sp)
+addi $sp, $sp, 108
+jr $ra

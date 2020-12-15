@@ -1,0 +1,1 @@
+from .coolparser import CoolParser

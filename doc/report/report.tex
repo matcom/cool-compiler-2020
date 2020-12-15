@@ -1,0 +1,199 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Journal Article
+% LaTeX Template
+% Version 1.4 (15/5/16)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com) with extensive modifications by
+% Vel (vel@LaTeXTemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass{article}
+
+\usepackage{blindtext} % Package to generate dummy text throughout this template 
+
+\usepackage[sc]{mathpazo} % Use the Palatino font
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\linespread{1.05} % Line spacing - Palatino needs more space between lines
+\usepackage{microtype} % Slightly tweak font spacing for aesthetics
+
+\usepackage[english]{babel} % Language hyphenation and typographical rules
+
+\usepackage[hmarginratio=1:1,top=32mm,columnsep=20pt]{geometry} % Document margins
+\usepackage[hang, small,labelfont=bf,up,textfont=it,up]{caption} % Custom captions under/above floats in tables or figures
+\usepackage{booktabs} % Horizontal rules in tables
+
+\usepackage{lettrine} % The lettrine is the first enlarged letter at the beginning of the text
+
+\usepackage{enumitem} % Customized lists
+\setlist[itemize]{noitemsep} % Make itemize lists more compact
+
+\usepackage{abstract} % Allows abstract customization
+\renewcommand{\abstractnamefont}{\normalfont\bfseries} % Set the "Abstract" text to bold
+\renewcommand{\abstracttextfont}{\normalfont\small\itshape} % Set the abstract itself to small italic text
+
+\usepackage{titlesec} % Allows customization of titles
+\titleformat{\section}[block]{\large\scshape\centering}{\thesection.}{1em}{} % Change the look of the section titles
+\titleformat{\subsection}[block]{\large\scshape\centering}{\thesubsection.}{1em}{} % Change the look of the section titles
+
+\usepackage{fancyhdr} % Headers and footers
+\pagestyle{fancy} % All pages have headers and footers
+\fancyhead{} % Blank out the default header
+\fancyfoot{} % Blank out the default footer
+\fancyfoot[RO,LE]{\thepage} % Custom footer text
+
+\usepackage{titling} % Customizing the title section
+\usepackage{listings}
+\usepackage{hyperref} % For hyperlinks in the PDF
+
+%listings definitions
+\lstset{language=Python}
+\lstset{frame=lines}
+\lstset{basicstyle=\footnotesize}
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\setlength{\droptitle}{-4\baselineskip} % Move the title up
+
+\pretitle{\begin{center}\Huge\bfseries} % Article title formatting
+\posttitle{\end{center}} % Article title closing formatting
+\title{Reporte de Compilaci\'on} % Article title
+\author{%
+\textsc{Oscar Luis Hernandez Solano}\\ % Your name
+\textsc{Harold Rosales Hernandez} \\ % Second author's name
+\textsc{Carlos Rafael Ortega Lezcano}
+%\normalsize University of Utah \\ % Second author's institution
+%\normalsize \href{mailto:jane@smith.com}{jane@smith.com} % Second author's email address
+}
+\date{Grupo - C411} % Leave empty to omit a date
+\renewcommand{\maketitlehookd}{%
+}
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+% Print the title
+\maketitle
+
+%----------------------------------------------------------------------------------------
+%	ARTICLE CONTENTS
+%----------------------------------------------------------------------------------------
+
+\section{Uso del Compilador}
+
+Para instalar todas las dependencias del compilador se debe emplear el archivo \verb|requirements.txt|, y la instalaci\'on debe ser mediante pip haciendo: \verb|pip install -r requirements.txt|. Para ejecutar el compilador se debe estar en la carpeta \verb|./src| y ejecutar el \verb|cool.sh| recibiendo como entrada la direcci\'on del archivo \verb|.cl| a compilar. En caso que no tenga forma de correr el archivo \verb|.sh|, entonces puede ejecutarse usando el archivo principal del compilador \verb|main.py|, es requerido \verb|Python 3| para correr el compilador: \verb|python3 main.py <path>| donde \verb|<path>| es la direcci\'on del archivo a compilar
+
+\section{Estructura del Compilador}
+
+El compilador se divide en tres partes fundamentales, an\'alisis lexicogr\'afico y sint\'activo, an\'alisis sem\'antico y generaci\'on de c\'odigo. En este apartado estaremos hablando de la estructura de cada uno y finalmente como se combinan para formar el proceso de compilaci\'on. Todas las estructuras que veremos, tanto como el Lexer, Parser y los distintos Visitors implementados heredan de \verb|State|, esta clase define un estado del pipeline que controla la ejecuci\'on de cada parte del compilador, se encarga de registrar los errores ocurridos y detener la ejecuci\'on para reportarlos, su definici\'on se encuentra en \verb|src/pipeline/|, cada estado define una funci\'on \verb|run| que maneja la entrada que puede venir desde otro estado o ser la entrada del pipeline, realiza las operaciones correspondientes y pasa los resultados al pr\'oximo estado.
+
+\subsection{An\'alisis Lexicogr\'afico y Sint\'actico}
+
+Esta parte del compilador se compone por dos procesos, primero se tokeniza la entrada y luego se construye el AST que representa el programa de entrada. Para dividir la entrada en tokens se empleo \verb|ply|, empleando las funcionalidades que brinda este se defini\'o nuestro \verb|Lexer| para los programas escritos en Cool este es \verb|CoolLexer| (algunas caracter\'isticas de su implementaci\'on ser\'an abordadas m\'as adelante), este recibe la informaci\'on desde el \verb|Reader|, el cual lee el archivo especificado en la entrada, generando as\'i una lista de tokens (los tokens definidos para el Lexer se encuentran en \verb|parsing.md|), estos ser\'an la entrada para el proceso de parsing.\\
+
+Para describir el conjunto de programas que pueden ser escritos en Cool se defini\'o una gram\'atica LR basada en la que se encuentra en \cite{1} (la gram\'atica puede consultarse en \verb|parsing.md|), esta es ambigua, lo cual podemos notar f\'acilmente si vemos las producciones asociadas a las expresiones de Cool, pero mediante el uso de las caracter\'isticas de \verb|ply.yacc| podemos resolver los problemas de ambig\"uedad y obtener una gr\'amatica m\'as compacta y simple de leer. El proceso de parsing resulta en el AST que describe el programa de Cool que recibimos como entrada. El AST tiene como nodo base \verb|ASTNode|, a partir de este empezamos a establecer la jerarqu\'ia, encontramos los nodos de declaraci\'on, el nodo de programa y un extenso conjunto de nodos que corresponden a las expresiones, las cuales son mayoria en Cool (los nodos del AST se definen dentro \verb|./src/cl_ast|, se puede ver la jerarqu\'ia del AST en \verb|parsing.md|)
+
+\subsection{An\'alisis Sem\'antico}
+
+Luego que tenemos un AST correcto, no hay errores l\'exicos y sint\'acticos, podemos pasar a comprobar la si es correcta la sem\'antica del programa, para ello emplearemos el \textit{patr\'on visitor}, este permite separar los algoritmos de comprobaci\'on de sem\'antica de la estructura del AST, ya sea recolectar los tipos presentes o definir las variables en el scope correspondiente, de esta forma podemos separar el proceso sem\'antico en diversas fases m\'as simples y enfocadas algunas en nodos en particulas como es el caso de la recolecci\'on de tipos. La definci\'on base de un visitor en Python se encuentra en \verb|./src/visitors/visitor.py|. Como herramientas auxiliares para conocer la informaci\'on de los tipos y variables que intervien se definen dos estructuras \verb|Context| y \verb|Scope|, en este \'ultimo se compone por \verb|ClassScope| y \verb|InnerScope|. Los tipos definidos se representan por \verb|Type|, para cada tipo puede definirse sus atributos y m\'etodos mediante \verb|define_attribute| y \verb|define_method| (la definici\'on de tipo y los tipos por defecto de Cool se encuentran en \verb|./src/semantic/types.py|)
+
+\begin{enumerate}
+	\item [] \textbf{Context}: El context maneja todas los tipos que intervienen en el programa, adem\'as de los que ya est\'an definidos por defecto para un programa de Cool. Permite que se defina un nuevo \textbf{Type} adem\'as que podemos consultar los tipos definidos.
+	
+	\item[] \textbf{Scope}: Para la creaci\'on de un scope es necesario tener definido ya un context. El scope contiene aquellos atributos y variables que aparecen en el programa. Esta compuesto por:
+		\begin{enumerate}
+			\item[] \textbf{ClassScope}: El scope del programa tendr\'a un ClassScope para cada clase definida, este contiene para la clase que representa, el valor de \verb|self|, los atributos y m\'etodos de esta, para cada atributo o m\'etodo se define un nuevo scope anidado que es \verb|InnerScope|\\
+		
+			\item[] \textbf{InnerScope}: Cada ClassScope contiene tantos InnerScope como definici\'on de m\'etodos o atributos contenga, este contiene las variables definidas y referenciadas en la definici\'on de estos, existen expresiones de como \textit{let} las cuales definen variables por lo tanto un InnerScope tendr\'a anidados m\'as scopes. 
+		\end{enumerate}
+\end{enumerate}
+
+Para guardar informaci\'on en las estructuras anteriores es necesario realizar diversos recorridos al AST, a continuaci\'on se explican por orden de aplicaci\'on:
+
+\begin{enumerate}
+	\item[] \textbf{TypeCollector}: Este visitor se encarga de recolectar los tipos que se definen en el programa, detecta la existencia de tipos definidos con igual nombre, este pasa al siguiente visitor un context con todos los tipos.
+	
+	\item[] \textbf{TypeBuilder}: Este visitor construye los tipos recolectados y establece las relaciones de herencia entre estos, se compone de dos partes, el \textbf{Builder} que se encarga de a\~nadir las definiciones de atributos y m\'etodos a los tipos recolectados y detectar errores asociados, luego el \textbf{InheritBuilder} se encarga de establecer los padres de forma adecuada para cada tipo, comprobar la redefinicion de atributos y m\'etodos y detectar herencia c\'iclica. 
+	
+	\item[] \textbf{VarCollector}: Este visitor construye el scope para las expresiones de los atributos y para el cuerpo de las funciones, emplea el scope para definir variables asociada con su tipo, detecta declaraciones repetidas de variables, referencias a variables no declaradas, entre otros.
+	
+	\item[] \textbf{TypeChecker}: Este constituye la fase final del an\'alisis, se encarga de comprobar la correctitud de las expresiones y los tipos que las componen, detecta errores de incompatibilidad de tipos a la ahora de asignar expresiones, errores sem\'anticos en diversas expresiones como \verb|if|, \verb|let|, entre otras, adem\'as anota en el context los tipos din\'amicos asociados a las distintas expresiones que aparecen en el programa
+\end{enumerate}
+
+\subsection{Generaci\'on de C\'odigo}
+
+Esta fase del compilador la vamos a analizar en dos etapas distintas: generaci\'on de c\'odigo
+intermedio y generaci\'on de c\'odigo en c\'odigo de m\'aquina (MIPS), en la primera procesar el AST, el
+scope y el context obtenidos de las fases anteriores, para obtener una secuencia de pasos para un IL
+equivalente al código de un programa de COOL, la otra etapa sería luego de obtener un codigo en
+IL generar la secuencia de instrucciones a un lenguaje de bajo nivel (MIPS).
+
+\begin{enumerate}
+	\item[] \textbf{Cool $\rightarrow$ IL}: El m\'odulo correspondiente a este proceso se encuentra \verb|transpilator.py| en la carpeta visitors. Se defini\'o un modelo de IL personalizado que dista un poco de los IL convencionales, pero hacerlo de esta manera nos permiti\'o eliminar algunas estructuras complejas de llevar a bajo nivel como por ejemplo: let o case. Se implement\'o una jerarqu\'ia de nodos de tipo IL similar a la de los anteriormente definida para los nodos del AST, cabe destacar que no se genera un AST de IL como tal sino una secuencia bien defnida del orden de sus operaciones, dicha implementaci\'on esta en el m\'odulo \verb|nodes_il| en la carpeta de \verb|code_generation|. Se definieron tambien m\'odulos auxiliares como \verb|virtual_table.py| y \verb|variable.py|, en los que se procesan los resultado del proceso del chequeo sem\'antico y se acomoda a nuestro IL para hacer mas sencillo el proceso de transpilaci\'on, para lograr dicho proceso se implement\'o un patr\'on visitor donde se recorren los nodos del AST y se obtiene como resultado la secuencia de nodos de nuestro IL para pasar a la siguiente etapa.
+	
+	\item[] \textbf{IL $\rightarrow$ MIPS}: El m\'odulo correspondiente a este proceso se encuentra en \verb|to_mips.py| de la carpeta visitors. Una vez creada la lista de nodos de lenguaje intermedio se genera el código ensamblador correspondiente. Para lograr una mejor organización se reciben dos listas de nodos intermedios: Una correspondiente a la sección \verb|.data| y la otra correspondiente a la sección \verb|.text|. Lo primero que se genera es la sección \verb|.data|, para lo cual se visitan en el orden en que aparecen los nodos de lenguaje intermedio correspondientes a esta sección y se devuelve para cada uno de ellos su pedazo de código ensamblador correspondiente. En particular los nodos a los que se hace referencia son los que tienen que ver con la declaración de strings, con las relaciones de herencia y las tablas de métodos de virtuales de cada clase. Las tablas de métodos virtuales son etiquetas en MIPS seguidas por una lista \verb|.word|, el primero de ellos es una referencia a la dirección de memoria de la sección
+	referente a la herencia de esta clase y los siguientes son referencias a las direcciones de memoria de
+	los métodos de esta clase. Luego se genera el código de los métodos estáticos presentes en el
+	lenguaje COOL, los cuales son: \verb|inherit|, \verb|Object.copy|, \verb|Object.abort|, \verb|IO.out_string|, \verb|IO.in_string|, \verb|IO.out_int|, \verb|IO.in_int|, \verb|String.length|, \verb|String.concat|, \verb|String.substr|, \verb|String.cmp| y \verb|substrexception|.
+	Una vez generada la sección .data se procede a generar la sección .text de igual manera, o sea,
+	recorriendo los nodos intermedios correspondientes a esta sección y generando una también el
+	código ensamblador correspondiente. En esta sección los nodos que aparecen son los referentes a
+	asignaciones, salida y entrada estándar, comentarios, llamados a funciones, herencia, condicionales,
+	saltos, reserva de memoria, operaciones unarias y binarias, carga y declaración de etiquetas, asi
+	como los imprescindibles nodos referentes a insertar y extraer información de la pila.
+	
+	
+\end{enumerate}
+
+\section{Problemas T\'ecnicos}
+
+En esta secci\'on expondremos los aspectos del compilador cuya implementaci\'on fue interesante debido a que requirieron un mayor esfuerzo de trabajo para ser resueltos.
+
+\subsection{An\'alisis Lexicogr\'afico y Sint\'actico}
+
+En esta fase la mayor dificultad fue encontrar una forma de ignorar los comentarios de varias l\'ineas debido que una expresi\'on regular no era capaz de resolverlo, para ello se emple\'o una caracter\'isitica presente en \verb|ply|. Un objeto \verb|ply.lexer| permite la definici\'on de estados para el proceso l\'exico, mediante determinada regla podemos indicar que se desea iniciar este estado, ejecutando entonces otro conjunto de acciones distinto para este, por ello nuestro lexer cuenta adem\'as de su estado \verb|MAIN| con otros dos estados: \verb|'comments'| y \verb|'string'|, en el caso del 2do estado se emplea para la captura m\'as c\'omoda de un string por parte del lexer. Para dar inicio al estado de coments se busca una coincidencia con la expresion "(*", de esta forma se inicia el estado mientras que "*)" lo termina bajo determinadas condiciones. Como es posible tener comentarios anidados y deseamos saber si no falta alg\'un "*)", asociado a este estado calculamos el balance de apertura y cierre de comentarios, de esta forma cuando se detecte un "*)", si dicho balance es mayor a 0, no se abandona el estado, de esta forma podemos detectar un error de este tipo ya que el EOF no deber\'ia aparecer en un comentario de m\'ultiples l\'ineas. 
+
+\subsection{An\'alisis Sem\'antico}
+
+\begin{enumerate}
+	\item[] \textbf{Tipos por defecto de Cool}: Para representar los tipos definidos en un programa de Cool se defini\'o \textbf{Type}, as\'i cuando creamos un nuevo tipo en el proceso de an\'alisis sem\'antico este queda registrado en el contex de esta forma para realizar consultas a este desde diversos puntos del c\'odigo siempre recibiremos la misma instancia proveniente del context. En el caso de los tipos por defecto estos se definen mediante herencia de \textbf{Type} por lo tanto es posible en todo momento crear una nueva instancia de estos, por ejemplo para el chequeo sem\'antico realizado en el \'ultimo visitor en ocasiones resulta m\'as claro y limpio devolver un tipo \textbf{IntType} que realizar una petici\'on al context para que nos de la instancia que este tiene, debido a esto a la hora de definir los m\'etodos para las clases \textbf{Object}, \textbf{String} e \textbf{IO} contabamos con instancias que conten\'ian estas definiciones y otras que no. Para resolver esto empleamos el patr\'on \textit{singleton}, as\'i cada vez que instanciabamos un tipo por defecto nos referiamos a la misma instancia. De entre las diversas implementaciones del patr\'on \textit{singleton} se seleccion\'o el uso de metaclases por ser simple de a\~nadir a la estructura que teniamos.
+	
+	\item[] \textbf{Comprobaci\'on de Herencia}: Como parte del proceso sem\'antico es necesario comprobar la correctitud de las relaciones de herencia en el programa, de esto se encarga el \textbf{TypeBuilder}, en un programa de Cool no es obligatorio definir una clase antes de emplearla en una definici\'on de herencia por tanto un s\'olo recorrido por el AST no permite establecer del todo las relaciones. Para resolver esta situaci\'on se pensaron dos opciones, la primera realizar un orden sobre el \'arbol de herencia parecido a el orden topol\'ogico en un DAG, de esta forma tendr\'iamos organizadas las clases y para resolver la herencia m\'ultiple la b\'usqueda de ciclos en el grafo. La segunda consiste en realizar dos pasadas al AST, la primera para conformar los tipos, con sus atributos y m\'etodos y luego una segunda pasada para establecer la herencia. Se decidi\'o emplear la segunda opci\'on ya que permit\'ia la detecci\'on de una mayor cantidad de errores en esta fase, que de otra forma deberiamos realizarlo en el \textbf{TypeChecker}. 
+	
+\end{enumerate}
+
+\subsection{Generaci\'on de C\'odigo}
+
+La trasnpilacion de COOL a IL se hizo basada en las definiciones de context y scope, que por lo
+explicado anteriormente facilitaron grandemente el proceso, sobre todo a la hora de hacer llamados
+a funciones propias de un tipo, como por ejemplo \verb|(Bool).type_name|, para mayor comodidad se
+adiciono a nuestro context un diccionario que gurdaria los tipos de retorno de las expresiones el cual
+seria calculado en la etapa de analisis semantico.
+
+La generacion del c\'odigo de maquina, es un tanto complicada ya que los recursos son limitados y
+una misma instrucci\'on en dos condiciones distintas pueden generar resultados incorrectos, sobre la
+base de las buenas pr\'acticas de programaci\'on em MIPS, usando los registros para sus prop\'ositos
+recomendados y teniendo mucho cuidado en cuanto al paso de los argumentos, de las llamadas a los
+m\'etodos y de los retornos, as\'i como el uso de direcciones de memoria v\'alidas, se logr\'o una
+soluci\'on te\'oricamente correcta, aunque est\'a en proceso de correcci\'on de errores.
+
+\begin{thebibliography}{99}
+	\bibitem{1} The Cool Reference Manual, Alex Aiken
+\end{thebibliography}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
