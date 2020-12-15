@@ -30,7 +30,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
                 for declaration in program.declarations
                 if isinstance(declaration, cool.ClassDeclarationNode)
             ),
-            reverse=True,
+            # reverse=True,
             key=lambda cd: self.context.inheritance_deep(cd.id.lex),
         )
 
@@ -45,7 +45,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.attr_declarations = dict()
         self.attr_declarations['Object'] = []
         self.attr_declarations['IO'] = []
-        
+
         for declaration in node.declarations:
             self.attr_declarations[declaration.id.lex] = []
             if declaration.parent and not declaration.parent.lex in ['IO', 'Int', 'String', 'Bool', 'Object']:
