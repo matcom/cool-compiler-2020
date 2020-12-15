@@ -71,6 +71,7 @@ Los componentes del lenguaje CIL son bastante simples. Se encuentra integrado po
 La lista de instrucciones CIL se adjunta a continuación:
 * CILTypeCheck: Usado en los case
 * CILBinaryOperator: Que incluye a los operadores aritméticos y de comparación
+* CILUnaryOperator: Incluye el complemento y el is void
 * CILLabel: Para usar en los ciclos y condicionales como dirección destino de los saltos
 * CILJump y CILConditionalJump: Usados para los saltos
 * CILAllocate: Usado al crearse un nuevo objeto
@@ -88,8 +89,11 @@ La información anteriormente obtenida permite formar un Programa CIL, que const
 
 #### MIPS
 Dado el programa CIL se lleva a una transformación a MIPS.  
-Una parte importante para entender la estructura es la representación de las instancias de clase. Toda instancia se guarda como una referencia a un conjunto de palabras, de las cuales la primera siempre es una referencia a su definición de clase y el resto son los atributos.
+Una parte importante para entender la estructura es la representación de las instancias de clase. Toda instancia se guarda como una referencia a un conjunto de palabras, de las cuales la primera siempre es una referencia a su definición de clase y el resto son los atributos. Una variable que contenga una instancia en realidad lo que contendrá será una referencia a esta.
 ![Image](images/Instancia.png)
+
+##### Valores void
+Para representar los valores void se le da de valor a la referencia a una instancia en un inicio el valor 0, por lo que saber si es void puede ser tan simple como preguntar si es igual a 0 la referencia a instancia.
 
 ##### Qué es la definición de clase?
 Se puede observar al inicio del programa con la forma *Nombreclase: .word Padreclase, f1, f2...*, que no es más que una ubicación en el heap donde se encuentra guardada la direccion de la definicion de su clase padre, seguida por las direcciones de sus métodos. Es el descriptor de los elementos estáticos de una clase es decir su padre y sus métodos.
