@@ -25,7 +25,8 @@ class GlobalDescriptor:
             methds = []
 
             for (method_name, method_tag) in dottype.methods:
-                methods[method_name] = method_tag
+                name = dottype.name + "_" + method_name
+                methods[name] = method_tag
                 methds.append(method_name)
                 end_method += 1
 
@@ -57,6 +58,10 @@ class VTable:
 
     def get_index(self, name):
         return list(self.methods.keys()).index(name)
+
+    @staticmethod
+    def build_name(name, _type):
+        return f"{_type}_{name}"
 
 
 class MemoryType:
