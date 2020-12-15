@@ -332,7 +332,7 @@ class MIPS:
         self.text += f'lw $t0, {offset}($sp)\n'
         self.text += f'lw $t1, 0($t0)\n'
         self.text += 'la $a0, void\n'
-        self.text += f'bne	$t1 $a0 {node.first_label}\n'
+        self.text += f'bne $t1 $a0 {node.first_label}\n'
         self.text += 'b case_void_error\n'
 
     @visitor.when(OptionNodeIL)
@@ -340,8 +340,8 @@ class MIPS:
         print(self.count)
         self.count += 1
         print('OptionNodeIL')
-        self.text += f'blt	$t1 {node.tag} {node.next_label}\n'
-        self.text += f'bgt	$t1 {node.max_tag} {node.next_label}\n'
+        self.text += f'blt $t1 {node.tag} {node.next_label}\n'
+        self.text += f'bgt $t1 {node.max_tag} {node.next_label}\n'
 
 
     @visitor.when(BinaryNodeIL)

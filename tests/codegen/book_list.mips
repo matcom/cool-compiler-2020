@@ -1577,11 +1577,11 @@ sw $a1, 8($sp)
 lw $t0, 8($sp)
 lw $t1, 0($t0)
 la $a0, void
-bne	$t1 $a0 label_2
+bne $t1 $a0 label_2
 b case_void_error
 label_2:
-blt	$t1 6 label_3
-bgt	$t1 6 label_3
+blt $t1 6 label_3
+bgt $t1 6 label_3
 lw $t1, 8($sp)
 sw $t1, 16($sp)
 la $t0, s_7
@@ -1641,8 +1641,8 @@ lw $t1, 20($sp)
 sw $t1, 4($sp)
 b label_1
 label_3:
-blt	$t1 5 label_4
-bgt	$t1 6 label_4
+blt $t1 5 label_4
+bgt $t1 5 label_4
 lw $t1, 8($sp)
 sw $t1, 40($sp)
 la $t0, s_8

@@ -76,13 +76,12 @@ def main():
         print('attr_offset: ', mips.attr_offset)
         print('var_offset: ')
         c = 1
-        for k in mips.var_offset.keys():
+        for k in cv.context.types.keys():
             t = 1
-            print(f'{c}. {k}')
-            for x in mips.var_offset[k].keys():
-                print(f'{x} : {mips.var_offset[k][x]}')
-                t += 1
-            print('\n')
+            name = cv.context.types[k].name
+            tag = cv.context.types[k].tag
+            max_tag = cv.context.types[k].max_tag
+            print(f'{name}. {tag} {max_tag}')
             c += 1
         path = program[:-2]
         # path = path[:-1]
