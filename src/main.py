@@ -42,7 +42,7 @@ collect = Collector(collect_errors)
 collect.visit(ast)
 
 if len(collect_errors):
-    for e in collect_errors:
+    for e in collect_errors[::-1]:
         print(e)
     exit(1)
 
