@@ -85,9 +85,10 @@ class CIL_TO_MIPS:
         return f"mip_label_{self.label_count}"
 
     def load_memory(self, dst, arg: str):
+        self.mips.comment(f"Load from {arg} to {dst}")
         if arg in self.arguments or arg in self.local_vars:
             offset = (
-                self.arguments[arg] + 1
+                self.arguments[arg]
                 if arg in self.arguments
                 else -self.local_vars[arg]
             ) * self.data_size
@@ -423,7 +424,7 @@ class CIL_TO_MIPS:
 
     @visitor.when(ArgNode)
     def visit(self, node: ArgNode):
-        self.mips.comment("ArgNode")
+        self.mips.comment(f"ArgNode {node.name} to s0")
         self.load_memory(reg.s0, node.name)
         self.mips.push(reg.s0)
 
