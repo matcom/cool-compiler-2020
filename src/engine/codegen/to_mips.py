@@ -152,11 +152,11 @@ class CIL_TO_MIPS:
         self.mips.comment("Allocate memory for Local variables")
         localvars_count = len(node.localvars)
         self.mips.addi(reg.sp, reg.sp, - self.data_size * localvars_count)
+        self.mips.empty_line()
         for idx, local in enumerate(node.localvars):
             self.visit(local, index=idx)
 
         self.mips.empty_line()
-
         self.store_registers()
         self.mips.empty_line()
         self.mips.comment("Generating body code")
@@ -164,10 +164,13 @@ class CIL_TO_MIPS:
             self.visit(instruction)
 
         self.mips.empty_line()
+        self.mips.comment("Restore registers")
         self.load_registers()
+        self.mips.empty_line()
 
         self.mips.comment("Clean stack variable space")
-        self.mips.addi(reg.sp, reg.sp, len(node.localvars) * self.data_size)
+        print(localvars_count, node.name)
+        self.mips.addi(reg.sp, reg.sp, localvars_count * self.data_size)
         self.arguments = None
         self.mips.comment("Return")
         self.mips.pop(reg.fp)
@@ -184,7 +187,6 @@ class CIL_TO_MIPS:
 
     @visitor.when(LocalNode)
     def visit(self, node: LocalNode, index=0):
-        self.mips.push(reg.zero)
         if node.name in self.local_vars:
             pass
         else:
