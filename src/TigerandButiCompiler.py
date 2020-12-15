@@ -8,7 +8,7 @@ from ASTtoCIL import *
 from CILtoMIPS import *
 
 LexerError=False
-DispatchList = []
+DispatchList = ["main"]
 #Welcome='Tiger and Buti Compiler 2020 0.2.0\nCopyright (c) 2019: Jose Gabriel Navarro Comabella, Alberto Helguera Fleitas'
 
 #print(Welcome)
@@ -712,7 +712,7 @@ def p_error(p):
 
 if __name__=='__main__':
     nombrearchivo=sys.argv[1]
-    # nombrearchivo="c/hola/f.txt"
+    # nombrearchivo="C:\\codegen\\hairyscary.cl"
     # archivoescritura=nombrearchivo[:-3]
     # archivoescritura=archivoescritura[archivoescritura.rfind('/'):]
     archivo=open(nombrearchivo,encoding='utf-8')
@@ -733,7 +733,7 @@ if __name__=='__main__':
         semantic=Semantics_Checker()
         semanticvalid=semantic.visit(ast,None)
         if semanticvalid:
-            tocil=CILTranspiler()
+            tocil=CILTranspiler(DispatchList)
             codigoCIL=tocil.visit(ast, None)
                 
             toMIPS=MIPSCompiler()
@@ -780,7 +780,7 @@ if False:
             #         print(classc.name+'--'+foo.name)
             semantic = Semantics_Checker()
             semantic.visit(ast,None)
-            tocil=CILTranspiler()
+            tocil=CILTranspiler(DispatchList)
             programaCIL=tocil.visit(ast,None)
             tipos=[]
             for tipo in programaCIL.Types:

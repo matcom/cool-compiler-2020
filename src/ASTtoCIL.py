@@ -6,7 +6,7 @@ from DefaultClasses import *
 
 
 class CILTranspiler:
-    def __init__(self):
+    def __init__(self, metodosUsados=[]):
         self.data={}
         self.datacount=0
         self.variablecount=0
@@ -17,6 +17,8 @@ class CILTranspiler:
         self.caseExpresionStack=[]
         # self.clasesordenadas=[]
         self.clasesdiccionario={}
+        self.metodosUsados=metodosUsados
+
     def GenerarGrafoDeHerencia(self,classes:list):
         grafo={}
         for c in classes:
@@ -90,7 +92,6 @@ class CILTranspiler:
         counter=0
         for c in classes:
             mismetodos={}
-
             if c.parent != None:
                 for elemento in self.methods[c.parent]:
                     mismetodos[elemento.name]=elemento
@@ -110,6 +111,10 @@ class CILTranspiler:
             
             for met in c.methods:
                 # if c.name+"#"+met.name in self.globalnames.keys():
+                if met.name=="main":
+                    print("Entre")
+                if not met.name in self.metodosUsados and not c.name in ["Object","String","IO","Bool","Int"]:
+                            continue
                 self.globalnames[c.name+"#"+met.name]="f"+str(counter)
                 counter+=1
                     
@@ -216,11 +221,15 @@ class CILTranspiler:
 
             metodosClaseCIL=[]
             for element in metodosAST:
+                if not c.name+"#"+element.name in metodosglobalesdic.keys():
+                        continue
                 nuevoCIL=CILClassMethod(element.name,metodosglobalesdic[c.name+"#"+element.name])
                 metodosClaseCIL.append(nuevoCIL)
             
             if not (c.name in ["Object", "IO", "String"]):
                 for m in c.methods:
+                    if not c.name+"#"+m.name in metodosglobalesdic.keys():
+                        continue
                     globalMethod=self.visit(m, scope)
                     globalMethod.nombre=metodosglobalesdic[c.name+"#"+m.name]
                     metodosGlobalesCIL[globalMethod.nombre]=globalMethod
