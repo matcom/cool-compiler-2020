@@ -68,6 +68,9 @@ class BASE_COOL_CIL_TRANSFORM:
         return type_node
 
     def register_data(self, value):
+        for data in self.dotdata:
+            if value == data.value:
+                return data
         vname = f'data_{len(self.dotdata)}'
         data_node = DataNode(vname, value)
         self.dotdata.append(data_node)

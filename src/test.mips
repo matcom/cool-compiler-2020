@@ -41,122 +41,40 @@ type Bool {
 	method type_name: function_type_name_at_Object
 	method copy: function_copy_at_Object
 }
-type Book {
-	attribute title
-	attribute author
-
-	method abort: function_abort_at_Object
-	method type_name: function_type_name_at_Object
-	method copy: function_copy_at_Object
-	method out_string: function_out_string_at_IO
-	method out_int: function_out_int_at_IO
-	method in_string: function_in_string_at_IO
-	method in_int: function_in_int_at_IO
-	method initBook: function_initBook_at_Book
-	method print: function_print_at_Book
-}
-type Article {
-	attribute title
-	attribute author
-	attribute per_title
-
-	method abort: function_abort_at_Object
-	method type_name: function_type_name_at_Object
-	method copy: function_copy_at_Object
-	method out_string: function_out_string_at_IO
-	method out_int: function_out_int_at_IO
-	method in_string: function_in_string_at_IO
-	method in_int: function_in_int_at_IO
-	method initBook: function_initBook_at_Book
-	method print: function_print_at_Article
-	method initArticle: function_initArticle_at_Article
-}
-type BookList {
-	
-
-	method abort: function_abort_at_Object
-	method type_name: function_type_name_at_Object
-	method copy: function_copy_at_Object
-	method out_string: function_out_string_at_IO
-	method out_int: function_out_int_at_IO
-	method in_string: function_in_string_at_IO
-	method in_int: function_in_int_at_IO
-	method isNil: function_isNil_at_BookList
-	method cons: function_cons_at_BookList
-	method car: function_car_at_BookList
-	method cdr: function_cdr_at_BookList
-	method print_list: function_print_list_at_BookList
-}
-type Cons {
-	attribute xcar
-	attribute xcdr
-
-	method abort: function_abort_at_Object
-	method type_name: function_type_name_at_Object
-	method copy: function_copy_at_Object
-	method out_string: function_out_string_at_IO
-	method out_int: function_out_int_at_IO
-	method in_string: function_in_string_at_IO
-	method in_int: function_in_int_at_IO
-	method isNil: function_isNil_at_Cons
-	method cons: function_cons_at_BookList
-	method car: function_car_at_Cons
-	method cdr: function_cdr_at_Cons
-	method print_list: function_print_list_at_Cons
-	method init: function_init_at_Cons
-}
-type Nil {
-	
-
-	method abort: function_abort_at_Object
-	method type_name: function_type_name_at_Object
-	method copy: function_copy_at_Object
-	method out_string: function_out_string_at_IO
-	method out_int: function_out_int_at_IO
-	method in_string: function_in_string_at_IO
-	method in_int: function_in_int_at_IO
-	method isNil: function_isNil_at_Nil
-	method cons: function_cons_at_BookList
-	method car: function_car_at_BookList
-	method cdr: function_cdr_at_BookList
-	method print_list: function_print_list_at_Nil
-}
 type Main {
-	attribute books
+	
 
 	method abort: function_abort_at_Object
 	method type_name: function_type_name_at_Object
 	method copy: function_copy_at_Object
+	method out_string: function_out_string_at_IO
+	method out_int: function_out_int_at_IO
+	method in_string: function_in_string_at_IO
+	method in_int: function_in_int_at_IO
 	method main: function_main_at_Main
 }
 
 .DATA
-data_0 = "\n"
-data_1 = "Invalid substring start"
-data_2 = "Invalid substring length"
-data_3 = "Invalid substring"
-data_4 = "n"
-data_5 = "title:      "
-data_6 = "n"
-data_7 = "author:     "
-data_8 = "n"
-data_9 = "periodical:  "
-data_10 = "- dynamic type was Book -n"
-data_11 = "- dynamic type was Article -n"
-data_12 = "Compilers, Principles, Techniques, and Tools"
-data_13 = "Aho, Sethi, and Ullman"
-data_14 = "The Top 100 CD_ROMs"
-data_15 = "Ulanoff"
-data_16 = "PC Magazine"
+data_0 = "Abort called from class "
+data_1 = "\n"
+data_2 = "Invalid substring start"
+data_3 = "Invalid substring length"
+data_4 = "Invalid substring"
+data_5 = "Hello, World.n"
 
 .CODE
 function function_abort_at_Object {
 	PARAM self
 
-	
+	LOCAL local_abort_at_Object_internal_0
+	LOCAL local_abort_at_Object_internal_1
+	LOCAL local_abort_at_Object_internal_2
 
-	PRINTSTR abort with type
-	ERROR 0
+	local_abort_at_Object_internal_0 = TYPENAME self
+	local_abort_at_Object_internal_1 = CONCAT data_0 local_abort_at_Object_internal_0
+	local_abort_at_Object_internal_2 = CONCAT local_abort_at_Object_internal_1 data_1
+	PRINTSTR local_abort_at_Object_internal_2
+	ABORT
 }
 function function_copy_at_Object {
 	PARAM self
@@ -212,20 +130,20 @@ function function_substr_at_String {
 	local_substr_at_String_internal_2 = LENGTH self
 	local_substr_at_String_internal_5 = local_substr_at_String_internal_3 <= start
 	IF local_substr_at_String_internal_5 GOTO error1
-	local_substr_at_String_internal_8 = CONCAT data_1 data_0
+	local_substr_at_String_internal_8 = CONCAT data_2 data_1
 	PRINTSTR local_substr_at_String_internal_8
 	ERROR 0
 	LABEL error1
 	local_substr_at_String_internal_6 = local_substr_at_String_internal_3 <= length
 	IF local_substr_at_String_internal_6 GOTO error2
-	local_substr_at_String_internal_8 = CONCAT data_2 data_0
+	local_substr_at_String_internal_8 = CONCAT data_3 data_1
 	PRINTSTR local_substr_at_String_internal_8
 	ERROR 0
 	LABEL error2
 	local_substr_at_String_internal_4 = start + length
 	local_substr_at_String_internal_7 = local_substr_at_String_internal_4 <= local_substr_at_String_internal_2
 	IF local_substr_at_String_internal_7 GOTO error3
-	local_substr_at_String_internal_8 = CONCAT data_3 data_0
+	local_substr_at_String_internal_8 = CONCAT data_4 data_1
 	PRINTSTR local_substr_at_String_internal_8
 	ERROR 0
 	LABEL error3
@@ -262,6 +180,13 @@ function function_in_int_at_IO {
 	local_in_int_at_IO_internal_0 = READINT
 	RETURN local_in_int_at_IO_internal_0
 }
+function ctor_Main {
+	PARAM self
+
+	
+
+	RETURN self
+}
 function entry {
 	
 
@@ -269,338 +194,20 @@ function entry {
 	LOCAL local__internal_1
 
 	local__internal_0 = ALLOCATE Main
-	SETATTR books OF self_Main = 0
 	ARG local__internal_0
 	local__internal_1 = CALL function_main_at_Main
-}
-function function_initBook_at_Book {
-	PARAM self
-	PARAM title_p
-	PARAM author_p
-
-	LOCAL local_initBook_at_Book_internal_0
-
-	SETATTR title OF self_Book = title_p
-	SETATTR author OF self_Book = author_p
-	local_initBook_at_Book_internal_0 = self
-	RETURN local_initBook_at_Book_internal_0
-}
-function function_print_at_Book {
-	PARAM self
-
-	LOCAL local_print_at_Book_internal_0
-	LOCAL local_print_at_Book_internal_1
-	LOCAL local_print_at_Book_internal_2
-	LOCAL local_print_at_Book_internal_3
-	LOCAL local_print_at_Book_internal_4
-	LOCAL local_print_at_Book_internal_5
-	LOCAL local_print_at_Book_internal_6
-	LOCAL local_print_at_Book_internal_7
-	LOCAL local_print_at_Book_internal_8
-	LOCAL local_print_at_Book_internal_9
-	LOCAL local_print_at_Book_internal_10
-	LOCAL local_print_at_Book_internal_11
-	LOCAL local_print_at_Book_internal_12
-
-	local_print_at_Book_internal_2 = LOAD data_4
-	ARG local_print_at_Book_internal_2
-	local_print_at_Book_internal_4 = GETATTR self title
-	ARG local_print_at_Book_internal_4
-	local_print_at_Book_internal_6 = LOAD data_5
-	ARG local_print_at_Book_internal_6
-	ARG self
-	local_print_at_Book_internal_5 = VCALL Book out_string
-	ARG local_print_at_Book_internal_5
-	local_print_at_Book_internal_3 = VCALL Book out_string
-	ARG local_print_at_Book_internal_3
-	local_print_at_Book_internal_1 = VCALL Book out_string
-	local_print_at_Book_internal_8 = LOAD data_6
-	ARG local_print_at_Book_internal_8
-	local_print_at_Book_internal_10 = GETATTR self author
-	ARG local_print_at_Book_internal_10
-	local_print_at_Book_internal_12 = LOAD data_7
-	ARG local_print_at_Book_internal_12
-	ARG self
-	local_print_at_Book_internal_11 = VCALL Book out_string
-	ARG local_print_at_Book_internal_11
-	local_print_at_Book_internal_9 = VCALL Book out_string
-	ARG local_print_at_Book_internal_9
-	local_print_at_Book_internal_7 = VCALL Book out_string
-	local_print_at_Book_internal_0 = self
-	RETURN local_print_at_Book_internal_0
-}
-function function_initArticle_at_Article {
-	PARAM self
-	PARAM title_p
-	PARAM author_p
-	PARAM per_title_p
-
-	LOCAL local_initArticle_at_Article_internal_0
-	LOCAL local_initArticle_at_Article_internal_1
-
-	ARG author_p
-	ARG title_p
-	ARG self
-	local_initArticle_at_Article_internal_1 = VCALL Article initBook
-	SETATTR per_title OF self_Article = per_title_p
-	local_initArticle_at_Article_internal_0 = self
-	RETURN local_initArticle_at_Article_internal_0
-}
-function function_print_at_Article {
-	PARAM self
-
-	LOCAL local_print_at_Article_internal_0
-	LOCAL local_print_at_Article_internal_1
-	LOCAL local_print_at_Article_internal_2
-	LOCAL local_print_at_Article_internal_3
-	LOCAL local_print_at_Article_internal_4
-	LOCAL local_print_at_Article_internal_5
-	LOCAL local_print_at_Article_internal_6
-	LOCAL local_print_at_Article_internal_7
-
-	ARG self
-	local_print_at_Article_internal_1 = CALL function_print_at_Book
-	local_print_at_Article_internal_3 = LOAD data_8
-	ARG local_print_at_Article_internal_3
-	local_print_at_Article_internal_5 = GETATTR self per_title
-	ARG local_print_at_Article_internal_5
-	local_print_at_Article_internal_7 = LOAD data_9
-	ARG local_print_at_Article_internal_7
-	ARG self
-	local_print_at_Article_internal_6 = VCALL Article out_string
-	ARG local_print_at_Article_internal_6
-	local_print_at_Article_internal_4 = VCALL Article out_string
-	ARG local_print_at_Article_internal_4
-	local_print_at_Article_internal_2 = VCALL Article out_string
-	local_print_at_Article_internal_0 = self
-	RETURN local_print_at_Article_internal_0
-}
-function function_isNil_at_BookList {
-	PARAM self
-
-	LOCAL local_isNil_at_BookList_internal_0
-	LOCAL local_isNil_at_BookList_internal_1
-
-	ARG self
-	local_isNil_at_BookList_internal_1 = VCALL BookList abort
-	local_isNil_at_BookList_internal_0 = 1
-	RETURN local_isNil_at_BookList_internal_0
-}
-function function_cons_at_BookList {
-	PARAM self
-	PARAM hd
-
-	LOCAL local_cons_at_BookList_new_cell_0
-	LOCAL local_cons_at_BookList_internal_1
-	LOCAL local_cons_at_BookList_internal_2
-
-	local_cons_at_BookList_internal_1 = ALLOCATE Cons
-	SETATTR xcar OF self_Cons = 0
-	SETATTR xcdr OF self_Cons = 0
-	local_cons_at_BookList_new_cell_0 = local_cons_at_BookList_internal_1
-	ARG self
-	ARG hd
-	ARG new_cell
-	local_cons_at_BookList_internal_2 = VCALL Cons init
-	RETURN local_cons_at_BookList_internal_2
-}
-function function_car_at_BookList {
-	PARAM self
-
-	LOCAL local_car_at_BookList_internal_0
-	LOCAL local_car_at_BookList_internal_1
-	LOCAL local_car_at_BookList_internal_2
-
-	ARG self
-	local_car_at_BookList_internal_1 = VCALL BookList abort
-	local_car_at_BookList_internal_2 = ALLOCATE Book
-	SETATTR title OF self_Book = 0
-	SETATTR author OF self_Book = 0
-	local_car_at_BookList_internal_0 = local_car_at_BookList_internal_2
-	RETURN local_car_at_BookList_internal_0
-}
-function function_cdr_at_BookList {
-	PARAM self
-
-	LOCAL local_cdr_at_BookList_internal_0
-	LOCAL local_cdr_at_BookList_internal_1
-	LOCAL local_cdr_at_BookList_internal_2
-
-	ARG self
-	local_cdr_at_BookList_internal_1 = VCALL BookList abort
-	local_cdr_at_BookList_internal_2 = ALLOCATE BookList
-	local_cdr_at_BookList_internal_0 = local_cdr_at_BookList_internal_2
-	RETURN local_cdr_at_BookList_internal_0
-}
-function function_print_list_at_BookList {
-	PARAM self
-
-	LOCAL local_print_list_at_BookList_internal_0
-
-	ARG self
-	local_print_list_at_BookList_internal_0 = VCALL BookList abort
-	RETURN local_print_list_at_BookList_internal_0
-}
-function function_isNil_at_Cons {
-	PARAM self
-
-	
-
-	RETURN 0
-}
-function function_init_at_Cons {
-	PARAM self
-	PARAM hd
-	PARAM tl
-
-	LOCAL local_init_at_Cons_internal_0
-
-	SETATTR xcar OF self_Cons = hd
-	SETATTR xcdr OF self_Cons = tl
-	local_init_at_Cons_internal_0 = self
-	RETURN local_init_at_Cons_internal_0
-}
-function function_car_at_Cons {
-	PARAM self
-
-	LOCAL local_car_at_Cons_internal_0
-
-	local_car_at_Cons_internal_0 = GETATTR self xcar
-	RETURN local_car_at_Cons_internal_0
-}
-function function_cdr_at_Cons {
-	PARAM self
-
-	LOCAL local_cdr_at_Cons_internal_0
-
-	local_cdr_at_Cons_internal_0 = GETATTR self xcdr
-	RETURN local_cdr_at_Cons_internal_0
-}
-function function_print_list_at_Cons {
-	PARAM self
-
-	LOCAL local_print_list_at_Cons_internal_0
-	LOCAL local_print_list_at_Cons_internal_1
-	LOCAL local_print_list_at_Cons_internal_2
-	LOCAL local_print_list_at_Cons_internal_3
-	LOCAL local_print_list_at_Cons_internal_4
-	LOCAL local_print_list_at_Cons_internal_5
-	LOCAL local_print_list_at_Cons_internal_6
-	LOCAL local_print_list_at_Cons_internal_7
-	LOCAL local_print_list_at_Cons_internal_8
-	LOCAL local_print_list_at_Cons_internal_9
-	LOCAL local_print_list_at_Cons_internal_10
-	LOCAL local_print_list_at_Cons_internal_11
-	LOCAL local_print_list_at_Cons_internal_12
-	LOCAL local_print_list_at_Cons_internal_13
-	LOCAL local_print_list_at_Cons_internal_14
-
-	local_print_list_at_Cons_internal_2 = GETATTR self xcar
-	ARG local_print_list_at_Cons_internal_2
-	local_print_list_at_Cons_internal_1 = VCALL Book print
-	local_print_list_at_Cons_internal_4 = TYPEOF local_print_list_at_Cons_internal_1
-	local_print_list_at_Cons_internal_5 = COMFORM local_print_list_at_Cons_internal_1 TYPE: Book
-	IF local_print_list_at_Cons_internal_1 GOTO <engine.codegen.cil_ast.LabelNode object at 0x7f1651aa6890>
-	GOTO CASE_dummy_0
-	LABEL CASE_MATCH_dummy_Book
-	local_print_list_at_Cons_internal_6 = local_print_list_at_Cons_internal_1
-	local_print_list_at_Cons_internal_8 = LOAD data_10
-	ARG local_print_list_at_Cons_internal_8
-	ARG self
-	local_print_list_at_Cons_internal_7 = VCALL Cons out_string
-	local_print_list_at_Cons_internal_3 = local_print_list_at_Cons_internal_7
-	GOTO END_1
-	LABEL CASE_dummy_0
-	local_print_list_at_Cons_internal_9 = COMFORM local_print_list_at_Cons_internal_1 TYPE: Article
-	IF local_print_list_at_Cons_internal_1 GOTO <engine.codegen.cil_ast.LabelNode object at 0x7f1651aa6cd0>
-	GOTO CASE_dummy_1
-	LABEL CASE_MATCH_dummy_Article
-	local_print_list_at_Cons_internal_10 = local_print_list_at_Cons_internal_1
-	local_print_list_at_Cons_internal_12 = LOAD data_11
-	ARG local_print_list_at_Cons_internal_12
-	ARG self
-	local_print_list_at_Cons_internal_11 = VCALL Cons out_string
-	local_print_list_at_Cons_internal_3 = local_print_list_at_Cons_internal_11
-	GOTO END_1
-	LABEL CASE_dummy_1
-	LABEL ERROR_CASE_1
-	ERROR 0
-	LABEL END_1
-	local_print_list_at_Cons_internal_14 = GETATTR self xcdr
-	ARG local_print_list_at_Cons_internal_14
-	local_print_list_at_Cons_internal_13 = VCALL BookList print_list
-	local_print_list_at_Cons_internal_0 = local_print_list_at_Cons_internal_13
-	RETURN local_print_list_at_Cons_internal_0
-}
-function function_isNil_at_Nil {
-	PARAM self
-
-	
-
-	RETURN 1
-}
-function function_print_list_at_Nil {
-	PARAM self
-
-	
-
-	RETURN 1
+	CLEAR 1 ARGS
 }
 function function_main_at_Main {
 	PARAM self
 
-	LOCAL local_main_at_Main_a_book_0
+	LOCAL local_main_at_Main_internal_0
 	LOCAL local_main_at_Main_internal_1
-	LOCAL local_main_at_Main_internal_2
-	LOCAL local_main_at_Main_internal_3
-	LOCAL local_main_at_Main_internal_4
-	LOCAL local_main_at_Main_an_article_5
-	LOCAL local_main_at_Main_internal_6
-	LOCAL local_main_at_Main_internal_7
-	LOCAL local_main_at_Main_internal_8
-	LOCAL local_main_at_Main_internal_9
-	LOCAL local_main_at_Main_internal_10
-	LOCAL local_main_at_Main_internal_11
-	LOCAL local_main_at_Main_internal_12
-	LOCAL local_main_at_Main_internal_13
-	LOCAL local_main_at_Main_internal_14
-	LOCAL local_main_at_Main_internal_15
-	LOCAL local_main_at_Main_internal_16
 
-	local_main_at_Main_internal_2 = LOAD data_12
-	local_main_at_Main_internal_3 = LOAD data_13
-	ARG local_main_at_Main_internal_3
-	ARG local_main_at_Main_internal_2
-	local_main_at_Main_internal_4 = ALLOCATE Book
-	SETATTR title OF self_Book = 0
-	SETATTR author OF self_Book = 0
-	ARG local_main_at_Main_internal_4
-	local_main_at_Main_internal_1 = VCALL Book initBook
-	local_main_at_Main_a_book_0 = local_main_at_Main_internal_1
-	local_main_at_Main_internal_7 = LOAD data_14
-	local_main_at_Main_internal_8 = LOAD data_15
-	local_main_at_Main_internal_9 = LOAD data_16
-	ARG local_main_at_Main_internal_9
-	ARG local_main_at_Main_internal_8
-	ARG local_main_at_Main_internal_7
-	local_main_at_Main_internal_10 = ALLOCATE Article
-	SETATTR title OF self_Article = 0
-	SETATTR author OF self_Article = 0
-	SETATTR per_title OF self_Article = 0
-	ARG local_main_at_Main_internal_10
-	local_main_at_Main_internal_6 = VCALL Article initArticle
-	local_main_at_Main_an_article_5 = local_main_at_Main_internal_6
-	ARG an_article
-	ARG a_book
-	local_main_at_Main_internal_14 = ALLOCATE Nil
-	ARG local_main_at_Main_internal_14
-	local_main_at_Main_internal_13 = VCALL Nil cons
-	ARG local_main_at_Main_internal_13
-	local_main_at_Main_internal_12 = VCALL Cons cons
-	SETATTR books OF self_Main = local_main_at_Main_internal_12
-	local_main_at_Main_internal_16 = GETATTR self books
-	ARG local_main_at_Main_internal_16
-	local_main_at_Main_internal_15 = VCALL BookList print_list
-	local_main_at_Main_internal_11 = local_main_at_Main_internal_15
-	RETURN local_main_at_Main_internal_11
+	local_main_at_Main_internal_1 = LOAD data_5
+	ARG local_main_at_Main_internal_1
+	ARG self
+	local_main_at_Main_internal_0 = VCALL Main out_string
+	CLEAR 2 ARGS
+	RETURN local_main_at_Main_internal_0
 }
