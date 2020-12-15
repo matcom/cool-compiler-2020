@@ -33,26 +33,11 @@ class Context:
         self.types['String'].methods['concat'] = Method('concat', ['s'], [self.types['String']], self.types['String'])
         self.types['String'].methods['substr'] = Method('substr', ['i', 'l'], [self.types['Int'], self.types['Int']], self.types['String'])
 
-        #self.graph['Object'] = ['IO', 'String', 'Bool', 'Int']
-        #self.graph['IO'] = ['Main']
-        #self.graph['String'] = []
-        #self.graph['Int'] = []
-        #self.graph['Bool'] = []
-
     def create_type(self, name:str):
         if name in self.types:
             raise ContextError(f'Type with the same name ({name}) already in context.')
         typex = Type(name)
-        # print('---CreateType---')
-        # print('type: ', typex.name)
-        # print('parent: ', typex.parent.name)
         self.types[name] = typex
-        # if not self.graph.__contains__(name):
-        #     self.graph[name] = []
-        # if self.graph.__contains__(typex.parent.name):
-        #     self.graph[typex.parent.name].append(name)
-        # else:
-        #     self.graph[typex.parent.name] = [name]
         return typex
 
     def tag_types(self):
@@ -68,9 +53,6 @@ class Context:
             except:
                 pass
 
-        # print(self.graph)
-        # assert False, "Stop"
-
     def get_type(self, name:str):
         try:
             return self.types[name]
@@ -78,40 +60,11 @@ class Context:
             raise ContextError(f'Type "{name}" is not defined.')
 
     def set_type_tags(self, node='Object', tag=0):
-        # print('------Set-----')
-        # print('type: ', node)
-        # print('tag: ', tag)
         self.types[node].tag = tag
         for i,t in enumerate(self.graph[node]):
             self.set_type_tags(t, tag + i + 1)
-        # print('Done type tags')
-        # self.types['Object'].tag = 0
-        # self.types['Object'].tag = 0
-        # self.types['IO'].tag = 1
-        # self.types['Main'].tag = 2
-        # self.types['String'].tag = 2
-        # self.types['Bool'].tag = 3
-        # self.types['Int'].tag = 4
-        # self.types['A'].tag = 5
-        # self.types['B'].tag = 6
-        # self.types['C'].tag = 7
-        # self.types['D'].tag = 8
-        # self.types['E'].tag = 9
-        # self.types['A2I'].tag = 6
-
+        
     def set_type_max_tags(self, node='Object'):
-        # self.types['Object'].max_tag = 9
-        # self.types['IO'].max_tag = 2
-        # self.types['Main'].max_tag = 2
-        # self.types['String'].max_tag = 2
-        # self.types['Bool'].max_tag = 3
-        # self.types['Int'].max_tag = 4
-        # self.types['A'].max_tag = 9
-        # self.types['B'].max_tag = 9
-        # self.types['C'].max_tag = 7
-        # self.types['D'].max_tag = 9
-        # self.types['E'].max_tag = 9
-        # self.types['A2I'].max_tag = 6
         if not self.graph[node]:
             self.types[node].max_tag = self.types[node].tag
         else:

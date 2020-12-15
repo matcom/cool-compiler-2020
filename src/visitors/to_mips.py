@@ -11,8 +11,6 @@ class MIPS:
         self.mips_code = ''
         self.text = ''
         self.data = ''
-        self.count = 0
-        self.countStatic = ''
         self.mips_comm_for_operators = {
             '+' : 'add',
             '-' : 'sub',
@@ -73,10 +71,6 @@ class MIPS:
 
     @visitor.when(ProgramNodeIL)
     def visit(self, node):
-        print('-------------------IL visitor-----------------')
-        print(self.count)
-        self.count += 1
-        print('ProgramNodeIL')
         self.types = node.dottypes
         
         self.data += 'temp_string: .space 2048\n' 
@@ -96,9 +90,6 @@ class MIPS:
     
     @visitor.when(FunctionNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('FunctionNodeIL')
         self.current_function = node
 
         self.var_offset.__setitem__(self.current_function.name, {})
@@ -108,29 +99,22 @@ class MIPS:
         
 
         self.text += f'{node.name}:\n'
-        # self.text += f'move $fp, $sp\n'  #save frame pointer of current function
         
-        # for local_node in reversed(node.localvars): #save space for locals 
-        #     self.visit(local_node)
         self.text += f'addi $sp, $sp, {-4 * len(node.localvars)}\n'
         
-        self.text += 'addi $sp, $sp, -4\n' # save return address
+        self.text += 'addi $sp, $sp, -4\n' 
         self.text += 'sw $ra, 0($sp)\n'
 
         for instruction in node.instructions:
             self.visit(instruction)
         
-        self.text += 'lw $ra, 0($sp)\n'  #recover return address
+        self.text += 'lw $ra, 0($sp)\n'  
         total = 4 * len(node.localvars) + 4 * len(node.params) + 4
-        self.text += f'addi $sp, $sp, {total}\n' #pop locals,parameters,return address from the stack
-        # self.text += 'lw $fp, 0($sp)\n' # recover caller function frame pointer
+        self.text += f'addi $sp, $sp, {total}\n' 
         self.text += 'jr $ra\n' 
 
     @visitor.when(TypeNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('TypeNodeIL')
         self.data += f'{node.name}_name: .asciiz "{node.name}"\n'
         self.data += f'{node.name}_methods:\n'
         for method in node.methods.values():
@@ -151,20 +135,14 @@ class MIPS:
         
     @visitor.when(AssignNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('AssignNodeIL')
         offset = self.var_offset[self.current_function.name][node.dest]
-        print('-----------TYPE---- ',node.source)
         if node.source:
-            print('SOURCE')
             if isinstance(node.source, int):
                 self.text += f'li $t1, {node.source}\n'
             else:
                 right_offset = self.var_offset[self.current_function.name][node.source]
                 self.text += f'lw $t1, {right_offset}($sp)\n'
         else:
-            print('LIST')
             self.text += f'la $t1, void\n'
 
         self.text += f'sw $t1, {offset}($sp)\n'
@@ -172,9 +150,6 @@ class MIPS:
 
     @visitor.when(AllocateNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('AllocateNodeIL')
         amount = len(self.types[node.type].attributes) + 4
         self.text += f'li $a0, {amount * 4}\n' 
         self.text += f'li $v0, 9\n'
@@ -182,18 +157,17 @@ class MIPS:
         self.text += 'bge $v0, $sp heap_error\n'
         self.text += f'move $t0, $v0\n'
         
-        #Initialize Object Layout
-        self.text += f'li $t1, {node.name}\n' #tag
+        self.text += f'li $t1, {node.name}\n' 
         self.text += f'sw $t1, 0($t0)\n'
-        self.text += f'la $t1, {node.type}_name\n' #type_name
+        self.text += f'la $t1, {node.type}_name\n' 
         self.text += f'sw $t1, 4($t0)\n'
-        self.text += f'li $t1, {amount}\n' #size
+        self.text += f'li $t1, {amount}\n' 
         self.text += f'sw $t1, 8($t0)\n'
-        self.text += f'la $t1, {node.type}_methods\n' #methods pointer
+        self.text += f'la $t1, {node.type}_methods\n' 
         self.text += f'sw $t1, 12($t0)\n'
 
         offset = self.var_offset[self.current_function.name][node.dest]
-        self.text += f'sw $t0, {offset}($sp)\n'  #store instance address in local
+        self.text += f'sw $t0, {offset}($sp)\n' 
 
     @visitor.when(ParamNodeIL)
     def visit(self, node):
@@ -201,91 +175,56 @@ class MIPS:
 
     @visitor.when(LocalNodeIL)
     def visit(self, node):
-        # self.text += 'addi $sp, $sp, -4\n'
-        # self.text += 'sw $zero, 0($sp)\n'
         pass
 
     @visitor.when(GetAttribNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.countStatic += 'GetAttr: dest: ' + str(node.dest) + '\n'
-        print('GetAttrNodeIL')
-        # print('----------------::::::')
-        # print('----------------::::::',node.obj)
-        # print('----------------::::::',node.dest)
-        # print('----------------::::::',node.attr)
-        # print('----------------::::::',node.attr_type)
-        # print('----------------::::::',self.attr_offset[node.attr_type][node.attr])
-        
         self_offset = self.var_offset[self.current_function.name][node.obj]
-        self.text += f'lw $t0, {self_offset}($sp)\n'  #get self address
+        self.text += f'lw $t0, {self_offset}($sp)\n'  
         
         attr_offset = self.attr_offset[node.attr_type][node.attr]
-        self.text += f'lw $t1, {attr_offset}($t0)\n'  #get attribute
+        self.text += f'lw $t1, {attr_offset}($t0)\n'  
         
         result_offset = self.var_offset[self.current_function.name][node.dest]
-        self.text += f'sw $t1, {result_offset}($sp)\n' #store attribute in local
+        self.text += f'sw $t1, {result_offset}($sp)\n' 
 
     @visitor.when(SetAttribNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('SetAttrNodeIL')
-        # print('----------------::::::')
-        # print('----------------::::::',node.obj)
-        # print('----------------::::::',node.dest)
-        # print('----------------::::::',node.attr)
-        # print('----------------::::::',node.attr_type)
-        # print('----------------::::::',self.attr_offset[node.attr_type][node.attr])
         self_offset = self.var_offset[self.current_function.name][node.obj]
-        self.text += f'lw $t0, {self_offset}($sp)\n'  #get self address
+        self.text += f'lw $t0, {self_offset}($sp)\n'  
 
         if node.value:
-            value_offset = self.var_offset[self.current_function.name][node.value]  # get value from local
+            value_offset = self.var_offset[self.current_function.name][node.value]  
             self.text += f'lw $t1, {value_offset}($sp)\n'
         else:
-            self.text += f'la $t1, void\n'  # not initialized attribute
+            self.text += f'la $t1, void\n'  
             
         attr_offset = self.attr_offset[node.attr_type][node.attr]
-        self.text += f'sw $t1, {attr_offset}($t0)\n' #set attribute in instance
+        self.text += f'sw $t1, {attr_offset}($t0)\n' 
 
 
     @visitor.when(ArgNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('ArgNodeIL')
-        value_offset = self.var_offset[self.current_function.name][node.dest]  # get value from local
-        # if not self.count:
-        #     self.count = 1
-        # else:
-        #     self.count += 1
-        # print(self.count)        
-        # print('arg:', node.dest)
-        # print('offset::::::::::: ',value_offset)
+        value_offset = self.var_offset[self.current_function.name][node.dest]  
         self.text += f'lw $t1, {value_offset}($t0)\n'
         self.text += 'addi $sp, $sp, -4\n'
         self.text += 'sw $t1, 0($sp)\n'
 
     @visitor.when(DynamicCallNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('DynamicCallNodeIL')
-        self.countStatic += 'DynamicCall: instance: ' + str(node.obj) + '\n'
         self.text += 'move $t0, $sp\n'
         
         for arg in node.args:
             self.visit(arg)
         value_offset = self.var_offset[self.current_function.name][node.obj]  
-        self.text += f'lw $t1, {value_offset}($t0)\n'  # get instance from local
+        self.text += f'lw $t1, {value_offset}($t0)\n'  
         self.text += 'la $t0, void\n'
         self.text += 'beq $t1, $t0, dispatch_void_error\n'
         
-        self.text += f'lw $t2, 12($t1)\n' #get dispatch table address
+        self.text += f'lw $t2, 12($t1)\n' 
 
         method_offset = self.method_offset[node.type][node.method]
-        self.text += f'lw $t3, {method_offset}($t2)\n' # get method address
+        self.text += f'lw $t3, {method_offset}($t2)\n' 
         
         self.text += 'jal $t3\n'
 
@@ -295,18 +234,10 @@ class MIPS:
 
     @visitor.when(StaticCallNodeIL)
     def visit(self, node):
-        print(self.count)
-        # if node.function == 'String_equals':
-        # self.countStatic += 1
-        print('StaticCallNodeIL')
         self.text += 'move $t0, $sp\n'
-        # print('--------CALL------')
-        # print(node.function)
-        # self.count = 0
         for arg in node.args:
             self.visit(arg)
 
-        # print(self.count)
         self.text += f'jal {node.function}\n'
 
         result_offset = self.var_offset[self.current_function.name][node.dest]
@@ -314,9 +245,6 @@ class MIPS:
 
     @visitor.when(ReturnNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('ReturnNodeIL')
         if node.value:
             offset = self.var_offset[self.current_function.name][node.value]
             self.text += f'lw $a1, {offset}($sp)\n'
@@ -325,9 +253,6 @@ class MIPS:
 
     @visitor.when(CaseNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('CaseNodeIL')
         offset = self.var_offset[self.current_function.name][node.local_expr]
         self.text += f'lw $t0, {offset}($sp)\n'
         self.text += f'lw $t1, 0($t0)\n'
@@ -337,18 +262,12 @@ class MIPS:
 
     @visitor.when(OptionNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('OptionNodeIL')
         self.text += f'blt $t1 {node.tag} {node.next_label}\n'
         self.text += f'bgt $t1 {node.max_tag} {node.next_label}\n'
 
 
     @visitor.when(BinaryNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('BinaryNodeIL ' + node.op)
         mips_comm = self.mips_comm_for_operators[node.op]
         left_offset = self.var_offset[self.current_function.name][node.left]
         right_offset = self.var_offset[self.current_function.name][node.right]
@@ -362,9 +281,6 @@ class MIPS:
     
     @visitor.when(UnaryNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('UnaryNodeIL' + node.op)
         expr_offset = self.var_offset[self.current_function.name][node.expr]
         self.text += f'lw $t1, {expr_offset}($sp)\n'
         if node.op == 'not':
@@ -377,33 +293,21 @@ class MIPS:
         
     @visitor.when(GotoIfNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('GotoIfNodeIL')
         predicate_offset = self.var_offset[self.current_function.name][node.cond]
         self.text += f'lw $t0, {predicate_offset}($sp)\n'
-        self.text += f'lw $a0, 16($t0)\n'  #get value attribute
+        self.text += f'lw $a0, 16($t0)\n'
         self.text += f'bnez $a0, {node.label}\n'
     
     @visitor.when(GotoNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('GotoNodeIL')
         self.text += f'b {node.label}\n'
     
     @visitor.when(LabelNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('LabelNodeIL')
         self.text += f'{node.label}:\n'
 
     @visitor.when(OutIntNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('OutIntNodeIL')   
         if isinstance(node.value, int):
             self.text += f'li $v0 , 1\n'
             self.text += f'li $a0 , {node.value}\n'
@@ -416,9 +320,6 @@ class MIPS:
 
     @visitor.when(OutStringNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('OutStringNodeIL')
         var_offset = self.var_offset[self.current_function.name][node.value]
         self.text += f'lw $a0, {var_offset}($sp)\n'
         self.text += f'li $v0, 4\n'
@@ -426,9 +327,6 @@ class MIPS:
 
     @visitor.when(ReadIntNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('ReadIntNodeIL')
         read_offset = self.var_offset[self.current_function.name][node.dest]
         self.text += f'li $v0, 5\n'
         self.text += f'syscall\n'
@@ -436,34 +334,30 @@ class MIPS:
 
     @visitor.when(ReadStringNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('ReadStringNodeIL')
         read_offset = self.var_offset[self.current_function.name][node.dest]
         self.text += f'la $a0, temp_string\n'
         self.text += f'li $a1, 2048\n'
         self.text += f'li $v0, 8\n'
         self.text += f'syscall\n'
 
-        # Remove last chars (if they are '\n' or '\r\n')
         self.text += 'move $t0, $a0\n'
         self.text += 'jump_read_str_char:\n'
         self.text += 'li $t1, 0\n'
         self.text += 'lb $t1, 0($t0)\n'
-        self.text += 'beqz $t1, analize_str_end\n' # finish if the final of string is found
+        self.text += 'beqz $t1, analize_str_end\n'
         self.text += 'addi $t0, $t0, 1\n'
         self.text += 'j jump_read_str_char\n'
 
         self.text += 'analize_str_end:\n'
-        self.text += 'addi $t0, $t0, -1\n' # go to char at length - 1
+        self.text += 'addi $t0, $t0, -1\n' 
         self.text += 'li $t1, 0\n'
         self.text += 'lb $t1, 0($t0)\n'
-        self.text += 'bne $t1, 10, finish_jump_read_str_char\n' # remove char only if it is '\n'
-        self.text += 'sb $0, 0($t0)\n' # remove '\r\n'
-        self.text += 'addi $t0, $t0, -1\n' # go to char at length - 2
+        self.text += 'bne $t1, 10, finish_jump_read_str_char\n' 
+        self.text += 'sb $0, 0($t0)\n' 
+        self.text += 'addi $t0, $t0, -1\n' 
         self.text += 'lb $t1, 0($t0)\n'
-        self.text += 'bne $t1, 13, finish_jump_read_str_char\n' # remove char only if it is '\r'
-        self.text += 'sb $0, 0($t0)\n' # remove '\r\n'
+        self.text += 'bne $t1, 13, finish_jump_read_str_char\n' 
+        self.text += 'sb $0, 0($t0)\n' 
         self.text += 'j analize_str_end\n'
         self.text += 'finish_jump_read_str_char:\n'
 
@@ -471,41 +365,23 @@ class MIPS:
 
     @visitor.when(LoadNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('LoadNodeIL')
-        print('-------------msg----------: ' + str(node.msg))
         if node.msg != None:
             if isinstance(node.msg, str):
                 self.text += f'la $t0, {node.msg}\n'
                 offset = self.var_offset[self.current_function.name][node.dest]
                 self.text += f'sw $t0, {offset}($sp)\n'
-                print('Got str')
             else:
                 self.text += f'li $t0, {node.msg}\n'
                 offset = self.var_offset[self.current_function.name][node.dest]
                 self.text += f'sw $t0, {offset}($sp)\n'
-                print('Got int')
-
-    # @visitor.when(CIL_AST.LoadInt)
-    # def visit(self, node):
-    #     self.text += f'li $t0, {node.num}\n'
-    #     offset = self.var_offset[self.current_function.name][node.local_dest]
-    #     self.text += f'sw $t0, {offset}($sp)\n'
 
     @visitor.when(HaltNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('HaltNodeIL')
         self.text += 'li $v0, 10\n'
         self.text += 'syscall\n'
 
     @visitor.when(TypeOfNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('TypeOfNodeIL')
         obj_offset = self.var_offset[self.current_function.name][node.obj] 
         self.text += f'lw $t0, {obj_offset}($sp)\n' #get obj address from local
         self.text += 'lw $t1, 4($t0)\n' # get type name from the sec pos in obj layout
@@ -514,9 +390,6 @@ class MIPS:
 
     @visitor.when(IsVoidNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('IsVoidNodeIL')
         self.text += 'la $t0, void\n'
         offset = self.var_offset[self.current_function.name][node.expre_value] 
         self.text += f'lw $t1, {offset}($sp)\n' 
@@ -526,132 +399,101 @@ class MIPS:
     
     @visitor.when(CopyNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('CopyNodeIL')
-        # offset = self.var_offset[self.current_function.name][self.current_function.params[0].name] 
         self_offset = self.var_offset[self.current_function.name][node.source]
-        self.text += f'lw $t0, {self_offset}($sp)\n'  # get self address
-        self.text += f'lw $a0, 8($t0)\n'  # get self size {amount}
-        self.text += f'mul $a0, $a0, 4\n' # {amount * 4}
+        self.text += f'lw $t0, {self_offset}($sp)\n'  
+        self.text += f'lw $a0, 8($t0)\n'  
+        self.text += f'mul $a0, $a0, 4\n' 
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
         self.text += 'bge $v0, $sp heap_error\n'
         self.text += f'move $t1, $v0\n'
 
-        # Copy All Slots inlcuding Tag, Size, methods ptr and each atrribute 
-        # Tenemos q hacerlo en MIPS porq copy está a nivel de Object y en python
-        # en este punto no sabemos el tipo dinamico (para asi saber el tamaño real) 
-        # hasta q se haga el VCALL por lo el ciclo hayq  hacerlo en MIPS)
-
         self.text += 'li $a0, 0\n'
         self.text += 'lw $t3, 8($t0)\n'
         self.text += 'copy_object_word:\n'
-        self.text += 'lw $t2, 0($t0)\n' # load current object word
-        self.text += 'sw $t2, 0($t1)\n' # store word in copy object
-        self.text += 'addi $t0, $t0, 4\n' # move to the next word in orginal object
-        self.text += 'addi $t1, $t1, 4\n' # move to the next word in copy object
-        self.text += 'addi $a0, $a0, 1\n' # size count
-        '''
-        Src2 can either be a register or an immediate value (a 16 bit integer).
-        blt Rsrc1, Src2, label (Branch on Less Than)
-        Conditionally branch to the instruction at the label if the contents of register Rsrc1 are less than Src2.
-        '''
-        self.text += 'blt $a0, $t3, copy_object_word\n' # $t3 is the orginal object size
+        self.text += 'lw $t2, 0($t0)\n' 
+        self.text += 'sw $t2, 0($t1)\n' 
+        self.text += 'addi $t0, $t0, 4\n' 
+        self.text += 'addi $t1, $t1, 4\n' 
+        self.text += 'addi $a0, $a0, 1\n' 
+        
+        self.text += 'blt $a0, $t3, copy_object_word\n' 
 
         offset = self.var_offset[self.current_function.name][node.dest]
-        # $t1 is pointing at the end of the object
-        # if $v0 is modified for any reason (it should not, but...)
-        # before looping we can move $t3, $t1 and use $t3 but this should work 
-        self.text += f'sw $v0, {offset}($sp)\n'  #store instance address in local
+        
+        self.text += f'sw $v0, {offset}($sp)\n'  
 
     @visitor.when(LengthNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('LengthNodeIL')
         offset = self.var_offset[self.current_function.name][node.arg]
         self.text += f'lw $t0, {offset}($sp)\n'
         self.text += f'lw $t0, 16($t0)\n'
         
         self.text += 'li $a0, 0\n'
         self.text += 'count_char:\n'
-        self.text += 'lb $t1, 0($t0)\n' # loading current char
-        self.text += 'beqz $t1, finish_chars_count\n' # finish if a zero is found
-        self.text += 'addi $t0, $t0, 1\n' # move to the next char
-        self.text += 'addi $a0, $a0, 1\n' # length_count += 1
+        self.text += 'lb $t1, 0($t0)\n' 
+        self.text += 'beqz $t1, finish_chars_count\n' 
+        self.text += 'addi $t0, $t0, 1\n' 
+        self.text += 'addi $a0, $a0, 1\n' 
         self.text += 'j count_char\n'
         self.text += 'finish_chars_count:\n'
 
         offset = self.var_offset[self.current_function.name][node.dest]
-        self.text += f'sw $a0, {offset}($sp)\n'  # store length count address in local
+        self.text += f'sw $a0, {offset}($sp)\n'
     
     @visitor.when(ConcatNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('ConcatNodeIL')
         offset_arg1 = self.var_offset[self.current_function.name][node.arg1]
         offset_len1 = self.var_offset[self.current_function.name][node.len1]
 
         offset_arg2 = self.var_offset[self.current_function.name][node.arg2]
         offset_len2 = self.var_offset[self.current_function.name][node.len2]
 
-        # reserve space for concatenation result
         self.text += f'lw $a0, {offset_len1}($sp)\n'
         self.text += f'lw $t0, {offset_len2}($sp)\n'
-        # add Rdest, Rsrc1, Src2 Addition (with overflow)
-        # is similar to addi but 2do summand can be a register
+
         self.text += 'add $a0, $a0, $t0\n'
-        self.text += 'addi $a0, $a0, 1\n' # reserve 1 more byte for '\0'
+        self.text += 'addi $a0, $a0, 1\n'
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
         self.text += 'bge $v0, $sp heap_error\n'
         self.text += 'move $t3, $v0\n'
-        # the beginning of new reserved address is in $v0 and save in $t3
 
         self.text += f'lw $t0, {offset_arg1}($sp)\n'
         self.text += f'lw $t1, {offset_arg2}($sp)\n'
     
-        # copy arg1 starting in $t0 to $v0
         self.text += 'copy_arg1_char:\n'
-        self.text += 'lb $t2, 0($t0)\n' # loading current char from arg1
-        self.text += 'sb $t2, 0($v0)\n' # storing current char into result_str end
-        self.text += 'beqz $t2, concat_arg2_char\n' # finish if a zero is found
-        self.text += 'addi $t0, $t0, 1\n' # move to the next char
-        self.text += 'addi $v0, $v0, 1\n' # move to the next available byte
+        self.text += 'lb $t2, 0($t0)\n' 
+        self.text += 'sb $t2, 0($v0)\n' 
+        self.text += 'beqz $t2, concat_arg2_char\n' 
+        self.text += 'addi $t0, $t0, 1\n' 
+        self.text += 'addi $v0, $v0, 1\n' 
         self.text += 'j copy_arg1_char\n'
 
-        # concat arg2 starting in $t1 to $v0
         self.text += 'concat_arg2_char:\n'
-        self.text += 'lb $t2, 0($t1)\n' # loading current char from arg1
-        self.text += 'sb $t2, 0($v0)\n' # storing current char into result_str end
-        self.text += 'beqz $t2, finish_arg2_concat\n' # finish if a zero is found
-        self.text += 'addi $t1, $t1, 1\n' # move to the next char
-        self.text += 'addi $v0, $v0, 1\n' # move to the next available byte
+        self.text += 'lb $t2, 0($t1)\n' 
+        self.text += 'sb $t2, 0($v0)\n' 
+        self.text += 'beqz $t2, finish_arg2_concat\n' 
+        self.text += 'addi $t1, $t1, 1\n' 
+        self.text += 'addi $v0, $v0, 1\n' 
         self.text += 'j concat_arg2_char\n'
         self.text += 'finish_arg2_concat:\n'
-        self.text += 'sb $0, ($v0)\n' # put '\0' at the end
+        self.text += 'sb $0, ($v0)\n' 
         
         offset = self.var_offset[self.current_function.name][node.dest]
-        self.text += f'sw $t3, {offset}($sp)\n'  # store length count address in local
+        self.text += f'sw $t3, {offset}($sp)\n'  
 
     @visitor.when(SubstringNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('SubstringNodeIL')
         offset_idx = self.var_offset[self.current_function.name][node.begin]
         offset_len = self.var_offset[self.current_function.name][node.end]
         offset_str = self.var_offset[self.current_function.name][node.word]
 
-        # reserve space for substring result
         self.text += f'lw $a0, {offset_len}($sp)\n'
-        self.text += 'addi $a0, $a0, 1\n' # reserve 1 more byte for '\0'
+        self.text += 'addi $a0, $a0, 1\n' 
         self.text += f'li $v0, 9\n'
         self.text += f'syscall\n'
         self.text += 'bge $v0, $sp heap_error\n'
-        # the beginning of new reserved address is in $v0
         
         self.text += f'lw $t0, {offset_idx}($sp)\n'
         self.text += f'lw $t1, {offset_len}($sp)\n'
@@ -660,60 +502,56 @@ class MIPS:
 
         self.text += 'bltz $t0, substr_error\n'
 
-        # jump first i chars
         self.text += 'li $a0, 0\n'
         self.text += 'jump_str_char:\n'
-        self.text += f'beq $a0, $t0, finish_index_jump\n' # finish if we are at index i
-        self.text += 'addi $a0, $a0, 1\n' # chars count
-        self.text += 'addi $t2, $t2, 1\n'  # move to the next char
+        self.text += f'beq $a0, $t0, finish_index_jump\n' 
+        self.text += 'addi $a0, $a0, 1\n' 
+        self.text += 'addi $t2, $t2, 1\n' 
         self.text += 'beq $t2, $zero, substr_error\n'
         self.text += 'j jump_str_char\n'
         self.text += 'finish_index_jump:\n'
-        self.text += 'li $a0, 0\n' # reset $a0 to count the length
-        self.text += 'move $t3, $v0\n' # save start of substring
+        self.text += 'li $a0, 0\n' 
+        self.text += 'move $t3, $v0\n' 
 
-        # coping chars from string $t2 (starting in $t0 index) until length $t1 to $v0
+        
         self.text += 'copy_substr_char:\n'
-        self.text += 'beq $a0, $t1 finish_substr_copy\n' # finish if the chars count is equals to length
-        self.text += 'li $t0, 0\n' # reset $t0 before loading bytes
-        self.text += 'lb $t0, 0($t2)\n' # loading current char from string
-        self.text += 'sb $t0, 0($v0)\n' # storing current char into result_str end
-        self.text += 'addi $t2, $t2, 1\n'  # move to the next char
+        self.text += 'beq $a0, $t1 finish_substr_copy\n' 
+        self.text += 'li $t0, 0\n' 
+        self.text += 'lb $t0, 0($t2)\n' 
+        self.text += 'sb $t0, 0($v0)\n' 
+        self.text += 'addi $t2, $t2, 1\n'  
         self.text += 'beq $t2, $zero, substr_error\n'
-        self.text += 'addi $v0, $v0, 1\n' # move to the next available byte
-        self.text += 'addi $a0, $a0, 1\n' # chars count
+        self.text += 'addi $v0, $v0, 1\n' 
+        self.text += 'addi $a0, $a0, 1\n' 
         self.text += 'j copy_substr_char\n'
         self.text += 'finish_substr_copy:\n'
-        self.text += 'sb $0, ($v0)\n' # put '\0' at the end
+        self.text += 'sb $0, ($v0)\n' 
         
         offset = self.var_offset[self.current_function.name][node.dest]
-        self.text += f'sw $t3, {offset}($sp)\n'  # store length count address in local
+        self.text += f'sw $t3, {offset}($sp)\n'  
 
     @visitor.when(StringEqualsNodeIL)
     def visit(self, node):
-        print(self.count)
-        self.count += 1
-        print('StringEqualsNodeIL')
         offset_arg1 = self.var_offset[self.current_function.name][node.s1]
         offset_arg2 = self.var_offset[self.current_function.name][node.s2]
         
         self.text += f'lw $t1, {offset_arg1}($sp)\n'
         self.text += f'lw $t2, {offset_arg2}($sp)\n'
 
-        # comparing char by char
+        
         self.text += 'compare_str_char:\n'
-        self.text += 'li $t3, 0\n' # reset $t3 before loading byte
-        self.text += 'lb $t3, 0($t1)\n' # loading current char from string1
-        self.text += 'li $t4, 0\n' # reset $t4 before loading byte
-        self.text += 'lb $t4, 0($t2)\n' # loading current char from string2
-        self.text += 'seq $a0, $t3, $t4\n' # comparing current bytes
-        self.text += 'beqz $a0, finish_compare_str\n' # finish if current chars are not equals
-        self.text += 'beqz $t3, finish_compare_str\n' # finish if the final of string1 is found
-        self.text += 'beqz $t4, finish_compare_str\n' # finish if the final of string2 is found
-        self.text += 'addi $t1, $t1, 1\n' # move to the next char in string1
-        self.text += 'addi $t2, $t2, 1\n' # move to the next char in string2
+        self.text += 'li $t3, 0\n' 
+        self.text += 'lb $t3, 0($t1)\n' 
+        self.text += 'li $t4, 0\n' 
+        self.text += 'lb $t4, 0($t2)\n' 
+        self.text += 'seq $a0, $t3, $t4\n' 
+        self.text += 'beqz $a0, finish_compare_str\n' 
+        self.text += 'beqz $t3, finish_compare_str\n' 
+        self.text += 'beqz $t4, finish_compare_str\n' 
+        self.text += 'addi $t1, $t1, 1\n' 
+        self.text += 'addi $t2, $t2, 1\n' 
         self.text += 'j compare_str_char\n'
         self.text += 'finish_compare_str:\n'
 
         offset = self.var_offset[self.current_function.name][node.result]
-        self.text += f'sw $a0, {offset}($sp)\n'  # store comparison result in local
+        self.text += f'sw $a0, {offset}($sp)\n'
