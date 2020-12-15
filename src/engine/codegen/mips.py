@@ -8,9 +8,9 @@ string_max_size = 1000
 
 class GlobalDescriptor:
 
-    def __init__(self, dottypes: list(TypeNode), name_ptrs):
+    def __init__(self, dottypes: List[TypeNode], name_ptrs):
         self.vTable = None
-        self.Types = Dict[str, MemoryType] = dict()
+        self.Types = {}
 
         methods = {}
 
@@ -28,7 +28,7 @@ class GlobalDescriptor:
                 methds.append(method_name)
                 end_method += 1
 
-            self.Types[dottype.name] = MemoryType(dottype.name, index, dottype.attrs, methds, start_method, name_ptrs[dottype.name])
+            self.Types[dottype.name] = MemoryType(dottype.name, index, dottype.attributes, methds, start_method, name_ptrs[dottype.name])
 
             start_method = end_method
             
@@ -159,7 +159,7 @@ class MipsCode:
         self.dotdata.append(line)
 
     def data_label(self, lname):
-        self._write_data(f'{lname}')
+        self._write_data(f'{lname}:')
 
     def empty_line(self):
         self._write('')

@@ -36,14 +36,14 @@ class CIL_TO_MIPS:
         index = 0
 
         self.mips.comment("Build VTable")
-        for _,tag in self.global_descriptor.vTable.methods:
+        for _,tag in self.global_descriptor.vTable.methods.items():
             self.mips.la(reg.s0, tag)
             self.mips.sw(reg.s0, f'{index}({reg.s7})')
             index += 1
 
 
 
-    def build_tags(self, dottypes:list(TypeData)):
+    def build_tags(self, dottypes: List[TypeData]):
         base_tag = "classname_"
 
         tags = dict()
@@ -81,8 +81,8 @@ class CIL_TO_MIPS:
         return label
 
     def get_label(self):
-        return f"mip_label_{self.label_count}"
         self.label_count += 1
+        return f"mip_label_{self.label_count}"
 
     def load_memory(self, dst, arg: str):
         if arg in self.arguments or arg in self.local_vars:
@@ -323,7 +323,7 @@ class CIL_TO_MIPS:
         self.store_memory(reg.s1, node.dest)
 
         self.mips.li(reg.s0, type_data.pos)
-        self.mips.store_memory(reg.s0, reg.s1)
+        self.mips.store_memory(reg.s0, self.mips.offset(reg.s1))
 
         self.mips.la(reg.s0, type_data.str)
         self.mips.store_memory(
@@ -348,7 +348,7 @@ class CIL_TO_MIPS:
     def visit(self, node: TypeOfNode):
         self.mips.comment("TypeOfNode")
         self.load_memory(reg.s0, node.obj)
-        self.mips.load_memory(reg.s1, reg.s0)
+        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0))
         self.store_memory(reg.s1, node.dest)
 
     @visitor.when(LabelNode)
@@ -549,7 +549,7 @@ class CIL_TO_MIPS:
         self.mips.label(end_ok_label)
         self.mips.li(reg.v0, 1)
         self.mips.label(end_label)
-        self.mips.store_memory(reg.v0, node.dest)
+        self.store_memory(reg.v0, node.dest)
 
     @visitor.when(LoadNode)
     def visit(self, node: LoadNode):
