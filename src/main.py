@@ -72,11 +72,11 @@ if len(checker_errors):
 cil = COOL_TO_CIL(checker.context)
 cil_ast = cil.visit(ast)
 
-# emsamb = CIL_TO_MIPS()
-# emsamb.visit(cil_ast)
+emsamb = CIL_TO_MIPS()
+emsamb.visit(cil_ast)
 
-# f_ast = emsamb.mips.compile()
-f_ast = CIL_FORMATTER().visit(cil_ast)
+f_ast = emsamb.mips.compile()
+#f_ast = CIL_FORMATTER().visit(cil_ast)
 
 string_formatted = str(f_ast)
 output_file.write(string_formatted)
