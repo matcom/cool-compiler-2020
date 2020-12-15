@@ -48,7 +48,6 @@ class Collector:
                 if declaration.parent != None and declaration.parent.lex in self.parents.keys() and self.ciclic_heritage(declaration.id.lex, declaration.parent.lex):
                     self.errors.append(ERROR_ON_LN_COL % (
                         declaration.line, declaration.column) + "SemanticError: " + CYCLIC_HERITAGE % (declaration.id.lex))
-                    break
 
     @visitor.when(ClassDeclarationNode)
     def visit(self, node):

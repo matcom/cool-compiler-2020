@@ -26,13 +26,14 @@ class TypeNode(Node):
 
         for attr in self.attributes:
             string_base += str(attr) + "\n"
-        
+
         string_base += "Methods \n"
 
         for methos in self.methods:
             string_base += str(methos) + "\n"
-        
+
         return string_base
+
 
 class DataNode(Node):
     def __init__(self, vname, value):
@@ -287,10 +288,7 @@ class ReadStrNode(InstructionNode):
     def __init__(self, dest):
         self.dest = dest
 
-################# nodes que me tengo que definir ##############
 
-# class ConformNode(InstructionNode):
-#     def __init__(self, dest, obj, typex):
-#         self.dest = dest
-#         self.obj = obj
-#         self.type = typex
+class VoidNode(InstructionNode):
+    def __init__(self, dest):
+        self.dest = dest

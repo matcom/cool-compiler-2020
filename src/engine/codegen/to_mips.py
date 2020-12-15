@@ -169,7 +169,6 @@ class CIL_TO_MIPS:
         self.mips.empty_line()
 
         self.mips.comment("Clean stack variable space")
-        print(localvars_count, node.name)
         self.mips.addi(reg.sp, reg.sp, localvars_count * self.data_size)
         self.arguments = None
         self.mips.comment("Return")
@@ -346,8 +345,6 @@ class CIL_TO_MIPS:
             reg.s0, self.mips.offset(reg.s1, 2 * self.data_size))
 
         # Store Class Vtable Ptr
-        print(
-            f"First methohd of class {node.type} {type_descritptor.vtable * self.data_size}")
         self.mips.li(reg.s0, type_descritptor.vtable *
                      self.data_size)  # first function on vtable
         self.mips.store_memory(
@@ -408,10 +405,10 @@ class CIL_TO_MIPS:
         self.mips.load_memory(
             reg.s1, self.mips.offset(reg.s0, 3 * self.data_size))
 
-        print(type_descritptor.get_method_index(node.method))
+        # print(type_descritptor.get_method_index(node.method))
         self.mips.addi(reg.s2, reg.s1, offset)
         self.mips.addu(reg.s3, reg.s2, reg.s7)
-       
+
         # retrieve function location
         self.mips.load_memory(reg.s4, self.mips.offset(reg.s3))
 
@@ -431,10 +428,10 @@ class CIL_TO_MIPS:
         self.mips.li(reg.a0, 1)
         self.mips.syscall(17)
 
-    # @visitor.when(BoxNode)
-    # def visit(self, node: BoxNode):
-    #     self.mips.li(reg.s0, node.value)
-    #     self.store_memory(reg.s0, node.dest)
+    @visitor.when(BoxNode)
+    def visit(self, node: BoxNode):
+        self.mips.li(reg.s0, node.value)
+        self.store_memory(reg.s0, node.dest)
 
     @visitor.when(AbortNode)
     def visit(self, node: AbortNode):
@@ -666,3 +663,7 @@ class CIL_TO_MIPS:
     def visit(self, node: ReturnNode):
         self.mips.comment("ReturnNode")
         self.load_memory(reg.v0, node.value)
+
+    @visitor.when(VoidNode)
+    def visit(self, node: VoidNode):
+        self.store_memory(reg.zero, node.dest)

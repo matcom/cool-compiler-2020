@@ -30,7 +30,7 @@ class Checker:
         scope = Scope()
         for d in node.declarations:
             self.visit(d, scope.create_child())
-        return scope, self.context
+        return scope
 
     @visitor.when(ClassDeclarationNode)
     def visit(self, node, scope):

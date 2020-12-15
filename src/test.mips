@@ -1,213 +1,1380 @@
-.TYPES
-type Object {
-	
+.data
+classname_Object:
+.asciiz "Object"
+classname_String:
+.asciiz "String"
+classname_IO:
+.asciiz "IO"
+classname_Int:
+.asciiz "Int"
+classname_Bool:
+.asciiz "Bool"
+classname_Main:
+.asciiz "Main"
+data_0:
+.asciiz "Abort called from class "
+data_1:
+.asciiz "\n"
+data_2:
+.asciiz "Invalid substring start"
+data_3:
+.asciiz "Invalid substring length"
+data_4:
+.asciiz "Invalid substring"
+data_5:
+.asciiz "Hello, World.
+"
+.text
+main:
+# Allocate Vtable
+li $a0, 120
+li $v0, 9
+syscall
+move $s7, $v0
+# Build VTable
+la $s0, function_abort_at_Object
+sw $s0, 0($s7)
+la $s0, function_type_name_at_Object
+sw $s0, 4($s7)
+la $s0, function_copy_at_Object
+sw $s0, 8($s7)
+la $s0, function_abort_at_Object
+sw $s0, 12($s7)
+la $s0, function_type_name_at_Object
+sw $s0, 16($s7)
+la $s0, function_copy_at_Object
+sw $s0, 20($s7)
+la $s0, function_length_at_String
+sw $s0, 24($s7)
+la $s0, function_concat_at_String
+sw $s0, 28($s7)
+la $s0, function_substr_at_String
+sw $s0, 32($s7)
+la $s0, function_abort_at_Object
+sw $s0, 36($s7)
+la $s0, function_type_name_at_Object
+sw $s0, 40($s7)
+la $s0, function_copy_at_Object
+sw $s0, 44($s7)
+la $s0, function_out_string_at_IO
+sw $s0, 48($s7)
+la $s0, function_out_int_at_IO
+sw $s0, 52($s7)
+la $s0, function_in_string_at_IO
+sw $s0, 56($s7)
+la $s0, function_in_int_at_IO
+sw $s0, 60($s7)
+la $s0, function_abort_at_Object
+sw $s0, 64($s7)
+la $s0, function_type_name_at_Object
+sw $s0, 68($s7)
+la $s0, function_copy_at_Object
+sw $s0, 72($s7)
+la $s0, function_abort_at_Object
+sw $s0, 76($s7)
+la $s0, function_type_name_at_Object
+sw $s0, 80($s7)
+la $s0, function_copy_at_Object
+sw $s0, 84($s7)
+la $s0, function_abort_at_Object
+sw $s0, 88($s7)
+la $s0, function_type_name_at_Object
+sw $s0, 92($s7)
+la $s0, function_copy_at_Object
+sw $s0, 96($s7)
+la $s0, function_out_string_at_IO
+sw $s0, 100($s7)
+la $s0, function_out_int_at_IO
+sw $s0, 104($s7)
+la $s0, function_in_string_at_IO
+sw $s0, 108($s7)
+la $s0, function_in_int_at_IO
+sw $s0, 112($s7)
+la $s0, function_main_at_Main
+sw $s0, 116($s7)
+jal entry
 
-	method abort: function_abort_at_Object
-	method type_name: function_type_name_at_Object
-	method copy: function_copy_at_Object
-}
-type String {
-	attribute value
+li $v0, 10
+syscall
+function_abort_at_Object:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
 
-	method abort: function_abort_at_Object
-	method type_name: function_type_name_at_Object
-	method copy: function_copy_at_Object
-	method length: function_length_at_String
-	method concat: function_concat_at_String
-	method substr: function_substr_at_String
-}
-type IO {
-	
+# Allocate memory for Local variables
+addi $sp, $sp, -12
 
-	method abort: function_abort_at_Object
-	method type_name: function_type_name_at_Object
-	method copy: function_copy_at_Object
-	method out_string: function_out_string_at_IO
-	method out_int: function_out_int_at_IO
-	method in_string: function_in_string_at_IO
-	method in_int: function_in_int_at_IO
-}
-type Int {
-	attribute value
 
-	method abort: function_abort_at_Object
-	method type_name: function_type_name_at_Object
-	method copy: function_copy_at_Object
-}
-type Bool {
-	attribute value
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
 
-	method abort: function_abort_at_Object
-	method type_name: function_type_name_at_Object
-	method copy: function_copy_at_Object
-}
-type Main {
-	
+# Generating body code
+# TypeNameNode
+# Load from self to $t0
+lw $t0, 4($fp)
+lw $t1, 4($t0)
+sw $t1, 4($fp)
+# Load from data_0 to $s0
+la $s0, data_0
+# Load from local_abort_at_Object_internal_0 to $s1
+lw $s1, 4($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_1:
+lb $t3, 0($t0)
+beqz $t3, mips_label_2
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_1
+mips_label_2:
+move $s4, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_3:
+lb $t3, 0($t0)
+beqz $t3, mips_label_4
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_3
+mips_label_4:
+move $s5, $t1
+add $a0, $s4, $s5
+li $v0, 9
+syscall
+move $s3, $v0
+move $t0, $s0
+move $t1, $s3
+mips_label_5:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mips_label_6
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mips_label_5
+mips_label_6:
+move $v0, $t1
+move $t0, $s1
+move $t1, $v0
+mips_label_7:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mips_label_8
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mips_label_7
+mips_label_8:
+move $v0, $t1
+sw $s3, 8($fp)
+# Load from local_abort_at_Object_internal_1 to $s0
+lw $s0, 8($fp)
+# Load from data_1 to $s1
+la $s1, data_1
+move $t0, $s0
+li $t1, 0
+mips_label_9:
+lb $t3, 0($t0)
+beqz $t3, mips_label_10
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_9
+mips_label_10:
+move $s4, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_11:
+lb $t3, 0($t0)
+beqz $t3, mips_label_12
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_11
+mips_label_12:
+move $s5, $t1
+add $a0, $s4, $s5
+li $v0, 9
+syscall
+move $s3, $v0
+move $t0, $s0
+move $t1, $s3
+mips_label_13:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mips_label_14
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mips_label_13
+mips_label_14:
+move $v0, $t1
+move $t0, $s1
+move $t1, $v0
+mips_label_15:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mips_label_16
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mips_label_15
+mips_label_16:
+move $v0, $t1
+sw $s3, 12($fp)
+# Print str local_abort_at_Object_internal_2
+# Load from local_abort_at_Object_internal_2 to $a0
+lw $a0, 12($fp)
+li $v0, 4
+syscall
+li $v0, 10
+syscall
 
-	method abort: function_abort_at_Object
-	method type_name: function_type_name_at_Object
-	method copy: function_copy_at_Object
-	method out_string: function_out_string_at_IO
-	method out_int: function_out_int_at_IO
-	method in_string: function_in_string_at_IO
-	method in_int: function_in_int_at_IO
-	method main: function_main_at_Main
-}
 
-.DATA
-data_0 = "Abort called from class "
-data_1 = "\n"
-data_2 = "Invalid substring start"
-data_3 = "Invalid substring length"
-data_4 = "Invalid substring"
-data_5 = "Hello, World.n"
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
 
-.CODE
-function function_abort_at_Object {
-	PARAM self
+# Clean stack variable space
+addi $sp, $sp, 12
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_copy_at_Object:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
 
-	LOCAL local_abort_at_Object_internal_0
-	LOCAL local_abort_at_Object_internal_1
-	LOCAL local_abort_at_Object_internal_2
+# Allocate memory for Local variables
+addi $sp, $sp, -4
 
-	local_abort_at_Object_internal_0 = TYPENAME self
-	local_abort_at_Object_internal_1 = CONCAT data_0 local_abort_at_Object_internal_0
-	local_abort_at_Object_internal_2 = CONCAT local_abort_at_Object_internal_1 data_1
-	PRINTSTR local_abort_at_Object_internal_2
-	ABORT
-}
-function function_copy_at_Object {
-	PARAM self
 
-	LOCAL local_copy_at_Object_internal_0
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
 
-	local_copy_at_Object_internal_0 = COPY self
-	RETURN local_copy_at_Object_internal_0
-}
-function function_type_name_at_Object {
-	PARAM self
+# Generating body code
+la $s1, -4($fp)
+li $s3, 0
+move $t0, $s0
+move $t1, $s1
+move $t3, $s3
+mips_label_17:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+addi $t0, $t0, 2
+addi $t1, $t1, 2
+addi $t3, $t3, -1
+beqz $t3, mips_label_18
+j mips_label_17
+mips_label_18:
+# ReturnNode
+# Load from local_copy_at_Object_internal_0 to $v0
+lw $v0, 4($fp)
 
-	LOCAL local_type_name_at_Object_internal_0
-	LOCAL local_type_name_at_Object_internal_1
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
 
-	local_type_name_at_Object_internal_1 = TYPEOF self
-	local_type_name_at_Object_internal_0 = TYPENAME local_type_name_at_Object_internal_1
-	RETURN local_type_name_at_Object_internal_0
-}
-function function_length_at_String {
-	PARAM self
+# Clean stack variable space
+addi $sp, $sp, 4
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_type_name_at_Object:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
 
-	LOCAL local_length_at_String_internal_0
+# Allocate memory for Local variables
+addi $sp, $sp, -8
 
-	local_length_at_String_internal_0 = LENGTH self
-	RETURN local_length_at_String_internal_0
-}
-function function_concat_at_String {
-	PARAM self
-	PARAM string
 
-	LOCAL local_concat_at_String_internal_0
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
 
-	local_concat_at_String_internal_0 = CONCAT self string
-	RETURN local_concat_at_String_internal_0
-}
-function function_substr_at_String {
-	PARAM self
-	PARAM start
-	PARAM length
+# Generating body code
+# TypeOfNode of self
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 3($s0)
+sw $s1, 8($fp)
+# TypeNameNode
+# Load from local_type_name_at_Object_internal_1 to $t0
+lw $t0, 8($fp)
+lw $t1, 4($t0)
+sw $t1, 4($fp)
+# ReturnNode
+# Load from local_type_name_at_Object_internal_0 to $v0
+lw $v0, 4($fp)
 
-	LOCAL local_substr_at_String_internal_0
-	LOCAL local_substr_at_String_internal_1
-	LOCAL local_substr_at_String_internal_2
-	LOCAL local_substr_at_String_internal_3
-	LOCAL local_substr_at_String_internal_4
-	LOCAL local_substr_at_String_internal_5
-	LOCAL local_substr_at_String_internal_6
-	LOCAL local_substr_at_String_internal_7
-	LOCAL local_substr_at_String_internal_8
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
 
-	local_substr_at_String_internal_3 = 0
-	local_substr_at_String_internal_2 = LENGTH self
-	local_substr_at_String_internal_5 = local_substr_at_String_internal_3 <= start
-	IF local_substr_at_String_internal_5 GOTO error1
-	local_substr_at_String_internal_8 = CONCAT data_2 data_1
-	PRINTSTR local_substr_at_String_internal_8
-	ERROR 0
-	LABEL error1
-	local_substr_at_String_internal_6 = local_substr_at_String_internal_3 <= length
-	IF local_substr_at_String_internal_6 GOTO error2
-	local_substr_at_String_internal_8 = CONCAT data_3 data_1
-	PRINTSTR local_substr_at_String_internal_8
-	ERROR 0
-	LABEL error2
-	local_substr_at_String_internal_4 = start + length
-	local_substr_at_String_internal_7 = local_substr_at_String_internal_4 <= local_substr_at_String_internal_2
-	IF local_substr_at_String_internal_7 GOTO error3
-	local_substr_at_String_internal_8 = CONCAT data_4 data_1
-	PRINTSTR local_substr_at_String_internal_8
-	ERROR 0
-	LABEL error3
-	local_substr_at_String_internal_0 = SUBSTRING self start length
-	RETURN local_substr_at_String_internal_0
-}
-function function_out_string_at_IO {
-	
+# Clean stack variable space
+addi $sp, $sp, 8
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_length_at_String:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
 
-	LOCAL local_out_string_at_IO_internal_0
+# Allocate memory for Local variables
+addi $sp, $sp, -4
 
-	PRINTSTR local_out_string_at_IO_internal_0
-}
-function function_in_string_at_IO {
-	
 
-	LOCAL local_in_string_at_IO_internal_0
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
 
-	local_in_string_at_IO_internal_0 = READSTR
-	RETURN local_in_string_at_IO_internal_0
-}
-function function_out_int_at_IO {
-	PARAM int_val
+# Generating body code
+# LengthNode
+# Load from self to $s1
+lw $s1, 4($fp)
+move $t0, $s1
+li $t1, 0
+mips_label_19:
+lb $t3, 0($t0)
+beqz $t3, mips_label_20
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_19
+mips_label_20:
+move $s0, $t1
+sw $s0, 4($fp)
+# ReturnNode
+# Load from local_length_at_String_internal_0 to $v0
+lw $v0, 4($fp)
 
-	
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
 
-	PRINTINT int_val
-}
-function function_in_int_at_IO {
-	
+# Clean stack variable space
+addi $sp, $sp, 4
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_concat_at_String:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
 
-	LOCAL local_in_int_at_IO_internal_0
+# Allocate memory for Local variables
+addi $sp, $sp, -4
 
-	local_in_int_at_IO_internal_0 = READINT
-	RETURN local_in_int_at_IO_internal_0
-}
-function ctor_Main {
-	PARAM self
 
-	
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
 
-	RETURN self
-}
-function entry {
-	
+# Generating body code
+# Load from self to $s0
+lw $s0, 4($fp)
+# Load from string to $s1
+lw $s1, 8($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_21:
+lb $t3, 0($t0)
+beqz $t3, mips_label_22
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_21
+mips_label_22:
+move $s4, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_23:
+lb $t3, 0($t0)
+beqz $t3, mips_label_24
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_23
+mips_label_24:
+move $s5, $t1
+add $a0, $s4, $s5
+li $v0, 9
+syscall
+move $s3, $v0
+move $t0, $s0
+move $t1, $s3
+mips_label_25:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mips_label_26
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mips_label_25
+mips_label_26:
+move $v0, $t1
+move $t0, $s1
+move $t1, $v0
+mips_label_27:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mips_label_28
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mips_label_27
+mips_label_28:
+move $v0, $t1
+sw $s3, 4($fp)
+# ReturnNode
+# Load from local_concat_at_String_internal_0 to $v0
+lw $v0, 4($fp)
 
-	LOCAL local__internal_0
-	LOCAL local__internal_1
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
 
-	local__internal_0 = ALLOCATE Main
-	ARG local__internal_0
-	local__internal_1 = CALL function_main_at_Main
-	CLEAR 1 ARGS
-}
-function function_main_at_Main {
-	PARAM self
+# Clean stack variable space
+addi $sp, $sp, 4
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_substr_at_String:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
 
-	LOCAL local_main_at_Main_internal_0
-	LOCAL local_main_at_Main_internal_1
+# Allocate memory for Local variables
+addi $sp, $sp, -36
 
-	local_main_at_Main_internal_1 = LOAD data_5
-	ARG local_main_at_Main_internal_1
-	ARG self
-	local_main_at_Main_internal_0 = VCALL Main out_string
-	CLEAR 2 ARGS
-	RETURN local_main_at_Main_internal_0
-}
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+li $s0, 0
+sw $s0, 16($fp)
+# LengthNode
+# Load from self to $s1
+lw $s1, 4($fp)
+move $t0, $s1
+li $t1, 0
+mips_label_29:
+lb $t3, 0($t0)
+beqz $t3, mips_label_30
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_29
+mips_label_30:
+move $s0, $t1
+sw $s0, 12($fp)
+# Load from local_substr_at_String_internal_3 to $t0
+lw $t0, 16($fp)
+# Load from start to $t1
+lw $t1, 8($fp)
+slt $t2, $t1, $t0
+li $t3, 1
+sub $t0, $t3, $t2
+sw $t0, 24($fp)
+# IfGotoNode
+# Load from local_substr_at_String_internal_5 to $t0
+lw $t0, 24($fp)
+li $t1, 0
+bne $t0, $t1, error1
+# Load from data_2 to $s0
+la $s0, data_2
+# Load from data_1 to $s1
+la $s1, data_1
+move $t0, $s0
+li $t1, 0
+mips_label_31:
+lb $t3, 0($t0)
+beqz $t3, mips_label_32
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_31
+mips_label_32:
+move $s4, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_33:
+lb $t3, 0($t0)
+beqz $t3, mips_label_34
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_33
+mips_label_34:
+move $s5, $t1
+add $a0, $s4, $s5
+li $v0, 9
+syscall
+move $s3, $v0
+move $t0, $s0
+move $t1, $s3
+mips_label_35:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mips_label_36
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mips_label_35
+mips_label_36:
+move $v0, $t1
+move $t0, $s1
+move $t1, $v0
+mips_label_37:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mips_label_38
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mips_label_37
+mips_label_38:
+move $v0, $t1
+sw $s3, 36($fp)
+# Print str local_substr_at_String_internal_8
+# Load from local_substr_at_String_internal_8 to $a0
+lw $a0, 36($fp)
+li $v0, 4
+syscall
+# ErrorNode
+li $a0, 1
+li $v0, 17
+syscall
+error1:
+# Load from local_substr_at_String_internal_3 to $t0
+lw $t0, 16($fp)
+# Load from length to $t1
+lw $t1, 12($fp)
+slt $t2, $t1, $t0
+li $t3, 1
+sub $t0, $t3, $t2
+sw $t0, 28($fp)
+# IfGotoNode
+# Load from local_substr_at_String_internal_6 to $t0
+lw $t0, 28($fp)
+li $t1, 0
+bne $t0, $t1, error2
+# Load from data_3 to $s0
+la $s0, data_3
+# Load from data_1 to $s1
+la $s1, data_1
+move $t0, $s0
+li $t1, 0
+mips_label_39:
+lb $t3, 0($t0)
+beqz $t3, mips_label_40
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_39
+mips_label_40:
+move $s4, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_41:
+lb $t3, 0($t0)
+beqz $t3, mips_label_42
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_41
+mips_label_42:
+move $s5, $t1
+add $a0, $s4, $s5
+li $v0, 9
+syscall
+move $s3, $v0
+move $t0, $s0
+move $t1, $s3
+mips_label_43:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mips_label_44
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mips_label_43
+mips_label_44:
+move $v0, $t1
+move $t0, $s1
+move $t1, $v0
+mips_label_45:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mips_label_46
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mips_label_45
+mips_label_46:
+move $v0, $t1
+sw $s3, 36($fp)
+# Print str local_substr_at_String_internal_8
+# Load from local_substr_at_String_internal_8 to $a0
+lw $a0, 36($fp)
+li $v0, 4
+syscall
+# ErrorNode
+li $a0, 1
+li $v0, 17
+syscall
+error2:
+# Load from start to $t0
+lw $t0, 8($fp)
+# Load from length to $t1
+lw $t1, 12($fp)
+add $t2, $t0, $t1
+sw $t2, 20($fp)
+# Load from local_substr_at_String_internal_4 to $t0
+lw $t0, 20($fp)
+# Load from local_substr_at_String_internal_2 to $t1
+lw $t1, 12($fp)
+slt $t2, $t1, $t0
+li $t3, 1
+sub $t0, $t3, $t2
+sw $t0, 32($fp)
+# IfGotoNode
+# Load from local_substr_at_String_internal_7 to $t0
+lw $t0, 32($fp)
+li $t1, 0
+bne $t0, $t1, error3
+# Load from data_4 to $s0
+la $s0, data_4
+# Load from data_1 to $s1
+la $s1, data_1
+move $t0, $s0
+li $t1, 0
+mips_label_47:
+lb $t3, 0($t0)
+beqz $t3, mips_label_48
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_47
+mips_label_48:
+move $s4, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_49:
+lb $t3, 0($t0)
+beqz $t3, mips_label_50
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_49
+mips_label_50:
+move $s5, $t1
+add $a0, $s4, $s5
+li $v0, 9
+syscall
+move $s3, $v0
+move $t0, $s0
+move $t1, $s3
+mips_label_51:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mips_label_52
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mips_label_51
+mips_label_52:
+move $v0, $t1
+move $t0, $s1
+move $t1, $v0
+mips_label_53:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+beqz $t2, mips_label_54
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+j mips_label_53
+mips_label_54:
+move $v0, $t1
+sw $s3, 36($fp)
+# Print str local_substr_at_String_internal_8
+# Load from local_substr_at_String_internal_8 to $a0
+lw $a0, 36($fp)
+li $v0, 4
+syscall
+# ErrorNode
+li $a0, 1
+li $v0, 17
+syscall
+error3:
+# Load from self to $s0
+lw $s0, 4($fp)
+# Load from length to $s1
+lw $s1, 12($fp)
+# Load from start to $s3
+lw $s3, 8($fp)
+add $s0, $s0, $s3
+move $a0, $s1
+li $v0, 9
+syscall
+move $t0, $s0
+move $t1, $v0
+move $t3, $s1
+mips_label_55:
+lb $t2, 0($t0)
+sb $t2, 0($t1)
+addi $t0, $t0, 1
+addi $t1, $t1, 1
+addi $t3, $t3, -1
+beqz $t3, mips_label_56
+j mips_label_55
+mips_label_56:
+move $t2, $zero
+sb $t2, 0($t1)
+sw $v0, 4($fp)
+# ReturnNode
+# Load from local_substr_at_String_internal_0 to $v0
+lw $v0, 4($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 36
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_out_string_at_IO:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, 0
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+# Print str str_val
+# Load from str_val to $a0
+lw $a0, 8($fp)
+li $v0, 4
+syscall
+# ReturnNode
+# Load from self to $v0
+lw $v0, 4($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 0
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_in_string_at_IO:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, -4
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+li $a0, 1024
+li $v0, 9
+syscall
+move $a0, $v0
+sw $v0, 4($fp)
+li $a1, 1024
+li $v0, 8
+syscall
+# ReturnNode
+# Load from local_in_string_at_IO_internal_0 to $v0
+lw $v0, 4($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 4
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_out_int_at_IO:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, 0
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+# Load from int_val to $a0
+lw $a0, 8($fp)
+li $v0, 1
+syscall
+# ReturnNode
+# Load from self to $v0
+lw $v0, 4($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 0
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_in_int_at_IO:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, -4
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+li $v0, 5
+syscall
+sw $v0, 4($fp)
+# ReturnNode
+# Load from local_in_int_at_IO_internal_0 to $v0
+lw $v0, 4($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 4
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+ctor_Main:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, -4
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+sw $zero, 4($fp)
+# ReturnNode
+# Load from self to $v0
+lw $v0, 4($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 4
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+entry:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, -12
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+# Allocate space for Main
+li $a0, 20
+li $v0, 9
+syscall
+move $s1, $v0
+sw $s1, 4($fp)
+li $s0, 0
+sw $s0, 0($s1)
+li $s0, 20
+sw $s0, 4($s1)
+la $s0, classname_Main
+sw $s0, 8($s1)
+li $s0, 88
+sw $s0, 12($s1)
+sw $zero, 16($s1)
+sw $zero, 12($fp)
+# ArgNode local__internal_0 to s0
+# Load from local__internal_0 to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# StaticCallNode
+jal function_main_at_Main
+sw $v0, 8($fp)
+addi $sp, $sp, 4
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 12
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_main_at_Main:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, -16
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+li $s0, 34
+sw $s0, 8($fp)
+# Load from data_5 to $s0
+la $s0, data_5
+sw $s0, 16($fp)
+# ArgNode local_main_at_Main_internal_3 to s0
+# Load from local_main_at_Main_internal_3 to $s0
+lw $s0, 16($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode Main out_string
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 12
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 12($fp)
+addi $sp, $sp, 8
+# Load from local_main_at_Main_internal_2 to $t0
+lw $t0, 12($fp)
+sw $t0, 4($fp)
+# ReturnNode
+# Load from local_main_at_Main_internal_0 to $v0
+lw $v0, 4($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 16
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra

@@ -39,7 +39,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         for attr in attr_nodes:
             attr_scope = scope.create_child()
             attr_scope.define_variable('self', self_inst)
-            self.visit(attr, attr_scope)
+            self.visit(attr, attr_scope, typex=class_id)
 
     def save_attr_initializations(self, node: cool.ProgramNode, scope):
         self.attr_declarations = dict()
@@ -66,7 +66,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         scope = Scope()
         scope.define_variable('self', instance)
         for attr in attr_declarations:
-            self.visit(attr, scope)
+            self.visit(attr, scope, typex=self.current_type.name)
 
         self.register_instruction(ReturnNode(instance))
 
@@ -145,12 +145,18 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.current_method = None
 
     @visitor.when(cool.AttrDeclarationNode)
-    def visit(self, node: cool.AttrDeclarationNode, scope):
-        # typex = self.context.get_type(type_name)
-        result = self.visit(node.expression, scope) if node.expression else 0
+    def visit(self, node: cool.AttrDeclarationNode, scope: Scope, typex):
+        result = None
+        if node.expression:
+            result = self.visit(node.expression, scope)
+        elif node.type == 'String':
+            result = self.register_data("").name
+        else:
+            result = self.define_internal_local()
+            self.register_instruction(VoidNode(result))
         self_inst = scope.find_variable('self').name
         self.register_instruction(
-            SetAttribNode(self_inst, node.id.lex, result, self.current_type.name))
+            SetAttribNode(self_inst, node.id.lex, result, typex))
 
     @visitor.when(cool.BlockNode)
     def visit(self, node: cool.BlockNode, scope):
