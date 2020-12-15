@@ -75,7 +75,7 @@ class BASE_COOL_CIL_TRANSFORM:
 
     def sort_case_list(self, case_expressions):
         return sorted(case_expressions, reverse=True,
-                      key=lambda x: self.context.inheritance_deep(x.type))
+                      key=lambda x: self.context.inheritance_deep(x.type.lex))
 
         ###################################
 

@@ -235,7 +235,9 @@ class Context:
             raise SemanticError(f'Type "{name}" is not defined.')
 
     def inheritance_deep(self, type_name: str) -> int:
-        if type_name not in self.inheritance:
+        if type_name is None:
+            return -1
+        if type_name in ('IO', 'Int', 'String', 'Bool', 'Object'):
             return 0
         return 1 + self.inheritance_deep(self.inheritance[type_name])
 
@@ -345,11 +347,12 @@ class Scope:
         for i in range(len(self.locals)):
             if self.locals[i].name == vname:
                 if not let:
-                    raise SemanticError(f'Variable {vname} already exists in the current context')
+                    raise SemanticError(
+                        f'Variable {vname} already exists in the current context')
                 else:
                     self.locals[i] = info
                     break
-        else:    
+        else:
             self.locals.append(info)
         return info
 
