@@ -198,8 +198,10 @@ class BASE_COOL_CIL_TRANSFORM:
         type_name = self.current_type.name
         self.current_function = self.register_function(
             self.to_function_name(self.current_method.name, type_name))
-        str_val = self.define_internal_local()
+        self_local = self.register_param(VariableInfo("self", None))
+        str_val = self.register_param(VariableInfo('str_val', None))
         self.register_instruction(PrintStrNode(str_val))
+        self.register_instruction(ReturnNode(self_local))
         self.current_method = self.current_function = None
 
         self.current_method = self.current_type.get_method('in_string')
@@ -215,8 +217,10 @@ class BASE_COOL_CIL_TRANSFORM:
         type_name = self.current_type.name
         self.current_function = self.register_function(
             self.to_function_name(self.current_method.name, type_name))
+        self_local = self.register_param(VariableInfo("self", None))
         int_val = self.register_param(VariableInfo('int_val', None))
         self.register_instruction(PrintIntNode(int_val))
+        self.register_instruction(ReturnNode(self_local))
         self.current_method = self.current_function = None
 
         self.current_method = self.current_type.get_method('in_int')
