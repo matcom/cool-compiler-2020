@@ -159,8 +159,6 @@ class CIL_FORMATTER(object):
     def visit(self, node: LessEqNode):
         return f'{node.dest} = {node.left} <= {node.right}'
 
-###################### nodes to throw #######################
-
     @visitor.when(EqualNode)
     def visit(self, node: EqualNode):
         return f'{node.dest} = {node.left} == {node.right}'
@@ -176,6 +174,10 @@ class CIL_FORMATTER(object):
     @visitor.when(AbortNode)
     def visit(self, node: AbortNode):
         return f'ABORT'
+
+    @visitor.when(VoidNode)
+    def visit(self, node: VoidNode):
+        return f'VOID'
 
     @visitor.when(ConformsNode)
     def visit(self, node: ConformsNode):

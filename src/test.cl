@@ -1,5 +1,9 @@
 class Main inherits IO {
+   a : Int;
    main(): IO {
-	out_string("Hello, World.\n")
+      {
+         a <- 34;
+	      out_string("Hello, World.\n");
+      }
    };
 };
