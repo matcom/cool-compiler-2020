@@ -159,7 +159,7 @@ class MipsCode:
         self.dotdata.append(line)
 
     def data_label(self, lname):
-        self._write_data(f'{lname}')
+        self._write_data(f'{lname}:')
 
     def empty_line(self):
         self._write('')
