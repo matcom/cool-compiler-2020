@@ -201,11 +201,14 @@ class CIL_TO_MIPS:
 
     @visitor.when(GetAttribNode)
     def visit(self, node: GetAttribNode):
-        self.mips.comment("GetAttribNode")
+        self.mips.comment(f"GetAttribNode {node.dest} = {node.ojb}.{node.attrib} Type:{node.type}")
         self.load_memory(reg.t0, node.obj)
-        type_data = self.types_offsets[node.type]
-        offset = type_data.attr_offsets[node.attrib]
-        self.mips.load_memory(reg.t1, self.mips.offset(reg.t0, offset))
+        # get type info
+        type_descritptor :MemoryType = self.global_descriptor.Types[node.type]
+        # get attr offset
+        offset = type_descritptor.get_attr_index(node.attrib)
+        # retrieve offset from memory
+        self.mips.load_memory(reg.t1, self.mips.offset(reg.t0, offset * self.data_size))
         self.store_memory(reg.t1, node.dest)
 
     @visitor.when(SetAttribNode)
