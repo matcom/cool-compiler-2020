@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Dict, List
 from .cil_ast import TypeNode
 
-word_size = 2
+word_size = 4
 
 string_max_size = 1000
 
@@ -35,6 +35,12 @@ class GlobalDescriptor:
 
         self.vTable = VTable(methods)
 
+    def __getitem__(self, id):
+        for mem in self.Types.values():
+            if mem.id == id:
+                return mem
+        
+        raise Exception(f"Class {id} not present")
 class VTable:
 
     def __init__(self, methods):
@@ -51,9 +57,9 @@ class VTable:
 
 class MemoryType:
 
-    def __init__(self, name, id, attrs, methods, base_index, ptr_name):
+    def __init__(self, name, _id, attrs, methods, base_index, ptr_name):
         self.name = name
-        self.id = id
+        self.id = _id
         self.attrs = attrs
         self.methods = methods
         self.vtable = base_index
@@ -66,7 +72,7 @@ class MemoryType:
         return 4 + self.attrs.index(attr)
     
     def get_method_index(self, method):
-        return self.vtable + self.methods.index(method)
+        return self.methods.index(method)
 
     def get_ptr_name(self):
         return self.ptr_name
@@ -517,15 +523,15 @@ class MipsCode:
         self._write(f'mflo {rdest}')
 
     #VTble allocate
-    def allocate_vtable(self, size):
+    def allocate_vtable(self, size, _reg):
         '''
-        Allocate Vtable and store its adrress in s7
+        Allocate Vtable and store its adrress into reg
         '''
 
         self.comment("Allocate Vtable")
         vtable_size = size * word_size
         self.li(reg.a0, vtable_size)
         self.sbrk()
-        self.move(reg.a0, reg.s7)
+        self.move(_reg, reg.v0)
 
 
