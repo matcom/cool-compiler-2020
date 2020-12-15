@@ -23,7 +23,7 @@ class CIL_TO_MIPS:
             reg.s4,
             reg.s5,
             reg.s6,
-            reg.s7, ]
+             ]
         self.label_count = 0
         self.vtable_reg = reg.s7
         self.mips = MipsCode()
@@ -213,7 +213,7 @@ class CIL_TO_MIPS:
 
     @visitor.when(SetAttribNode)
     def visit(self, node: SetAttribNode):
-        self.mips.comment("SetAttribNode")
+        self.mips.comment(f"SetAttribNode {node.obj}.{node.attrib} = {node.dest} Type:{node.value}")
         self.load_memory(reg.t0, node.obj)
         type_data = self.types_offsets[node.type]
         offset = type_data.attr_offsets[node.attrib]
@@ -360,7 +360,8 @@ class CIL_TO_MIPS:
         self.mips.store_memory( reg.s0, self.mips.offset(reg.s1, 2 * self.data_size))
 
         # Store Class Vtable Ptr
-        self.mips.load_memory(reg.s0, self.mips.offset(self.vtable_reg, type_descritptor.vtable * self.data_size)) # first function on vtable
+        print(f"First methohd of class {node.type} {type_descritptor.vtable * self.data_size}")
+        self.mips.li(reg.s0, type_descritptor.vtable * self.data_size) # first function on vtable
         self.mips.store_memory( reg.s0, self.mips.offset(reg.s1, 3 * self.data_size))
 
         # Reserve Attrs Space
@@ -405,15 +406,19 @@ class CIL_TO_MIPS:
         type_descritptor = self.global_descriptor.Types[node.type]
 
         offset = type_descritptor.get_method_index(node.method) * self.data_size
+        # print("offset", offset, node.method, node.type, type_descritptor.methods)
+        # print(node.obj, node.type)
         self.load_memory(reg.s0, node.obj)
 
         # vtable ptr in position 4 (0 .. 3)
         self.mips.load_memory(reg.s1, self.mips.offset(reg.s0, 3 * self.data_size))
+        self.mips.addi(reg.s2, reg.s1, offset)
+        self.mips.addu(reg.s3, reg.s2, reg.s7)
         # retrieve function location
-        self.mips.load_memory(reg.s2, self.mips.offset(reg.s1, offset))
+        self.mips.load_memory(reg.s4, self.mips.offset(reg.s3))
 
-        # store result at v0
-        self.mips.jalr(reg.s2)
+        # retrieve result from v0
+        self.mips.jalr(reg.s4)
         self.store_memory(reg.v0, node.dest)
 
     @visitor.when(ArgNode)
@@ -586,7 +591,8 @@ class CIL_TO_MIPS:
 
     @visitor.when(LoadNode)
     def visit(self, node: LoadNode):
-        self.load_memory(reg.t0, node.msg)
+        self.load_memory(reg.s0, node.msg)
+        self.store_memory(reg.s0, node.dest)
 
     def copy_substr(self, src, dst, length):
         loop = self.get_label()
