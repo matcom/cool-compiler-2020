@@ -60,7 +60,8 @@ data_1 = "\n"
 data_2 = "Invalid substring start"
 data_3 = "Invalid substring length"
 data_4 = "Invalid substring"
-data_5 = "Hello, World.n"
+data_5 = "Hello, World.
+"
 
 .CODE
 function function_abort_at_Object {
@@ -151,11 +152,13 @@ function function_substr_at_String {
 	RETURN local_substr_at_String_internal_0
 }
 function function_out_string_at_IO {
+	PARAM self
+	PARAM str_val
+
 	
 
-	LOCAL local_out_string_at_IO_internal_0
-
-	PRINTSTR local_out_string_at_IO_internal_0
+	PRINTSTR str_val
+	RETURN self
 }
 function function_in_string_at_IO {
 	
@@ -166,11 +169,13 @@ function function_in_string_at_IO {
 	RETURN local_in_string_at_IO_internal_0
 }
 function function_out_int_at_IO {
+	PARAM self
 	PARAM int_val
 
 	
 
 	PRINTINT int_val
+	RETURN self
 }
 function function_in_int_at_IO {
 	

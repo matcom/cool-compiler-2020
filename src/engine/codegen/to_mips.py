@@ -96,6 +96,7 @@ class CIL_TO_MIPS:
                 f"store_memory: The direction {arg} isn't an address")
 
     def store_registers(self):
+        self.mips.comment("Saving Registers")
         for reg in self.registers_to_save:
             self.mips.push(reg)
 
@@ -114,16 +115,15 @@ class CIL_TO_MIPS:
 
         self.global_descriptor = GlobalDescriptor(node.dottypes, tags)
 
-        self.mips.allocate_vtable(
-            self.global_descriptor.vTable.size(), self.vtable_reg)
-
-        self.fill_vtable()
-
         for data in node.dotdata:
             self.visit(data)
             self.data_segment.append(data.name)
 
         self.mips.label('main')
+        self.mips.allocate_vtable(
+            self.global_descriptor.vTable.size(), self.vtable_reg)
+
+        self.fill_vtable()
         self.mips.jal('entry')
         self.mips.empty_line()
         self.mips.exit()
@@ -143,15 +143,20 @@ class CIL_TO_MIPS:
         self.mips.push(reg.fp)
         self.mips.move(reg.fp, reg.sp)
         self.mips.empty_line()
+
         self.arguments = dict()
 
         for idx, param in enumerate(node.params):
             self.visit(param, index=idx)
 
         self.mips.comment("Allocate memory for Local variables")
+        localvars_count = len(node.localvars)
+        self.mips.addi(reg.sp, reg.sp, - self.data_size * localvars_count)
+        self.mips.empty_line()
         for idx, local in enumerate(node.localvars):
             self.visit(local, index=idx)
 
+        self.mips.empty_line()
         self.store_registers()
         self.mips.empty_line()
         self.mips.comment("Generating body code")
@@ -159,10 +164,13 @@ class CIL_TO_MIPS:
             self.visit(instruction)
 
         self.mips.empty_line()
+        self.mips.comment("Restore registers")
         self.load_registers()
+        self.mips.empty_line()
 
         self.mips.comment("Clean stack variable space")
-        self.mips.addi(reg.sp, reg.sp, len(node.localvars) * self.data_size)
+        print(localvars_count, node.name)
+        self.mips.addi(reg.sp, reg.sp, localvars_count * self.data_size)
         self.arguments = None
         self.mips.comment("Return")
         self.mips.pop(reg.fp)
@@ -179,7 +187,6 @@ class CIL_TO_MIPS:
 
     @visitor.when(LocalNode)
     def visit(self, node: LocalNode, index=0):
-        self.mips.push(reg.zero)
         if node.name in self.local_vars:
             pass
         else:
@@ -386,7 +393,10 @@ class CIL_TO_MIPS:
     @visitor.when(DynamicCallNode)
     def visit(self, node: DynamicCallNode):
         self.mips.comment(f"DynamicCallNode {node.type} {node.method}")
-        type_descritptor = self.global_descriptor.Types[node.type]
+        type_descritptor: MemoryType = self.global_descriptor.Types[node.type]
+
+        # self.mips.move(reg.a0, reg.s7)
+        # self.mips.syscall(1)
 
         offset = type_descritptor.get_method_index(
             node.method) * self.data_size
@@ -397,8 +407,11 @@ class CIL_TO_MIPS:
         # vtable ptr in position 4 (0 .. 3)
         self.mips.load_memory(
             reg.s1, self.mips.offset(reg.s0, 3 * self.data_size))
+
+        print(type_descritptor.get_method_index(node.method))
         self.mips.addi(reg.s2, reg.s1, offset)
         self.mips.addu(reg.s3, reg.s2, reg.s7)
+       
         # retrieve function location
         self.mips.load_memory(reg.s4, self.mips.offset(reg.s3))
 
@@ -631,6 +644,7 @@ class CIL_TO_MIPS:
 
     @visitor.when(PrintStrNode)
     def visit(self, node: PrintStrNode):
+        self.mips.comment(f"Print str {node.str_addr}")
         self.load_memory(reg.a0, node.str_addr)
         self.mips.print_str(node.str_addr)
 
