@@ -1,6 +1,6 @@
 from .cil_ast import *
 from ..cp import visitor
-from .mips import MipsCode, MemoryType, MipsLabel, VTable, TypeData, GlobalDescriptor, word_size, string_max_size
+from .mips import MipsCode, MemoryType, MipsLabel, VTable, GlobalDescriptor, word_size, string_max_size
 from .mips import Registers as reg
 from typing import Dict, List
 
@@ -9,7 +9,7 @@ class CIL_TO_MIPS:
 
     def __init__(self, data_size=4):
         self.types = []
-        self.types_offsets: Dict[str, MemoryType] = dict()
+        # self.types_offsets: Dict[str, MemoryType] = dict()
         self.arguments = {}
         self.local_vars = {}
         self.data_segment = []
@@ -23,27 +23,26 @@ class CIL_TO_MIPS:
             reg.s4,
             reg.s5,
             reg.s6,
-            reg.s7, ]
+        ]
         self.label_count = 0
         self.vtable_reg = reg.s7
         self.mips = MipsCode()
 
-    def build_types(self, types):
-        for idx, typex in enumerate(types):
-            self.types_offsets[typex.name] = TypeData(idx, typex)
+    # def build_types(self, types):
+    #     for idx, typex in enumerate(types):
+    #         self.types_offsets[typex.name] = TypeData(idx, typex)
 
     def fill_vtable(self):
         index = 0
 
         self.mips.comment("Build VTable")
-        for _,tag in self.global_descriptor.vTable.methods.items():
+        for _, tag in self.global_descriptor.vTable.methods.items():
             self.mips.la(reg.s0, tag)
-            self.mips.store_memory(reg.s0, self.mips.offset(self.vtable_reg, index*self.data_size))
+            self.mips.store_memory(reg.s0, self.mips.offset(
+                self.vtable_reg, index*self.data_size))
             index += 1
 
-
-
-    def build_tags(self, dottypes: List[TypeData]):
+    def build_tags(self, dottypes: List[TypeNode]):
         base_tag = "classname_"
 
         tags = dict()
@@ -68,21 +67,9 @@ class CIL_TO_MIPS:
             raise Exception(
                 f"load_memory: The direction {arg} isn't an address")
 
-    def get_pc(self, dst):
-        label = self.get_label()
-        end = self.get_label()
-
-        self.mips.j(end)
-        self.mips.label(label)
-        self.mips.move(dst, reg.ra)
-        self.mips.jr(reg.ra)
-        self.mips.label(end)
-
-        return label
-
     def get_label(self):
         self.label_count += 1
-        return f"mip_label_{self.label_count}"
+        return f"mips_label_{self.label_count}"
 
     def load_memory(self, dst, arg: str):
         if arg in self.arguments or arg in self.local_vars:
@@ -122,14 +109,12 @@ class CIL_TO_MIPS:
     @visitor.when(ProgramNode)
     def visit(self, node: ProgramNode):
 
-        self.types = node.dottypes
-        self.build_types(self.types)
-
         tags = self.build_tags(node.dottypes)
 
         self.global_descriptor = GlobalDescriptor(node.dottypes, tags)
 
-        self.mips.allocate_vtable(self.global_descriptor.vTable.size(), self.vtable_reg)
+        self.mips.allocate_vtable(
+            self.global_descriptor.vTable.size(), self.vtable_reg)
 
         self.fill_vtable()
 
@@ -201,39 +186,30 @@ class CIL_TO_MIPS:
 
     @visitor.when(GetAttribNode)
     def visit(self, node: GetAttribNode):
-        self.mips.comment(f"GetAttribNode {node.dest} = {node.ojb}.{node.attrib} Type:{node.type}")
+        self.mips.comment(
+            f"GetAttribNode {node.dest} = {node.obj}.{node.attrib} Type:{node.type}")
         self.load_memory(reg.t0, node.obj)
         # get type info
-        type_descritptor :MemoryType = self.global_descriptor.Types[node.type]
+        type_descritptor: MemoryType = self.global_descriptor.Types[node.type]
         # get attr offset
         offset = type_descritptor.get_attr_index(node.attrib)
         # retrieve offset from memory
-        self.mips.load_memory(reg.t1, self.mips.offset(reg.t0, offset * self.data_size))
+        self.mips.load_memory(reg.t1, self.mips.offset(
+            reg.t0, offset * self.data_size))
         self.store_memory(reg.t1, node.dest)
 
     @visitor.when(SetAttribNode)
     def visit(self, node: SetAttribNode):
-        self.mips.comment("SetAttribNode")
-        self.load_memory(reg.t0, node.obj)
-        type_data = self.types_offsets[node.type]
-        offset = type_data.attr_offsets[node.attrib]
-        if node.value in self.local_vars_offsets:
-            self.load_memory(reg.t1, node.value)
-        else:
-            try:
-                value = int(node.value)
-                high = value >> 16
-                self.mips.li(reg.t2, high)
-                self.mips.li(reg.t3, value)
-                self.mips.sll(reg.t4, reg.t2, 16)
-                self.mips.or_(reg.t1, reg.t2, reg.t4)
-            except ValueError:
-                self.mips.la(reg.t1, node.value)
-        self.mips.store_memory(reg.t1, self.mips.offset(reg.t0, offset))
+        pass
+        # self.mips.comment(
+        #     f"SetAttribNode {node.ojb}.{node.attrib} Type:{node.type} = {node.value}")
+        # # get type info
+        # type_descritptor: MemoryType = self.global_descriptor.Types[node.type]
+        # # get attr offset
+        # offset = type_descritptor.get_attr_index(node.attrib)
 
     @visitor.when(AssignNode)
     def visit(self, node: AssignNode):
-        print(node.dest, node.source)
         self.load_memory(reg.t0, node.source)
         self.store_memory(reg.t0, node.dest)
 
@@ -330,21 +306,21 @@ class CIL_TO_MIPS:
         #   |  Attr2 |
         #   ..........
         #   ..........
-        #   
-        #   s1 start addr of the class   
+        #
+        #   s1 start addr of the class
         #
         self.mips.comment(f"Allocate space for {node.type}")
-        type_descritptor :MemoryType = self.global_descriptor.Types[node.type]
+        type_descritptor: MemoryType = self.global_descriptor.Types[node.type]
 
         length = type_descritptor.size()
         length *= self.data_size
 
-        #sbrk call
+        # sbrk call
         self.mips.li(reg.a0, length)
         self.mips.sbrk()
         self.mips.move(reg.s1, reg.v0)
 
-        #pass object reference to node.dest
+        # pass object reference to node.dest
         self.store_memory(reg.s1, node.dest)
 
         # Store Class ID
@@ -353,20 +329,25 @@ class CIL_TO_MIPS:
 
         # Store Class size
         self.mips.li(reg.s0, length)
-        self.mips.store_memory( reg.s0, self.mips.offset(reg.s1, self.data_size))
+        self.mips.store_memory(
+            reg.s0, self.mips.offset(reg.s1, self.data_size))
 
         # Store Class Name Ptr
         self.mips.la(reg.s0, type_descritptor.ptr_name)
-        self.mips.store_memory( reg.s0, self.mips.offset(reg.s1, 2 * self.data_size))
+        self.mips.store_memory(
+            reg.s0, self.mips.offset(reg.s1, 2 * self.data_size))
 
         # Store Class Vtable Ptr
-        self.mips.load_memory(reg.s0, self.mips.offset(self.vtable_reg, type_descritptor.vtable * self.data_size)) # first function on vtable
-        self.mips.store_memory( reg.s0, self.mips.offset(reg.s1, 3 * self.data_size))
+        self.mips.load_memory(reg.s0, self.mips.offset(
+            self.vtable_reg, type_descritptor.vtable * self.data_size))  # first function on vtable
+        self.mips.store_memory(
+            reg.s0, self.mips.offset(reg.s1, 3 * self.data_size))
 
         # Reserve Attrs Space
-        for number,_ in enumerate(type_descritptor.attrs):
+        for number, _ in enumerate(type_descritptor.attrs):
             _offset = 4 + number
-            self.mips.store_memory(reg.zero, self.mips.offset(reg.s1, _offset * self.data_size))
+            self.mips.store_memory(reg.zero, self.mips.offset(
+                reg.s1, _offset * self.data_size))
 
     @visitor.when(TypeOfNode)
     def visit(self, node: TypeOfNode):
@@ -374,7 +355,7 @@ class CIL_TO_MIPS:
         # Cargar la direccion de memoria
         self.load_memory(reg.s0, node.obj)
         # El offset 3 para ptr al name
-        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0,3))
+        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0, 3))
         self.store_memory(reg.s1, node.dest)
 
     @visitor.when(LabelNode)
@@ -404,11 +385,13 @@ class CIL_TO_MIPS:
         self.mips.comment(f"DynamicCallNode {node.type} {node.method}")
         type_descritptor = self.global_descriptor.Types[node.type]
 
-        offset = type_descritptor.get_method_index(node.method) * self.data_size
+        offset = type_descritptor.get_method_index(
+            node.method) * self.data_size
         self.load_memory(reg.s0, node.obj)
 
         # vtable ptr in position 4 (0 .. 3)
-        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0, 3 * self.data_size))
+        self.mips.load_memory(
+            reg.s1, self.mips.offset(reg.s0, 3 * self.data_size))
         # retrieve function location
         self.mips.load_memory(reg.s2, self.mips.offset(reg.s1, offset))
 
@@ -428,10 +411,10 @@ class CIL_TO_MIPS:
         self.mips.li(reg.a0, 1)
         self.mips.syscall(17)
 
-    @visitor.when(BoxNode)
-    def visit(self, node: BoxNode):
-        self.mips.li(reg.s0, node.value)
-        self.store_memory(reg.s0, node.dest)
+    # @visitor.when(BoxNode)
+    # def visit(self, node: BoxNode):
+    #     self.mips.li(reg.s0, node.value)
+    #     self.store_memory(reg.s0, node.dest)
 
     @visitor.when(AbortNode)
     def visit(self, node: AbortNode):

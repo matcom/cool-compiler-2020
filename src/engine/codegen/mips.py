@@ -6,6 +6,7 @@ word_size = 4
 
 string_max_size = 1000
 
+
 class GlobalDescriptor:
 
     def __init__(self, dottypes: List[TypeNode], name_ptrs):
@@ -28,10 +29,10 @@ class GlobalDescriptor:
                 methds.append(method_name)
                 end_method += 1
 
-            self.Types[dottype.name] = MemoryType(dottype.name, index, dottype.attributes, methds, start_method, name_ptrs[dottype.name])
+            self.Types[dottype.name] = MemoryType(
+                dottype.name, index, dottype.attributes, methds, start_method, name_ptrs[dottype.name])
 
             start_method = end_method
-            
 
         self.vTable = VTable(methods)
 
@@ -39,8 +40,10 @@ class GlobalDescriptor:
         for mem in self.Types.values():
             if mem.id == id:
                 return mem
-        
+
         raise Exception(f"Class {id} not present")
+
+
 class VTable:
 
     def __init__(self, methods):
@@ -54,6 +57,7 @@ class VTable:
 
     def get_index(self, name):
         return list(self.methods.keys()).index(name)
+
 
 class MemoryType:
 
@@ -70,12 +74,13 @@ class MemoryType:
 
     def get_attr_index(self, attr):
         return 4 + self.attrs.index(attr)
-    
+
     def get_method_index(self, method):
         return self.methods.index(method)
 
     def get_ptr_name(self):
         return self.ptr_name
+
 
 class Registers:
     zero = '$zero'  # Constant 0
@@ -112,24 +117,24 @@ class Registers:
     ra = '$ra'  # Return address(used by function call)
 
 
-class TypeData:
-    def __init__(self, type_number: int, typex: TypeNode):
-        self.pos = type_number
-        self.type = typex
-        self.str: str = typex.name_dir
-        self.attr_offsets: Dict[str, int] = dict()
-        self.func_offsets: Dict[str, int] = dict()
-        self.func_names: Dict[str, str] = dict()
-        self.set_type()
+# class TypeData:
+    # def __init__(self, type_number: int, typex: TypeNode):
+    #     self.pos = type_number
+    #     self.type = typex
+    #     self.str: str = typex.name_dir
+    #     self.attr_offsets: Dict[str, int] = dict()
+    #     self.func_offsets: Dict[str, int] = dict()
+    #     self.func_names: Dict[str, str] = dict()
+    #     self.set_type()
 
-    def set_type(self):
-        for idx, feature in enumerate(self.type.features):
-            if isinstance(feature, str):
-                self.attr_offsets[feature] = idx + 2
-            else:
-                func_name, long_name = feature
-                self.func_offsets[func_name] = idx + 2
-                self.func_names[func_name] = long_name
+    # def set_type(self):
+    #     for idx, feature in enumerate(self.type.features):
+    #         if isinstance(feature, str):
+    #             self.attr_offsets[feature] = idx + 2
+    #         else:
+    #             func_name, long_name = feature
+    #             self.func_offsets[func_name] = idx + 2
+    #             self.func_names[func_name] = long_name
 
 
 class MipsLabel(str, Enum):
@@ -522,7 +527,7 @@ class MipsCode:
         '''
         self._write(f'mflo {rdest}')
 
-    #VTble allocate
+    # VTble allocate
     def allocate_vtable(self, size, _reg):
         '''
         Allocate Vtable and store its adrress into reg
@@ -533,5 +538,3 @@ class MipsCode:
         self.li(reg.a0, vtable_size)
         self.sbrk()
         self.move(_reg, reg.v0)
-
-
