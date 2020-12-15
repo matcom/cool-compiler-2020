@@ -207,13 +207,30 @@ class CIL_TO_MIPS:
 
     @visitor.when(SetAttribNode)
     def visit(self, node: SetAttribNode):
-        pass
-        # self.mips.comment(
-        #     f"SetAttribNode {node.ojb}.{node.attrib} Type:{node.type} = {node.value}")
-        # # get type info
-        # type_descritptor: MemoryType = self.global_descriptor.Types[node.type]
-        # # get attr offset
-        # offset = type_descritptor.get_attr_index(node.attrib)
+        self.mips.comment(
+            f"SetAttribNode {node.ojb}.{node.attrib} Type:{node.type} = {node.value}")
+        # get type info
+        type_descritptor: MemoryType = self.global_descriptor.Types[node.type]
+        # get attr offset
+        offset = type_descritptor.get_attr_index(node.attrib)
+        # get object reference into s0
+        self.load_memory(reg.s0, node.obj)
+
+        if node.value in self.local_vars or node.value in self.arguments:
+            self.mips.comment(f"SET local var {node.value}")
+            self.load_memory(reg.s1, node.value)
+        else:
+            try:
+                value = int(node.value)
+                self.mips.li(reg.s1,value)
+            except ValueError:
+                if node.value in self.data_segment:
+                    self.mips.comment(f"SET data {node.value}")
+                    self.mips.la(reg.s1, node.value)
+                else:
+                    raise Exception(f"Setattr: label {node.value} not found")
+        
+        self.mips.store_memory(reg.s1, self.mips.offset(reg.s0, offset * self.data_size))
 
     @visitor.when(AssignNode)
     def visit(self, node: AssignNode):
