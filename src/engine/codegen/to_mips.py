@@ -363,7 +363,7 @@ class CIL_TO_MIPS:
         # Reserve Attrs Space
         for number,_ in enumerate(type_descritptor.attrs):
             _offset = 4 + number
-            self.mips.store_memory(reg.zero, self.mips.offset(reg.s1, offset * self.data_size)
+            self.mips.store_memory(reg.zero, self.mips.offset(reg.s1, offset * self.data_size))
 
     @visitor.when(TypeOfNode)
     def visit(self, node: TypeOfNode):
