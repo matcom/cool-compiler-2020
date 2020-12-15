@@ -347,8 +347,10 @@ class CIL_TO_MIPS:
     @visitor.when(TypeOfNode)
     def visit(self, node: TypeOfNode):
         self.mips.comment("TypeOfNode")
+        # Cargar la direccion de memoria
         self.load_memory(reg.s0, node.obj)
-        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0))
+        # El offset 3 para ptr al name
+        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0,3))
         self.store_memory(reg.s1, node.dest)
 
     @visitor.when(LabelNode)
