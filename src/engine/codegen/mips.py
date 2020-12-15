@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Dict, List
 from .cil_ast import TypeNode
 
-word_size = 2
+word_size = 4
 
 string_max_size = 1000
 
@@ -523,15 +523,15 @@ class MipsCode:
         self._write(f'mflo {rdest}')
 
     #VTble allocate
-    def allocate_vtable(self, size):
+    def allocate_vtable(self, size, _reg):
         '''
-        Allocate Vtable and store its adrress in s7
+        Allocate Vtable and store its adrress into reg
         '''
 
         self.comment("Allocate Vtable")
         vtable_size = size * word_size
         self.li(reg.a0, vtable_size)
         self.sbrk()
-        self.move(reg.a0, reg.s7)
+        self.move(_reg, reg.v0)
 
 

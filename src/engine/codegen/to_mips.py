@@ -129,7 +129,7 @@ class CIL_TO_MIPS:
 
         self.global_descriptor = GlobalDescriptor(node.dottypes, tags)
 
-        self.mips.allocate_vtable(self.global_descriptor.vTable.size())
+        self.mips.allocate_vtable(self.global_descriptor.vTable.size(), self.vtable_reg)
 
         self.fill_vtable()
 
