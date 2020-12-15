@@ -367,7 +367,7 @@ class CIL_TO_MIPS:
 
     @visitor.when(TypeOfNode)
     def visit(self, node: TypeOfNode):
-        self.mips.comment("TypeOfNode")
+        self.mips.comment(f"TypeOfNode of {node.obj}")
         # Cargar la direccion de memoria
         self.load_memory(reg.s0, node.obj)
         # El offset 3 para ptr al name
@@ -398,12 +398,19 @@ class CIL_TO_MIPS:
 
     @visitor.when(DynamicCallNode)
     def visit(self, node: DynamicCallNode):
-        self.mips.comment("DynamicCallNode")
-        type_data = self.types_offsets[node.type]
-        offset = type_data.func_offsets[node.method] * self.data_size
+        self.mips.comment(f"DynamicCallNode {node.type} {node.method}")
+        type_descritptor = self.global_descriptor.Types[node.type]
+
+        offset = type_descritptor.get_method_index(node.method) * self.data_size
         self.load_memory(reg.s0, node.obj)
-        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0, offset))
-        self.mips.jalr(reg.s1)
+
+        # vtable ptr in position 4 (0 .. 3)
+        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0, 3 * self.data_size))
+        # retrieve function location
+        self.mips.load_memory(reg.s2, self.mips.offset(reg.s1, offset))
+
+        # store result at v0
+        self.mips.jalr(reg.s2)
         self.store_memory(reg.v0, node.dest)
 
     @visitor.when(ArgNode)
