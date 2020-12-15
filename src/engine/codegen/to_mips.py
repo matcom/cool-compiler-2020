@@ -114,16 +114,15 @@ class CIL_TO_MIPS:
 
         self.global_descriptor = GlobalDescriptor(node.dottypes, tags)
 
-        self.mips.allocate_vtable(
-            self.global_descriptor.vTable.size(), self.vtable_reg)
-
-        self.fill_vtable()
-
         for data in node.dotdata:
             self.visit(data)
             self.data_segment.append(data.name)
 
         self.mips.label('main')
+        self.mips.allocate_vtable(
+            self.global_descriptor.vTable.size(), self.vtable_reg)
+
+        self.fill_vtable()
         self.mips.jal('entry')
         self.mips.empty_line()
         self.mips.exit()
@@ -386,7 +385,10 @@ class CIL_TO_MIPS:
     @visitor.when(DynamicCallNode)
     def visit(self, node: DynamicCallNode):
         self.mips.comment(f"DynamicCallNode {node.type} {node.method}")
-        type_descritptor = self.global_descriptor.Types[node.type]
+        type_descritptor: MemoryType = self.global_descriptor.Types[node.type]
+
+        # self.mips.move(reg.a0, reg.s7)
+        # self.mips.syscall(1)
 
         offset = type_descritptor.get_method_index(
             node.method) * self.data_size
