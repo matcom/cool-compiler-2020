@@ -72,7 +72,7 @@ class MemoryType:
         return 4 + self.attrs.index(attr)
     
     def get_method_index(self, method):
-        return self.vtable + self.methods.index(method)
+        return self.methods.index(method)
 
     def get_ptr_name(self):
         return self.ptr_name
