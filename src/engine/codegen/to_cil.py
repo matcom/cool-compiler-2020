@@ -239,7 +239,6 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(IfGotoNode(cond, continue_label.label))
         self.register_instruction(GotoNode(end_label.label))
         self.register_instruction(continue_label)
-        print(node.body)
         self.visit(node.body, while_scope)
         label_counter = self.label_counter_gen()
         self.register_instruction(GotoNode(start_label.label))

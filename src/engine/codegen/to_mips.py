@@ -78,9 +78,9 @@ class CIL_TO_MIPS:
             offset = (
                 self.arguments[arg]
                 if arg in self.arguments
-                else -self.local_vars[arg]
+                else self.local_vars[arg]
             ) * self.data_size
-
+            print(offset)
             self.mips.load_memory(dst, self.mips.offset(reg.fp, offset))
         elif arg in self.data_segment:
             self.mips.la(dst, arg)
@@ -88,13 +88,21 @@ class CIL_TO_MIPS:
             raise Exception(
                 f"load_memory: The direction {arg} isn't an address")
 
-    def store_memory(self, dst, arg: str):
-        if arg in self.local_vars:
-            offset = -self.local_vars[arg] * self.data_size
-            self.mips.store_memory(dst, self.mips.offset(reg.fp, offset))
+    def store_memory(self, src, dst: str):
+
+        self.mips.comment(f"from src: {src} to dst: {dst}")
+        if dst in self.arguments or dst in self.local_vars:
+            offset = (
+                self.arguments[dst]
+                if dst in self.arguments
+                else self.local_vars[dst]
+            ) * self.data_size
+            offset = self.mips.offset(reg.fp, offset)
+            self.mips.store_memory(src, offset)
         else:
             raise Exception(
-                f"store_memory: The direction {arg} isn't an address")
+                f"store_memory: The direction {dst} isn't an address")
+        self.mips.empty_line()
 
     def store_registers(self):
         self.mips.comment("Saving Registers")
@@ -162,6 +170,7 @@ class CIL_TO_MIPS:
         self.mips.empty_line()
         self.mips.comment("Generating body code")
         for instruction in node.instructions:
+            print(instruction)
             self.visit(instruction)
 
         self.mips.empty_line()
@@ -567,12 +576,17 @@ class CIL_TO_MIPS:
 
     @visitor.when(StringEqualNode)
     def visit(self, node: StringEqualNode):
+        self.mips.empty_line()
+        self.mips.comment('Comparing Strings --')
         end_label = self.get_label()
         end_ok_label = self.get_label()
         end_wrong_label = self.get_label()
         loop_label = self.get_label()
-
         self.load_memory(reg.s0, node.msg1)
+
+        self.mips.move(reg.a0, reg.s0)
+        self.mips.syscall(1)
+
         self.load_memory(reg.s1, node.msg2)
 
         self.mips.move(reg.t8, reg.s0)
