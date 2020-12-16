@@ -64,7 +64,7 @@ class globalContext:
                                                         argTypes= [],
                                                         argNames= []),
                                     'copy': Method(idName= 'copy',
-                                                   returnType= 'SELF_TYPE',
+                                                   returnType= 'Object',
                                                    argNames= [],
                                                    argTypes= [])
                                 },
@@ -82,12 +82,12 @@ class globalContext:
                 'IO': Type( idName= 'IO',
                             methods= {
                                 "out_string": Method( idName= "out_string",
-                                                returnType="SELF_TYPE",
-                                                argTypes= ['x'],
-                                                argNames= ['String']
+                                                returnType="IO",
+                                                argNames= ['x'],
+                                                argTypes= ['String']
                                             ),
                                 "out_int":  Method( idName= "out_int",
-                                                returnType="SELF_TYPE",
+                                                returnType="IO",
                                                 argNames= ['x'],
                                                 argTypes= ['Int']),
                                 'in_string': Method( idName= 'in_string',
@@ -293,17 +293,7 @@ class globalContext:
                                 argTypes= node.argTypes)    
         })
         
-    def checkEqualTypes(self, _type, returnType):
-        
-        pass
-
-    def checkInheritedInfo(self, idName: str):
-        
-        pass
-
-    def isUndefined(self, arg):
-        
-        pass
+    
 
     def createContextForLetExpr(self, node: NodeLet, chainOfNames):
         return not self.letsExpr.update({
@@ -356,6 +346,7 @@ class globalContext:
         d.update({ typeInfo.inheritsAttr[attr].idName:
             {'type': typeInfo.inheritsAttr[attr]._type}
                   for attr in typeInfo.inheritsAttr } )
+        d.update({'wrapperType': typeName})
         return d
     
     def checkAssign(self, node, _type, environment):
@@ -365,14 +356,22 @@ class globalContext:
             errorType='undefined symbol',
             symbol= node.idName
         ) or interceptError(
-            validationFunc= lambda : nodeType == _type
+            validationFunc= lambda : environment[node.idName]['type'] == _type
             or self.isAncestor(idChild=_type,
-            idParent= nodeType),
+            idParent= environment[node.idName]['type']),
             errorType='uncompatible types',
-            type1= node.type,
-            type2= exprResult['type']
-            ) or nodeType
+            type1= environment[node.idName]['type'],
+            type2= _type
+            ) or environment[node.idName]['type']
         
+    def checkReturnType(self, node: NodeClassMethod, typeExpr):
+        return interceptError(
+            validationFunc= lambda : node.returnType == typeExpr 
+            or self.isAncestor(idChild= typeExpr, idParent= node.returnType),
+            errorType= 'uncompatible types',
+            type1= node.returnType,
+            type2= typeExpr
+        ) or typeExpr
     
     def searchValue(self, node: NodeObject, environment):
         return interceptError(

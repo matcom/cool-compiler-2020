@@ -120,6 +120,7 @@ class TypeCheckerVisitor(NodeVisitor):
             environment.update( {
                 node.argNames[i]: node.argTypes[i]
             })
+        
         typeResult = self.visit(node.body, environment= environment)
 
         for i in range(len(node.argNames)):
@@ -127,16 +128,16 @@ class TypeCheckerVisitor(NodeVisitor):
 
         if type(typeResult) is error:
             return typeResult
-                
+        
+        return programContext.checkReturnType(node, typeResult)        
 
+    def visit_NodeString(self, node: NodeString, **kwargs):
+        return 'String'
+        
     def visit_NodeAttr(self, node: NodeAttr, environment):
         return self.visit(node.expr, 
                           environment= environment)
         
-        
-        
-        
-
     def visit_NodeLetComplex(self,
                              node: NodeLetComplex,
                              environment):
@@ -218,8 +219,8 @@ class TypeCheckerVisitor(NodeVisitor):
                                   node: NodeDynamicDispatch, 
                                   environment):
         
-        typeExpr= self.visit_NodeExpr(node.idName,
-                                      environment= environment)
+        typeExpr= self.visit(node.expr,
+                                environment= environment)
         if type (typeExpr) is error:
             return typeExpr
         argTypes = []
@@ -232,3 +233,7 @@ class TypeCheckerVisitor(NodeVisitor):
         
         return programContext.checkDynamicDispatch(typeExpr,
         node.method, argTypes)
+
+    def visit_NodeSelf(self, node: NodeSelf, environment):
+        return environment['wrapperType']
+        
