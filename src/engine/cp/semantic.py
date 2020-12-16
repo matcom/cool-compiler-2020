@@ -250,7 +250,7 @@ class Context:
 
 class VariableInfo:
     def __init__(self, name, vtype):
-        self.real_name = None
+        self.real_name = name
         self.name = name
         self.type = vtype
         self.calls = []
