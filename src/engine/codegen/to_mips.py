@@ -80,7 +80,6 @@ class CIL_TO_MIPS:
                 if arg in self.arguments
                 else self.local_vars[arg]
             ) * self.data_size
-            print(offset)
             self.mips.load_memory(dst, self.mips.offset(reg.fp, offset))
         elif arg in self.data_segment:
             self.mips.la(dst, arg)
@@ -170,7 +169,6 @@ class CIL_TO_MIPS:
         self.mips.empty_line()
         self.mips.comment("Generating body code")
         for instruction in node.instructions:
-            print(instruction)
             self.visit(instruction)
 
         self.mips.empty_line()
