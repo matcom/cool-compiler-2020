@@ -36,7 +36,8 @@ class CIL_TO_MIPS:
         index = 0
 
         self.mips.comment("Build VTable")
-        for _, tag in self.global_descriptor.vTable.methods.items():
+        for name, tag in self.global_descriptor.vTable.methods.items():
+            self.mips.comment(name)
             self.mips.la(reg.s0, tag)
             self.mips.store_memory(reg.s0, self.mips.offset(
                 self.vtable_reg, index*self.data_size))
@@ -208,7 +209,7 @@ class CIL_TO_MIPS:
     @visitor.when(SetAttribNode)
     def visit(self, node: SetAttribNode):
         self.mips.comment(
-            f"SetAttribNode {node.ojb}.{node.attrib} Type:{node.type} = {node.value}")
+            f"SetAttribNode {node.obj}.{node.attrib} Type:{node.type} = {node.value}")
         # get type info
         type_descritptor: MemoryType = self.global_descriptor.Types[node.type]
         # get attr offset
@@ -222,15 +223,16 @@ class CIL_TO_MIPS:
         else:
             try:
                 value = int(node.value)
-                self.mips.li(reg.s1,value)
+                self.mips.li(reg.s1, value)
             except ValueError:
                 if node.value in self.data_segment:
                     self.mips.comment(f"SET data {node.value}")
                     self.mips.la(reg.s1, node.value)
                 else:
                     raise Exception(f"Setattr: label {node.value} not found")
-        
-        self.mips.store_memory(reg.s1, self.mips.offset(reg.s0, offset * self.data_size))
+
+        self.mips.store_memory(reg.s1, self.mips.offset(
+            reg.s0, offset * self.data_size))
 
     @visitor.when(AssignNode)
     def visit(self, node: AssignNode):
@@ -567,38 +569,40 @@ class CIL_TO_MIPS:
     def visit(self, node: StringEqualNode):
         end_label = self.get_label()
         end_ok_label = self.get_label()
+        end_wrong_label = self.get_label()
         loop_label = self.get_label()
 
         self.load_memory(reg.s0, node.msg1)
         self.load_memory(reg.s1, node.msg2)
 
-        self.get_string_length(reg.s0, reg.s2)
-        self.get_string_length(reg.s1, reg.s3)
-
-        self.mips.move(reg.v0, reg.zero)
-        self.mips.bne(reg.s2, reg.s3, end_label)
-
-        self.mips.move(reg.s2, reg.s0)
-        self.mips.move(reg.s3, reg.s1)
+        self.mips.move(reg.t8, reg.s0)
+        self.mips.move(reg.t9, reg.s1)
 
         self.mips.label(loop_label)
+        # me parece q aki esta fallando xq esta cargando un "0"
+        # en $t8, y cuando le pide el offset, no tiene nada, hay q ver ahi
+        # pero con el "1" hace lo mismo
 
-        self.mips.lb(reg.s4, self.mips.offset(reg.s2))
-        self.mips.lb(reg.s5, self.mips.offset(reg.s3))
+        self.mips.lb(reg.a0, self.mips.offset(reg.t8))
+        self.mips.lb(reg.a1, self.mips.offset(reg.t9))
 
-        self.mips.bne(reg.s4, reg.s5, end_label)
+        self.mips.beqz(reg.a0, end_ok_label)
+        self.mips.beqz(reg.a1, end_wrong_label)
+        self.mips.seq(reg.v0, reg.a0, reg.a1)
+        self.mips.beqz(reg.v0, end_wrong_label)
 
-        self.mips.addi(reg.s2, reg.s2, 1)
-        self.mips.addi(reg.s3, reg.s3, 1)
-
-        self.mips.beqz(
-            reg.s4, end_ok_label
-        )
+        self.mips.addi(reg.t8, reg.t8, 1)
+        self.mips.addi(reg.t9, reg.t9, 1)
         self.mips.j(loop_label)
 
+        self.mips.label(end_wrong_label)
+        self.mips.li(reg.v0, 0)
+        self.mips.j(end_label)
         self.mips.label(end_ok_label)
+        self.mips.bnez(reg.a1, end_wrong_label)
         self.mips.li(reg.v0, 1)
         self.mips.label(end_label)
+
         self.store_memory(reg.v0, node.dest)
 
     @visitor.when(LoadNode)

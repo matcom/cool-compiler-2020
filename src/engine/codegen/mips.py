@@ -34,6 +34,7 @@ class GlobalDescriptor:
                 dottype.name, index, dottype.attributes, methds, start_method, name_ptrs[dottype.name])
 
             start_method = end_method
+            index += 1
 
         self.vTable = VTable(methods)
 
@@ -441,9 +442,15 @@ class MipsCode:
 
     def bne(self, rsrc1, src2, label):
         '''
-        Branch on Not Equal Zero
+        Branch on Not Equal
         '''
         self._write(f'bne {rsrc1}, {src2}, {label}')
+
+    def bnez(self, rsrc1, label):
+        '''
+        Branch on Not Equal Zero
+        '''
+        self._write(f'bnez {rsrc1}, {label}')
 
     def j(self, label):
         '''

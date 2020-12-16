@@ -180,10 +180,10 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
 
     @visitor.when(cool.BlockNode)
     def visit(self, node: cool.BlockNode, scope):
-        result = self.define_internal_local()
+        result = None
         for expr in node.expressions:
-            val = self.visit(expr, scope)
-        self.register_instruction(AssignNode(result, val))
+            result = self.visit(expr, scope)
+        # self.register_instruction(AssignNode(result, val))
         return result
 
     @visitor.when(cool.AssignNode)
@@ -195,7 +195,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             self.register_instruction(SetAttribNode(
                 selfx, node.id.lex, expr, self.current_type.name))
         else:
-            var_info = var_info.name
+            var_info = var_info.real_name
             self.register_instruction(AssignNode(var_info, expr))
         return 0
 
@@ -247,6 +247,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(IfGotoNode(cond, continue_label.label))
         self.register_instruction(GotoNode(end_label.label))
         self.register_instruction(continue_label)
+        print(node.body)
         self.visit(node.body, while_scope)
         label_counter = self.label_counter_gen()
         self.register_instruction(GotoNode(start_label.label))
