@@ -45,6 +45,18 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.attr_declarations = dict()
         self.attr_declarations['Object'] = []
         self.attr_declarations['IO'] = []
+        self.attr_declarations['Int'] = [
+            cool.AttrDeclarationNode("value")
+        ]
+        self.attr_declarations['String'] = [
+            cool.AttrDeclarationNode("value")
+        ]
+        self.attr_declarations['Bool'] = [
+            cool.AttrDeclarationNode("value")
+        ]
+
+        for built_in in ['IO', 'Int', 'String', 'Bool', 'Object']:
+            self.create_constructor(self.attr_declarations[built_in], built_in)
 
         for declaration in node.declarations:
             self.attr_declarations[declaration.id.lex] = []
