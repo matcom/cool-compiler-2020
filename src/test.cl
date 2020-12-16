@@ -1,103 +1,121 @@
 (*
- *  The IO class is predefined and has 4 methods:
- *
- *    out_string(s : String) : SELF_TYPE
- *    out_int(i : Int) : SELF_TYPE
- *    in_string() : String
- *    in_int() : Int
- *
- *    The out operations print their argument to the terminal. The
- *    in_string method reads an entire line from the terminal and returns a
- *    string not containing the new line. The in_int method also reads
- *    an entire line from the terminal and returns the integer
- *    corresponding to the first non blank word on the line. If that
- *    word is not an integer, it returns 0.
- *
- *
- *  Because our language is object oriented, we need an object of type
- *  IO in order to call any of these methods.
- *
- *  There are basically two ways of getting access to IO in a class C.
- *
- *   1) Define C to Inherit from IO. This way the IO methods become
- *      methods of C, and they can be called using the abbreviated
- *      dispatch, i.e.
- *
- *      class C inherits IO is
- *          ...
- *          out_string("Hello world\n")
- *          ...
- *      end;
- *
- *   2) If your class C does not directly or indirectly inherit from
- *      IO, the best way to access IO is through an initialized
- *      attribute of type IO. 
- *
- *      class C inherits Foo is
- *         io : IO <- new IO;
- *         ...
- *             io.out_string("Hello world\n");
- *         ...
- *      end;
- *
- *  Approach 1) is most often used, in particular when you need IO
- *  functions in the Main class.
- *
- *)
+   The class A2I provides integer-to-string and string-to-integer
+conversion routines.  To use these routines, either inherit them
+in the class where needed, have a dummy variable bound to
+something of type A2I, or simpl write (new A2I).method(argument).
+*)
 
 
-class A {
+(*
+   c2i   Converts a 1-character string to an integer.  Aborts
+         if the string is not "0" through "9"
+*)
+class A2I {
 
-   -- Let's assume that we don't want A to not inherit from IO.
+     c2i(char : String) : Int {
+	if char = "0" then 0 else
+	if char = "1" then 1 else
+	if char = "2" then 2 else
+        if char = "3" then 3 else
+        if char = "4" then 4 else
+        if char = "5" then 5 else
+        if char = "6" then 6 else
+        if char = "7" then 7 else
+        if char = "8" then 8 else
+        if char = "9" then 9 else
+        { abort(); 0; }  -- the 0 is needed to satisfy the typchecker
+        fi fi fi fi fi fi fi fi fi fi
+     };
 
-   io : IO <- new IO;
+(*
+   i2c is the inverse of c2i.
+*)
+     i2c(i : Int) : String {
+	if i = 0 then "0" else
+	if i = 1 then "1" else
+	if i = 2 then "2" else
+	if i = 3 then "3" else
+	if i = 4 then "4" else
+	if i = 5 then "5" else
+	if i = 6 then "6" else
+	if i = 7 then "7" else
+	if i = 8 then "8" else
+	if i = 9 then "9" else
+	{ abort(); ""; }  -- the "" is needed to satisfy the typchecker
+        fi fi fi fi fi fi fi fi fi fi
+     };
 
-   out_a() : Object { io.out_string("A: Hello world\n") };
+(*
+   a2i converts an ASCII string into an integer.  The empty string
+is converted to 0.  Signed and unsigned strings are handled.  The
+method aborts if the string does not represent an integer.  Very
+long strings of digits produce strange answers because of arithmetic 
+overflow.
+
+*)
+     a2i(s : String) : Int {
+        if s.length() = 0 then 0 else
+	if s.substr(0,1) = "-" then ~a2i_aux(s.substr(1,s.length()-1)) else
+        if s.substr(0,1) = "+" then a2i_aux(s.substr(1,s.length()-1)) else
+           a2i_aux(s)
+        fi fi fi
+     };
+
+(*
+  a2i_aux converts the usigned portion of the string.  As a programming
+example, this method is written iteratively.
+*)
+     a2i_aux(s : String) : Int {
+	(let int : Int <- 0 in	
+           {	
+               (let j : Int <- s.length() in
+	          (let i : Int <- 0 in
+		    while i < j loop
+			{
+			    int <- int * 10 + c2i(s.substr(i,1));
+			    i <- i + 1;
+			}
+		    pool
+		  )
+	       );
+              int;
+	    }
+        )
+     };
+
+(*
+    i2a converts an integer to a string.  Positive and negative 
+numbers are handled correctly.  
+*)
+    i2a(i : Int) : String {
+	if i = 0 then "0" else 
+        if 0 < i then i2a_aux(i) else
+          "-".concat(i2a_aux(i * ~1)) 
+        fi fi
+    };
+	
+(*
+    i2a_aux is an example using recursion.
+*)		
+    i2a_aux(i : Int) : String {
+        if i = 0 then "" else 
+	    (let next : Int <- i / 10 in
+		i2a_aux(next).concat(i2c(i - next * 10))
+	    )
+        fi
+    };
 
 };
-
-
-class B inherits A {
-
-   -- B does not have to an extra attribute, since it inherits io from A.
-
-   out_b() : Object { io.out_string("B: Hello world\n") };
-
-};
-
-
-class C inherits IO {
-
-   -- Now the IO methods are part of C.
-
-   out_c() : Object { out_string("C: Hello world\n") };
-
-   -- Note that out_string(...) is just a shorthand for self.out_string(...)
-
-};
-
-
-class D inherits C {
-
-   -- Inherits IO methods from C.
-
-   out_d() : Object { out_string("D: Hello world\n") };
-
-};
-
 
 class Main inherits IO {
-
-   -- Same case as class C.
-
-   main() : Object {
-      {
-	 (new A).out_a();
-	 (new B).out_b();
-	 (new C).out_c();
-	 (new D).out_d();
-	 out_string("Done.\n");
-      }
-   };
-
-};
+  main () : Object { 
+      let a : Int <- (new A2I).a2i("678987"), 
+          b : String <- (new A2I).i2a(678987) in
+      { 
+        out_int(a) ;
+        out_string(" == ") ;
+        out_string(b) ;
+        out_string("\n"); 
+      } 
+  } ;
+} ;
