@@ -2,6 +2,7 @@ from ..utils.AST_definitions import *
 from ..utils.context import programContext
 from ..utils.errors import error
 
+
 class NodeVisitor:
 
     def visit(self, node: Node, **args):
@@ -34,14 +35,16 @@ class TypeCollectorVisitor(NodeVisitor):
 class TypeInheritanceVisitor(NodeVisitor):
     def visit_NodeProgram(self, node: NodeProgram):
         errors = []
-        for nodeClass in node.class_list:
-            result = self.visit(nodeClass)
-            if type (result) is error:
-                errors.append(result)
+        for _type in programContext.types:
+            if _type != 'Object':
+                result = self.visitForInherit(_type)
+                if type (result) is error:
+                    errors.append(result)
         return errors
 
-    def visit_NodeClass(self, node: NodeClass):
-        return programContext.relateInheritance(node)
+    def visitForInherit(self, _type: str):
+        return programContext.relateInheritance(_type,
+        programContext.types[_type].parent)
 
 class TypeBuilderVisitor(NodeVisitor):
     def __init__(self):
@@ -64,7 +67,7 @@ class TypeBuilderVisitor(NodeVisitor):
         return errors
 
     def visit_NodeAttr(self, node:NodeAttr):
-        resultOp = programContext.defineAttrInType(self.currentTypeName,
+        resultOp= programContext.defineAttrInType(self.currentTypeName,
         node)
         
         if type (resultOp) is error:
@@ -103,36 +106,37 @@ class TypeCheckerVisitor(NodeVisitor):
             result= self.visit(nodeAttr, environment= environment)
             if type(result) is error:
                 errors.append(result)
-            environment.update({
-                nodeAttr.idName: result
-            })
+            
         
         for nodeClassMethod in node.methods:
             result= self.visit(nodeClassMethod, environment= environment)
             if type(result) is error:
                 errors.append(result)
         
-        programContext.checkInheritedInfo(node.idName)
         return errors
 
     def visit_NodeClassMethod(self, node: NodeClassMethod, environment):
-        pass
+        for i in range(len(node.argNames)):
+            environment.update( {
+                node.argNames[i]: node.argTypes[i]
+            })
+        typeResult = self.visit(node.body, environment= environment)
+
+        for i in range(len(node.argNames)):
+            environment.popitem()
+
+        if type(typeResult) is error:
+            return typeResult
+                
 
     def visit_NodeAttr(self, node: NodeAttr, environment):
-        exprResult= self.visit(node.expr, 
+        return self.visit(node.expr, 
                           environment= environment)
         
-        if type(exprResult) is error:
-            return exprResult
-        assignResult= programContext.assignValue(node, exprResult)
-        if type(assignResult) is error:
-            return assignResult
-        return exprResult
+        
         
         
 
-    # Esto es un let complex, calcula todos los inner lets y a partir de ellos 
-    # obtiene el valor de la expresión de la derecha del IN 
     def visit_NodeLetComplex(self,
                              node: NodeLetComplex,
                              environment):
@@ -146,67 +150,62 @@ class TypeCheckerVisitor(NodeVisitor):
                 nodeLet.idName: result
             })
 
-        return self.visit( node.body,
+        result= self.visit( node.body,
                            environment= environment)
+        for i in range(len(node.nestedLets)):
+            environment.popitem()
+        return result
 
     def visit_NodeLet(self, node: NodeLet, environment):
         errors= []
-        exprResult= self.visit(node.body, 
+        return self.visit(node.body, 
                                environment= environment)
-        if type(exprResult) is error:
-            return exprResult
-        assingResult = programContext.assignValue(node,
-                                                  exprResult)
-        if type(assingResult) is error:
-            return assingResult
-        return exprResult
         
+    def visit_NodeAssignment(self, node: NodeAssignment,
+                             environment):
+        result = self.visit(node.expr, environment= environment)
+        
+        if type(result) is error:
+            return result
+        return programContext.checkAssign(node, result, environment)
     
     def visit_NodeBinaryOperation(self,
                                   node: NodeBinaryOperation, 
                                   environment):
         
-        exprResultFirst= self.visit(node.first, 
+        
+        typeFirstExpr= self.visit(node.first, 
                                     environment= environment)
         
-        exprResultSecond= self.visit(node.second, 
+        typeSecondExpr= self.visit(node.second, 
                                      environment= environment)
        
-        if type (exprResultFirst) is error:
-            return exprResultFirst
+        if type (typeFirstExpr) is error:
+            return typeFirstExpr
 
-        if type (exprResultSecond) is error:
-            return exprResultSecond
+        if type (typeSecondExpr) is error:
+            return typeSecondExpr
 
-        func= None
-        if type(node) is NodeAddition:
-            func= lambda : {'value': exprResultFirst['value'] + exprResultSecond['value'], 'type': 'Int'}
+        return programContext.checkArithmetic(typeFirstExpr,
+                                          typeSecondExpr)
         
-        if type(node) is NodeSubtraction:
-            func= lambda : {'value': exprResultFirst['value'] - exprResultSecond['value'], 'type': 'Int'}
-
-        if type(node) is NodeMultiplication:
-            func= lambda : {'value': exprResultFirst['value'] * exprResultSecond['value'], 'type': 'Int'}
-
-        if type(node) is NodeDivision:
-            func= lambda : {'value': exprResultFirst['value'] / exprResultSecond['value'], 'type': 'Int'}
-
-        result= programContext.executeArithmetic(func, exprResultFirst['type'],
-                                          exprResultSecond['type'])
-        return result
         
-    def visit_NodeNewObject(self, node: NodeNewObject):
-        return programContext.getType(node.type)
+    def visit_NodeNewObject(self, node: NodeNewObject, **kwargs):
+        result = programContext.getType(node.type)
+        if type(result) is error:
+            return result 
+        return node.type
         
     def visit_NodeExpr(self,
                        node: NodeExpr,
                        environment):
         return self.visit(node, environment= environment)
         
+        
     def visit_NodeInteger(self, 
                           node: NodeInteger,
                           **args):
-        return {"type": 'Int', "value": node.content}
+        return 'Int'
     
     def visit_NodeObject(self,
                          node: NodeObject,
@@ -215,8 +214,21 @@ class TypeCheckerVisitor(NodeVisitor):
         return programContext.searchValue(node,
                                           environment)
         
-    def visit_NodeDynamicDispatch(self, node: NodeDynamicDispatch):
-        exprVal= self.visit_NodeExpr(node.instance)
-        return programContext.checkDynamicDispatch(exprVal,
-        node.method, node.arguments)
+    def visit_NodeDynamicDispatch(self,
+                                  node: NodeDynamicDispatch, 
+                                  environment):
         
+        typeExpr= self.visit_NodeExpr(node.idName,
+                                      environment= environment)
+        if type (typeExpr) is error:
+            return typeExpr
+        argTypes = []
+        for arg in node.arguments:
+            currenttypeExpr= self.visit(arg,
+                    environment= environment)
+            if type (currenttypeExpr) is error:
+                return currenttypeExpr
+            argTypes.append(currenttypeExpr)
+        
+        return programContext.checkDynamicDispatch(typeExpr,
+        node.method, argTypes)
