@@ -34,6 +34,7 @@ class GlobalDescriptor:
                 dottype.name, index, dottype.attributes, methds, start_method, name_ptrs[dottype.name])
 
             start_method = end_method
+            index += 1
 
         self.vTable = VTable(methods)
 
