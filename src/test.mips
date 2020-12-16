@@ -9,6 +9,8 @@ classname_Int:
 .asciiz "Int"
 classname_Bool:
 .asciiz "Bool"
+classname_A2I:
+.asciiz "A2I"
 classname_Main:
 .asciiz "Main"
 data_0:
@@ -22,12 +24,42 @@ data_3:
 data_4:
 .asciiz "Invalid substring"
 data_5:
-.asciiz "Hello, World.
+.asciiz "0"
+data_6:
+.asciiz "1"
+data_7:
+.asciiz "2"
+data_8:
+.asciiz "3"
+data_9:
+.asciiz "4"
+data_10:
+.asciiz "5"
+data_11:
+.asciiz "6"
+data_12:
+.asciiz "7"
+data_13:
+.asciiz "8"
+data_14:
+.asciiz "9"
+data_15:
+.asciiz ""
+data_16:
+.asciiz "-"
+data_17:
+.asciiz "+"
+data_18:
+.asciiz "678987"
+data_19:
+.asciiz " == "
+data_20:
+.asciiz "
 "
 .text
 main:
 # Allocate Vtable
-li $a0, 120
+li $a0, 156
 li $v0, 9
 syscall
 move $s7, $v0
@@ -82,16 +114,34 @@ la $s0, function_type_name_at_Object
 sw $s0, 92($s7)
 la $s0, function_copy_at_Object
 sw $s0, 96($s7)
-la $s0, function_out_string_at_IO
+la $s0, function_c2i_at_A2I
 sw $s0, 100($s7)
-la $s0, function_out_int_at_IO
+la $s0, function_i2c_at_A2I
 sw $s0, 104($s7)
-la $s0, function_in_string_at_IO
+la $s0, function_a2i_at_A2I
 sw $s0, 108($s7)
-la $s0, function_in_int_at_IO
+la $s0, function_a2i_aux_at_A2I
 sw $s0, 112($s7)
-la $s0, function_main_at_Main
+la $s0, function_i2a_at_A2I
 sw $s0, 116($s7)
+la $s0, function_i2a_aux_at_A2I
+sw $s0, 120($s7)
+la $s0, function_abort_at_Object
+sw $s0, 124($s7)
+la $s0, function_type_name_at_Object
+sw $s0, 128($s7)
+la $s0, function_copy_at_Object
+sw $s0, 132($s7)
+la $s0, function_out_string_at_IO
+sw $s0, 136($s7)
+la $s0, function_out_int_at_IO
+sw $s0, 140($s7)
+la $s0, function_in_string_at_IO
+sw $s0, 144($s7)
+la $s0, function_in_int_at_IO
+sw $s0, 148($s7)
+la $s0, function_main_at_Main
+sw $s0, 152($s7)
 jal entry
 
 li $v0, 10
@@ -1156,14 +1206,14 @@ addi $sp, $sp, 4
 lw $fp, 0($sp)
 addi $sp, $sp, 4
 jr $ra
-ctor_Main:
+ctor_A2I:
 # Set stack frame
 addi $sp, $sp, -4
 sw $fp, 0($sp)
 move $fp, $sp
 
 # Allocate memory for Local variables
-addi $sp, $sp, -4
+addi $sp, $sp, 0
 
 
 # Saving Registers
@@ -1185,7 +1235,6 @@ addi $sp, $sp, -4
 sw $s6, 0($sp)
 
 # Generating body code
-sw $zero, 4($fp)
 # ReturnNode
 # Load from self to $v0
 lw $v0, 4($fp)
@@ -1209,7 +1258,64 @@ lw $ra, 0($sp)
 addi $sp, $sp, 4
 
 # Clean stack variable space
+addi $sp, $sp, 0
+# Return
+lw $fp, 0($sp)
 addi $sp, $sp, 4
+jr $ra
+ctor_Main:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, 0
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+# ReturnNode
+# Load from self to $v0
+lw $v0, 4($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 0
 # Return
 lw $fp, 0($sp)
 addi $sp, $sp, 4
@@ -1221,7 +1327,7 @@ sw $fp, 0($sp)
 move $fp, $sp
 
 # Allocate memory for Local variables
-addi $sp, $sp, -12
+addi $sp, $sp, -8
 
 
 # Saving Registers
@@ -1244,21 +1350,19 @@ sw $s6, 0($sp)
 
 # Generating body code
 # Allocate space for Main
-li $a0, 20
+li $a0, 16
 li $v0, 9
 syscall
 move $s1, $v0
 sw $s1, 4($fp)
 li $s0, 0
 sw $s0, 0($s1)
-li $s0, 20
+li $s0, 16
 sw $s0, 4($s1)
 la $s0, classname_Main
 sw $s0, 8($s1)
-li $s0, 88
+li $s0, 124
 sw $s0, 12($s1)
-sw $zero, 16($s1)
-sw $zero, 12($fp)
 # ArgNode local__internal_0 to s0
 # Load from local__internal_0 to $s0
 lw $s0, 4($fp)
@@ -1288,19 +1392,19 @@ lw $ra, 0($sp)
 addi $sp, $sp, 4
 
 # Clean stack variable space
-addi $sp, $sp, 12
+addi $sp, $sp, 8
 # Return
 lw $fp, 0($sp)
 addi $sp, $sp, 4
 jr $ra
-function_main_at_Main:
+function_c2i_at_A2I:
 # Set stack frame
 addi $sp, $sp, -4
 sw $fp, 0($sp)
 move $fp, $sp
 
 # Allocate memory for Local variables
-addi $sp, $sp, -16
+addi $sp, $sp, -168
 
 
 # Saving Registers
@@ -1322,14 +1426,1233 @@ addi $sp, $sp, -4
 sw $s6, 0($sp)
 
 # Generating body code
-li $s0, 34
-sw $s0, 8($fp)
 # Load from data_5 to $s0
 la $s0, data_5
+sw $s0, 4($fp)
+# Load from char to $s0
+lw $s0, 8($fp)
+# Load from local_c2i_at_A2I_internal_0 to $s1
+lw $s1, 4($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_60:
+lb $t3, 0($t0)
+beqz $t3, mips_label_61
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_60
+mips_label_61:
+move $s2, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_62:
+lb $t3, 0($t0)
+beqz $t3, mips_label_63
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_62
+mips_label_63:
+move $s3, $t1
+move $v0, $zero
+bne $s2, $s3, mips_label_57
+move $s2, $s0
+move $s3, $s1
+mips_label_59:
+lb $s4, 0($s2)
+lb $s5, 0($s3)
+bne $s4, $s5, mips_label_57
+addi $s2, $s2, 1
+addi $s3, $s3, 1
+beqz $s4, mips_label_58
+j mips_label_59
+mips_label_58:
+li $v0, 1
+mips_label_57:
+sw $v0, 8($fp)
+# IfGotoNode
+# Load from local_c2i_at_A2I_internal_1 to $t0
+lw $t0, 8($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_1
+# Load from data_6 to $s0
+la $s0, data_6
 sw $s0, 16($fp)
-# ArgNode local_main_at_Main_internal_3 to s0
-# Load from local_main_at_Main_internal_3 to $s0
-lw $s0, 16($fp)
+# Load from char to $s0
+lw $s0, 8($fp)
+# Load from local_c2i_at_A2I_internal_3 to $s1
+lw $s1, 16($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_67:
+lb $t3, 0($t0)
+beqz $t3, mips_label_68
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_67
+mips_label_68:
+move $s2, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_69:
+lb $t3, 0($t0)
+beqz $t3, mips_label_70
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_69
+mips_label_70:
+move $s3, $t1
+move $v0, $zero
+bne $s2, $s3, mips_label_64
+move $s2, $s0
+move $s3, $s1
+mips_label_66:
+lb $s4, 0($s2)
+lb $s5, 0($s3)
+bne $s4, $s5, mips_label_64
+addi $s2, $s2, 1
+addi $s3, $s3, 1
+beqz $s4, mips_label_65
+j mips_label_66
+mips_label_65:
+li $v0, 1
+mips_label_64:
+sw $v0, 20($fp)
+# IfGotoNode
+# Load from local_c2i_at_A2I_internal_4 to $t0
+lw $t0, 20($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_2
+# Load from data_7 to $s0
+la $s0, data_7
+sw $s0, 28($fp)
+# Load from char to $s0
+lw $s0, 8($fp)
+# Load from local_c2i_at_A2I_internal_6 to $s1
+lw $s1, 28($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_74:
+lb $t3, 0($t0)
+beqz $t3, mips_label_75
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_74
+mips_label_75:
+move $s2, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_76:
+lb $t3, 0($t0)
+beqz $t3, mips_label_77
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_76
+mips_label_77:
+move $s3, $t1
+move $v0, $zero
+bne $s2, $s3, mips_label_71
+move $s2, $s0
+move $s3, $s1
+mips_label_73:
+lb $s4, 0($s2)
+lb $s5, 0($s3)
+bne $s4, $s5, mips_label_71
+addi $s2, $s2, 1
+addi $s3, $s3, 1
+beqz $s4, mips_label_72
+j mips_label_73
+mips_label_72:
+li $v0, 1
+mips_label_71:
+sw $v0, 32($fp)
+# IfGotoNode
+# Load from local_c2i_at_A2I_internal_7 to $t0
+lw $t0, 32($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_3
+# Load from data_8 to $s0
+la $s0, data_8
+sw $s0, 40($fp)
+# Load from char to $s0
+lw $s0, 8($fp)
+# Load from local_c2i_at_A2I_internal_9 to $s1
+lw $s1, 40($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_81:
+lb $t3, 0($t0)
+beqz $t3, mips_label_82
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_81
+mips_label_82:
+move $s2, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_83:
+lb $t3, 0($t0)
+beqz $t3, mips_label_84
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_83
+mips_label_84:
+move $s3, $t1
+move $v0, $zero
+bne $s2, $s3, mips_label_78
+move $s2, $s0
+move $s3, $s1
+mips_label_80:
+lb $s4, 0($s2)
+lb $s5, 0($s3)
+bne $s4, $s5, mips_label_78
+addi $s2, $s2, 1
+addi $s3, $s3, 1
+beqz $s4, mips_label_79
+j mips_label_80
+mips_label_79:
+li $v0, 1
+mips_label_78:
+sw $v0, 44($fp)
+# IfGotoNode
+# Load from local_c2i_at_A2I_internal_10 to $t0
+lw $t0, 44($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_4
+# Load from data_9 to $s0
+la $s0, data_9
+sw $s0, 52($fp)
+# Load from char to $s0
+lw $s0, 8($fp)
+# Load from local_c2i_at_A2I_internal_12 to $s1
+lw $s1, 52($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_88:
+lb $t3, 0($t0)
+beqz $t3, mips_label_89
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_88
+mips_label_89:
+move $s2, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_90:
+lb $t3, 0($t0)
+beqz $t3, mips_label_91
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_90
+mips_label_91:
+move $s3, $t1
+move $v0, $zero
+bne $s2, $s3, mips_label_85
+move $s2, $s0
+move $s3, $s1
+mips_label_87:
+lb $s4, 0($s2)
+lb $s5, 0($s3)
+bne $s4, $s5, mips_label_85
+addi $s2, $s2, 1
+addi $s3, $s3, 1
+beqz $s4, mips_label_86
+j mips_label_87
+mips_label_86:
+li $v0, 1
+mips_label_85:
+sw $v0, 56($fp)
+# IfGotoNode
+# Load from local_c2i_at_A2I_internal_13 to $t0
+lw $t0, 56($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_5
+# Load from data_10 to $s0
+la $s0, data_10
+sw $s0, 64($fp)
+# Load from char to $s0
+lw $s0, 8($fp)
+# Load from local_c2i_at_A2I_internal_15 to $s1
+lw $s1, 64($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_95:
+lb $t3, 0($t0)
+beqz $t3, mips_label_96
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_95
+mips_label_96:
+move $s2, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_97:
+lb $t3, 0($t0)
+beqz $t3, mips_label_98
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_97
+mips_label_98:
+move $s3, $t1
+move $v0, $zero
+bne $s2, $s3, mips_label_92
+move $s2, $s0
+move $s3, $s1
+mips_label_94:
+lb $s4, 0($s2)
+lb $s5, 0($s3)
+bne $s4, $s5, mips_label_92
+addi $s2, $s2, 1
+addi $s3, $s3, 1
+beqz $s4, mips_label_93
+j mips_label_94
+mips_label_93:
+li $v0, 1
+mips_label_92:
+sw $v0, 68($fp)
+# IfGotoNode
+# Load from local_c2i_at_A2I_internal_16 to $t0
+lw $t0, 68($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_6
+# Load from data_11 to $s0
+la $s0, data_11
+sw $s0, 76($fp)
+# Load from char to $s0
+lw $s0, 8($fp)
+# Load from local_c2i_at_A2I_internal_18 to $s1
+lw $s1, 76($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_102:
+lb $t3, 0($t0)
+beqz $t3, mips_label_103
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_102
+mips_label_103:
+move $s2, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_104:
+lb $t3, 0($t0)
+beqz $t3, mips_label_105
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_104
+mips_label_105:
+move $s3, $t1
+move $v0, $zero
+bne $s2, $s3, mips_label_99
+move $s2, $s0
+move $s3, $s1
+mips_label_101:
+lb $s4, 0($s2)
+lb $s5, 0($s3)
+bne $s4, $s5, mips_label_99
+addi $s2, $s2, 1
+addi $s3, $s3, 1
+beqz $s4, mips_label_100
+j mips_label_101
+mips_label_100:
+li $v0, 1
+mips_label_99:
+sw $v0, 80($fp)
+# IfGotoNode
+# Load from local_c2i_at_A2I_internal_19 to $t0
+lw $t0, 80($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_7
+# Load from data_12 to $s0
+la $s0, data_12
+sw $s0, 88($fp)
+# Load from char to $s0
+lw $s0, 8($fp)
+# Load from local_c2i_at_A2I_internal_21 to $s1
+lw $s1, 88($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_109:
+lb $t3, 0($t0)
+beqz $t3, mips_label_110
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_109
+mips_label_110:
+move $s2, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_111:
+lb $t3, 0($t0)
+beqz $t3, mips_label_112
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_111
+mips_label_112:
+move $s3, $t1
+move $v0, $zero
+bne $s2, $s3, mips_label_106
+move $s2, $s0
+move $s3, $s1
+mips_label_108:
+lb $s4, 0($s2)
+lb $s5, 0($s3)
+bne $s4, $s5, mips_label_106
+addi $s2, $s2, 1
+addi $s3, $s3, 1
+beqz $s4, mips_label_107
+j mips_label_108
+mips_label_107:
+li $v0, 1
+mips_label_106:
+sw $v0, 92($fp)
+# IfGotoNode
+# Load from local_c2i_at_A2I_internal_22 to $t0
+lw $t0, 92($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_8
+# Load from data_13 to $s0
+la $s0, data_13
+sw $s0, 100($fp)
+# Load from char to $s0
+lw $s0, 8($fp)
+# Load from local_c2i_at_A2I_internal_24 to $s1
+lw $s1, 100($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_116:
+lb $t3, 0($t0)
+beqz $t3, mips_label_117
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_116
+mips_label_117:
+move $s2, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_118:
+lb $t3, 0($t0)
+beqz $t3, mips_label_119
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_118
+mips_label_119:
+move $s3, $t1
+move $v0, $zero
+bne $s2, $s3, mips_label_113
+move $s2, $s0
+move $s3, $s1
+mips_label_115:
+lb $s4, 0($s2)
+lb $s5, 0($s3)
+bne $s4, $s5, mips_label_113
+addi $s2, $s2, 1
+addi $s3, $s3, 1
+beqz $s4, mips_label_114
+j mips_label_115
+mips_label_114:
+li $v0, 1
+mips_label_113:
+sw $v0, 104($fp)
+# IfGotoNode
+# Load from local_c2i_at_A2I_internal_25 to $t0
+lw $t0, 104($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_9
+# Load from data_14 to $s0
+la $s0, data_14
+sw $s0, 112($fp)
+# Load from char to $s0
+lw $s0, 8($fp)
+# Load from local_c2i_at_A2I_internal_27 to $s1
+lw $s1, 112($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_123:
+lb $t3, 0($t0)
+beqz $t3, mips_label_124
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_123
+mips_label_124:
+move $s2, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_125:
+lb $t3, 0($t0)
+beqz $t3, mips_label_126
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_125
+mips_label_126:
+move $s3, $t1
+move $v0, $zero
+bne $s2, $s3, mips_label_120
+move $s2, $s0
+move $s3, $s1
+mips_label_122:
+lb $s4, 0($s2)
+lb $s5, 0($s3)
+bne $s4, $s5, mips_label_120
+addi $s2, $s2, 1
+addi $s3, $s3, 1
+beqz $s4, mips_label_121
+j mips_label_122
+mips_label_121:
+li $v0, 1
+mips_label_120:
+sw $v0, 116($fp)
+# IfGotoNode
+# Load from local_c2i_at_A2I_internal_28 to $t0
+lw $t0, 116($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_10
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode A2I abort
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 0
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 124($fp)
+addi $sp, $sp, 4
+li $s0, 0
+sw $s0, 128($fp)
+# Load from local_c2i_at_A2I_internal_31 to $t0
+lw $t0, 128($fp)
+sw $t0, 120($fp)
+# GotoNode
+j END_10
+TRUE_10:
+li $s0, 9
+sw $s0, 132($fp)
+# Load from local_c2i_at_A2I_internal_32 to $t0
+lw $t0, 132($fp)
+sw $t0, 120($fp)
+END_10:
+# Load from local_c2i_at_A2I_internal_29 to $t0
+lw $t0, 120($fp)
+sw $t0, 108($fp)
+# GotoNode
+j END_9
+TRUE_9:
+li $s0, 8
+sw $s0, 136($fp)
+# Load from local_c2i_at_A2I_internal_33 to $t0
+lw $t0, 136($fp)
+sw $t0, 108($fp)
+END_9:
+# Load from local_c2i_at_A2I_internal_26 to $t0
+lw $t0, 108($fp)
+sw $t0, 96($fp)
+# GotoNode
+j END_8
+TRUE_8:
+li $s0, 7
+sw $s0, 140($fp)
+# Load from local_c2i_at_A2I_internal_34 to $t0
+lw $t0, 140($fp)
+sw $t0, 96($fp)
+END_8:
+# Load from local_c2i_at_A2I_internal_23 to $t0
+lw $t0, 96($fp)
+sw $t0, 84($fp)
+# GotoNode
+j END_7
+TRUE_7:
+li $s0, 6
+sw $s0, 144($fp)
+# Load from local_c2i_at_A2I_internal_35 to $t0
+lw $t0, 144($fp)
+sw $t0, 84($fp)
+END_7:
+# Load from local_c2i_at_A2I_internal_20 to $t0
+lw $t0, 84($fp)
+sw $t0, 72($fp)
+# GotoNode
+j END_6
+TRUE_6:
+li $s0, 5
+sw $s0, 148($fp)
+# Load from local_c2i_at_A2I_internal_36 to $t0
+lw $t0, 148($fp)
+sw $t0, 72($fp)
+END_6:
+# Load from local_c2i_at_A2I_internal_17 to $t0
+lw $t0, 72($fp)
+sw $t0, 60($fp)
+# GotoNode
+j END_5
+TRUE_5:
+li $s0, 4
+sw $s0, 152($fp)
+# Load from local_c2i_at_A2I_internal_37 to $t0
+lw $t0, 152($fp)
+sw $t0, 60($fp)
+END_5:
+# Load from local_c2i_at_A2I_internal_14 to $t0
+lw $t0, 60($fp)
+sw $t0, 48($fp)
+# GotoNode
+j END_4
+TRUE_4:
+li $s0, 3
+sw $s0, 156($fp)
+# Load from local_c2i_at_A2I_internal_38 to $t0
+lw $t0, 156($fp)
+sw $t0, 48($fp)
+END_4:
+# Load from local_c2i_at_A2I_internal_11 to $t0
+lw $t0, 48($fp)
+sw $t0, 36($fp)
+# GotoNode
+j END_3
+TRUE_3:
+li $s0, 2
+sw $s0, 160($fp)
+# Load from local_c2i_at_A2I_internal_39 to $t0
+lw $t0, 160($fp)
+sw $t0, 36($fp)
+END_3:
+# Load from local_c2i_at_A2I_internal_8 to $t0
+lw $t0, 36($fp)
+sw $t0, 24($fp)
+# GotoNode
+j END_2
+TRUE_2:
+li $s0, 1
+sw $s0, 164($fp)
+# Load from local_c2i_at_A2I_internal_40 to $t0
+lw $t0, 164($fp)
+sw $t0, 24($fp)
+END_2:
+# Load from local_c2i_at_A2I_internal_5 to $t0
+lw $t0, 24($fp)
+sw $t0, 12($fp)
+# GotoNode
+j END_1
+TRUE_1:
+li $s0, 0
+sw $s0, 168($fp)
+# Load from local_c2i_at_A2I_internal_41 to $t0
+lw $t0, 168($fp)
+sw $t0, 12($fp)
+END_1:
+# ReturnNode
+# Load from local_c2i_at_A2I_internal_2 to $v0
+lw $v0, 12($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 168
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_i2c_at_A2I:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, -168
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+li $s0, 0
+sw $s0, 4($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2c_at_A2I_internal_0 to $t1
+lw $t1, 4($fp)
+slt $t2, $t0, $t1
+slt $t3, $t1, $t0
+add $t0, $t2, $t3
+slti $t1, $t0, 1
+sw $t1, 8($fp)
+# IfGotoNode
+# Load from local_i2c_at_A2I_internal_1 to $t0
+lw $t0, 8($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_21
+li $s0, 1
+sw $s0, 16($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2c_at_A2I_internal_3 to $t1
+lw $t1, 16($fp)
+slt $t2, $t0, $t1
+slt $t3, $t1, $t0
+add $t0, $t2, $t3
+slti $t1, $t0, 1
+sw $t1, 20($fp)
+# IfGotoNode
+# Load from local_i2c_at_A2I_internal_4 to $t0
+lw $t0, 20($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_22
+li $s0, 2
+sw $s0, 28($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2c_at_A2I_internal_6 to $t1
+lw $t1, 28($fp)
+slt $t2, $t0, $t1
+slt $t3, $t1, $t0
+add $t0, $t2, $t3
+slti $t1, $t0, 1
+sw $t1, 32($fp)
+# IfGotoNode
+# Load from local_i2c_at_A2I_internal_7 to $t0
+lw $t0, 32($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_23
+li $s0, 3
+sw $s0, 40($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2c_at_A2I_internal_9 to $t1
+lw $t1, 40($fp)
+slt $t2, $t0, $t1
+slt $t3, $t1, $t0
+add $t0, $t2, $t3
+slti $t1, $t0, 1
+sw $t1, 44($fp)
+# IfGotoNode
+# Load from local_i2c_at_A2I_internal_10 to $t0
+lw $t0, 44($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_24
+li $s0, 4
+sw $s0, 52($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2c_at_A2I_internal_12 to $t1
+lw $t1, 52($fp)
+slt $t2, $t0, $t1
+slt $t3, $t1, $t0
+add $t0, $t2, $t3
+slti $t1, $t0, 1
+sw $t1, 56($fp)
+# IfGotoNode
+# Load from local_i2c_at_A2I_internal_13 to $t0
+lw $t0, 56($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_25
+li $s0, 5
+sw $s0, 64($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2c_at_A2I_internal_15 to $t1
+lw $t1, 64($fp)
+slt $t2, $t0, $t1
+slt $t3, $t1, $t0
+add $t0, $t2, $t3
+slti $t1, $t0, 1
+sw $t1, 68($fp)
+# IfGotoNode
+# Load from local_i2c_at_A2I_internal_16 to $t0
+lw $t0, 68($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_26
+li $s0, 6
+sw $s0, 76($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2c_at_A2I_internal_18 to $t1
+lw $t1, 76($fp)
+slt $t2, $t0, $t1
+slt $t3, $t1, $t0
+add $t0, $t2, $t3
+slti $t1, $t0, 1
+sw $t1, 80($fp)
+# IfGotoNode
+# Load from local_i2c_at_A2I_internal_19 to $t0
+lw $t0, 80($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_27
+li $s0, 7
+sw $s0, 88($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2c_at_A2I_internal_21 to $t1
+lw $t1, 88($fp)
+slt $t2, $t0, $t1
+slt $t3, $t1, $t0
+add $t0, $t2, $t3
+slti $t1, $t0, 1
+sw $t1, 92($fp)
+# IfGotoNode
+# Load from local_i2c_at_A2I_internal_22 to $t0
+lw $t0, 92($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_28
+li $s0, 8
+sw $s0, 100($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2c_at_A2I_internal_24 to $t1
+lw $t1, 100($fp)
+slt $t2, $t0, $t1
+slt $t3, $t1, $t0
+add $t0, $t2, $t3
+slti $t1, $t0, 1
+sw $t1, 104($fp)
+# IfGotoNode
+# Load from local_i2c_at_A2I_internal_25 to $t0
+lw $t0, 104($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_29
+li $s0, 9
+sw $s0, 112($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2c_at_A2I_internal_27 to $t1
+lw $t1, 112($fp)
+slt $t2, $t0, $t1
+slt $t3, $t1, $t0
+add $t0, $t2, $t3
+slti $t1, $t0, 1
+sw $t1, 116($fp)
+# IfGotoNode
+# Load from local_i2c_at_A2I_internal_28 to $t0
+lw $t0, 116($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_30
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode A2I abort
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 0
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 124($fp)
+addi $sp, $sp, 4
+# Load from data_15 to $s0
+la $s0, data_15
+sw $s0, 128($fp)
+# Load from local_i2c_at_A2I_internal_31 to $t0
+lw $t0, 128($fp)
+sw $t0, 120($fp)
+# GotoNode
+j END_30
+TRUE_30:
+# Load from data_14 to $s0
+la $s0, data_14
+sw $s0, 132($fp)
+# Load from local_i2c_at_A2I_internal_32 to $t0
+lw $t0, 132($fp)
+sw $t0, 120($fp)
+END_30:
+# Load from local_i2c_at_A2I_internal_29 to $t0
+lw $t0, 120($fp)
+sw $t0, 108($fp)
+# GotoNode
+j END_29
+TRUE_29:
+# Load from data_13 to $s0
+la $s0, data_13
+sw $s0, 136($fp)
+# Load from local_i2c_at_A2I_internal_33 to $t0
+lw $t0, 136($fp)
+sw $t0, 108($fp)
+END_29:
+# Load from local_i2c_at_A2I_internal_26 to $t0
+lw $t0, 108($fp)
+sw $t0, 96($fp)
+# GotoNode
+j END_28
+TRUE_28:
+# Load from data_12 to $s0
+la $s0, data_12
+sw $s0, 140($fp)
+# Load from local_i2c_at_A2I_internal_34 to $t0
+lw $t0, 140($fp)
+sw $t0, 96($fp)
+END_28:
+# Load from local_i2c_at_A2I_internal_23 to $t0
+lw $t0, 96($fp)
+sw $t0, 84($fp)
+# GotoNode
+j END_27
+TRUE_27:
+# Load from data_11 to $s0
+la $s0, data_11
+sw $s0, 144($fp)
+# Load from local_i2c_at_A2I_internal_35 to $t0
+lw $t0, 144($fp)
+sw $t0, 84($fp)
+END_27:
+# Load from local_i2c_at_A2I_internal_20 to $t0
+lw $t0, 84($fp)
+sw $t0, 72($fp)
+# GotoNode
+j END_26
+TRUE_26:
+# Load from data_10 to $s0
+la $s0, data_10
+sw $s0, 148($fp)
+# Load from local_i2c_at_A2I_internal_36 to $t0
+lw $t0, 148($fp)
+sw $t0, 72($fp)
+END_26:
+# Load from local_i2c_at_A2I_internal_17 to $t0
+lw $t0, 72($fp)
+sw $t0, 60($fp)
+# GotoNode
+j END_25
+TRUE_25:
+# Load from data_9 to $s0
+la $s0, data_9
+sw $s0, 152($fp)
+# Load from local_i2c_at_A2I_internal_37 to $t0
+lw $t0, 152($fp)
+sw $t0, 60($fp)
+END_25:
+# Load from local_i2c_at_A2I_internal_14 to $t0
+lw $t0, 60($fp)
+sw $t0, 48($fp)
+# GotoNode
+j END_24
+TRUE_24:
+# Load from data_8 to $s0
+la $s0, data_8
+sw $s0, 156($fp)
+# Load from local_i2c_at_A2I_internal_38 to $t0
+lw $t0, 156($fp)
+sw $t0, 48($fp)
+END_24:
+# Load from local_i2c_at_A2I_internal_11 to $t0
+lw $t0, 48($fp)
+sw $t0, 36($fp)
+# GotoNode
+j END_23
+TRUE_23:
+# Load from data_7 to $s0
+la $s0, data_7
+sw $s0, 160($fp)
+# Load from local_i2c_at_A2I_internal_39 to $t0
+lw $t0, 160($fp)
+sw $t0, 36($fp)
+END_23:
+# Load from local_i2c_at_A2I_internal_8 to $t0
+lw $t0, 36($fp)
+sw $t0, 24($fp)
+# GotoNode
+j END_22
+TRUE_22:
+# Load from data_6 to $s0
+la $s0, data_6
+sw $s0, 164($fp)
+# Load from local_i2c_at_A2I_internal_40 to $t0
+lw $t0, 164($fp)
+sw $t0, 24($fp)
+END_22:
+# Load from local_i2c_at_A2I_internal_5 to $t0
+lw $t0, 24($fp)
+sw $t0, 12($fp)
+# GotoNode
+j END_21
+TRUE_21:
+# Load from data_5 to $s0
+la $s0, data_5
+sw $s0, 168($fp)
+# Load from local_i2c_at_A2I_internal_41 to $t0
+lw $t0, 168($fp)
+sw $t0, 12($fp)
+END_21:
+# ReturnNode
+# Load from local_i2c_at_A2I_internal_2 to $v0
+lw $v0, 12($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 168
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_a2i_at_A2I:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, -124
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+# ArgNode s to s0
+# Load from s to $s0
+lw $s0, 8($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode String length
+# Load from s to $s0
+lw $s0, 8($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 12
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 4($fp)
+addi $sp, $sp, 4
+li $s0, 0
+sw $s0, 8($fp)
+# Load from local_a2i_at_A2I_internal_0 to $t0
+lw $t0, 4($fp)
+# Load from local_a2i_at_A2I_internal_1 to $t1
+lw $t1, 8($fp)
+slt $t2, $t0, $t1
+slt $t3, $t1, $t0
+add $t0, $t2, $t3
+slti $t1, $t0, 1
+sw $t1, 12($fp)
+# IfGotoNode
+# Load from local_a2i_at_A2I_internal_2 to $t0
+lw $t0, 12($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_41
+li $s0, 0
+sw $s0, 24($fp)
+li $s0, 1
+sw $s0, 28($fp)
+# ArgNode local_a2i_at_A2I_internal_6 to s0
+# Load from local_a2i_at_A2I_internal_6 to $s0
+lw $s0, 28($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode local_a2i_at_A2I_internal_5 to s0
+# Load from local_a2i_at_A2I_internal_5 to $s0
+lw $s0, 24($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode s to s0
+# Load from s to $s0
+lw $s0, 8($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode String substr
+# Load from s to $s0
+lw $s0, 8($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 20
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 20($fp)
+addi $sp, $sp, 12
+# Load from data_16 to $s0
+la $s0, data_16
+sw $s0, 32($fp)
+# Load from local_a2i_at_A2I_internal_4 to $s0
+lw $s0, 20($fp)
+# Load from local_a2i_at_A2I_internal_7 to $s1
+lw $s1, 32($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_130:
+lb $t3, 0($t0)
+beqz $t3, mips_label_131
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_130
+mips_label_131:
+move $s2, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_132:
+lb $t3, 0($t0)
+beqz $t3, mips_label_133
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_132
+mips_label_133:
+move $s3, $t1
+move $v0, $zero
+bne $s2, $s3, mips_label_127
+move $s2, $s0
+move $s3, $s1
+mips_label_129:
+lb $s4, 0($s2)
+lb $s5, 0($s3)
+bne $s4, $s5, mips_label_127
+addi $s2, $s2, 1
+addi $s3, $s3, 1
+beqz $s4, mips_label_128
+j mips_label_129
+mips_label_128:
+li $v0, 1
+mips_label_127:
+sw $v0, 36($fp)
+# IfGotoNode
+# Load from local_a2i_at_A2I_internal_8 to $t0
+lw $t0, 36($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_42
+li $s0, 0
+sw $s0, 48($fp)
+li $s0, 1
+sw $s0, 52($fp)
+# ArgNode local_a2i_at_A2I_internal_12 to s0
+# Load from local_a2i_at_A2I_internal_12 to $s0
+lw $s0, 52($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode local_a2i_at_A2I_internal_11 to s0
+# Load from local_a2i_at_A2I_internal_11 to $s0
+lw $s0, 48($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode s to s0
+# Load from s to $s0
+lw $s0, 8($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode String substr
+# Load from s to $s0
+lw $s0, 8($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 20
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 44($fp)
+addi $sp, $sp, 12
+# Load from data_17 to $s0
+la $s0, data_17
+sw $s0, 56($fp)
+# Load from local_a2i_at_A2I_internal_10 to $s0
+lw $s0, 44($fp)
+# Load from local_a2i_at_A2I_internal_13 to $s1
+lw $s1, 56($fp)
+move $t0, $s0
+li $t1, 0
+mips_label_137:
+lb $t3, 0($t0)
+beqz $t3, mips_label_138
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_137
+mips_label_138:
+move $s2, $t1
+move $t0, $s1
+li $t1, 0
+mips_label_139:
+lb $t3, 0($t0)
+beqz $t3, mips_label_140
+addi $t1, $t1, 1
+addi $t0, $t0, 1
+j mips_label_139
+mips_label_140:
+move $s3, $t1
+move $v0, $zero
+bne $s2, $s3, mips_label_134
+move $s2, $s0
+move $s3, $s1
+mips_label_136:
+lb $s4, 0($s2)
+lb $s5, 0($s3)
+bne $s4, $s5, mips_label_134
+addi $s2, $s2, 1
+addi $s3, $s3, 1
+beqz $s4, mips_label_135
+j mips_label_136
+mips_label_135:
+li $v0, 1
+mips_label_134:
+sw $v0, 60($fp)
+# IfGotoNode
+# Load from local_a2i_at_A2I_internal_14 to $t0
+lw $t0, 60($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_43
+# ArgNode s to s0
+# Load from s to $s0
+lw $s0, 8($fp)
 addi $sp, $sp, -4
 sw $s0, 0($sp)
 # ArgNode self to s0
@@ -1337,7 +2660,339 @@ sw $s0, 0($sp)
 lw $s0, 4($fp)
 addi $sp, $sp, -4
 sw $s0, 0($sp)
-# DynamicCallNode Main out_string
+# DynamicCallNode A2I a2i_aux
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 24
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 68($fp)
+addi $sp, $sp, 8
+# Load from local_a2i_at_A2I_internal_16 to $t0
+lw $t0, 68($fp)
+sw $t0, 64($fp)
+# GotoNode
+j END_43
+TRUE_43:
+li $s0, 1
+sw $s0, 80($fp)
+# ArgNode s to s0
+# Load from s to $s0
+lw $s0, 8($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode String length
+# Load from s to $s0
+lw $s0, 8($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 12
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 88($fp)
+addi $sp, $sp, 4
+li $s0, 1
+sw $s0, 92($fp)
+# Load from local_a2i_at_A2I_internal_21 to $t0
+lw $t0, 88($fp)
+# Load from local_a2i_at_A2I_internal_22 to $t1
+lw $t1, 92($fp)
+sub $t2, $t0, $t1
+sw $t2, 84($fp)
+# ArgNode local_a2i_at_A2I_internal_20 to s0
+# Load from local_a2i_at_A2I_internal_20 to $s0
+lw $s0, 84($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode local_a2i_at_A2I_internal_19 to s0
+# Load from local_a2i_at_A2I_internal_19 to $s0
+lw $s0, 80($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode s to s0
+# Load from s to $s0
+lw $s0, 8($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode String substr
+# Load from s to $s0
+lw $s0, 8($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 20
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 76($fp)
+addi $sp, $sp, 12
+# ArgNode local_a2i_at_A2I_internal_18 to s0
+# Load from local_a2i_at_A2I_internal_18 to $s0
+lw $s0, 76($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode A2I a2i_aux
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 24
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 72($fp)
+addi $sp, $sp, 8
+# Load from local_a2i_at_A2I_internal_17 to $t0
+lw $t0, 72($fp)
+sw $t0, 64($fp)
+END_43:
+# Load from local_a2i_at_A2I_internal_15 to $t0
+lw $t0, 64($fp)
+sw $t0, 40($fp)
+# GotoNode
+j END_42
+TRUE_42:
+li $s0, 1
+sw $s0, 108($fp)
+# ArgNode s to s0
+# Load from s to $s0
+lw $s0, 8($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode String length
+# Load from s to $s0
+lw $s0, 8($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 12
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 116($fp)
+addi $sp, $sp, 4
+li $s0, 1
+sw $s0, 120($fp)
+# Load from local_a2i_at_A2I_internal_28 to $t0
+lw $t0, 116($fp)
+# Load from local_a2i_at_A2I_internal_29 to $t1
+lw $t1, 120($fp)
+sub $t2, $t0, $t1
+sw $t2, 112($fp)
+# ArgNode local_a2i_at_A2I_internal_27 to s0
+# Load from local_a2i_at_A2I_internal_27 to $s0
+lw $s0, 112($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode local_a2i_at_A2I_internal_26 to s0
+# Load from local_a2i_at_A2I_internal_26 to $s0
+lw $s0, 108($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode s to s0
+# Load from s to $s0
+lw $s0, 8($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode String substr
+# Load from s to $s0
+lw $s0, 8($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 20
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 104($fp)
+addi $sp, $sp, 12
+# ArgNode local_a2i_at_A2I_internal_25 to s0
+# Load from local_a2i_at_A2I_internal_25 to $s0
+lw $s0, 104($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode A2I a2i_aux
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 24
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 100($fp)
+addi $sp, $sp, 8
+# Load from local_a2i_at_A2I_internal_24 to $t0
+lw $t0, 100($fp)
+nor $t1, $t0, $t0
+sw $t1, 96($fp)
+# Load from local_a2i_at_A2I_internal_23 to $t0
+lw $t0, 96($fp)
+sw $t0, 40($fp)
+END_42:
+# Load from local_a2i_at_A2I_internal_9 to $t0
+lw $t0, 40($fp)
+sw $t0, 16($fp)
+# GotoNode
+j END_41
+TRUE_41:
+li $s0, 0
+sw $s0, 124($fp)
+# Load from local_a2i_at_A2I_internal_30 to $t0
+lw $t0, 124($fp)
+sw $t0, 16($fp)
+END_41:
+# ReturnNode
+# Load from local_a2i_at_A2I_internal_3 to $v0
+lw $v0, 16($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 124
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_a2i_aux_at_A2I:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, -60
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+li $s0, 0
+sw $s0, 8($fp)
+# Load from local_a2i_aux_at_A2I_internal_1 to $t0
+lw $t0, 8($fp)
+sw $t0, 4($fp)
+# ArgNode s to s0
+# Load from s to $s0
+lw $s0, 8($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode String length
+# Load from s to $s0
+lw $s0, 8($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 12
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 16($fp)
+addi $sp, $sp, 4
+# Load from local_a2i_aux_at_A2I_internal_3 to $t0
+lw $t0, 16($fp)
+sw $t0, 12($fp)
+li $s0, 0
+sw $s0, 24($fp)
+# Load from local_a2i_aux_at_A2I_internal_5 to $t0
+lw $t0, 24($fp)
+sw $t0, 20($fp)
+START_47:
+# Load from local_a2i_aux_at_A2I_i_4 to $t0
+lw $t0, 20($fp)
+# Load from local_a2i_aux_at_A2I_j_2 to $t1
+lw $t1, 12($fp)
+slt $t2, $t0, $t1
+sw $t2, 28($fp)
+# IfGotoNode
+# Load from local_a2i_aux_at_A2I_internal_6 to $t0
+lw $t0, 28($fp)
+li $t1, 0
+bne $t0, $t1, CONTINUE_47
+# GotoNode
+j END_47
+CONTINUE_47:
+li $s0, 10
+sw $s0, 40($fp)
+# Load from local_a2i_aux_at_A2I_int_0 to $t0
+lw $t0, 4($fp)
+# Load from local_a2i_aux_at_A2I_internal_9 to $t1
+lw $t1, 40($fp)
+mult $t0, $t1
+mflo $t0
+sw $t0, 36($fp)
+li $s0, 1
+sw $s0, 52($fp)
+# ArgNode local_a2i_aux_at_A2I_internal_12 to s0
+# Load from local_a2i_aux_at_A2I_internal_12 to $s0
+lw $s0, 52($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode local_a2i_aux_at_A2I_i_4 to s0
+# Load from local_a2i_aux_at_A2I_i_4 to $s0
+lw $s0, 20($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode s to s0
+# Load from s to $s0
+lw $s0, 8($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode String substr
+# Load from s to $s0
+lw $s0, 8($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 20
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 48($fp)
+addi $sp, $sp, 12
+# ArgNode local_a2i_aux_at_A2I_internal_11 to s0
+# Load from local_a2i_aux_at_A2I_internal_11 to $s0
+lw $s0, 48($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode A2I c2i
 # Load from self to $s0
 lw $s0, 4($fp)
 lw $s1, 12($s0)
@@ -1345,13 +3000,33 @@ addi $s2, $s1, 12
 addu $s3, $s2, $s7
 lw $s4, 0($s3)
 jalr $s4
-sw $v0, 12($fp)
+sw $v0, 44($fp)
 addi $sp, $sp, 8
-# Load from local_main_at_Main_internal_2 to $t0
-lw $t0, 12($fp)
+# Load from local_a2i_aux_at_A2I_internal_8 to $t0
+lw $t0, 36($fp)
+# Load from local_a2i_aux_at_A2I_internal_10 to $t1
+lw $t1, 44($fp)
+add $t2, $t0, $t1
+sw $t2, 32($fp)
+# Load from local_a2i_aux_at_A2I_internal_7 to $t0
+lw $t0, 32($fp)
 sw $t0, 4($fp)
+li $s0, 1
+sw $s0, 60($fp)
+# Load from local_a2i_aux_at_A2I_i_4 to $t0
+lw $t0, 20($fp)
+# Load from local_a2i_aux_at_A2I_internal_14 to $t1
+lw $t1, 60($fp)
+add $t2, $t0, $t1
+sw $t2, 56($fp)
+# Load from local_a2i_aux_at_A2I_internal_13 to $t0
+lw $t0, 56($fp)
+sw $t0, 20($fp)
+# GotoNode
+j START_47
+END_47:
 # ReturnNode
-# Load from local_main_at_Main_internal_0 to $v0
+# Load from local_a2i_aux_at_A2I_int_0 to $v0
 lw $v0, 4($fp)
 
 # Restore registers
@@ -1373,7 +3048,603 @@ lw $ra, 0($sp)
 addi $sp, $sp, 4
 
 # Clean stack variable space
-addi $sp, $sp, 16
+addi $sp, $sp, 60
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_i2a_at_A2I:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, -56
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+li $s0, 0
+sw $s0, 4($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2a_at_A2I_internal_0 to $t1
+lw $t1, 4($fp)
+slt $t2, $t0, $t1
+slt $t3, $t1, $t0
+add $t0, $t2, $t3
+slti $t1, $t0, 1
+sw $t1, 8($fp)
+# IfGotoNode
+# Load from local_i2a_at_A2I_internal_1 to $t0
+lw $t0, 8($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_49
+li $s0, 0
+sw $s0, 20($fp)
+# Load from local_i2a_at_A2I_internal_4 to $t0
+lw $t0, 20($fp)
+# Load from i to $t1
+lw $t1, 8($fp)
+slt $t2, $t0, $t1
+sw $t2, 16($fp)
+# IfGotoNode
+# Load from local_i2a_at_A2I_internal_3 to $t0
+lw $t0, 16($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_50
+li $s0, 1
+sw $s0, 44($fp)
+# Load from local_i2a_at_A2I_internal_10 to $t0
+lw $t0, 44($fp)
+nor $t1, $t0, $t0
+sw $t1, 40($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2a_at_A2I_internal_9 to $t1
+lw $t1, 40($fp)
+mult $t0, $t1
+mflo $t0
+sw $t0, 36($fp)
+# ArgNode local_i2a_at_A2I_internal_8 to s0
+# Load from local_i2a_at_A2I_internal_8 to $s0
+lw $s0, 36($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode A2I i2a_aux
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 32
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 32($fp)
+addi $sp, $sp, 8
+# ArgNode local_i2a_at_A2I_internal_7 to s0
+# Load from local_i2a_at_A2I_internal_7 to $s0
+lw $s0, 32($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# Load from data_16 to $s0
+la $s0, data_16
+sw $s0, 48($fp)
+# ArgNode local_i2a_at_A2I_internal_11 to s0
+# Load from local_i2a_at_A2I_internal_11 to $s0
+lw $s0, 48($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode String concat
+# Load from local_i2a_at_A2I_internal_11 to $s0
+lw $s0, 48($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 16
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 28($fp)
+addi $sp, $sp, 8
+# Load from local_i2a_at_A2I_internal_6 to $t0
+lw $t0, 28($fp)
+sw $t0, 24($fp)
+# GotoNode
+j END_50
+TRUE_50:
+# ArgNode i to s0
+# Load from i to $s0
+lw $s0, 8($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode A2I i2a_aux
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 32
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 52($fp)
+addi $sp, $sp, 8
+# Load from local_i2a_at_A2I_internal_12 to $t0
+lw $t0, 52($fp)
+sw $t0, 24($fp)
+END_50:
+# Load from local_i2a_at_A2I_internal_5 to $t0
+lw $t0, 24($fp)
+sw $t0, 12($fp)
+# GotoNode
+j END_49
+TRUE_49:
+# Load from data_5 to $s0
+la $s0, data_5
+sw $s0, 56($fp)
+# Load from local_i2a_at_A2I_internal_13 to $t0
+lw $t0, 56($fp)
+sw $t0, 12($fp)
+END_49:
+# ReturnNode
+# Load from local_i2a_at_A2I_internal_2 to $v0
+lw $v0, 12($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 56
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_i2a_aux_at_A2I:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, -52
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+li $s0, 0
+sw $s0, 4($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2a_aux_at_A2I_internal_0 to $t1
+lw $t1, 4($fp)
+slt $t2, $t0, $t1
+slt $t3, $t1, $t0
+add $t0, $t2, $t3
+slti $t1, $t0, 1
+sw $t1, 8($fp)
+# IfGotoNode
+# Load from local_i2a_aux_at_A2I_internal_1 to $t0
+lw $t0, 8($fp)
+li $t1, 0
+bne $t0, $t1, TRUE_53
+li $s0, 10
+sw $s0, 24($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2a_aux_at_A2I_internal_5 to $t1
+lw $t1, 24($fp)
+div $t2, $t0, $t1
+mflo $t0
+sw $t0, 20($fp)
+# Load from local_i2a_aux_at_A2I_internal_4 to $t0
+lw $t0, 20($fp)
+sw $t0, 16($fp)
+li $s0, 10
+sw $s0, 44($fp)
+# Load from local_i2a_aux_at_A2I_next_3 to $t0
+lw $t0, 16($fp)
+# Load from local_i2a_aux_at_A2I_internal_10 to $t1
+lw $t1, 44($fp)
+mult $t0, $t1
+mflo $t0
+sw $t0, 40($fp)
+# Load from i to $t0
+lw $t0, 8($fp)
+# Load from local_i2a_aux_at_A2I_internal_9 to $t1
+lw $t1, 40($fp)
+sub $t2, $t0, $t1
+sw $t2, 36($fp)
+# ArgNode local_i2a_aux_at_A2I_internal_8 to s0
+# Load from local_i2a_aux_at_A2I_internal_8 to $s0
+lw $s0, 36($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode A2I i2c
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 16
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 32($fp)
+addi $sp, $sp, 8
+# ArgNode local_i2a_aux_at_A2I_internal_7 to s0
+# Load from local_i2a_aux_at_A2I_internal_7 to $s0
+lw $s0, 32($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode local_i2a_aux_at_A2I_next_3 to s0
+# Load from local_i2a_aux_at_A2I_next_3 to $s0
+lw $s0, 16($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode A2I i2a_aux
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 32
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 48($fp)
+addi $sp, $sp, 8
+# ArgNode local_i2a_aux_at_A2I_internal_11 to s0
+# Load from local_i2a_aux_at_A2I_internal_11 to $s0
+lw $s0, 48($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode String concat
+# Load from local_i2a_aux_at_A2I_internal_11 to $s0
+lw $s0, 48($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 16
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 28($fp)
+addi $sp, $sp, 8
+# Load from local_i2a_aux_at_A2I_internal_6 to $t0
+lw $t0, 28($fp)
+sw $t0, 12($fp)
+# GotoNode
+j END_53
+TRUE_53:
+# Load from data_15 to $s0
+la $s0, data_15
+sw $s0, 52($fp)
+# Load from local_i2a_aux_at_A2I_internal_12 to $t0
+lw $t0, 52($fp)
+sw $t0, 12($fp)
+END_53:
+# ReturnNode
+# Load from local_i2a_aux_at_A2I_internal_2 to $v0
+lw $v0, 12($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 52
+# Return
+lw $fp, 0($sp)
+addi $sp, $sp, 4
+jr $ra
+function_main_at_Main:
+# Set stack frame
+addi $sp, $sp, -4
+sw $fp, 0($sp)
+move $fp, $sp
+
+# Allocate memory for Local variables
+addi $sp, $sp, -56
+
+
+# Saving Registers
+addi $sp, $sp, -4
+sw $ra, 0($sp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+addi $sp, $sp, -4
+sw $s1, 0($sp)
+addi $sp, $sp, -4
+sw $s2, 0($sp)
+addi $sp, $sp, -4
+sw $s3, 0($sp)
+addi $sp, $sp, -4
+sw $s4, 0($sp)
+addi $sp, $sp, -4
+sw $s5, 0($sp)
+addi $sp, $sp, -4
+sw $s6, 0($sp)
+
+# Generating body code
+# Load from data_18 to $s0
+la $s0, data_18
+sw $s0, 12($fp)
+# ArgNode local_main_at_Main_internal_2 to s0
+# Load from local_main_at_Main_internal_2 to $s0
+lw $s0, 12($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# Allocate space for A2I
+li $a0, 16
+li $v0, 9
+syscall
+move $s1, $v0
+sw $s1, 16($fp)
+li $s0, 0
+sw $s0, 0($s1)
+li $s0, 16
+sw $s0, 4($s1)
+la $s0, classname_A2I
+sw $s0, 8($s1)
+li $s0, 88
+sw $s0, 12($s1)
+# ArgNode local_main_at_Main_internal_3 to s0
+# Load from local_main_at_Main_internal_3 to $s0
+lw $s0, 16($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# StaticCallNode
+jal ctor_A2I
+sw $v0, 16($fp)
+# ArgNode local_main_at_Main_internal_3 to s0
+# Load from local_main_at_Main_internal_3 to $s0
+lw $s0, 16($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode A2I a2i
+# Load from local_main_at_Main_internal_3 to $s0
+lw $s0, 16($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 20
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 8($fp)
+addi $sp, $sp, 8
+# Load from local_main_at_Main_internal_1 to $t0
+lw $t0, 8($fp)
+sw $t0, 4($fp)
+li $s0, 678987
+sw $s0, 28($fp)
+# ArgNode local_main_at_Main_internal_6 to s0
+# Load from local_main_at_Main_internal_6 to $s0
+lw $s0, 28($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# Allocate space for A2I
+li $a0, 16
+li $v0, 9
+syscall
+move $s1, $v0
+sw $s1, 32($fp)
+li $s0, 0
+sw $s0, 0($s1)
+li $s0, 16
+sw $s0, 4($s1)
+la $s0, classname_A2I
+sw $s0, 8($s1)
+li $s0, 88
+sw $s0, 12($s1)
+# ArgNode local_main_at_Main_internal_7 to s0
+# Load from local_main_at_Main_internal_7 to $s0
+lw $s0, 32($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# StaticCallNode
+jal ctor_A2I
+sw $v0, 32($fp)
+# ArgNode local_main_at_Main_internal_7 to s0
+# Load from local_main_at_Main_internal_7 to $s0
+lw $s0, 32($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode A2I i2a
+# Load from local_main_at_Main_internal_7 to $s0
+lw $s0, 32($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 28
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 24($fp)
+addi $sp, $sp, 8
+# Load from local_main_at_Main_internal_5 to $t0
+lw $t0, 24($fp)
+sw $t0, 20($fp)
+# ArgNode local_main_at_Main_a_0 to s0
+# Load from local_main_at_Main_a_0 to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode Main out_int
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 16
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 36($fp)
+addi $sp, $sp, 8
+# Load from data_19 to $s0
+la $s0, data_19
+sw $s0, 44($fp)
+# ArgNode local_main_at_Main_internal_10 to s0
+# Load from local_main_at_Main_internal_10 to $s0
+lw $s0, 44($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode Main out_string
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 12
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 40($fp)
+addi $sp, $sp, 8
+# ArgNode local_main_at_Main_b_4 to s0
+# Load from local_main_at_Main_b_4 to $s0
+lw $s0, 20($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode Main out_string
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 12
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 48($fp)
+addi $sp, $sp, 8
+# Load from data_20 to $s0
+la $s0, data_20
+sw $s0, 56($fp)
+# ArgNode local_main_at_Main_internal_13 to s0
+# Load from local_main_at_Main_internal_13 to $s0
+lw $s0, 56($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# ArgNode self to s0
+# Load from self to $s0
+lw $s0, 4($fp)
+addi $sp, $sp, -4
+sw $s0, 0($sp)
+# DynamicCallNode Main out_string
+# Load from self to $s0
+lw $s0, 4($fp)
+lw $s1, 12($s0)
+addi $s2, $s1, 12
+addu $s3, $s2, $s7
+lw $s4, 0($s3)
+jalr $s4
+sw $v0, 52($fp)
+addi $sp, $sp, 8
+# ReturnNode
+# Load from local_main_at_Main_internal_12 to $v0
+lw $v0, 52($fp)
+
+# Restore registers
+lw $s6, 0($sp)
+addi $sp, $sp, 4
+lw $s5, 0($sp)
+addi $sp, $sp, 4
+lw $s4, 0($sp)
+addi $sp, $sp, 4
+lw $s3, 0($sp)
+addi $sp, $sp, 4
+lw $s2, 0($sp)
+addi $sp, $sp, 4
+lw $s1, 0($sp)
+addi $sp, $sp, 4
+lw $s0, 0($sp)
+addi $sp, $sp, 4
+lw $ra, 0($sp)
+addi $sp, $sp, 4
+
+# Clean stack variable space
+addi $sp, $sp, 56
 # Return
 lw $fp, 0($sp)
 addi $sp, $sp, 4

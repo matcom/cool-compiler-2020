@@ -222,15 +222,16 @@ class CIL_TO_MIPS:
         else:
             try:
                 value = int(node.value)
-                self.mips.li(reg.s1,value)
+                self.mips.li(reg.s1, value)
             except ValueError:
                 if node.value in self.data_segment:
                     self.mips.comment(f"SET data {node.value}")
                     self.mips.la(reg.s1, node.value)
                 else:
                     raise Exception(f"Setattr: label {node.value} not found")
-        
-        self.mips.store_memory(reg.s1, self.mips.offset(reg.s0, offset * self.data_size))
+
+        self.mips.store_memory(reg.s1, self.mips.offset(
+            reg.s0, offset * self.data_size))
 
     @visitor.when(AssignNode)
     def visit(self, node: AssignNode):
