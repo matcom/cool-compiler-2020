@@ -34,13 +34,6 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             key=lambda cd: self.context.inheritance_deep(cd.id.lex),
         )
 
-    def init_class_attr(self, scope: Scope, class_id, self_inst):
-        attr_nodes = self.attr_declarations[class_id]
-        for attr in attr_nodes:
-            attr_scope = scope.create_child()
-            attr_scope.define_variable('self', self_inst)
-            self.visit(attr, attr_scope, typex=class_id)
-
     def save_attr_initializations(self, node: cool.ProgramNode, scope):
         self.attr_declarations = dict()
         self.attr_declarations['Object'] = []
@@ -108,11 +101,19 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.save_attr_initializations(node, scope)
         # entry
         self.current_function = self.register_function('entry')
+        # call Constructor
         instance = self.define_internal_local()
-        result = self.define_internal_local()
         self.current_type = self.context.get_type('Main')
-        self.register_instruction(AllocateNode(instance, 'Main'))
-        self.init_class_attr(scope, 'Main', instance)
+        self.register_instruction(
+            AllocateNode(instance, self.current_type.name)
+        )
+        self.register_instruction(ArgNode(instance))
+        self.register_instruction(
+            StaticCallNode(f'ctor_{self.current_type.name}', instance))
+        self.register_instruction(EmptyArgs(1))
+
+        # call Main.main
+        result = self.define_internal_local()
         self.register_instruction(ArgNode(instance))
         name = self.to_function_name('main', 'Main')
         self.register_instruction(StaticCallNode(name, result))
