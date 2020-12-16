@@ -315,7 +315,7 @@ class CIL_TO_MIPS:
     @visitor.when(IsVoidNode)
     def visit(self, node: IsVoidNode):
         self.mips.comment("IsVoidNode")
-        self.load_memory(reg.t0, node.body)
+        self.load_memory(reg.t0, node.expression)
 
         label = self.get_label()
 
