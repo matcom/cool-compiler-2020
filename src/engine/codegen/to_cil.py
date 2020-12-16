@@ -76,17 +76,26 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         instance = self.register_param(VariableInfo('self', self.current_type))
 
         scope = Scope()
-        scope.define_variable('self', instance)
-        for attr in attr_declarations:
-            self.visit(attr, scope, typex=self.current_type.name)
+        instance = scope.define_variable('self', self.current_type)
 
-        self.register_instruction(ReturnNode(instance))
+        self_instance_name = instance.name
+        for attr in attr_declarations:
+            result = None
+            if attr.expression:
+                result = self.visit(attr.expression, scope)
+            elif attr.type == 'String':
+                result = self.register_data("").name
+            else:
+                result = self.define_internal_local()
+                self.register_instruction(VoidNode(result))
+
+            self.register_instruction(
+                SetAttribNode(self_instance_name, attr.id.lex, result, type_name))
+
+        self.register_instruction(ReturnNode(self_instance_name))
 
         self.current_type = None
         self.current_function = None
-
-    def create_vtables(self, node: cool.ProgramNode):
-        pass
 
     @visitor.on('node')
     def visit(self, node, scope):
@@ -97,7 +106,6 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         scope = Scope()
         self.sort_class_declar(node)
         self.save_attr_initializations(node, scope)
-        self.create_vtables(node)
         # entry
         self.current_function = self.register_function('entry')
         instance = self.define_internal_local()
