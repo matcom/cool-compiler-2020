@@ -303,7 +303,7 @@ class pyCoolParser:
         """
         expression : expression DOT ID LPAREN arguments_list_opt RPAREN
         """        
-        p[0] = NodeDynamicDispatch(idName=p[1], 
+        p[0] = NodeDynamicDispatch(expr=p[1], 
         method=p[3], arguments=p[5])
 
     def p_arguments_list_opt(self, p):
@@ -324,14 +324,14 @@ class pyCoolParser:
         """
         expression : expression AT TYPE DOT ID LPAREN arguments_list_opt RPAREN
         """        
-        p[0] = NodeStaticDispatch(idName=p[1],
+        p[0] = NodeStaticDispatch(expr=p[1],
         dispatch_type=p[3], method=p[5], arguments=p[7])
     
     def p_expression_self_dispatch(self, p):
         """
         expression : ID LPAREN arguments_list_opt RPAREN
         """        
-        p[0] = NodeDynamicDispatch(idName=NodeSelf(),
+        p[0] = NodeDynamicDispatch(expr=NodeSelf(),
         method=p[1], arguments=p[3])
 
 

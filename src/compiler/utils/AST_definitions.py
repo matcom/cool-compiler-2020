@@ -263,29 +263,29 @@ class NodeBlock(NodeExpr):
 
 
 class NodeDynamicDispatch(NodeExpr):
-    def __init__(self, idName, method, arguments):
+    def __init__(self, expr, method, arguments):
         super().__init__()
-        self.idName = idName
+        self.expr = expr
         self.method = method
         self.arguments = arguments if arguments is not None else tuple()
 
     def to_tuple(self):
         return tuple([
             ("class_name", self.clsname),
-            ("idName", self.idName),
+            ("expr", self.expr),
             ("method", self.method),
             ("arguments", self.arguments)
         ])
 
     def to_readable(self):
-        return "{}(idName={}, method={}, arguments={})".format(
-            self.clsname, self.idName, self.method, self.arguments)
+        return "{}(expr={}, method={}, arguments={})".format(
+            self.clsname, self.expr, self.method, self.arguments)
 
 
 class NodeStaticDispatch(NodeExpr):
-    def __init__(self, idName, dispatch_type, method, arguments):
+    def __init__(self, expr, dispatch_type, method, arguments):
         super().__init__()
-        self.idName = idName
+        self.expr = expr
         self.dispatch_type = dispatch_type
         self.method = method
         self.arguments = arguments if arguments is not None else tuple()
@@ -293,15 +293,15 @@ class NodeStaticDispatch(NodeExpr):
     def to_tuple(self):
         return tuple([
             ("class_name", self.clsname),
-            ("idName", self.idName),
+            ("expr", self.expr),
             ("dispatch_type", self.dispatch_type),
             ("method", self.method),
             ("arguments", self.arguments)
         ])
 
     def to_readable(self):
-        return "{}(idName={}, dispatch_type={}, method={}, arguments={})".format(
-            self.clsname, self.idName, self.dispatch_type, 
+        return "{}(expr={}, dispatch_type={}, method={}, arguments={})".format(
+            self.clsname, self.expr, self.dispatch_type, 
             self.method, self.arguments)
 
 
