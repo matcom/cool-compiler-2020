@@ -1,5 +1,7 @@
-
+from engine.cp.utils import Token
 # AST Classes
+
+
 class Node:
     def __init__(self):
         self.line = 0
@@ -55,12 +57,12 @@ class ClassDeclarationNode(DeclarationNode):
 
 
 class AttrDeclarationNode(DeclarationNode):
-    def __init__(self, idx, typex, expression=None):
-        self.id = idx
+    def __init__(self, idx, typex=None, expression=None):
+        self.id = Token(idx, 'ID', 0, 0) if isinstance(idx, str) else idx
         self.type = typex
         self.expression = expression
-        self.line = idx.line
-        self.column = idx.column
+        self.line = self.id.line
+        self.column = self.id.column
 
     def __iter__(self):
         yield from (self.id, self.type, self.expression)
