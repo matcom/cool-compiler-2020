@@ -1433,39 +1433,23 @@ sw $s0, 4($fp)
 lw $s0, 8($fp)
 # Load from local_c2i_at_A2I_internal_0 to $s1
 lw $s1, 4($fp)
-move $t0, $s0
-li $t1, 0
+move $t8, $s0
+move $t9, $s1
 mips_label_60:
-lb $t3, 0($t0)
-beqz $t3, mips_label_61
-addi $t1, $t1, 1
-addi $t0, $t0, 1
+lb $a0, 0($t8)
+lb $a1, 0($t9)
+beqz $a0, mips_label_58
+beqz $a1, mips_label_59
+seq $v0, $a0, $a1
+beqz $v0, mips_label_59
+addi $t8, $t8, 1
+addi $t9, $t9, 1
 j mips_label_60
-mips_label_61:
-move $s2, $t1
-move $t0, $s1
-li $t1, 0
-mips_label_62:
-lb $t3, 0($t0)
-beqz $t3, mips_label_63
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_62
-mips_label_63:
-move $s3, $t1
-move $v0, $zero
-bne $s2, $s3, mips_label_57
-move $s2, $s0
-move $s3, $s1
 mips_label_59:
-lb $s4, 0($s2)
-lb $s5, 0($s3)
-bne $s4, $s5, mips_label_57
-addi $s2, $s2, 1
-addi $s3, $s3, 1
-beqz $s4, mips_label_58
-j mips_label_59
+li $v0, 0
+j mips_label_57
 mips_label_58:
+bnez $a1, mips_label_59
 li $v0, 1
 mips_label_57:
 sw $v0, 8($fp)
@@ -1481,41 +1465,25 @@ sw $s0, 16($fp)
 lw $s0, 8($fp)
 # Load from local_c2i_at_A2I_internal_3 to $s1
 lw $s1, 16($fp)
-move $t0, $s0
-li $t1, 0
-mips_label_67:
-lb $t3, 0($t0)
-beqz $t3, mips_label_68
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_67
-mips_label_68:
-move $s2, $t1
-move $t0, $s1
-li $t1, 0
-mips_label_69:
-lb $t3, 0($t0)
-beqz $t3, mips_label_70
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_69
-mips_label_70:
-move $s3, $t1
-move $v0, $zero
-bne $s2, $s3, mips_label_64
-move $s2, $s0
-move $s3, $s1
-mips_label_66:
-lb $s4, 0($s2)
-lb $s5, 0($s3)
-bne $s4, $s5, mips_label_64
-addi $s2, $s2, 1
-addi $s3, $s3, 1
-beqz $s4, mips_label_65
-j mips_label_66
-mips_label_65:
-li $v0, 1
+move $t8, $s0
+move $t9, $s1
 mips_label_64:
+lb $a0, 0($t8)
+lb $a1, 0($t9)
+beqz $a0, mips_label_62
+beqz $a1, mips_label_63
+seq $v0, $a0, $a1
+beqz $v0, mips_label_63
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j mips_label_64
+mips_label_63:
+li $v0, 0
+j mips_label_61
+mips_label_62:
+bnez $a1, mips_label_63
+li $v0, 1
+mips_label_61:
 sw $v0, 20($fp)
 # IfGotoNode
 # Load from local_c2i_at_A2I_internal_4 to $t0
@@ -1529,41 +1497,25 @@ sw $s0, 28($fp)
 lw $s0, 8($fp)
 # Load from local_c2i_at_A2I_internal_6 to $s1
 lw $s1, 28($fp)
-move $t0, $s0
-li $t1, 0
-mips_label_74:
-lb $t3, 0($t0)
-beqz $t3, mips_label_75
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_74
-mips_label_75:
-move $s2, $t1
-move $t0, $s1
-li $t1, 0
-mips_label_76:
-lb $t3, 0($t0)
-beqz $t3, mips_label_77
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_76
-mips_label_77:
-move $s3, $t1
-move $v0, $zero
-bne $s2, $s3, mips_label_71
-move $s2, $s0
-move $s3, $s1
-mips_label_73:
-lb $s4, 0($s2)
-lb $s5, 0($s3)
-bne $s4, $s5, mips_label_71
-addi $s2, $s2, 1
-addi $s3, $s3, 1
-beqz $s4, mips_label_72
-j mips_label_73
-mips_label_72:
+move $t8, $s0
+move $t9, $s1
+mips_label_68:
+lb $a0, 0($t8)
+lb $a1, 0($t9)
+beqz $a0, mips_label_66
+beqz $a1, mips_label_67
+seq $v0, $a0, $a1
+beqz $v0, mips_label_67
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j mips_label_68
+mips_label_67:
+li $v0, 0
+j mips_label_65
+mips_label_66:
+bnez $a1, mips_label_67
 li $v0, 1
-mips_label_71:
+mips_label_65:
 sw $v0, 32($fp)
 # IfGotoNode
 # Load from local_c2i_at_A2I_internal_7 to $t0
@@ -1577,41 +1529,25 @@ sw $s0, 40($fp)
 lw $s0, 8($fp)
 # Load from local_c2i_at_A2I_internal_9 to $s1
 lw $s1, 40($fp)
-move $t0, $s0
-li $t1, 0
-mips_label_81:
-lb $t3, 0($t0)
-beqz $t3, mips_label_82
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_81
-mips_label_82:
-move $s2, $t1
-move $t0, $s1
-li $t1, 0
-mips_label_83:
-lb $t3, 0($t0)
-beqz $t3, mips_label_84
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_83
-mips_label_84:
-move $s3, $t1
-move $v0, $zero
-bne $s2, $s3, mips_label_78
-move $s2, $s0
-move $s3, $s1
-mips_label_80:
-lb $s4, 0($s2)
-lb $s5, 0($s3)
-bne $s4, $s5, mips_label_78
-addi $s2, $s2, 1
-addi $s3, $s3, 1
-beqz $s4, mips_label_79
-j mips_label_80
-mips_label_79:
+move $t8, $s0
+move $t9, $s1
+mips_label_72:
+lb $a0, 0($t8)
+lb $a1, 0($t9)
+beqz $a0, mips_label_70
+beqz $a1, mips_label_71
+seq $v0, $a0, $a1
+beqz $v0, mips_label_71
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j mips_label_72
+mips_label_71:
+li $v0, 0
+j mips_label_69
+mips_label_70:
+bnez $a1, mips_label_71
 li $v0, 1
-mips_label_78:
+mips_label_69:
 sw $v0, 44($fp)
 # IfGotoNode
 # Load from local_c2i_at_A2I_internal_10 to $t0
@@ -1625,41 +1561,25 @@ sw $s0, 52($fp)
 lw $s0, 8($fp)
 # Load from local_c2i_at_A2I_internal_12 to $s1
 lw $s1, 52($fp)
-move $t0, $s0
-li $t1, 0
-mips_label_88:
-lb $t3, 0($t0)
-beqz $t3, mips_label_89
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_88
-mips_label_89:
-move $s2, $t1
-move $t0, $s1
-li $t1, 0
-mips_label_90:
-lb $t3, 0($t0)
-beqz $t3, mips_label_91
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_90
-mips_label_91:
-move $s3, $t1
-move $v0, $zero
-bne $s2, $s3, mips_label_85
-move $s2, $s0
-move $s3, $s1
-mips_label_87:
-lb $s4, 0($s2)
-lb $s5, 0($s3)
-bne $s4, $s5, mips_label_85
-addi $s2, $s2, 1
-addi $s3, $s3, 1
-beqz $s4, mips_label_86
-j mips_label_87
-mips_label_86:
+move $t8, $s0
+move $t9, $s1
+mips_label_76:
+lb $a0, 0($t8)
+lb $a1, 0($t9)
+beqz $a0, mips_label_74
+beqz $a1, mips_label_75
+seq $v0, $a0, $a1
+beqz $v0, mips_label_75
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j mips_label_76
+mips_label_75:
+li $v0, 0
+j mips_label_73
+mips_label_74:
+bnez $a1, mips_label_75
 li $v0, 1
-mips_label_85:
+mips_label_73:
 sw $v0, 56($fp)
 # IfGotoNode
 # Load from local_c2i_at_A2I_internal_13 to $t0
@@ -1673,41 +1593,25 @@ sw $s0, 64($fp)
 lw $s0, 8($fp)
 # Load from local_c2i_at_A2I_internal_15 to $s1
 lw $s1, 64($fp)
-move $t0, $s0
-li $t1, 0
-mips_label_95:
-lb $t3, 0($t0)
-beqz $t3, mips_label_96
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_95
-mips_label_96:
-move $s2, $t1
-move $t0, $s1
-li $t1, 0
-mips_label_97:
-lb $t3, 0($t0)
-beqz $t3, mips_label_98
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_97
-mips_label_98:
-move $s3, $t1
-move $v0, $zero
-bne $s2, $s3, mips_label_92
-move $s2, $s0
-move $s3, $s1
-mips_label_94:
-lb $s4, 0($s2)
-lb $s5, 0($s3)
-bne $s4, $s5, mips_label_92
-addi $s2, $s2, 1
-addi $s3, $s3, 1
-beqz $s4, mips_label_93
-j mips_label_94
-mips_label_93:
+move $t8, $s0
+move $t9, $s1
+mips_label_80:
+lb $a0, 0($t8)
+lb $a1, 0($t9)
+beqz $a0, mips_label_78
+beqz $a1, mips_label_79
+seq $v0, $a0, $a1
+beqz $v0, mips_label_79
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j mips_label_80
+mips_label_79:
+li $v0, 0
+j mips_label_77
+mips_label_78:
+bnez $a1, mips_label_79
 li $v0, 1
-mips_label_92:
+mips_label_77:
 sw $v0, 68($fp)
 # IfGotoNode
 # Load from local_c2i_at_A2I_internal_16 to $t0
@@ -1721,41 +1625,25 @@ sw $s0, 76($fp)
 lw $s0, 8($fp)
 # Load from local_c2i_at_A2I_internal_18 to $s1
 lw $s1, 76($fp)
-move $t0, $s0
-li $t1, 0
-mips_label_102:
-lb $t3, 0($t0)
-beqz $t3, mips_label_103
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_102
-mips_label_103:
-move $s2, $t1
-move $t0, $s1
-li $t1, 0
-mips_label_104:
-lb $t3, 0($t0)
-beqz $t3, mips_label_105
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_104
-mips_label_105:
-move $s3, $t1
-move $v0, $zero
-bne $s2, $s3, mips_label_99
-move $s2, $s0
-move $s3, $s1
-mips_label_101:
-lb $s4, 0($s2)
-lb $s5, 0($s3)
-bne $s4, $s5, mips_label_99
-addi $s2, $s2, 1
-addi $s3, $s3, 1
-beqz $s4, mips_label_100
-j mips_label_101
-mips_label_100:
+move $t8, $s0
+move $t9, $s1
+mips_label_84:
+lb $a0, 0($t8)
+lb $a1, 0($t9)
+beqz $a0, mips_label_82
+beqz $a1, mips_label_83
+seq $v0, $a0, $a1
+beqz $v0, mips_label_83
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j mips_label_84
+mips_label_83:
+li $v0, 0
+j mips_label_81
+mips_label_82:
+bnez $a1, mips_label_83
 li $v0, 1
-mips_label_99:
+mips_label_81:
 sw $v0, 80($fp)
 # IfGotoNode
 # Load from local_c2i_at_A2I_internal_19 to $t0
@@ -1769,41 +1657,25 @@ sw $s0, 88($fp)
 lw $s0, 8($fp)
 # Load from local_c2i_at_A2I_internal_21 to $s1
 lw $s1, 88($fp)
-move $t0, $s0
-li $t1, 0
-mips_label_109:
-lb $t3, 0($t0)
-beqz $t3, mips_label_110
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_109
-mips_label_110:
-move $s2, $t1
-move $t0, $s1
-li $t1, 0
-mips_label_111:
-lb $t3, 0($t0)
-beqz $t3, mips_label_112
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_111
-mips_label_112:
-move $s3, $t1
-move $v0, $zero
-bne $s2, $s3, mips_label_106
-move $s2, $s0
-move $s3, $s1
-mips_label_108:
-lb $s4, 0($s2)
-lb $s5, 0($s3)
-bne $s4, $s5, mips_label_106
-addi $s2, $s2, 1
-addi $s3, $s3, 1
-beqz $s4, mips_label_107
-j mips_label_108
-mips_label_107:
+move $t8, $s0
+move $t9, $s1
+mips_label_88:
+lb $a0, 0($t8)
+lb $a1, 0($t9)
+beqz $a0, mips_label_86
+beqz $a1, mips_label_87
+seq $v0, $a0, $a1
+beqz $v0, mips_label_87
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j mips_label_88
+mips_label_87:
+li $v0, 0
+j mips_label_85
+mips_label_86:
+bnez $a1, mips_label_87
 li $v0, 1
-mips_label_106:
+mips_label_85:
 sw $v0, 92($fp)
 # IfGotoNode
 # Load from local_c2i_at_A2I_internal_22 to $t0
@@ -1817,41 +1689,25 @@ sw $s0, 100($fp)
 lw $s0, 8($fp)
 # Load from local_c2i_at_A2I_internal_24 to $s1
 lw $s1, 100($fp)
-move $t0, $s0
-li $t1, 0
-mips_label_116:
-lb $t3, 0($t0)
-beqz $t3, mips_label_117
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_116
-mips_label_117:
-move $s2, $t1
-move $t0, $s1
-li $t1, 0
-mips_label_118:
-lb $t3, 0($t0)
-beqz $t3, mips_label_119
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_118
-mips_label_119:
-move $s3, $t1
-move $v0, $zero
-bne $s2, $s3, mips_label_113
-move $s2, $s0
-move $s3, $s1
-mips_label_115:
-lb $s4, 0($s2)
-lb $s5, 0($s3)
-bne $s4, $s5, mips_label_113
-addi $s2, $s2, 1
-addi $s3, $s3, 1
-beqz $s4, mips_label_114
-j mips_label_115
-mips_label_114:
+move $t8, $s0
+move $t9, $s1
+mips_label_92:
+lb $a0, 0($t8)
+lb $a1, 0($t9)
+beqz $a0, mips_label_90
+beqz $a1, mips_label_91
+seq $v0, $a0, $a1
+beqz $v0, mips_label_91
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j mips_label_92
+mips_label_91:
+li $v0, 0
+j mips_label_89
+mips_label_90:
+bnez $a1, mips_label_91
 li $v0, 1
-mips_label_113:
+mips_label_89:
 sw $v0, 104($fp)
 # IfGotoNode
 # Load from local_c2i_at_A2I_internal_25 to $t0
@@ -1865,41 +1721,25 @@ sw $s0, 112($fp)
 lw $s0, 8($fp)
 # Load from local_c2i_at_A2I_internal_27 to $s1
 lw $s1, 112($fp)
-move $t0, $s0
-li $t1, 0
-mips_label_123:
-lb $t3, 0($t0)
-beqz $t3, mips_label_124
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_123
-mips_label_124:
-move $s2, $t1
-move $t0, $s1
-li $t1, 0
-mips_label_125:
-lb $t3, 0($t0)
-beqz $t3, mips_label_126
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_125
-mips_label_126:
-move $s3, $t1
-move $v0, $zero
-bne $s2, $s3, mips_label_120
-move $s2, $s0
-move $s3, $s1
-mips_label_122:
-lb $s4, 0($s2)
-lb $s5, 0($s3)
-bne $s4, $s5, mips_label_120
-addi $s2, $s2, 1
-addi $s3, $s3, 1
-beqz $s4, mips_label_121
-j mips_label_122
-mips_label_121:
+move $t8, $s0
+move $t9, $s1
+mips_label_96:
+lb $a0, 0($t8)
+lb $a1, 0($t9)
+beqz $a0, mips_label_94
+beqz $a1, mips_label_95
+seq $v0, $a0, $a1
+beqz $v0, mips_label_95
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j mips_label_96
+mips_label_95:
+li $v0, 0
+j mips_label_93
+mips_label_94:
+bnez $a1, mips_label_95
 li $v0, 1
-mips_label_120:
+mips_label_93:
 sw $v0, 116($fp)
 # IfGotoNode
 # Load from local_c2i_at_A2I_internal_28 to $t0
@@ -2532,41 +2372,25 @@ sw $s0, 32($fp)
 lw $s0, 20($fp)
 # Load from local_a2i_at_A2I_internal_7 to $s1
 lw $s1, 32($fp)
-move $t0, $s0
-li $t1, 0
-mips_label_130:
-lb $t3, 0($t0)
-beqz $t3, mips_label_131
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_130
-mips_label_131:
-move $s2, $t1
-move $t0, $s1
-li $t1, 0
-mips_label_132:
-lb $t3, 0($t0)
-beqz $t3, mips_label_133
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_132
-mips_label_133:
-move $s3, $t1
-move $v0, $zero
-bne $s2, $s3, mips_label_127
-move $s2, $s0
-move $s3, $s1
-mips_label_129:
-lb $s4, 0($s2)
-lb $s5, 0($s3)
-bne $s4, $s5, mips_label_127
-addi $s2, $s2, 1
-addi $s3, $s3, 1
-beqz $s4, mips_label_128
-j mips_label_129
-mips_label_128:
+move $t8, $s0
+move $t9, $s1
+mips_label_100:
+lb $a0, 0($t8)
+lb $a1, 0($t9)
+beqz $a0, mips_label_98
+beqz $a1, mips_label_99
+seq $v0, $a0, $a1
+beqz $v0, mips_label_99
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j mips_label_100
+mips_label_99:
+li $v0, 0
+j mips_label_97
+mips_label_98:
+bnez $a1, mips_label_99
 li $v0, 1
-mips_label_127:
+mips_label_97:
 sw $v0, 36($fp)
 # IfGotoNode
 # Load from local_a2i_at_A2I_internal_8 to $t0
@@ -2609,41 +2433,25 @@ sw $s0, 56($fp)
 lw $s0, 44($fp)
 # Load from local_a2i_at_A2I_internal_13 to $s1
 lw $s1, 56($fp)
-move $t0, $s0
-li $t1, 0
-mips_label_137:
-lb $t3, 0($t0)
-beqz $t3, mips_label_138
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_137
-mips_label_138:
-move $s2, $t1
-move $t0, $s1
-li $t1, 0
-mips_label_139:
-lb $t3, 0($t0)
-beqz $t3, mips_label_140
-addi $t1, $t1, 1
-addi $t0, $t0, 1
-j mips_label_139
-mips_label_140:
-move $s3, $t1
-move $v0, $zero
-bne $s2, $s3, mips_label_134
-move $s2, $s0
-move $s3, $s1
-mips_label_136:
-lb $s4, 0($s2)
-lb $s5, 0($s3)
-bne $s4, $s5, mips_label_134
-addi $s2, $s2, 1
-addi $s3, $s3, 1
-beqz $s4, mips_label_135
-j mips_label_136
-mips_label_135:
+move $t8, $s0
+move $t9, $s1
+mips_label_104:
+lb $a0, 0($t8)
+lb $a1, 0($t9)
+beqz $a0, mips_label_102
+beqz $a1, mips_label_103
+seq $v0, $a0, $a1
+beqz $v0, mips_label_103
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j mips_label_104
+mips_label_103:
+li $v0, 0
+j mips_label_101
+mips_label_102:
+bnez $a1, mips_label_103
 li $v0, 1
-mips_label_134:
+mips_label_101:
 sw $v0, 60($fp)
 # IfGotoNode
 # Load from local_a2i_at_A2I_internal_14 to $t0

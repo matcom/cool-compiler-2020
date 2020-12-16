@@ -568,38 +568,40 @@ class CIL_TO_MIPS:
     def visit(self, node: StringEqualNode):
         end_label = self.get_label()
         end_ok_label = self.get_label()
+        end_wrong_label = self.get_label()
         loop_label = self.get_label()
 
         self.load_memory(reg.s0, node.msg1)
         self.load_memory(reg.s1, node.msg2)
 
-        self.get_string_length(reg.s0, reg.s2)
-        self.get_string_length(reg.s1, reg.s3)
-
-        self.mips.move(reg.v0, reg.zero)
-        self.mips.bne(reg.s2, reg.s3, end_label)
-
-        self.mips.move(reg.s2, reg.s0)
-        self.mips.move(reg.s3, reg.s1)
+        self.mips.move(reg.t8, reg.s0)
+        self.mips.move(reg.t9, reg.s1)
 
         self.mips.label(loop_label)
+        # me parece q aki esta fallando xq esta cargando un "0"
+        # en $t8, y cuando le pide el offset, no tiene nada, hay q ver ahi
+        # pero con el "1" hace lo mismo
 
-        self.mips.lb(reg.s4, self.mips.offset(reg.s2))
-        self.mips.lb(reg.s5, self.mips.offset(reg.s3))
+        self.mips.lb(reg.a0, self.mips.offset(reg.t8))
+        self.mips.lb(reg.a1, self.mips.offset(reg.t9))
 
-        self.mips.bne(reg.s4, reg.s5, end_label)
+        self.mips.beqz(reg.a0, end_ok_label)
+        self.mips.beqz(reg.a1, end_wrong_label)
+        self.mips.seq(reg.v0, reg.a0, reg.a1)
+        self.mips.beqz(reg.v0, end_wrong_label)
 
-        self.mips.addi(reg.s2, reg.s2, 1)
-        self.mips.addi(reg.s3, reg.s3, 1)
-
-        self.mips.beqz(
-            reg.s4, end_ok_label
-        )
+        self.mips.addi(reg.t8, reg.t8, 1)
+        self.mips.addi(reg.t9, reg.t9, 1)
         self.mips.j(loop_label)
 
+        self.mips.label(end_wrong_label)
+        self.mips.li(reg.v0, 0)
+        self.mips.j(end_label)
         self.mips.label(end_ok_label)
+        self.mips.bnez(reg.a1, end_wrong_label)
         self.mips.li(reg.v0, 1)
         self.mips.label(end_label)
+
         self.store_memory(reg.v0, node.dest)
 
     @visitor.when(LoadNode)
