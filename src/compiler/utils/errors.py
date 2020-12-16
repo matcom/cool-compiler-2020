@@ -64,6 +64,11 @@ errorSelector = {'repeated class': lambda idName, row_and_col=(0,0):error(
                     error_type= 'Semantic error',
                     row_and_col= row_and_col,
                     message="Undefined symbol %s at %s" %(symbolName, row_and_col)
+                ),
+                'not ancestor in dispatch': lambda idName, returnType, row_and_col=(0,0): error (
+                    error_type= 'Semantic error',
+                    row_and_col= row_and_col,
+                    message= 'Type %s is not subtype of %s at %s' %(idName, returnType, row_and_col)
                 )
                 }
 
