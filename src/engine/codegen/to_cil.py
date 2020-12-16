@@ -72,11 +72,12 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
 
     def create_constructor(self, attr_declarations: List[cool.AttrDeclarationNode], type_name):
         self.current_function = self.register_function(f'ctor_{type_name}')
+        print(self.current_function.name)
         self.current_type = self.context.get_type(type_name)
         instance = self.register_param(VariableInfo('self', self.current_type))
-
+        print(self.current_type.name)
         scope = Scope()
-        scope.define_variable('self', instance)
+        scope.define_variable('self', self.current_type.name)
         for attr in attr_declarations:
             self.visit(attr, scope, typex=self.current_type.name)
 
@@ -167,6 +168,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             result = self.define_internal_local()
             self.register_instruction(VoidNode(result))
         self_inst = scope.find_variable('self').name
+        print(scope)
         self.register_instruction(
             SetAttribNode(self_inst, node.id.lex, result, typex))
 
@@ -239,7 +241,6 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(IfGotoNode(cond, continue_label.label))
         self.register_instruction(GotoNode(end_label.label))
         self.register_instruction(continue_label)
-        print(node.body)
         self.visit(node.body, while_scope)
         label_counter = self.label_counter_gen()
         self.register_instruction(GotoNode(start_label.label))
