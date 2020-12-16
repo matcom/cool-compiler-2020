@@ -36,7 +36,8 @@ class CIL_TO_MIPS:
         index = 0
 
         self.mips.comment("Build VTable")
-        for _, tag in self.global_descriptor.vTable.methods.items():
+        for name, tag in self.global_descriptor.vTable.methods.items():
+            self.mips.comment(name)
             self.mips.la(reg.s0, tag)
             self.mips.store_memory(reg.s0, self.mips.offset(
                 self.vtable_reg, index*self.data_size))
@@ -208,7 +209,7 @@ class CIL_TO_MIPS:
     @visitor.when(SetAttribNode)
     def visit(self, node: SetAttribNode):
         self.mips.comment(
-            f"SetAttribNode {node.ojb}.{node.attrib} Type:{node.type} = {node.value}")
+            f"SetAttribNode {node.obj}.{node.attrib} Type:{node.type} = {node.value}")
         # get type info
         type_descritptor: MemoryType = self.global_descriptor.Types[node.type]
         # get attr offset
