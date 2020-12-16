@@ -207,6 +207,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(ArgNode(new_local))
         self.register_instruction(
             StaticCallNode(f'ctor_{typex.name}', new_local))
+        self.register_instruction(EmptyArgs(1))
         return new_local
 
     @visitor.when(cool.IfThenElseNode)
@@ -333,13 +334,13 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             typex = node.type.lex
             name = self.to_function_name(node.id.lex, typex)
         result = self.define_internal_local()
+        obj = self.visit(node.obj, scope)
         rev_args = []
         for arg in node.args:
             arg_value = self.visit(arg, scope)
             rev_args = [arg_value] + rev_args
         for arg_value in rev_args:
             self.register_instruction(ArgNode(arg_value))
-        obj = self.visit(node.obj, scope)
         self.register_instruction(ArgNode(obj))
         if name:
             self.register_instruction(StaticCallNode(name, result))
