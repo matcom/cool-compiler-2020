@@ -110,6 +110,16 @@ class BASE_COOL_CIL_TRANSFORM:
             method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
         type_node.features = type_node.attributes + type_node.methods
 
+        # self.current_method = self.current_type.get_method('ctor_String')
+        # type_name = self.current_type.name
+        # self.current_function = self.register_function(
+        #     self.to_function_name(self.current_method.name, type_name))
+        # self_local = self.register_param(VariableInfo("self", None))
+        # self.register_instruction(
+        #     SetAttribNode(self_local, node.id.lex, result, typex))
+        # self.register_instruction(ReturnNode(self_local))
+        # self.current_method = self.current_function = None
+
         self.current_method = self.current_type.get_method('length')
         type_name = self.current_type.name
         self.current_function = self.register_function(
@@ -194,6 +204,14 @@ class BASE_COOL_CIL_TRANSFORM:
             method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
         type_node.features = type_node.attributes + type_node.methods
 
+        # self.current_method = self.current_type.get_method('ctor_IO')
+        # type_name = self.current_type.name
+        # self.current_function = self.register_function(
+        #     self.to_function_name(self.current_method.name, type_name))
+        # self_local = self.register_param(VariableInfo("self", None))
+        # self.register_instruction(ReturnNode(self_local))
+        # self.current_method = self.current_function = None
+
         self.current_method = self.current_type.get_method('out_string')
         type_name = self.current_type.name
         self.current_function = self.register_function(
@@ -241,6 +259,14 @@ class BASE_COOL_CIL_TRANSFORM:
         type_node.methods = [(method.name, self.to_function_name(
             method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
         type_node.features = type_node.attributes + type_node.methods
+
+        # self.current_method = self.current_type.get_method('ctor_Object')
+        # type_name = self.current_type.name
+        # self.current_function = self.register_function(
+        #     self.to_function_name(self.current_method.name, type_name))
+        # self_local = self.register_param(VariableInfo("self", None))
+        # self.register_instruction(ReturnNode(self_local))
+        # self.current_method = self.current_function = None
 
         self.current_method = self.current_type.get_method('abort')
         type_name = self.current_type.name

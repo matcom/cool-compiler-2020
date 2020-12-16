@@ -45,6 +45,18 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.attr_declarations = dict()
         self.attr_declarations['Object'] = []
         self.attr_declarations['IO'] = []
+        self.attr_declarations['Int'] = [
+            cool.AttrDeclarationNode("value")
+        ]
+        self.attr_declarations['String'] = [
+            cool.AttrDeclarationNode("value")
+        ]
+        self.attr_declarations['Bool'] = [
+            cool.AttrDeclarationNode("value")
+        ]
+
+        for built_in in ['IO', 'Int', 'String', 'Bool', 'Object']:
+            self.create_constructor(self.attr_declarations[built_in], built_in)
 
         for declaration in node.declarations:
             self.attr_declarations[declaration.id.lex] = []
@@ -290,7 +302,6 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node: cool.LetInNode, scope: Scope):
         let_scope = scope.create_child()
         for var_decl in node.let_body:
-            let_scope.define_variable(var_decl.id.lex, var_decl.type)
             self.visit(var_decl, let_scope)
 
         result = self.visit(node.in_body, let_scope)
@@ -298,13 +309,12 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
 
     @visitor.when(cool.LetVariableDeclaration)
     def visit(self, node: cool.LetVariableDeclaration, scope: Scope):
-        var_info = scope.find_variable(node.id.lex)
-        local_var = self.register_local(var_info)
-
+        var_info = scope.define_variable(node.id.lex, node.type)
+        var_info.real_name = self.register_local(var_info)
         value = self.visit(node.expression, scope)
 
-        self.register_instruction(AssignNode(local_var, value))
-        return local_var
+        self.register_instruction(AssignNode(var_info.real_name, value))
+        return var_info.real_name
 
     @visitor.when(cool.FunctionCallNode)
     def visit(self, node: cool.FunctionCallNode, scope):
@@ -408,7 +418,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             self.register_instruction(
                 GetAttribNode(nvar, selfx, node.token.lex, self.current_type.name))
         else:
-            nvar = nvar.name
+            nvar = nvar.real_name
         return nvar
 
     @visitor.when(cool.BoolNode)
