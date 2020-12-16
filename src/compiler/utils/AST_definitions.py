@@ -58,9 +58,7 @@ class NodeClass(Node):
         self.methods = methods
         self.attributes = attributes
         self.parent = parent
-        self.builtIn = idName in {'Int', 'Bool', 'SELF_TYPE'}
-        self.inheritsAttr = {}
-        self.inheritsMethods= {}
+        
         
         
     def to_readable(self):
@@ -71,7 +69,6 @@ class NodeClass(Node):
 class NodeFeature(Node):
     def __init__(self):
         super(NodeFeature, self).__init__()
-        self.readed = False
 
 #No se si poner aqui una clase para heredar , que sea feature_class.
 #Tengo que ver si a futuro necesito iterar por los elementos de una clase
@@ -97,12 +94,11 @@ class NodeClassMethod(NodeFeature):
             )
 
 class NodeAttr(NodeFeature):
-    def __init__(self, idName, attrType, expr= None, value= None):
+    def __init__(self, idName, _type, expr= None):
         super().__init__()
         self.idName = idName
-        self.type = attrType
+        self._type = _type
         self.expr = expr
-        self.value = value
 
 class NodeFormalParam(NodeFeature):
     def __init__(self, idName, param_type):
@@ -196,10 +192,12 @@ class NodeString(NodeConstant):
     def to_readable(self):
         return "{}(content={})".format(self.clsname, repr(self.content))
 
-
+# Cada expresión debe tener una función de evaluación asociada.
+# Con un valor de retorno x.
 class NodeExpr(Node):
     def __init__(self):
         super().__init__()
+
 
 class NodeNewObject(NodeExpr):
     def __init__(self, new_type):
@@ -219,7 +217,7 @@ class NodeNewObject(NodeExpr):
 class NodeIsVoid(NodeExpr):
     def __init__(self, expr):
         super().__init__()
-        self.expr = expr
+
 
     def to_tuple(self):
         return tuple([
@@ -338,14 +336,13 @@ class NodeLet(NodeExpr):
             ("class_name", self.clsname),
             ("idName", self.idName),
             ("returnType", self.type),
-            ("body", self.body),
-            ("value", self.value),
+            ("body", self.body)
         ])
 
     def to_readable(self):
-        return "{}(idName={}, returnType={}, body={}, value={})".format(
+        return "{}(idName={}, returnType={}, body={})".format(
             self.clsname, self.idName, self.type,
-            self.body, self.value)
+            self.body)
 
 
 class NodeIf(NodeExpr):
