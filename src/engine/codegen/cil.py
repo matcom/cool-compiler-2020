@@ -166,7 +166,7 @@ class BASE_COOL_CIL_TRANSFORM:
         length_var = self.define_internal_local()
         self.register_instruction(LengthNode(length_var, real_value))
 
-        eol = self.register_data(r'\n')
+        eol = self.register_data('\\n')
         msg_eol = self.define_internal_local()
         self.register_instruction(LoadNode(msg_eol, eol.name))
 
@@ -190,17 +190,9 @@ class BASE_COOL_CIL_TRANSFORM:
         self.register_instruction(ErrorNode())
         self.register_instruction(no_error_label2)
 
-        # self.register_instruction(PlusNode(sum_var, start, length))
-        # self.register_instruction(LessEqNode(cmp_var3, sum_var, length_var))
-        # self.register_instruction(IfGotoNode(cmp_var3, no_error_label3.label))
-        # error_msg = self.register_data("Invalid substring").name
-        # self.register_instruction(ConcatNode(msg_eol, error_msg, eol))
-        # self.register_instruction(PrintStrNode(msg_eol))
-        # self.register_instruction(no_error_label3)
-        # self.register_instruction(ErrorNode())
-
         self.register_instruction(SubstringNode(
             result, real_value, start, length))
+
         self.register_instruction(ReturnNode(result))
         self.current_method = self.current_function = None
 
@@ -272,7 +264,7 @@ class BASE_COOL_CIL_TRANSFORM:
         full_msg = self.define_internal_local()
 
         abort = self.register_data("Abort called from class ")
-        eol = self.register_data(r'\n')
+        eol = self.register_data('\\n')
 
         abort_msg = self.define_internal_local()
         self.register_instruction(LoadNode(abort_msg, abort.name))
