@@ -67,34 +67,45 @@ t_ARROW = r'\=\>'
 
 @TOKEN(r"(t[R|r][U|u][e|E]|f[a|A][l|L][s|S][e|E])")
 def t_BOOLEAN(token):
+    global start_line
+    token.lexpos -= start_line
     token.value = token.value.lower()
     return token
 
 @TOKEN(r"\d+")
 def t_INTEGER(token):
+    global start_line
+    token.lexpos -= start_line
     token.value = int(token.value)
     return token
 
 @TOKEN(r"[A-Z][A-Za-z0-9_]*")
 def t_TYPE(token):
+    global start_line
+    token.lexpos -= start_line
     token.type = reserved.get(token.value.lower(), 'TYPE')
     return token
 
 @TOKEN(r"[a-z][A-Za-z0-9_]*")
 def t_ID(token):
+    global start_line
+    token.lexpos -= start_line
     token.type = reserved.get(token.value.lower(), "ID")
     return token
 
 # Utility definitions
 @TOKEN(r'\n+')
 def t_newline(t):
-    global readjust_col    
-    readjust_col = t.lexpos + len(t.value)
+    global start_line
+    start_line = t.lexpos + len(t.value) -1
     t.lexer.lineno += len(t.value)
 
 def t_error(token):
-    global readjust_col
-    errors.append(error(error_type="LexicographicError", row_and_col= (token.lineno, token.lexpos - readjust_col + 1), message='ERROR "%s"' % (token.value[:1])))
+    global start_line
+    token.lexpos -= start_line
+    errors.append(error(error_type="LexicographicError",
+                        row_and_col= (token.lineno, token.lexpos), 
+                        message='ERROR "%s"' % (token.value[:1])))
     token.lexer.skip(1)
 
 t_ignore  = ' \t'
@@ -110,25 +121,35 @@ states = (
 #The string states
 @TOKEN(r'\"')
 def t_start_string(token):
+    global start_line
     token.lexer.push_state("STRING")
     token.lexer.string_backslashed = False
     token.lexer.stringbuf = ""
+    
 
 @TOKEN(r'\n')
 def t_STRING_newline(token):
-    global readjust_col
+    global start_line
     token.lexer.lineno += 1
+    new_start_line = token.lexpos + len(token.value) -1
     if not token.lexer.string_backslashed:
-        errors.append(error(error_type="LexicographicError", row_and_col= (token.lineno, token.lexpos - readjust_col + 1),
-                                        message= "Unterminated string constant"))
+        token.lexpos -= start_line
+        errors.append(error(error_type="LexicographicError", 
+                            row_and_col= (token.lineno, 
+                                          token.lexpos ),
+                            message= "Unterminated string constant"))
         token.lexer.pop_state()
     else:
         token.lexer.string_backslashed = False
-    readjust_col = token.lexpos + len(token.value)
+    start_line = new_start_line
 
 @TOKEN('\0')
 def t_STRING_null(token):
-    errors.append(error(error_type="LexicographicError", row_and_col= (token.lineno, token.lexpos - readjust_col + 1), message='Null character in string'))
+    global start_line
+    token.lexpos -= start_line
+    errors.append(error(error_type="LexicographicError",
+                        row_and_col= (token.lineno, token.lexpos),
+                        message='Null character in string'))
     token.lexer.skip(1)
 
 @TOKEN(r'\"')
@@ -165,13 +186,19 @@ def t_STRING_anything(token):
             token.lexer.string_backslashed = True
 
 def t_STRING_error(token):
+    global start_line
+    token.lexpos -= start_line
     token.lexer.skip(1)
-    errors.append(error(error_type="LexicographicError",  
-                row_and_col= (token.lineno, token.lexpos - readjust_col + 1),
+    errors.append(error(error_type="LexicographicError",
+                row_and_col= (token.lineno, token.lexpos),
                 message= 'ERROR at or near '))
 
 def t_STRING_eof(token):
-    errors.append(error(error_type="LexicographicError", row_and_col= (token.lineno, token.lexpos - readjust_col + 1), message='EOF in string constant'))
+    global start_line
+    token.lexpos -= start_line
+    errors.append(error(error_type="LexicographicError",
+                        row_and_col= (token.lineno, token.lexpos),
+                        message='EOF in string constant'))
     token.lexer.pop_state()
 
 t_STRING_ignore = ''
@@ -189,12 +216,14 @@ def t_COMMENT_startanother(token):
 
 @TOKEN(r"\n+")
 def t_COMMENT_newline(token):
-    global readjust_col
-    readjust_col = token.lexpos + len(token.value)
+    global start_line
+    start_line = token.lexpos + len(token.value) - 1
     token.lexer.lineno += len(token.value)
 
 @TOKEN(r"\*\)")
 def t_COMMENT_end(token):
+    global start_line
+    token.lexpos -= start_line
     if token.lexer.comment_count == 0:
         token.lexer.pop_state()
     else:
@@ -202,11 +231,16 @@ def t_COMMENT_end(token):
 
 
 def t_COMMENT_error(token):
+    global start_line
+    token.lexpos -= start_line
     token.lexer.skip(1)
     
 def t_COMMENT_eof(token):
-    global readjust_col
-    errors.append(error(error_type="LexicographicError", row_and_col= (token.lineno, token.lexpos - readjust_col + 1), message= "EOF in comment"))
+    global start_line
+    token.lexpos -= start_line
+    errors.append(error(error_type="LexicographicError",
+                        row_and_col= (token.lineno, token.lexpos),
+                        message= "EOF in comment"))
     token.lexer.pop_state()
 
 t_COMMENT_ignore = ''
@@ -215,14 +249,12 @@ errors = []
 
 lexer = lex.lex()
 def tokenizer(stream_input):
-    global readjust_col
-    readjust_col = 0
+    global start_line
+    start_line = -1
     lexer.input(stream_input)
     token_list = []
-    real_col = {}
-    for tok in lexer:
-        real_col.update({ str(tok): tok.lexpos - readjust_col + 1 })  
+    for tok in lexer: 
         token_list.append(tok)
 
-    return errors, token_list, real_col
+    return errors, token_list
 
