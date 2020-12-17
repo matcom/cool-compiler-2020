@@ -294,7 +294,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         test_res = self.define_internal_local()
 
         matching_label = LabelNode(f'CASE_MATCH_{node.id.lex}_{node.type.lex}')
-        self.register_instruction(ConformsNode(test_res, expr, node.type))
+        self.register_instruction(ConformsNode(test_res, expr, node.type.lex))
         self.register_instruction(IfGotoNode(expr, matching_label.label))
         self.register_instruction(
             GotoNode(next_label.label)

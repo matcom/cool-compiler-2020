@@ -153,7 +153,7 @@ class CIL_FORMATTER(object):
 
     @visitor.when(IsVoidNode)
     def visit(self, node: IsVoidNode):
-        return f'{node.dest} = ISVOID {node.body}'
+        return f'{node.dest} = ISVOID {node.expression}'
 
     @visitor.when(LessEqNode)
     def visit(self, node: LessEqNode):
