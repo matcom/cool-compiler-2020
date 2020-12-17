@@ -338,13 +338,16 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
 
         obj = self.visit(node.obj, scope)
         if typex in ["Int", "Bool", "String"]:
-            self.register_instruction(ArgNode(obj))
+            # self.register_instruction(ArgNode(obj))
             packed = self.define_internal_local()
-            self.register_instruction(StaticCallNode(f"ctor_{typex}", packed))
+            alloc = self.define_internal_local()
+            self.register_instruction(AllocateNode(alloc, 'String'))
+            self.register_instruction(ArgNode(alloc))
+            self.register_instruction(StaticCallNode(f"ctor_{typex}", alloc))
             self.register_instruction(EmptyArgs(1))
             self.register_instruction(
-                SetAttribNode(packed, "value", obj, typex))
-            obj = packed
+                SetAttribNode(alloc, "value", obj, typex))
+            obj = alloc
 
         rev_args = []
         for arg in node.args:
