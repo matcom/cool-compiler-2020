@@ -596,8 +596,8 @@ class CIL_TO_MIPS:
         loop_label = self.get_label()
         self.load_memory(reg.s0, node.msg1)
 
-        self.mips.move(reg.a0, reg.s0)
-        self.mips.syscall(1)
+        # self.mips.move(reg.a0, reg.s0)
+        # self.mips.syscall(1)
 
         self.load_memory(reg.s1, node.msg2)
 
