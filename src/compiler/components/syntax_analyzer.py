@@ -5,13 +5,12 @@ from ..utils.AST_definitions import *
 from ..components.lexer_analyzer import lexer
 
 class pyCoolParser:
-    def __init__(self, tokens, real_col):
+    def __init__(self, tokens, source_program, real_col):
         self.tokens = tokens
         self.errors_parser = []
+        self.source_program= source_program
+        self.real_col= real_col
         self.parser = yacc.yacc(module=self)
-        self.row_tracker = 0
-        self.column_corrector = 0
-        self.real_col = real_col
 
     # precedence rules
     precedence = (
@@ -45,16 +44,20 @@ class pyCoolParser:
         p[0] = NodeClass(idName = p[2],
                          methods= p[4]['methods'],
                          attributes= p[4]['attributes'],
-                         parent = "Object")
+                         parent = "Object",
+                         line= p.slice[1].lineno,
+                         column=(self.real_col[ str(p.slice[1]) ] ) )
 
     def p_class_inherits(self, p):
         """
         class : CLASS TYPE INHERITS TYPE LBRACE features_list_opt RBRACE
         """
         p[0] = NodeClass(idName = p[2],
-                        methods= p[6]['methods'],
-                        attributes= p[6]['attributes'],
-                        parent = p[4])
+                         methods= p[6]['methods'],
+                         attributes= p[6]['attributes'],
+                         parent = p[4],
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
 
     def p_feature_list_opt(self, p):
         """
@@ -85,25 +88,39 @@ class pyCoolParser:
         argNames = [ x.idName for x in p[3] ],
         argTypes = [ x.paramType for x in p[3] ],
         returnType=p[6],
-        body=p[8])
+        body=p[8],
+        line= p.slice[1].lineno,
+        column=self.real_col[ str(p.slice[1]) ])
 
     def p_feature_method_no_formals(self, p):
         """
         feature : ID LPAREN RPAREN COLON TYPE LBRACE expression RBRACE
         """
-        p[0] = NodeClassMethod(idName=p[1], argNames = [], argTypes = [], returnType=p[5], body=p[7])
+        p[0] = NodeClassMethod(idName=p[1], 
+                               argNames = [], 
+                               argTypes = [], 
+                               returnType=p[5], 
+                               body=p[7], 
+                               line= p.slice[1].lineno, 
+                               column=self.real_col[ str(p.slice[1]) ])
 
     def p_feature_attr_initialized(self, p):
         """
         feature : ID COLON TYPE ASSIGN expression
         """
-        p[0] = NodeAttr(idName= p[1], _type= p[3], expr= p[5])
+        p[0] = NodeAttr(idName= p[1], 
+                        _type= p[3], 
+                        expr= p[5], 
+                        line= p.slice[1].lineno, 
+                        column=self.real_col[ str(p.slice[1]) ])
 
     def p_feature_attr(self, p):
         """
         feature : ID COLON TYPE
         """
-        p[0] = NodeAttr(idName= p[1], _type= p[3], expr= None)
+        p[0] = NodeAttr(idName= p[1], _type= p[3], expr= None ,
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
 
     def p_formal_list_many(self, p):
         """
@@ -116,43 +133,56 @@ class pyCoolParser:
         """
         formal_param : ID COLON TYPE
         """
-        p[0] = NodeFormalParam(idName=p[1], param_type=p[3])
+        p[0] = NodeFormalParam(idName=p[1], param_type=p[3] ,
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
 
     def p_expression_object_identifier(self, p):
         """
         expression : ID
         """
-        p[0]= NodeObject(idName= p[1]) 
+        p[0]= NodeObject(idName= p[1] ,
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ]) 
         
     def p_expression_integer_constant(self, p):
         """
         expression : INTEGER
         """
-        p[0]= NodeInteger(content= p[1])
+        p[0]= NodeInteger(content= p[1],
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
 
     def p_expression_boolean_constant(self, p):
         """
         expression : BOOLEAN
         """
-        p[0]= NodeBoolean(content= p[1])
+        p[0]= NodeBoolean(content= p[1],
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
 
     def p_expression_string_constant(self, p):
         """
         expression : STRING
         """
-        p[0]= NodeString(content= p[1])
+        p[0]= NodeString(content= p[1],
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
 
     def p_expr_self(self, p):
         """
         expression  : SELF
         """
-        p[0]= NodeSelf()
+        p[0]= NodeSelf(line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
 
     def p_expression_block(self, p):
         """
         expression : LBRACE block_list RBRACE
         """        
-        p[0]= NodeBlock(expr_list= p[2])        
+        p[0]= NodeBlock(expr_list= p[2],
+                        line= p.slice[1].lineno,
+                        column=self.real_col[ str(p.slice[1]) ])        
 
     def p_block_list(self, p):
         """
@@ -165,7 +195,12 @@ class pyCoolParser:
         """
         expression : ID ASSIGN expression
         """        
-        p[0] = NodeAssignment(idName= NodeObject(idName= p[1]), expr= p[3])
+        p[0] = NodeAssignment(idName= NodeObject(idName= p[1],
+                                                 line= p.slice[1].lineno,
+                                                 column=self.real_col[ str(p.slice[1]) ]), 
+                         expr= p[3],
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
 
 # ######################### UNARY OPERATIONS #######################################
     
@@ -173,27 +208,35 @@ class pyCoolParser:
         """
         expression : NEW TYPE
         """
-        p[0] = NodeNewObject(new_type= p[2])
+        p[0] = NodeNewObject(new_type= p[2],
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
 
 
     def p_expression_isvoid(self, p):
         """
         expression : ISVOID expression
         """
-        p[0] = NodeIsVoid(expr= p[2])
+        p[0] = NodeIsVoid(expr= p[2],
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
         
     def p_expression_integer_complement(self, p):
         """
         expression : INT_COMP expression
         """
-        p[0] = NodeIntegerComplement(p[2])        
+        p[0] = NodeIntegerComplement(p[2],
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])        
         
 
     def p_expression_boolean_complement(self, p):
         """
         expression : NOT expression
         """
-        p[0] = NodeBooleanComplement(p[2])        
+        p[0] = NodeBooleanComplement(p[2],
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])        
     
     # ######################### PARENTHESIZED, MATH & COMPARISONS #####################
     
@@ -205,13 +248,21 @@ class pyCoolParser:
                    | expression DIVIDE expression
         """        
         if p[2] == '+':
-            p[0] = NodeAddition(first=p[1], second=p[3])
+            p[0] = NodeAddition(first=p[1], second=p[3],
+                         line= p.slice[2].lineno,
+                         column=self.real_col[ str(p.slice[2]) ])
         elif p[2] == '-':
-            p[0] = NodeSubtraction(first=p[1], second=p[3])
+            p[0] = NodeSubtraction(first=p[1], second=p[3],
+                         line= p.slice[2].lineno,
+                         column=self.real_col[ str(p.slice[2]) ])
         elif p[2] == '*':
-            p[0] = NodeMultiplication(first=p[1], second=p[3])
+            p[0] = NodeMultiplication(first=p[1], second=p[3],
+                         line= p.slice[2].lineno,
+                         column=self.real_col[ str(p.slice[2]) ])
         elif p[2] == '/':
-            p[0] = NodeDivision(first=p[1], second=p[3])
+            p[0] = NodeDivision(first=p[1], second=p[3],
+                         line= p.slice[2].lineno,
+                         column=self.real_col[ str(p.slice[2]) ])
 
     def p_expression_math_comparisons(self, p):
         """
@@ -220,11 +271,17 @@ class pyCoolParser:
                    | expression EQ expression
         """    
         if p[2] == '<':
-            p[0] = NodeLessThan(first=p[1], second=p[3])
+            p[0] = NodeLessThan(first=p[1], second=p[3],
+                         line= p.slice[2].lineno,
+                         column=self.real_col[ str(p.slice[2]) ])
         elif p[2] == '<=':
-            p[0] = NodeLessThanOrEqual(first=p[1], second=p[3])
+            p[0] = NodeLessThanOrEqual(first=p[1], second=p[3],
+                         line= p.slice[2].lineno,
+                         column=self.real_col[ str(p.slice[2]) ])
         elif p[2] == '=':
-            p[0] = NodeEqual(first=p[1], second=p[3])    
+            p[0] = NodeEqual(first=p[1], second=p[3],
+                         line= p.slice[2].lineno,
+                         column=self.real_col[ str(p.slice[2]) ])    
         
     def p_expression_with_parenthesis(self, p):
         """
@@ -238,13 +295,17 @@ class pyCoolParser:
         """
         expression : IF expression THEN expression ELSE expression FI
         """        
-        p[0]= NodeIf(predicate=p[2], then_body=p[4], else_body=p[6])
+        p[0]= NodeIf(predicate=p[2], then_body=p[4], else_body=p[6],
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
 
     def p_expression_while_loop(self, p):
         """
         expression : WHILE expression LOOP expression POOL
         """        
-        p[0] = NodeWhileLoop(predicate=p[2], body=p[4])
+        p[0] = NodeWhileLoop(predicate=p[2], body=p[4],
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
 
     ## ######################### LET EXPRESSIONS ########################################
     def p_expression_let(self, p):
@@ -257,32 +318,53 @@ class pyCoolParser:
         """
         let_expression : LET nested_lets IN expression
         """
-        p[0]= NodeLetComplex(nested_lets= p[2], body= p[4])
+        p[0]= NodeLetComplex(nested_lets= p[2], body= p[4],
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
 
     def p_nested_lets_simple(self, p):
         """
         nested_lets : ID COLON TYPE
                     | nested_lets COMMA ID COLON TYPE
         """
-        p[0]= NodeLet(idName= p[1], returnType= p[3],
-        body = None)
+        if p[1] == "ID":
+            p[0]= NodeLet(idName= p[1], returnType= p[3], body = None,
+                          line= p.slice[1].lineno,
+                          column= self.real_col[ str(p.slice[1]) ])
+        else:
+            p[0]= NodeLet(idName= p[3],
+                          returnType= p[-1],
+                          body= None,
+                          line= p.slice[2].lineno,
+                          column= self.real_col[str(p.slice[2])])
 
     def p_nested_lets_initialize(self, p):
         """
         nested_lets : ID COLON TYPE ASSIGN expression
                     | nested_lets COMMA ID COLON TYPE ASSIGN expression
         """
-        p[0]= NodeLet(idName= p[1],
-        returnType= p[3],
-        body= p[5])
-
+        if p[1] == "ID":
+            p[0] = NodeLet(idName= p[1],
+                           returnType= p[3],
+                           body = p[5],
+                           line = p.slice[1].lineno,
+                           column= self.real_col[ str(p.slice[1]) ])
+        else:
+            p[0]= NodeLet(idName= p[3],
+                          returnType= p[5],
+                          body= p[7],
+                          line= p.slice[2].lineno,
+                          column= self.real_col[ str(p.slice[2]) ])
+        
     # ######################### CASE EXPRESSION ########################################
     
     def p_expression_case(self, p):
         """
         expression : CASE expression OF actions_list ESAC
         """        
-        p[0]= NodeCase(expr=p[2], actions=p[4])
+        p[0]= NodeCase(expr=p[2], actions=p[4],
+                         line= p.slice[1].lineno,
+                         column=self.real_col[ str(p.slice[1]) ])
 
     def p_actions_list(self, p):
         """
@@ -304,7 +386,9 @@ class pyCoolParser:
         expression : expression DOT ID LPAREN arguments_list_opt RPAREN
         """        
         p[0] = NodeDynamicDispatch(expr=p[1], 
-        method=p[3], arguments=p[5])
+        method=p[3], arguments=p[5],
+        line= p.slice[2].lineno,
+        column=self.real_col[ str(p.slice[2]) ])
 
     def p_arguments_list_opt(self, p):
         """
@@ -325,14 +409,19 @@ class pyCoolParser:
         expression : expression AT TYPE DOT ID LPAREN arguments_list_opt RPAREN
         """        
         p[0] = NodeStaticDispatch(expr=p[1],
-        dispatch_type=p[3], method=p[5], arguments=p[7])
+        dispatch_type=p[3], method=p[5], arguments=p[7],
+        line= p.slice[2].lineno,
+        column=self.real_col[ str(p.slice[2]) ])
     
     def p_expression_self_dispatch(self, p):
         """
         expression : ID LPAREN arguments_list_opt RPAREN
         """        
-        p[0] = NodeDynamicDispatch(expr=NodeSelf(),
-        method=p[1], arguments=p[3])
+        p[0] = NodeDynamicDispatch(expr=NodeSelf(line= p.slice[1].lineno, 
+                                                 column=self.real_col[ str(p.slice[1]) ]),
+        method=p[1], arguments=p[3],
+        line= p.slice[1].lineno,
+        column=self.real_col[ str(p.slice[1]) ])
 
 
     # ######################### ################## ###################################
@@ -343,32 +432,28 @@ class pyCoolParser:
         """
         p[0]= None
 
-    def findColumn(self, trackedRow):
-        for i in range(len(self.parser.symstack) -1, 1, -1):
-            if self.parser.symstack[i].lineno != trackedRow:
-                return self.parser.symstack[i].lexpos
-        return 0
 
     def p_error(self, p):
         """
         Error rule for Syntax Errors handling and reporting.
         """
         if p:
+
             self.errors_parser.append(
             error(message= "Error at or near %s" %p.value,
             error_type="SyntacticError",
-            row_and_col= (p.lineno, self.real_col[str(p)] )))
+            row_and_col= (p.lineno, self.real_col[ str(p) ] )))
 
         else:
             self.errors_parser.append(
             error(message= "EOF in string",
             error_type="SyntacticError",
             row_and_col= (0, 0 )))
-
+    
+    
 def run_parser(tokens, source_program, real_col):
     #print("The source_program ", source_program)
-    parserCool = pyCoolParser(tokens, real_col)
+    parserCool = pyCoolParser(tokens, source_program, real_col)
     lexer.lineno = 1
     ast_result = parserCool.parser.parse(source_program, lexer=lexer)
-    #print("The ast_result ", ast_result)
     return ast_result, parserCool.errors_parser
