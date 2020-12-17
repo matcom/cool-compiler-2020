@@ -166,7 +166,7 @@ class BASE_COOL_CIL_TRANSFORM:
         length_var = self.define_internal_local()
         self.register_instruction(LengthNode(length_var, real_value))
 
-        eol = self.register_data('\n')
+        eol = self.register_data(r'\n')
         msg_eol = self.define_internal_local()
         self.register_instruction(LoadNode(msg_eol, eol.name))
 
@@ -272,7 +272,7 @@ class BASE_COOL_CIL_TRANSFORM:
         full_msg = self.define_internal_local()
 
         abort = self.register_data("Abort called from class ")
-        eol = self.register_data('\n')
+        eol = self.register_data(r'\n')
 
         abort_msg = self.define_internal_local()
         self.register_instruction(LoadNode(abort_msg, abort.name))
@@ -280,9 +280,7 @@ class BASE_COOL_CIL_TRANSFORM:
         msg_eol = self.define_internal_local()
         self.register_instruction(LoadNode(msg_eol, eol.name))
 
-        obj_type = self.define_internal_local()
-        self.register_instruction(TypeOfNode(self_local, obj_type))
-        self.register_instruction(TypeNameNode(type_name, obj_type))
+        self.register_instruction(TypeNameNode(type_name, self_local))
         self.register_instruction(ConcatNode(full_msg, abort_msg, type_name))
         self.register_instruction(ConcatNode(full_msg, full_msg, msg_eol))
         self.register_instruction(PrintStrNode(full_msg))
