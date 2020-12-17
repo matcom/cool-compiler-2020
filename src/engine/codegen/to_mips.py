@@ -506,7 +506,7 @@ class CIL_TO_MIPS:
     def visit(self, node: TypeNameNode):
         self.mips.comment(f"TypeNameNode {node.dest} Type:{node.type}")
         self.load_memory(reg.t0, node.type)
-        self.mips.load_memory(reg.t1, self.mips.offset(reg.t0, self.data_size))
+        self.mips.load_memory(reg.t1, self.mips.offset(reg.t0, 3 * self.data_size))
         self.store_memory(reg.t1, node.dest)
 
     def get_string_length(self, src, dst):
