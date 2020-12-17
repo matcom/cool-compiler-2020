@@ -182,6 +182,7 @@ class CIL_TO_MIPS:
         self.mips.comment("Return")
         self.mips.pop(reg.fp)
         self.mips.jr(reg.ra)
+        self.mips.empty_line()
 
     @visitor.when(DataNode)
     def visit(self, node: DataNode):
