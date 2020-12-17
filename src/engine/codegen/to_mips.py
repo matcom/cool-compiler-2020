@@ -571,6 +571,7 @@ class CIL_TO_MIPS:
 
     @visitor.when(ConcatNode)
     def visit(self, node: ConcatNode):
+
         self.load_memory(reg.s0, node.msg1)
         self.load_memory(reg.s1, node.msg2)
 
@@ -578,6 +579,7 @@ class CIL_TO_MIPS:
         self.get_string_length(reg.s1, reg.s5)
 
         self.mips.add(reg.a0, reg.s4, reg.s5)
+        self.mips.addi(reg.a0, reg.a0, 1)
         self.mips.sbrk()
         self.mips.move(reg.s3, reg.v0)
 
@@ -665,6 +667,7 @@ class CIL_TO_MIPS:
 
     @visitor.when(SubstringNode)
     def visit(self, node):
+
         self.load_memory(reg.s0, node.msg1)
         self.load_memory(reg.s1, node.length)
         self.load_memory(reg.s3, node.start)
@@ -672,6 +675,7 @@ class CIL_TO_MIPS:
         self.mips.add(reg.s0, reg.s0, reg.s3)
 
         self.mips.move(reg.a0, reg.s1)
+        self.mips.addi(reg.a0, reg.a0, 1)
         self.mips.sbrk()
         self.copy_substr(reg.s0, reg.v0, reg.s1)
 
@@ -705,9 +709,6 @@ class CIL_TO_MIPS:
         self.mips.addi(reg.a0, reg.a0, -1)
         # change /n to /0
         self.mips.sb(reg.zero, self.mips.offset(reg.a0))
-
-
-
 
     @visitor.when(PrintStrNode)
     def visit(self, node: PrintStrNode):
