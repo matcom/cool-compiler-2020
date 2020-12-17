@@ -341,7 +341,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             # self.register_instruction(ArgNode(obj))
             packed = self.define_internal_local()
             alloc = self.define_internal_local()
-            self.register_instruction(AllocateNode(alloc, 'String'))
+            self.register_instruction(AllocateNode(alloc, typex))
             self.register_instruction(ArgNode(alloc))
             self.register_instruction(StaticCallNode(f"ctor_{typex}", alloc))
             self.register_instruction(EmptyArgs(1))
