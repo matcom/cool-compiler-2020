@@ -738,3 +738,24 @@ class CIL_TO_MIPS:
     @visitor.when(VoidNode)
     def visit(self, node: VoidNode):
         self.store_memory(reg.zero, node.dest)
+
+    @visitor.when(ConformsNode)
+    def visit(self, node: ConformsNode):
+        self.mips.comment(f"Conforms Node {node.dest} = {node.type} {node.expr}")
+        _id = self.global_descriptor.Types[node.type].id
+        self.load_memory(reg.s0, node.expr)
+        self.mips.empty_line()
+        
+        self.mips.li(reg.s2, _id)
+        self.mips.subu(reg.s3, reg.s2, reg.s1)
+        one = self.get_label()
+        end = self.get_label()
+        self.mips.beq(reg.s3, reg.zero, one)
+        self.store_memory(reg.zero, node.dest)
+        self.mips.j(end)
+        self.mips.label(one)
+        self.mips.li(reg.s3, 1)
+        self.store_memory(reg.s3, node.dest)
+        self.mips.label(end)
+        
+
