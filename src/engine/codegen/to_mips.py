@@ -496,7 +496,7 @@ class CIL_TO_MIPS:
         # load object
         self.load_memory(reg.s0, node.obj)
         # load size
-        self.load_memory(reg.s1, self.mips.offset(reg.s0, self.data_size))
+        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0, self.data_size))
         # load dest
         self.load_memory(reg.s3, node.dest)
         # copy byte to byte
