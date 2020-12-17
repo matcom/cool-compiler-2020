@@ -10,4 +10,4 @@ echo "Copyright (c) 2020: Leonel Alejandro García López, Jorge Daniel Valle D�
 # Llamar al compilador
 #echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 
-python3 main.py $INPUT_FILE $OUTPUT_FILE
+python3 main.py $INPUT_FILE $OUTPUT_FILE do_cil

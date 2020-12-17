@@ -182,6 +182,7 @@ class CIL_TO_MIPS:
         self.mips.comment("Return")
         self.mips.pop(reg.fp)
         self.mips.jr(reg.ra)
+        self.mips.empty_line()
 
     @visitor.when(DataNode)
     def visit(self, node: DataNode):
@@ -384,11 +385,11 @@ class CIL_TO_MIPS:
 
     @visitor.when(TypeOfNode)
     def visit(self, node: TypeOfNode):
-        self.mips.comment(f"TypeOfNode of {node.obj}")
+        self.mips.comment(f"TypeOfNode of {node.obj} to {node.dest}")
         # Cargar la direccion de memoria
         self.load_memory(reg.s0, node.obj)
-        # El offset 3 para ptr al name
-        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0, 3))
+        # El offset 0 para el numero del tipo
+        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0))
         self.store_memory(reg.s1, node.dest)
 
     @visitor.when(LabelNode)
@@ -492,18 +493,22 @@ class CIL_TO_MIPS:
 
     @visitor.when(CopyNode)
     def visit(self, node):
-        dst = self.get_offset(node.dest)
-        length = 0  # TODO: donde saco el size este?
-        self.mips.la(reg.s1, dst)
-        # copy data raw byte to byte
-        self.mips.li(reg.s3, length)
-        self.copy_data(reg.s0, reg.s1, reg.s3)
+        self.mips.comment(f"Copy Node {node.dest} {node.obj}")
+        # load object
+        self.load_memory(reg.s0, node.obj)
+        # load size
+        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0, self.data_size))
+        # load dest
+        self.load_memory(reg.s3, node.dest)
+        # copy byte to byte
+        self.copy_data(reg.s0, reg.s3, reg.s1)
 
     @visitor.when(TypeNameNode)
     def visit(self, node: TypeNameNode):
-        self.mips.comment("TypeNameNode")
+        self.mips.comment(f"TypeNameNode {node.dest} Type:{node.type}")
         self.load_memory(reg.t0, node.type)
-        self.mips.load_memory(reg.t1, self.mips.offset(reg.t0, self.data_size))
+        # ptr at 3rd position in memory ( 2 in base 0)
+        self.mips.load_memory(reg.t1, self.mips.offset(reg.t0, 2 * self.data_size))
         self.store_memory(reg.t1, node.dest)
 
     def get_string_length(self, src, dst):
