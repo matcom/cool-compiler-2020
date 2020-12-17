@@ -384,11 +384,11 @@ class CIL_TO_MIPS:
 
     @visitor.when(TypeOfNode)
     def visit(self, node: TypeOfNode):
-        self.mips.comment(f"TypeOfNode of {node.obj}")
+        self.mips.comment(f"TypeOfNode of {node.obj} to {node.dest}")
         # Cargar la direccion de memoria
         self.load_memory(reg.s0, node.obj)
-        # El offset 3 para ptr al name
-        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0, 3))
+        # El offset 0 para el numero del tipo
+        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0))
         self.store_memory(reg.s1, node.dest)
 
     @visitor.when(LabelNode)
