@@ -34,13 +34,6 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             key=lambda cd: self.context.inheritance_deep(cd.id.lex),
         )
 
-    def init_class_attr(self, scope: Scope, class_id, self_inst):
-        attr_nodes = self.attr_declarations[class_id]
-        for attr in attr_nodes:
-            attr_scope = scope.create_child()
-            attr_scope.define_variable('self', self_inst)
-            self.visit(attr, attr_scope, typex=class_id)
-
     def save_attr_initializations(self, node: cool.ProgramNode, scope):
         self.attr_declarations = dict()
         self.attr_declarations['Object'] = []
@@ -76,17 +69,26 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         instance = self.register_param(VariableInfo('self', self.current_type))
 
         scope = Scope()
-        scope.define_variable('self', instance)
-        for attr in attr_declarations:
-            self.visit(attr, scope, typex=self.current_type.name)
+        instance = scope.define_variable('self', self.current_type)
 
-        self.register_instruction(ReturnNode(instance))
+        self_instance_name = instance.name
+        for attr in attr_declarations:
+            result = None
+            if attr.expression:
+                result = self.visit(attr.expression, scope)
+            elif attr.type == 'String':
+                result = self.register_data("").name
+            else:
+                result = self.define_internal_local()
+                self.register_instruction(VoidNode(result))
+
+            self.register_instruction(
+                SetAttribNode(self_instance_name, attr.id.lex, result, type_name))
+
+        self.register_instruction(ReturnNode(self_instance_name))
 
         self.current_type = None
         self.current_function = None
-
-    def create_vtables(self, node: cool.ProgramNode):
-        pass
 
     @visitor.on('node')
     def visit(self, node, scope):
@@ -97,14 +99,21 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         scope = Scope()
         self.sort_class_declar(node)
         self.save_attr_initializations(node, scope)
-        self.create_vtables(node)
         # entry
         self.current_function = self.register_function('entry')
+        # call Constructor
         instance = self.define_internal_local()
-        result = self.define_internal_local()
         self.current_type = self.context.get_type('Main')
-        self.register_instruction(AllocateNode(instance, 'Main'))
-        self.init_class_attr(scope, 'Main', instance)
+        self.register_instruction(
+            AllocateNode(instance, self.current_type.name)
+        )
+        self.register_instruction(ArgNode(instance))
+        self.register_instruction(
+            StaticCallNode(f'ctor_{self.current_type.name}', instance))
+        self.register_instruction(EmptyArgs(1))
+
+        # call Main.main
+        result = self.define_internal_local()
         self.register_instruction(ArgNode(instance))
         name = self.to_function_name('main', 'Main')
         self.register_instruction(StaticCallNode(name, result))
@@ -199,6 +208,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(ArgNode(new_local))
         self.register_instruction(
             StaticCallNode(f'ctor_{typex.name}', new_local))
+        self.register_instruction(EmptyArgs(1))
         return new_local
 
     @visitor.when(cool.IfThenElseNode)
@@ -239,7 +249,6 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(IfGotoNode(cond, continue_label.label))
         self.register_instruction(GotoNode(end_label.label))
         self.register_instruction(continue_label)
-        print(node.body)
         self.visit(node.body, while_scope)
         label_counter = self.label_counter_gen()
         self.register_instruction(GotoNode(start_label.label))
@@ -326,13 +335,13 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             typex = node.type.lex
             name = self.to_function_name(node.id.lex, typex)
         result = self.define_internal_local()
+        obj = self.visit(node.obj, scope)
         rev_args = []
         for arg in node.args:
             arg_value = self.visit(arg, scope)
             rev_args = [arg_value] + rev_args
         for arg_value in rev_args:
             self.register_instruction(ArgNode(arg_value))
-        obj = self.visit(node.obj, scope)
         self.register_instruction(ArgNode(obj))
         if name:
             self.register_instruction(StaticCallNode(name, result))

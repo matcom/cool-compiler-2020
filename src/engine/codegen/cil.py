@@ -110,23 +110,16 @@ class BASE_COOL_CIL_TRANSFORM:
             method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
         type_node.features = type_node.attributes + type_node.methods
 
-        # self.current_method = self.current_type.get_method('ctor_String')
-        # type_name = self.current_type.name
-        # self.current_function = self.register_function(
-        #     self.to_function_name(self.current_method.name, type_name))
-        # self_local = self.register_param(VariableInfo("self", None))
-        # self.register_instruction(
-        #     SetAttribNode(self_local, node.id.lex, result, typex))
-        # self.register_instruction(ReturnNode(self_local))
-        # self.current_method = self.current_function = None
-
         self.current_method = self.current_type.get_method('length')
         type_name = self.current_type.name
         self.current_function = self.register_function(
             self.to_function_name(self.current_method.name, type_name))
         self_param = self.register_param(VariableInfo('self', None))
         dest = self.define_internal_local()
-        self.register_instruction(LengthNode(dest, self_param))
+        real_value = self.define_internal_local()
+        self.register_instruction(GetAttribNode(
+            real_value, self_param, 'value', 'String'))
+        self.register_instruction(LengthNode(dest, real_value))
         self.register_instruction(ReturnNode(dest))
         self.current_method = self.current_function = None
 
@@ -137,7 +130,10 @@ class BASE_COOL_CIL_TRANSFORM:
         self_param = self.register_param(VariableInfo('self', None))
         str_param = self.register_param(VariableInfo('string', None))
         dest = self.define_internal_local()
-        self.register_instruction(ConcatNode(dest, self_param, str_param))
+        real_value = self.define_internal_local()
+        self.register_instruction(GetAttribNode(
+            real_value, self_param, 'value', 'String'))
+        self.register_instruction(ConcatNode(dest, real_value, str_param))
         self.register_instruction(ReturnNode(dest))
         self.current_method = self.current_function = None
 
@@ -146,51 +142,66 @@ class BASE_COOL_CIL_TRANSFORM:
         self.current_function = self.register_function(
             self.to_function_name(self.current_method.name, type_name))
         self_param = self.register_param(VariableInfo('self', None))
+        real_value = self.define_internal_local()
+        self.register_instruction(GetAttribNode(
+            real_value, self_param, 'value', 'String'))
         start = self.register_param(VariableInfo('start', None))
         length = self.register_param(VariableInfo('length', None))
-        dest = self.define_internal_local()
-        result_msg = self.define_internal_local()
-        length_var = self.define_internal_local()
-        zero = self.define_internal_local()
-        sum_var = self.define_internal_local()
+        result = self.define_internal_local()
+        # sum_var = self.define_internal_local()
         cmp_var1 = self.define_internal_local()
         cmp_var2 = self.define_internal_local()
-        cmp_var3 = self.define_internal_local()
+        # cmp_var3 = self.define_internal_local()
+        local_error1 = self.define_internal_local()
+        local_error2 = self.define_internal_local()
+        # local_error3 = self.define_internal_local()
+
         no_error_label1 = LabelNode("error1")
         no_error_label2 = LabelNode("error2")
-        no_error_label3 = LabelNode("error3")
+        # no_error_label3 = LabelNode("error3")
+
+        zero = self.define_internal_local()
         self.register_instruction(BoxNode(zero, 0))
-        self.register_instruction(LengthNode(length_var, self_param))
-        eol = self.register_data('\\n').name
+
+        length_var = self.define_internal_local()
+        self.register_instruction(LengthNode(length_var, real_value))
+
+        eol = self.register_data('\n')
         msg_eol = self.define_internal_local()
+        self.register_instruction(LoadNode(msg_eol, eol.name))
 
         self.register_instruction(LessEqNode(cmp_var1, zero, start))
         self.register_instruction(IfGotoNode(cmp_var1, no_error_label1.label))
-        error_msg = self.register_data("Invalid substring start").name
-        self.register_instruction(ConcatNode(msg_eol, error_msg, eol))
-        self.register_instruction(PrintStrNode(msg_eol))
+        error_msg = self.register_data("Invalid substring start")
+        self.register_instruction(LoadNode(local_error1, error_msg.name))
+        self.register_instruction(ConcatNode(
+            local_error1, local_error1, msg_eol))
+        self.register_instruction(PrintStrNode(local_error1))
         self.register_instruction(ErrorNode())
         self.register_instruction(no_error_label1)
 
         self.register_instruction(LessEqNode(cmp_var2, zero, length))
         self.register_instruction(IfGotoNode(cmp_var2, no_error_label2.label))
-        error_msg = self.register_data("Invalid substring length").name
-        self.register_instruction(ConcatNode(msg_eol, error_msg, eol))
-        self.register_instruction(PrintStrNode(msg_eol))
+        error_msg = self.register_data("Invalid substring length")
+        self.register_instruction(LoadNode(local_error2, error_msg.name))
+        self.register_instruction(ConcatNode(
+            local_error2, local_error2, msg_eol))
+        self.register_instruction(PrintStrNode(local_error2))
         self.register_instruction(ErrorNode())
         self.register_instruction(no_error_label2)
 
-        self.register_instruction(PlusNode(sum_var, start, length))
-        self.register_instruction(LessEqNode(cmp_var3, sum_var, length_var))
-        self.register_instruction(IfGotoNode(cmp_var3, no_error_label3.label))
-        error_msg = self.register_data("Invalid substring").name
-        self.register_instruction(ConcatNode(msg_eol, error_msg, eol))
-        self.register_instruction(PrintStrNode(msg_eol))
-        self.register_instruction(ErrorNode())
-        self.register_instruction(no_error_label3)
+        # self.register_instruction(PlusNode(sum_var, start, length))
+        # self.register_instruction(LessEqNode(cmp_var3, sum_var, length_var))
+        # self.register_instruction(IfGotoNode(cmp_var3, no_error_label3.label))
+        # error_msg = self.register_data("Invalid substring").name
+        # self.register_instruction(ConcatNode(msg_eol, error_msg, eol))
+        # self.register_instruction(PrintStrNode(msg_eol))
+        # self.register_instruction(no_error_label3)
+        # self.register_instruction(ErrorNode())
+
         self.register_instruction(SubstringNode(
-            dest, self_param, start, length))
-        self.register_instruction(ReturnNode(dest))
+            result, real_value, start, length))
+        self.register_instruction(ReturnNode(result))
         self.current_method = self.current_function = None
 
         self.current_type = None
@@ -203,14 +214,6 @@ class BASE_COOL_CIL_TRANSFORM:
         type_node.methods = [(method.name, self.to_function_name(
             method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
         type_node.features = type_node.attributes + type_node.methods
-
-        # self.current_method = self.current_type.get_method('ctor_IO')
-        # type_name = self.current_type.name
-        # self.current_function = self.register_function(
-        #     self.to_function_name(self.current_method.name, type_name))
-        # self_local = self.register_param(VariableInfo("self", None))
-        # self.register_instruction(ReturnNode(self_local))
-        # self.current_method = self.current_function = None
 
         self.current_method = self.current_type.get_method('out_string')
         type_name = self.current_type.name
@@ -260,28 +263,29 @@ class BASE_COOL_CIL_TRANSFORM:
             method.name, xtype.name)) for method, xtype in self.current_type.all_methods()]
         type_node.features = type_node.attributes + type_node.methods
 
-        # self.current_method = self.current_type.get_method('ctor_Object')
-        # type_name = self.current_type.name
-        # self.current_function = self.register_function(
-        #     self.to_function_name(self.current_method.name, type_name))
-        # self_local = self.register_param(VariableInfo("self", None))
-        # self.register_instruction(ReturnNode(self_local))
-        # self.current_method = self.current_function = None
-
         self.current_method = self.current_type.get_method('abort')
         type_name = self.current_type.name
         self.current_function = self.register_function(
             self.to_function_name(self.current_method.name, type_name))
         self_local = self.register_param(VariableInfo('self', None))
         type_name = self.define_internal_local()
-        abort_msg = self.register_data("Abort called from class ").name
-        eol = self.register_data('\\n').name
-        msg = self.define_internal_local()
+        full_msg = self.define_internal_local()
+
+        abort = self.register_data("Abort called from class ")
+        eol = self.register_data('\n')
+
+        abort_msg = self.define_internal_local()
+        self.register_instruction(LoadNode(abort_msg, abort.name))
+
         msg_eol = self.define_internal_local()
-        self.register_instruction(TypeNameNode(type_name, self_local))
-        self.register_instruction(ConcatNode(msg, abort_msg, type_name))
-        self.register_instruction(ConcatNode(msg_eol, msg, eol))
-        self.register_instruction(PrintStrNode(msg_eol))
+        self.register_instruction(LoadNode(msg_eol, eol.name))
+
+        obj_type = self.define_internal_local()
+        self.register_instruction(TypeOfNode(self_local, obj_type))
+        self.register_instruction(TypeNameNode(type_name, obj_type))
+        self.register_instruction(ConcatNode(full_msg, abort_msg, type_name))
+        self.register_instruction(ConcatNode(full_msg, full_msg, msg_eol))
+        self.register_instruction(PrintStrNode(full_msg))
         self.register_instruction(AbortNode())
         self.current_method = self.current_function = None
 
