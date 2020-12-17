@@ -324,6 +324,14 @@ class CIL_TO_MIPS:
         self.mips.label(label)
         self.store_memory(reg.t1, node.dest)
 
+    @visitor.when(NotNode)
+    def visit(self, node: NotNode):
+        self.mips.comment("NotNode")
+        self.load_memory(reg.s0, node.expression)
+        self.mips.li(reg.s1, 1)
+        self.mips.sub(reg.s2, reg.s1, reg.s0)
+        self.store_memory(reg.s2, node.dest)
+
     @visitor.when(AllocateNode)
     def visit(self, node: AllocateNode):
         #   ----------
@@ -508,7 +516,8 @@ class CIL_TO_MIPS:
         self.mips.comment(f"TypeNameNode {node.dest} Type:{node.type}")
         self.load_memory(reg.t0, node.type)
         # ptr at 3rd position in memory ( 2 in base 0)
-        self.mips.load_memory(reg.t1, self.mips.offset(reg.t0, 2 * self.data_size))
+        self.mips.load_memory(
+            reg.t1, self.mips.offset(reg.t0, 2 * self.data_size))
         self.store_memory(reg.t1, node.dest)
 
     def get_string_length(self, src, dst):
