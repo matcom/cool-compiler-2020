@@ -198,7 +198,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         else:
             var_info = var_info.real_name
             self.register_instruction(AssignNode(var_info, expr))
-        return 0
+        return expr
 
     @visitor.when(cool.NewNode)
     def visit(self, node: cool.NewNode, scope):
