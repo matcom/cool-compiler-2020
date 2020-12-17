@@ -686,6 +686,29 @@ class CIL_TO_MIPS:
         self.mips.li(reg.a1, 1024)
         self.mips.read_string()
 
+        self.mips.empty_line()
+        self.mips.comment("Remove last character from string")
+
+        start = self.get_label()
+        end = self.get_label()
+
+        self.mips.label(start)
+        # load byte by byte
+        self.mips.lb(reg.s2, self.mips.offset(reg.a0))
+        # jump end if reached end line
+        self.mips.beq(reg.s2, 0, end)
+        # pointer += 1
+        self.mips.addi(reg.a0, reg.a0, 1)
+        self.mips.j(start)
+        self.mips.label(end)
+        # go back 1 position
+        self.mips.addi(reg.a0, reg.a0, -1)
+        # change /n to /0
+        self.mips.sb(reg.zero, self.mips.offset(reg.a0))
+
+
+
+
     @visitor.when(PrintStrNode)
     def visit(self, node: PrintStrNode):
         self.mips.comment(f"Print str {node.str_addr}")
