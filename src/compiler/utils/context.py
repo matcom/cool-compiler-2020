@@ -145,11 +145,13 @@ class globalContext:
         return interceptError(
                 validationFunc= lambda: not node.idName in self.types,
                 errorType= 'repeated class',
-                idName= node.idName
+                idName= node.idName,
+                row_and_col = (node.line, node.column)
             ) or interceptError (
                 validationFunc= lambda: node.idName != node.parent,
                 errorType= 'Inherit from itself',
-                idName= node.idName
+                idName= node.idName,
+                row_and_col = (node.line, node.column)
             )or self.types.update({
                             node.idName:
                                     Type (idName= node.idName,
@@ -158,34 +160,39 @@ class globalContext:
                                           parent= node.parent if node else 'Object')
                             })
 
-    def relateInheritance(self, idName : str, parent: str):
+    def relateInheritance(self, idName : str, parent: str, row_and_col):
         return interceptError(
             validationFunc= lambda: idName in self.types,
             errorType= 'undefined type',
-            idName= idName
+            idName= idName,
+            row_and_col= row_and_col
         )  or interceptError (
             validationFunc= lambda: self.types[idName].parent in 
             self.types,
             errorType= 'undefined type',
-            idName = self.types[idName].parent
+            idName= self.types[idName].parent,
+            row_and_col= row_and_col
         )  or interceptError(
             validationFunc= lambda: not self.types[parent].builtIn,
             errorType= 'built-in inheritance',
-            idName= idName
+            idName= idName,
+            row_and_col= row_and_col
         )  or interceptError(
             validationFunc= lambda: not self.isAncestor (
                 idChild= idName, idParent= parent),
             errorType= 'inheritance from child',
             idParent= parent,
-            idChild= idName
-        ) or not self.actualizeInherits(idName, parent)
+            idChild= idName,
+            row_and_col= row_and_col
+        ) or not self.actualizeInherits(idName, parent, row_and_col)
         
-    def actualizeInherits (self, idName, parentName):
+    def actualizeInherits (self, idName, parentName, row_and_col):
         for attr in self.types[parentName].attributes:
             result= self.actualizeInheritAttr(
                 idName= idName, 
                 childInfoAttr = self.types[idName].attributes.get(attr, None),
-                parentInfoAttr= self.types[parentName].attributes[attr])
+                parentInfoAttr= self.types[parentName].attributes[attr],
+                row_and_col = row_and_col)
             if type(result) is error:
                 return error
 
@@ -193,7 +200,8 @@ class globalContext:
             result = self.actualizeInheritAttr(
                 idName= idName,
                 childInfoAttr= self.types[idName].attributes.get(attr, None),
-                parentInfoAttr= self.types[parentName].inheritsAttr[attr]
+                parentInfoAttr= self.types[parentName].inheritsAttr[attr],
+                row_and_col = row_and_col
             )
             if type(result) is error:
                 return error
@@ -201,7 +209,8 @@ class globalContext:
             result = self.actualizeInheritMethod(
                 idName= idName,
                 childInfoMethod= self.types[idName].methods.get(method, None),
-                parentInfoMethod= self.types[parentName].methods[method]
+                parentInfoMethod= self.types[parentName].methods[method],
+                row_and_col = row_and_col
             )
             if type(result) is error:
                 return result
@@ -211,7 +220,8 @@ class globalContext:
             result = self.actualizeInheritMethod(
                 idName= idName, 
                 childInfoMethod= self.types[idName].methods.get(method, None),
-                parentInfoMethod= self.types[parentName].inheritsMethods[method]
+                parentInfoMethod= self.types[parentName].inheritsMethods[method],
+                row_and_col = row_and_col
             )
             if type(result) is error:
                 return result
@@ -221,7 +231,8 @@ class globalContext:
     def actualizeInheritMethod(self,
                                idName,
                                childInfoMethod: Method,
-                               parentInfoMethod: Method):
+                               parentInfoMethod: Method,
+                               row_and_col):
         return interceptError(
             validationFunc= lambda: not childInfoMethod or 
             childInfoMethod.returnType == parentInfoMethod.returnType and 
@@ -229,7 +240,8 @@ class globalContext:
             childInfoMethod.argTypes == parentInfoMethod.argTypes,
             errorType= 'bad redefine method',
             nameClass= idName,
-            methodName = childInfoMethod.idName if childInfoMethod else None
+            methodName = childInfoMethod.idName if childInfoMethod else None,
+            row_and_col= row_and_col
         )or self.types[idName].inheritsMethods.update({
             parentInfoMethod.idName: parentInfoMethod
         })
@@ -237,18 +249,19 @@ class globalContext:
     def actualizeInheritAttr(self,
             idName,
             childInfoAttr: Attribute,
-            parentInfoAttr: Attribute):
+            parentInfoAttr: Attribute,
+            row_and_col):
 
         return interceptError(
             validationFunc= lambda: not (childInfoAttr and childInfoAttr._type != parentInfoAttr._type),
             errorType= "bad redefine attr",
             nameClass= idName,
             attrName= childInfoAttr.idName if childInfoAttr else None,
-            attrType= childInfoAttr._type if childInfoAttr else None
+            attrType= childInfoAttr._type if childInfoAttr else None,
+            row_and_col= row_and_col
         ) or childInfoAttr or self.types[idName].inheritsAttr.update({
             parentInfoAttr.idName: parentInfoAttr
         })
-        
 
     def isAncestor(self, idChild: str, idParent: str):
 
@@ -260,11 +273,12 @@ class globalContext:
                 break
         return currentName == idChild
 
-    def getType(self, idName: str):
+    def getType(self, idName: str, row_and_col):
         return interceptError(
             validationFunc= lambda: idName in self.types,
             errorType= 'undefined type',
-            idName= idName
+            idName= idName,
+            row_and_col= row_and_col
         ) or self.types.get(idName)
 
     def defineAttrInType(self, typeName: str, attr: NodeAttr):
@@ -273,7 +287,8 @@ class globalContext:
                 validationFunc= lambda : not attr.idName in
                 self.types[typeName].attributes,
                 errorType= 'repeated attr',
-                idName= attr.idName
+                idName= attr.idName,
+                row_and_col= (attr.line, attr.column)
             ) or self.types[typeName].attributes.update({
                 attr.idName: Attribute(idName= attr.idName,
                                        _type= attr._type )
@@ -285,7 +300,8 @@ class globalContext:
             validationFunc= lambda: not node.idName in
             self.types[typeName].methods,
             errorType= 'repeated method',
-            idName= node.idName
+            idName= node.idName,
+            row_and_col= (node.line, node.column)
         ) or self.types[typeName].methods.update({
             node.idName: Method(idName= node.idName,
                                 returnType= node.returnType,
@@ -306,8 +322,7 @@ class globalContext:
         
 
     def checkDynamicDispatch(self, 
-                             typeName, method, arguments):
-        
+                             typeName, method, arguments, row_and_col):
         
         methodInfo = self.types[typeName].methods.get(method, None)
         if not methodInfo:
@@ -317,17 +332,18 @@ class globalContext:
                            and not self.isAncestor(arguments[i],
                                         methodInfo.argTypes[i])]
         
-        
         return interceptError(
             validationFunc= lambda : not methodInfo is None,
             errorType= 'undefined method in class',
             idName= method,
-            className= typeName 
+            className= typeName,
+            row_and_col= row_and_col
         ) or interceptError (
             validationFunc= lambda : notAncestorArgs == [],
             errorType= 'argument types in dispatch are not subtypes',
             idName= method,
-            badArgs= notAncestorArgs
+            badArgs= notAncestorArgs,
+            row_and_col= row_and_col
         ) or methodInfo.returnType
 
     
@@ -354,14 +370,16 @@ class globalContext:
         return interceptError(
             validationFunc= lambda : node.idName in environment,
             errorType='undefined symbol',
-            symbol= node.idName
+            symbol= node.idName,
+            row_and_col= (node.line, node.column)
         ) or interceptError(
             validationFunc= lambda : environment[node.idName]['type'] == _type
             or self.isAncestor(idChild=_type,
             idParent= environment[node.idName]['type']),
             errorType='uncompatible types',
             type1= environment[node.idName]['type'],
-            type2= _type
+            type2= _type,
+            row_and_col= (node.line, node.column)
             ) or environment[node.idName]['type']
         
     def checkReturnType(self, node: NodeClassMethod, typeExpr):
@@ -370,7 +388,8 @@ class globalContext:
             or self.isAncestor(idChild= typeExpr, idParent= node.returnType),
             errorType= 'uncompatible types',
             type1= node.returnType,
-            type2= typeExpr
+            type2= typeExpr,
+            row_and_col= (node.line, node.column)
         ) or typeExpr
     
     def searchValue(self, node: NodeObject, environment):
@@ -380,12 +399,19 @@ class globalContext:
                         errorType='undefined symbol',
                         symbolName= node.idName) or environment[node.idName]
 
-    def checkArithmetic(self, type1, type2):
+    def checkArithmetic(self, type1, type2, row_and_col):
         return interceptError(validationFunc= lambda: type1 == type2,
-                            errorType= 'uncompatible types',
+                            errorType= 'arithmetic fail',
                             type1= type1,
-                            type2= type2) or type1
+                            type2= type2,
+                            row_and_col= row_and_col) or type1
 
+    def checkEqualOp(self, type1, type2, row_and_col):
+        return interceptError(validationFunc= lambda: not (type1 or type2)
+                            in {'Int', 'Bool', 'String'} or type1 == type2,
+                            errorType= 'comparison fail',
+                            row_and_col = row_and_col) or self.types['Bool'].idName
+    
     def LCA(self, idName1, idName2):
         path1 = self.pathToObject( idName1)
         path2 = self.pathToObject( idName2)

@@ -1,5 +1,9 @@
 from json import dumps
 class Node:
+    def __init__(self, line = 0, column = 0):
+        self.line = line
+        self.column = column
+        
     @property
     def clsname(self):
         return str(self.__class__.__name__)
@@ -37,6 +41,7 @@ class Node:
 
 class NodeProgram(Node):
     def __init__(self, class_list):
+        super().__init__()
         self.class_list = class_list
 
     def to_tuple(self):
@@ -53,7 +58,9 @@ class NodeClassTuple(Node, tuple):
         self.classes = classes
 
 class NodeClass(Node):
-    def __init__(self, idName: str, methods, attributes, parent):
+    def __init__(self, idName: str, methods, attributes, parent, 
+                 line, column):
+        super().__init__(line= line, column= column)
         self.idName = idName
         self.methods = methods
         self.attributes = attributes
@@ -67,8 +74,8 @@ class NodeClass(Node):
             self.methods, self.attributes)
 
 class NodeFeature(Node):
-    def __init__(self):
-        super(NodeFeature, self).__init__()
+    def __init__(self, line, column):
+        super(NodeFeature, self).__init__(line= line, column= column)
 
 #No se si poner aqui una clase para heredar , que sea feature_class.
 #Tengo que ver si a futuro necesito iterar por los elementos de una clase
@@ -79,8 +86,10 @@ class NodeClassMethod(NodeFeature):
                 argNames,
                 argTypes,
                 returnType: str,
-                body):
-        super().__init__()
+                body,
+                line,
+                column):
+        super().__init__(line= line, column= column)
         self.idName = idName
         self.argNames = argNames
         self.returnType = returnType
@@ -94,15 +103,16 @@ class NodeClassMethod(NodeFeature):
             )
 
 class NodeAttr(NodeFeature):
-    def __init__(self, idName, _type, expr= None):
-        super().__init__()
+    def __init__(self, idName, _type,
+                line, column, expr= None):
+        super().__init__(line= line, column= column)
         self.idName = idName
         self._type = _type
         self.expr = expr
 
 class NodeFormalParam(NodeFeature):
-    def __init__(self, idName, param_type):
-        super().__init__()
+    def __init__(self, idName, param_type, line, column):
+        super().__init__(line= line, column= column)
         self.idName = idName
         self.paramType = param_type
 
@@ -118,8 +128,8 @@ class NodeFormalParam(NodeFeature):
         self.idName, self.paramType)
 
 class NodeObject(Node):
-    def __init__(self, idName):
-        super().__init__()
+    def __init__(self, idName, line, column):
+        super().__init__(line= line, column= column)
         self.idName = idName
 
     def to_tuple(self):
@@ -132,8 +142,8 @@ class NodeObject(Node):
         return "{}(name='{}')".format(self.clsname, self.idName)
 
 class NodeSelf(NodeObject):
-    def __init__(self):
-        super().__init__("SELF")
+    def __init__(self, line, column):
+        super().__init__(idName= "SELF", line= line, column= column)
 
     def to_tuple(self):
         return tuple([
@@ -145,13 +155,13 @@ class NodeSelf(NodeObject):
 
 
 class NodeConstant(Node):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, line, column):
+        super().__init__(line= line, column= column)
 
 
 class NodeInteger(NodeConstant):
-    def __init__(self, content):
-        super().__init__()
+    def __init__(self, content, line, column):
+        super().__init__(line= line, column= column)
         self.content = content
 
     def to_tuple(self):
@@ -165,8 +175,8 @@ class NodeInteger(NodeConstant):
     
 
 class NodeBoolean(NodeConstant):
-    def __init__(self, content):
-        super().__init__()
+    def __init__(self, content, line, column):
+        super().__init__(line= line, column= column)
         self.content = content
 
     def to_tuple(self):
@@ -179,8 +189,8 @@ class NodeBoolean(NodeConstant):
         return "{}(content={})".format(self.clsname, self.content)
 
 class NodeString(NodeConstant):
-    def __init__(self, content):
-        super().__init__()
+    def __init__(self, content, line, column):
+        super().__init__(line= line, column= column)
         self.content = content
 
     def to_tuple(self):
@@ -195,13 +205,13 @@ class NodeString(NodeConstant):
 # Cada expresión debe tener una función de evaluación asociada.
 # Con un valor de retorno x.
 class NodeExpr(Node):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, line, column):
+        super().__init__(line= line, column= column)
 
 
 class NodeNewObject(NodeExpr):
-    def __init__(self, new_type):
-        super().__init__()
+    def __init__(self, new_type, line, column):
+        super().__init__(line= line, column= column)
         self.type = new_type
 
     def to_tuple(self):
@@ -215,8 +225,8 @@ class NodeNewObject(NodeExpr):
 
 
 class NodeIsVoid(NodeExpr):
-    def __init__(self, expr):
-        super().__init__()
+    def __init__(self, expr, line, column):
+        super().__init__(line= line, column= column)
 
 
     def to_tuple(self):
@@ -230,8 +240,8 @@ class NodeIsVoid(NodeExpr):
 
 
 class NodeAssignment(NodeExpr):
-    def __init__(self, idName, expr):
-        super().__init__()
+    def __init__(self, idName, expr, line, column):
+        super().__init__(line= line, column= column)
         self.idName = idName
         self.expr = expr
 
@@ -248,8 +258,8 @@ class NodeAssignment(NodeExpr):
 
 
 class NodeBlock(NodeExpr):
-    def __init__(self, expr_list):
-        super().__init__()
+    def __init__(self, expr_list, line, column):
+        super().__init__(line = line, column = column)
         self.expr_list = expr_list
 
     def to_tuple(self):
@@ -263,8 +273,8 @@ class NodeBlock(NodeExpr):
 
 
 class NodeDynamicDispatch(NodeExpr):
-    def __init__(self, expr, method, arguments):
-        super().__init__()
+    def __init__(self, expr, method, arguments, line, column):
+        super().__init__(line= line, column= column)
         self.expr = expr
         self.method = method
         self.arguments = arguments if arguments is not None else tuple()
@@ -283,8 +293,10 @@ class NodeDynamicDispatch(NodeExpr):
 
 
 class NodeStaticDispatch(NodeExpr):
-    def __init__(self, expr, dispatch_type, method, arguments):
-        super().__init__()
+    def __init__(self,
+                 expr,
+                 dispatch_type, method, arguments, line, column):
+        super().__init__(line= line, column= column)
         self.expr = expr
         self.dispatch_type = dispatch_type
         self.method = method
@@ -306,8 +318,8 @@ class NodeStaticDispatch(NodeExpr):
 
 
 class NodeLetComplex(NodeExpr):
-    def __init__(self, nested_lets, body):
-        super().__init__()
+    def __init__(self, nested_lets, body, line, column):
+        super().__init__(line= line, column= column)
         self.nestedLets= nested_lets if type(nested_lets) is list else [nested_lets]
         self.body= body
 
@@ -324,8 +336,8 @@ class NodeLetComplex(NodeExpr):
 
 
 class NodeLet(NodeExpr):
-    def __init__(self, idName, returnType, body):
-        super().__init__()
+    def __init__(self, idName, returnType, body, line, column):
+        super().__init__(line= line, column= column)
         self.idName= idName
         self.type= returnType
         self.body= body
@@ -346,8 +358,8 @@ class NodeLet(NodeExpr):
 
 
 class NodeIf(NodeExpr):
-    def __init__(self, predicate, then_body, else_body):
-        super().__init__()
+    def __init__(self, predicate, then_body, else_body, line, column):
+        super().__init__(line= line, column= column)
         self.predicate = predicate
         self.then_body = then_body
         self.else_body = else_body
@@ -366,8 +378,8 @@ class NodeIf(NodeExpr):
 
 
 class NodeWhileLoop(NodeExpr):
-    def __init__(self, predicate, body):
-        super().__init__()
+    def __init__(self, predicate, body, line, column):
+        super().__init__(line= line, column= column)
         self.predicate = predicate
         self.body = body
 
@@ -384,8 +396,8 @@ class NodeWhileLoop(NodeExpr):
 
 
 class NodeCase(NodeExpr):
-    def __init__(self, expr, actions):
-        super().__init__()
+    def __init__(self, expr, actions, line, column):
+        super().__init__(line= line, column= column)
         self.expr = expr
         self.actions = actions
 
@@ -405,12 +417,12 @@ class NodeCase(NodeExpr):
 
 
 class NodeUnaryOperation(NodeExpr):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, line, column):
+        super().__init__(line= line, column= column)
 
 class NodeIntegerComplement(NodeUnaryOperation):
-    def __init__(self, integer_expr):
-        super().__init__()
+    def __init__(self, integer_expr, line, column):
+        super().__init__(line= line, column= column)
         self.symbol = "~"
         self.integer_expr = integer_expr
 
@@ -425,8 +437,8 @@ class NodeIntegerComplement(NodeUnaryOperation):
 
 
 class NodeBooleanComplement(NodeUnaryOperation):
-    def __init__(self, boolean_expr):
-        super().__init__()
+    def __init__(self, boolean_expr, line, column):
+        super().__init__(line= line, column= column)
         self.symbol = "!"
         self.boolean_expr = boolean_expr
 
@@ -442,13 +454,13 @@ class NodeBooleanComplement(NodeUnaryOperation):
 # ############################## BINARY OPERATIONS ##################################
 
 class NodeBinaryOperation(NodeExpr):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, line, column):
+        super().__init__(line= line, column= column)
         self.type= ''
 
 class NodeAddition(NodeBinaryOperation):
-    def __init__(self, first, second):
-        super().__init__()
+    def __init__(self, first, second, line, column):
+        super().__init__(line= line, column= column)
         self.symbol = "+"
         self.first = first
         self.second = second
@@ -466,8 +478,8 @@ class NodeAddition(NodeBinaryOperation):
 
 
 class NodeSubtraction(NodeBinaryOperation):
-    def __init__(self, first, second):
-        super().__init__()
+    def __init__(self, first, second, line, column):
+        super().__init__(line= line, column= column)
         self.symbol = "-"
         self.first = first
         self.second = second
@@ -485,8 +497,8 @@ class NodeSubtraction(NodeBinaryOperation):
 
 
 class NodeMultiplication(NodeBinaryOperation):
-    def __init__(self, first, second):
-        super().__init__()
+    def __init__(self, first, second, line, column):
+        super().__init__(line= line, column= column)
         self.symbol = "*"
         self.first = first
         self.second = second
@@ -504,8 +516,8 @@ class NodeMultiplication(NodeBinaryOperation):
 
 
 class NodeDivision(NodeBinaryOperation):
-    def __init__(self, first, second):
-        super().__init__()
+    def __init__(self, first, second, line, column):
+        super().__init__(line= line, column= column)
         self.symbol = "/"
         self.first = first
         self.second = second
@@ -523,8 +535,8 @@ class NodeDivision(NodeBinaryOperation):
 
 
 class NodeEqual(NodeBinaryOperation):
-    def __init__(self, first, second):
-        super().__init__()
+    def __init__(self, first, second, line, column):
+        super().__init__(line= line, column= column)
         self.symbol = "="
         self.first = first
         self.second = second
@@ -542,8 +554,8 @@ class NodeEqual(NodeBinaryOperation):
 
 
 class NodeLessThan(NodeBinaryOperation):
-    def __init__(self, first, second):
-        super().__init__()
+    def __init__(self, first, second, line, column):
+        super().__init__(line= line, column= column)
         self.symbol = "<"
         self.first = first
         self.second = second
@@ -561,8 +573,8 @@ class NodeLessThan(NodeBinaryOperation):
 
 
 class NodeLessThanOrEqual(NodeBinaryOperation):
-    def __init__(self, first, second):
-        super().__init__()
+    def __init__(self, first, second, line, column):
+        super().__init__(line= line, column= column)
         self.symbol = "<="
         self.first = first
         self.second = second
@@ -579,4 +591,4 @@ class NodeLessThanOrEqual(NodeBinaryOperation):
         self.first, self.second)
 
 
-#### A special class for instantiation
+

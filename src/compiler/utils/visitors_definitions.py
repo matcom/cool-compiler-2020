@@ -13,7 +13,7 @@ class NodeVisitor:
         
         return visitor(node, **args) # Return the new context result from the visit
 
-    def not_implemented(self, node: Node):
+    def not_implemented(self, node: Node, **args):
         raise Exception('Not implemented visit_{} method'.format(node.clsname))
 
 # We need to highlight here the inheritance relations between classes
@@ -21,30 +21,34 @@ class TypeCollectorVisitor(NodeVisitor):
 
     def visit_NodeProgram(self, node: NodeProgram):
         errors = []
+        line_and_col = {}
         for nodeClass in node.class_list:
-            
+            line_and_col.update({
+                nodeClass.idName: (nodeClass.line, nodeClass.column)
+            })
             result= self.visit(nodeClass)
             if result:
                 errors.append(result)
-        return errors
+        return errors, line_and_col
 
     def visit_NodeClass(self, node: NodeClass):
         # When we create a type, we store it in the context, if there is no errors
         return programContext.createType(node)
 
 class TypeInheritanceVisitor(NodeVisitor):
-    def visit_NodeProgram(self, node: NodeProgram):
+    def visit_NodeProgram(self, node: NodeProgram, line_and_col_dict):
         errors = []
         for _type in programContext.types:
             if _type != 'Object':
-                result = self.visitForInherit(_type)
+                result = self.visitForInherit(_type, 
+                                    line_and_col_dict.get(_type, (0,0)))
                 if type (result) is error:
                     errors.append(result)
         return errors
 
-    def visitForInherit(self, _type: str):
+    def visitForInherit(self, _type: str, line_and_col):
         return programContext.relateInheritance(_type,
-        programContext.types[_type].parent)
+        programContext.types[_type].parent, line_and_col)
 
 class TypeBuilderVisitor(NodeVisitor):
     def __init__(self):
@@ -77,7 +81,7 @@ class TypeBuilderVisitor(NodeVisitor):
 
     def visit_NodeClassMethod(self, node: NodeClassMethod):
         return [definition for definition in
-        [programContext.getType(node.returnType)] +
+        [programContext.getType(node.returnType, (node.line, node.column))] +
         [programContext.getType(idName = arg) for arg in node.argTypes] +
         [programContext.defineMethod(
             typeName = self.currentTypeName,
@@ -187,14 +191,25 @@ class TypeCheckerVisitor(NodeVisitor):
         if type (typeSecondExpr) is error:
             return typeSecondExpr
 
-        return programContext.checkArithmetic(typeFirstExpr,
-                                          typeSecondExpr)
+        if type(node) in {NodeAddition,
+                          NodeSubtraction,
+                          NodeDivision,
+                          NodeMultiplication}:
+            
+            return programContext.checkArithmetic(typeFirstExpr,
+                                          typeSecondExpr,
+                                          (node.line, node.column))
         
+        if type(node) is NodeEqual:
+            return programContext.checkEqualOp(typeFirstExpr,
+                                               typeSecondExpr,
+                                               (node.line, node.column))
         
     def visit_NodeNewObject(self, node: NodeNewObject, **kwargs):
-        result = programContext.getType(node.type)
+        result = programContext.getType(node.type,
+                                        row_and_col=(node.line, node.column))
         if type(result) is error:
-            return result 
+            return result
         return node.type
         
     def visit_NodeExpr(self,
@@ -205,8 +220,18 @@ class TypeCheckerVisitor(NodeVisitor):
         
     def visit_NodeInteger(self, 
                           node: NodeInteger,
-                          **args):
+                          **kwargs):
         return 'Int'
+    
+    def visit_NodeBoolean(self,
+                         node: NodeBoolean,
+                         **kwargs):
+        return 'Bool'
+    
+    def visit_NodeBooleanComplement(self,
+                                    node: NodeBooleanComplement,
+                                    **kwargs):
+        return 'Bool'
     
     def visit_NodeObject(self,
                          node: NodeObject,
@@ -232,7 +257,7 @@ class TypeCheckerVisitor(NodeVisitor):
             argTypes.append(currenttypeExpr)
         
         return programContext.checkDynamicDispatch(typeExpr,
-        node.method, argTypes)
+        node.method, argTypes, (node.line, node.column))
 
     def visit_NodeSelf(self, node: NodeSelf, environment):
         return environment['wrapperType']
