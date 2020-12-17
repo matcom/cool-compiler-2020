@@ -177,7 +177,7 @@ class CIL_FORMATTER(object):
 
     @visitor.when(VoidNode)
     def visit(self, node: VoidNode):
-        return f'VOID'
+        return f'{node.dest} = VOID'
 
     @visitor.when(ConformsNode)
     def visit(self, node: ConformsNode):

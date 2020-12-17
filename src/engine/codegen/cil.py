@@ -305,9 +305,7 @@ class BASE_COOL_CIL_TRANSFORM:
             self.to_function_name(self.current_method.name, type_name))
         self_local = self.register_param(VariableInfo('self', None))
         type_name_inst = self.define_internal_local()
-        obj_type = self.define_internal_local()
-        self.register_instruction(TypeOfNode(self_local, obj_type))
-        self.register_instruction(TypeNameNode(type_name_inst, obj_type))
+        self.register_instruction(TypeNameNode(type_name_inst, self_local))
         self.register_instruction(ReturnNode(type_name_inst))
         self.current_method = self.current_function = None
         self.current_type = None
