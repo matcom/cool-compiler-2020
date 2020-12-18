@@ -249,9 +249,11 @@ class CIL_TO_MIPS:
 
     @visitor.when(ComplementNode)
     def visit(self, node: ComplementNode):
-        self.load_memory(reg.t0, node.expression)
-        self.mips.nor(reg.t1, reg.t0, reg.t0)
-        self.store_memory(reg.t1, node.dest)
+        self.load_memory(reg.s0, node.expression)
+        self.mips.li(reg.s1, -1)
+        self.mips.mult(reg.s0, reg.s1)
+        self.mips.mflo(reg.s0)
+        self.store_memory(reg.s0, node.dest)
 
     @visitor.when(PlusNode)
     def visit(self, node: PlusNode):
@@ -744,14 +746,15 @@ class CIL_TO_MIPS:
 
     @visitor.when(ConformsNode)
     def visit(self, node: ConformsNode):
-        self.mips.comment(f"Conforms Node {node.dest} = {node.type} {node.expr}")
+        self.mips.comment(
+            f"Conforms Node {node.dest} = {node.type} {node.expr}")
         _id = self.global_descriptor.Types[node.type].id
         self.load_memory(reg.s0, node.expr)
         self.mips.load_memory(reg.s1, self.mips.offset(reg.s0))
         self.mips.empty_line()
-        
+
         self.mips.li(reg.s2, _id)
- 
+
         one = self.get_label()
         end = self.get_label()
 
@@ -762,5 +765,3 @@ class CIL_TO_MIPS:
         self.mips.li(reg.s3, 1)
         self.store_memory(reg.s3, node.dest)
         self.mips.label(end)
-        
-
