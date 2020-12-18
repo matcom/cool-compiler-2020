@@ -85,8 +85,7 @@ class pyCoolParser:
         feature : ID LPAREN formal_params_list RPAREN COLON TYPE LBRACE expression RBRACE
         """
         p[0] = NodeClassMethod(idName=p[1],
-        argNames = [ x.idName for x in p[3] ],
-        argTypes = [ x.paramType for x in p[3] ],
+        formal_param_list= p[3],
         returnType=p[6],
         body=p[8],
         line= p.slice[1].lineno,
@@ -97,8 +96,7 @@ class pyCoolParser:
         feature : ID LPAREN RPAREN COLON TYPE LBRACE expression RBRACE
         """
         p[0] = NodeClassMethod(idName=p[1], 
-                               argNames = [], 
-                               argTypes = [], 
+                               formal_param_list= [],
                                returnType=p[5], 
                                body=p[7], 
                                line= p.slice[1].lineno, 
