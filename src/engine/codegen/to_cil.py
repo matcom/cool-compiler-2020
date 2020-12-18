@@ -382,7 +382,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             self.register_instruction(AssignNode(var_info.real_name, value))
         else:
             node = cool.NewNode(node.type)
-            new_instance = self.visit(node)
+            new_instance = self.visit(node, scope)
             self.register_instruction(AssignNode(
                 var_info.real_name, new_instance))
 
