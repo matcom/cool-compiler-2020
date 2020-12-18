@@ -82,7 +82,7 @@ class TypeBuilderVisitor(NodeVisitor):
     def visit_NodeClassMethod(self, node: NodeClassMethod):
         return [definition for definition in
         [programContext.getType(node.returnType, (node.line, node.column))] +
-        [programContext.getType(idName = arg) for arg in node.argTypes] +
+        [programContext.getType(idName = formal_param._type, row_and_col= (formal_param.line, formal_param.column)) for formal_param in node.formal_param_list] +
         [programContext.defineMethod(
             typeName = self.currentTypeName,
             node= node
@@ -100,35 +100,31 @@ class TypeCheckerVisitor(NodeVisitor):
         errors = []
         for nodeClass in node.class_list:
             environment = programContext.buildEnv (typeName= nodeClass.idName)
-            errors += self.visit(nodeClass, environment= environment)
+            errors += self.visit(nodeClass, previousEnv= environment)
             
         return errors
 
-    def visit_NodeClass(self, node: NodeClass, environment):
+    def visit_NodeClass(self, node: NodeClass, previousEnv):
         errors = []
         for nodeAttr in node.attributes:
-            result= self.visit(nodeAttr, environment= environment)
+            result= self.visit(nodeAttr, previousEnv= previousEnv)
             if type(result) is error:
                 errors.append(result)
             
         
         for nodeClassMethod in node.methods:
-            result= self.visit(nodeClassMethod, environment= environment)
+            result= self.visit(nodeClassMethod, previousEnv= previousEnv)
             if type(result) is error:
                 errors.append(result)
         
         return errors
 
-    def visit_NodeClassMethod(self, node: NodeClassMethod, environment):
-        for i in range(len(node.argNames)):
-            environment.update( {
-                node.argNames[i]: node.argTypes[i]
-            })
+    def visit_NodeClassMethod(self, node: NodeClassMethod, previousEnv):
+        newEnv = programContext.buildEnvForMethod(node, previousEnv)
+        if type(newEnv) is error:
+            return newEnv
         
-        typeResult = self.visit(node.body, environment= environment)
-
-        for i in range(len(node.argNames)):
-            environment.popitem()
+        typeResult = self.visit(node.body, previousEnv= newEnv)
 
         if type(typeResult) is error:
             return typeResult
@@ -138,52 +134,63 @@ class TypeCheckerVisitor(NodeVisitor):
     def visit_NodeString(self, node: NodeString, **kwargs):
         return 'String'
         
-    def visit_NodeAttr(self, node: NodeAttr, environment):
+    def visit_NodeAttr(self, node: NodeAttr, previousEnv):
         return self.visit(node.expr, 
-                          environment= environment)
+                          previousEnv= previousEnv)
         
     def visit_NodeLetComplex(self,
                              node: NodeLetComplex,
-                             environment):
+                             previousEnv: dict):
         
         for nodeLet in node.nestedLets:
+            newEnv= previousEnv.copy()
             result= self.visit(nodeLet, 
-                               environment= environment)
+                               previousEnv= newEnv)
             if type(result) is error:
                 return result
-            environment.update({
+            newEnv.update({
                 nodeLet.idName: result
             })
 
         result= self.visit( node.body,
-                           environment= environment)
-        for i in range(len(node.nestedLets)):
-            environment.popitem()
+                           previousEnv= newEnv)
+        
         return result
 
-    def visit_NodeLet(self, node: NodeLet, environment):
+    def visit_NodeLet(self, node: NodeLet, previousEnv):
         errors= []
-        return self.visit(node.body, 
-                               environment= environment)
+        exprType= self.visit(node.body,
+                               previousEnv= previousEnv)
+        if type(exprType) is error:
+            return exprType
         
+        previousEnv.update( {
+            node.idName: node.type
+        })
+        return programContext.checkAssign(node.idName,
+                                          previousEnv[node.idName],
+                                          exprType,
+                                          (node.body.line, node.body.column))
+                
     def visit_NodeAssignment(self, node: NodeAssignment,
-                             environment):
-        result = self.visit(node.expr, environment= environment)
+                             previousEnv):
+        
+        result = self.visit(node.expr, previousEnv= previousEnv)
         
         if type(result) is error:
             return result
-        return programContext.checkAssign(node, result, environment)
+        return programContext.checkAssign(node, result, previousEnv)
     
     def visit_NodeBinaryOperation(self,
                                   node: NodeBinaryOperation, 
-                                  environment):
+                                  previousEnv):
         
         
         typeFirstExpr= self.visit(node.first, 
-                                    environment= environment)
+                                    previousEnv= previousEnv)
         
         typeSecondExpr= self.visit(node.second, 
-                                     environment= environment)
+                                     previousEnv= previousEnv)
        
         if type (typeFirstExpr) is error:
             return typeFirstExpr
@@ -214,8 +221,8 @@ class TypeCheckerVisitor(NodeVisitor):
         
     def visit_NodeExpr(self,
                        node: NodeExpr,
-                       environment):
-        return self.visit(node, environment= environment)
+                       previousEnv):
+        return self.visit(node, previousEnv= previousEnv)
         
         
     def visit_NodeInteger(self, 
@@ -235,23 +242,23 @@ class TypeCheckerVisitor(NodeVisitor):
     
     def visit_NodeObject(self,
                          node: NodeObject,
-                         environment):
+                         previousEnv):
         
         return programContext.searchValue(node,
-                                          environment)
+                                          previousEnv)
         
     def visit_NodeDynamicDispatch(self,
                                   node: NodeDynamicDispatch, 
-                                  environment):
+                                  previousEnv):
         
         typeExpr= self.visit(node.expr,
-                                environment= environment)
+                                previousEnv= previousEnv)
         if type (typeExpr) is error:
             return typeExpr
         argTypes = []
         for arg in node.arguments:
             currenttypeExpr= self.visit(arg,
-                    environment= environment)
+                    previousEnv= previousEnv)
             if type (currenttypeExpr) is error:
                 return currenttypeExpr
             argTypes.append(currenttypeExpr)
@@ -259,6 +266,6 @@ class TypeCheckerVisitor(NodeVisitor):
         return programContext.checkDynamicDispatch(typeExpr,
         node.method, argTypes, (node.line, node.column))
 
-    def visit_NodeSelf(self, node: NodeSelf, environment):
-        return environment['wrapperType']
+    def visit_NodeSelf(self, node: NodeSelf, previousEnv):
+        return previousEnv['wrapperType']
         

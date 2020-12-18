@@ -305,21 +305,9 @@ class globalContext:
         ) or self.types[typeName].methods.update({
             node.idName: Method(idName= node.idName,
                                 returnType= node.returnType,
-                                argNames= node.argNames,
-                                argTypes= node.argTypes)    
+                                argNames=  [f.idName for f in node.formal_param_list] ,
+                                argTypes= [f._type for f in node.formal_param_list])    
         })
-        
-    
-
-    def createContextForLetExpr(self, node: NodeLet, chainOfNames):
-        return not self.letsExpr.update({
-            chainOfNames:
-                ContextLet(chainBefore= chainOfNames,
-                           objectId= node.idName,
-                           typeObject= node.type,
-                           value= None)
-        })
-        
 
     def checkDynamicDispatch(self, 
                              typeName, method, arguments, row_and_col):
@@ -365,22 +353,30 @@ class globalContext:
         d.update({'wrapperType': typeName})
         return d
     
-    def checkAssign(self, node, _type, environment):
-        
+    def buildEnvForMethod(self, node: NodeClassMethod, previousEnv):
+        newEnv = previousEnv.copy()
+        newEnv.update({ f.idName: f._type
+                        for f in node.formal_param_list })
+        badFormalParam = next((f for f in node.formal_param_list
+                           if f.idName == 'self'), None)
         return interceptError(
-            validationFunc= lambda : node.idName in environment,
-            errorType='undefined symbol',
-            symbol= node.idName,
-            row_and_col= (node.line, node.column)
-        ) or interceptError(
-            validationFunc= lambda : environment[node.idName]['type'] == _type
-            or self.isAncestor(idChild=_type,
-            idParent= environment[node.idName]['type']),
-            errorType='uncompatible types',
-            type1= environment[node.idName]['type'],
+            validationFunc= lambda : not badFormalParam,
+            errorType='self parameter',
+            row_and_col= (badFormalParam.line, badFormalParam.column) if badFormalParam else  (0,0)
+        )or newEnv
+    
+    def checkAssign(self, nameObject, node_type, _type, row_and_col):
+        
+        return  interceptError(
+            validationFunc= lambda : node_type == _type
+            or self.isAncestor(idChild= node_type,
+            idParent= _type),
+            errorType='uncompatible assing',
+            idName= nameObject,
+            type1= node_type,
             type2= _type,
-            row_and_col= (node.line, node.column)
-            ) or environment[node.idName]['type']
+            row_and_col= row_and_col
+            ) or node_type
         
     def checkReturnType(self, node: NodeClassMethod, typeExpr):
         return interceptError(
