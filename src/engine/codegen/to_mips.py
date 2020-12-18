@@ -324,6 +324,14 @@ class CIL_TO_MIPS:
         self.mips.label(label)
         self.store_memory(reg.t1, node.dest)
 
+    @visitor.when(NotNode)
+    def visit(self, node: NotNode):
+        self.mips.comment("NotNode")
+        self.load_memory(reg.s0, node.expression)
+        self.mips.li(reg.s1, 1)
+        self.mips.sub(reg.s2, reg.s1, reg.s0)
+        self.store_memory(reg.s2, node.dest)
+
     @visitor.when(AllocateNode)
     def visit(self, node: AllocateNode):
         #   ----------
@@ -508,7 +516,8 @@ class CIL_TO_MIPS:
         self.mips.comment(f"TypeNameNode {node.dest} Type:{node.type}")
         self.load_memory(reg.t0, node.type)
         # ptr at 3rd position in memory ( 2 in base 0)
-        self.mips.load_memory(reg.t1, self.mips.offset(reg.t0, 2 * self.data_size))
+        self.mips.load_memory(
+            reg.t1, self.mips.offset(reg.t0, 2 * self.data_size))
         self.store_memory(reg.t1, node.dest)
 
     def get_string_length(self, src, dst):
@@ -562,6 +571,7 @@ class CIL_TO_MIPS:
 
     @visitor.when(ConcatNode)
     def visit(self, node: ConcatNode):
+
         self.load_memory(reg.s0, node.msg1)
         self.load_memory(reg.s1, node.msg2)
 
@@ -569,6 +579,7 @@ class CIL_TO_MIPS:
         self.get_string_length(reg.s1, reg.s5)
 
         self.mips.add(reg.a0, reg.s4, reg.s5)
+        self.mips.addi(reg.a0, reg.a0, 1)
         self.mips.sbrk()
         self.mips.move(reg.s3, reg.v0)
 
@@ -587,8 +598,8 @@ class CIL_TO_MIPS:
         loop_label = self.get_label()
         self.load_memory(reg.s0, node.msg1)
 
-        self.mips.move(reg.a0, reg.s0)
-        self.mips.syscall(1)
+        # self.mips.move(reg.a0, reg.s0)
+        # self.mips.syscall(1)
 
         self.load_memory(reg.s1, node.msg2)
 
@@ -656,6 +667,7 @@ class CIL_TO_MIPS:
 
     @visitor.when(SubstringNode)
     def visit(self, node):
+
         self.load_memory(reg.s0, node.msg1)
         self.load_memory(reg.s1, node.length)
         self.load_memory(reg.s3, node.start)
@@ -663,6 +675,7 @@ class CIL_TO_MIPS:
         self.mips.add(reg.s0, reg.s0, reg.s3)
 
         self.mips.move(reg.a0, reg.s1)
+        self.mips.addi(reg.a0, reg.a0, 1)
         self.mips.sbrk()
         self.copy_substr(reg.s0, reg.v0, reg.s1)
 
@@ -676,6 +689,31 @@ class CIL_TO_MIPS:
         self.store_memory(reg.v0, node.dest)
         self.mips.li(reg.a1, 1024)
         self.mips.read_string()
+
+        self.mips.empty_line()
+        self.mips.comment("Remove last character from string")
+
+        start = self.get_label()
+        end = self.get_label()
+        second_end = self.get_label()
+
+        self.mips.label(start)
+        # load byte by byte
+        self.mips.lb(reg.s2, self.mips.offset(reg.a0))
+        # jump end if reached end line
+        self.mips.beq(reg.s2, 0, end)
+        # pointer += 1
+        self.mips.addi(reg.a0, reg.a0, 1)
+        self.mips.j(start)
+        self.mips.label(end)
+        # go back 1 position
+        self.mips.addi(reg.a0, reg.a0, -1)
+        self.mips.lb(reg.s3, self.mips.offset(reg.a0))
+        self.mips.li(reg.s4, 10)
+        self.mips.bne(reg.s3, reg.s4, second_end)
+        # change /n to /0
+        self.mips.sb(reg.zero, self.mips.offset(reg.a0))
+        self.mips.label(second_end)
 
     @visitor.when(PrintStrNode)
     def visit(self, node: PrintStrNode):
@@ -705,3 +743,24 @@ class CIL_TO_MIPS:
     @visitor.when(VoidNode)
     def visit(self, node: VoidNode):
         self.store_memory(reg.zero, node.dest)
+
+    @visitor.when(ConformsNode)
+    def visit(self, node: ConformsNode):
+        self.mips.comment(f"Conforms Node {node.dest} = {node.type} {node.expr}")
+        _id = self.global_descriptor.Types[node.type].id
+        self.load_memory(reg.s0, node.expr)
+        self.mips.empty_line()
+        
+        self.mips.li(reg.s2, _id)
+        self.mips.subu(reg.s3, reg.s2, reg.s1)
+        one = self.get_label()
+        end = self.get_label()
+        self.mips.beq(reg.s3, reg.zero, one)
+        self.store_memory(reg.zero, node.dest)
+        self.mips.j(end)
+        self.mips.label(one)
+        self.mips.li(reg.s3, 1)
+        self.store_memory(reg.s3, node.dest)
+        self.mips.label(end)
+        
+
