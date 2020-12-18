@@ -52,7 +52,7 @@
 % Autores
 %-----------------------------------------------------------------------------------
 \author{\\
-	\name  Jorge Daniel Valle Días \email \href{mailto:jorge.valle@estudiantes.matcom.uh.cu}{jorge.valle@estudiantes.matcom.uh.cu}
+	\name  Jorge Daniel Valle Díaz \email \href{mailto:jorge.valle@estudiantes.matcom.uh.cu}{jorge.valle@estudiantes.matcom.uh.cu}
 	\\ \addr Grupo C412 \AND
 	\name Leonel Alejandro Garc\'ia L\'opez \email \href{mailto:l.garcia3@estudiantes.matcom.uh.cu}{l.garcia3@estudiantes.matcom.uh.cu}
 	\\ \addr Grupo C412 \AND
@@ -69,7 +69,7 @@ Msc. Alejandro Piad Morffis, \emph{Facultad de Matemática y Computación, Unive
 %-----------------------------------------------------------------------------------
 % Headings
 %-----------------------------------------------------------------------------------
-\jcematcomheading{\the\year}{1-\pageref{end}}{Jorge Daniel Valle Días, Leonel Alejandro Garc\'ia L\'opez, Roberto Marti Cede\~no}
+\jcematcomheading{\the\year}{1-\pageref{end}}{Jorge Daniel Valle Díaz, Leonel Alejandro Garc\'ia L\'opez, Roberto Marti Cede\~no}
 
 %-----------------------------------------------------------------------------------
 \ShortHeadings{Ejemplo JCE}{Autores}
@@ -166,9 +166,30 @@ El equipo decidió realizar una representación intermedia del lenguaje cool ant
 
 \subsection{Código intermedio}
 	
- Cuarto recorrido del ast, en el cual se conforma la representación del árbol de código intermedio de cool. En el mismo nos dimos a la tarea de simplificar la complejidad de cool para llevarlo a mips sin mucha dificultad. Entre las transformaciones no evidente las siguientes:
+ Del AST obtenido en las fases anteriores, en un cuarto recorrido se realizó una transformación hacia un AST de  CIL  que facilitara que el comportamiento obtenido en  COOL  sea mas factible a un representacion en MIPS.
+ Aqui existio una vez mas apoyo en los elementos de clase practica, al contar con un transpliador base para definir todas la convenciones tomadas, asi como contener los metodos necesarios para dicha conversion.
+ En esta fase surgió la necesidad de resolver  un conjunto de escpecificaciones como son: 
+
+ Es también en esta fase donde se da por fin una implementación real a los tipos y
+ funciones básicas definidas por el lenguaje. Estas hacen uso de nodos especiales
+ del AST que solo son instanciadas para su uso desde  COOL a través de las funciones
+ básicas. Ejemplo son los métodos para la entrada y salida de datos brindada por la
+ clase  IO . Con estas estructuras definidas en el AST de  CIL , durante la traducción a
+ MIPS , ellas serán generadas automáticamente.
 	\begin{itemize}
 		\item \textbf{Relacionado a la herencia} mantenemos como tipos de cil como el conjunto de atributos de los respectivos en cool pero con los de sus antecesores en la jerarqu\'ia de tipos(los m\'etodos y la tabla virtual queda para resolverse en mips)
+		\item \textbf{De los tipos por valor} El problema de los tipos por valor  Int y	Bool, y de los  Strings como casos especiales, al ser usados como un objeto por referencia. Para esto se definió una representación en memorias para los casos en
+		que esto ocurriera. Todos estos tipos cuando fuera necesario tratarlos como objetos
+		por referencias, para por ejemplo acceder a las funciones heredadas de la clase
+		Object o las propiamente definidas por el tipo String , serían encapsulados en
+		instancias similares a los otros tipos, la cual contaría con un atributo value en el cual
+		se almacenaría el valor real de los mismos.
+		\item \textbf{Inicializaci\'on de atributos} Una de las especificaciones que se tuvo en cuenta para la generación de CIL fue la inicialización
+		de los atributos, tanto los heredados como los propios de la clase. Cuando se crea una instancia
+		de una clase se deben inicializar todos sus atributos con su expresión inicial, si tienen alguna;
+		en otro caso se usa su expresión por defecto. Con el objetivo de lograr esto se creó para cada
+		tipo un constructor, cuyo cuerpo consiste en un bloque, dándole un valor a cada uno de sus
+		atributos. Este es llamado cada vez que se instancia un tipo.
 		\item \textbf{Para las estructuras \textit{CaseOf}} de cool realizamos un ordenamiento (dicho ordenamiento fue realizado de acuerdo a la profundidad de los tipos en la jerarqu\'ias, desde el m\'as espec\'ifico, hasta el mas cercano a \textit{Object}) de los \textit{case actions} para realizar un \textit{matching} no iterativo y a partir del primer tipo presente en la jerarqu\'ia del objeto resultante de la expresi\'on del case.
 	\end{itemize}
 	
