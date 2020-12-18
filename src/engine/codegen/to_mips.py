@@ -695,6 +695,7 @@ class CIL_TO_MIPS:
 
         start = self.get_label()
         end = self.get_label()
+        second_end = self.get_label()
 
         self.mips.label(start)
         # load byte by byte
@@ -707,8 +708,12 @@ class CIL_TO_MIPS:
         self.mips.label(end)
         # go back 1 position
         self.mips.addi(reg.a0, reg.a0, -1)
+        self.mips.lb(reg.s3, self.mips.offset(reg.a0))
+        self.mips.li(reg.s4, 10)
+        self.mips.bne(reg.s3, reg.s4, second_end)
         # change /n to /0
         self.mips.sb(reg.zero, self.mips.offset(reg.a0))
+        self.mips.label(second_end)
 
     @visitor.when(PrintStrNode)
     def visit(self, node: PrintStrNode):
