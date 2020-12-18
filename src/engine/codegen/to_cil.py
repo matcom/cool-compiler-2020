@@ -381,12 +381,13 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             value = self.visit(node.expression, scope)
             self.register_instruction(AssignNode(var_info.real_name, value))
         else:
-            node = cool.NewNode(node.type)
-            new_instance = self.visit(node, scope)
-            self.register_instruction(AssignNode(
-                var_info.real_name, new_instance))
-
-        return var_info.real_name
+            typex = node.type.lex
+            if typex == 'String':
+                result = self.register_data("").name
+                self.register_instruction(
+                    AssignNode(var_info.real_name, result))
+            else:
+                self.register_instruction(VoidNode(var_info.real_name))
 
     @visitor.when(cool.FunctionCallNode)
     def visit(self, node: cool.FunctionCallNode, scope):
@@ -435,8 +436,9 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         result = self.define_internal_local()
         rev_args = []
         for arg in node.args:
+            # FIXME: revert Args ????
             arg_value = self.visit(arg, scope)
-            rev_args = [arg_value] + rev_args
+            rev_args = rev_args + [arg_value]
         for arg_value in rev_args:
             self.register_instruction(ArgNode(arg_value))
         self_inst = scope.find_variable('self').name
