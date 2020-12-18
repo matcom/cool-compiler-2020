@@ -111,6 +111,5 @@ def codegen(ast, context, output_cil=False):
 if __name__ == "__main__":
     args = sys.argv
     if not len(args) in (3, 4):
-        print('')
         exit(1)
     compile_code(*args[1:])

@@ -37,8 +37,8 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
 
             for_visit = for_visit_child
 
-        print(type_names)
-        print(types)
+        # print(type_names)
+        # print(types)
 
         return types
 
@@ -311,14 +311,12 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         label_counter = self.label_counter_gen()
         expr = self.visit(node.expression, scope)
         result = self.define_internal_local()
-        exp_type = self.define_internal_local()
         end_label = LabelNode(f'END_{label_counter}')
         error_label = LabelNode(f'ERROR_CASE_{label_counter}')
         # TODO: Label error logic if is void
-        self.register_instruction(TypeOfNode(expr, exp_type))
 
         case_expressions = self.extend_case_list(node.branches)
-        print(case_expressions)
+        # print(case_expressions)
 
         for i, case in enumerate(case_expressions):
             next_branch_label = LabelNode(
@@ -328,7 +326,6 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             expr_i = self.visit(
                 case, child_scope,
                 expr=expr,
-                expr_type=exp_type,
                 next_label=next_branch_label,
                 label_id=label_counter
             )
@@ -344,13 +341,15 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         return result
 
     @visitor.when(cool.CaseActionExpression)
-    def visit(self, node: cool.CaseActionExpression, scope: Scope, expr=None, expr_type=None, next_label=None, label_id=0):
+    def visit(self, node: cool.CaseActionExpression, scope: Scope, expr=None, next_label=None, label_id=0):
         test_res = self.define_internal_local()
 
         matching_label = LabelNode(
             f'CASE_MATCH_{node.id.lex}_{node.type.lex}_{label_id}')
-        self.register_instruction(ConformsNode(test_res, expr, node.type.lex))
-        self.register_instruction(IfGotoNode(test_res, matching_label.label))
+        self.register_instruction(
+            ConformsNode(test_res, expr, node.type.lex))
+        self.register_instruction(
+            IfGotoNode(test_res, matching_label.label))
         self.register_instruction(
             GotoNode(next_label.label)
         )
