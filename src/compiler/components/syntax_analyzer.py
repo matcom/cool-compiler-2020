@@ -133,7 +133,7 @@ class pyCoolParser:
         """
         formal_param : ID COLON TYPE
         """
-        p[0] = NodeFormalParam(idName=p[1], param_type=p[3] ,
+        p[0] = NodeFormalParam(idName=p[1], param_type=p[3],
                          line= p.slice[1].lineno,
                          column=self.real_col[ str(p.slice[1]) ])
 
@@ -169,12 +169,12 @@ class pyCoolParser:
                          line= p.slice[1].lineno,
                          column=self.real_col[ str(p.slice[1]) ])
 
-    def p_expr_self(self, p):
-        """
-        expression  : SELF
-        """
-        p[0]= NodeSelf(line= p.slice[1].lineno,
-                         column=self.real_col[ str(p.slice[1]) ])
+    #def p_expr_self(self, p):
+    #    """
+    #    expression : SELF
+    #    """
+    #    p[0]= NodeSelf(line= p.slice[1].lineno,
+    #                     column=self.real_col[ str(p.slice[1]) ])
 
     def p_expression_block(self, p):
         """
