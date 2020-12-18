@@ -377,9 +377,15 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
     def visit(self, node: cool.LetVariableDeclaration, scope: Scope):
         var_info = scope.define_variable(node.id.lex, node.type)
         var_info.real_name = self.register_local(var_info)
-        value = self.visit(node.expression, scope)
+        if node.expression:
+            value = self.visit(node.expression, scope)
+            self.register_instruction(AssignNode(var_info.real_name, value))
+        else:
+            node = cool.NewNode(node.type)
+            new_instance = self.visit(node, scope)
+            self.register_instruction(AssignNode(
+                var_info.real_name, new_instance))
 
-        self.register_instruction(AssignNode(var_info.real_name, value))
         return var_info.real_name
 
     @visitor.when(cool.FunctionCallNode)
