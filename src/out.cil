@@ -1,0 +1,273 @@
+.TYPES
+type Object {
+	
+
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+}
+type String {
+	attribute value
+
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+	method length: function_length_at_String
+	method concat: function_concat_at_String
+	method substr: function_substr_at_String
+}
+type IO {
+	
+
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+	method out_string: function_out_string_at_IO
+	method out_int: function_out_int_at_IO
+	method in_string: function_in_string_at_IO
+	method in_int: function_in_int_at_IO
+}
+type Int {
+	attribute value
+
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+}
+type Bool {
+	attribute value
+
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+}
+type Main {
+	
+
+	method abort: function_abort_at_Object
+	method type_name: function_type_name_at_Object
+	method copy: function_copy_at_Object
+	method out_string: function_out_string_at_IO
+	method out_int: function_out_int_at_IO
+	method in_string: function_in_string_at_IO
+	method in_int: function_in_int_at_IO
+	method main: function_main_at_Main
+}
+
+.DATA
+data_0 = "Abort called from class "
+data_1 = "
+"
+data_2 = "Invalid substring start"
+data_3 = "Invalid substring length"
+data_4 = ""
+
+.CODE
+function function_abort_at_Object {
+	PARAM self
+
+	LOCAL local_abort_at_Object_internal_0
+	LOCAL local_abort_at_Object_internal_1
+	LOCAL local_abort_at_Object_internal_2
+	LOCAL local_abort_at_Object_internal_3
+	LOCAL local_abort_at_Object_internal_4
+
+	local_abort_at_Object_internal_2 = LOAD data_0
+	local_abort_at_Object_internal_3 = LOAD data_1
+	local_abort_at_Object_internal_4 = TYPEOF self
+	local_abort_at_Object_internal_0 = TYPENAME local_abort_at_Object_internal_4
+	local_abort_at_Object_internal_1 = CONCAT local_abort_at_Object_internal_2 local_abort_at_Object_internal_0
+	local_abort_at_Object_internal_1 = CONCAT local_abort_at_Object_internal_1 local_abort_at_Object_internal_3
+	PRINTSTR local_abort_at_Object_internal_1
+	ABORT
+}
+function function_copy_at_Object {
+	PARAM self
+
+	LOCAL local_copy_at_Object_internal_0
+
+	local_copy_at_Object_internal_0 = COPY self
+	RETURN local_copy_at_Object_internal_0
+}
+function function_type_name_at_Object {
+	PARAM self
+
+	LOCAL local_type_name_at_Object_internal_0
+	LOCAL local_type_name_at_Object_internal_1
+
+	local_type_name_at_Object_internal_1 = TYPEOF self
+	local_type_name_at_Object_internal_0 = TYPENAME local_type_name_at_Object_internal_1
+	RETURN local_type_name_at_Object_internal_0
+}
+function function_length_at_String {
+	PARAM self
+
+	LOCAL local_length_at_String_internal_0
+	LOCAL local_length_at_String_internal_1
+
+	local_length_at_String_internal_1 = GETATTR self value
+	local_length_at_String_internal_0 = LENGTH local_length_at_String_internal_1
+	RETURN local_length_at_String_internal_0
+}
+function function_concat_at_String {
+	PARAM self
+	PARAM string
+
+	LOCAL local_concat_at_String_internal_0
+	LOCAL local_concat_at_String_internal_1
+
+	local_concat_at_String_internal_1 = GETATTR self value
+	local_concat_at_String_internal_0 = CONCAT local_concat_at_String_internal_1 string
+	RETURN local_concat_at_String_internal_0
+}
+function function_substr_at_String {
+	PARAM self
+	PARAM start
+	PARAM length
+
+	LOCAL local_substr_at_String_internal_0
+	LOCAL local_substr_at_String_internal_1
+	LOCAL local_substr_at_String_internal_2
+	LOCAL local_substr_at_String_internal_3
+	LOCAL local_substr_at_String_internal_4
+	LOCAL local_substr_at_String_internal_5
+	LOCAL local_substr_at_String_internal_6
+	LOCAL local_substr_at_String_internal_7
+	LOCAL local_substr_at_String_internal_8
+
+	local_substr_at_String_internal_0 = GETATTR self value
+	local_substr_at_String_internal_6 = 0
+	local_substr_at_String_internal_7 = LENGTH local_substr_at_String_internal_0
+	local_substr_at_String_internal_8 = LOAD data_1
+	local_substr_at_String_internal_2 = local_substr_at_String_internal_6 <= start
+	IF local_substr_at_String_internal_2 GOTO error1
+	local_substr_at_String_internal_4 = LOAD data_2
+	local_substr_at_String_internal_4 = CONCAT local_substr_at_String_internal_4 local_substr_at_String_internal_8
+	PRINTSTR local_substr_at_String_internal_4
+	ERROR 0
+	LABEL error1
+	local_substr_at_String_internal_3 = local_substr_at_String_internal_6 <= length
+	IF local_substr_at_String_internal_3 GOTO error2
+	local_substr_at_String_internal_5 = LOAD data_3
+	local_substr_at_String_internal_5 = CONCAT local_substr_at_String_internal_5 local_substr_at_String_internal_8
+	PRINTSTR local_substr_at_String_internal_5
+	ERROR 0
+	LABEL error2
+	local_substr_at_String_internal_1 = SUBSTRING local_substr_at_String_internal_0 start length
+	RETURN local_substr_at_String_internal_1
+}
+function function_out_string_at_IO {
+	PARAM self
+	PARAM str_val
+
+	
+
+	PRINTSTR str_val
+	RETURN self
+}
+function function_in_string_at_IO {
+	
+
+	LOCAL local_in_string_at_IO_internal_0
+
+	local_in_string_at_IO_internal_0 = READSTR
+	RETURN local_in_string_at_IO_internal_0
+}
+function function_out_int_at_IO {
+	PARAM self
+	PARAM int_val
+
+	
+
+	PRINTINT int_val
+	RETURN self
+}
+function function_in_int_at_IO {
+	
+
+	LOCAL local_in_int_at_IO_internal_0
+
+	local_in_int_at_IO_internal_0 = READINT
+	RETURN local_in_int_at_IO_internal_0
+}
+function ctor_IO {
+	PARAM self
+
+	
+
+	RETURN self
+}
+function ctor_Int {
+	PARAM self
+
+	LOCAL local__internal_0
+
+	VOID
+	SETATTR value OF self_Int = local__internal_0
+	RETURN self
+}
+function ctor_String {
+	PARAM self
+
+	
+
+	SETATTR value OF self_String = data_4
+	RETURN self
+}
+function ctor_Bool {
+	PARAM self
+
+	LOCAL local__internal_0
+
+	VOID
+	SETATTR value OF self_Bool = local__internal_0
+	RETURN self
+}
+function ctor_Object {
+	PARAM self
+
+	
+
+	RETURN self
+}
+function ctor_Main {
+	PARAM self
+
+	
+
+	RETURN self
+}
+function entry {
+	
+
+	LOCAL local__internal_0
+	LOCAL local__internal_1
+
+	local__internal_0 = ALLOCATE Main
+	ARG local__internal_0
+	local__internal_0 = CALL ctor_Main
+	CLEAR 1 ARGS
+	ARG local__internal_0
+	local__internal_1 = CALL function_main_at_Main
+	CLEAR 1 ARGS
+}
+function function_main_at_Main {
+	PARAM self
+
+	LOCAL local_main_at_Main_internal_0
+	LOCAL local_main_at_Main_internal_1
+	LOCAL local_main_at_Main_internal_2
+
+	local_main_at_Main_internal_2 = ALLOCATE Object
+	ARG local_main_at_Main_internal_2
+	local_main_at_Main_internal_2 = CALL ctor_Object
+	CLEAR 1 ARGS
+	ARG local_main_at_Main_internal_2
+	local_main_at_Main_internal_1 = VCALL Object type_name
+	CLEAR 1 ARGS
+	ARG local_main_at_Main_internal_1
+	ARG self
+	local_main_at_Main_internal_0 = VCALL Main out_string
+	CLEAR 2 ARGS
+	RETURN local_main_at_Main_internal_0
+}

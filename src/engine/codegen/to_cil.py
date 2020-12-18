@@ -89,13 +89,13 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.attr_declarations['Object'] = []
         self.attr_declarations['IO'] = []
         self.attr_declarations['Int'] = [
-            cool.AttrDeclarationNode("value")
+            cool.AttrDeclarationNode("value", 'Int')
         ]
         self.attr_declarations['String'] = [
-            cool.AttrDeclarationNode("value")
+            cool.AttrDeclarationNode("value", 'String')
         ]
         self.attr_declarations['Bool'] = [
-            cool.AttrDeclarationNode("value")
+            cool.AttrDeclarationNode("value", 'Bool')
         ]
 
         for built_in in ['IO', 'Int', 'String', 'Bool', 'Object']:
@@ -389,11 +389,27 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             typex = node.type.lex
             name = self.to_function_name(node.id.lex, typex)
         result = self.define_internal_local()
+
         obj = self.visit(node.obj, scope)
+        if typex in ["Int", "Bool", "String"]:
+            # self.register_instruction(ArgNode(obj))
+            packed = self.define_internal_local()
+            alloc = self.define_internal_local()
+            self.register_instruction(AllocateNode(alloc, 'String'))
+            self.register_instruction(ArgNode(alloc))
+            self.register_instruction(StaticCallNode(f"ctor_{typex}", alloc))
+            self.register_instruction(EmptyArgs(1))
+            self.register_instruction(
+                SetAttribNode(alloc, "value", obj, typex))
+            obj = alloc
+
+        rev_args = []
         for arg in node.args:
-            # FIXME: revert Args ????
             arg_value = self.visit(arg, scope)
+            rev_args = [arg_value] + rev_args
+        for arg_value in rev_args:
             self.register_instruction(ArgNode(arg_value))
+
         self.register_instruction(ArgNode(obj))
         if name:
             self.register_instruction(StaticCallNode(name, result))
@@ -412,6 +428,8 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         for arg in node.args:
             # FIXME: revert Args ????
             arg_value = self.visit(arg, scope)
+            rev_args = [arg_value] + rev_args
+        for arg_value in rev_args:
             self.register_instruction(ArgNode(arg_value))
         self_inst = scope.find_variable('self').name
         self.register_instruction(ArgNode(self_inst))
