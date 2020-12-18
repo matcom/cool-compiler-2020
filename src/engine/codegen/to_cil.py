@@ -415,7 +415,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         rev_args = []
         for arg in node.args:
             arg_value = self.visit(arg, scope)
-            rev_args = rev_args + [arg_value]
+            # rev_args = rev_args + [arg_value]
             rev_args = [arg_value] + rev_args
         for arg_value in rev_args:
             self.register_instruction(ArgNode(arg_value))
@@ -439,7 +439,8 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         for arg in node.args:
             # FIXME: revert Args ????
             arg_value = self.visit(arg, scope)
-            rev_args = rev_args + [arg_value]
+            # rev_args = rev_args + [arg_value]
+            rev_args = [arg_value] + rev_args
         for arg_value in rev_args:
             self.register_instruction(ArgNode(arg_value))
         self_inst = scope.find_variable('self').name
