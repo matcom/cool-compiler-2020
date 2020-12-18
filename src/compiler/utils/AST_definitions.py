@@ -83,23 +83,21 @@ class NodeFeature(Node):
 class NodeClassMethod(NodeFeature):
     def __init__(self,
                 idName: str,
-                argNames,
-                argTypes,
+                formal_param_list,
                 returnType: str,
                 body,
                 line,
                 column):
         super().__init__(line= line, column= column)
         self.idName = idName
-        self.argNames = argNames
+        self.formal_param_list= formal_param_list
         self.returnType = returnType
-        self.argTypes = argTypes
         self.body = body
 
     def to_readable(self):
-        return "{}(name='{}', argNames={}, returnType={}, argTypesNames={}, body={})".format(
-            self.clsname, self.idName, self.argNames, 
-            self.returnType, self.argTypesNames, self.body
+        return "{}(name='{}', formal_param_list={}, returnType={}, body={})".format(
+            self.clsname, self.idName, self.formal_param_list, 
+            self.returnType, self.body
             )
 
 class NodeAttr(NodeFeature):
@@ -114,18 +112,18 @@ class NodeFormalParam(NodeFeature):
     def __init__(self, idName, param_type, line, column):
         super().__init__(line= line, column= column)
         self.idName = idName
-        self.paramType = param_type
+        self._type = param_type
 
     def to_tuple(self):
         return tuple([
             ("class_name", self.clsname),
             ("name", self.idNme),
-            ("param_type", self.paramType)
+            ("param_type", self._type)
         ])
 
     def to_readable(self):
         return "{}(name='{}', param_type={})".format(self.clsname, 
-        self.idName, self.paramType)
+        self.idName, self._type)
 
 class NodeObject(Node):
     def __init__(self, idName, line, column):
