@@ -356,10 +356,10 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
             GotoNode(next_label.label)
         )
         self.register_instruction(matching_label)
-        l_var = self.define_internal_local()
         typex = self.context.get_type(node.type.lex)
-        scope.define_variable(l_var, typex)
-        self.register_instruction(AssignNode(l_var, expr))
+        var_info = scope.define_variable(node.id.lex, typex)
+        var_info.real_name = self.register_local(var_info)
+        self.register_instruction(AssignNode(var_info.real_name, expr))
 
         case_action_expr = self.visit(node.expression, scope)
         return case_action_expr

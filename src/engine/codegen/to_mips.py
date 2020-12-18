@@ -432,8 +432,6 @@ class CIL_TO_MIPS:
 
         offset = type_descritptor.get_method_index(
             node.method) * self.data_size
-        # print("offset", offset, node.method, node.type, type_descritptor.methods)
-        # print(node.obj, node.type)
         self.load_memory(reg.s0, node.obj)
 
         # vtable ptr in position 4 (0 .. 3)
@@ -749,13 +747,15 @@ class CIL_TO_MIPS:
         self.mips.comment(f"Conforms Node {node.dest} = {node.type} {node.expr}")
         _id = self.global_descriptor.Types[node.type].id
         self.load_memory(reg.s0, node.expr)
+        self.mips.load_memory(reg.s1, self.mips.offset(reg.s0))
         self.mips.empty_line()
         
         self.mips.li(reg.s2, _id)
-        self.mips.subu(reg.s3, reg.s2, reg.s1)
+ 
         one = self.get_label()
         end = self.get_label()
-        self.mips.beq(reg.s3, reg.zero, one)
+
+        self.mips.beq(reg.s1, reg.s2, one)
         self.store_memory(reg.zero, node.dest)
         self.mips.j(end)
         self.mips.label(one)
