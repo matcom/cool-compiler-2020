@@ -77,10 +77,11 @@ class BASE_COOL_CIL_TRANSFORM:
         return data_node
 
     def sort_case_list(self, case_expressions):
-        return sorted(case_expressions, reverse=True,
-                      key=lambda x: self.context.inheritance_deep(x.type.lex))
-
-        ###################################
+        return sorted(
+            case_expressions, reverse=True,
+            key=lambda x: self.context.inheritance_deep(x.type.lex)
+        )
+    ###################################
 
     def define_int_type(self):
         self.current_type = self.context.get_type('Int')

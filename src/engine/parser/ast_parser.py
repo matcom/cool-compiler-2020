@@ -38,7 +38,7 @@ class LetVariableDeclaration(DeclarationNode):
 class CaseActionExpression(DeclarationNode):
     def __init__(self, idx, typex, expression=Node):
         self.id = idx
-        self.type = typex
+        self.type = Token(typex, 'ID') if isinstance(typex, str) else typex
         self.expression = expression
         self.line = self.id.line
         self.column = self.id.column

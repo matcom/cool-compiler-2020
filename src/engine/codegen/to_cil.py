@@ -22,6 +22,56 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         self.register_instruction(cil_node(result, expr))
         return result
 
+    def get_children_types_inheritance(self, type_names: List[str]):
+        for_visit = set(type_names)
+        types = set(type_names)
+        while len(for_visit):
+            for_visit_child = set()
+            for typex in for_visit:
+                children = []
+                for child, parent in self.context.inheritance.items():
+                    if parent == typex:
+                        children.append(child)
+                        for_visit_child.add(child)
+                        types.add(child)
+
+            for_visit = for_visit_child
+
+        print(type_names)
+        print(types)
+
+        return types
+
+    def extend_case_list(self, case_expressions: List[cool.CaseActionExpression]):
+        cases_by_type = {
+            case.type.lex: case
+            for case in case_expressions
+        }
+        types = self.get_children_types_inheritance(
+            type_names=list(cases_by_type.keys())
+        )
+        types = sorted(
+            types,
+            key=lambda t: self.context.inheritance_deep(t),
+            reverse=True
+        )
+        ordered_cases = []
+        for typex in [self.context.get_type(t) for t in types]:
+            temp = typex
+            while True:
+                if temp.name in cases_by_type:
+                    case = cases_by_type[temp.name]
+                    new_case = cool.CaseActionExpression(
+                        case.id,
+                        typex.name,
+                        case.expression,
+                    )
+                    ordered_cases.append(new_case)
+                    break
+                temp = self.context.get_type(
+                    self.context.inheritance[typex.name])  # get_parent
+        return ordered_cases
+
     def sort_class_declar(self, program: cool.ProgramNode):
         self.context:  Context
         program.declarations = sorted(
@@ -267,16 +317,20 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         # TODO: Label error logic if is void
         self.register_instruction(TypeOfNode(expr, exp_type))
 
-        case_expressions = self.sort_case_list(node.branches)
+        case_expressions = self.extend_case_list(node.branches)
+        print(case_expressions)
 
         for i, case in enumerate(case_expressions):
-            next_branch_label = LabelNode(f'CASE_{case.id.lex}_{i}')
+            next_branch_label = LabelNode(
+                f'CASE_{case.id.lex}_{i}_{label_counter}'
+            )
             child_scope = scope.create_child()
             expr_i = self.visit(
                 case, child_scope,
                 expr=expr,
                 expr_type=exp_type,
                 next_label=next_branch_label,
+                label_id=label_counter
             )
             self.register_instruction(AssignNode(result, expr_i))
             self.register_instruction(GotoNode(end_label.label))
@@ -290,12 +344,13 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
         return result
 
     @visitor.when(cool.CaseActionExpression)
-    def visit(self, node: cool.CaseActionExpression, scope: Scope, expr=None, expr_type=None, next_label=None):
+    def visit(self, node: cool.CaseActionExpression, scope: Scope, expr=None, expr_type=None, next_label=None, label_id=0):
         test_res = self.define_internal_local()
 
-        matching_label = LabelNode(f'CASE_MATCH_{node.id.lex}_{node.type.lex}')
+        matching_label = LabelNode(
+            f'CASE_MATCH_{node.id.lex}_{node.type.lex}_{label_id}')
         self.register_instruction(ConformsNode(test_res, expr, node.type.lex))
-        self.register_instruction(IfGotoNode(expr, matching_label.label))
+        self.register_instruction(IfGotoNode(test_res, matching_label.label))
         self.register_instruction(
             GotoNode(next_label.label)
         )
