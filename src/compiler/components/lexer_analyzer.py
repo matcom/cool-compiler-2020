@@ -37,7 +37,6 @@ reserved = {
     'loop':'LOOP',
     'inherits':'INHERITS',
     'isvoid':'ISVOID',
-    "self": "SELF",
     "not": "NOT"
 }
 
