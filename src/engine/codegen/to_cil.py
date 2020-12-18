@@ -306,7 +306,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
 
         result = self.define_internal_local()
         self.register_instruction(VoidNode(result))
-        return zero
+        return result
 
     @visitor.when(cool.CaseOfNode)
     def visit(self, node: cool.CaseOfNode, scope: Scope):
