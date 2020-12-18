@@ -69,7 +69,7 @@ class COOL_TO_CIL(BASE_COOL_CIL_TRANSFORM):
                     ordered_cases.append(new_case)
                     break
                 temp = self.context.get_type(
-                    self.context.inheritance[typex.name])  # get_parent
+                    self.context.inheritance[temp.name])  # get_parent
         return ordered_cases
 
     def sort_class_declar(self, program: cool.ProgramNode):
