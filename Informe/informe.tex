@@ -165,7 +165,7 @@ El equipo decidió realizar una representación intermedia del lenguaje Cool ant
 
 \subsection{Código intermedio}
 	
- Del AST obtenido en las fases anteriores, en un cuarto recorrido se realizó una transformación hacia un AST de  CIL  que facilitara que el comportamiento obtenido en  COOL  sea mas factible a un representación en MIPS.
+ Del AST obtenido en las fases anteriores, en un cuarto recorrido se realizó una transformación hacia un AST de  CIL  que facilitara que el comportamiento obtenido en  COOL  sea más factible a un representación en MIPS.
 
 
  Es también en esta fase donde se da por fin una implementación real a los tipos y
@@ -175,7 +175,7 @@ El equipo decidió realizar una representación intermedia del lenguaje Cool ant
  clase  IO . Con estas estructuras definidas en el AST de  CIL , durante la traducción a
  MIPS , ellas serán generadas automáticamente.
  
-  Aquí existió una vez mas apoyo en los elementos de clase practica, al contar con un transpliador base para definir todas la convenciones tomadas, asi como contener los métodos necesarios para dicha conversión.
+  Aquí existió una vez más apoyo en los elementos de clase practica, al contar con un transpliador base para definir todas la convenciones tomadas, asi como contener los métodos necesarios para dicha conversión.
  En esta fase surgió la necesidad de resolver  un conjunto de especificaciones como son: 
 	\begin{itemize}
 		\item \textbf{Relacionado a la herencia} Mantenemos como tipos de CIL como el conjunto de atributos de los respectivos en Cool pero con los de sus antecesores en la jerarqu\'ia de tipos(los m\'etodos y la tabla virtual queda para resolverse en MIPS)
@@ -191,8 +191,8 @@ El equipo decidió realizar una representación intermedia del lenguaje Cool ant
 		en otro caso se usa su expresión por defecto. Con el objetivo de lograr esto se creó para cada
 		tipo un constructor, cuyo cuerpo consiste en un bloque, dándole un valor a cada uno de sus
 		atributos. Este es llamado cada vez que se instancia un tipo.
-		\item \textbf{Para las estructuras \textit{CaseOf}} de Cool realizamos un ordenamiento (dicho ordenamiento fue realizado de acuerdo a la profundidad de los tipos en la jerarqu\'ias, desde el m\'as espec\'ifico, hasta el mas cercano a \textit{Object}) de los \textit{case actions} para realizar un \textit{matching} no iterativo y a partir del primer tipo presente en la jerarqu\'ia del objeto resultante de la expresi\'on del case.
-		Luego esta lista que llamamos \textbf{CaseActionExpressions} se extiende de manera ordenada para a\~nadir los tipos mas espec\'ificos de los que se encontraban originalmente que a su vez como expresi\'on a realizar ser\'ia la mismo que el ancestro del que extendió, quedando una lista con bloques de case donde antes solo una opci\'on (conservando el orden anterior pero solo por bloques), de forma tal que en tiempo de ejecuci\'on el primer \textit{matching} fuese el correcto a realizar.
+		\item \textbf{Para las estructuras \textit{CaseOf}} de Cool realizamos un ordenamiento (dicho ordenamiento fue realizado de acuerdo a la profundidad de los tipos en la jerarqu\'ias, desde el m\'as espec\'ifico, hasta el más cercano a \textit{Object}) de los \textit{case actions} para realizar un \textit{matching} no iterativo y a partir del primer tipo presente en la jerarqu\'ia del objeto resultante de la expresi\'on del case.
+		Luego esta lista que llamamos \textbf{CaseActionExpressions} se extiende de manera ordenada para a\~nadir los tipos más espec\'ificos de los que se encontraban originalmente que a su vez como expresi\'on a realizar ser\'ia la mismo que el ancestro del que extendió, quedando una lista con bloques de case donde antes solo una opci\'on (conservando el orden anterior pero solo por bloques), de forma tal que en tiempo de ejecuci\'on el primer \textit{matching} fuese el correcto a realizar.
 	\end{itemize}
 
 	\subsection{Código de máquina}
@@ -201,7 +201,7 @@ El equipo decidió realizar una representación intermedia del lenguaje Cool ant
 	
 \section{Representación y trabajo con la memoria}
 
-El equipo se desidió por una arquitectura en memoria que tiene por un lado la representación física del objeto con sus atributos y por otro una tabla de métodos virtuales global, la cual contiene todas las referencias a todas las implementaciones concretas de los métodos de las clases.
+El equipo se decidió por una arquitectura en memoria que tiene por un lado la representación física del objeto con sus atributos y por otro una tabla de métodos virtuales global, la cual contiene todas las referencias a todas las implementaciones concretas de los métodos de las clases.
 
 \subsection{Representación en memoria}
 
