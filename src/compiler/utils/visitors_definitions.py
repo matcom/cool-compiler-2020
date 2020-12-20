@@ -345,3 +345,11 @@ class TypeCheckerVisitor(NodeVisitor):
             return elseType
         
         return programContext.LCA(idName1 = thenType, idName2= elseType)
+    
+    
+    def visit_NodeIsVoid(self, node: NodeIsVoid, previousEnv):
+        typeExpr= self.visit(node.expr, previousEnv = previousEnv)
+        if type(typeExpr) is error:
+            return typeExpr
+        return 'Bool'
+        

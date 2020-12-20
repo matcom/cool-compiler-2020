@@ -225,7 +225,7 @@ class NodeNewObject(NodeExpr):
 class NodeIsVoid(NodeExpr):
     def __init__(self, expr, line, column):
         super().__init__(line= line, column= column)
-
+        self.expr= expr
 
     def to_tuple(self):
         return tuple([
