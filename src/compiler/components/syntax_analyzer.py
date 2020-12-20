@@ -46,7 +46,7 @@ class pyCoolParser:
                          attributes= p[4]['attributes'],
                          parent = "Object",
                          line= p.slice[1].lineno,
-                         column=(self.real_col[ str(p.slice[1]) ] ) )
+                         column=(self.real_col[ str(p.slice[2]) ] ) )
 
     def p_class_inherits(self, p):
         """
@@ -57,7 +57,8 @@ class pyCoolParser:
                          attributes= p[6]['attributes'],
                          parent = p[4],
                          line= p.slice[1].lineno,
-                         column=self.real_col[ str(p.slice[1]) ])
+                         column=self.real_col[ str(p.slice[2]) ],
+                         parent_col= self.real_col[str(p.slice[4] )])
 
     def p_feature_list_opt(self, p):
         """

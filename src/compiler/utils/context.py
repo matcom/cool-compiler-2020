@@ -78,7 +78,8 @@ class globalContext:
                                     _type= 'Int'
                                 )
                             },
-                            parent= 'Object'),
+                            parent= 'Object',
+                            builtIn= True),
                 'IO': Type( idName= 'IO',
                             methods= {
                                 "out_string": Method( idName= "out_string",
@@ -141,10 +142,12 @@ class globalContext:
                               parent= 'Object')
             }
         
+        self.basics = [node.idName for node in self.types.values()]
+        
     def createType(self, node: NodeClass):
         return interceptError(
                 validationFunc= lambda: not node.idName in self.types,
-                errorOption= 'repeated class',
+                errorOption= 'repeated class' if not node.idName in self.basics else 'repeated class basic',
                 idName= node.idName,
                 row_and_col = (node.line, node.column)
             ) or interceptError (
@@ -160,8 +163,8 @@ class globalContext:
                                           parent= node.parent if node else 'Object')
                             })
 
-    def relateInheritance(self, idName : str, parent: str, row_and_col):
-        return interceptError(
+    def relateInheritance(self, idName : str, parent: str, row_and_col, parent_col):
+        return idName == 'Object' or interceptError(
             validationFunc= lambda: idName in self.types,
             errorOption= 'undefined type',
             idName= idName,
@@ -171,19 +174,20 @@ class globalContext:
             self.types,
             errorOption= 'undefined type',
             idName= self.types[idName].parent,
-            row_and_col= row_and_col
+            row_and_col= (row_and_col[0], parent_col)
         )  or interceptError(
             validationFunc= lambda: not self.types[parent].builtIn,
             errorOption= 'built-in inheritance',
             idName= idName,
-            row_and_col= row_and_col
+            idParent= parent,
+            row_and_col= (row_and_col[0], parent_col)
         )  or interceptError(
             validationFunc= lambda: not self.isAncestor (
                 idChild= idName, idParent= parent),
             errorOption= 'inheritance from child',
             idParent= parent,
             idChild= idName,
-            row_and_col= row_and_col
+            row_and_col= (row_and_col[0], parent_col)
         ) or not self.actualizeInherits(idName, parent, row_and_col)
         
     def actualizeInherits (self, idName, parentName, row_and_col):

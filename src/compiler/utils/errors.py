@@ -10,10 +10,15 @@ class error:
     __repr__ = __str__
 
 
-errorSelector = {'repeated class': lambda idName, row_and_col=(0,0):error(
-                      error_type= 'TypeError',
+errorSelector = {'repeated class basic': lambda idName, row_and_col=(0,0):error(
+                      error_type= 'SemanticError',
                       row_and_col= row_and_col,
-                      message= 'Class %s already exist' %idName
+                      message= 'Redefinition of basic class %s' %idName
+                    ),
+                 'repeated class': lambda idName, row_and_col=(0,0):error(
+                      error_type= 'SemanticError',
+                      row_and_col= row_and_col,
+                      message= 'Redefinition of basic class %s' %idName
                     ),
                 'undefined type': lambda idName, row_and_col=(0,0):error(
                       error_type='TypeError',
@@ -30,10 +35,10 @@ errorSelector = {'repeated class': lambda idName, row_and_col=(0,0):error(
                       row_and_col=row_and_col,
                       message="The method %s is already defined in the current context" %idName
                 ),
-                'built-in inheritance': lambda idName, row_and_col=(0,0): error (
-                    error_type='TypeError',
+                'built-in inheritance': lambda idName, idParent, row_and_col=(0,0): error (
+                    error_type='SemanticError',
                     row_and_col=row_and_col,
-                    message="The class %s is sealed. You can't inherit from it" %idName
+                    message="Class %s cannot inherit class %s." %(idName, idParent)
                 ),
                 'inheritance from child': lambda idChild, idParent, row_and_col=(0,0): error (
                     error_type='TypeError',

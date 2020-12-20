@@ -22,33 +22,37 @@ class TypeCollectorVisitor(NodeVisitor):
     def visit_NodeProgram(self, node: NodeProgram):
         errors = []
         line_and_col = {}
+        parent_col_dict = {}
         for nodeClass in node.class_list:
             line_and_col.update({
                 nodeClass.idName: (nodeClass.line, nodeClass.column)
             })
+            parent_col_dict.update({
+                nodeClass.idName: nodeClass.parent_col
+            })
             result= self.visit(nodeClass)
             if result:
                 errors.append(result)
-        return errors, line_and_col
+        return errors, line_and_col, parent_col_dict
 
     def visit_NodeClass(self, node: NodeClass):
         # When we create a type, we store it in the context, if there is no errors
         return programContext.createType(node)
 
 class TypeInheritanceVisitor(NodeVisitor):
-    def visit_NodeProgram(self, node: NodeProgram, line_and_col_dict):
+    def visit_NodeProgram(self, node: NodeProgram, line_and_col_dict, parent_col_dict):
         errors = []
         for _type in programContext.types:
-            if _type != 'Object':
-                result = self.visitForInherit(_type, 
-                                    line_and_col_dict.get(_type, (0,0)))
-                if type (result) is error:
-                    errors.append(result)
+            result = self.visitForInherit(_type, 
+                                line_and_col_dict.get(_type, (0,0)),
+                                parent_col_dict.get(_type, 0))
+            if type (result) is error:
+                errors.append(result)
         return errors
 
-    def visitForInherit(self, _type: str, line_and_col):
+    def visitForInherit(self, _type: str, line_and_col, parent_col):
         return programContext.relateInheritance(_type,
-        programContext.types[_type].parent, line_and_col)
+        programContext.types[_type].parent, line_and_col, parent_col)
 
 class TypeBuilderVisitor(NodeVisitor):
     def __init__(self):
