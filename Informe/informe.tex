@@ -52,7 +52,7 @@
 % Autores
 %-----------------------------------------------------------------------------------
 \author{\\
-	\name  Jorge Daniel Valle Días \email \href{mailto:jorge.valle@estudiantes.matcom.uh.cu}{jorge.valle@estudiantes.matcom.uh.cu}
+	\name  Jorge Daniel Valle Díaz \email \href{mailto:jorge.valle@estudiantes.matcom.uh.cu}{jorge.valle@estudiantes.matcom.uh.cu}
 	\\ \addr Grupo C412 \AND
 	\name Leonel Alejandro Garc\'ia L\'opez \email \href{mailto:l.garcia3@estudiantes.matcom.uh.cu}{l.garcia3@estudiantes.matcom.uh.cu}
 	\\ \addr Grupo C412 \AND
@@ -69,7 +69,7 @@ Msc. Alejandro Piad Morffis, \emph{Facultad de Matemática y Computación, Unive
 %-----------------------------------------------------------------------------------
 % Headings
 %-----------------------------------------------------------------------------------
-\jcematcomheading{\the\year}{1-\pageref{end}}{Jorge Daniel Valle Días, Leonel Alejandro Garc\'ia L\'opez, Roberto Marti Cede\~no}
+\jcematcomheading{\the\year}{1-\pageref{end}}{Jorge Daniel Valle Díaz, Leonel Alejandro Garc\'ia L\'opez, Roberto Marti Cede\~no}
 
 %-----------------------------------------------------------------------------------
 \ShortHeadings{Ejemplo JCE}{Autores}
@@ -146,9 +146,8 @@ Msc. Alejandro Piad Morffis, \emph{Facultad de Matemática y Computación, Unive
 \section{Parser}
 	La fase de análisis sintáctico ha sido una de las fases mas controversiales a la hora de la realización del proyecto. Se empleó en una primera fase el parser LR1 tomado de clase práctica y los proyectos previos de la asignatura. La gramática que se definió durante la primera entrega del proyecto contenía ambigüedades, las cuales fueron detectada comprobando las pruebas correspondientes a la parte de semántica. 
 	
-	Dado el tiempo restante que se disponía para la entrega, el equipo decidió tratar de adelantar todas las funcionalidades posibles para minimizar los cambios después de la fecha de entrega. 
+	Finalmente el equipo desición emplear el módulo Yacc de ply para definir la gramáticay evitar las ambigüedades que se desprendían de la implementación inicial.
 	
-	Actualmente se esta valorando la posibilidad de emplear el módulo yacc de ply para definir la gramática y evitar las ambigüedades que se desprenden de nuestra implementación inicial.
 	
 \section{Análisis Semántico}
 
@@ -157,26 +156,118 @@ Msc. Alejandro Piad Morffis, \emph{Facultad de Matemática y Computación, Unive
 	\begin{description}
 		\item [Recolector de tipos:] Primer recorrido del ast, en el cual se conforman los tipos nativos y los definidos en el archivo de código a procesar. En este mismo recorrido también se detectan los problemas relacionados con la herencia cíclica.
 		\item [Constructor de tipos:] Segundo recorrido del ast, en el cual se construyen los tipos, se definen sus métodos y atributos. 
-		\item [Verificador de tipos:] Tercer y ultimo recorrido del ast, en el cual se verifica la estructura de cada uno de los nodos del ast, este recorrido es el que mas abarca las reglas semánticas del lenguaje cool.
+		\item [Verificador de tipos:] Tercer y ultimo recorrido del ast, en el cual se verifica la estructura de cada uno de los nodos del ast, este recorrido es el que mas abarca las reglas semánticas del lenguaje Cool.
 	\end{description}
 
 \section{Código intermedio y código de máquina}
 
-El equipo decidió realizar una representación intermedia del lenguaje cool antes de pasar a la generación de código de máquina. Para ello se definieron 2 nuevos recorridos a árboles de sintaxis.
+El equipo decidió realizar una representación intermedia del lenguaje Cool antes de pasar a la generación de código de máquina. Para ello se definieron 2 nuevos recorridos a árboles de sintaxis abstracta, uno para llevar de Cool a CIL y otro para llevar CIL a MIPS.
 
 \subsection{Código intermedio}
 	
- Cuarto recorrido del ast, en el cual se conforma la representación del árbol de código intermedio de cool. En el mismo nos dimos a la tarea de simplificar la complejidad de cool para llevarlo a mips sin mucha dificultad. Entre las transformaciones no evidente las siguientes:
+ Del AST obtenido en las fases anteriores, en un cuarto recorrido se realizó una transformación hacia un AST de  CIL  que facilitara que el comportamiento obtenido en  COOL  sea más factible a un representación en MIPS.
+
+
+ Es también en esta fase donde se da por fin una implementación real a los tipos y
+ funciones básicas definidas por el lenguaje. Estas hacen uso de nodos especiales
+ del AST que solo son instanciadas para su uso desde  COOL a través de las funciones
+ básicas. Ejemplo son los métodos para la entrada y salida de datos brindada por la
+ clase  IO . Con estas estructuras definidas en el AST de  CIL , durante la traducción a
+ MIPS , ellas serán generadas automáticamente.
+ 
+  Aquí existió una vez más apoyo en los elementos de clase practica, al contar con un transpliador base para definir todas la convenciones tomadas, asi como contener los métodos necesarios para dicha conversión.
+ En esta fase surgió la necesidad de resolver  un conjunto de especificaciones como son: 
 	\begin{itemize}
-		\item \textbf{Relacionado a la herencia} mantenemos como tipos de cil como el conjunto de atributos de los respectivos en cool pero con los de sus antecesores en la jerarqu\'ia de tipos(los m\'etodos y la tabla virtual queda para resolverse en mips)
-		\item \textbf{Para las estructuras \textit{CaseOf}} de cool realizamos un ordenamiento (dicho ordenamiento fue realizado de acuerdo a la profundidad de los tipos en la jerarqu\'ias, desde el m\'as espec\'ifico, hasta el mas cercano a \textit{Object}) de los \textit{case actions} para realizar un \textit{matching} no iterativo y a partir del primer tipo presente en la jerarqu\'ia del objeto resultante de la expresi\'on del case.
+		\item \textbf{Relacionado a la herencia} Mantenemos como tipos de CIL como el conjunto de atributos de los respectivos en Cool pero con los de sus antecesores en la jerarqu\'ia de tipos(los m\'etodos y la tabla virtual queda para resolverse en MIPS)
+		\item \textbf{De los tipos por valor} El problema de los tipos por valor  Int y	Bool, y de los  Strings como casos especiales, al ser usados como un objeto por referencia. Para esto se definió una representación en memorias para los casos en
+		que esto ocurriera. Todos estos tipos cuando fuera necesario tratarlos como objetos
+		por referencias, para por ejemplo acceder a las funciones heredadas de la clase
+		Object o las propiamente definidas por el tipo String , serían encapsulados en
+		instancias similares a los otros tipos, la cual contaría con un atributo value en el cual
+		se almacenaría el valor real de los mismos.
+		\item \textbf{Inicializaci\'on de atributos} Una de las especificaciones que se tuvo en cuenta para la generación de CIL fue la inicialización
+		de los atributos, tanto los heredados como los propios de la clase. Cuando se crea una instancia
+		de una clase se deben inicializar todos sus atributos con su expresión inicial, si tienen alguna;
+		en otro caso se usa su expresión por defecto. Con el objetivo de lograr esto se creó para cada
+		tipo un constructor, cuyo cuerpo consiste en un bloque, dándole un valor a cada uno de sus
+		atributos. Este es llamado cada vez que se instancia un tipo.
+		\item \textbf{Para las estructuras \textit{CaseOf}} de Cool realizamos un ordenamiento (dicho ordenamiento fue realizado de acuerdo a la profundidad de los tipos en la jerarqu\'ias, desde el m\'as espec\'ifico, hasta el más cercano a \textit{Object}) de los \textit{case actions} para realizar un \textit{matching} no iterativo y a partir del primer tipo presente en la jerarqu\'ia del objeto resultante de la expresi\'on del case.
+		Luego esta lista que llamamos \textbf{CaseActionExpressions} se extiende de manera ordenada para a\~nadir los tipos más espec\'ificos de los que se encontraban originalmente que a su vez como expresi\'on a realizar ser\'ia la mismo que el ancestro del que extendió, quedando una lista con bloques de case donde antes solo una opci\'on (conservando el orden anterior pero solo por bloques), de forma tal que en tiempo de ejecuci\'on el primer \textit{matching} fuese el correcto a realizar.
 	\end{itemize}
+
+	\subsection{Código de máquina}
+	\'Ultimo recorrido, en este caso del árbol de sintaxis de representación intermedia. Mediante el cual se genera el código a ejecutar en el microprocesador con arquitectura MIPS. Es en este recorrido donde se crean los datos y la representación en memoria que sustentan el sitema de tipos de Cool.
 	
+	
+\section{Representación y trabajo con la memoria}
 
+El equipo se decidió por una arquitectura en memoria que tiene por un lado la representación física del objeto con sus atributos y por otro una tabla de métodos virtuales global, la cual contiene todas las referencias a todas las implementaciones concretas de los métodos de las clases.
 
-\subsection{Código de máquina}
- \'Ultimo recorrido, en este caso del árbol de sintaxis de representación intermedia. Mediante el cual se genera el código a ejecutar en el microprocesador con arquitectura MIPS.
+\subsection{Representación en memoria}
 
+A continuación en la tabla \ref{fig:memory} presentamos en esquema seguido en memoria de una clase de Cool bajo la solución propuesta.
+
+El identificador de la clase se emplea además de su función básica para la comparación entre clases. El tamaño en memoria de la clase se emplea tanto para la copia como para el tamaño en bytes a reservar. La referencia al nombre de la clase representa la etiqueta correspondiente al nombre de la clase que representa la instancia en memoria y se emplea principalmente para los llamados al método typename. El desplazamiento representa la posición de la etiqueta correspondiente al primer método de la tabla virtual que corresponde a la clase que se tiene en cuestión. Finalizando, se encuentran, si existen, los atributos de la clase.
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|c|}
+		\hline
+		Identificador de la clase \\
+		\hline
+		Tamaño en memoria de la clase  \\
+		\hline
+		Referencia al nombre de la clase \\
+		\hline
+		Desplazamiento en la tabla virtual  \\
+		\hline
+		Atributo 1 \\
+		\hline
+		Atributo 2  \\
+		\hline
+		...  \\
+		\hline
+		Atributo n \\
+		\hline
+	\end{tabular}
+	\caption{Distribución en memoria de una clase de Cool.}
+	\label{fig:memory}
+	
+\end{table}
+
+\subsection{Tabla de métodos virtuales}
+
+Para dar solución al problema del ligamiento dinámico que resulta de la herencia se ideó la construcción de una tabla de métodos virtuales global. La tabla contiene todos los métodos correspondientes a todas las clases que se generan a partir de un programa en Cool. Una posible tabla virtual de un programa en Cool tendría una estructura como la siguiente:
+
+\newpage
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|c|}
+		\hline
+		Método 1 de la clase 1 \\
+		\hline
+		Método 2 de la clase 1 \\
+		\hline
+		Método 1 de la clase 2 \\
+		\hline
+		Método 1 de la clase 3  \\
+		\hline
+		...  \\
+		\hline
+		Método p de la clase n  \\
+		\hline
+	\end{tabular}
+	\caption{Distribución en memoria de la tabla de métodos virtuales.}
+	\label{fig:vtable}
+	
+\end{table}
+
+La principal idea detrás de la tabla radica en la imposibilidad de tener toda la información de tipos en tiempo de compilación, el ligamiento de cada clase con su implementación de un método particular se deja para tiempo de ejecución.
+
+Cada clase se construye siguiendo el mismo patrón, de forma tal de que en el recorrido de generación de código se conocen todos los métodos y todos los atributos de cada clase y lo más importante: Dadas dos clases A y B, si A desciende de B o B de A, los atributos y métodos de A y B comunes aparecen en el mismo orden tanto en la tabla como en su espacio en memoria de cada instancia. 
+
+Esta convención permitió que si una clase T tiene un tipo estático P en tiempo de compilación, pero realmente en ejecución tiene un tipo dinámico J, y J desciende de T, cualquier implementación de los métodos de T en J comparte el mismo orden en la tabla virtual. Por lo que conociendo el tipo estático y llamando al método correspondiente en la tabla virtual al tipo T, se esta llamando realmente al método de T que J sobrescribió.
 
 \label{end}
 
