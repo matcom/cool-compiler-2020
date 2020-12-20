@@ -7,6 +7,11 @@ import type_checker
 import type_builder
 import type_collector
 
+import cil_types
+import cool_to_cil
+
+import mips
+
 tokens = ""
 
 
@@ -18,7 +23,7 @@ def main():
 
     # Name of the file
     #p = args[2]
-    p = "D:\\112720\\112420\\cool-compiler-2020\\tests\\semantic\\loops1.cl"
+    p = "E:\\112720\\112420\\191220\\cool-compiler-2020\\tests\\codegen\\hello_world.cl"
     print(str(p))
     if not str(p).endswith(".cl"):
         print("Cool program files must end with a \`.cl\` extension.\r\n")
@@ -53,29 +58,40 @@ def main():
             #recolectar los tipos
             _type_collector = type_collector.TypeCollectorVisitor()
             _type_collector.visit(ast, errors)
-
-            #construir los tipos
-            _type_builder = type_builder.TypeBuilderVisitor(_type_collector.Context)
-            _type_builder.visit(ast, errors)
-
-            #chequear tipos
-            _type_checker = type_checker.TypeCheckerVisitor()
-            errors = []
-            _type_checker.visit(ast, _type_builder.context, errors)
             if len(errors) > 0:
                 for er in errors:
                     print(er)
                 exit(1)
 
-                    
+            #construir los tipos
+            _type_builder = type_builder.TypeBuilderVisitor(_type_collector.Context)
+            _type_builder.visit(ast, errors)
+            if len(errors) > 0:
+                for er in errors:
+                    print(er)
+                exit(1)
 
-    '''except (IOError, FileNotFoundError):
-        print(f"Error! File {p} not found.")
-        exit(1)
-    except Exception as e:
-        print(f"An unexpected error occurred! {e}")
-        exit(1)'''
+            #chequear tipos
+            _type_checker = type_checker.TypeCheckerVisitor()
+            _type_checker.visit(ast, _type_builder.context, errors)
+            if len(errors) > 0:
+                for er in errors:
+                    print(er)
+                exit(1) 
 
+            _cil_types = cil_types.CILTypes( _type_builder.context.Hierarchy)
+            ast2 = _cil_types.visit(ast)
+
+            
+            _cool_to_cil_visitor = cool_to_cil.COOLToCILVisitor(ast2)
+            cil_ast = _cool_to_cil_visitor.visit(ast)
+
+            file_name = p[:-3] + '.mips'
+            myfile = open(file_name, 'w')
+            _mips = mips.VisitorMIPS()
+            res = _mips.visit(cil_ast)
+            myfile.write(res)  
+            myfile.close()
 
 if __name__ == "__main__":
     main()

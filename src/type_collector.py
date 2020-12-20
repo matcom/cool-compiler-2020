@@ -21,13 +21,8 @@ class TypeCollectorVisitor:
 
     @visitor.when(ast_hierarchy.ClassNode)
     def visit(self, node, errors):
-        if node.fatherTypeName is None:
-            node.fatherTypeName = self.Context.GetType("Object")
-        else:
-            node.fatherTypeName = self.Context.GetType(node.fatherTypeName)
-        ans = self.Context.DefineType(node.typeName, node.fatherTypeName)
-        if ans is None:
-            #modificar este error
-            errors.append("Error en la creación de la clase ")
-            pass         
-
+        if self.Context.Hierarchy.keys().__contains__(node.typeName):
+            errors.append("SemanticError: Redefinition of basic class " + node.typeName + ". ") 
+        else: 
+            self.Context.Hierarchy[node.typeName] = self.Context.DefineType(node.typeName, node.fatherTypeName)
+        

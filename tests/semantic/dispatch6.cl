@@ -1,8 +1,4 @@
-(*
-e@B.f() invokes the method
-f in class B on the object that is the value of e. For this form of dispatch, the static type to the left of
-“@”must conform to the type specified to the right of “@”.
-*)
+
 
 class A {
 	f(x: Int, y: Int): Int { x + y };

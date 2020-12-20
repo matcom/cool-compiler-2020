@@ -19,16 +19,30 @@ class TypeBuilderVisitor:
 
     @visitor.when(ast_hierarchy.ClassNode)
     def visit(self, node, errors):
-        self.current_type = self.context.GetType(node.typeName)
 
-        parent_type = node.fatherTypeName
-        if (parent_type is None and node.typeName != "Object"):
-            #errors.throw_error(errors.TypeError(text=f"In class '{self.current_type.name}' parent type '{node.parent}' is missing.", line=node.line, column=node.column))
-            print("F")
+        if node.typeName in ["Bool", "Int", "String", "Object"] :
+            errors.append("SemanticError: Redefinition of basic class " + node.typeName + ". ")
             return
-        if (parent_type.Name in ['Int', 'String', 'Bool']):
-            #errors.throw_error(errors.SemanticError(text=f"In class '{self.current_type.name}' it is an error to inherit from basic class '{node.parent}'.", line=node.line, column=node.column))
+
+        if node.fatherTypeName is None:
+            node.fatherTypeName = 'Object'
+
+        elif node.fatherTypeName in ["Bool", "Int", "String"]:
+            errors.append("SemanticError: Class " + node.typeName + " cannot inherit class " + node.fatherTypeName + "." )
             return
+
+        if not self.context.Hierarchy.keys().__contains__(node.fatherTypeName):
+            errors.append("Undefined class")
+            return
+        
+        if node.fatherTypeName is None and node.typeName != 'Object':
+            node.fatherTypeName = 'Object'
+
+        node.fatherTypeName = self.context.Hierarchy[node.fatherTypeName]
+        self.context.Hierarchy[node.typeName].Parent = node.fatherTypeName
+
+        self.current_type = self.context.Hierarchy[node.typeName]
+
         for f in node.features:
             self.visit(f, errors)
 
@@ -36,42 +50,44 @@ class TypeBuilderVisitor:
     @visitor.when(ast_hierarchy.AttributeFeatureNode)
     def visit(self, node, errors):
         #attribute can be self type?
-        attribute_type = self.context.GetType(node.typeName)
-        if attribute_type is None:
-            #error
-            pass 
-        ans = self.current_type.DefineAttr(node.id, node.typeName)
+        if node.id == 'self':
+            errors.append("SemanticError: 'self' cannot be the name of an attribute.")
+            return
+        if not self.context.Hierarchy.keys().__contains__(node.typeName):
+            errors.append("TypeError: Class " + node.typeName + " of attribute " + node.id + " is undefined.")
+            return
+        # if not parent is None and parent.DefineInHierarchy(node.id):
+        #     errors.append("SemanticError: Attribute x is an attribute of an inherited class.")
+        #     return
+        ans = self.current_type.DefineAttr(node.id, self.context.Hierarchy[node.typeName])
+        
         if ans is None:
-            #error
-            pass
+            errors.append("SemanticError: Attribute " + node.id + " is multiply redefined in class " + self.current_type.Name + ".")
 
     @visitor.when(ast_hierarchy.FunctionFeatureNode)
     def visit(self, node, errors):
         # return can be self type?
-        typeName = self.context.GetType(node.typeName)
-        if typeName is not None:
+        if self.context.Hierarchy.keys().__contains__(node.typeName):
             argument_list = []
             for parameter in node.parameters:
-                if parameter.name in argument_list:
-                    #error
+                if parameter.id in argument_list or parameter.id == self:
+                    errors.append("Sintactic error: Formal Parameter is multiply redefined")
                     pass
-                argument_list.append(parameter.name)
+                argument_list.append(parameter.id)
 
             argument_types = []
             for parameter in node.parameters:
-                (param_name, param_type) = parameter
-                _type = self.context.GetType(param_name)
-                if _type is not None:
-                    argument_types.append(parameter.type_parameter)
+                param_name = parameter.id
+                param_type = parameter.typeName
+                if self.context.Hierarchy.keys().__contains__(param_type):
+                    argument_types.append(param_type)
                 else:
-                    pass
-                    #errors.throw_error(errors.TypeError(text=f"The type of the parameter '{parameter.name}' in method '{node.name}' is missing.", line=node.line, column=node.column))
-                    
-            ans = self.current_type.DefineMeth(node.id , argument_list, argument_types, node.typeName, None)
-            if not ans:
-                pass
-                #errors.throw_error(errors.SemanticError(text=f"In class '{self.current_type.name}' method '{node.name}' is defined multiple times.", line=node.line, column=node.column))             
-        else:
-            pass
-            #errors.throw_error(errors.TypeError(text=f"In class '{self.current_type.name}' return type of method '{node.name}' is missing.", line=node.line, column=node.column))
+                    errors.append("TypeError")
 
+            child_context = self.context.CreateChildContext() 
+            
+            ans = self.current_type.DefineMeth(node.id , argument_list, argument_types, node.typeName, None, child_context)
+            if ans is None:
+                errors.append("SemanticError: multiply defined methd")
+        else:
+            errors.append("return type missing")
