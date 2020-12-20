@@ -155,7 +155,8 @@ class TypeCheckerVisitor(NodeVisitor):
                              previousEnv: dict):
         newEnv= previousEnv.copy()
         for nodeLet in node.nestedLets:
-            result= self.visit(nodeLet, 
+            
+            result= self.visit(nodeLet,
                                previousEnv= newEnv)
             if type(result) is error:
                 return result
@@ -171,17 +172,16 @@ class TypeCheckerVisitor(NodeVisitor):
     def visit_NodeLet(self, node: NodeLet, previousEnv):
         errors= []
         exprType= self.visit(node.body,
-                               previousEnv= previousEnv)
+                               previousEnv= previousEnv) if node.body else node.type
         if type(exprType) is error:
             return exprType
         
-        previousEnv.update( {
-            node.idName: node.type
-        })
+        row_and_col = (node.body.line, node.body.column) if node.body else (node.line, node.column)
+        
         return programContext.checkAssign(node.idName,
-                                          previousEnv[node.idName],
+                                          node.type,
                                           exprType,
-                                          (node.body.line, node.body.column),
+                                          row_and_col,
                                           'uncompatible assing object')
                 
     def visit_NodeAssignment(self, node: NodeAssignment,

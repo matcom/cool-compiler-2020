@@ -331,7 +331,7 @@ class pyCoolParser:
                           column= self.real_col[ str(p.slice[1]) ])]
         else:
             p[1].append(NodeLet(idName= p[3],
-                          returnType= p[-1],
+                          returnType= p[5],
                           body= None,
                           line= p.slice[2].lineno,
                           column= self.real_col[str(p.slice[2])]))

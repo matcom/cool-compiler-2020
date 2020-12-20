@@ -376,7 +376,12 @@ class globalContext:
                     nodeType, returnType,
                     row_and_col, errorOption):
         
-        return  interceptError(
+        return interceptError (
+                validationFunc= lambda : nodeType in self.types,
+                errorOption= 'undefined type',
+                idName= nodeType,
+                row_and_col= row_and_col
+            ) or  interceptError(
             validationFunc= lambda : self.isSubtype(subType= returnType, 
                                                     superType= nodeType),
             errorOption= errorOption,
