@@ -55,22 +55,57 @@ errorSelector = {'repeated class': lambda idName, row_and_col=(0,0):error(
                     row_and_col= row_and_col,
                     message="The arguments %s does not exists in method %s in class %s " %(undefinedArgs, idName, className)
                 ),
-                'uncompatible types': lambda type1, type2, row_and_col=(0,0): error (
+                'arithmetic fail': lambda type1, type2, symbolOp, row_and_col=(0,0): error (
                     error_type= 'TypeError',
                     row_and_col= row_and_col,
-                    message="Uncompatible types %s and %s in %s " %(type1, type2, row_and_col)
+                    message="non-Int arguments: %s %s %s." %(type1, symbolOp, type2)
                 ),
                 'undefined symbol': lambda symbolName, row_and_col=(0,0): error (
-                    error_type= 'TypeError',
+                    error_type= 'NameError',
                     row_and_col= row_and_col,
-                    message="Undefined symbol %s at %s" %(symbolName, row_and_col)
+                    message="Undeclared identifier %s." %symbolName
                 ),
                 'not ancestor in dispatch': lambda idName, returnType, row_and_col=(0,0): error (
                     error_type= 'TypeError',
                     row_and_col= row_and_col,
-                    message= 'Type %s is not subtype of %s at %s' %(idName, returnType, row_and_col)
+                    message= 'Type %s is not subtype of %s at %s.' %(idName, returnType, row_and_col)
+                ),
+                'comparison fail': lambda row_and_col= (0,0): error(
+                    error_type= 'TypeError',
+                    row_and_col=row_and_col,
+                    message= 'Illegal comparison with a basic type.'
+                ),
+                'uncompatible assing object': lambda idName, type1, type2, row_and_col = (0,0) : error (
+                    error_type='TypeError',
+                    row_and_col= row_and_col,
+                    message= "Inferred type %s of initialization of %s does not conform to identifier's declared type %s." %(type1, idName, type2)
+                ),
+                'self parameter': lambda row_and_col = (0,0) : error (
+                    error_type= 'SemanticError',
+                    row_and_col= row_and_col,
+                    message= "'self' cannot be the name of a formal parameter."
+                ),
+                'boolean fail': lambda type1, type2, row_and_col=(0,0): error (
+                    error_type= 'TypeError',
+                    row_and_col= row_and_col,
+                    message="non-Bool arguments: %s + %s." %(type1, type2)
+                ),
+                'uncompatible assign attr': lambda idName, type1, type2, row_and_col = (0,0): error (
+                    error_type='TypeError',
+                    row_and_col= row_and_col,
+                    message="Inferred type %s of initialization of attribute %s does not conform to declared type %s" %( type1, idName, type2)
+                ),
+                'bad ~': lambda type1, type2, row_and_col = (0,0): error (
+                    error_type='TypeError',
+                    row_and_col= row_and_col,
+                    message="Argument of '~' has type %s instead of %s." %( type1, type2)
+                ),
+                'bad not': lambda type1, type2, row_and_col = (0,0): error (
+                    error_type='TypeError',
+                    row_and_col= row_and_col,
+                    message="Argument of 'not' has type %s instead of %s." %( type1, type2)
                 )
                 }
 
-def interceptError(validationFunc, errorType: str, **argumentsConstructor):
-    return (not validationFunc()) and errorSelector[errorType](**argumentsConstructor)
+def interceptError(validationFunc, errorOption: str, **argumentsConstructor):
+    return (not validationFunc()) and errorSelector[errorOption](**argumentsConstructor)

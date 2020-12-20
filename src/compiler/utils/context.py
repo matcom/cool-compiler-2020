@@ -144,12 +144,12 @@ class globalContext:
     def createType(self, node: NodeClass):
         return interceptError(
                 validationFunc= lambda: not node.idName in self.types,
-                errorType= 'repeated class',
+                errorOption= 'repeated class',
                 idName= node.idName,
                 row_and_col = (node.line, node.column)
             ) or interceptError (
                 validationFunc= lambda: node.idName != node.parent,
-                errorType= 'Inherit from itself',
+                errorOption= 'Inherit from itself',
                 idName= node.idName,
                 row_and_col = (node.line, node.column)
             )or self.types.update({
@@ -163,24 +163,24 @@ class globalContext:
     def relateInheritance(self, idName : str, parent: str, row_and_col):
         return interceptError(
             validationFunc= lambda: idName in self.types,
-            errorType= 'undefined type',
+            errorOption= 'undefined type',
             idName= idName,
             row_and_col= row_and_col
         )  or interceptError (
             validationFunc= lambda: self.types[idName].parent in 
             self.types,
-            errorType= 'undefined type',
+            errorOption= 'undefined type',
             idName= self.types[idName].parent,
             row_and_col= row_and_col
         )  or interceptError(
             validationFunc= lambda: not self.types[parent].builtIn,
-            errorType= 'built-in inheritance',
+            errorOption= 'built-in inheritance',
             idName= idName,
             row_and_col= row_and_col
         )  or interceptError(
             validationFunc= lambda: not self.isAncestor (
                 idChild= idName, idParent= parent),
-            errorType= 'inheritance from child',
+            errorOption= 'inheritance from child',
             idParent= parent,
             idChild= idName,
             row_and_col= row_and_col
@@ -238,7 +238,7 @@ class globalContext:
             childInfoMethod.returnType == parentInfoMethod.returnType and 
             len(childInfoMethod.argNames) == len(parentInfoMethod.argNames) and
             childInfoMethod.argTypes == parentInfoMethod.argTypes,
-            errorType= 'bad redefine method',
+            errorOption= 'bad redefine method',
             nameClass= idName,
             methodName = childInfoMethod.idName if childInfoMethod else None,
             row_and_col= row_and_col
@@ -254,7 +254,7 @@ class globalContext:
 
         return interceptError(
             validationFunc= lambda: not (childInfoAttr and childInfoAttr._type != parentInfoAttr._type),
-            errorType= "bad redefine attr",
+            errorOption= "bad redefine attr",
             nameClass= idName,
             attrName= childInfoAttr.idName if childInfoAttr else None,
             attrType= childInfoAttr._type if childInfoAttr else None,
@@ -276,7 +276,7 @@ class globalContext:
     def getType(self, idName: str, row_and_col):
         return interceptError(
             validationFunc= lambda: idName in self.types,
-            errorType= 'undefined type',
+            errorOption= 'undefined type',
             idName= idName,
             row_and_col= row_and_col
         ) or self.types.get(idName)
@@ -286,7 +286,7 @@ class globalContext:
         return interceptError(
                 validationFunc= lambda : not attr.idName in
                 self.types[typeName].attributes,
-                errorType= 'repeated attr',
+                errorOption= 'repeated attr',
                 idName= attr.idName,
                 row_and_col= (attr.line, attr.column)
             ) or self.types[typeName].attributes.update({
@@ -299,7 +299,7 @@ class globalContext:
         return interceptError(
             validationFunc= lambda: not node.idName in
             self.types[typeName].methods,
-            errorType= 'repeated method',
+            errorOption= 'repeated method',
             idName= node.idName,
             row_and_col= (node.line, node.column)
         ) or self.types[typeName].methods.update({
@@ -322,13 +322,13 @@ class globalContext:
         
         return interceptError(
             validationFunc= lambda : not methodInfo is None,
-            errorType= 'undefined method in class',
+            errorOption= 'undefined method in class',
             idName= method,
             className= typeName,
             row_and_col= row_and_col
         ) or interceptError (
             validationFunc= lambda : notAncestorArgs == [],
-            errorType= 'argument types in dispatch are not subtypes',
+            errorOption= 'argument types in dispatch are not subtypes',
             idName= method,
             badArgs= notAncestorArgs,
             row_and_col= row_and_col
@@ -345,11 +345,11 @@ class globalContext:
     def buildEnv (self, typeName):
         typeInfo= self.types[typeName]
         d = {typeInfo.attributes[attr].idName: 
-            {'type': typeInfo.attributes[attr]._type }
-             for attr in typeInfo.attributes }
+            typeInfo.attributes[attr]._type
+            for attr in typeInfo.attributes }
         d.update({ typeInfo.inheritsAttr[attr].idName:
-            {'type': typeInfo.inheritsAttr[attr]._type}
-                  for attr in typeInfo.inheritsAttr } )
+            typeInfo.inheritsAttr[attr]._type
+            for attr in typeInfo.inheritsAttr } )
         d.update({'wrapperType': typeName})
         return d
     
@@ -361,51 +361,61 @@ class globalContext:
                            if f.idName == 'self'), None)
         return interceptError(
             validationFunc= lambda : not badFormalParam,
-            errorType='self parameter',
+            errorOption='self parameter',
             row_and_col= (badFormalParam.line, badFormalParam.column) if badFormalParam else  (0,0)
         )or newEnv
     
-    def checkAssign(self, nameObject, node_type, _type, row_and_col):
+    def isSubtype(self, subType, superType): 
+        while subType:
+            if subType == superType:
+                return True
+            subType = self.types[subType].parent
+        return False
+    
+    def checkAssign(self, nameObject,
+                    nodeType, returnType,
+                    row_and_col, errorOption):
         
         return  interceptError(
-            validationFunc= lambda : node_type == _type
-            or self.isAncestor(idChild= node_type,
-            idParent= _type),
-            errorType='uncompatible assing',
+            validationFunc= lambda : self.isSubtype(subType= returnType, 
+                                                    superType= nodeType),
+            errorOption= errorOption,
             idName= nameObject,
-            type1= node_type,
-            type2= _type,
+            type1= returnType,
+            type2= nodeType,
             row_and_col= row_and_col
-            ) or node_type
+            ) or nodeType
         
-    def checkReturnType(self, node: NodeClassMethod, typeExpr):
+    def checkReturnType(self, nodeType , returnType, row_and_col, errorOption):
         return interceptError(
-            validationFunc= lambda : node.returnType == typeExpr 
-            or self.isAncestor(idChild= typeExpr, idParent= node.returnType),
-            errorType= 'uncompatible types',
-            type1= node.returnType,
-            type2= typeExpr,
-            row_and_col= (node.line, node.column)
-        ) or typeExpr
+            validationFunc= lambda : self.isSubtype(subType= returnType, 
+                                                    superType= nodeType),
+            errorOption= errorOption,
+            type1= nodeType,
+            type2= returnType,
+            row_and_col= row_and_col
+        ) or returnType
     
-    def searchValue(self, node: NodeObject, environment):
+    def searchValue(self, node: NodeObject, row_and_col, environment):
         return interceptError(
                         validationFunc= lambda: node.idName
-                        in environment and environment[node.idName],
-                        errorType='undefined symbol',
+                        in environment,
+                        errorOption='undefined symbol',
+                        row_and_col= row_and_col,
                         symbolName= node.idName) or environment[node.idName]
 
-    def checkArithmetic(self, type1, type2, row_and_col):
+    def checkArithmetic(self, type1, type2, row_and_col, symbolOp, arithmeticOp):
         return interceptError(validationFunc= lambda: type1 == type2,
-                            errorType= 'arithmetic fail',
+                            errorOption= 'arithmetic fail',
                             type1= type1,
                             type2= type2,
-                            row_and_col= row_and_col) or type1
+                            symbolOp= symbolOp,
+                            row_and_col= row_and_col) or ('Int' * arithmeticOp) or 'Bool'
 
     def checkEqualOp(self, type1, type2, row_and_col):
         return interceptError(validationFunc= lambda: not (type1 or type2)
                             in {'Int', 'Bool', 'String'} or type1 == type2,
-                            errorType= 'comparison fail',
+                            errorOption= 'comparison fail',
                             row_and_col = row_and_col) or self.types['Bool'].idName
     
     def LCA(self, idName1, idName2):

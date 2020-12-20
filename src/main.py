@@ -4,6 +4,7 @@ from compiler.components.lexer_analyzer import tokenizer, tokens
 from compiler.components.syntax_analyzer import run_parser
 from compiler.components.semantic_analyzer import semanticAnalyzer
 from compiler.utils.context import programContext
+from compiler.utils.preprocess_input import replace_tabs
 
 
 parser_input =  ArgumentParser(description= 'This is the Diaz-Horrach cool compiler, an school project.\nRead this help and see the ofitial repo')
@@ -17,21 +18,34 @@ parser_input.add_argument("--output", help = 'Put the info of the selected compo
 args= parser_input.parse_args()
 file= open(args.files_for_compile[0])
 working_input= file.read()
+working_input_with_no_tabs = replace_tabs(working_input)
+
 
 all_errors= []
-token_errors, tokens_for_input, real_col= tokenizer(working_input)
+token_errors, tokens_for_input, real_col= tokenizer(working_input_with_no_tabs)
+
+if token_errors:
+    for error in token_errors:
+        print(error)
+    exit(1)
 
 
-ast_result, parser_errors= run_parser(tokens, working_input, real_col)
+ast_result, parser_errors= run_parser(tokens,
+                                      working_input_with_no_tabs,
+                                      real_col)
+
+if parser_errors:
+    for error in parser_errors:
+        print(error)
+    exit(1)
 #if parser_errors: print("In the parser_errors ", parser_errors)
 
-#sa = semanticAnalyzer(ast_result)
+sa = semanticAnalyzer(ast_result)
+sa.run_visits()
 
-#sa.run_visits()
-#print('context of the input %s' %programContext)
+
 #print('errors %s' %sa.errors)
-all_errors += token_errors + parser_errors
-#+ sa.errors
+all_errors += token_errors + parser_errors + sa.errors
 
 if all_errors:
     for error in all_errors:

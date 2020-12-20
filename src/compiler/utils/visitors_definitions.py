@@ -129,21 +129,32 @@ class TypeCheckerVisitor(NodeVisitor):
         if type(typeResult) is error:
             return typeResult
         
-        return programContext.checkReturnType(node, typeResult)        
+        return programContext.checkReturnType(node.returnType, 
+                                              typeResult, 
+                                              (node.line, node.column),
+                                              'uncompatible types')        
 
     def visit_NodeString(self, node: NodeString, **kwargs):
         return 'String'
         
     def visit_NodeAttr(self, node: NodeAttr, previousEnv):
-        return self.visit(node.expr, 
+        typeExpr= self.visit(node.expr, 
                           previousEnv= previousEnv)
+        if type(typeExpr) is error:
+            return typeExpr
+        
+        return programContext.checkAssign(nameObject= node.idName,
+                                   nodeType= node._type,
+                                   returnType= typeExpr,
+                                   row_and_col= (node.expr.line, node.expr.column)
+                                   if node.expr else (node.line, node.column),
+                                   errorOption= 'uncompatible assign attr')
         
     def visit_NodeLetComplex(self,
                              node: NodeLetComplex,
                              previousEnv: dict):
-        
+        newEnv= previousEnv.copy()
         for nodeLet in node.nestedLets:
-            newEnv= previousEnv.copy()
             result= self.visit(nodeLet, 
                                previousEnv= newEnv)
             if type(result) is error:
@@ -170,16 +181,28 @@ class TypeCheckerVisitor(NodeVisitor):
         return programContext.checkAssign(node.idName,
                                           previousEnv[node.idName],
                                           exprType,
-                                          (node.body.line, node.body.column))
+                                          (node.body.line, node.body.column),
+                                          'uncompatible assing object')
                 
     def visit_NodeAssignment(self, node: NodeAssignment,
                              previousEnv):
         
-        result = self.visit(node.expr, previousEnv= previousEnv)
+        resultObj = self.visit(node.nodeObject, previousEnv=  previousEnv)
         
-        if type(result) is error:
-            return result
-        return programContext.checkAssign(node, result, previousEnv)
+        if type(resultObj) is error:
+            return resultObj
+        
+        resultExpr = self.visit(node.expr, previousEnv= previousEnv)
+        
+        if type(resultExpr) is error:
+            return resultExpr
+        
+        
+        return programContext.checkAssign(nameObject= node.nodeObject.idName,
+                                          nodeType= resultObj, 
+                                          returnType= resultExpr, 
+                                          row_and_col= (node.line, node.column ),
+                                          errorOption= 'uncompatible assing object')
     
     def visit_NodeBinaryOperation(self,
                                   node: NodeBinaryOperation, 
@@ -198,19 +221,25 @@ class TypeCheckerVisitor(NodeVisitor):
         if type (typeSecondExpr) is error:
             return typeSecondExpr
 
-        if type(node) in {NodeAddition,
-                          NodeSubtraction,
-                          NodeDivision,
-                          NodeMultiplication}:
-            
-            return programContext.checkArithmetic(typeFirstExpr,
-                                          typeSecondExpr,
-                                          (node.line, node.column))
-        
         if type(node) is NodeEqual:
             return programContext.checkEqualOp(typeFirstExpr,
                                                typeSecondExpr,
                                                (node.line, node.column))
+        
+        
+        arithmeticOp = type(node) in {NodeAddition,
+                          NodeSubtraction,
+                          NodeDivision,
+                          NodeMultiplication}
+            
+        
+        return programContext.checkArithmetic(typeFirstExpr,
+                                        typeSecondExpr,
+                                        (node.line, node.column),
+                                        node.symbol,
+                                        arithmeticOp)
+            
+        
         
     def visit_NodeNewObject(self, node: NodeNewObject, **kwargs):
         result = programContext.getType(node.type,
@@ -237,14 +266,23 @@ class TypeCheckerVisitor(NodeVisitor):
     
     def visit_NodeBooleanComplement(self,
                                     node: NodeBooleanComplement,
-                                    **kwargs):
-        return 'Bool'
+                                    previousEnv):
+        typeExpr = self.visit(node.boolean_expr, previousEnv= previousEnv)
+        if type(typeExpr) is error:
+            return typeExpr
+        return programContext.checkReturnType(nodeType= "Bool", returnType= typeExpr,
+                                              row_and_col= (node.line, node.boolean_expr.column -2),
+                                              errorOption= 'bad not')
+        
+
+    
     
     def visit_NodeObject(self,
                          node: NodeObject,
                          previousEnv):
         
         return programContext.searchValue(node,
+                                          (node.line, node.column),
                                           previousEnv)
         
     def visit_NodeDynamicDispatch(self,
@@ -268,4 +306,42 @@ class TypeCheckerVisitor(NodeVisitor):
 
     def visit_NodeSelf(self, node: NodeSelf, previousEnv):
         return previousEnv['wrapperType']
+    
+    def visit_NodeIntegerComplement(self, node: NodeIntegerComplement, 
+                                    previousEnv):
+        typeExpr = self.visit(node.integer_expr, previousEnv= previousEnv)
+        if type(typeExpr) is error:
+            return typeExpr
+        return programContext.checkReturnType(nodeType= "Int", returnType= typeExpr,
+                                              row_and_col= (node.line, node.column + 1),
+                                              errorOption= 'bad ~')
+    
+    def visit_NodeBlock(self, node: NodeBlock, previousEnv):
+        blockType = None
+        for expr in node.expr_list:
+            blockType = self.visit(expr, previousEnv= previousEnv)
+            if type(blockType) is error:
+                return blockType
+        return blockType            
         
+    def visit_NodeIf(self, node: NodeIf, previousEnv):
+        predType = self.visit(node.predicate, previousEnv = previousEnv)
+        if type(predType) is error:
+            return predType
+        
+        resultCheck = programContext.checkReturnType(nodeType= 'Bool', returnType= predType,
+                                                     row_and_col= (node.line, node.column),
+                                                     errorOption= 'uncompatible types')
+        
+        if type(resultCheck) is error:
+            return resultCheck
+        
+        thenType = self.visit(node.then_body, previousEnv= previousEnv)
+        if type(thenType) is error:
+            return thenType
+        
+        elseType = self.visit(node.else_body, previousEnv= previousEnv)
+        if type(elseType) is error:
+            return elseType
+        
+        return programContext.LCA(idName1 = thenType, idName2= elseType)
