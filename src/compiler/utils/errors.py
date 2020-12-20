@@ -25,6 +25,11 @@ errorSelector = {'repeated class basic': lambda idName, row_and_col=(0,0):error(
                       row_and_col= row_and_col,
                       message= "The type %s doesn't exist in the current context" %idName,
                 ),
+                'uncompatible types': lambda type1, type2, row_and_col= (0,0): error (
+                    error_type='TypeError',
+                    row_and_col= row_and_col,
+                    message= 'Bad assign %s to %s' %(type1, type2)
+                ),
                 'repeated attr': lambda idName, row_and_col=(0,0):error(
                       error_type='TypeError',
                       row_and_col=row_and_col,

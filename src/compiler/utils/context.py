@@ -132,8 +132,8 @@ class globalContext:
                                                 idName= 'default',
                                                 _type='String')
                                             },
-                                parent= 'Object'
-
+                                parent= 'Object',
+                                builtIn= True
                                 ),
                 'Bool': Type (idName= 'Bool',
                               attributes= {},
@@ -404,6 +404,17 @@ class globalContext:
             type2= returnType,
             row_and_col= row_and_col
         ) or returnType
+    
+    def checkNonRepetition(self, nodeActions):
+        repetitionList = []
+        for action in nodeActions:
+            if not action.type in repetitionList:
+                repetitionList.append(action.type)
+            else:
+                return error(error_type= 'SemanticError',
+                             row_and_col= (action.line, action.typeColumn),
+                             message = 'Duplicate branch %s in case statement.' %action.type)
+        
     
     def searchValue(self, node: NodeObject, row_and_col, environment):
         return interceptError(

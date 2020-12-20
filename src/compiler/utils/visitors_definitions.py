@@ -350,6 +350,65 @@ class TypeCheckerVisitor(NodeVisitor):
         
         return programContext.LCA(idName1 = thenType, idName2= elseType)
     
+    def visit_NodeCase(self, node: NodeCase, previousEnv):
+        resultTypeInit= self.visit(node.expr)
+        if type(resultTypeInit) is error:
+            return resultTypeInit
+        
+        return self.visit_NodeCaseActions(node.actions,
+                                          previousEnv,
+                                          resultTypeInit)
+    
+    def visit_NodeCaseActions(self, nodeActions, previousEnv, resultTypeInit):
+        
+        action, returnTypesExpressions= self.searchLessActionCaseAndReturnTypes(nodeActions,
+                                                                                previousEnv,
+                                                                                resultTypeInit)
+        if type(action) is error:
+            return action
+        
+        lca =  returnTypesExpressions[0]
+        for typeExpr in returnTypesExpressions:
+            lca= programContext.LCA(idName1= lca, idName2= typeExpr)
+            
+        return lca
+    
+    def searchLessActionCaseAndReturnTypes(self, nodeActions, 
+                                           previousEnv, resultTypeInit):
+        actionToReturn = None
+        currentTypeCase= 'Object'
+        returnTypesExpressions = []
+        
+        resultCheckNonRepetition= programContext.checkNonRepetition(nodeActions)
+        if type(resultCheckNonRepetition) is error:
+            return resultCheckNonRepetition, None
+        
+        for action in nodeActions:
+            actionType= programContext.getType(idName= action.type,
+                                                row_and_col= (action.line,
+                                                              action.column))
+            if type(actionType) is error:
+                return actionType, None
+            
+            newEnv= previousEnv.copy()
+            newEnv.update({
+                action.idName: action.type
+            })
+            returnTypeAction= self.visit(action.expr, previousEnv= newEnv)
+            if type(returnTypeAction) is error:
+                return returnTypeAction, None
+
+            returnTypesExpressions.append(returnTypeAction)
+            
+            if programContext.isSubtype(subType= resultTypeInit,
+                superType= action.type) and programContext.isSubtype(
+                subType= action.type,
+                superType= currentTypeCase):
+                actionToReturn= action
+                currentTypeCase= action.type
+                
+        return actionToReturn, returnTypesExpressions
+    
     
     def visit_NodeIsVoid(self, node: NodeIsVoid, previousEnv):
         typeExpr= self.visit(node.expr, previousEnv = previousEnv)

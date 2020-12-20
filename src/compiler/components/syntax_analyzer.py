@@ -380,7 +380,12 @@ class pyCoolParser:
         """
         action : ID COLON TYPE ARROW expression SEMICOLON
         """
-        p[0] = (p[1], p[3], p[5])
+        p[0] = NodeCaseAction(idName= p[1], 
+                              _type= p[3],
+                              expr= p[5],
+                              line= p.slice[1].lineno,
+                              column= self.real_col[ str(p.slice[1]) ],
+                              typeColumn= self.real_col[ str(p.slice[3]) ])
 
     # ######################### METHODS DISPATCH ######################################
     

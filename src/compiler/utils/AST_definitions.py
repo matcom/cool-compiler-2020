@@ -411,7 +411,15 @@ class NodeCase(NodeExpr):
         return "{}(expr={}, actions={})".format(self.clsname, 
         self.expr, self.actions)
 
-
+        
+class NodeCaseAction(NodeExpr):
+    def __init__(self, idName,  expr, _type, line, column, typeColumn):
+        super().__init__(line= line, column= column)
+        self.idName= idName
+        self.expr= expr
+        self.type= _type
+        self.typeColumn= typeColumn
+        
 # ############################## UNARY OPERATIONS ##################################
 
 
