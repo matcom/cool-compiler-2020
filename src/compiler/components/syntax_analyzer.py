@@ -193,12 +193,12 @@ class pyCoolParser:
         """
         expression : ID ASSIGN expression
         """        
-        p[0] = NodeAssignment(idName= NodeObject(idName= p[1],
+        p[0] = NodeAssignment(nodeObject= NodeObject(idName= p[1],
                                                  line= p.slice[1].lineno,
                                                  column=self.real_col[ str(p.slice[1]) ]), 
                          expr= p[3],
                          line= p.slice[1].lineno,
-                         column=self.real_col[ str(p.slice[1]) ])
+                         column=self.real_col[ str(p.slice[2]) ])
 
 # ######################### UNARY OPERATIONS #######################################
     
@@ -325,34 +325,38 @@ class pyCoolParser:
         nested_lets : ID COLON TYPE
                     | nested_lets COMMA ID COLON TYPE
         """
-        if p[1] == "ID":
-            p[0]= NodeLet(idName= p[1], returnType= p[3], body = None,
+        if p[2] == ":":
+            p[0]= [NodeLet(idName= p[1], returnType= p[3], body = None,
                           line= p.slice[1].lineno,
-                          column= self.real_col[ str(p.slice[1]) ])
+                          column= self.real_col[ str(p.slice[1]) ])]
         else:
-            p[0]= NodeLet(idName= p[3],
+            p[1].append(NodeLet(idName= p[3],
                           returnType= p[-1],
                           body= None,
                           line= p.slice[2].lineno,
-                          column= self.real_col[str(p.slice[2])])
+                          column= self.real_col[str(p.slice[2])]))
+            p[0]= p[1]
 
     def p_nested_lets_initialize(self, p):
         """
         nested_lets : ID COLON TYPE ASSIGN expression
                     | nested_lets COMMA ID COLON TYPE ASSIGN expression
         """
-        if p[1] == "ID":
-            p[0] = NodeLet(idName= p[1],
+        if p[2] == ":":
+            p[0] = [NodeLet(idName= p[1],
                            returnType= p[3],
                            body = p[5],
                            line = p.slice[1].lineno,
-                           column= self.real_col[ str(p.slice[1]) ])
+                           column= self.real_col[ str(p.slice[1]) ] )]
         else:
-            p[0]= NodeLet(idName= p[3],
+            p[1].append(
+                NodeLet(idName= p[3],
                           returnType= p[5],
                           body= p[7],
                           line= p.slice[2].lineno,
                           column= self.real_col[ str(p.slice[2]) ])
+            )
+            p[0]= p[1]
         
     # ######################### CASE EXPRESSION ########################################
     
