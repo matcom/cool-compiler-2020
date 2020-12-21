@@ -36,16 +36,34 @@ IO: .word 36
 .word in_string_36
 .word in_int_38
 .asciiz "IO"
+A: .word 20
+.word Object
+.word ctor_39
+.word abort_2
+.word type_name_4
+.asciiz "A"
+B: .word 20
+.word A
+.word ctor_40
+.word abort_2
+.word type_name_4
+.asciiz "B"
+C: .word 20
+.word B
+.word ctor_41
+.word abort_2
+.word type_name_4
+.asciiz "C"
 Main: .word 40
 .word IO
-.word ctor_39
+.word ctor_42
 .word abort_2
 .word type_name_4
 .word out_string_33
 .word out_int_34
 .word in_string_36
 .word in_int_38
-.word func_main_0
+.word main
 .asciiz "Main"
 exception_1: .asciiz "Se esta realizando dispatch sobre valor void"
 exception_2: .asciiz "Se esta realizando case sobre valor void"
@@ -558,123 +576,10 @@ li $v1, 0
 move $sp, $a3
 jr $ra
 # cil function Node
-func_main_0:
+ctor_40:
 addi $a3, $sp, 4
 # reservar locarvars
-add $sp, $sp, -20
-# CILMinusNode
-li $t2, 0
-lw $t3, -4($a3)
-sub $t1, $t2, $t3
-sw $t1, -12($a3)
-# CILGotoIfNode
-lw $t1, -12($a3)
-bne $t1, $zero, label_3
-# CILGotoNode
-j label_4
-# CILLabelNode
-label_3:
-# CILLoadNode
-la $t1, data_7
-sw $t1,-20($a3)
-# assign
-lw $t1, -20($a3)
-sw $t1, -16($a3)
- # SaveState
-# Salva registros
-addi $sp, $sp, -76
-sw $t1, 0($sp)
-sw $t2, 4($sp)
-sw $t3, 8($sp)
-sw $t4, 12($sp)
-sw $t5, 16($sp)
-sw $t6, 20($sp)
-sw $t7, 24($sp)
-sw $a0, 28($sp)
-sw $a1, 32($sp)
-sw $a2, 36($sp)
-sw $a3, 40($sp)
-sw $ra, 44($sp)
-sw $s1, 48($sp)
-sw $s2, 52($sp)
-sw $s3, 56($sp)
-sw $s4, 60($sp)
-sw $s5, 64($sp)
-sw $s6, 68($sp)
-sw $s7, 72($sp)
-# CILParamNode 
-lw $t1, -4($a3)
-# push
-addi $sp, $sp, -4
-sw $t1, 0($sp)
-# CILParamNode 
-lw $t1, -16($a3)
-# push
-addi $sp, $sp, -4
-sw $t1, 0($sp)
- # CILStaticCallNode
-jal out_string_33
-# Carga registros
-lw $t1, 0($sp)
-lw $t2, 4($sp)
-lw $t3, 8($sp)
-lw $t4, 12($sp)
-lw $t5, 16($sp)
-lw $t6, 20($sp)
-lw $t7, 24($sp)
-lw $a0, 28($sp)
-lw $a1, 32($sp)
-lw $a2, 36($sp)
-lw $a3, 40($sp)
-lw $ra, 44($sp)
-lw $s1, 48($sp)
-lw $s2, 52($sp)
-lw $s3, 56($sp)
-lw $s4, 60($sp)
-lw $s5, 64($sp)
-lw $s6, 68($sp)
-lw $s7, 72($sp)
-addi $sp, $sp, 76
-sw $v1, -8($a3)
-# CILGotoNode
-j label_5
-# CILLabelNode
-label_4:
-# CILLoadNode
-la $t1, exception_1
-sw $t1,-24($a3)
- # CILPrintNodeStr 
-lw $t1, -24($a3)
-li $v0, 4
-move $a0, $t1
-syscall
-# CILErrorNode
-li $a0, 1
-li $v0, 17
-syscall
-# CILLabelNode
-label_5:
-# CILReturnNode
-lw $t1, -8($a3)
-move $v1, $t1
-# restaurar pila con respecto al metodo
-move $sp, $a3
-jr $ra
-# cil function Node
-entry:
-addi $a3, $sp, 0
-# reservar locarvars
-add $sp, $sp, -8
-# CILAllocateNode
-# reserva memoria
-li $a0, 4
-li $v0, 9
-syscall
- # guardar en dest
-sw $v0, -4($a3)
- # en la instancia poner referencia a su info_table
-la $t1, Main
-sw $t1, 0($v0)
+add $sp, $sp, -4
  # SaveState
 # Salva registros
 addi $sp, $sp, -76
@@ -726,6 +631,16 @@ lw $s6, 68($sp)
 lw $s7, 72($sp)
 addi $sp, $sp, 76
 sw $v1, -8($a3)
+# CILReturnNode
+li $v1, 0
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+ctor_41:
+addi $a3, $sp, 4
+# reservar locarvars
+add $sp, $sp, -4
  # SaveState
 # Salva registros
 addi $sp, $sp, -76
@@ -754,7 +669,406 @@ lw $t1, -4($a3)
 addi $sp, $sp, -4
 sw $t1, 0($sp)
  # CILStaticCallNode
-jal func_main_0
+jal ctor_40
+# Carga registros
+lw $t1, 0($sp)
+lw $t2, 4($sp)
+lw $t3, 8($sp)
+lw $t4, 12($sp)
+lw $t5, 16($sp)
+lw $t6, 20($sp)
+lw $t7, 24($sp)
+lw $a0, 28($sp)
+lw $a1, 32($sp)
+lw $a2, 36($sp)
+lw $a3, 40($sp)
+lw $ra, 44($sp)
+lw $s1, 48($sp)
+lw $s2, 52($sp)
+lw $s3, 56($sp)
+lw $s4, 60($sp)
+lw $s5, 64($sp)
+lw $s6, 68($sp)
+lw $s7, 72($sp)
+addi $sp, $sp, 76
+sw $v1, -8($a3)
+# CILReturnNode
+li $v1, 0
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+ctor_42:
+addi $a3, $sp, 4
+# reservar locarvars
+add $sp, $sp, -4
+ # SaveState
+# Salva registros
+addi $sp, $sp, -76
+sw $t1, 0($sp)
+sw $t2, 4($sp)
+sw $t3, 8($sp)
+sw $t4, 12($sp)
+sw $t5, 16($sp)
+sw $t6, 20($sp)
+sw $t7, 24($sp)
+sw $a0, 28($sp)
+sw $a1, 32($sp)
+sw $a2, 36($sp)
+sw $a3, 40($sp)
+sw $ra, 44($sp)
+sw $s1, 48($sp)
+sw $s2, 52($sp)
+sw $s3, 56($sp)
+sw $s4, 60($sp)
+sw $s5, 64($sp)
+sw $s6, 68($sp)
+sw $s7, 72($sp)
+# CILParamNode 
+lw $t1, -4($a3)
+# push
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+ # CILStaticCallNode
+jal ctor_0
+# Carga registros
+lw $t1, 0($sp)
+lw $t2, 4($sp)
+lw $t3, 8($sp)
+lw $t4, 12($sp)
+lw $t5, 16($sp)
+lw $t6, 20($sp)
+lw $t7, 24($sp)
+lw $a0, 28($sp)
+lw $a1, 32($sp)
+lw $a2, 36($sp)
+lw $a3, 40($sp)
+lw $ra, 44($sp)
+lw $s1, 48($sp)
+lw $s2, 52($sp)
+lw $s3, 56($sp)
+lw $s4, 60($sp)
+lw $s5, 64($sp)
+lw $s6, 68($sp)
+lw $s7, 72($sp)
+addi $sp, $sp, 76
+sw $v1, -8($a3)
+# CILReturnNode
+li $v1, 0
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+main:
+addi $a3, $sp, 4
+# reservar locarvars
+add $sp, $sp, -64
+# CILLoadNode
+la $t1, data_7
+sw $t1,-16($a3)
+# assign
+lw $t1, -16($a3)
+sw $t1, -12($a3)
+# CILMinusNode
+li $t2, 0
+lw $t3, -20($a3)
+sub $t1, $t2, $t3
+sw $t1, -24($a3)
+# CILGotoIfNode
+lw $t1, -24($a3)
+bne $t1, $zero, label_9
+# CILGotoNode
+j label_10
+# CILLabelNode
+label_9:
+# CILTypeOfNode
+# llegar hasta la inf_table
+lw $t1, -20($a3)
+lw $t2, 0($t1) 
+# guardarlo en  destino
+sw $t2,-28($a3)
+ # SaveState
+# Salva registros
+addi $sp, $sp, -76
+sw $t1, 0($sp)
+sw $t2, 4($sp)
+sw $t3, 8($sp)
+sw $t4, 12($sp)
+sw $t5, 16($sp)
+sw $t6, 20($sp)
+sw $t7, 24($sp)
+sw $a0, 28($sp)
+sw $a1, 32($sp)
+sw $a2, 36($sp)
+sw $a3, 40($sp)
+sw $ra, 44($sp)
+sw $s1, 48($sp)
+sw $s2, 52($sp)
+sw $s3, 56($sp)
+sw $s4, 60($sp)
+sw $s5, 64($sp)
+sw $s6, 68($sp)
+sw $s7, 72($sp)
+# CILParamNode 
+lw $t1, -20($a3)
+# push
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+# CILParamNode 
+lw $t1, -12($a3)
+# push
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+# CILDynamicCallNode
+lw $t1, -28($a3)
+lw $t2, 20($t1)
+jalr $t2
+# Carga registros
+lw $t1, 0($sp)
+lw $t2, 4($sp)
+lw $t3, 8($sp)
+lw $t4, 12($sp)
+lw $t5, 16($sp)
+lw $t6, 20($sp)
+lw $t7, 24($sp)
+lw $a0, 28($sp)
+lw $a1, 32($sp)
+lw $a2, 36($sp)
+lw $a3, 40($sp)
+lw $ra, 44($sp)
+lw $s1, 48($sp)
+lw $s2, 52($sp)
+lw $s3, 56($sp)
+lw $s4, 60($sp)
+lw $s5, 64($sp)
+lw $s6, 68($sp)
+lw $s7, 72($sp)
+addi $sp, $sp, 76
+sw $v1, -8($a3)
+# CILGotoNode
+j label_11
+# CILLabelNode
+label_10:
+# CILLoadNode
+la $t1, exception_1
+sw $t1,-32($a3)
+ # CILPrintNodeStr 
+lw $t1, -32($a3)
+li $v0, 4
+move $a0, $t1
+syscall
+# CILErrorNode
+li $a0, 1
+li $v0, 17
+syscall
+# CILLabelNode
+label_11:
+# CILReturnNode
+lw $t1, -8($a3)
+move $v1, $t1
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# assign
+lw $t1, -40($a3)
+sw $t1, -36($a3)
+# assign
+li $t1, 1
+sw $t1, -44($a3)
+# CILMinusNode
+li $t2, 0
+lw $t3, -52($a3)
+sub $t1, $t2, $t3
+sw $t1, -56($a3)
+# CILGotoIfNode
+lw $t1, -56($a3)
+bne $t1, $zero, label_19
+# CILGotoNode
+j label_20
+# CILLabelNode
+label_19:
+# CILTypeOfNode
+# llegar hasta la inf_table
+lw $t1, -52($a3)
+lw $t2, 0($t1) 
+# guardarlo en  destino
+sw $t2,-60($a3)
+ # SaveState
+# Salva registros
+addi $sp, $sp, -76
+sw $t1, 0($sp)
+sw $t2, 4($sp)
+sw $t3, 8($sp)
+sw $t4, 12($sp)
+sw $t5, 16($sp)
+sw $t6, 20($sp)
+sw $t7, 24($sp)
+sw $a0, 28($sp)
+sw $a1, 32($sp)
+sw $a2, 36($sp)
+sw $a3, 40($sp)
+sw $ra, 44($sp)
+sw $s1, 48($sp)
+sw $s2, 52($sp)
+sw $s3, 56($sp)
+sw $s4, 60($sp)
+sw $s5, 64($sp)
+sw $s6, 68($sp)
+sw $s7, 72($sp)
+# CILParamNode 
+lw $t1, -52($a3)
+# push
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+# CILDynamicCallNode
+lw $t1, -60($a3)
+lw $t2, 20($t1)
+jalr $t2
+# Carga registros
+lw $t1, 0($sp)
+lw $t2, 4($sp)
+lw $t3, 8($sp)
+lw $t4, 12($sp)
+lw $t5, 16($sp)
+lw $t6, 20($sp)
+lw $t7, 24($sp)
+lw $a0, 28($sp)
+lw $a1, 32($sp)
+lw $a2, 36($sp)
+lw $a3, 40($sp)
+lw $ra, 44($sp)
+lw $s1, 48($sp)
+lw $s2, 52($sp)
+lw $s3, 56($sp)
+lw $s4, 60($sp)
+lw $s5, 64($sp)
+lw $s6, 68($sp)
+lw $s7, 72($sp)
+addi $sp, $sp, 76
+sw $v1, -48($a3)
+# CILGotoNode
+j label_21
+# CILLabelNode
+label_20:
+# CILLoadNode
+la $t1, exception_1
+sw $t1,-64($a3)
+ # CILPrintNodeStr 
+lw $t1, -64($a3)
+li $v0, 4
+move $a0, $t1
+syscall
+# CILErrorNode
+li $a0, 1
+li $v0, 17
+syscall
+# CILLabelNode
+label_21:
+# CILLessThan
+lw $t1, -44($a3)
+lw $t2, -48($a3)
+slt $t3, $t1, $t2
+sw $t3, -36($a3)
+# CILSetAttribNode
+lw $t1, -4($a3)
+addi $t2, $t1, 4
+lw $t3, -36($a3)
+sw $t3, 0($t2)
+# cil function Node
+entry:
+addi $a3, $sp, 0
+# reservar locarvars
+add $sp, $sp, -8
+# CILAllocateNode
+# reserva memoria
+li $a0, 8
+li $v0, 9
+syscall
+ # guardar en dest
+sw $v0, -4($a3)
+ # en la instancia poner referencia a su info_table
+la $t1, Main
+sw $t1, 0($v0)
+ # SaveState
+# Salva registros
+addi $sp, $sp, -76
+sw $t1, 0($sp)
+sw $t2, 4($sp)
+sw $t3, 8($sp)
+sw $t4, 12($sp)
+sw $t5, 16($sp)
+sw $t6, 20($sp)
+sw $t7, 24($sp)
+sw $a0, 28($sp)
+sw $a1, 32($sp)
+sw $a2, 36($sp)
+sw $a3, 40($sp)
+sw $ra, 44($sp)
+sw $s1, 48($sp)
+sw $s2, 52($sp)
+sw $s3, 56($sp)
+sw $s4, 60($sp)
+sw $s5, 64($sp)
+sw $s6, 68($sp)
+sw $s7, 72($sp)
+# CILParamNode 
+lw $t1, -4($a3)
+# push
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+ # CILStaticCallNode
+jal ctor_42
+# Carga registros
+lw $t1, 0($sp)
+lw $t2, 4($sp)
+lw $t3, 8($sp)
+lw $t4, 12($sp)
+lw $t5, 16($sp)
+lw $t6, 20($sp)
+lw $t7, 24($sp)
+lw $a0, 28($sp)
+lw $a1, 32($sp)
+lw $a2, 36($sp)
+lw $a3, 40($sp)
+lw $ra, 44($sp)
+lw $s1, 48($sp)
+lw $s2, 52($sp)
+lw $s3, 56($sp)
+lw $s4, 60($sp)
+lw $s5, 64($sp)
+lw $s6, 68($sp)
+lw $s7, 72($sp)
+addi $sp, $sp, 76
+sw $v1, -8($a3)
+ # SaveState
+# Salva registros
+addi $sp, $sp, -76
+sw $t1, 0($sp)
+sw $t2, 4($sp)
+sw $t3, 8($sp)
+sw $t4, 12($sp)
+sw $t5, 16($sp)
+sw $t6, 20($sp)
+sw $t7, 24($sp)
+sw $a0, 28($sp)
+sw $a1, 32($sp)
+sw $a2, 36($sp)
+sw $a3, 40($sp)
+sw $ra, 44($sp)
+sw $s1, 48($sp)
+sw $s2, 52($sp)
+sw $s3, 56($sp)
+sw $s4, 60($sp)
+sw $s5, 64($sp)
+sw $s6, 68($sp)
+sw $s7, 72($sp)
+# CILParamNode 
+lw $t1, -4($a3)
+# push
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+ # CILStaticCallNode
+jal main
 # Carga registros
 lw $t1, 0($sp)
 lw $t2, 4($sp)

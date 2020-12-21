@@ -7,6 +7,7 @@ class TypeBuilderVisitor:
     def __init__(self, context):
         self.context = context
         self.current_type = None # type(current_type) = Type
+        self.count = 0
 
     @visitor.on('node')
     def visit(self, node):
@@ -86,8 +87,9 @@ class TypeBuilderVisitor:
 
             child_context = self.context.CreateChildContext() 
             
-            ans = self.current_type.DefineMeth(node.id , argument_list, argument_types, node.typeName, None, child_context)
+            ans = self.current_type.DefineMeth(node.id , argument_list, argument_types, node.typeName, "func_" + node.id + "_" + str(self.count), child_context)
             if ans is None:
+                count += 1
                 errors.append("SemanticError: multiply defined methd")
         else:
             errors.append("return type missing")

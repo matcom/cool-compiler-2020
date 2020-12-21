@@ -13,16 +13,12 @@ class VisitorMIPS:
     def __init__(self):
         self.internal_count = 0
         
-
-
-
     @visitor.on('node')
     def visit(self, node):
         pass
 
     @visitor.when(cil.CILProgramNode)  
     def visit(self, node):
-        # print("----------->CILProgramNode")
         data = ".data " + enter 
         textinit = (".globl	main" + enter 
         + ".text " + enter)
@@ -31,10 +27,7 @@ class VisitorMIPS:
 
         for item in node.dottypes.values():
             data += self.visit(item)
-            # data1, labels1, text1 = self.visit(item)
-            # data += data1
-            # labels += labels1
-            # text +=  text1
+            
 
         for item in node.dotdata.values():
             data += self.visit(item)
@@ -48,20 +41,13 @@ class VisitorMIPS:
         
         return data + textinit + text + labels 
 
-
     @visitor.when(cil.CILDataNode)   
     def visit(self, node):
-        # print("----------->CILDataNode")
 
         return "" + node.vname + ": .asciiz " + "\""+ node.value + "\""+ enter
         
-
     @visitor.when(cil.CILTypeNode)  
     def visit(self, node):
-        # print("----------->CILTypeNode")
-
-        # data = (node.cinfo.name + ": .space " + str(node.cinfo.meth_length + 4) + enter
-        #      + ".asciiz " + "\""+ node.cinfo.name + "\""+ enter)
         labelbody = ""
 
         data = (node.cinfo.name + ": " 
@@ -76,59 +62,15 @@ class VisitorMIPS:
 
         lista = list(node.methods.values())
         lista.sort(key=lambda x:x.finfo.vmholder)
-        # print("/////lista",lista)
         
         for func in lista:
             data += ".word " + func.finfo.name + enter
         data += ".asciiz " + "\""+ node.cinfo.name + "\""+ enter
 
-        
-        # i = 8
-        # text = (util.ReservaMemoria(4*node.methods.__len__() + i)
-        #     + "# apunta tipo a tabla"  + enter
-        #     + "la $t1, " + node.cinfo.name +"t" + enter
-        #     + "sw $t1, 0($v0) " + enter
-        #     + "# referencia a padre") + enter
-        
-        # text = ("# CILTypeNode" + enter
-        #     # + "la $t1, " + node.cinfo.name +"t" + enter
-        #     # + "sw $t1, " + node.cinfo.name + enter
-        #     + "la $v0, "+ node.cinfo.name + enter)
-
-
-        # parent = node.cinfo.parent
-        # if not parent == None:
-        #     print("parent",parent)
-        #     text += ( "la $t1, " + parent.cinfo.name + enter
-        #         + "sw $t1, 0($v0) " + enter
-        #         # + "la $t1, " + node.cinfo.name + enter
-        #         # + "sw $v0, 0($t1)" + enter
-        #         + "# rellenar tabla" + enter )
-        # else:
-        #     text += ("li $t1, " + str(0) + enter
-        #              + "sw $t1, 0($v0) " + enter
-        #             #  + "la $t1, " + node.cinfo.name + enter
-        #             #  + "sw $v0, 0($t1)" + enter
-        #              + "# rellenar tabla" + enter)
-
-
-        # i = 8
-        # for func in node.methods.values():
-        #     labelname = "" + func.finfo.name
-        #     # labelbody1 = self.visit(func)
-        #     # capturar direccion del label del metodo y asociarlo en la tv
-        #     text += ("la $t1, " + labelname + enter 
-        #          + "la $t2, " + node.cinfo.name + enter
-        #          + "sw $t1, " + str(i) +"($t2)" + enter)
-        #     # labelbody += labelbody1
-        #     i += 4  
-        # return (data, labelbody, text)
         return data
-
 
     @visitor.when(cil.CILFunctionNode) 
     def visit(self, node):
-        # print("----------->CILFunctionNode")
         label = "" + node.finfo.name
 
         text = ("# cil function Node" + enter
@@ -140,37 +82,11 @@ class VisitorMIPS:
         text += ("# reservar locarvars" + enter
               + util.ReservaPila(len(node.localvars)))
 
-        # for item in node.arguments:
-        #     text+= self.visit(item)
-        # for item in node.localvars:
-        #     print("cosa",self.visit(item))
-        #     text+= self.visit(item)
         for item in node.instructions:
-            # print("item",item)
             text += self.visit(item)
         
-        # text += "# prueba" + enter + util.PrintStr("strName")
         return text
-
-    # @visitor.when(cil.CILArgNode)
-    # def visit(self, node):
-    #     return "# Arg Node" + enter
-
-
   
-    # @visitor.when(cil.CILLocalNode)
-    # def visit(self, node):
-    #     text = "# CILLocalNode" + enter
-    #     lenhttype = 1
-    #     text = "" + (util.ReservaMemoria(lenhttype)
-    #         + "# localNode"+ enter    # falta rellenarlo, o sea, el valor d esas variables...
-    #         + "addi $sp, $sp,-4" + enter
-    #         + "sw $v0, 0($sp)" + enter)
-
-    #     print("text",text)
-    #     return text
-
-    
     @visitor.when(cil.CILAssignNode)   
     def visit(self, node):  
         # print("----------->CILAssignNode")
@@ -183,25 +99,10 @@ class VisitorMIPS:
         text += "sw $t1, " + "-"+ str(4*node.dest.vmholder)+"($a3)" + enter
         return text
             
-
     @visitor.when(cil.CILPlusNode)   
     def visit(self, node):
-        # print("----------->CILPlusNode")
         text = "# CILPlusNode" + enter
-        # if(isinstance(node.left,int)):
-        #     text += "li $t2, " +str(node.left) + enter
-        # else:
-        #      text += "lw $t2, " + "-" + str(4*(node.left.vmholder))+"($a3)" + enter
-
-        # if(isinstance(node.right,int)):
-        #     text += "li $t3, " +str(node.right) + enter
-        # else:
-        #      text += "lw $t3, " + "-" + str(4*(node.right.vmholder))+"($a3)" + enter
-
-        # text += "add $t1, $t2, $t3" + enter
-        #     + "sw $t1, " + "-" + str(4*(node.dest.vmholder))+"($a3)" + enter)
-        # text += util.Opera("add",4*(node.dest.vmholder),4*(node.left.vmholder),4*(node.right.vmholder))
-
+        
         text += util.Opera("add",node)
         return text
 
@@ -250,8 +151,6 @@ class VisitorMIPS:
             +"bne $t1, $zero, "+ node.label.name + enter)
         return text
 
-    
-
     @visitor.when(cil.CILGotoNode)  
     def visit(self, node):
         # print("----------->CILGotoNode")
@@ -265,8 +164,7 @@ class VisitorMIPS:
         text = "# CILLabelNode" + enter
         text += node.name +":" + enter
         return text
-
-        
+   
     @visitor.when(cil.CILTypeOfNode)  
     def visit(self, node):
         # print("----------->CILTypeOfNode")
@@ -279,7 +177,6 @@ class VisitorMIPS:
                 + "sw $t2," + "-"+ str(4*(node.dest.vmholder))+"($a3)"+ enter)
         return text
 
-
     @visitor.when(cil.CILLoadNode)   
     def visit(self, node):
         # print("----------->CILLoadNode")
@@ -288,9 +185,6 @@ class VisitorMIPS:
                 + "sw $t1," + "-"+ str(4*node.dest.vmholder)+"($a3)"+ enter )
         return text
 
-
-
-
     @visitor.when(cil.CILParamNode)   
     def visit(self, node):
         # print("----------->CILParamNode")
@@ -298,7 +192,6 @@ class VisitorMIPS:
         text += "lw $t1, "+ "-"+ str(4*node.vinfo.vmholder)+"($a3)" + enter
         text += util.Push("$t1")
         return text 
-
 
     @visitor.when(cil.CILSetAttribNode)   
     def visit(self, node):
@@ -333,8 +226,6 @@ class VisitorMIPS:
             + "sb $t4, " + "-"+ str(4*node.dest.vmholder)+"($a3)" + enter)
         return text
 
-
-
     @visitor.when(cil.CILReturnNode)  
     def visit(self, node):
         # print("----------->CILReturnNode")
@@ -354,7 +245,6 @@ class VisitorMIPS:
         text += "jr $ra"+ enter
         return text
 
-
     @visitor.when(cil.CILSaveState)    
     def visit(self, node):
         # print("----------->CILSaveState")
@@ -372,8 +262,6 @@ class VisitorMIPS:
 
 
         return text
-
-
 
     @visitor.when(cil.CILDynamicCallNode)   
     def visit(self, node):
@@ -505,29 +393,3 @@ class VisitorMIPS:
         text +=  "syscall" + enter
         return text
     
-
-
-
-
-
-
-
-
-
-
-# como se hace lo d ver la representacion en str de un # 
-# necesito q los vmholder de los locals sean seguido de arg 
-# arreglar los operadore, pues tengo q saber si hay una direccion o un int
-# el typeof resolverlo desde cil, o sea, coger el nmbre q ya va a estar en el .data d mips y es a lo q apunta
-
-# con q mult trabajar 
-
-# revisar las excepciones del length
-# el return del entry tiene q salir del programa... si sigue coje la proxima etiqueta...
-
-
-
-# self_type
-# read str
-# static dispatch
-# substring 

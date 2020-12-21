@@ -23,7 +23,7 @@ def main():
 
     # Name of the file
     #p = args[2]
-    p = "E:\\112720\\112420\\191220\\cool-compiler-2020\\tests\\codegen\\hello_world.cl"
+    p = args[1]
     print(str(p))
     if not str(p).endswith(".cl"):
         print("Cool program files must end with a \`.cl\` extension.\r\n")

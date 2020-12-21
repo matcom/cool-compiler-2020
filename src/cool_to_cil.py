@@ -90,12 +90,6 @@ class COOLToCILVisitor:
         self.register_instruction(cil.CILSetAttribNode(vlocal, num2, vinfo))
         return vlocal
 
-    # def _unboxing(self, vinfo, ctype):
-    #     vlocal = self.define_internal_local()
-    #     num2 = self.dottypes[ctype].attrs['value'].vmholder
-    #     self.register_instruction(cil.CILGetAttribNode(vlocal, vinfo, num2))
-    #     return vlocal
-
     def _ifboxing(self, vvar, cond):
         vret = vvar
         if cond == 'String' or cond == 'Int' or cond == 'Bool':
@@ -140,11 +134,16 @@ class COOLToCILVisitor:
         name = parent_class.methods['ctor'].finfo.name
         self.register_instruction(cil.CILStaticCallNode(useless, name))
 
+
+        for feature in node.features:
+            if isinstance(feature, ast.AttributeFeatureNode):
+                self.visit(feature)
+        
         self.register_instruction(cil.CILReturnNode())
 
         for feature in node.features:
-            self.visit(feature)
-
+            if isinstance(feature, ast.FunctionFeatureNode):
+                self.visit(feature)
 
     @visitor.when(ast.AttributeFeatureNode)
     def visit(self, node: ast.AttributeFeatureNode, dest = None):
@@ -184,8 +183,8 @@ class COOLToCILVisitor:
         ret_var = self.define_internal_local()
         self.visit(node.statements, ret_var)
         # print("///////////tipo retorno", self.current_function.finfo.returnType)
-        # print("////////////tipo", node.exprbody.computedType)
-        var_box = self._ifobjectboxing(ret_var, node.statements.ComputedType, self.current_function.finfo.returnType)
+        # print("////////////tipo", node.exprbody.typeName)
+        var_box = self._ifobjectboxing(ret_var, node.statements.typeName, self.current_function.finfo.returnType)
         self.register_instruction(cil.CILReturnNode(var_box))
 
     @visitor.when(ast.PlusNode)
@@ -278,7 +277,7 @@ class COOLToCILVisitor:
     #     vlocal = self.register_local(node.vinfo)
     #     ret_var = self.define_internal_local()
     #     self.visit(node.expr, ret_var)
-    #     vbox = self._ifobjectboxing(ret_var, node.expr.computedType, node.vinfo.ctype)
+    #     vbox = self._ifobjectboxing(ret_var, node.expr.typeName, node.vinfo.ctype)
     #     self.register_instruction(cil.CILAssignNode(vlocal, vbox))
     #     return vlocal
 
@@ -286,7 +285,7 @@ class COOLToCILVisitor:
     def visit(self, node: ast.BlockStatementNode, dest):
         # print("------------visit node: Block")  
         last = None
-        for expr in node.exprlist:
+        for expr in node.expressions:
             vlocal = self.define_internal_local()
             last = vlocal
             self.visit(expr, vlocal)
@@ -298,8 +297,8 @@ class COOLToCILVisitor:
         v_temp = self.define_internal_local()
         self.visit(node.id, v_temp)
         self.visit(node.expression, v_temp)
-        # print("................. node.id.vinfo",node.id.computedType)
-        v_box = self._ifobjectboxing(v_temp, node.expression.ComputedType, node.id.ComputedType)
+        # print("................. node.id.vinfo",node.id.typeName)
+        v_box = self._ifobjectboxing(v_temp, node.expression.typeName, node.id.typeName)
 
         if not node.id.vinfo in [a.vinfo for a in self.localvars] and not node.id.vinfo in [a.vinfo for a in self.arguments]:
             v_self = self._find('self')
@@ -405,7 +404,7 @@ class COOLToCILVisitor:
         self.visit(node.left, vleft)
         self.visit(node.right, vright)
         
-        if node.left.computedType == 'String':
+        if node.left.typeName == 'String':
 
             vlength_r = self.define_internal_local()
             self.register_instruction(cil.CILLengthNode(vlength_r, vright))
@@ -469,7 +468,7 @@ class COOLToCILVisitor:
         # print("------------visit node: IsVoid")  
         vlocal = self.define_internal_local()
         self.visit(node.expr, vlocal)
-        v_box = self._ifboxing(vlocal, node.expr.computedType)
+        v_box = self._ifboxing(vlocal, node.expr.typeName)
         # self.register_instruction(cil.CILMinusNode(dest, self.void, v_box))
 
         rest = self.define_internal_local()
@@ -511,7 +510,7 @@ class COOLToCILVisitor:
         vexpr = self.define_internal_local()
         self.visit(node.case0, vexpr)
 
-        vbox = self._ifboxing(vexpr, node.case0.computedType)
+        vbox = self._ifboxing(vexpr, node.case0.typeName)
 
         vhalt = self.define_internal_local()
         self.register_instruction(cil.CILMinusNode(vhalt, self.void, vbox))
@@ -625,9 +624,9 @@ class COOLToCILVisitor:
 
     @visitor.when(ast.FunctionCallStatement)
     def visit(self, node: ast.FunctionCallStatement, dest):
-        if node.instance == 'self':
+        if node.instance.lex == 'self':
             params = []
-            method_ = self.dottypes[self.current_class.cinfo.name].methods[node.methodName].finfo
+            method_ = self.dottypes[self.current_class.cinfo.name].methods[node.function].finfo
             vself = self._find('self')      
 
             vhalt = self.define_internal_local()
@@ -642,12 +641,12 @@ class COOLToCILVisitor:
             
             self.register_instruction(label1)
 
-            for i, expr in enumerate(node.paramsList):
+            for i, expr in enumerate(node.args):
                 vlocal = self.define_internal_local()
                 self.visit(expr, vlocal)
                 p = method_.paramsType[i]
 
-                v_box = self._ifobjectboxing(vlocal, expr.computedType, p)
+                v_box = self._ifobjectboxing(vlocal, expr.typeName, p)
                 params.append(v_box)
 
             self.register_instruction(cil.CILSaveState())  
@@ -667,9 +666,9 @@ class COOLToCILVisitor:
             self.register_instruction(cil.CILErrorNode())
 
             self.register_instruction(labelend)
-        elif node.dispatchType is None:
+        elif not node.dispatchType is None:
             params = []
-            ctype_ = node.ComputedType[0].Name
+            ctype_ = node.instance.typeName
             method_ = self.dottypes[ctype_].methods[node.function].finfo
 
             for i, expr in enumerate(node.args):
@@ -677,13 +676,13 @@ class COOLToCILVisitor:
                 self.visit(expr, vlocal)
                 p = method_.paramsType[i]
 
-                v_box = self._ifobjectboxing(vlocal, expr.ComputedType, p)
+                v_box = self._ifobjectboxing(vlocal, expr.typeName, p)
                 params.append(v_box)
 
             v_eval = self.define_internal_local()
             self.visit(node.function, v_eval)
 
-            v_box_eval = self._ifboxing(v_eval, node.ComputedType)
+            v_box_eval = self._ifboxing(v_eval, node.typeName)
 
             vhalt = self.define_internal_local()
             self.register_instruction(cil.CILMinusNode(vhalt, self.void, v_box_eval))
@@ -717,20 +716,20 @@ class COOLToCILVisitor:
             self.register_instruction(labelend)
         else:
             params = []
-            method_ = self.dottypes[node.className].methods[node.methodName].finfo
+            method_ = self.dottypes[node.typeName].methods[node.function].finfo
 
-            for i, expr in enumerate(node.paramsList):
+            for i, expr in enumerate(node.args):
                 vlocal = self.define_internal_local()
                 self.visit(expr, vlocal)
                 p = method_.paramsType[i]
 
-                v_box = self._ifobjectboxing(vlocal, expr.computedType, p)
+                v_box = self._ifobjectboxing(vlocal, expr.typeName, p)
                 params.append(v_box)
 
             v_expr = self.define_internal_local()
-            self.visit(node.dispObject, v_expr)
+            self.visit(node.instance, v_expr)
 
-            v_box_eval = self._ifboxing(v_expr, node.dispObject.computedType)
+            v_box_eval = self._ifboxing(v_expr, node.instance.typeName)
 
             vhalt = self.define_internal_local()
             self.register_instruction(cil.CILMinusNode(vhalt, self.void, v_box_eval))

@@ -59,14 +59,14 @@ class TypeCheckerVisitor:
             if meth is not None:
                 if parent_meth is not None:
                     if parent_meth.ReturnType != meth.ReturnType:
-                        errors.append("SemanticError: In redefined method " + meth.Name + ", return type " + meth.ReturnType + "is different from original return type " + parent_meth.ReturnType + ". ")
+                        errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - SemanticError: In redefined method " + meth.Name + ", return type " + meth.ReturnType + "is different from original return type " + parent_meth.ReturnType + ". ")
                         return
                     if len(parent_meth.ParamsName) != len(meth.ParamsName):
-                        errors.append("SemanticError: Incompatible number of formal parameters in redefined method " + meth.Name + ".")
+                        errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - SemanticError: Incompatible number of formal parameters in redefined method " + meth.Name + ".")
                         return
                     for i in range(len(meth.ParamsName)):
                         if meth.ParamsType[i] != parent_meth.ParamsType[i]:
-                            errors.append("SemanticError: In redefined method " + meth.Name + ", parameter type " + meth.ParamsType[i] + " is different from original type " + parent_meth.ParamsType[i] + ".")
+                            errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - SemanticError: In redefined method " + meth.Name + ", parameter type " + meth.ParamsType[i] + " is different from original type " + parent_meth.ParamsType[i] + ".")
                             return
                 for i in range(len(meth.ParamsName)):
                     param_name = meth.ParamsName[i]
@@ -78,6 +78,8 @@ class TypeCheckerVisitor:
             self.visit(_f, child_context, errors)
 
 
+
+
     @visitor.when(ast_hierarchy.FunctionFeatureNode)
     def visit(self, node, context, errors):
         node.ComputedType = [] 
@@ -86,7 +88,7 @@ class TypeCheckerVisitor:
         node.ComputedType = node.statements.ComputedType
         for _type in node.ComputedType:
             if not (node.typeName == _type.Name or context.IsDerived( _type.Name, node.typeName)):
-                errors.append("TypeError: Inferred return type " + _type.Name +" of method " + node.id + " does not conform to declared type " + node.typeName + ".")
+                errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: Inferred return type " + _type.Name +" of method " + node.id + " does not conform to declared type " + node.typeName + ".")
         meth.ComputedType = node.ComputedType
 
     @visitor.when(ast_hierarchy.FunctionCallStatement)
@@ -98,13 +100,13 @@ class TypeCheckerVisitor:
         if d is not None:
             #revisar si d es padre de instance, en caso positivo, hacer instance igual a d
                 if not (d == instance_type.Name  or context.IsDerived( d, instance_type.Name)):
-                    errors.append("TypeError: Expression type " + instance_type.Name + "does not conform to declared static dispatch type " + d +". ")
+                    errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: Expression type " + instance_type.Name + "does not conform to declared static dispatch type " + d +". ")
             #en caso negativo lanzar error que debe imprimir dispatch6
 
         meth = context.IsDefineMeth2(instance_type, node.function) 
         if meth is not None:
             if len(meth.ParamsName) != len(node.args):
-                errors.append("SemanticError: Method " + meth.Name + " called with wrong number of arguments. ")
+                errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - SemanticError: Method " + meth.Name + " called with wrong number of arguments. ")
             for i in range(len(meth.ParamsName)):
                 var_name = meth.ParamsName[i]
                 var = meth.Context.Variables[var_name]
@@ -113,27 +115,27 @@ class TypeCheckerVisitor:
                 self.visit(arg, context, errors)
                 for _type in arg.ComputedType:
                     if not (param_type == _type.Name  or context.IsDerived( _type.Name, param_type)):
-                        errors.append("TypeError: In call of method " + meth.Name +", type " + _type.Name +  " of parameter " + var_name + " does not conform to declared type " + param_type + ".")
+                        errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: In call of method " + meth.Name +", type " + _type.Name +  " of parameter " + var_name + " does not conform to declared type " + param_type + ".")
                         break    
             self.visit(node.instance, meth.Context, errors)
             node.typeName = meth.ReturnType
             node.ComputedType = [context.GetType(meth.ReturnType)]
         else:
-            errors.append("AttributeError: Dispatch to undefined method " + node.function + ". ")
+            errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - AttributeError: Dispatch to undefined method " + node.function + ". ")
           
     @visitor.when(ast_hierarchy.AttributeFeatureNode)
     def visit(self, node, context, errors):
         node.ComputedType = []
         
         if (not context.Hierarchy.__contains__(node.typeName)):
-                errors.append("TypeError: Class " + node.typeName + " of identifier " + node.id + " is undefined.")
+                errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: Class " + node.typeName + " of identifier " + node.id + " is undefined.")
         if node.expression is not None:
             node.ComputedType = []
             self.visit(node.expression, context, errors)
             #revisar si debo preguntar por el typeName o por el ComputedType
             for _type in node.expression.ComputedType:
                 if not (node.typeName == _type.Name or context.IsDerived( _type.Name, node.typeName)):
-                    errors.append("TypeError: Inferred type " + _type.Name +" of initialization of " + node.id + " does not conform to identifier's declared type " + node.typeName + ".")
+                    errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: Inferred type " + _type.Name +" of initialization of " + node.id + " does not conform to identifier's declared type " + node.typeName + ".")
                 else: 
                     node.ComputedType.append(_type) 
             attr = context.Variables[node.id]
@@ -145,7 +147,7 @@ class TypeCheckerVisitor:
         if not _type is None:
             node.ComputedType = [_type]
         else: 
-            errors.append("TypeError: 'new' used with undefined class " + node.typeName + ".")
+            errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: 'new' used with undefined class " + node.typeName + ".")
 
     @visitor.when(ast_hierarchy.ConditionalStatementNode)
     def visit(self, node, context, errors):
@@ -157,7 +159,7 @@ class TypeCheckerVisitor:
         node.typeName = node.evalExpr.typeName if context.IsDerived(node.elseExpr.typeName, node.ifExpr.typeName) else node.elseExpr.typeName
         for _type in node.evalExpr.ComputedType:
             if (_type.Name != "Bool"):
-                errors.append("TypeError: Predicate of 'if' does not have type Bool.")
+                errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: Predicate of 'if' does not have type Bool.")
         node.ComputedType = node.ifExpr.ComputedType + node.elseExpr.ComputedType
 
     @visitor.when(ast_hierarchy.LoopStatementNode)
@@ -168,7 +170,7 @@ class TypeCheckerVisitor:
         self.visit(node.evalExpr, context, errors)
         for _type in node.evalExpr.ComputedType:
             if _type.Name != "Bool":
-                errors.append("TypeError: Loop condition does not have type Bool.")
+                errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: Loop condition does not have type Bool.")
                 return
             
         node.ComputedType = node.loopExpr.ComputedType
@@ -196,7 +198,13 @@ class TypeCheckerVisitor:
             node.ComputedType = []
             _var = context.GetAttr(self.current_type, node.lex)
             if _var is None:
-                errors.append("NameError: Undefined identifier " + node.lex)
+                if context.Variables.__contains__(node.lex):
+                    _var = context.Variables[node.lex]
+                    node.typeName = _var.Type
+                    node.ComputedType = [context.GetType(node.typeName)]
+
+                else:
+                    errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - NameError: Undefined identifier " + node.lex)
             else:
                 node.typeName = _var.Type
                 node.ComputedType = [context.GetType(node.typeName)]
@@ -209,7 +217,7 @@ class TypeCheckerVisitor:
         child_context.Variables = {}
         for _var in node.variables:
             if _var.id == 'self':
-                errors.append("SemanticError: 'self' cannot be bound in a 'let' expression.")
+                errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - SemanticError: 'self' cannot be bound in a 'let' expression.")
                 return
             ans = child_context.DefineVar(_var.id, _var.typeName)
             self.visit(_var,child_context, errors)
@@ -226,7 +234,7 @@ class TypeCheckerVisitor:
         _types = []
         for x in node.body:
             if _types.__contains__(x.typeName):
-                errors.append("SemanticError: Duplicate branch " + x.typeName + " in case statement.")
+                errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - SemanticError: Duplicate branch " + x.typeName + " in case statement.")
                 return
             self.visit(x, context, errors)
             _types.append(x.typeName)
@@ -238,7 +246,7 @@ class TypeCheckerVisitor:
     def visit(self, node, context, errors):
         node.ComputedType = []
         if not context.Hierarchy.keys().__contains__(node.typeName):
-            errors.append("TypeError: Class " + node.typeName + " of case branch is undefined.")
+            errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: Class " + node.typeName + " of case branch is undefined.")
             return
         self.visit(node.expression, context, errors)
         node.ComputedType = node.expression.ComputedType
@@ -251,7 +259,7 @@ class TypeCheckerVisitor:
         node.ComputedType = []
         node.typeName = "error"
         if node.id.lex == 'self': 
-            errors.append("SemanticError: Cannot assign to 'self'.")
+            errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - SemanticError: Cannot assign to 'self'.")
         self.visit(node.id, context, errors)
         self.visit(node.expression, context, errors)
                 #pedir el atributo que se llama node.id y verificar sus tipos para ver si es posible hacer la asignación
@@ -266,11 +274,11 @@ class TypeCheckerVisitor:
                     attr = context.Variables[var]
                     break
             if attr is None:
-                errors.append("Undefined identifier "+ node.id.lex + ".")
+                errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - Undefined identifier "+ node.id.lex + ".")
                 return
             if not attr.Name == 'self' and not (attr.Type == _type.Name or context.IsDerived( _type.Name, attr.Type)):
                 node.typeName = "error in assign"
-                errors.append("Not matching type for assignment in " + attr.Type + "=" + _type.Name )
+                errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - Not matching type for assignment in " + attr.Type + "=" + _type.Name )
             else:
                 node.ComputedType.append(_type)
                 node.typeName = attr.Type 
@@ -288,7 +296,7 @@ class TypeCheckerVisitor:
         for _type in node.expression.ComputedType:
             if (_type.Name != "Int"):
                 node.typeName = "error in complement"
-                errors.append("TypeError: Argument of '~' has type " + _type.Name + " instead of Int.")
+                errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: Argument of '~' has type " + _type.Name + " instead of Int.")
             else:
                 node.ComputedType = [context.Hierarchy.get("Int")]
 
@@ -307,7 +315,7 @@ class TypeCheckerVisitor:
         for _type in node.expression.ComputedType:
             if (_type.Name != "Bool"):
                 node.typeName = "error in not"
-                errors.append("TypeError: Argument of 'not' has type " + _type.Name +  " instead of Bool.")
+                errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: Argument of 'not' has type " + _type.Name +  " instead of Bool.")
             else:
                 node.ComputedType = [context.Hierarchy.get("Bool") ]
 
@@ -329,7 +337,7 @@ class TypeCheckerVisitor:
                     node.ComputedType = [context.Hierarchy.get("Int")]
                     node.typeName = "Int"
                 else:
-                    errors.append("TypeError: non-Int arguments: " + left_type.Name + " + " + right_type.Name)
+                    errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: non-Int arguments: " + left_type.Name + " + " + right_type.Name)
 
     @visitor.when(ast_hierarchy.MinusNode)
     def visit(self, node, context, errors):
@@ -346,7 +354,7 @@ class TypeCheckerVisitor:
                     node.ComputedType = [context.Hierarchy.get("Int")]
                     node.typeName = "Int"
                 else:
-                    errors.append("TypeError: non-Int arguments: " + left_type.Name + " - " + right_type.Name)
+                    errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: non-Int arguments: " + left_type.Name + " - " + right_type.Name)
 
     @visitor.when(ast_hierarchy.TimesNode)
     def visit(self, node, context, errors):
@@ -361,7 +369,7 @@ class TypeCheckerVisitor:
                     node.ComputedType = [context.Hierarchy.get("Int")]
                     node.typeName = "Int"
                 else:
-                    errors.append("TypeError: non-Int arguments: " + left_type.Name + " * " + right_type.Name)
+                    errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: non-Int arguments: " + left_type.Name + " * " + right_type.Name)
 
     @visitor.when(ast_hierarchy.DivideNode)
     def visit(self, node, context, errors):
@@ -376,7 +384,7 @@ class TypeCheckerVisitor:
                     node.ComputedType = [context.Hierarchy.get("Int")]
                     node.typeName = "Int"
                 else:
-                    errors.append("TypeError: non-Int arguments: " + left_type.Name + " / " + right_type.Name)
+                    errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: non-Int arguments: " + left_type.Name + " / " + right_type.Name)
 
  
  
@@ -390,11 +398,11 @@ class TypeCheckerVisitor:
         self.visit(node.right, context, errors)
         for left_type in node.left.ComputedType:
             for right_type in node.right.ComputedType:
-                if (left_type.Name == "Int" and right_type.Name == "Int"):
+                if (left_type.Name ==  right_type.Name and left_type.Name in ["Int", "Bool", "String"]):
                     node.ComputedType = [context.Hierarchy.get("Bool")]
                     node.typeName = "Bool"
                 else:
-                    errors.append("TypeError: non-Int arguments: " + left_type.Name + " = " + right_type.Name)
+                    errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: non-Int arguments: " + left_type.Name + " = " + right_type.Name)
 
     @visitor.when(ast_hierarchy.LessNode)
     def visit(self, node, context, errors):
@@ -405,11 +413,11 @@ class TypeCheckerVisitor:
         self.visit(node.right, context, errors)
         for left_type in node.left.ComputedType:
             for right_type in node.right.ComputedType:
-                if (left_type.Name == "Int" and right_type.Name == "Int"):
+                if (left_type.Name ==  right_type.Name and left_typeName in ["Int", "Bool", "String"]):
                     node.ComputedType = [context.Hierarchy.get("Bool")]
                     node.typeName = "Bool"
                 else:
-                    errors.append("TypeError: non-Int arguments: " + left_type.Name + " < " + right_type.Name)
+                    errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: non-Int arguments: " + left_type.Name + " < " + right_type.Name)
 
     @visitor.when(ast_hierarchy.LessEqualNode)
     def visit(self, node, context, errors):
@@ -419,11 +427,12 @@ class TypeCheckerVisitor:
         self.visit(node.right, context, errors)
         for left_type in node.left.ComputedType:
             for right_type in node.right.ComputedType:
-                if (left_type.Name == "Int" and right_type.Name == "Int"):
+                if (left_type.Name ==  right_type.Name and left_typeName in ["Int", "Bool", "String"]):
+
                     node.ComputedType = [context.Hierarchy.get("Bool")]
                     node.typeName = "Bool"
                 else:
-                    errors.append("TypeError: non-Int arguments: " + left_type.Name + " <= " + right_type.Name)
+                    errors.append("(" +str(node.getLineNumber())+ ","+ str(node.getColumnNumber()) +") - TypeError: non-Int arguments: " + left_type.Name + " <= " + right_type.Name)
 
   
     #Ctes

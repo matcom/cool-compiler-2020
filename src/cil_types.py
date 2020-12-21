@@ -149,7 +149,7 @@ class CILTypes:
         for feature in node.features:
             if isinstance(feature, ast.FunctionFeatureNode):
                 meth_ = self.type_hierachy[self.current_class_name].MethList[feature.id]
-                finfo = MethodInfo(meth_.Name)
+                finfo = MethodInfo(meth_.rename)
                 ffunc = cil.CILFunctionNode(finfo, [], [], [])
                 self.register_function(ffunc)
 
