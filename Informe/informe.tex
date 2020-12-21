@@ -146,7 +146,64 @@ Msc. Alejandro Piad Morffis, \emph{Facultad de Matemática y Computación, Unive
 \section{Parser}
 	La fase de análisis sintáctico ha sido una de las fases mas controversiales a la hora de la realización del proyecto. Se empleó en una primera fase el parser LR1 tomado de clase práctica y los proyectos previos de la asignatura. La gramática que se definió durante la primera entrega del proyecto contenía ambigüedades, las cuales fueron detectada comprobando las pruebas correspondientes a la parte de semántica. 
 	
-	Finalmente el equipo desición emplear el módulo Yacc de ply para definir la gramáticay evitar las ambigüedades que se desprendían de la implementación inicial.
+	Finalmente el equipo decisión emplear el módulo \textit{Yacc} de \textit{ply} para definir la gramática y evitar las ambigüedades que se desprendían de la implementación inicial.
+	
+	La gram\'atica resultante result\'o trivial hasta el punto de definir la estructura de las expresiones, para estas \'ultimas con la ayuda de \textit{ply} se estableci\'o una prioridad entre los operadores quedando de la siguiente forma:
+	
+	\begin{table}[h]
+		\centering
+		\begin{tabular}{|c|c|}
+			\hline
+			Asociatividad & s\'imbolo \\
+			\hline
+			derecha & $<-$\\
+			\hline
+			derecha & $not$\\
+			\hline
+			 - & $<,<=,=$ \\
+			\hline
+			izquierda & $+,-$\\
+			\hline
+			izquierda & $*,/$\\
+			\hline
+			derecha & $isvoid$\\
+			\hline
+			derecha & $compl$\\
+			\hline
+			izquierda & $@$\\
+			\hline
+			izquierda & $.$\\
+			\hline
+		\end{tabular}
+		\caption{Operadores ordenados seg\'un la precedencia desde el menos prioritario.}
+		
+	\end{table}
+	
+	
+	Gram\'atica de expresiones:
+	\textit{
+		\begin{itemize}
+			\item[$E$]  $\rightarrow$ id $<-$  E $|$ OP
+			\item[$OP$] $ \rightarrow$ OP $<$ OP $|$ OP $<=$ OP $+$ OP $=$ OP $|$
+			\item[]  $ \rightarrow $ OP $-$ OP $|$ OP $+$ OP $|$ OP $*$ OP $| $
+			\item[]  $ \rightarrow $ OP $/$ OP $|$ OP $*$ OP $|$
+			\item[]  $ \rightarrow  BS$
+			\item[$BS$] $ \rightarrow $SA $@$ type $.$ \textbf{FunctionCall} $|$
+			\item[]  $ \rightarrow SA$ 
+			\item[$SA$] $ \rightarrow $ $($ E $)$ $|$
+			\item[] $ \rightarrow$ SA $.$ \textbf{FunctionCall} $|$ \textbf{FunctionCall} $|$
+			\item[] $ \rightarrow $ not OP $|$ isvoid OP $|$ compl  OP $|$
+			\item[] $ \rightarrow $ let \textbf{LetVariableDeclarations} in E $|$
+			\item[] $ \rightarrow $ case E of \textbf{CaseActions} esac $|$
+			\item[] $ \rightarrow $ if E then E else E fi $|$
+			\item[] $ \rightarrow $ while E loop E pool $|$
+			\item[] $ \rightarrow $ A
+			\item[$A$] $ \rightarrow$ int $|$ string $|$ bool $|$ id $|$
+			\item[] $ \rightarrow $ new type $|$ \{ \textbf{ExpressionsList} \}
+	\end{itemize}}
+	
+	
+	
 	
 	
 \section{Análisis Semántico}
