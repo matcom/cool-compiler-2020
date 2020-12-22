@@ -294,12 +294,20 @@ class NodeDynamicDispatch(NodeExpr):
 class NodeStaticDispatch(NodeExpr):
     def __init__(self,
                  expr,
-                 dispatch_type, method, arguments, line, column):
+                 dispatch_type, 
+                 method, 
+                 arguments,
+                 line,
+                 column,
+                 columnType,
+                 columnIdMethod):
         super().__init__(line= line, column= column)
         self.expr = expr
         self.dispatch_type = dispatch_type
         self.method = method
         self.arguments = arguments if arguments is not None else tuple()
+        self.columnType= columnType
+        self.columnIdMethod= columnIdMethod
 
     def to_tuple(self):
         return tuple([

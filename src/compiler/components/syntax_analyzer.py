@@ -199,7 +199,7 @@ class pyCoolParser:
                                                  column=self.real_col[ str(p.slice[1]) ]), 
                          expr= p[3],
                          line= p.slice[1].lineno,
-                         column=self.real_col[ str(p.slice[2]) ])
+                         column=self.real_col[ str(p.slice[1]) ])
 
 # ######################### UNARY OPERATIONS #######################################
     
@@ -410,7 +410,7 @@ class pyCoolParser:
         arguments_list : arguments_list COMMA expression
                        | expression
         """        
-        p[0]= (p[1], ) if len(p) == 2 else p[1] + (p[2], )
+        p[0]= (p[1], ) if len(p) == 2 else p[1] + (p[3], )
 
     def p_expression_static_dispatch(self, p):
         """
@@ -419,7 +419,9 @@ class pyCoolParser:
         p[0] = NodeStaticDispatch(expr=p[1],
         dispatch_type=p[3], method=p[5], arguments=p[7],
         line= p.slice[2].lineno,
-        column=self.real_col[ str(p.slice[2]) ])
+        column=self.real_col[ str(p.slice[2]) ],
+        columnType = self.real_col[str(p.slice[3])],
+        columnIdMethod= self.real_col[str(p.slice[5])])
     
     def p_expression_self_dispatch(self, p):
         """

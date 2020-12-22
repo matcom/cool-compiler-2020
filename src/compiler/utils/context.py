@@ -393,8 +393,25 @@ class globalContext:
             type1= returnType,
             type2= nodeType,
             row_and_col= row_and_col
-            ) or nodeType
+            ) or returnType
+
+    def checkDispatchTypes(self, typeLeftMost, typeRight, returnType, row_and_col):
+        return interceptError(validationFunc= lambda: self.isSubtype(subType= typeLeftMost,
+                                                                     superType= typeRight),
+                              errorOption= 'bad static dispatch',
+                              typeLef = typeLeftMost,
+                              typeRight= typeRight,
+                              row_and_col= row_and_col) or returnType
         
+    
+    def checkMethodInType (self, idType, idMethod, row_and_col):
+        return interceptError(validationFunc= lambda: idMethod in self.types[idType].methods,
+                              errorOption= 'not method in class',
+                              idType= idType,
+                              idMethod= idMethod,
+                              row_and_col= row_and_col) or self.types[idType].methods[idMethod]
+        
+    
     def checkReturnType(self, nodeType , returnType, row_and_col, errorOption):
         return interceptError(
             validationFunc= lambda : self.isSubtype(subType= returnType, 
@@ -437,6 +454,17 @@ class globalContext:
                             in {'Int', 'Bool', 'String'} or type1 == type2,
                             errorOption= 'comparison fail',
                             row_and_col = row_and_col) or self.types['Bool'].idName
+    
+    def checkArgumentsInDispatch(self, typeExprOfArgsAndPosition, argTypes):
+        badIndex = next((i for i in range(len( typeExprOfArgsAndPosition))
+                       if not self.isSubtype(subType=typeExprOfArgsAndPosition[i][0],
+                                        superType= argTypes[i])), None)
+        return interceptError(validationFunc= lambda: not badIndex,
+                              errorOption= 'bad dispatch',
+                              badArg= typeExprOfArgsAndPosition[badIndex][0] if badIndex else None,
+                              realType= argTypes[badIndex] if badIndex else None,
+                              row_and_col= typeExprOfArgsAndPosition[badIndex][1] if badIndex else None)
+        
     
     def LCA(self, idName1, idName2):
         path1 = self.pathToObject( idName1)

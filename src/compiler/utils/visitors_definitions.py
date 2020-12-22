@@ -142,18 +142,19 @@ class TypeCheckerVisitor(NodeVisitor):
         return 'String'
         
     def visit_NodeAttr(self, node: NodeAttr, previousEnv):
-        typeExpr= self.visit(node.expr, 
-                          previousEnv= previousEnv)
-        if type(typeExpr) is error:
-            return typeExpr
-        
-        return programContext.checkAssign(nameObject= node.idName,
-                                   nodeType= node._type,
-                                   returnType= typeExpr,
-                                   row_and_col= (node.expr.line, node.expr.column)
-                                   if node.expr else (node.line, node.column),
-                                   errorOption= 'uncompatible assign attr')
-        
+        if node.expr:
+            typeExpr= self.visit(node.expr, 
+                            previousEnv= previousEnv)
+            if type(typeExpr) is error:
+                return typeExpr
+            
+            return programContext.checkAssign(nameObject= node.idName,
+                                    nodeType= node._type,
+                                    returnType= typeExpr,
+                                    row_and_col= (node.expr.line, node.expr.column)
+                                    if node.expr else (node.line, node.column),
+                                    errorOption= 'uncompatible assign attr')
+            
     def visit_NodeLetComplex(self,
                              node: NodeLetComplex,
                              previousEnv: dict):
@@ -205,7 +206,7 @@ class TypeCheckerVisitor(NodeVisitor):
         return programContext.checkAssign(nameObject= node.nodeObject.idName,
                                           nodeType= resultObj, 
                                           returnType= resultExpr, 
-                                          row_and_col= (node.line, node.column ),
+                                          row_and_col= (node.nodeObject.line, node.nodeObject.column ),
                                           errorOption= 'uncompatible assing object')
     
     def visit_NodeBinaryOperation(self,
@@ -415,4 +416,43 @@ class TypeCheckerVisitor(NodeVisitor):
         if type(typeExpr) is error:
             return typeExpr
         return 'Bool'
+    
+    def visit_NodeStaticDispatch(self, node: NodeStaticDispatch, previousEnv):
+        typeLeftMost= self.visit(node.expr, previousEnv= previousEnv)
+        if type(typeLeftMost) is error:
+            return typeLeftMost
         
+        dispatchType= programContext.getType(idName= node.dispatch_type,
+                                             row_and_col= (node.line, node.columnType))
+        if type(dispatchType) is error:
+            return dispatchType
+                
+        methodInfo= programContext.checkMethodInType(idType= node.dispatch_type,
+                                                    idMethod= node.method, 
+                                                    row_and_col= (node.line, node.columnIdMethod))
+        if type(methodInfo) is error:
+            return methodInfo
+
+        typeExprOfArgsAndPosition = []
+        for arg in node.arguments:
+            resultType= self.visit(node= arg,
+                                     environment = previousEnv)
+            
+            if type(resultType) is error:
+                return resultType
+            
+            typeExprOfArgsAndPosition.append((resultType, (arg.line, arg.column)))
+
+
+        checkingArgumentsResult= programContext.checkArgumentsInDispatch(typeExprOfArgsAndPosition,
+                                            methodInfo.argTypes)
+        
+        if type(checkingArgumentsResult) is error:
+            return checkingArgumentsResult
+        
+        
+        
+        return programContext.checkDispatchTypes(typeLeftMost= typeLeftMost,
+                                                 typeRight= dispatchType.idName,
+                                                 returnType= methodInfo.returnType,
+                                                 row_and_col= (node.expr.line, node.expr.column))

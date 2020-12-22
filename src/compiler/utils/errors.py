@@ -114,6 +114,21 @@ errorSelector = {'repeated class basic': lambda idName, row_and_col=(0,0):error(
                     error_type='TypeError',
                     row_and_col= row_and_col,
                     message="Argument of 'not' has type %s instead of %s." %( type1, type2)
+                ),
+                'not method in class': lambda idType, idMethod, row_and_col= (0,0): error (
+                    error_type='SemanticError',
+                    row_and_col= row_and_col,
+                    message= "Method %s not found in type %s" %(idMethod, idType)
+                ),
+                'bad dispatch': lambda badArg, realType, row_and_col= (0,0): error(
+                    error_type='SemanticError',
+                    row_and_col= row_and_col,
+                    message= "Argument %s is not subtype of %s" %(badArg, realType)
+                ),
+                'bad static dispatch': lambda typeLef, typeRight, row_and_col= (0,0): error(
+                    error_type='TypeError',
+                    row_and_col= row_and_col,
+                    message="Expression type %s does not conform to declared static dispatch type %s." %(typeLef, typeRight)
                 )
                 }
 
