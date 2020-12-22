@@ -115,15 +115,15 @@ errorSelector = {'repeated class basic': lambda idName, row_and_col=(0,0):error(
                     row_and_col= row_and_col,
                     message="Argument of 'not' has type %s instead of %s." %( type1, type2)
                 ),
-                'not method in class': lambda idType, idMethod, row_and_col= (0,0): error (
-                    error_type='SemanticError',
+                'not method in class': lambda idMethod, row_and_col= (0,0): error (
+                    error_type='AttributeError',
                     row_and_col= row_and_col,
-                    message= "Method %s not found in type %s" %(idMethod, idType)
+                    message= "Dispatch to undefined method %s." %(idMethod)
                 ),
-                'bad dispatch': lambda badArg, realType, row_and_col= (0,0): error(
-                    error_type='SemanticError',
+                'bad dispatch': lambda idMethod, badType, badArg, realType, row_and_col= (0,0): error(
+                    error_type='TypeError',
                     row_and_col= row_and_col,
-                    message= "Argument %s is not subtype of %s" %(badArg, realType)
+                    message= "In call of method %s, type %s of parameter %s does not conform to declared type %s." %(idMethod, badType, badArg, realType)
                 ),
                 'bad static dispatch': lambda typeLef, typeRight, row_and_col= (0,0): error(
                     error_type='TypeError',

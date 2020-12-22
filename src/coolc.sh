@@ -15,6 +15,6 @@ echo "LINEA_CON_NOMBRE_Y_VERSION_DEL_COMPILADOR"        # TODO: Recuerde cambiar
 echo "CopyLeft (L) 2020: Alejandro Díaz Roque, Rafael Horrach"    
 
 # Llamar al compilador
-python main.py "$@"
+python3 main.py "$@"
 #echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 

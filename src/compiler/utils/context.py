@@ -246,7 +246,7 @@ class globalContext:
             nameClass= idName,
             methodName = childInfoMethod.idName if childInfoMethod else None,
             row_and_col= row_and_col
-        )or self.types[idName].inheritsMethods.update({
+        )or (childInfoMethod and childInfoMethod.idName == parentInfoMethod.idName) or self.types[idName].inheritsMethods.update({
             parentInfoMethod.idName: parentInfoMethod
         })
     
@@ -405,11 +405,10 @@ class globalContext:
         
     
     def checkMethodInType (self, idType, idMethod, row_and_col):
-        return interceptError(validationFunc= lambda: idMethod in self.types[idType].methods,
+        return interceptError(validationFunc= lambda: idMethod in self.types[idType].methods or idMethod in self.types[idType].inheritsMethods,
                               errorOption= 'not method in class',
-                              idType= idType,
                               idMethod= idMethod,
-                              row_and_col= row_and_col) or self.types[idType].methods[idMethod]
+                              row_and_col= row_and_col) or self.types[idType].methods.get(idMethod, None) or self.types[idType].inheritsMethods.get(idMethod, None)
         
     
     def checkReturnType(self, nodeType , returnType, row_and_col, errorOption):
@@ -455,15 +454,32 @@ class globalContext:
                             errorOption= 'comparison fail',
                             row_and_col = row_and_col) or self.types['Bool'].idName
     
-    def checkArgumentsInDispatch(self, typeExprOfArgsAndPosition, argTypes):
-        badIndex = next((i for i in range(len( typeExprOfArgsAndPosition))
-                       if not self.isSubtype(subType=typeExprOfArgsAndPosition[i][0],
+    def checkArgumentsInDispatch(self,
+                                 node,
+                                 argNames,
+                                 typeExprOfArgs, 
+                                 argTypes):
+        if len(typeExprOfArgs) != len(argTypes):
+            return error(error_type= 'SemanticError',
+                         row_and_col= (node.line, node.column + 1), # I don't like this +1. It looks like a patch.
+                         message= "Method %s called with wrong number of arguments." %(node.method))
+            
+        badIndex = next((i for i in range(len( typeExprOfArgs))
+                       if not self.isSubtype(subType=typeExprOfArgs[i],
                                         superType= argTypes[i])), None)
+        (badArg, badType, realType, row_and_col)= (argNames[badIndex],
+                                                   typeExprOfArgs[badIndex],
+                                                   argTypes[badIndex], 
+                                                   (node.arguments[badIndex].expr.line, node.arguments[badIndex].expr.column)) if badIndex else (None, None, None, None)
+        
         return interceptError(validationFunc= lambda: not badIndex,
                               errorOption= 'bad dispatch',
-                              badArg= typeExprOfArgsAndPosition[badIndex][0] if badIndex else None,
-                              realType= argTypes[badIndex] if badIndex else None,
-                              row_and_col= typeExprOfArgsAndPosition[badIndex][1] if badIndex else None)
+                              idMethod= node.method,
+                              badArg= badArg,
+                              badType= badType,
+                              realType= realType,
+                              row_and_col= row_and_col)
+        
         
     
     def LCA(self, idName1, idName2):

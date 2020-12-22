@@ -285,7 +285,8 @@ class TypeCheckerVisitor(NodeVisitor):
     def visit_NodeObject(self,
                          node: NodeObject,
                          previousEnv):
-        
+        if node.idName == 'self':
+            return previousEnv['wrapperType']
         return programContext.searchValue(node,
                                           (node.line, node.column),
                                           previousEnv)
@@ -298,6 +299,13 @@ class TypeCheckerVisitor(NodeVisitor):
                                 previousEnv= previousEnv)
         if type (typeExpr) is error:
             return typeExpr
+        
+        methodInfo= programContext.checkMethodInType(idType= typeExpr, 
+                                                    idMethod = node.method,
+                                                    row_and_col= (node.line, node.column + 1))
+        if type(methodInfo) is error:
+            return methodInfo
+        
         argTypes = []
         for arg in node.arguments:
             currenttypeExpr= self.visit(arg,
@@ -306,8 +314,17 @@ class TypeCheckerVisitor(NodeVisitor):
                 return currenttypeExpr
             argTypes.append(currenttypeExpr)
         
-        return programContext.checkDynamicDispatch(typeExpr,
-        node.method, argTypes, (node.line, node.column))
+        resultCheck= programContext.checkArgumentsInDispatch(
+        node,
+        methodInfo.argNames,
+        argTypes, 
+        methodInfo.argTypes)
+        
+        if type(resultCheck) is error:
+            return resultCheck
+        
+        return methodInfo.returnType
+        
 
     def visit_NodeSelf(self, node: NodeSelf, previousEnv):
         return previousEnv['wrapperType']
@@ -324,6 +341,7 @@ class TypeCheckerVisitor(NodeVisitor):
     def visit_NodeBlock(self, node: NodeBlock, previousEnv):
         blockType = None
         for expr in node.expr_list:
+            
             blockType = self.visit(expr, previousEnv= previousEnv)
             if type(blockType) is error:
                 return blockType
@@ -433,7 +451,7 @@ class TypeCheckerVisitor(NodeVisitor):
         if type(methodInfo) is error:
             return methodInfo
 
-        typeExprOfArgsAndPosition = []
+        typeExprOfArgs = []
         for arg in node.arguments:
             resultType= self.visit(node= arg,
                                      environment = previousEnv)
@@ -441,16 +459,17 @@ class TypeCheckerVisitor(NodeVisitor):
             if type(resultType) is error:
                 return resultType
             
-            typeExprOfArgsAndPosition.append((resultType, (arg.line, arg.column)))
+            typeExprOfArgs.append(resultType)
 
 
-        checkingArgumentsResult= programContext.checkArgumentsInDispatch(typeExprOfArgsAndPosition,
-                                            methodInfo.argTypes)
+        checkingArgumentsResult= programContext.checkArgumentsInDispatch(
+                                            node,
+                                            methodInfo.argNames,
+                                            typeExprOfArgs,
+                                            methodInfo.argTypes,) 
         
         if type(checkingArgumentsResult) is error:
             return checkingArgumentsResult
-        
-        
         
         return programContext.checkDispatchTypes(typeLeftMost= typeLeftMost,
                                                  typeRight= dispatchType.idName,
