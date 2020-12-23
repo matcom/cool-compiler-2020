@@ -31,9 +31,9 @@ errorSelector = {'repeated class basic': lambda idName, row_and_col=(0,0):error(
                     message= 'Bad assign %s to %s' %(type1, type2)
                 ),
                 'repeated attr': lambda idName, row_and_col=(0,0):error(
-                      error_type='TypeError',
+                      error_type='SemanticError',
                       row_and_col=row_and_col,
-                      message="The attribute %s is already defined in the current context" %idName
+                      message="Attribute %s is multiply defined in class." %idName
                 ),
                 'repeated method': lambda idName, row_and_col=(0,0):error(
                       error_type='TypeError',

@@ -397,7 +397,7 @@ class globalContext:
             type1= returnType,
             type2= nodeType,
             row_and_col= row_and_col
-            ) or returnType
+            )
 
     def checkDispatchTypes(self, typeLeftMost, typeRight, returnType, row_and_col):
         return interceptError(validationFunc= lambda: self.isSubtype(subType= typeLeftMost,

@@ -148,12 +148,16 @@ class TypeCheckerVisitor(NodeVisitor):
             if type(typeExpr) is error:
                 return typeExpr
             
-            return programContext.checkAssign(nameObject= node.idName,
+            resultCheckAssign= programContext.checkAssign(nameObject= node.idName,
                                     nodeType= node._type,
                                     returnType= typeExpr,
                                     row_and_col= (node.expr.line, node.expr.column)
                                     if node.expr else (node.line, node.column),
                                     errorOption= 'uncompatible assign attr')
+            if type(resultCheckAssign) is error:
+                return resultCheckAssign
+            
+            return node._type
             
     def visit_NodeLetComplex(self,
                              node: NodeLetComplex,
@@ -183,12 +187,16 @@ class TypeCheckerVisitor(NodeVisitor):
         
         row_and_col = (node.body.line, node.body.column) if node.body else (node.line, node.column)
         
-        return programContext.checkAssign(node.idName,
+        resultCheckAssign= programContext.checkAssign(node.idName,
                                           node.type,
                                           exprType,
                                           row_and_col,
                                           'uncompatible assing object',
                                           node.column)
+        if type(resultCheckAssign) is error:
+            return resultCheckAssign
+        
+        return node.type
                 
     def visit_NodeAssignment(self, node: NodeAssignment,
                              previousEnv):
@@ -204,12 +212,16 @@ class TypeCheckerVisitor(NodeVisitor):
             return resultExpr
         
         
-        return programContext.checkAssign(nameObject= node.nodeObject.idName,
+        resultCheckAssign= programContext.checkAssign(nameObject= node.nodeObject.idName,
                                           nodeType= resultObj, 
                                           returnType= resultExpr, 
                                           row_and_col= (node.nodeObject.line, node.nodeObject.column ),
                                           errorOption= 'uncompatible assing object',
                                           columnAssign= node.columnAssign)
+        if type(resultCheckAssign) is error:
+            return resultCheckAssign
+        
+        return resultExpr
     
     def visit_NodeBinaryOperation(self,
                                   node: NodeBinaryOperation, 
