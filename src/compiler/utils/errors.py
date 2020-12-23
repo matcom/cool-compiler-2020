@@ -134,6 +134,11 @@ errorSelector = {'repeated class basic': lambda idName, row_and_col=(0,0):error(
                     error_type= 'SemanticError',
                     row_and_col= row_and_col,
                     message= "Cannot assign to 'self'."
+                ),
+                'bad predicate': lambda row_and_col= (0,0): error (
+                    error_type= 'TypeError',
+                    row_and_col= row_and_col,
+                    message= 'Loop condition does not have type Bool.'
                 )
                 }
 

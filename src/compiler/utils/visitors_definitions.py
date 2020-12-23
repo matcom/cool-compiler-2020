@@ -477,3 +477,18 @@ class TypeCheckerVisitor(NodeVisitor):
                                                  typeRight= dispatchType.idName,
                                                  returnType= methodInfo.returnType,
                                                  row_and_col= (node.expr.line, node.expr.column))
+        
+    def visit_NodeWhileLoop(self, node: NodeWhileLoop, previousEnv):
+        resultExprPred = self.visit(node.predicate, previousEnv= previousEnv)
+        if type(resultExprPred) is error:
+            return resultExprPred
+        resultCheck = programContext.checkBoolInPredicate(node, resultExprPred)
+        if type(resultCheck) is error:
+            return resultCheck
+        
+        resultExpr = self.visit(node.body, previousEnv= previousEnv)
+        if type(resultExpr) is error:
+            return resultExpr
+        
+        return 'Object'
+        

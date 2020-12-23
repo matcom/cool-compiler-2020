@@ -425,6 +425,13 @@ class globalContext:
             row_and_col= row_and_col
         ) or returnType
     
+    def checkBoolInPredicate(self, node: NodeWhileLoop, resultExpr):
+        return interceptError(
+            validationFunc= lambda : resultExpr == 'Bool',
+            errorOption= 'bad predicate',
+            row_and_col= (node.line, node.predicate.column)
+        ) or 'Bool'
+    
     def checkNonRepetition(self, nodeActions):
         repetitionList = []
         for action in nodeActions:

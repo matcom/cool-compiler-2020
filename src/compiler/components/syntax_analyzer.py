@@ -166,7 +166,7 @@ class pyCoolParser:
         """
         p[0]= NodeString(content= p[1],
                          line= p.slice[1].lineno,
-                         column=self.real_col[ str(p.slice[1]) ])
+                         column=self.real_col[ str(p.slice[1]) ] - len(p[1]) - 1)
 
     #def p_expr_self(self, p):
     #    """
