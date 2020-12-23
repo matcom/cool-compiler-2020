@@ -11,7 +11,7 @@ class Program(Node):
 class Class(Node):
     def __init__(self, _type, inherit, features=None):
         self.name = _type
-        self.inherit = inherit#parent
+        self.inherit = inherit
         self.methods = []
         self.attributes = []
 
