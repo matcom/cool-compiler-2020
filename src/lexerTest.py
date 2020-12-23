@@ -17,5 +17,6 @@ def run(addr):
             lexer.skip(1)
 
     if lexer_rules.my_bool:
+        print(lexer_rules.result)
         exit(1)
 

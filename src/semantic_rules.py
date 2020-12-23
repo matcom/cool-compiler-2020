@@ -94,6 +94,7 @@ class Semantic:
                                         return False
         return True
 
+
     '''%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'''
     @visitor.on('node')
     def visit(self, node):

@@ -9,8 +9,6 @@ def run(addr):
     lexer = lex(module=lexer_rules)
     parser = yacc(module=parser_rules)
 
-
-    lexer = lex(module=lexer_rules)
     with open(addr, encoding = "utf-8") as f:
         text = f.read()
 
@@ -18,4 +16,5 @@ def run(addr):
 
 
     if parser_rules.my_bool:
+        print(parser_rules.result)
         exit(1)
