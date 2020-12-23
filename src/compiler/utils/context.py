@@ -217,6 +217,7 @@ class globalContext:
             return interceptError(
                 validationFunc= lambda: len(node.formal_param_list) == len(parentInfoMethod.argTypes) ,
                 errorOption= 'bad length in redefine',
+                methodName= node.idName,
                 row_and_col= (node.line, node.column)
             ) or interceptError (
                 validationFunc= lambda: not badIndexParam(),

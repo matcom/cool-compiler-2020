@@ -154,6 +154,11 @@ errorSelector = {'repeated class basic': lambda idName, row_and_col=(0,0):error(
                     error_type= 'SemanticError',
                     row_and_col= row_and_col,
                     message= 'In redefined method %s, return type %s is different from original return type %s.' %(methodName, badType, goodType)
+                ),
+                'bad length in redefine': lambda methodName, row_and_col= (0,0): error (
+                    error_type='SemanticError',
+                    row_and_col= row_and_col,
+                    message= 'Incompatible number of formal parameters in redefined method %s.' %(methodName)
                 )
                 }
 
