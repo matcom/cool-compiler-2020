@@ -160,11 +160,6 @@ class globalContext:
                 errorOption= 'repeated class' if not node.idName in self.basics else 'repeated class basic',
                 idName= node.idName,
                 row_and_col = (node.line, node.column)
-            ) or interceptError (
-                validationFunc= lambda: node.idName != node.parent,
-                errorOption= 'Inherit from itself',
-                idName= node.idName,
-                row_and_col = (node.line, node.column)
             )or self.types.update({
                             node.idName:
                                     Type (idName= node.idName,
@@ -191,16 +186,10 @@ class globalContext:
             idName= node.idName,
             idParent= node.parent,
             row_and_col= (node.line, node.parent_col)
-        )  or interceptError (
-            validationFunc= lambda: not node.idName == node.parent,
-            errorOption= 'inherit from itself',
-            idName= node.idName,
-            row_and_col= (node.line, node.column) 
-        ) or interceptError(
+        )  or interceptError(
             validationFunc= lambda: not self.isSubtype (
                 superType= node.idName, subType= node.parent),
             errorOption= 'inheritance from child',
-            idParent= node.parent,
             idChild= node.idName,
             row_and_col= (node.line, node.parent_col)
         ) 
@@ -236,18 +225,14 @@ class globalContext:
                 row_and_col= (node.line, node.columnType)
             )
     
-    def checkGoodOverwriteAttr(self, node: NodeAttr, idType):
+    def checkNotOverwriteAttr(self, node: NodeAttr, idType):
         idParent= self.types[idType].parent
-        parentInfoAttr= self.types[idParent].attributes.get(node.idName, None) or self.types[idParent].inheritsAttr.get(node.idName, None)
-        if parentInfoAttr:
-            return interceptError(
-                validationFunc= lambda : node._type == parentInfoAttr._type,
-                errorOption= 'bad redefine attr',
-                badAttr= node.idName,
-                badType= node._type,
-                goodType= parentInfoAttr._type,
-                row_and_col= (node.line, node.column)
-            )
+        return interceptError(
+            validationFunc= lambda : not (self.types[idParent].attributes.get(node.idName, None) or self.types[idParent].inheritsAttr.get(node.idName, None)),
+            errorOption= 'bad redefine attr',
+            badAttr= node.idName,
+            row_and_col= (node.line, node.column)
+        )
             
     def actualizeInherits(self, node: NodeClass):
         idParent= self.types[node.idName].parent

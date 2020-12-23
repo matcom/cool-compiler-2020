@@ -36,9 +36,9 @@ class TypeInheritanceVisitor(NodeVisitor):
         errors = []
         for nodeClass in node.class_list:
             result = self.visit(nodeClass)
-            if result:
+            if type(result) is error:
                 errors.append(result)
-        return errors
+        return [errors.pop()] if errors else []
 
     def visit_NodeClass(self, node: NodeClass):
         result= programContext.checkGoodInheritance(node)
@@ -59,7 +59,7 @@ class TypeInheritanceVisitor(NodeVisitor):
     
     
     def visit_NodeAttr(self, node: NodeAttr, idType):
-        return programContext.checkGoodOverwriteAttr(node, idType)
+        return programContext.checkNotOverwriteAttr(node, idType)
         
 
     def visit_NodeClassMethod(self, node: NodeClassMethod, idType):

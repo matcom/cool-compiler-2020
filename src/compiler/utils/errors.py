@@ -50,15 +50,10 @@ errorSelector = {'repeated class basic': lambda idName, row_and_col=(0,0):error(
                     row_and_col=row_and_col,
                     message="Class %s cannot inherit class %s." %(idName, idParent)
                 ),
-                'inheritance from child': lambda idChild, idParent, row_and_col=(0,0): error (
-                    error_type='TypeError',
+                'inheritance from child': lambda idChild, row_and_col=(0,0): error (
+                    error_type='SemanticError',
                     row_and_col=row_and_col,
-                    message="The class %s is an ancestor of %s class" %(idParent, idChild)
-                ),
-                 'Inherit from itself': lambda idName, row_and_col=(0,0): error (
-                    error_type='TypeError',
-                    row_and_col=row_and_col,
-                    message="The class %s  can't inherit from itself" %(idName)
+                    message="Class %s, or an ancestor of %s, is involved in an inheritance cycle." %(idChild, idChild)
                 ),
                 'undefined method in class': lambda idName, className, row_and_col=(0,0): error (
                     error_type= 'TypeError',
@@ -159,6 +154,11 @@ errorSelector = {'repeated class basic': lambda idName, row_and_col=(0,0):error(
                     error_type='SemanticError',
                     row_and_col= row_and_col,
                     message= 'Incompatible number of formal parameters in redefined method %s.' %(methodName)
+                ),
+                'bad redefine attr': lambda badAttr, row_and_col= (0,0) : error(
+                    error_type= 'SemanticError',
+                    row_and_col= row_and_col,
+                    message= 'Attribute %s is an attribute of an inherited class.' %(badAttr)
                 )
                 }
 
