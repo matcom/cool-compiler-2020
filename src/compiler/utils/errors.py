@@ -129,6 +129,11 @@ errorSelector = {'repeated class basic': lambda idName, row_and_col=(0,0):error(
                     error_type='TypeError',
                     row_and_col= row_and_col,
                     message="Expression type %s does not conform to declared static dispatch type %s." %(typeLef, typeRight)
+                ),
+                'self assign': lambda row_and_col= (0,0): error (
+                    error_type= 'SemanticError',
+                    row_and_col= row_and_col,
+                    message= "Cannot assign to 'self'."
                 )
                 }
 

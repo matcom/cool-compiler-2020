@@ -239,10 +239,11 @@ class NodeIsVoid(NodeExpr):
 
 
 class NodeAssignment(NodeExpr):
-    def __init__(self, nodeObject, expr, line, column):
+    def __init__(self, nodeObject, expr, line, column, columnAssign):
         super().__init__(line= line, column= column)
         self.nodeObject = nodeObject
         self.expr = expr
+        self.columnAssign= columnAssign
 
     def to_tuple(self):
         return tuple([

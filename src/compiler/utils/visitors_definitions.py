@@ -187,7 +187,8 @@ class TypeCheckerVisitor(NodeVisitor):
                                           node.type,
                                           exprType,
                                           row_and_col,
-                                          'uncompatible assing object')
+                                          'uncompatible assing object',
+                                          node.column)
                 
     def visit_NodeAssignment(self, node: NodeAssignment,
                              previousEnv):
@@ -207,7 +208,8 @@ class TypeCheckerVisitor(NodeVisitor):
                                           nodeType= resultObj, 
                                           returnType= resultExpr, 
                                           row_and_col= (node.nodeObject.line, node.nodeObject.column ),
-                                          errorOption= 'uncompatible assing object')
+                                          errorOption= 'uncompatible assing object',
+                                          columnAssign= node.columnAssign)
     
     def visit_NodeBinaryOperation(self,
                                   node: NodeBinaryOperation, 

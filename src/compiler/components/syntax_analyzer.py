@@ -199,7 +199,8 @@ class pyCoolParser:
                                                  column=self.real_col[ str(p.slice[1]) ]), 
                          expr= p[3],
                          line= p.slice[1].lineno,
-                         column=self.real_col[ str(p.slice[1]) ])
+                         column=self.real_col[ str(p.slice[1]) ],
+                         columnAssign= self.real_col[ str(p.slice[2]) ])
 
 # ######################### UNARY OPERATIONS #######################################
     

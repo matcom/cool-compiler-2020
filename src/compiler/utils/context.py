@@ -378,9 +378,13 @@ class globalContext:
     
     def checkAssign(self, nameObject,
                     nodeType, returnType,
-                    row_and_col, errorOption):
+                    row_and_col, errorOption, columnAssign = 0):
         
         return interceptError (
+                validationFunc= lambda: nameObject != 'self',
+                errorOption='self assign',
+                row_and_col= (row_and_col[0], columnAssign)
+        ) or interceptError (
                 validationFunc= lambda : nodeType in self.types,
                 errorOption= 'undefined type',
                 idName= nodeType,
