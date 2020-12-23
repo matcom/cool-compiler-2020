@@ -111,15 +111,17 @@ class pyCoolParser:
                         _type= p[3], 
                         expr= p[5], 
                         line= p.slice[1].lineno, 
-                        column=self.real_col[ str(p.slice[1]) ])
+                        column=self.real_col[ str(p.slice[1]) ],
+                        columnTypeAttr= self.real_col[ str(p.slice[3]) ])
 
     def p_feature_attr(self, p):
         """
         feature : ID COLON TYPE
         """
-        p[0] = NodeAttr(idName= p[1], _type= p[3], expr= None ,
+        p[0] = NodeAttr(idName= p[1], _type= p[3],
                          line= p.slice[1].lineno,
-                         column=self.real_col[ str(p.slice[1]) ])
+                         column=self.real_col[ str(p.slice[1]) ],
+                         columnTypeAttr= self.real_col[ str(p.slice[3]) ])
 
     def p_formal_list_many(self, p):
         """

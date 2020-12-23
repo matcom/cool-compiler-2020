@@ -25,6 +25,11 @@ errorSelector = {'repeated class basic': lambda idName, row_and_col=(0,0):error(
                       row_and_col= row_and_col,
                       message= "The type %s doesn't exist in the current context" %idName,
                 ),
+                'undefined type in attr': lambda idAttr, idBadType, row_and_col= (0,0): error (
+                    error_type='TypeError',
+                    row_and_col= row_and_col,
+                    message= 'Class %s of attribute %s is undefined.' %(idBadType, idAttr)
+                ),
                 'uncompatible types': lambda type1, type2, row_and_col= (0,0): error (
                     error_type='TypeError',
                     row_and_col= row_and_col,
@@ -36,9 +41,9 @@ errorSelector = {'repeated class basic': lambda idName, row_and_col=(0,0):error(
                       message="Attribute %s is multiply defined in class." %idName
                 ),
                 'repeated method': lambda idName, row_and_col=(0,0):error(
-                      error_type='TypeError',
+                      error_type='SemanticError',
                       row_and_col=row_and_col,
-                      message="The method %s is already defined in the current context" %idName
+                      message="Method %s is multiply defined." %idName
                 ),
                 'built-in inheritance': lambda idName, idParent, row_and_col=(0,0): error (
                     error_type='SemanticError',

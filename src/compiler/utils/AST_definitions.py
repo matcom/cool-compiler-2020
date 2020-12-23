@@ -103,11 +103,12 @@ class NodeClassMethod(NodeFeature):
 
 class NodeAttr(NodeFeature):
     def __init__(self, idName, _type,
-                line, column, expr= None):
+                line, column, expr= None, columnTypeAttr= None):
         super().__init__(line= line, column= column)
-        self.idName = idName
-        self._type = _type
-        self.expr = expr
+        self.idName= idName
+        self._type= _type
+        self.expr= expr
+        self.columnTypeAttr= columnTypeAttr
 
 class NodeFormalParam(NodeFeature):
     def __init__(self, idName, param_type, line, column):

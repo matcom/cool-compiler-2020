@@ -293,7 +293,13 @@ class globalContext:
                 errorOption= 'repeated attr',
                 idName= attr.idName,
                 row_and_col= (attr.line, attr.column)
-            ) or self.types[typeName].attributes.update({
+            ) or interceptError(
+                validationFunc= lambda: attr._type in self.types,
+                errorOption= 'undefined type in attr',
+                idAttr= attr.idName,
+                idBadType= attr._type,
+                row_and_col= (attr.line, attr.columnTypeAttr )
+                ) or self.types[typeName].attributes.update({
                 attr.idName: Attribute(idName= attr.idName,
                                        _type= attr._type )
             })
