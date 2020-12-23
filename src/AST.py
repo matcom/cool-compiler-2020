@@ -48,7 +48,7 @@ class Attribute(Feature):
         self.id = id
 
 class Expression(Node):
-    computed_type = None
+    pass
 
 class Atom(Expression):
     pass
