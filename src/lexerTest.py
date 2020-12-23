@@ -6,7 +6,7 @@ def run(addr):
     lexer = lex(module=lexer_rules)
     with open(addr, encoding = "utf-8") as f:
         text = f.read()
-        
+
     lexer.input(text)
     token = lexer.token()
 
