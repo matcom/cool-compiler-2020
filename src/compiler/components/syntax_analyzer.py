@@ -90,7 +90,8 @@ class pyCoolParser:
         returnType=p[6],
         body=p[8],
         line= p.slice[1].lineno,
-        column=self.real_col[ str(p.slice[1]) ])
+        column=self.real_col[ str(p.slice[1]) ],
+        columnType= self.real_col[ str(p.slice[6]) ])
 
     def p_feature_method_no_formals(self, p):
         """
@@ -101,7 +102,8 @@ class pyCoolParser:
                                returnType=p[5], 
                                body=p[7], 
                                line= p.slice[1].lineno, 
-                               column=self.real_col[ str(p.slice[1]) ])
+                               column=self.real_col[ str(p.slice[1]) ],
+                               columnType= self.real_col[ str(p.slice[5]) ])
 
     def p_feature_attr_initialized(self, p):
         """

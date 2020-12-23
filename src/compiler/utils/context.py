@@ -21,6 +21,7 @@ class Type(jsonable):
         self.builtIn= builtIn
         self.inheritsAttr= {}
         self.inheritsMethods= {}
+        self.children= {}
     
 class feature(jsonable):
     def __eq__(self, other):
@@ -142,7 +143,16 @@ class globalContext:
                               parent= 'Object')
             }
         
-        self.basics = [node.idName for node in self.types.values()]
+        for _type in self.types:
+            if _type != 'Object':
+                idParent= self.types[_type].parent
+                self.types[_type].inheritsAttr.update({
+                    attr.idName: attr for attr in self.types[idParent].attributes.values()
+                })
+                self.types[_type].inheritsMethods.update({
+                    method.idName: method for method in self.types[idParent].methods.values()
+                })
+        self.basics = [i for i in self.types]
         
     def createType(self, node: NodeClass):
         return interceptError(
@@ -163,119 +173,146 @@ class globalContext:
                                           parent= node.parent if node else 'Object')
                             })
 
-    def relateInheritance(self, idName : str, parent: str, row_and_col, parent_col):
-        return idName == 'Object' or interceptError(
-            validationFunc= lambda: idName in self.types,
+    def checkGoodInheritance(self, node: NodeClass):
+        return  interceptError(
+            validationFunc= lambda: node.idName in self.types,
             errorOption= 'undefined type',
-            idName= idName,
-            row_and_col= row_and_col
+            idName= node.idName,
+            row_and_col= (node.line, node.column)
         )  or interceptError (
-            validationFunc= lambda: self.types[idName].parent in 
+            validationFunc= lambda: node.parent in 
             self.types,
             errorOption= 'undefined type',
-            idName= self.types[idName].parent,
-            row_and_col= (row_and_col[0], parent_col)
+            idName= node.parent,
+            row_and_col= (node.line, node.parent_col)
         )  or interceptError(
-            validationFunc= lambda: not self.types[parent].builtIn,
+            validationFunc= lambda: not self.types[node.parent].builtIn,
             errorOption= 'built-in inheritance',
-            idName= idName,
-            idParent= parent,
-            row_and_col= (row_and_col[0], parent_col)
-        )  or interceptError(
-            validationFunc= lambda: not self.isAncestor (
-                idChild= idName, idParent= parent),
+            idName= node.idName,
+            idParent= node.parent,
+            row_and_col= (node.line, node.parent_col)
+        )  or interceptError (
+            validationFunc= lambda: not node.idName == node.parent,
+            errorOption= 'inherit from itself',
+            idName= node.idName,
+            row_and_col= (node.line, node.column) 
+        ) or interceptError(
+            validationFunc= lambda: not self.isSubtype (
+                superType= node.idName, subType= node.parent),
             errorOption= 'inheritance from child',
-            idParent= parent,
-            idChild= idName,
-            row_and_col= (row_and_col[0], parent_col)
-        ) or not self.actualizeInherits(idName, parent, row_and_col)
+            idParent= node.parent,
+            idChild= node.idName,
+            row_and_col= (node.line, node.parent_col)
+        ) 
         
-    def actualizeInherits (self, idName, parentName, row_and_col):
-        for attr in self.types[parentName].attributes:
-            result= self.actualizeInheritAttr(
-                idName= idName, 
-                childInfoAttr = self.types[idName].attributes.get(attr, None),
-                parentInfoAttr= self.types[parentName].attributes[attr],
-                row_and_col = row_and_col)
-            if type(result) is error:
-                return error
-
-        for attr in self.types[parentName].inheritsAttr:
-            result = self.actualizeInheritAttr(
-                idName= idName,
-                childInfoAttr= self.types[idName].attributes.get(attr, None),
-                parentInfoAttr= self.types[parentName].inheritsAttr[attr],
-                row_and_col = row_and_col
-            )
-            if type(result) is error:
-                return error
-        for method in self.types[parentName].methods:
-            result = self.actualizeInheritMethod(
-                idName= idName,
-                childInfoMethod= self.types[idName].methods.get(method, None),
-                parentInfoMethod= self.types[parentName].methods[method],
-                row_and_col = row_and_col
-            )
-            if type(result) is error:
-                return result
-        
-        
-        for method in self.types[parentName].inheritsMethods:
-            result = self.actualizeInheritMethod(
-                idName= idName, 
-                childInfoMethod= self.types[idName].methods.get(method, None),
-                parentInfoMethod= self.types[parentName].inheritsMethods[method],
-                row_and_col = row_and_col
-            )
-            if type(result) is error:
-                return result
             
+    def checkGoodOverwriteMethod(self, node: NodeClassMethod, idType):
+        idParent= self.types[idType].parent
+        childInfoMethod= self.types[idType].methods.get(node.idName)
+        badIndexParam = lambda: next((i for i in range (len( childInfoMethod.argTypes))
+                         if childInfoMethod.argTypes[i] != parentInfoMethod.argTypes[i]), False)
         
-        
-    def actualizeInheritMethod(self,
-                               idName,
-                               childInfoMethod: Method,
-                               parentInfoMethod: Method,
-                               row_and_col):
-        return interceptError(
-            validationFunc= lambda: not childInfoMethod or 
-            childInfoMethod.returnType == parentInfoMethod.returnType and 
-            len(childInfoMethod.argNames) == len(parentInfoMethod.argNames) and
-            childInfoMethod.argTypes == parentInfoMethod.argTypes,
-            errorOption= 'bad redefine method',
-            nameClass= idName,
-            methodName = childInfoMethod.idName if childInfoMethod else None,
-            row_and_col= row_and_col
-        )or (childInfoMethod and childInfoMethod.idName == parentInfoMethod.idName) or self.types[idName].inheritsMethods.update({
-            parentInfoMethod.idName: parentInfoMethod
-        })
+        parentInfoMethod= self.types[idParent].methods.get(node.idName, None) or self.types[idParent].inheritsMethods.get(node.idName, None)
+        if parentInfoMethod:
+            return interceptError(
+                validationFunc= lambda: len(node.formal_param_list) == len(parentInfoMethod.argTypes) ,
+                errorOption= 'bad length in redefine',
+                row_and_col= (node.line, node.column)
+            ) or interceptError (
+                validationFunc= lambda: not badIndexParam(),
+                errorOption= 'bad redefine method',
+                methodName= node.idName,
+                badType= node.formal_param_list[badIndexParam()]._type,
+                goodType= parentInfoMethod.argTypes[badIndexParam()],
+                row_and_col= (node.formal_param_list[badIndexParam()].line,
+                              node.formal_param_list[badIndexParam()].column)
+            ) or interceptError (
+                validationFunc = lambda: node.returnType == parentInfoMethod.returnType,
+                errorOption= 'bad returnType in redefine method',
+                methodName= node.idName,
+                badType= node.returnType,
+                goodType= parentInfoMethod.returnType,
+                row_and_col= (node.line, node.columnType)
+            )
     
-    def actualizeInheritAttr(self,
-            idName,
-            childInfoAttr: Attribute,
-            parentInfoAttr: Attribute,
-            row_and_col):
-
-        return interceptError(
-            validationFunc= lambda: not (childInfoAttr and childInfoAttr._type != parentInfoAttr._type),
-            errorOption= "bad redefine attr",
-            nameClass= idName,
-            attrName= childInfoAttr.idName if childInfoAttr else None,
-            attrType= childInfoAttr._type if childInfoAttr else None,
-            row_and_col= row_and_col
-        ) or childInfoAttr or self.types[idName].inheritsAttr.update({
-            parentInfoAttr.idName: parentInfoAttr
+    def checkGoodOverwriteAttr(self, node: NodeAttr, idType):
+        idParent= self.types[idType].parent
+        parentInfoAttr= self.types[idParent].attributes.get(node.idName, None) or self.types[idParent].inheritsAttr.get(node.idName, None)
+        if parentInfoAttr:
+            return interceptError(
+                validationFunc= lambda : node._type == parentInfoAttr._type,
+                errorOption= 'bad redefine attr',
+                badAttr= node.idName,
+                badType= node._type,
+                goodType= parentInfoAttr._type,
+                row_and_col= (node.line, node.column)
+            )
+            
+    def actualizeInherits(self, node: NodeClass):
+        idParent= self.types[node.idName].parent
+        self.actualizeFeatures(dictChild= self.types[node.idName].attributes,
+                               dictToActualize= self.types[node.idName].inheritsAttr,
+                               dictParent= self.types[idParent].inheritsAttr)
+        self.actualizeFeatures(dictChild= self.types[node.idName].attributes,
+                               dictToActualize= self.types[node.idName].inheritsAttr,
+                               dictParent= self.types[idParent].attributes)
+        self.actualizeFeatures(dictChild= self.types[node.idName].methods,
+                               dictToActualize= self.types[node.idName].inheritsMethods,
+                               dictParent= self.types[idParent].inheritsMethods)
+        self.actualizeFeatures(dictChild= self.types[node.idName].methods,
+                               dictToActualize= self.types[node.idName].inheritsMethods,
+                               dictParent= self.types[idParent].methods)
+        
+    
+    def actualizeFeatures(self, dictChild, dictToActualize, dictParent ):
+        dictToActualize.update({
+            f.idName: f for f in dictParent.values() if not f.idName in dictChild
         })
-
-    def isAncestor(self, idChild: str, idParent: str):
-
-        currentName = self.types[idParent].parent
-        while currentName != 'Object' and currentName != idChild and currentName != idParent:
-            try:
-                currentName = self.types[currentName].parent
-            except KeyError:
-                break
-        return currentName == idChild
+        
+#    def actualizeInheritMethod(self,
+#                               idName,
+#                               childInfoMethod: Method,
+#                               parentInfoMethod: Method,
+#                               row_and_col):
+#        badIndexParam= not childInfoMethod or next((i for i in range (len( childInfoMethod.argTypes))
+#                         if childInfoMethod.argTypes[i] != parentInfoMethod.argTypes[i]), False)
+#        return interceptError(
+#            validationFunc= lambda: not badIndexParam,
+#            errorOption= 'bad redefine method',
+#            nameClass= idName,
+#            badType = childInfoMethod.argTypes[badIndexParam] if badIndexParam else None,
+#            goodType = parentInfoMethod.argTypes[badIndexParam] if badIndexParam else None,
+#            row_and_col= row_and_col
+#        )or (childInfoMethod and childInfoMethod.idName == parentInfoMethod.idName) or self.types[idName].inheritsMethods.update({
+#            parentInfoMethod.idName: parentInfoMethod
+#        })
+#    
+#    def actualizeInheritAttr(self,
+#            idName,
+#            childInfoAttr: Attribute,
+#            parentInfoAttr: Attribute,
+#            row_and_col):
+#
+#        return interceptError(
+#            validationFunc= lambda: not (childInfoAttr and childInfoAttr._type != parentInfoAttr._type),
+#            errorOption= "bad redefine attr",
+#            nameClass= idName,
+#            attrName= childInfoAttr.idName if childInfoAttr else None,
+#            attrType= childInfoAttr._type if childInfoAttr else None,
+#            row_and_col= row_and_col
+#        ) or childInfoAttr or self.types[idName].inheritsAttr.update({
+#            parentInfoAttr.idName: parentInfoAttr
+#        })
+#
+#    def isAncestor(self, idChild: str, idParent: str):
+#
+#        currentName = self.types[idParent].parent
+#        while currentName != 'Object' and currentName != idChild and currentName != idParent:
+#            try:
+#                currentName = self.types[currentName].parent
+#            except KeyError:
+#                break
+#        return currentName == idChild
 
     def getType(self, idName: str, row_and_col):
         return interceptError(
@@ -306,6 +343,18 @@ class globalContext:
 
     def defineMethod(self, typeName: str,
                            node: NodeClassMethod):
+        appears = {}
+        for f in node.formal_param_list:
+            info = appears.get(f.idName, None)
+            if not info:
+                appears.update({f.idName: f})
+            else:
+                return error(
+                    error_type='SemanticError',
+                    row_and_col= (f.line, f.column),
+                    message= 'Formal parameter %s is multiply defined.' %f.idName
+                )
+
         return interceptError(
             validationFunc= lambda: not node.idName in
             self.types[typeName].methods,

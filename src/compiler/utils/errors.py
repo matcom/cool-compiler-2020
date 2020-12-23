@@ -144,6 +144,16 @@ errorSelector = {'repeated class basic': lambda idName, row_and_col=(0,0):error(
                     error_type= 'TypeError',
                     row_and_col= row_and_col,
                     message= 'Loop condition does not have type Bool.'
+                ),
+                'bad redefine method': lambda methodName, badType, goodType, row_and_col= (0,0): error(
+                    error_type= 'SemanticError',
+                    row_and_col= row_and_col,
+                    message ='In redefined method %s, parameter type %s is different from original type %s.' %(methodName, badType, goodType)
+                ),
+                'bad returnType in redefine method': lambda methodName, badType, goodType, row_and_col= (0,0): error (
+                    error_type= 'SemanticError',
+                    row_and_col= row_and_col,
+                    message= 'In redefined method %s, return type %s is different from original return type %s.' %(methodName, badType, goodType)
                 )
                 }
 

@@ -21,39 +21,51 @@ class TypeCollectorVisitor(NodeVisitor):
 
     def visit_NodeProgram(self, node: NodeProgram):
         errors = []
-        line_and_col = {}
-        parent_col_dict = {}
         for nodeClass in node.class_list:
-            line_and_col.update({
-                nodeClass.idName: (nodeClass.line, nodeClass.column)
-            })
-            parent_col_dict.update({
-                nodeClass.idName: nodeClass.parent_col
-            })
             result= self.visit(nodeClass)
-            if result:
+            if type (result) is error: # This ugly return is because we only need a one error, this is the panic mode!
                 errors.append(result)
-        return errors, line_and_col, parent_col_dict
+                return errors
 
     def visit_NodeClass(self, node: NodeClass):
         # When we create a type, we store it in the context, if there is no errors
         return programContext.createType(node)
 
 class TypeInheritanceVisitor(NodeVisitor):
-    def visit_NodeProgram(self, node: NodeProgram, line_and_col_dict, parent_col_dict):
+    def visit_NodeProgram(self, node: NodeProgram):
         errors = []
-        for _type in programContext.types:
-            result = self.visitForInherit(_type, 
-                                line_and_col_dict.get(_type, (0,0)),
-                                parent_col_dict.get(_type, 0))
-            if type (result) is error:
+        for nodeClass in node.class_list:
+            result = self.visit(nodeClass)
+            if result:
                 errors.append(result)
         return errors
 
-    def visitForInherit(self, _type: str, line_and_col, parent_col):
-        return programContext.relateInheritance(_type,
-        programContext.types[_type].parent, line_and_col, parent_col)
+    def visit_NodeClass(self, node: NodeClass):
+        result= programContext.checkGoodInheritance(node)
+        if type(result) is error:
+            return result
 
+        for nodeAttr in node.attributes:
+            resultVisitAttr= self.visit(nodeAttr, idType= node.idName)
+            if type(resultVisitAttr) is error:
+                return resultVisitAttr
+        
+        for nodeClassMethod in node.methods:
+            resultVisitClassMethod= self.visit(nodeClassMethod, idType= node.idName)
+            if type(resultVisitClassMethod) is error:
+                return resultVisitClassMethod
+        
+        programContext.actualizeInherits(node)    
+    
+    
+    def visit_NodeAttr(self, node: NodeAttr, idType):
+        return programContext.checkGoodOverwriteAttr(node, idType)
+        
+
+    def visit_NodeClassMethod(self, node: NodeClassMethod, idType):
+        return programContext.checkGoodOverwriteMethod(node, idType)
+        
+        
 class TypeBuilderVisitor(NodeVisitor):
     def __init__(self):
         self.currentTypeName = ''

@@ -9,10 +9,21 @@ class semanticAnalyzer:
         self.errors = []
 
     def run_visits(self: NodeProgram):
-        typeCollectorResult, line_and_col_dict, parent_col_dict= TypeCollectorVisitor().visit(self.ast)
+        typeCollectorResult= TypeCollectorVisitor().visit(self.ast)
+        if typeCollectorResult:
+            self.errors += typeCollectorResult
+            return
         typeBuilderResult= TypeBuilderVisitor().visit(self.ast)
-        typeInheritanceResult= TypeInheritanceVisitor().visit(self.ast,
-              line_and_col_dict= line_and_col_dict, 
-              parent_col_dict = parent_col_dict)
+        if typeBuilderResult:
+            self.errors += typeBuilderResult
+            return 
+        typeInheritanceResult= TypeInheritanceVisitor().visit(self.ast)
+        if typeInheritanceResult:
+            self.errors += typeInheritanceResult
+            return 
         typeCheckerResult= TypeCheckerVisitor().visit(self.ast)
-        self.errors+= typeCollectorResult + typeBuilderResult + typeInheritanceResult + typeCheckerResult
+        if typeCheckerResult:
+            self.errors += typeCheckerResult
+            return
+        
+        

@@ -88,12 +88,14 @@ class NodeClassMethod(NodeFeature):
                 returnType: str,
                 body,
                 line,
-                column):
+                column,
+                columnType):
         super().__init__(line= line, column= column)
         self.idName = idName
         self.formal_param_list= formal_param_list
         self.returnType = returnType
         self.body = body
+        self.columnType= columnType
 
     def to_readable(self):
         return "{}(name='{}', formal_param_list={}, returnType={}, body={})".format(
