@@ -1,0 +1,1 @@
+(11, 27) - TypeError: Inferred return type D of method test does not conform to declared return type C.
