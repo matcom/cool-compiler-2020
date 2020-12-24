@@ -1,8 +1,11 @@
 from ply.lex import TOKEN
 my_bool = False
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 result = ''
+>>>>>>> semantic_work
+=======
 >>>>>>> semantic_work
 
 tokens = [
@@ -30,6 +33,7 @@ tokens = [
 reserved_keywords = {
 		"case": "CASE",
 <<<<<<< HEAD
+<<<<<<< HEAD
 		"class": "CLASS",
         "CLaSS": "CLASS",
 		"eLSe": "ELSE",
@@ -48,30 +52,29 @@ reserved_keywords = {
         "iNHeRiTS": "INHERITS",
 =======
 
+=======
+>>>>>>> semantic_work
 		"class": "CLASS",
-        #"Class": "CLASS",
-        #"CLaSS": "CLASS",
-
-		#"eLSe": "ELSE",
+        "CLaSS": "CLASS",
+		"eLSe": "ELSE",
         "else": "ELSE",
-        #"elsE": "ELSE",
-        #"ElsE": "ELSE",
-
+        "elsE": "ELSE",
+        "ElsE": "ELSE",
 		"esac": "ESAC",
-
 		"fi": "FI",
-        #"Fi": "FI",
-        #"fI": "FI",
-
+        "Fi": "FI",
+        "fI": "FI",
 		"if": "IF",
-        #"If": "IF",
-        #"iF": "IF",
-
+        "If": "IF",
+        "iF": "IF",
 		"in": "IN",
-
 		"inherits": "INHERITS",
+<<<<<<< HEAD
         #"iNHeRiTS": "INHERITS",
 
+>>>>>>> semantic_work
+=======
+        "iNHeRiTS": "INHERITS",
 >>>>>>> semantic_work
 		"isvoid": "ISVOID",
 		"let": "LET",
@@ -79,6 +82,7 @@ reserved_keywords = {
 		"new": "NEW",
 		"of": "OF",
 		"pool": "POOL",
+<<<<<<< HEAD
 <<<<<<< HEAD
 		"then": "THEN",
         "THeN": "THEN",
@@ -89,6 +93,11 @@ reserved_keywords = {
         #"THeN": "THEN",
         #"tHen": "THEN",
 
+>>>>>>> semantic_work
+=======
+		"then": "THEN",
+        "THeN": "THEN",
+        "tHen": "THEN",
 >>>>>>> semantic_work
 		"while": "WHILE",
 		"not": "NOT",
@@ -127,8 +136,12 @@ def find_column(t):
     return t.lexpos - line_start + 1
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
+>>>>>>> semantic_work
+=======
+
 >>>>>>> semantic_work
 @TOKEN(r"\d+")
 def t_INTEGER(token):
@@ -137,6 +150,7 @@ def t_INTEGER(token):
 
 @TOKEN(r"[A-Z][a-zA-Z_0-9]*")
 def t_TYPE(token):
+<<<<<<< HEAD
 <<<<<<< HEAD
 	token.type = reserved_keywords.get(token.value, 'TYPE')
 	return token
@@ -160,6 +174,15 @@ def t_ID(token):
     token.type = reserved_keywords.get(token.value, 'ID')
     return token
 >>>>>>> semantic_work
+=======
+	token.type = reserved_keywords.get(token.value, 'TYPE')
+	return token
+
+@TOKEN(r"[a-z][a-zA-Z_0-9]*")
+def t_ID(token):
+	token.type = reserved_keywords.get(token.value, 'ID')
+	return token
+>>>>>>> semantic_work
 
 def t_NEWLINE(token):
     r"\n+"
@@ -174,9 +197,13 @@ def states():
 states = states()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ###
 =======
 
+>>>>>>> semantic_work
+=======
+###
 >>>>>>> semantic_work
 # THE STRING STATE
 @TOKEN(r"\"")
@@ -190,19 +217,26 @@ def t_start_string(token):
 def t_STRING_newline(token):
     global my_bool
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     global result
+>>>>>>> semantic_work
+=======
 >>>>>>> semantic_work
     token.lexer.lineno += 1
     if not token.lexer.string_backslashed:
         token.lexer.skip(1)
         token.lexer.pop_state()
 <<<<<<< HEAD
+<<<<<<< HEAD
         print(f'({token.lineno}, {find_column(token)}) - LexicographicError: Unterminated string constant')
 =======
         #print(f'({token.lineno}, {find_column(token)}) - LexicographicError: Unterminated string constant')
         if result == '':
             result = f'({token.lineno}, {find_column(token)}) - LexicographicError: Unterminated string constant'
+>>>>>>> semantic_work
+=======
+        print(f'({token.lineno}, {find_column(token)}) - LexicographicError: Unterminated string constant')
 >>>>>>> semantic_work
         my_bool = True
     else:
@@ -220,6 +254,7 @@ def t_STRING_end(token):
         token.lexer.string_backslashed = False
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 @TOKEN('\0')
 def t_STRING_null(t):
@@ -233,6 +268,13 @@ def t_STRING_null(t):
     #print(f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: String contains null character')
     if result=='':
         result = f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: String contains null character'
+>>>>>>> semantic_work
+=======
+
+@TOKEN('\0')
+def t_STRING_null(t):
+    global my_bool
+    print(f'({t.lexer.lineno}, {find_column(t)}) - LexicographicError: String contains null character')
 >>>>>>> semantic_work
     my_bool = True
 
@@ -259,14 +301,19 @@ def t_STRING_anything(token):
             token.lexer.string_backslashed = True
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
+>>>>>>> semantic_work
+=======
+
 >>>>>>> semantic_work
 # STRING ignored characters
 t_STRING_ignore = ''
 
 def t_STRING_eof(t):
     global my_bool
+<<<<<<< HEAD
 <<<<<<< HEAD
     print(f'({t.lineno}, {find_column(t)}) - LexicographicError: EOF in string constant')
 =======
@@ -275,11 +322,15 @@ def t_STRING_eof(t):
     if result=='':
         result = f'({t.lineno}, {find_column(t)}) - LexicographicError: EOF in string constant'
 >>>>>>> semantic_work
+=======
+    print(f'({t.lineno}, {find_column(t)}) - LexicographicError: EOF in string constant')
+>>>>>>> semantic_work
     my_bool = True
 
 # STRING error handler
 def t_STRING_error(token):
     global my_bool
+<<<<<<< HEAD
 <<<<<<< HEAD
     print("Illegal character! Line: {0}, character: {1}".format(token.lineno, token.value[0]))
 =======
@@ -288,13 +339,20 @@ def t_STRING_error(token):
         result = "Illegal character! Line: {0}, character: {1}".format(token.lineno, token.value[0])
     #print("Illegal character! Line: {0}, character: {1}".format(token.lineno, token.value[0]))
 >>>>>>> semantic_work
+=======
+    print("Illegal character! Line: {0}, character: {1}".format(token.lineno, token.value[0]))
+>>>>>>> semantic_work
     token.lexer.skip(1)
     my_bool = True
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ###
 =======
+>>>>>>> semantic_work
+=======
+###
 >>>>>>> semantic_work
 # THE COMMENT STATE
 @TOKEN(r"\(\*")
@@ -303,22 +361,32 @@ def t_start_comment(token):
     token.lexer.comment_count = 0
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
+>>>>>>> semantic_work
+=======
+
 >>>>>>> semantic_work
 @TOKEN(r"\(\*")
 def t_COMMENT_startanother(t):
     t.lexer.comment_count += 1
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 =======
+>>>>>>> semantic_work
+=======
+
+
 >>>>>>> semantic_work
 @TOKEN(r"\n")
 def t_COMMENT_NEWLINE(t):
     t.lexer.lineno+=1
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 def t_COMMENT_eof(t):
@@ -331,13 +399,20 @@ def t_COMMENT_eof(t):
 
 
 =======
+=======
+
+>>>>>>> semantic_work
 def t_COMMENT_eof(t):
     global my_bool
-    global result
-    #print(f"({t.lineno}, {find_column(t)}) - LexicographicError: EOF in comment")
-    if result=='':
-        result = f"({t.lineno}, {find_column(t)}) - LexicographicError: EOF in comment"
+    #print("(55, 46) - LexicographicError: EOF in comment")
+    print(f"({t.lineno}, {find_column(t)}) - LexicographicError: EOF in comment")
     my_bool = True
+
+<<<<<<< HEAD
+>>>>>>> semantic_work
+=======
+
+
 
 >>>>>>> semantic_work
 @TOKEN(r"\*\)")
@@ -348,8 +423,12 @@ def t_COMMENT_end(token):
         token.lexer.comment_count -= 1
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
+>>>>>>> semantic_work
+=======
+
 >>>>>>> semantic_work
 # COMMENT ignored characters
 t_COMMENT_ignore = ''
@@ -361,6 +440,7 @@ def t_COMMENT_error(t):
     t.lexer.skip(1)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 def t_error(t):
     global my_bool
@@ -371,15 +451,23 @@ def t_error(t):
     my_bool = True
     #(4, 2) - LexicographicError: ERROR "!"
 =======
+=======
+
+>>>>>>> semantic_work
 def t_error(t):
     global my_bool
-    global result
     message = f'({t.lineno}, {find_column(t)}) - LexicographicError: ERROR "'
     message += t.value[0]
     message +='"'
+<<<<<<< HEAD
     #print(message)
     if result =='':
         result = message
     t.lexer.skip(1)
     my_bool = True
+>>>>>>> semantic_work
+=======
+    print(message)
+    my_bool = True
+    #(4, 2) - LexicographicError: ERROR "!"
 >>>>>>> semantic_work
