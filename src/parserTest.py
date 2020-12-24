@@ -9,16 +9,8 @@ def run(addr):
     lexer = lex(module=lexer_rules)
     parser = yacc(module=parser_rules)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 
     lexer = lex(module=lexer_rules)
-=======
->>>>>>> semantic_work
-=======
-
-    lexer = lex(module=lexer_rules)
->>>>>>> semantic_work
     with open(addr, encoding = "utf-8") as f:
         text = f.read()
 
@@ -26,11 +18,4 @@ def run(addr):
 
 
     if parser_rules.my_bool:
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        print(parser_rules.result)
->>>>>>> semantic_work
-=======
->>>>>>> semantic_work
         exit(1)
