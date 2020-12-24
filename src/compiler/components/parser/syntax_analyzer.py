@@ -1,8 +1,8 @@
 import ply.yacc as yacc
 from ply.yacc import YaccProduction, YaccSymbol
-from ..utils.errors import error
-from ..utils.AST_definitions import *
-from ..components.lexer_analyzer import lexer
+from compiler.utils.errors import error
+from compiler.components.semantic.AST_definitions import *
+from ..lexer.lexer_analyzer import lexer
 
 class pyCoolParser:
     def __init__(self, tokens, source_program, real_col):

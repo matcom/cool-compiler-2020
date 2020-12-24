@@ -1,6 +1,6 @@
-from ..utils.visitors_definitions import TypeCollectorVisitor, TypeBuilderVisitor, TypeInheritanceVisitor, TypeCheckerVisitor
-from ..utils.AST_definitions import NodeProgram
-from ..utils.context import programContext
+from ..visitors_definitions import TypeCollectorVisitor, TypeBuilderVisitor, TypeInheritanceVisitor, TypeCheckerVisitor
+from .AST_definitions import NodeProgram
+from .context import programContext
 
 
 class semanticAnalyzer:

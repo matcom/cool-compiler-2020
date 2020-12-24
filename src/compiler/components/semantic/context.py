@@ -1,5 +1,5 @@
-from ..utils.AST_definitions import *
-from ..utils.errors import error, interceptError
+from .AST_definitions import *
+from compiler.utils.errors import error, interceptError
 import json
 import sys
 
@@ -254,51 +254,7 @@ class globalContext:
         dictToActualize.update({
             f.idName: f for f in dictParent.values() if not f.idName in dictChild
         })
-        
-#    def actualizeInheritMethod(self,
-#                               idName,
-#                               childInfoMethod: Method,
-#                               parentInfoMethod: Method,
-#                               row_and_col):
-#        badIndexParam= not childInfoMethod or next((i for i in range (len( childInfoMethod.argTypes))
-#                         if childInfoMethod.argTypes[i] != parentInfoMethod.argTypes[i]), False)
-#        return interceptError(
-#            validationFunc= lambda: not badIndexParam,
-#            errorOption= 'bad redefine method',
-#            nameClass= idName,
-#            badType = childInfoMethod.argTypes[badIndexParam] if badIndexParam else None,
-#            goodType = parentInfoMethod.argTypes[badIndexParam] if badIndexParam else None,
-#            row_and_col= row_and_col
-#        )or (childInfoMethod and childInfoMethod.idName == parentInfoMethod.idName) or self.types[idName].inheritsMethods.update({
-#            parentInfoMethod.idName: parentInfoMethod
-#        })
-#    
-#    def actualizeInheritAttr(self,
-#            idName,
-#            childInfoAttr: Attribute,
-#            parentInfoAttr: Attribute,
-#            row_and_col):
-#
-#        return interceptError(
-#            validationFunc= lambda: not (childInfoAttr and childInfoAttr._type != parentInfoAttr._type),
-#            errorOption= "bad redefine attr",
-#            nameClass= idName,
-#            attrName= childInfoAttr.idName if childInfoAttr else None,
-#            attrType= childInfoAttr._type if childInfoAttr else None,
-#            row_and_col= row_and_col
-#        ) or childInfoAttr or self.types[idName].inheritsAttr.update({
-#            parentInfoAttr.idName: parentInfoAttr
-#        })
-#
-#    def isAncestor(self, idChild: str, idParent: str):
-#
-#        currentName = self.types[idParent].parent
-#        while currentName != 'Object' and currentName != idChild and currentName != idParent:
-#            try:
-#                currentName = self.types[currentName].parent
-#            except KeyError:
-#                break
-#        return currentName == idChild
+
 
     def getType(self, idName: str, row_and_col):
         return interceptError(

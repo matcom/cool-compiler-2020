@@ -1,6 +1,6 @@
-from ..utils.AST_definitions import *
-from ..utils.context import programContext
-from ..utils.errors import error
+from ..components.semantic.AST_definitions import *
+from ..components.semantic.context import programContext
+from compiler.utils.errors import error
 
 
 class NodeVisitor:
