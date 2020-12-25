@@ -1,0 +1,1 @@
+(8, 19) - TypeError: Inferred type Object of initialization of attribute test2 does not conform to declared type Int. 
