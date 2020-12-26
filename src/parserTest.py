@@ -18,10 +18,10 @@ def run(addr):
     # parser_rules.result = ''
     # return s
 
-if parser_rules.my_bool:
-    print(parser_rules.result)
-    parser_rules.result = ''
-    exit(1)
+    if parser_rules.my_bool:
+        print(parser_rules.result)
+        parser_rules.result = ''
+        exit(1)
 
 
 # lexer = lex(module=lexer_rules)
