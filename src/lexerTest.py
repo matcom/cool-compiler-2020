@@ -16,13 +16,15 @@ def run(addr):
         except():
             lexer.skip(1)
 
-    temp = lexer_rules.result.split(':')
-    s = temp[0]
-    lexer_rules.result = ''
-    return s
+    # temp = lexer_rules.result.split(':')
+    # s = temp[0]
+    # lexer_rules.result = ''
+    # return s
 
-    # if lexer_rules.my_bool:
-    #     exit(1)
+    if lexer_rules.my_bool:
+        print(lexer_rules.result)
+        lexer_rules.result = ''
+        exit(1)
 
 # text = ""
 # lexer = lex(module=lexer_rules)
