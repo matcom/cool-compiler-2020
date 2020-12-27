@@ -21,6 +21,7 @@ def run(addr):
     if parser_rules.my_bool:
         print(parser_rules.result)
         parser_rules.result = ''
+        parser_rules.my_bool = False
         exit(1)
 
 

@@ -24,7 +24,10 @@ def run(addr):
     if lexer_rules.my_bool:
         print(lexer_rules.result)
         lexer_rules.result = ''
+        lexer_rules.my_bool = False
         exit(1)
+
+# run('C:/Users/acast/Documents/GitHub/cool-compiler-2020/tests/lexer/comment1.cl')
 
 # text = ""
 # lexer = lex(module=lexer_rules)
