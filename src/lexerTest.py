@@ -22,7 +22,7 @@ def run(addr):
     # return s
 
     if lexer_rules.my_bool:
-        print(lexer_rules.result)
+        print(lexer_rules.result + '\n')
         lexer_rules.result = ''
         lexer_rules.my_bool = False
         exit(1)
