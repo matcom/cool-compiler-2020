@@ -18,5 +18,5 @@ def run(addr):
     sem.visit(ast)
 
     if len(sem.error) > 0:
-        print(sem.error[0])
+        print(sem.error[0] + '\n')
         exit(1)
