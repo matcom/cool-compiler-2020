@@ -96,9 +96,9 @@ class Semantic:
 
 
     '''%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'''
-    # @visitor.on('node')
-    # def visit(self, node):
-    #     pass
+    @visitor.on('node')
+    def visit(self, node):
+        pass
 
     @visitor.when(Program)
     def visit(self, program):
