@@ -547,7 +547,7 @@ class CILVisitor(NodeVisitor):
 		self.registerInstruction(cil.PushParam, instanceVname)
 
 		# Call the function
-		method_name = f'{node.expr.type}_{node.method}'
+		method_name = f'{node.dispatch_type}_{node.method}'
 		self.registerInstruction(cil.VCall, result, node.dispatch_type, method_name)
 		self.registerInstruction(cil.PopParam, instanceVname)
 
