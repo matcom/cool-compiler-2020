@@ -1,183 +1,400 @@
-###################################################################
-###############             CIL TREE             ##################
-###################################################################
-#The cilnodes have inside all that they need to transform to misp
-class CilNode:
-    def __init__(self, code=""):
-        self.code = code
 
-class CilClassNode(CilNode):
-    def __init__(self, name, attrs=None, funcs=None, size=-1, code=""):
-        super().__init__(code)
-        self.name = name
-        self.attr_order = []
-        self.attrs = attrs # [<var_name>] -> CilIdNode
-        self.funcs = funcs # ["A_f"] -> CilFuncNode
+########################################## AST ####################################################
 
-class CilFuncDeclNode(CilNode):
-    def __init__(self, label, body=None, formals=None, local_vars=None, retvalue=0, code = ""):
-        super().__init__(code)
-        self.label = label
-        self.formals = formals
-        self.locals = local_vars #List of instructions locals
-        self.body = body #List of instructions
-        self.retvalue = retvalue #rreturn value
 
-class CilFormalNode(CilNode):
-    def __init__(self, name, code=""):
-        super().__init__(code)
-        self.name = name
+class AST:
+	def __init__(self):
+		pass
 
-class CilParamNode(CilNode):
-    def __init__(self, name, code=""):
-        super().__init__(code)
-        self.name = name
+	@property
+	def clsname(self):
+		return str(self.__class__.__name__)
 
-class CilBackupNode(CilNode):
-    def __init__(self, name, code=""):
-        super().__init__(code)
-        self.name = name
+	def to_readable(self):
+		return "{}".format(self.clsname)
 
-class CilRestoreNode(CilNode):
-    def __init__(self, name, code=""):
-        super().__init__(code)
-        self.name = name
+	def __repr__(self):
+		return self.__str__()
 
-class CilGetAttrNode(CilNode):
-    def __init__(self, instance, attr, result, code=""):
-        super().__init__(code)
-        self.instance = instance
-        self.attr = attr
-        self.result = result
+	def __str__(self):
+		return str(self.to_readable()) + "\n"
 
-class CilCallNode(CilNode):
-    def __init__(self, func_label, value, code=""):
-        super().__init__(code)
-        self.func_label = func_label
-        self.value = value
 
-class CilCondNode(CilNode):
-        def __init__(self, condvar, goto_label, code = ""):
-            super().__init__(code)
-            self.condvar = condvar
-            self.goto_label = goto_label
+##################################### PROGRAM #####################################################
 
-class CilGoToNode(CilNode):
-        def __init__(self, label, code=""):
-            super().__init__(code)
-            self.label = label
 
-class CilLabelNode(CilNode):
-        def __init__(self, name, code=""):
-            super().__init__(code)
-            self.name = name + ":"
+class Program(AST):
+	def __init__(self, type_section, data_section, code_section):
+		super(Program, self).__init__()
+		self.code_section = code_section
+		self.data_section = data_section
+		self.type_section = type_section
 
-class CilLoopNode(CilNode):
-        def __init__(self, condvar, label, code=""):
-            super().__init__(code)
-            self.condvar = condvar
-            self.label = label
+	def to_readable(self):
+		ttype = ""
+		for t in self.type_section:
+			ttype += str(t)
+		data = ""
+		for t in self.data_section:
+			data += str(t)
+		code = ""
+		for t in self.code_section:
+			code += str(t)
+		return "CIL\n\t.TYPE\n{}\n\t.DATA\n{}\n\t.CODE\n{}\n".format(ttype, data, code)
 
-class CilDeclNode(CilNode):
-    def __init__(self, local_name, value, code=""):
-        super().__init__(code)
-        self.local_name = local_name
-        self.value = value
 
-class CilAssignNode(CilNode):
-    def __init__(self, lvalue, expr=None, code=""):
-        super().__init__(code)
-        self.lvalue = lvalue
-        self.expr = expr
 
-# ########################################################################################
-# #####################   UNOPS  ########################################################
-# ########################################################################################
-class CilUnOpNode(CilNode):
-    # op param is just for building self.code
-    def __init__(self, operand, result, op=None):
-        self.operand = operand
-        self.result = result
-        self.op = op
-        self.code = result + " = " + op + " " + str(operand)
+################################ TYPES, DATAS, STATEMENTS #########################################
 
-class CilBooleanNotNode(CilUnOpNode):
-    def __init__(self, operand, result):
-        super().__init__(operand, result, "not")
 
-class CilIsVoidNode(CilUnOpNode):
-    def __init__(self, operand, result):
-        super().__init__(operand, result, "isvoid")
+class Type(AST):
+	def __init__(self, name, attributes = {}, methods= {}):
+		self.type_name = name
+		self.attributes = attributes
+		self.methods = methods
 
-class CilBinaryNotNode(CilUnOpNode):
-    def __init__(self, operand, result):
-        super().__init__(operand, result, "~")
+	def to_readable(self):
+		attrs = ""
+		for t in self.attributes:
+			attrs += str(t) + "\t"
+		m = ""
+		for t in self.methods:
+			m += str(t) + "\t"
+		return "type {} {}\n\t{}\n\t{}\n{}\n".format(self.type_name, "{", attrs, m, "}")
 
-# ########################################################################################
-# #####################   BINOPS  ########################################################
-# ########################################################################################
 
-class CilBinOpNode(CilNode):
-    # op param is just for building self.code
-    def __init__(self, left, right, result, op=None):
-        self.left = left
-        self.right =right
-        self.result = result
-        self.op = op
-        self.code = result + " = " + str(left) + " " + op + " " + str(right)
+class Data(AST):
+	def __init__(self, dest, value):
+		self.dest = dest
+		self.value = value
 
-class CilSumNode(CilBinOpNode):
-    def __init__(self, left, right, result):
-        super().__init__(left, right, result, "+")
+	def to_readable(self):
+		return "{} = {}\n".format(self.dest, self.value)
 
-class CilMinusNode(CilBinOpNode):
-    def __init__(self, left, right, result):
-        super().__init__(left, right, result, "-")
 
-class CilMultNode(CilBinOpNode):
-    def __init__(self, left, right, result):
-        super().__init__(left, right, result, "*")
+class Statement(AST):
+	pass
 
-class CilDivNode(CilBinOpNode):
-    def __init__(self, left, right, result):
-        super().__init__(left, right, result, "/")
 
-class CilCmpLessNode(CilBinOpNode):
-    def __init__(self, left, right, result):
-        super().__init__(left, right, result, "<")
+#################################### ATTRIBUTE ###################################################
 
-class CilCmpLessEqNode(CilBinOpNode):
-    def __init__(self, left, right, result):
-        super().__init__(left, right, result, "<=")
+class TypeFeature(AST):
+	pass
 
-class CilCmpEqRefNode(CilBinOpNode):
-    def __init__(self, left, right, result):
-        super().__init__(left, right, result, add_result, "==")
+class Attribute(TypeFeature):
+	def __init__(self, name):
+		self.name = name
 
-class CilCmpEqNode(CilBinOpNode):
-    def __init__(self, left, right, result):
-        super().__init__(left, right, result, "=")
+	def to_readable(self):
+		return "attribute {}\n".format(self.name)
 
-# ########################################################################################
-# #####################   TERMINALS  #####################################################
-# ########################################################################################
+class Method(TypeFeature):
+	def __init__(self, name, function_name):
+		self.name = name
+		self.function_name = function_name
 
-class CilStringNode(CilNode):
-    # Ex: .data <str_label>: .asciiz "Hello World!"
-    def __init__(self, label, addr):
-        self.label = label
-        self.addr = addr
+	def to_readable(self):
+		return "method {} : {}\n".format(self.name, self.function_name)
 
-class CilAllocateNode(CilNode):
-    def __init__(self, typename, value, code=""):
-        self.code = "ALLOCATE {}".format(typename)
-        self.typename = typename
-        self.value = value
 
-class CilSetAttrNode(CilNode):
-    def __init__(self, instance, attr, value, code=""):
-        self.code = "SETATTR {} {} {}".format(instance, attr, value)
-        self.instance = instance
-        self.attr = attr
-        self.value = value
+#################################### FUNCTION ####################################################
+
+
+class Function(TypeFeature):
+	def __init__(self, name, args, vlocals, body):
+		self.name = name
+		self.args = args
+		self.vlocals = vlocals
+		self.body = body
+
+	def to_readable(self):
+		args = ""
+		for t in self.args:
+			args += str(t) + "\t"
+		args += "\n"
+		vlocals = ""
+		for t in self.vlocals:
+			vlocals += str(t) + "\t"
+		args += "\n"
+		body = ""
+		for t in self.body:
+			body += str(t) + "\t"
+		body += "\n"
+		return "function {} {}\n\t{}\n\n\t{}\n\n\t{}\n{}\n".format(self.name, "{", args, vlocals, body, "}")
+
+
+
+class ArgDeclaration(AST):
+	def __init__(self, name):
+		self.name = name
+
+	def to_readable(self):
+		return "PARAM {}\n".format(self.name)
+
+
+class LocalDeclaration(AST):
+	def __init__(self, name):
+		self.name = name
+
+	def to_readable(self):
+		return "LOCAL {}\n".format(self.name)
+
+
+#################################### STATEMENTS #################################################
+
+
+class Assign(Statement):
+	def __init__(self, dest, source):
+		self.dest = dest
+		self.source = source
+
+	def to_readable(self):
+		return "{} = {}\n".format(self.dest, self.source)
+
+#----------- BinaryOperator
+
+class BinaryOperator(Statement):
+	def __init__(self, dest, left, right, op):
+		self.dest = dest
+		self.left = left
+		self.right = right
+		self.op = op
+
+	def to_readable(self):
+		return "{} = {} {} {}\n".format(self.dest, self.left, self.op, self.right)
+
+class Plus(BinaryOperator):
+	def __init__(self, dest, left, right):
+		super(Plus, self).__init__(dest, left, right, "+")
+
+class Minus(BinaryOperator):
+	def __init__(self, dest, left, right):
+		super(Minus, self).__init__(dest, left, right, "-")
+
+class Mult(BinaryOperator):
+	def __init__(self, dest, left, right):
+		super(Mult, self).__init__(dest, left, right, "*")
+
+class Div(BinaryOperator):
+	def __init__(self, dest, left, right):
+		super(Div, self).__init__(dest, left, right, "/")
+
+#---------- COMPARISONS
+
+class Equal(BinaryOperator):
+	def __init__(self, dest, left, right):
+		super(Equal, self).__init__(dest, left, right, "==")
+
+class LessThan(BinaryOperator):
+	def __init__(self, dest, left, right):
+		super(LessThan, self).__init__(dest, left, right, "<")
+
+class EqualOrLessThan(BinaryOperator):
+	def __init__(self, dest, left, right):
+		super(EqualOrLessThan, self).__init__(dest, left, right, "<=")
+
+#---------- TYPES
+
+class GetAttrib(Statement):
+	def __init__(self, dest, instance, attribute):
+		self.dest = dest
+		self.instance = instance
+		self.attribute = attribute
+
+	def to_readable(self):
+		return "{} = GETATTR {} {}\n".format(self.dest, self.instance, self.attribute)
+
+class SetAttrib(Statement):
+	def __init__(self, instance, attribute, src):
+		self.instance = instance
+		self.attribute = attribute
+		self.src = src
+
+	def to_readable(self):
+		return "SETATTR {} {} {}\n".format(self.instance, self.attribute, self.src)
+
+#---------- ARRAYS
+
+# self.attribute will represent the index
+
+class GetIndex(GetAttrib):
+	def to_readable(self):
+		return "{} = GETINDEX {} {}\n".format(self.dest, self.instance, self.attribute)
+
+
+class SetIndex(SetAttrib):
+	def to_readable(self):
+		return "SETINDEX {} {} {}\n".format(self.instance, self.attribute, self.src)
+
+
+################################ MEMORY STATEMENTS ##############################################
+
+
+class TypeOf(Statement):
+	def __init__(self, dest, instance):
+		self.dest = dest
+		self.instance = instance
+
+	def to_readable(self):
+		return "{} = TYPEOF {}\n".format(self.dest, self.instance)
+
+
+
+class Allocate(Statement):
+	def __init__(self, dest, ttype):
+		self.dest = dest
+		self.ttype = ttype
+
+	def to_readable(self):
+		return "{} = ALLOCATE {}\n".format(self.dest, self.ttype)
+
+
+class Array(Statement):
+	def __init__(self, dest, src):
+		self.dest = dest
+		self.src = src
+
+	def to_readable(self):		
+		return "{} = ARRAY {}\n".format(self.dest, self.src)
+
+
+
+
+################################# DISPATCH STATEMENTS, RETURN #################################
+
+
+class Call(Statement):
+	def __init__(self, dest, f):
+		self.dest = dest
+		self.f = f
+
+	def to_readable(self):
+		return "{} = CALL {}\n".format(self.dest, self.f)
+
+
+class VCall(Statement):
+	def __init__(self, dest, ttype, f):
+		self.dest = dest
+		self.ttype = ttype
+		self.f = f
+
+	def to_readable(self):
+		return "{} = VCALL {} {}\n".format(self.dest, self.ttype, self.f)		
+
+
+class PushParam(Statement):
+	def __init__(self, name):
+		self.name = name
+
+	def to_readable(self):
+		return "ARG {}\n".format(self.name)
+
+class PopParam(Statement):
+	def __init__(self, name):
+		self.name = name
+
+	def to_readable(self):
+		return "POP {}\n".format(self.name)
+
+class Return(Statement):
+	def __init__(self, value=None):
+		self.value = value
+
+	def to_readable(self):
+		return "RETURN {}\n".format(self.value)
+
+################################## JUMP STATEMENTS ###########################################
+
+
+class Label(Statement):
+	def __init__(self, name):
+		self.name = name
+
+	def to_readable(self):
+		return "LABEL {}\n".format(self.name)
+
+class Goto(Statement):
+	def __init__(self, label):
+		self.label = label
+
+	def to_readable(self):
+		return "GOTO {}\n".format(self.label)
+
+class IfGoto(Statement):
+	def __init__(self, condition, label):
+		self.condition = condition
+		self.label = label
+
+	def to_readable(self):
+		return "IF {} GOTO {}\n".format(self.condition, self.label)
+
+######################################## STR STATEMENTS ######################################
+
+
+class Load(Statement):
+	def __init__(self, dest, msg):
+		self.dest = dest
+		self.msg = msg
+
+	def to_readable(self):
+		return "{} = LOAD {}\n".format(self.dest, self.msg)
+
+
+
+class Length(Statement):
+	def __init__(self, dest, str_addr):
+		self.dest = dest
+		self.str_addr = str_addr
+
+	def to_readable(self):
+		return "{} = LENGTH {}\n".format(self.dest, self.str_addr)
+
+
+class Concat(Statement):
+	def __init__(self, dest, first, second):
+		self.dest = dest
+		self.first = first
+		self.second = second
+
+	def to_readable(self):
+		return "{} = CONCAT {} {}\n".format(self.dest, self.first, self.second)
+
+
+class Substring(Statement):
+	def __init__(self, dest, str_addr, pos_left=0, pos_right=-1):
+		self.dest = dest
+		self.str_addr = str_addr
+		self.pos_left = pos_left
+		self.pos_right = pos_right
+
+	def to_readable(self):
+		return "{} = SUBSTRING {} {} {}\n".format(self.dest, self.str_addr, self.pos_left, self.pos_right)
+
+
+class ToString(Statement):
+	def __init__(self, dest, num):
+		self.dest = dest
+		self.num = num
+
+	def to_readable(self):
+		return "{} = STR {}\n".format(self.dest, self.num)
+
+
+#################################### IO STATEMENTS ###########################################
+
+
+class Read(Statement):
+	def __init__(self, dest):
+		self.dest = dest
+
+	def to_readable(self):
+		return "{} = READ\n".format(self.dest)
+
+
+class Print(Statement):
+	def __init__(self, str_addr):
+		self.str_addr = str_addr
+
+	def to_readable(self):
+		return "PRINT {}\n".format(self.str_addr)
 
