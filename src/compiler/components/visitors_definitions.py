@@ -1,16 +1,19 @@
 from ..components.semantic.AST_definitions import *
-from ..components.semantic.context import programContext
+
 from compiler.utils.errors import error
 
 
 class NodeVisitor:
-
+    def __init__(self, programContext):
+        self.programContext= programContext
+    
     def visit(self, node: Node, **args):
-        if node.__class__.__bases__[0] is NodeBinaryOperation:
-            return self.visit_NodeBinaryOperation(node, **args)
+        if isinstance(self, TypeCheckerVisitor):
+            if issubclass(type(node), NodeBinaryOperation):
+                return self.visit_NodeBinaryOperation(node, **args)
+            
         visitor_method_name = 'visit_' + node.clsname
-        visitor = getattr(self, visitor_method_name, self.not_implemented)
-        
+        visitor = getattr(self, visitor_method_name, self.not_implemented)        
         return visitor(node, **args) # Return the new context result from the visit
 
     def not_implemented(self, node: Node, **args):
@@ -29,7 +32,7 @@ class TypeCollectorVisitor(NodeVisitor):
 
     def visit_NodeClass(self, node: NodeClass):
         # When we create a type, we store it in the context, if there is no errors
-        return programContext.createType(node)
+        return self.programContext.createType(node)
 
 class TypeInheritanceVisitor(NodeVisitor):
     def visit_NodeProgram(self, node: NodeProgram):
@@ -41,10 +44,13 @@ class TypeInheritanceVisitor(NodeVisitor):
         return [errors.pop()] if errors else []
 
     def visit_NodeClass(self, node: NodeClass):
-        result= programContext.checkGoodInheritance(node)
+        result= self.programContext.checkGoodInheritance(node)
         if type(result) is error:
             return result
 
+        if node.idName == 'Object':
+            return
+        
         for nodeAttr in node.attributes:
             resultVisitAttr= self.visit(nodeAttr, idType= node.idName)
             if type(resultVisitAttr) is error:
@@ -55,19 +61,20 @@ class TypeInheritanceVisitor(NodeVisitor):
             if type(resultVisitClassMethod) is error:
                 return resultVisitClassMethod
         
-        programContext.actualizeInherits(node)    
+        self.programContext.actualizeInherits(node)    
     
     
     def visit_NodeAttr(self, node: NodeAttr, idType):
-        return programContext.checkNotOverwriteAttr(node, idType)
+        return self.programContext.checkNotOverwriteAttr(node, idType)
         
 
     def visit_NodeClassMethod(self, node: NodeClassMethod, idType):
-        return programContext.checkGoodOverwriteMethod(node, idType)
+        return self.programContext.checkGoodOverwriteMethod(node, idType)
         
         
 class TypeBuilderVisitor(NodeVisitor):
-    def __init__(self):
+    def __init__(self, programContext):
+        super().__init__(programContext)
         self.currentTypeName = ''
 
     def visit_NodeProgram(self, node: NodeProgram):
@@ -87,7 +94,7 @@ class TypeBuilderVisitor(NodeVisitor):
         return errors
 
     def visit_NodeAttr(self, node:NodeAttr):
-        resultOp= programContext.defineAttrInType(self.currentTypeName,
+        resultOp= self.programContext.defineAttrInType(self.currentTypeName,
         node)
         
         if type (resultOp) is error:
@@ -97,9 +104,9 @@ class TypeBuilderVisitor(NodeVisitor):
 
     def visit_NodeClassMethod(self, node: NodeClassMethod):
         return [definition for definition in
-        [programContext.getType(node.returnType, (node.line, node.column))] +
-        [programContext.getType(idName = formal_param._type, row_and_col= (formal_param.line, formal_param.column)) for formal_param in node.formal_param_list] +
-        [programContext.defineMethod(
+        [self.programContext.getType(node.returnType, (node.line, node.column))] +
+        [self.programContext.getType(idName = formal_param._type, row_and_col= (formal_param.line, formal_param.column)) for formal_param in node.formal_param_list] +
+        [self.programContext.defineMethod(
             typeName = self.currentTypeName,
             node= node
             )]
@@ -108,17 +115,16 @@ class TypeBuilderVisitor(NodeVisitor):
 
 
 class TypeCheckerVisitor(NodeVisitor):
-    def __init__(self):
-        pass
         
 
     def visit_NodeProgram(self, node: NodeProgram):
+        self.mapExprWithType= {}
         errors = []
         for nodeClass in node.class_list:
-            environment = programContext.buildEnv (typeName= nodeClass.idName)
+            environment = self.programContext.buildEnv (typeName= nodeClass.idName)
             errors += self.visit(nodeClass, previousEnv= environment)
             
-        return errors
+        return errors, self.mapExprWithType
 
     def visit_NodeClass(self, node: NodeClass, previousEnv):
         errors = []
@@ -136,7 +142,7 @@ class TypeCheckerVisitor(NodeVisitor):
         return errors
 
     def visit_NodeClassMethod(self, node: NodeClassMethod, previousEnv):
-        newEnv = programContext.buildEnvForMethod(node, previousEnv)
+        newEnv = self.programContext.buildEnvForMethod(node, previousEnv)
         if type(newEnv) is error:
             return newEnv
         
@@ -145,7 +151,7 @@ class TypeCheckerVisitor(NodeVisitor):
         if type(typeResult) is error:
             return typeResult
         
-        return programContext.checkReturnType(node.returnType, 
+        return self.programContext.checkReturnType(node.returnType, 
                                               typeResult, 
                                               (node.line, node.column),
                                               'uncompatible types')        
@@ -160,7 +166,7 @@ class TypeCheckerVisitor(NodeVisitor):
             if type(typeExpr) is error:
                 return typeExpr
             
-            resultCheckAssign= programContext.checkAssign(nameObject= node.idName,
+            resultCheckAssign= self.programContext.checkAssign(nameObject= node.idName,
                                     nodeType= node._type,
                                     returnType= typeExpr,
                                     row_and_col= (node.expr.line, node.expr.column)
@@ -199,7 +205,7 @@ class TypeCheckerVisitor(NodeVisitor):
         
         row_and_col = (node.body.line, node.body.column) if node.body else (node.line, node.column)
         
-        resultCheckAssign= programContext.checkAssign(node.idName,
+        resultCheckAssign= self.programContext.checkAssign(node.idName,
                                           node.type,
                                           exprType,
                                           row_and_col,
@@ -224,7 +230,7 @@ class TypeCheckerVisitor(NodeVisitor):
             return resultExpr
         
         
-        resultCheckAssign= programContext.checkAssign(nameObject= node.nodeObject.idName,
+        resultCheckAssign= self.programContext.checkAssign(nameObject= node.nodeObject.idName,
                                           nodeType= resultObj, 
                                           returnType= resultExpr, 
                                           row_and_col= (node.nodeObject.line, node.nodeObject.column ),
@@ -253,7 +259,7 @@ class TypeCheckerVisitor(NodeVisitor):
             return typeSecondExpr
 
         if type(node) is NodeEqual:
-            return programContext.checkEqualOp(typeFirstExpr,
+            return self.programContext.checkEqualOp(typeFirstExpr,
                                                typeSecondExpr,
                                                (node.line, node.column))
         
@@ -264,7 +270,7 @@ class TypeCheckerVisitor(NodeVisitor):
                           NodeMultiplication}
             
         
-        return programContext.checkArithmetic(typeFirstExpr,
+        return self.programContext.checkArithmetic(typeFirstExpr,
                                         typeSecondExpr,
                                         (node.line, node.column),
                                         node.symbol,
@@ -273,7 +279,7 @@ class TypeCheckerVisitor(NodeVisitor):
         
         
     def visit_NodeNewObject(self, node: NodeNewObject, **kwargs):
-        result = programContext.getType(node.type,
+        result = self.programContext.getType(node.type,
                                         row_and_col=(node.line, node.column))
         if type(result) is error:
             return result
@@ -301,7 +307,7 @@ class TypeCheckerVisitor(NodeVisitor):
         typeExpr = self.visit(node.boolean_expr, previousEnv= previousEnv)
         if type(typeExpr) is error:
             return typeExpr
-        return programContext.checkReturnType(nodeType= "Bool", returnType= typeExpr,
+        return self.programContext.checkReturnType(nodeType= "Bool", returnType= typeExpr,
                                               row_and_col= (node.line, node.boolean_expr.column -2),
                                               errorOption= 'bad not')
         
@@ -313,7 +319,7 @@ class TypeCheckerVisitor(NodeVisitor):
                          previousEnv):
         if node.idName == 'self':
             return previousEnv['wrapperType']
-        return programContext.searchValue(node,
+        return self.programContext.searchValue(node,
                                           (node.line, node.column),
                                           previousEnv)
         
@@ -326,7 +332,8 @@ class TypeCheckerVisitor(NodeVisitor):
         if type (typeExpr) is error:
             return typeExpr
         
-        methodInfo= programContext.checkMethodInType(idType= typeExpr, 
+        self.mapExprWithType[(node.line, node.column)]= typeExpr
+        methodInfo= self.programContext.checkMethodInType(idType= typeExpr, 
                                                     idMethod = node.method,
                                                     row_and_col= (node.line, node.column + 1))
         if type(methodInfo) is error:
@@ -340,7 +347,7 @@ class TypeCheckerVisitor(NodeVisitor):
                 return currenttypeExpr
             argTypes.append(currenttypeExpr)
         
-        resultCheck= programContext.checkArgumentsInDispatch(
+        resultCheck= self.programContext.checkArgumentsInDispatch(
         node,
         methodInfo.argNames,
         argTypes, 
@@ -360,7 +367,7 @@ class TypeCheckerVisitor(NodeVisitor):
         typeExpr = self.visit(node.integer_expr, previousEnv= previousEnv)
         if type(typeExpr) is error:
             return typeExpr
-        return programContext.checkReturnType(nodeType= "Int", returnType= typeExpr,
+        return self.programContext.checkReturnType(nodeType= "Int", returnType= typeExpr,
                                               row_and_col= (node.line, node.column + 1),
                                               errorOption= 'bad ~')
     
@@ -378,7 +385,7 @@ class TypeCheckerVisitor(NodeVisitor):
         if type(predType) is error:
             return predType
         
-        resultCheck = programContext.checkReturnType(nodeType= 'Bool', returnType= predType,
+        resultCheck = self.programContext.checkReturnType(nodeType= 'Bool', returnType= predType,
                                                      row_and_col= (node.line, node.column),
                                                      errorOption= 'uncompatible types')
         
@@ -393,10 +400,10 @@ class TypeCheckerVisitor(NodeVisitor):
         if type(elseType) is error:
             return elseType
         
-        return programContext.LCA(idName1 = thenType, idName2= elseType)
+        return self.programContext.LCA(idName1 = thenType, idName2= elseType)
     
     def visit_NodeCase(self, node: NodeCase, previousEnv):
-        resultTypeInit= self.visit(node.expr)
+        resultTypeInit= self.visit(node.expr, previousEnv= previousEnv)
         if type(resultTypeInit) is error:
             return resultTypeInit
         
@@ -414,7 +421,7 @@ class TypeCheckerVisitor(NodeVisitor):
         
         lca =  returnTypesExpressions[0]
         for typeExpr in returnTypesExpressions:
-            lca= programContext.LCA(idName1= lca, idName2= typeExpr)
+            lca= self.programContext.LCA(idName1= lca, idName2= typeExpr)
             
         return lca
     
@@ -424,12 +431,12 @@ class TypeCheckerVisitor(NodeVisitor):
         currentTypeCase= 'Object'
         returnTypesExpressions = []
         
-        resultCheckNonRepetition= programContext.checkNonRepetition(nodeActions)
+        resultCheckNonRepetition= self.programContext.checkNonRepetition(nodeActions)
         if type(resultCheckNonRepetition) is error:
             return resultCheckNonRepetition, None
         
         for action in nodeActions:
-            actionType= programContext.getType(idName= action.type,
+            actionType= self.programContext.getType(idName= action.type,
                                                 row_and_col= (action.line,
                                                               action.column))
             if type(actionType) is error:
@@ -445,8 +452,8 @@ class TypeCheckerVisitor(NodeVisitor):
 
             returnTypesExpressions.append(returnTypeAction)
             
-            if programContext.isSubtype(subType= resultTypeInit,
-                superType= action.type) and programContext.isSubtype(
+            if self.programContext.isSubtype(subType= resultTypeInit,
+                superType= action.type) and self.programContext.isSubtype(
                 subType= action.type,
                 superType= currentTypeCase):
                 actionToReturn= action
@@ -466,12 +473,12 @@ class TypeCheckerVisitor(NodeVisitor):
         if type(typeLeftMost) is error:
             return typeLeftMost
         
-        dispatchType= programContext.getType(idName= node.dispatch_type,
+        dispatchType= self.programContext.getType(idName= node.dispatch_type,
                                              row_and_col= (node.line, node.columnType))
         if type(dispatchType) is error:
             return dispatchType
                 
-        methodInfo= programContext.checkMethodInType(idType= node.dispatch_type,
+        methodInfo= self.programContext.checkMethodInType(idType= node.dispatch_type,
                                                     idMethod= node.method, 
                                                     row_and_col= (node.line, node.columnIdMethod))
         if type(methodInfo) is error:
@@ -480,7 +487,7 @@ class TypeCheckerVisitor(NodeVisitor):
         typeExprOfArgs = []
         for arg in node.arguments:
             resultType= self.visit(node= arg,
-                                     environment = previousEnv)
+                                     previousEnv = previousEnv)
             
             if type(resultType) is error:
                 return resultType
@@ -488,7 +495,7 @@ class TypeCheckerVisitor(NodeVisitor):
             typeExprOfArgs.append(resultType)
 
 
-        checkingArgumentsResult= programContext.checkArgumentsInDispatch(
+        checkingArgumentsResult= self.programContext.checkArgumentsInDispatch(
                                             node,
                                             methodInfo.argNames,
                                             typeExprOfArgs,
@@ -497,7 +504,7 @@ class TypeCheckerVisitor(NodeVisitor):
         if type(checkingArgumentsResult) is error:
             return checkingArgumentsResult
         
-        return programContext.checkDispatchTypes(typeLeftMost= typeLeftMost,
+        return self.programContext.checkDispatchTypes(typeLeftMost= typeLeftMost,
                                                  typeRight= dispatchType.idName,
                                                  returnType= methodInfo.returnType,
                                                  row_and_col= (node.expr.line, node.expr.column))
@@ -506,7 +513,7 @@ class TypeCheckerVisitor(NodeVisitor):
         resultExprPred = self.visit(node.predicate, previousEnv= previousEnv)
         if type(resultExprPred) is error:
             return resultExprPred
-        resultCheck = programContext.checkBoolInPredicate(node, resultExprPred)
+        resultCheck = self.programContext.checkBoolInPredicate(node, resultExprPred)
         if type(resultCheck) is error:
             return resultCheck
         
@@ -516,3 +523,4 @@ class TypeCheckerVisitor(NodeVisitor):
         
         return 'Object'
         
+

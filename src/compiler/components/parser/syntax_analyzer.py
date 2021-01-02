@@ -44,7 +44,7 @@ class pyCoolParser:
         p[0] = NodeClass(idName = p[2],
                          methods= p[4]['methods'],
                          attributes= p[4]['attributes'],
-                         parent = "Object",
+                         parent = "Object" if p[2] != 'Object' else None,
                          line= p.slice[1].lineno,
                          column=(self.real_col[ str(p.slice[2]) ] ) )
 

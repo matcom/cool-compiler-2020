@@ -24,6 +24,10 @@ class Type(jsonable):
         self.children= {}
     
 class feature(jsonable):
+    def __init__(self, idName, wrapperType):
+        self.wrapperType = wrapperType
+        self.idName= idName
+    
     def __eq__(self, other):
         if type(self) == type(other):
             for f in self.__dict__:
@@ -33,8 +37,8 @@ class feature(jsonable):
         return False
     
 class Attribute(feature):
-    def __init__(self, idName: str, _type: str):
-        self.idName = idName
+    def __init__(self, idName: str, _type: str, wrapperType):
+        super().__init__(idName= idName, wrapperType= wrapperType)
         self._type = _type
         
 
@@ -42,9 +46,9 @@ class Method(feature):
     def __init__(self, idName: str, 
                  returnType: str, 
                  argNames,
-                 argTypes):
-
-        self.idName = idName
+                 argTypes,
+                 wrapperType):
+        super().__init__(idName= idName, wrapperType= wrapperType)
         self.returnType = returnType
         self.argNames = argNames
         self.argTypes= argTypes
@@ -52,107 +56,8 @@ class Method(feature):
 
 class globalContext:
     def __init__(self, dictionaries ={}):
-
-        self.types= {
-                'Object': Type( idName= 'Object',
-                                methods= {
-                                    'abort': Method(idName= 'abort',
-                                                    argNames=[],
-                                                    argTypes=[],
-                                                    returnType='Object'),
-                                    'type_name': Method(idName= 'type_name',
-                                                        returnType= 'String',
-                                                        argTypes= [],
-                                                        argNames= []),
-                                    'copy': Method(idName= 'copy',
-                                                   returnType= 'Object',
-                                                   argNames= [],
-                                                   argTypes= [])
-                                },
-                                attributes= {},
-                                parent= None),
-                'Int': Type(idName= 'Int',
-                            methods= {},
-                            attributes= {
-                                'default': Attribute(
-                                    idName= 'default',
-                                    _type= 'Int'
-                                )
-                            },
-                            parent= 'Object',
-                            builtIn= True),
-                'IO': Type( idName= 'IO',
-                            methods= {
-                                "out_string": Method( idName= "out_string",
-                                                returnType="IO",
-                                                argNames= ['x'],
-                                                argTypes= ['String']
-                                            ),
-                                "out_int":  Method( idName= "out_int",
-                                                returnType="IO",
-                                                argNames= ['x'],
-                                                argTypes= ['Int']),
-                                'in_string': Method( idName= 'in_string',
-                                                returnType='String',
-                                                argTypes= [],
-                                                argNames= []),
-                                'in_int':   Method (idName='in_int',
-                                                returnType='Int',
-                                                argTypes= [],
-                                                argNames= [])
-                            },
-                            attributes= {},
-                            parent= 'Object'),
-                'SELF_TYPE': Type(idName='SELF_TYPE',
-                                        parent= 'Object',
-                                        attributes= {},
-                                        methods={}),
-                'String': Type( idName= 'String',
-                                methods= {
-                                    'length': Method(
-                                        idName='length',
-                                        returnType='Int',
-                                        argTypes= [],
-                                        argNames= []
-                                    ),
-                                    'concat': Method (
-                                            idName= 'concat',
-                                            returnType= 'String',
-                                            argTypes= ['String'],
-                                            argNames= ['x']
-                                    ),
-                                    'substr': Method (
-                                        idName= 'substr',
-                                        returnType='String',
-                                        argNames= ['i', 'l'],
-                                        argTypes=['Int', 'Int']
-                                    )
-                                },
-                                attributes= {
-                                            'default': Attribute(
-                                                idName= 'default',
-                                                _type='String')
-                                            },
-                                parent= 'Object',
-                                builtIn= True
-                                ),
-                'Bool': Type (idName= 'Bool',
-                              attributes= {},
-                              methods= {},
-                              builtIn= True,
-                              parent= 'Object')
-            }
-        
-        for _type in self.types:
-            if _type != 'Object':
-                idParent= self.types[_type].parent
-                self.types[_type].inheritsAttr.update({
-                    attr.idName: attr for attr in self.types[idParent].attributes.values()
-                })
-                self.types[_type].inheritsMethods.update({
-                    method.idName: method for method in self.types[idParent].methods.values()
-                })
-        self.basics = [i for i in self.types]
+        self.types= { }
+        self.basics = ['Object', 'IO', 'String', 'Bool', 'Int']
         
     def createType(self, node: NodeClass):
         return interceptError(
@@ -165,23 +70,24 @@ class globalContext:
                                     Type (idName= node.idName,
                                           attributes= {},
                                           methods= {},
-                                          parent= node.parent if node else 'Object')
+                                          parent= node.parent,
+                                          builtIn= node.idName in ['String', 'Bool', 'Int'])
                             })
 
     def checkGoodInheritance(self, node: NodeClass):
-        return  interceptError(
+        return interceptError(
             validationFunc= lambda: node.idName in self.types,
             errorOption= 'undefined type',
             idName= node.idName,
             row_and_col= (node.line, node.column)
         )  or interceptError (
-            validationFunc= lambda: node.parent in 
+            validationFunc= lambda: node.idName == 'Object' or node.parent in 
             self.types,
             errorOption= 'undefined type',
             idName= node.parent,
             row_and_col= (node.line, node.parent_col)
         )  or interceptError(
-            validationFunc= lambda: not self.types[node.parent].builtIn,
+            validationFunc= lambda: node.idName == 'Object' or not self.types[node.parent].builtIn,
             errorOption= 'built-in inheritance',
             idName= node.idName,
             idParent= node.parent,
@@ -273,14 +179,15 @@ class globalContext:
                 idName= attr.idName,
                 row_and_col= (attr.line, attr.column)
             ) or interceptError(
-                validationFunc= lambda: attr._type in self.types,
+                validationFunc= lambda: ('__prim_zero_slot' == attr._type or '__prim_empty_slot'== attr._type) or attr._type in self.types,
                 errorOption= 'undefined type in attr',
                 idAttr= attr.idName,
                 idBadType= attr._type,
                 row_and_col= (attr.line, attr.columnTypeAttr )
                 ) or self.types[typeName].attributes.update({
                 attr.idName: Attribute(idName= attr.idName,
-                                       _type= attr._type )
+                                       _type= attr._type,
+                                       wrapperType= typeName)
             })
 
     def defineMethod(self, typeName: str,
@@ -307,7 +214,8 @@ class globalContext:
             node.idName: Method(idName= node.idName,
                                 returnType= node.returnType,
                                 argNames=  [f.idName for f in node.formal_param_list] ,
-                                argTypes= [f._type for f in node.formal_param_list])    
+                                argTypes= [f._type for f in node.formal_param_list],
+                                wrapperType= typeName)    
         })
 
     def checkDynamicDispatch(self, 
@@ -519,3 +427,16 @@ class MyEncoder(json.JSONEncoder):
 
 programContext = globalContext()
 
+
+### Definition of basics classes
+
+#ObjClass = NodeClass(idName= 'Object',
+#                     methods= [
+#                         NodeClassMethod(
+#                             
+#                         )
+#                     ],
+#                     attributes= [
+#                         
+#                     ],
+#                     parent= None)

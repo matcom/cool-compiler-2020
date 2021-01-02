@@ -59,7 +59,7 @@ class NodeClassTuple(Node, tuple):
 
 class NodeClass(Node):
     def __init__(self, idName: str, methods, attributes, parent, 
-                 line, column, parent_col = -1):
+                 line = 0, column = 0, parent_col = -1):
         super().__init__(line= line, column= column)
         self.idName = idName
         self.methods = methods
