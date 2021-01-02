@@ -1,11 +1,32 @@
 import sys, fileinput
 from argparse import ArgumentParser
-from compiler.components.lexer_analyzer import tokenizer, tokens
-from compiler.components.syntax_analyzer import run_parser
-from compiler.components.semantic_analyzer import semanticAnalyzer
-from compiler.utils.context import programContext
+from compiler.components.lexer.lexer_analyzer import tokenizer, tokens
+from compiler.components.parser.syntax_analyzer import run_parser
+from compiler.components.semantic.semantic_analyzer import semanticAnalyzer
+from compiler.components.semantic.context import programContext
+from compiler.components.generation.CIL_generator import CILVisitor
+#from compiler.utils.basics_AST import build_basic_ast
 from compiler.utils.preprocess_input import replace_tabs
+import compiler.components.semantic.AST_definitions as ast
 
+def build_basic_ast():
+    fpath = "./compiler/utils/basics_classes.cl"
+    with open(fpath, encoding="utf-8") as file:
+        code = file.read()
+        _, _, real_col_basic= tokenizer(code)
+        ast_basic,_= run_parser(tokens= tokens, 
+                            source_program= code, 
+                            real_col= real_col_basic)
+        for _class in ast_basic.class_list:
+            if _class.idName == 'Int' or _class.idName == 'Bool' or _class.idName == 'String':
+                _class.attributes.append(ast.NodeAttr(idName = '_val',
+                                                      _type= '__prim_zero_slot',
+                                                      line= 0, column= 0))
+            if _class.idName== 'String':
+                _class.attributes.append(ast.NodeAttr(idName = '_str_field',
+                                                      _type= '__prim_empty_slot',
+                                                      line= 0, column= 0))
+        return ast_basic
 
 parser_input =  ArgumentParser(description= 'This is the Diaz-Horrach cool compiler, an school project.\nRead this help and see the ofitial repo')
 parser_input.add_argument('files_for_compile', help = 'The file(s) to be compiled', nargs= '+')
@@ -14,6 +35,8 @@ parser_input.add_argument('files_for_compile', help = 'The file(s) to be compile
 parser_input.add_argument("--parser", help = 'Select the lexer that you could use from avialable options', choices = component_injector['parser_options'].keys())
 parser_input.add_argument("--output", help = 'Put the info of the selected components in the standard output.', choices = ['l','p','t'])
  """
+
+
 
 args= parser_input.parse_args()
 file= open(args.files_for_compile[0])
@@ -38,16 +61,25 @@ if parser_errors:
     for error in parser_errors:
         print(error)
     exit(1)
-#if parser_errors: print("In the parser_errors ", parser_errors)
 
-sa = semanticAnalyzer(ast_result)
+
+basic_ast= build_basic_ast()
+# Adding the builtIn classes
+ast_result.class_list= basic_ast.class_list + ast_result.class_list
+
+# Running semantic analyzer
+sa = semanticAnalyzer(ast_result, programContext)
 sa.run_visits()
 
 
-#print('errors %s' %sa.errors)
 all_errors += token_errors + parser_errors + sa.errors
 
 if all_errors:
     for error in all_errors:
         print(error)
     exit(1)
+
+cilGen = CILVisitor(programContext, mapExpr= sa.mapExprWithResult)
+programResult= cilGen.visit(sa.ast)
+
+print(programResult)
