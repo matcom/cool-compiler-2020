@@ -29,16 +29,4 @@ class semanticAnalyzer:
             self.errors += typeCheckerResult
             return
         
-        programContext.types['Int'].attributes['_val']= Attribute(idName= '_val',
-                                                                 _type= '__prim_zero_slot', 
-                                                                 wrapperType='Int')
-        programContext.types['Bool'].attributes['_val']= Attribute(idName= '_val',
-                                                                   _type='__prim_zero_slot',
-                                                                   wrapperType='Bool')
-        programContext.types['String'].attributes['_val']= Attribute(idName= '_val',
-                                                                 _type= '__prim_zero_slot',
-                                                                 wrapperType='String')
-        programContext.types['String'].attributes['_val']= Attribute(idName= '_str_field',
-                                                                 _type= '__prim_empty_slot',
-                                                                 wrapperType='String')
         self.mapExprWithResult = mapExprWithResult

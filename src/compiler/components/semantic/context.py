@@ -104,24 +104,24 @@ class globalContext:
     def checkGoodOverwriteMethod(self, node: NodeClassMethod, idType):
         idParent= self.types[idType].parent
         childInfoMethod= self.types[idType].methods.get(node.idName)
-        badIndexParam = lambda: next((i for i in range (len( childInfoMethod.argTypes))
-                         if childInfoMethod.argTypes[i] != parentInfoMethod.argTypes[i]), False)
         
         parentInfoMethod= self.types[idParent].methods.get(node.idName, None) or self.types[idParent].inheritsMethods.get(node.idName, None)
         if parentInfoMethod:
+            badIndexParam = next((i for i in range (len( childInfoMethod.argTypes))
+                         if childInfoMethod.argTypes[i] != parentInfoMethod.argTypes[i]), False) if len(node.formal_param_list) == len(parentInfoMethod.argTypes) else None
             return interceptError(
                 validationFunc= lambda: len(node.formal_param_list) == len(parentInfoMethod.argTypes) ,
                 errorOption= 'bad length in redefine',
                 methodName= node.idName,
                 row_and_col= (node.line, node.column)
             ) or interceptError (
-                validationFunc= lambda: not badIndexParam(),
+                validationFunc= lambda: not badIndexParam,
                 errorOption= 'bad redefine method',
                 methodName= node.idName,
-                badType= node.formal_param_list[badIndexParam()]._type,
-                goodType= parentInfoMethod.argTypes[badIndexParam()],
-                row_and_col= (node.formal_param_list[badIndexParam()].line,
-                              node.formal_param_list[badIndexParam()].column)
+                badType= node.formal_param_list[badIndexParam]._type if badIndexParam else None,
+                goodType= parentInfoMethod.argTypes[badIndexParam] if badIndexParam else None,
+                row_and_col= (node.formal_param_list[badIndexParam].line if badIndexParam else None,
+                              node.formal_param_list[badIndexParam].column if badIndexParam else None)
             ) or interceptError (
                 validationFunc = lambda: node.returnType == parentInfoMethod.returnType,
                 errorOption= 'bad returnType in redefine method',
