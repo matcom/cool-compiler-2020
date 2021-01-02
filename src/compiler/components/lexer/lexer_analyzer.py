@@ -221,6 +221,8 @@ def tokenizer(stream_input):
     readjust_col = 0
     lexer.input(stream_input)
     token_list = []
+    lexer.lineno= 1
+    #lexer.lexpos= 1
     real_col = {}
     for tok in lexer:
         real_col.update({ str(tok): find_column(stream_input, tok) })
