@@ -95,7 +95,6 @@ class Semantic:
         return True
 
 
-    '''%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'''
     @visitor.on('node')
     def visit(self, node):
         pass
