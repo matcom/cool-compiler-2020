@@ -7,10 +7,12 @@ from compiler.components.semantic.context import programContext
 from compiler.components.generation.CIL_generator import CILVisitor
 #from compiler.utils.basics_AST import build_basic_ast
 from compiler.utils.preprocess_input import replace_tabs
+from compiler.components.generation.MIPS_generator import MipsVisitor
 import compiler.components.semantic.AST_definitions as ast
+import subprocess as sp
 
 def build_basic_ast():
-    fpath = "./compiler/utils/basics_classes.cl"
+    fpath = "./cool-compiler-2020/src/compiler/utils/basics_classes.cl"
     with open(fpath, encoding="utf-8") as file:
         code = file.read()
         _, _, real_col_basic= tokenizer(code)
@@ -79,7 +81,11 @@ if all_errors:
         print(error)
     exit(1)
 
-cilGen = CILVisitor(programContext, mapExpr= sa.mapExprWithResult)
+cilGen= CILVisitor(programContext, mapExpr= sa.mapExprWithResult)
 programResult= cilGen.visit(sa.ast)
 
-print(programResult)
+mipsGen= MipsVisitor(programContext)
+
+mipsCode= mipsGen.visit(programResult)
+
+print(mipsCode)

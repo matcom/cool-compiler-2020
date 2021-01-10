@@ -99,7 +99,7 @@ class NodeClassMethod(NodeFeature):
 
     def to_readable(self):
         return "{}(name='{}', formal_param_list={}, returnType={}, body={})".format(
-            self.clsname, self.idName, self.formal_param_list, 
+            self.clsname, self.idName, self.formal_param_list,
             self.returnType, self.body
             )
 

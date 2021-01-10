@@ -48,7 +48,7 @@ class Program(AST):
 
 
 class Type(AST):
-	def __init__(self, name, attributes = {}, methods= {}):
+	def __init__(self, name, attributes, methods):
 		self.type_name = name
 		self.attributes = attributes
 		self.methods = methods
@@ -101,11 +101,14 @@ class Method(TypeFeature):
 
 
 class Function(TypeFeature):
-	def __init__(self, name, args, vlocals, body):
+	def __init__(self, name, args, vlocals, body, returnType):
 		self.name = name
 		self.args = args
 		self.vlocals = vlocals
 		self.body = body
+
+		#Not for print
+		self.returnType= returnType
 
 	def to_readable(self):
 		args = ""

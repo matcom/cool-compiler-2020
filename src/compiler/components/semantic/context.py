@@ -21,7 +21,7 @@ class Type(jsonable):
         self.builtIn= builtIn
         self.inheritsAttr= {}
         self.inheritsMethods= {}
-        self.children= {}
+        self.children= []
     
 class feature(jsonable):
     def __init__(self, idName, wrapperType):
@@ -75,19 +75,21 @@ class globalContext:
                             })
 
     def checkGoodInheritance(self, node: NodeClass):
+        if node.idName == 'Object': return 
+        parent = 'Object' if not node.parent else node.parent 
         return interceptError(
             validationFunc= lambda: node.idName in self.types,
             errorOption= 'undefined type',
             idName= node.idName,
             row_and_col= (node.line, node.column)
         )  or interceptError (
-            validationFunc= lambda: node.idName == 'Object' or node.parent in 
+            validationFunc= lambda: node.parent in 
             self.types,
             errorOption= 'undefined type',
             idName= node.parent,
             row_and_col= (node.line, node.parent_col)
         )  or interceptError(
-            validationFunc= lambda: node.idName == 'Object' or not self.types[node.parent].builtIn,
+            validationFunc= lambda: not self.types[node.parent].builtIn,
             errorOption= 'built-in inheritance',
             idName= node.idName,
             idParent= node.parent,
@@ -98,7 +100,7 @@ class globalContext:
             errorOption= 'inheritance from child',
             idChild= node.idName,
             row_and_col= (node.line, node.parent_col)
-        ) 
+        ) or self.types[parent].children.append(node.idName)
         
             
     def checkGoodOverwriteMethod(self, node: NodeClassMethod, idType):

@@ -11,16 +11,18 @@ class IO {
     out_string(x: String): IO { self };
 };
 
+class Int {
+};
+
+class Bool {
+};
+
 class String {
     length(): Int { 0 };
     concat(s: String): String { "" };
     substr(i: Int, l: Int): String { "" };
 };
 
-class Int {
-};
 
-class Bool {
-};
 
 

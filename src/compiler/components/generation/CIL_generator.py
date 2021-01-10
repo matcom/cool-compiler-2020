@@ -37,10 +37,11 @@ class CILVisitor(NodeVisitor):
 
 		# Add static code
 		self.addBuiltIns()
-  
-		# Class depth dictionary used to analyze Case expressions
-		self.classDepth = {}
 
+		# Class depth dictionary used to analyze Case expressions
+		self.classDepth= {}
+
+  
 	def addBuiltIns(self):
 		# Add static types, functions and string constants
 		self.emptyString = self.registerData("")
@@ -103,7 +104,7 @@ class CILVisitor(NodeVisitor):
 		while parentName:
 			initializers.append(f'{parentName}_{"_init"}')
 			parentName= self.programContext.types[parentName].parent
-		
+		initializers.reverse()
 		return initializers
 		
 	def buildClassDepth(self, node: NodeProgram):
@@ -114,13 +115,28 @@ class CILVisitor(NodeVisitor):
 		for _class in node.class_list:
 			if _class.parent:
 				# Build the class depth dictionary
-				self.classDepth[_class.idName] = self.classDepth[_class.parent] + 1
+				self.classDepth[_class.idName]= self.classDepth[_class.parent] + 1
 
+	def orderClassesByInhertiance(self, typeName, classList, visitedDict):
+		order = [self.indexInClassByTypeName(typeName, classList)]
+		for child in self.programContext.types[typeName].children:
+			if not visitedDict[typeName]:
+				order += self.orderClassesByInhertiance(child, classList, visitedDict)
+		
+		visitedDict[typeName]= True
+		return order
+		
+	def indexInClassByTypeName(self, typeName, classList):
+		return next((i for i in range(len(classList)) if classList[i].idName == typeName), None)
+		
+		
+   
 	def visit_NodeProgram(self, node: NodeProgram):
 		self.buildClassDepth(node)
-		for nodeClass in node.class_list:
-			newType= self.visit(nodeClass, 
-								initializers= self.inspectInitializers(nodeClass.idName))
+		inhertirOrder= self.orderClassesByInhertiance('Object', node.class_list, {node.idName: False for node in node.class_list})
+		for ind in inhertirOrder:
+			newType= self.visit(node.class_list[ind], 
+								initializers= self.inspectInitializers(node.class_list[ind].idName))
 			self.registerType(newType)
 			
 		for func in self.dotcode:
@@ -142,7 +158,7 @@ class CILVisitor(NodeVisitor):
 			inhAttributes = [cil.Attribute(f'{parentName}_{attrName}') for attrName in
                     self.programContext.types[node.idName].inheritsAttr]
 			
-			methods= [cil.Method(methodName, f'{parentName}_{methodName}') for methodName in
+			methods= [cil.Method(methodName, f'{self.programContext.types[parentName].inheritsMethods[methodName].wrapperType}_{methodName}') for methodName in
              self.programContext.types[parentName].inheritsMethods.keys()]
 			methods += [cil.Method(methodName, f'{parentName}_{methodName}') for methodName in
                self.programContext.types[parentName].methods.keys() if not methodName in methods]
@@ -178,7 +194,8 @@ class CILVisitor(NodeVisitor):
 		self.registerInstruction(cil.Return, '__self')
 		func = cil.Function(self.currentFunctionName,
 							[cil.ArgDeclaration('__self')], 
-							self.localvars, self.instructions)
+							self.localvars, self.instructions,
+       						node.idName)
 		
 		self.registerFunction(func)
 		
@@ -250,7 +267,7 @@ class CILVisitor(NodeVisitor):
 
 		#----- Register the function and return the corresponding method node
 		func= cil.Function(self.currentFunctionName, arguments, 
-					  self.localvars, self.instructions)
+					  self.localvars, self.instructions, node.returnType)
 
 		self.registerFunction(func)
   
@@ -377,7 +394,7 @@ class CILVisitor(NodeVisitor):
 			elif node.type == '__prim_empty_slot':
 				self.register_instruction(cil.SetAttrib, '__self', self.currentIndex, self.emptyString)	
 			else:
-				self.registerInstruction(cil.Allocate, varName, 'Void')
+				self.registerInstruction(cil.Allocate, varName, 'void')
 	
 		self.nameMap.define_variable(node.idName, varName)
 	
@@ -451,7 +468,7 @@ class CILVisitor(NodeVisitor):
 		self.visit(node.body)
 		self.registerInstruction(cil.Goto, startLbl)
 		self.registerInstruction(cil.Label, continueLbl)
-		self.registerInstruction(cil.Allocate, whileValue, 'Void')
+		self.registerInstruction(cil.Allocate, whileValue, 'void')
 
 		return whileValue
 
