@@ -74,6 +74,11 @@ class globalContext:
                                           builtIn= node.idName in ['String', 'Bool', 'Int'])
                             })
 
+    def actualizeChildren(self):
+        for _type, info in self.types.items():
+            if _type != 'Object':
+                self.types[info.parent].children.append(_type)
+        
     def checkGoodInheritance(self, node: NodeClass):
         if node.idName == 'Object': return 
         parent = 'Object' if not node.parent else node.parent 
@@ -100,7 +105,7 @@ class globalContext:
             errorOption= 'inheritance from child',
             idChild= node.idName,
             row_and_col= (node.line, node.parent_col)
-        ) or self.types[parent].children.append(node.idName)
+        )
         
             
     def checkGoodOverwriteMethod(self, node: NodeClassMethod, idType):

@@ -5,12 +5,14 @@ from compiler.utils.config import *
 
 class MipsVisitor(NodeVisitor):
 	def __init__(self, programContext):
-		super().__init__(programContext = programContext)
-		self.buffer = []
+		super().__init__(programContext= programContext)
+		self.buffer= []
 		self.type_index= []
 		self.dispatchtable_code= []
 		self.prototypes_code= []
+		self.cur_labels_id = 0
 		self.offset= {}
+		self.code = ""
 	
 	def push(self):
 		self.write_info('sw $a0 0($sp)')
@@ -21,6 +23,7 @@ class MipsVisitor(NodeVisitor):
 
 	def write_info(self, msg, tabbed= True):
 		info = "{}{}\n".format("\t" if tabbed else "", msg)
+		self.code += info
 		self.buffer.append(info)
 	
 	def allocate_memory(self, size=None, register=False):
@@ -32,24 +35,29 @@ class MipsVisitor(NodeVisitor):
 		self.write_info('li $v0 9')
 		self.write_info('syscall')
 
+	def new_labels_id(self):
+		self.cur_labels_id += 1
+		return self.cur_labels_id
+
 	def visit_Data(self, node: cil.Data):
-		self.write_info(f'{node.dest}: .asciiz \"{str(node.value.encode())[2:-1]}\"')
+		self.write_info(f'{node.dest}: .align 2 \n \t\t\t.asciiz \"{str(node.value.encode())[2:-1]}\"')
 
 	def visit_Program(self, node: cil.Program):
 		#-------------------- DATA SECTION ----------------------------
 		
 		self.write_info('.data', tabbed= False)
-		
+		self.static_datas()	
+
 		for data in node.data_section:
 			self.visit(data)
 		
 		self.write_info('')
 		for i in range(len(node.type_section)):
 			self.type_index.append(node.type_section[i].type_name)
-			self.write_info('classname_{}: .asciiz \"{}\"'.format(node.type_section[i].type_name,
+			self.write_info('classname_{}: .align 2 \n\t\t\t.asciiz \"{}\"'.format(node.type_section[i].type_name,
 							node.type_section[i].type_name))
 
-		self.write_info(f'type_void: .asciiz \"\"')
+		self.write_info(f'type_void: .align 2 \n\t\t\t .asciiz \"\"')
 
 		#-------------------- TEXT SECTION ----------------------------
 
@@ -106,7 +114,7 @@ class MipsVisitor(NodeVisitor):
 		# Generate mips method that builds dispatch tables
 		self.write_info('function_build_dispatch_tables:', tabbed=False)
 		for ins in self.dispatchtable_code:
-    			self.write_info(ins)
+				self.write_info(ins)
 		self.write_info('jr $ra')
 		self.write_info('')
 		
@@ -145,34 +153,9 @@ class MipsVisitor(NodeVisitor):
 		return self.buffer
 
 
-	def entrypoint(self):
-		self.write_info('main:', tabbed=False)
-		self.visit(cil.Call(dest = None, f = 'build_class_name_table'))
-		self.visit(cil.Call(dest = None, f = 'allocate_prototypes_table'))
-		self.visit(cil.Call(dest = None, f = 'build_prototypes'))
-		self.visit(cil.Call(dest = None, f = 'build_dispatch_tables'))
-		self.visit(cil.Call(dest = None, f = 'build_class_parents_table'))
-		self.visit(cil.Allocate(dest = None, ttype = 'Main'))
-		self.visit(cil.Allocate(dest = None, ttype = 'Main'))
-
-		# Push main self
-		self.write_info('sw $v0 0($sp)')
-		self.write_info('addiu $sp $sp -4')
-
-		self.visit(cil.Call(dest = None, f = f'Main__init'))
-		self.write_info('addiu $sp $sp 4')
-
-		# Push main self
-		self.write_info('sw $v0 0($sp)')
-		self.write_info('addiu $sp $sp -4')
-
-		self.visit(cil.Call(dest = None, f = 'Main_main'))
-		self.write_info('addiu $sp $sp 4')
-
-		self.write_info('li $v0 10')
-		self.write_info('syscall')
-
+	
 	def visit_Function(self, node: cil.Function):
+		self.code = ""
 		self.write_info(f'function_{node.name}:', tabbed=False)
 
 		# Set up stack frame
@@ -357,15 +340,67 @@ class MipsVisitor(NodeVisitor):
 		self.prototypes_code.append('')
 
 ####################### STATIC FUNCTIONS #######################
+
+	#----- STATIC DATAs
+
+	def static_datas(self):
+		# Buffer for reading strings
+		self.write_info('str_buffer: .space 1024')		
+		self.write_info('')
+
+		# Declare error mensages
+		self.write_info('_index_negative_msg: .align 2 \n\t\t\t .asciiz \"Index to substr is negative\\n\"')
+		self.write_info('_index_out_msg: .align 2 \n\t\t\t .asciiz \"Index out range exception\\n\"')
+		self.write_info('_abort_msg: .align 2 \n\t\t\t .asciiz \"Abort called from class\\n\"')
+		self.write_info('_div_zero_msg: .align 2 \n\t\t\t .asciiz \"Division by zero exception\\n\"')
+
+		self.write_info('')
+
+	def entrypoint(self):
+		self.write_info('main:', tabbed=False)
+		self.visit(cil.Call(dest = None, f = 'build_class_name_table'))
+		self.visit(cil.Call(dest = None, f = 'allocate_prototypes_table'))
+		self.visit(cil.Call(dest = None, f = 'build_prototypes'))
+		self.visit(cil.Call(dest = None, f = 'build_dispatch_tables'))
+		self.visit(cil.Call(dest = None, f = 'build_class_parents_table'))
+		self.visit(cil.Allocate(dest = None, ttype = 'Main'))
+		self.visit(cil.Allocate(dest = None, ttype = 'Main'))
+
+		# Push main self
+		self.write_info('sw $v0 0($sp)')
+		self.write_info('addiu $sp $sp -4')
+
+		self.visit(cil.Call(dest = None, f = f'Main__init'))
+		self.write_info('addiu $sp $sp 4')
+
+		# Push main self
+		self.write_info('sw $v0 0($sp)')
+		self.write_info('addiu $sp $sp -4')
+
+		self.visit(cil.Call(dest = None, f = 'Main_main'))
+		self.write_info('addiu $sp $sp 4')
+
+		self.write_info('li $v0 10')
+		self.write_info('syscall')
+
+
 	#----- OBJECT METHODS
 
 	def object_abort(self):
 		self.write_info('function_Object_abort:', tabbed=False)
-		## Set up stack frame
-		#self.write_info(f'move $fp, $sp')
-#
-		#self.write_info('jr $ra')
-		#self.write_info('')
+		# Set up stack frame
+		self.write_info('move $fp, $sp')
+
+		# Printing the message
+		self.write_info('la $a0 _abort_msg')
+		self.write_info('li $v0 4')
+		self.write_info('syscall')
+		self.write_info('')
+
+		# Aborting
+		self.write_info('li $v0 10')
+		self.write_info('syscall')
+		self.write_info('')
 
 	def object_copy(self):
 		self.write_info('function_Object_copy:', tabbed=False)
@@ -390,136 +425,136 @@ class MipsVisitor(NodeVisitor):
 		self.write_info('move $v0 $t2') # dejar en v0 la direccion donde empieza el nuevo objeto
 		self.write_info('jr $ra')
 		self.write_info('')
-#
+
 	def object_typename(self):
 		self.write_info('function_Object_type_name:', tabbed=False)
 		# Set up stack frame
-		#self.write_info(f'move $fp, $sp')
-#
-		## Box the string reference
-		#self.visit(cil.Allocate(dest = None, ttype = STRING_CLASS))		# Create new String object
-		#self.write_info('move $v1 $v0')
-#
-		## Box string's length
-		#self.visit(cil.Allocate(dest = None, ttype = INTEGER_CLASS)	)		# Create new Int object
-#
-		#self.write_info('lw $a1 12($fp)')			# self
-		#self.write_info('lw $a1 0($a1)')
-		#self.write_info('mul $a1 $a1 4')			# self's class tag
-		#self.write_info('addu $a1 $a1 $s1')			# class name table entry address
-		#self.write_info('lw $a1 0($a1)')				# Get class name address
-#
-		#self.write_info('move $a2 $0')				# Compute string's length
-		#self.write_info('move $t2 $a1')
-		#self.write_info('_str_len_clsname_:', tabbed=False)
-		#self.write_info('lb $a0 0($t2)')
-		#self.write_info('beq $a0 $0 _end_clsname_len_')
-		#self.write_info('addiu $a2 $a2 1')
-		#self.write_info('addiu $t2 $t2 1')
-		#self.write_info('j _str_len_clsname_')
-		#self.write_info('_end_clsname_len_:', tabbed=False)
-#
-		#self.write_info('sw $a2, 12($v0)')			# Store string's length
-#
-		#self.write_info('sw $v0, 12($v1)')			# Fill String attributes
-		#self.write_info('sw $a1, 16($v1)')
-#
-		#self.write_info('move $v0 $v1')
-		#self.write_info('jr $ra')
-		#self.write_info('')
-#
+		self.write_info(f'move $fp, $sp')
+
+		# Box the string reference
+		self.visit(cil.Allocate(dest = None, ttype = "String"))		# Create new String object
+		self.write_info('move $v1 $v0')
+
+		# Box string's length
+		self.visit(cil.Allocate(dest = None, ttype = "Int")	)		# Create new Int object
+
+		self.write_info('lw $a1 12($fp)')			# self
+		self.write_info('lw $a1 0($a1)')
+		self.write_info('mul $a1 $a1 4')			# self's class tag
+		self.write_info('addu $a1 $a1 $s1')			# class name table entry address
+		self.write_info('lw $a1 0($a1)')				# Get class name address
+
+		self.write_info('move $a2 $0')				# Compute string's length
+		self.write_info('move $t2 $a1')
+		self.write_info('_str_len_clsname_:', tabbed=False)
+		self.write_info('lb $a0 0($t2)')
+		self.write_info('beq $a0 $0 _end_clsname_len_')
+		self.write_info('addiu $a2 $a2 1')
+		self.write_info('addiu $t2 $t2 1')
+		self.write_info('j _str_len_clsname_')
+		self.write_info('_end_clsname_len_:', tabbed=False)
+
+		self.write_info('sw $a2, 12($v0)')			# Store string's length
+
+		self.write_info('sw $v0, 12($v1)')			# Fill String attributes
+		self.write_info('sw $a1, 16($v1)')
+
+		self.write_info('move $v0 $v1')
+		self.write_info('jr $ra')
+		self.write_info('')
+
 
 	#----- STRING METHODS
 
 	def string_length(self):
 		self.write_info('function_String_length:', tabbed=False)
-		## Set up stack frame
-		#self.write_info(f'move $fp, $sp')
-#
-		#self.write_info('lw $a0 12($fp)')			# Self
-		#self.write_info('lw $v0 12($a0)')
-		#self.write_info('jr $ra')
-		#self.write_info('')
+		# Set up stack frame
+		self.write_info(f'move $fp, $sp')
+
+		self.write_info('lw $a0 12($fp)')			# Self
+		self.write_info('lw $v0 12($a0)')
+		self.write_info('jr $ra')
+		self.write_info('')
 
 	def string_concat(self):
 		self.write_info('function_String_concat:', tabbed=False)
 		# Set up stack frame
-		#self.write_info(f'move $fp, $sp')
-#
-		#self.visit(cil.Allocate(dest = None, ttype = INTEGER_CLASS))		# Create new Int object
-		#self.write_info('move $v1 $v0')												# Save new Int Object
-#
-		#self.visit(cil.Allocate(dest = None, ttype = STRING_CLASS))		# Create new String object
-		#self.write_info('move $t3 $v0')			# Store new String object
-#
-		#self.write_info('lw $a1 12($fp)')		# Self
-		#self.write_info('lw $a2 16($fp)')		# Boxed String to concat
-#
-		#self.write_info('lw $t1 12($a1)')		# Self's length Int object
-		#self.write_info('lw $t1 12($t1)')		# Self's length
-#
-		#self.write_info('lw $t2 12($a2)')		# strings to concat's length Int object
-		#self.write_info('lw $t2 12($t2)')		# strings to concat's length
-#
-		#self.write_info('addu $t0 $t2 $t1') 		# New string's length
-		#self.write_info('sw $t0 12($v1)')			# Store new string's length into box
-#
-		#self.write_info('lw $a1 16($a1)')		# Unbox strings
-		#self.write_info('lw $a2 16($a2)')
-#
-		#self.write_info('addiu $t0 $t0 1')		# Add space for \0
-		#self.allocate_memory('$t0', register=True)	# Allocate memory for new string
-		#self.write_info('move $t5 $v0')					# Keep the string's reference in v0 and use t7
+		self.write_info(f'move $fp, $sp')
+
+		self.visit(cil.Allocate(dest = None, ttype = "Int"))		# Create new Int object
+		self.write_info('move $v1 $v0')												# Save new Int Object
+
+		self.visit(cil.Allocate(dest = None, ttype = "String"))		# Create new String object
+		self.write_info('move $t3 $v0')			# Store new String object
+
+		self.write_info('lw $a1 12($fp)')		# Self
+		self.write_info('lw $a2 16($fp)')		# Boxed String to concat
+
+		self.write_info('lw $t1 12($a1)')		# Self's length Int object
+		self.write_info('lw $t1 12($t1)')		# Self's length
+
+		self.write_info('lw $t2 12($a2)')		# strings to concat's length Int object
+		self.write_info('lw $t2 12($t2)')		# strings to concat's length
+
+		self.write_info('addu $t0 $t2 $t1') 		# New string's length
+		self.write_info('sw $t0 12($v1)')			# Store new string's length into box
+
+		self.write_info('lw $a1 16($a1)')		# Unbox strings
+		self.write_info('lw $a2 16($a2)')
+
+		self.write_info('addiu $t0 $t0 1')		# Add space for \0
+		self.allocate_memory('$t0', register=True)	# Allocate memory for new string
+		self.write_info('move $t5 $v0')					# Keep the string's reference in v0 and use t7
 
 
 		# a1: self's string		a2: 2nd string			t1: length self     t2: 2nd string length
 		#									v1: new string's int object
 
-		#self.write_info('move $t4 $a1')			# Index for iterating the self string
-		#self.write_info('addu $a1 $a1 $t1')		# self's copy limit
-		#self.write_info('_strcat_copy_:', tabbed=False)
-		#self.write_info('beq $t4 $a1 _end_strcat_copy_')	# No more characters to copy
-#
-		#self.write_info('lb $a0 0($t4)')			# Copy the character
-		#self.write_info('sb $a0 0($t5)')
-#
-		#self.write_info('addiu $t5 $t5 1')		# Advance indices
-		#self.write_info('addiu $t4 $t4 1')
-		#self.write_info('j _strcat_copy_')
-		#self.write_info('_end_strcat_copy_:', tabbed=False)
-#
-		## Copy 2nd string
-#
-		#self.write_info('move $t4 $a2')			# Index for iterating the strings
-		#self.write_info('addu $a2 $a2 $t2')		# self's copy limit
-		#self.write_info('_strcat_copy_snd_:', tabbed=False)
-		#self.write_info('beq $t4 $a2 _end_strcat_copy_snd_')	# No more characters to copy
-#
-		#self.write_info('lb $a0 0($t4)')			# Copy the character
-		#self.write_info('sb $a0 0($t5)')
-#
-		#self.write_info('addiu $t5 $t5 1')		# Advance indices
-		#self.write_info('addiu $t4 $t4 1')
-		#self.write_info('j _strcat_copy_snd_')
-		#self.write_info('_end_strcat_copy_snd_:', tabbed=False)
-#
-		#self.write_info('sb $0 0($t5)')			# End string with \0
-#
-		## $v0: reference to new string			$v1: length int object
-		## 						$t3: new string object
-		## -> Create boxed string
-#
-		#self.write_info('sw $v1 12($t3)')		# New length
-		#self.write_info('sw $v0 16($t3)')		# New string
-#
-		#self.write_info('move $v0 $t3')			# Return new String object in $v0
-		#self.write_info('jr $ra')
-		#self.write_info('')
-#
+		self.write_info('move $t4 $a1')			# Index for iterating the self string
+		self.write_info('addu $a1 $a1 $t1')		# self's copy limit
+		self.write_info('_strcat_copy_:', tabbed=False)
+		self.write_info('beq $t4 $a1 _end_strcat_copy_')	# No more characters to copy
+
+		self.write_info('lb $a0 0($t4)')			# Copy the character
+		self.write_info('sb $a0 0($t5)')
+
+		self.write_info('addiu $t5 $t5 1')		# Advance indices
+		self.write_info('addiu $t4 $t4 1')
+		self.write_info('j _strcat_copy_')
+		self.write_info('_end_strcat_copy_:', tabbed=False)
+
+		# Copy 2nd string
+
+		self.write_info('move $t4 $a2')			# Index for iterating the strings
+		self.write_info('addu $a2 $a2 $t2')		# self's copy limit
+		self.write_info('_strcat_copy_snd_:', tabbed=False)
+		self.write_info('beq $t4 $a2 _end_strcat_copy_snd_')	# No more characters to copy
+
+		self.write_info('lb $a0 0($t4)')			# Copy the character
+		self.write_info('sb $a0 0($t5)')
+
+		self.write_info('addiu $t5 $t5 1')		# Advance indices
+		self.write_info('addiu $t4 $t4 1')
+		self.write_info('j _strcat_copy_snd_')
+		self.write_info('_end_strcat_copy_snd_:', tabbed=False)
+
+		self.write_info('sb $0 0($t5)')			# End string with \0
+
+		# $v0: reference to new string			$v1: length int object
+		# 						$t3: new string object
+		# -> Create boxed string
+
+		self.write_info('sw $v1 12($t3)')		# New length
+		self.write_info('sw $v0 16($t3)')		# New string
+
+		self.write_info('move $v0 $t3')			# Return new String object in $v0
+		self.write_info('jr $ra')
+		self.write_info('')
+
 	def string_substr(self):
 		self.write_info('function_String_substr:', tabbed=False)
 		# Set up stack frame
-		''' self.write_info(f'move $fp, $sp')
+		self.write_info(f'move $fp, $sp')
 		self.write_info(f'lw $t5 12($fp)') # self param
 		self.write_info(f'lw $a1 16($fp)') # reference of object int that represent i
 		self.write_info(f'lw $a1 12($a1)') # value of i
@@ -533,10 +568,10 @@ class MipsVisitor(NodeVisitor):
 		self.write_info(f'bgt $a2 $a3 _index_out') # j > lenght
 
 		# not errors
-		self.visit(cil.Allocate(dest = None, ttype = STRING_CLASS))
+		self.visit(cil.Allocate(dest = None, ttype = "String"))
 		self.write_info(f'move $v1 $v0') # new string
 
-		self.visit(cil.Allocate(dest = None, ttype = INTEGER_CLASS))
+		self.visit(cil.Allocate(dest = None, ttype = "Int"))
 		self.write_info(f'move $t0 $v0') # lenght of string
 		self.write_info(f'move $t7 $a2')
 		self.write_info(f'subu $t7 $t7 $a1')
@@ -589,16 +624,16 @@ class MipsVisitor(NodeVisitor):
 
 		self.write_info('move $v0 $v1')
 		self.write_info('jr $ra')
-		self.write_info('') '''
+		self.write_info('')
 
 	#----- IO
 
 	def io_in_int(self):
 		self.write_info('function_IO_in_int:', tabbed=False)
 		# Set up stack frame
-		'''self.write_info(f'move $fp, $sp')
+		self.write_info(f'move $fp, $sp')
 
-		self.visit(cil.Allocate(dest = None, ttype = INTEGER_CLASS))			# Create new Int object
+		self.visit(cil.Allocate(dest = None, ttype = "Int"))			# Create new Int object
 
 		self.write_info('move $t0 $v0')				# Save Int object
 
@@ -609,17 +644,17 @@ class MipsVisitor(NodeVisitor):
 
 		self.write_info('move $v0 $t0')
 		self.write_info('jr $ra')
-		self.write_info('') '''
+		self.write_info('')
 
 	def io_in_string(self):
 		self.write_info('function_IO_in_string:', tabbed=False)
 		# Set up stack frame
-		'''self.write_info(f'move $fp, $sp')
+		self.write_info(f'move $fp, $sp')
 
-		self.visit(cil.Allocate(dest = None, ttype = INTEGER_CLASS))		# Create new Int object for string's length
+		self.visit(cil.Allocate(dest = None, ttype = "Int"))		# Create new Int object for string's length
 		self.write_info('move $v1 $v0')			# $v1: Int pbject
 
-		self.visit(cil.Allocate(dest = None, ttype = STRING_CLASS))			# Create new String object
+		self.visit(cil.Allocate(dest = None, ttype = "String"))			# Create new String object
 		self.write_info('sw $v1 12($v0)')
 		self.write_info('move $t5 $v0')			# $t5: String object
 
@@ -683,7 +718,7 @@ class MipsVisitor(NodeVisitor):
 		# Return new string in $v0
 		self.write_info('move $v0 $t5')
 		self.write_info('jr $ra')
-		self.write_info('') '''
+		self.write_info('')
 
 	def io_out_int(self):
 		self.write_info('function_IO_out_int:', tabbed=False)
@@ -720,13 +755,13 @@ class MipsVisitor(NodeVisitor):
 	def conforms(self):
 		self.write_info(f'function___conforms:', tabbed=False)
 		# Set up stack frame
-		'''self.write_info(f'move $fp, $sp')
+		self.write_info(f'move $fp, $sp')
 
 		self.write_info(f'lw $t0 12($fp)')		# First arg's class tag
 		self.write_info(f'lw $t1 16($fp)')		# Second arg's class tag
 
 		# 2nd arg == Object -> return true
-		self.write_info(f'beq $t1 {self.type_index.index(OBJECT_CLASS)} _conforms_ret_true_')	
+		self.write_info(f'beq $t1 {self.type_index.index("Object")} _conforms_ret_true_')	
 
 		self.write_info('_conforms_loop_:', tabbed=False)
 
@@ -734,7 +769,7 @@ class MipsVisitor(NodeVisitor):
 		self.write_info('beq $t0 $t1 _conforms_ret_true_')	
 
 		# current == Object -> return false
-		self.write_info(f'beq $t0 {self.type_index.index(OBJECT_CLASS)} _conforms_ret_false_')		
+		self.write_info(f'beq $t0 {self.type_index.index("Object")} _conforms_ret_false_')		
 
 		# Query parents's class tag from $s2 ... class parent table
 		self.write_info('mul $t0 $t0 4')
@@ -752,10 +787,195 @@ class MipsVisitor(NodeVisitor):
 		# No need to store result in a Bool class
 		self.write_info('_conforms_ret_:')
 		self.write_info('jr $ra')
-		self.write_info('')'''
+		self.write_info('')
 	
 	#------ ISVOID
 
 	def isvoid(self):
 		self.write_info(f'function__isvoid:', tabbed=False)
-	
+		# Set up stack frame
+		self.write_info(f'move $fp, $sp')
+
+		self.visit(cil.Allocate(dest = None, ttype = "Bool"))
+		# $v0 contains new Bool object
+
+		self.write_info(f'lw $t0 12($fp)')					# 1st arg is an object address
+		self.write_info(f'la $t1 type_void')
+
+		self.write_info(f'beq $t0 $t1 _is_void_true_')	# arg == void type
+		self.write_info(f'sw $0 12($v0)')					# return False
+		self.write_info(f'j _is_void_end_')
+
+		self.write_info(f'_is_void_true_:', tabbed=False)
+		self.write_info(f'li $t0 1')
+		self.write_info(f'sw $t0 12($v0)')					# return True
+		self.write_info(f'_is_void_end_:', tabbed=False)
+
+		# Return Bool object in $v0
+		self.write_info(f'jr $ra')
+		self.write_info(f'')
+
+############################# COMPARISONS ####################################
+
+	def visit_Equal(self, node: cil.Equal):
+		self.write_info('lw $t0 {}($fp)'.format(self.offset[node.left]))
+		self.write_info('lw $t1 {}($fp)'.format(self.offset[node.right]))
+		self.write_info(f'beq $t0 $zero _eq_false_{node.id}_')  # $t0 can't also be void
+		self.write_info(f'beq $t1 $zero _eq_false_{node.id}_') # $t1 can't also be void
+		self.write_info('lw $a0 0($t0)')	# get object 1 tag
+		self.write_info('lw $a1 0($t1)')	# get object 2 tag
+		self.write_info(f'bne $a0 $a1 _eq_false_{node.id}_')	# compare tags
+		self.write_info('li $a2 {}'.format(self.type_index.index("Int")))	# load int tag
+		self.write_info(f'beq $a0 $a2 _eq_int_bool_{node.id}')	# Integers
+		self.write_info('li $a2 {}'.format(self.type_index.index("Bool")))	# load bool tag
+		self.write_info(f'beq $a0 $a2 _eq_int_bool_{node.id}')	# Booleans
+		self.write_info('li $a2 {}'.format(self.type_index.index("String")))   # load string tag
+		self.write_info(f'bne $a0 $a2 _not_basic_type_{node.id}_') # Not a primitive type
+
+		# equal strings
+		# verify len of the strings
+		self.write_info(f'_eq_str_{node.id}_:', tabbed = False) 	# handle strings
+		self.write_info('lw	$t3 12($t0)')  # get string_1 size
+		self.write_info('lw	$t3 12($t3)')  # unbox string_1 size
+		self.write_info('lw	$t4, 12($t1)') # get string_2 size
+		self.write_info('lw	$t4, 12($t4)') # unbox string_2 size
+		self.write_info(f'bne $t3 $t4 _eq_false_{node.id}_') # string size are distinct
+		self.write_info(f'beq $t3 $0 _eq_true_{node.id}_')	  # if strings are empty
+
+		# Verify ascii secuences
+		self.write_info('addu $t0 $t0 16')	# Point to start of string s1
+		self.write_info('lw $t0 0($t0)')
+		self.write_info('addu $t1 $t1 16') 	# Point to start of string s2
+		self.write_info('lw $t1 0($t1)')
+		self.write_info('move $t2 $t3')		# Keep string length as counter
+		self.write_info(f'_verify_ascii_sequences_{node.id}_:', tabbed = False)
+		self.write_info('lb $a0 0($t0)')	# get char of s1
+		self.write_info('lb $a1 0($t1)')	# get char of s2
+		self.write_info(f'bne $a0 $a1 _eq_false_{node.id}_') # char s1 /= char s2
+		self.write_info('addu $t0 $t0 1')
+		self.write_info('addu $t1 $t1 1')
+		self.write_info('addiu $t2 $t2 -1')	# Decrement counter
+		self.write_info(f'bnez $t2 _verify_ascii_sequences_{node.id}_')
+		self.write_info(f'b _eq_true_{node.id}_')		# end of strings
+
+		self.write_info(f'_not_basic_type_{node.id}_:', tabbed = False)
+		self.write_info(f'bne $t0 $t1 _eq_false_{node.id}_')
+		self.write_info(f'b _eq_true_{node.id}_')
+
+		# equal int or boolf
+		self.write_info(f'_eq_int_bool_{node.id}:', tabbed = False)	# handles booleans and ints
+		self.write_info('lw $a3 12($t0)')	# load value variable_1
+		self.write_info('lw $t4 12($t1)') # load variable_2
+		self.write_info(f'bne $a3 $t4 _eq_false_{node.id}_') # value of int or bool are distinct
+
+		#return true
+		self.write_info(f'_eq_true_{node.id}_:', tabbed = False)
+		self.write_info('li $a0 1')
+		self.write_info('sw $a0 {}($fp)'.format(self.offset[node.dest]))
+		self.write_info(f'b end_equal_{node.id}_')
+
+		#return false
+		self.write_info(f'_eq_false_{node.id}_:', tabbed = False)
+		self.write_info('li $a0 0')
+		self.write_info('sw $a0 {}($fp)'.format(self.offset[node.dest]))
+		self.write_info(f'end_equal_{node.id}_:', tabbed = False)
+
+
+	def visit_EqualOrLessThan(self, node: cil.EqualOrLessThan):
+		self.write_info('# <=')
+		self.write_info('lw $a1, {}($fp)'.format(self.offset[node.left]))
+		self.write_info('lw $a2, {}($fp)'.format(self.offset[node.right]))
+		self.write_info('sle $a0, $a1, $a2'.format(self.offset[node.right]))
+		self.write_info('sw $a0, {}($fp)'.format(self.offset[node.dest]))
+		self.write_info('')
+
+	def visit_LessThan(self, node: cil.LessThan):
+		self.write_info('# <')
+		self.write_info('lw $a1, {}($fp)'.format(self.offset[node.left]))
+		self.write_info('lw $a2, {}($fp)'.format(self.offset[node.right]))
+		self.write_info('slt $a0, $a1, $a2'.format(self.offset[node.right]))
+		self.write_info('sw $a0, {}($fp)'.format(self.offset[node.dest]))
+		self.write_info('')
+
+	def visit_Goto(self, node: cil.Goto):
+		self.write_info('# GOTO')
+		self.write_info('j _cil_label_{}'.format(node.label))
+		self.write_info('')
+
+	def visit_IfGoto(self, node: cil.IfGoto):
+		self.write_info('# IF GOTO')
+		self.write_info('lw $a0, {}($fp)'.format(self.offset[node.condition]))
+		self.write_info('bnez $a0, _cil_label_{}'.format(node.label))
+		self.write_info('')
+
+############################## ASSIGNMENT ####################################
+
+	def visit_Assign(self, node: cil.Assign):
+		self.write_info('# ASSIGN')
+		self.write_info('lw $a0, {}($fp)'.format(self.offset[node.source]))
+		self.write_info('sw $a0, {}($fp)'.format(self.offset[node.dest]))
+		self.write_info('')
+
+	def visit_Label(self, node: cil.Label):
+		self.write_info('_cil_label_{}:'.format(node.name), tabbed=False)
+
+############################# ARITHMETICS ####################################
+
+	def visit_Plus(self, node: cil.Plus):
+		self.write_info('# +')
+		self.write_info('lw $a0, {}($fp)'.format(self.offset[node.left]))
+		self.write_info('lw $a1, {}($fp)'.format(self.offset[node.right]))
+		self.write_info('add $a0, $a0, $a1')
+		self.write_info('sw $a0, {}($fp)'.format(self.offset[node.dest]))
+		self.write_info('')
+
+
+	def visit_Minus(self, node: cil.Minus):
+		self.write_info('# -')
+		if isinstance(node.left, int):
+			self.write_info('li $a0 {}'.format(node.left))
+		else:
+			self.write_info('lw $a0, {}($fp)'.format(self.offset[node.left]))
+		self.write_info('lw $a1, {}($fp)'.format(self.offset[node.right]))
+		self.write_info('sub $a0, $a0, $a1')
+		self.write_info('sw $a0, {}($fp)'.format(self.offset[node.dest]))
+		self.write_info('')
+
+	def visit_Mult(self, node: cil.Mult):
+		self.write_info('# *')
+		self.write_info('lw $a0, {}($fp)'.format(self.offset[node.left]))
+		self.write_info('lw $a1, {}($fp)'.format(self.offset[node.right]))
+		self.write_info('mul $a0, $a0, $a1')
+		self.write_info('sw $a0, {}($fp)'.format(self.offset[node.dest]))
+		self.write_info('')
+
+	def visit_Div(self, node: cil.Div):
+		self.write_info('# /')
+		self.write_info('lw $a0, {}($fp)'.format(self.offset[node.left]))
+		self.write_info('lw $a1, {}($fp)'.format(self.offset[node.right]))
+		self.write_info(f'beqz $a1 _div_error_{node.id}_')
+		self.write_info('div $a0, $a0, $a1')
+		self.write_info('sw $a0, {}($fp)'.format(self.offset[node.dest]))
+		self.write_info(f'b _div_end_{node.id}_')
+		self.write_info(f'_div_error_{node.id}_:',tabbed=False)
+		self.write_info('la $a0 _div_zero_msg')
+		self.write_info('li $v0 4')
+		self.write_info('syscall')
+		self.write_info('la $a0 _abort_msg')
+		self.write_info('li $v0 4')
+		self.write_info('syscall')
+		self.write_info('li $v0 10')
+		self.write_info('syscall')
+		self.write_info(f'_div_end_{node.id}_:',tabbed=False)
+
+
+############################# COMPARISONS ####################################
+
+	def visit_LessThan(self, node: cil.LessThan):
+		self.write_info('# <')
+		self.write_info('lw $a1, {}($fp)'.format(self.offset[node.left]))
+		self.write_info('lw $a2, {}($fp)'.format(self.offset[node.right]))
+		self.write_info('slt $a0, $a1, $a2'.format(self.offset[node.right]))
+		self.write_info('sw $a0, {}($fp)'.format(self.offset[node.dest]))
+		self.write_info('')
+

@@ -117,26 +117,13 @@ class CILVisitor(NodeVisitor):
 				# Build the class depth dictionary
 				self.classDepth[_class.idName]= self.classDepth[_class.parent] + 1
 
-	def orderClassesByInhertiance(self, typeName, classList, visitedDict):
-		order = [self.indexInClassByTypeName(typeName, classList)]
-		for child in self.programContext.types[typeName].children:
-			if not visitedDict[typeName]:
-				order += self.orderClassesByInhertiance(child, classList, visitedDict)
-		
-		visitedDict[typeName]= True
-		return order
-		
-	def indexInClassByTypeName(self, typeName, classList):
-		return next((i for i in range(len(classList)) if classList[i].idName == typeName), None)
 		
 		
-   
 	def visit_NodeProgram(self, node: NodeProgram):
 		self.buildClassDepth(node)
-		inhertirOrder= self.orderClassesByInhertiance('Object', node.class_list, {node.idName: False for node in node.class_list})
-		for ind in inhertirOrder:
-			newType= self.visit(node.class_list[ind], 
-								initializers= self.inspectInitializers(node.class_list[ind].idName))
+		for _class in node.class_list:
+			newType= self.visit(_class, 
+								initializers= self.inspectInitializers(_class.idName))
 			self.registerType(newType)
 			
 		for func in self.dotcode:
@@ -155,7 +142,7 @@ class CILVisitor(NodeVisitor):
 		# Ovewritting attrs it's not allowed, so the first attrs of the class are the inhertited
 		if node.idName != 'Object':
 			parentName= 'Object' if not node.parent else node.parent
-			inhAttributes = [cil.Attribute(f'{parentName}_{attrName}') for attrName in
+			inhAttributes = [cil.Attribute(f'{attrName}') for attrName in
                     self.programContext.types[node.idName].inheritsAttr]
 			
 			methods= [cil.Method(methodName, f'{self.programContext.types[parentName].inheritsMethods[methodName].wrapperType}_{methodName}') for methodName in
@@ -225,9 +212,9 @@ class CILVisitor(NodeVisitor):
 		if node.expr:
 			rname = self.visit(node.expr)
 			self.registerInstruction(cil.SetAttrib, "__self", self.currentIndex, rname)
-		elif node._type == "prim_zero_slot":
+		elif node._type == "__prim_zero_slot":
 			self.registerInstruction(cil.SetAttrib, "__self", self.currentIndex, 0)
-		elif node._type == "prim_empty_slot":
+		elif node._type == "__prim_empty_slot":
 			
 			self.registerInstruction(cil.SetAttrib,
 									 "__self",
@@ -254,9 +241,9 @@ class CILVisitor(NodeVisitor):
 		self.internalVarCount= 0
 		self.currentFunctionName= f"{self.currentClassName}_{node.idName}"
 		
-		self.nameMap = NameMap()
+		self.nameMap= NameMap()
 		
-		arguments = [cil.ArgDeclaration("__self")]
+		arguments= [cil.ArgDeclaration("__self")]
 
 		for formal_param in node.formal_param_list:
 			arguments.append(self.visit(formal_param))
@@ -272,9 +259,10 @@ class CILVisitor(NodeVisitor):
 		self.registerFunction(func)
   
 		self.mthMap[func.name]= self.currentIndex
-
+		
 		return cil.Method(node.idName, func.name)
-	
+		
+
 	def visit_NodeFormalParam(self, node: NodeFormalParam):
 		self.nameMap.define_variable(node.idName, f'_{node.idName}')
 		return cil.ArgDeclaration(f'_{node.idName}')
@@ -322,7 +310,7 @@ class CILVisitor(NodeVisitor):
 	def visit_NodeBoolean(self, node: NodeBoolean):
 		boxedBool = self.registerInternalLocal()
 		self.registerInstruction(cil.Allocate, boxedBool, 'Bool')
-		if node.content:
+		if node.content != 'false':
 			self.registerInstruction(cil.SetAttrib, boxedBool, 0, 1)
 		else:
 			self.registerInstruction(cil.SetAttrib, boxedBool, 0, 0)
@@ -381,13 +369,10 @@ class CILVisitor(NodeVisitor):
 		else:
 			varName = self.registerLocal(node.idName)
 			if node.type == 'Int':
-				self.registerInstruction(cil.SetAttrib, '__self', self.currentIndex, 0)
 				self.buildNewObject(varName, 'Int')
 			elif node.type == 'Bool':
-				self.registerInstruction(cil.SetAttrib, '__self', self.currentIndex, 0)
 				self.buildNewObject(varName, 'Bool')
 			elif node.type == 'String':
-				self.registerInstruction(cil.SetAttrib, '__self', self.currentIndex, self.emptyString)
 				self.buildNewObject(varName, 'String')
 			elif node.type == '__prim_zero_slot':
    				self.register_instruction(cil.SetAttrib, '__self', self.currentIndex, 0)
