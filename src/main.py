@@ -1,4 +1,4 @@
-import sys, fileinput
+import sys, fileinput, os
 from argparse import ArgumentParser
 from compiler.components.lexer.lexer_analyzer import tokenizer, tokens
 from compiler.components.parser.syntax_analyzer import run_parser
@@ -12,7 +12,7 @@ import compiler.components.semantic.AST_definitions as ast
 import subprocess as sp
 
 def build_basic_ast():
-    fpath = "./cool-compiler-2020/src/compiler/utils/basics_classes.cl"
+    fpath = "./compiler/utils/basics_classes.cl"
     with open(fpath, encoding="utf-8") as file:
         code = file.read()
         _, _, real_col_basic= tokenizer(code)
@@ -32,6 +32,7 @@ def build_basic_ast():
 
 parser_input =  ArgumentParser(description= 'This is the Diaz-Horrach cool compiler, an school project.\nRead this help and see the ofitial repo')
 parser_input.add_argument('files_for_compile', help = 'The file(s) to be compiled', nargs= '+')
+parser_input.add_argument('--test', help = 'Indicates if the compiling is for test', action="store_true")
 """ parser_input.add_argument("--lexer", help = 'Select the lexer that you could use from avialable options', choices = component_injector['lexer_options'].keys(),
                             default='cool')
 parser_input.add_argument("--parser", help = 'Select the lexer that you could use from avialable options', choices = component_injector['parser_options'].keys())
@@ -81,6 +82,9 @@ if all_errors:
         print(error)
     exit(1)
 
+
+# Running code generation
+
 cilGen= CILVisitor(programContext, mapExpr= sa.mapExprWithResult)
 programResult= cilGen.visit(sa.ast)
 
@@ -88,4 +92,20 @@ mipsGen= MipsVisitor(programContext)
 
 mipsCode= mipsGen.visit(programResult)
 
-print(mipsCode)
+
+# Saving the compiling
+filePath= args.files_for_compile[0]
+
+fileToWritePath= filePath[:filePath.rfind('.') + 1] + 'mips'
+
+with open(fileToWritePath, 'w', encoding="utf-8") as file:
+    stream = '#Compiled by DiazRock COOL compiler\n'
+    for line in mipsCode:
+        stream += line
+
+    file.write(stream)
+    if args.test:
+        pathTest= filePath[ :filePath.rfind('.') ] + '_input.txt'
+        spim= 'spim -f ' + fileToWritePath
+        os.system('cat "{}"|{} '.format(pathTest, spim) )
+    

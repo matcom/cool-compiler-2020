@@ -114,7 +114,7 @@ class MipsVisitor(NodeVisitor):
 		# Generate mips method that builds dispatch tables
 		self.write_info('function_build_dispatch_tables:', tabbed=False)
 		for ins in self.dispatchtable_code:
-				self.write_info(ins)
+			self.write_info(ins)
 		self.write_info('jr $ra')
 		self.write_info('')
 		
@@ -351,7 +351,7 @@ class MipsVisitor(NodeVisitor):
 		# Declare error mensages
 		self.write_info('_index_negative_msg: .align 2 \n\t\t\t .asciiz \"Index to substr is negative\\n\"')
 		self.write_info('_index_out_msg: .align 2 \n\t\t\t .asciiz \"Index out range exception\\n\"')
-		self.write_info('_abort_msg: .align 2 \n\t\t\t .asciiz \"Abort called from class\\n\"')
+		self.write_info('_abort_msg: .align 2 \n\t\t\t .asciiz \"Execution aborted\\n\"')
 		self.write_info('_div_zero_msg: .align 2 \n\t\t\t .asciiz \"Division by zero exception\\n\"')
 
 		self.write_info('')
@@ -390,12 +390,6 @@ class MipsVisitor(NodeVisitor):
 		self.write_info('function_Object_abort:', tabbed=False)
 		# Set up stack frame
 		self.write_info('move $fp, $sp')
-
-		# Printing the message
-		self.write_info('la $a0 _abort_msg')
-		self.write_info('li $v0 4')
-		self.write_info('syscall')
-		self.write_info('')
 
 		# Aborting
 		self.write_info('li $v0 10')

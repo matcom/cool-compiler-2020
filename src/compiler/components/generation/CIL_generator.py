@@ -143,12 +143,12 @@ class CILVisitor(NodeVisitor):
 		if node.idName != 'Object':
 			parentName= 'Object' if not node.parent else node.parent
 			inhAttributes = [cil.Attribute(f'{attrName}') for attrName in
-                    self.programContext.types[node.idName].inheritsAttr]
+					self.programContext.types[node.idName].inheritsAttr]
 			
 			methods= [cil.Method(methodName, f'{self.programContext.types[parentName].inheritsMethods[methodName].wrapperType}_{methodName}') for methodName in
-             self.programContext.types[parentName].inheritsMethods.keys()]
+			 self.programContext.types[parentName].inheritsMethods.keys()]
 			methods += [cil.Method(methodName, f'{parentName}_{methodName}') for methodName in
-               self.programContext.types[parentName].methods.keys() if not methodName in methods]
+			   self.programContext.types[parentName].methods.keys() if not methodName in methods]
 			
 			for i in range(len(inhAttributes)):
 				self.attrIndexMap[f'{self.currentClassName}_{inhAttributes[i].name}']= i
@@ -182,7 +182,7 @@ class CILVisitor(NodeVisitor):
 		func = cil.Function(self.currentFunctionName,
 							[cil.ArgDeclaration('__self')], 
 							self.localvars, self.instructions,
-       						node.idName)
+	   						node.idName)
 		
 		self.registerFunction(func)
 		
@@ -192,10 +192,11 @@ class CILVisitor(NodeVisitor):
 		for nodeClassMethod in node.methods:
 			# Check if this method is being redefined
 			
-			if nodeClassMethod.idName in methods:
+			index = next((i for i in range(len (methods))
+            if methods[i].name == nodeClassMethod.idName), None )
+			if index:
 				# If it's being redefined, use the offset of the function already defined
-				index = methods.index(nodeClassMethod.idName)
-				del methods[i]
+				del methods[index]
 				ind -= 1
 
 			else:
@@ -248,6 +249,7 @@ class CILVisitor(NodeVisitor):
 		for formal_param in node.formal_param_list:
 			arguments.append(self.visit(formal_param))
 
+		# If a function is built in, doesn't need CIL code.
 		if not self.currentClassName in self.programContext.basics:
 			returnVal = self.visit(node.body)
 			self.registerInstruction(cil.Return, returnVal)
@@ -499,11 +501,20 @@ class CILVisitor(NodeVisitor):
 		return caseValue
 
 	def visit_NodeCaseAction(self, node: NodeCaseAction):
-			return self.visit(node.expr)
+		return self.visit(node.expr)
   
 	################################# DISPATCHS #######################################
 	
 	def visit_NodeDynamicDispatch(self, node: NodeDynamicDispatch):
+		if node.method == 'abort':
+			# This is near to trolling. I know, is pretty ugly, but it works.
+			self.mapExpr[node.line + 0.5, node.column + 0.5]= "IO"
+			self.visit_NodeDynamicDispatch(
+				NodeDynamicDispatch(line= node.line + 0.5,
+				column= node.column + 0.5,
+				method= 'out_string',
+				expr= NodeNewObject("IO", line= -1, column=-1),
+				arguments= [NodeString (content= f'Abort called from class {self.mapExpr[(node.line, node.column)]}\n', line = -1, column = -1)]))
 		instanceVname = self.visit(node.expr)
 		ttype = self.registerInternalLocal()
 		result = self.registerInternalLocal()
