@@ -364,7 +364,6 @@ class MipsVisitor(NodeVisitor):
 		self.visit(cil.Call(dest = None, f = 'build_dispatch_tables'))
 		self.visit(cil.Call(dest = None, f = 'build_class_parents_table'))
 		self.visit(cil.Allocate(dest = None, ttype = 'Main'))
-		self.visit(cil.Allocate(dest = None, ttype = 'Main'))
 
 		# Push main self
 		self.write_info('sw $v0 0($sp)')

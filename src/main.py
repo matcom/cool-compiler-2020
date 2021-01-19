@@ -20,14 +20,18 @@ def build_basic_ast():
                             source_program= code, 
                             real_col= real_col_basic)
         for _class in ast_basic.class_list:
-            if _class.idName == 'Int' or _class.idName == 'Bool' or _class.idName == 'String':
+            if _class.idName == 'Int' or _class.idName == 'Bool':
                 _class.attributes.append(ast.NodeAttr(idName = '_val',
                                                       _type= '__prim_zero_slot',
                                                       line= 0, column= 0))
             if _class.idName== 'String':
+                _class.attributes.append(ast.NodeAttr(idName = '_val',
+                                                      _type= 'Int',
+                                                      line= 0, column= 0))
                 _class.attributes.append(ast.NodeAttr(idName = '_str_field',
                                                       _type= '__prim_empty_slot',
                                                       line= 0, column= 0))
+                
         return ast_basic
 
 parser_input =  ArgumentParser(description= 'This is the Diaz-Horrach cool compiler, an school project.\nRead this help and see the ofitial repo')
