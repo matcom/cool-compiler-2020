@@ -98,14 +98,6 @@ class CILVisitor(NodeVisitor):
 		self.registerInstruction(cil.Call, dest, f'{ttype}_{"_init"}')
 		self.registerInstruction(cil.PopParam, dest)
 
-	def inspectInitializers(self, typeName):
-		parentName = self.programContext.types[typeName].parent if typeName == "Object" or self.programContext.types[typeName].parent else 'Object'
-		initializers = []
-		while parentName:
-			initializers.append(f'{parentName}_{"_init"}')
-			parentName= self.programContext.types[parentName].parent
-		initializers.reverse()
-		return initializers
 		
 	def buildClassDepth(self, node: NodeProgram):
 		# Initialize class depth dictionary
@@ -122,8 +114,7 @@ class CILVisitor(NodeVisitor):
 	def visit_NodeProgram(self, node: NodeProgram):
 		self.buildClassDepth(node)
 		for _class in node.class_list:
-			newType= self.visit(_class, 
-								initializers= self.inspectInitializers(_class.idName))
+			newType= self.visit(_class)
 			self.registerType(newType)
 			
 		for func in self.dotcode:
@@ -136,7 +127,7 @@ class CILVisitor(NodeVisitor):
 		
 		return cil.Program(self.dottype, self.dotdata, self.dotcode)
 	
-	def visit_NodeClass(self, node: NodeClass, initializers):
+	def visit_NodeClass(self, node: NodeClass):
 		
 		self.currentClassName = node.idName
 		# Ovewritting attrs it's not allowed, so the first attrs of the class are the inhertited
@@ -164,10 +155,10 @@ class CILVisitor(NodeVisitor):
 		self.internalVarCount= 0
 		self.currentFunctionName= f'{self.currentClassName}_{"_init"}'
 
-		if initializers:
+		if self.currentClassName != 'Object':
 		# Build the initializer function and attributes list        
 			self.registerInstruction(cil.PushParam, "__self")
-			self.registerInstruction(cil.Call, None, initializers[-1])	# Call superclasses's initializers
+			self.registerInstruction(cil.Call, None, node.parent + '__init')	# Call superclasses's initializers
 			self.registerInstruction(cil.PopParam, None)
 
 		ind= len(inhAttributes)
