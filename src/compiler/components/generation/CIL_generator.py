@@ -164,10 +164,10 @@ class CILVisitor(NodeVisitor):
 		self.internalVarCount= 0
 		self.currentFunctionName= f'{self.currentClassName}_{"_init"}'
 
+		if initializers:
 		# Build the initializer function and attributes list        
-		for initializer in initializers:
 			self.registerInstruction(cil.PushParam, "__self")
-			self.registerInstruction(cil.Call, None, initializer)	# Call superclasses's initializers
+			self.registerInstruction(cil.Call, None, initializers[-1])	# Call superclasses's initializers
 			self.registerInstruction(cil.PopParam, None)
 
 		ind= len(inhAttributes)
