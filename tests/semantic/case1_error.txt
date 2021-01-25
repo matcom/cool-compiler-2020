@@ -1,0 +1,1 @@
+(19, 16) - TypeError: Inferred type A of initialization of attribute test does not conform to declared type B. 

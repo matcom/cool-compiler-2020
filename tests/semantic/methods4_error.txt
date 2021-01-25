@@ -1,0 +1,1 @@
+(12, 15) - SemanticError: In redefined method f, parameter type Object is different from original type Int.
