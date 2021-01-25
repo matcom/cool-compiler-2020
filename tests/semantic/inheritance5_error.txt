@@ -1,0 +1,1 @@
+(21, 18) - SemanticError: Class C, or an ancestor of C, is involved in an inheritance cycle.

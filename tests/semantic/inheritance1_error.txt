@@ -1,0 +1,1 @@
+(16, 5) - SemanticError: Attribute x is an attribute of an inherited class.
