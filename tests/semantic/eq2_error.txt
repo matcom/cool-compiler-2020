@@ -1,0 +1,1 @@
+(15, 23) - TypeError: Illegal comparison with a basic type. 

@@ -1,0 +1,1 @@
+(13, 16) - TypeError: Inferred type F of initialization of attribute test does not conform to declared type B. 
