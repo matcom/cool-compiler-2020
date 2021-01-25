@@ -17,18 +17,18 @@ working_input = file.read()
 
 all_errors = []
 token_errors, tokens_for_input, real_col = tokenizer(working_input)
+if token_errors:
+    print(token_errors[0])
+    exit(1)
 #print(tokens_for_input)
 
 parser_errors = run_parser(tokens, working_input, real_col)
 
-all_errors += token_errors + parser_errors
-
 """ print('tokens for _input \n')
 print(tokens_for_input)
 print('---------------') """
-if all_errors:
-    for error in all_errors:
-        print(error)
+if parser_errors:
+    print(parser_errors[0])
     exit(1)
 
 
