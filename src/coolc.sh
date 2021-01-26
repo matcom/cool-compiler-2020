@@ -11,10 +11,10 @@ OUTPUT_FILE=${INPUT_FILE:0: -2}mips
 
 
 # Si su compilador no lo hace ya, aquí puede imprimir la información de contacto
-echo "LINEA_CON_NOMBRE_Y_VERSION_DEL_COMPILADOR"        # TODO: Recuerde cambiar estas
+echo "DiazRock_CoolCompiler.V1.0"        # TODO: Recuerde cambiar estas
 echo "CopyLeft (L) 2020: Alejandro Díaz Roque, Rafael Horrach"    
 
 # Llamar al compilador
-python main.py "$@"
+python3 main.py "$@"
 #echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 
