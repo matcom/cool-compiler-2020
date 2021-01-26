@@ -118,6 +118,10 @@ Luego de que se chequea que el `AST` es consistente, se vuelve a recorrer el mis
 1. **CILVisitor**: Para crear la representación en `CIL` del `AST`. Esta representación es un árbol. Los nodos del árbol están definidos en el archivo `/src/compiler/components/generation/CIL_definitions.py`
 2. **MipsVisitor**: Para a partir del árbol `CIL`, obtener el archivo `.mips` correspondiente. Para traducir de uno a otro, se usan convenciones, teniendo en cuenta la función de cada registro y cómo se comportan las llamadas al sistema que hace `MIPS32`.
 
+## Cómo correr el código
+
+Para ejecutar el código, debe tener la versión `3.8` de `python` o superior, instalar los requerimientos que aparecen en el archivo `requirement.txt`, correr el archivo `coolc.sh` con la dirección del archivo `.cl` a compilar.
+
 # Conclusión
 
 La implementación posee detalles corregibles. No obstante, su correctitud y robustez se corresponden con lo exigido en los test de prueba que se evalúan en el *pull request*.
