@@ -17,11 +17,15 @@ def run(addr):
 
     ast = parser.parse(text, lexer)
     sem.visit(ast)
+
     cil = cool_to_cil.Build_CIL(ast, sem)
+
     mips = cil_to_mips.Build_Mips(cil.astCIL)
+
     out_file = addr.split(".")
     out_file[-1] = "mips"
     out_file = ".".join(out_file)
+    
     with open(out_file, 'w') as f:
         for line in mips.lines:
             f.write(line + '\n')
