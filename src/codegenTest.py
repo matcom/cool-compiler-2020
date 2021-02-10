@@ -28,7 +28,7 @@ def run(addr):
     
     with open(out_file, 'w') as f:
         for line in mips.lines:
-            f.write(line)
+            f.write(line + ' ')
         f.close()
 
     exit(0)
