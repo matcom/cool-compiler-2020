@@ -25,10 +25,12 @@ def run(addr):
     out_file = addr.split(".")
     out_file[-1] = "mips"
     out_file = ".".join(out_file)
+
+    mips_code = ''
+    for line in mips.lines:
+            mips_code += line + '\n'
     
     with open(out_file, 'w') as f:
-        for line in mips.lines:
-            f.write(line + '\n')
+        f.write(mips_code)
         f.close()
-
     exit(0)
