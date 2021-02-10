@@ -4,154 +4,99 @@ import visitor
 class Build_Mips:
     def __init__(self, ast):
         self.lines = []
+        self.current_function = None
         self.visit(ast)
-    
+
+    def add(self, line):
+        self.lines.append(line)
+
+    def stack_pos(self, name):
+        temp = self.current_function.params + self.current_function.localvars
+        index = 4*temp.index(name)
+        return -index
+
     @visitor.on('node')
     def visit(self, node):
         pass
 
     @visitor.when(Program)
     def visit(self, program):
-        self.lines  +=  '.data'
+
+        self.add('.data')
         for _str, tag in program.data_section.items():
-            self.lines += tag+':'+ ' .asciiz "' + _str + '"'
-        self.lines += '.text'
+            self.add(tag + ':' + ' .asciiz ' + _str)
+        self.add('.text')
+        self.add('entry:')
+        self.add('jal function_Main_main')
+        self.add('li $v0, 10') #exit()
+        self.add('syscall')
         for f in program.code_section:
             self.visit(f)
 
     @visitor.when(Function)
     def visit(self, function):
-        self.lines += function.fname + ':'
-        self.lines += 'addi $sp, $sp, -4'   # adjust stack for 1 item
-        self.lines += 'sw $ra, 4($sp)'      # save return address
-        #self.lines += 'sw $a0, 0($sp)'      # save argument esto se hace antes de entrar a la funcion
+        #ya se pusieron los argumentos en la pila
+        self.current_function = function
+        self.add(function.fname + ':')        
+
         #ya se guardaron los argumentos en la pila
-        #tenemos que guardar espacio para las variables locales
-        self.lines += 'move $fp, $sp' #first word of the frame
-        self.lines += 'addi $sp, $sp, -' + str(4*len(function.localvars))#espacio para las variables locales
+        #tenemos que guardar espacio para las variables locales        
 
+        line = 'addi $sp, $sp, -' + str(4*len(function.localvars))  #espacio para las variables locales
+        self.add(line)        
 
+        self.add('addi $sp, $sp, -8')   # adjust stack for 2 item
+        self.add('sw $ra, 4($sp)')      # save return address
+        self.add('sw $fp, 0($sp)')      # save old frame pointer
 
-    @visitor.when(Param)
-    def visit(self, function):
-        pass
+        n = 4*(len(function.params) + len(function.localvars) + 1)
+        self.add('addi $fp, $sp, {}'.format(n)) # fp apunta al primer argumento
 
-    @visitor.when(Local)
-    def visit(self, local):
-        pass
+        for intr in function.instructions:
+            self.visit(intr)
+        
+        #restaurar los valores de los registros
+        #poner el frame pointer donde estaba
 
-    @visitor.when(Assign)
-    def visit(self, assign):
-        pass
-
-    @visitor.when(Plus)
-    def visit(self, plus):
-        pass
-
-    @visitor.when(Minus)
-    def visit(self, minus):
-        pass
-
-    @visitor.when(Star)
-    def visit(self, star):
-        pass
-
-    @visitor.when(Div)
-    def visit(self, div):
-        pass
-
-    @visitor.when(GetAttrib)
-    def visit(self, get):
-        pass
-
-    @visitor.when(SetAttrib)
-    def visit(self, set):
-        pass
-
-    @visitor.when(Allocate)
-    def visit(self, allocate):
-        pass
-
-    @visitor.when(TypeOf)
-    def visit(self, typeOf):
-        pass
-
-    @visitor.when(Label)
-    def visit(self, label):
-        pass
-
-    @visitor.when(Goto)
-    def visit(self, goto):
-        pass
-
-    @visitor.when(GotoIf)
-    def visit(self, gotoIf):
-        pass
-
-    @visitor.when(Call)
-    def visit(self, call):
-        pass
-
-    @visitor.when(VCall)
-    def visit(self, vCall):
-        pass
+        self.add('lw $ra, 4($sp)')#restauro direccion de retorno
+        self.add('lw $t1, 0($sp)')
+        self.add('addi $sp, $fp, 4')
+        self.add('move $fp, $t1')
+        
+        self.add('jr $ra')    # and return
+        self.current_function = None
 
     @visitor.when(Arg)
     def visit(self, arg):
-        pass
+        self.add('addi $sp, $sp, -4')   # adjust stack for 1 item
+        #localizar el valor de arg en las variables locales
+        index = self.stack_pos(arg.vinfo)
+        #pasarlo a un registro
+        self.add('lw $t1, {}($fp)'.format(index))
+        self.add('sw $t1, 0($sp)')     # save argument for next function
 
-    @visitor.when(Return)
-    def visit(self, _return):
-        pass
+    @visitor.when(Call)
+    def visit(self, call):
+        #ya se pusieron los argumentos en la pila
+        self.add('jal ' + call.func)
+        index = self.stack_pos(call.dest)
+        self.add('sw $v0, {}($fp)'.format(index))
 
     @visitor.when(Load)
     def visit(self, load):
-        pass
-
-    @visitor.when(Length)
-    def visit(self, length):
-        pass
-
-    @visitor.when(Concat)
-    def visit(self, concat):
-        pass
-
-    @visitor.when(Prefix)
-    def visit(self, prefix):
-        pass
-
-    @visitor.when(Substring)
-    def visit(self, substr):
-        pass
-
-    @visitor.when(ToStr)
-    def visit(self, toStr):
-        pass
-
-    @visitor.when(Read)
-    def visit(self, read):
-        pass
+        index = self.stack_pos(load.dest)
+        self.add('la $t1, {}'.format(load.msg))
+        self.add('sw $t1, {}($fp)'.format(index))
 
     @visitor.when(Print)
     def visit(self, _print):
-        pass
+        self.add('li $v0, 4')		                    # system call code for print_str
+        index = self.stack_pos(_print.str_addr)         #pos en la pila
+        self.add('lw $a0, {}($fp)'.format(index)) 	    # str to print
+        self.add('syscall')			                    # print it
 
-    @visitor.when(IsVoid)
-    def visit(self, isVoid):
-        pass
-
-    @visitor.when(LowerThan)
-    def visit(self, loweThan):
-        pass
-
-    @visitor.when(LowerEqualThan)
-    def visit(self, lowerEqualThan):
-        pass
-
-    @visitor.when(EqualThan)
-    def visit(self, equalThan):
-        pass
-
-    @visitor.when(EqualStrThanStr)
-    def visit(self, equalStrThanStr):
-        pass
+    @visitor.when(Return)
+    def visit(self, ret):
+        index = self.stack_pos(ret.value)
+        self.add('lw $t1, {}($fp)'.format(index))
+        self.add('move $v0, $t1')

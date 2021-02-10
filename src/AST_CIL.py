@@ -28,17 +28,17 @@ class Function(Node):
         self.instructions = []
 
 
-class Param(Node):
-    def __init__(self, vinfo):
-        self.vinfo = vinfo
-    def to_string(self):
-        return "PARAM {}".format(self.vinfo)
+# class Param(Node):
+#     def __init__(self, vinfo):
+#         self.vinfo = vinfo
+#     def to_string(self):
+#         return "PARAM {}".format(self.vinfo)
 
-class Local(Node):
-    def __init__(self, vinfo):
-        self.vinfo = vinfo
-    def to_string(self):
-        return "LOCAL {}".format(self.vinfo)
+# class Local(Node):
+#     def __init__(self, vinfo):
+#         self.vinfo = vinfo
+#     def to_string(self):
+#         return "LOCAL {}".format(self.vinfo)
 
 
 class Instruction(Node):
@@ -70,7 +70,6 @@ class Minus(Arithmetic):
     def to_string(self):
         return "{} = {} - {}".format(self.dest, self.left, self.right)
 
-
 class Star(Arithmetic):
     def __init__(self, dest, left, right):
         self.dest = dest
@@ -79,7 +78,6 @@ class Star(Arithmetic):
     def to_string(self):
         return "{} = {} * {}".format(self.dest, self.left, self.right)
     
-
 class Div(Arithmetic):
     def __init__(self, dest, left, right):
         self.dest = dest
@@ -104,7 +102,6 @@ class SetAttrib(Instruction):
     def to_string(self):
         return "SETATTR {} {} {}".format(self.instance, self.attribute, self.src)
 
-
 class Allocate(Instruction):
     def __init__(self, dest, ttype):
         self.dest = dest
@@ -112,7 +109,6 @@ class Allocate(Instruction):
 
     def to_string(self):
         return "{} = ALLOCATE {}".format(self.dest, self.ttype)
-
 
 class Array(Instruction):
     def __init__(self, dest, src):
@@ -126,14 +122,12 @@ class TypeOf(Instruction):
     def to_string(self):
         return "{} = TYPEOF {}".format(self.dest, self.var)
 
-
 class Label(Instruction):
     def __init__(self, name):
         self.name = name
     
     def to_string(self):
         return "LABEL {}".format(self.name)
-
 
 class Goto(Instruction):
     def __init__(self, name):
@@ -149,7 +143,6 @@ class GotoIf(Instruction):
     def to_string(self):
         return "IF {} GOTO {}".format(self.condition, self.label)
 
-
 class Call(Instruction):
     def __init__(self, dest, func):
         self.dest = dest
@@ -157,7 +150,6 @@ class Call(Instruction):
 
     def to_string(self):
         return "{} = CALL {}".format(self.dest, self.func)
-
 
 class VCall(Instruction):
     def __init__(self, dest, ttype, func):
@@ -167,13 +159,11 @@ class VCall(Instruction):
     def to_string(self):
         return "{} = VCALL {} {}".format(self.dest, self.ttype, self.func)
 
-
 class Arg(Instruction):
     def __init__(self, vinfo):
         self.vinfo = vinfo
     def to_string(self):
         return "ARG {}".format(self.vinfo)
-
 
 class Return(Instruction):
     def __init__(self, value=None):
@@ -182,14 +172,12 @@ class Return(Instruction):
     def to_string(self):
         return "RETURN {}".format(self.value)
 
-
 class Load(Instruction):
     def __init__(self, dest, msg):
         self.dest = dest
         self.msg = msg
     def to_string(self):
         return "{} = LOAD {}".format(self.dest, self.msg)
-
 
 class Length(Instruction):
     def __init__(self, dest, str_addr):
@@ -206,7 +194,6 @@ class Concat(Instruction):
     
     def to_string(self):
         return "{} = CONCAT {} {}".format(self.dest, self.head, self.tail)
-
 
 class Prefix(Instruction):
     def __init__(self, dest, str_addr, pos):
@@ -232,6 +219,8 @@ class Read(Instruction):
 class Print(Instruction):
     def __init__(self, str_addr):
         self.str_addr = str_addr
+    def to_string(self):
+        return "PRINT {}".format(self.str_addr)
 
 class IsVoid(Instruction):
     def __init__(self, dest, obj):
