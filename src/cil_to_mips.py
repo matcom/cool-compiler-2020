@@ -26,7 +26,8 @@ class Build_Mips:
         for _str, tag in program.data_section.items():
             self.add(tag + ':' + ' .asciiz ' + _str)
         self.add('.text')
-        self.add('entry:')
+        self.add('.global __start')
+        self.add('__start:')
         self.add('jal function_Main_main')
         self.add('li $v0, 10') #exit()
         self.add('syscall')
