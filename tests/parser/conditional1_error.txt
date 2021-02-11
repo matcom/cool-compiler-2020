@@ -1,0 +1,1 @@
+(34, 13) - SyntacticError: ERROR at or near NEW
