@@ -1,4 +1,6 @@
-> ### (!) Este repositorio está archivado. Para el curso 2021 vea [matcom/cool-compiler-2021](https://github.com/matcom/cool-compiler-2021)
+> ### (!) Este repositorio está archivado. 
+> 
+> Para el curso 2021 vea [matcom/cool-compiler-2021](https://github.com/matcom/cool-compiler-2021)
 
 # COOL: Proyecto de Compilación
 
