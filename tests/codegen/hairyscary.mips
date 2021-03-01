@@ -1,0 +1,5845 @@
+.text
+.globl main
+main:
+# Save method directions in the methods array
+la $v0, methods
+la $t9, entry
+sw $t9, 0($v0)
+la $t9, function_abort_Object
+sw $t9, 4($v0)
+la $t9, function_type_name_Object
+sw $t9, 8($v0)
+la $t9, function_copy_Object
+sw $t9, 12($v0)
+la $t9, function_out_string_IO
+sw $t9, 16($v0)
+la $t9, function_out_int_IO
+sw $t9, 20($v0)
+la $t9, function_in_int_IO
+sw $t9, 24($v0)
+la $t9, function_in_string_IO
+sw $t9, 28($v0)
+la $t9, function_length_String
+sw $t9, 32($v0)
+la $t9, function_concat_String
+sw $t9, 36($v0)
+la $t9, function_substr_String
+sw $t9, 40($v0)
+la $t9, function_type_name_String
+sw $t9, 44($v0)
+la $t9, function_copy_String
+sw $t9, 48($v0)
+la $t9, function_type_name_Int
+sw $t9, 52($v0)
+la $t9, function_copy_Int
+sw $t9, 56($v0)
+la $t9, function_type_name_Bool
+sw $t9, 60($v0)
+la $t9, function_copy_Bool
+sw $t9, 64($v0)
+la $t9, function_abort_String
+sw $t9, 68($v0)
+la $t9, function_abort_Int
+sw $t9, 72($v0)
+la $t9, function_abort_Bool
+sw $t9, 76($v0)
+la $t9, function_Foo_Foo
+sw $t9, 80($v0)
+la $t9, function_doh_Foo
+sw $t9, 84($v0)
+la $t9, function_Bar_Bar
+sw $t9, 88($v0)
+la $t9, function_Razz_Razz
+sw $t9, 92($v0)
+la $t9, function_Bazz_Bazz
+sw $t9, 96($v0)
+la $t9, function_printh_Bazz
+sw $t9, 100($v0)
+la $t9, function_doh_Bazz
+sw $t9, 104($v0)
+la $t9, function_Main_Main
+sw $t9, 108($v0)
+la $t9, function_main_Main
+sw $t9, 112($v0)
+# Save types directions in the types array
+la $t9, types
+# Save space to locate the type info
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_String
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 0($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 28
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_length_String in a0
+lw $a0, 32($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_concat_String in a0
+lw $a0, 36($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_substr_String in a0
+lw $a0, 40($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_abort_String in a0
+lw $a0, 68($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_type_name_String in a0
+lw $a0, 44($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_copy_String in a0
+lw $a0, 48($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Int
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 4($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 16
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Int in a0
+lw $a0, 72($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Int in a0
+lw $a0, 52($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Int in a0
+lw $a0, 56($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Object
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 8($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 16
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Bool
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 12($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 16
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Bool in a0
+lw $a0, 76($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Bool in a0
+lw $a0, 60($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Bool in a0
+lw $a0, 64($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_IO
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 16($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 32
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Foo
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 20($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 44
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_printh_Bazz in a0
+lw $a0, 100($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_doh_Foo in a0
+lw $a0, 84($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_Foo_Foo in a0
+lw $a0, 80($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Bar
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 24($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 48
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_printh_Bazz in a0
+lw $a0, 100($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_doh_Foo in a0
+lw $a0, 84($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_Foo_Foo in a0
+lw $a0, 80($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+# Save the direction of the method function_Bar_Bar in a0
+lw $a0, 88($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 44($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Razz
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 28($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 48
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_printh_Bazz in a0
+lw $a0, 100($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_doh_Foo in a0
+lw $a0, 84($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_Foo_Foo in a0
+lw $a0, 80($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+# Save the direction of the method function_Razz_Razz in a0
+lw $a0, 92($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 44($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Bazz
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 32($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 44
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_out_string_IO in a0
+lw $a0, 16($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_out_int_IO in a0
+lw $a0, 20($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+# Save the direction of the method function_in_string_IO in a0
+lw $a0, 28($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 24($v0)
+# Save the direction of the method function_in_int_IO in a0
+lw $a0, 24($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 28($v0)
+# Save the direction of the method function_printh_Bazz in a0
+lw $a0, 100($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 32($v0)
+# Save the direction of the method function_doh_Bazz in a0
+lw $a0, 104($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 36($v0)
+# Save the direction of the method function_Bazz_Bazz in a0
+lw $a0, 96($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 40($v0)
+sw $v0, 8($t8)
+# Allocating memory
+li $v0, 9
+li $a0, 12
+syscall
+# Filling table methods
+la $t8, type_Main
+sw $t8, 0($v0)
+# Copying direction to array
+sw $v0, 36($t9)
+# Table addr is now stored in t8
+move $t8, $v0
+# Creating the dispatch table
+# Allocate dispatch table in the heap
+li $v0, 9
+li $a0, 24
+syscall
+# I save the offset of every one of the methods of this type
+# Save the direction of methods
+la $v1, methods
+# Save the direction of the method function_abort_Object in a0
+lw $a0, 4($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 4($v0)
+# Save the direction of the method function_type_name_Object in a0
+lw $a0, 8($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 8($v0)
+# Save the direction of the method function_copy_Object in a0
+lw $a0, 12($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 12($v0)
+# Save the direction of the method function_main_Main in a0
+lw $a0, 112($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 16($v0)
+# Save the direction of the method function_Main_Main in a0
+lw $a0, 108($v1)
+# Save the direction of the method in his position in the dispatch table
+sw $a0, 20($v0)
+sw $v0, 8($t8)
+# Copying parents
+lw $v0, 0($t9)
+li $t8, 0
+sw $t8, 4($v0)
+lw $v0, 4($t9)
+li $t8, 0
+sw $t8, 4($v0)
+lw $v0, 8($t9)
+li $t8, 0
+sw $t8, 4($v0)
+lw $v0, 12($t9)
+li $t8, 0
+sw $t8, 4($v0)
+lw $v0, 16($t9)
+lw $t8, 8($t9)
+sw $t8, 4($v0)
+lw $v0, 20($t9)
+lw $t8, 32($t9)
+sw $t8, 4($v0)
+lw $v0, 24($t9)
+lw $t8, 28($t9)
+sw $t8, 4($v0)
+lw $v0, 28($t9)
+lw $t8, 20($t9)
+sw $t8, 4($v0)
+lw $v0, 32($t9)
+lw $t8, 16($t9)
+sw $t8, 4($v0)
+lw $v0, 36($t9)
+lw $t8, 8($t9)
+sw $t8, 4($v0)
+
+entry:
+# Gets the params from the stack
+move $fp, $sp
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local__internal_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local__internal_1 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 28
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Main
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 28
+sw $t9, 4($v0)
+move $t0, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 36($t8)
+sw $v0, 8($t0)
+# Static Dispatch of the method Main
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+# This function will consume the arguments
+jal function_Main_Main
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -4($fp)
+# Static Dispatch of the method main
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+lw $t1, -0($fp)
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $t1, -0($fp)
+# This function will consume the arguments
+jal function_main_Main
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -4($fp)
+# saves the return value
+move $t0, $v0
+li $v0, 0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_abort_Object:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_abort_Object_self_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -4($fp)
+# Moving self to local_abort_Object_self_0
+move $t1, $t0
+sw $t1, -4($fp)
+# Exiting the program
+li $t8, 0
+# Printing abort message
+li $v0, 4
+la $a0, abort_msg
+syscall
+li $v0, 4
+lw $a0, 0($t0)
+syscall
+li $v0, 4
+la $a0, new_line
+syscall
+li $v0, 17
+move $a0, $t8
+syscall
+sw $t0, -0($fp)
+sw $t1, -4($fp)
+
+function_type_name_Object:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_type_name_Object_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -4($fp)
+# local_type_name_Object_result_0 <- Type of self
+lw $t1, 0($t0)
+move $v0, $t1
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_copy_Object:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_copy_Object_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -4($fp)
+lw $t9, 4($t0)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+move $a0, $t9
+syscall
+move $t1, $v0
+# Loop to copy every field of the previous object
+# t8 the register to loop
+li $t8, 0
+loop_0:
+# In t9 is stored the size of the object
+bge $t8, $t9, exit_0
+lw $a0, ($t0)
+sw $a0, ($v0)
+addi $v0, $v0, 4
+addi $t0, $t0, 4
+# Increase loop counter
+addi $t8, $t8, 4
+j loop_0
+exit_0:
+move $v0, $t1
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_out_string_IO:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Pops the register with the param value word
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_out_string_String_self_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+lw $t1, -8($fp)
+# Moving self to local_out_string_String_self_0
+move $t1, $t0
+sw $t1, -8($fp)
+lw $t2, -0($fp)
+# Printing a string
+li $v0, 4
+move $a0, $t2
+syscall
+move $v0, $t1
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $t1, -8($fp)
+sw $t2, -0($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 12
+jr $ra
+
+
+function_out_int_IO:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Pops the register with the param value number
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_out_int_IO_self_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+lw $t1, -8($fp)
+# Moving self to local_out_int_IO_self_0
+move $t1, $t0
+sw $t1, -8($fp)
+lw $t2, -0($fp)
+# Printing an int
+li $v0, 1
+move $a0, $t2
+syscall
+move $v0, $t1
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $t1, -8($fp)
+sw $t2, -0($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 12
+jr $ra
+
+
+function_in_int_IO:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_in_int_IO_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Reading a int
+li $v0, 5
+syscall
+move $t0, $v0
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_in_string_IO:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_in_string_IO_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Allocating memory for the buffer
+li $a0, 356
+li $v0, 9
+syscall
+move $t0, $v0
+# Reading a string
+# Putting buffer in a0
+move $a0, $t0
+# Putting length of string in a1
+li $a1, 356
+li $v0, 8
+syscall
+# Walks to eliminate the newline
+move $t9, $t0
+start_1:
+lb $t8, 0($t9)
+beqz $t8, end_1
+add $t9, $t9, 1
+j start_1
+end_1:
+addiu $t9, $t9, -1
+sb $0, ($t9)
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_length_String:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_length_String_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -4($fp)
+move $t8, $t0
+# Determining the length of a string
+loop_2:
+lb $t9, 0($t8)
+beq $t9, $zero, end_2
+addi $t8, $t8, 1
+j loop_2
+end_2:
+sub $t1, $t8, $t0
+move $v0, $t1
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_concat_String:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Pops the register with the param value word
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_concat_String_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+lw $t1, -0($fp)
+lw $t2, -8($fp)
+# Allocating memory for the buffer
+li $a0, 356
+li $v0, 9
+syscall
+move $t2, $v0
+# Copy the first string to dest
+move $a0, $t0
+move $a1, $t2
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+jal strcopier
+# Concatenate second string on result buffer
+move $a0, $t1
+move $a1, $v0
+jal strcopier
+sb $0, 0($v0)
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+j finish_3
+# Definition of strcopier
+strcopier:
+# In a0 is the source and in a1 is the destination
+loop_3:
+lb $t8, ($a0)
+beq $t8, $zero, end_3
+addiu $a0, $a0, 1
+sb $t8, ($a1)
+addiu $a1, $a1, 1
+b loop_3
+end_3:
+move $v0, $a1
+jr $ra
+finish_3:
+move $v0, $t2
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $t1, -0($fp)
+sw $t2, -8($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 12
+jr $ra
+
+
+function_substr_String:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Pops the register with the param value begin
+addiu $fp, $fp, 4
+# Pops the register with the param value end
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_substr_String_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+lw $t1, -0($fp)
+lw $t2, -12($fp)
+# Allocating memory for the buffer
+li $a0, 356
+li $v0, 9
+syscall
+move $t2, $v0
+lw $t3, -8($fp)
+# Getting the substring of a node
+# Move to the first position in the string
+li $v0, 0
+move $t8, $t3
+start_4:
+lb $t9, 0($t8)
+beqz $t9, error_4
+addi $v0, 1
+bgt $v0, $t0, end_len_4
+addi $t8, 1
+j start_4
+end_len_4:
+# Saving dest to iterate over him
+move $v0, $t2
+loop_4:
+sub $t9, $v0, $t2
+beq $t9, $t1, end_4
+lb $t9, 0($t8)
+beqz $t9, error_4
+sb $t9, 0($v0)
+addi $t8, $t8, 1
+addi $v0, $v0, 1
+j loop_4
+error_4:
+la $a0, index_error
+li $v0, 4
+move $a0, $t3
+syscall
+li $v0, 1
+move $a0, $t0
+syscall
+li $v0, 1
+move $a0, $t1
+syscall
+j .raise
+end_4:
+sb $0, 0($v0)
+move $v0, $t2
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $t1, -0($fp)
+sw $t2, -12($fp)
+sw $t3, -8($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 16
+jr $ra
+
+
+function_type_name_String:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_type_name_String_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Saves in local_type_name_String_result_0 type_String
+la $t0, type_String
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_copy_String:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_copy_String_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -4($fp)
+# Allocating memory for the buffer
+li $a0, 356
+li $v0, 9
+syscall
+move $t1, $v0
+# Copy the first string to dest
+move $a0, $t0
+move $a1, $t1
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+jal strcopier
+sb $0, 0($v0)
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+j finish_5
+finish_5:
+move $v0, $t1
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_type_name_Int:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_type_name_Int_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Saves in local_type_name_Int_result_0 type_Int
+la $t0, type_Int
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_copy_Int:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_copy_Int_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -4($fp)
+# Moving self to local_copy_Int_result_0
+move $t1, $t0
+sw $t1, -4($fp)
+move $v0, $t1
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_type_name_Bool:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_type_name_Bool_result_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Saves in local_type_name_Bool_result_0 type_Bool
+la $t0, type_Bool
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_copy_Bool:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_copy_result_Bool_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -4($fp)
+# Moving self to local_copy_result_Bool_0
+move $t1, $t0
+sw $t1, -4($fp)
+move $v0, $t1
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+
+function_abort_String:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_abort_String_msg_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# Saves in self string_abort
+la $t0, string_abort
+# Printing a string
+li $v0, 4
+move $a0, $t0
+syscall
+# Exiting the program
+li $t8, 0
+li $v0, 17
+move $a0, $t8
+syscall
+sw $t0, -0($fp)
+
+function_abort_Int:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_abort_Int_msg_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# Saves in self int_abort
+la $t0, int_abort
+# Printing a string
+li $v0, 4
+move $a0, $t0
+syscall
+# Exiting the program
+li $t8, 0
+li $v0, 17
+move $a0, $t8
+syscall
+sw $t0, -0($fp)
+
+function_abort_Bool:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_abort_Bool_msg_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# Saves in self bool_abort
+la $t0, bool_abort
+# Printing a string
+li $v0, 4
+move $a0, $t0
+syscall
+# Exiting the program
+li $t8, 0
+li $v0, 17
+move $a0, $t8
+syscall
+sw $t0, -0($fp)
+
+function_Foo_Foo:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_Foo_Foo_internal_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_1 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_2 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_3 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_n_4 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_5 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_n_6 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_7 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_8 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_n_9 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_10 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_11 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_n_12 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_13 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_14 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_15 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_16 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_17 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_18 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_19 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_n_20 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_21 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_n_22 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_23 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_24 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_n_25 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_26 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_27 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_28 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_29 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_a_30 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_31 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_32 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_33 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_g_34 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_35 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_36 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_37 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_38 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_39 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Foo_Foo_internal_40 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# self . h <- SET 1
+li $t9, 1
+sw $t9, 12($t0)
+lw $t1, -8($fp)
+# local_Foo_Foo_internal_1 <- Type of self
+lw $t1, 0($t0)
+lw $t2, -12($fp)
+# Saves in local_Foo_Foo_internal_2 data_0
+la $t2, data_0
+# local_Foo_Foo_internal_1 <- local_Foo_Foo_internal_1 = local_Foo_Foo_internal_2
+move $t8, $t1
+move $t9, $t2
+loop_6:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_6
+beqz $a1, mismatch_6
+seq $v0, $a0, $a1
+beqz $v0, mismatch_6
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_6
+mismatch_6:
+li $v0, 0
+j end_6
+check_6:
+bnez $a1, mismatch_6
+li $v0, 1
+end_6:
+move $t1, $v0
+# If local_Foo_Foo_internal_1 goto error__51
+sw $t0, -0($fp)
+sw $t1, -8($fp)
+sw $t2, -12($fp)
+bnez $t1, error__51
+lw $t0, -0($fp)
+lw $t1, -16($fp)
+la $t9, type_Bar
+lw $v0, 8($t0)
+loop_7:
+move $t8, $v0
+beqz $t8, false_7
+lw $v1, 0($t8)
+beq $t9, $v1, true_7
+lw $v0, 4($t8)
+j loop_7
+true_7:
+li $t1, 1
+j end_7
+false_7:
+li $t1, 0
+end_7:
+# If not local_Foo_Foo_internal_3 goto next__57_0
+sw $t0, -0($fp)
+sw $t1, -16($fp)
+beqz $t1, next__57_0
+lw $t0, -0($fp)
+lw $t1, -20($fp)
+# Moving self to local_Foo_Foo_n_4
+move $t1, $t0
+sw $t1, -20($fp)
+lw $t2, -4($fp)
+# Moving local_Foo_Foo_n_4 to local_Foo_Foo_internal_0
+move $t2, $t1
+sw $t2, -4($fp)
+sw $t0, -0($fp)
+sw $t1, -20($fp)
+sw $t2, -4($fp)
+j end__51
+next__57_0:
+lw $t0, -0($fp)
+lw $t1, -24($fp)
+la $t9, type_Razz
+lw $v0, 8($t0)
+loop_8:
+move $t8, $v0
+beqz $t8, false_8
+lw $v1, 0($t8)
+beq $t9, $v1, true_8
+lw $v0, 4($t8)
+j loop_8
+true_8:
+li $t1, 1
+j end_8
+false_8:
+li $t1, 0
+end_8:
+# If not local_Foo_Foo_internal_5 goto next__65_1
+sw $t0, -0($fp)
+sw $t1, -24($fp)
+beqz $t1, next__65_1
+lw $t0, -0($fp)
+lw $t1, -28($fp)
+# Moving self to local_Foo_Foo_n_6
+move $t1, $t0
+sw $t1, -28($fp)
+lw $t2, -32($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 48
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Bar
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 48
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 24($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Bar
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -28($fp)
+sw $t2, -32($fp)
+# This function will consume the arguments
+jal function_Bar_Bar
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -32($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -4($fp)
+# Moving local_Foo_Foo_internal_7 to local_Foo_Foo_internal_0
+move $t1, $t0
+sw $t1, -4($fp)
+sw $t0, -32($fp)
+sw $t1, -4($fp)
+j end__51
+next__65_1:
+lw $t0, -0($fp)
+lw $t1, -36($fp)
+la $t9, type_Foo
+lw $v0, 8($t0)
+loop_9:
+move $t8, $v0
+beqz $t8, false_9
+lw $v1, 0($t8)
+beq $t9, $v1, true_9
+lw $v0, 4($t8)
+j loop_9
+true_9:
+li $t1, 1
+j end_9
+false_9:
+li $t1, 0
+end_9:
+# If not local_Foo_Foo_internal_8 goto next__76_2
+sw $t0, -0($fp)
+sw $t1, -36($fp)
+beqz $t1, next__76_2
+lw $t0, -0($fp)
+lw $t1, -40($fp)
+# Moving self to local_Foo_Foo_n_9
+move $t1, $t0
+sw $t1, -40($fp)
+lw $t2, -44($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 40
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Razz
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 40
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 28($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Razz
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -40($fp)
+sw $t2, -44($fp)
+# This function will consume the arguments
+jal function_Razz_Razz
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -44($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -4($fp)
+# Moving local_Foo_Foo_internal_10 to local_Foo_Foo_internal_0
+move $t1, $t0
+sw $t1, -4($fp)
+sw $t0, -44($fp)
+sw $t1, -4($fp)
+j end__51
+next__76_2:
+lw $t0, -0($fp)
+lw $t1, -48($fp)
+la $t9, type_Bazz
+lw $v0, 8($t0)
+loop_10:
+move $t8, $v0
+beqz $t8, false_10
+lw $v1, 0($t8)
+beq $t9, $v1, true_10
+lw $v0, 4($t8)
+j loop_10
+true_10:
+li $t1, 1
+j end_10
+false_10:
+li $t1, 0
+end_10:
+# If not local_Foo_Foo_internal_11 goto next__87_3
+sw $t0, -0($fp)
+sw $t1, -48($fp)
+beqz $t1, next__87_3
+lw $t0, -0($fp)
+lw $t1, -52($fp)
+# Moving self to local_Foo_Foo_n_12
+move $t1, $t0
+sw $t1, -52($fp)
+lw $t2, -56($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 32
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Foo
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 32
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 20($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Foo
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -52($fp)
+sw $t2, -56($fp)
+# This function will consume the arguments
+jal function_Foo_Foo
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -56($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -4($fp)
+# Moving local_Foo_Foo_internal_13 to local_Foo_Foo_internal_0
+move $t1, $t0
+sw $t1, -4($fp)
+sw $t0, -56($fp)
+sw $t1, -4($fp)
+j end__51
+next__87_3:
+la $a0, case_error
+j .raise
+error__51:
+la $a0, case_void_error
+j .raise
+end__51:
+lw $t0, -4($fp)
+lw $t1, -0($fp)
+# self . g <- SET local_Foo_Foo_internal_0
+sw $t0, 16($t1)
+lw $t2, -60($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t1)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_printh_Bazz
+lw $t8, 32($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $t1, -0($fp)
+sw $t2, -60($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -60($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -64($fp)
+# Initialize new node
+li $a0, 12
+li $v0, 9
+syscall
+la $t9, type_Int
+sw $t9, 0($v0)
+li $t9, 12
+sw $t9, 4($v0)
+move $t1, $v0
+# Saving the methods of object
+# Adding Type Info addr
+la $t8, types
+lw $v0, 8($t8)
+sw $v0, 8($t1)
+lw $t2, -0($fp)
+# self . i <- SET local_Foo_Foo_internal_15
+sw $t1, 20($t2)
+lw $t3, -72($fp)
+# local_Foo_Foo_internal_17 <- Type of self
+lw $t3, 0($t2)
+lw $t4, -76($fp)
+# Saves in local_Foo_Foo_internal_18 data_0
+la $t4, data_0
+# local_Foo_Foo_internal_17 <- local_Foo_Foo_internal_17 = local_Foo_Foo_internal_18
+move $t8, $t3
+move $t9, $t4
+loop_11:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_11
+beqz $a1, mismatch_11
+seq $v0, $a0, $a1
+beqz $v0, mismatch_11
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_11
+mismatch_11:
+li $v0, 0
+j end_11
+check_11:
+bnez $a1, mismatch_11
+li $v0, 1
+end_11:
+move $t3, $v0
+# If local_Foo_Foo_internal_17 goto error__110
+sw $t0, -60($fp)
+sw $t1, -64($fp)
+sw $t2, -0($fp)
+sw $t3, -72($fp)
+sw $t4, -76($fp)
+bnez $t3, error__110
+lw $t0, -0($fp)
+lw $t1, -80($fp)
+la $t9, type_Bar
+lw $v0, 8($t0)
+loop_12:
+move $t8, $v0
+beqz $t8, false_12
+lw $v1, 0($t8)
+beq $t9, $v1, true_12
+lw $v0, 4($t8)
+j loop_12
+true_12:
+li $t1, 1
+j end_12
+false_12:
+li $t1, 0
+end_12:
+# If not local_Foo_Foo_internal_19 goto next__116_0
+sw $t0, -0($fp)
+sw $t1, -80($fp)
+beqz $t1, next__116_0
+lw $t0, -0($fp)
+lw $t1, -84($fp)
+# Moving self to local_Foo_Foo_n_20
+move $t1, $t0
+sw $t1, -84($fp)
+lw $t2, -68($fp)
+# Moving local_Foo_Foo_n_20 to local_Foo_Foo_internal_16
+move $t2, $t1
+sw $t2, -68($fp)
+sw $t0, -0($fp)
+sw $t1, -84($fp)
+sw $t2, -68($fp)
+j end__110
+next__116_0:
+lw $t0, -0($fp)
+lw $t1, -88($fp)
+la $t9, type_Razz
+lw $v0, 8($t0)
+loop_13:
+move $t8, $v0
+beqz $t8, false_13
+lw $v1, 0($t8)
+beq $t9, $v1, true_13
+lw $v0, 4($t8)
+j loop_13
+true_13:
+li $t1, 1
+j end_13
+false_13:
+li $t1, 0
+end_13:
+# If not local_Foo_Foo_internal_21 goto next__124_1
+sw $t0, -0($fp)
+sw $t1, -88($fp)
+beqz $t1, next__124_1
+lw $t0, -0($fp)
+lw $t1, -92($fp)
+# Moving self to local_Foo_Foo_n_22
+move $t1, $t0
+sw $t1, -92($fp)
+lw $t2, -96($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 48
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Bar
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 48
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 24($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Bar
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -92($fp)
+sw $t2, -96($fp)
+# This function will consume the arguments
+jal function_Bar_Bar
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -96($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -68($fp)
+# Moving local_Foo_Foo_internal_23 to local_Foo_Foo_internal_16
+move $t1, $t0
+sw $t1, -68($fp)
+sw $t0, -96($fp)
+sw $t1, -68($fp)
+j end__110
+next__124_1:
+lw $t0, -0($fp)
+lw $t1, -100($fp)
+la $t9, type_Foo
+lw $v0, 8($t0)
+loop_14:
+move $t8, $v0
+beqz $t8, false_14
+lw $v1, 0($t8)
+beq $t9, $v1, true_14
+lw $v0, 4($t8)
+j loop_14
+true_14:
+li $t1, 1
+j end_14
+false_14:
+li $t1, 0
+end_14:
+# If not local_Foo_Foo_internal_24 goto next__135_2
+sw $t0, -0($fp)
+sw $t1, -100($fp)
+beqz $t1, next__135_2
+lw $t0, -0($fp)
+lw $t1, -104($fp)
+# Moving self to local_Foo_Foo_n_25
+move $t1, $t0
+sw $t1, -104($fp)
+lw $t2, -108($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 40
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Razz
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 40
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 28($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Razz
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -104($fp)
+sw $t2, -108($fp)
+# This function will consume the arguments
+jal function_Razz_Razz
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -108($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -68($fp)
+# Moving local_Foo_Foo_internal_26 to local_Foo_Foo_internal_16
+move $t1, $t0
+sw $t1, -68($fp)
+sw $t0, -108($fp)
+sw $t1, -68($fp)
+j end__110
+next__135_2:
+la $a0, case_error
+j .raise
+error__110:
+la $a0, case_void_error
+j .raise
+end__110:
+lw $t0, -68($fp)
+lw $t1, -0($fp)
+# self . a <- SET local_Foo_Foo_internal_16
+sw $t0, 24($t1)
+lw $t2, -124($fp)
+# local_Foo_Foo_a_30 <- GET self . a
+lw $t2, 24($t1)
+lw $t3, -132($fp)
+# local_Foo_Foo_internal_32 <- Type of local_Foo_Foo_a_30
+lw $t3, 0($t2)
+lw $t4, -136($fp)
+# Saves in local_Foo_Foo_internal_33 data_0
+la $t4, data_0
+# local_Foo_Foo_internal_32 <- local_Foo_Foo_internal_32 = local_Foo_Foo_internal_33
+move $t8, $t3
+move $t9, $t4
+loop_15:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_15
+beqz $a1, mismatch_15
+seq $v0, $a0, $a1
+beqz $v0, mismatch_15
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_15
+mismatch_15:
+li $v0, 0
+j end_15
+check_15:
+bnez $a1, mismatch_15
+li $v0, 1
+end_15:
+move $t3, $v0
+# If not local_Foo_Foo_internal_32 goto continue__158
+sw $t0, -68($fp)
+sw $t1, -0($fp)
+sw $t2, -124($fp)
+sw $t3, -132($fp)
+sw $t4, -136($fp)
+beqz $t3, continue__158
+la $a0, dispatch_error
+j .raise
+continue__158:
+lw $t0, -124($fp)
+lw $t1, -128($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -124($fp)
+sw $t1, -128($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -128($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -0($fp)
+lw $t2, -140($fp)
+# local_Foo_Foo_g_34 <- GET self . g
+lw $t2, 16($t1)
+lw $t3, -148($fp)
+# local_Foo_Foo_internal_36 <- Type of local_Foo_Foo_g_34
+lw $t3, 0($t2)
+lw $t4, -152($fp)
+# Saves in local_Foo_Foo_internal_37 data_0
+la $t4, data_0
+# local_Foo_Foo_internal_36 <- local_Foo_Foo_internal_36 = local_Foo_Foo_internal_37
+move $t8, $t3
+move $t9, $t4
+loop_16:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_16
+beqz $a1, mismatch_16
+seq $v0, $a0, $a1
+beqz $v0, mismatch_16
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_16
+mismatch_16:
+li $v0, 0
+j end_16
+check_16:
+bnez $a1, mismatch_16
+li $v0, 1
+end_16:
+move $t3, $v0
+# If not local_Foo_Foo_internal_36 goto continue__172
+sw $t0, -128($fp)
+sw $t1, -0($fp)
+sw $t2, -140($fp)
+sw $t3, -148($fp)
+sw $t4, -152($fp)
+beqz $t3, continue__172
+la $a0, dispatch_error
+j .raise
+continue__172:
+lw $t0, -140($fp)
+lw $t1, -144($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -140($fp)
+sw $t1, -144($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -144($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -128($fp)
+lw $t2, -120($fp)
+# local_Foo_Foo_internal_29 <- local_Foo_Foo_internal_31 + local_Foo_Foo_internal_35
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -156($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t3)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t3, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -144($fp)
+sw $t1, -128($fp)
+sw $t2, -120($fp)
+sw $t3, -0($fp)
+sw $t4, -156($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -156($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -120($fp)
+lw $t2, -116($fp)
+# local_Foo_Foo_internal_28 <- local_Foo_Foo_internal_29 + local_Foo_Foo_internal_38
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -160($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t3)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_printh_Bazz
+lw $t8, 32($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t3, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -156($fp)
+sw $t1, -120($fp)
+sw $t2, -116($fp)
+sw $t3, -0($fp)
+sw $t4, -160($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -160($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -116($fp)
+lw $t2, -112($fp)
+# local_Foo_Foo_internal_27 <- local_Foo_Foo_internal_28 + local_Foo_Foo_internal_39
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+# self . b <- SET local_Foo_Foo_internal_27
+sw $t2, 28($t3)
+lw $t4, -164($fp)
+# Moving self to local_Foo_Foo_internal_40
+move $t4, $t3
+sw $t4, -164($fp)
+move $v0, $t4
+# Empty all used registers and saves them to memory
+sw $t0, -160($fp)
+sw $t1, -116($fp)
+sw $t2, -112($fp)
+sw $t3, -0($fp)
+sw $t4, -164($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 168
+jr $ra
+
+
+function_doh_Foo:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_doh_Foo_i_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_doh_Foo_h_1 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_doh_Foo_internal_2 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_doh_Foo_h_3 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_doh_Foo_internal_4 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -8($fp)
+# local_doh_Foo_h_1 <- GET self . h
+lw $t1, 12($t0)
+lw $t2, -4($fp)
+# Moving local_doh_Foo_h_1 to local_doh_Foo_i_0
+move $t2, $t1
+sw $t2, -4($fp)
+lw $t3, -16($fp)
+# local_doh_Foo_h_3 <- GET self . h
+lw $t3, 12($t0)
+lw $t4, -12($fp)
+# local_doh_Foo_internal_2 <- local_doh_Foo_h_3 + 2
+addi $t4, $t3, 2
+# self . h <- SET local_doh_Foo_internal_2
+sw $t4, 12($t0)
+lw $t5, -20($fp)
+# Moving local_doh_Foo_i_0 to local_doh_Foo_internal_4
+move $t5, $t2
+sw $t5, -20($fp)
+move $v0, $t5
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -8($fp)
+sw $t2, -4($fp)
+sw $t3, -16($fp)
+sw $t4, -12($fp)
+sw $t5, -20($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 24
+jr $ra
+
+
+function_Bar_Bar:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_Bar_Bar_internal_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_1 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_2 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_3 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_n_4 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_5 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_n_6 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_7 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_8 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_n_9 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_10 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_11 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_n_12 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_13 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_14 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_15 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_16 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_17 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_18 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_19 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_n_20 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_21 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_n_22 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_23 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_24 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_n_25 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_26 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_27 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_28 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_29 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_a_30 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_31 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_32 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_33 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_g_34 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_35 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_36 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_37 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_38 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_39 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_40 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_41 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_42 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_43 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_n_44 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_45 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_n_46 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_47 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_48 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_49 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_50 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_51 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_a_52 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_53 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_54 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_55 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_g_56 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_57 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_58 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_59 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_e_60 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_61 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_62 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_63 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_64 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_65 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_66 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_67 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_68 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bar_Bar_internal_69 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# self . h <- SET 1
+li $t9, 1
+sw $t9, 12($t0)
+lw $t1, -8($fp)
+# local_Bar_Bar_internal_1 <- Type of self
+lw $t1, 0($t0)
+lw $t2, -12($fp)
+# Saves in local_Bar_Bar_internal_2 data_0
+la $t2, data_0
+# local_Bar_Bar_internal_1 <- local_Bar_Bar_internal_1 = local_Bar_Bar_internal_2
+move $t8, $t1
+move $t9, $t2
+loop_17:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_17
+beqz $a1, mismatch_17
+seq $v0, $a0, $a1
+beqz $v0, mismatch_17
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_17
+mismatch_17:
+li $v0, 0
+j end_17
+check_17:
+bnez $a1, mismatch_17
+li $v0, 1
+end_17:
+move $t1, $v0
+# If local_Bar_Bar_internal_1 goto error__213
+sw $t0, -0($fp)
+sw $t1, -8($fp)
+sw $t2, -12($fp)
+bnez $t1, error__213
+lw $t0, -0($fp)
+lw $t1, -16($fp)
+la $t9, type_Bar
+lw $v0, 8($t0)
+loop_18:
+move $t8, $v0
+beqz $t8, false_18
+lw $v1, 0($t8)
+beq $t9, $v1, true_18
+lw $v0, 4($t8)
+j loop_18
+true_18:
+li $t1, 1
+j end_18
+false_18:
+li $t1, 0
+end_18:
+# If not local_Bar_Bar_internal_3 goto next__219_0
+sw $t0, -0($fp)
+sw $t1, -16($fp)
+beqz $t1, next__219_0
+lw $t0, -0($fp)
+lw $t1, -20($fp)
+# Moving self to local_Bar_Bar_n_4
+move $t1, $t0
+sw $t1, -20($fp)
+lw $t2, -4($fp)
+# Moving local_Bar_Bar_n_4 to local_Bar_Bar_internal_0
+move $t2, $t1
+sw $t2, -4($fp)
+sw $t0, -0($fp)
+sw $t1, -20($fp)
+sw $t2, -4($fp)
+j end__213
+next__219_0:
+lw $t0, -0($fp)
+lw $t1, -24($fp)
+la $t9, type_Razz
+lw $v0, 8($t0)
+loop_19:
+move $t8, $v0
+beqz $t8, false_19
+lw $v1, 0($t8)
+beq $t9, $v1, true_19
+lw $v0, 4($t8)
+j loop_19
+true_19:
+li $t1, 1
+j end_19
+false_19:
+li $t1, 0
+end_19:
+# If not local_Bar_Bar_internal_5 goto next__227_1
+sw $t0, -0($fp)
+sw $t1, -24($fp)
+beqz $t1, next__227_1
+lw $t0, -0($fp)
+lw $t1, -28($fp)
+# Moving self to local_Bar_Bar_n_6
+move $t1, $t0
+sw $t1, -28($fp)
+lw $t2, -32($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 48
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Bar
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 48
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 24($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Bar
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -28($fp)
+sw $t2, -32($fp)
+# This function will consume the arguments
+jal function_Bar_Bar
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -32($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -4($fp)
+# Moving local_Bar_Bar_internal_7 to local_Bar_Bar_internal_0
+move $t1, $t0
+sw $t1, -4($fp)
+sw $t0, -32($fp)
+sw $t1, -4($fp)
+j end__213
+next__227_1:
+lw $t0, -0($fp)
+lw $t1, -36($fp)
+la $t9, type_Foo
+lw $v0, 8($t0)
+loop_20:
+move $t8, $v0
+beqz $t8, false_20
+lw $v1, 0($t8)
+beq $t9, $v1, true_20
+lw $v0, 4($t8)
+j loop_20
+true_20:
+li $t1, 1
+j end_20
+false_20:
+li $t1, 0
+end_20:
+# If not local_Bar_Bar_internal_8 goto next__238_2
+sw $t0, -0($fp)
+sw $t1, -36($fp)
+beqz $t1, next__238_2
+lw $t0, -0($fp)
+lw $t1, -40($fp)
+# Moving self to local_Bar_Bar_n_9
+move $t1, $t0
+sw $t1, -40($fp)
+lw $t2, -44($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 40
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Razz
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 40
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 28($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Razz
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -40($fp)
+sw $t2, -44($fp)
+# This function will consume the arguments
+jal function_Razz_Razz
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -44($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -4($fp)
+# Moving local_Bar_Bar_internal_10 to local_Bar_Bar_internal_0
+move $t1, $t0
+sw $t1, -4($fp)
+sw $t0, -44($fp)
+sw $t1, -4($fp)
+j end__213
+next__238_2:
+lw $t0, -0($fp)
+lw $t1, -48($fp)
+la $t9, type_Bazz
+lw $v0, 8($t0)
+loop_21:
+move $t8, $v0
+beqz $t8, false_21
+lw $v1, 0($t8)
+beq $t9, $v1, true_21
+lw $v0, 4($t8)
+j loop_21
+true_21:
+li $t1, 1
+j end_21
+false_21:
+li $t1, 0
+end_21:
+# If not local_Bar_Bar_internal_11 goto next__249_3
+sw $t0, -0($fp)
+sw $t1, -48($fp)
+beqz $t1, next__249_3
+lw $t0, -0($fp)
+lw $t1, -52($fp)
+# Moving self to local_Bar_Bar_n_12
+move $t1, $t0
+sw $t1, -52($fp)
+lw $t2, -56($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 32
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Foo
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 32
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 20($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Foo
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -52($fp)
+sw $t2, -56($fp)
+# This function will consume the arguments
+jal function_Foo_Foo
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -56($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -4($fp)
+# Moving local_Bar_Bar_internal_13 to local_Bar_Bar_internal_0
+move $t1, $t0
+sw $t1, -4($fp)
+sw $t0, -56($fp)
+sw $t1, -4($fp)
+j end__213
+next__249_3:
+la $a0, case_error
+j .raise
+error__213:
+la $a0, case_void_error
+j .raise
+end__213:
+lw $t0, -4($fp)
+lw $t1, -0($fp)
+# self . g <- SET local_Bar_Bar_internal_0
+sw $t0, 16($t1)
+lw $t2, -60($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t1)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_printh_Bazz
+lw $t8, 32($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $t1, -0($fp)
+sw $t2, -60($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -60($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -64($fp)
+# Initialize new node
+li $a0, 12
+li $v0, 9
+syscall
+la $t9, type_Int
+sw $t9, 0($v0)
+li $t9, 12
+sw $t9, 4($v0)
+move $t1, $v0
+# Saving the methods of object
+# Adding Type Info addr
+la $t8, types
+lw $v0, 8($t8)
+sw $v0, 8($t1)
+lw $t2, -0($fp)
+# self . i <- SET local_Bar_Bar_internal_15
+sw $t1, 20($t2)
+lw $t3, -72($fp)
+# local_Bar_Bar_internal_17 <- Type of self
+lw $t3, 0($t2)
+lw $t4, -76($fp)
+# Saves in local_Bar_Bar_internal_18 data_0
+la $t4, data_0
+# local_Bar_Bar_internal_17 <- local_Bar_Bar_internal_17 = local_Bar_Bar_internal_18
+move $t8, $t3
+move $t9, $t4
+loop_22:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_22
+beqz $a1, mismatch_22
+seq $v0, $a0, $a1
+beqz $v0, mismatch_22
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_22
+mismatch_22:
+li $v0, 0
+j end_22
+check_22:
+bnez $a1, mismatch_22
+li $v0, 1
+end_22:
+move $t3, $v0
+# If local_Bar_Bar_internal_17 goto error__272
+sw $t0, -60($fp)
+sw $t1, -64($fp)
+sw $t2, -0($fp)
+sw $t3, -72($fp)
+sw $t4, -76($fp)
+bnez $t3, error__272
+lw $t0, -0($fp)
+lw $t1, -80($fp)
+la $t9, type_Bar
+lw $v0, 8($t0)
+loop_23:
+move $t8, $v0
+beqz $t8, false_23
+lw $v1, 0($t8)
+beq $t9, $v1, true_23
+lw $v0, 4($t8)
+j loop_23
+true_23:
+li $t1, 1
+j end_23
+false_23:
+li $t1, 0
+end_23:
+# If not local_Bar_Bar_internal_19 goto next__278_0
+sw $t0, -0($fp)
+sw $t1, -80($fp)
+beqz $t1, next__278_0
+lw $t0, -0($fp)
+lw $t1, -84($fp)
+# Moving self to local_Bar_Bar_n_20
+move $t1, $t0
+sw $t1, -84($fp)
+lw $t2, -68($fp)
+# Moving local_Bar_Bar_n_20 to local_Bar_Bar_internal_16
+move $t2, $t1
+sw $t2, -68($fp)
+sw $t0, -0($fp)
+sw $t1, -84($fp)
+sw $t2, -68($fp)
+j end__272
+next__278_0:
+lw $t0, -0($fp)
+lw $t1, -88($fp)
+la $t9, type_Razz
+lw $v0, 8($t0)
+loop_24:
+move $t8, $v0
+beqz $t8, false_24
+lw $v1, 0($t8)
+beq $t9, $v1, true_24
+lw $v0, 4($t8)
+j loop_24
+true_24:
+li $t1, 1
+j end_24
+false_24:
+li $t1, 0
+end_24:
+# If not local_Bar_Bar_internal_21 goto next__286_1
+sw $t0, -0($fp)
+sw $t1, -88($fp)
+beqz $t1, next__286_1
+lw $t0, -0($fp)
+lw $t1, -92($fp)
+# Moving self to local_Bar_Bar_n_22
+move $t1, $t0
+sw $t1, -92($fp)
+lw $t2, -96($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 48
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Bar
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 48
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 24($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Bar
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -92($fp)
+sw $t2, -96($fp)
+# This function will consume the arguments
+jal function_Bar_Bar
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -96($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -68($fp)
+# Moving local_Bar_Bar_internal_23 to local_Bar_Bar_internal_16
+move $t1, $t0
+sw $t1, -68($fp)
+sw $t0, -96($fp)
+sw $t1, -68($fp)
+j end__272
+next__286_1:
+lw $t0, -0($fp)
+lw $t1, -100($fp)
+la $t9, type_Foo
+lw $v0, 8($t0)
+loop_25:
+move $t8, $v0
+beqz $t8, false_25
+lw $v1, 0($t8)
+beq $t9, $v1, true_25
+lw $v0, 4($t8)
+j loop_25
+true_25:
+li $t1, 1
+j end_25
+false_25:
+li $t1, 0
+end_25:
+# If not local_Bar_Bar_internal_24 goto next__297_2
+sw $t0, -0($fp)
+sw $t1, -100($fp)
+beqz $t1, next__297_2
+lw $t0, -0($fp)
+lw $t1, -104($fp)
+# Moving self to local_Bar_Bar_n_25
+move $t1, $t0
+sw $t1, -104($fp)
+lw $t2, -108($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 40
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Razz
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 40
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 28($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Razz
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -104($fp)
+sw $t2, -108($fp)
+# This function will consume the arguments
+jal function_Razz_Razz
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -108($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -68($fp)
+# Moving local_Bar_Bar_internal_26 to local_Bar_Bar_internal_16
+move $t1, $t0
+sw $t1, -68($fp)
+sw $t0, -108($fp)
+sw $t1, -68($fp)
+j end__272
+next__297_2:
+la $a0, case_error
+j .raise
+error__272:
+la $a0, case_void_error
+j .raise
+end__272:
+lw $t0, -68($fp)
+lw $t1, -0($fp)
+# self . a <- SET local_Bar_Bar_internal_16
+sw $t0, 24($t1)
+lw $t2, -124($fp)
+# local_Bar_Bar_a_30 <- GET self . a
+lw $t2, 24($t1)
+lw $t3, -132($fp)
+# local_Bar_Bar_internal_32 <- Type of local_Bar_Bar_a_30
+lw $t3, 0($t2)
+lw $t4, -136($fp)
+# Saves in local_Bar_Bar_internal_33 data_0
+la $t4, data_0
+# local_Bar_Bar_internal_32 <- local_Bar_Bar_internal_32 = local_Bar_Bar_internal_33
+move $t8, $t3
+move $t9, $t4
+loop_26:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_26
+beqz $a1, mismatch_26
+seq $v0, $a0, $a1
+beqz $v0, mismatch_26
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_26
+mismatch_26:
+li $v0, 0
+j end_26
+check_26:
+bnez $a1, mismatch_26
+li $v0, 1
+end_26:
+move $t3, $v0
+# If not local_Bar_Bar_internal_32 goto continue__320
+sw $t0, -68($fp)
+sw $t1, -0($fp)
+sw $t2, -124($fp)
+sw $t3, -132($fp)
+sw $t4, -136($fp)
+beqz $t3, continue__320
+la $a0, dispatch_error
+j .raise
+continue__320:
+lw $t0, -124($fp)
+lw $t1, -128($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -124($fp)
+sw $t1, -128($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -128($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -0($fp)
+lw $t2, -140($fp)
+# local_Bar_Bar_g_34 <- GET self . g
+lw $t2, 16($t1)
+lw $t3, -148($fp)
+# local_Bar_Bar_internal_36 <- Type of local_Bar_Bar_g_34
+lw $t3, 0($t2)
+lw $t4, -152($fp)
+# Saves in local_Bar_Bar_internal_37 data_0
+la $t4, data_0
+# local_Bar_Bar_internal_36 <- local_Bar_Bar_internal_36 = local_Bar_Bar_internal_37
+move $t8, $t3
+move $t9, $t4
+loop_27:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_27
+beqz $a1, mismatch_27
+seq $v0, $a0, $a1
+beqz $v0, mismatch_27
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_27
+mismatch_27:
+li $v0, 0
+j end_27
+check_27:
+bnez $a1, mismatch_27
+li $v0, 1
+end_27:
+move $t3, $v0
+# If not local_Bar_Bar_internal_36 goto continue__334
+sw $t0, -128($fp)
+sw $t1, -0($fp)
+sw $t2, -140($fp)
+sw $t3, -148($fp)
+sw $t4, -152($fp)
+beqz $t3, continue__334
+la $a0, dispatch_error
+j .raise
+continue__334:
+lw $t0, -140($fp)
+lw $t1, -144($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -140($fp)
+sw $t1, -144($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -144($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -128($fp)
+lw $t2, -120($fp)
+# local_Bar_Bar_internal_29 <- local_Bar_Bar_internal_31 + local_Bar_Bar_internal_35
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -156($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t3)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t3, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -144($fp)
+sw $t1, -128($fp)
+sw $t2, -120($fp)
+sw $t3, -0($fp)
+sw $t4, -156($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -156($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -120($fp)
+lw $t2, -116($fp)
+# local_Bar_Bar_internal_28 <- local_Bar_Bar_internal_29 + local_Bar_Bar_internal_38
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -160($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t3)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_printh_Bazz
+lw $t8, 32($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t3, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -156($fp)
+sw $t1, -120($fp)
+sw $t2, -116($fp)
+sw $t3, -0($fp)
+sw $t4, -160($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -160($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -116($fp)
+lw $t2, -112($fp)
+# local_Bar_Bar_internal_27 <- local_Bar_Bar_internal_28 + local_Bar_Bar_internal_39
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+# self . b <- SET local_Bar_Bar_internal_27
+sw $t2, 28($t3)
+lw $t4, -168($fp)
+# local_Bar_Bar_internal_41 <- Type of self
+lw $t4, 0($t3)
+lw $t5, -172($fp)
+# Saves in local_Bar_Bar_internal_42 data_0
+la $t5, data_0
+# local_Bar_Bar_internal_41 <- local_Bar_Bar_internal_41 = local_Bar_Bar_internal_42
+move $t8, $t4
+move $t9, $t5
+loop_28:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_28
+beqz $a1, mismatch_28
+seq $v0, $a0, $a1
+beqz $v0, mismatch_28
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_28
+mismatch_28:
+li $v0, 0
+j end_28
+check_28:
+bnez $a1, mismatch_28
+li $v0, 1
+end_28:
+move $t4, $v0
+# If local_Bar_Bar_internal_41 goto error__355
+sw $t0, -160($fp)
+sw $t1, -116($fp)
+sw $t2, -112($fp)
+sw $t3, -0($fp)
+sw $t4, -168($fp)
+sw $t5, -172($fp)
+bnez $t4, error__355
+lw $t0, -0($fp)
+lw $t1, -176($fp)
+la $t9, type_Bar
+lw $v0, 8($t0)
+loop_29:
+move $t8, $v0
+beqz $t8, false_29
+lw $v1, 0($t8)
+beq $t9, $v1, true_29
+lw $v0, 4($t8)
+j loop_29
+true_29:
+li $t1, 1
+j end_29
+false_29:
+li $t1, 0
+end_29:
+# If not local_Bar_Bar_internal_43 goto next__361_0
+sw $t0, -0($fp)
+sw $t1, -176($fp)
+beqz $t1, next__361_0
+lw $t0, -0($fp)
+lw $t1, -180($fp)
+# Moving self to local_Bar_Bar_n_44
+move $t1, $t0
+sw $t1, -180($fp)
+lw $t2, -164($fp)
+# Moving local_Bar_Bar_n_44 to local_Bar_Bar_internal_40
+move $t2, $t1
+sw $t2, -164($fp)
+sw $t0, -0($fp)
+sw $t1, -180($fp)
+sw $t2, -164($fp)
+j end__355
+next__361_0:
+lw $t0, -0($fp)
+lw $t1, -184($fp)
+la $t9, type_Razz
+lw $v0, 8($t0)
+loop_30:
+move $t8, $v0
+beqz $t8, false_30
+lw $v1, 0($t8)
+beq $t9, $v1, true_30
+lw $v0, 4($t8)
+j loop_30
+true_30:
+li $t1, 1
+j end_30
+false_30:
+li $t1, 0
+end_30:
+# If not local_Bar_Bar_internal_45 goto next__369_1
+sw $t0, -0($fp)
+sw $t1, -184($fp)
+beqz $t1, next__369_1
+lw $t0, -0($fp)
+lw $t1, -188($fp)
+# Moving self to local_Bar_Bar_n_46
+move $t1, $t0
+sw $t1, -188($fp)
+lw $t2, -192($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 48
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Bar
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 48
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 24($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Bar
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -188($fp)
+sw $t2, -192($fp)
+# This function will consume the arguments
+jal function_Bar_Bar
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -192($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -164($fp)
+# Moving local_Bar_Bar_internal_47 to local_Bar_Bar_internal_40
+move $t1, $t0
+sw $t1, -164($fp)
+sw $t0, -192($fp)
+sw $t1, -164($fp)
+j end__355
+next__369_1:
+la $a0, case_error
+j .raise
+error__355:
+la $a0, case_void_error
+j .raise
+end__355:
+lw $t0, -164($fp)
+lw $t1, -0($fp)
+# self . e <- SET local_Bar_Bar_internal_40
+sw $t0, 32($t1)
+lw $t2, -212($fp)
+# local_Bar_Bar_a_52 <- GET self . a
+lw $t2, 24($t1)
+lw $t3, -220($fp)
+# local_Bar_Bar_internal_54 <- Type of local_Bar_Bar_a_52
+lw $t3, 0($t2)
+lw $t4, -224($fp)
+# Saves in local_Bar_Bar_internal_55 data_0
+la $t4, data_0
+# local_Bar_Bar_internal_54 <- local_Bar_Bar_internal_54 = local_Bar_Bar_internal_55
+move $t8, $t3
+move $t9, $t4
+loop_31:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_31
+beqz $a1, mismatch_31
+seq $v0, $a0, $a1
+beqz $v0, mismatch_31
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_31
+mismatch_31:
+li $v0, 0
+j end_31
+check_31:
+bnez $a1, mismatch_31
+li $v0, 1
+end_31:
+move $t3, $v0
+# If not local_Bar_Bar_internal_54 goto continue__393
+sw $t0, -164($fp)
+sw $t1, -0($fp)
+sw $t2, -212($fp)
+sw $t3, -220($fp)
+sw $t4, -224($fp)
+beqz $t3, continue__393
+la $a0, dispatch_error
+j .raise
+continue__393:
+lw $t0, -216($fp)
+# Static Dispatch of the method doh
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+lw $t1, -212($fp)
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -216($fp)
+sw $t1, -212($fp)
+# This function will consume the arguments
+jal function_doh_Bazz
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -216($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -0($fp)
+lw $t2, -228($fp)
+# local_Bar_Bar_g_56 <- GET self . g
+lw $t2, 16($t1)
+lw $t3, -236($fp)
+# local_Bar_Bar_internal_58 <- Type of local_Bar_Bar_g_56
+lw $t3, 0($t2)
+lw $t4, -240($fp)
+# Saves in local_Bar_Bar_internal_59 data_0
+la $t4, data_0
+# local_Bar_Bar_internal_58 <- local_Bar_Bar_internal_58 = local_Bar_Bar_internal_59
+move $t8, $t3
+move $t9, $t4
+loop_32:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_32
+beqz $a1, mismatch_32
+seq $v0, $a0, $a1
+beqz $v0, mismatch_32
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_32
+mismatch_32:
+li $v0, 0
+j end_32
+check_32:
+bnez $a1, mismatch_32
+li $v0, 1
+end_32:
+move $t3, $v0
+# If not local_Bar_Bar_internal_58 goto continue__407
+sw $t0, -216($fp)
+sw $t1, -0($fp)
+sw $t2, -228($fp)
+sw $t3, -236($fp)
+sw $t4, -240($fp)
+beqz $t3, continue__407
+la $a0, dispatch_error
+j .raise
+continue__407:
+lw $t0, -228($fp)
+lw $t1, -232($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -228($fp)
+sw $t1, -232($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -232($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -216($fp)
+lw $t2, -208($fp)
+# local_Bar_Bar_internal_51 <- local_Bar_Bar_internal_53 + local_Bar_Bar_internal_57
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -244($fp)
+# local_Bar_Bar_e_60 <- GET self . e
+lw $t4, 32($t3)
+lw $t5, -252($fp)
+# local_Bar_Bar_internal_62 <- Type of local_Bar_Bar_e_60
+lw $t5, 0($t4)
+lw $t6, -256($fp)
+# Saves in local_Bar_Bar_internal_63 data_0
+la $t6, data_0
+# local_Bar_Bar_internal_62 <- local_Bar_Bar_internal_62 = local_Bar_Bar_internal_63
+move $t8, $t5
+move $t9, $t6
+loop_33:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_33
+beqz $a1, mismatch_33
+seq $v0, $a0, $a1
+beqz $v0, mismatch_33
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_33
+mismatch_33:
+li $v0, 0
+j end_33
+check_33:
+bnez $a1, mismatch_33
+li $v0, 1
+end_33:
+move $t5, $v0
+# If not local_Bar_Bar_internal_62 goto continue__422
+sw $t0, -232($fp)
+sw $t1, -216($fp)
+sw $t2, -208($fp)
+sw $t3, -0($fp)
+sw $t4, -244($fp)
+sw $t5, -252($fp)
+sw $t6, -256($fp)
+beqz $t5, continue__422
+la $a0, dispatch_error
+j .raise
+continue__422:
+lw $t0, -244($fp)
+lw $t1, -248($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -244($fp)
+sw $t1, -248($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -248($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -208($fp)
+lw $t2, -204($fp)
+# local_Bar_Bar_internal_50 <- local_Bar_Bar_internal_51 + local_Bar_Bar_internal_61
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -260($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t3)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t3, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -248($fp)
+sw $t1, -208($fp)
+sw $t2, -204($fp)
+sw $t3, -0($fp)
+sw $t4, -260($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -260($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -204($fp)
+lw $t2, -200($fp)
+# local_Bar_Bar_internal_49 <- local_Bar_Bar_internal_50 + local_Bar_Bar_internal_64
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -264($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t3)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_printh_Bazz
+lw $t8, 32($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t3, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -260($fp)
+sw $t1, -204($fp)
+sw $t2, -200($fp)
+sw $t3, -0($fp)
+sw $t4, -264($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -264($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -200($fp)
+lw $t2, -196($fp)
+# local_Bar_Bar_internal_48 <- local_Bar_Bar_internal_49 + local_Bar_Bar_internal_65
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+# self . f <- SET local_Bar_Bar_internal_48
+sw $t2, 36($t3)
+lw $t4, -268($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t3)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t3, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -264($fp)
+sw $t1, -200($fp)
+sw $t2, -196($fp)
+sw $t3, -0($fp)
+sw $t4, -268($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -268($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -0($fp)
+# self . c <- SET local_Bar_Bar_internal_66
+sw $t0, 40($t1)
+lw $t2, -272($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t1)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_printh_Bazz
+lw $t8, 32($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -268($fp)
+sw $t1, -0($fp)
+sw $t2, -272($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -272($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -276($fp)
+# Initialize new node
+li $a0, 12
+li $v0, 9
+syscall
+la $t9, type_Int
+sw $t9, 0($v0)
+li $t9, 12
+sw $t9, 4($v0)
+move $t1, $v0
+# Saving the methods of object
+# Adding Type Info addr
+la $t8, types
+lw $v0, 8($t8)
+sw $v0, 8($t1)
+lw $t2, -0($fp)
+# self . d <- SET local_Bar_Bar_internal_68
+sw $t1, 44($t2)
+lw $t3, -280($fp)
+# Moving self to local_Bar_Bar_internal_69
+move $t3, $t2
+sw $t3, -280($fp)
+move $v0, $t3
+# Empty all used registers and saves them to memory
+sw $t0, -272($fp)
+sw $t1, -276($fp)
+sw $t2, -0($fp)
+sw $t3, -280($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 284
+jr $ra
+
+
+function_Razz_Razz:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_Razz_Razz_internal_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_1 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_2 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_3 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_n_4 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_5 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_n_6 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_7 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_8 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_n_9 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_10 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_11 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_n_12 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_13 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_14 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_15 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_16 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_17 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_18 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_19 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_n_20 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_21 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_n_22 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_23 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_24 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_n_25 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_26 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_27 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_28 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_29 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_a_30 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_31 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_32 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_33 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_g_34 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_35 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_36 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_37 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_38 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_39 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_40 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_41 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_42 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_43 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_n_44 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_45 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_n_46 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_47 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_48 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_49 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_50 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_51 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_a_52 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_53 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_54 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_55 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_g_56 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_57 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_58 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_59 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_e_60 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_61 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_62 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_63 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_64 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_65 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Razz_Razz_internal_66 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# self . h <- SET 1
+li $t9, 1
+sw $t9, 12($t0)
+lw $t1, -8($fp)
+# local_Razz_Razz_internal_1 <- Type of self
+lw $t1, 0($t0)
+lw $t2, -12($fp)
+# Saves in local_Razz_Razz_internal_2 data_0
+la $t2, data_0
+# local_Razz_Razz_internal_1 <- local_Razz_Razz_internal_1 = local_Razz_Razz_internal_2
+move $t8, $t1
+move $t9, $t2
+loop_34:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_34
+beqz $a1, mismatch_34
+seq $v0, $a0, $a1
+beqz $v0, mismatch_34
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_34
+mismatch_34:
+li $v0, 0
+j end_34
+check_34:
+bnez $a1, mismatch_34
+li $v0, 1
+end_34:
+move $t1, $v0
+# If local_Razz_Razz_internal_1 goto error__459
+sw $t0, -0($fp)
+sw $t1, -8($fp)
+sw $t2, -12($fp)
+bnez $t1, error__459
+lw $t0, -0($fp)
+lw $t1, -16($fp)
+la $t9, type_Bar
+lw $v0, 8($t0)
+loop_35:
+move $t8, $v0
+beqz $t8, false_35
+lw $v1, 0($t8)
+beq $t9, $v1, true_35
+lw $v0, 4($t8)
+j loop_35
+true_35:
+li $t1, 1
+j end_35
+false_35:
+li $t1, 0
+end_35:
+# If not local_Razz_Razz_internal_3 goto next__465_0
+sw $t0, -0($fp)
+sw $t1, -16($fp)
+beqz $t1, next__465_0
+lw $t0, -0($fp)
+lw $t1, -20($fp)
+# Moving self to local_Razz_Razz_n_4
+move $t1, $t0
+sw $t1, -20($fp)
+lw $t2, -4($fp)
+# Moving local_Razz_Razz_n_4 to local_Razz_Razz_internal_0
+move $t2, $t1
+sw $t2, -4($fp)
+sw $t0, -0($fp)
+sw $t1, -20($fp)
+sw $t2, -4($fp)
+j end__459
+next__465_0:
+lw $t0, -0($fp)
+lw $t1, -24($fp)
+la $t9, type_Razz
+lw $v0, 8($t0)
+loop_36:
+move $t8, $v0
+beqz $t8, false_36
+lw $v1, 0($t8)
+beq $t9, $v1, true_36
+lw $v0, 4($t8)
+j loop_36
+true_36:
+li $t1, 1
+j end_36
+false_36:
+li $t1, 0
+end_36:
+# If not local_Razz_Razz_internal_5 goto next__473_1
+sw $t0, -0($fp)
+sw $t1, -24($fp)
+beqz $t1, next__473_1
+lw $t0, -0($fp)
+lw $t1, -28($fp)
+# Moving self to local_Razz_Razz_n_6
+move $t1, $t0
+sw $t1, -28($fp)
+lw $t2, -32($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 48
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Bar
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 48
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 24($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Bar
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -28($fp)
+sw $t2, -32($fp)
+# This function will consume the arguments
+jal function_Bar_Bar
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -32($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -4($fp)
+# Moving local_Razz_Razz_internal_7 to local_Razz_Razz_internal_0
+move $t1, $t0
+sw $t1, -4($fp)
+sw $t0, -32($fp)
+sw $t1, -4($fp)
+j end__459
+next__473_1:
+lw $t0, -0($fp)
+lw $t1, -36($fp)
+la $t9, type_Foo
+lw $v0, 8($t0)
+loop_37:
+move $t8, $v0
+beqz $t8, false_37
+lw $v1, 0($t8)
+beq $t9, $v1, true_37
+lw $v0, 4($t8)
+j loop_37
+true_37:
+li $t1, 1
+j end_37
+false_37:
+li $t1, 0
+end_37:
+# If not local_Razz_Razz_internal_8 goto next__484_2
+sw $t0, -0($fp)
+sw $t1, -36($fp)
+beqz $t1, next__484_2
+lw $t0, -0($fp)
+lw $t1, -40($fp)
+# Moving self to local_Razz_Razz_n_9
+move $t1, $t0
+sw $t1, -40($fp)
+lw $t2, -44($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 40
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Razz
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 40
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 28($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Razz
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -40($fp)
+sw $t2, -44($fp)
+# This function will consume the arguments
+jal function_Razz_Razz
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -44($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -4($fp)
+# Moving local_Razz_Razz_internal_10 to local_Razz_Razz_internal_0
+move $t1, $t0
+sw $t1, -4($fp)
+sw $t0, -44($fp)
+sw $t1, -4($fp)
+j end__459
+next__484_2:
+lw $t0, -0($fp)
+lw $t1, -48($fp)
+la $t9, type_Bazz
+lw $v0, 8($t0)
+loop_38:
+move $t8, $v0
+beqz $t8, false_38
+lw $v1, 0($t8)
+beq $t9, $v1, true_38
+lw $v0, 4($t8)
+j loop_38
+true_38:
+li $t1, 1
+j end_38
+false_38:
+li $t1, 0
+end_38:
+# If not local_Razz_Razz_internal_11 goto next__495_3
+sw $t0, -0($fp)
+sw $t1, -48($fp)
+beqz $t1, next__495_3
+lw $t0, -0($fp)
+lw $t1, -52($fp)
+# Moving self to local_Razz_Razz_n_12
+move $t1, $t0
+sw $t1, -52($fp)
+lw $t2, -56($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 32
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Foo
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 32
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 20($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Foo
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -52($fp)
+sw $t2, -56($fp)
+# This function will consume the arguments
+jal function_Foo_Foo
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -56($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -4($fp)
+# Moving local_Razz_Razz_internal_13 to local_Razz_Razz_internal_0
+move $t1, $t0
+sw $t1, -4($fp)
+sw $t0, -56($fp)
+sw $t1, -4($fp)
+j end__459
+next__495_3:
+la $a0, case_error
+j .raise
+error__459:
+la $a0, case_void_error
+j .raise
+end__459:
+lw $t0, -4($fp)
+lw $t1, -0($fp)
+# self . g <- SET local_Razz_Razz_internal_0
+sw $t0, 16($t1)
+lw $t2, -60($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t1)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_printh_Bazz
+lw $t8, 32($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $t1, -0($fp)
+sw $t2, -60($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -60($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -64($fp)
+# Initialize new node
+li $a0, 12
+li $v0, 9
+syscall
+la $t9, type_Int
+sw $t9, 0($v0)
+li $t9, 12
+sw $t9, 4($v0)
+move $t1, $v0
+# Saving the methods of object
+# Adding Type Info addr
+la $t8, types
+lw $v0, 8($t8)
+sw $v0, 8($t1)
+lw $t2, -0($fp)
+# self . i <- SET local_Razz_Razz_internal_15
+sw $t1, 20($t2)
+lw $t3, -72($fp)
+# local_Razz_Razz_internal_17 <- Type of self
+lw $t3, 0($t2)
+lw $t4, -76($fp)
+# Saves in local_Razz_Razz_internal_18 data_0
+la $t4, data_0
+# local_Razz_Razz_internal_17 <- local_Razz_Razz_internal_17 = local_Razz_Razz_internal_18
+move $t8, $t3
+move $t9, $t4
+loop_39:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_39
+beqz $a1, mismatch_39
+seq $v0, $a0, $a1
+beqz $v0, mismatch_39
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_39
+mismatch_39:
+li $v0, 0
+j end_39
+check_39:
+bnez $a1, mismatch_39
+li $v0, 1
+end_39:
+move $t3, $v0
+# If local_Razz_Razz_internal_17 goto error__518
+sw $t0, -60($fp)
+sw $t1, -64($fp)
+sw $t2, -0($fp)
+sw $t3, -72($fp)
+sw $t4, -76($fp)
+bnez $t3, error__518
+lw $t0, -0($fp)
+lw $t1, -80($fp)
+la $t9, type_Bar
+lw $v0, 8($t0)
+loop_40:
+move $t8, $v0
+beqz $t8, false_40
+lw $v1, 0($t8)
+beq $t9, $v1, true_40
+lw $v0, 4($t8)
+j loop_40
+true_40:
+li $t1, 1
+j end_40
+false_40:
+li $t1, 0
+end_40:
+# If not local_Razz_Razz_internal_19 goto next__524_0
+sw $t0, -0($fp)
+sw $t1, -80($fp)
+beqz $t1, next__524_0
+lw $t0, -0($fp)
+lw $t1, -84($fp)
+# Moving self to local_Razz_Razz_n_20
+move $t1, $t0
+sw $t1, -84($fp)
+lw $t2, -68($fp)
+# Moving local_Razz_Razz_n_20 to local_Razz_Razz_internal_16
+move $t2, $t1
+sw $t2, -68($fp)
+sw $t0, -0($fp)
+sw $t1, -84($fp)
+sw $t2, -68($fp)
+j end__518
+next__524_0:
+lw $t0, -0($fp)
+lw $t1, -88($fp)
+la $t9, type_Razz
+lw $v0, 8($t0)
+loop_41:
+move $t8, $v0
+beqz $t8, false_41
+lw $v1, 0($t8)
+beq $t9, $v1, true_41
+lw $v0, 4($t8)
+j loop_41
+true_41:
+li $t1, 1
+j end_41
+false_41:
+li $t1, 0
+end_41:
+# If not local_Razz_Razz_internal_21 goto next__532_1
+sw $t0, -0($fp)
+sw $t1, -88($fp)
+beqz $t1, next__532_1
+lw $t0, -0($fp)
+lw $t1, -92($fp)
+# Moving self to local_Razz_Razz_n_22
+move $t1, $t0
+sw $t1, -92($fp)
+lw $t2, -96($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 48
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Bar
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 48
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 24($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Bar
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -92($fp)
+sw $t2, -96($fp)
+# This function will consume the arguments
+jal function_Bar_Bar
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -96($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -68($fp)
+# Moving local_Razz_Razz_internal_23 to local_Razz_Razz_internal_16
+move $t1, $t0
+sw $t1, -68($fp)
+sw $t0, -96($fp)
+sw $t1, -68($fp)
+j end__518
+next__532_1:
+lw $t0, -0($fp)
+lw $t1, -100($fp)
+la $t9, type_Foo
+lw $v0, 8($t0)
+loop_42:
+move $t8, $v0
+beqz $t8, false_42
+lw $v1, 0($t8)
+beq $t9, $v1, true_42
+lw $v0, 4($t8)
+j loop_42
+true_42:
+li $t1, 1
+j end_42
+false_42:
+li $t1, 0
+end_42:
+# If not local_Razz_Razz_internal_24 goto next__543_2
+sw $t0, -0($fp)
+sw $t1, -100($fp)
+beqz $t1, next__543_2
+lw $t0, -0($fp)
+lw $t1, -104($fp)
+# Moving self to local_Razz_Razz_n_25
+move $t1, $t0
+sw $t1, -104($fp)
+lw $t2, -108($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 40
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Razz
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 40
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 28($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Razz
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -104($fp)
+sw $t2, -108($fp)
+# This function will consume the arguments
+jal function_Razz_Razz
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -108($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -68($fp)
+# Moving local_Razz_Razz_internal_26 to local_Razz_Razz_internal_16
+move $t1, $t0
+sw $t1, -68($fp)
+sw $t0, -108($fp)
+sw $t1, -68($fp)
+j end__518
+next__543_2:
+la $a0, case_error
+j .raise
+error__518:
+la $a0, case_void_error
+j .raise
+end__518:
+lw $t0, -68($fp)
+lw $t1, -0($fp)
+# self . a <- SET local_Razz_Razz_internal_16
+sw $t0, 24($t1)
+lw $t2, -124($fp)
+# local_Razz_Razz_a_30 <- GET self . a
+lw $t2, 24($t1)
+lw $t3, -132($fp)
+# local_Razz_Razz_internal_32 <- Type of local_Razz_Razz_a_30
+lw $t3, 0($t2)
+lw $t4, -136($fp)
+# Saves in local_Razz_Razz_internal_33 data_0
+la $t4, data_0
+# local_Razz_Razz_internal_32 <- local_Razz_Razz_internal_32 = local_Razz_Razz_internal_33
+move $t8, $t3
+move $t9, $t4
+loop_43:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_43
+beqz $a1, mismatch_43
+seq $v0, $a0, $a1
+beqz $v0, mismatch_43
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_43
+mismatch_43:
+li $v0, 0
+j end_43
+check_43:
+bnez $a1, mismatch_43
+li $v0, 1
+end_43:
+move $t3, $v0
+# If not local_Razz_Razz_internal_32 goto continue__566
+sw $t0, -68($fp)
+sw $t1, -0($fp)
+sw $t2, -124($fp)
+sw $t3, -132($fp)
+sw $t4, -136($fp)
+beqz $t3, continue__566
+la $a0, dispatch_error
+j .raise
+continue__566:
+lw $t0, -124($fp)
+lw $t1, -128($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -124($fp)
+sw $t1, -128($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -128($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -0($fp)
+lw $t2, -140($fp)
+# local_Razz_Razz_g_34 <- GET self . g
+lw $t2, 16($t1)
+lw $t3, -148($fp)
+# local_Razz_Razz_internal_36 <- Type of local_Razz_Razz_g_34
+lw $t3, 0($t2)
+lw $t4, -152($fp)
+# Saves in local_Razz_Razz_internal_37 data_0
+la $t4, data_0
+# local_Razz_Razz_internal_36 <- local_Razz_Razz_internal_36 = local_Razz_Razz_internal_37
+move $t8, $t3
+move $t9, $t4
+loop_44:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_44
+beqz $a1, mismatch_44
+seq $v0, $a0, $a1
+beqz $v0, mismatch_44
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_44
+mismatch_44:
+li $v0, 0
+j end_44
+check_44:
+bnez $a1, mismatch_44
+li $v0, 1
+end_44:
+move $t3, $v0
+# If not local_Razz_Razz_internal_36 goto continue__580
+sw $t0, -128($fp)
+sw $t1, -0($fp)
+sw $t2, -140($fp)
+sw $t3, -148($fp)
+sw $t4, -152($fp)
+beqz $t3, continue__580
+la $a0, dispatch_error
+j .raise
+continue__580:
+lw $t0, -140($fp)
+lw $t1, -144($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -140($fp)
+sw $t1, -144($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -144($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -128($fp)
+lw $t2, -120($fp)
+# local_Razz_Razz_internal_29 <- local_Razz_Razz_internal_31 + local_Razz_Razz_internal_35
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -156($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t3)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t3, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -144($fp)
+sw $t1, -128($fp)
+sw $t2, -120($fp)
+sw $t3, -0($fp)
+sw $t4, -156($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -156($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -120($fp)
+lw $t2, -116($fp)
+# local_Razz_Razz_internal_28 <- local_Razz_Razz_internal_29 + local_Razz_Razz_internal_38
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -160($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t3)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_printh_Bazz
+lw $t8, 32($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t3, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -156($fp)
+sw $t1, -120($fp)
+sw $t2, -116($fp)
+sw $t3, -0($fp)
+sw $t4, -160($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -160($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -116($fp)
+lw $t2, -112($fp)
+# local_Razz_Razz_internal_27 <- local_Razz_Razz_internal_28 + local_Razz_Razz_internal_39
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+# self . b <- SET local_Razz_Razz_internal_27
+sw $t2, 28($t3)
+lw $t4, -168($fp)
+# local_Razz_Razz_internal_41 <- Type of self
+lw $t4, 0($t3)
+lw $t5, -172($fp)
+# Saves in local_Razz_Razz_internal_42 data_0
+la $t5, data_0
+# local_Razz_Razz_internal_41 <- local_Razz_Razz_internal_41 = local_Razz_Razz_internal_42
+move $t8, $t4
+move $t9, $t5
+loop_45:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_45
+beqz $a1, mismatch_45
+seq $v0, $a0, $a1
+beqz $v0, mismatch_45
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_45
+mismatch_45:
+li $v0, 0
+j end_45
+check_45:
+bnez $a1, mismatch_45
+li $v0, 1
+end_45:
+move $t4, $v0
+# If local_Razz_Razz_internal_41 goto error__601
+sw $t0, -160($fp)
+sw $t1, -116($fp)
+sw $t2, -112($fp)
+sw $t3, -0($fp)
+sw $t4, -168($fp)
+sw $t5, -172($fp)
+bnez $t4, error__601
+lw $t0, -0($fp)
+lw $t1, -176($fp)
+la $t9, type_Bar
+lw $v0, 8($t0)
+loop_46:
+move $t8, $v0
+beqz $t8, false_46
+lw $v1, 0($t8)
+beq $t9, $v1, true_46
+lw $v0, 4($t8)
+j loop_46
+true_46:
+li $t1, 1
+j end_46
+false_46:
+li $t1, 0
+end_46:
+# If not local_Razz_Razz_internal_43 goto next__607_0
+sw $t0, -0($fp)
+sw $t1, -176($fp)
+beqz $t1, next__607_0
+lw $t0, -0($fp)
+lw $t1, -180($fp)
+# Moving self to local_Razz_Razz_n_44
+move $t1, $t0
+sw $t1, -180($fp)
+lw $t2, -164($fp)
+# Moving local_Razz_Razz_n_44 to local_Razz_Razz_internal_40
+move $t2, $t1
+sw $t2, -164($fp)
+sw $t0, -0($fp)
+sw $t1, -180($fp)
+sw $t2, -164($fp)
+j end__601
+next__607_0:
+lw $t0, -0($fp)
+lw $t1, -184($fp)
+la $t9, type_Razz
+lw $v0, 8($t0)
+loop_47:
+move $t8, $v0
+beqz $t8, false_47
+lw $v1, 0($t8)
+beq $t9, $v1, true_47
+lw $v0, 4($t8)
+j loop_47
+true_47:
+li $t1, 1
+j end_47
+false_47:
+li $t1, 0
+end_47:
+# If not local_Razz_Razz_internal_45 goto next__615_1
+sw $t0, -0($fp)
+sw $t1, -184($fp)
+beqz $t1, next__615_1
+lw $t0, -0($fp)
+lw $t1, -188($fp)
+# Moving self to local_Razz_Razz_n_46
+move $t1, $t0
+sw $t1, -188($fp)
+lw $t2, -192($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 48
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Bar
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 48
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 24($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Bar
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -188($fp)
+sw $t2, -192($fp)
+# This function will consume the arguments
+jal function_Bar_Bar
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -192($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -164($fp)
+# Moving local_Razz_Razz_internal_47 to local_Razz_Razz_internal_40
+move $t1, $t0
+sw $t1, -164($fp)
+sw $t0, -192($fp)
+sw $t1, -164($fp)
+j end__601
+next__615_1:
+la $a0, case_error
+j .raise
+error__601:
+la $a0, case_void_error
+j .raise
+end__601:
+lw $t0, -164($fp)
+lw $t1, -0($fp)
+# self . e <- SET local_Razz_Razz_internal_40
+sw $t0, 32($t1)
+lw $t2, -212($fp)
+# local_Razz_Razz_a_52 <- GET self . a
+lw $t2, 24($t1)
+lw $t3, -220($fp)
+# local_Razz_Razz_internal_54 <- Type of local_Razz_Razz_a_52
+lw $t3, 0($t2)
+lw $t4, -224($fp)
+# Saves in local_Razz_Razz_internal_55 data_0
+la $t4, data_0
+# local_Razz_Razz_internal_54 <- local_Razz_Razz_internal_54 = local_Razz_Razz_internal_55
+move $t8, $t3
+move $t9, $t4
+loop_48:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_48
+beqz $a1, mismatch_48
+seq $v0, $a0, $a1
+beqz $v0, mismatch_48
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_48
+mismatch_48:
+li $v0, 0
+j end_48
+check_48:
+bnez $a1, mismatch_48
+li $v0, 1
+end_48:
+move $t3, $v0
+# If not local_Razz_Razz_internal_54 goto continue__639
+sw $t0, -164($fp)
+sw $t1, -0($fp)
+sw $t2, -212($fp)
+sw $t3, -220($fp)
+sw $t4, -224($fp)
+beqz $t3, continue__639
+la $a0, dispatch_error
+j .raise
+continue__639:
+lw $t0, -216($fp)
+# Static Dispatch of the method doh
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+lw $t1, -212($fp)
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -216($fp)
+sw $t1, -212($fp)
+# This function will consume the arguments
+jal function_doh_Bazz
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -216($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -0($fp)
+lw $t2, -228($fp)
+# local_Razz_Razz_g_56 <- GET self . g
+lw $t2, 16($t1)
+lw $t3, -236($fp)
+# local_Razz_Razz_internal_58 <- Type of local_Razz_Razz_g_56
+lw $t3, 0($t2)
+lw $t4, -240($fp)
+# Saves in local_Razz_Razz_internal_59 data_0
+la $t4, data_0
+# local_Razz_Razz_internal_58 <- local_Razz_Razz_internal_58 = local_Razz_Razz_internal_59
+move $t8, $t3
+move $t9, $t4
+loop_49:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_49
+beqz $a1, mismatch_49
+seq $v0, $a0, $a1
+beqz $v0, mismatch_49
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_49
+mismatch_49:
+li $v0, 0
+j end_49
+check_49:
+bnez $a1, mismatch_49
+li $v0, 1
+end_49:
+move $t3, $v0
+# If not local_Razz_Razz_internal_58 goto continue__653
+sw $t0, -216($fp)
+sw $t1, -0($fp)
+sw $t2, -228($fp)
+sw $t3, -236($fp)
+sw $t4, -240($fp)
+beqz $t3, continue__653
+la $a0, dispatch_error
+j .raise
+continue__653:
+lw $t0, -228($fp)
+lw $t1, -232($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -228($fp)
+sw $t1, -232($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -232($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -216($fp)
+lw $t2, -208($fp)
+# local_Razz_Razz_internal_51 <- local_Razz_Razz_internal_53 + local_Razz_Razz_internal_57
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -244($fp)
+# local_Razz_Razz_e_60 <- GET self . e
+lw $t4, 32($t3)
+lw $t5, -252($fp)
+# local_Razz_Razz_internal_62 <- Type of local_Razz_Razz_e_60
+lw $t5, 0($t4)
+lw $t6, -256($fp)
+# Saves in local_Razz_Razz_internal_63 data_0
+la $t6, data_0
+# local_Razz_Razz_internal_62 <- local_Razz_Razz_internal_62 = local_Razz_Razz_internal_63
+move $t8, $t5
+move $t9, $t6
+loop_50:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_50
+beqz $a1, mismatch_50
+seq $v0, $a0, $a1
+beqz $v0, mismatch_50
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_50
+mismatch_50:
+li $v0, 0
+j end_50
+check_50:
+bnez $a1, mismatch_50
+li $v0, 1
+end_50:
+move $t5, $v0
+# If not local_Razz_Razz_internal_62 goto continue__668
+sw $t0, -232($fp)
+sw $t1, -216($fp)
+sw $t2, -208($fp)
+sw $t3, -0($fp)
+sw $t4, -244($fp)
+sw $t5, -252($fp)
+sw $t6, -256($fp)
+beqz $t5, continue__668
+la $a0, dispatch_error
+j .raise
+continue__668:
+lw $t0, -244($fp)
+lw $t1, -248($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -244($fp)
+sw $t1, -248($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -248($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -208($fp)
+lw $t2, -204($fp)
+# local_Razz_Razz_internal_50 <- local_Razz_Razz_internal_51 + local_Razz_Razz_internal_61
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -260($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t3)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_doh_Foo
+lw $t8, 36($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t3, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -248($fp)
+sw $t1, -208($fp)
+sw $t2, -204($fp)
+sw $t3, -0($fp)
+sw $t4, -260($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -260($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -204($fp)
+lw $t2, -200($fp)
+# local_Razz_Razz_internal_49 <- local_Razz_Razz_internal_50 + local_Razz_Razz_internal_64
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+lw $t4, -264($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t3)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_printh_Bazz
+lw $t8, 32($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t3, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -260($fp)
+sw $t1, -204($fp)
+sw $t2, -200($fp)
+sw $t3, -0($fp)
+sw $t4, -264($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -264($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -200($fp)
+lw $t2, -196($fp)
+# local_Razz_Razz_internal_48 <- local_Razz_Razz_internal_49 + local_Razz_Razz_internal_65
+add $t2, $t1, $t0
+lw $t3, -0($fp)
+# self . f <- SET local_Razz_Razz_internal_48
+sw $t2, 36($t3)
+lw $t4, -268($fp)
+# Moving self to local_Razz_Razz_internal_66
+move $t4, $t3
+sw $t4, -268($fp)
+move $v0, $t4
+# Empty all used registers and saves them to memory
+sw $t0, -264($fp)
+sw $t1, -200($fp)
+sw $t2, -196($fp)
+sw $t3, -0($fp)
+sw $t4, -268($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 272
+jr $ra
+
+
+function_Bazz_Bazz:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_Bazz_Bazz_internal_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_internal_1 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_internal_2 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_internal_3 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_n_4 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_internal_5 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_n_6 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_internal_7 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_internal_8 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_n_9 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_internal_10 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_internal_11 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_n_12 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_internal_13 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_internal_14 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_internal_15 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Bazz_Bazz_internal_16 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+# self . h <- SET 1
+li $t9, 1
+sw $t9, 12($t0)
+lw $t1, -8($fp)
+# local_Bazz_Bazz_internal_1 <- Type of self
+lw $t1, 0($t0)
+lw $t2, -12($fp)
+# Saves in local_Bazz_Bazz_internal_2 data_0
+la $t2, data_0
+# local_Bazz_Bazz_internal_1 <- local_Bazz_Bazz_internal_1 = local_Bazz_Bazz_internal_2
+move $t8, $t1
+move $t9, $t2
+loop_51:
+lb $a0, ($t8)
+lb $a1, ($t9)
+beqz $a0, check_51
+beqz $a1, mismatch_51
+seq $v0, $a0, $a1
+beqz $v0, mismatch_51
+addi $t8, $t8, 1
+addi $t9, $t9, 1
+j loop_51
+mismatch_51:
+li $v0, 0
+j end_51
+check_51:
+bnez $a1, mismatch_51
+li $v0, 1
+end_51:
+move $t1, $v0
+# If local_Bazz_Bazz_internal_1 goto error__695
+sw $t0, -0($fp)
+sw $t1, -8($fp)
+sw $t2, -12($fp)
+bnez $t1, error__695
+lw $t0, -0($fp)
+lw $t1, -16($fp)
+la $t9, type_Bar
+lw $v0, 8($t0)
+loop_52:
+move $t8, $v0
+beqz $t8, false_52
+lw $v1, 0($t8)
+beq $t9, $v1, true_52
+lw $v0, 4($t8)
+j loop_52
+true_52:
+li $t1, 1
+j end_52
+false_52:
+li $t1, 0
+end_52:
+# If not local_Bazz_Bazz_internal_3 goto next__701_0
+sw $t0, -0($fp)
+sw $t1, -16($fp)
+beqz $t1, next__701_0
+lw $t0, -0($fp)
+lw $t1, -20($fp)
+# Moving self to local_Bazz_Bazz_n_4
+move $t1, $t0
+sw $t1, -20($fp)
+lw $t2, -4($fp)
+# Moving local_Bazz_Bazz_n_4 to local_Bazz_Bazz_internal_0
+move $t2, $t1
+sw $t2, -4($fp)
+sw $t0, -0($fp)
+sw $t1, -20($fp)
+sw $t2, -4($fp)
+j end__695
+next__701_0:
+lw $t0, -0($fp)
+lw $t1, -24($fp)
+la $t9, type_Razz
+lw $v0, 8($t0)
+loop_53:
+move $t8, $v0
+beqz $t8, false_53
+lw $v1, 0($t8)
+beq $t9, $v1, true_53
+lw $v0, 4($t8)
+j loop_53
+true_53:
+li $t1, 1
+j end_53
+false_53:
+li $t1, 0
+end_53:
+# If not local_Bazz_Bazz_internal_5 goto next__709_1
+sw $t0, -0($fp)
+sw $t1, -24($fp)
+beqz $t1, next__709_1
+lw $t0, -0($fp)
+lw $t1, -28($fp)
+# Moving self to local_Bazz_Bazz_n_6
+move $t1, $t0
+sw $t1, -28($fp)
+lw $t2, -32($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 48
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Bar
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 48
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 24($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Bar
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -28($fp)
+sw $t2, -32($fp)
+# This function will consume the arguments
+jal function_Bar_Bar
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -32($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -4($fp)
+# Moving local_Bazz_Bazz_internal_7 to local_Bazz_Bazz_internal_0
+move $t1, $t0
+sw $t1, -4($fp)
+sw $t0, -32($fp)
+sw $t1, -4($fp)
+j end__695
+next__709_1:
+lw $t0, -0($fp)
+lw $t1, -36($fp)
+la $t9, type_Foo
+lw $v0, 8($t0)
+loop_54:
+move $t8, $v0
+beqz $t8, false_54
+lw $v1, 0($t8)
+beq $t9, $v1, true_54
+lw $v0, 4($t8)
+j loop_54
+true_54:
+li $t1, 1
+j end_54
+false_54:
+li $t1, 0
+end_54:
+# If not local_Bazz_Bazz_internal_8 goto next__720_2
+sw $t0, -0($fp)
+sw $t1, -36($fp)
+beqz $t1, next__720_2
+lw $t0, -0($fp)
+lw $t1, -40($fp)
+# Moving self to local_Bazz_Bazz_n_9
+move $t1, $t0
+sw $t1, -40($fp)
+lw $t2, -44($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 40
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Razz
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 40
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 28($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Razz
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -40($fp)
+sw $t2, -44($fp)
+# This function will consume the arguments
+jal function_Razz_Razz
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -44($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -4($fp)
+# Moving local_Bazz_Bazz_internal_10 to local_Bazz_Bazz_internal_0
+move $t1, $t0
+sw $t1, -4($fp)
+sw $t0, -44($fp)
+sw $t1, -4($fp)
+j end__695
+next__720_2:
+lw $t0, -0($fp)
+lw $t1, -48($fp)
+la $t9, type_Bazz
+lw $v0, 8($t0)
+loop_55:
+move $t8, $v0
+beqz $t8, false_55
+lw $v1, 0($t8)
+beq $t9, $v1, true_55
+lw $v0, 4($t8)
+j loop_55
+true_55:
+li $t1, 1
+j end_55
+false_55:
+li $t1, 0
+end_55:
+# If not local_Bazz_Bazz_internal_11 goto next__731_3
+sw $t0, -0($fp)
+sw $t1, -48($fp)
+beqz $t1, next__731_3
+lw $t0, -0($fp)
+lw $t1, -52($fp)
+# Moving self to local_Bazz_Bazz_n_12
+move $t1, $t0
+sw $t1, -52($fp)
+lw $t2, -56($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 32
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Foo
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 32
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 20($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Foo
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -52($fp)
+sw $t2, -56($fp)
+# This function will consume the arguments
+jal function_Foo_Foo
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -56($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -4($fp)
+# Moving local_Bazz_Bazz_internal_13 to local_Bazz_Bazz_internal_0
+move $t1, $t0
+sw $t1, -4($fp)
+sw $t0, -56($fp)
+sw $t1, -4($fp)
+j end__695
+next__731_3:
+la $a0, case_error
+j .raise
+error__695:
+la $a0, case_void_error
+j .raise
+end__695:
+lw $t0, -4($fp)
+lw $t1, -0($fp)
+# self . g <- SET local_Bazz_Bazz_internal_0
+sw $t0, 16($t1)
+lw $t2, -60($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t1)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_printh_Bazz
+lw $t8, 32($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $t1, -0($fp)
+sw $t2, -60($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -60($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -64($fp)
+# Initialize new node
+li $a0, 12
+li $v0, 9
+syscall
+la $t9, type_Int
+sw $t9, 0($v0)
+li $t9, 12
+sw $t9, 4($v0)
+move $t1, $v0
+# Saving the methods of object
+# Adding Type Info addr
+la $t8, types
+lw $v0, 8($t8)
+sw $v0, 8($t1)
+lw $t2, -0($fp)
+# self . i <- SET local_Bazz_Bazz_internal_15
+sw $t1, 20($t2)
+lw $t3, -68($fp)
+# Moving self to local_Bazz_Bazz_internal_16
+move $t3, $t2
+sw $t3, -68($fp)
+move $v0, $t3
+# Empty all used registers and saves them to memory
+sw $t0, -60($fp)
+sw $t1, -64($fp)
+sw $t2, -0($fp)
+sw $t3, -68($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 72
+jr $ra
+
+
+function_printh_Bazz:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_printh_Bazz_h_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_printh_Bazz_internal_1 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_printh_Bazz_internal_2 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -4($fp)
+# local_printh_Bazz_h_0 <- GET self . h
+lw $t1, 12($t0)
+lw $t2, -8($fp)
+# Find the actual name in the dispatch table
+# Gets in a0 the actual direction of the dispatch table
+lw $t9, 8($t0)
+lw $a0, 8($t9)
+# Saves in t8 the direction of function_out_int_IO
+lw $t8, 20($a0)
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t1, ($sp)
+addiu $sp, $sp, -4
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -4($fp)
+sw $t2, -8($fp)
+# This function will consume the arguments
+jal $t8
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -8($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -12($fp)
+# Moving 0 to local_printh_Bazz_internal_2
+li $t1, 0
+sw $t1, -12($fp)
+move $v0, $t1
+# Empty all used registers and saves them to memory
+sw $t0, -8($fp)
+sw $t1, -12($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 16
+jr $ra
+
+
+function_doh_Bazz:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_doh_Bazz_i_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_doh_Bazz_h_1 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_doh_Bazz_internal_2 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_doh_Bazz_h_3 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_doh_Bazz_internal_4 to the stack
+addiu $sp, $sp, -4
+lw $t0, -0($fp)
+lw $t1, -8($fp)
+# local_doh_Bazz_h_1 <- GET self . h
+lw $t1, 12($t0)
+lw $t2, -4($fp)
+# Moving local_doh_Bazz_h_1 to local_doh_Bazz_i_0
+move $t2, $t1
+sw $t2, -4($fp)
+lw $t3, -16($fp)
+# local_doh_Bazz_h_3 <- GET self . h
+lw $t3, 12($t0)
+lw $t4, -12($fp)
+# local_doh_Bazz_internal_2 <- local_doh_Bazz_h_3 + 1
+addi $t4, $t3, 1
+# self . h <- SET local_doh_Bazz_internal_2
+sw $t4, 12($t0)
+lw $t5, -20($fp)
+# Moving local_doh_Bazz_i_0 to local_doh_Bazz_internal_4
+move $t5, $t2
+sw $t5, -20($fp)
+move $v0, $t5
+# Empty all used registers and saves them to memory
+sw $t0, -0($fp)
+sw $t1, -8($fp)
+sw $t2, -4($fp)
+sw $t3, -16($fp)
+sw $t4, -12($fp)
+sw $t5, -20($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 24
+jr $ra
+
+
+function_Main_Main:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_Main_Main_internal_0 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Main_Main_internal_1 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Main_Main_internal_2 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Main_Main_internal_3 to the stack
+addiu $sp, $sp, -4
+# Updates stack pointer pushing local_Main_Main_internal_4 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 24
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Bazz
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 24
+sw $t9, 4($v0)
+move $t0, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 32($t8)
+sw $v0, 8($t0)
+# Static Dispatch of the method Bazz
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t0, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+# This function will consume the arguments
+jal function_Bazz_Bazz
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -4($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -0($fp)
+# self . a <- SET local_Main_Main_internal_0
+sw $t0, 12($t1)
+lw $t2, -8($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 32
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Foo
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 32
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 20($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Foo
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+sw $t1, -0($fp)
+sw $t2, -8($fp)
+# This function will consume the arguments
+jal function_Foo_Foo
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -8($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -0($fp)
+# self . b <- SET local_Main_Main_internal_1
+sw $t0, 16($t1)
+lw $t2, -12($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 40
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Razz
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 40
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 28($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Razz
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -8($fp)
+sw $t1, -0($fp)
+sw $t2, -12($fp)
+# This function will consume the arguments
+jal function_Razz_Razz
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -12($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -0($fp)
+# self . c <- SET local_Main_Main_internal_2
+sw $t0, 20($t1)
+lw $t2, -16($fp)
+# Syscall to allocate memory of the object entry in heap
+li $v0, 9
+li $a0, 48
+syscall
+# Loads the name of the variable and saves the name like the first field
+la $t9, type_Bar
+sw $t9, 0($v0)
+# Saves the size of the node
+li $t9, 48
+sw $t9, 4($v0)
+move $t2, $v0
+# Adding Type Info addr
+la $t8, types
+lw $v0, 24($t8)
+sw $v0, 8($t2)
+# Static Dispatch of the method Bar
+sw $fp, ($sp)
+addiu $sp, $sp, -4
+sw $ra, ($sp)
+addiu $sp, $sp, -4
+# Push the arguments to the stack
+# The rest of the arguments are push into the stack
+sw $t2, ($sp)
+addiu $sp, $sp, -4
+# Empty all used registers and saves them to memory
+sw $t0, -12($fp)
+sw $t1, -0($fp)
+sw $t2, -16($fp)
+# This function will consume the arguments
+jal function_Bar_Bar
+# Pop ra register of return function of the stack
+addiu $sp, $sp, 4
+lw $ra, ($sp)
+# Pop fp register from the stack
+addiu $sp, $sp, 4
+lw $fp, ($sp)
+lw $t0, -16($fp)
+# saves the return value
+move $t0, $v0
+lw $t1, -0($fp)
+# self . d <- SET local_Main_Main_internal_3
+sw $t0, 24($t1)
+lw $t2, -20($fp)
+# Moving self to local_Main_Main_internal_4
+move $t2, $t1
+sw $t2, -20($fp)
+move $v0, $t2
+# Empty all used registers and saves them to memory
+sw $t0, -16($fp)
+sw $t1, -0($fp)
+sw $t2, -20($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 24
+jr $ra
+
+
+function_main_Main:
+# Gets the params from the stack
+move $fp, $sp
+# Pops the register with the param value self
+addiu $fp, $fp, 4
+# Gets the frame pointer from the stack
+# Updates stack pointer pushing local_main_Main_internal_0 to the stack
+addiu $sp, $sp, -4
+lw $t0, -4($fp)
+# Saves in local_main_Main_internal_0 data_1
+la $t0, data_1
+move $v0, $t0
+# Empty all used registers and saves them to memory
+sw $t0, -4($fp)
+# Removing all locals from stack
+addiu $sp, $sp, 8
+jr $ra
+
+# Raise exception method
+.raise:
+li $v0, 4
+syscall
+li $v0, 17
+li $a0, 1
+syscall
+
+.data
+abort_msg: .asciiz "Abort called from class "
+new_line: .asciiz "
+"
+string_abort: .asciiz "Abort called from class String
+"
+int_abort: .asciiz "Abort called from class Int
+"
+bool_abort: .asciiz "Abort called from class Bool
+"
+type_Object: .asciiz "Object"
+type_IO: .asciiz "IO"
+type_String: .asciiz "String"
+type_Int: .asciiz "Int"
+type_Bool: .asciiz "Bool"
+type_Foo: .asciiz "Foo"
+type_Bar: .asciiz "Bar"
+type_Razz: .asciiz "Razz"
+type_Bazz: .asciiz "Bazz"
+type_Main: .asciiz "Main"
+methods: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+type_Void: .asciiz "Void"
+types: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+data_0: .asciiz "Void"
+data_1: .asciiz "do nothing"
+zero_error: .asciiz "Division by zero error
+"
+case_void_error: .asciiz "Case on void error
+"
+dispatch_error: .asciiz "Dispatch on void error
+"
+case_error: .asciiz "Case statement without a matching branch error
+"
+index_error: .asciiz "Substring out of range error
+"
+heap_error: .asciiz "Heap overflow error
+"
