@@ -4,9 +4,9 @@
 
 **Nombre** | **Grupo** | **Github**
 --|--|--
-Nombre1 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
-Nombre2 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
-Nombre3 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
+Lázaro Raúl Iglesias Vera | C412 | [@stdevRulo](https://github.com/stdevRulo)
+Miguel Tenorio Potrony | C412 | [@stdevAntiD2ta](https://github.com/stdevAntiD2ta)
+Mauricio Lázaro Perdomo Cortés  | C412 | [@stdevMauricio1802](https://github.com/stdevMauricio1802)
 
 ## Readme
 
