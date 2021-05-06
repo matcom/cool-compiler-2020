@@ -4,9 +4,9 @@
 
 **Nombre** | **Grupo** | **Github**
 --|--|--
-Nombre1 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
-Nombre2 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
-Nombre3 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
+Leonel Alejandro García López | C412 | [@stdevlag](https://github.com/stdevlag)
+Jorge Daniel Valle Díaz | C411 | [@thenai310](https://github.com/thenai310)
+Roberto Marti Cedeño | C412 | [@rmarticedeno](https://github.com/rmarticedeno)
 
 ## Readme
 
