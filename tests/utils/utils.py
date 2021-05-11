@@ -23,6 +23,7 @@ def parse_error(error: str):
 def first_error(compiler_output: list, errors: list):
     line, column, error_type, _ = parse_error(errors[0])
 
+    print(compiler_output[0])
     oline, ocolumn, oerror_type, _ = parse_error(compiler_output[0])
 
     assert line == oline and column == ocolumn and error_type == oerror_type,\

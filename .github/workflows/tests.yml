@@ -11,6 +11,8 @@ jobs:
 
       - name: Setup Python
         uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
 
       - name: Install requirements
         run: pip install -r requirements.txt
@@ -30,6 +32,8 @@ jobs:
 
       - name: Setup Python
         uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
 
       - name: Install requirements
         run: pip install -r requirements.txt
@@ -49,6 +53,8 @@ jobs:
 
       - name: Setup Python
         uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
 
       - name: Install requirements
         run: pip install -r requirements.txt
@@ -68,6 +74,8 @@ jobs:
 
       - name: Setup Python
         uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
 
       - name: Install requirements
         run: pip install -r requirements.txt
