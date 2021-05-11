@@ -25,10 +25,9 @@
 # these rules might exclude image files for figures etc.
 # *.ps
 # *.eps
-# *.pdf
 
 ## Generated if empty string is given at "Please type another file name for output:"
-.pdf
+
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
 *.bbl
@@ -393,6 +392,13 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+#Cool test
+src/class.cl
+*.cl
+*.cil
+*.s
+*.mips
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
@@ -408,3 +414,7 @@ dmypy.json
 
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
 
+# Ignore every file who start with __
+__*
+
+.vscode/settings.json
