@@ -1,0 +1,792 @@
+.data 
+Object: .word 20
+.word 0
+.word ctor_0
+.word abort_2
+.word type_name_4
+.asciiz "Object"
+Int: .word 20
+.word Object
+.word ctor_0
+.word abort_2
+.word type_name_4
+.asciiz "Int"
+Bool: .word 20
+.word Object
+.word ctor_0
+.word abort_2
+.word type_name_4
+.asciiz "Bool"
+String: .word 32
+.word Object
+.word ctor_0
+.word abort_2
+.word type_name_4
+.word length_10
+.word concat_7
+.word substr_32
+.asciiz "String"
+IO: .word 36
+.word Object
+.word ctor_0
+.word abort_2
+.word type_name_4
+.word out_string_33
+.word out_int_34
+.word in_string_36
+.word in_int_38
+.asciiz "IO"
+Main: .word 40
+.word IO
+.word ctor_39
+.word abort_2
+.word type_name_4
+.word out_string_33
+.word out_int_34
+.word in_string_36
+.word in_int_38
+.word main
+.asciiz "Main"
+exception_1: .asciiz "Se esta realizando dispatch sobre valor void"
+exception_2: .asciiz "Se esta realizando case sobre valor void"
+exception_3: .asciiz "El tipo de la expresion case no concuerda con ninguna rama"
+exception_4: .asciiz "Division por cero"
+exception_5: .asciiz "Substring fuera de rango"
+exception_6: .asciiz "Abort"
+data_6: .asciiz ""
+data_7: .asciiz "Hello, World.
+"
+buffer: .space 1024
+.globl	main
+.text 
+main:
+j entry
+# cil function Node
+ctor_0:
+addi $a3, $sp, 4
+# reservar locarvars
+add $sp, $sp, -0
+# CILReturnNode
+li $v1, 0
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+abort_2:
+addi $a3, $sp, 4
+# reservar locarvars
+add $sp, $sp, -4
+# CILLoadNode
+la $t1, exception_6
+sw $t1,-8($a3)
+ # CILPrintNodeStr 
+lw $t1, -8($a3)
+li $v0, 4
+move $a0, $t1
+syscall
+# CILErrorNode
+li $a0, 1
+li $v0, 17
+syscall
+# CILReturnNode
+li $v1, 0
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+type_name_4:
+addi $a3, $sp, 4
+# reservar locarvars
+add $sp, $sp, -4
+# CILTypeOfNode
+# llegar hasta la inf_table
+lw $t1, -4($a3)
+lw $t2, 0($t1) 
+# guardarlo en  destino
+sw $t2,-8($a3)
+# CILTypeName
+lw $t1, -8($a3)
+lw $t2, 0($t1)
+add $t3, $t2, $t1
+sw $t3, -8($a3)
+# CILReturnNode
+lw $t1, -8($a3)
+move $v1, $t1
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+concat_7:
+addi $a3, $sp, 8
+# reservar locarvars
+add $sp, $sp, -8
+# CILGetAttribNode
+lw $t1, -4($a3)
+lw $t2, 4($t1)
+addi $t3, $a3, -12
+sw $t2, 0($t3)
+# CILConcatNode
+# Concat
+lw $t1, -12($a3)
+li $s0, 0 
+whilel1_0: 
+lw $t0, -12($a3)
+add $t0, $t0,$s0 
+lb $t1, 0($t0)  
+beq $t1, $zero, pawhilel2_4
+addi $s0,$s0,1  
+j whilel1_0
+pawhilel2_4:
+move $t7,$s0  
+li $s0, 0 
+whilel2_1: 
+lw $t0, -8($a3)
+add $t0, $t0,$s0 
+lb $t1, 0($t0) 
+beq $t1, $zero, finl_8
+addi $s0, $s0,1    
+j whilel2_1
+finl_8: 
+add $t7, $t7,$s0 
+addi $t7, $t7, 1 
+move $a0,$t7 
+li $v0, 9 
+syscall 
+li $s0, 0 
+li $s1, 0 
+move $t5, $v0 
+# puntero en t5
+whilecopy1_5: 
+# puntero en  a
+lw $t0, -12($a3)
+add $t0, $t0,$s0 
+add $t4, $t5, $s0 
+lb $t1, 0($t0)
+beq $t1, $s1, pawhilecopy2_7
+addi $s0,$s0,1 
+# move $a0,$s0 
+# li $v0, 1 
+# syscall 
+sb $t1, 0($t4)
+j whilecopy1_5
+pawhilecopy2_7: 
+# move $a0,$s0 
+# li $v0, 1 
+# syscall 
+move $t7, $s0
+li $s0, 0 
+whilecopy2_6:
+# puntero en   a2
+lw $t0, -8($a3)
+add $t0, $t0,$s0 
+add $t4, $t5, $t7 
+lb $t1, 0($t0) 
+sb $t1, 0($t4) 
+beq $t1, $zero, fin_2
+addi $s0,$s0,1 
+addi $t7,$t7,1 
+j whilecopy2_6
+fin_2: 
+add $t4, $t5, $t7 
+li $t1, 0 
+lb $t1, 0($t4)
+# li $v0, 4
+# move $a0, $t5
+# syscall
+sw $t5, -16($a3)
+# CILReturnNode
+lw $t1, -16($a3)
+move $v1, $t1
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+length_10:
+addi $a3, $sp, 4
+# reservar locarvars
+add $sp, $sp, -8
+# CILGetAttribNode
+lw $t1, -4($a3)
+lw $t2, 4($t1)
+addi $t3, $a3, -8
+sw $t2, 0($t3)
+ # Length
+li $s0, 0
+while_9:
+lw $t0, -8($a3)
+add $t0, $t0,$s0
+lb $t1, 0($t0)
+beq $t1, $zero, fin_10
+addi $s0,$s0,1
+j while_9
+fin_10:
+sw $s0, -12($a3)
+# CILReturnNode
+lw $t1, -12($a3)
+move $v1, $t1
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+substr_32:
+addi $a3, $sp, 12
+# reservar locarvars
+add $sp, $sp, -44
+# assign
+li $t1, 0
+sw $t1, -16($a3)
+# CILLessThan
+lw $t1, -8($a3)
+lw $t2, -16($a3)
+slt $t3, $t1, $t2
+sw $t3, -20($a3)
+# CILGotoIfNode
+lw $t1, -20($a3)
+bne $t1, $zero, label_type_14
+# CILLessThan
+lw $t1, -12($a3)
+lw $t2, -16($a3)
+slt $t3, $t1, $t2
+sw $t3, -20($a3)
+# CILGotoIfNode
+lw $t1, -20($a3)
+bne $t1, $zero, label_type_16
+# CILGotoIfNode
+lw $t1, -12($a3)
+bne $t1, $zero, label_type_11
+# CILGotoNode
+j label_type_12
+# CILLabelNode
+label_type_11:
+# CILGetAttribNode
+lw $t1, -4($a3)
+lw $t2, 4($t1)
+addi $t3, $a3, -24
+sw $t2, 0($t3)
+ # Length
+li $s0, 0
+while_11:
+lw $t0, -24($a3)
+add $t0, $t0,$s0
+lb $t1, 0($t0)
+beq $t1, $zero, fin_12
+addi $s0,$s0,1
+j while_11
+fin_12:
+sw $s0, -32($a3)
+# CILPlusNode
+lw $t2, -8($a3)
+lw $t3, -12($a3)
+add $t1, $t2, $t3
+sw $t1, -36($a3)
+# CILMinusNode
+lw $t2, -36($a3)
+li $t3, 1
+sub $t1, $t2, $t3
+sw $t1, -36($a3)
+# CILLessThan
+lw $t1, -36($a3)
+lw $t2, -32($a3)
+slt $t3, $t1, $t2
+sw $t3, -28($a3)
+# CILGotoIfNode
+lw $t1, -28($a3)
+bne $t1, $zero, label_type_24
+# CILGotoNode
+j label_type_25
+# CILLabelNode
+label_type_24:
+# CILSubstringNode
+ # Substring
+lw $s3, -24($a3)
+lw $t1, -8($a3)
+lw $t2, -12($a3)
+add $s3, $s3, $t1
+addi $a0,  $t2, 1
+li $v0, 9
+syscall
+li $s0, 0
+while_13:
+move $t4, $v0
+move $t0, $s3
+add $t0, $t0,$s0
+add $t4, $t4, $s0
+lb $t1, 0($t0)
+sb $t1, 0($t4)
+addi $s0,$s0,1
+beq $s0, $t2, fin_14
+j while_13
+fin_14:
+addi $s0,$s0,1
+addi $t4, $t4, 1
+li $t5, 0
+lb $t5, 0($t4)
+sw $v0, -40($a3)
+# CILReturnNode
+lw $t1, -40($a3)
+move $v1, $t1
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# CILGotoNode
+j label_type_26
+# CILLabelNode
+label_type_25:
+# CILLoadNode
+la $t1, exception_5
+sw $t1,-44($a3)
+ # CILPrintNodeStr 
+lw $t1, -44($a3)
+li $v0, 4
+move $a0, $t1
+syscall
+# CILErrorNode
+li $a0, 1
+li $v0, 17
+syscall
+# CILLabelNode
+label_type_26:
+# CILGotoNode
+j label_type_13
+# CILLabelNode
+label_type_12:
+# CILLoadNode
+la $t1, data_6
+sw $t1,-48($a3)
+# CILReturnNode
+lw $t1, -48($a3)
+move $v1, $t1
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# CILLabelNode
+label_type_13:
+# CILGotoNode
+j label_type_17
+# CILLabelNode
+label_type_16:
+# CILLoadNode
+la $t1, exception_5
+sw $t1,-52($a3)
+ # CILPrintNodeStr 
+lw $t1, -52($a3)
+li $v0, 4
+move $a0, $t1
+syscall
+# CILErrorNode
+li $a0, 1
+li $v0, 17
+syscall
+# CILLabelNode
+label_type_17:
+# CILGotoNode
+j label_type_15
+# CILLabelNode
+label_type_14:
+# CILLoadNode
+la $t1, exception_5
+sw $t1,-56($a3)
+ # CILPrintNodeStr 
+lw $t1, -56($a3)
+li $v0, 4
+move $a0, $t1
+syscall
+# CILErrorNode
+li $a0, 1
+li $v0, 17
+syscall
+# CILLabelNode
+label_type_15:
+# cil function Node
+out_string_33:
+addi $a3, $sp, 8
+# reservar locarvars
+add $sp, $sp, -0
+ # CILPrintNodeStr 
+lw $t1, -8($a3)
+li $v0, 4
+move $a0, $t1
+syscall
+# CILReturnNode
+lw $t1, -4($a3)
+move $v1, $t1
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+out_int_34:
+addi $a3, $sp, 8
+# reservar locarvars
+add $sp, $sp, -0
+ # CILPrintNodeInt 
+lw $t1, -8($a3)
+li $v0, 1
+move $a0, $t1
+syscall
+# CILReturnNode
+lw $t1, -4($a3)
+move $v1, $t1
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+in_string_36:
+addi $a3, $sp, 4
+# reservar locarvars
+add $sp, $sp, -4
+# CILReadStrNode
+ # leer string
+li $s0,0 
+li $s3, 10 
+# coger tamanho y almacenar en buffer 
+while1_15: 
+la $t0, buffer 
+add $t0, $t0, $s0   
+li $v0, 12 
+syscall 
+addi $s0,$s0,1 
+beq $v0, $s3, fin_17
+# beq $v0, $zero, error 
+# error 
+sb $v0, 0($t0) 
+j while1_15
+fin_17: 
+li $v0, 0 
+sb $v0, 0($t0) 
+# reservar espacio 
+move $a0, $s0  
+li $v0, 9 
+syscall 
+# asignar espacio a t5 
+move $t5, $v0 
+li $s0,0 
+li $s1,0 
+li $s2,0 
+# copiar de buffer pa t5 
+while2_16: 
+la $t0, buffer 
+move $t1, $t5 
+add $t0, $t0, $s0 
+add $t1, $t1, $s1 
+lb $t2, 0($t0) 
+sb $t2, 0($t1) 
+beq $t2, $s2, fin1_18
+addi $s0,$s0,1 
+addi $s1,$s1,1 
+j while2_16
+fin1_18: 
+sw $t5, -8($a3)
+# CILReturnNode
+lw $t1, -8($a3)
+move $v1, $t1
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+in_int_38:
+addi $a3, $sp, 4
+# reservar locarvars
+add $sp, $sp, -4
+# CILReadNodeInt
+li $v0, 5
+syscall
+sw $v0, -8($a3)
+# CILReturnNode
+lw $t1, -8($a3)
+move $v1, $t1
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+ctor_39:
+addi $a3, $sp, 4
+# reservar locarvars
+add $sp, $sp, -4
+ # SaveState
+# Salva registros
+addi $sp, $sp, -76
+sw $t1, 0($sp)
+sw $t2, 4($sp)
+sw $t3, 8($sp)
+sw $t4, 12($sp)
+sw $t5, 16($sp)
+sw $t6, 20($sp)
+sw $t7, 24($sp)
+sw $a0, 28($sp)
+sw $a1, 32($sp)
+sw $a2, 36($sp)
+sw $a3, 40($sp)
+sw $ra, 44($sp)
+sw $s1, 48($sp)
+sw $s2, 52($sp)
+sw $s3, 56($sp)
+sw $s4, 60($sp)
+sw $s5, 64($sp)
+sw $s6, 68($sp)
+sw $s7, 72($sp)
+# CILParamNode 
+lw $t1, -4($a3)
+# push
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+ # CILStaticCallNode
+jal ctor_0
+# Carga registros
+lw $t1, 0($sp)
+lw $t2, 4($sp)
+lw $t3, 8($sp)
+lw $t4, 12($sp)
+lw $t5, 16($sp)
+lw $t6, 20($sp)
+lw $t7, 24($sp)
+lw $a0, 28($sp)
+lw $a1, 32($sp)
+lw $a2, 36($sp)
+lw $a3, 40($sp)
+lw $ra, 44($sp)
+lw $s1, 48($sp)
+lw $s2, 52($sp)
+lw $s3, 56($sp)
+lw $s4, 60($sp)
+lw $s5, 64($sp)
+lw $s6, 68($sp)
+lw $s7, 72($sp)
+addi $sp, $sp, 76
+sw $v1, -8($a3)
+# CILReturnNode
+li $v1, 0
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+main:
+addi $a3, $sp, 4
+# reservar locarvars
+add $sp, $sp, -28
+# CILLoadNode
+la $t1, data_7
+sw $t1,-16($a3)
+# assign
+lw $t1, -16($a3)
+sw $t1, -12($a3)
+# CILMinusNode
+li $t2, 0
+lw $t3, -20($a3)
+sub $t1, $t2, $t3
+sw $t1, -24($a3)
+# CILGotoIfNode
+lw $t1, -24($a3)
+bne $t1, $zero, label_6
+# CILGotoNode
+j label_7
+# CILLabelNode
+label_6:
+# CILTypeOfNode
+# llegar hasta la inf_table
+lw $t1, -20($a3)
+lw $t2, 0($t1) 
+# guardarlo en  destino
+sw $t2,-28($a3)
+ # SaveState
+# Salva registros
+addi $sp, $sp, -76
+sw $t1, 0($sp)
+sw $t2, 4($sp)
+sw $t3, 8($sp)
+sw $t4, 12($sp)
+sw $t5, 16($sp)
+sw $t6, 20($sp)
+sw $t7, 24($sp)
+sw $a0, 28($sp)
+sw $a1, 32($sp)
+sw $a2, 36($sp)
+sw $a3, 40($sp)
+sw $ra, 44($sp)
+sw $s1, 48($sp)
+sw $s2, 52($sp)
+sw $s3, 56($sp)
+sw $s4, 60($sp)
+sw $s5, 64($sp)
+sw $s6, 68($sp)
+sw $s7, 72($sp)
+# CILParamNode 
+lw $t1, -20($a3)
+# push
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+# CILParamNode 
+lw $t1, -12($a3)
+# push
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+# CILDynamicCallNode
+lw $t1, -28($a3)
+lw $t2, 20($t1)
+jalr $t2
+# Carga registros
+lw $t1, 0($sp)
+lw $t2, 4($sp)
+lw $t3, 8($sp)
+lw $t4, 12($sp)
+lw $t5, 16($sp)
+lw $t6, 20($sp)
+lw $t7, 24($sp)
+lw $a0, 28($sp)
+lw $a1, 32($sp)
+lw $a2, 36($sp)
+lw $a3, 40($sp)
+lw $ra, 44($sp)
+lw $s1, 48($sp)
+lw $s2, 52($sp)
+lw $s3, 56($sp)
+lw $s4, 60($sp)
+lw $s5, 64($sp)
+lw $s6, 68($sp)
+lw $s7, 72($sp)
+addi $sp, $sp, 76
+sw $v1, -8($a3)
+# CILGotoNode
+j label_8
+# CILLabelNode
+label_7:
+# CILLoadNode
+la $t1, exception_1
+sw $t1,-32($a3)
+ # CILPrintNodeStr 
+lw $t1, -32($a3)
+li $v0, 4
+move $a0, $t1
+syscall
+# CILErrorNode
+li $a0, 1
+li $v0, 17
+syscall
+# CILLabelNode
+label_8:
+# CILReturnNode
+lw $t1, -8($a3)
+move $v1, $t1
+# restaurar pila con respecto al metodo
+move $sp, $a3
+jr $ra
+# cil function Node
+entry:
+addi $a3, $sp, 0
+# reservar locarvars
+add $sp, $sp, -8
+# CILAllocateNode
+# reserva memoria
+li $a0, 4
+li $v0, 9
+syscall
+ # guardar en dest
+sw $v0, -4($a3)
+ # en la instancia poner referencia a su info_table
+la $t1, Main
+sw $t1, 0($v0)
+ # SaveState
+# Salva registros
+addi $sp, $sp, -76
+sw $t1, 0($sp)
+sw $t2, 4($sp)
+sw $t3, 8($sp)
+sw $t4, 12($sp)
+sw $t5, 16($sp)
+sw $t6, 20($sp)
+sw $t7, 24($sp)
+sw $a0, 28($sp)
+sw $a1, 32($sp)
+sw $a2, 36($sp)
+sw $a3, 40($sp)
+sw $ra, 44($sp)
+sw $s1, 48($sp)
+sw $s2, 52($sp)
+sw $s3, 56($sp)
+sw $s4, 60($sp)
+sw $s5, 64($sp)
+sw $s6, 68($sp)
+sw $s7, 72($sp)
+# CILParamNode 
+lw $t1, -4($a3)
+# push
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+ # CILStaticCallNode
+jal ctor_39
+# Carga registros
+lw $t1, 0($sp)
+lw $t2, 4($sp)
+lw $t3, 8($sp)
+lw $t4, 12($sp)
+lw $t5, 16($sp)
+lw $t6, 20($sp)
+lw $t7, 24($sp)
+lw $a0, 28($sp)
+lw $a1, 32($sp)
+lw $a2, 36($sp)
+lw $a3, 40($sp)
+lw $ra, 44($sp)
+lw $s1, 48($sp)
+lw $s2, 52($sp)
+lw $s3, 56($sp)
+lw $s4, 60($sp)
+lw $s5, 64($sp)
+lw $s6, 68($sp)
+lw $s7, 72($sp)
+addi $sp, $sp, 76
+sw $v1, -8($a3)
+ # SaveState
+# Salva registros
+addi $sp, $sp, -76
+sw $t1, 0($sp)
+sw $t2, 4($sp)
+sw $t3, 8($sp)
+sw $t4, 12($sp)
+sw $t5, 16($sp)
+sw $t6, 20($sp)
+sw $t7, 24($sp)
+sw $a0, 28($sp)
+sw $a1, 32($sp)
+sw $a2, 36($sp)
+sw $a3, 40($sp)
+sw $ra, 44($sp)
+sw $s1, 48($sp)
+sw $s2, 52($sp)
+sw $s3, 56($sp)
+sw $s4, 60($sp)
+sw $s5, 64($sp)
+sw $s6, 68($sp)
+sw $s7, 72($sp)
+# CILParamNode 
+lw $t1, -4($a3)
+# push
+addi $sp, $sp, -4
+sw $t1, 0($sp)
+ # CILStaticCallNode
+jal main
+# Carga registros
+lw $t1, 0($sp)
+lw $t2, 4($sp)
+lw $t3, 8($sp)
+lw $t4, 12($sp)
+lw $t5, 16($sp)
+lw $t6, 20($sp)
+lw $t7, 24($sp)
+lw $a0, 28($sp)
+lw $a1, 32($sp)
+lw $a2, 36($sp)
+lw $a3, 40($sp)
+lw $ra, 44($sp)
+lw $s1, 48($sp)
+lw $s2, 52($sp)
+lw $s3, 56($sp)
+lw $s4, 60($sp)
+lw $s5, 64($sp)
+lw $s6, 68($sp)
+lw $s7, 72($sp)
+addi $sp, $sp, 76
+sw $v1, -8($a3)
+# CILReturnFinal
+li $a0, 0
+li $v0, 17
+syscall
